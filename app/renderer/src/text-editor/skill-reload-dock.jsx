@@ -171,10 +171,10 @@ export function nodeAgentInputPlaceholder(mode2) {
 }
 export function findPendingQuestionState(messages2) {
   let pendingQuestion = null;
-  for (let index2 = messages2.length - 1; index2 >= 0; index2--) {
-    const message2 = messages2[index2];
-    if (message2.type === "question" && !message2.resolved) {
-      pendingQuestion = message2;
+  for (let index = messages2.length - 1; index >= 0; index--) {
+    const message = messages2[index];
+    if (message.type === "question" && !message.resolved) {
+      pendingQuestion = message;
       break;
     }
   }
@@ -182,15 +182,15 @@ export function findPendingQuestionState(messages2) {
     return {
       pendingQuestion,
     };
-  for (let index2 = messages2.length - 1; index2 >= 0; index2--) {
-    const message2 = messages2[index2];
+  for (let index = messages2.length - 1; index >= 0; index--) {
+    const message = messages2[index];
     if (
-      message2.type === "error" &&
-      message2.requestId === pendingQuestion.requestId
+      message.type === "error" &&
+      message.requestId === pendingQuestion.requestId
     ) {
       return {
         pendingQuestion,
-        pendingQuestionFailureId: message2.id,
+        pendingQuestionFailureId: message.id,
       };
     }
   }
@@ -268,8 +268,8 @@ function getStageOutputPaths(stage) {
     ...new Set(
       stage.runtime_refs
         .flatMap((item) => [item.path, item.file_path, item.output_path])
-        .map((path2) => path2?.trim())
-        .filter((path2) => Boolean(path2)),
+        .map((path) => path?.trim())
+        .filter((path) => Boolean(path)),
     ),
   ];
 }
@@ -313,14 +313,14 @@ export function StageConfirmationBar({
   onConfirm,
 }) {
   const { t } = useTranslation();
-  const workspaceId2 = useCurrentWorkspace();
+  const workspaceId = useCurrentWorkspace();
   const canLocate = canFocusStageOutputs(stage);
   const confirmationCopy = getStageConfirmationCopy(stage, finalStage);
   const ConfirmationIcon =
     stage.waiting_reason === "plan_review" || !finalStage ? ArrowRight : Flag;
   const handleLocate = () => {
-    if (!workspaceId2) return;
-    focusStageOutputs(workspaceId2, stage);
+    if (!workspaceId) return;
+    focusStageOutputs(workspaceId, stage);
   };
   return (
     <div
@@ -334,7 +334,7 @@ export function StageConfirmationBar({
           size="sm"
           className="relative rounded-md"
           onClick={handleLocate}
-          disabled={!workspaceId2}
+          disabled={!workspaceId}
           data-action-ui-id="production-plan.view-stage-output"
         >
           <span
@@ -384,11 +384,11 @@ export function parseJsonObject(value) {
       ? parsed
       : void 0;
   } catch {
-    const start2 = value.indexOf("{");
-    const end2 = value.lastIndexOf("}");
-    if (start2 < 0 || end2 <= start2) return void 0;
+    const start = value.indexOf("{");
+    const end = value.lastIndexOf("}");
+    if (start < 0 || end <= start) return void 0;
     try {
-      const parsed = JSON.parse(value.slice(start2, end2 + 1));
+      const parsed = JSON.parse(value.slice(start, end + 1));
       return parsed && typeof parsed === "object" && !Array.isArray(parsed)
         ? parsed
         : void 0;

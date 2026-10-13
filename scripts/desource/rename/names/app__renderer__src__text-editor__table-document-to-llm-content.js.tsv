@@ -4,3 +4,9 @@ llm@55:9	llmContent	要交给模型的表格内容对象
 a2@46:26	attachment	单元格附件
 c3@72:18	condition	筛选条件
 m3@89:7	match	提及标记正则的匹配结果
+path2@91:11	path	去掉打包器加的数字后缀，恢复原名 path
+raw2@194:21	raw	去掉打包器加的数字后缀，恢复原名 raw
+identity2@223:9	identity	去掉打包器加的数字后缀，恢复原名 identity
+path2@224:14	path	去掉打包器加的数字后缀，恢复原名 path
+url2@269:16	url	去掉打包器加的数字后缀，恢复原名 url
+url2@274:41	url	去掉打包器加的数字后缀，恢复原名 url

@@ -8,3 +8,12 @@ t22@203:45	menuTarget	右键菜单作用的目标节点
 t22@205:37	menuTarget	右键菜单作用的目标节点
 t22@220:6	menuTarget	右键菜单作用的目标节点
 t22@222:40	menuTarget	右键菜单作用的目标节点
+closing2@121:9	closing	去掉打包器加的数字后缀，恢复原名 closing
+wrap2@196:9	wrap	去掉打包器加的数字后缀，恢复原名 wrap
+handleDelete2@299:9	handleDelete	去掉打包器加的数字后缀，恢复原名 handleDelete
+menu2@140:11	menu	去掉打包器加的数字后缀，恢复原名 menu
+next2@141:11	next	去掉打包器加的数字后缀，恢复原名 next
+current2@157:22	current	去掉打包器加的数字后缀，恢复原名 current
+handleClick2@176:11	handleClick	去掉打包器加的数字后缀，恢复原名 handleClick
+seen2@266:11	seen	去掉打包器加的数字后缀，恢复原名 seen
+slash2@270:13	slash	去掉打包器加的数字后缀，恢复原名 slash

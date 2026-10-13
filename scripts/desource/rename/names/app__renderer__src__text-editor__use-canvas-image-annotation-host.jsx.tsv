@@ -1,0 +1,6 @@
+key	new	reason
+close2@11:9	handleClose	关闭回调；close 是全局名
+current2@12:11	current	去掉打包器加的数字后缀，恢复原名 current
+current2@24:13	current	去掉打包器加的数字后缀，恢复原名 current
+current2@38:15	current	去掉打包器加的数字后缀，恢复原名 current
+mode2@70:42	mode	去掉打包器加的数字后缀，恢复原名 mode

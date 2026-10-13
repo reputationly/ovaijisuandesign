@@ -46,33 +46,33 @@ export function AnnotationInput({
   }, []);
   reactExports.useLayoutEffect(() => {
     const compute = () => {
-      const mark2 = getAnnotationMarks(editor).find(
+      const mark = getAnnotationMarks(editor).find(
         (annotation) => annotation.id === annotationId,
       );
-      if (!mark2) return;
+      if (!mark) return;
       try {
-        const start2 = editor.view.coordsAtPos(mark2.from);
-        const end2 = editor.view.coordsAtPos(mark2.to);
-        const selTop = Math.min(start2.top, end2.top);
-        const selBottom = Math.max(start2.bottom, end2.bottom);
+        const start = editor.view.coordsAtPos(mark.from);
+        const end = editor.view.coordsAtPos(mark.to);
+        const selTop = Math.min(start.top, end.top);
+        const selBottom = Math.max(start.bottom, end.bottom);
         const card = cardRef.current;
         const height = card?.offsetHeight || FALLBACK_HEIGHT;
         const width = card?.offsetWidth || POPOVER_WIDTH;
         const bounds = getBounds();
         const left = Math.max(
           bounds.left + GAP,
-          Math.min(start2.left, bounds.right - width - GAP),
+          Math.min(start.left, bounds.right - width - GAP),
         );
-        let top2 = selBottom + GAP;
-        if (top2 + height + GAP > bounds.bottom) {
+        let cardTop = selBottom + GAP;
+        if (cardTop + height + GAP > bounds.bottom) {
           const above = selTop - height - GAP;
-          top2 =
+          cardTop =
             above >= bounds.top + GAP ? above : bounds.bottom - height - GAP;
         }
-        top2 = Math.max(bounds.top + GAP, top2);
+        cardTop = Math.max(bounds.top + GAP, cardTop);
         setPos({
           left,
-          top: top2,
+          top: cardTop,
         });
       } catch {}
     };
@@ -91,7 +91,7 @@ export function AnnotationInput({
       resizeObserver?.disconnect();
     };
   }, [editor, annotationId, getBounds]);
-  const node2 = (
+  const node = (
     // biome-ignore lint/a11y/noStaticElementInteractions: onMouseDown only guards textarea focus (prevents blur-close when clicking the popover chrome)
     <div
       ref={cardRef}
@@ -166,5 +166,5 @@ export function AnnotationInput({
       </div>
     </div>
   );
-  return reactDomExports.createPortal(node2, document.body);
+  return reactDomExports.createPortal(node, document.body);
 }

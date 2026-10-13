@@ -140,7 +140,7 @@ export function useTxt2Text({ httpClient, catalogScopeKey }) {
               success: true,
             };
           }
-          const message2 = pickUserMessage(
+          const message = pickUserMessage(
             resp,
             instance.t("canvas.generateFailed", {
               defaultValue: "生成失败，请稍后重试",
@@ -158,7 +158,7 @@ export function useTxt2Text({ httpClient, catalogScopeKey }) {
                 ? instance.t("canvas.generationStatusUnknown.description", {
                     defaultValue: "生成请求未能完成，系统不会自动重试。",
                   })
-                : stripErrorHtml(message2);
+                : stripErrorHtml(message);
           if (errorStatus === "recoverable_error")
             dedupedToast.warning(userMessage);
           else dedupedToast.error(userMessage);
@@ -181,7 +181,7 @@ export function useTxt2Text({ httpClient, catalogScopeKey }) {
             model: modelId,
             modelId,
             params,
-            error: message2,
+            error: message,
             errorStatus,
             errorReason: persistedGenerateErrorReason(resp.error_code),
             retryPayload,

@@ -42,9 +42,9 @@ export function TextDiffHunkView({
         {headerActions}
       </div>
       <div className="font-mono text-xs leading-relaxed">
-        {hunk.lines.map((line, index2) => (
+        {hunk.lines.map((line, index) => (
           <div
-            key={`${hunk.oldStart}-${hunk.newStart}-${index2}`}
+            key={`${hunk.oldStart}-${hunk.newStart}-${index}`}
             className="flex gap-2 px-3 py-px"
             style={{
               // Canvas diff tokens are shared by inline Agent review and

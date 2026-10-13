@@ -21,7 +21,7 @@ export function CanvasHostToolbarButton({
   hasPopup,
   count: count2,
 }) {
-  const content2 = (
+  const content = (
     <>
       <Icon icon={icon} size={iconSize} aria-hidden={true} />
       {count2 !== void 0 && (
@@ -40,7 +40,7 @@ export function CanvasHostToolbarButton({
         onClick={onClick}
         dataActionUiId={dataActionUiId}
       >
-        {content2}
+        {content}
       </CanvasToolbarExtensionButton>
     );
   } else if (kind === "toggle") {
@@ -53,7 +53,7 @@ export function CanvasHostToolbarButton({
         kind="toggle"
         active={active2 ?? false}
       >
-        {content2}
+        {content}
       </CanvasToolbarExtensionButton>
     );
   } else {
@@ -68,7 +68,7 @@ export function CanvasHostToolbarButton({
         controlsId={controlsId}
         hasPopup={hasPopup}
       >
-        {content2}
+        {content}
       </CanvasToolbarExtensionButton>
     );
   }
@@ -77,7 +77,7 @@ export function CanvasHostToolbarButton({
 export function CanvasWatermarkChip({ variant = "floating" }) {
   const { t } = useTranslation();
   const { openSettings } = useSettingsDialog();
-  const [config2] = useStorage("global.config");
+  const [config] = useStorage("global.config");
   const watermarkEnabled = false;
   if (!watermarkEnabled) return null;
   const handleWatermarkSettings = () => {
@@ -118,28 +118,28 @@ function asRecord(value) {
     ? value
     : null;
 }
-function requiredString(record2, key2) {
-  const value = record2[key2];
+function requiredString(record, key) {
+  const value = record[key];
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 export function mapLocalComfyUiWorkflows(value) {
   const workflows = asRecord(value)?.workflows;
   if (!Array.isArray(workflows)) return [];
   return workflows.flatMap((candidate) => {
-    const record2 = asRecord(candidate);
-    if (!record2 || record2.source !== "user") return [];
-    const id = requiredString(record2, "id");
-    const name2 = requiredString(record2, "name");
-    const title = requiredString(record2, "title");
-    if (!id || !name2 || !title) return [];
-    const shortDesc = requiredString(record2, "short_desc");
-    const tags2 = Array.isArray(record2.tags)
-      ? record2.tags.filter((tag) => typeof tag === "string")
+    const record = asRecord(candidate);
+    if (!record || record.source !== "user") return [];
+    const id = requiredString(record, "id");
+    const recordName = requiredString(record, "name");
+    const title = requiredString(record, "title");
+    if (!id || !recordName || !title) return [];
+    const shortDesc = requiredString(record, "short_desc");
+    const tags = Array.isArray(record.tags)
+      ? record.tags.filter((tag) => typeof tag === "string")
       : void 0;
     return [
       {
         id,
-        name: name2,
+        name: recordName,
         title,
         source: "user",
         ...(shortDesc
@@ -147,9 +147,9 @@ export function mapLocalComfyUiWorkflows(value) {
               short_desc: shortDesc,
             }
           : {}),
-        ...(tags2?.length
+        ...(tags?.length
           ? {
-              tags: tags2,
+              tags,
             }
           : {}),
       },
@@ -166,7 +166,7 @@ export function computeGridDropPositions(
   let cursorX = anchor.x;
   let cursorY = anchor.y;
   let rowMaxHeight = 0;
-  for (const [i, size2] of sizes.entries()) {
+  for (const [i, size] of sizes.entries()) {
     if (i > 0 && i % cols === 0) {
       cursorX = anchor.x;
       cursorY += rowMaxHeight + gap;
@@ -176,8 +176,8 @@ export function computeGridDropPositions(
       x: cursorX,
       y: cursorY,
     });
-    cursorX += size2.width + gap;
-    rowMaxHeight = Math.max(rowMaxHeight, size2.height);
+    cursorX += size.width + gap;
+    rowMaxHeight = Math.max(rowMaxHeight, size.height);
   }
   return positions;
 }
@@ -214,13 +214,13 @@ export function GroupCoachMark({ anchorRef, selectedCount }) {
 export const NODE_CONTEXT_MENU_VIEWPORT_MARGIN = 8;
 const NODE_CONTEXT_MENU_ANCHOR_GAP = 4;
 function resolveAxis(anchor, menuSize, viewportSize, margin, gap) {
-  const min2 = margin;
-  const max2 = Math.max(min2, viewportSize - margin - menuSize);
+  const min = margin;
+  const max = Math.max(min, viewportSize - margin - menuSize);
   const after = anchor + gap;
   const before = anchor - gap - menuSize;
-  if (after >= min2 && after <= max2) return after;
-  if (before >= min2 && before <= max2) return before;
-  return Math.min(Math.max(after, min2), max2);
+  if (after >= min && after <= max) return after;
+  if (before >= min && before <= max) return before;
+  return Math.min(Math.max(after, min), max);
 }
 export function resolveNodeContextMenuPosition({
   anchor,

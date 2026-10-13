@@ -12,12 +12,12 @@ export function recordProvisionalDiffReviewHistory(
   editorIsAtBaseline,
 ) {
   const historyDepthAtStart = undoDepth(editor.state);
-  const selection2 = editor.state.selection.toJSON();
+  const selection = editor.state.selection.toJSON();
   const selectionPosition = editor.state.selection.from;
   if (!editorIsAtBaseline)
     replaceEditorMarkdown(editor, baselineMarkdown, false);
   replaceEditorMarkdown(editor, appliedMarkdown, true);
   closeDiffReviewHistoryGroup(editor);
-  restoreEditorSelection(editor, selection2, selectionPosition);
+  restoreEditorSelection(editor, selection, selectionPosition);
   return historyDepthAtStart;
 }

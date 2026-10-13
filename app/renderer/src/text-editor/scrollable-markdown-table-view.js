@@ -32,8 +32,8 @@ function cloneSession(session) {
   };
 }
 class DiffReviewBoundaryStep extends Step {
-  apply(doc2) {
-    return StepResult.ok(doc2);
+  apply(doc) {
+    return StepResult.ok(doc);
   }
   getMap() {
     return StepMap.empty;
@@ -58,8 +58,8 @@ export class DiffReviewHistoryStep extends Step {
     this.before = cloneSession(before);
     this.after = cloneSession(after);
   }
-  apply(doc2) {
-    return StepResult.ok(doc2);
+  apply(doc) {
+    return StepResult.ok(doc);
   }
   getMap() {
     return StepMap.empty;
@@ -79,8 +79,8 @@ export class DiffReviewHistoryStep extends Step {
   }
 }
 export function getDiffReviewHistorySnapshot(transaction) {
-  for (let index2 = transaction.steps.length - 1; index2 >= 0; index2 -= 1) {
-    const step = transaction.steps[index2];
+  for (let index = transaction.steps.length - 1; index >= 0; index -= 1) {
+    const step = transaction.steps[index];
     if (step instanceof DiffReviewHistoryStep) return cloneSession(step.after);
   }
   return null;
@@ -112,18 +112,18 @@ export function recordFinalizedBoundary(editor) {
   editor.view.dispatch(transaction);
 }
 export function rewindReviewHistory(editor, targetDepth) {
-  let state2 = editor.state;
-  let currentDepth = undoDepth(state2);
+  let state = editor.state;
+  let currentDepth = undoDepth(state);
   while (currentDepth > targetDepth) {
     let nextState = null;
-    const handled = undo(state2, (transaction) => {
-      nextState = state2.apply(transaction);
+    const handled = undo(state, (transaction) => {
+      nextState = state.apply(transaction);
     });
     if (!handled || !nextState) break;
-    state2 = nextState;
-    currentDepth = undoDepth(state2);
+    state = nextState;
+    currentDepth = undoDepth(state);
   }
-  if (state2 !== editor.state) editor.view.updateState(state2);
+  if (state !== editor.state) editor.view.updateState(state);
 }
 export function restoreEditorSelection(editor, selection2, fallbackPosition) {
   const transaction = editor.state.tr.setSelection(
@@ -163,20 +163,20 @@ export function replaceEditorMarkdown(
 }
 export const MARKDOWN_TABLE_CELL_MAX_WIDTH = 200;
 const OVERLAY_SCROLLBAR_TRACK_SELECTOR = ".hilo-overlay-scrollbar-track";
-function isOverlayScrollbarChrome(node2) {
+function isOverlayScrollbarChrome(node) {
   return (
-    node2 instanceof Element &&
-    (node2.matches(OVERLAY_SCROLLBAR_TRACK_SELECTOR) ||
-      node2.closest(OVERLAY_SCROLLBAR_TRACK_SELECTOR) !== null)
+    node instanceof Element &&
+    (node.matches(OVERLAY_SCROLLBAR_TRACK_SELECTOR) ||
+      node.closest(OVERLAY_SCROLLBAR_TRACK_SELECTOR) !== null)
   );
 }
 export class ScrollableMarkdownTableView extends TableView2 {
   constructor(
-    node2,
+    node,
     cellMinWidth,
     cellMaxWidth = MARKDOWN_TABLE_CELL_MAX_WIDTH,
   ) {
-    super(node2, cellMinWidth);
+    super(node, cellMinWidth);
     this.dom.classList.add("canvas-markdown-table-scroll-shell");
     this.dom.style.setProperty(
       "--canvas-markdown-table-cell-max-width",
@@ -189,8 +189,8 @@ export class ScrollableMarkdownTableView extends TableView2 {
     this.dom.insertBefore(scrollViewport, this.table);
     scrollViewport.appendChild(this.table);
   }
-  update(node2) {
-    const updated = super.update(node2);
+  update(node) {
+    const updated = super.update(node);
     if (updated) this.applyAdaptiveTableWidth();
     return updated;
   }

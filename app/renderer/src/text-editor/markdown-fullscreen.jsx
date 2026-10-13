@@ -104,8 +104,8 @@ import { useFindController } from "./use-find-controller.js";
 import { useTextConflictResolver } from "./use-text-conflict-resolver.jsx";
 import { useTextDocumentDirty } from "./text-diff-hunk-view.jsx";
 import { useTextVersionPanel } from "./use-text-version-panel.jsx";
-function assumeContentType(content2, contentType) {
-  if (typeof content2 !== "string") return "json";
+function assumeContentType(content, contentType) {
+  if (typeof content !== "string") return "json";
   return contentType;
 }
 const Markdown = Extension.create({
@@ -122,24 +122,24 @@ const Markdown = Extension.create({
   },
   addCommands() {
     return {
-      setContent: (content2, options) => {
+      setContent: (content, options) => {
         if (
           !(options === null || options === void 0
             ? void 0
             : options.contentType)
         )
-          return commands_exports.setContent(content2, options);
+          return commands_exports.setContent(content, options);
         if (
           assumeContentType(
-            content2,
+            content,
             options === null || options === void 0
               ? void 0
               : options.contentType,
           ) !== "markdown" ||
           !this.editor.markdown
         )
-          return commands_exports.setContent(content2, options);
-        const mdContent = this.editor.markdown.parse(content2);
+          return commands_exports.setContent(content, options);
+        const mdContent = this.editor.markdown.parse(content);
         return commands_exports.setContent(mdContent, options);
       },
       insertContent: (value, options) => {
@@ -162,13 +162,13 @@ const Markdown = Extension.create({
         const mdContent = this.editor.markdown.parse(value);
         return commands_exports.insertContent(mdContent, options);
       },
-      insertContentAt: (position2, value, options) => {
+      insertContentAt: (position, value, options) => {
         if (
           !(options === null || options === void 0
             ? void 0
             : options.contentType)
         )
-          return commands_exports.insertContentAt(position2, value, options);
+          return commands_exports.insertContentAt(position, value, options);
         if (
           assumeContentType(
             value,
@@ -178,9 +178,9 @@ const Markdown = Extension.create({
           ) !== "markdown" ||
           !this.editor.markdown
         )
-          return commands_exports.insertContentAt(position2, value, options);
+          return commands_exports.insertContentAt(position, value, options);
         const mdContent = this.editor.markdown.parse(value);
-        return commands_exports.insertContentAt(position2, mdContent, options);
+        return commands_exports.insertContentAt(position, mdContent, options);
       },
     };
   },
@@ -231,13 +231,13 @@ const Markdown = Extension.create({
       throw new Error(
         '[tiptap][markdown]: The `contentType` option is set to "markdown", but the initial content is not a string. Please provide the initial content as a markdown string.',
       );
-    const json2 = this.editor.markdown.parse(this.editor.options.content);
+    const json = this.editor.markdown.parse(this.editor.options.content);
     if (
-      (_json$content = json2.content) === null || _json$content === void 0
+      (_json$content = json.content) === null || _json$content === void 0
         ? void 0
         : _json$content.length
     )
-      this.editor.options.content = json2;
+      this.editor.options.content = json;
   },
 });
 const ANNOTATION_CLASS = "canvas-annotation-mark";
@@ -256,66 +256,66 @@ const AnnotationHighlight = Extension.create({
             };
           },
           apply(tr, prev) {
-            const meta2 = tr.getMeta(annotationPluginKey);
+            const meta = tr.getMeta(annotationPluginKey);
             const historySnapshot = getAnnotationHistorySnapshot(tr);
-            let next2 = historySnapshot
+            let next = historySnapshot
               ? {
-                  marks: historySnapshot.marks.map((mark2) => ({
-                    ...mark2,
+                  marks: historySnapshot.marks.map((mark) => ({
+                    ...mark,
                   })),
                   activeId: null,
                 }
               : prev;
-            if (!historySnapshot && meta2) {
-              switch (meta2.kind) {
+            if (!historySnapshot && meta) {
+              switch (meta.kind) {
                 case "add":
-                  next2 = {
-                    ...next2,
-                    marks: [...next2.marks, meta2.mark],
+                  next = {
+                    ...next,
+                    marks: [...next.marks, meta.mark],
                   };
                   break;
                 case "remove":
-                  next2 = {
-                    marks: next2.marks.filter((mark) => mark.id !== meta2.id),
+                  next = {
+                    marks: next.marks.filter((mark) => mark.id !== meta.id),
                     activeId:
-                      next2.activeId === meta2.id ? null : next2.activeId,
+                      next.activeId === meta.id ? null : next.activeId,
                   };
                   break;
                 case "clear":
-                  next2 = {
+                  next = {
                     marks: [],
                     activeId: null,
                   };
                   break;
                 case "setActive":
-                  next2 = {
-                    ...next2,
-                    activeId: meta2.id,
+                  next = {
+                    ...next,
+                    activeId: meta.id,
                   };
                   break;
               }
             }
             if (tr.docChanged && !historySnapshot) {
-              const mapped = next2.marks.map((mark) => ({
+              const mapped = next.marks.map((mark) => ({
                 id: mark.id,
                 from: tr.mapping.map(mark.from, -1),
                 to: tr.mapping.map(mark.to, 1),
               }));
-              next2 = {
-                ...next2,
+              next = {
+                ...next,
                 marks: mapped,
               };
             }
-            return next2;
+            return next;
           },
         },
         props: {
-          decorations(state2) {
-            const pluginState = annotationPluginKey.getState(state2);
+          decorations(state) {
+            const pluginState = annotationPluginKey.getState(state);
             if (!pluginState) return DecorationSet.empty;
-            const decorations2 = pluginState.marks
+            const decorations = pluginState.marks
               .filter(
-                (mark) => mark.from < mark.to && mark.to <= state2.doc.content.size,
+                (mark) => mark.from < mark.to && mark.to <= state.doc.content.size,
               )
               .map((mark) =>
                 Decoration.inline(mark.from, mark.to, {
@@ -326,7 +326,7 @@ const AnnotationHighlight = Extension.create({
                   "data-annotation-id": mark.id,
                 }),
               );
-            return DecorationSet.create(state2.doc, decorations2);
+            return DecorationSet.create(state.doc, decorations);
           },
         },
       }),
@@ -346,44 +346,44 @@ const BlurSelectionHighlight = Extension.create({
             return false;
           },
           apply(tr, prev) {
-            const meta2 = tr.getMeta(blurSelectionPluginKey);
-            return meta2 ?? prev;
+            const meta = tr.getMeta(blurSelectionPluginKey);
+            return meta ?? prev;
           },
         },
         props: {
           handleDOMEvents: {
-            focus(view2) {
-              if (blurSelectionPluginKey.getState(view2.state)) {
-                const tr = view2.state.tr.setMeta(
+            focus(view) {
+              if (blurSelectionPluginKey.getState(view.state)) {
+                const tr = view.state.tr.setMeta(
                   blurSelectionPluginKey,
                   false,
                 );
-                if (!view2.state.selection.empty) {
+                if (!view.state.selection.empty) {
                   tr.setSelection(
-                    TextSelection.near(view2.state.selection.$head),
+                    TextSelection.near(view.state.selection.$head),
                   );
                 }
-                view2.dispatch(tr);
+                view.dispatch(tr);
               }
               return false;
             },
-            blur(view2) {
-              if (!blurSelectionPluginKey.getState(view2.state)) {
-                view2.dispatch(
-                  view2.state.tr.setMeta(blurSelectionPluginKey, true),
+            blur(view) {
+              if (!blurSelectionPluginKey.getState(view.state)) {
+                view.dispatch(
+                  view.state.tr.setMeta(blurSelectionPluginKey, true),
                 );
               }
               return false;
             },
           },
-          decorations(state2) {
-            if (!blurSelectionPluginKey.getState(state2)) return null;
-            const ranges = getAnnotationSelectionRanges(state2.selection);
+          decorations(state) {
+            if (!blurSelectionPluginKey.getState(state)) return null;
+            const ranges = getAnnotationSelectionRanges(state.selection);
             if (ranges.length === 0) return null;
             return DecorationSet.create(
-              state2.doc,
-              ranges.map(({ from: from2, to }) =>
-                Decoration.inline(from2, to, {
+              state.doc,
+              ranges.map(({ from, to }) =>
+                Decoration.inline(from, to, {
                   class: BLUR_SELECTION_CLASS,
                 }),
               ),
@@ -491,10 +491,10 @@ const MarkdownTableScrollbars = reactExports.memo(MarkdownTableScrollbarsInner);
 function extractTableGridAtSelection(editor) {
   const { $from } = editor.state.selection;
   let tableNode = null;
-  for (let depth2 = $from.depth; depth2 > 0; depth2--) {
-    const node2 = $from.node(depth2);
-    if (node2.type.name === "table") {
-      tableNode = node2;
+  for (let depth = $from.depth; depth > 0; depth--) {
+    const node = $from.node(depth);
+    if (node.type.name === "table") {
+      tableNode = node;
       break;
     }
   }
@@ -503,19 +503,19 @@ function extractTableGridAtSelection(editor) {
   const rows = [];
   tableNode.forEach((row) => {
     if (row.type.name !== "tableRow") return;
-    const cells2 = [];
+    const cells = [];
     let isHeaderRow = false;
     row.forEach((cell) => {
       if (cell.type.name === "tableHeader") isHeaderRow = true;
-      cells2.push(cell.textContent.trim());
+      cells.push(cell.textContent.trim());
     });
-    if (isHeaderRow && headers === null) headers = cells2;
-    else rows.push(cells2);
+    if (isHeaderRow && headers === null) headers = cells;
+    else rows.push(cells);
   });
   if (headers === null) {
-    const first2 = rows.shift();
-    if (!first2) return null;
-    headers = first2;
+    const first = rows.shift();
+    if (!first) return null;
+    headers = first;
   }
   if (headers.length === 0) return null;
   return {
@@ -531,13 +531,13 @@ function tableDocumentFromGrid(grid, untitledColumn = "Untitled") {
     visible: true,
     width: defaultColumnWidth("text"),
   }));
-  const rows = grid.rows.map((cells2) => {
+  const rows = grid.rows.map((cells) => {
     const row = {
       id: newRowId(),
       cells: {},
     };
     columns.forEach((col, i) => {
-      row.cells[col.id] = cells2[i] ?? "";
+      row.cells[col.id] = cells[i] ?? "";
     });
     return row;
   });
@@ -549,38 +549,38 @@ function tableDocumentFromGrid(grid, untitledColumn = "Untitled") {
 }
 function TableContextMenu({
   editor,
-  position: position2,
+  position,
   onClose,
   onConvertToNode,
 }) {
   const { t } = useTranslation();
   const { menuRef, clampedPosition } = useClampedMenuPosition({
-    position: position2,
+    position,
     estimatedWidth: 208,
     estimatedHeight: 360,
   });
   reactExports.useEffect(() => {
-    const handleMouseDown2 = (mouseEvent) => {
+    const handleMouseDown = (mouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(mouseEvent.target)) {
         onClose();
       }
     };
-    const handleKeyDown2 = (keyboardEvent) => {
+    const handleKeyDown = (keyboardEvent) => {
       if (keyboardEvent.key === "Escape") {
         keyboardEvent.stopPropagation();
         onClose();
       }
     };
-    const timer2 = setTimeout(() => {
-      document.addEventListener("mousedown", handleMouseDown2);
-      document.addEventListener("keydown", handleKeyDown2, {
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleMouseDown);
+      document.addEventListener("keydown", handleKeyDown, {
         capture: true,
       });
     }, 0);
     return () => {
-      clearTimeout(timer2);
-      document.removeEventListener("mousedown", handleMouseDown2);
-      document.removeEventListener("keydown", handleKeyDown2, {
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown, {
         capture: true,
       });
     };
@@ -639,26 +639,26 @@ function TableContextMenu({
   );
 }
 function useEditorHistoryShortcuts(editor, nodeId) {
-  const active2 = useCanvasActive();
+  const active = useCanvasActive();
   const editorRef = reactExports.useRef(editor);
   editorRef.current = editor;
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     const isNativeTextInput = (target) =>
       target instanceof HTMLElement &&
       (target.tagName === "INPUT" || target.tagName === "TEXTAREA");
-    const run2 = (redo2, event) => {
+    const run = (isRedo, event) => {
       if (isNativeTextInput(event.target)) return;
-      const current2 = editorRef.current;
-      if (!current2) return;
+      const current = editorRef.current;
+      if (!current) return;
       const reviewState = useDiffReviewStore.getState();
       const reviewSession = reviewState.session;
       const reviewUndoBlocked =
-        !redo2 &&
+        !isRedo &&
         reviewSession !== null &&
         reviewSession.nodeId === nodeId &&
         (reviewSession.baselineMarkdown === void 0 ||
-          undoDepth(current2.state) <=
+          undoDepth(current.state) <=
             (reviewSession.historyDepthAtStart ?? 0) + 1);
       if (reviewState.reverting || reviewUndoBlocked) {
         event.preventDefault();
@@ -666,34 +666,34 @@ function useEditorHistoryShortcuts(editor, nodeId) {
         event.stopImmediatePropagation();
         return;
       }
-      const handled = redo2
-        ? redo(current2.state, current2.view.dispatch)
-        : undo(current2.state, current2.view.dispatch);
+      const handled = isRedo
+        ? redo(current.state, current.view.dispatch)
+        : undo(current.state, current.view.dispatch);
       if (!handled) return;
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
     };
-    const handleKeyDown2 = (event) => {
+    const handleKeyDown = (event) => {
       if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
-      const key2 = event.key.toLowerCase();
-      if (key2 === "z") {
-        run2(event.shiftKey, event);
-      } else if (key2 === "y" && event.ctrlKey && !event.shiftKey) {
-        run2(true, event);
+      const key = event.key.toLowerCase();
+      if (key === "z") {
+        run(event.shiftKey, event);
+      } else if (key === "y" && event.ctrlKey && !event.shiftKey) {
+        run(true, event);
       }
     };
     const handleBeforeInput = (event) => {
-      if (event.inputType === "historyUndo") run2(false, event);
-      else if (event.inputType === "historyRedo") run2(true, event);
+      if (event.inputType === "historyUndo") run(false, event);
+      else if (event.inputType === "historyRedo") run(true, event);
     };
-    document.addEventListener("keydown", handleKeyDown2, true);
+    document.addEventListener("keydown", handleKeyDown, true);
     document.addEventListener("beforeinput", handleBeforeInput, true);
     return () => {
-      document.removeEventListener("keydown", handleKeyDown2, true);
+      document.removeEventListener("keydown", handleKeyDown, true);
       document.removeEventListener("beforeinput", handleBeforeInput, true);
     };
-  }, [active2, nodeId]);
+  }, [active, nodeId]);
 }
 function splitCompletedReviewFromUserEdit(
   editor,
@@ -703,7 +703,7 @@ function splitCompletedReviewFromUserEdit(
   historyDepthAtStart = 0,
 ) {
   if (editor.isDestroyed) return;
-  const selection2 = editor.state.selection.toJSON();
+  const selection = editor.state.selection.toJSON();
   const selectionPosition = editor.state.selection.from;
   rewindReviewHistory(editor, historyDepthAtStart);
   if (editor.getMarkdown() !== baselineMarkdown) {
@@ -719,15 +719,15 @@ function splitCompletedReviewFromUserEdit(
   } else if (baselineMarkdown === reviewedMarkdown) {
     recordFinalizedBoundary(editor);
   }
-  restoreEditorSelection(editor, selection2, selectionPosition);
+  restoreEditorSelection(editor, selection, selectionPosition);
 }
 const MARKDOWN_TABLE_CELL_MIN_WIDTH = 60;
 const ScrollableMarkdownTable = Table.extend({
   addNodeView() {
     const cellMinWidth = this.options.cellMinWidth;
-    return ({ node: node2 }) =>
+    return ({ node }) =>
       new ScrollableMarkdownTableView(
-        node2,
+        node,
         cellMinWidth,
         MARKDOWN_TABLE_CELL_MAX_WIDTH,
       );
@@ -736,11 +736,11 @@ const ScrollableMarkdownTable = Table.extend({
   resizable: false,
   cellMinWidth: MARKDOWN_TABLE_CELL_MIN_WIDTH,
 });
-function buildControlsRow(ids2, config2) {
+function buildControlsRow(ids, config) {
   const row = document.createElement("div");
   row.className = `${DIFF_CONTROLS_CLASS}-row`;
   row.contentEditable = "false";
-  row.appendChild(buildControls(ids2, config2));
+  row.appendChild(buildControls(ids, config));
   return row;
 }
 const DiffReviewHighlight = Extension.create({
@@ -757,36 +757,36 @@ const DiffReviewHighlight = Extension.create({
             };
           },
           apply(tr, prev) {
-            const meta2 = tr.getMeta(diffReviewPluginKey);
-            let next2 = prev;
-            if (meta2) {
-              next2 =
-                meta2.kind === "clear"
+            const meta = tr.getMeta(diffReviewPluginKey);
+            let next = prev;
+            if (meta) {
+              next =
+                meta.kind === "clear"
                   ? {
                       hunks: [],
                       config: null,
                     }
                   : {
-                      hunks: meta2.hunks,
-                      config: meta2.config,
+                      hunks: meta.hunks,
+                      config: meta.config,
                     };
             }
-            if (tr.docChanged && next2.hunks.length > 0) {
-              next2 = {
-                ...next2,
-                hunks: next2.hunks.map((hunk) => ({
+            if (tr.docChanged && next.hunks.length > 0) {
+              next = {
+                ...next,
+                hunks: next.hunks.map((hunk) => ({
                   ...hunk,
                   from: tr.mapping.map(hunk.from, -1),
                   to: tr.mapping.map(hunk.to, 1),
                 })),
               };
             }
-            return next2;
+            return next;
           },
         },
         props: {
-          decorations(state2) {
-            const pluginState = diffReviewPluginKey.getState(state2);
+          decorations(state) {
+            const pluginState = diffReviewPluginKey.getState(state);
             if (
               !pluginState ||
               pluginState.hunks.length === 0 ||
@@ -794,9 +794,9 @@ const DiffReviewHighlight = Extension.create({
             ) {
               return DecorationSet.empty;
             }
-            const config2 = pluginState.config;
-            const docSize = state2.doc.content.size;
-            const decorations2 = [];
+            const config = pluginState.config;
+            const docSize = state.doc.content.size;
+            const decorations = [];
             const tableGroups = new Map();
             const controlIdOf = (hunk) => hunk.controlId ?? hunk.id;
             for (const hunk of pluginState.hunks) {
@@ -808,14 +808,14 @@ const DiffReviewHighlight = Extension.create({
                 continue;
               if (!hunk.zeroWidth && hunk.from === hunk.to) continue;
               if (hunk.from < hunk.to) {
-                decorations2.push(
+                decorations.push(
                   Decoration.inline(hunk.from, hunk.to, {
                     class: DIFF_ADD_CLASS,
                     "data-diff-hunk-id": hunk.id,
                   }),
                 );
               }
-              const topLevel = topLevelBlockAt(state2.doc, hunk.from);
+              const topLevel = topLevelBlockAt(state.doc, hunk.from);
               const belongsToTable =
                 topLevel?.node.type.name === "table" &&
                 hunk.from >= topLevel.from &&
@@ -831,10 +831,10 @@ const DiffReviewHighlight = Extension.create({
                   group.controlIds.push(controlId);
                 tableGroups.set(groupKey, group);
                 if (hunk.deletedMarkdown) {
-                  decorations2.push(
+                  decorations.push(
                     Decoration.widget(
                       hunk.from,
-                      () => buildDeletedInline(hunk, config2),
+                      () => buildDeletedInline(hunk, config),
                       {
                         side: -1,
                         key: `diff-del-inline-${hunk.id}`,
@@ -845,12 +845,12 @@ const DiffReviewHighlight = Extension.create({
                 }
                 continue;
               }
-              const inlineDeleted = isInlineTextReplacement(state2.doc, hunk);
+              const inlineDeleted = isInlineTextReplacement(state.doc, hunk);
               if (inlineDeleted) {
-                decorations2.push(
+                decorations.push(
                   Decoration.widget(
                     hunk.from,
-                    () => buildDeletedInline(hunk, config2),
+                    () => buildDeletedInline(hunk, config),
                     {
                       side: -1,
                       key: `diff-del-inline-${hunk.id}`,
@@ -861,25 +861,25 @@ const DiffReviewHighlight = Extension.create({
               }
               let delPos = hunk.from;
               let ctlPos = hunk.to;
-              const linePlacement = paragraphLinePlacement(state2.doc, hunk);
+              const linePlacement = paragraphLinePlacement(state.doc, hunk);
               if (linePlacement) {
                 delPos = linePlacement.delPos;
                 ctlPos = linePlacement.ctlPos;
               } else {
                 try {
-                  const $from = state2.doc.resolve(hunk.from);
+                  const $from = state.doc.resolve(hunk.from);
                   if ($from.depth > 0) delPos = $from.before(1);
-                  const $to = state2.doc.resolve(hunk.to);
+                  const $to = state.doc.resolve(hunk.to);
                   if ($to.depth > 0) ctlPos = $to.after(1);
                 } catch {
                   continue;
                 }
               }
               if (hunk.deletedMarkdown && !inlineDeleted) {
-                decorations2.push(
+                decorations.push(
                   Decoration.widget(
                     delPos,
-                    () => buildDeletedBlock(hunk, config2),
+                    () => buildDeletedBlock(hunk, config),
                     {
                       side: -1,
                       key: `diff-del-${hunk.id}`,
@@ -888,10 +888,10 @@ const DiffReviewHighlight = Extension.create({
                   ),
                 );
               }
-              decorations2.push(
+              decorations.push(
                 Decoration.widget(
                   ctlPos,
-                  () => buildControlsRow([controlIdOf(hunk)], config2),
+                  () => buildControlsRow([controlIdOf(hunk)], config),
                   {
                     // Adjacent line edits can share one PM position: the prior
                     // replacement ends exactly where the next deletion starts.
@@ -899,27 +899,27 @@ const DiffReviewHighlight = Extension.create({
                     // while a zero-width deletion keeps its own control after
                     // its red widget (-1 < 1).
                     side: !hunk.zeroWidth ? -2 : 1,
-                    key: `diff-ctl-${hunk.id}-${config2.disabled ? "off" : "on"}`,
+                    key: `diff-ctl-${hunk.id}-${config.disabled ? "off" : "on"}`,
                     stopEvent: () => true,
                   },
                 ),
               );
             }
             for (const group of tableGroups.values()) {
-              const ids2 = group.controlIds;
-              decorations2.push(
+              const ids = group.controlIds;
+              decorations.push(
                 Decoration.widget(
                   group.to,
-                  () => buildControlsRow(ids2, config2),
+                  () => buildControlsRow(ids, config),
                   {
                     side: 1,
-                    key: `diff-table-ctl-${ids2.join("-")}-${config2.disabled ? "off" : "on"}`,
+                    key: `diff-table-ctl-${ids.join("-")}-${config.disabled ? "off" : "on"}`,
                     stopEvent: () => true,
                   },
                 ),
               );
             }
-            return DecorationSet.create(state2.doc, decorations2);
+            return DecorationSet.create(state.doc, decorations);
           },
         },
       }),
@@ -937,54 +937,54 @@ const FindHighlight = Extension.create({
             return DecorationSet.empty;
           },
           apply(tr, prev) {
-            const meta2 = tr.getMeta(findPluginKey);
-            if (meta2) return buildDecorations(tr.doc, meta2);
+            const meta = tr.getMeta(findPluginKey);
+            if (meta) return buildDecorations(tr.doc, meta);
             if (tr.docChanged) return prev.map(tr.mapping, tr.doc);
             return prev;
           },
         },
         props: {
-          decorations(state2) {
-            return findPluginKey.getState(state2) ?? DecorationSet.empty;
+          decorations(state) {
+            return findPluginKey.getState(state) ?? DecorationSet.empty;
           },
         },
       }),
     ];
   },
 });
-function searchPmDoc(doc2, query, options, maxMatches) {
+function searchPmDoc(doc, query, options, maxMatches) {
   const pattern = compileFindPattern(query, options);
   if (!pattern)
     return {
       matches: [],
       limited: false,
     };
-  const matches2 = [];
-  const cap2 = maxMatches ?? Number.POSITIVE_INFINITY;
+  const matches = [];
+  const cap = maxMatches ?? Number.POSITIVE_INFINITY;
   let limited = false;
-  doc2.descendants((node2, pos) => {
+  doc.descendants((node, pos) => {
     if (limited) return false;
-    if (!node2.isTextblock) return true;
-    const text2 = node2.textBetween(
+    if (!node.isTextblock) return true;
+    const text = node.textBetween(
       0,
-      node2.content.size,
+      node.content.size,
       void 0,
       LEAF_PLACEHOLDER,
     );
-    if (text2) {
-      const remaining = cap2 - matches2.length;
-      const result = findMatchesInText(text2, query, options, {
+    if (text) {
+      const remaining = cap - matches.length;
+      const result = findMatchesInText(text, query, options, {
         maxMatches: remaining,
         baseOffset: pos + 1,
         pattern,
       });
-      matches2.push(...result.matches);
-      if (result.limited || matches2.length >= cap2) limited = true;
+      matches.push(...result.matches);
+      if (result.limited || matches.length >= cap) limited = true;
     }
     return false;
   });
   return {
-    matches: matches2,
+    matches,
     limited,
   };
 }
@@ -1010,45 +1010,45 @@ function createDiffReviewWriteAckTracker() {
   };
 }
 function enqueueDiffReviewWriteAck(
-  tracker2,
-  markdown2,
+  tracker,
+  markdown,
   epoch,
-  now2 = Date.now(),
+  now = Date.now(),
 ) {
-  beginDiffReviewWriteAckEpoch(tracker2, epoch);
-  pruneExpiredDiffReviewWriteAcks(tracker2, now2);
-  tracker2.pending.push({
-    markdown: markdown2,
-    expiresAt: now2 + DIFF_REVIEW_WRITE_ACK_TTL_MS,
+  beginDiffReviewWriteAckEpoch(tracker, epoch);
+  pruneExpiredDiffReviewWriteAcks(tracker, now);
+  tracker.pending.push({
+    markdown,
+    expiresAt: now + DIFF_REVIEW_WRITE_ACK_TTL_MS,
   });
-  if (tracker2.pending.length > MAX_PENDING_DIFF_REVIEW_WRITE_ACKS) {
-    tracker2.pending.splice(
+  if (tracker.pending.length > MAX_PENDING_DIFF_REVIEW_WRITE_ACKS) {
+    tracker.pending.splice(
       0,
-      tracker2.pending.length - MAX_PENDING_DIFF_REVIEW_WRITE_ACKS,
+      tracker.pending.length - MAX_PENDING_DIFF_REVIEW_WRITE_ACKS,
     );
   }
 }
-function consumeDiffReviewWriteAck(tracker2, markdown2, now2 = Date.now()) {
-  pruneExpiredDiffReviewWriteAcks(tracker2, now2);
-  const index2 = tracker2.pending.findIndex(
-    (entry) => entry.markdown === markdown2,
+function consumeDiffReviewWriteAck(tracker, markdown, now = Date.now()) {
+  pruneExpiredDiffReviewWriteAcks(tracker, now);
+  const index = tracker.pending.findIndex(
+    (entry) => entry.markdown === markdown,
   );
-  if (index2 < 0) return false;
-  tracker2.pending.splice(index2, 1);
+  if (index < 0) return false;
+  tracker.pending.splice(index, 1);
   return true;
 }
-function pendingDiffReviewWriteAckCount(tracker2, now2 = Date.now()) {
-  pruneExpiredDiffReviewWriteAcks(tracker2, now2);
-  return tracker2.pending.length;
+function pendingDiffReviewWriteAckCount(tracker, now = Date.now()) {
+  pruneExpiredDiffReviewWriteAcks(tracker, now);
+  return tracker.pending.length;
 }
-function clearDiffReviewWriteAcks(tracker2) {
-  tracker2.pending = [];
+function clearDiffReviewWriteAcks(tracker) {
+  tracker.pending = [];
 }
-function serializeMarkdownDocument(editor, document2) {
+function serializeMarkdownDocument(editor, markdownDocument) {
   const manager = editor.storage.markdown?.manager;
   if (!manager) return null;
   try {
-    return manager.serialize(document2.toJSON());
+    return manager.serialize(markdownDocument.toJSON());
   } catch {
     return null;
   }
@@ -1069,10 +1069,10 @@ function SelectionFormatToolbar({ editor, formatItems, annotate }) {
         placement: "top",
         offset: 8,
       }}
-      shouldShow={({ editor, state: state2 }) => {
+      shouldShow={({ editor, state }) => {
         if (!editor.isEditable) return false;
-        const { from: from2, to } = state2.selection;
-        return from2 !== to;
+        const { from, to } = state.selection;
+        return from !== to;
       }}
       className="canvas-toolbar-surface"
       data-canvas-toolbar="true"
@@ -1124,15 +1124,15 @@ export function MarkdownFullscreen({
   const dirtyState = useTextDocumentDirty();
   const markDirty = dirtyState.markDirty;
   const [diffPendingOpen, setDiffPendingOpen] = reactExports.useState(false);
-  const hasPendingDiffReview = useDiffReviewStore((state2) =>
-    selectHasPendingHunksForNode(state2, sourceNodeId),
+  const hasPendingDiffReview = useDiffReviewStore((state) =>
+    selectHasPendingHunksForNode(state, sourceNodeId),
   );
   const hasPendingDiffReviewRef = reactExports.useRef(hasPendingDiffReview);
   hasPendingDiffReviewRef.current = hasPendingDiffReview;
   const [contentRevision, setContentRevision] = reactExports.useState(0);
-  const reviewReverting = useDiffReviewStore((state2) => state2.reverting);
+  const reviewReverting = useDiffReviewStore((state) => state.reverting);
   const reviewRequestId = useDiffReviewStore(
-    (state2) => state2.session?.requestId ?? null,
+    (state) => state.session?.requestId ?? null,
   );
   const expectedReviewWriteAcksRef = reactExports.useRef(
     createDiffReviewWriteAckTracker(),
@@ -1202,15 +1202,15 @@ export function MarkdownFullscreen({
         return;
       if (getAnnotationHistorySnapshot(transaction)) return;
       const reviewSnapshot = getDiffReviewHistorySnapshot(transaction);
-      const markdown2 = editor.getMarkdown();
+      const markdown = editor.getMarkdown();
       if (reviewSnapshot) {
         enqueueDiffReviewWriteAck(
           expectedReviewWriteAcksRef.current,
-          markdown2,
+          markdown,
           reviewSnapshot.requestId,
         );
         markDirty();
-        scheduleDraftSave(markdown2);
+        scheduleDraftSave(markdown);
         flushDraftSave();
         findRef.current?.refresh();
         return;
@@ -1230,7 +1230,7 @@ export function MarkdownFullscreen({
             editor,
             baseline,
             reviewedMarkdown,
-            markdown2,
+            markdown,
             activeReview.historyDepthAtStart,
           );
         }
@@ -1240,7 +1240,7 @@ export function MarkdownFullscreen({
       }
       userEditedRef.current = true;
       markDirty();
-      scheduleDraftSave(markdown2);
+      scheduleDraftSave(markdown);
       findRef.current?.refresh();
     },
   });
@@ -1265,10 +1265,10 @@ export function MarkdownFullscreen({
       useDiffReviewStore.getState().pendingScrollToFirstHunkNodeId !==
       sourceNodeId
     ) {
-      const frame2 = requestAnimationFrame(() => {
+      const frame = requestAnimationFrame(() => {
         if (!fsEditor.isDestroyed) fsEditor.commands.focus("start");
       });
-      return () => cancelAnimationFrame(frame2);
+      return () => cancelAnimationFrame(frame);
     }
   }, [fsEditor, initialMarkdown, sourceNodeId]);
   const canvasRootEl = useCanvasRootElement();
@@ -1297,8 +1297,8 @@ export function MarkdownFullscreen({
   useEditorHistoryShortcuts(fsEditor, sourceNodeId);
   reactExports.useEffect(() => {
     if (!subscribeAnnotationCommand) return;
-    return subscribeAnnotationCommand((cmd2) =>
-      editorAnnotationsRef.current.handleCommand(cmd2),
+    return subscribeAnnotationCommand((cmd) =>
+      editorAnnotationsRef.current.handleCommand(cmd),
     );
   }, [subscribeAnnotationCommand]);
   const [editorAreaEl, setEditorAreaEl] = reactExports.useState(null);
@@ -1336,11 +1336,11 @@ export function MarkdownFullscreen({
           .then((contentHash) => {
             if (fsEditor.isDestroyed || contentHash !== expectedContentHash)
               return;
-            const current2 = useDiffReviewStore.getState().session;
+            const current = useDiffReviewStore.getState().session;
             if (
-              !current2 ||
-              current2.requestId !== requestId ||
-              current2.baselineMarkdown !== void 0
+              !current ||
+              current.requestId !== requestId ||
+              current.baselineMarkdown !== void 0
             )
               return;
             editorAnnotationsRef.current.reset();
@@ -1417,11 +1417,11 @@ export function MarkdownFullscreen({
         return;
       }
       if (openConflict(external)) return;
-      const current2 = fsEditor?.getMarkdown() ?? external;
+      const current = fsEditor?.getMarkdown() ?? external;
       externalUpdatedWhileEditingRef.current = false;
       resetBaseline(external);
       resumeDraftSave();
-      if (current2 !== external) scheduleDraftSave(current2);
+      if (current !== external) scheduleDraftSave(current);
     },
     [fsEditor, openConflict, resetBaseline, resumeDraftSave, scheduleDraftSave],
   );
@@ -1437,29 +1437,29 @@ export function MarkdownFullscreen({
   });
   reactExports.useEffect(() => {
     if (reviewReverting || deferredReviewMarkdownRef.current === null) return;
-    const markdown2 = deferredReviewMarkdownRef.current;
+    const markdown = deferredReviewMarkdownRef.current;
     deferredReviewMarkdownRef.current = null;
     if (
-      consumeDiffReviewWriteAck(expectedReviewWriteAcksRef.current, markdown2)
+      consumeDiffReviewWriteAck(expectedReviewWriteAcksRef.current, markdown)
     ) {
-      if (fsEditor?.getMarkdown() === markdown2) resetBaseline(markdown2);
+      if (fsEditor?.getMarkdown() === markdown) resetBaseline(markdown);
       setContentRevision((rev) => rev + 1);
       return;
     }
-    const shouldResetBaseline = applySync(markdown2);
-    if (shouldResetBaseline !== false) resetBaseline(markdown2);
+    const shouldResetBaseline = applySync(markdown);
+    if (shouldResetBaseline !== false) resetBaseline(markdown);
   }, [reviewReverting, applySync, resetBaseline, fsEditor]);
   const handleReviewDocumentApplied = reactExports.useCallback(
-    (markdown2) => {
+    (markdown) => {
       const requestId = useDiffReviewStore.getState().session?.requestId;
       if (requestId) {
         enqueueDiffReviewWriteAck(
           expectedReviewWriteAcksRef.current,
-          markdown2,
+          markdown,
           requestId,
         );
       }
-      resetBaseline(markdown2);
+      resetBaseline(markdown);
       setContentRevision((rev) => rev + 1);
     },
     [resetBaseline],
@@ -1505,8 +1505,8 @@ export function MarkdownFullscreen({
       openConflict(externalMarkdownRef.current);
       return;
     }
-    const markdown2 = flushDraftSave();
-    finalizeClose(onDraftChange ? void 0 : markdown2);
+    const markdown = flushDraftSave();
+    finalizeClose(onDraftChange ? void 0 : markdown);
   }, [
     conflict.active,
     finalizeClose,
@@ -1526,25 +1526,25 @@ export function MarkdownFullscreen({
             limited: false,
             caretPos: 0,
           };
-        const { matches: matches2, limited } = searchPmDoc(
+        const { matches, limited } = searchPmDoc(
           fsEditor.state.doc,
           query,
           options,
           MAX_FIND_MATCHES,
         );
         return {
-          matches: matches2,
+          matches,
           limited,
           caretPos: fsEditor.state.selection.from,
         };
       },
-      activate(matches2, index2) {
+      activate(matches, index) {
         if (!fsEditor) return;
-        if (index2 < 0 || index2 >= matches2.length) return;
+        if (index < 0 || index >= matches.length) return;
         fsEditor.view.dispatch(
           fsEditor.state.tr.setMeta(findPluginKey, {
-            ranges: matches2,
-            activeIndex: index2,
+            ranges: matches,
+            activeIndex: index,
           }),
         );
         requestAnimationFrame(() => {
@@ -1566,19 +1566,19 @@ export function MarkdownFullscreen({
       },
       getSelectedText() {
         if (!fsEditor) return "";
-        const { from: from2, to } = fsEditor.state.selection;
-        return from2 === to
+        const { from, to } = fsEditor.state.selection;
+        return from === to
           ? ""
-          : fsEditor.state.doc.textBetween(from2, to, "\n");
+          : fsEditor.state.doc.textBetween(from, to, "\n");
       },
       focusEditor() {
         fsEditor?.commands.focus();
       },
-      replaceOne(match2, query, options, replacement) {
+      replaceOne(match, query, options, replacement) {
         if (!fsEditor) return;
         const matched = fsEditor.state.doc.textBetween(
-          match2.from,
-          match2.to,
+          match.from,
+          match.to,
           void 0,
           LEAF_PLACEHOLDER,
         );
@@ -1590,25 +1590,25 @@ export function MarkdownFullscreen({
         );
         const tr = fsEditor.state.tr.insertText(
           expanded,
-          match2.from,
-          match2.to,
+          match.from,
+          match.to,
         );
         tr.setSelection(
-          TextSelection.create(tr.doc, match2.from + expanded.length),
+          TextSelection.create(tr.doc, match.from + expanded.length),
         );
         fsEditor.view.dispatch(tr);
       },
       replaceAll(query, options, replacement) {
         if (!fsEditor) return;
-        const { matches: matches2 } = searchPmDoc(
+        const { matches } = searchPmDoc(
           fsEditor.state.doc,
           query,
           options,
         );
-        if (matches2.length === 0) return;
+        if (matches.length === 0) return;
         const tr = fsEditor.state.tr;
-        for (let i = matches2.length - 1; i >= 0; i--) {
-          const match = matches2[i];
+        for (let i = matches.length - 1; i >= 0; i--) {
+          const match = matches[i];
           const matched = fsEditor.state.doc.textBetween(
             match.from,
             match.to,
@@ -1626,9 +1626,9 @@ export function MarkdownFullscreen({
     }),
     [fsEditor],
   );
-  const find2 = useFindController(findAdapter);
-  findRef.current = find2;
-  useFindEscapeClose(find2, handleClose);
+  const findController = useFindController(findAdapter);
+  findRef.current = findController;
+  useFindEscapeClose(findController, handleClose);
   const [tableCtxPos, setTableCtxPos] = reactExports.useState(null);
   const closeTableCtxMenu = reactExports.useCallback(
     () => setTableCtxPos(null),
@@ -1657,12 +1657,12 @@ export function MarkdownFullscreen({
     return () => {
       const grid = extractTableGridAtSelection(fsEditor);
       if (!grid) return;
-      const doc2 = tableDocumentFromGrid(
+      const doc = tableDocumentFromGrid(
         grid,
         t("canvas.table.untitledColumn", "Untitled"),
       );
       void canvasActions
-        .addTableNodeFromDocument(doc2, sourceNodeId)
+        .addTableNodeFromDocument(doc, sourceNodeId)
         .then((nodeId) => {
           if (nodeId)
             dedupedToast.success(
@@ -1737,7 +1737,7 @@ export function MarkdownFullscreen({
           versionPanel.toolbarButtons
         )
       }
-      find={find2}
+      find={findController}
       onClose={handleClose}
     >
       {fsEditor && (

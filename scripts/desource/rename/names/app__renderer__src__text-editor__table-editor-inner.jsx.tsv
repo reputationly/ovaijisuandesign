@@ -54,3 +54,52 @@ e2@1251:56	dragEvent	行拖拽离开事件
 e2@1257:13	dragEvent	行拖放事件
 c3@1286:31	column	表格列
 c3@1319:24	column	表格列
+name2@52:9	chipName	附件 chip 预览卡显示的名字；name 是全局名
+top2@67:9	menuTop	菜单的纵向位置；top 是全局名
+size2@120:45	size	去掉打包器加的数字后缀，恢复原名 size
+onRemove2@120:62	onRemove	去掉打包器加的数字后缀，恢复原名 onRemove
+meta2@122:9	meta	去掉打包器加的数字后缀，恢复原名 meta
+handleDoubleClick2@187:9	handleDoubleClick	去掉打包器加的数字后缀，恢复原名 handleDoubleClick
+onAdd2@329:10	onAdd	去掉打包器加的数字后缀，恢复原名 onAdd
+onRemove2@330:13	onRemove	去掉打包器加的数字后缀，恢复原名 onRemove
+next2@355:13	next	去掉打包器加的数字后缀，恢复原名 next
+end2@508:15	end	去掉打包器加的数字后缀，恢复原名 end
+next2@518:11	next	去掉打包器加的数字后缀，恢复原名 next
+doc2@591:23	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@605:18	doc	去掉打包器加的数字后缀，恢复原名 doc
+position2@605:38	position	去掉打包器加的数字后缀，恢复原名 position
+doc2@613:28	doc	去掉打包器加的数字后缀，恢复原名 doc
+add2@613:51	add	去掉打包器加的数字后缀，恢复原名 add
+list2@620:13	list	去掉打包器加的数字后缀，恢复原名 list
+seen2@621:13	seen	去掉打包器加的数字后缀，恢复原名 seen
+doc2@633:27	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@653:34	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@661:31	doc	去掉打包器加的数字后缀，恢复原名 doc
+next2@671:11	next	去掉打包器加的数字后缀，恢复原名 next
+apply2@700:10	apply	去掉打包器加的数字后缀，恢复原名 apply
+CellRenderer2@692:49	CellRenderer	去掉打包器加的数字后缀，恢复原名 CellRenderer
+list2@731:9	list	去掉打包器加的数字后缀，恢复原名 list
+next2@703:6	next	去掉打包器加的数字后缀，恢复原名 next
+selected2@742:42	selected	去掉打包器加的数字后缀，恢复原名 selected
+selected2@770:49	selected	去掉打包器加的数字后缀，恢复原名 selected
+state2@795:35	state	去掉打包器加的数字后缀，恢复原名 state
+disabled2@795:53	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+apply2@817:26	apply	去掉打包器加的数字后缀，恢复原名 apply
+next2@849:15	next	去掉打包器加的数字后缀，恢复原名 next
+active2@882:11	active	去掉打包器加的数字后缀，恢复原名 active
+onPointerDown2@883:18	onPointerDown	去掉打包器加的数字后缀，恢复原名 onPointerDown
+apply2@914:23	apply	去掉打包器加的数字后缀，恢复原名 apply
+next2@946:15	next	去掉打包器加的数字后缀，恢复原名 next
+active2@982:11	active	去掉打包器加的数字后缀，恢复原名 active
+onPointerDown2@984:18	onPointerDown	去掉打包器加的数字后缀，恢复原名 onPointerDown
+type2@1015:32	type	去掉打包器加的数字后缀，恢复原名 type
+next2@1063:11	next	去掉打包器加的数字后缀，恢复原名 next
+doc2@1119:16	doc	去掉打包器加的数字后缀，恢复原名 doc
+apply2@1119:29	apply	去掉打包器加的数字后缀，恢复原名 apply
+table2@1179:9	table	去掉打包器加的数字后缀，恢复原名 table
+next2@1150:22	next	去掉打包器加的数字后缀，恢复原名 next
+info2@1156:14	info	去掉打包器加的数字后缀，恢复原名 info
+sum2@1185:44	sum	去掉打包器加的数字后缀，恢复原名 sum
+next2@1189:13	next	去掉打包器加的数字后缀，恢复原名 next
+type2@1221:21	type	去掉打包器加的数字后缀，恢复原名 type
+isAfter2@1241:11	isAfter	去掉打包器加的数字后缀，恢复原名 isAfter

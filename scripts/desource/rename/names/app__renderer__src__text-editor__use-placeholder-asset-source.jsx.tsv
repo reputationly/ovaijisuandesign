@@ -1,2 +1,14 @@
 key	new	reason
 t2@85:14	t	useTranslation() 返回的翻译函数 t
+gatewayFetch2@83:9	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+gatewayUrl2@84:9	gatewayUrl	去掉打包器加的数字后缀，恢复原名 gatewayUrl
+path2@107:6	path	去掉打包器加的数字后缀，恢复原名 path
+path2@116:6	path	去掉打包器加的数字后缀，恢复原名 path
+base2@124:13	base	去掉打包器加的数字后缀，恢复原名 base
+current2@149:9	current	去掉打包器加的数字后缀，恢复原名 current
+valid2@175:13	valid	去掉打包器加的数字后缀，恢复原名 valid
+data2@280:9	data	去掉打包器加的数字后缀，恢复原名 data
+base2@295:9	base	去掉打包器加的数字后缀，恢复原名 base
+raw2@306:38	raw	去掉打包器加的数字后缀，恢复原名 raw
+position2@314:9	position	去掉打包器加的数字后缀，恢复原名 position
+body2@348:9	body	去掉打包器加的数字后缀，恢复原名 body

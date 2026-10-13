@@ -21,8 +21,8 @@ const QUESTION_CARD_TYPOGRAPHY_CLASS_NAME = "text-body-14";
 
 const QUESTION_ATTACHMENT_PREFIX = "[User attached files:\n";
 
-function extractQuestionHistoryValue(result, question2) {
-  const serializedQuestion = JSON.stringify(question2);
+function extractQuestionHistoryValue(result, question) {
+  const serializedQuestion = JSON.stringify(question);
   const pairStart = result.indexOf(`${serializedQuestion}=`);
   if (pairStart < 0) return void 0;
   const valueStart = pairStart + serializedQuestion.length + 1;
@@ -57,16 +57,16 @@ function parseQuestionHistoryAnswer(value) {
     .split("\n");
   for (const line of attachmentLines) {
     if (!line.trim() || line.trim() === "]") break;
-    const match2 =
+    const match =
       /^-\s+(?:\[\d+\]\s*)?(?:(image|video|audio|text|file):\s*)?(.+)$/.exec(
         line,
       );
-    if (!match2) continue;
-    const path2 = match2[2]?.trim();
-    if (!path2) continue;
+    if (!match) continue;
+    const path = match[2]?.trim();
+    if (!path) continue;
     attachments.push({
-      path: path2,
-      type: detectFileType(path2) ?? match2[1] ?? "file",
+      path,
+      type: detectFileType(path) ?? match[1] ?? "file",
     });
   }
   return {
@@ -76,12 +76,12 @@ function parseQuestionHistoryAnswer(value) {
 }
 
 function QuestionHistoryAttachmentChip({ attachment }) {
-  const resolveMediaUrl2 = useResolveMediaUrl();
+  const resolveMediaUrl = useResolveMediaUrl();
   const filename = attachment.path.split(/[\\/]/).pop() ?? attachment.path;
-  const url2 = resolveMediaUrl2(API_PATHS.serveLocal(attachment.path));
-  const imageUrl = attachment.type === "image" ? url2 : void 0;
+  const url = resolveMediaUrl(API_PATHS.serveLocal(attachment.path));
+  const imageUrl = attachment.type === "image" ? url : void 0;
   const mediaUrl =
-    attachment.type === "video" || attachment.type === "audio" ? url2 : void 0;
+    attachment.type === "video" || attachment.type === "audio" ? url : void 0;
   return (
     <div
       data-action-ui-id="chat-question-history-attachment"
@@ -242,9 +242,9 @@ export function QuestionToolCard({ msg, defaultExpanded }) {
     const args = msg.toolArgs ?? msg.url;
     if (!args) return [];
     try {
-      const raw2 = JSON.parse(args)?.questions;
-      if (!Array.isArray(raw2)) return [];
-      return raw2.filter(
+      const raw = JSON.parse(args)?.questions;
+      if (!Array.isArray(raw)) return [];
+      return raw.filter(
         (item) =>
           typeof item?.question === "string" &&
           typeof item?.header === "string" &&

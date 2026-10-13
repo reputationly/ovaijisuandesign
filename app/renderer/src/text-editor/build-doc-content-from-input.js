@@ -10,7 +10,7 @@ import {
   MENTION_THUMB_PX,
 } from "../chat/create-expanded-composer-actions-measurer.jsx";
 export function buildDocContentFromInput(text2, ctx) {
-  const modelCandidates2 = ctx.mentionModels
+  const modelCandidates = ctx.mentionModels
     .flatMap((model) => [
       {
         token: `model:${model.mention_name ?? model.model_name}`,
@@ -54,33 +54,33 @@ export function buildDocContentFromInput(text2, ctx) {
   const fileMentions = findAllMentions(text2);
   const fileMentionByStart = new Map();
   for (const fileMention of fileMentions) fileMentionByStart.set(fileMention.start, fileMention);
-  const inline2 = [];
+  const inline = [];
   let lastIdx = 0;
   while (lastIdx < text2.length) {
     const idx = text2.indexOf("@", lastIdx);
     if (idx < 0) break;
     if (idx > lastIdx) {
-      inline2.push({
+      inline.push({
         type: "text",
         text: text2.slice(lastIdx, idx),
       });
     }
-    const workflowMatch = workflowCandidates.find(({ token: token22 }) => {
-      if (!text2.startsWith(token22, idx + 1)) return false;
-      const next2 = text2[idx + 1 + token22.length];
-      return next2 === void 0 || /\s/.test(next2);
+    const workflowMatch = workflowCandidates.find(({ token }) => {
+      if (!text2.startsWith(token, idx + 1)) return false;
+      const next = text2[idx + 1 + token.length];
+      return next === void 0 || /\s/.test(next);
     });
-    const modelMatch = modelCandidates2.find(({ token: token22 }) => {
-      if (!text2.startsWith(token22, idx + 1)) return false;
-      const next2 = text2[idx + 1 + token22.length];
-      return next2 === void 0 || /\s/.test(next2);
+    const modelMatch = modelCandidates.find(({ token }) => {
+      if (!text2.startsWith(token, idx + 1)) return false;
+      const next = text2[idx + 1 + token.length];
+      return next === void 0 || /\s/.test(next);
     });
-    let token2;
+    let token;
     let attrs;
-    let end2;
+    let end;
     const connectorMatch = parseConnectorMentionAt(text2, idx);
     if (connectorMatch) {
-      end2 = connectorMatch.end;
+      end = connectorMatch.end;
       const serverName = connectorMatch.serverName;
       const connector =
         ctx.connectors?.find(
@@ -100,8 +100,8 @@ export function buildDocContentFromInput(text2, ctx) {
         mediaUrl: null,
       };
     } else if (workflowMatch) {
-      token2 = workflowMatch.token;
-      end2 = idx + 1 + token2.length;
+      token = workflowMatch.token;
+      end = idx + 1 + token.length;
       attrs = {
         path: workflowMatch.workflow.id,
         name: workflowMatch.workflow.title,
@@ -115,8 +115,8 @@ export function buildDocContentFromInput(text2, ctx) {
       };
     } else if (modelMatch) {
       const model = modelMatch.model;
-      token2 = modelMatch.token;
-      end2 = idx + 1 + token2.length;
+      token = modelMatch.token;
+      end = idx + 1 + token.length;
       attrs = {
         path: model.id,
         name: model.display_name,
@@ -132,36 +132,36 @@ export function buildDocContentFromInput(text2, ctx) {
       const fileMention = fileMentionByStart.get(idx);
       const isBracket = !!fileMention && text2[idx + 1] === "[";
       if (fileMention) {
-        token2 = fileMention.path;
-        end2 = fileMention.end;
+        token = fileMention.path;
+        end = fileMention.end;
       } else {
         const tokenStart = idx + 1;
         const rest = text2.slice(tokenStart);
         const spaceMatch = rest.search(/\s/);
-        end2 = spaceMatch < 0 ? text2.length : tokenStart + spaceMatch;
-        token2 = text2.slice(tokenStart, end2);
+        end = spaceMatch < 0 ? text2.length : tokenStart + spaceMatch;
+        token = text2.slice(tokenStart, end);
       }
-      if (!token2) {
-        inline2.push({
+      if (!token) {
+        inline.push({
           type: "text",
           text: "@",
         });
         lastIdx = idx + 1;
         continue;
       }
-      const cachedFile = ctx.cachedFiles.get(token2);
+      const cachedFile = ctx.cachedFiles.get(token);
       if (!isBracket && !cachedFile) {
-        inline2.push({
+        inline.push({
           type: "text",
           text: "@",
         });
         lastIdx = idx + 1;
         continue;
       }
-      const kind = cachedFile?.kind ?? mentionKindFromPath(token2);
+      const kind = cachedFile?.kind ?? mentionKindFromPath(token);
       attrs = {
-        path: token2,
-        name: cachedFile?.name ?? basename(token2),
+        path: token,
+        name: cachedFile?.name ?? basename(token),
         modelName: null,
         kind,
         mediaType: null,
@@ -169,28 +169,28 @@ export function buildDocContentFromInput(text2, ctx) {
           buildMentionMediaUrl(
             ctx.scopedGatewayUrl,
             kind,
-            token2,
+            token,
             MENTION_THUMB_PX,
           ) ?? null,
         previewUrl:
           buildMentionMediaUrl(
             ctx.scopedGatewayUrl,
             kind,
-            token2,
+            token,
             MENTION_PREVIEW_PX,
           ) ?? null,
         mediaUrl:
-          buildMentionPlayableUrl(ctx.scopedGatewayUrl, kind, token2) ?? null,
+          buildMentionPlayableUrl(ctx.scopedGatewayUrl, kind, token) ?? null,
       };
     }
-    inline2.push({
+    inline.push({
       type: "mentionRef",
       attrs,
     });
-    lastIdx = end2;
+    lastIdx = end;
   }
   if (lastIdx < text2.length) {
-    inline2.push({
+    inline.push({
       type: "text",
       text: text2.slice(lastIdx),
     });
@@ -198,13 +198,13 @@ export function buildDocContentFromInput(text2, ctx) {
   return {
     type: "doc",
     content: [
-      inline2.length === 0
+      inline.length === 0
         ? {
             type: "paragraph",
           }
         : {
             type: "paragraph",
-            content: inline2,
+            content: inline,
           },
     ],
   };

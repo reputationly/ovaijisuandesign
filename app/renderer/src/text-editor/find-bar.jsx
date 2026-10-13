@@ -28,8 +28,8 @@ function FindBtn({
   title,
   onClick,
   variant,
-  active: active2,
-  disabled: disabled2,
+  active,
+  disabled,
   dataActionUiId,
 }) {
   const toggle = variant === "toggle";
@@ -39,7 +39,7 @@ function FindBtn({
       title={title}
       onClick={onClick}
       onMouseDown={(mouseEvent) => mouseEvent.preventDefault()}
-      disabled={disabled2}
+      disabled={disabled}
       className={
         toggle
           ? "flex h-5 w-5 shrink-0 items-center justify-center rounded transition-colors"
@@ -48,10 +48,10 @@ function FindBtn({
       style={
         toggle
           ? {
-              background: active2
+              background: active
                 ? "var(--bg-subtle-hover, #e8e8e8)"
                 : "transparent",
-              color: active2
+              color: active
                 ? "var(--fg-default, #141414)"
                 : "var(--fg-muted, #666)",
             }
@@ -264,10 +264,10 @@ function FindBar({ controller }) {
   );
 }
 function useCanvasShortcutGuard() {
-  const active2 = useCanvasActive();
+  const active = useCanvasActive();
   useSuspendCanvasInteractions(true);
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     const isInEditor = (target) =>
       target instanceof HTMLElement &&
       (target.tagName === "INPUT" ||
@@ -281,9 +281,9 @@ function useCanvasShortcutGuard() {
     };
     const shortcutBubble = (keyboardEvent) => {
       if (keyboardEvent.key === "Escape") return;
-      const meta2 = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
+      const meta = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
       if (
-        meta2 ||
+        meta ||
         (keyboardEvent.shiftKey && (keyboardEvent.code === "Digit1" || keyboardEvent.code === "Digit2"))
       ) {
         keyboardEvent.stopPropagation();
@@ -305,7 +305,7 @@ function useCanvasShortcutGuard() {
       document.removeEventListener("cut", clipboardCapture, true);
       document.removeEventListener("paste", clipboardCapture, true);
     };
-  }, [active2]);
+  }, [active]);
 }
 export function FullscreenShell({
   toolbarActions,

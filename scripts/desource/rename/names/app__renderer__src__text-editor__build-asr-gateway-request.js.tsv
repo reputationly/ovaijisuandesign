@@ -5,3 +5,15 @@ e2@245:35	dragEvent	函数体读取 dataTransfer 的拖放事件
 p3@95:43	prefix	恢复消息前缀
 p3@106:14	prefix	恢复消息前缀，命中则剥掉
 p3@121:37	resumePrompt	续写子任务的提示词
+raw2@54:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+children2@144:26	children	去掉打包器加的数字后缀，恢复原名 children
+message2@156:14	message	去掉打包器加的数字后缀，恢复原名 message
+match2@204:9	match	去掉打包器加的数字后缀，恢复原名 match
+raw2@246:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+first2@251:11	first	去掉打包器加的数字后缀，恢复原名 first
+type2@274:9	type	去掉打包器加的数字后缀，恢复原名 type
+start2@293:7	start	去掉打包器加的数字后缀，恢复原名 start
+path2@321:39	path	去掉打包器加的数字后缀，恢复原名 path
+language2@335:27	language	去掉打包器加的数字后缀，恢复原名 language
+base2@350:9	base	去掉打包器加的数字后缀，恢复原名 base
+language2@365:9	language	去掉打包器加的数字后缀，恢复原名 language

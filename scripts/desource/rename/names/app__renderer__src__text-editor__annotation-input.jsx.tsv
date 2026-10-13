@@ -5,3 +5,8 @@ e2@120:20	changeEvent	onChange 回调收到的事件对象
 e2@122:21	keyboardEvent	onKeyDown 回调收到的事件对象
 m3@50:10	annotation	按 annotationId 查找的批注
 ro@85:11	resizeObserver	观察尺寸变化的 ResizeObserver
+node2@94:9	node	去掉打包器加的数字后缀，恢复原名 node
+mark2@49:13	mark	去掉打包器加的数字后缀，恢复原名 mark
+start2@54:15	start	去掉打包器加的数字后缀，恢复原名 start
+end2@55:15	end	去掉打包器加的数字后缀，恢复原名 end
+top2@66:13	cardTop	批注输入卡片的纵向位置；top 是全局名

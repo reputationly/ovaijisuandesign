@@ -112,17 +112,17 @@ export function AttachmentPreview({
       {visibleAttachments.length > 0 && (
         <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full pb-1">
           {visibleAttachments.map((att) => {
-            const isPluginNode2 = att.kind === "plugin-node";
-            const isImage2 = att.fileType === "image" && att.previewUrl;
+            const isPluginNode = att.kind === "plugin-node";
+            const isImage = att.fileType === "image" && att.previewUrl;
             const isFileCard =
-              !isPluginNode2 &&
-              !isImage2 &&
+              !isPluginNode &&
+              !isImage &&
               att.fileType !== "video" &&
               att.fileType !== "audio";
             const isMedia =
               (att.fileType === "video" || att.fileType === "audio") &&
               att.previewUrl;
-            const readOnly2 = isReadOnly(att);
+            const readOnly = isReadOnly(att);
             const locked = disabled2 || replacingIds?.has(att.id) === true;
             const errorText = att.error
               ? t("chat.uploadFailedWithReason", {
@@ -133,7 +133,7 @@ export function AttachmentPreview({
             const actions = getAttachmentSlotActions({
               kind: att.fileType,
               ready: att.status === "done",
-              readOnly: readOnly2,
+              readOnly,
               busy: locked,
               canReference: Boolean(
                 onSelect && isFileAttachment(att) && att.relativePath,
@@ -145,7 +145,7 @@ export function AttachmentPreview({
             const selectable = actions.reference;
             const replaceable = actions.replace;
             const annotatable = Boolean(
-              !readOnly2 && !locked && onAnnotate && isAnnotatableImage(att),
+              !readOnly && !locked && onAnnotate && isAnnotatableImage(att),
             );
             const hoverAction = replaceable
               ? {
@@ -160,17 +160,17 @@ export function AttachmentPreview({
               <div
                 key={att.id}
                 data-attachment-id={att.id}
-                ref={(element2) => {
-                  if (element2) chipRefs.current.set(att.id, element2);
+                ref={(element) => {
+                  if (element) chipRefs.current.set(att.id, element);
                   else chipRefs.current.delete(att.id);
                 }}
                 className={cn(
                   "group relative h-16 min-w-0 max-w-[min(280px,100%)] shrink-0",
-                  (selectable || annotatable || !readOnly2) &&
+                  (selectable || annotatable || !readOnly) &&
                     "[&:hover_[data-slot-duration]]:invisible [&:hover_[data-slot-duration]]:delay-0 [&:focus-within_[data-slot-duration]]:invisible [&:focus-within_[data-slot-duration]]:delay-0",
                 )}
               >
-                {isPluginNode2 ? (
+                {isPluginNode ? (
                   <div
                     data-testid="plugin-node-chip"
                     className={cn(
@@ -216,7 +216,7 @@ export function AttachmentPreview({
                       active={active2}
                       textPath={att.relativePath ?? void 0}
                       loadTextContent={loadTextContent}
-                      imageUrl={isImage2 ? att.previewUrl : void 0}
+                      imageUrl={isImage ? att.previewUrl : void 0}
                       mediaUrl={isMedia ? att.previewUrl : void 0}
                       videoThumbnailPath={att.relativePath ?? void 0}
                       fileSize={att.fileSize}
@@ -242,7 +242,7 @@ export function AttachmentPreview({
                     active={active2}
                     textPath={att.relativePath ?? void 0}
                     loadTextContent={loadTextContent}
-                    imageUrl={isImage2 ? att.previewUrl : void 0}
+                    imageUrl={isImage ? att.previewUrl : void 0}
                     mediaUrl={isMedia ? att.previewUrl : void 0}
                     videoThumbnailPath={att.relativePath ?? void 0}
                     fileSize={att.fileSize}
@@ -286,7 +286,7 @@ export function AttachmentPreview({
                     type="button"
                     className={cn(
                       "absolute bottom-1 right-1 flex h-6 w-6 items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground",
-                      isImage2 || att.fileType === "video"
+                      isImage || att.fileType === "video"
                         ? "text-[var(--canvas-media-control-fg)]"
                         : "text-foreground",
                     )}
@@ -299,7 +299,7 @@ export function AttachmentPreview({
                       size={14}
                       strokeWidth={1.6}
                       style={
-                        isImage2 || att.fileType === "video"
+                        isImage || att.fileType === "video"
                           ? {
                               filter:
                                 "drop-shadow(var(--canvas-media-icon-shadow))",
@@ -321,7 +321,7 @@ export function AttachmentPreview({
                     <AnnotationIcon size={14} aria-hidden={true} />
                   </button>
                 ) : null}
-                {!readOnly2 ? (
+                {!readOnly ? (
                   <button
                     type="button"
                     className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black/60 text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-black/80"

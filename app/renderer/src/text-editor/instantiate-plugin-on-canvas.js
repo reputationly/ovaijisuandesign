@@ -14,20 +14,20 @@ class PluginRecentsStore {
    * callers can safely use this method as a `useSyncExternalStore` snapshot.
    */
   get() {
-    let raw2;
+    let raw;
     try {
-      raw2 = localStorage.getItem(STORAGE_KEY);
+      raw = localStorage.getItem(STORAGE_KEY);
     } catch {
       return this.snapshot;
     }
-    if (raw2 === this.snapshotRaw) return this.snapshot;
-    this.snapshotRaw = raw2;
+    if (raw === this.snapshotRaw) return this.snapshot;
+    this.snapshotRaw = raw;
     try {
-      if (!raw2) {
+      if (!raw) {
         this.snapshot = [];
         return this.snapshot;
       }
-      const parsed = JSON.parse(raw2);
+      const parsed = JSON.parse(raw);
       this.snapshot = Array.isArray(parsed)
         ? parsed.filter((x) => typeof x === "string")
         : [];
@@ -42,15 +42,15 @@ class PluginRecentsStore {
    */
   record(id) {
     if (!id) return;
-    const next2 = [id, ...this.get().filter((x) => x !== id)].slice(
+    const next = [id, ...this.get().filter((x) => x !== id)].slice(
       0,
       MAX_STORED,
     );
-    const serialized = JSON.stringify(next2);
+    const serialized = JSON.stringify(next);
     try {
       localStorage.setItem(STORAGE_KEY, serialized);
       this.snapshotRaw = serialized;
-      this.snapshot = next2;
+      this.snapshot = next;
     } catch {}
     this._onChange.fire();
   }
@@ -97,19 +97,19 @@ export async function instantiatePluginOnCanvas(
       },
     );
     if (!resp.ok) {
-      const body2 = await resp.text();
-      throw new Error(`instantiate ${resp.status}: ${body2}`);
+      const body = await resp.text();
+      throw new Error(`instantiate ${resp.status}: ${body}`);
     }
-    const json2 = await resp.json();
-    const nodeId = typeof json2.nodeId === "string" ? json2.nodeId : null;
+    const json = await resp.json();
+    const nodeId = typeof json.nodeId === "string" ? json.nodeId : null;
     if (nodeId) pluginRecents.record(pluginId);
     return nodeId;
   } catch (err) {
-    const message2 = err instanceof Error ? err.message : String(err);
+    const message = err instanceof Error ? err.message : String(err);
     console.error("[canvas] Plugin instantiate failed:", err);
     dedupedToast.error(
       t("skills.plugin.addFailed", {
-        error: message2,
+        error: message,
       }),
     );
     return null;

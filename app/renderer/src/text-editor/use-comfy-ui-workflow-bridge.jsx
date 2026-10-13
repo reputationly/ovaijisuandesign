@@ -29,39 +29,39 @@ function useCanvasAddNodeMenuBadges() {
       },
     }));
   }, [t]);
-  const { badges: badges2, markReleaseBadgeComplete } =
+  const { badges, markReleaseBadgeComplete } =
     useReleaseBadges(configs);
   const addNodeMenuBadges = reactExports.useMemo(
     () =>
       Object.fromEntries(
-        Object.entries(badges2).map(([target, appearance]) => [
+        Object.entries(badges).map(([target, appearance]) => [
           target,
           appearance?.label,
         ]),
       ),
-    [badges2],
+    [badges],
   );
   return {
     addNodeMenuBadges,
     onAddNodeMenuBadgeComplete: markReleaseBadgeComplete,
   };
 }
-async function fetchLocalComfyUiWorkflows(gatewayFetch2) {
-  const response = await gatewayFetch2(API_PATHS.comfyUiWorkflows);
+async function fetchLocalComfyUiWorkflows(gatewayFetch) {
+  const response = await gatewayFetch(API_PATHS.comfyUiWorkflows);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return mapLocalComfyUiWorkflows(await response.json());
 }
 function parseOpenWorkflowResult(value) {
   if (!value || typeof value !== "object")
     throw new Error("Invalid ComfyUI response");
-  const record2 = value;
-  if (typeof record2.status !== "string")
+  const record = value;
+  if (typeof record.status !== "string")
     throw new Error("Invalid ComfyUI response");
   return {
-    status: record2.status,
-    ...(typeof record2.error === "string"
+    status: record.status,
+    ...(typeof record.error === "string"
       ? {
-          error: record2.error,
+          error: record.error,
         }
       : {}),
   };
@@ -74,7 +74,7 @@ function useComfyUiWorkflowBridge() {
     [],
   );
   const openComfyUiWorkflow = reactExports.useCallback(
-    async (workflowId, position2) => {
+    async (workflowId, position) => {
       try {
         const response = await scopedGatewayFetch(
           API_PATHS.comfyUiWorkflowOpen(workflowId),
@@ -86,9 +86,9 @@ function useComfyUiWorkflowBridge() {
             body: JSON.stringify({
               target: "new",
               open_editor: false,
-              ...(position2
+              ...(position
                 ? {
-                    position: position2,
+                    position,
                   }
                 : {}),
             }),

@@ -1,3 +1,34 @@
 key	new	reason
 tr2@192:17	tr	插件 state.apply 收到的事务
 tr2@232:17	tr	插件 state.apply 收到的事务
+snapshot2@42:9	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+text2@84:32	text	去掉打包器加的数字后缀，恢复原名 text
+match2@95:11	match	去掉打包器加的数字后缀，恢复原名 match
+start2@107:32	start	去掉打包器加的数字后缀，恢复原名 start
+end2@107:40	end	去掉打包器加的数字后缀，恢复原名 end
+range2@108:23	range	去掉打包器加的数字后缀，恢复原名 range
+tokens2@115:9	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+match2@118:9	match	去掉打包器加的数字后缀，恢复原名 match
+raw2@122:11	raw	去掉打包器加的数字后缀，恢复原名 raw
+start2@123:11	start	去掉打包器加的数字后缀，恢复原名 start
+end2@124:11	end	去掉打包器加的数字后缀，恢复原名 end
+previous2@125:11	previous	去掉打包器加的数字后缀，恢复原名 previous
+next2@126:11	next	去掉打包器加的数字后缀，恢复原名 next
+doc2@156:32	doc	去掉打包器加的数字后缀，恢复原名 doc
+decorations2@157:9	decorations	去掉打包器加的数字后缀，恢复原名 decorations
+node2@158:21	node	去掉打包器加的数字后缀，恢复原名 node
+position2@158:28	position	去掉打包器加的数字后缀，恢复原名 position
+token2@160:16	token	去掉打包器加的数字后缀，恢复原名 token
+from2@161:13	from	去掉打包器加的数字后缀，恢复原名 from
+state2@191:27	state	去掉打包器加的数字后缀，恢复原名 state
+previous2@192:21	previous	去掉打包器加的数字后缀，恢复原名 previous
+state2@197:23	state	去掉打包器加的数字后缀，恢复原名 state
+text2@206:28	text	去掉打包器加的数字后缀，恢复原名 text
+meta2@233:19	meta	去掉打包器加的数字后缀，恢复原名 meta
+state2@239:23	state	去掉打包器加的数字后缀，恢复原名 state
+text2@240:19	text	去掉打包器加的数字后缀，恢复原名 text
+content2@282:29	content	去掉打包器加的数字后缀，恢复原名 content
+text2@283:7	text	去掉打包器加的数字后缀，恢复原名 text
+previous2@284:7	previous	去掉打包器加的数字后缀，恢复原名 previous
+node2@285:14	node	去掉打包器加的数字后缀，恢复原名 node
+node2@320:56	node	去掉打包器加的数字后缀，恢复原名 node

@@ -3,79 +3,79 @@
 const MYERS_MAX_D = 2e3;
 
 export function myersLineHunks(oldLines, newLines) {
-  let start2 = 0;
+  let start = 0;
   const oldLen = oldLines.length;
   const newLen = newLines.length;
   while (
-    start2 < oldLen &&
-    start2 < newLen &&
-    oldLines[start2] === newLines[start2]
+    start < oldLen &&
+    start < newLen &&
+    oldLines[start] === newLines[start]
   )
-    start2 += 1;
+    start += 1;
   let oldEnd = oldLen;
   let newEnd = newLen;
   while (
-    oldEnd > start2 &&
-    newEnd > start2 &&
+    oldEnd > start &&
+    newEnd > start &&
     oldLines[oldEnd - 1] === newLines[newEnd - 1]
   ) {
     oldEnd -= 1;
     newEnd -= 1;
   }
-  const oldSlice = oldLines.slice(start2, oldEnd);
-  const newSlice = newLines.slice(start2, newEnd);
+  const oldSlice = oldLines.slice(start, oldEnd);
+  const newSlice = newLines.slice(start, newEnd);
   const oldLength = oldSlice.length;
   const newLength = newSlice.length;
   if (oldLength === 0 && newLength === 0) return [];
   if (oldLength === 0)
     return [
       {
-        oldStart: start2,
+        oldStart: start,
         oldCount: 0,
-        newStart: start2,
+        newStart: start,
         newCount: newLength,
       },
     ];
   if (newLength === 0)
     return [
       {
-        oldStart: start2,
+        oldStart: start,
         oldCount: oldLength,
-        newStart: start2,
+        newStart: start,
         newCount: 0,
       },
     ];
-  const max2 = Math.min(oldLength + newLength, MYERS_MAX_D);
-  const offset2 = max2;
-  let frontier = new Int32Array(2 * max2 + 2);
+  const max = Math.min(oldLength + newLength, MYERS_MAX_D);
+  const offset = max;
+  let frontier = new Int32Array(2 * max + 2);
   const trace = [];
   let foundD = -1;
-  for (let editDistance = 0; editDistance <= max2; editDistance += 1) {
+  for (let editDistance = 0; editDistance <= max; editDistance += 1) {
     trace.push(frontier.slice());
-    const next2 = frontier.slice();
+    const next = frontier.slice();
     for (let diagonal = -editDistance; diagonal <= editDistance; diagonal += 2) {
-      if (diagonal < -max2 || diagonal > max2) continue;
+      if (diagonal < -max || diagonal > max) continue;
       let x;
       if (
         diagonal === -editDistance ||
-        (diagonal !== editDistance && frontier[diagonal - 1 + offset2] < frontier[diagonal + 1 + offset2])
+        (diagonal !== editDistance && frontier[diagonal - 1 + offset] < frontier[diagonal + 1 + offset])
       ) {
-        x = frontier[diagonal + 1 + offset2];
+        x = frontier[diagonal + 1 + offset];
       } else {
-        x = frontier[diagonal - 1 + offset2] + 1;
+        x = frontier[diagonal - 1 + offset] + 1;
       }
       let y = x - diagonal;
       while (x < oldLength && y < newLength && oldSlice[x] === newSlice[y]) {
         x += 1;
         y += 1;
       }
-      next2[diagonal + offset2] = x;
+      next[diagonal + offset] = x;
       if (x >= oldLength && y >= newLength) {
         foundD = editDistance;
         break;
       }
     }
-    frontier = next2;
+    frontier = next;
     if (foundD >= 0) break;
   }
   if (foundD < 0) return null;
@@ -89,13 +89,13 @@ export function myersLineHunks(oldLines, newLines) {
     let prevK;
     if (
       diagonal === -editDistance ||
-      (diagonal !== editDistance && prev[diagonal - 1 + offset2] < prev[diagonal + 1 + offset2])
+      (diagonal !== editDistance && prev[diagonal - 1 + offset] < prev[diagonal + 1 + offset])
     ) {
       prevK = diagonal + 1;
     } else {
       prevK = diagonal - 1;
     }
-    const prevX = prev[prevK + offset2];
+    const prevX = prev[prevK + offset];
     const prevY = prevX - prevK;
     while (x > prevX && y > prevY) {
       ops.push("equal");
@@ -125,33 +125,33 @@ export function myersLineHunks(oldLines, newLines) {
   }
   ops.reverse();
   const hunks = [];
-  let oldLine = start2;
-  let newLine = start2;
-  let current2 = null;
+  let oldLine = start;
+  let newLine = start;
+  let current = null;
   for (const op of ops) {
     if (op === "equal") {
-      if (current2) {
-        hunks.push(current2);
-        current2 = null;
+      if (current) {
+        hunks.push(current);
+        current = null;
       }
       oldLine += 1;
       newLine += 1;
       continue;
     }
-    current2 ??= {
+    current ??= {
       oldStart: oldLine,
       oldCount: 0,
       newStart: newLine,
       newCount: 0,
     };
     if (op === "delete") {
-      current2.oldCount += 1;
+      current.oldCount += 1;
       oldLine += 1;
     } else {
-      current2.newCount += 1;
+      current.newCount += 1;
       newLine += 1;
     }
   }
-  if (current2) hunks.push(current2);
+  if (current) hunks.push(current);
   return hunks;
 }

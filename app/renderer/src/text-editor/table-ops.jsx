@@ -15,8 +15,8 @@ import { OverlayScrollbar } from "./overlay-scrollbar-inner.jsx";
 export function getManager(editor) {
   return editor.storage.markdown?.manager;
 }
-function normalizeSerializedMarkdown(markdown2) {
-  const lines = markdown2.split("\n");
+function normalizeSerializedMarkdown(markdown) {
+  const lines = markdown.split("\n");
   const out = [];
   let inFence = false;
   let pendingBlank = false;
@@ -52,23 +52,23 @@ function normalizeSerializedMarkdown(markdown2) {
 export function patchEntityEscaping(manager) {
   const original = manager.encodeTextForMarkdown;
   if (typeof original !== "function") return;
-  manager.encodeTextForMarkdown = (text2, node2, parentNode2) => {
-    const upstream = original.call(manager, text2, node2, parentNode2);
-    if (upstream === text2) return text2;
-    return text2.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  manager.encodeTextForMarkdown = (text, node, parentNode) => {
+    const upstream = original.call(manager, text, node, parentNode);
+    if (upstream === text) return text;
+    return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
   };
 }
 export function patchBlankLinePadding(manager) {
   const original = manager.serialize;
   if (typeof original !== "function") return;
-  manager.serialize = (document2) =>
-    normalizeSerializedMarkdown(original.call(manager, document2));
+  manager.serialize = (inputDocument) =>
+    normalizeSerializedMarkdown(original.call(manager, inputDocument));
 }
 const TABLE_SCROLL_VIEWPORT_SELECTOR = ".canvas-markdown-table-scroll-viewport";
 function sameTargets(left, right) {
   return (
     left.length === right.length &&
-    left.every((target, index2) => target === right[index2])
+    left.every((target, index) => target === right[index])
   );
 }
 function MarkdownTableScrollbarPortal({ target }) {
@@ -95,31 +95,31 @@ export function MarkdownTableScrollbarsInner({ editorRoot }) {
   const nextTargetIdRef = reactExports.useRef(1);
   reactExports.useEffect(() => {
     const syncTargets = () => {
-      const next2 = editorRoot
+      const next = editorRoot
         ? Array.from(
             editorRoot.querySelectorAll(TABLE_SCROLL_VIEWPORT_SELECTOR),
           )
         : [];
-      setTargets((current2) =>
-        sameTargets(current2, next2) ? current2 : next2,
+      setTargets((current) =>
+        sameTargets(current, next) ? current : next,
       );
     };
     syncTargets();
     if (!editorRoot) return;
-    const observer2 = new MutationObserver(syncTargets);
-    observer2.observe(editorRoot, {
+    const observer = new MutationObserver(syncTargets);
+    observer.observe(editorRoot, {
       childList: true,
       subtree: true,
     });
-    return () => observer2.disconnect();
+    return () => observer.disconnect();
   }, [editorRoot]);
   const targetKey = (target) => {
     const existing = targetIdsRef.current.get(target);
     if (existing !== void 0) return existing;
-    const next2 = nextTargetIdRef.current;
+    const next = nextTargetIdRef.current;
     nextTargetIdRef.current += 1;
-    targetIdsRef.current.set(target, next2);
-    return next2;
+    targetIdsRef.current.set(target, next);
+    return next;
   };
   return (
     <>
@@ -130,23 +130,23 @@ export function MarkdownTableScrollbarsInner({ editorRoot }) {
   );
 }
 function clampToViewport(
-  position2,
+  position,
   menuRef,
   estimatedWidth = 240,
   estimatedHeight = 400,
 ) {
-  const VIEWPORT_MARGIN2 = 8;
-  const { x, y } = position2;
+  const VIEWPORT_MARGIN = 8;
+  const { x, y } = position;
   const el = menuRef.current;
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   const menuW = el?.offsetWidth || estimatedWidth;
   const menuH = el?.offsetHeight || estimatedHeight;
-  const maxX = Math.max(VIEWPORT_MARGIN2, viewportWidth - menuW - VIEWPORT_MARGIN2);
-  const maxY = Math.max(VIEWPORT_MARGIN2, viewportHeight - menuH - VIEWPORT_MARGIN2);
+  const maxX = Math.max(VIEWPORT_MARGIN, viewportWidth - menuW - VIEWPORT_MARGIN);
+  const maxY = Math.max(VIEWPORT_MARGIN, viewportHeight - menuH - VIEWPORT_MARGIN);
   return {
-    x: Math.max(VIEWPORT_MARGIN2, Math.min(x, maxX)),
-    y: Math.max(VIEWPORT_MARGIN2, Math.min(y, maxY)),
+    x: Math.max(VIEWPORT_MARGIN, Math.min(x, maxX)),
+    y: Math.max(VIEWPORT_MARGIN, Math.min(y, maxY)),
   };
 }
 export function useClampedMenuPosition({
@@ -183,17 +183,17 @@ export function useClampedMenuPosition({
   }, [resolvePosition, estimatedWidth, estimatedHeight]);
   reactExports.useEffect(() => {
     const updatePosition = () => {
-      setClampedPosition((current2) => {
-        const next2 = clampToViewport(
+      setClampedPosition((current) => {
+        const next = clampToViewport(
           resolvePosition(),
           menuRef,
           estimatedWidth,
           estimatedHeight,
         );
-        if (current2.x === next2.x && current2.y === next2.y) {
-          return current2;
+        if (current.x === next.x && current.y === next.y) {
+          return current;
         }
-        return next2;
+        return next;
       });
     };
     const resizeObserver = new ResizeObserver(() => {

@@ -10,25 +10,25 @@ export const FIND_MATCH_ACTIVE_CLASS = "canvas-find-match-active";
 const MAX_FIND_DECORATIONS = 2e3;
 export function buildDecorations(doc2, meta2) {
   if (meta2.ranges.length === 0) return DecorationSet.empty;
-  const decorations2 = [];
-  const push2 = ({ from: from2, to }, active2) => {
-    if (from2 >= to || to > doc2.content.size) return;
-    decorations2.push(
-      Decoration.inline(from2, to, {
-        class: active2
+  const decorations = [];
+  const push = ({ from, to }, active) => {
+    if (from >= to || to > doc2.content.size) return;
+    decorations.push(
+      Decoration.inline(from, to, {
+        class: active
           ? `${FIND_MATCH_CLASS} ${FIND_MATCH_ACTIVE_CLASS}`
           : FIND_MATCH_CLASS,
       }),
     );
   };
-  const count2 = Math.min(meta2.ranges.length, MAX_FIND_DECORATIONS);
-  for (let i = 0; i < count2; i++) {
-    push2(meta2.ranges[i], i === meta2.activeIndex);
+  const count = Math.min(meta2.ranges.length, MAX_FIND_DECORATIONS);
+  for (let i = 0; i < count; i++) {
+    push(meta2.ranges[i], i === meta2.activeIndex);
   }
-  if (meta2.activeIndex >= count2 && meta2.activeIndex < meta2.ranges.length) {
-    push2(meta2.ranges[meta2.activeIndex], true);
+  if (meta2.activeIndex >= count && meta2.activeIndex < meta2.ranges.length) {
+    push(meta2.ranges[meta2.activeIndex], true);
   }
-  return DecorationSet.create(doc2, decorations2);
+  return DecorationSet.create(doc2, decorations);
 }
 export async function hashDiffReviewMarkdown(markdown2) {
   if (!globalThis.crypto?.subtle) return null;
@@ -44,22 +44,22 @@ export function reconstructDiffReviewBaseline(postApplyMarkdown, session) {
   if (session.hunks.every((hunk) => hunk.status === "undone"))
     return postApplyMarkdown;
   if (session.hunks.some((hunk) => hunk.status === "undone")) return null;
-  let markdown2 = postApplyMarkdown;
+  let markdown = postApplyMarkdown;
   const hunks = session.hunks
-    .map((hunk, index2) => ({
+    .map((hunk, index) => ({
       hunk,
-      index: index2,
+      index,
     }))
     .sort(
       (a, b) => b.hunk.newStart - a.hunk.newStart || b.index - a.index,
     )
     .map(({ hunk }) => hunk);
   for (const hunk of hunks) {
-    if (markdown2.slice(hunk.newStart, hunk.newEnd) !== hunk.replacement)
+    if (markdown.slice(hunk.newStart, hunk.newEnd) !== hunk.replacement)
       return null;
-    markdown2 = `${markdown2.slice(0, hunk.newStart)}${hunk.originalText}${markdown2.slice(hunk.newEnd)}`;
+    markdown = `${markdown.slice(0, hunk.newStart)}${hunk.originalText}${markdown.slice(hunk.newEnd)}`;
   }
-  return markdown2;
+  return markdown;
 }
 export const DIFF_REVIEW_WRITE_ACK_TTL_MS = 15e3;
 export const MAX_PENDING_DIFF_REVIEW_WRITE_ACKS = 32;

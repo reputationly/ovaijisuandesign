@@ -1,3 +1,17 @@
 key	new	reason
 i2@5:12	i	原名 i，去掉打包器加的数字去重后缀
 a2@54:11	adapter	当前的查找适配器
+matches2@3:32	matches	去掉打包器加的数字后缀，恢复原名 matches
+current2@10:25	current	去掉打包器加的数字后缀，恢复原名 current
+state2@34:10	state	去掉打包器加的数字后缀，恢复原名 state
+update2@39:9	update	去掉打包器加的数字后缀，恢复原名 update
+close2@110:9	closeFind	关闭查找；close 是全局名
+next2@157:9	next	去掉打包器加的数字后缀，恢复原名 next
+replaceAll2@183:9	replaceAll	去掉打包器加的数字后缀，恢复原名 replaceAll
+patch2@39:45	patch	去掉打包器加的数字后缀，恢复原名 patch
+matches2@66:22	matches	去掉打包器加的数字后缀，恢复原名 matches
+selected2@101:11	selected	去掉打包器加的数字后缀，恢复原名 selected
+patch2@103:11	patch	去掉打包器加的数字后缀，恢复原名 patch
+next22@124:6	next	去掉打包器加的数字后缀，恢复原名 next
+key2@133:6	key	去掉打包器加的数字后缀，恢复原名 key
+match2@178:11	match	去掉打包器加的数字后缀，恢复原名 match

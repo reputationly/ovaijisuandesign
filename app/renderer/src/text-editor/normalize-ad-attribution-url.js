@@ -67,8 +67,8 @@ const AD_PARAM_KEYS = new Set([
   "placement",
 ]);
 
-function isAdParam(key2) {
-  return AD_PARAM_KEYS.has(key2) || /^utm_[a-z0-9_]{1,48}$/.test(key2);
+function isAdParam(key) {
+  return AD_PARAM_KEYS.has(key) || /^utm_[a-z0-9_]{1,48}$/.test(key);
 }
 
 function normalizeAdAttributionUrl(value, region) {
@@ -87,13 +87,13 @@ function normalizeAdAttributionUrl(value, region) {
       return null;
     const params = new URLSearchParams();
     for (const prefixed of [false, true]) {
-      for (const key2 of new Set(source.searchParams.keys())) {
-        if (key2.startsWith(ADS_PREFIX) !== prefixed) continue;
-        const canonicalKey = prefixed ? key2.slice(ADS_PREFIX.length) : key2;
+      for (const key of new Set(source.searchParams.keys())) {
+        if (key.startsWith(ADS_PREFIX) !== prefixed) continue;
+        const canonicalKey = prefixed ? key.slice(ADS_PREFIX.length) : key;
         if (!isAdParam(canonicalKey)) continue;
-        const values3 = source.searchParams.getAll(key2).filter(Boolean);
-        if (new Set(values3).size > 1) return null;
-        const param = values3[0];
+        const values = source.searchParams.getAll(key).filter(Boolean);
+        if (new Set(values).size > 1) return null;
+        const param = values[0];
         if (!param) continue;
         if (
           param.length > MAX_PARAM_VALUE_LENGTH ||
@@ -106,8 +106,8 @@ function normalizeAdAttributionUrl(value, region) {
     if (
       params.size === 0 &&
       (!PUBLIC_LANDING_PATH.test(source.pathname) ||
-        [...source.searchParams.keys()].some((key2) =>
-          AUTH_PARAM_KEYS.has(key2.toLowerCase()),
+        [...source.searchParams.keys()].some((key) =>
+          AUTH_PARAM_KEYS.has(key.toLowerCase()),
         ))
     )
       return null;
@@ -126,10 +126,10 @@ function normalizeAdAttributionUrl(value, region) {
 
 export function normalizeAdAttribution(value, now2 = Date.now(), region) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-  const record2 = value;
-  const { capturedAt, expiresAt } = record2;
+  const record = value;
+  const { capturedAt, expiresAt } = record;
   if (
-    record2.v !== 1 ||
+    record.v !== 1 ||
     typeof capturedAt !== "number" ||
     typeof expiresAt !== "number" ||
     !Number.isSafeInteger(capturedAt) ||
@@ -141,11 +141,11 @@ export function normalizeAdAttribution(value, now2 = Date.now(), region) {
     expiresAt - capturedAt > AD_ATTRIBUTION_MAX_AGE_MS
   )
     return null;
-  const url2 = normalizeAdAttributionUrl(record2.url, region);
-  return url2
+  const url = normalizeAdAttributionUrl(record.url, region);
+  return url
     ? {
         v: 1,
-        url: url2,
+        url,
         capturedAt,
         expiresAt,
       }

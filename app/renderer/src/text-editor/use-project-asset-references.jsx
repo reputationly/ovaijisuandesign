@@ -27,29 +27,29 @@ function useProjectAssetReferences(workspace) {
   const assets = useProjectAssetsService();
   const searchProjectAssets = reactExports.useCallback(
     async (query, limit = 50, signal) => {
-      const empty2 = {
+      const empty = {
         items: [],
         truncated: false,
       };
-      if (!projectId || signal?.aborted) return empty2;
+      if (!projectId || signal?.aborted) return empty;
       const scope = await ensureProjectFolderName(projectId);
-      if (!scope || signal?.aborted) return empty2;
+      if (!scope || signal?.aborted) return empty;
       const rows = await assets.listAssets(scope);
-      if (signal?.aborted) return empty2;
+      if (signal?.aborted) return empty;
       const normalized = query.trim().toLocaleLowerCase();
-      const matches2 = rows.filter(
+      const matches = rows.filter(
         (row) =>
           !normalized || row.name.toLocaleLowerCase().includes(normalized),
       );
       return {
-        items: matches2.slice(0, limit).map((row) => {
-          const type2 = detectFileType(row.name);
+        items: matches.slice(0, limit).map((row) => {
+          const type = detectFileType(row.name);
           const kind =
-            type2 === "image" ||
-            type2 === "video" ||
-            type2 === "audio" ||
-            type2 === "text"
-              ? type2
+            type === "image" ||
+            type === "video" ||
+            type === "audio" ||
+            type === "text"
+              ? type
               : "other";
           const reference = {
             source: "project",
@@ -63,7 +63,7 @@ function useProjectAssetReferences(workspace) {
             updatedAt: row.updatedAt,
           };
         }),
-        truncated: matches2.length > limit,
+        truncated: matches.length > limit,
       };
     },
     [assets, ensureProjectFolderName, projectId],

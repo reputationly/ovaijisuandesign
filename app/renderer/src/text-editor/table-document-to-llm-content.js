@@ -88,11 +88,11 @@ export function findAllMentions(text2) {
   MENTION_TOKEN_RE.lastIndex = 0;
   let match = MENTION_TOKEN_RE.exec(text2);
   while (match !== null) {
-    const path2 = match[1] ?? match[2] ?? "";
+    const path = match[1] ?? match[2] ?? "";
     out.push({
       start: match.index,
       end: match.index + match[0].length,
-      path: path2,
+      path,
     });
     match = MENTION_TOKEN_RE.exec(text2);
   }
@@ -191,10 +191,10 @@ export function canvasReferenceIdentity(reference) {
 export function mapCanvasReferenceCandidates(value) {
   if (!Array.isArray(value))
     throw new Error("Invalid reference search response");
-  return value.map((raw2) => {
-    if (!raw2 || typeof raw2 !== "object")
+  return value.map((raw) => {
+    if (!raw || typeof raw !== "object")
       throw new Error("Invalid reference candidate");
-    const row = raw2;
+    const row = raw;
     if (
       typeof row.id !== "string" ||
       typeof row.name !== "string" ||
@@ -220,11 +220,11 @@ export function mapCanvasReferenceCandidates(value) {
   });
 }
 export function existingCanvasReferencePath(reference, paths) {
-  const identity2 = canvasReferenceIdentity(reference);
-  for (const path2 of paths) {
-    const candidate = parseCanvasReference(path2);
-    if (candidate && canvasReferenceIdentity(candidate) === identity2)
-      return path2;
+  const identity = canvasReferenceIdentity(reference);
+  for (const path of paths) {
+    const candidate = parseCanvasReference(path);
+    if (candidate && canvasReferenceIdentity(candidate) === identity)
+      return path;
   }
   return void 0;
 }
@@ -266,12 +266,12 @@ const CLOUD_GATEWAY_URL_PREFIXES = [
         Object.values(channels),
       ),
       ...LEGACY_PLATFORM_PROVIDER_URLS,
-    ].flatMap((url2) => [url2, url2.replace("https://", "http://")]),
+    ].flatMap((url) => [url, url.replace("https://", "http://")]),
   ),
 ];
 new Set([
   "https://design.minimax.cn",
-  ...CLOUD_GATEWAY_URL_PREFIXES.filter((url2) => url2.startsWith("https://")),
+  ...CLOUD_GATEWAY_URL_PREFIXES.filter((url) => url.startsWith("https://")),
   "https://hailuo-pre.xaminim.com",
   "https://hailuoai-video-test.xaminim.com",
   "https://hailuoai.com",

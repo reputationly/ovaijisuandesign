@@ -54,16 +54,16 @@ export function ToolbarBtn({ item, contextToolbar = false }) {
     </>
   );
 }
-function getEditorHistoryAvailability(state2) {
+function getEditorHistoryAvailability(state) {
   return {
-    canUndo: undoDepth$1(state2) > 0,
-    canRedo: redoDepth(state2) > 0,
+    canUndo: undoDepth$1(state) > 0,
+    canRedo: redoDepth(state) > 0,
   };
 }
 export function EditorHistoryControls({ editor, nodeId }) {
   const { t } = useTranslation();
-  const reviewReverting = useDiffReviewStore((state2) => state2.reverting);
-  const reviewSession = useDiffReviewStore((state2) => state2.session);
+  const reviewReverting = useDiffReviewStore((state) => state.reverting);
+  const reviewSession = useDiffReviewStore((state) => state.session);
   const availability = useEditorState({
     editor,
     selector: ({ editor: currentEditor }) =>

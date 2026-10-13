@@ -48,26 +48,26 @@ function statusLabel(status, t) {
   if (status === "pending") return t("productionPlan.status.todo", "待规划");
   return t("productionPlan.status.done", "已完成");
 }
-function PendingStageRow({ stage, current: current2, displayOrder }) {
+function PendingStageRow({ stage, current, displayOrder }) {
   const { t } = useTranslation();
   return (
     <div
-      className={`relative flex min-h-7 items-center gap-1.5 rounded-md px-1.5 ${current2 ? "bg-foreground/[0.06]" : ""}`}
-      data-current={current2 ? "true" : void 0}
+      className={`relative flex min-h-7 items-center gap-1.5 rounded-md px-1.5 ${current ? "bg-foreground/[0.06]" : ""}`}
+      data-current={current ? "true" : void 0}
     >
       <span
-        className={`z-1 flex size-4.5 shrink-0 items-center justify-center rounded-full border text-[10px] ${current2 ? "border-foreground bg-foreground text-background" : "border-foreground/15 bg-card text-muted-foreground"}`}
+        className={`z-1 flex size-4.5 shrink-0 items-center justify-center rounded-full border text-[10px] ${current ? "border-foreground bg-foreground text-background" : "border-foreground/15 bg-card text-muted-foreground"}`}
       >
         {displayOrder}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
           <p
-            className={`truncate text-[13px] ${current2 ? "font-medium" : "text-foreground/50"}`}
+            className={`truncate text-[13px] ${current ? "font-medium" : "text-foreground/50"}`}
           >
             {getPendingStageActionLabel(stage)}
           </p>
-          {current2 && (
+          {current && (
             <span className="shrink-0 text-[11px] text-muted-foreground">
               {statusLabel("pending", t)}
             </span>
@@ -77,10 +77,10 @@ function PendingStageRow({ stage, current: current2, displayOrder }) {
     </div>
   );
 }
-function StageRow({ stage, current: current2, onLocate }) {
+function StageRow({ stage, current, onLocate }) {
   const { t } = useTranslation();
   const canLocate = canFocusStageOutputs(stage);
-  const statusIcon2 =
+  const statusIcon =
     stage.status === "done"
       ? Check
       : stage.status === "doing"
@@ -90,14 +90,14 @@ function StageRow({ stage, current: current2, onLocate }) {
           : CircleAlert;
   return (
     <div
-      className={`relative flex min-h-7 items-center gap-1.5 rounded-md px-1.5 ${current2 ? "bg-foreground/[0.06]" : "hover:bg-foreground/[0.03]"}`}
-      data-current={current2 ? "true" : void 0}
+      className={`relative flex min-h-7 items-center gap-1.5 rounded-md px-1.5 ${current ? "bg-foreground/[0.06]" : "hover:bg-foreground/[0.03]"}`}
+      data-current={current ? "true" : void 0}
     >
       <span
-        className={`z-1 flex size-4.5 shrink-0 items-center justify-center rounded-full border text-[10px] ${current2 ? "border-foreground bg-foreground text-background" : stage.status === "done" ? "border-foreground/25 bg-card text-muted-foreground" : "border-foreground/15 bg-card text-muted-foreground"}`}
+        className={`z-1 flex size-4.5 shrink-0 items-center justify-center rounded-full border text-[10px] ${current ? "border-foreground bg-foreground text-background" : stage.status === "done" ? "border-foreground/25 bg-card text-muted-foreground" : "border-foreground/15 bg-card text-muted-foreground"}`}
       >
         <Icon
-          icon={statusIcon2}
+          icon={statusIcon}
           size="xs"
           strokeWidth={1.5}
           className={stage.status === "doing" ? "animate-spin" : void 0}
@@ -106,11 +106,11 @@ function StageRow({ stage, current: current2, onLocate }) {
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
           <p
-            className={`truncate text-[13px] ${current2 ? "font-medium" : "text-foreground/70"}`}
+            className={`truncate text-[13px] ${current ? "font-medium" : "text-foreground/70"}`}
           >
             {getStageActionLabel(stage)}
           </p>
-          {current2 && (
+          {current && (
             <span className="shrink-0 text-[11px] font-normal text-muted-foreground">
               {statusLabel(stage.status, t)}
             </span>
@@ -147,7 +147,7 @@ export function ProductionPlanTimeline({
   onExpandedChange,
 }) {
   const { t } = useTranslation();
-  const workspaceId2 = useCurrentWorkspace();
+  const workspaceId = useCurrentWorkspace();
   const [uncontrolledExpanded, setUncontrolledExpanded] =
     reactExports.useState(false);
   const expanded = controlledExpanded ?? uncontrolledExpanded;
@@ -178,13 +178,13 @@ export function ProductionPlanTimeline({
   );
   const displayOrderById = reactExports.useMemo(
     () =>
-      new Map(timelineRows.map((row, index2) => [row.stage.id, index2 + 1])),
+      new Map(timelineRows.map((row, index) => [row.stage.id, index + 1])),
     [timelineRows],
   );
   if (!model && !loading && !error) return null;
   const handleLocate = (stage) => {
-    if (!workspaceId2) return;
-    focusStageOutputs(workspaceId2, stage);
+    if (!workspaceId) return;
+    focusStageOutputs(workspaceId, stage);
   };
   const handleToggle = () => {
     const nextExpanded = !expanded;

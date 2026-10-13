@@ -11,3 +11,21 @@ id2@479:12	id	原名 id，去掉打包器加的数字去重后缀
 t2@518:14	t	useTranslation() 返回的翻译函数 t
 ok2@566:13	ok	原名 ok，去掉打包器加的数字去重后缀
 v2@538:36	version	文本版本列表中的单个版本
+text2@36:26	text	去掉打包器加的数字后缀，恢复原名 text
+hash2@64:40	hash	去掉打包器加的数字后缀，恢复原名 hash
+disabled2@99:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+version2@125:25	version	去掉打包器加的数字后缀，恢复原名 version
+index2@125:35	index	去掉打包器加的数字后缀，恢复原名 index
+version2@216:34	version	去掉打包器加的数字后缀，恢复原名 version
+position2@216:44	position	去掉打包器加的数字后缀，恢复原名 position
+version2@233:13	version	去掉打包器加的数字后缀，恢复原名 version
+version2@242:12	version	去掉打包器加的数字后缀，恢复原名 version
+next2@286:22	next	去掉打包器加的数字后缀，恢复原名 next
+path2@371:34	path	去掉打包器加的数字后缀，恢复原名 path
+remove2@470:9	remove	去掉打包器加的数字后缀，恢复原名 remove
+seq2@381:11	seq	去掉打包器加的数字后缀，恢复原名 seq
+patch2@436:16	patch	去掉打包器加的数字后缀，恢复原名 patch
+state2@502:35	state	去掉打包器加的数字后缀，恢复原名 state
+state2@525:48	state	去掉打包器加的数字后缀，恢复原名 state
+version2@597:14	version	去掉打包器加的数字后缀，恢复原名 version
+version2@671:22	version	去掉打包器加的数字后缀，恢复原名 version

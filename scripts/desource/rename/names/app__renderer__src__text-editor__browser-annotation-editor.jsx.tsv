@@ -4,3 +4,20 @@ t2@163:14	t	useTranslation() 返回的翻译函数 t
 t2@270:14	t	useTranslation() 返回的翻译函数 t
 a2@25:21	a	第一个边界框
 b3@25:25	b	第二个边界框
+scale2@39:9	scale	去掉打包器加的数字后缀，恢复原名 scale
+text2@50:27	text	去掉打包器加的数字后缀，恢复原名 text
+length2@127:30	commentLength	评论字数，用于分桶；length 是全局名
+children2@137:13	children	去掉打包器加的数字后缀，恢复原名 children
+disabled2@135:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+scale2@155:10	scale	去掉打包器加的数字后缀，恢复原名 scale
+box2@169:9	box	去掉打包器加的数字后缀，恢复原名 box
+top2@184:7	popoverTop	浮层的纵向位置；top 是全局名
+frame2@166:11	frame	去掉打包器加的数字后缀，恢复原名 frame
+image2@288:11	image	去掉打包器加的数字后缀，恢复原名 image
+update2@318:11	update	去掉打包器加的数字后缀，恢复原名 update
+observer2@327:11	observer	去掉打包器加的数字后缀，恢复原名 observer
+index2@386:22	index	去掉打包器加的数字后缀，恢复原名 index
+comment2@446:56	comment	去掉打包器加的数字后缀，恢复原名 comment
+handleKeyDown2@469:11	handleKeyDown	去掉打包器加的数字后缀，恢复原名 handleKeyDown
+selected2@486:13	selected	去掉打包器加的数字后缀，恢复原名 selected
+comment2@513:11	comment	去掉打包器加的数字后缀，恢复原名 comment

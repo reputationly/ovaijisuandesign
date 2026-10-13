@@ -2,3 +2,10 @@ key	new	reason
 i2@25:12	i	原名 i，去掉打包器加的数字去重后缀
 a2@54:8	a	sort 比较函数的前一个 hunk 项
 b3@54:12	b	sort 比较函数的后一个 hunk 项
+decorations2@13:9	decorations	去掉打包器加的数字后缀，恢复原名 decorations
+push2@14:9	push	去掉打包器加的数字后缀，恢复原名 push
+count2@24:9	count	去掉打包器加的数字后缀，恢复原名 count
+from2@14:26	from	去掉打包器加的数字后缀，恢复原名 from
+active2@14:39	active	去掉打包器加的数字后缀，恢复原名 active
+markdown2@47:7	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+index2@49:17	index	去掉打包器加的数字后缀，恢复原名 index

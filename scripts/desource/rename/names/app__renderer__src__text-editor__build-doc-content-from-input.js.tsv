@@ -2,3 +2,11 @@ key	new	reason
 a2@49:12	a	sort 比较函数的前一个提及
 b3@49:16	b	sort 比较函数的后一个提及
 m3@56:14	fileMention	文件提及，按起点建索引
+modelCandidates2@13:9	modelCandidates	去掉打包器加的数字后缀，恢复原名 modelCandidates
+inline2@57:9	inline	去掉打包器加的数字后缀，恢复原名 inline
+token2@78:9	token	去掉打包器加的数字后缀，恢复原名 token
+end2@80:9	end	去掉打包器加的数字后缀，恢复原名 end
+token22@68:61	token	去掉打包器加的数字后缀，恢复原名 token
+next2@70:13	next	去掉打包器加的数字后缀，恢复原名 next
+token22@73:56	token	去掉打包器加的数字后缀，恢复原名 token
+next2@75:13	next	去掉打包器加的数字后缀，恢复原名 next

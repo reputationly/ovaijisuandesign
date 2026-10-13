@@ -21,8 +21,8 @@ export function selectAgentWriteSignalForNode(state2, nodeId) {
 
 const ABSOLUTE_URL_RE = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
-function joinAndNormalize(base2, rel) {
-  const normalizedBase = base2.replace(/\\/g, "/").replace(/\/+$/g, "");
+function joinAndNormalize(base, rel) {
+  const normalizedBase = base.replace(/\\/g, "/").replace(/\/+$/g, "");
   const normalizedRel = rel.replace(/\\/g, "/");
   const combined = normalizedBase
     ? `${normalizedBase}/${normalizedRel}`
@@ -101,15 +101,15 @@ export function AnnotationGutter({
     let raf = 0;
     const compute = () => {
       const hostTop = anchorEl.getBoundingClientRect().top;
-      const next2 = {};
+      const next = {};
       for (const marker of markers) {
         if (marker.seq == null) continue;
         try {
           const coords = editor.view.coordsAtPos(marker.from);
-          next2[marker.id] = coords.top - hostTop;
+          next[marker.id] = coords.top - hostTop;
         } catch {}
       }
-      setPositions(next2);
+      setPositions(next);
     };
     raf = requestAnimationFrame(compute);
     const onResize = () => {
@@ -126,9 +126,9 @@ export function AnnotationGutter({
     <div className="pointer-events-none absolute inset-y-0 right-0 w-0">
       {markers.map((marker) => {
         if (marker.seq == null) return null;
-        const top2 = positions[marker.id];
-        if (top2 == null) return null;
-        const active2 = marker.id === activeId;
+        const markerTop = positions[marker.id];
+        if (markerTop == null) return null;
+        const active = marker.id === activeId;
         return (
           <button
             key={marker.id}
@@ -137,15 +137,15 @@ export function AnnotationGutter({
             onClick={() => onActivate(marker.id)}
             className="pointer-events-auto absolute flex h-[18px] w-[18px] -translate-y-0.5 items-center justify-center rounded-full text-xs font-medium transition-transform hover:scale-110"
             style={{
-              top: top2,
+              top: markerTop,
               right: -25,
-              background: active2
+              background: active
                 ? "var(--canvas-text-accent)"
                 : "var(--canvas-text-accent-soft)",
-              color: active2
+              color: active
                 ? "var(--canvas-text-accent-foreground)"
                 : "var(--canvas-text-accent)",
-              boxShadow: active2
+              boxShadow: active
                 ? "0 0 0 2px var(--canvas-text-accent)"
                 : "none",
             }}

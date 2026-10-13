@@ -2,3 +2,10 @@ key	new	reason
 t2@42:14	t	useTranslation() 返回的翻译函数 t
 i2@50:17	i	原名 i，去掉打包器加的数字去重后缀
 t2@62:14	t	useTranslation() 返回的翻译函数 t
+toolName2@32:40	toolName	去掉打包器加的数字后缀，恢复原名 toolName
+toolName2@41:47	toolName	去掉打包器加的数字后缀，恢复原名 toolName
+index2@43:10	index	去掉打包器加的数字后缀，恢复原名 index
+keys2@55:9	keys	去掉打包器加的数字后缀，恢复原名 keys
+key2@57:9	key	去掉打包器加的数字后缀，恢复原名 key
+keys22@47:11	keys	去掉打包器加的数字后缀，恢复原名 keys
+toolName2@63:9	toolName	去掉打包器加的数字后缀，恢复原名 toolName

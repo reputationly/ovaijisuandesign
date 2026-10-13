@@ -51,9 +51,9 @@ const CANVAS_HANDOFF_METADATA_KEY = "hilo_canvas_handoff";
 export function parseCanvasGenerationHandoffTargetsFromMetadata(metadata) {
   if (!metadata || typeof metadata !== "object" || Array.isArray(metadata))
     return [];
-  const raw2 = metadata[CANVAS_HANDOFF_METADATA_KEY];
-  if (!Array.isArray(raw2)) return [];
-  return raw2
+  const raw = metadata[CANVAS_HANDOFF_METADATA_KEY];
+  if (!Array.isArray(raw)) return [];
+  return raw
     .filter(isCanvasGenerationHandoffTarget)
     .slice(0, MAX_CANVAS_HANDOFF_TARGETS);
 }
@@ -141,8 +141,8 @@ export function diagnosticToolPart(part) {
 
 export function diagnosticChatTools(messages2) {
   const result = [];
-  const visitChildren = (children2) => {
-    for (const child of children2) {
+  const visitChildren = (children) => {
+    for (const child of children) {
       if (child.type === "tool")
         result.push({
           tool: child.content,
@@ -153,21 +153,21 @@ export function diagnosticChatTools(messages2) {
       if (child.subMessages) visitChildren(child.subMessages);
     }
   };
-  for (const message2 of messages2) {
-    if (message2.type === "tool")
+  for (const message of messages2) {
+    if (message.type === "tool")
       result.push({
-        tool: message2.content,
-        partId: message2.partId,
-        callID: message2.callID,
-        status: message2.toolStatus,
+        tool: message.content,
+        partId: message.partId,
+        callID: message.callID,
+        status: message.toolStatus,
       });
-    if (message2.type === "sub_agent") {
+    if (message.type === "sub_agent") {
       result.push({
         tool: "task",
-        partId: message2.partId?.replace(/__sub_agent$/, ""),
-        status: message2.resolved ? "completed" : "running",
+        partId: message.partId?.replace(/__sub_agent$/, ""),
+        status: message.resolved ? "completed" : "running",
       });
-      visitChildren(message2.subMessages ?? []);
+      visitChildren(message.subMessages ?? []);
     }
   }
   return result;
@@ -201,17 +201,17 @@ const CONNECTOR_TOKEN_RE = new RegExp(`^${CONNECTOR_TOKEN_SOURCE}`, "u");
 
 export function parseConnectorMentionAt(text2, start2) {
   if (start2 > 0 && !/\s/u.test(text2.charAt(start2 - 1))) return void 0;
-  const match2 = CONNECTOR_TOKEN_RE.exec(text2.slice(start2));
-  if (!match2) return void 0;
+  const match = CONNECTOR_TOKEN_RE.exec(text2.slice(start2));
+  if (!match) return void 0;
   return {
-    serverName: match2[1],
-    ...(match2[2]
+    serverName: match[1],
+    ...(match[2]
       ? {
-          displayName: match2[2],
+          displayName: match[2],
         }
       : {}),
     start: start2,
-    end: start2 + match2[0].length,
+    end: start2 + match[0].length,
   };
 }
 
@@ -243,15 +243,15 @@ export const SEEDANCE_REFERENCE_AUDIO_MAX_SEC = 15.2;
 export const RESOURCE_DRAG_MIME = "application/x-hilo-resource";
 
 export function parseResourceDrag(dragEvent) {
-  const raw2 = dragEvent.dataTransfer?.getData(RESOURCE_DRAG_MIME);
-  if (!raw2) return null;
+  const raw = dragEvent.dataTransfer?.getData(RESOURCE_DRAG_MIME);
+  if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw2);
+    const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed) || parsed.length === 0) return null;
-    const first2 = parsed[0];
+    const first = parsed[0];
     if (
-      typeof first2.path !== "string" ||
-      typeof first2.absolutePath !== "string"
+      typeof first.path !== "string" ||
+      typeof first.absolutePath !== "string"
     )
       return null;
     return parsed;
@@ -271,12 +271,12 @@ export function buildResourceDragItem(
   projectAsset,
 ) {
   const detected = isDirectory ? void 0 : detectFileType(name2);
-  const type2 = detected && VALID_MEDIA_TYPES.has(detected) ? detected : "file";
+  const type = detected && VALID_MEDIA_TYPES.has(detected) ? detected : "file";
   return {
     path: relativePath,
     absolutePath,
     name: name2,
-    type: type2,
+    type,
     isDirectory,
     ...(assetId != null && {
       assetId,
@@ -290,37 +290,37 @@ export function buildResourceDragItem(
 export const TEXT_EDIT_SELECTION_MAX_LENGTH = 2e4;
 
 export function coarseLineHunk(oldLines, newLines) {
-  let start2 = 0;
+  let start = 0;
   const oldLen = oldLines.length;
   const newLen = newLines.length;
   while (
-    start2 < oldLen &&
-    start2 < newLen &&
-    oldLines[start2] === newLines[start2]
+    start < oldLen &&
+    start < newLen &&
+    oldLines[start] === newLines[start]
   )
-    start2 += 1;
+    start += 1;
   let oldEnd = oldLen;
   let newEnd = newLen;
   while (
-    oldEnd > start2 &&
-    newEnd > start2 &&
+    oldEnd > start &&
+    newEnd > start &&
     oldLines[oldEnd - 1] === newLines[newEnd - 1]
   ) {
     oldEnd -= 1;
     newEnd -= 1;
   }
-  if (oldEnd === start2 && newEnd === start2) return null;
+  if (oldEnd === start && newEnd === start) return null;
   return {
-    oldStart: start2,
-    oldCount: oldEnd - start2,
-    newStart: start2,
-    newCount: newEnd - start2,
+    oldStart: start,
+    oldCount: oldEnd - start,
+    newStart: start,
+    newCount: newEnd - start,
   };
 }
 
-function isWorkspaceRelativeMediaPath(path2) {
-  if (!path2 || typeof path2 !== "string") return false;
-  const trimmed = path2.trim();
+function isWorkspaceRelativeMediaPath(path) {
+  if (!path || typeof path !== "string") return false;
+  const trimmed = path.trim();
   if (!trimmed) return false;
   if (/^https?:\/\//i.test(trimmed)) return false;
   if (trimmed.startsWith("/files/")) return false;
@@ -332,9 +332,9 @@ function isAsrAudioInput(mediaPath, mediaType) {
   return false;
 }
 
-function mediakitLanguage(language2) {
-  if (language2 === "en") return "en";
-  if (language2 === "auto") return "auto";
+function mediakitLanguage(language) {
+  if (language === "en") return "en";
+  if (language === "auto") return "auto";
   return "zh";
 }
 
@@ -347,7 +347,7 @@ export function buildAsrGatewayRequest(input) {
     };
   }
   const isAudio = isAsrAudioInput();
-  const base2 = {
+  const base = {
     filename,
     ...(sourceNodeId
       ? {
@@ -362,13 +362,13 @@ export function buildAsrGatewayRequest(input) {
     : {
         video_path: mediaPath,
       };
-  const language2 = input.language ?? "zh";
-  if (language2 === "other") {
+  const language = input.language ?? "zh";
+  if (language === "other") {
     return {
       ok: true,
       route: "whisper",
       request: {
-        ...base2,
+        ...base,
         ...pathField,
       },
     };
@@ -377,9 +377,9 @@ export function buildAsrGatewayRequest(input) {
     ok: true,
     route: "mediakit",
     request: {
-      ...base2,
+      ...base,
       ...pathField,
-      language: mediakitLanguage(language2),
+      language: mediakitLanguage(language),
     },
   };
 }

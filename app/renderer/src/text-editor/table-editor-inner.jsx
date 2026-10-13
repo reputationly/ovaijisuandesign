@@ -49,7 +49,7 @@ function ChipPreviewCard({
   x,
   anchorTop,
   anchorBottom,
-  name: name2,
+  name: chipName,
   thumbUrl,
 }) {
   const ref = reactExports.useRef(null);
@@ -64,17 +64,17 @@ function ChipPreviewCard({
     if (left + rect.width > window.innerWidth - margin) {
       left = window.innerWidth - rect.width - margin;
     }
-    let top2 = anchorBottom + 6;
-    if (top2 + rect.height > window.innerHeight - margin) {
+    let menuTop = anchorBottom + 6;
+    if (menuTop + rect.height > window.innerHeight - margin) {
       const above = anchorTop - rect.height - 6;
-      top2 =
+      menuTop =
         above >= margin
           ? above
           : Math.max(margin, window.innerHeight - rect.height - margin);
     }
     setAdjusted({
       left,
-      top: top2,
+      top: menuTop,
     });
   }, [x, anchorTop, anchorBottom]);
   const [host] = reactExports.useState(() =>
@@ -98,7 +98,7 @@ function ChipPreviewCard({
       }}
     >
       <div className="truncate text-[13px] font-medium leading-tight">
-        {name2}
+        {chipName}
       </div>
       <div
         className="flex w-full items-center justify-center overflow-hidden"
@@ -108,7 +108,7 @@ function ChipPreviewCard({
       >
         <img
           src={thumbUrl}
-          alt={name2}
+          alt={chipName}
           loading="lazy"
           className="block max-h-[200px] w-full object-contain"
         />
@@ -117,28 +117,28 @@ function ChipPreviewCard({
     host,
   );
 }
-function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
+function AttachmentChip({ attachment, size, onRemove }) {
   const { t } = useTranslation();
-  const meta2 = useAssetMetadataStore((state) =>
+  const meta = useAssetMetadataStore((state) =>
     state.assets.get(attachment.assetId),
   );
-  const thumbnail = attachmentThumbnailUrl(attachment, meta2, size2);
+  const thumbnail = attachmentThumbnailUrl(attachment, meta, size);
   const [failedThumbnail, setFailedThumbnail] = reactExports.useState(null);
   const thumb = thumbnail === failedThumbnail ? void 0 : thumbnail;
   const previewThumb =
-    attachmentThumbnailUrl(attachment, meta2, PREVIEW_THUMB_WIDTH) ?? thumb;
-  const missing = !meta2;
+    attachmentThumbnailUrl(attachment, meta, PREVIEW_THUMB_WIDTH) ?? thumb;
+  const missing = !meta;
   const previewable = !missing && !!thumb;
   const canPreviewFullscreen =
     !missing &&
-    !!meta2 &&
+    !!meta &&
     (attachment.kind === "image" ||
       attachment.kind === "video" ||
       attachment.kind === "audio");
   const chipRef = reactExports.useRef(null);
   const [hoverPos, setHoverPos] = reactExports.useState(null);
   const [lightboxOpen, setLightboxOpen] = reactExports.useState(false);
-  const removeBtnSize = Math.max(10, Math.min(12, Math.round(size2 * 0.28)));
+  const removeBtnSize = Math.max(10, Math.min(12, Math.round(size * 0.28)));
   const removeIconSize = Math.max(6, Math.round(removeBtnSize * 0.55));
   const removeBtnOverhang =
     -Math.round(removeBtnSize / 2) + Math.round(removeBtnSize / 4);
@@ -160,14 +160,14 @@ function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
     hideHoverSync();
   };
   const handleDragStart = (event) => {
-    if (!meta2) {
+    if (!meta) {
       event.preventDefault();
       return;
     }
     hideHoverSync();
     const item = {
-      path: meta2.path,
-      absolutePath: meta2.path,
+      path: meta.path,
+      absolutePath: meta.path,
       name: attachment.name,
       type: attachment.kind,
       assetId: attachment.assetId,
@@ -184,7 +184,7 @@ function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
       );
     }
   };
-  const handleDoubleClick2 = (event) => {
+  const handleDoubleClick = (event) => {
     if (!canPreviewFullscreen) return;
     event.stopPropagation();
     event.preventDefault();
@@ -193,11 +193,11 @@ function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
   };
   const closeLightbox = () => setLightboxOpen(false);
   const lightboxItem =
-    meta2 &&
+    meta &&
     (attachment.kind === "image" ||
       attachment.kind === "video" ||
       attachment.kind === "audio")
-      ? lightboxItemFromAssetMeta(attachment.kind, meta2)
+      ? lightboxItemFromAssetMeta(attachment.kind, meta)
       : void 0;
   return (
     <>
@@ -205,14 +205,14 @@ function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
         ref={chipRef}
         className={`group/chip relative inline-flex shrink-0 items-center justify-center ${canDrag ? "cursor-grab active:cursor-grabbing" : ""}`}
         style={{
-          width: size2,
-          height: size2,
+          width: size,
+          height: size,
         }}
         draggable={canDrag}
         onPointerDown={handlePointerDown}
         onDragStart={handleDragStart}
         onDragEnd={hideHover}
-        onDoubleClick={handleDoubleClick2}
+        onDoubleClick={handleDoubleClick}
         onMouseEnter={showHover}
         onMouseLeave={hideHover}
       >
@@ -241,7 +241,7 @@ function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
               {...classifyFileType({
                 filename: attachment.name,
               })}
-              size={size2 >= 30 ? 24 : 14}
+              size={size >= 30 ? 24 : 14}
               accessibleLabel={
                 attachment.name.trim()
                   ? attachment.name
@@ -255,7 +255,7 @@ function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
           onClick={(clickEvent) => {
             clickEvent.stopPropagation();
             hideHover();
-            onRemove2();
+            onRemove();
           }}
           aria-label={t("a11y.removeAttachment", "Remove attachment")}
           className="absolute z-10 hidden cursor-pointer items-center justify-center rounded-full bg-black/60 text-white shadow-sm transition-colors group-hover/chip:flex hover:bg-black/80"
@@ -315,7 +315,7 @@ function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
         <AudioLightbox
           item={lightboxItem}
           name={attachment.name}
-          lyrics={getDisplayLyrics(meta2)}
+          lyrics={getDisplayLyrics(meta)}
           onClose={closeLightbox}
         />
       )}
@@ -326,8 +326,8 @@ function TableCellAttachmentInner({
   attachments,
   rowHeightPx,
   columnWidthPx,
-  onAdd: onAdd2,
-  onRemove: onRemove2,
+  onAdd,
+  onRemove,
 }) {
   const { t } = useTranslation();
   const { pickAsset } = useCanvasBridge();
@@ -352,7 +352,7 @@ function TableCellAttachmentInner({
         tabs: ["canvas", "upload"],
       });
       if (!picks || picks.length === 0) return;
-      const next2 = picks
+      const next = picks
         .filter(
           (pickedAsset) =>
             pickedAsset.type === "image" ||
@@ -365,7 +365,7 @@ function TableCellAttachmentInner({
           name: pickedAsset.name,
           kind: pickedAsset.type,
         }));
-      if (next2.length > 0) onAdd2(next2);
+      if (next.length > 0) onAdd(next);
     } catch (err) {
       if (err?.code === "picker_busy") return;
       console.warn("[cell-attachment] pickAsset rejected", err);
@@ -385,7 +385,7 @@ function TableCellAttachmentInner({
           key={att.assetId}
           attachment={att}
           size={chipSize}
-          onRemove={() => onRemove2(att.assetId)}
+          onRemove={() => onRemove(att.assetId)}
         />
       ))}
       <button
@@ -505,8 +505,8 @@ function TableCellTextInner({ value, onChange, rowHeightPx, maxLines }) {
         const el = textareaRef.current;
         if (!el) return;
         el.focus();
-        const end2 = el.value.length;
-        el.setSelectionRange(end2, end2);
+        const end = el.value.length;
+        el.setSelectionRange(end, end);
       });
     }
   }, [editing]);
@@ -515,11 +515,11 @@ function TableCellTextInner({ value, onChange, rowHeightPx, maxLines }) {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    const next2 = Math.max(
+    const next = Math.max(
       rowHeightPx,
       Math.min(el.scrollHeight, MAX_EDIT_HEIGHT),
     );
-    el.style.height = `${next2}px`;
+    el.style.height = `${next}px`;
   }, [draft, editing, rowHeightPx]);
   const commit = reactExports.useCallback(() => {
     setEditing(false);
@@ -588,11 +588,11 @@ function TableCellTextInner({ value, onChange, rowHeightPx, maxLines }) {
   );
 }
 const TableCellText = reactExports.memo(TableCellTextInner);
-function resizeColumn(doc2, columnId, width) {
+function resizeColumn(doc, columnId, width) {
   const clamped = Math.max(100, Math.round(width));
   return {
-    ...doc2,
-    columns: doc2.columns.map((column) =>
+    ...doc,
+    columns: doc.columns.map((column) =>
       column.id === columnId
         ? {
             ...column,
@@ -602,24 +602,24 @@ function resizeColumn(doc2, columnId, width) {
     ),
   };
 }
-function moveRow(doc2, fromId, toId, position2 = "before") {
-  const rows = moveItem(doc2.rows, fromId, toId, position2);
-  if (rows === doc2.rows) return doc2;
+function moveRow(doc, fromId, toId, position = "before") {
+  const rows = moveItem(doc.rows, fromId, toId, position);
+  if (rows === doc.rows) return doc;
   return {
-    ...doc2,
+    ...doc,
     rows,
   };
 }
-function appendAttachments(doc2, rowId, columnId, add2) {
-  if (add2.length === 0) return doc2;
+function appendAttachments(doc, rowId, columnId, add) {
+  if (add.length === 0) return doc;
   return {
-    ...doc2,
-    rows: doc2.rows.map((row) => {
+    ...doc,
+    rows: doc.rows.map((row) => {
       if (row.id !== rowId) return row;
       const existing = row.cells[columnId];
-      const list2 = Array.isArray(existing) ? existing : [];
-      const seen2 = new Set(list2.map((attachment) => attachment.assetId));
-      const merged = [...list2, ...add2.filter((attachment) => !seen2.has(attachment.assetId))];
+      const list = Array.isArray(existing) ? existing : [];
+      const seen = new Set(list.map((attachment) => attachment.assetId));
+      const merged = [...list, ...add.filter((attachment) => !seen.has(attachment.assetId))];
       return {
         ...row,
         cells: {
@@ -630,10 +630,10 @@ function appendAttachments(doc2, rowId, columnId, add2) {
     }),
   };
 }
-function removeAttachment(doc2, rowId, columnId, assetId) {
+function removeAttachment(doc, rowId, columnId, assetId) {
   return {
-    ...doc2,
-    rows: doc2.rows.map((row) => {
+    ...doc,
+    rows: doc.rows.map((row) => {
       if (row.id !== rowId) return row;
       const cell = row.cells[columnId];
       if (!Array.isArray(cell)) return row;
@@ -650,17 +650,17 @@ function removeAttachment(doc2, rowId, columnId, assetId) {
 }
 const ROW_HEIGHT_VERTICAL_PADDING = 12;
 const ROW_HEIGHT_LINE_PX = 18;
-function getRowEffectiveHeightPx(doc2, row) {
+function getRowEffectiveHeightPx(doc, row) {
   if (row.height !== void 0) return row.height;
-  return getRowHeightPx(doc2);
+  return getRowHeightPx(doc);
 }
 function linesForHeightPx(heightPx) {
   const usable = Math.max(0, heightPx - ROW_HEIGHT_VERTICAL_PADDING);
   return Math.max(1, Math.floor(usable / ROW_HEIGHT_LINE_PX));
 }
-function setRowHeightOverride(doc2, rowId, heightPx) {
+function setRowHeightOverride(doc, rowId, heightPx) {
   let mutated = false;
-  const rows = doc2.rows.map((row) => {
+  const rows = doc.rows.map((row) => {
     if (row.id !== rowId) return row;
     if (heightPx === null) {
       if (row.height === void 0) return row;
@@ -668,17 +668,17 @@ function setRowHeightOverride(doc2, rowId, heightPx) {
       const { height: _drop, ...rest } = row;
       return rest;
     }
-    const next2 = clampRowHeightPx(heightPx);
-    if (row.height === next2) return row;
+    const next = clampRowHeightPx(heightPx);
+    if (row.height === next) return row;
     mutated = true;
     return {
       ...row,
-      height: next2,
+      height: next,
     };
   });
-  if (!mutated) return doc2;
+  if (!mutated) return doc;
   return {
-    ...doc2,
+    ...doc,
     rows,
   };
 }
@@ -689,7 +689,7 @@ const ROW_DRAG_MIME = "application/x-table-row-id";
 const DEFAULT_COLUMN_WIDTH = 200;
 const MIN_COLUMN_WIDTH = 100;
 const RESIZE_HANDLE_HIT = 6;
-const CellRenderer = reactExports.memo(function CellRenderer2({
+const CellRenderer = reactExports.memo(function CellRenderer({
   rowId,
   columnId,
   columnType,
@@ -697,21 +697,21 @@ const CellRenderer = reactExports.memo(function CellRenderer2({
   rowHeightPx,
   columnWidthPx,
   maxLines,
-  apply: apply2,
+  apply,
 }) {
   const onChange = reactExports.useCallback(
-    (next2) => apply2((prev) => setCell(prev, rowId, columnId, next2)),
-    [apply2, rowId, columnId],
+    (next) => apply((prev) => setCell(prev, rowId, columnId, next)),
+    [apply, rowId, columnId],
   );
   const onAddAttachments = reactExports.useCallback(
     (picks) =>
-      apply2((prev) => appendAttachments(prev, rowId, columnId, picks)),
-    [apply2, rowId, columnId],
+      apply((prev) => appendAttachments(prev, rowId, columnId, picks)),
+    [apply, rowId, columnId],
   );
   const onRemoveAttachment = reactExports.useCallback(
     (assetId) =>
-      apply2((prev) => removeAttachment(prev, rowId, columnId, assetId)),
-    [apply2, rowId, columnId],
+      apply((prev) => removeAttachment(prev, rowId, columnId, assetId)),
+    [apply, rowId, columnId],
   );
   if (columnType === "text") {
     const textValue = typeof value === "string" ? value : "";
@@ -728,10 +728,10 @@ const CellRenderer = reactExports.memo(function CellRenderer2({
     const numberValue = typeof value === "number" ? value : null;
     return <TableCellNumber value={numberValue} onChange={onChange} />;
   }
-  const list2 = Array.isArray(value) ? value : [];
+  const list = Array.isArray(value) ? value : [];
   return (
     <TableCellAttachment
-      attachments={list2}
+      attachments={list}
       rowHeightPx={rowHeightPx}
       columnWidthPx={columnWidthPx}
       onAdd={onAddAttachments}
@@ -739,27 +739,27 @@ const CellRenderer = reactExports.memo(function CellRenderer2({
     />
   );
 });
-function RowToggle({ rowIndex, selected: selected2, onToggle }) {
+function RowToggle({ rowIndex, selected, onToggle }) {
   const { t } = useTranslation();
   return (
     <div className="relative min-h-7 w-7">
-      {!selected2 && (
+      {!selected && (
         <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[11px] tabular-nums text-muted-foreground group-hover:opacity-0 group-focus-within:opacity-0">
           {rowIndex + 1}
         </span>
       )}
       <Checkbox
         size="sm"
-        checked={selected2}
+        checked={selected}
         onCheckedChange={onToggle}
         aria-label={
-          selected2
+          selected
             ? t("canvas.table.deselectRow", "Deselect")
             : t("canvas.table.selectRow", "Select")
         }
         data-action-ui-id="canvas.table.select-row"
         className={
-          selected2
+          selected
             ? ""
             : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
         }
@@ -767,7 +767,7 @@ function RowToggle({ rowIndex, selected: selected2, onToggle }) {
     </div>
   );
 }
-function RowHandle({ rowId, rowIndex, selected: selected2, onToggle }) {
+function RowHandle({ rowId, rowIndex, selected, onToggle }) {
   const { t } = useTranslation();
   const handleDragStart = (dragEvent) => {
     dragEvent.dataTransfer.setData(ROW_DRAG_MIME, rowId);
@@ -788,14 +788,14 @@ function RowHandle({ rowId, rowIndex, selected: selected2, onToggle }) {
       >
         <DragHandleIcon />
       </span>
-      <RowToggle rowIndex={rowIndex} selected={selected2} onToggle={onToggle} />
+      <RowToggle rowIndex={rowIndex} selected={selected} onToggle={onToggle} />
     </div>
   );
 }
-function HeaderSelectAll({ state: state2, disabled: disabled2, onToggle }) {
+function HeaderSelectAll({ state, disabled, onToggle }) {
   const { t } = useTranslation();
   const title =
-    state2 === "all"
+    state === "all"
       ? t("canvas.table.deselectAll", "Deselect all")
       : t("canvas.table.selectAll", "Select all");
   return (
@@ -803,9 +803,9 @@ function HeaderSelectAll({ state: state2, disabled: disabled2, onToggle }) {
       <span className="h-5 w-3 shrink-0" aria-hidden="true" />
       <Checkbox
         size="sm"
-        checked={state2 === "all"}
-        indeterminate={state2 === "some"}
-        disabled={disabled2}
+        checked={state === "all"}
+        indeterminate={state === "some"}
+        disabled={disabled}
         onCheckedChange={onToggle}
         title={title}
         aria-label={title}
@@ -814,7 +814,7 @@ function HeaderSelectAll({ state: state2, disabled: disabled2, onToggle }) {
     </div>
   );
 }
-function useColumnResize(apply2) {
+function useColumnResize(apply) {
   const [previewWidth, setPreviewWidth] = reactExports.useState(null);
   const restoreBodyStylesRef = reactExports.useRef(null);
   reactExports.useEffect(
@@ -846,15 +846,15 @@ function useColumnResize(apply2) {
       };
       restoreBodyStylesRef.current = restore;
       const onMove = (mouseEvent) => {
-        const next2 = Math.max(
+        const next = Math.max(
           MIN_COLUMN_WIDTH,
           Math.round(startWidth + (mouseEvent.clientX - startX)),
         );
-        if (next2 === lastWidth) return;
-        lastWidth = next2;
+        if (next === lastWidth) return;
+        lastWidth = next;
         setPreviewWidth({
           id: columnId,
-          width: next2,
+          width: next,
         });
       };
       const onUp = () => {
@@ -864,14 +864,14 @@ function useColumnResize(apply2) {
         restore();
         setPreviewWidth(null);
         if (lastWidth !== startWidth) {
-          apply2((prev) => resizeColumn(prev, columnId, lastWidth));
+          apply((prev) => resizeColumn(prev, columnId, lastWidth));
         }
       };
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
       window.addEventListener("pointercancel", onUp);
     },
-    [apply2],
+    [apply],
   );
   return {
     previewWidth,
@@ -879,8 +879,8 @@ function useColumnResize(apply2) {
   };
 }
 function ColumnResizeHandle({
-  active: active2,
-  onPointerDown: onPointerDown2,
+  active,
+  onPointerDown,
 }) {
   const { t } = useTranslation();
   return (
@@ -890,7 +890,7 @@ function ColumnResizeHandle({
     // keep it as a plain decorative div and rely on the cursor + tooltip.
     // biome-ignore lint/a11y/noStaticElementInteractions: mouse-only resize affordance, no keyboard equivalent.
     <div
-      onPointerDown={onPointerDown2}
+      onPointerDown={onPointerDown}
       onDoubleClick={(clickEvent) => clickEvent.preventDefault()}
       title={t("canvas.table.resizeColumn", "Resize column")}
       className="group/resize absolute top-0 z-10 flex h-full cursor-col-resize select-none items-stretch justify-center"
@@ -905,13 +905,13 @@ function ColumnResizeHandle({
         aria-hidden="true"
         className="h-full w-[2px] transition-colors group-hover/resize:bg-[var(--canvas-accent,#3b82f6)]"
         style={{
-          background: active2 ? "var(--canvas-accent, #3b82f6)" : "transparent",
+          background: active ? "var(--canvas-accent, #3b82f6)" : "transparent",
         }}
       />
     </div>
   );
 }
-function useRowResize(apply2) {
+function useRowResize(apply) {
   const [previewRowHeight, setPreviewRowHeight] = reactExports.useState(null);
   const restoreBodyStylesRef = reactExports.useRef(null);
   reactExports.useEffect(
@@ -943,18 +943,18 @@ function useRowResize(apply2) {
       };
       restoreBodyStylesRef.current = restore;
       const onMove = (ev) => {
-        const next2 = Math.max(
+        const next = Math.max(
           MIN_ROW_HEIGHT_PX,
           Math.min(
             MAX_ROW_HEIGHT_PX,
             Math.round(startHeight + (ev.clientY - startY)),
           ),
         );
-        if (next2 === lastHeight) return;
-        lastHeight = next2;
+        if (next === lastHeight) return;
+        lastHeight = next;
         setPreviewRowHeight({
           id: rowId,
-          height: next2,
+          height: next,
         });
       };
       const onUp = () => {
@@ -964,14 +964,14 @@ function useRowResize(apply2) {
         restore();
         setPreviewRowHeight(null);
         if (lastHeight !== startHeight) {
-          apply2((prev) => setRowHeightOverride(prev, rowId, lastHeight));
+          apply((prev) => setRowHeightOverride(prev, rowId, lastHeight));
         }
       };
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
       window.addEventListener("pointercancel", onUp);
     },
-    [apply2],
+    [apply],
   );
   return {
     previewRowHeight,
@@ -979,9 +979,9 @@ function useRowResize(apply2) {
   };
 }
 function RowResizeHandle({
-  active: active2,
+  active,
   width,
-  onPointerDown: onPointerDown2,
+  onPointerDown,
 }) {
   const { t } = useTranslation();
   return (
@@ -990,7 +990,7 @@ function RowResizeHandle({
     // screen readers, so we keep it as a plain decorative div.
     // biome-ignore lint/a11y/noStaticElementInteractions: mouse-only resize affordance, no keyboard equivalent.
     <div
-      onPointerDown={onPointerDown2}
+      onPointerDown={onPointerDown}
       onDoubleClick={(clickEvent) => clickEvent.preventDefault()}
       title={t("canvas.table.resizeRow", "Resize row")}
       className="group/row-resize absolute left-0 z-10 flex cursor-row-resize select-none items-center justify-center"
@@ -1006,14 +1006,14 @@ function RowResizeHandle({
         aria-hidden="true"
         className="h-[2px] w-full transition-colors group-hover/row-resize:bg-[var(--canvas-accent,#3b82f6)]"
         style={{
-          background: active2 ? "var(--canvas-accent, #3b82f6)" : "transparent",
+          background: active ? "var(--canvas-accent, #3b82f6)" : "transparent",
         }}
       />
     </div>
   );
 }
-function FieldTypeIcon({ type: type2 }) {
-  if (type2 === "number") {
+function FieldTypeIcon({ type }) {
+  if (type === "number") {
     return (
       <CompositedSvg
         className="shrink-0"
@@ -1030,7 +1030,7 @@ function FieldTypeIcon({ type: type2 }) {
       </CompositedSvg>
     );
   }
-  if (type2 === "attachment") return <PaperclipIcon />;
+  if (type === "attachment") return <PaperclipIcon />;
   return (
     <CompositedSvg
       className="shrink-0"
@@ -1060,9 +1060,9 @@ function ColumnHeader({ column, onRename }) {
     return () => cancelAnimationFrame(id);
   }, [editing]);
   const commitEdit = () => {
-    const next2 = inputRef.current?.value ?? column.title;
+    const next = inputRef.current?.value ?? column.title;
     setEditing(false);
-    if (next2.trim() !== column.title) onRename(next2);
+    if (next.trim() !== column.title) onRename(next);
   };
   return (
     <span className="flex h-full w-full items-center gap-1 text-[12px]">
@@ -1116,14 +1116,14 @@ export function TableEditorInner({
   onSelectionChange,
 }) {
   const { t } = useTranslation();
-  const { doc: doc2, apply: apply2 } = history2;
+  const { doc, apply } = history2;
   const [showAddColumn, setShowAddColumn] = reactExports.useState(false);
   const scrollRef = reactExports.useRef(null);
-  const visible = reactExports.useMemo(() => visibleColumns(doc2), [doc2]);
-  const filteredRows = reactExports.useMemo(() => applyFilter(doc2), [doc2]);
-  const rowHeightPx = getRowHeightPx(doc2);
-  const rowHeightLines = getRowHeightLines(doc2);
-  const { previewWidth, beginColumnResize } = useColumnResize(apply2);
+  const visible = reactExports.useMemo(() => visibleColumns(doc), [doc]);
+  const filteredRows = reactExports.useMemo(() => applyFilter(doc), [doc]);
+  const rowHeightPx = getRowHeightPx(doc);
+  const rowHeightLines = getRowHeightLines(doc);
+  const { previewWidth, beginColumnResize } = useColumnResize(apply);
   const widthOf = reactExports.useCallback(
     (column) => {
       if (previewWidth && previewWidth.id === column.id)
@@ -1132,14 +1132,14 @@ export function TableEditorInner({
     },
     [previewWidth],
   );
-  const { previewRowHeight, beginRowResize } = useRowResize(apply2);
+  const { previewRowHeight, beginRowResize } = useRowResize(apply);
   const heightOf = reactExports.useCallback(
     (row) => {
       if (previewRowHeight && previewRowHeight.id === row.id)
         return previewRowHeight.height;
-      return getRowEffectiveHeightPx(doc2, row);
+      return getRowEffectiveHeightPx(doc, row);
     },
-    [previewRowHeight, doc2],
+    [previewRowHeight, doc],
   );
   const columnDefs = reactExports.useMemo(() => {
     return visible.map((column) => ({
@@ -1147,14 +1147,14 @@ export function TableEditorInner({
       header: () => (
         <ColumnHeader
           column={column}
-          onRename={(next2) =>
-            apply2((prev) => renameColumn(prev, column.id, next2))
+          onRename={(next) =>
+            apply((prev) => renameColumn(prev, column.id, next))
           }
         />
       ),
       size: column.width ?? DEFAULT_COLUMN_WIDTH,
-      cell: (info2) => {
-        const rowOriginal = info2.row.original;
+      cell: (info) => {
+        const rowOriginal = info.row.original;
         const effectivePx = rowOriginal.height ?? rowHeightPx;
         const effectiveLines =
           effectivePx === rowHeightPx
@@ -1170,26 +1170,26 @@ export function TableEditorInner({
             rowHeightPx={effectivePx}
             columnWidthPx={committedColumnWidth}
             maxLines={effectiveLines}
-            apply={apply2}
+            apply={apply}
           />
         );
       },
     }));
-  }, [visible, apply2, rowHeightPx, rowHeightLines]);
-  const table2 = useReactTable({
+  }, [visible, apply, rowHeightPx, rowHeightLines]);
+  const table = useReactTable({
     data: filteredRows,
     columns: columnDefs,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id,
   });
-  const totalColumnWidth = visible.reduce((sum2, column) => sum2 + widthOf(column), 0);
+  const totalColumnWidth = visible.reduce((sum, column) => sum + widthOf(column), 0);
   const tableMinWidth = ROW_HANDLE_WIDTH + totalColumnWidth + ADD_COLUMN_WIDTH;
   const toggleRowSelection = reactExports.useCallback(
     (rowId) => {
-      const next2 = new Set(selectedRowIds);
-      if (next2.has(rowId)) next2.delete(rowId);
-      else next2.add(rowId);
-      onSelectionChange(next2);
+      const next = new Set(selectedRowIds);
+      if (next.has(rowId)) next.delete(rowId);
+      else next.add(rowId);
+      onSelectionChange(next);
     },
     [selectedRowIds, onSelectionChange],
   );
@@ -1218,33 +1218,33 @@ export function TableEditorInner({
     );
   }, [visibleRowIds, headerSelectionState, onSelectionChange]);
   const handleCommitColumn = reactExports.useCallback(
-    ({ title, type: type2 }) => {
-      apply2((prev) =>
+    ({ title, type }) => {
+      apply((prev) =>
         addColumn(prev, {
           title,
-          type: type2,
+          type,
         }),
       );
       setShowAddColumn(false);
     },
-    [apply2],
+    [apply],
   );
   const handleAddRow = reactExports.useCallback(() => {
-    apply2((prev) => addRow(prev));
-  }, [apply2]);
+    apply((prev) => addRow(prev));
+  }, [apply]);
   const [rowDragOver, setRowDragOver] = reactExports.useState(null);
   const handleRowDragOver = reactExports.useCallback((rowId, dragEvent) => {
     if (!dragEvent.dataTransfer.types.includes(ROW_DRAG_MIME)) return;
     dragEvent.preventDefault();
     dragEvent.dataTransfer.dropEffect = "move";
     const rect = dragEvent.currentTarget.getBoundingClientRect();
-    const isAfter2 = dragEvent.clientY > rect.top + rect.height / 2;
+    const isAfter = dragEvent.clientY > rect.top + rect.height / 2;
     setRowDragOver((prev) =>
-      prev?.rowId === rowId && prev.edge === (isAfter2 ? "after" : "before")
+      prev?.rowId === rowId && prev.edge === (isAfter ? "after" : "before")
         ? prev
         : {
             rowId,
-            edge: isAfter2 ? "after" : "before",
+            edge: isAfter ? "after" : "before",
           },
     );
   }, []);
@@ -1260,9 +1260,9 @@ export function TableEditorInner({
       setRowDragOver(null);
       if (!fromId || fromId === rowId) return;
       dragEvent.preventDefault();
-      apply2((prev) => moveRow(prev, fromId, rowId, edge));
+      apply((prev) => moveRow(prev, fromId, rowId, edge));
     },
-    [apply2, rowDragOver],
+    [apply, rowDragOver],
   );
   return (
     <div className="flex h-full w-full flex-col">
@@ -1314,7 +1314,7 @@ export function TableEditorInner({
                       onToggle={handleToggleAll}
                     />
                   </th>
-                  {table2.getHeaderGroups()[0]?.headers.map((header) => {
+                  {table.getHeaderGroups()[0]?.headers.map((header) => {
                     const column = visible.find(
                       (column) => column.id === header.column.id,
                     );
@@ -1371,7 +1371,7 @@ export function TableEditorInner({
                 </tr>
               </thead>
               <tbody>
-                {table2.getRowModel().rows.length === 0 ? (
+                {table.getRowModel().rows.length === 0 ? (
                   <tr
                     style={{
                       height: rowHeightPx,
@@ -1393,7 +1393,7 @@ export function TableEditorInner({
                     </td>
                   </tr>
                 ) : (
-                  table2.getRowModel().rows.map((row) => {
+                  table.getRowModel().rows.map((row) => {
                     const isSelected = selectedRowIds.has(row.id);
                     const isDropTarget = rowDragOver?.rowId === row.id;
                     const dropEdge = isDropTarget ? rowDragOver?.edge : null;

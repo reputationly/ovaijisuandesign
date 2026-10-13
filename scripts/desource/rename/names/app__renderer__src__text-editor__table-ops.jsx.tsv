@@ -3,3 +3,17 @@ x2@139:14	x	原名 x，去掉打包器加的数字去重后缀
 y4@139:21	y	原名 y，去掉打包器加的数字去重后缀
 vw@141:9	viewportWidth	窗口宽度
 vh@142:9	viewportHeight	窗口高度
+markdown2@18:38	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+text2@55:36	text	去掉打包器加的数字后缀，恢复原名 text
+node2@55:43	node	去掉打包器加的数字后缀，恢复原名 node
+parentNode2@55:50	parentNode	去掉打包器加的数字后缀，恢复原名 parentNode
+document2@64:24	inputDocument	传给 serialize 的文档；document 是全局名
+index2@71:25	index	去掉打包器加的数字后缀，恢复原名 index
+observer2@109:11	observer	去掉打包器加的数字后缀，恢复原名 observer
+next2@98:13	next	去掉打包器加的数字后缀，恢复原名 next
+current2@103:19	current	去掉打包器加的数字后缀，恢复原名 current
+next2@119:11	next	去掉打包器加的数字后缀，恢复原名 next
+position2@133:3	position	去掉打包器加的数字后缀，恢复原名 position
+VIEWPORT_MARGIN2@138:9	VIEWPORT_MARGIN	去掉打包器加的数字后缀，恢复原名 VIEWPORT_MARGIN
+current2@186:27	current	去掉打包器加的数字后缀，恢复原名 current
+next2@187:15	next	去掉打包器加的数字后缀，恢复原名 next

@@ -3,3 +3,16 @@ m3@193:7	match	正则 exec 的匹配结果
 m3@219:28	match	正则匹配结果，供 $n 引用
 n2@223:11	groupIndex	$n 中的捕获组序号
 m3@236:9	match	正则 exec 的匹配结果
+inline2@29:9	inline	去掉打包器加的数字后缀，恢复原名 inline
+charBefore2@75:11	charBefore	去掉打包器加的数字后缀，恢复原名 charBefore
+charAfter2@79:11	charAfter	去掉打包器加的数字后缀，恢复原名 charAfter
+charBefore2@119:11	charBefore	去掉打包器加的数字后缀，恢复原名 charBefore
+charAfter2@123:11	charAfter	去掉打包器加的数字后缀，恢复原名 charAfter
+text2@171:27	text	去掉打包器加的数字后缀，恢复原名 text
+from2@171:34	from	去掉打包器加的数字后缀，恢复原名 from
+first2@174:9	first	去掉打包器加的数字后缀，恢复原名 first
+last2@175:9	last	去掉打包器加的数字后缀，恢复原名 last
+matches2@191:9	matches	去掉打包器加的数字后缀，恢复原名 matches
+from2@198:13	from	去掉打包器加的数字后缀，恢复原名 from
+token2@220:58	token	去掉打包器加的数字后缀，恢复原名 token
+first2@226:13	first	去掉打包器加的数字后缀，恢复原名 first

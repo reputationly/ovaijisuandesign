@@ -26,10 +26,10 @@ export function buildDeletedBlock(hunk, config2) {
 }
 
 export function buildDeletedInline(hunk, config2) {
-  const inline2 = document.createElement("span");
-  inline2.className = DIFF_DEL_INLINE_CLASS;
-  inline2.setAttribute("data-diff-del-for", hunk.id);
-  inline2.contentEditable = "false";
+  const inline = document.createElement("span");
+  inline.className = DIFF_DEL_INLINE_CLASS;
+  inline.setAttribute("data-diff-del-for", hunk.id);
+  inline.contentEditable = "false";
   const rendered = config2.renderMarkdown(
     hunk.deletedMarkdown,
     hunk.deletedContext,
@@ -37,11 +37,11 @@ export function buildDeletedInline(hunk, config2) {
   const onlyBlock =
     rendered?.childElementCount === 1 ? rendered.firstElementChild : null;
   if (onlyBlock?.matches("p,h1,h2,h3,h4,h5,h6")) {
-    while (onlyBlock.firstChild) inline2.appendChild(onlyBlock.firstChild);
+    while (onlyBlock.firstChild) inline.appendChild(onlyBlock.firstChild);
   } else {
-    inline2.textContent = rendered?.textContent || hunk.deletedMarkdown;
+    inline.textContent = rendered?.textContent || hunk.deletedMarkdown;
   }
-  return inline2;
+  return inline;
 }
 
 export function topLevelBlockAt(doc2, pos) {
@@ -72,16 +72,16 @@ export function isInlineTextReplacement(doc2, hunk) {
     const parent = $from.parent;
     const fromOffset = $from.parentOffset;
     const toOffset = $to.parentOffset;
-    const charBefore2 =
+    const charBefore =
       fromOffset > 0
         ? parent.textBetween(fromOffset - 1, fromOffset, void 0, "")
         : "";
-    const charAfter2 =
+    const charAfter =
       toOffset < parent.content.size
         ? parent.textBetween(toOffset, toOffset + 1, void 0, "")
         : "";
-    const startsLine = fromOffset === 0 || charBefore2 === "\n";
-    const endsLine = toOffset === parent.content.size || charAfter2 === "\n";
+    const startsLine = fromOffset === 0 || charBefore === "\n";
+    const endsLine = toOffset === parent.content.size || charAfter === "\n";
     return !(startsLine && endsLine);
   } catch {
     return false;
@@ -116,22 +116,22 @@ export function paragraphLinePlacement(doc2, hunk) {
       };
     }
     if (!parent.textContent.includes("\n")) return null;
-    const charBefore2 =
+    const charBefore =
       fromOffset > 0
         ? parent.textBetween(fromOffset - 1, fromOffset, void 0, "")
         : "";
-    const charAfter2 =
+    const charAfter =
       toOffset < parent.content.size
         ? parent.textBetween(toOffset, toOffset + 1, void 0, "")
         : "";
-    const startsLine = fromOffset === 0 || charBefore2 === "\n";
-    const endsLine = toOffset === parent.content.size || charAfter2 === "\n";
+    const startsLine = fromOffset === 0 || charBefore === "\n";
+    const endsLine = toOffset === parent.content.size || charAfter === "\n";
     const deletionAtLineBoundary =
       hunk.zeroWidth &&
       (fromOffset === 0 ||
         fromOffset === parent.content.size ||
-        charBefore2 === "\n" ||
-        charAfter2 === "\n");
+        charBefore === "\n" ||
+        charAfter === "\n");
     const additionEndingLine =
       !hunk.zeroWidth && hunk.deletedMarkdown === "" && endsLine;
     return (hunk.zeroWidth && deletionAtLineBoundary) ||
@@ -168,13 +168,13 @@ function isWordChar(ch) {
   return ch != null && WORD_CHAR.test(ch);
 }
 
-function isWholeWordMatch(text2, from2, to) {
-  const before = text2[from2 - 1];
-  const after = text2[to];
-  const first2 = text2[from2];
-  const last2 = text2[to - 1];
-  if (isWordChar(before) && isWordChar(first2)) return false;
-  if (isWordChar(after) && isWordChar(last2)) return false;
+function isWholeWordMatch(text, from, to) {
+  const before = text[from - 1];
+  const after = text[to];
+  const first = text[from];
+  const last = text[to - 1];
+  if (isWordChar(before) && isWordChar(first)) return false;
+  if (isWordChar(after) && isWordChar(last)) return false;
   return true;
 }
 
@@ -188,21 +188,21 @@ export function findMatchesInText(text2, query, options, opts) {
   pattern.lastIndex = 0;
   const maxMatches = opts?.maxMatches ?? MAX_FIND_MATCHES;
   const baseOffset = opts?.baseOffset ?? 0;
-  const matches2 = [];
+  const matches = [];
   let limited = false;
   let match = pattern.exec(text2);
   while (match != null) {
     if (match[0].length === 0) {
       pattern.lastIndex += 1;
     } else {
-      const from2 = match.index;
+      const from = match.index;
       const to = match.index + match[0].length;
-      if (!options.wholeWord || isWholeWordMatch(text2, from2, to)) {
-        matches2.push({
-          from: from2 + baseOffset,
+      if (!options.wholeWord || isWholeWordMatch(text2, from, to)) {
+        matches.push({
+          from: from + baseOffset,
           to: to + baseOffset,
         });
-        if (matches2.length >= maxMatches) {
+        if (matches.length >= maxMatches) {
           limited = true;
           break;
         }
@@ -211,20 +211,20 @@ export function findMatchesInText(text2, query, options, opts) {
     match = pattern.exec(text2);
   }
   return {
-    matches: matches2,
+    matches,
     limited,
   };
 }
 
 function expandReplacement(match, replacement) {
-  return replacement.replace(/\$(\$|&|\d{1,2})/g, (full, token2) => {
-    if (token2 === "$") return "$";
-    if (token2 === "&") return match[0];
-    const groupIndex = Number(token2);
+  return replacement.replace(/\$(\$|&|\d{1,2})/g, (full, token) => {
+    if (token === "$") return "$";
+    if (token === "&") return match[0];
+    const groupIndex = Number(token);
     if (match[groupIndex] !== void 0) return match[groupIndex];
-    if (token2.length === 2) {
-      const first2 = Number(token2[0]);
-      if (match[first2] !== void 0) return match[first2] + token2[1];
+    if (token.length === 2) {
+      const first = Number(token[0]);
+      if (match[first] !== void 0) return match[first] + token[1];
     }
     return full;
   });

@@ -70,9 +70,9 @@ import { NodeShell } from "../canvas/node-shell-inner.jsx";
 import { NodeBody } from "../canvas/node-body-inner.jsx";
 import { parseTableDocument } from "./parse-table-document.js";
 import { serializeTableDocument } from "./table-document-to-llm-content.js";
-function removeColumn(doc2, columnId) {
-  const columns = doc2.columns.filter((column) => column.id !== columnId);
-  const rows = doc2.rows.map((row) => {
+function removeColumn(doc, columnId) {
+  const columns = doc.columns.filter((column) => column.id !== columnId);
+  const rows = doc.rows.map((row) => {
     if (!(columnId in row.cells)) return row;
     const { [columnId]: _omit, ...rest } = row.cells;
     return {
@@ -80,18 +80,18 @@ function removeColumn(doc2, columnId) {
       cells: rest,
     };
   });
-  const filter2 = pruneFilterColumn(doc2.filter, columnId);
+  const filter = pruneFilterColumn(doc.filter, columnId);
   return {
-    ...doc2,
+    ...doc,
     columns,
     rows,
-    filter: filter2,
+    filter,
   };
 }
-function toggleColumnVisibility(doc2, columnId, visible) {
+function toggleColumnVisibility(doc, columnId, visible) {
   return {
-    ...doc2,
-    columns: doc2.columns.map((column) =>
+    ...doc,
+    columns: doc.columns.map((column) =>
       column.id === columnId
         ? {
             ...column,
@@ -101,66 +101,66 @@ function toggleColumnVisibility(doc2, columnId, visible) {
     ),
   };
 }
-function moveColumn(doc2, fromId, toId, position2 = "before") {
-  const columns = moveItem(doc2.columns, fromId, toId, position2);
-  if (columns === doc2.columns) return doc2;
+function moveColumn(doc, fromId, toId, position = "before") {
+  const columns = moveItem(doc.columns, fromId, toId, position);
+  if (columns === doc.columns) return doc;
   return {
-    ...doc2,
+    ...doc,
     columns,
   };
 }
-function removeRow(doc2, rowId) {
+function removeRow(doc, rowId) {
   return {
-    ...doc2,
-    rows: doc2.rows.filter((row) => row.id !== rowId),
+    ...doc,
+    rows: doc.rows.filter((row) => row.id !== rowId),
   };
 }
-function setFilterMatch(doc2, match2) {
-  if (!doc2.filter) return doc2;
-  if (doc2.filter.match === match2) return doc2;
+function setFilterMatch(doc, match) {
+  if (!doc.filter) return doc;
+  if (doc.filter.match === match) return doc;
   return {
-    ...doc2,
+    ...doc,
     filter: {
-      ...doc2.filter,
-      match: match2,
+      ...doc.filter,
+      match,
     },
   };
 }
-function addFilterCondition(doc2, condition) {
-  const existing = doc2.filter?.conditions ?? [];
+function addFilterCondition(doc, condition) {
+  const existing = doc.filter?.conditions ?? [];
   return {
-    ...doc2,
+    ...doc,
     filter: {
-      match: doc2.filter?.match ?? "any",
+      match: doc.filter?.match ?? "any",
       conditions: [...existing, condition],
     },
   };
 }
-function updateFilterCondition(doc2, conditionId, patch2) {
-  if (!doc2.filter) return doc2;
-  const conditions = doc2.filter.conditions.map((condition) =>
+function updateFilterCondition(doc, conditionId, patch) {
+  if (!doc.filter) return doc;
+  const conditions = doc.filter.conditions.map((condition) =>
     condition.id === conditionId
       ? {
           ...condition,
-          ...patch2,
+          ...patch,
         }
       : condition,
   );
   return {
-    ...doc2,
+    ...doc,
     filter: {
-      ...doc2.filter,
+      ...doc.filter,
       conditions,
     },
   };
 }
 function FieldConfigPanelInner({
-  history: history2,
+  history: tableHistory,
   onClose,
   align = "right",
 }) {
   const { t } = useTranslation();
-  const { doc: doc2, apply: apply2 } = history2;
+  const { doc, apply } = tableHistory;
   const panelRef = reactExports.useRef(null);
   const [showAddColumn, setShowAddColumn] = reactExports.useState(false);
   reactExports.useEffect(() => {
@@ -176,31 +176,31 @@ function FieldConfigPanelInner({
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose, showAddColumn]);
   const handleToggleVisibility = (columnId) => {
-    apply2((prev) => toggleColumnVisibility(prev, columnId));
+    apply((prev) => toggleColumnVisibility(prev, columnId));
   };
   const handleRename = (columnId, title) => {
-    apply2((prev) => renameColumn(prev, columnId, title));
+    apply((prev) => renameColumn(prev, columnId, title));
   };
-  const handleDelete2 = (columnId) => {
-    apply2((prev) => removeColumn(prev, columnId));
+  const handleDelete = (columnId) => {
+    apply((prev) => removeColumn(prev, columnId));
   };
   const handleMoveColumn = reactExports.useCallback(
-    (fromId, toId, position2) => {
-      apply2((prev) => moveColumn(prev, fromId, toId, position2));
+    (fromId, toId, position) => {
+      apply((prev) => moveColumn(prev, fromId, toId, position));
     },
-    [apply2],
+    [apply],
   );
   const handleCommitColumn = reactExports.useCallback(
-    ({ title, type: type2 }) => {
-      apply2((prev) =>
+    ({ title, type }) => {
+      apply((prev) =>
         addColumn(prev, {
           title,
-          type: type2,
+          type,
         }),
       );
       setShowAddColumn(false);
     },
-    [apply2],
+    [apply],
   );
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: popover container; keyboard handled by inner controls
@@ -230,7 +230,7 @@ function FieldConfigPanelInner({
         </span>
       </div>
       <div className="flex max-h-[360px] flex-col gap-0.5 overflow-y-auto p-1">
-        {doc2.columns.length === 0 ? (
+        {doc.columns.length === 0 ? (
           <div
             className="px-3 py-4 text-center text-[12px]"
             style={{
@@ -240,13 +240,13 @@ function FieldConfigPanelInner({
             {t("canvas.table.noColumns", "No columns")}
           </div>
         ) : (
-          doc2.columns.map((column) => (
+          doc.columns.map((column) => (
             <FieldRow
               key={column.id}
               column={column}
               onToggle={() => handleToggleVisibility(column.id)}
               onRename={(title) => handleRename(column.id, title)}
-              onDelete={() => handleDelete2(column.id)}
+              onDelete={() => handleDelete(column.id)}
               onMove={handleMoveColumn}
             />
           ))
@@ -282,13 +282,13 @@ function createCondition(column) {
     value: void 0,
   };
 }
-function FilterPanelInner({ history: history2, onClose, align = "right" }) {
+function FilterPanelInner({ history: tableHistory, onClose, align = "right" }) {
   const { t } = useTranslation();
-  const { doc: doc2, apply: apply2 } = history2;
+  const { doc, apply } = tableHistory;
   const panelRef = reactExports.useRef(null);
-  const conditions = doc2.filter?.conditions ?? [];
-  const match2 = doc2.filter?.match ?? "any";
-  const hasColumns = doc2.columns.length > 0;
+  const conditions = doc.filter?.conditions ?? [];
+  const match = doc.filter?.match ?? "any";
+  const hasColumns = doc.columns.length > 0;
   reactExports.useEffect(() => {
     const handler = (domEvent) => {
       const target = domEvent.target;
@@ -306,56 +306,56 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose]);
   const handleColumnChange = (conditionId, columnId) => {
-    const column = doc2.columns.find((column) => column.id === columnId);
+    const column = doc.columns.find((column) => column.id === columnId);
     if (!column) return;
     const ops = operatorsForFieldType(column.type);
-    apply2((prev) => {
-      const current2 = prev.filter?.conditions.find(
+    apply((prev) => {
+      const current = prev.filter?.conditions.find(
         (condition) => condition.id === conditionId,
       );
       const keepOp =
-        current2 && ops.includes(current2.op)
-          ? current2.op
+        current && ops.includes(current.op)
+          ? current.op
           : defaultOpForFieldType(column.type);
       const needsValue = OPS_REQUIRING_VALUE.has(keepOp);
       return updateFilterCondition(prev, conditionId, {
         columnId,
         op: keepOp,
-        value: needsValue ? current2?.value : void 0,
+        value: needsValue ? current?.value : void 0,
       });
     });
   };
   const handleOpChange = (conditionId, op) => {
-    apply2((prev) => {
-      const current2 = prev.filter?.conditions.find(
+    apply((prev) => {
+      const current = prev.filter?.conditions.find(
         (condition) => condition.id === conditionId,
       );
       const needsValue = OPS_REQUIRING_VALUE.has(op);
       return updateFilterCondition(prev, conditionId, {
         op,
-        value: needsValue ? current2?.value : void 0,
+        value: needsValue ? current?.value : void 0,
       });
     });
   };
-  const handleValueChange = (conditionId, raw2, columnType) => {
+  const handleValueChange = (conditionId, raw, columnType) => {
     const value =
-      raw2 === "" ? void 0 : columnType === "number" ? Number(raw2) : raw2;
-    apply2((prev) =>
+      raw === "" ? void 0 : columnType === "number" ? Number(raw) : raw;
+    apply((prev) =>
       updateFilterCondition(prev, conditionId, {
         value,
       }),
     );
   };
   const handleRemoveCondition = (conditionId) => {
-    apply2((prev) => removeFilterCondition(prev, conditionId));
+    apply((prev) => removeFilterCondition(prev, conditionId));
   };
   const handleAddCondition = () => {
-    const firstColumn = doc2.columns[0];
+    const firstColumn = doc.columns[0];
     if (!firstColumn) return;
-    apply2((prev) => addFilterCondition(prev, createCondition(firstColumn)));
+    apply((prev) => addFilterCondition(prev, createCondition(firstColumn)));
   };
-  const handleMatchChange = (next2) => {
-    apply2((prev) => setFilterMatch(prev, next2));
+  const handleMatchChange = (next) => {
+    apply((prev) => setFilterMatch(prev, next));
   };
   const showMatchSelector = conditions.length >= 2;
   const matchLabels = reactExports.useMemo(
@@ -384,7 +384,7 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
           <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
             <span>{t("canvas.table.filter.match.prefix", "Match")}</span>
             <Select
-              value={match2}
+              value={match}
               items={matchLabels}
               onValueChange={(nextMatch) => {
                 if (nextMatch != null) handleMatchChange(nextMatch);
@@ -422,13 +422,13 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
             <ConditionRow
               key={cond.id}
               condition={cond}
-              columns={doc2.columns}
+              columns={doc.columns}
               onColumnChange={(columnId) =>
                 handleColumnChange(cond.id, columnId)
               }
               onOpChange={(op) => handleOpChange(cond.id, op)}
-              onValueChange={(raw2, columnType) =>
-                handleValueChange(cond.id, raw2, columnType)
+              onValueChange={(raw, columnType) =>
+                handleValueChange(cond.id, raw, columnType)
               }
               onRemove={() => handleRemoveCondition(cond.id)}
             />
@@ -448,11 +448,11 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
   );
 }
 const FilterPanel = reactExports.memo(FilterPanelInner);
-function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
+function RowHeightPanelInner({ history: tableHistory, onClose, align = "right" }) {
   const { t } = useTranslation();
-  const { doc: doc2, apply: apply2 } = history2;
+  const { doc, apply } = tableHistory;
   const panelRef = reactExports.useRef(null);
-  const current2 = getRowHeight(doc2);
+  const current = getRowHeight(doc);
   reactExports.useEffect(() => {
     const handler = (domEvent) => {
       if (panelRef.current && !panelRef.current.contains(domEvent.target)) {
@@ -462,8 +462,8 @@ function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose]);
-  const handlePick = (next2) => {
-    if (next2 !== current2) apply2((prev) => setRowHeight(prev, next2));
+  const handlePick = (next) => {
+    if (next !== current) apply((prev) => setRowHeight(prev, next));
     onClose();
   };
   return (
@@ -495,7 +495,7 @@ function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
       </div>
       <div className="flex flex-col gap-0.5 p-1">
         {ROW_HEIGHT_ORDER.map((opt) => {
-          const active2 = opt === current2;
+          const active = opt === current;
           return (
             <button
               key={opt}
@@ -512,7 +512,7 @@ function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
                   ROW_HEIGHT_LABELS[opt].defaultLabel,
                 )}
               </span>
-              {active2 && <CheckIcon />}
+              {active && <CheckIcon />}
             </button>
           );
         })}
@@ -528,70 +528,70 @@ function createHistory(initial) {
     autoArchive: false,
   });
 }
-function mergeOptionalField(draft, key2, next2, prev) {
-  if (next2 === void 0) {
-    if (prev !== void 0) delete draft[key2];
+function mergeOptionalField(draft, key, next, prev) {
+  if (next === void 0) {
+    if (prev !== void 0) delete draft[key];
     return;
   }
-  draft[key2] = next2;
+  draft[key] = next;
 }
-function mergeColumnInto(draft, next2, prev) {
-  if (next2 === prev) return;
-  if (next2.id !== prev.id) draft.id = next2.id;
-  if (next2.title !== prev.title) draft.title = next2.title;
-  if (next2.type !== prev.type) draft.type = next2.type;
-  if (next2.visible !== prev.visible) draft.visible = next2.visible;
-  if (next2.width !== prev.width) draft.width = next2.width;
+function mergeColumnInto(draft, next, prev) {
+  if (next === prev) return;
+  if (next.id !== prev.id) draft.id = next.id;
+  if (next.title !== prev.title) draft.title = next.title;
+  if (next.type !== prev.type) draft.type = next.type;
+  if (next.visible !== prev.visible) draft.visible = next.visible;
+  if (next.width !== prev.width) draft.width = next.width;
 }
-function mergeCellsInto(draft, next2, prev) {
-  for (const key2 of Object.keys(prev)) {
-    if (!(key2 in next2)) delete draft[key2];
+function mergeCellsInto(draft, next, prev) {
+  for (const key of Object.keys(prev)) {
+    if (!(key in next)) delete draft[key];
   }
-  for (const key2 of Object.keys(next2)) {
-    if (next2[key2] !== prev[key2]) draft[key2] = next2[key2];
-  }
-}
-function mergeRowInto(draft, next2, prev) {
-  if (next2 === prev) return;
-  if (next2.id !== prev.id) draft.id = next2.id;
-  if (next2.cells !== prev.cells) {
-    mergeCellsInto(draft.cells, next2.cells, prev.cells);
-  }
-  if (next2.height !== prev.height) {
-    if (next2.height === void 0) delete draft.height;
-    else draft.height = next2.height;
+  for (const key of Object.keys(next)) {
+    if (next[key] !== prev[key]) draft[key] = next[key];
   }
 }
-function tryMergeArrayById(draft, next2, prev, mergeItem) {
-  if (next2 === prev) return true;
-  if (next2.length === prev.length) {
-    for (let i = 0; i < next2.length; i++) {
-      const nextItem = next2[i];
+function mergeRowInto(draft, next, prev) {
+  if (next === prev) return;
+  if (next.id !== prev.id) draft.id = next.id;
+  if (next.cells !== prev.cells) {
+    mergeCellsInto(draft.cells, next.cells, prev.cells);
+  }
+  if (next.height !== prev.height) {
+    if (next.height === void 0) delete draft.height;
+    else draft.height = next.height;
+  }
+}
+function tryMergeArrayById(draft, next, prev, mergeItem) {
+  if (next === prev) return true;
+  if (next.length === prev.length) {
+    for (let i = 0; i < next.length; i++) {
+      const nextItem = next[i];
       const prevItem = prev[i];
       if (!nextItem || !prevItem || nextItem.id !== prevItem.id) return false;
     }
-    for (let i = 0; i < next2.length; i++) {
-      const nextItem = next2[i];
+    for (let i = 0; i < next.length; i++) {
+      const nextItem = next[i];
       const prevItem = prev[i];
       if (nextItem !== prevItem) mergeItem(draft[i], nextItem, prevItem);
     }
     return true;
   }
-  if (next2.length === prev.length + 1) {
+  if (next.length === prev.length + 1) {
     for (let i = 0; i < prev.length; i++) {
-      const nextItem = next2[i];
+      const nextItem = next[i];
       const prevItem = prev[i];
       if (!nextItem || !prevItem || nextItem.id !== prevItem.id) return false;
     }
-    draft.push(next2[prev.length]);
+    draft.push(next[prev.length]);
     return true;
   }
-  if (next2.length + 1 === prev.length) {
+  if (next.length + 1 === prev.length) {
     let removedAt = -1;
     let scan = 0;
     for (let i = 0; i < prev.length; i++) {
       const prevItem = prev[i];
-      const nextItem = scan < next2.length ? next2[scan] : void 0;
+      const nextItem = scan < next.length ? next[scan] : void 0;
       if (prevItem && nextItem && prevItem.id === nextItem.id) {
         scan++;
       } else if (removedAt === -1) {
@@ -600,83 +600,83 @@ function tryMergeArrayById(draft, next2, prev, mergeItem) {
         return false;
       }
     }
-    if (removedAt >= 0 && scan === next2.length) {
+    if (removedAt >= 0 && scan === next.length) {
       draft.splice(removedAt, 1);
       return true;
     }
   }
   return false;
 }
-function mergeDocIntoDraft(draft, next2, prev) {
-  if (next2 === prev) return;
-  if (next2.version !== prev.version) draft.version = next2.version;
-  if (next2.columns !== prev.columns) {
+function mergeDocIntoDraft(draft, next, prev) {
+  if (next === prev) return;
+  if (next.version !== prev.version) draft.version = next.version;
+  if (next.columns !== prev.columns) {
     if (
       !tryMergeArrayById(
         draft.columns,
-        next2.columns,
+        next.columns,
         prev.columns,
         mergeColumnInto,
       )
     ) {
-      draft.columns = next2.columns;
+      draft.columns = next.columns;
     }
   }
-  if (next2.rows !== prev.rows) {
-    if (!tryMergeArrayById(draft.rows, next2.rows, prev.rows, mergeRowInto)) {
-      draft.rows = next2.rows;
+  if (next.rows !== prev.rows) {
+    if (!tryMergeArrayById(draft.rows, next.rows, prev.rows, mergeRowInto)) {
+      draft.rows = next.rows;
     }
   }
-  if (next2.filter !== prev.filter) {
-    mergeOptionalField(draft, "filter", next2.filter, prev.filter);
+  if (next.filter !== prev.filter) {
+    mergeOptionalField(draft, "filter", next.filter, prev.filter);
   }
-  if (next2.rowHeight !== prev.rowHeight) {
-    mergeOptionalField(draft, "rowHeight", next2.rowHeight, prev.rowHeight);
+  if (next.rowHeight !== prev.rowHeight) {
+    mergeOptionalField(draft, "rowHeight", next.rowHeight, prev.rowHeight);
   }
 }
 function useTableHistory(initial) {
   const travelsRef = reactExports.useRef(null);
   if (travelsRef.current === null) travelsRef.current = createHistory(initial);
-  const [doc2, setDoc] = reactExports.useState(initial);
+  const [doc, setDoc] = reactExports.useState(initial);
   reactExports.useEffect(() => {
     travelsRef.current = createHistory(initial);
     setDoc(initial);
   }, [initial]);
-  const apply2 = reactExports.useCallback((transform2) => {
-    const travels2 = travelsRef.current;
-    if (!travels2) return;
-    const prev = travels2.getState();
-    const next2 = transform2(prev);
-    if (next2 === prev) return;
-    travels2.setState((draft) => {
-      mergeDocIntoDraft(draft, next2, prev);
+  const apply = reactExports.useCallback((transform) => {
+    const travels = travelsRef.current;
+    if (!travels) return;
+    const prev = travels.getState();
+    const next = transform(prev);
+    if (next === prev) return;
+    travels.setState((draft) => {
+      mergeDocIntoDraft(draft, next, prev);
     });
-    travels2.archive();
-    setDoc(travels2.getState());
+    travels.archive();
+    setDoc(travels.getState());
   }, []);
-  const reset2 = reactExports.useCallback((next2) => {
-    travelsRef.current = createHistory(next2);
-    setDoc(next2);
+  const reset = reactExports.useCallback((next) => {
+    travelsRef.current = createHistory(next);
+    setDoc(next);
   }, []);
-  const undo2 = reactExports.useCallback(() => {
-    const travels2 = travelsRef.current;
-    if (!travels2?.canBack()) return;
-    travels2.back();
-    setDoc(travels2.getState());
+  const undo = reactExports.useCallback(() => {
+    const travels = travelsRef.current;
+    if (!travels?.canBack()) return;
+    travels.back();
+    setDoc(travels.getState());
   }, []);
-  const redo2 = reactExports.useCallback(() => {
-    const travels2 = travelsRef.current;
-    if (!travels2?.canForward()) return;
-    travels2.forward();
-    setDoc(travels2.getState());
+  const redo = reactExports.useCallback(() => {
+    const travels = travelsRef.current;
+    if (!travels?.canForward()) return;
+    travels.forward();
+    setDoc(travels.getState());
   }, []);
   const travels = travelsRef.current;
   return {
-    doc: doc2,
-    apply: apply2,
-    reset: reset2,
-    undo: undo2,
-    redo: redo2,
+    doc,
+    apply,
+    reset,
+    undo,
+    redo,
     canUndo: travels?.canBack() ?? false,
     canRedo: travels?.canForward() ?? false,
   };
@@ -704,16 +704,16 @@ function ToolbarButton({
   title,
   label,
   onClick,
-  disabled: disabled2,
-  active: active2,
-  dot: dot2,
-  children: children2,
+  disabled,
+  active,
+  dot,
+  children,
 }) {
   return (
     <button
       type="button"
       title={title}
-      disabled={disabled2}
+      disabled={disabled}
       onClick={onClick}
       className={
         label
@@ -722,12 +722,12 @@ function ToolbarButton({
       }
       style={{
         color: "var(--fg-muted, #666)",
-        background: active2 ? "var(--bg-subtle, #f5f5f5)" : void 0,
+        background: active ? "var(--bg-subtle, #f5f5f5)" : void 0,
       }}
     >
-      {children2}
+      {children}
       {label && <span>{label}</span>}
-      {dot2 && (
+      {dot && (
         <span
           className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full"
           style={{
@@ -829,7 +829,7 @@ Object.prototype.constructor.toString();
 function TableToolbarInner({
   title,
   onTitleChange,
-  history: history2,
+  history: tableHistory,
   onClose,
   selectedCount,
   onRemoveSelected,
@@ -843,7 +843,7 @@ function TableToolbarInner({
     if (trimmed !== title) onTitleChange(trimmed || title);
   };
   const filterActive =
-    !!history2.doc.filter && history2.doc.filter.conditions.length > 0;
+    !!tableHistory.doc.filter && tableHistory.doc.filter.conditions.length > 0;
   return (
     <div
       className="relative flex shrink-0 items-center gap-2 px-4 py-2.5"
@@ -922,7 +922,7 @@ function TableToolbarInner({
           </ToolbarButton>
           {openPanel === "fields" && (
             <FieldConfigPanel
-              history={history2}
+              history={tableHistory}
               align="left"
               onClose={() => setOpenPanel(null)}
             />
@@ -942,7 +942,7 @@ function TableToolbarInner({
           </ToolbarButton>
           {openPanel === "filter" && (
             <FilterPanel
-              history={history2}
+              history={tableHistory}
               align="right"
               onClose={() => setOpenPanel(null)}
             />
@@ -961,7 +961,7 @@ function TableToolbarInner({
           </ToolbarButton>
           {openPanel === "rowHeight" && (
             <RowHeightPanel
-              history={history2}
+              history={tableHistory}
               align="right"
               onClose={() => setOpenPanel(null)}
             />
@@ -975,15 +975,15 @@ function TableToolbarInner({
         />
         <ToolbarButton
           title={t("canvas.undo", "Undo")}
-          onClick={history2.undo}
-          disabled={!history2.canUndo}
+          onClick={tableHistory.undo}
+          disabled={!tableHistory.canUndo}
         >
           <UndoIcon />
         </ToolbarButton>
         <ToolbarButton
           title={t("canvas.redo", "Redo")}
-          onClick={history2.redo}
-          disabled={!history2.canRedo}
+          onClick={tableHistory.redo}
+          disabled={!tableHistory.canRedo}
         >
           <RedoIcon />
         </ToolbarButton>
@@ -1004,39 +1004,39 @@ const TableToolbar = reactExports.memo(TableToolbarInner);
 const NOOP_TITLE_CHANGE = () => {};
 function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
   const { t } = useTranslation();
-  const active2 = useCanvasActive();
+  const active = useCanvasActive();
   const startDoc = initialDoc ?? createEmptyDocument();
-  const history2 = useTableHistory(startDoc);
+  const tableHistory = useTableHistory(startDoc);
   const baselineDocRef = reactExports.useRef(startDoc);
   const [selectedRowIds, setSelectedRowIds] = reactExports.useState(
     () => new Set(),
   );
   const validSelectedRowIds = reactExports.useMemo(() => {
     if (selectedRowIds.size === 0) return selectedRowIds;
-    const live = new Set(history2.doc.rows.map((row) => row.id));
+    const live = new Set(tableHistory.doc.rows.map((row) => row.id));
     let drift = false;
-    const next2 = new Set();
+    const next = new Set();
     for (const id of selectedRowIds) {
-      if (live.has(id)) next2.add(id);
+      if (live.has(id)) next.add(id);
       else drift = true;
     }
-    return drift ? next2 : selectedRowIds;
-  }, [selectedRowIds, history2.doc.rows]);
+    return drift ? next : selectedRowIds;
+  }, [selectedRowIds, tableHistory.doc.rows]);
   const handleDeleteSelected = reactExports.useCallback(() => {
     if (validSelectedRowIds.size === 0) return;
-    history2.apply((prev) => {
-      let next2 = prev;
+    tableHistory.apply((prev) => {
+      let next = prev;
       for (const id of validSelectedRowIds) {
-        next2 = removeRow(next2, id);
+        next = removeRow(next, id);
       }
-      return next2;
+      return next;
     });
     setSelectedRowIds(new Set());
-  }, [validSelectedRowIds, history2]);
+  }, [validSelectedRowIds, tableHistory]);
   const handleClose = reactExports.useCallback(() => {
-    const next2 = history2.doc;
-    onClose(next2 === baselineDocRef.current ? void 0 : next2);
-  }, [history2.doc, onClose]);
+    const next = tableHistory.doc;
+    onClose(next === baselineDocRef.current ? void 0 : next);
+  }, [tableHistory.doc, onClose]);
   const panelRef = reactExports.useRef(null);
   const handlePanelDragLeave = reactExports.useCallback(
     (event) => {
@@ -1050,7 +1050,7 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
     [handleClose],
   );
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     const isInEditor = (target) =>
       target instanceof HTMLElement &&
       (target.tagName === "INPUT" ||
@@ -1069,24 +1069,24 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
         handleClose();
         return;
       }
-      const meta2 = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
-      if (meta2 && (keyboardEvent.key === "z" || keyboardEvent.key === "Z")) {
+      const meta = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
+      if (meta && (keyboardEvent.key === "z" || keyboardEvent.key === "Z")) {
         if (isInEditor(keyboardEvent.target)) return;
         keyboardEvent.stopPropagation();
         keyboardEvent.preventDefault();
-        if (keyboardEvent.shiftKey) history2.redo();
-        else history2.undo();
+        if (keyboardEvent.shiftKey) tableHistory.redo();
+        else tableHistory.undo();
         return;
       }
-      if (meta2 && (keyboardEvent.key === "y" || keyboardEvent.key === "Y")) {
+      if (meta && (keyboardEvent.key === "y" || keyboardEvent.key === "Y")) {
         if (isInEditor(keyboardEvent.target)) return;
         keyboardEvent.stopPropagation();
         keyboardEvent.preventDefault();
-        history2.redo();
+        tableHistory.redo();
         return;
       }
       if (
-        meta2 ||
+        meta ||
         (keyboardEvent.shiftKey && (keyboardEvent.code === "Digit1" || keyboardEvent.code === "Digit2"))
       ) {
         keyboardEvent.stopPropagation();
@@ -1098,10 +1098,10 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
       document.removeEventListener("keydown", captureHandler, true);
       document.removeEventListener("keydown", handler);
     };
-  }, [active2, handleClose, history2]);
+  }, [active, handleClose, tableHistory]);
   const backdrop = useBackdropDismiss(handleClose);
   const dpr = useDevicePixelRatio();
-  const cap2 =
+  const cap =
     dpr >= 2
       ? {
           w: 2400,
@@ -1124,8 +1124,8 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
         ref={panelRef}
         className="flex flex-col rounded-xl overflow-hidden shadow-2xl animate-[lightbox-fade-in_0.15s_ease-out]"
         style={{
-          width: `min(${cap2.w}px, 80vw)`,
-          height: `min(${cap2.h}px, 92vh)`,
+          width: `min(${cap.w}px, 80vw)`,
+          height: `min(${cap.h}px, 92vh)`,
           background: "var(--canvas-node-bg, #fff)",
           border: "1px solid var(--canvas-node-border, #e0e0e0)",
         }}
@@ -1137,14 +1137,14 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
         <TableToolbar
           title={title || t("canvas.table.untitled", "Untitled table")}
           onTitleChange={onTitleChange ?? NOOP_TITLE_CHANGE}
-          history={history2}
+          history={tableHistory}
           onClose={handleClose}
           selectedCount={validSelectedRowIds.size}
           onRemoveSelected={handleDeleteSelected}
         />
         <div className="flex-1 overflow-hidden">
           <TableEditor
-            history={history2}
+            history={tableHistory}
             selectedRowIds={validSelectedRowIds}
             onSelectionChange={setSelectedRowIds}
           />
@@ -1161,21 +1161,21 @@ const FALLBACK_COL_WIDTH = 200;
 const ATTACHMENT_VERTICAL_PADDING = 4;
 const MIN_ATTACHMENT_CHIP_SIZE = 18;
 const MAX_PREVIEW_CHIPS = 2;
-function AttachmentPreviewChip({ attachment, size: size2 }) {
+function AttachmentPreviewChip({ attachment, size }) {
   const { t } = useTranslation();
-  const meta2 = useAssetMetadataStore((state) =>
+  const meta = useAssetMetadataStore((state) =>
     state.assets.get(attachment.assetId),
   );
-  const thumbnail = attachmentThumbnailUrl(attachment, meta2, size2);
+  const thumbnail = attachmentThumbnailUrl(attachment, meta, size);
   const [failedThumbnail, setFailedThumbnail] = reactExports.useState(null);
   const thumb = thumbnail === failedThumbnail ? void 0 : thumbnail;
-  const missing = !meta2;
+  const missing = !meta;
   return (
     <span
       className="inline-flex shrink-0 items-center justify-center"
       style={{
-        width: size2,
-        height: size2,
+        width: size,
+        height: size,
       }}
       title={missing ? `${attachment.name} (missing)` : attachment.name}
     >
@@ -1205,7 +1205,7 @@ function AttachmentPreviewChip({ attachment, size: size2 }) {
             {...classifyFileType({
               filename: attachment.name,
             })}
-            size={size2 >= 30 ? 24 : 14}
+            size={size >= 30 ? 24 : 14}
             accessibleLabel={
               attachment.name.trim()
                 ? attachment.name
@@ -1270,11 +1270,11 @@ function AttachmentPreviewList({ attachments, rowHeightPx }) {
     </div>
   );
 }
-function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
-  if (type2 === "attachment") {
-    const list2 = Array.isArray(value) ? value : [];
+function CellPreview({ value, type, rowHeightPx, maxLines }) {
+  if (type === "attachment") {
+    const list = Array.isArray(value) ? value : [];
     return (
-      <AttachmentPreviewList attachments={list2} rowHeightPx={rowHeightPx} />
+      <AttachmentPreviewList attachments={list} rowHeightPx={rowHeightPx} />
     );
   }
   if (value == null || value === "") {
@@ -1290,7 +1290,7 @@ function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
       </div>
     );
   }
-  if (type2 === "number") {
+  if (type === "number") {
     return (
       <div
         className="flex h-full items-start justify-start px-2 tabular-nums"
@@ -1303,7 +1303,7 @@ function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
       </div>
     );
   }
-  const text2 = String(value);
+  const text = String(value);
   return (
     <div
       className="h-full px-2"
@@ -1311,7 +1311,7 @@ function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
         paddingTop: 4,
         paddingBottom: 4,
       }}
-      title={text2}
+      title={text}
     >
       <span
         className="block w-full overflow-hidden break-words"
@@ -1322,7 +1322,7 @@ function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
           whiteSpace: maxLines === 1 ? "normal" : "pre-wrap",
         }}
       >
-        {text2}
+        {text}
       </span>
     </div>
   );
@@ -1359,23 +1359,23 @@ function NumberIcon() {
     </CompositedSvg>
   );
 }
-function FieldIcon({ type: type2 }) {
-  if (type2 === "number") return <NumberIcon />;
-  if (type2 === "attachment") return <PaperclipIcon />;
+function FieldIcon({ type }) {
+  if (type === "number") return <NumberIcon />;
+  if (type === "attachment") return <PaperclipIcon />;
   return <TextFieldIcon />;
 }
-function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
+function TablePreviewInner({ doc, bodyHeight, bodyWidth }) {
   const { t } = useTranslation();
   const allColumns = reactExports.useMemo(
-    () => (doc2 ? visibleColumns(doc2) : []),
-    [doc2],
+    () => (doc ? visibleColumns(doc) : []),
+    [doc],
   );
   const rows = reactExports.useMemo(
-    () => (doc2 ? applyFilter(doc2) : []),
-    [doc2],
+    () => (doc ? applyFilter(doc) : []),
+    [doc],
   );
-  const rowHeightPx = doc2 ? getRowHeightPx(doc2) : FALLBACK_ROW_HEIGHT;
-  const maxLines = doc2 ? getRowHeightLines(doc2) : 1;
+  const rowHeightPx = doc ? getRowHeightPx(doc) : FALLBACK_ROW_HEIGHT;
+  const maxLines = doc ? getRowHeightLines(doc) : 1;
   const columns = reactExports.useMemo(() => {
     if (allColumns.length === 0) return allColumns;
     const limit = Math.max(0, bodyWidth);
@@ -1404,7 +1404,7 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
   const displayRows = rows.slice(0, visibleRowCount);
   const hiddenRowCount = Math.max(0, rows.length - displayRows.length);
   Math.max(0, allColumns.length - columns.length);
-  if (!doc2) {
+  if (!doc) {
     return (
       <div className="flex h-full w-full items-center justify-center text-[12px] text-[var(--fg-muted,#999)]">
         {t("canvas.table.loading", "Loading...")}
@@ -1527,17 +1527,17 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
 const TablePreview = reactExports.memo(TablePreviewInner);
 function TableNodeInner({
   id,
-  selected: selected2,
+  selected,
   width,
   height,
-  data: data2,
+  data,
 }) {
   const { t } = useTranslation();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
   const isDragging = useCanvasNodeIsDragging(id);
   const isInteractiveSelect = !isMultiSelect && !isBoxSelecting && !isDragging;
-  const tableData = data2 ?? {};
+  const tableData = data ?? {};
   const tablePath = tableData.tablePath;
   const title =
     tableData.title || t("canvas.table.untitled", "Untitled table");
@@ -1554,7 +1554,7 @@ function TableNodeInner({
   reactExports.useEffect(() => {
     if (typeof height === "number" && height > 0) setNodeHeight(height);
   }, [height]);
-  const [doc2, setDoc] = reactExports.useState(null);
+  const [doc, setDoc] = reactExports.useState(null);
   const [loaded, setLoaded] = reactExports.useState(false);
   const [fullscreen, setFullscreen] = reactExports.useState(false);
   const appliedRevisionRef = reactExports.useRef(tableRevision);
@@ -1570,10 +1570,10 @@ function TableNodeInner({
     let cancelled = false;
     appliedRevisionRef.current = tableRevision;
     loadTableContent(tablePath)
-      .then((raw2) => {
+      .then((raw) => {
         if (cancelled) return;
         try {
-          setDoc(parseTableDocument(raw2));
+          setDoc(parseTableDocument(raw));
         } catch (err) {
           console.warn("[table-node] failed to parse", tablePath, err);
           setDoc(null);
@@ -1589,7 +1589,7 @@ function TableNodeInner({
       cancelled = true;
     };
   }, [tablePath, tableRevision, loadTableContent, fullscreen, loaded]);
-  const handleDoubleClick2 = reactExports.useCallback(
+  const handleDoubleClick = reactExports.useCallback(
     (domEvent) => {
       domEvent.stopPropagation();
       if (!loaded) return;
@@ -1665,21 +1665,21 @@ function TableNodeInner({
       <NodeHeader
         nodeType="table"
         name={title}
-        selected={selected2}
+        selected={selected}
         maxWidth={nodeWidth}
         onRename={handleRename}
         preserveExtension={false}
       />
-      {selected2 && isInteractiveSelect && (
+      {selected && isInteractiveSelect && (
         <NodeToolbar items={toolbarItems} visible={true} />
       )}
-      <NodeHandles nodeId={id} selected={!!selected2} />
+      <NodeHandles nodeId={id} selected={!!selected} />
       <NodeBody
         width={nodeWidth}
         height={nodeHeight}
-        selected={!!selected2}
+        selected={!!selected}
         variant="panel"
-        onDoubleClick={handleDoubleClick2}
+        onDoubleClick={handleDoubleClick}
       >
         <div
           style={{
@@ -1687,13 +1687,13 @@ function TableNodeInner({
           }}
         >
           <TablePreview
-            doc={doc2}
+            doc={doc}
             bodyHeight={previewBodyHeight}
             bodyWidth={previewBodyWidth}
           />
         </div>
       </NodeBody>
-      {selected2 && (
+      {selected && (
         <NodeResizeFrame
           nodeId={id}
           minWidth={TABLE_CARD_DEFAULT_SIZE.width}
@@ -1703,7 +1703,7 @@ function TableNodeInner({
       )}
       {fullscreen && (
         <TableFullscreen
-          initialDoc={doc2}
+          initialDoc={doc}
           title={title}
           onClose={handleCloseFullscreen}
           onTitleChange={handleRename}

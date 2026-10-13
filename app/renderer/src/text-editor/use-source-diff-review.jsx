@@ -18,29 +18,29 @@ const DIFF_SAMPLE_TAIL_LINES = 100;
 
 const DIFF_SAMPLE_MAX_LINE_CHARS = 8 * 1024;
 
-function countNewlines(text2) {
-  let count2 = 0;
-  for (let index2 = 0; index2 < text2.length; index2 += 1) {
-    if (text2.charCodeAt(index2) === 10) count2 += 1;
+function countNewlines(text) {
+  let count = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    if (text.charCodeAt(index) === 10) count += 1;
   }
-  return count2;
+  return count;
 }
 
-function sampleLine(text2) {
-  if (text2.length <= DIFF_SAMPLE_MAX_LINE_CHARS)
+function sampleLine(text) {
+  if (text.length <= DIFF_SAMPLE_MAX_LINE_CHARS)
     return {
-      text: text2,
+      text,
       truncated: false,
     };
   const sideLength = Math.floor((DIFF_SAMPLE_MAX_LINE_CHARS - 3) / 2);
   return {
-    text: `${text2.slice(0, sideLength)} … ${text2.slice(-sideLength)}`,
+    text: `${text.slice(0, sideLength)} … ${text.slice(-sideLength)}`,
     truncated: true,
   };
 }
 
-function sampleChangedText(text2) {
-  if (text2 === "") {
+function sampleChangedText(text) {
+  if (text === "") {
     return {
       lineCount: 0,
       lines: [],
@@ -48,37 +48,37 @@ function sampleChangedText(text2) {
       trailingNewline: false,
     };
   }
-  const head2 = [];
+  const head = [];
   const tail = new Array(DIFF_SAMPLE_TAIL_LINES);
   let tailCount = 0;
   let lineCount = 0;
   let cursor = 0;
   let truncatedLine = false;
-  while (cursor < text2.length) {
-    const newline2 = text2.indexOf("\n", cursor);
-    const end2 = newline2 === -1 ? text2.length : newline2;
-    const sampled = sampleLine(text2.slice(cursor, end2));
+  while (cursor < text.length) {
+    const newline = text.indexOf("\n", cursor);
+    const end = newline === -1 ? text.length : newline;
+    const sampled = sampleLine(text.slice(cursor, end));
     truncatedLine ||= sampled.truncated;
     const line = {
       text: sampled.text,
       offset: lineCount,
     };
     if (lineCount < DIFF_SAMPLE_HEAD_LINES) {
-      head2.push(line);
+      head.push(line);
     } else {
       tail[tailCount % DIFF_SAMPLE_TAIL_LINES] = line;
       tailCount += 1;
     }
     lineCount += 1;
-    if (newline2 === -1 || newline2 === text2.length - 1) break;
-    cursor = newline2 + 1;
+    if (newline === -1 || newline === text.length - 1) break;
+    cursor = newline + 1;
   }
   const retainedTailCount = Math.min(tailCount, DIFF_SAMPLE_TAIL_LINES);
   const retainedTail = [];
   const tailStart =
     tailCount > DIFF_SAMPLE_TAIL_LINES ? tailCount % DIFF_SAMPLE_TAIL_LINES : 0;
-  for (let index2 = 0; index2 < retainedTailCount; index2 += 1) {
-    const line = tail[(tailStart + index2) % DIFF_SAMPLE_TAIL_LINES];
+  for (let index = 0; index < retainedTailCount; index += 1) {
+    const line = tail[(tailStart + index) % DIFF_SAMPLE_TAIL_LINES];
     if (line) retainedTail.push(line);
   }
   const omitted = lineCount > DIFF_SAMPLE_HEAD_LINES + DIFF_SAMPLE_TAIL_LINES;
@@ -86,7 +86,7 @@ function sampleChangedText(text2) {
     lineCount,
     lines: omitted
       ? [
-          ...head2,
+          ...head,
           {
             text: "…",
             offset: -1,
@@ -94,9 +94,9 @@ function sampleChangedText(text2) {
           },
           ...retainedTail,
         ]
-      : [...head2, ...retainedTail],
+      : [...head, ...retainedTail],
     truncated: omitted || truncatedLine,
-    trailingNewline: text2.endsWith("\n"),
+    trailingNewline: text.endsWith("\n"),
   };
 }
 
@@ -121,19 +121,19 @@ function buildSourceDiffReviewEntries(hunks) {
         trailingNewlineChanged &&
         sample.trailingNewline &&
         line.offset === sample.lineCount - 1;
-      const text2 = marksTrailingNewline
+      const text = marksTrailingNewline
         ? `${line.text}${line.text ? " " : ""}↵`
         : line.text;
       return kind === "del"
         ? {
             kind,
             oldLine: startLine + line.offset,
-            text: text2,
+            text,
           }
         : {
             kind,
             newLine: startLine + line.offset,
-            text: text2,
+            text,
           };
     };
     const lines = [
@@ -198,18 +198,18 @@ function SourceDiffReviewCard({ entry, blocked, onUndo, onAccept }) {
 }
 
 const SourceDiffReviewList = reactExports.forwardRef(
-  function SourceDiffReviewList2(
-    { entries: entries2, blocked, onUndo, onAccept },
+  function SourceDiffReviewList(
+    { entries, blocked, onUndo, onAccept },
     forwardedRef,
   ) {
     const scrollRef = reactExports.useRef(null);
-    const virtualized = entries2.length > SOURCE_DIFF_VIRTUALIZE_HUNK_THRESHOLD;
+    const virtualized = entries.length > SOURCE_DIFF_VIRTUALIZE_HUNK_THRESHOLD;
     const virtualizer = useVirtualizer({
-      count: virtualized ? entries2.length : 0,
+      count: virtualized ? entries.length : 0,
       getScrollElement: () => scrollRef.current,
-      estimateSize: (index2) =>
-        44 + (entries2[index2]?.diff.lines.length ?? 1) * 21,
-      getItemKey: (index2) => entries2[index2]?.id ?? index2,
+      estimateSize: (index) =>
+        44 + (entries[index]?.diff.lines.length ?? 1) * 21,
+      getItemKey: (index) => entries[index]?.id ?? index,
       initialRect: {
         width: 800,
         height: 600,
@@ -219,14 +219,14 @@ const SourceDiffReviewList = reactExports.forwardRef(
     reactExports.useImperativeHandle(
       forwardedRef,
       () => ({
-        scrollToIndex(index2) {
+        scrollToIndex(index) {
           if (virtualized) {
-            virtualizer.scrollToIndex(index2, {
+            virtualizer.scrollToIndex(index, {
               align: "center",
             });
             return;
           }
-          const child = scrollRef.current?.children.item(index2);
+          const child = scrollRef.current?.children.item(index);
           if (child instanceof HTMLElement)
             child.scrollIntoView({
               block: "center",
@@ -241,7 +241,7 @@ const SourceDiffReviewList = reactExports.forwardRef(
           ref={scrollRef}
           className="min-h-0 flex-1 overflow-y-auto px-6 py-4"
         >
-          {entries2.map((entry) => (
+          {entries.map((entry) => (
             <div key={entry.id} className="pb-3">
               <SourceDiffReviewCard
                 entry={entry}
@@ -261,7 +261,7 @@ const SourceDiffReviewList = reactExports.forwardRef(
           ref={scrollRef}
           className="min-h-0 flex-1 overflow-y-auto px-6 py-4"
         >
-          {entries2.slice(0, 10).map((entry) => (
+          {entries.slice(0, 10).map((entry) => (
             <div key={entry.id} className="pb-3">
               <SourceDiffReviewCard
                 entry={entry}
@@ -283,7 +283,7 @@ const SourceDiffReviewList = reactExports.forwardRef(
           }}
         >
           {virtualRows.map((virtualRow) => {
-            const entry = entries2[virtualRow.index];
+            const entry = entries[virtualRow.index];
             if (!entry) return null;
             return (
               <div
@@ -314,12 +314,12 @@ export function useSourceDiffReview(nodeId, options) {
   const { sourceMarkdown, readCurrentMarkdown, onReviewDocumentApplied } =
     options;
   const { t } = useTranslation();
-  const session = useDiffReviewStore((state2) => state2.session);
-  const queuedSession = useDiffReviewStore((state2) => state2.queuedSession);
-  const reverting = useDiffReviewStore((state2) => state2.reverting);
-  const acceptHunk = useDiffReviewStore((state2) => state2.acceptHunk);
-  const acceptAll = useDiffReviewStore((state2) => state2.acceptAll);
-  const requestUndo = useDiffReviewStore((state2) => state2.requestUndo);
+  const session = useDiffReviewStore((state) => state.session);
+  const queuedSession = useDiffReviewStore((state) => state.queuedSession);
+  const reverting = useDiffReviewStore((state) => state.reverting);
+  const acceptHunk = useDiffReviewStore((state) => state.acceptHunk);
+  const acceptAll = useDiffReviewStore((state) => state.acceptAll);
+  const requestUndo = useDiffReviewStore((state) => state.requestUndo);
   const readCurrentMarkdownRef = reactExports.useRef(readCurrentMarkdown);
   readCurrentMarkdownRef.current = readCurrentMarkdown;
   const onReviewDocumentAppliedRef = reactExports.useRef(
@@ -327,13 +327,13 @@ export function useSourceDiffReview(nodeId, options) {
   );
   onReviewDocumentAppliedRef.current = onReviewDocumentApplied;
   const ownsSession = session !== null && session.nodeId === nodeId;
-  const entries2 = reactExports.useMemo(() => {
+  const entries = reactExports.useMemo(() => {
     if (!ownsSession || !session) return [];
     return buildSourceDiffReviewEntries(session.hunks).filter(
       (entry) => entry.status === "pending",
     );
   }, [ownsSession, session]);
-  const active2 = entries2.length > 0;
+  const active = entries.length > 0;
   const ready =
     ownsSession && session ? isDiffReviewSessionReady(session) : false;
   const reviewBlocked = reverting || !ready;
@@ -363,21 +363,21 @@ export function useSourceDiffReview(nodeId, options) {
     if (!activeCandidate && !queuedCandidate) return;
     let cancelled = false;
     void hashDiffReviewMarkdown(sourceMarkdown)
-      .then((hash2) => {
-        if (cancelled || hash2 === null) return;
+      .then((hash) => {
+        if (cancelled || hash === null) return;
         if (readCurrentMarkdownRef.current() !== sourceMarkdown) return;
-        if (queuedCandidate && hash2 === queuedCandidate.contentHash) {
+        if (queuedCandidate && hash === queuedCandidate.contentHash) {
           useDiffReviewStore
             .getState()
             .promoteQueuedSession(queuedCandidate.requestId);
           return;
         }
-        if (!activeCandidate || hash2 !== activeCandidate.contentHash) return;
-        const current2 = useDiffReviewStore.getState().session;
+        if (!activeCandidate || hash !== activeCandidate.contentHash) return;
+        const current = useDiffReviewStore.getState().session;
         if (
-          !current2 ||
-          current2.requestId !== activeCandidate.requestId ||
-          current2.nodeId !== nodeId
+          !current ||
+          current.requestId !== activeCandidate.requestId ||
+          current.nodeId !== nodeId
         )
           return;
         useDiffReviewStore
@@ -391,27 +391,27 @@ export function useSourceDiffReview(nodeId, options) {
   }, [ownsSession, session, queuedSession, nodeId, sourceMarkdown]);
   reactExports.useEffect(() => {
     if (!ownsSession || !session || !nodeId) return;
-    const handler = (transition2) => {
+    const handler = (transition) => {
       if (
-        transition2.before.nodeId !== nodeId ||
-        transition2.after.nodeId !== nodeId ||
-        !isDiffReviewSessionReady(transition2.before)
+        transition.before.nodeId !== nodeId ||
+        transition.after.nodeId !== nodeId ||
+        !isDiffReviewSessionReady(transition.before)
       )
         return false;
-      if (transition2.kind === "revert") {
-        if (transition2.content === void 0) return false;
+      if (transition.kind === "revert") {
+        if (transition.content === void 0) return false;
         const queued = useDiffReviewStore.getState().queuedSession;
         const supersededByLoadedQueue =
           queued?.nodeId === nodeId && queued.contentReady === true;
         if (!supersededByLoadedQueue) {
-          onReviewDocumentAppliedRef.current(transition2.content);
+          onReviewDocumentAppliedRef.current(transition.content);
         }
       }
-      useDiffReviewStore.getState().restoreHistorySession(transition2.after);
-      if (!transition2.after.hunks.some((hunk) => hunk.status === "pending")) {
+      useDiffReviewStore.getState().restoreHistorySession(transition.after);
+      if (!transition.after.hunks.some((hunk) => hunk.status === "pending")) {
         useDiffReviewStore
           .getState()
-          .finishHistorySession(transition2.after.requestId);
+          .finishHistorySession(transition.after.requestId);
       }
       return true;
     };
@@ -423,24 +423,24 @@ export function useSourceDiffReview(nodeId, options) {
     };
   }, [ownsSession, session, nodeId]);
   reactExports.useEffect(() => {
-    const next2 = Math.min(
+    const next = Math.min(
       activeIndexRef.current,
-      Math.max(0, entries2.length - 1),
+      Math.max(0, entries.length - 1),
     );
-    activeIndexRef.current = next2;
-    setActiveIndex(next2);
-  }, [entries2.length]);
+    activeIndexRef.current = next;
+    setActiveIndex(next);
+  }, [entries.length]);
   const step = reactExports.useCallback(
     (direction) => {
-      if (entries2.length === 0) return;
-      const next2 =
-        (activeIndexRef.current + direction + entries2.length) %
-        entries2.length;
-      activeIndexRef.current = next2;
-      setActiveIndex(next2);
-      listRef.current?.scrollToIndex(next2);
+      if (entries.length === 0) return;
+      const next =
+        (activeIndexRef.current + direction + entries.length) %
+        entries.length;
+      activeIndexRef.current = next;
+      setActiveIndex(next);
+      listRef.current?.scrollToIndex(next);
     },
-    [entries2.length],
+    [entries.length],
   );
   const undoOne = reactExports.useCallback(
     (id) => {
@@ -465,15 +465,15 @@ export function useSourceDiffReview(nodeId, options) {
     acceptAll();
   }, [acceptAll, reviewBlocked]);
   const headerLeft = reactExports.useMemo(() => {
-    if (!active2) return null;
+    if (!active) return null;
     const navClass =
       "flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50";
     return (
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <span className="text-sm font-medium text-foreground">
           {t("canvas.diffReview.counter", "{{current}} / {{total}} 处修改", {
-            current: Math.min(activeIndex + 1, entries2.length),
-            total: entries2.length,
+            current: Math.min(activeIndex + 1, entries.length),
+            total: entries.length,
           })}
         </span>
         <button
@@ -496,9 +496,9 @@ export function useSourceDiffReview(nodeId, options) {
         </button>
       </div>
     );
-  }, [active2, activeIndex, entries2.length, step, t]);
+  }, [active, activeIndex, entries.length, step, t]);
   const toolbarActions = reactExports.useMemo(() => {
-    if (!active2) return null;
+    if (!active) return null;
     return (
       <div className="flex items-center gap-1">
         <button
@@ -521,10 +521,10 @@ export function useSourceDiffReview(nodeId, options) {
         </button>
       </div>
     );
-  }, [active2, reviewBlocked, undoAll, keepAll, t]);
-  const body2 = reactExports.useMemo(() => {
-    if (!active2) return null;
-    const truncated = entries2.some((entry) => entry.truncated);
+  }, [active, reviewBlocked, undoAll, keepAll, t]);
+  const body = reactExports.useMemo(() => {
+    if (!active) return null;
+    const truncated = entries.some((entry) => entry.truncated);
     return (
       <div
         className="absolute inset-0 z-10 flex min-h-0 flex-col bg-background"
@@ -540,19 +540,19 @@ export function useSourceDiffReview(nodeId, options) {
         )}
         <SourceDiffReviewList
           ref={listRef}
-          entries={entries2}
+          entries={entries}
           blocked={reviewBlocked}
           onUndo={undoOne}
           onAccept={acceptOne}
         />
       </div>
     );
-  }, [active2, entries2, reviewBlocked, undoOne, acceptOne, t]);
+  }, [active, entries, reviewBlocked, undoOne, acceptOne, t]);
   return {
-    active: active2,
+    active,
     ready,
     headerLeft,
     toolbarActions,
-    body: body2,
+    body,
   };
 }

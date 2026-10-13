@@ -1,12 +1,12 @@
 // configuration2.js
 import { PluginKey, Step, StepMap, StepResult } from "../vendor.js";
-function cloneSnapshot(snapshot2) {
+function cloneSnapshot(snapshot) {
   return {
-    marks: snapshot2.marks.map((mark2) => ({
-      ...mark2,
+    marks: snapshot.marks.map((mark) => ({
+      ...mark,
     })),
     comments: {
-      ...snapshot2.comments,
+      ...snapshot.comments,
     },
   };
 }
@@ -18,8 +18,8 @@ export class AnnotationHistoryStep extends Step {
     this.before = cloneSnapshot(before);
     this.after = cloneSnapshot(after);
   }
-  apply(doc2) {
-    return StepResult.ok(doc2);
+  apply(doc) {
+    return StepResult.ok(doc);
   }
   getMap() {
     return StepMap.empty;
@@ -39,8 +39,8 @@ export class AnnotationHistoryStep extends Step {
   }
 }
 export function getAnnotationHistorySnapshot(transaction) {
-  for (let index2 = transaction.steps.length - 1; index2 >= 0; index2 -= 1) {
-    const step = transaction.steps[index2];
+  for (let index = transaction.steps.length - 1; index >= 0; index -= 1) {
+    const step = transaction.steps[index];
     if (step instanceof AnnotationHistoryStep) return step.after;
   }
   return null;
@@ -51,29 +51,29 @@ export function getAnnotationMarks(editor) {
 }
 export function getAnnotationSelectionRanges(selection2) {
   return selection2.ranges
-    .map((range2) => ({
-      from: range2.$from.pos,
-      to: range2.$to.pos,
+    .map((range) => ({
+      from: range.$from.pos,
+      to: range.$to.pos,
     }))
-    .filter((range2) => range2.from < range2.to)
+    .filter((range) => range.from < range.to)
     .sort((a, b) => a.from - b.from || a.to - b.to);
 }
 export function updateAttrs(dom, prev, attrs) {
   let changed = false;
   if (prev) {
-    for (let name2 in prev)
-      if (!(attrs && name2 in attrs)) {
+    for (let attrName in prev)
+      if (!(attrs && attrName in attrs)) {
         changed = true;
-        if (name2 == "style") dom.style.cssText = "";
-        else dom.removeAttribute(name2);
+        if (attrName == "style") dom.style.cssText = "";
+        else dom.removeAttribute(attrName);
       }
   }
   if (attrs) {
-    for (let name2 in attrs)
-      if (!(prev && prev[name2] == attrs[name2])) {
+    for (let attrName in attrs)
+      if (!(prev && prev[attrName] == attrs[attrName])) {
         changed = true;
-        if (name2 == "style") dom.style.cssText = attrs[name2];
-        else dom.setAttribute(name2, attrs[name2]);
+        if (attrName == "style") dom.style.cssText = attrs[attrName];
+        else dom.setAttribute(attrName, attrs[attrName]);
       }
   }
   return changed;

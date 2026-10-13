@@ -35,16 +35,16 @@ export function PendingAnnotationList({
         : null;
   const [maxHeight, setMaxHeight] = reactExports.useState(void 0);
   reactExports.useLayoutEffect(() => {
-    const list2 = listRef.current;
-    if (!list2 || annotations.length <= MAX_VISIBLE_CARDS) {
+    const list = listRef.current;
+    if (!list || annotations.length <= MAX_VISIBLE_CARDS) {
       setMaxHeight(void 0);
       return;
     }
-    const cards = list2.children;
+    const cards = list.children;
     const lastVisible = cards[MAX_VISIBLE_CARDS - 1];
     if (!lastVisible) return;
     setMaxHeight(
-      lastVisible.offsetTop - list2.offsetTop + lastVisible.offsetHeight,
+      lastVisible.offsetTop - list.offsetTop + lastVisible.offsetHeight,
     );
   }, [annotations]);
   const keydownRef = reactExports.useRef(() => {});
@@ -115,7 +115,7 @@ export function PendingAnnotationList({
         }
       >
         {annotations.map((annotation) => {
-          const active2 = annotation.id === activeId;
+          const active = annotation.id === activeId;
           return (
             // biome-ignore lint/a11y/useSemanticElements: the card wraps a nested delete <button>, so it can't itself be a <button>
             <div
@@ -129,7 +129,7 @@ export function PendingAnnotationList({
                   onLocate(annotation.id);
                 }
               }}
-              className={`group relative cursor-pointer rounded-md border px-2 py-1.5 transition-colors ${active2 ? "border-primary bg-primary/5" : "border-transparent bg-card hover:bg-muted/60"}`}
+              className={`group relative cursor-pointer rounded-md border px-2 py-1.5 transition-colors ${active ? "border-primary bg-primary/5" : "border-transparent bg-card hover:bg-muted/60"}`}
               data-annotation-card={annotation.id}
             >
               <div className="flex items-start gap-2">

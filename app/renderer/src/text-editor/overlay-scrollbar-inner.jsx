@@ -35,21 +35,21 @@ function OverlayScrollbarInner({
   const measure = reactExports.useCallback(() => {
     const el = targetRef.current;
     if (!el) return;
-    const client2 = horizontal ? el.clientWidth : el.clientHeight;
+    const client = horizontal ? el.clientWidth : el.clientHeight;
     const scrollSize = horizontal ? el.scrollWidth : el.scrollHeight;
-    if (scrollSize <= client2 + 1) {
+    if (scrollSize <= client + 1) {
       setMetrics(null);
       return;
     }
-    const trackPx = client2 - EDGE_GAP * 2 - TRACK_THICKNESS;
+    const trackPx = client - EDGE_GAP * 2 - TRACK_THICKNESS;
     const thumbPx = Math.max(
       MIN_THUMB_PX,
-      Math.round((client2 / scrollSize) * trackPx),
+      Math.round((client / scrollSize) * trackPx),
     );
-    const maxOffset2 = trackPx - thumbPx;
-    const maxScroll = scrollSize - client2;
+    const maxOffset = trackPx - thumbPx;
+    const maxScroll = scrollSize - client;
     const scrollPos = horizontal ? el.scrollLeft : el.scrollTop;
-    const offsetPx = maxScroll > 0 ? (scrollPos / maxScroll) * maxOffset2 : 0;
+    const offsetPx = maxScroll > 0 ? (scrollPos / maxScroll) * maxOffset : 0;
     setMetrics((prev) =>
       prev &&
       prev.trackPx === trackPx &&
@@ -91,20 +91,20 @@ function OverlayScrollbarInner({
       if (!el || !metrics) return;
       const startPos = horizontal ? mouseEvent.clientX : mouseEvent.clientY;
       const startScroll = horizontal ? el.scrollLeft : el.scrollTop;
-      const client2 = horizontal ? el.clientWidth : el.clientHeight;
+      const client = horizontal ? el.clientWidth : el.clientHeight;
       const scrollSize = horizontal ? el.scrollWidth : el.scrollHeight;
-      const maxScroll = scrollSize - client2;
-      const maxOffset2 = metrics.trackPx - metrics.thumbPx;
+      const maxScroll = scrollSize - client;
+      const maxOffset = metrics.trackPx - metrics.thumbPx;
       cleanupActiveDrag(false);
       setDragging(true);
       const previousUserSelect = document.body.style.userSelect;
       document.body.style.userSelect = "none";
       const onMove = (mouseEvent) => {
-        if (maxOffset2 <= 0) return;
+        if (maxOffset <= 0) return;
         const delta = (horizontal ? mouseEvent.clientX : mouseEvent.clientY) - startPos;
-        const next2 = startScroll + (delta / maxOffset2) * maxScroll;
-        if (horizontal) el.scrollLeft = next2;
-        else el.scrollTop = next2;
+        const next = startScroll + (delta / maxOffset) * maxScroll;
+        if (horizontal) el.scrollLeft = next;
+        else el.scrollTop = next;
       };
       const onEnd = () => cleanupActiveDrag(true);
       activeDragRef.current = {
@@ -129,17 +129,17 @@ function OverlayScrollbarInner({
       const clickPos = horizontal
         ? mouseEvent.clientX - rect.left
         : mouseEvent.clientY - rect.top;
-      const maxOffset2 = metrics.trackPx - metrics.thumbPx;
-      if (maxOffset2 <= 0) return;
-      const client2 = horizontal ? el.clientWidth : el.clientHeight;
+      const maxOffset = metrics.trackPx - metrics.thumbPx;
+      if (maxOffset <= 0) return;
+      const client = horizontal ? el.clientWidth : el.clientHeight;
       const scrollSize = horizontal ? el.scrollWidth : el.scrollHeight;
       const targetOffset = Math.max(
         0,
-        Math.min(maxOffset2, clickPos - metrics.thumbPx / 2),
+        Math.min(maxOffset, clickPos - metrics.thumbPx / 2),
       );
-      const next2 = (targetOffset / maxOffset2) * (scrollSize - client2);
-      if (horizontal) el.scrollLeft = next2;
-      else el.scrollTop = next2;
+      const next = (targetOffset / maxOffset) * (scrollSize - client);
+      if (horizontal) el.scrollLeft = next;
+      else el.scrollTop = next;
     },
     [targetRef, metrics, horizontal],
   );

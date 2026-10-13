@@ -1,2 +1,3 @@
 key	new	reason
 t2@14:14	t	useTranslation() 返回的翻译函数 t
+next2@18:22	next	去掉打包器加的数字后缀，恢复原名 next

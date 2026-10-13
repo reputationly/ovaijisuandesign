@@ -40,7 +40,7 @@ export function useTextVersionPreview({
   const [diffEnabled, setDiffEnabled] =
     reactExports.useState(readDiffPreference);
   const [diff, setDiff] = reactExports.useState(null);
-  const [content2, setContent2] = reactExports.useState("");
+  const [content, setContent] = reactExports.useState("");
   const [contentOffset, setContentOffset] = reactExports.useState(0);
   const [contentEof, setContentEof] = reactExports.useState(false);
   const [loading, setLoading] = reactExports.useState(false);
@@ -50,7 +50,7 @@ export function useTextVersionPreview({
   const versionId = version2?.id ?? null;
   reactExports.useEffect(() => {
     setDiff(null);
-    setContent2("");
+    setContent("");
     setContentOffset(0);
     setContentEof(false);
     setError(null);
@@ -93,17 +93,17 @@ export function useTextVersionPreview({
     };
   }, [textVersions, diffEnabled, versionId, diff]);
   const loadContentPage = reactExports.useCallback(
-    async (offset2) => {
+    async (offset) => {
       if (!textVersions || !versionId || loadingMoreRef.current) return;
       loadingMoreRef.current = true;
       setLoading(true);
       try {
         const res = await textVersions.readContent(versionId, {
-          offset: offset2,
+          offset,
           limit: CONTENT_PAGE_BYTES,
         });
-        setContent2((prev) =>
-          offset2 === 0 ? res.content : prev + res.content,
+        setContent((prev) =>
+          offset === 0 ? res.content : prev + res.content,
         );
         setContentOffset(res.offset + res.length);
         setContentEof(res.eof);
@@ -136,9 +136,9 @@ export function useTextVersionPreview({
   );
   const handleToggleDiff = reactExports.useCallback(() => {
     setDiffEnabled((prev) => {
-      const next2 = !prev;
-      writeDiffPreference(next2);
-      return next2;
+      const next = !prev;
+      writeDiffPreference(next);
+      return next;
     });
   }, []);
   const handleRestore = reactExports.useCallback(async () => {
@@ -196,7 +196,7 @@ export function useTextVersionPreview({
       const source = sourceNodeId
         ? canvasActions?.getNodeById(sourceNodeId)
         : void 0;
-      const position2 = source
+      const position = source
         ? {
             x: source.position.x + source.size.width + COPY_NODE_GAP,
             y: source.position.y,
@@ -206,7 +206,7 @@ export function useTextVersionPreview({
             y: 0,
           };
       const created = await textVersions.materializeToCanvas(versionId, {
-        position: position2,
+        position,
         ...(sourceNodeId
           ? {
               sourceNodeId,
@@ -233,14 +233,14 @@ export function useTextVersionPreview({
     () =>
       renderAsMarkdown ? (
         <div className="ProseMirror cv-skip text-sm">
-          <Markdown remarkPlugins={[remarkGfm]}>{content2}</Markdown>
+          <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
         </div>
       ) : (
         <pre className="whitespace-pre-wrap break-words font-sans text-sm text-foreground">
-          {content2}
+          {content}
         </pre>
       ),
-    [content2, renderAsMarkdown],
+    [content, renderAsMarkdown],
   );
   if (!version2) {
     return {

@@ -2,3 +2,14 @@ key	new	reason
 id2@245:14	id	原名 id，去掉打包器加的数字去重后缀
 a2@34:12	a	sort 比较函数的前一个 hunk
 b3@34:16	b	sort 比较函数的后一个 hunk
+set2@49:43	set	去掉打包器加的数字后缀，恢复原名 set
+get3@49:49	get	去掉打包器加的数字后缀，恢复原名 get
+navigation2@74:17	nextNavigation	要写入的导航状态；navigation 是全局名
+markdown2@139:34	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+ids2@248:15	ids	去掉打包器加的数字后缀，恢复原名 ids
+index2@264:34	index	去掉打包器加的数字后缀，恢复原名 index
+index2@293:34	index	去掉打包器加的数字后缀，恢复原名 index
+ids2@307:21	ids	去掉打包器加的数字后缀，恢复原名 ids
+content2@328:35	content	去掉打包器加的数字后缀，恢复原名 content
+current2@333:13	current	去掉打包器加的数字后缀，恢复原名 current
+historyHandler2@351:31	historyHandler	去掉打包器加的数字后缀，恢复原名 historyHandler

@@ -15,8 +15,8 @@ export function DiffPendingDialog({ open, onDismiss }) {
   return (
     <Dialog
       open={open}
-      onOpenChange={(next2) => {
-        if (!next2) onDismiss();
+      onOpenChange={(next) => {
+        if (!next) onDismiss();
       }}
     >
       <DialogContent showCloseButton={false}>

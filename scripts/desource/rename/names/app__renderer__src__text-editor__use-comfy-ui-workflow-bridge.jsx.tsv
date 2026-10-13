@@ -3,3 +3,7 @@ t2@16:14	t	useTranslation() 返回的翻译函数 t
 id2@22:68	id	原名 id，去掉打包器加的数字去重后缀
 t2@70:14	t	useTranslation() 返回的翻译函数 t
 gatewayFetch$1@71:9	scopedGatewayFetch	useGatewayFetch() 返回的 fetch；与导入的 gatewayFetch 并存，不能用原名
+badges2@32:19	badges	去掉打包器加的数字后缀，恢复原名 badges
+gatewayFetch2@49:43	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+record2@57:9	record	去掉打包器加的数字后缀，恢复原名 record
+position2@77:24	position	去掉打包器加的数字后缀，恢复原名 position

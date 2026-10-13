@@ -118,7 +118,7 @@ export function NodeContextMenu({
   const { t } = useTranslation();
   const fallbackRef = reactExports.useRef(null);
   const ref = motionProps?.ref ?? fallbackRef;
-  const closing2 = motionProps?.["data-ending-style"] !== void 0;
+  const closing = motionProps?.["data-ending-style"] !== void 0;
   const [menuPosition, setMenuPosition] = reactExports.useState(() =>
     resolveNodeContextMenuPosition({
       anchor: position2,
@@ -137,16 +137,16 @@ export function NodeContextMenu({
   );
   const updateMenuPosition = reactExports.useCallback(() => {
     if (typeof window === "undefined") return;
-    const menu2 = ref.current;
-    const next2 = resolveNodeContextMenuPosition({
+    const menu = ref.current;
+    const next = resolveNodeContextMenuPosition({
       anchor: {
         x: position2.x,
         y: position2.y,
       },
-      menuSize: menu2
+      menuSize: menu
         ? {
-            width: menu2.offsetWidth,
-            height: menu2.offsetHeight,
+            width: menu.offsetWidth,
+            height: menu.offsetHeight,
           }
         : ESTIMATED_MENU_SIZE,
       viewportSize: {
@@ -154,8 +154,8 @@ export function NodeContextMenu({
         height: window.innerHeight,
       },
     });
-    setMenuPosition((current2) =>
-      current2.x === next2.x && current2.y === next2.y ? current2 : next2,
+    setMenuPosition((current) =>
+      current.x === next.x && current.y === next.y ? current : next,
     );
   }, [position2.x, position2.y, ref]);
   reactExports.useLayoutEffect(updateMenuPosition, [updateMenuPosition]);
@@ -172,8 +172,8 @@ export function NodeContextMenu({
     };
   }, [updateMenuPosition, ref]);
   reactExports.useEffect(() => {
-    if (closing2) return;
-    const handleClick2 = (mouseEvent) => {
+    if (closing) return;
+    const handleClick = (mouseEvent) => {
       const target = mouseEvent.target;
       if (ref.current?.contains(target)) return;
       if (
@@ -186,14 +186,14 @@ export function NodeContextMenu({
     const handleKey = (keyboardEvent) => {
       if (keyboardEvent.key === "Escape") onClose();
     };
-    document.addEventListener("mousedown", handleClick2);
+    document.addEventListener("mousedown", handleClick);
     document.addEventListener("keydown", handleKey);
     return () => {
-      document.removeEventListener("mousedown", handleClick2);
+      document.removeEventListener("mousedown", handleClick);
       document.removeEventListener("keydown", handleKey);
     };
-  }, [onClose, closing2, ref]);
-  const wrap2 = (fn) => () => {
+  }, [onClose, closing, ref]);
+  const wrap = (fn) => () => {
     fn();
     onClose();
   };
@@ -235,8 +235,8 @@ export function NodeContextMenu({
       (target.generationErrorStatus === "status_unknown" &&
         target.nodeType !== CanvasNodeType.Placeholder),
   );
-  const handleAddToChat = wrap2(() => onAddToChat(fileBackedTargets));
-  const handleCopy = wrap2(() => {
+  const handleAddToChat = wrap(() => onAddToChat(fileBackedTargets));
+  const handleCopy = wrap(() => {
     if (!single) return;
     if (single.isMultiImage) {
       trackEvent(TRACK_EVENTS.CANVAS_NODE_COPY_PASTE, {
@@ -253,7 +253,7 @@ export function NodeContextMenu({
     });
     onCopy(single);
   });
-  const handleSaveAs = wrap2(() => {
+  const handleSaveAs = wrap(() => {
     if (!single) return;
     trackEvent(TRACK_EVENTS.CANVAS_NODE_SAVE, {
       node_id: single.nodeId,
@@ -261,20 +261,20 @@ export function NodeContextMenu({
     });
     onSaveAs(single);
   });
-  const handleShowInFolder = wrap2(() => {
+  const handleShowInFolder = wrap(() => {
     if (fsTargets.length === 0) return;
-    const seen2 = new Set();
+    const seen = new Set();
     for (const target of fsTargets) {
       const abs = target.absolutePath;
       if (!abs) continue;
-      const slash2 = Math.max(abs.lastIndexOf("/"), abs.lastIndexOf("\\"));
-      const dir = slash2 >= 0 ? abs.slice(0, slash2) : abs;
-      if (seen2.has(dir)) continue;
-      seen2.add(dir);
+      const slash = Math.max(abs.lastIndexOf("/"), abs.lastIndexOf("\\"));
+      const dir = slash >= 0 ? abs.slice(0, slash) : abs;
+      if (seen.has(dir)) continue;
+      seen.add(dir);
       onShowInFolder(target);
     }
   });
-  const handleCopyCanvas = wrap2(() => {
+  const handleCopyCanvas = wrap(() => {
     trackEvent(TRACK_EVENTS.CANVAS_NODE_COPY_PASTE, {
       action: "copy",
       node_count: targets.length,
@@ -282,21 +282,21 @@ export function NodeContextMenu({
     });
     actions.duplicateToCanvas();
   });
-  const handleGroup = wrap2(actions.groupSelected);
-  const handleUngroup = wrap2(() => {
+  const handleGroup = wrap(actions.groupSelected);
+  const handleUngroup = wrap(() => {
     if (single?.nodeType === CanvasNodeType.Group)
       actions.ungroupGroup(single.nodeId);
   });
-  const handlePromoteToAsset = wrap2(() => {
+  const handlePromoteToAsset = wrap(() => {
     actions.promoteToAsset?.(targets.map((target) => target.nodeId));
   });
-  const handleSaveToProjectAssets = wrap2(() => {
+  const handleSaveToProjectAssets = wrap(() => {
     actions.saveToProjectAssets?.(targets.map((target) => target.nodeId));
   });
-  const handleRename = wrap2(() => {
+  const handleRename = wrap(() => {
     if (single && onRename) onRename(single);
   });
-  const handleDelete2 = wrap2(actions.deleteSelected);
+  const handleDelete = wrap(actions.deleteSelected);
   const menu = (
     <ActionListPanel
       {...motionProps}
@@ -404,7 +404,7 @@ export function NodeContextMenu({
               ? t("canvas.removeLocalPlaceholder")
               : t("common.delete")
           }
-          onClick={handleDelete2}
+          onClick={handleDelete}
         />
       )}
     </ActionListPanel>

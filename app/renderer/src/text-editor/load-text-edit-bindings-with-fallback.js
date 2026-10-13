@@ -43,10 +43,10 @@ export function loadTextEditBindingsWithFallback(persister, workspaceKey) {
     const finish = (result) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timer2);
+      clearTimeout(timer);
       resolve(result);
     };
-    const timer2 = setTimeout(() => {
+    const timer = setTimeout(() => {
       finish({
         bindings: cachedTextEditSessionBindings(workspaceKey),
         fallbackReason: "timeout",

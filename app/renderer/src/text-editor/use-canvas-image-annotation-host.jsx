@@ -8,23 +8,23 @@ export function useCanvasImageAnnotationHost(active2) {
   const sessionRef = reactExports.useRef(null);
   const activeRef = reactExports.useRef(active2);
   activeRef.current = active2;
-  const close2 = reactExports.useCallback(() => {
-    const current2 = sessionRef.current;
-    if (!current2) return;
+  const handleClose = reactExports.useCallback(() => {
+    const current = sessionRef.current;
+    if (!current) return;
     sessionRef.current = null;
-    current2.controller.abort();
-    current2.finish();
+    current.controller.abort();
+    current.finish();
     setSession(null);
   }, []);
   reactExports.useEffect(() => {
-    if (!active2) close2();
-  }, [active2, close2]);
+    if (!active2) handleClose();
+  }, [active2, handleClose]);
   reactExports.useEffect(
     () => () => {
-      const current2 = sessionRef.current;
+      const current = sessionRef.current;
       sessionRef.current = null;
-      current2?.controller.abort();
-      current2?.finish();
+      current?.controller.abort();
+      current?.finish();
     },
     [],
   );
@@ -34,8 +34,8 @@ export function useCanvasImageAnnotationHost(active2) {
         return Promise.resolve();
       return new Promise((resolve) => {
         const controller = new AbortController();
-        const abort = () => close2();
-        const current2 = {
+        const abort = () => handleClose();
+        const current = {
           request,
           controller,
           attachment: {
@@ -54,11 +54,11 @@ export function useCanvasImageAnnotationHost(active2) {
         request.signal.addEventListener("abort", abort, {
           once: true,
         });
-        sessionRef.current = current2;
-        setSession(current2);
+        sessionRef.current = current;
+        setSession(current);
       });
     },
-    [close2],
+    [handleClose],
   );
   const annotationDialog = session ? (
     <ImageAnnotationDialog
@@ -66,15 +66,15 @@ export function useCanvasImageAnnotationHost(active2) {
       attachment={session.attachment}
       canAppend={session.request.canAppend}
       applyDisabled={!active2}
-      onClose={close2}
-      onApply={async (_attachment, file, mode2, signal) => {
+      onClose={handleClose}
+      onApply={async (_attachment, file, mode, signal) => {
         const isCurrent = () =>
           activeRef.current &&
           sessionRef.current === session &&
           !session.controller.signal.aborted &&
           !session.request.signal.aborted &&
           !signal.aborted;
-        if (!isCurrent() || (mode2 === "append" && !session.request.canAppend))
+        if (!isCurrent() || (mode === "append" && !session.request.canAppend))
           return false;
         const combined = new AbortController();
         const abort = () => combined.abort();
@@ -88,7 +88,7 @@ export function useCanvasImageAnnotationHost(active2) {
           });
         }
         try {
-          return await session.request.onApply(file, mode2, combined.signal);
+          return await session.request.onApply(file, mode, combined.signal);
         } finally {
           for (const source of [
             signal,

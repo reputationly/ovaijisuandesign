@@ -8,9 +8,9 @@ export const MESSAGE_ACTION_BUTTON_CLASS =
 export const MESSAGE_ACTION_LABEL_BUTTON_CLASS =
   "flex h-[var(--btn-height-sm)] w-auto cursor-pointer items-center justify-center whitespace-nowrap rounded-full bg-foreground px-[var(--btn-padding-x-md)] text-xs font-medium text-background transition-colors hover:bg-foreground/90 group-data-[actions-compact=true]/composer:size-[var(--btn-height-sm)] group-data-[actions-compact=true]/composer:px-0";
 export function workflowAttachmentName(workflow) {
-  const base2 =
+  const base =
     workflow.name.trim() || workflow.title.trim() || "comfyui-workflow";
-  const safe = base2.replaceAll("/", "_").replaceAll("\\", "_");
+  const safe = base.replaceAll("/", "_").replaceAll("\\", "_");
   return safe.toLocaleLowerCase().endsWith(".json") ? safe : `${safe}.json`;
 }
 export function mentionKindFromPath(path2) {

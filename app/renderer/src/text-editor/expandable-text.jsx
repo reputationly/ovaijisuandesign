@@ -47,7 +47,7 @@ export function ExpandableText({
     collapsedHeight != null &&
     fullHeight > collapsedHeight + 1;
   const showEllipsis = ellipsis && overflow && !expanded;
-  const style2 = {
+  const style = {
     maxHeight:
       !overflow || expanded
         ? (fullHeight ?? void 0)
@@ -89,7 +89,7 @@ export function ExpandableText({
             ref.current = el;
           }}
           className={innerClass}
-          style={style2}
+          style={style}
           onTransitionEnd={handleTransitionEnd}
         >
           {children2}
@@ -102,7 +102,7 @@ export function ExpandableText({
             ref.current = el;
           }}
           className={innerClass}
-          style={style2}
+          style={style}
           onTransitionEnd={handleTransitionEnd}
         >
           {children2}
