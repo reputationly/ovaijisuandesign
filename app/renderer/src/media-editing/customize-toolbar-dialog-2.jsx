@@ -25,7 +25,7 @@ const DEFAULTS = {
   showLabels: IMAGE_TOOLBAR_DEFAULT_SHOW_LABELS,
 };
 export function CustomizeToolbarDialog({ open, onOpenChange }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const store = useImageToolbarCustomizationStore();
   const allToolIds =
     store.layoutVersion === 1
@@ -35,25 +35,25 @@ export function CustomizeToolbarDialog({ open, onOpenChange }) {
     {
       id: "promote-to-asset",
       icon: <PromoteToAssetIcon />,
-      label: t2("canvas.promoteToAsset"),
+      label: t("canvas.promoteToAsset"),
       showLabel: true,
     },
     {
       id: "image-inplace-edit",
       icon: <AnnotationIcon size={20} />,
-      label: t2("canvas.imageEdit.label", "Edit Image"),
+      label: t("canvas.imageEdit.label", "Edit Image"),
       showLabel: false,
     },
     {
       id: "add-to-chat",
       icon: <AddToChatIcon />,
-      label: t2("canvas.addToChat"),
+      label: t("canvas.addToChat"),
       showLabel: false,
     },
     {
       id: "fullscreen",
       icon: <FullscreenIcon />,
-      label: t2("canvas.fullscreen"),
+      label: t("canvas.fullscreen"),
       showLabel: false,
     },
   ];

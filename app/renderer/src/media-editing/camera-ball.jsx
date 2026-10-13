@@ -110,16 +110,16 @@ function strokeWithDepth(canvasContext, points, frontAlpha, backAlpha) {
     canvasContext.globalAlpha = isFront ? frontAlpha : backAlpha;
     canvasContext.beginPath();
     canvasContext.moveTo(points[start].x, points[start].y);
-    for (let j2 = start + 1; j2 < end; j2++) canvasContext.lineTo(points[j2].x, points[j2].y);
+    for (let pointIndex = start + 1; pointIndex < end; pointIndex++) canvasContext.lineTo(points[pointIndex].x, points[pointIndex].y);
     canvasContext.stroke();
   };
   let runStart = 0;
   let runFront = points[0].z >= 0;
-  for (let i2 = 1; i2 < points.length; i2++) {
-    const isFront = points[i2].z >= 0;
+  for (let pointIndex = 1; pointIndex < points.length; pointIndex++) {
+    const isFront = points[pointIndex].z >= 0;
     if (isFront !== runFront) {
-      flush(runStart, i2, runFront);
-      runStart = i2 - 1;
+      flush(runStart, pointIndex, runFront);
+      runStart = pointIndex - 1;
       runFront = isFront;
     }
   }
@@ -190,8 +190,8 @@ export function CameraBall({
     const STEPS = 64;
     canvasContext.lineWidth = 0.8;
     canvasContext.strokeStyle = wireColor;
-    for (let i2 = 0; i2 < MERIDIANS; i2++) {
-      const phase = (i2 / MERIDIANS) * Math.PI;
+    for (let meridianIndex = 0; meridianIndex < MERIDIANS; meridianIndex++) {
+      const phase = (meridianIndex / MERIDIANS) * Math.PI;
       const sinPhase = Math.sin(phase);
       const cosPhase = Math.cos(phase);
       const points = [];
@@ -203,9 +203,9 @@ export function CameraBall({
       }
       strokeWithDepth(canvasContext, points, 0.72, 0.28);
     }
-    for (let i2 = 1; i2 <= PARALLELS; i2++) {
+    for (let parallelIndex = 1; parallelIndex <= PARALLELS; parallelIndex++) {
       for (const sign of [1, -1]) {
-        const latitude = sign * (i2 / (PARALLELS + 1)) * (Math.PI / 2);
+        const latitude = sign * (parallelIndex / (PARALLELS + 1)) * (Math.PI / 2);
         const sinLatitude = Math.sin(latitude);
         const cosLatitude = Math.cos(latitude);
         const points = [];

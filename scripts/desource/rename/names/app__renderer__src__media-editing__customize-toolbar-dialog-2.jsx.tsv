@@ -1,3 +1,4 @@
 key	new	依据
 CustomizeToolbarDialog$2@19:36	CustomizeToolbarDialogBase	与本文件同名导出冲突；此导入是承载可排序工具项和设置内容的通用对话框，本地包装层向其传入工具元数据与存储。
 children2@72:67	children	此内容由多图覆盖层 store Provider 包裹并提供给其子组件。
+t2@28:14	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。

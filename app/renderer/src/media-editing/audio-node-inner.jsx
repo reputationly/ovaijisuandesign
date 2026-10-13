@@ -63,10 +63,10 @@ import {
 } from "./use-warn-missing-asset-meta.jsx";
 import { NodeHeader } from "../canvas/node-header-inner.jsx";
 import { NodeHandles } from "../canvas/proximity-handle-inner.jsx";
-function hashCode(str) {
+function hashCode(inputText) {
   let hash = 5381;
-  for (let characterIndex = 0; characterIndex < str.length; characterIndex++) {
-    hash = ((hash << 5) + hash + str.charCodeAt(characterIndex)) | 0;
+  for (let characterIndex = 0; characterIndex < inputText.length; characterIndex++) {
+    hash = ((hash << 5) + hash + inputText.charCodeAt(characterIndex)) | 0;
   }
   return Math.abs(hash);
 }

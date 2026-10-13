@@ -68,9 +68,9 @@ export function cloneShapeData(data) {
     },
   };
   if ("points" in cloned) {
-    cloned.points = cloned.points.map((p3) => ({
-      x: p3.x,
-      y: p3.y,
+    cloned.points = cloned.points.map((point) => ({
+      x: point.x,
+      y: point.y,
     }));
   }
   return cloned;

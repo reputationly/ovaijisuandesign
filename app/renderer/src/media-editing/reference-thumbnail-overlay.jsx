@@ -28,7 +28,7 @@ export function ReferenceThumbnailOverlay({
   disabled,
   onReference,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       data-testid="reference-thumbnail-overlay"
@@ -36,7 +36,7 @@ export function ReferenceThumbnailOverlay({
     >
       <button
         type="button"
-        aria-label={t2("canvas.reference.addReference")}
+        aria-label={t("canvas.reference.addReference")}
         data-action-ui-id="popover.attachment-reference"
         disabled={disabled}
         tabIndex={visible ? 0 : -1}

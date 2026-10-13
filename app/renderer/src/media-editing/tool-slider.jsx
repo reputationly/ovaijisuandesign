@@ -33,11 +33,11 @@ export function ToolSlider({
     if (!track) return min;
     const rect = track.getBoundingClientRect();
     const usableWidth = Math.max(1, rect.width - thumbSize);
-    const x2 = Math.max(
+    const thumbOffset = Math.max(
       0,
       Math.min(clientX - rect.left - thumbRadius, usableWidth),
     );
-    const ratio = x2 / usableWidth;
+    const ratio = thumbOffset / usableWidth;
     const raw = min + ratio * (max - min);
     const snapped =
       step && step > 0 ? Math.round(raw / step) * step : Math.round(raw);

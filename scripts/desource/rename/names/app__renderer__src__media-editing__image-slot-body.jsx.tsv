@@ -3,3 +3,4 @@ message2@20:12	message	ImageSlotErrorTile 接收的错误说明，作为中性�
 text2@38:9	text	最终用于错误提示、aria-label 和 tooltip 的文本。
 ImageSlotBody2@106:57	ImageSlotBody	memo 包装中的内部组件与导出同名，根据槽位状态显示生成中、错误或图片内容。
 message2@150:11	message	覆盖错误或槽位错误中的当前失败说明，传给紧凑错误卡或错误覆盖层。
+t2@26:14	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。

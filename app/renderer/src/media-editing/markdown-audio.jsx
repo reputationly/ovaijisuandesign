@@ -46,10 +46,10 @@ function clearExclusiveMarkdownAudio(current) {
     activeMarkdownAudio = null;
   }
 }
-function waveformHash(str) {
+function waveformHash(audioIdentity) {
   let hashValue = 5381;
-  for (let index = 0; index < str.length; index++) {
-    hashValue = ((hashValue << 5) + hashValue + str.charCodeAt(index)) | 0;
+  for (let index = 0; index < audioIdentity.length; index++) {
+    hashValue = ((hashValue << 5) + hashValue + audioIdentity.charCodeAt(index)) | 0;
   }
   return Math.abs(hashValue);
 }

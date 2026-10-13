@@ -5,3 +5,4 @@ active2@15:11	isActive	控制预览读取与弹层显示的启用状态，并要
 loader2@26:9	loader	从属性或画布桥接对象选择的文本预览内容加载函数。
 state2@28:9	state	usePreviewText 返回的加载状态、内容和错误信息，供布局测量及内容组件使用。
 content2@52:11	content	用于测量文本预览实际高度的内容 DOM 节点。
+t2@23:14	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。

@@ -15,7 +15,7 @@ export function useHailuo03VideoSuperResolutionSubmit({
   httpClient,
   canvasGenerationErrorToastId,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return reactExports.useCallback(
     async (nodeId, sourceVideoPath, providerTaskId) => {
       try {
@@ -29,7 +29,7 @@ export function useHailuo03VideoSuperResolutionSubmit({
         if (!resp.ok) {
           dedupedToast.error(
             stripErrorHtml(
-              pickUserMessage(resp, t2("canvas.superResolution.error")),
+              pickUserMessage(resp, t("canvas.superResolution.error")),
             ),
             {
               id: canvasGenerationErrorToastId,
@@ -39,14 +39,14 @@ export function useHailuo03VideoSuperResolutionSubmit({
       } catch (err) {
         console.error("[canvas] hailuo03 video super-resolution failed:", err);
         dedupedToast.error(
-          pickEditErrorMessage(err, t2("canvas.superResolution.error")),
+          pickEditErrorMessage(err, t("canvas.superResolution.error")),
           {
             id: canvasGenerationErrorToastId,
           },
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, t2],
+    [canvasGenerationErrorToastId, httpClient, t],
   );
 }
 

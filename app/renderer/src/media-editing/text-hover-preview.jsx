@@ -20,7 +20,7 @@ export function TextHoverPreview({
   onPreviewMouseEnter,
   onPreviewMouseLeave,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const bridge = useCanvasBridge();
   const effectiveActive = isActive && bridge.previewActive !== false;
   const loader =
@@ -113,7 +113,7 @@ export function TextHoverPreview({
             onReadFull();
           }}
         >
-          {t2("attachment.text.readFull", "Read full text")}
+          {t("attachment.text.readFull", "Read full text")}
         </Button>
       )}
     </div>,

@@ -137,9 +137,9 @@ export const MUSIC_LENGTH_PRESETS = [
   },
 ];
 
-export function musicLengthPresetLabel(t2, preset) {
+export function musicLengthPresetLabel(translate, preset) {
   return preset.value === "auto"
-    ? t2("canvas.param.option.auto", {
+    ? translate("canvas.param.option.auto", {
         defaultValue: preset.label,
       })
     : preset.label;
@@ -147,7 +147,7 @@ export function musicLengthPresetLabel(t2, preset) {
 
 export function isCustomMusicLength(value) {
   if (!value || value === "auto") return false;
-  return !MUSIC_LENGTH_PRESETS.some((p3) => p3.value === value);
+  return !MUSIC_LENGTH_PRESETS.some((preset) => preset.value === value);
 }
 
 export function parseCustomMusicLengthSeconds(value) {

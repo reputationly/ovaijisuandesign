@@ -12,7 +12,7 @@ export function ParamQualitySlider({
   disabledOptions,
   getOptionLabel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [preview, setPreview] = reactExports.useState(null);
   const previewRef = reactExports.useRef(null);
   const requestedRef = reactExports.useRef(null);
@@ -22,7 +22,7 @@ export function ParamQualitySlider({
     disabled || options.every((option) => disabledOptions?.has(option));
   const optionLabel = (option) =>
     getOptionLabel?.(option) ??
-    t2(`canvas.param.option.${option}`, {
+    t(`canvas.param.option.${option}`, {
       defaultValue: option,
     });
   reactExports.useEffect(() => {

@@ -125,7 +125,7 @@ export function dropSupersededLegacyInFlightMediaMessages(items) {
     const supersededIndex = indexes?.pop();
     if (supersededIndex !== void 0) supersededIndexes.add(supersededIndex);
   });
-  return items.filter((_2, index) => !supersededIndexes.has(index));
+  return items.filter((unusedItem, index) => !supersededIndexes.has(index));
 }
 function firstNonEmptyString(...values) {
   for (const value of values) {

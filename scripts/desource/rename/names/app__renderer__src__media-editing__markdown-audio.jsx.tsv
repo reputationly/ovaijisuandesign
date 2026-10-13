@@ -33,3 +33,4 @@ WaveformBars2@78:49	WaveformBarsComponent	原名 WaveformBars 会遮蔽外层 Wa
 workspaceId2@115:9	workspaceId	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前工作区 ID。
 bars2@124:9	bars	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存由音频标识确定的波形条高度比例列表。
 current2@157:55	current	去掉打包器为避免重名添加的数字后缀并恢复原名；此处接收播放器当前时间，用于更新时间文本。
+str@49:23	audioIdentity	音频身份字符串，其字符用于生成确定性波形采样种子。

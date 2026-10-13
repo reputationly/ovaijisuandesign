@@ -27,7 +27,7 @@ export function RelightPopover({
   imageWidth,
   imageHeight,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const nodeId = useNodeId() ?? "";
   const onCloseRef = reactExports.useRef(onClose);
   onCloseRef.current = onClose;
@@ -91,7 +91,7 @@ export function RelightPopover({
           type="button"
           onClick={onClose}
           className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"
-          aria-label={t2("common.close", "Close")}
+          aria-label={t("common.close", "Close")}
           data-action-ui-id="canvas.relight.close"
         >
           <X size={20} strokeWidth={1.5} aria-hidden="true" />

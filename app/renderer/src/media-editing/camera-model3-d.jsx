@@ -65,7 +65,7 @@ export function CameraModel3D({
       },
     });
     const faces = [...bodyFaces, ...topFaces].sort(
-      (a2, b3) => a2.depth - b3.depth,
+      (firstFace, secondFace) => firstFace.depth - secondFace.depth,
     );
     const frontVisible = view.frontVisibility > 0.04;
     const backVisible = view.backVisibility > 0.04;

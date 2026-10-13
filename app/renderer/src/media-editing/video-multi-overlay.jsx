@@ -59,7 +59,7 @@ function LoadingSubVideoCard({
 }) {
   const frameRef = reactExports.useRef(null);
   useRegisterZoomCounter(frameRef);
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const queued = slot.status === "pending";
   const paused = slot.status === "queue_paused";
   const progress = useSimulatedProgress(
@@ -69,10 +69,10 @@ function LoadingSubVideoCard({
     isMiniMaxH3MaxModelValue(slot.model) ? "h3-max-video" : void 0,
   );
   const label = queued
-    ? t2("canvas.pending")
+    ? t("canvas.pending")
     : paused
-      ? t2("canvas.queuePaused")
-      : t2("canvas.multiVideo.slotLoading", "生成中…");
+      ? t("canvas.queuePaused")
+      : t("canvas.multiVideo.slotLoading", "生成中…");
   const handleCancelQueue = reactExports.useCallback(() => {
     onCancelQueue?.(slot.id);
   }, [onCancelQueue, slot.id]);
@@ -140,23 +140,23 @@ function ErrorSubVideoCard({
   onDeleteSub,
   readonly,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const recoverable = slot.status === "recoverable_error";
   const uncertain = slot.status === "status_unknown";
   const title = recoverable
-    ? t2("canvas.generationRecovery.title", "结果待恢复")
-    : t2("canvas.multiVideo.slotFailed", "生成失败");
+    ? t("canvas.generationRecovery.title", "结果待恢复")
+    : t("canvas.multiVideo.slotFailed", "生成失败");
   const message = recoverable
-    ? t2(
+    ? t(
         "canvas.generationRecovery.description",
         "原任务已保留，结果将在恢复后自动回填。",
       )
     : uncertain
-      ? t2(
+      ? t(
           "canvas.generationStatusUnknown.description",
           "生成请求未能完成，系统不会自动重试。",
         )
-      : (slot.error ?? t2("canvas.multiVideo.slotFailed", "生成失败"));
+      : (slot.error ?? t("canvas.multiVideo.slotFailed", "生成失败"));
   const neutral = recoverable;
   const handleDeleteSub = (event) => {
     event.stopPropagation();
@@ -200,8 +200,8 @@ function ErrorSubVideoCard({
           onDelete={handleDeleteSub}
           label={
             uncertain
-              ? t2("canvas.removeLocalPlaceholder", "移除本地占位")
-              : t2("canvas.multiVideo.deleteVideo", "删除该视频")
+              ? t("canvas.removeLocalPlaceholder", "移除本地占位")
+              : t("canvas.multiVideo.deleteVideo", "删除该视频")
           }
         />
       ) : null}

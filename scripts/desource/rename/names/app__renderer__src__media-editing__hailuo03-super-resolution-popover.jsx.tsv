@@ -5,3 +5,5 @@ body2@71:11	body	此 JSX 子树包含超分辨率标题、分辨率选择和提�
 
 e2@78:25	pointerEvent	超分弹窗的 pointerdown 事件只阻止传播，避免指针操作触发外层画布交互。
 e2@79:25	mouseEvent	超分弹窗的 double-click 事件只阻止传播，避免双击触发外层画布操作。
+t2@36:16	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。
+s2@49:8	storeState	Zustand 选择器接收的画布状态对象，用于读取当前节点是否选中。

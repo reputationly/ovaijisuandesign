@@ -213,13 +213,13 @@ const GRID = [
     {
       length: MERIDIANS,
     },
-    (_unusedValue, i2) => ({
+    (_unusedValue, meridianIndex) => ({
       equator: false,
       points: Array.from(
         {
           length: 97,
         },
-        (_unusedValue, j2) => sphericalPoint((i2 * 180) / MERIDIANS, (j2 * 360) / 96),
+        (_unusedValue, pointIndex) => sphericalPoint((meridianIndex * 180) / MERIDIANS, (pointIndex * 360) / 96),
       ),
     }),
   ),
@@ -227,16 +227,16 @@ const GRID = [
     {
       length: PARALLELS * 2 + 1,
     },
-    (_unusedValue, i2) => ({
-      equator: i2 === PARALLELS,
+    (_unusedValue, parallelIndex) => ({
+      equator: parallelIndex === PARALLELS,
       points: Array.from(
         {
           length: 97,
         },
-        (_unusedValue, j2) =>
+        (_unusedValue, pointIndex) =>
           sphericalPoint(
-            (j2 * 360) / 96,
-            ((i2 - PARALLELS) * 90) / (PARALLELS + 1),
+            (pointIndex * 360) / 96,
+            ((parallelIndex - PARALLELS) * 90) / (PARALLELS + 1),
           ),
       ),
     }),
@@ -247,9 +247,9 @@ function gridPaths(rotation, front, equator) {
   for (const line of GRID) {
     if (line.equator !== equator) continue;
     const points = line.points.map((point) => rotate(point, rotation));
-    for (let i2 = 1; i2 < points.length; i2++) {
-      const startPoint = points[i2 - 1];
-      const endPoint = points[i2];
+    for (let pointIndex = 1; pointIndex < points.length; pointIndex++) {
+      const startPoint = points[pointIndex - 1];
+      const endPoint = points[pointIndex];
       if ((startPoint.z + endPoint.z) / 2 >= 0 !== front) continue;
       path += `M${startPoint.x.toFixed(2)},${(-startPoint.y).toFixed(2)}L${endPoint.x.toFixed(2)},${(-endPoint.y).toFixed(2)}`;
     }
@@ -455,8 +455,8 @@ function coneOutline(position, light) {
           ? config.radiusOuter
           : 0.018);
     const distance = end ? RADIUS - coneLength : RADIUS;
-    for (let i2 = 0; i2 < 16; i2++) {
-      const angle = (i2 * Math.PI) / 8;
+    for (let circlePointIndex = 0; circlePointIndex < 16; circlePointIndex++) {
+      const angle = (circlePointIndex * Math.PI) / 8;
       points.push({
         x:
           lightDirection.x * distance +
@@ -529,9 +529,9 @@ export const LightBall = (props) => {
   reactExports.useEffect(() => () => stop(), [stop]);
   reactExports.useEffect(() => {
     const pending = pendingEchoes.current;
-    for (let i2 = pending.length - 1; i2 >= 0; i2--) {
-      if (pending[i2].includes(key)) {
-        pending.splice(0, i2 + 1);
+    for (let echoIndex = pending.length - 1; echoIndex >= 0; echoIndex--) {
+      if (pending[echoIndex].includes(key)) {
+        pending.splice(0, echoIndex + 1);
         return;
       }
     }
@@ -838,9 +838,9 @@ export const LightBall = (props) => {
                 x2="140"
                 y2="220"
               >
-                {BACKDROP_GRADIENT_STOPS[studioMode].map((gradientStop, i2) => (
+                {BACKDROP_GRADIENT_STOPS[studioMode].map((gradientStop, gradientIndex) => (
                   <stop
-                    key={gradientStop.offset ?? i2}
+                    key={gradientStop.offset ?? gradientIndex}
                     offset={gradientStop.offset ?? "0"}
                     stopColor={gradientStop.color}
                     stopOpacity={gradientStop.opacity ?? "1"}

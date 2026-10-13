@@ -292,9 +292,9 @@ function tagDisplayValue(key, value, translate, preferType, modelDisplayMap) {
     );
   }
   if (key === "mode") {
-    const str = String(value);
-    if (isHiddenVideoGenerationMode(str)) return null;
-    return resolveVideoModeValueDisplay(str, translate);
+    const modeValue = String(value);
+    if (isHiddenVideoGenerationMode(modeValue)) return null;
+    return resolveVideoModeValueDisplay(modeValue, translate);
   }
   if (key === "version") return formatVersionTag(String(value));
   const raw = String(value);

@@ -43,9 +43,9 @@ const MAIN_PANORAMA_DEFAULT_PINNED = [
 ];
 const LATEST_LAYOUT_VERSION = 2;
 const LEGACY_LAYOUT_VERSION = 1;
-function isImageToolbarToolId(v2) {
+function isImageToolbarToolId(toolId) {
   return (
-    LEGACY_IMAGE_TOOLBAR_TOOLS.includes(v2) || IMAGE_TOOLBAR_TOOLS.includes(v2)
+    LEGACY_IMAGE_TOOLBAR_TOOLS.includes(toolId) || IMAGE_TOOLBAR_TOOLS.includes(toolId)
   );
 }
 function readPersisted() {
@@ -73,12 +73,12 @@ function readPersisted() {
         layoutVersion: LATEST_LAYOUT_VERSION,
       };
     }
-    const p3 = parsed;
-    const parsedPinned = Array.isArray(p3.pinned)
-      ? p3.pinned.filter(isImageToolbarToolId)
+    const persistedSettings = parsed;
+    const parsedPinned = Array.isArray(persistedSettings.pinned)
+      ? persistedSettings.pinned.filter(isImageToolbarToolId)
       : DEFAULT_PINNED;
     const isKnownPreviousFactoryLayout =
-      p3.layoutVersion === LATEST_LAYOUT_VERSION &&
+      persistedSettings.layoutVersion === LATEST_LAYOUT_VERSION &&
       [
         PRE_RELIGHT_WORKFLOW_DEFAULT_PINNED,
         PRE_WATERMARK_DEFAULT_PINNED,
@@ -88,13 +88,13 @@ function readPersisted() {
       ].some(
         (factoryPinned) =>
           parsedPinned.length === factoryPinned.length &&
-          parsedPinned.every((id2, index) => id2 === factoryPinned[index]),
+          parsedPinned.every((pinnedToolId, index) => pinnedToolId === factoryPinned[index]),
       );
     const pinned = isKnownPreviousFactoryLayout ? DEFAULT_PINNED : parsedPinned;
     const showLabels =
-      typeof p3.showLabels === "boolean" ? p3.showLabels : DEFAULT_SHOW_LABELS;
+      typeof persistedSettings.showLabels === "boolean" ? persistedSettings.showLabels : DEFAULT_SHOW_LABELS;
     const layoutVersion =
-      p3.layoutVersion === LATEST_LAYOUT_VERSION
+      persistedSettings.layoutVersion === LATEST_LAYOUT_VERSION
         ? LATEST_LAYOUT_VERSION
         : LEGACY_LAYOUT_VERSION;
     return {
@@ -122,7 +122,7 @@ export const useImageToolbarCustomizationStore = create((set) => ({
     const pinned = next.pinned.filter(isImageToolbarToolId);
     const isDefault =
       pinned.length === DEFAULT_PINNED.length &&
-      pinned.every((id2, index) => id2 === DEFAULT_PINNED[index]) &&
+      pinned.every((pinnedToolId, index) => pinnedToolId === DEFAULT_PINNED[index]) &&
       !!next.showLabels === DEFAULT_SHOW_LABELS;
     const state = {
       pinned,

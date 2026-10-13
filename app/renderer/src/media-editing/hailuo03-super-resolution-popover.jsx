@@ -33,7 +33,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
     durationSec,
     renderShell,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t } = useTranslation();
     const {
       accountSubmissionAllowed = true,
       beforeAccountSubmission = () => true,
@@ -46,7 +46,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
     onCloseRef.current = onClose;
     const nodeId = useNodeId();
     const selectedSelector = reactExports.useCallback(
-      (s2) => (nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true),
+      (storeState) => (nodeId ? !!storeState.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     );
     const isSelected = useStore(selectedSelector);
@@ -65,7 +65,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
     }, [beforeAccountSubmission, onSubmit]);
     const nativeBadge = (
       <span className="rounded-full border border-brand-accent px-1.5 py-px text-[10px] leading-[14px] text-brand-accent">
-        {t2("canvas.hailuo03SuperResolution.nativeBadge", "H3 原生超分")}
+        {t("canvas.hailuo03SuperResolution.nativeBadge", "H3 原生超分")}
       </span>
     );
     const body = (
@@ -79,11 +79,11 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
         onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
       >
         <div className="font-heading text-[13px] font-medium text-[var(--canvas-controls-text)]">
-          {t2("canvas.hailuo03SuperResolution.title", "H3 2K超分")}
+          {t("canvas.hailuo03SuperResolution.title", "H3 2K超分")}
         </div>
         <div className="flex flex-col gap-1.5">
           <span className="text-[11px] text-[var(--canvas-controls-text-muted)]">
-            {t2("canvas.hailuo03SuperResolution.resolutionLabel", "分辨率")}
+            {t("canvas.hailuo03SuperResolution.resolutionLabel", "分辨率")}
           </span>
           <Select value={H3_TARGET_RESOLUTION}>
             <SelectTrigger
@@ -113,7 +113,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
             onClick={onClose}
             data-action-ui-id="canvas.hailuo03-super-resolution.cancel"
           >
-            {t2("canvas.hailuo03SuperResolution.cancel", "取消")}
+            {t("canvas.hailuo03SuperResolution.cancel", "取消")}
           </Button>
           <Button
             variant="default"
@@ -123,7 +123,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
             data-action-ui-id="canvas.hailuo03-super-resolution.submit"
             className="inline-flex items-center gap-1.5"
           >
-            <span>{t2("canvas.hailuo03SuperResolution.submit", "生成")}</span>
+            <span>{t("canvas.hailuo03SuperResolution.submit", "生成")}</span>
             {creditCost != null && creditCost > 0 && (
               <CreditCostBadge
                 cost={creditCost}

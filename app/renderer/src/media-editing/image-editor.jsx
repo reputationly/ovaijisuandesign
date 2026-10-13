@@ -72,8 +72,8 @@ export const ImageEditor = reactExports.forwardRef(
     reactExports.useImperativeHandle(
       ref,
       () => ({
-        setTool: (t2) => editorRef.current?.setTool(t2),
-        setStyle: (s2) => editorRef.current?.setStyle(s2),
+        setTool: (tool) => editorRef.current?.setTool(tool),
+        setStyle: (style) => editorRef.current?.setStyle(style),
         undo: () => editorRef.current?.undo(),
         redo: () => editorRef.current?.redo(),
         clear: () => editorRef.current?.clear(),

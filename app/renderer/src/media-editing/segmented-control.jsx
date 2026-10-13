@@ -56,15 +56,15 @@ export function SegmentedControl({
     <div
       className={`bg-hl_bg_01 flex items-center gap-[2px] rounded-[100px] p-[2px] ${className}`}
     >
-      {options.map((opt) => {
-        const isActive = opt.value === value;
+      {options.map((option) => {
+        const isActive = option.value === value;
         return (
           <button
-            key={opt.value}
+            key={option.value}
             type="button"
             data-action-ui-id={
               dataActionUiIdPrefix
-                ? `${dataActionUiIdPrefix}.${opt.value}`
+                ? `${dataActionUiIdPrefix}.${option.value}`
                 : void 0
             }
             className={[
@@ -73,10 +73,10 @@ export function SegmentedControl({
                 ? "bg-hl_bg_08 text-hl_text_00"
                 : "text-hl_text_02 hover:text-hl_text_00",
             ].join(" ")}
-            onClick={() => onChange(opt.value)}
+            onClick={() => onChange(option.value)}
           >
             <span className="text-[11px] font-medium leading-[14px] tracking-[0.44px]">
-              {opt.label}
+              {option.label}
             </span>
           </button>
         );

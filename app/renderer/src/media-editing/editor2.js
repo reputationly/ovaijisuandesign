@@ -41,8 +41,8 @@ function autoResizeTextarea(textareaElement, fontSize, lineHeight, maxWidth) {
     if (measuredWidth > maxW) maxW = measuredWidth;
   }
   document.body.removeChild(measure);
-  const cap = Math.max(8, Math.floor(maxWidth));
-  textareaElement.style.width = `${Math.min(cap, Math.max(8, Math.ceil(maxW) + 2))}px`;
+  const widthCap = Math.max(8, Math.floor(maxWidth));
+  textareaElement.style.width = `${Math.min(widthCap, Math.max(8, Math.ceil(maxW) + 2))}px`;
   textareaElement.style.height = `${Math.max(1, lines.length) * fontSize * lineHeight}px`;
 }
 export class Editor2 {

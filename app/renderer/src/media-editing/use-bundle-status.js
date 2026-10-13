@@ -11,10 +11,10 @@ const SNAPSHOT_RETRY_DELAY_MS = 500;
 const SNAPSHOT_RETRY_MAX_ELAPSED_MS = 3e4;
 
 function createSnapshotUnavailableStatus(workspaceId) {
-  const id2 = workspaceId ?? "workspace";
+  const normalizedWorkspaceId = workspaceId ?? "workspace";
   return {
-    workspaceId: id2,
-    folderPath: id2,
+    workspaceId: normalizedWorkspaceId,
+    folderPath: normalizedWorkspaceId,
     state: "failed",
     revision: 0,
     error:
@@ -79,17 +79,17 @@ export function useBundleStatus(workspaceId, refreshKey, options = {}) {
       const prefix = final
         ? "[useBundleStatus] snapshot retry exhausted"
         : "[useBundleStatus] snapshot failed";
-      const msg = `${prefix} (${subscriptionScope}, attempts=${snapshotFailureCount}): ${detail}`;
+      const message = `${prefix} (${subscriptionScope}, attempts=${snapshotFailureCount}): ${detail}`;
       const logger = window.hilo?.logger;
       if (logger) {
         const write = final
           ? logger.error.bind(logger)
           : logger.warn.bind(logger);
-        write(msg).catch(() => console.error(msg));
+        write(message).catch(() => console.error(message));
       } else if (final) {
-        console.error(msg);
+        console.error(message);
       } else {
-        console.warn(msg);
+        console.warn(message);
       }
     };
     const scheduleRetry = (err) => {

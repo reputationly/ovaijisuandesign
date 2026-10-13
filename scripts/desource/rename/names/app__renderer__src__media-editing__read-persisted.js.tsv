@@ -7,3 +7,7 @@ next2@121:20	next	此对象是调用 setCustomization 传入的新配置，提�
 state2@127:11	state	此对象包含校验后的 pinned、showLabels 与 layoutVersion，并被更新器保存。
 index2@125:26	index	此索引访问默认固定工具列表，以逐项比较持久化布局是否等于默认值。
 state2@138:11	state	此对象是重置操作构造的默认工具栏状态，随后写入 store 并持久化。
+v2@46:31	toolId	待校验的图像工具 ID，用于检查其是否属于当前或旧版工具集合。
+p3@76:11	persistedSettings	JSON 解析得到的本地持久化设置对象，后续读取其 pinned 和 layoutVersion 字段。
+id2@91:31	pinnedToolId	工厂默认固定工具列表中的当前工具 ID，用于与持久化列表逐项比较。
+id2@125:21	pinnedToolId	默认固定工具列表中的当前工具 ID，用于判断用户设置是否仍为默认值。

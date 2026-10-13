@@ -84,7 +84,7 @@ export function useHailuo03VideoTrialConsumptionRefresh({
   sessionStore,
   status,
   refresh,
-  t: t2,
+  t,
 }) {
   const statusRef = reactExports.useRef(status);
   const mountedRef = reactExports.useRef(true);
@@ -151,7 +151,7 @@ export function useHailuo03VideoTrialConsumptionRefresh({
             if (lastNotifiedRemainingRef.current !== next.remainingCount) {
               lastNotifiedRemainingRef.current = next.remainingCount;
               dedupedToast.success(
-                t2("canvas.hailuo03Trial.freeUsed", {
+                t("canvas.hailuo03Trial.freeUsed", {
                   count: observedConsumed,
                   defaultValue: "本次免费，已使用 {{count}} 次免费机会",
                 }),
@@ -181,7 +181,7 @@ export function useHailuo03VideoTrialConsumptionRefresh({
         expectedUseCountRef.current = 1;
       }
     },
-    [refresh, t2],
+    [refresh, t],
   );
   reactExports.useEffect(() => {
     return sessionStore.onCanvasUpdated((update) => {

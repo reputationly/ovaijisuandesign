@@ -7,3 +7,4 @@ children2@109:46	children	此内容是加载或错误外壳中间显示的 React
 workspaceId2@130:38	workspaceId	此标识用于删除对应工作区的内容预算状态。
 workspaceId2@134:16	workspaceId	此属性标识 Provider 应使用的工作区作用域。
 children2@135:13	children	此内容被渲染在工作区内容预算作用域 Provider 内。
+t2@117:14	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。

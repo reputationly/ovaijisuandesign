@@ -12,3 +12,4 @@ e2@46:28	mouseEvent	滑块的 mousedown 事件阻止默认行为和冒泡，并�
 moveEvent@51:30	mouseMoveEvent	拖动期间的 mousemove 事件按当前 clientX 持续更新滑块值。
 e2@64:29	touchEvent	滑块的 touchstart 事件阻止冒泡，并从第一根触点读取 clientX 初始化值。
 moveEvent@70:30	touchMoveEvent	触摸拖动期间的 touchmove 事件从第一根触点读取 clientX 并持续更新滑块值。
+x2@36:11	thumbOffset	鼠标横坐标换算并限制到滑轨范围内的滑块偏移量。

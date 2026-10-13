@@ -114,7 +114,7 @@ export function ViewerStateShell({ children }) {
   );
 }
 export function ViewerLoading({ label }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <ViewerStateShell>
       <div
@@ -122,7 +122,7 @@ export function ViewerLoading({ label }) {
         aria-hidden={true}
       />
       <div className="text-xs text-muted-foreground">
-        {label ?? t2("canvas.file.viewer.loading", "加载中...")}
+        {label ?? t("canvas.file.viewer.loading", "加载中...")}
       </div>
     </ViewerStateShell>
   );

@@ -44,13 +44,13 @@ function VideoPreview({ engine, state, loading, previewSize }) {
   let displayW = maxPreviewWidth;
   let displayH = maxPreviewHeight;
   if (previewSize.w > 0 && previewSize.h > 0) {
-    const ar = previewSize.w / previewSize.h;
-    if (ar >= maxPreviewWidth / maxPreviewHeight) {
+    const aspectRatio = previewSize.w / previewSize.h;
+    if (aspectRatio >= maxPreviewWidth / maxPreviewHeight) {
       displayW = maxPreviewWidth;
-      displayH = Math.round(maxPreviewWidth / ar);
+      displayH = Math.round(maxPreviewWidth / aspectRatio);
     } else {
       displayH = maxPreviewHeight;
-      displayW = Math.round(maxPreviewHeight * ar);
+      displayW = Math.round(maxPreviewHeight * aspectRatio);
     }
   }
   return (

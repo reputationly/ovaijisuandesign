@@ -38,11 +38,11 @@ export const AudioLightbox = reactExports.memo(function AudioLightbox({
   onClose,
   item,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const current =
     item ??
     normalizeLegacyLightboxItems("audio", void 0, void 0, void 0, src)[0];
-  const downloadLabel = t2("canvas.downloadAudio");
+  const downloadLabel = t("canvas.downloadAudio");
   const { canSave, handleDownload, handleContextMenu, contextMenu } =
     useLightboxMediaActions({
       item: current,

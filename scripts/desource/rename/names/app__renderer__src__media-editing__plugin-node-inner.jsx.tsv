@@ -10,3 +10,5 @@ displayName2@190:9	displayName	此值按资源名、持久化名称、路径末�
 extension2@195:9	extension	此常量固定为 HTML 文件扩展名，供插件预览分支传递。
 handleDoubleClick2@309:9	handleDoubleClick	此回调仅在 launcher 模式双击时进入全屏，并报告 fullscreen enter 操作。
 state2@221:14	actionState	此参数是插件操作的状态值；存在时会写入上报 payload 的 state 字段。
+t2@168:20	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。
+id2@162:7	nodeId	组件 props 中的画布节点 ID，用于查询该节点的资源及交互状态。

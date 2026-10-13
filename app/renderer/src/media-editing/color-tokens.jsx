@@ -45,8 +45,8 @@ function useTokenValues(names) {
     const read = () => {
       const next = {};
       const styles = getComputedStyle(document.documentElement);
-      for (const n2 of names) {
-        next[n2] = styles.getPropertyValue(`--${n2}`).trim();
+      for (const tokenName of names) {
+        next[tokenName] = styles.getPropertyValue(`--${tokenName}`).trim();
       }
       setValues(next);
     };

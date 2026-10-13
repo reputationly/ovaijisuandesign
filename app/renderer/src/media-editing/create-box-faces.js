@@ -8,49 +8,49 @@ export function createBoxFaces({
   fills,
   stroke,
 }) {
-  const x2 = size.x / 2;
-  const y4 = size.y / 2;
-  const z3 = size.z / 2;
+  const halfWidth = size.x / 2;
+  const halfHeight = size.y / 2;
+  const halfDepth = size.z / 2;
   const vertices = [
     {
-      x: -x2,
-      y: -y4,
-      z: -z3,
+      x: -halfWidth,
+      y: -halfHeight,
+      z: -halfDepth,
     },
     {
-      x: x2,
-      y: -y4,
-      z: -z3,
+      x: halfWidth,
+      y: -halfHeight,
+      z: -halfDepth,
     },
     {
-      x: x2,
-      y: y4,
-      z: -z3,
+      x: halfWidth,
+      y: halfHeight,
+      z: -halfDepth,
     },
     {
-      x: -x2,
-      y: y4,
-      z: -z3,
+      x: -halfWidth,
+      y: halfHeight,
+      z: -halfDepth,
     },
     {
-      x: -x2,
-      y: -y4,
-      z: z3,
+      x: -halfWidth,
+      y: -halfHeight,
+      z: halfDepth,
     },
     {
-      x: x2,
-      y: -y4,
-      z: z3,
+      x: halfWidth,
+      y: -halfHeight,
+      z: halfDepth,
     },
     {
-      x: x2,
-      y: y4,
-      z: z3,
+      x: halfWidth,
+      y: halfHeight,
+      z: halfDepth,
     },
     {
-      x: -x2,
-      y: y4,
-      z: z3,
+      x: -halfWidth,
+      y: halfHeight,
+      z: halfDepth,
     },
   ].map((point) => add(point, center));
   const definitions = [

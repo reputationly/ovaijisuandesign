@@ -56,14 +56,14 @@ function AudioPreview({ loading, state }) {
                     anim: "eq-bar-3",
                     dur: "1.1s",
                   },
-                ].map((cfg) => (
+                ].map((animationConfig) => (
                   <div
-                    key={`${cfg.anim}-${cfg.dur}`}
+                    key={`${animationConfig.anim}-${animationConfig.dur}`}
                     className="w-[4px] rounded-full"
                     style={{
                       background: "rgba(255,255,255,0.8)",
                       height: "40%",
-                      animation: `${cfg.anim} ${cfg.dur} ease-in-out infinite`,
+                      animation: `${animationConfig.anim} ${animationConfig.dur} ease-in-out infinite`,
                     }}
                   />
                 ))}

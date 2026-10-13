@@ -17,8 +17,8 @@ export function AudioPreviewPlayer({
   onDurationChange,
   onTimeChange,
 }) {
-  const { t: t2 } = useTranslation();
-  const id2 = `attachment-audio-${reactExports.useId()}`;
+  const { t } = useTranslation();
+  const playbackId = `attachment-audio-${reactExports.useId()}`;
   const audioRef = reactExports.useRef(null);
   const requestRef = reactExports.useRef(0);
   const [playing, setPlaying] = reactExports.useState(false);
@@ -37,11 +37,11 @@ export function AudioPreviewPlayer({
       audio.pause();
       setPlaying(false);
       setPending(false);
-      if (useMediaPlayback.getState().playingId === id2)
+      if (useMediaPlayback.getState().playingId === playbackId)
         useMediaPlayback.getState().stop();
     };
     const unsubscribe = useMediaPlayback.subscribe((state) => {
-      if (state.playingId !== id2) {
+      if (state.playingId !== playbackId) {
         requestRef.current += 1;
         audio.pause();
         setPlaying(false);
@@ -64,7 +64,7 @@ export function AudioPreviewPlayer({
       audio.removeAttribute("src");
       audio.load();
     };
-  }, [isActive, durationSec, id2, url]);
+  }, [isActive, durationSec, playbackId, url]);
   const handleToggle = async () => {
     const audio = audioRef.current;
     if (!audio || !isActive) return;
@@ -73,7 +73,7 @@ export function AudioPreviewPlayer({
       audio.pause();
       setPlaying(false);
       setPending(false);
-      if (useMediaPlayback.getState().playingId === id2)
+      if (useMediaPlayback.getState().playingId === playbackId)
         useMediaPlayback.getState().stop();
       return;
     }
@@ -81,12 +81,12 @@ export function AudioPreviewPlayer({
     setError(false);
     setPending(true);
     const request = ++requestRef.current;
-    useMediaPlayback.getState().play(id2);
+    useMediaPlayback.getState().play(playbackId);
     try {
       await audio.play();
       if (
         request !== requestRef.current ||
-        useMediaPlayback.getState().playingId !== id2
+        useMediaPlayback.getState().playingId !== playbackId
       ) {
         audio.pause();
         return;
@@ -97,7 +97,7 @@ export function AudioPreviewPlayer({
       if (request !== requestRef.current) return;
       setError(true);
       setPending(false);
-      if (useMediaPlayback.getState().playingId === id2)
+      if (useMediaPlayback.getState().playingId === playbackId)
         useMediaPlayback.getState().stop();
     }
   };
@@ -130,7 +130,7 @@ export function AudioPreviewPlayer({
           onTimeChange?.(next);
         }}
         onPlaying={() => {
-          if (!isActive || useMediaPlayback.getState().playingId !== id2) {
+          if (!isActive || useMediaPlayback.getState().playingId !== playbackId) {
             audioRef.current?.pause();
             return;
           }
@@ -139,12 +139,12 @@ export function AudioPreviewPlayer({
         }}
         onPause={() => setPlaying(false)}
         onWaiting={() => {
-          if (useMediaPlayback.getState().playingId === id2) setPending(true);
+          if (useMediaPlayback.getState().playingId === playbackId) setPending(true);
         }}
         onEnded={() => {
           setPlaying(false);
           setPending(false);
-          if (useMediaPlayback.getState().playingId === id2)
+          if (useMediaPlayback.getState().playingId === playbackId)
             useMediaPlayback.getState().stop();
         }}
         onError={() => {
@@ -152,7 +152,7 @@ export function AudioPreviewPlayer({
           setError(true);
           setPlaying(false);
           setPending(false);
-          if (useMediaPlayback.getState().playingId === id2)
+          if (useMediaPlayback.getState().playingId === playbackId)
             useMediaPlayback.getState().stop();
         }}
       />
@@ -166,7 +166,7 @@ export function AudioPreviewPlayer({
             size="icon"
             disabled={!isActive || !url}
             aria-label={
-              playing || pending ? t2("canvas.pause") : t2("canvas.play")
+              playing || pending ? t("canvas.pause") : t("canvas.play")
             }
             data-action-ui-id="attachment-audio.toggle"
             className="size-6 shrink-0 rounded-full p-0 text-[var(--fg-default)] bg-transparent hover:bg-transparent hover:opacity-90"
@@ -192,7 +192,7 @@ export function AudioPreviewPlayer({
             step="0.01"
             value={validDuration ? time / validDuration : 0}
             disabled={!isActive || !validDuration}
-            aria-label={t2("attachment.audio.seek", "Playback position")}
+            aria-label={t("attachment.audio.seek", "Playback position")}
             data-action-ui-id="attachment-audio.seek"
             className="audio-preview-seek min-w-0 flex-1"
             onChange={handleSeek}
@@ -202,7 +202,7 @@ export function AudioPreviewPlayer({
             variant="ghost"
             size="icon"
             aria-label={
-              muted ? t2("assetPreview.unmute") : t2("assetPreview.mute")
+              muted ? t("assetPreview.unmute") : t("assetPreview.mute")
             }
             aria-pressed={muted}
             data-action-ui-id="attachment-audio.mute"
@@ -229,12 +229,12 @@ export function AudioPreviewPlayer({
           role="status"
           className="mt-1 text-[11px] text-[var(--canvas-controls-text-muted)]"
         >
-          {t2("common.loading", "Loading...")}
+          {t("common.loading", "Loading...")}
         </p>
       )}
       {error && (
         <p role="alert" className="mt-1 text-[11px] text-destructive">
-          {t2(
+          {t(
             "attachment.audio.loadFailed",
             "Audio could not be played. Try again.",
           )}

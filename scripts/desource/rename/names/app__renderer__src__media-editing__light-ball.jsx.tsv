@@ -113,3 +113,11 @@ position2@725:13	position	去掉打包器为避免重名添加的数字后缀并
 position2@743:22	position	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存灯光在球面上的三维坐标。
 position2@746:32	position	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存灯光在球面上的三维坐标。
 stop2@841:59	gradientStop	原名 stop 被工具识别为全局名，因此按用途改为描述名 gradientStop；此处持有当前 SVG 渐变色标对象。
+i2@216:20	meridianIndex	此 Array.from 索引标识当前经线，用于计算球面采样角度。
+j2@222:24	pointIndex	此 Array.from 索引标识当前经线上的采样点，用于计算经度。
+i2@230:20	parallelIndex	此 Array.from 索引标识当前纬线，用于判定赤道并计算纬度。
+j2@236:24	pointIndex	此 Array.from 索引标识当前纬线上的采样点，用于计算经度。
+i2@250:14	pointIndex	此索引遍历当前网格折线的球面点并比较相邻点深度。
+i2@458:14	circlePointIndex	此索引生成当前圆周采样点的角度。
+i2@532:14	echoIndex	此反向索引定位待处理的回声记录并裁剪队列。
+i2@841:73	gradientIndex	此索引作为渐变 stop 缺省 key 的备用值。
