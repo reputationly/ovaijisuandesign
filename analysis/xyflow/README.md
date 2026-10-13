@@ -14,13 +14,14 @@
 | `tools/` | Babel AST 比对（`analyze.mjs`、`lib.mjs`、`rules.mjs`）与补丁生成（`port.mjs`）脚本；依赖见 `tools/package.json` |
 
 ## 复现
-在仓库外一个工作目录里执行（`npm/` 下放解压好的 tarball，命名形如 `xyflow-system-0.0.76/package/...`）：
+在仓库根目录开始执行，工作目录建在仓库外（`npm/` 下放解压好的 tarball，命名形如 `xyflow-system-0.0.76/package/...`）：
 
 ```bash
-mkdir -p ~/xyflow-repro && cd ~/xyflow-repro && cp -r <仓库>/analysis/xyflow/tools . && cp tools/package.json . && npm install
+REPO=$(pwd)  # 在仓库根目录执行
+mkdir -p ~/xyflow-repro && cd ~/xyflow-repro && cp -r $REPO/analysis/xyflow/tools . && cp tools/package.json . && npm install
 mkdir -p npm && cd npm && for p in @xyflow/system@0.0.76 @xyflow/react@12.10.2 zustand@4.5.7 classcat@5.0.5; do d=$(echo $p | sed 's#^@##; s#/#-#; s#@#-#'); mkdir -p $d && npm pack $p --silent | xargs -I{} tar xzf {} -C $d; done; cd ..
-REGION=800-7620 node tools/analyze.mjs <仓库>/app/renderer/src/vendor.js npm out-base
-cp -r npm verify && (cd verify/xyflow-system-0.0.76/package && patch -p1 < <仓库>/analysis/xyflow/patches/@xyflow__system@0.0.76.patch) && (cd verify/xyflow-react-12.10.2/package && patch -p1 < <仓库>/analysis/xyflow/patches/@xyflow__react@12.10.2.patch)
-cp <仓库>/analysis/xyflow/results/port-report.json verify/
-HELPERS=verify/port-report.json FV=<仓库>/app/renderer/src/infra/from-vendor.js REGION=800-7620 node tools/analyze.mjs <仓库>/app/renderer/src/vendor.js verify out-verify
+REGION=800-7620 node tools/analyze.mjs $REPO/app/renderer/src/vendor.js npm out-base
+cp -r npm verify && (cd verify/xyflow-system-0.0.76/package && patch -p1 < $REPO/analysis/xyflow/patches/@xyflow__system@0.0.76.patch) && (cd verify/xyflow-react-12.10.2/package && patch -p1 < $REPO/analysis/xyflow/patches/@xyflow__react@12.10.2.patch)
+cp $REPO/analysis/xyflow/results/port-report.json verify/
+HELPERS=verify/port-report.json FV=$REPO/app/renderer/src/infra/from-vendor.js REGION=800-7620 node tools/analyze.mjs $REPO/app/renderer/src/vendor.js verify out-verify
 ```
