@@ -1,0 +1,4 @@
+key	old	new	依据
+n2@9:28	n2	currentCount	该值是拖拽进入计数更新前的当前深度。
+n2@10:28	n2	currentCount	该值是拖拽离开计数更新前的当前深度。
+t2@21:14	t2	translate	该绑定是空投放区读取标题和说明文案的翻译函数。

@@ -99,7 +99,7 @@ function createRemoteToolSdk(opts) {
       };
     },
     uploadFile: (file, options) =>
-      (opts.onUploadFile ?? ((f2, o2) => defaultUploadFile(f2, o2, logger)))(
+      (opts.onUploadFile ?? ((file, options) => defaultUploadFile(file, options, logger)))(
         file,
         options,
       ),
@@ -145,15 +145,15 @@ export function useRemoteToolSdk(opts) {
     createRemoteToolSdk({
       toolId: opts.toolId,
       locale: opts.locale,
-      onEmit: (e2, d2) => optsRef.current.onEmit?.(e2, d2),
+      onEmit: (eventType, eventData) => optsRef.current.onEmit?.(eventType, eventData),
       onCheckLogin: () =>
         optsRef.current.onCheckLogin
           ? optsRef.current.onCheckLogin()
           : Promise.resolve(true),
       getInitialParams: () => optsRef.current.getInitialParams?.(),
-      onTrack: (e2, p3) => optsRef.current.onTrack?.(e2, p3),
-      onUploadFile: (f2, o2) =>
-        (optsRef.current.onUploadFile ?? defaultUploadFile)(f2, o2),
+      onTrack: (eventName, trackProperties) => optsRef.current.onTrack?.(eventName, trackProperties),
+      onUploadFile: (file, options) =>
+        (optsRef.current.onUploadFile ?? defaultUploadFile)(file, options),
       logger: opts.logger,
     }),
   );

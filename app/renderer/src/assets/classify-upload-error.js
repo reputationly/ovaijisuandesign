@@ -51,8 +51,8 @@ export async function createHeicPreviewObjectUrlFromUrl(
 
 export const MESSAGE_INPUT_POPOVER_Z_INDEX = 40;
 
-export function isFileAttachment(a2) {
-  return (a2.kind ?? "file") === "file";
+export function isFileAttachment(attachment) {
+  return (attachment.kind ?? "file") === "file";
 }
 
 export class UploadCommitUnsupportedFilesystemError extends Error {
@@ -130,22 +130,22 @@ export function classifyUploadError(rawMessage, status, code2) {
   return "generic";
 }
 
-export function uploadErrorMessage(t2, kind) {
+export function uploadErrorMessage(translate, kind) {
   switch (kind) {
     case "fileTooLarge":
-      return t2("chat.uploadError.fileTooLarge");
+      return translate("chat.uploadError.fileTooLarge");
     case "network":
-      return t2("chat.uploadError.network");
+      return translate("chat.uploadError.network");
     case "unsupportedType":
-      return t2("chat.uploadError.unsupportedType");
+      return translate("chat.uploadError.unsupportedType");
     case "timeout":
-      return t2("chat.uploadError.timeout");
+      return translate("chat.uploadError.timeout");
     case "empty":
-      return t2("chat.uploadError.empty");
+      return translate("chat.uploadError.empty");
     case "serverUnavailable":
-      return t2("chat.uploadError.serverUnavailable");
+      return translate("chat.uploadError.serverUnavailable");
     case "generic":
-      return t2("chat.uploadError.generic");
+      return translate("chat.uploadError.generic");
   }
 }
 

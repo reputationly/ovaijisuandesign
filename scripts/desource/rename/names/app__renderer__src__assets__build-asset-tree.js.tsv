@@ -1,0 +1,6 @@
+key	old	new	依据
+a2@21:18	a2	leftEntry	该值是树节点排序比较中的左侧条目。
+b3@21:22	b3	rightEntry	该值是树节点排序比较中的右侧条目。
+a2@36:8	a2	leftPath	该字符串是目录深度排序比较中的左侧路径。
+b3@36:12	b3	rightPath	该字符串是目录深度排序比较中的右侧路径。
+i2@62:14	i2	segmentIndex	该值是遍历文件路径各目录片段时的数组索引。

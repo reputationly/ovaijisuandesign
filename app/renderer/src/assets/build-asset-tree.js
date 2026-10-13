@@ -18,9 +18,9 @@ function ensureDirNode(currentPath, currentChildren, dirMap, segment) {
 }
 
 function sortTree(entries2) {
-  entries2.sort((a2, b3) => {
-    if (a2.isDirectory !== b3.isDirectory) return a2.isDirectory ? -1 : 1;
-    return a2.name.localeCompare(b3.name);
+  entries2.sort((leftEntry, rightEntry) => {
+    if (leftEntry.isDirectory !== rightEntry.isDirectory) return leftEntry.isDirectory ? -1 : 1;
+    return leftEntry.name.localeCompare(rightEntry.name);
   });
   for (const entry of entries2) {
     if (entry.children) sortTree(entry.children);
@@ -33,7 +33,7 @@ function buildAssetTree(assets, dirs) {
   const seenPaths = new Set();
   if (dirs && dirs.length > 0) {
     const sortedDirs = [...dirs].sort(
-      (a2, b3) => a2.split("/").length - b3.split("/").length,
+      (leftPath, rightPath) => leftPath.split("/").length - rightPath.split("/").length,
     );
     for (const dirPath of sortedDirs) {
       if (!dirPath) continue;
@@ -59,8 +59,8 @@ function buildAssetTree(assets, dirs) {
     const segments = asset.path.split("/");
     let currentChildren = root2;
     let currentPath = "";
-    for (let i2 = 0; i2 < segments.length - 1; i2++) {
-      const segment = segments[i2];
+    for (let segmentIndex = 0; segmentIndex < segments.length - 1; segmentIndex++) {
+      const segment = segments[segmentIndex];
       currentPath = currentPath ? `${currentPath}/${segment}` : segment;
       const node2 = ensureDirNode(
         currentPath,

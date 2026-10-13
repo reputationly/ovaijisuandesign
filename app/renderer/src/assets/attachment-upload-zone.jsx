@@ -9,7 +9,7 @@ import {
   Scan,
   useTranslation,
   Video,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { Select } from "./credit-query-keys.jsx";
 import {
@@ -423,7 +423,7 @@ function ImageCropper({
   onConfirm,
   onError,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const hostRef = reactExports.useRef(null);
   const [hostSize, setHostSize] = reactExports.useState({
     width: 0,
@@ -616,7 +616,7 @@ function ImageCropper({
           >
             <SelectValue>
               {aspectRatio === "free"
-                ? t2("assetCenter.cover.freeAspect")
+                ? translate("assetCenter.cover.freeAspect")
                 : aspectRatio}
             </SelectValue>
           </SelectTrigger>
@@ -624,7 +624,7 @@ function ImageCropper({
             {ASPECT_OPTIONS.map((option2) => (
               <SelectItem key={option2} value={option2}>
                 {option2 === "free"
-                  ? t2("assetCenter.cover.freeAspect")
+                  ? translate("assetCenter.cover.freeAspect")
                   : option2}
               </SelectItem>
             ))}
@@ -632,14 +632,14 @@ function ImageCropper({
         </Select>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={onCancel} disabled={busy}>
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             onClick={() => void handleConfirm()}
             loading={busy}
             data-action-ui-id="image-cropper-confirm"
           >
-            {confirmLabel ?? t2("common.confirm")}
+            {confirmLabel ?? translate("common.confirm")}
           </Button>
         </div>
       </div>
@@ -661,7 +661,7 @@ function ExistingRow({
   isCover,
   coverPreviewSrc,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isImage2 = entry.kind === "image";
   const isVideo = entry.kind === "video";
   const isAudio = entry.kind === "audio";
@@ -692,7 +692,7 @@ function ExistingRow({
             className="absolute inset-0 cursor-zoom-in focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
             onClick={() => setLightboxOpen(true)}
             data-action-ui-id="asset-center-existing-attachment-image"
-            aria-label={t2("assetCenter.detail.viewLarge")}
+            aria-label={translate("assetCenter.detail.viewLarge")}
           >
             {failedPreview === imageSrc ? (
               <FileTypeIcon
@@ -717,7 +717,7 @@ function ExistingRow({
             className="absolute inset-0 cursor-zoom-in focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
             onClick={() => setLightboxOpen(true)}
             data-action-ui-id="asset-center-existing-attachment-video"
-            aria-label={t2("assetCenter.detail.viewLarge")}
+            aria-label={translate("assetCenter.detail.viewLarge")}
           >
             {failedPreview === videoPosterSrc ? (
               <FileTypeIcon
@@ -763,7 +763,7 @@ function ExistingRow({
             data-action-ui-id="asset-center-attachment-set-cover"
           >
             <Icon icon={Scan} size="xs" strokeWidth={2} />
-            {t2(isCover ? "assetCenter.cover.edit" : "assetCenter.cover.set")}
+            {translate(isCover ? "assetCenter.cover.edit" : "assetCenter.cover.set")}
           </Button>
         ) : null}
         <Button
@@ -772,9 +772,9 @@ function ExistingRow({
           className="absolute top-1 right-1 h-5 w-5 bg-background/60 text-muted-foreground hover:text-destructive hover:bg-background/80"
           onClick={onRemove2}
           data-action-ui-id="asset-center-add-entity-staged-remove"
-          aria-label={t2("common.remove")}
+          aria-label={translate("common.remove")}
         >
-          <X size={10} />
+          <CloseIcon size={10} />
         </Button>
       </div>
       <div className="flex flex-col gap-1 p-2">
@@ -784,15 +784,15 @@ function ExistingRow({
             className="flex-1 text-xs"
           />
           <span className="text-[10px] uppercase tracking-wide text-muted-foreground/60 shrink-0">
-            {t2("assetCenter.create.uploadStatus.existing")}
+            {translate("assetCenter.create.uploadStatus.existing")}
           </span>
         </div>
         <div className="flex items-start">
           <div className="w-0.5 h-3 shrink-0 bg-muted-foreground/20 mr-2 mt-0.5" />
           <textarea
             value={entry.caption ?? ""}
-            onChange={(e2) => onCaptionChange?.(e2.target.value)}
-            placeholder={t2("assetCenter.create.attachmentCaptionPlaceholder")}
+            onChange={(changeEvent) => onCaptionChange?.(changeEvent.target.value)}
+            placeholder={translate("assetCenter.create.attachmentCaptionPlaceholder")}
             rows={1}
             className="flex-1 min-w-0 bg-transparent text-xs text-muted-foreground outline-none placeholder:text-muted-foreground/40 resize-none field-sizing-content break-words"
             data-action-ui-id="asset-center-add-entity-staged-caption"
@@ -820,7 +820,7 @@ function CoverCropDialog({
   onClose,
   onConfirm,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
@@ -828,16 +828,16 @@ function CoverCropDialog({
         data-action-ui-id="asset-center-cover-crop-dialog"
       >
         <DialogHeader>
-          <DialogTitle>{t2("assetCenter.cover.cropTitle")}</DialogTitle>
+          <DialogTitle>{translate("assetCenter.cover.cropTitle")}</DialogTitle>
           <DialogDescription>
-            {t2("assetCenter.cover.cropDescription")}
+            {translate("assetCenter.cover.cropDescription")}
           </DialogDescription>
         </DialogHeader>
         <ImageCropper
           src={target.src}
           alt={target.filename}
           isSubmitting={isSubmitting}
-          confirmLabel={t2("assetCenter.cover.confirm")}
+          confirmLabel={translate("assetCenter.cover.confirm")}
           onCancel={onClose}
           onConfirm={onConfirm}
           onError={onError}
@@ -879,7 +879,7 @@ export function AttachmentUploadZone({
   trackingEntityId,
   trackingEntityType,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const inputRef = reactExports.useRef(null);
   const gridRef = reactExports.useRef(null);
   const [coverTarget, setCoverTarget] = reactExports.useState(null);
@@ -912,12 +912,12 @@ export function AttachmentUploadZone({
     (err) => {
       if (err instanceof AssetCenterApiError) {
         if (err.code) {
-          return t2(resolveAssetCenterErrorKey(err.code));
+          return translate(resolveAssetCenterErrorKey(err.code));
         }
       }
       return err instanceof Error ? err.message : String(err);
     },
-    [t2],
+    [translate],
   );
   const enqueue = reactExports.useCallback(
     async (files) => {
@@ -934,12 +934,12 @@ export function AttachmentUploadZone({
         if (!isFilenameAllowed(file.name, allowedExts)) {
           rejectedFiles.push({
             file,
-            reason: t2("assetCenter.upload.formatUnsupported"),
+            reason: translate("assetCenter.upload.formatUnsupported"),
           });
         } else if (file.size > sizeCapBytes) {
           rejectedFiles.push({
             file,
-            reason: t2("assetCenter.errors.fileTooLarge"),
+            reason: translate("assetCenter.errors.fileTooLarge"),
           });
         } else {
           allowedFiles.push(file);
@@ -959,15 +959,15 @@ export function AttachmentUploadZone({
       let next2 = [...currentStaged, ...initial, ...rejectedEntries];
       commitStagedChange(next2);
       if (mode2 === "stage") {
-        next2 = next2.map((s2) => {
-          const entry = initial.find((i2) => i2.id === s2.id);
+        next2 = next2.map((stagedEntry) => {
+          const entry = initial.find((initialEntry) => initialEntry.id === stagedEntry.id);
           return entry
             ? {
                 id: entry.id,
                 file: entry.file,
                 status: "staged",
               }
-            : s2;
+            : stagedEntry;
         });
         commitStagedChange(next2);
         return;
@@ -978,46 +978,46 @@ export function AttachmentUploadZone({
         );
       }
       for (const entry of initial) {
-        next2 = next2.map((s2) =>
-          s2.id === entry.id
+        next2 = next2.map((stagedEntry) =>
+          stagedEntry.id === entry.id
             ? {
-                id: s2.id,
+                id: stagedEntry.id,
                 file: entry.file,
                 status: "uploading",
               }
-            : s2,
+            : stagedEntry,
         );
         commitStagedChange(next2);
         try {
           const result = await uploadMutation.mutateAsync({
             file: entry.file,
           });
-          next2 = next2.map((s2) =>
-            s2.id === entry.id
+          next2 = next2.map((stagedEntry) =>
+            stagedEntry.id === entry.id
               ? {
-                  id: s2.id,
+                  id: stagedEntry.id,
                   file: entry.file,
                   status: "uploaded",
                   uploaded: result,
                 }
-              : s2,
+              : stagedEntry,
           );
         } catch (err) {
-          next2 = next2.map((s2) =>
-            s2.id === entry.id
+          next2 = next2.map((stagedEntry) =>
+            stagedEntry.id === entry.id
               ? {
-                  id: s2.id,
+                  id: stagedEntry.id,
                   file: entry.file,
                   status: "error",
                   errorMessage: resolveErrorMessage(err),
                 }
-              : s2,
+              : stagedEntry,
           );
         }
         commitStagedChange(next2);
       }
     },
-    [commitStagedChange, max2, uploadMutation, mode2, resolveErrorMessage, t2],
+    [commitStagedChange, max2, uploadMutation, mode2, resolveErrorMessage, translate],
   );
   const handlePick = reactExports.useCallback(() => {
     if (trackingSurface) {
@@ -1040,23 +1040,23 @@ export function AttachmentUploadZone({
     [enqueue],
   );
   const handleDrop2 = reactExports.useCallback(
-    (e2) => {
-      e2.preventDefault();
-      void enqueue(Array.from(e2.dataTransfer.files));
+    (dragEvent) => {
+      dragEvent.preventDefault();
+      void enqueue(Array.from(dragEvent.dataTransfer.files));
     },
     [enqueue],
   );
   const handleRemove = reactExports.useCallback(
-    (id2) => {
-      const previewUrl = coverPreviewUrlsRef.current[id2];
+    (entryId) => {
+      const previewUrl = coverPreviewUrlsRef.current[entryId];
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
-        const { [id2]: _removed, ...nextPreviewByEntryId } =
+        const { [entryId]: _removed, ...nextPreviewByEntryId } =
           coverPreviewUrlsRef.current;
         coverPreviewUrlsRef.current = nextPreviewByEntryId;
         setCoverPreviewByEntryId(nextPreviewByEntryId);
       }
-      const next2 = latestStagedRef.current.filter((s2) => s2.id !== id2);
+      const next2 = latestStagedRef.current.filter((stagedEntry) => stagedEntry.id !== entryId);
       if (trackingSurface) {
         trackAssetCenterAction({
           action: "attachment_remove",
@@ -1071,18 +1071,18 @@ export function AttachmentUploadZone({
     [commitStagedChange, trackingSurface, trackingEntityId, trackingEntityType],
   );
   const handleCaptionChange = reactExports.useCallback(
-    (id2, caption) => {
+    (entryId, caption) => {
       commitStagedChange(
-        latestStagedRef.current.map((s2) =>
-          s2.id === id2 &&
-          (s2.status === "uploaded" ||
-            s2.status === "existing" ||
-            s2.status === "staged")
+        latestStagedRef.current.map((stagedEntry) =>
+          stagedEntry.id === entryId &&
+          (stagedEntry.status === "uploaded" ||
+            stagedEntry.status === "existing" ||
+            stagedEntry.status === "staged")
             ? {
-                ...s2,
+                ...stagedEntry,
                 caption,
               }
-            : s2,
+            : stagedEntry,
         ),
       );
     },
@@ -1193,7 +1193,7 @@ export function AttachmentUploadZone({
           <button
             type="button"
             onClick={handlePick}
-            onDragOver={(e2) => e2.preventDefault()}
+            onDragOver={(dragEvent) => dragEvent.preventDefault()}
             onDrop={handleDrop2}
             data-action-ui-id="asset-center-add-entity-upload-zone"
             className="w-full flex flex-col items-center justify-center gap-1 border border-dashed rounded-lg transition-colors border-muted-foreground/40 bg-muted/30 text-muted-foreground hover:border-foreground/30 hover:bg-muted/50 cursor-pointer"
@@ -1203,7 +1203,7 @@ export function AttachmentUploadZone({
           >
             <FolderUp size={20} className="opacity-80" />
             <p className="text-xs">
-              {t2(
+              {translate(
                 "assetCenter.create.dropZonePromptAlt",
                 "将素材文件拖入/点击上传",
               )}
@@ -1214,8 +1214,8 @@ export function AttachmentUploadZone({
               multiple={true}
               accept={acceptList}
               className="hidden"
-              onClick={(e2) => e2.stopPropagation()}
-              onChange={(e2) => handleFilesPicked(e2.target.files)}
+              onClick={(clickEvent) => clickEvent.stopPropagation()}
+              onChange={(changeEvent) => handleFilesPicked(changeEvent.target.files)}
               data-action-ui-id="asset-center-add-entity-upload-input"
             />
           </button>
@@ -1234,10 +1234,10 @@ export function AttachmentUploadZone({
               <li
                 className="list-none relative flex flex-col border border-dashed rounded-lg border-border overflow-hidden cursor-pointer transition-colors hover:border-foreground/30 hover:bg-muted/50"
                 onClick={handlePick}
-                onKeyDown={(e2) => {
-                  if (e2.key === "Enter" || e2.key === " ") handlePick();
+                onKeyDown={(keyboardEvent) => {
+                  if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") handlePick();
                 }}
-                onDragOver={(e2) => e2.preventDefault()}
+                onDragOver={(dragEvent) => dragEvent.preventDefault()}
                 onDrop={handleDrop2}
                 data-action-ui-id="asset-center-add-entity-upload-zone"
               >
@@ -1252,7 +1252,7 @@ export function AttachmentUploadZone({
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-muted-foreground">
                   <Upload size={20} className="opacity-60" />
                   <p className="text-xs">
-                    {t2("assetCenter.create.dropZonePrompt")}
+                    {translate("assetCenter.create.dropZonePrompt")}
                   </p>
                 </div>
                 <input
@@ -1261,8 +1261,8 @@ export function AttachmentUploadZone({
                   multiple={true}
                   accept={acceptList}
                   className="hidden"
-                  onClick={(e2) => e2.stopPropagation()}
-                  onChange={(e2) => handleFilesPicked(e2.target.files)}
+                  onClick={(clickEvent) => clickEvent.stopPropagation()}
+                  onChange={(changeEvent) => handleFilesPicked(changeEvent.target.files)}
                   data-action-ui-id="asset-center-add-entity-upload-input"
                 />
               </li>
@@ -1274,7 +1274,7 @@ export function AttachmentUploadZone({
           <button
             type="button"
             onClick={handlePick}
-            onDragOver={(e2) => e2.preventDefault()}
+            onDragOver={(dragEvent) => dragEvent.preventDefault()}
             onDrop={handleDrop2}
             disabled={atMax}
             data-action-ui-id="asset-center-add-entity-upload-zone"
@@ -1288,8 +1288,8 @@ export function AttachmentUploadZone({
             <Upload size={20} className="opacity-60" />
             <p className="text-xs">
               {atMax
-                ? t2("assetCenter.create.dropZoneMaxed")
-                : t2("assetCenter.create.dropZonePrompt")}
+                ? translate("assetCenter.create.dropZoneMaxed")
+                : translate("assetCenter.create.dropZonePrompt")}
             </p>
             <input
               ref={inputRef}
@@ -1297,8 +1297,8 @@ export function AttachmentUploadZone({
               multiple={true}
               accept={acceptList}
               className="hidden"
-              onClick={(e2) => e2.stopPropagation()}
-              onChange={(e2) => handleFilesPicked(e2.target.files)}
+              onClick={(clickEvent) => clickEvent.stopPropagation()}
+              onChange={(changeEvent) => handleFilesPicked(changeEvent.target.files)}
               disabled={atMax}
               data-action-ui-id="asset-center-add-entity-upload-input"
             />
@@ -1318,7 +1318,7 @@ export function AttachmentUploadZone({
           target={coverTarget}
           error={coverError}
           isSubmitting={isCreatingCover}
-          onError={() => setCoverError(t2("assetCenter.cover.cropError"))}
+          onError={() => setCoverError(translate("assetCenter.cover.cropError"))}
           onClose={() => {
             if (!isCreatingCover) {
               setCoverTarget(null);

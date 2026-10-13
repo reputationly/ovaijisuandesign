@@ -1,0 +1,3 @@
+key	old	new	依据
+X@2:47	X	CloseIcon	该导入组件用于关闭按钮中的叉号图标。
+t2@14:14	t2	translate	该绑定是关闭按钮读取无障碍标签文案的翻译函数。

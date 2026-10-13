@@ -122,8 +122,8 @@ export function scopedAssetsQueryKey(gatewayScopeKey) {
 function scopedFileContentQueryKey(gatewayScopeKey, path2) {
   return [...FILE_CONTENT_QUERY_KEY, gatewayScopeKey, path2];
 }
-export async function refreshFileContent({ qc, gatewayScopeKey, path: path2 }) {
-  await qc.invalidateQueries({
+export async function refreshFileContent({ qc: queryClient, gatewayScopeKey, path: path2 }) {
+  await queryClient.invalidateQueries({
     queryKey: scopedFileContentQueryKey(gatewayScopeKey, path2),
   });
 }
@@ -131,7 +131,7 @@ export const MAX_RECENT_TRACES = 50;
 export const tracesByClientId = new Map();
 function getMessageDeliveryTracesSnapshot() {
   const recent = [...tracesByClientId.values()].sort(
-    (a2, b3) => a2.updatedAt - b3.updatedAt,
+    (leftTrace, rightTrace) => leftTrace.updatedAt - rightTrace.updatedAt,
   );
   const failed = recent
     .filter((trace) => trace.status === "failed" || trace.status === "timeout")

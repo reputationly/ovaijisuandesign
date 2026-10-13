@@ -76,7 +76,7 @@ export function FileNameLabel({
   );
 }
 export function AudioPlayButton({ src, filename }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const audioRef = reactExports.useRef(null);
   const [playing, setPlaying] = reactExports.useState(false);
   const toggle = reactExports.useCallback(() => {
@@ -123,7 +123,7 @@ export function AudioPlayButton({ src, filename }) {
           "relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-transparent p-0 hover:opacity-90 transition-opacity",
           playing ? "opacity-100" : "opacity-0 group-hover/audio:opacity-100",
         )}
-        aria-label={playing ? t2("common.pause") : t2("common.play")}
+        aria-label={playing ? translate("common.pause") : translate("common.play")}
         data-action-ui-id="asset-center-attachment-audio-play"
       >
         {playing ? (

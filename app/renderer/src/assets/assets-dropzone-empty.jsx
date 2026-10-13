@@ -6,8 +6,8 @@ function useDragDepth() {
   const [count2, setCount] = reactExports.useState(0);
   return {
     count: count2,
-    enter: () => setCount((n2) => n2 + 1),
-    leave: () => setCount((n2) => Math.max(0, n2 - 1)),
+    enter: () => setCount((currentCount) => currentCount + 1),
+    leave: () => setCount((currentCount) => Math.max(0, currentCount - 1)),
     reset: () => setCount(0),
   };
 }
@@ -18,7 +18,7 @@ export function AssetsDropzoneEmpty({
   title,
   description,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [dragActive, setDragActive] = reactExports.useState(false);
   const dragDepth = useDragDepth();
   return (
@@ -76,10 +76,10 @@ export function AssetsDropzoneEmpty({
       </span>
       <div className="flex max-w-sm flex-col gap-1 px-6">
         <p className="text-body-14 font-medium text-foreground">
-          {title ?? t2("projectAssets.dropzoneTitle")}
+          {title ?? translate("projectAssets.dropzoneTitle")}
         </p>
         <p className="text-caption-11 text-muted-foreground">
-          {description ?? t2("projectAssets.dropzoneDesc")}
+          {description ?? translate("projectAssets.dropzoneDesc")}
         </p>
       </div>
     </button>

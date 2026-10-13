@@ -20,10 +20,10 @@ import { TooltipContent } from "../infra/dialog-content.jsx";
 import { AddToChatIcon } from "../canvas/fullscreen-icon.jsx";
 import { Badge } from "../infra/badge-variants.jsx";
 import { useEntityCanvas } from "./use-materialize-entity.js";
-function formatRelativeTime(ts2, locale) {
-  const diff = Date.now() - ts2;
+function formatRelativeTime(timestamp, locale) {
+  const diff = Date.now() - timestamp;
   if (Number.isNaN(diff) || diff < 0) {
-    return new Date(ts2).toLocaleDateString(locale, {
+    return new Date(timestamp).toLocaleDateString(locale, {
       month: "short",
       day: "numeric",
     });
@@ -38,7 +38,7 @@ function formatRelativeTime(ts2, locale) {
   if (hours < 24) return rtf.format(-hours, "hour");
   const days = Math.floor(hours / 24);
   if (days < 7) return rtf.format(-days, "day");
-  return new Date(ts2).toLocaleDateString(locale, {
+  return new Date(timestamp).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
   });
@@ -94,7 +94,7 @@ function AttachmentPreviewThumb({ attachment }) {
   );
 }
 function AttachmentRow({ attachment, onPreview, onAddToCanvas, onAddToChat }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (!onPreview) {
     return (
       <li className="flex items-center gap-2 py-1 px-1">
@@ -119,9 +119,9 @@ function AttachmentRow({ attachment, onPreview, onAddToCanvas, onAddToChat }) {
       onClick={clickable ? () => onPreview(attachment) : void 0}
       onKeyDown={
         clickable
-          ? (e2) => {
-              if (e2.key === "Enter" || e2.key === " ") {
-                e2.preventDefault();
+          ? (keyboardEvent) => {
+              if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+                keyboardEvent.preventDefault();
                 onPreview(attachment);
               }
             }
@@ -151,15 +151,15 @@ function AttachmentRow({ attachment, onPreview, onAddToCanvas, onAddToChat }) {
               <Tooltip>
                 <TooltipTrigger
                   className="size-5 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                  onClick={(e2) => {
-                    e2.stopPropagation();
+                  onClick={(clickEvent) => {
+                    clickEvent.stopPropagation();
                     onAddToCanvas(attachment);
                   }}
                 >
                   <Plus size={12} />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="text-xs">
-                  {t2("assetSidebarPanel.addToCanvas")}
+                  {translate("assetSidebarPanel.addToCanvas")}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -167,15 +167,15 @@ function AttachmentRow({ attachment, onPreview, onAddToCanvas, onAddToChat }) {
               <Tooltip>
                 <TooltipTrigger
                   className="size-5 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                  onClick={(e2) => {
-                    e2.stopPropagation();
+                  onClick={(clickEvent) => {
+                    clickEvent.stopPropagation();
                     onAddToChat(attachment);
                   }}
                 >
                   <AddToChatIcon size={12} />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="text-xs">
-                  {t2("assetSidebarPanel.addToChat")}
+                  {translate("assetSidebarPanel.addToChat")}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -191,7 +191,7 @@ export function EntityHoverCardBody({
   onAddToCanvas,
   onAddToChat,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const entityQuery = useEntityCanvas(entityId);
   const entity = entityQuery.data;
   if (entityQuery.isPending) {
@@ -204,7 +204,7 @@ export function EntityHoverCardBody({
   if (entityQuery.error || !entity) {
     return (
       <div className="px-3 py-4 text-xs text-destructive">
-        {entityQuery.error?.message ?? t2("common.error")}
+        {entityQuery.error?.message ?? translate("common.error")}
       </div>
     );
   }
@@ -216,7 +216,7 @@ export function EntityHoverCardBody({
           {entity.name}
         </span>
         <Badge variant="secondary" className="shrink-0">
-          {t2(`assetCenter.types.${entity.type}`)}
+          {translate(`assetCenter.types.${entity.type}`)}
         </Badge>
       </div>
       {entity.description && (
@@ -239,15 +239,15 @@ export function EntityHoverCardBody({
       )}
       {attachments.length === 0 && (
         <span className="text-[11px] text-muted-foreground">
-          {t2("assetSidebarPanel.noAttachments")}
+          {translate("assetSidebarPanel.noAttachments")}
         </span>
       )}
       <p className="flex items-center text-[10px] text-muted-foreground -mb-1">
-        {t2("assetCenter.entityList.updatedAt", {
+        {translate("assetCenter.entityList.updatedAt", {
           when: formatRelativeTime(entity.updatedAt, i18n.language),
         })}
         {" · "}
-        {t2("assetCenter.useCount", {
+        {translate("assetCenter.useCount", {
           count: entity.useCount,
         })}
       </p>
