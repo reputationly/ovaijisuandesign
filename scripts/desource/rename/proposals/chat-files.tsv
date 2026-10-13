@@ -1,5 +1,5 @@
 旧路径	新路径	依据
-app/renderer/src/chat/ae.jsx	app/renderer/src/chat/chat-rendering-utils.jsx	`ae.jsx` 提供聊天布局宽度、class 合并器及 Markdown 渲染上下文等共享工具。
+app/renderer/src/chat/ae.jsx	app/renderer/src/chat/chat-markdown-rendering.jsx	`ae.jsx` 对外提供 Markdown 渲染上下文、代码块组件及下载和滚动工具，改用能概括这些职责的文件名。
 app/renderer/src/chat/nn.jsx	app/renderer/src/chat/mermaid-renderer.jsx	`nn.jsx` 对外提供 Mermaid 图表渲染器，文件名应反映其导出职责。
 app/renderer/src/chat/yt.js	app/renderer/src/chat/language-file-extensions.js	`yt.js` 导出按语言标识查询文件扩展名的映射表。
 app/renderer/src/chat/xn.js	app/renderer/src/chat/markdown-rendering-defaults.js	`xn.js` 导出代码主题列表和链接安全默认配置。

@@ -3,7 +3,20 @@ app/renderer/src/chat/yt.js	Yt	languageFileExtensions	`languageFileExtensions` �
 app/renderer/src/chat/xn.js	vn	defaultCodeThemes	`defaultCodeThemes` 列出代码渲染使用的 GitHub 浅色和深色主题。
 app/renderer/src/chat/xn.js	xn	defaultLinkSafety	`defaultLinkSafety` 是默认启用的链接安全配置对象。
 app/renderer/src/chat/nn.jsx	po	MermaidRenderer	`MermaidRenderer` 负责懒加载并渲染 Mermaid 图表及其状态界面。
-app/renderer/src/chat/ae.jsx	R	markdownRenderOptionsContext	`markdownRenderOptionsContext` 保存 Shiki 主题、代码行号、Mermaid 与链接安全等 Markdown 渲染选项。
+app/renderer/src/chat/ae.jsx	R	markdownRenderOptionsContext	`markdownRenderOptionsContext` 保存 Shiki 主题、行号、Mermaid 与链接安全等 Markdown 渲染选项。
+app/renderer/src/chat/ae.jsx	he	mergeClassNames	`mergeClassNames` 合并 clsx 类名并用 Tailwind 合并器消除冲突。
+app/renderer/src/chat/ae.jsx	W2	downloadFile	`downloadFile` 按文件名创建可下载内容并触发浏览器下载。
+app/renderer/src/chat/ae.jsx	Ee	classNameMergerContext	`classNameMergerContext` 保存应用级类名合并函数的 React context。
+app/renderer/src/chat/ae.jsx	y3	useClassNameMerger	`useClassNameMerger` 从类名合并 context 读取合并函数。
+app/renderer/src/chat/ae.jsx	ot	CodeBlockContainer	`CodeBlockContainer` 渲染包含语言、不完整状态和附加属性的代码块容器。
+app/renderer/src/chat/ae.jsx	rt	CodeBlockHeader	`CodeBlockHeader` 渲染包含语言标签的代码块标题栏。
+app/renderer/src/chat/ae.jsx	Oe	CodeBlockSkeleton	`CodeBlockSkeleton` 在代码块主体加载时显示带旋转图标的占位骨架。
+app/renderer/src/chat/ae.jsx	le	lockBodyScroll	`lockBodyScroll` 增加页面滚动锁计数，并在首个锁定时隐藏 body 溢出。
+app/renderer/src/chat/ae.jsx	ce	unlockBodyScroll	`unlockBodyScroll` 减少页面滚动锁计数，并在最后解锁时恢复 body 溢出。
+app/renderer/src/chat/ae.jsx	ao	findRendererForLanguage	`findRendererForLanguage` 按语言标识从 Markdown 上下文查找匹配的自定义 renderer。
+app/renderer/src/chat/ae.jsx	To	isCodeRenderingEnabled	`isCodeRenderingEnabled` 根据代码渲染选项和语言标识判断代码内容是否启用。
+app/renderer/src/chat/ae.jsx	Fe	isMermaidRenderingEnabled	`isMermaidRenderingEnabled` 根据 Mermaid 选项和语言标识判断图表内容是否启用。
+app/renderer/src/chat/ae.jsx	Ae	CopyCodeButton	`CopyCodeButton` 复制显式代码或代码块上下文，并显示复制成功状态。
 app/renderer/src/chat/at.jsx	At	CodeBlockBody	`CodeBlockBody` 渲染高亮代码结果、语言标签及可选行号。
 app/renderer/src/chat/st.jsx	st	HighlightedCodeBlock	`HighlightedCodeBlock` 负责封装代码块容器、语言标题及高亮主体的加载和回退显示。
 app/renderer/src/chat/fo.jsx	fo	MermaidFullscreenButton	`MermaidFullscreenButton` 切换 Mermaid 图表全屏显示并响应退出操作。

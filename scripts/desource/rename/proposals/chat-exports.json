@@ -10,7 +10,20 @@
     "po": "MermaidRenderer"
   },
   "app/renderer/src/chat/ae.jsx": {
-    "R": "markdownRenderOptionsContext"
+    "R": "markdownRenderOptionsContext",
+    "he": "mergeClassNames",
+    "W2": "downloadFile",
+    "Ee": "classNameMergerContext",
+    "y3": "useClassNameMerger",
+    "ot": "CodeBlockContainer",
+    "rt": "CodeBlockHeader",
+    "Oe": "CodeBlockSkeleton",
+    "le": "lockBodyScroll",
+    "ce": "unlockBodyScroll",
+    "ao": "findRendererForLanguage",
+    "To": "isCodeRenderingEnabled",
+    "Fe": "isMermaidRenderingEnabled",
+    "Ae": "CopyCodeButton"
   },
   "app/renderer/src/chat/at.jsx": {
     "At": "CodeBlockBody"
