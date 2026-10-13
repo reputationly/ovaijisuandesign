@@ -48,19 +48,19 @@ import { CanvasMode } from "./compute-group-bounds-from-children.js";
 import { findFreePositionForRects } from "./find-free-position-for-rects.js";
 function findConnectedComponents(nodeIds, edges) {
   const adj = new Map();
-  for (const id2 of nodeIds) adj.set(id2, []);
-  for (const e2 of edges) {
-    if (!nodeIds.has(e2.source) || !nodeIds.has(e2.target)) continue;
-    adj.get(e2.source).push(e2.target);
-    adj.get(e2.target).push(e2.source);
+  for (const id of nodeIds) adj.set(id, []);
+  for (const edge of edges) {
+    if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) continue;
+    adj.get(edge.source).push(edge.target);
+    adj.get(edge.target).push(edge.source);
   }
   const visited = new Set();
-  const components2 = [];
-  for (const start2 of nodeIds) {
-    if (visited.has(start2)) continue;
+  const components = [];
+  for (const start of nodeIds) {
+    if (visited.has(start)) continue;
     const component = [];
-    const queue = [start2];
-    visited.add(start2);
+    const queue = [start];
+    visited.add(start);
     let idx = 0;
     while (idx < queue.length) {
       const cur = queue[idx++];
@@ -72,168 +72,168 @@ function findConnectedComponents(nodeIds, edges) {
         }
       }
     }
-    components2.push(component);
+    components.push(component);
   }
-  return components2;
+  return components;
 }
-function A(e2) {
-  let n2 = new p({
-    multigraph: e2.isMultigraph(),
-  }).setGraph(e2.graph());
+function asNonCompoundGraph(graph) {
+  let simplified = new p({
+    multigraph: graph.isMultigraph(),
+  }).setGraph(graph.graph());
   return (
-    e2.nodes().forEach((t2) => {
-      e2.children(t2).length || n2.setNode(t2, e2.node(t2));
+    graph.nodes().forEach((v) => {
+      graph.children(v).length || simplified.setNode(v, graph.node(v));
     }),
-    e2.edges().forEach((t2) => {
-      n2.setEdge(t2, e2.edge(t2));
+    graph.edges().forEach((e) => {
+      simplified.setEdge(e, graph.edge(e));
     }),
-    n2
+    simplified
   );
 }
-function Te(e2) {
-  let n2 = e2.nodes().map((r2) => {
-      let o2 = e2.node(r2).rank;
-      return o2 === void 0 ? Number.MAX_VALUE : o2;
+function normalizeRanks(graph) {
+  let nodeRanks = graph.nodes().map((v) => {
+      let rank = graph.node(v).rank;
+      return rank === void 0 ? Number.MAX_VALUE : rank;
     }),
-    t2 = L(Math.min, n2);
-  e2.nodes().forEach((r2) => {
-    let o2 = e2.node(r2);
-    Object.hasOwn(o2, "rank") && (o2.rank -= t2);
+    min = L(Math.min, nodeRanks);
+  graph.nodes().forEach((v) => {
+    let node = graph.node(v);
+    Object.hasOwn(node, "rank") && (node.rank -= min);
   });
 }
-function Oe(e2) {
-  let n2 = e2
+function removeEmptyRanks(graph) {
+  let nodeRanks = graph
       .nodes()
-      .map((s2) => e2.node(s2).rank)
-      .filter((s2) => s2 !== void 0),
-    t2 = L(Math.min, n2),
-    r2 = [];
-  e2.nodes().forEach((s2) => {
-    let a2 = e2.node(s2).rank - t2;
-    (r2[a2] || (r2[a2] = []), r2[a2].push(s2));
+      .map((rank) => graph.node(rank).rank)
+      .filter((rank) => rank !== void 0),
+    offset = L(Math.min, nodeRanks),
+    layers = [];
+  graph.nodes().forEach((v) => {
+    let rank = graph.node(v).rank - offset;
+    (layers[rank] || (layers[rank] = []), layers[rank].push(v));
   });
-  let o2 = 0,
-    i2 = e2.graph().nodeRankFactor;
-  Array.from(r2).forEach((s2, a2) => {
-    s2 === void 0 && a2 % i2 !== 0
-      ? --o2
-      : s2 !== void 0 && o2 && s2.forEach((d2) => (e2.node(d2).rank += o2));
+  let delta = 0,
+    nodeRankFactor = graph.graph().nodeRankFactor;
+  Array.from(layers).forEach((vs, i) => {
+    vs === void 0 && i % nodeRankFactor !== 0
+      ? --delta
+      : vs !== void 0 && delta && vs.forEach((v) => (graph.node(v).rank += delta));
   });
 }
-var Wn = () => 1;
-function Q(e2, n2) {
-  if (e2.nodeCount() <= 1) return [];
-  let t2 = Yn(e2, n2 || Wn);
-  return Bn(t2.graph, t2.buckets, t2.zeroIdx).flatMap(
-    (o2) => e2.outEdges(o2.v, o2.w) || [],
+var defaultEdgeWeight = () => 1;
+function findGreedyFeedbackEdges(graph, weightFn) {
+  if (graph.nodeCount() <= 1) return [];
+  let state = Yn(graph, weightFn || defaultEdgeWeight);
+  return Bn(state.graph, state.buckets, state.zeroIdx).flatMap(
+    (edge) => graph.outEdges(edge.v, edge.w) || [],
   );
 }
-function Hn(e2) {
-  let n2 = [],
-    t2 = {},
-    r2 = {};
-  function o2(i2) {
-    Object.hasOwn(r2, i2) ||
-      ((r2[i2] = true),
-      (t2[i2] = true),
-      e2.outEdges(i2).forEach((s2) => {
-        Object.hasOwn(t2, s2.w) ? n2.push(s2) : o2(s2.w);
+function findDepthFirstFeedbackEdges(graph) {
+  let feedbackEdges = [],
+    activeStack = {},
+    visited = {};
+  function visitNode(nodeId) {
+    Object.hasOwn(visited, nodeId) ||
+      ((visited[nodeId] = true),
+      (activeStack[nodeId] = true),
+      graph.outEdges(nodeId).forEach((edge) => {
+        Object.hasOwn(activeStack, edge.w) ? feedbackEdges.push(edge) : visitNode(edge.w);
       }),
-      delete t2[i2]);
+      delete activeStack[nodeId]);
   }
-  return (e2.nodes().forEach(o2), n2);
+  return (graph.nodes().forEach(visitNode), feedbackEdges);
 }
-function je(e2) {
-  (e2.graph().acyclicer === "greedy" ? Q(e2, t2(e2)) : Hn(e2)).forEach((r2) => {
-    let o2 = e2.edge(r2);
-    (e2.removeEdge(r2),
-      (o2.forwardName = r2.name),
-      (o2.reversed = true),
-      e2.setEdge(r2.w, r2.v, o2, j("rev")));
+function makeAcyclic(graph) {
+  (graph.graph().acyclicer === "greedy" ? findGreedyFeedbackEdges(graph, makeWeightFunction(graph)) : findDepthFirstFeedbackEdges(graph)).forEach((feedbackEdge) => {
+    let edgeLabel = graph.edge(feedbackEdge);
+    (graph.removeEdge(feedbackEdge),
+      (edgeLabel.forwardName = feedbackEdge.name),
+      (edgeLabel.reversed = true),
+      graph.setEdge(feedbackEdge.w, feedbackEdge.v, edgeLabel, j("rev")));
   });
-  function t2(r2) {
-    return (o2) => r2.edge(o2).weight;
+  function makeWeightFunction(graph) {
+    return (edge) => graph.edge(edge).weight;
   }
 }
-function Se(e2) {
-  e2.edges().forEach((n2) => {
-    let t2 = e2.edge(n2);
-    if (t2.reversed) {
-      e2.removeEdge(n2);
-      let r2 = t2.forwardName;
-      (delete t2.reversed,
-        delete t2.forwardName,
-        e2.setEdge(n2.w, n2.v, t2, r2));
+function restoreAcyclicEdges(graph) {
+  graph.edges().forEach((edge) => {
+    let edgeLabel = graph.edge(edge);
+    if (edgeLabel.reversed) {
+      graph.removeEdge(edge);
+      let forwardName = edgeLabel.forwardName;
+      (delete edgeLabel.reversed,
+        delete edgeLabel.forwardName,
+        graph.setEdge(edge.w, edge.v, edgeLabel, forwardName));
     }
   });
 }
-function Xn(e2, n2) {
-  let t2 = n2.v,
-    r2 = e2.node(t2).rank,
-    o2 = n2.w,
-    i2 = e2.node(o2).rank,
-    s2 = n2.name,
-    a2 = e2.edge(n2),
-    d2 = a2.labelRank;
-  if (i2 === r2 + 1) return;
-  e2.removeEdge(n2);
-  let l2, u4, c3;
-  for (c3 = 0, ++r2; r2 < i2; ++c3, ++r2)
-    ((a2.points = []),
-      (u4 = {
+function normalizeEdge(graph, edge) {
+  let v = edge.v,
+    vRank = graph.node(v).rank,
+    w = edge.w,
+    wRank = graph.node(w).rank,
+    edgeName = edge.name,
+    edgeLabel = graph.edge(edge),
+    labelRank = edgeLabel.labelRank;
+  if (wRank === vRank + 1) return;
+  graph.removeEdge(edge);
+  let dummy, attrs, i;
+  for (i = 0, ++vRank; vRank < wRank; ++i, ++vRank)
+    ((edgeLabel.points = []),
+      (attrs = {
         width: 0,
         height: 0,
-        edgeLabel: a2,
-        edgeObj: n2,
-        rank: r2,
+        edgeLabel,
+        edgeObj: edge,
+        rank: vRank,
       }),
-      (l2 = w$3(e2, "edge", u4, "_d")),
-      r2 === d2 &&
-        ((u4.width = a2.width),
-        (u4.height = a2.height),
-        (u4.dummy = "edge-label"),
-        (u4.labelpos = a2.labelpos)),
-      e2.setEdge(
-        t2,
-        l2,
+      (dummy = w$3(graph, "edge", attrs, "_d")),
+      vRank === labelRank &&
+        ((attrs.width = edgeLabel.width),
+        (attrs.height = edgeLabel.height),
+        (attrs.dummy = "edge-label"),
+        (attrs.labelpos = edgeLabel.labelpos)),
+      graph.setEdge(
+        v,
+        dummy,
         {
-          weight: a2.weight,
+          weight: edgeLabel.weight,
         },
-        s2,
+        edgeName,
       ),
-      c3 === 0 && e2.graph().dummyChains.push(l2),
-      (t2 = l2));
-  e2.setEdge(
-    t2,
-    o2,
+      i === 0 && graph.graph().dummyChains.push(dummy),
+      (v = dummy));
+  graph.setEdge(
+    v,
+    w,
     {
-      weight: a2.weight,
+      weight: edgeLabel.weight,
     },
-    s2,
+    edgeName,
   );
 }
-function Fe(e2) {
-  ((e2.graph().dummyChains = []), e2.edges().forEach((n2) => Xn(e2, n2)));
+function normalizeEdges(graph) {
+  ((graph.graph().dummyChains = []), graph.edges().forEach((edge) => normalizeEdge(graph, edge)));
 }
-function De(e2) {
-  e2.graph().dummyChains.forEach((n2) => {
-    let t2 = e2.node(n2),
-      r2 = t2.edgeLabel,
-      o2;
-    for (e2.setEdge(t2.edgeObj, r2); t2.dummy;)
-      ((o2 = e2.successors(n2)[0]),
-        e2.removeNode(n2),
-        r2.points.push({
-          x: t2.x,
-          y: t2.y,
+function restoreNormalizedEdges(graph) {
+  graph.graph().dummyChains.forEach((dummyNodeId) => {
+    let node = graph.node(dummyNodeId),
+      originalLabel = node.edgeLabel,
+      nextNodeId;
+    for (graph.setEdge(node.edgeObj, originalLabel); node.dummy;)
+      ((nextNodeId = graph.successors(dummyNodeId)[0]),
+        graph.removeNode(dummyNodeId),
+        originalLabel.points.push({
+          x: node.x,
+          y: node.y,
         }),
-        t2.dummy === "edge-label" &&
-          ((r2.x = t2.x),
-          (r2.y = t2.y),
-          (r2.width = t2.width),
-          (r2.height = t2.height)),
-        (n2 = o2),
-        (t2 = e2.node(n2)));
+        node.dummy === "edge-label" &&
+          ((originalLabel.x = node.x),
+          (originalLabel.y = node.y),
+          (originalLabel.width = node.width),
+          (originalLabel.height = node.height)),
+        (dummyNodeId = nextNodeId),
+        (node = graph.node(dummyNodeId)));
   });
 }
 function ot(e2) {
@@ -505,7 +505,7 @@ function ln(e2) {
   return (Pt(r2, i2), Mt(r2, e2.graph().align));
 }
 function un(e2) {
-  ((e2 = A(e2)),
+  ((e2 = asNonCompoundGraph(e2)),
     Ft(e2),
     Object.entries(ln(e2)).forEach(([n2, t2]) => (e2.node(n2).x = t2)));
 }
@@ -736,16 +736,16 @@ function ir(e2) {
 function Dt(e2, n2, t2) {
   (n2("    makeSpaceForEdgeLabels", () => Ut(e2)),
     n2("    removeSelfEdges", () => rr(e2)),
-    n2("    acyclic", () => je(e2)),
+    n2("    acyclic", () => makeAcyclic(e2)),
     n2("    nestingGraph.run", () => Ke(e2)),
-    n2("    rank", () => Xe(A(e2))),
+    n2("    rank", () => Xe(asNonCompoundGraph(e2))),
     n2("    injectEdgeLabelProxies", () => Kt(e2)),
-    n2("    removeEmptyRanks", () => Oe(e2)),
+    n2("    removeEmptyRanks", () => removeEmptyRanks(e2)),
     n2("    nestingGraph.cleanup", () => Je(e2)),
-    n2("    normalizeRanks", () => Te(e2)),
+    n2("    normalizeRanks", () => normalizeRanks(e2)),
     n2("    assignRankMinMax", () => $t(e2)),
     n2("    removeEdgeLabelProxies", () => Jt(e2)),
-    n2("    normalize.run", () => Fe(e2)),
+    n2("    normalize.run", () => normalizeEdges(e2)),
     n2("    parentDummyChains", () => Ue(e2)),
     n2("    addBorderSegments", () => Ze(e2)),
     n2("    order", () => B(e2, t2)),
@@ -754,13 +754,13 @@ function Dt(e2, n2, t2) {
     n2("    position", () => un(e2)),
     n2("    positionSelfEdges", () => ir(e2)),
     n2("    removeBorderNodes", () => tr(e2)),
-    n2("    normalize.undo", () => De(e2)),
+    n2("    normalize.undo", () => restoreNormalizedEdges(e2)),
     n2("    fixupEdgeLabelCoords", () => er(e2)),
     n2("    undoCoordinateSystem", () => tn(e2)),
     n2("    translateGraph", () => Qt(e2)),
     n2("    assignNodeIntersects", () => Zt(e2)),
     n2("    reversePoints", () => nr(e2)),
-    n2("    acyclic.undo", () => Se(e2)));
+    n2("    acyclic.undo", () => restoreAcyclicEdges(e2)));
 }
 function ue(e2, n2) {
   return O(T(e2, n2), Number);

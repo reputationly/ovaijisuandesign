@@ -1,0 +1,80 @@
+key	old	new	依据
+id2@51:14	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@52:14	e2	edge	findConnectedComponents 的局部：当前检查来源、目标是否属于 nodeIds 并加入双向邻接表的边。
+components2@58:9	components2	components	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+start2@59:14	start2	start	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+A@79:10	A	asNonCompoundGraph	Dagre lib/util.ts 的 asNonCompoundGraph：复制无子节点的节点和全部边到新图，去掉复合节点层级。
+e2@79:12	e2	graph	asNonCompoundGraph 的参数：被复制为仅含叶节点和边的新图的输入图。
+n2@80:7	n2	simplified	asNonCompoundGraph 的局部：保留输入图属性并将叶节点和边写入其中的新图。
+t2@84:25	t2	v	asNonCompoundGraph 的节点遍历回调：当前节点标识。
+t2@87:25	t2	e	asNonCompoundGraph 的边遍历回调：当前边描述对象。
+Te@93:10	Te	normalizeRanks	Dagre lib/util.ts 的 normalizeRanks：将所有已定义节点 rank 平移，使最小 rank 归零。
+e2@93:13	e2	graph	normalizeRanks 的参数：需要对节点 rank 统一归一化的图。
+n2@94:7	n2	nodeRanks	normalizeRanks 的局部：各节点 rank 的数组，缺失 rank 用 Number.MAX_VALUE 占位。
+r2@94:28	r2	v	normalizeRanks 的 map 回调：当前节点标识。
+o2@95:11	o2	rank	normalizeRanks 的 map 局部：当前节点已有的 rank；缺失时返回最大数值占位。
+t2@98:5	t2	min	normalizeRanks 的局部：nodeRanks 中用于统一平移的最小 rank。
+r2@99:23	r2	v	normalizeRanks 的 forEach 回调：当前节点标识。
+o2@100:9	o2	node	normalizeRanks 的 forEach 局部：当前节点标签，rank 存在时将其减去 min。
+Oe@104:10	Oe	removeEmptyRanks	Dagre lib/util.ts 的 removeEmptyRanks：按 nodeRankFactor 收缩空 rank，并调整后续节点 rank。
+e2@104:13	e2	graph	removeEmptyRanks 的参数：需要收缩空层的图。
+n2@105:7	n2	nodeRanks	removeEmptyRanks 的局部：图中已定义的节点 rank 列表。
+s2@107:13	s2	rank	removeEmptyRanks 的 map 回调：当前节点 rank。
+s2@108:16	s2	rank	removeEmptyRanks 的 filter 回调：用于排除未分配 rank 的值。
+t2@109:5	t2	offset	removeEmptyRanks 的局部：最小 rank，用于将层索引平移到从零开始。
+r2@110:5	r2	layers	removeEmptyRanks 的局部：按平移后 rank 收集节点标识的稀疏数组。
+s2@111:23	s2	v	removeEmptyRanks 的节点遍历回调：当前节点标识。
+a2@112:9	a2	rank	removeEmptyRanks 的局部：当前节点减去 offset 后的层索引。
+o2@115:7	o2	delta	removeEmptyRanks 的局部：累计移除空层后需要应用到后续 rank 的偏移量。
+i2@116:5	i2	nodeRankFactor	removeEmptyRanks 的局部：保护嵌套图边界层的 rank 间隔因子。
+s2@117:27	s2	vs	removeEmptyRanks 的层遍历回调：当前 rank 上收集的节点标识列表，空层时为 undefined。
+a2@117:31	a2	i	removeEmptyRanks 的层遍历回调：当前层在稀疏 layers 数组中的索引。
+d2@120:44	d2	v	removeEmptyRanks 中的节点回调：当前节点标识，其 rank 会累加 delta。
+Wn@123:5	Wn	defaultEdgeWeight	findGreedyFeedbackEdges 使用的默认权重回调：未提供 weightFn 时每条边权重为 1。
+Q@124:10	Q	findGreedyFeedbackEdges	按边权重调用贪心反馈边算法，并将选中的节点对展开为原图中的对应边。
+e2@124:12	e2	graph	findGreedyFeedbackEdges 的参数：需要选择反馈边集的图。
+n2@124:16	n2	weightFn	findGreedyFeedbackEdges 的参数：返回每条边权重的回调。
+t2@126:7	t2	state	findGreedyFeedbackEdges 的局部：贪心算法使用的图、权重桶和零点索引状态。
+o2@128:6	o2	edge	findGreedyFeedbackEdges 的 flatMap 回调：从原图取得被反馈边状态选中的节点对对应的边。
+Hn@131:10	Hn	findDepthFirstFeedbackEdges	对图做深度优先遍历，并收集指向当前递归栈节点的边作为反馈边。
+e2@131:13	e2	graph	findDepthFirstFeedbackEdges 的参数：执行深度优先反馈边遍历的图。
+n2@132:7	n2	feedbackEdges	findDepthFirstFeedbackEdges 的局部：遍历中发现的回边列表。
+t2@133:5	t2	activeStack	findDepthFirstFeedbackEdges 的局部：记录当前 DFS 递归路径上的节点标识。
+r2@134:5	r2	visited	findDepthFirstFeedbackEdges 的局部：记录已经访问过的节点标识。
+o2@135:12	o2	visitNode	findDepthFirstFeedbackEdges 的递归函数：标记节点并递归访问出边，发现指向 activeStack 的边时加入反馈边。
+i2@135:15	i2	nodeId	visitNode 的参数：当前 DFS 访问的节点标识。
+s2@139:32	s2	edge	visitNode 的出边遍历回调：当前需要检查目标是否在 activeStack 中的边。
+je@146:10	je	makeAcyclic	依据 greedy 或 DFS 反馈边策略反转边，并记录原方向以供后续恢复。
+e2@146:13	e2	graph	makeAcyclic 的参数：需要通过反转反馈边转为无环的图。
+r2@147:73	r2	feedbackEdge	makeAcyclic 的反馈边遍历回调：当前需要反转的边描述对象。
+o2@148:9	o2	edgeLabel	makeAcyclic 的局部：被反转边的标签，保留在反向边上并记录原始边名。
+t2@154:12	t2	makeWeightFunction	makeAcyclic 的局部函数：接收图并返回读取边标签 weight 的权重回调。
+r2@154:15	r2	graph	makeWeightFunction 的参数：权重回调读取边标签的图。
+o2@155:13	o2	edge	makeWeightFunction 返回的回调参数：当前用于取得 weight 的边。
+Se@158:10	Se	restoreAcyclicEdges	Dagre lib/acyclic.ts 的 undo：移除反转边并按 forwardName 恢复原方向。
+e2@158:13	e2	graph	restoreAcyclicEdges 的参数：包含已标记 reversed 边的图。
+n2@159:23	n2	edge	restoreAcyclicEdges 的边遍历回调：当前待检查是否被反转的边。
+t2@160:9	t2	edgeLabel	restoreAcyclicEdges 的局部：当前边标签，reversed 为真时用于重建原方向边。
+r2@163:11	r2	forwardName	restoreAcyclicEdges 的局部：边标签记录的原始边名。
+Xn@170:10	Xn	normalizeEdge	Dagre lib/normalize.ts 的 normalizeEdge：在端点 rank 相差大于一时插入 dummy 链，并在 labelRank 放置边标签 dummy。
+e2@170:13	e2	graph	normalizeEdge 的参数：读取端点 rank、删除原边并写入 dummy 链的图。
+n2@170:17	n2	edge	normalizeEdge 的参数：需要按 rank 间隔拆分的边描述对象。
+t2@171:7	t2	v	normalizeEdge 的局部：当前 dummy 链的起始节点标识，迭代中推进到新建 dummy。
+r2@172:5	r2	vRank	normalizeEdge 的局部：当前链起点节点的 rank，并在循环中逐层递增。
+o2@173:5	o2	w	normalizeEdge 的局部：原边终点节点标识。
+i2@174:5	i2	wRank	normalizeEdge 的局部：原边终点节点的 rank，用于判断是否需要插入 dummy。
+s2@175:5	s2	edgeName	normalizeEdge 的局部：原边名称，写入每一段 dummy 边；恢复 name 会绑定到全局 name，故用 edgeName 区分。
+a2@176:5	a2	edgeLabel	normalizeEdge 的局部：原边标签，提供 weight、labelRank 及标签尺寸。
+d2@177:5	d2	labelRank	normalizeEdge 的局部：需要放置边标签 dummy 的目标 rank。
+l2@180:7	l2	dummy	normalizeEdge 的局部：当前新建 dummy 节点的标识。
+u4@180:11	u4	attrs	normalizeEdge 的局部：写入 dummy 节点的尺寸、原边引用和 rank 的标签对象。
+c3@180:15	c3	i	normalizeEdge 的 for 循环计数：用于标识首个 dummy 并逐步推进 dummy 链。
+Fe@215:10	Fe	normalizeEdges	逐条遍历图的边并调用 normalizeEdge，同时初始化用于记录 dummy 链的数组。
+e2@215:13	e2	graph	normalizeEdges 的参数：需要拆分长边的图。
+n2@216:55	n2	edge	normalizeEdges 的边遍历回调：传给 normalizeEdge 处理的当前边。
+De@218:10	De	restoreNormalizedEdges	Dagre lib/normalize.ts 的 undo：沿 dummyChains 删除临时节点、收集路径点并恢复原边标签坐标。
+e2@218:13	e2	graph	restoreNormalizedEdges 的参数：包含 normalize 阶段生成 dummyChains 的图。
+n2@219:35	n2	dummyNodeId	restoreNormalizedEdges 的 forEach 参数：每条长边 dummy 链的起始节点标识。
+t2@220:9	t2	node	restoreNormalizedEdges 的局部：dummyNodeId 当前指向的节点标签。
+r2@221:7	r2	originalLabel	restoreNormalizedEdges 的局部：从首个 dummy 节点取回的原始边标签。
+o2@222:7	o2	nextNodeId	restoreNormalizedEdges 的局部：沿 successors 取得的下一 dummy 节点或终点标识。
