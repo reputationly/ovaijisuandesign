@@ -8,5 +8,11 @@
   },
   "app/renderer/src/chat/nn.jsx": {
     "po": "MermaidRenderer"
+  },
+  "app/renderer/src/chat/ae.jsx": {
+    "R": "markdownRenderOptionsContext"
+  },
+  "app/renderer/src/chat/at.jsx": {
+    "At": "CodeBlockBody"
   }
 }

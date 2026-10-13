@@ -3,3 +3,4 @@ app/renderer/src/chat/ae.jsx	app/renderer/src/chat/chat-rendering-utils.jsx	`ae.
 app/renderer/src/chat/nn.jsx	app/renderer/src/chat/mermaid-renderer.jsx	`nn.jsx` 对外提供 Mermaid 图表渲染器，文件名应反映其导出职责。
 app/renderer/src/chat/yt.js	app/renderer/src/chat/language-file-extensions.js	`yt.js` 导出按语言标识查询文件扩展名的映射表。
 app/renderer/src/chat/xn.js	app/renderer/src/chat/markdown-rendering-defaults.js	`xn.js` 导出代码主题列表和链接安全默认配置。
+app/renderer/src/chat/at.jsx	app/renderer/src/chat/code-block-body.jsx	`at.jsx` 仅导出负责渲染高亮代码块主体的组件。

@@ -2,5 +2,6 @@
   "app/renderer/src/chat/ae.jsx": "app/renderer/src/chat/chat-rendering-utils.jsx",
   "app/renderer/src/chat/nn.jsx": "app/renderer/src/chat/mermaid-renderer.jsx",
   "app/renderer/src/chat/yt.js": "app/renderer/src/chat/language-file-extensions.js",
-  "app/renderer/src/chat/xn.js": "app/renderer/src/chat/markdown-rendering-defaults.js"
+  "app/renderer/src/chat/xn.js": "app/renderer/src/chat/markdown-rendering-defaults.js",
+  "app/renderer/src/chat/at.jsx": "app/renderer/src/chat/code-block-body.jsx"
 }

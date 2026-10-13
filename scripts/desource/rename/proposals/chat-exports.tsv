@@ -3,3 +3,5 @@ app/renderer/src/chat/yt.js	Yt	languageFileExtensions	`languageFileExtensions` �
 app/renderer/src/chat/xn.js	vn	defaultCodeThemes	`defaultCodeThemes` 列出代码渲染使用的 GitHub 浅色和深色主题。
 app/renderer/src/chat/xn.js	xn	defaultLinkSafety	`defaultLinkSafety` 是默认启用的链接安全配置对象。
 app/renderer/src/chat/nn.jsx	po	MermaidRenderer	`MermaidRenderer` 负责懒加载并渲染 Mermaid 图表及其状态界面。
+app/renderer/src/chat/ae.jsx	R	markdownRenderOptionsContext	`markdownRenderOptionsContext` 保存 Shiki 主题、代码行号、Mermaid 与链接安全等 Markdown 渲染选项。
+app/renderer/src/chat/at.jsx	At	CodeBlockBody	`CodeBlockBody` 渲染高亮代码结果、语言标签及可选行号。

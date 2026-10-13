@@ -1,0 +1,12 @@
+key	新名	依据
+svg@12:36	svgElement	`svgElement` 是读取透明度及其祖先、图形子项样式的 SVG 根元素。
+id@13:7	svgDiagnosticId	`svgDiagnosticId` 是为 SVG 元素分配并缓存的诊断标识。
+svg@58:58	svgElement	`svgElement` 是从采样区域查询并逐个读取诊断信息的 SVG 元素。
+svg@62:24	svgElement	`svgElement` 是检查自身及绘图子项是否包含半透明绘制的 SVG 元素。
+svg@86:23	svgElement	`svgElement` 是用于检查布局及祖先可见性的 SVG 元素。
+svg@104:8	svgElement	`svgElement` 是页面诊断筛选收到的任意 SVG 元素。
+svg@110:8	svgElement	`svgElement` 是页面诊断筛选收到并检查属性与透明绘制的任意 SVG 元素。
+svg@115:11	svgElement	`svgElement` 是映射为页面图标诊断记录的 SVG 元素。
+t@135:11	translate	`translate` 是不透明度诊断面板查询本地化标签的函数。
+ref@136:9	sampleElementRef	`sampleElementRef` 指向用于采样图标透明度的示例 DOM 容器。
+id@142:11	animationFrameId	`animationFrameId` 是请求测量所创建并在清理时取消的动画帧标识。
