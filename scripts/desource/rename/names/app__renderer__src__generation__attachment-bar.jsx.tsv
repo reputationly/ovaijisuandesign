@@ -1,0 +1,7 @@
+key	old	new	依据
+e2@80:21	e2	clickEvent	该事件来自添加附件按钮点击并用于阻止冒泡。
+t2@101:14	t2	translate	该绑定来自 useTranslation 并用于音频模式标签。
+s2@175:6	s2	canvasState	该值是画布 store 状态，其 nodeLookup 用于读取节点选中状态。
+e2@204:25	e2	doubleClickEvent	该事件来自弹出框双击并用于阻止冒泡。
+d2@317:11	d2	durationSeconds	该值是元数据中的音频时长秒数，用于逐片段范围判断。
+d2@329:11	d2	durationSeconds	该值是元数据中的视频时长秒数，用于逐片段范围判断。

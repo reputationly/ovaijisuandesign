@@ -1,0 +1,5 @@
+key	old	new	依据
+tr2@183:16	tr2	transaction	该值是 ProseMirror transaction，用于更新文件引用节点标记。
+tr2@197:16	tr2	transaction	该值是 ProseMirror transaction，用于删除文件引用节点。
+i2@207:20	i2	index	该值是从后向前遍历待删除节点位置数组的下标。
+tr2@218:45	tr2	transaction	该值是键盘命令中的 ProseMirror transaction，用于删除当前引用节点。

@@ -1,0 +1,4 @@
+key	old	new	依据
+t2@147:41	t2	translate	该参数是根据预览类型生成不可用提示文案时调用的翻译函数。
+t2@157:14	t2	translate	该绑定来自 useTranslation 并传给预览提示文案函数。
+t2@270:14	t2	translate	该绑定来自 useTranslation 并用于卡片内的多处界面文案。

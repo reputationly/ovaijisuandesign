@@ -39,25 +39,25 @@ const DATE_PRESETS = [
 ];
 
 function toIsoDate(date2) {
-  const y4 = date2.getFullYear();
-  const m3 = String(date2.getMonth() + 1).padStart(2, "0");
-  const d2 = String(date2.getDate()).padStart(2, "0");
-  return `${y4}-${m3}-${d2}`;
+  const year = date2.getFullYear();
+  const month = String(date2.getMonth() + 1).padStart(2, "0");
+  const day = String(date2.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function fromIsoDate(value) {
   if (!value) return void 0;
-  const [y4, m3, d2] = value.split("-").map(Number);
-  if (!y4 || !m3 || !d2) return void 0;
-  return new Date(y4, m3 - 1, d2);
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return void 0;
+  return new Date(year, month - 1, day);
 }
 
 function formatMonthDay(iso) {
-  const d2 = fromIsoDate(iso);
-  if (!d2) return iso;
-  const m3 = String(d2.getMonth() + 1).padStart(2, "0");
-  const day = String(d2.getDate()).padStart(2, "0");
-  return `${m3}-${day}`;
+  const date = fromIsoDate(iso);
+  if (!date) return iso;
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${month}-${day}`;
 }
 
 export function DateFilterPopover({
@@ -66,7 +66,7 @@ export function DateFilterPopover({
   onDateChange,
   onSortChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const active2 = reactExports.useMemo(() => {
     if (dateFilter.kind === "all") return false;
@@ -76,7 +76,7 @@ export function DateFilterPopover({
     return true;
   }, [dateFilter]);
   const triggerLabel = reactExports.useMemo(() => {
-    const base2 = t2("assetFilter.dateSection");
+    const base2 = translate("assetFilter.dateSection");
     if (dateFilter.kind === "all") return base2;
     if (dateFilter.kind === "custom") {
       const from2 = dateFilter.from ? formatMonthDay(dateFilter.from) : "";
@@ -84,9 +84,9 @@ export function DateFilterPopover({
       if (!from2 && !to) return base2;
       return `${from2 || "..."} ~ ${to || "..."}`;
     }
-    const preset2 = DATE_PRESETS.find((p3) => p3.value === dateFilter.kind);
-    return preset2 ? t2(preset2.labelKey, preset2.fallback) : base2;
-  }, [t2, dateFilter]);
+    const preset2 = DATE_PRESETS.find((preset) => preset.value === dateFilter.kind);
+    return preset2 ? translate(preset2.labelKey, preset2.fallback) : base2;
+  }, [translate, dateFilter]);
   const handlePreset = reactExports.useCallback(
     (kind) => {
       if (kind === "custom") {
@@ -137,7 +137,7 @@ export function DateFilterPopover({
         active={active2}
         open={open}
         testId="asset-panel.date-filter-trigger"
-        clearLabel={t2("assetFilter.reset")}
+        clearLabel={translate("assetFilter.reset")}
         onClear={active2 ? clearDateFilter : void 0}
       />
       <FilterMenuContent data-slot="date-filter-popover">
@@ -146,8 +146,8 @@ export function DateFilterPopover({
             const isSelected = sortOrder === value;
             const label =
               value === "desc"
-                ? t2("assetFilter.sortNewest")
-                : t2("assetFilter.sortOldest");
+                ? translate("assetFilter.sortNewest")
+                : translate("assetFilter.sortOldest");
             return (
               <FilterMenuItem
                 key={value}
@@ -163,7 +163,7 @@ export function DateFilterPopover({
         <FilterMenuGroup separated={true}>
           {DATE_PRESETS.map((preset2) => {
             const isSelected = dateFilter.kind === preset2.value;
-            const label = t2(preset2.labelKey, preset2.fallback);
+            const label = translate(preset2.labelKey, preset2.fallback);
             return (
               <FilterMenuItem
                 key={preset2.value}

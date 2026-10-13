@@ -144,18 +144,18 @@ function ArtifactIcon({ filename, compact = false }) {
     />
   );
 }
-function previewUnavailableLabel(type2, t2) {
+function previewUnavailableLabel(type2, translate) {
   if (type2 === "image")
-    return t2("assetPreview.imageUnavailable", "Preview unavailable");
+    return translate("assetPreview.imageUnavailable", "Preview unavailable");
   if (type2 === "video")
-    return t2("assetPreview.videoUnavailable", "Preview unavailable");
+    return translate("assetPreview.videoUnavailable", "Preview unavailable");
   if (type2 === "audio")
-    return t2("assetPreview.audioUnavailable", "Preview unavailable");
-  return t2("assetPreview.unsupportedText", "Preview not supported");
+    return translate("assetPreview.audioUnavailable", "Preview unavailable");
+  return translate("assetPreview.unsupportedText", "Preview not supported");
 }
 function ArtifactPreviewFailed({ type: type2, filename, compact }) {
-  const { t: t2 } = useTranslation();
-  const label = previewUnavailableLabel(type2, t2);
+  const { t: translate } = useTranslation();
+  const label = previewUnavailableLabel(type2, translate);
   return (
     <div
       className={cn(
@@ -267,7 +267,7 @@ export function ArtifactAssetCard({
   size: size2 = "lg",
   showLabel = true,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [lightboxOpen, setLightboxOpen] = reactExports.useState(false);
   const [insertPromptOpen, setInsertPromptOpen] = reactExports.useState(false);
   const [failedPreviewKey, setFailedPreviewKey] = reactExports.useState(null);
@@ -445,7 +445,7 @@ export function ArtifactAssetCard({
   const actionUiId =
     artifact.type === "file" ? void 0 : CHAT_ARTIFACT_UI_ID[artifact.type];
   const title = previewUnavailable
-    ? `${filename} · ${previewUnavailableLabel(artifact.type, t2)}`
+    ? `${filename} · ${previewUnavailableLabel(artifact.type, translate)}`
     : filename;
   return (
     <>
@@ -543,7 +543,7 @@ export function ArtifactAssetCard({
             data-action-ui-id="chat-turn-artifact-copy"
           >
             <Copy />
-            {t2("common.copy")}
+            {translate("common.copy")}
           </ContextMenuItem>
           <ContextMenuItem
             onClick={() => {
@@ -577,10 +577,10 @@ export function ArtifactAssetCard({
               >
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-sm text-foreground">
-                    {t2("fileExplorer.locateMissing.title")}
+                    {translate("fileExplorer.locateMissing.title")}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {t2("fileExplorer.locateMissing.description")}
+                    {translate("fileExplorer.locateMissing.description")}
                   </span>
                 </div>
                 <div className="flex justify-end gap-1">
@@ -590,14 +590,14 @@ export function ArtifactAssetCard({
                     onClick={() => setInsertPromptOpen(false)}
                     data-action-ui-id="chat-turn-artifact-locate-missing-cancel"
                   >
-                    {t2("common.cancel")}
+                    {translate("common.cancel")}
                   </Button>
                   <Button
                     size="sm"
                     onClick={handleInsertToCanvas}
                     data-action-ui-id="chat-turn-artifact-locate-missing-confirm"
                   >
-                    {t2("fileExplorer.locateMissing.confirm")}
+                    {translate("fileExplorer.locateMissing.confirm")}
                   </Button>
                 </div>
               </PopoverPopup>

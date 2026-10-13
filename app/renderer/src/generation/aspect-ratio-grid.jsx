@@ -30,11 +30,11 @@ export function AspectRatioGrid({
   disabled: disabled2,
   disabledOptions,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const autoOption = options.find(isAutoOption);
-  const ratioOptions = options.filter((o2) => !isAutoOption(o2));
-  const handlePick = (opt, optDisabled) => (e2) => {
-    e2.stopPropagation();
+  const ratioOptions = options.filter((ratioOption) => !isAutoOption(ratioOption));
+  const handlePick = (opt, optDisabled) => (clickEvent) => {
+    clickEvent.stopPropagation();
     if (optDisabled || disabled2) return;
     onChange?.(opt);
   };
@@ -54,7 +54,7 @@ export function AspectRatioGrid({
         >
           <MaximizeIcon />
           <span className="text-[13px]">
-            {t2("canvas.param.option.auto", {
+            {translate("canvas.param.option.auto", {
               defaultValue: "Auto",
             })}
           </span>
@@ -66,7 +66,7 @@ export function AspectRatioGrid({
           const selected2 = opt === value;
           const label =
             opt.toLowerCase() === "adaptive"
-              ? t2("canvas.param.option.auto", {
+              ? translate("canvas.param.option.auto", {
                   defaultValue: "Auto",
                 })
               : opt;

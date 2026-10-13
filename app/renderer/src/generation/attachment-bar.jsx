@@ -77,8 +77,8 @@ export function AttachmentBar({
             width: THUMB_SIZE,
             height: THUMB_SIZE,
           }}
-          onClick={(e2) => {
-            e2.stopPropagation();
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
             onAdd2();
           }}
         >
@@ -98,7 +98,7 @@ export function TextPopoverReferenceSection({
   references,
   audioAttachments,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (mode2 !== "audio" && !references) return null;
   return (
     <div className="flex shrink-0 flex-col gap-2">
@@ -114,8 +114,8 @@ export function TextPopoverReferenceSection({
                 value,
                 label:
                   value === "tts"
-                    ? t2("canvas.txt.audioMode.tts")
-                    : t2("canvas.txt.audioMode.music"),
+                    ? translate("canvas.txt.audioMode.tts")
+                    : translate("canvas.txt.audioMode.music"),
                 dataActionUiId: `popover.audio-tab-${value}`,
                 disabled: controlsDisabled,
               }))}
@@ -172,9 +172,9 @@ export function PopoverShell({
   onCloseRef.current = onClose;
   const nodeId = useNodeId();
   const selectedSelector = reactExports.useCallback(
-    (s2) =>
+    (canvasState) =>
       // No nodeId = popover not anchored to a node → keep mounted.
-      nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true,
+      nodeId ? !!canvasState.nodeLookup.get(nodeId)?.selected : true,
     [nodeId],
   );
   const selected2 = useStore(selectedSelector);
@@ -201,7 +201,7 @@ export function PopoverShell({
       <div
         className={`w-[620px] border-0 rounded-[16px] animate-[i2v-popover-in_0.15s_ease-out] flex flex-col overflow-hidden p-2 transition-[height] duration-[250ms] ease-out${promptLayout ? " gap-2" : ""}`}
         data-action-ui-id="popover.shell"
-        onDoubleClick={(e2) => e2.stopPropagation()}
+        onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
         onContextMenu={blockPopoverContextMenu}
         style={{
           background: "var(--canvas-controls-bg)",
@@ -314,29 +314,29 @@ export function reasonForDisabled(kind, meta2, constraints2) {
       }[reason];
   }
   if (kind === "audio") {
-    const d2 = typeof meta2.durationSec === "number" ? meta2.durationSec : 0;
+    const durationSeconds = typeof meta2.durationSec === "number" ? meta2.durationSec : 0;
     if (
-      d2 > 0 &&
-      (d2 < constraints2.audioPerClipMinSec ||
-        d2 > constraints2.audioPerClipMaxSec)
+      durationSeconds > 0 &&
+      (durationSeconds < constraints2.audioPerClipMinSec ||
+        durationSeconds > constraints2.audioPerClipMaxSec)
     ) {
       return "audio-range";
     }
-    if (d2 > 0 && d2 > constraints2.remainingAudioTotalSec)
+    if (durationSeconds > 0 && durationSeconds > constraints2.remainingAudioTotalSec)
       return "audio-budget";
   }
   if (kind === "video") {
-    const d2 = typeof meta2.durationSec === "number" ? meta2.durationSec : 0;
+    const durationSeconds = typeof meta2.durationSec === "number" ? meta2.durationSec : 0;
     if (
-      d2 > 0 &&
+      durationSeconds > 0 &&
       ((constraints2.videoPerClipMinSec !== void 0 &&
-        d2 < constraints2.videoPerClipMinSec) ||
+        durationSeconds < constraints2.videoPerClipMinSec) ||
         (constraints2.videoPerClipMaxSec !== void 0 &&
-          d2 > constraints2.videoPerClipMaxSec))
+          durationSeconds > constraints2.videoPerClipMaxSec))
     ) {
       return "video-range";
     }
-    if (d2 > 0 && d2 > constraints2.remainingVideoTotalSec)
+    if (durationSeconds > 0 && durationSeconds > constraints2.remainingVideoTotalSec)
       return "video-budget";
   }
   return void 0;

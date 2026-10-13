@@ -97,12 +97,12 @@ export function createTracker(root2) {
         if (pointerNode && pointerNode !== node2) continue;
         const rect = entry.element.getBoundingClientRect();
         if (!rect.width || !rect.height) continue;
-        const x2 = rect.left + rect.width / 2;
-        const y4 = rect.top + rect.height / 2;
-        const d2 = Math.hypot(event.clientX - x2, event.clientY - y4);
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const distanceFromCenter = Math.hypot(event.clientX - centerX, event.clientY - centerY);
         if (
-          d2 > (entry === active2 ? EXIT_RADIUS : ENTER_RADIUS) ||
-          d2 >= distance2
+          distanceFromCenter > (entry === active2 ? EXIT_RADIUS : ENTER_RADIUS) ||
+          distanceFromCenter >= distance2
         )
           continue;
         const visible = [
@@ -112,7 +112,7 @@ export function createTracker(root2) {
           [-9, 9],
           [9, 9],
         ].every(([dx, dy]) => {
-          const hit = doc2.elementFromPoint(x2 + dx, y4 + dy);
+          const hit = doc2.elementFromPoint(centerX + dx, centerY + dy);
           if (!hit || !root2.contains(hit)) return false;
           if (
             hit.closest(
@@ -131,7 +131,7 @@ export function createTracker(root2) {
         });
         if (visible) {
           nearest = entry;
-          distance2 = d2;
+          distance2 = distanceFromCenter;
         }
       }
     }

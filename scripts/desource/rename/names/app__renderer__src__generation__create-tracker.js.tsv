@@ -1,0 +1,4 @@
+key	old	new	依据
+x2@100:15	x2	centerX	该值是候选元素矩形的水平中心坐标。
+y4@101:15	y4	centerY	该值是候选元素矩形的垂直中心坐标。
+d2@102:15	d2	distanceFromCenter	该值是指针到候选元素中心的欧氏距离。

@@ -1,0 +1,3 @@
+key	old	new	依据
+a2@99:7	a2	leftAlias	该值是比较器左侧模型别名字符串。
+b3@99:13	b3	rightAlias	该值是比较器右侧模型别名字符串。

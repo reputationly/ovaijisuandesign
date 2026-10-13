@@ -180,7 +180,7 @@ export const CanvasFileRefNode = Node.create({
         },
       replaceCanvasFileRefsByPath:
         (path2, attrs) =>
-        ({ tr: tr2, state: state2 }) => {
+        ({ tr: transaction, state: state2 }) => {
           const positions = [];
           state2.doc.descendants((node2, pos) => {
             if (node2.type.name === this.name && node2.attrs.path === path2) {
@@ -188,13 +188,13 @@ export const CanvasFileRefNode = Node.create({
             }
           });
           for (const pos of positions) {
-            tr2.setNodeMarkup(pos, void 0, attrs);
+            transaction.setNodeMarkup(pos, void 0, attrs);
           }
           return positions.length > 0;
         },
       removeCanvasFileRefsByPath:
         (path2) =>
-        ({ tr: tr2, state: state2 }) => {
+        ({ tr: transaction, state: state2 }) => {
           const nodesToRemove = [];
           state2.doc.descendants((node2, pos) => {
             if (node2.type.name === this.name && node2.attrs.path === path2) {
@@ -204,9 +204,9 @@ export const CanvasFileRefNode = Node.create({
               });
             }
           });
-          for (let i2 = nodesToRemove.length - 1; i2 >= 0; i2--) {
-            const { pos, size: size2 } = nodesToRemove[i2];
-            tr2.delete(pos, pos + size2);
+          for (let index = nodesToRemove.length - 1; index >= 0; index--) {
+            const { pos, size: size2 } = nodesToRemove[index];
+            transaction.delete(pos, pos + size2);
           }
           return nodesToRemove.length > 0;
         },
@@ -215,13 +215,13 @@ export const CanvasFileRefNode = Node.create({
   addKeyboardShortcuts() {
     return {
       Backspace: () =>
-        this.editor.commands.command(({ tr: tr2, state: state2 }) => {
+        this.editor.commands.command(({ tr: transaction, state: state2 }) => {
           const { selection: selection2 } = state2;
           const { $from } = selection2;
           if (!selection2.empty) return false;
           const before = $from.nodeBefore;
           if (before?.type.name === this.name) {
-            tr2.delete($from.pos - before.nodeSize, $from.pos);
+            transaction.delete($from.pos - before.nodeSize, $from.pos);
             return true;
           }
           return false;

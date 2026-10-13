@@ -96,7 +96,7 @@ const DOMESTIC_MODEL_DISPLAY_ALIASES = [
 ];
 const SORTED_DOMESTIC_MODEL_DISPLAY_ALIASES =
   DOMESTIC_MODEL_DISPLAY_ALIASES.slice().sort(
-    ([a2], [b3]) => b3.length - a2.length,
+    ([leftAlias], [rightAlias]) => rightAlias.length - leftAlias.length,
   );
 const DOMESTIC_MODEL_DISPLAY_ALIAS_BY_LOWERCASE = new Map(
   SORTED_DOMESTIC_MODEL_DISPLAY_ALIASES.map(([internal2, display]) => [

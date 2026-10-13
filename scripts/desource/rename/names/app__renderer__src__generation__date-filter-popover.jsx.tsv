@@ -1,0 +1,11 @@
+key	old	new	依据
+y4@42:9	y4	year	该值是日期的四位年份。
+m3@43:9	m3	month	该值是补零后的月份字符串，用于 ISO 日期。
+d2@44:9	d2	day	该值是补零后的月份日期字符串，用于 ISO 日期。
+y4@50:10	y4	year	该值是从 ISO 日期拆出的数值年份。
+m3@50:14	m3	month	该值是从 ISO 日期拆出的数值月份。
+d2@50:18	d2	day	该值是从 ISO 日期拆出的数值日。
+d2@56:9	d2	date	该值是由 ISO 日期解析出的 Date 对象。
+m3@58:9	m3	month	该值是补零后的月份字符串，用于月日标签。
+t2@69:14	t2	translate	该绑定来自 useTranslation 并用于日期筛选标签。
+p3@87:40	p3	preset	该值是与当前筛选类型匹配的日期预设记录。
