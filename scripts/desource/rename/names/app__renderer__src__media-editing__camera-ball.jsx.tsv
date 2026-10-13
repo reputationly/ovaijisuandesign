@@ -1,0 +1,62 @@
+key	new	依据
+DEG@45:7	RADIANS_PER_DEGREE	保存角度转换为弧度所乘的每度弧度值。
+img@63:11	imageElement	保存用于读取加载状态的图片 DOM 元素。
+lx@92:18	pointX	接收投影点的 x 坐标。
+ly@92:22	pointY	接收投影点的 y 坐标。
+lz@92:26	pointZ	接收投影点的 z 坐标。
+yaw@92:30	yawRadians	接收以弧度表示的水平旋转角。
+cx2@92:42	centerX	接收投影画布中心的 x 坐标。
+cy@92:47	centerY	接收投影画布中心的 y 坐标。
+r2@92:51	radius	接收球体投影使用的像素半径。
+cP@93:9	cosPitch	保存俯仰角的余弦值。
+sP@94:9	sinPitch	保存俯仰角的正弦值。
+y1@95:9	rotatedY	保存经过俯仰旋转后的 y 坐标。
+z1@96:9	rotatedZ	保存经过俯仰旋转后的 z 坐标。
+cY@97:9	cosYaw	保存偏航角的余弦值。
+sY@98:9	sinYaw	保存偏航角的正弦值。
+x2@99:9	rotatedX	保存经过偏航旋转后的 x 坐标。
+z22@100:9	rotatedDepth	保存经过偏航旋转后的深度坐标。
+ctx@107:26	canvasContext	接收绘制球面网格所用的 Canvas 2D 上下文。
+pts@107:31	points	接收按路径顺序排列的投影点。
+h2@129:26	horizontalAngle	接收相机标记的水平角度。
+v2@129:30	verticalAngle	接收相机标记的垂直角度。
+cx2@129:34	centerX	接收球体画布中心的 x 坐标。
+cy@129:39	centerY	接收球体画布中心的 y 坐标。
+r2@129:43	radius	接收球体显示半径。
+hr@130:9	horizontalRadians	保存水平角换算后的弧度。
+vr@131:9	verticalRadians	保存垂直角换算后的弧度。
+t2@144:6	translations	接收界面文案集合。
+cx2@164:9	centerX	保存球体画布中心的 x 坐标。
+cy@165:9	centerY	保存球体画布中心的 y 坐标。
+v2@152:64	previousThemeTick	接收主题刷新计数并递增一次。
+dpr@170:11	canvasPixelRatio	保存画布的设备像素比。
+ctx@173:11	canvasContext	保存获取到的 Canvas 2D 绘图上下文。
+yaw@188:11	yawRadians	保存球体偏航角换算得到的弧度。
+pos@241:11	cameraPosition	保存相机标记投影到球体上的屏幕位置和深度。
+sPh@195:13	sinPhase	保存当前经线相位的正弦值。
+cPh@196:13	cosPhase	保存当前经线相位的余弦值。
+pts@197:13	points	收集当前经线投影后的点。
+s2@198:16	stepIndex	保存当前经线采样点的循环下标。
+cT@200:15	cosTheta	保存采样角的余弦值。
+sT@201:15	sinTheta	保存采样角的正弦值。
+lat@208:15	latitude	保存当前绘制纬线的纬度弧度。
+sL@209:15	sinLatitude	保存纬度弧度的正弦值。
+cL@210:15	cosLatitude	保存纬度弧度的余弦值。
+pts@211:15	points	收集当前纬线投影后的点。
+s2@212:18	stepIndex	保存当前纬线采样点的循环下标。
+lon@213:17	longitude	保存当前采样点的经度弧度。
+pts@232:13	points	收集赤道投影后的点。
+s2@233:16	stepIndex	保存当前赤道采样点的循环下标。
+lon@234:15	longitude	保存当前采样点的经度弧度。
+e2@260:6	pointerEvent	接收更新球体旋转的指针移动事件。
+dx@263:13	deltaX	保存指针的水平像素位移。
+dy@264:13	deltaY	保存指针的垂直像素位移。
+dh@265:13	horizontalAngleDelta	保存水平拖动换算得到的角度变化。
+dv@266:13	verticalAngleDelta	保存垂直拖动换算得到的角度变化。
+v2@271:19	previousYaw	接收状态更新前的偏航角。
+v2@272:21	previousPitch	接收状态更新前的俯仰角。
+e2@277:34	pointerEvent	接收球体区域上的指针按下事件。
+e2@286:36	pointerEvent	接收相机标记上的指针按下事件。
+e2@298:28	pointerEvent	接收结束拖动并释放捕获的指针事件。
+e2@407:31	pointerEvent	接收上传按钮上的指针事件并阻止其开始拖动。
+e2@421:33	pointerEvent	接收文字上传入口上的指针事件并阻止其开始拖动。
