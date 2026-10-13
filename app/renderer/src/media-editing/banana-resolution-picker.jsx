@@ -50,14 +50,14 @@ export const BananaResolutionPicker = reactExports.memo(
                   : "var(--canvas-controls-text-muted, #ffffff8c)",
                 cursor: disabled ? "not-allowed" : "pointer",
               }}
-              onMouseEnter={(mouseEnterEvent) => {
+              onMouseEnter={(mouseEvent) => {
                 if (active || disabled) return;
-                mouseEnterEvent.currentTarget.style.background =
+                mouseEvent.currentTarget.style.background =
                   "var(--canvas-controls-active, #ffffff14)";
               }}
-              onMouseLeave={(mouseLeaveEvent) => {
+              onMouseLeave={(mouseEvent) => {
                 if (active || disabled) return;
-                mouseLeaveEvent.currentTarget.style.background = "transparent";
+                mouseEvent.currentTarget.style.background = "transparent";
               }}
             >
               {option}

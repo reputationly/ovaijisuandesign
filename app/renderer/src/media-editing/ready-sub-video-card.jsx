@@ -119,13 +119,13 @@ export function ReadySubVideoCard({
       handleMouseLeave();
     }
   }, [handleMouseLeave, readonly, slot.url]);
-  const handleCardClick = (cardClickEvent) => {
-    cardClickEvent.stopPropagation();
+  const handleCardClick = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (!slot.url) return;
     onOpenSlot(position.originalIndex);
   };
-  const handleSelectSlot = (selectClickEvent) => {
-    selectClickEvent.stopPropagation();
+  const handleSelectSlot = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (readonly || !slot.url) return;
     onSelectSlot(position.originalIndex);
   };
@@ -135,14 +135,14 @@ export function ReadySubVideoCard({
     if (readonly) return;
     onSubContextMenu(position.originalIndex, contextMenuEvent);
   };
-  const handleDoubleClick = (doubleClickEvent) => {
-    doubleClickEvent.preventDefault();
-    doubleClickEvent.stopPropagation();
+  const handleDoubleClick = (mouseEvent) => {
+    mouseEvent.preventDefault();
+    mouseEvent.stopPropagation();
     if (!slot.url) return;
     onOpenSlot(position.originalIndex);
   };
-  const handleSplit = (splitClickEvent) => {
-    splitClickEvent.stopPropagation();
+  const handleSplit = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (readonly || !slot.url) return;
     onSplitSub(position.originalIndex);
   };

@@ -202,7 +202,7 @@ function AngleInput({ value, onChange }) {
         type="text"
         inputMode="numeric"
         value={draft}
-        onChange={(inputEvent) => setDraft(inputEvent.currentTarget.value)}
+        onChange={(changeEvent) => setDraft(changeEvent.currentTarget.value)}
         onFocus={() => {
           focusedRef.current = true;
         }}

@@ -359,7 +359,7 @@ function VoiceDesignInfoCard({
               height: 56,
             }}
             value={draftPrompt}
-            onChange={(inputEvent) => setDraftPrompt(inputEvent.target.value)}
+            onChange={(changeEvent) => setDraftPrompt(changeEvent.target.value)}
             placeholder={t(
               "canvas.voiceDesign.descriptionPlaceholder",
               "例: 温暖低沉的成年男声，语速稍慢，带轻微北京口音",
@@ -378,7 +378,7 @@ function VoiceDesignInfoCard({
               height: 44,
             }}
             value={draftPreview}
-            onChange={(inputEvent) => setDraftPreview(inputEvent.target.value)}
+            onChange={(changeEvent) => setDraftPreview(changeEvent.target.value)}
             placeholder={t(
               "canvas.voiceDesign.trialTextPlaceholder",
               "例: 你好，今天天气真不错",

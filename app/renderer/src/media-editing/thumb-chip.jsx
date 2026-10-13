@@ -94,8 +94,8 @@ export function ThumbChip({
       ? "popover.reference-audio-duration-warning"
       : "popover.reference-video-duration-warning";
   const handleRemove = reactExports.useCallback(
-    (removeEvent) => {
-      removeEvent.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       onRemove(item.path);
     },
     [item.path, onRemove],
@@ -136,15 +136,15 @@ export function ThumbChip({
     [item, onClick, showPreview],
   );
   const handleClipVideo = reactExports.useCallback(
-    (clipVideoEvent) => {
-      clipVideoEvent.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       onClipVideo?.(item);
     },
     [item, onClipVideo],
   );
   const handleClipAudio = reactExports.useCallback(
-    (clipAudioEvent) => {
-      clipAudioEvent.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       onClipAudio?.(item);
     },
     [item, onClipAudio],
@@ -182,15 +182,15 @@ export function ThumbChip({
         }
         handleClick(clickEvent);
       }}
-      onKeyDown={(keyDownEvent) => {
-        if (keyDownEvent.target !== keyDownEvent.currentTarget) return;
+      onKeyDown={(keyboardEvent) => {
+        if (keyboardEvent.target !== keyboardEvent.currentTarget) return;
         if (isDisabled || isDurationExceeded) {
-          keyDownEvent.stopPropagation();
+          keyboardEvent.stopPropagation();
           return;
         }
-        if (keyDownEvent.key === "Enter" || keyDownEvent.key === " ") {
-          keyDownEvent.preventDefault();
-          handleClick(keyDownEvent);
+        if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+          keyboardEvent.preventDefault();
+          handleClick(keyboardEvent);
         }
       }}
       onMouseEnter={showPreview}

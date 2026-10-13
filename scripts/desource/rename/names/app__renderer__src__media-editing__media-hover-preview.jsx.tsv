@@ -7,3 +7,6 @@ name2@84:9	mediaName	工具将 name 判为全局名；此媒体名称用于图�
 active2@82:11	isActive	此布尔属性与画布 previewActive 状态共同决定是否显示悬浮预览。
 top2@144:16	previewTop	工具将 top 判为全局名；此值是布局计算出的悬浮预览面板顶部屏幕坐标。
 image2@155:13	image	此对象是加载完成的 img 元素，读取其 naturalWidth 和 naturalHeight 更新媒体尺寸。
+
+e2@154:6	loadEvent	图片 load 回调从事件 currentTarget 读取 img 元素，并更新已加载媒体尺寸。
+e2@171:6	metadataEvent	视频 loadedmetadata 回调从事件 currentTarget 读取 video 元素的尺寸和时长。

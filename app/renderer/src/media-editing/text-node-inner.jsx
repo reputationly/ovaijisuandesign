@@ -795,8 +795,8 @@ export function TextNodeInner({
     openFullscreen,
   ]);
   const handleDoubleClick = reactExports.useCallback(
-    (doubleClickEvent) => {
-      doubleClickEvent.stopPropagation();
+    (mouseEvent) => {
+      mouseEvent.stopPropagation();
       if (isGenerating) return;
       void ensureBackingFileAndOpen();
     },

@@ -208,7 +208,7 @@ export function DevToolConfirmTrigger({ sessionStore, focusedSessionId }) {
     <div className="mx-4 mb-1 flex items-center gap-1">
       <select
         value={selected?.id ?? ""}
-        onChange={(e2) => setSelectedId(e2.target.value)}
+        onChange={(changeEvent) => setSelectedId(changeEvent.target.value)}
         className="h-5 max-w-72 min-w-0 flex-1 rounded-sm border border-dashed border-border bg-background px-1.5 font-mono text-caption-10 text-muted-foreground"
       >
         {sources.map((source) => (

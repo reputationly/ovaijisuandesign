@@ -61,8 +61,8 @@ export function MusicLengthParam({ value, onChange, disabled }) {
             <button
               key={preset.value}
               type="button"
-              onClick={(presetClickEvent) => {
-                presetClickEvent.stopPropagation();
+              onClick={(clickEvent) => {
+                clickEvent.stopPropagation();
                 if (!disabled) onChange(preset.value);
               }}
               disabled={disabled}
@@ -86,12 +86,12 @@ export function MusicLengthParam({ value, onChange, disabled }) {
               <input
                 type="text"
                 value={mmField}
-                onChange={(minutesChangeEvent) => {
-                  if (/^\d{0,2}$/.test(minutesChangeEvent.target.value))
-                    emitCustom(minutesChangeEvent.target.value, ssField);
+                onChange={(changeEvent) => {
+                  if (/^\d{0,2}$/.test(changeEvent.target.value))
+                    emitCustom(changeEvent.target.value, ssField);
                 }}
-                onClick={(minutesClickEvent) => minutesClickEvent.stopPropagation()}
-                onKeyDown={(minutesKeyEvent) => minutesKeyEvent.stopPropagation()}
+                onClick={(clickEvent) => clickEvent.stopPropagation()}
+                onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
                 disabled={disabled}
                 placeholder={t("canvas.params.placeholder.durationMm", {
                   defaultValue: "mm",
@@ -118,12 +118,12 @@ export function MusicLengthParam({ value, onChange, disabled }) {
               <input
                 type="text"
                 value={ssField}
-                onChange={(secondsChangeEvent) => {
-                  if (/^\d{0,2}$/.test(secondsChangeEvent.target.value))
-                    emitCustom(mmField, secondsChangeEvent.target.value);
+                onChange={(changeEvent) => {
+                  if (/^\d{0,2}$/.test(changeEvent.target.value))
+                    emitCustom(mmField, changeEvent.target.value);
                 }}
-                onClick={(secondsClickEvent) => secondsClickEvent.stopPropagation()}
-                onKeyDown={(secondsKeyEvent) => secondsKeyEvent.stopPropagation()}
+                onClick={(clickEvent) => clickEvent.stopPropagation()}
+                onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
                 disabled={disabled}
                 placeholder={t("canvas.params.placeholder.durationSs", {
                   defaultValue: "ss",
@@ -154,8 +154,8 @@ export function MusicLengthParam({ value, onChange, disabled }) {
         ) : (
           <button
             type="button"
-            onClick={(customClickEvent) => {
-              customClickEvent.stopPropagation();
+            onClick={(clickEvent) => {
+              clickEvent.stopPropagation();
               if (!disabled) onChange("custom");
             }}
             disabled={disabled}

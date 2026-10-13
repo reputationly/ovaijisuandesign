@@ -127,7 +127,7 @@ function FixedPortalCard({
         animation: "i2v-popover-in 0.15s ease-out",
         transition: transitionHeight ? "height 250ms ease-out" : void 0,
       }}
-      onMouseDown={(mouseDownEvent) => mouseDownEvent.stopPropagation()}
+      onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
       onClick={(clickEvent) => clickEvent.stopPropagation()}
     >
       {children}
@@ -774,7 +774,7 @@ export function VideoActionSurface({
                 transform: "translateX(-50%)",
                 zIndex: PORTAL_TOOLBAR_Z,
               }}
-              onMouseDown={(mouseDownEvent) => mouseDownEvent.stopPropagation()}
+              onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
               onClick={(clickEvent) => clickEvent.stopPropagation()}
             >
               {children}

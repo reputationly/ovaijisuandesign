@@ -108,7 +108,7 @@ function FilePreview({
                 onKeyDown={rename.onKeyDown}
                 onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
                 onClick={(clickEvent) => clickEvent.stopPropagation()}
-                onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
+                onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
               />
             ) : (
               <div
@@ -129,7 +129,7 @@ function FilePreview({
                       rename.beginEdit();
                     }}
                     onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
-                    onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
+                    onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
                     className="flex h-6 w-6 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                     data-action-ui-id="canvas.file-node.rename-from-preview"
                   >
@@ -150,7 +150,7 @@ function FilePreview({
                     onShowCardView();
                   }}
                   onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
-                  onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
+                  onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
                   className="flex h-7 w-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                   data-action-ui-id="canvas.file-node.view-card-from-preview"
                 >
@@ -394,7 +394,7 @@ export function FileNodeImpl({
                   aria-label={t("canvas.preview", "预览")}
                   onClick={handlePreviewClick}
                   onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
-                  onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
+                  onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
                   className="flex h-7 w-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                   data-action-ui-id="canvas.file-node.preview-eye"
                 >

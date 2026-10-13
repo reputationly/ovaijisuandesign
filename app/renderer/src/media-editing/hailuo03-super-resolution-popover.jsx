@@ -75,8 +75,8 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
         style={{
           display: hidden ? "none" : void 0,
         }}
-        onPointerDown={(e2) => e2.stopPropagation()}
-        onDoubleClick={(e2) => e2.stopPropagation()}
+        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+        onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
       >
         <div className="font-heading text-[13px] font-medium text-[var(--canvas-controls-text)]">
           {t2("canvas.hailuo03SuperResolution.title", "H3 2K超分")}

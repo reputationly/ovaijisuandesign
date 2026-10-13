@@ -11,9 +11,9 @@ el@76:11	videoElement	effect 中读取的 HTMLVideoElement，为 ended 事件重
 e2@87:6	clickEvent	播放切换按钮的点击事件；阻止冒泡后根据 isPlaying 调用 stop 或 play(nodeId)。
 e2@95:6	clickEvent	静音按钮的点击事件；阻止冒泡后调用 toggleMuted 切换持久化静音状态。
 e2@102:6	clickEvent	全屏按钮的点击事件；阻止冒泡后调用可选的 onFullscreen 回调。
-e2@141:29	doubleClickEvent	播放/暂停按钮的双击事件被阻止冒泡，避免同时触发外层画布交互。
-e2@165:31	doubleClickEvent	静音按钮的双击事件被阻止冒泡，避免同时触发外层画布交互。
-e2@184:33	doubleClickEvent	全屏按钮的双击事件被阻止冒泡，避免同时触发外层画布交互。
+e2@141:29	mouseEvent	播放/暂停按钮的双击事件被阻止冒泡，避免同时触发外层画布交互。
+e2@165:31	mouseEvent	静音按钮的双击事件被阻止冒泡，避免同时触发外层画布交互。
+e2@184:33	mouseEvent	全屏按钮的双击事件被阻止冒泡，避免同时触发外层画布交互。
 set2@25:36	set	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存更新视频播放或静音设置的操作。
 get3@25:42	get	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存读取视频播放或静音设置的操作。
 set@25:36	setState	Zustand create 注入的 store 更新函数；setMuted 使用它保存最新 muted 值。

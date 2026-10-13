@@ -1,13 +1,13 @@
 key	new	依据
 t2@16:14	t	useTranslation 返回的翻译函数，为计数按钮标题和弹层分组标题生成本地化文案。
-e2@22:31	mouseDownEvent	document 的 mousedown 事件；处理器据其 target 判断点击是否发生在弹层和锚点之外。
+e2@22:31	mouseEvent	document 的 mousedown 事件；处理器据其 target 判断点击是否发生在弹层和锚点之外。
 t22@23:13	eventTarget	mousedown 事件的 target 节点，供 popupRef 和 anchorRef 的 contains 检查使用。
-e2@29:29	keyDownEvent	document 的 keydown 事件；只有按下 Escape 时处理器才关闭计数弹层。
+e2@29:29	keyboardEvent	document 的 keydown 事件；只有按下 Escape 时处理器才关闭计数弹层。
 i2@60:14	count	生成默认选项时从 minCount 到 maxCount 递增的当前整数计数。
 e2@73:19	clickEvent	计数按钮的点击事件；先阻止画布级冒泡，再切换弹层状态。
 v2@75:20	isOpen	状态 setter 提供的当前弹层开关值；返回其反值以切换弹层显示状态。
 e2@104:23	clickEvent	计数选项弹层容器的点击事件被阻止冒泡，避免影响画布或锚点处理。
-e2@105:25	keyDownEvent	计数选项弹层容器的键盘事件被阻止冒泡，避免触发外层键盘处理。
+e2@105:25	keyboardEvent	计数选项弹层容器的键盘事件被阻止冒泡，避免触发外层键盘处理。
 opt@114:27	option	options 中当前计数选项，用于生成按钮文本、选中状态和 onChange 参数。
 e2@121:29	clickEvent	当前计数选项按钮的点击事件；阻止冒泡、提交该 option 并关闭弹层。
 disabled2@14:13	isDisabled	CountChip 的 disabled 属性值；为真时禁用计数按钮，局部绑定已按布尔命名约定写作 isDisabled。

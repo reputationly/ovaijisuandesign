@@ -6,7 +6,7 @@ t2@97:14	t	useTranslation 返回的翻译函数，用于角度拖动按钮的无
 e2@114:6	pointerEvent	指针按下事件用于限制左键拖动、记录初始横坐标和角度，并捕获该指针。
 e2@130:6	pointerEvent	指针移动事件提供当前位置和 Shift 状态，用来计算横向位移并更新旋转角度。
 e2@144:6	pointerEvent	指针结束或取消事件提供 pointerId，用来释放捕获并恢复拖动光标。
-e2@205:20	inputEvent	角度文本框的输入事件；将当前输入值写入 draft。
+e2@205:20	changeEvent	角度文本框的输入事件；将当前输入值写入 draft。
 e2@209:18	blurEvent	角度文本框失焦事件；清除 focused 标记并提交文本框中的角度。
 e2@213:21	keyboardEvent	角度文本框的键盘事件；Enter 触发失焦提交，方向键按一度调整角度。
 t2@268:14	t	useTranslation 返回的翻译函数，用于旋转面板标题、90 度旋转及翻转按钮文案。

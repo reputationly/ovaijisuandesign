@@ -138,8 +138,8 @@ export function ConditionRow({
         <input
           type={column?.type === "number" ? "number" : "text"}
           value={condition.value === void 0 ? "" : String(condition.value)}
-          onChange={(inputEvent) =>
-            onValueChange(inputEvent.target.value, column?.type ?? "text")
+          onChange={(changeEvent) =>
+            onValueChange(changeEvent.target.value, column?.type ?? "text")
           }
           placeholder={t(
             "canvas.table.filter.valuePlaceholder",

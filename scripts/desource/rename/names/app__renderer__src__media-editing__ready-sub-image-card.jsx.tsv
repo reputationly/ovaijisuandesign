@@ -2,7 +2,7 @@ key	new	依据
 t2@108:14	t	useTranslation 返回的翻译函数，为设为主图、独立展示和全屏预览按钮生成标签。
 e2@109:28	clickEvent	就绪图片卡片的点击事件；存在 slot.url 时打开 position.originalIndex 对应插槽。
 e2@114:29	clickEvent	设为主图按钮的点击事件；非只读时调用 onSetPrimary 传入原始插槽索引。
-e2@119:31	doubleClickEvent	图片卡片双击事件；阻止默认行为与冒泡后打开对应插槽预览。
+e2@119:31	mouseEvent	图片卡片双击事件；阻止默认行为与冒泡后打开对应插槽预览。
 e2@125:26	clickEvent	删除子图按钮的点击事件；非只读时按 position.originalIndex 调用 onDeleteSub。
 e2@130:24	clickEvent	拆分子图按钮的点击事件；非只读时按原始插槽索引调用 onSplitSub。
 e2@135:27	clickEvent	下载子图按钮的点击事件；阻止冒泡后将原始插槽索引传给 onDownloadSub。

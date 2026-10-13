@@ -70,7 +70,7 @@ function AddColumnDialogInner({ onCommit, onClose }) {
     <Dialog open={true} onOpenChange={handleOpenChange}>
       <DialogContent
         className="gap-4 sm:max-w-[360px]"
-        onKeyDown={(keyEvent) => keyEvent.stopPropagation()}
+        onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>
@@ -87,9 +87,9 @@ function AddColumnDialogInner({ onCommit, onClose }) {
             type="text"
             value={title}
             onChange={(changeEvent) => setTitle(changeEvent.target.value)}
-            onKeyDown={(keyEvent) => {
-              if (keyEvent.key === "Enter") {
-                keyEvent.preventDefault();
+            onKeyDown={(keyboardEvent) => {
+              if (keyboardEvent.key === "Enter") {
+                keyboardEvent.preventDefault();
                 handleSubmit();
               }
             }}

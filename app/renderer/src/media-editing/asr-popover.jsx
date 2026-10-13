@@ -108,7 +108,7 @@ export const AsrPopover = reactExports.memo(function AsrPopover({
           display: hidden ? "none" : void 0,
         }}
         onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
-        onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
+        onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
       >
         <div className="font-heading text-[13px] font-medium text-[var(--canvas-controls-text)]">
           {t("canvas.asr.title", "字幕生成")}

@@ -151,8 +151,8 @@ export function MediaHoverPreview({
         : formatTime(effectiveDuration, true)
       : void 0;
   const handleImageLoad = reactExports.useCallback(
-    (e2) => {
-      const image = e2.currentTarget;
+    (loadEvent) => {
+      const image = loadEvent.currentTarget;
       const loadedSize = {
         width: image.naturalWidth,
         height: image.naturalHeight,
@@ -168,8 +168,8 @@ export function MediaHoverPreview({
     [onDimensionsChange, url],
   );
   const handleVideoLoadedMetadata = reactExports.useCallback(
-    (e2) => {
-      const video = e2.currentTarget;
+    (metadataEvent) => {
+      const video = metadataEvent.currentTarget;
       const loadedSize = {
         width: video.videoWidth,
         height: video.videoHeight,

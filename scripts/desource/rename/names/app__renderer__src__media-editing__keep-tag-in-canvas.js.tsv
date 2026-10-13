@@ -25,14 +25,14 @@ b3@169:9	blueChannel	解析十六进制颜色的蓝色分量。
 r2@176:10	redChannel	读取 RGB 元组中的红色分量。
 g2@176:14	greenChannel	读取 RGB 元组中的绿色分量。
 b3@176:18	blueChannel	读取 RGB 元组中的蓝色分量。
-_e2@194:17	unusedPointerEvent	保留未使用的指针按下事件参数。
-_e2@195:17	unusedPointerEvent	保留未使用的指针移动事件参数。
-_e2@196:15	unusedPointerEvent	保留未使用的指针抬起事件参数。
-_e2@197:17	unusedMouseEvent	保留未使用的双击事件参数。
-_e2@198:13	unusedKeyboardEvent	保留未使用的键盘事件参数。
+_e2@194:17	pointerEvent	保留未使用的指针按下事件参数。
+_e2@195:17	pointerEvent	保留未使用的指针移动事件参数。
+_e2@196:15	pointerEvent	保留未使用的指针抬起事件参数。
+_e2@197:17	mouseEvent	保留未使用的双击事件参数。
+_e2@198:13	keyboardEvent	保留未使用的键盘事件参数。
 e2@205:17	pointerEvent	接收画笔开始绘制时的指针事件数据。
 e2@218:17	pointerEvent	接收画笔继续绘制时的指针事件数据。
-_e2@223:15	unusedPointerEvent	保留未使用的画笔结束事件参数。
+_e2@223:15	pointerEvent	保留未使用的画笔结束事件参数。
 style2@23:41	style	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存标签图形渲染使用的样式对象。
 data2@107:33	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存标签形状的序列化数据。
 next2@145:7	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存计算出的下一个颜色或状态值。

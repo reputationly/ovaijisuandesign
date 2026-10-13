@@ -123,7 +123,7 @@ export class SelectTool extends Tool {
       this.editor.requestRender();
     }
   }
-  onPointerUp(_pointerEvent) {
+  onPointerUp(pointerEvent) {
     if (this.mode.kind !== "idle") {
       this.editor.commitInteraction();
     }

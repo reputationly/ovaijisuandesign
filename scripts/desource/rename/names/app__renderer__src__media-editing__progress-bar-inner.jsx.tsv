@@ -10,8 +10,8 @@ el@59:11	videoElement	effect 中读取的 HTMLVideoElement，添加并清理 met
 el@76:13	videoElement	seekToPosition 使用的 HTMLVideoElement，按进度条位置设置 currentTime。
 bar@77:13	progressBar	barRef 指向的进度条 DOM，用其边界矩形把鼠标横坐标换算成播放比例。
 d2@79:13	duration	被 seek 的视频总秒数；需为有限正值后才将比例换算成 currentTime。
-e2@92:6	pointerEvent	进度条点击事件；阻止事件传到画布，并用 clientX 定位播放时间。
-e2@99:6	pointerEvent	进度滑块按下事件；阻止默认行为并开始拖动以注册 document 级移动监听。
-ev@103:23	pointerEvent	拖动期间 document mousemove 收到的事件，用 clientX 持续更新播放位置。
+e2@92:6	clickEvent	进度条点击事件；阻止事件传到画布，并用 clientX 定位播放时间。
+e2@99:6	mouseEvent	进度滑块按下事件；阻止默认行为并开始拖动以注册 document 级移动监听。
+ev@103:23	mouseMoveEvent	拖动期间 document mousemove 收到的事件，用 clientX 持续更新播放位置。
 handleClick2@91:9	handleClick	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存按点击位置跳转视频播放时间的回调函数。
 events2@61:11	events	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存需要监听以同步播放进度的媒体事件名称列表。

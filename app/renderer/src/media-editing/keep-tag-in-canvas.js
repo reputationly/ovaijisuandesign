@@ -191,11 +191,11 @@ export class Tool {
   constructor(editor) {
     this.editor = editor;
   }
-  onPointerDown(unusedPointerEvent) {}
-  onPointerMove(unusedPointerEvent) {}
-  onPointerUp(unusedPointerEvent) {}
-  onDoubleClick(unusedMouseEvent) {}
-  onKeyDown(unusedKeyboardEvent) {}
+  onPointerDown(pointerEvent) {}
+  onPointerMove(pointerEvent) {}
+  onPointerUp(pointerEvent) {}
+  onDoubleClick(mouseEvent) {}
+  onKeyDown(keyboardEvent) {}
   onActivate() {}
   onDeactivate() {}
 }
@@ -220,7 +220,7 @@ export class BrushTool extends Tool {
     this.working.addPoint(pointerEvent.point);
     this.editor.requestPreviewRender();
   }
-  onPointerUp(unusedPointerEvent) {
+  onPointerUp(pointerEvent) {
     if (!this.working) return;
     this.editor.setPreviewShape(null);
     if (this.working.data.points.length > 1) {

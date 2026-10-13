@@ -48,11 +48,11 @@ export const CanvasEraseBottomBar = reactExports.memo(
               background: "transparent",
               opacity: 0.7,
             }}
-            onMouseEnter={(mouseEnterEvent) => {
-              mouseEnterEvent.currentTarget.style.opacity = "1";
+            onMouseEnter={(mouseEvent) => {
+              mouseEvent.currentTarget.style.opacity = "1";
             }}
-            onMouseLeave={(mouseLeaveEvent) => {
-              mouseLeaveEvent.currentTarget.style.opacity = "0.7";
+            onMouseLeave={(mouseEvent) => {
+              mouseEvent.currentTarget.style.opacity = "0.7";
             }}
           >
             <CloseIcon />
@@ -79,12 +79,12 @@ export const CanvasEraseBottomBar = reactExports.memo(
               background: "var(--canvas-primary-btn-bg, #000000d9)",
               color: "var(--canvas-primary-btn-icon, #fff)",
             }}
-            onMouseEnter={(mouseEnterEvent) => {
+            onMouseEnter={(mouseEvent) => {
               if (confirming || !canConfirm) return;
-              mouseEnterEvent.currentTarget.style.opacity = "0.9";
+              mouseEvent.currentTarget.style.opacity = "0.9";
             }}
-            onMouseLeave={(mouseLeaveEvent) => {
-              mouseLeaveEvent.currentTarget.style.opacity = "1";
+            onMouseLeave={(mouseEvent) => {
+              mouseEvent.currentTarget.style.opacity = "1";
             }}
           >
             <SendArrowIcon />

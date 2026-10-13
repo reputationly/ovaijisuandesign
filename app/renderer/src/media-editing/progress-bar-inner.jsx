@@ -89,18 +89,18 @@ function ProgressBarInner({
     [videoRef, syncDOM],
   );
   const handleClick = reactExports.useCallback(
-    (pointerEvent) => {
-      pointerEvent.stopPropagation();
-      seekToPosition(pointerEvent.clientX);
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      seekToPosition(clickEvent.clientX);
     },
     [seekToPosition],
   );
   const handleThumbDown = reactExports.useCallback(
-    (pointerEvent) => {
-      pointerEvent.stopPropagation();
-      pointerEvent.preventDefault();
+    (mouseEvent) => {
+      mouseEvent.stopPropagation();
+      mouseEvent.preventDefault();
       setIsDragging(true);
-      const onMove = (pointerEvent) => seekToPosition(pointerEvent.clientX);
+      const onMove = (mouseMoveEvent) => seekToPosition(mouseMoveEvent.clientX);
       const onUp = () => {
         setIsDragging(false);
         document.removeEventListener("mousemove", onMove);

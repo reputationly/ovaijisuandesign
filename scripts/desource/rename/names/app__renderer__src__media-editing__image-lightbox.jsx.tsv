@@ -4,7 +4,7 @@ e2@139:6	clickEvent	接收上一张图片按钮的点击事件。
 e2@146:6	clickEvent	接收下一张图片按钮的点击事件。
 e2@154:22	keyboardEvent	处理图片查看器左右方向键的键盘事件。
 e2@170:22	keyboardEvent	处理触发复制快捷键的键盘事件。
-e2@181:22	copyEvent	处理图片查看器中的复制事件。
+e2@181:22	clipboardEvent	处理图片查看器中的复制事件。
 e2@197:49	wheelEvent	接收图片缩放时的滚轮事件。
 cx2@203:11	pointerOffsetX	保存指针横坐标相对图片中心的偏移。
 cy@204:11	pointerOffsetY	保存指针纵坐标相对图片中心的偏移。
@@ -20,7 +20,7 @@ e2@268:55	pointerEvent	处理拖动图片时的指针移动事件。
 dx@270:11	dragDeltaX	保存指针拖动产生的水平位移。
 dy@271:11	dragDeltaY	保存指针拖动产生的垂直位移。
 e2@280:53	pointerEvent	处理结束图片拖动的指针事件。
-e2@285:6	doubleClickEvent	处理图片区域的双击缩放事件。
+e2@285:6	mouseEvent	处理图片区域的双击缩放事件。
 img@289:15	imageElement	读取当前图片元素的自然尺寸和显示尺寸。
 id2@304:11	transitionTimeoutId	保存清除缩放过渡状态的定时器标识。
 e2@320:58	clickEvent	处理图片容器的点击事件。

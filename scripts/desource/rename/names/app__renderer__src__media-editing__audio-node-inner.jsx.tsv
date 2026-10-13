@@ -8,7 +8,7 @@ y4@98:29	y	接收波形柱圆角路径的垂直坐标。
 t2@121:14	t	绑定 useTranslation 返回的 i18n 翻译函数。
 p3@141:27	progress	接收需要设置的播放头进度比例。
 px@143:15	playheadX	保存播放头在波形上的水平像素位置。
-e2@167:6	activationEvent	接收用于激活波形播放位置的鼠标或键盘事件。
+e2@167:6	clickEvent	接收用于激活波形播放位置的鼠标或键盘事件。
 e2@174:6	pointerEvent	接收开始拖动播放头的指针事件。
 e2@184:6	pointerEvent	接收拖动播放头时的指针移动事件。
 e2@191:6	pointerEvent	接收结束播放头拖动的指针事件。

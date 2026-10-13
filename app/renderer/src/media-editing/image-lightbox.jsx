@@ -178,9 +178,9 @@ export const ImageLightbox = reactExports.memo(function ImageLightboxView({
   }, [active, canCopy, handleCopyImage]);
   reactExports.useEffect(() => {
     if (!active || !canCopy) return;
-    const handler = (copyEvent) => {
-      copyEvent.preventDefault();
-      copyEvent.stopPropagation();
+    const handler = (clipboardEvent) => {
+      clipboardEvent.preventDefault();
+      clipboardEvent.stopPropagation();
       handleCopyImage();
     };
     document.addEventListener("copy", handler, true);
@@ -282,8 +282,8 @@ export const ImageLightbox = reactExports.memo(function ImageLightboxView({
     pointerEvent.target.releasePointerCapture(pointerEvent.pointerId);
   }, []);
   const handleDoubleClick = reactExports.useCallback(
-    (doubleClickEvent) => {
-      doubleClickEvent.stopPropagation();
+    (mouseEvent) => {
+      mouseEvent.stopPropagation();
       setTransitioning(true);
       if (scale === 1) {
         const imageElement = imgRef.current;

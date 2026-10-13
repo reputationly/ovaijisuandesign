@@ -119,8 +119,8 @@ function FieldRowMenu({ anchorRef, onClose, onEdit, onDelete }) {
     });
   }, [anchorRef]);
   reactExports.useEffect(() => {
-    const handler = (outsideClickEvent) => {
-      const target = outsideClickEvent.target;
+    const handler = (mouseEvent) => {
+      const target = mouseEvent.target;
       if (menuRef.current?.contains(target)) return;
       if (anchorRef.current?.contains(target)) return;
       onClose();

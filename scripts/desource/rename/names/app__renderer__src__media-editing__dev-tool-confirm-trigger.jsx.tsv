@@ -10,3 +10,5 @@ key2@116:17	key	Object.entries 返回的参数键，用于识别 vendor_params �
 message2@152:43	message	当前 mock tool 消息，用于筛选工具调用并构造确认弹窗数据。
 selected2@173:9	selected	下拉框选中的 mock 工具来源，提供待注入的工具消息和参数。
 now2@178:11	now	生成工具消息及确认消息 ID 时共用的当前时间戳。
+
+e2@211:20	changeEvent	工具来源下拉框的 change 事件，从 target.value 读取当前选中的工具 ID。

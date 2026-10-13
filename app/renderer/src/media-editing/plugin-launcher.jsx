@@ -178,8 +178,8 @@ function PluginEditorSurface({
         pointerEvents: visible ? "auto" : "none",
       }}
       inert={!visible}
-      onKeyDown={(keyDownEvent) => keyDownEvent.stopPropagation()}
-      onKeyUp={(keyUpEvent) => keyUpEvent.stopPropagation()}
+      onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
+      onKeyUp={(keyboardEvent) => keyboardEvent.stopPropagation()}
     >
       {children}
       {overlayModel ? (

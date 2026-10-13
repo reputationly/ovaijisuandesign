@@ -52,7 +52,7 @@ export const AudioLightbox = reactExports.memo(function AudioLightbox({
     <MediaLightbox onClose={onClose} onContextMenu={handleContextMenu}>
       <div
         className="flex flex-col items-center gap-4 cursor-default"
-        onClick={(e2) => e2.stopPropagation()}
+        onClick={(clickEvent) => clickEvent.stopPropagation()}
       >
         {audioName && (
           <span className="text-sm font-medium text-white/80 max-w-[60vw] truncate">

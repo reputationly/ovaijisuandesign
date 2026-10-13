@@ -43,13 +43,13 @@ export function ToolSlider({
       step && step > 0 ? Math.round(raw / step) * step : Math.round(raw);
     return Math.max(min, Math.min(max, snapped));
   };
-  const handleMouseDown = (e2) => {
-    e2.preventDefault();
-    e2.stopPropagation();
+  const handleMouseDown = (mouseEvent) => {
+    mouseEvent.preventDefault();
+    mouseEvent.stopPropagation();
     cleanupRef.current?.();
-    onChange(getValueFromClientX(e2.clientX));
-    const handleMouseMove = (moveEvent) => {
-      onChange(getValueFromClientX(moveEvent.clientX));
+    onChange(getValueFromClientX(mouseEvent.clientX));
+    const handleMouseMove = (mouseMoveEvent) => {
+      onChange(getValueFromClientX(mouseMoveEvent.clientX));
     };
     const handleMouseUp = () => {
       document.removeEventListener("mousemove", handleMouseMove);
@@ -61,14 +61,14 @@ export function ToolSlider({
     window.addEventListener("blur", handleMouseUp);
     cleanupRef.current = handleMouseUp;
   };
-  const handleTouchStart = (e2) => {
-    e2.stopPropagation();
+  const handleTouchStart = (touchEvent) => {
+    touchEvent.stopPropagation();
     cleanupRef.current?.();
-    const touch = e2.touches[0];
+    const touch = touchEvent.touches[0];
     if (!touch) return;
     onChange(getValueFromClientX(touch.clientX));
-    const handleTouchMove = (moveEvent) => {
-      const point = moveEvent.touches[0];
+    const handleTouchMove = (touchMoveEvent) => {
+      const point = touchMoveEvent.touches[0];
       if (point) onChange(getValueFromClientX(point.clientX));
     };
     const handleTouchEnd = () => {

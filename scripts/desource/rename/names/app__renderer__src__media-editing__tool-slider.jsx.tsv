@@ -7,3 +7,8 @@ raw2@41:11	raw	此值是由鼠标横坐标映射出的未吸附滑块值，之�
 handleMouseMove2@51:11	handleMouseMove	此监听器在拖动期间按鼠标当前位置持续调用 onChange。
 touch2@67:11	touch	此对象是触摸开始时的第一根触点，用其 clientX 初始化滑块值。
 point2@71:13	point	此对象是触摸移动事件中的第一根触点，用其 clientX 更新滑块值。
+
+e2@46:28	mouseEvent	滑块的 mousedown 事件阻止默认行为和冒泡，并按 clientX 初始化拖动值。
+moveEvent@51:30	mouseMoveEvent	拖动期间的 mousemove 事件按当前 clientX 持续更新滑块值。
+e2@64:29	touchEvent	滑块的 touchstart 事件阻止冒泡，并从第一根触点读取 clientX 初始化值。
+moveEvent@70:30	touchMoveEvent	触摸拖动期间的 touchmove 事件从第一根触点读取 clientX 并持续更新滑块值。

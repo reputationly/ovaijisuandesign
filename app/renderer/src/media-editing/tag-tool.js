@@ -44,7 +44,7 @@ export class TagTool extends Tool {
     }
     this.editor.requestPreviewRender();
   }
-  onPointerUp(_pointerEvent) {
+  onPointerUp(pointerEvent) {
     if (!this.anchor || !this.workingShape) return;
     const data = this.workingShape.data;
     const shape = this.workingShape;

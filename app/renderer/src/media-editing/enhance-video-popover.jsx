@@ -182,7 +182,7 @@ export const EnhanceVideoPopover = reactExports.memo(
           display: hidden ? "none" : void 0,
         }}
         onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
-        onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
+        onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
       >
         <div className="font-heading text-[13px] font-medium text-[var(--canvas-controls-text)]">
           {t("canvas.enhanceVideo.title", "高清 & 补帧")}

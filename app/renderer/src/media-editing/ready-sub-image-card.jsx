@@ -116,9 +116,9 @@ function ReadySubImageCard({
     if (readonly) return;
     onSetPrimary(position.originalIndex);
   };
-  const handleDoubleClick = (doubleClickEvent) => {
-    doubleClickEvent.preventDefault();
-    doubleClickEvent.stopPropagation();
+  const handleDoubleClick = (mouseEvent) => {
+    mouseEvent.preventDefault();
+    mouseEvent.stopPropagation();
     if (!slot.url) return;
     onOpenSlot(position.originalIndex);
   };

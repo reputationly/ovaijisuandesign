@@ -13,5 +13,5 @@ option2@203:47	option	当前候选的增强视频帧率或分辨率档位。
 t2@123:16	t	根据当前语言返回视频增强界面文案的翻译函数。
 s2@131:8	storeState	React Flow 状态仓库提供的节点选择状态。
 e2@184:25	pointerEvent	需要阻止传播以免拖动画布节点的指针按下事件。
-e2@185:25	doubleClickEvent	需要阻止传播以免触发节点编辑的双击事件。
+e2@185:25	mouseEvent	需要阻止传播以免触发节点编辑的双击事件。
 v2@194:54	resolutionValue	Select 控件回调收到的新分辨率字符串。

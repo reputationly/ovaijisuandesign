@@ -9,4 +9,4 @@ v2@104:25	selectedColumnId	此处保存字段选择器传回的字段标识。
 c3@112:25	column	此处保存当前筛选字段及其标题或类型。
 v2@122:25	selectedOperator	此处保存运算符选择器传回的运算符。
 op@130:30	operator	此处保存当前筛选条件使用的比较运算符。
-e2@141:22	inputEvent	此处保存筛选值输入框触发的变更事件。
+e2@141:22	changeEvent	此处保存筛选值输入框触发的变更事件。

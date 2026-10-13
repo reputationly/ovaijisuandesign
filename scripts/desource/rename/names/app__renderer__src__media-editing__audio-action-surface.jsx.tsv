@@ -1,8 +1,8 @@
 key	new	依据
 t2@153:14	t	useTranslation 返回的翻译函数，为音色克隆卡片生成标签、说明和复制按钮文案。
 t2@278:14	t	useTranslation 返回的翻译函数，为音色设计卡片生成标签、说明和复制按钮文案。
-e2@362:24	inputEvent	音色描述文本框的输入事件；将 target.value 写入 draftPrompt。
-e2@381:24	inputEvent	试听文本框的输入事件；将 target.value 写入 draftPreview。
+e2@362:24	changeEvent	音色描述文本框的输入事件；将 target.value 写入 draftPrompt。
+e2@381:24	changeEvent	试听文本框的输入事件；将 target.value 写入 draftPreview。
 s2@427:23	storeState	画布视口 store 的当前状态；选择器从 transform 元组中读取缩放值。
 e2@536:21	mouseEvent	固定弹层内的鼠标按下事件被阻止冒泡，避免画布将交互识别为拖动。
 e2@537:17	clickEvent	固定弹层内的点击事件被阻止冒泡，避免点击内容触发画布操作。

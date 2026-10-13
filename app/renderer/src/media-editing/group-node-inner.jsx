@@ -71,7 +71,7 @@ const GROUP_LABEL_INNER_BASE_STYLE = {
   userSelect: "none",
   boxSizing: "border-box",
 };
-const stopMouseEvent = (mouseEvent) => mouseEvent.stopPropagation();
+const stopMouseEvent = (interactionEvent) => interactionEvent.stopPropagation();
 function GroupNodeInner({
   id: nodeId,
   selected,
@@ -116,8 +116,8 @@ function GroupNodeInner({
     [nodeId, setGroupCollapsed, collapsed],
   );
   const handleLabelDoubleClick = reactExports.useCallback(
-    (doubleClickEvent) => {
-      doubleClickEvent.stopPropagation();
+    (mouseEvent) => {
+      mouseEvent.stopPropagation();
       rename.beginEdit();
     },
     [rename.beginEdit],

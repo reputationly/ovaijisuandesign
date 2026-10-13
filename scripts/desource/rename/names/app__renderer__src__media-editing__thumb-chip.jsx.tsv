@@ -1,12 +1,12 @@
 key	new	依据
 X@8:10	X	Lucide 官方 X 关闭图标组件，用于缩略图悬浮层的关闭按钮。
 t2@73:14	t	useTranslation 返回的翻译函数，为时长警告、裁剪和缩略图操作生成文案。
-e2@97:6	removeEvent	移除按钮的点击事件；阻止冒泡后调用 onRemove 删除 item.path。
+e2@97:6	clickEvent	移除按钮的点击事件；阻止冒泡后调用 onRemove 删除 item.path。
 e2@129:6	clickEvent	缩略图点击处理器收到的事件；仅接受来自当前卡片且不在内部按钮上的点击，再显示预览并调用 onClick。
-e2@139:6	clipVideoEvent	视频裁剪按钮的点击事件；阻止冒泡后将当前 item 交给 onClipVideo。
-e2@146:6	clipAudioEvent	音频裁剪按钮的点击事件；阻止冒泡后将当前 item 交给 onClipAudio。
+e2@139:6	clickEvent	视频裁剪按钮的点击事件；阻止冒泡后将当前 item 交给 onClipVideo。
+e2@146:6	clickEvent	音频裁剪按钮的点击事件；阻止冒泡后将当前 item 交给 onClipAudio。
 e2@178:17	clickEvent	缩略图容器的点击事件；禁用或超时长时停止冒泡，否则交给 handleClick 处理。
-e2@185:19	keyDownEvent	缩略图容器的键盘事件；只处理 Enter/空格，并按禁用状态阻止冒泡或调用 handleClick。
+e2@185:19	keyboardEvent	缩略图容器的键盘事件；只处理 Enter/空格，并按禁用状态阻止冒泡或调用 handleClick。
 e2@228:30	loadedMetadataEvent	视频缩略图的 loadedmetadata 事件；尝试将 currentTime 设为 0.001 秒以解码首帧。
 disabled2@62:13	isDisabled	控制卡片 tabIndex、aria-disabled 和禁用光标样式的布尔 prop。
 readOnly2@63:13	isReadOnly	只读模式布尔 prop；阻止修改类操作并隐藏仅编辑态可用的控件。

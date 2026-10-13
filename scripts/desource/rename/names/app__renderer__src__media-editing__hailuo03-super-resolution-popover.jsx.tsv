@@ -2,3 +2,6 @@ key	new	依据
 Hailuo03SuperResolutionPopover2@30:12	Hailuo03SuperResolutionPopover	此组件呈现 Hailuo03 视频原生超分辨率选项及提交控件，名称中的 03 是模型名。
 selected2@52:11	isSelected	此布尔值表示 React Flow 当前节点是否选中，未选中时关闭弹窗。
 body2@71:11	body	此 JSX 子树包含超分辨率标题、分辨率选择和提交按钮，并传给 renderShell 或 NodeToolbar。
+
+e2@78:25	pointerEvent	超分弹窗的 pointerdown 事件只阻止传播，避免指针操作触发外层画布交互。
+e2@79:25	mouseEvent	超分弹窗的 double-click 事件只阻止传播，避免双击触发外层画布操作。

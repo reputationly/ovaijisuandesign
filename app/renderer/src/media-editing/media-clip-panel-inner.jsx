@@ -397,10 +397,10 @@ export function MediaClipPanelInner({
     backdropMouseDownTarget.current = mouseEvent.target;
   }, []);
   const handleBackdropClick = reactExports.useCallback(
-    (mouseEvent) => {
+    (clickEvent) => {
       if (
-        mouseEvent.target === mouseEvent.currentTarget &&
-        backdropMouseDownTarget.current === mouseEvent.currentTarget
+        clickEvent.target === clickEvent.currentTarget &&
+        backdropMouseDownTarget.current === clickEvent.currentTarget
       ) {
         onClose();
       }
@@ -421,7 +421,7 @@ export function MediaClipPanelInner({
       <div
         className="flex h-[min(760px,calc(100dvh-2rem))] w-[calc(100vw-2rem)] max-w-[900px] flex-col overflow-hidden rounded-xl border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] text-foreground shadow-[var(--canvas-shadow-dropdown)]"
         onClick={(clickEvent) => clickEvent.stopPropagation()}
-        onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
+        onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
       >
         <div className="flex shrink-0 items-center justify-between border-b border-[var(--canvas-controls-border)] px-4 py-3">
           <span className="font-heading text-sm font-medium text-[var(--canvas-controls-text)]">

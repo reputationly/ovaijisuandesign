@@ -164,9 +164,9 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformImpleme
     return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
   }, []);
   const handleClick = reactExports.useCallback(
-    (activationEvent) => {
+    (clickEvent) => {
       if (!onClick || isDraggingRef.current) return;
-      onClick(getProgressFromClientX(activationEvent.clientX));
+      onClick(getProgressFromClientX(clickEvent.clientX));
     },
     [onClick, getProgressFromClientX],
   );

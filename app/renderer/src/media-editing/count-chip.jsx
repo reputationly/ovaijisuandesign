@@ -19,15 +19,15 @@ export function CountChip({
   const popupRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (!isPopupOpen) return;
-    const handleMouseDown = (mouseDownEvent) => {
-      const eventTarget = mouseDownEvent.target;
+    const handleMouseDown = (mouseEvent) => {
+      const eventTarget = mouseEvent.target;
       if (!eventTarget) return;
       if (popupRef.current?.contains(eventTarget)) return;
       if (anchorRef.current?.contains(eventTarget)) return;
       setIsPopupOpen(false);
     };
-    const handleKeyDown = (keyDownEvent) => {
-      if (keyDownEvent.key === "Escape") setIsPopupOpen(false);
+    const handleKeyDown = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") setIsPopupOpen(false);
     };
     document.addEventListener("mousedown", handleMouseDown, true);
     document.addEventListener("keydown", handleKeyDown);
@@ -102,7 +102,7 @@ export function CountChip({
               width: COUNT_POPUP_WIDTH,
             }}
             onClick={(clickEvent) => clickEvent.stopPropagation()}
-            onKeyDown={(keyDownEvent) => keyDownEvent.stopPropagation()}
+            onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
             role="listbox"
             tabIndex={-1}
           >

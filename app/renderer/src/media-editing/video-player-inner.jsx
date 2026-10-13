@@ -138,7 +138,7 @@ function VideoPlayerInner({ src, nodeId, width, height, onFullscreen }) {
           <button
             type="button"
             onClick={handleTogglePlay}
-            onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
+            onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
             data-action-ui-id="canvas.video-player.toggle-play"
             aria-label={
               isPlaying
@@ -162,7 +162,7 @@ function VideoPlayerInner({ src, nodeId, width, height, onFullscreen }) {
             <button
               type="button"
               onClick={handleToggleMute}
-              onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
+              onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
               data-action-ui-id="canvas.video-player.toggle-mute"
               aria-label={
                 muted
@@ -181,7 +181,7 @@ function VideoPlayerInner({ src, nodeId, width, height, onFullscreen }) {
               <button
                 type="button"
                 onClick={handleFullscreen}
-                onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
+                onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
                 data-action-ui-id="canvas.video-player.fullscreen"
                 aria-label={t("canvas.fullscreen", {
                   defaultValue: "Fullscreen",

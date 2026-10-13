@@ -2,11 +2,11 @@ key	new	依据
 t2@55:14	t	useTranslation 返回的翻译函数，为主视频、拆分和全屏预览按钮生成标签。
 s2@68:34	playbackState	播放状态 store 快照；stop 选择器从中读取停止当前播放的 action。
 s2@70:39	playbackState	播放状态 store 快照；playingId 选择器据此判断当前节点是否正在播放。
-e2@122:28	cardClickEvent	就绪视频卡片的点击事件；有视频 URL 时打开原始插槽对应的播放器。
-e2@127:29	selectClickEvent	设为主视频按钮的点击事件；非只读且插槽有 URL 时调用 onSelectSlot。
+e2@122:28	clickEvent	就绪视频卡片的点击事件；有视频 URL 时打开原始插槽对应的播放器。
+e2@127:29	clickEvent	设为主视频按钮的点击事件；非只读且插槽有 URL 时调用 onSelectSlot。
 e2@132:30	contextMenuEvent	视频卡片右键菜单事件；阻止默认菜单和冒泡后调用 onSubContextMenu。
-e2@138:31	doubleClickEvent	视频卡片双击事件；阻止默认行为和冒泡后打开对应插槽。
-e2@144:24	splitClickEvent	拆分视频按钮的点击事件；非只读且有视频时按索引调用 onSplitSub。
+e2@138:31	mouseEvent	视频卡片双击事件；阻止默认行为和冒泡后打开对应插槽。
+e2@144:24	clickEvent	拆分视频按钮的点击事件；非只读且有视频时按索引调用 onSplitSub。
 e2@149:26	deleteClickEvent	删除视频按钮的点击事件；非只读且有视频时按索引调用 onDeleteSub。
 e2@154:27	downloadClickEvent	下载视频按钮的点击事件；阻止冒泡后按原始插槽索引调用 onDownloadSub。
 e2@159:58	metadataEvent	video 的 loadedmetadata 事件；从 currentTarget 读取有限正时长并更新格式化标签。

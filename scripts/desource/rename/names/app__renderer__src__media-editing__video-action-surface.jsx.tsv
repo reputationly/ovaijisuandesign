@@ -13,10 +13,10 @@ mode2@566:6	mode	去掉打包器去重后缀，恢复原名；此处保存当前
 key2@668:13	key	去掉打包器去重后缀，恢复原名；此处保存当前状态或记录的查找键。
 children2@757:10	children	去掉打包器去重后缀，恢复原名；此处保存由父组件传入并由 portal 卡片渲染的子元素。
 top2@760:17	portalTop	此处保存剪辑工具栏 portal 的屏幕顶部坐标。
-e2@130:21	mouseDownEvent	此处保存被 portal 卡片拦截并停止传播的鼠标按下事件。
+e2@130:21	mouseEvent	此处保存被 portal 卡片拦截并停止传播的鼠标按下事件。
 e2@131:17	clickEvent	此处保存被 portal 卡片拦截并停止传播的点击事件。
 t2@159:14	t	去掉打包器去重后缀，恢复原名；此处保存按当前语言查找视频动作界面文案的翻译函数。
-e2@777:29	mouseDownEvent	此处保存被 portal 卡片拦截并停止传播的鼠标按下事件。
+e2@777:29	mouseEvent	此处保存被 portal 卡片拦截并停止传播的鼠标按下事件。
 e2@778:25	clickEvent	此处保存被 portal 卡片拦截并停止传播的点击事件。
 pos@789:17	popoverPosition	此处保存根据锚点和弹窗尺寸计算的屏幕位置对象。
 pos@813:17	popoverPosition	此处保存根据锚点和弹窗尺寸计算的屏幕位置对象。
