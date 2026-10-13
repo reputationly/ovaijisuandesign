@@ -1,0 +1,7 @@
+key	old	new	依据
+t2@39:14	t2	translate	该绑定来自 useTranslation 并用于视频图标的无障碍标签。
+t2@72:14	t2	translate	该绑定来自 useTranslation 并用于音频图标的无障碍标签。
+i2@120:12	i2	characterIndex	该值是按字符遍历文件名以计算渐变哈希的下标。
+t2@306:14	t2	translate	该绑定来自 useTranslation 并用于文件卡片操作及预览文案。
+e2@574:19	e2	clickEvent	该事件来自定位按钮点击并用于阻止冒泡。
+e2@811:32	e2	metadataEvent	该事件来自音频 loadedmetadata 回调，用于读取媒体时长。

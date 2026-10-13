@@ -272,52 +272,52 @@ function matchesTypeFilters(fileName, types2) {
 }
 function retainKnownTagFilters(tagFilters, knownTagIds) {
   const known = new Set(knownTagIds);
-  const retained = tagFilters.filter((id2) => known.has(id2));
+  const retained = tagFilters.filter((tagId) => known.has(tagId));
   return retained.length === tagFilters.length ? tagFilters : retained;
 }
 function buildTreeFileComparator(sortOrder, getAsset2) {
-  return (a2, b3) =>
+  return (leftEntry, rightEntry) =>
     compareByTimeOrName(
-      getAsset2(a2.path)?.time,
-      getAsset2(b3.path)?.time,
-      a2.name,
-      b3.name,
+      getAsset2(leftEntry.path)?.time,
+      getAsset2(rightEntry.path)?.time,
+      leftEntry.name,
+      rightEntry.name,
       sortOrder,
     );
 }
 function filterAndSortAssets(assets, options) {
-  const q2 = options.query.trim().toLowerCase();
+  const query = options.query.trim().toLowerCase();
   const dateBounds = computeDateBounds(options.dateFilter);
-  const filtered = assets.filter((a2) => {
-    const fileName = a2.path.split("/").pop() ?? "";
-    const nameMatch = q2 ? fileName.toLowerCase().includes(q2) : true;
+  const filtered = assets.filter((asset) => {
+    const fileName = asset.path.split("/").pop() ?? "";
+    const nameMatch = query ? fileName.toLowerCase().includes(query) : true;
     const tagNameMatch =
-      q2 && options.tagSearchIds
-        ? (a2.tagIds ?? []).some((id2) => options.tagSearchIds?.has(id2))
+      query && options.tagSearchIds
+        ? (asset.tagIds ?? []).some((tagId) => options.tagSearchIds?.has(tagId))
         : false;
     if (!nameMatch && !tagNameMatch) return false;
     if (!matchesTypeFilters(fileName, options.typeFilters)) return false;
-    if (!matchesTagFilter(a2.tagIds, options.tagFilters)) return false;
-    return matchesDateFilter(a2.time, dateBounds);
+    if (!matchesTagFilter(asset.tagIds, options.tagFilters)) return false;
+    return matchesDateFilter(asset.time, dateBounds);
   });
-  return [...filtered].sort((a2, b3) =>
-    compareByTimeOrName(a2.time, b3.time, a2.path, b3.path, options.sortOrder),
+  return [...filtered].sort((leftAsset, rightAsset) =>
+    compareByTimeOrName(leftAsset.time, rightAsset.time, leftAsset.path, rightAsset.path, options.sortOrder),
   );
 }
 function filterTreeByPredicate(tree, options) {
-  const q2 = options.query.trim().toLowerCase();
+  const query = options.query.trim().toLowerCase();
   const dateBounds = computeDateBounds(options.dateFilter);
   const noActiveFilter =
-    q2 === "" &&
+    query === "" &&
     options.typeFilters.length === 0 &&
     dateBounds === null &&
     (options.tagFilters?.length ?? 0) === 0;
   function matchesFile(entry) {
     const asset = options.getAsset(entry.path);
-    const nameMatch = q2 ? entry.name.toLowerCase().includes(q2) : true;
+    const nameMatch = query ? entry.name.toLowerCase().includes(query) : true;
     const tagNameMatch =
-      q2 && options.tagSearchIds
-        ? (asset?.tagIds ?? []).some((id2) => options.tagSearchIds?.has(id2))
+      query && options.tagSearchIds
+        ? (asset?.tagIds ?? []).some((tagId) => options.tagSearchIds?.has(tagId))
         : false;
     if (!nameMatch && !tagNameMatch) return false;
     if (!matchesTypeFilters(entry.name, options.typeFilters)) return false;
@@ -328,7 +328,7 @@ function filterTreeByPredicate(tree, options) {
     const result = [];
     for (const entry of entries2) {
       if (entry.isDirectory) {
-        const dirNameMatch = q2 ? entry.name.toLowerCase().includes(q2) : false;
+        const dirNameMatch = query ? entry.name.toLowerCase().includes(query) : false;
         const wasOriginallyEmpty =
           !entry.children || entry.children.length === 0;
         const filteredChildren = entry.children ? walk(entry.children) : [];
@@ -439,7 +439,7 @@ function useFileExplorerPanelClose({ isActive: isActive2, onClose }) {
   };
 }
 function DeleteConfirmDialog({ entries: entries2, onCancel, onConfirm }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const head2 = entries2[0];
   return (
     <AlertDialog
@@ -450,31 +450,31 @@ function DeleteConfirmDialog({ entries: entries2, onCancel, onConfirm }) {
         <AlertDialogHeader>
           <AlertDialogTitle>
             {entries2.length > 1
-              ? t2("fileExplorer.deleteMultiple", {
+              ? translate("fileExplorer.deleteMultiple", {
                   count: entries2.length,
                 })
               : head2?.isDirectory
-                ? t2("fileExplorer.deleteFolder")
-                : t2("fileExplorer.deleteFile")}
+                ? translate("fileExplorer.deleteFolder")
+                : translate("fileExplorer.deleteFile")}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {entries2.length > 1
-              ? t2("fileExplorer.deleteMultipleConfirm", {
+              ? translate("fileExplorer.deleteMultipleConfirm", {
                   count: entries2.length,
                 })
               : head2?.isDirectory
-                ? t2("fileExplorer.deleteFolderConfirm", {
+                ? translate("fileExplorer.deleteFolderConfirm", {
                     name: head2.name,
                   })
-                : t2("fileExplorer.deleteFileConfirm", {
+                : translate("fileExplorer.deleteFileConfirm", {
                     name: head2?.name,
                   })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t2("common.cancel")}</AlertDialogCancel>
+          <AlertDialogCancel>{translate("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            {t2("common.delete")}
+            {translate("common.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -482,11 +482,11 @@ function DeleteConfirmDialog({ entries: entries2, onCancel, onConfirm }) {
   );
 }
 function DropOverlay() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 border-2 border-dashed border-primary rounded-lg pointer-events-none">
       <p className="text-sm text-primary font-medium">
-        {t2("fileExplorer.dropToImport")}
+        {translate("fileExplorer.dropToImport")}
       </p>
     </div>
   );
@@ -522,8 +522,8 @@ const FileExplorerGridView = reactExports.memo(function FileExplorerGridView2({
   }, [containerWidth]);
   const assetGridRows = reactExports.useMemo(() => {
     const rows = [];
-    for (let i2 = 0; i2 < sortedFilteredAssets.length; i2 += columnsPerRow) {
-      rows.push(sortedFilteredAssets.slice(i2, i2 + columnsPerRow));
+    for (let rowStartIndex = 0; rowStartIndex < sortedFilteredAssets.length; rowStartIndex += columnsPerRow) {
+      rows.push(sortedFilteredAssets.slice(rowStartIndex, rowStartIndex + columnsPerRow));
     }
     return rows;
   }, [sortedFilteredAssets]);
@@ -625,7 +625,7 @@ const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeView2({
   reactExports.useEffect(() => {
     if (!creatingEntry) return;
     const creatingPath = `${creatingEntry.parentPath}/__creating__`;
-    const index2 = flatRows.findIndex((r2) => r2.entry.path === creatingPath);
+    const index2 = flatRows.findIndex((row) => row.entry.path === creatingPath);
     if (index2 >= 0) {
       treeVirtualizer.scrollToIndex(index2, {
         align: "auto",
@@ -704,15 +704,15 @@ const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeView2({
   );
 });
 function PromoteToAssetDialog({ files, workspaceRoot, onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [isSubmitting, setIsSubmitting] = reactExports.useState(false);
   const filesLen = files?.length ?? 0;
   const open = files !== null && filesLen > 0;
   return (
     <Dialog
       open={open}
-      onOpenChange={(o2) => {
-        if (!o2 && !isSubmitting) onClose();
+      onOpenChange={(isOpen) => {
+        if (!isOpen && !isSubmitting) onClose();
       }}
     >
       <DialogContent
@@ -720,9 +720,9 @@ function PromoteToAssetDialog({ files, workspaceRoot, onClose }) {
         data-action-ui-id="asset-panel.promote-to-asset-dialog"
       >
         <DialogHeader>
-          <DialogTitle>{t2("assetCenter.promote.title")}</DialogTitle>
+          <DialogTitle>{translate("assetCenter.promote.title")}</DialogTitle>
           <DialogDescription className="text-xs">
-            {t2("assetCenter.promote.descriptionMulti", {
+            {translate("assetCenter.promote.descriptionMulti", {
               count: filesLen,
             })}
           </DialogDescription>
@@ -789,7 +789,7 @@ export function FileExplorer({
   onClose,
   mode: _mode,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const gatewayFetch2 = useGatewayFetch();
   const gatewayScopeKey = useGatewayScopeKey();
   const platform2 = usePlatform();
@@ -827,18 +827,18 @@ export function FileExplorer({
     setTagFilters((current2) => retainKnownTagFilters(current2, knownTagIds));
   }, [tagRegistry.tags]);
   const tagSearchIds = reactExports.useMemo(() => {
-    const q2 = deferredSearchQuery.trim().toLowerCase();
-    if (!q2) return void 0;
+    const normalizedSearchQuery = deferredSearchQuery.trim().toLowerCase();
+    if (!normalizedSearchQuery) return void 0;
     const ids2 = new Set();
     for (const tag of tagRegistry.tags) {
       const name2 =
         tag.name ||
-        t2(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") ||
+        translate(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") ||
         tag.id;
-      if (name2.toLowerCase().includes(q2)) ids2.add(tag.id);
+      if (name2.toLowerCase().includes(normalizedSearchQuery)) ids2.add(tag.id);
     }
     return ids2;
-  }, [tagRegistry, deferredSearchQuery, t2]);
+  }, [tagRegistry, deferredSearchQuery, translate]);
   const {
     assets,
     refresh,
@@ -883,16 +883,16 @@ export function FileExplorer({
   }, [rootPath, onRootPathChange]);
   const assetMap = reactExports.useMemo(() => {
     const map3 = new Map();
-    for (const a2 of assets) {
-      map3.set(a2.path, a2);
+    for (const asset of assets) {
+      map3.set(asset.path, asset);
     }
     return map3;
   }, [assets]);
   const assetByAbsPath = reactExports.useMemo(() => {
     const map3 = new Map();
     if (!rootPath) return map3;
-    for (const a2 of assets) {
-      map3.set(joinFilePath(rootPath, a2.path), a2);
+    for (const asset of assets) {
+      map3.set(joinFilePath(rootPath, asset.path), asset);
     }
     return map3;
   }, [assets, rootPath]);
@@ -1030,10 +1030,10 @@ export function FileExplorer({
   });
   const handleFileDoubleClick = useStableCallback((path2) => {
     const findName2 = (entries2) => {
-      for (const e2 of entries2) {
-        if (e2.path === path2) return e2.name;
-        if (e2.children) {
-          const found2 = findName2(e2.children);
+      for (const entry of entries2) {
+        if (entry.path === path2) return entry.name;
+        if (entry.children) {
+          const found2 = findName2(entry.children);
           if (found2) return found2;
         }
       }
@@ -1089,14 +1089,14 @@ export function FileExplorer({
   });
   const handleShowInFolder = useStableCallback(async (path2) => {
     if (!platform2.shell.showItemInFolder) {
-      dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+      dedupedToast.error(translate("fileExplorer.platformNotSupported"));
       return;
     }
     try {
       await platform2.shell.showItemInFolder(path2);
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.locateFailed") +
+        translate("fileExplorer.locateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -1174,17 +1174,17 @@ export function FileExplorer({
         ? Array.from(selectedPaths)
         : [target.path];
       const resolved = [];
-      for (const p3 of targetPaths) {
-        const entry = findEntryByPath(filteredTree, p3);
+      for (const targetPath of targetPaths) {
+        const entry = findEntryByPath(filteredTree, targetPath);
         if (!entry || entry.isDirectory || entry.status === "missing") continue;
-        const asset = assetByAbsPath.get(p3);
+        const asset = assetByAbsPath.get(targetPath);
         const vaultPrompt =
           asset?.prompt && asset.prompt.trim().length > 0
             ? asset.prompt
             : void 0;
         resolved.push({
-          workspaceRelPath: toRelativePath(p3),
-          absolutePath: p3,
+          workspaceRelPath: toRelativePath(targetPath),
+          absolutePath: targetPath,
           displayName: entry.name,
           ...(vaultPrompt
             ? {
@@ -1300,11 +1300,11 @@ export function FileExplorer({
   const visiblePaths = reactExports.useMemo(() => {
     if (viewMode === "tree") {
       return flatRows
-        .filter((r2) => !r2.entry.path.endsWith("/__creating__"))
-        .map((r2) => r2.entry.path);
+        .filter((row) => !row.entry.path.endsWith("/__creating__"))
+        .map((row) => row.entry.path);
     }
-    return sortedFilteredAssets.map((a2) =>
-      rootPath ? joinFilePath(rootPath, a2.path) : a2.path,
+    return sortedFilteredAssets.map((asset) =>
+      rootPath ? joinFilePath(rootPath, asset.path) : asset.path,
     );
   }, [viewMode, flatRows, sortedFilteredAssets, rootPath]);
   const { panelLevelHandlers } = useFileExplorerShortcuts({
@@ -1339,8 +1339,8 @@ export function FileExplorer({
     setSelectedPaths,
     setLastSelectedPath,
   });
-  const handleSectionPointerDown = reactExports.useCallback((e2) => {
-    const target = e2.target;
+  const handleSectionPointerDown = reactExports.useCallback((pointerEvent) => {
+    const target = pointerEvent.target;
     if (
       target instanceof HTMLInputElement ||
       target instanceof HTMLTextAreaElement ||
@@ -1359,18 +1359,18 @@ export function FileExplorer({
   });
   const handleShowRootInFolder = reactExports.useCallback(async () => {
     if (!rootPath || !platform2.shell.showItemInFolder) {
-      dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+      dedupedToast.error(translate("fileExplorer.platformNotSupported"));
       return;
     }
     try {
       await platform2.shell.showItemInFolder(rootPath);
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.locateFailed") +
+        translate("fileExplorer.locateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
-  }, [rootPath, platform2, t2]);
+  }, [rootPath, platform2, translate]);
   const treeViewHandlers = reactExports.useMemo(
     () => ({
       buildDragPayload,
@@ -1504,12 +1504,12 @@ export function FileExplorer({
         density="panel"
         className="h-full"
         emptyOptions={{
-          title: t2("fileExplorer.noOpenFolder"),
-          description: t2("fileExplorer.selectFolderHint"),
+          title: translate("fileExplorer.noOpenFolder"),
+          description: translate("fileExplorer.selectFolderHint"),
           actions: [
             {
               key: "open-folder",
-              label: t2("fileExplorer.openFolder"),
+              label: translate("fileExplorer.openFolder"),
               variant: "outline",
               icon: <FolderOpen size={14} strokeWidth={1.5} />,
               onClick: openFolder,
@@ -1553,18 +1553,18 @@ export function FileExplorer({
               options={[
                 {
                   value: "tree",
-                  label: t2("fileExplorer.treeView"),
-                  ariaLabel: t2("fileExplorer.treeView"),
+                  label: translate("fileExplorer.treeView"),
+                  ariaLabel: translate("fileExplorer.treeView"),
                   icon: LayoutList,
-                  tooltip: t2("fileExplorer.treeView"),
+                  tooltip: translate("fileExplorer.treeView"),
                   dataActionUiId: "asset-panel.view-tree",
                 },
                 {
                   value: "grid",
-                  label: t2("fileExplorer.gridView"),
-                  ariaLabel: t2("fileExplorer.gridView"),
+                  label: translate("fileExplorer.gridView"),
+                  ariaLabel: translate("fileExplorer.gridView"),
                   icon: LayoutGrid,
-                  tooltip: t2("fileExplorer.gridView"),
+                  tooltip: translate("fileExplorer.gridView"),
                   dataActionUiId: "asset-panel.view-grid",
                 },
               ]}
@@ -1574,7 +1574,7 @@ export function FileExplorer({
                 render={
                   <button
                     type="button"
-                    aria-label={t2("fileExplorer.refreshList")}
+                    aria-label={translate("fileExplorer.refreshList")}
                     className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50"
                     onClick={() => void refreshRoot()}
                     data-action-ui-id="asset-panel.refresh"
@@ -1584,7 +1584,7 @@ export function FileExplorer({
                 <RetryIcon size={14} />
               </TooltipTrigger>
               <TooltipContent side="bottom">
-                {t2("fileExplorer.refresh")}
+                {translate("fileExplorer.refresh")}
               </TooltipContent>
             </Tooltip>
           </div>
@@ -1626,15 +1626,15 @@ export function FileExplorer({
               emptyOptions={{
                 title:
                   searchQuery.trim().length > 0
-                    ? t2("fileExplorer.noMatchingFiles")
-                    : t2(
+                    ? translate("fileExplorer.noMatchingFiles")
+                    : translate(
                         "fileExplorer.assetsHint",
                         "Generated assets land here",
                       ),
                 description:
                   searchQuery.trim().length > 0
                     ? void 0
-                    : t2(
+                    : translate(
                         "fileExplorer.localStorageHint",
                         "Files are stored locally.",
                       ),

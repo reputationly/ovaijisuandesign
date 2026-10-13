@@ -24,18 +24,18 @@ export function DualSubmitButtons({
   onReplace,
   disabledTitle,
 }) {
-  const { t: t2 } = useTranslation();
-  const filledLabel = newNodeLabel ?? t2("chat.regenerate", "重新生成");
+  const { t: translate } = useTranslation();
+  const filledLabel = newNodeLabel ?? translate("chat.regenerate", "重新生成");
   const outlineLabel =
-    replaceLabel ?? t2("canvas.replaceCurrentNode", "替换当前节点");
+    replaceLabel ?? translate("canvas.replaceCurrentNode", "替换当前节点");
   const estimatedCostLabel =
     creditCost != null
-      ? t2("canvas.billing.estimatedCost", {
+      ? translate("canvas.billing.estimatedCost", {
           cost: creditCost,
           defaultValue: "预计消耗 {{cost}} 积分",
         })
       : void 0;
-  const billingDetailsLabel = t2("canvas.billing.details", {
+  const billingDetailsLabel = translate("canvas.billing.details", {
     defaultValue: "查看价格说明",
   });
   const disabled2 = submitting || !canSubmit;

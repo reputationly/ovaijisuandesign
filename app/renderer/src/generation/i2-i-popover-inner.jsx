@@ -92,7 +92,7 @@ const I2I_STANDARD_PARAMS = [
     aliases: ["resolution"],
   },
 ];
-function summarizeI2IParams(t2, model, modelParams) {
+function summarizeI2IParams(translate, model, modelParams) {
   if (!model) return "";
   const parts = [];
   for (const standardParam of I2I_STANDARD_PARAMS) {
@@ -102,7 +102,7 @@ function summarizeI2IParams(t2, model, modelParams) {
     if (!matchedKey) continue;
     const value = modelParams[matchedKey] ?? model.params[matchedKey].default;
     if (!value) continue;
-    parts.push(translateOptionValue(t2, value));
+    parts.push(translateOptionValue(translate, value));
   }
   for (const [key2, definition2] of Object.entries(model.params)) {
     if (key2 === IMAGE_MODE_KEY) continue;
@@ -114,7 +114,7 @@ function summarizeI2IParams(t2, model, modelParams) {
       continue;
     const value = modelParams[key2] ?? definition2.default;
     if (!value) continue;
-    parts.push(translateOptionValue(t2, value));
+    parts.push(translateOptionValue(translate, value));
   }
   return parts.join(" · ");
 }
@@ -152,7 +152,7 @@ export function I2IPopoverInner({
   popoverGapOffset = 0,
   navigationSnapshot,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const assetMetadataStore = useAssetMetadataApi();
   const paramsAnchorRef = reactExports.useRef(null);
   const [promptText, setPromptText] = reactExports.useState(
@@ -227,7 +227,7 @@ export function I2IPopoverInner({
   const [selectedModelId, setSelectedModelId] = reactExports.useState("");
   const [modelParams, setModelParams] = reactExports.useState({});
   const userPickedModelRef = reactExports.useRef(false);
-  const selectedModel = imageModels.find((m3) => m3.id === selectedModelId);
+  const selectedModel = imageModels.find((imageModel) => imageModel.id === selectedModelId);
   const isMidjourney = selectedModel?.backend === BACKEND_MIDJOURNEY;
   const maxRefs = selectedModel?.max_refs ?? 0;
   const initImagePaths =
@@ -284,8 +284,8 @@ export function I2IPopoverInner({
     Math.min(4, MAX_IMAGES_PER_NODE - currentImageCount),
   );
   const paramsSummary = reactExports.useMemo(
-    () => summarizeI2IParams(t2, selectedModel, modelParams),
-    [t2, selectedModel, modelParams],
+    () => summarizeI2IParams(translate, selectedModel, modelParams),
+    [translate, selectedModel, modelParams],
   );
   const computedCreditCost = reactExports.useMemo(() => {
     if (creditCost != null) return creditCost;
@@ -315,7 +315,7 @@ export function I2IPopoverInner({
   ]);
   const aspectRatioKey = reactExports.useMemo(() => {
     if (!selectedModel) return void 0;
-    return ["aspect_ratio", "ratio"].find((k2) => selectedModel.params[k2]);
+    return ["aspect_ratio", "ratio"].find((parameterKey) => selectedModel.params[parameterKey]);
   }, [selectedModel]);
   const aspectRatioValue = aspectRatioKey
     ? modelParams[aspectRatioKey]
@@ -362,7 +362,7 @@ export function I2IPopoverInner({
     (modelId) => {
       userPickedModelRef.current = true;
       setSelectedModelId(modelId);
-      const model = imageModels.find((m3) => m3.id === modelId);
+      const model = imageModels.find((nextModel) => nextModel.id === modelId);
       if (model)
         setModelParams(
           migrateParamsForModel(selectedModel, model, modelParams),
@@ -502,8 +502,8 @@ export function I2IPopoverInner({
     [navigationSavedRef],
   );
   const handleRestoreOriginalDraft = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       if (!originalGenerationDraft) return;
       const nextPrompt = originalGenerationDraft.prompt ?? "";
       const targetModel = findModelByStoredId(
@@ -582,8 +582,8 @@ export function I2IPopoverInner({
     },
   });
   const doSubmit = reactExports.useCallback(
-    async (e2, replaceId) => {
-      e2.stopPropagation();
+    async (clickEvent, replaceId) => {
+      clickEvent.stopPropagation();
       if (!canSubmit) return;
       if (!beforeAccountSubmission()) return;
       if (!(await checkReferencesBeforeSubmit())) return;
@@ -615,7 +615,7 @@ export function I2IPopoverInner({
         );
       } catch {
         dedupedToast.error(
-          t2(
+          translate(
             "canvas.reference.unavailable",
             "Reference unavailable. Please select again.",
           ),
@@ -626,7 +626,7 @@ export function I2IPopoverInner({
       }
       if (!selectedReferenceText && !authoredPrompt.trim()) {
         dedupedToast.error(
-          t2("canvas.promptRequired", {
+          translate("canvas.promptRequired", {
             defaultValue: "输入 prompt",
           }),
         );
@@ -659,7 +659,7 @@ export function I2IPopoverInner({
       ) {
         setPromptLength(finalPromptLength);
         dedupedToast.error(
-          t2("canvas.prompt.tooLong", {
+          translate("canvas.prompt.tooLong", {
             current: finalPromptLength,
             max: selectedModel.promptMaxLength,
           }),
@@ -668,7 +668,7 @@ export function I2IPopoverInner({
       }
       if (compiled.unresolved.length > 0) {
         dedupedToast.warning(
-          `以下引用未在附件中找到，已保留原文: ${compiled.unresolved.map((u4) => `@${u4.path}`).join(", ")}`,
+          `以下引用未在附件中找到，已保留原文: ${compiled.unresolved.map((unresolvedReference) => `@${unresolvedReference.path}`).join(", ")}`,
         );
       }
       const submittedDraft = {
@@ -744,25 +744,25 @@ export function I2IPopoverInner({
       count2,
       isMidjourney,
       saveLastUsedModelParams,
-      t2,
+      translate,
     ],
   );
   const inGeneratingState = isGenerating || isPreparing || hasLoadingSlots;
   const handleConfirm = reactExports.useCallback(
-    (e2) => {
-      void doSubmit(e2, replaceNodeId);
+    (clickEvent) => {
+      void doSubmit(clickEvent, replaceNodeId);
     },
     [doSubmit, replaceNodeId],
   );
   const handleNewNode = reactExports.useCallback(
-    (e2) => {
-      void doSubmit(e2, void 0);
+    (clickEvent) => {
+      void doSubmit(clickEvent, void 0);
     },
     [doSubmit],
   );
   const handleReplace = reactExports.useCallback(
-    (e2) => {
-      void doSubmit(e2, nodeId);
+    (clickEvent) => {
+      void doSubmit(clickEvent, nodeId);
     },
     [doSubmit, nodeId],
   );
@@ -826,8 +826,8 @@ export function I2IPopoverInner({
           },
           atPickerState.triggerRange ?? void 0,
         );
-        setAtPickerState((s2) => ({
-          ...s2,
+        setAtPickerState((pickerState) => ({
+          ...pickerState,
           open: false,
         }));
         return;
@@ -843,8 +843,8 @@ export function I2IPopoverInner({
         },
         atPickerState.triggerRange ?? void 0,
       );
-      setAtPickerState((s2) => ({
-        ...s2,
+      setAtPickerState((pickerState) => ({
+        ...pickerState,
         open: false,
       }));
     },
@@ -900,9 +900,9 @@ export function I2IPopoverInner({
     const elements = [];
     const consumedKeys = new Set();
     for (const std of I2I_STANDARD_PARAMS) {
-      const matchedKey = std.aliases.find((a2) => selectedModel.params[a2]);
+      const matchedKey = std.aliases.find((parameterAlias) => selectedModel.params[parameterAlias]);
       const def = matchedKey ? selectedModel.params[matchedKey] : void 0;
-      const stdLabel = t2(std.i18nKey, {
+      const stdLabel = translate(std.i18nKey, {
         defaultValue: std.fallbackLabel,
       });
       if (matchedKey) consumedKeys.add(matchedKey);
@@ -914,7 +914,7 @@ export function I2IPopoverInner({
         );
         const fieldValue = modelParams[matchedKey] ?? def.default;
         const fieldOptions = def.options ?? [];
-        const fieldOnChange = (v2) => handleParamChange(matchedKey, v2);
+        const fieldOnChange = (nextValue) => handleParamChange(matchedKey, nextValue);
         if (std.id === "aspect_ratio") {
           elements.push(
             <div key={`std-${std.id}`}>
@@ -969,17 +969,17 @@ export function I2IPopoverInner({
             key={key2}
             label={
               labelKey2
-                ? t2(labelKey2, {
+                ? translate(labelKey2, {
                     defaultValue: paramLabelFallback(key2, def.label),
                   })
                 : paramLabelFallback(key2, def.label)
             }
             value={modelParams[key2] ?? def.default ?? ""}
-            onChange={(v2) => handleParamChange(key2, v2)}
+            onChange={(nextValue) => handleParamChange(key2, nextValue)}
             disabled={formDisabled}
             placeholder={
               placeholderKey
-                ? t2(placeholderKey, {
+                ? translate(placeholderKey, {
                     defaultValue: paramPlaceholderFallback(
                       key2,
                       def.placeholder,
@@ -1000,7 +1000,7 @@ export function I2IPopoverInner({
             key={key2}
             label={
               labelKey2
-                ? t2(labelKey2, {
+                ? translate(labelKey2, {
                     defaultValue: paramLabelFallback(key2, def.label),
                   })
                 : paramLabelFallback(key2, def.label)
@@ -1010,7 +1010,7 @@ export function I2IPopoverInner({
             max={def.max}
             step={def.step}
             marks={def.marks}
-            onChange={(v2) => handleParamChange(key2, v2)}
+            onChange={(nextValue) => handleParamChange(key2, nextValue)}
             disabled={formDisabled}
           />,
         );
@@ -1028,14 +1028,14 @@ export function I2IPopoverInner({
             key={`${selectedModel.id}:${key2}`}
             label={
               labelKey
-                ? t2(labelKey, {
+                ? translate(labelKey, {
                     defaultValue: paramLabelFallback(key2, def.label),
                   })
                 : paramLabelFallback(key2, def.label)
             }
             options={def.options ?? []}
             value={modelParams[key2] ?? def.default}
-            onChange={(v2) => handleParamChange(key2, v2)}
+            onChange={(nextValue) => handleParamChange(key2, nextValue)}
             disabled={formDisabled}
             disabledOptions={disabled2}
           />,
@@ -1047,14 +1047,14 @@ export function I2IPopoverInner({
           key={key2}
           label={
             labelKey
-              ? t2(labelKey, {
+              ? translate(labelKey, {
                   defaultValue: paramLabelFallback(key2, def.label),
                 })
               : paramLabelFallback(key2, def.label)
           }
           options={def.options ?? []}
           value={modelParams[key2] ?? def.default}
-          onChange={(v2) => handleParamChange(key2, v2)}
+          onChange={(nextValue) => handleParamChange(key2, nextValue)}
           disabled={formDisabled}
           disabledOptions={disabled2}
           optionUnit={key2 === "duration" ? "seconds" : void 0}
@@ -1062,7 +1062,7 @@ export function I2IPopoverInner({
       );
     }
     return elements;
-  }, [selectedModel, modelParams, formDisabled, handleParamChange, t2]);
+  }, [selectedModel, modelParams, formDisabled, handleParamChange, translate]);
   const hasConfigurableParams = (renderedParamElements?.length ?? 0) > 0;
   const attachmentChipCount =
     attachmentState.items.length + (attachmentState.showAddButton ? 1 : 0);
@@ -1091,7 +1091,7 @@ export function I2IPopoverInner({
         />
         <ExpandToggleButton
           expanded={expanded}
-          onToggle={() => setExpanded((v2) => !v2)}
+          onToggle={() => setExpanded((isExpanded) => !isExpanded)}
         />
       </div>
       <div className="flex-1 min-h-0">
@@ -1106,8 +1106,8 @@ export function I2IPopoverInner({
           blockKeyHandlers={inGeneratingState || atPickerState.open}
           onAtTrigger={handleAtTrigger}
           onAtDismiss={() =>
-            setAtPickerState((s2) => ({
-              ...s2,
+            setAtPickerState((pickerState) => ({
+              ...pickerState,
               open: false,
             }))
           }
@@ -1139,13 +1139,13 @@ export function I2IPopoverInner({
           maxLength={selectedModel?.promptMaxLength}
           emptyStateAction={({ openAtPicker }) => (
             <PromptPlaceholder
-              description={t2("canvas.promptDescribe", {
+              description={translate("canvas.promptDescribe", {
                 defaultValue: "Describe anything you want to generate",
               })}
-              atPrefix={t2("canvas.promptAtPrefix", {
+              atPrefix={translate("canvas.promptAtPrefix", {
                 defaultValue: ", click ",
               })}
-              atSuffix={t2("canvas.promptAtSuffix", {
+              atSuffix={translate("canvas.promptAtSuffix", {
                 defaultValue: " to add reference content.",
               })}
               onAtClick={openAtPicker}
@@ -1165,8 +1165,8 @@ export function I2IPopoverInner({
           resolveFileUrl={resolveFileUrl}
           onSelect={handleAtSelect}
           onClose={() =>
-            setAtPickerState((s2) => ({
-              ...s2,
+            setAtPickerState((pickerState) => ({
+              ...pickerState,
               open: false,
             }))
           }
@@ -1192,7 +1192,7 @@ export function I2IPopoverInner({
                 anchorRef={paramsAnchorRef}
                 summary={paramsSummary}
                 open={paramsOpen}
-                onToggle={() => setParamsOpen((v2) => !v2)}
+                onToggle={() => setParamsOpen((isOpen) => !isOpen)}
                 disabled={formDisabled || !selectedModel}
               />
             </>
@@ -1219,13 +1219,13 @@ export function I2IPopoverInner({
                 className="w-px h-3 bg-foreground/15 shrink-0"
               />
               <Tooltip
-                content={t2("canvas.popover.restoreOriginalDraft")}
+                content={translate("canvas.popover.restoreOriginalDraft")}
                 side="top"
               >
                 <button
                   type="button"
                   data-action-ui-id="popover.restore-original-draft"
-                  aria-label={t2("canvas.popover.restoreOriginalDraft")}
+                  aria-label={translate("canvas.popover.restoreOriginalDraft")}
                   onClick={handleRestoreOriginalDraft}
                   disabled={formDisabled}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] disabled:cursor-default disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--canvas-controls-border)]"
@@ -1238,14 +1238,14 @@ export function I2IPopoverInner({
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {inGeneratingState ? (
-            <GeneratingButton label={t2("canvas.generating")} />
+            <GeneratingButton label={translate("canvas.generating")} />
           ) : showDualButtons ? (
             <DualSubmitButtons
               submitting={false}
               canSubmit={canSubmit}
               creditCost={computedCreditCost}
-              newNodeLabel={t2("canvas.generateNewNode")}
-              replaceLabel={t2("canvas.addToCurrentNode", "替换节点")}
+              newNodeLabel={translate("canvas.generateNewNode")}
+              replaceLabel={translate("canvas.addToCurrentNode", "替换节点")}
               onNewNode={handleNewNode}
               onReplace={handleReplace}
             />
@@ -1257,8 +1257,8 @@ export function I2IPopoverInner({
               onClick={handleConfirm}
               title={
                 currentImageCount > 0
-                  ? t2("canvas.addToCurrentNode")
-                  : t2("canvas.generate")
+                  ? translate("canvas.addToCurrentNode")
+                  : translate("canvas.generate")
               }
             />
           )}

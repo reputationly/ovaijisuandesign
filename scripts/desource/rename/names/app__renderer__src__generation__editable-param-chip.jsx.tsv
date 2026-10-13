@@ -1,0 +1,4 @@
+key	old	new	依据
+t2@27:35	t2	translate	该参数是格式化参数值时调用的翻译函数。
+t2@59:14	t2	translate	该绑定来自 useTranslation 并传入参数值格式化逻辑。
+v2@102:70	v2	isEnabled	该值是待格式化为开启或关闭文案的布尔参数。

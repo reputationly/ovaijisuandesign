@@ -192,8 +192,8 @@ export const VENDOR_PARAM_KEYS = new Set([
   // sit in the PM-decided "advanced" bucket (INTERNAL_KEYS) and never
   // render in the inline card.
 ]);
-export function isVendorParamsObject(v2) {
-  return v2 != null && typeof v2 === "object" && !Array.isArray(v2);
+export function isVendorParamsObject(vendorParams) {
+  return vendorParams != null && typeof vendorParams === "object" && !Array.isArray(vendorParams);
 }
 function isMiniMaxH3ModelValue(value) {
   return typeof value === "string" && value.trim() === MINIMAX_H3_MODEL_ID;
@@ -426,7 +426,7 @@ export function uploadedRelativePath(body2) {
 }
 export function updateIndexedMediaValue(current2, index2, nextPath) {
   if (!Array.isArray(current2)) return nextPath;
-  return current2.map((item, i2) => (i2 === index2 ? nextPath : item));
+  return current2.map((item, itemIndex) => (itemIndex === index2 ? nextPath : item));
 }
 export function AudioBarsIcon({ className }) {
   return (

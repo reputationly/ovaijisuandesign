@@ -24,10 +24,10 @@ const TAG_ICON = {
   duration: Clock,
   durations: Clock,
 };
-function displayParamValue(value, t2, displayMap, formatBoolean) {
+function displayParamValue(value, translate, displayMap, formatBoolean) {
   if (Array.isArray(value)) {
     const values3 = value
-      .map((item) => displayParamValue(item, t2, displayMap, formatBoolean))
+      .map((item) => displayParamValue(item, translate, displayMap, formatBoolean))
       .filter(Boolean);
     if (values3.length === 0) return "—";
     if (values3.length <= 2) return values3.join(", ");
@@ -36,7 +36,7 @@ function displayParamValue(value, t2, displayMap, formatBoolean) {
   if (typeof value === "boolean")
     return formatBoolean ? formatBoolean(value) : value ? "ON" : "OFF";
   const raw2 = stringifyParamValue(value);
-  const optionLabel = t2(`canvas.param.option.${raw2}`, {
+  const optionLabel = translate(`canvas.param.option.${raw2}`, {
     defaultValue: raw2,
   });
   return (
@@ -56,7 +56,7 @@ export function EditableParamChip({
   batchPageCount,
   onChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const label = getParamLabel(paramKey);
   const ParamIcon = MODEL_NAME_KEYS.has(paramKey)
     ? categoryIcon
@@ -99,9 +99,9 @@ export function EditableParamChip({
           <ParamIcon size={16} strokeWidth={1.5} className="shrink-0" />
         )}
         <span className="whitespace-nowrap">
-          {displayParamValue(displayValue ?? value, t2, displayMap, (v2) =>
-            t2(
-              v2 ? "chat.toolConfirm.booleanOn" : "chat.toolConfirm.booleanOff",
+          {displayParamValue(displayValue ?? value, translate, displayMap, (isEnabled) =>
+            translate(
+              isEnabled ? "chat.toolConfirm.booleanOn" : "chat.toolConfirm.booleanOff",
             ),
           )}
         </span>

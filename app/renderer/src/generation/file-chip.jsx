@@ -36,7 +36,7 @@ function formatDuration(seconds) {
   return formatTime(seconds, true);
 }
 function VideoIcon({ size: size2 = 17 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const height = Math.round((size2 * 19) / 17);
   return (
     <svg
@@ -45,7 +45,7 @@ function VideoIcon({ size: size2 = 17 }) {
       height={height}
       viewBox="0 0 17 19"
       fill="none"
-      aria-label={t2("canvas.video")}
+      aria-label={translate("canvas.video")}
       role="img"
     >
       <path
@@ -69,7 +69,7 @@ function VideoIcon({ size: size2 = 17 }) {
   );
 }
 function AudioWaveIcon({ size: size2 = 16 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <CompositedSvg
       width={size2}
@@ -80,7 +80,7 @@ function AudioWaveIcon({ size: size2 = 16 }) {
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      aria-label={t2("canvas.audio")}
+      aria-label={translate("canvas.audio")}
       role="img"
     >
       <path d="M8 2v12" />
@@ -117,8 +117,8 @@ const MEDIA_GRADIENTS = [
 ];
 function getGradientIndex(filename) {
   let hash2 = 0;
-  for (let i2 = 0; i2 < filename.length; i2++) {
-    hash2 = (hash2 * 31 + filename.charCodeAt(i2)) | 0;
+  for (let characterIndex = 0; characterIndex < filename.length; characterIndex++) {
+    hash2 = (hash2 * 31 + filename.charCodeAt(characterIndex)) | 0;
   }
   return Math.abs(hash2) % MEDIA_GRADIENTS.length;
 }
@@ -303,7 +303,7 @@ export function FileChip({
   layout = "auto",
   className,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [durationSec, setDurationSec] = reactExports.useState(() =>
     mediaUrl ? mediaDurationCache.get(mediaUrl) : void 0,
   );
@@ -568,11 +568,11 @@ export function FileChip({
     onAnchorClick ? (
       <button
         type="button"
-        aria-label={t2("chat.fileChip.locateOnCanvas", "在画布上定位")}
-        title={t2("chat.fileChip.locateOnCanvas", "在画布上定位")}
+        aria-label={translate("chat.fileChip.locateOnCanvas", "在画布上定位")}
+        title={translate("chat.fileChip.locateOnCanvas", "在画布上定位")}
         data-action-ui-id="chat.fileChip.locateOnCanvas"
-        onClick={(e2) => {
-          e2.stopPropagation();
+        onClick={(clickEvent) => {
+          clickEvent.stopPropagation();
           onAnchorClick();
         }}
         className={cn(
@@ -652,7 +652,7 @@ export function FileChip({
             previewAction={
               previewFromHover && canOpenLightbox
                 ? {
-                    label: t2("canvas.fullscreenPreview"),
+                    label: translate("canvas.fullscreenPreview"),
                     onClick: openLightbox,
                   }
                 : void 0
@@ -660,7 +660,7 @@ export function FileChip({
             locateAction={
               onHoverLocate
                 ? {
-                    label: t2("chat.fileChip.locateOnCanvas"),
+                    label: translate("chat.fileChip.locateOnCanvas"),
                     onClick: () => {
                       closeHoverPreview();
                       onHoverLocate();
@@ -775,7 +775,7 @@ export function FileChip({
             previewAction={
               previewFromHover && canOpenLightbox
                 ? {
-                    label: t2("canvas.fullscreenPreview"),
+                    label: translate("canvas.fullscreenPreview"),
                     onClick: openLightbox,
                   }
                 : void 0
@@ -783,7 +783,7 @@ export function FileChip({
             locateAction={
               onHoverLocate
                 ? {
-                    label: t2("chat.fileChip.locateOnCanvas"),
+                    label: translate("chat.fileChip.locateOnCanvas"),
                     onClick: () => {
                       closeHoverPreview();
                       onHoverLocate();
@@ -808,8 +808,8 @@ export function FileChip({
           <audio
             src={mediaUrl}
             preload="metadata"
-            onLoadedMetadata={(e2) =>
-              rememberDuration(e2.currentTarget.duration)
+            onLoadedMetadata={(metadataEvent) =>
+              rememberDuration(metadataEvent.currentTarget.duration)
             }
           />
         )}
@@ -833,7 +833,7 @@ export function FileChip({
             previewAction={
               previewFromHover && canOpenLightbox
                 ? {
-                    label: t2("canvas.fullscreenPreview"),
+                    label: translate("canvas.fullscreenPreview"),
                     onClick: openLightbox,
                   }
                 : void 0
@@ -841,7 +841,7 @@ export function FileChip({
             locateAction={
               onHoverLocate
                 ? {
-                    label: t2("chat.fileChip.locateOnCanvas"),
+                    label: translate("chat.fileChip.locateOnCanvas"),
                     onClick: () => {
                       closeHoverPreview();
                       onHoverLocate();

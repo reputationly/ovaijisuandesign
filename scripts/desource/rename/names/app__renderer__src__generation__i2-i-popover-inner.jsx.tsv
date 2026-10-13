@@ -1,0 +1,24 @@
+key	old	new	依据
+t2@95:29	t2	translate	该参数是汇总图生图参数时调用的翻译函数。
+t2@155:14	t2	translate	该绑定来自 useTranslation 并用于图生图弹出框文案。
+m3@230:43	m3	imageModel	该值是当前已选择的图像模型记录。
+k2@318:44	k2	parameterKey	该值是候选图像比例参数键。
+m3@365:39	m3	nextModel	该值是模型切换后按标识查找的新图像模型记录。
+e2@505:6	e2	clickEvent	该事件来自恢复原始草稿操作并用于阻止冒泡。
+e2@585:12	e2	clickEvent	该事件是提交生成操作时用于阻止冒泡的回调参数。
+u4@671:58	u4	unresolvedReference	该值是未解析引用列表中的单条引用记录。
+e2@752:6	e2	clickEvent	该事件来自确认生成按钮并转交给提交逻辑。
+e2@758:6	e2	clickEvent	该事件来自新建节点按钮并转交给提交逻辑。
+e2@764:6	e2	clickEvent	该事件来自替换节点按钮并转交给提交逻辑。
+s2@829:27	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
+s2@846:25	s2	pickerState	该值是关闭 at 引用选择器前的状态对象。
+a2@903:44	a2	parameterAlias	该值是用于匹配所选模型参数的标准别名。
+v2@917:32	v2	nextValue	该值是字段 onChange 回调提供的待写入参数值。
+v2@978:24	v2	nextValue	该值是参数输入回调提供的待写入参数值。
+v2@1013:24	v2	nextValue	该值是参数输入回调提供的待写入参数值。
+v2@1038:24	v2	nextValue	该值是参数输入回调提供的待写入参数值。
+v2@1057:22	v2	nextValue	该值是参数输入回调提供的待写入参数值。
+v2@1094:40	v2	isExpanded	该值是展开状态 setter 收到的当前布尔值。
+s2@1109:31	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
+s2@1168:31	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
+v2@1195:48	v2	isOpen	该值是参数面板展开状态 setter 收到的当前布尔值。

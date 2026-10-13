@@ -1,0 +1,3 @@
+key	old	new	依据
+v2@195:38	v2	vendorParams	该值是用于验证供应商参数载荷形状的对象。
+i2@429:30	i2	itemIndex	该值是映射数组中的当前元素下标。

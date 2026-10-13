@@ -1,0 +1,27 @@
+key	old	new	依据
+id2@275:39	id2	tagId	该值是待检查是否仍然有效的标签标识。
+a2@279:11	a2	leftEntry	该值是文件树排序比较器左侧的目录项。
+b3@279:15	b3	rightEntry	该值是文件树排序比较器右侧的目录项。
+q2@289:9	q2	query	该值是去空格并转小写的资源过滤查询。
+a2@291:35	a2	asset	该值是待按名称、标签和日期筛选的资产记录。
+id2@296:35	id2	tagId	该值是用于匹配标签搜索集合的标签标识。
+a2@303:30	a2	leftAsset	该值是按排序规则比较的左侧资产记录。
+b3@303:34	b3	rightAsset	该值是按排序规则比较的右侧资产记录。
+q2@308:9	q2	query	该值是用于判断文件树是否命中搜索的规范化查询。
+id2@320:39	id2	tagId	该值是用于匹配文件树项标签搜索集合的标签标识。
+t2@442:14	t2	translate	该绑定来自 useTranslation 并用于删除确认对话框文案。
+t2@485:14	t2	translate	该绑定来自 useTranslation 并用于文件拖放提示。
+i2@525:14	i2	rowStartIndex	该值是虚拟网格切片时当前行的起始资产下标。
+r2@628:40	r2	row	该值是用于定位新建中占位项的文件树行记录。
+t2@707:14	t2	translate	该绑定来自 useTranslation 并用于提升为资产对话框文案。
+o2@714:22	o2	isOpen	该值是对话框 onOpenChange 回调提供的新打开状态。
+t2@792:14	t2	translate	该绑定来自 useTranslation 并用于文件浏览器界面提示。
+q2@830:11	q2	normalizedSearchQuery	该值是延迟搜索文本去空格并转小写后的查询。
+a2@886:16	a2	asset	该值是写入相对路径资产索引的资产记录。
+a2@894:16	a2	asset	该值是写入绝对路径资产索引的资产记录。
+e2@1033:18	e2	entry	该值是递归遍历的文件树目录项。
+p3@1177:18	p3	targetPath	该值是待收集为提升载荷的绝对目标路径。
+r2@1303:18	r2	row	该值是用于排除创建占位项的文件树行记录。
+r2@1304:15	r2	row	该值是用于提取可见路径的文件树行记录。
+a2@1306:38	a2	asset	该值是用于构建可见绝对路径的已排序资产记录。
+e2@1342:62	e2	pointerEvent	该事件来自文件面板 pointerdown，用于检查事件目标。

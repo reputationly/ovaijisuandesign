@@ -2,7 +2,7 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
-import { Check, ChevronDown, X$7 as X } from "../vendor.js";
+import { Check, ChevronDown, X$7 as CloseIcon } from "../vendor.js";
 import { FilterMenuTrigger } from "../workspace/set-home-widget-dev-preview-mode.js";
 export function FilterMenuContent({
   className,
@@ -140,7 +140,7 @@ export function FilterTrigger({
             data-action-ui-id={`${testId}-clear`}
           >
             <span className={TRIGGER_CLEAR_ICON_CLASS}>
-              <X size={9} strokeWidth={2} />
+              <CloseIcon size={9} strokeWidth={2} />
             </span>
           </button>
         )}
