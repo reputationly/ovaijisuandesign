@@ -21,7 +21,7 @@ export function useBottomAnchorState(options) {
     scrollToBottom,
     enabled = true,
   } = options;
-  const [state2, setState] = reactExports.useState("hidden");
+  const [state, setState] = reactExports.useState("hidden");
   const [unreadCount, setUnreadCount] = reactExports.useState(0);
   const isNearBottomRef = reactExports.useRef(true);
   const isShortContentRef = reactExports.useRef(true);
@@ -37,20 +37,20 @@ export function useBottomAnchorState(options) {
     if (!enabled) return;
     const scrollElement = scrollRef.current;
     if (!scrollElement) return;
-    const distance2 = scrollElement.scrollHeight - scrollElement.scrollTop - scrollElement.clientHeight;
-    const isNearBottom = distance2 < NEAR_BOTTOM_PX;
+    const distance = scrollElement.scrollHeight - scrollElement.scrollTop - scrollElement.clientHeight;
+    const isNearBottom = distance < NEAR_BOTTOM_PX;
     const isShortContent = scrollElement.scrollHeight <= scrollElement.clientHeight + NEAR_BOTTOM_PX;
     isNearBottomRef.current = isNearBottom;
     isShortContentRef.current = isShortContent;
     setState((prev) => {
       if (prev === "scrolling-to-bottom") return prev;
-      if (isShortContent || distance2 <= HIDE_THRESHOLD_PX) {
+      if (isShortContent || distance <= HIDE_THRESHOLD_PX) {
         if (prev !== "hidden") {
           setUnreadCount(0);
         }
         return "hidden";
       }
-      if (distance2 > SHOW_THRESHOLD_PX) {
+      if (distance > SHOW_THRESHOLD_PX) {
         if (isStreaming) return "streaming-away";
         if (unreadCount > 0) return "new-content";
         return "visible";
@@ -76,9 +76,9 @@ export function useBottomAnchorState(options) {
     if (!enabled) return;
     const scrollElement = scrollRef.current;
     if (!scrollElement || typeof ResizeObserver === "undefined") return;
-    const observer2 = new ResizeObserver(() => recomputeState());
-    observer2.observe(scrollElement);
-    return () => observer2.disconnect();
+    const observer = new ResizeObserver(() => recomputeState());
+    observer.observe(scrollElement);
+    return () => observer.disconnect();
   }, [scrollRef, recomputeState, enabled]);
   reactExports.useEffect(() => {
     if (!enabled) return;
@@ -119,7 +119,7 @@ export function useBottomAnchorState(options) {
     }, 600);
   }, [scrollToBottom, recomputeState, clearScrollingTimeout, enabled]);
   return {
-    state: enabled ? state2 : "hidden",
+    state: enabled ? state : "hidden",
     unreadCount: enabled ? unreadCount : 0,
     goToBottom,
   };

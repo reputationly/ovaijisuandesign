@@ -30,19 +30,19 @@ function migrateSessionPreferenceIds(storedIds, sessions) {
     }
   }
   const migrated = [];
-  const seen2 = new Set();
+  const seen = new Set();
   for (const storedId of storedIds) {
-    const nextId2 = runtimeByUiId.get(storedId) ?? storedId;
-    if (seen2.has(nextId2)) continue;
-    seen2.add(nextId2);
-    migrated.push(nextId2);
+    const nextId = runtimeByUiId.get(storedId) ?? storedId;
+    if (seen.has(nextId)) continue;
+    seen.add(nextId);
+    migrated.push(nextId);
   }
   return migrated;
 }
 function sessionPreferenceIdsEqual(left, right) {
   return (
     left.length === right.length &&
-    left.every((value, index2) => value === right[index2])
+    left.every((value, index) => value === right[index])
   );
 }
 const SESSION_EVICTION_TOAST_LIMIT = 3;
@@ -59,10 +59,10 @@ export function SessionHistory({
   onOpenChange,
 }) {
   const { t: translate } = useTranslation();
-  const platform2 = usePlatform();
-  const gatewayFetch2 = useGatewayFetch();
+  const platform = usePlatform();
+  const gatewayFetch = useGatewayFetch();
   const [open, setOpen] = reactExports.useState(false);
-  const [search2, setSearch] = reactExports.useState("");
+  const [search, setSearch] = reactExports.useState("");
   const [exportingId, setExportingId] = reactExports.useState(null);
   const [showHidden, setShowHidden] = reactExports.useState(false);
   const [pinnedSessionIds, setPinnedSessionIds] = useStorage(
@@ -78,16 +78,16 @@ export function SessionHistory({
     isToastCountHydrated,
   ] = useStorage("global.sessionEvictionToastCount");
   reactExports.useEffect(() => {
-    setPinnedSessionIds((previous2) => {
-      const migrated = migrateSessionPreferenceIds(previous2, sessions);
-      return sessionPreferenceIdsEqual(previous2, migrated)
-        ? previous2
+    setPinnedSessionIds((previous) => {
+      const migrated = migrateSessionPreferenceIds(previous, sessions);
+      return sessionPreferenceIdsEqual(previous, migrated)
+        ? previous
         : migrated;
     });
-    setHiddenSessionIds((previous2) => {
-      const migrated = migrateSessionPreferenceIds(previous2, sessions);
-      return sessionPreferenceIdsEqual(previous2, migrated)
-        ? previous2
+    setHiddenSessionIds((previous) => {
+      const migrated = migrateSessionPreferenceIds(previous, sessions);
+      return sessionPreferenceIdsEqual(previous, migrated)
+        ? previous
         : migrated;
     });
   }, [sessions, setHiddenSessionIds, setPinnedSessionIds]);
@@ -111,9 +111,9 @@ export function SessionHistory({
         "已打开该对话，较早的对话已收纳到历史记录",
       ),
     );
-    setEvictionToastShownCount((current2) =>
+    setEvictionToastShownCount((current) =>
       Math.min(
-        normalizeEvictionToastCount(current2) + 1,
+        normalizeEvictionToastCount(current) + 1,
         SESSION_EVICTION_TOAST_LIMIT,
       ),
     );
@@ -127,7 +127,7 @@ export function SessionHistory({
   const { filteredSessions, filteredHiddenSessions } =
     reactExports.useMemo(() => {
       const pinOrder = new Map(
-        pinnedSessionIds.map((pinnedId, index2) => [pinnedId, index2]),
+        pinnedSessionIds.map((pinnedId, index) => [pinnedId, index]),
       );
       const sorted = sessions.slice().sort((leftSession, rightSession) => {
         const aPinOrder = pinOrder.get(sessionPreferenceId(leftSession));
@@ -139,7 +139,7 @@ export function SessionHistory({
         }
         return rightSession.created_at.localeCompare(leftSession.created_at);
       });
-      const normalizedQuery = search2.trim().toLowerCase();
+      const normalizedQuery = search.trim().toLowerCase();
       const searched = normalizedQuery
         ? sorted.filter((session) =>
             sessionDisplayName(session, translate).toLowerCase().includes(normalizedQuery),
@@ -153,25 +153,25 @@ export function SessionHistory({
           hiddenSessionIds.includes(sessionPreferenceId(session)),
         ),
       };
-    }, [sessions, search2, translate, pinnedSessionIds, hiddenSessionIds]);
+    }, [sessions, search, translate, pinnedSessionIds, hiddenSessionIds]);
   const handleTogglePin = (preferenceId) => {
-    setPinnedSessionIds((previous2) =>
-      previous2.includes(preferenceId)
-        ? previous2.filter((sessionId) => sessionId !== preferenceId)
-        : [preferenceId, ...previous2],
+    setPinnedSessionIds((previous) =>
+      previous.includes(preferenceId)
+        ? previous.filter((sessionId) => sessionId !== preferenceId)
+        : [preferenceId, ...previous],
     );
   };
   const handleHide = (preferenceId) => {
-    setPinnedSessionIds((previous2) =>
-      previous2.filter((sessionId) => sessionId !== preferenceId),
+    setPinnedSessionIds((previous) =>
+      previous.filter((sessionId) => sessionId !== preferenceId),
     );
-    setHiddenSessionIds((previous2) =>
-      previous2.includes(preferenceId) ? previous2 : [...previous2, preferenceId],
+    setHiddenSessionIds((previous) =>
+      previous.includes(preferenceId) ? previous : [...previous, preferenceId],
     );
   };
   const handleRestore = (preferenceId) => {
-    setHiddenSessionIds((previous2) =>
-      previous2.filter((sessionId) => sessionId !== preferenceId),
+    setHiddenSessionIds((previous) =>
+      previous.filter((sessionId) => sessionId !== preferenceId),
     );
   };
   const handleOpen = (sessionId) => {
@@ -179,23 +179,23 @@ export function SessionHistory({
     setOpen(false);
     setSearch("");
   };
-  const handleOpenChange = (next2) => {
-    setOpen(next2);
-    if (!next2) setSearch("");
-    onOpenChange?.(next2);
+  const handleOpenChange = (next) => {
+    setOpen(next);
+    if (!next) setSearch("");
+    onOpenChange?.(next);
   };
   const handleExport = reactExports.useCallback(
     async (sessionId) => {
       if (exportingId) return;
       setExportingId(sessionId);
       try {
-        const response = await gatewayFetch2(API_PATHS.exportSession(sessionId));
+        const response = await gatewayFetch(API_PATHS.exportSession(sessionId));
         const blob = await response.blob();
         const disposition = response.headers.get("Content-Disposition") ?? "";
-        const match2 = disposition.match(/filename="(.+)"/);
-        const defaultName = match2?.[1] ?? `chat-${sessionId}.zip`;
-        if (platform2.fs.showSaveDialog && platform2.fs.writeBinaryFile) {
-          const targetPath = await platform2.fs.showSaveDialog({
+        const match = disposition.match(/filename="(.+)"/);
+        const defaultName = match?.[1] ?? `chat-${sessionId}.zip`;
+        if (platform.fs.showSaveDialog && platform.fs.writeBinaryFile) {
+          const targetPath = await platform.fs.showSaveDialog({
             defaultPath: defaultName,
             filters: [
               {
@@ -206,14 +206,14 @@ export function SessionHistory({
           });
           if (!targetPath) return;
           const buffer = await blob.arrayBuffer();
-          await platform2.fs.writeBinaryFile(targetPath, buffer);
+          await platform.fs.writeBinaryFile(targetPath, buffer);
         } else {
-          const url2 = URL.createObjectURL(blob);
+          const url = URL.createObjectURL(blob);
           const downloadLink = document.createElement("a");
-          downloadLink.href = url2;
+          downloadLink.href = url;
           downloadLink.download = defaultName;
           downloadLink.click();
-          URL.revokeObjectURL(url2);
+          URL.revokeObjectURL(url);
         }
         dedupedToast.success(translate("session.export.success", "Chat exported"));
       } catch {
@@ -222,7 +222,7 @@ export function SessionHistory({
         setExportingId(null);
       }
     },
-    [exportingId, gatewayFetch2, platform2, translate],
+    [exportingId, gatewayFetch, platform, translate],
   );
   return (
     <div className="relative">
@@ -259,7 +259,7 @@ export function SessionHistory({
                 type="text"
                 className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
                 placeholder={translate("session.searchSessions", "Search sessions...")}
-                value={search2}
+                value={search}
                 onChange={(changeEvent) => setSearch(changeEvent.target.value)}
                 data-action-ui-id="session-history-search"
               />
@@ -278,7 +278,7 @@ export function SessionHistory({
               filteredSessions.length === 0 &&
               filteredHiddenSessions.length === 0 && (
                 <div className="px-3 py-1.5 text-sm text-muted-foreground">
-                  {search2.trim()
+                  {search.trim()
                     ? translate("session.noMatchingSessions", "No matching sessions")
                     : translate("session.noSessions", "No sessions")}
                 </div>

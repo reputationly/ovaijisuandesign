@@ -56,29 +56,29 @@ function AttachmentFaceNoticeDialog({
 }
 
 export function useAttachmentFaceNoticeGate(openFilePicker) {
-  const [config2, , setConfigAsync, hydrated] = useStorage("global.config");
+  const [config, , setConfigAsync, hydrated] = useStorage("global.config");
   const [dialogOpen, setDialogOpen] = reactExports.useState(false);
   const [confirming, setConfirming] = reactExports.useState(false);
   const pendingRequestRef = reactExports.useRef(false);
   const confirmingRef = reactExports.useRef(false);
   const requestAttachmentPicker = reactExports.useCallback(() => {
-    if (config2.attachmentFaceNoticeAccepted) {
+    if (config.attachmentFaceNoticeAccepted) {
       openFilePicker();
       return;
     }
     pendingRequestRef.current = true;
     if (hydrated) setDialogOpen(true);
-  }, [config2.attachmentFaceNoticeAccepted, hydrated, openFilePicker]);
+  }, [config.attachmentFaceNoticeAccepted, hydrated, openFilePicker]);
   reactExports.useEffect(() => {
     if (!hydrated || !pendingRequestRef.current || dialogOpen) return;
-    if (config2.attachmentFaceNoticeAccepted) {
+    if (config.attachmentFaceNoticeAccepted) {
       pendingRequestRef.current = false;
       openFilePicker();
       return;
     }
     setDialogOpen(true);
   }, [
-    config2.attachmentFaceNoticeAccepted,
+    config.attachmentFaceNoticeAccepted,
     dialogOpen,
     hydrated,
     openFilePicker,
@@ -91,8 +91,8 @@ export function useAttachmentFaceNoticeGate(openFilePicker) {
     if (confirmingRef.current || !pendingRequestRef.current) return;
     confirmingRef.current = true;
     setConfirming(true);
-    const persisted = await setConfigAsync((current2) => ({
-      ...current2,
+    const persisted = await setConfigAsync((current) => ({
+      ...current,
       attachmentFaceNoticeAccepted: true,
     }));
     if (persisted && pendingRequestRef.current) {

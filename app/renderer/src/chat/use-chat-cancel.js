@@ -9,7 +9,7 @@ export function useChatCancel({
   sessionStore,
   controller,
   cancelInFlightSessionIdsRef,
-  send: send2,
+  send,
   clearMessageDeliveryTimersForSession,
 }) {
   const previousBusyBySessionRef = reactExports.useRef(new Map());
@@ -35,7 +35,7 @@ export function useChatCancel({
         busy,
         pendingReasons: pendingReasons.map((pendingReason) => `${pendingReason.kind}:${pendingReason.id}`),
       });
-      const sent = send2({
+      const sent = send({
         type: "cancel",
         session_id: sessionId,
         source,
@@ -88,7 +88,7 @@ export function useChatCancel({
       clearMessageDeliveryTimersForSession,
       pendingReasons,
       sessionStore,
-      send2,
+      send,
       controller,
     ],
   );

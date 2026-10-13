@@ -6,3 +6,17 @@ m3@229:26	message	`message` 是队列消息列表中用于提取稳定排序 ID 
 el@236:11	scrollElement	`scrollElement` 是读取滚动尺寸与位置的队列消息容器。
 el@248:11	scrollElement	`scrollElement` 是监听尺寸并同步滚动状态的队列消息容器。
 el@258:11	scrollElement	`scrollElement` 是传给滚动请求处理函数的队列消息容器。
+transform2@36:46	transform	`transform` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+transform2@41:14	transform	`transform` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@46:9	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+message2@59:12	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+index2@60:10	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+listeners2@69:16	listeners	`listeners` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+transform2@71:16	transform	`transform` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+transition2@72:17	transition	`transition` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+style2@77:9	style	`style` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+messages2@210:13	messages	`messages` 是聊天消息集合；末尾数字是打包器为避免重名添加的后缀。
+observer2@252:11	observer	`observer` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+active2@265:23	active	`active` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+message2@294:29	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+index2@294:39	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。

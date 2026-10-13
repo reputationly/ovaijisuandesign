@@ -2,7 +2,7 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { jsxRuntimeExports, useTranslation } from "../vendor.js";
 import { Button } from "../infra/dialog-content.jsx";
-export function QuestionComposerGate({ blocked, dock, children: children2 }) {
+export function QuestionComposerGate({ blocked, dock, children }) {
   return (
     <>
       {blocked ? dock : null}
@@ -12,36 +12,36 @@ export function QuestionComposerGate({ blocked, dock, children: children2 }) {
         aria-hidden={blocked ? true : void 0}
         inert={blocked ? true : void 0}
       >
-        {children2}
+        {children}
       </div>
     </>
   );
 }
-export function queuedMessageSuccessorIds(messages2, clientMessageId) {
-  const editIndex = messages2.findIndex(
+export function queuedMessageSuccessorIds(messages, clientMessageId) {
+  const editIndex = messages.findIndex(
     (item) => item.clientMessageId === clientMessageId,
   );
   if (editIndex === -1) return [];
-  return messages2
+  return messages
     .slice(editIndex + 1)
     .map((item) => item.queueId)
     .filter((queueId) => Boolean(queueId));
 }
 export function restoreQueuedMessageToComposer(
   input,
-  message2,
+  message,
   setPendingInput,
   trackInputChange,
 ) {
   input?.reset();
-  setPendingInput(message2.text);
-  trackInputChange(message2.text);
-  input?.setInputText(message2.text);
-  for (const path2 of message2.attachments ?? []) {
-    const nodeId = message2.canvasNodeAttachments?.find(
-      (attachment) => attachment.path === path2,
+  setPendingInput(message.text);
+  trackInputChange(message.text);
+  input?.setInputText(message.text);
+  for (const path of message.attachments ?? []) {
+    const nodeId = message.canvasNodeAttachments?.find(
+      (attachment) => attachment.path === path,
     )?.nodeId;
-    input?.addFromAssetPath(path2, path2.split("/").pop() || path2, nodeId);
+    input?.addFromAssetPath(path, path.split("/").pop() || path, nodeId);
   }
   requestAnimationFrame(() => input?.focus());
 }
@@ -146,13 +146,13 @@ const WHOLE_DOCUMENT_PLACEHOLDER = {
   fallback:
     "Want to make the whole piece shine? Tell me the goal, tone, or length",
 };
-export function textAgentInputPlaceholder(hasSelection2) {
-  return hasSelection2 ? SELECTION_PLACEHOLDER : WHOLE_DOCUMENT_PLACEHOLDER;
+export function textAgentInputPlaceholder(hasSelection) {
+  return hasSelection ? SELECTION_PLACEHOLDER : WHOLE_DOCUMENT_PLACEHOLDER;
 }
 const SELECTION_QUOTE_MAX_LENGTH = 40;
 export const DOCUMENT_EDIT_TARGETS_PER_ANNOTATION = 32;
-export function buildSelectionQuote(anchors2) {
-  const normalized = anchors2
+export function buildSelectionQuote(anchors) {
+  const normalized = anchors
     .map((anchor) => anchor.exact)
     .join(" ")
     .replace(/\s+/g, " ")

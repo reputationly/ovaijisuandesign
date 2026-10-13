@@ -6,7 +6,7 @@ import { useActiveCustomModel } from "../team/copy-icon-button.jsx";
 
 export function useChatModelSelection({
   sessionStore,
-  send: send2,
+  send,
   initialModelId,
   initialSelectedMediaModels,
   defaultModelId,
@@ -79,37 +79,37 @@ export function useChatModelSelection({
       const sessionId = sessionStore.getState().focusedSessionId;
       if (sessionId) {
         sessionStore.updateModelId(sessionId, modelId);
-        send2({
+        send({
           type: "update_model",
           model_id: modelId,
           session_id: sessionId,
         });
       }
     },
-    [send2, sessionStore, syncSelectedModelId],
+    [send, sessionStore, syncSelectedModelId],
   );
   const handleSelectedMediaModelsChange = reactExports.useCallback(
-    (next2) => {
+    (next) => {
       editedRef.current.media = true;
-      syncSelectedMediaModels(next2);
+      syncSelectedMediaModels(next);
       const sessionId = sessionStore.getState().focusedSessionId;
       if (sessionId) {
-        sessionStore.setSelectedMediaModels(sessionId, next2);
-        send2({
+        sessionStore.setSelectedMediaModels(sessionId, next);
+        send({
           type: "update_selected_media_models",
           session_id: sessionId,
-          selected_media_models: next2,
+          selected_media_models: next,
         });
       }
     },
-    [send2, sessionStore, syncSelectedMediaModels],
+    [send, sessionStore, syncSelectedMediaModels],
   );
   const handleModelSelectionChange = reactExports.useCallback(
-    (selection2, rememberForNewChats = false) => {
-      if (selection2.media !== void 0)
-        handleSelectedMediaModelsChange(selection2.media);
-      if (selection2.modelId !== void 0) handleModelChange(selection2.modelId);
-      if (rememberForNewChats) void rememberDefaults(selection2);
+    (selection, rememberForNewChats = false) => {
+      if (selection.media !== void 0)
+        handleSelectedMediaModelsChange(selection.media);
+      if (selection.modelId !== void 0) handleModelChange(selection.modelId);
+      if (rememberForNewChats) void rememberDefaults(selection);
     },
     [handleModelChange, handleSelectedMediaModelsChange, rememberDefaults],
   );

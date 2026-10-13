@@ -15,10 +15,10 @@ import { TEXT_AGENT_INTRO_MESSAGE_ID_PREFIX } from "./handle-session-created-res
 
 const WorkspacePaneReorderContext = reactExports.createContext(null);
 
-export function WorkspacePaneReorderProvider({ value, children: children2 }) {
+export function WorkspacePaneReorderProvider({ value, children }) {
   return (
     <WorkspacePaneReorderContext.Provider value={value}>
-      {children2}
+      {children}
     </WorkspacePaneReorderContext.Provider>
   );
 }
@@ -74,14 +74,14 @@ export const selectChatPanelState = (chat) => ({
   documentEditSubmissions: chat.documentEditSubmissions,
 });
 
-export function selectMessages(messages2, ready, textEditMode) {
+export function selectMessages(messages, ready, textEditMode) {
   if (!ready) return [];
   return textEditMode
-    ? messages2.filter(
-        (message2) =>
-          !message2.id.startsWith(TEXT_AGENT_INTRO_MESSAGE_ID_PREFIX),
+    ? messages.filter(
+        (message) =>
+          !message.id.startsWith(TEXT_AGENT_INTRO_MESSAGE_ID_PREFIX),
       )
-    : messages2;
+    : messages;
 }
 
 export function ChatReconnectNotice({ title, description, animated, stuck }) {
@@ -193,7 +193,7 @@ function filesToFileList(files) {
 
 export async function applyChatShowcaseSelection({
   item,
-  language: language2,
+  language,
   input,
   selectedMediaModels,
   onSelectedMediaModelsChange,
@@ -206,7 +206,7 @@ export async function applyChatShowcaseSelection({
     };
   const query = item.action.query;
   input.setInputText(
-    language2.startsWith("zh") ? query.queryCn : query.queryEn,
+    language.startsWith("zh") ? query.queryCn : query.queryEn,
   );
   if (query.models) {
     onSelectedMediaModelsChange({
@@ -253,7 +253,7 @@ export function isDocumentEditSubmissionForAnnotations(
   return (
     submittedAnnotationIds.length === annotations.length &&
     submittedAnnotationIds.every(
-      (annotationId, index2) => annotationId === annotations[index2]?.id,
+      (annotationId, index) => annotationId === annotations[index]?.id,
     )
   );
 }
@@ -279,11 +279,11 @@ function isBrowserVideoAsset(value) {
   );
 }
 
-export function dispatchBrowserVideoToChat(asset, workspaceId2, sessionId) {
+export function dispatchBrowserVideoToChat(asset, workspaceId, sessionId) {
   const event = new CustomEvent(BROWSER_VIDEO_ASSET_EVENT, {
     detail: {
       ...asset,
-      workspaceId: workspaceId2,
+      workspaceId,
       sessionId,
     },
     cancelable: true,
@@ -292,8 +292,8 @@ export function dispatchBrowserVideoToChat(asset, workspaceId2, sessionId) {
   return event.defaultPrevented;
 }
 
-export async function downloadBrowserVideo(request, fetch2) {
-  const response = await fetch2(API_PATHS.webMedia, {
+export async function downloadBrowserVideo(request, fetchImplementation) {
+  const response = await fetchImplementation(API_PATHS.webMedia, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -309,29 +309,29 @@ export async function downloadBrowserVideo(request, fetch2) {
   });
   if (!response.ok)
     throw new Error(`Video download request failed: HTTP ${response.status}`);
-  const body2 = await response.json();
+  const body = await response.json();
   if (
-    !body2 ||
-    typeof body2 !== "object" ||
-    !("ok" in body2) ||
-    body2.ok !== true ||
-    !("assets" in body2) ||
-    !Array.isArray(body2.assets)
+    !body ||
+    typeof body !== "object" ||
+    !("ok" in body) ||
+    body.ok !== true ||
+    !("assets" in body) ||
+    !Array.isArray(body.assets)
   )
     throw new Error("Video download did not return an asset");
-  const videos = body2.assets.filter(
-    (asset2) =>
-      asset2 &&
-      typeof asset2 === "object" &&
-      "kind" in asset2 &&
-      asset2.kind === "video",
+  const videos = body.assets.filter(
+    (asset) =>
+      asset &&
+      typeof asset === "object" &&
+      "kind" in asset &&
+      asset.kind === "video",
   );
   if (videos.length !== 1)
     throw new Error("Expected exactly one downloaded video");
-  const path2 = videos[0].path;
+  const path = videos[0].path;
   const asset = {
-    path: path2,
-    filename: typeof path2 === "string" ? (path2.split("/").at(-1) ?? "") : "",
+    path,
+    filename: typeof path === "string" ? (path.split("/").at(-1) ?? "") : "",
   };
   if (!isBrowserVideoAsset(asset))
     throw new Error("Invalid downloaded video path");
@@ -341,7 +341,7 @@ export async function downloadBrowserVideo(request, fetch2) {
 export function useBrowserChatMedia(
   inputRef,
   isActiveRef,
-  workspaceId2,
+  workspaceId,
   sessionId,
 ) {
   reactExports.useEffect(() => {
@@ -353,7 +353,7 @@ export function useBrowserChatMedia(
         "workspaceId" in asset ? asset.workspaceId : void 0;
       if (
         typeof targetWorkspace === "string"
-          ? targetWorkspace !== workspaceId2
+          ? targetWorkspace !== workspaceId
           : !isActiveRef.current
       )
         return;
@@ -375,20 +375,20 @@ export function useBrowserChatMedia(
       const dataUrl = detail?.dataUrl;
       if (!dataUrl) return;
       try {
-        const comma2 = dataUrl.indexOf(",");
-        if (comma2 < 0) return;
+        const comma = dataUrl.indexOf(",");
+        if (comma < 0) return;
         const mime = dataUrl.slice(5, dataUrl.indexOf(";")) || "image/png";
-        const binary2 = atob(dataUrl.slice(comma2 + 1));
-        const bytes2 = new Uint8Array(binary2.length);
-        for (let index2 = 0; index2 < binary2.length; index2 += 1)
-          bytes2[index2] = binary2.charCodeAt(index2);
+        const binary = atob(dataUrl.slice(comma + 1));
+        const bytes = new Uint8Array(binary.length);
+        for (let index = 0; index < binary.length; index += 1)
+          bytes[index] = binary.charCodeAt(index);
         const transfer = new DataTransfer();
         const stamp = Date.now().toString(36);
         const filename = detail.annotated
           ? `browser-annotation-${stamp}.png`
           : `browser-screenshot-${stamp}.png`;
         transfer.items.add(
-          new File([bytes2], filename, {
+          new File([bytes], filename, {
             type: mime,
           }),
         );
@@ -416,5 +416,5 @@ export function useBrowserChatMedia(
       window.removeEventListener(BROWSER_FILE_EVENT, handleBrowserFile);
       window.removeEventListener(BROWSER_VIDEO_ASSET_EVENT, handleBrowserVideo);
     };
-  }, [inputRef, isActiveRef, workspaceId2, sessionId]);
+  }, [inputRef, isActiveRef, workspaceId, sessionId]);
 }

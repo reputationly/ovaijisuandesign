@@ -1,3 +1,6 @@
 key	新名	依据
 sid@79:13	sessionId	`sessionId` 标识需要写入所选模型的当前会话。
 sid@95:13	sessionId	`sessionId` 标识需要写入所选模型的当前会话。
+send2@9:9	send	`send` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@92:6	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+selection2@108:6	selection	`selection` 是标识值；末尾数字是打包器为避免重名添加的后缀。
