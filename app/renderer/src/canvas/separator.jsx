@@ -3,9 +3,9 @@ import {
   CanvasNodeType,
   DialogRoot,
   reactExports,
-  useRenderElement,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
+export { Separator } from "@base-ui/react/separator";
 export function useNativeViewOcclusion(active = true) {
   reactExports.useLayoutEffect(() => {
     if (!active) return;
@@ -25,31 +25,6 @@ export function useNativeViewOcclusion(active = true) {
     return () => update(false);
   }, [active]);
 }
-export const Separator = reactExports.forwardRef(
-  function SeparatorComponent(componentProps, forwardedRef) {
-    const {
-      className,
-      render,
-      orientation = "horizontal",
-      ...elementProps
-    } = componentProps;
-    const state = {
-      orientation,
-    };
-    const element = useRenderElement("div", componentProps, {
-      state,
-      ref: forwardedRef,
-      props: [
-        {
-          role: "separator",
-          "aria-orientation": orientation,
-        },
-        elementProps,
-      ],
-    });
-    return element;
-  },
-);
 export const CanvasReleaseRegionContext =
   reactExports.createContext("overseas");
 export function getExtFromMime(mime, fallback = "mp4") {

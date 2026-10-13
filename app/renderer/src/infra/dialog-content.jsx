@@ -10,7 +10,6 @@ import {
   DialogClose$1 as DialogClose,
   DialogPopup,
   DialogRoot,
-  FieldControl,
   Loader2Icon,
   MenuGroupLabel,
   MenuItem$3 as MenuItem,
@@ -30,6 +29,7 @@ import {
 import { getDefaultConfig } from "tailwind-merge";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogPortal, listeners$a } from "./gateway-http-error.jsx";
+export { Input } from "@base-ui/react/input";
 const subscribe = (listener) => {
   listeners$a.add(listener);
   return () => listeners$a.delete(listener);
@@ -50,11 +50,6 @@ export function splitMentionFilename(filename) {
     ext: filename.slice(dot),
   };
 }
-export const Input = reactExports.forwardRef(
-  function Input(props, forwardedRef) {
-    return <FieldControl ref={forwardedRef} {...props} />;
-  },
-);
 export function cn$2(...inputs) {
   return twMerge(clsx(inputs));
 }

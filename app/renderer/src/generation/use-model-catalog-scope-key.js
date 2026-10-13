@@ -1,10 +1,11 @@
 // use-model-catalog-scope-key.js
 import {
-  formatErrorMessage,
-  ProgressRootContext,
   reactExports,
   useGatewayScope,
 } from "../vendor.js";
+export {
+  useProgressRootContext,
+} from "@base-ui/react/esm/progress/root/ProgressRootContext.js";
 import { gatewayUrlFromBase } from "../infra/gateway-http-error.jsx";
 import { gatewayFetchFromBase } from "../infra/perform-gateway-fetch.js";
 import { RuntimeConfigContext } from "../vendor-inline/vscode-base/graph.jsx";
@@ -90,13 +91,6 @@ export function useModelCatalogScopeKey() {
       identityKey,
     ],
   );
-}
-export function useProgressRootContext() {
-  const context = reactExports.useContext(ProgressRootContext);
-  if (context === void 0) {
-    throw new Error(formatErrorMessage(51));
-  }
-  return context;
 }
 export function folderNameFromPath(fullPath) {
   return fullPath.split(/[/\\]/).filter(Boolean).pop() || fullPath;

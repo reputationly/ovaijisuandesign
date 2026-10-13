@@ -1,14 +1,10 @@
 // inline-rename-input.jsx
 import {
   AvatarImage$1,
-  AvatarRootContext,
-  avatarStateAttributesMapping,
   reactExports,
-  useAvatarRootContext,
-  useRenderElement,
-  useTimeout,
   useTranslation,
 } from "../vendor.js";
+import { Avatar as BaseUiAvatar } from "@base-ui/react/avatar";
 import { services } from "../vendor-inline/vscode-base/graph.jsx";
 import {
   IGatewayReadiness,
@@ -133,66 +129,8 @@ export function DissolveProjectDialog({
     </AlertDialog>
   );
 }
-const AvatarRoot = reactExports.forwardRef(
-  function AvatarRoot(componentProps, forwardedRef) {
-    const { className, render, ...elementProps } = componentProps;
-    const [imageLoadingStatus, setImageLoadingStatus] =
-      reactExports.useState("idle");
-    const state = {
-      imageLoadingStatus,
-    };
-    const contextValue = reactExports.useMemo(
-      () => ({
-        imageLoadingStatus,
-        setImageLoadingStatus,
-      }),
-      [imageLoadingStatus, setImageLoadingStatus],
-    );
-    const element = useRenderElement("span", componentProps, {
-      state,
-      ref: forwardedRef,
-      props: elementProps,
-      stateAttributesMapping: avatarStateAttributesMapping,
-    });
-    return (
-      <AvatarRootContext.Provider value={contextValue}>
-        {element}
-      </AvatarRootContext.Provider>
-    );
-  },
-);
-const AvatarFallbackPrimitive = reactExports.forwardRef(
-  function AvatarFallback(componentProps, forwardedRef) {
-    const {
-      className,
-      render,
-      delay,
-      ...elementProps
-    } = componentProps;
-    const { imageLoadingStatus } = useAvatarRootContext();
-    const [delayPassed, setDelayPassed] = reactExports.useState(
-      delay === void 0,
-    );
-    const timeout = useTimeout();
-    reactExports.useEffect(() => {
-      if (delay !== void 0) {
-        timeout.start(delay, () => setDelayPassed(true));
-      }
-      return timeout.clear;
-    }, [timeout, delay]);
-    const state = {
-      imageLoadingStatus,
-    };
-    const element = useRenderElement("span", componentProps, {
-      state,
-      ref: forwardedRef,
-      props: elementProps,
-      stateAttributesMapping: avatarStateAttributesMapping,
-      enabled: imageLoadingStatus !== "loaded" && delayPassed,
-    });
-    return element;
-  },
-);
+const AvatarRoot = BaseUiAvatar.Root;
+const AvatarFallbackPrimitive = BaseUiAvatar.Fallback;
 export function Avatar({ className, size = "default", ...props }) {
   return (
     <AvatarRoot

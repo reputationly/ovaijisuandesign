@@ -4,13 +4,9 @@ import {
   Info$1 as Info,
   jsxRuntimeExports,
   ProgressRoot,
-  progressStateAttributesMapping,
-  reactExports,
-  useRenderElement,
   useTranslation,
-  valueToPercent,
 } from "../vendor.js";
-import { useProgressRootContext } from "../generation/use-model-catalog-scope-key.js";
+import { Progress as BaseUiProgress } from "@base-ui/react/progress";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { TeamApiError } from "./map-team-credit-summary.js";
@@ -21,56 +17,8 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { Skeleton } from "./use-wallet-query.jsx";
-const ProgressTrackPrimitive = reactExports.forwardRef(
-  function ProgressTrack(componentProps, forwardedRef) {
-    const { render, className, ...elementProps } = componentProps;
-    const { state } = useProgressRootContext();
-    const element = useRenderElement("div", componentProps, {
-      state,
-      ref: forwardedRef,
-      props: elementProps,
-      stateAttributesMapping: progressStateAttributesMapping,
-    });
-    return element;
-  },
-);
-const ProgressIndicatorPrimitive = reactExports.forwardRef(
-  function ProgressIndicator(componentProps, forwardedRef) {
-    const { render, className, ...elementProps } = componentProps;
-    const {
-      max,
-      min,
-      value,
-      state,
-    } = useProgressRootContext();
-    const percentageValue =
-      Number.isFinite(value) && value !== null
-        ? valueToPercent(value, min, max)
-        : null;
-    const getStyles = reactExports.useCallback(() => {
-      if (percentageValue == null) {
-        return {};
-      }
-      return {
-        insetInlineStart: 0,
-        height: "inherit",
-        width: `${percentageValue}%`,
-      };
-    }, [percentageValue]);
-    const element = useRenderElement("div", componentProps, {
-      state,
-      ref: forwardedRef,
-      props: [
-        {
-          style: getStyles(),
-        },
-        elementProps,
-      ],
-      stateAttributesMapping: progressStateAttributesMapping,
-    });
-    return element;
-  },
-);
+const ProgressTrackPrimitive = BaseUiProgress.Track;
+const ProgressIndicatorPrimitive = BaseUiProgress.Indicator;
 export function TeamHelpTip({
   content,
   label,

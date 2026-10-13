@@ -1,11 +1,11 @@
 // create-recently-added-store.js
+import { register } from "@base-ui/utils/fastHooks";
+import { useStore } from "@base-ui/utils/store";
 import {
   createStore$1 as createStore,
-  hooks,
   reactExports,
   shimExports,
   TooltipProvider$2,
-  useStore$2 as useStore,
 } from "../vendor.js";
 import { DEFAULT_WORKFLOW_NODE_SPACING } from "../canvas/ungroup-in-canvas.js";
 import { computeDerivedNodePosition } from "../canvas/resolve-derived-collision.js";
@@ -52,9 +52,6 @@ export function useModelForAsset(backend, modelId, type) {
   return useModelRegistryStore((state) =>
     lookupForAsset(state, backend, modelId, type),
   );
-}
-function register(hook) {
-  hooks.push(hook);
 }
 register({
   before(instance) {

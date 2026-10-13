@@ -2,6 +2,9 @@
 // 从打包文件里搬出的第一方语句。它们不引用仍留在那里的库代码。
 import reactExports from "react";
 import { max, min } from "@floating-ui/utils";
+import { clamp as clamp$a } from "@base-ui/react/esm/utils/clamp.js";
+
+export { clamp$a };
 
 export const CanvasNodeType = {
   Image: "image",
@@ -931,10 +934,6 @@ export function persistPromptFontSize(fontSize) {
 export const stateAttributesMapping$a = {
   value: () => null
 };
-
-export function clamp$a(val, min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER) {
-  return Math.max(min, Math.min(val, max));
-}
 
 export const FRAME_HEADER_SIZE$1 = 4;
 

@@ -156,7 +156,6 @@ import { useRender } from "@base-ui/react/use-render";
 import formatErrorMessage from "@base-ui/utils/formatErrorMessage";
 import { useIsoLayoutEffect } from "@base-ui/utils/useIsoLayoutEffect";
 import { useTimeout } from "@base-ui/utils/useTimeout";
-import { register as registerFastHook } from "@base-ui/utils/fastHooks";
 
 export { AvatarRootContext, useAvatarRootContext } from "@base-ui/react/esm/avatar/root/AvatarRootContext.js";
 export { avatarStateAttributesMapping } from "@base-ui/react/esm/avatar/root/stateAttributesMapping.js";
@@ -167,8 +166,6 @@ export { SelectGroupContext, useSelectGroupContext } from "@base-ui/react/esm/se
 export { useBaseUiId } from "@base-ui/react/esm/utils/useBaseUiId.js";
 export { useRenderElement } from "@base-ui/react/esm/utils/useRenderElement.js";
 export { valueToPercent } from "@base-ui/react/esm/utils/valueToPercent.js";
-// create-recently-added-store.js 通过 hooks.push 注册；npm 版 hooks 为模块私有，register 即 hooks.push
-export const hooks = { push: (hook) => registerFastHook(hook) };
 const AccordionHeader = __baseUiNamespace0.Header;
 const AccordionItem$1 = __baseUiNamespace0.Item;
 const AccordionPanel = __baseUiNamespace0.Panel;

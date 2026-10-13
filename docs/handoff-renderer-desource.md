@@ -518,7 +518,7 @@ const header = readMp3FrameHeader(word, null).header;
 
 - 本次依赖为 `@base-ui/react@1.3.0` 和 `@base-ui/utils@0.2.6`；后者是 React 1.3.0 固定依赖的版本。
 - `analysis/baseui-hls/mapping-baseui-top1.json` 共 763 项：713 identical、35 neutral、15 diff。限定到本次 `vendor.js` 的 744 项为 697 exact、35 normalized、12 diff。15 个 diff 中，3 个是同名 app 函数误匹配，12 个是已逐调用点核实的 build-time 优化；不需要行为 patch。
-- 所有原有 Base UI `vendor.js` 导出名均保留并转由 npm 提供。`@base-ui/react` 的 pnpm patch 仅修改 package.json 的 `exports`，增加 `./esm/*` import/default 通配路径，以支持下表中的内部模块 deep path；`@base-ui/utils` 已有通配 exports，无需 patch。`hooks` shim 例外说明见待办章节。
+- 所有原有 Base UI `vendor.js` 导出名均保留并转由 npm 提供。`@base-ui/react` 的 pnpm patch 仅修改 package.json 的 `exports`，增加 `./esm/*` import/default 通配路径，以支持下表中的内部模块 deep path；`@base-ui/utils` 已有通配 exports，无需 patch。此前为 `hooks.push` 增加的 shim 已在应用文件迁移时移除，见下文。
 - 根 `pnpm.overrides` 固定 `@floating-ui/dom@1.7.6` 与 `@floating-ui/utils@0.2.11`。`@floating-ui/react-dom@2.1.9` 声明 dom `^1.8.0`；覆盖为 1.7.6 是为保留原内联代码使用的 Floating UI 配对，而不是升级该实现。解析后 `@floating-ui/core@1.7.5`、dom 1.7.6、utils 0.2.11 各只有一个版本；`@floating-ui/react-dom@2.1.9`、`tabbable@6.4.0`、`reselect@5.2.0`、`use-sync-external-store@1.7.0` 也与原 renderer 基线一致。
 
 ### 内部符号 deep-path re-export
@@ -541,9 +541,9 @@ const header = readMp3FrameHeader(word, null).header;
 
 - 从 `vendor.js` 移除了 744 条 Base UI 声明；文件从 **2,013,670 bytes** 变为 **1,344,768 bytes**，净减少 **668,902 bytes**。转换候选报告的 1,344,743 bytes 尚未包含恢复的 i18next `noop$1`；最终文件保留这条声明，避免改变 i18next fallback。
 - residual 审计：744 条映射中没有 Base UI 声明残留。仅 mapping row 649（`noop$1`）仍按名称/形状匹配；它属于 i18next 区块，i18next 源码中的空回调有 4 个引用，vendor 中对应 binding 也有 4 个引用，因此明确归类为 Base UI false positive。
-- `pnpm install --frozen-lockfile`、`node scripts/desource/check-undef.mjs`（1,112 个 renderer 源文件）及 `pnpm -w turbo run build`（11/11 packages）通过。built-output AST 审计从 `index.html` 遍历了 331 个可达 JavaScript assets：`useDialogRoot`、`Store`、Base UI 自带的 `useFloating` 与 `useFloatingRootContext`、`useFloatingTree`、`useFloatingNodeId` 各一份；`@floating-ui/dom@1.7.6` 的 `computePosition` 声明一份，built wrapper 调用 core 实现。
+- `pnpm install --frozen-lockfile`、`node scripts/desource/check-undef.mjs`（1,112 个 renderer 源文件）及 `pnpm -w turbo run build`（11/11 packages）通过。built-output AST 审计从 `index.html` 遍历了 331 个可达 JavaScript assets：`useDialogRoot`、`Store`、Base UI 自带的 `useFloating` 与 `useFloatingRootContext`、`useFloatingTree`、`useFloatingNodeId` 各一份；`computePosition` 这个通用标识符出现 3 次，其中恰有 1 个是 `@floating-ui/dom@1.7.6` 的 wrapper（调用 core 实现），另外两处不是该 wrapper。审计结果保存在 `.probe/desource/baseui-built-audit.json`。
 - 上表的 11 个内部符号在可达输出中各有一个声明。`AvatarRootContext`、`DialogRootContext`、`PopoverRootContext`、`ProgressRootContext`、`SelectGroupContext` 各只创建一个 context；hook 与 Provider 均引用相同 lexical binding。
-- `fastHooks` 中只有一个空 `hooks` array（built 名 `hooks$1`）；`register$1` 与 `FastComponent` 共用并操作该 array，vendor 兼容 shim 调用同一个 `register$1`。
+- `fastHooks` 中只有一个空 `hooks` array（built 名 `hooks`）；npm `register` 与 `FastComponent` 共用并操作该 array，应用的两个注册调用都解析到同一个 `register` binding。应用已直接从 `@base-ui/utils/fastHooks` 导入 `register`，`vendor.js` 兼容 shim 已删除。
 
 两轮均使用 `GOLDEN="$HOME/ov-golden/.probe/ui-golden" bash scripts/ui-compare/gate.sh`，golden 未改动。报告及逐页结果：
 
@@ -554,27 +554,44 @@ const header = readMp3FrameHeader(word, null).header;
 
 两轮的比较器均提示 `ws-a`、`ws-chat-skill`、`ws-layout` 重拍 8 次后仍有帧不稳定并采用最后一帧；这些页最终均没有 net/DOM/state/non-AA 差异。
 
-### 待办：留在应用文件里的 Base UI 代码（等改名 PR 合入后替换为 npm 导入）
+### 待办：留在应用文件里的 Base UI 代码（等改名 PR 合入后替换为 npm 导入）——已完成
 
-下面 16 条 mapping 记录指向 app 文件中的 Base UI 声明，本次保持不动，待并行改名 PR 合入后再集中替换为对应 npm import：
+以下 16 条 mapping 记录在 PR #5/#6 合入后按声明重新定位，并与 `@base-ui/react@1.3.0` / `@base-ui/utils@0.2.6` 的 `npmFile` 做了 AST 比较。可迁移项已改为 npm import；没有导出的模块私有符号和 app-owned 误匹配保留不动。
 
-| 应用文件（相对 `app/renderer/src`） | 声明 | npm 目标 |
+| 应用文件（相对 `app/renderer/src`） | 当前声明 / mapping 项 | 结论与实际 npm 导入路径 |
 |---|---|---|
-| `canvas/popover-title.jsx` | `PopoverTitle$1` | `@base-ui/react/esm/popover/title/PopoverTitle.js` |
-| `canvas/popover-title.jsx` | `PopoverDescription$1` | `@base-ui/react/esm/popover/description/PopoverDescription.js` |
-| `canvas/separator.jsx` | `Separator` | `@base-ui/react/esm/separator/Separator.js` |
-| `generation/select-content.jsx` | `SelectGroup$1` | `@base-ui/react/esm/select/group/SelectGroup.js` |
-| `generation/select-content.jsx` | `SelectGroupLabel` | `@base-ui/react/esm/select/group-label/SelectGroupLabel.js` |
-| `generation/use-model-catalog-scope-key.js` | `useProgressRootContext` | `@base-ui/react/esm/progress/root/ProgressRootContext.js` |
-| `infra/create-recently-added-store.js` | `register` | `@base-ui/utils/fastHooks` |
-| `infra/create-recently-added-store.js` | 无名表达式（`useStore`） | `@base-ui/react/esm/store/useStore.js` |
-| `infra/dialog-content.jsx` | `Input` | `@base-ui/react/esm/input/Input.js` |
-| `infra/from-vendor.js` | `stateAttributesMapping$a` | `@base-ui/react/esm/select/value/SelectValue.js` |
-| `infra/from-vendor.js` | `clamp$a` | `@base-ui/react/esm/utils/clamp.js` |
-| `infra/inline-rename-input.jsx` | `AvatarRoot` | `@base-ui/react/esm/avatar/root/AvatarRoot.js` |
-| `infra/inline-rename-input.jsx` | `AvatarFallback$1` | `@base-ui/react/esm/avatar/fallback/AvatarFallback.js` |
-| `media-editing/keep-tag-in-canvas.js` | `counter` | `@base-ui/react/esm/generateId.js` |
-| `team/team-management-detail-loading.jsx` | `ProgressTrack$1` | `@base-ui/react/esm/progress/track/ProgressTrack.js` |
-| `team/team-management-detail-loading.jsx` | `ProgressIndicator$1` | `@base-ui/react/esm/progress/indicator/ProgressIndicator.js` |
+| `canvas/popover-title.jsx` | `BasePopoverTitle`（`PopoverTitle$1`） | 已迁移：`@base-ui/react/popover` 的 `Popover.Title` |
+| `canvas/popover-title.jsx` | `BasePopoverDescription`（`PopoverDescription$1`） | 已迁移：`@base-ui/react/popover` 的 `Popover.Description` |
+| `canvas/separator.jsx` | `Separator` | 已迁移：`@base-ui/react/separator` |
+| `generation/select-content.jsx` | `SelectGroupPrimitive`（`SelectGroup$1`） | 已迁移：`@base-ui/react/select` 的 `Select.Group` |
+| `generation/select-content.jsx` | `SelectGroupLabel` | 已迁移：`@base-ui/react/select` 的 `Select.GroupLabel` |
+| `generation/use-model-catalog-scope-key.js` | `useProgressRootContext` | 已迁移：`@base-ui/react/esm/progress/root/ProgressRootContext.js` |
+| `infra/create-recently-added-store.js` | `register` | 已迁移：直接从 `@base-ui/utils/fastHooks` 导入；`register({...})` 调用保留 |
+| `infra/create-recently-added-store.js` | hook 注册表达式（mapping 的 `useStore.js`） | 已迁移：`useStore` 直接从 `@base-ui/utils/store` 导入，注册表达式使用 npm `register` |
+| `infra/dialog-content.jsx` | `Input` | 已迁移：`@base-ui/react/input` |
+| `infra/from-vendor.js` | `stateAttributesMapping$a` | 保留误匹配：目标 `SelectValue.js` 中的同名声明不是模块导出，不能从 npm 导入 |
+| `infra/from-vendor.js` | `clamp$a` | 已迁移：`@base-ui/react/esm/utils/clamp.js` |
+| `infra/inline-rename-input.jsx` | `AvatarRoot` | 已迁移：`@base-ui/react/avatar` 的 `Avatar.Root` |
+| `infra/inline-rename-input.jsx` | `AvatarFallbackPrimitive`（`AvatarFallback$1`） | 已迁移：`@base-ui/react/avatar` 的 `Avatar.Fallback` |
+| `media-editing/keep-tag-in-canvas.js` | `counter` | 保留误匹配：本地 `uid()` 使用递增取模计数、时间戳和不同 ID 格式，npm 的同名计数器私有且行为不同 |
+| `team/team-management-detail-loading.jsx` | `ProgressTrackPrimitive`（`ProgressTrack$1`） | 已迁移：`@base-ui/react/progress` 的 `Progress.Track` |
+| `team/team-management-detail-loading.jsx` | `ProgressIndicatorPrimitive`（`ProgressIndicator$1`） | 已迁移：`@base-ui/react/progress` 的 `Progress.Indicator` |
 
-另有 3 条 mapping false match 是 app 函数，不应替换：`stopEvent`（`canvas/node-shell-inner.jsx`）、`clamp$b`（`infra/from-vendor.js`）和 `formatNumber`（`text-editor/collect-video-rows.js`）。后续迁移 `create-recently-added-store.js` 时，应让应用直接从 `@base-ui/utils/fastHooks` 导入 `register`，然后移除 `vendor.js` 中的兼容 `hooks.push` shim。
+本轮误匹配清单共 5 项：`stopEvent`（`canvas/node-shell-inner.jsx`）是与 Floating UI 同名但实现不同的 app 函数；`clamp$b`（`infra/from-vendor.js`）是 app-owned clamp 变体，与 npm `clamp` 行为不同，故仅迁移另一条 `clamp$a`；`formatNumber`（`text-editor/collect-video-rows.js`）是文本编辑器的本地格式化逻辑，与 npm 声明 AST/行为不同；`counter`（`media-editing/keep-tag-in-canvas.js`）是本地 `uid()` 的计数器，与 npm 私有计数器只是同名；`stateAttributesMapping$a`（`infra/from-vendor.js`）对应 npm `SelectValue.js` 的私有变量，没有可导入的 binding。
+
+`@base-ui/utils` 已有 `./*` exports，因此 `fastHooks`、`store` 无需新增 patch。已确认 `create-recently-added-store.js` 是 `vendor.js` hooks shim 的唯一 importer；它现在直接使用 npm `register`，并且 shim 与 `registerFastHook` 导入已删除。`useProgressRootContext` 和 `clamp$a` 通过 `vendor.js` 与应用的 deep-path 导入都指向同一 npm 文件。
+
+PDF.js worker 已改为 `pdfjs-dist/build/pdf.worker.min.mjs?url`；源 npm worker 与原 hashed app worker 均为 1,375,838 bytes，SHA-256 为 `1baa1844c89c80a5b2797c916e75ab29254be46d8e9cb53cb6364d7aad84be36`。最后一次干净的 renderer build 产物仅有一份 PDF worker，字节与 npm 源文件一致；Vite 生成的文件名仍为 `pdf.worker.min-yatZIOMy.mjs`。Turbo 缓存恢复后曾暂时残留先前构建的同字节 worker；再次直接运行 renderer build（`emptyOutDir: true`）后，输出目录只剩当前构建的一份 worker。两轮 gate 的 `ws-pdf` 页面均无网络差异。
+
+#### PR #5/#6 合入后的 app-file 与 worker 验收
+
+- `pnpm install --frozen-lockfile`、`node scripts/desource/check-undef.mjs`（1,112 个 renderer 源文件）、`pnpm test:desource-rename`（5 files / 35 tests）、`pnpm -w turbo run build`（11/11）均通过。gate 自带的 workspace build 与 `check-undef` 也通过。
+- app-file Base UI 迁移后，`vendor.js` 从 **1,344,740 bytes** 变为 **1,344,485 bytes**（移除 `hooks` shim，减少 255 bytes）。重新干净构建后，`.probe/desource/baseui-built-audit.json` 对 `index.html` 可达的 331 个 JavaScript assets 检查通过：`Store`、`useDialogRoot`、Base UI `useFloating` fork/helper 及 11 个内部 deep-path 符号各一份；5 个内部 context 仅创建一次，hook、Provider 与创建处共用同一 binding；`fastHooks` 只有一个 `hooks` array，`register` 与 `FastComponent` 共用它，两个注册调用均解析到同一 `register`；built 中 `computePosition` 同名声明共 3 个，其中 `@floating-ui/dom@1.7.6` wrapper 恰好 1 个。
+- 两轮均使用 `GOLDEN="$HOME/ov-golden/.probe/ui-golden" bash scripts/ui-compare/gate.sh`，golden 和 gate 均未修改：
+
+| 轮次 | 报告 | 结论 |
+|---|---|---|
+| 1 | `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T19-08-46-118Z/report.json` | 40/40 页通过；net、DOM、state、新增错误及 non-AA 像素差异均为 0。`ws-a` 有 5 个 raw-only 像素。 |
+| 2 | `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T19-27-10-625Z/report.json` | 40/40 页通过；net、DOM、state、新增错误及 non-AA 像素差异均为 0。`ws-a` 有 5 个 raw-only 像素。 |
+
+两轮的 `ws-pdf` 均为 `netDiff=[]`；`ws-chat-skill` 与 `ws-layout` 重拍 8 次后仍提示帧不稳定，使用最后一帧，结果没有阻断差异。首次 gate 尝试（`2026-10-13T19-00-14-346Z`）在 `ws-a` 等待工作区聊天 runtime 恢复时超时且未生成报告；随后完整重跑通过，故该次不计为一轮。

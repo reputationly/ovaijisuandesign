@@ -2,8 +2,6 @@
 import {
   ChevronDownIcon$1 as ChevronDownIcon,
   ChevronUpIcon,
-  reactExports,
-  SelectGroupContext,
   SelectIcon,
   SelectItem$2 as SelectItemPrimitive,
   SelectItemIndicator,
@@ -19,11 +17,8 @@ import {
   SelectValue$2 as SelectValuePrimitive,
   SwitchRoot,
   SwitchThumb,
-  useBaseUiId,
-  useIsoLayoutEffect,
-  useRenderElement,
-  useSelectGroupContext,
 } from "../vendor.js";
+import { Select as BaseUiSelect } from "@base-ui/react/select";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";
 import { CheckIcon } from "../media-editing/package.jsx";
@@ -35,34 +30,7 @@ import {
 } from "./normalize-skill-detail-metadata.js";
 import { getDefaultParams } from "./param-label-fallbacks.js";
 import { Separator } from "../canvas/separator.jsx";
-const SelectGroupPrimitive = reactExports.forwardRef(
-  function SelectGroup(componentProps, forwardedRef) {
-    const { className, render, ...elementProps } = componentProps;
-    const [labelId, setLabelId] = reactExports.useState();
-    const contextValue = reactExports.useMemo(
-      () => ({
-        labelId,
-        setLabelId,
-      }),
-      [labelId, setLabelId],
-    );
-    const element = useRenderElement("div", componentProps, {
-      ref: forwardedRef,
-      props: [
-        {
-          role: "group",
-          "aria-labelledby": labelId,
-        },
-        elementProps,
-      ],
-    });
-    return (
-      <SelectGroupContext.Provider value={contextValue}>
-        {element}
-      </SelectGroupContext.Provider>
-    );
-  },
-);
+const SelectGroupPrimitive = BaseUiSelect.Group;
 const MUSIC_TAB_BACKENDS = new Set([
   BACKEND_MINIMAX_MUSIC,
   BACKEND_ELEVENLABS_MUSIC,
@@ -233,31 +201,7 @@ export function CanvasSwitch({
     />
   );
 }
-const SelectGroupLabel = reactExports.forwardRef(
-  function SelectGroupLabel(componentProps, forwardedRef) {
-    const {
-      className,
-      render,
-      id: idProp,
-      ...elementProps
-    } = componentProps;
-    const { setLabelId } = useSelectGroupContext();
-    const id = useBaseUiId(idProp);
-    useIsoLayoutEffect(() => {
-      setLabelId(id);
-    }, [id, setLabelId]);
-    const element = useRenderElement("div", componentProps, {
-      ref: forwardedRef,
-      props: [
-        {
-          id,
-        },
-        elementProps,
-      ],
-    });
-    return element;
-  },
-);
+const SelectGroupLabel = BaseUiSelect.GroupLabel;
 export const Select = SelectRoot;
 export function SelectGroup({ className, ...props }) {
   return (
