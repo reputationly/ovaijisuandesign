@@ -220,38 +220,38 @@ export function useKeyboardShortcuts(instance, options = {}) {
         console.warn("[canvas] write marker failed:", err);
       }
     };
-    const handleCopy = (copyEvent) => {
+    const handleCopy = (clipboardEvent) => {
       if (!isCanvasInteractive(instance.getRootEl(), enabled)) return;
-      if (isEditableTarget(copyEvent.target)) return;
-      if (!isInsideCanvas(copyEvent.target)) return;
+      if (isEditableTarget(clipboardEvent.target)) return;
+      if (!isInsideCanvas(clipboardEvent.target)) return;
       if (instance.selection.getSelected().length === 0) return;
-      copyEvent.preventDefault();
+      clipboardEvent.preventDefault();
       instance.copySelected({
         workspace: getCurrentWorkspace?.(),
         resolveAssetPath: makeAssetPathResolver(assetMetadataStore),
       });
       void writeCanvasSystemClipboard(onSystemCopy);
     };
-    const handleCut = (cutEvent) => {
+    const handleCut = (clipboardEvent) => {
       if (!isCanvasInteractive(instance.getRootEl(), enabled)) return;
-      if (isEditableTarget(cutEvent.target)) return;
-      if (!isInsideCanvas(cutEvent.target)) return;
+      if (isEditableTarget(clipboardEvent.target)) return;
+      if (!isInsideCanvas(clipboardEvent.target)) return;
       if (instance.selection.getSelected().length === 0) return;
-      cutEvent.preventDefault();
+      clipboardEvent.preventDefault();
       instance.cutSelected({
         workspace: getCurrentWorkspace?.(),
         resolveAssetPath: makeAssetPathResolver(assetMetadataStore),
       });
       void writeMarkerOnly();
     };
-    const handlePaste = (pasteEvent) => {
+    const handlePaste = (clipboardEvent) => {
       if (!isCanvasInteractive(instance.getRootEl(), enabled)) return;
-      if (isEditableTarget(pasteEvent.target)) return;
-      if (!isInsideCanvas(pasteEvent.target)) return;
-      const text = pasteEvent.clipboardData?.getData("text/plain") ?? "";
-      const html = pasteEvent.clipboardData?.getData("text/html") ?? "";
+      if (isEditableTarget(clipboardEvent.target)) return;
+      if (!isInsideCanvas(clipboardEvent.target)) return;
+      const text = clipboardEvent.clipboardData?.getData("text/plain") ?? "";
+      const html = clipboardEvent.clipboardData?.getData("text/html") ?? "";
       const files = onSystemPaste
-        ? collectClipboardFiles(pasteEvent.clipboardData)
+        ? collectClipboardFiles(clipboardEvent.clipboardData)
         : [];
       const intent = decidePasteIntent({
         text,
@@ -261,7 +261,7 @@ export function useKeyboardShortcuts(instance, options = {}) {
         hasOnSystemPaste: Boolean(onSystemPaste),
         hasOnSystemTextPaste: Boolean(onSystemTextPaste),
       });
-      pasteEvent.preventDefault();
+      clipboardEvent.preventDefault();
       switch (intent.kind) {
         case "marker":
         case "internal-from-copy":

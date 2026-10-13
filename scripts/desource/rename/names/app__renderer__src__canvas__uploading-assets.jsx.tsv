@@ -17,6 +17,7 @@ dot2@134:9	dot2	dot	去掉打包器去重后缀，恢复原名；作用域内无
 extension2@150:14	extension2	extension	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 node2@187:42	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 name2@189:10	name2	baseName	该状态保存重命名输入框中的基础文件名（不含扩展名）；与全局绑定 name 冲突，故使用 baseName。
+setName@189:20	setName	setBaseName	RenameNodeDialog 的 useState setter 与 baseName 状态配对，将 setter 命名为 setBaseName。
 pending2@190:10	pending2	pending	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 extension2@191:17	extension2	extension	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 pending2@280:11	pending2	pending	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

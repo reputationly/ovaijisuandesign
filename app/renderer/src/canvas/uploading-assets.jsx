@@ -186,12 +186,12 @@ export function AssetRenameInput({
 }
 export function RenameNodeDialog({ node, onOpenChange, onRenamed }) {
   const { t: translate } = useTranslation();
-  const [baseName, setName] = reactExports.useState("");
+  const [baseName, setBaseName] = reactExports.useState("");
   const [pending, setPending] = reactExports.useState(false);
   const { tail: extension } = splitFilename(node?.name ?? "", node?.kind);
   const fullName = buildRenamedFilename(node?.name ?? "", baseName, node?.kind);
   reactExports.useEffect(() => {
-    setName(splitFilename(node?.name ?? "", node?.kind).head);
+    setBaseName(splitFilename(node?.name ?? "", node?.kind).head);
     setPending(false);
   }, [node]);
   const handleConfirm = reactExports.useCallback(async () => {
@@ -225,7 +225,7 @@ export function RenameNodeDialog({ node, onOpenChange, onRenamed }) {
           data-action-ui-id="cloud-assets.rename-input"
           autoFocus={true}
           value={baseName}
-          onChange={(event) => setName(event.target.value)}
+          onChange={(event) => setBaseName(event.target.value)}
           onKeyDown={(event) => {
             if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
             event.preventDefault();
