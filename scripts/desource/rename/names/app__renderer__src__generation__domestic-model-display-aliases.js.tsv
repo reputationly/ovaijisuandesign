@@ -1,3 +1,6 @@
 key	old	new	依据
 a2@99:7	a2	leftAlias	该值是比较器左侧模型别名字符串。
 b3@99:13	b3	rightAlias	该值是比较器右侧模型别名字符串。
+internal2@102:47	internal2	internal	去掉打包器防重名追加的后缀，恢复原名 internal，即该绑定持有的值。
+internal2@126:47	internal2	internal	去掉打包器防重名追加的后缀，恢复原名 internal，即该绑定持有的值。
+text2@131:46	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。

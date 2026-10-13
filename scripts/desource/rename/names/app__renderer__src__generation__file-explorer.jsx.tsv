@@ -25,3 +25,50 @@ r2@1303:18	r2	row	该值是用于排除创建占位项的文件树行记录。
 r2@1304:15	r2	row	该值是用于提取可见路径的文件树行记录。
 a2@1306:38	a2	asset	该值是用于构建可见绝对路径的已排序资产记录。
 e2@1342:62	e2	pointerEvent	该事件来自文件面板 pointerdown，用于检查事件目标。
+path2@109:48	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@116:43	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+batch2@176:10	batch2	batch	去掉打包器防重名追加的后缀，恢复原名 batch，即该绑定持有的值。
+resolver2@179:11	resolver2	resolver	去掉打包器防重名追加的后缀，恢复原名 resolver，即该绑定持有的值。
+types2@269:39	types2	types	去掉打包器防重名追加的后缀，恢复原名 types，即该绑定持有的值。
+getAsset2@278:45	getAsset2	getAsset	去掉打包器防重名追加的后缀，恢复原名 getAsset，即该绑定持有的值。
+entries2@327:17	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+next2@361:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@369:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@377:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+entries2@408:11	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+isActive2@417:48	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+entries2@441:41	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+head2@443:9	head2	head	去掉打包器防重名追加的后缀，恢复原名 head，即该绑定持有的值。
+handlers2@508:13	handlers2	handlers	去掉打包器防重名追加的后缀，恢复原名 handlers，即该绑定持有的值。
+FileExplorerGridView2@500:57	FileExplorerGridView2	FileExplorerGridViewImpl	该函数是 memo 包装组件内部的网格视图实现，使用 Impl 与外层组件变量区分。
+handlers2@617:13	handlers2	handlers	去掉打包器防重名追加的后缀，恢复原名 handlers，即该绑定持有的值。
+FileExplorerTreeView2@607:57	FileExplorerTreeView2	FileExplorerTreeViewImpl	该函数是 memo 包装组件内部的树视图实现，使用 Impl 与外层组件变量区分。
+index2@628:11	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+entries2@775:27	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+isActive2@788:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+gatewayFetch2@793:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+platform2@795:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+setSearchQuery2@804:23	setSearchQuery2	setSearchQuery	去掉打包器防重名追加的后缀，恢复原名 setSearchQuery，即该绑定持有的值。
+remove2@846:13	remove2	remove	去掉打包器防重名追加的后缀，恢复原名 remove，即该绑定持有的值。
+queryClient2@853:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+updateSelection2@1015:28	updateSelection2	updateSelection	去掉打包器防重名追加的后缀，恢复原名 updateSelection，即该绑定持有的值。
+current2@827:20	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+ids2@832:11	ids2	ids	去掉打包器防重名追加的后缀，恢复原名 ids，即该绑定持有的值。
+name2@834:13	name2	tagName	该值是资产标签用于搜索匹配的显示名称。
+map3@885:11	map3	map	去掉打包器防重名追加的后缀，恢复原名 map，即该绑定持有的值。
+map3@892:11	map3	map	去掉打包器防重名追加的后缀，恢复原名 map，即该绑定持有的值。
+path2@905:20	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@921:43	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+_mode2@972:6	_mode2	_unusedArg	该默认参数未在函数体中使用，标记为未使用参数。
+next2@980:54	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@984:53	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@988:52	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+path2@1007:50	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+next2@1009:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+path2@1031:52	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+findName2@1032:11	findName2	findName	去掉打包器防重名追加的后缀，恢复原名 findName，即该绑定持有的值。
+name2@1042:11	name2	entryName	该值是从目录树中找到的条目名称，用于打开文件。
+entries2@1032:24	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+found2@1036:17	found2	found	去掉打包器防重名追加的后缀，恢复原名 found，即该绑定持有的值。
+path2@1090:55	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+next2@1356:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。

@@ -38,10 +38,10 @@ const DATE_PRESETS = [
   },
 ];
 
-function toIsoDate(date2) {
-  const year = date2.getFullYear();
-  const month = String(date2.getMonth() + 1).padStart(2, "0");
-  const day = String(date2.getDate()).padStart(2, "0");
+function toIsoDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -68,7 +68,7 @@ export function DateFilterPopover({
 }) {
   const { t: translate } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
-  const active2 = reactExports.useMemo(() => {
+  const active = reactExports.useMemo(() => {
     if (dateFilter.kind === "all") return false;
     if (dateFilter.kind === "custom") {
       return Boolean(dateFilter.from) || Boolean(dateFilter.to);
@@ -76,16 +76,16 @@ export function DateFilterPopover({
     return true;
   }, [dateFilter]);
   const triggerLabel = reactExports.useMemo(() => {
-    const base2 = translate("assetFilter.dateSection");
-    if (dateFilter.kind === "all") return base2;
+    const base = translate("assetFilter.dateSection");
+    if (dateFilter.kind === "all") return base;
     if (dateFilter.kind === "custom") {
-      const from2 = dateFilter.from ? formatMonthDay(dateFilter.from) : "";
+      const from = dateFilter.from ? formatMonthDay(dateFilter.from) : "";
       const to = dateFilter.to ? formatMonthDay(dateFilter.to) : "";
-      if (!from2 && !to) return base2;
-      return `${from2 || "..."} ~ ${to || "..."}`;
+      if (!from && !to) return base;
+      return `${from || "..."} ~ ${to || "..."}`;
     }
-    const preset2 = DATE_PRESETS.find((preset) => preset.value === dateFilter.kind);
-    return preset2 ? translate(preset2.labelKey, preset2.fallback) : base2;
+    const matchingPreset = DATE_PRESETS.find((preset) => preset.value === dateFilter.kind);
+    return matchingPreset ? translate(matchingPreset.labelKey, matchingPreset.fallback) : base;
   }, [translate, dateFilter]);
   const handlePreset = reactExports.useCallback(
     (kind) => {
@@ -106,20 +106,20 @@ export function DateFilterPopover({
   );
   const customRange = reactExports.useMemo(() => {
     if (dateFilter.kind !== "custom") return void 0;
-    const from2 = fromIsoDate(dateFilter.from);
+    const from = fromIsoDate(dateFilter.from);
     const to = fromIsoDate(dateFilter.to);
-    if (!from2 && !to) return void 0;
+    if (!from && !to) return void 0;
     return {
-      from: from2,
+      from,
       to,
     };
   }, [dateFilter]);
   const handleCustomSelect = reactExports.useCallback(
-    (range2) => {
+    (range) => {
       onDateChange({
         kind: "custom",
-        from: range2?.from ? toIsoDate(range2.from) : "",
-        to: range2?.to ? toIsoDate(range2.to) : "",
+        from: range?.from ? toIsoDate(range.from) : "",
+        to: range?.to ? toIsoDate(range.to) : "",
       });
     },
     [onDateChange],
@@ -134,11 +134,11 @@ export function DateFilterPopover({
     <Popover open={open} onOpenChange={setOpen}>
       <FilterTrigger
         label={triggerLabel}
-        active={active2}
+        active={active}
         open={open}
         testId="asset-panel.date-filter-trigger"
         clearLabel={translate("assetFilter.reset")}
-        onClear={active2 ? clearDateFilter : void 0}
+        onClear={active ? clearDateFilter : void 0}
       />
       <FilterMenuContent data-slot="date-filter-popover">
         <FilterMenuGroup>
@@ -161,15 +161,15 @@ export function DateFilterPopover({
           })}
         </FilterMenuGroup>
         <FilterMenuGroup separated={true}>
-          {DATE_PRESETS.map((preset2) => {
-            const isSelected = dateFilter.kind === preset2.value;
-            const label = translate(preset2.labelKey, preset2.fallback);
+          {DATE_PRESETS.map((preset) => {
+            const isSelected = dateFilter.kind === preset.value;
+            const label = translate(preset.labelKey, preset.fallback);
             return (
               <FilterMenuItem
-                key={preset2.value}
+                key={preset.value}
                 selected={isSelected}
-                onClick={() => handlePreset(preset2.value)}
-                data-action-ui-id={`asset-panel.date-filter-option-${preset2.value}`}
+                onClick={() => handlePreset(preset.value)}
+                data-action-ui-id={`asset-panel.date-filter-option-${preset.value}`}
               >
                 {label}
               </FilterMenuItem>

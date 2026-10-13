@@ -10,7 +10,7 @@ export function ParamTextarea({
   label,
   value,
   onChange,
-  disabled: disabled2,
+  disabled,
   placeholder,
   rows = 3,
 }) {
@@ -25,7 +25,7 @@ export function ParamTextarea({
           onChange?.(changeEvent.target.value);
         }}
         onClick={(clickEvent) => clickEvent.stopPropagation()}
-        disabled={disabled2}
+        disabled={disabled}
         placeholder={placeholder}
         className="w-full bg-[var(--canvas-controls-hover)] border border-[var(--canvas-controls-border)] px-2.5 py-1.5 text-[13px] text-[var(--canvas-controls-text)] placeholder:text-[var(--canvas-controls-text-muted)] outline-none resize-none transition-[border-color] duration-150 focus:border-[var(--canvas-node-border-selected)]"
       />
@@ -85,7 +85,7 @@ export function ExpandToggleButton({ expanded, onToggle }) {
 }
 export function CloseButton({
   onClick,
-  disabled: disabled2,
+  disabled,
   title,
   variant = "cancel",
 }) {
@@ -95,7 +95,7 @@ export function CloseButton({
         type="button"
         className="text-[12px] text-[var(--canvas-controls-text-muted)] hover:text-[var(--canvas-controls-text)] leading-none"
         onClick={onClick}
-        disabled={disabled2}
+        disabled={disabled}
         title={title}
       >
         ✕
@@ -107,7 +107,7 @@ export function CloseButton({
       type="button"
       className="flex h-7 w-7 items-center justify-center rounded-[8px] text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] disabled:cursor-default disabled:opacity-40"
       onClick={onClick}
-      disabled={disabled2}
+      disabled={disabled}
       title={title}
     >
       ✕
@@ -159,10 +159,10 @@ export function GeneratingButton({ label }) {
     </button>
   );
 }
-export function svgBase({ size: size2 = 16, ...rest }) {
+export function svgBase({ size = 16, ...rest }) {
   return {
-    width: size2,
-    height: size2,
+    width: size,
+    height: size,
     viewBox: "0 0 16 16",
     fill: "none",
     xmlns: "http://www.w3.org/2000/svg",

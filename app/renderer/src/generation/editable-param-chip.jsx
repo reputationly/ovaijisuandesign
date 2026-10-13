@@ -26,21 +26,21 @@ const TAG_ICON = {
 };
 function displayParamValue(value, translate, displayMap, formatBoolean) {
   if (Array.isArray(value)) {
-    const values3 = value
+    const values = value
       .map((item) => displayParamValue(item, translate, displayMap, formatBoolean))
       .filter(Boolean);
-    if (values3.length === 0) return "—";
-    if (values3.length <= 2) return values3.join(", ");
-    return `${values3[0]} +${values3.length - 1}`;
+    if (values.length === 0) return "—";
+    if (values.length <= 2) return values.join(", ");
+    return `${values[0]} +${values.length - 1}`;
   }
   if (typeof value === "boolean")
     return formatBoolean ? formatBoolean(value) : value ? "ON" : "OFF";
-  const raw2 = stringifyParamValue(value);
-  const optionLabel = translate(`canvas.param.option.${raw2}`, {
-    defaultValue: raw2,
+  const raw = stringifyParamValue(value);
+  const optionLabel = translate(`canvas.param.option.${raw}`, {
+    defaultValue: raw,
   });
   return (
-    (optionLabel !== raw2 ? optionLabel : (displayMap?.get(raw2) ?? raw2)) ||
+    (optionLabel !== raw ? optionLabel : (displayMap?.get(raw) ?? raw)) ||
     "—"
   );
 }
@@ -71,19 +71,19 @@ export function EditableParamChip({
   const fieldOriginalValue = pagedArray
     ? originalValue[batchPageIndex]
     : originalValue;
-  const stringValue2 = stringifyParamValue(fieldValue);
+  const stringValue = stringifyParamValue(fieldValue);
   const handleChange = reactExports.useCallback(
     (nextValue) => {
       if (!pagedArray || batchPageIndex === void 0 || !Array.isArray(value)) {
         onChange(nextValue);
         return;
       }
-      const next2 = [...value];
-      next2[batchPageIndex] = parseParamValueLikeOriginal(
+      const next = [...value];
+      next[batchPageIndex] = parseParamValueLikeOriginal(
         fieldOriginalValue,
         nextValue,
       );
-      onChange(JSON.stringify(next2));
+      onChange(JSON.stringify(next));
     },
     [batchPageIndex, fieldOriginalValue, onChange, pagedArray, value],
   );
@@ -128,7 +128,7 @@ export function EditableParamChip({
         </div>
         <ParamField
           paramKey={paramKey}
-          value={stringValue2}
+          value={stringValue}
           originalValue={fieldOriginalValue}
           hint={hint}
           displayMap={displayMap}

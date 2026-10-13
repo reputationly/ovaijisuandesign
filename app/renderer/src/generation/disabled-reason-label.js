@@ -9,9 +9,9 @@ function formatSeconds(value, fallback) {
   if (value === void 0 || !Number.isFinite(value)) return fallback;
   return Number.isInteger(value) ? String(value) : String(value);
 }
-function formatImageMinDimensionLimit(constraints2, translate) {
-  const minWidth = finitePositive(constraints2?.imageMinWidth);
-  const minHeight = finitePositive(constraints2?.imageMinHeight);
+function formatImageMinDimensionLimit(constraints, translate) {
+  const minWidth = finitePositive(constraints?.imageMinWidth);
+  const minHeight = finitePositive(constraints?.imageMinHeight);
   if (minWidth !== void 0 && minHeight !== void 0)
     return `${minWidth}×${minHeight}`;
   if (minWidth !== void 0)
@@ -24,7 +24,7 @@ function formatImageMinDimensionLimit(constraints2, translate) {
     });
   return translate("canvas.reference.requiredDimensions", "the required dimensions");
 }
-export function disabledReasonLabel(reason, constraints2, translate) {
+export function disabledReasonLabel(reason, constraints, translate) {
   switch (reason) {
     case ReferenceDisabledReason.Unsupported:
       return translate(
@@ -46,7 +46,7 @@ export function disabledReasonLabel(reason, constraints2, translate) {
         "canvas.reference.disabledImageSize",
         "Image dimensions must be at least {{dimensions}}.",
         {
-          dimensions: formatImageMinDimensionLimit(constraints2, translate),
+          dimensions: formatImageMinDimensionLimit(constraints, translate),
         },
       );
     case "image-aspect":
@@ -59,8 +59,8 @@ export function disabledReasonLabel(reason, constraints2, translate) {
         "canvas.reference.disabledAudioRange",
         "Each audio clip must be between {{min}} and {{max}} seconds.",
         {
-          min: formatSeconds(constraints2?.audioPerClipMinSec, "1.8"),
-          max: formatSeconds(constraints2?.audioPerClipMaxSec, "15.2"),
+          min: formatSeconds(constraints?.audioPerClipMinSec, "1.8"),
+          max: formatSeconds(constraints?.audioPerClipMaxSec, "15.2"),
         },
       );
     case "audio-budget":
@@ -68,7 +68,7 @@ export function disabledReasonLabel(reason, constraints2, translate) {
         "canvas.reference.disabledAudioBudget",
         "This audio exceeds the remaining allowance of {{seconds}} seconds.",
         {
-          seconds: formatSeconds(constraints2?.remainingAudioTotalSec, "15.2"),
+          seconds: formatSeconds(constraints?.remainingAudioTotalSec, "15.2"),
         },
       );
     case "video-budget":
@@ -76,7 +76,7 @@ export function disabledReasonLabel(reason, constraints2, translate) {
         "canvas.reference.disabledVideoBudget",
         "This video exceeds the remaining allowance of {{seconds}} seconds.",
         {
-          seconds: formatSeconds(constraints2?.remainingVideoTotalSec, "15.2"),
+          seconds: formatSeconds(constraints?.remainingVideoTotalSec, "15.2"),
         },
       );
     case "video-range":
@@ -84,8 +84,8 @@ export function disabledReasonLabel(reason, constraints2, translate) {
         "canvas.reference.disabledVideoRange",
         "Each video must be between {{min}} and {{max}} seconds.",
         {
-          min: formatSeconds(constraints2?.videoPerClipMinSec, "2"),
-          max: formatSeconds(constraints2?.videoPerClipMaxSec, "15"),
+          min: formatSeconds(constraints?.videoPerClipMinSec, "2"),
+          max: formatSeconds(constraints?.videoPerClipMaxSec, "15"),
         },
       );
     default:

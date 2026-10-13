@@ -1,3 +1,21 @@
 key	old	new	依据
 v2@195:38	v2	vendorParams	该值是用于验证供应商参数载荷形状的对象。
 i2@429:30	i2	itemIndex	该值是映射数组中的当前元素下标。
+current2@22:3	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+next2@29:9	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+values3@167:9	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+key2@172:11	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@202:14	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@207:16	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@298:31	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@313:33	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+tool2@376:44	tool2	tool	去掉打包器防重名追加的后缀，恢复原名 tool，即该绑定持有的值。
+mode2@384:9	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+keys2@395:45	keys2	keys	去掉打包器防重名追加的后缀，恢复原名 keys，即该绑定持有的值。
+count2@396:7	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+key2@397:14	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+index2@415:39	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+body2@418:38	body2	body	去掉打包器防重名追加的后缀，恢复原名 body，即该绑定持有的值。
+record2@420:9	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+current2@427:41	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+index2@427:51	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。

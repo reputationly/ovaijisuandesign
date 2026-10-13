@@ -1,3 +1,5 @@
 key	old	new	依据
 t2@12:53	t2	translate	该参数是格式化图片最小尺寸限制时调用的翻译函数。
 t2@27:59	t2	translate	该参数用于将不同禁用原因转换为用户可见文案。
+constraints2@12:39	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
+constraints2@27:45	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
