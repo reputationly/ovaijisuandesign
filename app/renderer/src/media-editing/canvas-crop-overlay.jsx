@@ -16,7 +16,7 @@ import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import { DropdownArrowIcon } from "../canvas/generating-media-area.jsx";
 function useImageCrop(containerWidth, containerHeight) {
   const [cropRect, setCropRect] = reactExports.useState(DEFAULT_CROP);
-  const [aspectRatio, setAspectRatioState] = reactExports.useState("free");
+  const [aspectRatioState, setAspectRatioState] = reactExports.useState("free");
   const [isDragging, setIsDragging] = reactExports.useState(false);
   const [activeHandle, setActiveHandle] = reactExports.useState(null);
   const dragRef = reactExports.useRef(null);
@@ -24,12 +24,12 @@ function useImageCrop(containerWidth, containerHeight) {
   const latestRef = reactExports.useRef({
     containerWidth,
     containerHeight,
-    aspectRatio,
+    aspectRatio: aspectRatioState,
   });
   latestRef.current = {
     containerWidth,
     containerHeight,
-    aspectRatio,
+    aspectRatio: aspectRatioState,
   };
   const handleMove = reactExports.useCallback((pointerEvent) => {
     const drag = dragRef.current;
@@ -125,7 +125,7 @@ function useImageCrop(containerWidth, containerHeight) {
   }, []);
   return {
     cropRect,
-    aspectRatio,
+    aspectRatio: aspectRatioState,
     isDragging,
     activeHandle,
     handlePointerDown,

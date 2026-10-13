@@ -1,3 +1,5 @@
+magnification@21:10	magnificationValue	保存当前图像分割预览使用的放大比例。
+setMag@21:25	setMagnificationValue	设置当前放大比例的底层 useState setter，供带范围约束的 setMagnification 包装器调用。
 key	new	依据
 id2@8:7	nodeId	由 id 属性解构出的当前画布节点 ID，用于剪裁请求和生成任务上下文。
 t2@16:14	t	useTranslation 返回的翻译函数，为宫格分组和裁剪拆分面板生成文案。

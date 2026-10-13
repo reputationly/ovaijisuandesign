@@ -1,3 +1,4 @@
+setT2TPopoverKey@536:25	setT2tPopoverKey	更新文本转表格弹窗的重开键，使每次打开时重新挂载弹窗内容。
 key	new	依据
 t2@182:14	t	useTranslation 返回的翻译函数。
 qa@201:31	quickAction	读取当前文字节点快速提示词选项。

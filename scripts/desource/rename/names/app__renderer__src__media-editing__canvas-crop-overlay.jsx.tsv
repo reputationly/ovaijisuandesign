@@ -1,3 +1,4 @@
+aspectRatio@19:10	aspectRatioState	useState 的状态与 setAspectRatioState setter 配对，值表示当前裁剪宽高比。
 key	new	依据
 e2@34:48	pointerEvent	读取拖动裁剪框时的指针位置。
 cw@38:23	viewportWidth	读取当前裁剪区域容器的宽度。

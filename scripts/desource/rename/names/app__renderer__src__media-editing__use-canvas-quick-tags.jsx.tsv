@@ -1,3 +1,4 @@
+activeTagId@62:10	activeTagIdState	useState 状态与 setActiveTagIdState setter 配对，保存当前激活的快捷标签 ID。
 key	new	依据
 selector2@41:9	selector	用于查找前景键盘交互界面的 CSS 选择器字符串。
 activeElement2@47:9	activeElement	当前获得键盘焦点的 DOM 元素。

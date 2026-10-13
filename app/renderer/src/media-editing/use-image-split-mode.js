@@ -18,7 +18,7 @@ export function useImageSplitMode({
   const [selectedCells, setSelectedCells] = reactExports.useState(
     () => new Set(),
   );
-  const [magnification, setMag] = reactExports.useState(
+  const [magnificationValue, setMagnificationValue] = reactExports.useState(
     SPLIT_MAGNIFICATIONS[0],
   );
   const [processing, setProcessing] = reactExports.useState(false);
@@ -63,7 +63,7 @@ export function useImageSplitMode({
     [grid],
   );
   const setMagnification = reactExports.useCallback((next) => {
-    setMag(
+    setMagnificationValue(
       SPLIT_MAGNIFICATIONS.find((magnification) => magnification.id === next) ??
         SPLIT_MAGNIFICATIONS[0],
     );
@@ -125,13 +125,13 @@ export function useImageSplitMode({
       onApply?.({
         output_mode: "enhance",
         cell_count: cells.length,
-        magnification: magnification.id,
+        magnification: magnificationValue.id,
       });
       exit();
       void batchCropAndUpscale(
         nodeId,
         cells,
-        magnification.multiplier,
+        magnificationValue.multiplier,
         t("canvas.splitGrid.groupLabel", "宫格高清组"),
       ).catch((err) => {
         console.error("[canvas] grid-split batch failed:", err);
@@ -147,8 +147,8 @@ export function useImageSplitMode({
     selectedCells,
     meta?.name,
     nodeId,
-    magnification.multiplier,
-    magnification.id,
+    magnificationValue.multiplier,
+    magnificationValue.id,
     exit,
     t,
     onApply,
@@ -197,7 +197,7 @@ export function useImageSplitMode({
     editing,
     grid,
     selectedCells,
-    magnification,
+    magnification: magnificationValue,
     processing,
     enter,
     exit,

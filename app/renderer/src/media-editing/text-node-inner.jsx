@@ -533,7 +533,7 @@ export function TextNodeInner({
   );
   const [showT2TPopover, setShowT2TPopover] =
     reactExports.useState(!!referenceReturnText);
-  const [t2tPopoverKey, setT2TPopoverKey] = reactExports.useState(0);
+  const [t2tPopoverKey, setT2tPopoverKey] = reactExports.useState(0);
   const textRevision = data?.textRevision;
   const fileVersion = useFileVersion(textPath);
   const generating = useGenerating(textNodeId);
@@ -1154,7 +1154,7 @@ export function TextNodeInner({
               selectNodeExclusive(textNodeId);
               reversePromptRef.current = prompt;
               setRefRevision((revision) => revision + 1);
-              setT2TPopoverKey((popoverKey) => popoverKey + 1);
+              setT2tPopoverKey((popoverKey) => popoverKey + 1);
               setShowT2TPopover(true);
             }}
             onWriteOwn={() => {

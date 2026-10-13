@@ -59,7 +59,7 @@ function useCanvasTagFilter({
   workspaceId,
 }) {
   const canvasNodeIdsByAsset = useCanvasAssetNodeIds(workspaceId);
-  const [activeTagId, setActiveTagIdState] = reactExports.useState();
+  const [activeTagIdState, setActiveTagIdState] = reactExports.useState();
   const [focusedNodeId, setFocusedNodeId] = reactExports.useState(null);
   const getMatchedNodeIds = reactExports.useCallback(
     (tagId) => {
@@ -78,8 +78,8 @@ function useCanvasTagFilter({
     [canvasNodeIdsByAsset, workspaceAssets],
   );
   const matchedNodeIds = reactExports.useMemo(
-    () => getMatchedNodeIds(activeTagId),
-    [activeTagId, getMatchedNodeIds],
+    () => getMatchedNodeIds(activeTagIdState),
+    [activeTagIdState, getMatchedNodeIds],
   );
   const cancelPendingFocus = reactExports.useCallback(() => {
     canvasViewRef.current?.cancelPendingFocus();
@@ -172,11 +172,11 @@ function useCanvasTagFilter({
     if (wasPresentedRef.current === presented) return;
     wasPresentedRef.current = presented;
     cancelPendingFocus();
-    if (!presented || !activeTagId) return;
+    if (!presented || !activeTagIdState) return;
     if (focusedNodeId && focusedNodeIndex >= 0) focusNode(focusedNodeId);
     else focusOverview(matchedNodeIds);
   }, [
-    activeTagId,
+    activeTagIdState,
     cancelPendingFocus,
     focusNode,
     focusOverview,
@@ -200,7 +200,7 @@ function useCanvasTagFilter({
   const handleKeyboardShortcut = reactExports.useCallback(
     (event) => {
       if (
-        !activeTagId ||
+        !activeTagIdState ||
         !presented ||
         event.defaultPrevented ||
         event.isComposing ||
@@ -225,7 +225,7 @@ function useCanvasTagFilter({
       return true;
     },
     [
-      activeTagId,
+      activeTagIdState,
       clearFilter,
       focusNext,
       focusPrevious,
@@ -236,7 +236,7 @@ function useCanvasTagFilter({
     ],
   );
   reactExports.useEffect(() => {
-    if (!activeTagId || !presented) return;
+    if (!activeTagIdState || !presented) return;
     const handleActiveFilterKeyDown = (event) => {
       if (!handleKeyboardShortcut(event)) return;
       event.preventDefault();
@@ -245,9 +245,9 @@ function useCanvasTagFilter({
     window.addEventListener("keydown", handleActiveFilterKeyDown, true);
     return () =>
       window.removeEventListener("keydown", handleActiveFilterKeyDown, true);
-  }, [activeTagId, handleKeyboardShortcut, presented]);
+  }, [activeTagIdState, handleKeyboardShortcut, presented]);
   return {
-    activeTagId,
+    activeTagId: activeTagIdState,
     clearFilter,
     focusNext,
     focusPrevious,
@@ -256,7 +256,7 @@ function useCanvasTagFilter({
     locateNode,
     matchedNodeIds,
     setActiveTagId,
-    tagFilterActive: activeTagId !== void 0,
+    tagFilterActive: activeTagIdState !== void 0,
   };
 }
 function resolveAssetSourcePath(workspaceRoot, filePath) {

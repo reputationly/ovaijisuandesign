@@ -148,7 +148,7 @@ export function HtmlViewerInner({
   const presentation = useHtmlViewerPresentation(nodeId);
   const isPresented = presentation !== null;
   const isFullscreen = presentation === "fullscreen";
-  const [containerEl, setContainerElState] = reactExports.useState(null);
+  const [containerElState, setContainerElState] = reactExports.useState(null);
   const setContainerEl = reactExports.useCallback(
     (element) => {
       setContainerElState(element);
@@ -157,38 +157,38 @@ export function HtmlViewerInner({
     [nodeId, fullscreenApi],
   );
   reactExports.useEffect(() => {
-    if (!containerEl || inlineSurface) return;
+    if (!containerElState || inlineSurface) return;
     if (isPresented) {
       try {
-        containerEl.showPopover();
+        containerElState.showPopover();
       } catch {}
     } else {
       try {
-        containerEl.hidePopover();
+        containerElState.hidePopover();
       } catch {}
     }
-  }, [isPresented, containerEl, inlineSurface]);
+  }, [isPresented, containerElState, inlineSurface]);
   reactExports.useLayoutEffect(() => {
-    if (!containerEl || presentation !== "canvas") return;
-    const canvasHost = containerEl.closest(
+    if (!containerElState || presentation !== "canvas") return;
+    const canvasHost = containerElState.closest(
       '[data-workspace-canvas-viewport-host="true"]',
     );
     if (!canvasHost) return;
     const updateBounds = () => {
       const bounds = canvasHost.getBoundingClientRect();
-      containerEl.style.setProperty(
+      containerElState.style.setProperty(
         "--html-viewer-canvas-top",
         `${bounds.top}px`,
       );
-      containerEl.style.setProperty(
+      containerElState.style.setProperty(
         "--html-viewer-canvas-left",
         `${bounds.left}px`,
       );
-      containerEl.style.setProperty(
+      containerElState.style.setProperty(
         "--html-viewer-canvas-width",
         `${bounds.width}px`,
       );
-      containerEl.style.setProperty(
+      containerElState.style.setProperty(
         "--html-viewer-canvas-height",
         `${bounds.height}px`,
       );
@@ -216,9 +216,9 @@ export function HtmlViewerInner({
       if (layoutSettleTimer !== null) window.clearTimeout(layoutSettleTimer);
       window.removeEventListener("resize", updateBounds);
     };
-  }, [containerEl, presentation]);
+  }, [containerElState, presentation]);
   reactExports.useEffect(() => {
-    if (!containerEl || !nodeId) return;
+    if (!containerElState || !nodeId) return;
     const onToggle = (toggleEvent) => {
       const presentationEvent = toggleEvent;
       if (
@@ -228,9 +228,9 @@ export function HtmlViewerInner({
         fullscreenApi.getState().exit(nodeId);
       }
     };
-    containerEl.addEventListener("toggle", onToggle);
-    return () => containerEl.removeEventListener("toggle", onToggle);
-  }, [nodeId, fullscreenApi, containerEl]);
+    containerElState.addEventListener("toggle", onToggle);
+    return () => containerElState.removeEventListener("toggle", onToggle);
+  }, [nodeId, fullscreenApi, containerElState]);
   reactExports.useEffect(() => {
     if (!active || !isFullscreen || !nodeId) return;
     const onKey = (keyboardEvent) => {

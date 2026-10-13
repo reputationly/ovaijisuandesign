@@ -1,3 +1,4 @@
+containerEl@151:10	containerElState	useState 状态与 setContainerElState setter 配对，保存当前 HTML 预览容器元素。
 key	new	依据
 t2@28:14	t	useTranslation 返回的翻译函数，用于 HTML 预览加载失败等状态文案。
 res@69:14	response	fetch 返回的 HTTP 响应对象，代码检查其 status 是否为 404。
