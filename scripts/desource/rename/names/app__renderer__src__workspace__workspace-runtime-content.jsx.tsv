@@ -1,0 +1,37 @@
+key	old	new	依据
+canvasFocus2@577:11	canvasFocus2	canvasFocus	去掉打包器防重名追加的后缀，恢复原名 canvasFocus，即该绑定持有的值。
+children2@201:64	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+content2@380:37	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+data2@293:16	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+gatewayFetch2@93:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+hasRenderableCanvasContent2@709:10	hasRenderableCanvasContent2	hasRenderableCanvasContent	去掉打包器防重名追加的后缀，恢复原名 hasRenderableCanvasContent，即该绑定持有的值。
+id2@399:14	id2	nodeId	画布中已移除或被引用的文本节点标识符。
+index2@389:12	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+isActive2@201:43	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@205:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@218:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@618:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@89:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+message2@390:11	message2	message	消息历史中当前遍历到的消息记录。
+messages2@387:37	messages2	messages	去掉打包器防重名追加的后缀，恢复原名 messages，即该绑定持有的值。
+next2@398:9	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+node2@402:14	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@406:14	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+r2@292:16	r2	response	媒体扫描请求返回的 HTTP 响应对象。
+record2@73:9	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+s2@296:14	s2	candidateSession	技能列表中正在与路由参数名称比较的候选记录。
+s2@555:38	s2	sessionRecord	会话完成事件对应的会话记录。
+select2@581:17	select2	select	去掉打包器防重名追加的后缀，恢复原名 select，即该绑定持有的值。
+state2@430:11	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+t2@167:14	t2	translate	useTranslation 返回的翻译函数。
+t2@634:14	t2	translate	useTranslation 返回的翻译函数。
+t2@91:14	t2	translate	useTranslation 返回的翻译函数。
+update2@397:33	update2	update	去掉打包器防重名追加的后缀，恢复原名 update，即该绑定持有的值。
+update2@493:42	update2	update	去掉打包器防重名追加的后缀，恢复原名 update，即该绑定持有的值。
+v2@470:24	v2	currentVersion	用于递增 topbar store 版本的当前状态值。
+workspaceId2@161:16	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@268:16	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@331:16	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@579:22	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@596:23	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@88:16	workspaceId2	workspaceId	工作区的唯一标识。

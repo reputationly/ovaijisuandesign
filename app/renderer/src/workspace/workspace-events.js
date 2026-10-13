@@ -146,50 +146,50 @@ export class WorkspaceEvents {
    * Deliver a route-launched skill to one workspace, retaining it until that
    * workspace's ChatPanel has registered its input subscriber.
    */
-  queueAddSkillToChat(workspaceId2, skill) {
-    this._pendingSkillsByWorkspace.set(workspaceId2, skill);
-    this._deliveredSkillWorkspaces.delete(workspaceId2);
-    if (this._chatInputReadyWorkspaces.has(workspaceId2)) {
-      this._deliveredSkillWorkspaces.add(workspaceId2);
+  queueAddSkillToChat(workspaceId, skill) {
+    this._pendingSkillsByWorkspace.set(workspaceId, skill);
+    this._deliveredSkillWorkspaces.delete(workspaceId);
+    if (this._chatInputReadyWorkspaces.has(workspaceId)) {
+      this._deliveredSkillWorkspaces.add(workspaceId);
       this._onAddSkillToChat.fire({
         skill,
-        workspaceId: workspaceId2,
+        workspaceId,
       });
     }
   }
   /** Retain a connector example until the target workspace composer is durable-ready. */
-  queueAddConnectorToChat(workspaceId2, connector, prompt) {
-    this._pendingConnectorsByWorkspace.set(workspaceId2, {
+  queueAddConnectorToChat(workspaceId, connector, prompt) {
+    this._pendingConnectorsByWorkspace.set(workspaceId, {
       connector,
       prompt,
     });
-    this._deliveredConnectorWorkspaces.delete(workspaceId2);
-    if (this._chatInputReadyWorkspaces.has(workspaceId2)) {
-      this._deliveredConnectorWorkspaces.add(workspaceId2);
+    this._deliveredConnectorWorkspaces.delete(workspaceId);
+    if (this._chatInputReadyWorkspaces.has(workspaceId)) {
+      this._deliveredConnectorWorkspaces.add(workspaceId);
       this._onAddConnectorToChat.fire({
         connector,
         prompt,
-        workspaceId: workspaceId2,
+        workspaceId,
       });
     }
   }
   /** Bind route-launched Skill and connector references to one workspace composer. */
   subscribeChatReferences(options) {
     const skillDisposable = this.onAddSkillToChat(
-      ({ skill, workspaceId: workspaceId2 }) => {
+      ({ skill, workspaceId }) => {
         if (
-          workspaceId2
-            ? workspaceId2 !== options.workspaceId
+          workspaceId
+            ? workspaceId !== options.workspaceId
             : !options.isActive()
         )
           return;
         const input = options.selectSkill(skill);
-        if (workspaceId2 && input !== void 0) options.persistDraft(input);
+        if (workspaceId && input !== void 0) options.persistDraft(input);
       },
     );
     const connectorDisposable = this.onAddConnectorToChat(
-      ({ connector, prompt, workspaceId: workspaceId2 }) => {
-        if (workspaceId2 !== options.workspaceId) return;
+      ({ connector, prompt, workspaceId }) => {
+        if (workspaceId !== options.workspaceId) return;
         const input = options.selectConnector(connector, prompt);
         if (input !== void 0) options.persistDraft(input);
       },
@@ -201,26 +201,26 @@ export class WorkspaceEvents {
     };
   }
   /** Mark the workspace chat input ready and flush its pending route launch. */
-  fireChatInputReady(workspaceId2) {
-    this._chatInputReadyWorkspaces.add(workspaceId2);
-    const skill = this._pendingSkillsByWorkspace.get(workspaceId2);
-    if (skill && !this._deliveredSkillWorkspaces.has(workspaceId2)) {
-      this._deliveredSkillWorkspaces.add(workspaceId2);
+  fireChatInputReady(workspaceId) {
+    this._chatInputReadyWorkspaces.add(workspaceId);
+    const skill = this._pendingSkillsByWorkspace.get(workspaceId);
+    if (skill && !this._deliveredSkillWorkspaces.has(workspaceId)) {
+      this._deliveredSkillWorkspaces.add(workspaceId);
       this._onAddSkillToChat.fire({
         skill,
-        workspaceId: workspaceId2,
+        workspaceId,
       });
     }
     const pendingConnector =
-      this._pendingConnectorsByWorkspace.get(workspaceId2);
+      this._pendingConnectorsByWorkspace.get(workspaceId);
     if (
       pendingConnector &&
-      !this._deliveredConnectorWorkspaces.has(workspaceId2)
+      !this._deliveredConnectorWorkspaces.has(workspaceId)
     ) {
-      this._deliveredConnectorWorkspaces.add(workspaceId2);
+      this._deliveredConnectorWorkspaces.add(workspaceId);
       this._onAddConnectorToChat.fire({
         ...pendingConnector,
-        workspaceId: workspaceId2,
+        workspaceId,
       });
     }
   }
@@ -229,53 +229,53 @@ export class WorkspaceEvents {
    * durable draft, so a transient MessageInput remount can restore highlight
    * and guide text. Clear it once the user sends or removes that command.
    */
-  syncQueuedSkillWithInput(workspaceId2, input) {
-    const skill = this._pendingSkillsByWorkspace.get(workspaceId2);
+  syncQueuedSkillWithInput(workspaceId, input) {
+    const skill = this._pendingSkillsByWorkspace.get(workspaceId);
     if (
       !skill ||
-      !this._deliveredSkillWorkspaces.has(workspaceId2) ||
+      !this._deliveredSkillWorkspaces.has(workspaceId) ||
       input.includes(`/${skill.name}`)
     ) {
       return;
     }
     if (input.length === 0) return;
-    this._pendingSkillsByWorkspace.delete(workspaceId2);
-    this._deliveredSkillWorkspaces.delete(workspaceId2);
+    this._pendingSkillsByWorkspace.delete(workspaceId);
+    this._deliveredSkillWorkspaces.delete(workspaceId);
   }
   /** End route-launch restoration after the user's message was accepted. */
-  clearQueuedSkill(workspaceId2) {
-    this._pendingSkillsByWorkspace.delete(workspaceId2);
-    this._deliveredSkillWorkspaces.delete(workspaceId2);
+  clearQueuedSkill(workspaceId) {
+    this._pendingSkillsByWorkspace.delete(workspaceId);
+    this._deliveredSkillWorkspaces.delete(workspaceId);
   }
   /** Drop route-launch metadata after the chip is removed from a non-empty draft. */
-  syncQueuedConnectorWithInput(workspaceId2, input) {
-    const pending2 = this._pendingConnectorsByWorkspace.get(workspaceId2);
+  syncQueuedConnectorWithInput(workspaceId, input) {
+    const pending = this._pendingConnectorsByWorkspace.get(workspaceId);
     if (
-      !pending2 ||
-      !this._deliveredConnectorWorkspaces.has(workspaceId2) ||
+      !pending ||
+      !this._deliveredConnectorWorkspaces.has(workspaceId) ||
       input.includes(
-        `@connector:${pending2.connector.connectorId ?? pending2.connector.serverName}`,
+        `@connector:${pending.connector.connectorId ?? pending.connector.serverName}`,
       )
     ) {
       return;
     }
     if (input.length === 0) return;
-    this.clearQueuedConnector(workspaceId2);
+    this.clearQueuedConnector(workspaceId);
   }
   /** End route-launch restoration after the connector-backed prompt was accepted. */
-  clearQueuedConnector(workspaceId2) {
-    this._pendingConnectorsByWorkspace.delete(workspaceId2);
-    this._deliveredConnectorWorkspaces.delete(workspaceId2);
+  clearQueuedConnector(workspaceId) {
+    this._pendingConnectorsByWorkspace.delete(workspaceId);
+    this._deliveredConnectorWorkspaces.delete(workspaceId);
   }
   /** Keep all route-launched references in sync with the durable composer draft. */
-  syncQueuedReferencesWithInput(workspaceId2, input) {
-    this.syncQueuedSkillWithInput(workspaceId2, input);
-    this.syncQueuedConnectorWithInput(workspaceId2, input);
+  syncQueuedReferencesWithInput(workspaceId, input) {
+    this.syncQueuedSkillWithInput(workspaceId, input);
+    this.syncQueuedConnectorWithInput(workspaceId, input);
   }
   /** End restoration for every route-launched reference after a successful send. */
-  clearQueuedReferences(workspaceId2) {
-    this.clearQueuedSkill(workspaceId2);
-    this.clearQueuedConnector(workspaceId2);
+  clearQueuedReferences(workspaceId) {
+    this.clearQueuedSkill(workspaceId);
+    this.clearQueuedConnector(workspaceId);
   }
   /**
    * Stash a main-agent-dispatched task description for a plugin editor node.
@@ -283,9 +283,9 @@ export class WorkspaceEvents {
    * node's isolated agent session is ready. Overwrites any undelivered
    * message for the same node (latest dispatch wins).
    */
-  queuePluginDispatchMessage(nodeId, message2) {
-    if (!nodeId || !message2.trim()) return;
-    this._pendingPluginDispatchByNode.set(nodeId, message2.trim());
+  queuePluginDispatchMessage(nodeId, message) {
+    if (!nodeId || !message.trim()) return;
+    this._pendingPluginDispatchByNode.set(nodeId, message.trim());
   }
   /**
    * Take (and remove) the pending dispatched task for a plugin editor node.
@@ -293,20 +293,20 @@ export class WorkspaceEvents {
    * the auto-send fires a single time even if the ready-effect re-runs.
    */
   takePluginDispatchMessage(nodeId) {
-    const message2 = this._pendingPluginDispatchByNode.get(nodeId);
-    if (message2 === void 0) return null;
+    const message = this._pendingPluginDispatchByNode.get(nodeId);
+    if (message === void 0) return null;
     this._pendingPluginDispatchByNode.delete(nodeId);
-    return message2;
+    return message;
   }
   /** Drop an undelivered dispatched task (e.g. the editor failed to open). */
   clearPluginDispatchMessage(nodeId) {
     this._pendingPluginDispatchByNode.delete(nodeId);
   }
   /** Clear chat readiness when its subscriber unmounts. */
-  clearChatInputReady(workspaceId2) {
-    this._chatInputReadyWorkspaces.delete(workspaceId2);
-    this._deliveredSkillWorkspaces.delete(workspaceId2);
-    this._deliveredConnectorWorkspaces.delete(workspaceId2);
+  clearChatInputReady(workspaceId) {
+    this._chatInputReadyWorkspaces.delete(workspaceId);
+    this._deliveredSkillWorkspaces.delete(workspaceId);
+    this._deliveredConnectorWorkspaces.delete(workspaceId);
   }
   /** Notify consumers that an asset was renamed (old path → new path). */
   fireAssetRenamed(oldPath, newPath, newFilename) {
@@ -322,11 +322,11 @@ export class WorkspaceEvents {
    * MessageInput.addFromEntity(entityId, name) → visible `@<name> ` +
    * `entity_refs` on send.
    */
-  fireAddEntityToChat(entityId, name2, type2) {
+  fireAddEntityToChat(entityId, entityName, type) {
     this._onAddEntityToChat.fire({
       entityId,
-      name: name2,
-      type: type2,
+      name: entityName,
+      type,
     });
   }
   /**
@@ -370,130 +370,130 @@ export class WorkspaceEvents {
     });
   }
   /** Request focusing canvas nodes, optionally selecting them for explicit locate actions. */
-  fireCanvasFocus(workspaceId2, nodeIds, options) {
+  fireCanvasFocus(workspaceId, nodeIds, options) {
     this._onCanvasFocusRequest.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       nodeIds,
       ...options,
     });
   }
   /** Request resolving a workspace file path to a canvas node and focusing it. */
-  fireLocateCanvasFile(workspaceId2, path2) {
+  fireLocateCanvasFile(workspaceId, path) {
     this._onLocateCanvasFileRequest.fire({
-      workspaceId: workspaceId2,
-      path: path2,
+      workspaceId,
+      path,
       preferParentGroup: false,
     });
   }
   /** Request resolving a set of stage output paths and focusing them as one canvas selection. */
-  fireLocateCanvasFiles(workspaceId2, paths) {
+  fireLocateCanvasFiles(workspaceId, paths) {
     this._onLocateCanvasFileRequest.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       paths,
       preferParentGroup: true,
     });
   }
   /** Resolve known node ids and file paths into one focus request. */
-  fireLocateCanvasTargets(workspaceId2, targets) {
+  fireLocateCanvasTargets(workspaceId, targets) {
     this._onLocateCanvasFileRequest.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       ...targets,
     });
   }
   /** Deliver a focus command after the target Canvas has stable geometry. */
-  deliverCanvasFocus(workspaceId2, nodeIds, options) {
+  deliverCanvasFocus(workspaceId, nodeIds, options) {
     this._onCanvasFocus.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       nodeIds,
       ...options,
     });
   }
   /** Deliver a locate command after the target Canvas has stable geometry. */
-  deliverLocateCanvasFile(workspaceId2, path2, options) {
+  deliverLocateCanvasFile(workspaceId, path, options) {
     this._onLocateCanvasFile.fire({
-      workspaceId: workspaceId2,
-      path: path2,
+      workspaceId,
+      path,
       ...options,
     });
   }
   /** Request switching the active chat session from command palette results. */
-  fireSwitchSession(workspaceId2, sessionId) {
+  fireSwitchSession(workspaceId, sessionId) {
     this._onSwitchSession.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       sessionId,
     });
   }
   /** Notify the workspace that a canvas text node opened / closed its full-page editor. */
-  fireTextEditActive(workspaceId2, session, active2) {
+  fireTextEditActive(workspaceId, session, active) {
     this._onTextEditActive.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       ...session,
-      active: active2,
+      active,
     });
   }
   /** Notify the workspace that a plugin editor node opened / closed its editing surface. */
-  firePluginEditActive(workspaceId2, session, active2, agentName, pluginId) {
+  firePluginEditActive(workspaceId, session, active, agentName, pluginId) {
     this._onPluginEditActive.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       ...session,
-      active: active2,
+      active,
       agentName,
       pluginId,
     });
   }
   /** Canvas → host: a text node was removed from the graph. */
-  fireTextNodeRemoved(workspaceId2, nodeId) {
+  fireTextNodeRemoved(workspaceId, nodeId) {
     this._onTextNodeRemoved.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       nodeId,
     });
   }
   /** Editor → host: push the latest editor text selection (null = cleared). */
-  fireTextEditSelection(workspaceId2, session, selection2) {
+  fireTextEditSelection(workspaceId, session, selection) {
     this._onTextEditSelection.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       ...session,
-      selection: selection2,
+      selection,
     });
   }
   /** Editor → host: push the latest draft annotation snapshots. */
-  fireAnnotationsChanged(workspaceId2, session, annotations) {
+  fireAnnotationsChanged(workspaceId, session, annotations) {
     this._onAnnotationsChanged.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       ...session,
       annotations,
     });
   }
   /** Editor → host: an annotation mark was activated (id) or cleared (null). */
-  fireAnnotationActivated(workspaceId2, session, id2) {
+  fireAnnotationActivated(workspaceId, session, annotationId) {
     this._onAnnotationActivated.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       ...session,
-      id: id2,
+      id: annotationId,
     });
   }
   /** Host → editor: locate / delete / clear a draft annotation. */
-  fireAnnotationCommand(workspaceId2, session, command2) {
+  fireAnnotationCommand(workspaceId, session, command) {
     this._onAnnotationCommand.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
       ...session,
-      command: command2,
+      command,
     });
   }
   /** Signal that a workspace's event subscribers (canvas focus, session switch) are wired. */
-  fireSubscribersReady(workspaceId2) {
-    this._readyWorkspaces.add(workspaceId2);
+  fireSubscribersReady(workspaceId) {
+    this._readyWorkspaces.add(workspaceId);
     this._onSubscribersReady.fire({
-      workspaceId: workspaceId2,
+      workspaceId,
     });
   }
   /** Check if a workspace's event subscribers have been wired at least once. */
-  isSubscribersReady(workspaceId2) {
-    return this._readyWorkspaces.has(workspaceId2);
+  isSubscribersReady(workspaceId) {
+    return this._readyWorkspaces.has(workspaceId);
   }
   /** Clear ready state for a workspace (e.g. when workspace is closed). */
-  clearSubscribersReady(workspaceId2) {
-    this._readyWorkspaces.delete(workspaceId2);
+  clearSubscribersReady(workspaceId) {
+    this._readyWorkspaces.delete(workspaceId);
   }
   dispose() {
     this._chatInputReadyWorkspaces.clear();

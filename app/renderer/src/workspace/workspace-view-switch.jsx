@@ -13,7 +13,7 @@ import { CoachMarkPopup } from "./coach-mark-popup.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 
 function BrowserEntryCoachMark({ anchorRef, enabled }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const blocked = useHasBlockingModal();
   const coach = useCoachMark(
     "canvas-browser-entry-intro",
@@ -27,8 +27,8 @@ function BrowserEntryCoachMark({ anchorRef, enabled }) {
     <CoachMarkPopup
       open={enabled && !blocked && coach.isOpen}
       anchorRef={anchorRef}
-      title={t2("workspace.browser.guide.entryTitle", "浏览网页，收集灵感")}
-      description={t2(
+      title={translate("workspace.browser.guide.entryTitle", "浏览网页，收集灵感")}
+      description={translate(
         "workspace.browser.guide.entryDescription",
         "点击「浏览器」查找素材，添加到画布或对话；也可圈选网页内容并批注，让 Agent 按你的要求操作网页。",
       )}
@@ -42,7 +42,7 @@ function BrowserEntryCoachMark({ anchorRef, enabled }) {
 }
 
 export function WorkspaceViewSwitch({ target, onClick, label }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const browserAnchor = reactExports.useRef(null);
   return (
     <div
@@ -57,28 +57,28 @@ export function WorkspaceViewSwitch({ target, onClick, label }) {
         aria-hidden="true"
         className={`pointer-events-none absolute bottom-0.5 left-0.5 top-0.5 w-7 rounded-md bg-[var(--canvas-controls-active)] transition-transform duration-200 ease-out motion-reduce:transition-none ${target === "canvas" ? "translate-x-20" : "translate-x-0"}`}
       />
-      {["canvas", "browser"].map((mode2) => {
-        const active2 = mode2 !== target;
+      {["canvas", "browser"].map((mode) => {
+        const active = mode !== target;
         const title =
-          mode2 === "canvas"
-            ? (label ?? t2("workspace.browser.canvas"))
-            : t2("workspace.browser");
+          mode === "canvas"
+            ? (label ?? translate("workspace.browser.canvas"))
+            : translate("workspace.browser");
         return (
           <button
-            key={mode2}
-            ref={mode2 === "browser" ? browserAnchor : void 0}
+            key={mode}
+            ref={mode === "browser" ? browserAnchor : void 0}
             type="button"
-            onClick={active2 ? void 0 : onClick}
-            aria-pressed={active2}
+            onClick={active ? void 0 : onClick}
+            aria-pressed={active}
             aria-label={title}
-            title={active2 ? title : void 0}
-            data-action-ui-id={`workspace.switch-to-${mode2}`}
-            className={`relative inline-flex h-full min-w-0 shrink-0 cursor-pointer items-center justify-center rounded-md px-1 text-xs transition-[width,color] duration-200 ease-out motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${active2 ? "w-7 font-medium text-[var(--canvas-controls-text)]" : "w-[78px] font-normal text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
+            title={active ? title : void 0}
+            data-action-ui-id={`workspace.switch-to-${mode}`}
+            className={`relative inline-flex h-full min-w-0 shrink-0 cursor-pointer items-center justify-center rounded-md px-1 text-xs transition-[width,color] duration-200 ease-out motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${active ? "w-7 font-medium text-[var(--canvas-controls-text)]" : "w-[78px] font-normal text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
           >
-            <Icon icon={mode2 === "canvas" ? PanelsTopLeft : Globe} size="sm" />
+            <Icon icon={mode === "canvas" ? PanelsTopLeft : Globe} size="sm" />
             <span
               aria-hidden="true"
-              className={`overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-200 ease-out motion-reduce:transition-none ${active2 ? "ml-0 max-w-0 opacity-0" : "ml-1 max-w-16 opacity-100"}`}
+              className={`overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-200 ease-out motion-reduce:transition-none ${active ? "ml-0 max-w-0 opacity-0" : "ml-1 max-w-16 opacity-100"}`}
             >
               {title}
             </span>
@@ -110,8 +110,8 @@ export function isSafeBookmarkFaviconUrl(value) {
     return true;
   if (value.length > 2048) return false;
   try {
-    const url2 = new URL(value);
-    return url2.protocol === "https:" || url2.protocol === "http:";
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
   } catch {
     return false;
   }
@@ -172,9 +172,9 @@ export function destinationForInput(value) {
   };
 }
 
-export function annotationSiteName(url2, fallback = "当前网页") {
+export function annotationSiteName(url, fallback = "当前网页") {
   try {
-    const hostname = new URL(url2).hostname;
+    const hostname = new URL(url).hostname;
     return hostname || fallback;
   } catch {
     return fallback;

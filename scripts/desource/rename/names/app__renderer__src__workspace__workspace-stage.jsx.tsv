@@ -1,0 +1,25 @@
+key	old	new	依据
+active2@193:11	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+active2@373:13	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+active2@478:13	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+active2@517:13	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+active2@525:13	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+active2@617:13	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+active2@674:11	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+handle2@335:13	handle2	handle	去掉打包器防重名追加的后缀，恢复原名 handle，即该绑定持有的值。
+handleKeyDown2@553:11	handleKeyDown2	handleKeyDown	去掉打包器防重名追加的后缀，恢复原名 handleKeyDown，即该绑定持有的值。
+handleMouseMove2@706:13	handleMouseMove2	handleMouseMove	去掉打包器防重名追加的后缀，恢复原名 handleMouseMove，即该绑定持有的值。
+isActive2@92:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+latest2@413:19	latest2	latest	去掉打包器防重名追加的后缀，恢复原名 latest，即该绑定持有的值。
+max2@31:29	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+min2@31:23	min2	min	去掉打包器防重名追加的后缀，恢复原名 min，即该绑定持有的值。
+observer2@160:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+pointer2@472:11	pointer2	pointer	去掉打包器防重名追加的后缀，恢复原名 pointer，即该绑定持有的值。
+prefersReducedMotion2@124:9	prefersReducedMotion2	prefersReducedMotion	去掉打包器防重名追加的后缀，恢复原名 prefersReducedMotion，即该绑定持有的值。
+prefersReducedMotion2@42:10	prefersReducedMotion2	prefersReducedMotion	去掉打包器防重名追加的后缀，恢复原名 prefersReducedMotion，即该绑定持有的值。
+previous2@145:20	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@215:11	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@392:13	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+root2@141:11	root2	root	去掉打包器防重名追加的后缀，恢复原名 root，即该绑定持有的值。
+root2@153:11	root2	root	去掉打包器防重名追加的后缀，恢复原名 root，即该绑定持有的值。
+t2@108:14	t2	translate	useTranslation 返回的翻译函数。

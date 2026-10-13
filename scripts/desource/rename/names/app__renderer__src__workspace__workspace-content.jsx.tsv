@@ -1,0 +1,37 @@
+key	old	new	依据
+a2@519:40	a2	leftHunk	按起始行降序比较时的左侧文本编辑变更区块。
+active2@85:9	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+b3@519:44	b3	rightHunk	按起始行降序比较时的右侧文本编辑变更区块。
+browser2@82:9	browser2	browser	去掉打包器防重名追加的后缀，恢复原名 browser，即该绑定持有的值。
+current2@68:9	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@768:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@807:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@840:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+d2@751:11	d2	textEditSubscription	文本编辑激活事件的可释放订阅对象。
+d2@790:11	d2	pluginEditSubscription	插件编辑激活事件的可释放订阅对象。
+d2@828:11	d2	nodeRemovalSubscription	文本节点移除事件的可释放订阅对象。
+data2@655:31	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+e2@751:50	e2	textEditEvent	当前工作区文本编辑会话的激活状态事件。
+e2@790:52	e2	pluginEditEvent	当前工作区插件编辑会话的激活状态事件。
+e2@828:51	e2	nodeRemovalEvent	当前工作区中文本节点移除事件。
+e2@846:60	e2	annotationsChangedEvent	当前文本编辑器草稿批注集合变更事件。
+e2@850:63	e2	annotationActivatedEvent	当前文本编辑器中批注激活状态变更事件。
+e2@854:61	e2	selectionChangedEvent	当前文本编辑会话的文本选择变更事件。
+gatewayFetch2@514:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+gatewayFetch2@64:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+id2@872:6	id2	annotationId	草稿批注的标识符，用于定位或删除批注。
+id2@884:6	id2	annotationId	草稿批注的标识符，用于定位或删除批注。
+isActive2@448:33	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@63:34	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@698:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+mode2@169:40	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+mode2@220:9	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+next2@617:10	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+observer2@276:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+raw2@481:28	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+record2@483:9	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+state2@585:37	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+t2@232:14	t2	translate	useTranslation 返回的翻译函数。
+t2@515:14	t2	translate	useTranslation 返回的翻译函数。
+t2@67:14	t2	translate	useTranslation 返回的翻译函数。
+workspaceId2@699:16	workspaceId2	workspaceId	工作区的唯一标识。
