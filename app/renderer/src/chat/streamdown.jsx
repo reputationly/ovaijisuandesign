@@ -1,138 +1,138 @@
 // qs.jsx
 import {
-  at,
+  at as iconContextProvider,
   clsx,
-  cn,
+  cn as preserveLiteralTagContent,
   defaultSchema,
-  E2,
-  Jo,
+  E2 as areMarkdownPropsEqual,
+  Jo as MarkdownParagraph,
   jsxRuntimeExports,
-  kt,
-  L,
-  ln,
-  mn,
-  qe,
+  kt as splitMarkdownIntoBlocks,
+  L as useMarkdownIcons,
+  ln as preserveHtmlWhitespace,
+  mn as preserveRawTagContent,
+  qe as haveSameNodePosition,
   reactDomExports,
   reactExports,
   remarkGfm,
   toJsxRuntime,
-  un,
+  un as attachCodeMetadata,
   visit,
 } from "../vendor.js";
 import { harden } from "rehype-harden";
 import {
-  Be,
-  D3,
-  de,
-  De,
-  et,
-  He,
-  ks,
-  on,
-  Ts,
-  tt,
-  Ve,
-  vs,
-  wt,
-  xs,
+  Be as markdownTranslationContext,
+  D3 as useMarkdownTranslations,
+  de as useMermaidOptions,
+  De as defaultMarkdownTranslations,
+  et as codeAnimationContext,
+  He as useCodeMetadata,
+  ks as createMarkdownProcessor,
+  on as identityUrlTransform,
+  Ts as shouldSkipElement,
+  tt as useCodeAnimationState,
+  Ve as markdownRenderContext,
+  vs as replaceNodeWithText,
+  wt as MarkdownRenderCache,
+  xs as transformUrlProperties,
 } from "../media-editing/wt.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { rehypeSanitize } from "../settings/request-prompt-prefill.jsx";
 import { rehypeRaw } from "../workspace/build-inspiration-media-showcase-collections.js";
-import { Ae, ao, ce, Ee, Fe, he, le, Oe, R, To, W2, y3 } from "./ae.jsx";
+import { Ae as CopyCodeButton, ao as findRendererForLanguage, ce as unlockBodyScroll, Ee as classNameMergerContext, Fe as isMermaidActionEnabled, he as mergeClassNames, le as lockBodyScroll, Oe as CodeBlockLoadingPlaceholder, R as markdownRenderOptionsContext, To as isCodeActionEnabled, W2 as downloadFile, y3 as useClassNameMerger } from "./ae.jsx";
 import { mermaidGHXKKRXX } from "./mermaid-ghxkkrxx.js";
-import { Yt } from "./yt.js";
-import { st } from "./st.jsx";
-import { co } from "./co.jsx";
-import { fo } from "./fo.jsx";
-import { Te } from "./te.jsx";
-import { Pe } from "./pe.jsx";
+import { Yt as fileExtensionByMimeType } from "./yt.js";
+import { st as HighlightedCodeBlock } from "./st.jsx";
+import { co as MermaidDownloadButton } from "./co.jsx";
+import { fo as MarkdownImage } from "./fo.jsx";
+import { Te as MarkdownTable } from "./te.jsx";
+import { Pe as TableDownloadMenu } from "./pe.jsx";
 import { twMerge } from "../infra/dialog-content.jsx";
-import { $e$1, be } from "../vendor-inline/minified/s2.js";
-import { vn, xn } from "./xn.js";
-var as = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
-var is = new RegExp("\\p{L}", "u");
-function $e(e2) {
-  let t2 = e2
+import { $e$1 as remendMarkdown, be as createAnimationStyles } from "../vendor-inline/minified/s2.js";
+import { vn as defaultCodeTheme, xn as defaultLinkSafety } from "./xn.js";
+var rtlCharacterPattern = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
+var unicodeLetterPattern = new RegExp("\\p{L}", "u");
+function getTextDirection(markdownText) {
+  let textWithoutMarkdownSyntax = markdownText
     .replace(/^#{1,6}\s+/gm, "")
     .replace(/(\*{1,3}|_{1,3})/g, "")
     .replace(/`[^`]*`/g, "")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/^[\s>*\-+\d.]+/gm, "");
-  for (let o2 of t2) {
-    if (as.test(o2)) return "rtl";
-    if (is.test(o2)) return "ltr";
+  for (let character of textWithoutMarkdownSyntax) {
+    if (rtlCharacterPattern.test(character)) return "rtl";
+    if (unicodeLetterPattern.test(character)) return "ltr";
   }
   return "ltr";
 }
-var ls = /^[ \t]{0,3}(`{3,}|~{3,})/;
-var cs = /^\|?[ \t]*:?-{1,}:?[ \t]*(\|[ \t]*:?-{1,}:?[ \t]*)*\|?$/;
-var ht = (e2) => {
-  let t2 = e2.split(`
+var fencedCodeStartPattern = /^[ \t]{0,3}(`{3,}|~{3,})/;
+var tableDelimiterPattern = /^\|?[ \t]*:?-{1,}:?[ \t]*(\|[ \t]*:?-{1,}:?[ \t]*)*\|?$/;
+var hasUnclosedCodeFence = (markdownText) => {
+  let sourceLines = markdownText.split(`
 `),
-    o2 = null,
-    n2 = 0;
-  for (let r2 of t2) {
-    let s2 = ls.exec(r2);
-    if (o2 === null) {
-      if (s2) {
-        let a2 = s2[1];
-        ((o2 = a2[0]), (n2 = a2.length));
+    fenceMarker = null,
+    fenceLength = 0;
+  for (let rowText of sourceLines) {
+    let fenceMatch = fencedCodeStartPattern.exec(rowText);
+    if (fenceMarker === null) {
+      if (fenceMatch) {
+        let fenceLineMatch = fenceMatch[1];
+        ((fenceMarker = fenceLineMatch[0]), (fenceLength = fenceLineMatch.length));
       }
-    } else if (s2) {
-      let a2 = s2[1],
-        l2 = a2[0],
-        i2 = a2.length;
-      l2 === o2 && i2 >= n2 && ((o2 = null), (n2 = 0));
+    } else if (fenceMatch) {
+      let delimiterMatch = fenceMatch[1],
+        delimiterText = delimiterMatch[0],
+        delimiterLength = delimiterMatch.length;
+      delimiterText === fenceMarker && delimiterLength >= fenceLength && ((fenceMarker = null), (fenceLength = 0));
     }
   }
-  return o2 !== null;
+  return fenceMarker !== null;
 };
-var Uo = (e2) => {
-  let t2 = e2.split(`
+var hasTableSeparator = (markdownText) => {
+  let htmlLines = markdownText.split(`
 `);
-  for (let o2 of t2) {
-    let n2 = o2.trim();
-    if (n2.length > 0 && n2.includes("|") && cs.test(n2)) return true;
+  for (let htmlLine of htmlLines) {
+    let trimmedHtmlLine = htmlLine.trim();
+    if (trimmedHtmlLine.length > 0 && trimmedHtmlLine.includes("|") && tableDelimiterPattern.test(trimmedHtmlLine)) return true;
   }
   return false;
 };
-var tn = new wt();
-var ws = (e2) => {
-  let t2 = tn.get(e2);
-  if (t2) return t2;
-  let o2 = ks(e2);
-  return (tn.set(e2, o2), o2);
+var markdownProcessorCache = new MarkdownRenderCache();
+var getMarkdownProcessor = (processorOptions) => {
+  let cachedProcessor = markdownProcessorCache.get(processorOptions);
+  if (cachedProcessor) return cachedProcessor;
+  let markdownProcessor = createMarkdownProcessor(processorOptions);
+  return (markdownProcessorCache.set(processorOptions, markdownProcessor), markdownProcessor);
 };
-var Ps = (e2, t2) => {
+var renderHastToJsx = (tree, options) => {
   let {
-    allowElement: o2,
-    allowedElements: n2,
-    disallowedElements: r2,
-    skipHtml: s2,
-    unwrapDisallowed: a2,
-    urlTransform: l2,
-  } = t2;
-  if (o2 || n2 || r2 || s2 || l2) {
-    let d2 = l2 || on;
-    visit(e2, (c3, p3, m3) => {
-      if (c3.type === "raw" && m3 && typeof p3 == "number")
-        return (vs(m3, p3, s2, c3.value), p3);
+    allowElement,
+    allowedElements,
+    disallowedElements,
+    skipHtml,
+    unwrapDisallowed,
+    urlTransform,
+  } = options;
+  if (allowElement || allowedElements || disallowedElements || skipHtml || urlTransform) {
+    let sanitizedUrlTransform = urlTransform || identityUrlTransform;
+    visit(tree, (htmlElement, childIndex, parentNode) => {
+      if (htmlElement.type === "raw" && parentNode && typeof childIndex == "number")
+        return (replaceNodeWithText(parentNode, childIndex, skipHtml, htmlElement.value), childIndex);
       if (
-        c3.type === "element" &&
-        (xs(c3, d2), Ts(c3, p3, m3, n2, r2, o2) && m3 && typeof p3 == "number")
+        htmlElement.type === "element" &&
+        (transformUrlProperties(htmlElement, sanitizedUrlTransform), shouldSkipElement(htmlElement, childIndex, parentNode, allowedElements, disallowedElements, allowElement) && parentNode && typeof childIndex == "number")
       )
         return (
-          a2 && c3.children
-            ? m3.children.splice(p3, 1, ...c3.children)
-            : m3.children.splice(p3, 1),
-          p3
+          unwrapDisallowed && htmlElement.children
+            ? parentNode.children.splice(childIndex, 1, ...htmlElement.children)
+            : parentNode.children.splice(childIndex, 1),
+          childIndex
         );
     });
   }
-  return toJsxRuntime(e2, {
+  return toJsxRuntime(tree, {
     Fragment: jsxRuntimeExports.Fragment,
-    components: t2.components,
+    components: options.components,
     ignoreInvalidStyle: true,
     jsx: jsxRuntimeExports.jsx,
     jsxs: jsxRuntimeExports.jsxs,
@@ -140,170 +140,170 @@ var Ps = (e2, t2) => {
     passNode: true,
   });
 };
-var Ct2 = (e2) => {
-  let t2 = ws(e2),
-    o2 = e2.children || "",
-    n2 = t2.runSync(t2.parse(o2), o2);
-  return Ps(n2, e2);
+var MarkdownBlockRenderer = (markdownProps) => {
+  let processor = getMarkdownProcessor(markdownProps),
+    markdownSource = markdownProps.children || "",
+    renderedTree = processor.runSync(processor.parse(markdownSource), markdownSource);
+  return renderHastToJsx(renderedTree, markdownProps);
 };
-var Gn = (e2, t2) => {
-  if (!e2 || !t2) return t2;
-  let o2 = `${e2}:`;
-  return t2
+var prefixClassNames = (prefix, classNames) => {
+  if (!prefix || !classNames) return classNames;
+  let classNamePrefix = `${prefix}:`;
+  return classNames
     .split(/\s+/)
     .filter(Boolean)
-    .map((n2) => (n2.startsWith(o2) ? n2 : `${e2}:${n2}`))
+    .map((className) => (className.startsWith(classNamePrefix) ? className : `${prefix}:${className}`))
     .join(" ");
 };
-var Dt = (e2) => (e2 ? (...t2) => Gn(e2, twMerge(clsx(t2))) : he);
-var it = ({
-  onDownload: e2,
-  onError: t2,
-  language: o2,
-  children: n2,
-  className: r2,
-  code: s2,
-  ...a2
+var createClassNameMerger = (classNameInput) => (classNameInput ? (...additionalProps) => prefixClassNames(classNameInput, twMerge(clsx(additionalProps))) : mergeClassNames);
+var FileDownloadButton = ({
+  onDownload,
+  onError,
+  language,
+  children,
+  className,
+  code,
+  ...additionalProps
 }) => {
-  let l2 = y3(),
-    { code: i2 } = He(),
-    { isAnimating: d2 } = reactExports.useContext(R),
-    c3 = D3(),
-    p3 = L(),
-    m3 = s2 != null ? s2 : i2,
-    f2 = `file.${o2 && o2 in Yt ? Yt[o2] : "txt"}`,
-    h2 = "text/plain",
-    b3 = () => {
+  let mergeClasses = useClassNameMerger(),
+    { code: codeText } = useCodeMetadata(),
+    { isAnimating } = reactExports.useContext(markdownRenderOptionsContext),
+    translationStrings = useMarkdownTranslations(),
+    markdownIcons = useMarkdownIcons(),
+    codeContent = code != null ? code : codeText,
+    downloadFilename = `file.${language && language in fileExtensionByMimeType ? fileExtensionByMimeType[language] : "txt"}`,
+    mimeType = "text/plain",
+    handleDownload = () => {
       try {
-        (W2(f2, m3, h2), e2 == null || e2());
-      } catch (g2) {
-        t2 == null || t2(g2);
+        (downloadFile(downloadFilename, codeContent, mimeType), onDownload == null || onDownload());
+      } catch (downloadError) {
+        onError == null || onError(downloadError);
       }
     };
   return (
     <button
-      className={l2(
+      className={mergeClasses(
         "cursor-pointer p-1 text-muted-foreground transition-all hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-        r2,
+        className,
       )}
       data-streamdown="code-block-download-button"
-      disabled={d2}
-      onClick={b3}
-      title={c3.downloadFile}
+      disabled={isAnimating}
+      onClick={handleDownload}
+      title={translationStrings.downloadFile}
       type="button"
-      {...a2}
+      {...additionalProps}
     >
-      {n2 != null ? n2 : <p3.DownloadIcon size={14} />}
+      {children != null ? children : <markdownIcons.DownloadIcon size={14} />}
     </button>
   );
 };
-var Mr = /\.[^/.]+$/;
-var oo = ({
-  node: e2,
-  className: t2,
-  src: o2,
-  alt: n2,
-  onLoad: r2,
-  onError: s2,
-  ...a2
+var fileExtensionPattern = /\.[^/.]+$/;
+var MarkdownImageRenderer = ({
+  node: markdownNode,
+  className,
+  src,
+  alt,
+  onLoad,
+  onError,
+  ...additionalProps
 }) => {
-  let { DownloadIcon: l2 } = L(),
-    i2 = y3(),
-    d2 = reactExports.useRef(null),
-    [c3, p3] = reactExports.useState(false),
-    [m3, u4] = reactExports.useState(false),
-    f2 = D3(),
-    h2 = a2.width != null || a2.height != null,
-    b3 = (c3 || h2) && !m3,
-    g2 = m3 && !h2;
+  let { DownloadIcon: downloadIcon } = useMarkdownIcons(),
+    mergeClasses = useClassNameMerger(),
+    imageElementRef = reactExports.useRef(null),
+    [isLoaded, setIsLoaded] = reactExports.useState(false),
+    [hasError, setHasError] = reactExports.useState(false),
+    translations = useMarkdownTranslations(),
+    hasImageDimensions = additionalProps.width != null || additionalProps.height != null,
+    isImageReady = (isLoaded || hasImageDimensions) && !hasError,
+    hasImageError = hasError && !hasImageDimensions;
   reactExports.useEffect(() => {
-    let P3 = d2.current;
-    if (P3 != null && P3.complete) {
-      let M2 = P3.naturalWidth > 0;
-      (p3(M2), u4(!M2));
+    let imageElement = imageElementRef.current;
+    if (imageElement != null && imageElement.complete) {
+      let hasLoadedImage = imageElement.naturalWidth > 0;
+      (setIsLoaded(hasLoadedImage), setHasError(!hasLoadedImage));
     }
   }, []);
-  let T2 = reactExports.useCallback(
-      (P3) => {
-        (p3(true), u4(false), r2 == null || r2(P3));
+  let handleImageLoad = reactExports.useCallback(
+      (loadEvent) => {
+        (setIsLoaded(true), setHasError(false), onLoad == null || onLoad(loadEvent));
       },
-      [r2],
+      [onLoad],
     ),
-    v2 = reactExports.useCallback(
-      (P3) => {
-        (p3(false), u4(true), s2 == null || s2(P3));
+    handleImageError = reactExports.useCallback(
+      (errorEvent) => {
+        (setIsLoaded(false), setHasError(true), onError == null || onError(errorEvent));
       },
-      [s2],
+      [onError],
     ),
-    w3 = async () => {
-      if (o2)
+    downloadImage = async () => {
+      if (src)
         try {
-          let M2 = await (await fetch(o2)).blob(),
-            S3 =
-              new URL(o2, window.location.origin).pathname.split("/").pop() ||
+          let imageBlob = await (await fetch(src)).blob(),
+            downloadName =
+              new URL(src, window.location.origin).pathname.split("/").pop() ||
               "",
-            F2 = S3.split(".").pop(),
-            j2 = S3.includes(".") && F2 !== void 0 && F2.length <= 4,
-            z3 = "";
-          if (j2) z3 = S3;
+            fileExtension = downloadName.split(".").pop(),
+            hasKnownExtension = downloadName.includes(".") && fileExtension !== void 0 && fileExtension.length <= 4,
+            fallbackExtension = "";
+          if (hasKnownExtension) fallbackExtension = downloadName;
           else {
-            let B2 = M2.type,
-              _2 = "png";
-            (B2.includes("jpeg") || B2.includes("jpg")
-              ? (_2 = "jpg")
-              : B2.includes("png")
-                ? (_2 = "png")
-                : B2.includes("svg")
-                  ? (_2 = "svg")
-                  : B2.includes("gif")
-                    ? (_2 = "gif")
-                    : B2.includes("webp") && (_2 = "webp"),
-              (z3 = `${(n2 || S3 || "image").replace(Mr, "")}.${_2}`));
+            let blobMimeType = imageBlob.type,
+              fallbackMimeType = "png";
+            (blobMimeType.includes("jpeg") || blobMimeType.includes("jpg")
+              ? (fallbackMimeType = "jpg")
+              : blobMimeType.includes("png")
+                ? (fallbackMimeType = "png")
+                : blobMimeType.includes("svg")
+                  ? (fallbackMimeType = "svg")
+                  : blobMimeType.includes("gif")
+                    ? (fallbackMimeType = "gif")
+                    : blobMimeType.includes("webp") && (fallbackMimeType = "webp"),
+              (fallbackExtension = `${(alt || downloadName || "image").replace(fileExtensionPattern, "")}.${fallbackMimeType}`));
           }
-          W2(z3, M2, M2.type);
-        } catch (P3) {
-          window.open(o2, "_blank");
+          downloadFile(fallbackExtension, imageBlob, imageBlob.type);
+        } catch (downloadError) {
+          window.open(src, "_blank");
         }
     };
-  return o2 ? (
+  return src ? (
     <div
-      className={i2("group relative my-4 inline-block")}
+      className={mergeClasses("group relative my-4 inline-block")}
       data-streamdown="image-wrapper"
     >
       <img
-        alt={n2}
-        className={i2("max-w-full rounded-lg", g2 && "hidden", t2)}
+        alt={alt}
+        className={mergeClasses("max-w-full rounded-lg", hasImageError && "hidden", className)}
         data-streamdown="image"
-        onError={v2}
-        onLoad={T2}
-        ref={d2}
-        src={o2}
-        {...a2}
+        onError={handleImageError}
+        onLoad={handleImageLoad}
+        ref={imageElementRef}
+        src={src}
+        {...additionalProps}
       />
-      {g2 && (
+      {hasImageError && (
         <span
-          className={i2("text-muted-foreground text-xs italic")}
+          className={mergeClasses("text-muted-foreground text-xs italic")}
           data-streamdown="image-fallback"
         >
-          {f2.imageNotAvailable}
+          {translations.imageNotAvailable}
         </span>
       )}
       <div
-        className={i2(
+        className={mergeClasses(
           "pointer-events-none absolute inset-0 hidden rounded-lg bg-black/10 group-hover:block",
         )}
       />
-      {b3 && (
+      {isImageReady && (
         <button
-          className={i2(
+          className={mergeClasses(
             "absolute right-2 bottom-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-border bg-background/90 shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-background",
             "opacity-0 group-hover:opacity-100",
           )}
-          onClick={w3}
-          title={f2.downloadImage}
+          onClick={downloadImage}
+          title={translations.downloadImage}
           type="button"
         >
-          {jsxRuntimeExports.jsx(l2, {
+          {jsxRuntimeExports.jsx(downloadIcon, {
             size: 14,
           })}
         </button>
@@ -311,125 +311,125 @@ var oo = ({
     </div>
   ) : null;
 };
-var so = ({ url: e2, isOpen: t2, onClose: o2, onConfirm: n2 }) => {
-  let { CheckIcon: r2, CopyIcon: s2, ExternalLinkIcon: a2, XIcon: l2 } = L(),
-    i2 = y3(),
-    [d2, c3] = reactExports.useState(false),
-    p3 = D3(),
-    m3 = reactExports.useCallback(async () => {
+var ExternalLinkConfirmation = ({ url, isOpen: confirmHandler, onClose: closeHandler, onConfirm: confirmLinkAction }) => {
+  let { CheckIcon: checkIcon, CopyIcon: copyIcon, ExternalLinkIcon: externalLinkIcon, XIcon: xIcon } = useMarkdownIcons(),
+    mergeClasses = useClassNameMerger(),
+    [hasCopiedLink, setHasCopiedLink] = reactExports.useState(false),
+    translations = useMarkdownTranslations(),
+    copyTableAsImage = reactExports.useCallback(async () => {
       try {
-        (await navigator.clipboard.writeText(e2),
-          c3(true),
-          setTimeout(() => c3(false), 2e3));
-      } catch (f2) {}
-    }, [e2]),
-    u4 = reactExports.useCallback(() => {
-      (n2(), o2());
-    }, [n2, o2]);
+        (await navigator.clipboard.writeText(url),
+          setHasCopiedLink(true),
+          setTimeout(() => setHasCopiedLink(false), 2e3));
+      } catch (caughtError) {}
+    }, [url]),
+    downloadTableAsImage = reactExports.useCallback(() => {
+      (confirmLinkAction(), closeHandler());
+    }, [confirmLinkAction, closeHandler]);
   return (
     reactExports.useEffect(() => {
-      if (t2) {
-        le();
-        let f2 = (h2) => {
-          h2.key === "Escape" && o2();
+      if (confirmHandler) {
+        lockBodyScroll();
+        let handleKeyDown = (keyboardEvent) => {
+          keyboardEvent.key === "Escape" && closeHandler();
         };
         return (
-          document.addEventListener("keydown", f2),
+          document.addEventListener("keydown", handleKeyDown),
           () => {
-            (document.removeEventListener("keydown", f2), ce());
+            (document.removeEventListener("keydown", handleKeyDown), unlockBodyScroll());
           }
         );
       }
-    }, [t2, o2]),
-    t2 ? (
+    }, [confirmHandler, closeHandler]),
+    confirmHandler ? (
       <div
-        className={i2(
+        className={mergeClasses(
           "fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm",
         )}
         data-streamdown="link-safety-modal"
-        onClick={o2}
-        onKeyDown={(f2) => {
-          f2.key === "Escape" && o2();
+        onClick={closeHandler}
+        onKeyDown={(keyboardHandler) => {
+          keyboardHandler.key === "Escape" && closeHandler();
         }}
         role="button"
         tabIndex={0}
       >
         <div
-          className={i2(
+          className={mergeClasses(
             "relative mx-4 flex w-full max-w-md flex-col gap-4 rounded-xl border bg-background p-6 shadow-lg",
           )}
-          onClick={(f2) => f2.stopPropagation()}
-          onKeyDown={(f2) => f2.stopPropagation()}
+          onClick={(clickHandler) => clickHandler.stopPropagation()}
+          onKeyDown={(keyboardHandler) => keyboardHandler.stopPropagation()}
           role="presentation"
         >
           <button
-            className={i2(
+            className={mergeClasses(
               "absolute top-4 right-4 rounded-md p-1 text-muted-foreground transition-all hover:bg-muted hover:text-foreground",
             )}
-            onClick={o2}
-            title={p3.close}
+            onClick={closeHandler}
+            title={translations.close}
             type="button"
           >
-            {jsxRuntimeExports.jsx(l2, {
+            {jsxRuntimeExports.jsx(xIcon, {
               size: 16,
             })}
           </button>
-          <div className={i2("flex flex-col gap-2")}>
+          <div className={mergeClasses("flex flex-col gap-2")}>
             <div
-              className={i2("flex items-center gap-2 font-semibold text-lg")}
+              className={mergeClasses("flex items-center gap-2 font-semibold text-lg")}
             >
-              {jsxRuntimeExports.jsx(a2, {
+              {jsxRuntimeExports.jsx(externalLinkIcon, {
                 size: 20,
               })}
-              <span>{p3.openExternalLink}</span>
+              <span>{translations.openExternalLink}</span>
             </div>
-            <p className={i2("text-muted-foreground text-sm")}>
-              {p3.externalLinkWarning}
+            <p className={mergeClasses("text-muted-foreground text-sm")}>
+              {translations.externalLinkWarning}
             </p>
           </div>
           <div
-            className={i2(
+            className={mergeClasses(
               "break-all rounded-md bg-muted p-3 font-mono text-sm",
-              e2.length > 100 && "max-h-32 overflow-y-auto",
+              url.length > 100 && "max-h-32 overflow-y-auto",
             )}
           >
-            {e2}
+            {url}
           </div>
-          <div className={i2("flex gap-2")}>
+          <div className={mergeClasses("flex gap-2")}>
             <button
-              className={i2(
+              className={mergeClasses(
                 "flex flex-1 items-center justify-center gap-2 rounded-md border bg-background px-4 py-2 font-medium text-sm transition-all hover:bg-muted",
               )}
-              onClick={m3}
+              onClick={copyTableAsImage}
               type="button"
             >
-              {d2 ? (
+              {hasCopiedLink ? (
                 <>
-                  {jsxRuntimeExports.jsx(r2, {
+                  {jsxRuntimeExports.jsx(checkIcon, {
                     size: 14,
                   })}
-                  <span>{p3.copied}</span>
+                  <span>{translations.copied}</span>
                 </>
               ) : (
                 <>
-                  {jsxRuntimeExports.jsx(s2, {
+                  {jsxRuntimeExports.jsx(copyIcon, {
                     size: 14,
                   })}
-                  <span>{p3.copyLink}</span>
+                  <span>{translations.copyLink}</span>
                 </>
               )}
             </button>
             <button
-              className={i2(
+              className={mergeClasses(
                 "flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-all hover:bg-primary/90",
               )}
-              onClick={u4}
+              onClick={downloadTableAsImage}
               type="button"
             >
-              {jsxRuntimeExports.jsx(a2, {
+              {jsxRuntimeExports.jsx(externalLinkIcon, {
                 size: 14,
               })}
-              <span>{p3.openLink}</span>
+              <span>{translations.openLink}</span>
             </button>
           </div>
         </div>
@@ -437,103 +437,103 @@ var so = ({ url: e2, isOpen: t2, onClose: o2, onConfirm: n2 }) => {
     ) : null
   );
 };
-var Co = ({
-  children: e2,
-  className: t2,
-  showCopy: o2 = true,
-  showDownload: n2 = true,
+var MediaLightbox = ({
+  children,
+  className,
+  showCopy = true,
+  showDownload = true,
 }) => {
-  let { Maximize2Icon: r2, XIcon: s2 } = L(),
-    a2 = y3(),
-    [l2, i2] = reactExports.useState(false),
-    { isAnimating: d2 } = reactExports.useContext(R),
-    c3 = D3(),
-    p3 = () => {
-      i2(true);
+  let { Maximize2Icon: maximizeIcon, XIcon: xIcon } = useMarkdownIcons(),
+    mergeClasses = useClassNameMerger(),
+    [isFullscreen, setIsFullscreen] = reactExports.useState(false),
+    { isAnimating } = reactExports.useContext(markdownRenderOptionsContext),
+    translations = useMarkdownTranslations(),
+    openFullscreen = () => {
+      setIsFullscreen(true);
     },
-    m3 = () => {
-      i2(false);
+    closeFullscreen = () => {
+      setIsFullscreen(false);
     };
   return (
     reactExports.useEffect(() => {
-      if (l2) {
-        le();
-        let u4 = (f2) => {
-          f2.key === "Escape" && i2(false);
+      if (isFullscreen) {
+        lockBodyScroll();
+        let handleFullscreenKeyDown = (keyboardEvent) => {
+          keyboardEvent.key === "Escape" && setIsFullscreen(false);
         };
         return (
-          document.addEventListener("keydown", u4),
+          document.addEventListener("keydown", handleFullscreenKeyDown),
           () => {
-            (document.removeEventListener("keydown", u4), ce());
+            (document.removeEventListener("keydown", handleFullscreenKeyDown), unlockBodyScroll());
           }
         );
       }
-    }, [l2]),
+    }, [isFullscreen]),
     (
       <>
         <button
-          className={a2(
+          className={mergeClasses(
             "cursor-pointer p-1 text-muted-foreground transition-all hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-            t2,
+            className,
           )}
-          disabled={d2}
-          onClick={p3}
-          title={c3.viewFullscreen}
+          disabled={isAnimating}
+          onClick={openFullscreen}
+          title={translations.viewFullscreen}
           type="button"
         >
-          {jsxRuntimeExports.jsx(r2, {
+          {jsxRuntimeExports.jsx(maximizeIcon, {
             size: 14,
           })}
         </button>
-        {l2
+        {isFullscreen
           ? reactDomExports.createPortal(
               <div
-                aria-label={c3.viewFullscreen}
+                aria-label={translations.viewFullscreen}
                 aria-modal="true"
-                className={a2("fixed inset-0 z-50 flex flex-col bg-background")}
+                className={mergeClasses("fixed inset-0 z-50 flex flex-col bg-background")}
                 data-streamdown="table-fullscreen"
-                onClick={m3}
-                onKeyDown={(u4) => {
-                  u4.key === "Escape" && m3();
+                onClick={closeFullscreen}
+                onKeyDown={(keyboardHandler) => {
+                  keyboardHandler.key === "Escape" && closeFullscreen();
                 }}
                 role="dialog"
               >
                 <div
-                  className={a2("flex h-full flex-col")}
-                  onClick={(u4) => u4.stopPropagation()}
-                  onKeyDown={(u4) => u4.stopPropagation()}
+                  className={mergeClasses("flex h-full flex-col")}
+                  onClick={(clickHandler) => clickHandler.stopPropagation()}
+                  onKeyDown={(keyboardHandler) => keyboardHandler.stopPropagation()}
                   role="presentation"
                 >
                   <div
-                    className={a2("flex items-center justify-end gap-1 p-4")}
+                    className={mergeClasses("flex items-center justify-end gap-1 p-4")}
                   >
-                    {o2 ? <Te /> : null}
-                    {n2 ? <Pe /> : null}
+                    {showCopy ? <MarkdownTable /> : null}
+                    {showDownload ? <TableDownloadMenu /> : null}
                     <button
-                      className={a2(
+                      className={mergeClasses(
                         "rounded-md p-1 text-muted-foreground transition-all hover:bg-muted hover:text-foreground",
                       )}
-                      onClick={m3}
-                      title={c3.exitFullscreen}
+                      onClick={closeFullscreen}
+                      title={translations.exitFullscreen}
                       type="button"
                     >
-                      {jsxRuntimeExports.jsx(s2, {
+                      {jsxRuntimeExports.jsx(xIcon, {
                         size: 20,
                       })}
                     </button>
                   </div>
                   <div
-                    className={a2(
+                    className={mergeClasses(
                       "flex-1 overflow-auto p-4 pt-0 [&_thead]:sticky [&_thead]:top-0 [&_thead]:z-10",
                     )}
                   >
                     <table
-                      className={a2(
+                      className={mergeClasses(
                         "w-full border-collapse border border-border",
                       )}
                       data-streamdown="table"
                     >
-                      {e2}
+                      {children}
                     </table>
                   </div>
                 </div>
@@ -545,745 +545,745 @@ var Co = ({
     )
   );
 };
-var vo = ({
-  children: e2,
-  className: t2,
-  showControls: o2,
-  showCopy: n2 = true,
-  showDownload: r2 = true,
-  showFullscreen: s2 = true,
-  ...a2
+var MarkdownTableCell = ({
+  children,
+  className,
+  showControls,
+  showCopy = true,
+  showDownload = true,
+  showFullscreen = true,
+  ...additionalProps
 }) => {
-  let l2 = y3(),
-    i2 = o2 && n2,
-    d2 = o2 && r2,
-    c3 = o2 && s2,
-    p3 = i2 || d2 || c3;
+  let mergeClasses = useClassNameMerger(),
+    canCopyTable = showControls && showCopy,
+    canDownloadTable = showControls && showDownload,
+    canCopyTableAsImage = showControls && showFullscreen,
+    hasTableActions = canCopyTable || canDownloadTable || canCopyTableAsImage;
   return (
     <div
-      className={l2(
+      className={mergeClasses(
         "my-4 flex flex-col gap-2 rounded-lg border border-border bg-sidebar p-2",
       )}
       data-streamdown="table-wrapper"
     >
-      {p3 ? (
-        <div className={l2("flex items-center justify-end gap-1")}>
-          {i2 ? <Te /> : null}
-          {d2 ? <Pe /> : null}
-          {c3 ? (
-            <Co showCopy={i2} showDownload={d2}>
-              {e2}
-            </Co>
+      {hasTableActions ? (
+        <div className={mergeClasses("flex items-center justify-end gap-1")}>
+          {canCopyTable ? <MarkdownTable /> : null}
+          {canDownloadTable ? <TableDownloadMenu /> : null}
+          {canCopyTableAsImage ? (
+            <MediaLightbox showCopy={canCopyTable} showDownload={canDownloadTable}>
+              {children}
+            </MediaLightbox>
           ) : null}
         </div>
       ) : null}
       <div
-        className={l2(
+        className={mergeClasses(
           "border-collapse overflow-x-auto overflow-y-auto rounded-md border border-border bg-background",
         )}
       >
         <table
-          className={l2("w-full divide-y divide-border", t2)}
+          className={mergeClasses("w-full divide-y divide-border", className)}
           data-streamdown="table"
-          {...a2}
+          {...additionalProps}
         >
-          {e2}
+          {children}
         </table>
       </div>
     </div>
   );
 };
-var es = /startLine=(\d+)/;
-var ts = /\bnoLineNumbers\b/;
-var os = reactExports.lazy(() =>
-  (() => Promise.resolve().then(() => mermaidGHXKKRXX))().then((e2) => ({
-    default: e2.Mermaid,
+var startingLinePattern = /startLine=(\d+)/;
+var noLineNumbersPattern = /\bnoLineNumbers\b/;
+var MermaidRenderer = reactExports.lazy(() =>
+  (() => Promise.resolve().then(() => mermaidGHXKKRXX))().then((loadedMermaidModule) => ({
+    default: loadedMermaidModule.Mermaid,
   })),
 );
-var ns = /language-([^\s]+)/;
-var ft = (e2, t2) => (typeof e2 == "boolean" ? e2 : e2[t2] !== false);
-var pt = (e2, t2) => {
-  if (typeof e2 == "boolean") return e2;
-  let o2 = e2.table;
-  return o2 === false
+var languageClassPattern = /language-([^\s]+)/;
+var isOptionEnabled = (controls, controlName) => (typeof controls == "boolean" ? controls : controls[controlName] !== false);
+var isTableActionEnabled = (controls, actionName) => {
+  if (typeof controls == "boolean") return controls;
+  let tableNode = controls.table;
+  return tableNode === false
     ? false
-    : o2 === true || o2 === void 0
+    : tableNode === true || tableNode === void 0
       ? true
-      : o2[t2] !== false;
+      : tableNode[actionName] !== false;
 };
-var bt = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+var MarkdownOrderedList = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <ol
-        className={r2(
+        className={mergeClasses(
           "list-inside list-decimal whitespace-normal [li_&]:pl-6",
-          t2,
+          className,
         )}
         data-streamdown="ordered-list"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </ol>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-bt.displayName = "MarkdownOl";
-var Po = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownOrderedList.displayName = "MarkdownOl";
+var MarkdownListItem = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <li
-        className={r2("py-1 [&>p]:inline", t2)}
+        className={mergeClasses("py-1 [&>p]:inline", className)}
         data-streamdown="list-item"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </li>
     );
   },
-  (e2, t2) => e2.className === t2.className && qe(e2.node, t2.node),
+  (previousProps, nextProps) => previousProps.className === nextProps.className && haveSameNodePosition(previousProps.node, nextProps.node),
 );
-Po.displayName = "MarkdownLi";
-var Mo = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownListItem.displayName = "MarkdownLi";
+var MarkdownUnorderedList = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <ul
-        className={r2(
+        className={mergeClasses(
           "list-inside list-disc whitespace-normal [li_&]:pl-6",
-          t2,
+          className,
         )}
         data-streamdown="unordered-list"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </ul>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Mo.displayName = "MarkdownUl";
-var Io = reactExports.memo(
-  ({ className: e2, node: t2, ...o2 }) => {
-    let n2 = y3();
+MarkdownUnorderedList.displayName = "MarkdownUl";
+var MarkdownHorizontalRule = reactExports.memo(
+  ({ className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <hr
-        className={n2("my-6 border-border", e2)}
+        className={mergeClasses("my-6 border-border", className)}
         data-streamdown="horizontal-rule"
-        {...o2}
+        {...additionalProps}
       />
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Io.displayName = "MarkdownHr";
-var No = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownHorizontalRule.displayName = "MarkdownHr";
+var MarkdownStrong = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <span
-        className={r2("font-semibold", t2)}
+        className={mergeClasses("font-semibold", className)}
         data-streamdown="strong"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </span>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-No.displayName = "MarkdownStrong";
-var rs = ({ children: e2, className: t2, href: o2, node: n2, ...r2 }) => {
-  let s2 = y3(),
-    { linkSafety: a2 } = reactExports.useContext(R),
-    [l2, i2] = reactExports.useState(false),
-    d2 = o2 === "streamdown:incomplete-link",
-    c3 = reactExports.useCallback(
-      async (f2) => {
-        if (!(!(a2 != null && a2.enabled && o2) || d2)) {
+MarkdownStrong.displayName = "MarkdownStrong";
+var MarkdownLink = ({ children, className, href, node: markdownNode, ...additionalProps }) => {
+  let mergeClasses = useClassNameMerger(),
+    { linkSafety } = reactExports.useContext(markdownRenderOptionsContext),
+    [isLinkSafetyOpen, setIsLinkSafetyOpen] = reactExports.useState(false),
+    isIncompleteLink = href === "streamdown:incomplete-link",
+    handleOpenLink = reactExports.useCallback(
+      async (linkEvent) => {
+        if (!(!(linkSafety != null && linkSafety.enabled && href) || isIncompleteLink)) {
           if (
-            (f2.preventDefault(), a2.onLinkCheck && (await a2.onLinkCheck(o2)))
+            (linkEvent.preventDefault(), linkSafety.onLinkCheck && (await linkSafety.onLinkCheck(href)))
           ) {
-            window.open(o2, "_blank", "noreferrer");
+            window.open(href, "_blank", "noreferrer");
             return;
           }
-          i2(true);
+          setIsLinkSafetyOpen(true);
         }
       },
-      [a2, o2, d2],
+      [linkSafety, href, isIncompleteLink],
     ),
-    p3 = reactExports.useCallback(() => {
-      o2 && window.open(o2, "_blank", "noreferrer");
-    }, [o2]),
-    m3 = reactExports.useCallback(() => {
-      i2(false);
+    copyLink = reactExports.useCallback(() => {
+      href && window.open(href, "_blank", "noreferrer");
+    }, [href]),
+    openExternalLink = reactExports.useCallback(() => {
+      setIsLinkSafetyOpen(false);
     }, []),
-    u4 = {
-      url: o2 != null ? o2 : "",
-      isOpen: l2,
-      onClose: m3,
-      onConfirm: p3,
+    linkAttributes = {
+      url: href != null ? href : "",
+      isOpen: isLinkSafetyOpen,
+      onClose: openExternalLink,
+      onConfirm: copyLink,
     };
-  return a2 != null && a2.enabled && o2 ? (
+  return linkSafety != null && linkSafety.enabled && href ? (
     <>
       <button
-        className={s2(
+        className={mergeClasses(
           "wrap-anywhere appearance-none text-left font-medium text-primary underline",
-          t2,
+          className,
         )}
-        data-incomplete={d2}
+        data-incomplete={isIncompleteLink}
         data-streamdown="link"
-        onClick={c3}
+        onClick={handleOpenLink}
         type="button"
       >
-        {e2}
+        {children}
       </button>
-      {a2.renderModal
-        ? a2.renderModal(u4)
-        : jsxRuntimeExports.jsx(so, {
-            ...u4,
+      {linkSafety.renderModal
+        ? linkSafety.renderModal(linkAttributes)
+        : jsxRuntimeExports.jsx(ExternalLinkConfirmation, {
+            ...linkAttributes,
           })}
     </>
   ) : (
     <a
-      className={s2("wrap-anywhere font-medium text-primary underline", t2)}
-      data-incomplete={d2}
+      className={mergeClasses("wrap-anywhere font-medium text-primary underline", className)}
+      data-incomplete={isIncompleteLink}
       data-streamdown="link"
-      href={o2}
+      href={href}
       rel="noreferrer"
       target="_blank"
-      {...r2}
+      {...additionalProps}
     >
-      {e2}
+      {children}
     </a>
   );
 };
-var Lo = reactExports.memo(rs, (e2, t2) => E2(e2, t2) && e2.href === t2.href);
-Lo.displayName = "MarkdownA";
-var Ro = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+var MemoizedMarkdownLink = reactExports.memo(MarkdownLink, (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps) && previousProps.href === nextProps.href);
+MemoizedMarkdownLink.displayName = "MarkdownA";
+var MarkdownHeadingOne = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <h1
-        className={r2("mt-6 mb-2 font-semibold text-3xl", t2)}
+        className={mergeClasses("mt-6 mb-2 font-semibold text-3xl", className)}
         data-streamdown="heading-1"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </h1>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Ro.displayName = "MarkdownH1";
-var So = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownHeadingOne.displayName = "MarkdownH1";
+var MarkdownHeadingTwo = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <h2
-        className={r2("mt-6 mb-2 font-semibold text-2xl", t2)}
+        className={mergeClasses("mt-6 mb-2 font-semibold text-2xl", className)}
         data-streamdown="heading-2"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </h2>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-So.displayName = "MarkdownH2";
-var Eo = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownHeadingTwo.displayName = "MarkdownH2";
+var MarkdownHeadingThree = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <h3
-        className={r2("mt-6 mb-2 font-semibold text-xl", t2)}
+        className={mergeClasses("mt-6 mb-2 font-semibold text-xl", className)}
         data-streamdown="heading-3"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </h3>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Eo.displayName = "MarkdownH3";
-var Ho = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownHeadingThree.displayName = "MarkdownH3";
+var MarkdownHeadingFour = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <h4
-        className={r2("mt-6 mb-2 font-semibold text-lg", t2)}
+        className={mergeClasses("mt-6 mb-2 font-semibold text-lg", className)}
         data-streamdown="heading-4"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </h4>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Ho.displayName = "MarkdownH4";
-var Do = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownHeadingFour.displayName = "MarkdownH4";
+var MarkdownHeadingFive = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <h5
-        className={r2("mt-6 mb-2 font-semibold text-base", t2)}
+        className={mergeClasses("mt-6 mb-2 font-semibold text-base", className)}
         data-streamdown="heading-5"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </h5>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Do.displayName = "MarkdownH5";
-var Bo = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownHeadingFive.displayName = "MarkdownH5";
+var MarkdownHeadingSix = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <h6
-        className={r2("mt-6 mb-2 font-semibold text-sm", t2)}
+        className={mergeClasses("mt-6 mb-2 font-semibold text-sm", className)}
         data-streamdown="heading-6"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </h6>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Bo.displayName = "MarkdownH6";
-var Ao = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let { controls: r2 } = reactExports.useContext(R),
-      s2 = ft(r2, "table"),
-      a2 = pt(r2, "copy"),
-      l2 = pt(r2, "download"),
-      i2 = pt(r2, "fullscreen");
-    return jsxRuntimeExports.jsx(vo, {
-      className: t2,
-      showControls: s2,
-      showCopy: a2,
-      showDownload: l2,
-      showFullscreen: i2,
-      ...n2,
-      children: e2,
+MarkdownHeadingSix.displayName = "MarkdownH6";
+var MarkdownTableRenderer = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let { controls: showTableControls } = reactExports.useContext(markdownRenderOptionsContext),
+      canCopyTable = isOptionEnabled(showTableControls, "table"),
+      canCopyTableData = isTableActionEnabled(showTableControls, "copy"),
+      canDownloadTable = isTableActionEnabled(showTableControls, "download"),
+      canFullscreenTable = isTableActionEnabled(showTableControls, "fullscreen");
+    return jsxRuntimeExports.jsx(MarkdownTableCell, {
+      className,
+      showControls: canCopyTable,
+      showCopy: canCopyTableData,
+      showDownload: canDownloadTable,
+      showFullscreen: canFullscreenTable,
+      ...additionalProps,
+      children,
     });
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Ao.displayName = "MarkdownTable";
-var Oo = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownTableRenderer.displayName = "MarkdownTable";
+var MarkdownTableHead = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <thead
-        className={r2("bg-muted/80", t2)}
+        className={mergeClasses("bg-muted/80", className)}
         data-streamdown="table-header"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </thead>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Oo.displayName = "MarkdownThead";
-var Vo = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownTableHead.displayName = "MarkdownThead";
+var MarkdownTableBody = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <tbody
-        className={r2("divide-y divide-border", t2)}
+        className={mergeClasses("divide-y divide-border", className)}
         data-streamdown="table-body"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </tbody>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Vo.displayName = "MarkdownTbody";
-var jo = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownTableBody.displayName = "MarkdownTbody";
+var MarkdownTableRowRenderer = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <tr
-        className={r2("border-border", t2)}
+        className={mergeClasses("border-border", className)}
         data-streamdown="table-row"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </tr>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-jo.displayName = "MarkdownTr";
-var Fo = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownTableRowRenderer.displayName = "MarkdownTr";
+var MarkdownTableHeaderCell = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <th
-        className={r2(
+        className={mergeClasses(
           "whitespace-nowrap px-4 py-2 text-left font-semibold text-sm",
-          t2,
+          className,
         )}
         data-streamdown="table-header-cell"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </th>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Fo.displayName = "MarkdownTh";
-var zo = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownTableHeaderCell.displayName = "MarkdownTh";
+var MarkdownDataCell = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <td
-        className={r2("px-4 py-2 text-sm", t2)}
+        className={mergeClasses("px-4 py-2 text-sm", className)}
         data-streamdown="table-cell"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </td>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-zo.displayName = "MarkdownTd";
-var _o = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownDataCell.displayName = "MarkdownTd";
+var MarkdownBlockquote = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
       <blockquote
-        className={r2(
+        className={mergeClasses(
           "my-4 border-muted-foreground/30 border-l-4 pl-4 text-muted-foreground italic",
-          t2,
+          className,
         )}
         data-streamdown="blockquote"
-        {...n2}
+        {...additionalProps}
       >
-        {e2}
+        {children}
       </blockquote>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-_o.displayName = "MarkdownBlockquote";
-var qo = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownBlockquote.displayName = "MarkdownBlockquote";
+var MarkdownSuperscript = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
-      <sup className={r2("text-sm", t2)} data-streamdown="superscript" {...n2}>
-        {e2}
+      <sup className={mergeClasses("text-sm", className)} data-streamdown="superscript" {...additionalProps}>
+        {children}
       </sup>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-qo.displayName = "MarkdownSup";
-var $o = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    let r2 = y3();
+MarkdownSuperscript.displayName = "MarkdownSup";
+var MarkdownSubscript = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    let mergeClasses = useClassNameMerger();
     return (
-      <sub className={r2("text-sm", t2)} data-streamdown="subscript" {...n2}>
-        {e2}
+      <sub className={mergeClasses("text-sm", className)} data-streamdown="subscript" {...additionalProps}>
+        {children}
       </sub>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-$o.displayName = "MarkdownSub";
-var Wo = reactExports.memo(
-  ({ children: e2, className: t2, node: o2, ...n2 }) => {
-    if ("data-footnotes" in n2) {
-      let s2 = (i2) => {
-          var m3, u4;
-          if (!reactExports.isValidElement(i2)) return false;
-          let d2 = Array.isArray(i2.props.children)
-              ? i2.props.children
-              : [i2.props.children],
-            c3 = false,
-            p3 = false;
-          for (let f2 of d2)
-            if (f2) {
-              if (typeof f2 == "string") f2.trim() !== "" && (c3 = true);
-              else if (reactExports.isValidElement(f2))
+MarkdownSubscript.displayName = "MarkdownSub";
+var MarkdownSection = reactExports.memo(
+  ({ children, className, node: markdownNode, ...additionalProps }) => {
+    if ("data-footnotes" in additionalProps) {
+      let getVisibleText = (renderedElement) => {
+          var firstChild, lastChild;
+          if (!reactExports.isValidElement(renderedElement)) return false;
+          let hasChildArray = Array.isArray(renderedElement.props.children)
+              ? renderedElement.props.children
+              : [renderedElement.props.children],
+            hasStringChild = false,
+            hasElementChild = false;
+          for (let childElement of hasChildArray)
+            if (childElement) {
+              if (typeof childElement == "string") childElement.trim() !== "" && (hasStringChild = true);
+              else if (reactExports.isValidElement(childElement))
                 if (
-                  ((m3 = f2.props) == null
+                  ((firstChild = childElement.props) == null
                     ? void 0
-                    : m3["data-footnote-backref"]) !== void 0
+                    : firstChild["data-footnote-backref"]) !== void 0
                 )
-                  p3 = true;
+                  hasElementChild = true;
                 else {
-                  let h2 = Array.isArray(f2.props.children)
-                    ? f2.props.children
-                    : [f2.props.children];
-                  for (let b3 of h2) {
-                    if (typeof b3 == "string" && b3.trim() !== "") {
-                      c3 = true;
+                  let childElements = Array.isArray(childElement.props.children)
+                    ? childElement.props.children
+                    : [childElement.props.children];
+                  for (let nestedChild of childElements) {
+                    if (typeof nestedChild == "string" && nestedChild.trim() !== "") {
+                      hasStringChild = true;
                       break;
                     }
                     if (
-                      reactExports.isValidElement(b3) &&
-                      ((u4 = b3.props) == null
+                      reactExports.isValidElement(nestedChild) &&
+                      ((lastChild = nestedChild.props) == null
                         ? void 0
-                        : u4["data-footnote-backref"]) === void 0
+                        : lastChild["data-footnote-backref"]) === void 0
                     ) {
-                      c3 = true;
+                      hasStringChild = true;
                       break;
                     }
                   }
                 }
             }
-          return p3 && !c3;
+          return hasElementChild && !hasStringChild;
         },
-        a2 = Array.isArray(e2)
-          ? e2.map((i2) => {
-              if (!reactExports.isValidElement(i2)) return i2;
-              if (i2.type === bt) {
-                let c3 = (
-                  Array.isArray(i2.props.children)
-                    ? i2.props.children
-                    : [i2.props.children]
-                ).filter((p3) => !s2(p3));
-                return c3.length === 0
+        renderedChildren = Array.isArray(children)
+          ? children.map((tableCell) => {
+              if (!reactExports.isValidElement(tableCell)) return tableCell;
+              if (tableCell.type === MarkdownOrderedList) {
+                let renderedTable = (
+                  Array.isArray(tableCell.props.children)
+                    ? tableCell.props.children
+                    : [tableCell.props.children]
+                ).filter((childNode) => !getVisibleText(childNode));
+                return renderedTable.length === 0
                   ? null
                   : {
-                      ...i2,
+                      ...tableCell,
                       props: {
-                        ...i2.props,
-                        children: c3,
+                        ...tableCell.props,
+                        children: renderedTable,
                       },
                     };
               }
-              return i2;
+              return tableCell;
             })
-          : e2;
+          : children;
       return (
-        Array.isArray(a2) ? a2.some((i2) => i2 !== null) : a2 !== null
+        Array.isArray(renderedChildren) ? renderedChildren.some((childNode) => childNode !== null) : renderedChildren !== null
       ) ? (
-        <section className={t2} {...n2}>
-          {a2}
+        <section className={className} {...additionalProps}>
+          {renderedChildren}
         </section>
       ) : null;
     }
     return (
-      <section className={t2} {...n2}>
-        {e2}
+      <section className={className} {...additionalProps}>
+        {children}
       </section>
     );
   },
-  (e2, t2) => E2(e2, t2),
+  (previousProps, nextProps) => areMarkdownPropsEqual(previousProps, nextProps),
 );
-Wo.displayName = "MarkdownSection";
-var ss = ({ node: e2, className: t2, children: o2, ...n2 }) => {
-  var S3, F2;
-  let r2 = y3(),
-    s2 = !("data-block" in n2),
-    { mermaid: a2, controls: l2, lineNumbers: i2 } = reactExports.useContext(R),
-    d2 = de(),
-    c3 = tt(),
-    p3 = t2 == null ? void 0 : t2.match(ns),
-    m3 = (S3 = p3 == null ? void 0 : p3.at(1)) != null ? S3 : "",
-    u4 = ao(m3);
-  if (s2)
+MarkdownSection.displayName = "MarkdownSection";
+var MarkdownCodeBlock = ({ node: markdownNode, className, children, ...additionalProps }) => {
+  var previousComponent, nextComponent;
+  let classNames = useClassNameMerger(),
+    isInlineCode = !("data-block" in additionalProps),
+    { mermaid: mermaidOptions, controls: showCodeControls, lineNumbers: showLineNumbers } = reactExports.useContext(markdownRenderOptionsContext),
+    mermaidContext = useMermaidOptions(),
+    isAnimating = useCodeAnimationState(),
+    languageMatch = className == null ? void 0 : className.match(languageClassPattern),
+    languageName = (previousComponent = languageMatch == null ? void 0 : languageMatch.at(1)) != null ? previousComponent : "",
+    languageRenderer = findRendererForLanguage(languageName);
+  if (isInlineCode)
     return (
       <code
-        className={r2("rounded bg-muted px-1.5 py-0.5 font-mono text-sm", t2)}
+        className={classNames("rounded bg-muted px-1.5 py-0.5 font-mono text-sm", className)}
         data-streamdown="inline-code"
-        {...n2}
+        {...additionalProps}
       >
-        {o2}
+        {children}
       </code>
     );
-  let f2 =
-      (F2 = e2 == null ? void 0 : e2.properties) == null
+  let codeMetadata =
+      (nextComponent = markdownNode == null ? void 0 : markdownNode.properties) == null
         ? void 0
-        : F2.metastring,
-    h2 = f2 == null ? void 0 : f2.match(es),
-    b3 = h2 ? Number.parseInt(h2[1], 10) : void 0,
-    g2 = b3 !== void 0 && b3 >= 1 ? b3 : void 0,
-    v2 = !(f2 ? ts.test(f2) : false) && i2 !== false,
-    w3 = "";
+        : nextComponent.metastring,
+    lineStartMatch = codeMetadata == null ? void 0 : codeMetadata.match(startingLinePattern),
+    startingLine = lineStartMatch ? Number.parseInt(lineStartMatch[1], 10) : void 0,
+    validStartingLine = startingLine !== void 0 && startingLine >= 1 ? startingLine : void 0,
+    shouldRenderLineNumbers = !(codeMetadata ? noLineNumbersPattern.test(codeMetadata) : false) && showLineNumbers !== false,
+    highlightedCode = "";
   if (
-    (reactExports.isValidElement(o2) &&
-    o2.props &&
-    typeof o2.props == "object" &&
-    "children" in o2.props &&
-    typeof o2.props.children == "string"
-      ? (w3 = o2.props.children)
-      : typeof o2 == "string" && (w3 = o2),
-    u4)
+    (reactExports.isValidElement(children) &&
+    children.props &&
+    typeof children.props == "object" &&
+    "children" in children.props &&
+    typeof children.props.children == "string"
+      ? (highlightedCode = children.props.children)
+      : typeof children == "string" && (highlightedCode = children),
+    languageRenderer)
   ) {
-    let j2 = u4.component;
+    let mermaidComponent = languageRenderer.component;
     return (
-      <reactExports.Suspense fallback={<Oe />}>
-        {jsxRuntimeExports.jsx(j2, {
-          code: w3,
-          isIncomplete: c3,
-          language: m3,
-          meta: f2,
+      <reactExports.Suspense fallback={<CodeBlockLoadingPlaceholder />}>
+        {jsxRuntimeExports.jsx(mermaidComponent, {
+          code: highlightedCode,
+          isIncomplete: isAnimating,
+          language: languageName,
+          meta: codeMetadata,
         })}
       </reactExports.Suspense>
     );
   }
-  if (m3 === "mermaid" && d2) {
-    let j2 = ft(l2, "mermaid"),
-      z3 = Fe(l2, "download"),
-      B2 = Fe(l2, "copy"),
-      _2 = Fe(l2, "fullscreen"),
-      Q2 = Fe(l2, "panZoom"),
-      U2 = j2 && (z3 || B2 || _2);
+  if (languageName === "mermaid" && mermaidContext) {
+    let showMermaidControls = isOptionEnabled(showCodeControls, "mermaid"),
+      canDownloadDiagram = isMermaidActionEnabled(showCodeControls, "download"),
+      canCopyDiagram = isMermaidActionEnabled(showCodeControls, "copy"),
+      canOpenDiagramFullscreen = isMermaidActionEnabled(showCodeControls, "fullscreen"),
+      canPanZoomDiagram = isMermaidActionEnabled(showCodeControls, "panZoom"),
+      hasDiagramControls = showMermaidControls && (canDownloadDiagram || canCopyDiagram || canOpenDiagramFullscreen);
     return (
-      <reactExports.Suspense fallback={<Oe />}>
+      <reactExports.Suspense fallback={<CodeBlockLoadingPlaceholder />}>
         <div
-          className={r2(
+          className={classNames(
             "group relative my-4 flex w-full flex-col gap-2 rounded-xl border border-border bg-sidebar p-2",
-            t2,
+            className,
           )}
           data-streamdown="mermaid-block"
         >
           <div
-            className={r2(
+            className={classNames(
               "flex h-8 items-center text-muted-foreground text-xs",
             )}
           >
-            <span className={r2("ml-1 font-mono lowercase")}>mermaid</span>
+            <span className={classNames("ml-1 font-mono lowercase")}>mermaid</span>
           </div>
-          {U2 ? (
+          {hasDiagramControls ? (
             <div
-              className={r2(
+              className={classNames(
                 "pointer-events-none sticky top-2 z-10 -mt-10 flex h-8 items-center justify-end",
               )}
             >
               <div
-                className={r2(
+                className={classNames(
                   "pointer-events-auto flex shrink-0 items-center gap-2 rounded-md border border-sidebar bg-sidebar/80 px-1.5 py-1 supports-[backdrop-filter]:bg-sidebar/70 supports-[backdrop-filter]:backdrop-blur",
                 )}
                 data-streamdown="mermaid-block-actions"
               >
-                {z3
-                  ? jsxRuntimeExports.jsx(co, {
-                      chart: w3,
-                      config: a2 == null ? void 0 : a2.config,
+                {canDownloadDiagram
+                  ? jsxRuntimeExports.jsx(MermaidDownloadButton, {
+                      chart: highlightedCode,
+                      config: mermaidOptions == null ? void 0 : mermaidOptions.config,
                     })
                   : null}
-                {B2 ? <Ae code={w3} /> : null}
-                {_2
-                  ? jsxRuntimeExports.jsx(fo, {
-                      chart: w3,
-                      config: a2 == null ? void 0 : a2.config,
+                {canCopyDiagram ? <CopyCodeButton code={highlightedCode} /> : null}
+                {canOpenDiagramFullscreen
+                  ? jsxRuntimeExports.jsx(MarkdownImage, {
+                      chart: highlightedCode,
+                      config: mermaidOptions == null ? void 0 : mermaidOptions.config,
                     })
                   : null}
               </div>
             </div>
           ) : null}
-          <div className={r2("rounded-md border border-border bg-background")}>
-            {jsxRuntimeExports.jsx(os, {
-              chart: w3,
-              config: a2 == null ? void 0 : a2.config,
-              showControls: Q2,
+          <div className={classNames("rounded-md border border-border bg-background")}>
+            {jsxRuntimeExports.jsx(MermaidRenderer, {
+              chart: highlightedCode,
+              config: mermaidOptions == null ? void 0 : mermaidOptions.config,
+              showControls: canPanZoomDiagram,
             })}
           </div>
         </div>
       </reactExports.Suspense>
     );
   }
-  let P3 = ft(l2, "code"),
-    M2 = To(l2, "download"),
-    H2 = To(l2, "copy");
-  return jsxRuntimeExports.jsx(st, {
-    className: t2,
-    code: w3,
-    isIncomplete: c3,
-    language: m3,
-    lineNumbers: v2,
-    startLine: g2,
-    children: P3 ? (
+  let canRenderCode = isOptionEnabled(showCodeControls, "code"),
+    canDownloadCode = isCodeActionEnabled(showCodeControls, "download"),
+    canCopyCode = isCodeActionEnabled(showCodeControls, "copy");
+  return jsxRuntimeExports.jsx(HighlightedCodeBlock, {
+    className,
+    code: highlightedCode,
+    isIncomplete: isAnimating,
+    language: languageName,
+    lineNumbers: shouldRenderLineNumbers,
+    startLine: validStartingLine,
+    children: canRenderCode ? (
       <>
-        {M2
-          ? jsxRuntimeExports.jsx(it, {
-              code: w3,
-              language: m3,
+        {canDownloadCode
+          ? jsxRuntimeExports.jsx(FileDownloadButton, {
+              code: highlightedCode,
+              language: languageName,
             })
           : null}
-        {H2 ? <Ae /> : null}
+        {canCopyCode ? <CopyCodeButton /> : null}
       </>
     ) : null,
   });
 };
-var Zo = reactExports.memo(
-  ss,
-  (e2, t2) => e2.className === t2.className && qe(e2.node, t2.node),
+var MemoizedMarkdownCode = reactExports.memo(
+  MarkdownCodeBlock,
+  (previousProps, nextProps) => previousProps.className === nextProps.className && haveSameNodePosition(previousProps.node, nextProps.node),
 );
-Zo.displayName = "MarkdownCode";
-var Xo = reactExports.memo(
-  oo,
-  (e2, t2) => e2.className === t2.className && qe(e2.node, t2.node),
+MemoizedMarkdownCode.displayName = "MarkdownCode";
+var MemoizedMarkdownImage = reactExports.memo(
+  MarkdownImageRenderer,
+  (previousProps, nextProps) => previousProps.className === nextProps.className && haveSameNodePosition(previousProps.node, nextProps.node),
 );
-Xo.displayName = "MarkdownImg";
-var Ko = {
-  ol: bt,
-  li: Po,
-  ul: Mo,
-  hr: Io,
-  strong: No,
-  a: Lo,
-  h1: Ro,
-  h2: So,
-  h3: Eo,
-  h4: Ho,
-  h5: Do,
-  h6: Bo,
-  table: Ao,
-  thead: Oo,
-  tbody: Vo,
-  tr: jo,
-  th: Fo,
-  td: zo,
-  blockquote: _o,
-  code: Zo,
-  img: Xo,
-  pre: ({ children: e2 }) =>
-    reactExports.isValidElement(e2)
-      ? reactExports.cloneElement(e2, {
+MemoizedMarkdownImage.displayName = "MarkdownImg";
+var markdownComponents = {
+  ol: MarkdownOrderedList,
+  li: MarkdownListItem,
+  ul: MarkdownUnorderedList,
+  hr: MarkdownHorizontalRule,
+  strong: MarkdownStrong,
+  a: MemoizedMarkdownLink,
+  h1: MarkdownHeadingOne,
+  h2: MarkdownHeadingTwo,
+  h3: MarkdownHeadingThree,
+  h4: MarkdownHeadingFour,
+  h5: MarkdownHeadingFive,
+  h6: MarkdownHeadingSix,
+  table: MarkdownTableRenderer,
+  thead: MarkdownTableHead,
+  tbody: MarkdownTableBody,
+  tr: MarkdownTableRowRenderer,
+  th: MarkdownTableHeaderCell,
+  td: MarkdownDataCell,
+  blockquote: MarkdownBlockquote,
+  code: MemoizedMarkdownCode,
+  img: MemoizedMarkdownImage,
+  pre: ({ children }) =>
+    reactExports.isValidElement(children)
+      ? reactExports.cloneElement(children, {
           "data-block": "true",
         })
-      : e2,
-  sup: qo,
-  sub: $o,
-  p: Jo,
-  section: Wo,
+      : children,
+  sup: MarkdownSuperscript,
+  sub: MarkdownSubscript,
+  p: MarkdownParagraph,
+  section: MarkdownSection,
 };
-var Zs = /^[ \t]*<[\w!/?-]/;
-var Xs = /(^|\n)[ \t]{4,}(?=<[\w!/?-])/g;
-var Js = (e2) =>
-  typeof e2 != "string" || e2.length === 0 || !Zs.test(e2)
-    ? e2
-    : e2.replace(Xs, "$1");
-var bn;
-var hn;
-var yn;
-var wn;
-var Ze = {
+var htmlStartPattern = /^[ \t]*<[\w!/?-]/;
+var indentedHtmlPattern = /(^|\n)[ \t]{4,}(?=<[\w!/?-])/g;
+var normalizeIndentedHtml = (htmlContent) =>
+  typeof htmlContent != "string" || htmlContent.length === 0 || !htmlStartPattern.test(htmlContent)
+    ? htmlContent
+    : htmlContent.replace(indentedHtmlPattern, "$1");
+var defaultHrefProtocols;
+var hrefProtocols;
+var defaultCodeAttributes;
+var codeAttributes;
+var markdownSanitizationSchema = {
   ...defaultSchema,
   protocols: {
     ...defaultSchema.protocols,
     href: [
-      ...((hn = (bn = defaultSchema.protocols) == null ? void 0 : bn.href) !=
+      ...((hrefProtocols = (defaultHrefProtocols = defaultSchema.protocols) == null ? void 0 : defaultHrefProtocols.href) !=
       null
-        ? hn
+        ? hrefProtocols
         : []),
       "tel",
     ],
@@ -1291,17 +1291,17 @@ var Ze = {
   attributes: {
     ...defaultSchema.attributes,
     code: [
-      ...((wn = (yn = defaultSchema.attributes) == null ? void 0 : yn.code) !=
+      ...((codeAttributes = (defaultCodeAttributes = defaultSchema.attributes) == null ? void 0 : defaultCodeAttributes.code) !=
       null
-        ? wn
+        ? codeAttributes
         : []),
       "metastring",
     ],
   },
 };
-var xt = {
+var rehypePluginRegistry = {
   raw: rehypeRaw,
-  sanitize: [rehypeSanitize, Ze],
+  sanitize: [rehypeSanitize, markdownSanitizationSchema],
   harden: [
     harden,
     {
@@ -1313,359 +1313,359 @@ var xt = {
     },
   ],
 };
-var Ks = {
+var remarkPluginRegistry = {
   gfm: [remarkGfm, {}],
-  codeMeta: un,
+  codeMeta: attachCodeMetadata,
 };
-var gn = Object.values(xt);
-var Us = Object.values(Ks);
-var Gs = {
+var defaultRehypePlugins = Object.values(rehypePluginRegistry);
+var defaultRemarkPlugins = Object.values(remarkPluginRegistry);
+var caretMarkers = {
   block: " ▋",
   circle: " ●",
 };
-var Tn = reactExports.memo(
+var defaultBlockRenderer = reactExports.memo(
   ({
-    content: e2,
-    shouldParseIncompleteMarkdown: t2,
-    shouldNormalizeHtmlIndentation: o2,
-    index: n2,
-    isIncomplete: r2,
-    dir: s2,
-    animatePlugin: a2,
-    ...l2
+    content,
+    shouldParseIncompleteMarkdown,
+    shouldNormalizeHtmlIndentation,
+    index,
+    isIncomplete,
+    dir,
+    animatePlugin,
+    ...additionalProps
   }) => {
-    if (a2) {
-      let c3 = a2.getLastRenderCharCount();
-      a2.setPrevContentLength(c3);
+    if (animatePlugin) {
+      let lastRenderCharCount = animatePlugin.getLastRenderCharCount();
+      animatePlugin.setPrevContentLength(lastRenderCharCount);
     }
-    let i2 = typeof e2 == "string" && o2 ? Js(e2) : e2,
-      d2 = <Ct2 {...l2}>{i2}</Ct2>;
+    let normalizedContent = typeof content == "string" && shouldNormalizeHtmlIndentation ? normalizeIndentedHtml(content) : content,
+      renderedContent = <MarkdownBlockRenderer {...additionalProps}>{normalizedContent}</MarkdownBlockRenderer>;
     return (
-      <et.Provider value={r2}>
-        {s2 ? (
+      <codeAnimationContext.Provider value={isIncomplete}>
+        {dir ? (
           <div
-            dir={s2}
+            dir={dir}
             style={{
               display: "contents",
             }}
           >
-            {d2}
+            {renderedContent}
           </div>
         ) : (
-          d2
+          renderedContent
         )}
-      </et.Provider>
+      </codeAnimationContext.Provider>
     );
   },
-  (e2, t2) => {
+  (previousProps, nextProps) => {
     if (
-      e2.content !== t2.content ||
-      e2.shouldNormalizeHtmlIndentation !== t2.shouldNormalizeHtmlIndentation ||
-      e2.index !== t2.index ||
-      e2.isIncomplete !== t2.isIncomplete ||
-      e2.dir !== t2.dir
+      previousProps.content !== nextProps.content ||
+      previousProps.shouldNormalizeHtmlIndentation !== nextProps.shouldNormalizeHtmlIndentation ||
+      previousProps.index !== nextProps.index ||
+      previousProps.isIncomplete !== nextProps.isIncomplete ||
+      previousProps.dir !== nextProps.dir
     )
       return false;
-    if (e2.components !== t2.components) {
-      let o2 = Object.keys(e2.components || {}),
-        n2 = Object.keys(t2.components || {});
+    if (previousProps.components !== nextProps.components) {
+      let previousComponentNames = Object.keys(previousProps.components || {}),
+        nextComponentNames = Object.keys(nextProps.components || {});
       if (
-        o2.length !== n2.length ||
-        o2.some((r2) => {
-          var s2, a2;
+        previousComponentNames.length !== nextComponentNames.length ||
+        previousComponentNames.some((componentName) => {
+          var previousComponent, nextComponent;
           return (
-            ((s2 = e2.components) == null ? void 0 : s2[r2]) !==
-            ((a2 = t2.components) == null ? void 0 : a2[r2])
+            ((previousComponent = previousProps.components) == null ? void 0 : previousComponent[componentName]) !==
+            ((nextComponent = nextProps.components) == null ? void 0 : nextComponent[componentName])
           );
         })
       )
         return false;
     }
     return !(
-      e2.rehypePlugins !== t2.rehypePlugins ||
-      e2.remarkPlugins !== t2.remarkPlugins
+      previousProps.rehypePlugins !== nextProps.rehypePlugins ||
+      previousProps.remarkPlugins !== nextProps.remarkPlugins
     );
   },
 );
-Tn.displayName = "Block";
-export var Qs = reactExports.memo(
+defaultBlockRenderer.displayName = "Block";
+export var Streamdown = reactExports.memo(
   ({
-    children: e2,
-    mode: t2 = "streaming",
-    dir: o2,
-    parseIncompleteMarkdown: n2 = true,
-    normalizeHtmlIndentation: r2 = false,
-    components: s2,
-    rehypePlugins: a2 = gn,
-    remarkPlugins: l2 = Us,
-    className: i2,
-    shikiTheme: d2 = vn,
-    mermaid: c3,
-    controls: p3 = true,
-    isAnimating: m3 = false,
-    animated: u4,
-    BlockComponent: f2 = Tn,
-    parseMarkdownIntoBlocksFn: h2 = kt,
-    caret: b3,
-    plugins: g2,
-    remend: T2,
-    linkSafety: v2 = xn,
-    lineNumbers: w3 = true,
-    allowedTags: P3,
-    literalTagContent: M2,
-    translations: H2,
-    icons: S3,
-    prefix: F2,
-    onAnimationStart: j2,
-    onAnimationEnd: z3,
-    ...B2
+    children,
+    mode = "streaming",
+    dir,
+    parseIncompleteMarkdown = true,
+    normalizeHtmlIndentation: normalizeHtml = false,
+    components,
+    rehypePlugins = defaultRehypePlugins,
+    remarkPlugins = defaultRemarkPlugins,
+    className,
+    shikiTheme = defaultCodeTheme,
+    mermaid,
+    controls = true,
+    isAnimating = false,
+    animated,
+    BlockComponent: blockComponent = defaultBlockRenderer,
+    parseMarkdownIntoBlocksFn = splitMarkdownIntoBlocks,
+    caret,
+    plugins,
+    remend,
+    linkSafety = defaultLinkSafety,
+    lineNumbers = true,
+    allowedTags,
+    literalTagContent,
+    translations,
+    icons,
+    prefix,
+    onAnimationStart,
+    onAnimationEnd,
+    ...additionalProps
   }) => {
-    let _2 = reactExports.useId(),
-      [Q2, U2] = reactExports.useTransition(),
-      x2 = reactExports.useMemo(() => Dt(F2), [F2]),
-      q2 = reactExports.useRef(null),
-      X2 = reactExports.useRef(j2),
-      Re2 = reactExports.useRef(z3);
-    ((X2.current = j2),
-      (Re2.current = z3),
+    let componentId = reactExports.useId(),
+      [isTransitionPending, startTransition] = reactExports.useTransition(),
+      mergeClasses = reactExports.useMemo(() => createClassNameMerger(prefix), [prefix]),
+      previousAnimationState = reactExports.useRef(null),
+      animationStartCallbackRef = reactExports.useRef(onAnimationStart),
+      animationEndCallbackRef = reactExports.useRef(onAnimationEnd);
+    ((animationStartCallbackRef.current = onAnimationStart),
+      (animationEndCallbackRef.current = onAnimationEnd),
       reactExports.useEffect(() => {
-        var A2, K3, ee2;
-        if (t2 === "static") return;
-        let k2 = q2.current;
-        if (((q2.current = m3), k2 === null)) {
-          m3 && ((A2 = X2.current) == null || A2.call(X2));
+        var onAnimationStart, onAnimationEnd, onAnimationComplete;
+        if (mode === "static") return;
+        let wasAnimating = previousAnimationState.current;
+        if (((previousAnimationState.current = isAnimating), wasAnimating === null)) {
+          isAnimating && ((onAnimationStart = animationStartCallbackRef.current) == null || onAnimationStart.call(animationStartCallbackRef));
           return;
         }
-        m3 && !k2
-          ? (K3 = X2.current) == null || K3.call(X2)
-          : !m3 && k2 && ((ee2 = Re2.current) == null || ee2.call(Re2));
-      }, [m3, t2]));
-    let Je2 = reactExports.useMemo(() => (P3 ? Object.keys(P3) : []), [P3]),
-      Se2 = reactExports.useMemo(() => {
-        if (typeof e2 != "string") return "";
-        let k2 = t2 === "streaming" && n2 ? $e$1(e2, T2) : e2;
+        isAnimating && !wasAnimating
+          ? (onAnimationEnd = animationStartCallbackRef.current) == null || onAnimationEnd.call(animationStartCallbackRef)
+          : !isAnimating && wasAnimating && ((onAnimationComplete = animationEndCallbackRef.current) == null || onAnimationComplete.call(animationEndCallbackRef));
+      }, [isAnimating, mode]));
+    let allowedTagNames = reactExports.useMemo(() => (allowedTags ? Object.keys(allowedTags) : []), [allowedTags]),
+      markdownContent = reactExports.useMemo(() => {
+        if (typeof children != "string") return "";
+        let processedMarkdown = mode === "streaming" && parseIncompleteMarkdown ? remendMarkdown(children, remend) : children;
         return (
-          M2 && M2.length > 0 && (k2 = cn(k2, M2)),
-          Je2.length > 0 && (k2 = ln(k2, Je2)),
-          k2
+          literalTagContent && literalTagContent.length > 0 && (processedMarkdown = preserveLiteralTagContent(processedMarkdown, literalTagContent)),
+          allowedTagNames.length > 0 && (processedMarkdown = preserveHtmlWhitespace(processedMarkdown, allowedTagNames)),
+          processedMarkdown
         );
-      }, [e2, t2, n2, T2, Je2, M2]),
-      fe2 = reactExports.useMemo(() => h2(Se2), [Se2, h2]),
-      [Ln2, Tt2] = reactExports.useState(fe2);
+      }, [children, mode, parseIncompleteMarkdown, remend, allowedTagNames, literalTagContent]),
+      markdownBlocks = reactExports.useMemo(() => parseMarkdownIntoBlocksFn(markdownContent), [markdownContent, parseMarkdownIntoBlocksFn]),
+      [previousMarkdownBlocks, setMarkdownBlocks] = reactExports.useState(markdownBlocks);
     reactExports.useEffect(() => {
-      t2 === "streaming" && !ge2
-        ? U2(() => {
-            Tt2(fe2);
+      mode === "streaming" && !renderPlugins
+        ? startTransition(() => {
+            setMarkdownBlocks(markdownBlocks);
           })
-        : Tt2(fe2);
-    }, [fe2, t2]);
-    let J3 = t2 === "streaming" ? Ln2 : fe2,
-      Ke2 = reactExports.useMemo(
-        () => (o2 === "auto" ? J3.map($e) : void 0),
-        [J3, o2],
+        : setMarkdownBlocks(markdownBlocks);
+    }, [markdownBlocks, mode]);
+    let displayedBlocks = mode === "streaming" ? previousMarkdownBlocks : markdownBlocks,
+      componentOverrides = reactExports.useMemo(
+        () => (dir === "auto" ? displayedBlocks.map(getTextDirection) : void 0),
+        [displayedBlocks, dir],
       ),
-      Rn2 = reactExports.useMemo(
-        () => J3.map((k2, A2) => `${_2}-${A2}`),
-        [J3.length, _2],
+      componentMetadata = reactExports.useMemo(
+        () => displayedBlocks.map((blockId, blockIndex) => `${componentId}-${blockIndex}`),
+        [displayedBlocks.length, componentId],
       ),
-      Ue2 = reactExports.useMemo(
-        () => (u4 === true ? "true" : u4 ? JSON.stringify(u4) : ""),
-        [u4],
+      animatedCode = reactExports.useMemo(
+        () => (animated === true ? "true" : animated ? JSON.stringify(animated) : ""),
+        [animated],
       ),
-      ge2 = reactExports.useMemo(
-        () => (Ue2 ? (Ue2 === "true" ? be() : be(u4)) : null),
-        [Ue2],
+      renderPlugins = reactExports.useMemo(
+        () => (animatedCode ? (animatedCode === "true" ? createAnimationStyles() : createAnimationStyles(animated)) : null),
+        [animatedCode],
       ),
-      Pt2 = reactExports.useMemo(() => {
-        var k2, A2;
+      markdownRenderOptions = reactExports.useMemo(() => {
+        var codeTheme, selectedCodeTheme;
         return {
           shikiTheme:
-            (A2 =
-              (k2 = g2 == null ? void 0 : g2.code) == null
+            (selectedCodeTheme =
+              (codeTheme = plugins == null ? void 0 : plugins.code) == null
                 ? void 0
-                : k2.getThemes()) != null
-              ? A2
-              : d2,
-          controls: p3,
-          isAnimating: m3,
-          lineNumbers: w3,
-          mode: t2,
-          mermaid: c3,
-          linkSafety: v2,
+                : codeTheme.getThemes()) != null
+              ? selectedCodeTheme
+              : shikiTheme,
+          controls,
+          isAnimating,
+          lineNumbers,
+          mode,
+          mermaid,
+          linkSafety,
         };
-      }, [d2, p3, m3, w3, t2, c3, v2, g2 == null ? void 0 : g2.code]),
-      Sn2 = reactExports.useMemo(() => (H2 ? JSON.stringify(H2) : ""), [H2]),
-      Mt2 = reactExports.useMemo(
+      }, [shikiTheme, controls, isAnimating, lineNumbers, mode, mermaid, linkSafety, plugins == null ? void 0 : plugins.code]),
+      translationsKey = reactExports.useMemo(() => (translations ? JSON.stringify(translations) : ""), [translations]),
+      codeRenderOptions = reactExports.useMemo(
         () => ({
-          ...De,
-          ...H2,
+          ...defaultMarkdownTranslations,
+          ...translations,
         }),
-        [Sn2],
+        [translationsKey],
       ),
-      It2 = reactExports.useMemo(() => {
-        let { inlineCode: k2, ...A2 } = s2 != null ? s2 : {},
-          K3 = {
-            ...Ko,
-            ...A2,
+      mergedComponents = reactExports.useMemo(() => {
+        let { inlineCode: InlineCode, ...componentOverrides } = components != null ? components : {},
+          codeComponentOverrides = {
+            ...markdownComponents,
+            ...componentOverrides,
           };
-        if (k2) {
-          let ee2 = K3.code;
-          K3.code = (ie2) =>
-            "data-block" in ie2
-              ? ee2
-                ? reactExports.createElement(ee2, ie2)
+        if (InlineCode) {
+          let CodeBlock = codeComponentOverrides.code;
+          codeComponentOverrides.code = (codeBlockProps) =>
+            "data-block" in codeBlockProps
+              ? CodeBlock
+                ? reactExports.createElement(CodeBlock, codeBlockProps)
                 : null
-              : reactExports.createElement(k2, ie2);
+              : reactExports.createElement(InlineCode, codeBlockProps);
         }
-        return K3;
-      }, [s2]),
-      Nt2 = reactExports.useMemo(() => {
-        let k2 = [];
+        return codeComponentOverrides;
+      }, [components]),
+      finalRemarkPlugins = reactExports.useMemo(() => {
+        let baseRemarkPlugins = [];
         return (
-          g2 != null && g2.cjk && (k2 = [...k2, ...g2.cjk.remarkPluginsBefore]),
-          (k2 = [...k2, ...l2]),
-          g2 != null && g2.cjk && (k2 = [...k2, ...g2.cjk.remarkPluginsAfter]),
-          g2 != null && g2.math && (k2 = [...k2, g2.math.remarkPlugin]),
-          k2
+          plugins != null && plugins.cjk && (baseRemarkPlugins = [...baseRemarkPlugins, ...plugins.cjk.remarkPluginsBefore]),
+          (baseRemarkPlugins = [...baseRemarkPlugins, ...remarkPlugins]),
+          plugins != null && plugins.cjk && (baseRemarkPlugins = [...baseRemarkPlugins, ...plugins.cjk.remarkPluginsAfter]),
+          plugins != null && plugins.math && (baseRemarkPlugins = [...baseRemarkPlugins, plugins.math.remarkPlugin]),
+          baseRemarkPlugins
         );
-      }, [l2, g2 == null ? void 0 : g2.math, g2 == null ? void 0 : g2.cjk]),
-      Lt2 = reactExports.useMemo(() => {
-        var A2;
-        let k2 = a2;
-        if (P3 && Object.keys(P3).length > 0 && a2 === gn) {
-          let K3 = {
-            ...Ze,
+      }, [remarkPlugins, plugins == null ? void 0 : plugins.math, plugins == null ? void 0 : plugins.cjk]),
+      configuredRehypePlugins = reactExports.useMemo(() => {
+        var sanitizedAllowedTags;
+        let baseRehypePlugins = rehypePlugins;
+        if (allowedTags && Object.keys(allowedTags).length > 0 && rehypePlugins === defaultRehypePlugins) {
+          let sanitizedPlugins = {
+            ...markdownSanitizationSchema,
             tagNames: [
-              ...((A2 = Ze.tagNames) != null ? A2 : []),
-              ...Object.keys(P3),
+              ...((sanitizedAllowedTags = markdownSanitizationSchema.tagNames) != null ? sanitizedAllowedTags : []),
+              ...Object.keys(allowedTags),
             ],
             attributes: {
-              ...Ze.attributes,
-              ...P3,
+              ...markdownSanitizationSchema.attributes,
+              ...allowedTags,
             },
           };
-          k2 = [xt.raw, [rehypeSanitize, K3], xt.harden];
+          baseRehypePlugins = [rehypePluginRegistry.raw, [rehypeSanitize, sanitizedPlugins], rehypePluginRegistry.harden];
         }
         return (
-          M2 && M2.length > 0 && (k2 = [...k2, [mn, M2]]),
-          g2 != null && g2.math && (k2 = [...k2, g2.math.rehypePlugin]),
-          ge2 && m3 && (k2 = [...k2, ge2.rehypePlugin]),
-          k2
+          literalTagContent && literalTagContent.length > 0 && (baseRehypePlugins = [...baseRehypePlugins, [preserveRawTagContent, literalTagContent]]),
+          plugins != null && plugins.math && (baseRehypePlugins = [...baseRehypePlugins, plugins.math.rehypePlugin]),
+          renderPlugins && isAnimating && (baseRehypePlugins = [...baseRehypePlugins, renderPlugins.rehypePlugin]),
+          baseRehypePlugins
         );
-      }, [a2, g2 == null ? void 0 : g2.math, ge2, m3, P3, M2]),
-      Ge2 = reactExports.useMemo(() => {
-        if (!m3 || J3.length === 0) return false;
-        let k2 = J3.at(-1);
-        return ht(k2) || Uo(k2);
-      }, [m3, J3]),
-      En2 = reactExports.useMemo(
+      }, [rehypePlugins, plugins == null ? void 0 : plugins.math, renderPlugins, isAnimating, allowedTags, literalTagContent]),
+      caretStyle = reactExports.useMemo(() => {
+        if (!isAnimating || displayedBlocks.length === 0) return false;
+        let lastMarkdownBlock = displayedBlocks.at(-1);
+        return hasUnclosedCodeFence(lastMarkdownBlock) || hasTableSeparator(lastMarkdownBlock);
+      }, [isAnimating, displayedBlocks]),
+      containerStyle = reactExports.useMemo(
         () =>
-          b3 && m3 && !Ge2
+          caret && isAnimating && !caretStyle
             ? {
-                "--streamdown-caret": `"${Gs[b3]}"`,
+                "--streamdown-caret": `"${caretMarkers[caret]}"`,
               }
             : void 0,
-        [b3, m3, Ge2],
+        [caret, isAnimating, caretStyle],
       );
-    return t2 === "static" ? (
-      <Be.Provider value={Mt2}>
-        <Ve.Provider value={g2 != null ? g2 : null}>
-          <R.Provider value={Pt2}>
-            {jsxRuntimeExports.jsx(at, {
-              icons: S3,
+    return mode === "static" ? (
+      <markdownTranslationContext.Provider value={codeRenderOptions}>
+        <markdownRenderContext.Provider value={plugins != null ? plugins : null}>
+          <markdownRenderOptionsContext.Provider value={markdownRenderOptions}>
+            {jsxRuntimeExports.jsx(iconContextProvider, {
+              icons,
               children: (
-                <Ee.Provider value={x2}>
+                <classNameMergerContext.Provider value={mergeClasses}>
                   <div
-                    className={x2(
+                    className={mergeClasses(
                       "space-y-4 whitespace-normal [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
-                      i2,
+                      className,
                     )}
-                    dir={o2 === "auto" ? $e(Se2) : o2}
+                    dir={dir === "auto" ? getTextDirection(markdownContent) : dir}
                   >
-                    <Ct2
-                      components={It2}
-                      rehypePlugins={Lt2}
-                      remarkPlugins={Nt2}
-                      {...B2}
+                    <MarkdownBlockRenderer
+                      components={mergedComponents}
+                      rehypePlugins={configuredRehypePlugins}
+                      remarkPlugins={finalRemarkPlugins}
+                      {...additionalProps}
                     >
-                      {Se2}
-                    </Ct2>
+                      {markdownContent}
+                    </MarkdownBlockRenderer>
                   </div>
-                </Ee.Provider>
+                </classNameMergerContext.Provider>
               ),
             })}
-          </R.Provider>
-        </Ve.Provider>
-      </Be.Provider>
+          </markdownRenderOptionsContext.Provider>
+        </markdownRenderContext.Provider>
+      </markdownTranslationContext.Provider>
     ) : (
-      <Be.Provider value={Mt2}>
-        <Ve.Provider value={g2 != null ? g2 : null}>
-          <R.Provider value={Pt2}>
-            {jsxRuntimeExports.jsx(at, {
-              icons: S3,
+      <markdownTranslationContext.Provider value={codeRenderOptions}>
+        <markdownRenderContext.Provider value={plugins != null ? plugins : null}>
+          <markdownRenderOptionsContext.Provider value={markdownRenderOptions}>
+            {jsxRuntimeExports.jsx(iconContextProvider, {
+              icons,
               children: (
-                <Ee.Provider value={x2}>
+                <classNameMergerContext.Provider value={mergeClasses}>
                   <div
-                    className={x2(
+                    className={mergeClasses(
                       "space-y-4 whitespace-normal [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
-                      b3 && !Ge2
+                      caret && !caretStyle
                         ? "[&>*:last-child]:after:inline [&>*:last-child]:after:align-baseline [&>*:last-child]:after:content-[var(--streamdown-caret)]"
                         : null,
-                      i2,
+                      className,
                     )}
-                    style={En2}
+                    style={containerStyle}
                   >
-                    {J3.length === 0 && b3 && m3 && <span />}
-                    {J3.map((k2, A2) => {
-                      var ie2;
-                      let K3 = A2 === J3.length - 1,
-                        ee2 = m3 && K3 && ht(k2);
+                    {displayedBlocks.length === 0 && caret && isAnimating && <span />}
+                    {displayedBlocks.map((markdownBlock, blockIndex) => {
+                      var renderedBlockComponent;
+                      let isLastBlock = blockIndex === displayedBlocks.length - 1,
+                        isIncompleteBlock = isAnimating && isLastBlock && hasUnclosedCodeFence(markdownBlock);
                       return jsxRuntimeExports.jsx(
-                        f2,
+                        blockComponent,
                         {
-                          animatePlugin: ge2,
-                          components: It2,
-                          content: k2,
+                          animatePlugin: renderPlugins,
+                          components: mergedComponents,
+                          content: markdownBlock,
                           dir:
-                            (ie2 = Ke2 == null ? void 0 : Ke2[A2]) != null
-                              ? ie2
-                              : o2 !== "auto"
-                                ? o2
+                            (renderedBlockComponent = componentOverrides == null ? void 0 : componentOverrides[blockIndex]) != null
+                              ? renderedBlockComponent
+                              : dir !== "auto"
+                                ? dir
                                 : void 0,
-                          index: A2,
-                          isIncomplete: ee2,
-                          rehypePlugins: Lt2,
-                          remarkPlugins: Nt2,
-                          shouldNormalizeHtmlIndentation: r2,
-                          shouldParseIncompleteMarkdown: n2,
-                          ...B2,
+                          index: blockIndex,
+                          isIncomplete: isIncompleteBlock,
+                          rehypePlugins: configuredRehypePlugins,
+                          remarkPlugins: finalRemarkPlugins,
+                          shouldNormalizeHtmlIndentation: normalizeHtml,
+                          shouldParseIncompleteMarkdown: parseIncompleteMarkdown,
+                          ...additionalProps,
                         },
-                        Rn2[A2],
+                        componentMetadata[blockIndex],
                       );
                     })}
                   </div>
-                </Ee.Provider>
+                </classNameMergerContext.Provider>
               ),
             })}
-          </R.Provider>
-        </Ve.Provider>
-      </Be.Provider>
+          </markdownRenderOptionsContext.Provider>
+        </markdownRenderContext.Provider>
+      </markdownTranslationContext.Provider>
     );
   },
-  (e2, t2) =>
-    e2.children === t2.children &&
-    e2.shikiTheme === t2.shikiTheme &&
-    e2.isAnimating === t2.isAnimating &&
-    e2.animated === t2.animated &&
-    e2.mode === t2.mode &&
-    e2.plugins === t2.plugins &&
-    e2.className === t2.className &&
-    e2.linkSafety === t2.linkSafety &&
-    e2.lineNumbers === t2.lineNumbers &&
-    e2.normalizeHtmlIndentation === t2.normalizeHtmlIndentation &&
-    e2.literalTagContent === t2.literalTagContent &&
-    JSON.stringify(e2.translations) === JSON.stringify(t2.translations) &&
-    e2.prefix === t2.prefix &&
-    e2.dir === t2.dir,
+  (previousProps, nextProps) =>
+    previousProps.children === nextProps.children &&
+    previousProps.shikiTheme === nextProps.shikiTheme &&
+    previousProps.isAnimating === nextProps.isAnimating &&
+    previousProps.animated === nextProps.animated &&
+    previousProps.mode === nextProps.mode &&
+    previousProps.plugins === nextProps.plugins &&
+    previousProps.className === nextProps.className &&
+    previousProps.linkSafety === nextProps.linkSafety &&
+    previousProps.lineNumbers === nextProps.lineNumbers &&
+    previousProps.normalizeHtmlIndentation === nextProps.normalizeHtmlIndentation &&
+    previousProps.literalTagContent === nextProps.literalTagContent &&
+    JSON.stringify(previousProps.translations) === JSON.stringify(nextProps.translations) &&
+    previousProps.prefix === nextProps.prefix &&
+    previousProps.dir === nextProps.dir,
 );
-Qs.displayName = "Streamdown";
+Streamdown.displayName = "Streamdown";
