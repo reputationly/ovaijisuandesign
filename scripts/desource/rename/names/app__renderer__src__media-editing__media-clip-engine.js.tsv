@@ -1,0 +1,86 @@
+key	new	依据
+ctx@34:11	decoderContext	持有素材视频解码器上下文，读取画布生成器并缓存下一帧。
+ctx@47:13	decoderContext	持有素材视频解码器上下文，按时间戳限制 seek 范围并更新下一帧。
+ctx@145:16	decoderContext	异步清理回调拿到的视频解码器上下文，用于清空缓存帧。
+ctx@174:15	decoderContext	待释放素材的视频解码器上下文，清空下一帧并释放输入。
+ctx@189:15	decoderContext	待清空全部缓存时取得的视频解码器上下文，随后释放输入。
+e2@258:27	messageEvent	Worker 收到波形计算结果时触发的消息事件，提供 jobId 和 peaks。
+job@260:15	workerJob	按 jobId 查到的待处理 Worker 任务，成功后从 pending 表删除并 resolve。
+e2@266:25	errorEvent	Worker 出错时触发的错误事件，提供消息文本以拒绝所有待处理任务。
+job@267:23	workerJob	待 Worker 错误拒绝的任务对象，调用其 reject 结束请求。
+ctx@289:11	audioContext	用于解码音频文件并取得 AudioBuffer 的 Web Audio 上下文。
+i2@337:14	peakIndex	正在写入峰值数组的像素区间索引。
+j2@342:16	sampleIndex	当前像素区间内读取的音频样本索引。
+val@343:15	sampleValue	当前音频样本振幅，用来更新区间最小值和最大值。
+k2@400:36	key	正在比较 partial 与 store.state 中对应值的状态属性键。
+c3@491:42	clip	待删除的时间线片段，用其 assetId 检查素材是否还被其他片段使用。
+c3@494:10	clip	正在检查素材引用关系的其他时间线片段。
+c3@501:39	clip	过滤要删除的片段时正在检查的时间线片段。
+id2@503:49	selectedClipId	选中片段集合中正在过滤的 ID，用于移除被删除片段的选择状态。
+c3@509:16	clip	遍历清空时间线前的片段以收集其素材 ID。
+id2@512:16	assetId	待触发孤儿素材清理回调的素材 ID。
+old@527:11	previousFrame	之前缓存的预览帧；换入不同帧时先关闭旧 ImageBitmap。
+old@546:11	previousFrame	reset 前保存的预览帧，存在时立即关闭以释放资源。
+t2@556:24	time	转发给 setCurrentTime 的时间值。
+s2@557:18	scale	转发给 setScale 的时间线缩放倍率。
+sx@558:20	timelineScrollX	转发给 setScrollX 的水平滚动位置。
+id2@559:20	clipId	转发给 selectClip 的片段标识。
+id2@560:22	clipId	转发给 setHoverClip 的片段标识。
+id2@562:20	clipId	传给 updateClip 的目标片段 ID。
+id2@563:20	clipId	传给 removeClip 的目标片段 ID。
+id2@611:49	assetId	视频帧缓存查询媒体注册表时使用的素材 ID。
+s2@742:11	state	添加媒体前读取的时间线状态，用于判断是否需要清理旧片段。
+c3@744:49	clip	旧片段列表中正在收集素材 ID 的时间线片段。
+e2@765:14	error	获取视频元数据失败时捕获的异常并写入警告日志。
+e2@831:64	error	提取音频波形失败时捕获的异常并写入警告日志。
+c3@874:24	clip	用于筛选当前活跃音频片段的时间线片段。
+d2@895:13	duration	裁剪范围终点减起点所得时长，用于校验允许的裁剪区间。
+s2@914:11	state	导出裁剪视频时读取的时间线状态，提供片段和裁剪范围。
+s2@940:11	state	开始播放前读取的状态，用于检查播放位置并确定当前片段。
+s2@975:11	state	切换播放状态前读取的时间线快照。
+c3@998:8	clip	查找给定时间覆盖片段时正在检查的片段。
+c3@1007:8	clip	查找画布预览时间覆盖片段时正在检查的片段。
+c3@1086:8	clip	异步更新预览帧时用于时间范围匹配的片段。
+c3@1115:10	clip	直接解码预览帧时用于时间范围匹配的片段。
+s2@1181:13	state	播放动画帧更新时读取的时间线状态，提供裁剪范围和当前时间。
+getAsset2@20:15	getAsset	构造器接收的素材查询函数，保存后供视频帧缓存读取文件素材。
+timestamp2@26:30	timestamp	创建画布生成器时传入的目标视频时间戳。
+timestamp2@43:33	timestamp	获取预览视频帧时传入的目标时间戳。
+current2@67:17	current	当前待处理的视频帧，达到目标时间后用于保留最后一帧。
+next2@68:17	next	从画布生成器取得的下一视频帧，替换缓存帧继续扫描。
+timestamp2@96:27	timestamp	getFrame 转发给 getFrameCanvas 的目标时间戳。
+url2@255:13	url	由波形 Worker Blob 创建并立即撤销的对象 URL。
+start2@338:13	start	当前峰值像素区间第一个音频样本的索引。
+end2@339:13	end	当前峰值像素区间最后一个样本之后的边界索引。
+min2@340:11	min	当前像素区间已读取样本的最小振幅。
+max2@341:11	max	当前像素区间已读取样本的最大振幅。
+keys2@399:11	keys	本次 partial 更新涉及的时间线状态属性键数组。
+scale2@437:12	scale	调用者请求设置的时间线缩放倍率。
+MIN_SCALE2@438:24	MIN_SCALE	TIMELINE_CONFIG 中限制缩放下界的常量。
+MAX_SCALE2@438:47	MAX_SCALE	TIMELINE_CONFIG 中限制缩放上界的常量。
+current2@450:11	current	当前已选中的片段 ID 集合，用于判断选择操作是否改变状态。
+clip2@468:11	clip	addClip 接收并追加到时间线的片段对象。
+clip2@480:36	clip	正在与目标 ID 比较、可能被更新的时间线片段。
+clip2@491:11	removedClip	按 clipId 找到的待删除片段；用于判断是否还存在共享素材的片段。
+frame2@526:19	frame	将保存为当前预览帧的 ImageBitmap。
+range2@535:16	range	setCropRange 接收并写入状态的裁剪时间范围。
+clip2@561:17	clip	通过 getActions 暴露给兼容层的 addClip 参数。
+frame2@566:25	frame	通过 getActions 暴露并转发给 setPreviewFrame 的 ImageBitmap。
+range2@567:22	range	通过 getActions 暴露并转发给 setCropRange 的时间范围。
+state2@569:18	state	通过兼容层 setState 动作提交的部分时间线状态。
+clearCanvas2@691:16	clearCanvas	detachCanvas 的开关参数，决定销毁 renderer 时是否清空画布。
+meta2@762:9	metadata	从缩略图服务读取的视频元数据，用于创建片段并填充尺寸与时长。
+range2@893:16	range	需要校验并保存的裁剪范围。
+clip2@921:11	clip	导出时读取的首个时间线片段，用于取素材、偏移和视频高度。
+clip2@954:13	clip	播放时读取的首个片段，用于同步音频元素的源时间。
+clip2@986:13	clip	seek 音频元素时用于应用源时间偏移的首个片段。
+scale2@1014:12	scale	setScale 转发给 store 的新缩放倍率。
+MAX_SCALE2@1021:24	MAX_SCALE	放大操作允许达到的 TIMELINE_CONFIG 缩放上限。
+MIN_SCALE2@1028:24	MIN_SCALE	缩小操作允许达到的 TIMELINE_CONFIG 缩放下限。
+config2@1047:20	config	动态更新后用于裁剪交互和引擎校验的裁剪配置。
+seq2@1083:11	sequence	此次预览帧更新使用的递增 seek 序号，用于丢弃过期解码结果。
+frame2@1094:11	frame	按时间解码得到、准备写入预览状态的 ImageBitmap。
+pending2@1129:15	pending	串行解码期间排队等待处理的最新预览时间。
+scale2@1137:33	scale	播放头可见性计算所用的时间线像素缩放倍率。
+scale2@1155:20	scale	自动跟随播放头滚动计算所用的时间线缩放倍率。
+now2@1174:25	frameTime	requestAnimationFrame 回调提供的当前动画帧高精度时间戳。

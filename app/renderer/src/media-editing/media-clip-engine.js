@@ -17,13 +17,13 @@ class VideoFrameCache {
   getAsset;
   /** resetCanvases 产生的异步清理 Promise，在创建新 generator 前 await */
   cleanupPromises = [];
-  constructor(getAsset2) {
-    this.getAsset = getAsset2;
+  constructor(getAsset) {
+    this.getAsset = getAsset;
   }
   async getVideoDecoderCtx(assetId) {
     return await this._getDecoder(assetId);
   }
-  async getCanvases(assetId, timestamp2) {
+  async getCanvases(assetId, timestamp) {
     if (this.canvasesMap.has(assetId)) {
       return this.canvasesMap.get(assetId);
     }
@@ -31,27 +31,27 @@ class VideoFrameCache {
       await Promise.all(this.cleanupPromises);
       this.cleanupPromises = [];
     }
-    const ctx = await this._getDecoder(assetId);
-    const canvases = ctx.canvasSink.canvases(timestamp2);
+    const decoderContext = await this._getDecoder(assetId);
+    const canvases = decoderContext.canvasSink.canvases(timestamp);
     this.canvasesMap.set(assetId, canvases);
-    ctx.nextFrame = (await canvases.next())?.value ?? null;
+    decoderContext.nextFrame = (await canvases.next())?.value ?? null;
     return this.canvasesMap.get(assetId);
   }
   /**
    * 获取视频帧的原始 canvas（零拷贝，适用于播放时直接绘制）
    */
-  async getFrameCanvas(assetId, timestamp2) {
+  async getFrameCanvas(assetId, timestamp) {
     try {
       const asset = this.getAsset(assetId);
       if (!asset) return null;
-      const ctx = await this._getDecoder(assetId);
+      const decoderContext = await this._getDecoder(assetId);
       const clampedTimestamp = Math.max(
         0,
-        Math.min(timestamp2, Math.max(0, ctx.sourceDuration - 1e-3)),
+        Math.min(timestamp, Math.max(0, decoderContext.sourceDuration - 1e-3)),
       );
       if (
-        ctx.lastSeekTime !== void 0 &&
-        clampedTimestamp < ctx.lastSeekTime &&
+        decoderContext.lastSeekTime !== void 0 &&
+        clampedTimestamp < decoderContext.lastSeekTime &&
         this.canvasesMap.has(assetId)
       ) {
         const oldGen = this.canvasesMap.get(assetId);
@@ -60,27 +60,27 @@ class VideoFrameCache {
           await oldGen?.return(null);
         } catch {}
       }
-      ctx.lastSeekTime = clampedTimestamp;
+      decoderContext.lastSeekTime = clampedTimestamp;
       const canvases = await this.getCanvases(assetId, clampedTimestamp);
-      while (ctx.nextFrame) {
-        if (ctx.nextFrame.timestamp <= clampedTimestamp) {
-          const current2 = ctx.nextFrame;
-          const next2 = (await canvases.next())?.value ?? null;
-          if (!next2) {
-            ctx.nextFrame = current2;
+      while (decoderContext.nextFrame) {
+        if (decoderContext.nextFrame.timestamp <= clampedTimestamp) {
+          const current = decoderContext.nextFrame;
+          const next = (await canvases.next())?.value ?? null;
+          if (!next) {
+            decoderContext.nextFrame = current;
             return {
-              canvas: current2.canvas,
-              width: ctx.width,
-              height: ctx.height,
+              canvas: current.canvas,
+              width: decoderContext.width,
+              height: decoderContext.height,
             };
           }
-          ctx.nextFrame = next2;
+          decoderContext.nextFrame = next;
         } else {
-          const canvas = ctx.nextFrame.canvas;
+          const canvas = decoderContext.nextFrame.canvas;
           return {
             canvas,
-            width: ctx.width,
-            height: ctx.height,
+            width: decoderContext.width,
+            height: decoderContext.height,
           };
         }
       }
@@ -93,8 +93,8 @@ class VideoFrameCache {
   /**
    * 获取视频帧（返回 ImageBitmap，适用于非播放时 seek 预览）
    */
-  async getFrame(assetId, timestamp2) {
-    const result = await this.getFrameCanvas(assetId, timestamp2);
+  async getFrame(assetId, timestamp) {
+    const result = await this.getFrameCanvas(assetId, timestamp);
     if (!result) return null;
     return await createImageBitmap(result.canvas);
   }
@@ -142,8 +142,8 @@ class VideoFrameCache {
   resetCanvases() {
     for (const decoderPromise of this.decoderMap.values()) {
       decoderPromise
-        .then((ctx) => {
-          ctx.nextFrame = null;
+        .then((decoderContext) => {
+          decoderContext.nextFrame = null;
         })
         .catch(() => {});
     }
@@ -171,9 +171,9 @@ class VideoFrameCache {
     this.decoderMap.delete(assetId);
     if (decoderPromise) {
       try {
-        const ctx = await decoderPromise;
-        ctx.nextFrame = null;
-        ctx.input.dispose();
+        const decoderContext = await decoderPromise;
+        decoderContext.nextFrame = null;
+        decoderContext.input.dispose();
       } catch {}
     }
   }
@@ -186,9 +186,9 @@ class VideoFrameCache {
     this.canvasesMap.clear();
     for (const [, decoderPromise] of this.decoderMap.entries()) {
       try {
-        const ctx = await decoderPromise;
-        ctx.nextFrame = null;
-        ctx.input.dispose();
+        const decoderContext = await decoderPromise;
+        decoderContext.nextFrame = null;
+        decoderContext.input.dispose();
       } catch {}
     }
     this.decoderMap.clear();
@@ -252,20 +252,20 @@ class WaveformService {
       const blob = new Blob([PEAK_WORKER_CODE], {
         type: "text/javascript",
       });
-      const url2 = URL.createObjectURL(blob);
-      const worker = new Worker(url2);
-      URL.revokeObjectURL(url2);
-      worker.onmessage = (e2) => {
-        const { jobId, peaks } = e2.data;
-        const job = this.workerPending.get(jobId);
-        if (job) {
+      const url = URL.createObjectURL(blob);
+      const worker = new Worker(url);
+      URL.revokeObjectURL(url);
+      worker.onmessage = (messageEvent) => {
+        const { jobId, peaks } = messageEvent.data;
+        const workerJob = this.workerPending.get(jobId);
+        if (workerJob) {
           this.workerPending.delete(jobId);
-          job.resolve(peaks);
+          workerJob.resolve(peaks);
         }
       };
-      worker.onerror = (e2) => {
-        for (const [, job] of this.workerPending) {
-          job.reject(new Error(e2.message ?? "Peak worker error"));
+      worker.onerror = (errorEvent) => {
+        for (const [, workerJob] of this.workerPending) {
+          workerJob.reject(new Error(errorEvent.message ?? "Peak worker error"));
         }
         this.workerPending.clear();
         this.worker?.terminate();
@@ -286,9 +286,9 @@ class WaveformService {
   async extractPeaks(assetId, file, samplesPerPixel = 256) {
     const cached = this.cache.get(assetId);
     if (cached) return cached;
-    const ctx = this.getAudioContext();
+    const audioContext = this.getAudioContext();
     const arrayBuffer = await file.arrayBuffer();
-    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     const { duration, sampleRate } = audioBuffer;
     const channelData = audioBuffer.getChannelData(0);
     const peaks = await this.computePeaksInWorker(channelData, samplesPerPixel);
@@ -334,18 +334,18 @@ class WaveformService {
     const totalSamples = channelData.length;
     const peakCount = Math.ceil(totalSamples / samplesPerPixel);
     const peaks = new Float32Array(peakCount * 2);
-    for (let i2 = 0; i2 < peakCount; i2++) {
-      const start2 = i2 * samplesPerPixel;
-      const end2 = Math.min(start2 + samplesPerPixel, totalSamples);
-      let min2 = 1;
-      let max2 = -1;
-      for (let j2 = start2; j2 < end2; j2++) {
-        const val = channelData[j2];
-        if (val < min2) min2 = val;
-        if (val > max2) max2 = val;
+    for (let peakIndex = 0; peakIndex < peakCount; peakIndex++) {
+      const start = peakIndex * samplesPerPixel;
+      const end = Math.min(start + samplesPerPixel, totalSamples);
+      let min = 1;
+      let max = -1;
+      for (let sampleIndex = start; sampleIndex < end; sampleIndex++) {
+        const sampleValue = channelData[sampleIndex];
+        if (sampleValue < min) min = sampleValue;
+        if (sampleValue > max) max = sampleValue;
       }
-      peaks[i2 * 2] = min2;
-      peaks[i2 * 2 + 1] = max2;
+      peaks[peakIndex * 2] = min;
+      peaks[peakIndex * 2 + 1] = max;
     }
     return peaks;
   }
@@ -396,8 +396,8 @@ class TimelineStore {
     return this.state;
   }
   setState(partial) {
-    const keys2 = Object.keys(partial);
-    const hasChanged = keys2.some((k2) => this.state[k2] !== partial[k2]);
+    const keys = Object.keys(partial);
+    const hasChanged = keys.some((key) => this.state[key] !== partial[key]);
     if (!hasChanged) return;
     this.state = {
       ...this.state,
@@ -434,9 +434,9 @@ class TimelineStore {
       currentTime: clampedTime,
     });
   }
-  setScale(scale2) {
-    const { MIN_SCALE: MIN_SCALE2, MAX_SCALE: MAX_SCALE2 } = TIMELINE_CONFIG;
-    const clampedScale = Math.max(MIN_SCALE2, Math.min(scale2, MAX_SCALE2));
+  setScale(scale) {
+    const { MIN_SCALE, MAX_SCALE } = TIMELINE_CONFIG;
+    const clampedScale = Math.max(MIN_SCALE, Math.min(scale, MAX_SCALE));
     this.setState({
       scale: clampedScale,
     });
@@ -447,14 +447,14 @@ class TimelineStore {
     });
   }
   selectClip(clipId) {
-    const current2 = this.state.selectedClipIds;
+    const current = this.state.selectedClipIds;
     if (clipId) {
-      if (current2.size === 1 && current2.has(clipId)) return;
+      if (current.size === 1 && current.has(clipId)) return;
       this.setState({
         selectedClipIds: new Set([clipId]),
       });
     } else {
-      if (current2.size === 0) return;
+      if (current.size === 0) return;
       this.setState({
         selectedClipIds: new Set(),
       });
@@ -465,52 +465,52 @@ class TimelineStore {
       hoverClipId: clipId,
     });
   }
-  addClip(clip2) {
+  addClip(clip) {
     this.setState({
-      clips: [...this.state.clips, clip2],
+      clips: [...this.state.clips, clip],
       totalDuration: Math.max(
         TIMELINE_CONFIG.MIN_TOTAL_DURATION,
         this.state.totalDuration,
-        clip2.startTime + clip2.duration,
+        clip.startTime + clip.duration,
       ),
     });
   }
   updateClip(clipId, updates) {
     this.setState({
-      clips: this.state.clips.map((clip2) =>
-        clip2.id === clipId
+      clips: this.state.clips.map((clip) =>
+        clip.id === clipId
           ? {
-              ...clip2,
+              ...clip,
               ...updates,
             }
-          : clip2,
+          : clip,
       ),
     });
   }
   removeClip(clipId) {
-    const clip2 = this.state.clips.find((c3) => c3.id === clipId);
-    if (clip2) {
+    const removedClip = this.state.clips.find((clip) => clip.id === clipId);
+    if (removedClip) {
       const stillUsed = this.state.clips.some(
-        (c3) => c3.id !== clipId && c3.assetId === clip2.assetId,
+        (clip) => clip.id !== clipId && clip.assetId === removedClip.assetId,
       );
       if (!stillUsed) {
-        this.onAssetOrphan?.(clip2.assetId);
+        this.onAssetOrphan?.(removedClip.assetId);
       }
     }
     this.setState({
-      clips: this.state.clips.filter((c3) => c3.id !== clipId),
+      clips: this.state.clips.filter((clip) => clip.id !== clipId),
       selectedClipIds: new Set(
-        [...this.state.selectedClipIds].filter((id2) => id2 !== clipId),
+        [...this.state.selectedClipIds].filter((selectedClipId) => selectedClipId !== clipId),
       ),
     });
   }
   clearAllClips() {
     const assetIds = new Set();
-    for (const c3 of this.state.clips) {
-      assetIds.add(c3.assetId);
+    for (const clip of this.state.clips) {
+      assetIds.add(clip.assetId);
     }
-    for (const id2 of assetIds) {
-      this.onAssetOrphan?.(id2);
+    for (const assetId of assetIds) {
+      this.onAssetOrphan?.(assetId);
     }
     this.setState({
       clips: [],
@@ -523,18 +523,18 @@ class TimelineStore {
       isPlaying: !this.state.isPlaying,
     });
   }
-  setPreviewFrame(frame2) {
-    const old = this.state.previewFrame;
-    if (old && old !== frame2) {
-      old.close();
+  setPreviewFrame(frame) {
+    const previousFrame = this.state.previewFrame;
+    if (previousFrame && previousFrame !== frame) {
+      previousFrame.close();
     }
     this.setState({
-      previewFrame: frame2,
+      previewFrame: frame,
     });
   }
-  setCropRange(range2) {
+  setCropRange(range) {
     this.setState({
-      cropRange: range2,
+      cropRange: range,
     });
   }
   setSegmentRanges(ranges) {
@@ -543,8 +543,8 @@ class TimelineStore {
     });
   }
   reset() {
-    const old = this.state.previewFrame;
-    if (old) old.close();
+    const previousFrame = this.state.previewFrame;
+    if (previousFrame) previousFrame.close();
     this.state = {
       ...defaultState,
     };
@@ -553,20 +553,20 @@ class TimelineStore {
   /** 获取 TimelineActions 接口（兼容层） */
   getActions() {
     return {
-      setCurrentTime: (t2) => this.setCurrentTime(t2),
-      setScale: (s2) => this.setScale(s2),
-      setScrollX: (sx) => this.setScrollX(sx),
-      selectClip: (id2) => this.selectClip(id2),
-      setHoverClip: (id2) => this.setHoverClip(id2),
-      addClip: (clip2) => this.addClip(clip2),
-      updateClip: (id2, updates) => this.updateClip(id2, updates),
-      removeClip: (id2) => this.removeClip(id2),
+      setCurrentTime: (time) => this.setCurrentTime(time),
+      setScale: (scale) => this.setScale(scale),
+      setScrollX: (timelineScrollX) => this.setScrollX(timelineScrollX),
+      selectClip: (clipId) => this.selectClip(clipId),
+      setHoverClip: (clipId) => this.setHoverClip(clipId),
+      addClip: (clip) => this.addClip(clip),
+      updateClip: (clipId, updates) => this.updateClip(clipId, updates),
+      removeClip: (clipId) => this.removeClip(clipId),
       clearAllClips: () => this.clearAllClips(),
       togglePlay: () => this.togglePlay(),
-      setPreviewFrame: (frame2) => this.setPreviewFrame(frame2),
-      setCropRange: (range2) => this.setCropRange(range2),
+      setPreviewFrame: (frame) => this.setPreviewFrame(frame),
+      setCropRange: (range) => this.setCropRange(range),
       setSegmentRanges: (ranges) => this.setSegmentRanges(ranges),
-      setState: (state2) => this.setState(state2),
+      setState: (state) => this.setState(state),
     };
   }
 }
@@ -608,8 +608,8 @@ export class MediaClipEngine {
     this.store = new TimelineStore();
     this.mediaRegistry = new MediaRegistry();
     this.thumbnailStore = new ThumbnailStore();
-    this.videoFrameCache = new VideoFrameCache((id2) =>
-      this.mediaRegistry.getAsset(id2),
+    this.videoFrameCache = new VideoFrameCache((assetId) =>
+      this.mediaRegistry.getAsset(assetId),
     );
     this.thumbnailService = new ThumbnailService(
       this.videoFrameCache,
@@ -688,9 +688,9 @@ export class MediaClipEngine {
     this.eventHandler.updateLayout(resolvedLayout);
     this.requestRender();
   }
-  detachCanvas(clearCanvas2 = true) {
+  detachCanvas(clearCanvas = true) {
     this.eventHandler?.destroy();
-    this.renderer?.destroy(clearCanvas2);
+    this.renderer?.destroy(clearCanvas);
     this.eventHandler = null;
     this.renderer = null;
     this.canvas = null;
@@ -739,9 +739,9 @@ export class MediaClipEngine {
     this.thumbAbort?.abort();
     this.thumbAbort = null;
     this.disposeAudioElement();
-    const s2 = this.store.getState();
-    if (s2.clips.length > 0) {
-      const oldAssetIds = new Set(s2.clips.map((c3) => c3.assetId));
+    const state = this.store.getState();
+    if (state.clips.length > 0) {
+      const oldAssetIds = new Set(state.clips.map((clip) => clip.assetId));
       for (const oldId of oldAssetIds) {
         this.thumbnailStore.clearAsset(oldId);
         this.waveformService.clearAsset(oldId);
@@ -759,14 +759,14 @@ export class MediaClipEngine {
   }
   async addVideoInternal(file) {
     const asset = this.mediaRegistry.registerVideoAsset(file);
-    let meta2;
+    let metadata;
     try {
-      meta2 = await this.thumbnailService.getVideoMeta(asset.id);
-    } catch (e2) {
-      console.warn("解析视频失败：", e2);
+      metadata = await this.thumbnailService.getVideoMeta(asset.id);
+    } catch (error) {
+      console.warn("解析视频失败：", error);
       return;
     }
-    const duration = Math.max(0.1, meta2.sourceDuration || 0.1);
+    const duration = Math.max(0.1, metadata.sourceDuration || 0.1);
     const clipId = crypto.randomUUID();
     const newClip = {
       id: clipId,
@@ -775,10 +775,10 @@ export class MediaClipEngine {
       startTime: 0,
       duration,
       sourceOffset: 0,
-      sourceDuration: meta2.sourceDuration,
+      sourceDuration: metadata.sourceDuration,
       thumbnails: [],
-      width: meta2.width,
-      height: meta2.height,
+      width: metadata.width,
+      height: metadata.height,
     };
     this.store.addClip(newClip);
     const cropEnd = Math.min(duration, this.cropConfig.maxDuration);
@@ -813,8 +813,8 @@ export class MediaClipEngine {
       asset.id,
       duration,
       thumbHeight,
-      meta2.width,
-      meta2.height,
+      metadata.width,
+      metadata.height,
       {
         onUpdate: () => this.requestRender(),
         signal: abortController.signal,
@@ -828,8 +828,8 @@ export class MediaClipEngine {
     const audioElement = new Audio(asset.objectUrl);
     audioElement.preload = "auto";
     const [peaks, playbackDuration] = await Promise.all([
-      this.waveformService.extractPeaks(asset.id, file).catch((e2) => {
-        console.warn("解析音频失败：", e2);
+      this.waveformService.extractPeaks(asset.id, file).catch((error) => {
+        console.warn("解析音频失败：", error);
         return null;
       }),
       // 从播放元素获取时长，与实际播放时钟一致
@@ -871,7 +871,7 @@ export class MediaClipEngine {
   /** 获取当前活跃的音频 clip（如果有） */
   getActiveAudioClip() {
     const clips = this.store.getState().clips;
-    return clips.find((c3) => c3.type === "audio") ?? null;
+    return clips.find((clip) => clip.type === "audio") ?? null;
   }
   disposeAudioElement() {
     if (this.audioElement) {
@@ -890,13 +890,13 @@ export class MediaClipEngine {
   getCropRange() {
     return this.store.getState().cropRange;
   }
-  setCropRange(range2) {
-    if (range2) {
-      const d2 = range2.end - range2.start;
-      if (d2 < this.cropConfig.minDuration || d2 > this.cropConfig.maxDuration)
+  setCropRange(range) {
+    if (range) {
+      const duration = range.end - range.start;
+      if (duration < this.cropConfig.minDuration || duration > this.cropConfig.maxDuration)
         return;
     }
-    this.store.setCropRange(range2);
+    this.store.setCropRange(range);
     this.requestRender();
   }
   setSegmentRanges(ranges, activeRange) {
@@ -911,25 +911,25 @@ export class MediaClipEngine {
     this.requestRender();
   }
   async exportCrop(options) {
-    const s2 = this.store.getState();
-    if (s2.clips.length === 0 || !s2.cropRange) return null;
-    if (s2.isPlaying) {
+    const state = this.store.getState();
+    if (state.clips.length === 0 || !state.cropRange) return null;
+    if (state.isPlaying) {
       this.store.setState({
         isPlaying: false,
       });
     }
-    const clip2 = s2.clips[0];
-    const asset = this.mediaRegistry.getAsset(clip2.assetId);
+    const clip = state.clips[0];
+    const asset = this.mediaRegistry.getAsset(clip.assetId);
     if (!asset) return null;
     const AAC_ALIGNMENT_BUFFER = 0.1;
-    const startTime = s2.cropRange.start + clip2.sourceOffset;
+    const startTime = state.cropRange.start + clip.sourceOffset;
     const endTime =
-      s2.cropRange.end + clip2.sourceOffset - AAC_ALIGNMENT_BUFFER;
+      state.cropRange.end + clip.sourceOffset - AAC_ALIGNMENT_BUFFER;
     const effectiveOptions = {
       ...options,
     };
     const maxRes = effectiveOptions.maxResolution;
-    if (maxRes && clip2.height > 0 && clip2.height > maxRes) {
+    if (maxRes && clip.height > 0 && clip.height > maxRes) {
       effectiveOptions.targetHeight = maxRes;
     }
     delete effectiveOptions.maxResolution;
@@ -937,23 +937,23 @@ export class MediaClipEngine {
   }
   // --- 播放控制 ---
   play() {
-    const s2 = this.store.getState();
-    if (s2.isPlaying) return;
-    if (s2.cropRange) {
+    const state = this.store.getState();
+    if (state.isPlaying) return;
+    if (state.cropRange) {
       if (
-        s2.currentTime < s2.cropRange.start ||
-        s2.currentTime >= s2.cropRange.end
+        state.currentTime < state.cropRange.start ||
+        state.currentTime >= state.cropRange.end
       ) {
         this.store.setState({
-          currentTime: s2.cropRange.start,
+          currentTime: state.cropRange.start,
         });
       }
     }
     this.ensurePlayheadVisible();
     if (this.audioElement) {
-      const clip2 = s2.clips[0];
-      if (clip2) {
-        this.audioElement.currentTime = s2.currentTime + clip2.sourceOffset;
+      const clip = state.clips[0];
+      if (clip) {
+        this.audioElement.currentTime = state.currentTime + clip.sourceOffset;
       }
       this.audioElement.play().catch(() => {
         if (this.store.getState().isPlaying) {
@@ -972,8 +972,8 @@ export class MediaClipEngine {
     });
   }
   togglePlay() {
-    const s2 = this.store.getState();
-    if (s2.isPlaying) {
+    const state = this.store.getState();
+    if (state.isPlaying) {
       this.pause();
     } else {
       this.play();
@@ -983,9 +983,9 @@ export class MediaClipEngine {
   seek(time) {
     this.store.setCurrentTime(time);
     if (this.audioElement) {
-      const clip2 = this.store.getState().clips[0];
-      if (clip2) {
-        this.audioElement.currentTime = time + clip2.sourceOffset;
+      const clip = this.store.getState().clips[0];
+      if (clip) {
+        this.audioElement.currentTime = time + clip.sourceOffset;
       }
     }
     this.scheduleSeekPreview(time);
@@ -995,7 +995,7 @@ export class MediaClipEngine {
   async getPreviewFrame(time) {
     const clips = this.store.getState().clips;
     const activeClip = clips.find(
-      (c3) => time >= c3.startTime && time <= c3.startTime + c3.duration,
+      (clip) => time >= clip.startTime && time <= clip.startTime + clip.duration,
     );
     if (!activeClip || activeClip.type === "audio") return null;
     const sourceTime = time - activeClip.startTime + activeClip.sourceOffset;
@@ -1004,30 +1004,30 @@ export class MediaClipEngine {
   async getPreviewFrameCanvas(time) {
     const clips = this.store.getState().clips;
     const activeClip = clips.find(
-      (c3) => time >= c3.startTime && time <= c3.startTime + c3.duration,
+      (clip) => time >= clip.startTime && time <= clip.startTime + clip.duration,
     );
     if (!activeClip || activeClip.type === "audio") return null;
     const sourceTime = time - activeClip.startTime + activeClip.sourceOffset;
     return this.videoFrameCache.getFrameCanvas(activeClip.assetId, sourceTime);
   }
   // --- 视图控制 ---
-  setScale(scale2) {
+  setScale(scale) {
     this.pauseIfPlaying();
-    this.store.setScale(scale2);
+    this.store.setScale(scale);
     this.requestRender();
   }
   zoomIn() {
     this.pauseIfPlaying();
-    const { MAX_SCALE: MAX_SCALE2, ZOOM_FACTOR } = TIMELINE_CONFIG;
+    const { MAX_SCALE, ZOOM_FACTOR } = TIMELINE_CONFIG;
     const currentScale = this.store.getState().scale;
-    this.store.setScale(Math.min(MAX_SCALE2, currentScale * ZOOM_FACTOR));
+    this.store.setScale(Math.min(MAX_SCALE, currentScale * ZOOM_FACTOR));
     this.requestRender();
   }
   zoomOut() {
     this.pauseIfPlaying();
-    const { MIN_SCALE: MIN_SCALE2, ZOOM_FACTOR } = TIMELINE_CONFIG;
+    const { MIN_SCALE, ZOOM_FACTOR } = TIMELINE_CONFIG;
     const currentScale = this.store.getState().scale;
-    this.store.setScale(Math.max(MIN_SCALE2, currentScale / ZOOM_FACTOR));
+    this.store.setScale(Math.max(MIN_SCALE, currentScale / ZOOM_FACTOR));
     this.requestRender();
   }
   setScrollX(scrollX) {
@@ -1044,9 +1044,9 @@ export class MediaClipEngine {
     this.eventHandler?.updateLayout(layout);
     this.requestRender();
   }
-  updateCropConfig(config2) {
-    this.cropConfig = config2;
-    this.eventHandler?.updateCropConfig(config2);
+  updateCropConfig(config) {
+    this.cropConfig = config;
+    this.eventHandler?.updateCropConfig(config);
   }
   /** 动态更新颜色方案（主题切换时调用） */
   setColors(colors) {
@@ -1080,10 +1080,10 @@ export class MediaClipEngine {
     });
   }
   async updatePreviewFrame(time) {
-    const seq2 = ++this.seekSeq;
+    const sequence = ++this.seekSeq;
     const clips = this.store.getState().clips;
     const activeClip = clips.find(
-      (c3) => time >= c3.startTime && time <= c3.startTime + c3.duration,
+      (clip) => time >= clip.startTime && time <= clip.startTime + clip.duration,
     );
     if (!activeClip) {
       this.store.setPreviewFrame(null);
@@ -1091,16 +1091,16 @@ export class MediaClipEngine {
     }
     if (activeClip.type === "audio") return;
     const sourceTime = time - activeClip.startTime + activeClip.sourceOffset;
-    const frame2 = await this.videoFrameCache.getFrame(
+    const frame = await this.videoFrameCache.getFrame(
       activeClip.assetId,
       sourceTime,
     );
-    if (this.seekSeq !== seq2) {
-      frame2?.close();
+    if (this.seekSeq !== sequence) {
+      frame?.close();
       return;
     }
-    if (frame2) {
-      this.store.setPreviewFrame(frame2);
+    if (frame) {
+      this.store.setPreviewFrame(frame);
     }
   }
   async updatePreviewFrameDirect(time) {
@@ -1112,7 +1112,7 @@ export class MediaClipEngine {
     try {
       const clips = this.store.getState().clips;
       const activeClip = clips.find(
-        (c3) => time >= c3.startTime && time <= c3.startTime + c3.duration,
+        (clip) => time >= clip.startTime && time <= clip.startTime + clip.duration,
       );
       if (!activeClip || activeClip.type === "audio") return;
       const sourceTime = time - activeClip.startTime + activeClip.sourceOffset;
@@ -1126,25 +1126,25 @@ export class MediaClipEngine {
     } finally {
       this.directDecoding = false;
       if (this.directPendingTime !== null) {
-        const pending2 = this.directPendingTime;
+        const pending = this.directPendingTime;
         this.directPendingTime = null;
-        void this.updatePreviewFrameDirect(pending2);
+        void this.updatePreviewFrameDirect(pending);
       }
     }
   }
   /** 播放前确保播放头在可视区域内，不在则跳转滚动到播放头位置 */
   ensurePlayheadVisible() {
-    const { currentTime, scale: scale2, scrollX } = this.store.getState();
+    const { currentTime, scale, scrollX } = this.store.getState();
     const { TRACK_PADDING_H } = TIMELINE_CONFIG;
     const viewWidth = this.renderer?.getWidth() ?? 0;
     if (viewWidth <= 0) return;
-    const playheadX = currentTime * scale2 - scrollX + TRACK_PADDING_H;
+    const playheadX = currentTime * scale - scrollX + TRACK_PADDING_H;
     if (
       playheadX < TRACK_PADDING_H ||
       playheadX > viewWidth - TRACK_PADDING_H
     ) {
       const contentWidth = viewWidth - TRACK_PADDING_H * 2;
-      const newScrollX = currentTime * scale2 - contentWidth * 0.1;
+      const newScrollX = currentTime * scale - contentWidth * 0.1;
       this.store.setState({
         scrollX: Math.max(0, newScrollX),
       });
@@ -1152,14 +1152,14 @@ export class MediaClipEngine {
   }
   /** 播放时自动跟随播放头：超出右边界时翻页滚动 */
   autoFollowPlayhead(time) {
-    const { scale: scale2, scrollX } = this.store.getState();
+    const { scale, scrollX } = this.store.getState();
     const { TRACK_PADDING_H } = TIMELINE_CONFIG;
     const viewWidth = this.renderer?.getWidth() ?? 0;
     if (viewWidth <= 0) return;
     const contentWidth = viewWidth - TRACK_PADDING_H * 2;
-    const playheadX = time * scale2 - scrollX + TRACK_PADDING_H;
+    const playheadX = time * scale - scrollX + TRACK_PADDING_H;
     if (playheadX > viewWidth - TRACK_PADDING_H) {
-      const newScrollX = time * scale2 - contentWidth * 0.1;
+      const newScrollX = time * scale - contentWidth * 0.1;
       this.store.setStateSilent({
         scrollX: Math.max(0, newScrollX),
       });
@@ -1171,15 +1171,15 @@ export class MediaClipEngine {
     const isAudioOnlyMode = !!this.getActiveAudioClip();
     const hasAudio = !!this.audioElement;
     const activeClip = this.store.getState().clips[0] ?? null;
-    const updateTime = (now2) => {
+    const updateTime = (frameTime) => {
       if (!this.store.getState().isPlaying) {
         this.playRafId = null;
         this.videoFrameCache.resetCanvases();
         this.audioElement?.pause();
         return;
       }
-      const s2 = this.store.getState();
-      const cropEnd = s2.cropRange ? s2.cropRange.end : s2.totalDuration;
+      const state = this.store.getState();
+      const cropEnd = state.cropRange ? state.cropRange.end : state.totalDuration;
       let newTime;
       if (hasAudio && activeClip) {
         newTime = Math.min(
@@ -1187,9 +1187,9 @@ export class MediaClipEngine {
           cropEnd,
         );
       } else {
-        const delta = (now2 - this.playLastTime) / 1e3;
-        this.playLastTime = now2;
-        newTime = Math.min(s2.currentTime + delta, cropEnd);
+        const delta = (frameTime - this.playLastTime) / 1e3;
+        this.playLastTime = frameTime;
+        newTime = Math.min(state.currentTime + delta, cropEnd);
       }
       if (newTime >= cropEnd) {
         this.audioElement?.pause();
