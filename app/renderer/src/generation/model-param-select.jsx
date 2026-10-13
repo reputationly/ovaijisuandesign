@@ -12,30 +12,30 @@ import { paramI18nKey, paramLabelFallback } from "./param-label-fallbacks.js";
 import { CanvasSwitch } from "./select-content.jsx";
 import { ParamTabs } from "./param-tabs.jsx";
 import { BACKEND_KLING_AVATAR } from "./normalize-skill-detail-metadata.js";
-export const I2IPopover = reactExports.memo(function I2IPopover2(props) {
-  const { snapshot: snapshot2 } = useReferenceNavigationSnapshot(
+export const I2IPopover = reactExports.memo(function I2IPopover(props) {
+  const { snapshot } = useReferenceNavigationSnapshot(
     props.nodeId ?? props.replaceNodeId,
     "i2i",
   );
   return (
     <I2IPopoverInner
       {...props}
-      {...getReferenceNavigationDefaults(snapshot2, props)}
-      navigationSnapshot={snapshot2}
+      {...getReferenceNavigationDefaults(snapshot, props)}
+      navigationSnapshot={snapshot}
     />
   );
 });
 export function ModelParamSelect({
   paramKey,
-  definition: definition2,
+  definition,
   value,
   onChange,
-  disabled: disabled2,
+  disabled,
   disabledOptions,
 }) {
   const { t: translate } = useTranslation();
-  const labelKey = paramI18nKey(paramKey, definition2.label);
-  const fallback = paramLabelFallback(paramKey, definition2.label);
+  const labelKey = paramI18nKey(paramKey, definition.label);
+  const fallback = paramLabelFallback(paramKey, definition.label);
   const label = labelKey
     ? translate(labelKey, {
         defaultValue: fallback,
@@ -43,8 +43,8 @@ export function ModelParamSelect({
     : fallback;
   if (
     paramKey === "generate_audio" &&
-    definition2.options?.includes("true") &&
-    definition2.options.includes("false")
+    definition.options?.includes("true") &&
+    definition.options.includes("false")
   ) {
     const checked = value === "true";
     return (
@@ -57,31 +57,31 @@ export function ModelParamSelect({
           data-action-ui-id="canvas.params.generate-audio-switch"
           checked={checked}
           disabled={
-            disabled2 || disabledOptions.has(checked ? "false" : "true")
+            disabled || disabledOptions.has(checked ? "false" : "true")
           }
-          onCheckedChange={(next2) => onChange(String(next2))}
+          onCheckedChange={(next) => onChange(String(next))}
         />
       </div>
     );
   }
-  const getOptionLabel = (option2) => {
-    if (option2 === "true")
+  const getOptionLabel = (option) => {
+    if (option === "true")
       return translate("canvas.params.generateAudio.on", {
         defaultValue: "有声",
       });
-    if (option2 === "false")
+    if (option === "false")
       return translate("canvas.params.generateAudio.off", {
         defaultValue: "无声",
       });
-    return option2;
+    return option;
   };
   return (
     <ParamTabs
       label={label}
-      options={definition2.options ?? []}
+      options={definition.options ?? []}
       value={value}
       onChange={onChange}
-      disabled={disabled2}
+      disabled={disabled}
       disabledOptions={disabledOptions}
       getOptionLabel={paramKey === "generate_audio" ? getOptionLabel : void 0}
     />
@@ -90,13 +90,13 @@ export function ModelParamSelect({
 export function hasContinuousDurationOptions(options) {
   return (
     options.length > 8 &&
-    options.every((option2, index2) => {
-      const seconds = Number(option2);
+    options.every((option, index) => {
+      const seconds = Number(option);
       return (
-        option2.trim() !== "" &&
+        option.trim() !== "" &&
         Number.isInteger(seconds) &&
         seconds > 0 &&
-        (index2 === 0 || seconds === Number(options[index2 - 1]) + 1)
+        (index === 0 || seconds === Number(options[index - 1]) + 1)
       );
     })
   );
@@ -104,10 +104,10 @@ export function hasContinuousDurationOptions(options) {
 export function nearestDuration(value, options) {
   if (!Number.isFinite(value)) return void 0;
   return options.reduce(
-    (nearest, option2) =>
+    (nearest, option) =>
       nearest === void 0 ||
-      Math.abs(Number(option2) - value) < Math.abs(Number(nearest) - value)
-        ? option2
+      Math.abs(Number(option) - value) < Math.abs(Number(nearest) - value)
+        ? option
         : nearest,
     void 0,
   );
@@ -198,26 +198,26 @@ export function referenceVideoBudgetDisabledDurationOptions(
   if (combinedMaxSec === void 0 || !(referenceVideoTotalSec > 0))
     return new Set();
   const maxOutputSec = combinedMaxSec - Math.ceil(referenceVideoTotalSec);
-  return new Set(options.filter((option2) => Number(option2) > maxOutputSec));
+  return new Set(options.filter((option) => Number(option) > maxOutputSec));
 }
-export function buildHailuo03BillingDetails(breakdown, copy2) {
+export function buildHailuo03BillingDetails(breakdown, copy) {
   if (breakdown.costPerSecond <= 0) return void 0;
   const inputRows = [
     {
-      label: copy2.video,
-      description: copy2.creditsPerSecond(
+      label: copy.video,
+      description: copy.creditsPerSecond(
         breakdown.referenceVideoCostPerSecond ?? breakdown.costPerSecond,
       ),
     },
     {
-      label: copy2.audio,
-      description: copy2.free,
+      label: copy.audio,
+      description: copy.free,
     },
   ];
   if (breakdown.costPerImage > 0) {
     inputRows.push({
-      label: copy2.images,
-      description: copy2.imagePricing(
+      label: copy.images,
+      description: copy.imagePricing(
         breakdown.freeImageCount,
         breakdown.freeImageCount + 1,
         breakdown.costPerImage,
@@ -225,27 +225,27 @@ export function buildHailuo03BillingDetails(breakdown, copy2) {
     });
   }
   return {
-    heading: copy2.heading,
+    heading: copy.heading,
     leadingRows: [
       {
-        label: copy2.generatedVideo,
-        description: copy2.creditsPerSecond(breakdown.costPerSecond),
+        label: copy.generatedVideo,
+        description: copy.creditsPerSecond(breakdown.costPerSecond),
       },
     ],
     section: {
-      heading: copy2.inputMedia,
+      heading: copy.inputMedia,
       rows: inputRows,
     },
   };
 }
-export function buildVideoCostFormula(breakdown, outputCount, copy2) {
+export function buildVideoCostFormula(breakdown, outputCount, copy) {
   const parts = [];
   if (breakdown.fixedCost > 0) {
-    parts.push(copy2.fixedCost(breakdown.fixedCost));
+    parts.push(copy.fixedCost(breakdown.fixedCost));
   }
   if (breakdown.costPerSecond > 0 && breakdown.outputDurationSec > 0) {
     parts.push(
-      copy2.generatedVideo(
+      copy.generatedVideo(
         breakdown.outputDurationSec,
         breakdown.costPerSecond,
       ),
@@ -255,35 +255,35 @@ export function buildVideoCostFormula(breakdown, outputCount, copy2) {
     breakdown.referenceVideoCostPerSecond ?? breakdown.costPerSecond;
   if (referenceVideoRate > 0 && breakdown.inputVideoDurationSec > 0) {
     parts.push(
-      copy2.inputVideo(breakdown.inputVideoDurationSec, referenceVideoRate),
+      copy.inputVideo(breakdown.inputVideoDurationSec, referenceVideoRate),
     );
   }
   if (breakdown.costPerImage > 0 && breakdown.billableImageCount > 0) {
     parts.push(
-      copy2.inputImages(breakdown.billableImageCount, breakdown.costPerImage),
+      copy.inputImages(breakdown.billableImageCount, breakdown.costPerImage),
     );
   }
   const hasPaidInput =
     breakdown.inputVideoDurationSec > 0 ||
     (breakdown.costPerImage > 0 && breakdown.billableImageCount > 0);
   if (breakdown.costPerSecond > 0 && !hasPaidInput) {
-    parts.push(copy2.inputMediaFree);
+    parts.push(copy.inputMediaFree);
   }
   if (parts.length === 0) return void 0;
   const formula = parts.join(" + ");
   return outputCount > 1
-    ? copy2.multipleOutputs(formula, outputCount)
+    ? copy.multipleOutputs(formula, outputCount)
     : formula;
 }
 const HAILUO03_VIDEO_CONTINUATION_SUB_TYPE = "hailuo03_video_continuation";
 function hasPath(paths) {
-  return paths.some((path2) => path2.trim().length > 0);
+  return paths.some((path) => path.trim().length > 0);
 }
 function normalizedString(value) {
   return typeof value === "string" ? value.trim() : "";
 }
-function includesString(values3, value) {
-  return values3.includes(value);
+function includesString(values, value) {
+  return values.includes(value);
 }
 function modelValues(model, selectedModelId) {
   return [
@@ -459,5 +459,5 @@ export function isSeedance25VideoEditMode(model, imageMode) {
   return isSeedance25Model(model) && imageMode === SEEDANCE_25_VIDEO_EDIT_MODE;
 }
 export function hasAnyVideoInput(videoPaths) {
-  return videoPaths.some((path2) => path2.trim().length > 0);
+  return videoPaths.some((path) => path.trim().length > 0);
 }

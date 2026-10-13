@@ -1,3 +1,16 @@
 key	old	new	依据
 X@11:10	X	CloseIcon	该导入是提及标签删除按钮中显示的关闭图标。
 t2@36:14	t2	translate	该绑定来自 useTranslation 并用于提及资源标签提示。
+node2@29:9	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+selected2@30:13	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+extension2@32:14	extension2	extension	去掉打包器防重名追加的后缀，恢复原名 extension，即该绑定持有的值。
+deleteNode2@33:15	deleteNode2	deleteNode	去掉打包器防重名追加的后缀，恢复原名 deleteNode，即该绑定持有的值。
+updateAttributes2@34:21	updateAttributes2	updateAttributes	去掉打包器防重名追加的后缀，恢复原名 updateAttributes，即该绑定持有的值。
+path2@37:33	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+invalid2@47:14	invalid2	invalid	去掉打包器防重名追加的后缀，恢复原名 invalid，即该绑定持有的值。
+statusLabel2@59:9	statusLabel2	statusLabel	去掉打包器防重名追加的后缀，恢复原名 statusLabel，即该绑定持有的值。
+displayName2@65:9	displayName2	displayName	去掉打包器防重名追加的后缀，恢复原名 displayName，即该绑定持有的值。
+meta2@88:16	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+config2@134:11	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
+selection2@141:24	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+meta2@345:22	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。

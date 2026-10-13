@@ -62,7 +62,7 @@ export function MentionPickerPopover({
   hideSubjects = false,
   existingPaths,
   excludeAssetIds,
-  constraints: constraints2,
+  constraints,
   resolveFileUrl,
   onSelect,
   onClose,
@@ -90,10 +90,10 @@ export function MentionPickerPopover({
     query,
     kindFilter,
     existingPaths,
-    constraints: constraints2,
+    constraints,
     onSelect,
     onConstraintViolation: (reason) =>
-      dedupedToast.error(disabledReasonLabel(reason, constraints2, translate)),
+      dedupedToast.error(disabledReasonLabel(reason, constraints, translate)),
   });
   const allowedKinds = reactExports.useMemo(
     () => new Set(kindFilter),
@@ -103,41 +103,41 @@ export function MentionPickerPopover({
     const result = [];
     const seenPaths = new Set();
     const lowerQuery = query.toLowerCase();
-    assets.forEach((meta2, assetId) => {
-      const kind = mapKind(meta2.type);
+    assets.forEach((meta, assetId) => {
+      const kind = mapKind(meta.type);
       if (!isMentionCandidate(assetId, kind, allowedKinds, excludeAssetIds)) return;
       const definedKind = kind;
-      const isReference = existingPaths.has(meta2.path);
+      const isReference = existingPaths.has(meta.path);
       if (
         !passesBudgetGate(
           definedKind,
           isReference,
-          constraints2?.remainingByKind,
+          constraints?.remainingByKind,
         )
       )
         return;
-      if (lowerQuery && !meta2.name.toLowerCase().includes(lowerQuery)) return;
-      if (!meta2.path || seenPaths.has(meta2.path)) return;
-      seenPaths.add(meta2.path);
+      if (lowerQuery && !meta.name.toLowerCase().includes(lowerQuery)) return;
+      if (!meta.path || seenPaths.has(meta.path)) return;
+      seenPaths.add(meta.path);
       result.push({
         assetId,
-        meta: meta2,
+        meta,
         kind: definedKind,
         thumbUrl:
           definedKind === "video"
-            ? (resolveThumbUrl?.(meta2.path, THUMB_PX, "video") ?? "")
+            ? (resolveThumbUrl?.(meta.path, THUMB_PX, "video") ?? "")
             : definedKind === "image"
-              ? (resolveThumbUrl?.(meta2.path, THUMB_PX, "image") ??
-                resolveFileUrl?.(meta2.path) ??
+              ? (resolveThumbUrl?.(meta.path, THUMB_PX, "image") ??
+                resolveFileUrl?.(meta.path) ??
                 "")
-              : (resolveFileUrl?.(meta2.path) ?? ""),
+              : (resolveFileUrl?.(meta.path) ?? ""),
         alreadyAdded: isReference,
         // References bypass budget gating — they're already attached, so a
         // remaining-budget of 0 must not gray out the row that lets you
         // remove them.
         disabledReason: isReference
           ? void 0
-          : reasonForDisabled(definedKind, meta2, constraints2),
+          : reasonForDisabled(definedKind, meta, constraints),
       });
     });
     result.sort((leftCandidate, rightCandidate) => {
@@ -153,7 +153,7 @@ export function MentionPickerPopover({
     excludeAssetIds,
     resolveFileUrl,
     resolveThumbUrl,
-    constraints2,
+    constraints,
   ]);
   const referenceItems = reactExports.useMemo(
     () => items.filter((item) => item.alreadyAdded),
@@ -275,13 +275,13 @@ export function MentionPickerPopover({
     },
     [getNodeById, getNodeIdByPath, onSelect, selectDirectReference],
   );
-  const renderItem = (item, index2) => {
+  const renderItem = (item, index) => {
     return (
       <Tooltip
         key={item.meta.path}
         content={
           item.disabledReason
-            ? disabledReasonLabel(item.disabledReason, constraints2, translate)
+            ? disabledReasonLabel(item.disabledReason, constraints, translate)
             : void 0
         }
       >
@@ -298,7 +298,7 @@ export function MentionPickerPopover({
                 : "cursor-pointer",
             ].join(" ")}
             onMouseEnter={() => {
-              if (pointerActiveRef.current) setFocusIdx(index2);
+              if (pointerActiveRef.current) setFocusIdx(index);
             }}
             onClick={(event) => {
               event.stopPropagation();
@@ -325,7 +325,7 @@ export function MentionPickerPopover({
     );
   }, [navigableItems.length]);
   reactExports.useEffect(() => {
-    const handle2 = (keyEvent) => {
+    const handle = (keyEvent) => {
       if (keyEvent.key === "ArrowDown") {
         keyEvent.preventDefault();
         keyEvent.stopPropagation();
@@ -352,10 +352,10 @@ export function MentionPickerPopover({
         onClose();
       }
     };
-    document.addEventListener("keydown", handle2, true);
-    return () => document.removeEventListener("keydown", handle2, true);
+    document.addEventListener("keydown", handle, true);
+    return () => document.removeEventListener("keydown", handle, true);
   }, [focusIdx, navigableItems, onClose, selectItem]);
-  const computePosition2 = reactExports.useCallback((rect) => {
+  const computePosition = reactExports.useCallback((rect) => {
     const expandedWidth = POPOVER_WIDTH * 2 + FLYOUT_GAP;
     const left = Math.min(
       Math.max(rect.left, VIEWPORT_MARGIN),
@@ -387,8 +387,8 @@ export function MentionPickerPopover({
       ),
     };
   }, []);
-  const [position2, setPosition] = reactExports.useState(() =>
-    computePosition2(anchorRect),
+  const [position, setPosition] = reactExports.useState(() =>
+    computePosition(anchorRect),
   );
   const positioningInput = reactExports.useMemo(
     () => ({
@@ -403,7 +403,7 @@ export function MentionPickerPopover({
       const live = getAnchorRect?.() ?? null;
       const rect = live ?? lastRectRef.current ?? positioningInput.anchorRect;
       if (live) lastRectRef.current = live;
-      setPosition(computePosition2(rect));
+      setPosition(computePosition(rect));
     };
     recompute();
     window.addEventListener("scroll", recompute, true);
@@ -412,7 +412,7 @@ export function MentionPickerPopover({
       window.removeEventListener("scroll", recompute, true);
       window.removeEventListener("resize", recompute);
     };
-  }, [getAnchorRect, computePosition2, positioningInput]);
+  }, [getAnchorRect, computePosition, positioningInput]);
   const alignFlyoutToActiveRow = reactExports.useCallback(() => {
     const container = containerRef.current;
     const row = activeCategoryRowRef.current;
@@ -421,11 +421,11 @@ export function MentionPickerPopover({
     const containerTop = container.getBoundingClientRect().top;
     const desiredOffset = row.getBoundingClientRect().top - containerTop;
     const flyoutHeight = flyout.getBoundingClientRect().height;
-    const maxOffset2 = Math.max(
+    const maxOffset = Math.max(
       0,
       window.innerHeight - VIEWPORT_MARGIN - containerTop - flyoutHeight,
     );
-    setFlyoutOffset(Math.max(0, Math.min(desiredOffset, maxOffset2)));
+    setFlyoutOffset(Math.max(0, Math.min(desiredOffset, maxOffset)));
   }, []);
   const flyoutAlignmentInput = reactExports.useMemo(
     () => ({
@@ -463,9 +463,9 @@ export function MentionPickerPopover({
       onMouseEnter={cancelFlyoutClose}
       onMouseLeave={scheduleFlyoutClose}
       style={{
-        top: position2.top,
-        bottom: position2.bottom,
-        left: position2.left,
+        top: position.top,
+        bottom: position.bottom,
+        left: position.left,
         width: POPOVER_WIDTH,
       }}
     >
@@ -475,7 +475,7 @@ export function MentionPickerPopover({
         className="elevated-surface-border flex flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg outline-none"
         style={{
           width: POPOVER_WIDTH,
-          height: position2.maxHeight,
+          height: position.maxHeight,
         }}
       >
         <div className="flex h-10 shrink-0 items-center justify-between px-3 text-sm font-medium text-foreground">
@@ -521,7 +521,7 @@ export function MentionPickerPopover({
             </div>
           )}
           {visibleCategoryRows.map(
-            ({ kind, labelKey, fallback, Icon: Icon2, count: count2 }) => (
+            ({ kind, labelKey, fallback, Icon, count }) => (
               <button
                 key={kind}
                 type="button"
@@ -550,12 +550,12 @@ export function MentionPickerPopover({
                     height: THUMB_PX,
                   }}
                 >
-                  <Icon2 size={16} aria-hidden={true} />
+                  <Icon size={16} aria-hidden={true} />
                 </span>
                 <span className="flex-1 text-sm font-normal text-foreground">
                   {translate(labelKey, fallback)}
                 </span>
-                <span className="text-xs text-muted-foreground">{count2}</span>
+                <span className="text-xs text-muted-foreground">{count}</span>
                 <ChevronRight
                   size={14}
                   className="text-muted-foreground"
@@ -586,7 +586,7 @@ export function MentionPickerPopover({
             className="elevated-surface-border flex min-h-11 flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg"
             style={{
               width: POPOVER_WIDTH,
-              maxHeight: position2.maxHeight,
+              maxHeight: position.maxHeight,
             }}
           >
             <div
@@ -594,7 +594,7 @@ export function MentionPickerPopover({
               style={{
                 maxHeight: Math.max(
                   44,
-                  position2.maxHeight - FLYOUT_SCROLL_INSET * 2,
+                  position.maxHeight - FLYOUT_SCROLL_INSET * 2,
                 ),
               }}
             >

@@ -90,8 +90,8 @@ const TEXT_MODEL_ICONS = {
 };
 function pickTextModelIcon(model) {
   const modelId = (model.id ?? "").toLowerCase();
-  for (const [token2, icons] of Object.entries(TEXT_MODEL_ICONS)) {
-    if (!modelId.includes(token2)) continue;
+  for (const [token, icons] of Object.entries(TEXT_MODEL_ICONS)) {
+    if (!modelId.includes(token)) continue;
     return model.region === "overseas" && icons.overseas
       ? icons.overseas
       : icons.domestic;
@@ -99,10 +99,10 @@ function pickTextModelIcon(model) {
   return void 0;
 }
 function isMiniMaxH3Model(model) {
-  const values3 = [model.id, model.name, model.model_name, model.backend].map(
+  const values = [model.id, model.name, model.model_name, model.backend].map(
     (value) => (typeof value === "string" ? value.toLowerCase() : ""),
   );
-  return values3.some(
+  return values.some(
     (value) =>
       value.includes("minimax-h3") ||
       value.includes("minimax h3") ||
@@ -196,7 +196,7 @@ export function ModelChip({
   selectedModelId,
   onChange,
   loading,
-  disabled: disabled2,
+  disabled,
   showEmptyHint,
   disabledModelIds,
   disabledReason,
@@ -207,7 +207,7 @@ export function ModelChip({
   const [open, setOpen] = reactExports.useState(false);
   const triggerRef = reactExports.useRef(null);
   const panelRef = reactExports.useRef(null);
-  const selected2 = models.find((candidateModel) => candidateModel.id === selectedModelId);
+  const selected = models.find((candidateModel) => candidateModel.id === selectedModelId);
   const mediaType = reactExports.useMemo(
     () => inferMediaType(models[0]),
     [models],
@@ -224,25 +224,25 @@ export function ModelChip({
   }, [models, mediaType]);
   const TriggerIcon = reactExports.useMemo(() => {
     if (loading) return null;
-    if (selected2) return pickModelIcon(selected2, mediaType, releaseRegion);
+    if (selected) return pickModelIcon(selected, mediaType, releaseRegion);
     if (mediaType === "image") return ImageOutlineIcon;
     if (mediaType === "video") return Video;
     if (mediaType === "audio-tts") return Mic;
     if (mediaType === "audio-music") return Music;
     if (mediaType === "text-llm") return ScrollText;
     return null;
-  }, [loading, selected2, mediaType, releaseRegion]);
+  }, [loading, selected, mediaType, releaseRegion]);
   reactExports.useEffect(() => {
     if (!open) return;
-    const handle2 = (clickEvent) => {
+    const handle = (clickEvent) => {
       const target = clickEvent.target;
       if (!target) return;
       if (triggerRef.current?.contains(target)) return;
       if (panelRef.current?.contains(target)) return;
       setOpen(false);
     };
-    document.addEventListener("mousedown", handle2, true);
-    return () => document.removeEventListener("mousedown", handle2, true);
+    document.addEventListener("mousedown", handle, true);
+    return () => document.removeEventListener("mousedown", handle, true);
   }, [open]);
   const placement = usePortalAnchorPlacement(triggerRef, {
     open,

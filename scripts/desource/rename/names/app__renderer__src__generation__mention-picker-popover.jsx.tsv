@@ -6,3 +6,12 @@ id2@106:28	id2	assetId	该值是遍历资产元数据时的资产标识。
 a2@143:18	a2	leftCandidate	该值是候选排序比较器左侧的提及候选项。
 b3@143:22	b3	rightCandidate	该值是候选排序比较器右侧的提及候选项。
 e2@328:22	e2	keyEvent	该事件来自键盘导航处理器，用于检查方向键并阻止默认行为。
+constraints2@65:16	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
+computePosition2@358:9	computePosition2	computePosition	去掉打包器防重名追加的后缀，恢复原名 computePosition，即该绑定持有的值。
+position2@390:10	position2	position	去掉打包器防重名追加的后缀，恢复原名 position，即该绑定持有的值。
+meta2@106:21	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+index2@278:29	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+handle2@328:11	handle2	handle	去掉打包器防重名追加的后缀，恢复原名 handle，即该绑定持有的值。
+maxOffset2@424:11	maxOffset2	maxOffset	去掉打包器防重名追加的后缀，恢复原名 maxOffset，即该绑定持有的值。
+Icon2@524:48	Icon2	Icon	去掉打包器防重名追加的后缀，恢复原名 Icon，即该绑定持有的值。
+count2@524:62	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
