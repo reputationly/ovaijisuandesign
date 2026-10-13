@@ -172,7 +172,7 @@ export function formatArgs(args) {
     const parsed = JSON.parse(args);
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       const filtered = Object.fromEntries(
-        Object.entries(parsed).filter(([key]) => !INTERNAL_ARG_KEYS.has(key)),
+        Object.entries(parsed).filter(([argumentKey]) => !INTERNAL_ARG_KEYS.has(argumentKey)),
       );
       return JSON.stringify(filtered, null, 2);
     }

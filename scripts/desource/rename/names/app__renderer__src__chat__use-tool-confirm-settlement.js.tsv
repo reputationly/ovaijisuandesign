@@ -2,7 +2,7 @@ key	新名	依据
 hit@131:11	matchedModel	`matchedModel` 是媒体模型列表中 ID 匹配候选值的记录。
 m3@131:35	mediaModel	`mediaModel` 是按 ID 与候选值逐一比较的媒体模型。
 t2@149:44	translate	`translate` 是工具状态标签查询本地化文案的函数。
-k2@175:41	key	`key` 是待判断是否属于内部参数的对象字段名。
+k2@175:41	argumentKey	`argumentKey` 是待判断是否属于内部参数的对象字段名。
 sub@192:32	subMessage	`subMessage` 是确认匹配谓词收到并检查类型的任意子消息。
 ask@192:37	confirmationAsk	`confirmationAsk` 是提供目标工具名的工具确认请求。
 ask@199:43	confirmationAsk	`confirmationAsk` 是用于判断子代理是否拥有该工具请求的确认消息。

@@ -199,16 +199,16 @@ function stableStringify(value) {
   }
   const record = value;
   const keys2 = Object.keys(record).sort();
-  return `{${keys2.map((key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`).join(",")}}`;
+  return `{${keys2.map((propertyKey) => `${JSON.stringify(propertyKey)}:${stableStringify(record[propertyKey])}`).join(",")}}`;
 }
 
 function canonicalArgsKey(args) {
   if (args === void 0) return "__undefined__";
   if (args === null || typeof args !== "object") return JSON.stringify(args);
   const filtered = {};
-  for (const key of Object.keys(args)) {
-    if (key === "_session_id" || key === "_tool_use_id") continue;
-    filtered[key] = args[key];
+  for (const argumentKey of Object.keys(args)) {
+    if (argumentKey === "_session_id" || argumentKey === "_tool_use_id") continue;
+    filtered[argumentKey] = args[argumentKey];
   }
   return stableStringify(filtered);
 }
