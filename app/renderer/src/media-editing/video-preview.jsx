@@ -4,22 +4,22 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { getExtFromMime } from "../canvas/separator.jsx";
 import { MediaClipPanel } from "./media-clip-panel.js";
 const getVideoExt = (mime) => getExtFromMime(mime, "mp4");
-function VideoPreview({ engine, state: state2, loading, previewSize }) {
+function VideoPreview({ engine, state, loading, previewSize }) {
   const previewCanvasRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     const canvas = previewCanvasRef.current;
-    if (!canvas || !state2.previewFrame) return;
+    if (!canvas || !state.previewFrame) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const { width, height } = state2.previewFrame;
+    const { width, height } = state.previewFrame;
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
     } else {
       ctx.clearRect(0, 0, width, height);
     }
-    ctx.drawImage(state2.previewFrame, 0, 0);
-  }, [state2.previewFrame]);
+    ctx.drawImage(state.previewFrame, 0, 0);
+  }, [state.previewFrame]);
   reactExports.useEffect(() => {
     if (!engine) return;
     const previewCanvas = previewCanvasRef.current;
@@ -87,7 +87,7 @@ function VideoClipPanelInner({ videoUrl, videoName, onClose, onExport }) {
       });
     }
   }, []);
-  const renderPreview2 = reactExports.useCallback(
+  const renderPreview = reactExports.useCallback(
     (ctx) => <VideoPreview {...ctx} previewSize={previewSize} />,
     [previewSize],
   );
@@ -98,7 +98,7 @@ function VideoClipPanelInner({ videoUrl, videoName, onClose, onExport }) {
       defaultMime="video/mp4"
       onClose={onClose}
       onExport={onExport}
-      renderPreview={renderPreview2}
+      renderPreview={renderPreview}
       onMediaLoaded={handleMediaLoaded}
       getExtFromMime={getVideoExt}
       splitEnabled={true}

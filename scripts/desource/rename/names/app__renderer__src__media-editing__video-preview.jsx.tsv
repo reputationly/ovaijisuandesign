@@ -1,0 +1,3 @@
+key	new	依据
+state2@7:40	state	此属性是视频引擎的预览状态对象，组件从中读取并绘制 previewFrame。
+renderPreview2@90:9	renderPreview	该回调把预览上下文与当前预览尺寸传给 VideoPreview，并作为 MediaClipPanel 的渲染函数。

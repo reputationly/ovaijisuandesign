@@ -1,0 +1,5 @@
+key	new	依据
+ImageEditor2@11:12	ImageEditor	此 forwardRef 组件初始化图像编辑器、同步编辑状态并暴露编辑 API。
+state2@41:46	state	editor 的 change 事件携带此状态对象，随后转发给 onChange 回调。
+type2@86:18	type	toBlob 的此参数指定导出 Blob 的 MIME 类型。
+type2@92:21	type	toDataURL 的此参数指定导出 data URL 的 MIME 类型。

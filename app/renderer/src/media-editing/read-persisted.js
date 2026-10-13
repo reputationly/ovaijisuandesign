@@ -57,15 +57,15 @@ function readPersisted() {
     };
   }
   try {
-    const raw2 = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw2) {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
       return {
         pinned: DEFAULT_PINNED,
         showLabels: DEFAULT_SHOW_LABELS,
         layoutVersion: LATEST_LAYOUT_VERSION,
       };
     }
-    const parsed = JSON.parse(raw2);
+    const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") {
       return {
         pinned: DEFAULT_PINNED,
@@ -88,7 +88,7 @@ function readPersisted() {
       ].some(
         (factoryPinned) =>
           parsedPinned.length === factoryPinned.length &&
-          parsedPinned.every((id2, index2) => id2 === factoryPinned[index2]),
+          parsedPinned.every((id2, index) => id2 === factoryPinned[index]),
       );
     const pinned = isKnownPreviousFactoryLayout ? DEFAULT_PINNED : parsedPinned;
     const showLabels =
@@ -110,37 +110,37 @@ function readPersisted() {
     };
   }
 }
-function persist(state2) {
+function persist(state) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state2));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {}
 }
-export const useImageToolbarCustomizationStore = create((set2) => ({
+export const useImageToolbarCustomizationStore = create((set) => ({
   ...readPersisted(),
-  setCustomization(next2) {
-    const pinned = next2.pinned.filter(isImageToolbarToolId);
+  setCustomization(next) {
+    const pinned = next.pinned.filter(isImageToolbarToolId);
     const isDefault =
       pinned.length === DEFAULT_PINNED.length &&
-      pinned.every((id2, index2) => id2 === DEFAULT_PINNED[index2]) &&
-      !!next2.showLabels === DEFAULT_SHOW_LABELS;
-    const state2 = {
+      pinned.every((id2, index) => id2 === DEFAULT_PINNED[index]) &&
+      !!next.showLabels === DEFAULT_SHOW_LABELS;
+    const state = {
       pinned,
-      showLabels: !!next2.showLabels,
+      showLabels: !!next.showLabels,
       layoutVersion: isDefault
         ? LATEST_LAYOUT_VERSION
         : useImageToolbarCustomizationStore.getState().layoutVersion,
     };
-    set2(state2);
-    persist(state2);
+    set(state);
+    persist(state);
   },
   resetToDefaults() {
-    const state2 = {
+    const state = {
       pinned: [...DEFAULT_PINNED],
       showLabels: DEFAULT_SHOW_LABELS,
       layoutVersion: LATEST_LAYOUT_VERSION,
     };
-    set2(state2);
-    persist(state2);
+    set(state);
+    persist(state);
   },
 }));

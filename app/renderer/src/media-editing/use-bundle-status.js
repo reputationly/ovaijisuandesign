@@ -10,8 +10,8 @@ const SNAPSHOT_RETRY_DELAY_MS = 500;
 
 const SNAPSHOT_RETRY_MAX_ELAPSED_MS = 3e4;
 
-function createSnapshotUnavailableStatus(workspaceId2) {
-  const id2 = workspaceId2 ?? "workspace";
+function createSnapshotUnavailableStatus(workspaceId) {
+  const id2 = workspaceId ?? "workspace";
   return {
     workspaceId: id2,
     folderPath: id2,
@@ -26,11 +26,11 @@ function createSnapshotUnavailableStatus(workspaceId2) {
   };
 }
 
-export function useBundleStatus(workspaceId2, refreshKey, options = {}) {
+export function useBundleStatus(workspaceId, refreshKey, options = {}) {
   const [scopedStatus, setScopedStatus] = reactExports.useState(void 0);
   const lastRevisionRef = reactExports.useRef(-1);
   const subscriptionScope = JSON.stringify([
-    workspaceId2 ?? "home",
+    workspaceId ?? "home",
     refreshKey ?? 0,
   ]);
   const {
@@ -44,10 +44,10 @@ export function useBundleStatus(workspaceId2, refreshKey, options = {}) {
       setScopedStatus(void 0);
       return;
     }
-    let service2;
+    let service;
     try {
-      service2 = workspaceId2
-        ? getWorkspaceBundle(workspaceId2)
+      service = workspaceId
+        ? getWorkspaceBundle(workspaceId)
         : services.get(IBundleHandle);
     } catch {
       return;
@@ -63,14 +63,14 @@ export function useBundleStatus(workspaceId2, refreshKey, options = {}) {
       clearTimeout(retryTimer);
       retryTimer = void 0;
     };
-    const apply2 = (next2) => {
+    const apply = (next) => {
       if (disposed) return;
-      if (next2.revision <= lastRevisionRef.current) return;
-      lastRevisionRef.current = next2.revision;
+      if (next.revision <= lastRevisionRef.current) return;
+      lastRevisionRef.current = next.revision;
       clearRetryTimer();
       setScopedStatus({
         scope: subscriptionScope,
-        status: next2,
+        status: next,
       });
     };
     const logSnapshotFailure = (err, final) => {
@@ -95,15 +95,15 @@ export function useBundleStatus(workspaceId2, refreshKey, options = {}) {
     const scheduleRetry = (err) => {
       if (disposed || lastRevisionRef.current >= 0) return;
       snapshotFailureCount += 1;
-      const elapsedMs2 = Date.now() - startedAt;
-      const final = elapsedMs2 >= maxRetryElapsedMs;
+      const elapsedMs = Date.now() - startedAt;
+      const final = elapsedMs >= maxRetryElapsedMs;
       if (snapshotFailureCount === 1 || final) {
         logSnapshotFailure(err, final);
       }
       if (final) {
         setScopedStatus({
           scope: subscriptionScope,
-          status: createSnapshotUnavailableStatus(workspaceId2),
+          status: createSnapshotUnavailableStatus(workspaceId),
         });
         return;
       }
@@ -112,15 +112,15 @@ export function useBundleStatus(workspaceId2, refreshKey, options = {}) {
     };
     const fetchSnapshot = () => {
       if (disposed || lastRevisionRef.current >= 0) return;
-      service2
+      service
         .getStatus()
-        .then((snapshot2) => {
-          if (disposed || !snapshot2) return;
-          apply2(snapshot2);
+        .then((snapshot) => {
+          if (disposed || !snapshot) return;
+          apply(snapshot);
         })
         .catch(scheduleRetry);
     };
-    const subscription = service2.onStatusChange(apply2);
+    const subscription = service.onStatusChange(apply);
     fetchSnapshot();
     return () => {
       disposed = true;
@@ -129,7 +129,7 @@ export function useBundleStatus(workspaceId2, refreshKey, options = {}) {
     };
   }, [
     enabled,
-    workspaceId2,
+    workspaceId,
     subscriptionScope,
     retryDelayMs,
     maxRetryElapsedMs,

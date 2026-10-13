@@ -31,32 +31,32 @@ function LightboxDownloadButton({ label, dataActionUiId, onClick, className }) {
     </button>
   );
 }
-export const AudioLightbox = reactExports.memo(function AudioLightbox2({
+export const AudioLightbox = reactExports.memo(function AudioLightbox({
   src,
-  name: name2,
+  name: audioName,
   lyrics,
   onClose,
   item,
 }) {
   const { t: t2 } = useTranslation();
-  const current2 =
+  const current =
     item ??
     normalizeLegacyLightboxItems("audio", void 0, void 0, void 0, src)[0];
   const downloadLabel = t2("canvas.downloadAudio");
   const { canSave, handleDownload, handleContextMenu, contextMenu } =
     useLightboxMediaActions({
-      item: current2,
+      item: current,
     });
-  if (!current2?.url) return null;
+  if (!current?.url) return null;
   return (
     <MediaLightbox onClose={onClose} onContextMenu={handleContextMenu}>
       <div
         className="flex flex-col items-center gap-4 cursor-default"
         onClick={(e2) => e2.stopPropagation()}
       >
-        {name2 && (
+        {audioName && (
           <span className="text-sm font-medium text-white/80 max-w-[60vw] truncate">
-            {name2}
+            {audioName}
           </span>
         )}
         {lyrics && (
@@ -67,7 +67,7 @@ export const AudioLightbox = reactExports.memo(function AudioLightbox2({
           </div>
         )}
         <audio
-          src={current2.url}
+          src={current.url}
           className="w-[min(480px,80vw)]"
           controls={true}
           autoPlay={true}

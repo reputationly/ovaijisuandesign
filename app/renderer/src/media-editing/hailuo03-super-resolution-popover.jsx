@@ -27,7 +27,7 @@ import {
 } from "../generation/select-content.jsx";
 const H3_TARGET_RESOLUTION = "2K";
 export const Hailuo03SuperResolutionPopover = reactExports.memo(
-  function Hailuo03SuperResolutionPopover2({
+  function Hailuo03SuperResolutionPopover({
     onSubmit,
     onClose,
     durationSec,
@@ -49,14 +49,14 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
       (s2) => (nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     );
-    const selected2 = useStore(selectedSelector);
+    const isSelected = useStore(selectedSelector);
     const isDragging = useCanvasIsDragging();
     const isMultiSelect = useCanvasIsMultiSelect();
     const isBoxSelecting = useCanvasIsBoxSelecting();
     reactExports.useEffect(() => {
       if (renderShell) return;
-      if (!selected2) onCloseRef.current();
-    }, [renderShell, selected2]);
+      if (!isSelected) onCloseRef.current();
+    }, [renderShell, isSelected]);
     const hidden =
       !renderShell && (isDragging || isMultiSelect || isBoxSelecting);
     const handleSubmit = reactExports.useCallback(() => {
@@ -68,7 +68,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
         {t2("canvas.hailuo03SuperResolution.nativeBadge", "H3 原生超分")}
       </span>
     );
-    const body2 = (
+    const body = (
       // biome-ignore lint/a11y/noStaticElementInteractions: event barrier only — pointer/dblclick must not leak to the host node
       <div
         className="flex w-64 flex-col gap-3 rounded-lg bg-[var(--canvas-controls-bg)] p-3 shadow-[var(--canvas-shadow-dropdown)] animate-[i2v-popover-in_0.15s_ease-out]"
@@ -139,7 +139,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
         <>
           {renderShell({
             onClose,
-            children: body2,
+            children: body,
           })}
         </>
       );
@@ -150,7 +150,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
         offset={NODE_POPOVER_SAFE_GAP}
         align="center"
       >
-        {body2}
+        {body}
       </NodeToolbar>
     );
   },
