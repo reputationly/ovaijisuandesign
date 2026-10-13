@@ -1,0 +1,13 @@
+m3@133:8	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+m3@139:8	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+m3@141:23	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+m3@156:4	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+m3@163:4	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+m3@176:22	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+m3@183:8	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+m3@187:21	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+m3@191:10	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+type2@21:30	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+type2@145:27	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+type2@168:70	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+match2@200:9	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。

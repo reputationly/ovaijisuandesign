@@ -1,0 +1,9 @@
+t2@37:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+o2@46:38	o2	option	该绑定持有 option 所表示的值，按其实际用途命名。
+opt@46:13	opt	selectedOption	该绑定持有 selectedOption 所表示的值，按其实际用途命名。
+opt@103:28	opt	option	该绑定持有 option 所表示的值，按其实际用途命名。
+active2@41:9	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+base2@43:11	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
+set2@65:13	set2	set	去掉打包器防重名追加的后缀，恢复原名 set，即该绑定持有的值。
+next2@75:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+selected2@104:17	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。

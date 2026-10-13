@@ -1,0 +1,10 @@
+t2@42:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@89:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+rel@149:9	rel	trimmedPath	该绑定持有 trimmedPath 所表示的值，按其实际用途命名。
+messages2@22:47	messages2	messages	去掉打包器防重名追加的后缀，恢复原名 messages，即该绑定持有的值。
+next2@24:9	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+message2@24:32	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+platform2@43:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+base2@148:9	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
+name2@155:9	name2	resourceName	原名去后缀后发生作用域冲突；该绑定实际表示 resourceName。
+name2@164:9	name2	resourceName	原名去后缀后发生作用域冲突；该绑定实际表示 resourceName。

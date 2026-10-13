@@ -31,11 +31,11 @@ const HAILUO03_VIDEO_CONTINUATION_SUB_TYPE = "hailuo03_video_continuation";
 export function stringValue(value) {
   return typeof value === "string" ? value.trim() : "";
 }
-export function includesString(values3, value) {
-  return Array.isArray(values3) && values3.includes(value);
+export function includesString(values, value) {
+  return Array.isArray(values) && values.includes(value);
 }
 function hasPath(paths) {
-  return paths.some((path2) => path2.trim().length > 0);
+  return paths.some((path) => path.trim().length > 0);
 }
 export function imageModeSubType(imageMode) {
   return stringValue(imageMode) === "video-extension"
@@ -92,9 +92,9 @@ const RAW_ERROR_CLASS_I18N = {
   storage: "canvas.errors.storage",
   technical: "canvas.errors.technical",
 };
-export function semanticGenerationErrorCopy(raw2) {
-  const cls = classifyRawErrorText(raw2);
-  return cls ? instance.t(RAW_ERROR_CLASS_I18N[cls]) : raw2;
+export function semanticGenerationErrorCopy(raw) {
+  const errorClass = classifyRawErrorText(raw);
+  return errorClass ? instance.t(RAW_ERROR_CLASS_I18N[errorClass]) : raw;
 }
 const AMBIGUOUS_SUBMIT_HTTP_STATUSES = new Set([408, 500, 502, 503, 504]);
 export function generationErrorStatusFromResponse(presentation) {
@@ -116,10 +116,10 @@ export function generationErrorStatusFromThrown(error) {
     ? "status_unknown"
     : "error";
 }
-export function retainedGenerationBlocksResubmit(info2) {
+export function retainedGenerationBlocksResubmit(info) {
   return (
-    info2?.errorStatus === "recoverable_error" ||
-    info2?.errorStatus === "status_unknown"
+    info?.errorStatus === "recoverable_error" ||
+    info?.errorStatus === "status_unknown"
   );
 }
 export const RESUBMIT_BLOCKED_I18N = [
@@ -143,48 +143,48 @@ export class ScopedAsyncCache {
       expiresAt: 0,
     };
   }
-  peek(scope, now2 = Date.now()) {
-    const state2 = this.state;
-    if (state2?.scope !== scope || state2.expiresAt <= now2) return void 0;
-    return state2.value;
+  peek(scope, now = Date.now()) {
+    const state = this.state;
+    if (state?.scope !== scope || state.expiresAt <= now) return void 0;
+    return state.value;
   }
   load(scope, loader2, ttlMs = Number.POSITIVE_INFINITY) {
     this.setScope(scope);
-    const state2 = this.state;
+    const state = this.state;
     const cached = this.peek(scope);
     if (cached !== void 0) return Promise.resolve(cached);
-    if (state2.request) return state2.request;
+    if (state.request) return state.request;
     const request = loader2()
       .then((value) => {
-        if (this.state !== state2) throw scopeChangedError();
-        state2.value = value;
-        state2.expiresAt = Date.now() + ttlMs;
+        if (this.state !== state) throw scopeChangedError();
+        state.value = value;
+        state.expiresAt = Date.now() + ttlMs;
         return value;
       })
       .finally(() => {
-        if (state2.request === request) state2.request = void 0;
+        if (state.request === request) state.request = void 0;
       });
-    state2.request = request;
+    state.request = request;
     return request;
   }
 }
 function resolveReleaseBadges(configs, dismissedCoachMarks) {
-  const badges2 = {};
+  const badges = {};
   const completableBadgeIds = {};
-  for (const config2 of configs) {
-    const { target } = config2;
-    if (!("id" in config2)) {
-      badges2[target] = config2.display;
+  for (const config of configs) {
+    const { target } = config;
+    if (!("id" in config)) {
+      badges[target] = config.display;
       continue;
     }
-    const { display } = config2;
-    const isCompleted = dismissedCoachMarks?.includes(config2.id) ?? false;
+    const { display } = config;
+    const isCompleted = dismissedCoachMarks?.includes(config.id) ?? false;
     const appearance = isCompleted ? display.afterComplete : display.initial;
-    if (appearance) badges2[target] = appearance;
-    if (!isCompleted) completableBadgeIds[target] = config2.id;
+    if (appearance) badges[target] = appearance;
+    if (!isCompleted) completableBadgeIds[target] = config.id;
   }
   return {
-    badges: badges2,
+    badges,
     completableBadgeIds,
   };
 }
@@ -204,8 +204,8 @@ export function useReleaseBadges(configs) {
     (target) => {
       const badgeId = resolved.completableBadgeIds[target];
       if (!badgeId) return;
-      setDismissedCoachMarks((previous2) => {
-        const marks = Array.isArray(previous2) ? previous2 : [];
+      setDismissedCoachMarks((previous) => {
+        const marks = Array.isArray(previous) ? previous : [];
         return marks.includes(badgeId) ? marks : [...marks, badgeId];
       });
     },
@@ -258,7 +258,7 @@ export function connectorReferenceFromServerName(serverName) {
 }
 const STALE_24H = 24 * 60 * 60 * 1e3;
 export function useMentionModels() {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const catalogScopeKey = useModelCatalogScopeKey();
   const { baseUrl, gatewayBinding, scopeKey } = useGatewayScope();
   const runtimeKey = gatewayBinding
@@ -273,7 +273,7 @@ export function useMentionModels() {
     staleTime: (query) => ((query.state.data?.length ?? 0) > 0 ? STALE_24H : 0),
     queryKey: ["mention-models", catalogScopeKey, scopeKey, runtimeKey],
     queryFn: async ({ signal }) => {
-      const resp = await gatewayFetch2(API_PATHS.modelsConfig, {
+      const resp = await gatewayFetch(API_PATHS.modelsConfig, {
         signal,
       });
       if (!resp.ok)
@@ -281,17 +281,17 @@ export function useMentionModels() {
       const payload = await resp.json();
       const models =
         payload && typeof payload === "object" && !Array.isArray(payload)
-          ? ["imageModels", "videoModels", "audioModels"].flatMap((key2) => {
-              const value = payload[key2];
+          ? ["imageModels", "videoModels", "audioModels"].flatMap((key) => {
+              const value = payload[key];
               return Array.isArray(value) ? value : [];
             })
           : Array.isArray(payload)
             ? payload
             : void 0;
       if (!Array.isArray(models)) return [];
-      return models.flatMap((raw2) => {
-        if (!raw2 || typeof raw2 !== "object" || Array.isArray(raw2)) return [];
-        const model = raw2;
+      return models.flatMap((raw) => {
+        if (!raw || typeof raw !== "object" || Array.isArray(raw)) return [];
+        const model = raw;
         if (
           typeof model.id !== "string" ||
           typeof model.type !== "string" ||
@@ -335,8 +335,8 @@ function isHexColorValue(value) {
     value,
   );
 }
-export function InlineColorValue({ value, children: children2, className }) {
-  if (!isHexColorValue(value)) return <>{children2 ?? value}</>;
+export function InlineColorValue({ value, children, className }) {
+  if (!isHexColorValue(value)) return <>{children ?? value}</>;
   const swatchStyle = {
     backgroundColor: value,
   };
@@ -347,7 +347,7 @@ export function InlineColorValue({ value, children: children2, className }) {
       data-inline-visual="color"
       data-color-value={value}
     >
-      <span className="inline-color-value-label">{children2 ?? value}</span>
+      <span className="inline-color-value-label">{children ?? value}</span>
       <span
         className="inline-color-swatch"
         data-has-alpha={hasAlpha ? "true" : void 0}
@@ -361,22 +361,22 @@ export function InlineColorValue({ value, children: children2, className }) {
 export function resolveSkillCoverUrl(skill) {
   return getSkillCoverUrl(skill) || CDN_SKILL_SHOWCASE_FALLBACK;
 }
-function isVideoCover(url2) {
-  return /\.(?:mp4|webm|mov|m4v)(?:[?#]|$)/i.test(url2);
+function isVideoCover(url) {
+  return /\.(?:mp4|webm|mov|m4v)(?:[?#]|$)/i.test(url);
 }
 export function SkillCoverMedia({
-  url: url2,
+  url,
   alt = "",
   className = "absolute inset-0 h-full w-full object-cover",
   dataLoaded,
   onLoad,
   onError,
 }) {
-  if (!url2) return null;
-  if (isVideoCover(url2)) {
+  if (!url) return null;
+  if (isVideoCover(url)) {
     return (
       <video
-        src={url2}
+        src={url}
         autoPlay={true}
         muted={true}
         loop={true}
@@ -394,7 +394,7 @@ export function SkillCoverMedia({
   }
   return (
     <img
-      src={url2}
+      src={url}
       alt={alt}
       loading="lazy"
       decoding="async"
@@ -429,29 +429,29 @@ export const UPDATE_INDICATOR_STYLES = {
     "hover:border-warning/70 hover:bg-warning/[.22] hover:text-warning-foreground",
 };
 const UPPERCASE_WORDS = new Set(["mv", "ai", "api", "id", "3d"]);
-export function toDisplayName(name2) {
-  return name2
+export function toDisplayName(displayName) {
+  return displayName
     .split("-")
-    .map((w3) =>
-      UPPERCASE_WORDS.has(w3)
-        ? w3.toUpperCase()
-        : w3.charAt(0).toUpperCase() + w3.slice(1),
+    .map((word) =>
+      UPPERCASE_WORDS.has(word)
+        ? word.toUpperCase()
+        : word.charAt(0).toUpperCase() + word.slice(1),
     )
     .join(" ");
 }
-export function formatDownloads(n2) {
-  if (n2 >= 1e6) return `${(n2 / 1e6).toFixed(1)}M`;
-  if (n2 >= 1e3) return `${(n2 / 1e3).toFixed(1)}k`;
-  return String(n2);
+export function formatDownloads(downloadCount) {
+  if (downloadCount >= 1e6) return `${(downloadCount / 1e6).toFixed(1)}M`;
+  if (downloadCount >= 1e3) return `${(downloadCount / 1e3).toFixed(1)}k`;
+  return String(downloadCount);
 }
 export const FEATURED_MARKET_PAGE_SIZE = 200;
 export const OTHER_MARKET_PAGE_SIZE = 50;
 export const RecoveringChildrenContext = reactExports.createContext(new Set());
 export const RecoveringChildrenProvider = RecoveringChildrenContext.Provider;
 export const PENDING_AUTO_UPDATE_KEY = "skills:pendingAutoUpdate";
-export function writePendingAutoUpdate(update2) {
+export function writePendingAutoUpdate(update) {
   try {
-    sessionStorage.setItem(PENDING_AUTO_UPDATE_KEY, JSON.stringify(update2));
+    sessionStorage.setItem(PENDING_AUTO_UPDATE_KEY, JSON.stringify(update));
   } catch {}
 }
 export const ecommerceArtwork =

@@ -31,46 +31,46 @@ function computeEnhanceImageInputPrep(width, height) {
   const long = longEdge(width, height);
   const short = shortEdge(width, height);
   if (long === void 0 || short === void 0) return null;
-  const w3 = width;
-  const h2 = height;
+  const sourceWidth = width;
+  const sourceHeight = height;
   if (long / short > ENHANCE_IMAGE_INPUT_MAX_ASPECT) return null;
   if (long > ENHANCE_IMAGE_INPUT_LONG_HARD_MAX) return null;
-  let scale2 = 1;
+  let scale = 1;
   if (short < ENHANCE_IMAGE_INPUT_SHORT_MIN) {
-    scale2 = ENHANCE_IMAGE_INPUT_SHORT_MIN / short;
+    scale = ENHANCE_IMAGE_INPUT_SHORT_MIN / short;
   } else if (long > ENHANCE_IMAGE_INPUT_LONG_MAX) {
-    scale2 = ENHANCE_IMAGE_INPUT_LONG_MAX / long;
+    scale = ENHANCE_IMAGE_INPUT_LONG_MAX / long;
   }
   return {
-    prepWidth: Math.max(1, Math.round(w3 * scale2)),
-    prepHeight: Math.max(1, Math.round(h2 * scale2)),
-    scale: scale2,
+    prepWidth: Math.max(1, Math.round(sourceWidth * scale)),
+    prepHeight: Math.max(1, Math.round(sourceHeight * scale)),
+    scale,
   };
 }
 export function isEnhanceImageInputEligible(width, height) {
   return computeEnhanceImageInputPrep(width, height) !== null;
 }
-export var WalletSource = ((WalletSource2) => {
-  WalletSource2[(WalletSource2["WALLET_SOURCE_HILO"] = 0)] =
+export var WalletSource = ((WalletSource) => {
+  WalletSource[(WalletSource["WALLET_SOURCE_HILO"] = 0)] =
     "WALLET_SOURCE_HILO";
-  WalletSource2[(WalletSource2["WALLET_SOURCE_OP"] = 1)] = "WALLET_SOURCE_OP";
-  WalletSource2[(WalletSource2["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
-  return WalletSource2;
+  WalletSource[(WalletSource["WALLET_SOURCE_OP"] = 1)] = "WALLET_SOURCE_OP";
+  WalletSource[(WalletSource["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
+  return WalletSource;
 })(WalletSource || {});
-export var CreditType = ((CreditType2) => {
-  CreditType2[(CreditType2["CREDIT_TYPE_TOP_UP"] = 0)] = "CREDIT_TYPE_TOP_UP";
-  CreditType2[(CreditType2["CREDIT_TYPE_MEMBERSHIP"] = 1)] =
+export var CreditType = ((CreditType) => {
+  CreditType[(CreditType["CREDIT_TYPE_TOP_UP"] = 0)] = "CREDIT_TYPE_TOP_UP";
+  CreditType[(CreditType["CREDIT_TYPE_MEMBERSHIP"] = 1)] =
     "CREDIT_TYPE_MEMBERSHIP";
-  CreditType2[(CreditType2["CREDIT_TYPE_BONUS"] = 2)] = "CREDIT_TYPE_BONUS";
-  CreditType2[(CreditType2["CREDIT_TYPE_DEFAULT"] = 3)] = "CREDIT_TYPE_DEFAULT";
-  CreditType2[(CreditType2["CREDIT_TYPE_CREATOR"] = 4)] = "CREDIT_TYPE_CREATOR";
-  CreditType2[(CreditType2["CREDIT_TYPE_ACTIVITY"] = 5)] =
+  CreditType[(CreditType["CREDIT_TYPE_BONUS"] = 2)] = "CREDIT_TYPE_BONUS";
+  CreditType[(CreditType["CREDIT_TYPE_DEFAULT"] = 3)] = "CREDIT_TYPE_DEFAULT";
+  CreditType[(CreditType["CREDIT_TYPE_CREATOR"] = 4)] = "CREDIT_TYPE_CREATOR";
+  CreditType[(CreditType["CREDIT_TYPE_ACTIVITY"] = 5)] =
     "CREDIT_TYPE_ACTIVITY";
-  CreditType2[(CreditType2["CREDIT_TYPE_LOGIN"] = 6)] = "CREDIT_TYPE_LOGIN";
-  CreditType2[(CreditType2["CREDIT_TYPE_TRANSFER"] = 7)] =
+  CreditType[(CreditType["CREDIT_TYPE_LOGIN"] = 6)] = "CREDIT_TYPE_LOGIN";
+  CreditType[(CreditType["CREDIT_TYPE_TRANSFER"] = 7)] =
     "CREDIT_TYPE_TRANSFER";
-  CreditType2[(CreditType2["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
-  return CreditType2;
+  CreditType[(CreditType["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
+  return CreditType;
 })(CreditType || {});
 new URL(LIBTV_CONNECTOR.url).origin;
 export const INSUFFICIENT_BALANCE_TEXT_PATTERN =
@@ -103,10 +103,10 @@ export const CANVAS_INVALID_SAVE_REJECTED_CODE = "CANVAS_INVALID_SAVE_REJECTED";
 function workspaceIdentityHostname(workspaceClaim) {
   const claim = workspaceClaim.trim();
   if (!WORKSPACE_IDENTITY_HEX_PATTERN.test(claim)) return void 0;
-  const token2 = BigInt(`0x${claim}`)
+  const token = BigInt(`0x${claim}`)
     .toString(36)
     .padStart(WORKSPACE_IDENTITY_HOST_TOKEN_LENGTH, "0");
-  return `w-${token2}${WORKSPACE_IDENTITY_HOST_SUFFIX}`;
+  return `w-${token}${WORKSPACE_IDENTITY_HOST_SUFFIX}`;
 }
 function workspaceInstanceHostname(instanceId, generation) {
   const normalized = instanceId.trim().toLowerCase();
@@ -264,7 +264,7 @@ const OPENCODE_RUNTIME_SWITCHES = [
   },
 ];
 [
-  ...OPENCODE_RUNTIME_SWITCHES.map(({ key: key2 }) => key2),
+  ...OPENCODE_RUNTIME_SWITCHES.map(({ key }) => key),
   OPENCODE_RUNTIME_HOME_ENV,
 ];
 export const DELETE_UNDO_TTL_MS = 1e4;
@@ -313,8 +313,8 @@ export const TEXT_VERSION_NOTE_MAX_CHARS = 2e3;
 export function textVersionNumbers(versionsNewestFirst) {
   const total = versionsNewestFirst.length;
   const numbers = new Map();
-  versionsNewestFirst.forEach((version2, index2) => {
-    numbers.set(version2.id, total - index2);
+  versionsNewestFirst.forEach((version, index) => {
+    numbers.set(version.id, total - index);
   });
   return numbers;
 }

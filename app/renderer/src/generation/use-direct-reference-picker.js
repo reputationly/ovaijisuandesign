@@ -10,16 +10,16 @@ import {
   encodeCanvasReference,
   existingCanvasReferencePath,
 } from "../text-editor/table-document-to-llm-content.js";
-function reasonForDisabledBatch(items, constraints2) {
-  if (!constraints2) return void 0;
+function reasonForDisabledBatch(items, constraints) {
+  if (!constraints) return void 0;
   const remaining = {
-    ...constraints2,
+    ...constraints,
     remainingByKind: {
-      ...constraints2.remainingByKind,
+      ...constraints.remainingByKind,
     },
   };
-  for (const { kind, meta: meta2 } of items) {
-    const reason = reasonForDisabled(kind, meta2, remaining);
+  for (const { kind, meta } of items) {
+    const reason = reasonForDisabled(kind, meta, remaining);
     if (reason) return reason;
     const slots = remaining.remainingByKind[kind];
     if (slots !== void 0) remaining.remainingByKind[kind] = slots - 1;
@@ -35,7 +35,7 @@ function reasonForDisabledBatch(items, constraints2) {
           remaining.remainingVideoAudio,
         );
       }
-      const duration = Math.max(0, meta2.durationSec ?? 0);
+      const duration = Math.max(0, meta.durationSec ?? 0);
       if (kind === "video") remaining.remainingVideoTotalSec -= duration;
       else remaining.remainingAudioTotalSec -= duration;
     }
@@ -48,11 +48,11 @@ export function useDirectReferencePicker({
   query,
   kindFilter,
   existingPaths,
-  constraints: constraints2,
+  constraints,
   onSelect,
   onConstraintViolation,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { directReferences, resolveThumbUrl } = useCanvasBridge();
   const allowedKinds = reactExports.useMemo(
     () => new Set(kindFilter),
@@ -74,7 +74,7 @@ export function useDirectReferencePicker({
     let cancelled = false;
     setDirectLoading(true);
     setDirectError(false);
-    const timer2 = setTimeout(() => {
+    const timer = setTimeout(() => {
       directReferences
         .searchCandidates(query)
         .then((rows) => {
@@ -92,7 +92,7 @@ export function useDirectReferencePicker({
     }, SEARCH_DELAY_MS);
     return () => {
       cancelled = true;
-      clearTimeout(timer2);
+      clearTimeout(timer);
     };
   }, [directReferences, query]);
   const directItems = reactExports.useMemo(
@@ -106,10 +106,10 @@ export function useDirectReferencePicker({
           firstSupportedReference && firstSupportedReference.kind !== "other"
             ? firstSupportedReference.kind
             : "text";
-        const path2 = firstSupportedReference
+        const path = firstSupportedReference
           ? encodeCanvasReference(firstSupportedReference)
           : candidate.id;
-        const directReferences2 =
+        const directReferences =
           candidate.source === "subject"
             ? [
                 {
@@ -128,7 +128,7 @@ export function useDirectReferencePicker({
             : supportedReferences;
         const subjectAlreadySelected =
           candidate.source === "subject" &&
-          directReferences2.some((reference) =>
+          directReferences.some((reference) =>
             existingCanvasReferencePath(reference, existingPaths),
           );
         const newReferences = supportedReferences.flatMap((reference) => {
@@ -151,14 +151,14 @@ export function useDirectReferencePicker({
           ];
         });
         const disabledReason = firstSupportedReference
-          ? reasonForDisabledBatch(newReferences, constraints2)
+          ? reasonForDisabledBatch(newReferences, constraints)
           : candidate.references.length
             ? ReferenceDisabledReason.Unsupported
             : ReferenceDisabledReason.Empty;
         return {
           assetId: candidate.id,
           meta: {
-            path: path2,
+            path,
             name: candidate.name,
             type: kind,
             url: "",
@@ -166,18 +166,18 @@ export function useDirectReferencePicker({
           kind,
           thumbUrl:
             firstSupportedReference && kind === "image"
-              ? (resolveThumbUrl?.(path2, THUMB_PX, "image") ?? "")
+              ? (resolveThumbUrl?.(path, THUMB_PX, "image") ?? "")
               : "",
           alreadyAdded: false,
           disabledReason,
-          directReferences: directReferences2,
+          directReferences,
         };
       }),
     [
       directCandidates,
       allowedKinds,
       existingPaths,
-      constraints2,
+      constraints,
       resolveThumbUrl,
     ],
   );
@@ -196,22 +196,22 @@ export function useDirectReferencePicker({
           if (!aliveRef.current) return true;
           if (
             resolved.length !== item.directReferences.length ||
-            resolved.some((row) => row.status === "unavailable")
+            resolved.some((resolvedItem) => resolvedItem.status === "unavailable")
           ) {
             throw new Error("Reference check failed");
           }
-          if (resolved.some((row) => row.status !== "available")) {
+          if (resolved.some((resolvedItem) => resolvedItem.status !== "available")) {
             dedupedToast.error(
-              t2(
+              translate(
                 "canvas.reference.unavailable",
                 "Reference unavailable. Please select again.",
               ),
             );
             return true;
           }
-          const selections = resolved.map((row) => {
-            const reference = row.reference;
-            const attachments = row.metadata?.attachments.filter((attachment) =>
+          const selections = resolved.map((resolvedItem) => {
+            const reference = resolvedItem.reference;
+            const attachments = resolvedItem.metadata?.attachments.filter((attachment) =>
               allowedKinds.has(attachment.kind),
             );
             return {
@@ -224,12 +224,12 @@ export function useDirectReferencePicker({
                       ),
                     }
                   : reference,
-              row,
+              row: resolvedItem,
               attachments,
             };
           });
           const newMedia = selections.flatMap(
-            ({ reference, row, attachments }) => {
+            ({ reference, row: resolvedItem, attachments }) => {
               if (existingCanvasReferencePath(reference, existingPaths))
                 return [];
               return (
@@ -241,7 +241,7 @@ export function useDirectReferencePicker({
                   : [
                       {
                         kind: reference.kind,
-                        metadata: row.metadata?.media,
+                        metadata: resolvedItem.metadata?.media,
                       },
                     ]
               ).flatMap(({ kind, metadata }) => {
@@ -264,18 +264,18 @@ export function useDirectReferencePicker({
               });
             },
           );
-          const invalid2 = selections.some(
+          const invalid = selections.some(
             ({ reference }) =>
               reference.target === "entity" &&
               !reference.attachmentKinds?.length,
           )
             ? ReferenceDisabledReason.Empty
-            : reasonForDisabledBatch(newMedia, constraints2);
-          if (invalid2) {
-            onConstraintViolation(invalid2);
+            : reasonForDisabledBatch(newMedia, constraints);
+          if (invalid) {
+            onConstraintViolation(invalid);
             return true;
           }
-          for (const { reference, row } of selections) {
+          for (const { reference, row: resolvedItem } of selections) {
             if (reference.kind === "other") continue;
             onSelect(
               {
@@ -287,10 +287,10 @@ export function useDirectReferencePicker({
                   : reference.name,
                 type: reference.kind,
                 url: "",
-                durationSec: row.metadata?.media?.duration_sec,
-                width: row.metadata?.media?.width,
-                height: row.metadata?.media?.height,
-                fileSize: row.metadata?.media?.file_size,
+                durationSec: resolvedItem.metadata?.media?.duration_sec,
+                width: resolvedItem.metadata?.media?.width,
+                height: resolvedItem.metadata?.media?.height,
+                fileSize: resolvedItem.metadata?.media?.file_size,
               },
               reference.id,
             );
@@ -298,7 +298,7 @@ export function useDirectReferencePicker({
         } catch {
           if (aliveRef.current)
             dedupedToast.error(
-              t2(
+              translate(
                 "canvas.reference.loadFailed",
                 "Failed to load reference. Please try again.",
               ),
@@ -314,9 +314,9 @@ export function useDirectReferencePicker({
       directReferences,
       existingPaths,
       onSelect,
-      t2,
+      translate,
       allowedKinds,
-      constraints2,
+      constraints,
       onConstraintViolation,
     ],
   );

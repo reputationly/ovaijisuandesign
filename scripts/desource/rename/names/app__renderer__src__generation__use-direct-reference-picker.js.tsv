@@ -1,0 +1,13 @@
+t2@55:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+row@199:28	row	resolvedItem	该绑定持有 resolvedItem 所表示的值，按其实际用途命名。
+row@203:30	row	resolvedItem	该绑定持有 resolvedItem 所表示的值，按其实际用途命名。
+row@212:44	row	resolvedItem	该绑定持有 resolvedItem 所表示的值，按其实际用途命名。
+row@232:27	row	resolvedItem	该绑定持有 resolvedItem 所表示的值，按其实际用途命名。
+row@278:35	row	resolvedItem	该绑定持有 resolvedItem 所表示的值，按其实际用途命名。
+constraints2@13:40	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
+meta2@21:28	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+constraints2@51:16	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
+timer2@77:11	timer2	timer	去掉打包器防重名追加的后缀，恢复原名 timer，即该绑定持有的值。
+path2@109:15	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+directReferences2@112:15	directReferences2	directReferences	去掉打包器防重名追加的后缀，恢复原名 directReferences，即该绑定持有的值。
+invalid2@267:17	invalid2	invalid	去掉打包器防重名追加的后缀，恢复原名 invalid，即该绑定持有的值。

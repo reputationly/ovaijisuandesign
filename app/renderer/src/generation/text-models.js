@@ -18,12 +18,12 @@ const BACKEND_TEXT_OPENAI = "text_openai";
 
 const BACKEND_TEXT_GEMINI = "text_gemini";
 
-function toRegistryMediaType(type2) {
-  switch (type2) {
+function toRegistryMediaType(type) {
+  switch (type) {
     case "image":
     case "video":
     case "audio":
-      return type2;
+      return type;
     case "music":
       return "audio";
     default:
@@ -130,73 +130,73 @@ function matchesTextModel(entry, modelName) {
 function resolveTextModelDisplayName(backend, modelName, region) {
   return (
     TEXT_MODELS.find(
-      (m3) =>
-        isVisibleInRegion(m3, region) &&
-        m3.backend === backend &&
-        matchesTextModel(m3, modelName),
+      (modelEntry) =>
+        isVisibleInRegion(modelEntry, region) &&
+        modelEntry.backend === backend &&
+        matchesTextModel(modelEntry, modelName),
     ) ??
     TEXT_MODELS.find(
-      (m3) => isVisibleInRegion(m3, region) && matchesTextModel(m3, modelName),
+      (modelEntry) => isVisibleInRegion(modelEntry, region) && matchesTextModel(modelEntry, modelName),
     ) ??
-    TEXT_MODELS.find((m3) => matchesTextModel(m3, modelName))
+    TEXT_MODELS.find((modelEntry) => matchesTextModel(modelEntry, modelName))
   )?.name;
 }
 
-function modelPoolForType(type2) {
+function modelPoolForType(type) {
   return (
     {
       image: IMAGE_MODELS,
       video: VIDEO_MODELS,
       audio: AUDIO_MODELS,
-    }[type2] ?? []
+    }[type] ?? []
   );
 }
 
 AUDIO_MODELS.filter(
-  (m3) =>
-    m3.backend === BACKEND_MINIMAX_TTS ||
-    m3.backend === BACKEND_SEEDAUDIO ||
-    (m3.backend === BACKEND_MINIMAX_V3 && !!m3.audioExtension),
+  (modelEntry) =>
+    modelEntry.backend === BACKEND_MINIMAX_TTS ||
+    modelEntry.backend === BACKEND_SEEDAUDIO ||
+    (modelEntry.backend === BACKEND_MINIMAX_V3 && !!modelEntry.audioExtension),
 );
 
 AUDIO_MODELS.filter(
-  (m3) =>
-    m3.backend === BACKEND_MINIMAX_MUSIC ||
-    m3.backend === BACKEND_ELEVENLABS_MUSIC,
+  (modelEntry) =>
+    modelEntry.backend === BACKEND_MINIMAX_MUSIC ||
+    modelEntry.backend === BACKEND_ELEVENLABS_MUSIC,
 );
 
-export function resolveModelDisplayName(backend, modelIdRaw, region, type2) {
+export function resolveModelDisplayName(backend, modelIdRaw, region, type) {
   if (!modelIdRaw) return backend;
   const modelId = normalizeLegacyModelId(modelIdRaw);
-  if (type2 === "text")
+  if (type === "text")
     return resolveTextModelDisplayName(backend, modelId, region) ?? modelId;
-  const registryType = toRegistryMediaType(type2);
+  const registryType = toRegistryMediaType(type);
   if (!registryType) return modelId;
   const pool = modelPoolForType(registryType);
-  const matchesId = (m3) =>
-    m3.model_name === modelId ||
-    m3.id === modelId ||
-    m3.publicToken === modelId ||
-    m3.pricingId === modelId;
+  const matchesId = (modelEntry) =>
+    modelEntry.model_name === modelId ||
+    modelEntry.id === modelId ||
+    modelEntry.publicToken === modelId ||
+    modelEntry.pricingId === modelId;
   const regionalMatch =
     pool.find(
-      (m3) =>
-        isVisibleInRegion(m3, region) &&
-        m3.backend === backend &&
-        matchesId(m3),
-    ) ?? pool.find((m3) => isVisibleInRegion(m3, region) && matchesId(m3));
+      (modelEntry) =>
+        isVisibleInRegion(modelEntry, region) &&
+        modelEntry.backend === backend &&
+        matchesId(modelEntry),
+    ) ?? pool.find((modelEntry) => isVisibleInRegion(modelEntry, region) && matchesId(modelEntry));
   const crossRegionMatch = regionalMatch ? void 0 : pool.find(matchesId);
   const currentRegionCounterpart = crossRegionMatch
     ? pool.find(
-        (m3) =>
-          isVisibleInRegion(m3, region) &&
-          m3.backend === crossRegionMatch.backend &&
+        (modelEntry) =>
+          isVisibleInRegion(modelEntry, region) &&
+          modelEntry.backend === crossRegionMatch.backend &&
           ((crossRegionMatch.model_name !== void 0 &&
-            m3.model_name === crossRegionMatch.model_name) ||
+            modelEntry.model_name === crossRegionMatch.model_name) ||
             (crossRegionMatch.pricingId !== void 0 &&
-              m3.pricingId === crossRegionMatch.pricingId)),
+              modelEntry.pricingId === crossRegionMatch.pricingId)),
       )
     : void 0;
-  const match2 = regionalMatch ?? currentRegionCounterpart ?? crossRegionMatch;
-  return match2?.name ?? LEGACY_MODEL_DISPLAY_NAMES.get(modelId) ?? modelId;
+  const match = regionalMatch ?? currentRegionCounterpart ?? crossRegionMatch;
+  return match?.name ?? LEGACY_MODEL_DISPLAY_NAMES.get(modelId) ?? modelId;
 }

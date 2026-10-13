@@ -1,5 +1,5 @@
 // txt-popover-inner.jsx
-import { ChevronDown, jsxRuntimeExports, Lock, reactDomExports, reactExports, useMusicPromptLayout, useTranslation, X$7 as X } from "../vendor.js";
+import { ChevronDown, jsxRuntimeExports, Lock, reactDomExports, reactExports, useMusicPromptLayout, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast, useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { summarizeParams } from "./summarize-params.js";
@@ -102,7 +102,7 @@ import {
   TextPopoverReferenceSection,
 } from "./attachment-bar.jsx";
 export function TxtPopoverInner({
-  mode: mode2,
+  mode,
   onSubmit,
   onClose,
   listModels,
@@ -139,16 +139,16 @@ export function TxtPopoverInner({
   defaultAudioPaths,
   defaultTextPaths,
   referenceTextContent = "",
-  readOnly: readOnly2 = false,
+  readOnly = false,
   readOnlyLyrics,
   readOnlyHint,
   navigationSnapshot,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const paramsAnchorRef = reactExports.useRef(null);
   const voiceAnchorRef = reactExports.useRef(null);
   const assetMetadataStore = useAssetMetadataApi();
-  const mentionEnabled = mode2 === "text" && !!mentionPicker;
+  const mentionEnabled = mode === "text" && !!mentionPicker;
   const [promptText, setPromptText] = reactExports.useState(
     defaultPrompt ?? "",
   );
@@ -186,26 +186,26 @@ export function TxtPopoverInner({
       } catch {}
     }
     if (defaultPrompt) {
-      const assets2 = assetMetadataStore.getState().assets;
-      return parsePromptToTiptap(defaultPrompt, (path2) => {
-        let hit;
-        assets2.forEach((meta2) => {
-          if (hit) return;
-          if (meta2.path === path2)
-            hit = {
-              path: meta2.path,
-              name: meta2.name,
-              type: meta2.type,
+      const assets = assetMetadataStore.getState().assets;
+      return parsePromptToTiptap(defaultPrompt, (path) => {
+        let foundAsset;
+        assets.forEach((meta) => {
+          if (foundAsset) return;
+          if (meta.path === path)
+            foundAsset = {
+              path: meta.path,
+              name: meta.name,
+              type: meta.type,
             };
         });
-        if (!hit) return null;
+        if (!foundAsset) return null;
         const kind =
-          hit.type === "video" || hit.type === "audio" || hit.type === "text"
-            ? hit.type
+          foundAsset.type === "video" || foundAsset.type === "audio" || foundAsset.type === "text"
+            ? foundAsset.type
             : "image";
         return {
-          path: hit.path,
-          filename: hit.name,
+          path: foundAsset.path,
+          filename: foundAsset.name,
           kind,
         };
       });
@@ -221,7 +221,7 @@ export function TxtPopoverInner({
     loadTextContent,
   } = useCanvasBridge();
   usePopoverOpenTrack({
-    popoverType: mode2 === "audio" ? "t2a" : "t2t",
+    popoverType: mode === "audio" ? "t2a" : "t2t",
     nodeId: nodeId ?? replaceNodeId ?? "",
     hasDefault: !!(defaultPrompt || defaultModelId),
   });
@@ -235,10 +235,10 @@ export function TxtPopoverInner({
     reactExports.useState(null);
   const auditionAudioRef = reactExports.useRef(null);
   const stopAudition = reactExports.useCallback(() => {
-    const a2 = auditionAudioRef.current;
-    if (a2) {
-      a2.pause();
-      a2.currentTime = 0;
+    const audioElement = auditionAudioRef.current;
+    if (audioElement) {
+      audioElement.pause();
+      audioElement.currentTime = 0;
     }
     setAuditioningVoiceId(null);
   }, []);
@@ -270,10 +270,10 @@ export function TxtPopoverInner({
   }, [voicePickerOpen, stopAudition]);
   reactExports.useEffect(() => {
     return () => {
-      const a2 = auditionAudioRef.current;
-      if (a2) {
-        a2.pause();
-        a2.src = "";
+      const audioElement = auditionAudioRef.current;
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.src = "";
       }
       auditionAudioRef.current = null;
     };
@@ -283,9 +283,9 @@ export function TxtPopoverInner({
   const [selectedModelId, setSelectedModelId] = reactExports.useState("");
   const [modelParams, setModelParams] = reactExports.useState({});
   const [voiceList, setVoiceList] = reactExports.useState([]);
-  const selectedModel = models.find((m3) => m3.id === selectedModelId);
+  const selectedModel = models.find((modelEntry) => modelEntry.id === selectedModelId);
   const formDisabled = modelsLoading || isResolvingTextReferences;
-  const controlsDisabled = formDisabled || readOnly2;
+  const controlsDisabled = formDisabled || readOnly;
   const audioMode = selectedModel
     ? audioModeForModel(selectedModel)
     : initialAudioMode === "music"
@@ -294,24 +294,24 @@ export function TxtPopoverInner({
   const audioModeSelectionsRef = reactExports.useRef({});
   const audioModelParamsRef = reactExports.useRef({});
   const modeFilteredModels = reactExports.useMemo(() => {
-    if (mode2 !== "audio") return models;
+    if (mode !== "audio") return models;
     return models.filter((model) => modelBelongsToAudioMode(model, audioMode));
-  }, [models, mode2, audioMode]);
+  }, [models, mode, audioMode]);
   const supportsReferences =
-    mode2 === "audio" &&
+    mode === "audio" &&
     ((selectedModel?.max_refs ?? 0) > 0 ||
       (selectedModel?.max_audio_refs ?? 0) > 0);
   const richEnabled = mentionEnabled || supportsReferences;
   const attachmentState = useAttachmentState({
     defaultPrompt:
-      supportsReferences || mode2 === "audio" ? defaultPrompt : void 0,
+      supportsReferences || mode === "audio" ? defaultPrompt : void 0,
     defaultImagePaths: supportsReferences ? defaultImagePaths : void 0,
     defaultAudioPaths: supportsReferences ? defaultAudioPaths : void 0,
-    defaultTextPaths: mode2 === "audio" ? defaultTextPaths : void 0,
+    defaultTextPaths: mode === "audio" ? defaultTextPaths : void 0,
     maxImageRefs: supportsReferences ? (selectedModel?.max_refs ?? 0) : 0,
     maxAudioRefs: supportsReferences ? (selectedModel?.max_audio_refs ?? 0) : 0,
     maxVideoRefs: 0,
-    maxTextRefs: mode2 === "audio" ? DEFAULT_TEXT_REFERENCE_MAX : 0,
+    maxTextRefs: mode === "audio" ? DEFAULT_TEXT_REFERENCE_MAX : 0,
     audioPerClipMinSec: selectedModel?.audioExtension?.inputMinDurationSec,
     audioPerClipMaxSec: selectedModel?.audioExtension?.inputMaxDurationSec,
     imageInputLimits: selectedModel?.inputMediaLimits,
@@ -332,15 +332,15 @@ export function TxtPopoverInner({
     (_serializedPrompt, countedText) => countFinalPromptCharacters(countedText),
     [countFinalPromptCharacters],
   );
-  const isAudioExtension = mode2 === "audio" && !!selectedModel?.audioExtension;
+  const isAudioExtension = mode === "audio" && !!selectedModel?.audioExtension;
   const audioExtensionCapability = selectedModel?.audioExtension;
-  const assets = useAssetMetadataStore((state2) => state2.assets);
+  const assets = useAssetMetadataStore((state) => state.assets);
   const audioExtensionSourceMeta = reactExports.useMemo(() => {
     if (!isAudioExtension) return void 0;
     const sourcePath = attachmentState.audioPaths.find(Boolean);
     if (!sourcePath) return void 0;
-    for (const meta2 of assets.values()) {
-      if (meta2.path === sourcePath) return meta2;
+    for (const meta of assets.values()) {
+      if (meta.path === sourcePath) return meta;
     }
     return void 0;
   }, [assets, attachmentState.audioPaths, isAudioExtension]);
@@ -378,14 +378,14 @@ export function TxtPopoverInner({
   reactExports.useEffect(() => {
     if (!isAudioExtension || effectiveAudioDurationOptions.length === 0) return;
     const firstEnabledDuration = effectiveAudioDurationOptions.find(
-      (option2) => !disabledAudioDurationOptions.has(option2),
+      (option) => !disabledAudioDurationOptions.has(option),
     );
     if (!firstEnabledDuration) return;
-    setModelParams((current2) =>
-      current2.duration === firstEnabledDuration
-        ? current2
+    setModelParams((current) =>
+      current.duration === firstEnabledDuration
+        ? current
         : {
-            ...current2,
+            ...current,
             duration: firstEnabledDuration,
           },
     );
@@ -398,17 +398,17 @@ export function TxtPopoverInner({
   const hasAudioRefs = attachmentState.audioPaths.length > 0;
   const blockedRefKind = hasImageRefs ? "audio" : hasAudioRefs ? "image" : null;
   const paramsSummary = reactExports.useMemo(
-    () => summarizeParams(t2, selectedModel, modelParams),
-    [t2, selectedModel, modelParams],
+    () => summarizeParams(translate, selectedModel, modelParams),
+    [translate, selectedModel, modelParams],
   );
   const computedCreditCost = reactExports.useMemo(() => {
     if (creditCost != null) return creditCost;
-    if (mode2 === "text")
+    if (mode === "text")
       return selectedModelId
         ? calcTextCost(pricingConfig, selectedModelId)
         : void 0;
     if (selectedModel?.backend === BACKEND_SEEDAUDIO) {
-      return t2("canvas.credit.perSecondCompact", {
+      return translate("canvas.credit.perSecondCompact", {
         cost: SEEDAUDIO_CREDITS_PER_SECOND,
         defaultValue: "3/s",
       });
@@ -435,7 +435,7 @@ export function TxtPopoverInner({
         modelParams,
       );
       if (isPerMinuteCreditCost(musicCost)) {
-        return t2("canvas.credit.perMinuteCompact", {
+        return translate("canvas.credit.perMinuteCompact", {
           cost: musicCost.credits,
           defaultValue: `${String(musicCost.credits)}/min`,
         });
@@ -450,24 +450,24 @@ export function TxtPopoverInner({
     pricingConfig,
     selectedModelId,
     selectedModel,
-    mode2,
+    mode,
     audioMode,
     isAudioExtension,
-    t2,
+    translate,
     promptText,
     countFinalPromptCharacters,
     modelParams,
   ]);
   const placeholder = reactExports.useMemo(() => {
-    const { key: key2, defaultValue: defaultValue2 } = getPlaceholder(
-      mode2,
+    const { key, defaultValue } = getPlaceholder(
+      mode,
       selectedModel,
       initialAudioMode,
     );
-    return t2(key2, {
-      defaultValue: defaultValue2,
+    return translate(key, {
+      defaultValue,
     });
-  }, [initialAudioMode, mode2, selectedModel, t2]);
+  }, [initialAudioMode, mode, selectedModel, translate]);
   const disabledModelIdsRef = reactExports.useRef(disabledModelIds);
   disabledModelIdsRef.current = disabledModelIds;
   const modelInitializationInputRef = reactExports.useRef({
@@ -503,7 +503,7 @@ export function TxtPopoverInner({
     } = modelInitializationInputRef.current;
     setModelsLoading(true);
     void listModels()
-      .then((all2) => {
+      .then((all) => {
         if (
           cancelled ||
           requestedInitializationKey !==
@@ -514,14 +514,14 @@ export function TxtPopoverInner({
           return;
         }
         const filtered = currentModelBackends
-          ? all2.filter((model) => currentModelBackends.includes(model.backend))
-          : all2;
-        setModels((current2) => {
+          ? all.filter((model) => currentModelBackends.includes(model.backend))
+          : all;
+        setModels((current) => {
           if (
-            current2.length === filtered.length &&
-            current2.every((model, index2) => model === filtered[index2])
+            current.length === filtered.length &&
+            current.every((model, index) => model === filtered[index])
           ) {
-            return current2;
+            return current;
           }
           return filtered;
         });
@@ -530,11 +530,11 @@ export function TxtPopoverInner({
             ...getDefaultParams(model),
             ...(paramOverrides ?? {}),
           };
-          setSelectedModelId((current2) =>
-            current2 === model.id ? current2 : model.id,
+          setSelectedModelId((current) =>
+            current === model.id ? current : model.id,
           );
-          setModelParams((current2) =>
-            stringRecordsEqual(current2, nextParams) ? current2 : nextParams,
+          setModelParams((current) =>
+            stringRecordsEqual(current, nextParams) ? current : nextParams,
           );
         };
         if (filtered.length > 0) {
@@ -601,14 +601,14 @@ export function TxtPopoverInner({
   }, [listModels, modelInitializationKey]);
   reactExports.useEffect(() => {
     if (!selectedModelId || !disabledModelIds?.has(selectedModelId)) return;
-    const firstValid = models.find((m3) => !disabledModelIds.has(m3.id));
+    const firstValid = models.find((modelEntry) => !disabledModelIds.has(modelEntry.id));
     if (firstValid) {
       setSelectedModelId(firstValid.id);
       setModelParams(getDefaultParams(firstValid));
     }
   }, [disabledModelIds, selectedModelId, models]);
   reactExports.useEffect(() => {
-    if (mode2 !== "audio" || !fetchTtsVoices) return;
+    if (mode !== "audio" || !fetchTtsVoices) return;
     let cancelled = false;
     fetchTtsVoices()
       .then((voices) => {
@@ -621,11 +621,11 @@ export function TxtPopoverInner({
     return () => {
       cancelled = true;
     };
-  }, [mode2, fetchTtsVoices]);
+  }, [mode, fetchTtsVoices]);
   const voiceIdToName = reactExports.useMemo(() => {
-    const map3 = new Map();
-    for (const v2 of voiceList) map3.set(v2.voice_id, v2.name);
-    return map3;
+    const map = new Map();
+    for (const voice of voiceList) map.set(voice.voice_id, voice.name);
+    return map;
   }, [voiceList]);
   const showVoicePicker =
     voiceList.length > 0 && !!selectedModel?.params?.voice_id;
@@ -634,13 +634,13 @@ export function TxtPopoverInner({
   const selectedVoiceLabel =
     voiceIdToName.get(selectedVoiceId) ?? selectedVoiceId;
   const voiceFilterOptions = reactExports.useMemo(() => {
-    const collect = (key2) => {
-      const set2 = new Set();
-      for (const v2 of voiceList) {
-        const val = v2[key2];
-        if (val) set2.add(val);
+    const collect = (key) => {
+      const set = new Set();
+      for (const voice of voiceList) {
+        const value = voice[key];
+        if (value) set.add(value);
       }
-      return [...set2].sort();
+      return [...set].sort();
     };
     return {
       language: collect("language"),
@@ -650,27 +650,27 @@ export function TxtPopoverInner({
     };
   }, [voiceList]);
   const filteredVoices = reactExports.useMemo(() => {
-    let list2 = voiceList;
+    let list = voiceList;
     if (filterLanguage)
-      list2 = list2.filter((v2) => v2.language === filterLanguage);
-    if (filterAccent) list2 = list2.filter((v2) => v2.accent === filterAccent);
-    if (filterGender) list2 = list2.filter((v2) => v2.gender === filterGender);
-    if (filterAge) list2 = list2.filter((v2) => v2.age === filterAge);
-    const q2 = voiceQuery.trim().toLowerCase();
-    if (q2) {
-      list2 = list2.filter(
-        (v2) =>
-          v2.name.toLowerCase().includes(q2) ||
-          v2.voice_id.toLowerCase().includes(q2),
+      list = list.filter((voice) => voice.language === filterLanguage);
+    if (filterAccent) list = list.filter((voice) => voice.accent === filterAccent);
+    if (filterGender) list = list.filter((voice) => voice.gender === filterGender);
+    if (filterAge) list = list.filter((voice) => voice.age === filterAge);
+    const normalizedVoiceQuery = voiceQuery.trim().toLowerCase();
+    if (normalizedVoiceQuery) {
+      list = list.filter(
+        (voice) =>
+          voice.name.toLowerCase().includes(normalizedVoiceQuery) ||
+          voice.voice_id.toLowerCase().includes(normalizedVoiceQuery),
       );
     }
     if (selectedVoiceId) {
-      const idx = list2.findIndex((v2) => v2.voice_id === selectedVoiceId);
-      if (idx > 0) {
-        list2 = [list2[idx], ...list2.slice(0, idx), ...list2.slice(idx + 1)];
+      const voiceIndex = list.findIndex((voice) => voice.voice_id === selectedVoiceId);
+      if (voiceIndex > 0) {
+        list = [list[voiceIndex], ...list.slice(0, voiceIndex), ...list.slice(voiceIndex + 1)];
       }
     }
-    return list2;
+    return list;
   }, [
     voiceList,
     voiceQuery,
@@ -683,9 +683,9 @@ export function TxtPopoverInner({
   const trimmedVoiceQuery = voiceQuery.trim();
   const voiceQueryMatchesCatalog = reactExports.useMemo(() => {
     if (!trimmedVoiceQuery) return true;
-    const q2 = trimmedVoiceQuery.toLowerCase();
+    const voiceQuery = trimmedVoiceQuery.toLowerCase();
     return voiceList.some(
-      (v2) => v2.voice_id.toLowerCase() === q2 || v2.name.toLowerCase() === q2,
+      (voice) => voice.voice_id.toLowerCase() === voiceQuery || voice.name.toLowerCase() === voiceQuery,
     );
   }, [voiceList, trimmedVoiceQuery]);
   const showCustomVoiceRow = !!trimmedVoiceQuery && !voiceQueryMatchesCatalog;
@@ -697,7 +697,7 @@ export function TxtPopoverInner({
   });
   const handleModelChange = reactExports.useCallback(
     (modelId) => {
-      if (mode2 !== "audio") {
+      if (mode !== "audio") {
         setSelectedModelId(modelId);
         const model = models.find((candidate) => candidate.id === modelId);
         if (model)
@@ -711,20 +711,20 @@ export function TxtPopoverInner({
           ...modelParams,
         };
       }
-      const selection2 = resolveModelSelection(
+      const selection = resolveModelSelection(
         models,
         modelId,
         audioModelParamsRef.current[modelId],
       );
-      if (!selection2) return;
-      setSelectedModelId(selection2.modelId);
-      setModelParams(selection2.params);
+      if (!selection) return;
+      setSelectedModelId(selection.modelId);
+      setModelParams(selection.params);
     },
-    [mode2, modelParams, models, selectedModel, selectedModelId],
+    [mode, modelParams, models, selectedModel, selectedModelId],
   );
   const handleAudioModeChange = reactExports.useCallback(
-    (next2) => {
-      if (next2 === audioMode) return;
+    (next) => {
+      if (next === audioMode) return;
       if (selectedModelId) {
         audioModelParamsRef.current[selectedModelId] = {
           ...modelParams,
@@ -736,25 +736,25 @@ export function TxtPopoverInner({
           },
         };
       }
-      const selection2 = resolveAudioModeSelection(
+      const selection = resolveAudioModeSelection(
         models,
-        next2,
-        audioModeSelectionsRef.current[next2],
+        next,
+        audioModeSelectionsRef.current[next],
       );
-      if (!selection2) return;
-      setSelectedModelId(selection2.modelId);
-      setModelParams(selection2.params);
+      if (!selection) return;
+      setSelectedModelId(selection.modelId);
+      setModelParams(selection.params);
     },
     [audioMode, models, modelParams, selectedModelId],
   );
   const handleParamChange = reactExports.useCallback(
-    (key2, value) => {
+    (key, value) => {
       setModelParams((prev) => {
-        const next2 = {
+        const next = {
           ...prev,
-          [key2]: value,
+          [key]: value,
         };
-        return selectedModel ? enforceConstraints(next2, selectedModel) : next2;
+        return selectedModel ? enforceConstraints(next, selectedModel) : next;
       });
     },
     [selectedModel],
@@ -793,14 +793,14 @@ export function TxtPopoverInner({
   let audioExtensionValidationMessage;
   if (isAudioExtension) {
     if (attachmentState.audioPaths.length !== 1) {
-      audioExtensionValidationMessage = t2(
+      audioExtensionValidationMessage = translate(
         "canvas.audioExtension.referenceRequired",
         {
           defaultValue: "请选择一条参考音频",
         },
       );
     } else if (audioExtensionSourceDurationSec === void 0) {
-      audioExtensionValidationMessage = t2(
+      audioExtensionValidationMessage = translate(
         "canvas.audioExtension.durationUnavailable",
         {
           defaultValue: "无法读取原音频时长，请更换音频",
@@ -812,7 +812,7 @@ export function TxtPopoverInner({
         audioExtensionCapability,
       )
     ) {
-      audioExtensionValidationMessage = t2(
+      audioExtensionValidationMessage = translate(
         "canvas.audioExtension.inputDurationRange",
         {
           defaultValue: "上传音频时长需在 1-20 秒之间",
@@ -825,7 +825,7 @@ export function TxtPopoverInner({
         audioExtensionCapability,
       )
     ) {
-      audioExtensionValidationMessage = t2(
+      audioExtensionValidationMessage = translate(
         "canvas.audioExtension.outputDurationRange",
         {
           defaultValue: "续写后的总时长必须大于原音频，且最长 20 秒",
@@ -857,7 +857,7 @@ export function TxtPopoverInner({
           audioPaths: attachmentState.audioPaths,
         }
       : {}),
-    ...(mode2 === "audio"
+    ...(mode === "audio"
       ? {
           textPaths: attachmentState.textPaths,
         }
@@ -865,7 +865,7 @@ export function TxtPopoverInner({
   };
   const referenceNavigation = useReferenceAttachmentNavigation({
     nodeId: nodeId ?? replaceNodeId,
-    mode: mode2,
+    mode,
     editorRef,
     expanded,
     count: 1,
@@ -894,15 +894,15 @@ export function TxtPopoverInner({
       if (richEnabledRef.current) {
         const editor = editorRef.current;
         if (editor && !editor.isDestroyed) {
-          const text2 = extractCanvasEditorText(editor);
+          const text = extractCanvasEditorText(editor);
           onSaveDraftRef.current?.({
             // Empty editor → BOTH fields undefined, mirroring draftRef's
             // `promptText || undefined` intent. An empty Tiptap doc still
             // serializes to truthy JSON — persisting it would mask the ??
             // fallback chain (quick-prompt template / upstream preset /
             // markdown) on the next open with a blank editor.
-            prompt: text2 || void 0,
-            promptJson: text2 ? JSON.stringify(editor.getJSON()) : void 0,
+            prompt: text || void 0,
+            promptJson: text ? JSON.stringify(editor.getJSON()) : void 0,
             modelId: draftRef.current.modelId,
             params: draftRef.current.params,
             // Reference-capable audio models: carry the attachment slots so a
@@ -927,8 +927,8 @@ export function TxtPopoverInner({
     },
   });
   const doSubmit = reactExports.useCallback(
-    async (e2, replaceId) => {
-      e2.stopPropagation();
+    async (submitEvent, replaceId) => {
+      submitEvent.stopPropagation();
       if (!canSubmit) return;
       if (!beforeAccountSubmission()) return;
       if (!(await checkReferencesBeforeSubmit())) return;
@@ -949,7 +949,7 @@ export function TxtPopoverInner({
       } catch {
         if (mountedRef.current)
           dedupedToast.error(
-            t2(
+            translate(
               "canvas.reference.unavailable",
               "Reference unavailable. Please select again.",
             ),
@@ -966,7 +966,7 @@ export function TxtPopoverInner({
       );
       if (!submitPrompt.trim()) {
         dedupedToast.error(
-          t2("canvas.promptRequired", {
+          translate("canvas.promptRequired", {
             defaultValue: "输入 prompt",
           }),
         );
@@ -983,7 +983,7 @@ export function TxtPopoverInner({
       ) {
         setEditorPromptLength(charCount);
         dedupedToast.error(
-          t2("canvas.prompt.tooLong", {
+          translate("canvas.prompt.tooLong", {
             current: charCount,
             max: selectedModel.promptMaxLength,
           }),
@@ -1009,7 +1009,7 @@ export function TxtPopoverInner({
                 audioPaths: attachmentState.audioPaths,
               }
             : {}),
-          ...(mode2 === "audio"
+          ...(mode === "audio"
             ? {
                 textPaths: attachmentState.textPaths,
               }
@@ -1023,7 +1023,7 @@ export function TxtPopoverInner({
         const audioPaths = attachmentState.audioPaths;
         if (imagePaths.length > 0 && audioPaths.length > 0) {
           dedupedToast.error(
-            t2("canvas.seedAudio.refMutuallyExclusive", {
+            translate("canvas.seedAudio.refMutuallyExclusive", {
               defaultValue: "参考音频与参考图片不能同时使用，请只保留其中一种",
             }),
           );
@@ -1037,9 +1037,9 @@ export function TxtPopoverInner({
         });
         if (compiled.unresolved.length > 0) {
           dedupedToast.warning(
-            t2("canvas.prompt.unresolvedRefs", {
+            translate("canvas.prompt.unresolvedRefs", {
               defaultValue: "以下引用未在附件中找到，已保留原文：{{refs}}",
-              refs: compiled.unresolved.map((u4) => `@${u4.path}`).join(", "),
+              refs: compiled.unresolved.map((unresolvedReference) => `@${unresolvedReference.path}`).join(", "),
             }),
           );
         }
@@ -1066,7 +1066,7 @@ export function TxtPopoverInner({
         );
       }
       if (selectedModel && saveLastUsedModelParams) {
-        const popoverKey = mode2 === "audio" ? "t2a" : "t2t";
+        const popoverKey = mode === "audio" ? "t2a" : "t2t";
         saveLastUsedModelParams(
           popoverKey,
           selectedModelId,
@@ -1087,42 +1087,42 @@ export function TxtPopoverInner({
       canSubmit,
       beforeAccountSubmission,
       checkReferencesBeforeSubmit,
-      mode2,
+      mode,
       richEnabled,
       supportsReferences,
       attachmentState,
-      t2,
+      translate,
       saveLastUsedModelParams,
     ],
   );
   const inGeneratingState = isGenerating;
   const pendingSubmitRef = reactExports.useRef(null);
   const handleConfirm = reactExports.useCallback(
-    (e2) => {
+    (changeEvent) => {
       if (modelsLoading || !selectedModelId) {
         pendingSubmitRef.current = {
           kind: "confirm",
         };
         return;
       }
-      doSubmit(e2, replaceNodeId);
+      doSubmit(changeEvent, replaceNodeId);
     },
     [doSubmit, modelsLoading, replaceNodeId, selectedModelId],
   );
   const handleNewNode = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       if (modelsLoading || !selectedModelId) {
         pendingSubmitRef.current = {
           kind: "new",
         };
         return;
       }
-      doSubmit(e2, void 0);
+      doSubmit(clickEvent, void 0);
     },
     [doSubmit, modelsLoading, selectedModelId],
   );
   const handleReplace = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       if (modelsLoading || !selectedModelId) {
         pendingSubmitRef.current = nodeId
           ? {
@@ -1134,36 +1134,36 @@ export function TxtPopoverInner({
             };
         return;
       }
-      doSubmit(e2, nodeId);
+      doSubmit(clickEvent, nodeId);
     },
     [doSubmit, modelsLoading, nodeId, selectedModelId],
   );
   reactExports.useEffect(() => {
     if (modelsLoading || !selectedModelId) return;
-    const pending2 = pendingSubmitRef.current;
-    if (!pending2) return;
+    const pending = pendingSubmitRef.current;
+    if (!pending) return;
     pendingSubmitRef.current = null;
     const syntheticEvent = {
       stopPropagation: () => void 0,
     };
-    if (pending2.kind === "confirm") doSubmit(syntheticEvent, replaceNodeId);
-    else if (pending2.kind === "new") doSubmit(syntheticEvent, void 0);
-    else doSubmit(syntheticEvent, pending2.targetNodeId);
+    if (pending.kind === "confirm") doSubmit(syntheticEvent, replaceNodeId);
+    else if (pending.kind === "new") doSubmit(syntheticEvent, void 0);
+    else doSubmit(syntheticEvent, pending.targetNodeId);
   }, [doSubmit, modelsLoading, replaceNodeId, selectedModelId]);
   const handleEditorUpdate = reactExports.useCallback(
-    (hasContent2, textLen) => {
-      setEditorHasText(hasContent2);
+    (hasContent, textLen) => {
+      setEditorHasText(hasContent);
       setEditorPromptLength(textLen);
     },
     [],
   );
   const handleAtTrigger = reactExports.useCallback(
-    (query, rect, getRect2, triggerRange) => {
-      setAtPickerState((state2) =>
-        nextAtPickerState(state2, {
+    (query, rect, getRect, triggerRange) => {
+      setAtPickerState((state) =>
+        nextAtPickerState(state, {
           query,
           rect,
-          getRect: getRect2,
+          getRect,
           triggerRange,
         }),
       );
@@ -1171,50 +1171,50 @@ export function TxtPopoverInner({
     [],
   );
   const handleAtSelect = reactExports.useCallback(
-    (meta2, assetId, sourceNodeId) => {
+    (meta, assetId, sourceNodeId) => {
       if (supportsReferences) {
-        const rawKind = meta2.type;
+        const rawKind = meta.type;
         if (rawKind === "text") {
           const admitted = attachmentState.addPaths(
             [
               {
-                path: meta2.path,
+                path: meta.path,
                 sourceNodeId: sourceNodeId ?? assetId,
               },
             ],
             "text",
           );
-          if (!admitted.includes(meta2.path)) {
-            setAtPickerState((state2) => ({
-              ...state2,
+          if (!admitted.includes(meta.path)) {
+            setAtPickerState((state) => ({
+              ...state,
               open: false,
             }));
             return;
           }
           editorRef.current?.commands.replaceAtTriggerWithFileRef(
             {
-              path: meta2.path,
-              filename: meta2.name,
+              path: meta.path,
+              filename: meta.name,
               kind: "text",
             },
             atPickerState.triggerRange ?? void 0,
           );
-          setAtPickerState((s2) => ({
-            ...s2,
+          setAtPickerState((currentState) => ({
+            ...currentState,
             open: false,
           }));
           return;
         }
-        const kind2 = rawKind;
-        if (kind2 !== "image" && kind2 !== "audio") return;
-        if (blockedRefKind && kind2 === blockedRefKind) {
+        const kind = rawKind;
+        if (kind !== "image" && kind !== "audio") return;
+        if (blockedRefKind && kind === blockedRefKind) {
           dedupedToast.error(
-            t2("canvas.seedAudio.refMutuallyExclusive", {
+            translate("canvas.seedAudio.refMutuallyExclusive", {
               defaultValue: "参考音频与参考图片不能同时使用，请只保留其中一种",
             }),
           );
-          setAtPickerState((s2) => ({
-            ...s2,
+          setAtPickerState((currentState) => ({
+            ...currentState,
             open: false,
           }));
           return;
@@ -1222,43 +1222,43 @@ export function TxtPopoverInner({
         attachmentState.addPaths(
           [
             {
-              path: meta2.path,
+              path: meta.path,
               sourceNodeId: sourceNodeId ?? assetId,
             },
           ],
-          kind2,
+          kind,
         );
         editorRef.current?.commands.replaceAtTriggerWithFileRef(
           {
-            path: meta2.path,
-            filename: meta2.name,
-            kind: kind2,
+            path: meta.path,
+            filename: meta.name,
+            kind,
           },
           atPickerState.triggerRange ?? void 0,
         );
-        setAtPickerState((s2) => ({
-          ...s2,
+        setAtPickerState((currentState) => ({
+          ...currentState,
           open: false,
         }));
         return;
       }
       const kind =
-        meta2.type === "video" ||
-        meta2.type === "audio" ||
-        meta2.type === "text"
-          ? meta2.type
+        meta.type === "video" ||
+        meta.type === "audio" ||
+        meta.type === "text"
+          ? meta.type
           : "image";
-      mentionPicker?.addPaths([meta2.path], kind);
+      mentionPicker?.addPaths([meta.path], kind);
       editorRef.current?.commands.replaceAtTriggerWithFileRef(
         {
-          path: meta2.path,
-          filename: meta2.name,
+          path: meta.path,
+          filename: meta.name,
           kind,
         },
         atPickerState.triggerRange ?? void 0,
       );
-      setAtPickerState((s2) => ({
-        ...s2,
+      setAtPickerState((currentState) => ({
+        ...currentState,
         open: false,
       }));
     },
@@ -1268,13 +1268,13 @@ export function TxtPopoverInner({
       supportsReferences,
       attachmentState,
       blockedRefKind,
-      t2,
+      translate,
     ],
   );
   const handleReferenceRemove = reactExports.useCallback(
-    (path2) => {
-      onRemoveReference?.(path2);
-      editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
+    (path) => {
+      onRemoveReference?.(path);
+      editorRef.current?.commands.removeCanvasFileRefsByPath(path);
     },
     [onRemoveReference],
   );
@@ -1292,11 +1292,11 @@ export function TxtPopoverInner({
     [onReplaceReference],
   );
   const handleAudioAttachmentRemove = reactExports.useCallback(
-    (path2) => {
-      attachmentState.removePath(path2, {
+    (path) => {
+      attachmentState.removePath(path, {
         tearEdge: true,
       });
-      editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
+      editorRef.current?.commands.removeCanvasFileRefsByPath(path);
     },
     [attachmentState],
   );
@@ -1314,23 +1314,23 @@ export function TxtPopoverInner({
     [attachmentState],
   );
   const handleFileRefSwitchSelect = reactExports.useCallback(
-    (meta2, assetId, sourceNodeId) => {
+    (meta, assetId, sourceNodeId) => {
       if (!supportsReferences) {
-        const kind2 =
-          meta2.type === "video" ||
-          meta2.type === "audio" ||
-          meta2.type === "text"
-            ? meta2.type
+        const kind =
+          meta.type === "video" ||
+          meta.type === "audio" ||
+          meta.type === "text"
+            ? meta.type
             : "image";
-        mentionPicker?.addPaths([meta2.path], kind2);
+        mentionPicker?.addPaths([meta.path], kind);
         return;
       }
-      if (meta2.type === "text") return;
-      const kind = meta2.type;
+      if (meta.type === "text") return;
+      const kind = meta.type;
       if (kind !== "image" && kind !== "audio") return;
       if (blockedRefKind === kind) {
         dedupedToast.error(
-          t2("canvas.seedAudio.refMutuallyExclusive", {
+          translate("canvas.seedAudio.refMutuallyExclusive", {
             defaultValue: "参考音频与参考图片不能同时使用，请只保留其中一种",
           }),
         );
@@ -1339,14 +1339,14 @@ export function TxtPopoverInner({
       attachmentState.addPaths(
         [
           {
-            path: meta2.path,
+            path: meta.path,
             sourceNodeId: sourceNodeId ?? assetId,
           },
         ],
         kind,
       );
     },
-    [attachmentState, blockedRefKind, mentionPicker, supportsReferences, t2],
+    [attachmentState, blockedRefKind, mentionPicker, supportsReferences, translate],
   );
   const handleAttachmentClick = reactExports.useCallback(
     (item) => {
@@ -1376,12 +1376,12 @@ export function TxtPopoverInner({
         if (audioAdds.length > 0) attachmentState.addPaths(audioAdds, "audio");
         if (textAdds.length > 0) {
           const admitted = attachmentState.addPaths(textAdds, "text");
-          for (const path2 of rejectedReferencePaths(
+          for (const path of rejectedReferencePaths(
             textAdds,
             attachmentState.textPaths,
             admitted,
           )) {
-            editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
+            editorRef.current?.commands.removeCanvasFileRefsByPath(path);
           }
         }
         return;
@@ -1408,7 +1408,7 @@ export function TxtPopoverInner({
         ...attachmentState.textPaths,
       ]);
     }
-    return new Set((referenceItems ?? []).map((i2) => i2.path));
+    return new Set((referenceItems ?? []).map((item) => item.path));
   }, [
     supportsReferences,
     attachmentState.imagePaths,
@@ -1419,7 +1419,7 @@ export function TxtPopoverInner({
   const atPickerKindFilter = reactExports.useMemo(
     () =>
       attachmentState.modelSupportedKindsForAtPicker.filter(
-        (k2) => k2 !== blockedRefKind,
+        (kind) => kind !== blockedRefKind,
       ),
     [attachmentState.modelSupportedKindsForAtPicker, blockedRefKind],
   );
@@ -1439,122 +1439,122 @@ export function TxtPopoverInner({
   const renderedParamElements = reactExports.useMemo(() => {
     if (!selectedModel) return null;
     const elements = [];
-    for (const [key2, def] of Object.entries(selectedModel.params)) {
-      if (key2 === "voice_id" && showVoicePicker) continue;
-      if (key2 === "lyrics" && audioMode === "music") continue;
-      if (key2 === "is_instrumental" && audioMode === "music") continue;
-      if (key2 === "music_length_ms" && audioMode === "music") {
+    for (const [key, parameterDefinition] of Object.entries(selectedModel.params)) {
+      if (key === "voice_id" && showVoicePicker) continue;
+      if (key === "lyrics" && audioMode === "music") continue;
+      if (key === "is_instrumental" && audioMode === "music") continue;
+      if (key === "music_length_ms" && audioMode === "music") {
         elements.push(
           <MusicLengthParam
-            key={key2}
-            value={modelParams[key2] ?? def.default ?? "auto"}
-            onChange={(v2) => handleParamChange(key2, v2)}
+            key={key}
+            value={modelParams[key] ?? parameterDefinition.default ?? "auto"}
+            onChange={(value) => handleParamChange(key, value)}
             disabled={controlsDisabled}
           />,
         );
         continue;
       }
-      if (def.type === "textarea") {
-        const labelKey2 = paramI18nKey(key2, def.label);
-        const placeholderKey = paramPlaceholderI18nKey(key2);
+      if (parameterDefinition.type === "textarea") {
+        const labelKey = paramI18nKey(key, parameterDefinition.label);
+        const placeholderKey = paramPlaceholderI18nKey(key);
         elements.push(
           <ParamTextarea
-            key={key2}
+            key={key}
             label={
-              labelKey2
-                ? t2(labelKey2, {
-                    defaultValue: paramLabelFallback(key2, def.label),
+              labelKey
+                ? translate(labelKey, {
+                    defaultValue: paramLabelFallback(key, parameterDefinition.label),
                   })
-                : paramLabelFallback(key2, def.label)
+                : paramLabelFallback(key, parameterDefinition.label)
             }
-            value={modelParams[key2] ?? def.default ?? ""}
-            onChange={(v2) => handleParamChange(key2, v2)}
+            value={modelParams[key] ?? parameterDefinition.default ?? ""}
+            onChange={(value) => handleParamChange(key, value)}
             disabled={controlsDisabled}
             placeholder={
               placeholderKey
-                ? t2(placeholderKey, {
+                ? translate(placeholderKey, {
                     defaultValue: paramPlaceholderFallback(
-                      key2,
-                      def.placeholder,
+                      key,
+                      parameterDefinition.placeholder,
                     ),
                   })
-                : paramPlaceholderFallback(key2, def.placeholder)
+                : paramPlaceholderFallback(key, parameterDefinition.placeholder)
             }
           />,
         );
         continue;
       }
-      if (def.type === "slider") {
-        if (def.min === void 0 || def.max === void 0 || def.step === void 0)
+      if (parameterDefinition.type === "slider") {
+        if (parameterDefinition.min === void 0 || parameterDefinition.max === void 0 || parameterDefinition.step === void 0)
           continue;
-        const labelKey2 = paramI18nKey(key2, def.label);
+        const labelKey = paramI18nKey(key, parameterDefinition.label);
         elements.push(
           <ParamSlider
-            key={key2}
+            key={key}
             variant={
-              mode2 === "audio" && key2 === "speed" ? "filled" : "standard"
+              mode === "audio" && key === "speed" ? "filled" : "standard"
             }
             label={
-              labelKey2
-                ? t2(labelKey2, {
-                    defaultValue: paramLabelFallback(key2, def.label),
+              labelKey
+                ? translate(labelKey, {
+                    defaultValue: paramLabelFallback(key, parameterDefinition.label),
                   })
-                : paramLabelFallback(key2, def.label)
+                : paramLabelFallback(key, parameterDefinition.label)
             }
-            value={modelParams[key2] ?? def.default}
-            min={def.min}
-            max={def.max}
-            step={def.step}
-            marks={def.marks}
-            onChange={(v2) => handleParamChange(key2, v2)}
+            value={modelParams[key] ?? parameterDefinition.default}
+            min={parameterDefinition.min}
+            max={parameterDefinition.max}
+            step={parameterDefinition.step}
+            marks={parameterDefinition.marks}
+            onChange={(value) => handleParamChange(key, value)}
             disabled={controlsDisabled}
           />,
         );
         continue;
       }
-      const isVoiceId = key2 === "voice_id" && voiceList.length > 0;
+      const isVoiceId = key === "voice_id" && voiceList.length > 0;
       const options = isVoiceId
-        ? voiceList.map((v2) => v2.voice_id)
-        : isAudioExtension && key2 === "duration"
+        ? voiceList.map((voice) => voice.voice_id)
+        : isAudioExtension && key === "duration"
           ? effectiveAudioDurationOptions
-          : def.options;
+          : parameterDefinition.options;
       if (!options || options.length <= 1) continue;
-      const disabled2 = getDisabledOptions(
-        key2,
+      const disabled = getDisabledOptions(
+        key,
         modelParams,
         selectedModel.paramConstraints,
       );
       const disabledOptions =
-        isAudioExtension && key2 === "duration"
-          ? new Set([...disabled2, ...disabledAudioDurationOptions])
-          : disabled2;
+        isAudioExtension && key === "duration"
+          ? new Set([...disabled, ...disabledAudioDurationOptions])
+          : disabled;
       const labelKey =
-        isAudioExtension && key2 === "duration"
+        isAudioExtension && key === "duration"
           ? "canvas.audioExtension.extendTo"
-          : paramI18nKey(key2, def.label);
+          : paramI18nKey(key, parameterDefinition.label);
       elements.push(
         <ParamTabs
-          key={key2}
+          key={key}
           label={
             labelKey
-              ? t2(labelKey, {
+              ? translate(labelKey, {
                   defaultValue:
-                    isAudioExtension && key2 === "duration"
+                    isAudioExtension && key === "duration"
                       ? "延长至"
-                      : paramLabelFallback(key2, def.label),
+                      : paramLabelFallback(key, parameterDefinition.label),
                 })
-              : paramLabelFallback(key2, def.label)
+              : paramLabelFallback(key, parameterDefinition.label)
           }
           options={options}
-          value={modelParams[key2] ?? def.default}
-          onChange={(v2) => handleParamChange(key2, v2)}
+          value={modelParams[key] ?? parameterDefinition.default}
+          onChange={(value) => handleParamChange(key, value)}
           disabled={controlsDisabled}
           disabledOptions={disabledOptions}
-          optionUnit={key2 === "duration" ? "seconds" : void 0}
+          optionUnit={key === "duration" ? "seconds" : void 0}
           getDisabledOptionTooltip={
-            isAudioExtension && key2 === "duration"
+            isAudioExtension && key === "duration"
               ? () =>
-                  t2("canvas.audioExtension.durationOptionDisabled", {
+                  translate("canvas.audioExtension.durationOptionDisabled", {
                     defaultValue:
                       "最终时长需从原音频时长向上取整后的下一秒开始选择",
                   })
@@ -1562,24 +1562,24 @@ export function TxtPopoverInner({
           }
           getOptionLabel={
             isVoiceId
-              ? (opt) => voiceIdToName.get(opt) ?? opt
-              : isAudioExtension && key2 === "duration"
-                ? (opt) => `${opt}s`
+              ? (option) => voiceIdToName.get(option) ?? option
+              : isAudioExtension && key === "duration"
+                ? (option) => `${option}s`
                 : void 0
           }
-          grouped={isAudioExtension && key2 === "duration"}
-          allowDeselect={def.optional}
+          grouped={isAudioExtension && key === "duration"}
+          allowDeselect={parameterDefinition.optional}
         />,
       );
     }
     return elements;
   }, [
-    mode2,
+    mode,
     selectedModel,
     modelParams,
     controlsDisabled,
     handleParamChange,
-    t2,
+    translate,
     voiceList,
     voiceIdToName,
     showVoicePicker,
@@ -1590,12 +1590,12 @@ export function TxtPopoverInner({
   ]);
   const hasConfigurableParams = (renderedParamElements?.length ?? 0) > 0;
   const showAudioParamsIcon =
-    mode2 === "audio" &&
+    mode === "audio" &&
     (selectedModel?.id.toLowerCase().includes("speech-2.8") ||
       selectedModel?.backend === "seedaudio");
   const hasReadOnlyLyrics = !!readOnlyLyrics?.trim();
   const showsMusicLyricsEditor =
-    mode2 === "audio" &&
+    mode === "audio" &&
     audioMode === "music" &&
     !!(selectedModel?.params.lyrics || hasReadOnlyLyrics) &&
     modelParams.is_instrumental !== "instrumental";
@@ -1605,46 +1605,46 @@ export function TxtPopoverInner({
     expanded,
   );
   const referenceBarVisible =
-    (mode2 === "text" && !!onAddReference) ||
+    (mode === "text" && !!onAddReference) ||
     !!(referenceItems && referenceItems.length > 0);
-  const body2 = (
+  const body = (
     <>
-      {mode2 !== "audio" && (
+      {mode !== "audio" && (
         <div className="absolute top-3 right-3 z-10">
           <ExpandToggleButton
             expanded={expanded}
-            onToggle={() => setExpanded((v2) => !v2)}
+            onToggle={() => setExpanded((isExpanded) => !isExpanded)}
           />
         </div>
       )}
       <TextPopoverReferenceSection
-        mode={mode2}
+        mode={mode}
         audioMode={audioMode}
         controlsDisabled={controlsDisabled}
         onAudioModeChange={handleAudioModeChange}
         expanded={expanded}
-        onToggle={() => setExpanded((v2) => !v2)}
+        onToggle={() => setExpanded((isExpanded) => !isExpanded)}
         references={
           referenceBarVisible
             ? {
                 items: referenceItems ?? [],
-                readOnly: mode2 !== "text" || !onAddReference,
+                readOnly: mode !== "text" || !onAddReference,
                 showAddButton:
-                  mode2 === "text" &&
+                  mode === "text" &&
                   !!onAddReference &&
                   !!showReferenceAddButton,
                 onReplace:
-                  mode2 === "text" && onReplaceReference
+                  mode === "text" && onReplaceReference
                     ? (item) => {
                         void handleReferenceReplace(item);
                       }
                     : void 0,
                 onRemove:
-                  mode2 === "text" && onRemoveReference
+                  mode === "text" && onRemoveReference
                     ? handleReferenceRemove
                     : () => {},
                 onAdd:
-                  mode2 === "text" && onAddReference
+                  mode === "text" && onAddReference
                     ? onAddReference
                     : () => {},
                 onItemClick: handleAttachmentClick,
@@ -1653,7 +1653,7 @@ export function TxtPopoverInner({
             : null
         }
         audioAttachments={
-          mode2 === "audio" &&
+          mode === "audio" &&
           (attachmentState.items.length > 0 || attachmentState.showAddButton)
             ? {
                 items: attachmentState.items,
@@ -1676,7 +1676,7 @@ export function TxtPopoverInner({
         <div
           className="flex-1 min-h-0"
           style={
-            mode2 === "audio" && audioMode === "music"
+            mode === "audio" && audioMode === "music"
               ? musicLayout.prompt
               : void 0
           }
@@ -1693,8 +1693,8 @@ export function TxtPopoverInner({
                 blockKeyHandlers={inGeneratingState || atPickerState.open}
                 onAtTrigger={handleAtTrigger}
                 onAtDismiss={() =>
-                  setAtPickerState((s2) => ({
-                    ...s2,
+                  setAtPickerState((currentState) => ({
+                    ...currentState,
                     open: false,
                   }))
                 }
@@ -1714,9 +1714,9 @@ export function TxtPopoverInner({
                 }
                 onFileRefsAdded={handleFileRefsAdded}
                 onDirectReferencesRemoved={(paths) => {
-                  for (const path2 of paths) {
-                    if (supportsReferences) attachmentState.removePath(path2);
-                    else onRemoveReference?.(path2);
+                  for (const path of paths) {
+                    if (supportsReferences) attachmentState.removePath(path);
+                    else onRemoveReference?.(path);
                   }
                 }}
                 maxLength={selectedModel?.promptMaxLength}
@@ -1734,8 +1734,8 @@ export function TxtPopoverInner({
                   resolveFileUrl={resolveFileUrl}
                   onSelect={handleAtSelect}
                   onClose={() =>
-                    setAtPickerState((s2) => ({
-                      ...s2,
+                    setAtPickerState((currentState) => ({
+                      ...currentState,
                       open: false,
                     }))
                   }
@@ -1747,7 +1747,7 @@ export function TxtPopoverInner({
               value={promptText}
               onChange={setPromptText}
               disabled={formDisabled}
-              readOnly={readOnly2}
+              readOnly={readOnly}
               placeholder={placeholder}
               onClose={onClose}
               blockKeyHandlers={inGeneratingState}
@@ -1768,19 +1768,19 @@ export function TxtPopoverInner({
           >
             <textarea
               value={readOnlyLyrics ?? modelParams.lyrics ?? ""}
-              onChange={(e2) => {
-                e2.stopPropagation();
-                handleParamChange("lyrics", e2.target.value);
+              onChange={(changeEvent) => {
+                changeEvent.stopPropagation();
+                handleParamChange("lyrics", changeEvent.target.value);
               }}
-              onClick={(e2) => e2.stopPropagation()}
-              onKeyDown={(e2) => e2.stopPropagation()}
+              onClick={(clickEvent) => clickEvent.stopPropagation()}
+              onKeyDown={(keyEvent) => keyEvent.stopPropagation()}
               disabled={formDisabled}
-              readOnly={readOnly2 || readOnlyLyrics !== void 0}
-              placeholder={t2("canvas.txt.music.lyricsPlaceholder", {
+              readOnly={readOnly || readOnlyLyrics !== void 0}
+              placeholder={translate("canvas.txt.music.lyricsPlaceholder", {
                 defaultValue:
                   "请在此添加您的歌词。如果未填歌词，我们将根据曲风为您自动生成。",
               })}
-              className={`canvas-prompt-font-size-textarea nowheel nopan w-full h-full bg-transparent border-none outline-none resize-none text-[var(--canvas-controls-text)] placeholder:text-muted-foreground/50 ${readOnly2 || readOnlyLyrics !== void 0 ? "hover:cursor-not-allowed" : ""}`}
+              className={`canvas-prompt-font-size-textarea nowheel nopan w-full h-full bg-transparent border-none outline-none resize-none text-[var(--canvas-controls-text)] placeholder:text-muted-foreground/50 ${readOnly || readOnlyLyrics !== void 0 ? "hover:cursor-not-allowed" : ""}`}
               style={{
                 "--canvas-prompt-font-size": musicLayout.fontSize,
               }}
@@ -1801,7 +1801,7 @@ export function TxtPopoverInner({
             disabledReason={disabledModelReason}
             onPromotionClick={buildPromotionClickHandler(onPromotionToast)}
           />
-          {mode2 === "audio" &&
+          {mode === "audio" &&
             audioMode === "music" &&
             selectedModel?.params.is_instrumental && (
               <>
@@ -1818,7 +1818,7 @@ export function TxtPopoverInner({
                   <div className="flex items-center gap-1 shrink-0">
                     <CanvasSwitch
                       size="sm"
-                      aria-label={t2("canvas.txt.music.instrumental")}
+                      aria-label={translate("canvas.txt.music.instrumental")}
                       checked={modelParams.is_instrumental === "instrumental"}
                       onCheckedChange={(checked) => {
                         const offValue =
@@ -1833,7 +1833,7 @@ export function TxtPopoverInner({
                       data-action-ui-id="popover.instrumental-switch"
                     />
                     <span className="text-[12px] text-[var(--canvas-controls-text)]">
-                      {t2("canvas.txt.music.instrumental")}
+                      {translate("canvas.txt.music.instrumental")}
                     </span>
                   </div>
                 )}
@@ -1848,9 +1848,9 @@ export function TxtPopoverInner({
               <button
                 ref={voiceAnchorRef}
                 type="button"
-                onClick={(e2) => {
-                  e2.stopPropagation();
-                  setVoicePickerOpen((v2) => !v2);
+                onClick={(clickEvent) => {
+                  clickEvent.stopPropagation();
+                  setVoicePickerOpen((isOpen) => !isOpen);
                   setVoiceQuery("");
                 }}
                 disabled={controlsDisabled}
@@ -1858,7 +1858,7 @@ export function TxtPopoverInner({
                 title={selectedVoiceLabel}
               >
                 <span className="truncate">
-                  {selectedVoiceLabel || t2("canvas.voice.placeholder")}
+                  {selectedVoiceLabel || translate("canvas.voice.placeholder")}
                 </span>
                 <span className="text-[9px] text-[var(--canvas-controls-text-muted)] shrink-0">
                   ▼
@@ -1876,7 +1876,7 @@ export function TxtPopoverInner({
                 anchorRef={paramsAnchorRef}
                 summary={paramsSummary}
                 open={paramsOpen}
-                onToggle={() => setParamsOpen((v2) => !v2)}
+                onToggle={() => setParamsOpen((isOpen) => !isOpen)}
                 disabled={controlsDisabled || !selectedModel}
                 iconOnly={showAudioParamsIcon}
               />
@@ -1885,7 +1885,7 @@ export function TxtPopoverInner({
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {inGeneratingState ? (
-            <GeneratingButton label={t2("canvas.generating")} />
+            <GeneratingButton label={translate("canvas.generating")} />
           ) : showDualButtons ? (
             <DualSubmitButtons
               submitting={false}
@@ -1904,7 +1904,7 @@ export function TxtPopoverInner({
               loading={modelsLoading}
               creditCost={computedCreditCost}
               onClick={handleConfirm}
-              title={audioExtensionValidationMessage ?? t2("canvas.generate")}
+              title={audioExtensionValidationMessage ?? translate("canvas.generate")}
             >
               {submitLabel}
             </SubmitButton>
@@ -1937,34 +1937,34 @@ export function TxtPopoverInner({
                 bottom: voicePickerPlacement.bottom,
                 maxHeight: voicePickerPlacement.maxHeight,
               }}
-              onClick={(e2) => e2.stopPropagation()}
+              onClick={(clickEvent) => clickEvent.stopPropagation()}
             >
               <div className="flex items-center justify-between px-2.5 pt-2 pb-1">
                 <span className="text-[10px] font-medium text-[var(--canvas-controls-text-muted)]">
-                  {t2("canvas.voice.title")}
+                  {translate("canvas.voice.title")}
                 </span>
                 <CloseButton
                   variant="inline"
-                  onClick={(e2) => {
-                    e2.stopPropagation();
+                  onClick={(clickEvent) => {
+                    clickEvent.stopPropagation();
                     setVoicePickerOpen(false);
                   }}
-                  title={t2("common.close")}
+                  title={translate("common.close")}
                 />
               </div>
               <div className="px-2.5 pb-1 shrink-0">
                 <input
                   type="text"
                   value={voiceQuery}
-                  onChange={(e2) => setVoiceQuery(e2.target.value)}
-                  onClick={(e2) => e2.stopPropagation()}
-                  onKeyDown={(e2) => {
-                    if (e2.key === "Enter" && showCustomVoiceRow) {
-                      e2.preventDefault();
+                  onChange={(changeEvent) => setVoiceQuery(changeEvent.target.value)}
+                  onClick={(clickEvent) => clickEvent.stopPropagation()}
+                  onKeyDown={(keyEvent) => {
+                    if (keyEvent.key === "Enter" && showCustomVoiceRow) {
+                      keyEvent.preventDefault();
                       applyCustomVoiceId();
                     }
                   }}
-                  placeholder={t2("canvas.voice.searchPlaceholder", {
+                  placeholder={translate("canvas.voice.searchPlaceholder", {
                     defaultValue: "Search or paste voice ID...",
                   })}
                   className="w-full bg-[var(--canvas-node-bg)] border border-[var(--canvas-controls-border)] rounded px-2 py-1 text-[11px] text-[var(--canvas-controls-text)] placeholder:text-[var(--canvas-controls-text-muted)] outline-none transition-[border-color] duration-150 focus:border-[var(--canvas-node-border-selected)]"
@@ -1975,7 +1975,7 @@ export function TxtPopoverInner({
                 {[
                   {
                     key: "language",
-                    label: t2("canvas.voice.filter.language", {
+                    label: translate("canvas.voice.filter.language", {
                       defaultValue: "Language",
                     }),
                     value: filterLanguage,
@@ -1983,7 +1983,7 @@ export function TxtPopoverInner({
                   },
                   {
                     key: "accent",
-                    label: t2("canvas.voice.filter.accent", {
+                    label: translate("canvas.voice.filter.accent", {
                       defaultValue: "Accent",
                     }),
                     value: filterAccent,
@@ -1991,7 +1991,7 @@ export function TxtPopoverInner({
                   },
                   {
                     key: "gender",
-                    label: t2("canvas.voice.filter.gender", {
+                    label: translate("canvas.voice.filter.gender", {
                       defaultValue: "Gender",
                     }),
                     value: filterGender,
@@ -1999,57 +1999,57 @@ export function TxtPopoverInner({
                   },
                   {
                     key: "age",
-                    label: t2("canvas.voice.filter.age", {
+                    label: translate("canvas.voice.filter.age", {
                       defaultValue: "Age",
                     }),
                     value: filterAge,
                     set: setFilterAge,
                   },
-                ].map((f2) => (
+                ].map((filter) => (
                   <div
-                    key={f2.key}
+                    key={filter.key}
                     className="flex-1 min-w-0 flex items-center bg-[var(--canvas-node-bg)] border border-[var(--canvas-controls-border)] rounded cursor-pointer transition-[border-color] duration-150 focus-within:border-[var(--canvas-node-border-selected)]"
                   >
                     <Select
-                      value={f2.value}
+                      value={filter.value}
                       onValueChange={(value) => {
-                        if (typeof value === "string") f2.set(value);
+                        if (typeof value === "string") filter.set(value);
                       }}
                     >
                       <SelectTrigger
                         size="sm"
-                        onClick={(e2) => e2.stopPropagation()}
+                        onClick={(clickEvent) => clickEvent.stopPropagation()}
                         className="h-6 min-w-0 flex-1 border-none! bg-transparent! py-1 pr-0 pl-1 text-[10px] text-[var(--canvas-controls-text)] shadow-none outline-none focus-visible:border-transparent! focus-visible:ring-0! data-placeholder:text-[var(--canvas-controls-text-muted)] [&>svg]:hidden"
                       >
-                        <SelectValue placeholder={f2.label} />
+                        <SelectValue placeholder={filter.label} />
                       </SelectTrigger>
                       <SelectContent
                         sideOffset={6}
                         className="min-w-32"
-                        onClick={(e2) => e2.stopPropagation()}
+                        onClick={(clickEvent) => clickEvent.stopPropagation()}
                       >
-                        {voiceFilterOptions[f2.key].map((opt) => (
+                        {voiceFilterOptions[filter.key].map((option) => (
                           <SelectItem
-                            key={opt}
-                            value={opt}
+                            key={option}
+                            value={option}
                             className="text-[11px]"
                           >
-                            {opt}
+                            {option}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {f2.value ? (
+                    {filter.value ? (
                       <button
                         type="button"
-                        onClick={(e2) => {
-                          e2.stopPropagation();
-                          e2.preventDefault();
-                          f2.set("");
+                        onClick={(clickEvent) => {
+                          clickEvent.stopPropagation();
+                          clickEvent.preventDefault();
+                          filter.set("");
                         }}
                         className="shrink-0 flex items-center justify-center w-4 h-4 mr-px text-[var(--canvas-controls-text-muted)] hover:text-[var(--canvas-controls-text)] transition-colors duration-150"
                       >
-                        <X size={9} strokeWidth={1.5} />
+                        <CloseIcon size={9} strokeWidth={1.5} />
                       </button>
                     ) : (
                       <span className="shrink-0 flex items-center justify-center w-4 h-4 mr-px pointer-events-none text-[var(--canvas-controls-text-muted)]">
@@ -2062,17 +2062,17 @@ export function TxtPopoverInner({
               <div className="overflow-y-auto autohide-scrollbar scrollbar-2 px-1 pb-1.5 flex-1">
                 {filteredVoices.length === 0 && !showCustomVoiceRow ? (
                   <div className="text-[10px] text-[var(--canvas-controls-text-muted)] text-center py-3 italic">
-                    {t2("canvas.voice.empty")}
+                    {translate("canvas.voice.empty")}
                   </div>
                 ) : (
                   <>
-                    {filteredVoices.map((v2) => {
-                      const isSelected = v2.voice_id === selectedVoiceId;
-                      const isAuditioning = v2.voice_id === auditioningVoiceId;
-                      const hasSample = !!v2.sample_audio;
+                    {filteredVoices.map((voice) => {
+                      const isSelected = voice.voice_id === selectedVoiceId;
+                      const isAuditioning = voice.voice_id === auditioningVoiceId;
+                      const hasSample = !!voice.sample_audio;
                       return (
                         <div
-                          key={v2.voice_id}
+                          key={voice.voice_id}
                           className={[
                             "group w-full pl-1 pr-2 py-1 rounded text-[11px] transition-colors duration-100 flex items-center gap-1.5",
                             isSelected
@@ -2083,17 +2083,17 @@ export function TxtPopoverInner({
                           {hasSample ? (
                             <button
                               type="button"
-                              onClick={(e2) => {
-                                e2.stopPropagation();
-                                toggleAudition(v2.voice_id, v2.sample_audio);
+                              onClick={(clickEvent) => {
+                                clickEvent.stopPropagation();
+                                toggleAudition(voice.voice_id, voice.sample_audio);
                               }}
                               className="flex items-center justify-center w-5 h-5 shrink-0 rounded text-[var(--canvas-controls-text-muted)] hover:text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-hover)] transition-colors duration-100"
                               title={
                                 isAuditioning
-                                  ? t2("common.pause", {
+                                  ? translate("common.pause", {
                                       defaultValue: "Pause",
                                     })
-                                  : t2("common.play", {
+                                  : translate("common.play", {
                                       defaultValue: "Play",
                                     })
                               }
@@ -2105,15 +2105,15 @@ export function TxtPopoverInner({
                           )}
                           <button
                             type="button"
-                            onClick={(e2) => {
-                              e2.stopPropagation();
-                              handleParamChange("voice_id", v2.voice_id);
+                            onClick={(clickEvent) => {
+                              clickEvent.stopPropagation();
+                              handleParamChange("voice_id", voice.voice_id);
                               setVoicePickerOpen(false);
                               setVoiceQuery("");
                             }}
                             className="flex-1 min-w-0 text-left truncate cursor-pointer"
                           >
-                            {v2.name}
+                            {voice.name}
                           </button>
                           {isSelected && (
                             <span className="text-[10px] text-indigo-400 shrink-0 ml-2">
@@ -2126,8 +2126,8 @@ export function TxtPopoverInner({
                     {showCustomVoiceRow && (
                       <button
                         type="button"
-                        onClick={(e2) => {
-                          e2.stopPropagation();
+                        onClick={(clickEvent) => {
+                          clickEvent.stopPropagation();
                           applyCustomVoiceId();
                         }}
                         className={[
@@ -2136,14 +2136,14 @@ export function TxtPopoverInner({
                             ? "mt-1 border-t border-[var(--canvas-controls-border)] pt-2"
                             : "",
                         ].join(" ")}
-                        title={t2("canvas.voice.useCustomTitle", {
+                        title={translate("canvas.voice.useCustomTitle", {
                           defaultValue:
                             "Use this string as a custom voice ID (e.g. cloned hub_… or designed ttv_…)",
                         })}
                       >
                         <span className="shrink-0 text-[9px]">↵</span>
                         <span className="truncate">
-                          {t2("canvas.voice.useCustom", {
+                          {translate("canvas.voice.useCustom", {
                             defaultValue: "Use voice ID:",
                           })}{" "}
                           <span className="text-[var(--canvas-controls-text)] font-mono">
@@ -2163,8 +2163,8 @@ export function TxtPopoverInner({
   );
   const attachmentChipCount = referenceBarVisible
     ? (referenceItems?.length ?? 0) +
-      (mode2 === "text" && !!onAddReference && !!showReferenceAddButton ? 1 : 0)
-    : mode2 === "audio"
+      (mode === "text" && !!onAddReference && !!showReferenceAddButton ? 1 : 0)
+    : mode === "audio"
       ? attachmentState.items.length +
         (attachmentState.showAddButton && !controlsDisabled ? 1 : 0)
       : 0;
@@ -2173,7 +2173,7 @@ export function TxtPopoverInner({
       ? PROMPT_LENGTH_HINT_EXTRA_HEIGHT
       : 0;
   const audioReferenceBarVisible =
-    mode2 === "audio" &&
+    mode === "audio" &&
     (attachmentState.items.length > 0 || attachmentState.showAddButton);
   const audioReferenceBarExtraHeight = audioReferenceBarVisible
     ? AUDIO_REFERENCE_BAR_FIRST_ROW_EXTRA_HEIGHT
@@ -2191,7 +2191,7 @@ export function TxtPopoverInner({
           onClose,
           expanded,
           extraHeight,
-          children: body2,
+          children: body,
         })}
       </>
     );
@@ -2203,7 +2203,7 @@ export function TxtPopoverInner({
       extraHeight={extraHeight}
       gapOffset={popoverGapOffset}
     >
-      {body2}
+      {body}
     </PopoverShell>
   );
 }

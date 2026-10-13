@@ -217,9 +217,9 @@ export function parseRatio(value) {
   const m3Value = value.match(/^(\d+)\s*[:x]\s*(\d+)$/i);
   if (!m3Value) return null;
   const w3Value = Number(m3Value[1]);
-  const h = Number(m3Value[2]);
-  if (!w3Value || !h) return null;
-  return [w3Value, h];
+  const h2 = Number(m3Value[2]);
+  if (!w3Value || !h2) return null;
+  return [w3Value, h2];
 }
 export function AspectRatioIcon({ ratio }) {
   const parsed = parseRatio(ratio);
@@ -227,17 +227,17 @@ export function AspectRatioIcon({ ratio }) {
   let rectW = maxSize;
   let rectH = maxSize;
   if (parsed) {
-    const [w3Value, h] = parsed;
-    if (w3Value >= h) {
+    const [w3Value, h2] = parsed;
+    if (w3Value >= h2) {
       rectW = maxSize;
-      rectH = (maxSize * h) / w3Value;
+      rectH = (maxSize * h2) / w3Value;
     } else {
       rectH = maxSize;
-      rectW = (maxSize * w3Value) / h;
+      rectW = (maxSize * w3Value) / h2;
     }
   }
-  const x = (18 - rectW) / 2;
-  const y4Value = (18 - rectH) / 2;
+  const x2 = (18 - rectW) / 2;
+  const y = (18 - rectH) / 2;
   const radius = Math.min(2, rectW / 4, rectH / 4);
   return (
     <CompositedSvg
@@ -249,7 +249,7 @@ export function AspectRatioIcon({ ratio }) {
       strokeWidth="1.5"
       aria-hidden="true"
     >
-      <rect x={x} y={y4Value} width={rectW} height={rectH} rx={radius} />
+      <rect x={x2} y={y} width={rectW} height={rectH} rx={radius} />
     </CompositedSvg>
   );
 }

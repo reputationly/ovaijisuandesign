@@ -1,0 +1,107 @@
+X@2:124	X	CloseIcon	该绑定持有 CloseIcon 所表示的值，按其实际用途命名。
+t2@147:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+a2@238:11	a2	audioElement	该绑定持有 audioElement 所表示的值，按其实际用途命名。
+a2@273:13	a2	audioElement	该绑定持有 audioElement 所表示的值，按其实际用途命名。
+m3@286:38	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+m3@604:37	m3	modelEntry	该绑定持有 modelEntry 所表示的值，按其实际用途命名。
+v2@627:16	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+v2@639:18	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+q2@659:11	q2	normalizedVoiceQuery	该绑定持有 normalizedVoiceQuery 所表示的值，按其实际用途命名。
+v2@655:29	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+v2@656:45	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+v2@657:45	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+v2@658:42	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+v2@662:10	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+v2@668:36	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+q2@686:11	q2	voiceQuery	该绑定持有 voiceQuery 所表示的值，按其实际用途命名。
+v2@688:8	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+e2@930:12	e2	submitEvent	该绑定持有 submitEvent 所表示的值，按其实际用途命名。
+u4@1042:46	u4	unresolvedReference	该绑定持有 unresolvedReference 所表示的值，按其实际用途命名。
+e2@1101:6	e2	changeEvent	该绑定持有 changeEvent 所表示的值，按其实际用途命名。
+e2@1113:6	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+e2@1125:6	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+s2@1202:29	s2	currentState	该绑定持有 currentState 所表示的值，按其实际用途命名。
+s2@1216:29	s2	currentState	该绑定持有 currentState 所表示的值，按其实际用途命名。
+s2@1239:27	s2	currentState	该绑定持有 currentState 所表示的值，按其实际用途命名。
+s2@1260:25	s2	currentState	该绑定持有 currentState 所表示的值，按其实际用途命名。
+i2@1411:48	i2	item	该绑定持有 item 所表示的值，按其实际用途命名。
+k2@1422:10	k2	kind	该绑定持有 kind 所表示的值，按其实际用途命名。
+v2@1451:24	v2	value	该绑定持有 value 所表示的值，按其实际用途命名。
+v2@1471:24	v2	value	该绑定持有 value 所表示的值，按其实际用途命名。
+v2@1509:24	v2	value	该绑定持有 value 所表示的值，按其实际用途命名。
+v2@1517:26	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+v2@1550:22	v2	value	该绑定持有 value 所表示的值，按其实际用途命名。
+v2@1616:42	v2	isExpanded	该绑定持有 isExpanded 所表示的值，按其实际用途命名。
+v2@1626:38	v2	isExpanded	该绑定持有 isExpanded 所表示的值，按其实际用途命名。
+s2@1696:37	s2	currentState	该绑定持有 currentState 所表示的值，按其实际用途命名。
+s2@1737:39	s2	currentState	该绑定持有 currentState 所表示的值，按其实际用途命名。
+e2@1771:26	e2	changeEvent	该绑定持有 changeEvent 所表示的值，按其实际用途命名。
+e2@1775:25	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+e2@1776:27	e2	keyEvent	该绑定持有 keyEvent 所表示的值，按其实际用途命名。
+e2@1851:27	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+v2@1853:39	v2	isOpen	该绑定持有 isOpen 所表示的值，按其实际用途命名。
+v2@1879:48	v2	isOpen	该绑定持有 isOpen 所表示的值，按其实际用途命名。
+e2@1940:25	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+e2@1948:29	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+e2@1959:30	e2	changeEvent	该绑定持有 changeEvent 所表示的值，按其实际用途命名。
+e2@1960:29	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+e2@1961:31	e2	keyEvent	该绑定持有 keyEvent 所表示的值，按其实际用途命名。
+f2@2008:24	f2	filter	该绑定持有 filter 所表示的值，按其实际用途命名。
+e2@2021:35	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+e2@2029:35	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+e2@2045:35	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+v2@2069:42	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
+e2@2086:41	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+e2@2108:39	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+e2@2129:35	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
+hit@191:13	hit	foundAsset	该绑定持有 foundAsset 所表示的值，按其实际用途命名。
+val@640:15	val	value	该绑定持有 value 所表示的值，按其实际用途命名。
+idx@668:13	idx	voiceIndex	该绑定持有 voiceIndex 所表示的值，按其实际用途命名。
+def@1442:23	def	parameterDefinition	该绑定持有 parameterDefinition 所表示的值，按其实际用途命名。
+opt@1565:18	opt	option	该绑定持有 option 所表示的值，按其实际用途命名。
+opt@1567:20	opt	option	该绑定持有 option 所表示的值，按其实际用途命名。
+opt@2031:58	opt	option	该绑定持有 option 所表示的值，按其实际用途命名。
+mode2@105:9	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+readOnly2@142:13	readOnly2	readOnly	去掉打包器防重名追加的后缀，恢复原名 readOnly，即该绑定持有的值。
+body2@1610:9	body2	body	去掉打包器防重名追加的后缀，恢复原名 body，即该绑定持有的值。
+assets2@189:13	assets2	assets	去掉打包器防重名追加的后缀，恢复原名 assets，即该绑定持有的值。
+path2@190:50	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+meta2@192:26	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+state2@337:41	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+meta2@342:16	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+option2@381:8	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+current2@384:21	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+key2@462:18	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+defaultValue2@462:38	defaultValue2	defaultValue	去掉打包器防重名追加的后缀，恢复原名 defaultValue，即该绑定持有的值。
+all2@506:14	all2	all	去掉打包器防重名追加的后缀，恢复原名 all，即该绑定持有的值。
+current2@519:20	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+index2@522:36	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+current2@533:31	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@536:27	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+map3@626:11	map3	map	去掉打包器防重名追加的后缀，恢复原名 map，即该绑定持有的值。
+key2@637:22	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+set2@638:13	set2	set	去掉打包器防重名追加的后缀，恢复原名 set，即该绑定持有的值。
+list2@653:9	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+selection2@714:13	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+next2@726:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+selection2@739:13	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+key2@751:6	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+next2@753:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+text2@897:17	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+pending2@1143:11	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+hasContent2@1154:6	hasContent2	hasContent	去掉打包器防重名追加的后缀，恢复原名 hasContent，即该绑定持有的值。
+getRect2@1161:19	getRect2	getRect	去掉打包器防重名追加的后缀，恢复原名 getRect，即该绑定持有的值。
+state2@1162:25	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+meta2@1174:6	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+kind2@1208:15	kind2	kind	去掉打包器防重名追加的后缀，恢复原名 kind，即该绑定持有的值。
+state2@1188:31	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+path2@1275:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@1295:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+meta2@1317:6	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+kind2@1319:15	kind2	kind	去掉打包器防重名追加的后缀，恢复原名 kind，即该绑定持有的值。
+path2@1379:22	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+key2@1442:17	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+disabled2@1522:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+labelKey2@1458:15	labelKey2	labelKey	去掉打包器防重名追加的后缀，恢复原名 labelKey，即该绑定持有的值。
+labelKey2@1490:15	labelKey2	labelKey	去掉打包器防重名追加的后缀，恢复原名 labelKey，即该绑定持有的值。
+path2@1717:30	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。

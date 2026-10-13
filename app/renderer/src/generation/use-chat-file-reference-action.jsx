@@ -19,10 +19,10 @@ import { useAssets } from "../settings/use-assets.js";
 import { openUrlInBuiltinBrowser } from "../workspace/resolve-retry-message-payload.jsx";
 import { resolveChatFileReference } from "./resolve-chat-file-reference.js";
 const MAX_ASSET_REFERENCE_LENGTH = 260;
-function shouldResolveAssetList(raw2) {
-  const text2 = raw2.trim();
-  if (!text2 || text2.length > MAX_ASSET_REFERENCE_LENGTH) return false;
-  if (/^https?:/i.test(text2)) return false;
+function shouldResolveAssetList(raw) {
+  const text = raw.trim();
+  if (!text || text.length > MAX_ASSET_REFERENCE_LENGTH) return false;
+  if (/^https?:/i.test(text)) return false;
   return true;
 }
 function isImmediatelyClickableChatFileReference(ref) {
@@ -55,12 +55,12 @@ function workspaceImageCanvasItem(ref) {
   if (ref.kind !== "workspace-file") return void 0;
   if (!ref.workspaceRelativePath || !ref.absolutePath || !ref.assetId)
     return void 0;
-  const name2 = basename(ref.workspaceRelativePath) || ref.displayName;
-  if (!name2) return void 0;
+  const fileName = basename(ref.workspaceRelativePath) || ref.displayName;
+  if (!fileName) return void 0;
   const item = buildResourceDragItem(
     ref.absolutePath,
     ref.workspaceRelativePath,
-    name2,
+    fileName,
     false,
     ref.assetId,
   );
@@ -74,8 +74,8 @@ function localInspectionRawPath(ref) {
   if (ref.kind === "external-local") return ref.absolutePath ?? ref.rawPath;
   return void 0;
 }
-function localInspectionCacheKey(rawPath, currentWorkspace, os2) {
-  return `${os2 ?? "unknown"}\0${currentWorkspace ?? ""}\0${rawPath}`;
+function localInspectionCacheKey(rawPath, currentWorkspace, os) {
+  return `${os ?? "unknown"}\0${currentWorkspace ?? ""}\0${rawPath}`;
 }
 function cachedLocalReferenceOpenable(cacheKey) {
   const cached = localReferenceInspectionCache.get(cacheKey);
@@ -93,12 +93,12 @@ async function fallbackLocalReferenceOpenable(rawPath, exists) {
     return false;
   }
 }
-export function useChatFileReferenceAction(raw2) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+export function useChatFileReferenceAction(raw) {
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const currentWorkspace = useCurrentWorkspace();
   const { assets } = useAssets({
-    enabled: shouldResolveAssetList(raw2),
+    enabled: shouldResolveAssetList(raw),
   });
   const [pendingConsent, setPendingConsent] = reactExports.useState(null);
   const [insertPromptOpen, setInsertPromptOpen] = reactExports.useState(false);
@@ -107,11 +107,11 @@ export function useChatFileReferenceAction(raw2) {
   const postInsertFocusTimerRef = reactExports.useRef(null);
   const ref = reactExports.useMemo(
     () =>
-      resolveChatFileReference(raw2, {
+      resolveChatFileReference(raw, {
         currentWorkspace,
         assets,
       }),
-    [assets, currentWorkspace, raw2],
+    [assets, currentWorkspace, raw],
   );
   const [locallyOpenable, setLocallyOpenable] = reactExports.useState(false);
   const localRawPath = localInspectionRawPath(ref);
@@ -124,9 +124,9 @@ export function useChatFileReferenceAction(raw2) {
     () => workspaceImageCanvasItem(ref),
     [ref],
   );
-  const inspectFileReference = platform2.shell.inspectFileReference;
-  const fsExists = platform2.fs.exists;
-  const platformOs = platform2.app?.os;
+  const inspectFileReference = platform.shell.inspectFileReference;
+  const fsExists = platform.fs.exists;
+  const platformOs = platform.app?.os;
   reactExports.useEffect(() => {
     if (!needsLocalInspection || !localRawPath) {
       setLocallyOpenable(false);
@@ -178,9 +178,9 @@ export function useChatFileReferenceAction(raw2) {
   ]);
   const revealLocalFile = reactExports.useCallback(
     async (rawPath, consent, consentToken) => {
-      const reveal = platform2.shell.revealFileReference;
+      const reveal = platform.shell.revealFileReference;
       if (!reveal) {
-        dedupedToast.error(t2("fileExplorer.cannotOpenFolder"));
+        dedupedToast.error(translate("fileExplorer.cannotOpenFolder"));
         return;
       }
       let result;
@@ -192,7 +192,7 @@ export function useChatFileReferenceAction(raw2) {
           consentToken,
         });
       } catch {
-        dedupedToast.error(t2("fileExplorer.cannotOpenFolder"));
+        dedupedToast.error(translate("fileExplorer.cannotOpenFolder"));
         return;
       }
       if (result.status === "needs-consent") {
@@ -205,10 +205,10 @@ export function useChatFileReferenceAction(raw2) {
       }
       setPendingConsent(null);
       if (result.status === "blocked") {
-        dedupedToast.error(t2(blockedToastKey(result)));
+        dedupedToast.error(translate(blockedToastKey(result)));
       }
     },
-    [currentWorkspace, platform2.shell.revealFileReference, t2],
+    [currentWorkspace, platform.shell.revealFileReference, translate],
   );
   reactExports.useEffect(() => {
     return () => {
@@ -278,14 +278,14 @@ export function useChatFileReferenceAction(raw2) {
         return;
       }
       if (ref.kind === "remote" && ref.url) {
-        void openUrlInBuiltinBrowser(platform2, ref.url, {
+        void openUrlInBuiltinBrowser(platform, ref.url, {
           source: "chat.file-reference",
         });
       }
     },
-    [currentWorkspace, imageCanvasItem, platform2, ref, revealLocalFile],
+    [currentWorkspace, imageCanvasItem, platform, ref, revealLocalFile],
   );
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     (event) => {
       if (!clickable) return;
       event.preventDefault();
@@ -294,7 +294,7 @@ export function useChatFileReferenceAction(raw2) {
     },
     [activate, clickable],
   );
-  const handleKeyDown2 = reactExports.useCallback(
+  const handleKeyDown = reactExports.useCallback(
     (event) => {
       if (!clickable) return;
       if (event.key !== "Enter" && event.key !== " ") return;
@@ -326,10 +326,10 @@ export function useChatFileReferenceAction(raw2) {
         <AlertDialogContent data-action-ui-id="chat-file-reference-permission-dialog">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t2("chat.fileReference.permissionTitle")}
+              {translate("chat.fileReference.permissionTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t2("chat.fileReference.permissionDescription")}
+              {translate("chat.fileReference.permissionDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           {pendingConsent && (
@@ -339,7 +339,7 @@ export function useChatFileReferenceAction(raw2) {
           )}
           <AlertDialogFooter>
             <AlertDialogCancel data-action-ui-id="chat-file-reference-permission-cancel">
-              {t2("common.cancel")}
+              {translate("common.cancel")}
             </AlertDialogCancel>
             <Button
               type="button"
@@ -347,14 +347,14 @@ export function useChatFileReferenceAction(raw2) {
               data-action-ui-id="chat-file-reference-permission-once"
               onClick={() => handleRevealWithConsent("once")}
             >
-              {t2("chat.fileReference.openOnce")}
+              {translate("chat.fileReference.openOnce")}
             </Button>
             <Button
               type="button"
               data-action-ui-id="chat-file-reference-permission-trust-folder"
               onClick={() => handleRevealWithConsent("trust-folder")}
             >
-              {t2("chat.fileReference.trustFolder")}
+              {translate("chat.fileReference.trustFolder")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -378,10 +378,10 @@ export function useChatFileReferenceAction(raw2) {
               >
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-sm text-foreground">
-                    {t2("fileExplorer.locateMissing.title")}
+                    {translate("fileExplorer.locateMissing.title")}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {t2("fileExplorer.locateMissing.description")}
+                    {translate("fileExplorer.locateMissing.description")}
                   </span>
                 </div>
                 <div className="flex justify-end gap-1">
@@ -391,14 +391,14 @@ export function useChatFileReferenceAction(raw2) {
                     onClick={() => setInsertPromptOpen(false)}
                     data-action-ui-id="chat-file-reference-locate-missing-cancel"
                   >
-                    {t2("common.cancel")}
+                    {translate("common.cancel")}
                   </Button>
                   <Button
                     size="sm"
                     onClick={handleInsertToCanvas}
                     data-action-ui-id="chat-file-reference-locate-missing-confirm"
                   >
-                    {t2("fileExplorer.locateMissing.confirm")}
+                    {translate("fileExplorer.locateMissing.confirm")}
                   </Button>
                 </div>
               </PopoverPopup>
@@ -411,8 +411,8 @@ export function useChatFileReferenceAction(raw2) {
   return {
     ref,
     clickable,
-    handleClick: handleClick2,
-    handleKeyDown: handleKeyDown2,
+    handleClick,
+    handleKeyDown,
     permissionDialog,
   };
 }

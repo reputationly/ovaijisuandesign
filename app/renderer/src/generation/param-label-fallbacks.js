@@ -309,13 +309,13 @@ export function resolveDefaultReferencePaths(
   options,
 ) {
   const live = referencePaths ?? [];
-  const reference = draftPaths?.some(isCanvasReferenceUri)
+  const ref = draftPaths?.some(isCanvasReferenceUri)
     ? restoreDirectReferencePaths(draftPaths, live)
     : live;
   if (options?.preserveDraftSlots && draftPaths) {
     const filledDraft = draftPaths.filter(Boolean);
     const remainingPathCounts = new Map();
-    for (const path of reference) {
+    for (const path of ref) {
       remainingPathCounts.set(path, (remainingPathCounts.get(path) ?? 0) + 1);
     }
     for (const path of filledDraft) {
@@ -324,10 +324,10 @@ export function resolveDefaultReferencePaths(
       else remainingPathCounts.set(path, remaining - 1);
     }
     const sameLiveReferences =
-      filledDraft.length === reference.length && remainingPathCounts.size === 0;
+      filledDraft.length === ref.length && remainingPathCounts.size === 0;
     if (sameLiveReferences) return [...draftPaths];
   }
-  return [...reference];
+  return [...ref];
 }
 
 export function resolveDraftReferencePaths(referencePaths, draftPaths) {

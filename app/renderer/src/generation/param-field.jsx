@@ -18,7 +18,7 @@ import {
 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as classNames } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { isHiddenVideoGenerationMode } from "../chat/use-tool-confirm-settlement.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
@@ -45,7 +45,7 @@ function Slider({
   );
   return (
     <SliderRoot
-      className={classNames("data-horizontal:w-full data-vertical:h-full", className)}
+      className={cn("data-horizontal:w-full data-vertical:h-full", className)}
       data-slot="slider"
       defaultValue={defaultValue}
       value={value}
@@ -103,7 +103,7 @@ function ParamEnumPopover({
       <PopoverTrigger
         disabled={disabled}
         data-action-ui-id={`tool-confirm-param-${paramKey}`}
-        className={classNames(
+        className={cn(
           "inline-flex min-w-[7rem] max-w-[16rem] items-center justify-between gap-1 px-2 py-1 rounded-sm",
           "text-body-12 border border-border bg-background hover:bg-muted transition-colors cursor-pointer",
           "disabled:opacity-50 disabled:cursor-default",
@@ -141,7 +141,7 @@ function ParamEnumPopover({
                 <button
                   type="button"
                   data-action-ui-id={`tool-confirm-param-${paramKey}-option-${option}`}
-                  className={classNames(
+                  className={cn(
                     "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-body-12 cursor-pointer transition-colors",
                     active
                       ? "bg-foreground text-background"
@@ -208,7 +208,7 @@ function InlineEnumOptions({
             type="button"
             disabled={disabled}
             data-action-ui-id={`tool-confirm-param-${paramKey}-option-${option}`}
-            className={classNames(
+            className={cn(
               "inline-flex min-w-0 max-w-full items-center gap-1 rounded-sm border px-2.5 py-1 text-left text-body-12 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
               active
                 ? "border-foreground bg-foreground text-background"

@@ -1,0 +1,61 @@
+t2@248:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+m3@600:16	m3	mentionModel	该绑定持有 mentionModel 所表示的值，按其实际用途命名。
+m3@642:38	m3	mediaModel	该绑定持有 mediaModel 所表示的值，按其实际用途命名。
+k2@658:8	k2	key	该绑定持有 key 所表示的值，按其实际用途命名。
+k2@676:8	k2	key	该绑定持有 key 所表示的值，按其实际用途命名。
+n2@797:15	n2	numericValue	该绑定持有 numericValue 所表示的值，按其实际用途命名。
+id2@1045:13	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+v2@1594:28	v2	value	该绑定持有 value 所表示的值，按其实际用途命名。
+v2@1699:40	v2	value	该绑定持有 value 所表示的值，按其实际用途命名。
+vp@648:11	vp	vendorParams	该绑定持有 vendorParams 所表示的值，按其实际用途命名。
+vp@691:15	vp	vendorParams	该绑定持有 vendorParams 所表示的值，按其实际用途命名。
+msg@1145:13	msg	message	该绑定持有 message 所表示的值，按其实际用途命名。
+key2@82:24	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+message2@244:12	message2	cardMessage	原名去后缀后发生作用域冲突；该绑定实际表示 cardMessage。
+gatewayFetch2@249:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+data2@251:9	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+dispatch2@1119:9	dispatch2	dispatch	去掉打包器防重名追加的后缀，恢复原名 dispatch，即该绑定持有的值。
+content2@1240:9	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+key2@380:15	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@399:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+map3@598:11	map3	map	去掉打包器防重名追加的后缀，恢复原名 map，即该绑定持有的值。
+displayName2@602:13	displayName2	displayName	去掉打包器防重名追加的后缀，恢复原名 displayName，即该绑定持有的值。
+key2@613:14	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+tool2@635:11	tool2	tool	去掉打包器防重名追加的后缀，恢复原名 tool，即该绑定持有的值。
+match2@642:11	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+overrides2@650:11	overrides2	overrides	去掉打包器防重名追加的后缀，恢复原名 overrides，即该绑定持有的值。
+top2@657:11	top2	topLevelKeys	原名去后缀后发生作用域冲突；该绑定实际表示 topLevelKeys。
+key2@652:24	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@671:12	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@684:14	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+overrides2@686:15	overrides2	overrides	去掉打包器防重名追加的后缀，恢复原名 overrides，即该绑定持有的值。
+index2@703:24	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+key2@708:31	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@714:10	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@723:10	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+map3@741:11	map3	map	去掉打包器防重名追加的后缀，恢复原名 map，即该绑定持有的值。
+key2@751:6	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+current2@752:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+next2@753:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+key2@793:6	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@816:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+current2@817:27	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+next2@820:17	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+current2@844:39	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@904:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+key2@905:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+index2@906:13	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+next2@909:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+mediaKind2@929:11	mediaKind2	mediaKind	去掉打包器防重名追加的后缀，恢复原名 mediaKind，即该绑定持有的值。
+current2@1011:34	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+index2@1029:63	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+pending2@1042:13	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+current2@1056:15	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+key2@1081:16	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@1127:19	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+state2@1222:11	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+key2@1499:29	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@1588:30	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@1670:36	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+index2@1670:42	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+key2@1721:33	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。

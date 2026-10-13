@@ -14,7 +14,7 @@ v2@368:29	v2	checked	去掉打包器防重名追加的后缀，恢复原名 chec
 e2@384:20	e2	changeEvent	去掉打包器防重名追加的后缀，恢复原名 changeEvent，即该绑定持有的值。
 e2@401:20	e2	changeEvent	去掉打包器防重名追加的后缀，恢复原名 changeEvent，即该绑定持有的值。
 e2@414:18	e2	changeEvent	去掉打包器防重名追加的后缀，恢复原名 changeEvent，即该绑定持有的值。
-cn@21:18	cn	classNames	去掉打包器防重名追加的后缀，恢复原名 classNames，即该绑定持有的值。
+cn@21:18	cn	cn	cn 是项目惯用的 class 合并工具别名，保留原名。
 opt@137:25	opt	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
 arr@348:19	arr	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
 Input3@28:10	Input3	Input	去掉打包器防重名追加的后缀，恢复原名 Input，即该绑定持有的值。
