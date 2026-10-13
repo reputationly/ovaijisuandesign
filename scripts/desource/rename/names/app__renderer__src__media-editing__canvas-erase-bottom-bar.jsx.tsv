@@ -1,0 +1,10 @@
+key	new	依据
+CanvasEraseBottomBar2@11:12	CanvasEraseBottomBar	去掉打包器去重后缀，恢复原名；此处保存由 memo 包装并渲染擦除操作控件的组件实现。
+t2@19:16	t	去掉打包器去重后缀，恢复原名；此处保存按当前语言查找擦除工具栏文案的翻译函数。
+e2@35:25	pointerEvent	此处保存被底栏拦截并停止传播的指针事件。
+e2@36:19	wheelEvent	此处保存被底栏拦截并停止传播的滚轮事件。
+e2@37:25	contextMenuEvent	此处保存被底栏拦截并停止传播的上下文菜单事件。
+e2@51:28	mouseEnterEvent	此处保存鼠标进入按钮时用于调整透明度的事件。
+e2@54:28	mouseLeaveEvent	此处保存鼠标离开按钮时用于恢复透明度的事件。
+e2@82:28	mouseEnterEvent	此处保存鼠标进入按钮时用于调整透明度的事件。
+e2@86:28	mouseLeaveEvent	此处保存鼠标离开按钮时用于恢复透明度的事件。

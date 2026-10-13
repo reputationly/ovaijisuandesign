@@ -75,43 +75,43 @@ export function ConditionRow({
   onColumnChange,
   onOpChange,
   onValueChange,
-  onRemove: onRemove2,
+  onRemove,
 }) {
-  const { t: t2 } = useTranslation();
-  const column = columns.find((c3) => c3.id === condition.columnId);
+  const { t } = useTranslation();
+  const column = columns.find((column) => column.id === condition.columnId);
   const availableOps = column ? operatorsForFieldType(column.type) : [];
   const needsValue = OPS_REQUIRING_VALUE.has(condition.op);
   const columnLabels = reactExports.useMemo(() => {
-    const map3 = {};
-    for (const c3 of columns) map3[c3.id] = c3.title;
-    return map3;
+    const map = {};
+    for (const column of columns) map[column.id] = column.title;
+    return map;
   }, [columns]);
   const opLabels = reactExports.useMemo(
     () =>
       Object.fromEntries(
-        availableOps.map((op) => [
-          op,
-          t2(OP_LABELS[op].key, OP_LABELS[op].defaultLabel),
+        availableOps.map((operator) => [
+          operator,
+          t(OP_LABELS[operator].key, OP_LABELS[operator].defaultLabel),
         ]),
       ),
-    [availableOps, t2],
+    [availableOps, t],
   );
   return (
     <div className="flex items-center gap-2">
       <Select
         value={condition.columnId}
         items={columnLabels}
-        onValueChange={(v2) => {
-          if (v2 != null) onColumnChange(v2);
+        onValueChange={(selectedColumnId) => {
+          if (selectedColumnId != null) onColumnChange(selectedColumnId);
         }}
       >
         <SelectTrigger className="h-8 w-[110px] text-[12px]">
-          <SelectValue placeholder={t2("canvas.table.filter.field", "Field")} />
+          <SelectValue placeholder={t("canvas.table.filter.field", "Field")} />
         </SelectTrigger>
         <SelectContent>
-          {columns.map((c3) => (
-            <SelectItem key={c3.id} value={c3.id}>
-              {c3.title}
+          {columns.map((column) => (
+            <SelectItem key={column.id} value={column.id}>
+              {column.title}
             </SelectItem>
           ))}
         </SelectContent>
@@ -119,17 +119,17 @@ export function ConditionRow({
       <Select
         value={condition.op}
         items={opLabels}
-        onValueChange={(v2) => {
-          if (v2 != null) onOpChange(v2);
+        onValueChange={(selectedOperator) => {
+          if (selectedOperator != null) onOpChange(selectedOperator);
         }}
       >
         <SelectTrigger className="h-8 w-[120px] text-[12px]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {availableOps.map((op) => (
-            <SelectItem key={op} value={op}>
-              {t2(OP_LABELS[op].key, OP_LABELS[op].defaultLabel)}
+          {availableOps.map((operator) => (
+            <SelectItem key={operator} value={operator}>
+              {t(OP_LABELS[operator].key, OP_LABELS[operator].defaultLabel)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -138,10 +138,10 @@ export function ConditionRow({
         <input
           type={column?.type === "number" ? "number" : "text"}
           value={condition.value === void 0 ? "" : String(condition.value)}
-          onChange={(e2) =>
-            onValueChange(e2.target.value, column?.type ?? "text")
+          onChange={(inputEvent) =>
+            onValueChange(inputEvent.target.value, column?.type ?? "text")
           }
-          placeholder={t2(
+          placeholder={t(
             "canvas.table.filter.valuePlaceholder",
             "Enter value",
           )}
@@ -152,9 +152,9 @@ export function ConditionRow({
       )}
       <button
         type="button"
-        onClick={onRemove2}
-        title={t2("canvas.table.filter.removeCondition", "Remove condition")}
-        aria-label={t2(
+        onClick={onRemove}
+        title={t("canvas.table.filter.removeCondition", "Remove condition")}
+        aria-label={t(
           "canvas.table.filter.removeCondition",
           "Remove condition",
         )}

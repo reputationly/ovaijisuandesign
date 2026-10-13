@@ -2,10 +2,10 @@
 import { MenuRoot, MenuSubmenuRoot, MenuTrigger, reactExports, toast, withAutomaticDedupeId } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn } from "../infra/dialog-content.jsx";
+import { cn as mergeClassNames } from "../infra/dialog-content.jsx";
 import { parseNodeId } from "../canvas/find-free-position-from-anchor.js";
-export function isCloneData(data2) {
-  return data2?.cloneOf != null;
+export function isCloneData(data) {
+  return data?.cloneOf != null;
 }
 const PROGRESS_UPDATE_INTERVAL_MS = 500;
 const H3_MAX_PROGRESS_DURATION_MS = 4e4;
@@ -33,26 +33,26 @@ const PROFILES = {
   },
 };
 function calculateProgress(kind, originMs, nowMs, profile) {
-  const elapsedMs2 = Math.max(0, nowMs - originMs);
+  const elapsedMs = Math.max(0, nowMs - originMs);
   if (profile === "h3-max-video") {
     return Math.min(
       H3_MAX_PROGRESS_CAP,
       Math.round(
-        (elapsedMs2 / H3_MAX_PROGRESS_DURATION_MS) * H3_MAX_PROGRESS_CAP,
+        (elapsedMs / H3_MAX_PROGRESS_DURATION_MS) * H3_MAX_PROGRESS_CAP,
       ),
     );
   }
-  const { ceiling, tau } = PROFILES[kind];
-  const elapsed = elapsedMs2 / 1e3;
-  return Math.min(99, Math.round(ceiling * (1 - Math.exp(-elapsed / tau))));
+  const { ceiling, tau: decayTimeConstantSeconds } = PROFILES[kind];
+  const elapsed = elapsedMs / 1e3;
+  return Math.min(99, Math.round(ceiling * (1 - Math.exp(-elapsed / decayTimeConstantSeconds))));
 }
 export function parseGenerationStartedAt(value) {
   if (!value) return void 0;
-  const ms = Date.parse(value);
-  return Number.isFinite(ms) ? ms : void 0;
+  const epochMilliseconds = Date.parse(value);
+  return Number.isFinite(epochMilliseconds) ? epochMilliseconds : void 0;
 }
-function calculateInitialProgress(active2, kind, startedAt, profile) {
-  if (!active2) return 0;
+function calculateInitialProgress(active, kind, startedAt, profile) {
+  if (!active) return 0;
   const nowMs = Date.now();
   return calculateProgress(
     kind,
@@ -61,16 +61,16 @@ function calculateInitialProgress(active2, kind, startedAt, profile) {
     profile,
   );
 }
-export function readGenerationStartedAt(data2) {
-  const value = data2?.generationStartedAt;
+export function readGenerationStartedAt(data) {
+  const value = data?.generationStartedAt;
   return typeof value === "string" && value.length > 0 ? value : void 0;
 }
-export function readGenerationAttemptId(data2) {
-  const value = data2?.generationAttemptId;
+export function readGenerationAttemptId(data) {
+  const value = data?.generationAttemptId;
   return typeof value === "string" && value.length > 0 ? value : void 0;
 }
-export function readGenerationSubmittedAt(data2) {
-  const receipt = data2?.generationTaskReceipt;
+export function readGenerationSubmittedAt(data) {
+  const receipt = data?.generationTaskReceipt;
   if (!receipt || typeof receipt !== "object" || Array.isArray(receipt))
     return void 0;
   const submittedAt = receipt.submittedAt;
@@ -81,35 +81,35 @@ export function readGenerationSubmittedAt(data2) {
   ) {
     return void 0;
   }
-  const date2 = new Date(submittedAt);
-  return Number.isFinite(date2.getTime()) ? date2.toISOString() : void 0;
+  const date = new Date(submittedAt);
+  return Number.isFinite(date.getTime()) ? date.toISOString() : void 0;
 }
 export function resolveGenerationProgressStartedAt(
-  data2,
+  data,
   persistedActive,
   inMemoryStartedAt,
 ) {
   return (
-    (persistedActive ? readGenerationStartedAt(data2) : void 0) ??
+    (persistedActive ? readGenerationStartedAt(data) : void 0) ??
     inMemoryStartedAt
   );
 }
 export function useSimulatedProgress(
-  active2,
+  active,
   kind = "image",
   startedAt,
   profile,
   attemptKey,
 ) {
   const [progress, setProgress] = reactExports.useState(() =>
-    calculateInitialProgress(active2, kind, startedAt, profile),
+    calculateInitialProgress(active, kind, startedAt, profile),
   );
   const resolvedAttemptKey = attemptKey ?? startedAt;
   const progressAttemptKeyRef = reactExports.useRef(resolvedAttemptKey);
   reactExports.useEffect(() => {
     const isNewAttempt = progressAttemptKeyRef.current !== resolvedAttemptKey;
     progressAttemptKeyRef.current = resolvedAttemptKey;
-    if (!active2) {
+    if (!active) {
       setProgress(0);
       return;
     }
@@ -132,31 +132,31 @@ export function useSimulatedProgress(
     tick();
     const intervalId = window.setInterval(tick, PROGRESS_UPDATE_INTERVAL_MS);
     return () => window.clearInterval(intervalId);
-  }, [active2, kind, startedAt, profile, resolvedAttemptKey]);
+  }, [active, kind, startedAt, profile, resolvedAttemptKey]);
   return progress;
 }
 const warnedKeys = new Set();
-export function useWarnMissingAssetMeta(ctx) {
-  const { nodeId, nodeType, data: data2, meta: meta2, isUserEmpty } = ctx;
+export function useWarnMissingAssetMeta(warningContext) {
+  const { nodeId, nodeType, data, meta, isUserEmpty } = warningContext;
   reactExports.useEffect(() => {
-    if (meta2 !== void 0) return;
+    if (meta !== void 0) return;
     if (isUserEmpty) return;
-    const key2 = `${nodeType}:${nodeId}`;
-    if (warnedKeys.has(key2)) return;
-    warnedKeys.add(key2);
-    const obj = data2 ?? {};
-    const path2 = typeof obj.path === "string" ? obj.path : "<missing>";
+    const key = `${nodeType}:${nodeId}`;
+    if (warnedKeys.has(key)) return;
+    warnedKeys.add(key);
+    const nodeData = data ?? {};
+    const path = typeof nodeData.path === "string" ? nodeData.path : "<missing>";
     const modelId =
-      typeof obj.model_id === "string" ? obj.model_id : "<missing>";
+      typeof nodeData.model_id === "string" ? nodeData.model_id : "<missing>";
     const sourceTool =
-      typeof obj.source_tool === "string" ? obj.source_tool : "<missing>";
+      typeof nodeData.source_tool === "string" ? nodeData.source_tool : "<missing>";
     const { assetId } = parseNodeId(nodeId);
     const isClone = assetId !== nodeId;
     console.warn(
       [
         `[canvas/${nodeType}-node] node "${nodeId}" rendered an EMPTY wrapper (return null path).`,
         `  reason: AssetMetadataStore has no entry for assetId="${assetId}"${isClone ? " (clone of base id)" : ""}.`,
-        `  data.path=${path2}  data.model_id=${modelId}  data.source_tool=${sourceTool}`,
+        `  data.path=${path}  data.model_id=${modelId}  data.source_tool=${sourceTool}`,
         "  likely causes (in order of probability):",
         "    1. incremental WS sync (canvas_updated) or group-execution in-place replace",
         "       added/replaced this node without calling AssetMetadataStore.setMany().",
@@ -177,19 +177,19 @@ export function useWarnMissingAssetMeta(ctx) {
         .filter(Boolean)
         .join("\n"),
     );
-  }, [nodeId, nodeType, meta2, isUserEmpty, data2]);
+  }, [nodeId, nodeType, meta, isUserEmpty, data]);
 }
 function createDedupedMethod(kind, method) {
-  return (message2, data2) =>
-    method(message2, withAutomaticDedupeId(kind, message2, data2));
+  return (message, data) =>
+    method(message, withAutomaticDedupeId(kind, message, data));
 }
 Object.assign(dedupedToast, {
   success: createDedupedMethod("success", toast.success),
   info: createDedupedMethod("info", toast.info),
   warning: createDedupedMethod("warning", toast.warning),
   error: createDedupedMethod("error", toast.error),
-  message: (message2, data2) =>
-    toast.message(message2, withAutomaticDedupeId("normal", message2, data2)),
+  message: (message, data) =>
+    toast.message(message, withAutomaticDedupeId("normal", message, data)),
   loading: toast.loading,
   promise: toast.promise,
   custom: toast.custom,
@@ -205,11 +205,11 @@ export function shouldPersistPopoverDraftOnUnmount(submitted, modelLoaded) {
 }
 export async function submitWithPersistedPopoverDraft({
   draft,
-  saveDraft: saveDraft2,
+  saveDraft,
   markSubmitted,
   submit,
 }) {
-  saveDraft2?.({
+  saveDraft?.({
     ...draft,
     source: "submitted",
   });
@@ -248,10 +248,10 @@ function getCompositionPlanLyrics(compositionPlan) {
     const plan = parsed;
     if (Array.isArray(plan.chunks)) {
       const blocks = plan.chunks
-        .map((chunk2) => {
-          if (!chunk2 || typeof chunk2 !== "object") return "";
-          const text2 = chunk2.text;
-          return typeof text2 === "string" ? text2.trim() : "";
+        .map((chunk) => {
+          if (!chunk || typeof chunk !== "object") return "";
+          const text = chunk.text;
+          return typeof text === "string" ? text.trim() : "";
         })
         .filter(Boolean);
       return blocks.length > 0 ? blocks.join("\n\n") : void 0;
@@ -276,16 +276,16 @@ function getCompositionPlanLyrics(compositionPlan) {
   }
   return void 0;
 }
-function isInstrumentalAudioAsset(meta2) {
-  const mode2 = meta2?.params?.is_instrumental;
-  return mode2 !== void 0 && INSTRUMENTAL_PARAM_VALUES.has(mode2);
+function isInstrumentalAudioAsset(meta) {
+  const mode = meta?.params?.is_instrumental;
+  return mode !== void 0 && INSTRUMENTAL_PARAM_VALUES.has(mode);
 }
-export function getDisplayLyrics(meta2) {
-  if (!meta2 || isInstrumentalAudioAsset(meta2)) return void 0;
-  if (meta2.lyrics?.trim()) return meta2.lyrics;
-  return getCompositionPlanLyrics(meta2.compositionPlan);
+export function getDisplayLyrics(meta) {
+  if (!meta || isInstrumentalAudioAsset(meta)) return void 0;
+  if (meta.lyrics?.trim()) return meta.lyrics;
+  return getCompositionPlanLyrics(meta.compositionPlan);
 }
-export function resolveCanvasPlatform(platform2) {
+export function resolveCanvasPlatform(platform) {
   const value = (
     typeof navigator === "undefined"
       ? ""
@@ -295,9 +295,9 @@ export function resolveCanvasPlatform(platform2) {
   if (value.includes("win")) return "windows";
   return "other";
 }
-export function resolveCanvasShortcut(accelerator, platform2) {
-  const os2 = resolveCanvasPlatform();
-  if (os2 === "mac") {
+export function resolveCanvasShortcut(accelerator, platform) {
+  const operatingSystem = resolveCanvasPlatform();
+  if (operatingSystem === "mac") {
     if (accelerator === "redo") return ["⇧", "⌘", "Z"];
     if (accelerator === "copyDebug") return ["⌘", "⌥", "C"];
     return ["⌘", accelerator === "paste" ? "V" : "Z"];
@@ -306,30 +306,30 @@ export function resolveCanvasShortcut(accelerator, platform2) {
   if (accelerator === "copyDebug") return ["Ctrl", "Alt", "C"];
   return ["Ctrl", accelerator === "paste" ? "V" : "Z"];
 }
-export function getCanvasFileManagerLabelKey(platform2) {
-  const os2 = resolveCanvasPlatform();
-  if (os2 === "mac") return "canvas.lightbox.openInFinder";
-  if (os2 === "windows") return "canvas.lightbox.openInFileExplorer";
+export function getCanvasFileManagerLabelKey(platform) {
+  const operatingSystem = resolveCanvasPlatform();
+  if (operatingSystem === "mac") return "canvas.lightbox.openInFinder";
+  if (operatingSystem === "windows") return "canvas.lightbox.openInFileExplorer";
   return "canvas.lightbox.openInFileManager";
 }
 export function getLightboxSlotKey(slot) {
   return `${slot.round ?? 0}:${slot.id}`;
 }
-export function lightboxItemFromAssetMeta(kind, meta2) {
-  if (!meta2?.url) return void 0;
+export function lightboxItemFromAssetMeta(kind, meta) {
+  if (!meta?.url) return void 0;
   return {
     kind,
-    url: meta2.url,
-    filePath: meta2.path,
-    fileName: meta2.name,
+    url: meta.url,
+    filePath: meta.path,
+    fileName: meta.name,
   };
 }
-function getLightboxNodeAssetId(node2) {
-  const dataAssetId = node2?.data?.assetId;
+function getLightboxNodeAssetId(node) {
+  const dataAssetId = node?.data?.assetId;
   if (typeof dataAssetId === "string" && dataAssetId.length > 0)
     return dataAssetId;
-  return typeof node2?.assetId === "string" && node2.assetId.length > 0
-    ? node2.assetId
+  return typeof node?.assetId === "string" && node.assetId.length > 0
+    ? node.assetId
     : void 0;
 }
 export function normalizeLegacyLightboxItems(kind, items, item, sources, src) {
@@ -341,11 +341,11 @@ export function normalizeLegacyLightboxItems(kind, items, item, sources, src) {
   }
   const urls = sources && sources.length > 0 ? sources : src ? [src] : [];
   const normalized = [];
-  for (const url2 of urls) {
-    if (typeof url2 !== "string" || url2.length === 0) continue;
+  for (const url of urls) {
+    if (typeof url !== "string" || url.length === 0) continue;
     const candidate = {
       kind,
-      url: url2,
+      url,
     };
     if (
       normalized.some(
@@ -364,15 +364,15 @@ export function normalizeLegacyLightboxItems(kind, items, item, sources, src) {
 export function lightboxItemsFromSlots(kind, slots, options) {
   return slots.flatMap((slot) => {
     if (!slot.url) return [];
-    const node2 = options.nodes?.find((candidate) => {
+    const node = options.nodes?.find((candidate) => {
       const candidateAssetId = getLightboxNodeAssetId(candidate);
       return candidate.id === slot.id || candidateAssetId === slot.id;
     });
-    const nodeAssetId = getLightboxNodeAssetId(node2);
+    const nodeAssetId = getLightboxNodeAssetId(node);
     const slotMeta =
       options.getMetaById(slot.id) ??
       (nodeAssetId ? options.getMetaById(nodeAssetId) : void 0) ??
-      (node2 ? options.getMetaById(node2.id) : void 0) ??
+      (node ? options.getMetaById(node.id) : void 0) ??
       (slot.id === options.primarySlotId ? options.primaryMeta : void 0);
     return [
       {
@@ -397,11 +397,11 @@ export function resolveLightboxIndexForSlot(items, slot, fallbackIndex) {
 export function LightboxActionButton({
   label,
   dataActionUiId,
-  icon: Icon2,
+  icon: Icon,
   iconElement,
   onClick,
   className,
-  disabled: disabled2 = false,
+  disabled = false,
   busy = false,
 }) {
   return (
@@ -411,16 +411,16 @@ export function LightboxActionButton({
       aria-label={label}
       aria-busy={busy || void 0}
       title={label}
-      disabled={disabled2}
-      className={cn(
+      disabled={disabled}
+      className={mergeClassNames(
         "pointer-events-auto inline-flex h-8 min-w-[8.5rem] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-white/10 bg-black/55 px-3 text-xs font-normal text-white/85 backdrop-blur-sm transition-[background-color,border-color,color,transform] duration-150 hover:border-white/20 hover:bg-black/70 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:border-white/10 disabled:hover:bg-black/55 disabled:hover:text-white/85 disabled:active:scale-100",
         className,
       )}
       onClick={onClick}
     >
       {iconElement ??
-        (Icon2 ? (
-          <Icon2 size={14} strokeWidth={1.25} aria-hidden={true} />
+        (Icon ? (
+          <Icon size={14} strokeWidth={1.25} aria-hidden={true} />
         ) : null)}
       <span className="whitespace-nowrap">{label}</span>
     </button>
@@ -434,7 +434,7 @@ export function DropdownMenuTrigger({ className, ...props }) {
   return (
     <MenuTrigger
       data-slot="dropdown-menu-trigger"
-      className={cn("select-none outline-none", className)}
+      className={mergeClassNames("select-none outline-none", className)}
       {...props}
     />
   );
@@ -448,7 +448,7 @@ export function rejectedReferencePaths(
   admittedPaths,
 ) {
   const accepted = new Set([...existingPaths, ...admittedPaths]);
-  return incomingPaths.filter((path2) => !accepted.has(path2));
+  return incomingPaths.filter((path) => !accepted.has(path));
 }
 export const IMAGE_MODE_KEY = "image_mode";
 export const ASPECT_RATIO_PARAM_KEYS = ["aspect_ratio", "ratio"];

@@ -12,3 +12,4 @@
 - `app/renderer/src/media-editing/wt.js`：建议将 `on`、`vs` 分别改为 `identityUrlTransform`、`replaceNodeWithText`；前者原样返回 URL，后者按条件移除子节点或用文本节点替换。
 - `app/renderer/src/media-editing/wt.js`：建议将 `xs`、`Ts` 分别改为 `transformUrlProperties`、`shouldSkipElement`；它们分别转换受支持的 URL 属性并按标签过滤及回调结果决定是否跳过元素。
 - `app/renderer/src/media-editing/wt.js`：建议将文件名改为 `markdown-and-media-model-utils.js`；该模块同时提供 Markdown 渲染上下文、处理器缓存与 AST 工具，以及媒体模型分类和选择辅助函数。
+- `app/renderer/src/media-editing/video-tool-meta.jsx`：建议将导出名 `TextNode3` 改为 `MemoizedTextNode`；该导出是经 `react.memo` 包装并使用节点属性比较器的文本节点组件。

@@ -8,7 +8,7 @@ import { useImageEditCost } from "./image-edit-pricing.js";
 const ERASE_RESOLUTIONS = ["1K", "2K"];
 const ERASE_REF_COUNT = 1;
 export const CanvasEraseBottomBar = reactExports.memo(
-  function CanvasEraseBottomBar2({
+  function CanvasEraseBottomBar({
     onCancel,
     onConfirm,
     confirming,
@@ -16,7 +16,7 @@ export const CanvasEraseBottomBar = reactExports.memo(
     resolution,
     onResolutionChange,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t } = useTranslation();
     const creditCost = useImageEditCost(
       "erase",
       resolution,
@@ -32,27 +32,27 @@ export const CanvasEraseBottomBar = reactExports.memo(
           borderColor: "var(--canvas-controls-border, #363636)",
           boxShadow: "var(--canvas-shadow-dropdown)",
         }}
-        onPointerDown={(e2) => e2.stopPropagation()}
-        onWheel={(e2) => e2.stopPropagation()}
-        onContextMenu={(e2) => e2.stopPropagation()}
+        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+        onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+        onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
       >
         <div className="flex items-center gap-16">
           <button
             type="button"
             onClick={onCancel}
             className="flex size-8 items-center justify-center rounded-md transition-colors duration-150"
-            aria-label={t2("common.cancel")}
-            title={t2("common.cancel")}
+            aria-label={t("common.cancel")}
+            title={t("common.cancel")}
             style={{
               color: "var(--canvas-controls-text, #fff)",
               background: "transparent",
               opacity: 0.7,
             }}
-            onMouseEnter={(e2) => {
-              e2.currentTarget.style.opacity = "1";
+            onMouseEnter={(mouseEnterEvent) => {
+              mouseEnterEvent.currentTarget.style.opacity = "1";
             }}
-            onMouseLeave={(e2) => {
-              e2.currentTarget.style.opacity = "0.7";
+            onMouseLeave={(mouseLeaveEvent) => {
+              mouseLeaveEvent.currentTarget.style.opacity = "0.7";
             }}
           >
             <CloseIcon />
@@ -72,19 +72,19 @@ export const CanvasEraseBottomBar = reactExports.memo(
             onClick={onConfirm}
             className="inline-flex size-8 items-center justify-center rounded-md transition-colors duration-150 disabled:opacity-50"
             aria-label={
-              confirming ? t2("canvas.erasing") : t2("canvas.eraseApply")
+              confirming ? t("canvas.erasing") : t("canvas.eraseApply")
             }
-            title={confirming ? t2("canvas.erasing") : t2("canvas.eraseApply")}
+            title={confirming ? t("canvas.erasing") : t("canvas.eraseApply")}
             style={{
               background: "var(--canvas-primary-btn-bg, #000000d9)",
               color: "var(--canvas-primary-btn-icon, #fff)",
             }}
-            onMouseEnter={(e2) => {
+            onMouseEnter={(mouseEnterEvent) => {
               if (confirming || !canConfirm) return;
-              e2.currentTarget.style.opacity = "0.9";
+              mouseEnterEvent.currentTarget.style.opacity = "0.9";
             }}
-            onMouseLeave={(e2) => {
-              e2.currentTarget.style.opacity = "1";
+            onMouseLeave={(mouseLeaveEvent) => {
+              mouseLeaveEvent.currentTarget.style.opacity = "1";
             }}
           >
             <SendArrowIcon />

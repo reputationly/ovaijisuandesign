@@ -23,5 +23,8 @@
     "vs": "replaceNodeWithText",
     "xs": "transformUrlProperties",
     "Ts": "shouldSkipElement"
+  },
+  "app/renderer/src/media-editing/video-tool-meta.jsx": {
+    "TextNode3": "MemoizedTextNode"
   }
 }

@@ -111,24 +111,24 @@ export class VideoColorGrading {
    */
   async loadLUT(input) {
     await this.ensureBackend();
-    let lut;
+    let lookupTable;
     if (typeof input === "string") {
       if (looksLikeUrl(input)) {
-        const text2 = await fetch(input).then((r2) => r2.text());
-        lut = parseCubeLUT(text2);
+        const text = await fetch(input).then((response) => response.text());
+        lookupTable = parseCubeLUT(text);
       } else {
-        lut = parseCubeLUT(input);
+        lookupTable = parseCubeLUT(input);
       }
     } else if (input instanceof File) {
-      const text2 = await input.text();
-      lut = parseCubeLUT(text2);
+      const text = await input.text();
+      lookupTable = parseCubeLUT(text);
     } else {
-      lut = input;
+      lookupTable = input;
     }
-    if (lut === this.currentLUT) return;
-    this.backend?.setLUT(lut);
+    if (lookupTable === this.currentLUT) return;
+    this.backend?.setLUT(lookupTable);
     this.backend?.setLUTParams(this.lutParams);
-    this.currentLUT = lut;
+    this.currentLUT = lookupTable;
   }
   clearLUT() {
     if (!this.currentLUT) return;
@@ -136,11 +136,11 @@ export class VideoColorGrading {
     this.currentLUT = null;
   }
   setLUTIntensity(intensity) {
-    const next2 = Math.max(0, Math.min(100, intensity)) / 100;
-    if (this.lutParams.intensity === next2) return;
+    const next = Math.max(0, Math.min(100, intensity)) / 100;
+    if (this.lutParams.intensity === next) return;
     this.lutParams = {
       ...this.lutParams,
-      intensity: next2,
+      intensity: next,
     };
     this.backend?.setLUTParams(this.lutParams);
   }
@@ -281,12 +281,12 @@ export class VideoColorGrading {
    */
   async tryLoadVideoToBackend(video, attempts) {
     let lastErr;
-    for (let i2 = 0; i2 < attempts; i2++) {
+    for (let attemptIndex = 0; attemptIndex < attempts; attemptIndex++) {
       try {
         this.backend?.loadFromVideo(video);
         return;
-      } catch (e2) {
-        lastErr = e2;
+      } catch (loadError) {
+        lastErr = loadError;
         await new Promise((resolve) => {
           const host = video;
           if (typeof host.requestVideoFrameCallback === "function") {

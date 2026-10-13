@@ -30,29 +30,29 @@ import {
 } from "../canvas/use-video-starter-preset-store.js";
 import { useVideoToolbarCustomizationStore } from "../canvas/read-persisted.js";
 import { PromoteToAssetIcon } from "../canvas/generating-media-area.jsx";
-import { CustomizeToolbarDialog as CustomizeToolbarDialog$2 } from "./customize-toolbar-dialog.jsx";
+import { CustomizeToolbarDialog as CustomizeToolbarDialogPrimitive } from "./customize-toolbar-dialog.jsx";
 import { useCanvasActions } from "./use-canvas-actions.js";
 export const TextNode3 = reactExports.memo(TextNodeInner, areNodePropsEqual);
 export function useVideoColorAdjust({
-  id: id2,
-  meta: meta2,
+  id: nodeId,
+  meta,
   nodeWidth,
   reactFlow,
   cropImage,
-  lut,
+  lut: lookupTable,
 }) {
   const [open, setOpen] = reactExports.useState(false);
   const emitDerived = useEmitDerivedFromBlob({
-    id: id2,
-    meta: meta2,
+    id: nodeId,
+    meta,
     nodeWidth,
     reactFlow,
     cropImage,
   });
   const openDialog = reactExports.useCallback(() => {
-    if (!meta2?.url) return;
+    if (!meta?.url) return;
     setOpen(true);
-  }, [meta2?.url]);
+  }, [meta?.url]);
   const onConfirm = reactExports.useCallback(
     async (blob) => {
       await emitDerived(blob, {
@@ -70,7 +70,7 @@ export function useVideoColorAdjust({
       open,
       onOpenChange: setOpen,
       onConfirm,
-      lut,
+      lut: lookupTable,
     },
   };
 }
@@ -144,37 +144,37 @@ export function CustomizeToolbarDialog({
   onApply,
   onAbandon,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const store = useVideoToolbarCustomizationStore();
   const fixedRightChips = [];
   if (hasPromoteToAsset) {
     fixedRightChips.push({
       id: "promote-to-asset",
       icon: <PromoteToAssetIcon />,
-      label: t2("canvas.promoteToAsset"),
+      label: t("canvas.promoteToAsset"),
       showLabel: true,
     });
   }
   fixedRightChips.push({
     id: "add-to-clip-node",
     icon: <AddToClipNodeIcon />,
-    label: t2("canvas.addToClipNode", "添加到剪辑节点"),
+    label: t("canvas.addToClipNode", "添加到剪辑节点"),
     showLabel: false,
   });
   fixedRightChips.push({
     id: "add-to-chat",
     icon: <AddToChatIcon />,
-    label: t2("canvas.addToChat"),
+    label: t("canvas.addToChat"),
     showLabel: false,
   });
   fixedRightChips.push({
     id: "fullscreen",
     icon: <FullscreenIcon />,
-    label: t2("canvas.fullscreen"),
+    label: t("canvas.fullscreen"),
     showLabel: false,
   });
   return (
-    <CustomizeToolbarDialog$2
+    <CustomizeToolbarDialogPrimitive
       open={open}
       onOpenChange={onOpenChange}
       allToolIds={VIDEO_TOOLBAR_TOOLS}
@@ -198,8 +198,8 @@ export function suggestNextResolution(currentHeight) {
     [1080, "2k"],
     [1440, "4k"],
   ];
-  for (const [threshold, next2] of tiers) {
-    if (currentHeight <= threshold) return next2;
+  for (const [threshold, next] of tiers) {
+    if (currentHeight <= threshold) return next;
   }
   return "4k";
 }
@@ -209,38 +209,38 @@ export function parseEnhanceResolution(value) {
   return ENHANCE_VIDEO_RESOLUTIONS.includes(normalized) ? normalized : void 0;
 }
 export function parseEnhanceFps(value) {
-  const n2 = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(n2)) return void 0;
-  return ENHANCE_VIDEO_FPS_OPTIONS.includes(n2) ? n2 : void 0;
+  const frameRate = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(frameRate)) return void 0;
+  return ENHANCE_VIDEO_FPS_OPTIONS.includes(frameRate) ? frameRate : void 0;
 }
 const HAILUO03_BACKEND = "minimax_v3";
 const HAILUO03_GENERATED_768P = "768P";
 const HAILUO03_MODEL_ID = "MiniMax-H3";
-function modelField(value, key2) {
-  return value && typeof value === "object" ? value[key2] : void 0;
+function modelField(value, key) {
+  return value && typeof value === "object" ? value[key] : void 0;
 }
 function isHailuo03ModelValue(value) {
   return typeof value === "string" && value === HAILUO03_MODEL_ID;
 }
-function isGenerated768P(meta2) {
-  return meta2.params?.resolution === HAILUO03_GENERATED_768P;
+function isGenerated768P(meta) {
+  return meta.params?.resolution === HAILUO03_GENERATED_768P;
 }
-export function resolveHailuo03SuperResolutionDuration(meta2) {
-  const duration = Number(meta2?.params?.duration);
+export function resolveHailuo03SuperResolutionDuration(meta) {
+  const duration = Number(meta?.params?.duration);
   return Number.isFinite(duration) && duration > 0 ? duration : void 0;
 }
-export function isHailuo03SuperResolutionEligible(meta2, modelInfo) {
+export function isHailuo03SuperResolutionEligible(meta, modelInfo) {
   if (
-    !meta2?.path ||
-    !meta2.providerTaskId ||
-    meta2.backend !== HAILUO03_BACKEND
+    !meta?.path ||
+    !meta.providerTaskId ||
+    meta.backend !== HAILUO03_BACKEND
   )
     return false;
-  if (!isGenerated768P(meta2)) return false;
+  if (!isGenerated768P(meta)) return false;
   return [
-    meta2.model_id,
-    meta2.model,
-    meta2.params?.model_name,
+    meta.model_id,
+    meta.model,
+    meta.params?.model_name,
     modelField(modelInfo, "id"),
     modelField(modelInfo, "model_name"),
     modelField(modelInfo, "pricingId"),
@@ -258,8 +258,8 @@ export const VIDEO_TOOL_PRICING = {
     resolution: "2K",
   },
 };
-function resolveVideoEditCost(pricingConfig, tool2, sourceDurationSec) {
-  const pricing = VIDEO_TOOL_PRICING[tool2];
+function resolveVideoEditCost(pricingConfig, tool, sourceDurationSec) {
+  const pricing = VIDEO_TOOL_PRICING[tool];
   if (!pricing) return void 0;
   if (pricing.kind === "tool") {
     if (!pricing.resolution) return void 0;
@@ -272,69 +272,69 @@ function resolveVideoEditCost(pricingConfig, tool2, sourceDurationSec) {
   }
   return getModelBaseCost(pricingConfig, pricing.modelId);
 }
-export function useVideoEditCost(tool2, sourceDurationSec) {
+export function useVideoEditCost(tool, sourceDurationSec) {
   const { pricingConfig } = useCanvasBridge();
   return reactExports.useMemo(
-    () => resolveVideoEditCost(pricingConfig, tool2, sourceDurationSec),
-    [pricingConfig, sourceDurationSec, tool2],
+    () => resolveVideoEditCost(pricingConfig, tool, sourceDurationSec),
+    [pricingConfig, sourceDurationSec, tool],
   );
 }
-function resolveAsrSourcePath(submitAsr, meta2) {
+function resolveAsrSourcePath(submitAsr, meta) {
   if (!submitAsr) return null;
-  const path2 = meta2?.path;
-  if (!path2) return null;
-  return path2;
+  const path = meta?.path;
+  if (!path) return null;
+  return path;
 }
-export function useAsrSubmit({ id: id2, meta: meta2, submitAsr }) {
+export function useAsrSubmit({ id: nodeId, meta, submitAsr }) {
   const { focusNextDerivedFrom } = useCanvasActions();
   const submit = reactExports.useCallback(
     (params) => {
-      const sourcePath = resolveAsrSourcePath(submitAsr, meta2);
+      const sourcePath = resolveAsrSourcePath(submitAsr, meta);
       if (!sourcePath || !submitAsr) return;
-      focusNextDerivedFrom(id2);
-      void submitAsr(id2, sourcePath, params.language);
+      focusNextDerivedFrom(nodeId);
+      void submitAsr(nodeId, sourcePath, params.language);
     },
-    [id2, meta2, submitAsr, focusNextDerivedFrom],
+    [nodeId, meta, submitAsr, focusNextDerivedFrom],
   );
   return {
     submit,
   };
 }
-function resolveEnhanceVideoSourcePath(submitEnhanceVideo, meta2) {
+function resolveEnhanceVideoSourcePath(submitEnhanceVideo, meta) {
   if (!submitEnhanceVideo) return null;
-  const path2 = meta2?.path;
-  if (!path2) return null;
-  return path2;
+  const path = meta?.path;
+  if (!path) return null;
+  return path;
 }
 export function useEnhanceVideoSubmit({
-  id: id2,
-  meta: meta2,
+  id: nodeId,
+  meta,
   submitEnhanceVideo,
 }) {
   const submit = reactExports.useCallback(
     (params) => {
       const sourcePath = resolveEnhanceVideoSourcePath(
         submitEnhanceVideo,
-        meta2,
+        meta,
       );
       if (!sourcePath || !submitEnhanceVideo) return;
-      void submitEnhanceVideo(id2, sourcePath, params);
+      void submitEnhanceVideo(nodeId, sourcePath, params);
     },
-    [id2, meta2, submitEnhanceVideo],
+    [nodeId, meta, submitEnhanceVideo],
   );
   return {
     submit,
   };
 }
-function resolveEraseSubtitleSourcePath(submitEraseSubtitle, meta2) {
+function resolveEraseSubtitleSourcePath(submitEraseSubtitle, meta) {
   if (!submitEraseSubtitle) return null;
-  const path2 = meta2?.path;
-  if (!path2) return null;
-  return path2;
+  const path = meta?.path;
+  if (!path) return null;
+  return path;
 }
 export function useEraseSubtitleSubmit({
-  id: id2,
-  meta: meta2,
+  id: nodeId,
+  meta,
   submitEraseSubtitle,
 }) {
   const { focusNextDerivedFrom } = useCanvasActions();
@@ -342,16 +342,16 @@ export function useEraseSubtitleSubmit({
     (params) => {
       const sourcePath = resolveEraseSubtitleSourcePath(
         submitEraseSubtitle,
-        meta2,
+        meta,
       );
       if (!sourcePath || !submitEraseSubtitle) return;
-      focusNextDerivedFrom(id2);
-      void submitEraseSubtitle(id2, sourcePath, {
+      focusNextDerivedFrom(nodeId);
+      void submitEraseSubtitle(nodeId, sourcePath, {
         mode: params.mode,
         regions: params.regions,
       });
     },
-    [id2, meta2, submitEraseSubtitle, focusNextDerivedFrom],
+    [nodeId, meta, submitEraseSubtitle, focusNextDerivedFrom],
   );
   return {
     submit,
