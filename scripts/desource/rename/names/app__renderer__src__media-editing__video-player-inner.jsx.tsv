@@ -1,20 +1,20 @@
 key	new	依据
-v2@19:11	storedMutedSetting	按压缩短名规则改为描述该值或行为的名称；此处保存localStorage 中保存的静音设置字符串。
-t2@48:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存提供界面翻译文案的 i18n 函数。
-s2@50:39	playbackState	按压缩短名规则改为描述该值或行为的名称；此处保存视频播放 store 的当前状态。
-s2@51:34	playbackState	按压缩短名规则改为描述该值或行为的名称；此处保存视频播放 store 的当前状态。
-s2@52:34	playbackState	按压缩短名规则改为描述该值或行为的名称；此处保存视频播放 store 的当前状态。
-s2@53:37	muteStore	按压缩短名规则改为描述该值或行为的名称；此处保存视频静音 store 的当前状态。
-s2@54:43	muteStore	按压缩短名规则改为描述该值或行为的名称；此处保存视频静音 store 的当前状态。
-el@67:11	videoElement	按压缩短名规则改为描述该值或行为的名称；此处保存当前视频播放器的 HTMLVideoElement。
-el@76:11	videoElement	按压缩短名规则改为描述该值或行为的名称；此处保存当前视频播放器的 HTMLVideoElement。
-e2@87:6	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存视频播放器控制按钮的点击事件。
-e2@95:6	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存视频播放器控制按钮的点击事件。
-e2@102:6	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存视频播放器控制按钮的点击事件。
-e2@141:29	doubleClickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存视频播放器收到的双击事件。
-e2@165:31	doubleClickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存视频播放器收到的双击事件。
-e2@184:33	doubleClickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存视频播放器收到的双击事件。
+v2@19:11	storedMutedSetting	localStorage 中持久化的静音设置字符串；0/1 分别转为 false/true。
+t2@48:14	t	useTranslation 返回的翻译函数，为播放、暂停、静音和全屏按钮提供文案。
+s2@50:39	playbackState	播放 store 当前状态；playingId 选择器比较 nodeId 后得到 isPlaying。
+s2@51:34	playbackState	播放 store 当前状态；从中读取 play action 并在组件挂载或点击时播放该节点。
+s2@52:34	playbackState	播放 store 当前状态；从中读取 stop action 供播放切换按钮暂停。
+s2@53:37	muteStore	静音 store 当前状态；选择器读取其中持久化的 muted 布尔值。
+s2@54:43	muteStore	静音 store 当前状态；选择器读取 toggleMuted action 供静音按钮调用。
+el@67:11	videoElement	videoRef 当前指向的 HTMLVideoElement，effect 按 isPlaying 调用 play 或 pause。
+el@76:11	videoElement	effect 中读取的 HTMLVideoElement，为 ended 事件重置 currentTime 并循环播放。
+e2@87:6	clickEvent	播放切换按钮的点击事件；阻止冒泡后根据 isPlaying 调用 stop 或 play(nodeId)。
+e2@95:6	clickEvent	静音按钮的点击事件；阻止冒泡后调用 toggleMuted 切换持久化静音状态。
+e2@102:6	clickEvent	全屏按钮的点击事件；阻止冒泡后调用可选的 onFullscreen 回调。
+e2@141:29	doubleClickEvent	播放/暂停按钮的双击事件被阻止冒泡，避免同时触发外层画布交互。
+e2@165:31	doubleClickEvent	静音按钮的双击事件被阻止冒泡，避免同时触发外层画布交互。
+e2@184:33	doubleClickEvent	全屏按钮的双击事件被阻止冒泡，避免同时触发外层画布交互。
 set2@25:36	set	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存更新视频播放或静音设置的操作。
 get3@25:42	get	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存读取视频播放或静音设置的操作。
-set@25:36	setState	按压缩短名规则改为描述该值或行为的名称；此处保存更新视频静音状态的 Zustand store 操作。
-get@25:41	getState	按压缩短名规则改为描述该值或行为的名称；此处保存读取视频静音状态的 Zustand store 操作。
+set@25:36	setState	Zustand create 注入的 store 更新函数；setMuted 使用它保存最新 muted 值。
+get@25:41	getState	Zustand create 注入的 store 读取函数；供静音写入前比较并由 toggleMuted 取反读取。

@@ -563,7 +563,7 @@ const VIDEO_ACTION_SURFACE_ACTIVATION_DELAY_MS = 80;
 export function VideoNodeInner({
   id: videoNodeId,
   data,
-  selected,
+  selected: isSelected,
   width,
   height,
 }) {
@@ -589,7 +589,7 @@ export function VideoNodeInner({
     [],
   );
   reactExports.useEffect(() => {
-    if (!selected || !isInteractiveSelect) {
+    if (!isSelected || !isInteractiveSelect) {
       setSelectionActionSurfaceReady(false);
       return;
     }
@@ -598,7 +598,7 @@ export function VideoNodeInner({
       VIDEO_ACTION_SURFACE_ACTIVATION_DELAY_MS,
     );
     return () => window.clearTimeout(timeoutId);
-  }, [selected, isInteractiveSelect]);
+  }, [isSelected, isInteractiveSelect]);
   const generatingStateStore = useGeneratingStateApi();
   const {
     view: videoView,
@@ -1184,7 +1184,7 @@ export function VideoNodeInner({
             nodeType="video"
             tagIds={meta?.tagIds}
             name={meta?.name || t("canvas.video")}
-            selected={selected}
+            selected={isSelected}
             maxWidth={shellWidth}
             onRename={onRename}
           />
@@ -1209,7 +1209,7 @@ export function VideoNodeInner({
                       : (height ?? VIDEO_CARD_MAX_WIDTH)
                     : void 0
           }
-          selected={selected}
+          selected={isSelected}
           panelPadding={isStarterEmpty ? 12 : void 0}
           variant={
             isErrorGenerating || isGenerating || persistedQueuePaused
@@ -1507,7 +1507,7 @@ export function VideoNodeInner({
           }}
         />
       )}
-      <NodeHandles nodeId={videoNodeId} selected={!!selected} />
+      <NodeHandles nodeId={videoNodeId} selected={!!isSelected} />
     </NodeShell>
   );
 }

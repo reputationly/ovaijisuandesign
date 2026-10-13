@@ -1,5 +1,5 @@
 key	new	依据
-t2@55:14	t	useTranslation 返回的翻译函数，为主视频、拆分和全屏预览按钮��成标签。
+t2@55:14	t	useTranslation 返回的翻译函数，为主视频、拆分和全屏预览按钮生成标签。
 s2@68:34	playbackState	播放状态 store 快照；stop 选择器从中读取停止当前播放的 action。
 s2@70:39	playbackState	播放状态 store 快照；playingId 选择器据此判断当前节点是否正在播放。
 e2@122:28	cardClickEvent	就绪视频卡片的点击事件；有视频 URL 时打开原始插槽对应的播放器。

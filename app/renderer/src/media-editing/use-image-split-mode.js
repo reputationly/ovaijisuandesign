@@ -6,7 +6,7 @@ import { splitSelectedCellsToBlobs } from "./split-selected-cells-to-blobs.js";
 
 export function useImageSplitMode({
   id: nodeId,
-  selected,
+  selected: isSelected,
   meta,
   batchCropAndUpscale,
   cropSplit,
@@ -41,9 +41,9 @@ export function useImageSplitMode({
     anchorRef.current = null;
   }, []);
   const toggleCell = reactExports.useCallback(
-    (index, range = false) => {
+    (index, isRangeSelection = false) => {
       const currentGrid = grid;
-      if (range && currentGrid && anchorRef.current != null) {
+      if (isRangeSelection && currentGrid && anchorRef.current != null) {
         const block = rectCellIndices(anchorRef.current, index, currentGrid.cols);
         setSelectedCells((prev) => {
           const next = new Set(prev);
@@ -191,8 +191,8 @@ export function useImageSplitMode({
   reactExports.useEffect(() => {
     if (!editing) return;
     if (processing) return;
-    if (!selected) exit();
-  }, [editing, processing, selected, exit]);
+    if (!isSelected) exit();
+  }, [editing, processing, isSelected, exit]);
   return {
     editing,
     grid,
