@@ -1,13 +1,13 @@
 key	new	依据
-t2@28:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存读取当前语言文案的 i18n 函数。
-res@69:14	response	按压缩短名规则改为描述该值或行为的名称；此处保存检查工作区文件 URL 返回的 HTTP 响应。
-t2@98:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存读取当前语言文案的 i18n 函数。
-pid@110:11	pluginId	按压缩短名规则改为描述该值或行为的名称；此处保存当前插件的标识。
-el@153:6	element	按压缩短名规则改为描述该值或行为的名称；此处保存注册到全屏状态 store 的容器元素。
-e2@222:23	toggleEvent	按压缩短名规则改为描述该值或行为的名称；此处保存HTML 容器收到的 toggle 状态变更事件。
-tev@223:13	presentationEvent	按压缩短名规则改为描述该值或行为的名称；此处保存表示 HTML 画布展示状态的事件对象。
-e2@236:20	keyboardEvent	按压缩短名规则改为描述该值或行为的名称；此处保存HTML 查看器收到的键盘事件。
-c3@261:39	connectionState	按压缩短名规则改为描述该值或行为的名称；此处保存插件连接 store 的状态对象。
+t2@28:14	t	useTranslation 返回的翻译函数，用于 HTML 预览加载失败等状态文案。
+res@69:14	response	fetch 返回的 HTTP 响应对象，代码检查其 status 是否为 404。
+t2@98:14	t	useTranslation 返回的翻译函数，用于文件节点菜单、预览和连接状态操作标签。
+pid@110:11	pluginId	从节点 data 中验证得到的插件 ID，和 manifest entry 一起解析资源 URL。
+el@153:6	element	HTML 容器 ref 回调收到的 DOM 元素，同时写入本地状态和 fullscreen API。
+e2@222:23	toggleEvent	document picture-in-picture 切换事件，提供新的 presentation 状态。
+tev@223:13	presentationEvent	当前 picture-in-picture 切换事件，用于读取 newState 并处理关闭状态。
+e2@236:20	keyboardEvent	HTML 预览上的 keydown 事件；仅 Escape 会阻止默认行为和冒泡并关闭视图。
+c3@261:39	connectionState	连接 store 的状态对象，isConnecting 从中读取 inProgress 标记。
 url2@47:29	url	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存供查看器探测或加载的文件 URL。
 state2@48:10	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件 URL 探测得到的查看器状态。
 platform2@84:9	platform	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存宿主环境提供的平台信息对象。

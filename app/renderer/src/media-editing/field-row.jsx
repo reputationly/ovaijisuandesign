@@ -103,7 +103,7 @@ function EditIcon() {
 function FieldRowMenu({ anchorRef, onClose, onEdit, onDelete }) {
   const { t } = useTranslation();
   const menuRef = reactExports.useRef(null);
-  const [menuPosition, setPos] = reactExports.useState(null);
+  const [menuPosition, setMenuPosition] = reactExports.useState(null);
   reactExports.useLayoutEffect(() => {
     const anchor = anchorRef.current;
     if (!anchor) return;
@@ -113,7 +113,7 @@ function FieldRowMenu({ anchorRef, onClose, onEdit, onDelete }) {
       left = rect.left - MENU_WIDTH - MENU_GAP;
     }
     if (left < 8) left = 8;
-    setPos({
+    setMenuPosition({
       top: rect.top,
       left,
     });

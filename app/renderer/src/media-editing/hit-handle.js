@@ -57,21 +57,21 @@ export function buildTextShapeData(point, text, style) {
 export class EventBus {
   listeners = new Map();
   on(type, handler) {
-    let set = this.listeners.get(type);
-    if (!set) {
-      set = new Set();
-      this.listeners.set(type, set);
+    let handlerSet = this.listeners.get(type);
+    if (!handlerSet) {
+      handlerSet = new Set();
+      this.listeners.set(type, handlerSet);
     }
-    set.add(handler);
+    handlerSet.add(handler);
     return () => this.off(type, handler);
   }
   off(type, handler) {
     this.listeners.get(type)?.delete(handler);
   }
   emit(type, payload) {
-    const set = this.listeners.get(type);
-    if (!set) return;
-    for (const handler of Array.from(set)) {
+    const handlerSet = this.listeners.get(type);
+    if (!handlerSet) return;
+    for (const handler of Array.from(handlerSet)) {
       try {
         handler(payload);
       } catch (error) {

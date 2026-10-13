@@ -1,16 +1,16 @@
 key	new	依据
-op@22:44	operator	按压缩短名规则改为描述该值或行为的名称；此处保存“operator”所表示的值。
-n2@42:11	cellNumber	按压缩短名规则改为描述该值或行为的名称；此处保存“cellNumber”所表示的值。
-t2@44:11	targetNumber	按压缩短名规则改为描述该值或行为的名称；此处保存“targetNumber”所表示的值。
-f2@66:9	filterConfig	按压缩短名规则改为描述该值或行为的名称；此处保存“filterConfig”所表示的值。
-c3@69:39	column	按压缩短名规则改为描述该值或行为的名称；此处保存“column”所表示的值。
-row@72:13	rowData	按压缩短名规则改为描述该值或行为的名称；此处保存“rowData”所表示的值。
-row@81:30	rowData	按压缩短名规则改为描述该值或行为的名称；此处保存“rowData”所表示的值。
-p3@81:56	predicate	按压缩短名规则改为描述该值或行为的名称；此处保存“predicate”所表示的值。
-row@83:28	rowData	按压缩短名规则改为描述该值或行为的名称；此处保存“rowData”所表示的值。
-p3@83:53	predicate	按压缩短名规则改为描述该值或行为的名称；此处保存“predicate”所表示的值。
-c3@86:31	column	按压缩短名规则改为描述该值或行为的名称；此处保存“column”所表示的值。
-doc2@65:29	doc	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“doc”所表示的值。
-doc2@85:32	doc	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“doc”所表示的值。
-doc@65:29	columnDocument	按压缩短名规则改为描述该值或行为的名称；此处保存“columnDocument”所表示的值。
-doc@85:32	columnDocument	按压缩短名规则改为描述该值或行为的名称；此处保存“columnDocument”所表示的值。
+op@22:44	operator	matchesCondition 根据当前运算符分派空值、文本和数字的比较逻辑。
+n2@42:11	cellNumber	数值类型的单元格内容；非数值单元格被转换为 NaN 并判为不匹配。
+t2@44:11	targetNumber	筛选条件 value 转成的数值，供 equals、gt、lt 等运算比较。
+f2@66:9	filterConfig	当前文档的筛选配置，包含过滤条件列表及 all/any 匹配模式。
+c3@69:39	column	id 与当前筛选条件 columnId 相同的列配置；其 type 决定单元格比较方式。
+row@72:13	rowData	正在应用当前筛选谓词的行对象，按 columnId 读取待比较的单元格。
+row@81:30	rowData	正在检查其所有筛选谓词均为真的表格行。
+p3@81:56	predicate	由一个筛选条件生成的判断函数，接收 rowData 并返回该行是否匹配。
+row@83:28	rowData	正在检查其至少一个筛选谓词为真的表格行。
+p3@83:53	predicate	由一个筛选条件生成的判断函数，接收 rowData 并返回该行是否匹配。
+c3@86:31	column	columnDocument.columns 中当前列配置，visible 不为 false 时保留在结果中。
+doc2@65:29	columnDocument	applyFilter 读取筛选条件并返回过滤后的 rows；该参数最终命名为 columnDocument。
+doc2@85:32	columnDocument	visibleColumns 从该文档的 columns 中筛出可见列；该参数最终命名为 columnDocument。
+doc@65:29	columnDocument	applyFilter 接收的画布表格文档，提供筛选规则、列定义和行数据。
+doc@85:32	columnDocument	visibleColumns 接收的画布表格文档，提供待筛选的列定义。
