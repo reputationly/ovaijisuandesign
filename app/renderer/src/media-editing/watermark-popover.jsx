@@ -1,7 +1,7 @@
 // watermark-popover.jsx
 import { drawWatermark } from "./single-position.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn } from "../infra/dialog-content.jsx";
+import { cn as mergeClassNames } from "../infra/dialog-content.jsx";
 import { ToolSlider } from "./tool-slider.jsx";
 import {
   Select,
@@ -22,23 +22,23 @@ import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";
 function loadImage(src) {
   return new Promise((resolve, reject) => {
-    const image2 = new Image();
-    image2.crossOrigin = "anonymous";
-    image2.onload = () => resolve(image2);
-    image2.onerror = reject;
-    image2.src = src;
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
   });
 }
 async function renderWatermarkedBlob(src, settings) {
-  const image2 = await loadImage(src);
+  const image = await loadImage(src);
   const canvas = document.createElement("canvas");
-  canvas.width = image2.naturalWidth || image2.width;
-  canvas.height = image2.naturalHeight || image2.height;
+  canvas.width = image.naturalWidth || image.width;
+  canvas.height = image.naturalHeight || image.height;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("watermark-utils: 2d context unavailable");
   context.imageSmoothingEnabled = true;
   context.imageSmoothingQuality = "high";
-  context.drawImage(image2, 0, 0, canvas.width, canvas.height);
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
   drawWatermark(context, canvas.width, canvas.height, settings);
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
@@ -85,7 +85,7 @@ const FONT_OPTIONS = [
   },
 ];
 const FONT_ITEMS = Object.fromEntries(
-  FONT_OPTIONS.map((option2) => [option2.value, option2.label]),
+  FONT_OPTIONS.map((option) => [option.value, option.label]),
 );
 const WEIGHT_OPTIONS = [
   {
@@ -106,14 +106,14 @@ const WEIGHT_OPTIONS = [
   },
 ];
 const WEIGHT_ITEMS = Object.fromEntries(
-  WEIGHT_OPTIONS.map((option2) => [String(option2.value), option2.label]),
+  WEIGHT_OPTIONS.map((option) => [String(option.value), option.label]),
 );
 const FONT_SIZE_OPTIONS = [
   10, 12, 14, 16, 18, 20, 24, 32, 36, 48, 64, 72, 96, 120,
 ];
 const POSITIONS = ["tl", "tc", "tr", "ml", "mc", "mr", "bl", "bc", "br"];
 function ColorOpacityControl({
-  color: color2,
+  color,
   opacity,
   colorLabel,
   opacityLabel,
@@ -121,11 +121,11 @@ function ColorOpacityControl({
   onOpacityChange,
 }) {
   const [hexDraft, setHexDraft] = reactExports.useState(
-    color2.replace(/^#/, "").toUpperCase(),
+    color.replace(/^#/, "").toUpperCase(),
   );
   reactExports.useEffect(() => {
-    setHexDraft(color2.replace(/^#/, "").toUpperCase());
-  }, [color2]);
+    setHexDraft(color.replace(/^#/, "").toUpperCase());
+  }, [color]);
   const commitHex = reactExports.useCallback(() => {
     const compact = hexDraft.trim().replace(/^#/, "");
     const expanded =
@@ -140,8 +140,8 @@ function ColorOpacityControl({
       setHexDraft(expanded.toUpperCase());
       return;
     }
-    setHexDraft(color2.replace(/^#/, "").toUpperCase());
-  }, [color2, hexDraft, onColorChange]);
+    setHexDraft(color.replace(/^#/, "").toUpperCase());
+  }, [color, hexDraft, onColorChange]);
   return (
     <div className="flex h-8 overflow-hidden rounded-md border border-input bg-transparent transition-colors focus-within:border-ring focus-within:ring-1 focus-within:ring-ring/50">
       <label className="relative my-auto ml-2 size-5 shrink-0 overflow-hidden rounded border border-input">
@@ -149,12 +149,12 @@ function ColorOpacityControl({
         <span
           className="absolute inset-0"
           style={{
-            backgroundColor: color2,
+            backgroundColor: color,
           }}
         />
         <input
           type="color"
-          value={color2}
+          value={color}
           onChange={(event) => onColorChange(event.currentTarget.value)}
           className="absolute -inset-2 size-10 cursor-pointer opacity-0"
           data-action-ui-id="canvas.watermark.color"
@@ -205,9 +205,9 @@ function ColorOpacityControl({
 function FontSizeSelect({ value, label, onChange }) {
   const options = FONT_SIZE_OPTIONS.includes(value)
     ? FONT_SIZE_OPTIONS
-    : [...FONT_SIZE_OPTIONS, value].sort((a2, b3) => a2 - b3);
+    : [...FONT_SIZE_OPTIONS, value].sort((fontSizeA, fontSizeB) => fontSizeA - fontSizeB);
   const items = Object.fromEntries(
-    options.map((size2) => [String(size2), `${size2}px`]),
+    options.map((size) => [String(size), `${size}px`]),
   );
   return (
     <Select
@@ -228,9 +228,9 @@ function FontSizeSelect({ value, label, onChange }) {
             "color-mix(in srgb, var(--canvas-controls-bg) 97%, var(--canvas-controls-text) 3%)",
         }}
       >
-        {options.map((size2) => (
-          <SelectItem key={size2} value={String(size2)}>
-            {size2}px
+        {options.map((size) => (
+          <SelectItem key={size} value={String(size)}>
+            {size}px
           </SelectItem>
         ))}
       </SelectContent>
@@ -241,25 +241,25 @@ function ControlSection({
   label,
   className,
   headerAction,
-  children: children2,
+  children,
 }) {
   return (
-    <section className={cn("space-y-2.5", className)}>
+    <section className={mergeClassNames("space-y-2.5", className)}>
       <div className="flex items-center justify-between gap-3">
         <h4 className="text-hl_text_02 text-[13px] font-medium leading-5">
           {label}
         </h4>
         {headerAction}
       </div>
-      <div className="space-y-2.5">{children2}</div>
+      <div className="space-y-2.5">{children}</div>
     </section>
   );
 }
 function SliderControl({
   label,
   value,
-  min: min2,
-  max: max2,
+  min,
+  max,
   suffix = "",
   showValue = true,
   onChange,
@@ -268,8 +268,8 @@ function SliderControl({
     <ToolSlider
       label={label}
       value={value}
-      min={min2}
-      max={max2}
+      min={min}
+      max={max}
       step={1}
       formatValue={(nextValue) => `${nextValue}${suffix}`}
       showValue={showValue}
@@ -291,33 +291,33 @@ function SliderControl({
 function SegmentedControl({
   className,
   label,
-  values: values3,
+  values,
   value,
-  format: format2,
+  format,
   onChange,
 }) {
   return (
-    <div className={cn("flex items-center justify-between gap-3", className)}>
+    <div className={mergeClassNames("flex items-center justify-between gap-3", className)}>
       {label && (
         <span className="text-hl_text_02 text-[13px] font-medium leading-5">
           {label}
         </span>
       )}
       <div className="flex w-[148px] shrink-0 rounded-full bg-foreground/[0.06] p-0.5">
-        {values3.map((item) => {
-          const active2 = item === value;
+        {values.map((item) => {
+          const active = item === value;
           return (
             <button
               key={String(item)}
               type="button"
               onClick={() => onChange(item)}
-              aria-pressed={active2}
-              className={cn(
+              aria-pressed={active}
+              className={mergeClassNames(
                 "relative flex h-7 flex-1 items-center justify-center rounded-full px-2 text-[11px] text-muted-foreground transition-colors hover:text-[var(--canvas-controls-text)]",
-                active2 && "bg-background text-foreground shadow-sm",
+                active && "bg-background text-foreground shadow-sm",
               )}
             >
-              {format2(item)}
+              {format(item)}
             </button>
           );
         })}
@@ -333,7 +333,7 @@ export function WatermarkPopover({
   onClose,
   onConfirm,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const nodeId = useNodeId() ?? "";
   const [saving, setSaving] = reactExports.useState(false);
   const [panelScrolling, setPanelScrolling] = reactExports.useState(false);
@@ -341,16 +341,16 @@ export function WatermarkPopover({
   const shadowWasEnabledRef = reactExports.useRef(settings.shadow);
   const scrollIdleTimerRef = reactExports.useRef(null);
   const selectedSelector = reactExports.useCallback(
-    (state2) => (nodeId ? !!state2.nodeLookup.get(nodeId)?.selected : true),
+    (state) => (nodeId ? !!state.nodeLookup.get(nodeId)?.selected : true),
     [nodeId],
   );
-  const selected2 = useStore(selectedSelector);
+  const selected = useStore(selectedSelector);
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
   reactExports.useEffect(() => {
-    if (!selected2) onClose();
-  }, [onClose, selected2]);
+    if (!selected) onClose();
+  }, [onClose, selected]);
   reactExports.useEffect(
     () => () => {
       if (scrollIdleTimerRef.current) clearTimeout(scrollIdleTimerRef.current);
@@ -361,14 +361,14 @@ export function WatermarkPopover({
     const wasEnabled = shadowWasEnabledRef.current;
     shadowWasEnabledRef.current = settings.shadow;
     if (!settings.shadow || wasEnabled) return;
-    const frame2 = requestAnimationFrame(() => {
+    const frame = requestAnimationFrame(() => {
       const scrollArea = scrollAreaRef.current;
       scrollArea?.scrollTo({
         top: scrollArea.scrollHeight,
         behavior: "smooth",
       });
     });
-    return () => cancelAnimationFrame(frame2);
+    return () => cancelAnimationFrame(frame);
   }, [settings.shadow]);
   const handlePanelScroll = reactExports.useCallback(() => {
     setPanelScrolling(true);
@@ -379,10 +379,10 @@ export function WatermarkPopover({
     );
   }, []);
   const setSetting = reactExports.useCallback(
-    (key2, value) => {
+    (key, value) => {
       onSettingsChange({
         ...settings,
-        [key2]: value,
+        [key]: value,
       });
     },
     [onSettingsChange, settings],
@@ -396,11 +396,11 @@ export function WatermarkPopover({
       onClose();
     } catch {
       dedupedToast.error(
-        t2("canvas.watermark.saveError", "Failed to add watermark"),
+        t("canvas.watermark.saveError", "Failed to add watermark"),
       );
       setSaving(false);
     }
-  }, [onClose, onConfirm, renderOutput, saving, settings, sourceUrl, t2]);
+  }, [onClose, onConfirm, renderOutput, saving, settings, sourceUrl, t]);
   const hidden = isDragging || isMultiSelect || isBoxSelecting;
   const availableHeight = window.innerHeight - VIEWPORT_MARGIN * 2;
   const panelHeight = Math.max(
@@ -434,14 +434,14 @@ export function WatermarkPopover({
       >
         <header className="flex h-11 shrink-0 items-center gap-2 border-b border-[var(--canvas-controls-border)] px-3">
           <h3 className="text-hl_text_00 text-sm font-semibold leading-5">
-            {t2("canvas.watermark.title", "Watermark")}
+            {t("canvas.watermark.title", "Watermark")}
           </h3>
           <button
             type="button"
             onClick={onClose}
             disabled={saving}
             className="ml-auto flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] disabled:opacity-50"
-            aria-label={t2("common.close", "Close")}
+            aria-label={t("common.close", "Close")}
             data-action-ui-id="canvas.watermark.close"
           >
             <X size={18} strokeWidth={1.5} aria-hidden="true" />
@@ -455,13 +455,13 @@ export function WatermarkPopover({
           onScroll={handlePanelScroll}
           onWheel={(event) => event.stopPropagation()}
         >
-          <ControlSection label={t2("canvas.watermark.text", "Watermark text")}>
+          <ControlSection label={t("canvas.watermark.text", "Watermark text")}>
             <textarea
               value={settings.text}
               onChange={(event) =>
                 setSetting("text", event.currentTarget.value)
               }
-              placeholder={t2(
+              placeholder={t(
                 "canvas.watermark.placeholder",
                 "Enter watermark text",
               )}
@@ -470,7 +470,7 @@ export function WatermarkPopover({
               data-action-ui-id="canvas.watermark.text-input"
             />
           </ControlSection>
-          <ControlSection label={t2("canvas.watermark.style", "Style")}>
+          <ControlSection label={t("canvas.watermark.style", "Style")}>
             <Select
               value={settings.fontFamily}
               items={FONT_ITEMS}
@@ -488,9 +488,9 @@ export function WatermarkPopover({
                     "color-mix(in srgb, var(--canvas-controls-bg) 97%, var(--canvas-controls-text) 3%)",
                 }}
               >
-                {FONT_OPTIONS.map((option2) => (
-                  <SelectItem key={option2.value} value={option2.value}>
-                    {option2.label}
+                {FONT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -504,7 +504,7 @@ export function WatermarkPopover({
                 }
               >
                 <SelectTrigger
-                  aria-label={t2("canvas.watermark.weight", "Weight")}
+                  aria-label={t("canvas.watermark.weight", "Weight")}
                   data-action-ui-id="canvas.watermark.weight-select"
                 >
                   <SelectValue />
@@ -516,32 +516,32 @@ export function WatermarkPopover({
                       "color-mix(in srgb, var(--canvas-controls-bg) 97%, var(--canvas-controls-text) 3%)",
                   }}
                 >
-                  {WEIGHT_OPTIONS.map((option2) => (
+                  {WEIGHT_OPTIONS.map((option) => (
                     <SelectItem
-                      key={option2.value}
-                      value={String(option2.value)}
+                      key={option.value}
+                      value={String(option.value)}
                     >
-                      {option2.label}
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <FontSizeSelect
                 value={settings.fontSize}
-                label={t2("canvas.watermark.size", "Size")}
+                label={t("canvas.watermark.size", "Size")}
                 onChange={(value) => setSetting("fontSize", value)}
               />
             </div>
             <ColorOpacityControl
               color={settings.color}
               opacity={settings.opacity}
-              colorLabel={t2("canvas.watermark.color", "Color")}
-              opacityLabel={t2("canvas.watermark.opacity", "Opacity")}
+              colorLabel={t("canvas.watermark.color", "Color")}
+              opacityLabel={t("canvas.watermark.opacity", "Opacity")}
               onColorChange={(value) => setSetting("color", value)}
               onOpacityChange={(value) => setSetting("opacity", value)}
             />
             <SliderControl
-              label={t2("canvas.watermark.rotation", "Rotation")}
+              label={t("canvas.watermark.rotation", "Rotation")}
               value={settings.rotation}
               min={-180}
               max={180}
@@ -550,7 +550,7 @@ export function WatermarkPopover({
             />
           </ControlSection>
           <ControlSection
-            label={t2("canvas.watermark.layout", "Layout")}
+            label={t("canvas.watermark.layout", "Layout")}
             className="pt-2"
             headerAction={
               <SegmentedControl
@@ -558,8 +558,8 @@ export function WatermarkPopover({
                 value={settings.mode}
                 format={(value) =>
                   value === "single"
-                    ? t2("canvas.watermark.single", "Single")
-                    : t2("canvas.watermark.tile", "Tile")
+                    ? t("canvas.watermark.single", "Single")
+                    : t("canvas.watermark.tile", "Tile")
                 }
                 onChange={(value) => setSetting("mode", value)}
               />
@@ -569,18 +569,18 @@ export function WatermarkPopover({
               <>
                 <fieldset
                   className="grid grid-cols-3 gap-1"
-                  aria-label={t2("canvas.watermark.position", "Position")}
+                  aria-label={t("canvas.watermark.position", "Position")}
                 >
-                  {POSITIONS.map((position2) => (
+                  {POSITIONS.map((position) => (
                     <button
-                      key={position2}
+                      key={position}
                       type="button"
-                      onClick={() => setSetting("position", position2)}
-                      aria-label={`${t2("canvas.watermark.position", "Position")} ${position2}`}
-                      aria-pressed={settings.position === position2}
-                      className={cn(
+                      onClick={() => setSetting("position", position)}
+                      aria-label={`${t("canvas.watermark.position", "Position")} ${position}`}
+                      aria-pressed={settings.position === position}
+                      className={mergeClassNames(
                         "flex h-7 items-center justify-center rounded-md border border-input transition-colors hover:bg-[var(--canvas-controls-hover)]",
-                        settings.position === position2 &&
+                        settings.position === position &&
                           "bg-foreground text-background",
                       )}
                     >
@@ -589,7 +589,7 @@ export function WatermarkPopover({
                   ))}
                 </fieldset>
                 <SliderControl
-                  label={t2("canvas.watermark.padding", "Padding")}
+                  label={t("canvas.watermark.padding", "Padding")}
                   value={settings.padding}
                   min={0}
                   max={200}
@@ -599,7 +599,7 @@ export function WatermarkPopover({
               </>
             ) : (
               <SliderControl
-                label={t2("canvas.watermark.spacing", "Spacing")}
+                label={t("canvas.watermark.spacing", "Spacing")}
                 value={settings.spacing}
                 min={40}
                 max={400}
@@ -610,20 +610,20 @@ export function WatermarkPopover({
             )}
             <SegmentedControl
               className="pt-2"
-              label={t2("canvas.watermark.shadow", "Shadow")}
+              label={t("canvas.watermark.shadow", "Shadow")}
               values={[false, true]}
               value={settings.shadow}
               format={(value) =>
                 value
-                  ? t2("canvas.watermark.on", "On")
-                  : t2("canvas.watermark.off", "Off")
+                  ? t("canvas.watermark.on", "On")
+                  : t("canvas.watermark.off", "Off")
               }
               onChange={(value) => setSetting("shadow", value)}
             />
             {settings.shadow && (
               <div className="animate-in fade-in-0 slide-in-from-top-1 duration-200">
                 <SliderControl
-                  label={t2("canvas.watermark.shadowBlur", "Shadow blur")}
+                  label={t("canvas.watermark.shadowBlur", "Shadow blur")}
                   value={settings.shadowBlur}
                   min={0}
                   max={20}
@@ -641,7 +641,7 @@ export function WatermarkPopover({
             onClick={onClose}
             disabled={saving}
           >
-            {t2("common.cancel", "Cancel")}
+            {t("common.cancel", "Cancel")}
           </Button>
           <Button
             size="sm"
@@ -651,8 +651,8 @@ export function WatermarkPopover({
             data-action-ui-id="canvas.watermark.apply"
           >
             {saving
-              ? t2("canvas.watermark.processing", "Processing…")
-              : t2("canvas.watermark.apply", "Apply")}
+              ? t("canvas.watermark.processing", "Processing…")
+              : t("canvas.watermark.apply", "Apply")}
           </Button>
         </footer>
       </div>

@@ -1,0 +1,14 @@
+key	new	依据
+type2@10:23	type	当前绘制工具操作的形状类型字符串。
+data2@17:11	data	待创建或更新的工作形状数据对象。
+style2@44:24	style	编辑器为新建形状提供的样式配置。
+start2@92:22	start	绘制手势起始的画布坐标点。
+current2@92:30	current	当前绘制手势指针所在的画布坐标点。
+data2@93:11	data	待创建或更新的工作形状数据对象。
+uid@3:16	createUniqueId	结合计数器和时间戳生成新形状标识的函数。
+e2@14:17	pointerEvent	当前绘制工具收到的指针事件和画布坐标。
+e2@21:17	pointerEvent	当前绘制工具收到的指针事件和画布坐标。
+e2@26:15	pointerEvent	当前绘制工具收到的指针事件和画布坐标。
+b3@29:11	shapeBounds	工作形状更新后计算得到的边界矩形。
+p3@44:20	initialPoint	新形状生成时作为起点的画布坐标。
+id2@45:11	shapeId	写入新绘图形状数据的唯一标识。

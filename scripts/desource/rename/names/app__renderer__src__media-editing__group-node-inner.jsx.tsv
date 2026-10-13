@@ -1,0 +1,13 @@
+key	new	依据
+key2@26:30	key	用于查找分组颜色配置的预设键。
+selected2@77:13	selected	当前组节点是否被画布选中的布尔属性。
+data2@78:9	data	当前画布组节点承载的数据对象。
+zoom2@85:9	zoom	画布视口的当前缩放比例。
+next2@100:6	next	内联重命名提交的新组标签字符串。
+s2@53:23	storeState	React Flow 状态仓库提供的当前视口状态。
+e2@74:25	mouseEvent	需要阻止冒泡的鼠标事件参数。
+id2@76:7	nodeId	当前分组画布节点标识。
+t2@81:14	t	根据当前语言返回分组界面文案的翻译函数。
+e2@112:6	clickEvent	点击分组折叠控件时收到的鼠标事件。
+e2@119:6	doubleClickEvent	双击分组标签以开始重命名时收到的事件。
+e2@126:6	changeEvent	分组重命名输入框的值变更事件。

@@ -1,0 +1,20 @@
+key	new	依据
+DialogDescription$2@5:3	DialogDescriptionPrimitive	vendor 导出的底层对话框说明元素，由本地 DialogDescription 包装组件渲染。
+DialogPortal$2@7:3	DialogPortalPrimitive	vendor 导出的底层对话框 portal，由本地 DialogPortal 包装组件渲染。
+DialogTitle$2@8:3	DialogTitlePrimitive	vendor 导出的底层对话框标题元素，由本地 DialogTitle 包装组件渲染。
+state2@19:45	state	文本预览的加载状态及就绪时取得的文本。
+path2@71:32	path	待读取文本内容的文件路径。
+loader2@71:39	loader	根据文件路径和 AbortSignal 异步读取文本的函数。
+active2@71:48	active	控制文本预览读取和展示是否启用的布尔值。
+text2@86:14	text	文本读取函数成功返回的完整文本内容。
+children2@140:13	children	对话框内容或页脚组件接收的子元素。
+children2@186:53	children	对话框内容或页脚组件接收的子元素。
+path2@221:9	path	待读取文本内容的文件路径。
+name2@222:9	previewName	文本或文件在预览对话框标题中显示的名称。
+active2@224:11	active	控制文本预览读取和展示是否启用的布尔值。
+loader2@229:9	loader	根据文件路径和 AbortSignal 异步读取文本的函数。
+state2@231:9	state	文本预览的加载状态及就绪时取得的文本。
+t2@20:14	t	根据当前语言返回预览界面文案的翻译函数。
+t2@145:14	t	根据当前语言返回预览界面文案的翻译函数。
+t2@226:14	t	根据当前语言返回预览界面文案的翻译函数。
+cn@15:10	mergeClassNames	合并 clsx 输入并用 Tailwind Merge 消除冲突类名的函数。

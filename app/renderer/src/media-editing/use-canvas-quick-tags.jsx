@@ -38,27 +38,27 @@ function isEditableTarget(target) {
   );
 }
 function hasForegroundKeyboardSurface(target) {
-  const selector2 =
+  const selector =
     '[role="dialog"]:not([aria-hidden="true"]), [role="menu"]:not([aria-hidden="true"]), [role="listbox"]:not([aria-hidden="true"])';
-  if (target instanceof Element && target.closest(selector2)) return true;
-  return document.querySelector(selector2) !== null;
+  if (target instanceof Element && target.closest(selector)) return true;
+  return document.querySelector(selector) !== null;
 }
 function releaseTagFilterToolbarFocus() {
-  const activeElement2 = document.activeElement;
+  const activeElement = document.activeElement;
   if (
-    activeElement2 instanceof HTMLElement &&
-    activeElement2.closest('[data-action-ui-id="canvas.tag-filter-toolbar"]')
+    activeElement instanceof HTMLElement &&
+    activeElement.closest('[data-action-ui-id="canvas.tag-filter-toolbar"]')
   ) {
-    activeElement2.blur();
+    activeElement.blur();
   }
 }
 function useCanvasTagFilter({
   canvasViewRef,
   isPresented,
   workspaceAssets,
-  workspaceId: workspaceId2,
+  workspaceId,
 }) {
-  const canvasNodeIdsByAsset = useCanvasAssetNodeIds(workspaceId2);
+  const canvasNodeIdsByAsset = useCanvasAssetNodeIds(workspaceId);
   const [activeTagId, setActiveTagIdState] = reactExports.useState();
   const [focusedNodeId, setFocusedNodeId] = reactExports.useState(null);
   const getMatchedNodeIds = reactExports.useCallback(
@@ -185,12 +185,12 @@ function useCanvasTagFilter({
     matchedNodeIds,
     presented,
   ]);
-  const previousWorkspaceIdRef = reactExports.useRef(workspaceId2);
+  const previousWorkspaceIdRef = reactExports.useRef(workspaceId);
   reactExports.useEffect(() => {
-    if (previousWorkspaceIdRef.current === workspaceId2) return;
-    previousWorkspaceIdRef.current = workspaceId2;
+    if (previousWorkspaceIdRef.current === workspaceId) return;
+    previousWorkspaceIdRef.current = workspaceId;
     cancelPendingFocus();
-  }, [cancelPendingFocus, workspaceId2]);
+  }, [cancelPendingFocus, workspaceId]);
   reactExports.useEffect(() => cancelPendingFocus, [cancelPendingFocus]);
   const returnToOverview = reactExports.useCallback(() => {
     cancelPendingFocus();
@@ -320,24 +320,24 @@ class CanvasTagDownloadActivityError extends Error {
 const ACTIVITY_REQUEST_TIMEOUT_MS = 5e3;
 const RELEASE_RECOVERY_BASE_MS = 1e3;
 const RELEASE_RECOVERY_MAX_MS = 3e4;
-async function postActivity(gatewayFetch2, path2, body2, options = {}) {
-  return gatewayFetch2(path2, {
+async function postActivity(gatewayFetch, path, body, options = {}) {
+  return gatewayFetch(path, {
     method: "POST",
     headers: {
       "content-type": "application/json",
     },
-    body: JSON.stringify(body2),
+    body: JSON.stringify(body),
     timeoutMs: ACTIVITY_REQUEST_TIMEOUT_MS,
     ...options,
   });
 }
-function mapHeartbeatResponse(raw2) {
-  if (!raw2 || typeof raw2 !== "object") {
+function mapHeartbeatResponse(responseBody) {
+  if (!responseBody || typeof responseBody !== "object") {
     throw new Error(
       "Workspace export activity heartbeat returned a malformed response",
     );
   }
-  const renewed = Reflect.get(raw2, "renewed");
+  const renewed = Reflect.get(responseBody, "renewed");
   if (typeof renewed !== "boolean") {
     throw new Error(
       "Workspace export activity heartbeat response is missing renewed",
@@ -347,17 +347,17 @@ function mapHeartbeatResponse(raw2) {
     renewed,
   };
 }
-async function renewActivity(gatewayFetch2, beginRequest, leaseRequest) {
+async function renewActivity(gatewayFetch, beginRequest, leaseRequest) {
   const response = await postActivity(
-    gatewayFetch2,
+    gatewayFetch,
     API_PATHS.projectArchiveActivityHeartbeat,
     leaseRequest,
   );
-  const raw2 = await response.json();
-  const heartbeat = mapHeartbeatResponse(raw2);
+  const responseBody = await response.json();
+  const heartbeat = mapHeartbeatResponse(responseBody);
   if (heartbeat.renewed) return;
   await postActivity(
-    gatewayFetch2,
+    gatewayFetch,
     API_PATHS.projectArchiveActivityBegin,
     beginRequest,
   );
@@ -368,24 +368,24 @@ function logActivityWarning(phase, error) {
     "canvas-tag-download",
   );
 }
-function scheduleReleaseRecovery(gatewayFetch2, leaseRequest, attempt = 0) {
+function scheduleReleaseRecovery(gatewayFetch, leaseRequest, attempt = 0) {
   const delayMs = Math.min(
     RELEASE_RECOVERY_BASE_MS * 2 ** attempt,
     RELEASE_RECOVERY_MAX_MS,
   );
   setTimeout(() => {
     void postActivity(
-      gatewayFetch2,
+      gatewayFetch,
       API_PATHS.projectArchiveActivityEnd,
       leaseRequest,
     ).catch((error) => {
       logActivityWarning("release recovery", error);
-      scheduleReleaseRecovery(gatewayFetch2, leaseRequest, attempt + 1);
+      scheduleReleaseRecovery(gatewayFetch, leaseRequest, attempt + 1);
     });
   }, delayMs);
 }
 async function withCanvasTagDownloadActivity({
-  gatewayFetch: gatewayFetch2,
+  gatewayFetch,
   ownerPid,
   task,
   workspaceDir,
@@ -405,7 +405,7 @@ async function withCanvasTagDownloadActivity({
   let heartbeatInFlight;
   const handlePageHide = () => {
     void postActivity(
-      gatewayFetch2,
+      gatewayFetch,
       API_PATHS.projectArchiveActivityEnd,
       leaseRequest,
       {
@@ -416,7 +416,7 @@ async function withCanvasTagDownloadActivity({
   try {
     try {
       await postActivity(
-        gatewayFetch2,
+        gatewayFetch,
         API_PATHS.projectArchiveActivityBegin,
         beginRequest,
       );
@@ -431,7 +431,7 @@ async function withCanvasTagDownloadActivity({
     heartbeatTimer = setInterval(() => {
       if (heartbeatInFlight) return;
       heartbeatInFlight = renewActivity(
-        gatewayFetch2,
+        gatewayFetch,
         beginRequest,
         leaseRequest,
       )
@@ -447,26 +447,26 @@ async function withCanvasTagDownloadActivity({
     await heartbeatInFlight;
     try {
       await postActivity(
-        gatewayFetch2,
+        gatewayFetch,
         API_PATHS.projectArchiveActivityEnd,
         leaseRequest,
       );
     } catch (error) {
       logActivityWarning("release", error);
-      scheduleReleaseRecovery(gatewayFetch2, leaseRequest);
+      scheduleReleaseRecovery(gatewayFetch, leaseRequest);
     }
   }
 }
 function useCanvasTagDownload({
   workspaceAssets,
-  workspaceId: workspaceId2,
+  workspaceId,
   workspaceRoot,
 }) {
-  const { t: t2 } = useTranslation();
-  const registry2 = useTagRegistry();
+  const { t } = useTranslation();
+  const registry = useTagRegistry();
   const resolveTagName = useCanvasTagName();
-  const canvasNodeIdsByAsset = useCanvasAssetNodeIds(workspaceId2);
-  const gatewayFetch2 = useGatewayFetch();
+  const canvasNodeIdsByAsset = useCanvasAssetNodeIds(workspaceId);
+  const gatewayFetch = useGatewayFetch();
   const { saveManyAs } = useMediaActions();
   const rendererPid = getRuntimeConfig().rendererPid;
   const [downloadingTagId, setDownloadingTagId] = reactExports.useState();
@@ -477,11 +477,11 @@ function useCanvasTagDownload({
   const pendingRetryRef = reactExports.useRef(void 0);
   const mountedRef = reactExports.useRef(true);
   const workspaceIdentityRef = reactExports.useRef({
-    workspaceId: workspaceId2,
+    workspaceId,
     workspaceRoot,
   });
   workspaceIdentityRef.current = {
-    workspaceId: workspaceId2,
+    workspaceId,
     workspaceRoot,
   };
   const canvasAssetIds = reactExports.useMemo(
@@ -494,14 +494,14 @@ function useCanvasTagDownload({
         ? {
             assets: workspaceAssets,
             canvasAssetIds,
-            tags: registry2.tags,
+            tags: registry.tags,
             workspaceRoot,
             resolveTagName,
           }
         : void 0,
     [
       canvasAssetIds,
-      registry2.tags,
+      registry.tags,
       resolveTagName,
       workspaceAssets,
       workspaceRoot,
@@ -516,7 +516,7 @@ function useCanvasTagDownload({
   const runDownload = reactExports.useCallback(
     async ({ files, rootFolderName, tagId }) => {
       if (activeDownloadControllerRef.current || !workspaceRoot) return;
-      const sourceWorkspaceId = workspaceId2;
+      const sourceWorkspaceId = workspaceId;
       const sourceWorkspaceRoot = workspaceRoot;
       const controller = new AbortController();
       activeDownloadControllerRef.current = controller;
@@ -530,13 +530,13 @@ function useCanvasTagDownload({
       });
       try {
         await withCanvasTagDownloadActivity({
-          gatewayFetch: gatewayFetch2,
+          gatewayFetch,
           ownerPid: rendererPid,
           workspaceDir: workspaceRoot,
           task: () =>
             saveManyAs(files, {
               rootFolderName,
-              dialogTitle: t2("canvasTags.selectDownloadFolder"),
+              dialogTitle: t("canvasTags.selectDownloadFolder"),
               signal: controller.signal,
               onRetry: (failedFiles) => {
                 const currentWorkspace = workspaceIdentityRef.current;
@@ -574,7 +574,7 @@ function useCanvasTagDownload({
         });
       } catch (error) {
         dedupedToast.error(
-          t2(
+          t(
             error instanceof CanvasTagDownloadActivityError
               ? "projectArchive.export.failure.activityUnavailable"
               : "common.saveFailed",
@@ -602,7 +602,7 @@ function useCanvasTagDownload({
         }
       }
     },
-    [gatewayFetch2, rendererPid, saveManyAs, t2, workspaceId2, workspaceRoot],
+    [gatewayFetch, rendererPid, saveManyAs, t, workspaceId, workspaceRoot],
   );
   runDownloadRef.current = runDownload;
   const downloadTag = reactExports.useCallback(
@@ -624,9 +624,9 @@ function useCanvasTagDownload({
     if (plan.files.length === 0) return;
     await runDownload({
       files: plan.files,
-      rootFolderName: t2("canvasTags.downloadAllFolderName"),
+      rootFolderName: t("canvasTags.downloadAllFolderName"),
     });
-  }, [planOptions, runDownload, t2]);
+  }, [planOptions, runDownload, t]);
   const cancelDownload = reactExports.useCallback(() => {
     activeDownloadControllerRef.current?.abort();
   }, []);
@@ -645,14 +645,14 @@ const TAG_TRIGGER_SELECTOR =
 export function useCanvasQuickTags({
   canvasViewRef,
   closeNodeContextMenu,
-  isActive: isActive2,
+  isActive,
   isPresented,
   toolbarPlacement,
   workspaceAssets,
-  workspaceId: workspaceId2,
+  workspaceId,
   workspaceRoot,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const assetMetadataStore = useAssetMetadataApi();
   const { registry: tagRegistry, toggleTagForAssets } = useCanvasTags();
   const [picker, setPicker] = reactExports.useState(null);
@@ -661,13 +661,13 @@ export function useCanvasQuickTags({
   const tagTriggerPointerDownRef = reactExports.useRef(false);
   const tagFilter = useCanvasTagFilter({
     canvasViewRef,
-    isPresented: isPresented ?? isActive2,
+    isPresented: isPresented ?? isActive,
     workspaceAssets,
-    workspaceId: workspaceId2,
+    workspaceId,
   });
   const tagDownload = useCanvasTagDownload({
     workspaceAssets,
-    workspaceId: workspaceId2,
+    workspaceId,
     workspaceRoot,
   });
   const { activeTagId, setActiveTagId } = tagFilter;
@@ -681,11 +681,11 @@ export function useCanvasQuickTags({
           color: tag.color,
           name:
             tag.name ||
-            t2(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") ||
+            t(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") ||
             tag.id,
           active: tag.id === activeTagId,
         })),
-    [activeTagId, tagRegistry, t2],
+    [activeTagId, tagRegistry, t],
   );
   const handleNodeTagRequest = reactExports.useCallback(
     (nodeId, anchor) => {
@@ -695,15 +695,15 @@ export function useCanvasQuickTags({
       )?.path;
       if (
         !assetPath ||
-        !workspaceAssets.some((asset2) => asset2.path === assetPath)
+        !workspaceAssets.some((asset) => asset.path === assetPath)
       )
         return;
       closeNodeContextMenu();
       const stableAnchor = anchor.closest(".react-flow__node") ?? anchor;
       tagRenameEditingRef.current = false;
       preservePickerAfterRenameBlurRef.current = false;
-      setPicker((current2) => {
-        if (current2?.nodeId !== nodeId) {
+      setPicker((current) => {
+        if (current?.nodeId !== nodeId) {
           return {
             nodeId,
             assetPath,
@@ -713,9 +713,9 @@ export function useCanvasQuickTags({
           };
         }
         return {
-          ...current2,
+          ...current,
           trigger: anchor,
-          open: !current2.open,
+          open: !current.open,
         };
       });
     },
@@ -727,44 +727,44 @@ export function useCanvasQuickTags({
         assetMetadataStore,
         nodeId,
       );
-      const asset2 = assetMeta?.path
+      const asset = assetMeta?.path
         ? workspaceAssets.find(
             (workspaceAsset) => workspaceAsset.path === assetMeta.path,
           )
         : void 0;
-      const currentTagIds = assetMeta?.tagIds ?? asset2?.tagIds ?? [];
-      if (!asset2 || !currentTagIds.includes(tagId)) return;
-      setPicker((current2) =>
-        current2?.nodeId === nodeId
+      const currentTagIds = assetMeta?.tagIds ?? asset?.tagIds ?? [];
+      if (!asset || !currentTagIds.includes(tagId)) return;
+      setPicker((current) =>
+        current?.nodeId === nodeId
           ? {
-              ...current2,
+              ...current,
               open: false,
             }
-          : current2,
+          : current,
       );
       try {
         await toggleTagForAssets(tagId, [
           {
-            ...asset2,
+            ...asset,
             tagIds: currentTagIds,
           },
         ]);
       } catch {
-        dedupedToast.error(t2("canvasTags.saveFailed"));
+        dedupedToast.error(t("canvasTags.saveFailed"));
       }
     },
-    [assetMetadataStore, t2, toggleTagForAssets, workspaceAssets],
+    [assetMetadataStore, t, toggleTagForAssets, workspaceAssets],
   );
   const handleQuickTagSelectionChange = reactExports.useCallback((nodeIds) => {
     if (tagRenameEditingRef.current || preservePickerAfterRenameBlurRef.current)
       return;
-    setPicker((current2) =>
-      current2 && !nodeIds.includes(current2.nodeId)
+    setPicker((current) =>
+      current && !nodeIds.includes(current.nodeId)
         ? {
-            ...current2,
+            ...current,
             open: false,
           }
-        : current2,
+        : current,
     );
   }, []);
   const handleTagRenameEditingChange = reactExports.useCallback((editing) => {
@@ -774,8 +774,8 @@ export function useCanvasQuickTags({
     preservePickerAfterRenameBlurRef.current = true;
   }, []);
   reactExports.useEffect(() => {
-    if (isActive2 === false) setPicker(null);
-  }, [isActive2]);
+    if (isActive === false) setPicker(null);
+  }, [isActive]);
   reactExports.useEffect(() => {
     if (!picker) {
       tagRenameEditingRef.current = false;
@@ -843,13 +843,13 @@ export function useCanvasQuickTags({
           eventDetails.reason === "escape-key"
         ) {
           preservePickerAfterRenameBlurRef.current = false;
-          setPicker((current2) =>
-            current2
+          setPicker((current) =>
+            current
               ? {
-                  ...current2,
+                  ...current,
                   open: false,
                 }
-              : current2,
+              : current,
           );
           return;
         }
@@ -860,21 +860,21 @@ export function useCanvasQuickTags({
           }
           return;
         }
-        setPicker((current2) =>
-          current2
+        setPicker((current) =>
+          current
             ? {
-                ...current2,
+                ...current,
                 open: false,
               }
-            : current2,
+            : current,
         );
       }}
       onOpenChangeComplete={(open) => {
         if (open) return;
-        setPicker((current2) =>
-          current2?.nodeId === picker?.nodeId && !current2?.open
+        setPicker((current) =>
+          current?.nodeId === picker?.nodeId && !current?.open
             ? null
-            : current2,
+            : current,
         );
       }}
     >
@@ -905,7 +905,7 @@ export function useCanvasQuickTags({
   const toolDockLabelControl = (
     <CanvasGlobalTagManager
       placement={toolbarPlacement}
-      workspaceId={workspaceId2}
+      workspaceId={workspaceId}
       workspaceAssets={workspaceAssets}
       activeTagId={activeTagId}
       onActiveTagChange={setActiveTagId}

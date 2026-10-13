@@ -10,57 +10,57 @@ export function selectionsToNormalizedBBoxes(rects) {
 }
 const DEFAULT_OPTIONS = ["1K", "2K", "4K"];
 export const BananaResolutionPicker = reactExports.memo(
-  function BananaResolutionPicker2({
+  function BananaResolutionPicker({
     value,
     onChange,
-    disabled: disabled2,
+    disabled,
     options = DEFAULT_OPTIONS,
   }) {
     const handleSelect = reactExports.useCallback(
-      (option2) => {
-        if (disabled2) return;
-        if (option2 === value) return;
-        onChange(option2);
+      (option) => {
+        if (disabled) return;
+        if (option === value) return;
+        onChange(option);
       },
-      [disabled2, onChange, value],
+      [disabled, onChange, value],
     );
     return (
       <div
         className="flex h-7 items-center gap-0.5 rounded-md p-0.5"
         style={{
-          opacity: disabled2 ? 0.5 : 1,
+          opacity: disabled ? 0.5 : 1,
         }}
-        onPointerDown={(e2) => e2.stopPropagation()}
+        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
       >
-        {options.map((option2) => {
-          const active2 = option2 === value;
+        {options.map((option) => {
+          const active = option === value;
           return (
             <button
-              key={option2}
+              key={option}
               type="button"
-              disabled={disabled2}
-              onClick={() => handleSelect(option2)}
+              disabled={disabled}
+              onClick={() => handleSelect(option)}
               className="h-6 rounded-md px-2.5 text-[13px] transition-colors duration-150"
               style={{
-                background: active2
+                background: active
                   ? "var(--canvas-controls-active, #ffffff26)"
                   : "transparent",
-                color: active2
+                color: active
                   ? "var(--canvas-controls-text, #fff)"
                   : "var(--canvas-controls-text-muted, #ffffff8c)",
-                cursor: disabled2 ? "not-allowed" : "pointer",
+                cursor: disabled ? "not-allowed" : "pointer",
               }}
-              onMouseEnter={(e2) => {
-                if (active2 || disabled2) return;
-                e2.currentTarget.style.background =
+              onMouseEnter={(mouseEnterEvent) => {
+                if (active || disabled) return;
+                mouseEnterEvent.currentTarget.style.background =
                   "var(--canvas-controls-active, #ffffff14)";
               }}
-              onMouseLeave={(e2) => {
-                if (active2 || disabled2) return;
-                e2.currentTarget.style.background = "transparent";
+              onMouseLeave={(mouseLeaveEvent) => {
+                if (active || disabled) return;
+                mouseLeaveEvent.currentTarget.style.background = "transparent";
               }}
             >
-              {option2}
+              {option}
             </button>
           );
         })}
@@ -69,28 +69,28 @@ export const BananaResolutionPicker = reactExports.memo(
   },
 );
 function IconButton({
-  disabled: disabled2,
+  disabled,
   onClick,
   title,
-  children: children2,
+  children,
 }) {
   return (
     <button
       type="button"
-      disabled={disabled2}
+      disabled={disabled}
       onClick={onClick}
       title={title}
       aria-label={title}
       className="canvas-toolbar-action"
     >
-      {children2}
+      {children}
     </button>
   );
 }
 function Divider() {
   return <div className="canvas-toolbar-separator" aria-hidden="true" />;
 }
-export const CanvasEraseTopBar = reactExports.memo(function CanvasEraseTopBar2({
+export const CanvasEraseTopBar = reactExports.memo(function CanvasEraseTopBar({
   tool: _tool,
   onToolChange: _onToolChange,
   brushSize: _brushSize,
@@ -101,32 +101,32 @@ export const CanvasEraseTopBar = reactExports.memo(function CanvasEraseTopBar2({
   onRedo,
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so toolbar events don't reach the canvas pan/zoom handlers
     <div
       className="canvas-toolbar-surface"
-      onPointerDown={(e2) => e2.stopPropagation()}
-      onWheel={(e2) => e2.stopPropagation()}
-      onContextMenu={(e2) => e2.stopPropagation()}
+      onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+      onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+      onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
       data-canvas-toolbar="true"
       data-density="compact"
     >
-      <IconButton disabled={false} onClick={onClose} title={t2("canvas.close")}>
+      <IconButton disabled={false} onClick={onClose} title={t("canvas.close")}>
         <CloseIcon />
       </IconButton>
       <Divider />
       <IconButton
         disabled={!hasStrokes}
         onClick={onUndo}
-        title={t2("canvas.eraseUndo")}
+        title={t("canvas.eraseUndo")}
       >
         <UndoIcon />
       </IconButton>
       <IconButton
         disabled={!canRedo}
         onClick={onRedo}
-        title={t2("canvas.eraseRedo")}
+        title={t("canvas.eraseRedo")}
       >
         <RedoIcon />
       </IconButton>
