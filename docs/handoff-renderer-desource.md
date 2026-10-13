@@ -511,3 +511,70 @@ const header = readMp3FrameHeader(word, null).header;
 | 第二次 | `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T14-32-43-893Z/report.json`、`/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T14-50-55-851Z/report.json` | 40 页；首次比较的 `project-assets` 有一次瞬态 41 项 DOM diff（页面显示“正在重连运行时”），复比较干净，repo gate 将其归类为一次性不稳定并通过。 |
 
 两次 gate 的 `creations`、`global-search`、`ws-video`、`ws-audio` 均为 0 net/DOM/state/non-AA；其余目标页也无新增错误。第二次 gate 的首次 `project-assets` DOM 波动未在复比较重现，不是 text-AA 环境漂移。
+
+## Base UI 闭包：从 `vendor.js` 改为 npm
+
+### 版本、映射与依赖闭包
+
+- 本次依赖为 `@base-ui/react@1.3.0` 和 `@base-ui/utils@0.2.6`；后者是 React 1.3.0 固定依赖的版本。
+- `analysis/baseui-hls/mapping-baseui-top1.json` 共 763 项：713 identical、35 neutral、15 diff。限定到本次 `vendor.js` 的 744 项为 697 exact、35 normalized、12 diff。15 个 diff 中，3 个是同名 app 函数误匹配，12 个是已逐调用点核实的 build-time 优化；不需要行为 patch。
+- 所有原有 Base UI `vendor.js` 导出名均保留并转由 npm 提供。`@base-ui/react` 的 pnpm patch 仅修改 package.json 的 `exports`，增加 `./esm/*` import/default 通配路径，以支持下表中的内部模块 deep path；`@base-ui/utils` 已有通配 exports，无需 patch。`hooks` shim 例外说明见待办章节。
+- 根 `pnpm.overrides` 固定 `@floating-ui/dom@1.7.6` 与 `@floating-ui/utils@0.2.11`。`@floating-ui/react-dom@2.1.9` 声明 dom `^1.8.0`；覆盖为 1.7.6 是为保留原内联代码使用的 Floating UI 配对，而不是升级该实现。解析后 `@floating-ui/core@1.7.5`、dom 1.7.6、utils 0.2.11 各只有一个版本；`@floating-ui/react-dom@2.1.9`、`tabbable@6.4.0`、`reselect@5.2.0`、`use-sync-external-store@1.7.0` 也与原 renderer 基线一致。
+
+### 内部符号 deep-path re-export
+
+下列 11 个应用所需的内部符号从 React 包的精确模块重新导出。公开组件仍通过包 barrel 或公开 subpath 导入。
+
+| 符号 | npm 模块 |
+|---|---|
+| `AvatarRootContext`、`useAvatarRootContext` | `@base-ui/react/esm/avatar/root/AvatarRootContext.js` |
+| `ProgressRootContext` | `@base-ui/react/esm/progress/root/ProgressRootContext.js` |
+| `SelectGroupContext`、`useSelectGroupContext` | `@base-ui/react/esm/select/group/SelectGroupContext.js` |
+| `avatarStateAttributesMapping` | `@base-ui/react/esm/avatar/root/stateAttributesMapping.js` |
+| `progressStateAttributesMapping` | `@base-ui/react/esm/progress/root/stateAttributesMapping.js` |
+| `useBaseUiId` | `@base-ui/react/esm/utils/useBaseUiId.js` |
+| `usePopoverRootContext` | `@base-ui/react/esm/popover/root/PopoverRootContext.js` |
+| `useRenderElement` | `@base-ui/react/esm/utils/useRenderElement.js` |
+| `valueToPercent` | `@base-ui/react/esm/utils/valueToPercent.js` |
+
+### 实施与验收
+
+- 从 `vendor.js` 移除了 744 条 Base UI 声明；文件从 **2,013,670 bytes** 变为 **1,344,768 bytes**，净减少 **668,902 bytes**。转换候选报告的 1,344,743 bytes 尚未包含恢复的 i18next `noop$1`；最终文件保留这条声明，避免改变 i18next fallback。
+- residual 审计：744 条映射中没有 Base UI 声明残留。仅 mapping row 649（`noop$1`）仍按名称/形状匹配；它属于 i18next 区块，i18next 源码中的空回调有 4 个引用，vendor 中对应 binding 也有 4 个引用，因此明确归类为 Base UI false positive。
+- `pnpm install --frozen-lockfile`、`node scripts/desource/check-undef.mjs`（1,112 个 renderer 源文件）及 `pnpm -w turbo run build`（11/11 packages）通过。built-output AST 审计从 `index.html` 遍历了 331 个可达 JavaScript assets：`useDialogRoot`、`Store`、Base UI 自带的 `useFloating` 与 `useFloatingRootContext`、`useFloatingTree`、`useFloatingNodeId` 各一份；`@floating-ui/dom@1.7.6` 的 `computePosition` 声明一份，built wrapper 调用 core 实现。
+- 上表的 11 个内部符号在可达输出中各有一个声明。`AvatarRootContext`、`DialogRootContext`、`PopoverRootContext`、`ProgressRootContext`、`SelectGroupContext` 各只创建一个 context；hook 与 Provider 均引用相同 lexical binding。
+- `fastHooks` 中只有一个空 `hooks` array（built 名 `hooks$1`）；`register$1` 与 `FastComponent` 共用并操作该 array，vendor 兼容 shim 调用同一个 `register$1`。
+
+两轮均使用 `GOLDEN="$HOME/ov-golden/.probe/ui-golden" bash scripts/ui-compare/gate.sh`，golden 未改动。报告及逐页结果：
+
+| 轮次 | 报告 | 页数及结果 |
+|---|---|---|
+| 1 | `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T16-22-48-192Z/report.json` | 40/40 页通过；net、DOM、state、non-AA 像素及新增错误差异均为 0。`ws-a` 有 5 个 raw AA-only 像素差异（5/0）。 |
+| 2 | `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T16-41-27-917Z/report.json` | 40/40 页通过；net、DOM、state、non-AA 像素及新增错误差异均为 0。 |
+
+两轮的比较器均提示 `ws-a`、`ws-chat-skill`、`ws-layout` 重拍 8 次后仍有帧不稳定并采用最后一帧；这些页最终均没有 net/DOM/state/non-AA 差异。
+
+### 待办：留在应用文件里的 Base UI 代码（等改名 PR 合入后替换为 npm 导入）
+
+下面 16 条 mapping 记录指向 app 文件中的 Base UI 声明，本次保持不动，待并行改名 PR 合入后再集中替换为对应 npm import：
+
+| 应用文件（相对 `app/renderer/src`） | 声明 | npm 目标 |
+|---|---|---|
+| `canvas/popover-title.jsx` | `PopoverTitle$1` | `@base-ui/react/esm/popover/title/PopoverTitle.js` |
+| `canvas/popover-title.jsx` | `PopoverDescription$1` | `@base-ui/react/esm/popover/description/PopoverDescription.js` |
+| `canvas/separator.jsx` | `Separator` | `@base-ui/react/esm/separator/Separator.js` |
+| `generation/select-content.jsx` | `SelectGroup$1` | `@base-ui/react/esm/select/group/SelectGroup.js` |
+| `generation/select-content.jsx` | `SelectGroupLabel` | `@base-ui/react/esm/select/group-label/SelectGroupLabel.js` |
+| `generation/use-model-catalog-scope-key.js` | `useProgressRootContext` | `@base-ui/react/esm/progress/root/ProgressRootContext.js` |
+| `infra/create-recently-added-store.js` | `register` | `@base-ui/utils/fastHooks` |
+| `infra/create-recently-added-store.js` | 无名表达式（`useStore`） | `@base-ui/react/esm/store/useStore.js` |
+| `infra/dialog-content.jsx` | `Input` | `@base-ui/react/esm/input/Input.js` |
+| `infra/from-vendor.js` | `stateAttributesMapping$a` | `@base-ui/react/esm/select/value/SelectValue.js` |
+| `infra/from-vendor.js` | `clamp$a` | `@base-ui/react/esm/utils/clamp.js` |
+| `infra/inline-rename-input.jsx` | `AvatarRoot` | `@base-ui/react/esm/avatar/root/AvatarRoot.js` |
+| `infra/inline-rename-input.jsx` | `AvatarFallback$1` | `@base-ui/react/esm/avatar/fallback/AvatarFallback.js` |
+| `media-editing/keep-tag-in-canvas.js` | `counter` | `@base-ui/react/esm/generateId.js` |
+| `team/team-management-detail-loading.jsx` | `ProgressTrack$1` | `@base-ui/react/esm/progress/track/ProgressTrack.js` |
+| `team/team-management-detail-loading.jsx` | `ProgressIndicator$1` | `@base-ui/react/esm/progress/indicator/ProgressIndicator.js` |
+
+另有 3 条 mapping false match 是 app 函数，不应替换：`stopEvent`（`canvas/node-shell-inner.jsx`）、`clamp$b`（`infra/from-vendor.js`）和 `formatNumber`（`text-editor/collect-video-rows.js`）。后续迁移 `create-recently-added-store.js` 时，应让应用直接从 `@base-ui/utils/fastHooks` 导入 `register`，然后移除 `vendor.js` 中的兼容 `hooks.push` shim。
