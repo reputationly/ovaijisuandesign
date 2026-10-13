@@ -8,12 +8,12 @@ const DEFAULT_RETRY_ACTION_KEY = "retry";
 
 const DEFAULT_RETRY_ACTION_VARIANT = "default";
 
-function resolveRetryAction(retry, defaultLabel2) {
+function resolveRetryAction(retry, defaultLabel) {
   if (!retry) return void 0;
   if (typeof retry === "function") {
     return {
       key: DEFAULT_RETRY_ACTION_KEY,
-      label: defaultLabel2,
+      label: defaultLabel,
       variant: DEFAULT_RETRY_ACTION_VARIANT,
       onClick: retry,
     };
@@ -21,7 +21,7 @@ function resolveRetryAction(retry, defaultLabel2) {
   return {
     key: retry.key ?? DEFAULT_RETRY_ACTION_KEY,
     icon: retry.icon,
-    label: retry.label ?? defaultLabel2,
+    label: retry.label ?? defaultLabel,
     variant: retry.variant ?? DEFAULT_RETRY_ACTION_VARIANT,
     onClick: retry.onClick,
     placement: retry.placement,
@@ -67,10 +67,10 @@ function resolvePageState(input, defaultRetryLabel, online = true) {
 
 export function PageStateBoundary({
   error = false,
-  empty: empty2 = false,
+  empty = false,
   errorOptions,
-  emptyOptions: emptyOptions2,
-  children: children2,
+  emptyOptions,
+  children,
   className,
   density = "page",
 }) {
@@ -84,16 +84,16 @@ export function PageStateBoundary({
       type: "error",
       ...errorOptions,
     };
-  } else if (empty2) {
+  } else if (empty) {
     input = {
       type: "empty",
-      ...emptyOptions2,
+      ...emptyOptions,
     };
   }
-  const state2 = resolvePageState(input, translate("common.retry"), online);
+  const state = resolvePageState(input, translate("common.retry"), online);
   return (
-    <PageStateView state={state2} className={className} density={density}>
-      {children2}
+    <PageStateView state={state} className={className} density={density}>
+      {children}
     </PageStateView>
   );
 }

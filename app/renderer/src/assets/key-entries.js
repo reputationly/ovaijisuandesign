@@ -30,12 +30,12 @@ const KEY_ENTRIES = {
   internal_error: `${KEY_PREFIX}internalError`,
 };
 const ASSET_CENTER_ERROR_KEYS = KEY_ENTRIES;
-export function resolveAssetCenterErrorKey(code2) {
-  if (!code2) return ASSET_CENTER_ERROR_UNKNOWN_KEY;
-  return ASSET_CENTER_ERROR_KEYS[code2] ?? ASSET_CENTER_ERROR_UNKNOWN_KEY;
+export function resolveAssetCenterErrorKey(code) {
+  if (!code) return ASSET_CENTER_ERROR_UNKNOWN_KEY;
+  return ASSET_CENTER_ERROR_KEYS[code] ?? ASSET_CENTER_ERROR_UNKNOWN_KEY;
 }
-function translateAssetCenterError(code2, translate) {
-  return translate(resolveAssetCenterErrorKey(code2));
+function translateAssetCenterError(code, translate) {
+  return translate(resolveAssetCenterErrorKey(code));
 }
 function classifyInfraError(err) {
   if (err.name === "GatewayNotReadyError")

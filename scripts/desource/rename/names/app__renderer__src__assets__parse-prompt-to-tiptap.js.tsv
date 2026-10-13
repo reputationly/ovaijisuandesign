@@ -2,3 +2,25 @@ key	old	new	依据
 y22@113:13	y22	y2	该值是画布重绘区域边界框第二个角点的纵坐标。
 p3@165:13	p3	path	该值是文本文件引用节点的资源路径。
 m3@201:16	m3	mention	该值是当前解析的提示词资源提及片段。
+key2@25:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@71:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+path2@88:39	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+text2@94:7	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+node2@95:14	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+path2@106:13	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+doc2@120:23	doc2	doc	去掉打包器防重名追加的后缀，恢复原名 doc，即该绑定持有的值。
+text2@143:39	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+count2@144:7	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+index2@145:12	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+node2@163:33	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@174:33	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+path2@181:14	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+text2@185:37	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+inline2@198:11	inline2	inline	去掉打包器防重名追加的后缀，恢复原名 inline，即该绑定持有的值。
+found2@209:13	found2	found	去掉打包器防重名追加的后缀，恢复原名 found，即该绑定持有的值。
+seq2@266:13	seq2	seq	去掉打包器防重名追加的后缀，恢复原名 seq，即该绑定持有的值。
+path2@307:21	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@317:28	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+selectionKey2@334:9	selectionKey2	selectionKey	去掉打包器防重名追加的后缀，恢复原名 selectionKey，即该绑定持有的值。
+path2@336:21	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+content2@351:8	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。

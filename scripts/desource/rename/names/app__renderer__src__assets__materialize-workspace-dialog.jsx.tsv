@@ -3,3 +3,8 @@ t2@30:14	t2	translate	该绑定是实体物化工作区对话框读取界面文�
 w3@101:41	w3	workspace	该值是与目标路径匹配的最近工作区记录。
 o2@152:22	o2	isOpen	该值表示物化对话框是否仍处于打开状态。
 w3@191:34	w3	workspace	该值是当前渲染的最近工作区记录。
+CheckCircle2@2:10	CheckCircle2	CheckCircle	去掉打包器防重名追加的后缀，恢复原名 CheckCircle，即该绑定持有的值。
+platform2@31:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+first2@43:11	first2	first	去掉打包器防重名追加的后缀，恢复原名 first，即该绑定持有的值。
+path2@48:48	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+next2@50:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。

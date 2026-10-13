@@ -6,7 +6,7 @@ import { LocalFolderIcon } from "../workspace/home-service.jsx";
 export function MissingCandidateActions({
   candidate,
   onMerge,
-  onRemove: onRemove2,
+  onRemove,
   onLocate,
   variant,
   busy,
@@ -66,7 +66,7 @@ export function MissingCandidateActions({
             variant="destructive"
             data-action-ui-id="missing-remove"
             disabled={busy}
-            onClick={stop(onRemove2)}
+            onClick={stop(onRemove)}
             title={translate("missing.remove")}
             aria-label={translate("missing.remove")}
           >
@@ -115,7 +115,7 @@ export function MissingCandidateActions({
         variant="ghost"
         data-action-ui-id="missing-remove"
         disabled={busy}
-        onClick={stop(onRemove2)}
+        onClick={stop(onRemove)}
         title={translate("missing.remove")}
         aria-label={translate("missing.remove")}
       >

@@ -8,8 +8,8 @@ const WHEEL_STEP = 2e-3;
 const BUTTON_ZOOM_FACTOR = 1.3;
 const DRAG_THRESHOLD = 3;
 export function ImageLightbox({ src, alt, onClose }) {
-  const [scale2, setScale] = reactExports.useState(1);
-  const [translate2, setTranslate] = reactExports.useState({
+  const [scale, setScale] = reactExports.useState(1);
+  const [translate, setTranslate] = reactExports.useState({
     x: 0,
     y: 0,
   });
@@ -26,10 +26,10 @@ export function ImageLightbox({ src, alt, onClose }) {
     y: 0,
   });
   const didDragRef = reactExports.useRef(false);
-  const scaleRef = reactExports.useRef(scale2);
-  const translateRef = reactExports.useRef(translate2);
-  scaleRef.current = scale2;
-  translateRef.current = translate2;
+  const scaleRef = reactExports.useRef(scale);
+  const translateRef = reactExports.useRef(translate);
+  scaleRef.current = scale;
+  translateRef.current = translate;
   reactExports.useEffect(() => {
     if (!transitioning) return;
     const timeoutId = setTimeout(() => setTransitioning(false), 200);
@@ -67,15 +67,15 @@ export function ImageLightbox({ src, alt, onClose }) {
     event.stopPropagation();
     setTransitioning(true);
     setScale((value) => {
-      const next2 = Math.max(MIN_SCALE, value / BUTTON_ZOOM_FACTOR);
-      if (next2 <= 1) {
+      const next = Math.max(MIN_SCALE, value / BUTTON_ZOOM_FACTOR);
+      if (next <= 1) {
         setTranslate({
           x: 0,
           y: 0,
         });
         return 1;
       }
-      return next2;
+      return next;
     });
   }, []);
   const handleResetZoom = reactExports.useCallback((event) => {
@@ -118,7 +118,7 @@ export function ImageLightbox({ src, alt, onClose }) {
     draggingRef.current = false;
     event.target.releasePointerCapture(event.pointerId);
   }, []);
-  const handleDoubleClick2 = reactExports.useCallback((event) => {
+  const handleDoubleClick = reactExports.useCallback((event) => {
     event.stopPropagation();
     setTransitioning(true);
     if (scaleRef.current === 1) {
@@ -145,10 +145,10 @@ export function ImageLightbox({ src, alt, onClose }) {
   );
   const cursor = draggingRef.current
     ? "grabbing"
-    : scale2 > 1
+    : scale > 1
       ? "grab"
       : "default";
-  const scalePercent = `${Math.round(scale2 * 100)}%`;
+  const scalePercent = `${Math.round(scale * 100)}%`;
   return (
     <DialogPopup
       aria-label={alt}
@@ -174,7 +174,7 @@ export function ImageLightbox({ src, alt, onClose }) {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onDoubleClick={handleDoubleClick2}
+        onDoubleClick={handleDoubleClick}
         onClick={handleContainerClick}
       >
         <img
@@ -187,7 +187,7 @@ export function ImageLightbox({ src, alt, onClose }) {
             maxHeight: "80vh",
             objectFit: "contain",
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
-            transform: `translate(${translate2.x}px, ${translate2.y}px) scale(${scale2})`,
+            transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
             transition: transitioning ? "transform 0.2s ease-out" : "none",
             userSelect: "none",
           }}

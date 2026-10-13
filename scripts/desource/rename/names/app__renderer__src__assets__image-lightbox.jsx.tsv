@@ -1,3 +1,7 @@
 key	old	new	依据
 id2@35:11	id2	timeoutId	该值是用于结束缩放过渡状态的定时器标识。
 cx2@43:11	cx2	pointerOffsetX	该值是鼠标指针相对图片容器中心的水平偏移量。
+scale2@11:10	scale2	scale	去掉打包器防重名追加的后缀，恢复原名 scale，即该绑定持有的值。
+translate2@12:10	translate2	translate	去掉打包器防重名追加的后缀，恢复原名 translate，即该绑定持有的值。
+handleDoubleClick2@121:9	handleDoubleClick2	handleDoubleClick	去掉打包器防重名追加的后缀，恢复原名 handleDoubleClick，即该绑定持有的值。
+next2@70:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。

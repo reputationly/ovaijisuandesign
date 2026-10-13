@@ -1,5 +1,5 @@
 // materialize-workspace-dialog.jsx
-import { CheckCircle2, Loader2, reactExports, ShieldAlert, usePlatform, useStorage, useTranslation } from "../vendor.js";
+import { CheckCircle2 as CheckCircle, Loader2, reactExports, ShieldAlert, usePlatform, useStorage, useTranslation } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getFileManagerLabelKey } from "../settings/request-prompt-prefill.jsx";
@@ -28,7 +28,7 @@ function joinMaterializedDir(workspacePath) {
 }
 export function MaterializeWorkspaceDialog({ entity, onClose }) {
   const { t: translate } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const [recent] = useStorage("global.recentWorkspaces");
   const materializeMutation = useMaterializeEntity();
   const workspaces = reactExports.useMemo(
@@ -40,20 +40,20 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
   const [error, setError] = reactExports.useState(null);
   const effectiveSelected = reactExports.useMemo(() => {
     if (selectedPaths.size > 0) return selectedPaths;
-    const first2 = workspaces[0]?.path;
-    return first2 ? new Set([first2]) : new Set();
+    const first = workspaces[0]?.path;
+    return first ? new Set([first]) : new Set();
   }, [selectedPaths, workspaces]);
   const canSubmit =
     !!entity && effectiveSelected.size > 0 && !materializeMutation.isPending;
-  const togglePath = reactExports.useCallback((path2) => {
+  const togglePath = reactExports.useCallback((path) => {
     setSelectedPaths((prev) => {
-      const next2 = new Set(prev);
-      if (next2.has(path2)) {
-        next2.delete(path2);
+      const next = new Set(prev);
+      if (next.has(path)) {
+        next.delete(path);
       } else {
-        next2.add(path2);
+        next.add(path);
       }
-      return next2;
+      return next;
     });
   }, []);
   const handleClose = () => {
@@ -62,16 +62,16 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
     setError(null);
     onClose();
   };
-  const revealLabel = translate(getFileManagerLabelKey(platform2.app.os));
+  const revealLabel = translate(getFileManagerLabelKey(platform.app.os));
   const revealTarget = reactExports.useCallback(
     async (target) => {
       try {
-        if (platform2.shell.showItemInFolder) {
-          await platform2.shell.showItemInFolder(target.revealPath);
+        if (platform.shell.showItemInFolder) {
+          await platform.shell.showItemInFolder(target.revealPath);
           return;
         }
-        if (platform2.shell.openPath) {
-          await platform2.shell.openPath(target.revealPath);
+        if (platform.shell.openPath) {
+          await platform.shell.openPath(target.revealPath);
           return;
         }
         dedupedToast.error(translate("fileExplorer.platformNotSupported"));
@@ -79,7 +79,7 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
         dedupedToast.error(translate("fileExplorer.openFailed"));
       }
     },
-    [platform2.shell, translate],
+    [platform.shell, translate],
   );
   const handleSubmit = async () => {
     if (!entity || effectiveSelected.size === 0) return;
@@ -122,7 +122,7 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
           action:
             succeeded.length === 1
               ? {
-                  label: translate(getFileManagerLabelKey(platform2.app.os)),
+                  label: translate(getFileManagerLabelKey(platform.app.os)),
                   onClick: () => void revealTarget(succeeded[0]),
                 }
               : void 0,
@@ -234,7 +234,7 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
               className="flex items-start gap-2 rounded-lg border border-foreground/20 bg-muted/20 px-3 py-2"
               data-action-ui-id="asset-center-materialize-success"
             >
-              <CheckCircle2
+              <CheckCircle
                 size={14}
                 className="mt-0.5 shrink-0 text-foreground"
               />

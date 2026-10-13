@@ -68,7 +68,7 @@ function relParent(relPath) {
 }
 function flattenAssetTree(records, folders, expanded) {
   const rows = [];
-  const visit2 = (parentRel, depth2) => {
+  const visit = (parentRel, depth) => {
     const childFolders = folders
       .filter((rel) => relParent(rel) === parentRel)
       .sort((leftFolderPath, rightFolderPath) => leftFolderPath.localeCompare(rightFolderPath));
@@ -77,27 +77,27 @@ function flattenAssetTree(records, folders, expanded) {
         kind: "folder",
         rel,
         name: rel.split("/").pop() ?? rel,
-        depth: depth2,
+        depth,
       });
-      if (expanded.has(rel)) visit2(rel, depth2 + 1);
+      if (expanded.has(rel)) visit(rel, depth + 1);
     }
     const childFiles = records
-      .filter((record2) => relParent(record2.relPath) === parentRel)
+      .filter((record) => relParent(record.relPath) === parentRel)
       .sort(
         (leftRecord, rightRecord) =>
           (rightRecord.updatedAt ?? rightRecord.createdAt) - (leftRecord.updatedAt ?? leftRecord.createdAt),
       );
-    for (const record2 of childFiles) {
+    for (const record of childFiles) {
       rows.push({
         kind: "file",
-        rel: record2.relPath,
-        name: record2.name,
-        depth: depth2,
-        record: record2,
+        rel: record.relPath,
+        name: record.name,
+        depth,
+        record,
       });
     }
   };
-  visit2("", 0);
+  visit("", 0);
   return rows;
 }
 function LocalAssetGridCard({
@@ -116,19 +116,19 @@ function LocalAssetGridCard({
   dropActive,
 }) {
   const { t: translate } = useTranslation();
-  const record2 = row.record;
+  const record = row.record;
   const typeBucket = resolveTypeBucket({
     kind: row.kind,
     name: row.name,
-    mime: record2?.mime,
+    mime: record?.mime,
   });
-  const Chevron2 = expanded ? ChevronDown : ChevronRight;
+  const Chevron = expanded ? ChevronDown : ChevronRight;
   const cardClassName = cn(
     "group relative flex min-w-0 flex-col rounded-lg p-1 text-left outline-none transition-colors hover:bg-foreground/5 focus-visible:ring-1 focus-visible:ring-ring/50",
     row.kind === "file" && "cursor-grab active:cursor-grabbing",
     dropActive && "bg-foreground/[0.12]",
   );
-  const content2 = (
+  const content = (
     <>
       <ProjectAssetThumbnail
         name={row.name}
@@ -141,7 +141,7 @@ function LocalAssetGridCard({
       <span className="flex min-w-0 items-center gap-1 px-1 py-1">
         {row.kind === "folder" ? (
           <Icon
-            icon={Chevron2}
+            icon={Chevron}
             size="xs"
             strokeWidth={1.5}
             className="shrink-0 text-muted-foreground"
@@ -169,7 +169,7 @@ function LocalAssetGridCard({
               className={cardClassName}
               data-action-ui-id="project-assets-sidebar.folder-grid-card"
             >
-              {content2}
+              {content}
             </button>
           ) : (
             <div
@@ -177,7 +177,7 @@ function LocalAssetGridCard({
               className={cardClassName}
               data-action-ui-id="project-assets-sidebar.file-grid-card"
             >
-              {content2}
+              {content}
             </div>
           )
         }
@@ -198,17 +198,17 @@ function LocalAssetGridCard({
               {translate("localAssets.moveTo")}
             </ContextMenuItem>
           </>
-        ) : record2 ? (
+        ) : record ? (
           <>
-            <ContextMenuItem onClick={() => onAddToCanvas(record2)}>
+            <ContextMenuItem onClick={() => onAddToCanvas(record)}>
               <Icon icon={ImageOutlineIcon} size="sm" strokeWidth={1.5} />
               {translate("localAssets.addToCanvas")}
             </ContextMenuItem>
-            <ContextMenuItem onClick={() => void onAddToAgent(record2)}>
+            <ContextMenuItem onClick={() => void onAddToAgent(record)}>
               <AddToChatIcon size={14} />
               {translate("localAssets.addToAgent")}
             </ContextMenuItem>
-            <ContextMenuItem onClick={() => void onRevealFile(record2)}>
+            <ContextMenuItem onClick={() => void onRevealFile(record)}>
               <Icon icon={FolderOpen} size="sm" strokeWidth={1.5} />
               <PlatformFileManagerLabel />
             </ContextMenuItem>
@@ -245,7 +245,7 @@ function FolderRow({
   dropActive,
 }) {
   const { t: translate } = useTranslation();
-  const Chevron2 = expanded ? ChevronDown : ChevronRight;
+  const Chevron = expanded ? ChevronDown : ChevronRight;
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -263,7 +263,7 @@ function FolderRow({
             }}
             data-action-ui-id="project-assets-sidebar.folder-row"
           >
-            <Chevron2
+            <Chevron
               size={13}
               strokeWidth={1.5}
               className="shrink-0 text-muted-foreground/70"
@@ -299,8 +299,8 @@ function FolderRow({
   );
 }
 function FileRow({
-  record: record2,
-  depth: depth2,
+  record,
+  depth,
   thumbSrc,
   onAddToCanvas,
   onAddToAgent,
@@ -319,31 +319,31 @@ function FileRow({
             {...dndProps}
             className="list-row-hit-area flex h-8 w-full cursor-grab items-center gap-2 rounded-md px-2 transition-colors hover:bg-foreground/5 active:cursor-grabbing"
             style={{
-              paddingLeft: `${8 + depth2 * 14 + 18}px`,
+              paddingLeft: `${8 + depth * 14 + 18}px`,
             }}
             data-action-ui-id="project-assets-sidebar.file-row"
           >
             <AssetRowThumb
               thumbSrc={thumbSrc}
-              filename={record2.name}
-              mime={record2.mime}
+              filename={record.name}
+              mime={record.mime}
             />
             <span className="min-w-0 flex-1 truncate text-[13px] text-foreground/70">
-              {record2.name}
+              {record.name}
             </span>
           </div>
         }
       />
       <ContextMenuContent>
-        <ContextMenuItem onClick={() => onAddToCanvas(record2)}>
+        <ContextMenuItem onClick={() => onAddToCanvas(record)}>
           <ImageOutlineIcon size={14} strokeWidth={1.5} />
           {translate("localAssets.addToCanvas")}
         </ContextMenuItem>
-        <ContextMenuItem onClick={() => void onAddToAgent(record2)}>
+        <ContextMenuItem onClick={() => void onAddToAgent(record)}>
           <AddToChatIcon size={14} strokeWidth={1.5} />
           {translate("localAssets.addToAgent")}
         </ContextMenuItem>
-        <ContextMenuItem onClick={() => void onReveal(record2)}>
+        <ContextMenuItem onClick={() => void onReveal(record)}>
           <FolderOpen size={14} strokeWidth={1.5} />
           <PlatformFileManagerLabel />
         </ContextMenuItem>
@@ -360,7 +360,7 @@ function FileRow({
         </ContextMenuItem>
         <ContextMenuItem
           variant="destructive"
-          onClick={() => onDelete(record2)}
+          onClick={() => onDelete(record)}
         >
           <Trash2 size={14} strokeWidth={1.5} />
           {translate("localAssets.delete")}
@@ -370,15 +370,15 @@ function FileRow({
   );
 }
 export function LocalAssetsSidebarPanel({
-  project: project2,
+  project,
   onToolbarStateChange,
   searchQuery,
 }) {
   const { t: translate } = useTranslation();
-  const platform2 = usePlatform();
-  const service2 = useProjectAssetsService();
+  const platform = usePlatform();
+  const service = useProjectAssetsService();
   const { ensureProjectFolderName } = useProjectActions();
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const anchorProjectAssets = useAnchorProjectAssets();
   const [folderName, setFolderName] = reactExports.useState(void 0);
   const [assetsDir, setAssetsDir] = reactExports.useState(void 0);
@@ -402,30 +402,30 @@ export function LocalAssetsSidebarPanel({
   const [viewMode, setViewMode] = reactExports.useState("tree");
   reactExports.useEffect(() => {
     let disposed = false;
-    void ensureProjectFolderName(project2.id).then((name2) => {
-      if (!disposed) setFolderName(name2);
+    void ensureProjectFolderName(project.id).then((resolvedFolderName) => {
+      if (!disposed) setFolderName(resolvedFolderName);
     });
     return () => {
       disposed = true;
     };
-  }, [ensureProjectFolderName, project2.id]);
+  }, [ensureProjectFolderName, project.id]);
   reactExports.useEffect(() => {
     if (!folderName) return;
     let disposed = false;
-    void service2.getAssetsDir(folderName).then((dir) => {
+    void service.getAssetsDir(folderName).then((dir) => {
       if (!disposed) setAssetsDir(dir);
     });
     return () => {
       disposed = true;
     };
-  }, [folderName, service2]);
+  }, [folderName, service]);
   const refresh = reactExports.useCallback(async () => {
     if (!folderName) return;
     setLoading(true);
     try {
       const [nextRecords, nextFolders] = await Promise.all([
-        service2.listAssets(folderName),
-        service2.listLocalFolders(folderName),
+        service.listAssets(folderName),
+        service.listLocalFolders(folderName),
       ]);
       setRecords(nextRecords);
       setFolders(nextFolders);
@@ -434,17 +434,17 @@ export function LocalAssetsSidebarPanel({
     } finally {
       setLoading(false);
     }
-  }, [folderName, service2]);
+  }, [folderName, service]);
   reactExports.useEffect(() => {
     void refresh();
   }, [refresh]);
   reactExports.useEffect(() => {
     if (!folderName) return;
-    const subscription = service2.onDidChangeAssets((event) => {
+    const subscription = service.onDidChangeAssets((event) => {
       if (event.projectFolderName === folderName) void refresh();
     });
     return () => subscription.dispose();
-  }, [folderName, refresh, service2]);
+  }, [folderName, refresh, service]);
   reactExports.useEffect(() => {
     if (!onToolbarStateChange) return;
     onToolbarStateChange({
@@ -460,14 +460,14 @@ export function LocalAssetsSidebarPanel({
     if (!debouncedSearch) return expanded;
     return new Set([...folders]);
   }, [debouncedSearch, expanded, folders]);
-  const flattened2 = reactExports.useMemo(
+  const flattened = reactExports.useMemo(
     () => flattenAssetTree(records, folders, effectiveExpanded),
     [records, folders, effectiveExpanded],
   );
   const rows = reactExports.useMemo(() => {
-    if (!debouncedSearch) return flattened2;
+    if (!debouncedSearch) return flattened;
     const matched = new Set();
-    for (const row of flattened2) {
+    for (const row of flattened) {
       if (row.name.toLowerCase().includes(debouncedSearch)) {
         matched.add(
           row.kind === "folder"
@@ -480,34 +480,34 @@ export function LocalAssetsSidebarPanel({
         }
       }
     }
-    return flattened2.filter((row) =>
+    return flattened.filter((row) =>
       matched.has(
         row.kind === "folder"
           ? `folder:${row.rel}`
           : `file:${row.record?.id ?? ""}`,
       ),
     );
-  }, [flattened2, debouncedSearch]);
+  }, [flattened, debouncedSearch]);
   const toggleFolder = reactExports.useCallback((rel) => {
-    setExpanded((previous2) => {
-      const next2 = new Set(previous2);
-      if (next2.has(rel)) next2.delete(rel);
-      else next2.add(rel);
-      return next2;
+    setExpanded((previous) => {
+      const next = new Set(previous);
+      if (next.has(rel)) next.delete(rel);
+      else next.add(rel);
+      return next;
     });
   }, []);
   const absoluteFor = reactExports.useCallback(
-    (record2) => (assetsDir ? `${assetsDir}/${record2.relPath}` : void 0),
+    (record) => (assetsDir ? `${assetsDir}/${record.relPath}` : void 0),
     [assetsDir],
   );
   const thumbSrcFor = reactExports.useCallback(
-    (record2, displayWidth) => {
-      const absolute = absoluteFor(record2);
+    (record, displayWidth) => {
+      const absolute = absoluteFor(record);
       if (!absolute) return void 0;
       const typeBucket = resolveTypeBucket({
         kind: "file",
-        name: record2.name,
-        mime: record2.mime,
+        name: record.name,
+        mime: record.mime,
       });
       if (
         typeBucket !== "image" &&
@@ -517,25 +517,25 @@ export function LocalAssetsSidebarPanel({
         return void 0;
       }
       return withThumbnail(
-        gatewayUrl2(API_PATHS.serveLocal(absolute)),
+        gatewayUrl(API_PATHS.serveLocal(absolute)),
         displayWidth,
       );
     },
-    [absoluteFor, gatewayUrl2],
+    [absoluteFor, gatewayUrl],
   );
   const dragItemFor = reactExports.useCallback(
-    (record2) => {
-      const absolute = absoluteFor(record2);
+    (record) => {
+      const absolute = absoluteFor(record);
       if (!absolute || !folderName) return void 0;
       return {
         ...buildResourceDragItem(
           absolute,
-          record2.relPath,
-          record2.name,
+          record.relPath,
+          record.name,
           false,
           void 0,
           {
-            assetId: record2.id,
+            assetId: record.id,
             projectFolderName: folderName,
           },
         ),
@@ -545,14 +545,14 @@ export function LocalAssetsSidebarPanel({
     [absoluteFor, folderName],
   );
   const anchorForWorkspace = reactExports.useCallback(
-    async (record2) => {
-      const absolute = absoluteFor(record2);
+    async (record) => {
+      const absolute = absoluteFor(record);
       if (!absolute || !folderName) return void 0;
       try {
         const [anchored] = await anchorProjectAssets([
           {
             path: absolute,
-            assetId: record2.id,
+            assetId: record.id,
             projectFolderName: folderName,
           },
         ]);
@@ -560,13 +560,13 @@ export function LocalAssetsSidebarPanel({
         return anchored;
       } catch (err) {
         projectLog.error("project-asset-anchor-failed", {
-          assetId: record2.id,
-          name: record2.name,
+          assetId: record.id,
+          name: record.name,
           message: err instanceof Error ? err.message : String(err),
         });
         dedupedToast.error(
           translate("localAssets.importFailed", {
-            name: record2.name,
+            name: record.name,
           }),
         );
         return void 0;
@@ -575,44 +575,44 @@ export function LocalAssetsSidebarPanel({
     [absoluteFor, anchorProjectAssets, folderName, translate],
   );
   const handleAddToCanvas = reactExports.useCallback(
-    (record2) => {
-      const item = dragItemFor(record2);
+    (record) => {
+      const item = dragItemFor(record);
       if (!item) return;
       workspaceEvents.fireAddToCanvas([item]);
     },
     [dragItemFor],
   );
   const handleAddToAgent = reactExports.useCallback(
-    async (record2) => {
-      const anchored = await anchorForWorkspace(record2);
-      if (anchored) workspaceEvents.fireAddToChat(anchored.path, record2.name);
+    async (record) => {
+      const anchored = await anchorForWorkspace(record);
+      if (anchored) workspaceEvents.fireAddToChat(anchored.path, record.name);
     },
     [anchorForWorkspace],
   );
   const handleReveal = reactExports.useCallback(
-    async (record2) => {
+    async (record) => {
       if (!folderName) return;
-      const absolute = await service2.getAssetAbsolutePath(
+      const absolute = await service.getAssetAbsolutePath(
         folderName,
-        record2.id,
+        record.id,
       );
-      if (!absolute || !platform2.shell.showItemInFolder) {
+      if (!absolute || !platform.shell.showItemInFolder) {
         dedupedToast.error(
           translate("localAssets.openFailed", {
-            name: record2.name,
+            name: record.name,
           }),
         );
         void refresh();
         return;
       }
-      await platform2.shell.showItemInFolder(absolute);
+      await platform.shell.showItemInFolder(absolute);
     },
-    [folderName, platform2.shell, refresh, service2, translate],
+    [folderName, platform.shell, refresh, service, translate],
   );
   const handleRevealFolder = reactExports.useCallback(
     async (row) => {
       const absolute = assetsDir ? `${assetsDir}/${row.rel}` : void 0;
-      if (!absolute || !platform2.shell.showItemInFolder) {
+      if (!absolute || !platform.shell.showItemInFolder) {
         dedupedToast.error(
           translate("localAssets.openFailed", {
             name: row.name,
@@ -621,33 +621,33 @@ export function LocalAssetsSidebarPanel({
         void refresh();
         return;
       }
-      await platform2.shell.showItemInFolder(absolute);
+      await platform.shell.showItemInFolder(absolute);
     },
-    [assetsDir, platform2.shell, refresh, translate],
+    [assetsDir, platform.shell, refresh, translate],
   );
-  const handleDelete2 = reactExports.useCallback(
+  const handleDelete = reactExports.useCallback(
     async (row) => {
       if (!folderName) return;
       if (row.kind === "folder") {
-        await service2.deleteLocalFolder(folderName, row.rel.split("/"));
+        await service.deleteLocalFolder(folderName, row.rel.split("/"));
       } else if (row.record) {
-        await service2.deleteLocalAsset(folderName, row.record.id);
+        await service.deleteLocalAsset(folderName, row.record.id);
       }
       void refresh();
     },
-    [folderName, refresh, service2],
+    [folderName, refresh, service],
   );
   const handleRename = reactExports.useCallback(
     async (_node, newName) => {
       if (!folderName || !renameTarget) return;
       if (renameTarget.kind === "folder") {
-        await service2.renameLocalFolder(
+        await service.renameLocalFolder(
           folderName,
           renameTarget.rel.split("/"),
           newName,
         );
       } else if (renameTarget.record) {
-        await service2.renameLocalAsset(
+        await service.renameLocalAsset(
           folderName,
           renameTarget.record.id,
           newName,
@@ -655,22 +655,22 @@ export function LocalAssetsSidebarPanel({
       }
       void refresh();
     },
-    [folderName, refresh, renameTarget, service2],
+    [folderName, refresh, renameTarget, service],
   );
   const handleCreateFolder = reactExports.useCallback(
-    async (name2) => {
+    async (newFolderName) => {
       if (!folderName) return;
-      await service2.createLocalFolder(folderName, [name2]);
+      await service.createLocalFolder(folderName, [newFolderName]);
       void refresh();
     },
-    [folderName, refresh, service2],
+    [folderName, refresh, service],
   );
   const handleUploadPicked = reactExports.useCallback(
     async (files) => {
       if (!folderName || files.length === 0) return;
       if (
         await importPickedFiles({
-          service: service2,
+          service,
           folderName,
           folderSegments: [],
           files,
@@ -680,40 +680,40 @@ export function LocalAssetsSidebarPanel({
         void refresh();
       }
     },
-    [folderName, refresh, service2, translate],
+    [folderName, refresh, service, translate],
   );
   const handleMove = reactExports.useCallback(
     async (row, target) => {
       if (!folderName) return;
       try {
         if (row.kind === "folder") {
-          await service2.moveLocalFolder(
+          await service.moveLocalFolder(
             folderName,
             row.rel.split("/"),
             target.segments,
           );
         } else if (row.record) {
-          await service2.moveLocalAsset(
+          await service.moveLocalAsset(
             folderName,
             row.record.id,
             target.segments,
           );
         }
       } catch (err) {
-        const message2 = err instanceof Error ? err.message : String(err);
+        const message = err instanceof Error ? err.message : String(err);
         dedupedToast.error(
-          message2.includes("duplicate_name")
+          message.includes("duplicate_name")
             ? translate("localAssets.moveDuplicate")
-            : message2.includes("depth_exceeded")
+            : message.includes("depth_exceeded")
               ? translate("localAssets.folderDepthLimit", {
                   count: PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
                 })
-              : message2,
+              : message,
         );
       }
       void refresh();
     },
-    [folderName, refresh, service2, translate],
+    [folderName, refresh, service, translate],
   );
   const canDropRow = reactExports.useCallback((row, target) => {
     if (target.key === relParent(row.rel)) return false;
@@ -870,13 +870,13 @@ export function LocalAssetsSidebarPanel({
                 onReveal={handleReveal}
                 onRename={() => setRenameTarget(row)}
                 onMove={() => setMoveDialogTarget(row)}
-                onDelete={(record2) =>
+                onDelete={(record) =>
                   setDeleteTarget({
                     kind: "file",
                     rel: row.rel,
-                    name: record2.name,
+                    name: record.name,
                     depth: row.depth,
-                    record: record2,
+                    record,
                   })
                 }
                 {...rowDnd(row)}
@@ -939,7 +939,7 @@ export function LocalAssetsSidebarPanel({
           if (!open) setDeleteTarget(null);
         }}
         onConfirm={async () => {
-          if (deleteTarget) await handleDelete2(deleteTarget);
+          if (deleteTarget) await handleDelete(deleteTarget);
         }}
       />
       <MoveNodeDialog

@@ -1,2 +1,7 @@
 key	old	new	依据
 t2@77:14	t2	translate	该绑定是页面状态边界生成默认重试文案的翻译函数。
+defaultLabel2@11:36	defaultLabel2	defaultLabel	去掉打包器防重名追加的后缀，恢复原名 defaultLabel，即该绑定持有的值。
+emptyOptions2@72:17	emptyOptions2	emptyOptions	去掉打包器防重名追加的后缀，恢复原名 emptyOptions，即该绑定持有的值。
+children2@73:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+empty2@70:10	empty2	empty	去掉打包器防重名追加的后缀，恢复原名 empty，即该绑定持有的值。
+state2@93:9	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。

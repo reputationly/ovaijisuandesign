@@ -22,8 +22,8 @@ export function useUpstreamReferenceAudios(nodeId) {
   );
   reactExports.useEffect(() => {
     const unsubscribe = subscribeIncomingChange(nodeId, () => {
-      const key2 = [...getIncomingSourceIds(nodeId)].sort().join("|");
-      setIncomingKey((prev) => (prev === key2 ? prev : key2));
+      const key = [...getIncomingSourceIds(nodeId)].sort().join("|");
+      setIncomingKey((prev) => (prev === key ? prev : key));
     });
     return unsubscribe;
   }, [nodeId, getIncomingSourceIds, subscribeIncomingChange]);
@@ -68,8 +68,8 @@ export function useUpstreamSameTypeMeta(nodeId, mediaType) {
   );
   reactExports.useEffect(() => {
     const unsubscribe = subscribeIncomingChange(nodeId, () => {
-      const key2 = [...getIncomingSourceIds(nodeId)].sort().join("|");
-      setIncomingKey((prev) => (prev === key2 ? prev : key2));
+      const key = [...getIncomingSourceIds(nodeId)].sort().join("|");
+      setIncomingKey((prev) => (prev === key ? prev : key));
     });
     return unsubscribe;
   }, [nodeId, getIncomingSourceIds, subscribeIncomingChange]);
@@ -85,42 +85,42 @@ export function useUpstreamSameTypeMeta(nodeId, mediaType) {
   );
 }
 
-export function serializeMentionToken(path2) {
-  if (!path2) return "";
-  return `@[${path2}]`;
+export function serializeMentionToken(path) {
+  if (!path) return "";
+  return `@[${path}]`;
 }
 
 function serializeInline(nodes, fileRefInclusion) {
-  let text2 = "";
-  for (const node2 of nodes) {
-    if (node2.type === "text") {
-      text2 += node2.text ?? "";
-    } else if (fileRefInclusion !== "none" && node2.type === "canvasFileRef") {
-      const attrs = node2.attrs;
+  let text = "";
+  for (const node of nodes) {
+    if (node.type === "text") {
+      text += node.text ?? "";
+    } else if (fileRefInclusion !== "none" && node.type === "canvasFileRef") {
+      const attrs = node.attrs;
       if (
         fileRefInclusion === "media-only" &&
         attrs?.kind === "text" &&
         parseCanvasReference(attrs?.path)?.target !== "entity"
       )
         continue;
-      const path2 = String(attrs?.path ?? "");
-      text2 += serializeMentionToken(path2);
-    } else if (node2.type === "canvasRedrawRegion") {
-      const attrs = node2.attrs;
+      const path = String(attrs?.path ?? "");
+      text += serializeMentionToken(path);
+    } else if (node.type === "canvasRedrawRegion") {
+      const attrs = node.attrs;
       const x1 = Number(attrs?.x1 ?? 0);
       const y1 = Number(attrs?.y1 ?? 0);
       const x2 = Number(attrs?.x2 ?? 999);
       const y2 = Number(attrs?.y2 ?? 999);
-      text2 += `<bbox>${x1} ${y1} ${x2} ${y2}</bbox>`;
+      text += `<bbox>${x1} ${y1} ${x2} ${y2}</bbox>`;
     }
   }
-  return text2;
+  return text;
 }
 
-function serializeDoc(doc2, fileRefInclusion) {
-  if (!doc2.content) return "";
+function serializeDoc(doc, fileRefInclusion) {
+  if (!doc.content) return "";
   const parts = [];
-  for (const block of doc2.content) {
+  for (const block of doc.content) {
     if (block.type === "paragraph") {
       parts.push(serializeInline(block.content ?? [], fileRefInclusion));
     }
@@ -140,29 +140,29 @@ export function extractCanvasEditorCountedText(editor) {
   return serializeDoc(editor.getJSON(), "none");
 }
 
-export function countPromptCharacters(text2) {
-  let count2 = 0;
-  for (let index2 = 0; index2 < text2.length; index2 += 1) {
-    const codeUnit = text2.charCodeAt(index2);
+export function countPromptCharacters(text) {
+  let count = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    const codeUnit = text.charCodeAt(index);
     if (
       codeUnit >= 55296 &&
       codeUnit <= 56319 &&
-      index2 + 1 < text2.length &&
-      text2.charCodeAt(index2 + 1) >= 56320 &&
-      text2.charCodeAt(index2 + 1) <= 57343
+      index + 1 < text.length &&
+      text.charCodeAt(index + 1) >= 56320 &&
+      text.charCodeAt(index + 1) <= 57343
     ) {
-      index2 += 1;
+      index += 1;
     }
-    count2 += 1;
+    count += 1;
   }
-  return count2;
+  return count;
 }
 
 export function collectTextChipPaths(editor) {
   const paths = [];
-  editor.state.doc.descendants((node2) => {
-    if (node2.type.name === "canvasFileRef" && node2.attrs?.kind === "text") {
-      const path = node2.attrs?.path;
+  editor.state.doc.descendants((node) => {
+    if (node.type.name === "canvasFileRef" && node.attrs?.kind === "text") {
+      const path = node.attrs?.path;
       if (typeof path === "string" && path) paths.push(path);
     }
   });
@@ -171,19 +171,19 @@ export function collectTextChipPaths(editor) {
 
 export function removeCanvasSubjectReferences(editor) {
   const paths = new Set();
-  editor.state.doc.descendants((node2) => {
+  editor.state.doc.descendants((node) => {
     if (
-      node2.type.name === "canvasFileRef" &&
-      isCanvasSubjectReference(node2.attrs.path)
+      node.type.name === "canvasFileRef" &&
+      isCanvasSubjectReference(node.attrs.path)
     )
-      paths.add(node2.attrs.path);
+      paths.add(node.attrs.path);
   });
-  for (const path2 of paths) editor.commands.removeCanvasFileRefsByPath(path2);
+  for (const path of paths) editor.commands.removeCanvasFileRefsByPath(path);
   return [...paths];
 }
 
-export function parsePromptToTiptap(text2, lookup) {
-  if (!text2) {
+export function parsePromptToTiptap(text, lookup) {
+  if (!text) {
     return {
       type: "doc",
       content: [
@@ -193,20 +193,20 @@ export function parsePromptToTiptap(text2, lookup) {
       ],
     };
   }
-  const lines = text2.split("\n");
+  const lines = text.split("\n");
   const paragraphs = lines.map((line) => {
-    const inline2 = [];
+    const inline = [];
     const mentions = findAllMentions(line);
     let cursor = 0;
     for (const mention of mentions) {
       if (mention.start > cursor) {
-        inline2.push({
+        inline.push({
           type: "text",
           text: line.slice(cursor, mention.start),
         });
       }
       const direct = parseCanvasReference(mention.path);
-      const found2 = direct
+      const found = direct
         ? {
             path: mention.path,
             filename: direct.subjectName
@@ -215,17 +215,17 @@ export function parsePromptToTiptap(text2, lookup) {
             kind: direct.kind === "other" ? "text" : direct.kind,
           }
         : lookup(mention.path);
-      if (found2) {
-        inline2.push({
+      if (found) {
+        inline.push({
           type: "canvasFileRef",
           attrs: {
-            path: found2.path,
-            filename: found2.filename,
-            kind: found2.kind,
+            path: found.path,
+            filename: found.filename,
+            kind: found.kind,
           },
         });
       } else {
-        inline2.push({
+        inline.push({
           type: "text",
           text: line.slice(mention.start, mention.end),
         });
@@ -233,15 +233,15 @@ export function parsePromptToTiptap(text2, lookup) {
       cursor = mention.end;
     }
     if (cursor < line.length) {
-      inline2.push({
+      inline.push({
         type: "text",
         text: line.slice(cursor),
       });
     }
-    return inline2.length > 0
+    return inline.length > 0
       ? {
           type: "paragraph",
-          content: inline2,
+          content: inline,
         }
       : {
           type: "paragraph",
@@ -263,7 +263,7 @@ export function useUpstreamTextContent() {
   const refreshUpstreamText = reactExports.useCallback(
     (sources) => {
       if (!loadTextContent) return;
-      const seq2 = ++refreshSeqRef.current;
+      const seq = ++refreshSeqRef.current;
       const textSources = sources.filter(
         (srcId) => getNodeById(srcId)?.type === "text",
       );
@@ -285,7 +285,7 @@ export function useUpstreamTextContent() {
           }
         }),
       ).then((texts) => {
-        if (seq2 !== refreshSeqRef.current) return;
+        if (seq !== refreshSeqRef.current) return;
         setUpstreamTextContent(texts.filter(Boolean).join("\n\n"));
       });
     },
@@ -304,7 +304,7 @@ export async function loadReferenceTextContent(
 ) {
   const uniquePaths = [
     ...new Set(
-      paths.filter((path2) => !!path2 && !isCanvasSubjectReference(path2)),
+      paths.filter((path) => !!path && !isCanvasSubjectReference(path)),
     ),
   ];
   if (uniquePaths.length === 0) return "";
@@ -314,11 +314,11 @@ export async function loadReferenceTextContent(
     return fallbackContent.trim();
   }
   const loaded = await Promise.all(
-    uniquePaths.map(async (path2) => {
+    uniquePaths.map(async (path) => {
       try {
-        return (await loadTextContent(path2)).trim();
+        return (await loadTextContent(path)).trim();
       } catch (error) {
-        if (isCanvasReferenceUri(path2)) throw error;
+        if (isCanvasReferenceUri(path)) throw error;
         return "";
       }
     }),
@@ -331,34 +331,34 @@ export function useReferenceTextContent(
   loadTextContent,
   fallbackContent = "",
 ) {
-  const selectionKey2 = JSON.stringify([
+  const selectionKey = JSON.stringify([
     ...new Set(
-      paths.filter((path2) => !!path2 && !isCanvasSubjectReference(path2)),
+      paths.filter((path) => !!path && !isCanvasSubjectReference(path)),
     ),
   ]);
   const [resolved, setResolved] = reactExports.useState({
-    selectionKey: selectionKey2,
+    selectionKey,
     content: fallbackContent.trim(),
   });
   reactExports.useEffect(() => {
     let cancelled = false;
-    const selectedPaths = JSON.parse(selectionKey2);
+    const selectedPaths = JSON.parse(selectionKey);
     void loadReferenceTextContent(
       selectedPaths,
       loadTextContent,
       fallbackContent,
     ).then(
-      (content2) => {
+      (content) => {
         if (!cancelled)
           setResolved({
-            selectionKey: selectionKey2,
-            content: content2,
+            selectionKey,
+            content,
           });
       },
       () => {
         if (!cancelled)
           setResolved({
-            selectionKey: selectionKey2,
+            selectionKey,
             content: "",
           });
       },
@@ -366,9 +366,9 @@ export function useReferenceTextContent(
     return () => {
       cancelled = true;
     };
-  }, [selectionKey2, loadTextContent, fallbackContent]);
-  if (selectionKey2 === "[]") return "";
-  return resolved.selectionKey === selectionKey2
+  }, [selectionKey, loadTextContent, fallbackContent]);
+  if (selectionKey === "[]") return "";
+  return resolved.selectionKey === selectionKey
     ? resolved.content
     : fallbackContent.trim();
 }
