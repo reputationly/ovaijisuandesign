@@ -16,12 +16,12 @@ function isCanvasTextWriteTool(toolName2) {
   return CANVAS_WRITE_NODE_RE.test(toolName2);
 }
 
-function collectFromAsyncTaskText(content2, seen2, out) {
+function collectFromAsyncTaskText(content2, seen2, artifacts) {
   if (!content2.startsWith(ASYNC_TASK_COMPLETED_PREFIX)) return;
   const payload = parseJsonPayload(
     content2.slice(ASYNC_TASK_COMPLETED_PREFIX.length),
   );
-  collectAssetOutputs(payload, seen2, out);
+  collectAssetOutputs(payload, seen2, artifacts);
 }
 
 function extractToolNameFromSubContent(content2) {
@@ -34,49 +34,49 @@ function extractToolResultFromSubContent(content2) {
   return colonIdx > 0 ? content2.slice(colonIdx + 2) : void 0;
 }
 
-export function collectFromSubMessages(subs, seen2, out) {
-  for (const sub of subs) {
-    if (sub.type === "image" || sub.type === "video" || sub.type === "audio") {
-      const url2 = sub.url ?? sub.content;
-      if (url2) addArtifact(seen2, out, sub.type, url2);
+export function collectFromSubMessages(subs, seen2, artifacts) {
+  for (const subMessage of subs) {
+    if (subMessage.type === "image" || subMessage.type === "video" || subMessage.type === "audio") {
+      const url2 = subMessage.url ?? subMessage.content;
+      if (url2) addArtifact(seen2, artifacts, subMessage.type, url2);
       continue;
     }
-    if (sub.type === "text") {
-      collectFromRecoveredText(sub.content, seen2, out);
+    if (subMessage.type === "text") {
+      collectFromRecoveredText(subMessage.content, seen2, artifacts);
       continue;
     }
-    if (sub.type === "tool") {
-      const toolName2 = extractToolNameFromSubContent(sub.content);
-      const status = sub.toolStatus ?? "ok";
+    if (subMessage.type === "tool") {
+      const toolName2 = extractToolNameFromSubContent(subMessage.content);
+      const status = subMessage.toolStatus ?? "ok";
       if (status !== "ok") continue;
-      const result = extractToolResultFromSubContent(sub.content);
+      const result = extractToolResultFromSubContent(subMessage.content);
       if (!result) continue;
-      collectFromTaskResultText(toolName2, result, seen2, out);
+      collectFromTaskResultText(toolName2, result, seen2, artifacts);
       collectFromToolPayload(
         toolName2,
-        parseJsonPayload(sub.args),
+        parseJsonPayload(subMessage.args),
         parseJsonPayload(result),
         seen2,
-        out,
+        artifacts,
       );
       continue;
     }
-    if (sub.type === "sub_agent" && sub.subMessages) {
-      collectFromSubMessages(sub.subMessages, seen2, out);
+    if (subMessage.type === "sub_agent" && subMessage.subMessages) {
+      collectFromSubMessages(subMessage.subMessages, seen2, artifacts);
     }
   }
 }
 
-function collectFallbackFromSubMessages(subs, seen2, out) {
-  collectFromSubMessages(subs, seen2, out);
+function collectFallbackFromSubMessages(subs, seen2, artifacts) {
+  collectFromSubMessages(subs, seen2, artifacts);
 }
 
 export function collectFallbackTurnArtifacts(messages2) {
   const seen2 = new Set();
-  const out = [];
-  for (const msg of messages2) {
-    if (msg.type === "tool") {
-      const toolMsg = msg;
+  const artifacts = [];
+  for (const message of messages2) {
+    if (message.type === "tool") {
+      const toolMsg = message;
       const toolName2 = toolMsg.toolName?.trim() || toolMsg.content;
       if (
         toolMsg.toolStatus !== "ok" ||
@@ -85,26 +85,26 @@ export function collectFallbackTurnArtifacts(messages2) {
       ) {
         continue;
       }
-      collectFromTaskResultText(toolName2, toolMsg.toolResult, seen2, out);
+      collectFromTaskResultText(toolName2, toolMsg.toolResult, seen2, artifacts);
       collectFromToolPayload(
         toolName2,
         parseJsonPayload(toolMsg.toolArgs),
         parseJsonPayload(toolMsg.toolResult),
         seen2,
-        out,
+        artifacts,
       );
       continue;
     }
-    if (msg.type === "text" && msg.role === "user") {
-      collectFromAsyncTaskText(msg.content, seen2, out);
-      collectFromRecoveredText(msg.content, seen2, out);
+    if (message.type === "text" && message.role === "user") {
+      collectFromAsyncTaskText(message.content, seen2, artifacts);
+      collectFromRecoveredText(message.content, seen2, artifacts);
       continue;
     }
-    if (msg.type === "sub_agent") {
-      const sub = msg;
-      if (sub.subMessages)
-        collectFallbackFromSubMessages(sub.subMessages, seen2, out);
+    if (message.type === "sub_agent") {
+      const subAgentMessage = message;
+      if (subAgentMessage.subMessages)
+        collectFallbackFromSubMessages(subAgentMessage.subMessages, seen2, artifacts);
     }
   }
-  return out;
+  return artifacts;
 }

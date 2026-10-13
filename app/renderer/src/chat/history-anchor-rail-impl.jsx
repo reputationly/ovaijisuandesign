@@ -24,12 +24,12 @@ const RailTick = reactExports.memo(function RailTick2({
   compact,
   onJumpToTurn,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const handleClick2 = reactExports.useCallback(
     () => onJumpToTurn(index2),
     [index2, onJumpToTurn],
   );
-  const ariaLabel = t2("chat.historyRail.turn", "对话 {{n}}", {
+  const ariaLabel = translate("chat.historyRail.turn", "对话 {{n}}", {
     n: index2 + 1,
   });
   let widthClass;
@@ -82,21 +82,21 @@ const RailTick = reactExports.memo(function RailTick2({
 
 RailTick.displayName = "RailTick";
 
-function formatAttachmentSummary(s2, t2) {
-  if (s2.kind === "single") return s2.filename;
-  if (s2.kind === "sameType") {
-    return t2(`chat.historyRail.attachmentCount.${s2.type}`, {
-      defaultValue: `${s2.count} 个附件`,
-      count: s2.count,
+function formatAttachmentSummary(attachmentSummary, translate) {
+  if (attachmentSummary.kind === "single") return attachmentSummary.filename;
+  if (attachmentSummary.kind === "sameType") {
+    return translate(`chat.historyRail.attachmentCount.${attachmentSummary.type}`, {
+      defaultValue: `${attachmentSummary.count} 个附件`,
+      count: attachmentSummary.count,
     });
   }
-  return t2("chat.historyRail.attachmentCount.mixed", {
-    defaultValue: `${s2.count} 个附件`,
-    count: s2.count,
+  return translate("chat.historyRail.attachmentCount.mixed", {
+    defaultValue: `${attachmentSummary.count} 个附件`,
+    count: attachmentSummary.count,
   });
 }
 
-function UserSignalRow({ signal, t: t2 }) {
+function UserSignalRow({ signal, t: translate }) {
   if (signal.kind === "text") {
     return (
       <div>
@@ -105,7 +105,7 @@ function UserSignalRow({ signal, t: t2 }) {
         </div>
         {signal.attachments && (
           <div className="mt-0.5 text-caption-10 text-muted-foreground truncate">
-            {formatAttachmentSummary(signal.attachments, t2)}
+            {formatAttachmentSummary(signal.attachments, translate)}
           </div>
         )}
       </div>
@@ -113,12 +113,12 @@ function UserSignalRow({ signal, t: t2 }) {
   }
   return (
     <div className="text-sm font-semibold text-foreground leading-snug line-clamp-2 break-words">
-      {formatAttachmentSummary(signal.attachments, t2)}
+      {formatAttachmentSummary(signal.attachments, translate)}
     </div>
   );
 }
 
-function AgentSignalRow({ signal, t: t2 }) {
+function AgentSignalRow({ signal, t: translate }) {
   if (signal.kind === "text") {
     return (
       <div className="text-xs text-muted-foreground leading-snug line-clamp-3 break-words">
@@ -127,10 +127,10 @@ function AgentSignalRow({ signal, t: t2 }) {
     );
   }
   if (signal.kind === "subAgent") {
-    const roleLabel = t2(`chat.historyRail.agentRole.${signal.role}`, {
+    const roleLabel = translate(`chat.historyRail.agentRole.${signal.role}`, {
       defaultValue: signal.role,
     });
-    const primary = t2("chat.historyRail.subAgentProcessing", {
+    const primary = translate("chat.historyRail.subAgentProcessing", {
       defaultValue: "{{role}} 处理中",
       role: roleLabel,
     });
@@ -148,7 +148,7 @@ function AgentSignalRow({ signal, t: t2 }) {
   }
   return (
     <div className="text-xs text-muted-foreground leading-snug line-clamp-2 break-words">
-      {t2("chat.historyRail.toolCall", {
+      {translate("chat.historyRail.toolCall", {
         defaultValue: "调用了 {{tool}}",
         tool: signal.toolName,
       })}
@@ -162,7 +162,7 @@ const PreviewCard = reactExports.memo(function PreviewCard2({
   topStyle,
   compact,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div
       style={topStyle}
@@ -170,8 +170,8 @@ const PreviewCard = reactExports.memo(function PreviewCard2({
       className={`elevated-surface-border pointer-events-none absolute right-full mr-2 rounded-lg bg-popover shadow-lg text-popover-foreground p-3 space-y-1.5 ${compact ? "w-56 -translate-y-1/2" : "w-64 max-w-[320px]"}`}
       role="tooltip"
     >
-      {userSignal && <UserSignalRow signal={userSignal} t={t2} />}
-      {agentSignal && <AgentSignalRow signal={agentSignal} t={t2} />}
+      {userSignal && <UserSignalRow signal={userSignal} t={translate} />}
+      {agentSignal && <AgentSignalRow signal={agentSignal} t={translate} />}
     </div>
   );
 });
@@ -185,7 +185,7 @@ const HistoryAnchorRailImpl = ({
   onJumpToTurn,
   compact = false,
 }) => {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [hoveredIndex, setHoveredIndex] = reactExports.useState(null);
   const [hoverYInNav, setHoverYInNav] = reactExports.useState(-1);
   const [railScrollTop, setRailScrollTop] = reactExports.useState(0);
@@ -194,7 +194,7 @@ const HistoryAnchorRailImpl = ({
   const rafIdRef = reactExports.useRef(null);
   const turnsRef = reactExports.useRef(turns);
   turnsRef.current = turns;
-  const ariaLabel = t2("chat.historyRail.label", "对话锚点");
+  const ariaLabel = translate("chat.historyRail.label", "对话锚点");
   const activeIndexSet = reactExports.useMemo(
     () => new Set(activeIndexes),
     [activeIndexes],
@@ -236,9 +236,9 @@ const HistoryAnchorRailImpl = ({
   const previewAgentSignal = compact
     ? null
     : (hoveredTurn?.agentSignal ?? null);
-  const handleMouseMove2 = reactExports.useCallback((e2) => {
+  const handleMouseMove2 = reactExports.useCallback((mouseEvent) => {
     if (rafIdRef.current != null) return;
-    const clientY = e2.clientY;
+    const clientY = mouseEvent.clientY;
     rafIdRef.current = requestAnimationFrame(() => {
       rafIdRef.current = null;
       const nav2 = navRef.current;

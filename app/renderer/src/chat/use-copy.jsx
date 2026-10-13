@@ -53,9 +53,9 @@ export function collectAssistantCopyText(messages2) {
 }
 
 export function BottomAnchorButton({ state: state2, onClick }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isScrolling = state2 === "scrolling-to-bottom";
-  const ariaLabel = t2("chat.bottomAnchor.label", "回到最新消息");
+  const ariaLabel = translate("chat.bottomAnchor.label", "回到最新消息");
   const handleClick2 = () => {
     if (isScrolling) return;
     onClick();
@@ -89,7 +89,7 @@ export function useChatPresentation() {
 }
 
 export function GenerationHandoffSummary({ targets }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const completedCount = useAssetMetadataStore((state22) => {
     let count2 = 0;
     for (const target of targets) {
@@ -121,10 +121,10 @@ export function GenerationHandoffSummary({ targets }) {
     >
       <p className="text-body-14 text-muted-foreground">
         {state2 === "completed"
-          ? t2("chat.activity.mediaGenHandoffCompletedDescription", {
+          ? translate("chat.activity.mediaGenHandoffCompletedDescription", {
               count: targets.length,
             })
-          : t2("chat.activity.mediaGenInterruptedDescription")}
+          : translate("chat.activity.mediaGenInterruptedDescription")}
       </p>
     </div>
   );
@@ -170,11 +170,11 @@ function availableTipKeys() {
   return TIP_KEYS;
 }
 
-function shuffleArray(arr) {
-  const copy2 = [...arr];
-  for (let i2 = copy2.length - 1; i2 > 0; i2--) {
-    const j2 = Math.floor(Math.random() * (i2 + 1));
-    [copy2[i2], copy2[j2]] = [copy2[j2], copy2[i2]];
+function shuffleArray(items) {
+  const copy2 = [...items];
+  for (let index = copy2.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [copy2[index], copy2[swapIndex]] = [copy2[swapIndex], copy2[index]];
   }
   return copy2;
 }
@@ -192,7 +192,7 @@ function localizeShortcuts(text2) {
 }
 
 export function useChatTips(active2) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const poolRef = reactExports.useRef(shuffleArray(availableTipKeys()));
   const indexRef = reactExports.useRef(0);
   const [currentKey, setCurrentKey] = reactExports.useState(null);
@@ -210,5 +210,5 @@ export function useChatTips(active2) {
     return () => clearInterval(timer2);
   }, [active2]);
   if (!currentKey) return null;
-  return localizeShortcuts(t2(currentKey));
+  return localizeShortcuts(translate(currentKey));
 }

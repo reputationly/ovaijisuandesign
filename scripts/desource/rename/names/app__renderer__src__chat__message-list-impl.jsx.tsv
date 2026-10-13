@@ -1,0 +1,10 @@
+key	新名	依据
+a2@33:11	firstAttachment	`firstAttachment` 是单个用户附件，用于从路径提取文件名。
+a2@43:6	attachment	`attachment` 是附件类型筛选谓词收到的任意附件。
+m3@83:6	message	`message` 是文本信号筛选谓词收到的任意消息。
+m3@94:31	message	`message` 是子代理类型查找谓词收到的任意消息。
+m3@104:28	message	`message` 是工具类型查找谓词收到的任意消息。
+msg@151:14	message	`message` 是待按工具类型分组合并的对话消息。
+msg@165:14	message	`message` 是用于识别用户轮次边界并构建对话轮次的消息。
+el@390:15	scrollElement	`scrollElement` 是无历史轮次时重置滚动位置的容器。
+i2@484:14	index	`index` 是生成历史轨道占位轮次的当前数组位置。

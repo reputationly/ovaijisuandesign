@@ -1,0 +1,7 @@
+key	新名	依据
+t2@56:14	translate	`translate` 是底部锚点按钮的本地化文本查询函数。
+t2@92:14	translate	`translate` 是生成交接摘要中查询本地化描述的函数。
+arr@173:23	items	`items` 是传入随机重排函数并复制、交换顺序的数组项。
+i2@175:12	index	`index` 是从数组末尾递减的当前交换位置。
+j2@176:11	swapIndex	`swapIndex` 是随机选出的另一个数组位置。
+t2@195:14	translate	`translate` 是聊天提示中查询本地化文本的函数。

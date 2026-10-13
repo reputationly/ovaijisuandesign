@@ -30,9 +30,9 @@ function attachmentTypeKey(type2) {
 function summarizeAttachments(attachments) {
   if (!attachments || attachments.length === 0) return void 0;
   if (attachments.length === 1) {
-    const a2 = attachments[0];
-    if (!a2) return void 0;
-    const filename = a2.path.split("/").pop() || a2.path;
+    const firstAttachment = attachments[0];
+    if (!firstAttachment) return void 0;
+    const filename = firstAttachment.path.split("/").pop() || firstAttachment.path;
     return {
       kind: "single",
       filename,
@@ -40,7 +40,7 @@ function summarizeAttachments(attachments) {
   }
   const firstType = attachmentTypeKey(attachments[0]?.type ?? "file");
   const allSameType = attachments.every(
-    (a2) => attachmentTypeKey(a2.type) === firstType,
+    (attachment) => attachmentTypeKey(attachment.type) === firstType,
   );
   if (allSameType) {
     return {
@@ -80,9 +80,9 @@ function extractAgentSignalRaw(turn) {
   const flat = turn.responses.flat();
   if (flat.length === 0) return null;
   const textMsg = flat.find(
-    (m3) =>
-      (m3.type === "text" || m3.type === "thinking") &&
-      typeof m3.content === "string",
+    (message) =>
+      (message.type === "text" || message.type === "thinking") &&
+      typeof message.content === "string",
   );
   const textContent = textMsg?.content?.trim();
   if (textContent) {
@@ -91,7 +91,7 @@ function extractAgentSignalRaw(turn) {
       text: textContent,
     };
   }
-  const subAgent = flat.find((m3) => m3.type === "sub_agent");
+  const subAgent = flat.find((message) => message.type === "sub_agent");
   if (subAgent) {
     const role = subAgent.agent?.trim() || "agent";
     const subText = subAgent.content?.trim();
@@ -101,7 +101,7 @@ function extractAgentSignalRaw(turn) {
       text: subText || void 0,
     };
   }
-  const tool2 = flat.find((m3) => m3.type === "tool");
+  const tool2 = flat.find((message) => message.type === "tool");
   if (tool2) {
     const toolName2 = tool2.toolName?.trim() || tool2.content?.trim() || "";
     if (toolName2)
@@ -148,12 +148,12 @@ function findMessageTurnIndex(turns, messageId) {
 
 function groupTools(messages2) {
   const groups = [];
-  for (const msg of messages2) {
+  for (const message of messages2) {
     const last2 = groups[groups.length - 1];
-    if (msg.type === "tool" && last2?.[0]?.type === "tool") {
-      last2.push(msg);
+    if (message.type === "tool" && last2?.[0]?.type === "tool") {
+      last2.push(message);
     } else {
-      groups.push([msg]);
+      groups.push([message]);
     }
   }
   return groups;
@@ -162,8 +162,8 @@ function groupTools(messages2) {
 function groupIntoTurns(messages2) {
   const turns = [];
   let currentResponses = [];
-  for (const msg of messages2) {
-    if (msg.type === "text" && msg.role === "user") {
+  for (const message of messages2) {
+    if (message.type === "text" && message.role === "user") {
       if (currentResponses.length > 0) {
         const prev = turns[turns.length - 1];
         if (prev) {
@@ -177,11 +177,11 @@ function groupIntoTurns(messages2) {
         currentResponses = [];
       }
       turns.push({
-        user: msg,
+        user: message,
         responses: [],
       });
     } else {
-      currentResponses.push(msg);
+      currentResponses.push(message);
     }
   }
   if (currentResponses.length > 0) {
@@ -387,8 +387,8 @@ export function MessageListImpl({
       }
       const lastTurnIndex = turns.length - 1;
       if (lastTurnIndex < 0) {
-        const el = scrollRef.current;
-        if (el) el.scrollTop = 0;
+        const scrollElement = scrollRef.current;
+        if (scrollElement) scrollElement.scrollTop = 0;
         return;
       }
       turnVirtualizer.scrollToIndex(lastTurnIndex, {
@@ -481,16 +481,16 @@ export function MessageListImpl({
     const TARGET = 80;
     if (real.length >= TARGET) return real;
     const filler = [];
-    for (let i2 = real.length; i2 < TARGET; i2++) {
+    for (let index = real.length; index < TARGET; index++) {
       filler.push({
-        index: i2,
+        index,
         userSignal: {
           kind: "text",
-          text: `[mock] turn ${i2 + 1} user 提示 — 这是为了 QA 压缩模式生成的占位文本.`,
+          text: `[mock] turn ${index + 1} user 提示 — 这是为了 QA 压缩模式生成的占位文本.`,
         },
         agentSignal: {
           kind: "text",
-          text: `[mock] turn ${i2 + 1} assistant 回复 — 压缩模式下 tick 间距收缩, 命中靠 y-ratio.`,
+          text: `[mock] turn ${index + 1} assistant 回复 — 压缩模式下 tick 间距收缩, 命中靠 y-ratio.`,
         },
       });
     }

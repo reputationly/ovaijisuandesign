@@ -1,0 +1,8 @@
+key	新名	依据
+out@19:52	artifacts	`artifacts` 是从异步任务文本中收集文件产物的输出数组。
+out@37:53	artifacts	`artifacts` 是从子消息收集媒体及工具产物的输出数组。
+sub@38:14	subMessage	`subMessage` 是子消息列表中的任意消息，循环按其类型分别处理。
+out@70:54	artifacts	`artifacts` 是传给子消息产物收集函数的输出数组。
+out@76:9	artifacts	`artifacts` 是收集整轮回退产物并最终返回的数组。
+msg@77:14	message	`message` 是对话消息列表中的任意消息，循环按类型分派处理。
+sub@104:13	subAgentMessage	`subAgentMessage` 已由前面的类型判断限定为子代理消息。

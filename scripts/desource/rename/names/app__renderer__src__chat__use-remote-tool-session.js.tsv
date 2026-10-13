@@ -1,0 +1,7 @@
+key	新名	依据
+sid@11:16	sessionId	`sessionId` 是待从会话状态映射中清理的会话键。
+sid@56:11	sessionId	`sessionId` 是当前聚焦会话对应的远程工具请求键。
+sid@71:11	sessionId	`sessionId` 是当前聚焦会话对应的待处理远程工具键。
+sid@86:11	sessionId	`sessionId` 是读取并更新待处理远程工具的会话键。
+err@137:16	error	`error` 是发送技能 GUI 事件时捕获的异常。
+msg@149:6	message	`message` 是远程工具 WebSocket 回调收到的消息，包含不同类型的事件数据。

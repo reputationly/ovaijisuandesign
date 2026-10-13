@@ -35,29 +35,29 @@ export function useDropHandler({
   const warnUnsupportedFolder = reactExports.useCallback(() => {
     dedupedToast.warning(folderWarningText);
   }, [folderWarningText]);
-  const handleDragOver = reactExports.useCallback((e2) => {
-    if (!hasFileDropPayload(e2.dataTransfer)) return;
-    e2.preventDefault();
-    e2.dataTransfer.dropEffect = "copy";
+  const handleDragOver = reactExports.useCallback((dragOverEvent) => {
+    if (!hasFileDropPayload(dragOverEvent.dataTransfer)) return;
+    dragOverEvent.preventDefault();
+    dragOverEvent.dataTransfer.dropEffect = "copy";
   }, []);
-  const handleDragEnter = reactExports.useCallback((e2) => {
-    if (!hasFileDropPayload(e2.dataTransfer)) return;
-    e2.preventDefault();
+  const handleDragEnter = reactExports.useCallback((dragEnterEvent) => {
+    if (!hasFileDropPayload(dragEnterEvent.dataTransfer)) return;
+    dragEnterEvent.preventDefault();
     dragCounterRef.current++;
     if (dragCounterRef.current === 1) setIsDragging(true);
   }, []);
-  const handleDragLeave = reactExports.useCallback((e2) => {
+  const handleDragLeave = reactExports.useCallback((dragLeaveEvent) => {
     if (dragCounterRef.current === 0) return;
-    e2.preventDefault();
+    dragLeaveEvent.preventDefault();
     dragCounterRef.current = Math.max(0, dragCounterRef.current - 1);
     if (dragCounterRef.current === 0) setIsDragging(false);
   }, []);
   const handleDrop2 = reactExports.useCallback(
-    (e2) => {
-      e2.preventDefault();
+    (dropEvent) => {
+      dropEvent.preventDefault();
       dragCounterRef.current = 0;
       setIsDragging(false);
-      const resources = parseResourceDrag(e2);
+      const resources = parseResourceDrag(dropEvent);
       if (resources) {
         if (guard && !guard()) return;
         const transactionGeneration = getTransactionGeneration?.();
@@ -94,19 +94,19 @@ export function useDropHandler({
                 return;
               }
               if (guard && !guard()) return;
-              for (const row of rows) {
+              for (const importedAsset of rows) {
                 addFromAssetPath(
-                  row.path,
-                  row.path.split("/").pop() ?? row.path,
+                  importedAsset.path,
+                  importedAsset.path.split("/").pop() ?? importedAsset.path,
                   void 0,
-                  row.id,
+                  importedAsset.id,
                 );
               }
             })
-            .catch((err) => {
+            .catch((error) => {
               console.error(
                 "[chat] External resource drop import failed:",
-                err,
+                error,
               );
             });
         }
@@ -129,19 +129,19 @@ export function useDropHandler({
               if (guard && !guard()) return;
               addFromAssetPath(anchored.path, item.name);
             })
-            .catch((err) => {
-              console.error("[chat] Project asset drop anchor failed:", err);
+            .catch((error) => {
+              console.error("[chat] Project asset drop anchor failed:", error);
             });
         }
         if (added === 0) warnUnsupportedFolder();
         return;
       }
-      const hasDirectories = hasDroppedDirectories(e2.dataTransfer);
-      if (e2.dataTransfer.files.length > 0) {
+      const hasDirectories = hasDroppedDirectories(dropEvent.dataTransfer);
+      if (dropEvent.dataTransfer.files.length > 0) {
         if (guard && !guard()) return;
-        addFromLocal(e2.dataTransfer.files);
+        addFromLocal(dropEvent.dataTransfer.files);
         if (hasDirectories) warnUnsupportedFolder();
-      } else if (hasDirectories || hasNativeFileDrag(e2.dataTransfer)) {
+      } else if (hasDirectories || hasNativeFileDrag(dropEvent.dataTransfer)) {
         warnUnsupportedFolder();
       }
     },

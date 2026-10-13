@@ -1,0 +1,9 @@
+key	新名	依据
+p3@35:18	path	`path` 是有效的字符串路径，收集自载荷的 `paths` 数组。
+r2@40:18	result	`result` 是结果列表中的记录，可能包含单个路径或多个路径。
+p3@42:22	path	`path` 是当前结果记录 `paths` 数组中的路径值。
+out@64:48	artifacts	`artifacts` 是文本写入结果通过校验后追加产物的输出数组。
+out@89:3	artifacts	`artifacts` 是画布文本产物收集过程中传递的输出数组。
+out@113:3	artifacts	`artifacts` 是工具载荷处理中接收各类文件产物的输出数组。
+cat@116:9	category	`category` 是根据工具动作名称解析出的媒体生成类别。
+p3@124:16	path	`path` 是从工具载荷提取并用于推断产物类型的路径。

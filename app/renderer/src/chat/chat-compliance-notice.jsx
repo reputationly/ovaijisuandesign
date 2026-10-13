@@ -11,7 +11,7 @@ import { MessageInputBase } from "./message-input-base.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
 import { getMediaUsageGuidelinesUrl } from "../workspace/shortcut-hint.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";
@@ -35,10 +35,10 @@ const EMPTY = {
 };
 function normalize(raw2) {
   if (!raw2 || typeof raw2 !== "object") return EMPTY;
-  const obj = raw2;
+  const promotionPayload = raw2;
   return {
-    promotion: obj.promotion ?? null,
-    models: Array.isArray(obj.models) ? obj.models : [],
+    promotion: promotionPayload.promotion ?? null,
+    models: Array.isArray(promotionPayload.models) ? promotionPayload.models : [],
   };
 }
 export function useBillingPromotion() {
@@ -48,9 +48,9 @@ export function useBillingPromotion() {
     queryKey: ["billing-promotion"],
     queryFn: async () => {
       try {
-        const res = await gatewayFetch(API_PATHS.billingPromotion);
-        if (!res.ok) return EMPTY;
-        return normalize(await res.json());
+        const response = await gatewayFetch(API_PATHS.billingPromotion);
+        if (!response.ok) return EMPTY;
+        return normalize(await response.json());
       } catch {
         return EMPTY;
       }
@@ -82,9 +82,9 @@ export function useSkillReloadNotification(hasActiveSession) {
   const { subscribe: subscribe2 } = useWorkspaceWSConnection();
   const [pendingSkills, setPendingSkills] = reactExports.useState(null);
   reactExports.useEffect(() => {
-    return subscribe2((msg) => {
-      if (msg.type !== "skills_reload") return;
-      const payload = msg;
+    return subscribe2((message) => {
+      if (message.type !== "skills_reload") return;
+      const payload = message;
       const names = payload.unloadedSkills ?? [];
       if (names.length === 0) return;
       if (payload.autoUpdate) {
@@ -104,7 +104,7 @@ export function useSkillReloadNotification(hasActiveSession) {
       if (!hasActiveSession) {
         window.hilo.opencode
           .restart()
-          .catch((e2) => console.error("OpenCode restart failed:", e2));
+          .catch((error) => console.error("OpenCode restart failed:", error));
       } else {
         setPendingSkills(names);
       }
@@ -113,7 +113,7 @@ export function useSkillReloadNotification(hasActiveSession) {
   const reload = reactExports.useCallback(() => {
     window.hilo.opencode
       .restart()
-      .catch((e2) => console.error("OpenCode restart failed:", e2));
+      .catch((error) => console.error("OpenCode restart failed:", error));
     setPendingSkills(null);
   }, []);
   const dismiss = reactExports.useCallback(() => setPendingSkills(null), []);
@@ -124,7 +124,7 @@ export function useSkillReloadNotification(hasActiveSession) {
   };
 }
 export function ChatComplianceNotice() {
-  const { i18n, t: t2 } = useTranslation();
+  const { i18n, t: translate } = useTranslation();
   const platform2 = usePlatform();
   const { channel, region } = useRuntimeConfig();
   const guidelinesUrl = getMediaUsageGuidelinesUrl(region, channel);
@@ -140,7 +140,7 @@ export function ChatComplianceNotice() {
   return (
     <p
       data-action-ui-id="chat-compliance-notice"
-      className={cn(
+      className={mergeClassNames(
         "mt-px min-w-0 translate-y-1 px-2 text-center text-[10px] leading-4 text-muted-foreground/40 [overflow-wrap:anywhere] dark:text-muted-foreground/30",
         i18n.language.startsWith("zh")
           ? "tracking-[0.6px]"
@@ -148,18 +148,18 @@ export function ChatComplianceNotice() {
       )}
     >
       <Trans
-        t={t2}
+        t={translate}
         i18nKey="chat.complianceNotice"
         components={{
           guidelines: (
             <a
               href={guidelinesUrl}
               data-action-ui-id="chat-compliance-guidelines-link"
-              aria-label={t2("chat.complianceGuidelinesLink")}
+              aria-label={translate("chat.complianceGuidelinesLink")}
               onClick={handleGuidelinesClick}
               className="-mx-1 inline cursor-pointer rounded-md px-1 py-0.5 text-muted-foreground/40 underline decoration-dotted underline-offset-2 transition-colors hover:text-foreground/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 dark:text-muted-foreground/30 dark:hover:text-foreground/60"
             >
-              {t2("chat.complianceGuidelinesLink")}
+              {translate("chat.complianceGuidelinesLink")}
             </a>
           ),
         }}

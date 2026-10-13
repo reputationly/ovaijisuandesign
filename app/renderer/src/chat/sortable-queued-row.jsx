@@ -55,14 +55,14 @@ const restrictToParentElement = ({
   return next2;
 };
 function SortableQueuedRow({
-  id: id2,
+  id: sortableId,
   message: message2,
   index: index2,
   draggable,
   onEdit,
   onDelete,
   onSendNow,
-  t: t2,
+  t: translate,
 }) {
   const {
     attributes,
@@ -72,7 +72,7 @@ function SortableQueuedRow({
     transition: transition2,
     isDragging,
   } = useSortable({
-    id: id2,
+    id: sortableId,
   });
   const style2 = {
     transform: CSS.Transform.toString(transform2),
@@ -84,7 +84,7 @@ function SortableQueuedRow({
   };
   const displayText = message2.text
     ? redactForCurrentRegion(message2.text)
-    : t2("chat.queue.attachmentOnly");
+    : translate("chat.queue.attachmentOnly");
   return (
     <div
       ref={setNodeRef}
@@ -98,7 +98,7 @@ function SortableQueuedRow({
           {...attributes}
           {...listeners2}
           className="absolute -left-3 top-1/2 z-10 inline-flex size-6 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0 text-muted-foreground/40 transition-colors group-hover/queued-row:text-foreground/70 hover:bg-transparent hover:text-foreground/70 focus-visible:text-foreground/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 cursor-grab active:cursor-grabbing"
-          aria-label={t2("chat.queue.dragToReorder", {
+          aria-label={translate("chat.queue.dragToReorder", {
             defaultValue: "Drag to reorder",
           })}
         >
@@ -130,7 +130,7 @@ function SortableQueuedRow({
           // 瞬态状态原位替换动作区；固定 action rail 宽度避免发送时正文突然回流。
           <span className="inline-flex h-7 items-center gap-1 whitespace-nowrap pl-1.5 pr-2 text-muted-foreground">
             <Loader2 className="size-3 animate-spin" />
-            {t2("chat.queue.sending")}
+            {translate("chat.queue.sending")}
           </span>
         ) : (
           <>
@@ -142,19 +142,19 @@ function SortableQueuedRow({
                     variant="ghost"
                     size="xs"
                     className="h-7 gap-0.5 rounded-md pl-1.5 pr-2 text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-                    aria-label={t2("chat.queue.sendNow")}
+                    aria-label={translate("chat.queue.sendNow")}
                     data-action-ui-id="chat-queued-message-send-now"
                     onClick={() => onSendNow(message2)}
                   >
                     <Icon icon={CornerDownRight} size="sm" aria-hidden={true} />
                     {message2.reviewPaused
-                      ? t2("common.retry")
-                      : t2("chat.queue.sendNow")}
+                      ? translate("common.retry")
+                      : translate("chat.queue.sendNow")}
                   </Button>
                 }
               />
               <TooltipContent side="top">
-                {t2(
+                {translate(
                   "chat.queue.sendNowTooltip",
                   "Stop the current response and send immediately",
                 )}
@@ -168,7 +168,7 @@ function SortableQueuedRow({
                     variant="ghost"
                     size="icon-xs"
                     className="size-7 -ml-1 rounded-md text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
-                    aria-label={t2("chat.queue.edit")}
+                    aria-label={translate("chat.queue.edit")}
                     data-action-ui-id="chat-queued-message-edit"
                     onClick={() => onEdit(message2)}
                   >
@@ -177,7 +177,7 @@ function SortableQueuedRow({
                 }
               />
               <TooltipContent side="top">
-                {t2("chat.queue.edit")}
+                {translate("chat.queue.edit")}
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -188,7 +188,7 @@ function SortableQueuedRow({
                     variant="ghost"
                     size="icon-xs"
                     className="size-7 -ml-1 rounded-md text-muted-foreground hover:bg-foreground/10 hover:text-destructive"
-                    aria-label={t2("chat.queue.delete")}
+                    aria-label={translate("chat.queue.delete")}
                     data-action-ui-id="chat-queued-message-delete"
                     onClick={() => onDelete(message2)}
                   >
@@ -197,7 +197,7 @@ function SortableQueuedRow({
                 }
               />
               <TooltipContent side="top">
-                {t2("chat.queue.delete")}
+                {translate("chat.queue.delete")}
               </TooltipContent>
             </Tooltip>
           </>
@@ -214,7 +214,7 @@ export function QueuedUserMessageList({
   onSendNow,
   onReorder,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -226,18 +226,18 @@ export function QueuedUserMessageList({
     }),
   );
   const itemIds = reactExports.useMemo(
-    () => messages2.map((m3) => m3.queueId ?? m3.clientMessageId),
+    () => messages2.map((message) => message.queueId ?? message.clientMessageId),
     [messages2],
   );
   const queuedMessageScrollRef = reactExports.useRef(null);
   const [canScrollUp, setCanScrollUp] = reactExports.useState(false);
   const [canScrollDown, setCanScrollDown] = reactExports.useState(false);
   const syncQueuedMessageScroll = reactExports.useCallback(() => {
-    const el = queuedMessageScrollRef.current;
-    if (!el) return;
-    const maxScrollTop = Math.max(0, el.scrollHeight - el.clientHeight);
-    setCanScrollUp(el.scrollTop > 1);
-    setCanScrollDown(el.scrollTop < maxScrollTop - 1);
+    const scrollElement = queuedMessageScrollRef.current;
+    if (!scrollElement) return;
+    const maxScrollTop = Math.max(0, scrollElement.scrollHeight - scrollElement.clientHeight);
+    setCanScrollUp(scrollElement.scrollTop > 1);
+    setCanScrollDown(scrollElement.scrollTop < maxScrollTop - 1);
   }, []);
   reactExports.useLayoutEffect(() => {
     if (messages2.length === 0) {
@@ -245,19 +245,19 @@ export function QueuedUserMessageList({
       setCanScrollDown(false);
       return;
     }
-    const el = queuedMessageScrollRef.current;
-    if (!el) return;
+    const scrollElement = queuedMessageScrollRef.current;
+    if (!scrollElement) return;
     syncQueuedMessageScroll();
     if (typeof ResizeObserver === "undefined") return;
     const observer2 = new ResizeObserver(syncQueuedMessageScroll);
-    observer2.observe(el);
+    observer2.observe(scrollElement);
     return () => observer2.disconnect();
   }, [messages2.length, syncQueuedMessageScroll]);
   reactExports.useLayoutEffect(() => {
     if (!scrollRequest) return;
-    const el = queuedMessageScrollRef.current;
-    if (!el) return;
-    applyQueuedMessageScrollRequest(el, scrollRequest);
+    const scrollElement = queuedMessageScrollRef.current;
+    if (!scrollElement) return;
+    applyQueuedMessageScrollRequest(scrollElement, scrollRequest);
     syncQueuedMessageScroll();
   }, [scrollRequest, syncQueuedMessageScroll]);
   const handleDragEnd = reactExports.useCallback(
@@ -301,7 +301,7 @@ export function QueuedUserMessageList({
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onSendNow={onSendNow}
-                t={t2}
+                t={translate}
               />
             ))}
           </SortableContext>

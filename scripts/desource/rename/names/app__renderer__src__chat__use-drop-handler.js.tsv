@@ -1,0 +1,8 @@
+key	新名	依据
+e2@38:52	dragOverEvent	`dragOverEvent` 是拖拽悬停处理器收到并检查文件拖放数据的事件。
+e2@43:53	dragEnterEvent	`dragEnterEvent` 是拖拽进入处理器收到并用于更新拖拽状态的事件。
+e2@49:53	dragLeaveEvent	`dragLeaveEvent` 是拖拽离开处理器收到并用于更新拖拽计数的事件。
+e2@56:6	dropEvent	`dropEvent` 是放置处理器收到并解析资源、文件及目录的事件。
+row@97:26	importedAsset	`importedAsset` 是从外部导入工作区后返回、用于创建附件的资源记录。
+err@106:21	error	`error` 是导入外部拖放资源失败时捕获并记录的异常。
+err@132:21	error	`error` 是锚定项目资源失败时捕获并记录的异常。

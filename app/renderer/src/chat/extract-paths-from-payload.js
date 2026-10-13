@@ -32,18 +32,18 @@ function extractPathsFromPayload(payload) {
   try {
     const paths = [];
     if (Array.isArray(parsed?.paths)) {
-      for (const p3 of parsed.paths) {
-        if (typeof p3 === "string" && p3.length > 0 && !p3.startsWith("["))
-          paths.push(p3);
+      for (const path of parsed.paths) {
+        if (typeof path === "string" && path.length > 0 && !path.startsWith("["))
+          paths.push(path);
       }
     } else if (Array.isArray(parsed?.results)) {
-      for (const r2 of parsed.results) {
-        if (Array.isArray(r2?.paths)) {
-          for (const p3 of r2.paths) {
-            if (typeof p3 === "string") paths.push(p3);
+      for (const result of parsed.results) {
+        if (Array.isArray(result?.paths)) {
+          for (const path of result.paths) {
+            if (typeof path === "string") paths.push(path);
           }
-        } else if (typeof r2?.path === "string") {
-          paths.push(r2.path);
+        } else if (typeof result?.path === "string") {
+          paths.push(result.path);
         }
       }
     } else if (typeof parsed?.path === "string" && parsed.path.length > 0) {
@@ -61,13 +61,13 @@ function textArtifactPath(result) {
     : void 0;
 }
 
-function collectTextWriteResult(result, seen2, out) {
+function collectTextWriteResult(result, seen2, artifacts) {
   if (result.ok === false || result.created !== true) return;
   const path2 = textArtifactPath(result);
   if (!path2) return;
   const nodeId = typeof result.nodeId === "string" ? result.nodeId : void 0;
   const assetId = typeof result.assetId === "string" ? result.assetId : void 0;
-  addArtifact(seen2, out, "file", path2, {
+  addArtifact(seen2, artifacts, "file", path2, {
     ...(assetId
       ? {
           assetId,
@@ -86,7 +86,7 @@ function collectCanvasTextArtifacts(
   argsPayload,
   resultPayload,
   seen2,
-  out,
+  artifacts,
 ) {
   const args = asRecord(argsPayload);
   const result = asRecord(resultPayload);
@@ -96,12 +96,12 @@ function collectCanvasTextArtifacts(
     for (const item of result.results) {
       const itemResult = asRecord(item);
       if (!itemResult || itemResult.kind !== "text") continue;
-      collectTextWriteResult(itemResult, seen2, out);
+      collectTextWriteResult(itemResult, seen2, artifacts);
     }
     return;
   }
   if (result.kind === "text" || args?.kind === "text") {
-    collectTextWriteResult(result, seen2, out);
+    collectTextWriteResult(result, seen2, artifacts);
   }
 }
 
@@ -110,26 +110,26 @@ export function collectFromToolPayload(
   argsPayload,
   payload,
   seen2,
-  out,
+  artifacts,
 ) {
-  collectCanvasTextArtifacts(toolName2, argsPayload, payload, seen2, out);
-  const cat = categorizeToolAction(toolName2);
+  collectCanvasTextArtifacts(toolName2, argsPayload, payload, seen2, artifacts);
+  const category = categorizeToolAction(toolName2);
   if (
-    MEDIA_GEN_CATEGORIES.has(cat) ||
+    MEDIA_GEN_CATEGORIES.has(category) ||
     getToolLabelId(toolName2) === "contentProcess"
   ) {
     const fallbackMediaType = mediaTypeFromCategory(
       resolveMediaTaskCategory(toolName2),
     );
-    for (const p3 of extractPathsFromPayload(payload)) {
+    for (const path of extractPathsFromPayload(payload)) {
       addArtifact(
         seen2,
-        out,
-        inferArtifactTypeFromPath(p3) ?? fallbackMediaType,
-        p3,
+        artifacts,
+        inferArtifactTypeFromPath(path) ?? fallbackMediaType,
+        path,
       );
     }
-    collectAssetOutputs(payload, seen2, out);
+    collectAssetOutputs(payload, seen2, artifacts);
     return;
   }
 }

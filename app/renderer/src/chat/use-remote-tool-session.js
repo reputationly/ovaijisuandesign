@@ -8,10 +8,10 @@ const DIALOG_MARKER_TTL_MS = 3e4;
 function pruneSessionMap(setter, liveSessionIds) {
   setter((prev) => {
     let next2 = null;
-    for (const sid of prev.keys()) {
-      if (liveSessionIds.has(sid)) continue;
+    for (const sessionId of prev.keys()) {
+      if (liveSessionIds.has(sessionId)) continue;
       if (!next2) next2 = new Map(prev);
-      next2.delete(sid);
+      next2.delete(sessionId);
     }
     return next2 ?? prev;
   });
@@ -53,60 +53,60 @@ export function useRemoteToolSession({
     [],
   );
   const clearRemoteToolRequest = reactExports.useCallback(() => {
-    const sid = sessionStore.getState().focusedSessionId;
-    if (!sid) return;
-    if (remoteToolRequestBySessionRef.current.has(sid)) {
+    const sessionId = sessionStore.getState().focusedSessionId;
+    if (!sessionId) return;
+    if (remoteToolRequestBySessionRef.current.has(sessionId)) {
       const next2 = new Map(remoteToolRequestBySessionRef.current);
-      next2.delete(sid);
+      next2.delete(sessionId);
       remoteToolRequestBySessionRef.current = next2;
     }
     setRemoteToolRequestBySession((prev) => {
-      if (!prev.has(sid)) return prev;
+      if (!prev.has(sessionId)) return prev;
       const next2 = new Map(prev);
-      next2.delete(sid);
+      next2.delete(sessionId);
       return next2;
     });
   }, [sessionStore]);
   const clearPendingRemoteToolRequest = reactExports.useCallback(() => {
-    const sid = sessionStore.getState().focusedSessionId;
-    if (!sid) return;
-    if (pendingRemoteToolBySessionRef.current.has(sid)) {
+    const sessionId = sessionStore.getState().focusedSessionId;
+    if (!sessionId) return;
+    if (pendingRemoteToolBySessionRef.current.has(sessionId)) {
       const next2 = new Map(pendingRemoteToolBySessionRef.current);
-      next2.delete(sid);
+      next2.delete(sessionId);
       pendingRemoteToolBySessionRef.current = next2;
     }
     setPendingRemoteToolBySession((prev) => {
-      if (!prev.has(sid)) return prev;
+      if (!prev.has(sessionId)) return prev;
       const next2 = new Map(prev);
-      next2.delete(sid);
+      next2.delete(sessionId);
       return next2;
     });
   }, [sessionStore]);
   const openPendingRemoteTool = reactExports.useCallback(() => {
-    const sid = sessionStore.getState().focusedSessionId;
-    if (!sid) {
+    const sessionId = sessionStore.getState().focusedSessionId;
+    if (!sessionId) {
       remoteToolLog.warn("open-pending no focused session");
       return;
     }
-    const pending2 = pendingRemoteToolBySession.get(sid);
+    const pending2 = pendingRemoteToolBySession.get(sessionId);
     if (pending2) {
       remoteToolRequestBySessionRef.current = new Map(
         remoteToolRequestBySessionRef.current,
-      ).set(sid, pending2);
+      ).set(sessionId, pending2);
       remoteToolLog.info("open-pending dialog", {
-        ui_session_id: sid,
+        ui_session_id: sessionId,
         tool_name: pending2.toolName,
         tool_url: pending2.toolUrl,
         has_initial_params: Boolean(pending2.initialParams),
       });
       setRemoteToolRequestBySession((prev) => {
         const next2 = new Map(prev);
-        next2.set(sid, pending2);
+        next2.set(sessionId, pending2);
         return next2;
       });
     } else {
       remoteToolLog.warn("open-pending miss", {
-        ui_session_id: sid,
+        ui_session_id: sessionId,
       });
     }
   }, [pendingRemoteToolBySession, sessionStore]);
@@ -134,19 +134,19 @@ export function useRemoteToolSession({
           data: data2,
           session_id: sessionId,
         });
-      } catch (err) {
+      } catch (error) {
         remoteToolLog.error("gui-event send failed", {
           tool_id: toolId,
           event_type: eventType,
-          error: err instanceof Error ? err.message : String(err),
+          error: error instanceof Error ? error.message : String(error),
         });
-        throw err;
+        throw error;
       }
     },
     [send2],
   );
   const handleRemoteToolWsMessage = reactExports.useCallback(
-    (msg) => {
+    (message) => {
       const convergeAndMount = (dialogId, targetSid, request) => {
         const dialogTimer = dialogIdTimersRef.current.get(dialogId);
         if (dialogTimer) {
@@ -186,21 +186,21 @@ export function useRemoteToolSession({
           });
         }
       };
-      if (msg.type === "open_remote_tool") {
+      if (message.type === "open_remote_tool") {
         setLastSkillGuiEvent(null);
         const request = {
-          toolName: msg.tool_name,
-          toolUrl: msg.tool_url,
-          manifestPath: msg.manifest_path,
-          initialParams: msg.initial_params,
-          restored: msg.restored,
+          toolName: message.tool_name,
+          toolUrl: message.tool_url,
+          manifestPath: message.manifest_path,
+          initialParams: message.initial_params,
+          restored: message.restored,
         };
-        const dialogId = msg.dialog_id;
+        const dialogId = message.dialog_id;
         remoteToolLog.info("open_remote_tool received", {
-          tool_name: msg.tool_name,
+          tool_name: message.tool_name,
           dialog_id: dialogId,
-          tool_url: msg.tool_url,
-          has_initial_params: Boolean(msg.initial_params),
+          tool_url: message.tool_url,
+          has_initial_params: Boolean(message.initial_params),
         });
         const earlyMarker = pendingMarkersByDialogIdRef.current.get(dialogId);
         if (earlyMarker) {
@@ -214,7 +214,7 @@ export function useRemoteToolSession({
           dialogIdTimersRef.current.delete(dialogId);
           pendingDialogsByDialogIdRef.current.delete(dialogId);
           remoteToolLog.warn("dialog marker timeout", {
-            tool_name: msg.tool_name,
+            tool_name: message.tool_name,
             dialog_id: dialogId,
           });
         }, DIALOG_MARKER_TTL_MS);
@@ -222,12 +222,12 @@ export function useRemoteToolSession({
         return true;
       }
       if (
-        msg.type === "task_notification" &&
-        msg.metadata?.hub_dialog_marker === true
+        message.type === "task_notification" &&
+        message.metadata?.hub_dialog_marker === true
       ) {
-        const dialogId = msg.metadata.dialog_id;
-        const targetSid = msg.session_id;
-        const toolName2 = msg.metadata.tool_name ?? "";
+        const dialogId = message.metadata.dialog_id;
+        const targetSid = message.session_id;
+        const toolName2 = message.metadata.tool_name ?? "";
         if (!dialogId || !targetSid) {
           remoteToolLog.warn("hub_dialog_marker missing fields", {
             dialog_id: dialogId ?? null,
@@ -262,9 +262,9 @@ export function useRemoteToolSession({
         markerTimersRef.current.set(dialogId, timer2);
         return true;
       }
-      if (msg.type === "close_remote_tool") {
-        const targetSid = msg.session_id;
-        const matchTool = msg.tool_name;
+      if (message.type === "close_remote_tool") {
+        const targetSid = message.session_id;
+        const matchTool = message.tool_name;
         remoteToolLog.info("close_remote_tool received", {
           target_session_id: targetSid,
           tool_name: matchTool ?? null,
@@ -307,13 +307,13 @@ export function useRemoteToolSession({
         });
         return true;
       }
-      if (msg.type === "skill_gui_event") {
+      if (message.type === "skill_gui_event") {
         remoteToolLog.info("skill_gui_event received", {
-          tool_id: msg.tool_id,
-          event_type: msg.event_type,
-          data_fields: msg.data ? Object.keys(msg.data) : [],
+          tool_id: message.tool_id,
+          event_type: message.event_type,
+          data_fields: message.data ? Object.keys(message.data) : [],
         });
-        setLastSkillGuiEvent(msg);
+        setLastSkillGuiEvent(message);
         return true;
       }
       return false;

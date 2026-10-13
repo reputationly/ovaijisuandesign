@@ -1,0 +1,8 @@
+key	新名	依据
+id2@58:7	sortableId	`sortableId` 是传给拖拽排序 API 的队列行标识。
+t2@65:6	translate	`translate` 是队列行组件查询本地化文案的函数。
+t2@217:14	translate	`translate` 是待发送消息列表查询本地化文案的函数。
+m3@229:26	message	`message` 是队列消息列表中用于提取稳定排序 ID 的消息。
+el@236:11	scrollElement	`scrollElement` 是读取滚动尺寸与位置的队列消息容器。
+el@248:11	scrollElement	`scrollElement` 是监听尺寸并同步滚动状态的队列消息容器。
+el@258:11	scrollElement	`scrollElement` 是传给滚动请求处理函数的队列消息容器。
