@@ -44,7 +44,7 @@ import { mermaidGHXKKRXX } from "./mermaid-ghxkkrxx.js";
 import { Yt as fileExtensionByMimeType } from "./yt.js";
 import { st as HighlightedCodeBlock } from "./st.jsx";
 import { co as MermaidDownloadButton } from "./co.jsx";
-import { fo as MarkdownImage } from "./fo.jsx";
+import { fo as MermaidFullscreenButton } from "./fo.jsx";
 import { Te as TableCopyButton } from "./te.jsx";
 import { Pe as TableDownloadMenu } from "./pe.jsx";
 import { twMerge } from "../infra/dialog-content.jsx";
@@ -1181,7 +1181,7 @@ var MarkdownCodeBlock = ({ node: markdownNode, className, children, ...additiona
                   : null}
                 {canCopyDiagram ? <CopyCodeButton code={highlightedCode} /> : null}
                 {canOpenDiagramFullscreen
-                  ? jsxRuntimeExports.jsx(MarkdownImage, {
+                  ? jsxRuntimeExports.jsx(MermaidFullscreenButton, {
                       chart: highlightedCode,
                       config: mermaidOptions == null ? void 0 : mermaidOptions.config,
                     })
