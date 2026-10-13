@@ -4,8 +4,8 @@ import { reactExports, useStore$2 as useStore } from "../vendor.js";
 import { getDerivedNodePosition } from "../infra/create-recently-added-store.js";
 export const GROUP_DERIVED_CHILD_COUNT_KEY = "__derivedChildCount";
 export const GROUP_DERIVED_COLLAPSED_KEY = "__derivedCollapsed";
-export function clamp(v2, min2, max2) {
-  return Math.min(Math.max(v2, min2), max2);
+export function clamp(value, min2, max2) {
+  return Math.min(Math.max(value, min2), max2);
 }
 const defaultCanvasOverlayStore = createCanvasOverlayStore();
 export const CanvasOverlayStoreContext = reactExports.createContext(null);
@@ -21,14 +21,14 @@ useCanvasOverlayStore.getState = defaultCanvasOverlayStore.getState;
 useCanvasOverlayStore.setState = defaultCanvasOverlayStore.setState;
 useCanvasOverlayStore.subscribe = defaultCanvasOverlayStore.subscribe;
 export function useCropState() {
-  const croppingNodeId = useCanvasOverlayStore((s2) =>
-    s2.active?.kind === "crop" ? s2.active.nodeId : null,
+  const croppingNodeId = useCanvasOverlayStore((state) =>
+    state.active?.kind === "crop" ? state.active.nodeId : null,
   );
-  const meta2 = useCanvasOverlayStore((s2) =>
-    s2.active?.kind === "crop" ? s2.active.meta : null,
+  const meta2 = useCanvasOverlayStore((state) =>
+    state.active?.kind === "crop" ? state.active.meta : null,
   );
-  const startCrop = useCanvasOverlayStore((s2) => s2.startCrop);
-  const cancelCrop = useCanvasOverlayStore((s2) => s2.cancelCrop);
+  const startCrop = useCanvasOverlayStore((state) => state.startCrop);
+  const cancelCrop = useCanvasOverlayStore((state) => state.cancelCrop);
   return {
     croppingNodeId,
     meta: meta2,
@@ -37,31 +37,31 @@ export function useCropState() {
   };
 }
 export function useEmitDerivedFromBlob({
-  id: id2,
+  id: nodeId,
   meta: meta2,
   nodeWidth,
   reactFlow,
   cropImage,
 }) {
   return reactExports.useCallback(
-    async (blob, { suffix, ext, baseFallback = "image" }) => {
+    async (blob, { suffix, ext: extension, baseFallback = "image" }) => {
       if (!cropImage) return;
       const baseName = meta2?.name?.replace(/\.[^.]+$/, "") ?? baseFallback;
       const position2 = getDerivedNodePosition(
         reactFlow,
-        id2,
+        nodeId,
         reactFlow.getEdges(),
         nodeWidth,
       );
       const uuid = crypto.randomUUID().slice(0, 4);
       const tail = suffix ? `${suffix}-${uuid}` : uuid;
-      return cropImage(id2, blob, `${baseName}-${tail}.${ext}`, position2);
+      return cropImage(nodeId, blob, `${baseName}-${tail}.${extension}`, position2);
     },
-    [id2, meta2?.name, cropImage, reactFlow, nodeWidth],
+    [nodeId, meta2?.name, cropImage, reactFlow, nodeWidth],
   );
 }
-export function getNodeFlowRect(reactFlow, id2, fallbackWidth, fallbackHeight) {
-  const node2 = reactFlow.getInternalNode(id2);
+export function getNodeFlowRect(reactFlow, nodeId, fallbackWidth, fallbackHeight) {
+  const node2 = reactFlow.getInternalNode(nodeId);
   if (!node2) return null;
   const width = node2.measured?.width ?? fallbackWidth;
   const height = node2.measured?.height ?? fallbackHeight ?? fallbackWidth;
@@ -85,7 +85,7 @@ function derivePanelDimensions(rect, meta2) {
   };
 }
 export function useStartCropFromNode({
-  id: id2,
+  id: nodeId,
   meta: meta2,
   nodeWidth,
   nodeHeight,
@@ -94,7 +94,7 @@ export function useStartCropFromNode({
 }) {
   const { startCrop } = useCropState();
   const emitDerived = useEmitDerivedFromBlob({
-    id: id2,
+    id: nodeId,
     meta: meta2,
     nodeWidth,
     reactFlow,
@@ -102,10 +102,10 @@ export function useStartCropFromNode({
   });
   const handleCropConfirm = reactExports.useCallback(
     async (blob) => {
-      const ext = meta2?.name?.split(".").pop() ?? "png";
+      const extension = meta2?.name?.split(".").pop() ?? "png";
       await emitDerived(blob, {
         suffix: "",
-        ext,
+        ext: extension,
         baseFallback: "cropped",
       });
     },
@@ -113,23 +113,23 @@ export function useStartCropFromNode({
   );
   const handleCrop = reactExports.useCallback(() => {
     if (!meta2?.url) return;
-    const rect = getNodeFlowRect(reactFlow, id2, nodeWidth, nodeHeight);
+    const rect = getNodeFlowRect(reactFlow, nodeId, nodeWidth, nodeHeight);
     if (!rect) return;
     reactFlow.setNodes((nodes) =>
-      nodes.map((n2) =>
-        n2.selected
+      nodes.map((node) =>
+        node.selected
           ? {
-              ...n2,
+              ...node,
               selected: false,
             }
-          : n2,
+          : node,
       ),
     );
     const panel = derivePanelDimensions(rect, {
       width: meta2.width ?? 0,
       height: meta2.height ?? 0,
     });
-    startCrop(id2, {
+    startCrop(nodeId, {
       src: meta2.url,
       originalWidth: meta2.width || 0,
       originalHeight: meta2.height || 0,
@@ -140,7 +140,7 @@ export function useStartCropFromNode({
       onConfirm: handleCropConfirm,
     });
   }, [
-    id2,
+    nodeId,
     meta2,
     reactFlow,
     nodeWidth,

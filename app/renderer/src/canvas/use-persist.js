@@ -81,47 +81,47 @@ function buildPersistedCanvasFile(params) {
   const { instance: instance2, mode: mode2, savedPositions } = params;
   const graph = instance2.getGraph();
   const persistedNodes = [];
-  for (const n2 of graph.nodes) {
-    const saved = savedPositions.get(n2.id);
-    const positions = sanitizeCanvasPositions(n2.positions).positions;
-    const dataMaybe = n2.data;
+  for (const node of graph.nodes) {
+    const saved = savedPositions.get(node.id);
+    const positions = sanitizeCanvasPositions(node.positions).positions;
+    const dataMaybe = node.data;
     const dataAssetId =
       typeof dataMaybe?.assetId === "string" && dataMaybe.assetId.length > 0
         ? dataMaybe.assetId
         : void 0;
-    const isUserPlaceholder = n2.isEmpty === true;
+    const isUserPlaceholder = node.isEmpty === true;
     const isPluginNode2 =
-      n2.type === CanvasNodeType.File && typeof n2.data?.pluginId === "string";
-    const isUnmaterialisedGeneration = isUnmaterialisedGenerationNode(n2);
-    const { assetId: parsedAssetId } = parseNodeId(n2.id);
+      node.type === CanvasNodeType.File && typeof node.data?.pluginId === "string";
+    const isUnmaterialisedGeneration = isUnmaterialisedGenerationNode(node);
+    const { assetId: parsedAssetId } = parseNodeId(node.id);
     const assetId =
       dataAssetId ??
-      n2.assetId ??
+      node.assetId ??
       saved?.assetId ??
-      (isAssetBackedNode(n2.type) &&
+      (isAssetBackedNode(node.type) &&
       !isUserPlaceholder &&
       !isPluginNode2 &&
       !isUnmaterialisedGeneration
         ? parsedAssetId
         : void 0);
-    const persistedData = n2.data
-      ? prunePersistedNodeData(n2.data, {
-          nodeType: n2.type,
+    const persistedData = node.data
+      ? prunePersistedNodeData(node.data, {
+          nodeType: node.type,
           hasAssetId: assetId != null,
-          hidden: n2.meta?.hidden === true,
+          hidden: node.meta?.hidden === true,
         })
       : void 0;
-    const isGroup = n2.type === CanvasNodeType.Group;
+    const isGroup = node.type === CanvasNodeType.Group;
     let sizesField = {};
     if (isGroup) {
       const merged = {
         ...(saved?.sizes ?? {}),
-        ...(n2.sizes ?? {}),
+        ...(node.sizes ?? {}),
       };
-      if (n2.size)
+      if (node.size)
         merged[mode2] = {
-          width: n2.size.width,
-          height: n2.size.height,
+          width: node.size.width,
+          height: node.size.height,
         };
       if (Object.keys(merged).length > 0)
         sizesField = {
@@ -129,14 +129,14 @@ function buildPersistedCanvasFile(params) {
         };
     }
     persistedNodes.push({
-      id: n2.id,
-      type: n2.type,
+      id: node.id,
+      type: node.type,
       positions,
-      ...(n2.size
+      ...(node.size
         ? {
             size: {
-              width: n2.size.width,
-              height: n2.size.height,
+              width: node.size.width,
+              height: node.size.height,
             },
           }
         : {}),
@@ -146,31 +146,31 @@ function buildPersistedCanvasFile(params) {
             assetId,
           }
         : {}),
-      ...(n2.parentId != null
+      ...(node.parentId != null
         ? {
-            parentId: n2.parentId,
+            parentId: node.parentId,
           }
         : {}),
       // Flat groupId model: persist image group membership.
-      ...(typeof n2.groupId === "string" && n2.groupId.length > 0
+      ...(typeof node.groupId === "string" && node.groupId.length > 0
         ? {
-            groupId: n2.groupId,
+            groupId: node.groupId,
           }
         : {}),
-      ...(Number.isInteger(n2.round)
+      ...(Number.isInteger(node.round)
         ? {
-            round: n2.round,
+            round: node.round,
           }
         : {}),
-      ...(n2.isEmpty === true
+      ...(node.isEmpty === true
         ? {
             isEmpty: true,
           }
         : {}),
-      ...(n2.meta
+      ...(node.meta
         ? {
             meta: {
-              ...n2.meta,
+              ...node.meta,
             },
           }
         : {}),
@@ -182,24 +182,24 @@ function buildPersistedCanvasFile(params) {
     });
   }
   const updatedNodes = new Map();
-  for (const n2 of persistedNodes) {
-    updatedNodes.set(n2.id, n2);
+  for (const node of persistedNodes) {
+    updatedNodes.set(node.id, node);
   }
   const accumulatedHidden = new Set(params.previousHiddenAssetIds ?? []);
-  const assetIdOf = (n2) => {
-    if (typeof n2.assetId === "string" && n2.assetId.length > 0)
-      return n2.assetId;
-    const dataAssetId = n2.data?.assetId;
+  const assetIdOf = (node) => {
+    if (typeof node.assetId === "string" && node.assetId.length > 0)
+      return node.assetId;
+    const dataAssetId = node.data?.assetId;
     return typeof dataAssetId === "string" && dataAssetId.length > 0
       ? dataAssetId
       : void 0;
   };
   const visibleAssetIds = new Set();
   const currentNodeIds = new Set();
-  for (const n2 of persistedNodes) {
-    currentNodeIds.add(n2.id);
-    const a2 = assetIdOf(n2);
-    if (a2) visibleAssetIds.add(a2);
+  for (const node of persistedNodes) {
+    currentNodeIds.add(node.id);
+    const assetId = assetIdOf(node);
+    if (assetId) visibleAssetIds.add(assetId);
   }
   for (const savedNode of savedPositions.values()) {
     if (!params.explicitDeletedNodeIds?.has(savedNode.id)) continue;
@@ -212,27 +212,27 @@ function buildPersistedCanvasFile(params) {
   for (const assetId of params.explicitDeletedAssetIds ?? []) {
     if (!visibleAssetIds.has(assetId)) accumulatedHidden.add(assetId);
   }
-  for (const id2 of visibleAssetIds) accumulatedHidden.delete(id2);
-  for (const id2 of currentNodeIds) accumulatedHidden.delete(id2);
-  const persistedEdges = graph.edges.map((e2) => {
-    const sourceHandle = normaliseHandle(e2.sourceHandle);
-    const targetHandle = normaliseHandle(e2.targetHandle);
-    const prunedData = prunePersistedEdgeData(e2.data);
+  for (const assetId of visibleAssetIds) accumulatedHidden.delete(assetId);
+  for (const nodeId of currentNodeIds) accumulatedHidden.delete(nodeId);
+  const persistedEdges = graph.edges.map((edge) => {
+    const sourceHandle = normaliseHandle(edge.sourceHandle);
+    const targetHandle = normaliseHandle(edge.targetHandle);
+    const prunedData = prunePersistedEdgeData(edge.data);
     return {
-      id: e2.id,
-      source: e2.source,
+      id: edge.id,
+      source: edge.source,
       ...(sourceHandle !== void 0
         ? {
             sourceHandle,
           }
         : {}),
-      target: e2.target,
+      target: edge.target,
       ...(targetHandle !== void 0
         ? {
             targetHandle,
           }
         : {}),
-      type: e2.type ?? "default",
+      type: edge.type ?? "default",
       ...(prunedData
         ? {
             data: prunedData,
@@ -297,7 +297,7 @@ export function usePersist(options) {
     const queue = new PersistSaveQueue({
       saveCanvas: (canvas, saveOptions) =>
         dataSource.saveCanvas(canvas, saveOptions),
-      onError: (err) => console.error("[canvas] Failed to save canvas:", err),
+      onError: (error) => console.error("[canvas] Failed to save canvas:", error),
     });
     saveQueuesRef.current.set(dataSource, queue);
     return queue;
@@ -485,8 +485,8 @@ export function usePersist(options) {
   const buildAndEnqueue = reactExports.useCallback(
     (mode2, request) => {
       void trackPersistence(request, buildAndWait(mode2, request)).catch(
-        (err) => {
-          console.error("[canvas] Failed to save canvas:", err);
+        (error) => {
+          console.error("[canvas] Failed to save canvas:", error);
         },
       );
     },
@@ -510,10 +510,10 @@ export function usePersist(options) {
     }
     const request = beginPersistenceRequest();
     trackPersistence(request, buildAndWait(instance2.getMode(), request)).catch(
-      (err) => {
+      (error) => {
         console.error(
           "[canvas] Failed to save canvas after dataSource change:",
-          err,
+          error,
         );
       },
     );

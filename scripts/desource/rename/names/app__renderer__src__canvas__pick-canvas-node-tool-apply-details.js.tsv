@@ -1,0 +1,12 @@
+key	old	new	依据
+to@87:13	to	targetPath	该路径来自旧路由重定向表或原输入并被传入插件导航。
+img@171:11	img	image	Image 实例用于读取自然尺寸并编码 PNG。
+w3@174:13	w3	mediaWidth	图像自然宽度用于验证尺寸并设置结果宽度。
+h2@175:13	h2	mediaHeight	图像自然高度用于验证尺寸并设置结果高度。
+w3@203:13	w3	mediaWidth	视频宽度用于验证尺寸并设置结果宽度。
+h2@204:13	h2	mediaHeight	视频高度用于验证尺寸并设置结果高度。
+ctx@240:11	ctx	context	画布二维上下文用于配置图像平滑并绘制位图。
+b3@250:22	b3	blob	toBlob 回调收到的 PNG Blob 被传递给 Promise。
+res@288:11	res	response	fetch 返回的响应被检查状态并读取 Blob。
+png@290:11	png	pngBlob	该值是转换后的 PNG Blob 并作为 image/png 复制数据。
+err@296:12	err	error	捕获图片复制载荷构建异常并写入警告日志。

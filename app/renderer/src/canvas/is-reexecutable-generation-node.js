@@ -65,7 +65,7 @@ export function groupByLevel(levelMap) {
     if (level > maxLevel) maxLevel = level;
   }
   const layers = [];
-  for (let i2 = 0; i2 <= maxLevel; i2++) layers.push([]);
+  for (let layerIndex = 0; layerIndex <= maxLevel; layerIndex++) layers.push([]);
   for (const [nodeId, level] of levelMap) {
     layers[level].push(nodeId);
   }
@@ -134,10 +134,10 @@ export function prunePersistedEdgeData(data2) {
   const source = data2;
   let next2;
   for (const key2 of EDGE_DATA_KEEP_KEYS) {
-    const val = source[key2];
-    if (val !== void 0) {
+    const value = source[key2];
+    if (value !== void 0) {
       next2 ??= {};
-      next2[key2] = val;
+      next2[key2] = value;
     }
   }
   return next2;
@@ -150,16 +150,16 @@ const PARAM_BLACKLIST = new Set([
   // TTS text content (when surfaced as a regular param)
 ]);
 export function pickPersistableModelParams(params, model) {
-  const out = {};
+  const result = {};
   for (const [key2, value] of Object.entries(params)) {
     if (value === void 0 || value === null || value === "") continue;
     if (PARAM_BLACKLIST.has(key2)) continue;
-    const def = model.params[key2];
-    if (!def) continue;
-    if (def.type === "textarea") continue;
-    out[key2] = value;
+    const definition = model.params[key2];
+    if (!definition) continue;
+    if (definition.type === "textarea") continue;
+    result[key2] = value;
   }
-  return out;
+  return result;
 }
 export const REFERENCE_PROMPT_PREAMBLE =
   "The content in <reference_text> is reference material only. Treat <user_prompt> as the primary instruction.";
@@ -197,8 +197,8 @@ function sortJsonValue(value) {
 export function stableCanvasHash(canvas) {
   const input = JSON.stringify(sortJsonValue(canvas));
   let hash2 = HASH_OFFSET_BASIS;
-  for (let i2 = 0; i2 < input.length; i2++) {
-    hash2 ^= input.charCodeAt(i2);
+  for (let characterIndex = 0; characterIndex < input.length; characterIndex++) {
+    hash2 ^= input.charCodeAt(characterIndex);
     hash2 = Math.imul(hash2, HASH_PRIME);
   }
   return (hash2 >>> 0).toString(16).padStart(8, "0");
@@ -206,7 +206,7 @@ export function stableCanvasHash(canvas) {
 const SUBTITLE_FILE_EXTENSIONS = [".srt", ".vtt", ".ass", ".ssa"];
 export function isSubtitleFileName(name2) {
   const lower2 = name2.toLowerCase();
-  return SUBTITLE_FILE_EXTENSIONS.some((ext) => lower2.endsWith(ext));
+  return SUBTITLE_FILE_EXTENSIONS.some((extension) => lower2.endsWith(extension));
 }
 export const DEFAULT_ROW_HEIGHT = "low";
 export const ROW_HEIGHT_ORDER = ["low", "medium", "tall", "extraTall"];
@@ -232,9 +232,9 @@ export function newConditionId() {
   return `cond_${shortId()}`;
 }
 export function newTablePath() {
-  const a2 = Math.random().toString(36).slice(2, 8);
-  const b3 = Math.random().toString(36).slice(2, 8);
-  return `.hilo/tables/${a2}${b3}.htable`;
+  const firstIdSegment = Math.random().toString(36).slice(2, 8);
+  const secondIdSegment = Math.random().toString(36).slice(2, 8);
+  return `.hilo/tables/${firstIdSegment}${secondIdSegment}.htable`;
 }
 export function defaultColumnWidth(type2) {
   if (type2 === "attachment") return 200;
@@ -257,7 +257,7 @@ export function createEmptyDocument(defaultColumnTitle = "Text") {
   };
 }
 export function addColumn(doc2, init2) {
-  const col = {
+  const column = {
     id: newColumnId(),
     title: init2.title.trim() || "Untitled",
     type: init2.type,
@@ -266,7 +266,7 @@ export function addColumn(doc2, init2) {
   };
   return {
     ...doc2,
-    columns: [...doc2.columns, col],
+    columns: [...doc2.columns, column],
   };
 }
 export function addRow(doc2) {

@@ -61,39 +61,39 @@ export class LayoutEngine {
     }
     const mode2 = options?.mode ?? CanvasMode.Workflow;
     const anchor = options?.anchor ?? computeCentroid(existingNodes, mode2);
-    const occupied = existingNodes.map((n2) => nodeToRect(n2, mode2));
+    const occupied = existingNodes.map((node) => nodeToRect(node, mode2));
     const allNodeIds = new Set([
-      ...existingNodes.map((n2) => n2.id),
-      ...newNodes.map((n2) => n2.id),
+      ...existingNodes.map((node) => node.id),
+      ...newNodes.map((node) => node.id),
     ]);
     const { children: children2, parents } = buildAdjacency(allNodeIds, edges);
     const levels = topoSortLevels(allNodeIds, children2, parents);
     const newByLevel = new Map();
-    for (const n2 of newNodes) {
-      const level = levels.get(n2.id) ?? 0;
+    for (const node of newNodes) {
+      const level = levels.get(node.id) ?? 0;
       if (!newByLevel.has(level)) newByLevel.set(level, []);
-      newByLevel.get(level)?.push(n2);
+      newByLevel.get(level)?.push(node);
     }
     const result = new Map();
     const levelGap = options?.spacing?.x ?? LEVEL_GAP;
-    const sortedLevels = [...newByLevel.keys()].sort((a2, b3) => a2 - b3);
+    const sortedLevels = [...newByLevel.keys()].sort((leftLevel, rightLevel) => leftLevel - rightLevel);
     for (const level of sortedLevels) {
       const nodesAtLevel = newByLevel.get(level) ?? [];
-      for (let i2 = 0; i2 < nodesAtLevel.length; i2++) {
-        const node2 = nodesAtLevel[i2];
-        const sz = sizeOf(node2, mode2);
-        const pos = {
+      for (let nodeIndex = 0; nodeIndex < nodesAtLevel.length; nodeIndex++) {
+        const node2 = nodesAtLevel[nodeIndex];
+        const size = sizeOf(node2, mode2);
+        const position = {
           x: anchor.x + level * levelGap,
-          y: anchor.y + i2 * (sz.height + COLLISION_MARGIN),
+          y: anchor.y + nodeIndex * (size.height + COLLISION_MARGIN),
         };
         const candidate = {
-          x: pos.x,
-          y: pos.y,
-          w: sz.width,
-          h: sz.height,
+          x: position.x,
+          y: position.y,
+          w: size.width,
+          h: size.height,
         };
         for (let attempt = 0; attempt < MAX_COLLISION_ATTEMPTS; attempt++) {
-          const blocker = occupied.find((occ) => rectsOverlap(candidate, occ));
+          const blocker = occupied.find((occupiedRect) => rectsOverlap(candidate, occupiedRect));
           if (!blocker) break;
           candidate.x = blocker.x + blocker.w + COLLISION_MARGIN;
         }
@@ -105,8 +105,8 @@ export class LayoutEngine {
         occupied.push({
           x: finalPos.x,
           y: finalPos.y,
-          w: sz.width,
-          h: sz.height,
+          w: size.width,
+          h: size.height,
         });
       }
     }

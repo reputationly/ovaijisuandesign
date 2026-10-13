@@ -5,7 +5,7 @@ import {
   useReactFlow,
   useStoreApi,
   useTranslation,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button } from "./node-shell-inner.jsx";
@@ -21,36 +21,36 @@ const RECENTER_PADDING = 0.5;
 const RECENTER_MAX_ZOOM = 0.2;
 function isUsableNode(node2) {
   if (node2.hidden) return false;
-  const w3 = node2.measured?.width ?? node2.width ?? 0;
-  const h2 = node2.measured?.height ?? node2.height ?? 0;
-  return w3 > 0 && h2 > 0;
+  const width = node2.measured?.width ?? node2.width ?? 0;
+  const height = node2.measured?.height ?? node2.height ?? 0;
+  return width > 0 && height > 0;
 }
 function readBox(node2) {
   if (node2.hidden) return null;
-  const w3 = node2.measured?.width ?? node2.width ?? 0;
-  const h2 = node2.measured?.height ?? node2.height ?? 0;
-  if (w3 === 0 || h2 === 0) return null;
+  const width = node2.measured?.width ?? node2.width ?? 0;
+  const height = node2.measured?.height ?? node2.height ?? 0;
+  if (width === 0 || height === 0) return null;
   return {
     left: node2.position.x,
     top: node2.position.y,
-    right: node2.position.x + w3,
-    bottom: node2.position.y + h2,
+    right: node2.position.x + width,
+    bottom: node2.position.y + height,
   };
 }
 function findLastNodeId(state2) {
   let last2 = null;
-  for (const [id2, node2] of state2.nodeLookup) {
-    if (isUsableNode(node2)) last2 = id2;
+  for (const [nodeId, node2] of state2.nodeLookup) {
+    if (isUsableNode(node2)) last2 = nodeId;
   }
   return last2;
 }
 function recenterToNodes(args) {
-  const id2 = findLastNodeId(args.state);
-  if (!id2) return void 0;
+  const nodeId = findLastNodeId(args.state);
+  if (!nodeId) return void 0;
   return args.fitView({
     nodes: [
       {
-        id: id2,
+        id: nodeId,
       },
     ],
     padding: RECENTER_PADDING,
@@ -58,16 +58,16 @@ function recenterToNodes(args) {
     duration: args.duration ?? 500,
   });
 }
-function selectIsViewportEmpty(s2) {
-  if (s2.nodeLookup.size === 0) return false;
-  const [tx, ty, zoom2] = s2.transform;
-  if (s2.width === 0 || s2.height === 0 || zoom2 === 0) return false;
+function selectIsViewportEmpty(state) {
+  if (state.nodeLookup.size === 0) return false;
+  const [tx, ty, zoom2] = state.transform;
+  if (state.width === 0 || state.height === 0 || zoom2 === 0) return false;
   const vpLeft = -tx / zoom2;
   const vpTop = -ty / zoom2;
-  const vpRight = (s2.width - tx) / zoom2;
-  const vpBottom = (s2.height - ty) / zoom2;
+  const vpRight = (state.width - tx) / zoom2;
+  const vpBottom = (state.height - ty) / zoom2;
   let consideredCount = 0;
-  for (const node2 of s2.nodeLookup.values()) {
+  for (const node2 of state.nodeLookup.values()) {
     if (node2.dragging) return false;
     const box2 = readBox(node2);
     if (!box2) continue;
@@ -154,7 +154,7 @@ function CanvasBottomToast(props) {
             data-action-ui-id={dismiss.dataActionUiId}
             onClick={dismiss.onClick}
           >
-            <X size={16} strokeWidth={1.5} />
+            <CloseIcon size={16} strokeWidth={1.5} />
           </Button>
         )}
       </div>
@@ -162,7 +162,7 @@ function CanvasBottomToast(props) {
   );
 }
 export function EmptyViewportToast({ duration = 500, quietDelay = 1e3 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const referenceNavigation = reactExports.useContext(
     ReferenceNavigationContext,
   );
@@ -237,7 +237,7 @@ export function EmptyViewportToast({ duration = 500, quietDelay = 1e3 }) {
   return (
     <CanvasBottomToast
       show={active2 && (focused || shouldShow)}
-      message={t2(
+      message={translate(
         focused ? "canvas.referenceNavigation.focused" : "canvas.emptyViewport",
       )}
       dataActionUiId={
@@ -246,13 +246,13 @@ export function EmptyViewportToast({ duration = 500, quietDelay = 1e3 }) {
       action={
         focused
           ? {
-              label: t2("canvas.referenceNavigation.return"),
+              label: translate("canvas.referenceNavigation.return"),
               variant: "secondary",
               onClick: () => void referenceNavigation?.returnToNode(),
               dataActionUiId: "canvas.reference-return",
             }
           : {
-              label: t2("canvas.backToContent"),
+              label: translate("canvas.backToContent"),
               variant: "default",
               onClick: handleBack,
               dataActionUiId: "canvas.empty-viewport-back",
@@ -261,7 +261,7 @@ export function EmptyViewportToast({ duration = 500, quietDelay = 1e3 }) {
       dismiss={
         focused && referenceNavigation
           ? {
-              label: t2("canvas.referenceNavigation.dismiss"),
+              label: translate("canvas.referenceNavigation.dismiss"),
               onClick: referenceNavigation.dismiss,
               dataActionUiId: "canvas.reference-return-dismiss",
             }

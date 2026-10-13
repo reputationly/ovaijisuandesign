@@ -1,0 +1,11 @@
+key	old	new	依据
+p3@103:33	p3	handlePosition	该 React Flow 连接手柄方位被映射为相反方位。
+e2@226:22	e2	mouseEvent	鼠标进入事件更新 hover 背景并传给可选回调。
+e2@230:22	e2	mouseEvent	鼠标离开事件清除 hover 背景。
+s2@292:13	s2	state	useStore 选择当前画布 transform 状态。
+p3@293:36	p3	point	该控制点提供贝塞尔曲线的来源坐标和手柄方位。
+d2@298:12	d2	path	getBezierPath 返回用于绘制连线的 SVG 路径。
+d2@321:21	d2	path	每条 SVG 路径被渲染为对应的 edge path。
+i2@321:25	i2	pathIndex	该路径在 paths 中的位置用作 React key。
+t2@391:14	t2	translate	该组件翻译画布上下文菜单的标签和说明。
+s2@460:11	s2	allowedTypes	该集合表示当前上下文菜单允许创建的节点类型。

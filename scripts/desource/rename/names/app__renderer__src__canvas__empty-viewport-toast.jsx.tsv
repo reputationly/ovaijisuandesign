@@ -1,0 +1,10 @@
+key	old	new	依据
+X@8:10	X	CloseIcon	vendor 中 X$7 是 X Lucide 图标的合成组件，用作关闭 toast 的按钮图标。
+w3@24:9	w3	width	节点测量或声明的宽度用于判断节点尺寸是否可用。
+h2@25:9	h2	height	节点测量或声明的高度用于判断节点尺寸是否可用。
+w3@30:9	w3	width	节点宽度用于计算其包围框的右边界。
+h2@31:9	h2	height	节点高度用于计算其包围框的下边界。
+id2@42:15	id2	nodeId	nodeLookup 中最后一个尺寸可用节点的标识被返回。
+id2@48:9	id2	nodeId	该节点标识被放入 fitView 请求以便回到内容位置。
+s2@61:32	s2	state	该状态提供节点索引、画布尺寸和 viewport transform。
+t2@165:14	t2	translate	EmptyViewportToast 用该函数翻译返回内容和关闭操作。

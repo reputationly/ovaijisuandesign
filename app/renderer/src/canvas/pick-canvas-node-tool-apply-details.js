@@ -84,18 +84,18 @@ export function usePluginNavigate() {
   const router2 = useRouter();
   return reactExports.useCallback(
     async (args) => {
-      const to = PLUGIN_NAVIGATE_LEGACY_REDIRECTS[args.to] ?? args.to;
-      if (!to.startsWith("/")) return false;
+      const targetPath = PLUGIN_NAVIGATE_LEGACY_REDIRECTS[args.to] ?? args.to;
+      if (!targetPath.startsWith("/")) return false;
       try {
         const location2 = router2.buildLocation({
-          to,
+          to: targetPath,
           params: args.params,
           search: args.search,
         });
         if (!router2.getMatchedRoutes(location2.pathname).foundRoute)
           return false;
         await router2.navigate({
-          to,
+          to: targetPath,
           params: args.params,
           search: args.search,
         });
@@ -168,25 +168,25 @@ export function resolveNodeSize(file, intrinsic) {
 function measureImageFile(file) {
   return new Promise((resolve) => {
     const url2 = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
+    const image = new Image();
+    image.onload = () => {
       URL.revokeObjectURL(url2);
-      const w3 = img.naturalWidth;
-      const h2 = img.naturalHeight;
+      const mediaWidth = image.naturalWidth;
+      const mediaHeight = image.naturalHeight;
       resolve(
-        w3 > 0 && h2 > 0
+        mediaWidth > 0 && mediaHeight > 0
           ? {
-              width: w3,
-              height: h2,
+              width: mediaWidth,
+              height: mediaHeight,
             }
           : void 0,
       );
     };
-    img.onerror = () => {
+    image.onerror = () => {
       URL.revokeObjectURL(url2);
       resolve(void 0);
     };
-    img.src = url2;
+    image.src = url2;
   });
 }
 
@@ -200,14 +200,14 @@ function measureVideoFile(file) {
       video.src = "";
     };
     video.onloadedmetadata = () => {
-      const w3 = video.videoWidth;
-      const h2 = video.videoHeight;
+      const mediaWidth = video.videoWidth;
+      const mediaHeight = video.videoHeight;
       cleanup();
       resolve(
-        w3 > 0 && h2 > 0
+        mediaWidth > 0 && mediaHeight > 0
           ? {
-              width: w3,
-              height: h2,
+              width: mediaWidth,
+              height: mediaHeight,
             }
           : void 0,
       );
@@ -237,17 +237,17 @@ export async function resizeImageBlob(blob, targetWidth, targetHeight) {
     const canvas = document.createElement("canvas");
     canvas.width = targetWidth;
     canvas.height = targetHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
+    const context = canvas.getContext("2d");
+    if (!context) {
       bitmap.close();
       return null;
     }
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    context.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
     bitmap.close();
     return await new Promise((resolve) =>
-      canvas.toBlob((b3) => resolve(b3), "image/png"),
+      canvas.toBlob((blob) => resolve(blob), "image/png"),
     );
   } catch {
     return null;
@@ -285,16 +285,16 @@ export async function buildImageCopyPayload(node2, assetMetadataStore) {
   const meta2 = getAssetMetaByNodeIdFromStore(assetMetadataStore, node2.id);
   if (!meta2?.url) return null;
   try {
-    const res = await fetch(meta2.url);
-    if (!res.ok) return null;
-    const png = await blobToPng(await res.blob());
-    return png
+    const response = await fetch(meta2.url);
+    if (!response.ok) return null;
+    const pngBlob = await blobToPng(await response.blob());
+    return pngBlob
       ? {
-          "image/png": png,
+          "image/png": pngBlob,
         }
       : null;
-  } catch (err) {
-    console.warn("[canvas] image copy payload failed:", err);
+  } catch (error) {
+    console.warn("[canvas] image copy payload failed:", error);
     return null;
   }
 }

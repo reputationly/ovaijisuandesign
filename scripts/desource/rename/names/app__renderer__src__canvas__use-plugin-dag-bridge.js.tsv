@@ -1,0 +1,12 @@
+key	old	new	依据
+err@11:19	err	error	withCode 在错误对象上设置 code 后返回该错误。
+id2@57:8	id2	runId	group.runIds 中的运行标识用于读取对应结果并构造失败占位项。
+cb@76:18	cb	listener	订阅者回调接收单次 DAG 运行结果 envelope。
+err@79:18	err	error	捕获订阅者抛出的错误并写入日志。
+cb@92:16	cb	listener	订阅者回调接收多次 DAG 运行结果 envelope。
+err@95:16	err	error	捕获订阅者抛出的错误并写入日志。
+err@148:16	err	error	上游状态请求失败时据错误信息记录连续失败次数。
+msg@151:17	msg	errorMessage	该字符串提取请求异常的消息并写入最终失败结果。
+ctx@189:18	ctx	context	该调用上下文提供发起者节点标识并参与 DAG 限额检查。
+r2@273:18	r2	settledResult	该条 settled 结果按 fulfilled 或 rejected 分流处理。
+cb@337:68	cb	callback	subscribeDagDone 将该完成事件回调加入节点监听集合。

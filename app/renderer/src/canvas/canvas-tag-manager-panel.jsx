@@ -30,7 +30,7 @@ export function CanvasTagManagerPanel({
   onDownloadTag,
   onDownloadAllTagged,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const tagNameInputLimit = useCanvasTagNameInputLimit();
   const resolveName2 = useCanvasTagName();
   const {
@@ -86,7 +86,7 @@ export function CanvasTagManagerPanel({
     const duplicate = isTagNameTaken(name2, resolvedNames);
     if (validation || duplicate) {
       dedupedToast.error(
-        t2(
+        translate(
           duplicate
             ? "canvasTags.nameTaken"
             : validation === "required"
@@ -105,7 +105,7 @@ export function CanvasTagManagerPanel({
       resetCreate();
     } catch {
       submittedCreateNameRef.current = "";
-      dedupedToast.error(t2("canvasTags.saveFailed"));
+      dedupedToast.error(translate("canvasTags.saveFailed"));
     } finally {
       creatingSavingRef.current = false;
       setCreatingSaving(false);
@@ -138,7 +138,7 @@ export function CanvasTagManagerPanel({
       await reorderTags(next2.map((tag) => tag.id));
     } catch {
       setLocalTags(registry2.tags);
-      dedupedToast.error(t2("canvasTags.sortFailed"));
+      dedupedToast.error(translate("canvasTags.sortFailed"));
     }
   };
   const handleDelete2 = async (tag) => {
@@ -147,7 +147,7 @@ export function CanvasTagManagerPanel({
     try {
       await deleteTag(tag.id);
     } catch {
-      dedupedToast.error(t2("canvasTags.deleteFailed"));
+      dedupedToast.error(translate("canvasTags.deleteFailed"));
     } finally {
       deletingTagIdsRef.current.delete(tag.id);
     }
@@ -170,12 +170,12 @@ export function CanvasTagManagerPanel({
           {[
             {
               key: "color",
-              label: t2("canvasTags.colorLabels"),
+              label: translate("canvasTags.colorLabels"),
               tags: localTags.filter(isCanvasColorTag),
             },
             {
               key: "keyword",
-              label: t2("canvasTags.keywords"),
+              label: translate("canvasTags.keywords"),
               tags: localTags.filter(isCanvasKeywordTag),
             },
           ].map((group) =>
@@ -201,7 +201,7 @@ export function CanvasTagManagerPanel({
                       side="top"
                       align="start"
                     >
-                      {t2(
+                      {translate(
                         group.key === "color"
                           ? "canvasTags.canvasLabelInfo"
                           : "canvasTags.keywordInfo",
@@ -212,7 +212,7 @@ export function CanvasTagManagerPanel({
                     <button
                       type="button"
                       disabled={creating}
-                      aria-label={t2("canvasTags.newKeyword")}
+                      aria-label={translate("canvasTags.newKeyword")}
                       data-action-ui-id="canvas.tag-manager-new"
                       className="-mr-1 flex h-6 shrink-0 items-center gap-0.5 rounded-full border border-border px-[7px] text-[11px] text-foreground/70 outline-hidden hover:border-foreground/80 hover:bg-popup-item-hover hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
                       onClick={() => {
@@ -227,7 +227,7 @@ export function CanvasTagManagerPanel({
                         strokeWidth={1.5}
                         aria-hidden={true}
                       />
-                      <span>{t2("canvasTags.add")}</span>
+                      <span>{translate("canvasTags.add")}</span>
                     </button>
                   ) : null}
                 </div>
@@ -271,8 +271,8 @@ export function CanvasTagManagerPanel({
                             autoFocus={true}
                             value={newName}
                             disabled={creatingSaving}
-                            placeholder={t2("canvasTags.keywordPlaceholder")}
-                            aria-label={t2("canvasTags.keywordPlaceholder")}
+                            placeholder={translate("canvasTags.keywordPlaceholder")}
+                            aria-label={translate("canvasTags.keywordPlaceholder")}
                             data-action-ui-id="canvas.tag-manager-create-input"
                             className="col-span-3 h-8 min-w-0 w-full rounded-md px-1.5 py-0 text-[13px] font-normal"
                             onChange={(event) =>
@@ -320,7 +320,7 @@ export function CanvasTagManagerPanel({
           <Button
             variant="ghost"
             size="sm"
-            aria-label={t2("canvasTags.downloadAllTagged")}
+            aria-label={translate("canvasTags.downloadAllTagged")}
             disabled={
               !downloadEnabled ||
               taggedAssetCount === 0 ||
@@ -332,7 +332,7 @@ export function CanvasTagManagerPanel({
             onClick={() => void onDownloadAllTagged()}
           >
             <span className="min-w-0 truncate text-left text-[13px] font-normal">
-              {t2("canvasTags.downloadAllTagged")}
+              {translate("canvasTags.downloadAllTagged")}
             </span>
             <span
               className="flex size-7 items-center justify-center justify-self-center rounded-full border border-foreground/10 bg-transparent text-popover-foreground transition-colors group-hover/download-all:border-black/50 group-hover/download-all:text-black group-focus-visible/download-all:border-black/50 group-focus-visible/download-all:text-black dark:group-hover/download-all:border-white/50 dark:group-hover/download-all:text-white dark:group-focus-visible/download-all:border-white/50 dark:group-focus-visible/download-all:text-white"

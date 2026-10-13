@@ -17,7 +17,7 @@ function verticalClearanceViolation(rect, above, gap, margin) {
 }
 function groupRectsByRows(rects, tolerance) {
   if (rects.length === 0) return [];
-  const sorted = [...rects].sort((a2, b3) => a2.y - b3.y);
+  const sorted = [...rects].sort((firstRect, secondRect) => firstRect.y - secondRect.y);
   const rows = [];
   for (const rect of sorted) {
     const match2 = rows.find((row) => Math.abs(row.y - rect.y) <= tolerance);
@@ -32,7 +32,7 @@ function groupRectsByRows(rects, tolerance) {
       });
     }
   }
-  for (const row of rows) row.rects.sort((a2, b3) => a2.x - b3.x);
+  for (const row of rows) row.rects.sort((firstRect, secondRect) => firstRect.x - secondRect.x);
   return rows;
 }
 function rowFirstCandidate(occupied, newSize, gap, maxCols, rowTolerance) {
@@ -96,8 +96,8 @@ export function findFreePositionForRects(occupied, newSize, options) {
     h: newSize.height,
   };
   for (let attempt = 0; attempt < maxShiftAttempts; attempt++) {
-    const blocker = occupied.find((occ) =>
-      rectsOverlap(rect, occ, collisionMargin),
+    const blocker = occupied.find((occupiedRect) =>
+      rectsOverlap(rect, occupiedRect, collisionMargin),
     );
     if (blocker) {
       const nextX = blocker.x + blocker.w + gap;
@@ -111,10 +111,10 @@ export function findFreePositionForRects(occupied, newSize, options) {
       continue;
     }
     let cramper;
-    for (const occ of occupied) {
-      if (!verticalClearanceViolation(rect, occ, gap, collisionMargin))
+    for (const occupiedRect of occupied) {
+      if (!verticalClearanceViolation(rect, occupiedRect, gap, collisionMargin))
         continue;
-      if (!cramper || occ.y + occ.h > cramper.y + cramper.h) cramper = occ;
+      if (!cramper || occupiedRect.y + occupiedRect.h > cramper.y + cramper.h) cramper = occupiedRect;
     }
     if (!cramper) break;
     rect.y = cramper.y + cramper.h + gap;
