@@ -1,0 +1,21 @@
+key	new	依据
+v2@24:9	hubFrame	检查传入对象是否为有效的插件通信帧。
+cb@56:48	listener	注册插件配置变更时执行的回调。
+s2@64:11	listeners	读取当前插件配置变更监听器集合。
+evt@117:13	hubEvent	构造通知插件主应用调用的通信事件。
+id2@125:27	requestId	设置插件 RPC 响应对应的请求标识。
+ok2@125:32	isSuccess	决定响应载荷写入成功结果还是错误结果。
+evt@145:13	hubEvent	构造通知插件收到画布输入变更的通信事件。
+evt@154:13	hubEvent	构造通知插件全屏状态变化的通信事件。
+req@166:30	rpcRequest	读取插件发来的 RPC 请求并分派处理。
+e2@187:15	pluginError	读取插件 RPC 处理器抛出的错误信息。
+evt@248:13	hubEvent	构造通知插件本地存储变化的通信事件。
+evt@284:17	hubEvent	构造通知插件配置变化的通信事件。
+evt@295:17	hubEvent	构造传递插件聊天消息的通信事件。
+evt@306:17	hubEvent	构造传递插件聊天完成状态的通信事件。
+evt@317:17	hubEvent	构造传递插件 DAG 完成状态的通信事件。
+evt@344:17	hubEvent	构造传递插件 Agent 调用的通信事件。
+evt@384:11	hubEvent	构造向插件发送应用信息变更的通信事件。
+evt@415:11	hubEvent	构造向插件发送账单配置变更的通信事件。
+evt@431:13	hubEvent	构造向插件发送全屏状态变化的通信事件。
+evt@442:13	hubEvent	构造向插件发送输入内容变更的通信事件。

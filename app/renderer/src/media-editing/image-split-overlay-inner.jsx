@@ -17,17 +17,17 @@ export function ImageSplitOverlayInner({
   const [marquee, setMarquee] = reactExports.useState(null);
   const pressRef = reactExports.useRef(null);
   const cells2 = reactExports.useMemo(() => {
-    const out = [];
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        out.push({
-          index: row * cols + col,
-          row,
-          col,
+    const cells = [];
+    for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+      for (let columnIndex = 0; columnIndex < cols; columnIndex++) {
+        cells.push({
+          index: rowIndex * cols + columnIndex,
+          row: rowIndex,
+          col: columnIndex,
         });
       }
     }
-    return out;
+    return cells;
   }, [rows, cols]);
   const cellW = 100 / cols;
   const cellH = 100 / rows;
@@ -37,7 +37,7 @@ export function ImageSplitOverlayInner({
         {
           length: Math.max(0, rows - 1),
         },
-        (_2, i2) => (i2 + 1) * cellH,
+        (_unusedValue, index) => (index + 1) * cellH,
       ),
     [rows, cellH],
   );
@@ -47,7 +47,7 @@ export function ImageSplitOverlayInner({
         {
           length: Math.max(0, cols - 1),
         },
-        (_2, i2) => (i2 + 1) * cellW,
+        (_unusedValue, index) => (index + 1) * cellW,
       ),
     [cols, cellW],
   );
@@ -57,11 +57,11 @@ export function ImageSplitOverlayInner({
       if (!el) return null;
       const rect = el.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return null;
-      const fx = (clientX - rect.left) / rect.width;
-      const fy = (clientY - rect.top) / rect.height;
-      const col = Math.min(cols - 1, Math.max(0, Math.floor(fx * cols)));
-      const row = Math.min(rows - 1, Math.max(0, Math.floor(fy * rows)));
-      return row * cols + col;
+      const normalizedX = (clientX - rect.left) / rect.width;
+      const normalizedY = (clientY - rect.top) / rect.height;
+      const columnIndex = Math.min(cols - 1, Math.max(0, Math.floor(normalizedX * cols)));
+      const rowIndex = Math.min(rows - 1, Math.max(0, Math.floor(normalizedY * rows)));
+      return rowIndex * cols + columnIndex;
     },
     [rows, cols],
   );
@@ -75,44 +75,44 @@ export function ImageSplitOverlayInner({
     [cols],
   );
   const handlePointerDown = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      if (e2.button !== 0) return;
-      const index2 = cellIndexAt(e2.clientX, e2.clientY);
+    (pointerEvent) => {
+      pointerEvent.stopPropagation();
+      if (pointerEvent.button !== 0) return;
+      const index2 = cellIndexAt(pointerEvent.clientX, pointerEvent.clientY);
       if (index2 == null) return;
       pressRef.current = {
-        x: e2.clientX,
-        y: e2.clientY,
+        x: pointerEvent.clientX,
+        y: pointerEvent.clientY,
         index: index2,
         dragging: false,
       };
-      containerRef.current?.setPointerCapture(e2.pointerId);
+      containerRef.current?.setPointerCapture(pointerEvent.pointerId);
     },
     [cellIndexAt],
   );
   const handlePointerMove = reactExports.useCallback(
-    (e2) => {
+    (pointerEvent) => {
       const press = pressRef.current;
-      const index2 = cellIndexAt(e2.clientX, e2.clientY);
+      const index2 = cellIndexAt(pointerEvent.clientX, pointerEvent.clientY);
       if (!press) {
         setHoverIndex(index2);
         return;
       }
       if (!press.dragging) {
-        const moved = Math.hypot(e2.clientX - press.x, e2.clientY - press.y);
+        const moved = Math.hypot(pointerEvent.clientX - press.x, pointerEvent.clientY - press.y);
         if (moved < DRAG_THRESHOLD_PX) return;
         press.dragging = true;
       }
       if (index2 == null) return;
-      const ar = Math.floor(press.index / cols);
-      const ac = press.index % cols;
-      const br = Math.floor(index2 / cols);
-      const bc = index2 % cols;
+      const startRow = Math.floor(press.index / cols);
+      const startColumn = press.index % cols;
+      const endRow = Math.floor(index2 / cols);
+      const endColumn = index2 % cols;
       const next2 = {
-        r0: Math.min(ar, br),
-        r1: Math.max(ar, br),
-        c0: Math.min(ac, bc),
-        c1: Math.max(ac, bc),
+        r0: Math.min(startRow, endRow),
+        r1: Math.max(startRow, endRow),
+        c0: Math.min(startColumn, endColumn),
+        c1: Math.max(startColumn, endColumn),
       };
       setMarquee((prev) =>
         prev &&
@@ -127,15 +127,15 @@ export function ImageSplitOverlayInner({
     [cellIndexAt, cols],
   );
   const endPress = reactExports.useCallback(
-    (e2) => {
+    (pointerEvent) => {
       const press = pressRef.current;
       pressRef.current = null;
-      containerRef.current?.releasePointerCapture?.(e2.pointerId);
+      containerRef.current?.releasePointerCapture?.(pointerEvent.pointerId);
       if (!press) return;
       if (press.dragging && marquee) {
         onSelectCells(indicesInRange(marquee));
       } else if (!press.dragging) {
-        onToggle(press.index, e2.shiftKey);
+        onToggle(press.index, pointerEvent.shiftKey);
       }
       setMarquee(null);
     },
@@ -156,7 +156,7 @@ export function ImageSplitOverlayInner({
       onPointerLeave={() => {
         if (!pressRef.current) setHoverIndex(null);
       }}
-      onWheel={(e2) => e2.stopPropagation()}
+      onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
     >
       {rowLines.map((top2) => (
         <span
@@ -182,7 +182,7 @@ export function ImageSplitOverlayInner({
           }}
         />
       ))}
-      {cells2.map(({ index: index2, row, col }) => {
+      {cells2.map(({ index: index2, row: rowIndex, col: columnIndex }) => {
         const isSelected = selected2.has(index2);
         const inMarquee = previewSet?.has(index2) ?? false;
         const isHovered = hoverIndex === index2 && !marquee;
@@ -201,8 +201,8 @@ export function ImageSplitOverlayInner({
             aria-hidden="true"
             className="pointer-events-none absolute"
             style={{
-              left: `${col * cellW}%`,
-              top: `${row * cellH}%`,
+              left: `${columnIndex * cellW}%`,
+              top: `${rowIndex * cellH}%`,
               width: `${cellW}%`,
               height: `${cellH}%`,
               zIndex: highlighted ? 20 : isSelected ? 1 : 0,
@@ -234,7 +234,7 @@ export function ImageSplitOverlayInner({
                   color: "var(--canvas-controls-text)",
                 }}
               >
-                {row + 1}-{col + 1}
+                {rowIndex + 1}-{columnIndex + 1}
               </span>
             )}
           </div>

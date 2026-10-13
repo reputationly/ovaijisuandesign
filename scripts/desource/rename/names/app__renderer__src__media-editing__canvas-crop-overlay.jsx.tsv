@@ -1,0 +1,24 @@
+key	new	依据
+e2@34:48	pointerEvent	读取拖动裁剪框时的指针位置。
+cw@38:23	viewportWidth	读取当前裁剪区域容器的宽度。
+ch@39:24	viewportHeight	读取当前裁剪区域容器的高度。
+ar@40:20	selectedAspectRatio	读取当前裁剪框选择的宽高比预设。
+e2@60:21	pointerEvent	保存等待动画帧处理的指针移动事件。
+e2@99:6	pointerEvent	处理开始拖动裁剪框或边缘手柄的指针事件。
+cw@119:29	viewportWidth	读取裁剪区域容器的当前宽度。
+ch@119:50	viewportHeight	读取裁剪区域容器的当前高度。
+e2@208:23	pointerEvent	将手柄位置和指针事件传递给裁剪拖动处理器。
+e2@231:23	pointerEvent	将手柄位置和指针事件传递给裁剪拖动处理器。
+t2@241:16	t	useTranslation 返回的翻译函数。
+vpX@246:12	viewportOffsetX	读取画布视口的水平平移量。
+vpY@246:17	viewportOffsetY	读取画布视口的垂直平移量。
+px@347:11	cropPixelRect	计算裁剪框在面板上的像素位置和尺寸。
+s2@245:34	state	从画布状态中读取视口变换矩阵。
+e2@295:26	keyboardEvent	处理取消裁剪模式的 Escape 键事件。
+e2@357:27	pointerEvent	记录按下位置是否位于遮罩背景本身。
+e2@360:21	clickEvent	处理点击遮罩背景取消裁剪模式。
+e2@447:33	pointerEvent	启动拖动整个裁剪框的指针事件。
+e2@466:29	clickEvent	阻止宽高比菜单按钮点击事件冒泡并切换菜单。
+v2@468:40	isOpen	接收宽高比菜单状态更新函数的当前布尔值。
+e2@482:37	pointerEvent	阻止宽高比菜单内部的指针事件冒泡。
+opt@484:42	aspectOption	遍历裁剪宽高比选项。

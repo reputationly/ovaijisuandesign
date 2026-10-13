@@ -21,13 +21,13 @@ const HUB_PROTOCOL_VERSION = "2";
 
 function isHubFrame(value) {
   if (!value || typeof value !== "object") return false;
-  const v2 = value;
-  if (v2.v !== HUB_PROTOCOL_VERSION) return false;
+  const hubFrame = value;
+  if (hubFrame.v !== HUB_PROTOCOL_VERSION) return false;
   return (
-    v2.kind === "hub:rpc:request" ||
-    v2.kind === "hub:rpc:response" ||
-    v2.kind === "hub:event" ||
-    v2.kind === "hub:handshake"
+    hubFrame.kind === "hub:rpc:request" ||
+    hubFrame.kind === "hub:rpc:response" ||
+    hubFrame.kind === "hub:event" ||
+    hubFrame.kind === "hub:handshake"
   );
 }
 
@@ -53,18 +53,18 @@ function clearPluginAgentNode(nodeId) {
   byNode.delete(nodeId);
 }
 
-function subscribePluginConfigChange(pluginId, cb) {
+function subscribePluginConfigChange(pluginId, listener) {
   let set2 = configChangeListeners.get(pluginId);
   if (!set2) {
     set2 = new Set();
     configChangeListeners.set(pluginId, set2);
   }
-  set2.add(cb);
+  set2.add(listener);
   return () => {
-    const s2 = configChangeListeners.get(pluginId);
-    if (!s2) return;
-    s2.delete(cb);
-    if (s2.size === 0) configChangeListeners.delete(pluginId);
+    const listeners = configChangeListeners.get(pluginId);
+    if (!listeners) return;
+    listeners.delete(listener);
+    if (listeners.size === 0) configChangeListeners.delete(pluginId);
   };
 }
 
@@ -114,27 +114,27 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
       iframe.contentWindow?.postMessage(frame2, "*");
     };
     const invokeMain = () => {
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "main:invoke",
         payload: null,
       };
-      send2(evt);
+      send2(hubEvent);
     };
-    const sendResponse = (id2, ok2, payload) => {
-      const frame2 = ok2
+    const sendResponse = (requestId, isSuccess, payload) => {
+      const frame2 = isSuccess
         ? {
             kind: "hub:rpc:response",
             v: HUB_PROTOCOL_VERSION,
-            id: id2,
+            id: requestId,
             ok: true,
             result: payload,
           }
         : {
             kind: "hub:rpc:response",
             v: HUB_PROTOCOL_VERSION,
-            id: id2,
+            id: requestId,
             ok: false,
             error: payload,
           };
@@ -142,16 +142,16 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
     };
     const postIncomingChange = () => {
       if (fullscreenApiRef.current.getState().nodeId !== nodeId) return;
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "incoming",
         payload: null,
       };
-      send2(evt);
+      send2(hubEvent);
     };
     const postFullscreenChange = () => {
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "fullscreen:changed",
@@ -161,9 +161,9 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
             fullscreenApiRef.current.getState().presentation === "fullscreen",
         },
       };
-      send2(evt);
+      send2(hubEvent);
     };
-    const handleRpc = async (req) => {
+    const handleRpc = async (rpcRequest) => {
       const dispatch2 = buildDispatch({
         nodeId,
         actions: actionsRef.current,
@@ -172,22 +172,22 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
         fullscreenApi: fullscreenApiRef.current,
         requestExitFullscreen: requestExitFullscreenRef.current,
       });
-      const handler = dispatch2[req.method];
+      const handler = dispatch2[rpcRequest.method];
       if (!handler) {
-        sendResponse(req.id, false, {
+        sendResponse(rpcRequest.id, false, {
           code: "unknown_method",
-          message: `unknown hub method: ${req.method}`,
+          message: `unknown hub method: ${rpcRequest.method}`,
         });
         return;
       }
       try {
-        const result = await handler(req.args);
-        sendResponse(req.id, true, result);
+        const result = await handler(rpcRequest.args);
+        sendResponse(rpcRequest.id, true, result);
       } catch (err) {
-        const e2 = err;
-        sendResponse(req.id, false, {
-          code: e2.code ?? "internal_error",
-          message: e2.message ?? "internal error",
+        const pluginError = err;
+        sendResponse(rpcRequest.id, false, {
+          code: pluginError.code ?? "internal_error",
+          message: pluginError.message ?? "internal error",
         });
       }
     };
@@ -245,13 +245,13 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
     );
     const ownPluginId = installedPluginId(actionsRef.current, nodeId);
     const sendStorageChanged = () => {
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "storage",
         payload: null,
       };
-      send2(evt);
+      send2(hubEvent);
     };
     const unsubInstalledStorage = ownPluginId
       ? subscribePluginStorageChangeForNode(
@@ -281,46 +281,46 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
         });
     const unsubConfig = ownPluginId
       ? subscribePluginConfigChange(ownPluginId, () => {
-          const evt = {
+          const hubEvent = {
             kind: "hub:event",
             v: HUB_PROTOCOL_VERSION,
             topic: "config",
             payload: null,
           };
-          send2(evt);
+          send2(hubEvent);
         })
       : () => {};
     const unsubChatMessage = bridgeRef.current.pluginHost?.subscribeChatMessages
       ? bridgeRef.current.pluginHost.subscribeChatMessages((envelope) => {
-          const evt = {
+          const hubEvent = {
             kind: "hub:event",
             v: HUB_PROTOCOL_VERSION,
             topic: "chat:message",
             payload: envelope,
           };
-          send2(evt);
+          send2(hubEvent);
         })
       : () => {};
     const unsubChatDone = bridgeRef.current.pluginHost?.subscribeChatDone
       ? bridgeRef.current.pluginHost.subscribeChatDone((payload) => {
-          const evt = {
+          const hubEvent = {
             kind: "hub:event",
             v: HUB_PROTOCOL_VERSION,
             topic: "chat:done",
             payload,
           };
-          send2(evt);
+          send2(hubEvent);
         })
       : () => {};
     const unsubDagDone = bridgeRef.current.pluginHost?.subscribeDagDone
       ? bridgeRef.current.pluginHost.subscribeDagDone(nodeId, (envelope) => {
-          const evt = {
+          const hubEvent = {
             kind: "hub:event",
             v: HUB_PROTOCOL_VERSION,
             topic: "dag:done",
             payload: envelope,
           };
-          send2(evt);
+          send2(hubEvent);
         })
       : () => {};
     const agentHost = bridgeRef.current.pluginHost;
@@ -341,7 +341,7 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
               .catch(() => {});
             return;
           }
-          const evt = {
+          const hubEvent = {
             kind: "hub:event",
             v: HUB_PROTOCOL_VERSION,
             topic: "agent:invoke",
@@ -351,7 +351,7 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
               args: event.args,
             },
           };
-          send2(evt);
+          send2(hubEvent);
         })
       : () => {};
     return () => {
@@ -381,7 +381,7 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
   reactExports.useEffect(() => {
     if (!nodeId) return;
     if (!iframe) return;
-    const evt = {
+    const hubEvent = {
       kind: "hub:event",
       v: HUB_PROTOCOL_VERSION,
       topic: "app:changed",
@@ -398,7 +398,7 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
         currentChatSessionId: currentChatSessionId ?? null,
       },
     };
-    iframe.contentWindow?.postMessage(evt, "*");
+    iframe.contentWindow?.postMessage(hubEvent, "*");
   }, [
     iframe,
     nodeId,
@@ -412,7 +412,7 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
   ]);
   reactExports.useEffect(() => {
     if (!nodeId || !iframe) return;
-    const evt = {
+    const hubEvent = {
       kind: "hub:event",
       v: HUB_PROTOCOL_VERSION,
       topic: "billing:changed",
@@ -421,14 +421,14 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
         promotionEndUnix: pricingConfig?.promotionEndUnix ?? null,
       },
     };
-    iframe.contentWindow?.postMessage(evt, "*");
+    iframe.contentWindow?.postMessage(hubEvent, "*");
   }, [iframe, locale, nodeId, pricingConfig]);
   reactExports.useEffect(() => {
     if (!nodeId) return;
     if (!iframe) return;
     const store = fullscreenApi;
     const post2 = (fullscreen) => {
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "fullscreen:changed",
@@ -436,16 +436,16 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
           fullscreen,
         },
       };
-      iframe.contentWindow?.postMessage(evt, "*");
+      iframe.contentWindow?.postMessage(hubEvent, "*");
     };
     const postIncoming = () => {
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "incoming",
         payload: null,
       };
-      iframe.contentWindow?.postMessage(evt, "*");
+      iframe.contentWindow?.postMessage(hubEvent, "*");
     };
     const initialState = store.getState();
     let lastPresented = initialState.nodeId === nodeId;

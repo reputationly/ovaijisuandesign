@@ -179,18 +179,18 @@ const QUICK_PROMPTS = [
   },
 ];
 function TextNodeQuickActions({ onQuickPrompt, onWriteOwn }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <NodeEmptyState
       icon={<TextPlaceholderIcon />}
-      guidance={t2("canvas.quickAction.try", {
+      guidance={t("canvas.quickAction.try", {
         defaultValue: "试试：",
       })}
       suggestions={[
         {
           id: "canvas.text-quick-write",
           icon: <PenLine size={16} strokeWidth={1.5} />,
-          label: t2("canvas.quickAction.write.label", {
+          label: t("canvas.quickAction.write.label", {
             defaultValue: "自己编写内容",
           }),
           onSelect: (event) => {
@@ -198,17 +198,17 @@ function TextNodeQuickActions({ onQuickPrompt, onWriteOwn }) {
             onWriteOwn();
           },
         },
-        ...QUICK_PROMPTS.map((qa) => ({
-          id: `canvas.text-quick-${qa.key}`,
-          icon: <qa.icon size={16} strokeWidth={1.5} />,
-          label: t2(qa.labelKey, {
-            defaultValue: qa.labelFallback,
+        ...QUICK_PROMPTS.map((quickAction) => ({
+          id: `canvas.text-quick-${quickAction.key}`,
+          icon: <quickAction.icon size={16} strokeWidth={1.5} />,
+          label: t(quickAction.labelKey, {
+            defaultValue: quickAction.labelFallback,
           }),
           onSelect: (event) => {
             event.stopPropagation();
             onQuickPrompt(
-              t2(qa.promptKey, {
-                defaultValue: qa.promptFallback,
+              t(quickAction.promptKey, {
+                defaultValue: quickAction.promptFallback,
               }),
             );
           },
@@ -314,24 +314,24 @@ const TEXT_REF_MAX_AUDIOS = 2;
 const TEXT_REF_MAX_TEXTS = 5;
 const PREVIEW_CHAR_LIMIT = 2e3;
 const PREVIEW_MIN_CUT_RATIO = 0.7;
-function truncateForPreview(md) {
-  if (md.length <= PREVIEW_CHAR_LIMIT)
+function truncateForPreview(markdownText) {
+  if (markdownText.length <= PREVIEW_CHAR_LIMIT)
     return {
-      text: md,
+      text: markdownText,
       truncated: false,
     };
-  const head2 = md.slice(0, PREVIEW_CHAR_LIMIT);
+  const head2 = markdownText.slice(0, PREVIEW_CHAR_LIMIT);
   const minCut = Math.floor(PREVIEW_CHAR_LIMIT * PREVIEW_MIN_CUT_RATIO);
   const paragraphIdx = head2.lastIndexOf("\n\n");
   if (paragraphIdx >= minCut)
     return {
-      text: md.slice(0, paragraphIdx).trimEnd(),
+      text: markdownText.slice(0, paragraphIdx).trimEnd(),
       truncated: true,
     };
   const lineIdx = head2.lastIndexOf("\n");
   if (lineIdx >= minCut)
     return {
-      text: md.slice(0, lineIdx).trimEnd(),
+      text: markdownText.slice(0, lineIdx).trimEnd(),
       truncated: true,
     };
   return {
@@ -347,7 +347,7 @@ function TextPreviewInner({
   mdPath,
   resolveFileUrl,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { text: previewText, truncated } = reactExports.useMemo(
     () => truncateForPreview(markdown2),
     [markdown2],
@@ -426,7 +426,7 @@ function TextPreviewInner({
               color: "var(--fg-muted, #525252)",
             }}
           >
-            {t2("canvas.editorPlaceholder")}
+            {t("canvas.editorPlaceholder")}
           </p>
         ) : (
           <>
@@ -450,7 +450,7 @@ function TextPreviewInner({
                   borderTop: "1px dashed var(--border-muted, #e5e5e5)",
                 }}
               >
-                {t2("canvas.previewTruncated")}
+                {t("canvas.previewTruncated")}
               </div>
             )}
           </>
@@ -460,27 +460,27 @@ function TextPreviewInner({
   );
 }
 const TextPreview = reactExports.memo(TextPreviewInner);
-function mapTextModelInfoToModelInfo(m3) {
+function mapTextModelInfoToModelInfo(modelInfo) {
   return {
-    id: m3.id,
-    name: m3.name,
-    backend: m3.provider,
+    id: modelInfo.id,
+    name: modelInfo.name,
+    backend: modelInfo.provider,
     max_refs: 0,
-    params: m3.params ?? {},
-    promptMaxLength: m3.promptMaxLength,
-    region: m3.region,
-    subtitle: m3.subtitle,
+    params: modelInfo.params ?? {},
+    promptMaxLength: modelInfo.promptMaxLength,
+    region: modelInfo.region,
+    subtitle: modelInfo.subtitle,
   };
 }
 export function TextNodeInner({
-  id: id2,
+  id: textNodeId,
   selected: selected2,
   width,
   height,
   data: data2,
 }) {
-  const { t: t2 } = useTranslation();
-  const meta2 = useAssetMeta(id2);
+  const { t } = useTranslation();
+  const meta2 = useAssetMeta(textNodeId);
   const dataPath = data2?.path;
   const textPath = meta2?.path ?? dataPath;
   const isMultiSelect = useCanvasIsMultiSelect();
@@ -513,22 +513,22 @@ export function TextNodeInner({
   const openFullscreen = reactExports.useCallback(() => {
     if (!editorContentReady) return;
     editSessionRef.current = {
-      nodeId: id2,
+      nodeId: textNodeId,
       editSessionId:
         globalThis.crypto?.randomUUID?.() ??
         `text-edit-${Date.now().toString(36)}`,
     };
     setFullscreen(true);
-  }, [editorContentReady, id2]);
+  }, [editorContentReady, textNodeId]);
   const pendingOpenNodeId = useDiffReviewStore(
     (state2) => state2.pendingOpenNodeId,
   );
   reactExports.useEffect(() => {
-    if (!editorContentReady || fullscreen || pendingOpenNodeId !== id2) return;
-    if (useDiffReviewStore.getState().consumeOpenEditor(id2)) openFullscreen();
-  }, [editorContentReady, fullscreen, pendingOpenNodeId, id2, openFullscreen]);
+    if (!editorContentReady || fullscreen || pendingOpenNodeId !== textNodeId) return;
+    if (useDiffReviewStore.getState().consumeOpenEditor(textNodeId)) openFullscreen();
+  }, [editorContentReady, fullscreen, pendingOpenNodeId, textNodeId, openFullscreen]);
   const { snapshot: referenceReturnText } = useReferenceNavigationSnapshot(
-    id2,
+    textNodeId,
     "text",
   );
   const [showT2TPopover, setShowT2TPopover] =
@@ -536,7 +536,7 @@ export function TextNodeInner({
   const [t2tPopoverKey, setT2TPopoverKey] = reactExports.useState(0);
   const textRevision = data2?.textRevision;
   const fileVersion = useFileVersion(textPath);
-  const generating = useGenerating(id2);
+  const generating = useGenerating(textNodeId);
   const generatingStateStore = useGeneratingStateApi();
   const nodeStatus = data2?.status;
   const dataGenerating = nodeStatus === "generating";
@@ -557,9 +557,9 @@ export function TextNodeInner({
       : void 0;
   reactExports.useEffect(() => {
     if (persistedErrorMessage !== void 0) {
-      generatingStateStore.getState().clear(id2);
+      generatingStateStore.getState().clear(textNodeId);
     }
-  }, [persistedErrorMessage, id2, generatingStateStore]);
+  }, [persistedErrorMessage, textNodeId, generatingStateStore]);
   const isGenerating =
     persistedErrorMessage === void 0 && (dataGenerating || !!generating);
   const generatingProgress = useSimulatedProgress(
@@ -623,7 +623,7 @@ export function TextNodeInner({
   const [refRevision, setRefRevision] = reactExports.useState(0);
   reactExports.useEffect(() => {
     if (!showT2TPopover) return;
-    return subscribeGraphChange(() => setRefRevision((v2) => v2 + 1));
+    return subscribeGraphChange(() => setRefRevision((revision) => revision + 1));
   }, [showT2TPopover, subscribeGraphChange]);
   const {
     defaultImagePaths,
@@ -633,7 +633,7 @@ export function TextNodeInner({
   } =
     // biome-ignore lint/correctness/useExhaustiveDependencies: trigger-only deps
     reactExports.useMemo(() => {
-      const sources = getIncomingSourceIds(id2);
+      const sources = getIncomingSourceIds(textNodeId);
       return {
         defaultImagePaths: resolveReferenceImages(
           sources,
@@ -661,7 +661,7 @@ export function TextNodeInner({
         ),
       };
     }, [
-      id2,
+      textNodeId,
       getIncomingSourceIds,
       getNodeById,
       assetMetadataStore,
@@ -705,7 +705,7 @@ export function TextNodeInner({
     maxAudioRefs: TEXT_REF_MAX_AUDIOS,
     maxTextRefs: TEXT_REF_MAX_TEXTS,
     imageMode: "reference",
-    hostNodeId: id2,
+    hostNodeId: textNodeId,
     resolveFileUrl,
   });
   const referenceItems = attachment.items;
@@ -721,8 +721,8 @@ export function TextNodeInner({
       attachment.modelSupportedKindsForAtPicker,
     ],
   );
-  const handleAddToChat = useAddToChat(id2, meta2, onAddToChat, dataPath);
-  const onRename = useNodeRename(id2, isCloneData(data2));
+  const handleAddToChat = useAddToChat(textNodeId, meta2, onAddToChat, dataPath);
+  const onRename = useNodeRename(textNodeId, isCloneData(data2));
   const isPlainText = !!textPath && textPath.toLowerCase().endsWith(".txt");
   const lastLoadedFromServerRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -735,10 +735,10 @@ export function TextNodeInner({
     setLoadedTextPath(null);
     let cancelled = false;
     loadTextContent(textPath)
-      .then((md) => {
+      .then((loadedMarkdown) => {
         if (cancelled) return;
-        lastLoadedFromServerRef.current = md;
-        setMarkdown(md);
+        lastLoadedFromServerRef.current = loadedMarkdown;
+        setMarkdown(loadedMarkdown);
         setLoadedTextPath(textPath);
         setLoaded(true);
       })
@@ -767,7 +767,7 @@ export function TextNodeInner({
         try {
           const created = await createTextFile();
           if (!created) return;
-          const attached = fillEmptyPlaceholder(id2, {
+          const attached = fillEmptyPlaceholder(textNodeId, {
             assetId: created.assetId,
             type: "text",
             name: created.name,
@@ -791,12 +791,12 @@ export function TextNodeInner({
     createTextFile,
     fillEmptyPlaceholder,
     flushPersist,
-    id2,
+    textNodeId,
     openFullscreen,
   ]);
   const handleDoubleClick2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (doubleClickEvent) => {
+      doubleClickEvent.stopPropagation();
       if (isGenerating) return;
       void ensureBackingFileAndOpen();
     },
@@ -823,7 +823,7 @@ export function TextNodeInner({
     async (prompt, modelId, params) => {
       if (pendingLazyCreateRef.current) await pendingLazyCreateRef.current;
       submitTxt2Text?.(
-        id2,
+        textNodeId,
         prompt,
         modelId,
         params,
@@ -834,7 +834,7 @@ export function TextNodeInner({
       );
     },
     [
-      id2,
+      textNodeId,
       submitTxt2Text,
       attachment.imagePaths,
       attachment.textPaths,
@@ -867,7 +867,7 @@ export function TextNodeInner({
     sourceTool,
     promptSeedSource,
   ]);
-  const baseT2TClose = usePopoverCloseWithDeselect(id2, setShowT2TPopover);
+  const baseT2TClose = usePopoverCloseWithDeselect(textNodeId, setShowT2TPopover);
   const handleT2TClose = reactExports.useCallback(() => {
     reversePromptRef.current = void 0;
     baseT2TClose();
@@ -895,7 +895,7 @@ export function TextNodeInner({
             const latest2 = latestLazyDraftRef.current;
             lastLoadedFromServerRef.current = latest2;
             await saveTextContent(created.path, latest2).catch(() => {});
-            fillEmptyPlaceholder(id2, {
+            fillEmptyPlaceholder(textNodeId, {
               assetId: created.assetId,
               type: "text",
               name: created.name,
@@ -920,7 +920,7 @@ export function TextNodeInner({
         lastLoadedFromServerRef.current = nextMarkdown;
       });
     },
-    [textPath, saveTextContent, createTextFile, fillEmptyPlaceholder, id2],
+    [textPath, saveTextContent, createTextFile, fillEmptyPlaceholder, textNodeId],
   );
   const handleCloseFullscreen = reactExports.useCallback(
     (nextMarkdown) => {
@@ -944,7 +944,7 @@ export function TextNodeInner({
     const items = [];
     items.push({
       id: "text-edit",
-      label: t2("canvas.textEdit"),
+      label: t("canvas.textEdit"),
       icon: <TextEditIcon />,
       forceLabel: true,
       dataActionUiId: "canvas-text-edit",
@@ -957,32 +957,32 @@ export function TextNodeInner({
     if (showPromote) {
       items.push({
         id: "promote-to-asset",
-        label: t2("canvas.promoteToAsset"),
+        label: t("canvas.promoteToAsset"),
         icon: <PromoteToAssetIcon />,
         forceLabel: true,
         separator: true,
         dataActionUiId: "canvas.node-promote-to-asset",
-        onClick: (e2) => {
-          onPromoteToAsset?.([id2], {
-            x: e2.clientX,
-            y: e2.clientY,
+        onClick: (clickEvent) => {
+          onPromoteToAsset?.([textNodeId], {
+            x: clickEvent.clientX,
+            y: clickEvent.clientY,
           });
         },
       });
     }
     items.push({
       id: "copy",
-      label: t2("canvas.copyContent"),
+      label: t("canvas.copyContent"),
       icon: <CopyIcon />,
       dataActionUiId: "canvas-text-copy",
       onClick: () => {
         navigator.clipboard.writeText(markdownRef.current);
-        dedupedToast.success(t2("fileExplorer.copiedToClipboard"));
+        dedupedToast.success(t("fileExplorer.copiedToClipboard"));
       },
     });
     items.push({
       id: "add-to-chat",
-      label: t2("canvas.addToChat"),
+      label: t("canvas.addToChat"),
       icon: <AddToChatIcon />,
       dataActionUiId: "canvas-text-add-to-chat",
       onClick: handleAddToChat,
@@ -990,10 +990,10 @@ export function TextNodeInner({
     });
     return items;
   }, [
-    t2,
+    t,
     handleAddToChat,
     handleWriteOwn,
-    id2,
+    textNodeId,
     onPromoteToAsset,
     meta2,
     markdown2,
@@ -1021,14 +1021,14 @@ export function TextNodeInner({
   const disabledTextModelIds = reactExports.useMemo(() => {
     if (!hasVideoRef && !hasAudioRef) return void 0;
     const disabled2 = new Set();
-    for (const m3 of textModels) {
+    for (const modelInfo of textModels) {
       if (
-        (hasVideoRef && !m3.supportsVideo) ||
-        (hasAudioRef && !m3.supportsAudio)
+        (hasVideoRef && !modelInfo.supportsVideo) ||
+        (hasAudioRef && !modelInfo.supportsAudio)
       ) {
-        disabled2.add(m3.id);
-        if (m3.id.includes("/"))
-          disabled2.add(m3.id.slice(m3.id.indexOf("/") + 1));
+        disabled2.add(modelInfo.id);
+        if (modelInfo.id.includes("/"))
+          disabled2.add(modelInfo.id.slice(modelInfo.id.indexOf("/") + 1));
       }
     }
     return disabled2.size > 0 ? disabled2 : void 0;
@@ -1039,32 +1039,32 @@ export function TextNodeInner({
       : void 0;
   const t2tDefaults = pickTextGenerationDefaults(t2tDraft, meta2);
   const upstreamPresetPrompt = reactExports.useMemo(() => {
-    const img = attachment.imagePaths.length;
-    const vid = attachment.videoPaths.length;
-    const aud = attachment.audioPaths.length;
-    const txt = attachment.textPaths.length;
-    if ([img, vid, aud, txt].filter((n2) => n2 > 0).length !== 1) return void 0;
-    if (txt > 0)
-      return t2("canvas.upstreamPreset.text", {
+    const imageCount = attachment.imagePaths.length;
+    const videoCount = attachment.videoPaths.length;
+    const audioCount = attachment.audioPaths.length;
+    const textCount = attachment.textPaths.length;
+    if ([imageCount, videoCount, audioCount, textCount].filter((pathCount) => pathCount > 0).length !== 1) return void 0;
+    if (textCount > 0)
+      return t("canvas.upstreamPreset.text", {
         defaultValue:
           "请优化已上传文本，提升方向为[提升可读性/增强感染力/精简篇幅/调整风格]。",
       });
-    if (img > 0)
-      return img === 1
-        ? t2("canvas.upstreamPreset.imageSingle", {
+    if (imageCount > 0)
+      return imageCount === 1
+        ? t("canvas.upstreamPreset.imageSingle", {
             defaultValue:
               "分析这张图片，反推出适用于[目标工具]的生成提示词，附中文释义。",
           })
-        : t2("canvas.upstreamPreset.imageMulti", {
+        : t("canvas.upstreamPreset.imageMulti", {
             defaultValue:
               "分析这组参考图，提取共性风格要素（色彩、光影、构图、质感、情绪），归纳为统一风格描述和可复用的提示词模板。",
           });
-    if (vid > 0)
-      return t2("canvas.upstreamPreset.video", {
+    if (videoCount > 0)
+      return t("canvas.upstreamPreset.video", {
         defaultValue:
           "分析这段视频的内容、镜头语言和视觉风格，按镜头反推出适用于[目标工具]的生成提示词。",
       });
-    return t2("canvas.upstreamPreset.audio", {
+    return t("canvas.upstreamPreset.audio", {
       defaultValue:
         "分析这段音乐的曲风、情绪、节奏和乐器特征，反推出可生成类似风格的AI音乐提示词。",
     });
@@ -1073,13 +1073,13 @@ export function TextNodeInner({
     attachment.videoPaths.length,
     attachment.audioPaths.length,
     attachment.textPaths.length,
-    t2,
+    t,
   ]);
   const dataDisplayPrompt =
     typeof data2?.displayPrompt === "string" ? data2.displayPrompt : void 0;
   const metaPrompt = typeof meta2?.prompt === "string" ? meta2.prompt : void 0;
   const nodePrompt = [dataDisplayPrompt, metaPrompt].find(
-    (p3) => p3 && p3.trim().length > 0,
+    (promptText) => promptText && promptText.trim().length > 0,
   );
   const t2tPromptSeed = resolveTextPromptSeed({
     quickPrompt: reversePromptRef.current,
@@ -1099,7 +1099,7 @@ export function TextNodeInner({
     t2tPromptSeed.source === "upstream" ? t2tPromptSeed.prompt : "";
   return (
     <NodeShell
-      id={id2}
+      id={textNodeId}
       tagIds={meta2?.tagIds}
       width={nodeWidth}
       dataActionUiId="canvas.text-node"
@@ -1107,7 +1107,7 @@ export function TextNodeInner({
       <NodeHeader
         nodeType="text"
         tagIds={meta2?.tagIds}
-        name={meta2?.name || t2("canvas.text")}
+        name={meta2?.name || t("canvas.text")}
         selected={selected2}
         maxWidth={nodeWidth}
         onRename={onRename}
@@ -1115,7 +1115,7 @@ export function TextNodeInner({
       {isPreviewInteractive && (
         <NodeToolbar items={toolbarItems} visible={true} />
       )}
-      <NodeHandles nodeId={id2} selected={!!selected2} />
+      <NodeHandles nodeId={textNodeId} selected={!!selected2} />
       <NodeBody
         width={nodeWidth}
         tagIds={meta2?.tagIds}
@@ -1128,7 +1128,7 @@ export function TextNodeInner({
       >
         {hasGenerationError ? (
           <MediaGenerationErrorOverlay
-            nodeId={id2}
+            nodeId={textNodeId}
             nodeType="text"
             message={generationErrorMessage ?? ""}
             errorReason={
@@ -1151,10 +1151,10 @@ export function TextNodeInner({
         ) : loaded && !markdown2 && !isMultiSelect && !isBoxSelecting ? (
           <TextNodeQuickActions
             onQuickPrompt={(prompt) => {
-              selectNodeExclusive(id2);
+              selectNodeExclusive(textNodeId);
               reversePromptRef.current = prompt;
-              setRefRevision((v2) => v2 + 1);
-              setT2TPopoverKey((v2) => v2 + 1);
+              setRefRevision((revision) => revision + 1);
+              setT2TPopoverKey((popoverKey) => popoverKey + 1);
               setShowT2TPopover(true);
             }}
             onWriteOwn={() => {
@@ -1174,7 +1174,7 @@ export function TextNodeInner({
       </NodeBody>
       {selected2 && (
         <NodeResizeFrame
-          nodeId={id2}
+          nodeId={textNodeId}
           minWidth={TEXT_CARD_MIN_SIZE.width}
           minHeight={TEXT_CARD_MIN_SIZE.height}
           onResize={handleResize}
@@ -1187,7 +1187,7 @@ export function TextNodeInner({
           onClose={handleCloseFullscreen}
           onDraftChange={persistMarkdownDraft}
           plain={isPlainText}
-          sourceNodeId={id2}
+          sourceNodeId={textNodeId}
           documentPath={textPath ?? lazyCreatedPathRef.current ?? void 0}
           getCloseBlockReason={getFullscreenCloseBlockReason}
           onEditingSelectionChange={(selection2) => {
@@ -1222,7 +1222,7 @@ export function TextNodeInner({
           defaultParams={t2tDefaults.params}
           onSaveDraft={(draft) =>
             savePopoverDraft(
-              id2,
+              textNodeId,
               "t2t",
               draft
                 ? {
@@ -1236,7 +1236,7 @@ export function TextNodeInner({
             )
           }
           isGenerating={isGenerating && !hasGenerationError}
-          replaceNodeId={id2}
+          replaceNodeId={textNodeId}
           referenceItems={referenceItems}
           resolveFileUrl={resolveFileUrl}
           mentionPicker={t2tMentionPicker}
@@ -1253,15 +1253,15 @@ export function TextNodeInner({
           disabledModelIds={disabledTextModelIds}
           disabledModelReason={
             hasVideoRef && hasAudioRef
-              ? t2("canvas.txt.modelNoVideoAudioSupport", {
+              ? t("canvas.txt.modelNoVideoAudioSupport", {
                   defaultValue: "该模型不支持当前连入的视频/音频素材",
                 })
               : hasVideoRef
-                ? t2("canvas.txt.modelNoVideoSupport", {
+                ? t("canvas.txt.modelNoVideoSupport", {
                     defaultValue: "该模型不支持当前连入的视频素材",
                   })
                 : hasAudioRef
-                  ? t2("canvas.txt.modelNoAudioSupport", {
+                  ? t("canvas.txt.modelNoAudioSupport", {
                       defaultValue: "该模型不支持当前连入的音频素材",
                     })
                   : void 0
