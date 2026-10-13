@@ -117,23 +117,23 @@ function asBoolean(value, field) {
 }
 function asTimestamp(value, field) {
   const decimal = asDecimal(value, field);
-  const timestamp2 = Number(decimal);
-  if (!Number.isSafeInteger(timestamp2)) {
+  const timestamp = Number(decimal);
+  if (!Number.isSafeInteger(timestamp)) {
     throw new TypeError(
       `Invalid billing response at ${field}: expected safe timestamp`,
     );
   }
-  return timestamp2;
+  return timestamp;
 }
-function mapBillingTransaction(value, index2) {
-  const field = `$.items[${index2}]`;
+function mapBillingTransaction(value, index) {
+  const field = `$.items[${index}]`;
   const source = asRecord(value, field);
-  const type2 = asString(source.type, `${field}.type`);
+  const type = asString(source.type, `${field}.type`);
   if (
-    type2 !== "consume" &&
-    type2 !== "refund" &&
-    type2 !== "grant" &&
-    type2 !== "expired"
+    type !== "consume" &&
+    type !== "refund" &&
+    type !== "grant" &&
+    type !== "expired"
   ) {
     throw new TypeError(
       `Invalid billing response at ${field}.type: unsupported value`,
@@ -146,7 +146,7 @@ function mapBillingTransaction(value, index2) {
   );
   return {
     id: asDecimal(source.id, `${field}.id`),
-    type: type2,
+    type,
     source: asString(source.source, `${field}.source`),
     billing_type: asString(source.billing_type, `${field}.billing_type`),
     amount: asPositiveDecimal(source.amount, `${field}.amount`),
@@ -215,19 +215,19 @@ async function fetchTransactions(params, options) {
       signal: options?.signal,
     },
   );
-  const raw2 = await res.json();
+  const raw = await res.json();
   options?.signal?.throwIfAborted();
-  const data2 = mapBillingTransactionsResponse(raw2);
+  const data = mapBillingTransactionsResponse(raw);
   return {
-    items: data2.items,
-    hasMore: data2.hasMore,
-    nextCursor: data2.hasMore
+    items: data.items,
+    hasMore: data.hasMore,
+    nextCursor: data.hasMore
       ? {
-          createTime: data2.nextCursorCreateTime,
-          id: data2.nextCursorId,
+          createTime: data.nextCursorCreateTime,
+          id: data.nextCursorId,
         }
       : null,
-    balance: data2.balance,
+    balance: data.balance,
   };
 }
 function useMpCreditSummary() {
@@ -247,7 +247,7 @@ function useCreditDetails(open) {
   );
   const [pageSize, setPageSizeState] = reactExports.useState(DEFAULT_PAGE_SIZE);
   const [cursorStack, setCursorStack] = reactExports.useState([]);
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { queryScope, canReadPersonalCredit } = useCreditAccountState();
   const dialogScopeRef = reactExports.useRef(null);
   const currentCursor = cursorStack.at(-1) ?? null;
@@ -257,8 +257,8 @@ function useCreditDetails(open) {
     setCursorStack((prev) => (prev.length === 0 ? prev : []));
   }, []);
   const setActiveTab = reactExports.useCallback(
-    (tab2) => {
-      setActiveTabState(tab2);
+    (tab) => {
+      setActiveTabState(tab);
       resetCursorStack();
     },
     [resetCursorStack],
@@ -278,12 +278,12 @@ function useCreditDetails(open) {
     const closedScope = dialogScopeRef.current;
     dialogScopeRef.current = null;
     if (closedScope) {
-      queryClient2.removeQueries({
+      queryClient.removeQueries({
         queryKey: creditQueryKeys.personalTransactionsRoot(closedScope),
       });
     }
     resetCursorStack();
-  }, [open, queryClient2, queryScope, resetCursorStack]);
+  }, [open, queryClient, queryScope, resetCursorStack]);
   const {
     data: pageData,
     isLoading: loadingList,
@@ -441,9 +441,9 @@ function CreditPagination({
             <SelectValue>{() => pageSize}</SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {CREDIT_PAGE_SIZE_OPTIONS.map((option2) => (
-              <SelectItem key={option2} value={String(option2)}>
-                {option2}
+            {CREDIT_PAGE_SIZE_OPTIONS.map((option) => (
+              <SelectItem key={option} value={String(option)}>
+                {option}
               </SelectItem>
             ))}
           </SelectContent>
@@ -564,7 +564,7 @@ const CYCLE_LABEL_KEYS = {
 };
 function SubscriptionInfoPanel() {
   const { t } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const { isLoading: loading } = useWalletQuery();
   const mpWallet = useMpWallet();
   const subscribeUrl = useMpSubscribeUrl();
@@ -577,7 +577,7 @@ function SubscriptionInfoPanel() {
       dedupedToast.error(t("credits.walletUrlNotReady"));
       return;
     }
-    void openExternalUrl(platform2, subscribeUrl, {
+    void openExternalUrl(platform, subscribeUrl, {
       source: "credits.subscription-panel",
     });
   };
@@ -613,17 +613,17 @@ function SubscriptionInfoPanel() {
         },
       );
     }
-    const end2 = mpWallet?.end_time?.trim();
+    const end = mpWallet?.end_time?.trim();
     const creditRefresh = mpWallet?.next_credit_refresh_time?.trim();
-    if (end2 && mpWallet?.cycle_type === 3 && creditRefresh) {
+    if (end && mpWallet?.cycle_type === 3 && creditRefresh) {
       return t("credits.subscriptionDesc.cancelWithCreditRefresh", {
-        date: end2,
+        date: end,
         refreshDate: creditRefresh,
       });
     }
-    if (end2)
+    if (end)
       return t("credits.subscriptionDesc.cancel", {
-        date: end2,
+        date: end,
       });
     return "";
   })();
@@ -677,13 +677,13 @@ function formatLocaleNumber(value) {
   return value.toLocaleString();
 }
 function formatTransferCounterparty(transfer) {
-  const name2 = transfer.counterpartyGroupName;
+  const counterpartyName = transfer.counterpartyGroupName;
   const counterpartyGroupId = transfer.counterpartyGroupId;
-  if (!name2 && !counterpartyGroupId) return "—";
+  if (!counterpartyName && !counterpartyGroupId) return "—";
   return (
     <span className="flex min-w-0 flex-wrap items-baseline gap-x-1">
-      {name2 ? <span className="min-w-0 break-words">{name2}</span> : null}
-      {name2 && counterpartyGroupId ? (
+      {counterpartyName ? <span className="min-w-0 break-words">{counterpartyName}</span> : null}
+      {counterpartyName && counterpartyGroupId ? (
         <span className="shrink-0 text-muted-foreground">/</span>
       ) : null}
       {counterpartyGroupId ? (
@@ -704,20 +704,20 @@ function findCreditInfo(wallet, creditType) {
   return wallet?.sub_credits?.find((item) => item?.credit_type === creditType);
 }
 function creditExpiryBatches(creditInfo, fallbackCredit) {
-  const now2 = Date.now();
+  const now = Date.now();
   const creditByEndTime = new Map();
-  for (const record2 of creditInfo?.records ?? []) {
+  for (const record of creditInfo?.records ?? []) {
     if (
-      !Number.isFinite(record2.credit) ||
-      record2.credit <= 0 ||
-      !Number.isFinite(record2.end_time) ||
-      record2.end_time <= now2
+      !Number.isFinite(record.credit) ||
+      record.credit <= 0 ||
+      !Number.isFinite(record.end_time) ||
+      record.end_time <= now
     ) {
       continue;
     }
     creditByEndTime.set(
-      record2.end_time,
-      (creditByEndTime.get(record2.end_time) ?? 0) + record2.credit,
+      record.end_time,
+      (creditByEndTime.get(record.end_time) ?? 0) + record.credit,
     );
   }
   if (creditByEndTime.size > 0) {
@@ -733,7 +733,7 @@ function creditExpiryBatches(creditInfo, fallbackCredit) {
     Number.isFinite(fallbackCredit) &&
     fallbackCredit > 0 &&
     Number.isFinite(fallbackEndTime) &&
-    fallbackEndTime > now2
+    fallbackEndTime > now
   ) {
     return [
       {
@@ -744,8 +744,8 @@ function creditExpiryBatches(creditInfo, fallbackCredit) {
   }
   return [];
 }
-function formatCreditExpiry(timestamp2) {
-  if (!Number.isFinite(timestamp2) || timestamp2 <= 0) return "";
+function formatCreditExpiry(timestamp) {
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return "";
   return new Intl.DateTimeFormat(void 0, {
     year: "numeric",
     month: "2-digit",
@@ -754,7 +754,7 @@ function formatCreditExpiry(timestamp2) {
     minute: "2-digit",
     hour12: false,
     hourCycle: "h23",
-  }).format(new Date(timestamp2));
+  }).format(new Date(timestamp));
 }
 function Operator({ symbol }) {
   return (
@@ -804,15 +804,15 @@ function SummaryCard({ label, value, tooltipKey, creditInfo }) {
         <p className="text-xs text-muted-foreground">{t(tooltipKey)}</p>
         {expiryBatches.length > 0 ? (
           <div className="flex flex-col gap-2 border-t border-border pt-3">
-            {expiryBatches.map((batch2) => (
+            {expiryBatches.map((batch) => (
               <p
-                key={batch2.endTime}
+                key={batch.endTime}
                 className="text-xs tabular-nums text-foreground"
                 data-action-ui-id="credits.expiry-batch"
               >
                 {t("credits.creditExpiry.batch", {
-                  credit: formatLocaleNumber(batch2.credit),
-                  date: formatCreditExpiry(batch2.endTime),
+                  credit: formatLocaleNumber(batch.credit),
+                  date: formatCreditExpiry(batch.endTime),
                 })}
               </p>
             ))}
@@ -904,7 +904,7 @@ function CreditTypeSummary({ loading, error, creditTypes, wallet }) {
 }
 export function CreditDetailsDialog({ open, onOpenChange }) {
   const { t } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const { data: mediaModels } = useMediaModels();
   const {
     activeTab,
@@ -938,8 +938,8 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
   const transferScope =
     (teamAccount?.integrationEnabled ? teamAccount.activeScope : null) ?? null;
   const transferTabVisible = transferScope !== null;
-  const [tab2, setTab] = reactExports.useState(TRANSACTION_TYPE.ALL);
-  const transferTabActive = transferTabVisible && tab2 === TRANSFER_TAB;
+  const [tab, setTab] = reactExports.useState(TRANSACTION_TYPE.ALL);
+  const transferTabActive = transferTabVisible && tab === TRANSFER_TAB;
   const transfersQuery = useTeamTransfersFeedQuery({
     scope: transferScope,
     enabled: open && transferTabActive,
@@ -977,7 +977,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
       dedupedToast.error(t("credits.walletUrlNotReady"));
       return;
     }
-    void openExternalUrl(platform2, subscribeUrl, {
+    void openExternalUrl(platform, subscribeUrl, {
       source: "credits.details.purchase",
     });
   };
@@ -1147,7 +1147,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
                         className="cursor-pointer text-foreground underline-offset-2 hover:underline"
                         onClick={() => {
                           void openExternalUrl(
-                            platform2,
+                            platform,
                             getHailuoCreditsRulesUrl(region),
                             {
                               source: "credits.details.model-costs",
@@ -1163,7 +1163,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
                         className="cursor-pointer text-foreground underline-offset-2 hover:underline"
                         onClick={() => {
                           void openExternalUrl(
-                            platform2,
+                            platform,
                             getUserProtocolUrl(
                               region,
                               getRuntimeConfig().channel,

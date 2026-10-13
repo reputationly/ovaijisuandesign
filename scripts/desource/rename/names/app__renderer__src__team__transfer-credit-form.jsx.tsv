@@ -1,2 +1,8 @@
 key	new	reason
 t2@77:14	t	useTranslation() 返回的翻译函数 t
+TeamScopeChangedError3@50:7	TeamScopeChangedError	去掉打包器加的数字后缀，恢复原名 TeamScopeChangedError
+raw2@31:33	raw	去掉打包器加的数字后缀，恢复原名 raw
+code2@58:15	code	去掉打包器加的数字后缀，恢复原名 code
+queryClient2@78:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+snapshot2@82:15	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+message2@225:13	message	去掉打包器加的数字后缀，恢复原名 message

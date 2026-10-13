@@ -1,0 +1,4 @@
+key	new	reason
+message2@13:22	message	去掉打包器加的数字后缀，恢复原名 message
+record2@59:9	record	去掉打包器加的数字后缀，恢复原名 record
+mode2@60:9	mode	去掉打包器加的数字后缀，恢复原名 mode

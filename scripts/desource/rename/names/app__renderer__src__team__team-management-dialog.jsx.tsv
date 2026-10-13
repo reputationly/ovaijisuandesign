@@ -4,3 +4,23 @@ t2@196:14	t	useTranslation() 返回的翻译函数 t
 t2@248:14	t	useTranslation() 返回的翻译函数 t
 id2@419:37	memberId	已加载可选成员 ID，检查是否都已选中
 id2@420:61	memberId	已加载可选成员 ID，检查是否有被选中的
+index2@133:36	index	去掉打包器加的数字后缀，恢复原名 index
+key2@156:50	key	去掉打包器加的数字后缀，恢复原名 key
+selected2@163:32	selected	去掉打包器加的数字后缀，恢复原名 selected
+copy2@164:9	copy	去掉打包器加的数字后缀，恢复原名 copy
+platform2@251:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+queryClient2@252:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+keyword2@269:10	keyword	去掉打包器加的数字后缀，恢复原名 keyword
+tab2@297:28	tab	去掉打包器加的数字后缀，恢复原名 tab
+map3@363:11	map	去掉打包器加的数字后缀，恢复原名 map
+map3@370:11	map	去掉打包器加的数字后缀，恢复原名 map
+timer2@532:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+next2@588:24	next	去掉打包器加的数字后缀，恢复原名 next
+tab2@611:24	tab	去掉打包器加的数字后缀，恢复原名 tab
+tab2@612:21	tab	去掉打包器加的数字后缀，恢复原名 tab
+tab2@634:31	tab	去掉打包器加的数字后缀，恢复原名 tab
+next2@1637:36	next	去掉打包器加的数字后缀，恢复原名 next
+next2@1649:36	next	去掉打包器加的数字后缀，恢复原名 next
+next2@1672:34	next	去掉打包器加的数字后缀，恢复原名 next
+next2@1685:34	next	去掉打包器加的数字后缀，恢复原名 next
+current2@1776:44	current	去掉打包器加的数字后缀，恢复原名 current

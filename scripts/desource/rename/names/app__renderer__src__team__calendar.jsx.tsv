@@ -1,0 +1,14 @@
+key	new	reason
+key2@27:14	key	去掉打包器加的数字后缀，恢复原名 key
+key2@30:14	key	去掉打包器加的数字后缀，恢复原名 key
+key2@33:14	key	去掉打包器加的数字后缀，恢复原名 key
+key2@36:14	key	去掉打包器加的数字后缀，恢复原名 key
+modifiers2@44:14	modifiers	去掉打包器加的数字后缀，恢复原名 modifiers
+date2@101:31	date	去掉打包器加的数字后缀，恢复原名 date
+className2@199:29	className	去掉打包器加的数字后缀，恢复原名 className
+props2@199:53	props	去掉打包器加的数字后缀，恢复原名 props
+className2@209:32	className	去掉打包器加的数字后缀，恢复原名 className
+props2@209:60	props	去掉打包器加的数字后缀，恢复原名 props
+props2@230:26	props	去掉打包器加的数字后缀，恢复原名 props
+children2@233:34	children	去掉打包器加的数字后缀，恢复原名 children
+props2@233:48	props	去掉打包器加的数字后缀，恢复原名 props

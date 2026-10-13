@@ -130,7 +130,7 @@ function TeamManagementQuotaLoading() {
           defaultValue: "加载中…",
         })}
       </span>
-      {QUOTA_CELL_IDS.map((cellId, index2) => (
+      {QUOTA_CELL_IDS.map((cellId, index) => (
         <div
           key={cellId}
           className="space-y-2 border-b border-border p-3 last:border-b-0 sm:border-b-0"
@@ -138,7 +138,7 @@ function TeamManagementQuotaLoading() {
           <Skeleton className="h-2.5 w-20 rounded-sm" />
           <Skeleton
             className={
-              index2 === 1 ? "h-3 w-24 rounded-sm" : "h-3 w-14 rounded-sm"
+              index === 1 ? "h-3 w-24 rounded-sm" : "h-3 w-14 rounded-sm"
             }
           />
         </div>
@@ -153,18 +153,18 @@ function creditTransferTermsKey(params) {
   const scenarioKey = params.groupId?.trim() || PERSONAL_SCENARIO_KEY;
   return `${userKey}:${HILO_HUB_BIZ_LINE}:${scenarioKey}`;
 }
-function isCreditTransferTermsAccepted(accepted, key2) {
+function isCreditTransferTermsAccepted(accepted, key) {
   if (accepted === void 0 || typeof accepted === "boolean") return false;
-  return accepted[key2] !== void 0;
+  return accepted[key] !== void 0;
 }
 function isBatchRemoveEligible(member) {
   return member.permissions.removeMember.allowed;
 }
-function toggleMemberSelection(selected2, userId, nextSelected) {
-  const copy2 = new Set(selected2);
-  if (nextSelected) copy2.add(userId);
-  else copy2.delete(userId);
-  return copy2;
+function toggleMemberSelection(selected, userId, nextSelected) {
+  const copy = new Set(selected);
+  if (nextSelected) copy.add(userId);
+  else copy.delete(userId);
+  return copy;
 }
 function selectLoadedEligible(members, eligible) {
   return new Set(members.filter(eligible).map((member) => member.userId));
@@ -248,8 +248,8 @@ export function TeamManagementDialog({
   const { t } = useTranslation();
   const runtimeConfig = getRuntimeConfig();
   const isOverseas = runtimeConfig.region === "overseas";
-  const platform2 = usePlatform();
-  const queryClient2 = useQueryClient();
+  const platform = usePlatform();
+  const queryClient = useQueryClient();
   const subscribeUrl = useMpSubscribeUrl();
   const purchasePendingRef = reactExports.useRef(false);
   const [purchasePending, setPurchasePending] = reactExports.useState(false);
@@ -266,7 +266,7 @@ export function TeamManagementDialog({
   );
   const detailQuery = useTeamDetailQuery(scope, open && gateOpen);
   const [searchInput, setSearchInput] = reactExports.useState("");
-  const [keyword2, setKeyword] = reactExports.useState("");
+  const [keyword, setKeyword] = reactExports.useState("");
   const [selectedMemberIds, setSelectedMemberIds] = reactExports.useState(
     () => new Set(),
   );
@@ -294,14 +294,14 @@ export function TeamManagementDialog({
   const inviteOpen = subpage?.type === "invite";
   const inviteHistoryOpen = subpage?.type === "history";
   const transferDialogOpen = subpage?.type === "transfer";
-  const handleTabChange = (tab2) => {
+  const handleTabChange = (tab) => {
     if (subpageRef.current) {
       nestedCloseRef.current?.();
       if (subpageRef.current) return;
     }
     navigationRevision.current += 1;
-    if (tab2 !== activeTab) setSelectedMemberIds(new Set());
-    setActiveTab(tab2);
+    if (tab !== activeTab) setSelectedMemberIds(new Set());
+    setActiveTab(tab);
   };
   const pageSize = Math.min(20, contract?.limits.maxMemberPageSize ?? 20);
   const isMemberView = detailQuery.data?.currentRole === "MEMBER";
@@ -326,7 +326,7 @@ export function TeamManagementDialog({
   );
   const membersQuery = useTeamMembersFeedQuery({
     scope,
-    keyword: keyword2,
+    keyword,
     pageSize,
     enabled: open && gateOpen && viewMembers,
   });
@@ -360,18 +360,18 @@ export function TeamManagementDialog({
       !isMemberView,
   });
   const memberUsageByUserId = reactExports.useMemo(() => {
-    const map3 = new Map();
+    const map = new Map();
     for (const detail of memberDetailsQuery.data ?? []) {
-      map3.set(detail.userId, detail.totalUsed);
+      map.set(detail.userId, detail.totalUsed);
     }
-    return map3;
+    return map;
   }, [memberDetailsQuery.data]);
   const memberNameByUserId = reactExports.useMemo(() => {
-    const map3 = new Map();
+    const map = new Map();
     for (const detail of memberDetailsQuery.data ?? []) {
-      map3.set(detail.userId, detail.userName);
+      map.set(detail.userId, detail.userName);
     }
-    return map3;
+    return map;
   }, [memberDetailsQuery.data]);
   const scrollRef = reactExports.useRef(null);
   const isScrolling = useIsScrolling({
@@ -479,12 +479,12 @@ export function TeamManagementDialog({
     purchasePendingRef.current = true;
     setPurchasePending(true);
     try {
-      await openExternalUrl(platform2, subscribeUrl, {
+      await openExternalUrl(platform, subscribeUrl, {
         source: "team.management.purchase",
       });
       const handleFocus = () => {
         window.removeEventListener("focus", handleFocus);
-        void queryClient2.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: creditQueryKeys.scope(scope),
         });
       };
@@ -528,12 +528,12 @@ export function TeamManagementDialog({
     }
   };
   reactExports.useEffect(() => {
-    if (searchInput === keyword2) return;
-    const timer2 = window.setTimeout(() => {
+    if (searchInput === keyword) return;
+    const timer = window.setTimeout(() => {
       setKeyword(searchInput);
     }, MEMBER_SEARCH_DEBOUNCE_MS);
-    return () => window.clearTimeout(timer2);
-  }, [keyword2, searchInput]);
+    return () => window.clearTimeout(timer);
+  }, [keyword, searchInput]);
   reactExports.useEffect(() => {
     if (!open) {
       setSelectedMemberIds(new Set());
@@ -585,11 +585,11 @@ export function TeamManagementDialog({
     <>
       <Dialog
         open={open}
-        onOpenChange={(next2) => {
-          if (!next2 && nestedCloseRef.current) nestedCloseRef.current();
+        onOpenChange={(next) => {
+          if (!next && nestedCloseRef.current) nestedCloseRef.current();
           else {
-            if (!next2) navigationRevision.current += 1;
-            onOpenChange(next2);
+            if (!next) navigationRevision.current += 1;
+            onOpenChange(next);
           }
         }}
       >
@@ -608,22 +608,22 @@ export function TeamManagementDialog({
               {t("team.management.title")}
             </p>
             {tabs
-              .filter((tab2) => tab2.visible)
-              .map((tab2) => (
+              .filter((tab) => tab.visible)
+              .map((tab) => (
                 <Button
-                  key={tab2.id}
-                  variant={currentTab === tab2.id ? "default" : "ghost"}
-                  aria-pressed={currentTab === tab2.id}
+                  key={tab.id}
+                  variant={currentTab === tab.id ? "default" : "ghost"}
+                  aria-pressed={currentTab === tab.id}
                   className={
-                    currentTab === tab2.id
+                    currentTab === tab.id
                       ? "justify-start gap-2 bg-foreground text-background hover:bg-foreground hover:text-background"
                       : "justify-start gap-2 text-muted-foreground"
                   }
-                  data-action-ui-id={`team.management-tab-${tab2.id}`}
-                  onClick={() => handleTabChange(tab2.id)}
+                  data-action-ui-id={`team.management-tab-${tab.id}`}
+                  onClick={() => handleTabChange(tab.id)}
                 >
-                  <Icon icon={tab2.icon} size="sm" aria-hidden={true} />
-                  {tab2.label}
+                  <Icon icon={tab.icon} size="sm" aria-hidden={true} />
+                  {tab.label}
                 </Button>
               ))}
           </nav>
@@ -631,7 +631,7 @@ export function TeamManagementDialog({
             <div className="flex min-h-0 min-w-0 flex-1 flex-col">
               <DialogHeader className="shrink-0 border-b border-border px-4 py-6 pr-14 sm:px-6 sm:pr-16">
                 <DialogTitle className="font-heading text-xl">
-                  {tabs.find((tab2) => tab2.id === currentTab)?.label}
+                  {tabs.find((tab) => tab.id === currentTab)?.label}
                 </DialogTitle>
                 <DialogDescription>
                   {isMemberView
@@ -788,7 +788,7 @@ export function TeamManagementDialog({
                                         })}
                                         onClick={() => {
                                           void openExternalUrl(
-                                            platform2,
+                                            platform,
                                             getTeamInvoiceUrl(
                                               runtimeConfig.region,
                                               runtimeConfig.channel,
@@ -1634,8 +1634,8 @@ export function TeamManagementDialog({
                   <InviteMembersPage
                     open={true}
                     scope={scope}
-                    onOpenChange={(next2) => {
-                      if (!next2) closeSubpage();
+                    onOpenChange={(next) => {
+                      if (!next) closeSubpage();
                     }}
                     onInvited={() => {
                       void membersQuery.refetch();
@@ -1646,8 +1646,8 @@ export function TeamManagementDialog({
                   <CreateInviteLinkPage
                     open={true}
                     scope={scope}
-                    onOpenChange={(next2) => {
-                      if (!next2) closeSubpage();
+                    onOpenChange={(next) => {
+                      if (!next) closeSubpage();
                     }}
                     onCreated={() => void inviteLinksQuery.refetch()}
                   />
@@ -1669,8 +1669,8 @@ export function TeamManagementDialog({
                   loadMoreError={inviteLinksQuery.isFetchNextPageError}
                   loadedBatchCount={inviteLinksQuery.data?.pages.length ?? 0}
                   hasMore={Boolean(inviteLinksQuery.hasNextPage)}
-                  onOpenChange={(next2) => {
-                    if (!next2) closeSubpage();
+                  onOpenChange={(next) => {
+                    if (!next) closeSubpage();
                   }}
                   onRetry={() => void inviteLinksQuery.refetch()}
                   onLoadMore={() => inviteLinksQuery.fetchNextPage()}
@@ -1682,8 +1682,8 @@ export function TeamManagementDialog({
                   scope={scope}
                   teamName={detailQuery.data.teamName}
                   teamRemaining={teamRemaining}
-                  onOpenChange={(next2) => {
-                    if (!next2) closeSubpage();
+                  onOpenChange={(next) => {
+                    if (!next) closeSubpage();
                   }}
                 />
               ) : null}
@@ -1747,7 +1747,7 @@ export function TeamManagementDialog({
                       className="cursor-pointer text-foreground underline-offset-2 hover:underline"
                       onClick={() => {
                         void openExternalUrl(
-                          platform2,
+                          platform,
                           getUserProtocolUrl(
                             runtimeConfig.region,
                             runtimeConfig.channel,
@@ -1773,14 +1773,14 @@ export function TeamManagementDialog({
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                void setGlobalConfigAsync((current2) => {
+                void setGlobalConfigAsync((current) => {
                   const existing =
-                    current2.creditTransferTermsAccepted &&
-                    typeof current2.creditTransferTermsAccepted === "object"
-                      ? current2.creditTransferTermsAccepted
+                    current.creditTransferTermsAccepted &&
+                    typeof current.creditTransferTermsAccepted === "object"
+                      ? current.creditTransferTermsAccepted
                       : {};
                   return {
-                    ...current2,
+                    ...current,
                     creditTransferTermsAccepted: {
                       ...existing,
                       [creditTransferTermsScopeKey]: {

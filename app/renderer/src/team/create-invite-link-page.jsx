@@ -21,14 +21,14 @@ import {
 } from "./team-management-detail-loading.jsx";
 import { teamApi } from "./team-api.js";
 import { SegmentedSwitch } from "../canvas/popover-title.jsx";
-function buildTeamInviteWebLink({ region, channel, token: token2 }) {
+function buildTeamInviteWebLink({ region, channel, token }) {
   const environment = channel === "prod" ? "prod" : "test";
-  const url2 = new URL(
+  const url = new URL(
     "/media-plan/team/invite",
     HUB_WEB_INVITE_DOMAINS[environment][region],
   );
-  url2.searchParams.set("token", token2);
-  return url2.toString();
+  url.searchParams.set("token", token);
+  return url.toString();
 }
 const EXPIRY_OPTIONS = [1, 7, 14, 30, 0];
 const MAX_USE_OPTIONS = [1, 5, 10, 20, -1, 0];
@@ -36,8 +36,8 @@ const MAX_CUSTOM_USES = 2147483647;
 const MAX_QUOTA_LIMIT = 9007199254740991;
 const DAY_SECONDS = 24 * 60 * 60;
 const UNSIGNED_DECIMAL = /^(0|[1-9]\d*)$/;
-function optionClass(selected2) {
-  return selected2
+function optionClass(selected) {
+  return selected
     ? "border-foreground bg-foreground text-background"
     : "border-border bg-background text-muted-foreground hover:text-foreground";
 }
@@ -50,9 +50,9 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
   const [creating, setCreating] = reactExports.useState(false);
   const [createdLink, setCreatedLink] = reactExports.useState(null);
   const [actionError, setActionError] = reactExports.useState(null);
-  const [tab2, setTab] = reactExports.useState("link");
+  const [tab, setTab] = reactExports.useState("link");
   const [pastTabMounted, setPastTabMounted] = reactExports.useState(false);
-  const showLinkTab = tab2 === "link" || createdLink !== null;
+  const showLinkTab = tab === "link" || createdLink !== null;
   const maxUses = reactExports.useMemo(() => {
     if (maxUsesOption === 0) return 0;
     if (maxUsesOption !== -1) return maxUsesOption;
@@ -122,9 +122,9 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
         : t("team.inviteLink.createFailed", {
             defaultValue: "创建邀请链接失败",
           });
-      const message2 = suffix ? `${primary}（${suffix}）` : primary;
-      setActionError(message2);
-      dedupedToast.error(message2);
+      const message = suffix ? `${primary}（${suffix}）` : primary;
+      setActionError(message);
+      dedupedToast.error(message);
     } finally {
       setCreating(false);
     }
@@ -168,10 +168,10 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
             <SegmentedSwitch
               variant="label"
               stretch={true}
-              value={tab2}
-              onValueChange={(next2) => {
-                setTab(next2);
-                if (next2 === "past-teams") setPastTabMounted(true);
+              value={tab}
+              onValueChange={(next) => {
+                setTab(next);
+                if (next === "past-teams") setPastTabMounted(true);
               }}
               ariaLabel={t("team.inviteMembers.title", {
                 defaultValue: "邀请成员",

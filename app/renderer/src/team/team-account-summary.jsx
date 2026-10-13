@@ -35,21 +35,21 @@ export function TeamAccountSummary({
   const { t } = useTranslation();
   const {
     integrationEnabled,
-    snapshot: snapshot2,
+    snapshot,
     activeScope,
     accountDataVisible,
     billingAvailable,
     openCredits,
   } = useTeamAccount();
-  const identityKey = snapshot2?.identityKey ?? null;
+  const identityKey = snapshot?.identityKey ?? null;
   const accountSwitcherAvailable = identityKey !== null;
   const contexts = useTeamContextsQuery(identityKey, identityKey !== null);
   const isTeam =
-    snapshot2?.status === "ready" &&
-    snapshot2.activeContext.accountType === "TEAM";
+    snapshot?.status === "ready" &&
+    snapshot.activeContext.accountType === "TEAM";
   const isPersonal =
-    snapshot2?.status === "ready" &&
-    snapshot2.activeContext.accountType === "PERSONAL";
+    snapshot?.status === "ready" &&
+    snapshot.activeContext.accountType === "PERSONAL";
   const activeItem = contexts.data?.items.find(
     (item) => item.groupId === activeScope?.groupId,
   );
@@ -88,9 +88,9 @@ export function TeamAccountSummary({
     defaultValue: "切换团队",
   });
   const selectedGroupPending =
-    !snapshot2 ||
-    snapshot2.status === "syncing" ||
-    snapshot2.status === "ready";
+    !snapshot ||
+    snapshot.status === "syncing" ||
+    snapshot.status === "ready";
   const accountPresentation = activeItem
     ? deriveAccountPresentation(activeItem, personalLabel)
     : null;
@@ -126,7 +126,7 @@ export function TeamAccountSummary({
   const creditPresentation = (() => {
     if (memberSelfOnly) {
       if (!memberCreditDisplay) return null;
-      const value2 =
+      const value =
         memberCreditDisplay.availableAmount === null
           ? "—"
           : formatCreditAmount(memberCreditDisplay.availableAmount);
@@ -139,7 +139,7 @@ export function TeamAccountSummary({
         label: t("team.credit.available", {
           defaultValue: "可用额度",
         }),
-        value: value2,
+        value,
         ariaLabel:
           memberCreditDisplay.status !== "READY"
             ? t("team.credit.sidebarAriaAvailableUnavailable", {
@@ -149,12 +149,12 @@ export function TeamAccountSummary({
               ? t("team.credit.sidebarAriaMemberLimited", {
                   defaultValue:
                     "可用额度 {{available}}，取我的剩余额度和团队剩余积分中较小的值",
-                  available: value2,
+                  available: value,
                 })
               : t("team.credit.sidebarAriaMemberUnlimited", {
                   defaultValue:
                     "可用额度 {{available}}，未设置个人限额，以团队剩余积分为准",
-                  available: value2,
+                  available: value,
                 }),
       };
     }

@@ -41,10 +41,10 @@ function keepPreviousDataForMembershipRevision(
     return void 0;
   }
   const revisionIndex = identityIndex + 3;
-  for (let index2 = 0; index2 < currentQueryKey.length; index2 += 1) {
+  for (let index = 0; index < currentQueryKey.length; index += 1) {
     if (
-      index2 !== revisionIndex &&
-      currentQueryKey[index2] !== previousQuery.queryKey[index2]
+      index !== revisionIndex &&
+      currentQueryKey[index] !== previousQuery.queryKey[index]
     ) {
       return void 0;
     }

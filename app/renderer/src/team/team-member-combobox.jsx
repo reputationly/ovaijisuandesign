@@ -37,7 +37,7 @@ export function TeamMemberCombobox({
   const { t } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const listboxId = reactExports.useId();
-  const selected2 = options.find((option2) => option2.userId === value) ?? null;
+  const selected = options.find((option) => option.userId === value) ?? null;
   const searchActionUiId =
     dataActionUiId === "team.management-leave-successor"
       ? "team.management-leave-successor-search"
@@ -46,21 +46,21 @@ export function TeamMemberCombobox({
     dataActionUiId === "team.management-leave-successor"
       ? "team.management-leave-successor-option"
       : `${dataActionUiId}-option`;
-  const selectedDescription = selected2
-    ? (selected2.description ??
-      (selected2.role
-        ? `UID ${selected2.userId} · ${t(
-            `team.role.${selected2.role.toLowerCase()}`,
+  const selectedDescription = selected
+    ? (selected.description ??
+      (selected.role
+        ? `UID ${selected.userId} · ${t(
+            `team.role.${selected.role.toLowerCase()}`,
             {
-              defaultValue: selected2.role,
+              defaultValue: selected.role,
             },
           )}`
         : null))
     : null;
-  const triggerLabel = selected2
+  const triggerLabel = selected
     ? selectedLabelMode === "name" || !selectedDescription
-      ? selected2.displayName
-      : `${selected2.displayName} · ${selectedDescription}`
+      ? selected.displayName
+      : `${selected.displayName} · ${selectedDescription}`
     : (placeholder ??
       t("team.management.successorPlaceholder", {
         defaultValue: "搜索并选择继任 Owner",
@@ -68,10 +68,10 @@ export function TeamMemberCombobox({
   return (
     <Popover
       open={open}
-      onOpenChange={(next2) => {
+      onOpenChange={(next) => {
         if (disabled2) return;
-        setOpen(next2);
-        if (!next2) onSearchChange("");
+        setOpen(next);
+        if (!next) onSearchChange("");
       }}
     >
       <PopoverTrigger
@@ -88,7 +88,7 @@ export function TeamMemberCombobox({
           "flex h-auto min-h-9 w-full items-center justify-between gap-2 rounded-lg border border-input bg-transparent px-2.5 py-2 text-left text-xs outline-none transition-colors",
           "hover:bg-muted/60 focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          !selected2 && "text-muted-foreground",
+          !selected && "text-muted-foreground",
         )}
       >
         <span className="line-clamp-2 min-w-0 flex-1">{triggerLabel}</span>
@@ -169,21 +169,21 @@ export function TeamMemberCombobox({
                 })}
             </div>
           ) : null}
-          {options.map((option2) => {
-            const isSelected = option2.userId === value;
+          {options.map((option) => {
+            const isSelected = option.userId === value;
             const description =
-              option2.description ??
-              (option2.role
-                ? `UID ${option2.userId} · ${t(
-                    `team.role.${option2.role.toLowerCase()}`,
+              option.description ??
+              (option.role
+                ? `UID ${option.userId} · ${t(
+                    `team.role.${option.role.toLowerCase()}`,
                     {
-                      defaultValue: option2.role,
+                      defaultValue: option.role,
                     },
                   )}`
                 : null);
             return (
               <button
-                key={option2.userId}
+                key={option.userId}
                 type="button"
                 role="option"
                 aria-selected={isSelected}
@@ -194,16 +194,16 @@ export function TeamMemberCombobox({
                 )}
                 onMouseDown={(event) => {
                   event.preventDefault();
-                  onValueChange(option2.userId);
+                  onValueChange(option.userId);
                   setOpen(false);
                   onSearchChange("");
                 }}
                 data-action-ui-id={optionActionUiId}
-                data-successor-user-id={option2.userId}
+                data-successor-user-id={option.userId}
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium text-foreground">
-                    {option2.displayName}
+                    {option.displayName}
                   </span>
                   {description ? (
                     <span className="block truncate text-muted-foreground">

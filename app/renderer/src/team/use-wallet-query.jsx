@@ -32,7 +32,7 @@ export function Skeleton({ className, ...props }) {
     />
   );
 }
-function sanitizeWalletInfo(raw2) {
+function sanitizeWalletInfo(raw) {
   const toNum = (value) => {
     if (typeof value === "number") return value;
     if (typeof value === "string" && value !== "") {
@@ -51,9 +51,9 @@ function sanitizeWalletInfo(raw2) {
     return toNum(value);
   };
   return {
-    ...raw2,
-    migrate_end_time: toNum(raw2.migrate_end_time),
-    wallets: (raw2.wallets ?? []).map((wallet) => ({
+    ...raw,
+    migrate_end_time: toNum(raw.migrate_end_time),
+    wallets: (raw.wallets ?? []).map((wallet) => ({
       ...wallet,
       total_credit: toCreditNum(wallet.total_credit, wallet.source),
       debit_credit: toNum(wallet.debit_credit),
@@ -61,10 +61,10 @@ function sanitizeWalletInfo(raw2) {
         ...subCredit,
         credit: toNum(subCredit.credit),
         end_time: toNum(subCredit.end_time),
-        records: (subCredit.records ?? []).map((record2) => ({
-          ...record2,
-          credit: toNum(record2.credit),
-          end_time: toNum(record2.end_time),
+        records: (subCredit.records ?? []).map((record) => ({
+          ...record,
+          credit: toNum(record.credit),
+          end_time: toNum(record.end_time),
         })),
       })),
     })),
@@ -78,12 +78,12 @@ export async function fetchWalletInfo(signal) {
     if (!res.ok) {
       throw new Error(`fetchWalletInfo failed: HTTP ${res.status}`);
     }
-    const raw2 = await res.json();
+    const raw = await res.json();
     signal?.throwIfAborted();
     const serverTime = res.headers.get(CLOUD_SERVER_TIME_HEADER);
     const serverTimeMs = serverTime ? Number(serverTime) : Number.NaN;
     return {
-      ...sanitizeWalletInfo(raw2),
+      ...sanitizeWalletInfo(raw),
       serverTimeMs:
         Number.isSafeInteger(serverTimeMs) && serverTimeMs > 0
           ? serverTimeMs

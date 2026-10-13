@@ -50,7 +50,7 @@ export function CreditThresholdReminderCard({
   settlementStatus,
 }) {
   const { t } = useTranslation();
-  const [state2, setState] = reactExports.useState("pending");
+  const [state, setState] = reactExports.useState("pending");
   const [actionFailed, setActionFailed] = reactExports.useState(false);
   const [selectedItemIds, setSelectedItemIds] = reactExports.useState(() =>
     estimate.selectedItemIds
@@ -71,9 +71,9 @@ export function CreditThresholdReminderCard({
   const thresholdCredits = formatCredits(estimate.thresholdCredits);
   const currentCredits = formatCredits(estimate.currentCredits);
   const remainingCredits = formatCredits(estimate.remainingCredits);
-  const busy = state2 === "cancelling" || state2 === "continuing";
+  const busy = state === "cancelling" || state === "continuing";
   const resolved =
-    externallyResolved || state2 === "cancelled" || state2 === "continued";
+    externallyResolved || state === "cancelled" || state === "continued";
   const countdown = useCreditCountdown(expiresAt, !resolved);
   const settlementExpired = settlementStatus === "expired";
   const settlementFailed =
@@ -88,7 +88,7 @@ export function CreditThresholdReminderCard({
           "chat.creditReminder.actionError",
           "Could not update this generation. Try again.",
         )
-      : decision === "continue" || state2 === "continued"
+      : decision === "continue" || state === "continued"
         ? t(
             "chat.creditReminder.continued",
             "Confirmed. Generation is continuing.",
@@ -99,7 +99,7 @@ export function CreditThresholdReminderCard({
     () =>
       (estimate.batchItems ?? [])
         .filter((item) => selectedItemIds.includes(item.itemId))
-        .reduce((sum2, item) => sum2 + item.estimatedCredits, 0),
+        .reduce((sum, item) => sum + item.estimatedCredits, 0),
     [estimate.batchItems, selectedItemIds],
   );
   const isBatch = (estimate.batchItems?.length ?? 0) > 0;
@@ -113,12 +113,12 @@ export function CreditThresholdReminderCard({
     (selectedItemIds.length > 0 &&
       selectedCredits <=
         (estimate.maxSelectableCredits ?? Number.MAX_SAFE_INTEGER));
-  const handleAction = async (nextState, resolvedState, action, selected2) => {
+  const handleAction = async (nextState, resolvedState, action, selected) => {
     if (busy || resolved) return;
     setActionFailed(false);
     setState(nextState);
     try {
-      const accepted = await action(selected2);
+      const accepted = await action(selected);
       if (accepted === false)
         throw new Error("credit threshold reply was not sent");
       if (!awaitSettlement) setState(resolvedState);
@@ -216,10 +216,10 @@ export function CreditThresholdReminderCard({
                     disabled={busy || resolved || !itemFitsSelection}
                     aria-label={batchItemLabel(item)}
                     onCheckedChange={() =>
-                      setSelectedItemIds((current2) =>
+                      setSelectedItemIds((current) =>
                         checked
-                          ? current2.filter((selectedItemId) => selectedItemId !== item.itemId)
-                          : [...current2, item.itemId],
+                          ? current.filter((selectedItemId) => selectedItemId !== item.itemId)
+                          : [...current, item.itemId],
                       )
                     }
                     data-action-ui-id={`chat.credit-threshold.item.${item.itemId}`}
@@ -299,7 +299,7 @@ export function CreditThresholdReminderCard({
             type="button"
             variant="outline"
             size="sm"
-            loading={state2 === "cancelling"}
+            loading={state === "cancelling"}
             disabled={busy}
             onClick={() =>
               void handleAction("cancelling", "cancelled", onCancel)
@@ -311,7 +311,7 @@ export function CreditThresholdReminderCard({
           <Button
             type="button"
             size="sm"
-            loading={state2 === "continuing"}
+            loading={state === "continuing"}
             disabled={
               busy ||
               !selectionValid ||

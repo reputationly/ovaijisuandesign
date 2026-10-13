@@ -36,38 +36,38 @@ function startOfLocalDay(value) {
 }
 function presetRange(days) {
   const today = startOfLocalDay(new Date());
-  const from2 = new Date(today);
-  from2.setDate(today.getDate() - (days - 1));
+  const from = new Date(today);
+  from.setDate(today.getDate() - (days - 1));
   return {
-    from: from2,
+    from,
     to: today,
   };
 }
-function toStartOfDayMs(date2) {
+function toStartOfDayMs(date) {
   return new Date(
-    date2.getFullYear(),
-    date2.getMonth(),
-    date2.getDate(),
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
   ).getTime();
 }
-function toEndOfDayMs(date2) {
+function toEndOfDayMs(date) {
   return new Date(
-    date2.getFullYear(),
-    date2.getMonth(),
-    date2.getDate(),
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
     23,
     59,
     59,
     999,
   ).getTime();
 }
-function ledgerFilterRange(range2) {
+function ledgerFilterRange(range) {
   return {
-    startTime: range2.from ? toStartOfDayMs(range2.from) : null,
-    endTime: range2.to
-      ? toEndOfDayMs(range2.to)
-      : range2.from
-        ? toEndOfDayMs(range2.from)
+    startTime: range.from ? toStartOfDayMs(range.from) : null,
+    endTime: range.to
+      ? toEndOfDayMs(range.to)
+      : range.from
+        ? toEndOfDayMs(range.from)
         : null,
   };
 }
@@ -89,11 +89,11 @@ export function TeamLedgerFilters({
   const [datePreset, setDatePreset] = reactExports.useState("last7Days");
   const [dateRange, setDateRange] = reactExports.useState(() => presetRange(7));
   const [dateOpen, setDateOpen] = reactExports.useState(false);
-  function emitFilter(mid, range2) {
+  function emitFilter(mid, range) {
     if (!onFilterChange) return;
     onFilterChange({
       memberId: mid,
-      ...ledgerFilterRange(range2),
+      ...ledgerFilterRange(range),
     });
   }
   const emittedInitialFilter = reactExports.useRef(false);
@@ -131,15 +131,15 @@ export function TeamLedgerFilters({
         ? `${formatDate(dateRange.from)} - ${formatDate(dateRange.to)}`
         : formatDate(dateRange.from)
       : presetLabel;
-  const handlePresetSelect = (preset2, days) => {
+  const handlePresetSelect = (preset, days) => {
     const newRange = presetRange(days);
-    setDatePreset(preset2);
+    setDatePreset(preset);
     setDateRange(newRange);
     setDateOpen(false);
     emitFilter(memberId, newRange);
   };
-  const handleCustomRangeSelect = (range2) => {
-    const newRange = range2 ?? {
+  const handleCustomRangeSelect = (range) => {
+    const newRange = range ?? {
       from: void 0,
     };
     setDatePreset("custom");

@@ -25,7 +25,7 @@ import {
 } from "./page-content.jsx";
 import { teamApi } from "./team-api.js";
 import { accountScopeEquals } from "./account-scope-equals.js";
-let ScopeChangedError = class ScopeChangedError2 extends Error {};
+let ScopeChangedError = class ScopeChangedError extends Error {};
 function isValidLimit(value) {
   if (!/^(0|[1-9]\d*)$/.test(value)) return false;
   const parsed = Number(value);
@@ -40,7 +40,7 @@ export function TeamDefaultQuotaPage({
   onClose,
 }) {
   const { t } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { activeScope } = useTeamAccount();
   const controllerRef = reactExports.useRef(null);
   const [limit, setLimit] = reactExports.useState(() =>
@@ -80,10 +80,10 @@ export function TeamDefaultQuotaPage({
       setError(null);
       setErrorReasonCode(null);
       await Promise.all([
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: teamQueryKeys.membership(scope),
         }),
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: creditQueryKeys.scope(scope),
         }),
       ]);
@@ -145,7 +145,7 @@ export function TeamDefaultQuotaPage({
     mutation.mutate();
   };
   return (
-    <Page open={true} onOpenChange={(next2) => !next2 && handleClose()}>
+    <Page open={true} onOpenChange={(next) => !next && handleClose()}>
       <PageContent
         className="flex max-h-[calc(100dvh-3rem)] flex-col gap-0 overflow-hidden p-0"
         data-action-ui-id="team.management-default-quota-dialog"

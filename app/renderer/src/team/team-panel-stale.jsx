@@ -40,8 +40,8 @@ export function TeamPanelStale({
   description,
 }) {
   const { t } = useTranslation();
-  const [pending2, setPending] = reactExports.useState(false);
-  const busy = isFetching || pending2;
+  const [pending, setPending] = reactExports.useState(false);
+  const busy = isFetching || pending;
   const handleRetry = () => {
     if (busy) return;
     const result = onRetry();
@@ -120,7 +120,7 @@ export const BLOCKING_REASON_FALLBACKS = {
 export function TeamTransitionFeedback({ attempt }) {
   const { t } = useTranslation();
   if (!attempt) return null;
-  const message2 =
+  const message =
     attempt.kind === "busy"
       ? t("team.reason.switch_busy", {
           defaultValue:
@@ -139,7 +139,7 @@ export function TeamTransitionFeedback({ attempt }) {
           });
   const isRejected = attempt.kind === "rejected";
   const isRecovering = attempt.kind === "recovering";
-  const statusIcon2 = isRejected
+  const statusIcon = isRejected
     ? TriangleAlert
     : isRecovering
       ? RetryIcon
@@ -156,7 +156,7 @@ export function TeamTransitionFeedback({ attempt }) {
       data-action-ui-id="team.transition-feedback"
     >
       <Icon
-        icon={statusIcon2}
+        icon={statusIcon}
         size="sm"
         className={
           isRejected
@@ -166,7 +166,7 @@ export function TeamTransitionFeedback({ attempt }) {
         aria-hidden={true}
       />
       <div className="min-w-0">
-        <p className="break-words leading-relaxed">{message2}</p>
+        <p className="break-words leading-relaxed">{message}</p>
         {attempt.kind === "busy" && attempt.blockingReasons.length > 0 ? (
           <ul className="mt-1 list-disc space-y-0.5 break-words pl-4 text-muted-foreground">
             {attempt.blockingReasons.map((reason) => (
@@ -231,12 +231,12 @@ export function TeamUnavailableAction({
   );
 }
 export function getTeamReasonText(t, reasonCode, fallback) {
-  const defaultValue2 = t("team.reason.default", {
+  const defaultValue = t("team.reason.default", {
     defaultValue: "请稍后重试或升级客户端。",
   });
-  if (!reasonCode) return defaultValue2;
+  if (!reasonCode) return defaultValue;
   return t(`team.reason.${reasonCode}`, {
-    defaultValue: defaultValue2,
+    defaultValue,
   });
 }
 export function deriveMemberCreditDisplay(display) {

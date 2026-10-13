@@ -85,42 +85,42 @@ export function InviteLinkHistoryPage({
               actionUiId="team.management-invite-links-scroll"
             >
               <div className="divide-y divide-border border-y border-border">
-                {items.map((link2) => (
+                {items.map((link) => (
                   <div
-                    key={link2.inviteLinkId}
+                    key={link.inviteLinkId}
                     className="flex items-center gap-3 py-3 text-xs"
                   >
                     <Badge variant="secondary" className="shrink-0">
-                      {t(`team.role.${link2.role.toLowerCase()}`, {
-                        defaultValue: link2.role,
+                      {t(`team.role.${link.role.toLowerCase()}`, {
+                        defaultValue: link.role,
                       })}
                     </Badge>
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium text-foreground">
-                        {link2.maskedUrl}
+                        {link.maskedUrl}
                       </p>
                       <p className="mt-1 text-[11px] text-muted-foreground">
                         {t("team.management.inviteLinkExpiryAndUsage", {
                           defaultValue:
                             "有效期至 {{date}} · 已使用 {{used}} / {{limit}}",
-                          date: new Date(link2.expiresAtMs).toLocaleString(),
-                          used: link2.usedCount,
-                          limit: link2.usageLimit,
+                          date: new Date(link.expiresAtMs).toLocaleString(),
+                          used: link.usedCount,
+                          limit: link.usageLimit,
                         })}
                       </p>
                     </div>
                     <Badge
                       variant="secondary"
                       className={
-                        link2.status === "ACTIVE"
+                        link.status === "ACTIVE"
                           ? "bg-success/10 text-success"
                           : "text-muted-foreground"
                       }
                     >
                       {t(
-                        `team.inviteLinkStatus.${link2.status.toLowerCase()}`,
+                        `team.inviteLinkStatus.${link.status.toLowerCase()}`,
                         {
-                          defaultValue: link2.status,
+                          defaultValue: link.status,
                         },
                       )}
                     </Badge>

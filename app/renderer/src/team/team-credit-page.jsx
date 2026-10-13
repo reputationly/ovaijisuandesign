@@ -44,10 +44,10 @@ import {
 } from "./use-team-transactions-feed-query.jsx";
 const CONSUMER_LABEL_SEPARATOR = " · ";
 function formatConsumerLabel(userName, memberUid) {
-  const name2 = (userName ?? "").trim();
-  const uid2 = (memberUid ?? "").trim();
-  if (name2 && uid2) return `${name2}${CONSUMER_LABEL_SEPARATOR}${uid2}`;
-  return name2 || uid2 || null;
+  const trimmedUserName = (userName ?? "").trim();
+  const uid = (memberUid ?? "").trim();
+  if (trimmedUserName && uid) return `${trimmedUserName}${CONSUMER_LABEL_SEPARATOR}${uid}`;
+  return trimmedUserName || uid || null;
 }
 function useTeamWalletCreditSummary(scope, enabled = true) {
   const queryScope = scope ? canonicalCreditScope(scope) : null;
@@ -124,9 +124,9 @@ function TeamCreditBreakdownRow({ teamRemaining, summary }) {
           {teamRemaining === null ? "—" : formatCreditAmount(teamRemaining)}
         </div>
       </div>
-      {parts.map((part, index2) => (
+      {parts.map((part, index) => (
         <span key={part.key} className="contents">
-          <BreakdownOperator symbol={index2 === 0 ? "=" : "+"} />
+          <BreakdownOperator symbol={index === 0 ? "=" : "+"} />
           <div className="min-w-0">
             <div className="mb-1.5 truncate text-xs text-muted-foreground">
               {part.label}
@@ -166,9 +166,9 @@ function parseTransactionId(transactionId) {
   };
 }
 function formatCsvTime(ms) {
-  const date2 = new Date(ms);
+  const date = new Date(ms);
   const pad = (value) => String(value).padStart(2, "0");
-  return `${date2.getFullYear()}-${pad(date2.getMonth() + 1)}-${pad(date2.getDate())} ${pad(date2.getHours())}:${pad(date2.getMinutes())}:${pad(date2.getSeconds())}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 function quoteCsvCell(value) {
   if (/[",\r\n]/.test(value)) {
@@ -189,8 +189,8 @@ function escapeCsvIdentifier(value) {
     ? quoteCsvCell(`="${value}"`)
     : escapeCsvCell(value);
 }
-function toRow(cells2) {
-  return cells2
+function toRow(cells) {
+  return cells
     .map((cell) =>
       typeof cell === "string"
         ? escapeCsvCell(cell)
@@ -236,23 +236,23 @@ function buildCreditLedgerCsv(transactions, options) {
 `;
 }
 function formatFileDate(ms) {
-  const date2 = new Date(ms);
+  const date = new Date(ms);
   const pad = (value) => String(value).padStart(2, "0");
-  return `${date2.getFullYear()}${pad(date2.getMonth() + 1)}${pad(date2.getDate())}`;
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}`;
 }
 function buildTeamUsageFileName(options) {
-  const now2 = options.now ?? new Date();
+  const now = options.now ?? new Date();
   const teamName =
     options.teamName.replace(/[\\/:*?"<>|]/g, "").trim() || "team";
-  const start2 = formatFileDate(options.startTimeMs ?? now2.getTime());
-  const end2 = formatFileDate(options.endTimeMs ?? now2.getTime());
+  const start = formatFileDate(options.startTimeMs ?? now.getTime());
+  const end = formatFileDate(options.endTimeMs ?? now.getTime());
   const memberPart = options.memberId ? `-${options.memberId}` : "";
-  return `${teamName}${memberPart}-usage-${start2}-${end2}.csv`;
+  return `${teamName}${memberPart}-usage-${start}-${end}.csv`;
 }
 const EXPORT_PAGE_SIZE = 100;
 const MAX_PAGES = 200;
 async function fetchAllTransactions(request, signal, onProgress) {
-  const all2 = [];
+  const all = [];
   let cursor = null;
   for (let page = 0; page < MAX_PAGES; page += 1) {
     const result = await teamApi.listTransactions(
@@ -265,9 +265,9 @@ async function fetchAllTransactions(request, signal, onProgress) {
         signal,
       },
     );
-    all2.push(...result.items);
-    onProgress(all2.length);
-    if (!result.hasMore || !result.nextCursor) return all2;
+    all.push(...result.items);
+    onProgress(all.length);
+    if (!result.hasMore || !result.nextCursor) return all;
     if (result.nextCursor === cursor) {
       throw new Error("ledger cursor did not advance");
     }
@@ -276,8 +276,8 @@ async function fetchAllTransactions(request, signal, onProgress) {
   throw new Error(`ledger export exceeded ${MAX_PAGES} pages`);
 }
 function useTeamLedgerExport() {
-  const platform2 = usePlatform();
-  const [state2, setState] = reactExports.useState({
+  const platform = usePlatform();
+  const [state, setState] = reactExports.useState({
     exporting: false,
     loadedCount: 0,
   });
@@ -295,15 +295,15 @@ function useTeamLedgerExport() {
         const transactions = await fetchAllTransactions(
           request,
           controller.signal,
-          (count2) => {
+          (count) => {
             setState({
               exporting: true,
-              loadedCount: count2,
+              loadedCount: count,
             });
           },
         );
         if (transactions.length === 0) return "empty";
-        const targetPath = await platform2.fs.showSaveDialog?.({
+        const targetPath = await platform.fs.showSaveDialog?.({
           defaultPath: fileName,
           filters: [
             {
@@ -313,7 +313,7 @@ function useTeamLedgerExport() {
           ],
         });
         if (!targetPath) return "canceled";
-        await platform2.fs.writeTextFile(targetPath, toCsv(transactions));
+        await platform.fs.writeTextFile(targetPath, toCsv(transactions));
         return "ok";
       } catch (error) {
         if (controller.signal.aborted) return "canceled";
@@ -326,14 +326,14 @@ function useTeamLedgerExport() {
         if (abortRef.current === controller) abortRef.current = null;
       }
     },
-    [platform2],
+    [platform],
   );
   const cancel = reactExports.useCallback(() => {
     abortRef.current?.abort();
   }, []);
   reactExports.useEffect(() => cancel, [cancel]);
   return {
-    ...state2,
+    ...state,
     exportCsv,
     cancel,
   };
@@ -343,13 +343,13 @@ const LEDGER_TAB = {
   TRANSFER: "TRANSFER",
 };
 function formatTransferCounterparty(transfer) {
-  const name2 = transfer.counterpartyGroupName;
+  const counterpartyName = transfer.counterpartyGroupName;
   const counterpartyGroupId = transfer.counterpartyGroupId;
-  if (!name2 && !counterpartyGroupId) return "—";
+  if (!counterpartyName && !counterpartyGroupId) return "—";
   return (
     <span className="flex min-w-0 flex-wrap items-baseline gap-x-1">
-      {name2 ? <span className="min-w-0 break-words">{name2}</span> : null}
-      {name2 && counterpartyGroupId ? (
+      {counterpartyName ? <span className="min-w-0 break-words">{counterpartyName}</span> : null}
+      {counterpartyName && counterpartyGroupId ? (
         <span className="shrink-0 text-muted-foreground">/</span>
       ) : null}
       {counterpartyGroupId ? (
@@ -369,7 +369,7 @@ function amountTone(amount) {
 export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
   const { t } = useTranslation();
   const { data: mediaModels } = useMediaModels();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { accountDataVisible, contract } = useTeamAccount();
   const [ledgerFilter, setLedgerFilter] = reactExports.useState({
     memberId: null,
@@ -509,7 +509,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
     transactionsQuery.data?.pages.flatMap((page) => page.items) ?? [];
   const ledgerTotalUsed =
     transactionsQuery.data?.pages.reduce(
-      (latest2, page) => page.groupUsed ?? page.totalAmount ?? latest2,
+      (latest, page) => page.groupUsed ?? page.totalAmount ?? latest,
       null,
     ) ?? null;
   const refreshOnOpenRef = reactExports.useRef(false);
@@ -626,7 +626,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
         fileName,
       )
       .catch((error) => {
-        const code2 =
+        const code =
           error instanceof TeamApiError
             ? error.payload.code
             : error instanceof Error
@@ -635,7 +635,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
         dedupedToast.error(
           t("team.credit.exportFailed", {
             defaultValue: "导出失败：{{code}}",
-            code: code2,
+            code,
           }),
         );
         return "failed";
@@ -666,20 +666,20 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
         ? creditQueryKeys.selfTransactionFeed(scope, "ALL")
         : creditQueryKeys.transactionFeed(scope, "ALL");
     void Promise.all([
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: teamQueryKeys.detail(scope),
         exact: true,
       }),
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: creditQueryKeys.summary(scope),
         exact: true,
       }),
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: transactionFeedKey,
         exact: true,
       }),
     ]);
-  }, [ledgerScope, open, queryClient2, scope]);
+  }, [ledgerScope, open, queryClient, scope]);
   const exportButton = exportAllowed ? (
     <Button
       variant="outline"
@@ -752,7 +752,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                 return;
               }
               const firstError = failed[0]?.error;
-              const code2 =
+              const code =
                 firstError instanceof TeamApiError
                   ? firstError.payload.code
                   : firstError instanceof Error
@@ -761,7 +761,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
               dedupedToast.error(
                 t("team.common.refreshFailedToast", {
                   defaultValue: "刷新失败：{{code}}",
-                  code: code2,
+                  code,
                 }),
               );
             }}
@@ -1002,7 +1002,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                     onRetry={async () => {
                       const result = await transactionsQuery.refetch();
                       if (result.isError) {
-                        const code2 =
+                        const code =
                           result.error instanceof TeamApiError
                             ? result.error.payload.code
                             : result.error instanceof Error
@@ -1011,7 +1011,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                         dedupedToast.error(
                           t("team.common.refreshFailedToast", {
                             defaultValue: "刷新失败：{{code}}",
-                            code: code2,
+                            code,
                           }),
                         );
                         return;

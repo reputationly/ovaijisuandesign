@@ -3,3 +3,4 @@ t2@50:14	t	useTranslation() 返回的翻译函数 t
 t2@172:14	t	useTranslation() 返回的翻译函数 t
 t2@202:14	t	useTranslation() 返回的翻译函数 t
 t2@268:14	t	useTranslation() 返回的翻译函数 t
+snapshot2@271:15	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot

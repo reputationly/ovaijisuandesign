@@ -1,3 +1,10 @@
 key	new	reason
 t2@87:14	t	useTranslation() 返回的翻译函数 t
 id2@154:31	nextMemberId	成员筛选下拉选中的新成员 ID
+from2@39:9	from	去掉打包器加的数字后缀，恢复原名 from
+date2@46:25	date	去掉打包器加的数字后缀，恢复原名 date
+date2@53:23	date	去掉打包器加的数字后缀，恢复原名 date
+range2@64:28	range	去掉打包器加的数字后缀，恢复原名 range
+range2@92:28	range	去掉打包器加的数字后缀，恢复原名 range
+preset2@134:31	preset	去掉打包器加的数字后缀，恢复原名 preset
+range2@141:36	range	去掉打包器加的数字后缀，恢复原名 range

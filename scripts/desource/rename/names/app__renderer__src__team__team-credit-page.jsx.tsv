@@ -3,3 +3,22 @@ t2@88:14	t	useTranslation() 返回的翻译函数 t
 t2@370:14	t	useTranslation() 返回的翻译函数 t
 id2@347:9	counterpartyGroupId	transfer.counterpartyGroupId 对方团队 ID
 w3@69:6	wallet	wallets 中的单个钱包，按 source 过滤
+name2@47:9	trimmedUserName	去掉首尾空白的用户名；name 是全局名
+uid2@48:9	uid	去掉打包器加的数字后缀，恢复原名 uid
+index2@127:25	index	去掉打包器加的数字后缀，恢复原名 index
+date2@169:9	date	去掉打包器加的数字后缀，恢复原名 date
+cells2@192:16	cells	去掉打包器加的数字后缀，恢复原名 cells
+date2@239:9	date	去掉打包器加的数字后缀，恢复原名 date
+now2@244:9	now	去掉打包器加的数字后缀，恢复原名 now
+start2@247:9	start	去掉打包器加的数字后缀，恢复原名 start
+end2@248:9	end	去掉打包器加的数字后缀，恢复原名 end
+all2@255:9	all	去掉打包器加的数字后缀，恢复原名 all
+platform2@279:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+state2@280:10	state	去掉打包器加的数字后缀，恢复原名 state
+count2@298:12	count	去掉打包器加的数字后缀，恢复原名 count
+name2@346:9	counterpartyName	转账对方团队名；name 是全局名
+queryClient2@372:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+latest2@512:8	latest	去掉打包器加的数字后缀，恢复原名 latest
+code2@629:15	code	去掉打包器加的数字后缀，恢复原名 code
+code2@755:21	code	去掉打包器加的数字后缀，恢复原名 code
+code2@1005:31	code	去掉打包器加的数字后缀，恢复原名 code

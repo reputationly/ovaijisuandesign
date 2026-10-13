@@ -268,7 +268,7 @@ export function TeamDialogHost() {
   const { t } = useTranslation();
   const {
     integrationEnabled,
-    snapshot: snapshot2,
+    snapshot,
     dialog,
     activeScope,
     accountDataVisible,
@@ -282,11 +282,11 @@ export function TeamDialogHost() {
   const renderActiveDialog = () => {
     if (!integrationEnabled || dialog.type === "closed") return null;
     if (dialog.type === "create") {
-      if (dialog.identityKey !== snapshot2?.identityKey) return null;
+      if (dialog.identityKey !== snapshot?.identityKey) return null;
       return <CreateTeamDialog open={true} onOpenChange={handleOpenChange} />;
     }
     if (dialog.type === "switch-blocked") {
-      if (dialog.identityKey !== snapshot2?.identityKey) return null;
+      if (dialog.identityKey !== snapshot?.identityKey) return null;
       return (
         <TeamSwitchBlockedDialog
           open={true}

@@ -1,2 +1,4 @@
 key	new	reason
 t2@27:14	t	useTranslation() 返回的翻译函数 t
+message2@22:17	message	去掉打包器加的数字后缀，恢复原名 message
+raw2@63:9	raw	去掉打包器加的数字后缀，恢复原名 raw

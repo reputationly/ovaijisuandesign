@@ -11,17 +11,17 @@ import {
 import { reactExports } from "../vendor.js";
 export const TeamDialogNavigationContext = reactExports.createContext(null);
 export function Page({ open, onOpenChange, children: children2 }) {
-  const navigation2 = reactExports.useContext(TeamDialogNavigationContext);
+  const dialogNavigation = reactExports.useContext(TeamDialogNavigationContext);
   const closeRef = reactExports.useRef(onOpenChange);
   closeRef.current = onOpenChange;
   reactExports.useEffect(() => {
-    if (!open || !navigation2) return;
-    const close2 = () => closeRef.current(false);
-    navigation2.current = close2;
+    if (!open || !dialogNavigation) return;
+    const handleClose = () => closeRef.current(false);
+    dialogNavigation.current = handleClose;
     return () => {
-      if (navigation2.current === close2) navigation2.current = null;
+      if (dialogNavigation.current === handleClose) dialogNavigation.current = null;
     };
-  }, [open, navigation2]);
+  }, [open, dialogNavigation]);
   if (!open) return null;
   return (
     <Dialog open={true} onOpenChange={onOpenChange}>
@@ -32,11 +32,11 @@ export function Page({ open, onOpenChange, children: children2 }) {
 export function PageContent({ children: children2, className, ...props }) {
   const focusRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    const previous2 = document.activeElement;
+    const previous = document.activeElement;
     focusRef.current?.focus();
     return () => {
-      if (previous2 instanceof HTMLElement && previous2.isConnected)
-        previous2.focus();
+      if (previous instanceof HTMLElement && previous.isConnected)
+        previous.focus();
     };
   }, []);
   return (

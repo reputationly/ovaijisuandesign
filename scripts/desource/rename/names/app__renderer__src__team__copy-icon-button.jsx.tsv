@@ -1,3 +1,6 @@
 key	new	reason
 t2@55:14	t	useTranslation() 返回的翻译函数 t
 _2@126:20	_	超时 Promise 执行器中未使用的 resolve
+timer2@112:7	timer	去掉打包器加的数字后缀，恢复原名 timer
+getDesktopSettingsMainService2@117:42	getDesktopSettingsMainService	去掉打包器加的数字后缀，恢复原名 getDesktopSettingsMainService
+getDesktopSettingsMainService2@123:43	getDesktopSettingsMainService	去掉打包器加的数字后缀，恢复原名 getDesktopSettingsMainService

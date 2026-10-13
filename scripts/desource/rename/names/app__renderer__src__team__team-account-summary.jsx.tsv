@@ -1,2 +1,4 @@
 key	new	reason
 t2@35:14	t	useTranslation() 返回的翻译函数 t
+snapshot2@38:15	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+value2@129:13	value	去掉打包器加的数字后缀，恢复原名 value

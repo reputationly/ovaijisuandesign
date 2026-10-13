@@ -59,17 +59,17 @@ export function InfiniteScrollContainer({
     const sentinel = sentinelRef.current;
     if (!viewport || !sentinel || typeof IntersectionObserver === "undefined")
       return;
-    const observer2 = new IntersectionObserver(
-      (entries2) => {
-        if (entries2.some((entry) => entry.isIntersecting)) requestLoadMore();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) requestLoadMore();
       },
       {
         root: viewport,
         rootMargin: `0px 0px ${LOAD_AHEAD_PX}px 0px`,
       },
     );
-    observer2.observe(sentinel);
-    return () => observer2.disconnect();
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, [requestLoadMore]);
   const handleScroll = (event) => {
     const viewport = event.currentTarget;

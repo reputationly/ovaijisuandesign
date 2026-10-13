@@ -1,2 +1,6 @@
 key	new	reason
 t2@82:14	t	useTranslation() 返回的翻译函数 t
+candidates2@22:9	candidates	去掉打包器加的数字后缀，恢复原名 candidates
+tab2@88:10	tab	去掉打包器加的数字后缀，恢复原名 tab
+reset2@123:9	reset	去掉打包器加的数字后缀，恢复原名 reset
+next2@278:31	next	去掉打包器加的数字后缀，恢复原名 next

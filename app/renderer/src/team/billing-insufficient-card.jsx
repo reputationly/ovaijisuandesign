@@ -28,7 +28,7 @@ export function BillingInsufficientCard({
   refreshRevision,
 }) {
   const { t } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const subscribeUrl = useMpSubscribeUrl();
   const isTeamContext =
     useOptionalTeamAccount()?.snapshot?.activeContext?.accountType === "TEAM";
@@ -47,8 +47,8 @@ export function BillingInsufficientCard({
   const [retryState, setRetryState] = reactExports.useState("idle");
   reactExports.useEffect(() => {
     if (retryState !== "submitted" || retryResetMs === void 0) return;
-    const timer2 = setTimeout(() => setRetryState("idle"), retryResetMs);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => setRetryState("idle"), retryResetMs);
+    return () => clearTimeout(timer);
   }, [retryState, retryResetMs]);
   const countdown = useCreditCountdown(expiresAt, !resolved);
   const topupContinued = resolved && settlementStatus === "continued";
@@ -94,7 +94,7 @@ export function BillingInsufficientCard({
       dedupedToast.error(t("credits.walletUrlNotReady"));
       return;
     }
-    void openExternalUrl(platform2, subscribeUrl, {
+    void openExternalUrl(platform, subscribeUrl, {
       source: `chat.billing-insufficient.${source}`,
     });
   };

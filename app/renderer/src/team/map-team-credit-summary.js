@@ -10,8 +10,8 @@ export class TeamApiError extends Error {
 const UNSIGNED_DECIMAL_RE = /^(0|[1-9]\d*)$/;
 const POSITIVE_DECIMAL_RE = /^[1-9]\d*$/;
 export class TeamContractError extends Error {
-  constructor(field, message2) {
-    super(`Invalid Team contract field "${field}": ${message2}`);
+  constructor(field, message) {
+    super(`Invalid Team contract field "${field}": ${message}`);
     this.field = field;
     this.name = "TeamContractError";
   }
@@ -56,31 +56,31 @@ export function asNullableDecimal(value, field) {
   return value == null ? null : asUnsignedDecimal(value, field);
 }
 export function mapTeamCreditSummary(value, field = "credit_summary") {
-  const record2 = asRecord(value, field);
-  const mode2 = asString(record2.mode, `${field}.mode`);
-  if (mode2 !== "LIMITED" && mode2 !== "UNLIMITED" && mode2 !== "UNAVAILABLE") {
-    throw new TeamContractError(`${field}.mode`, `unsupported value ${mode2}`);
+  const record = asRecord(value, field);
+  const mode = asString(record.mode, `${field}.mode`);
+  if (mode !== "LIMITED" && mode !== "UNLIMITED" && mode !== "UNAVAILABLE") {
+    throw new TeamContractError(`${field}.mode`, `unsupported value ${mode}`);
   }
   const memberLimit = asNullableDecimal(
-    record2.member_limit,
+    record.member_limit,
     `${field}.member_limit`,
   );
   const memberUsed = asNullableDecimal(
-    record2.member_used,
+    record.member_used,
     `${field}.member_used`,
   );
   const memberRemaining = asNullableDecimal(
-    record2.member_remaining,
+    record.member_remaining,
     `${field}.member_remaining`,
   );
-  if (mode2 === "LIMITED" && memberLimit === null) {
+  if (mode === "LIMITED" && memberLimit === null) {
     throw new TeamContractError(
       `${field}.member_limit`,
       "required for LIMITED summary",
     );
   }
   if (
-    mode2 === "LIMITED" &&
+    mode === "LIMITED" &&
     ((memberUsed === null && memberRemaining !== null) ||
       (memberUsed !== null && memberRemaining === null))
   ) {
@@ -90,7 +90,7 @@ export function mapTeamCreditSummary(value, field = "credit_summary") {
     );
   }
   if (
-    mode2 !== "LIMITED" &&
+    mode !== "LIMITED" &&
     (memberLimit !== null || memberRemaining !== null)
   ) {
     throw new TeamContractError(
@@ -99,18 +99,18 @@ export function mapTeamCreditSummary(value, field = "credit_summary") {
     );
   }
   return {
-    groupId: asPositiveDecimal(record2.group_id, `${field}.group_id`),
-    mode: mode2,
+    groupId: asPositiveDecimal(record.group_id, `${field}.group_id`),
+    mode,
     memberLimit,
     memberUsed,
     memberRemaining,
-    teamTotal: asNullableDecimal(record2.team_total, `${field}.team_total`),
-    teamUsed: asNullableDecimal(record2.team_used, `${field}.team_used`),
+    teamTotal: asNullableDecimal(record.team_total, `${field}.team_total`),
+    teamUsed: asNullableDecimal(record.team_used, `${field}.team_used`),
     teamRemaining: asUnsignedDecimal(
-      record2.team_remaining,
+      record.team_remaining,
       `${field}.team_remaining`,
     ),
-    unit: asNonEmptyString(record2.unit, `${field}.unit`),
-    updatedAtMs: asSafeInteger(record2.updated_at_ms, `${field}.updated_at_ms`),
+    unit: asNonEmptyString(record.unit, `${field}.unit`),
+    updatedAtMs: asSafeInteger(record.updated_at_ms, `${field}.updated_at_ms`),
   };
 }

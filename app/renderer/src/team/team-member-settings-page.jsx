@@ -48,7 +48,7 @@ function assignableRolesForTarget(targetRole, canChangeRole) {
   return ["MEMBER", "ADMIN"];
 }
 const UNSIGNED_DECIMAL = /^(0|[1-9]\d*)$/;
-class ScopeChangedError3 extends Error {}
+class ScopeChangedError extends Error {}
 export function TeamMemberSettingsPage({
   scope,
   member,
@@ -58,7 +58,7 @@ export function TeamMemberSettingsPage({
   onClose,
 }) {
   const { t } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { activeScope } = useTeamAccount();
   const canChangeRole = member.permissions.changeRole.allowed;
   const canChangeQuota =
@@ -106,15 +106,15 @@ export function TeamMemberSettingsPage({
   const canSave = (roleDirty || quotaDirty) && (!quotaDirty || validLimit);
   const assertScope = () => {
     if (!activeScope || !accountScopeEquals(activeScope, scope)) {
-      throw new ScopeChangedError3();
+      throw new ScopeChangedError();
     }
   };
   const invalidateMembership = async () => {
     await Promise.all([
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: teamQueryKeys.membership(scope),
       }),
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: creditQueryKeys.scope(scope),
       }),
     ]);
@@ -150,7 +150,7 @@ export function TeamMemberSettingsPage({
       onClose();
     },
     onError: (error) => {
-      if (error instanceof ScopeChangedError3) {
+      if (error instanceof ScopeChangedError) {
         dedupedToast.error(
           t("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
@@ -190,7 +190,7 @@ export function TeamMemberSettingsPage({
       onClose();
     },
     onError: (error) => {
-      if (error instanceof ScopeChangedError3) {
+      if (error instanceof ScopeChangedError) {
         dedupedToast.error(
           t("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
@@ -491,8 +491,8 @@ export function TeamMemberSettingsPage({
       </Page>
       <AlertDialog
         open={removeConfirmOpen}
-        onOpenChange={(next2) =>
-          !removeMutation.isPending && setRemoveConfirmOpen(next2)
+        onOpenChange={(next) =>
+          !removeMutation.isPending && setRemoveConfirmOpen(next)
         }
       >
         <AlertDialogContent

@@ -107,7 +107,7 @@ export function TeamMemberUsagePage({
     void handleLoadMore();
   }, [handleLoadMore]);
   return (
-    <Page open={true} onOpenChange={(next2) => !next2 && onClose()}>
+    <Page open={true} onOpenChange={(next) => !next && onClose()}>
       <PageContent
         className="flex max-h-[calc(100dvh-3rem)] flex-col gap-0 overflow-hidden p-0"
         data-action-ui-id="team.management-member-usage-dialog"

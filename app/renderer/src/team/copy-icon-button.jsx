@@ -109,29 +109,29 @@ const desktopSettingsMainService = Object.freeze(
 );
 export async function readActiveCustomModel() {
   if (!isElectron()) return null;
-  let timer2;
+  let timer;
   try {
     return await Promise.race([
       (async () => {
         const {
-          getDesktopSettingsMainService: getDesktopSettingsMainService2,
+          getDesktopSettingsMainService,
         } = await Promise.resolve().then(() => desktopSettingsMainService);
         return {
-          getDesktopSettingsMainService: getDesktopSettingsMainService2,
+          getDesktopSettingsMainService,
         };
       })().then(
-        ({ getDesktopSettingsMainService: getDesktopSettingsMainService2 }) =>
-          getDesktopSettingsMainService2().getActiveCustomModel(),
+        ({ getDesktopSettingsMainService }) =>
+          getDesktopSettingsMainService().getActiveCustomModel(),
       ),
       new Promise((_, reject) => {
-        timer2 = setTimeout(
+        timer = setTimeout(
           () => reject(new Error("Custom model configuration is unavailable")),
           5e3,
         );
       }),
     ]);
   } finally {
-    clearTimeout(timer2);
+    clearTimeout(timer);
   }
 }
 export function useActiveCustomModel() {

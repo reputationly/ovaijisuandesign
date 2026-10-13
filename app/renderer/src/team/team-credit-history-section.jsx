@@ -32,8 +32,8 @@ function defaultCreditReminderConfig() {
     threshold: DEFAULT_CREDIT_REMINDER_THRESHOLD,
   };
 }
-function resolveCreditReminderScope(uid2, teamAccount) {
-  if (!uid2) return null;
+function resolveCreditReminderScope(uid, teamAccount) {
+  if (!uid) return null;
   if (teamAccount?.integrationEnabled) {
     const activeScope = teamAccount.activeScope;
     const viewKind = teamAccount.viewModel.kind;
@@ -47,22 +47,22 @@ function resolveCreditReminderScope(uid2, teamAccount) {
       // The persisted key must use the authenticated user's UID. TeamAccount's
       // identityKey is an internal session/identity handle and is not the
       // user-facing account identifier promised by the local-storage contract.
-      uid: uid2,
+      uid,
       scopeType: viewKind === "ready_team" ? "team" : "personal",
       groupId: activeScope.groupId,
     };
   }
   return {
-    uid: uid2,
+    uid,
     scopeType: "personal",
     groupId: LEGACY_PERSONAL_GROUP_ID,
   };
 }
-function assertValidConfig(config2) {
-  const normalized = normalizeCreditReminderConfig(config2);
+function assertValidConfig(config) {
+  const normalized = normalizeCreditReminderConfig(config);
   if (
-    normalized.enabled !== config2.enabled ||
-    normalized.threshold !== config2.threshold
+    normalized.enabled !== config.enabled ||
+    normalized.threshold !== config.threshold
   ) {
     throw new Error("Invalid credit reminder configuration");
   }
@@ -76,16 +76,16 @@ export function useCreditReminderConfig() {
   );
   const scope = resolveCreditReminderScope(user?.userID, teamAccount);
   const scopeKey = scope ? creditReminderScopeKey(scope) : null;
-  const config2 = reactExports.useMemo(() => {
+  const config = reactExports.useMemo(() => {
     if (!scopeKey) return defaultCreditReminderConfig();
     return normalizeCreditReminderConfig(configs[scopeKey]);
   }, [configs, scopeKey]);
   const saveConfig = reactExports.useCallback(
-    async (next2) => {
+    async (next) => {
       if (!scopeKey) throw new Error("Credit reminder scope is unavailable");
-      const normalized = assertValidConfig(next2);
-      const persisted = await setConfigsAsync((current2) => ({
-        ...current2,
+      const normalized = assertValidConfig(next);
+      const persisted = await setConfigsAsync((current) => ({
+        ...current,
         [scopeKey]: normalized,
       }));
       if (!persisted)
@@ -94,7 +94,7 @@ export function useCreditReminderConfig() {
     [scopeKey, setConfigsAsync],
   );
   return {
-    config: config2,
+    config,
     scope,
     scopeKey,
     isReady: isHydrated && scopeKey !== null,

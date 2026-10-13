@@ -83,7 +83,7 @@ export function TeamInviteDeepLinkDialog({
 }) {
   const { t } = useTranslation();
   const { revalidateContext, switchContext } = useTeamAccount();
-  const [info2, setInfo] = reactExports.useState(null);
+  const [info, setInfo] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(true);
   const [loadFailed, setLoadFailed] = reactExports.useState(false);
   const [alreadyJoined, setAlreadyJoined] = reactExports.useState(false);
@@ -133,20 +133,20 @@ export function TeamInviteDeepLinkDialog({
         ? await teamApi.acceptInvitation(request.token)
         : await teamApi.acceptInviteLink(request.token);
       if (!isInvitationAcceptSuccessStatus(result.status)) {
-        const copy2 = getInvitationStatusErrorCopy(result.status);
+        const copy = getInvitationStatusErrorCopy(result.status);
         onError(
-          t(copy2.i18nKey, {
-            defaultValue: copy2.defaultValue,
+          t(copy.i18nKey, {
+            defaultValue: copy.defaultValue,
           }),
         );
         return;
       }
-      const groupId2 = result.groupId ?? info2?.groupId;
-      if (groupId2) {
+      const groupId = result.groupId ?? info?.groupId;
+      if (groupId) {
         const refreshAndSwitch = async () => {
           const contexts = await teamApi.listContexts();
           await revalidateContext(contexts.contextsRevision);
-          return switchContext(groupId2, "INVITATION_ACCEPTED");
+          return switchContext(groupId, "INVITATION_ACCEPTED");
         };
         let switchResult = await refreshAndSwitch();
         for (const delayMs of ACCEPTED_TEAM_SWITCH_RETRY_DELAYS_MS) {
@@ -176,17 +176,17 @@ export function TeamInviteDeepLinkDialog({
     }
   };
   const isExhausted =
-    info2?.status === "EXHAUSTED" ||
-    (info2 !== null &&
-      info2.usageLimit > 0 &&
-      info2.usedCount >= info2.usageLimit);
+    info?.status === "EXHAUSTED" ||
+    (info !== null &&
+      info.usageLimit > 0 &&
+      info.usedCount >= info.usageLimit);
   const hideAcceptButton = !isOverseas && (alreadyJoined || isExhausted);
   const actionDisabled =
     accepting ||
     (!isOverseas &&
       (loading ||
-        !info2 ||
-        info2.status !== "ACTIVE" ||
+        !info ||
+        info.status !== "ACTIVE" ||
         alreadyJoined ||
         isExhausted));
   return (
@@ -226,7 +226,7 @@ export function TeamInviteDeepLinkDialog({
             })}
           </div>
         ) : null}
-        {info2 ? (
+        {info ? (
           <article className="overflow-hidden rounded-lg border border-border">
             <div className="flex items-center gap-3 border-b border-border bg-muted px-4 py-4">
               <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-foreground text-background">
@@ -238,13 +238,13 @@ export function TeamInviteDeepLinkDialog({
               </div>
               <div className="min-w-0">
                 <h3 className="truncate text-base font-medium text-foreground">
-                  {info2.groupName}
+                  {info.groupName}
                 </h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {info2.inviterName.trim()
+                  {info.inviterName.trim()
                     ? t("team.invitation.invitedBy", {
                         defaultValue: "{{name}} 邀请你加入团队",
-                        name: info2.inviterName.trim(),
+                        name: info.inviterName.trim(),
                       })
                     : t("team.invitation.invitedByUnknown", {
                         defaultValue: "团队管理员邀请你加入团队",
@@ -264,7 +264,7 @@ export function TeamInviteDeepLinkDialog({
                     defaultValue: "团队成员",
                   })}
                 </dt>
-                <dd className="text-foreground">{info2.memberCount}</dd>
+                <dd className="text-foreground">{info.memberCount}</dd>
               </div>
               <div className="flex items-center justify-between gap-4">
                 <dt className="flex items-center gap-2 text-muted-foreground">
@@ -278,8 +278,8 @@ export function TeamInviteDeepLinkDialog({
                   })}
                 </dt>
                 <dd className="text-foreground">
-                  {t(`team.role.${info2.role.toLowerCase()}`, {
-                    defaultValue: info2.role,
+                  {t(`team.role.${info.role.toLowerCase()}`, {
+                    defaultValue: info.role,
                   })}
                 </dd>
               </div>
@@ -296,7 +296,7 @@ export function TeamInviteDeepLinkDialog({
                 </dt>
                 <dd className="text-foreground">
                   {formatExpiry(
-                    info2.expiresAtMs,
+                    info.expiresAtMs,
                     t("team.inviteLink.neverExpires", {
                       defaultValue: "永久有效",
                     }),

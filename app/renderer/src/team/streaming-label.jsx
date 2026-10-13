@@ -14,17 +14,17 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 
 export function StreamingLabel({ msg }) {
   const { t } = useTranslation();
-  const toolName2 = msg.type === "tool" ? msg.content : void 0;
+  const toolName = msg.type === "tool" ? msg.content : void 0;
   const timelineOperation =
     msg.type === "tool"
       ? parseTimelineOperations(msg.content, msg.toolArgs, msg.toolResult)[0]
       : void 0;
   const label = timelineOperation
     ? t(timelineOperation.activeLabelKey ?? timelineOperation.labelKey)
-    : toolName2
-      ? categorizeToolAction(toolName2) === "search"
+    : toolName
+      ? categorizeToolAction(toolName) === "search"
         ? t("chat.activity.search.running", "Searching...")
-        : getToolDisplayLabel(toolName2, t)
+        : getToolDisplayLabel(toolName, t)
       : t("chat.thinking");
   return (
     <span className="inline-flex items-center gap-1.5">
@@ -117,8 +117,8 @@ export function useCreditCountdown(expiresAt, active2) {
   const [nowMs, setNowMs] = reactExports.useState(() => Date.now());
   reactExports.useEffect(() => {
     if (!active2 || expiresAt === void 0) return;
-    const timer2 = setInterval(() => setNowMs(Date.now()), 1e3);
-    return () => clearInterval(timer2);
+    const timer = setInterval(() => setNowMs(Date.now()), 1e3);
+    return () => clearInterval(timer);
   }, [active2, expiresAt]);
   return expiresAt !== void 0 && active2
     ? formatCreditCountdown(expiresAt - nowMs)

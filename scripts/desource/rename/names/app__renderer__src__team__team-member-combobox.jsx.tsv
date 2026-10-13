@@ -1,3 +1,7 @@
 key	new	reason
 t2@37:14	t	useTranslation() 返回的翻译函数 t
 id2@17:7	id	从 props.id 解构的元素 id
+selected2@40:9	selected	去掉打包器加的数字后缀，恢复原名 selected
+option2@40:35	option	去掉打包器加的数字后缀，恢复原名 option
+next2@71:22	next	去掉打包器加的数字后缀，恢复原名 next
+option2@172:25	option	去掉打包器加的数字后缀，恢复原名 option

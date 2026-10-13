@@ -30,16 +30,16 @@ async function mapPoolSettled(items, concurrency, worker) {
   let nextIndex = 0;
   async function runWorker() {
     while (nextIndex < items.length) {
-      const index2 = nextIndex;
+      const index = nextIndex;
       nextIndex += 1;
       try {
-        const value = await worker(items[index2]);
-        results[index2] = {
+        const value = await worker(items[index]);
+        results[index] = {
           status: "fulfilled",
           value,
         };
       } catch (reason) {
-        results[index2] = {
+        results[index] = {
           status: "rejected",
           reason,
         };
@@ -86,7 +86,7 @@ export function BatchRemoveMembersDialog({
   onComplete,
 }) {
   const { t } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { activeScope } = useTeamAccount();
   const [error, setError] = reactExports.useState(null);
   const mutation = useMutation({
@@ -102,8 +102,8 @@ export function BatchRemoveMembersDialog({
           return member;
         },
       );
-      return settled.map((result, index2) => {
-        const member = members[index2];
+      return settled.map((result, index) => {
+        const member = members[index];
         if (result.status === "fulfilled") {
           return {
             userId: member.userId,
@@ -125,10 +125,10 @@ export function BatchRemoveMembersDialog({
     onSuccess: async (results) => {
       setError(null);
       await Promise.all([
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: teamQueryKeys.membership(scope),
         }),
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: creditQueryKeys.scope(scope),
         }),
       ]);
@@ -176,7 +176,7 @@ export function BatchRemoveMembersDialog({
   return (
     <AlertDialog
       open={true}
-      onOpenChange={(next2) => !next2 && !mutation.isPending && onClose()}
+      onOpenChange={(next) => !next && !mutation.isPending && onClose()}
     >
       <AlertDialogContent
         layer="nested"

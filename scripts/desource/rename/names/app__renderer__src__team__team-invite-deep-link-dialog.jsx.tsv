@@ -1,2 +1,5 @@
 key	new	reason
 t2@84:14	t	useTranslation() 返回的翻译函数 t
+info2@86:10	info	去掉打包器加的数字后缀，恢复原名 info
+groupId2@144:13	groupId	去掉打包器加的数字后缀，恢复原名 groupId
+copy2@136:15	copy	去掉打包器加的数字后缀，恢复原名 copy

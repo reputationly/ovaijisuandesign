@@ -126,8 +126,8 @@ export function useMpSubscriptionWalletQuery() {
   };
 }
 export function useMpWallet() {
-  const { data: data2 } = useWalletQuery();
-  return data2?.wallets?.find(
+  const { data } = useWalletQuery();
+  return data?.wallets?.find(
     (wallet) => wallet.source === WalletSource.WALLET_SOURCE_OP,
   );
 }
@@ -150,9 +150,9 @@ export function deriveMpCreditSummary(mpWallet) {
       hasBreakdown: false,
     };
   }
-  const sumByType = (type2) =>
+  const sumByType = (type) =>
     (mpWallet.sub_credits ?? [])
-      .filter((subCredit) => subCredit.credit_type === type2)
+      .filter((subCredit) => subCredit.credit_type === type)
       .reduce((acc, subCredit) => acc + (subCredit.credit ?? 0), 0);
   return {
     total: mpWallet.total_credit ?? 0,
@@ -164,24 +164,24 @@ export function deriveMpCreditSummary(mpWallet) {
   };
 }
 export function useHailuoWallet() {
-  const { data: data2 } = useWalletQuery();
-  return data2?.wallets?.find(
+  const { data } = useWalletQuery();
+  return data?.wallets?.find(
     (wallet) => wallet.source === WalletSource.WALLET_SOURCE_HILO,
   );
 }
 export function useCanMigrate() {
-  const { data: data2, isError, isRefetchError } = useWalletQuery();
+  const { data, isError, isRefetchError } = useWalletQuery();
   if (isError || isRefetchError) return false;
-  if (!data2?.can_migrate) return false;
-  const endTime = data2.migrate_end_time ?? 0;
+  if (!data?.can_migrate) return false;
+  const endTime = data.migrate_end_time ?? 0;
   return endTime > 0 && Date.now() < endTime;
 }
 export function useHiloToMpRatio() {
   return 10;
 }
 export function useMigrateDeadline() {
-  const { data: data2 } = useWalletQuery();
-  const endTime = data2?.migrate_end_time ?? 0;
+  const { data } = useWalletQuery();
+  const endTime = data?.migrate_end_time ?? 0;
   if (endTime <= 0) return null;
   const endDate = new Date(endTime);
   const yyyy = endDate.getFullYear();
@@ -192,7 +192,7 @@ export function useMigrateDeadline() {
   };
 }
 export function useMigrateCredit() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { queryScope, canMutatePersonalCredit } = useCreditAccountState();
   const submittedScopesRef = reactExports.useRef(new WeakMap());
   return useMutation({
@@ -228,7 +228,7 @@ export function useMigrateCredit() {
           submittedScope &&
           creditScopeMatchesCurrentDecision(submittedScope)
         ) {
-          queryClient2.invalidateQueries({
+          queryClient.invalidateQueries({
             queryKey: creditQueryKeys.account(submittedScope),
           });
         }
@@ -280,7 +280,7 @@ export function SubscriptionRenewalBadge({ placement = "corner" }) {
 }
 export function MpCreditRow({ onClick, showRenewalBadge = false }) {
   const { t } = useTranslation();
-  const { data: data2, isLoading, isError, isRefetchError } = useWalletQuery();
+  const { data, isLoading, isError, isRefetchError } = useWalletQuery();
   const walletFailed = isError || isRefetchError;
   const mpWallet = useMpWallet();
   const mpCredits = mpWallet?.total_credit ?? 0;
@@ -292,9 +292,9 @@ export function MpCreditRow({ onClick, showRenewalBadge = false }) {
         creditLog.warn("mp_row.render_dash", {
           isError,
           isRefetchError,
-          hasData: !!data2,
-          walletsCount: data2?.wallets?.length,
-          walletSources: data2?.wallets?.map((wallet) => wallet.source),
+          hasData: !!data,
+          walletsCount: data?.wallets?.length,
+          walletSources: data?.wallets?.map((wallet) => wallet.source),
           mpTotalCredit: mpWallet?.total_credit,
           traceId: getLastGatewayTraceId(),
         });
@@ -302,7 +302,7 @@ export function MpCreditRow({ onClick, showRenewalBadge = false }) {
     } else {
       loggedDashRef.current = false;
     }
-  }, [isLoading, walletFailed, isError, isRefetchError, data2, mpWallet]);
+  }, [isLoading, walletFailed, isError, isRefetchError, data, mpWallet]);
   return (
     <button
       type="button"
@@ -338,7 +338,7 @@ export function MpCreditRow({ onClick, showRenewalBadge = false }) {
 }
 export function HailuoCreditRow({ onExchange }) {
   const { t } = useTranslation();
-  const { data: data2, isLoading, isError, isRefetchError } = useWalletQuery();
+  const { data, isLoading, isError, isRefetchError } = useWalletQuery();
   const walletFailed = isError || isRefetchError;
   const hailuoWallet = useHailuoWallet();
   const hailuoCredits = hailuoWallet?.total_credit ?? 0;
@@ -350,8 +350,8 @@ export function HailuoCreditRow({ onExchange }) {
         creditLog.warn("hailuo_row.render_dash", {
           isError,
           isRefetchError,
-          hasData: !!data2,
-          walletSources: data2?.wallets?.map((wallet) => wallet.source),
+          hasData: !!data,
+          walletSources: data?.wallets?.map((wallet) => wallet.source),
           hailuoCredits: hailuoWallet?.total_credit,
           traceId: getLastGatewayTraceId(),
         });
@@ -359,7 +359,7 @@ export function HailuoCreditRow({ onExchange }) {
     } else {
       loggedDashRef.current = false;
     }
-  }, [isLoading, walletFailed, isError, isRefetchError, data2, hailuoWallet]);
+  }, [isLoading, walletFailed, isError, isRefetchError, data, hailuoWallet]);
   if (!isLoading && !walletFailed && hailuoCredits <= 0) return null;
   return (
     <div className="flex h-9 w-full items-center justify-between gap-2 rounded-sm px-2">

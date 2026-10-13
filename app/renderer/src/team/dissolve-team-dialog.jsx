@@ -43,11 +43,11 @@ export function DissolveTeamDialog({
   onDissolved,
 }) {
   const { t } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const {
     activeScope,
     exitCurrentTeam,
-    snapshot: snapshot2,
+    snapshot,
   } = useTeamAccount();
   const confirmInputId = reactExports.useId();
   const destinationSelectId = reactExports.useId();
@@ -64,7 +64,7 @@ export function DissolveTeamDialog({
   const nameConfirmed = confirmText === teamName;
   const summaryQuery = useTeamCreditSummaryQuery(scope, open);
   const contextsQuery = useTeamContextsQuery(
-    snapshot2?.identityKey ?? null,
+    snapshot?.identityKey ?? null,
     open,
   );
   const targets = reactExports.useMemo(
@@ -103,9 +103,9 @@ export function DissolveTeamDialog({
     const query = destinationSearchQuery.trim().toLocaleLowerCase();
     if (!query) return destinationOptions;
     return destinationOptions.filter(
-      (option2) =>
-        option2.displayName.toLocaleLowerCase().includes(query) ||
-        option2.userId.toLocaleLowerCase().includes(query),
+      (option) =>
+        option.displayName.toLocaleLowerCase().includes(query) ||
+        option.userId.toLocaleLowerCase().includes(query),
     );
   }, [destinationOptions, destinationSearchQuery]);
   const selectedTarget =
@@ -186,10 +186,10 @@ export function DissolveTeamDialog({
             }
           : null;
       setActionError(null);
-      queryClient2.removeQueries({
+      queryClient.removeQueries({
         queryKey: teamQueryKeys.membership(scope),
       });
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: teamQueryKeys.contexts(scope.identityKey),
       });
       dedupedToast.success(
@@ -216,13 +216,13 @@ export function DissolveTeamDialog({
         error.result.status === "rejected" &&
         error.result.code === "credit_balance_unavailable"
       ) {
-        const message22 = t(
+        const message = t(
           "team.management.dissolveCreditBalanceUnavailable",
           {
             defaultValue: "团队剩余积分暂不可用。请选择“不转移”，或稍后重试。",
           },
         );
-        setActionError(message22);
+        setActionError(message);
         return;
       }
       const transferred =
@@ -272,7 +272,7 @@ export function DissolveTeamDialog({
         );
         return;
       }
-      const message2 = transferred
+      const message = transferred
         ? t("team.management.dissolveFailedAfterTransfer", {
             defaultValue:
               "剩余积分已转移，但团队解散失败。请再次点击，只重试解散。",
@@ -280,7 +280,7 @@ export function DissolveTeamDialog({
         : t("team.management.dissolveFailed", {
             defaultValue: "团队解散失败，请稍后重试。",
           });
-      setActionError(message2);
+      setActionError(message);
     },
   });
   return (

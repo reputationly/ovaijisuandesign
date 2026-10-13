@@ -27,10 +27,10 @@ import { categorizeToolAction } from "../chat/has-structured-success-payload.js"
 import { TimelineItem } from "../media-editing/timeline-item.jsx";
 function BrowserOpenCard({ onContinue }) {
   const { t } = useTranslation();
-  const [opening2, setOpening] = reactExports.useState(false);
+  const [opening, setOpening] = reactExports.useState(false);
   const [opened, setOpened] = reactExports.useState(false);
   const openBrowser = () => {
-    if (opening2 || opened) return;
+    if (opening || opened) return;
     setOpening(true);
     let settled = false;
     let fallbackTimer;
@@ -66,10 +66,10 @@ function BrowserOpenCard({ onContinue }) {
       <Button
         type="button"
         size="sm"
-        disabled={opening2 || opened}
+        disabled={opening || opened}
         onClick={openBrowser}
       >
-        {opening2
+        {opening
           ? t("chat.browser.opening", "正在开启…")
           : opened
             ? t("chat.browser.opened", "已开启")
@@ -88,23 +88,23 @@ const GROUPABLE_CATEGORIES = new Set([
   "connector",
   "other",
 ]);
-function groupTimelineEntries(entries2) {
+function groupTimelineEntries(entries) {
   const units = [];
-  let pending2 = [];
-  const flush2 = () => {
-    if (pending2.length === 1)
+  let pending = [];
+  const flush = () => {
+    if (pending.length === 1)
       units.push({
         kind: "standalone",
-        entry: pending2[0],
+        entry: pending[0],
       });
-    else if (pending2.length > 1)
+    else if (pending.length > 1)
       units.push({
         kind: "tool-group",
-        entries: pending2,
+        entries: pending,
       });
-    pending2 = [];
+    pending = [];
   };
-  for (const entry of entries2) {
+  for (const entry of entries) {
     if (
       entry.type === "tool" &&
       GROUPABLE_CATEGORIES.has(entry.category) &&
@@ -116,55 +116,55 @@ function groupTimelineEntries(entries2) {
       !entry.rejectedConfirm &&
       !entry.interruption
     ) {
-      pending2.push(entry);
+      pending.push(entry);
     } else {
-      flush2();
+      flush();
       units.push({
         kind: "standalone",
         entry,
       });
     }
   }
-  flush2();
+  flush();
   return units;
 }
-function summarizeTimelineEntries(entries2) {
+function summarizeTimelineEntries(entries) {
   const counts = new Map();
-  for (const entry of entries2) {
-    const count2 =
+  for (const entry of entries) {
+    const count =
       entry.aggregatedFiles?.length ??
       entry.aggregatedSearchChips?.length ??
       entry.aggregatedCount ??
       1;
-    counts.set(entry.category, (counts.get(entry.category) ?? 0) + count2);
+    counts.set(entry.category, (counts.get(entry.category) ?? 0) + count);
   }
-  return Array.from(counts, ([category, count2]) => ({
+  return Array.from(counts, ([category, count]) => ({
     category,
-    count: count2,
+    count,
   }));
 }
 function ToolActivityDisclosure({
-  entries: entries2,
-  isActive: isActive2,
+  entries,
+  isActive,
   keepExpanded,
-  children: children2,
+  children,
 }) {
   const { t } = useTranslation();
   const contentId = reactExports.useId();
   const [userExpanded, setUserExpanded] = reactExports.useState(null);
-  const expanded = userExpanded ?? (keepExpanded || isActive2);
-  const summary = summarizeTimelineEntries(entries2)
-    .map(({ category, count: count2 }) => {
-      const inFlight = entries2.some(
+  const expanded = userExpanded ?? (keepExpanded || isActive);
+  const summary = summarizeTimelineEntries(entries)
+    .map(({ category, count }) => {
+      const inFlight = entries.some(
         (entry) =>
           entry.category === category &&
           (entry.toolStatus === "running" || entry.toolStatus === "pending"),
       );
-      const key2 =
+      const key =
         (inFlight && CATEGORY_RUNNING_I18N[category]) ||
         CATEGORY_I18N[category];
-      return t(key2, {
-        count: count2,
+      return t(key, {
+        count,
       });
     })
     .join(" · ");
@@ -182,11 +182,11 @@ function ToolActivityDisclosure({
         aria-expanded={expanded}
         aria-controls={contentId}
         aria-label={summary}
-        aria-busy={isActive2}
+        aria-busy={isActive}
         onClick={handleToggle}
         title={summary}
       >
-        {isActive2 ? (
+        {isActive ? (
           <Spinner className="size-4 text-tertiary" />
         ) : (
           <Wrench className="size-4" strokeWidth={1.5} />
@@ -198,7 +198,7 @@ function ToolActivityDisclosure({
         />
       </Button>
       <div id={contentId} hidden={!expanded}>
-        <div className="flex min-w-0 flex-col gap-2 pl-5">{children2}</div>
+        <div className="flex min-w-0 flex-col gap-2 pl-5">{children}</div>
       </div>
     </div>
   );
@@ -279,9 +279,9 @@ export function ActivityGroup({
   const timelineEntries = mergeIntoTimelineEntries(displayItems, {
     raw: rawToolView,
     legacyMediaReconciliationApplied: data2.legacyMediaReconciliationApplied,
-  }).filter((entry, index2, entries2) => {
+  }).filter((entry, index, entries) => {
     if (entry.type === "thinking") {
-      return showThinking && (!useToolGroups || index2 === entries2.length - 1);
+      return showThinking && (!useToolGroups || index === entries.length - 1);
     }
     if (
       hideSearchTimeline &&
@@ -358,7 +358,7 @@ export function ActivityGroup({
             <StreamingLabel msg={streamingAction} />
           </div>
         )}
-      {units.map((unit, index2) =>
+      {units.map((unit, index) =>
         unit.kind === "standalone" ? (
           renderEntry(unit.entry)
         ) : (
@@ -368,7 +368,7 @@ export function ActivityGroup({
             keepExpanded={keepToolsExpanded}
             isActive={
               isStreaming &&
-              ((keepLatestToolActive && index2 === units.length - 1) ||
+              ((keepLatestToolActive && index === units.length - 1) ||
                 unit.entries.some(
                   (entry) =>
                     entry.toolStatus === "running" ||

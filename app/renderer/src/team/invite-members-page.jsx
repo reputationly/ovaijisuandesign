@@ -19,17 +19,17 @@ import { SegmentedSwitch } from "../canvas/popover-title.jsx";
 const MAX_TEAM_INVITES = 30;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function parseInviteEmails(value) {
-  const candidates2 = value
+  const candidates = value
     .split(/[,;\n]+/)
     .map((email) => email.trim())
     .filter(Boolean);
-  if (candidates2.length === 0)
+  if (candidates.length === 0)
     return {
       ok: false,
       reason: "EMPTY",
       count: 0,
     };
-  const invalidEmails = candidates2.filter(
+  const invalidEmails = candidates.filter(
     (email) => !EMAIL_PATTERN.test(email),
   );
   if (invalidEmails.length > 0)
@@ -38,7 +38,7 @@ function parseInviteEmails(value) {
       reason: "INVALID",
       invalidEmails,
     };
-  const emails = [...new Set(candidates2.map((email) => email.toLowerCase()))];
+  const emails = [...new Set(candidates.map((email) => email.toLowerCase()))];
   if (emails.length > MAX_TEAM_INVITES) {
     return {
       ok: false,
@@ -85,9 +85,9 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
   const [quotaLimit, setQuotaLimit] = reactExports.useState("");
   const [submitting, setSubmitting] = reactExports.useState(false);
   const [result, setResult] = reactExports.useState(null);
-  const [tab2, setTab] = reactExports.useState("email");
+  const [tab, setTab] = reactExports.useState("email");
   const [pastTabMounted, setPastTabMounted] = reactExports.useState(false);
-  const showEmailTab = tab2 === "email" || result !== null;
+  const showEmailTab = tab === "email" || result !== null;
   const quotaLimitValue = reactExports.useMemo(() => {
     const trimmed = quotaLimit.trim();
     if (trimmed === "")
@@ -120,7 +120,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
       defaultValue: "Unknown",
     }),
   };
-  const reset2 = () => {
+  const reset = () => {
     setEmails([]);
     setEmailText("");
     setQuotaLimit("");
@@ -130,7 +130,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
     setPastTabMounted(false);
   };
   const handleOpenChange = (nextOpen) => {
-    if (!nextOpen) reset2();
+    if (!nextOpen) reset();
     onOpenChange(nextOpen);
   };
   const showParseError = (parsed) => {
@@ -259,7 +259,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
               defaultValue: "Invite members",
             })}
           </PageTitle>
-          {!result && tab2 === "email" ? (
+          {!result && tab === "email" ? (
             <PageDescription>
               {t("team.inviteMembers.description", {
                 defaultValue:
@@ -274,10 +274,10 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
             <SegmentedSwitch
               variant="label"
               stretch={true}
-              value={tab2}
-              onValueChange={(next2) => {
-                setTab(next2);
-                if (next2 === "past-teams") setPastTabMounted(true);
+              value={tab}
+              onValueChange={(next) => {
+                setTab(next);
+                if (next === "past-teams") setPastTabMounted(true);
               }}
               ariaLabel={t("team.inviteMembers.title", {
                 defaultValue: "Invite members",

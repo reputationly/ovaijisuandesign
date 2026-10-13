@@ -195,30 +195,30 @@ function getBillingModelLabel(model, t, region) {
   return isMiniMaxH3BillingKey(normalized) ? "MiniMax H3" : void 0;
 }
 
-function normalizeCatalogMediaType(type2) {
-  return type2.trim().toLowerCase() === "music"
+function normalizeCatalogMediaType(type) {
+  return type.trim().toLowerCase() === "music"
     ? "audio"
-    : type2.trim().toLowerCase();
+    : type.trim().toLowerCase();
 }
 
 function getCatalogModelDisplayName(metadata, models) {
   if (!models?.length) return void 0;
   if (!metadata.modelDisplayName.trim()) return void 0;
-  const candidates2 = new Set(
+  const candidates = new Set(
     [metadata.modelDisplayName, metadata.modelKey]
       .map((value) => value.trim().toLowerCase())
       .filter(Boolean),
   );
-  if (candidates2.size === 0) return void 0;
+  if (candidates.size === 0) return void 0;
   const mediaType = normalizeCatalogMediaType(metadata.mediaType);
-  const match2 = models.find((model) => {
+  const match = models.find((model) => {
     if (mediaType && normalizeCatalogMediaType(model.type) !== mediaType)
       return false;
     return [model.id, model.display_name, model.model_name].some((value) =>
-      value ? candidates2.has(value.trim().toLowerCase()) : false,
+      value ? candidates.has(value.trim().toLowerCase()) : false,
     );
   });
-  return match2?.display_name.trim() || void 0;
+  return match?.display_name.trim() || void 0;
 }
 
 export function getBillingModelDisplayName(metadata, t, models) {
@@ -233,9 +233,9 @@ export function getBillingModelDisplayName(metadata, t, models) {
       : AGENT_DISPLAY_NAME;
   }
   const rawModelKey = metadata.modelKey.trim();
-  const displayName2 = metadata.modelDisplayName.trim();
-  const modelKey = rawModelKey || displayName2;
-  const fallbackName = displayName2 || modelKey || LEGACY_MEDIA_DISPLAY_NAME;
+  const displayName = metadata.modelDisplayName.trim();
+  const modelKey = rawModelKey || displayName;
+  const fallbackName = displayName || modelKey || LEGACY_MEDIA_DISPLAY_NAME;
   if (!modelKey) return fallbackName;
   const region = getRuntimeConfig().region;
   const catalogDisplayName = getCatalogModelDisplayName(metadata, models);
@@ -245,16 +245,16 @@ export function getBillingModelDisplayName(metadata, t, models) {
     getBillingModelLabel(modelKey, t, region) ??
     getBillingModelLabel(metadata.modelDisplayName, t, region);
   if (billingModelLabel) return billingModelLabel;
-  if (displayName2 && (!rawModelKey || displayName2 !== rawModelKey)) {
-    if (normalizeLegacyModelId(displayName2) !== displayName2) {
-      return redactModelAliasesForDisplay(displayName2, region);
+  if (displayName && (!rawModelKey || displayName !== rawModelKey)) {
+    if (normalizeLegacyModelId(displayName) !== displayName) {
+      return redactModelAliasesForDisplay(displayName, region);
     }
-    const mediaType2 = metadata.mediaType || "image";
+    const mediaType = metadata.mediaType || "image";
     const resolvedByDisplay = resolveModelDisplayName(
       "",
-      displayName2,
+      displayName,
       region,
-      mediaType2,
+      mediaType,
     );
     return redactModelAliasesForDisplay(resolvedByDisplay, region);
   }

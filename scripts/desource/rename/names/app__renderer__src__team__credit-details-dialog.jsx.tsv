@@ -16,3 +16,20 @@ a2@729:14	a	sort 比较函数的前一个积分批次
 b3@729:18	b	sort 比较函数的后一个积分批次
 t2@353:36	t	调用方传入的翻译函数 t，转交 getBillingModelDisplayName
 t2@368:46	t	调用方传入的翻译函数 t，转交 getPackageCreditCategoryLabel
+timestamp2@120:9	timestamp	去掉打包器加的数字后缀，恢复原名 timestamp
+index2@128:39	index	去掉打包器加的数字后缀，恢复原名 index
+type2@131:9	type	去掉打包器加的数字后缀，恢复原名 type
+raw2@218:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+data2@220:9	data	去掉打包器加的数字后缀，恢复原名 data
+queryClient2@250:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+tab2@260:6	tab	去掉打包器加的数字后缀，恢复原名 tab
+option2@444:44	option	去掉打包器加的数字后缀，恢复原名 option
+platform2@567:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+end2@616:11	end	去掉打包器加的数字后缀，恢复原名 end
+name2@680:9	counterpartyName	转账对方团队名；name 是全局名
+now2@707:9	now	去掉打包器加的数字后缀，恢复原名 now
+record2@709:14	record	去掉打包器加的数字后缀，恢复原名 record
+timestamp2@747:29	timestamp	去掉打包器加的数字后缀，恢复原名 timestamp
+batch2@807:33	batch	去掉打包器加的数字后缀，恢复原名 batch
+platform2@907:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+tab2@941:10	tab	去掉打包器加的数字后缀，恢复原名 tab

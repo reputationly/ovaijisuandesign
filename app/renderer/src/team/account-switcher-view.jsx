@@ -91,7 +91,7 @@ export function AccountSwitcherView({
   const { t } = useTranslation();
   const {
     integrationEnabled,
-    snapshot: snapshot2,
+    snapshot,
     activeScope,
     accountDataVisible,
     lastTransitionAttempt,
@@ -100,7 +100,7 @@ export function AccountSwitcherView({
     openCreate,
     openSwitchBlocked,
   } = useTeamAccount();
-  const identityKey = snapshot2?.identityKey ?? null;
+  const identityKey = snapshot?.identityKey ?? null;
   const query = useTeamContextsQuery(identityKey, identityKey !== null);
   const capabilitiesQuery = useUserTeamCapabilitiesQuery(
     identityKey,
@@ -112,11 +112,11 @@ export function AccountSwitcherView({
   const openRecoveryAttemptedRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
     if (openRecoveryAttemptedRef.current) return;
-    if (!isRecoverableTeamAccountStatus(snapshot2?.status ?? "signed_out"))
+    if (!isRecoverableTeamAccountStatus(snapshot?.status ?? "signed_out"))
       return;
     openRecoveryAttemptedRef.current = true;
     void recoverSelectedGroup("switcher_open");
-  }, [snapshot2?.status, recoverSelectedGroup]);
+  }, [snapshot?.status, recoverSelectedGroup]);
   const [switchingGroupId, setSwitchingGroupId] = reactExports.useState(null);
   const scrollRef = reactExports.useRef(null);
   const isScrolling = useIsScrolling({
@@ -124,11 +124,11 @@ export function AccountSwitcherView({
   });
   const rows = reactExports.useMemo(() => {
     const items = [...(query.data?.items ?? [])].sort(compareContexts);
-    const seen2 = new Set();
+    const seen = new Set();
     return items.map((item) => {
       const section = contextSection(item);
-      const showHeading = !seen2.has(section);
-      seen2.add(section);
+      const showHeading = !seen.has(section);
+      seen.add(section);
       return {
         item,
         section,
@@ -272,7 +272,7 @@ export function AccountSwitcherView({
               size="sm"
               onClick={() => {
                 void (async () => {
-                  if (snapshot2 && snapshot2.status !== "ready") {
+                  if (snapshot && snapshot.status !== "ready") {
                     await recoverSelectedGroup("user_retry");
                   }
                   await query.refetch();
@@ -293,14 +293,14 @@ export function AccountSwitcherView({
               onRetry={async () => {
                 const result = await query.refetch();
                 if (result.isError) {
-                  const code2 =
+                  const code =
                     result.error instanceof Error
                       ? result.error.message
                       : "refresh_failed";
                   dedupedToast.error(
                     t("team.common.refreshFailedToast", {
                       defaultValue: "刷新失败：{{code}}",
-                      code: code2,
+                      code,
                     }),
                   );
                   return;

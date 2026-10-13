@@ -18,8 +18,8 @@ import {
   describeTeamMutationError,
   formatTeamMutationErrorSuffix,
 } from "./team-management-detail-loading.jsx";
-function usePastTeamMembersQuery({ scope, keyword: keyword2, enabled = true }) {
-  const normalizedKeyword = normalizeTeamKeyword(keyword2);
+function usePastTeamMembersQuery({ scope, keyword, enabled = true }) {
+  const normalizedKeyword = normalizeTeamKeyword(keyword);
   return useQuery({
     queryKey: scope
       ? teamQueryKeys.pastTeamMembers(scope, normalizedKeyword)
@@ -58,25 +58,25 @@ const EMPTY_MEMBERS = [];
 export function PastTeamMembersPanel({ scope, active: active2 }) {
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = reactExports.useState("");
-  const [keyword2, setKeyword] = reactExports.useState("");
-  const [selected2, setSelected] = reactExports.useState(new Map());
+  const [keyword, setKeyword] = reactExports.useState("");
+  const [selected, setSelected] = reactExports.useState(new Map());
   const [quotaLimit, setQuotaLimit] = reactExports.useState("");
   const [submitting, setSubmitting] = reactExports.useState(false);
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   reactExports.useEffect(() => {
-    if (searchInput === keyword2) return;
-    const timer2 = window.setTimeout(() => {
+    if (searchInput === keyword) return;
+    const timer = window.setTimeout(() => {
       setKeyword(searchInput);
     }, MEMBER_SEARCH_DEBOUNCE_MS);
-    return () => window.clearTimeout(timer2);
-  }, [keyword2, searchInput]);
+    return () => window.clearTimeout(timer);
+  }, [keyword, searchInput]);
   const feed = usePastTeamMembersQuery({
     scope,
-    keyword: keyword2,
+    keyword,
     enabled: active2,
   });
   const members = feed.data ?? EMPTY_MEMBERS;
-  const isEmpty2 = !feed.isPending && !feed.isError && members.length === 0;
+  const isEmpty = !feed.isPending && !feed.isError && members.length === 0;
   const quotaLimitValue = reactExports.useMemo(() => {
     const trimmed = quotaLimit.trim();
     if (trimmed === "")
@@ -95,9 +95,9 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
       value: trimmed,
     };
   }, [quotaLimit]);
-  const atLimit = selected2.size >= MAX_PAST_TEAM_SELECTION;
+  const atLimit = selected.size >= MAX_PAST_TEAM_SELECTION;
   const selectedInList = members.filter((member) =>
-    selected2.has(member.userId),
+    selected.has(member.userId),
   ).length;
   const allSelected = members.length > 0 && selectedInList === members.length;
   const someSelected = selectedInList > 0;
@@ -110,60 +110,60 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
     );
   };
   const handleToggleMember = (member, checked) => {
-    setSelected((current2) => {
+    setSelected((current) => {
       if (!checked) {
-        if (!current2.has(member.userId)) return current2;
-        const next22 = new Map(current2);
-        next22.delete(member.userId);
-        return next22;
+        if (!current.has(member.userId)) return current;
+        const next = new Map(current);
+        next.delete(member.userId);
+        return next;
       }
-      if (current2.has(member.userId)) return current2;
-      if (current2.size >= MAX_PAST_TEAM_SELECTION) {
+      if (current.has(member.userId)) return current;
+      if (current.size >= MAX_PAST_TEAM_SELECTION) {
         notifyMaxReached();
-        return current2;
+        return current;
       }
-      const next2 = new Map(current2);
-      next2.set(member.userId, member);
-      return next2;
+      const next = new Map(current);
+      next.set(member.userId, member);
+      return next;
     });
   };
-  const handleToggleAll = (candidates2, checked) => {
-    setSelected((current2) => {
-      const next2 = new Map(current2);
+  const handleToggleAll = (candidates, checked) => {
+    setSelected((current) => {
+      const next = new Map(current);
       if (!checked) {
-        for (const member of candidates2) next2.delete(member.userId);
-        return next2;
+        for (const member of candidates) next.delete(member.userId);
+        return next;
       }
       let truncated = false;
-      for (const member of candidates2) {
-        if (next2.has(member.userId)) continue;
-        if (next2.size >= MAX_PAST_TEAM_SELECTION) {
+      for (const member of candidates) {
+        if (next.has(member.userId)) continue;
+        if (next.size >= MAX_PAST_TEAM_SELECTION) {
           truncated = true;
           break;
         }
-        next2.set(member.userId, member);
+        next.set(member.userId, member);
       }
       if (truncated) notifyMaxReached();
-      return next2;
+      return next;
     });
   };
   const handleClearSelected = () => {
     setSelected(new Map());
   };
   const handleRemoveSelected = (userId) => {
-    setSelected((current2) => {
-      const next2 = new Map(current2);
-      next2.delete(userId);
-      return next2;
+    setSelected((current) => {
+      const next = new Map(current);
+      next.delete(userId);
+      return next;
     });
   };
   const handleAddSelected = async () => {
-    if (submitting || selected2.size === 0 || !quotaLimitValue.valid) return;
+    if (submitting || selected.size === 0 || !quotaLimitValue.valid) return;
     setSubmitting(true);
     try {
       const results = await teamApi.batchAddGroupMembers({
         scope,
-        userIds: [...selected2.keys()],
+        userIds: [...selected.keys()],
         quotaLimit: quotaLimitValue.value,
       });
       const added = results.filter((result) => result.status === "ADDED");
@@ -182,7 +182,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
             count: added.length,
           }),
         );
-        void queryClient2.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: teamQueryKeys.membership(scope),
         });
       }
@@ -202,11 +202,11 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
           }),
         );
       }
-      setSelected((current2) => {
-        const next2 = new Map(current2);
-        for (const result of added) next2.delete(result.userId);
-        for (const result of alreadyExists) next2.delete(result.userId);
-        return next2;
+      setSelected((current) => {
+        const next = new Map(current);
+        for (const result of added) next.delete(result.userId);
+        for (const result of alreadyExists) next.delete(result.userId);
+        return next;
       });
     } catch (error) {
       const suffix = formatTeamMutationErrorSuffix(
@@ -255,17 +255,17 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
           >
             {t("team.pastTeams.selectedCount", {
               defaultValue: "已选择 {{count}}/{{max}} 人",
-              count: selected2.size,
+              count: selected.size,
               max: MAX_PAST_TEAM_SELECTION,
             })}
           </p>
         </div>
-        {selected2.size > 0 ? (
+        {selected.size > 0 ? (
           <div
             className="flex flex-wrap items-center gap-2"
             data-action-ui-id="team.past-teams-selected"
           >
-            {[...selected2.values()].map((member) => (
+            {[...selected.values()].map((member) => (
               <Badge
                 key={member.userId}
                 variant="secondary"
@@ -322,7 +322,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
                 })}
               </Button>
             </div>
-          ) : isEmpty2 ? (
+          ) : isEmpty ? (
             <p className="p-6 text-center text-sm text-muted-foreground">
               {t("team.pastTeams.empty", {
                 defaultValue: "没有可添加的过往团队成员",
@@ -349,7 +349,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
                 </p>
               </div>
               {members.map((member) => {
-                const isChecked = selected2.has(member.userId);
+                const isChecked = selected.has(member.userId);
                 const isDisabled = atLimit && !isChecked;
                 return (
                   <div
@@ -414,7 +414,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
       <DialogFooter className="shrink-0 border-t border-border bg-popover px-4 py-3 sm:px-6">
         <Button
           type="button"
-          disabled={selected2.size === 0 || !quotaLimitValue.valid}
+          disabled={selected.size === 0 || !quotaLimitValue.valid}
           loading={submitting}
           onClick={() => void handleAddSelected()}
           data-action-ui-id="team.past-teams-add-selected"

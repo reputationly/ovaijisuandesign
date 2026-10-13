@@ -17,13 +17,13 @@ import { FeedbackButton } from "../settings/use-direct-feedback.jsx";
 import { ErrorBlock } from "../text-editor/error-block.jsx";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
 function ChatErrorActionButton({ action, label }) {
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const checkoutDecision = useAccountSubmissionDecision("personal_checkout");
-  const handleClick2 = () => {
+  const handleClick = () => {
     if (action.kind === "external-link") {
       const decision = guardAccountSubmission("personal_checkout");
       if (!decision.allowed) return;
-      void openExternalUrl(platform2, action.url, {
+      void openExternalUrl(platform, action.url, {
         source: "chat.error-action",
       });
     }
@@ -34,7 +34,7 @@ function ChatErrorActionButton({ action, label }) {
       size="xs"
       disabled={!checkoutDecision.allowed}
       title={checkoutDecision.allowed ? void 0 : checkoutDecision.reasonCode}
-      onClick={handleClick2}
+      onClick={handleClick}
     >
       {label}
       <ExternalLink data-icon="inline-end" />
@@ -124,8 +124,8 @@ const MESSAGE_DELIVERY_STAGE_DETAIL_PREFIX = "message_delivery_stage:";
 const RAW_AGENT_STALLED_ERROR =
   "Agent turn stalled with no progress; aborted by watchdog.";
 const RUNTIME_ERROR_CODE_PREFIX = "RUNTIME_";
-function isRuntimeErrorCode(code2) {
-  return code2?.startsWith(RUNTIME_ERROR_CODE_PREFIX) ?? false;
+function isRuntimeErrorCode(code) {
+  return code?.startsWith(RUNTIME_ERROR_CODE_PREFIX) ?? false;
 }
 const RAW_ERROR_CLASS_I18N = {
   concurrency: "canvas.errors.concurrency",
@@ -150,14 +150,14 @@ function messageDeliveryStageFromDetails(details) {
       return void 0;
   }
 }
-function presentationFor(code2, isGenerationStalled) {
+function presentationFor(code, isGenerationStalled) {
   if (isGenerationStalled) {
     return {
       titleKey: "chat.errors.title.generationStalled",
       Icon: Zap,
     };
   }
-  switch (code2) {
+  switch (code) {
     case ErrorCodes.BILLING_INSUFFICIENT_BALANCE:
       return {
         titleKey: "chat.errors.title.billing",
@@ -247,7 +247,7 @@ function presentationFor(code2, isGenerationStalled) {
         Icon: AlertCircle,
       };
     default:
-      if (isRuntimeErrorCode(code2)) {
+      if (isRuntimeErrorCode(code)) {
         return {
           titleKey: "chat.errors.title.runtime",
           Icon: ServerOff,
@@ -259,16 +259,16 @@ function presentationFor(code2, isGenerationStalled) {
       };
   }
 }
-function suffixFor(retryable, code2) {
-  if (code2 === ErrorCodes.RUNTIME_CANCELLED)
+function suffixFor(retryable, code) {
+  if (code === ErrorCodes.RUNTIME_CANCELLED)
     return "chat.errors.suffix.cancelled";
   if (
-    code2 === ErrorCodes.BILLING_INSUFFICIENT_BALANCE ||
-    code2 === ErrorCodes.AUTH_EXPIRED
+    code === ErrorCodes.BILLING_INSUFFICIENT_BALANCE ||
+    code === ErrorCodes.AUTH_EXPIRED
   ) {
     return "chat.errors.suffix.actionRequired";
   }
-  if (code2 === ErrorCodes.MODEL_PROVIDER_AUTH_FAILED)
+  if (code === ErrorCodes.MODEL_PROVIDER_AUTH_FAILED)
     return "chat.errors.suffix.actionRequired";
   if (retryable) return "chat.errors.suffix.retry";
   return "chat.errors.suffix.failed";
@@ -279,8 +279,8 @@ function fallbackDetailFor(rawDetail, t) {
   if (rawClass) return t(RAW_ERROR_CLASS_I18N[rawClass]);
   return rawDetail;
 }
-function localizeModelProviderDetail(rawDetail, language2, t) {
-  if (!language2.toLowerCase().startsWith("zh")) return rawDetail;
+function localizeModelProviderDetail(rawDetail, language, t) {
+  if (!language.toLowerCase().startsWith("zh")) return rawDetail;
   return rawDetail
     .split(/\r?\n/)
     .map((line) => {

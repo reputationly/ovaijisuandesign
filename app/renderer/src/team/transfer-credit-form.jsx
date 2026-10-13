@@ -28,8 +28,8 @@ import { accountScopeEquals } from "./account-scope-equals.js";
 import { useTeamContextsQuery } from "./use-team-transactions-feed-query.jsx";
 const INTEGER_RE = /^\d+$/;
 const MAX_SAFE_TRANSFER_CREDIT = BigInt(Number.MAX_SAFE_INTEGER);
-function validateTransferAmount(raw2, teamRemaining) {
-  const value = raw2.trim();
+function validateTransferAmount(raw, teamRemaining) {
+  const value = raw.trim();
   if (value.length === 0) return "empty";
   if (!INTEGER_RE.test(value)) return "not_integer";
   let amount;
@@ -47,7 +47,7 @@ function validateTransferAmount(raw2, teamRemaining) {
   if (amount > MAX_SAFE_TRANSFER_CREDIT) return "exceeds_safe_integer";
   return null;
 }
-class TeamScopeChangedError3 extends Error {}
+class TeamScopeChangedError extends Error {}
 class TeamCreditTransferResultUnknownError extends Error {
   constructor(intent) {
     super("team_credit_transfer_result_unknown");
@@ -55,9 +55,9 @@ class TeamCreditTransferResultUnknownError extends Error {
   }
 }
 class TeamCreditTransferRejectedError extends Error {
-  constructor(code2) {
-    super(code2);
-    this.code = code2;
+  constructor(code) {
+    super(code);
+    this.code = code;
   }
 }
 export function TransferCreditForm({
@@ -75,11 +75,11 @@ export function TransferCreditForm({
   selectPortalContainer,
 }) {
   const { t } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const {
     acknowledgeCreditTransfer,
     activeScope,
-    snapshot: snapshot2,
+    snapshot,
     transferCredits,
   } = useTeamAccount();
   const amountInputId = reactExports.useId();
@@ -89,7 +89,7 @@ export function TransferCreditForm({
   const [actionError, setActionError] = reactExports.useState(null);
   const [unknownIntent, setUnknownIntent] = reactExports.useState(null);
   const contextsQuery = useTeamContextsQuery(
-    snapshot2?.identityKey ?? null,
+    snapshot?.identityKey ?? null,
     active2,
   );
   const targets = reactExports.useMemo(
@@ -129,10 +129,10 @@ export function TransferCreditForm({
         !scope.membershipRevision ||
         !accountScopeEquals(activeScope, scope)
       ) {
-        throw new TeamScopeChangedError3();
+        throw new TeamScopeChangedError();
       }
       const decision = guardAccountSubmission("team_credit_transfer");
-      if (!decision.allowed) throw new TeamScopeChangedError3();
+      if (!decision.allowed) throw new TeamScopeChangedError();
       if (
         decision.mode !== "CANONICAL" ||
         !accountScopeEquals(decision.scope, scope)
@@ -141,7 +141,7 @@ export function TransferCreditForm({
           kind: "team_credit_transfer",
           reasonCode: "account_scope_changed",
         });
-        throw new TeamScopeChangedError3();
+        throw new TeamScopeChangedError();
       }
       const amount = amountText.trim();
       const intent = {
@@ -183,13 +183,13 @@ export function TransferCreditForm({
       void acknowledgeCreditTransfer({
         ...intent,
       }).catch(() => {});
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: teamQueryKeys.membership(scope),
       });
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: creditQueryKeys.scope(scope),
       });
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: teamQueryKeys.contexts(scope.identityKey),
       });
       setTargetGroupId("");
@@ -197,7 +197,7 @@ export function TransferCreditForm({
       onTransferred?.();
     },
     onError: (error) => {
-      if (error instanceof TeamScopeChangedError3) {
+      if (error instanceof TeamScopeChangedError) {
         setActionError(null);
         dedupedToast.error(
           t("team.management.scopeChanged", {
@@ -222,8 +222,8 @@ export function TransferCreditForm({
       const primary = t("team.transferCredit.failed", {
         defaultValue: "积分转移失败，请稍后重试。",
       });
-      const message2 = suffix ? `${primary}（${suffix}）` : primary;
-      setActionError(message2);
+      const message = suffix ? `${primary}（${suffix}）` : primary;
+      setActionError(message);
     },
   });
   reactExports.useEffect(() => {

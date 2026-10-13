@@ -13,19 +13,19 @@ export function TeamCreditSummarySurface(props) {
   const { t } = useTranslation();
   if (props.visibility === "team") {
     const {
-      status: status2,
-      mode: mode22,
+      status: summaryStatus,
+      mode,
       teamRemaining,
-      memberUsed: memberUsed2,
-      memberLimit: memberLimit2,
-      actionUiId: actionUiId2,
+      memberUsed,
+      memberLimit,
+      actionUiId,
     } = props;
     return (
       <section
         className="space-y-4"
-        data-action-ui-id={actionUiId2}
-        data-credit-mode={status2 === "READY" ? mode22 : status2}
-        data-credit-status={status2}
+        data-action-ui-id={actionUiId}
+        data-credit-mode={summaryStatus === "READY" ? mode : summaryStatus}
+        data-credit-status={summaryStatus}
         data-credit-visibility="team"
       >
         <div>
@@ -41,11 +41,11 @@ export function TeamCreditSummarySurface(props) {
             {teamRemaining === null ? "—" : formatCreditAmount(teamRemaining)}
           </p>
         </div>
-        {status2 === "READY" ? (
+        {summaryStatus === "READY" ? (
           <dl className="grid gap-3 border-y border-border py-3 text-xs">
             <div>
               <dt className="break-words text-muted-foreground">
-                {mode22 === "UNLIMITED"
+                {mode === "UNLIMITED"
                   ? t("team.credit.quotaMode", {
                       defaultValue: "个人额度",
                     })
@@ -54,14 +54,14 @@ export function TeamCreditSummarySurface(props) {
                     })}
               </dt>
               <dd className="mt-1 break-words font-medium text-foreground tabular-nums">
-                {mode22 === "UNLIMITED"
+                {mode === "UNLIMITED"
                   ? t("team.credit.unlimited", {
                       defaultValue: "无限额",
                     })
                   : t("team.credit.quotaUsageValue", {
                       defaultValue: "已用 {{used}} / 个人限额 {{limit}}",
-                      used: formatCreditAmount(memberUsed2 ?? ""),
-                      limit: formatCreditAmount(memberLimit2 ?? ""),
+                      used: formatCreditAmount(memberUsed ?? ""),
+                      limit: formatCreditAmount(memberLimit ?? ""),
                     })}
               </dd>
             </div>
@@ -72,7 +72,7 @@ export function TeamCreditSummarySurface(props) {
   }
   const {
     status,
-    mode: mode2,
+    mode,
     availableAmount,
     memberRemaining,
     memberUsed,
@@ -82,7 +82,7 @@ export function TeamCreditSummarySurface(props) {
   } = props;
   const isManager = props.visibility === "manager-self";
   const usageAvailable =
-    status === "READY" && mode2 === "LIMITED" && showUsageDetails;
+    status === "READY" && mode === "LIMITED" && showUsageDetails;
   const unavailableHelp = t("team.credit.availableUnavailableHelp", {
     defaultValue: "额度数据暂不可用，请稍后重试。",
   });
@@ -91,7 +91,7 @@ export function TeamCreditSummarySurface(props) {
     if (!isManager) {
       return (
         <p>
-          {mode2 === "LIMITED"
+          {mode === "LIMITED"
             ? t("team.credit.memberLimitedAvailableRule", {
                 defaultValue:
                   "可用额度取我的剩余额度和团队剩余积分中较小的值。",
@@ -102,7 +102,7 @@ export function TeamCreditSummarySurface(props) {
         </p>
       );
     }
-    if (mode2 === "LIMITED") {
+    if (mode === "LIMITED") {
       return (
         <div className="space-y-1">
           <p>
@@ -156,7 +156,7 @@ export function TeamCreditSummarySurface(props) {
     <section
       className="space-y-4"
       data-action-ui-id={actionUiId}
-      data-credit-mode={status === "READY" ? mode2 : status}
+      data-credit-mode={status === "READY" ? mode : status}
       data-credit-status={status}
       data-credit-visibility={props.visibility}
     >

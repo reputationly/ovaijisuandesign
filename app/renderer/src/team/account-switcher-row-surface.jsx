@@ -39,7 +39,7 @@ export function AccountSwitcherRowSurface({
   const { t } = useTranslation();
   const unavailable = disabled2 && !active2 && Boolean(disabledReason);
   const nativeDisabled = active2 || (disabled2 && !disabledReason);
-  const content2 = (
+  const content = (
     <>
       <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-foreground/[0.05]">
         <Icon
@@ -118,7 +118,7 @@ export function AccountSwitcherRowSurface({
                 />
               }
             >
-              {content2}
+              {content}
             </TooltipTrigger>
             <TooltipContent>{disabledReason}</TooltipContent>
           </Tooltip>
@@ -144,7 +144,7 @@ export function AccountSwitcherRowSurface({
       data-group-id={dataGroupId}
       data-team-role={dataTeamRole}
     >
-      {content2}
+      {content}
     </Button>
   );
 }

@@ -19,7 +19,7 @@ export function TeamInviteDeepLinkHost() {
       onAcceptingChange={setAccepting}
       onAccepted={handleAccepted}
       onClose={dismissTeamInvite}
-      onError={(message2) => dedupedToast.error(message2)}
+      onError={(message) => dedupedToast.error(message)}
     />
   );
 }
@@ -60,10 +60,10 @@ export function asNullableString(value) {
   return typeof value === "string" && value !== "" ? value : null;
 }
 export function mapAccountProfile(value) {
-  const raw2 = asRecord(value);
+  const raw = asRecord(value);
   return {
-    account: asString(raw2?.account),
-    uid: asString(raw2?.uid),
-    user_name: asString(raw2?.user_name),
+    account: asString(raw?.account),
+    uid: asString(raw?.uid),
+    user_name: asString(raw?.user_name),
   };
 }

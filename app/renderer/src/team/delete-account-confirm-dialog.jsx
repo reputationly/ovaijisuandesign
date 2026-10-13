@@ -99,9 +99,9 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
       clearLocalAuth();
     },
     onError: (error) => {
-      const message2 = backendUserMessage(error);
-      if (message2) {
-        setActionError(message2);
+      const message = backendUserMessage(error);
+      if (message) {
+        setActionError(message);
         return;
       }
       setActionError(
@@ -131,8 +131,8 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
         </AlertDialogHeader>
         <div className="scrollbar-fade min-h-0 space-y-6 overflow-y-auto pr-1.5 [scrollbar-gutter:stable]">
           <ol className="list-decimal space-y-1 rounded-lg bg-secondary py-2.5 pr-3 pl-7 text-xs/relaxed text-foreground/70">
-            {WARNING_KEYS.map((key2) => (
-              <li key={key2}>{t(key2)}</li>
+            {WARNING_KEYS.map((key) => (
+              <li key={key}>{t(key)}</li>
             ))}
           </ol>
           <div className="space-y-2.5">

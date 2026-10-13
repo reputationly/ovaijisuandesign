@@ -20,8 +20,8 @@ import { Label } from "./use-wallet-query.jsx";
 import { TeamMemberCombobox } from "./team-member-combobox.jsx";
 import { accountScopeEquals } from "./account-scope-equals.js";
 import { useInGroupMembersQuery } from "./use-team-transactions-feed-query.jsx";
-let TeamScopeChangedError = class TeamScopeChangedError2 extends Error {};
-class TeamExitResultError2 extends Error {
+let TeamScopeChangedError = class TeamScopeChangedError extends Error {};
+class TeamExitResultError extends Error {
   constructor(result) {
     super(result.status);
     this.result = result;
@@ -44,7 +44,7 @@ export function LeaveTeamDialog({
   onLeft,
 }) {
   const { t } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { activeScope, exitCurrentTeam } = useTeamAccount();
   const { user } = useAuth();
   const selfUserId = user?.userID ?? null;
@@ -71,9 +71,9 @@ export function LeaveTeamDialog({
   const normalizedSearch = searchInput.trim().toLocaleLowerCase();
   const visibleSuccessors = normalizedSearch
     ? eligibleSuccessors.filter(
-        (option2) =>
-          option2.displayName.toLocaleLowerCase().includes(normalizedSearch) ||
-          option2.userId.includes(normalizedSearch),
+        (option) =>
+          option.displayName.toLocaleLowerCase().includes(normalizedSearch) ||
+          option.userId.includes(normalizedSearch),
       )
     : eligibleSuccessors;
   const remoteProvedEmpty =
@@ -125,17 +125,17 @@ export function LeaveTeamDialog({
         result.status === "partial" ||
         result.status === "rejected"
       ) {
-        throw new TeamExitResultError2(result);
+        throw new TeamExitResultError(result);
       }
       return result;
     },
     retry: false,
     onSuccess: () => {
       setActionError(null);
-      queryClient2.removeQueries({
+      queryClient.removeQueries({
         queryKey: teamQueryKeys.membership(scope),
       });
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: teamQueryKeys.contexts(scope.identityKey),
       });
       dedupedToast.success(
@@ -157,7 +157,7 @@ export function LeaveTeamDialog({
         return;
       }
       if (
-        error instanceof TeamExitResultError2 &&
+        error instanceof TeamExitResultError &&
         error.result.status === "partial" &&
         error.result.phase === "OWNERSHIP_TRANSFERRED"
       ) {
@@ -170,7 +170,7 @@ export function LeaveTeamDialog({
         return;
       }
       if (
-        error instanceof TeamExitResultError2 &&
+        error instanceof TeamExitResultError &&
         error.result.status === "partial" &&
         error.result.phase === "EXIT_RESULT_UNKNOWN"
       ) {
@@ -183,7 +183,7 @@ export function LeaveTeamDialog({
         return;
       }
       setActionError(
-        error instanceof TeamExitResultError2 && error.result.status === "busy"
+        error instanceof TeamExitResultError && error.result.status === "busy"
           ? t("team.management.exitBusy", {
               defaultValue:
                 "当前仍有运行中的任务或待发送内容，请完成后再退出团队。",
