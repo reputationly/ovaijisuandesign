@@ -162,14 +162,47 @@ function makeBindingEdits(source, ast, info, bindingInfo, newName, { renameExpor
     const shorthandProperty = parentPath.isObjectProperty()
       ? parentPath
       : parentPath.parentPath?.isObjectProperty() ? parentPath.parentPath : null;
+    const propertyValue = shorthandProperty?.node.value;
+    const isPropertyBinding = propertyValue === node ||
+      (propertyValue?.type === "AssignmentPattern" && propertyValue.left === node);
+    if (
+      shorthandProperty &&
+      !shorthandProperty.node.computed &&
+      shorthandProperty.node.key.type === "Identifier" &&
+      isPropertyBinding &&
+      shorthandProperty.node.key.name === newName
+    ) {
+      edits.push({
+        start: shorthandProperty.node.key.start,
+        end: node.end,
+        text: newName,
+      });
+      return;
+    }
     if (shorthandProperty?.node.shorthand) {
       text = `${original}: ${newName}`;
-    } else if (parentPath.isImportSpecifier() && parentPath.node.local === node &&
-      parentPath.node.imported.name === node.name) {
-      text = `${original} as ${newName}`;
-    } else if (parentPath.isExportSpecifier() && parentPath.node.local === node &&
-      parentPath.node.exported.name === node.name) {
-      text = renameExport ? newName : `${newName} as ${original}`;
+    } else if (parentPath.isImportSpecifier() && parentPath.node.local === node) {
+      if (parentPath.node.imported.type === "Identifier" && parentPath.node.imported.name === newName) {
+        edits.push({
+          start: parentPath.node.imported.start,
+          end: node.end,
+          text: newName,
+        });
+        return;
+      }
+      if (parentPath.node.imported.name === node.name) text = `${original} as ${newName}`;
+    } else if (parentPath.isExportSpecifier() && parentPath.node.local === node) {
+      if (parentPath.node.exported.type === "Identifier" && parentPath.node.exported.name === newName) {
+        edits.push({
+          start: node.start,
+          end: parentPath.node.exported.end,
+          text: newName,
+        });
+        return;
+      }
+      if (parentPath.node.exported.name === node.name) {
+        text = renameExport ? newName : `${newName} as ${original}`;
+      }
     }
     edits.push({ start: node.start, end: node.end, text });
   }
@@ -724,6 +757,17 @@ function equivalenceSummary(result) {
   };
 }
 
+export function localEquivalenceFailures(result) {
+  const failures = [];
+  if (result.status !== "pass") {
+    failures.push({ key: "*", reason: "alpha 归一化等价校验失败" });
+  }
+  if (Object.keys(result.externalNamesDiff).length > 0) {
+    failures.push({ key: "*", reason: "局部改名改变了外部可见名称" });
+  }
+  return failures;
+}
+
 export function renameIdentifiers({ root, srcDir = "app/renderer/src", map, dryRun = false, mode = "local", report } = {}) {
   if (!root || !map || typeof map !== "object" || Array.isArray(map)) {
     throw new Error("renameIdentifiers 需要 root 与映射对象 map");
@@ -747,8 +791,7 @@ export function renameIdentifiers({ root, srcDir = "app/renderer/src", map, dryR
     }
     const changed = localRenameText(before, fileMap, { filename: file });
     const equivalence = checkEquivalence(before, changed.text, { filename: file });
-    const failures = [...changed.rejected];
-    if (equivalence.status !== "pass") failures.push({ key: "*", reason: "alpha 归一化等价校验失败" });
+    const failures = [...changed.rejected, ...localEquivalenceFailures(equivalence)];
     fileReports.push({
       file: relativeFile,
       renames: changed.renames,

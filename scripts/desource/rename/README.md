@@ -37,6 +37,38 @@ CLI 默认从脚本位置确定仓库根；`--root`、`--src` 可覆盖根目录
 
 导出映射以导出文件路径为 key，内部对象为旧导出名到新导出名的映射。短标识符列表工具支持 `--template` 输出空值映射模板。
 
+## 映射示例 + 典型工作流
+
+先列出目标文件的短绑定，并生成可填写的局部映射模板：
+
+```sh
+node scripts/desource/rename/list-short-identifiers.mjs app/renderer/src/chat/example.jsx --json
+node scripts/desource/rename/list-short-identifiers.mjs app/renderer/src/chat/example.jsx \
+  --template .probe/desource/rename/example-map.json
+```
+
+结合声明、所有引用和参数调用处填写语义化名称；导入绑定还应查看来源模块的实现：
+
+```json
+{
+  "app/renderer/src/chat/example.jsx": {
+    "e2@14:17": "markdownText",
+    "t2@29:11": "isStreaming"
+  }
+}
+```
+
+先 dry-run 检查冲突、拒绝项和等价结果，再正式执行。只有报告中的改名、拒绝项和等价结果符合预期时才落盘：
+
+```sh
+node scripts/desource/rename/rename-identifiers.mjs \
+  .probe/desource/rename/example-map.json --mode local --dry-run
+node scripts/desource/rename/rename-identifiers.mjs \
+  .probe/desource/rename/example-map.json --mode local
+node scripts/desource/check-undef.mjs
+pnpm -w turbo run build
+```
+
 ## 报告
 
 文件改名报告包括 `renames`、逐处引用的文件/行/列/旧新说明符、警告和统计。标识符报告按文件记录 `renames`、`rejected`、`skipped` 及等价摘要，其中包括绑定数、规范化 SHA-256 和外部可见名称差异。

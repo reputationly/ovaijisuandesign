@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { renameIdentifiers } from "../lib/rename-identifiers.mjs";
-import { fixture, put } from "./helpers.mjs";
+import { fixture, keyFor, put } from "./helpers.mjs";
 
 describe("导出名重命名", () => {
   it("更新声明、具名导入、别名、命名空间、受限动态导入和再导出", () => {
@@ -66,6 +66,36 @@ console.log(Ab, Panel);
     });
     expect(result.warnings.some((item) => item.includes("保留本地名"))).toBe(true);
     expect(readFileSync(`${root}/app/renderer/src/a.jsx`, "utf8")).toContain("import { Panel as Ab }");
+  });
+
+  it("本地导入名改为 imported 名时收成简写", () => {
+    const root = fixture();
+    const relative = "app/renderer/src/a.jsx";
+    const source = `import { value as localValue } from "./t.jsx";
+console.log(localValue);
+`;
+    put(root, relative, source);
+    const result = renameIdentifiers({
+      root,
+      map: { [relative]: { [keyFor(source, "localValue")]: "value" } },
+      report: "report.json",
+    });
+    expect(result.files[0].equivalence.status).toBe("pass");
+    expect(readFileSync(`${root}/${relative}`, "utf8")).toContain("import { value }");
+  });
+
+  it("本地导出名改为 exported 名时收成简写", () => {
+    const root = fixture();
+    const relative = "app/renderer/src/a.jsx";
+    const source = "const localValue = 1; export { localValue as value };\n";
+    put(root, relative, source);
+    const result = renameIdentifiers({
+      root,
+      map: { [relative]: { [keyFor(source, "localValue")]: "value" } },
+      report: "report.json",
+    });
+    expect(result.files[0].equivalence.status).toBe("pass");
+    expect(readFileSync(`${root}/${relative}`, "utf8")).toContain("export { value }");
   });
 
   it("改名本地绑定时更新简写导出但保留别名导出", () => {

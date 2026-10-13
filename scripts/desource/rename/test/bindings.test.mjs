@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { renameIdentifiers } from "../lib/rename-identifiers.mjs";
+import { localEquivalenceFailures, renameIdentifiers } from "../lib/rename-identifiers.mjs";
 import { checkEquivalence } from "../lib/equivalence.mjs";
 import { fixture, keyFor, put } from "./helpers.mjs";
 import { bindingKey, collectBindings } from "../lib/bindings.mjs";
+import { parse } from "../lib/parse.mjs";
 
 const local = (root, source, names, relative = "app/renderer/src/sample.jsx") => {
   put(root, relative, source);
@@ -76,6 +77,36 @@ function render(a, next = a) {
     const changed = readFileSync(`${root}/app/renderer/src/sample.jsx`, "utf8");
     expect(changed).toContain("function render(item, next = item)");
     expect(changed).toContain("({ a: item } = input);");
+  });
+
+  it("对象属性值改为属性键时收成简写", () => {
+    const root = fixture();
+    const source = "const value = 1; const object = { result: value };\n";
+    const result = local(root, source, { value: "result" });
+    expect(result.files[0].equivalence.status).toBe("pass");
+    expect(readFileSync(`${root}/app/renderer/src/sample.jsx`, "utf8")).toContain(
+      "const object = { result };",
+    );
+  });
+
+  it("解构别名改为属性键时收成简写", () => {
+    const root = fixture();
+    const source = "const { result: value } = input; console.log(value);\n";
+    const result = local(root, source, { value: "result" });
+    expect(result.files[0].equivalence.status).toBe("pass");
+    expect(readFileSync(`${root}/app/renderer/src/sample.jsx`, "utf8")).toContain(
+      "const { result } = input;",
+    );
+  });
+
+  it("解构默认值别名改为属性键时保留默认值并收成简写", () => {
+    const root = fixture();
+    const source = "const { result: value = fallback } = input; console.log(value);\n";
+    const result = local(root, source, { value: "result" });
+    expect(result.files[0].equivalence.status).toBe("pass");
+    expect(readFileSync(`${root}/app/renderer/src/sample.jsx`, "utf8")).toContain(
+      "const { result = fallback } = input;",
+    );
   });
 
   it.each(["window", "externalName", "class", "await", "let"])(
@@ -256,5 +287,21 @@ console.log(view, a);
     const before = "const Component = (value) => render(value,); console.log(Component);\n";
     const after = "const Renderer = (value) => render(value,); console.log(Renderer);\n";
     expect(checkEquivalence(before, after).status).toBe("pass");
+  });
+
+  it("局部模式要求 externalNamesDiff 为空", () => {
+    const before = 'import { value } from "./module.js"; console.log(value);\n';
+    const after = 'import { renamed } from "./module.js"; console.log(renamed);\n';
+    const ast = parse(before);
+    const importedStart = ast.program.body[0].specifiers[0].imported.start;
+    const equivalence = checkEquivalence(before, after, {
+      externalRenames: new Map([[importedStart, "renamed"]]),
+    });
+    expect(equivalence.status).toBe("pass");
+    expect(Object.keys(equivalence.externalNamesDiff)).toEqual(["imports"]);
+    expect(localEquivalenceFailures(equivalence)).toContainEqual({
+      key: "*",
+      reason: "局部改名改变了外部可见名称",
+    });
   });
 });
