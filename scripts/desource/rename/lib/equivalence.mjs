@@ -44,6 +44,7 @@ function normalizeAst(ast, bindingInfo, externalRenames = new Map()) {
         const extra = Object.fromEntries(
           Object.entries(item).filter(([extraKey]) =>
             extraKey !== "parenStart" &&
+            extraKey !== "trailingComma" &&
             !(value.type === "ObjectProperty" && extraKey === "shorthand"),
           ),
         );

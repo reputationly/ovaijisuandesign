@@ -235,4 +235,10 @@ console.log(view, a);
     expect(checkEquivalence(before, "const renamed = externalName; const object = { other: renamed }; console.log(renamed);\n").status).toBe("fail");
     expect(checkEquivalence(before, "const renamed = changedGlobal; const object = { key: renamed }; console.log(renamed);\n").status).toBe("fail");
   });
+
+  it("alpha 归一化忽略尾随逗号的源码偏移", () => {
+    const before = "const Component = (value) => render(value,); console.log(Component);\n";
+    const after = "const Renderer = (value) => render(value,); console.log(Renderer);\n";
+    expect(checkEquivalence(before, after).status).toBe("pass");
+  });
 });
