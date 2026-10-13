@@ -123,9 +123,9 @@ export function layoutCategoryLanes(items, options) {
     const rows = Math.ceil(bucket.length / cols);
     const colWidths = new Array(cols).fill(0);
     const rowHeights = new Array(rows).fill(0);
-    bucket.forEach((item, index2) => {
-      const columnIndex = index2 % cols;
-      const rowIndex = Math.floor(index2 / cols);
+    bucket.forEach((item, index) => {
+      const columnIndex = index % cols;
+      const rowIndex = Math.floor(index / cols);
       if (item.width > colWidths[columnIndex]) colWidths[columnIndex] = item.width;
       if (item.height > rowHeights[rowIndex]) rowHeights[rowIndex] = item.height;
     });
@@ -135,9 +135,9 @@ export function layoutCategoryLanes(items, options) {
     const rowY = new Array(rows).fill(0);
     for (let rowIndex = 1; rowIndex < rows; rowIndex++)
       rowY[rowIndex] = rowY[rowIndex - 1] + rowHeights[rowIndex - 1] + itemGap;
-    bucket.forEach((item, index2) => {
-      const columnIndex = index2 % cols;
-      const rowIndex = Math.floor(index2 / cols);
+    bucket.forEach((item, index) => {
+      const columnIndex = index % cols;
+      const rowIndex = Math.floor(index / cols);
       positions.set(item.id, {
         x: colX[columnIndex],
         y: laneTop + rowY[rowIndex],

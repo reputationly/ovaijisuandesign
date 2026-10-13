@@ -153,8 +153,8 @@ function placeVerticalLayered(
       inDeg.set(edge.target, (inDeg.get(edge.target) ?? 0) + 1);
     }
   }
-  for (const list2 of adj.values()) {
-    list2.sort(
+  for (const list of adj.values()) {
+    list.sort(
       (firstChildId, secondChildId) => (orderIndex.get(firstChildId) ?? 0) - (orderIndex.get(secondChildId) ?? 0),
     );
   }

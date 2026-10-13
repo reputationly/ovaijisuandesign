@@ -1,4 +1,5 @@
 key	old	new	依据
+list2@156:14	list2	list	去掉打包器去重后缀，恢复原名；作用域内无同名冲突。
 mode2@19:34	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 n2@23:23	n2	childCount	按画布分层/网格布局的尺寸与位置计算的实际用途命名，childCount表示对应的节点、索引、尺寸或位置值。
 children2@27:20	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
