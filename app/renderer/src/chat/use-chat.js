@@ -381,15 +381,15 @@ export function useChat(
     return active ? active.previousSessionId : void 0;
   }, []);
   const publishTextEditSessionIds = reactExports.useCallback(() => {
-    const ids = new Set(
+    const nextTextEditSessionIds = new Set(
       collectTextEditSessionIds(textEditBindingsRef.current),
     );
     const active = activeTextEditAgentRef.current;
     const activeSessionId = active?.sessionId;
-    if (activeSessionId) ids.add(activeSessionId);
-    textEditSessionIdsRef.current = ids;
+    if (activeSessionId) nextTextEditSessionIds.add(activeSessionId);
+    textEditSessionIdsRef.current = nextTextEditSessionIds;
     setTextEditSessionIds((current) =>
-      equalStringSets(current, ids) ? current : ids,
+      equalStringSets(current, nextTextEditSessionIds) ? current : nextTextEditSessionIds,
     );
     const nodeIds = active
       ? new Set(
@@ -531,13 +531,13 @@ export function useChat(
       currentInputTextRef.current = text;
       currentInputEditorDocRef.current = editorDoc;
       const sessionId = sessionStore.getState().focusedSessionId;
-      const key = sessionId ?? DRAFT_NEW_TAB;
+      const draftSessionKey = sessionId ?? DRAFT_NEW_TAB;
       const draft = {
         text,
         editorDoc,
         attachments: currentAttachmentsRef.current,
       };
-      draftController.set(key, draft);
+      draftController.set(draftSessionKey, draft);
       const activeTextEdit = activeTextEditAgentRef.current;
       if (activeTextEdit) {
         draftController.set(
@@ -552,13 +552,13 @@ export function useChat(
     (attachments) => {
       currentAttachmentsRef.current = attachments;
       const sessionId = sessionStore.getState().focusedSessionId;
-      const key = sessionId ?? DRAFT_NEW_TAB;
+      const draftSessionKey = sessionId ?? DRAFT_NEW_TAB;
       const draft = {
         text: currentInputTextRef.current,
         editorDoc: currentInputEditorDocRef.current,
         attachments,
       };
-      draftController.set(key, draft);
+      draftController.set(draftSessionKey, draft);
       const activeTextEdit = activeTextEditAgentRef.current;
       if (activeTextEdit) {
         draftController.set(
@@ -684,8 +684,8 @@ export function useChat(
   );
   const restoreDraft = reactExports.useCallback(() => {
     const sessionId = sessionStore.getState().focusedSessionId;
-    const key = sessionId ?? DRAFT_NEW_TAB;
-    const restored = draftController.restore(key);
+    const draftSessionKey = sessionId ?? DRAFT_NEW_TAB;
+    const restored = draftController.restore(draftSessionKey);
     if (!restored && currentInputTextRef.current) {
       return;
     }
@@ -869,9 +869,9 @@ export function useChat(
     [updateQueuedUserMessages],
   );
   const removeQueuedUserMessages = reactExports.useCallback(
-    (sessionId, ids) => {
-      const queueIds = new Set(ids.queueIds ?? []);
-      const clientMessageIds = new Set(ids.clientMessageIds ?? []);
+    (sessionId, messageIdGroups) => {
+      const queueIds = new Set(messageIdGroups.queueIds ?? []);
+      const clientMessageIds = new Set(messageIdGroups.clientMessageIds ?? []);
       updateQueuedUserMessages(sessionId, (prev) => {
         if (queueIds.size === 0 && clientMessageIds.size === 0) return [];
         return prev.filter(

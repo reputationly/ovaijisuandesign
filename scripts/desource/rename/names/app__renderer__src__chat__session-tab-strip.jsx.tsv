@@ -72,3 +72,8 @@ next2@826:13	next	`next` 是此处持有的标识值，末尾数字是打包器�
 raw2@841:11	raw	`raw` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
 name2@882:17	newTitle	`newTitle` 是传给重命名回调的新标题，避免与全局 `name` 冲突。
 isActive2@1090:21	isActive	`isActive` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+key@79:36	categoryKey	`categoryKey` 标识费用类别，用于创建可见类别行并读取对应金额。
+key@83:14	categoryKey	`categoryKey` 标识费用类别，用于筛选非零费用并添加类别行。
+raw@100:20	responseData	`responseData` 是待校验并转换为费用记录的接口响应值。
+raw@163:9	responseBody	`responseBody` 是费用分块请求解析得到的 JSON 响应。
+raw@841:11	storedStatus	`storedStatus` 是从会话状态映射中读取的当前状态值。

@@ -104,7 +104,7 @@ function buildMentionThumbUrl(
 }
 const MentionThumb = reactExports.memo(function MentionThumb({ item }) {
   const gatewayUrl = useGatewayUrl();
-  const url = buildMentionThumbUrl(
+  const thumbnailUrl = buildMentionThumbUrl(
     gatewayUrl,
     item.kind,
     item.path,
@@ -117,7 +117,7 @@ const MentionThumb = reactExports.memo(function MentionThumb({ item }) {
     width: THUMB_PX,
     height: THUMB_PX,
   };
-  if (!url || errored) {
+  if (!thumbnailUrl || errored) {
     return (
       <span className={wrapperCls} style={wrapperStyle}>
         {(item.kind === "image" ||
@@ -145,7 +145,7 @@ const MentionThumb = reactExports.memo(function MentionThumb({ item }) {
   return (
     <span className={wrapperCls} style={wrapperStyle}>
       <img
-        src={url}
+        src={thumbnailUrl}
         alt=""
         loading="lazy"
         decoding="async"
@@ -494,19 +494,19 @@ export function MentionPopover({
     }
   }, [activeIndex]);
   const handleTabClick = reactExports.useCallback(
-    (tab) => {
-      setActiveTab(tab);
-      if (tab === "assets") return;
+    (targetTab) => {
+      setActiveTab(targetTab);
+      if (targetTab === "assets") return;
       const target =
-        tab === "references"
+        targetTab === "references"
           ? "reference"
-          : tab === "connectors"
+          : targetTab === "connectors"
             ? "connector"
-            : tab === "files"
+            : targetTab === "files"
               ? "file"
-              : tab === "project-assets"
+              : targetTab === "project-assets"
                 ? "project-asset"
-                : tab === "workflows"
+                : targetTab === "workflows"
                   ? "workflow"
                   : "model";
       const categoryIndex = items.findIndex((item) => item.category === target);
@@ -547,11 +547,11 @@ export function MentionPopover({
     workflowScopeTab,
   ]);
   const globalIndexMap = reactExports.useMemo(() => {
-    const map = new Map();
+    const itemIndexByItem = new Map();
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-      map.set(items[itemIndex], itemIndex);
+      itemIndexByItem.set(items[itemIndex], itemIndex);
     }
-    return map;
+    return itemIndexByItem;
   }, [items]);
   const handleWorkflowScopeTabChange = reactExports.useCallback(
     (value) => {
@@ -683,19 +683,19 @@ export function MentionPopover({
       </div>
       <div className="flex overflow-x-auto border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.filter(
-          (tab) =>
+          (tabDefinition) =>
             !(
               hideAssetMention &&
-              (tab.key === "assets" || tab.key === "project-assets")
+              (tabDefinition.key === "assets" || tabDefinition.key === "project-assets")
             ),
-        ).map(({ key, labelKey, fallback }) => {
-          const isActive = activeTab === key;
+        ).map(({ key: tabKey, labelKey, fallback }) => {
+          const isActive = activeTab === tabKey;
           return (
             <button
-              key={key}
+              key={tabKey}
               type="button"
-              data-action-ui-id={`mention-tab-${key}`}
-              onClick={() => handleTabClick(key)}
+              data-action-ui-id={`mention-tab-${tabKey}`}
+              onClick={() => handleTabClick(tabKey)}
               className={`flex-1 shrink-0 whitespace-nowrap px-3 py-2 text-xs transition-colors ${isActive ? "text-foreground border-b-2 border-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {translate(labelKey, fallback)}
@@ -857,22 +857,22 @@ export function MentionPopover({
           <div className="flex-1 flex flex-col min-h-0">
             {!isSearching && availableTabs.length > 0 && (
               <div className="shrink-0 px-3 py-2 flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {availableTabs.map((tab) => (
+                {availableTabs.map((availableModelTab) => (
                   <Button
-                    key={tab}
+                    key={availableModelTab}
                     type="button"
-                    variant={modelTab === tab ? "default" : "ghost"}
+                    variant={modelTab === availableModelTab ? "default" : "ghost"}
                     size="xs"
-                    data-action-ui-id={`mention-model-tab-${tab}`}
+                    data-action-ui-id={`mention-model-tab-${availableModelTab}`}
                     className={mergeClassNames(
                       "shrink-0 whitespace-nowrap rounded-sm",
-                      modelTab === tab
+                      modelTab === availableModelTab
                         ? ""
                         : "bg-muted text-muted-foreground hover:bg-muted/80",
                     )}
-                    onClick={() => setModelTab(tab)}
+                    onClick={() => setModelTab(availableModelTab)}
                   >
-                    {translate(`mention.popover.${tab}`, tab)}
+                    {translate(`mention.popover.${availableModelTab}`, availableModelTab)}
                   </Button>
                 ))}
               </div>

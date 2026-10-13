@@ -11,12 +11,12 @@ class MessageWithdrawals {
   }
   rememberPart(sessionId, partId, runtimeMessageId) {
     if (!this.has(sessionId, runtimeMessageId)) return;
-    let ids = this.partIds.get(sessionId);
-    if (!ids) {
-      ids = new Set();
-      this.partIds.set(sessionId, ids);
+    let partIds = this.partIds.get(sessionId);
+    if (!partIds) {
+      partIds = new Set();
+      this.partIds.set(sessionId, partIds);
     }
-    ids.add(partId);
+    partIds.add(partId);
   }
   hasPart(sessionId, partId) {
     return this.partIds.get(sessionId)?.has(partId) ?? false;

@@ -107,3 +107,7 @@ node2@1702:38	node	`node` 是此处持有的标识值，末尾数字是打包器
 nav2@1922:17	nav	`nav` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
 name2@1995:20	assetName	`assetName` 是添加资源路径时传入的文件名称，避免与全局 `name` 冲突。
 path2@2124:13	path	`path` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+doc@508:17	parsedDocument	`parsedDocument` 是解析输入文本或提及节点后得到的编辑器文档 JSON。
+add@538:21	addMentionedFileFromPath	`addMentionedFileFromPath` 将提及的文件路径加入附件，供编辑器提交。
+cmd@1157:13	slashCommandText	`slashCommandText` 是由技能名称构成、用于输入匹配的斜杠命令文本。
+nav@1922:17	historyNavigationResult	`historyNavigationResult` 是历史导航返回的消息或草稿状态。

@@ -505,14 +505,14 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
             return false;
           const parser = parseInputRef.current;
           if (!parser) return false;
-          const doc = ownChips
+          const parsedDocument = ownChips
             ? DOMParser.fromSchema(view.state.schema)
                 .parse(container, {
                   preserveWhitespace: "full",
                 })
                 .toJSON()
             : parser(text);
-          const inlineJSON = (doc.content ?? []).flatMap((block, index) => [
+          const inlineJSON = (parsedDocument.content ?? []).flatMap((block, index) => [
             ...(index > 0
               ? [
                   {
@@ -535,7 +535,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
             }
             view.dispatch(transaction);
             queueMicrotask(() => {
-              const add = addFromAssetPathRef.current;
+              const addMentionedFileFromPath = addFromAssetPathRef.current;
               const seen = new Set();
               for (const nodeJson of inlineJSON) {
                 if (nodeJson.type !== "mentionRef") continue;
@@ -548,7 +548,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
                   continue;
                 if (!attrs.path || seen.has(attrs.path)) continue;
                 seen.add(attrs.path);
-                add(attrs.path, attrs.name || basename(attrs.path));
+                addMentionedFileFromPath(attrs.path, attrs.name || basename(attrs.path));
               }
             });
             return true;
@@ -1154,12 +1154,12 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
     if (!skillsToScan.length) return [];
     const ranges = [];
     for (const skill of skillsToScan) {
-      const cmd = `/${skill.name}`;
+      const slashCommandText = `/${skill.name}`;
       let searchPosition = 0;
-      while (searchPosition <= input.length - cmd.length) {
-        const matchIndex = input.indexOf(cmd, searchPosition);
+      while (searchPosition <= input.length - slashCommandText.length) {
+        const matchIndex = input.indexOf(slashCommandText, searchPosition);
         if (matchIndex === -1) break;
-        const endPos = matchIndex + cmd.length;
+        const endPos = matchIndex + slashCommandText.length;
         if (
           endPos === input.length ||
           input[endPos] === " " ||
@@ -1919,14 +1919,14 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
           : 0;
         if (cursorPosition >= input.length) {
           event.preventDefault();
-          const nav = messageHistoryController.navigateDown();
-          if (nav) {
-            if (nav.type === "history") {
-              loadHistoryMessage(nav.message, "end");
+          const historyNavigationResult = messageHistoryController.navigateDown();
+          if (historyNavigationResult) {
+            if (historyNavigationResult.type === "history") {
+              loadHistoryMessage(historyNavigationResult.message, "end");
             } else {
               clear();
-              setInput(nav.text);
-              for (const attachmentPath of nav.attachmentPaths) {
+              setInput(historyNavigationResult.text);
+              for (const attachmentPath of historyNavigationResult.attachmentPaths) {
                 addFromAssetPath(attachmentPath, filenameFromPath(attachmentPath));
               }
             }

@@ -58,3 +58,6 @@ types2@1741:11	types	`types` 是此处持有的标识值，末尾数字是打包
 raw2@1795:13	raw	`raw` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
 data2@1799:15	data	`data` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
 message2@1938:12	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+ids@636:11	childSessionIdSet	`childSessionIdSet` 收集待恢复子会话的 ID，供后续判断子会话是否正在恢复。
+seq@855:13	showcaseSelectionSequence	`showcaseSelectionSequence` 标记异步场景选择请求的先后，防止过期结果更新界面。
+raw@1795:13	serializedSkillDragData	`serializedSkillDragData` 是从拖放事件读取、等待解析的技能数据字符串。

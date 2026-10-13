@@ -76,15 +76,15 @@ function bucketSessionCost(cost) {
 const ALWAYS_VISIBLE = ["image", "video", "audio"];
 const CONDITIONAL = ["agent", "other"];
 function visibleCostCategories(buckets) {
-  const rows = ALWAYS_VISIBLE.map((key) => ({
-    key,
-    amount: buckets[key],
+  const rows = ALWAYS_VISIBLE.map((categoryKey) => ({
+    key: categoryKey,
+    amount: buckets[categoryKey],
   }));
-  for (const key of CONDITIONAL) {
-    if (buckets[key] > 0)
+  for (const categoryKey of CONDITIONAL) {
+    if (buckets[categoryKey] > 0)
       rows.push({
-        key,
-        amount: buckets[key],
+        key: categoryKey,
+        amount: buckets[categoryKey],
       });
   }
   return rows;
@@ -97,13 +97,13 @@ function toNumber(value) {
   }
   return 0;
 }
-function mapResult(raw) {
-  if (typeof raw !== "object" || raw === null)
+function mapResult(responseData) {
+  if (typeof responseData !== "object" || responseData === null)
     return {
       totalAmount: 0,
       items: [],
     };
-  const record = raw;
+  const record = responseData;
   const rawItems = Array.isArray(record.items) ? record.items : [];
   return {
     totalAmount: toNumber(record.total_amount),
@@ -160,9 +160,9 @@ async function fetchSessionCostChunk(sessionIds, signal) {
     }),
     signal,
   });
-  const raw = await response.json();
+  const responseBody = await response.json();
   signal?.throwIfAborted();
-  return mapResult(raw);
+  return mapResult(responseBody);
 }
 async function fetchSessionCost(sessionIds, options) {
   if (sessionIds.length === 0)
@@ -838,8 +838,8 @@ export function SessionTabStrip({
   }, [focusedSessionId, openedTabOrder]);
   const statusById = new Map(rawStatusById);
   for (const sessionId of unreadIds) {
-    const raw = statusById.get(sessionId);
-    if (!raw || raw.kind === "idle") {
+    const storedStatus = statusById.get(sessionId);
+    if (!storedStatus || storedStatus.kind === "idle") {
       statusById.set(sessionId, {
         kind: "unread",
       });

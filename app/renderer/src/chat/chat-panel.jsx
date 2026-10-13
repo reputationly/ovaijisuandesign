@@ -633,13 +633,13 @@ export function ChatPanel({
     Math.round((stalledBasisMs ?? 0) / MILLISECONDS_PER_MINUTE),
   );
   const recoveringChildSessionIds = reactExports.useMemo(() => {
-    const ids = new Set();
+    const childSessionIdSet = new Set();
     for (const pendingReason of pendingReasons) {
       if (pendingReason.kind === "generation_recovery") {
-        for (const childSessionId of pendingReason.childSessionIds ?? []) ids.add(childSessionId);
+        for (const childSessionId of pendingReason.childSessionIds ?? []) childSessionIdSet.add(childSessionId);
       }
     }
-    return ids;
+    return childSessionIdSet;
   }, [pendingReasons]);
   const isRecovering = pendingReasons.some(
     (pendingReason) => pendingReason.kind === "generation_recovery",
@@ -852,7 +852,7 @@ export function ChatPanel({
     (item) => {
       if (composerSendPreparingRef.current) return;
       if (item.action.kind !== "query" || !inputRef.current) return;
-      const seq = ++showcaseSelectionSeqRef.current;
+      const showcaseSelectionSequence = ++showcaseSelectionSeqRef.current;
       showcaseAttachmentAbortRef.current?.abort();
       const hasDownloadableAttachments = item.action.query.attachments.some(
         (attachment) => attachment.assetUrl,
@@ -871,7 +871,7 @@ export function ChatPanel({
         signal: abortController?.signal,
       })
         .then(({ failed }) => {
-          if (seq !== showcaseSelectionSeqRef.current || failed.length === 0)
+          if (showcaseSelectionSequence !== showcaseSelectionSeqRef.current || failed.length === 0)
             return;
           dedupedToast.warning(
             translate("home.scene.assetFetchFailed", {
@@ -884,7 +884,7 @@ export function ChatPanel({
         })
         .catch((error) => {
           if (
-            seq !== showcaseSelectionSeqRef.current ||
+            showcaseSelectionSequence !== showcaseSelectionSeqRef.current ||
             abortController?.signal.aborted
           )
             return;
@@ -909,7 +909,7 @@ export function ChatPanel({
           );
         })
         .finally(() => {
-          if (seq !== showcaseSelectionSeqRef.current) return;
+          if (showcaseSelectionSequence !== showcaseSelectionSeqRef.current) return;
           if (showcaseAttachmentAbortRef.current === abortController) {
             showcaseAttachmentAbortRef.current = null;
           }
@@ -1792,11 +1792,11 @@ export function ChatPanel({
         }
         return;
       }
-      const raw = dragEvent.dataTransfer.getData(SKILL_DRAG_MIME);
-      if (!raw) return;
+      const serializedSkillDragData = dragEvent.dataTransfer.getData(SKILL_DRAG_MIME);
+      if (!serializedSkillDragData) return;
       dragEvent.preventDefault();
       try {
-        const data = JSON.parse(raw);
+        const data = JSON.parse(serializedSkillDragData);
         inputRef.current?.selectSkillDirect(data.skill);
       } catch {}
     },

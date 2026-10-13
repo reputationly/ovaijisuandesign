@@ -59,3 +59,9 @@ tab2@686:12	tab	`tab` 是此处持有的标识值，末尾数字是打包器为�
 key2@691:23	key	`key` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
 isActive2@692:17	isActive	`isActive` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
 tab2@860:37	tab	`tab` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+url@107:9	thumbnailUrl	`thumbnailUrl` 是根据提及资源信息生成、用于预览图像的 URL。
+tab@497:6	targetTab	`targetTab` 是用户选择后要激活的提及面板标签。
+map@550:11	itemIndexByItem	`itemIndexByItem` 将项目对象映射到其在列表中的原始下标。
+tab@686:12	tabDefinition	`tabDefinition` 描述一个可用提及标签及其 key、文案配置。
+key@691:18	tabKey	`tabKey` 是标签配置中用于激活态、React key 和事件标识的标签键。
+tab@860:37	availableModelTab	`availableModelTab` 是可选的模型媒体类别，用于切换模型标签。

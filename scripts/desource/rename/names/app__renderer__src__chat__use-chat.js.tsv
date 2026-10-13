@@ -187,3 +187,8 @@ active2@4466:13	active	`active` 是此处持有的标识值，末尾数字是打
 state2@4487:13	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
 message2@4526:60	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
 state2@4561:10	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+ids@384:11	nextTextEditSessionIds	`nextTextEditSessionIds` 汇总绑定和当前活动的文本编辑会话 ID，供 ref 与状态更新使用。
+key@534:13	draftSessionKey	`draftSessionKey` 是当前会话或新标签草稿在草稿控制器中的存储键。
+key@555:13	draftSessionKey	`draftSessionKey` 是当前会话或新标签草稿在草稿控制器中的存储键。
+key@687:11	draftSessionKey	`draftSessionKey` 是当前会话或新标签草稿在草稿控制器中的存储键。
+ids@872:17	messageIdGroups	`messageIdGroups` 同时携带队列消息 ID 和客户端消息 ID，用于批量移除消息。
