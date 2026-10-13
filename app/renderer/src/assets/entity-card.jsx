@@ -29,7 +29,7 @@ export function EntityCard({
   onClick,
   onMaterialize,
   draggable = false,
-  selected: selected2 = false,
+  selected = false,
   onToggleSelect,
 }) {
   const { t: translate } = useTranslation();
@@ -81,8 +81,8 @@ export function EntityCard({
     setIsEditing(true);
   }, []);
   const commitEdit = reactExports.useCallback(async () => {
-    const next2 = draftDescription.trim();
-    if (next2 === entity.description.trim()) {
+    const next = draftDescription.trim();
+    if (next === entity.description.trim()) {
       setIsEditing(false);
       return;
     }
@@ -90,7 +90,7 @@ export function EntityCard({
       await updateMutation.mutateAsync({
         entityId: entity.id,
         input: {
-          description: next2,
+          description: next,
         },
       });
     } catch {
@@ -106,10 +106,10 @@ export function EntityCard({
   const handleExport = reactExports.useCallback(
     (clickEvent) => {
       clickEvent.stopPropagation();
-      const url2 = exportUrl(entity.id);
-      if (!url2) return;
+      const url = exportUrl(entity.id);
+      if (!url) return;
       const anchor = document.createElement("a");
-      anchor.href = url2;
+      anchor.href = url;
       anchor.rel = "noopener";
       document.body.appendChild(anchor);
       anchor.click();
@@ -143,7 +143,7 @@ export function EntityCard({
       onDragStart={draggable ? handleDragStart : void 0}
       data-action-ui-id="asset-center-entity-card"
       data-entity-id={entity.id}
-      className={`group flex flex-col bg-card text-left border rounded-lg transition-colors overflow-hidden focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:outline-none ${selected2 ? "border-foreground" : "border-border hover:border-foreground/40"} ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
+      className={`group flex flex-col bg-card text-left border rounded-lg transition-colors overflow-hidden focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:outline-none ${selected ? "border-foreground" : "border-border hover:border-foreground/40"} ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
     >
       <div className="relative aspect-[4/3] bg-muted flex items-center justify-center overflow-hidden">
         {thumbnailSrc ? (
@@ -160,14 +160,14 @@ export function EntityCard({
         {onToggleSelect && (
           // biome-ignore lint/a11y/noStaticElementInteractions: event boundary only; the child Checkbox owns all interaction semantics.
           <span
-            className={`absolute top-1 left-1 transition-opacity ${selected2 ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
+            className={`absolute top-1 left-1 transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
             onClick={(event) => event.stopPropagation()}
             onKeyDown={(event) => event.stopPropagation()}
           >
             <Checkbox
               shape="circle"
               appearance="card"
-              checked={selected2}
+              checked={selected}
               aria-label={`${translate("projectAssets.selectRow")}: ${entity.name}`}
               data-action-ui-id="asset-center-entity-card.select"
               onCheckedChange={() => onToggleSelect()}

@@ -1,2 +1,10 @@
 key	old	new	依据
 d2@48:13	d2	durationSeconds	该值是视频或音频元素探测到的时长秒数。
+index2@14:13	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+url2@35:11	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+getPath2@61:3	getPath2	getPath	去掉打包器防重名追加的后缀，恢复原名 getPath，即该绑定持有的值。
+index2@68:15	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+path2@83:11	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+accepted2@109:18	accepted2	accepted	去掉打包器防重名追加的后缀，恢复原名 accepted，即该绑定持有的值。
+index2@112:37	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+accepted2@141:18	accepted2	accepted	去掉打包器防重名追加的后缀，恢复原名 accepted，即该绑定持有的值。

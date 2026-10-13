@@ -17,3 +17,8 @@ s2@271:16	s2	stagedAttachment	该值是筛选后保留的既有或已上传附�
 s2@272:13	s2	stagedAttachment	该值是映射为保存请求数据的暂存附件条目。
 e2@389:30	e2	changeEvent	该事件提供实体名称输入框的新文本。
 e2@427:30	e2	changeEvent	该事件提供实体描述输入框的新文本。
+name2@79:10	name2	entityName	该状态值是正在编辑的实体名称。
+type2@80:10	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+tags2@82:10	tags2	tags	去掉打包器防重名追加的后缀，恢复原名 tags，即该绑定持有的值。
+url2@219:11	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+meta2@274:15	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。

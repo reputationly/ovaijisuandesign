@@ -41,30 +41,30 @@ import { trackAssetUse } from "./use-materialized-entities.jsx";
 const THUMB_PX = 32;
 const COMPACT_MENU_ITEM_CLASS =
   "gap-2 px-2.5 py-1.5 text-[11px] [&_svg:not([class*=size-])]:size-3.5";
-function EntityTypeIcon({ type: type2 }) {
-  if (type2 === "character")
+function EntityTypeIcon({ type }) {
+  if (type === "character")
     return <ImageOutlineIcon size={16} strokeWidth={1.67} />;
-  if (type2 === "scene") return <Video size={16} />;
-  if (type2 === "style_pack") return <Music size={16} />;
+  if (type === "scene") return <Video size={16} />;
+  if (type === "style_pack") return <Music size={16} />;
   return <File size={16} />;
 }
 function EntityThumb({ entity }) {
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
   const wrapperCls =
     "flex-shrink-0 flex items-center justify-center bg-muted overflow-hidden text-muted-foreground rounded-[4px]";
-  const wrapperStyle2 = {
+  const wrapperStyle = {
     width: THUMB_PX,
     height: THUMB_PX,
   };
   const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
   const resolvedUrl = previewUrl
-    ? withThumbnail(gatewayUrl2(previewUrl), THUMB_PX)
+    ? withThumbnail(gatewayUrl(previewUrl), THUMB_PX)
     : void 0;
   const fallbackKind = entity.primaryAttachmentKind;
   if (!resolvedUrl || errored) {
     return (
-      <span className={wrapperCls} style={wrapperStyle2}>
+      <span className={wrapperCls} style={wrapperStyle}>
         {fallbackKind ? (
           <FileTypeIcon
             {...(fallbackKind === "document"
@@ -86,7 +86,7 @@ function EntityThumb({ entity }) {
     );
   }
   return (
-    <span className={wrapperCls} style={wrapperStyle2}>
+    <span className={wrapperCls} style={wrapperStyle}>
       <img
         src={resolvedUrl}
         alt=""
@@ -100,11 +100,11 @@ function EntityThumb({ entity }) {
   );
 }
 function EntityGridCover({ entity }) {
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
   const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
   const resolvedUrl = previewUrl
-    ? withThumbnail(gatewayUrl2(previewUrl), 240)
+    ? withThumbnail(gatewayUrl(previewUrl), 240)
     : void 0;
   const fallbackKind = entity.primaryAttachmentKind;
   if (!resolvedUrl || errored) {
@@ -142,7 +142,7 @@ function EntityGridCover({ entity }) {
     />
   );
 }
-export const EntityRow = reactExports.memo(function EntityRow2({
+export const EntityRow = reactExports.memo(function EntityRow({
   entity,
   workspacePath,
   isMaterialized,
@@ -180,10 +180,10 @@ export const EntityRow = reactExports.memo(function EntityRow2({
         );
       })
       .catch((err) => {
-        const message2 = err instanceof Error ? err.message : String(err);
+        const message = err instanceof Error ? err.message : String(err);
         dedupedToast.error(
           translate("assetSidebarPanel.materializeError", {
-            message: message2,
+            message,
           }),
         );
       });

@@ -1,2 +1,16 @@
 key	old	new	依据
 t2@88:14	t2	translate	该绑定是文件夹下钻选择器读取界面文案的翻译函数。
+option2@18:26	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@20:6	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+index2@23:40	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+path2@26:30	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+option2@28:6	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+index2@31:29	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+selected2@91:9	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+children2@99:9	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+hasChildren2@103:9	hasChildren2	hasChildren	去掉打包器防重名追加的后缀，恢复原名 hasChildren，即该绑定持有的值。
+option2@92:25	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@104:6	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+next2@108:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+key2@116:6	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+index2@192:37	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。

@@ -62,7 +62,7 @@ export function EntityListRow({
   onDelete,
   draggable,
   isLast,
-  selected: selected2,
+  selected,
   onToggleSelect,
 }) {
   const { t: translate, i18n } = useTranslation();
@@ -117,17 +117,17 @@ export function EntityListRow({
       onDragStart={draggable ? handleDragStart : void 0}
       data-action-ui-id="asset-center-entity-list-row"
       data-entity-id={entity.id}
-      className={`group flex w-full items-center gap-3 px-3 py-2 text-left transition-colors focus-visible:outline-none ${selected2 ? "bg-muted/50" : "hover:bg-muted/30 focus-visible:bg-muted/30"} ${isLast ? "" : "border-b border-border"} ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
+      className={`group flex w-full items-center gap-3 px-3 py-2 text-left transition-colors focus-visible:outline-none ${selected ? "bg-muted/50" : "hover:bg-muted/30 focus-visible:bg-muted/30"} ${isLast ? "" : "border-b border-border"} ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
     >
       {onToggleSelect && (
         // biome-ignore lint/a11y/noStaticElementInteractions: event boundary only; the child Checkbox owns all interaction semantics.
         <span
-          className={`shrink-0 transition-opacity ${selected2 ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
+          className={`shrink-0 transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >
           <Checkbox
-            checked={selected2}
+            checked={selected}
             aria-label={`${translate("projectAssets.selectRow")}: ${entity.name}`}
             data-action-ui-id="asset-center-entity-list-row.select"
             onCheckedChange={() => onToggleSelect()}

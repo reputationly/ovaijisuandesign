@@ -76,10 +76,10 @@ export function EntityEditDialog({
   const updateMutation = useUpdateEntity();
   const uploadMutation = useUploadBlob();
   const exportUrl = useExportEntityUrl();
-  const [name2, setName] = reactExports.useState("");
-  const [type2, setType] = reactExports.useState("character");
+  const [entityName, setName] = reactExports.useState("");
+  const [type, setType] = reactExports.useState("character");
   const [description, setDescription] = reactExports.useState("");
-  const [tags2, setTags] = reactExports.useState([]);
+  const [tags, setTags] = reactExports.useState([]);
   const [staged, setStaged] = reactExports.useState([]);
   const [coverBlobPath, setCoverBlobPath] = reactExports.useState(null);
   const [error, setError] = reactExports.useState(null);
@@ -146,9 +146,9 @@ export function EntityEditDialog({
   }, [entityId, canvasQuery.data, viewMode]);
   const loadError =
     entityId !== null && canvasQuery.isError ? canvasQuery.error : null;
-  const trimmedName = name2.trim();
+  const trimmedName = entityName.trim();
   const trimmedDescription = description.trim();
-  const descriptionRequired = !!canvasQuery.data && type2 === "style_pack";
+  const descriptionRequired = !!canvasQuery.data && type === "style_pack";
   const descriptionMissing =
     descriptionRequired && trimmedDescription.length === 0;
   const isSubmitting = updateMutation.isPending;
@@ -158,22 +158,22 @@ export function EntityEditDialog({
     const nextMetadata = {
       ...canvasQuery.data?.metadata,
     };
-    if (tags2.length > 0) nextMetadata.tags = tags2;
+    if (tags.length > 0) nextMetadata.tags = tags;
     else delete nextMetadata.tags;
     if (coverBlobPath) nextMetadata.coverBlobPath = coverBlobPath;
     else delete nextMetadata.coverBlobPath;
     return nextMetadata;
-  }, [canvasQuery.data?.metadata, coverBlobPath, tags2]);
+  }, [canvasQuery.data?.metadata, coverBlobPath, tags]);
   const isDirty = reactExports.useMemo(() => {
     if (!canvasQuery.data) return false;
     const ent = canvasQuery.data;
     if (trimmedName !== ent.name) return true;
-    if (type2 !== ent.type) return true;
+    if (type !== ent.type) return true;
     if (trimmedDescription !== (ent.description ?? "")) return true;
     const origTags = ent.metadata?.tags ?? [];
     if (
-      tags2.length !== origTags.length ||
-      tags2.some((tag, tagIndex) => tag !== origTags[tagIndex])
+      tags.length !== origTags.length ||
+      tags.some((tag, tagIndex) => tag !== origTags[tagIndex])
     )
       return true;
     if (coverBlobPath !== (ent.metadata.coverBlobPath ?? null)) return true;
@@ -199,9 +199,9 @@ export function EntityEditDialog({
     canvasQuery.data,
     coverBlobPath,
     trimmedName,
-    type2,
+    type,
     trimmedDescription,
-    tags2,
+    tags,
     staged,
   ]);
   const canSave =
@@ -216,10 +216,10 @@ export function EntityEditDialog({
     !!canvasQuery.data && canvasQuery.data.attachments.length > 0;
   const handleExport = reactExports.useCallback(() => {
     if (!canvasQuery.data) return;
-    const url2 = exportUrl(canvasQuery.data.id);
-    if (!url2) return;
+    const url = exportUrl(canvasQuery.data.id);
+    if (!url) return;
     const anchor = document.createElement("a");
-    anchor.href = url2;
+    anchor.href = url;
     anchor.rel = "noopener";
     document.body.appendChild(anchor);
     anchor.click();
@@ -244,10 +244,10 @@ export function EntityEditDialog({
           action: "edit_dialog_close",
           surface: "edit_dialog",
           entity_id: canvasQuery.data.id,
-          entity_type: type2,
+          entity_type: type,
           had_edits: isDirty,
           attachment_count: staged.length,
-          tag_count: tags2.length,
+          tag_count: tags.length,
           value: reason,
         });
       }
@@ -257,10 +257,10 @@ export function EntityEditDialog({
       isSubmitting,
       hasUploadInFlight,
       canvasQuery.data,
-      type2,
+      type,
       isDirty,
       staged.length,
-      tags2.length,
+      tags.length,
       onClose,
     ],
   );
@@ -271,12 +271,12 @@ export function EntityEditDialog({
       .filter((stagedAttachment) => stagedAttachment.status === "existing" || stagedAttachment.status === "uploaded")
       .map((stagedAttachment) => {
         const userDesc = stagedAttachment.caption?.trim();
-        const meta2 = {};
-        if (userDesc) meta2.user_desc = userDesc;
+        const meta = {};
+        if (userDesc) meta.user_desc = userDesc;
         const metaSlice =
-          Object.keys(meta2).length > 0
+          Object.keys(meta).length > 0
             ? {
-                meta: meta2,
+                meta,
               }
             : {};
         if (stagedAttachment.status === "existing") {
@@ -307,7 +307,7 @@ export function EntityEditDialog({
       await updateMutation.mutateAsync({
         entityId,
         input: {
-          type: type2,
+          type,
           name: trimmedName,
           description: trimmedDescription,
           metadata,
@@ -335,7 +335,7 @@ export function EntityEditDialog({
     canSave,
     staged,
     updateMutation,
-    type2,
+    type,
     trimmedName,
     trimmedDescription,
     metadata,
@@ -385,7 +385,7 @@ export function EntityEditDialog({
               <div className="flex items-center gap-2">
                 <AtSign size={12} className="shrink-0 text-muted-foreground" />
                 <input
-                  value={name2}
+                  value={entityName}
                   onChange={(changeEvent) => setName(changeEvent.target.value)}
                   placeholder={translate("assetCenter.edit.namePlaceholder")}
                   className="flex-1 min-w-0 bg-transparent font-heading text-sm font-medium outline-none placeholder:text-muted-foreground/50"
@@ -402,7 +402,7 @@ export function EntityEditDialog({
                       variant="secondary"
                       className="text-xs h-6 px-1.5 font-medium gap-0.5 rounded-[4px] text-secondary-foreground"
                     >
-                      {translate(`assetCenter.types.${type2}`)}
+                      {translate(`assetCenter.types.${type}`)}
                       <ChevronDown
                         size={12}
                         className="text-muted-foreground"
@@ -448,11 +448,11 @@ export function EntityEditDialog({
                 compactDropZone={true}
                 trackingSurface="edit_dialog"
                 trackingEntityId={entityId ?? void 0}
-                trackingEntityType={type2}
+                trackingEntityType={type}
               />
               <div className="border-t border-border -mx-4" />
               <CollapsibleTags
-                tags={tags2}
+                tags={tags}
                 onChange={setTags}
                 trackingSurface="edit_dialog"
               />

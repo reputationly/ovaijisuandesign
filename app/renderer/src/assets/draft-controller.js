@@ -24,27 +24,27 @@ function hydrateAttachment(attachment, resolveUrl) {
   if (!attachment.relativePath) {
     return attachment;
   }
-  const url2 = resolveUrl(API_PATHS.serveFile(attachment.relativePath));
+  const url = resolveUrl(API_PATHS.serveFile(attachment.relativePath));
   return {
     ...attachment,
-    previewUrl: url2 ?? "",
+    previewUrl: url ?? "",
   };
 }
 
-function saveDraft(workspace, sessionKey, draft, now2 = Date.now()) {
-  const key2 = storageKey(workspace, sessionKey);
-  const text2 = draft.text;
+function saveDraft(workspace, sessionKey, draft, now = Date.now()) {
+  const key = storageKey(workspace, sessionKey);
+  const text = draft.text;
   const recoverable = draft.attachments.filter(isRecoverableAttachment);
   const dropped = draft.attachments.length - recoverable.length;
-  if (!text2 && recoverable.length === 0) {
-    return removeKey(key2);
+  if (!text && recoverable.length === 0) {
+    return removeKey(key);
   }
   const envelope = {
     v: SCHEMA_VERSION,
-    text: text2,
+    text,
     ...editorDocSnapshot(draft.editorDoc),
     attachments: recoverable.map(stripForPersist),
-    savedAt: now2,
+    savedAt: now,
     dropped,
     ...(draft.selectedMediaModels
       ? {
@@ -60,7 +60,7 @@ function saveDraft(workspace, sessionKey, draft, now2 = Date.now()) {
       : {}),
   };
   try {
-    localStorage.setItem(key2, JSON.stringify(envelope));
+    localStorage.setItem(key, JSON.stringify(envelope));
     return true;
   } catch {
     return false;
@@ -70,16 +70,16 @@ function saveDraft(workspace, sessionKey, draft, now2 = Date.now()) {
 function loadDraft(
   workspace,
   sessionKey,
-  now2 = Date.now(),
+  now = Date.now(),
   resolveUrl = gatewayUrl,
 ) {
-  const key2 = storageKey(workspace, sessionKey);
-  const envelope = readEnvelope(key2);
+  const key = storageKey(workspace, sessionKey);
+  const envelope = readEnvelope(key);
   if (!envelope) {
     return null;
   }
-  if (now2 - envelope.savedAt > DRAFT_TTL_MS) {
-    removeKey(key2);
+  if (now - envelope.savedAt > DRAFT_TTL_MS) {
+    removeKey(key);
     return null;
   }
   return {
@@ -172,8 +172,8 @@ export class DraftController {
     this.workspace = workspace;
   }
   /** Hot-path read: memory only (never touches durable). */
-  get(key2) {
-    const draft = this.memory.get(key2);
+  get(key) {
+    const draft = this.memory.get(key);
     return draft
       ? cloneDraft(draft)
       : {
@@ -186,14 +186,14 @@ export class DraftController {
    * (reload-safe); an empty draft schedules a debounced delete that `dispose()`
    * can drop if it turns out to be a spurious teardown emit. No-op once disposed.
    */
-  set(key2, draft) {
+  set(key, draft) {
     if (this.disposed) return;
-    this.writeMemory(key2, draft);
+    this.writeMemory(key, draft);
     if (isDurableEmpty(draft)) {
-      this.scheduleDelete(key2);
+      this.scheduleDelete(key);
     } else {
-      this.cancelPendingDelete(key2);
-      saveDraft(this.workspace, key2, draft);
+      this.cancelPendingDelete(key);
+      saveDraft(this.workspace, key, draft);
     }
   }
   /**
@@ -201,12 +201,12 @@ export class DraftController {
    * / optimistic rollback). Non-empty saves; empty deletes — no debounce.
    * No-op once disposed.
    */
-  setNow(key2, draft, options) {
+  setNow(key, draft, options) {
     if (this.disposed) return false;
-    this.cancelPendingDelete(key2);
-    const persisted = saveDraft(this.workspace, key2, draft);
+    this.cancelPendingDelete(key);
+    const persisted = saveDraft(this.workspace, key, draft);
     if (!persisted && options?.requireDurable) return false;
-    this.writeMemory(key2, draft);
+    this.writeMemory(key, draft);
     return persisted;
   }
   /**
@@ -215,15 +215,15 @@ export class DraftController {
    * neither layer has content. `droppedCount` is the number of attachments that
    * existed at save time but were not recoverable (0 when served from memory).
    */
-  restore(key2) {
-    const mem = this.memory.get(key2);
+  restore(key) {
+    const mem = this.memory.get(key);
     if (mem && !isEmptyDraft(mem)) {
       return {
         draft: cloneDraft(mem),
         droppedCount: 0,
       };
     }
-    const loaded = loadDraft(this.workspace, key2, Date.now(), this.resolveUrl);
+    const loaded = loadDraft(this.workspace, key, Date.now(), this.resolveUrl);
     if (!loaded) return null;
     const draft = {
       text: loaded.draft.text,
@@ -240,17 +240,17 @@ export class DraftController {
           }
         : {}),
     };
-    this.memory.set(key2, cloneDraft(draft));
+    this.memory.set(key, cloneDraft(draft));
     return {
       draft,
       droppedCount: loaded.droppedCount,
     };
   }
   /** Explicit delete (successful send / explicit clear). */
-  clear(key2) {
-    this.cancelPendingDelete(key2);
-    this.memory.delete(key2);
-    clearDraft(this.workspace, key2);
+  clear(key) {
+    this.cancelPendingDelete(key);
+    this.memory.delete(key);
+    clearDraft(this.workspace, key);
   }
   /** Commit a pending delete now (genuine clear that didn't get to fire). */
   flush() {
@@ -265,15 +265,15 @@ export class DraftController {
     this.disposed = true;
     this.runPendingDelete(false);
   }
-  writeMemory(key2, draft) {
+  writeMemory(key, draft) {
     if (isEmptyDraft(draft)) {
-      this.memory.delete(key2);
+      this.memory.delete(key);
     } else {
-      this.memory.set(key2, cloneDraft(draft));
+      this.memory.set(key, cloneDraft(draft));
     }
   }
-  scheduleDelete(key2) {
-    this.pendingDelete = key2;
+  scheduleDelete(key) {
+    this.pendingDelete = key;
     if (this.timer) clearTimeout(this.timer);
     this.timer = setTimeout(() => this.runPendingDelete(true), this.debounceMs);
   }
@@ -282,14 +282,14 @@ export class DraftController {
       clearTimeout(this.timer);
       this.timer = null;
     }
-    const key2 = this.pendingDelete;
+    const key = this.pendingDelete;
     this.pendingDelete = null;
-    if (key2 !== null && commit) {
-      clearDraft(this.workspace, key2);
+    if (key !== null && commit) {
+      clearDraft(this.workspace, key);
     }
   }
-  cancelPendingDelete(key2) {
-    if (this.pendingDelete === key2) {
+  cancelPendingDelete(key) {
+    if (this.pendingDelete === key) {
       this.pendingDelete = null;
       if (this.timer) {
         clearTimeout(this.timer);

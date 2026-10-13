@@ -27,17 +27,17 @@ export const teamQueryKeys = {
   membership: (scope) => ["team", "membership", ...scopeParts(scope)],
   detail: (scope) => [...teamQueryKeys.membership(scope), "detail"],
   permissions: (scope) => [...teamQueryKeys.membership(scope), "permissions"],
-  members: (scope, keyword2, cursor, pageSize) => [
+  members: (scope, keyword, cursor, pageSize) => [
     ...teamQueryKeys.membership(scope),
     "members",
-    normalizeTeamKeyword(keyword2),
+    normalizeTeamKeyword(keyword),
     cursor,
     pageSize,
   ],
-  memberFeed: (scope, keyword2, pageSize) => [
+  memberFeed: (scope, keyword, pageSize) => [
     ...teamQueryKeys.membership(scope),
     "members",
-    normalizeTeamKeyword(keyword2),
+    normalizeTeamKeyword(keyword),
     "feed",
     pageSize,
   ],
@@ -54,10 +54,10 @@ export const teamQueryKeys = {
     "invite-links",
     cursor,
   ],
-  pastTeamMembers: (scope, keyword2) => [
+  pastTeamMembers: (scope, keyword) => [
     ...teamQueryKeys.membership(scope),
     "past-team-members",
-    normalizeTeamKeyword(keyword2),
+    normalizeTeamKeyword(keyword),
   ],
   inviteLinkFeed: (scope) => [
     ...teamQueryKeys.membership(scope),
@@ -73,11 +73,11 @@ function subscribeAccountSubmissionDecision(listener) {
 function getAccountSubmissionDecisionVersion() {
   return decisionVersion;
 }
-export function MpIcon({ size: size2 = 14, className }) {
+export function MpIcon({ size = 14, className }) {
   return (
     <svg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
@@ -128,8 +128,8 @@ export function useAccountSubmissionControls(kind) {
   };
 }
 export function GatewayScopeProvider({
-  children: children2,
-  gatewayUrl: gatewayUrl2,
+  children,
+  gatewayUrl,
   gatewayBinding,
   gatewayReady,
   scopeKey,
@@ -161,7 +161,7 @@ export function GatewayScopeProvider({
       ? void 0
       : getRuntimeConfig().gatewayUrl;
     const baseUrl = normalizeGatewayBaseUrl(
-      stableGatewayBinding?.baseUrl ?? gatewayUrl2 ?? fallbackGatewayUrl,
+      stableGatewayBinding?.baseUrl ?? gatewayUrl ?? fallbackGatewayUrl,
     );
     const workspaceClient = stableGatewayBinding
       ? new WorkspaceGatewayClient({
@@ -180,7 +180,7 @@ export function GatewayScopeProvider({
     };
   }, [
     gatewayReady,
-    gatewayUrl2,
+    gatewayUrl,
     recoverWorkspace,
     scopeKey,
     stableGatewayBinding,
@@ -188,7 +188,7 @@ export function GatewayScopeProvider({
   ]);
   return (
     <GatewayScopeContext.Provider value={value}>
-      {children2}
+      {children}
     </GatewayScopeContext.Provider>
   );
 }

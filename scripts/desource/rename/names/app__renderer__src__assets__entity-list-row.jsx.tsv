@@ -10,3 +10,4 @@ e2@219:35	e2	clickEvent	该事件用于阻止实体实例化操作点击冒泡�
 e2@249:31	e2	clickEvent	该事件用于阻止更多菜单触发器点击冒泡。
 e2@250:35	e2	mouseEvent	该事件用于阻止更多菜单触发器鼠标按下冒泡。
 e2@258:33	e2	clickEvent	该事件用于阻止实体删除操作点击冒泡。
+selected2@65:13	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
