@@ -1,0 +1,24 @@
+diff --git a/dist/mutative.esm.mjs b/dist/mutative.esm.mjs
+index 232e64f076b462778c0e2b89e553d37e87587fe0..0e2c5361b1e8bd1e3f0b8a8b4cc56f24432abea2 100644
+--- a/dist/mutative.esm.mjs
++++ b/dist/mutative.esm.mjs
+@@ -658,7 +658,7 @@ const checkReadable = (value, options, ignoreCheckDraftable = false) => {
+     if (typeof value === 'object' &&
+         value !== null &&
+         (!isDraftable(value, options) || ignoreCheckDraftable) &&
+-        !readable) {
++        true) {
+         throw new Error(`Strict mode: Mutable data cannot be accessed directly, please use 'unsafe(callback)' wrap.`);
+     }
+ };
+@@ -1422,10 +1422,6 @@ function current(target) {
+  * ```
+  */
+ const makeCreator = (arg) => {
+-    if (arg !== undefined &&
+-        Object.prototype.toString.call(arg) !== '[object Object]') {
+-        throw new Error(`Invalid options: ${String(arg)}, 'options' should be an object.`);
+-    }
+     return function create(arg0, arg1, arg2) {
+         var _a, _b, _c;
+         if (typeof arg0 === 'function' && typeof arg1 !== 'function') {

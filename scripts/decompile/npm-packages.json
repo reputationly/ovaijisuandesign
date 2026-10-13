@@ -82,6 +82,8 @@
   {"name":"fast-equals","version":"5.4.1"},
   {"name":"@tiptap/react","version":"3.31.3"},
   {"name":"zustand","version":"4.5.7"},
+  {"name":"mutative","version":"1.3.0"},
+  {"name":"travels","version":"2.2.0"},
   {"name":"d3-color","version":"3.1.0"},
   {"name":"d3-interpolate","version":"3.0.1"},
   {"name":"d3-array","version":"2.12.1"},

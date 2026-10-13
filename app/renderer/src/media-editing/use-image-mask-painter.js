@@ -1,6 +1,6 @@
 // use-image-mask-painter.js
 import { reactExports } from "../vendor.js";
-import { useDevicePixelRatio } from "../infra/shallow-copy.js";
+import { useDevicePixelRatio } from "../shared/use-device-pixel-ratio.js";
 
 const ERASE_BRUSH_COLOR = "rgb(128, 84, 255)";
 

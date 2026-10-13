@@ -46,7 +46,7 @@ import { AddColumnDialog } from "../media-editing/add-column-dialog-inner.jsx";
 import { FieldRow } from "../media-editing/field-row.jsx";
 import { CloseIcon } from "../canvas/file-missing-icon.jsx";
 import { TableEditorInner } from "./table-editor-inner.jsx";
-import { useDevicePixelRatio } from "../infra/shallow-copy.js";
+import { useDevicePixelRatio } from "../shared/use-device-pixel-ratio.js";
 import {
   useCanvasActive,
   useCanvasBridge,

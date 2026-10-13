@@ -17,7 +17,7 @@ import {
   useModelForAsset,
   useRegisterZoomCounter,
 } from "../infra/create-recently-added-store.js";
-import { resolvePlaceholderCardSize } from "../infra/shallow-copy.js";
+import { resolvePlaceholderCardSize } from "../canvas/placeholder-card-size.js";
 import { isGenerationErrorStatus } from "../canvas/compute-group-bounds-from-children.js";
 import {
   MEDIA_NODE_RADIUS,
