@@ -82,14 +82,14 @@ const GLYPHS = {
     path: "M268.771 0.0284664C273.036 -0.0460568 277.057 -0.00143729 281.296 0.49624C315.522 4.5124 355.012 38.0917 375.421 64.4347C414.384 64.2492 472.242 75.4933 494.308 110.906C513.042 140.977 511.261 191.905 503.587 225.26C513.84 236.828 522.639 252.782 529.523 266.497C541.579 290.51 550.533 320.677 541.295 347.048C529.397 381.004 488.837 410.43 457.733 425.593C453.97 443.851 446.679 461.722 438.33 478.294C427.023 500.732 409.495 523.64 384.714 531.575C359.339 539.699 331.006 534.708 305.97 527.547C293.973 524.116 285.944 521.467 274.947 515.97L272.796 514.811C237.628 531.151 181.406 546.805 145.922 524.972C114.83 505.839 95.4245 459.811 87.1303 425.626C70.6576 418.517 49.0017 402.963 35.6771 391.102C17.3736 374.673 1.50509 354.29 0.135153 328.823C-1.3815 300.63 10.0835 275.122 23.6176 251.132C28.6708 242.174 34.3816 232.924 41.3588 225.255C37.0272 208.887 36.1254 189.481 36.1361 172.59C36.1324 146.891 41.2908 117.16 60.6322 98.4162C84.7247 75.0674 123.516 67.7411 155.811 64.5587C159.86 64.1595 165.259 64.4345 169.352 64.4611C171.5 61.7828 173.68 59.13 175.892 56.5041C181.41 50.0446 188.084 43.6545 194.454 38.0431C215.918 19.1378 239.399 2.32515 268.771 0.0284664ZM282.268 48.9396C279.773 46.538 274.559 44.9031 270.993 45.2648C253.68 49.0341 241.693 81.822 234.071 95.7912C247.963 97.77 261.683 100.464 275.737 101.407C278.559 101.597 281.405 101.788 284.227 102.01C286.159 105.163 287.753 109.304 289.503 112.616C294.145 121.416 298.527 132.485 303.245 141.03C281.216 149.649 262.758 152.495 238.796 151.069C224.155 150.197 210.792 146.809 196.527 143.56L156.335 134.4C140.661 130.837 125.269 126.359 109.079 126.545C100.726 126.641 93.1587 126.743 89.1156 135.872C85.422 144.213 91.3857 157.842 93.9945 166.116C97.0712 174.845 103.464 185.21 106.79 193.665C118.133 183.482 129.506 173.172 139.781 161.894C140.784 160.792 141.785 159.687 142.626 158.455C156.336 161.487 171.77 165.449 185.348 168.069C179.188 189.286 168.069 208.744 152.902 224.846C143.334 235.107 133.385 242.771 122.443 251.504L90.5785 276.84C76.0332 288.38 57.0682 301.668 47.4564 318.254C45.0842 322.347 45.7968 327.796 47.9242 331.862C51.9558 339.563 71.0385 346.011 79.1215 348.102C85.3641 349.718 97.9346 352.719 104.237 353.659C103.56 341.367 102.655 328.834 101.116 316.618C100.714 313.432 99.8202 306.886 98.9809 303.931L133.017 276.82C146.057 293.806 154.445 317.387 157.497 338.448C159.478 352.112 159.342 364.252 159.341 377.959L159.324 413.74C159.315 433.677 157.575 459.141 164.931 477.97C166.477 481.927 172.632 485.935 176.721 486.189C187.875 486.888 206.425 473.178 214.554 466.736L228.361 455.764C224.657 453.571 220.184 450.279 216.545 447.779C209.609 442.931 202.507 438.328 195.25 433.971C193.057 432.678 188.051 429.729 185.761 428.806C185.658 414.842 185.415 399.272 185.761 385.397C205.857 386.633 221.871 390.785 240.026 399.72C265.599 412.757 284.336 430.91 306.857 448.04C319.112 457.364 355.155 490.608 370.755 485.648C374.835 484.378 378.216 481.502 380.119 477.687C386.494 464.742 385.485 437.219 385.458 422.869C369.875 427.276 352.525 432.401 337.743 439.01C326.503 429.914 315.204 420.893 303.846 411.945C318.629 394.334 340.555 380.917 362.028 373.144C373.283 369.067 385.803 366.423 397.492 363.777L438.59 354.444C454.084 350.935 480.315 346.117 492.801 336.618C496.947 333.465 499.425 328.317 498.906 323.103C497.503 309.056 468.212 288.558 457.767 279.251C451.348 295.497 445.267 309.943 440.628 326.908C431.791 328.818 422.97 330.807 414.166 332.871C409.174 334.016 403.09 335.573 398.114 336.295C394.09 315.425 396.741 289.983 403.169 269.759C407.143 257.264 413.472 244.395 419.212 232.584L435.206 199.558C438.866 192.006 442.69 184.246 446.273 176.668C465.985 135.004 460.1 118.882 411.212 129.282C404.281 130.767 397.393 132.442 390.554 134.306C397.754 147.442 407.785 165.125 416.864 176.76C410.379 189.784 404.029 202.875 397.823 216.031C359.357 193.083 346.788 170.788 328.058 131.619L310.98 96.2931C303.238 80.2534 295.525 61.6899 282.268 48.9396Z",
   },
 };
-function LocalAgentModelIcon({ model, size: size2 }) {
+function LocalAgentModelIcon({ model, size }) {
   const modelId = model === "gamma/gpt-6-astra" ? "gamma/gamma-6-astra" : model;
   const glyph = Object.hasOwn(GLYPHS, modelId) ? GLYPHS[modelId] : void 0;
-  if (!glyph) return <Bot size={size2} strokeWidth={1.5} aria-hidden="true" />;
+  if (!glyph) return <Bot size={size} strokeWidth={1.5} aria-hidden="true" />;
   return (
     <svg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox={glyph.viewBox}
       fill="none"
       role="presentation"
@@ -100,18 +100,18 @@ function LocalAgentModelIcon({ model, size: size2 }) {
     </svg>
   );
 }
-function RemoteAgentModelIcon({ url: url2, model, size: size2 }) {
+function RemoteAgentModelIcon({ url, model, size }) {
   const [failed, setFailed] = reactExports.useState(false);
-  if (failed) return <LocalAgentModelIcon model={model} size={size2} />;
+  if (failed) return <LocalAgentModelIcon model={model} size={size} />;
   return (
     <img
-      src={url2}
+      src={url}
       alt=""
       aria-hidden="true"
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       className={
-        size2 === 20
+        size === 20
           ? "size-5 shrink-0 object-contain"
           : "size-4 shrink-0 object-contain"
       }
@@ -120,47 +120,47 @@ function RemoteAgentModelIcon({ url: url2, model, size: size2 }) {
     />
   );
 }
-function AgentModelIcon({ icon, model, size: size2 }) {
-  const url2 = normalizeAgentModelDisplay({
+function AgentModelIcon({ icon, model, size }) {
+  const url = normalizeAgentModelDisplay({
     icon,
   })?.icon;
-  return url2 ? (
-    <RemoteAgentModelIcon key={url2} url={url2} model={model} size={size2} />
+  return url ? (
+    <RemoteAgentModelIcon key={url} url={url} model={model} size={size} />
   ) : (
-    <LocalAgentModelIcon model={model} size={size2} />
+    <LocalAgentModelIcon model={model} size={size} />
   );
 }
 const AGENT_MODEL_TOOLTIP_SIDE_OFFSET = -8;
-const AgentModelRow = reactExports.memo(function AgentModelRow2({
+const AgentModelRow = reactExports.memo(function AgentModelRow({
   model,
-  displayName: displayName2,
+  displayName,
   display,
   membershipRequired = false,
-  selected: selected2,
+  selected,
   onSelect,
 }) {
   const { t: translate } = useTranslation();
   const description = display?.description;
   const listDescription = display?.listDescription ?? description;
   const metrics = display?.metrics;
-  const visibleMetrics = ["speed", "intelligence", "cost"].flatMap((key2) =>
-    typeof metrics?.[key2] === "number"
+  const visibleMetrics = ["speed", "intelligence", "cost"].flatMap((key) =>
+    typeof metrics?.[key] === "number"
       ? [
           {
-            key: key2,
-            value: metrics[key2],
+            key,
+            value: metrics[key],
           },
         ]
       : [],
   );
-  const renderIcon = (size2) => (
-    <AgentModelIcon icon={display?.icon} model={model} size={size2} />
+  const renderIcon = (size) => (
+    <AgentModelIcon icon={display?.icon} model={model} size={size} />
   );
   const row = (
     <button
       type="button"
       onClick={() => onSelect(model)}
-      aria-pressed={selected2}
+      aria-pressed={selected}
       data-action-ui-id={`chat-agent-model-${model}`}
       className="list-row-hit-area mt-0.5 flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-left text-foreground transition-colors first:mt-0 hover:bg-popup-item-hover focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
     >
@@ -174,7 +174,7 @@ const AgentModelRow = reactExports.memo(function AgentModelRow2({
       </span>
       <span className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
         <span className="flex min-w-0 items-center gap-1.5">
-          <span className="truncate text-[14px] leading-5">{displayName2}</span>
+          <span className="truncate text-[14px] leading-5">{displayName}</span>
           {membershipRequired ? (
             <span
               data-action-ui-id={`chat-agent-model-membership-${model}`}
@@ -190,7 +190,7 @@ const AgentModelRow = reactExports.memo(function AgentModelRow2({
           </span>
         )}
       </span>
-      {selected2 ? (
+      {selected ? (
         <span className="flex size-4 shrink-0 items-center justify-center text-foreground">
           <Icon icon={Check} size="sm" strokeWidth={2} />
         </span>
@@ -211,7 +211,7 @@ const AgentModelRow = reactExports.memo(function AgentModelRow2({
         >
           <div className="mb-0.5 flex items-center gap-2 text-sm font-medium text-foreground">
             {renderIcon(16)}
-            <span>{displayName2}</span>
+            <span>{displayName}</span>
           </div>
           {description && (
             <div className="mb-2 text-xs leading-4 text-muted-foreground">
@@ -351,8 +351,8 @@ function normalizeAgentModels(value, custom) {
 }
 function useAgentModels(enabled = true) {
   const activeCustomModel = useActiveCustomModel();
-  const queryClient2 = useQueryClient();
-  const gatewayFetch2 = useGatewayFetch();
+  const queryClient = useQueryClient();
+  const gatewayFetch = useGatewayFetch();
   const { gatewayReady, scopeKey, gatewayBinding } = useGatewayScope();
   const catalogScopeKey = useModelCatalogScopeKey();
   const { i18n } = useTranslation();
@@ -371,18 +371,18 @@ function useAgentModels(enabled = true) {
       gatewayBinding?.generation,
     ],
     queryFn: async ({ signal }) => {
-      let active2 = activeCustomModel.data;
+      let active = activeCustomModel.data;
       if (activeCustomModel.isError) {
         try {
-          active2 = await readActiveCustomModel();
+          active = await readActiveCustomModel();
         } catch {
           throw new Error("Custom model configuration is unavailable");
         }
-        queryClient2.setQueryData(ACTIVE_CUSTOM_MODEL_QUERY_KEY, active2);
+        queryClient.setQueryData(ACTIVE_CUSTOM_MODEL_QUERY_KEY, active);
       }
-      if (!gatewayReady && active2) return active2;
+      if (!gatewayReady && active) return active;
       try {
-        const response = await gatewayFetch2(API_PATHS.agentModels, {
+        const response = await gatewayFetch(API_PATHS.agentModels, {
           signal,
           timeoutMs: 1e4,
         });
@@ -390,9 +390,9 @@ function useAgentModels(enabled = true) {
           throw new Error(
             `OpenCode models unavailable (HTTP ${response.status})`,
           );
-        return normalizeAgentModels(await response.json(), active2);
+        return normalizeAgentModels(await response.json(), active);
       } catch (error) {
-        if (active2?.models.length && !signal.aborted) return active2;
+        if (active?.models.length && !signal.aborted) return active;
         throw error;
       }
     },
@@ -460,14 +460,14 @@ function areSelectedMediaModelsEqual(left, right) {
   });
 }
 function isMiniMaxH3Model(model) {
-  const values3 = [
+  const values = [
     model.id,
     model.display_name,
     model.series_id,
     model.model_name,
     model.backend,
   ].map((value) => (typeof value === "string" ? value.toLowerCase() : ""));
-  return values3.some(
+  return values.some(
     (value) =>
       value.includes("minimax-h3") ||
       value.includes("minimax h3") ||
@@ -476,10 +476,10 @@ function isMiniMaxH3Model(model) {
   );
 }
 function isMiniMaxH3MaxModel(model) {
-  const values3 = [model.id, model.display_name, model.series_id].map(
+  const values = [model.id, model.display_name, model.series_id].map(
     (value) => (typeof value === "string" ? value.toLowerCase() : ""),
   );
-  return values3.some(
+  return values.some(
     (value) =>
       value.includes("minimax-h3-max") || value.includes("minimax h3 max"),
   );
@@ -490,20 +490,20 @@ function isStandardMiniMaxH3Model(model) {
 function orderVideoModelsWithMiniMaxH3First(models) {
   const h3Index = models.findIndex((model) => isStandardMiniMaxH3Model(model));
   const h3MaxIndexes = models
-    .map((model, index2) => (isMiniMaxH3MaxModel(model) ? index2 : -1))
-    .filter((index2) => index2 >= 0);
+    .map((model, index) => (isMiniMaxH3MaxModel(model) ? index : -1))
+    .filter((index) => index >= 0);
   const priorityIndexes = [h3Index, ...h3MaxIndexes].filter(
-    (index2) => index2 >= 0,
+    (index) => index >= 0,
   );
   if (priorityIndexes.length === 0) return [...models];
   const priorityIndexSet = new Set(priorityIndexes);
   return [
-    ...priorityIndexes.map((index2) => models[index2]),
-    ...models.filter((_unusedValue, index2) => !priorityIndexSet.has(index2)),
+    ...priorityIndexes.map((index) => models[index]),
+    ...models.filter((_unusedValue, index) => !priorityIndexSet.has(index)),
   ];
 }
 function buildMinimumVisibleMediaModelSelection(models) {
-  const selection2 = {};
+  const selection = {};
   for (const category of MEDIA_CATEGORIES) {
     const visibleModels = models.filter(
       (model) => model.type === category && model.visibility !== "hidden",
@@ -514,24 +514,24 @@ function buildMinimumVisibleMediaModelSelection(models) {
           visibleModels.find((model) => isMiniMaxH3Model(model)) ??
           visibleModels[0])
         : visibleModels[0];
-    if (preferred) selection2[category] = [preferred.id];
+    if (preferred) selection[category] = [preferred.id];
   }
-  return selection2;
+  return selection;
 }
 function selectMinimumVisibleMediaModelForCategory(
-  selected2,
+  selected,
   category,
   models,
 ) {
   const minimum = buildMinimumVisibleMediaModelSelection(models)[category];
-  if (!minimum) return selected2;
+  if (!minimum) return selected;
   return {
-    ...selected2,
+    ...selected,
     [category]: minimum,
   };
 }
 function countVisibleSelectedMediaModelsForCategory(
-  selected2,
+  selected,
   category,
   models,
 ) {
@@ -539,17 +539,17 @@ function countVisibleSelectedMediaModelsForCategory(
     (model) =>
       model.type === category &&
       model.visibility !== "hidden" &&
-      isVisibleMediaModelSelected(selected2, model),
+      isVisibleMediaModelSelected(selected, model),
   ).length;
 }
-function selectAllVisibleModelsForCategory(selected2, category) {
+function selectAllVisibleModelsForCategory(selected, category) {
   return {
-    ...selected2,
+    ...selected,
     [category]: void 0,
   };
 }
 function isAllVisibleMediaModelsSelectedForCategory(
-  selected2,
+  selected,
   category,
   models,
 ) {
@@ -559,7 +559,7 @@ function isAllVisibleMediaModelsSelectedForCategory(
   return (
     visibleModels.length > 0 &&
     visibleModels.every((model) =>
-      isVisibleMediaModelSelected(selected2, model),
+      isVisibleMediaModelSelected(selected, model),
     )
   );
 }
@@ -568,7 +568,7 @@ const DEFAULT_MEDIA_MODEL_TAB = "agent";
 function pickBrandIcon(model, region = "overseas") {
   const modelId = model.id.toLowerCase();
   const series = model.series_id.toLowerCase();
-  const name2 = model.display_name.toLowerCase();
+  const normalizedDisplayName = model.display_name.toLowerCase();
   if (series === "g-image-2" || modelId.startsWith("g-image"))
     return region === "domestic" ? GeneralImageIcon : GptImageDomesticIcon;
   if (series === "openai-image" || modelId.startsWith("gpt-image"))
@@ -597,7 +597,7 @@ function pickBrandIcon(model, region = "overseas") {
     series === "kling" ||
     series === "kling-image" ||
     modelId.startsWith("kling") ||
-    name2.startsWith("kling")
+    normalizedDisplayName.startsWith("kling")
   )
     return KlingIcon;
   if (
@@ -606,9 +606,9 @@ function pickBrandIcon(model, region = "overseas") {
     modelId.startsWith("minimax-h3") ||
     modelId.startsWith("minimax h3") ||
     modelId.includes("hailuo03") ||
-    name2.includes("minimax h3") ||
-    name2.includes("minimax-h3") ||
-    name2.includes("hailuo03")
+    normalizedDisplayName.includes("minimax h3") ||
+    normalizedDisplayName.includes("minimax-h3") ||
+    normalizedDisplayName.includes("hailuo03")
   )
     return MinimaxIcon;
   if (modelId.startsWith("hilo") || modelId.startsWith("hailuo")) return HailuoIcon;
@@ -627,10 +627,10 @@ function getModelResolutionOptions(model) {
   return model.params?.resolution?.options ?? [];
 }
 function lookupRegistryEntry(model) {
-  const type2 = model.type;
-  if (type2 !== "image" && type2 !== "video" && type2 !== "audio")
+  const type = model.type;
+  if (type !== "image" && type !== "video" && type !== "audio")
     return void 0;
-  const byType = REGISTRY_BY_TYPE[type2];
+  const byType = REGISTRY_BY_TYPE[type];
   return (
     byType.get(model.id) ??
     byType.get(model.series_id) ??
@@ -638,10 +638,10 @@ function lookupRegistryEntry(model) {
   );
 }
 function isMiniMaxH3RegistryEntry(entry) {
-  const values3 = [entry.id, entry.name, entry.model_name, entry.backend].map(
+  const values = [entry.id, entry.name, entry.model_name, entry.backend].map(
     (value) => (typeof value === "string" ? value.toLowerCase() : ""),
   );
-  return values3.some(
+  return values.some(
     (value) =>
       value.includes("minimax-h3") ||
       value.includes("minimax h3") ||
@@ -653,12 +653,12 @@ function formatDurationRange(options) {
   if (!options || options.length === 0) return void 0;
   if (options.length === 1) return `${options[0]}s`;
   const numbers = options
-    .map((option2) => Number.parseFloat(option2))
-    .filter((option2) => Number.isFinite(option2));
+    .map((option) => Number.parseFloat(option))
+    .filter((option) => Number.isFinite(option));
   if (numbers.length === 0) return void 0;
-  const min2 = Math.min(...numbers);
-  const max2 = Math.max(...numbers);
-  return min2 === max2 ? `${min2}s` : `${min2}-${max2}s`;
+  const min = Math.min(...numbers);
+  const max = Math.max(...numbers);
+  return min === max ? `${min}s` : `${min}-${max}s`;
 }
 function buildModelSubtitle(model) {
   const resolutionOptions = getModelResolutionOptions(model);
@@ -690,18 +690,18 @@ function buildModelSubtitle(model) {
 }
 const HOME_POPOVER_GAP = 4;
 const POPOVER_HEIGHT = 400;
-function getInitialDraft(current2) {
+function getInitialDraft(current) {
   const draft = {};
-  if (current2?.image !== void 0) draft.image = [...current2.image];
-  if (current2?.video !== void 0) draft.video = [...current2.video];
-  if (current2?.audio !== void 0) draft.audio = [...current2.audio];
+  if (current?.image !== void 0) draft.image = [...current.image];
+  if (current?.video !== void 0) draft.video = [...current.video];
+  if (current?.audio !== void 0) draft.audio = [...current.audio];
   return draft;
 }
 function localizedCategoryLabel(cat, translate) {
   if (cat === "agent") return translate("chat.mediaModels.tabs.agent");
   return translate(`chat.mediaModels.tabs.${cat}`);
 }
-const ModelSubtitleRow = reactExports.memo(function ModelSubtitleRow2({
+const ModelSubtitleRow = reactExports.memo(function ModelSubtitleRow({
   subtitle,
   fallback,
 }) {
@@ -733,21 +733,21 @@ const ModelSubtitleRow = reactExports.memo(function ModelSubtitleRow2({
   );
 });
 ModelSubtitleRow.displayName = "ModelSubtitleRow";
-function FallbackIcon({ type: type2, size: size2 = 16 }) {
-  switch (type2) {
+function FallbackIcon({ type, size = 16 }) {
+  switch (type) {
     case "image":
-      return <ImageOutlineIcon size={size2} strokeWidth={1.5} />;
+      return <ImageOutlineIcon size={size} strokeWidth={1.5} />;
     case "video":
-      return <Video size={size2} strokeWidth={1.5} />;
+      return <Video size={size} strokeWidth={1.5} />;
     case "audio":
-      return <Music size={size2} strokeWidth={1.5} />;
+      return <Music size={size} strokeWidth={1.5} />;
     default:
-      return <ImageOutlineIcon size={size2} strokeWidth={1.5} />;
+      return <ImageOutlineIcon size={size} strokeWidth={1.5} />;
   }
 }
-const ModelIcon = reactExports.memo(function ModelIcon22({
+const ModelIcon = reactExports.memo(function ModelIcon({
   model,
-  size: size2 = 16,
+  size = 16,
 }) {
   const [errored, setErrored] = reactExports.useState(false);
   const releaseRegion = getRuntimeConfig().region;
@@ -756,7 +756,7 @@ const ModelIcon = reactExports.memo(function ModelIcon22({
     [model, releaseRegion],
   );
   if (BrandIcon) {
-    return <BrandIcon size={size2} />;
+    return <BrandIcon size={size} />;
   }
   if (model.icon_url && !errored) {
     return (
@@ -766,15 +766,15 @@ const ModelIcon = reactExports.memo(function ModelIcon22({
         aria-hidden="true"
         onError={() => setErrored(true)}
         className={
-          size2 === 20 ? "size-5 object-contain" : "size-4 object-contain"
+          size === 20 ? "size-5 object-contain" : "size-4 object-contain"
         }
       />
     );
   }
-  return <FallbackIcon type={model.type} size={size2} />;
+  return <FallbackIcon type={model.type} size={size} />;
 });
 ModelIcon.displayName = "ModelIcon";
-const ModelRow = reactExports.memo(function ModelRow2({
+const ModelRow = reactExports.memo(function ModelRow({
   model,
   category,
   checked,
@@ -873,13 +873,13 @@ export function MediaModelSelector({
   open,
   placement = "above",
   anchorRef,
-  current: current2,
+  current,
   currentModelId,
   onCommit,
   onClose,
 }) {
   const { t: translate } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const { openSettings } = useSettingsDialog();
   const agentModelMembership = useAgentModelMembershipAccess();
   const agentModels = useAgentModels(open);
@@ -906,7 +906,7 @@ export function MediaModelSelector({
       ? activeTab
       : null;
   const [draft, setDraft] = reactExports.useState(() =>
-    getInitialDraft(current2),
+    getInitialDraft(current),
   );
   const rememberCheckboxId = reactExports.useId();
   const [rememberForNewChats, setRememberForNewChats] =
@@ -918,7 +918,7 @@ export function MediaModelSelector({
     committedRef.current = true;
     const mediaSelectionChanged = !areSelectedMediaModelsEqual(
       draft,
-      getInitialDraft(current2),
+      getInitialDraft(current),
     );
     if (
       !mediaSelectionChanged &&
@@ -930,9 +930,9 @@ export function MediaModelSelector({
     const commitAll = rememberForNewChats || rememberScopeChangedRef.current;
     const agentSelectionChanged =
       draftModelId !== null && draftModelId !== (currentModelId ?? null);
-    const selection2 = {};
+    const selection = {};
     if (mediaSelectionChanged || commitAll) {
-      selection2.media = draft;
+      selection.media = draft;
     }
     if (
       !agentModels.isError &&
@@ -946,10 +946,10 @@ export function MediaModelSelector({
             placement === "below" ? "home_selector" : "workspace_selector",
         });
       }
-      selection2.modelId = selectedAgentModel;
+      selection.modelId = selectedAgentModel;
     }
-    if (selection2.media !== void 0 || selection2.modelId !== void 0) {
-      onCommit(selection2, rememberForNewChats);
+    if (selection.media !== void 0 || selection.modelId !== void 0) {
+      onCommit(selection, rememberForNewChats);
     }
   }, [
     draft,
@@ -957,7 +957,7 @@ export function MediaModelSelector({
     rememberForNewChats,
     onCommit,
     selectedAgentModel,
-    current2,
+    current,
     currentModelId,
     agentModels.isError,
     placement,
@@ -975,7 +975,7 @@ export function MediaModelSelector({
     commitDraft();
     onClose();
   }, [commitDraft, onClose]);
-  const [position2, setPosition] = reactExports.useState(null);
+  const [position, setPosition] = reactExports.useState(null);
   const popoverRef = reactExports.useRef(null);
   const {
     data: mediaModels,
@@ -990,36 +990,36 @@ export function MediaModelSelector({
   );
   const modelTabOptions = reactExports.useMemo(
     () =>
-      MEDIA_MODEL_TABS.map((tab2) => {
-        const categoryLabel = localizedCategoryLabel(tab2, translate);
-        if (tab2 === "agent" || isPending || isError) {
+      MEDIA_MODEL_TABS.map((tab) => {
+        const categoryLabel = localizedCategoryLabel(tab, translate);
+        if (tab === "agent" || isPending || isError) {
           return {
-            value: tab2,
+            value: tab,
             label: categoryLabel,
             ariaLabel: categoryLabel,
-            dataActionUiId: `chat-model-tab-${tab2}`,
+            dataActionUiId: `chat-model-tab-${tab}`,
           };
         }
-        const count2 = countVisibleSelectedMediaModelsForCategory(
+        const count = countVisibleSelectedMediaModelsForCategory(
           draft,
-          tab2,
+          tab,
           visibleMediaModels,
         );
         return {
-          value: tab2,
+          value: tab,
           ariaLabel: translate("chat.mediaModels.tabs.selectionCount", {
             category: categoryLabel,
-            count: count2,
+            count,
           }),
           label: (
             <span className="inline-flex min-w-0 items-center justify-center gap-1">
               <span className="truncate">{categoryLabel}</span>
               <span className="shrink-0 text-xs font-normal text-muted-foreground">
-                {count2}
+                {count}
               </span>
             </span>
           ),
-          dataActionUiId: `chat-model-tab-${tab2}`,
+          dataActionUiId: `chat-model-tab-${tab}`,
         };
       }),
     [draft, isError, isPending, translate, visibleMediaModels],
@@ -1033,10 +1033,10 @@ export function MediaModelSelector({
   );
   reactExports.useEffect(() => {
     if (open) {
-      setDraft(getInitialDraft(current2));
+      setDraft(getInitialDraft(current));
       setDraftModelId(null);
     }
-  }, [open, current2, currentModelId]);
+  }, [open, current, currentModelId]);
   reactExports.useLayoutEffect(() => {
     if (!open) {
       setPosition(null);
@@ -1073,7 +1073,7 @@ export function MediaModelSelector({
         placement === "below" ? "start" : "center",
         chatBounds,
       );
-      const top2 =
+      const popoverTop =
         placement === "below" ? inputRect.bottom + HOME_POPOVER_GAP : 0;
       const bottom =
         placement === "above" ? window.innerHeight - rect.top + 4 : void 0;
@@ -1081,10 +1081,10 @@ export function MediaModelSelector({
         placement === "below"
           ? Math.max(
               120,
-              Math.min(POPOVER_HEIGHT, window.innerHeight - top2 - 16),
+              Math.min(POPOVER_HEIGHT, window.innerHeight - popoverTop - 16),
             )
           : POPOVER_HEIGHT;
-      const nextTop = placement === "below" ? top2 : void 0;
+      const nextTop = placement === "below" ? popoverTop : void 0;
       const nextLeft = horizontalLayout.left;
       const width = horizontalLayout.width;
       setPosition((prev) =>
@@ -1154,16 +1154,16 @@ export function MediaModelSelector({
         const currentChecked = visibleModelsInCategory
           .filter((model) => isVisibleMediaModelSelected(prev, model))
           .map((model) => model.id);
-        const next2 = currentChecked.includes(modelId)
+        const next = currentChecked.includes(modelId)
           ? currentChecked.filter((checkedModelId) => checkedModelId !== modelId)
           : [...currentChecked, modelId];
-        if (next2.length === 0) {
+        if (next.length === 0) {
           dedupedToast.info(translate("chat.mediaModels.hint.atLeastOne"));
           return prev;
         }
         const allVisibleChecked =
-          next2.length === visibleIdsInCat.length &&
-          visibleIdsInCat.every((modelId) => next2.includes(modelId));
+          next.length === visibleIdsInCat.length &&
+          visibleIdsInCat.every((modelId) => next.includes(modelId));
         if (allVisibleChecked) {
           return {
             ...prev,
@@ -1172,7 +1172,7 @@ export function MediaModelSelector({
         }
         return {
           ...prev,
-          [category]: next2,
+          [category]: next,
         };
       });
     },
@@ -1180,16 +1180,16 @@ export function MediaModelSelector({
   );
   const selectAllInActiveTab = reactExports.useCallback(() => {
     if (!activeMediaCategory) return;
-    setDraft((previous2) =>
-      selectAllVisibleModelsForCategory(previous2, activeMediaCategory),
+    setDraft((previous) =>
+      selectAllVisibleModelsForCategory(previous, activeMediaCategory),
     );
   }, [activeMediaCategory]);
   const clearAllInActiveTab = reactExports.useCallback(() => {
     if (!activeMediaCategory) return;
     dedupedToast.info(translate("chat.mediaModels.hint.keptFirst"));
-    setDraft((previous2) =>
+    setDraft((previous) =>
       selectMinimumVisibleMediaModelForCategory(
-        previous2,
+        previous,
         activeMediaCategory,
         visibleMediaModels,
       ),
@@ -1207,7 +1207,7 @@ export function MediaModelSelector({
     const creditRulesRegion =
       releaseRegion === "domestic" ? "domestic" : "overseas";
     void openExternalUrl(
-      platform2,
+      platform,
       getHailuoCreditsRulesUrl(creditRulesRegion),
       {
         source: "chat.model-picker.pricing",
@@ -1216,14 +1216,14 @@ export function MediaModelSelector({
     handleClose();
   };
   const popover = (
-    <QuickZoomPresence value={open ? position2 : null}>
-      {(position22, motionProps) =>
+    <QuickZoomPresence value={open ? position : null}>
+      {(position, motionProps) =>
         reactDomExports.createPortal(
           <div
             {...motionProps}
-            ref={(element2) => {
-              popoverRef.current = element2;
-              motionProps.ref.current = element2;
+            ref={(element) => {
+              popoverRef.current = element;
+              motionProps.ref.current = element;
             }}
             inert={!open}
             aria-hidden={!open || void 0}
@@ -1231,14 +1231,14 @@ export function MediaModelSelector({
             aria-label={translate("chat.mediaModels.title")}
             style={{
               position: "fixed",
-              left: position22.left,
-              top: position22.top,
-              bottom: position22.bottom,
-              width: position22.width,
-              height: position22.height,
+              left: position.left,
+              top: position.top,
+              bottom: position.bottom,
+              width: position.width,
+              height: position.height,
               zIndex: 50,
             }}
-            className={`dp-motion-quick-zoom elevated-surface-border bg-popover rounded-xl shadow-lg flex flex-col p-1.5 overflow-hidden ${position22.placement === "below" ? "[--dp-quick-zoom-origin:top]" : "[--dp-quick-zoom-origin:bottom]"}`}
+            className={`dp-motion-quick-zoom elevated-surface-border bg-popover rounded-xl shadow-lg flex flex-col p-1.5 overflow-hidden ${position.placement === "below" ? "[--dp-quick-zoom-origin:top]" : "[--dp-quick-zoom-origin:bottom]"}`}
           >
             <CapabilityPopoverHeader
               title={translate("chat.mediaModels.title")}

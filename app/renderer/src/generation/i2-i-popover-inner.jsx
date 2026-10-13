@@ -104,15 +104,15 @@ function summarizeI2IParams(translate, model, modelParams) {
     if (!value) continue;
     parts.push(translateOptionValue(translate, value));
   }
-  for (const [key2, definition2] of Object.entries(model.params)) {
-    if (key2 === IMAGE_MODE_KEY) continue;
+  for (const [key, definition] of Object.entries(model.params)) {
+    if (key === IMAGE_MODE_KEY) continue;
     if (
       I2I_STANDARD_PARAMS.some((standardParam) =>
-        standardParam.aliases.includes(key2),
+        standardParam.aliases.includes(key),
       )
     )
       continue;
-    const value = modelParams[key2] ?? definition2.default;
+    const value = modelParams[key] ?? definition.default;
     if (!value) continue;
     parts.push(translateOptionValue(translate, value));
   }
@@ -167,15 +167,15 @@ export function I2IPopoverInner({
       }
       if (!prompt) return "";
       const assets = assetMetadataStore.getState().assets;
-      return parsePromptToTiptap(prompt, (path2) => {
+      return parsePromptToTiptap(prompt, (path) => {
         let hit;
-        assets.forEach((meta2) => {
+        assets.forEach((meta) => {
           if (hit) return;
-          if (meta2.path === path2) {
+          if (meta.path === path) {
             hit = {
-              path: meta2.path,
-              name: meta2.name,
-              type: meta2.type,
+              path: meta.path,
+              name: meta.name,
+              type: meta.type,
             };
           }
         });
@@ -204,7 +204,7 @@ export function I2IPopoverInner({
     navigationSnapshot?.expanded ?? false,
   );
   const [paramsOpen, setParamsOpen] = reactExports.useState(false);
-  const [count2, setCount] = reactExports.useState(
+  const [count, setCount] = reactExports.useState(
     navigationSnapshot?.count ?? 1,
   );
   const [isPreparing, setIsPreparing] = reactExports.useState(false);
@@ -300,7 +300,7 @@ export function I2IPopoverInner({
     );
     if (perImage == null) return void 0;
     if (isMidjourney) return perImage;
-    const effectiveCount = Math.max(1, Math.min(count2, maxCount));
+    const effectiveCount = Math.max(1, Math.min(count, maxCount));
     return perImage * effectiveCount;
   }, [
     creditCost,
@@ -309,7 +309,7 @@ export function I2IPopoverInner({
     modelParams.resolution,
     modelParams.quality,
     attachmentState.referenceCounts.image,
-    count2,
+    count,
     maxCount,
     isMidjourney,
   ]);
@@ -371,13 +371,13 @@ export function I2IPopoverInner({
     [imageModels, selectedModel, modelParams],
   );
   const handleParamChange = reactExports.useCallback(
-    (key2, value) => {
+    (key, value) => {
       setModelParams((prev) => {
-        const next2 = {
+        const next = {
           ...prev,
-          [key2]: value,
+          [key]: value,
         };
-        return selectedModel ? enforceConstraints(next2, selectedModel) : next2;
+        return selectedModel ? enforceConstraints(next, selectedModel) : next;
       });
     },
     [selectedModel],
@@ -400,9 +400,9 @@ export function I2IPopoverInner({
   const showCountChip = isMidjourney || showDualButtons || !!replaceNodeId;
   const countChipValue = isMidjourney
     ? 4
-    : count2 > maxCount
+    : count > maxCount
       ? maxCount
-      : count2;
+      : count;
   const countChipMaxCount = isMidjourney ? 4 : maxCount;
   const countChipMinCount = isMidjourney ? 4 : 1;
   const onSaveDraftRef = reactExports.useRef(onSaveDraft);
@@ -429,7 +429,7 @@ export function I2IPopoverInner({
     mode: "i2i",
     editorRef,
     expanded,
-    count: count2,
+    count,
     snapshot: navigationSnapshot,
     defaults: {
       imagePaths: [...(defaultImagePaths ?? [])],
@@ -472,31 +472,31 @@ export function I2IPopoverInner({
       )
         return;
       const editor = editorRef.current;
-      const snapshot2 = draftSnapshotRef.current;
+      const snapshot = draftSnapshotRef.current;
       const editorAlive = editor && !editor.isDestroyed;
       const livePrompt = editorAlive
         ? extractCanvasEditorText(editor)
-        : snapshot2.promptText;
+        : snapshot.promptText;
       const baseline = draftBaselineRef.current;
       if (baseline) {
         const isDirty = popoverDraftIsDirty(baseline, {
           prompt: livePrompt,
-          modelId: snapshot2.selectedModelId,
-          params: snapshot2.modelParams,
-          imagePaths: snapshot2.imagePaths,
-          textPaths: snapshot2.textPaths,
+          modelId: snapshot.selectedModelId,
+          params: snapshot.modelParams,
+          imagePaths: snapshot.imagePaths,
+          textPaths: snapshot.textPaths,
         });
         if (!isDirty) return;
       }
       onSaveDraftRef.current?.({
         prompt: livePrompt,
         promptJson: editorAlive ? JSON.stringify(editor.getJSON()) : void 0,
-        modelId: snapshot2.selectedModelId,
+        modelId: snapshot.selectedModelId,
         params: {
-          ...snapshot2.modelParams,
+          ...snapshot.modelParams,
         },
-        imagePaths: snapshot2.imagePaths,
-        textPaths: snapshot2.textPaths,
+        imagePaths: snapshot.imagePaths,
+        textPaths: snapshot.textPaths,
       });
     },
     [navigationSavedRef],
@@ -705,7 +705,7 @@ export function I2IPopoverInner({
               replaceId,
               // Midjourney returns 4 images from a single task, so submit one
               // upstream generation even though the UI displays fixed "×4".
-              isMidjourney ? 1 : count2,
+              isMidjourney ? 1 : count,
               // Preserve the display-form prompt instead of model-facing text.
               rawPrompt,
               attachmentState.textPaths,
@@ -741,7 +741,7 @@ export function I2IPopoverInner({
       loadTextContent,
       attachDraftOnNextDerived,
       nodeId,
-      count2,
+      count,
       isMidjourney,
       saveLastUsedModelParams,
       translate,
@@ -775,22 +775,22 @@ export function I2IPopoverInner({
     });
   }, []);
   const handleRemoveAttachment = reactExports.useCallback(
-    (path2) => {
-      attachmentState.removePath(path2, {
+    (path) => {
+      attachmentState.removePath(path, {
         tearEdge: true,
       });
-      editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
+      editorRef.current?.commands.removeCanvasFileRefsByPath(path);
     },
     [attachmentState],
   );
   const replacement = useAttachmentReplacement(attachmentState, editorRef);
   const handleAtTrigger = reactExports.useCallback(
-    (query, rect, getRect2, triggerRange) => {
-      setAtPickerState((state2) =>
-        nextAtPickerState(state2, {
+    (query, rect, getRect, triggerRange) => {
+      setAtPickerState((state) =>
+        nextAtPickerState(state, {
           query,
           rect,
-          getRect: getRect2,
+          getRect,
           triggerRange,
         }),
       );
@@ -799,29 +799,29 @@ export function I2IPopoverInner({
   );
   const handleFileRefSwitchSelect = useMediaFileRefSwitch(attachmentState);
   const handleAtSelect = reactExports.useCallback(
-    (meta2, assetId, sourceNodeId) => {
-      const rawKind = meta2.type;
+    (meta, assetId, sourceNodeId) => {
+      const rawKind = meta.type;
       if (rawKind === "text") {
         const admitted = attachmentState.addPaths(
           [
             {
-              path: meta2.path,
+              path: meta.path,
               sourceNodeId: sourceNodeId ?? assetId,
             },
           ],
           "text",
         );
-        if (!admitted.includes(meta2.path)) {
-          setAtPickerState((state2) => ({
-            ...state2,
+        if (!admitted.includes(meta.path)) {
+          setAtPickerState((state) => ({
+            ...state,
             open: false,
           }));
           return;
         }
         editorRef.current?.commands.replaceAtTriggerWithFileRef(
           {
-            path: meta2.path,
-            filename: meta2.name,
+            path: meta.path,
+            filename: meta.name,
             kind: "text",
           },
           atPickerState.triggerRange ?? void 0,
@@ -834,11 +834,11 @@ export function I2IPopoverInner({
       }
       const kind = rawKind;
       if (kind !== "image" && kind !== "video" && kind !== "audio") return;
-      handleFileRefSwitchSelect(meta2, assetId, sourceNodeId);
+      handleFileRefSwitchSelect(meta, assetId, sourceNodeId);
       editorRef.current?.commands.replaceAtTriggerWithFileRef(
         {
-          path: meta2.path,
-          filename: meta2.name,
+          path: meta.path,
+          filename: meta.name,
           kind,
         },
         atPickerState.triggerRange ?? void 0,
@@ -855,8 +855,8 @@ export function I2IPopoverInner({
     ],
   );
   const handleEditorUpdate = reactExports.useCallback(
-    (hasContent2, textLen) => {
-      setEditorHasText(hasContent2);
+    (hasContent, textLen) => {
+      setEditorHasText(hasContent);
       setPromptLength(textLen);
     },
     [],
@@ -878,12 +878,12 @@ export function I2IPopoverInner({
       if (audioAdds.length > 0) attachmentState.addPaths(audioAdds, "audio");
       if (textAdds.length > 0) {
         const admitted = attachmentState.addPaths(textAdds, "text");
-        for (const path2 of rejectedReferencePaths(
+        for (const path of rejectedReferencePaths(
           textAdds,
           attachmentState.textPaths,
           admitted,
         )) {
-          editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
+          editorRef.current?.commands.removeCanvasFileRefsByPath(path);
         }
       }
     },
@@ -907,7 +907,7 @@ export function I2IPopoverInner({
       });
       if (matchedKey) consumedKeys.add(matchedKey);
       if (def && matchedKey) {
-        const disabled2 = getDisabledOptions(
+        const disabled = getDisabledOptions(
           matchedKey,
           modelParams,
           selectedModel.paramConstraints,
@@ -924,7 +924,7 @@ export function I2IPopoverInner({
                 value={fieldValue}
                 onChange={fieldOnChange}
                 disabled={formDisabled}
-                disabledOptions={disabled2}
+                disabledOptions={disabled}
               />
             </div>,
           );
@@ -937,7 +937,7 @@ export function I2IPopoverInner({
                 value={fieldValue}
                 onChange={fieldOnChange}
                 disabled={formDisabled}
-                disabledOptions={disabled2}
+                disabledOptions={disabled}
               />
             </div>,
           );
@@ -950,42 +950,42 @@ export function I2IPopoverInner({
               value={fieldValue}
               onChange={fieldOnChange}
               disabled={formDisabled}
-              disabledOptions={disabled2}
+              disabledOptions={disabled}
             />,
           );
         }
       }
     }
-    for (const [key2, def] of Object.entries(selectedModel.params)) {
-      if (consumedKeys.has(key2)) continue;
-      if (key2 === IMAGE_MODE_KEY) continue;
+    for (const [key, def] of Object.entries(selectedModel.params)) {
+      if (consumedKeys.has(key)) continue;
+      if (key === IMAGE_MODE_KEY) continue;
       if (def.type === "select" && (!def.options || def.options.length <= 1))
         continue;
       if (def.type === "textarea") {
-        const labelKey2 = paramI18nKey(key2, def.label);
-        const placeholderKey = paramPlaceholderI18nKey(key2);
+        const parameterLabelKey = paramI18nKey(key, def.label);
+        const placeholderKey = paramPlaceholderI18nKey(key);
         elements.push(
           <ParamTextarea
-            key={key2}
+            key={key}
             label={
-              labelKey2
-                ? translate(labelKey2, {
-                    defaultValue: paramLabelFallback(key2, def.label),
+              parameterLabelKey
+                ? translate(parameterLabelKey, {
+                    defaultValue: paramLabelFallback(key, def.label),
                   })
-                : paramLabelFallback(key2, def.label)
+                : paramLabelFallback(key, def.label)
             }
-            value={modelParams[key2] ?? def.default ?? ""}
-            onChange={(nextValue) => handleParamChange(key2, nextValue)}
+            value={modelParams[key] ?? def.default ?? ""}
+            onChange={(nextValue) => handleParamChange(key, nextValue)}
             disabled={formDisabled}
             placeholder={
               placeholderKey
                 ? translate(placeholderKey, {
                     defaultValue: paramPlaceholderFallback(
-                      key2,
+                      key,
                       def.placeholder,
                     ),
                   })
-                : paramPlaceholderFallback(key2, def.placeholder)
+                : paramPlaceholderFallback(key, def.placeholder)
             }
           />,
         );
@@ -994,70 +994,70 @@ export function I2IPopoverInner({
       if (def.type === "slider") {
         if (def.min === void 0 || def.max === void 0 || def.step === void 0)
           continue;
-        const labelKey2 = paramI18nKey(key2, def.label);
+        const parameterLabelKey = paramI18nKey(key, def.label);
         elements.push(
           <ParamSlider
-            key={key2}
+            key={key}
             label={
-              labelKey2
-                ? translate(labelKey2, {
-                    defaultValue: paramLabelFallback(key2, def.label),
+              parameterLabelKey
+                ? translate(parameterLabelKey, {
+                    defaultValue: paramLabelFallback(key, def.label),
                   })
-                : paramLabelFallback(key2, def.label)
+                : paramLabelFallback(key, def.label)
             }
-            value={modelParams[key2] ?? def.default}
+            value={modelParams[key] ?? def.default}
             min={def.min}
             max={def.max}
             step={def.step}
             marks={def.marks}
-            onChange={(nextValue) => handleParamChange(key2, nextValue)}
+            onChange={(nextValue) => handleParamChange(key, nextValue)}
             disabled={formDisabled}
           />,
         );
         continue;
       }
-      const disabled2 = getDisabledOptions(
-        key2,
+      const disabled = getDisabledOptions(
+        key,
         modelParams,
         selectedModel.paramConstraints,
       );
-      const labelKey = paramI18nKey(key2, def.label);
-      if (key2 === "quality" && def.type === "select") {
+      const labelKey = paramI18nKey(key, def.label);
+      if (key === "quality" && def.type === "select") {
         elements.push(
           <ParamQualitySlider
-            key={`${selectedModel.id}:${key2}`}
+            key={`${selectedModel.id}:${key}`}
             label={
               labelKey
                 ? translate(labelKey, {
-                    defaultValue: paramLabelFallback(key2, def.label),
+                    defaultValue: paramLabelFallback(key, def.label),
                   })
-                : paramLabelFallback(key2, def.label)
+                : paramLabelFallback(key, def.label)
             }
             options={def.options ?? []}
-            value={modelParams[key2] ?? def.default}
-            onChange={(nextValue) => handleParamChange(key2, nextValue)}
+            value={modelParams[key] ?? def.default}
+            onChange={(nextValue) => handleParamChange(key, nextValue)}
             disabled={formDisabled}
-            disabledOptions={disabled2}
+            disabledOptions={disabled}
           />,
         );
         continue;
       }
       elements.push(
         <ParamTabs
-          key={key2}
+          key={key}
           label={
             labelKey
               ? translate(labelKey, {
-                  defaultValue: paramLabelFallback(key2, def.label),
+                  defaultValue: paramLabelFallback(key, def.label),
                 })
-              : paramLabelFallback(key2, def.label)
+              : paramLabelFallback(key, def.label)
           }
           options={def.options ?? []}
-          value={modelParams[key2] ?? def.default}
-          onChange={(nextValue) => handleParamChange(key2, nextValue)}
+          value={modelParams[key] ?? def.default}
+          onChange={(nextValue) => handleParamChange(key, nextValue)}
           disabled={formDisabled}
-          disabledOptions={disabled2}
-          optionUnit={key2 === "duration" ? "seconds" : void 0}
+          disabledOptions={disabled}
+          optionUnit={key === "duration" ? "seconds" : void 0}
         />,
       );
     }
@@ -1134,7 +1134,7 @@ export function I2IPopoverInner({
           }
           onFileRefsAdded={handleFileRefsAdded}
           onDirectReferencesRemoved={(paths) => {
-            for (const path2 of paths) attachmentState.removePath(path2);
+            for (const path of paths) attachmentState.removePath(path);
           }}
           maxLength={selectedModel?.promptMaxLength}
           emptyStateAction={({ openAtPicker }) => (

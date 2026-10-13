@@ -18,7 +18,7 @@ import { GENERATE_ERROR_CODE_CONCURRENCY_LIMIT } from "./normalize-skill-detail-
 
 export function MediaGenerationErrorOverlay({
   nodeId,
-  message: message2,
+  message,
   nodeType,
   errorReason,
   retryPayload: persistedRetryPayload,
@@ -42,7 +42,7 @@ export function MediaGenerationErrorOverlay({
   const displayModel =
     registryModel?.name ??
     (generating?.model ? translateModelName(generating.model, translate) : void 0);
-  const handleDelete2 = (clickEvent) => {
+  const handleDelete = (clickEvent) => {
     clickEvent.stopPropagation();
     useGeneratingStateStore.getState().clear(nodeId);
     deleteElements({
@@ -91,7 +91,7 @@ export function MediaGenerationErrorOverlay({
           nodeType: nodeType ?? "media",
           model: generating?.model,
           prompt: generating?.prompt,
-          errorMessage: message2,
+          errorMessage: message,
           traceId: generating?.traceId,
         });
         useGeneratingStateStore.getState().clear(nodeId);
@@ -124,9 +124,9 @@ export function MediaGenerationErrorOverlay({
   );
   return (
     <MediaErrorCard
-      errorMessage={message2}
+      errorMessage={message}
       displayModel={displayModel}
-      onDelete={handleDelete2}
+      onDelete={handleDelete}
       onReport={handleReport}
       reportStatus={bridge.getNodeErrorReportStatus?.(nodeId) ?? "idle"}
       variant={

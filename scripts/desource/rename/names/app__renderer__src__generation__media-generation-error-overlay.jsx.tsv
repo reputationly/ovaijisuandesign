@@ -6,3 +6,5 @@ e2@57:12	e2	clickEvent	该事件来自关闭未知生成操作并用于阻止冒
 e2@87:8	e2	clickEvent	该事件来自上报生成错误操作并用于阻止冒泡。
 e2@107:10	e2	clickEvent	该事件来自重试生成操作并用于阻止冒泡。
 e2@113:12	e2	clickEvent	该事件来自取消生成操作并用于阻止冒泡。
+message2@21:12	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+handleDelete2@45:9	handleDelete2	handleDelete	去掉打包器防重名追加的后缀，恢复原名 handleDelete，即该绑定持有的值。

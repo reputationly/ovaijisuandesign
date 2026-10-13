@@ -74,24 +74,24 @@ export function requiresPromptForI2V(model) {
 }
 function hasReferenceMedia(imagePaths, videoPaths, audioPaths) {
   return [...imagePaths, ...videoPaths, ...audioPaths].some(
-    (path2) => path2.trim().length > 0,
+    (path) => path.trim().length > 0,
   );
 }
 function isAdaptiveRatio(value) {
   return value !== void 0 && ADAPTIVE_RATIO_VALUES.has(value.toLowerCase());
 }
 function resolveVideoRatioParam(model, params) {
-  const key2 = ["aspect_ratio", "ratio"].find(
+  const key = ["aspect_ratio", "ratio"].find(
     (candidate) =>
       model?.params?.[candidate] !== void 0 || params[candidate] !== void 0,
   );
-  if (!key2) return void 0;
-  const definition2 = model?.params?.[key2];
+  if (!key) return void 0;
+  const definition = model?.params?.[key];
   return {
-    key: key2,
-    currentValue: params[key2] ?? definition2?.default,
+    key,
+    currentValue: params[key] ?? definition?.default,
     fixedValue:
-      definition2?.options?.find((option2) => !isAdaptiveRatio(option2)) ??
+      definition?.options?.find((option) => !isAdaptiveRatio(option)) ??
       MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO,
   };
 }
@@ -113,7 +113,7 @@ function shouldForceSeedance25AdaptiveRatio(model, imageMode, imagePaths) {
   return (
     isSeedance25Model(model) &&
     ((imageMode === "first-last-frame" &&
-      imagePaths.slice(0, 2).some((path2) => path2.trim().length > 0)) ||
+      imagePaths.slice(0, 2).some((path) => path.trim().length > 0)) ||
       SEEDANCE_25_INHERITED_VIDEO_MODES.has(imageMode))
   );
 }
@@ -127,11 +127,11 @@ function resolveI2VAspectRatioOptions(
     ...constraintDisabledOptions,
     ...(disableAdaptive ? ADAPTIVE_RATIO_VALUES : []),
     ...(disableFixed
-      ? options.filter((option2) => !isAdaptiveRatio(option2))
+      ? options.filter((option) => !isAdaptiveRatio(option))
       : []),
   ]);
   const visibleOptions = options.filter(
-    (option2) => !constraintDisabledOptions.has(option2),
+    (option) => !constraintDisabledOptions.has(option),
   );
   return {
     options: visibleOptions.length > 0 ? visibleOptions : options,
@@ -185,20 +185,20 @@ function resolveEffectiveSeedance25VideoParams(
   };
 }
 export function resolveSeedance25SubmitParams(model, params, imageMode) {
-  const next2 = {
+  const next = {
     ...params,
   };
-  delete next2[seedance25TaskTypeParam];
-  if (!isSeedance25InheritedVideoMode(model, imageMode)) return next2;
+  delete next[seedance25TaskTypeParam];
+  if (!isSeedance25InheritedVideoMode(model, imageMode)) return next;
   if (
     imageMode === SEEDANCE_25_VIDEO_EDIT_MODE ||
     imageMode === SEEDANCE_25_VIDEO_EXTEND_MODE
   ) {
-    const ratioParam = resolveVideoRatioParam(model, next2);
-    if (ratioParam) next2[ratioParam.key] = "adaptive";
+    const ratioParam = resolveVideoRatioParam(model, next);
+    if (ratioParam) next[ratioParam.key] = "adaptive";
   }
-  if (imageMode === SEEDANCE_25_VIDEO_EDIT_MODE) next2.duration = "-1";
-  return next2;
+  if (imageMode === SEEDANCE_25_VIDEO_EDIT_MODE) next.duration = "-1";
+  return next;
 }
 export function resolveEffectiveI2VVideoParams(
   model,
@@ -232,7 +232,7 @@ export function isMissingH3FirstLastFrameImage(
     requiresPromptForI2V(model) &&
     imageMode === "first-last-frame" &&
     !hasPrompt &&
-    !imagePaths.some((path2) => path2.trim().length > 0)
+    !imagePaths.some((path) => path.trim().length > 0)
   );
 }
 export function isUnsupportedTailOnlyFirstLastFrameI2V(
@@ -285,15 +285,15 @@ export function buildSpecialI2VSubmitParams(
 ) {
   const routeKind = resolveSpecialI2VRouteKind(model);
   if (!routeKind) return params;
-  const next2 = {
+  const next = {
     ...params,
   };
   if (routeKind === "kling-avatar") {
-    next2.type = "avatar";
+    next.type = "avatar";
     const audioPath = audioPaths.find(Boolean);
-    if (audioPath) next2.sound_file = audioPath;
+    if (audioPath) next.sound_file = audioPath;
   }
-  return next2;
+  return next;
 }
 export function I2VAspectRatioField({
   model,
@@ -304,7 +304,7 @@ export function I2VAspectRatioField({
   options,
   value,
   onChange,
-  disabled: disabled2,
+  disabled,
   disabledOptions,
   label,
 }) {
@@ -350,7 +350,7 @@ export function I2VAspectRatioField({
         options={ratioState.options}
         value={value}
         onChange={onChange}
-        disabled={disabled2}
+        disabled={disabled}
         disabledOptions={ratioState.disabledOptions}
       />
     </div>
@@ -399,13 +399,13 @@ export function shouldHideVideoExtensionParam(paramKey) {
   return paramKey === VIDEO_EXTENSION_AUDIO_PARAM;
 }
 export function sanitizeVideoExtensionSubmitParams(params) {
-  const next2 = {
+  const next = {
     ...params,
   };
-  for (const key2 of VIDEO_EXTENSION_DROPPED_PARAM_KEYS) {
-    delete next2[key2];
+  for (const key of VIDEO_EXTENSION_DROPPED_PARAM_KEYS) {
+    delete next[key];
   }
-  return next2;
+  return next;
 }
 export function resolveI2VDefaultImagePaths({
   liveImagePaths,
@@ -472,23 +472,23 @@ export function resolveI2VPrefillOverride({ models, prompt, modelId, params }) {
   return override;
 }
 export function resolveSeedance25VideoInputDurationSummary(videoPaths, assets) {
-  const filledPaths = videoPaths.filter((path2) => path2.trim().length > 0);
+  const filledPaths = videoPaths.filter((path) => path.trim().length > 0);
   const pathToDuration = new Map();
-  for (const meta2 of assets) {
+  for (const meta of assets) {
     if (
-      (!meta2.type || meta2.type === "video") &&
-      meta2.path &&
-      typeof meta2.durationSec === "number" &&
-      Number.isFinite(meta2.durationSec) &&
-      meta2.durationSec > 0
+      (!meta.type || meta.type === "video") &&
+      meta.path &&
+      typeof meta.durationSec === "number" &&
+      Number.isFinite(meta.durationSec) &&
+      meta.durationSec > 0
     ) {
-      pathToDuration.set(meta2.path, meta2.durationSec);
+      pathToDuration.set(meta.path, meta.durationSec);
     }
   }
   return {
     pathKey: filledPaths.join("\0"),
     totalDurationSec: resolveSeedance25VideoInputTotalDuration(
-      filledPaths.map((path2) => pathToDuration.get(path2)),
+      filledPaths.map((path) => pathToDuration.get(path)),
     ),
   };
 }

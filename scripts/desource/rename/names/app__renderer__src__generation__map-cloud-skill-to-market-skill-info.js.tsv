@@ -6,3 +6,9 @@ v2@26:22	v2	value	该参数是待提取首个非空字符串的输入值。
 x2@28:29	x2	item	该值是待筛选的字符串数组元素。
 en2@50:9	en2	englishTagData	该值是 reconcileTag 返回的英文单标签及完整标签集合。
 cn2@54:9	cn2	chineseTagData	该值是 reconcileTag 返回的中文单标签及完整标签集合。
+raw2@10:32	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+first2@28:11	first2	first	去掉打包器防重名追加的后缀，恢复原名 first，即该绑定持有的值。
+list2@43:9	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+raw2@49:41	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+raw2@107:37	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+record2@108:9	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。

@@ -28,3 +28,40 @@ v2@2499:38	v2	isExpanded	该值是展开状态 setter 收到的当前布尔值�
 s2@2522:31	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
 s2@2568:33	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
 v2@2596:48	v2	isOpen	该值是参数面板打开状态 setter 收到的当前布尔值。
+count2@209:10	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+claimHailuo03VideoTrial2@269:30	claimHailuo03VideoTrial2	claimHailuo03VideoTrial	去掉打包器防重名追加的后缀，恢复原名 claimHailuo03VideoTrial，即该绑定持有的值。
+body2@2474:9	body2	body	去掉打包器防重名追加的后缀，恢复原名 body，即该绑定持有的值。
+assets2@220:13	assets2	assets	去掉打包器防重名追加的后缀，恢复原名 assets，即该绑定持有的值。
+path2@221:43	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+meta2@223:26	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+current2@414:21	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+platform2@498:11	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+meta2@566:16	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+meta2@631:21	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+path2@641:15	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+current2@668:21	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+option2@670:10	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+path2@750:11	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+meta2@756:21	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+count22@911:21	count22	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+count22@925:34	count22	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+key2@1208:6	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+next2@1215:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@1262:19	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+path2@1320:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+snapshot2@1518:13	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+snapshot2@1580:13	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+meta2@1693:25	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+pending2@1968:11	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+path2@1988:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@2000:18	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+getRect2@2084:19	getRect2	getRect	去掉打包器防重名追加的后缀，恢复原名 getRect，即该绑定持有的值。
+state2@2085:25	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+meta2@2098:6	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+state2@2111:29	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+hasContent2@2150:6	hasContent2	hasContent	去掉打包器防重名追加的后缀，恢复原名 hasContent，即该绑定持有的值。
+path2@2208:20	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+disabled2@2252:17	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+disabled2@2281:15	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+key2@2395:17	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+path2@2543:24	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。

@@ -20,8 +20,8 @@ import { isGenerationRefundStatus } from "../canvas/compute-group-bounds-from-ch
 import { Trash2 } from "../media-editing/package.jsx";
 import { classifyRawErrorText } from "./normalize-skill-detail-metadata.js";
 import { RetryIcon } from "../canvas/fullscreen-icon.jsx";
-const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon2(
-  { size: size2 = 24, ...props },
+const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon(
+  { size = 24, ...props },
   ref,
 ) {
   const ariaHidden =
@@ -30,8 +30,8 @@ const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon2(
     <CompositedSvg
       ref={ref}
       {...props}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 1024 1024"
       fill="currentColor"
       aria-hidden={ariaHidden}
@@ -48,15 +48,15 @@ function handleAnchorClick(clickEvent) {
     clickEvent.stopPropagation();
   }
 }
-function ErrorHtmlContent({ html: html2 }) {
-  if (!html2) return null;
-  if (!looksLikeHtml(html2)) {
-    return <span>{html2}</span>;
+function ErrorHtmlContent({ html }) {
+  if (!html) return null;
+  if (!looksLikeHtml(html)) {
+    return <span>{html}</span>;
   }
   return (
     <span
       dangerouslySetInnerHTML={{
-        __html: html2,
+        __html: html,
       }}
       onClick={handleAnchorClick}
     />
@@ -82,7 +82,7 @@ const ERROR_ACTION_BUTTON_CLASS =
   "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-foreground/10 bg-foreground/[0.04] px-2.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/[0.08] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
 const ERROR_ACTION_ICON_CLASS = "size-3.5 shrink-0";
 export function MediaErrorCard({
-  errorMessage: errorMessage2,
+  errorMessage,
   displayModel,
   onDelete,
   onReport,
@@ -99,7 +99,7 @@ export function MediaErrorCard({
   refundedCredits,
 }) {
   const { t: translate } = useTranslation();
-  const plainError = stripErrorHtml(errorMessage2);
+  const plainError = stripErrorHtml(errorMessage);
   const rawClass = classifyRawErrorText(plainError);
   const isConcurrencyLimit =
     variant === "concurrency_limit" || rawClass === "concurrency";
@@ -123,7 +123,7 @@ export function MediaErrorCard({
       : void 0;
   const displayError =
     stateDescription ??
-    (rawClass ? translate(RAW_ERROR_CLASS_I18N[rawClass]) : errorMessage2);
+    (rawClass ? translate(RAW_ERROR_CLASS_I18N[rawClass]) : errorMessage);
   const plainDisplayError = stripErrorHtml(displayError);
   const uncertainReason =
     isUncertain && rawClass ? translate(UNCERTAIN_REASON_I18N[rawClass]) : void 0;

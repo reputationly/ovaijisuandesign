@@ -22,3 +22,24 @@ v2@1094:40	v2	isExpanded	该值是展开状态 setter 收到的当前布尔值�
 s2@1109:31	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
 s2@1168:31	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
 v2@1195:48	v2	isOpen	该值是参数面板展开状态 setter 收到的当前布尔值。
+key2@107:15	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+definition2@107:21	definition2	definition	去掉打包器防重名追加的后缀，恢复原名 definition，即该绑定持有的值。
+count2@207:10	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+path2@170:43	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+meta2@172:25	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+key2@374:6	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+next2@376:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+snapshot2@475:13	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+path2@778:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+getRect2@788:19	getRect2	getRect	去掉打包器防重名追加的后缀，恢复原名 getRect，即该绑定持有的值。
+state2@789:25	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+meta2@802:6	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+state2@815:29	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+hasContent2@858:6	hasContent2	hasContent	去掉打包器防重名追加的后缀，恢复原名 hasContent，即该绑定持有的值。
+path2@881:20	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+disabled2@910:15	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+key2@959:17	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+disabled2@1019:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+labelKey2@965:15	labelKey2	parameterLabelKey	该值是当前 textarea 参数的国际化标签键。
+labelKey2@997:15	labelKey2	parameterLabelKey	该值是当前 slider 参数的国际化标签键。
+path2@1137:24	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。

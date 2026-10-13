@@ -15,3 +15,54 @@ m3@1152:62	m3	visibleModel	该值是用于提取可见模型标识的模型记�
 id2@1158:36	id2	checkedModelId	该值是当前已勾选模型列表中的标识。
 id2@1166:34	id2	modelId	该值是待检查是否全选的可见模型标识。
 id2@1310:38	id2	modelId	该值是选择媒体模型时回调收到的模型标识。
+size2@85:45	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+url2@103:38	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+size2@103:57	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@123:46	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+url2@124:9	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+displayName2@136:16	displayName2	displayName	去掉打包器防重名追加的后缀，恢复原名 displayName，即该绑定持有的值。
+selected2@139:13	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+AgentModelRow2@134:50	AgentModelRow2	AgentModelRow	去掉打包器防重名追加的后缀，恢复原名 AgentModelRow，即该绑定持有的值。
+key2@146:69	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+size2@156:23	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+queryClient2@354:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+gatewayFetch2@355:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+active2@374:11	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+values3@463:9	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+values3@479:9	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+index2@493:18	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@494:14	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@496:6	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@501:29	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@502:37	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+selection2@506:9	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+selected2@522:3	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+selected2@534:3	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+selected2@545:44	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+selected2@552:3	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+name2@571:9	name2	normalizedDisplayName	该值是转换为小写的模型显示名称，用于品牌图标匹配。
+type2@630:9	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+values3@641:9	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+min2@659:9	min2	min	去掉打包器防重名追加的后缀，恢复原名 min，即该绑定持有的值。
+max2@660:9	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+option2@656:11	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@657:14	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+current2@693:26	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+ModelSubtitleRow2@704:53	ModelSubtitleRow2	ModelSubtitleRow	去掉打包器防重名追加的后缀，恢复原名 ModelSubtitleRow，即该绑定持有的值。
+type2@736:31	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+size2@736:44	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@750:9	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+ModelIcon22@748:46	ModelIcon22	ModelIcon	去掉打包器防重名追加的后缀，恢复原名 ModelIcon，即该绑定持有的值。
+ModelRow2@777:45	ModelRow2	ModelRow	去掉打包器防重名追加的后缀，恢复原名 ModelRow，即该绑定持有的值。
+current2@876:12	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+platform2@882:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+position2@978:10	position2	position	去掉打包器防重名追加的后缀，恢复原名 position，即该绑定持有的值。
+selection2@933:11	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+tab2@993:29	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+count2@1003:15	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+top2@1076:13	top2	popoverTop	该值是弹层在下方展开时的顶部坐标。
+next2@1157:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+previous2@1183:15	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@1190:15	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+position22@1220:9	position22	position	去掉打包器防重名追加的后缀，恢复原名 position，即该绑定持有的值。
+element2@1224:19	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
