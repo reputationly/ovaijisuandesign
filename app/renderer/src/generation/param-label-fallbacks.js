@@ -160,13 +160,13 @@ export function paramPlaceholderFallback(paramKey, rawPlaceholder) {
 }
 
 function modelMatchesStoredId(model, storedModelId) {
-  const id2 = normalizeLegacyModelId(storedModelId?.trim());
-  if (!id2) return false;
+  const id = normalizeLegacyModelId(storedModelId?.trim());
+  if (!id) return false;
   return (
-    model.id === id2 ||
-    model.model_name === id2 ||
-    model.pricingId === id2 ||
-    model.name === id2
+    model.id === id ||
+    model.model_name === id ||
+    model.pricingId === id ||
+    model.name === id
   );
 }
 
@@ -174,22 +174,22 @@ export function findModelByStoredId(models, storedModelId) {
   return models.find((model) => modelMatchesStoredId(model, storedModelId));
 }
 
-export function translateOptionValue(t2, value) {
+export function translateOptionValue(translate, value) {
   if (!value) return value;
   if (value === "auto" || value === "adaptive") {
-    return t2("canvas.param.option.auto", {
+    return translate("canvas.param.option.auto", {
       defaultValue: "Auto",
     });
   }
-  return t2(`canvas.param.option.${value}`, {
+  return translate(`canvas.param.option.${value}`, {
     defaultValue: value,
   });
 }
 
 export function getDefaultParams(model) {
   const result = {};
-  for (const [key2, def] of Object.entries(model.params)) {
-    result[key2] = def.default;
+  for (const [key, def] of Object.entries(model.params)) {
+    result[key] = def.default;
   }
   return result;
 }
@@ -199,14 +199,14 @@ function migrationSourceKeys(targetKey) {
     group.includes(targetKey),
   );
   if (!aliasGroup) return [targetKey];
-  return [targetKey, ...aliasGroup.filter((key2) => key2 !== targetKey)];
+  return [targetKey, ...aliasGroup.filter((key) => key !== targetKey)];
 }
 
-export function isPromotionActive(promotion, now2 = Date.now()) {
+export function isPromotionActive(promotion, now = Date.now()) {
   if (!promotion) return false;
   const { startTime, endTime } = promotion;
   if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) return false;
-  return now2 >= startTime && now2 <= endTime;
+  return now >= startTime && now <= endTime;
 }
 
 export function hasPromotionToastCopy(promotion) {
@@ -233,17 +233,17 @@ export function enforceConstraints(params, model) {
   let changed = true;
   while (changed) {
     changed = false;
-    for (const [key2, def] of Object.entries(model.params)) {
+    for (const [key, def] of Object.entries(model.params)) {
       if (def.type !== "select" || !def.options) continue;
-      const disabled2 = getDisabledOptions(
-        key2,
+      const disabled = getDisabledOptions(
+        key,
         result,
         model.paramConstraints,
       );
-      if (disabled2.has(result[key2])) {
-        const fallback = def.options.find((o2) => !disabled2.has(o2));
-        if (fallback && fallback !== result[key2]) {
-          result[key2] = fallback;
+      if (disabled.has(result[key])) {
+        const fallback = def.options.find((option) => !disabled.has(option));
+        if (fallback && fallback !== result[key]) {
+          result[key] = fallback;
           changed = true;
         }
       }
@@ -261,9 +261,9 @@ export function migrateParamsForModel(
   if (!previousModel) return enforceConstraints(result, nextModel);
   for (const [targetKey, targetDef] of Object.entries(nextModel.params)) {
     const sourceKey = migrationSourceKeys(targetKey).find(
-      (key2) =>
-        previousModel.params[key2] !== void 0 &&
-        previousParams[key2] !== void 0,
+      (key) =>
+        previousModel.params[key] !== void 0 &&
+        previousParams[key] !== void 0,
     );
     if (!sourceKey) continue;
     const value = previousParams[sourceKey];
@@ -276,27 +276,27 @@ export function migrateParamsForModel(
 
 export function normalizeParamsForModel(model, params) {
   const result = getDefaultParams(model);
-  for (const [key2, value] of Object.entries(params ?? {})) {
-    const def = model.params[key2];
+  for (const [key, value] of Object.entries(params ?? {})) {
+    const def = model.params[key];
     if (!def) continue;
     if (def.type === "select" && def.options && !def.options.includes(value))
       continue;
-    result[key2] = value;
+    result[key] = value;
   }
   return enforceConstraints(result, model);
 }
 
-export function basename$c(path2) {
-  if (!path2) return "";
-  const parts = path2.split("/");
-  return parts[parts.length - 1] || path2;
+export function basename$c(path) {
+  if (!path) return "";
+  const parts = path.split("/");
+  return parts[parts.length - 1] || path;
 }
 
 export function restoreDirectReferencePaths(saved, live) {
   return [
     ...new Set([
       ...(saved ?? []).filter(
-        (path2) => isCanvasReferenceUri(path2) || live.includes(path2),
+        (path) => isCanvasReferenceUri(path) || live.includes(path),
       ),
       ...live,
     ]),
@@ -309,25 +309,25 @@ export function resolveDefaultReferencePaths(
   options,
 ) {
   const live = referencePaths ?? [];
-  const ref = draftPaths?.some(isCanvasReferenceUri)
+  const reference = draftPaths?.some(isCanvasReferenceUri)
     ? restoreDirectReferencePaths(draftPaths, live)
     : live;
   if (options?.preserveDraftSlots && draftPaths) {
     const filledDraft = draftPaths.filter(Boolean);
     const remainingPathCounts = new Map();
-    for (const path2 of ref) {
-      remainingPathCounts.set(path2, (remainingPathCounts.get(path2) ?? 0) + 1);
+    for (const path of reference) {
+      remainingPathCounts.set(path, (remainingPathCounts.get(path) ?? 0) + 1);
     }
-    for (const path2 of filledDraft) {
-      const remaining = remainingPathCounts.get(path2) ?? 0;
-      if (remaining <= 1) remainingPathCounts.delete(path2);
-      else remainingPathCounts.set(path2, remaining - 1);
+    for (const path of filledDraft) {
+      const remaining = remainingPathCounts.get(path) ?? 0;
+      if (remaining <= 1) remainingPathCounts.delete(path);
+      else remainingPathCounts.set(path, remaining - 1);
     }
     const sameLiveReferences =
-      filledDraft.length === ref.length && remainingPathCounts.size === 0;
+      filledDraft.length === reference.length && remainingPathCounts.size === 0;
     if (sameLiveReferences) return [...draftPaths];
   }
-  return [...ref];
+  return [...reference];
 }
 
 export function resolveDraftReferencePaths(referencePaths, draftPaths) {
@@ -340,19 +340,19 @@ export function resolveEditableTextReferencePaths(
   liveEdgePaths,
   draftPaths,
 ) {
-  const selected2 = draftPaths !== void 0 ? draftPaths : (referencePaths ?? []);
+  const selected = draftPaths !== void 0 ? draftPaths : (referencePaths ?? []);
   return [
     ...new Set([
-      ...selected2.filter(Boolean),
+      ...selected.filter(Boolean),
       ...(liveEdgePaths ?? []).filter(Boolean),
     ]),
   ];
 }
 
-export function resolveActivePopoverDraft(data2, key2) {
-  const status = data2 && typeof data2 === "object" ? data2.status : void 0;
-  const draft = resolveActiveNodeDraft(getPopoverDraft(data2, key2), status);
-  if (!draft || (key2 !== "i2i" && key2 !== "i2v")) return draft;
+export function resolveActivePopoverDraft(data, key) {
+  const status = data && typeof data === "object" ? data.status : void 0;
+  const draft = resolveActiveNodeDraft(getPopoverDraft(data, key), status);
+  if (!draft || (key !== "i2i" && key !== "i2v")) return draft;
   const parsed = parseReferenceTextPrompt(draft.prompt ?? "");
   if (!parsed) return draft;
   const sanitized = {
@@ -373,31 +373,31 @@ const DERIVED_REFERENCE_PARAM_KEYS = new Set([
 
 export function stripDerivedReferenceParams(params) {
   if (!params) return params;
-  let next2;
-  for (const key2 of DERIVED_REFERENCE_PARAM_KEYS) {
-    if (key2 in params) {
-      next2 ??= {
+  let next;
+  for (const key of DERIVED_REFERENCE_PARAM_KEYS) {
+    if (key in params) {
+      next ??= {
         ...params,
       };
-      delete next2[key2];
+      delete next[key];
     }
   }
-  return next2 ?? params;
+  return next ?? params;
 }
 
-function stringArraysEqual(a2 = [], b3 = []) {
-  if (a2.length !== b3.length) return false;
-  for (let i2 = 0; i2 < a2.length; i2++) {
-    if (a2[i2] !== b3[i2]) return false;
+function stringArraysEqual(leftArray = [], rightArray = []) {
+  if (leftArray.length !== rightArray.length) return false;
+  for (let index = 0; index < leftArray.length; index++) {
+    if (leftArray[index] !== rightArray[index]) return false;
   }
   return true;
 }
 
-function stringMapsEqual(a2 = {}, b3 = {}) {
-  const aKeys = Object.keys(a2);
-  if (aKeys.length !== Object.keys(b3).length) return false;
-  for (const k2 of aKeys) {
-    if (a2[k2] !== b3[k2]) return false;
+function stringMapsEqual(leftMap = {}, rightMap = {}) {
+  const aKeys = Object.keys(leftMap);
+  if (aKeys.length !== Object.keys(rightMap).length) return false;
+  for (const key of aKeys) {
+    if (leftMap[key] !== rightMap[key]) return false;
   }
   return true;
 }

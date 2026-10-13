@@ -1,0 +1,27 @@
+key	old	new	依据
+id2@163:9	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+t2@177:38	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+o2@244:44	o2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+a2@388:28	a2	leftArray	去掉打包器防重名追加的后缀，恢复原名 leftArray，即该绑定持有的值。
+b3@388:37	b3	rightArray	去掉打包器防重名追加的后缀，恢复原名 rightArray，即该绑定持有的值。
+i2@390:12	i2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+a2@396:26	a2	leftMap	去掉打包器防重名追加的后缀，恢复原名 leftMap，即该绑定持有的值。
+b3@396:35	b3	rightMap	去掉打包器防重名追加的后缀，恢复原名 rightMap，即该绑定持有的值。
+k2@399:14	k2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+ref@312:9	ref	reference	去掉打包器防重名追加的后缀，恢复原名 reference，即该绑定持有的值。
+key2@191:15	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@202:44	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+now2@205:46	now2	now	去掉打包器防重名追加的后缀，恢复原名 now，即该绑定持有的值。
+key2@236:17	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+disabled2@238:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+key2@264:8	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@279:15	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+path2@289:28	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@299:10	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@318:16	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@321:16	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+selected2@343:9	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+data2@352:43	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+key2@352:50	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+next2@376:7	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+key2@377:14	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。

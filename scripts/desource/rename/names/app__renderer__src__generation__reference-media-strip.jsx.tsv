@@ -1,0 +1,14 @@
+key	old	new	依据
+n2@26:11	n2	numericValue	去掉打包器防重名追加的后缀，恢复原名 numericValue，即该绑定持有的值。
+t2@40:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+i2@98:41	i2	itemIndex	去掉打包器防重名追加的后缀，恢复原名 itemIndex，即该绑定持有的值。
+e2@114:22	e2	changeEvent	去掉打包器防重名追加的后缀，恢复原名 changeEvent，即该绑定持有的值。
+id2@145:17	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+e2@164:29	e2	errorEvent	去掉打包器防重名追加的后缀，恢复原名 errorEvent，即该绑定持有的值。
+path2@19:27	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+index2@95:23	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+next2@95:31	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+values3@132:9	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+path2@143:23	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+index2@143:30	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+name2@147:17	name2	fileName	去掉打包器防重名追加的后缀，恢复原名 fileName，即该绑定持有的值。
