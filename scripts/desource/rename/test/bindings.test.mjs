@@ -109,6 +109,22 @@ function render(a, next = a) {
     );
   });
 
+  it("重命名解构默认值右侧引用时不改属性键", () => {
+    const root = fixture();
+    const source = `export function f({ isActive: isActive2 = true, isPresented = isActive2 }) {
+  return [isActive2, isPresented];
+}
+`;
+    const result = local(root, source, { isActive2: "isActive" });
+    expect(result.files[0].equivalence.status).toBe("pass");
+    expect(readFileSync(`${root}/app/renderer/src/sample.jsx`, "utf8")).toContain(
+      "export function f({ isActive = true, isPresented = isActive }) {",
+    );
+    expect(readFileSync(`${root}/app/renderer/src/sample.jsx`, "utf8")).toContain(
+      "return [isActive, isPresented];",
+    );
+  });
+
   it.each(["window", "externalName", "class", "await", "let"])(
     "拒绝全局名、自由名或严格模式保留字 %s",
     (newName) => {
