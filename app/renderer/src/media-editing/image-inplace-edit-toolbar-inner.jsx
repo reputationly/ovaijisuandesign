@@ -6,17 +6,16 @@ import {
   CompositedSvg,
   Hand,
   jsxRuntimeExports,
-  NodeToolbar$1 as NodeToolbar,
   Pencil,
-  Position,
   reactExports,
   Redo2,
   Slash,
   Tag$1 as Tag,
   Undo2,
-  useStore$3 as useStore,
   useTranslation,
 } from "../vendor.js";
+import { NodeToolbar, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Circle,

@@ -1,5 +1,6 @@
 // sticker-cursor-preview-content.jsx
-import { reactExports, ViewportPortal } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { ViewportPortal } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { STICKER_NODE_SIZE } from "./resolve-canvas-focus-targets.js";
 import { CANVAS_STAMP_CURSOR_URL } from "../media-editing/canvas-sticker-assets.jsx";

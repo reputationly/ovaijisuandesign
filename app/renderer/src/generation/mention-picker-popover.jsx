@@ -1,5 +1,6 @@
 // mention-picker-popover.jsx
-import { ChevronRight$1 as ChevronRight, jsxRuntimeExports, Loader2Icon, Music, reactDomExports, reactExports, useStore$3 as useStore, useTranslation, Video } from "../vendor.js";
+import { ChevronRight$1 as ChevronRight, jsxRuntimeExports, Loader2Icon, Music, reactDomExports, reactExports, useTranslation, Video } from "../vendor.js";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import {
   FileText,

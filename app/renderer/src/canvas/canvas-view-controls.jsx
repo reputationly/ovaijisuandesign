@@ -10,11 +10,11 @@ import {
   Map$1 as MapIcon,
   MonochromeIcon,
   reactExports,
-  useStore$3 as useStore,
   useTranslation,
   Workflow,
   X$7 as XIcon,
 } from "../vendor.js";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import {
   DropdownMenuContent,
   DropdownMenuItem,

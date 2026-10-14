@@ -1,5 +1,6 @@
 // node-body-inner.jsx
-import { reactExports, useNodeId } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { useNodeId } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { NodeFrameStroke } from "./node-shell-inner.jsx";
 import {

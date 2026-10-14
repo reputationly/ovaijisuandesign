@@ -1,5 +1,6 @@
 // audio-action-surface.jsx
-import { CompositedSvg, isUserProvidedAssetModel, jsxRuntimeExports, reactDomExports, reactExports, useStore$3 as useStore, useTranslation } from "../vendor.js";
+import { CompositedSvg, isUserProvidedAssetModel, jsxRuntimeExports, reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

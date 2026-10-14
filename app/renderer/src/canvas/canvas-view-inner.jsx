@@ -1,5 +1,6 @@
 // canvas-view-inner.jsx
-import { CanvasNodeType, Check, ChevronDown, Loader2Icon, reactExports, useNodesInitialized, useReactFlow, useStore$3 as useStore, useStoreApi, useTranslation } from "../vendor.js";
+import { CanvasNodeType, Check, ChevronDown, Loader2Icon, reactExports, useTranslation } from "../vendor.js";
+import { useNodesInitialized, useReactFlow, useStore, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

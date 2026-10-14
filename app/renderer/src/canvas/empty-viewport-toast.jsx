@@ -1,12 +1,6 @@
 // empty-viewport-toast.jsx
-import {
-  Panel,
-  reactExports,
-  useReactFlow,
-  useStoreApi,
-  useTranslation,
-  X$7 as XIcon,
-} from "../vendor.js";
+import { reactExports, useTranslation, X$7 as XIcon } from "../vendor.js";
+import { Panel, useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button } from "./node-shell-inner.jsx";
 import { CANVAS_TOOL_DOCK_SAFE_BOTTOM_PX } from "./cursor-icon.jsx";

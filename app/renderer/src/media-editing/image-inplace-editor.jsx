@@ -6,7 +6,8 @@ import {
   useEditorState,
 } from "./use-editor-state.js";
 import { DEFAULT_STYLE } from "./history-manager.js";
-import { reactExports, useStore$3 as useStore } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { ImageInplaceEditToolbarInner } from "./image-inplace-edit-toolbar-inner.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageEditor } from "./image-editor.jsx";

@@ -1,11 +1,6 @@
 // canvas-outpaint-overlay.jsx
-import {
-  CompositedSvg,
-  reactExports,
-  useReactFlow,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import { CompositedSvg, reactExports, useTranslation } from "../vendor.js";
+import { useReactFlow, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { clamp } from "./use-start-crop-from-node.js";
 import { CloseIcon, SendArrowIcon } from "./file-missing-icon.jsx";

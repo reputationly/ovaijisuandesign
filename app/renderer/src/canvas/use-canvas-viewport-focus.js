@@ -1,5 +1,6 @@
 // use-canvas-viewport-focus.js
-import { reactExports, useReactFlow, useStoreApi } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import {
   CANVAS_MAX_ZOOM,
   CANVAS_MIN_ZOOM,

@@ -2,12 +2,8 @@
 import { MEDIA_NODE_RADIUS } from "./package.jsx";
 import { GROUP_NODE_PADDING } from "../canvas/compute-group-bounds-from-children.js";
 import { GROUP_COLOR_PRESETS } from "./group-color-presets.jsx";
-import {
-  ChevronDown$2 as ChevronDown,
-  reactExports,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import { ChevronDown$2 as ChevronDown, reactExports, useTranslation } from "../vendor.js";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { NodeResizeFrame } from "../infra/node-resize-frame-inner.jsx";
 import {

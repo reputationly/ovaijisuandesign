@@ -1,5 +1,6 @@
 // video-node-inner.jsx
-import { CompositedSvg, jsxRuntimeExports, reactExports, useReactFlow, useTranslation } from "../vendor.js";
+import { CompositedSvg, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { useReactFlow } from "../vendor-fork/xyflow/react/index.js";
 import { useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { useNodeIsEmpty } from "../infra/create-recently-added-store.js";
 import { useCanvasActions } from "./use-canvas-actions.js";

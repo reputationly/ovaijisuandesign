@@ -1,5 +1,6 @@
 // reference-switch-popover.jsx
-import { Check, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Music, reactDomExports, reactExports, useStore$3 as useStore, useTranslation, Video } from "../vendor.js";
+import { Check, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Music, reactDomExports, reactExports, useTranslation, Video } from "../vendor.js";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import {
   FileText,

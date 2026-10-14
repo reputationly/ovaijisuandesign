@@ -1,13 +1,7 @@
 // hailuo03-super-resolution-popover.jsx
-import {
-  jsxRuntimeExports,
-  NodeToolbar$1 as NodeToolbar,
-  Position,
-  reactExports,
-  useNodeId,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { NodeToolbar, useNodeId, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useVideoEditCost } from "./video-tool-meta.jsx";
 import {

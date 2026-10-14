@@ -1,16 +1,7 @@
 // canvas-context-menu.jsx
-import {
-  CanvasNodeType,
-  CompositedSvg,
-  getBezierPath,
-  jsxRuntimeExports,
-  Position,
-  reactDomExports,
-  reactExports,
-  useReactFlow,
-  useStore$3 as useStore,
-  useTranslation,
-  } from "../vendor.js";
+import { CanvasNodeType, CompositedSvg, jsxRuntimeExports, reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import { getBezierPath, Position } from "../vendor-fork/xyflow/system/index.js";
+import { useReactFlow, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   ImageOutlineIcon,

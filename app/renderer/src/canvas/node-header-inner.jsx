@@ -1,11 +1,6 @@
 // node-header-inner.jsx
-import {
-  CompositedSvg,
-  reactExports,
-  useNodeId,
-  useTranslation,
-  X$7 as XIcon,
-} from "../vendor.js";
+import { CompositedSvg, reactExports, useTranslation, X$7 as XIcon } from "../vendor.js";
+import { useNodeId } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MAX_VISIBLE_CANVAS_TAG_COLORS } from "../infra/parse-connector-selection.js";
 import {

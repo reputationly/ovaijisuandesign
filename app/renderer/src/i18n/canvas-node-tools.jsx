@@ -1,5 +1,6 @@
 // canvas-node-tools.jsx
-import { reactExports, ReactFlowProvider } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { ReactFlowProvider } from "../vendor-fork/xyflow/react/index.js";
 import {
   CanvasTagColorsContext,
   CanvasTagFilterActiveContext,

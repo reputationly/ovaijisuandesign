@@ -1,6 +1,7 @@
 // round-dots-inner.jsx
 import { isStoryboardGridValid } from "./grid-validity-map.js";
-import { reactExports, useStore$3 as useStore } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";
 export function resolveImageNodeDisplayName(candidates, fallbackLabel) {

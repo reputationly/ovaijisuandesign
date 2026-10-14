@@ -8,12 +8,8 @@ import {
   sourceHandleSide,
   subscribers,
 } from "./control-points-for.js";
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useNodesInitialized,
-  useStoreApi,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports } from "../vendor.js";
+import { useNodesInitialized, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 function tracePath(target, points, side = "right") {
   const cp = controlPointsFor(points, side);

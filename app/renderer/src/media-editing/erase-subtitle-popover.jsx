@@ -1,12 +1,7 @@
 // erase-subtitle-popover.jsx
-import {
-  NodeToolbar$1 as NodeToolbar,
-  Position,
-  reactExports,
-  useNodeId,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { NodeToolbar, useNodeId, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   useCanvasIsBoxSelecting,

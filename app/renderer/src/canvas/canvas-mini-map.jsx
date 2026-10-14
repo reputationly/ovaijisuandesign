@@ -2,20 +2,15 @@
 import {
   CanvasNodeType,
   flowPointToMiniMap,
-  getBoundsOfRects,
-  getNodeDimensions,
   MIN_SELECTED_NODE_SIZE,
   NODE_HIT_SLOP,
-  nodeHasDimensions,
   nodeToMiniMapRect,
-  Panel,
   reactExports,
   SELECTED_GLOW_BLUR,
   shallow,
-  useStore$3 as useStore,
-  useStoreApi,
-  XYMinimap,
 } from "../vendor.js";
+import { getBoundsOfRects, getNodeDimensions, nodeHasDimensions, XYMinimap } from "../vendor-fork/xyflow/system/index.js";
+import { Panel, useStore, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useRecentlyAddedApi } from "../infra/create-recently-added-store.js";
 import { useGeneratingStateApi } from "../media-editing/package.jsx";

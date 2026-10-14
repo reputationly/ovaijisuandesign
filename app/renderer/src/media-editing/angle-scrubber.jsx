@@ -1,13 +1,8 @@
 // angle-scrubber.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  CompositedSvg,
-  NodeToolbar$1 as NodeToolbar,
-  Position,
-  reactExports,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import { CompositedSvg, reactExports, useTranslation } from "../vendor.js";
+import { NodeToolbar, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import {
   clamp,
   normalizeAngle,

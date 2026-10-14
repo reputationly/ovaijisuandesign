@@ -1,7 +1,9 @@
 // multi-angle-editor.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CANVAS_SIZE, ToolResetIcon } from "./plane-quad.jsx";
-import { CompositedSvg, NodeToolbar$1 as NodeToolbar, Position, reactExports, useNodeId, useStore$3 as useStore, useTranslation, X$7 as X } from "../vendor.js";
+import { CompositedSvg, reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import { NodeToolbar, useNodeId, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { CreditCostBadge, Tooltip } from "../generation/missing-asset-card.jsx";
 import {
