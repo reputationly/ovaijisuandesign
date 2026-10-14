@@ -21,10 +21,10 @@
 |---|---:|---|
 | 当前文件里已经没有 | 8 | 在旧行号上夹在 xyflow 或 graphlib 段里，那两段已经删了：`__vite_import_meta_env__`、`identity$1`、`ge`、`hn$2`、`fn$1`、`pe`、`z$4`、`tr$2` |
 | 第二批、第三批正文已经认领 | 7 | 见第 6 节。不重复计入 |
-| 还在文件里、且 `status: none` | 288 | 其中 12 个是库胶水，17 个拿不准，259 个确定搬走或删掉 |
+| 还在文件里、且 `status: none` | 288 | 其中 12 个是库胶水，16 个拿不准，1 个是 mutative 的 `Operation`，259 个确定搬走或删掉 |
 | 另加换包计划写明留下的图标 | 223 | `Plus$1` 1 个，`withIconCompositing` 包装 222 个。旧清单把它们标成 lucide-react |
 
-确定处理的应用声明是 259 + 223 = **482** 个，**82,257** 字节。另有 24 个确定是库、17 个拿不准，都不算进这 482。
+确定处理的应用声明是 259 + 223 = **482** 个，**82,257** 字节。另有 25 个确定是库、16 个拿不准，都不算进这 482。
 
 旧分类是启发式的，这里按当前函数体改了几处：
 
@@ -565,7 +565,7 @@
 
 ## 4. 拿不准，不划进确定拆走
 
-下面 **17** 个声明，合计 **5,977** 字节。形状没有对上已装包，函数体又很像某个库。三批删除表没有它们的名字。在用 `analysis/remaining/tools/xcanon.mjs` 对上下面写的包之前，不要搬进应用目录，也不要删。对上了就改成从该包的公开入口 import；对不上、而且差异是应用行为，再单独立项，不塞进第 3 节的文件。
+下面 **16** 个声明，合计 **5,907** 字节。形状没有对上已装包，函数体又很像某个库。三批删除表没有它们的名字。在用 `analysis/remaining/tools/xcanon.mjs` 对上下面写的包之前，不要搬进应用目录，也不要删。对上了就改成从该包的公开入口 import；对不上、而且差异是应用行为，再单独立项，不塞进第 3 节的文件。原先放在这里的 `Operation` 已经对上 mutative，改记在第 5 节。
 
 ### 很像 @dnd-kit/core 的两个 hook
 
@@ -595,7 +595,7 @@ vendor.js 已经 `import { ErrorBoundary as C$5 } from "react-error-boundary"`�
 
 4 个，931 字节：`M$3`（16436 行，745 字节）、`x$4`（16458 行，40 字节）、`U$3`（16459 行，50 字节）、`z$3`（16463 行，96 字节）。
 
-`M$3` 在 `documentElement` 上改 class 和 `colorScheme`，并被一段没有绑定名的 `reactExports.memo(...)` 塞进 `<script>`（当前约 16467 行，`dangerouslySetInnerHTML` 调用 `M$3.toString()`）。这段表达式不是顶层声明，不在 17 个里面，但必须和这四件套一起处理。`z$3` 读 context，`settings/attach-native-toast-surface.jsx` 以 `z$3 as useTheme` 导入。renderer 的 package.json 没有 next-themes。`M$3`、`x$4`、`U$3` 没有应用 import。
+`M$3` 在 `documentElement` 上改 class 和 `colorScheme`，并被一段没有绑定名的 `reactExports.memo(...)` 塞进 `<script>`（当前约 16467 行，`dangerouslySetInnerHTML` 调用 `M$3.toString()`）。这段表达式不是顶层声明，不在这 16 个里面，但必须和这四件套一起处理。`z$3` 读 context，`settings/attach-native-toast-surface.jsx` 以 `z$3 as useTheme` 导入。renderer 的 package.json 没有 next-themes。`M$3`、`x$4`、`U$3` 没有应用 import。
 
 应用 import：`settings/attach-native-toast-surface.jsx`。
 
@@ -615,17 +615,9 @@ vendor.js 顶部已经从 `@tanstack/react-router` 导入 `useHydrated`、`creat
 
 应用 import：无。
 
-### 紧挨 travels 的 Operation
-
-1 个，70 字节：`Operation`（11736 行，70 字节）。
-
-值是 `{ Remove: "remove", Replace: "replace", Add: "add" }`。在当前文件里，它紧挨第一批要删的 travels 声明 `r$5`。应用没有 import。它可能是 travels / JSON patch 漏掉的枚举，也可能是应用自己的操作名。没有打开 travels 源码逐字对照，所以不删、也不搬。
-
-应用 import：无。
-
 ## 5. 确定是库，三批删除表没有这些名字
 
-**24** 个声明，**4,272** 字节。它们不是应用代码。拆第 3 节之前先确认它们已经不在；还在就删，或者改成从对应的包 import。不要搬进应用目录。
+**25** 个声明，**4,342** 字节。它们不是应用代码。拆第 3 节之前先确认它们已经不在；还在就删，或者改成从对应的包 import。不要搬进应用目录。
 
 | 声明 | 字节 | 原因 |
 |---|---:|---|
@@ -653,6 +645,7 @@ vendor.js 顶部已经从 `@tanstack/react-router` 导入 `useHydrated`、`creat
 | `compareEntries`（13360 行） | 392 | 只被 `shallow` 使用 |
 | `compareIterables`（13373 行） | 416 | 只被 `shallow` 使用 |
 | `shallow`（13387 行） | 654 | zustand 的 `shallow`。`canvas/canvas-mini-map.jsx` 有 import |
+| `Operation`（11736 行） | 70 | mutative 的补丁枚举 `{ Remove: "remove", Replace: "replace", Add: "add" }`，与 `mutative@1.3.0` 的 `dist/mutative.esm.js` 一致。travels 2.2.0 的包里没有这个对象。应用没有 import，vendor 里也只有声明和导出列表。不要搬进应用目录；mutative 已经换成 npm，这份是漏删的副本，拆分前删掉 |
 
 zustand 这一组（`createStoreImpl`、`createStore$1`、`identity`、`useStore$2`、`createImpl`、`create$2`、`isIterable`、`hasIterableEntries`、`compareEntries`、`compareIterables`、`shallow`）形状命中已装的 zustand 4.5.7。xyflow 可读副本已经改走 npm，这 11 个留在 vendor.js 里是因为应用还在从这里 import。执行时对一下 4.5.7 的公开导出：`create$2` 对 react 的 `create`，`createStore$1` 对 vanilla 的 `createStore`，`useStore$2` 对 `useStore`，`shallow` 对 `shallow`。调用方改到包上，不深拷进应用目录。
 
@@ -729,7 +722,7 @@ from-vendor.js 按现有导出的用途，落到已有目录，不新造一层�
 1. 先做换包计划的第一批、第二批、第三批。每批删的是 `DELETIONS.md` 里那 850 个库声明，外加第 6 节的 7 个和第 5 节里明确属于该批的胶水（`e$1` 跟 void-elements，`a$1` 跟 speed-highlight，`commonjsRequire` / `commonjsGlobal` 跟 jszip，`requireReact` 跟 react-qr-code，`isString` 跟 i18next，`cjsExports` / `extendExports` 跟 style-to-js 和 extend，`getStoreFactory` 跟 `@tanstack/store`，`unreachable` 跟 react-markdown）。`Plus$1` 和 222 个 `withIconCompositing` 包装不删。
 2. 每一批自己跑两轮 `gate.sh`，两轮都过，才算这批做完。交接文档 6.3 的单实例和补丁说明也要齐。本方案不跑门禁。
 3. 三批都做完之后，在当时的 `vendor.js` 上再按声明名扫一遍。第 3 节的 482 个名字还在，850 个库名字不在，`Plus$1` 和 222 个包装还在。行号以那次扫描为准，不要用本文件里的行号删代码。
-4. 第 4 节的 17 个先对包。对上了就改 import，对不上就停在原处，不要为了清空 vendor.js 把它们塞进第 3 节的文件。
+4. 第 4 节的 16 个先对包。对上了就改 import，对不上就停在原处，不要为了清空 vendor.js 把它们塞进第 3 节的文件。第 5 节的 `Operation` 直接删，不参与这次比对。
 5. 然后才搬第 3 节。先搬不依赖 lucide 包导入的文件，`media-editing/lucide-icon-wraps.js` 放在第二批的图标导入改完之后。`infra/cjs-interop.js` 只在两个调用方还需要时才建。
 6. 接着把 from-vendor.js 按第 7 节的目录拆开，改掉 vendor.js 转发、第 3 节新文件、以及 xyflow 两处直接 import。
 7. 把还从 vendor.js 拿 npm 符号的 import 改到包的公开入口。然后删除 vendor.js。若有暂时删不掉的转发，每个导出在文件头写明包名和原因，并且文件必须小到可以逐条核对。
@@ -739,8 +732,8 @@ from-vendor.js 按现有导出的用途，落到已有目录，不新造一层�
 
 ## 9. 没有把握的点
 
-- 第 4 节 17 个声明没有再跑 xcanon。判断依据是函数体和已有 import，不是逐声明形状分。
-- `Operation` 没有和 travels 的源码逐字比过。
+- 第 4 节 16 个声明没有再跑 xcanon。判断依据是函数体和已有 import，不是逐声明形状分。
+- `Operation` 已对上 mutative，见第 5 节。
 - 只核对了 `namesMatch$1` / `originsMatch$1` 这一对和 from-vendor 的同体函数。其他剩余声明没有和 from-vendor.js 做全文查重，可能还有第二份。
 - 字节不含关键字和语句之间的空行。从文件里实际删掉的体积会比 82,257 大一点。
 - 主题脚本那段没有名字的 `reactExports.memo` 不在声明计数里。处理 `M$3` 时如果漏了它，页面会留下一个引用已删函数的表达式。
