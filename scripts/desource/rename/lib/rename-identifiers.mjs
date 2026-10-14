@@ -390,11 +390,15 @@ function runExportMode({ root, srcDir, map, dryRun, report }) {
     const file = path.resolve(root, relativeFile);
     const before = contents.get(file);
     if (before == null) throw new Error(`导出文件不存在或不在源码范围内：${relativeFile}`);
-    let text = before;
+    // 这个文件可能已经作为前面某个导出的导入方被改过。从 output 继续，避免把那些改动盖掉。
+    let text = output.get(file);
     const rejected = [];
     const renames = [];
-    const externalRenames = new Map();
-    externalByFile.set(file, externalRenames);
+    let externalRenames = externalByFile.get(file);
+    if (!externalRenames) {
+      externalRenames = new Map();
+      externalByFile.set(file, externalRenames);
+    }
     const beforeAst = parse(before, file);
     const requestedNames = new Set();
     const currentExports = exportsFor(beforeAst);
@@ -415,7 +419,6 @@ function runExportMode({ root, srcDir, map, dryRun, report }) {
         rejected.push({ key: oldName, reason: `新导出名已存在：${newName}` });
         continue;
       }
-      const edits = [];
       let hasLocalBinding = false;
       traverse(beforeAst, {
         ExportNamedDeclaration(exportPath) {
@@ -423,12 +426,6 @@ function runExportMode({ root, srcDir, map, dryRun, report }) {
           if (declaration.source) {
             for (const specifier of declaration.specifiers) {
               if ((specifier.exported.name ?? specifier.exported.value) === oldName) {
-                const local = specifier.local.name ?? specifier.local.value;
-                if (local === oldName) {
-                  edits.push({ start: specifier.start, end: specifier.end, text: `${oldName} as ${newName}` });
-                } else {
-                  edits.push(externalIdentifierEdit(before, specifier.exported, newName));
-                }
                 setExternalRename(externalRenames, specifier.exported.start, newName, "exported");
               }
             }
@@ -438,11 +435,10 @@ function runExportMode({ root, srcDir, map, dryRun, report }) {
             const exported = specifier.exported.name ?? specifier.exported.value;
             const local = specifier.local.name ?? specifier.local.value;
             if (exported !== oldName) continue;
-              if (local === oldName) {
-                hasLocalBinding = true;
-              } else {
-                edits.push(externalIdentifierEdit(before, specifier.exported, newName));
-                setExternalRename(externalRenames, specifier.exported.start, newName, "exported");
+            if (local === oldName) {
+              hasLocalBinding = true;
+            } else {
+              setExternalRename(externalRenames, specifier.exported.start, newName, "exported");
             }
           }
           const node = declaration.declaration;
@@ -486,7 +482,29 @@ function runExportMode({ root, srcDir, map, dryRun, report }) {
           },
         });
       } else {
-        text = applyTextEdits(text, edits);
+        // 前面的改名已经改过 text。这里的 edits 仍是原始 AST 的偏移，不能直接套到新文本上。
+        const currentAst = text === before ? beforeAst : parse(text, file);
+        const liveEdits = [];
+        traverse(currentAst, {
+          ExportNamedDeclaration(exportPath) {
+            const declaration = exportPath.node;
+            for (const specifier of declaration.specifiers ?? []) {
+              const exported = specifier.exported.name ?? specifier.exported.value;
+              const local = specifier.local.name ?? specifier.local.value;
+              if (exported !== oldName) continue;
+              if (local === oldName) {
+                liveEdits.push({
+                  start: specifier.start,
+                  end: specifier.end,
+                  text: `${oldName} as ${newName}`,
+                });
+                continue;
+              }
+              liveEdits.push(externalIdentifierEdit(text, specifier.exported, newName));
+            }
+          },
+        });
+        text = applyTextEdits(text, liveEdits);
       }
       if (!renames.some((item) => item.old === oldName)) {
         renames.push({ key: oldName, old: oldName, new: newName, kind: "exported-name", positions: [] });

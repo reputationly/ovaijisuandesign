@@ -98,6 +98,57 @@ console.log(localValue);
     expect(readFileSync(`${root}/${relative}`, "utf8")).toContain("export { value }");
   });
 
+  it("同一文件里连续改多个再导出时按当前文本定位", () => {
+    const root = fixture();
+    const target = "app/renderer/src/t.jsx";
+    put(root, target, `export { Bitstream as Bitstream2 } from "mediabunny";
+export var TableView2 = class {};
+export { WidgetType as WidgetType2 } from "codemirror";
+`);
+    const result = renameIdentifiers({
+      root,
+      mode: "export",
+      map: {
+        [target]: {
+          Bitstream2: "Bitstream",
+          TableView2: "TableView",
+          WidgetType2: "WidgetType",
+        },
+      },
+      report: "report.json",
+    });
+    expect(result.files.every((item) => item.equivalence.status === "pass")).toBe(true);
+    expect(result.files.flatMap((item) => item.rejected)).toEqual([]);
+    const next = readFileSync(`${root}/${target}`, "utf8");
+    expect(next).toContain("export { Bitstream as Bitstream }");
+    expect(next).toContain("export var TableView = class {}");
+    expect(next).toContain("export { WidgetType as WidgetType }");
+  });
+
+  it("后改同一文件的导出时保留先前的导入改名", () => {
+    const root = fixture();
+    put(root, "app/renderer/src/lib.jsx", "export const Event$1 = 1;\n");
+    put(root, "app/renderer/src/app.jsx", `import { Event$1 as eventApi } from "./lib.jsx";
+export const TUTORIAL_URL$2 = 2;
+console.log(eventApi, TUTORIAL_URL$2);
+`);
+    const result = renameIdentifiers({
+      root,
+      mode: "export",
+      map: {
+        "app/renderer/src/lib.jsx": { Event$1: "VSCodeEvent" },
+        "app/renderer/src/app.jsx": { TUTORIAL_URL$2: "TUTORIAL_URL_BY_REGION" },
+      },
+      report: "report.json",
+    });
+    expect(result.files.every((item) => item.equivalence.status === "pass")).toBe(true);
+    expect(result.files.flatMap((item) => item.rejected)).toEqual([]);
+    const next = readFileSync(`${root}/app/renderer/src/app.jsx`, "utf8");
+    expect(next).toContain("import { VSCodeEvent as eventApi }");
+    expect(next).toContain("export const TUTORIAL_URL_BY_REGION = 2");
+    expect(next).not.toContain("Event$1");
+  });
+
   it("改名本地绑定时更新简写导出但保留别名导出", () => {
     const root = fixture();
     const target = "app/renderer/src/t.jsx";
