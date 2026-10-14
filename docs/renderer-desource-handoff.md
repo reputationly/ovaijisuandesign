@@ -422,7 +422,7 @@ node scripts/desource/rename/rename-files.mjs scripts/desource/rename/names/fina
 | 6.3 剩余库换包 | 三批两轮门禁都已通过 | 计划在 `origin/devin/vendor-swap-plan` @ `fe63116a`。第一批 `7657ae9d` 合入 `f8188c52`，`vendor.js` 828,241 → 568,125 字节，顶层声明少 360 个，没有新补丁，14 个包都是单实例。`src_default$1` 是 Tiptap 的 Placeholder，没有误换成 mediabunny。第二批 `6b4e19b6` 已快进合入，`vendor.js` 568,125 → 246,415 字节。jszip 3.10.1、lucide-react 0.468.0、wavesurfer.js 7.12.7、`@tiptap/extension-table` 3.31.3 各一个实例，没有新补丁。`Plus$1` 和 245 个图标包装留下。第三批 `23845cbf` 合入 `a7c894fb`，`vendor.js` 246,415 → 135,927 字节，没有新补丁 |
 | 6.4 xyflow 方案 2 | 完成 | `6454e65e`，合入 `5f2d2c8c`。可读副本在 `app/renderer/src/vendor-fork/xyflow/`，`CHANGES.md` 记了 17 处行为改动。zustand 4.5.7、classcat 5.0.5 来自 npm。renderer 不再依赖 `@xyflow/system`、`@xyflow/react`。画布页两轮门禁非抗锯齿像素差是 0 |
 | 6.5 vendor-inline 收尾 | 完成 | `ab5156f2`，合入 `34c1e62a`。四个纯再导出改成直接引用 `@codemirror/state@6.7.5`、`@codemirror/view@6.43.6`、`@codemirror/language@6.12.4`、`@codemirror/lang-markdown@6.5.2`。留下 `delete-markup-backward.js`、`line2.js` 和四份带来源说明的 vscode-base |
-| 6.6 应用代码拆分 | 代码已拆，门禁未跑 | 474 个确认的应用声明按名字拆进现有目录。zustand 副本改走 4.5.7 的公开入口。`vendor.js` 135,927 → 7,641 字节，只留还没对上包的声明，文件头写了原因。`from-vendor.js` 里确认是应用的声明已拆开；表格、选择器和打包垫片还留在原文件，并写了原因。两轮 `gate.sh` 还没跑 |
+| 6.6 应用代码拆分 | 第一轮门禁已过，第二轮未跑 | 474 个确认的应用声明按名字拆进现有目录，提交 `91bd10f6`、`c2fa8c68`。zustand 副本改走 4.5.7 的公开入口。`vendor.js` 135,927 → 7,641 字节，只留还没对上包的声明，文件头写了原因。`from-vendor.js` 里确认是应用的声明已拆开；表格、选择器和打包垫片还留在原文件，并写了原因。第一轮 `gate.sh` 见下面的拆分表 |
 | 6.7 总 PR | 未开始 | 换包合入后还要再跑两轮，再做构建产物审计和向 main 的总 PR |
 
 下面两轮覆盖的是第一批换包之前的树（当时 HEAD `39c51e5f`，`vendor.js` 828,241 字节），退出码都是 0。raw 像素在通过的报告里是 0，没有 raw-only 差异。
@@ -447,6 +447,12 @@ node scripts/desource/rename/rename-files.mjs scripts/desource/rename/names/fina
 |---|---|---|
 | 第一轮 `gate.sh` | `.probe/ui-compare/2026-10-14T09-04-26-687Z/report.json` | 一次比较即通过。40 页像素原始/非抗锯齿都是 0/0，网络、DOM、状态、新增报错都是 0 |
 | 第二轮 `gate.sh` | `.probe/ui-compare/2026-10-14T09-23-40-892Z/report.json` | 一次比较即通过。40 页像素原始/非抗锯齿都是 0/0，网络、DOM、状态、新增报错都是 0 |
+
+应用代码拆分后的第一轮 `gate.sh` 退出码是 0，加载的是 `index-CQH314Qo.js`（23,222.44 kB）。`recovered-ui/index.html` 指向这个哈希，这次构建在门禁里是缓存命中。更早一次比较在写出报告前就停了（`.probe/ui-compare/2026-10-14T10-11-15-433Z`，等不到界面页面），不计入。没有 raw-only 像素差。
+
+| 轮次 | 报告 | 结果 |
+|---|---|---|
+| 第一轮 `gate.sh` | `.probe/ui-compare/2026-10-14T10-12-57-788Z/report.json`，以及自动第二遍 `.probe/ui-compare/2026-10-14T10-31-42-244Z/report.json` | 第二遍 40 页像素原始/非抗锯齿都是 0/0，网络、DOM、状态、新增报错都是 0。不稳定、不阻断：`home` 和 `project-assets` 第一遍只有网络通道。`home` 的差异是请求里的屏幕宽高（1728×1117 对 1496×967）。`project-assets` 第一遍 GET 请求数是 37 对 25。像素、DOM、状态、新增报错第一遍也是 0。第二遍通过 |
 
 第一批换包之前的两轮（HEAD `39c51e5f`，`vendor.js` 828,241 字节）：
 
