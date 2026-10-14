@@ -4,6 +4,8 @@
 
 当前 `app/renderer/src/vendor.js`：828241 字节，23763 行。DELETIONS.md 的行号是更早那份文件上的，这里全部作废。下面的行号、结束行和字节数都来自这一份文件。
 
+第一批换包随后合进了工作分支（`f8188c52`），`vendor.js` 变成 568125 字节。本文件里的行号因此又过时了。执行第二批、第三批时按声明名定位，不要用这里的行号删代码。抽查过的名字在合入后的文件里还在：`requireJszip_min`、`bundledLanguagesInfo`、`E$4`、`Plus$1`、`createLucideIcon`、`withIconCompositing`、`Table$2`、`Markdown$1`、`requireLib`。
+
 ## 定位方法
 
 用 `@babel/parser` 解析 `vendor.js` 的 `Program.body`。每个顶层 `function`、`class`、`var` / `let` / `const` 绑定记一条。一条语句里有多个声明符时，按声明符切开：第一条从语句关键字算起，后面的从该声明符算起，区间首尾相接，字节数相加等于整句。字节数是该区间源码的 UTF-8 长度，紧跟的分号算在内。
@@ -46,7 +48,15 @@ lucide 表内 488 字节合计 96684。其中要换成 0.468.0 的本体 265 个
 - `app/desktop/package.json` 写的是 `"lucide-react": "0.468.0"`。
 - 根 `pnpm-lock.yaml` 同时有 `lucide-react@0.468.0` 和 `lucide-react@1.42.0`。
 
-renderer 源码没有 `from "lucide-react"`，也没有 `from 'lucide-react'`。对 `app/renderer` 做了两遍核对：语法树里 `ImportDeclaration` 的模块名是 `lucide-react` 或 `lucide-react/` 的数量是 0；文本检索同样是 0。桌面端有 34 个文件写了 `from "lucide-react"`。
+应用文件没有 `from "lucide-react"`。桌面端有 34 个文件写了 `from "lucide-react"`。
+
+`vendor.js` 自己有一处深路径，原先的「renderer 导入数是 0」没把它算进去：
+
+```js
+import { mergeClasses } from "lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs";
+```
+
+这条路径在 `lucide-react@1.42.0` 里存在，在 `0.468.0` 里不存在。0.468.0 把同名函数放在 `dist/esm/shared/src/utils.js`，而且包没有 `exports` 字段把这条内部路径公开。`mergeClasses` 只被内联的 `Icon` 使用（`className: mergeClasses("lucide", className)` 那两处）。删图标本体时把这行 import 一起删掉，改成从 `lucide-react@0.468.0` 的公开入口拿 `Icon` 和 `createLucideIcon`。不要为了这条深路径把 renderer 留在 1.42.0，也不要改去引用 0.468.0 的内部文件。
 
 renderer 里出现 `lucide-react` 这串字的地方都不是 import：
 
