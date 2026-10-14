@@ -104,7 +104,7 @@ async function fetchOne(
  */
 export async function warmShowcaseCovers(
   paths: WorkspacePathService,
-  opts: { limit?: number; concurrency?: number; fetchImpl?: typeof fetch } = {},
+  opts: { limit?: number; concurrency?: number; fetchImpl?: typeof fetch; waitForPeer?: boolean } = {},
 ): Promise<{ warmed: number; skipped: number; reason?: string }> {
   const limit = opts.limit ?? DEFAULT_LIMIT;
   const dir = showcaseCacheDir(paths);
@@ -115,7 +115,14 @@ export async function warmShowcaseCovers(
   try {
     await mkdir(dir, { recursive: true });
     const lockPath = path.join(dir, LOCK_FILE);
-    if (await isLocked(lockPath)) return { warmed: 0, skipped: covers.length, reason: "另一个 gateway 正在预热" };
+    if (await isLocked(lockPath)) {
+      if (!opts.waitForPeer) return { warmed: 0, skipped: covers.length, reason: "另一个 gateway 正在预热" };
+      // 对比要等第一屏封面都落盘。别的 gateway 拿着锁时先等它写完，再补下失败的那几张。
+      const deadline = Date.now() + 60_000;
+      while (await isLocked(lockPath) && Date.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+    }
     lock = lockPath;
     await writeFile(lockPath, String(process.pid));
 
@@ -155,7 +162,7 @@ export class ShowcaseWarmer implements OnApplicationBootstrap {
 
   constructor(private readonly paths: WorkspacePathService) {}
 
-  onApplicationBootstrap(): void {
+  onApplicationBootstrap(): void | Promise<void> {
     // 测试里不预热。e2e 每个文件都会 `createApp()`，于是一次全量跑能起十几个 app，
     // 十几个预热一起往 CDN 打 —— 既白花 CI 带宽，也给那些对时序敏感的老用例添噪声
     // （实测把 `i18n：记下界面语言` 偶发带挂）。预热对测试也没有意义：断言的是路由
@@ -163,6 +170,15 @@ export class ShowcaseWarmer implements OnApplicationBootstrap {
     if (process.env.VITEST || process.env.NODE_ENV === "test") {
       this.log.log("测试环境，跳过首启预热");
       return;
+    }
+    if (process.env.OV_UI) {
+      // 首页截图发生在网关开始听端口之后。预热不挡住启动的话，第一张封面经常还没下完，
+      // 卡片是空白，和基线对不上。对比时先下完再对外服务；失败的张再试一轮。
+      return (async () => {
+        const first = await warmShowcaseCovers(this.paths, { waitForPeer: true });
+        const second = await warmShowcaseCovers(this.paths, { waitForPeer: true });
+        this.log.log(`界面对比预热：写入 ${first.warmed + second.warmed} 张封面`);
+      })();
     }
     // 不 await：启动路径不因为下载图片变慢。
     void warmShowcaseCovers(this.paths).then((r) => {
