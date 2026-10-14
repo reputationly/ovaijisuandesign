@@ -537,7 +537,6 @@ import "./assets/create-remote-tool-sdk.js";
 import "./vendor-inline/vscode-base/channel-client.js";
 import "./infra/use-plugin-metadata-store.js";
 import "./infra/create-html-iframe-pool-store.jsx";
-import "./canvas/we.js";
 import "./vendor-inline/codemirror/line2.js";
 import "./canvas/use-start-crop-from-node.js";
 import "./media-editing/use-start-cloud-edit-from-node.js";
