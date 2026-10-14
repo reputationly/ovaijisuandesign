@@ -10,7 +10,7 @@ import { SkillIcon } from "./use-prompt-icon.jsx";
 import { HOME_QUICK_START_SCHEMA_VERSION } from "./parse-localized-text.js";
 
 const featuredSkillArtwork =
-  "" + new URL("../featured-skill-C1bqOHc_.png", import.meta.url).href;
+  "" + new URL("../featured-skill.png", import.meta.url).href;
 
 const SCENE_ASSET_URLS_DOMESTIC = {
   "MiniMax Design使用教程.pdf":

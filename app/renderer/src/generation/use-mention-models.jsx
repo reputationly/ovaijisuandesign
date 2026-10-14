@@ -455,4 +455,4 @@ export function writePendingAutoUpdate(update) {
   } catch {}
 }
 export const ecommerceArtwork =
-  "" + new URL("../ecommerce-B8DC3jB9.png", import.meta.url).href;
+  "" + new URL("../ecommerce.png", import.meta.url).href;

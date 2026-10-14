@@ -4,21 +4,21 @@ import { useTheme } from "../generation/use-model-catalog-scope-key.js";
 import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { jsxRuntimeExports, useTranslation } from "../vendor.js";
 const emptyDarkUrl =
-  "" + new URL("../empty-dark-BE6TzTYo.svg", import.meta.url).href;
+  "" + new URL("../empty-dark.svg", import.meta.url).href;
 const emptyLightUrl =
-  "" + new URL("../empty-light-BIA_9y_3.svg", import.meta.url).href;
+  "" + new URL("../empty-light.svg", import.meta.url).href;
 const emptyProjectDarkUrl =
-  "" + new URL("../empty-project-dark-DfthmI8z.svg", import.meta.url).href;
+  "" + new URL("../empty-project-dark.svg", import.meta.url).href;
 const emptyProjectLightUrl =
-  "" + new URL("../empty-project-light-VIJs1g6w.svg", import.meta.url).href;
+  "" + new URL("../empty-project-light.svg", import.meta.url).href;
 const errorDarkUrl =
-  "" + new URL("../error-dark-DDp36kGq.svg", import.meta.url).href;
+  "" + new URL("../error-dark.svg", import.meta.url).href;
 const errorLightUrl =
-  "" + new URL("../error-light-WSZvGPdq.svg", import.meta.url).href;
+  "" + new URL("../error-light.svg", import.meta.url).href;
 const networkErrorDarkUrl =
-  "" + new URL("../network-error-dark-DyHxJMnZ.svg", import.meta.url).href;
+  "" + new URL("../network-error-dark.svg", import.meta.url).href;
 const networkErrorLightUrl =
-  "" + new URL("../network-error-light-brwv6dty.svg", import.meta.url).href;
+  "" + new URL("../network-error-light.svg", import.meta.url).href;
 const ILLUSTRATION_URLS = {
   empty: {
     light: emptyLightUrl,

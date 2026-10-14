@@ -11,7 +11,7 @@ import { QuestionDock } from "../chat/question-dock.jsx";
 import { LoopGuardAskDock } from "../chat/loop-guard-ask-dock.jsx";
 import { StageConfirmationBar } from "../text-editor/skill-reload-dock.jsx";
 import { StagePromptEditorCard } from "../workspace/stage-prompt-editor-card.jsx";
-import { E as ERROR_CARD_PREVIEW_MESSAGES } from "../error-card-fixtures-GXqelGnw.js";
+import { E as ERROR_CARD_PREVIEW_MESSAGES } from "../error-card-fixtures.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 const PLANNER_CHILD_ID = "chat-case-planner-child";
 const EXECUTOR_CHILD_ID = "chat-case-executor-child";

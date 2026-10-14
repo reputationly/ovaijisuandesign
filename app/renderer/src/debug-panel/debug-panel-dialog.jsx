@@ -55,7 +55,7 @@ import { clearMutesForUser } from "../settings/use-auto-announcement.js";
 import { clearTrialGrantedForUser } from "../settings/clear-trial-granted-for-user.js";
 import { ErrorFallbackUI } from "../infra/error-fallback-ui.jsx";
 import { BundleErrorScreen } from "../infra/bundle-error-screen.jsx";
-import { E as ERROR_CARD_PREVIEW_MESSAGES } from "../error-card-fixtures-GXqelGnw.js";
+import { E as ERROR_CARD_PREVIEW_MESSAGES } from "../error-card-fixtures.js";
 import {
   buildConnectorCatalog,
   isWebApiConnector,

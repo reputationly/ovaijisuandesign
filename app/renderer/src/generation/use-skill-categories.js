@@ -103,10 +103,10 @@ export function clearPendingAutoUpdate() {
 }
 
 export const filmArtwork =
-  "" + new URL("../graphic-design-vBqZO3xO.png", import.meta.url).href;
+  "" + new URL("../graphic-design.png", import.meta.url).href;
 
 export const shortDramaArtwork =
-  "" + new URL("../short-drama-BlgbvS1F.png", import.meta.url).href;
+  "" + new URL("../short-drama.png", import.meta.url).href;
 
 const TRUSTED_HOME_ASSET_HOSTS = new Set([
   "cdn.hailuoai.com",
