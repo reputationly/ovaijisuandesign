@@ -1,5 +1,5 @@
 // update-sidebar-widget-inner.jsx
-import { m$4 as ErrorBoundary } from "../vendor.js";
+import { ResetErrorBoundary as ErrorBoundary } from "../infra/reset-error-boundary.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
 import { usePlatform } from "../infra/platform-context.js";

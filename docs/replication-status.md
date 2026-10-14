@@ -2,7 +2,7 @@
 
 对照 MiniMax Design 3.0.16，写于 2026-09-26，同日更新（gateway 本地可用路由补齐之后）。参照原文都在 `reference/3.0.16/`。
 
-> 参照版本已升到 **3.0.21**（2026-10-01）；`reference/3.0.16/` 和 `3.0.20/` 留着对照。
+> 参照版本曾升到 **3.0.21**。`reference/` 里的编译快照已从仓库删除，运行时不读它们。技能、首页素材和 agent 配置仍在 `assets/`。
 > 2026-10-10 起界面改用还原出来的源码 `app/renderer`（构建到 `app/desktop/out/recovered-ui`），
 > 原来的"拷参照渲染层 + 打补丁"（`app/official-ui`）连同 `reference/*/app/out/renderer` 已删除，补丁改动都已写进源码。下文提到 3.0.16 的地方，
 > 除版本号本身外结论未变（gateway / mcp-tools / 插件 / agent 配置在 3.0.20 → 3.0.21 之间没动）。

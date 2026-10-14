@@ -1,7 +1,7 @@
 // 拆分结果按第三方包汇总：vendor 里每个包占多少行、多少条语句，决定逐个换成 npm 包的先后。
 //   node --max-old-space-size=16384 scripts/decompile/split-report.mjs [bundle.js] > report.txt
 import { parse } from "@babel/parser";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,6 +9,7 @@ import { splitProgram } from "./split.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const B = process.argv[2] ?? path.join(repo, "reference/3.0.16/app/out/renderer/assets/index-C4qF1HE0.js");
+if (!existsSync(B)) throw new Error("参照应用的渲染层编译包已从仓库移除。要汇总拆分结果，请把 bundle 路径作为参数传入。");
 const cls = JSON.parse(readFileSync(path.join(repo, ".probe/decompile/classified.json"), "utf8"));
 const ast = parse(readFileSync(B, "utf8"), { sourceType: "module", plugins: ["jsx"], errorRecovery: true });
 const r = splitProgram(ast, cls, { debug: true });

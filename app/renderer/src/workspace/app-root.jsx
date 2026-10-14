@@ -5,7 +5,7 @@ import {
   hideVisiblePreviewTabs,
   requestWorkspaceRuntimeClose,
 } from "../assets/credit-query-keys.jsx";
-import { createFileRoute, lazyRouteComponent } from "../vendor.js";
+import { createFileRoute, lazyRouteComponent } from "../infra/file-route.js";
 import { API_PATHS } from "../infra/workspace-gateway.js";
 import { useGatewayScope } from "../infra/runtime-config.js";
 import { usePlatform } from "../infra/platform-context.js";

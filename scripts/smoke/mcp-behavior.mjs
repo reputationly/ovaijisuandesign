@@ -15,7 +15,7 @@
 // args 里的 "$node" 这类字符串会换成 before 里存下的值（节点 id、计划 id，或 voice_prepare 回的第一个 voice_id）。
 // 先构建 gateway 和 mcp-tools。有未说明的差异时以 1 退出。
 import { spawn } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -165,6 +165,11 @@ async function runOn(side, sc) {
 let bad = 0;
 let allowed = 0;
 let same = 0;
+const refBundle = path.join(repo, "reference/3.0.16/mcp-tools/dist/main.js");
+if (!existsSync(refBundle)) {
+  console.log("参照应用的编译包已从仓库移除，这个脚本不再做两边对照。");
+  process.exit(0);
+}
 for (const sc of scenarios) {
   if (only && !`${sc.file} ${sc.tool} ${sc.name}`.includes(only)) continue;
   const ref = await startSide(path.join(repo, "reference/3.0.16/mcp-tools/dist/main.js"), sc.env, sc.models);

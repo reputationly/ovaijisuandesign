@@ -1,5 +1,5 @@
 // use-source-diff-review.jsx
-import { useVirtualizer } from "../vendor.js";
+import { useVirtualizer } from "../infra/use-virtualizer.js";
 import reactExports from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronUp } from "../media-editing/lucide-icon-wraps.js";

@@ -1,5 +1,5 @@
 // scrollable-asset-view.jsx
-import { useVirtualizer } from "../vendor.js";
+import { useVirtualizer } from "../infra/use-virtualizer.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
 import { useTranslation } from "react-i18next";

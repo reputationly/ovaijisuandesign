@@ -1,5 +1,5 @@
 // table-node-inner-effects.js
-import { rangeFrom, rangeTo } from "../infra/from-vendor.js";
+import { rangeFrom, rangeTo } from "./unicode-script-ranges.js";
 
 (() => {
   let numbers =

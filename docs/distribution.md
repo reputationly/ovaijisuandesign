@@ -159,8 +159,7 @@ mcp/main.js   bun build 出来的单文件，不需要 node_modules
 `ovgw` 从旁边的 `web/` 服务画布，`ovagent` 从旁边的 `mcp/main.js` 拉起
 MCP server。
 
-**`reference/` 不在包里**：那是 MiniMax 的专有配置，不能分发。缺了它
-`ovagent` 会明确说"还没快照官方配置"，而不是启动到一半失败。
+参照应用的编译快照已经从仓库移除，发布包里也不带它们。
 
 ### 落在磁盘上的布局
 

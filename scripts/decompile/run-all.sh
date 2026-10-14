@@ -4,6 +4,10 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 B="${1:-../../reference/3.0.16/app/out/renderer/assets/index-C4qF1HE0.js}"
+if [[ ! -f "$B" ]]; then
+  echo "参照应用的渲染层编译包已从仓库移除。用法：bash run-all.sh <bundle.js>" >&2
+  exit 1
+fi
 N="node --max-old-space-size=12288"
 $N 01-toplevel.mjs "$B" toplevel.json
 $N 02-classify.mjs

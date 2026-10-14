@@ -1,5 +1,5 @@
 // customize-toolbar-dialog.jsx
-import { useSensor, useSensors } from "../vendor.js";
+import { useSensor, useSensors } from "../infra/pointer-sensors.js";
 import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor } from "@dnd-kit/core";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactDomExports from "react-dom";

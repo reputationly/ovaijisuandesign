@@ -4,7 +4,7 @@ import {
   ChatPresentationProvider,
   collectAssistantCopyText,
 } from "./use-copy.jsx";
-import { useVirtualizer } from "../vendor.js";
+import { useVirtualizer } from "../infra/use-virtualizer.js";
 import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MessageTurn } from "./message-turn.jsx";

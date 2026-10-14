@@ -1,5 +1,5 @@
 // sortable-queued-row.jsx
-import { useSensor, useSensors } from "../vendor.js";
+import { useSensor, useSensors } from "../infra/pointer-sensors.js";
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor } from "@dnd-kit/core";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";

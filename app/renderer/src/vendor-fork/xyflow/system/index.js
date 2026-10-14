@@ -2,7 +2,7 @@ import { drag } from 'd3-drag';
 import { select, pointer } from 'd3-selection';
 import { zoom, zoomIdentity, zoomTransform } from 'd3-zoom';
 import { interpolateZoom, interpolate } from 'd3-interpolate';
-import { clamp$c } from "../../../infra/from-vendor.js";
+import { clamp$c } from "../../../infra/clamp.js";
 import { getDragBounds, getDragSnapAffectedIds, getDragSnapReferenceBounds } from "../../../canvas/canvas-geometry.js";
 function resolveInterpolate(option) {
         if (typeof option === 'function') return option;

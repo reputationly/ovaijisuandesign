@@ -5,13 +5,17 @@
 //
 // 先构建 gateway 和 mcp-tools。不一致时列出差异并以 1 退出。
 import { spawn } from "node:child_process";
-import { mkdtempSync } from "node:fs";
+import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const version = process.argv[2] ?? "3.0.16";
+if (!existsSync(path.join(repo, `reference/${version}/mcp-tools/dist/main.js`))) {
+  console.log("参照应用的编译包已从仓库移除，这个脚本不再做两边对照。");
+  process.exit(0);
+}
 const ws = mkdtempSync(path.join(tmpdir(), "ov-mcp-surface-"));
 const port = 19500 + Math.floor(Math.random() * 400);
 const gw = spawn(process.execPath, [path.join(repo, "app/gateway/dist/main.js")], {
