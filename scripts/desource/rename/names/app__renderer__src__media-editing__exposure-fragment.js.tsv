@@ -1,0 +1,13 @@
+key	new	依据
+t2@6:22	progress	三次贝塞尔曲线上的参数，决定四个控制值对应项的权重。
+p0@6:26	startValue	贝塞尔曲线起点的通道值，乘以 (1−progress)³ 后参与求值。
+p1@6:30	firstControlValue	第一控制点的通道值，乘以其对应的三次贝塞尔权重。
+p22@6:34	secondControlValue	第二控制点的通道值，乘以其对应的三次贝塞尔权重。
+p3@6:39	endValue	贝塞尔曲线终点的通道值，乘以 progress³ 后参与求值。
+u4@7:9	complementProgress	1−progress 的补值，用来构造起点及第一控制点的贝塞尔权重。
+i2@20:12	index	调色板当前采样位置，决定归一化曲线参数和 RGB 数据偏移。
+t2@21:11	progress	当前调色板索引除以 PALETTE_SIZE−1 得到的归一化曲线位置。
+y4@22:11	curveValue	以 progress 和两个控制值求得的贝塞尔曲线亮度值。
+v2@23:11	channelValue	曲线值限制在 0–1 后乘 255 并取整得到的 RGB 通道字节。
+idx@24:11	channelOffset	当前调色板采样在 RGB 数组中的起始偏移，连续三个位置写入同一灰度值。
+data2@19:9	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存灰度调色板的 RGB 字节数组。

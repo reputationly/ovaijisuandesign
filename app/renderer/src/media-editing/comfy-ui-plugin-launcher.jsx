@@ -7,16 +7,10 @@ import {
   usePluginMeta,
   usePluginRunInfo,
 } from "../infra/use-plugin-metadata-store.js";
-import {
-  Check,
-  CircleAlert,
-  jsxRuntimeExports,
-  LoaderCircle,
-  reactExports,
-  Search,
-  useTranslation,
-  Workflow,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, CircleAlert, LoaderCircle, Search, Workflow } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Dialog } from "../canvas/separator.jsx";
 import { useViewerActive } from "../infra/use-viewer-active.js";
@@ -38,8 +32,8 @@ import {
 import { HtmlViewer } from "../infra/create-html-iframe-pool-store.jsx";
 import { Input } from "./input.jsx";
 function usePluginOpenRequest(nodeId) {
-  return useHtmlFullscreenStore((s2) =>
-    s2.nodeId === nodeId ? s2.pluginOpenRequest : null,
+  return useHtmlFullscreenStore((storeState) =>
+    storeState.nodeId === nodeId ? storeState.pluginOpenRequest : null,
   );
 }
 function shouldShowComfyUiTemplateAction({
@@ -101,10 +95,10 @@ export function ComfyUiPluginLauncher({
   nodeId,
   pluginId,
   filePath,
-  displayName: displayName2,
+  displayName,
   width,
   height,
-  selected: selected2,
+  selected: isSelected,
   currentWorkflowId,
   currentWorkflowName,
   templateCopyOrdinal,
@@ -117,8 +111,8 @@ export function ComfyUiPluginLauncher({
   comfyuiRunSummary,
   onReportAction,
 }) {
-  const { i18n, t: t2 } = useTranslation();
-  const meta2 = usePluginMeta(pluginId);
+  const { i18n, t } = useTranslation();
+  const pluginMeta = usePluginMeta(pluginId);
   const {
     fetchComfyUiWorkflows,
     onAddPluginNodeToChat,
@@ -147,22 +141,22 @@ export function ComfyUiPluginLauncher({
     : rawLang.startsWith("en")
       ? "en-US"
       : rawLang;
-  const name2 =
-    (meta2 ? pickLocalized(meta2.name, locale) : "") || displayName2;
+  const pluginDisplayName =
+    (pluginMeta ? pickLocalized(pluginMeta.name, locale) : "") || displayName;
   const currentWorkflowLabel =
     resolveWorkflowDisplayName(currentWorkflowName) ??
-    t2("canvas.comfyui.untitledWorkflow", "未命名工作流");
+    t("canvas.comfyui.untitledWorkflow", "未命名工作流");
   const isWorkflowDeleted = comfyuiWorkflowDeleted === true;
   const workflowLabel = isWorkflowDeleted
-    ? t2("canvas.comfyui.localWorkflowDeleted")
+    ? t("canvas.comfyui.localWorkflowDeleted")
     : currentWorkflowLabel;
   const copySuffix =
     typeof templateCopyOrdinal === "number" && templateCopyOrdinal > 0
-      ? t2("canvas.comfyui.copySuffix", {
+      ? t("canvas.comfyui.copySuffix", {
           index: templateCopyOrdinal,
         })
       : void 0;
-  const openLabel = t2("canvas.comfyui.openEditor", "全屏编辑");
+  const openLabel = t("canvas.comfyui.openEditor", "全屏编辑");
   const showTemplateAction = shouldShowComfyUiTemplateAction({
     currentWorkflowId,
     hasWorkflowContent,
@@ -171,7 +165,7 @@ export function ComfyUiPluginLauncher({
   const runningCount = comfyuiRunSummary?.runningCount ?? 0;
   const queuedCount = comfyuiRunSummary?.queuedCount ?? 0;
   const hasActiveRuns = runningCount > 0 || queuedCount > 0;
-  const progressLabel = t2("canvas.comfyui.runProgress", {
+  const progressLabel = t("canvas.comfyui.runProgress", {
     running: runningCount,
     queued: queuedCount,
     defaultValue: "{{running}} running · {{queued}} queued",
@@ -296,7 +290,7 @@ export function ComfyUiPluginLauncher({
           : {
               requestId: crypto.randomUUID(),
               command: "comfyui:load-workflow",
-              workflow: t2("canvas.comfyui.untitledWorkflow", "未命名工作流"),
+              workflow: t("canvas.comfyui.untitledWorkflow", "未命名工作流"),
               target: "empty",
             },
       );
@@ -314,7 +308,7 @@ export function ComfyUiPluginLauncher({
     nodeId,
     onReportAction,
     reportDraftAction,
-    t2,
+    t,
     workflowLabel,
   ]);
   const handleRetryWorkflowLoad = reactExports.useCallback(() => {
@@ -365,7 +359,7 @@ export function ComfyUiPluginLauncher({
           setWorkflowError(
             error instanceof Error
               ? error.message
-              : t2(
+              : t(
                   "canvas.comfyui.workflowLoadFailed",
                   "无法加载 ComfyUI 模板",
                 ),
@@ -378,7 +372,7 @@ export function ComfyUiPluginLauncher({
     return () => {
       cancelled = true;
     };
-  }, [fetchComfyUiWorkflows, t2, templateDialogOpen]);
+  }, [fetchComfyUiWorkflows, t, templateDialogOpen]);
   const filteredWorkflows = filterComfyUiWorkflows(workflows, workflowSearch);
   const selectWorkflow = reactExports.useCallback(
     (workflow) => {
@@ -427,7 +421,7 @@ export function ComfyUiPluginLauncher({
       ? [
           {
             id: "run",
-            label: t2("canvas.comfyui.run", "运行"),
+            label: t("canvas.comfyui.run", "运行"),
             icon: <RunIcon />,
             forceLabel: true,
             onClick: handleRun,
@@ -444,7 +438,7 @@ export function ComfyUiPluginLauncher({
     },
     {
       id: "add-to-chat",
-      label: t2("canvas.addToChat"),
+      label: t("canvas.addToChat"),
       icon: <AddToChatIcon />,
       onClick: handleAddToChat,
       dataActionUiId: "canvas.plugin-node.add-to-chat",
@@ -455,7 +449,7 @@ export function ComfyUiPluginLauncher({
       <NodeBody
         width={width}
         height={height}
-        selected={selected2}
+        selected={isSelected}
         variant="media"
         onDoubleClick={openStage}
       >
@@ -484,7 +478,7 @@ export function ComfyUiPluginLauncher({
                   interactive={shouldAllowComfyUiPreviewInteraction(
                     comfyuiBackendReady,
                   )}
-                  displayName={name2}
+                  displayName={pluginDisplayName}
                   pluginOpenRequest={
                     agentPluginOpenRequest ??
                     pluginOpenRequest ??
@@ -506,7 +500,7 @@ export function ComfyUiPluginLauncher({
                 />
                 <div className="min-w-0 text-xs leading-4">
                   <p className="font-medium text-destructive">
-                    {t2("canvas.comfyui.localWorkflowDeleted")}
+                    {t("canvas.comfyui.localWorkflowDeleted")}
                   </p>
                   {comfyuiDeletedWorkflowName && (
                     <p
@@ -530,7 +524,7 @@ export function ComfyUiPluginLauncher({
                 />
                 <div className="min-w-0 text-xs leading-4">
                   <p className="font-medium text-destructive">
-                    {t2("canvas.comfyui.workflowLoadErrorTitle")}
+                    {t("canvas.comfyui.workflowLoadErrorTitle")}
                   </p>
                   <p
                     className="truncate text-muted-foreground"
@@ -548,7 +542,7 @@ export function ComfyUiPluginLauncher({
                     data-action-ui-id="canvas.comfyui.workflow-load-retry"
                     onClick={handleRetryWorkflowLoad}
                   >
-                    {t2("common.retry", "重试")}
+                    {t("common.retry", "重试")}
                   </Button>
                 )}
               </div>
@@ -602,13 +596,13 @@ export function ComfyUiPluginLauncher({
                 onMouseDown={(event) => event.stopPropagation()}
                 data-action-ui-id="canvas.plugin-node.use-template"
               >
-                {t2("canvas.comfyui.useTemplate", "使用模板")}
+                {t("canvas.comfyui.useTemplate", "使用模板")}
               </Button>
             )}
           </div>
         </div>
       </NodeBody>
-      <NodeToolbar items={nodeToolbarActions} visible={!!selected2} />
+      <NodeToolbar items={nodeToolbarActions} visible={!!isSelected} />
       <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
         <DialogContent
           className="max-w-2xl"
@@ -616,10 +610,10 @@ export function ComfyUiPluginLauncher({
         >
           <DialogHeader>
             <DialogTitle>
-              {t2("canvas.comfyui.chooseWorkflow", "选择 ComfyUI 模板")}
+              {t("canvas.comfyui.chooseWorkflow", "选择 ComfyUI 模板")}
             </DialogTitle>
             <DialogDescription>
-              {t2(
+              {t(
                 "canvas.comfyui.chooseWorkflowDesc",
                 "选择后将在当前节点的编辑器中打开。",
               )}
@@ -630,7 +624,7 @@ export function ComfyUiPluginLauncher({
             <Input
               value={workflowSearch}
               onChange={(event) => setWorkflowSearch(event.target.value)}
-              placeholder={t2("canvas.comfyui.searchWorkflow", "搜索模板")}
+              placeholder={t("canvas.comfyui.searchWorkflow", "搜索模板")}
               className="pl-9"
               data-action-ui-id="canvas.comfyui.workflow-search"
             />
@@ -638,7 +632,7 @@ export function ComfyUiPluginLauncher({
           <div className="max-h-[min(55vh,32rem)] space-y-2 overflow-y-auto pr-1">
             {isLoadingWorkflows && (
               <div className="py-10 text-center text-muted-foreground">
-                {t2("common.loading", "加载中…")}
+                {t("common.loading", "加载中…")}
               </div>
             )}
             {!isLoadingWorkflows && workflowError && (
@@ -650,7 +644,7 @@ export function ComfyUiPluginLauncher({
               !workflowError &&
               filteredWorkflows.length === 0 && (
                 <div className="py-10 text-center text-muted-foreground">
-                  {t2("canvas.comfyui.noWorkflows", "没有可用模板")}
+                  {t("canvas.comfyui.noWorkflows", "没有可用模板")}
                 </div>
               )}
             {!isLoadingWorkflows &&
@@ -677,12 +671,12 @@ export function ComfyUiPluginLauncher({
                       <div className="mt-1 flex gap-2 text-xs text-muted-foreground">
                         <span>
                           {workflow.source === "template"
-                            ? t2("canvas.comfyui.officialTemplate", "官方模板")
-                            : t2("canvas.comfyui.userWorkflow", "我的工作流")}
+                            ? t("canvas.comfyui.officialTemplate", "官方模板")
+                            : t("canvas.comfyui.userWorkflow", "我的工作流")}
                         </span>
                         {typeof workflow.node_count === "number" && (
                           <span>
-                            {t2("canvas.comfyui.nodeCount", "{{count}} 节点", {
+                            {t("canvas.comfyui.nodeCount", "{{count}} 节点", {
                               count: workflow.node_count,
                             })}
                           </span>

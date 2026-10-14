@@ -1,5 +1,6 @@
 // submit-button.jsx
-import { jsxRuntimeExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   ACTION_BTN_BASE,
@@ -23,9 +24,9 @@ export function SubmitButton({
   billingEstimateFormula,
   onClick,
   title,
-  children: children2,
+  children,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const showSpinner = submitting || loading;
   const isDisabled = submitting || (!canSubmit && !loading);
   const stateClass = showSpinner
@@ -33,7 +34,7 @@ export function SubmitButton({
     : !canSubmit
       ? "bg-[var(--canvas-controls-hover)] text-[var(--canvas-controls-text-muted)] cursor-default opacity-60"
       : "bg-foreground text-background hover:enabled:opacity-90 border-transparent";
-  const isSquare = !children2 && !showSpinner;
+  const isSquare = !children && !showSpinner;
   const button = (
     <button
       type="button"
@@ -45,8 +46,8 @@ export function SubmitButton({
     >
       {showSpinner ? (
         SPINNER
-      ) : children2 ? (
-        children2
+      ) : children ? (
+        children
       ) : (
         <span aria-hidden="true">↑</span>
       )}
@@ -55,12 +56,12 @@ export function SubmitButton({
   const disabledTooltip = !canSubmit && !loading ? title : void 0;
   const estimatedCostLabel =
     creditCost != null
-      ? t2("canvas.billing.estimatedCost", {
+      ? translate("canvas.billing.estimatedCost", {
           cost: creditCost,
           defaultValue: "预计消耗 {{cost}} 积分",
         })
       : void 0;
-  const billingDetailsLabel = t2("canvas.billing.details", {
+  const billingDetailsLabel = translate("canvas.billing.details", {
     defaultValue: "查看价格说明",
   });
   return (

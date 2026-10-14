@@ -1,98 +1,55 @@
 // agent-http-client.js
-import {
-  createStore$1,
-  useStore$2,
-  toast,
-  makeLogger,
-  readRecord,
-  instance,
-  emit$5,
-  basename$8,
-  uploadResponseFilename,
-  useTranslation,
-  isBrowserImageEditRequest,
-  workspaceLog,
-  browserImageEditPrompt,
-  BROWSER_IMAGE_EDIT_EVENT,
-} from "../vendor.js";
+import { toast } from "sonner";
+import instance from "i18next";
+import { useTranslation } from "react-i18next";
+import { BROWSER_IMAGE_EDIT_EVENT } from "../generation/browser-image-edit.js";
+import { createStore as createStore$1 } from "zustand/vanilla";
+import { useStore as useStore$2 } from "zustand";
+import { makeLogger, workspaceLog } from "./logger.js";
+import { emit$5 } from "./decision-version.js";
+import { isBrowserImageEditRequest, browserImageEditPrompt } from "../generation/browser-image-edit.js";
 import reactExports from "react";
-import {
-  AssetMetadataStoreContext,
-  withAutomaticDedupeId,
-  normalizeGenerationFailurePresentation,
-  normalizeGenerateErrorCode,
-  DEFAULT_RUNTIME_CONFIG,
-  headersToRecord,
-  withWorkspaceGatewayHeaders,
-  HILO_WORKSPACE_IDENTITY_HEADER,
-  defaultLogger,
-  API_PATHS,
-  DEFAULT_READ_TIMEOUT_MS,
-  nextCanvasWriterRevision,
-  HILO_CANVAS_WRITER_REVISION_HEADER,
-  advanceCanvasWriterRevision,
-  measurePerf,
-  PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP,
-  DEFAULT_GENERATE_TIMEOUT_MS,
-  DEFAULT_GENERATE_VIDEO_TIMEOUT_MS,
-  isSafeIdentityRecoveryMethod,
-  normalizeRecoveredBinding,
-  HILO_WORKSPACE_IDENTITY_QUERY,
-  HILO_WORKSPACE_INSTANCE_QUERY,
-  HILO_WORKSPACE_GENERATION_QUERY,
-  WorkspaceGatewayClient,
-  isWorkspaceIdentityErrorCode,
-  ApiError,
-  LOG_TAG,
-  getRuntimeConfig,
-  HILO_DEFAULT_VERSION_CODE,
-  HILO_APP_ID,
-  normalizeVersionCodeForCloud,
-  HILO_BIZ_ID,
-  getOsName,
-  getBrowserName,
-  toCloudLang,
-  getDeviceMemory,
-  deriveActiveScope,
-  setSelectedRequestGroupId,
-  isBillableSubmission,
-  deriveTeamCreditDisplay,
-  dispatchAccountSubmissionBlocked,
-  ACCOUNT_SENSITIVE_CANVAS_PATHS,
-  AccountSubmissionBlockedError,
-  GROUP_ID_HEADER,
-  mediaLineageFields,
-  isMediaLineageImage,
-  mediaLineageRequestId,
-  mediaFingerprintFile,
-  MEDIA_LINEAGE_REQUEST_HEADER,
-  mediaLineageError,
-  probeMediaDurationSec,
-  warnEnrollError,
-  useGatewayBaseUrl,
-  useGatewayScope,
-  browserAssetSourceMetadata,
-} from "./from-vendor.js";
+import { AssetMetadataStoreContext, withAutomaticDedupeId, headersToRecord, DEFAULT_READ_TIMEOUT_MS, DEFAULT_GENERATE_TIMEOUT_MS, DEFAULT_GENERATE_VIDEO_TIMEOUT_MS, isSafeIdentityRecoveryMethod, normalizeRecoveredBinding, setSelectedRequestGroupId, GROUP_ID_HEADER, warnEnrollError, browserAssetSourceMetadata } from "./shared-runtime.js";
+import { normalizeGenerationFailurePresentation, normalizeGenerateErrorCode, ApiError } from "./generation-errors.js";
+import { DEFAULT_RUNTIME_CONFIG, getRuntimeConfig, HILO_DEFAULT_VERSION_CODE, HILO_APP_ID, normalizeVersionCodeForCloud, HILO_BIZ_ID, useGatewayBaseUrl, useGatewayScope } from "./runtime-config.js";
+import { withWorkspaceGatewayHeaders, HILO_WORKSPACE_IDENTITY_HEADER, API_PATHS, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, HILO_WORKSPACE_GENERATION_QUERY, WorkspaceGatewayClient, isWorkspaceIdentityErrorCode, ACCOUNT_SENSITIVE_CANVAS_PATHS } from "./workspace-gateway.js";
+import { defaultLogger, measurePerf, PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, LOG_TAG } from "./perf-log.js";
+import { nextCanvasWriterRevision, HILO_CANVAS_WRITER_REVISION_HEADER, advanceCanvasWriterRevision } from "./canvas-writer.js";
+import { getOsName, getBrowserName, toCloudLang, getDeviceMemory } from "./platform-context.js";
+import { deriveActiveScope, isBillableSubmission, deriveTeamCreditDisplay } from "../team/credit-display.js";
+import { dispatchAccountSubmissionBlocked, AccountSubmissionBlockedError } from "./account-submission.js";
+import { mediaLineageFields, isMediaLineageImage, mediaLineageRequestId, mediaFingerprintFile, MEDIA_LINEAGE_REQUEST_HEADER, mediaLineageError, probeMediaDurationSec } from "./media-lineage.js";
+
+export function readRecord(value) {
+  return value && typeof value === "object" ? value : void 0;
+}
+export function basename$8(path2) {
+  return path2.split("/").pop() ?? "";
+}
+export function uploadResponseFilename(res, originalName) {
+  return /\.gif$/i.test(res.relative) && !/\.gif$/i.test(originalName) ? basename$8(res.relative) : originalName;
+}
+
 
 export function createAssetMetadataStore() {
-  return createStore$1((set2, get3) => ({
+  return createStore$1((set, get) => ({
     assets: /* @__PURE__ */ new Map(),
-    get: (assetId) => get3().assets.get(assetId),
-    set: (assetId, meta2) =>
-      set2((state2) => {
-        const next2 = new Map(state2.assets);
-        next2.set(assetId, meta2);
+    get: (assetId) => get().assets.get(assetId),
+    set: (assetId, meta) =>
+      set((state) => {
+        const next = new Map(state.assets);
+        next.set(assetId, meta);
         return {
-          assets: next2,
+          assets: next,
         };
       }),
     merge: (assetId, partial) =>
-      set2((state2) => {
-        const next2 = new Map(state2.assets);
-        const existing = next2.get(assetId);
+      set((state) => {
+        const next = new Map(state.assets);
+        const existing = next.get(assetId);
         if (!existing) {
           const missing = ["url", "name", "path", "type"].filter(
-            (k2) => partial[k2] === void 0,
+            (key) => partial[key] === void 0,
           );
           if (missing.length > 0) {
             console.warn(
@@ -100,51 +57,51 @@ export function createAssetMetadataStore() {
             );
           }
         }
-        next2.set(assetId, {
+        next.set(assetId, {
           ...(existing ?? {}),
           ...partial,
         });
         return {
-          assets: next2,
+          assets: next,
         };
       }),
     mergeAsset: (assetId, partial) =>
-      set2((state2) => {
-        const base2 = state2.assets.get(assetId);
-        if (!base2) return state2;
-        const next2 = new Map(state2.assets);
-        next2.set(assetId, {
-          ...base2,
+      set((state) => {
+        const base = state.assets.get(assetId);
+        if (!base) return state;
+        const next = new Map(state.assets);
+        next.set(assetId, {
+          ...base,
           ...partial,
         });
-        for (const [key2, meta2] of state2.assets) {
-          if (key2 === assetId) continue;
-          if (meta2.path !== base2.path) continue;
-          next2.set(key2, {
-            ...meta2,
+        for (const [key, meta] of state.assets) {
+          if (key === assetId) continue;
+          if (meta.path !== base.path) continue;
+          next.set(key, {
+            ...meta,
             ...partial,
           });
         }
         return {
-          assets: next2,
+          assets: next,
         };
       }),
-    setMany: (entries2) =>
-      set2((state2) => {
-        const next2 = new Map(state2.assets);
-        for (const [id2, meta2] of entries2) {
-          next2.set(id2, meta2);
+    setMany: (entries) =>
+      set((state) => {
+        const next = new Map(state.assets);
+        for (const [id, meta] of entries) {
+          next.set(id, meta);
         }
         return {
-          assets: next2,
+          assets: next,
         };
       }),
-    replaceAll: (entries2) =>
-      set2({
-        assets: new Map(entries2),
+    replaceAll: (entries) =>
+      set({
+        assets: new Map(entries),
       }),
     clear: () =>
-      set2({
+      set({
         assets: /* @__PURE__ */ new Map(),
       }),
   }));
@@ -159,8 +116,8 @@ export function useAssetMetadataApi() {
   );
 }
 
-export const useAssetMetadataStore = (selector2) =>
-  useStore$2(useAssetMetadataApi(), selector2);
+export const useAssetMetadataStore = (selector) =>
+  useStore$2(useAssetMetadataApi(), selector);
 
 useAssetMetadataStore.getState = defaultAssetMetadataStore.getState;
 
@@ -168,10 +125,10 @@ useAssetMetadataStore.setState = defaultAssetMetadataStore.setState;
 
 useAssetMetadataStore.subscribe = defaultAssetMetadataStore.subscribe;
 
-export const dedupedToast = (message2, data2) =>
+export const dedupedToast = (message, data) =>
   // `toast.message` follows Sonner's update-by-id path. The callable helper
   // uses a separate history path that can retain duplicate ids.
-  toast.message(message2, withAutomaticDedupeId("normal", message2, data2));
+  toast.message(message, withAutomaticDedupeId("normal", message, data));
 
 export const canvasLog = makeLogger("canvas");
 
@@ -194,7 +151,7 @@ export function generationResponseFromApiError(error) {
       : error.status >= 500
         ? "backend_error"
         : "client_error";
-  const message2 =
+  const message =
     (typeof directFailure?.error === "string" && directFailure.error) ||
     error.parsedError?.message ||
     error.body ||
@@ -209,7 +166,7 @@ export function generationResponseFromApiError(error) {
     ) ?? inferredPresentation;
   return {
     ok: false,
-    error: message2,
+    error: message,
     error_code: normalizeGenerateErrorCode(
       directFailure?.error_code,
       fallbackCode,
@@ -288,28 +245,28 @@ export class AgentHttpClient {
   // --------------------------------------------------------
   // URL helpers
   // --------------------------------------------------------
-  url(path2) {
-    const url2 = path2.includes("://") ? path2 : `${this.baseUrl}${path2}`;
-    return this.appendCommonParams(url2);
+  url(path) {
+    const url = path.includes("://") ? path : `${this.baseUrl}${path}`;
+    return this.appendCommonParams(url);
   }
-  urlWithParams(path2, params) {
-    const base2 = path2.includes("://") ? path2 : `${this.baseUrl}${path2}`;
-    if (!params) return this.appendCommonParams(base2);
-    const filtered = Object.entries(params).filter(([, v2]) => v2 !== void 0);
-    if (filtered.length === 0) return this.appendCommonParams(base2);
+  urlWithParams(path, params) {
+    const base = path.includes("://") ? path : `${this.baseUrl}${path}`;
+    if (!params) return this.appendCommonParams(base);
+    const filtered = Object.entries(params).filter(([, value]) => value !== void 0);
+    if (filtered.length === 0) return this.appendCommonParams(base);
     const qs = new URLSearchParams(filtered).toString();
-    return this.appendCommonParams(`${base2}?${qs}`);
+    return this.appendCommonParams(`${base}?${qs}`);
   }
-  appendCommonParams(url2) {
+  appendCommonParams(url) {
     const params =
       typeof this.commonParams === "function"
         ? this.commonParams()
         : this.commonParams;
-    if (!params) return url2;
-    const parsed = new URL(url2);
-    for (const [key2, value] of Object.entries(params)) {
+    if (!params) return url;
+    const parsed = new URL(url);
+    for (const [key, value] of Object.entries(params)) {
       if (value !== void 0 && value !== "") {
-        parsed.searchParams.set(key2, String(value));
+        parsed.searchParams.set(key, String(value));
       }
     }
     return parsed.toString();
@@ -318,11 +275,11 @@ export class AgentHttpClient {
   // File operations
   // --------------------------------------------------------
   async listFiles(params, opts) {
-    const url2 = this.urlWithParams(API_PATHS.files, {
+    const url = this.urlWithParams(API_PATHS.files, {
       type: params?.type,
       sort: params?.sort,
     });
-    return this.get(url2, opts);
+    return this.get(url, opts);
   }
   async mkdir(req, opts) {
     return this.post(API_PATHS.mkdir, req, opts);
@@ -347,12 +304,12 @@ export class AgentHttpClient {
     form.append("file", file, filename);
     if (folder) form.append("folder", folder);
     if (opts?.staging) form.append("staging", "true");
-    const url2 = this.url(API_PATHS.upload);
+    const url = this.url(API_PATHS.upload);
     const signal = this.combineSignals(
       opts?.signal,
       opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS,
     );
-    const resp = await this.request(url2, {
+    const resp = await this.request(url, {
       method: "POST",
       headers: {
         ...this.headers,
@@ -361,14 +318,14 @@ export class AgentHttpClient {
       body: form,
       signal,
     });
-    return this.handleResponse(resp, url2, "POST");
+    return this.handleResponse(resp, url, "POST");
   }
   /** Persist a shallow metadata patch on an enrolled workspace asset. */
-  async updateAssetMetadata(id2, patch2, opts) {
+  async updateAssetMetadata(id, patch, opts) {
     return this.patch(
-      `/api/assets/${encodeURIComponent(id2)}/metadata`,
+      `/api/assets/${encodeURIComponent(id)}/metadata`,
       {
-        patch: patch2,
+        patch,
       },
       opts,
     );
@@ -397,19 +354,19 @@ export class AgentHttpClient {
       `${this.baseUrl}${API_PATHS.serveFileById(assetId)}`,
     );
   }
-  async writeContent(path2, content2, opts) {
-    const { unique: unique2, ...reqOpts } = opts ?? {};
+  async writeContent(path, content, opts) {
+    const { unique, ...reqOpts } = opts ?? {};
     return this.put(
       API_PATHS.writeContent,
-      unique2
+      unique
         ? {
-            path: path2,
-            content: content2,
+            path,
+            content,
             unique: true,
           }
         : {
-            path: path2,
-            content: content2,
+            path,
+            content,
           },
       reqOpts,
     );
@@ -425,14 +382,14 @@ export class AgentHttpClient {
    * Primary call site is the canvas paste handler — see ADR write-up in
    * `CreateTextAssetRequest` for the design tradeoff.
    */
-  async createTextAsset(content2, opts) {
+  async createTextAsset(content, opts) {
     const req = {
-      content: content2,
+      content,
     };
     return this.post(API_PATHS.createTextAsset, req, opts);
   }
-  async readContent(path2, opts) {
-    const res = await this.get(API_PATHS.readContent(path2), opts);
+  async readContent(path, opts) {
+    const res = await this.get(API_PATHS.readContent(path), opts);
     return res.content;
   }
   // --------------------------------------------------------
@@ -451,29 +408,29 @@ export class AgentHttpClient {
   async saveTextVersion(req, opts) {
     return this.post(API_PATHS.textVersions, req, opts);
   }
-  async readTextVersionContent(id2, range2, opts) {
+  async readTextVersionContent(id, range, opts) {
     return this.get(
-      API_PATHS.textVersionContent(id2, range2?.offset ?? 0, range2?.limit),
+      API_PATHS.textVersionContent(id, range?.offset ?? 0, range?.limit),
       opts,
     );
   }
   async diffTextVersion(params, opts) {
     return this.get(API_PATHS.textVersionDiff(params), opts);
   }
-  async restoreTextVersion(id2, body2 = {}, opts) {
-    return this.post(API_PATHS.textVersionRestore(id2), body2, opts);
+  async restoreTextVersion(id, body = {}, opts) {
+    return this.post(API_PATHS.textVersionRestore(id), body, opts);
   }
-  async materializeTextVersion(id2, opts) {
-    return this.post(API_PATHS.textVersionMaterialize(id2), {}, opts);
+  async materializeTextVersion(id, opts) {
+    return this.post(API_PATHS.textVersionMaterialize(id), {}, opts);
   }
   async summarizeTextVersionNote(req, opts) {
     return this.post(API_PATHS.textVersionSummarize, req, opts);
   }
-  async updateTextVersion(id2, patch2, opts) {
-    return this.patch(API_PATHS.textVersion(id2), patch2, opts);
+  async updateTextVersion(id, patch, opts) {
+    return this.patch(API_PATHS.textVersion(id), patch, opts);
   }
-  async deleteTextVersion(id2, opts) {
-    return this.del(API_PATHS.textVersion(id2), opts);
+  async deleteTextVersion(id, opts) {
+    return this.del(API_PATHS.textVersion(id), opts);
   }
   thumbnailUrl(relativePath) {
     return this.appendWorkspaceClaim(
@@ -496,19 +453,19 @@ export class AgentHttpClient {
     return this.get(API_PATHS.canvas, opts);
   }
   async saveCanvas(canvas, saveOptions, opts) {
-    const start2 = performance.now();
+    const start = performance.now();
     try {
       const writerRevision = this.workspaceBinding
         ? nextCanvasWriterRevision(this.workspaceBinding)
         : void 0;
-      const body2 = saveOptions?.deletionIntent
+      const body = saveOptions?.deletionIntent
         ? {
             ...canvas,
             deletionIntent: saveOptions.deletionIntent,
           }
         : canvas;
       const saveAtRevision = (revision) =>
-        this.post(API_PATHS.canvas, body2, {
+        this.post(API_PATHS.canvas, body, {
           ...opts,
           headers: {
             ...opts?.headers,
@@ -523,14 +480,14 @@ export class AgentHttpClient {
       if (this.workspaceBinding) {
         advanceCanvasWriterRevision(this.workspaceBinding, result.revision);
       }
-      measurePerf(PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, start2, {
+      measurePerf(PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, start, {
         nodes: canvas.nodes?.length ?? 0,
         edges: canvas.edges?.length ?? 0,
         mode: canvas.mode,
       });
       return result;
     } catch (err) {
-      measurePerf(PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, start2, {
+      measurePerf(PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, start, {
         nodes: canvas.nodes?.length ?? 0,
         edges: canvas.edges?.length ?? 0,
         mode: canvas.mode,
@@ -805,19 +762,19 @@ export class AgentHttpClient {
    * are consistently reported.
    */
   async request(
-    url2,
-    init2,
+    url,
+    init,
     allowWorkspaceRecovery = true,
     applyDispatchAdmission = true,
   ) {
     if (applyDispatchAdmission) {
-      await this.beforeRequest?.(url2, init2);
+      await this.beforeRequest?.(url, init);
     }
     try {
       const activeWorkspaceClient = this.workspaceClient;
       const response = activeWorkspaceClient
-        ? await activeWorkspaceClient.request(url2, init2)
-        : await this.fetch(url2, init2);
+        ? await activeWorkspaceClient.request(url, init)
+        : await this.fetch(url, init);
       if (activeWorkspaceClient) {
         this.applyWorkspaceBinding(activeWorkspaceClient.binding);
       }
@@ -825,17 +782,17 @@ export class AgentHttpClient {
         !activeWorkspaceClient &&
         allowWorkspaceRecovery &&
         this.recoverWorkspace &&
-        isSafeIdentityRecoveryMethod(init2.method) &&
+        isSafeIdentityRecoveryMethod(init.method) &&
         (await this.isWorkspaceIdentityError(response))
       ) {
         const recovered = await this.recoverWorkspace();
         if (recovered) {
           const recoveredBinding = normalizeRecoveredBinding(recovered);
           const nextBaseUrl = recoveredBinding.baseUrl.replace(/\/$/, "");
-          const previous2 = new URL(url2);
-          previous2.searchParams.delete(HILO_WORKSPACE_IDENTITY_QUERY);
-          previous2.searchParams.delete(HILO_WORKSPACE_INSTANCE_QUERY);
-          previous2.searchParams.delete(HILO_WORKSPACE_GENERATION_QUERY);
+          const previous = new URL(url);
+          previous.searchParams.delete(HILO_WORKSPACE_IDENTITY_QUERY);
+          previous.searchParams.delete(HILO_WORKSPACE_INSTANCE_QUERY);
+          previous.searchParams.delete(HILO_WORKSPACE_GENERATION_QUERY);
           this.baseUrl = nextBaseUrl;
           this.workspaceClaim = recoveredBinding.claim;
           this.workspaceBinding = recoveredBinding.binding;
@@ -853,9 +810,9 @@ export class AgentHttpClient {
           const retryHeaders = recoveredBinding.binding
             ? withWorkspaceGatewayHeaders(
                 recoveredBinding.binding,
-                init2.headers,
+                init.headers,
               )
-            : new Headers(init2.headers);
+            : new Headers(init.headers);
           if (!recoveredBinding.binding) {
             retryHeaders.set(
               HILO_WORKSPACE_IDENTITY_HEADER,
@@ -863,12 +820,12 @@ export class AgentHttpClient {
             );
           }
           const retryUrl = this.appendWorkspaceClaim(
-            `${nextBaseUrl}${previous2.pathname}${previous2.search}${previous2.hash}`,
+            `${nextBaseUrl}${previous.pathname}${previous.search}${previous.hash}`,
           );
           const retryResponse = await this.request(
             retryUrl,
             {
-              ...init2,
+              ...init,
               headers: retryHeaders,
             },
             false,
@@ -884,12 +841,12 @@ export class AgentHttpClient {
       }
       return response;
     } catch (err) {
-      throw this.classifyAndLogFetchError(err, url2, init2.method ?? "GET");
+      throw this.classifyAndLogFetchError(err, url, init.method ?? "GET");
     }
   }
-  appendWorkspaceClaim(url2) {
-    if (!this.workspaceClaim) return url2;
-    const parsed = new URL(url2);
+  appendWorkspaceClaim(url) {
+    if (!this.workspaceClaim) return url;
+    const parsed = new URL(url);
     parsed.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, this.workspaceClaim);
     if (this.workspaceBinding) {
       parsed.searchParams.set(
@@ -926,16 +883,16 @@ export class AgentHttpClient {
   async isWorkspaceIdentityError(response) {
     if (response.status !== 409 && response.status !== 428) return false;
     try {
-      const body2 = await response.clone().json();
-      return isWorkspaceIdentityErrorCode(body2.code);
+      const body = await response.clone().json();
+      return isWorkspaceIdentityErrorCode(body.code);
     } catch {
       return false;
     }
   }
-  async get(path2, opts) {
-    const url2 = this.url(path2);
+  async get(path, opts) {
+    const url = this.url(path);
     const timeoutMs = opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
-    const resp = await this.request(url2, {
+    const resp = await this.request(url, {
       method: "GET",
       headers: {
         ...this.headers,
@@ -943,26 +900,26 @@ export class AgentHttpClient {
       },
       signal: this.combineSignals(opts?.signal, timeoutMs),
     });
-    return this.handleResponse(resp, url2, "GET");
+    return this.handleResponse(resp, url, "GET");
   }
-  async post(path2, body2, opts) {
-    const url2 = this.url(path2);
+  async post(path, body, opts) {
+    const url = this.url(path);
     const timeoutMs = opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
-    const resp = await this.request(url2, {
+    const resp = await this.request(url, {
       method: "POST",
       headers: {
         ...this.headers,
         "Content-Type": "application/json",
         ...opts?.headers,
       },
-      body: JSON.stringify(body2),
+      body: JSON.stringify(body),
       signal: this.combineSignals(opts?.signal, timeoutMs),
     });
-    return this.handleResponse(resp, url2, "POST");
+    return this.handleResponse(resp, url, "POST");
   }
-  async postGeneration(path2, body2, opts) {
+  async postGeneration(path, body, opts) {
     try {
-      return await this.post(path2, body2, opts);
+      return await this.post(path, body, opts);
     } catch (error) {
       if (error instanceof ApiError) {
         const response = generationResponseFromApiError(error);
@@ -971,40 +928,40 @@ export class AgentHttpClient {
       throw error;
     }
   }
-  async put(path2, body2, opts) {
-    const url2 = this.url(path2);
+  async put(path, body, opts) {
+    const url = this.url(path);
     const timeoutMs = opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
-    const resp = await this.request(url2, {
+    const resp = await this.request(url, {
       method: "PUT",
       headers: {
         ...this.headers,
         "Content-Type": "application/json",
         ...opts?.headers,
       },
-      body: JSON.stringify(body2),
+      body: JSON.stringify(body),
       signal: this.combineSignals(opts?.signal, timeoutMs),
     });
-    return this.handleResponse(resp, url2, "PUT");
+    return this.handleResponse(resp, url, "PUT");
   }
-  async patch(path2, body2, opts) {
-    const url2 = this.url(path2);
+  async patch(path, body, opts) {
+    const url = this.url(path);
     const timeoutMs = opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
-    const resp = await this.request(url2, {
+    const resp = await this.request(url, {
       method: "PATCH",
       headers: {
         ...this.headers,
         "Content-Type": "application/json",
         ...opts?.headers,
       },
-      body: JSON.stringify(body2),
+      body: JSON.stringify(body),
       signal: this.combineSignals(opts?.signal, timeoutMs),
     });
-    return this.handleResponse(resp, url2, "PATCH");
+    return this.handleResponse(resp, url, "PATCH");
   }
-  async del(path2, opts) {
-    const url2 = this.url(path2);
+  async del(path, opts) {
+    const url = this.url(path);
     const timeoutMs = opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
-    const resp = await this.request(url2, {
+    const resp = await this.request(url, {
       method: "DELETE",
       headers: {
         ...this.headers,
@@ -1012,51 +969,51 @@ export class AgentHttpClient {
       },
       signal: this.combineSignals(opts?.signal, timeoutMs),
     });
-    return this.handleResponse(resp, url2, "DELETE");
+    return this.handleResponse(resp, url, "DELETE");
   }
-  async handleResponse(resp, url2, method) {
-    const text2 = await resp.text().catch(() => resp.statusText);
+  async handleResponse(resp, url, method) {
+    const text = await resp.text().catch(() => resp.statusText);
     if (!resp.ok) {
-      const error = new ApiError(resp.status, text2, url2, method, "http");
+      const error = new ApiError(resp.status, text, url, method, "http");
       if (resp.status >= 500) {
         this.logger.error(
-          `${LOG_TAG} ${method} ${url2} -> ${resp.status} ${text2.slice(0, 200)}`,
+          `${LOG_TAG} ${method} ${url} -> ${resp.status} ${text.slice(0, 200)}`,
         );
       } else {
         this.logger.warn(
-          `${LOG_TAG} ${method} ${url2} -> ${resp.status} ${text2.slice(0, 200)}`,
+          `${LOG_TAG} ${method} ${url} -> ${resp.status} ${text.slice(0, 200)}`,
         );
       }
       throw error;
     }
-    if (!text2 || text2.trim().length === 0) {
+    if (!text || text.trim().length === 0) {
       if (resp.status === 204 || resp.status === 205) {
         return void 0;
       }
       const error = new ApiError(
         resp.status,
         "Invalid JSON response: empty body",
-        url2,
+        url,
         method,
         "parse",
       );
       this.logger.error(
-        `${LOG_TAG} ${method} ${url2} -> parse error: empty body`,
+        `${LOG_TAG} ${method} ${url} -> parse error: empty body`,
       );
       throw error;
     }
     try {
-      return JSON.parse(text2);
+      return JSON.parse(text);
     } catch {
       const error = new ApiError(
         resp.status,
-        `Invalid JSON response: ${text2.slice(0, 200)}`,
-        url2,
+        `Invalid JSON response: ${text.slice(0, 200)}`,
+        url,
         method,
         "parse",
       );
       this.logger.error(
-        `${LOG_TAG} ${method} ${url2} -> parse error: ${text2.slice(0, 200)}`,
+        `${LOG_TAG} ${method} ${url} -> parse error: ${text.slice(0, 200)}`,
       );
       throw error;
     }
@@ -1071,13 +1028,13 @@ export class AgentHttpClient {
    * | DOMException Abort     | abort     | (silent)  |
    * | Other                  | network   | error     |
    */
-  classifyAndLogFetchError(err, url2, method) {
+  classifyAndLogFetchError(err, url, method) {
     if (err instanceof DOMException && err.name === "TimeoutError") {
-      this.logger.warn(`${LOG_TAG} ${method} ${url2} -> timeout`);
+      this.logger.warn(`${LOG_TAG} ${method} ${url} -> timeout`);
       return new ApiError(
         0,
         `Request timeout: ${err.message}`,
-        url2,
+        url,
         method,
         "timeout",
       );
@@ -1086,22 +1043,22 @@ export class AgentHttpClient {
       return new ApiError(
         0,
         `Request aborted: ${err.message}`,
-        url2,
+        url,
         method,
         "abort",
       );
     }
     if (err instanceof TypeError) {
       this.logger.error(
-        `${LOG_TAG} ${method} ${url2} -> network error: ${err.message}`,
+        `${LOG_TAG} ${method} ${url} -> network error: ${err.message}`,
       );
-      return new ApiError(0, err.message, url2, method, "network");
+      return new ApiError(0, err.message, url, method, "network");
     }
-    const message2 = err instanceof Error ? err.message : String(err);
+    const message = err instanceof Error ? err.message : String(err);
     this.logger.error(
-      `${LOG_TAG} ${method} ${url2} -> unknown error: ${message2}`,
+      `${LOG_TAG} ${method} ${url} -> unknown error: ${message}`,
     );
-    return new ApiError(0, message2, url2, method, "network");
+    return new ApiError(0, message, url, method, "network");
   }
 }
 
@@ -1158,12 +1115,12 @@ export function activateAccountSubmissionGuard() {
 }
 
 export function updateAccountSubmissionDecision(
-  snapshot2,
+  snapshot,
   contract,
   creditSummary = null,
 ) {
   const selectedScope =
-    snapshot2?.status === "ready" ? deriveActiveScope(snapshot2) : null;
+    snapshot?.status === "ready" ? deriveActiveScope(snapshot) : null;
   const incomingSummaryMatches =
     selectedScope !== null &&
     creditSummary !== null &&
@@ -1171,7 +1128,7 @@ export function updateAccountSubmissionDecision(
   const effectiveCreditSummary = incomingSummaryMatches ? creditSummary : null;
   state = {
     ...state,
-    snapshot: snapshot2,
+    snapshot,
     contract,
     creditSummary: effectiveCreditSummary,
   };
@@ -1185,25 +1142,25 @@ export function evaluateAccountSubmission(kind) {
       allowed: true,
       mode: "LEGACY_PERSONAL",
     };
-  const { snapshot: snapshot2, contract } = state;
-  if (!snapshot2)
+  const { snapshot, contract } = state;
+  if (!snapshot)
     return {
       allowed: false,
       reasonCode: "canonical_context_pending",
     };
-  if (snapshot2.status !== "ready") {
+  if (snapshot.status !== "ready") {
     return {
       allowed: false,
-      reasonCode: `canonical_context_${snapshot2.status}`,
+      reasonCode: `canonical_context_${snapshot.status}`,
     };
   }
-  const scope = deriveActiveScope(snapshot2);
+  const scope = deriveActiveScope(snapshot);
   if (!scope)
     return {
       allowed: false,
       reasonCode: "canonical_scope_missing",
     };
-  if (snapshot2.activeContext.accountType === "PERSONAL") {
+  if (snapshot.activeContext.accountType === "PERSONAL") {
     if (kind === "team_checkout") {
       return {
         allowed: false,
@@ -1219,7 +1176,7 @@ export function evaluateAccountSubmission(kind) {
     return {
       allowed: true,
       mode: "CANONICAL",
-      sequence: snapshot2.sequence,
+      sequence: snapshot.sequence,
       scope,
     };
   }
@@ -1280,7 +1237,7 @@ export function evaluateAccountSubmission(kind) {
   return {
     allowed: true,
     mode: "CANONICAL",
-    sequence: snapshot2.sequence,
+    sequence: snapshot.sequence,
     scope,
   };
 }
@@ -1296,24 +1253,24 @@ export function guardAccountSubmission(kind) {
   return decision;
 }
 
-export function guardCanvasAccountRequest(url2, init2) {
-  if ((init2.method ?? "GET").toUpperCase() !== "POST") return;
-  const pathname = new URL(url2, window.location.origin).pathname;
+export function guardCanvasAccountRequest(url, init) {
+  if ((init.method ?? "GET").toUpperCase() !== "POST") return;
+  const pathname = new URL(url, window.location.origin).pathname;
   if (!ACCOUNT_SENSITIVE_CANVAS_PATHS.has(pathname)) return;
   const decision = guardAccountSubmission("canvas");
   if (!decision.allowed)
     throw new AccountSubmissionBlockedError(decision.reasonCode);
   if (decision.mode === "CANONICAL") {
-    const headers = new Headers(init2.headers);
+    const headers = new Headers(init.headers);
     headers.set(GROUP_ID_HEADER, decision.scope.groupId);
-    init2.headers = headers;
+    init.headers = headers;
   }
 }
 
-export function logMediaLineage(record2) {
+export function logMediaLineage(record) {
   try {
-    const fields = mediaLineageFields(record2);
-    if (record2.errorKind) canvasLog.warn("media-lineage", fields);
+    const fields = mediaLineageFields(record);
+    if (record.errorKind) canvasLog.warn("media-lineage", fields);
     else canvasLog.info("media-lineage", fields);
   } catch {}
 }
@@ -1365,15 +1322,15 @@ export function createAssetMutator({
   httpClient,
   assetMetadataStore,
   probeDurationSec = probeMediaDurationSec,
-  inferKind: inferKind2,
+  inferKind,
 }) {
   const store = assetMetadataStore ?? useAssetMetadataStore;
   const mirror = (assetId, partial) => {
     store.getState().merge(assetId, partial);
   };
   return {
-    async writeText(path2, content2, opts) {
-      const res = await httpClient.writeContent(path2, content2, opts);
+    async writeText(path, content, opts) {
+      const res = await httpClient.writeContent(path, content, opts);
       warnEnrollError("writeText", res);
       if (res.assetId) {
         mirror(res.assetId, {
@@ -1385,24 +1342,24 @@ export function createAssetMutator({
       }
       return res;
     },
-    async createTextAsset(content2, opts) {
-      const res = await httpClient.createTextAsset(content2, opts);
+    async createTextAsset(content, opts) {
+      const res = await httpClient.createTextAsset(content, opts);
       warnEnrollError("createTextAsset", res);
-      const name2 = basename$8(res.path);
+      const fileName = basename$8(res.path);
       mirror(res.assetId, {
         type: "text",
         path: res.path,
-        name: name2,
+        name: fileName,
         url: httpClient.fileUrlById(res.assetId),
       });
       return {
         assetId: res.assetId,
         path: res.path,
-        name: name2,
+        name: fileName,
       };
     },
-    async upload(file, name2, kind, opts) {
-      const filename = name2 ?? file.name;
+    async upload(file, fileName, kind, opts) {
+      const filename = fileName ?? file.name;
       const durationPromise = probeDurationSec(file).catch(() => 0);
       const res = await observeClientMediaUpload(
         file,
@@ -1421,7 +1378,7 @@ export function createAssetMutator({
       const durationSec = await durationPromise;
       warnEnrollError("upload", res);
       if (res.id) {
-        const resolvedKind = kind ?? inferKind2?.(file) ?? "file";
+        const resolvedKind = kind ?? inferKind?.(file) ?? "file";
         const serverDurationSec =
           typeof res.durationMs === "number" && res.durationMs > 0
             ? res.durationMs / 1e3
@@ -1501,67 +1458,67 @@ export function useScopedHttpClient() {
 }
 
 export function useBrowserImageEdit(options) {
-  const { t: t2 } = useTranslation();
-  const client2 = useScopedHttpClient();
+  const { t } = useTranslation();
+  const client = useScopedHttpClient();
   const assetMetadataStore = useAssetMetadataApi();
   const mutator = reactExports.useMemo(
     () =>
-      client2
+      client
         ? createAssetMutator({
-            httpClient: client2,
+            httpClient: client,
             assetMetadataStore,
           })
         : null,
-    [client2, assetMetadataStore],
+    [client, assetMetadataStore],
   );
-  const latest2 = reactExports.useRef({
+  const latest = reactExports.useRef({
     ...options,
-    client: client2,
+    client,
     mutator,
-    t: t2,
+    t,
   });
-  latest2.current = {
+  latest.current = {
     ...options,
-    client: client2,
+    client,
     mutator,
-    t: t2,
+    t,
   };
   const inFlight = reactExports.useRef(false);
   reactExports.useEffect(() => {
     let disposed = false;
     const handleEdit = (event) => {
-      const snapshot2 = latest2.current;
+      const snapshot = latest.current;
       const request = event.detail;
-      if (!snapshot2.isActiveRef.current || !isBrowserImageEditRequest(request))
+      if (!snapshot.isActiveRef.current || !isBrowserImageEditRequest(request))
         return;
       event.preventDefault();
       if (
         inFlight.current ||
-        snapshot2.locked ||
-        !snapshot2.client ||
-        !snapshot2.mutator
+        snapshot.locked ||
+        !snapshot.client ||
+        !snapshot.mutator
       ) {
         dedupedToast.warning(
-          snapshot2.t(
+          snapshot.t(
             "workspace.browser.imageEdit.notReady",
             "对话暂未就绪或正在准备其他任务，请稍后再试",
           ),
         );
         return;
       }
-      if (!snapshot2.canSend()) return;
+      if (!snapshot.canSend()) return;
       inFlight.current = true;
-      const client22 = snapshot2.client;
-      const mutator2 = snapshot2.mutator;
+      const client = snapshot.client;
+      const mutator = snapshot.mutator;
       const notice = dedupedToast.loading(
-        snapshot2.t(
+        snapshot.t(
           "workspace.browser.imageEdit.preparing",
           "正在准备图片编辑任务…",
         ),
       );
       void (async () => {
         try {
-          const uploaded = await mutator2.upload(
+          const uploaded = await mutator.upload(
             request.file,
             request.file.name,
             "image",
@@ -1571,7 +1528,7 @@ export function useBrowserImageEdit(options) {
           );
           if (!uploaded.id || !uploaded.relative)
             throw new Error("Image upload did not return an asset");
-          await client22
+          await client
             .updateAssetMetadata(
               uploaded.id,
               browserAssetSourceMetadata(request),
@@ -1581,31 +1538,31 @@ export function useBrowserImageEdit(options) {
                 error,
               }),
             );
-          const current2 = latest2.current;
+          const current = latest.current;
           if (
             disposed ||
-            !current2.isActiveRef.current ||
-            current2.sessionId !== snapshot2.sessionId ||
-            current2.locked ||
-            current2.client !== client22
+            !current.isActiveRef.current ||
+            current.sessionId !== snapshot.sessionId ||
+            current.locked ||
+            current.client !== client
           ) {
             if (!disposed)
               dedupedToast.warning(
-                current2.t(
+                current.t(
                   "workspace.browser.imageEdit.contextChanged",
                   "目标对话已切换，图片已保存到项目，请回到原对话后重新操作",
                 ),
               );
             return;
           }
-          if (!current2.canSend()) return;
+          if (!current.canSend()) return;
           if (
-            !current2.send(browserImageEditPrompt(current2.t, request.action), [
+            !current.send(browserImageEditPrompt(current.t, request.action), [
               uploaded.relative,
             ])
           ) {
             dedupedToast.error(
-              current2.t(
+              current.t(
                 "workspace.browser.imageEdit.sendFailed",
                 "编辑任务未发送，图片已保存到项目，请在对话就绪后重新操作",
               ),
@@ -1618,7 +1575,7 @@ export function useBrowserImageEdit(options) {
           });
           if (!disposed)
             dedupedToast.error(
-              latest2.current.t(
+              latest.current.t(
                 "workspace.browser.imageEdit.prepareFailed",
                 "图片准备失败，未发送编辑任务，请稍后再试",
               ),

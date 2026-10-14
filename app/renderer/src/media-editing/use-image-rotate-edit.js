@@ -1,5 +1,5 @@
 // use-image-rotate-edit.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import {
   abandonToolInteractionSession,
   beginToolInteractionSession,
@@ -20,29 +20,29 @@ const DEFAULT_ROTATE_STATE = {
   flipH: false,
   flipV: false,
 };
-function rotatedAabb(w3, h2, angleDeg) {
-  const rad = (Math.abs(angleDeg) * Math.PI) / 180;
-  const cos = Math.abs(Math.cos(rad));
-  const sin = Math.abs(Math.sin(rad));
+function rotatedAabb(width, height, angleDeg) {
+  const radians = (Math.abs(angleDeg) * Math.PI) / 180;
+  const cos = Math.abs(Math.cos(radians));
+  const sin = Math.abs(Math.sin(radians));
   return {
-    width: w3 * cos + h2 * sin,
-    height: w3 * sin + h2 * cos,
+    width: width * cos + height * sin,
+    height: width * sin + height * cos,
   };
 }
 function loadImage(src) {
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = (e2) => reject(e2);
-    img.src = src;
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => resolve(image);
+    image.onerror = (errorEvent) => reject(errorEvent);
+    image.src = src;
   });
 }
-async function renderRotatedBlob(src, state2, originalWidth, originalHeight) {
-  const img = await loadImage(src);
-  const sw = originalWidth || img.naturalWidth;
-  const sh = originalHeight || img.naturalHeight;
-  const { width, height } = rotatedAabb(sw, sh, state2.angle);
+async function renderRotatedBlob(src, state, originalWidth, originalHeight) {
+  const image = await loadImage(src);
+  const sourceWidth = originalWidth || image.naturalWidth;
+  const sourceHeight = originalHeight || image.naturalHeight;
+  const { width, height } = rotatedAabb(sourceWidth, sourceHeight, state.angle);
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(width);
   canvas.height = Math.round(height);
@@ -51,9 +51,9 @@ async function renderRotatedBlob(src, state2, originalWidth, originalHeight) {
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
   ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate((state2.angle * Math.PI) / 180);
-  ctx.scale(state2.flipH ? -1 : 1, state2.flipV ? -1 : 1);
-  ctx.drawImage(img, -sw / 2, -sh / 2, sw, sh);
+  ctx.rotate((state.angle * Math.PI) / 180);
+  ctx.scale(state.flipH ? -1 : 1, state.flipV ? -1 : 1);
+  ctx.drawImage(image, -sourceWidth / 2, -sourceHeight / 2, sourceWidth, sourceHeight);
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (!blob) {
@@ -64,13 +64,13 @@ async function renderRotatedBlob(src, state2, originalWidth, originalHeight) {
     }, "image/png");
   });
 }
-function isIdentityRotate(state2) {
-  return state2.angle === 0 && !state2.flipH && !state2.flipV;
+function isIdentityRotate(state) {
+  return state.angle === 0 && !state.flipH && !state.flipV;
 }
 export function useImageRotateEdit({
   nodeId,
-  selected: selected2,
-  meta: meta2,
+  selected,
+  meta,
   nodeWidth,
   sourceBodyHeight,
   cropImage,
@@ -79,19 +79,19 @@ export function useImageRotateEdit({
   onAbandon,
 }) {
   const [editing, setEditing] = reactExports.useState(false);
-  const [state2, setState] = reactExports.useState(DEFAULT_ROTATE_STATE);
+  const [state, setState] = reactExports.useState(DEFAULT_ROTATE_STATE);
   const [saving, setSaving] = reactExports.useState(false);
   const interactionSessionRef = reactExports.useRef(
     createToolInteractionSession(),
   );
-  const hasChanges = !isIdentityRotate(state2);
-  const enter2 = reactExports.useCallback(() => {
-    if (!meta2?.url || !meta2.width || !meta2.height) return;
+  const hasChanges = !isIdentityRotate(state);
+  const enter = reactExports.useCallback(() => {
+    if (!meta?.url || !meta.width || !meta.height) return;
     beginToolInteractionSession(interactionSessionRef.current);
     setState(DEFAULT_ROTATE_STATE);
     setEditing(true);
-  }, [meta2?.url, meta2?.width, meta2?.height]);
-  const reset2 = reactExports.useCallback(() => {
+  }, [meta?.url, meta?.width, meta?.height]);
+  const reset = reactExports.useCallback(() => {
     setEditing(false);
     setState(DEFAULT_ROTATE_STATE);
     setSaving(false);
@@ -102,8 +102,8 @@ export function useImageRotateEdit({
     );
     if (abandonedWithProgress == null) return;
     onAbandon?.(abandonedWithProgress);
-    reset2();
-  }, [onAbandon, reset2]);
+    reset();
+  }, [onAbandon, reset]);
   const { displayWidth, displayHeight } = reactExports.useMemo(() => {
     if (!editing || !hasChanges) {
       return {
@@ -111,15 +111,15 @@ export function useImageRotateEdit({
         displayHeight: sourceBodyHeight,
       };
     }
-    const aabb = rotatedAabb(nodeWidth, sourceBodyHeight, state2.angle);
+    const aabb = rotatedAabb(nodeWidth, sourceBodyHeight, state.angle);
     return {
       displayWidth: aabb.width,
       displayHeight: aabb.height,
     };
-  }, [editing, hasChanges, state2.angle, nodeWidth, sourceBodyHeight]);
+  }, [editing, hasChanges, state.angle, nodeWidth, sourceBodyHeight]);
   const save = reactExports.useCallback(async () => {
     if (saving) return;
-    if (!cropImage || !meta2?.url || !meta2.width || !meta2.height) return;
+    if (!cropImage || !meta?.url || !meta.width || !meta.height) return;
     if (!hasChanges) {
       cancel();
       return;
@@ -127,13 +127,13 @@ export function useImageRotateEdit({
     setSaving(true);
     try {
       const blob = await renderRotatedBlob(
-        meta2.url,
-        state2,
-        meta2.width,
-        meta2.height,
+        meta.url,
+        state,
+        meta.width,
+        meta.height,
       );
-      const baseName = meta2.name?.replace(/\.[^.]+$/, "") ?? "image";
-      const position2 = getAdjacentNodePosition(
+      const baseName = meta.name?.replace(/\.[^.]+$/, "") ?? "image";
+      const position = getAdjacentNodePosition(
         reactFlow,
         nodeId,
         displayWidth,
@@ -143,26 +143,26 @@ export function useImageRotateEdit({
         nodeId,
         blob,
         `${baseName}-rotate-${uuid}.png`,
-        position2,
+        position,
       );
       completeToolInteractionSession(interactionSessionRef.current);
       onSaved?.(newNodeId);
-      reset2();
+      reset();
     } catch {
       setSaving(false);
     }
   }, [
     saving,
     cropImage,
-    meta2,
-    state2,
+    meta,
+    state,
     hasChanges,
     reactFlow,
     nodeId,
     displayWidth,
     cancel,
     onSaved,
-    reset2,
+    reset,
   ]);
   reactExports.useEffect(() => {
     setToolInteractionSessionProgress(
@@ -170,10 +170,10 @@ export function useImageRotateEdit({
       hasChanges,
     );
   }, [hasChanges]);
-  const setAngle = reactExports.useCallback((next2) => {
+  const setAngle = reactExports.useCallback((next) => {
     setState((prev) => ({
       ...prev,
-      angle: clamp(next2, ROTATE_ANGLE_MIN, ROTATE_ANGLE_MAX),
+      angle: clamp(next, ROTATE_ANGLE_MIN, ROTATE_ANGLE_MAX),
     }));
   }, []);
   const step90 = reactExports.useCallback(() => {
@@ -197,21 +197,21 @@ export function useImageRotateEdit({
   reactExports.useEffect(() => {
     if (!editing) return;
     if (saving) return;
-    if (!selected2) cancel();
-  }, [editing, saving, selected2, cancel]);
+    if (!selected) cancel();
+  }, [editing, saving, selected, cancel]);
   const imageTransform = reactExports.useMemo(() => {
     if (!editing || !hasChanges) return void 0;
-    return `rotate(${state2.angle}deg) scale(${state2.flipH ? -1 : 1}, ${state2.flipV ? -1 : 1})`;
-  }, [editing, hasChanges, state2]);
+    return `rotate(${state.angle}deg) scale(${state.flipH ? -1 : 1}, ${state.flipV ? -1 : 1})`;
+  }, [editing, hasChanges, state]);
   return {
     editing,
-    state: state2,
+    state,
     saving,
     hasChanges,
     imageTransform,
     displayWidth,
     displayHeight,
-    enter: enter2,
+    enter,
     cancel,
     save,
     setAngle,

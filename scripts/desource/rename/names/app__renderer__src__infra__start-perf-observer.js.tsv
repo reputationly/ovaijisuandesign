@@ -1,0 +1,5 @@
+key	new	reason
+ts2@63:11	ts	原名 ts，去掉打包器加的数字去重后缀
+list2@29:24	list	去掉打包器加的数字后缀，恢复原名 list
+record2@36:11	record	去掉打包器加的数字后缀，恢复原名 record
+list2@61:32	list	去掉打包器加的数字后缀，恢复原名 list

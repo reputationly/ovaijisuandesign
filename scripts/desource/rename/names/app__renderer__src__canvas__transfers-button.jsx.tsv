@@ -1,0 +1,18 @@
+key	old	new	依据
+X@10:10	X	XIcon	Lucide 导出名为 X 的图标组件，局部别名按图标本名命名。
+t2@19:30	t2	translate	失败说明辅助函数用该翻译器选择并返回对应的失败文案。
+t2@51:14	t2	translate	该组件翻译空传输列表的提示。
+t2@70:14	t2	translate	该组件翻译上传状态和审核状态。
+t2@132:14	t2	translate	该组件翻译审核失败状态及提示。
+t2@190:14	t2	translate	该组件翻译下载状态和操作标签。
+t2@279:14	t2	translate	TransfersButton 翻译传输标题、失败提示和状态文本。
+active2@32:30	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+onRemove2@69:46	onRemove2	onRemove	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@131:32	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+onRemove2@189:50	onRemove2	onRemove	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+percent2@192:9	percent2	percent	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+tab2@280:10	tab2	tab	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@291:47	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@328:25	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@331:25	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@417:33	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

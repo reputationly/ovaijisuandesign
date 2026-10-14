@@ -1,5 +1,8 @@
 // 创作者计划投稿弹窗：安装包、封面、展示素材、分类与提交流程。
-import { useTranslation, reactExports, jsxRuntimeExports, X$7 as X, Info$1 as Info, CheckCircle2, ImagePlus, Video } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { X$7 as X, Info$1 as Info, CheckCircle2, ImagePlus, Video } from "../../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { DialogHeader, Button, Dialog, DialogContent, DialogFooter } from "../../infra/dialog-content.jsx";
 import { Icon } from "../../vendor-inline/vscode-base/graph.jsx";
@@ -14,7 +17,7 @@ import { Select } from "../../assets/credit-query-keys.jsx";
 import { SelectTrigger, SelectValue, SelectContent, SelectItem, Input3 as Input } from "../../infra/select-content.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { hasSubmissionShowcase, saveCreatorPlan, stageSkillPackage } from "./data.js";
-import { AssetPicker, Field$1, FormSection, PackagePicker } from "./form-parts.jsx";
+import { AssetPicker, Field, FormSection, PackagePicker } from "./form-parts.jsx";
 import { SkillApplicationDialog } from "../my-skills/application-dialog.jsx";
 import {
   DEFAULT_SKILL_PACKAGE_VERSION,
@@ -770,7 +773,7 @@ export function CreatorPlanDialog({
               )}
             >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <Field$1 label={t("skills.submission.skillName", "Skill name")} required={true}>
+                <Field label={t("skills.submission.skillName", "Skill name")} required={true}>
                   <Input
                     value={skillName}
                     disabled={true}
@@ -779,8 +782,8 @@ export function CreatorPlanDialog({
                       "short-drama-series-writer",
                     )}
                   />
-                </Field$1>
-                <Field$1
+                </Field>
+                <Field
                   label={t("skills.submission.displayName", "Display name")}
                   required={true}
                   error={reviewErrors.displayName}
@@ -796,8 +799,8 @@ export function CreatorPlanDialog({
                     data-action-ui-id="skill-submission-display-name"
                     aria-invalid={!!reviewErrors.displayName}
                   />
-                </Field$1>
-                <Field$1
+                </Field>
+                <Field
                   label={t("skills.submission.creator", "Creator")}
                   required={true}
                   error={reviewErrors.creator}
@@ -809,9 +812,9 @@ export function CreatorPlanDialog({
                     data-action-ui-id="skill-submission-creator"
                     aria-invalid={!!reviewErrors.creator}
                   />
-                </Field$1>
+                </Field>
               </div>
-              <Field$1
+              <Field
                 label={t("skills.submission.packageVersion", "Skill package version")}
                 required={true}
                 error={reviewErrors.packageVersion}
@@ -824,7 +827,7 @@ export function CreatorPlanDialog({
                   data-action-ui-id="skill-submission-package-version"
                   aria-invalid={!!reviewErrors.packageVersion}
                 />
-              </Field$1>
+              </Field>
             </FormSection>
             <FormSection
               title={t("skills.submission.listingInfoSection", "Listing information")}
@@ -833,7 +836,7 @@ export function CreatorPlanDialog({
                 "Summary, best-fit scenarios, usage, and deliverables",
               )}
             >
-              <Field$1
+              <Field
                 label={t("skills.submission.summary", "One-line summary")}
                 required={true}
                 hint={`${summary.length}/${reviewLimits.summaryMax} · ${t("skills.submission.summaryHint", `Describe the core capability in ${reviewLimits.summaryMin}–${reviewLimits.summaryMax} characters`)}`}
@@ -851,8 +854,8 @@ export function CreatorPlanDialog({
                   data-action-ui-id="skill-submission-summary"
                   aria-invalid={!!reviewErrors.summary}
                 />
-              </Field$1>
-              <Field$1
+              </Field>
+              <Field
                 label={t("skills.submission.bestFor", "Best For")}
                 required={true}
                 hint={t(
@@ -898,9 +901,9 @@ export function CreatorPlanDialog({
                     />
                   )}
                 </div>
-              </Field$1>
+              </Field>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Field$1
+                <Field
                   label={t("skills.submission.howToUse", "How to Use")}
                   required={true}
                   hint={`${howToUse.length}/${reviewLimits.howToUseMax} · ${t("skills.submission.howToUseHint", `Describe the required input in ${reviewLimits.howToUseMin}–${reviewLimits.howToUseMax} characters`)}`}
@@ -918,8 +921,8 @@ export function CreatorPlanDialog({
                     data-action-ui-id="skill-submission-how-to-use"
                     aria-invalid={!!reviewErrors.howToUse}
                   />
-                </Field$1>
-                <Field$1
+                </Field>
+                <Field
                   label={t("skills.submission.outputs", "Outputs")}
                   required={true}
                   hint={`${outputs.length}/${reviewLimits.outputsMax} · ${t("skills.submission.outputsHint", `Describe the deliverables in ${reviewLimits.outputsMin}–${reviewLimits.outputsMax} characters`)}`}
@@ -937,7 +940,7 @@ export function CreatorPlanDialog({
                     data-action-ui-id="skill-submission-outputs"
                     aria-invalid={!!reviewErrors.outputs}
                   />
-                </Field$1>
+                </Field>
               </div>
             </FormSection>
             <FormSection
@@ -948,7 +951,7 @@ export function CreatorPlanDialog({
               )}
             >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <Field$1
+                <Field
                   label={t("skills.submission.primaryCategory", "Primary category")}
                   required={true}
                   hint={t(
@@ -988,14 +991,14 @@ export function CreatorPlanDialog({
                       ))}
                     </SelectContent>
                   </Select>
-                </Field$1>
+                </Field>
                 {[0, 1].map((relatedIndex) => {
                   const categoryCode = selectedRelatedCategories[relatedIndex] ?? "";
                   const selectedRelated = configuredCategories.find(
                     (category) => category.category === categoryCode,
                   );
                   return (
-                    <Field$1
+                    <Field
                       key={`related-category-${relatedIndex}`}
                       label={`${t("skills.submission.relatedCategory", "Related category")} ${relatedIndex + 1}`}
                     >
@@ -1043,12 +1046,12 @@ export function CreatorPlanDialog({
                             ))}
                         </SelectContent>
                       </Select>
-                    </Field$1>
+                    </Field>
                   );
                 })}
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Field$1
+                <Field
                   label={t("skills.submission.stage", "Creation stage")}
                   required={true}
                   error={reviewErrors.stage}
@@ -1079,7 +1082,7 @@ export function CreatorPlanDialog({
                       ))}
                     </SelectContent>
                   </Select>
-                </Field$1>
+                </Field>
               </div>
             </FormSection>
             <FormSection

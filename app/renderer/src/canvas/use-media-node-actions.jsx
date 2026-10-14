@@ -1,5 +1,7 @@
 // use-media-node-actions.jsx
-import { reactExports, useReactFlow, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { useReactFlow } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getAdjacentNodePosition, useAddToChat } from "./node-shell-inner.jsx";
 import { AddToChatIcon, FullscreenIcon } from "./fullscreen-icon.jsx";
@@ -15,7 +17,7 @@ const EMPTY_TOOLBAR_ITEMS = [];
 export function useMediaNodeActions({
   nodeId,
   toolbarActive = true,
-  meta: meta2,
+  meta,
   fallbackPath,
   fallbackWidth,
   onAddToChat,
@@ -25,7 +27,7 @@ export function useMediaNodeActions({
   enableFrameExtract,
   onPromoteToAsset,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const reactFlow = useReactFlow();
   const [showLightbox, setShowLightbox] = reactExports.useState(false);
   const [lightboxIndexOverride, setLightboxIndexOverride] =
@@ -35,31 +37,31 @@ export function useMediaNodeActions({
   const [extractingAudio, setExtractingAudio] = reactExports.useState(false);
   const handleAddToChat = useAddToChat(
     nodeId,
-    meta2,
+    meta,
     onAddToChat,
     fallbackPath,
   );
   const handleClip = reactExports.useCallback(() => {
-    if (meta2?.url) setShowClipPanel(true);
-  }, [meta2?.url]);
+    if (meta?.url) setShowClipPanel(true);
+  }, [meta?.url]);
   const handleExtractFrame = reactExports.useCallback(() => {
-    if (meta2?.url) setShowFramePanel(true);
-  }, [meta2?.url]);
+    if (meta?.url) setShowFramePanel(true);
+  }, [meta?.url]);
   const handleClipExport = reactExports.useCallback(
     async (blob, filename) => {
       if (!cropImage) return;
-      const position2 = getAdjacentNodePosition(
+      const position = getAdjacentNodePosition(
         reactFlow,
         nodeId,
         fallbackWidth,
       );
-      await cropImage(nodeId, blob, filename, position2);
+      await cropImage(nodeId, blob, filename, position);
     },
     [nodeId, cropImage, reactFlow, fallbackWidth],
   );
   const handleFullscreen = reactExports.useCallback(
     (nextIndex) => {
-      if (!meta2?.url) return;
+      if (!meta?.url) return;
       setLightboxIndexOverride(
         typeof nextIndex === "number" && Number.isFinite(nextIndex)
           ? nextIndex
@@ -67,30 +69,30 @@ export function useMediaNodeActions({
       );
       setShowLightbox(true);
     },
-    [meta2?.url],
+    [meta?.url],
   );
   const closeLightbox = reactExports.useCallback(() => {
     setShowLightbox(false);
     setLightboxIndexOverride(null);
   }, []);
   const handlePromoteToAsset = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       onPromoteToAsset?.([nodeId], {
-        x: e2.clientX,
-        y: e2.clientY,
+        x: clickEvent.clientX,
+        y: clickEvent.clientY,
       });
     },
     [nodeId, onPromoteToAsset],
   );
   const handleExtractAudio = reactExports.useCallback(async () => {
-    if (!onExtractAudio || !meta2?.path || extractingAudio) return;
+    if (!onExtractAudio || !meta?.path || extractingAudio) return;
     setExtractingAudio(true);
     try {
-      await onExtractAudio(nodeId, meta2.path);
+      await onExtractAudio(nodeId, meta.path);
     } finally {
       setExtractingAudio(false);
     }
-  }, [onExtractAudio, meta2?.path, nodeId, extractingAudio]);
+  }, [onExtractAudio, meta?.path, nodeId, extractingAudio]);
   const closeClipPanel = reactExports.useCallback(
     () => setShowClipPanel(false),
     [],
@@ -104,7 +106,7 @@ export function useMediaNodeActions({
     const items = [
       {
         id: "add-to-chat",
-        label: t2("canvas.addToChat"),
+        label: translate("canvas.addToChat"),
         icon: <AddToChatIcon />,
         dataActionUiId: "canvas.node-add-to-chat",
         onClick: handleAddToChat,
@@ -112,14 +114,14 @@ export function useMediaNodeActions({
     ];
     items.push({
       id: "clip",
-      label: t2("canvas.clip"),
+      label: translate("canvas.clip"),
       icon: <ClipIcon />,
       onClick: handleClip,
     });
     if (enableFrameExtract) {
       items.push({
         id: "extract-frame",
-        label: t2("canvas.extractFrame"),
+        label: translate("canvas.extractFrame"),
         icon: <ExtractFrameIcon />,
         onClick: handleExtractFrame,
       });
@@ -127,7 +129,7 @@ export function useMediaNodeActions({
     if (onColorAdjust) {
       items.push({
         id: "color-adjust",
-        label: t2("canvas.colorAdjust"),
+        label: translate("canvas.colorAdjust"),
         icon: <ColorAdjustIcon />,
         onClick: onColorAdjust,
       });
@@ -136,8 +138,8 @@ export function useMediaNodeActions({
       items.push({
         id: "extract-audio",
         label: extractingAudio
-          ? t2("canvas.extractingAudio")
-          : t2("canvas.extractAudio"),
+          ? translate("canvas.extractingAudio")
+          : translate("canvas.extractAudio"),
         icon: extractingAudio ? <ToolbarSpinnerIcon /> : <ExtractAudioIcon />,
         onClick: handleExtractAudio,
         disabled: extractingAudio,
@@ -145,14 +147,14 @@ export function useMediaNodeActions({
     }
     items.push({
       id: "fullscreen",
-      label: t2("canvas.fullscreen"),
+      label: translate("canvas.fullscreen"),
       icon: <FullscreenIcon />,
       onClick: handleFullscreen,
     });
-    if (onPromoteToAsset && meta2?.url) {
+    if (onPromoteToAsset && meta?.url) {
       items.push({
         id: "promote-to-asset",
-        label: t2("canvas.promoteToAsset"),
+        label: translate("canvas.promoteToAsset"),
         icon: <PromoteToAssetIcon />,
         forceLabel: true,
         dataActionUiId: "canvas.node-promote-to-asset",
@@ -172,9 +174,9 @@ export function useMediaNodeActions({
     onColorAdjust,
     onExtractAudio,
     onPromoteToAsset,
-    meta2?.url,
+    meta?.url,
     extractingAudio,
-    t2,
+    translate,
   ]);
   return {
     showLightbox,

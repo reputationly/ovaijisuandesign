@@ -1,0 +1,7 @@
+key	new	reason
+platform2@17:42	platform	去掉打包器加的数字后缀，恢复原名 platform
+name2@46:9	entityName	智能体实体 chip 显示的名字；name 是全局名
+size2@47:9	size	去掉打包器加的数字后缀，恢复原名 size
+isChineseLocale2@71:39	isChineseLocale	去掉打包器加的数字后缀，恢复原名 isChineseLocale
+platform2@78:13	platform	去掉打包器加的数字后缀，恢复原名 platform
+size2@82:9	size	去掉打包器加的数字后缀，恢复原名 size

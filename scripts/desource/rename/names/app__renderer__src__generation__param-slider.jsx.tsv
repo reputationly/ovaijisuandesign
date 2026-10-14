@@ -1,0 +1,23 @@
+key	old	new	依据
+s2@14:9	s2	stepText	去掉打包器防重名追加的后缀，恢复原名 stepText，即该绑定持有的值。
+n2@18:23	n2	numberValue	去掉打包器防重名追加的后缀，恢复原名 numberValue，即该绑定持有的值。
+s2@19:9	s2	stepText	去掉打包器防重名追加的后缀，恢复原名 stepText，即该绑定持有的值。
+n2@23:9	n2	numberValue	去掉打包器防重名追加的后缀，恢复原名 numberValue，即该绑定持有的值。
+n2@40:18	n2	numberValue	去掉打包器防重名追加的后缀，恢复原名 numberValue，即该绑定持有的值。
+v2@75:27	v2	value	去掉打包器防重名追加的后缀，恢复原名 value，即该绑定持有的值。
+e2@79:27	e2	pointerEvent	去掉打包器防重名追加的后缀，恢复原名 pointerEvent，即该绑定持有的值。
+v2@89:27	v2	value	去掉打包器防重名追加的后缀，恢复原名 value，即该绑定持有的值。
+e2@93:27	e2	pointerEvent	去掉打包器防重名追加的后缀，恢复原名 pointerEvent，即该绑定持有的值。
+e2@145:27	e2	clickEvent	去掉打包器防重名追加的后缀，恢复原名 clickEvent，即该绑定持有的值。
+idx@128:30	idx	markIndex	去掉打包器防重名追加的后缀，恢复原名 markIndex，即该绑定持有的值。
+pct@132:19	pct	percentage	去掉打包器防重名追加的后缀，恢复原名 percentage，即该绑定持有的值。
+dot2@15:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+min2@29:8	min2	min	去掉打包器防重名追加的后缀，恢复原名 min，即该绑定持有的值。
+max2@30:8	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+disabled2@34:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+numeric2@38:9	numeric2	numeric	去掉打包器防重名追加的后缀，恢复原名 numeric，即该绑定持有的值。
+emit2@40:9	emit2	emit	去掉打包器防重名追加的后缀，恢复原名 emit，即该绑定持有的值。
+next2@76:19	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@90:19	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+mark2@128:23	mark2	mark	去掉打包器防重名追加的后缀，恢复原名 mark，即该绑定持有的值。
+active2@131:19	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。

@@ -1,0 +1,25 @@
+key	new	reason
+hilo$1@3:18	hilo	导入别名（来源导出 hilo），去掉打包器加的 $ 去重后缀
+os2@146:47	os	原名 os，去掉打包器加的数字去重后缀
+t2@156:14	t	useTranslation() 返回的翻译函数 t
+timer2@44:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+code2@73:9	code	去掉打包器加的数字后缀，恢复原名 code
+mode2@83:33	mode	去掉打包器加的数字后缀，恢复原名 mode
+mode2@88:24	mode	去掉打包器加的数字后缀，恢复原名 mode
+instantiationService2@114:29	instantiationService	去掉打包器加的数字后缀，恢复原名 instantiationService
+IHiloApp2@115:17	IHiloApp	去掉打包器加的数字后缀，恢复原名 IHiloApp
+normalize2@147:9	normalize	去掉打包器加的数字后缀，恢复原名 normalize
+config2@157:19	config	去掉打包器加的数字后缀，恢复原名 config
+platform2@158:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+queryClient2@159:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+service2@180:11	service	去掉打包器加的数字后缀，恢复原名 service
+entries2@181:24	entries	去掉打包器加的数字后缀，恢复原名 entries
+message2@289:13	message	去掉打包器加的数字后缀，恢复原名 message
+message2@315:13	message	去掉打包器加的数字后缀，恢复原名 message
+message2@348:15	message	去掉打包器加的数字后缀，恢复原名 message
+path2@368:10	path	去掉打包器加的数字后缀，恢复原名 path
+message2@382:13	message	去掉打包器加的数字后缀，恢复原名 message
+service2@407:13	service	去掉打包器加的数字后缀，恢复原名 service
+selected2@474:13	selected	去掉打包器加的数字后缀，恢复原名 selected
+service2@476:13	service	去掉打包器加的数字后缀，恢复原名 service
+mode2@505:15	mode	去掉打包器加的数字后缀，恢复原名 mode

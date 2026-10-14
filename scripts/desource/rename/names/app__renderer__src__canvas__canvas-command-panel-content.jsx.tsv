@@ -1,0 +1,5 @@
+key	old	new	依据
+t2@30:14	t2	translate	该函数翻译画布命令面板中的提示、贴纸状态和操作标签。
+active2@40:33	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+emoji2@133:41	emoji2	emoji	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@133:49	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

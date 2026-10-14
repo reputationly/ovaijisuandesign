@@ -1,0 +1,22 @@
+key	new	依据
+text2@13:35	text	尝试解析为 JSON 对象的候选原始文本。
+text2@23:33	text	待去空白并解析成 MCP JSON 记录的输入字符串。
+candidates2@27:9	candidates	由完整文本和其中提取的 JSON 对象片段组成的解析候选列表。
+record2@39:30	record	待解包的 MCP 响应记录，优先返回结构化内容或解析内容块。
+content2@48:9	content	MCP 响应记录中的内容块数组。
+text2@52:13	text	当前内容块中的文本字段，作为递归 JSON 解析输入。
+message2@66:42	message	待判断是否为无标识且仍在执行中的媒体工具消息。
+message2@75:42	message	待判断是否为带标识且成功产出媒体的工具消息。
+record2@87:9	record	待按键名排序的 JSON 对象。
+key2@91:13	key	正在排序的 JSON 对象键，用于读取对应属性值。
+message2@103:33	message	待生成媒体任务对账身份的工具消息。
+message2@112:18	message	当前遍历的工具消息，用于识别旧的执行中记录或成功记录。
+index2@112:28	index	当前工具消息在列表中的位置，用于标记被成功记录覆盖的旧项。
+key22@114:13	legacyKey	旧版执行中消息对应的对账键，用于收集等待被替代的消息索引。
+indexes2@116:13	legacyIndexes	同一旧版对账键对应的执行中消息索引列表。
+key2@122:11	key	成功媒体消息对应的对账键，用于匹配旧版执行中消息。
+index2@128:28	index	过滤时正在检查的工具消息索引，用于排除已被替代的项。
+values3@130:33	values	待检查的字符串参数列表，按顺序寻找第一个非空值。
+record2@144:11	record	从 JSON 参数中解析出的对象记录，用于提取重试提示词。
+toolName2@169:55	toolName	用于生成媒体重试身份回退值的工具名称。
+_2@128:24	unusedItem	filter 回调不读取当前记录，只使用第二个参数的数组下标判断是否保留。

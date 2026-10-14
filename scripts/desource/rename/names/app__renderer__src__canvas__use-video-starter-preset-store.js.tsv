@@ -1,0 +1,12 @@
+key	old	new	依据
+i2@57:12	i2	index	循环下标依次读取 memo 比较器两侧节点数组的节点。
+a2@58:11	a2	previousNode	prev.nodes 在当前下标处的节点用于和下一组节点比较。
+b3@59:11	b3	nextNode	next2.nodes 在当前下标处的节点用于和上一组节点比较。
+set2@3:51	set2	set	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+get3@3:57	get3	get	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@7:11	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@14:11	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+previous2@21:11	previous2	previous	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@23:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@24:15	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@54:37	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

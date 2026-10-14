@@ -1,0 +1,106 @@
+key	old	new	依据
+t2@328:14	t2	translate	该绑定是附件状态 hook 生成选取资源错误提示的翻译函数。
+p3@741:16	p3	audioPath	该路径用于查询已填充音频的时长元数据。
+d2@742:13	d2	audioDurationSec	该值是当前音频资源的元数据时长秒数。
+p3@749:16	p3	videoPath	该路径用于查询已填充视频的时长元数据。
+d2@750:13	d2	videoDurationSec	该值是当前视频资源的元数据时长秒数。
+p3@845:16	p3	textPath	该路径用于构建文本附件展示项。
+p3@848:16	p3	filePath	该路径用于构建文件附件展示项。
+i2@851:14	i2	imageIndex	该索引定位已填充图片及其首尾帧徽标。
+p3@871:18	p3	videoPath	该路径用于构建视频附件展示项。
+p3@885:20	p3	audioPath	该路径用于构建音频附件展示项。
+id2@930:58	id2	assetId	该值是资产元数据映射中的资产标识键。
+_2@1203:31	_2	_unusedValue	该参数是 Array.from 生成的未使用占位元素。
+p3@1296:33	p3	currentPath	该值是待移除路径更新中的当前图片路径。
+p3@1298:34	p3	currentPath	该值是当前图片路径列表中的元素。
+p3@1301:30	p3	currentPath	该值是当前视频路径列表中的元素。
+p3@1304:30	p3	currentPath	该值是当前音频路径列表中的元素。
+p3@1307:30	p3	currentPath	该值是当前文本路径列表中的元素。
+p3@1310:30	p3	currentPath	该值是当前文件路径列表中的元素。
+a2@1354:56	a2	attachment	该值是现有附件记录，包含可供选取器排除的资产标识。
+r2@1376:33	r2	resource	该值是资产选取器返回资源列表中的单个资源。
+r2@1380:14	r2	resource	该值是用于筛选资源类型的单个选取资源。
+r2@1388:17	r2	resource	该值是映射为附件条目的单个选取资源。
+latest2@48:9	latest2	latest	去掉打包器防重名追加的后缀，恢复原名 latest，即该绑定持有的值。
+path2@42:31	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+previous2@57:13	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+next2@74:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+path2@63:18	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+current2@88:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+offset2@91:18	offset2	offset	去掉打包器防重名追加的后缀，恢复原名 offset，即该绑定持有的值。
+batch2@92:17	batch2	batch	去掉打包器防重名追加的后缀，恢复原名 batch，即该绑定持有的值。
+path2@93:46	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+current2@117:11	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+path2@119:25	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+active2@137:9	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+isValid2@144:21	isValid2	isValid	去掉打包器防重名追加的后缀，恢复原名 isValid，即该绑定持有的值。
+path2@174:32	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+extensions2@174:39	extensions2	extensions	去掉打包器防重名追加的后缀，恢复原名 extensions，即该绑定持有的值。
+defaults2@194:3	defaults2	defaults	去掉打包器防重名追加的后缀，恢复原名 defaults，即该绑定持有的值。
+path2@202:27	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+max2@218:64	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+count2@218:70	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+max2@224:60	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+count2@224:66	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+count2@246:3	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+max2@248:25	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+path2@250:52	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@264:13	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+selection2@277:40	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+path2@286:3	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+name2@295:9	name2	displayName	该值是从路径及画布引用解析出的展示名称。
+meta2@301:9	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+state2@403:48	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+path2@413:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+current2@416:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@424:12	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+path2@433:41	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@438:12	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@441:29	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@447:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@455:25	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+update2@476:62	update2	update	去掉打包器防重名追加的后缀，恢复原名 update，即该绑定持有的值。
+path2@494:16	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@498:27	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@630:16	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+meta2@632:13	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+path2@640:32	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@651:10	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@666:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+seen2@839:11	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+list2@929:11	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+meta2@930:51	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+path2@950:14	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@1004:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@1050:16	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@1055:47	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@1082:37	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+meta2@1086:25	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+max2@1162:13	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+selection2@1113:43	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+path2@1137:16	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+selection2@1188:12	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+path2@1191:10	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+next2@1197:21	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+path2@1200:34	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+index2@1203:45	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+path2@1211:26	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+selection2@1223:18	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+path2@1227:44	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@1255:18	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@1260:18	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@1284:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+opts2@1284:13	opts2	opts	去掉打包器防重名追加的后缀，恢复原名 opts，即该绑定持有的值。
+path2@1330:18	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+meta2@1416:15	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+path2@1417:15	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+selection2@1420:15	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+meta2@1567:13	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+resource2@1546:27	resource2	resource	去掉打包器防重名追加的后缀，恢复原名 resource，即该绑定持有的值。
+path2@1614:27	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+index2@1671:13	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+constraints2@1673:13	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
+valid2@1674:13	valid2	valid	去掉打包器防重名追加的后缀，恢复原名 valid，即该绑定持有的值。
+mode2@1692:33	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+path2@1738:26	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+position2@1738:33	position2	position	去掉打包器防重名追加的后缀，恢复原名 position，即该绑定持有的值。

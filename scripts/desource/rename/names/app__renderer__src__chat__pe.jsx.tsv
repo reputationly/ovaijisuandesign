@@ -1,0 +1,31 @@
+key	新名	依据
+L@2:10	useIcons	`useIcons` 从图标上下文取得下载菜单的图标组件。
+ne@2:13	tableToCsv	`tableToCsv` 将表格数据对象序列化为 CSV 文本。
+re@2:17	tableToMarkdown	`tableToMarkdown` 将表格数据对象序列化为 Markdown 表格文本。
+ue@2:35	extractTableData	`extractTableData` 从 HTML 表格元素提取表头和单元格文本。
+R@4:10	markdownRenderOptionsContext	`markdownRenderOptionsContext` 提供 Markdown 控件的动画状态。
+W2@4:13	downloadFile	`downloadFile` 将文件名、内容和 MIME 类型转换为浏览器下载。
+y3@4:17	useClassNameMerger	`useClassNameMerger` 从渲染选项上下文取得类名合并函数。
+D3@5:10	useStreamdownLabels	`useStreamdownLabels` 从上下文取得表格下载菜单的本地化文案。
+e2@8:13	children	`children` 是下载按钮内由调用方提供的可选内容。
+t2@9:14	className	`className` 是附加到下载按钮的 CSS 类名。
+o2@10:15	onDownload	`onDownload` 是文件下载完成后调用并接收格式的回调。
+n2@11:12	onError	`onError` 是查找表格或下载失败时接收异常的回调。
+r2@13:7	mergeClassNames	`mergeClassNames` 是下载菜单各层调用的 CSS 类名合并函数。
+s2@14:6	isMenuOpen	`isMenuOpen` 表示表格下载格式菜单当前是否展开。
+a2@14:10	setIsMenuOpen	`setIsMenuOpen` 更新下载格式菜单的展开状态。
+l2@15:5	menuRef	`menuRef` 指向包裹下载按钮和弹出菜单的根元素。
+i2@16:20	isAnimating	`isAnimating` 表示 Markdown 渲染器当前是否处于动画状态。
+d2@17:5	translations	`translations` 是表格下载菜单使用的本地化文案。
+c3@18:5	icons	`icons` 是下载菜单渲染图标时使用的组件集合。
+p3@19:5	downloadTable	`downloadTable` 按所选格式查找当前表格并触发文件下载。
+m3@19:11	format	`format` 是下载目标格式，决定序列化方式、文件扩展名和 MIME 类型。
+u4@20:11	menuElement	`menuElement` 是菜单根引用指向的 DOM 元素。
+f2@22:13	tableWrapper	`tableWrapper` 是包含当前 Markdown 表格的包装 DOM 元素。
+h2@26:11	tableElement	`tableElement` 是从包装元素中查找到的 HTML 表格。
+b3@31:13	tableData	`tableData` 是由 HTML 表格提取出的表头和行数据。
+g2@32:11	serializedTable	`serializedTable` 是按所选格式生成并供浏览器下载的表格文本。
+f2@40:16	error	`error` 是表格查找或下载过程中捕获的异常。
+m3@46:11	handleOutsideMouseDown	`handleOutsideMouseDown` 在鼠标按下发生于菜单外时关闭菜单。
+u4@46:17	mouseEvent	`mouseEvent` 是文档级鼠标按下监听器收到的事件。
+f2@47:13	eventPath	`eventPath` 是鼠标事件的 composedPath 返回的传播路径。

@@ -1,0 +1,7 @@
+{
+  "platform": {
+    "base_url": "http://127.0.0.1:9/v1",
+    "api_key": "ui-compare-placeholder",
+    "chat_model": "flash"
+  }
+}

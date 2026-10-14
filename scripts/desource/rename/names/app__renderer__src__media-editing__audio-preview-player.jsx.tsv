@@ -1,0 +1,9 @@
+key	new	依据
+url2@13:8	url	音频资源 URL，赋给 audio 元素的 src 并决定播放按钮是否可用。
+active2@15:11	isActive	音频预览是否处于启用状态，禁用时停止播放且不响应播放请求。
+pending2@25:10	pending	音频播放或缓冲请求是否仍在等待完成，用于显示加载状态。
+state2@43:53	state	媒体播放 store 的当前状态，用 playingId 判断是否应停止本播放器。
+next2@105:11	next	从 audio 元素读取的媒体时长，校验有效后写入时长状态并通知调用方。
+next2@128:17	next	audio 元素当前播放时间，用于更新进度状态并通知调用方。
+t2@20:14	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。
+id2@21:9	playbackId	此标识用于把该音频播放器与全局 playingId 状态关联，控制本播放器的启停。

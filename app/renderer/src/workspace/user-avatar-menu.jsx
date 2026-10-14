@@ -1,5 +1,12 @@
 // user-avatar-menu.jsx
-import { ChevronRight$1 as ChevronRight, getRuntimeConfig, jsxRuntimeExports, Monitor, Palette, reactDomExports, reactExports, Smartphone, Sun, SwatchBook, usePlatform, useQueryClient, useTranslation, Wrench } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { ChevronRight$1 as ChevronRight, Monitor, Palette, Smartphone, Sun, SwatchBook, Wrench } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import {
   Icon,
@@ -10,7 +17,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -94,16 +101,16 @@ function useResizedAvatar(src) {
   reactExports.useEffect(() => {
     if (!src) return;
     let cancelled = false;
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
       const canvas = new OffscreenCanvas(
         AVATAR_DECODE_SIZE,
         AVATAR_DECODE_SIZE,
       );
       canvas
         .getContext("2d")
-        ?.drawImage(img, 0, 0, AVATAR_DECODE_SIZE, AVATAR_DECODE_SIZE);
+        ?.drawImage(image, 0, 0, AVATAR_DECODE_SIZE, AVATAR_DECODE_SIZE);
       canvas
         .convertToBlob({
           type: "image/png",
@@ -111,18 +118,18 @@ function useResizedAvatar(src) {
         .then((blob) => {
           if (cancelled) return;
           if (blobUrl.current) URL.revokeObjectURL(blobUrl.current);
-          const url2 = URL.createObjectURL(blob);
-          blobUrl.current = url2;
-          setResized(url2);
+          const url = URL.createObjectURL(blob);
+          blobUrl.current = url;
+          setResized(url);
         })
         .catch(() => {
           if (!cancelled) setResized(src);
         });
     };
-    img.onerror = () => {
+    image.onerror = () => {
       if (!cancelled) setResized(src);
     };
-    img.src = src;
+    image.src = src;
     return () => {
       cancelled = true;
     };
@@ -150,17 +157,17 @@ function useUserMenuController() {
     triggerRef.current?.focus();
   }, [closeMenu]);
   const handleTriggerClick = reactExports.useCallback(() => {
-    setOpen((current2) => !current2);
+    setOpen((current) => !current);
   }, []);
   reactExports.useEffect(() => {
     if (!open) return;
-    const handleKeyDown2 = (event) => {
+    const handleKeyDown = (event) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
       closeMenuAndRestoreFocus();
     };
-    window.addEventListener("keydown", handleKeyDown2);
-    return () => window.removeEventListener("keydown", handleKeyDown2);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [closeMenuAndRestoreFocus, open]);
   reactExports.useEffect(() => {
     if (!open) return;
@@ -199,12 +206,12 @@ function ImBridgeShortcutWithTooltip({
   side,
   showUnreadDot = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isOverseas = getRuntimeConfig().region === "overseas";
-  const label = t2(`imBridge.title.${isOverseas ? "overseas" : "domestic"}`);
-  const tooltip = isOverseas ? t2("common.comingSoon") : label;
+  const label = translate(`imBridge.title.${isOverseas ? "overseas" : "domestic"}`);
+  const tooltip = isOverseas ? translate("common.comingSoon") : label;
   const [tooltipOpen, setTooltipOpen] = reactExports.useState(false);
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     (event) => {
       event.stopPropagation();
       setTooltipOpen(false);
@@ -224,7 +231,7 @@ function ImBridgeShortcutWithTooltip({
               data-action-ui-id="user-menu.im-bridge-shortcut"
               aria-label={label}
               aria-disabled={isOverseas}
-              onClick={handleClick2}
+              onClick={handleClick}
               onMouseEnter={() => setTooltipOpen(true)}
               onMouseLeave={() => setTooltipOpen(false)}
               onFocus={() => setTooltipOpen(true)}
@@ -257,17 +264,17 @@ function ImBridgeShortcutWithTooltip({
     </TooltipProvider>
   );
 }
-function SidebarBottomActionStack({ children: children2, className }) {
+function SidebarBottomActionStack({ children, className }) {
   return (
     <div
       data-action-ui-id="sidebar.bottom-action-stack"
       className={cn("flex flex-col items-center gap-1.5", className)}
     >
-      {children2}
+      {children}
     </div>
   );
 }
-function MenuSection({ title, children: children2 }) {
+function MenuSection({ title, children }) {
   return (
     <section className="px-1 py-1">
       {title && (
@@ -276,24 +283,24 @@ function MenuSection({ title, children: children2 }) {
         </div>
       )}
       <div className="flex flex-col gap-0.5 [--user-menu-row-gap:2px] [&>.list-row-hit-area:first-child]:before:top-0 [&>.list-row-hit-area:last-child]:before:bottom-0 [&>:first-child>.list-row-hit-area]:before:top-0 [&>:last-child>.list-row-hit-area]:before:bottom-0">
-        {children2}
+        {children}
       </div>
     </section>
   );
 }
 function NewBadge() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <span className="inline-flex h-4 max-w-16 shrink-0 items-center truncate rounded-full bg-foreground px-1.5 text-[10px] font-medium leading-none text-background">
-      {t2("userMenu.newBadge")}
+      {translate("userMenu.newBadge")}
     </span>
   );
 }
 function ImBridgeConnectionStatus({ connected }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <span className="max-w-24 min-w-0 truncate text-[11px] leading-none text-muted-foreground">
-      {t2(
+      {translate(
         `imBridge.connectionStatus.${connected ? "connected" : "notConnected"}`,
       )}
     </span>
@@ -314,21 +321,21 @@ const THEME_OPTIONS = [
   },
 ];
 function ThemeSwitcher() {
-  const { t: t2 } = useTranslation();
-  const { theme: theme2, setTheme } = useTheme();
+  const { t: translate } = useTranslation();
+  const { theme, setTheme } = useTheme();
   return (
     <div className="flex h-9 items-center justify-between gap-2 rounded-sm px-3 text-[14px] leading-5 text-foreground/70">
       <Palette size={18} strokeWidth={1.5} className="shrink-0" />
-      <span className="min-w-0 flex-1 truncate">{t2("settings.theme")}</span>
+      <span className="min-w-0 flex-1 truncate">{translate("settings.theme")}</span>
       <SegmentedSwitch
-        value={theme2}
+        value={theme}
         onValueChange={setTheme}
         itemClassName="cursor-pointer"
         options={THEME_OPTIONS.map(({ value, icon }) => ({
           value,
           icon,
-          label: t2(`settings.theme${value[0].toUpperCase()}${value.slice(1)}`),
-          ariaLabel: t2(
+          label: translate(`settings.theme${value[0].toUpperCase()}${value.slice(1)}`),
+          ariaLabel: translate(
             `settings.theme${value[0].toUpperCase()}${value.slice(1)}`,
           ),
           dataActionUiId: `user-menu.theme-${value}`,
@@ -338,25 +345,25 @@ function ThemeSwitcher() {
   );
 }
 function MenuButton({
-  icon: Icon2,
+  icon: Icon,
   label,
   labelSuffix,
   onClick,
   dataActionUiId,
   ariaExpanded,
   trailing,
-  disabled: disabled2,
+  disabled,
   showChevron = true,
   destructive = false,
 }) {
-  const shouldShowChevron = showChevron && !disabled2;
+  const shouldShowChevron = showChevron && !disabled;
   return (
     <button
       type="button"
-      disabled={disabled2}
+      disabled={disabled}
       aria-expanded={ariaExpanded}
       onClick={() => {
-        if (disabled2) return;
+        if (disabled) return;
         if (dataActionUiId) {
           const action = dataActionUiId.startsWith("user-menu.")
             ? dataActionUiId.slice("user-menu.".length)
@@ -375,7 +382,7 @@ function MenuButton({
           : "text-foreground/70 hover:bg-foreground/[0.03] hover:text-foreground",
       )}
     >
-      <Icon2 size={18} strokeWidth={1.5} />
+      <Icon size={18} strokeWidth={1.5} />
       <span className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
         <span className="min-w-0 truncate">{label}</span>
         {labelSuffix}
@@ -396,12 +403,12 @@ function MenuButton({
   );
 }
 function MemoryManagementMenuButton() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { openSettings } = useSettingsDialog();
   return (
     <MenuButton
       icon={Brain}
-      label={t2("userMenu.memoryManagement")}
+      label={translate("userMenu.memoryManagement")}
       dataActionUiId="user-menu.memory-management"
       onClick={() => openSettings("memory")}
     />
@@ -418,9 +425,9 @@ const VIEWPORT_INSET = 8;
 const TOP_POSITION_GAP = 4;
 const BOTTOM_POSITION_GAP = 8;
 const RIGHT_POSITION_BOTTOM_OFFSET = 8;
-function getAvailableHeight(rect, position2) {
+function getAvailableHeight(rect, position) {
   let availableHeight;
-  switch (position2) {
+  switch (position) {
     case "top-left":
     case "top-right":
       availableHeight = rect.top - TOP_POSITION_GAP - VIEWPORT_INSET;
@@ -442,7 +449,7 @@ function getAvailableHeight(rect, position2) {
 function UserMenuPopoverContent({
   motionProps,
   open,
-  position: position2,
+  position,
   /** Trigger root whose viewport rect anchors the portaled popover. */
   anchorRef,
   /**
@@ -450,7 +457,7 @@ function UserMenuPopoverContent({
    * "inside" the menu for outside-pointer close and focus restoration.
    */
   popoverRef,
-  id: id2,
+  id: popoverId,
   ariaLabel,
   /**
    * `auto` (default): whole popover scrolls — good for flat menu lists.
@@ -460,7 +467,7 @@ function UserMenuPopoverContent({
   overflow = "auto",
   /** Render floating content beside the scroll panel without clipping it. */
   overlay,
-  children: children2,
+  children,
 }) {
   const browserPreviewReady = useBrowserHoverPreview(open);
   const fallbackPopoverRef = reactExports.useRef(null);
@@ -482,17 +489,17 @@ function UserMenuPopoverContent({
         triggerRoot.closest('[data-action-ui-id="global-sidebar-surface"]') ??
         document.body;
       const rect = triggerRoot.getBoundingClientRect();
-      const availableHeight = getAvailableHeight(rect, position2);
-      setAnchor((previous2) => {
+      const availableHeight = getAvailableHeight(rect, position);
+      setAnchor((previous) => {
         if (
-          previous2?.host === host &&
-          previous2.left === rect.left &&
-          previous2.top === rect.top &&
-          previous2.width === rect.width &&
-          previous2.height === rect.height &&
-          previous2.availableHeight === availableHeight
+          previous?.host === host &&
+          previous.left === rect.left &&
+          previous.top === rect.top &&
+          previous.width === rect.width &&
+          previous.height === rect.height &&
+          previous.availableHeight === availableHeight
         ) {
-          return previous2;
+          return previous;
         }
         return {
           host,
@@ -507,17 +514,17 @@ function UserMenuPopoverContent({
     syncAnchor();
     window.addEventListener("resize", syncAnchor);
     window.addEventListener("scroll", syncAnchor, true);
-    const observer2 =
+    const observer =
       typeof ResizeObserver === "undefined"
         ? null
         : new ResizeObserver(() => syncAnchor());
-    if (anchorRef.current) observer2?.observe(anchorRef.current);
+    if (anchorRef.current) observer?.observe(anchorRef.current);
     return () => {
       window.removeEventListener("resize", syncAnchor);
       window.removeEventListener("scroll", syncAnchor, true);
-      observer2?.disconnect();
+      observer?.disconnect();
     };
-  }, [anchorRef, open, position2]);
+  }, [anchorRef, open, position]);
   if (!open || !anchor || !browserPreviewReady) return null;
   return reactDomExports.createPortal(
     <div
@@ -533,9 +540,9 @@ function UserMenuPopoverContent({
       data-global-sidebar-hover-region="true"
     >
       <div
-        ref={(element2) => {
-          frameRef.current = element2;
-          motionProps.ref.current = element2;
+        ref={(element) => {
+          frameRef.current = element;
+          motionProps.ref.current = element;
         }}
         data-ending-style={motionProps["data-ending-style"]}
         inert={motionProps["data-ending-style"] !== void 0}
@@ -544,12 +551,12 @@ function UserMenuPopoverContent({
         className={cn(
           "pointer-events-auto absolute z-50 w-[280px]",
           "dp-motion-quick-zoom",
-          POSITION_CLASS[position2],
+          POSITION_CLASS[position],
         )}
       >
         <div
           ref={scrollRef}
-          id={id2}
+          id={popoverId}
           role="dialog"
           aria-label={ariaLabel}
           data-scrolling={isScrolling || void 0}
@@ -562,7 +569,7 @@ function UserMenuPopoverContent({
                 : "overflow-visible",
           )}
         >
-          {children2}
+          {children}
         </div>
         {overlay}
       </div>
@@ -595,10 +602,10 @@ function useUserProtocolSubmenu(anchorRef) {
   const hideTimer = reactExports.useRef(null);
   const syncOffset = reactExports.useCallback(() => {
     const row = rowRef.current;
-    const frame2 = anchorRef.current;
-    if (!row || !frame2) return;
+    const frame = anchorRef.current;
+    if (!row || !frame) return;
     setOffsetTop(
-      row.getBoundingClientRect().top - frame2.getBoundingClientRect().top,
+      row.getBoundingClientRect().top - frame.getBoundingClientRect().top,
     );
   }, [anchorRef]);
   const show = reactExports.useCallback(() => {
@@ -610,7 +617,7 @@ function useUserProtocolSubmenu(anchorRef) {
     if (hideTimer.current) clearTimeout(hideTimer.current);
     hideTimer.current = setTimeout(() => setOpen(false), HIDE_DELAY_MS);
   }, []);
-  const hide2 = reactExports.useCallback(() => {
+  const hide = reactExports.useCallback(() => {
     if (hideTimer.current) clearTimeout(hideTimer.current);
     setOpen(false);
   }, []);
@@ -633,15 +640,15 @@ function useUserProtocolSubmenu(anchorRef) {
     offsetTop,
     show,
     scheduleHide,
-    hide: hide2,
+    hide,
   };
 }
 function protocolKeysForRegion() {
   return USER_PROTOCOL_KEYS_BY_REGION[getRuntimeConfig().region];
 }
 function UserProtocolFlyout({ submenu, onClose }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const { region, channel } = getRuntimeConfig();
   const protocolKeys = protocolKeysForRegion();
   if (!submenu.open || protocolKeys.length === 0) return null;
@@ -656,21 +663,21 @@ function UserProtocolFlyout({ submenu, onClose }) {
       onMouseEnter={submenu.show}
       onMouseLeave={submenu.scheduleHide}
     >
-      {protocolKeys.map((key2) => (
+      {protocolKeys.map((key) => (
         <MenuButton
-          key={key2}
+          key={key}
           icon={FileText}
-          label={t2(PROTOCOL_LABEL_KEYS[key2])}
+          label={translate(PROTOCOL_LABEL_KEYS[key])}
           showChevron={false}
-          dataActionUiId={`user-menu.protocol-${key2}`}
+          dataActionUiId={`user-menu.protocol-${key}`}
           onClick={() => {
             submenu.hide();
             onClose();
             void openExternalUrl(
-              platform2,
-              getUserProtocolUrl(region, channel, key2),
+              platform,
+              getUserProtocolUrl(region, channel, key),
               {
-                source: `sidebar.protocol.${key2}`,
+                source: `sidebar.protocol.${key}`,
               },
             );
           }}
@@ -681,7 +688,7 @@ function UserProtocolFlyout({ submenu, onClose }) {
 }
 const FREE_PRIVILEGE_TYPE = 0;
 function SubscriptionSummaryRow({ onClick }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { isLoading, isError, isRefetchError } = useWalletQuery();
   const mpWallet = useMpWallet();
   const annualPromotionActive = useActiveBillingPromotion() !== null;
@@ -699,8 +706,8 @@ function SubscriptionSummaryRow({ onClick }) {
       return (
         <span className="inline-flex h-5 min-w-0 max-w-full items-center overflow-hidden text-ellipsis whitespace-nowrap rounded-full bg-brand-accent px-2 font-medium leading-none text-brand-accent-foreground text-caption-11">
           {annualPromotionActive
-            ? t2("userMenu.subscriptionStatus.annualPromotion")
-            : t2("credits.upgradeSubscription")}
+            ? translate("userMenu.subscriptionStatus.annualPromotion")
+            : translate("credits.upgradeSubscription")}
         </span>
       );
     }
@@ -714,7 +721,7 @@ function SubscriptionSummaryRow({ onClick }) {
   const renderContent = (showChevron) => (
     <>
       <span className="min-w-0 truncate text-left text-body-13 text-muted-foreground">
-        {t2("userMenu.manageSubscription")}
+        {translate("userMenu.manageSubscription")}
       </span>
       <span className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1">
         {status}
@@ -730,8 +737,8 @@ function SubscriptionSummaryRow({ onClick }) {
     </>
   );
   if (!checkoutDecision.allowed) {
-    const reason = t2(`team.submission.reason.${checkoutDecision.reasonCode}`, {
-      defaultValue: t2("team.common.temporarilyUnavailable", {
+    const reason = translate(`team.submission.reason.${checkoutDecision.reasonCode}`, {
+      defaultValue: translate("team.common.temporarilyUnavailable", {
         defaultValue: "团队功能暂不可用",
       }),
     });
@@ -780,8 +787,8 @@ function ComponentsLibrary() {
         {SECTION_REGISTRY.length}
         {" 个基础组件 + 主要 variant。"}
       </p>
-      {SECTION_REGISTRY.map(({ id: id2, Component }) => (
-        <Component key={id2} />
+      {SECTION_REGISTRY.map(({ id: sectionId, Component }) => (
+        <Component key={sectionId} />
       ))}
     </div>
   );
@@ -799,7 +806,7 @@ const PREVIEW_FRAMES = [
   },
 ];
 function PageStatePreview() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [schemaSource, setSchemaSource] = reactExports.useState(
     DEFAULT_PAGE_STATE_PREVIEW_SCHEMA,
   );
@@ -832,17 +839,17 @@ function PageStatePreview() {
         data-action-ui-id="ui-spec-page-state-compact"
       >
         <h3 className="text-sm font-medium">
-          {t2("uiSpec.pageState.compact.title")}
+          {translate("uiSpec.pageState.compact.title")}
         </h3>
         <p className="text-xs text-muted-foreground">
-          {t2("uiSpec.pageState.compact.note")}
+          {translate("uiSpec.pageState.compact.note")}
         </p>
         <div className="flex h-40 max-w-sm overflow-auto rounded-lg border border-border bg-popover">
           <PageStateView
             density="compact"
             state={{
               type: "empty",
-              text: t2("mention.popover.noResults"),
+              text: translate("mention.popover.noResults"),
               actions: [],
             }}
           />
@@ -903,21 +910,21 @@ function PageStatePreview() {
                 className="flex flex-col gap-3"
                 data-slot="page-state-preview-frames"
               >
-                {PREVIEW_FRAMES.map((frame2) => (
+                {PREVIEW_FRAMES.map((frame) => (
                   <section
-                    key={frame2.key}
-                    className={`flex min-w-0 flex-col gap-1.5 ${frame2.className}`}
+                    key={frame.key}
+                    className={`flex min-w-0 flex-col gap-1.5 ${frame.className}`}
                   >
                     <h3 className="text-[11px] font-medium text-muted-foreground">
-                      {frame2.label}
+                      {frame.label}
                     </h3>
                     <div
                       className="flex min-h-96 overflow-hidden rounded-lg border border-border bg-background"
-                      data-action-ui-id={`ui-spec-page-state-${frame2.key}-preview`}
+                      data-action-ui-id={`ui-spec-page-state-${frame.key}-preview`}
                     >
                       <PageStateView
                         state={scenario.state}
-                        density={frame2.key}
+                        density={frame.key}
                       >
                         <div className="flex flex-1 items-center justify-center p-4 text-center text-sm text-foreground/70">
                           Normal content renders without an additional state
@@ -946,22 +953,22 @@ function SpacingTokens() {
           Tailwind 默认 scale，禁止内联 px。
         </p>
         <div className="flex flex-col gap-1">
-          {SPACING_SCALE.map((s2) => (
+          {SPACING_SCALE.map((spacingToken) => (
             <div
-              key={s2.name}
+              key={spacingToken.name}
               className="flex items-center gap-2 rounded-lg border border-border px-2 py-1.5"
             >
               <div
                 className="h-3 bg-foreground shrink-0"
                 style={{
-                  width: `${s2.px}px`,
+                  width: `${spacingToken.px}px`,
                 }}
               />
               <div className="text-[10px] font-mono text-foreground flex-1">
-                {s2.name}
+                {spacingToken.name}
               </div>
               <div className="text-[9px] font-mono text-muted-foreground">
-                {s2.px}px
+                {spacingToken.px}px
               </div>
             </div>
           ))}
@@ -975,22 +982,22 @@ function SpacingTokens() {
           以当前主题 token 的实际计算值为准；结构分隔层可保留直角。
         </p>
         <div className="flex flex-col gap-1.5">
-          {ROUNDED_TOKENS.map((r2) => (
+          {ROUNDED_TOKENS.map((roundedToken) => (
             <div
-              key={r2.name}
+              key={roundedToken.name}
               className="flex items-center gap-2 rounded-lg border border-border px-2 py-1.5"
             >
               <div
                 className="h-6 w-6 bg-foreground shrink-0"
                 style={{
-                  borderRadius: `${r2.px}px`,
+                  borderRadius: `${roundedToken.px}px`,
                 }}
               />
               <div className="text-[10px] font-mono text-foreground flex-1">
-                {r2.name}
+                {roundedToken.name}
               </div>
               <div className="text-[9px] font-mono text-muted-foreground">
-                {r2.px}px
+                {roundedToken.px}px
               </div>
             </div>
           ))}
@@ -1038,26 +1045,26 @@ function UISpecContent() {
         className="mx-4 mt-3 flex w-fit max-w-[calc(100%-2rem)] shrink-0 overflow-x-auto"
         data-action-ui-id="ui-spec-tabs"
       >
-        {TABS.map((tab2) => (
+        {TABS.map((tab) => (
           <TabsTrigger
-            key={tab2.value}
-            value={tab2.value}
+            key={tab.value}
+            value={tab.value}
             className="px-3 text-xs"
-            data-action-ui-id={`ui-spec-tab-${tab2.value}`}
+            data-action-ui-id={`ui-spec-tab-${tab.value}`}
           >
-            {tab2.label}
+            {tab.label}
           </TabsTrigger>
         ))}
       </TabsList>
-      {TABS.map((tab2) => (
+      {TABS.map((tab) => (
         <TabsContent
-          key={tab2.value}
-          value={tab2.value}
+          key={tab.value}
+          value={tab.value}
           className="flex-1 overflow-hidden mt-3"
         >
           <ScrollArea className="h-full">
             <div className="px-4 pb-4">
-              <tab2.Component />
+              <tab.Component />
             </div>
           </ScrollArea>
         </TabsContent>
@@ -1066,7 +1073,7 @@ function UISpecContent() {
   );
 }
 function UISpecDialog({ open, onOpenChange }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -1074,7 +1081,7 @@ function UISpecDialog({ open, onOpenChange }) {
         data-action-ui-id="ui-spec-dialog"
       >
         <DialogHeader className="flex h-10 shrink-0 flex-row items-center justify-center border-b border-border px-4">
-          <DialogTitle>{t2("userMenu.uiSpec", "设计规范")}</DialogTitle>
+          <DialogTitle>{translate("userMenu.uiSpec", "设计规范")}</DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-hidden">
           <UISpecContent />
@@ -1092,9 +1099,9 @@ export function UserAvatarMenu({
   onOverlayOpenChange,
   trailingAction,
 }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
-  const queryClient2 = useQueryClient();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
+  const queryClient = useQueryClient();
   const { openSettings } = useSettingsDialog();
   const { openImBridge } = useImBridgeDialog();
   const {
@@ -1204,18 +1211,18 @@ export function UserAvatarMenu({
     if (!teamIntegrationEnabled || !identityKey || !activeScope) return;
     refreshOnOpenRef.current = true;
     void Promise.all([
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: teamQueryKeys.contexts(identityKey),
         exact: true,
       }),
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: creditQueryKeys.summary(activeScope),
         exact: true,
       }),
     ]);
   }, [
     open,
-    queryClient2,
+    queryClient,
     teamAccount?.activeScope,
     teamAccount?.snapshot?.identityKey,
     teamIntegrationEnabled,
@@ -1245,9 +1252,9 @@ export function UserAvatarMenu({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      dedupedToast.error(t2("common.copyFailed"));
+      dedupedToast.error(translate("common.copyFailed"));
     }
-  }, [user.userID, t2]);
+  }, [user.userID, translate]);
   const avatarSrc = useResizedAvatar(user.avatar);
   const showUISpecEntry = canUseDebugTooling();
   const showDebugPanelEntry = showUISpecEntry;
@@ -1321,7 +1328,7 @@ export function UserAvatarMenu({
         )}
         <UserMenuPopoverShell
           id={menuId}
-          ariaLabel={t2("sidebar.user")}
+          ariaLabel={translate("sidebar.user")}
           open={open}
           position={popupPosition}
           anchorRef={menuRef}
@@ -1336,7 +1343,7 @@ export function UserAvatarMenu({
                 >
                   <div className="flex h-10 items-center border-b border-border px-2">
                     <p className="min-w-0 flex-1 truncate font-normal text-body-14 text-foreground">
-                      {t2("team.switcher.menuLabel", {
+                      {translate("team.switcher.menuLabel", {
                         defaultValue: "切换账号",
                       })}
                     </p>
@@ -1375,7 +1382,7 @@ export function UserAvatarMenu({
                       }
                       if (!subscribeUrl) {
                         dedupedToast.error(
-                          t2(
+                          translate(
                             "credits.walletUrlNotReady",
                             "Wallet info loading, please try again",
                           ),
@@ -1383,7 +1390,7 @@ export function UserAvatarMenu({
                         return;
                       }
                       closeMenu();
-                      void openExternalUrl(platform2, subscribeUrl, {
+                      void openExternalUrl(platform, subscribeUrl, {
                         source: "sidebar.team-manage-subscription",
                       });
                     }}
@@ -1421,7 +1428,7 @@ export function UserAvatarMenu({
                         if (!decision.allowed) return;
                         if (!subscribeUrl) {
                           dedupedToast.error(
-                            t2(
+                            translate(
                               "credits.walletUrlNotReady",
                               "Wallet info loading, please try again",
                             ),
@@ -1429,7 +1436,7 @@ export function UserAvatarMenu({
                           return;
                         }
                         closeMenu();
-                        void openExternalUrl(platform2, subscribeUrl, {
+                        void openExternalUrl(platform, subscribeUrl, {
                           source: "sidebar.manage-subscription",
                         });
                       }}
@@ -1441,13 +1448,13 @@ export function UserAvatarMenu({
             <div className="flex flex-col gap-0.5 pb-1">
               {teamReady ? (
                 <MenuSection
-                  title={t2("userMenu.sectionAccount", {
+                  title={translate("userMenu.sectionAccount", {
                     defaultValue: "Account",
                   })}
                 >
                   <MenuButton
                     icon={Users}
-                    label={t2("team.management.title", {
+                    label={translate("team.management.title", {
                       defaultValue: "团队管理",
                     })}
                     onClick={() => {
@@ -1458,12 +1465,12 @@ export function UserAvatarMenu({
                   />
                 </MenuSection>
               ) : null}
-              <MenuSection title={t2("userMenu.sectionSettings")}>
+              <MenuSection title={translate("userMenu.sectionSettings")}>
                 <ThemeSwitcher />
                 <MemoryManagementMenuButton />
                 <MenuButton
                   icon={Smartphone}
-                  label={t2(
+                  label={translate(
                     `imBridge.menuLabel.${getRuntimeConfig().region === "overseas" ? "overseas" : "domestic"}`,
                   )}
                   disabled={getRuntimeConfig().region === "overseas"}
@@ -1480,7 +1487,7 @@ export function UserAvatarMenu({
                   trailing={
                     getRuntimeConfig().region === "overseas" ? (
                       <span className="ml-auto text-[10px] text-muted-foreground">
-                        {t2("common.comingSoon")}
+                        {translate("common.comingSoon")}
                       </span>
                     ) : (
                       <ImBridgeConnectionStatus
@@ -1492,7 +1499,7 @@ export function UserAvatarMenu({
                 />
                 <MenuButton
                   icon={Settings}
-                  label={t2("common.settings")}
+                  label={translate("common.settings")}
                   onClick={() => {
                     closeMenu();
                     openSettings();
@@ -1500,15 +1507,15 @@ export function UserAvatarMenu({
                   dataActionUiId="user-menu.settings"
                 />
               </MenuSection>
-              <MenuSection title={t2("userMenu.sectionHelp")}>
+              <MenuSection title={translate("userMenu.sectionHelp")}>
                 <VersionRow menuOpen={open} />
               </MenuSection>
               {(showUISpecEntry || showDebugPanelEntry) && (
-                <MenuSection title={t2("userMenu.sectionTestOnly")}>
+                <MenuSection title={translate("userMenu.sectionTestOnly")}>
                   {showUISpecEntry && (
                     <MenuButton
                       icon={SwatchBook}
-                      label={t2("userMenu.uiSpec")}
+                      label={translate("userMenu.uiSpec")}
                       onClick={() => {
                         closeMenu();
                         setShowUISpec(true);
@@ -1519,7 +1526,7 @@ export function UserAvatarMenu({
                   {showDebugPanelEntry && (
                     <MenuButton
                       icon={Wrench}
-                      label={t2("debugPanel.title")}
+                      label={translate("debugPanel.title")}
                       onClick={() => {
                         closeMenu();
                         window.dispatchEvent(new Event(DEBUG_PANEL_OPEN_EVENT));

@@ -1,0 +1,12 @@
+key	new	依据
+lut@4:28	lookupTable	输入的三维查找表，提供 RGB 数据、边长以及每个通道的取值范围。
+out@7:9	rgbaBuffer	输出缓冲区为每个 LUT 体素分配四个 8 位通道，循环中填入 RGB 与不透明 alpha。
+dxR@8:9	redRange	红色通道 domainMax 与 domainMin 的差值，零跨度时以 1 避免除零。
+dxG@9:9	greenRange	绿色通道 domainMax 与 domainMin 的差值，零跨度时以 1 避免除零。
+dxB@10:9	blueRange	蓝色通道 domainMax 与 domainMin 的差值，零跨度时以 1 避免除零。
+i2@11:12	voxelIndex	从 0 到 size³−1 遍历 LUT 体素的索引，同时定位输入 RGB 与输出 RGBA。
+r2@12:11	redValue	当前体素红色数据按 redRange 归一化后的通道值，之后量化为 8 位整数。
+g2@13:11	greenValue	当前体素绿色数据按 greenRange 归一化后的通道值，之后量化为 8 位整数。
+b3@14:11	blueValue	当前体素蓝色数据按 blueRange 归一化后的通道值，之后量化为 8 位整数。
+data2@5:17	data	查找表中按体素排列的 RGB 数值数组，每个体素占三个通道。
+size2@5:30	size	三维查找表每条边包含的体素数量，用于计算总体素数 size³。

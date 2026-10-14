@@ -1,0 +1,6 @@
+key	new	reason
+state2@48:28	state	去掉打包器加的数字后缀，恢复原名 state
+snapshots2@93:29	snapshots	去掉打包器加的数字后缀，恢复原名 snapshots
+snapshot2@113:14	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+count2@123:23	count	去掉打包器加的数字后缀，恢复原名 count
+workspaceId2@157:51	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId

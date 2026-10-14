@@ -1,0 +1,40 @@
+key	old	new	依据
+children2@260:47	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+children2@270:41	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+children2@463:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+current2@153:14	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+disabled2@348:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+element2@536:15	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+frame2@598:11	frame2	frame	去掉打包器防重名追加的后缀，恢复原名 frame，即该绑定持有的值。
+frame2@906:38	frame2	frame	去掉打包器防重名追加的后缀，恢复原名 frame，即该绑定持有的值。
+handleClick2@207:9	handleClick2	handleClick	去掉打包器防重名追加的后缀，恢复原名 handleClick，即该绑定持有的值。
+handleKeyDown2@157:11	handleKeyDown2	handleKeyDown	去掉打包器防重名追加的后缀，恢复原名 handleKeyDown，即该绑定持有的值。
+hide2@613:9	hide2	hide	去掉打包器防重名追加的后缀，恢复原名 hide，即该绑定持有的值。
+Icon2@341:9	Icon2	Icon	去掉打包器防重名追加的后缀，恢复原名 Icon，即该绑定持有的值。
+id2@453:7	id2	popoverId	用户菜单弹层用于关联无障碍属性的 ID。
+id2@783:36	id2	sectionId	用户菜单组件目录中的分区标识符。
+img@97:11	img	image	用于头像解码与绘制的浏览器 Image 对象。
+key2@659:26	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+observer2@510:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+platform2@1096:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+platform2@644:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+position2@421:35	position2	position	当前文本扫描位置。
+position2@445:13	position2	position	当前文本扫描位置。
+previous2@486:18	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+queryClient2@1097:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+r2@978:32	r2	roundedToken	圆角规范列表中的当前设计 token。
+s2@949:31	s2	spacingToken	间距规范列表中的当前设计 token。
+t2@1069:14	t2	translate	useTranslation 返回的翻译函数。
+t2@1095:14	t2	translate	useTranslation 返回的翻译函数。
+t2@202:14	t2	translate	useTranslation 返回的翻译函数。
+t2@285:14	t2	translate	useTranslation 返回的翻译函数。
+t2@293:14	t2	translate	useTranslation 返回的翻译函数。
+t2@317:14	t2	translate	useTranslation 返回的翻译函数。
+t2@399:14	t2	translate	useTranslation 返回的翻译函数。
+t2@643:14	t2	translate	useTranslation 返回的翻译函数。
+t2@684:14	t2	translate	useTranslation 返回的翻译函数。
+t2@802:14	t2	translate	useTranslation 返回的翻译函数。
+tab2@1041:20	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@1052:18	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+theme2@318:18	theme2	theme	去掉打包器防重名追加的后缀，恢复原名 theme，即该绑定持有的值。
+url2@114:17	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。

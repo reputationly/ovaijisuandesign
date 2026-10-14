@@ -1,0 +1,31 @@
+key	new	reason
+i2@34:12	i	原名 i，去掉打包器加的数字去重后缀
+t2@84:14	t	useTranslation() 返回的翻译函数 t
+t2@127:14	t	useTranslation() 返回的翻译函数 t
+m3@68:14	match	查找匹配项，逐个替换
+e2@448:6	domEvent	回调收到的 DOM 事件，读取 currentTarget
+text2@31:30	text	去掉打包器加的数字后缀，恢复原名 text
+offset2@31:37	offset	去掉打包器加的数字后缀，恢复原名 offset
+count2@32:7	count	去掉打包器加的数字后缀，恢复原名 count
+end2@33:9	end	去掉打包器加的数字后缀，恢复原名 end
+offset2@39:43	offset	去掉打包器加的数字后缀，恢复原名 offset
+raw2@46:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+text2@50:27	text	去掉打包器加的数字后缀，恢复原名 text
+matches2@57:20	matches	去掉打包器加的数字后缀，恢复原名 matches
+last2@67:7	last	去掉打包器加的数字后缀，恢复原名 last
+find2@444:9	findController	useFindController 返回的查找控制器；find 是全局名
+current2@188:13	current	去掉打包器加的数字后缀，恢复原名 current
+markdown2@196:6	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+current2@238:13	current	去掉打包器加的数字后缀，恢复原名 current
+markdown2@295:11	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+cmd2@315:40	cmd	去掉打包器加的数字后缀，恢复原名 cmd
+next2@343:69	next	去掉打包器加的数字后缀，恢复原名 next
+current2@344:23	current	去掉打包器加的数字后缀，恢复原名 current
+matches2@367:26	matches	去掉打包器加的数字后缀，恢复原名 matches
+matches2@381:16	matches	去掉打包器加的数字后缀，恢复原名 matches
+index2@381:26	index	去掉打包器加的数字后缀，恢复原名 index
+match2@382:15	match	去掉打包器加的数字后缀，恢复原名 match
+match2@405:18	match	去掉打包器加的数字后缀，恢复原名 match
+text2@429:23	text	去掉打包器加的数字后缀，恢复原名 text
+count2@429:37	count	去掉打包器加的数字后缀，恢复原名 count
+activeElement2@486:11	activeElement	去掉打包器加的数字后缀，恢复原名 activeElement

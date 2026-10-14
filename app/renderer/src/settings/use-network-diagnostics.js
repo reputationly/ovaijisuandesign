@@ -1,5 +1,5 @@
 // use-network-diagnostics.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { runFullNetworkDiagnostics } from "../infra/use-retry-hint-active.js";
 import { getNetworkDiagnosticsMainService } from "../team/copy-icon-button.jsx";
 
@@ -11,7 +11,7 @@ function formatError(error) {
 
 export function useNetworkDiagnostics(options) {
   const enabled = options?.enabled ?? true;
-  const gatewayUrl2 = options?.gatewayUrl;
+  const gatewayUrl = options?.gatewayUrl;
   const workspaceClaim = options?.workspaceClaim;
   const workspaceBinding = options?.workspaceBinding;
   const recoveryRetryDelaysMs =
@@ -23,7 +23,7 @@ export function useNetworkDiagnostics(options) {
   );
   const requestScope = JSON.stringify([
     enabled ? "enabled" : "disabled",
-    gatewayUrl2 ?? "",
+    gatewayUrl ?? "",
     workspaceBinding?.baseUrl ?? "",
     workspaceBinding?.instanceId ?? "",
     workspaceBinding?.generation ?? "",
@@ -78,20 +78,20 @@ export function useNetworkDiagnostics(options) {
   const refresh = reactExports.useCallback(async () => {
     if (!enabled || activeScopeRef.current !== requestScope) return;
     const revision = ++requestRevisionRef.current;
-    setDiagnosticsState((current2) => ({
+    setDiagnosticsState((current) => ({
       scope: requestScope,
-      snapshot: current2.scope === requestScope ? current2.snapshot : null,
+      snapshot: current.scope === requestScope ? current.snapshot : null,
       loading: true,
       error: null,
-      resultRevision: current2.resultRevision,
+      resultRevision: current.resultRevision,
       unhealthyObservationCount:
-        current2.scope === requestScope
-          ? current2.unhealthyObservationCount
+        current.scope === requestScope
+          ? current.unhealthyObservationCount
           : 0,
     }));
     try {
-      const next2 = await runFullNetworkDiagnostics({
-        gatewayUrl: gatewayUrl2,
+      const next = await runFullNetworkDiagnostics({
+        gatewayUrl,
         workspaceClaim,
         workspaceBinding,
       });
@@ -101,71 +101,71 @@ export function useNetworkDiagnostics(options) {
         revision !== requestRevisionRef.current
       )
         return;
-      setDiagnosticsState((current2) => ({
+      setDiagnosticsState((current) => ({
         scope: requestScope,
-        snapshot: next2,
+        snapshot: next,
         loading: false,
         error: null,
         resultRevision: ++resultRevisionRef.current,
         unhealthyObservationCount:
-          next2.overall === "ok"
+          next.overall === "ok"
             ? 0
-            : (current2.scope === requestScope
-                ? current2.unhealthyObservationCount
+            : (current.scope === requestScope
+                ? current.unhealthyObservationCount
                 : 0) + 1,
       }));
-      setProxyModeState(next2.proxyMode);
+      setProxyModeState(next.proxyMode);
     } catch (err) {
       if (
         mountedRef.current &&
         activeScopeRef.current === requestScope &&
         revision === requestRevisionRef.current
       ) {
-        setDiagnosticsState((current2) => ({
+        setDiagnosticsState((current) => ({
           scope: requestScope,
-          snapshot: current2.scope === requestScope ? current2.snapshot : null,
+          snapshot: current.scope === requestScope ? current.snapshot : null,
           loading: false,
           error: formatError(err),
           resultRevision: ++resultRevisionRef.current,
           unhealthyObservationCount:
-            (current2.scope === requestScope
-              ? current2.unhealthyObservationCount
+            (current.scope === requestScope
+              ? current.unhealthyObservationCount
               : 0) + 1,
         }));
       }
     }
-  }, [enabled, gatewayUrl2, requestScope, workspaceBinding, workspaceClaim]);
+  }, [enabled, gatewayUrl, requestScope, workspaceBinding, workspaceClaim]);
   const setProxyMode = reactExports.useCallback(
-    async (mode2) => {
-      setDiagnosticsState((current2) => ({
+    async (mode) => {
+      setDiagnosticsState((current) => ({
         scope: requestScope,
-        snapshot: current2.scope === requestScope ? current2.snapshot : null,
-        loading: current2.scope === requestScope ? current2.loading : false,
+        snapshot: current.scope === requestScope ? current.snapshot : null,
+        loading: current.scope === requestScope ? current.loading : false,
         error: null,
         resultRevision:
-          current2.scope === requestScope ? current2.resultRevision : 0,
+          current.scope === requestScope ? current.resultRevision : 0,
         unhealthyObservationCount:
-          current2.scope === requestScope
-            ? current2.unhealthyObservationCount
+          current.scope === requestScope
+            ? current.unhealthyObservationCount
             : 0,
       }));
       try {
-        const service2 = getNetworkDiagnosticsMainService();
-        const result = await service2.setProxyMode(mode2);
+        const service = getNetworkDiagnosticsMainService();
+        const result = await service.setProxyMode(mode);
         if (!mountedRef.current) return result.success;
         setProxyModeState(result.mode);
         if (activeScopeRef.current !== requestScope) return result.success;
         if (!result.success) {
-          setDiagnosticsState((current2) => ({
+          setDiagnosticsState((current) => ({
             scope: requestScope,
             snapshot:
-              current2.scope === requestScope ? current2.snapshot : null,
+              current.scope === requestScope ? current.snapshot : null,
             loading: false,
             error: result.error ?? "proxy_mode_update_failed",
             resultRevision: ++resultRevisionRef.current,
             unhealthyObservationCount:
-              (current2.scope === requestScope
-                ? current2.unhealthyObservationCount
+              (current.scope === requestScope
+                ? current.unhealthyObservationCount
                 : 0) + 1,
           }));
           return false;
@@ -174,16 +174,16 @@ export function useNetworkDiagnostics(options) {
         return true;
       } catch (err) {
         if (mountedRef.current && activeScopeRef.current === requestScope) {
-          setDiagnosticsState((current2) => ({
+          setDiagnosticsState((current) => ({
             scope: requestScope,
             snapshot:
-              current2.scope === requestScope ? current2.snapshot : null,
+              current.scope === requestScope ? current.snapshot : null,
             loading: false,
             error: formatError(err),
             resultRevision: ++resultRevisionRef.current,
             unhealthyObservationCount:
-              (current2.scope === requestScope
-                ? current2.unhealthyObservationCount
+              (current.scope === requestScope
+                ? current.unhealthyObservationCount
                 : 0) + 1,
           }));
         }
@@ -209,11 +209,11 @@ export function useNetworkDiagnostics(options) {
         requestRevisionRef.current += 1;
       };
     }
-    const service2 = getNetworkDiagnosticsMainService();
-    service2
+    const service = getNetworkDiagnosticsMainService();
+    service
       .getProxyMode()
-      .then((mode2) => {
-        if (mountedRef.current) setProxyModeState(mode2);
+      .then((mode) => {
+        if (mountedRef.current) setProxyModeState(mode);
       })
       .catch(() => {});
     void refresh();
@@ -254,8 +254,8 @@ export function useNetworkDiagnostics(options) {
       policyKey: recoveryRetryPolicyKey,
       attempt: attempt + 1,
     };
-    const timer2 = setTimeout(() => void refresh(), Math.max(0, delayMs));
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => void refresh(), Math.max(0, delayMs));
+    return () => clearTimeout(timer);
   }, [
     enabled,
     recoveryRetryPolicyKey,
@@ -269,9 +269,9 @@ export function useNetworkDiagnostics(options) {
   reactExports.useEffect(() => {
     let lastSignalAt = 0;
     const refreshFromConnectivitySignal = () => {
-      const now2 = Date.now();
-      if (now2 - lastSignalAt < 100) return;
-      lastSignalAt = now2;
+      const now = Date.now();
+      if (now - lastSignalAt < 100) return;
+      lastSignalAt = now;
       void refresh();
     };
     const handleVisibilityChange = () => {

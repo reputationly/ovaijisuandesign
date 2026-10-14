@@ -1,8 +1,8 @@
 // filter-trigger.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
-import { Check, ChevronDown, X$7 as X } from "../vendor.js";
+import { Check, ChevronDown, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { FilterMenuTrigger } from "../workspace/set-home-widget-dev-preview-mode.js";
 export function FilterMenuContent({
   className,
@@ -39,25 +39,25 @@ export function FilterMenuGroup({ className, separated = false, ...props }) {
 }
 export function FilterMenuItem({
   className,
-  children: children2,
-  selected: selected2 = false,
+  children,
+  selected = false,
   ...props
 }) {
   return (
     <button
       type="button"
-      aria-pressed={selected2}
+      aria-pressed={selected}
       data-slot="filter-menu-item"
-      data-selected={selected2 ? "true" : "false"}
+      data-selected={selected ? "true" : "false"}
       className={cn(
         "list-row-hit-area [--list-row-gap:var(--filter-menu-row-gap,2px)] first:before:top-0 last:before:bottom-0 flex h-7 w-full cursor-pointer items-center justify-between rounded-md px-2.5 text-left text-xs text-foreground/70 transition-colors hover:bg-foreground/[0.03] hover:text-foreground focus-visible:bg-foreground/[0.03] focus-visible:text-foreground focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
-        selected2 && "text-foreground",
+        selected && "text-foreground",
         className,
       )}
       {...props}
     >
-      <span className="min-w-0 flex-1 truncate">{children2}</span>
-      {selected2 && (
+      <span className="min-w-0 flex-1 truncate">{children}</span>
+      {selected && (
         <Check
           aria-hidden="true"
           size={14}
@@ -84,25 +84,25 @@ const TRIGGER_CLEAR_ICON_CLASS =
   "inline-flex size-3.5 items-center justify-center rounded-full bg-foreground/[0.06] text-muted-foreground transition-colors group-hover/clear:bg-muted-foreground group-hover/clear:text-background";
 export function FilterTrigger({
   label,
-  active: active2,
+  active,
   open = false,
   testId,
   ariaLabel,
   clearLabel,
   onClear,
 }) {
-  const pillActive = active2 || open;
+  const pillActive = active || open;
   return (
     <span
       className={TRIGGER_CLASS}
-      data-active={active2 ? "true" : "false"}
+      data-active={active ? "true" : "false"}
       data-open={open ? "true" : "false"}
     >
       <span
         className={cn(
           TRIGGER_PILL_CLASS,
           pillActive && "border-foreground text-foreground",
-          active2 && onClear && "gap-1 pr-1",
+          active && onClear && "gap-1 pr-1",
         )}
       >
         <FilterMenuTrigger
@@ -111,11 +111,11 @@ export function FilterTrigger({
               type="button"
               aria-label={ariaLabel ?? label}
               data-action-ui-id={testId}
-              data-active={active2 ? "true" : "false"}
+              data-active={active ? "true" : "false"}
               data-open={open ? "true" : "false"}
               className={cn(
                 TRIGGER_BUTTON_CLASS,
-                active2 && onClear
+                active && onClear
                   ? TRIGGER_BUTTON_ACTIVE_CLASS
                   : TRIGGER_BUTTON_DEFAULT_CLASS,
               )}
@@ -123,7 +123,7 @@ export function FilterTrigger({
           }
         >
           <span className="min-w-0 truncate whitespace-nowrap">{label}</span>
-          {!active2 && (
+          {!active && (
             <ChevronDown
               size={16}
               strokeWidth={1.5}
@@ -131,7 +131,7 @@ export function FilterTrigger({
             />
           )}
         </FilterMenuTrigger>
-        {active2 && onClear && (
+        {active && onClear && (
           <button
             type="button"
             aria-label={clearLabel ?? label}
@@ -140,7 +140,7 @@ export function FilterTrigger({
             data-action-ui-id={`${testId}-clear`}
           >
             <span className={TRIGGER_CLEAR_ICON_CLASS}>
-              <X size={9} strokeWidth={2} />
+              <CloseIcon size={9} strokeWidth={2} />
             </span>
           </button>
         )}

@@ -1,0 +1,56 @@
+key	old	new	依据
+t2@149:14	t2	translate	该绑定是云资产审核徽标读取审核状态文案的翻译函数。
+t2@185:14	t2	translate	该绑定是云资产网格卡片读取操作文案的翻译函数。
+t2@339:14	t2	translate	该绑定是云文件夹行读取操作文案的翻译函数。
+t2@420:14	t2	translate	该绑定是云文件行读取操作文案的翻译函数。
+t2@516:14	t2	translate	该绑定是团队云资产面板读取错误提示的翻译函数。
+id2@577:17	id2	assetId	该值是本地资产记录在远端更新时间映射中的键。
+visit2@85:9	visit2	visit	去掉打包器防重名追加的后缀，恢复原名 visit，即该绑定持有的值。
+depth2@85:29	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。
+children2@86:11	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+node2@87:16	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@103:16	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+service2@115:30	service2	service	去掉打包器防重名追加的后缀，恢复原名 service，即该绑定持有的值。
+settle2@117:11	settle2	settle	去掉打包器防重名追加的后缀，恢复原名 settle，即该绑定持有的值。
+node2@135:20	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@143:24	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@148:30	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@186:9	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+Chevron2@193:9	Chevron2	Chevron	去掉打包器防重名追加的后缀，恢复原名 Chevron，即该绑定持有的值。
+canFetch2@194:9	canFetch2	canFetch	去掉打包器防重名追加的后缀，恢复原名 canFetch，即该绑定持有的值。
+Chevron2@340:9	Chevron2	Chevron	去掉打包器防重名追加的后缀，恢复原名 Chevron，即该绑定持有的值。
+canFetch2@421:9	canFetch2	canFetch	去掉打包器防重名追加的后缀，恢复原名 canFetch，即该绑定持有的值。
+project2@511:12	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。
+platform2@517:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+service2@518:9	service2	service	去掉打包器防重名追加的后缀，恢复原名 service，即该绑定持有的值。
+search2@671:9	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+handleDelete2@1091:9	handleDelete2	handleDelete	去掉打包器防重名追加的后缀，恢复原名 handleDelete，即该绑定持有的值。
+name2@541:53	name2	resolvedFolderName	该异步结果是项目目录名称；组件状态中已有 folderName，故用 resolvedFolderName 区分。
+record2@562:44	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+next2@576:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+record2@577:26	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+previous2@592:26	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+all2@594:15	all2	all	去掉打包器防重名追加的后缀，恢复原名 all，即该绑定持有的值。
+previous2@606:30	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@616:28	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+next2@617:17	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+node2@647:6	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+previous2@649:20	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+next2@650:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+node2@678:31	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+previous2@733:30	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+next2@735:17	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+record2@766:17	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+find2@831:13	find2	findExistingAsset	该异步函数查询本地资产记录以确认是否已有本地副本。
+record2@833:15	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+copy2@874:15	copy2	copy	去掉打包器防重名追加的后缀，恢复原名 copy，即该绑定持有的值。
+record2@893:32	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+copy2@918:33	copy2	copy	去掉打包器防重名追加的后缀，恢复原名 copy，即该绑定持有的值。
+record2@920:35	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+copy2@942:33	copy2	copy	去掉打包器防重名追加的后缀，恢复原名 copy，即该绑定持有的值。
+node2@950:12	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@1092:12	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+snapshot2@1131:19	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+node2@1157:53	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@1167:12	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@1197:29	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。

@@ -1,0 +1,9 @@
+key	old	new	依据
+r2@75:32	r2	workspaceRef	该记录包含实体标识和工作区物化时间。
+e2@84:20	e2	entry	该值是文件系统读取的目录项，用于筛选目录或符号链接。
+e2@85:17	e2	entry	该值是筛选后的文件系统目录项，其名称作为实体标识。
+platform2@64:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+data2@74:15	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+entries2@82:15	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+queryClient2@103:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+queryClient2@116:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。

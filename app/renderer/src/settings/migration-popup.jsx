@@ -1,6 +1,10 @@
 // migration-popup.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { InfoIcon$1 as InfoIcon, jsxRuntimeExports, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { InfoIcon$1 as InfoIcon } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import {
   openExternalUrl,
@@ -57,20 +61,20 @@ function parseInlines(parent) {
       continue;
     }
     if (BLOCK_TAGS.has(tag)) {
-      const text2 = el.textContent ?? "";
-      if (text2)
+      const text = el.textContent ?? "";
+      if (text)
         out.push({
           kind: "text",
-          value: text2,
+          value: text,
         });
       continue;
     }
     if (!INLINE_TAGS.has(tag)) {
-      const text2 = el.textContent ?? "";
-      if (text2)
+      const text = el.textContent ?? "";
+      if (text)
         out.push({
           kind: "text",
-          value: text2,
+          value: text,
         });
     }
   }
@@ -122,60 +126,60 @@ function parseBulletContent(parent) {
       continue;
     }
     if (BLOCK_TAGS.has(tag)) {
-      const text2 = el.textContent ?? "";
-      if (text2)
+      const text = el.textContent ?? "";
+      if (text)
         out.push({
           kind: "text",
-          value: text2,
+          value: text,
         });
       continue;
     }
     if (!INLINE_TAGS.has(tag)) {
-      const text2 = el.textContent ?? "";
-      if (text2)
+      const text = el.textContent ?? "";
+      if (text)
         out.push({
           kind: "text",
-          value: text2,
+          value: text,
         });
     }
   }
   return out;
 }
-function fallbackPlainText(text2) {
+function fallbackPlainText(text) {
   return [
     {
       kind: "subtitle",
       inlines: [
         {
           kind: "text",
-          value: text2,
+          value: text,
         },
       ],
     },
   ];
 }
-function parsePopupRichText(raw2) {
-  if (!raw2 || typeof raw2 !== "string") return [];
-  const trimmed = raw2.trim();
+function parsePopupRichText(raw) {
+  if (!raw || typeof raw !== "string") return [];
+  const trimmed = raw.trim();
   if (!trimmed) return [];
-  const doc2 = new DOMParser().parseFromString(
+  const doc = new DOMParser().parseFromString(
     `<root>${trimmed}</root>`,
     "text/html",
   );
-  const root2 = doc2.querySelector("root");
-  if (!root2) return fallbackPlainText(trimmed);
+  const root = doc.querySelector("root");
+  if (!root) return fallbackPlainText(trimmed);
   const blocks = [];
   let hasBlockTag = false;
-  for (const child of Array.from(root2.childNodes)) {
+  for (const child of Array.from(root.childNodes)) {
     if (child.nodeType === Node.TEXT_NODE) {
-      const text2 = (child.textContent ?? "").trim();
-      if (text2)
+      const text = (child.textContent ?? "").trim();
+      if (text)
         blocks.push({
           kind: "subtitle",
           inlines: [
             {
               kind: "text",
-              value: text2,
+              value: text,
             },
           ],
         });
@@ -185,14 +189,14 @@ function parsePopupRichText(raw2) {
     const el = child;
     const tag = el.tagName.toLowerCase();
     if (!BLOCK_TAGS.has(tag)) {
-      const text2 = (el.textContent ?? "").trim();
-      if (text2)
+      const text = (el.textContent ?? "").trim();
+      if (text)
         blocks.push({
           kind: "subtitle",
           inlines: [
             {
               kind: "text",
-              value: text2,
+              value: text,
             },
           ],
         });
@@ -200,14 +204,14 @@ function parsePopupRichText(raw2) {
     }
     hasBlockTag = true;
     if (tag === "details") {
-      const text2 = (el.textContent ?? "").trim();
-      if (text2)
+      const text = (el.textContent ?? "").trim();
+      if (text)
         blocks.push({
           kind: "subtitle",
           inlines: [
             {
               kind: "text",
-              value: text2,
+              value: text,
             },
           ],
         });
@@ -230,27 +234,27 @@ function parsePopupRichText(raw2) {
   return blocks;
 }
 function firstBlockOf(blocks, kind) {
-  return blocks.find((b3) => b3.kind === kind);
+  return blocks.find((block) => block.kind === kind);
 }
 function allBlocksOf(blocks, kind) {
-  return blocks.filter((b3) => b3.kind === kind);
+  return blocks.filter((block) => block.kind === kind);
 }
 const POPUP_TYPE = "migration";
 function renderInlines(inlines) {
   if (!inlines || inlines.length === 0) return null;
-  return inlines.map((inline2, i2) => renderInline(inline2, i2));
+  return inlines.map((inline, i) => renderInline(inline, i));
 }
-function renderInline(inline2, key2) {
-  if (inline2.kind === "text") return <span key={key2}>{inline2.value}</span>;
-  if (inline2.kind === "br") return <br key={key2} />;
+function renderInline(inline, key) {
+  if (inline.kind === "text") return <span key={key}>{inline.value}</span>;
+  if (inline.kind === "br") return <br key={key} />;
   return (
-    <strong key={key2} className="font-medium text-foreground">
-      {renderInlines(inline2.inlines)}
+    <strong key={key} className="font-medium text-foreground">
+      {renderInlines(inline.inlines)}
     </strong>
   );
 }
 function DetailsTooltipTrigger({ details }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const items = details.items;
   if (items.length === 0) return null;
   const [headItem, ...bodyItems] = items;
@@ -263,7 +267,7 @@ function DetailsTooltipTrigger({ details }) {
           <button
             type="button"
             data-action-ui-id="server-popup.migration.details-icon"
-            aria-label={t2("mediaplan.migration.popup.detailsAriaLabel")}
+            aria-label={t("mediaplan.migration.popup.detailsAriaLabel")}
             className="inline-flex cursor-help items-center text-muted-foreground/70 hover:text-foreground transition-colors"
           >
             <InfoIcon size={12} strokeWidth={1.75} />
@@ -280,9 +284,9 @@ function DetailsTooltipTrigger({ details }) {
                 {renderInlines(headItem)}
               </div>
             )}
-            {bodyItems.map((item, i2) => (
+            {bodyItems.map((item, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: details items 顺序固定
-              <div key={i2} className="text-background/85">
+              <div key={i} className="text-background/85">
                 {renderInlines(item)}
               </div>
             ))}
@@ -294,30 +298,30 @@ function DetailsTooltipTrigger({ details }) {
 }
 function renderBulletInlines(inlines) {
   if (inlines.length === 0) return null;
-  const first2 = inlines[0];
-  if (first2?.kind === "bold") {
+  const first = inlines[0];
+  if (first?.kind === "bold") {
     return (
       <>
         <strong className="font-medium text-foreground mr-1">
-          {renderInlines(first2.inlines)}
+          {renderInlines(first.inlines)}
         </strong>
         <span className="text-muted-foreground">
-          {inlines.slice(1).map((node2, i2) => renderInline(node2, i2))}
+          {inlines.slice(1).map((node, i) => renderInline(node, i))}
         </span>
       </>
     );
   }
   return renderInlines(inlines);
 }
-function renderBulletContent(content2) {
-  if (content2.length === 0) return null;
-  const detailsIdx = content2.findIndex((n2) => n2.kind === "details");
+function renderBulletContent(content) {
+  if (content.length === 0) return null;
+  const detailsIdx = content.findIndex((contentNode) => contentNode.kind === "details");
   if (detailsIdx === -1) {
-    return renderBulletInlines(content2);
+    return renderBulletInlines(content);
   }
-  const beforeInlines = content2.slice(0, detailsIdx);
-  const afterInlines = content2.slice(detailsIdx + 1);
-  const details = content2[detailsIdx];
+  const beforeInlines = content.slice(0, detailsIdx);
+  const afterInlines = content.slice(detailsIdx + 1);
+  const details = content[detailsIdx];
   return (
     <>
       {renderBulletInlines(beforeInlines)}
@@ -329,17 +333,17 @@ function renderBulletContent(content2) {
 function inlinesToPlainText(inlines) {
   if (!inlines) return "";
   return inlines
-    .map((i2) => {
-      if (i2.kind === "text") return i2.value;
-      if (i2.kind === "bold") return inlinesToPlainText(i2.inlines);
+    .map((i) => {
+      if (i.kind === "text") return i.value;
+      if (i.kind === "bold") return inlinesToPlainText(i.inlines);
       return "";
     })
     .join("")
     .trim();
 }
 export function MigrationPopup({ popup, onClose }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t } = useTranslation();
+  const platform = usePlatform();
   const walletQuery = useWalletQuery();
   const hailuoWallet = useHailuoWallet();
   const deadline = useMigrateDeadline();
@@ -361,8 +365,8 @@ export function MigrationPopup({ popup, onClose }) {
   const hailuoCredits = hailuoWallet?.total_credit ?? 0;
   const walletLoading = walletQuery.isLoading;
   const showRedeem = walletQuery.isSuccess ? hailuoCredits > 0 : true;
-  const url2 = popup.action?.url ?? "";
-  const trackedUrl = url2;
+  const url = popup.action?.url ?? "";
+  const trackedUrl = url;
   const primaryLabel = popup.action?.label ?? "";
   const handlePrimary = async () => {
     const decision = guardAccountSubmission("personal_checkout");
@@ -371,12 +375,12 @@ export function MigrationPopup({ popup, onClose }) {
       popup_type: POPUP_TYPE,
       url: trackedUrl,
     });
-    if (!url2) {
+    if (!url) {
       onClose();
       return;
     }
     try {
-      const opened = await openExternalUrl(platform2, url2, {
+      const opened = await openExternalUrl(platform, url, {
         source: "server-popup.migration",
       });
       if (!opened) throw new Error("open_external_failed");
@@ -387,7 +391,7 @@ export function MigrationPopup({ popup, onClose }) {
         error_type: "unknown",
         error_message: String(err),
       });
-      dedupedToast.error(t2("serverPopup.errorToast"));
+      dedupedToast.error(t("serverPopup.errorToast"));
       return;
     }
     onClose();
@@ -422,7 +426,7 @@ export function MigrationPopup({ popup, onClose }) {
     onClose();
   };
   const a11yTitle =
-    inlinesToPlainText(titleBlock?.inlines) || t2("serverPopup.a11yTitle");
+    inlinesToPlainText(titleBlock?.inlines) || t("serverPopup.a11yTitle");
   const a11ySubtitle =
     inlinesToPlainText(subtitleBlock?.inlines) ||
     popup.description ||
@@ -465,14 +469,14 @@ export function MigrationPopup({ popup, onClose }) {
           <div className="flex flex-col gap-4 px-6 pb-3 pt-[18px]">
             {bulletBlocks.length > 0 && (
               <ul className="flex flex-col">
-                {bulletBlocks.map((bullet, i2) => {
+                {bulletBlocks.map((bullet, i) => {
                   return (
                     <li
-                      key={i2}
-                      className={`flex gap-2.5 py-2.5 text-xs leading-[1.55] text-foreground ${i2 < bulletBlocks.length - 1 ? "border-b border-dashed border-border" : ""}`}
+                      key={i}
+                      className={`flex gap-2.5 py-2.5 text-xs leading-[1.55] text-foreground ${i < bulletBlocks.length - 1 ? "border-b border-dashed border-border" : ""}`}
                     >
                       <span className="flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center bg-foreground font-heading text-[10px] font-medium leading-none text-background">
-                        {i2 + 1}
+                        {i + 1}
                       </span>
                       <span className="flex-1">
                         {renderBulletContent(bullet.content)}
@@ -501,7 +505,7 @@ export function MigrationPopup({ popup, onClose }) {
                 loading={walletLoading}
                 data-action-ui-id="server-popup.migration.redeem"
               >
-                {t2("mediaplan.migration.popup.redeemCta")}
+                {t("mediaplan.migration.popup.redeemCta")}
               </Button>
             )}
           </DialogFooter>

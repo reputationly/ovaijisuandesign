@@ -1,0 +1,9 @@
+key	new	reason
+t2@17:14	t	useTranslation() 返回的翻译函数 t
+e2@51:25	keyboardEvent	函数体读取 key/code 的键盘事件
+e2@126:27	keyboardEvent	onKeyDown 回调收到的事件对象
+e2@149:29	clickEvent	onClick 回调收到的事件对象
+e2@60:22	keyboardEvent	keydown 监听收到的键盘事件
+a2@117:27	annotation	待处理批注
+list2@38:11	list	去掉打包器加的数字后缀，恢复原名 list
+active2@118:17	active	去掉打包器加的数字后缀，恢复原名 active

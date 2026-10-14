@@ -1,5 +1,13 @@
 // selection-toolbar-inner.jsx
-import { CanvasNodeType, CompositedSvg, jsxRuntimeExports, LayoutTemplate, NodeToolbar$1 as NodeToolbar, Position, reactDomExports, reactExports, useStore$3 as useStore, useTranslation } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { LayoutTemplate } from "../media-editing/lucide-icon-wraps.js";
+import { NodeToolbar, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -33,8 +41,8 @@ import { PromoteToAssetIcon } from "./generating-media-area.jsx";
 import { AddToChatIcon, AddToClipNodeIcon } from "./fullscreen-icon.jsx";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
 function SelectionTidyControlInner({ onTidy, showIncludeDeps }) {
-  const { t: t2 } = useTranslation();
-  const label = t2("canvas.tidy");
+  const { t: translate } = useTranslation();
+  const label = translate("canvas.tidy");
   const [menuOpen, setMenuOpen] = reactExports.useState(false);
   const handleTidy = reactExports.useCallback(
     (layout, includeDeps) => {
@@ -79,14 +87,14 @@ function SelectionTidyControlInner({ onTidy, showIncludeDeps }) {
 const SelectionTidyControl = reactExports.memo(SelectionTidyControlInner);
 const SWATCH_SIZE = 20;
 const TRIGGER_SIZE = 18;
-function ResetSwatch({ size: size2 = SWATCH_SIZE }) {
+function ResetSwatch({ size = SWATCH_SIZE }) {
   return (
     <span
       aria-hidden="true"
       style={{
         display: "block",
-        width: size2,
-        height: size2,
+        width: size,
+        height: size,
         borderRadius: "999px",
         background: "var(--canvas-group-swatch-reset-bg)",
         border: "1px solid var(--canvas-group-swatch-border)",
@@ -95,19 +103,19 @@ function ResetSwatch({ size: size2 = SWATCH_SIZE }) {
   );
 }
 function SwatchButton({
-  selected: selected2,
+  selected,
   onClick,
   label,
   dataActionUiId,
   selectionColor,
-  children: children2,
+  children,
 }) {
   return (
     <button
       type="button"
       title={label}
       aria-label={label}
-      aria-pressed={selected2}
+      aria-pressed={selected}
       onClick={onClick}
       className="relative inline-flex items-center justify-center rounded-full transition-transform hover:scale-110"
       style={{
@@ -117,17 +125,17 @@ function SwatchButton({
         border: "none",
         padding: 0,
         cursor: "pointer",
-        outline: selected2 ? `1.5px solid ${selectionColor}` : "none",
-        outlineOffset: selected2 ? "1.5px" : void 0,
+        outline: selected ? `1.5px solid ${selectionColor}` : "none",
+        outlineOffset: selected ? "1.5px" : void 0,
       }}
       data-action-ui-id={dataActionUiId}
     >
-      {children2}
+      {children}
     </button>
   );
 }
 function GroupColorPicker({ value, onChange, title }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const triggerRef = reactExports.useRef(null);
   const panelRef = reactExports.useRef(null);
@@ -157,27 +165,27 @@ function GroupColorPicker({ value, onChange, title }) {
   }, [open, recomputeAnchor]);
   reactExports.useEffect(() => {
     if (!open) return;
-    const onPointerDown2 = (e2) => {
-      const tgt = e2.target;
+    const onPointerDown = (pointerEvent) => {
+      const tgt = pointerEvent.target;
       if (!tgt) return;
       if (triggerRef.current?.contains(tgt)) return;
       if (panelRef.current?.contains(tgt)) return;
       setOpen(false);
     };
-    document.addEventListener("pointerdown", onPointerDown2, true);
+    document.addEventListener("pointerdown", onPointerDown, true);
     return () =>
-      document.removeEventListener("pointerdown", onPointerDown2, true);
+      document.removeEventListener("pointerdown", onPointerDown, true);
   }, [open]);
   reactExports.useEffect(() => {
     if (!open) return;
-    const onKey = (e2) => {
-      if (e2.key === "Escape") setOpen(false);
+    const onKey = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
   const currentSwatch = value ? GROUP_COLOR_PRESETS[value]?.swatch : void 0;
-  const triggerLabel = title ?? t2("canvas.groupBackground");
+  const triggerLabel = title ?? translate("canvas.groupBackground");
   return (
     <>
       <button
@@ -215,8 +223,8 @@ function GroupColorPicker({ value, onChange, title }) {
           <div
             ref={panelRef}
             role="menu"
-            aria-label={t2("canvas.groupBackground")}
-            onContextMenu={(e2) => e2.preventDefault()}
+            aria-label={translate("canvas.groupBackground")}
+            onContextMenu={(contextMenuEvent) => contextMenuEvent.preventDefault()}
             className="canvas-toolbar-menu flex h-9 items-center gap-[6px] px-2"
             style={{
               position: "fixed",
@@ -232,27 +240,27 @@ function GroupColorPicker({ value, onChange, title }) {
                 onChange(void 0);
                 setOpen(false);
               }}
-              label={t2("canvas.groupColor.reset")}
+              label={translate("canvas.groupColor.reset")}
               dataActionUiId="canvas.group-background-reset"
               selectionColor="var(--canvas-controls-text)"
             >
               <ResetSwatch size={SWATCH_SIZE} />
             </SwatchButton>
-            {GROUP_COLOR_KEYS.map((key2) => {
-              const preset2 = GROUP_COLOR_PRESETS[key2];
+            {GROUP_COLOR_KEYS.map((key) => {
+              const preset = GROUP_COLOR_PRESETS[key];
               return (
                 <SwatchButton
-                  key={key2}
-                  selected={value === key2}
+                  key={key}
+                  selected={value === key}
                   onClick={() => {
-                    onChange(key2);
+                    onChange(key);
                     setOpen(false);
                   }}
-                  label={t2(`canvas.groupColor.${key2}`, {
-                    defaultValue: key2,
+                  label={translate(`canvas.groupColor.${key}`, {
+                    defaultValue: key,
                   })}
-                  dataActionUiId={`canvas.group-background-${key2}`}
-                  selectionColor={preset2.swatch}
+                  dataActionUiId={`canvas.group-background-${key}`}
+                  selectionColor={preset.swatch}
                 >
                   <span
                     aria-hidden="true"
@@ -261,8 +269,8 @@ function GroupColorPicker({ value, onChange, title }) {
                       width: SWATCH_SIZE,
                       height: SWATCH_SIZE,
                       borderRadius: "999px",
-                      background: preset2.swatch,
-                      border: `1px solid ${preset2.swatch}`,
+                      background: preset.swatch,
+                      border: `1px solid ${preset.swatch}`,
                     }}
                   />
                 </SwatchButton>
@@ -274,21 +282,21 @@ function GroupColorPicker({ value, onChange, title }) {
     </>
   );
 }
-function getFilename(path2) {
-  return path2.split("/").pop() ?? path2;
+function getFilename(path) {
+  return path.split("/").pop() ?? path;
 }
-function readStringField(source, key2) {
-  const value = source?.[key2];
+function readStringField(source, key) {
+  const value = source?.[key];
   return typeof value === "string" && value.length > 0 ? value : void 0;
 }
-function selectionToolbarAttachmentsEqual(a2, b3) {
-  if (a2 === b3) return true;
-  if (a2.length !== b3.length) return false;
-  for (let i2 = 0; i2 < a2.length; i2++) {
+function selectionToolbarAttachmentsEqual(leftAttachments, rightAttachments) {
+  if (leftAttachments === rightAttachments) return true;
+  if (leftAttachments.length !== rightAttachments.length) return false;
+  for (let index = 0; index < leftAttachments.length; index++) {
     if (
-      a2[i2].path !== b3[i2].path ||
-      a2[i2].nodeId !== b3[i2].nodeId ||
-      a2[i2].filename !== b3[i2].filename
+      leftAttachments[index].path !== rightAttachments[index].path ||
+      leftAttachments[index].nodeId !== rightAttachments[index].nodeId ||
+      leftAttachments[index].filename !== rightAttachments[index].filename
     ) {
       return false;
     }
@@ -297,17 +305,17 @@ function selectionToolbarAttachmentsEqual(a2, b3) {
 }
 function collectSelectionToolbarChatAttachments(allNodes, selectedIds, assets) {
   const nodeById = Array.isArray(allNodes)
-    ? new Map(allNodes.map((node2) => [node2.id, node2]))
+    ? new Map(allNodes.map((node) => [node.id, node]))
     : allNodes;
   let childrenByParent = null;
-  const childrenOf2 = (parentId) => {
+  const childrenOf = (parentId) => {
     if (!childrenByParent) {
       childrenByParent = new Map();
-      for (const node2 of nodeById.values()) {
-        if (!node2.parentId) continue;
-        const siblings2 = childrenByParent.get(node2.parentId);
-        if (siblings2) siblings2.push(node2);
-        else childrenByParent.set(node2.parentId, [node2]);
+      for (const node of nodeById.values()) {
+        if (!node.parentId) continue;
+        const siblings = childrenByParent.get(node.parentId);
+        if (siblings) siblings.push(node);
+        else childrenByParent.set(node.parentId, [node]);
       }
     }
     return childrenByParent.get(parentId) ?? [];
@@ -315,46 +323,46 @@ function collectSelectionToolbarChatAttachments(allNodes, selectedIds, assets) {
   const seenPaths = new Set();
   const visited = new Set();
   const result = [];
-  const pushPath2 = (nodeId, path2) => {
-    if (seenPaths.has(path2)) return;
-    seenPaths.add(path2);
+  const pushPath = (nodeId, path) => {
+    if (seenPaths.has(path)) return;
+    seenPaths.add(path);
     result.push({
-      path: path2,
-      filename: getFilename(path2),
+      path,
+      filename: getFilename(path),
       nodeId,
     });
   };
   const walk = (nodeId) => {
     if (visited.has(nodeId)) return;
     visited.add(nodeId);
-    const node2 = nodeById.get(nodeId);
-    if (!node2) return;
-    if (node2.type === CanvasNodeType.Group) {
-      for (const child of childrenOf2(nodeId)) {
+    const node = nodeById.get(nodeId);
+    if (!node) return;
+    if (node.type === CanvasNodeType.Group) {
+      for (const child of childrenOf(nodeId)) {
         walk(child.id);
       }
       return;
     }
-    if (node2.type === CanvasNodeType.Table) {
-      const tablePath = node2.data?.tablePath;
+    if (node.type === CanvasNodeType.Table) {
+      const tablePath = node.data?.tablePath;
       if (typeof tablePath === "string" && tablePath.length > 0) {
-        pushPath2(nodeId, tablePath);
+        pushPath(nodeId, tablePath);
       }
       return;
     }
-    const nodeType = node2.type;
+    const nodeType = node.type;
     if (typeof nodeType !== "string" || !isAssetBackedNode(nodeType)) return;
-    const dataAssetId = readStringField(node2.data, "assetId");
-    const dataPath = readStringField(node2.data, "path");
+    const dataAssetId = readStringField(node.data, "assetId");
+    const dataPath = readStringField(node.data, "path");
     const { assetId: parsedAssetId } = parseNodeId(nodeId);
-    const meta2 =
+    const meta =
       assets.get(nodeId) ??
-      (node2.assetId ? assets.get(node2.assetId) : void 0) ??
+      (node.assetId ? assets.get(node.assetId) : void 0) ??
       (dataAssetId ? assets.get(dataAssetId) : void 0) ??
       assets.get(parsedAssetId);
-    const path2 = meta2?.path ?? dataPath;
-    if (!path2) return;
-    pushPath2(nodeId, path2);
+    const path = meta?.path ?? dataPath;
+    if (!path) return;
+    pushPath(nodeId, path);
   };
   for (const selectedId of selectedIds) {
     walk(selectedId);
@@ -383,16 +391,16 @@ export function SelectionToolbarInner({
   onTidyGroupChildren,
   onTidyBlocked,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const fullscreenApi = useHtmlFullscreenApi();
   const isDragging = useCanvasIsDragging();
   const isBoxSelecting = useCanvasIsBoxSelecting();
-  const assets = useAssetMetadataStore((state2) => state2.assets);
+  const assets = useAssetMetadataStore((state) => state.assets);
   const { mergeNodeData } = useCanvasActions();
   const attachments = useStore(
-    (s2) =>
+    (storeState) =>
       collectSelectionToolbarChatAttachments(
-        s2.nodeLookup,
+        storeState.nodeLookup,
         selectedIds,
         assets,
       ),
@@ -414,13 +422,13 @@ export function SelectionToolbarInner({
     const out = [];
     for (const nodeId of selectedIds) {
       const { assetId } = parseNodeId(nodeId);
-      const path2 = assets.get(assetId)?.path;
-      if (!path2) continue;
-      const lower2 = path2.toLowerCase();
+      const path = assets.get(assetId)?.path;
+      if (!path) continue;
+      const lower = path.toLowerCase();
       if (
-        isSubtitleFileName(lower2) ||
-        /\.(mp4|mov|m4v|webm|mkv|avi)$/.test(lower2) ||
-        /\.(mp3|wav|ogg|m4a|aac|flac)$/.test(lower2)
+        isSubtitleFileName(lower) ||
+        /\.(mp4|mov|m4v|webm|mkv|avi)$/.test(lower) ||
+        /\.(mp3|wav|ogg|m4a|aac|flac)$/.test(lower)
       ) {
         out.push(nodeId);
       }
@@ -436,8 +444,8 @@ export function SelectionToolbarInner({
     if (nodeId) fullscreenApi.getState().enter(nodeId);
   }, [clipSourceNodeIds, fullscreenApi, onInstantiatePlugin]);
   const groupAnalysis = useStore(
-    (s2) => {
-      const lookup = s2.nodeLookup;
+    (storeState) => {
+      const lookup = storeState.nodeLookup;
       if (selectedIds.length === 0) {
         return {
           canGroup: false,
@@ -445,8 +453,8 @@ export function SelectionToolbarInner({
         };
       }
       if (selectedIds.length === 1) {
-        const node2 = lookup.get(selectedIds[0]);
-        if (node2?.type === CanvasNodeType.Group) {
+        const node = lookup.get(selectedIds[0]);
+        if (node?.type === CanvasNodeType.Group) {
           return {
             canGroup: false,
             ungroupTarget: selectedIds[0],
@@ -459,31 +467,31 @@ export function SelectionToolbarInner({
       }
       let groupCount = 0;
       let outsiderCount = 0;
-      for (const id2 of selectedIds) {
-        const node2 = lookup.get(id2);
-        if (!node2) continue;
-        if (node2.type === CanvasNodeType.Group) {
+      for (const id of selectedIds) {
+        const node = lookup.get(id);
+        if (!node) continue;
+        if (node.type === CanvasNodeType.Group) {
           groupCount++;
           continue;
         }
-        if (node2.parentId) continue;
+        if (node.parentId) continue;
         outsiderCount++;
       }
-      const canGroup2 =
+      const canGroup =
         groupCount === 0
           ? outsiderCount >= 2
           : outsiderCount >= 1 || groupCount >= 2;
       return {
-        canGroup: canGroup2,
+        canGroup,
         ungroupTarget: null,
       };
     },
-    (a2, b3) =>
-      a2.canGroup === b3.canGroup && a2.ungroupTarget === b3.ungroupTarget,
+    (leftAnalysis, rightAnalysis) =>
+      leftAnalysis.canGroup === rightAnalysis.canGroup && leftAnalysis.ungroupTarget === rightAnalysis.ungroupTarget,
   );
   const childSubsetAnalysis = useStore(
-    (s2) => {
-      const lookup = s2.nodeLookup;
+    (storeState) => {
+      const lookup = storeState.nodeLookup;
       if (selectedIds.length < 2)
         return {
           sameGroupId: null,
@@ -491,14 +499,14 @@ export function SelectionToolbarInner({
         };
       let commonParent;
       let sawGroupNode = false;
-      for (const id2 of selectedIds) {
-        const node2 = lookup.get(id2);
-        if (!node2) continue;
-        if (node2.type === CanvasNodeType.Group) {
+      for (const id of selectedIds) {
+        const node = lookup.get(id);
+        if (!node) continue;
+        if (node.type === CanvasNodeType.Group) {
           sawGroupNode = true;
           break;
         }
-        const parent = node2.parentId ?? null;
+        const parent = node.parentId ?? null;
         if (commonParent === void 0) commonParent = parent;
         else if (commonParent !== parent)
           return {
@@ -522,15 +530,15 @@ export function SelectionToolbarInner({
         mixed: false,
       };
     },
-    (a2, b3) => a2.sameGroupId === b3.sameGroupId && a2.mixed === b3.mixed,
+    (leftAnalysis, rightAnalysis) => leftAnalysis.sameGroupId === rightAnalysis.sameGroupId && leftAnalysis.mixed === rightAnalysis.mixed,
   );
-  const groupBackgroundColor = useStore((s2) => {
+  const groupBackgroundColor = useStore((storeState) => {
     const target = groupAnalysis.ungroupTarget;
     if (!target) return void 0;
-    const node2 = s2.nodeLookup.get(target);
-    if (!node2 || node2.type !== CanvasNodeType.Group) return void 0;
-    const raw2 = node2.data?.backgroundColor;
-    return isGroupColorKey(raw2) ? raw2 : void 0;
+    const node = storeState.nodeLookup.get(target);
+    if (!node || node.type !== CanvasNodeType.Group) return void 0;
+    const raw = node.data?.backgroundColor;
+    return isGroupColorKey(raw) ? raw : void 0;
   });
   const canGroup = !!onGroup && groupAnalysis.canGroup;
   const canUngroup = !!onUngroup && groupAnalysis.ungroupTarget != null;
@@ -600,26 +608,26 @@ export function SelectionToolbarInner({
     (isExecutingThisGroup || (executableChildCount ?? 0) > 0) &&
     (!!onExecuteGroup || !!onCancelExecuteGroup);
   const handleBackgroundChange = reactExports.useCallback(
-    (next2) => {
-      const groupId2 = groupAnalysis.ungroupTarget;
-      if (!groupId2) return;
-      mergeNodeData(groupId2, {
-        backgroundColor: next2,
+    (next) => {
+      const groupId = groupAnalysis.ungroupTarget;
+      if (!groupId) return;
+      mergeNodeData(groupId, {
+        backgroundColor: next,
       });
     },
     [groupAnalysis.ungroupTarget, mergeNodeData],
   );
   const handlePromoteToAsset = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       onPromoteToAsset?.(selectedIds, {
-        x: e2.clientX,
-        y: e2.clientY,
+        x: clickEvent.clientX,
+        y: clickEvent.clientY,
       });
     },
     [selectedIds, onPromoteToAsset],
   );
-  const hasTableSelected = useStore((s2) => {
-    const nodeLookup = s2.nodeLookup;
+  const hasTableSelected = useStore((storeState) => {
+    const nodeLookup = storeState.nodeLookup;
     return selectedIds.some(
       (nodeId) => nodeLookup.get(nodeId)?.type === CanvasNodeType.Table,
     );
@@ -678,14 +686,14 @@ export function SelectionToolbarInner({
           {canGroup && (
             <button
               type="button"
-              title={t2("canvas.group")}
+              title={translate("canvas.group")}
               onClick={handleGroup}
               className="canvas-toolbar-action"
               data-action-ui-id="canvas.group-button"
             >
               <GroupIcon size={20} />
               <span className="canvas-toolbar-label whitespace-nowrap">
-                {t2("canvas.group")}
+                {translate("canvas.group")}
               </span>
             </button>
           )}
@@ -694,7 +702,7 @@ export function SelectionToolbarInner({
               <GroupColorPicker
                 value={groupBackgroundColor}
                 onChange={handleBackgroundChange}
-                title={t2("canvas.groupBackground")}
+                title={translate("canvas.groupBackground")}
               />
               <div aria-hidden="true" className="canvas-toolbar-separator" />
               {showExecuteGroup && (
@@ -703,8 +711,8 @@ export function SelectionToolbarInner({
                     type="button"
                     title={
                       isExecutingThisGroup
-                        ? t2("canvas.execGroup.cancel", "取消")
-                        : t2("canvas.execGroup.button", "整组执行")
+                        ? translate("canvas.execGroup.cancel", "取消")
+                        : translate("canvas.execGroup.button", "整组执行")
                     }
                     onClick={handleExecuteGroup}
                     className="canvas-toolbar-action"
@@ -738,8 +746,8 @@ export function SelectionToolbarInner({
                     )}
                     <span className="canvas-toolbar-label whitespace-nowrap">
                       {isExecutingThisGroup
-                        ? t2("canvas.execGroup.cancel", "取消")
-                        : t2("canvas.execGroup.button", "整组执行")}
+                        ? translate("canvas.execGroup.cancel", "取消")
+                        : translate("canvas.execGroup.button", "整组执行")}
                     </span>
                   </button>
                   <div
@@ -750,14 +758,14 @@ export function SelectionToolbarInner({
               )}
               <button
                 type="button"
-                title={t2("canvas.ungroup")}
+                title={translate("canvas.ungroup")}
                 onClick={handleUngroup}
                 className="canvas-toolbar-action"
                 data-action-ui-id="canvas.ungroup-toolbar-button"
               >
                 <UngroupIcon size={20} />
                 <span className="canvas-toolbar-label whitespace-nowrap">
-                  {t2("canvas.ungroup")}
+                  {translate("canvas.ungroup")}
                 </span>
               </button>
             </>
@@ -765,25 +773,25 @@ export function SelectionToolbarInner({
           {showPromoteToAsset && (
             <button
               type="button"
-              title={t2("canvas.promoteToAsset")}
+              title={translate("canvas.promoteToAsset")}
               onClick={handlePromoteToAsset}
               className="canvas-toolbar-action"
               data-action-ui-id="canvas.node-promote-to-asset"
             >
               <PromoteToAssetIcon />
-              <span>{t2("canvas.promoteToAsset")}</span>
+              <span>{translate("canvas.promoteToAsset")}</span>
             </button>
           )}
           {showAddToClipNode && (
             <Tooltip
-              content={t2("canvas.addToClipNode", {
+              content={translate("canvas.addToClipNode", {
                 defaultValue: "添加到剪辑节点",
               })}
               side="top"
             >
               <button
                 type="button"
-                aria-label={t2("canvas.addToClipNode", {
+                aria-label={translate("canvas.addToClipNode", {
                   defaultValue: "添加到剪辑节点",
                 })}
                 onClick={handleAddToClipNode}
@@ -795,10 +803,10 @@ export function SelectionToolbarInner({
             </Tooltip>
           )}
           {showAnyAddToChat && (
-            <Tooltip content={t2("canvas.addToChat")} side="top">
+            <Tooltip content={translate("canvas.addToChat")} side="top">
               <button
                 type="button"
-                aria-label={t2("canvas.addToChat")}
+                aria-label={translate("canvas.addToChat")}
                 onClick={handleAnyAddToChat}
                 className="canvas-toolbar-action"
                 data-action-ui-id="canvas.add-to-chat-button"
@@ -808,10 +816,10 @@ export function SelectionToolbarInner({
             </Tooltip>
           )}
           {showDownloadAllFiles && (
-            <Tooltip content={t2("canvas.downloadAllFiles")} side="top">
+            <Tooltip content={translate("canvas.downloadAllFiles")} side="top">
               <button
                 type="button"
-                aria-label={t2("canvas.downloadAllFiles")}
+                aria-label={translate("canvas.downloadAllFiles")}
                 onClick={handleDownloadAllFiles}
                 className="canvas-toolbar-action"
                 data-action-ui-id="canvas.group-download-all-files"

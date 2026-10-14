@@ -1,6 +1,7 @@
 // perform-gateway-fetch.js
 import { ErrorCodes } from "../generation/normalize-skill-detail-metadata.js";
-import { GROUP_ID_HEADER, HILO_WORKSPACE_IDENTITY_HEADER, isWorkspaceIdentityErrorCode, withWorkspaceGatewayHeaders, WORKSPACE_IDENTITY_MISMATCH_CODE, WorkspaceGatewayClient } from "../vendor.js";
+import { GROUP_ID_HEADER } from "./shared-runtime.js";
+import { HILO_WORKSPACE_IDENTITY_HEADER, isWorkspaceIdentityErrorCode, withWorkspaceGatewayHeaders, WORKSPACE_IDENTITY_MISMATCH_CODE, WorkspaceGatewayClient } from "./workspace-gateway.js";
 import { buildRendererCommonParams } from "./agent-http-client.js";
 import {
   authExpiredBus,
@@ -28,54 +29,54 @@ class GatewayWorkspaceMismatchError extends Error {
   }
 }
 
-function appendRendererCommonParams(url2) {
-  const parsed = new URL(url2);
-  for (const [key2, value] of Object.entries(buildRendererCommonParams())) {
+function appendRendererCommonParams(url) {
+  const parsed = new URL(url);
+  for (const [key, value] of Object.entries(buildRendererCommonParams())) {
     if (value !== void 0 && value !== "") {
-      parsed.searchParams.set(key2, String(value));
+      parsed.searchParams.set(key, String(value));
     }
   }
   return parsed.toString();
 }
 
-function withTraceHeader(init2, traceId) {
-  const base2 = init2 ?? {};
-  const merged = new Headers(base2.headers);
+function withTraceHeader(init, traceId) {
+  const base = init ?? {};
+  const merged = new Headers(base.headers);
   if (!merged.has("x-request-id")) {
     merged.set("x-request-id", traceId);
   }
   return {
-    ...base2,
+    ...base,
     headers: merged,
   };
 }
 
-function withSelectedGroupHeader(init2) {
-  const groupId2 = getSelectedRequestGroupId();
-  if (!groupId2) return init2;
-  const merged = new Headers(init2.headers);
-  merged.set(GROUP_ID_HEADER, groupId2);
+function withSelectedGroupHeader(init) {
+  const groupId = getSelectedRequestGroupId();
+  if (!groupId) return init;
+  const merged = new Headers(init.headers);
+  merged.set(GROUP_ID_HEADER, groupId);
   return {
-    ...init2,
+    ...init,
     headers: merged,
   };
 }
 
-function withWorkspaceHeader(init2, workspaceClaim) {
-  const merged = new Headers(init2.headers);
+function withWorkspaceHeader(init, workspaceClaim) {
+  const merged = new Headers(init.headers);
   if (!merged.has(HILO_WORKSPACE_IDENTITY_HEADER)) {
     merged.set(HILO_WORKSPACE_IDENTITY_HEADER, workspaceClaim);
   }
   return {
-    ...init2,
+    ...init,
     headers: merged,
   };
 }
 
-function isAuthError403Body(body2) {
-  if (!body2) return false;
+function isAuthError403Body(body) {
+  if (!body) return false;
   try {
-    const parsed = JSON.parse(body2);
+    const parsed = JSON.parse(body);
     if (parsed && typeof parsed === "object") {
       return parsed.error?.type === "authentication_error";
     }
@@ -83,7 +84,7 @@ function isAuthError403Body(body2) {
   return false;
 }
 
-function isUpstreamAuthError(status, body2, metadata) {
+function isUpstreamAuthError(status, body, metadata) {
   if (status === 401) {
     if (
       metadata.errorType === "TeamGatewayError" &&
@@ -95,19 +96,19 @@ function isUpstreamAuthError(status, body2, metadata) {
   }
   if (status === 403) {
     return (
-      isAuthError403Body(body2) ||
-      (!!body2 && body2.includes(ErrorCodes.AUTH_EXPIRED))
+      isAuthError403Body(body) ||
+      (!!body && body.includes(ErrorCodes.AUTH_EXPIRED))
     );
   }
-  if (status === 400 && body2.includes("missing user identity")) return true;
-  if (body2?.includes(ErrorCodes.AUTH_EXPIRED)) return true;
+  if (status === 400 && body.includes("missing user identity")) return true;
+  if (body?.includes(ErrorCodes.AUTH_EXPIRED)) return true;
   return false;
 }
 
 async function extractErrorCode(res) {
   try {
-    const body2 = await res.clone().json();
-    return body2?.code;
+    const body = await res.clone().json();
+    return body?.code;
   } catch {
     return void 0;
   }
@@ -147,27 +148,27 @@ function toRequestInit(options) {
     workspaceClient: _workspaceClient,
     recoverWorkspace: _recoverWorkspace,
     signal: callerSignal,
-    ...init2
+    ...init
   } = options;
   const signal = combineSignals(callerSignal, timeoutMs);
   return signal
     ? {
-        ...init2,
+        ...init,
         signal,
       }
-    : init2;
+    : init;
 }
 
 async function extractErrorDetail(res) {
   try {
-    const body2 = await res.clone().json();
-    const msg = body2?.message;
+    const body = await res.clone().json();
+    const msg = body?.message;
     if (typeof msg === "string" && msg.length > 0) return msg;
     if (Array.isArray(msg) && msg.length > 0) return msg.map(String).join("; ");
   } catch {}
   try {
-    const text2 = await res.clone().text();
-    return text2.trim();
+    const text = await res.clone().text();
+    return text.trim();
   } catch {
     return "";
   }
@@ -175,28 +176,28 @@ async function extractErrorDetail(res) {
 
 async function extractErrorMetadata(res) {
   try {
-    const body2 = await res.clone().json();
-    if (!body2 || typeof body2 !== "object" || Array.isArray(body2)) return {};
-    const record2 = body2;
+    const body = await res.clone().json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) return {};
+    const record = body;
     const nestedError =
-      record2.error &&
-      typeof record2.error === "object" &&
-      !Array.isArray(record2.error)
-        ? record2.error
+      record.error &&
+      typeof record.error === "object" &&
+      !Array.isArray(record.error)
+        ? record.error
         : void 0;
-    const rawCode = record2.code ?? record2.error_code ?? nestedError?.code;
-    const code2 =
+    const rawCode = record.code ?? record.error_code ?? nestedError?.code;
+    const code =
       typeof rawCode === "string" && rawCode.length > 0 ? rawCode : void 0;
-    const details = record2.details ?? nestedError?.details;
+    const details = record.details ?? nestedError?.details;
     const errorType =
-      typeof record2.error === "string" ? record2.error : void 0;
-    const rawUserMessage = record2.user_message ?? nestedError?.user_message;
+      typeof record.error === "string" ? record.error : void 0;
+    const rawUserMessage = record.user_message ?? nestedError?.user_message;
     const userMessage =
       typeof rawUserMessage === "string" && rawUserMessage.length > 0
         ? rawUserMessage
         : void 0;
     return {
-      code: code2,
+      code,
       details,
       errorType,
       userMessage,
@@ -208,38 +209,38 @@ async function extractErrorMetadata(res) {
 
 async function performGatewayFetch(
   binding,
-  path2,
+  path,
   options,
   allowRecovery,
   dispatchInit,
 ) {
   const rawUrl = binding.workspaceClient
-    ? binding.workspaceClient.url(path2)
-    : gatewayUrlFromBase(binding.baseUrl, path2);
-  const url2 = rawUrl ? appendRendererCommonParams(rawUrl) : void 0;
-  if (!url2) throw new GatewayNotReadyError();
-  let init2 = dispatchInit;
-  if (!init2) {
+    ? binding.workspaceClient.url(path)
+    : gatewayUrlFromBase(binding.baseUrl, path);
+  const url = rawUrl ? appendRendererCommonParams(rawUrl) : void 0;
+  if (!url) throw new GatewayNotReadyError();
+  let init = dispatchInit;
+  if (!init) {
     const traceId = mintGatewayTraceId();
     recordGatewayTraceId(traceId);
-    init2 = withSelectedGroupHeader(
+    init = withSelectedGroupHeader(
       withTraceHeader(options ? toRequestInit(options) : void 0, traceId),
     );
   }
   if (binding.workspaceClient) {
-    init2 = {
-      ...init2,
+    init = {
+      ...init,
       headers: withWorkspaceGatewayHeaders(
         binding.workspaceClient.binding,
-        init2.headers,
+        init.headers,
       ),
     };
   } else if (binding.workspaceClaim) {
-    init2 = withWorkspaceHeader(init2, binding.workspaceClaim);
+    init = withWorkspaceHeader(init, binding.workspaceClaim);
   }
   const res = binding.workspaceClient
-    ? await binding.workspaceClient.request(url2, init2)
-    : await fetch(url2, init2);
+    ? await binding.workspaceClient.request(url, init)
+    : await fetch(url, init);
   if (!res.ok) {
     const errorCode = await extractErrorCode(res);
     if (isWorkspaceIdentityErrorCode(errorCode)) {
@@ -248,8 +249,8 @@ async function performGatewayFetch(
         !binding.workspaceClient &&
         options?.recoverWorkspace
       ) {
-        const method2 = (options.method ?? "GET").toUpperCase();
-        if (method2 === "GET" || method2 === "HEAD" || method2 === "OPTIONS") {
+        const method = (options.method ?? "GET").toUpperCase();
+        if (method === "GET" || method === "HEAD" || method === "OPTIONS") {
           const recovered = await options.recoverWorkspace();
           if (recovered) {
             return performGatewayFetch(
@@ -260,10 +261,10 @@ async function performGatewayFetch(
                   binding: recovered,
                 }),
               },
-              path2,
+              path,
               options,
               false,
-              init2,
+              init,
             );
           }
         }
@@ -281,7 +282,7 @@ async function performGatewayFetch(
     throw new GatewayHttpError({
       status: res.status,
       method,
-      path: path2,
+      path,
       detail,
       code: metadata.code,
       details: metadata.details,
@@ -291,7 +292,7 @@ async function performGatewayFetch(
   return res;
 }
 
-export async function gatewayFetchFromBase(baseUrl, path2, options) {
+export async function gatewayFetchFromBase(baseUrl, path, options) {
   const workspaceClient =
     options?.workspaceClient ??
     (options?.workspaceBinding
@@ -306,7 +307,7 @@ export async function gatewayFetchFromBase(baseUrl, path2, options) {
       workspaceClaim: options?.workspaceClaim,
       workspaceClient,
     },
-    path2,
+    path,
     options,
     true,
   );

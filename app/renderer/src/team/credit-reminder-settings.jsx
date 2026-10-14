@@ -1,5 +1,7 @@
 // credit-reminder-settings.jsx
-import { ArrowLeft, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowLeft } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -14,11 +16,11 @@ function parseThreshold(value) {
   const parsed = Number(value);
   return Number.isSafeInteger(parsed) ? parsed : void 0;
 }
-export function CreditReminderSettings({ config: config2, onBack, onSave }) {
-  const { t: t2 } = useTranslation();
-  const [enabled, setEnabled] = reactExports.useState(config2.enabled);
+export function CreditReminderSettings({ config, onBack, onSave }) {
+  const { t } = useTranslation();
+  const [enabled, setEnabled] = reactExports.useState(config.enabled);
   const [thresholdInput, setThresholdInput] = reactExports.useState(
-    String(config2.threshold),
+    String(config.threshold),
   );
   const [saving, setSaving] = reactExports.useState(false);
   const [saveError, setSaveError] = reactExports.useState(false);
@@ -35,7 +37,7 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
     try {
       await onSave({
         enabled,
-        threshold: thresholdInRange ? threshold : config2.threshold,
+        threshold: thresholdInRange ? threshold : config.threshold,
       });
       onBack();
     } catch {
@@ -54,7 +56,7 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
           type="button"
           variant="ghost"
           size="icon-xs"
-          aria-label={t2("common.back", "Back")}
+          aria-label={t("common.back", "Back")}
           onClick={onBack}
           data-action-ui-id="chat-credit-reminder-settings.back"
         >
@@ -64,11 +66,11 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
           id="chat-credit-reminder-settings-title"
           className="font-heading text-sm font-medium text-foreground"
         >
-          {t2("chat.creditReminder.settingsTitle", "Credit usage reminder")}
+          {t("chat.creditReminder.settingsTitle", "Credit usage reminder")}
         </h3>
       </div>
       <p className="text-xs/relaxed text-muted-foreground">
-        {t2(
+        {t(
           "chat.creditReminder.settingsDescription",
           "Remind me before one generation reaches the selected credit amount.",
         )}
@@ -76,18 +78,18 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
       <div className="flex items-center justify-between gap-3 rounded-lg bg-secondary/60 px-3 py-2.5">
         <div className="min-w-0">
           <p className="text-[13px] text-foreground">
-            {t2("chat.creditReminder.enabledLabel", "Credit usage reminder")}
+            {t("chat.creditReminder.enabledLabel", "Credit usage reminder")}
           </p>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
             {enabled
-              ? t2("chat.creditReminder.enabled", "On")
-              : t2("chat.creditReminder.disabled", "Off")}
+              ? t("chat.creditReminder.enabled", "On")
+              : t("chat.creditReminder.disabled", "Off")}
           </p>
         </div>
         <Switch
           checked={enabled}
           onCheckedChange={(checked) => setEnabled(checked === true)}
-          aria-label={t2(
+          aria-label={t(
             "chat.creditReminder.enabledLabel",
             "Credit usage reminder",
           )}
@@ -99,7 +101,7 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
           htmlFor="chat-credit-reminder-threshold"
           className="text-xs text-foreground/70"
         >
-          {t2("chat.creditReminder.thresholdLabel", "Reminder amount")}
+          {t("chat.creditReminder.thresholdLabel", "Reminder amount")}
         </label>
         <Input3
           id="chat-credit-reminder-threshold"
@@ -123,19 +125,19 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
           }
         >
           {thresholdInvalid
-            ? t2("chat.creditReminder.thresholdError", {
+            ? t("chat.creditReminder.thresholdError", {
                 min: MIN_CREDIT_REMINDER_THRESHOLD.toLocaleString(),
                 max: MAX_CREDIT_REMINDER_THRESHOLD.toLocaleString(),
                 defaultValue: "Enter an amount from {{min}} to {{max}}.",
               })
-            : t2(
+            : t(
                 "chat.creditReminder.accountScope",
                 "Applies to all projects in this account.",
               )}
         </p>
         {saveError && (
           <p className="text-[11px] text-destructive" role="alert">
-            {t2(
+            {t(
               "chat.creditReminder.saveError",
               "Could not save. Your changes are still here.",
             )}
@@ -150,7 +152,7 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
           onClick={onBack}
           data-action-ui-id="chat-credit-reminder-settings.cancel"
         >
-          {t2("common.cancel", "Cancel")}
+          {t("common.cancel", "Cancel")}
         </Button>
         <Button
           type="button"
@@ -160,7 +162,7 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
           onClick={() => void handleSave()}
           data-action-ui-id="chat-credit-reminder-settings.save"
         >
-          {t2("common.save", "Save")}
+          {t("common.save", "Save")}
         </Button>
       </div>
     </div>

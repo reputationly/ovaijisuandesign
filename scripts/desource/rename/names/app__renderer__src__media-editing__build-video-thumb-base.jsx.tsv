@@ -1,0 +1,8 @@
+key	new	依据
+size2@16:34	size	播放图标的渲染尺寸，默认为 14 像素。
+size2@19:35	size	暂停图标的渲染尺寸，默认为 14 像素。
+url2@72:35	url	视频缩略图原始 URL，追加按设备像素比计算的请求宽度。
+candidates2@77:9	candidates	按 0.5、1、2 倍设备像素比计算出的候选缩略图宽度。
+unique2@88:9	unique	去重后的候选宽度，用于生成 srcset 条目。
+url2@93:38	url	生成视频缩略图 srcset 时使用的原始 URL。
+base2@121:9	base	由工作区文件路径解析出的缩略图基础 URL，随后追加目标宽度。

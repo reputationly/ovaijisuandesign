@@ -1,5 +1,5 @@
 // load-asset-fps-batch.js
-import { API_PATHS } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
 const FPS_BATCH_CONCURRENCY = 4;
 const FPS_BATCH_TIMEOUT_MS = 15e3;
 function isRecord(value) {
@@ -30,10 +30,10 @@ function raceWithAbort(promise, signal) {
     );
   });
 }
-async function loadAssetFps(assetId, gatewayFetch2, signal) {
+async function loadAssetFps(assetId, gatewayFetch, signal) {
   try {
     return await raceWithAbort(
-      gatewayFetch2(API_PATHS.assetMetadata(assetId), {
+      gatewayFetch(API_PATHS.assetMetadata(assetId), {
         signal,
       }).then(async (response) => mapAssetFpsResponse(await response.json())),
       signal,
@@ -42,7 +42,7 @@ async function loadAssetFps(assetId, gatewayFetch2, signal) {
     return 0;
   }
 }
-export async function loadAssetFpsBatch(assetIds, gatewayFetch2, signal) {
+export async function loadAssetFpsBatch(assetIds, gatewayFetch, signal) {
   const uniqueIds = [...new Set(assetIds.filter(Boolean))];
   if (signal.aborted || uniqueIds.length === 0) return new Map();
   const results = new Map();
@@ -61,14 +61,14 @@ export async function loadAssetFpsBatch(assetIds, gatewayFetch2, signal) {
   );
   const worker = async () => {
     while (!batchController.signal.aborted) {
-      const index2 = nextIndex;
-      if (index2 >= uniqueIds.length) return;
+      const index = nextIndex;
+      if (index >= uniqueIds.length) return;
       nextIndex += 1;
-      const assetId = uniqueIds[index2];
+      const assetId = uniqueIds[index];
       if (!assetId) continue;
       const fps = await loadAssetFps(
         assetId,
-        gatewayFetch2,
+        gatewayFetch,
         batchController.signal,
       );
       if (!batchController.signal.aborted) results.set(assetId, fps);

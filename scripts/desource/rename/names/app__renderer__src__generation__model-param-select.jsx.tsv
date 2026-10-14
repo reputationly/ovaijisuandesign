@@ -1,0 +1,21 @@
+key	old	new	依据
+t2@36:14	t2	translate	该绑定来自 useTranslation 并用于参数选项标签。
+t2@124:14	t2	translate	该绑定来自 useTranslation 并用于任务标识复制提示。
+e2@132:6	e2	clickEvent	该事件来自复制任务标识按钮并用于阻止冒泡。
+e2@146:25	e2	pointerEvent	该事件来自参数选项 pointerdown 并用于阻止冒泡。
+e2@163:23	e2	pointerEvent	该事件来自参数选项 pointerdown 并用于阻止冒泡。
+I2IPopover2@15:54	I2IPopover2	I2IPopover	去掉打包器防重名追加的后缀，恢复原名 I2IPopover，即该绑定持有的值。
+snapshot2@16:21	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+definition2@30:15	definition2	definition	去掉打包器防重名追加的后缀，恢复原名 definition，即该绑定持有的值。
+disabled2@33:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+next2@62:29	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+option2@67:27	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@93:20	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+index2@93:29	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+option2@107:15	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@201:34	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+copy2@203:56	copy2	copy	去掉打包器防重名追加的后缀，恢复原名 copy，即该绑定持有的值。
+copy2@241:63	copy2	copy	去掉打包器防重名追加的后缀，恢复原名 copy，即该绑定持有的值。
+path2@280:22	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+values3@285:25	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+path2@462:27	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。

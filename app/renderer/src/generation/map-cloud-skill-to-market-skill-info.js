@@ -7,28 +7,28 @@ const SKILL_GUIDE_PROMPT_DEFAULTS = {
   zh: "为我解释一下这个技能的最佳使用方式。",
   en: "Show me the best way to use this skill with a few examples.",
 };
-function normalizeToolsByAgent(raw2) {
-  if (!raw2 || typeof raw2 !== "object" || Array.isArray(raw2)) return void 0;
+function normalizeToolsByAgent(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return void 0;
   const out = {};
-  for (const [agentName, value] of Object.entries(raw2)) {
+  for (const [agentName, value] of Object.entries(raw)) {
     if (!Array.isArray(value)) continue;
-    const tools = value.filter((v2) => typeof v2 === "string" && v2.length > 0);
+    const tools = value.filter((toolName) => typeof toolName === "string" && toolName.length > 0);
     if (tools.length > 0) out[agentName] = tools;
   }
   return Object.keys(out).length > 0 ? out : void 0;
 }
-function toStringArray(v2) {
-  if (Array.isArray(v2))
-    return v2.filter((x2) => typeof x2 === "string" && x2 !== "");
-  if (typeof v2 === "string" && v2) return [v2];
+function toStringArray(value) {
+  if (Array.isArray(value))
+    return value.filter((item) => typeof item === "string" && item !== "");
+  if (typeof value === "string" && value) return [value];
   return [];
 }
-function firstString(v2) {
-  if (Array.isArray(v2)) {
-    const first2 = v2.find((x2) => typeof x2 === "string" && x2 !== "");
-    return first2 ?? "";
+function firstString(value) {
+  if (Array.isArray(value)) {
+    const first = value.find((item) => typeof item === "string" && item !== "");
+    return first ?? "";
   }
-  if (typeof v2 === "string") return v2;
+  if (typeof value === "string") return value;
   return "";
 }
 function reconcileTag(tagRaw, completeRaw) {
@@ -40,81 +40,81 @@ function reconcileTag(tagRaw, completeRaw) {
       list: complete,
     };
   }
-  const list2 = toStringArray(tagRaw);
+  const list = toStringArray(tagRaw);
   return {
     single,
-    list: list2,
+    list,
   };
 }
-function mapCloudSkillToMarketSkillInfo(raw2) {
-  const en2 = reconcileTag(
-    raw2.tagEn ?? raw2.tag_en ?? raw2["tag-en"],
-    raw2.completeTagsEn ?? raw2.complete_tags_en ?? raw2["complete-tags-en"],
+function mapCloudSkillToMarketSkillInfo(raw) {
+  const englishTagData = reconcileTag(
+    raw.tagEn ?? raw.tag_en ?? raw["tag-en"],
+    raw.completeTagsEn ?? raw.complete_tags_en ?? raw["complete-tags-en"],
   );
-  const cn2 = reconcileTag(
-    raw2.tagCn ?? raw2.tag_cn ?? raw2["tag-cn"],
-    raw2.completeTagsCn ?? raw2.complete_tags_cn ?? raw2["complete-tags-cn"],
+  const chineseTagData = reconcileTag(
+    raw.tagCn ?? raw.tag_cn ?? raw["tag-cn"],
+    raw.completeTagsCn ?? raw.complete_tags_cn ?? raw["complete-tags-cn"],
   );
   return {
-    ...normalizeSkillDetailMetadata(raw2),
-    name: raw2.name || "",
-    version: raw2.version || "",
-    hash: raw2.hash || "",
-    summary: raw2.summary || raw2.summary_en || "",
-    summaryZh: raw2.summaryZh || raw2.summary_zh || raw2.summary_cn || "",
-    description: raw2.description || "",
-    tags: raw2.tags || [],
-    tagsCn: raw2.tagsCn || raw2.tags_cn || raw2["tags-cn"] || [],
-    creator: raw2.creator || "",
-    triggerWords: raw2.triggerWords || raw2.trigger_words || [],
+    ...normalizeSkillDetailMetadata(raw),
+    name: raw.name || "",
+    version: raw.version || "",
+    hash: raw.hash || "",
+    summary: raw.summary || raw.summary_en || "",
+    summaryZh: raw.summaryZh || raw.summary_zh || raw.summary_cn || "",
+    description: raw.description || "",
+    tags: raw.tags || [],
+    tagsCn: raw.tagsCn || raw.tags_cn || raw["tags-cn"] || [],
+    creator: raw.creator || "",
+    triggerWords: raw.triggerWords || raw.trigger_words || [],
     guidePrompt:
-      raw2.guidePrompt || raw2.guide_prompt || SKILL_GUIDE_PROMPT_DEFAULTS.zh,
+      raw.guidePrompt || raw.guide_prompt || SKILL_GUIDE_PROMPT_DEFAULTS.zh,
     guidePromptEn:
-      raw2.guidePromptEn ||
-      raw2.guide_prompt_en ||
+      raw.guidePromptEn ||
+      raw.guide_prompt_en ||
       SKILL_GUIDE_PROMPT_DEFAULTS.en,
-    displayNameZh: raw2.displayNameZh || raw2.display_name_zh || "",
-    tagEn: en2.single,
-    tagCn: cn2.single,
-    completeTagsEn: en2.list,
-    completeTagsCn: cn2.list,
-    categoryCodes: toStringArray(raw2.categoryCodes ?? raw2.category_codes),
-    descEn: raw2.descEn || raw2.desc_en || raw2["desc-en"] || "",
-    descCn: raw2.descCn || raw2.desc_cn || raw2["desc-cn"] || "",
-    tools: raw2.tools || [],
+    displayNameZh: raw.displayNameZh || raw.display_name_zh || "",
+    tagEn: englishTagData.single,
+    tagCn: chineseTagData.single,
+    completeTagsEn: englishTagData.list,
+    completeTagsCn: chineseTagData.list,
+    categoryCodes: toStringArray(raw.categoryCodes ?? raw.category_codes),
+    descEn: raw.descEn || raw.desc_en || raw["desc-en"] || "",
+    descCn: raw.descCn || raw.desc_cn || raw["desc-cn"] || "",
+    tools: raw.tools || [],
     toolsByAgent: normalizeToolsByAgent(
-      raw2.toolsByAgent ?? raw2.tools_by_agent ?? raw2["tools-by-agent"],
+      raw.toolsByAgent ?? raw.tools_by_agent ?? raw["tools-by-agent"],
     ),
-    skillType: raw2.skillType || raw2.skill_type || void 0,
-    badges: Array.isArray(raw2.badges)
-      ? raw2.badges
-      : typeof raw2.badges === "string"
-        ? JSON.parse(raw2.badges)
+    skillType: raw.skillType || raw.skill_type || void 0,
+    badges: Array.isArray(raw.badges)
+      ? raw.badges
+      : typeof raw.badges === "string"
+        ? JSON.parse(raw.badges)
         : void 0,
     sortWeight:
-      raw2.sortWeight != null
-        ? Number(raw2.sortWeight)
-        : raw2.sort_weight != null
-          ? Number(raw2.sort_weight)
+      raw.sortWeight != null
+        ? Number(raw.sortWeight)
+        : raw.sort_weight != null
+          ? Number(raw.sort_weight)
           : void 0,
-    downloads: raw2.downloads != null ? Number(raw2.downloads) : void 0,
-    coverUrl: raw2.coverUrl || raw2.cover_url || raw2.cover || void 0,
-    authorEn: raw2.authorEn || raw2.author_en || raw2["author-en"] || void 0,
-    authorCn: raw2.authorCn || raw2.author_cn || raw2["author-cn"] || void 0,
-    source: raw2.source || void 0,
+    downloads: raw.downloads != null ? Number(raw.downloads) : void 0,
+    coverUrl: raw.coverUrl || raw.cover_url || raw.cover || void 0,
+    authorEn: raw.authorEn || raw.author_en || raw["author-en"] || void 0,
+    authorCn: raw.authorCn || raw.author_cn || raw["author-cn"] || void 0,
+    source: raw.source || void 0,
   };
 }
-export function mapCloudSkillDetail(raw2) {
-  const record2 = skillMetadataRecord(raw2);
-  if (!record2) throw new Error("Invalid skill detail response");
-  const skill = skillMetadataRecord(record2.skill);
+export function mapCloudSkillDetail(raw) {
+  const record = skillMetadataRecord(raw);
+  if (!record) throw new Error("Invalid skill detail response");
+  const skill = skillMetadataRecord(record.skill);
   return {
     skill:
       skill && typeof skill.name === "string"
         ? mapCloudSkillToMarketSkillInfo(skill)
         : void 0,
     canSubmitToCommunity:
-      (record2.canSubmitToCommunity ?? record2.can_submit_to_community) ===
+      (record.canSubmitToCommunity ?? record.can_submit_to_community) ===
       true,
   };
 }

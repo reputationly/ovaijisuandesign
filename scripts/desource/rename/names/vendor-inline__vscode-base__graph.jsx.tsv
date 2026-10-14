@@ -1,0 +1,61 @@
+binding_key	old_name	new_name	basis
+TooltipProvider$2@5:3	TooltipProvider$2	BaseUiTooltipProvider	the imported Base UI provider is wrapped by the exported TooltipProvider component
+PlaybackPauseIcon$1@8:3	PlaybackPauseIcon$1	BasePlaybackPauseIcon	the imported media icon is wrapped by the exported PlaybackPauseIcon value
+TooltipTrigger$1@15:3	TooltipTrigger$1	BaseUiTooltipTrigger	the imported Base UI trigger is wrapped by the exported TooltipTrigger component
+Event$1@23:10	Event$1	eventApi	monaco 0.57.0 vs/base/common/event.js
+message2@29:8	message2	message	第29行的声明与引用表明该绑定表示「message」；去除打包器数字后缀并保留绑定结构（send(message2) {）
+_e2@32:14	_e2	_error	the protocol disconnect handler intentionally ignores its error
+dispose2@50:17	dispose2	dispose	第50行的声明与引用表明该绑定表示「dispose」；去除打包器数字后缀并保留绑定结构（const dispose2 = ipcRenderer.on(event, listener);）
+_2@64:8	_2	_event	the Node event-emitter event-name parameter is intentionally unused
+message2@64:12	message2	message	第64行的声明与引用表明该绑定表示「message」；去除打包器数字后缀并保留绑定结构（(_2, message2) => VSBuffer.wrap(message2),）
+msg@69:25	msg	message	the protocol sender forwards an IPC message
+id2@74:15	id2	clientId	the Client constructor receives its channel client identifier
+Node$1@84:5	Node$1	GraphNode	monaco 0.57.0 vs/base/common/linkedList.js
+Node4@84:20	Node4	GraphNode	monaco 0.57.0 vs/base/common/linkedList.js
+key2@85:15	key2	key	monaco 0.57.0 vs/base/common/linkedList.js
+data2@85:21	data2	data	monaco 0.57.0 vs/base/common/linkedList.js
+ret@98:11	ret	roots	Graph.roots returns the collected root nodes
+node2@99:16	node2	node	第99行的声明与引用表明该绑定表示「node」；去除打包器数字后缀并保留绑定结构（for (const node2 of this._nodes.values()) {）
+from2@106:14	from2	from	第106行的声明与引用表明该绑定表示「from」；去除打包器数字后缀并保留绑定结构（insertEdge(from2, to) {）
+to@106:21	to	destination	insertEdge receives the destination graph value
+data2@112:14	data2	data	第112行的声明与引用表明该绑定表示「data」；去除打包器数字后缀并保留绑定结构（removeNode(data2) {）
+key2@113:11	key2	key	第113行的声明与引用表明该绑定表示「key」；去除打包器数字后缀并保留绑定结构（const key2 = this._hashFn(data2);）
+node2@115:16	node2	node	第115行的声明与引用表明该绑定表示「node」；去除打包器数字后缀并保留绑定结构（for (const node2 of this._nodes.values()) {）
+data2@120:22	data2	data	第120行的声明与引用表明该绑定表示「data」；去除打包器数字后缀并保留绑定结构（lookupOrInsertNode(data2) {）
+key2@121:11	key2	key	第121行的声明与引用表明该绑定表示「key」；去除打包器数字后缀并保留绑定结构（const key2 = this._hashFn(data2);）
+node2@122:9	node2	node	第122行的声明与引用表明该绑定表示「node」；去除打包器数字后缀并保留绑定结构（let node2 = this._nodes.get(key2);）
+data2@129:10	data2	data	第129行的声明与引用表明该绑定表示「data」；去除打包器数字后缀并保留绑定结构（lookup(data2) {）
+data2@136:11	data2	data	第136行的声明与引用表明该绑定表示「data」；去除打包器数字后缀并保留绑定结构（const data2 = [];）
+key2@137:17	key2	key	第137行的声明与引用表明该绑定表示「key」；去除打包器数字后缀并保留绑定结构（for (const [key2, value] of this._nodes) {）
+id2@146:17	id2	nodeId	the cycle search seeds the current graph node identifier
+node2@146:22	node2	node	第146行的声明与引用表明该绑定表示「node」；去除打包器数字后缀并保留绑定结构（for (const [id2, node2] of this._nodes) {）
+seen2@147:13	seen2	seen	第147行的声明与引用表明该绑定表示「seen」；去除打包器数字后缀并保留绑定结构（const seen2 = new Set([id2]);）
+res@148:13	res	cycle	findCycleSlow stores the recursive cycle result
+node2@155:14	node2	node	第155行的声明与引用表明该绑定表示「node」；去除打包器数字后缀并保留绑定结构（_findCycle(node2, seen2) {）
+seen2@155:21	seen2	seen	第155行的声明与引用表明该绑定表示「seen」；去除打包器数字后缀并保留绑定结构（_findCycle(node2, seen2) {）
+id2@156:17	id2	nodeId	the cycle search traverses graph node identifiers
+entries2@172:18	entries2	entries	第172行的声明与引用表明该绑定表示「entries」；去除打包器数字后缀并保留绑定结构（constructor(...entries2) {）
+id2@173:17	id2	serviceId	ServiceCollection entries are keyed by service identifier
+service2@173:22	service2	service	第173行的声明与引用表明该绑定表示「service」；去除打包器数字后缀并保留绑定结构（for (const [id2, service2] of entries2) {）
+id2@177:7	id2	serviceId	ServiceCollection.set addresses a service identifier
+id2@182:7	id2	serviceId	ServiceCollection.has addresses a service identifier
+id2@185:7	id2	serviceId	ServiceCollection.get addresses a service identifier
+type2@200:15	type2	type	第200行的声明与引用表明该绑定表示「type」；去除打包器数字后缀并保留绑定结构（constructor(type2, name2) {）
+name2@200:22	name2	traceName	Trace stores a human-readable trace name
+workspaceId2@230:36	workspaceId2	workspaceIdentifier	the workspace bundle lookup receives a workspace identifier; avoid shadowing the exported workspaceId
+os2@262:39	os2	os	第262行的声明与引用表明该绑定表示「os」；去除打包器数字后缀并保留绑定结构（export function getLocalFolderIconSrc(os2 = getPlatform().app.os) {）
+size2@265:42	size2	size	第265行的声明与引用表明该绑定表示「size」；去除打包器数字后缀并保留绑定结构（export function MoreVerticalIcon({ size: size2 = 24, className, ...rest }) {）
+size2@293:9	size2	size	第293行的声明与引用表明该绑定表示「size」；去除打包器数字后缀并保留绑定结构（size: size2 = "sm",）
+language2@358:40	language2	language	第358行的声明与引用表明该绑定表示「language」；去除打包器数字后缀并保留绑定结构（export function getTutorialUrlByLocale(language2) {）
+language2@361:46	language2	language	第361行的声明与引用表明该绑定表示「language」；去除打包器数字后缀并保留绑定结构（export function getCreationGuideUrlsByLocale(language2) {）
+children2@388:46	children2	children	第388行的声明与引用表明该绑定表示「children」；去除打包器数字后缀并保留绑定结构（export function PlatformProvider({ children: children2 }) {）
+platform2@389:9	platform2	platform	第389行的声明与引用表明该绑定表示「platform」；去除打包器数字后缀并保留绑定结构（const platform2 = reactExports.useMemo(() => getPlatform(), []);）
+config2@390:9	config2	config	第390行的声明与引用表明该绑定表示「config」；去除打包器数字后缀并保留绑定结构（const config2 = reactExports.useMemo(() => getRuntimeConfig(), []);）
+errorMessage$1@404:10	errorMessage$1	getErrorMessage	the helper extracts a displayable error message
+isWebUrl$1@407:10	isWebUrl$1	isWebUrl	第407行的声明与引用表明该绑定表示「isWebUrl」；去除打包器数字后缀并保留绑定结构（function isWebUrl$1(url2) {）
+url2@407:21	url2	url	第407行的声明与引用表明该绑定表示「url」；去除打包器数字后缀并保留绑定结构（function isWebUrl$1(url2) {）
+url2@415:41	url2	url	第415行的声明与引用表明该绑定表示「url」；去除打包器数字后缀并保留绑定结构（export function externalUrlTargetForLog(url2) {）
+platform2@429:28	platform2	platform	第429行的声明与引用表明该绑定表示「platform」；去除打包器数字后缀并保留绑定结构（function shouldUseFallback(platform2, url2) {）
+url2@429:39	url2	url	第429行的声明与引用表明该绑定表示「url」；去除打包器数字后缀并保留绑定结构（function shouldUseFallback(platform2, url2) {）
+platform2@436:39	platform2	platform	第436行的声明与引用表明该绑定表示「platform」；去除打包器数字后缀并保留绑定结构（export async function openExternalUrl(platform2, url2, options) {）
+url2@436:50	url2	url	第436行的声明与引用表明该绑定表示「url」；去除打包器数字后缀并保留绑定结构（export async function openExternalUrl(platform2, url2, options) {）

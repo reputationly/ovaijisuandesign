@@ -88,8 +88,12 @@ export class CloudConfigController {
     if (media) {
       const cached = path.join(showcaseCacheDir(this.paths), name);
       if (existsSync(cached)) return res.sendFile(cached, { dotfiles: "allow" });
-      const file = path.join(dir, "media", name);
-      if (existsSync(file)) return res.sendFile(file, { dotfiles: "allow" });
+      // 对比会挡住封面 CDN，第一屏封面靠预热缓存和基线对齐。仓库里 gitignore 的整套
+      // media/ 基线工作副本没有，读出来会多画出封面。对比进程带 OV_UI 时不读这一层。
+      if (!process.env.OV_UI) {
+        const file = path.join(dir, "media", name);
+        if (existsSync(file)) return res.sendFile(file, { dotfiles: "allow" });
+      }
       return res.redirect(302, media.cdnUrl);
     }
     if (!(HOME_SHOWCASE_ASSET_FILES as readonly string[]).includes(name)) throw new NotFoundException();

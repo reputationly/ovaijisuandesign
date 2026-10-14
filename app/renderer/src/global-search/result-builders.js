@@ -1,7 +1,7 @@
 // 全局搜索结果的组装与打分：项目、会话、固定入口、推荐与最近记录、本地结果。
 import { withThumbnail } from "../workspace/tool-label-definitions.js";
 import { gatewayUrlFromBase } from "../infra/gateway-http-error.jsx";
-import { API_PATHS } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
 import { CATEGORY_WEIGHT, HUB_PROJECT_RESULT_LIMIT } from "./constants.js";
 import { STATIC_RESULTS } from "./static-results.js";
 function normalize(value) {
@@ -57,15 +57,15 @@ export function buildCanvasThumbnailUrl(workspace, match) {
   );
 }
 function scoreText(fields, query) {
-  const q = normalize(query);
-  if (!q) return null;
+  const normalizedQuery = normalize(query);
+  if (!normalizedQuery) return null;
   let best = 0;
   for (const field of fields) {
     const text = normalize(field);
     if (!text) continue;
-    if (text === q) best = Math.max(best, 100);
-    else if (text.startsWith(q)) best = Math.max(best, 82);
-    else if (text.includes(q)) best = Math.max(best, 58);
+    if (text === normalizedQuery) best = Math.max(best, 100);
+    else if (text.startsWith(normalizedQuery)) best = Math.max(best, 82);
+    else if (text.includes(normalizedQuery)) best = Math.max(best, 58);
   }
   return best > 0 ? best : null;
 }
@@ -85,7 +85,7 @@ export function sortResults(results) {
   });
 }
 function buildProjectResults(query, workspaces, recentWorkspaces, currentWorkspaceId) {
-  const openedByPath = new Map(workspaces.map((w) => [w.folderPath, w.workspaceId]));
+  const openedByPath = new Map(workspaces.map((workspace) => [workspace.folderPath, workspace.workspaceId]));
   const merged = new Map();
   for (const recent of recentWorkspaces) {
     merged.set(recent.folderPath, {
@@ -230,7 +230,7 @@ export function buildRecommendedSearchResults(currentWorkspaceId) {
     }));
 }
 export function buildRecentSearchResults(workspaces, recentWorkspaces) {
-  const openedByPath = new Map(workspaces.map((w) => [w.folderPath, w]));
+  const openedByPath = new Map(workspaces.map((workspace) => [workspace.folderPath, workspace]));
   const recentProjects = recentWorkspaces
     .slice()
     .sort((a, b) => b.openedAt - a.openedAt)

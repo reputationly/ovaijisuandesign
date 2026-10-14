@@ -1,5 +1,6 @@
 // 云端资产的调试数据查看器。
-import { useTranslation, Copy } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import { Copy } from "../../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { Button } from "../../infra/dialog-content.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";

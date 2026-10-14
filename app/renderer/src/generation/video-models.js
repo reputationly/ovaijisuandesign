@@ -7,7 +7,7 @@ import {
 
 const BACKEND_KLING = "kling";
 
-const BACKEND_VEO3 = "veo3";
+const BACKEND_VEO = "veo3";
 
 const BACKEND_WAN_I2V = "wan_i2v";
 
@@ -249,7 +249,7 @@ const WAN3_DURATION_OPTIONS = Array.from(
   {
     length: 29,
   },
-  (_2, index2) => String(index2 + 2),
+  (_unusedArg, index) => String(index + 2),
 );
 
 function wan3Params() {
@@ -505,7 +505,7 @@ export const VIDEO_MODELS = [
           {
             length: 27,
           },
-          (_2, index2) => String(index2 + 4),
+          (_unusedArg, index) => String(index + 4),
         ),
         default: "5",
       },
@@ -695,7 +695,7 @@ export const VIDEO_MODELS = [
     seriesId: "beta",
     publicToken: "beta_fast",
     region: "domestic",
-    backend: BACKEND_VEO3,
+    backend: BACKEND_VEO,
     model_name: "veo-3.1-fast-generate-001",
     max_refs: 1,
     promptRequired: true,
@@ -733,7 +733,7 @@ export const VIDEO_MODELS = [
     seriesId: "beta",
     publicToken: "beta_pro",
     region: "domestic",
-    backend: BACKEND_VEO3,
+    backend: BACKEND_VEO,
     model_name: "veo-3.1-generate-001",
     max_refs: 1,
     promptRequired: true,
@@ -770,7 +770,7 @@ export const VIDEO_MODELS = [
     name: "Veo3.1 Fast",
     seriesId: "veo3",
     region: "overseas",
-    backend: BACKEND_VEO3,
+    backend: BACKEND_VEO,
     model_name: "veo-3.1-fast-generate-001",
     max_refs: 1,
     promptRequired: true,
@@ -801,7 +801,7 @@ export const VIDEO_MODELS = [
     name: "Veo3.1",
     seriesId: "veo3",
     region: "overseas",
-    backend: BACKEND_VEO3,
+    backend: BACKEND_VEO,
     model_name: "veo-3.1-generate-001",
     max_refs: 1,
     promptRequired: true,

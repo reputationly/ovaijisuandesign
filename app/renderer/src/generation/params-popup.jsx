@@ -1,5 +1,6 @@
 // params-popup.jsx
-import { reactDomExports, reactExports } from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { usePortalAnchorPlacement } from "./use-portal-anchor-placement.jsx";
 
@@ -17,34 +18,34 @@ const POPUP_MAX_HEIGHT = 480;
 
 export function ParamsPopup({
   onClose,
-  children: children2,
+  children,
   widthPx = 380,
-  scale: scale2 = 1,
+  scale = 1,
   anchorRef,
 }) {
   const popupRef = reactExports.useRef(null);
   const [stableHeight, setStableHeight] = reactExports.useState(0);
-  const panelScale = scale2 > 0 ? scale2 : 1;
+  const panelScale = scale > 0 ? scale : 1;
   const onCloseRef = reactExports.useRef(onClose);
   reactExports.useEffect(() => {
     onCloseRef.current = onClose;
   });
   reactExports.useEffect(() => {
-    const handleMouseDown2 = (e2) => {
-      const target = e2.target;
+    const handleMouseDown = (mouseEvent) => {
+      const target = mouseEvent.target;
       if (!target) return;
       if (popupRef.current?.contains(target)) return;
       if (anchorRef.current?.contains(target)) return;
       onCloseRef.current();
     };
-    const handleKeyDown2 = (e2) => {
-      if (e2.key === "Escape") onCloseRef.current();
+    const handleKeyDown = (keyEvent) => {
+      if (keyEvent.key === "Escape") onCloseRef.current();
     };
-    document.addEventListener("mousedown", handleMouseDown2, true);
-    document.addEventListener("keydown", handleKeyDown2);
+    document.addEventListener("mousedown", handleMouseDown, true);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handleMouseDown2, true);
-      document.removeEventListener("keydown", handleKeyDown2);
+      document.removeEventListener("mousedown", handleMouseDown, true);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [anchorRef]);
   const placement = usePortalAnchorPlacement(anchorRef, {
@@ -86,9 +87,9 @@ export function ParamsPopup({
             ? Math.min(stableHeight, placement.maxHeight / panelScale)
             : void 0,
       }}
-      onClick={(e2) => e2.stopPropagation()}
+      onClick={(clickEvent) => clickEvent.stopPropagation()}
     >
-      <div className="flex flex-col gap-4">{children2}</div>
+      <div className="flex flex-col gap-4">{children}</div>
     </div>
   );
   return reactDomExports.createPortal(

@@ -1,0 +1,20 @@
+key	old	new	依据
+t2@48:14	t2	translate	该绑定是标签色点读取预设颜色名称的翻译函数。
+id2@51:18	id2	colorId	该值是索引预设颜色名称映射的颜色标识。
+e2@66:32	e2	pointerEvent	该事件用于阻止标签色点指针进入事件冒泡。
+e2@67:31	e2	pointerEvent	该事件用于阻止标签色点指针移动事件冒泡。
+e2@68:32	e2	pointerEvent	该事件用于阻止标签色点指针离开事件冒泡。
+e2@161:18	e2	changeEvent	该事件提供重命名输入框的新文本。
+e2@162:19	e2	keyboardEvent	该事件用于处理重命名输入框的回车与取消按键。
+e2@178:17	e2	clickEvent	该事件用于阻止重命名输入框点击冒泡。
+color2@33:47	color2	color	去掉打包器防重名追加的后缀，恢复原名 color，即该绑定持有的值。
+color2@40:53	color2	color	去掉打包器防重名追加的后缀，恢复原名 color，即该绑定持有的值。
+size2@46:41	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+registry2@47:9	registry2	registry	去掉打包器防重名追加的后缀，恢复原名 registry，即该绑定持有的值。
+tags2@49:9	tags2	tags	去掉打包器防重名追加的后缀，恢复原名 tags，即该绑定持有的值。
+name2@51:9	name2	getColorName	该函数根据颜色标签 ID 和自定义名称取得颜色显示名称。
+index2@70:38	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+next2@93:46	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+key2@94:14	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+extension2@123:29	extension2	extension	去掉打包器防重名追加的后缀，恢复原名 extension，即该绑定持有的值。
+next2@183:37	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。

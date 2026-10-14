@@ -1,5 +1,8 @@
 // 首页的项目选择器、提示词预填、随机灵感的桥接组件。
-import { useTranslation, reactExports, jsxRuntimeExports, Plus, X$7 as X, FolderMinus, ChevronDown } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { Plus, X$7 as X, FolderMinus, ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import { useProjects } from "../workspace/normalize-project-entries.js";
 import { useCreateProjectAndSelect } from "../workspace/context-menu-content.jsx";
 import { DropdownMenu, TooltipProvider, Tooltip, TooltipTrigger } from "../vendor-inline/vscode-base/graph.jsx";

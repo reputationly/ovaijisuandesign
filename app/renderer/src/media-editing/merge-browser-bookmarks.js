@@ -3,9 +3,9 @@ import { trackEvent } from "../infra/sanitize-track-props.js";
 import { workflowSourceFromId } from "./unwrap-mcp-json-record.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 
-export function trackComfyUiEvent(event, properties2) {
+export function trackComfyUiEvent(event, properties) {
   try {
-    trackEvent(event, properties2);
+    trackEvent(event, properties);
   } catch {}
 }
 
@@ -41,11 +41,11 @@ export function trackComfyUiWorkflowInstallFailed(surface, startedAt, stage) {
   });
 }
 
-function bookmarkUrlIdentity(url2) {
+function bookmarkUrlIdentity(url) {
   try {
-    return new URL(url2).href;
+    return new URL(url).href;
   } catch {
-    return url2;
+    return url;
   }
 }
 
@@ -57,29 +57,29 @@ function bookmarkContentIdentity(bookmark) {
   ]);
 }
 
-export function mergeBrowserBookmarks(current2, incoming) {
-  const bookmarks = [...current2];
-  const ids2 = new Set(current2.map((bookmark) => bookmark.id));
-  const identities = new Set(current2.map(bookmarkContentIdentity));
+export function mergeBrowserBookmarks(current, incoming) {
+  const bookmarks = [...current];
+  const ids = new Set(current.map((bookmark) => bookmark.id));
+  const identities = new Set(current.map(bookmarkContentIdentity));
   const manualUrls = new Set(
-    current2
+    current
       .filter((bookmark) => bookmark.id.startsWith("manual-"))
       .map((bookmark) => bookmarkUrlIdentity(bookmark.url)),
   );
   for (const bookmark of incoming) {
-    const identity2 = bookmarkContentIdentity(bookmark);
+    const identity = bookmarkContentIdentity(bookmark);
     if (
-      ids2.has(bookmark.id) ||
-      identities.has(identity2) ||
+      ids.has(bookmark.id) ||
+      identities.has(identity) ||
       manualUrls.has(bookmarkUrlIdentity(bookmark.url))
     )
       continue;
     bookmarks.push(bookmark);
-    ids2.add(bookmark.id);
-    identities.add(identity2);
+    ids.add(bookmark.id);
+    identities.add(identity);
   }
   return {
     bookmarks,
-    addedCount: bookmarks.length - current2.length,
+    addedCount: bookmarks.length - current.length,
   };
 }

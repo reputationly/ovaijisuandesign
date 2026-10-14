@@ -1,0 +1,4 @@
+key	new	reason
+t2@33:14	t	useTranslation() 返回的翻译函数 t
+link2@88:29	link	去掉打包器加的数字后缀，恢复原名 link
+isStale2@24:12	isStale	去掉打包器加的数字后缀，恢复原名 isStale

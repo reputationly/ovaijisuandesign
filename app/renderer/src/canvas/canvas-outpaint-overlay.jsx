@@ -1,11 +1,8 @@
 // canvas-outpaint-overlay.jsx
-import {
-  CompositedSvg,
-  reactExports,
-  useReactFlow,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { useReactFlow, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { clamp } from "./use-start-crop-from-node.js";
 import { CloseIcon, SendArrowIcon } from "./file-missing-icon.jsx";
@@ -17,11 +14,11 @@ import {
 } from "../infra/use-plugin-metadata-store.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
 import { useOutpaintState } from "../media-editing/use-start-cloud-edit-from-node.js";
-function ImageIcon({ size: size2 = 14 }) {
+function ImageIcon({ size = 14 }) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 20 20"
       fill="currentColor"
       aria-hidden="true"
@@ -55,15 +52,15 @@ const CORNER_LINES = {
     "absolute bottom-0 right-0 h-full w-[3px]",
   ],
 };
-function CornerHandle({ position: position2, onPointerDown: onPointerDown2 }) {
-  const [lineA, lineB] = CORNER_LINES[position2];
+function CornerHandle({ position, onPointerDown }) {
+  const [lineA, lineB] = CORNER_LINES[position];
   const lineStyle = {
     background: "var(--canvas-node-border-selected, #141414)",
   };
   return (
     <div
-      className={CORNER_CLASSES[position2]}
-      onPointerDown={(e2) => onPointerDown2(e2, position2)}
+      className={CORNER_CLASSES[position]}
+      onPointerDown={(pointerEvent) => onPointerDown(pointerEvent, position)}
     >
       <div className={lineA} style={lineStyle} />
       <div className={lineB} style={lineStyle} />
@@ -82,14 +79,14 @@ const EDGE_BAR_CLASSES = {
   l: "h-8 w-[3px] rounded-full",
   r: "h-8 w-[3px] rounded-full",
 };
-function EdgeHandle({ position: position2, onPointerDown: onPointerDown2 }) {
+function EdgeHandle({ position, onPointerDown }) {
   return (
     <div
-      className={EDGE_CLASSES[position2]}
-      onPointerDown={(e2) => onPointerDown2(e2, position2)}
+      className={EDGE_CLASSES[position]}
+      onPointerDown={(pointerEvent) => onPointerDown(pointerEvent, position)}
     >
       <div
-        className={EDGE_BAR_CLASSES[position2]}
+        className={EDGE_BAR_CLASSES[position]}
         style={{
           background: "var(--canvas-node-border-selected, #141414)",
         }}
@@ -103,9 +100,9 @@ const DEFAULT_IMAGE_OFFSET = {
 };
 const OUTPAINT_SCALE_OPTIONS = [1, 1.5, 2, 3, 4];
 const MAX_OUTPAINT_OUTPUT_LONGEST = 8e3;
-function isOutpaintScaleAllowed(longestPx, scale2) {
-  if (scale2 === 1) return true;
-  return longestPx * scale2 <= MAX_OUTPAINT_OUTPUT_LONGEST;
+function isOutpaintScaleAllowed(longestPx, scale) {
+  if (scale === 1) return true;
+  return longestPx * scale <= MAX_OUTPAINT_OUTPUT_LONGEST;
 }
 const OUTPAINT_STYLE_PRESETS = [
   "general",
@@ -286,61 +283,61 @@ const DEFAULT_OUTPAINT = {
   width: 1,
   height: 1,
 };
-function clampOutpaintRect(r2) {
-  const x2 = clamp(r2.x, -MAX_OUTPAINT_HALF, 0);
-  const y4 = clamp(r2.y, -MAX_OUTPAINT_HALF, 0);
-  const right = clamp(r2.x + r2.width, 1, 1 + MAX_OUTPAINT_HALF);
-  const bottom = clamp(r2.y + r2.height, 1, 1 + MAX_OUTPAINT_HALF);
+function clampOutpaintRect(rect) {
+  const left = clamp(rect.x, -MAX_OUTPAINT_HALF, 0);
+  const rectTop = clamp(rect.y, -MAX_OUTPAINT_HALF, 0);
+  const right = clamp(rect.x + rect.width, 1, 1 + MAX_OUTPAINT_HALF);
+  const bottom = clamp(rect.y + rect.height, 1, 1 + MAX_OUTPAINT_HALF);
   return {
-    x: x2,
-    y: y4,
-    width: right - x2,
-    height: bottom - y4,
+    x: left,
+    y: rectTop,
+    width: right - left,
+    height: bottom - rectTop,
   };
 }
-function scaleRectAroundCenter(rect, scale2) {
-  if (scale2 === 1) return rect;
-  const cx2 = rect.x + rect.width / 2;
+function scaleRectAroundCenter(rect, scale) {
+  if (scale === 1) return rect;
+  const cx = rect.x + rect.width / 2;
   const cy = rect.y + rect.height / 2;
-  const width = rect.width * scale2;
-  const height = rect.height * scale2;
+  const width = rect.width * scale;
+  const height = rect.height * scale;
   return clampOutpaintRect({
-    x: cx2 - width / 2,
+    x: cx - width / 2,
     y: cy - height / 2,
     width,
     height,
   });
 }
-function clampImageOffset(rect, offset2) {
+function clampImageOffset(rect, offset) {
   const xMin = rect.x;
   const xMax = rect.x + rect.width - 1;
   const yMin = rect.y;
   const yMax = rect.y + rect.height - 1;
   return {
-    x: clamp(offset2.x, xMin, xMax),
-    y: clamp(offset2.y, yMin, yMax),
+    x: clamp(offset.x, xMin, xMax),
+    y: clamp(offset.y, yMin, yMax),
   };
 }
-function calcOutpaintRect({ initialRect, deltaX, deltaY, handle: handle2 }) {
-  if (handle2 === null) return initialRect;
+function calcOutpaintRect({ initialRect, deltaX, deltaY, handle }) {
+  if (handle === null) return initialRect;
   const { x: ix, y: iy, width: iw, height: ih } = initialRect;
   let left = ix;
-  let top2 = iy;
+  let rectTop = iy;
   let right = ix + iw;
   let bottom = iy + ih;
-  const movesLeft = handle2 === "tl" || handle2 === "bl" || handle2 === "l";
-  const movesRight = handle2 === "tr" || handle2 === "br" || handle2 === "r";
-  const movesTop = handle2 === "tl" || handle2 === "tr" || handle2 === "t";
-  const movesBottom = handle2 === "bl" || handle2 === "br" || handle2 === "b";
+  const movesLeft = handle === "tl" || handle === "bl" || handle === "l";
+  const movesRight = handle === "tr" || handle === "br" || handle === "r";
+  const movesTop = handle === "tl" || handle === "tr" || handle === "t";
+  const movesBottom = handle === "bl" || handle === "br" || handle === "b";
   if (movesLeft) left += deltaX;
   if (movesRight) right += deltaX;
-  if (movesTop) top2 += deltaY;
+  if (movesTop) rectTop += deltaY;
   if (movesBottom) bottom += deltaY;
   return clampOutpaintRect({
     x: left,
-    y: top2,
+    y: rectTop,
     width: right - left,
-    height: bottom - top2,
+    height: bottom - rectTop,
   });
 }
 function calcOutpaintRectMove({ initialRect, deltaX, deltaY }) {
@@ -367,20 +364,20 @@ function outpaintRectForAspectRatio(ratio, imageAspect) {
     width = 1;
     height = 1 / normRatio;
   }
-  const x2 = 0.5 - width / 2;
-  const y4 = 0.5 - height / 2;
+  const left = 0.5 - width / 2;
+  const rectTop = 0.5 - height / 2;
   return clampOutpaintRect({
-    x: x2,
-    y: y4,
+    x: left,
+    y: rectTop,
     width,
     height,
   });
 }
-function rectToPixelParams(rect, offset2, originalWidth, originalHeight) {
+function rectToPixelParams(rect, offset, originalWidth, originalHeight) {
   const targetWidth = Math.round(rect.width * originalWidth);
   const targetHeight = Math.round(rect.height * originalHeight);
-  const offsetX = Math.round((-rect.x + offset2.x) * originalWidth);
-  const offsetY = Math.round((-rect.y + offset2.y) * originalHeight);
+  const offsetX = Math.round((-rect.x + offset.x) * originalWidth);
+  const offsetY = Math.round((-rect.y + offset.y) * originalHeight);
   return {
     targetWidth,
     targetHeight,
@@ -390,8 +387,8 @@ function rectToPixelParams(rect, offset2, originalWidth, originalHeight) {
 }
 const RESOLUTION_OPTIONS = ["1K", "2K", "4K"];
 const RATIO_ICON_MAX = 14;
-function defaultPresetLabel(p3) {
-  switch (p3) {
+function defaultPresetLabel(preset) {
+  switch (preset) {
     case "general":
       return "General";
     case "instagram":
@@ -424,39 +421,39 @@ function CheckIcon({ className }) {
 }
 function DropdownItem({
   label,
-  selected: selected2,
-  disabled: disabled2,
+  selected,
+  disabled,
   onClick,
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled2}
+      disabled={disabled}
       className="flex h-8 w-full items-center justify-between rounded-md border px-2.5 text-left text-[13px] transition-colors duration-150 disabled:cursor-not-allowed"
       style={{
-        color: disabled2
+        color: disabled
           ? "var(--canvas-controls-text-muted, #737373)"
           : "var(--canvas-controls-text, #262626)",
-        background: selected2
+        background: selected
           ? "var(--canvas-controls-active, #2626261a)"
           : "transparent",
-        borderColor: selected2
+        borderColor: selected
           ? "var(--canvas-controls-text, #262626)"
           : "transparent",
-        opacity: disabled2 ? 0.5 : 0.7,
+        opacity: disabled ? 0.5 : 0.7,
       }}
-      onMouseEnter={(e2) => {
-        if (disabled2) return;
-        e2.currentTarget.style.opacity = "1";
+      onMouseEnter={(mouseEvent) => {
+        if (disabled) return;
+        mouseEvent.currentTarget.style.opacity = "1";
       }}
-      onMouseLeave={(e2) => {
-        if (disabled2) return;
-        e2.currentTarget.style.opacity = "0.7";
+      onMouseLeave={(mouseEvent) => {
+        if (disabled) return;
+        mouseEvent.currentTarget.style.opacity = "0.7";
       }}
     >
       <span>{label}</span>
-      {selected2 && !disabled2 && <CheckIcon className="size-4" />}
+      {selected && !disabled && <CheckIcon className="size-4" />}
     </button>
   );
 }
@@ -485,24 +482,24 @@ function Dropdown({ value, options, onChange }) {
   const popoverRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (!open) return;
-    const onPointerDown2 = (e2) => {
-      const target = e2.target;
+    const onPointerDown = (pointerEvent) => {
+      const target = pointerEvent.target;
       if (
         target &&
         !triggerRef.current?.contains(target) &&
         !popoverRef.current?.contains(target)
       ) {
         setOpen(false);
-        e2.stopPropagation();
+        pointerEvent.stopPropagation();
       }
     };
-    const onKey = (e2) => {
-      if (e2.key === "Escape") setOpen(false);
+    const onKey = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") setOpen(false);
     };
-    document.addEventListener("pointerdown", onPointerDown2, true);
+    document.addEventListener("pointerdown", onPointerDown, true);
     document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("pointerdown", onPointerDown2, true);
+      document.removeEventListener("pointerdown", onPointerDown, true);
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
@@ -511,7 +508,7 @@ function Dropdown({ value, options, onChange }) {
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => setOpen((v2) => !v2)}
+        onClick={() => setOpen((isOpen) => !isOpen)}
         className="flex h-8 w-full items-center justify-between rounded-md border px-2.5 text-[13px] transition-colors duration-150"
         style={{
           background: "transparent",
@@ -584,25 +581,25 @@ function RatioGlyph({ ratio }) {
   if (ratio == null) {
     return <FrameCornersIcon />;
   }
-  const w3 = ratio >= 1 ? RATIO_ICON_MAX : RATIO_ICON_MAX * ratio;
-  const h2 = ratio >= 1 ? RATIO_ICON_MAX / ratio : RATIO_ICON_MAX;
+  const iconWidth = ratio >= 1 ? RATIO_ICON_MAX : RATIO_ICON_MAX * ratio;
+  const iconHeight = ratio >= 1 ? RATIO_ICON_MAX / ratio : RATIO_ICON_MAX;
   return (
     <span
       className="block border"
       style={{
-        width: w3,
-        height: h2,
+        width: iconWidth,
+        height: iconHeight,
         borderColor: "var(--canvas-controls-text-muted, #737373)",
       }}
     />
   );
 }
-function RatioRow({ item, selected: selected2, onClick }) {
-  const { t: t2 } = useTranslation();
+function RatioRow({ item, selected, onClick }) {
+  const { t: translate } = useTranslation();
   const ratioLabel = item.ratioLabelKey
-    ? t2(item.ratioLabelKey)
+    ? translate(item.ratioLabelKey)
     : item.ratioLabel;
-  const useCase = item.useCaseKey ? t2(item.useCaseKey) : item.useCase;
+  const useCase = item.useCaseKey ? translate(item.useCaseKey) : item.useCase;
   return (
     <button
       type="button"
@@ -610,21 +607,21 @@ function RatioRow({ item, selected: selected2, onClick }) {
       className="relative flex h-8 items-center gap-2 rounded-md pl-[30px] pr-2 transition-colors duration-150"
       style={{
         color: "var(--canvas-controls-text, #262626)",
-        background: selected2
+        background: selected
           ? "var(--canvas-controls-active, #2626261a)"
           : "transparent",
       }}
-      onMouseEnter={(e2) => {
-        if (selected2) return;
-        e2.currentTarget.style.background =
+      onMouseEnter={(mouseEvent) => {
+        if (selected) return;
+        mouseEvent.currentTarget.style.background =
           "var(--canvas-controls-hover, #0000000d)";
       }}
-      onMouseLeave={(e2) => {
-        if (selected2) return;
-        e2.currentTarget.style.background = "transparent";
+      onMouseLeave={(mouseEvent) => {
+        if (selected) return;
+        mouseEvent.currentTarget.style.background = "transparent";
       }}
     >
-      {selected2 && <CheckIcon className="absolute left-2 size-4" />}
+      {selected && <CheckIcon className="absolute left-2 size-4" />}
       <span
         className="flex size-[22px] shrink-0 items-center justify-center"
         style={{
@@ -649,12 +646,12 @@ function RatioRow({ item, selected: selected2, onClick }) {
     </button>
   );
 }
-const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
-  preset: preset2,
+const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel({
+  preset,
   onPresetChange,
   selectedItemId,
   onSelectItem,
-  scale: scale2,
+  scale,
   onScaleChange,
   disabledScales,
   resolution,
@@ -663,9 +660,9 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
   onConfirm,
   confirming,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const creditCost = useImageEditCost("outpaint", resolution);
-  const items = OUTPAINT_PRESET_ITEMS[preset2];
+  const items = OUTPAINT_PRESET_ITEMS[preset];
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so panel events don't reach the canvas pan/zoom handlers
     <div
@@ -675,9 +672,9 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
         borderColor: "var(--canvas-controls-border, #0000000f)",
         boxShadow: "var(--canvas-shadow-dropdown)",
       }}
-      onPointerDown={(e2) => e2.stopPropagation()}
-      onWheel={(e2) => e2.stopPropagation()}
-      onContextMenu={(e2) => e2.stopPropagation()}
+      onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+      onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+      onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
     >
       <div
         className="flex h-11 items-center px-4"
@@ -686,7 +683,7 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
         }}
       >
         <span className="flex-1 font-heading text-[13px] font-medium">
-          {t2("canvas.outpaint")}
+          {translate("canvas.outpaint")}
         </span>
       </div>
       <div className="flex flex-col px-4 pb-2">
@@ -696,16 +693,16 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
             color: "var(--canvas-controls-text-muted, #737373)",
           }}
         >
-          {t2("canvas.outpaintScale")}
+          {translate("canvas.outpaintScale")}
         </div>
         <Dropdown
-          value={`${scale2}x`}
-          options={OUTPAINT_SCALE_OPTIONS.map((s2) => ({
-            label: `${s2}x`,
-            value: s2,
-            disabled: disabledScales?.has(s2),
+          value={`${scale}x`}
+          options={OUTPAINT_SCALE_OPTIONS.map((scale) => ({
+            label: `${scale}x`,
+            value: scale,
+            disabled: disabledScales?.has(scale),
           }))}
-          onChange={(v2) => onScaleChange(v2)}
+          onChange={(value) => onScaleChange(value)}
         />
       </div>
       <div className="flex items-center justify-between px-4 pb-2 pt-1">
@@ -715,16 +712,16 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
             color: "var(--canvas-controls-text-muted, #737373)",
           }}
         >
-          {t2("canvas.outpaintResolution")}
+          {translate("canvas.outpaintResolution")}
         </span>
         <div className="w-[120px]">
           <Dropdown
             value={resolution}
-            options={RESOLUTION_OPTIONS.map((r2) => ({
-              label: r2,
-              value: r2,
+            options={RESOLUTION_OPTIONS.map((resolution) => ({
+              label: resolution,
+              value: resolution,
             }))}
-            onChange={(v2) => onResolutionChange(v2)}
+            onChange={(value) => onResolutionChange(value)}
           />
         </div>
       </div>
@@ -735,22 +732,22 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
             color: "var(--canvas-controls-text-muted, #737373)",
           }}
         >
-          {t2("canvas.outpaintPreset")}
+          {translate("canvas.outpaintPreset")}
         </span>
         <div className="w-[120px]">
           <Dropdown
-            value={t2(
-              `canvas.outpaintStylePreset.${preset2}`,
-              defaultPresetLabel(preset2),
+            value={translate(
+              `canvas.outpaintStylePreset.${preset}`,
+              defaultPresetLabel(preset),
             )}
-            options={OUTPAINT_STYLE_PRESETS.map((p3) => ({
-              label: t2(
-                `canvas.outpaintStylePreset.${p3}`,
-                defaultPresetLabel(p3),
+            options={OUTPAINT_STYLE_PRESETS.map((preset) => ({
+              label: translate(
+                `canvas.outpaintStylePreset.${preset}`,
+                defaultPresetLabel(preset),
               ),
-              value: p3,
+              value: preset,
             }))}
-            onChange={(v2) => onPresetChange(v2)}
+            onChange={(value) => onPresetChange(value)}
           />
         </div>
       </div>
@@ -769,18 +766,18 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
           type="button"
           onClick={onCancel}
           className="flex size-8 shrink-0 items-center justify-center rounded-md transition-colors duration-150"
-          aria-label={t2("common.cancel")}
-          title={t2("common.cancel")}
+          aria-label={translate("common.cancel")}
+          title={translate("common.cancel")}
           style={{
             color: "var(--canvas-controls-text, #262626)",
             background: "transparent",
           }}
-          onMouseEnter={(e2) => {
-            e2.currentTarget.style.background =
+          onMouseEnter={(mouseEvent) => {
+            mouseEvent.currentTarget.style.background =
               "var(--canvas-controls-hover, #0000000d)";
           }}
-          onMouseLeave={(e2) => {
-            e2.currentTarget.style.background = "transparent";
+          onMouseLeave={(mouseEvent) => {
+            mouseEvent.currentTarget.style.background = "transparent";
           }}
         >
           <CloseIcon />
@@ -794,25 +791,25 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
             className="inline-flex size-8 items-center justify-center rounded-md transition-colors duration-150 disabled:opacity-50"
             aria-label={
               confirming
-                ? t2("canvas.outpainting")
-                : t2("canvas.outpaintGenerate")
+                ? translate("canvas.outpainting")
+                : translate("canvas.outpaintGenerate")
             }
             title={
               confirming
-                ? t2("canvas.outpainting")
-                : t2("canvas.outpaintGenerate")
+                ? translate("canvas.outpainting")
+                : translate("canvas.outpaintGenerate")
             }
             style={{
               background: "var(--canvas-primary-btn-bg, #000000d9)",
               color: "var(--canvas-primary-btn-icon, #ffffff)",
             }}
-            onMouseEnter={(e2) => {
+            onMouseEnter={(mouseEvent) => {
               if (!confirming) {
-                e2.currentTarget.style.opacity = "0.9";
+                mouseEvent.currentTarget.style.opacity = "0.9";
               }
             }}
-            onMouseLeave={(e2) => {
-              e2.currentTarget.style.opacity = "1";
+            onMouseLeave={(mouseEvent) => {
+              mouseEvent.currentTarget.style.opacity = "1";
             }}
           >
             <SendArrowIcon />
@@ -824,7 +821,7 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel2({
 });
 const DEFAULT_RATIO_ITEM =
   OUTPAINT_PRESET_ITEMS.general.find(
-    (it2) => it2.id === DEFAULT_OUTPAINT_ITEM_ID,
+    (item) => item.id === DEFAULT_OUTPAINT_ITEM_ID,
   ) ?? null;
 function useImageOutpaint(containerWidth, containerHeight, imageAspect) {
   const [outpaintRect, setOutpaintRect] =
@@ -833,7 +830,7 @@ function useImageOutpaint(containerWidth, containerHeight, imageAspect) {
     reactExports.useState(DEFAULT_IMAGE_OFFSET);
   const [selectedItem, setSelectedItem] =
     reactExports.useState(DEFAULT_RATIO_ITEM);
-  const [scale2, setScale] = reactExports.useState(1);
+  const [scale, setScale] = reactExports.useState(1);
   const [isDragging, setIsDragging] = reactExports.useState(false);
   const [activeHandle, setActiveHandle] = reactExports.useState(null);
   const dragRef = reactExports.useRef(null);
@@ -847,48 +844,48 @@ function useImageOutpaint(containerWidth, containerHeight, imageAspect) {
     containerHeight,
   };
   const applySelection = reactExports.useCallback(
-    (item, s2) => {
+    (item, scale) => {
       const baseRect = item
         ? outpaintRectForAspectRatio(item.ratio, imageAspect)
         : DEFAULT_OUTPAINT;
-      const nextRect = scaleRectAroundCenter(baseRect, s2);
+      const nextRect = scaleRectAroundCenter(baseRect, scale);
       setOutpaintRect(nextRect);
       setImageOffset(clampImageOffset(nextRect, DEFAULT_IMAGE_OFFSET));
     },
     [imageAspect],
   );
-  const handleMove = reactExports.useCallback((e2) => {
-    const drag2 = dragRef.current;
-    if (!drag2) return;
+  const handleMove = reactExports.useCallback((pointerEvent) => {
+    const drag = dragRef.current;
+    if (!drag) return;
     const { containerWidth: cw, containerHeight: ch } = latestRef.current;
     if (!cw || !ch) return;
-    const deltaX = (e2.clientX - drag2.startX) / cw;
-    const deltaY = (e2.clientY - drag2.startY) / ch;
-    if (drag2.handle === null) {
+    const deltaX = (pointerEvent.clientX - drag.startX) / cw;
+    const deltaY = (pointerEvent.clientY - drag.startY) / ch;
+    if (drag.handle === null) {
       setOutpaintRect(
         calcOutpaintRectMove({
-          initialRect: drag2.initialRect,
+          initialRect: drag.initialRect,
           deltaX,
           deltaY,
         }),
       );
     } else {
       const nextRect = calcOutpaintRect({
-        initialRect: drag2.initialRect,
+        initialRect: drag.initialRect,
         deltaX,
         deltaY,
-        handle: drag2.handle,
+        handle: drag.handle,
       });
       setOutpaintRect(nextRect);
-      setImageOffset(clampImageOffset(nextRect, drag2.initialImageOffset));
+      setImageOffset(clampImageOffset(nextRect, drag.initialImageOffset));
     }
   }, []);
   reactExports.useEffect(() => {
     if (!isDragging) return;
     let pendingEvent = null;
-    const onMove = (e2) => {
-      if (e2.cancelable) e2.preventDefault();
-      pendingEvent = e2;
+    const onMove = (pointerEvent) => {
+      if (pointerEvent.cancelable) pointerEvent.preventDefault();
+      pendingEvent = pointerEvent;
       if (rafRef.current === null) {
         rafRef.current = requestAnimationFrame(() => {
           rafRef.current = null;
@@ -930,42 +927,42 @@ function useImageOutpaint(containerWidth, containerHeight, imageAspect) {
     };
   }, [isDragging, handleMove]);
   const handlePointerDown = reactExports.useCallback(
-    (e2, handle2 = null) => {
-      if (!e2.isPrimary) return;
-      if (e2.button !== 0) return;
-      e2.stopPropagation();
-      e2.preventDefault();
+    (pointerEvent, handle = null) => {
+      if (!pointerEvent.isPrimary) return;
+      if (pointerEvent.button !== 0) return;
+      pointerEvent.stopPropagation();
+      pointerEvent.preventDefault();
       dragRef.current = {
-        startX: e2.clientX,
-        startY: e2.clientY,
+        startX: pointerEvent.clientX,
+        startY: pointerEvent.clientY,
         initialRect: {
           ...outpaintRect,
         },
         initialImageOffset: {
           ...imageOffset,
         },
-        handle: handle2,
+        handle,
       };
       setIsDragging(true);
-      setActiveHandle(handle2);
+      setActiveHandle(handle);
     },
     [outpaintRect, imageOffset],
   );
   const selectItem = reactExports.useCallback(
     (item) => {
       setSelectedItem(item);
-      applySelection(item, scale2);
+      applySelection(item, scale);
     },
-    [applySelection, scale2],
+    [applySelection, scale],
   );
   const selectScale = reactExports.useCallback(
-    (next2) => {
-      setScale(next2);
-      applySelection(selectedItem, next2);
+    (next) => {
+      setScale(next);
+      applySelection(selectedItem, next);
     },
     [applySelection, selectedItem],
   );
-  const reset2 = reactExports.useCallback(() => {
+  const reset = reactExports.useCallback(() => {
     setSelectedItem(DEFAULT_RATIO_ITEM);
     setScale(1);
     setOutpaintRect(DEFAULT_OUTPAINT);
@@ -976,7 +973,7 @@ function useImageOutpaint(containerWidth, containerHeight, imageAspect) {
     imageOffset,
     selectedItem,
     selectedItemId: selectedItem?.id ?? null,
-    scale: scale2,
+    scale,
     isDragging,
     activeHandle,
     handlePointerDown,
@@ -984,66 +981,66 @@ function useImageOutpaint(containerWidth, containerHeight, imageAspect) {
     selectScale,
     setOutpaintRect,
     setImageOffset,
-    reset: reset2,
+    reset,
   };
 }
 const PANEL_GAP = 16;
 const PANEL_WIDTH = 260;
 const PANEL_MIN_HEIGHT = 480;
 export const CanvasOutpaintOverlay = reactExports.memo(
-  function CanvasOutpaintOverlay2() {
+  function CanvasOutpaintOverlay() {
     const {
-      meta: meta2,
+      meta,
       cancelOutpaint,
       outpaintingNodeId,
     } = useOutpaintState();
     const { onNodeAction } = useCanvasBridge();
     const enterTimeRef = reactExports.useRef(Date.now());
     const appliedRef = reactExports.useRef(false);
-    const transform2 = useStore((s2) => s2.transform);
-    const flowDomNode = useStore((s2) => s2.domNode);
+    const transform = useStore((storeState) => storeState.transform);
+    const flowDomNode = useStore((storeState) => storeState.domNode);
     const reactFlow = useReactFlow();
-    const [vpX, vpY, vpZoom] = transform2;
+    const [viewportX, viewportY, vpZoom] = transform;
     const [confirming, setConfirming] = reactExports.useState(false);
-    const [preset2, setPreset] = reactExports.useState("general");
+    const [preset, setPreset] = reactExports.useState("general");
     const [resolution, setResolution] = reactExports.useState("2K");
     const imagePos = reactExports.useMemo(() => {
-      if (!meta2) return null;
+      if (!meta) return null;
       return {
-        x: meta2.nodeFlowX * vpZoom + vpX,
-        y: meta2.nodeFlowY * vpZoom + vpY,
-        w: meta2.nodeWidth * vpZoom,
-        h: meta2.nodeHeight * vpZoom,
+        x: meta.nodeFlowX * vpZoom + viewportX,
+        y: meta.nodeFlowY * vpZoom + viewportY,
+        w: meta.nodeWidth * vpZoom,
+        h: meta.nodeHeight * vpZoom,
       };
-    }, [meta2, vpX, vpY, vpZoom]);
+    }, [meta, viewportX, viewportY, vpZoom]);
     const imageW = imagePos?.w ?? 0;
     const imageH = imagePos?.h ?? 0;
     const imageAspect = reactExports.useMemo(() => {
-      if (!meta2) return 1;
-      const w3 = meta2.originalWidth || meta2.nodeWidth || 1;
-      const h2 = meta2.originalHeight || meta2.nodeHeight || 1;
-      return w3 / h2;
-    }, [meta2]);
+      if (!meta) return 1;
+      const imageWidth = meta.originalWidth || meta.nodeWidth || 1;
+      const imageHeight = meta.originalHeight || meta.nodeHeight || 1;
+      return imageWidth / imageHeight;
+    }, [meta]);
     const {
       outpaintRect,
       imageOffset,
       selectedItem,
       selectedItemId,
-      scale: scale2,
+      scale,
       isDragging,
       handlePointerDown,
       selectItem,
       selectScale,
     } = useImageOutpaint(imageW, imageH, imageAspect);
     const handleConfirm = reactExports.useCallback(() => {
-      if (appliedRef.current || !meta2) return;
+      if (appliedRef.current || !meta) return;
       appliedRef.current = true;
       setConfirming(true);
       const params = rectToPixelParams(
         outpaintRect,
         imageOffset,
-        meta2.originalWidth,
-        meta2.originalHeight,
+        meta.originalWidth,
+        meta.originalHeight,
       );
       if (onNodeAction && outpaintingNodeId) {
         try {
@@ -1060,13 +1057,13 @@ export const CanvasOutpaintOverlay = reactExports.memo(
           });
         } catch {}
       }
-      void meta2.onConfirm({
+      void meta.onConfirm({
         ...params,
         resolution,
       });
       cancelOutpaint();
     }, [
-      meta2,
+      meta,
       outpaintRect,
       imageOffset,
       resolution,
@@ -1085,10 +1082,10 @@ export const CanvasOutpaintOverlay = reactExports.memo(
             interaction: "opens_mode",
             durationMs: Date.now() - enterTimeRef.current,
             hadProgress:
-              preset2 !== "general" ||
+              preset !== "general" ||
               resolution !== "2K" ||
               selectedItemId !== "general:original" ||
-              scale2 !== 1 ||
+              scale !== 1 ||
               outpaintRect.x !== DEFAULT_OUTPAINT.x ||
               outpaintRect.y !== DEFAULT_OUTPAINT.y ||
               outpaintRect.width !== DEFAULT_OUTPAINT.width ||
@@ -1102,18 +1099,18 @@ export const CanvasOutpaintOverlay = reactExports.memo(
     }, [
       onNodeAction,
       outpaintingNodeId,
-      preset2,
+      preset,
       resolution,
       selectedItemId,
-      scale2,
+      scale,
       outpaintRect,
       imageOffset,
       cancelOutpaint,
     ]);
     reactExports.useEffect(() => {
-      const handleKey = (e2) => {
-        if (e2.key === "Escape") {
-          e2.stopPropagation();
+      const handleKey = (keyboardEvent) => {
+        if (keyboardEvent.key === "Escape") {
+          keyboardEvent.stopPropagation();
           trackedCancelOutpaint();
         }
       };
@@ -1121,122 +1118,122 @@ export const CanvasOutpaintOverlay = reactExports.memo(
       return () => document.removeEventListener("keydown", handleKey, true);
     }, [trackedCancelOutpaint]);
     const handlePresetChange = reactExports.useCallback(
-      (next2) => {
-        setPreset(next2);
-        const items = OUTPAINT_PRESET_ITEMS[next2];
-        const first2 = items[0];
-        if (first2) selectItem(first2);
+      (next) => {
+        setPreset(next);
+        const items = OUTPAINT_PRESET_ITEMS[next];
+        const first = items[0];
+        if (first) selectItem(first);
       },
       [selectItem],
     );
     const disabledScales = reactExports.useMemo(() => {
-      if (!meta2) return new Set();
+      if (!meta) return new Set();
       const baseRect = selectedItem
         ? outpaintRectForAspectRatio(selectedItem.ratio, imageAspect)
         : outpaintRect;
       const baseLongestPx = Math.max(
-        baseRect.width * meta2.originalWidth,
-        baseRect.height * meta2.originalHeight,
+        baseRect.width * meta.originalWidth,
+        baseRect.height * meta.originalHeight,
       );
       const out = new Set();
-      for (const s2 of OUTPAINT_SCALE_OPTIONS) {
-        if (!isOutpaintScaleAllowed(baseLongestPx, s2)) out.add(s2);
+      for (const scale of OUTPAINT_SCALE_OPTIONS) {
+        if (!isOutpaintScaleAllowed(baseLongestPx, scale)) out.add(scale);
       }
       return out;
-    }, [meta2, selectedItem, imageAspect, outpaintRect]);
+    }, [meta, selectedItem, imageAspect, outpaintRect]);
     reactExports.useEffect(() => {
-      if (!disabledScales.has(scale2)) return;
+      if (!disabledScales.has(scale)) return;
       let fallback = 1;
-      for (const s2 of OUTPAINT_SCALE_OPTIONS) {
-        if (!disabledScales.has(s2)) fallback = s2;
+      for (const scale of OUTPAINT_SCALE_OPTIONS) {
+        if (!disabledScales.has(scale)) fallback = scale;
       }
       selectScale(fallback);
-    }, [disabledScales, scale2, selectScale]);
+    }, [disabledScales, scale, selectScale]);
     const rectRef = reactExports.useRef(null);
     reactExports.useEffect(() => {
-      const node2 = rectRef.current;
-      if (!node2 || !flowDomNode) return;
-      const onWheel = (e2) => {
-        e2.preventDefault();
-        e2.stopPropagation();
+      const node = rectRef.current;
+      if (!node || !flowDomNode) return;
+      const onWheel = (wheelEvent) => {
+        wheelEvent.preventDefault();
+        wheelEvent.stopPropagation();
         const viewport = reactFlow.getViewport();
-        if (e2.ctrlKey || e2.metaKey) {
+        if (wheelEvent.ctrlKey || wheelEvent.metaKey) {
           const containerRect = flowDomNode.getBoundingClientRect();
-          const px2 = e2.clientX - containerRect.left;
-          const py = e2.clientY - containerRect.top;
-          const zoomFactor = 2 ** (-e2.deltaY / 100);
+          const px = wheelEvent.clientX - containerRect.left;
+          const py = wheelEvent.clientY - containerRect.top;
+          const zoomFactor = 2 ** (-wheelEvent.deltaY / 100);
           const newZoom = Math.max(
             CANVAS_MIN_ZOOM,
             Math.min(CANVAS_MAX_ZOOM, viewport.zoom * zoomFactor),
           );
           if (newZoom === viewport.zoom) return;
-          const flowX = (px2 - viewport.x) / viewport.zoom;
+          const flowX = (px - viewport.x) / viewport.zoom;
           const flowY = (py - viewport.y) / viewport.zoom;
           reactFlow.setViewport({
-            x: px2 - flowX * newZoom,
+            x: px - flowX * newZoom,
             y: py - flowY * newZoom,
             zoom: newZoom,
           });
         } else {
           reactFlow.setViewport({
-            x: viewport.x - e2.deltaX,
-            y: viewport.y - e2.deltaY,
+            x: viewport.x - wheelEvent.deltaX,
+            y: viewport.y - wheelEvent.deltaY,
             zoom: viewport.zoom,
           });
         }
       };
-      node2.addEventListener("wheel", onWheel, {
+      node.addEventListener("wheel", onWheel, {
         passive: false,
       });
-      return () => node2.removeEventListener("wheel", onWheel);
+      return () => node.removeEventListener("wheel", onWheel);
     }, [flowDomNode, reactFlow]);
     const panStateRef = reactExports.useRef(null);
     const handlePanPointerDown = reactExports.useCallback(
-      (e2) => {
-        if (e2.button !== 1 && e2.button !== 2) return;
-        e2.preventDefault();
-        e2.stopPropagation();
-        e2.currentTarget.setPointerCapture(e2.pointerId);
+      (pointerEvent) => {
+        if (pointerEvent.button !== 1 && pointerEvent.button !== 2) return;
+        pointerEvent.preventDefault();
+        pointerEvent.stopPropagation();
+        pointerEvent.currentTarget.setPointerCapture(pointerEvent.pointerId);
         panStateRef.current = {
-          startX: e2.clientX,
-          startY: e2.clientY,
+          startX: pointerEvent.clientX,
+          startY: pointerEvent.clientY,
           initial: reactFlow.getViewport(),
         };
       },
       [reactFlow],
     );
     const handlePanPointerMove = reactExports.useCallback(
-      (e2) => {
-        const state2 = panStateRef.current;
-        if (!state2) return;
-        e2.preventDefault();
+      (pointerEvent) => {
+        const state = panStateRef.current;
+        if (!state) return;
+        pointerEvent.preventDefault();
         reactFlow.setViewport({
-          x: state2.initial.x + (e2.clientX - state2.startX),
-          y: state2.initial.y + (e2.clientY - state2.startY),
-          zoom: state2.initial.zoom,
+          x: state.initial.x + (pointerEvent.clientX - state.startX),
+          y: state.initial.y + (pointerEvent.clientY - state.startY),
+          zoom: state.initial.zoom,
         });
       },
       [reactFlow],
     );
-    const handlePanPointerUp = reactExports.useCallback((e2) => {
+    const handlePanPointerUp = reactExports.useCallback((pointerEvent) => {
       if (!panStateRef.current) return;
-      if (e2.currentTarget.hasPointerCapture(e2.pointerId)) {
-        e2.currentTarget.releasePointerCapture(e2.pointerId);
+      if (pointerEvent.currentTarget.hasPointerCapture(pointerEvent.pointerId)) {
+        pointerEvent.currentTarget.releasePointerCapture(pointerEvent.pointerId);
       }
       panStateRef.current = null;
     }, []);
-    const handleContextMenu = reactExports.useCallback((e2) => {
-      e2.preventDefault();
+    const handleContextMenu = reactExports.useCallback((contextMenuEvent) => {
+      contextMenuEvent.preventDefault();
     }, []);
-    if (!meta2 || !imagePos) return null;
+    if (!meta || !imagePos) return null;
     const px = {
       x: imagePos.x + outpaintRect.x * imagePos.w,
       y: imagePos.y + outpaintRect.y * imagePos.h,
       w: outpaintRect.width * imagePos.w,
       h: outpaintRect.height * imagePos.h,
     };
-    const targetPxW = Math.round(outpaintRect.width * meta2.originalWidth);
-    const targetPxH = Math.round(outpaintRect.height * meta2.originalHeight);
+    const targetPxW = Math.round(outpaintRect.width * meta.originalWidth);
+    const targetPxH = Math.round(outpaintRect.height * meta.originalHeight);
     const containerW = flowDomNode?.clientWidth ?? window.innerWidth;
     const containerH = flowDomNode?.clientHeight ?? window.innerHeight;
     const panelOnRight = px.x + px.w + PANEL_GAP + PANEL_WIDTH <= containerW;
@@ -1318,7 +1315,7 @@ export const CanvasOutpaintOverlay = reactExports.memo(
           <EdgeHandle position="r" onPointerDown={handlePointerDown} />
           <div
             className="absolute inset-0 cursor-move"
-            onPointerDown={(e2) => handlePointerDown(e2, null)}
+            onPointerDown={(pointerEvent) => handlePointerDown(pointerEvent, null)}
           />
           <div
             className="absolute left-0 right-0 flex items-center pointer-events-none"
@@ -1337,7 +1334,7 @@ export const CanvasOutpaintOverlay = reactExports.memo(
               }}
             >
               <ImageIcon size={14 * vpZoom} />
-              {meta2.name && <span className="truncate">{meta2.name}</span>}
+              {meta.name && <span className="truncate">{meta.name}</span>}
             </div>
             <span
               className="shrink-0 whitespace-nowrap tabular-nums"
@@ -1362,11 +1359,11 @@ export const CanvasOutpaintOverlay = reactExports.memo(
           }}
         >
           <CanvasOutpaintPanel
-            preset={preset2}
+            preset={preset}
             onPresetChange={handlePresetChange}
             selectedItemId={selectedItemId}
             onSelectItem={selectItem}
-            scale={scale2}
+            scale={scale}
             onScaleChange={selectScale}
             disabledScales={disabledScales}
             resolution={resolution}

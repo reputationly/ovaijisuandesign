@@ -1,5 +1,5 @@
 // prepare-browser-hover-snapshot.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { registerBrowserHoverPreview } from "../infra/dialog-content.jsx";
 
 const CAPTURE_TIMEOUT_MS = 800;
@@ -7,12 +7,12 @@ const CAPTURE_TIMEOUT_MS = 800;
 function settle(operation, signal) {
   return new Promise((resolve) => {
     const finish = (value) => {
-      clearTimeout(timer2);
+      clearTimeout(timer);
       signal.removeEventListener("abort", abort);
       resolve(value);
     };
     const abort = () => finish();
-    const timer2 = setTimeout(abort, CAPTURE_TIMEOUT_MS);
+    const timer = setTimeout(abort, CAPTURE_TIMEOUT_MS);
     signal.addEventListener("abort", abort, {
       once: true,
     });
@@ -23,24 +23,24 @@ function settle(operation, signal) {
 
 function afterPaint(signal) {
   return new Promise((resolve) => {
-    let frame2;
+    let frame;
     const finish = () => {
-      cancelAnimationFrame(frame2);
+      cancelAnimationFrame(frame);
       signal.removeEventListener("abort", finish);
       resolve();
     };
     signal.addEventListener("abort", finish, {
       once: true,
     });
-    frame2 = requestAnimationFrame(() => {
-      frame2 = requestAnimationFrame(finish);
+    frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(finish);
     });
     if (signal.aborted) finish();
   });
 }
 
 async function prepareBrowserHoverSnapshot({
-  browser: browser2,
+  browser,
   bridge,
   viewport,
   tabId,
@@ -49,14 +49,14 @@ async function prepareBrowserHoverSnapshot({
 }) {
   const setOccluded = bridge.setNativeViewOcclusion?.bind(bridge);
   if (signal.aborted || !setOccluded) return;
-  const token2 = `sidebar-hover:${crypto.randomUUID()}`;
-  const doc2 = viewport?.ownerDocument ?? document;
-  const initialFocus = doc2.activeElement;
+  const token = `sidebar-hover:${crypto.randomUUID()}`;
+  const doc = viewport?.ownerDocument ?? document;
+  const initialFocus = doc.activeElement;
   let focusChanged = false;
   const onFocus = (event) => {
     if (event.target !== initialFocus) focusChanged = true;
   };
-  const onPointerDown2 = (event) => {
+  const onPointerDown = (event) => {
     if (
       event.target instanceof Element &&
       event.target.closest(
@@ -65,20 +65,20 @@ async function prepareBrowserHoverSnapshot({
     )
       focusChanged = true;
   };
-  doc2.addEventListener("focusin", onFocus);
-  doc2.addEventListener("pointerdown", onPointerDown2, true);
-  let image2;
+  doc.addEventListener("focusin", onFocus);
+  doc.addEventListener("pointerdown", onPointerDown, true);
+  let image;
   let acquisitionStarted = false;
   let release;
   const restoreNativeView = async () => {
     if (!acquisitionStarted) return;
-    if (tabId && viewport?.isConnected && browser2.setBounds) {
+    if (tabId && viewport?.isConnected && browser.setBounds) {
       await afterPaint(AbortSignal.timeout(100));
       if (viewport.isConnected) {
         const rect = viewport.getBoundingClientRect();
         if (rect.width > 0 && rect.height > 0) {
           try {
-            await browser2.setBounds(tabId, {
+            await browser.setBounds(tabId, {
               x: Math.round(rect.left),
               y: Math.round(rect.top),
               width: Math.round(rect.width),
@@ -94,11 +94,11 @@ async function prepareBrowserHoverSnapshot({
       }
     }
     if (focusChanged)
-      await setOccluded(token2, false, {
+      await setOccluded(token, false, {
         restoreFocus: false,
       });
-    else await setOccluded(token2, false);
-    if (image2) await afterPaint(AbortSignal.timeout(100));
+    else await setOccluded(token, false);
+    if (image) await afterPaint(AbortSignal.timeout(100));
   };
   const cleanup = () => {
     signal.removeEventListener("abort", onAbort);
@@ -110,9 +110,9 @@ async function prepareBrowserHoverSnapshot({
         );
       })
       .finally(() => {
-        doc2.removeEventListener("focusin", onFocus);
-        doc2.removeEventListener("pointerdown", onPointerDown2, true);
-        image2?.remove();
+        doc.removeEventListener("focusin", onFocus);
+        doc.removeEventListener("pointerdown", onPointerDown, true);
+        image?.remove();
       });
     return release;
   };
@@ -122,43 +122,43 @@ async function prepareBrowserHoverSnapshot({
   });
   const capture = async () => {
     if (!tabId || !viewport?.isConnected || signal.aborted) return;
-    const result = await settle(browser2.captureFrame(tabId), signal);
+    const result = await settle(browser.captureFrame(tabId), signal);
     if (
       signal.aborted ||
       !result?.success ||
       !result.dataUrl?.startsWith("data:image/png;base64,")
     )
       return;
-    const next2 = doc2.createElement("img");
-    next2.alt = "";
-    next2.draggable = false;
+    const next = doc.createElement("img");
+    next.alt = "";
+    next.draggable = false;
     const rect = viewport.getBoundingClientRect();
-    next2.className = "pointer-events-none absolute max-w-none select-none";
-    next2.style.width = `${result.width ?? Math.round(rect.width)}px`;
-    next2.style.height = `${result.height ?? Math.round(rect.height)}px`;
-    next2.style.left = `${Math.round(rect.left) - rect.left}px`;
-    next2.style.top = `${Math.round(rect.top) - rect.top}px`;
-    next2.dataset.actionUiId = "browser-hover-snapshot";
-    next2.src = result.dataUrl;
+    next.className = "pointer-events-none absolute max-w-none select-none";
+    next.style.width = `${result.width ?? Math.round(rect.width)}px`;
+    next.style.height = `${result.height ?? Math.round(rect.height)}px`;
+    next.style.left = `${Math.round(rect.left) - rect.left}px`;
+    next.style.top = `${Math.round(rect.top) - rect.top}px`;
+    next.dataset.actionUiId = "browser-hover-snapshot";
+    next.src = result.dataUrl;
     const decoded = await settle(
-      next2.decode().then(() => true),
+      next.decode().then(() => true),
       signal,
     );
     if (signal.aborted || !decoded || !viewport.isConnected) return;
-    image2 = next2;
-    viewport.append(image2);
+    image = next;
+    viewport.append(image);
     await afterPaint(signal);
   };
   try {
     await capture();
     if (signal.aborted) return;
-    if (requireSnapshot && tabId && !image2?.isConnected) {
+    if (requireSnapshot && tabId && !image?.isConnected) {
       throw new Error(
         "Browser snapshot was not painted; keeping the native page visible",
       );
     }
     acquisitionStarted = true;
-    await setOccluded(token2, true);
+    await setOccluded(token, true);
   } catch (error) {
     await cleanup();
     throw error;
@@ -168,7 +168,7 @@ async function prepareBrowserHoverSnapshot({
 }
 
 export function useBrowserHoverSnapshot({
-  browser: browser2,
+  browser,
   bridge,
   viewportRef,
   tabId,
@@ -179,10 +179,10 @@ export function useBrowserHoverSnapshot({
     currentTabId.current = tabId;
   }, [tabId]);
   reactExports.useEffect(() => {
-    if (!browser2 || !bridge.setNativeViewOcclusion || !viewportKey) return;
+    if (!browser || !bridge.setNativeViewOcclusion || !viewportKey) return;
     return registerBrowserHoverPreview((signal, options) =>
       prepareBrowserHoverSnapshot({
-        browser: browser2,
+        browser,
         bridge,
         viewport: viewportRef.current,
         // A lease belongs to the mounted surface, not its active tab. Closing
@@ -194,5 +194,5 @@ export function useBrowserHoverSnapshot({
         requireSnapshot: options?.requireSnapshot,
       }),
     );
-  }, [browser2, bridge, viewportRef, viewportKey]);
+  }, [browser, bridge, viewportRef, viewportKey]);
 }

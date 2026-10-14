@@ -43,7 +43,7 @@ export function _markUserReady() {
   _flushPendingEvents();
 }
 
-export function _queueEvent(eventName, properties2) {
+export function _queueEvent(eventName, properties) {
   if (_pendingEvents.length >= MAX_PENDING_EVENTS) {
     _pendingEvents = _pendingEvents.slice(1);
     _guard.note({
@@ -52,16 +52,16 @@ export function _queueEvent(eventName, properties2) {
   }
   _pendingEvents.push({
     eventName,
-    properties: properties2,
+    properties,
   });
 }
 
-export function _sendTrackEvent(eventName, properties2) {
+export function _sendTrackEvent(eventName, properties) {
   if (!_initialized || !_sdk) return;
   const finalProperties = {
-    ...properties2,
+    ...properties,
     ip_country: resolveEventIpCountry(
-      properties2.ip_country,
+      properties.ip_country,
       _baseProps?.ip_country ?? "",
     ),
   };
@@ -73,40 +73,40 @@ export function _sendTrackEvent(eventName, properties2) {
 function _flushPendingEvents() {
   if (!_initialized || !_sdk || !_userReady || _pendingEvents.length === 0)
     return;
-  const events2 = _pendingEvents;
+  const events = _pendingEvents;
   _pendingEvents = [];
-  for (const event of events2) {
+  for (const event of events) {
     _sendTrackEvent(event.eventName, event.properties);
   }
 }
 
-function _finishUserBinding(version2) {
-  if (_userBindingInFlightVersion === version2) {
+function _finishUserBinding(version) {
+  if (_userBindingInFlightVersion === version) {
     _userBindingInFlightVersion = null;
   }
-  if (version2 === _userBindingVersion) {
+  if (version === _userBindingVersion) {
     _markUserReady();
   }
 }
 
-function _scheduleUserBindingFallback(version2) {
+function _scheduleUserBindingFallback(version) {
   setTimeout(() => {
     if (
-      version2 === _userBindingVersion &&
+      version === _userBindingVersion &&
       !_userReady &&
-      _userBindingInFlightVersion === version2
+      _userBindingInFlightVersion === version
     ) {
-      _finishUserBinding(version2);
+      _finishUserBinding(version);
     }
   }, USER_BINDING_FALLBACK_MS);
 }
 
-function _applyPendingUserIfReady(version2) {
+function _applyPendingUserIfReady(version) {
   if (!_initialized || !_sdk || !_pendingUser) return;
   const pendingUser = _pendingUser;
   _pendingUser = null;
-  _userBindingInFlightVersion = version2;
-  _scheduleUserBindingFallback(version2);
+  _userBindingInFlightVersion = version;
+  _scheduleUserBindingFallback(version);
   _sdk
     .login(pendingUser.userId)
     .then(async () => {
@@ -116,7 +116,7 @@ function _applyPendingUserIfReady(version2) {
     })
     .catch((err) => console.warn("[track] login failed:", err))
     .finally(() => {
-      _finishUserBinding(version2);
+      _finishUserBinding(version);
     });
 }
 
@@ -137,7 +137,7 @@ export function setTrackUser(userId, profile) {
 
 export function clearTrackUser() {
   _userBindingVersion += 1;
-  const version2 = _userBindingVersion;
+  const version = _userBindingVersion;
   _pendingUser = null;
   _userReady = false;
   if (!_initialized || !_sdk) {
@@ -148,7 +148,7 @@ export function clearTrackUser() {
     .logout()
     .catch((err) => console.warn("[track] logout failed:", err))
     .finally(() => {
-      if (version2 === _userBindingVersion) {
+      if (version === _userBindingVersion) {
         _markUserReady();
       }
     });

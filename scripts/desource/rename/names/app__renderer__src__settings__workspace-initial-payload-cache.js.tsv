@@ -1,0 +1,7 @@
+key	new	reason
+id2@81:16	id	原名 id，去掉打包器加的数字去重后缀
+id2@84:16	id	原名 id，去掉打包器加的数字去重后缀
+workspaceId2@40:11	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+next2@42:11	next	去掉打包器加的数字后缀，恢复原名 next
+workspaceId2@60:7	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+workspaceId2@63:11	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId

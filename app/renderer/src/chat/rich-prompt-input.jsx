@@ -1,5 +1,9 @@
 // rich-prompt-input.jsx
-import { EditorContent, Extension, reactExports, src_default$1, useEditor, usePromptFontSizeStore } from "../vendor.js";
+import { EditorContent, useEditor } from "@tiptap/react";
+import { Extension } from "@tiptap/core";
+import reactExports from "react";
+import { Placeholder } from "@tiptap/extensions";
+import { usePromptFontSizeStore } from "../generation/prompt-font-size.js";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PromptInputMetaRow } from "../generation/prompt-font-size-control.jsx";
@@ -23,21 +27,21 @@ function isPromptViewportClick(viewport, target) {
 const EMPTY_EXTENSIONS = [];
 
 function hasFileRef(editor) {
-  let found2 = false;
-  editor.state.doc.descendants((node2) => {
-    if (node2.type.name === "canvasFileRef") {
-      found2 = true;
+  let found = false;
+  editor.state.doc.descendants((node) => {
+    if (node.type.name === "canvasFileRef") {
+      found = true;
       return false;
     }
   });
-  return found2;
+  return found;
 }
 
 function collectFileRefs(editor) {
   const refs = [];
-  editor.state.doc.descendants((node2) => {
-    if (node2.type.name === "canvasFileRef") {
-      const attrs = node2.attrs;
+  editor.state.doc.descendants((node) => {
+    if (node.type.name === "canvasFileRef") {
+      const attrs = node.attrs;
       if (attrs.path) refs.push(attrs);
     }
   });
@@ -45,10 +49,10 @@ function collectFileRefs(editor) {
 }
 
 function buildAtTriggerExtension(browseStateRef, onAtTrigger, onAtDismiss) {
-  let active2 = false;
+  let active = false;
   let currentEditor = null;
   let currentFrom = null;
-  const getRect2 = () => {
+  const getRect = () => {
     if (!currentEditor || currentEditor.isDestroyed || currentFrom == null)
       return null;
     try {
@@ -67,21 +71,21 @@ function buildAtTriggerExtension(browseStateRef, onAtTrigger, onAtDismiss) {
     name: "canvasAtTrigger",
     onTransaction({ editor }) {
       if (!onAtTrigger) return;
-      const { state: state2 } = editor;
+      const { state } = editor;
       const browseState = browseStateRef.current;
       if (browseState) {
         if (
-          state2.doc.eq(browseState.doc) &&
-          state2.selection.eq(browseState.selection)
+          state.doc.eq(browseState.doc) &&
+          state.selection.eq(browseState.selection)
         )
           return;
         browseStateRef.current = null;
-        active2 = true;
+        active = true;
       }
-      const { $from } = state2.selection;
-      if (!state2.selection.empty) {
-        if (active2) {
-          active2 = false;
+      const { $from } = state.selection;
+      if (!state.selection.empty) {
+        if (active) {
+          active = false;
           currentEditor = null;
           currentFrom = null;
           onAtDismiss?.();
@@ -90,35 +94,35 @@ function buildAtTriggerExtension(browseStateRef, onAtTrigger, onAtDismiss) {
       }
       const before = $from.nodeBefore;
       if (!before?.isText || !before.text) {
-        if (active2) {
-          active2 = false;
+        if (active) {
+          active = false;
           currentEditor = null;
           currentFrom = null;
           onAtDismiss?.();
         }
         return;
       }
-      const match2 = before.text.match(/@([^\s@]*)$/);
-      if (match2) {
-        const view2 = editor.view;
-        const from2 = $from.pos - match2[1].length - 1;
-        const to = $from.pos;
+      const match = before.text.match(/@([^\s@]*)$/);
+      if (match) {
+        const view = editor.view;
+        const from = $from.pos - match[1].length - 1;
+        const triggerEndPosition = $from.pos;
         currentEditor = editor;
-        currentFrom = from2;
-        const coords = view2.coordsAtPos(from2);
+        currentFrom = from;
+        const coords = view.coordsAtPos(from);
         const rect = new DOMRect(
           coords.left,
           coords.top,
           0,
           coords.bottom - coords.top,
         );
-        active2 = true;
-        onAtTrigger(match2[1], rect, getRect2, {
-          from: from2,
-          to,
+        active = true;
+        onAtTrigger(match[1], rect, getRect, {
+          from,
+          to: triggerEndPosition,
         });
-      } else if (active2) {
-        active2 = false;
+      } else if (active) {
+        active = false;
         currentEditor = null;
         currentFrom = null;
         onAtDismiss?.();
@@ -130,7 +134,7 @@ function buildAtTriggerExtension(browseStateRef, onAtTrigger, onAtDismiss) {
 export function RichPromptInput({
   initialContent,
   placeholder: placeholderText,
-  disabled: disabled2,
+  disabled,
   onClose,
   blockKeyHandlers,
   editorRef,
@@ -150,7 +154,7 @@ export function RichPromptInput({
   extraExtensions = EMPTY_EXTENSIONS,
 }) {
   const assetMetadataStore = useAssetMetadataApi();
-  const fontSize = usePromptFontSizeStore((state2) => state2.fontSize);
+  const fontSize = usePromptFontSizeStore((state) => state.fontSize);
   const onFileRefsAddedRef = reactExports.useRef(onFileRefsAdded);
   onFileRefsAddedRef.current = onFileRefsAdded;
   const onDirectReferencesRemovedRef = reactExports.useRef(
@@ -160,7 +164,7 @@ export function RichPromptInput({
   const resolveFileUrlRef = reactExports.useRef(resolveFileUrl);
   resolveFileUrlRef.current = resolveFileUrl;
   const stableResolveFileUrl = reactExports.useRef(
-    (path2) => resolveFileUrlRef.current?.(path2) ?? "",
+    (path) => resolveFileUrlRef.current?.(path) ?? "",
   );
   const fileRefSwitchConfigRef = reactExports.useRef(fileRefSwitchConfig);
   fileRefSwitchConfigRef.current = fileRefSwitchConfig;
@@ -168,7 +172,7 @@ export function RichPromptInput({
     () => fileRefSwitchConfigRef.current,
   );
   const knownPathsRef = reactExports.useRef(new Set());
-  const [textLength2, setTextLength] = reactExports.useState(0);
+  const [textLength, setTextLength] = reactExports.useState(0);
   const onUpdateRef = reactExports.useRef(onUpdate);
   onUpdateRef.current = onUpdate;
   const resolveCharacterCountRef = reactExports.useRef(resolveCharacterCount);
@@ -190,7 +194,7 @@ export function RichPromptInput({
           listItem: false,
           horizontalRule: false,
         }),
-        src_default$1.configure({
+        Placeholder.configure({
           placeholder: placeholderText ?? "",
         }),
         CanvasFileRefNode.configure({
@@ -205,42 +209,42 @@ export function RichPromptInput({
         typeof initialContent === "string"
           ? initialContent
           : (initialContent ?? ""),
-      editable: !disabled2,
-      onUpdate({ editor: e2 }) {
-        const countedText = extractCanvasEditorCountedText(e2);
-        const serializedPrompt = extractCanvasEditorText(e2);
-        const len =
+      editable: !disabled,
+      onUpdate({ editor }) {
+        const countedText = extractCanvasEditorCountedText(editor);
+        const serializedPrompt = extractCanvasEditorText(editor);
+        const characterCount =
           resolveCharacterCountRef.current?.(serializedPrompt, countedText) ??
           countPromptCharacters(countedText);
         onUpdateRef.current?.(
-          countedText.trim().length > 0 || hasFileRef(e2),
-          len,
+          countedText.trim().length > 0 || hasFileRef(editor),
+          characterCount,
         );
-        setTextLength(len);
-        const cb = onFileRefsAddedRef.current;
-        if (!cb && !onDirectReferencesRemovedRef.current) {
+        setTextLength(characterCount);
+        const fileRefsAddedCallback = onFileRefsAddedRef.current;
+        if (!fileRefsAddedCallback && !onDirectReferencesRemovedRef.current) {
           knownPathsRef.current = new Set(
-            collectFileRefs(e2).map((r2) => r2.path),
+            collectFileRefs(editor).map((fileRef) => fileRef.path),
           );
           return;
         }
-        const refs = collectFileRefs(e2);
+        const refs = collectFileRefs(editor);
         const known = knownPathsRef.current;
-        const next2 = new Set();
+        const next = new Set();
         const added = [];
-        for (const ref of refs) {
-          next2.add(ref.path);
-          if (!known.has(ref.path)) added.push(ref);
+        for (const fileRef of refs) {
+          next.add(fileRef.path);
+          if (!known.has(fileRef.path)) added.push(fileRef);
         }
-        knownPathsRef.current = next2;
+        knownPathsRef.current = next;
         const removed = [...known].filter(
-          (path2) => isCanvasReferenceUri(path2) && !next2.has(path2),
+          (path) => isCanvasReferenceUri(path) && !next.has(path),
         );
         if (removed.length > 0) {
           queueMicrotask(() => onDirectReferencesRemovedRef.current?.(removed));
         }
-        if (added.length > 0 && cb) {
-          queueMicrotask(() => cb(added));
+        if (added.length > 0 && fileRefsAddedCallback) {
+          queueMicrotask(() => fileRefsAddedCallback(added));
         }
       },
       editorProps: {
@@ -257,82 +261,82 @@ export function RichPromptInput({
           }
           return false;
         },
-        handlePaste: (view2, event) => {
-          const text2 = event.clipboardData?.getData("text/plain") ?? "";
-          if (!text2?.includes("@")) return false;
-          const mentions = findAllMentions(text2);
+        handlePaste: (view, event) => {
+          const text = event.clipboardData?.getData("text/plain") ?? "";
+          if (!text?.includes("@")) return false;
+          const mentions = findAllMentions(text);
           if (mentions.length === 0) return false;
           const assets = assetMetadataStore.getState().assets;
           const metaByPath = new Map();
-          assets.forEach((meta2) => {
-            if (meta2.path && !metaByPath.has(meta2.path)) {
-              metaByPath.set(meta2.path, {
-                path: meta2.path,
-                name: meta2.name,
-                type: meta2.type,
+          assets.forEach((meta) => {
+            if (meta.path && !metaByPath.has(meta.path)) {
+              metaByPath.set(meta.path, {
+                path: meta.path,
+                name: meta.name,
+                type: meta.type,
               });
             }
           });
           const inlineJSON = [];
           let cursor = 0;
-          for (const m3 of mentions) {
-            if (m3.start > cursor) {
+          for (const mention of mentions) {
+            if (mention.start > cursor) {
               inlineJSON.push({
                 type: "text",
-                text: text2.slice(cursor, m3.start),
+                text: text.slice(cursor, mention.start),
               });
             }
-            const direct = parseCanvasReference(m3.path);
-            const meta2 = direct
+            const direct = parseCanvasReference(mention.path);
+            const meta = direct
               ? {
-                  path: m3.path,
+                  path: mention.path,
                   name: direct.subjectName
                     ? `${direct.subjectName} · ${direct.name}`
                     : direct.name,
                   type: direct.kind,
                 }
-              : metaByPath.get(m3.path);
-            if (meta2) {
+              : metaByPath.get(mention.path);
+            if (meta) {
               const kind =
-                meta2.type === "video" ||
-                meta2.type === "audio" ||
-                meta2.type === "text"
-                  ? meta2.type
+                meta.type === "video" ||
+                meta.type === "audio" ||
+                meta.type === "text"
+                  ? meta.type
                   : "image";
               inlineJSON.push({
                 type: "canvasFileRef",
                 attrs: {
-                  path: meta2.path,
-                  filename: meta2.name,
+                  path: meta.path,
+                  filename: meta.name,
                   kind,
                 },
               });
             } else {
               inlineJSON.push({
                 type: "text",
-                text: text2.slice(m3.start, m3.end),
+                text: text.slice(mention.start, mention.end),
               });
             }
-            cursor = m3.end;
+            cursor = mention.end;
           }
-          if (cursor < text2.length) {
+          if (cursor < text.length) {
             inlineJSON.push({
               type: "text",
-              text: text2.slice(cursor),
+              text: text.slice(cursor),
             });
           }
           if (inlineJSON.length === 0) return false;
           try {
             const nodes = inlineJSON
-              .map((j2) => view2.state.schema.nodeFromJSON(j2))
-              .filter((n2) => !!n2);
+              .map((nodeJSON) => view.state.schema.nodeFromJSON(nodeJSON))
+              .filter((node) => !!node);
             if (nodes.length === 0) return false;
             event.preventDefault();
-            const tr2 = view2.state.tr.replaceSelectionWith(nodes[0], false);
-            for (let i2 = 1; i2 < nodes.length; i2++) {
-              tr2.insert(tr2.selection.to, nodes[i2]);
+            const transaction = view.state.tr.replaceSelectionWith(nodes[0], false);
+            for (let index = 1; index < nodes.length; index++) {
+              transaction.insert(transaction.selection.to, nodes[index]);
             }
-            view2.dispatch(tr2);
+            view.dispatch(transaction);
             return true;
           } catch {
             return false;
@@ -354,28 +358,28 @@ export function RichPromptInput({
     if (!editor) return;
     const countedText = extractCanvasEditorCountedText(editor);
     const serializedPrompt = extractCanvasEditorText(editor);
-    const len =
+    const characterCount =
       resolveCharacterCount?.(serializedPrompt, countedText) ??
       countPromptCharacters(countedText);
-    setTextLength(len);
+    setTextLength(characterCount);
     onUpdateRef.current?.(
       countedText.trim().length > 0 || hasFileRef(editor),
-      len,
+      characterCount,
     );
   }, [editor, resolveCharacterCount]);
   reactExports.useEffect(() => {
     if (!editor) return;
     knownPathsRef.current = new Set(
-      collectFileRefs(editor).map((r2) => r2.path),
+      collectFileRefs(editor).map((fileRef) => fileRef.path),
     );
   }, [editor]);
   reactExports.useEffect(() => {
-    if (editor) editor.setEditable(!disabled2);
-  }, [editor, disabled2]);
-  const handleClick2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      if (!isPromptViewportClick(e2.currentTarget, e2.target)) return;
+    if (editor) editor.setEditable(!disabled);
+  }, [editor, disabled]);
+  const handleClick = reactExports.useCallback(
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      if (!isPromptViewportClick(clickEvent.currentTarget, clickEvent.target)) return;
       if (editor && !editor.isFocused) {
         editor.commands.focus("end");
       }
@@ -383,14 +387,14 @@ export function RichPromptInput({
     [editor],
   );
   const openAtPicker = reactExports.useCallback(() => {
-    if (!editor || disabled2 || editor.isDestroyed) return;
+    if (!editor || disabled || editor.isDestroyed) return;
     if (!onAtTrigger) return;
     editor.commands.focus();
-    const { from: from2 } = editor.state.selection;
-    const getRect2 = () => {
+    const { from } = editor.state.selection;
+    const getRect = () => {
       if (editor.isDestroyed) return null;
       try {
-        const coords = editor.view.coordsAtPos(from2);
+        const coords = editor.view.coordsAtPos(from);
         return new DOMRect(
           coords.left,
           coords.top,
@@ -401,15 +405,15 @@ export function RichPromptInput({
         return null;
       }
     };
-    const rect = getRect2();
+    const rect = getRect();
     if (rect) {
       browseStateRef.current = editor.state;
-      onAtTrigger("", rect, getRect2, {
-        from: from2,
-        to: from2,
+      onAtTrigger("", rect, getRect, {
+        from,
+        to: from,
       });
     }
-  }, [disabled2, editor, onAtTrigger]);
+  }, [disabled, editor, onAtTrigger]);
   if (!editor) return null;
   const showEmptyState = !!emptyStateAction && editor.isEmpty;
   return (
@@ -431,7 +435,7 @@ export function RichPromptInput({
         data-action-ui-id="popover.prompt-input"
         role="textbox"
         tabIndex={0}
-        onClick={handleClick2}
+        onClick={handleClick}
       >
         <EditorContent
           editor={editor}
@@ -452,7 +456,7 @@ export function RichPromptInput({
       <PromptInputMetaRow
         getPromptText={() => extractCanvasEditorText(editor)}
         copyDisabled={editor.isEmpty}
-        currentLength={textLength2}
+        currentLength={textLength}
         maxLength={maxLength}
         leadingAction={counterLeadingAction}
         showUtilityControls={showUtilityControls}

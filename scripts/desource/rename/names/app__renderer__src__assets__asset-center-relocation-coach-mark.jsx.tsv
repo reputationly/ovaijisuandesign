@@ -1,0 +1,12 @@
+key	old	new	依据
+t2@78:14	t2	translate	该绑定是搬迁引导组件读取界面文案的翻译函数。
+queryClient2@40:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+config2@80:10	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
+observer2@118:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+next2@113:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+current2@115:20	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+project2@143:20	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。
+project2@144:21	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。
+path2@145:17	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@149:32	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+run2@180:11	run2	run	去掉打包器防重名追加的后缀，恢复原名 run，即该绑定持有的值。

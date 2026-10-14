@@ -1,22 +1,11 @@
 // image-inplace-edit-toolbar-inner.jsx
-import {
-  BoxSelect,
-  Check,
-  ChevronDown,
-  CompositedSvg,
-  Hand,
-  jsxRuntimeExports,
-  NodeToolbar$1 as NodeToolbar,
-  Pencil,
-  Position,
-  reactExports,
-  Redo2,
-  Slash,
-  Tag$1 as Tag,
-  Undo2,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { BoxSelect, Check, ChevronDown, Hand, Pencil, Redo2, Slash, Tag$1 as Tag, Undo2 } from "./lucide-icon-wraps.js";
+import { CompositedSvg } from "./icon-compositing.js";
+import { NodeToolbar, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Circle,
@@ -32,16 +21,16 @@ import {
   STROKE_WIDTHS,
 } from "./use-editor-state.js";
 import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
-const ArrowFilledIcon = reactExports.forwardRef(function ArrowFilledIcon2(
-  { size: size2 = 16, ...rest },
+const ArrowFilledIcon = reactExports.forwardRef(function ArrowFilledIconSvg(
+  { size = 16, ...rest },
   ref,
 ) {
   return (
     <CompositedSvg
       ref={ref}
       {...rest}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden="true"
@@ -56,16 +45,16 @@ const ArrowFilledIcon = reactExports.forwardRef(function ArrowFilledIcon2(
     </CompositedSvg>
   );
 });
-const MosaicIcon = reactExports.forwardRef(function MosaicIcon2(
-  { size: size2 = 16, strokeWidth = 1.8, ...rest },
+const MosaicIcon = reactExports.forwardRef(function MosaicIconSvg(
+  { size = 16, strokeWidth = 1.8, ...rest },
   ref,
 ) {
   return (
     <CompositedSvg
       ref={ref}
       {...rest}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden="true"
@@ -194,11 +183,11 @@ const COLORS = [
   "#FFFFFF",
 ];
 const FONT_SIZES = [12, 16, 24, 36, 48, 60, 72, 96];
-function PlainTextIcon({ size: size2 = 16 }) {
+function PlainTextIcon({ size = 16 }) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="currentColor"
       aria-hidden="true"
@@ -207,11 +196,11 @@ function PlainTextIcon({ size: size2 = 16 }) {
     </CompositedSvg>
   );
 }
-function FilledTextIcon({ size: size2 = 16 }) {
+function FilledTextIcon({ size = 16 }) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden="true"
@@ -232,11 +221,11 @@ function FilledTextIcon({ size: size2 = 16 }) {
     </CompositedSvg>
   );
 }
-function OutlinedTextIcon({ size: size2 = 16 }) {
+function OutlinedTextIcon({ size = 16 }) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="2 2 12 12"
       fill="none"
       aria-hidden="true"
@@ -272,13 +261,13 @@ const TEXT_VARIANTS = [
 ];
 const HEADER_FLOW_HEIGHT = 28;
 const TOOLBAR_GAP = 16;
-const zoomSelector = (s2) => s2.transform[2];
+const zoomSelector = (state) => state.transform[2];
 function ToolbarIconButton({
   title,
-  active: active2 = false,
-  disabled: disabled2 = false,
+  active = false,
+  disabled = false,
   onClick,
-  children: children2,
+  children,
   dataToolId,
 }) {
   return (
@@ -286,27 +275,27 @@ function ToolbarIconButton({
       type="button"
       title={title}
       aria-label={title}
-      aria-pressed={active2}
-      disabled={disabled2}
+      aria-pressed={active}
+      disabled={disabled}
       onClick={onClick}
       data-tool-id={dataToolId}
       data-content="icon"
       className="canvas-toolbar-action"
     >
-      {children2}
+      {children}
     </button>
   );
 }
 function Divider() {
   return <div className="canvas-toolbar-separator" aria-hidden="true" />;
 }
-function isLightColor(hex2) {
-  const c3 = hex2.replace("#", "");
-  if (c3.length !== 6) return false;
-  const r2 = Number.parseInt(c3.slice(0, 2), 16);
-  const g2 = Number.parseInt(c3.slice(2, 4), 16);
-  const b3 = Number.parseInt(c3.slice(4, 6), 16);
-  return (r2 * 299 + g2 * 587 + b3 * 114) / 1e3 > 165;
+function isLightColor(hex) {
+  const colorHex = hex.replace("#", "");
+  if (colorHex.length !== 6) return false;
+  const redChannel = Number.parseInt(colorHex.slice(0, 2), 16);
+  const greenChannel = Number.parseInt(colorHex.slice(2, 4), 16);
+  const blueChannel = Number.parseInt(colorHex.slice(4, 6), 16);
+  return (redChannel * 299 + greenChannel * 587 + blueChannel * 114) / 1e3 > 165;
 }
 export function ImageInplaceEditToolbarInner({
   visible,
@@ -338,9 +327,9 @@ export function ImageInplaceEditToolbarInner({
   onCancel,
   onSave,
 }) {
-  const { t: t2 } = useTranslation();
-  const zoom2 = useStore(zoomSelector);
-  const offset2 = HEADER_FLOW_HEIGHT * zoom2 + TOOLBAR_GAP;
+  const { t } = useTranslation();
+  const zoom = useStore(zoomSelector);
+  const offset = HEADER_FLOW_HEIGHT * zoom + TOOLBAR_GAP;
   const showStylePopover = TOOLS_WITH_STYLE.has(activeTool);
   const isTextTool = activeTool === "text";
   const isTagTool = activeTool === "tag";
@@ -362,15 +351,15 @@ export function ImageInplaceEditToolbarInner({
   }, [activeTool]);
   reactExports.useEffect(() => {
     if (!fontSizeOpen) return;
-    const onDown = (e2) => {
-      const t22 = e2.target;
-      if (!t22) return;
-      if (fontSizeMenuRef.current?.contains(t22)) return;
-      if (fontSizeBtnRef.current?.contains(t22)) return;
+    const onDown = (mouseEvent) => {
+      const eventTarget = mouseEvent.target;
+      if (!eventTarget) return;
+      if (fontSizeMenuRef.current?.contains(eventTarget)) return;
+      if (fontSizeBtnRef.current?.contains(eventTarget)) return;
       setFontSizeOpen(false);
     };
-    const onKey = (e2) => {
-      if (e2.key === "Escape") setFontSizeOpen(false);
+    const onKey = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") setFontSizeOpen(false);
     };
     window.addEventListener("mousedown", onDown, true);
     window.addEventListener("keydown", onKey, true);
@@ -381,15 +370,15 @@ export function ImageInplaceEditToolbarInner({
   }, [fontSizeOpen]);
   reactExports.useEffect(() => {
     if (!brushSizeOpen) return;
-    const onDown = (e2) => {
-      const t22 = e2.target;
-      if (!t22) return;
-      if (brushSizeMenuRef.current?.contains(t22)) return;
-      if (brushSizeBtnRef.current?.contains(t22)) return;
+    const onDown = (mouseEvent) => {
+      const eventTarget = mouseEvent.target;
+      if (!eventTarget) return;
+      if (brushSizeMenuRef.current?.contains(eventTarget)) return;
+      if (brushSizeBtnRef.current?.contains(eventTarget)) return;
       setBrushSizeOpen(false);
     };
-    const onKey = (e2) => {
-      if (e2.key === "Escape") setBrushSizeOpen(false);
+    const onKey = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") setBrushSizeOpen(false);
     };
     window.addEventListener("mousedown", onDown, true);
     window.addEventListener("keydown", onKey, true);
@@ -409,19 +398,19 @@ export function ImageInplaceEditToolbarInner({
     }
     const wrapper = wrapperRef.current;
     const popover = popoverRef.current;
-    const bar = mainBarRef.current;
-    if (!wrapper || !popover || !bar) return;
-    const btn = bar.querySelector(`[data-tool-id="${activeTool}"]`);
-    if (!btn) return;
+    const toolbarElement = mainBarRef.current;
+    if (!wrapper || !popover || !toolbarElement) return;
+    const toolButton = toolbarElement.querySelector(`[data-tool-id="${activeTool}"]`);
+    if (!toolButton) return;
     const wrapperRect = wrapper.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
+    const btnRect = toolButton.getBoundingClientRect();
     const btnCenter = btnRect.left - wrapperRect.left + btnRect.width / 2;
     setPopoverLeft(btnCenter - popover.offsetWidth / 2);
   }, [
     activeTool,
     showStylePopover,
     visible,
-    zoom2,
+    zoom,
     activeFontSize,
     activeMosaicMode,
     activeMosaicShape,
@@ -430,15 +419,15 @@ export function ImageInplaceEditToolbarInner({
     <NodeToolbar
       isVisible={visible}
       position={Position.Top}
-      offset={offset2}
+      offset={offset}
       align="center"
     >
       <div
         ref={wrapperRef}
         className="relative inline-flex flex-col select-none animate-[toolbar-fade-in_0.15s_ease-out]"
-        onPointerDown={(e2) => e2.stopPropagation()}
-        onWheel={(e2) => e2.stopPropagation()}
-        onContextMenu={(e2) => e2.stopPropagation()}
+        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+        onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+        onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
       >
         <div
           ref={mainBarRef}
@@ -447,17 +436,17 @@ export function ImageInplaceEditToolbarInner({
           data-density="compact"
         >
           <div className="flex items-center gap-0.5">
-            {TOOLS.map((tool2) => {
-              const active2 = activeTool === tool2.id;
+            {TOOLS.map((tool) => {
+              const active = activeTool === tool.id;
               return (
                 <ToolbarIconButton
-                  key={tool2.id}
-                  dataToolId={tool2.id}
-                  title={t2(tool2.i18nKey, tool2.defaultLabel)}
-                  active={active2}
-                  onClick={() => onSelectTool(tool2.id)}
+                  key={tool.id}
+                  dataToolId={tool.id}
+                  title={t(tool.i18nKey, tool.defaultLabel)}
+                  active={active}
+                  onClick={() => onSelectTool(tool.id)}
                 >
-                  <tool2.Icon size={TOOL_ICON_SIZE} strokeWidth={2} />
+                  <tool.Icon size={TOOL_ICON_SIZE} strokeWidth={2} />
                 </ToolbarIconButton>
               );
             })}
@@ -465,21 +454,21 @@ export function ImageInplaceEditToolbarInner({
           <Divider />
           <div className="flex items-center gap-0.5">
             <ToolbarIconButton
-              title={t2("imageEdit.undo")}
+              title={t("imageEdit.undo")}
               disabled={!canUndo}
               onClick={onUndo}
             >
               <Undo2 size={ACTION_ICON_SIZE} strokeWidth={2} />
             </ToolbarIconButton>
             <ToolbarIconButton
-              title={t2("imageEdit.redo")}
+              title={t("imageEdit.redo")}
               disabled={!canRedo}
               onClick={onRedo}
             >
               <Redo2 size={ACTION_ICON_SIZE} strokeWidth={2} />
             </ToolbarIconButton>
             <ToolbarIconButton
-              title={t2("imageEdit.clear")}
+              title={t("imageEdit.clear")}
               disabled={!hasShapes}
               onClick={onClear}
             >
@@ -492,8 +481,8 @@ export function ImageInplaceEditToolbarInner({
             onClick={onCancel}
             disabled={saving}
             className="canvas-toolbar-action"
-            aria-label={t2("common.cancel")}
-            title={t2("common.cancel")}
+            aria-label={t("common.cancel")}
+            title={t("common.cancel")}
           >
             <CloseIcon />
           </button>
@@ -503,10 +492,10 @@ export function ImageInplaceEditToolbarInner({
             disabled={saving}
             className="canvas-toolbar-action"
             aria-label={
-              saving ? t2("imageEdit.saving") : t2("imageEdit.saveToCanvas")
+              saving ? t("imageEdit.saving") : t("imageEdit.saveToCanvas")
             }
             title={
-              saving ? t2("imageEdit.saving") : t2("imageEdit.saveToCanvas")
+              saving ? t("imageEdit.saving") : t("imageEdit.saveToCanvas")
             }
             data-variant="primary"
           >
@@ -536,16 +525,16 @@ export function ImageInplaceEditToolbarInner({
             {showVariant && (
               <>
                 <div className="flex items-center gap-0.5">
-                  {TEXT_VARIANTS.map((v2) => {
-                    const active2 = activeTextVariant === v2.id;
+                  {TEXT_VARIANTS.map((textVariant) => {
+                    const active = activeTextVariant === textVariant.id;
                     return (
                       <ToolbarIconButton
-                        key={v2.id}
-                        title={t2(v2.i18nKey, v2.defaultLabel)}
-                        active={active2}
-                        onClick={() => onSelectTextVariant(v2.id)}
+                        key={textVariant.id}
+                        title={t(textVariant.i18nKey, textVariant.defaultLabel)}
+                        active={active}
+                        onClick={() => onSelectTextVariant(textVariant.id)}
                       >
-                        <v2.Icon size={16} />
+                        <textVariant.Icon size={16} />
                       </ToolbarIconButton>
                     );
                   })}
@@ -558,10 +547,10 @@ export function ImageInplaceEditToolbarInner({
                 <button
                   ref={fontSizeBtnRef}
                   type="button"
-                  title={t2("imageEdit.fontSize")}
+                  title={t("imageEdit.fontSize")}
                   aria-haspopup="listbox"
                   aria-expanded={fontSizeOpen}
-                  onClick={() => setFontSizeOpen((v2) => !v2)}
+                  onClick={() => setFontSizeOpen((isOpen) => !isOpen)}
                   className="canvas-toolbar-action"
                   data-active={fontSizeOpen || void 0}
                 >
@@ -583,22 +572,22 @@ export function ImageInplaceEditToolbarInner({
                     className="absolute left-0 bottom-full z-10 mb-2 flex min-w-[80px] flex-col canvas-toolbar-menu py-1 animate-[toolbar-fade-in_0.12s_ease-out]"
                     data-density="compact"
                   >
-                    {FONT_SIZES.map((size2) => {
-                      const active2 = activeFontSize === size2;
+                    {FONT_SIZES.map((size) => {
+                      const active = activeFontSize === size;
                       return (
                         <button
-                          key={size2}
+                          key={size}
                           type="button"
                           role="option"
-                          aria-selected={active2}
+                          aria-selected={active}
                           onClick={() => {
-                            onSelectFontSize(size2);
+                            onSelectFontSize(size);
                             setFontSizeOpen(false);
                           }}
                           className="canvas-toolbar-action"
                         >
-                          <span>{size2}pt</span>
-                          {active2 && (
+                          <span>{size}pt</span>
+                          {active && (
                             <Check
                               size={12}
                               strokeWidth={3}
@@ -616,13 +605,13 @@ export function ImageInplaceEditToolbarInner({
             {showStrokeWidth && (
               /* Stroke width — dot size previews the stroke; the button owns selection. */ <div className="flex items-center gap-0.5">
                 {STROKE_WIDTHS.map(({ value, dotPx }) => {
-                  const active2 = activeStrokeWidth === value;
+                  const active = activeStrokeWidth === value;
                   return (
                     <ToolbarIconButton
                       key={value}
-                      title={`${t2("imageEdit.strokeWidth")} ${value}`}
+                      title={`${t("imageEdit.strokeWidth")} ${value}`}
                       onClick={() => onSelectStrokeWidth(value)}
-                      active={active2}
+                      active={active}
                     >
                       <span
                         className="block rounded-full"
@@ -641,14 +630,14 @@ export function ImageInplaceEditToolbarInner({
               <>
                 <div className="flex items-center gap-0.5">
                   <ToolbarIconButton
-                    title={t2("imageEdit.mosaicModeMosaic")}
+                    title={t("imageEdit.mosaicModeMosaic")}
                     active={activeMosaicMode === "mosaic"}
                     onClick={() => onSelectMosaicMode("mosaic")}
                   >
                     <MosaicIcon size={TOOL_ICON_SIZE} strokeWidth={1.75} />
                   </ToolbarIconButton>
                   <ToolbarIconButton
-                    title={t2("imageEdit.mosaicModeBlur")}
+                    title={t("imageEdit.mosaicModeBlur")}
                     active={activeMosaicMode === "blur"}
                     onClick={() => onSelectMosaicMode("blur")}
                   >
@@ -658,7 +647,7 @@ export function ImageInplaceEditToolbarInner({
                 <Divider />
                 <div className="flex items-center gap-0.5">
                   <ToolbarIconButton
-                    title={t2("imageEdit.mosaicShapeBrush")}
+                    title={t("imageEdit.mosaicShapeBrush")}
                     active={activeMosaicShape === "brush"}
                     onClick={() => onSelectMosaicShape("brush")}
                   >
@@ -668,10 +657,10 @@ export function ImageInplaceEditToolbarInner({
                     <button
                       ref={brushSizeBtnRef}
                       type="button"
-                      title={t2("imageEdit.mosaicBrushSize")}
+                      title={t("imageEdit.mosaicBrushSize")}
                       aria-haspopup="listbox"
                       aria-expanded={brushSizeOpen}
-                      onClick={() => setBrushSizeOpen((v2) => !v2)}
+                      onClick={() => setBrushSizeOpen((isOpen) => !isOpen)}
                       className="canvas-toolbar-action canvas-toolbar-disclosure"
                       data-active={brushSizeOpen || void 0}
                     >
@@ -689,20 +678,20 @@ export function ImageInplaceEditToolbarInner({
                       <div
                         ref={brushSizeMenuRef}
                         role="listbox"
-                        aria-label={t2("imageEdit.mosaicBrushSize")}
+                        aria-label={t("imageEdit.mosaicBrushSize")}
                         className="absolute left-1/2 bottom-full z-10 mb-2 flex -translate-x-1/2 flex-col items-center gap-1 canvas-toolbar-menu p-2 animate-[toolbar-fade-in_0.12s_ease-out]"
                         data-density="compact"
                       >
                         {MOSAIC_BRUSH_SIZES.map(({ value, dotPx }) => {
-                          const active2 = activeMosaicBrushSize === value;
+                          const active = activeMosaicBrushSize === value;
                           return (
                             <button
                               key={value}
                               type="button"
                               role="option"
-                              aria-selected={active2}
-                              title={`${t2("imageEdit.mosaicBrushSize")} ${value}`}
-                              aria-label={`${t2("imageEdit.mosaicBrushSize")} ${value}`}
+                              aria-selected={active}
+                              title={`${t("imageEdit.mosaicBrushSize")} ${value}`}
+                              aria-label={`${t("imageEdit.mosaicBrushSize")} ${value}`}
                               data-content="icon"
                               onClick={() => {
                                 onSelectMosaicBrushSize(value);
@@ -728,7 +717,7 @@ export function ImageInplaceEditToolbarInner({
                     )}
                   </div>
                   <ToolbarIconButton
-                    title={t2("imageEdit.mosaicShapeRect")}
+                    title={t("imageEdit.mosaicShapeRect")}
                     active={activeMosaicShape === "rectangle"}
                     onClick={() => onSelectMosaicShape("rectangle")}
                   >
@@ -744,8 +733,8 @@ export function ImageInplaceEditToolbarInner({
                     }}
                   >
                     {activeMosaicMode === "blur"
-                      ? t2("imageEdit.mosaicStrengthBlur")
-                      : t2("imageEdit.mosaicStrengthMosaic")}
+                      ? t("imageEdit.mosaicStrengthBlur")
+                      : t("imageEdit.mosaicStrengthMosaic")}
                   </span>
                   <input
                     type="range"
@@ -753,14 +742,14 @@ export function ImageInplaceEditToolbarInner({
                     max={100}
                     step={1}
                     value={activeMosaicStrength}
-                    onChange={(e2) => {
-                      const percent2 = Number(e2.currentTarget.value);
+                    onChange={(changeEvent) => {
+                      const percent = Number(changeEvent.currentTarget.value);
                       onSelectMosaicStrength(
-                        percent2,
-                        strengthPercentToPx(percent2, activeMosaicMode),
+                        percent,
+                        strengthPercentToPx(percent, activeMosaicMode),
                       );
                     }}
-                    aria-label={t2("imageEdit.mosaicStrength")}
+                    aria-label={t("imageEdit.mosaicStrength")}
                     className="image-edit-mosaic-slider h-1 w-[110px] cursor-pointer appearance-none rounded-full"
                     style={{
                       background: `linear-gradient(to right, var(--canvas-controls-primary, #007AFF) 0%, var(--canvas-controls-primary, #007AFF) ${activeMosaicStrength}%, rgba(0,0,0,0.15) ${activeMosaicStrength}%, rgba(0,0,0,0.15) 100%)`,
@@ -781,26 +770,26 @@ export function ImageInplaceEditToolbarInner({
               <>
                 <Divider />
                 <div className="flex items-center gap-[6px]">
-                  {COLORS.map((color2) => {
-                    const active2 =
-                      activeColor.toLowerCase() === color2.toLowerCase();
-                    const checkColor = isLightColor(color2)
+                  {COLORS.map((color) => {
+                    const active =
+                      activeColor.toLowerCase() === color.toLowerCase();
+                    const checkColor = isLightColor(color)
                       ? "#1C1C1E"
                       : "#FFFFFF";
                     return (
                       <button
-                        key={color2}
+                        key={color}
                         type="button"
-                        title={color2}
-                        aria-label={color2}
-                        aria-pressed={active2}
-                        onClick={() => onSelectColor(color2)}
+                        title={color}
+                        aria-label={color}
+                        aria-pressed={active}
+                        onClick={() => onSelectColor(color)}
                         className="inline-flex size-5 items-center justify-center rounded-[4px] border border-black/10 transition-transform hover:scale-110"
                         style={{
-                          backgroundColor: color2,
+                          backgroundColor: color,
                         }}
                       >
-                        {active2 && (
+                        {active && (
                           <Check
                             size={12}
                             strokeWidth={3}

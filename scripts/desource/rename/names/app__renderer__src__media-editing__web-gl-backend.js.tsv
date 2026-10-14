@@ -1,0 +1,61 @@
+key	new	依据
+clamp01$1@836:7	clampToUnitInterval	将数值限制在线性调色板所用的 0 到 1 区间。
+lut@5:22	lookupTable	接收用于展平为二维像素纹理的颜色查找表。
+out@9:9	rgbaData	保存查找表展平后的 RGBA 像素数据。
+dxR@10:9	redDomainRange	保存查找表红色通道的数值范围。
+dxG@11:9	greenDomainRange	保存查找表绿色通道的数值范围。
+dxB@12:9	blueDomainRange	保存查找表蓝色通道的数值范围。
+r2@20:15	normalizedRed	保存归一化后的红色通道值。
+g2@21:15	normalizedGreen	保存归一化后的绿色通道值。
+b3@22:15	normalizedBlue	保存归一化后的蓝色通道值。
+gl@746:23	webGLContext	接收用于编译着色器的 WebGL 上下文。
+gl@758:24	webGLContext	接收用于链接着色器程序的 WebGL 上下文。
+vs2@758:28	vertexShader	接收需要附加到程序的顶点着色器。
+fs@758:33	fragmentShader	接收需要附加到程序的片元着色器。
+gl@771:23	webGLContext	接收用于创建着色器程序的 WebGL 上下文。
+vs2@772:9	vertexShader	保存编译得到的顶点着色器。
+fs@773:9	fragmentShader	保存编译得到的片元着色器。
+gl@797:29	webGLContext	接收用于创建纹理和帧缓冲的 WebGL 上下文。
+t2@837:22	interpolationFactor	接收三次贝塞尔曲线的插值参数。
+p0@837:26	startValue	接收贝塞尔曲线的起始值。
+p1@837:30	firstControlValue	接收贝塞尔曲线的第一个控制值。
+p22@837:34	secondControlValue	接收贝塞尔曲线的第二个控制值。
+p3@837:39	endValue	接收贝塞尔曲线的终止值。
+u4@838:9	inverseInterpolationFactor	保存插值参数的补值。
+i2@848:12	paletteIndex	遍历灰度调色板采样位置。
+t2@849:11	interpolationFactor	保存当前调色板采样的归一化位置。
+y4@850:11	curveValue	保存贝塞尔曲线在当前采样位置的值。
+v2@851:11	channelByte	保存转换为 8 位通道的灰度值。
+idx@852:11	paletteOffset	保存当前 RGB 样本在调色板数组中的偏移。
+amt@860:9	normalizedAmount	保存归一化后的黑位调节量。
+gl@866:31	webGLContext	接收用于创建调色板纹理的 WebGL 上下文。
+gl@889:31	webGLContext	接收用于更新调色板纹理的 WebGL 上下文。
+t2@904:9	normalizedAmount	保存归一化后的对比度调节量。
+t2@931:9	normalizedAmount	保存归一化后的饱和度调节量。
+inv@936:9	inverseScale	保存饱和度缩放量的补值。
+gl@1004:11	webGLContext	读取当前 WebGL 上下文并加载图片纹理。
+gl@1029:11	webGLContext	读取当前 WebGL 上下文并加载像素数据纹理。
+gl@1065:11	webGLContext	读取当前 WebGL 上下文并加载源媒体纹理。
+gl@1094:11	webGLContext	读取当前 WebGL 上下文并更新源媒体纹理。
+lut@1104:10	lookupTable	接收需要上传为 WebGL 纹理的颜色查找表。
+gl@1105:11	webGLContext	读取当前 WebGL 上下文以创建查找表纹理。
+tex@1116:11	lutTexture	保存新建的查找表纹理对象。
+gl@1151:11	webGLContext	读取当前 WebGL 上下文并取回像素数据。
+gl@1176:17	webGLContext	接收用于创建绘制资源的 WebGL 上下文。
+vs2@1196:11	vertexShaderSource	保存后续效果通道共用的顶点着色器源码。
+gl@1312:7	webGLContext	从渲染资源中读取 WebGL 上下文并释放资源。
+gl@1336:7	webGLContext	从渲染资源中读取 WebGL 上下文以执行绘制。
+lut@1390:11	lutTexture	读取当前渲染资源中的查找表纹理。
+size2@6:17	size	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存WebGL 渲染目标的尺寸。
+data2@6:30	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存上传到纹理的像素数据。
+type2@746:37	type	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存图像纹理的数据类型。
+fragment2@771:45	fragment	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存片元着色器源代码。
+name2@788:36	uniformName	原名 name 被工具识别为全局名，因此按用途改为描述名 uniformName；此处持有着色器中的 uniform 变量名。
+data2@847:9	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存上传到纹理的像素数据。
+data2@866:45	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存上传到纹理的像素数据。
+data2@889:54	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存上传到纹理的像素数据。
+scale2@905:9	scale	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存渲染目标的缩放比例。
+offset2@906:9	offset	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存像素读取或纹理坐标的偏移量。
+scale2@932:9	scale	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存渲染目标的缩放比例。
+image2@1002:17	image	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存待上传到 WebGL 纹理的图像对象。
+data2@1032:34	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存上传到纹理的像素数据。

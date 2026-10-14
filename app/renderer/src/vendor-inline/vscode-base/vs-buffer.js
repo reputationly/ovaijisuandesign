@@ -1,3 +1,4 @@
+// 留在这里：对应 VS Code 这些没有 npm 包的源文件，所以保留可读副本：src/vs/base/common/event.ts、src/vs/base/common/cancellation.ts、src/vs/base/common/buffer.ts、src/vs/base/common/decorators.ts、src/vs/base/common/marshalling.ts、src/vs/base/common/strings.ts、src/vs/base/common/types.ts、src/vs/base/parts/ipc/common/ipc.ts。applyMemberDecorators 是这些类上装饰器编译出来的辅助函数，同样没有独立包。
 // vs-buffer.js
 import {
   CancellationError,
@@ -9,15 +10,15 @@ import {
   onUnexpectedError,
   toDisposable,
 } from "./linked-list.js";
-export var Event$1;
-((Event2) => {
-  Event2.None = () => Disposable.None;
+export var VSCodeEvent;
+((eventNamespace) => {
+  eventNamespace.None = () => Disposable.None;
   function once(event) {
-    return (listener, thisArgs = null, disposables2) => {
+    return (listener, thisArgs = null, disposables) => {
       let didFire = false;
       let result;
       result = event(
-        (e2) => {
+        (e) => {
           if (didFire) {
             return;
           } else if (result) {
@@ -25,10 +26,10 @@ export var Event$1;
           } else {
             didFire = true;
           }
-          return listener.call(thisArgs, e2);
+          return listener.call(thisArgs, e);
         },
         null,
-        disposables2,
+        disposables,
       );
       if (didFire) {
         result.dispose();
@@ -36,35 +37,35 @@ export var Event$1;
       return result;
     };
   }
-  Event2.once = once;
-  function map3(event, map22, disposable) {
-    return snapshot2((listener, thisArgs = null, disposables2) => {
-      return event((i2) => listener.call(thisArgs, map22(i2)), null, disposables2);
+  eventNamespace.once = once;
+  function eventMapper(event, valueMapper, disposable) {
+    return snapshot((listener, thisArgs = null, disposables) => {
+      return event((i) => listener.call(thisArgs, valueMapper(i)), null, disposables);
     }, disposable);
   }
-  Event2.map = map3;
-  function filter2(event, filter22, disposable) {
-    return snapshot2(
-      (listener, thisArgs = null, disposables2) =>
-        event((e2) => filter22(e2) && listener.call(thisArgs, e2), null, disposables2),
+  eventNamespace.map = eventMapper;
+  function eventFilter(event, predicate, disposable) {
+    return snapshot(
+      (listener, thisArgs = null, disposables) =>
+        event((e) => predicate(e) && listener.call(thisArgs, e), null, disposables),
       disposable,
     );
   }
-  Event2.filter = filter2;
+  eventNamespace.filter = eventFilter;
   function signal(event) {
     return event;
   }
-  Event2.signal = signal;
-  function any(...events2) {
-    return (listener, thisArgs = null, disposables2) => {
+  eventNamespace.signal = signal;
+  function any(...events) {
+    return (listener, thisArgs = null, disposables) => {
       const disposable = combinedDisposable(
-        ...events2.map((event) => event((e2) => listener.call(thisArgs, e2))),
+        ...events.map((event) => event((e) => listener.call(thisArgs, e))),
       );
-      return addAndReturnDisposable(disposable, disposables2);
+      return addAndReturnDisposable(disposable, disposables);
     };
   }
-  Event2.any = any;
-  function snapshot2(event, disposable) {
+  eventNamespace.any = any;
+  function snapshot(event, disposable) {
     let listener;
     const emitter = new Emitter({
       onWillAddFirstListener() {
@@ -80,39 +81,39 @@ export var Event$1;
   function toPromise(event) {
     return new Promise((resolve) => once(event)(resolve));
   }
-  Event2.toPromise = toPromise;
+  eventNamespace.toPromise = toPromise;
   function buffer(event, _flushAfterTimeout = false, _buffer = [], disposable) {
-    let buffer2 = _buffer.slice();
-    let listener = event((e2) => {
-      if (buffer2) {
-        buffer2.push(e2);
+    let bufferedEvents = _buffer.slice();
+    let listener = event((e) => {
+      if (bufferedEvents) {
+        bufferedEvents.push(e);
       } else {
-        emitter.fire(e2);
+        emitter.fire(e);
       }
     });
     if (disposable) {
       disposable.add(listener);
     }
-    const flush2 = () => {
-      if (buffer2) {
-        for (const e2 of buffer2) {
-          emitter.fire(e2);
+    const flush = () => {
+      if (bufferedEvents) {
+        for (const e of bufferedEvents) {
+          emitter.fire(e);
         }
       }
-      buffer2 = null;
+      bufferedEvents = null;
     };
     const emitter = new Emitter({
       onWillAddFirstListener() {
         if (!listener) {
-          listener = event((e2) => emitter.fire(e2));
+          listener = event((e) => emitter.fire(e));
           if (disposable) {
             disposable.add(listener);
           }
         }
       },
       onDidAddFirstListener() {
-        if (buffer2) {
-          flush2();
+        if (bufferedEvents) {
+          flush();
         }
       },
       onDidRemoveLastListener() {
@@ -120,7 +121,7 @@ export var Event$1;
           listener.dispose();
         }
         listener = null;
-        buffer2 = [];
+        bufferedEvents = [];
       },
     });
     if (disposable) {
@@ -128,27 +129,27 @@ export var Event$1;
     }
     return emitter.event;
   }
-  Event2.buffer = buffer;
-  function fromNodeEventEmitter(emitter, eventName, map22 = (id2) => id2) {
-    const fn2 = (...args) => result.fire(map22(...args));
-    const onFirstListenerAdd = () => emitter.on(eventName, fn2);
-    const onLastListenerRemove = () => emitter.removeListener(eventName, fn2);
+  eventNamespace.buffer = buffer;
+  function fromNodeEventEmitter(emitter, eventName, map = (id) => id) {
+    const fn = (...args) => result.fire(map(...args));
+    const onFirstListenerAdd = () => emitter.on(eventName, fn);
+    const onLastListenerRemove = () => emitter.removeListener(eventName, fn);
     const result = new Emitter({
       onWillAddFirstListener: onFirstListenerAdd,
       onDidRemoveLastListener: onLastListenerRemove,
     });
     return result.event;
   }
-  Event2.fromNodeEventEmitter = fromNodeEventEmitter;
-  function addAndReturnDisposable(d2, store) {
+  eventNamespace.fromNodeEventEmitter = fromNodeEventEmitter;
+  function addAndReturnDisposable(d, store) {
     if (Array.isArray(store)) {
-      store.push(d2);
+      store.push(d);
     } else if (store) {
-      store.add(d2);
+      store.add(d);
     }
-    return d2;
+    return d;
   }
-})(Event$1 || (Event$1 = {}));
+})(VSCodeEvent || (VSCodeEvent = {}));
 export class Emitter {
   _options;
   _disposed;
@@ -171,7 +172,7 @@ export class Emitter {
    * For the public to allow to subscribe to events from this Emitter
    */
   get event() {
-    this._event ??= (listener, thisArgs, disposables2) => {
+    this._event ??= (listener, thisArgs, disposables) => {
       if (!this._listeners) {
         this._listeners = new LinkedList();
       }
@@ -182,8 +183,8 @@ export class Emitter {
       let removeListener;
       let listenerObj;
       if (thisArgs) {
-        listenerObj = (e2) => {
-          listener.call(thisArgs, e2);
+        listenerObj = (e) => {
+          listener.call(thisArgs, e);
         };
       } else {
         listenerObj = listener;
@@ -205,10 +206,10 @@ export class Emitter {
           }
         }
       });
-      if (disposables2 instanceof DisposableStore) {
-        disposables2.add(result);
-      } else if (Array.isArray(disposables2)) {
-        disposables2.push(result);
+      if (disposables instanceof DisposableStore) {
+        disposables.add(result);
+      } else if (Array.isArray(disposables)) {
+        disposables.push(result);
       }
       return result;
     };
@@ -229,11 +230,11 @@ export class Emitter {
       while (this._deliveryQueue.size > 0) {
         const entry = this._deliveryQueue.shift();
         if (!entry) break;
-        const [listener, event2] = entry;
+        const [listener, eventData] = entry;
         try {
-          listener(event2);
-        } catch (e2) {
-          onListenerError(e2);
+          listener(eventData);
+        } catch (e) {
+          onListenerError(e);
         }
       }
     }
@@ -258,17 +259,17 @@ class EventDeliveryQueue {
   }
 }
 const shortcutEvent = (callback, context) => {
-  const handle2 = setTimeout(callback.bind(context), 0);
+  const handle = setTimeout(callback.bind(context), 0);
   return {
     dispose() {
-      clearTimeout(handle2);
+      clearTimeout(handle);
     },
   };
 };
 export var CancellationToken;
-((CancellationToken2) => {
+((CancellationToken) => {
   function isCancellationToken(thing) {
-    if (thing === CancellationToken2.None || thing === CancellationToken2.Cancelled) {
+    if (thing === CancellationToken.None || thing === CancellationToken.Cancelled) {
       return true;
     }
     if (thing instanceof MutableToken) {
@@ -282,12 +283,12 @@ export var CancellationToken;
       typeof thing.onCancellationRequested === "function"
     );
   }
-  CancellationToken2.isCancellationToken = isCancellationToken;
-  CancellationToken2.None = Object.freeze({
+  CancellationToken.isCancellationToken = isCancellationToken;
+  CancellationToken.None = Object.freeze({
     isCancellationRequested: false,
-    onCancellationRequested: Event$1.None,
+    onCancellationRequested: VSCodeEvent.None,
   });
-  CancellationToken2.Cancelled = Object.freeze({
+  CancellationToken.Cancelled = Object.freeze({
     isCancellationRequested: true,
     onCancellationRequested: shortcutEvent,
   });
@@ -368,10 +369,10 @@ export function createCancelablePromise(callback) {
         source.dispose();
         resolve(value);
       },
-      (err) => {
+      (error) => {
         subscription.dispose();
         source.dispose();
-        reject(err);
+        reject(error);
       },
     );
   });
@@ -393,7 +394,7 @@ export function createCancelablePromise(callback) {
   })();
 }
 const hasBuffer = typeof Buffer !== "undefined";
-let textEncoder$1;
+let textEncoder;
 let textDecoder;
 export class VSBuffer {
   static alloc(byteLength) {
@@ -409,39 +410,39 @@ export class VSBuffer {
     }
     return new VSBuffer(actual);
   }
-  static fromString(str2, options) {
+  static fromString(str, options) {
     const dontUseNodeBuffer = options?.dontUseNodeBuffer || false;
     if (!dontUseNodeBuffer && hasBuffer) {
-      return new VSBuffer(Buffer.from(str2));
+      return new VSBuffer(Buffer.from(str));
     } else {
-      if (!textEncoder$1) {
-        textEncoder$1 = new globalThis.TextEncoder();
+      if (!textEncoder) {
+        textEncoder = new globalThis.TextEncoder();
       }
-      return new VSBuffer(textEncoder$1.encode(str2));
+      return new VSBuffer(textEncoder.encode(str));
     }
   }
   static fromByteArray(source) {
     const result = VSBuffer.alloc(source.length);
-    for (let i2 = 0, len = source.length; i2 < len; i2++) {
-      result.buffer[i2] = source[i2];
+    for (let i = 0, len = source.length; i < len; i++) {
+      result.buffer[i] = source[i];
     }
     return result;
   }
   static concat(buffers, totalLength) {
     if (typeof totalLength === "undefined") {
       totalLength = 0;
-      for (let i2 = 0, len = buffers.length; i2 < len; i2++) {
-        totalLength += buffers[i2].byteLength;
+      for (let i = 0, len = buffers.length; i < len; i++) {
+        totalLength += buffers[i].byteLength;
       }
     }
-    const ret = VSBuffer.alloc(totalLength);
-    let offset2 = 0;
-    for (let i2 = 0, len = buffers.length; i2 < len; i2++) {
-      const element2 = buffers[i2];
-      ret.set(element2, offset2);
-      offset2 += element2.byteLength;
+    const result = VSBuffer.alloc(totalLength);
+    let offset = 0;
+    for (let i = 0, len = buffers.length; i < len; i++) {
+      const element = buffers[i];
+      result.set(element, offset);
+      offset += element.byteLength;
     }
-    return ret;
+    return result;
   }
   /**
    * @returns `true` if `thing` is a native Node Buffer or Uint8Array.
@@ -480,97 +481,97 @@ export class VSBuffer {
       return textDecoder.decode(this.buffer);
     }
   }
-  slice(start2, end2) {
-    const slice2 = this.buffer.subarray(start2, end2);
-    return new VSBuffer(slice2);
+  slice(start, end) {
+    const slice = this.buffer.subarray(start, end);
+    return new VSBuffer(slice);
   }
-  set(array2, offset2) {
-    if (array2 instanceof VSBuffer) {
-      this.buffer.set(array2.buffer, offset2);
-    } else if (array2 instanceof Uint8Array) {
-      this.buffer.set(array2, offset2);
-    } else if (array2 instanceof ArrayBuffer) {
-      this.buffer.set(new Uint8Array(array2), offset2);
-    } else if (ArrayBuffer.isView(array2)) {
-      this.buffer.set(new Uint8Array(array2.buffer, array2.byteOffset, array2.byteLength), offset2);
+  set(array, offset) {
+    if (array instanceof VSBuffer) {
+      this.buffer.set(array.buffer, offset);
+    } else if (array instanceof Uint8Array) {
+      this.buffer.set(array, offset);
+    } else if (array instanceof ArrayBuffer) {
+      this.buffer.set(new Uint8Array(array), offset);
+    } else if (ArrayBuffer.isView(array)) {
+      this.buffer.set(new Uint8Array(array.buffer, array.byteOffset, array.byteLength), offset);
     } else {
       throw new Error(`Unknown argument 'array'`);
     }
   }
-  readUInt32BE(offset2) {
-    return readUInt32BE(this.buffer, offset2);
+  readUInt32BE(offset) {
+    return readUInt32BE(this.buffer, offset);
   }
-  writeUInt32BE(value, offset2) {
-    writeUInt32BE(this.buffer, value, offset2);
+  writeUInt32BE(value, offset) {
+    writeUInt32BE(this.buffer, value, offset);
   }
-  readUInt32LE(offset2) {
-    return readUInt32LE(this.buffer, offset2);
+  readUInt32LE(offset) {
+    return readUInt32LE(this.buffer, offset);
   }
-  writeUInt32LE(value, offset2) {
-    writeUInt32LE(this.buffer, value, offset2);
+  writeUInt32LE(value, offset) {
+    writeUInt32LE(this.buffer, value, offset);
   }
-  readUInt8(offset2) {
-    return this.buffer[offset2];
+  readUInt8(offset) {
+    return this.buffer[offset];
   }
-  writeUInt8(value, offset2) {
-    this.buffer[offset2] = value;
+  writeUInt8(value, offset) {
+    this.buffer[offset] = value;
   }
 }
-function readUInt32BE(source, offset2) {
+function readUInt32BE(source, offset) {
   return (
-    source[offset2] * 2 ** 24 +
-    source[offset2 + 1] * 2 ** 16 +
-    source[offset2 + 2] * 2 ** 8 +
-    source[offset2 + 3]
+    source[offset] * 2 ** 24 +
+    source[offset + 1] * 2 ** 16 +
+    source[offset + 2] * 2 ** 8 +
+    source[offset + 3]
   );
 }
-function writeUInt32BE(destination, value, offset2) {
-  destination[offset2 + 3] = value;
+function writeUInt32BE(destination, value, offset) {
+  destination[offset + 3] = value;
   value = value >>> 8;
-  destination[offset2 + 2] = value;
+  destination[offset + 2] = value;
   value = value >>> 8;
-  destination[offset2 + 1] = value;
+  destination[offset + 1] = value;
   value = value >>> 8;
-  destination[offset2] = value;
+  destination[offset] = value;
 }
-function readUInt32LE(source, offset2) {
+function readUInt32LE(source, offset) {
   return (
-    ((source[offset2 + 0] << 0) >>> 0) |
-    ((source[offset2 + 1] << 8) >>> 0) |
-    ((source[offset2 + 2] << 16) >>> 0) |
-    ((source[offset2 + 3] << 24) >>> 0)
+    ((source[offset + 0] << 0) >>> 0) |
+    ((source[offset + 1] << 8) >>> 0) |
+    ((source[offset + 2] << 16) >>> 0) |
+    ((source[offset + 3] << 24) >>> 0)
   );
 }
-function writeUInt32LE(destination, value, offset2) {
-  destination[offset2 + 0] = value & 255;
+function writeUInt32LE(destination, value, offset) {
+  destination[offset + 0] = value & 255;
   value = value >>> 8;
-  destination[offset2 + 1] = value & 255;
+  destination[offset + 1] = value & 255;
   value = value >>> 8;
-  destination[offset2 + 2] = value & 255;
+  destination[offset + 2] = value & 255;
   value = value >>> 8;
-  destination[offset2 + 3] = value & 255;
+  destination[offset + 3] = value & 255;
 }
-export function memoize(_target, key2, descriptor) {
+export function memoize(_target, key, descriptor) {
   let fnKey = null;
-  let fn2 = null;
+  let fn = null;
   if (typeof descriptor.value === "function") {
     fnKey = "value";
-    fn2 = descriptor.value;
+    fn = descriptor.value;
   } else if (typeof descriptor.get === "function") {
     fnKey = "get";
-    fn2 = descriptor.get;
+    fn = descriptor.get;
   }
-  if (!fn2) {
+  if (!fn) {
     throw new Error("not supported");
   }
-  const memoizeKey = `$memoize$${key2}`;
+  const memoizeKey = `$memoize$${key}`;
   const memoizedFn = function (...args) {
     if (!Object.hasOwn(this, memoizeKey)) {
       Object.defineProperty(this, memoizeKey, {
         configurable: false,
         enumerable: false,
         writable: false,
-        value: fn2?.apply(this, args),
+        value: fn?.apply(this, args),
       });
     }
     return this[memoizeKey];
@@ -581,46 +582,46 @@ export function memoize(_target, key2, descriptor) {
     descriptor.get = memoizedFn;
   }
 }
-export function revive(obj, depth2 = 0) {
-  if (!obj || depth2 > 200) {
+export function revive(obj, depth = 0) {
+  if (!obj || depth > 200) {
     return obj;
   }
   if (typeof obj === "object") {
     if (Array.isArray(obj)) {
-      for (let i2 = 0; i2 < obj.length; ++i2) {
-        obj[i2] = revive(obj[i2], depth2 + 1);
+      for (let i = 0; i < obj.length; ++i) {
+        obj[i] = revive(obj[i], depth + 1);
       }
     } else {
-      for (const key2 in obj) {
-        if (Object.hasOwn(obj, key2)) {
-          obj[key2] = revive(obj[key2], depth2 + 1);
+      for (const key in obj) {
+        if (Object.hasOwn(obj, key)) {
+          obj[key] = revive(obj[key], depth + 1);
         }
       }
     }
   }
   return obj;
 }
-export function isUpperAsciiLetter(code2) {
-  return code2 >= 65 && code2 <= 90;
+export function isUpperAsciiLetter(code) {
+  return code >= 65 && code <= 90;
 }
 export function isUndefinedOrNull(obj) {
   return obj === void 0 || obj === null;
 }
-var __defProp$1 = Object.defineProperty;
-var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
-export var __decorateClass$1 = (decorators, target, key2, kind) => {
-  var result = __getOwnPropDesc$1(target, key2);
-  for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
-    if ((decorator = decorators[i2])) result = decorator(target, key2, result) || result;
-  if (result) __defProp$1(target, key2, result);
+var defineProperty = Object.defineProperty;
+var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+export var applyMemberDecorators = (decorators, target, key, kind) => {
+  var result = getOwnPropertyDescriptor(target, key);
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if ((decorator = decorators[i])) result = decorator(target, key, result) || result;
+  if (result) defineProperty(target, key, result);
   return result;
 };
 function readIntVQL(reader) {
   let value = 0;
-  for (let n2 = 0; ; n2 += 7) {
-    const next2 = reader.read(1);
-    value |= (next2.buffer[0] & 127) << n2;
-    if (!(next2.buffer[0] & 128)) {
+  for (let n = 0; ; n += 7) {
+    const next = reader.read(1);
+    value |= (next.buffer[0] & 127) << n;
+    if (!(next.buffer[0] & 128)) {
       return value;
     }
   }
@@ -632,15 +633,15 @@ function writeInt32VQL(writer, value) {
     return;
   }
   let len = 0;
-  for (let v2 = value; v2 !== 0; v2 = v2 >>> 7) {
+  for (let v = value; v !== 0; v = v >>> 7) {
     len++;
   }
   const scratch = VSBuffer.alloc(len);
-  for (let i2 = 0; value !== 0; i2++) {
-    scratch.buffer[i2] = value & 127;
+  for (let i = 0; value !== 0; i++) {
+    scratch.buffer[i] = value & 127;
     value = value >>> 7;
     if (value > 0) {
-      scratch.buffer[i2] |= 128;
+      scratch.buffer[i] |= 128;
     }
   }
   writer.write(scratch);
@@ -650,8 +651,8 @@ export class BufferReader {
     this.buffer = buffer;
   }
   pos = 0;
-  read(bytes2) {
-    const result = this.buffer.slice(this.pos, this.pos + bytes2);
+  read(bytes) {
+    const result = this.buffer.slice(this.pos, this.pos + bytes);
     this.pos += result.byteLength;
     return result;
   }
@@ -700,48 +701,48 @@ const BufferPresets = {
     /* Int */
   ),
 };
-export function serialize(writer, data2) {
-  if (typeof data2 === "undefined") {
+export function serialize(writer, data) {
+  if (typeof data === "undefined") {
     writer.write(BufferPresets.Undefined);
-  } else if (typeof data2 === "string") {
-    const buffer = VSBuffer.fromString(data2);
+  } else if (typeof data === "string") {
+    const buffer = VSBuffer.fromString(data);
     writer.write(BufferPresets.String);
     writeInt32VQL(writer, buffer.byteLength);
     writer.write(buffer);
-  } else if (VSBuffer.isNativeBuffer(data2)) {
-    const buffer = VSBuffer.wrap(data2);
+  } else if (VSBuffer.isNativeBuffer(data)) {
+    const buffer = VSBuffer.wrap(data);
     writer.write(BufferPresets.Buffer);
     writeInt32VQL(writer, buffer.byteLength);
     writer.write(buffer);
-  } else if (data2 instanceof VSBuffer) {
+  } else if (data instanceof VSBuffer) {
     writer.write(BufferPresets.VSBuffer);
-    writeInt32VQL(writer, data2.byteLength);
-    writer.write(data2);
-  } else if (Array.isArray(data2)) {
+    writeInt32VQL(writer, data.byteLength);
+    writer.write(data);
+  } else if (Array.isArray(data)) {
     writer.write(BufferPresets.Array);
-    writeInt32VQL(writer, data2.length);
-    for (const el of data2) {
+    writeInt32VQL(writer, data.length);
+    for (const el of data) {
       serialize(writer, el);
     }
-  } else if (typeof data2 === "number" && (data2 | 0) === data2) {
+  } else if (typeof data === "number" && (data | 0) === data) {
     writer.write(BufferPresets.Uint);
-    writeInt32VQL(writer, data2);
+    writeInt32VQL(writer, data);
   } else {
-    const json2 = JSON.stringify(data2);
-    if (json2 === void 0) {
+    const json = JSON.stringify(data);
+    if (json === void 0) {
       throw new Error(
-        `IPC argument is not serializable (${typeof data2}); only JSON-encodable values are supported`,
+        `IPC argument is not serializable (${typeof data}); only JSON-encodable values are supported`,
       );
     }
-    const buffer = VSBuffer.fromString(json2);
+    const buffer = VSBuffer.fromString(json);
     writer.write(BufferPresets.Object);
     writeInt32VQL(writer, buffer.byteLength);
     writer.write(buffer);
   }
 }
 export function deserialize(reader) {
-  const type2 = reader.read(1).readUInt8(0);
-  switch (type2) {
+  const type = reader.read(1).readUInt8(0);
+  switch (type) {
     case 0:
       return void 0;
     case 1:
@@ -751,9 +752,9 @@ export function deserialize(reader) {
     case 3:
       return reader.read(readIntVQL(reader));
     case 4: {
-      const length2 = readIntVQL(reader);
+      const itemCount = readIntVQL(reader);
       const result = [];
-      for (let i2 = 0; i2 < length2; i2++) {
+      for (let i = 0; i < itemCount; i++) {
         result.push(deserialize(reader));
       }
       return result;
@@ -765,11 +766,11 @@ export function deserialize(reader) {
   }
 }
 export class ChannelServer {
-  constructor(protocol, ctx, _logger = null, timeoutDelay = 1e3) {
+  constructor(protocol, context, _logger = null, timeoutDelay = 1e3) {
     this.protocol = protocol;
-    this.ctx = ctx;
+    this.ctx = context;
     this.timeoutDelay = timeoutDelay;
-    this.protocolListener = this.protocol.onMessage((msg) => this.onRawMessage(msg));
+    this.protocolListener = this.protocol.onMessage((message) => this.onRawMessage(message));
     this.sendResponse({
       type: 200,
       /* Initialize */
@@ -815,10 +816,10 @@ export class ChannelServer {
     }
   }
   /** Last-resort reply so a failed encode still settles the peer's promise. */
-  sendUnencodableResponseError(id2, cause) {
+  sendUnencodableResponseError(id, cause) {
     const detail = cause instanceof Error ? cause.message : String(cause);
     try {
-      this.send([202, id2], {
+      this.send([202, id], {
         message: `IPC response could not be encoded: ${detail}`,
         name: "Error",
         stack: void 0,
@@ -827,72 +828,72 @@ export class ChannelServer {
       onUnexpectedError(err);
     }
   }
-  send(header, body2 = void 0) {
+  send(header, body = void 0) {
     const writer = new BufferWriter();
     serialize(writer, header);
-    serialize(writer, body2);
+    serialize(writer, body);
     return this.sendBuffer(writer.buffer);
   }
-  sendBuffer(message2) {
+  sendBuffer(message) {
     try {
-      this.protocol.send(message2);
-      return message2.byteLength;
+      this.protocol.send(message);
+      return message.byteLength;
     } catch {
       return 0;
     }
   }
-  onRawMessage(message2) {
-    const reader = new BufferReader(message2);
+  onRawMessage(message) {
+    const reader = new BufferReader(message);
     let header;
     try {
       header = deserialize(reader);
     } catch (err) {
       onUnexpectedError(
         new Error(
-          `IPC request header could not be decoded (${message2.byteLength} bytes): ${err instanceof Error ? err.message : String(err)}`,
+          `IPC request header could not be decoded (${message.byteLength} bytes): ${err instanceof Error ? err.message : String(err)}`,
         ),
       );
       return;
     }
     if (!Array.isArray(header)) {
       onUnexpectedError(
-        new Error(`IPC request header has an unexpected shape (${message2.byteLength} bytes)`),
+        new Error(`IPC request header has an unexpected shape (${message.byteLength} bytes)`),
       );
       return;
     }
-    const type2 = header[0];
-    let body2;
+    const type = header[0];
+    let body;
     try {
-      body2 = deserialize(reader);
+      body = deserialize(reader);
     } catch (err) {
-      this.onUndecodableRequest(type2, header, message2.byteLength, err);
+      this.onUndecodableRequest(type, header, message.byteLength, err);
       return;
     }
-    switch (type2) {
+    switch (type) {
       case 100:
         return this.onPromise({
-          type: type2,
+          type,
           id: header[1],
           channelName: header[2],
           name: header[3],
-          arg: body2,
+          arg: body,
         });
       case 102:
         return this.onEventListen({
-          type: type2,
+          type,
           id: header[1],
           channelName: header[2],
           name: header[3],
-          arg: body2,
+          arg: body,
         });
       case 101:
         return this.disposeActiveRequest({
-          type: type2,
+          type,
           id: header[1],
         });
       case 103:
         return this.disposeActiveRequest({
-          type: type2,
+          type,
           id: header[1],
         });
     }
@@ -902,19 +903,19 @@ export class ChannelServer {
    * the request type expects one; a silently dropped frame would otherwise
    * leave the caller awaiting a response that can never arrive.
    */
-  onUndecodableRequest(type2, header, byteLength, cause) {
+  onUndecodableRequest(type, header, byteLength, cause) {
     const detail = cause instanceof Error ? cause.message : String(cause);
     const channelName = typeof header[2] === "string" ? header[2] : "unknown";
-    const name2 = typeof header[3] === "string" ? header[3] : "unknown";
+    const methodName = typeof header[3] === "string" ? header[3] : "unknown";
     const error = new Error(
-      `IPC request body could not be decoded for ${channelName}.${name2} (${byteLength} bytes): ${detail}`,
+      `IPC request body could not be decoded for ${channelName}.${methodName} (${byteLength} bytes): ${detail}`,
     );
     onUnexpectedError(error);
-    if (type2 !== 100) return;
-    const id2 = header[1];
-    if (typeof id2 !== "number") return;
+    if (type !== 100) return;
+    const id = header[1];
+    if (typeof id !== "number") return;
     this.sendResponse({
-      id: id2,
+      id,
       data: {
         message: error.message,
         name: error.name,
@@ -937,13 +938,13 @@ export class ChannelServer {
     } catch (err) {
       promise = Promise.reject(err);
     }
-    const id2 = request.id;
+    const id = request.id;
     promise
       .then(
-        (data2) => {
+        (data) => {
           this.sendResponse({
-            id: id2,
-            data: data2,
+            id,
+            data,
             type: 201,
             /* PromiseSuccess */
           });
@@ -951,7 +952,7 @@ export class ChannelServer {
         (err) => {
           if (err instanceof Error) {
             this.sendResponse({
-              id: id2,
+              id,
               data: {
                 message: err.message,
                 name: err.name,
@@ -962,7 +963,7 @@ export class ChannelServer {
             });
           } else {
             this.sendResponse({
-              id: id2,
+              id,
               data: err,
               type: 203,
               /* PromiseErrorObj */
@@ -986,12 +987,12 @@ export class ChannelServer {
       this.collectPendingRequest(request);
       return;
     }
-    const id2 = request.id;
+    const id = request.id;
     const event = channel.listen(this.ctx, request.name, request.arg);
-    const listener = event((data2) =>
+    const listener = event((data) =>
       this.sendResponse({
-        id: id2,
-        data: data2,
+        id,
+        data,
         type: 204,
         /* EventFire */
       }),
@@ -1015,7 +1016,7 @@ export class ChannelServer {
       pendingRequests = [];
       this.pendingRequests.set(request.channelName, pendingRequests);
     }
-    const timer2 = setTimeout(() => {
+    const timer = setTimeout(() => {
       console.error(`Unknown channel: ${request.channelName}`);
       if (request.type === 100) {
         this.sendResponse({
@@ -1032,10 +1033,10 @@ export class ChannelServer {
     }, this.timeoutDelay);
     pendingRequests.push({
       request,
-      timeoutTimer: timer2,
+      timeoutTimer: timer,
     });
   }
-  rejectPendingRequests(channelName, message2) {
+  rejectPendingRequests(channelName, message) {
     const requests = this.pendingRequests.get(channelName);
     if (!requests) return;
     for (const request of requests) {
@@ -1045,7 +1046,7 @@ export class ChannelServer {
           id: request.request.id,
           data: {
             name: "Unknown channel",
-            message: message2,
+            message,
             stack: void 0,
           },
           type: 202,

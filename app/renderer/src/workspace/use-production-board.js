@@ -4,7 +4,7 @@ import {
   StaleProductionPlanSaveError,
   toolName,
 } from "../text-editor/skill-reload-dock.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { useWorkspaceWSConnection } from "../settings/changelog-table.jsx";
 
@@ -32,7 +32,7 @@ function isPatchStageWorkItemsResponse(value) {
     candidate.ok === true &&
     Number.isInteger(candidate.revision) &&
     Array.isArray(candidate.changed_item_ids) &&
-    candidate.changed_item_ids.every((id2) => typeof id2 === "string")
+    candidate.changed_item_ids.every((changedItemId) => typeof changedItemId === "string")
   );
 }
 
@@ -52,72 +52,72 @@ function planIdFromText(value) {
   const parsed = parseJsonObject(value);
   const parsedId = parsed?.plan_id;
   if (typeof parsedId === "string" && parsedId.trim()) return parsedId;
-  const match2 = value?.match(/["']plan_id["']\s*:\s*["']([^"'\\/]+)["']/);
-  return match2?.[1]?.trim() || void 0;
+  const match = value?.match(/["']plan_id["']\s*:\s*["']([^"'\\/]+)["']/);
+  return match?.[1]?.trim() || void 0;
 }
 
-function findPlanRefInSubMessages(messages2, parentVersion) {
-  if (!messages2) return void 0;
-  for (let i2 = messages2.length - 1; i2 >= 0; i2 -= 1) {
-    const message2 = messages2[i2];
-    if (!message2) continue;
+function findPlanRefInSubMessages(messages, parentVersion) {
+  if (!messages) return void 0;
+  for (let messageIndex = messages.length - 1; messageIndex >= 0; messageIndex -= 1) {
+    const message = messages[messageIndex];
+    if (!message) continue;
     const nested = findPlanRefInSubMessages(
-      message2.subMessages,
+      message.subMessages,
       parentVersion,
     );
     if (nested) return nested;
-    if (message2.type !== "tool") continue;
-    const name2 = message2.content.split(":", 1)[0] ?? "";
-    if (!PLAN_TOOL_NAMES.has(name2)) continue;
-    const id2 =
-      planIdFromText(message2.content) ?? planIdFromText(message2.args);
-    if (id2)
+    if (message.type !== "tool") continue;
+    const planToolName = message.content.split(":", 1)[0] ?? "";
+    if (!PLAN_TOOL_NAMES.has(planToolName)) continue;
+    const planId =
+      planIdFromText(message.content) ?? planIdFromText(message.args);
+    if (planId)
       return {
-        id: id2,
-        version: `${parentVersion}:${message2.id}:${message2.toolStatus ?? ""}`,
+        id: planId,
+        version: `${parentVersion}:${message.id}:${message.toolStatus ?? ""}`,
       };
   }
   return void 0;
 }
 
-function findLatestPlanRef(messages2) {
-  for (let i2 = messages2.length - 1; i2 >= 0; i2 -= 1) {
-    const message2 = messages2[i2];
-    if (!message2) continue;
-    if (message2.type === "sub_agent") {
+function findLatestPlanRef(messages) {
+  for (let messageIndex = messages.length - 1; messageIndex >= 0; messageIndex -= 1) {
+    const message = messages[messageIndex];
+    if (!message) continue;
+    if (message.type === "sub_agent") {
       const nested = findPlanRefInSubMessages(
-        message2.subMessages,
-        message2.id,
+        message.subMessages,
+        message.id,
       );
       if (nested) return nested;
       continue;
     }
-    if (message2.type !== "tool") continue;
-    const version2 = `${message2.id}:${message2.toolStatus ?? ""}:${message2.toolResult ?? ""}`;
-    const resultId = planIdFromText(message2.toolResult);
+    if (message.type !== "tool") continue;
+    const version = `${message.id}:${message.toolStatus ?? ""}:${message.toolResult ?? ""}`;
+    const resultId = planIdFromText(message.toolResult);
     if (resultId)
       return {
         id: resultId,
-        version: version2,
+        version,
       };
-    if (!PLAN_TOOL_NAMES.has(toolName(message2))) continue;
-    const args = parseJsonObject(message2.toolArgs ?? message2.url);
+    if (!PLAN_TOOL_NAMES.has(toolName(message))) continue;
+    const args = parseJsonObject(message.toolArgs ?? message.url);
     const argId = args?.plan_id;
     if (typeof argId === "string" && argId.trim())
       return {
         id: argId,
-        version: version2,
+        version,
       };
   }
   return void 0;
 }
 
-export function useProductionBoard(messages2, scopeId) {
-  const gatewayFetch2 = useGatewayFetch();
-  const { subscribe: subscribe2 } = useWorkspaceWSConnection();
+export function useProductionBoard(messages, scopeId) {
+  const gatewayFetch = useGatewayFetch();
+  const { subscribe } = useWorkspaceWSConnection();
   const planRef = reactExports.useMemo(
-    () => findLatestPlanRef(messages2),
-    [messages2],
+    () => findLatestPlanRef(messages),
+    [messages],
   );
   const scopeIdentityKey = `${scopeId ?? ""}\0${planRef?.id ?? ""}\0${planRef?.version ?? ""}`;
   const scopeGenerationRef = reactExports.useRef({
@@ -141,12 +141,12 @@ export function useProductionBoard(messages2, scopeId) {
   const planRefKey = planRef
     ? `${planRef.id}\0${planRef.version}\0${refreshRequest.sequence}\0${minimumRevision}`
     : void 0;
-  const [state2, setState] = reactExports.useState({
+  const [state, setState] = reactExports.useState({
     loading: false,
     editable: false,
   });
-  const stateRef = reactExports.useRef(state2);
-  stateRef.current = state2;
+  const stateRef = reactExports.useRef(state);
+  stateRef.current = state;
   const trackedPlanIdRef = reactExports.useRef(planRef?.id);
   trackedPlanIdRef.current = planRef?.id;
   const loadSequenceRef = reactExports.useRef(0);
@@ -163,31 +163,31 @@ export function useProductionBoard(messages2, scopeId) {
   }
   const pendingSaveVerificationRef = reactExports.useRef(void 0);
   const rejectPendingSaveVerification = reactExports.useCallback((error) => {
-    const pending2 = pendingSaveVerificationRef.current;
-    if (!pending2) return;
+    const pending = pendingSaveVerificationRef.current;
+    if (!pending) return;
     pendingSaveVerificationRef.current = void 0;
-    pending2.reject(error);
+    pending.reject(error);
   }, []);
   const settlePendingSaveVerification = reactExports.useCallback(
-    (current2 = stateRef.current) => {
-      const pending2 = pendingSaveVerificationRef.current;
-      if (!pending2) return;
+    (current = stateRef.current) => {
+      const pending = pendingSaveVerificationRef.current;
+      if (!pending) return;
       const requested = requestedRevisionRef.current;
       if (
-        pending2.saveSequence !== saveSequenceRef.current ||
-        pending2.scopeGeneration !== scopeGenerationRef.current.generation ||
-        trackedPlanIdRef.current !== pending2.planId ||
-        current2.planId !== pending2.planId ||
-        (requested.planId === pending2.planId &&
-          requested.revision > pending2.revision) ||
-        (current2.revision !== void 0 && current2.revision > pending2.revision)
+        pending.saveSequence !== saveSequenceRef.current ||
+        pending.scopeGeneration !== scopeGenerationRef.current.generation ||
+        trackedPlanIdRef.current !== pending.planId ||
+        current.planId !== pending.planId ||
+        (requested.planId === pending.planId &&
+          requested.revision > pending.revision) ||
+        (current.revision !== void 0 && current.revision > pending.revision)
       ) {
         rejectPendingSaveVerification(new StaleProductionPlanSaveError());
         return;
       }
-      if (current2.revision === pending2.revision && current2.editable) {
+      if (current.revision === pending.revision && current.editable) {
         pendingSaveVerificationRef.current = void 0;
-        pending2.resolve();
+        pending.resolve();
       }
     },
     [rejectPendingSaveVerification],
@@ -201,53 +201,53 @@ export function useProductionBoard(messages2, scopeId) {
           ? Math.max(requested.revision, revision)
           : revision,
     };
-    const current2 = stateRef.current;
+    const current = stateRef.current;
     const alreadyLoaded =
-      current2.planId === planId &&
-      current2.revision !== void 0 &&
-      current2.revision >= revision &&
-      current2.editable;
+      current.planId === planId &&
+      current.revision !== void 0 &&
+      current.revision >= revision &&
+      current.editable;
     if (alreadyLoaded) return;
-    setState((previous2) =>
-      previous2.planId === planId
+    setState((previous) =>
+      previous.planId === planId
         ? {
-            ...previous2,
+            ...previous,
             loading: true,
             editable: false,
             error: void 0,
           }
-        : previous2,
+        : previous,
     );
-    setRefreshRequest((previous2) => {
+    setRefreshRequest((previous) => {
       if (
-        previous2.planId === planId &&
-        previous2.minimumRevision >= revision
+        previous.planId === planId &&
+        previous.minimumRevision >= revision
       ) {
-        return current2.planId === planId &&
-          !current2.loading &&
-          !current2.editable
+        return current.planId === planId &&
+          !current.loading &&
+          !current.editable
           ? {
-              ...previous2,
-              sequence: previous2.sequence + 1,
+              ...previous,
+              sequence: previous.sequence + 1,
             }
-          : previous2;
+          : previous;
       }
       return {
         planId,
-        sequence: previous2.sequence + 1,
+        sequence: previous.sequence + 1,
         minimumRevision:
-          previous2.planId === planId
-            ? Math.max(previous2.minimumRevision, revision)
+          previous.planId === planId
+            ? Math.max(previous.minimumRevision, revision)
             : revision,
       };
     });
   }, []);
   reactExports.useEffect(() => {
-    settlePendingSaveVerification(state2);
-  }, [settlePendingSaveVerification, state2]);
+    settlePendingSaveVerification(state);
+  }, [settlePendingSaveVerification, state]);
   reactExports.useEffect(() => {
-    const pending2 = pendingSaveVerificationRef.current;
-    if (pending2 && pending2.scopeGeneration !== scopeGeneration) {
+    const pending = pendingSaveVerificationRef.current;
+    if (pending && pending.scopeGeneration !== scopeGeneration) {
       rejectPendingSaveVerification(new StaleProductionPlanSaveError());
     }
   }, [rejectPendingSaveVerification, scopeGeneration]);
@@ -259,49 +259,49 @@ export function useProductionBoard(messages2, scopeId) {
   const retry = reactExports.useCallback(() => {
     const planId = planRef?.id;
     if (!planId) return;
-    setState((previous2) =>
-      previous2.planId === planId
+    setState((previous) =>
+      previous.planId === planId
         ? {
-            ...previous2,
+            ...previous,
             loading: true,
             editable: false,
             error: void 0,
           }
-        : previous2,
+        : previous,
     );
-    setRefreshRequest((previous2) => ({
+    setRefreshRequest((previous) => ({
       planId,
-      sequence: previous2.sequence + 1,
+      sequence: previous.sequence + 1,
       minimumRevision:
-        previous2.planId === planId ? previous2.minimumRevision : 0,
+        previous.planId === planId ? previous.minimumRevision : 0,
     }));
   }, [planRef?.id]);
   const isRevisionCurrent = reactExports.useCallback((planId, revision) => {
-    const current2 = stateRef.current;
+    const current = stateRef.current;
     const requested = requestedRevisionRef.current;
     return (
       trackedPlanIdRef.current === planId &&
-      current2.planId === planId &&
-      current2.revision === revision &&
-      current2.editable &&
+      current.planId === planId &&
+      current.revision === revision &&
+      current.editable &&
       (requested.planId !== planId || requested.revision <= revision)
     );
   }, []);
   const saveStageWorkItems = reactExports.useCallback(
     async (stageId, patches, referenceItems) => {
-      const current2 = stateRef.current;
+      const current = stateRef.current;
       if (
-        !current2.planId ||
-        current2.revision === void 0 ||
-        !current2.editable
+        !current.planId ||
+        current.revision === void 0 ||
+        !current.editable
       ) {
         throw new Error("Stage plan is not ready for editing.");
       }
-      const planId = current2.planId;
-      const expectedRevision = current2.revision;
+      const planId = current.planId;
+      const expectedRevision = current.revision;
       const saveSequence = ++saveSequenceRef.current;
       const saveScopeGeneration = scopeGenerationRef.current.generation;
-      const response = await gatewayFetch2("/api/plan/stage-work-items", {
+      const response = await gatewayFetch("/api/plan/stage-work-items", {
         method: "PATCH",
         headers: {
           "content-type": "application/json",
@@ -329,16 +329,16 @@ export function useProductionBoard(messages2, scopeId) {
       if (!isPatchStageWorkItemsResponse(payload)) {
         throw new Error("Stage work item update returned an invalid response.");
       }
-      const latest2 = stateRef.current;
+      const latest = stateRef.current;
       const requested = requestedRevisionRef.current;
       if (
         saveSequence !== saveSequenceRef.current ||
         saveScopeGeneration !== scopeGenerationRef.current.generation ||
         trackedPlanIdRef.current !== planId ||
-        latest2.planId !== planId ||
+        latest.planId !== planId ||
         (requested.planId === planId &&
           requested.revision > payload.revision) ||
-        (latest2.revision !== void 0 && latest2.revision > payload.revision)
+        (latest.revision !== void 0 && latest.revision > payload.revision)
       ) {
         throw new StaleProductionPlanSaveError();
       }
@@ -362,7 +362,7 @@ export function useProductionBoard(messages2, scopeId) {
       };
     },
     [
-      gatewayFetch2,
+      gatewayFetch,
       rejectPendingSaveVerification,
       requestRefresh,
       settlePendingSaveVerification,
@@ -371,13 +371,13 @@ export function useProductionBoard(messages2, scopeId) {
   const trackedPlanId = planRef?.id;
   reactExports.useEffect(() => {
     if (!trackedPlanId) return;
-    return subscribe2((msg) => {
+    return subscribe((msg) => {
       if (msg.type !== "plan_changed") return;
       if (msg.plan_id !== trackedPlanId) return;
       if (!Number.isInteger(msg.revision) || msg.revision < 0) return;
       requestRefresh(trackedPlanId, msg.revision);
     });
-  }, [requestRefresh, subscribe2, trackedPlanId]);
+  }, [requestRefresh, subscribe, trackedPlanId]);
   reactExports.useEffect(() => {
     const planId = planRef?.id;
     if (!planId || !planRefKey) {
@@ -409,7 +409,7 @@ export function useProductionBoard(messages2, scopeId) {
     );
     async function loadPlan() {
       try {
-        const response = await gatewayFetch2(
+        const response = await gatewayFetch(
           `/api/plan/review?id=${encodeURIComponent(planId ?? "")}`,
           {
             method: "GET",
@@ -430,14 +430,14 @@ export function useProductionBoard(messages2, scopeId) {
           );
         }
         if (loadSequence === loadSequenceRef.current) {
-          setState((current2) => {
-            if (current2.planId !== planId) return current2;
+          setState((current) => {
+            if (current.planId !== planId) return current;
             if (
-              current2.revision !== void 0 &&
-              current2.revision > model.revision
+              current.revision !== void 0 &&
+              current.revision > model.revision
             ) {
               return {
-                ...current2,
+                ...current,
                 loading: false,
                 editable: true,
                 error: void 0,
@@ -454,14 +454,14 @@ export function useProductionBoard(messages2, scopeId) {
         }
       } catch (error) {
         if (loadSequence === loadSequenceRef.current) {
-          const pending2 = pendingSaveVerificationRef.current;
-          if (pending2?.planId === planId) {
+          const pending = pendingSaveVerificationRef.current;
+          if (pending?.planId === planId) {
             rejectPendingSaveVerification(
               error instanceof Error ? error : new Error(String(error)),
             );
           }
-          setState((current2) => ({
-            ...current2,
+          setState((current) => ({
+            ...current,
             planId,
             loading: false,
             editable: false,
@@ -476,14 +476,14 @@ export function useProductionBoard(messages2, scopeId) {
         loadSequenceRef.current += 1;
     };
   }, [
-    gatewayFetch2,
+    gatewayFetch,
     minimumRevision,
     planRef?.id,
     planRefKey,
     rejectPendingSaveVerification,
   ]);
   return {
-    ...state2,
+    ...state,
     saveStageWorkItems,
     isRevisionCurrent,
     retry,

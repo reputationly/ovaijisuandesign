@@ -1,6 +1,7 @@
 // comfy-ui-download-progress-host.jsx
 import { countUnavailableComfyUiModels } from "../vendor-inline/vscode-base/linked-list.js";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   ComfyUiDownloadProgressContext,
@@ -17,8 +18,8 @@ function isComfyUiModelAlreadyDownloaded(task) {
   );
 }
 
-export function ComfyUiDownloadProgressHost({ children: children2 }) {
-  const { t: t2 } = useTranslation();
+export function ComfyUiDownloadProgressHost({ children }) {
+  const { t: translate } = useTranslation();
   const [tasks, setTasks] = reactExports.useState([]);
   reactExports.useEffect(() => {
     let mounted = true;
@@ -30,8 +31,8 @@ export function ComfyUiDownloadProgressHost({ children: children2 }) {
     });
     const subscription = homeService.comfyUiModelDownload.onDidChange(
       (task) => {
-        setTasks((current2) => {
-          const withoutTask = current2.filter((item) => item.id !== task.id);
+        setTasks((current) => {
+          const withoutTask = current.filter((item) => item.id !== task.id);
           return task.hidden && task.status !== "failed"
             ? withoutTask
             : [...withoutTask, task];
@@ -40,23 +41,23 @@ export function ComfyUiDownloadProgressHost({ children: children2 }) {
         if (task.status === "completed") {
           if (task.untrustedSourceModels.length) {
             dedupedToast.warning(
-              t2("chat.workflow.downloadCompletedUnsupportedSources", {
+              translate("chat.workflow.downloadCompletedUnsupportedSources", {
                 count: task.untrustedSourceModels.length,
               }),
             );
           } else if (isComfyUiModelAlreadyDownloaded(task)) {
-            dedupedToast.success(t2("chat.workflow.downloadAlreadyAvailable"));
+            dedupedToast.success(translate("chat.workflow.downloadAlreadyAvailable"));
           } else if (task.missingSourceModels.length) {
             dedupedToast.success(
-              t2("chat.workflow.downloadCompletedMissingSources", {
+              translate("chat.workflow.downloadCompletedMissingSources", {
                 count: task.missingSourceModels.length,
               }),
             );
           } else {
-            dedupedToast.success(t2("chat.workflow.downloadCompleted"));
+            dedupedToast.success(translate("chat.workflow.downloadCompleted"));
           }
         } else if (task.status === "failed") {
-          dedupedToast.error(task.error || t2("chat.workflow.downloadFailed"));
+          dedupedToast.error(task.error || translate("chat.workflow.downloadFailed"));
         }
       },
     );
@@ -64,7 +65,7 @@ export function ComfyUiDownloadProgressHost({ children: children2 }) {
       mounted = false;
       subscription.dispose();
     };
-  }, [t2]);
+  }, [translate]);
   const activeTasks = reactExports.useMemo(
     () => tasks.filter(isActiveComfyUiDownloadTask),
     [tasks],
@@ -73,12 +74,12 @@ export function ComfyUiDownloadProgressHost({ children: children2 }) {
     void homeService.comfyUiModelDownload.cancelTask(taskId);
   }, []);
   const dismissTask = reactExports.useCallback((taskId) => {
-    setTasks((current2) => current2.filter((task) => task.id !== taskId));
+    setTasks((current) => current.filter((task) => task.id !== taskId));
     void homeService.comfyUiModelDownload.dismissTask(taskId);
   }, []);
   const clearFinished = reactExports.useCallback(() => {
     const finished = tasks.filter((task) => !isActiveComfyUiDownloadTask(task));
-    setTasks((current2) => current2.filter(isActiveComfyUiDownloadTask));
+    setTasks((current) => current.filter(isActiveComfyUiDownloadTask));
     void Promise.all(
       finished.map((task) =>
         homeService.comfyUiModelDownload.dismissTask(task.id),
@@ -87,9 +88,9 @@ export function ComfyUiDownloadProgressHost({ children: children2 }) {
   }, [tasks]);
   const openModelsFolder = reactExports.useCallback(() => {
     void homeService.comfyUiModelDownload.openModelsFolder().catch(() => {
-      dedupedToast.error(t2("chat.workflow.downloadOpenFolderFailed"));
+      dedupedToast.error(translate("chat.workflow.downloadOpenFolderFailed"));
     });
-  }, [t2]);
+  }, [translate]);
   const value = reactExports.useMemo(
     () => ({
       tasks,
@@ -110,7 +111,7 @@ export function ComfyUiDownloadProgressHost({ children: children2 }) {
   );
   return (
     <ComfyUiDownloadProgressContext.Provider value={value}>
-      {children2}
+      {children}
     </ComfyUiDownloadProgressContext.Provider>
   );
 }

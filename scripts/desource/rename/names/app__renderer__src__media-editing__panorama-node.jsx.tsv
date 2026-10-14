@@ -1,0 +1,28 @@
+key	new	依据
+data2@51:9	data	当前全景画布节点承载的数据对象。
+selected2@52:13	selected	当前全景节点是否被画布选中的布尔属性。
+state2@96:47	state	资产元数据状态仓库回调收到的当前状态对象。
+state2@111:57	state	资产元数据状态仓库回调收到的当前状态对象。
+meta2@115:15	meta	上游图像节点对应的资产元数据记录。
+current2@223:24	current	状态更新回调收到的当前截图请求记录。
+next2@253:13	next	图结构变更后重新取得的上游节点标识列表。
+current2@254:29	current	状态更新回调收到的当前上游节点标识列表。
+index2@256:35	index	当前节点标识在生成锚点列表中的索引。
+timeout2@401:11	timeout	等待新生成图像节点期间设置的定时器编号。
+index2@392:18	index	当前节点标识在生成锚点列表中的索引。
+all2@392:26	all	供当前 filter 回调去重的完整生成锚点标识列表。
+now2@489:15	now	用于比较截图位置预留是否过期的当前时间戳。
+position2@539:15	position	为截图生成节点计算出的空闲画布位置。
+node2@488:44	node	React Flow 返回的当前画布节点对象。
+node2@515:20	node	React Flow 返回的当前画布节点对象。
+internal2@517:17	internal	React Flow 为节点提供的内部布局记录。
+count2@605:6	count	本次请求捕获的视角数量。
+current2@626:29	current	状态更新回调收到的当前全屏请求编号。
+current2@791:43	current	状态更新回调收到的当前自然图像尺寸记录。
+id2@50:7	panoramaNodeId	当前全景画布节点的标识。
+t2@56:14	t	根据当前语言返回全景节点文案的翻译函数。
+x2@508:17	x	截图位置预留矩形左上角的横坐标。
+y4@508:24	y	截图位置预留矩形左上角的纵坐标。
+w3@508:31	reservationWidth	截图位置预留矩形的宽度。
+h2@508:38	reservationHeight	截图位置预留矩形的高度。
+all@392:25	allAnchorIds	filter 回调收到的全景生成锚点完整标识列表，用于去重。

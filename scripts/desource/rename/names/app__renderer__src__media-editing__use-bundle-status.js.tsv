@@ -1,0 +1,10 @@
+key	new	依据
+workspaceId2@13:42	workspaceId	此参数标识要写入失败状态的工作区，缺省时使用 workspace 占位 ID。
+workspaceId2@29:33	workspaceId	此参数选择工作区 bundle 服务，并参与状态订阅作用域。
+service2@47:9	service	此对象是当前工作区或全局 bundle 状态服务，后续用于订阅和读取状态。
+apply2@66:11	apply	该回调忽略已释放或版本过旧的状态，再更新 lastRevision 与作用域状态。
+next2@66:21	next	此参数是服务推送的新状态快照，按 revision 判断是否可应用。
+elapsedMs2@98:13	elapsedMs	此时长是从首次请求到当前重试的已用毫秒数，用于判断是否超过重试上限。
+snapshot2@117:16	snapshot	此值是 getStatus 返回的最新 bundle 状态快照，成功时交给 apply 处理。
+id2@14:9	normalizedWorkspaceId	将可选 workspaceId 补为默认值后的工作区标识，用于状态的 workspaceId 和 folderPath。
+msg@82:13	message	包含重试上下文和错误详情的日志消息，传给 logger 输出。

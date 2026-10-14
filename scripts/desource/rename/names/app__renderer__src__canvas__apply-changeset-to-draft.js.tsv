@@ -1,0 +1,7 @@
+key	old	new	依据
+n2@16:43	n2	fileNode	changes.updatedNodes 中的文件节点按 id 放入更新映射。
+n2@20:33	n2	fileNode	changes.addedNodes 中的文件节点被转换为运行时节点。
+n2@101:44	n2	node	next 中的运行时节点 id 被加入 existingIds 集合用于去重。
+mode2@9:55	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@23:9	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@24:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

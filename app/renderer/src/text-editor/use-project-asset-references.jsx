@@ -1,9 +1,7 @@
 // use-project-asset-references.jsx
-import {
-  reactExports,
-  useCurrentWorkspace,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   PreviewCard,
@@ -27,29 +25,29 @@ function useProjectAssetReferences(workspace) {
   const assets = useProjectAssetsService();
   const searchProjectAssets = reactExports.useCallback(
     async (query, limit = 50, signal) => {
-      const empty2 = {
+      const empty = {
         items: [],
         truncated: false,
       };
-      if (!projectId || signal?.aborted) return empty2;
+      if (!projectId || signal?.aborted) return empty;
       const scope = await ensureProjectFolderName(projectId);
-      if (!scope || signal?.aborted) return empty2;
+      if (!scope || signal?.aborted) return empty;
       const rows = await assets.listAssets(scope);
-      if (signal?.aborted) return empty2;
+      if (signal?.aborted) return empty;
       const normalized = query.trim().toLocaleLowerCase();
-      const matches2 = rows.filter(
+      const matches = rows.filter(
         (row) =>
           !normalized || row.name.toLocaleLowerCase().includes(normalized),
       );
       return {
-        items: matches2.slice(0, limit).map((row) => {
-          const type2 = detectFileType(row.name);
+        items: matches.slice(0, limit).map((row) => {
+          const type = detectFileType(row.name);
           const kind =
-            type2 === "image" ||
-            type2 === "video" ||
-            type2 === "audio" ||
-            type2 === "text"
-              ? type2
+            type === "image" ||
+            type === "video" ||
+            type === "audio" ||
+            type === "text"
+              ? type
               : "other";
           const reference = {
             source: "project",
@@ -63,7 +61,7 @@ function useProjectAssetReferences(workspace) {
             updatedAt: row.updatedAt,
           };
         }),
-        truncated: matches2.length > limit,
+        truncated: matches.length > limit,
       };
     },
     [assets, ensureProjectFolderName, projectId],
@@ -73,7 +71,7 @@ function useProjectAssetReferences(workspace) {
   };
 }
 function CanvasReferencePreview({ reference, trigger, status }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const missing = status === "deleted" || status === "missing";
   return (
     <PreviewCard>
@@ -82,8 +80,8 @@ function CanvasReferencePreview({ reference, trigger, status }) {
         {missing ? (
           <p className="p-3 text-sm text-muted-foreground">
             {reference.source === "subject"
-              ? t2("canvas.reference.subjectNotFound", "Subject not found")
-              : t2("canvas.reference.assetNotFound", "Asset not found")}
+              ? t("canvas.reference.subjectNotFound", "Subject not found")
+              : t("canvas.reference.assetNotFound", "Asset not found")}
           </p>
         ) : reference.target === "entity" ? (
           <EntityHoverCardBody entityId={reference.id} />

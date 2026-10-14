@@ -1,0 +1,8 @@
+key	新名	依据
+el@38:11	scrollElement	`scrollElement` 是读取滚动高度、位置和可视高度的聊天容器。
+el@66:11	scrollElement	`scrollElement` 是用于注册滚动事件监听器的聊天容器。
+el@77:11	scrollElement	`scrollElement` 是 ResizeObserver 观察的聊天容器。
+c3@90:21	currentUnreadCount	`currentUnreadCount` 是收到新消息前用于递增的未读消息计数。
+state2@24:10	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+distance2@40:11	distance	`distance` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+observer2@79:11	observer	`observer` 是标识值；末尾数字是打包器为避免重名添加的后缀。

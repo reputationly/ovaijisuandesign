@@ -1,5 +1,11 @@
 // use-folder-permission-gate.jsx
-import { reactExports, ShieldCheck, Trans, usePlatform, useStorage, useTranslation, workspaceLog } from "../vendor.js";
+import { Trans } from "react-i18next";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { ShieldCheck } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
+import { workspaceLog } from "../infra/logger.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AlertDialog, Button } from "../infra/dialog-content.jsx";
@@ -20,16 +26,16 @@ function FolderPermissionDialog({
   onAllow,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
-    <AlertDialog open={open} onOpenChange={(v2) => !v2 && onCancel()}>
+    <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>
       <AlertDialogContent data-action-ui-id="folder-permission-dialog">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t2("workspace.folderPermission.title", "文件夹访问权限")}
+            {translate("workspace.folderPermission.title", "文件夹访问权限")}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t2(
+            {translate(
               "workspace.folderPermission.body",
               "授予后，MiniMax Design 对该文件夹及其子文件夹里的内容将拥有读取、写入、删除的能力。",
             )}
@@ -54,20 +60,20 @@ function FolderPermissionDialog({
             onClick={onCancel}
             data-action-ui-id="folder-permission-cancel"
           >
-            {t2("common.cancel", "取消")}
+            {translate("common.cancel", "取消")}
           </Button>
           <Button
             variant="outline"
             onClick={onAllow}
             data-action-ui-id="folder-permission-allow"
           >
-            {t2("workspace.folderPermission.allow", "允许")}
+            {translate("workspace.folderPermission.allow", "允许")}
           </Button>
           <Button
             onClick={onAlwaysAllow}
             data-action-ui-id="folder-permission-always-allow"
           >
-            {t2("workspace.folderPermission.alwaysAllow", "始终允许")}
+            {translate("workspace.folderPermission.alwaysAllow", "始终允许")}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -75,14 +81,14 @@ function FolderPermissionDialog({
   );
 }
 export function useFolderPermissionGate() {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const settingsDialog = useOptionalSettingsDialog();
-  const caseInsensitive = isCaseInsensitiveOs(platform2.app.os);
-  const [config2, , persistConfig] = useStorage("global.config");
-  const configRef = reactExports.useRef(config2);
-  configRef.current = config2;
-  const [pending2, setPending] = reactExports.useState(null);
+  const caseInsensitive = isCaseInsensitiveOs(platform.app.os);
+  const [config, , persistConfig] = useStorage("global.config");
+  const configRef = reactExports.useRef(config);
+  configRef.current = config;
+  const [pending, setPending] = reactExports.useState(null);
   const ensureGranted = reactExports.useCallback(
     (folderPath) => {
       if (
@@ -110,15 +116,15 @@ export function useFolderPermissionGate() {
   const handleAllow = reactExports.useCallback(() => {
     workspaceLog.info("folder-consent: allow");
     dedupedToast.success(
-      t2("workspace.folderPermission.allowToast", "权限添加成功"),
+      translate("workspace.folderPermission.allowToast", "权限添加成功"),
     );
-    pending2?.resolve(true);
+    pending?.resolve(true);
     setPending(null);
-  }, [pending2, t2]);
+  }, [pending, translate]);
   const handleAlwaysAllow = reactExports.useCallback(async () => {
-    if (!pending2) return;
+    if (!pending) return;
     workspaceLog.info("folder-consent: always-allow");
-    const folderPath = pending2.folderPath;
+    const folderPath = pending.folderPath;
     if (
       !isPathInWhitelist(
         folderPath,
@@ -126,8 +132,8 @@ export function useFolderPermissionGate() {
         caseInsensitive,
       )
     ) {
-      const saved = await persistConfig((current2) => {
-        const existing = current2.folderWhitelist ?? [];
+      const saved = await persistConfig((current) => {
+        const existing = current.folderWhitelist ?? [];
         if (isPathInWhitelist(folderPath, existing, caseInsensitive)) return {};
         const withoutChildren = existing.filter(
           (entry) => !isPathInWhitelist(entry, [folderPath], caseInsensitive),
@@ -137,7 +143,7 @@ export function useFolderPermissionGate() {
         };
       });
       if (!saved) {
-        dedupedToast.error(t2("settings.folderWhitelist.saveFailed"));
+        dedupedToast.error(translate("settings.folderWhitelist.saveFailed"));
         return;
       }
     }
@@ -156,18 +162,18 @@ export function useFolderPermissionGate() {
         }}
       />,
     );
-    pending2.resolve(true);
+    pending.resolve(true);
     setPending(null);
-  }, [caseInsensitive, pending2, persistConfig, settingsDialog, t2]);
+  }, [caseInsensitive, pending, persistConfig, settingsDialog, translate]);
   const handleCancel = reactExports.useCallback(() => {
     workspaceLog.info("folder-consent: cancel");
-    pending2?.resolve(false);
+    pending?.resolve(false);
     setPending(null);
-  }, [pending2]);
+  }, [pending]);
   const dialog = (
     <FolderPermissionDialog
-      open={pending2 !== null}
-      folderPath={pending2?.folderPath ?? ""}
+      open={pending !== null}
+      folderPath={pending?.folderPath ?? ""}
       onAlwaysAllow={handleAlwaysAllow}
       onAllow={handleAllow}
       onCancel={handleCancel}

@@ -1,5 +1,6 @@
 // create-remote-tool-sdk.js
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 
@@ -12,8 +13,8 @@ async function defaultUploadFile(file, options, logger = remoteToolLog) {
     body: form,
   });
   if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
-  const json2 = await res.json();
-  const localPath = json2.path ?? json2.relative;
+  const json = await res.json();
+  const localPath = json.path ?? json.relative;
   if (localPath) {
     try {
       const cdnRes = await gatewayFetch("/api/files/upload-cdn", {
@@ -29,7 +30,7 @@ async function defaultUploadFile(file, options, logger = remoteToolLog) {
         const cdnJson = await cdnRes.json();
         if (cdnJson.ok && cdnJson.url) {
           return {
-            fileId: json2.id ?? "",
+            fileId: json.id ?? "",
             url: cdnJson.url,
           };
         }
@@ -52,15 +53,15 @@ async function defaultUploadFile(file, options, logger = remoteToolLog) {
     }
   }
   return {
-    fileId: json2.id ?? json2.data?.fileId ?? "",
-    url: json2.url ?? json2.data?.url ?? "",
+    fileId: json.id ?? json.data?.fileId ?? "",
+    url: json.url ?? json.data?.url ?? "",
   };
 }
 
 function createRemoteToolSdk(opts) {
   const logger = opts.logger ?? remoteToolLog;
-  const handlers2 = new Map();
-  const pending2 = new Map();
+  const handlers = new Map();
+  const pending = new Map();
   const sdk = {
     toolId: opts.toolId,
     locale: opts.locale,
@@ -68,24 +69,24 @@ function createRemoteToolSdk(opts) {
       if (opts.onTrack) opts.onTrack(event, props);
       else console.debug("[RemoteTool] track:", event, props);
     },
-    emit: (eventType, data2) => {
-      opts.onEmit?.(eventType, data2);
+    emit: (eventType, data) => {
+      opts.onEmit?.(eventType, data);
       if (eventType === "gui:ready") {
         const params = opts.getInitialParams?.();
         if (params) deliver("params:inject", params);
       }
     },
     on: (eventType, handler) => {
-      let set2 = handlers2.get(eventType);
-      if (!set2) {
-        set2 = new Set();
-        handlers2.set(eventType, set2);
+      let set = handlers.get(eventType);
+      if (!set) {
+        set = new Set();
+        handlers.set(eventType, set);
       }
       const erased = handler;
-      set2.add(erased);
-      if (pending2.has(eventType)) {
+      set.add(erased);
+      if (pending.has(eventType)) {
         try {
-          erased(pending2.get(eventType));
+          erased(pending.get(eventType));
         } catch (err) {
           logger.error("handler error (late delivery)", {
             tool_id: sdk.toolId,
@@ -95,23 +96,23 @@ function createRemoteToolSdk(opts) {
         }
       }
       return () => {
-        handlers2.get(eventType)?.delete(erased);
+        handlers.get(eventType)?.delete(erased);
       };
     },
     uploadFile: (file, options) =>
-      (opts.onUploadFile ?? ((f2, o2) => defaultUploadFile(f2, o2, logger)))(
+      (opts.onUploadFile ?? ((file, options) => defaultUploadFile(file, options, logger)))(
         file,
         options,
       ),
     checkLogin: async () => (opts.onCheckLogin ? opts.onCheckLogin() : true),
   };
-  function deliver(eventType, data2) {
-    pending2.set(eventType, data2);
-    const set2 = handlers2.get(eventType);
-    if (!set2 || set2.size === 0) return;
-    for (const handler of set2) {
+  function deliver(eventType, data) {
+    pending.set(eventType, data);
+    const set = handlers.get(eventType);
+    if (!set || set.size === 0) return;
+    for (const handler of set) {
       try {
-        handler(data2);
+        handler(data);
       } catch (err) {
         logger.error("handler error", {
           tool_id: sdk.toolId,
@@ -120,7 +121,7 @@ function createRemoteToolSdk(opts) {
         });
       }
     }
-    pending2.delete(eventType);
+    pending.delete(eventType);
   }
   return {
     sdk,
@@ -132,8 +133,8 @@ function createRemoteToolSdk(opts) {
       sdk.locale = locale;
     },
     dispose: () => {
-      handlers2.clear();
-      pending2.clear();
+      handlers.clear();
+      pending.clear();
     },
   };
 }
@@ -145,15 +146,15 @@ export function useRemoteToolSdk(opts) {
     createRemoteToolSdk({
       toolId: opts.toolId,
       locale: opts.locale,
-      onEmit: (e2, d2) => optsRef.current.onEmit?.(e2, d2),
+      onEmit: (eventType, eventData) => optsRef.current.onEmit?.(eventType, eventData),
       onCheckLogin: () =>
         optsRef.current.onCheckLogin
           ? optsRef.current.onCheckLogin()
           : Promise.resolve(true),
       getInitialParams: () => optsRef.current.getInitialParams?.(),
-      onTrack: (e2, p3) => optsRef.current.onTrack?.(e2, p3),
-      onUploadFile: (f2, o2) =>
-        (optsRef.current.onUploadFile ?? defaultUploadFile)(f2, o2),
+      onTrack: (eventName, trackProperties) => optsRef.current.onTrack?.(eventName, trackProperties),
+      onUploadFile: (file, options) =>
+        (optsRef.current.onUploadFile ?? defaultUploadFile)(file, options),
       logger: opts.logger,
     }),
   );

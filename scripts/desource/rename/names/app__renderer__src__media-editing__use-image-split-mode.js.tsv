@@ -1,0 +1,28 @@
+magnification@21:10	magnificationValue	保存当前图像分割预览使用的放大比例。
+setMag@21:25	setMagnificationValue	设置当前放大比例的底层 useState setter，供带范围约束的 setMagnification 包装器调用。
+key	new	依据
+id2@8:7	nodeId	由 id 属性解构出的当前画布节点 ID，用于剪裁请求和生成任务上下文。
+t2@16:14	t	useTranslation 返回的翻译函数，为宫格分组和裁剪拆分面板生成文案。
+r2@28:11	rowCount	将输入 rows 向下取整并至少限制为 1 后得到的宫格行数。
+c3@29:11	columnCount	将输入 cols 向下取整并至少限制为 1 后得到的宫格列数。
+g2@45:13	currentGrid	当前宫格行列配置快照，用其列数把锚点与当前格索引换算为矩形选区。
+i2@50:22	cellIndex	矩形范围内当前单元格的线性索引，加入 selectedCells 集合副本。
+m3@67:34	magnification	SPLIT_MAGNIFICATIONS 中当前候选放大档位，用 id 与 next 比较以保存匹配项。
+i2@75:18	cellIndex	批量选中索引数组中的当前单元格索引，逐项加入 selectedCells 集合。
+err@136:16	err	批量高清拆分请求的 Promise 拒绝原因，catch 将该原因作为 grid-split batch failed 写入控制台。
+err@176:14	err	裁剪拆分请求的 Promise 拒绝原因，catch 将该原因作为 crop-split batch failed 写入控制台。
+selected2@9:13	isSelected	当前画布节点是否被选中；变为未选中时退出尚未提交的宫格编辑。
+meta2@10:9	meta	当前图像资源元数据对象；读取宽高校验宫格并为所选单元格生成裁剪区域。
+url2@14:8	url	当前图像资源 URL，加载图像以裁剪单元格并作为拆分任务输入。
+enter2@27:9	enter	以给定 rows/cols 初始化宫格并清空之前的选区与锚点。
+exit2@37:9	exit	退出宫格编辑模式，清空网格和选中格并复位处理中状态及锚点。
+index2@44:6	index	用户切换的当前单元格线性索引，用于扩展矩形范围或切换单格选中状态。
+range2@44:14	isRangeSelection	表示本次选择是否扩展范围的布尔参数；为真且有锚点时选中两索引间的矩形格。
+next2@49:17	next	selectedCells 的副本，向其中添加矩形范围的单元格索引后返回给 setter。
+next2@57:15	next	selectedCells 的副本，按 index 切换成员后交给 setSelectedCells。
+next2@65:54	next	用户选择的放大档位 ID，用于查找 SPLIT_MAGNIFICATIONS 中对应的设置。
+next2@74:13	next	selectedCells 的副本，合并 indices 中的单元格后返回给状态 setter。
+cells2@123:13	cells	切分所选网格单元格后生成的 Blob/文件列表，随后写入媒体生成任务。
+cells2@162:11	cells	切分所选单元格后得到的文件列表，逐项转成裁剪拆分请求参数。
+selected@9:3	isSelected	当前画布节点是否处于选中状态；变为未选中时退出网格编辑。
+range@44:13	isRangeSelection	布尔参数指明是否扩展矩形选择；为真时将锚点与当前格之间的单元格加入选区。

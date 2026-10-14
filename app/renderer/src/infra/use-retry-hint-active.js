@@ -1,16 +1,17 @@
 // use-retry-hint-active.js
-import { getRuntimeConfig, reactExports } from "../vendor.js";
+import { getRuntimeConfig } from "./runtime-config.js";
+import reactExports from "react";
 import { getNetworkDiagnosticsMainService } from "../team/copy-icon-button.jsx";
 import { WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY } from "../workspace/workspace-failure-diagnosis-registry.js";
 
 const TERMINAL_STATES = new Set(["failed", "stopped"]);
 
-function isTerminalState(s2) {
-  return TERMINAL_STATES.has(s2);
+function isTerminalState(state) {
+  return TERMINAL_STATES.has(state);
 }
 
-export function shouldRefreshStatusOnResume(isActive2, lastState) {
-  if (!isActive2 || lastState === void 0) return false;
+export function shouldRefreshStatusOnResume(isActive, lastState) {
+  if (!isActive || lastState === void 0) return false;
   return isTerminalState(lastState) || lastState === "stopping";
 }
 
@@ -34,11 +35,11 @@ export function useRetryHintActive(blockedUntilMs) {
       setExpiredUntilMs(blockedUntilMs);
       return;
     }
-    const timer2 = setTimeout(
+    const timer = setTimeout(
       () => setExpiredUntilMs(blockedUntilMs),
       remainingMs + 50,
     );
-    return () => clearTimeout(timer2);
+    return () => clearTimeout(timer);
   }, [blockedUntilMs]);
   return (
     blockedUntilMs !== void 0 &&
@@ -48,12 +49,12 @@ export function useRetryHintActive(blockedUntilMs) {
 }
 
 Object.fromEntries(
-  Object.entries(WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY).map(([code2, meta2]) => [
-    code2,
+  Object.entries(WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY).map(([code, meta]) => [
+    code,
     {
-      messageKey: meta2.message.key,
-      messageDefault: meta2.message.zh,
-      suggestions: meta2.suggestions.map((suggestion) => ({
+      messageKey: meta.message.key,
+      messageDefault: meta.message.zh,
+      suggestions: meta.suggestions.map((suggestion) => ({
         key: suggestion.key,
         defaultValue: suggestion.zh,
       })),

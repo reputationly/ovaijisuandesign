@@ -2,38 +2,38 @@
 import { SEEDANCE_REFERENCE_AUDIO_EXTS } from "../text-editor/build-asr-gateway-request.js";
 import { parseCanvasReference } from "../text-editor/table-document-to-llm-content.js";
 
-export function hasUnsupportedReferenceAudioFormat(path2) {
-  const reference = parseCanvasReference(path2);
+export function hasUnsupportedReferenceAudioFormat(path) {
+  const reference = parseCanvasReference(path);
   if (reference?.target === "entity") return false;
-  const filename = reference?.name ?? path2.split("?")[0]?.split("#")[0] ?? "";
-  const dot2 = filename.lastIndexOf(".");
+  const filename = reference?.name ?? path.split("?")[0]?.split("#")[0] ?? "";
+  const dot = filename.lastIndexOf(".");
   if (
-    dot2 < 0 ||
-    dot2 < Math.max(filename.lastIndexOf("/"), filename.lastIndexOf("\\"))
+    dot < 0 ||
+    dot < Math.max(filename.lastIndexOf("/"), filename.lastIndexOf("\\"))
   )
     return false;
   return !SEEDANCE_REFERENCE_AUDIO_EXTS.includes(
-    filename.slice(dot2).toLowerCase(),
+    filename.slice(dot).toLowerCase(),
   );
 }
 
 export function getReferenceVideoDurationsMs(paths, assets, resolutions) {
-  return paths.flatMap((path2) => {
-    if (parseCanvasReference(path2)?.target === "entity") {
-      const row = resolutions.get(path2);
-      if (row?.status !== "available") return [];
-      return (row.metadata?.attachments ?? [])
+  return paths.flatMap((path) => {
+    if (parseCanvasReference(path)?.target === "entity") {
+      const resolution = resolutions.get(path);
+      if (resolution?.status !== "available") return [];
+      return (resolution.metadata?.attachments ?? [])
         .filter((item) => item.kind === "video")
         .map((item) => Math.round((item.metadata?.duration_sec ?? 0) * 1e3));
     }
-    for (const meta2 of assets.values()) {
+    for (const meta of assets.values()) {
       if (
-        meta2.path === path2 &&
-        meta2.type === "video" &&
-        meta2.durationSec != null &&
-        meta2.durationSec > 0
+        meta.path === path &&
+        meta.type === "video" &&
+        meta.durationSec != null &&
+        meta.durationSec > 0
       )
-        return [Math.round(meta2.durationSec * 1e3)];
+        return [Math.round(meta.durationSec * 1e3)];
     }
     return [];
   });
@@ -41,9 +41,9 @@ export function getReferenceVideoDurationsMs(paths, assets, resolutions) {
 
 export function mergeDirectReferenceMetadata(assets, resolutions) {
   const merged = new Map(assets);
-  for (const [path2, row] of resolutions) {
-    if (row.status !== "available" || !row.metadata) continue;
-    const { reference, metadata } = row;
+  for (const [path, resolution] of resolutions) {
+    if (resolution.status !== "available" || !resolution.metadata) continue;
+    const { reference, metadata } = resolution;
     const groups =
       reference.target === "entity"
         ? [...new Set(metadata.attachments.map((item) => item.kind))].map(
@@ -73,9 +73,9 @@ export function mergeDirectReferenceMetadata(assets, resolutions) {
         media.length && media.every((item) => item?.duration_sec != null)
           ? media.reduce((total, item) => total + (item?.duration_sec ?? 0), 0)
           : void 0;
-      merged.set(`${path2}:${kind}`, {
-        path: path2,
-        name: row.name ?? reference.name,
+      merged.set(`${path}:${kind}`, {
+        path,
+        name: resolution.name ?? reference.name,
         type: kind,
         url: "",
         durationSec,

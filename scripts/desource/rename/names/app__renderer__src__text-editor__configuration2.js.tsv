@@ -1,0 +1,12 @@
+key	new	reason
+a2@59:12	a	sort 比较函数的前一个选区
+b3@59:16	b	sort 比较函数的后一个选区
+snapshot2@3:24	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+mark2@5:33	mark	去掉打包器加的数字后缀，恢复原名 mark
+doc2@21:9	doc	去掉打包器加的数字后缀，恢复原名 doc
+index2@42:12	index	去掉打包器加的数字后缀，恢复原名 index
+range2@54:11	range	去掉打包器加的数字后缀，恢复原名 range
+range2@58:14	range	去掉打包器加的数字后缀，恢复原名 range
+name2@64:14	attrName	属性名；name 是全局名
+name2@72:14	attrName	属性名；name 是全局名
+selection2@52:46	selection	去掉打包器加的数字后缀，恢复原名 selection

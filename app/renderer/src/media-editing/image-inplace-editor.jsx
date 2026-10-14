@@ -6,7 +6,8 @@ import {
   useEditorState,
 } from "./use-editor-state.js";
 import { DEFAULT_STYLE } from "./history-manager.js";
-import { reactExports, useStore$3 as useStore } from "../vendor.js";
+import reactExports from "react";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { ImageInplaceEditToolbarInner } from "./image-inplace-edit-toolbar-inner.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageEditor } from "./image-editor.jsx";
@@ -23,10 +24,10 @@ const IMAGE_INPLACE_DEFAULT_MOSAIC_SHAPE =
 const IMAGE_INPLACE_DEFAULT_MOSAIC_BRUSH_SIZE =
   MOSAIC_BRUSH_SIZES[0]?.value ?? DEFAULT_STYLE.mosaicBrushSize ?? 6;
 const IMAGE_INPLACE_DEFAULT_MOSAIC_STRENGTH = 45;
-function mosaicStrengthPercentToPx(percent2, mode2) {
-  return strengthPercentToPx(percent2, mode2);
+function mosaicStrengthPercentToPx(percent, mode) {
+  return strengthPercentToPx(percent, mode);
 }
-const zoomSelector = (s2) => s2.transform[2];
+const zoomSelector = (editorState) => editorState.transform[2];
 export function ImageInplaceEditor({
   src,
   srcSet,
@@ -39,10 +40,10 @@ export function ImageInplaceEditor({
   onConfirm,
 }) {
   useSuspendCanvasInteractions(true);
-  const active2 = useCanvasActive();
+  const active = useCanvasActive();
   const viewportZoom = useStore(zoomSelector);
   const editorRef = reactExports.useRef(null);
-  const state2 = useEditorState(editorRef);
+  const state = useEditorState(editorRef);
   const [uiActiveTool, setUiActiveTool] = reactExports.useState("select");
   const [activeColor, setActiveColor] = reactExports.useState(
     DEFAULT_STYLE.stroke,
@@ -73,21 +74,21 @@ export function ImageInplaceEditor({
     () => setEditorReady(true),
     [],
   );
-  const handleSelectTool = reactExports.useCallback((tool2) => {
-    setUiActiveTool((current2) => {
-      if (current2 === tool2) {
-        if (tool2 === "select") return current2;
+  const handleSelectTool = reactExports.useCallback((tool) => {
+    setUiActiveTool((current) => {
+      if (current === tool) {
+        if (tool === "select") return current;
         editorRef.current?.setTool("select");
         return "select";
       }
-      editorRef.current?.setTool(tool2);
-      return tool2;
+      editorRef.current?.setTool(tool);
+      return tool;
     });
   }, []);
-  const handleSelectColor = reactExports.useCallback((color2) => {
-    setActiveColor(color2);
+  const handleSelectColor = reactExports.useCallback((color) => {
+    setActiveColor(color);
     editorRef.current?.setStyle({
-      stroke: color2,
+      stroke: color,
     });
   }, []);
   const handleSelectStrokeWidth = reactExports.useCallback((widthPx) => {
@@ -102,25 +103,25 @@ export function ImageInplaceEditor({
       textVariant: variant,
     });
   }, []);
-  const handleSelectFontSize = reactExports.useCallback((size2) => {
-    setActiveFontSize(size2);
+  const handleSelectFontSize = reactExports.useCallback((size) => {
+    setActiveFontSize(size);
     editorRef.current?.setStyle({
-      fontSize: size2,
+      fontSize: size,
     });
   }, []);
   const handleSelectMosaicMode = reactExports.useCallback(
-    (mode2) => {
-      setActiveMosaicMode(mode2);
-      const px = mosaicStrengthPercentToPx(activeMosaicStrength, mode2);
+    (mode) => {
+      setActiveMosaicMode(mode);
+      const pixelSize = mosaicStrengthPercentToPx(activeMosaicStrength, mode);
       editorRef.current?.setStyle(
-        mode2 === "blur"
+        mode === "blur"
           ? {
-              mosaicMode: mode2,
-              blurRadius: px,
+              mosaicMode: mode,
+              blurRadius: pixelSize,
             }
           : {
-              mosaicMode: mode2,
-              mosaicBlockSize: px,
+              mosaicMode: mode,
+              mosaicBlockSize: pixelSize,
             },
       );
     },
@@ -132,22 +133,22 @@ export function ImageInplaceEditor({
       mosaicShape: shape,
     });
   }, []);
-  const handleSelectMosaicBrushSize = reactExports.useCallback((size2) => {
-    setActiveMosaicBrushSize(size2);
+  const handleSelectMosaicBrushSize = reactExports.useCallback((size) => {
+    setActiveMosaicBrushSize(size);
     editorRef.current?.setStyle({
-      mosaicBrushSize: size2,
+      mosaicBrushSize: size,
     });
   }, []);
   const handleSelectMosaicStrength = reactExports.useCallback(
-    (percent2, px) => {
-      setActiveMosaicStrength(percent2);
+    (percent, pixelSize) => {
+      setActiveMosaicStrength(percent);
       editorRef.current?.setStyle(
         activeMosaicMode === "blur"
           ? {
-              blurRadius: px,
+              blurRadius: pixelSize,
             }
           : {
-              mosaicBlockSize: px,
+              mosaicBlockSize: pixelSize,
             },
       );
     },
@@ -166,10 +167,10 @@ export function ImageInplaceEditor({
     [],
   );
   reactExports.useEffect(() => {
-    if (!visible || !active2) return;
-    const handler = (e2) => {
-      if (e2.key !== "Delete" && e2.key !== "Backspace") return;
-      const target = e2.target;
+    if (!visible || !active) return;
+    const handler = (keyboardEvent) => {
+      if (keyboardEvent.key !== "Delete" && keyboardEvent.key !== "Backspace") return;
+      const target = keyboardEvent.target;
       if (
         target instanceof HTMLInputElement ||
         target instanceof HTMLTextAreaElement ||
@@ -179,13 +180,13 @@ export function ImageInplaceEditor({
       }
       const editor = editorRef.current?.getEditor();
       if (!editor || editor.getState().selectedId == null) return;
-      e2.preventDefault();
-      e2.stopPropagation();
+      keyboardEvent.preventDefault();
+      keyboardEvent.stopPropagation();
       editor.deleteSelected();
     };
     window.addEventListener("keydown", handler, true);
     return () => window.removeEventListener("keydown", handler, true);
-  }, [visible, active2]);
+  }, [visible, active]);
   const handleSave = reactExports.useCallback(async () => {
     if (!editorRef.current || saving) return;
     setSaving(true);
@@ -198,9 +199,9 @@ export function ImageInplaceEditor({
       setSaving(false);
     }
   }, [saving, onConfirm]);
-  const canUndo = state2.canUndo;
-  const canRedo = state2.canRedo;
-  const hasShapes = state2.shapes.length > 0;
+  const canUndo = state.canUndo;
+  const canRedo = state.canRedo;
+  const hasShapes = state.shapes.length > 0;
   reactExports.useEffect(() => {
     onProgressChange?.(hasShapes);
   }, [hasShapes, onProgressChange]);
@@ -212,9 +213,9 @@ export function ImageInplaceEditor({
     // biome-ignore lint/a11y/noStaticElementInteractions: editor surface — pointer events drive shape drawing
     <div
       className="nopan nodrag nowheel relative h-full w-full"
-      onPointerDown={(e2) => e2.stopPropagation()}
-      onWheel={(e2) => e2.stopPropagation()}
-      onContextMenu={(e2) => e2.stopPropagation()}
+      onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+      onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+      onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
     >
       <ImageEditor
         ref={editorRef}

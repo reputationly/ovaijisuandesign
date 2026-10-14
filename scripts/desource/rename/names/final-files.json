@@ -1,0 +1,14 @@
+{
+  "app/renderer/src/workspace/q.js": "app/renderer/src/workspace/empty-workspace-module.js",
+  "app/renderer/src/workspace/other-modifiers.js": "app/renderer/src/workspace/resolve-shortcut-display.js",
+  "app/renderer/src/assets/key-entries.js": "app/renderer/src/assets/asset-center-error.js",
+  "app/renderer/src/generation/summarize-params.js": "app/renderer/src/generation/summarize-txt-params.js",
+  "app/renderer/src/generation/summarize-params-2.js": "app/renderer/src/generation/summarize-i2v-params.js",
+  "app/renderer/src/canvas/history-manager2.js": "app/renderer/src/canvas/history-manager.js",
+  "app/renderer/src/chat/ae.jsx": "app/renderer/src/chat/chat-content-width.jsx",
+  "app/renderer/src/media-editing/wt.js": "app/renderer/src/media-editing/media-model-selection.js",
+  "app/renderer/src/media-editing/editor2.js": "app/renderer/src/media-editing/canvas-editor.js",
+  "app/renderer/src/routes/app.jsx": "app/renderer/src/routes/application-route-group.jsx",
+  "app/renderer/src/i18n/en.js": "app/renderer/src/i18n/english-translations.js",
+  "app/renderer/src/i18n/zh.js": "app/renderer/src/i18n/chinese-translations.js"
+}

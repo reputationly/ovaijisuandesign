@@ -1,0 +1,19 @@
+key	新名	依据
+id2@128:11	timeoutId	`timeoutId` 是用于后续清理重连停滞计时器的定时器 ID。
+t2@142:14	translate	`translate` 为浏览器聊天媒体状态提供本地化文案。
+id2@256:8	annotationId	`annotationId` 标识当前处理的批注记录。
+children2@18:65	children	`children` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+messages2@77:32	messages	`messages` 是聊天消息集合；末尾数字是打包器为避免重名添加的后缀。
+message2@81:10	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+language2@196:13	language	`language` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+index2@256:22	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+workspaceId2@282:51	workspaceId	`workspaceId` 是工作区标识；末尾数字是打包器为避免重名添加的后缀。
+fetch2@295:53	fetchImplementation	`fetchImplementation` 是下载视频时注入的 HTTP 请求函数；原名 `fetch` 与全局函数冲突。
+body2@312:9	body	`body` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+path2@331:9	path	`path` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+asset2@323:6	asset	`asset` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+workspaceId2@344:3	workspaceId	`workspaceId` 是工作区标识；末尾数字是打包器为避免重名添加的后缀。
+comma2@378:15	comma	`comma` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+binary2@381:15	binary	`binary` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+bytes2@382:15	bytes	`bytes` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+index2@383:18	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。

@@ -1,5 +1,8 @@
 // 精选工作流卡片：封面（图片/视频）、下载进度。
-import { useTranslation, jsxRuntimeExports, PanelsTopLeft, Eye$2 as Eye } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { PanelsTopLeft } from "../media-editing/lucide-icon-wraps.js";
+import { Eye$2 as Eye } from "../media-editing/custom-icons.js";
 import { useComfyUiDownloadProgress } from "../vendor-inline/vscode-base/graph.jsx";
 import { Download } from "../media-editing/package.jsx";
 import { Progress } from "../team/team-management-detail-loading.jsx";

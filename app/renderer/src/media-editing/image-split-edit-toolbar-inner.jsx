@@ -1,14 +1,11 @@
 // image-split-edit-toolbar-inner.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CloseIcon, GroupIcon } from "../canvas/file-missing-icon.jsx";
-import {
-  jsxRuntimeExports,
-  NodeToolbar$1 as NodeToolbar,
-  Position,
-  reactExports,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { NodeToolbar, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { SPLIT_MAGNIFICATIONS } from "./image-rotate-preview-inner.jsx";
 import { DropdownArrowIcon } from "../canvas/generating-media-area.jsx";
 import { CreditCostBadge, Tooltip } from "../generation/missing-asset-card.jsx";
@@ -20,28 +17,28 @@ import { DropdownMenuContent, DropdownMenuItem } from "./audio-lightbox.jsx";
 import { TooltipProvider } from "../infra/create-recently-added-store.js";
 const HEADER_FLOW_HEIGHT = 28;
 const TOOLBAR_GAP = 16;
-const zoomSelector = (s2) => s2.transform[2];
+const zoomSelector = (storeState) => storeState.transform[2];
 function MagnificationGenerateControl({
   magnification,
   onSelect,
   onGenerate,
   totalCost,
-  disabled: disabled2,
+  disabled,
   processing,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   return (
     <div className="ml-1 flex h-8 items-center gap-0.5">
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger
           disabled={processing}
-          aria-label={t2("canvas.splitGrid.magnification", "选择高清倍率")}
+          aria-label={t("canvas.splitGrid.magnification", "选择高清倍率")}
           className="canvas-toolbar-action"
           data-action-ui-id="canvas.split-grid.magnification"
         >
           <span className="whitespace-nowrap">
-            {t2("canvas.splitGrid.scale", "{{magnification}}倍", {
+            {t("canvas.splitGrid.scale", "{{magnification}}倍", {
               magnification: magnification.multiplier,
             })}
           </span>
@@ -54,15 +51,15 @@ function MagnificationGenerateControl({
           className="flex min-w-24 flex-col gap-0.5 p-1"
           variant="toolbar"
         >
-          {SPLIT_MAGNIFICATIONS.map((m3) => (
+          {SPLIT_MAGNIFICATIONS.map((magnificationOption) => (
             <DropdownMenuItem
-              key={m3.id}
-              onClick={() => onSelect(m3.id)}
+              key={magnificationOption.id}
+              onClick={() => onSelect(magnificationOption.id)}
               className="canvas-toolbar-menu-item px-3 py-2"
             >
               <span className="whitespace-nowrap">
-                {t2("canvas.splitGrid.scale", "{{magnification}}倍", {
-                  magnification: m3.multiplier,
+                {t("canvas.splitGrid.scale", "{{magnification}}倍", {
+                  magnification: magnificationOption.multiplier,
                 })}
               </span>
             </DropdownMenuItem>
@@ -70,7 +67,7 @@ function MagnificationGenerateControl({
         </DropdownMenuContent>
       </DropdownMenu>
       <Tooltip
-        content={t2(
+        content={t(
           "canvas.splitGrid.generateHdTooltip",
           "将选中的宫格图片高清放大后创建分镜组。",
         )}
@@ -78,15 +75,15 @@ function MagnificationGenerateControl({
       >
         <button
           type="button"
-          aria-disabled={disabled2}
-          onClick={disabled2 ? void 0 : onGenerate}
+          aria-disabled={disabled}
+          onClick={disabled ? void 0 : onGenerate}
           className="canvas-toolbar-action"
           data-action-ui-id="canvas.split-grid.generate-hd-group"
         >
           <span className="whitespace-nowrap">
             {processing
-              ? t2("canvas.splitGrid.generating", "生成中…")
-              : t2("canvas.splitGrid.generateHd", "生成高清图片")}
+              ? t("canvas.splitGrid.generating", "生成中…")
+              : t("canvas.splitGrid.generateHd", "生成高清图片")}
           </span>
           {!processing && (
             <CreditCostBadge
@@ -126,31 +123,31 @@ function ImageSplitEditToolbarInner({
   processing,
   perCellCost,
 }) {
-  const { t: t2 } = useTranslation();
-  const zoom2 = useStore(zoomSelector);
-  const offset2 = HEADER_FLOW_HEIGHT * zoom2 + TOOLBAR_GAP;
-  const hasSelection2 = selectedCount > 0;
+  const { t } = useTranslation();
+  const zoom = useStore(zoomSelector);
+  const offset = HEADER_FLOW_HEIGHT * zoom + TOOLBAR_GAP;
+  const hasSelection = selectedCount > 0;
   const totalCost =
-    perCellCost != null && hasSelection2 ? perCellCost * selectedCount : void 0;
+    perCellCost != null && hasSelection ? perCellCost * selectedCount : void 0;
   return (
     <NodeToolbar
       isVisible={visible}
       position={Position.Top}
-      offset={offset2}
+      offset={offset}
       align="center"
     >
       <TooltipProvider delay={150} closeDelay={0}>
         <div
           className="canvas-toolbar-surface animate-[toolbar-fade-in_0.15s_ease-out]"
-          onPointerDown={(e2) => e2.stopPropagation()}
-          onWheel={(e2) => e2.stopPropagation()}
-          onContextMenu={(e2) => e2.stopPropagation()}
+          onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+          onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+          onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
           data-canvas-toolbar="true"
           data-density="compact"
         >
           <ExitChip
             onClick={onExit}
-            label={t2("canvas.splitGrid.label", "宫格切分")}
+            label={t("canvas.splitGrid.label", "宫格切分")}
           />
           <span
             className="canvas-toolbar-label px-2.5 whitespace-nowrap"
@@ -158,16 +155,16 @@ function ImageSplitEditToolbarInner({
               color: "var(--canvas-toolbar-muted-fg)",
             }}
           >
-            {hasSelection2
-              ? t2("canvas.splitGrid.selectedCount", "已选 {{count}} 个宫格", {
+            {hasSelection
+              ? t("canvas.splitGrid.selectedCount", "已选 {{count}} 个宫格", {
                   count: selectedCount,
                 })
-              : t2("canvas.splitGrid.selectHint", "选择想切分的宫格")}
+              : t("canvas.splitGrid.selectHint", "选择想切分的宫格")}
           </span>
           {onSplitLocal && (
             <>
               <Tooltip
-                content={t2(
+                content={t(
                   "canvas.splitGrid.createGroupTooltip",
                   "将选中的宫格拆分为图片并创建分镜组，不消耗积分。",
                 )}
@@ -175,14 +172,14 @@ function ImageSplitEditToolbarInner({
               >
                 <button
                   type="button"
-                  aria-disabled={!hasSelection2 || processing}
-                  onClick={hasSelection2 && !processing ? onSplitLocal : void 0}
+                  aria-disabled={!hasSelection || processing}
+                  onClick={hasSelection && !processing ? onSplitLocal : void 0}
                   className="canvas-toolbar-action"
                   data-action-ui-id="canvas.split-grid.create-storyboard-group"
                 >
                   <GroupIcon size={18} />
                   <span className="whitespace-nowrap">
-                    {t2("canvas.splitGrid.createGroup", "创建分镜组")}
+                    {t("canvas.splitGrid.createGroup", "创建分镜组")}
                   </span>
                 </button>
               </Tooltip>
@@ -194,7 +191,7 @@ function ImageSplitEditToolbarInner({
             onSelect={onSetMagnification}
             onGenerate={onGenerate}
             totalCost={totalCost}
-            disabled={!hasSelection2 || processing}
+            disabled={!hasSelection || processing}
             processing={processing}
           />
         </div>

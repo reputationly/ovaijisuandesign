@@ -1,6 +1,9 @@
 // 技能详情里的展示：视频播放器、展示区、结构化概览。
-import { useTranslation, reactExports, ChevronLeft, ChevronRight$1 as ChevronRight, PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon, Volume2, ListChecks, ArrowUpRight } from "../../vendor.js";
-import { cn$2 as cn, Button } from "../../infra/dialog-content.jsx";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { ChevronLeft, ChevronRight$1 as ChevronRight, Volume2, ListChecks, ArrowUpRight } from "../../media-editing/lucide-icon-wraps.js";
+import { PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../../media-editing/playback-icons.js";
+import { mergeTailwindClasses as cn, Button } from "../../infra/dialog-content.jsx";
 import { selectSkillStructuredInfo } from "../../generation/normalize-skill-detail-metadata.js";
 import { CDN_SKILL_SHOWCASE_FALLBACK } from "../../workspace/topbar-state-context.jsx";
 import { ProgressBar } from "../../media-editing/progress-bar-inner.jsx";
@@ -262,13 +265,13 @@ export function SkillStructuredOverview({ info }) {
       className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
       data-action-ui-id="skill-detail-structured-info"
     >
-      {sections.map(({ key, title, icon: Icon2, text, tags }) => (
+      {sections.map(({ key, title, icon: Icon, text, tags }) => (
         <section
           key={key}
           className="group min-w-0 rounded-lg border border-border bg-card p-4 transition-colors duration-150 hover:border-foreground/20 hover:bg-muted/40"
         >
           <h3 className="mb-2 flex items-center gap-2 text-xs font-medium uppercase">
-            <Icon2
+            <Icon
               size={16}
               strokeWidth={1.5}
               className="shrink-0 text-muted-foreground transition-colors duration-150 group-hover:text-foreground"

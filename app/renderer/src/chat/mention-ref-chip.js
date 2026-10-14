@@ -1,12 +1,9 @@
 // mention-ref-chip.js
-import {
-  classifyFileType,
-  instance,
-  NodeViewWrapper,
-  reactExports,
-  Workflow,
-  X$7 as X,
-} from "../vendor.js";
+import instance from "i18next";
+import { NodeViewWrapper } from "@tiptap/react";
+import reactExports from "react";
+import { classifyFileType } from "../infra/file-type.js";
+import { Workflow, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import {
   FileKindIcon,
   ModelTypeIcon,
@@ -21,15 +18,15 @@ import {
 } from "../text-editor/use-placeholder-asset-source.jsx";
 import { EntityHoverCardBody } from "../assets/attachment-row.jsx";
 import { ConnectorIcon } from "../settings/connector-relationship-graphic.jsx";
-export function MentionRefChip({ node: node2, deleteNode: deleteNode2 }) {
-  const attrs = node2.attrs;
+export function MentionRefChip({ node, deleteNode }) {
+  const attrs = node.attrs;
   const className =
     attrs.kind === "model"
       ? "hl-mention-model"
       : attrs.kind === "connector"
         ? "hl-mention-file hl-mention-connector"
         : "hl-mention-file";
-  const style2 =
+  const style =
     attrs.thumbUrl && attrs.kind !== "connector"
       ? {
           ["--mention-thumb"]: `url("${attrs.thumbUrl}")`,
@@ -112,7 +109,7 @@ export function MentionRefChip({ node: node2, deleteNode: deleteNode2 }) {
           }
         : {}),
       contentEditable: false,
-      style: style2,
+      style,
     },
     isFileReference
       ? reactExports.createElement(
@@ -237,17 +234,17 @@ export function MentionRefChip({ node: node2, deleteNode: deleteNode2 }) {
         onClick: (event) => {
           event.preventDefault();
           event.stopPropagation();
-          deleteNode2();
+          deleteNode();
         },
       },
-      reactExports.createElement(X, {
+      reactExports.createElement(CloseIcon, {
         size: 9,
         strokeWidth: 2.2,
         "aria-hidden": true,
       }),
     ),
   );
-  const body2 =
+  const body =
     isAsset && assetEntityId
       ? reactExports.createElement(
           PreviewCard,
@@ -276,6 +273,6 @@ export function MentionRefChip({ node: node2, deleteNode: deleteNode2 }) {
           ? "inline-flex align-middle leading-none"
           : "inline-flex align-baseline leading-[var(--text-body-14--line-height)]",
     },
-    body2,
+    body,
   );
 }

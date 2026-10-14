@@ -1,0 +1,5 @@
+key	new	依据
+message2@30:31	message	待检测 ENOENT 文件缺失标记的生成错误消息。
+index2@91:18	index	当前模型在可见视频模型列表中的位置，用于保留稳定展示顺序。
+message2@157:30	message	需要转换成用户提示的生成错误消息。
+count2@205:7	count	本次图片转视频请求希望生成的视频数量。

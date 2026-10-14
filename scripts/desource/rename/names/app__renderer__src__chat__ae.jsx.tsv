@@ -1,0 +1,57 @@
+key	新名	依据
+vn@2:10	defaultCodeThemes	`defaultCodeThemes` 是 Markdown 渲染器默认使用的 Shiki 主题配置，名称与来源文件的导出提议一致。
+xn@2:14	defaultLinkSafety	`defaultLinkSafety` 是 Markdown 链接安全配置，名称与来源文件的导出提议一致。
+L@3:35	useIconComponents	`useIconComponents` 从 vendor 图标上下文读取 Loader、Check 与 Copy 图标组件。
+ct2@5:10	useMarkdownRenderOptions	`useMarkdownRenderOptions` 读取 Markdown 渲染选项上下文，供语言渲染器查询。
+D3@5:15	useMarkdownUiLabels	`useMarkdownUiLabels` 读取 Markdown 控件本地化标签，包括复制按钮文案。
+He@5:19	useCodeBlockContext	`useCodeBlockContext` 读取当前代码块内容上下文。
+e2@10:21	classNames	`classNames` 是待合并的类名参数列表。
+e2@12:18	fileName	`fileName` 是浏览器下载锚点使用的文件名。
+t2@12:22	downloadContent	`downloadContent` 是写入 Blob 或直接下载的字符串内容。
+o2@12:26	mimeType	`mimeType` 指定下载 Blob 的媒体类型。
+n2@13:7	byteOrderMarkPrefix	`byteOrderMarkPrefix` 在 CSV 文本前补充 UTF-8 BOM。
+r2@14:5	blob	`blob` 是用于创建下载对象 URL 的 Blob 数据。
+s2@20:5	objectUrl	`objectUrl` 是 Blob 对应的临时下载 URL。
+a2@21:5	downloadLink	`downloadLink` 是触发文件下载的临时锚点元素。
+e2@35:14	className	`className` 是当前渲染组件接收并合并的 CSS 类名。
+t2@36:13	language	`language` 是代码块使用的语言标识。
+o2@37:10	style	`style` 是透传到代码块容器的内联样式。
+n2@38:17	isIncomplete	`isIncomplete` 指示代码块内容是否仍在生成。
+r2@39:6	restProps	`restProps` 是传递给代码块容器的其余属性。
+s2@41:7	mergeClassNames	`mergeClassNames` 是从上下文取得的类名合并函数。
+e2@61:30	language	`language` 是代码块使用的语言标识。
+t2@62:7	mergeClassNames	`mergeClassNames` 是从上下文取得的类名合并函数。
+e2@75:22	loadingIcon	`loadingIcon` 是代码块加载状态显示的图标组件。
+t2@76:5	mergeClassNames	`mergeClassNames` 是从上下文取得的类名合并函数。
+ke@93:5	scrollLockCount	`scrollLockCount` 跟踪当前锁定页面滚动的嵌套请求数量。
+e2@103:18	language	`language` 是代码块使用的语言标识。
+o2@104:7	languageRenderer	`languageRenderer` 是与指定语言匹配的代码渲染器。
+t2@105:7	renderOptions	`renderOptions` 是代码或 Mermaid 的渲染配置对象。
+n2@109:30	candidateRenderer	`candidateRenderer` 是正在按语言标识筛选的渲染器候选项。
+e2@118:18	renderOptions	`renderOptions` 是代码或 Mermaid 的渲染配置对象。
+t2@118:22	language	`language` 是代码块使用的语言标识。
+o2@120:7	codeOptions	`codeOptions` 是代码渲染选项，按语言子项判断是否启用。
+e2@128:18	renderOptions	`renderOptions` 是代码或 Mermaid 的渲染配置对象。
+t2@128:22	language	`language` 是代码块使用的语言标识。
+o2@130:7	mermaidOptions	`mermaidOptions` 是 Mermaid 渲染选项，按语言子项判断是否启用。
+Ys@138:5	defaultMarkdownRenderOptions	`defaultMarkdownRenderOptions` 是 Markdown 渲染上下文的初始选项对象。
+e2@151:11	onCopy	`onCopy` 是复制成功后调用的回调。
+t2@152:12	onError	`onError` 是剪贴板不可用或复制失败时调用的错误回调。
+o2@153:12	timeout	`timeout` 是复制成功图标恢复前等待的毫秒数。
+n2@154:13	children	`children` 是复制按钮内部的自定义内容。
+r2@155:14	className	`className` 是当前渲染组件接收并合并的 CSS 类名。
+s2@156:9	code	`code` 是传入复制按钮的代码文本。
+a2@157:6	buttonProps	`buttonProps` 是透传给复制按钮的其余属性。
+l2@159:7	mergeClassNames	`mergeClassNames` 是从上下文取得的类名合并函数。
+i2@160:6	isCopied	`isCopied` 表示剪贴板内容是否刚刚复制成功。
+d2@160:10	setIsCopied	`setIsCopied` 更新复制成功状态。
+c3@161:5	copyResetTimeoutRef	`copyResetTimeoutRef` 保存重置复制状态的定时器 ID。
+p3@162:13	contextualCode	`contextualCode` 是当前代码块上下文中的代码文本。
+m3@163:20	isAnimating	`isAnimating` 表示代码块内容是否仍处于动画生成阶段。
+u4@164:5	localizedLabels	`localizedLabels` 提供复制按钮需要显示的本地化标签。
+f2@165:5	codeToCopy	`codeToCopy` 是最终写入剪贴板的代码文本。
+h2@166:5	handleCopy	`handleCopy` 执行剪贴板写入、回调通知和复制状态重置。
+T2@167:11	clipboardApi	`clipboardApi` 是浏览器剪贴板 API 对象。
+v2@184:16	error	`error` 是剪贴板写入失败时捕获的异常。
+b3@194:7	iconComponents	`iconComponents` 提供复制状态所需的 Check 与 Copy 图标组件。
+g2@195:5	copyFeedbackIcon	`copyFeedbackIcon` 根据复制状态选择 Check 或 Copy 图标组件。

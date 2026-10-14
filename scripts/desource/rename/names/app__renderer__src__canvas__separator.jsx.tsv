@@ -1,0 +1,20 @@
+key	old	new	依据
+subscribers$1@103:7	subscribers$1	zoomTierSubscribers	该集合保存缩放层级订阅者；与 subscribers@89:14 冲突，故使用 zoomTierSubscribers。
+notify$2@104:10	notify$2	notifyZoomTierSubscribers	该函数遍历缩放层级订阅者并触发更新；与 notify@90:10 冲突，故使用 notifyZoomTierSubscribers。
+active2@9:40	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+platform2@12:11	platform2	platform	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+token2@15:11	token2	token	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+update2@16:11	update2	update	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+render2@32:15	render2	render	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@36:11	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+element2@39:11	element2	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@75:22	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@83:30	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@94:40	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@95:9	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@100:38	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@108:38	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@109:9	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@114:36	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@129:39	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@133:30	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

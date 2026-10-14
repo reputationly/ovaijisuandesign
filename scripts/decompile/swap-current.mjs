@@ -64,8 +64,9 @@ function writeDependencies(done) {
 }
 
 const installed = new Set(Object.keys(JSON.parse(readFileSync(path.join(repo, "app/renderer/package.json"), "utf8")).dependencies));
-let list = JSON.parse(readFileSync(path.join(here, "npm-packages.json"), "utf8")).filter((item) => !installed.has(item.name));
-if (only) list = list.filter((item) => only.has(item.name));
+let list = JSON.parse(readFileSync(path.join(here, "npm-packages.json"), "utf8")).filter((item) =>
+  only ? only.has(item.name) : !installed.has(item.name),
+);
 if (!list.length) {
   console.log("没有要换的包");
   process.exit(0);
@@ -80,6 +81,10 @@ console.log(`解析 vendor.js（${(src.length / 1024 / 1024).toFixed(1)}MB）…
 const ast = parse(src, { sourceType: "module", plugins: ["jsx"] });
 const reports = swapPackages(ast, src, refs, list, { cacheDir: path.join(repo, ".probe/decompile/pkg-cache") });
 const done = reports.filter((r) => !r.error);
+if (only && done.length !== reports.length) {
+  console.error("指定包组未能完整替换，保留 vendor.js 和依赖清单不变");
+  process.exit(1);
+}
 if (!done.length) {
   console.log("一个都没换成，vendor.js 不改");
   process.exit(0);

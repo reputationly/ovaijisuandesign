@@ -1,5 +1,5 @@
 // use-move-dnd.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 const ASSET_MOVE_MIME = "application/x-hilo-asset-move";
 
@@ -27,22 +27,22 @@ export function useMoveDnd(options) {
   }, []);
   const targetProps = reactExports.useCallback(
     (target) => {
-      const key2 = keyOf(target);
+      const key = keyOf(target);
       return {
         onDragOver: (event) => {
           if (dragging === null) return;
           event.stopPropagation();
           if (!canDrop(dragging, target)) {
-            setOverKey((previous2) => (previous2 === key2 ? null : previous2));
+            setOverKey((previous) => (previous === key ? null : previous));
             return;
           }
           event.preventDefault();
           event.dataTransfer.dropEffect = "move";
-          setOverKey(key2);
+          setOverKey(key);
         },
         onDragLeave: (event) => {
           if (event.currentTarget.contains(event.relatedTarget)) return;
-          setOverKey((previous2) => (previous2 === key2 ? null : previous2));
+          setOverKey((previous) => (previous === key ? null : previous));
         },
         onDrop: (event) => {
           if (dragging === null) return;

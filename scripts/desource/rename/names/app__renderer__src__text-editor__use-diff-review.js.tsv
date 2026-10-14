@@ -1,0 +1,128 @@
+key	new	reason
+i2@48:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@80:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@92:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@103:7	i	原名 i，去掉打包器加的数字去重后缀
+i2@174:16	i	原名 i，去掉打包器加的数字去重后缀
+i2@221:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@382:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@401:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@467:12	i	原名 i，去掉打包器加的数字去重后缀
+to2@646:13	to	原名 to，去掉打包器加的数字去重后缀
+t2@1138:14	t	useTranslation() 返回的翻译函数 t
+id2@1436:15	id	原名 id，去掉打包器加的数字去重后缀
+b3@34:19	normalizeMap	buildMarkdownNormalizeMap 构造的归一化映射对象（含 normalized 等数组）
+k2@68:16	charIndex	分隔符 token 内的字符序号
+at2@89:27	openIndex	左括号所在下标
+b3@101:21	normalizeMap	buildMarkdownNormalizeMap 构造的归一化映射对象（含 normalized 等数组）
+m3@134:13	brMatch	<br> 标签的匹配结果
+b3@156:9	normalizeMap	buildMarkdownNormalizeMap 构造的归一化映射对象（含 normalized 等数组）
+li2@164:12	lineIndex	行序号
+r2@572:22	usedRange	已占用的区间
+tr2@721:45	tr	command 回调收到的事务
+tr2@731:34	tr	command 回调收到的事务
+last2@36:11	last	去掉打包器加的数字后缀，恢复原名 last
+token2@56:9	token	去掉打包器加的数字后缀，恢复原名 token
+depth2@79:7	depth	去掉打包器加的数字后缀，恢复原名 depth
+depth2@91:7	depth	去掉打包器加的数字后缀，恢复原名 depth
+from2@101:52	from	去掉打包器加的数字后缀，恢复原名 from
+next2@106:11	next	去掉打包器加的数字后缀，恢复原名 next
+close2@112:13	closeIndex	findBracketClose 返回的右括号下标；close 是全局名
+close2@123:13	closeIndex	findBracketClose 返回的右括号下标；close 是全局名
+raw2@155:36	raw	去掉打包器加的数字后缀，恢复原名 raw
+offset2@163:7	offset	去掉打包器加的数字后缀，恢复原名 offset
+text2@207:31	text	去掉打包器加的数字后缀，恢复原名 text
+text2@211:31	text	去掉打包器加的数字后缀，恢复原名 text
+text2@218:38	text	去掉打包器加的数字后缀，恢复原名 text
+chars2@219:9	chars	去掉打包器加的数字后缀，恢复原名 chars
+map3@220:9	map	去掉打包器加的数字后缀，恢复原名 map
+markdown2@235:40	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+json2@239:11	json	去掉打包器加的数字后缀，恢复原名 json
+doc2@246:44	doc	去掉打包器加的数字后缀，恢复原名 doc
+node2@257:40	node	去掉打包器加的数字后缀，恢复原名 node
+doc2@268:29	doc	去掉打包器加的数字后缀，恢复原名 doc
+found2@269:7	found	去掉打包器加的数字后缀，恢复原名 found
+node2@270:21	node	去掉打包器加的数字后缀，恢复原名 node
+index2@272:11	index	去掉打包器加的数字后缀，恢复原名 index
+start2@288:9	start	去掉打包器加的数字后缀，恢复原名 start
+end2@289:9	end	去掉打包器加的数字后缀，恢复原名 end
+from2@296:9	from	去掉打包器加的数字后缀，恢复原名 from
+node2@305:31	node	去掉打包器加的数字后缀，恢复原名 node
+content2@305:38	content	去掉打包器加的数字后缀，恢复原名 content
+markdown2@316:40	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+doc2@342:28	doc	去掉打包器加的数字后缀，恢复原名 doc
+depth2@345:14	depth	去掉打包器加的数字后缀，恢复原名 depth
+name2@346:13	nodeTypeName	节点类型名；name 是全局名
+doc2@352:28	doc	去掉打包器加的数字后缀，恢复原名 doc
+node2@356:21	node	去掉打包器加的数字后缀，恢复原名 node
+text2@358:11	text	去掉打包器加的数字后缀，恢复原名 text
+index2@379:18	index	去掉打包器加的数字后缀，恢复原名 index
+offset2@379:26	offset	去掉打包器加的数字后缀，恢复原名 offset
+last2@394:9	last	去掉打包器加的数字后缀，恢复原名 last
+text2@397:26	text	去掉打包器加的数字后缀，恢复原名 text
+chars2@398:9	chars	去掉打包器加的数字后缀，恢复原名 chars
+map3@399:9	map	去掉打包器加的数字后缀，恢复原名 map
+markdown2@426:35	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+markdown2@433:29	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+cells2@439:9	cells	去掉打包器加的数字后缀，恢复原名 cells
+index2@451:30	index	去掉打包器加的数字后缀，恢复原名 index
+cells2@466:9	cells	去掉打包器加的数字后缀，恢复原名 cells
+cap2@501:47	cap	去掉打包器加的数字后缀，恢复原名 cap
+index2@514:3	index	去掉打包器加的数字后缀，恢复原名 index
+map3@516:3	map	去掉打包器加的数字后缀，恢复原名 map
+candidates2@521:11	candidates	去掉打包器加的数字后缀，恢复原名 candidates
+end2@523:13	end	去掉打包器加的数字后缀，恢复原名 end
+first2@553:11	first	去掉打包器加的数字后缀，恢复原名 first
+doc2@565:27	doc	去掉打包器加的数字后缀，恢复原名 doc
+index2@568:9	index	去掉打包器加的数字后缀，恢复原名 index
+map3@569:27	map	去掉打包器加的数字后缀，恢复原名 map
+from2@571:25	from	去掉打包器加的数字后缀，恢复原名 from
+candidates2@589:9	candidates	去掉打包器加的数字后缀，恢复原名 candidates
+from2@660:11	from	去掉打包器加的数字后缀，恢复原名 from
+cells2@666:11	cells	去掉打包器加的数字后缀，恢复原名 cells
+start2@607:13	start	去掉打包器加的数字后缀，恢复原名 start
+range2@618:15	range	去掉打包器加的数字后缀，恢复原名 range
+range2@631:15	range	去掉打包器加的数字后缀，恢复原名 range
+range2@643:13	range	去掉打包器加的数字后缀，恢复原名 range
+from22@645:13	from	去掉打包器加的数字后缀，恢复原名 from
+doc2@683:29	doc	去掉打包器加的数字后缀，恢复原名 doc
+range2@684:9	range	去掉打包器加的数字后缀，恢复原名 range
+transition2@687:41	transition	去掉打包器加的数字后缀，恢复原名 transition
+position2@696:9	position	去掉打包器加的数字后缀，恢复原名 position
+transition2@704:45	transition	去掉打包器加的数字后缀，恢复原名 transition
+snapshot2@772:27	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+top2@774:20	snapshotTop	快照记录的元素纵向位置；top 是全局名
+selection2@789:9	selection	去掉打包器加的数字后缀，恢复原名 selection
+config2@812:44	config	去掉打包器加的数字后缀，恢复原名 config
+state2@822:9	state	去掉打包器加的数字后缀，恢复原名 state
+markdown2@875:35	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+text2@878:24	text	去掉打包器加的数字后缀，恢复原名 text
+count2@879:7	count	去掉打包器加的数字后缀，恢复原名 count
+index2@880:12	index	去掉打包器加的数字后缀，恢复原名 index
+markdown2@898:32	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+length2@908:7	prefixLength	commonPrefixLength 里从头逐字比对的公共前缀长度；length 是全局名
+length2@913:7	suffixLength	commonSuffixLength 里从尾逐字比对的公共后缀长度；length 是全局名
+from2@923:34	from	去掉打包器加的数字后缀，恢复原名 from
+index2@924:12	index	去掉打包器加的数字后缀，恢复原名 index
+lineEnd2@977:9	lineEnd	去掉打包器加的数字后缀，恢复原名 lineEnd
+start2@993:7	start	去掉打包器加的数字后缀，恢复原名 start
+end2@1007:7	end	去掉打包器加的数字后缀，恢复原名 end
+doc2@1106:28	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@1117:32	doc	去掉打包器加的数字后缀，恢复原名 doc
+node2@1120:11	node	去掉打包器加的数字后缀，恢复原名 node
+markdown2@1128:35	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+doc2@1128:46	doc	去掉打包器加的数字后缀，恢复原名 doc
+state2@1139:39	state	去掉打包器加的数字后缀，恢复原名 state
+state2@1140:41	state	去掉打包器加的数字后缀，恢复原名 state
+state2@1141:42	state	去掉打包器加的数字后缀，恢复原名 state
+state2@1142:43	state	去掉打包器加的数字后缀，恢复原名 state
+state2@1143:43	state	去掉打包器加的数字后缀，恢复原名 state
+state2@1168:27	state	去掉打包器加的数字后缀，恢复原名 state
+current2@1198:15	current	去掉打包器加的数字后缀，恢复原名 current
+transition2@1238:22	transition	去掉打包器加的数字后缀，恢复原名 transition
+markdown2@1311:6	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+doc2@1324:11	doc	去掉打包器加的数字后缀，恢复原名 doc
+range2@1331:13	range	去掉打包器加的数字后缀，恢复原名 range
+index2@1338:37	index	去掉打包器加的数字后缀，恢复原名 index
+index2@1425:21	index	去掉打包器加的数字后缀，恢复原名 index
+next2@1435:15	next	去掉打包器加的数字后缀，恢复原名 next

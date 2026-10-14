@@ -1,15 +1,12 @@
 // use-composer-placeholder-actions.jsx
-import {
-  CompositedSvg,
-  Music,
-  PluginKey,
-  reactExports,
-  Video,
-} from "../vendor.js";
+import { PluginKey } from "prosemirror-state";
+import reactExports from "react";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { Music, Video } from "../media-editing/lucide-icon-wraps.js";
 import { mentionRefLeafText } from "../text-editor/get-wire-content-text.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  File$1 as File,
+  FileIcon as File,
   FileText,
   FileVideo,
   ImageOutlineIcon,
@@ -19,21 +16,21 @@ function languageDetectionLeafText(leafNode) {
   if (leafNode.type.name === "mentionRef") return " ";
   return "";
 }
-export function getDocLanguageDetectionText(doc2) {
-  return doc2.textBetween(
+export function getDocLanguageDetectionText(doc) {
+  return doc.textBetween(
     0,
-    doc2.content.size,
+    doc.content.size,
     "\n",
     languageDetectionLeafText,
   );
 }
-export function pmPosToTextOffset(doc2, pmPos) {
+export function pmPosToTextOffset(doc, pmPos) {
   if (pmPos <= 0) return 0;
-  return doc2.textBetween(0, pmPos, "\n", mentionRefLeafText).length;
+  return doc.textBetween(0, pmPos, "\n", mentionRefLeafText).length;
 }
-export function scheduleEditorFocus(editor, position2) {
+export function scheduleEditorFocus(editor, position) {
   requestAnimationFrame(() => {
-    if (editor && !editor.isDestroyed) editor.commands.focus(position2);
+    if (editor && !editor.isDestroyed) editor.commands.focus(position);
   });
 }
 export const highlightPluginKey = new PluginKey("chatHighlight");
@@ -60,18 +57,18 @@ function AudioWaveIcon({ className }) {
   );
 }
 export function FileKindIcon({ kind, className }) {
-  const cls = className ?? "w-3.5 h-3.5 text-muted-foreground";
-  if (kind === "image") return <ImageOutlineIcon className={cls} />;
-  if (kind === "video") return <FileVideo className={cls} />;
-  if (kind === "audio") return <AudioWaveIcon className={cls} />;
-  if (kind === "text") return <FileText className={cls} />;
-  return <File className={cls} />;
+  const iconClassName = className ?? "w-3.5 h-3.5 text-muted-foreground";
+  if (kind === "image") return <ImageOutlineIcon className={iconClassName} />;
+  if (kind === "video") return <FileVideo className={iconClassName} />;
+  if (kind === "audio") return <AudioWaveIcon className={iconClassName} />;
+  if (kind === "text") return <FileText className={iconClassName} />;
+  return <File className={iconClassName} />;
 }
 export function ModelTypeIcon({ mediaType, className }) {
-  const cls = className ?? "w-3.5 h-3.5 text-muted-foreground";
-  if (mediaType === "video") return <Video className={cls} />;
-  if (mediaType === "audio") return <Music className={cls} />;
-  return <ImageOutlineIcon className={cls} />;
+  const iconClassName = className ?? "w-3.5 h-3.5 text-muted-foreground";
+  if (mediaType === "video") return <Video className={iconClassName} />;
+  if (mediaType === "audio") return <Music className={iconClassName} />;
+  return <ImageOutlineIcon className={iconClassName} />;
 }
 export function folderBaseName(absPath) {
   const normalized = absPath.replace(/[/\\]+$/, "");

@@ -1,0 +1,26 @@
+key	old	new	依据
+pe2@111:9	pe2	previousEntry	该值是 memo 比较中上一轮渲染的文件树条目。
+ne2@112:9	ne2	nextEntry	该值是 memo 比较中下一轮渲染的文件树条目。
+pa@125:11	pa	previousAsset	该值是比较资产字段时上一轮渲染的资产记录。
+t2@181:14	t2	translate	该绑定是文件树项读取定位操作文案的翻译函数。
+e2@280:6	e2	pointerEvent	该事件来自指针进入回调，用于取得悬停锚点元素。
+e2@323:28	e2	dragEvent	该事件提供拖动数据传输对象以写入文件路径。
+e2@328:27	e2	dragEvent	该事件提供拖动数据传输对象以判断目标并设置放置效果。
+e2@338:24	e2	dragEvent	该事件提供被放置文件路径并完成目录拖放处理。
+e2@347:25	e2	clickEvent	该事件提供点击修饰键状态并传入文件选择回调。
+gatewayUrl2@51:26	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+url2@70:31	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+name2@70:43	name2	fileName	该属性值是缩略图对应的文件名，供文件类型徽标显示。
+next2@107:30	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+depth2@141:10	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。
+TreeItem2@139:52	TreeItem2	TreeItem	去掉打包器防重名追加的后缀，恢复原名 TreeItem，即该绑定持有的值。
+gatewayUrl2@182:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+handleDelete2@258:9	handleDelete2	handleDelete	去掉打包器防重名追加的后缀，恢复原名 handleDelete，即该绑定持有的值。
+handleDrop2@338:9	handleDrop2	handleDrop	去掉打包器防重名追加的后缀，恢复原名 handleDrop，即该绑定持有的值。
+handleClick2@347:9	handleClick2	handleClick	去掉打包器防重名追加的后缀，恢复原名 handleClick，即该绑定持有的值。
+handleDoubleClick2@353:9	handleDoubleClick2	handleDoubleClick	去掉打包器防重名追加的后缀，恢复原名 handleDoubleClick，即该绑定持有的值。
+path2@228:11	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+types2@330:11	types2	types	去掉打包器防重名追加的后缀，恢复原名 types，即该绑定持有的值。
+ext2@442:43	ext2	ext	去掉打包器防重名追加的后缀，恢复原名 ext，即该绑定持有的值。
+ext2@515:39	ext2	ext	去掉打包器防重名追加的后缀，恢复原名 ext，即该绑定持有的值。
+na@126:11	na	nextAsset	React.memo 前后两次渲染中待比较的下一轮资产记录。

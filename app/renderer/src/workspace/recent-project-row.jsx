@@ -1,5 +1,11 @@
 // recent-project-row.jsx
-import { API_PATHS, Check, CircleAlert, CircleX, CompositedSvg, Copy, FolderX, MonochromeIcon, Pin, reactExports, usePlatform, useQuery, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { Check, CircleAlert, CircleX, Copy, FolderX, Pin } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -21,7 +27,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { FourCornerLoading } from "../chat/chat-empty-state.jsx";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -45,8 +51,8 @@ function isWorkspaceMediaSummary(value) {
   if (counts === null || typeof counts !== "object") return false;
   const candidate = counts;
   return ["image", "video", "audio", "text"].every(
-    (key2) =>
-      typeof candidate[key2] === "number" && Number.isFinite(candidate[key2]),
+    (key) =>
+      typeof candidate[key] === "number" && Number.isFinite(candidate[key]),
   );
 }
 async function fetchWorkspaceSummary(workspacePath) {
@@ -75,23 +81,23 @@ function useWorkspaceSummary(workspacePath, enabled) {
 const MINUTE_MS = 6e4;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
-function localCalendarDay(date2) {
+function localCalendarDay(date) {
   return (
-    Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate()) / DAY_MS
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / DAY_MS
   );
 }
-function formatWorkspaceOpenedAt(timestamp2, locale, now2 = Date.now()) {
-  if (!Number.isFinite(timestamp2) || !Number.isFinite(now2)) return "";
-  const openedAt = new Date(timestamp2);
-  const current2 = new Date(now2);
-  if (Number.isNaN(openedAt.getTime()) || Number.isNaN(current2.getTime()))
+function formatWorkspaceOpenedAt(timestamp, locale, now = Date.now()) {
+  if (!Number.isFinite(timestamp) || !Number.isFinite(now)) return "";
+  const openedAt = new Date(timestamp);
+  const current = new Date(now);
+  if (Number.isNaN(openedAt.getTime()) || Number.isNaN(current.getTime()))
     return "";
-  const dayDifference = localCalendarDay(current2) - localCalendarDay(openedAt);
+  const dayDifference = localCalendarDay(current) - localCalendarDay(openedAt);
   const relativeTime = new Intl.RelativeTimeFormat(locale, {
     numeric: "auto",
   });
   if (dayDifference === 0) {
-    const elapsed = Math.max(0, now2 - timestamp2);
+    const elapsed = Math.max(0, now - timestamp);
     if (elapsed < MINUTE_MS) return relativeTime.format(0, "second");
     if (elapsed < HOUR_MS) {
       return relativeTime.format(
@@ -120,7 +126,7 @@ function RecentProjectStatusContent({
   variant,
   userAction,
   userActionLabel,
-  displayName: displayName2,
+  displayName,
   openedAtLabel,
 }) {
   const rowActionId =
@@ -138,7 +144,7 @@ function RecentProjectStatusContent({
           className="min-w-0 flex-1 truncate"
           data-recent-project-name="true"
         >
-          {displayName2}
+          {displayName}
         </span>
         {userAction ? (
           <Badge
@@ -175,14 +181,14 @@ function RecentProjectStatusContent({
   );
 }
 function WorkspaceStatusBadge({ status, className }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (!status || (!status.running && !status.unread && !status.needsUserAction))
     return null;
   if (status.needsUserAction) {
     const needsAnswer = status.needsUserAction === "answer";
     const label = needsAnswer
-      ? t2("session.tabs.status.awaitingAnswer", "Waiting for your answer")
-      : t2(
+      ? translate("session.tabs.status.awaitingAnswer", "Waiting for your answer")
+      : translate(
           "session.tabs.status.awaitingConfirmation",
           "Waiting for your confirmation",
         );
@@ -209,7 +215,7 @@ function WorkspaceStatusBadge({ status, className }) {
       <FourCornerLoading
         variant="tab"
         size="sm"
-        label={t2("session.tabs.status.generating", "Generating")}
+        label={translate("session.tabs.status.generating", "Generating")}
         className={className}
       />
     );
@@ -217,7 +223,7 @@ function WorkspaceStatusBadge({ status, className }) {
   return (
     <span
       role="img"
-      aria-label={t2(
+      aria-label={translate(
         "session.tabs.status.completedUnread",
         "Completed, unread",
       )}
@@ -300,9 +306,9 @@ function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
     const host = hostRef.current;
     if (!host) return;
     let visibilityTimer = null;
-    const observer2 = new IntersectionObserver(
-      (entries2) => {
-        if (!entries2.some((entry) => entry.isIntersecting)) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) {
           if (visibilityTimer !== null) {
             window.clearTimeout(visibilityTimer);
             visibilityTimer = null;
@@ -313,16 +319,16 @@ function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
         visibilityTimer = window.setTimeout(() => {
           visibilityTimer = null;
           setLoadEnabled(true);
-          observer2.disconnect();
+          observer.disconnect();
         }, HOME_RECENT_THUMBNAIL_STABLE_DELAY_MS);
       },
       {
         rootMargin: HOME_RECENT_THUMBNAIL_ROOT_MARGIN,
       },
     );
-    observer2.observe(host);
+    observer.observe(host);
     return () => {
-      observer2.disconnect();
+      observer.disconnect();
       if (visibilityTimer !== null) window.clearTimeout(visibilityTimer);
     };
   }, [loadEnabled, scanAllowed]);
@@ -375,52 +381,52 @@ const THEME_TOKENS = [
   "--brand-accent",
 ];
 function useNativeProjectPreview(options) {
-  const browser2 = window.hilo?.browser;
+  const browser = window.hilo?.browser;
   const supported =
-    typeof browser2?.showProjectPreview === "function" &&
-    typeof browser2?.hideProjectPreview === "function" &&
-    typeof browser2?.onProjectPreviewEvent === "function";
+    typeof browser?.showProjectPreview === "function" &&
+    typeof browser?.hideProjectPreview === "function" &&
+    typeof browser?.onProjectPreviewEvent === "function";
   const [domFallback, setDomFallback] = reactExports.useState(false);
-  const latest2 = reactExports.useRef(options);
-  latest2.current = options;
+  const latest = reactExports.useRef(options);
+  latest.current = options;
   const publishRef = reactExports.useRef(null);
   const { open, anchor } = options;
   reactExports.useLayoutEffect(() => {
-    if (!open || !supported || !browser2) return;
-    const element2 = anchor.current;
-    if (!element2) return;
+    if (!open || !supported || !browser) return;
+    const element = anchor.current;
+    if (!element) return;
     setDomFallback(false);
-    const token2 = `project-preview:${crypto.randomUUID()}`;
+    const token = `project-preview:${crypto.randomUUID()}`;
     let disposed = false;
     let held = false;
     let lastPayload = "";
     let revision = 0;
     let nativeActive = true;
-    const hold = latest2.current.holdPreviewOpen;
-    const release = latest2.current.releasePreviewHold;
-    const hide2 = () => {
-      void browser2.hideProjectPreview(token2).catch(() => {});
+    const hold = latest.current.holdPreviewOpen;
+    const release = latest.current.releasePreviewHold;
+    const hide = () => {
+      void browser.hideProjectPreview(token).catch(() => {});
     };
-    const unsubscribe = browser2.onProjectPreviewEvent((event) => {
-      if (!disposed && event.token === token2) latest2.current.onEvent(event);
+    const unsubscribe = browser.onProjectPreviewEvent((event) => {
+      if (!disposed && event.token === token) latest.current.onEvent(event);
     });
     const publish = () => {
       if (disposed) return;
-      const rect = element2.getBoundingClientRect();
-      const computed = getComputedStyle(element2);
+      const rect = element.getBoundingClientRect();
+      const computed = getComputedStyle(element);
       const request = {
-        token: token2,
+        token,
         anchor: {
           x: rect.x,
           y: rect.y,
           width: rect.width,
           height: rect.height,
         },
-        content: latest2.current.content,
+        content: latest.current.content,
         theme: Object.fromEntries(
-          THEME_TOKENS.map((key2) => [
-            key2,
-            computed.getPropertyValue(key2).trim(),
+          THEME_TOKENS.map((key) => [
+            key,
+            computed.getPropertyValue(key).trim(),
           ]),
         ),
       };
@@ -428,40 +434,40 @@ function useNativeProjectPreview(options) {
       if (payload === lastPayload) return;
       lastPayload = payload;
       const currentRevision = ++revision;
-      void browser2.showProjectPreview(request).then(
+      void browser.showProjectPreview(request).then(
         (shown) => {
           if (disposed || currentRevision !== revision) return;
           nativeActive = shown;
           setDomFallback(!shown);
           if (shown && !held) {
             held = true;
-            hold?.(token2);
+            hold?.(token);
           }
         },
         () => {
           if (disposed || currentRevision !== revision) return;
           nativeActive = false;
-          hide2();
+          hide();
           setDomFallback(true);
         },
       );
     };
     publishRef.current = publish;
     publish();
-    const close2 = () => {
+    const closeNativePreview = () => {
       if (nativeActive)
-        latest2.current.onEvent({
-          token: token2,
+        latest.current.onEvent({
+          token,
           type: "close",
         });
     };
     const onKeyDown = (event) => {
-      if (event.key === "Escape") close2();
+      if (event.key === "Escape") closeNativePreview();
     };
-    document.addEventListener("scroll", close2, true);
-    document.addEventListener("pointerdown", close2, true);
+    document.addEventListener("scroll", closeNativePreview, true);
+    document.addEventListener("pointerdown", closeNativePreview, true);
     document.addEventListener("keydown", onKeyDown, true);
-    window.addEventListener("resize", close2);
+    window.addEventListener("resize", closeNativePreview);
     const themeObserver = new MutationObserver(publish);
     themeObserver.observe(document.documentElement, {
       attributes: true,
@@ -472,14 +478,14 @@ function useNativeProjectPreview(options) {
       publishRef.current = null;
       unsubscribe();
       themeObserver.disconnect();
-      document.removeEventListener("scroll", close2, true);
-      document.removeEventListener("pointerdown", close2, true);
+      document.removeEventListener("scroll", closeNativePreview, true);
+      document.removeEventListener("pointerdown", closeNativePreview, true);
       document.removeEventListener("keydown", onKeyDown, true);
-      window.removeEventListener("resize", close2);
-      hide2();
-      if (held) release?.(token2);
+      window.removeEventListener("resize", closeNativePreview);
+      hide();
+      if (held) release?.(token);
     };
-  }, [anchor, browser2, open, supported]);
+  }, [anchor, browser, open, supported]);
   reactExports.useEffect(() => {
     publishRef.current?.();
   });
@@ -489,7 +495,7 @@ const COPY_FEEDBACK_DURATION_MS = 1500;
 export function RecentProjectRow({
   workspace,
   renamePath,
-  active: active2 = false,
+  active = false,
   status,
   onOpen,
   onDelete,
@@ -517,8 +523,8 @@ export function RecentProjectRow({
   holdPreviewOpen,
   releasePreviewHold,
 }) {
-  const { t: t2, i18n } = useTranslation();
-  const platform2 = usePlatform();
+  const { t: translate, i18n } = useTranslation();
+  const platform = usePlatform();
   const [menuOpen, setMenuOpen] = reactExports.useState(false);
   const [renameSurface, setRenameSurface] = reactExports.useState(null);
   const [renameMenuHandoff, setRenameMenuHandoff] =
@@ -533,7 +539,7 @@ export function RecentProjectRow({
   const renameAfterMenuCloseRef = reactExports.useRef(false);
   const renameAfterMenuCloseTimerRef = reactExports.useRef(null);
   const draggingRef = reactExports.useRef(false);
-  const displayName2 = workspaceDisplayName(workspace);
+  const displayName = workspaceDisplayName(workspace);
   const pendingUserAction = status?.needsUserAction;
   const hasTrailingStatus =
     Boolean(status?.running || status?.unread) && !pendingUserAction;
@@ -542,9 +548,9 @@ export function RecentProjectRow({
     menuOpen || renaming || renameMenuHandoff || deleting;
   reactExports.useEffect(() => {
     if (!previewHoldActive || !holdPreviewOpen || !releasePreviewHold) return;
-    const token2 = `home-sidebar.recent-row:${workspace.path}`;
-    holdPreviewOpen(token2);
-    return () => releasePreviewHold(token2);
+    const token = `home-sidebar.recent-row:${workspace.path}`;
+    holdPreviewOpen(token);
+    return () => releasePreviewHold(token);
   }, [holdPreviewOpen, previewHoldActive, releasePreviewHold, workspace.path]);
   const setDetailsOpen = reactExports.useCallback(
     (open) => onDetailsOpenChange(workspace.path, open),
@@ -559,10 +565,10 @@ export function RecentProjectRow({
   );
   const pendingUserActionLabel =
     pendingUserAction === "confirmation"
-      ? t2("homeSidebar.recentProjectAwaitingApproval", "Awaiting approval")
-      : t2("homeSidebar.recentProjectAwaitingAnswer", "Awaiting reply");
+      ? translate("homeSidebar.recentProjectAwaitingApproval", "Awaiting approval")
+      : translate("homeSidebar.recentProjectAwaitingAnswer", "Awaiting reply");
   const visibleDetailsOpen = detailsEnabled && detailsOpen;
-  const recentPillStateClass = active2
+  const recentPillStateClass = active
     ? HOME_NAV_ACTIVE_CLASS
     : cn(
         "group-hover/recent-row:after:bg-[var(--home-sidebar-nav-hover)] group-has-[:focus-visible]/recent-row:after:bg-[var(--home-sidebar-nav-hover)]",
@@ -578,22 +584,22 @@ export function RecentProjectRow({
     ? [
         {
           key: "video",
-          label: t2("home.recentProjectDetails.videos"),
+          label: translate("home.recentProjectDetails.videos"),
           count: counts.video,
         },
         {
           key: "image",
-          label: t2("home.recentProjectDetails.images"),
+          label: translate("home.recentProjectDetails.images"),
           count: counts.image,
         },
         {
           key: "text",
-          label: t2("home.recentProjectDetails.text"),
+          label: translate("home.recentProjectDetails.text"),
           count: counts.text,
         },
         {
           key: "audio",
-          label: t2("home.recentProjectDetails.audio"),
+          label: translate("home.recentProjectDetails.audio"),
           count: counts.audio,
         },
       ].filter((item) => item.count > 0)
@@ -601,9 +607,9 @@ export function RecentProjectRow({
   const handleCopyWorkspacePath = reactExports.useCallback(
     async (feedback = "toast") => {
       try {
-        await platform2.clipboard.writeText(workspace.path);
+        await platform.clipboard.writeText(workspace.path);
         if (feedback === "toast") {
-          dedupedToast.success(t2("fileExplorer.pathCopied"));
+          dedupedToast.success(translate("fileExplorer.pathCopied"));
           return;
         }
         if (copyFeedbackTimerRef.current)
@@ -618,10 +624,10 @@ export function RecentProjectRow({
           clearTimeout(copyFeedbackTimerRef.current);
         copyFeedbackTimerRef.current = null;
         setPathCopied(false);
-        dedupedToast.error(t2("fileExplorer.copyFailed"));
+        dedupedToast.error(translate("fileExplorer.copyFailed"));
       }
     },
-    [platform2.clipboard, t2, workspace.path],
+    [platform.clipboard, translate, workspace.path],
   );
   reactExports.useEffect(
     () => () => {
@@ -632,19 +638,19 @@ export function RecentProjectRow({
   );
   const handleOpenWorkspacePath = reactExports.useCallback(async () => {
     try {
-      if (platform2.shell.openPath) {
-        await platform2.shell.openPath(workspace.path);
+      if (platform.shell.openPath) {
+        await platform.shell.openPath(workspace.path);
         return;
       }
-      if (platform2.shell.showItemInFolder) {
-        await platform2.shell.showItemInFolder(workspace.path);
+      if (platform.shell.showItemInFolder) {
+        await platform.shell.showItemInFolder(workspace.path);
         return;
       }
-      dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+      dedupedToast.error(translate("fileExplorer.platformNotSupported"));
     } catch {
-      dedupedToast.error(t2("fileExplorer.openFailed"));
+      dedupedToast.error(translate("fileExplorer.openFailed"));
     }
-  }, [platform2.shell, t2, workspace.path]);
+  }, [platform.shell, translate, workspace.path]);
   const clearDetailsTimer = reactExports.useCallback(() => {
     if (detailsTimerRef.current) {
       clearTimeout(detailsTimerRef.current);
@@ -757,7 +763,7 @@ export function RecentProjectRow({
     open: visibleDetailsOpen && !menuOpen && !deleting,
     anchor: rowRef,
     content: {
-      name: displayName2,
+      name: displayName,
       path: workspace.path,
       status: pendingUserAction
         ? `${pendingUserActionLabel}
@@ -767,10 +773,10 @@ ${openedAtLabel}`
         .map((item) => `${item.label} · ${item.count}`)
         .join(" ｜ "),
       loading: summaryQuery.isPending,
-      copyLabel: t2("fileExplorer.copyPath"),
-      copiedLabel: t2("common.copiedShort"),
+      copyLabel: translate("fileExplorer.copyPath"),
+      copiedLabel: translate("common.copiedShort"),
       copied: pathCopied,
-      renamePlaceholder: t2("home.workspace.displayNamePlaceholder"),
+      renamePlaceholder: translate("home.workspace.displayNamePlaceholder"),
     },
     holdPreviewOpen,
     releasePreviewHold,
@@ -836,7 +842,7 @@ ${openedAtLabel}`
         }}
         className={cn(
           "group group/recent-row relative flex h-[32px] shrink-0 cursor-pointer items-center text-left text-sm text-[var(--home-sidebar-secondary-text)] transition-colors hover:text-foreground",
-          active2 && "text-foreground",
+          active && "text-foreground",
           dragging && "sidebar-drag-source",
           moveCompleted && "sidebar-move-completed",
           dragOver && "home-sidebar-recent-drag-over",
@@ -861,10 +867,10 @@ ${openedAtLabel}`
               scanAllowed={loadThumbnail}
             />
             <InlineRenameInput
-              initialName={displayName2}
-              placeholder={t2("home.workspace.displayNamePlaceholder")}
-              onConfirm={(name2) => {
-                renameDisplayName(name2);
+              initialName={displayName}
+              placeholder={translate("home.workspace.displayNamePlaceholder")}
+              onConfirm={(displayName) => {
+                renameDisplayName(displayName);
                 setRenameSurface(null);
               }}
               onCancel={() => setRenameSurface(null)}
@@ -874,7 +880,7 @@ ${openedAtLabel}`
           <button
             type="button"
             tabIndex={0}
-            aria-current={active2 ? "page" : void 0}
+            aria-current={active ? "page" : void 0}
             onClick={handleProjectClick}
             className={cn(
               HOME_NAV_PILL_CLASS,
@@ -892,13 +898,13 @@ ${openedAtLabel}`
               variant="row"
               userAction={hovered ? void 0 : pendingUserAction}
               userActionLabel={pendingUserActionLabel}
-              displayName={displayName2}
+              displayName={displayName}
             />
             <RecentProjectTrailingStatus
               status={status}
               hovered={hovered}
               hasTrailingStatus={hasTrailingStatus}
-              completedUnreadLabel={t2(
+              completedUnreadLabel={translate(
                 "session.tabs.status.completedUnread",
                 "Completed, unread",
               )}
@@ -918,7 +924,7 @@ ${openedAtLabel}`
                   <button
                     type="button"
                     aria-label={
-                      pinned ? t2("session.unpin") : t2("session.pin")
+                      pinned ? translate("session.unpin") : translate("session.pin")
                     }
                     data-action-ui-id="home-sidebar-recent-pin"
                     data-icon-active={pinned || void 0}
@@ -943,7 +949,7 @@ ${openedAtLabel}`
                 }
               />
               <TooltipContent side="top">
-                {pinned ? t2("session.unpin") : t2("session.pin")}
+                {pinned ? translate("session.unpin") : translate("session.pin")}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -952,7 +958,7 @@ ${openedAtLabel}`
               type="button"
               draggable={false}
               disabled={renaming}
-              aria-label={t2("homeSidebar.recentProjectActions")}
+              aria-label={translate("homeSidebar.recentProjectActions")}
               data-action-ui-id="home-sidebar-recent-more"
               className={cn(
                 "icon-sidebar-action-control flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none",
@@ -984,7 +990,7 @@ ${openedAtLabel}`
                 }}
               >
                 <StrokeIcon icon={PencilIcon} size={14} />
-                {t2("common.rename")}
+                {translate("common.rename")}
               </DropdownMenuItem>
               <AddToProjectSubMenu
                 useStrokeSpec={true}
@@ -1005,7 +1011,7 @@ ${openedAtLabel}`
                   data-action-ui-id="home-sidebar.recent-remove-from-project"
                 >
                   <StrokeIcon icon={FolderX} size={14} />
-                  {t2("project.removeFromProject")}
+                  {translate("project.removeFromProject")}
                 </DropdownMenuItem>
               ) : null}
               <DropdownMenuItem
@@ -1015,7 +1021,7 @@ ${openedAtLabel}`
                 }}
               >
                 <StrokeIcon icon={Copy} size={14} />
-                {t2("fileExplorer.copyPath")}
+                {translate("fileExplorer.copyPath")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={(event) => {
@@ -1024,7 +1030,7 @@ ${openedAtLabel}`
                 }}
               >
                 <LocalFolderIcon className="size-4" aria-hidden="true" />
-                <PlatformFileManagerLabel os={platform2.app.os} />
+                <PlatformFileManagerLabel os={platform.app.os} />
               </DropdownMenuItem>
               {onCloseRuntime ? (
                 <DropdownMenuItem
@@ -1036,7 +1042,7 @@ ${openedAtLabel}`
                   data-action-ui-id="home-sidebar.recent-close-runtime"
                 >
                   <StrokeIcon icon={CircleX} size={14} />
-                  {t2("homeSidebar.closeProject")}
+                  {translate("homeSidebar.closeProject")}
                 </DropdownMenuItem>
               ) : null}
               {onDelete ? (
@@ -1049,7 +1055,7 @@ ${openedAtLabel}`
                   }}
                 >
                   <StrokeIcon icon={Trash2} size={14} />
-                  {t2("common.delete")}
+                  {translate("common.delete")}
                 </DropdownMenuItem>
               ) : null}
             </DropdownMenuContent>
@@ -1081,10 +1087,10 @@ ${openedAtLabel}`
             {renameSurface === "details" ? (
               <div className="min-w-0 flex-1">
                 <InlineRenameInput
-                  initialName={displayName2}
-                  placeholder={t2("home.workspace.displayNamePlaceholder")}
-                  onConfirm={(name2) => {
-                    renameDisplayName(name2);
+                  initialName={displayName}
+                  placeholder={translate("home.workspace.displayNamePlaceholder")}
+                  onConfirm={(displayName) => {
+                    renameDisplayName(displayName);
                     setRenameSurface(null);
                     setDetailsOpen(false);
                   }}
@@ -1104,7 +1110,7 @@ ${openedAtLabel}`
                   setRenameSurface("details");
                 }}
               >
-                {displayName2}
+                {displayName}
               </p>
             )}
             <RecentProjectStatusContent
@@ -1140,8 +1146,8 @@ ${openedAtLabel}`
                       className="icon-sidebar-action-control relative z-10 inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50"
                       aria-label={
                         pathCopied
-                          ? t2("common.copiedShort")
-                          : t2("fileExplorer.copyPath")
+                          ? translate("common.copiedShort")
+                          : translate("fileExplorer.copyPath")
                       }
                       onClick={(event) => {
                         event.stopPropagation();
@@ -1163,8 +1169,8 @@ ${openedAtLabel}`
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   {pathCopied
-                    ? t2("common.copiedShort")
-                    : t2("fileExplorer.copyPath")}
+                    ? translate("common.copiedShort")
+                    : translate("fileExplorer.copyPath")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -1180,9 +1186,9 @@ ${openedAtLabel}`
               data-action-ui-id="home-sidebar.recent-details-assets"
               className="mt-2 truncate text-[10px] leading-4 text-muted-foreground"
             >
-              {assetSummaryItems.map((item, index2) => (
+              {assetSummaryItems.map((item, index) => (
                 <span key={item.key}>
-                  {index2 > 0 && (
+                  {index > 0 && (
                     <span
                       aria-hidden="true"
                       className="mx-1 text-foreground/25"
@@ -1201,7 +1207,7 @@ ${openedAtLabel}`
       ) : null}
       <DeleteConfirmDialog
         open={Boolean(onDelete && deleting)}
-        name={displayName2}
+        name={displayName}
         onConfirm={() => {
           onDelete?.();
           setDeleting(false);

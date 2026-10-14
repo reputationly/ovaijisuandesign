@@ -1,12 +1,12 @@
 // use-session-stall.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 
-function stallDurationBucket(ms) {
-  if (ms === void 0 || !Number.isFinite(ms) || ms < 0) return "unknown";
-  const minutes = ms / 6e4;
+function stallDurationBucket(durationMs) {
+  if (durationMs === void 0 || !Number.isFinite(durationMs) || durationMs < 0) return "unknown";
+  const minutes = durationMs / 6e4;
   if (minutes < 5) return "<5m";
   if (minutes < 15) return "5-15m";
   if (minutes < 30) return "15-30m";
@@ -18,82 +18,82 @@ function stallDurationBucket(ms) {
 
 export function useSessionStall() {
   const [stalledSessions, setStalledSessions] = reactExports.useState({});
-  const removeEntry = reactExports.useCallback((sid) => {
+  const removeEntry = reactExports.useCallback((sessionId) => {
     setStalledSessions((prev) => {
-      if (!(sid in prev)) return prev;
-      const next2 = {
+      if (!(sessionId in prev)) return prev;
+      const next = {
         ...prev,
       };
-      delete next2[sid];
-      return next2;
+      delete next[sessionId];
+      return next;
     });
   }, []);
   const handleSessionStalledMessage = reactExports.useCallback(
-    (msg) => {
-      const sid = msg.session_id;
-      if (msg.stalled) {
+    (message) => {
+      const sessionId = message.session_id;
+      if (message.stalled) {
         setStalledSessions((prev) => ({
           ...prev,
-          [sid]: {
-            silentMs: msg.silent_ms,
-            elapsedMs: msg.elapsed_ms,
-            watchdog: msg.watchdog,
+          [sessionId]: {
+            silentMs: message.silent_ms,
+            elapsedMs: message.elapsed_ms,
+            watchdog: message.watchdog,
           },
         }));
       } else {
-        removeEntry(sid);
+        removeEntry(sessionId);
       }
       recordAction("chat:session-stalled", {
-        sessionId: sid,
-        stalled: msg.stalled,
-        silentMs: msg.silent_ms,
-        elapsedMs: msg.elapsed_ms,
-        watchdog: msg.watchdog,
+        sessionId,
+        stalled: message.stalled,
+        silentMs: message.silent_ms,
+        elapsedMs: message.elapsed_ms,
+        watchdog: message.watchdog,
       });
       trackEvent(TRACK_EVENTS.CHAT_SESSION_STALLED, {
-        session_id: sid,
-        stalled: msg.stalled,
-        watchdog: msg.watchdog ?? "unknown",
-        silent_ms_bucket: stallDurationBucket(msg.silent_ms),
-        elapsed_ms_bucket: stallDurationBucket(msg.elapsed_ms),
+        session_id: sessionId,
+        stalled: message.stalled,
+        watchdog: message.watchdog ?? "unknown",
+        silent_ms_bucket: stallDurationBucket(message.silent_ms),
+        elapsed_ms_bucket: stallDurationBucket(message.elapsed_ms),
       });
     },
     [removeEntry],
   );
   const recordStallAction = reactExports.useCallback(
-    (sid, action) => {
-      const info2 = stalledSessions[sid];
+    (sessionId, action) => {
+      const info = stalledSessions[sessionId];
       trackEvent(TRACK_EVENTS.CHAT_SESSION_STALL_ACTION, {
-        session_id: sid,
+        session_id: sessionId,
         action,
-        watchdog: info2?.watchdog ?? "unknown",
-        silent_ms_bucket: stallDurationBucket(info2?.silentMs),
-        elapsed_ms_bucket: stallDurationBucket(info2?.elapsedMs),
+        watchdog: info?.watchdog ?? "unknown",
+        silent_ms_bucket: stallDurationBucket(info?.silentMs),
+        elapsed_ms_bucket: stallDurationBucket(info?.elapsedMs),
       });
     },
     [stalledSessions],
   );
   const dismissStalledForSession = reactExports.useCallback(
-    (sid) => {
+    (sessionId) => {
       recordAction("chat:session-stalled-dismissed", {
-        sessionId: sid,
+        sessionId,
       });
-      recordStallAction(sid, "keep_waiting");
-      removeEntry(sid);
+      recordStallAction(sessionId, "keep_waiting");
+      removeEntry(sessionId);
     },
     [recordStallAction, removeEntry],
   );
   const pruneStalledSessions = reactExports.useCallback((liveSessions) => {
     setStalledSessions((prev) => {
-      let next2 = null;
-      for (const sid of Object.keys(prev)) {
-        if (liveSessions.has(sid)) continue;
-        next2 ??= {
+      let next = null;
+      for (const sessionId of Object.keys(prev)) {
+        if (liveSessions.has(sessionId)) continue;
+        next ??= {
           ...prev,
         };
-        delete next2[sid];
+        delete next[sessionId];
       }
-      return next2 ?? prev;
+      return next ?? prev;
     });
   }, []);
   return {

@@ -23,14 +23,14 @@ const inViewport = (value, viewport, axis) =>
   value >= viewport[axis] && value <= end(viewport, axis);
 
 function candidatesForAxis(moving, references, viewport, axis, tolerance) {
-  const candidates2 = [];
-  const cross2 = otherAxis(axis);
+  const candidates = [];
+  const cross = otherAxis(axis);
   const movingAnchors = anchors(moving, axis);
   for (const ref of references) {
     const separation = Math.max(
       0,
-      ref[cross2] - end(moving, cross2),
-      moving[cross2] - end(ref, cross2),
+      ref[cross] - end(moving, cross),
+      moving[cross] - end(ref, cross),
     );
     for (const [targetIndex, target] of anchors(ref, axis).entries()) {
       if (!inViewport(target, viewport, axis)) continue;
@@ -38,7 +38,7 @@ function candidatesForAxis(moving, references, viewport, axis, tolerance) {
         const delta = target - source;
         if (Math.abs(delta) > tolerance || !inViewport(source, viewport, axis))
           continue;
-        candidates2.push({
+        candidates.push({
           key: `align:${ref.id}:${targetIndex}:${sourceIndex}`,
           delta,
           priority: sourceIndex === targetIndex ? 0 : 1,
@@ -47,32 +47,32 @@ function candidatesForAxis(moving, references, viewport, axis, tolerance) {
       }
     }
   }
-  return candidates2;
+  return candidates;
 }
 
-function chooseCandidate(candidates2, zoom2, lock) {
-  const retained = candidates2.find(
+function chooseCandidate(candidates, zoom, lock) {
+  const retained = candidates.find(
     (candidate) =>
       candidate.key === lock &&
-      Math.abs(candidate.delta) * zoom2 <= ALIGNMENT_RELEASE_DISTANCE,
+      Math.abs(candidate.delta) * zoom <= ALIGNMENT_RELEASE_DISTANCE,
   );
   if (retained) return retained;
-  return candidates2
+  return candidates
     .filter(
       (candidate) =>
-        Math.abs(candidate.delta) * zoom2 <= ALIGNMENT_SNAP_DISTANCE,
+        Math.abs(candidate.delta) * zoom <= ALIGNMENT_SNAP_DISTANCE,
     )
     .sort(
-      (a2, b3) =>
-        Math.abs(a2.delta) - Math.abs(b3.delta) ||
-        a2.priority - b3.priority ||
-        a2.separation - b3.separation ||
-        a2.key.localeCompare(b3.key),
+      (leftCandidate, rightCandidate) =>
+        Math.abs(leftCandidate.delta) - Math.abs(rightCandidate.delta) ||
+        leftCandidate.priority - rightCandidate.priority ||
+        leftCandidate.separation - rightCandidate.separation ||
+        leftCandidate.key.localeCompare(rightCandidate.key),
     )[0];
 }
 
 function alignmentGuides(moving, references, viewport, axis) {
-  const cross2 = otherAxis(axis);
+  const cross = otherAxis(axis);
   const lines = new Map();
   for (const source of anchors(moving, axis)) {
     if (!inViewport(source, viewport, axis)) continue;
@@ -84,27 +84,27 @@ function alignmentGuides(moving, references, viewport, axis) {
       )
         continue;
       const line = lines.get(source) ?? {
-        start: moving[cross2],
-        end: end(moving, cross2),
+        start: moving[cross],
+        end: end(moving, cross),
       };
-      line.start = Math.min(line.start, ref[cross2]);
-      line.end = Math.max(line.end, end(ref, cross2));
+      line.start = Math.min(line.start, ref[cross]);
+      line.end = Math.max(line.end, end(ref, cross));
       lines.set(source, line);
     }
   }
-  return Array.from(lines, ([position2, line]) =>
+  return Array.from(lines, ([position, line]) =>
     axis === "x"
       ? {
           kind: "alignment",
-          x1: position2,
-          x2: position2,
+          x1: position,
+          x2: position,
           y1: line.start,
           y2: line.end,
         }
       : {
           kind: "alignment",
-          y1: position2,
-          y2: position2,
+          y1: position,
+          y2: position,
           x1: line.start,
           x2: line.end,
         },
@@ -112,8 +112,8 @@ function alignmentGuides(moving, references, viewport, axis) {
 }
 
 export function resolveNodeAlignmentSnap(input, locks = {}) {
-  const { movingBounds: moving, viewport, zoom: zoom2 } = input;
-  const empty2 = {
+  const { movingBounds: moving, viewport, zoom } = input;
+  const empty = {
     delta: {
       x: 0,
       y: 0,
@@ -123,11 +123,11 @@ export function resolveNodeAlignmentSnap(input, locks = {}) {
   };
   if (
     input.bypass ||
-    !Number.isFinite(zoom2) ||
-    zoom2 <= 0 ||
+    !Number.isFinite(zoom) ||
+    zoom <= 0 ||
     !intersectsViewport(moving, viewport)
   )
-    return empty2;
+    return empty;
   const references = input.references.filter((ref) =>
     intersectsViewport(ref, viewport),
   );
@@ -139,9 +139,9 @@ export function resolveNodeAlignmentSnap(input, locks = {}) {
         references,
         viewport,
         axis,
-        ALIGNMENT_RELEASE_DISTANCE / zoom2,
+        ALIGNMENT_RELEASE_DISTANCE / zoom,
       ),
-      zoom2,
+      zoom,
       locks[axis],
     );
   }

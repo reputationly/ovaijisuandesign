@@ -1,0 +1,5 @@
+key	old	new	依据
+X@2:47	X	CloseIcon	该导入组件用于关闭按钮中的叉号图标。
+t2@14:14	t2	translate	该绑定是关闭按钮读取无障碍标签文案的翻译函数。
+CloseButton2@4:55	CloseButton2	CloseButton	去掉打包器防重名追加的后缀，恢复原名 CloseButton，即该绑定持有的值。
+handleClick2@7:9	handleClick2	handleClick	去掉打包器防重名追加的后缀，恢复原名 handleClick，即该绑定持有的值。

@@ -2,7 +2,7 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
 import {
-  File$1 as File,
+  FileIcon as File,
   FileArchive,
   FileAudio,
   FileCode,
@@ -11,13 +11,14 @@ import {
   Folder,
   ImageOutlineIcon,
 } from "../media-editing/package.jsx";
-import { classifyFileType, reactExports } from "../vendor.js";
+import reactExports from "react";
+import { classifyFileType } from "./file-type.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { FolderTileGlyph } from "./new-folder-dialog.jsx";
 import { FileTypeIcon } from "./file-type-icon.jsx";
 import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
-import { cn$2 as cn } from "./dialog-content.jsx";
-function VideoThumbnailPlayIndicator({ size: size2 = 14 }) {
+import { mergeTailwindClasses as cn } from "./dialog-content.jsx";
+function VideoThumbnailPlayIndicator({ size = 14 }) {
   return (
     <span
       aria-hidden="true"
@@ -25,7 +26,7 @@ function VideoThumbnailPlayIndicator({ size: size2 = 14 }) {
       data-project-asset-video-play="true"
     >
       <PlaybackPlayIcon
-        size={size2}
+        size={size}
         style={{
           color: "var(--media-overlay-foreground)",
           filter: "drop-shadow(0 1px 2px rgb(0 0 0 / 0.65))",
@@ -95,7 +96,7 @@ function typeBucketMeta(bucket) {
   }
 }
 function ProjectAssetThumbnailGeneration({
-  name: name2,
+  name: assetName,
   kind,
   typeBucket,
   thumbnailSrc,
@@ -120,13 +121,13 @@ function ProjectAssetThumbnailGeneration({
     className,
   );
   if (failed || !canRenderThumbnail) {
-    const FallbackIcon2 = typeBucketMeta(typeBucket).Icon;
+    const FallbackIcon = typeBucketMeta(typeBucket).Icon;
     return (
       <span className={containerClassName} aria-hidden="true">
         {kind === "file" ? (
           <FileTypeIcon
             {...classifyFileType({
-              filename: name2,
+              filename: assetName,
               mediaKind:
                 typeBucket === "image" ||
                 typeBucket === "video" ||
@@ -140,7 +141,7 @@ function ProjectAssetThumbnailGeneration({
           />
         ) : (
           <Icon
-            icon={FallbackIcon2}
+            icon={FallbackIcon}
             size={isGrid ? "lg" : "sm"}
             strokeWidth={isGrid ? 2 : 1.5}
             className={cn(
@@ -159,7 +160,7 @@ function ProjectAssetThumbnailGeneration({
     <span className={containerClassName}>
       <DeferredThumbnailImage
         src={thumbnailSrc}
-        alt={isGrid ? name2 : ""}
+        alt={isGrid ? assetName : ""}
         draggable={false}
         onFailure={() => setFailed(true)}
         className={cn("size-full", isGrid ? "object-cover" : "object-contain")}

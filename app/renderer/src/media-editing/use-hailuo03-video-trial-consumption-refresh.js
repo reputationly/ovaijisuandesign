@@ -6,7 +6,8 @@ import {
   isHailuo03VideoTrialEligibleResolution,
   stringValue,
 } from "../generation/use-mention-models.jsx";
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "../canvas/canvas-geometry.js";
+import reactExports from "react";
 import { dedupedToast } from "../infra/agent-http-client.js";
 function recordField(value) {
   return value && typeof value === "object" ? value : void 0;
@@ -15,36 +16,36 @@ function isHailuo03VideoTrialModelValue(value, eligibility) {
   const model = stringValue(value);
   return model !== "" && includesString(eligibility?.models, model);
 }
-function isHailuo03OrdinaryVideoTrialGeneratingPlaceholder(node2, eligibility) {
-  if (node2.type !== CanvasNodeType.Placeholder) return false;
-  const data2 = recordField(node2.data);
-  const params = recordField(data2?.params);
-  const draft = recordField(recordField(data2?.popoverDraft)?.i2v);
+function isHailuo03OrdinaryVideoTrialGeneratingPlaceholder(node, eligibility) {
+  if (node.type !== CanvasNodeType.Placeholder) return false;
+  const data = recordField(node.data);
+  const params = recordField(data?.params);
+  const draft = recordField(recordField(data?.popoverDraft)?.i2v);
   const imageMode = params?.image_mode;
   const subType = imageModeSubType(imageMode);
   const videoPaths = [
-    data2?.video_paths,
-    data2?.reference_videos,
+    data?.video_paths,
+    data?.reference_videos,
     params?.video_paths,
     params?.reference_videos,
     draft?.videoPaths,
   ];
   const imagePaths = [
-    data2?.image_paths,
-    data2?.reference_images,
+    data?.image_paths,
+    data?.reference_images,
     params?.image_paths,
     draft?.imagePaths,
   ];
   const audioPaths = [
-    data2?.audio_paths,
-    data2?.reference_audios,
+    data?.audio_paths,
+    data?.reference_audios,
     params?.audio_paths,
     draft?.audioPaths,
   ];
   return (
-    data2?.mediaType === "video" &&
-    data2.status === "generating" &&
-    [data2.model_id, data2.model].some((value) =>
+    data?.mediaType === "video" &&
+    data.status === "generating" &&
+    [data.model_id, data.model].some((value) =>
       isHailuo03VideoTrialModelValue(value, eligibility),
     ) &&
     includesString(eligibility?.subTypes, subType) &&
@@ -84,7 +85,7 @@ export function useHailuo03VideoTrialConsumptionRefresh({
   sessionStore,
   status,
   refresh,
-  t: t2,
+  t,
 }) {
   const statusRef = reactExports.useRef(status);
   const mountedRef = reactExports.useRef(true);
@@ -122,36 +123,36 @@ export function useHailuo03VideoTrialConsumptionRefresh({
       try {
         const before = statusRef.current;
         let beforeRemaining = before.claimed ? before.remainingCount : 0;
-        let elapsedMs2 = 0;
+        let elapsedMs = 0;
         let baselineStartedAtMs = 0;
         for (const delayMs of HAILUO03_VIDEO_TRIAL_REFRESH_DELAYS_MS) {
           if (delayMs > 0) {
             await wait(delayMs);
-            elapsedMs2 += delayMs;
+            elapsedMs += delayMs;
           }
           if (!mountedRef.current) return;
-          const next2 = await refresh();
-          statusRef.current = next2;
+          const next = await refresh();
+          statusRef.current = next;
           if (
             beforeRemaining > 0 &&
-            next2.claimed &&
-            next2.remainingCount < beforeRemaining
+            next.claimed &&
+            next.remainingCount < beforeRemaining
           ) {
             const expectedConsumed = Math.min(
               beforeRemaining,
               expectedUseCountRef.current,
             );
-            const observedConsumed = beforeRemaining - next2.remainingCount;
+            const observedConsumed = beforeRemaining - next.remainingCount;
             const batchWaitExpired =
-              elapsedMs2 - baselineStartedAtMs >=
+              elapsedMs - baselineStartedAtMs >=
               HAILUO03_VIDEO_TRIAL_BATCH_MAX_WAIT_MS;
             if (observedConsumed < expectedConsumed && !batchWaitExpired) {
               continue;
             }
-            if (lastNotifiedRemainingRef.current !== next2.remainingCount) {
-              lastNotifiedRemainingRef.current = next2.remainingCount;
+            if (lastNotifiedRemainingRef.current !== next.remainingCount) {
+              lastNotifiedRemainingRef.current = next.remainingCount;
               dedupedToast.success(
-                t2("canvas.hailuo03Trial.freeUsed", {
+                t("canvas.hailuo03Trial.freeUsed", {
                   count: observedConsumed,
                   defaultValue: "本次免费，已使用 {{count}} 次免费机会",
                 }),
@@ -161,17 +162,17 @@ export function useHailuo03VideoTrialConsumptionRefresh({
           }
           if (
             beforeRemaining <= 0 &&
-            next2.claimed &&
-            next2.remainingCount > 0
+            next.claimed &&
+            next.remainingCount > 0
           ) {
-            beforeRemaining = next2.remainingCount;
-            baselineStartedAtMs = elapsedMs2;
+            beforeRemaining = next.remainingCount;
+            baselineStartedAtMs = elapsedMs;
             continue;
           }
           if (
             beforeRemaining <= 0 ||
-            !next2.claimed ||
-            next2.remainingCount <= 0
+            !next.claimed ||
+            next.remainingCount <= 0
           ) {
             return;
           }
@@ -181,24 +182,24 @@ export function useHailuo03VideoTrialConsumptionRefresh({
         expectedUseCountRef.current = 1;
       }
     },
-    [refresh, t2],
+    [refresh, t],
   );
   reactExports.useEffect(() => {
-    return sessionStore.onCanvasUpdated((update2) => {
-      for (const removedId of update2.removedNodeIds ?? []) {
+    return sessionStore.onCanvasUpdated((update) => {
+      for (const removedId of update.removedNodeIds ?? []) {
         queueStartedNodeIdsRef.current.delete(removedId);
       }
       const eligibility = statusRef.current.eligibility;
-      const node2 = [
-        ...(update2.addedNodes ?? []),
-        ...(update2.updatedNodes ?? []),
+      const node = [
+        ...(update.addedNodes ?? []),
+        ...(update.updatedNodes ?? []),
       ].find((item) =>
         isHailuo03OrdinaryVideoTrialGeneratingPlaceholder(item, eligibility),
       );
-      if (!node2 || queueStartedNodeIdsRef.current.has(node2.id)) {
+      if (!node || queueStartedNodeIdsRef.current.has(node.id)) {
         return;
       }
-      queueStartedNodeIdsRef.current.add(node2.id);
+      queueStartedNodeIdsRef.current.add(node.id);
       void handleMaybeConsumed().catch(() => void 0);
     });
   }, [handleMaybeConsumed, sessionStore]);

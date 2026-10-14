@@ -1,5 +1,6 @@
 // global-sidebar-provider.jsx
-import { reactExports, useStorage } from "../vendor.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   GLOBAL_SIDEBAR_MAX_WIDTH,

@@ -1,0 +1,4 @@
+key	new	reason
+t2@31:14	t	useTranslation() 返回的翻译函数 t
+v2@39:45	isOpen	AlertDialog onOpenChange 传入的打开状态
+v2@76:35	checkedState	Checkbox onCheckedChange 传入的勾选状态

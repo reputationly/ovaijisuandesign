@@ -1,0 +1,3 @@
+key	old	new	reason
+children2@239:13	children2@239:13	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+scheduler2@243:9	scheduler2@243:9	surfaceRecoveryScheduler	CanvasRenderPolicyProvider 的局部：CanvasSurfaceRecoveryScheduler 实例；恢复词干 scheduler 会与全局 scheduler 冲突。

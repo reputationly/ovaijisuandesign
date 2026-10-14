@@ -3,33 +3,29 @@ import {
   inferFileKind,
   KNOWLEDGE_PATH_RE,
 } from "../chat/has-structured-success-payload.js";
-import {
-  collectMediaResultRecords,
-  getFileActivityKind,
-  isRecord$2 as isRecord,
-  tryParseJson$1,
-} from "../vendor.js";
+import { tryParseJson$1 as tryParseVendorJson } from "../infra/shared-runtime.js";
+import { collectMediaResultRecords, getFileActivityKind, isRecord$2 as isRecord } from "../chat/media-tool-result.js";
 import {
   parseJsonRecord,
   timelineOperationTargetKey,
 } from "./unwrap-mcp-json-record.js";
 import { parseTimelineOperations } from "./parse-timeline-operations.js";
-function isKnowledgePath(path2) {
-  if (!path2) return false;
-  return KNOWLEDGE_PATH_RE.test(path2);
+function isKnowledgePath(path) {
+  if (!path) return false;
+  return KNOWLEDGE_PATH_RE.test(path);
 }
-function basename(path2) {
-  if (!path2) return path2;
-  const normalized = path2.replace(/\\/g, "/");
+function basename(path) {
+  if (!path) return path;
+  const normalized = path.replace(/\\/g, "/");
   const parts = normalized.split("/").filter(Boolean);
   return parts[parts.length - 1] ?? normalized;
 }
 function extractPathFromArgs(toolArgs) {
   if (!toolArgs) return void 0;
-  const parsed = tryParseJson$1(toolArgs);
+  const parsed = tryParseVendorJson(toolArgs);
   if (!isRecord(parsed)) return void 0;
-  const obj = parsed;
-  const candidate = obj.path ?? obj.file_path ?? obj.filePath;
+  const parsedObject = parsed;
+  const candidate = parsedObject.path ?? parsedObject.file_path ?? parsedObject.filePath;
   return typeof candidate === "string" && candidate.length > 0
     ? candidate
     : void 0;
@@ -41,34 +37,34 @@ function collectStrings(value) {
     (item) => typeof item === "string" && item.trim().length > 0,
   );
 }
-function toItem(path2, kind) {
+function toItem(path, kind) {
   return {
-    name: basename(path2),
-    path: path2,
-    kind: kind ?? inferFileKind(path2),
+    name: basename(path),
+    path,
+    kind: kind ?? inferFileKind(path),
   };
 }
 function mediaTypeToKind(value) {
   if (value === "image" || value === "video" || value === "audio") return value;
   return void 0;
 }
-function extractMediaKindFromRecord(record2) {
-  const metadata = isRecord(record2.metadata) ? record2.metadata : void 0;
+function extractMediaKindFromRecord(record) {
+  const metadata = isRecord(record.metadata) ? record.metadata : void 0;
   return mediaTypeToKind(
-    record2.media_type ??
-      record2.type ??
+    record.media_type ??
+      record.type ??
       metadata?.media_type ??
       metadata?.type,
   );
 }
-function extractMediaPathFromRecord(record2) {
-  const metadata = isRecord(record2.metadata) ? record2.metadata : void 0;
-  const semantic = isRecord(record2.semantic) ? record2.semantic : void 0;
+function extractMediaPathFromRecord(record) {
+  const metadata = isRecord(record.metadata) ? record.metadata : void 0;
+  const semantic = isRecord(record.semantic) ? record.semantic : void 0;
   const candidate =
-    record2.file_path ??
-    record2.filePath ??
-    record2.file ??
-    record2.path ??
+    record.file_path ??
+    record.filePath ??
+    record.file ??
+    record.path ??
     metadata?.file_path ??
     metadata?.filePath ??
     metadata?.file ??
@@ -82,18 +78,18 @@ function extractMediaPathFromRecord(record2) {
     : void 0;
 }
 function dedupePaths(paths) {
-  const seen2 = new Set();
+  const seen = new Set();
   const result = [];
-  for (const path2 of paths) {
-    if (seen2.has(path2)) continue;
-    seen2.add(path2);
-    result.push(path2);
+  for (const path of paths) {
+    if (seen.has(path)) continue;
+    seen.add(path);
+    result.push(path);
   }
   return result;
 }
 function extractMediaPathsFromArgs(toolArgs) {
   if (!toolArgs) return [];
-  const parsed = tryParseJson$1(toolArgs);
+  const parsed = tryParseVendorJson(toolArgs);
   if (!isRecord(parsed)) return [];
   return dedupePaths([
     ...collectStrings(parsed.file_paths),
@@ -104,27 +100,27 @@ function extractMediaPathsFromArgs(toolArgs) {
     ...collectStrings(parsed.path),
   ]);
 }
-function dedupe$1(items) {
-  const seen2 = new Set();
+function dedupeMediaItems(items) {
+  const seen = new Set();
   const result = [];
   for (const item of items) {
-    if (seen2.has(item.path)) continue;
-    seen2.add(item.path);
+    if (seen.has(item.path)) continue;
+    seen.add(item.path);
     result.push(item);
   }
   return result;
 }
 function extractMediaItemsFromResult(toolResult) {
   if (!toolResult) return [];
-  const parsed = tryParseJson$1(toolResult.trim());
+  const parsed = tryParseVendorJson(toolResult.trim());
   const records = collectMediaResultRecords(parsed);
   if (records.length === 0) return [];
-  return dedupe$1(
+  return dedupeMediaItems(
     records
-      .map((record2) => {
-        const path2 = extractMediaPathFromRecord(record2);
-        return path2
-          ? toItem(path2, extractMediaKindFromRecord(record2))
+      .map((record) => {
+        const path = extractMediaPathFromRecord(record);
+        return path
+          ? toItem(path, extractMediaKindFromRecord(record))
           : void 0;
       })
       .filter((item) => !!item),
@@ -137,59 +133,59 @@ function extractMediaAnalysisItems(toolArgs, toolResult) {
   );
   const pathsFromArgs = extractMediaPathsFromArgs(toolArgs);
   const orderedItems = pathsFromArgs.map(
-    (path2) => resultItemByPath.get(path2) ?? toItem(path2),
+    (path) => resultItemByPath.get(path) ?? toItem(path),
   );
-  return dedupe$1([...orderedItems, ...resultItems]);
+  return dedupeMediaItems([...orderedItems, ...resultItems]);
 }
-function extractFileChipItems(toolName2, toolArgs, toolResult) {
-  if (!toolName2) return [];
-  const activityKind = getFileActivityKind(toolName2);
+function extractFileChipItems(toolName, toolArgs, toolResult) {
+  if (!toolName) return [];
+  const activityKind = getFileActivityKind(toolName);
   if (activityKind === "read") {
-    const path2 = extractPathFromArgs(toolArgs);
-    return path2 ? [toItem(path2)] : [];
+    const path = extractPathFromArgs(toolArgs);
+    return path ? [toItem(path)] : [];
   }
   if (activityKind === "analyseMedia") {
     return extractMediaAnalysisItems(toolArgs, toolResult);
   }
   return [];
 }
-function tryParseJson(raw2) {
+function tryParseJson(raw) {
   try {
-    return JSON.parse(raw2);
+    return JSON.parse(raw);
   } catch {
     return void 0;
   }
 }
 const SINGLE_TERM_FIELDS = ["pattern", "query", "keyword", "q"];
-function dedupe(values3) {
-  const seen2 = new Set();
+function dedupe(values) {
+  const seen = new Set();
   const result = [];
-  for (const value of values3) {
-    if (seen2.has(value)) continue;
-    seen2.add(value);
+  for (const value of values) {
+    if (seen.has(value)) continue;
+    seen.add(value);
     result.push(value);
   }
   return result;
 }
-function extractSearchChips(toolName2, toolArgs, _toolResult) {
-  if (!toolName2 || !toolArgs) return [];
+function extractSearchChips(toolName, toolArgs, _toolResult) {
+  if (!toolName || !toolArgs) return [];
   const parsed = tryParseJson(toolArgs);
   if (!parsed || typeof parsed !== "object") return [];
-  const obj = parsed;
+  const parsedObject = parsed;
   const chips = [];
-  if (Array.isArray(obj.queries)) {
-    for (const entry of obj.queries) {
+  if (Array.isArray(parsedObject.queries)) {
+    for (const entry of parsedObject.queries) {
       if (typeof entry === "string") {
         const trimmed = entry.trim();
         if (trimmed) chips.push(trimmed);
       } else if (entry && typeof entry === "object") {
-        const q2 = entry.query;
-        if (typeof q2 === "string" && q2.trim()) chips.push(q2.trim());
+        const queryText = entry.query;
+        if (typeof queryText === "string" && queryText.trim()) chips.push(queryText.trim());
       }
     }
   }
   for (const field of SINGLE_TERM_FIELDS) {
-    const value = obj[field];
+    const value = parsedObject[field];
     if (typeof value === "string" && value.trim()) chips.push(value.trim());
   }
   return dedupe(chips);
@@ -197,18 +193,18 @@ function extractSearchChips(toolName2, toolArgs, _toolResult) {
 function mergeTimelineOperations(operations) {
   const merged = [];
   for (const operation of operations) {
-    const key2 = timelineOperationTargetKey(operation);
-    const previous2 = merged[merged.length - 1];
-    if (key2 && previous2 && timelineOperationTargetKey(previous2) === key2) {
+    const key = timelineOperationTargetKey(operation);
+    const previous = merged[merged.length - 1];
+    if (key && previous && timelineOperationTargetKey(previous) === key) {
       merged[merged.length - 1] = {
         ...operation,
         inputSummary:
-          operation.displayNameKnown || !previous2.displayNameKnown
+          operation.displayNameKnown || !previous.displayNameKnown
             ? operation.inputSummary
-            : previous2.inputSummary,
+            : previous.inputSummary,
         displayNameKnown:
-          operation.displayNameKnown || previous2.displayNameKnown,
-        count: previous2.count + operation.count,
+          operation.displayNameKnown || previous.displayNameKnown,
+        count: previous.count + operation.count,
       };
       continue;
     }
@@ -216,9 +212,9 @@ function mergeTimelineOperations(operations) {
   }
   return merged;
 }
-export function aggregateTimelineRuns(entries2) {
+export function aggregateTimelineRuns(entries) {
   const result = [];
-  let i2 = 0;
+  let entryIndex = 0;
   const hasConfirm = (entry) =>
     !!entry.pendingConfirm || !!entry.rejectedConfirm;
   const toCountOnlyEntry = (entry, members) => ({
@@ -228,13 +224,13 @@ export function aggregateTimelineRuns(entries2) {
     aggregatedCount: members.length,
     ...(entry.category === "execute"
       ? {
-          aggregatedCommands: members.flatMap(({ id: id2, toolArgs }) => {
-            const command2 = parseJsonRecord(toolArgs)?.command;
-            return typeof command2 === "string" && command2.trim()
+          aggregatedCommands: members.flatMap(({ id: toolId, toolArgs }) => {
+            const command = parseJsonRecord(toolArgs)?.command;
+            return typeof command === "string" && command.trim()
               ? [
                   {
-                    id: id2,
-                    command: command2,
+                    id: toolId,
+                    command,
                   },
                 ]
               : [];
@@ -245,14 +241,14 @@ export function aggregateTimelineRuns(entries2) {
       ? {
           aggregatedProcessSteps: members.map(
             ({
-              id: id2,
-              toolName: toolName2,
+              id: toolId,
+              toolName,
               toolStatus,
               toolArgs,
               toolResult,
             }) => ({
-              id: id2,
-              toolName: toolName2,
+              id: toolId,
+              toolName,
               toolStatus,
               toolArgs,
               toolResult,
@@ -298,15 +294,15 @@ export function aggregateTimelineRuns(entries2) {
         fallbackCount > 0 ? fallbackCount : void 0,
     };
   };
-  while (i2 < entries2.length) {
-    const entry = entries2[i2];
+  while (entryIndex < entries.length) {
+    const entry = entries[entryIndex];
     if (entry.type === "thinking") {
       const thinkingBlocks = [];
-      let j2 = i2;
-      while (j2 < entries2.length && entries2[j2].type === "thinking") {
-        const content2 = entries2[j2].thinkingContent;
-        if (content2) thinkingBlocks.push(content2);
-        j2++;
+      let thinkingIndex = entryIndex;
+      while (thinkingIndex < entries.length && entries[thinkingIndex].type === "thinking") {
+        const content = entries[thinkingIndex].thinkingContent;
+        if (content) thinkingBlocks.push(content);
+        thinkingIndex++;
       }
       result.push({
         ...entry,
@@ -315,7 +311,7 @@ export function aggregateTimelineRuns(entries2) {
             ? thinkingBlocks.join("\n\n")
             : entry.thinkingContent,
       });
-      i2 = j2;
+      entryIndex = thinkingIndex;
       continue;
     }
     if (
@@ -323,31 +319,31 @@ export function aggregateTimelineRuns(entries2) {
       (entry.category === "read" || entry.category === "analyseMedia")
     ) {
       const files = [];
-      const seen2 = new Set();
+      const seen = new Set();
       const preservesLifecycle = entry.category === "analyseMedia";
       const status = preservesLifecycle
         ? (entry.toolStatus ?? "pending")
         : "ok";
-      let j2 = i2;
+      let relatedToolIndex = entryIndex;
       while (
-        j2 < entries2.length &&
-        entries2[j2].type === "tool" &&
-        entries2[j2].category === entry.category &&
+        relatedToolIndex < entries.length &&
+        entries[relatedToolIndex].type === "tool" &&
+        entries[relatedToolIndex].category === entry.category &&
         (!preservesLifecycle ||
-          (entries2[j2].toolStatus ?? "pending") === status)
+          (entries[relatedToolIndex].toolStatus ?? "pending") === status)
       ) {
-        const member = entries2[j2];
+        const member = entries[relatedToolIndex];
         for (const item of extractFileChipItems(
           member.toolName ?? "",
           member.toolArgs,
           member.toolResult,
         )) {
           if (isKnowledgePath(item.path)) continue;
-          if (seen2.has(item.path)) continue;
-          seen2.add(item.path);
+          if (seen.has(item.path)) continue;
+          seen.add(item.path);
           files.push(item);
         }
-        j2++;
+        relatedToolIndex++;
       }
       if (files.length > 0) {
         result.push({
@@ -356,41 +352,41 @@ export function aggregateTimelineRuns(entries2) {
           aggregatedFiles: files,
         });
       }
-      i2 = j2;
+      entryIndex = relatedToolIndex;
       continue;
     }
     if (entry.type === "tool" && entry.toolName === "hub_capability_search") {
       result.push(entry);
-      i2++;
+      entryIndex++;
       continue;
     }
     if (entry.type === "tool" && entry.category === "search") {
       if (entry.toolStatus === "error") {
         result.push(entry);
-        i2++;
+        entryIndex++;
         continue;
       }
       const chips = [];
-      const seen2 = new Set();
-      let j2 = i2;
+      const seen = new Set();
+      let searchToolIndex = entryIndex;
       while (
-        j2 < entries2.length &&
-        entries2[j2].type === "tool" &&
-        entries2[j2].category === "search" &&
-        entries2[j2].toolName !== "hub_capability_search" &&
-        entries2[j2].toolStatus !== "error"
+        searchToolIndex < entries.length &&
+        entries[searchToolIndex].type === "tool" &&
+        entries[searchToolIndex].category === "search" &&
+        entries[searchToolIndex].toolName !== "hub_capability_search" &&
+        entries[searchToolIndex].toolStatus !== "error"
       ) {
-        const member = entries2[j2];
+        const member = entries[searchToolIndex];
         for (const term of extractSearchChips(
           member.toolName ?? "",
           member.toolArgs,
           member.toolResult,
         )) {
-          if (seen2.has(term)) continue;
-          seen2.add(term);
+          if (seen.has(term)) continue;
+          seen.add(term);
           chips.push(term);
         }
-        j2++;
+        searchToolIndex++;
       }
       if (chips.length > 0) {
         result.push({
@@ -399,7 +395,7 @@ export function aggregateTimelineRuns(entries2) {
           aggregatedSearchChips: chips,
         });
       }
-      i2 = j2;
+      entryIndex = searchToolIndex;
       continue;
     }
     if (
@@ -407,27 +403,27 @@ export function aggregateTimelineRuns(entries2) {
       (entry.category === "canvas" || entry.category === "plan")
     ) {
       if (hasConfirm(entry)) {
-        const operationEntry2 = toTimelineOperationEntry(entry, [entry]);
-        if (operationEntry2) result.push(operationEntry2);
-        i2++;
+        const operationEntry = toTimelineOperationEntry(entry, [entry]);
+        if (operationEntry) result.push(operationEntry);
+        entryIndex++;
         continue;
       }
       const status = entry.toolStatus ?? "pending";
       const members = [entry];
-      let j2 = i2 + 1;
+      let groupedToolIndex = entryIndex + 1;
       while (
-        j2 < entries2.length &&
-        entries2[j2].type === "tool" &&
-        entries2[j2].category === entry.category &&
-        (entries2[j2].toolStatus ?? "pending") === status &&
-        !hasConfirm(entries2[j2])
+        groupedToolIndex < entries.length &&
+        entries[groupedToolIndex].type === "tool" &&
+        entries[groupedToolIndex].category === entry.category &&
+        (entries[groupedToolIndex].toolStatus ?? "pending") === status &&
+        !hasConfirm(entries[groupedToolIndex])
       ) {
-        members.push(entries2[j2]);
-        j2++;
+        members.push(entries[groupedToolIndex]);
+        groupedToolIndex++;
       }
       const operationEntry = toTimelineOperationEntry(entry, members);
       if (operationEntry) result.push(operationEntry);
-      i2 = j2;
+      entryIndex = groupedToolIndex;
       continue;
     }
     if (
@@ -436,28 +432,28 @@ export function aggregateTimelineRuns(entries2) {
     ) {
       if (hasConfirm(entry)) {
         result.push(toCountOnlyEntry(entry, [entry]));
-        i2++;
+        entryIndex++;
         continue;
       }
       const status = entry.toolStatus ?? "pending";
       const members = [entry];
-      let j2 = i2 + 1;
+      let toolGroupIndex = entryIndex + 1;
       while (
-        j2 < entries2.length &&
-        entries2[j2].type === "tool" &&
-        entries2[j2].category === entry.category &&
-        (entries2[j2].toolStatus ?? "pending") === status &&
-        !hasConfirm(entries2[j2])
+        toolGroupIndex < entries.length &&
+        entries[toolGroupIndex].type === "tool" &&
+        entries[toolGroupIndex].category === entry.category &&
+        (entries[toolGroupIndex].toolStatus ?? "pending") === status &&
+        !hasConfirm(entries[toolGroupIndex])
       ) {
-        members.push(entries2[j2]);
-        j2++;
+        members.push(entries[toolGroupIndex]);
+        toolGroupIndex++;
       }
       result.push(toCountOnlyEntry(entry, members));
-      i2 = j2;
+      entryIndex = toolGroupIndex;
       continue;
     }
     result.push(entry);
-    i2++;
+    entryIndex++;
   }
   return result;
 }

@@ -1,5 +1,5 @@
 // scenarios.jsx
-import { Plus } from "../vendor.js";
+import { Plus } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { RetryIcon } from "./use-prompt-icon.jsx";

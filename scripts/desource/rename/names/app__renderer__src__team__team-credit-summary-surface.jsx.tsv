@@ -1,0 +1,8 @@
+key	new	reason
+t2@13:14	t	useTranslation() 返回的翻译函数 t
+mode2@75:11	mode	去掉打包器加的数字后缀，恢复原名 mode
+status2@16:15	summaryStatus	团队积分摘要的状态；status 是全局名
+mode22@17:13	mode	去掉打包器加的数字后缀，恢复原名 mode
+memberUsed2@19:19	memberUsed	去掉打包器加的数字后缀，恢复原名 memberUsed
+memberLimit2@20:20	memberLimit	去掉打包器加的数字后缀，恢复原名 memberLimit
+actionUiId2@21:19	actionUiId	去掉打包器加的数字后缀，恢复原名 actionUiId

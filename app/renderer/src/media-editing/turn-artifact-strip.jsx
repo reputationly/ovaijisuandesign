@@ -1,34 +1,24 @@
 // turn-artifact-strip.jsx
-import {
-  API_PATHS,
-  AudioLines,
-  ChevronDown,
-  CircleAlert,
-  ClipboardList,
-  Cog,
-  reactExports,
-  Search,
-  SquareMousePointer,
-  useTranslation,
-  Video,
-  Zap,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AudioLines, ChevronDown, CircleAlert, ClipboardList, Cog, Search, SquareMousePointer, Video, Zap } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useResolveMediaUrl } from "../workspace/tool-label-definitions.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { ArtifactAssetCard } from "../generation/artifact-asset-card.jsx";
 import { normalizeJsonToolResult } from "../chat/has-structured-success-payload.js";
 import { parseToolConfirmRejectReason } from "../canvas/fullscreen-icon.jsx";
 import { Brain, Clock, FileText, ImageOutlineIcon, Plug } from "./package.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
-function resolveArtifactUrl(raw2, resolve) {
-  if (/^https?:\/\//i.test(raw2)) return resolve(raw2);
-  if (raw2.startsWith("/")) return resolve(raw2);
-  return resolve(API_PATHS.serveFile(raw2));
+function resolveArtifactUrl(raw, resolve) {
+  if (/^https?:\/\//i.test(raw)) return resolve(raw);
+  if (raw.startsWith("/")) return resolve(raw);
+  return resolve(API_PATHS.serveFile(raw));
 }
 export function TurnArtifactStrip({ artifacts }) {
   const resolveUrl = useResolveMediaUrl();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [expanded, setExpanded] = reactExports.useState(false);
   if (artifacts.length === 0) return null;
   return (
@@ -44,7 +34,7 @@ export function TurnArtifactStrip({ artifacts }) {
         onClick={() => setExpanded((value) => !value)}
       >
         <ChevronDown
-          className={cn(
+          className={mergeClassNames(
             "size-3.5 transition-transform",
             expanded ? "rotate-0" : "-rotate-90",
           )}
@@ -52,7 +42,7 @@ export function TurnArtifactStrip({ artifacts }) {
           aria-hidden="true"
         />
         <span>
-          {t2("chat.turnArtifacts", {
+          {t("chat.turnArtifacts", {
             count: artifacts.length,
           })}
         </span>
@@ -62,13 +52,13 @@ export function TurnArtifactStrip({ artifacts }) {
           data-action-ui-id="chat-turn-artifact-list"
           className="grid grid-cols-1 gap-1.5 @min-[350px]/turn-artifacts:grid-cols-2"
         >
-          {artifacts.map((a2) => {
-            const src = resolveArtifactUrl(a2.url, resolveUrl);
+          {artifacts.map((artifact) => {
+            const src = resolveArtifactUrl(artifact.url, resolveUrl);
             if (!src) return null;
             return (
               <ArtifactAssetCard
-                key={a2.path}
-                artifact={a2}
+                key={artifact.path}
+                artifact={artifact}
                 src={src}
                 size="chip"
               />
@@ -111,10 +101,10 @@ export const CATEGORY_RUNNING_I18N = {
   musicGen: "chat.activity.musicGen.running",
 };
 export function getStreamingAction(items) {
-  const msg = items[items.length - 1];
-  if (msg?.type !== "tool") return void 0;
-  const status = msg.toolStatus;
-  if (status === "running" || status === "pending") return msg;
+  const latestMessage = items[items.length - 1];
+  if (latestMessage?.type !== "tool") return void 0;
+  const status = latestMessage.toolStatus;
+  if (status === "running" || status === "pending") return latestMessage;
   return void 0;
 }
 export const CATEGORY_ICON = {
@@ -140,21 +130,21 @@ export const CATEGORY_ICON = {
   connector: Plug,
   other: Cog,
 };
-function stripUserOverrideNotice(text2) {
-  return text2
+function stripUserOverrideNotice(text) {
+  return text
     .split(/\r?\n/)
     .filter((line) => !/^\s*\[User Override\]/i.test(line))
     .filter((line) => !/^\s*User manually modified:/i.test(line))
     .join("\n")
     .trim();
 }
-export function sanitizeDisplayText(text2) {
-  if (!text2) return void 0;
-  const sanitized = stripUserOverrideNotice(text2);
+export function sanitizeDisplayText(text) {
+  if (!text) return void 0;
+  const sanitized = stripUserOverrideNotice(text);
   return sanitized.length > 0 ? sanitized : void 0;
 }
-export function normalizeStructuredToolResult(text2) {
-  const sanitized = sanitizeDisplayText(text2);
+export function normalizeStructuredToolResult(text) {
+  const sanitized = sanitizeDisplayText(text);
   if (!sanitized) return void 0;
   return normalizeJsonToolResult(sanitized);
 }
@@ -184,13 +174,13 @@ export function resolveToolConfirmRejectReason(entry) {
     (entry.rejectedConfirm ? "user_rejected" : void 0)
   );
 }
-export function toolConfirmRejectLabel(reason, t2) {
+export function toolConfirmRejectLabel(reason, t) {
   switch (reason) {
     case "user_rejected":
-      return t2("chat.activity.generationCancelled");
+      return t("chat.activity.generationCancelled");
     case "confirmation_expired":
-      return t2("chat.activity.confirmationExpired");
+      return t("chat.activity.confirmationExpired");
     case "confirmation_unavailable":
-      return t2("chat.activity.confirmationUnavailable");
+      return t("chat.activity.confirmationUnavailable");
   }
 }

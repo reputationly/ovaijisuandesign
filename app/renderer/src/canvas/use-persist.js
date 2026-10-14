@@ -1,5 +1,7 @@
 // use-persist.js
-import { CanvasNodeType, measurePerf, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import { measurePerf } from "../infra/perf-log.js";
+import reactExports from "react";
 import { isAssetBackedNode } from "./compute-group-bounds-from-children.js";
 import { normaliseHandle } from "./partition-user-removal-elements.js";
 import {
@@ -19,9 +21,9 @@ import {
 } from "../generation/to-workspace-browser-url.js";
 import { PersistSaveQueue } from "./persist-save-queue.js";
 
-function canAutoPersistAcrossDataSourceChange(previous2, next2) {
-  const previousInstanceId = previous2.persistenceInstanceId;
-  const nextInstanceId = next2.persistenceInstanceId;
+function canAutoPersistAcrossDataSourceChange(previous, next) {
+  const previousInstanceId = previous.persistenceInstanceId;
+  const nextInstanceId = next.persistenceInstanceId;
   return (
     !previousInstanceId ||
     !nextInstanceId ||
@@ -48,26 +50,26 @@ function createDeletionOperationId() {
 function parseCanvasSaveRejection(error) {
   if (!error || typeof error !== "object") return null;
   if (error.status !== 409) return null;
-  const body2 = error.body;
-  let parsed = body2;
-  if (typeof body2 !== "string" && (!body2 || typeof body2 !== "object"))
+  const body = error.body;
+  let parsed = body;
+  if (typeof body !== "string" && (!body || typeof body !== "object"))
     return null;
   try {
-    if (typeof body2 === "string") parsed = JSON.parse(body2);
+    if (typeof body === "string") parsed = JSON.parse(body);
   } catch {
     return null;
   }
   if (!parsed || typeof parsed !== "object") return null;
-  const code2 = parsed.code;
+  const code = parsed.code;
   if (
-    code2 !== CANVAS_DESTRUCTIVE_SAVE_REJECTED_CODE &&
-    code2 !== CANVAS_INVALID_SAVE_REJECTED_CODE
+    code !== CANVAS_DESTRUCTIVE_SAVE_REJECTED_CODE &&
+    code !== CANVAS_INVALID_SAVE_REJECTED_CODE
   ) {
     return null;
   }
   const reason = parsed.reason;
   return {
-    code: code2,
+    code,
     ...(reason === "missing_deletion_evidence" ||
     reason === "high_blast_confirmation_required"
       ? {
@@ -78,50 +80,50 @@ function parseCanvasSaveRejection(error) {
 }
 
 function buildPersistedCanvasFile(params) {
-  const { instance: instance2, mode: mode2, savedPositions } = params;
-  const graph = instance2.getGraph();
+  const { instance, mode, savedPositions } = params;
+  const graph = instance.getGraph();
   const persistedNodes = [];
-  for (const n2 of graph.nodes) {
-    const saved = savedPositions.get(n2.id);
-    const positions = sanitizeCanvasPositions(n2.positions).positions;
-    const dataMaybe = n2.data;
+  for (const node of graph.nodes) {
+    const saved = savedPositions.get(node.id);
+    const positions = sanitizeCanvasPositions(node.positions).positions;
+    const dataMaybe = node.data;
     const dataAssetId =
       typeof dataMaybe?.assetId === "string" && dataMaybe.assetId.length > 0
         ? dataMaybe.assetId
         : void 0;
-    const isUserPlaceholder = n2.isEmpty === true;
-    const isPluginNode2 =
-      n2.type === CanvasNodeType.File && typeof n2.data?.pluginId === "string";
-    const isUnmaterialisedGeneration = isUnmaterialisedGenerationNode(n2);
-    const { assetId: parsedAssetId } = parseNodeId(n2.id);
+    const isUserPlaceholder = node.isEmpty === true;
+    const isPluginNode =
+      node.type === CanvasNodeType.File && typeof node.data?.pluginId === "string";
+    const isUnmaterialisedGeneration = isUnmaterialisedGenerationNode(node);
+    const { assetId: parsedAssetId } = parseNodeId(node.id);
     const assetId =
       dataAssetId ??
-      n2.assetId ??
+      node.assetId ??
       saved?.assetId ??
-      (isAssetBackedNode(n2.type) &&
+      (isAssetBackedNode(node.type) &&
       !isUserPlaceholder &&
-      !isPluginNode2 &&
+      !isPluginNode &&
       !isUnmaterialisedGeneration
         ? parsedAssetId
         : void 0);
-    const persistedData = n2.data
-      ? prunePersistedNodeData(n2.data, {
-          nodeType: n2.type,
+    const persistedData = node.data
+      ? prunePersistedNodeData(node.data, {
+          nodeType: node.type,
           hasAssetId: assetId != null,
-          hidden: n2.meta?.hidden === true,
+          hidden: node.meta?.hidden === true,
         })
       : void 0;
-    const isGroup = n2.type === CanvasNodeType.Group;
+    const isGroup = node.type === CanvasNodeType.Group;
     let sizesField = {};
     if (isGroup) {
       const merged = {
         ...(saved?.sizes ?? {}),
-        ...(n2.sizes ?? {}),
+        ...(node.sizes ?? {}),
       };
-      if (n2.size)
-        merged[mode2] = {
-          width: n2.size.width,
-          height: n2.size.height,
+      if (node.size)
+        merged[mode] = {
+          width: node.size.width,
+          height: node.size.height,
         };
       if (Object.keys(merged).length > 0)
         sizesField = {
@@ -129,14 +131,14 @@ function buildPersistedCanvasFile(params) {
         };
     }
     persistedNodes.push({
-      id: n2.id,
-      type: n2.type,
+      id: node.id,
+      type: node.type,
       positions,
-      ...(n2.size
+      ...(node.size
         ? {
             size: {
-              width: n2.size.width,
-              height: n2.size.height,
+              width: node.size.width,
+              height: node.size.height,
             },
           }
         : {}),
@@ -146,31 +148,31 @@ function buildPersistedCanvasFile(params) {
             assetId,
           }
         : {}),
-      ...(n2.parentId != null
+      ...(node.parentId != null
         ? {
-            parentId: n2.parentId,
+            parentId: node.parentId,
           }
         : {}),
       // Flat groupId model: persist image group membership.
-      ...(typeof n2.groupId === "string" && n2.groupId.length > 0
+      ...(typeof node.groupId === "string" && node.groupId.length > 0
         ? {
-            groupId: n2.groupId,
+            groupId: node.groupId,
           }
         : {}),
-      ...(Number.isInteger(n2.round)
+      ...(Number.isInteger(node.round)
         ? {
-            round: n2.round,
+            round: node.round,
           }
         : {}),
-      ...(n2.isEmpty === true
+      ...(node.isEmpty === true
         ? {
             isEmpty: true,
           }
         : {}),
-      ...(n2.meta
+      ...(node.meta
         ? {
             meta: {
-              ...n2.meta,
+              ...node.meta,
             },
           }
         : {}),
@@ -182,24 +184,24 @@ function buildPersistedCanvasFile(params) {
     });
   }
   const updatedNodes = new Map();
-  for (const n2 of persistedNodes) {
-    updatedNodes.set(n2.id, n2);
+  for (const node of persistedNodes) {
+    updatedNodes.set(node.id, node);
   }
   const accumulatedHidden = new Set(params.previousHiddenAssetIds ?? []);
-  const assetIdOf = (n2) => {
-    if (typeof n2.assetId === "string" && n2.assetId.length > 0)
-      return n2.assetId;
-    const dataAssetId = n2.data?.assetId;
+  const assetIdOf = (node) => {
+    if (typeof node.assetId === "string" && node.assetId.length > 0)
+      return node.assetId;
+    const dataAssetId = node.data?.assetId;
     return typeof dataAssetId === "string" && dataAssetId.length > 0
       ? dataAssetId
       : void 0;
   };
   const visibleAssetIds = new Set();
   const currentNodeIds = new Set();
-  for (const n2 of persistedNodes) {
-    currentNodeIds.add(n2.id);
-    const a2 = assetIdOf(n2);
-    if (a2) visibleAssetIds.add(a2);
+  for (const node of persistedNodes) {
+    currentNodeIds.add(node.id);
+    const assetId = assetIdOf(node);
+    if (assetId) visibleAssetIds.add(assetId);
   }
   for (const savedNode of savedPositions.values()) {
     if (!params.explicitDeletedNodeIds?.has(savedNode.id)) continue;
@@ -212,27 +214,27 @@ function buildPersistedCanvasFile(params) {
   for (const assetId of params.explicitDeletedAssetIds ?? []) {
     if (!visibleAssetIds.has(assetId)) accumulatedHidden.add(assetId);
   }
-  for (const id2 of visibleAssetIds) accumulatedHidden.delete(id2);
-  for (const id2 of currentNodeIds) accumulatedHidden.delete(id2);
-  const persistedEdges = graph.edges.map((e2) => {
-    const sourceHandle = normaliseHandle(e2.sourceHandle);
-    const targetHandle = normaliseHandle(e2.targetHandle);
-    const prunedData = prunePersistedEdgeData(e2.data);
+  for (const id of visibleAssetIds) accumulatedHidden.delete(id);
+  for (const id of currentNodeIds) accumulatedHidden.delete(id);
+  const persistedEdges = graph.edges.map((edge) => {
+    const sourceHandle = normaliseHandle(edge.sourceHandle);
+    const targetHandle = normaliseHandle(edge.targetHandle);
+    const prunedData = prunePersistedEdgeData(edge.data);
     return {
-      id: e2.id,
-      source: e2.source,
+      id: edge.id,
+      source: edge.source,
       ...(sourceHandle !== void 0
         ? {
             sourceHandle,
           }
         : {}),
-      target: e2.target,
+      target: edge.target,
       ...(targetHandle !== void 0
         ? {
             targetHandle,
           }
         : {}),
-      type: e2.type ?? "default",
+      type: edge.type ?? "default",
       ...(prunedData
         ? {
             data: prunedData,
@@ -242,7 +244,7 @@ function buildPersistedCanvasFile(params) {
   });
   const file = {
     version: CANVAS_VERSION,
-    mode: mode2,
+    mode,
     nodes: persistedNodes,
     edges: persistedEdges,
     ...(accumulatedHidden.size > 0
@@ -260,7 +262,7 @@ function buildPersistedCanvasFile(params) {
 
 export function usePersist(options) {
   const {
-    instance: instance2,
+    instance,
     dataSource,
     savedPositionsRef,
     hiddenAssetIdsRef,
@@ -303,20 +305,20 @@ export function usePersist(options) {
     return queue;
   }, [dataSource]);
   const buildSnapshot = reactExports.useCallback(
-    (mode2) => {
+    (mode) => {
       const buildStart = performance.now();
       const pendingDeletionBatch = pendingDeletionBatchRef.current;
       const batchedNodeIds = [...(pendingDeletionBatch?.nodeIds ?? [])];
       const batchedEdgeIds = [...(pendingDeletionBatch?.edgeIds ?? [])];
       const currentNodeIds = new Set(
-        instance2.getGraph().nodes.map((node2) => node2.id),
+        instance.getGraph().nodes.map((node) => node.id),
       );
       const deletedNodeIds = batchedNodeIds.filter(
         (nodeId) => !currentNodeIds.has(nodeId),
       );
       const deletedAssetIds = [...(pendingDeletionBatch?.assetIds ?? [])];
       const currentEdgeIds = new Set(
-        instance2.getGraph().edges.map((edge) => edge.id),
+        instance.getGraph().edges.map((edge) => edge.id),
       );
       const deletedEdgeIds = batchedEdgeIds.filter(
         (edgeId) => !currentEdgeIds.has(edgeId),
@@ -326,8 +328,8 @@ export function usePersist(options) {
         savedPositions,
         hiddenAssetIds: nextHidden,
       } = buildPersistedCanvasFile({
-        instance: instance2,
-        mode: mode2,
+        instance,
+        mode,
         savedPositions: savedPositionsRef.current,
         previousHiddenAssetIds: hiddenAssetIdsRef.current,
         explicitDeletedNodeIds: new Set(deletedNodeIds),
@@ -371,24 +373,24 @@ export function usePersist(options) {
         saveOptions,
       };
     },
-    [instance2, savedPositionsRef, hiddenAssetIdsRef],
+    [instance, savedPositionsRef, hiddenAssetIdsRef],
   );
   const buildAndWait = reactExports.useCallback(
-    async (mode2, request, recoveryChainId) => {
+    async (mode, request, recoveryChainId) => {
       if (!isHydratedRef.current) throw new CanvasSnapshotNotHydratedError();
-      const snapshot2 = buildSnapshot(mode2);
+      const snapshot = buildSnapshot(mode);
       const consumeSnapshotDeletionBatch = () => {
         const pendingBatch = pendingDeletionBatchRef.current;
         if (
           !pendingBatch ||
-          pendingBatch.operationId !== snapshot2.deletionOperationId
+          pendingBatch.operationId !== snapshot.deletionOperationId
         )
           return;
-        for (const nodeId of snapshot2.batchedNodeIds)
+        for (const nodeId of snapshot.batchedNodeIds)
           pendingBatch.nodeIds.delete(nodeId);
-        for (const edgeId of snapshot2.batchedEdgeIds)
+        for (const edgeId of snapshot.batchedEdgeIds)
           pendingBatch.edgeIds.delete(edgeId);
-        for (const assetId of snapshot2.deletedAssetIds)
+        for (const assetId of snapshot.deletedAssetIds)
           pendingBatch.assetIds.delete(assetId);
         if (
           pendingBatch.nodeIds.size === 0 &&
@@ -403,12 +405,12 @@ export function usePersist(options) {
       }
       try {
         await getQueue().enqueueAndWait(
-          snapshot2.file,
+          snapshot.file,
           {
-            nodes: snapshot2.nodes,
-            edges: snapshot2.edges,
+            nodes: snapshot.nodes,
+            edges: snapshot.edges,
           },
-          snapshot2.saveOptions,
+          snapshot.saveOptions,
         );
       } catch (error) {
         const rejection = parseCanvasSaveRejection(error);
@@ -416,7 +418,7 @@ export function usePersist(options) {
           if (recoveryChainId) throw error;
           consumeSnapshotDeletionBatch();
           const nextRecoveryChainId = createDeletionOperationId();
-          const deletionIntent = snapshot2.saveOptions?.deletionIntent;
+          const deletionIntent = snapshot.saveOptions?.deletionIntent;
           const deletionReplay =
             rejection.code === CANVAS_DESTRUCTIVE_SAVE_REJECTED_CODE &&
             rejection.reason === "missing_deletion_evidence" &&
@@ -425,17 +427,17 @@ export function usePersist(options) {
                   operationId: deletionIntent.operationId,
                   removedNodeIds: [...deletionIntent.removedNodeIds],
                   removedEdgeIds: [...(deletionIntent.removedEdgeIds ?? [])],
-                  removedAssetIds: snapshot2.deletedAssetIds,
+                  removedAssetIds: snapshot.deletedAssetIds,
                   highBlastConfirmed:
                     deletionIntent.highBlastConfirmed === true,
                 }
               : void 0;
           let restorePromise;
-          instance2.eventBus.emit({
+          instance.eventBus.emit({
             type: "persist:destructive-save-rejected",
             request,
             recoveryChainId: nextRecoveryChainId,
-            candidate: snapshot2.file,
+            candidate: snapshot.file,
             deletionReplay,
             waitUntil: (promise) => {
               restorePromise = promise;
@@ -450,15 +452,15 @@ export function usePersist(options) {
         throw error;
       }
       if (request !== persistenceRequestRef.current) return;
-      savedPositionsRef.current = snapshot2.savedPositions;
-      hiddenAssetIdsRef.current = snapshot2.hiddenAssetIds;
+      savedPositionsRef.current = snapshot.savedPositions;
+      hiddenAssetIdsRef.current = snapshot.hiddenAssetIds;
       consumeSnapshotDeletionBatch();
     },
     [
       buildSnapshot,
       getQueue,
       hiddenAssetIdsRef,
-      instance2,
+      instance,
       savedPositionsRef,
       setPersistenceStatus,
     ],
@@ -483,8 +485,8 @@ export function usePersist(options) {
     [setPersistenceStatus],
   );
   const buildAndEnqueue = reactExports.useCallback(
-    (mode2, request) => {
-      void trackPersistence(request, buildAndWait(mode2, request)).catch(
+    (mode, request) => {
+      void trackPersistence(request, buildAndWait(mode, request)).catch(
         (err) => {
           console.error("[canvas] Failed to save canvas:", err);
         },
@@ -499,7 +501,7 @@ export function usePersist(options) {
     persistenceRequestRef.current += 1;
     saveQueuesRef.current.get(previousDataSource)?.flushPendingNow();
     const hasLoadedGraph =
-      instance2.getGraph().nodes.length > 0 ||
+      instance.getGraph().nodes.length > 0 ||
       savedPositionsRef.current.size > 0;
     if (!hasLoadedGraph || !isHydratedRef.current) return;
     if (!canAutoPersistAcrossDataSourceChange(previousDataSource, dataSource)) {
@@ -509,7 +511,7 @@ export function usePersist(options) {
       return;
     }
     const request = beginPersistenceRequest();
-    trackPersistence(request, buildAndWait(instance2.getMode(), request)).catch(
+    trackPersistence(request, buildAndWait(instance.getMode(), request)).catch(
       (err) => {
         console.error(
           "[canvas] Failed to save canvas after dataSource change:",
@@ -521,7 +523,7 @@ export function usePersist(options) {
     dataSource,
     beginPersistenceRequest,
     buildAndWait,
-    instance2,
+    instance,
     setPersistenceStatus,
     trackPersistence,
   ]);
@@ -538,12 +540,12 @@ export function usePersist(options) {
       hadPending = true;
     }
     if (hadPending && isHydratedRef.current) {
-      buildAndEnqueue(instance2.getMode(), persistenceRequestRef.current);
+      buildAndEnqueue(instance.getMode(), persistenceRequestRef.current);
     } else if (hadPending) {
       deferredUntilHydratedRef.current = true;
     }
     saveQueuesRef.current.get(dataSource)?.flushPendingNow();
-  }, [instance2, dataSource, buildAndEnqueue]);
+  }, [instance, dataSource, buildAndEnqueue]);
   const scheduleSave = reactExports.useCallback(() => {
     hasLocalMutationRef.current = true;
     const request = beginPersistenceRequest();
@@ -554,9 +556,9 @@ export function usePersist(options) {
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
-      buildAndEnqueue(instance2.getMode(), request);
+      buildAndEnqueue(instance.getMode(), request);
     }, debounceMs);
-  }, [instance2, beginPersistenceRequest, buildAndEnqueue, debounceMs]);
+  }, [instance, beginPersistenceRequest, buildAndEnqueue, debounceMs]);
   const saveImmediately = reactExports.useCallback(
     (event) => {
       if (!event?.recoveryChainId) hasLocalMutationRef.current = true;
@@ -585,7 +587,7 @@ export function usePersist(options) {
         event.waitUntil(
           trackPersistence(
             request,
-            buildAndWait(instance2.getMode(), request, event.recoveryChainId),
+            buildAndWait(instance.getMode(), request, event.recoveryChainId),
           ),
         );
         return;
@@ -595,11 +597,11 @@ export function usePersist(options) {
       }
       deferredHandleRef.current = requestAnimationFrame(() => {
         deferredHandleRef.current = null;
-        buildAndEnqueue(instance2.getMode(), request);
+        buildAndEnqueue(instance.getMode(), request);
       });
     },
     [
-      instance2,
+      instance,
       beginPersistenceRequest,
       buildAndEnqueue,
       buildAndWait,
@@ -631,14 +633,14 @@ export function usePersist(options) {
       );
       return;
     }
-    await trackPersistence(request, buildAndWait(instance2.getMode(), request));
-  }, [beginPersistenceRequest, buildAndWait, instance2, trackPersistence]);
+    await trackPersistence(request, buildAndWait(instance.getMode(), request));
+  }, [beginPersistenceRequest, buildAndWait, instance, trackPersistence]);
   reactExports.useEffect(() => {
     if (!isHydrated || !deferredUntilHydratedRef.current) return;
     deferredUntilHydratedRef.current = false;
     const request = beginPersistenceRequest();
-    buildAndEnqueue(instance2.getMode(), request);
-  }, [beginPersistenceRequest, buildAndEnqueue, instance2, isHydrated]);
+    buildAndEnqueue(instance.getMode(), request);
+  }, [beginPersistenceRequest, buildAndEnqueue, instance, isHydrated]);
   const persistenceController = reactExports.useMemo(
     () => ({
       getStatus: () => persistenceStatusRef.current,
@@ -656,9 +658,9 @@ export function usePersist(options) {
     };
   }, [flushAndWaitLatest]);
   reactExports.useEffect(() => {
-    const unsubPersist = instance2.eventBus.on("persist:request", scheduleSave);
-    const unsubFlush = instance2.eventBus.on("persist:flush", saveImmediately);
-    const unsubDeleteIntent = instance2.eventBus.on(
+    const unsubPersist = instance.eventBus.on("persist:request", scheduleSave);
+    const unsubFlush = instance.eventBus.on("persist:flush", saveImmediately);
+    const unsubDeleteIntent = instance.eventBus.on(
       "persist:delete-intent",
       (event) => {
         hasLocalMutationRef.current = true;
@@ -679,13 +681,13 @@ export function usePersist(options) {
         if (event.highBlastConfirmed) pendingBatch.highBlastConfirmed = true;
       },
     );
-    const unsubBaseline = instance2.eventBus.on(
+    const unsubBaseline = instance.eventBus.on(
       "persist:baseline-invalidated",
       () => {
         saveQueuesRef.current.get(dataSource)?.invalidateLastSaved();
       },
     );
-    const unsubMode = instance2.eventBus.on("mode:changed", flushPending);
+    const unsubMode = instance.eventBus.on("mode:changed", flushPending);
     const supportsBeforeUnload =
       typeof window !== "undefined" &&
       typeof window.addEventListener === "function";
@@ -713,6 +715,6 @@ export function usePersist(options) {
         saveQueuesRef.current.delete(dataSource);
       }
     };
-  }, [dataSource, instance2, scheduleSave, saveImmediately, flushPending]);
+  }, [dataSource, instance, scheduleSave, saveImmediately, flushPending]);
   return persistenceController;
 }

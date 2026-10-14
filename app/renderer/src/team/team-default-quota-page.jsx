@@ -1,5 +1,7 @@
 // team-default-quota-page.jsx
-import { reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
@@ -25,7 +27,7 @@ import {
 } from "./page-content.jsx";
 import { teamApi } from "./team-api.js";
 import { accountScopeEquals } from "./account-scope-equals.js";
-let ScopeChangedError = class ScopeChangedError2 extends Error {};
+let ScopeChangedError = class ScopeChangedError extends Error {};
 function isValidLimit(value) {
   if (!/^(0|[1-9]\d*)$/.test(value)) return false;
   const parsed = Number(value);
@@ -39,8 +41,8 @@ export function TeamDefaultQuotaPage({
   memberPageSize,
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { activeScope } = useTeamAccount();
   const controllerRef = reactExports.useRef(null);
   const [limit, setLimit] = reactExports.useState(() =>
@@ -80,15 +82,15 @@ export function TeamDefaultQuotaPage({
       setError(null);
       setErrorReasonCode(null);
       await Promise.all([
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: teamQueryKeys.membership(scope),
         }),
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: creditQueryKeys.scope(scope),
         }),
       ]);
       dedupedToast.success(
-        t2("team.management.defaultQuotaSaved", {
+        t("team.management.defaultQuotaSaved", {
           defaultValue: "已为全部 {{count}} 名成员更新限额。",
           count: affectedMemberCount,
         }),
@@ -98,7 +100,7 @@ export function TeamDefaultQuotaPage({
     onError: (mutationError) => {
       if (mutationError instanceof ScopeChangedError) {
         dedupedToast.error(
-          t2("team.management.scopeChanged", {
+          t("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
           }),
         );
@@ -110,7 +112,7 @@ export function TeamDefaultQuotaPage({
       setErrorReasonCode(teamMutationReasonCode(detail));
       setError(
         [
-          t2("team.management.defaultQuotaSaveFailed", {
+          t("team.management.defaultQuotaSaveFailed", {
             defaultValue: "团队统一限额保存失败，请稍后重试。",
           }),
           suffix,
@@ -136,7 +138,7 @@ export function TeamDefaultQuotaPage({
     setErrorReasonCode(null);
     if (!limitValid) {
       setError(
-        t2("team.management.defaultQuotaInvalid", {
+        t("team.management.defaultQuotaInvalid", {
           defaultValue: "请输入不超过安全整数范围的非负整数。",
         }),
       );
@@ -145,19 +147,19 @@ export function TeamDefaultQuotaPage({
     mutation.mutate();
   };
   return (
-    <Page open={true} onOpenChange={(next2) => !next2 && handleClose()}>
+    <Page open={true} onOpenChange={(next) => !next && handleClose()}>
       <PageContent
         className="flex max-h-[calc(100dvh-3rem)] flex-col gap-0 overflow-hidden p-0"
         data-action-ui-id="team.management-default-quota-dialog"
       >
         <PageHeader className="shrink-0 border-b border-border px-4 pt-4 pr-14 pb-3 sm:px-6 sm:pr-16">
           <PageTitle>
-            {t2("team.management.defaultQuotaTitle", {
+            {t("team.management.defaultQuotaTitle", {
               defaultValue: "一键配置限额",
             })}
           </PageTitle>
           <PageDescription>
-            {t2("team.management.defaultQuotaDescription", {
+            {t("team.management.defaultQuotaDescription", {
               defaultValue: "为团队成员设置统一额度，批量管理积分使用。",
             })}
           </PageDescription>
@@ -166,7 +168,7 @@ export function TeamDefaultQuotaPage({
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg border border-border bg-muted/30 p-3">
               <p className="text-muted-foreground">
-                {t2("team.credit.teamRemaining", {
+                {t("team.credit.teamRemaining", {
                   defaultValue: "团队剩余积分",
                 })}
               </p>
@@ -178,7 +180,7 @@ export function TeamDefaultQuotaPage({
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3">
               <p className="text-muted-foreground">
-                {t2("team.management.eligibleMembers", {
+                {t("team.management.eligibleMembers", {
                   defaultValue: "适用成员",
                 })}
               </p>
@@ -189,7 +191,7 @@ export function TeamDefaultQuotaPage({
           </div>
           {quota?.defaultMode === "MIXED" ? (
             <p className="text-xs text-muted-foreground">
-              {t2("team.management.defaultQuotaMixedNotice", {
+              {t("team.management.defaultQuotaMixedNotice", {
                 defaultValue:
                   "当前成员限额不一致，请输入本次要统一设置的额度。",
               })}
@@ -197,7 +199,7 @@ export function TeamDefaultQuotaPage({
           ) : null}
           <label className="space-y-2" htmlFor="team-default-quota-limit">
             <span className="font-medium text-foreground">
-              {t2("team.management.defaultQuotaPerMember", {
+              {t("team.management.defaultQuotaPerMember", {
                 defaultValue: "每人默认限额",
               })}
             </span>
@@ -218,7 +220,7 @@ export function TeamDefaultQuotaPage({
             />
           </label>
           <p className="text-xs text-muted-foreground">
-            {t2("team.management.defaultQuotaResetNote", {
+            {t("team.management.defaultQuotaResetNote", {
               defaultValue:
                 "保存后，当前所有成员将使用相同的积分上限。设置限额不会提前扣除团队积分，额度也不会自动重置。",
             })}
@@ -242,7 +244,7 @@ export function TeamDefaultQuotaPage({
             onClick={handleClose}
             data-action-ui-id="team.management-default-quota-cancel"
           >
-            {t2("common.cancel", {
+            {t("common.cancel", {
               defaultValue: "取消",
             })}
           </Button>
@@ -253,7 +255,7 @@ export function TeamDefaultQuotaPage({
             onClick={handleSave}
             data-action-ui-id="team.management-default-quota-save"
           >
-            {t2("team.management.applyDefaultQuota", {
+            {t("team.management.applyDefaultQuota", {
               defaultValue: "配置",
             })}
           </Button>

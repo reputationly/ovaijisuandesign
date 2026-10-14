@@ -1,5 +1,6 @@
 // param-duration-slider.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { nearestDuration } from "./model-param-select.jsx";
 import { Slider } from "./slider.jsx";
@@ -10,48 +11,48 @@ export function ParamDurationSlider({
   options,
   value,
   onChange,
-  disabled: disabled2,
+  disabled,
   disabledOptions,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [draft, setDraft] = reactExports.useState(null);
   const [preview, setPreview] = reactExports.useState(null);
   const [pointerActive, setPointerActive] = reactExports.useState(false);
-  const available = options.filter((option2) => !disabledOptions?.has(option2));
-  const inactive = disabled2 || available.length === 0;
-  const min2 = Number(available[0] ?? options[0]);
-  const max2 = Number(available.at(-1) ?? options.at(-1));
-  const numeric2 = Number(nearestDuration(Number(value), available) ?? value);
+  const available = options.filter((option) => !disabledOptions?.has(option));
+  const inactive = disabled || available.length === 0;
+  const min = Number(available[0] ?? options[0]);
+  const max = Number(available.at(-1) ?? options.at(-1));
+  const numeric = Number(nearestDuration(Number(value), available) ?? value);
   const displayValue =
     preview === null ? value : (nearestDuration(preview, available) ?? value);
-  const previous2 = available
-    .filter((option2) => Number(option2) < numeric2)
+  const previous = available
+    .filter((option) => Number(option) < numeric)
     .at(-1);
-  const next2 = available.find((option2) => Number(option2) > numeric2);
-  const handleStep = (option2) => {
-    if (inactive || option2 === void 0) return;
+  const next = available.find((option) => Number(option) > numeric);
+  const handleStep = (option) => {
+    if (inactive || option === void 0) return;
     setDraft(null);
     setPreview(null);
-    onChange(option2);
+    onChange(option);
   };
-  const rawInterval = Math.max(1, max2 / 3);
+  const rawInterval = Math.max(1, max / 3);
   const magnitude = 10 ** Math.floor(Math.log10(rawInterval));
-  const interval2 =
+  const interval =
     ([1, 2, 5, 10].find((unit) => unit * magnitude >= rawInterval) ?? 10) *
     magnitude;
   const marks = [0];
-  for (let mark2 = interval2; mark2 < max2; mark2 += interval2) {
-    if (max2 - mark2 >= interval2 / 2) marks.push(mark2);
+  for (let mark = interval; mark < max; mark += interval) {
+    if (max - mark >= interval / 2) marks.push(mark);
   }
-  if (max2 > 0) marks.push(max2);
-  const handleSliderCommit = (next22) => {
-    handleChange(typeof next22 === "number" ? next22 : next22[0]);
+  if (max > 0) marks.push(max);
+  const handleSliderCommit = (next) => {
+    handleChange(typeof next === "number" ? next : next[0]);
     setPreview(null);
     setPointerActive(false);
   };
   const handleChange = (seconds) => {
-    const next22 = nearestDuration(seconds, available);
-    if (!inactive && next22 !== void 0) onChange(next22);
+    const next = nearestDuration(seconds, available);
+    if (!inactive && next !== void 0) onChange(next);
   };
   const handleCommit = () => {
     if (draft !== null && draft.trim() !== "") handleChange(Number(draft));
@@ -64,25 +65,25 @@ export function ParamDurationSlider({
         <ParamStepper
           className="h-7 shrink-0"
           actionPrefix="canvas.params.duration"
-          decreaseDisabled={inactive || previous2 === void 0}
-          increaseDisabled={inactive || next2 === void 0}
-          onDecrease={() => handleStep(previous2)}
-          onIncrease={() => handleStep(next2)}
+          decreaseDisabled={inactive || previous === void 0}
+          increaseDisabled={inactive || next === void 0}
+          onDecrease={() => handleStep(previous)}
+          onIncrease={() => handleStep(next)}
         >
           <div className="relative w-12 shrink-0">
             <Input
               type="number"
               aria-label={label}
               data-action-ui-id="canvas.params.duration-input"
-              min={min2}
-              max={max2}
+              min={min}
+              max={max}
               step={1}
               value={draft ?? displayValue}
               disabled={inactive}
               onChange={(event) => {
-                const next22 = event.target.value;
-                setDraft(next22);
-                if (available.includes(next22)) onChange(next22);
+                const next = event.target.value;
+                setDraft(next);
+                if (available.includes(next)) onChange(next);
               }}
               onBlur={handleCommit}
               onPointerDown={(event) => event.stopPropagation()}
@@ -109,20 +110,20 @@ export function ParamDurationSlider({
         variant="filled"
         size="compact"
         visualMin={0}
-        minBoundaryMessage={t2("canvas.param.durationRange", {
-          min: min2,
-          max: max2,
+        minBoundaryMessage={translate("canvas.param.durationRange", {
+          min,
+          max,
         })}
         ticks={marks}
         aria-label={label}
-        value={preview ?? numeric2}
-        min={min2}
-        max={max2}
+        value={preview ?? numeric}
+        min={min}
+        max={max}
         step={pointerActive ? 0.01 : 1}
         disabled={inactive || available.length < 2}
-        onValueChange={(next22) => {
+        onValueChange={(next) => {
           setDraft(null);
-          setPreview(Array.isArray(next22) ? next22[0] : next22);
+          setPreview(Array.isArray(next) ? next[0] : next);
         }}
         onValueCommitted={handleSliderCommit}
         onPointerDownCapture={() => setPointerActive(true)}
@@ -144,24 +145,24 @@ export function ParamDurationSlider({
           const alignment =
             seconds === 0
               ? "translate-x-0"
-              : seconds === max2
+              : seconds === max
                 ? "-translate-x-full rtl:translate-x-full"
                 : "-translate-x-1/2 rtl:translate-x-1/2";
-          const active2 = seconds === Number(displayValue);
+          const active = seconds === Number(displayValue);
           return (
             <span
               key={seconds}
               data-action-ui-id={
                 seconds === 0
                   ? "canvas.params.duration-min"
-                  : seconds === max2
+                  : seconds === max
                     ? "canvas.params.duration-max"
                     : "canvas.params.duration-mark"
               }
               style={{
-                insetInlineStart: `${max2 > 0 ? (seconds / max2) * 100 : 0}%`,
+                insetInlineStart: `${max > 0 ? (seconds / max) * 100 : 0}%`,
               }}
-              className={`absolute top-0 px-1 py-0.5 text-center text-[10px] whitespace-nowrap tabular-nums ${alignment} ${active2 ? "text-[var(--canvas-controls-text)]" : "text-[var(--canvas-controls-text-muted)]"} ${inactive || (seconds > 0 && seconds < min2) || disabledOptions?.has(String(seconds)) ? "opacity-40" : ""}`}
+              className={`absolute top-0 px-1 py-0.5 text-center text-[10px] whitespace-nowrap tabular-nums ${alignment} ${active ? "text-[var(--canvas-controls-text)]" : "text-[var(--canvas-controls-text-muted)]"} ${inactive || (seconds > 0 && seconds < min) || disabledOptions?.has(String(seconds)) ? "opacity-40" : ""}`}
             >
               {seconds}s
             </span>

@@ -1,5 +1,6 @@
 // use-file-explorer-missing-recovery.js
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 
@@ -7,14 +8,14 @@ export function useFileExplorerMissingRecovery({
   mergeCandidate,
   removeMissing,
   manualLocate,
-  platform: platform2,
+  platform,
   toRelativePath,
   assetMap,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const handleMergeCandidate = useStableCallback(async (asset) => {
     if (!asset.candidate) {
-      dedupedToast.error(t2("missing.mergeFailed"));
+      dedupedToast.error(translate("missing.mergeFailed"));
       return;
     }
     try {
@@ -24,7 +25,7 @@ export function useFileExplorerMissingRecovery({
       });
     } catch (err) {
       dedupedToast.error(
-        t2("missing.mergeFailed") +
+        translate("missing.mergeFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -36,21 +37,21 @@ export function useFileExplorerMissingRecovery({
       });
     } catch (err) {
       dedupedToast.error(
-        t2("missing.removeFailed") +
+        translate("missing.removeFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
   });
   const handleLocateMissing = useStableCallback(async (asset) => {
-    const showOpenDialog = platform2.fs.showOpenDialog;
+    const showOpenDialog = platform.fs.showOpenDialog;
     if (!showOpenDialog) {
-      dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+      dedupedToast.error(translate("fileExplorer.platformNotSupported"));
       return;
     }
     let picked;
     try {
       picked = await showOpenDialog({
-        title: t2("missing.locateDialogTitle", {
+        title: translate("missing.locateDialogTitle", {
           name: asset.name ?? asset.path,
         }),
         multiple: false,
@@ -58,7 +59,7 @@ export function useFileExplorerMissingRecovery({
       });
     } catch (err) {
       dedupedToast.error(
-        t2("missing.locateFailed") +
+        translate("missing.locateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
       return;
@@ -72,7 +73,7 @@ export function useFileExplorerMissingRecovery({
       });
     } catch (err) {
       dedupedToast.error(
-        t2("missing.locateFailed") +
+        translate("missing.locateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }

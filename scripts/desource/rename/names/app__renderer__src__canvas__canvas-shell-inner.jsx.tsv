@@ -1,0 +1,100 @@
+key	old	new	依据
+BAR_GAP$2@103:14	BAR_GAP$2	ERASE_BAR_GAP	与 use-active-mode.js 导入的 BAR_GAP 绑定同名冲突；该值用于擦除工具栏定位，故别名为 ERASE_BAR_GAP。
+active2@126:41	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@126:60	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@139:48	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@167:29	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@170:39	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+flow2@186:11	flow2	flow	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+rafId2@188:9	rafId2	rafId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@218:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@219:22	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+color2@226:27	color2	color	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+box2@230:15	box2	box	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+token2@232:60	token2	token	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+batch2@235:13	batch2	batch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+batch2@254:18	batch2	batch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+schedule2@266:11	schedule2	schedule	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+c3@326:37	c3	connection	React Flow 当前连接状态对象。
+set2@329:11	set2	set	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@338:16	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+fn2@347:18	fn2	fn	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@352:22	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@356:24	e2	keyboardEvent	触发键盘处理器的键盘事件对象。
+e2@362:22	e2	keyboardEvent	触发键盘处理器的键盘事件对象。
+active2@381:3	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+v2@396:13	v2	viewportState	React Flow 当前视口对象，包含平移和缩放值。
+t2@411:14	t2	translate	useTranslation 返回的翻译函数。
+NodeAlignmentGuides2@476:56	NodeAlignmentGuides2	NodeAlignmentGuides	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+svg2@481:11	svg2	svg	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+render2@489:11	render2	render	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@489:52	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+i2@493:16	i2	index	遍历辅助线槽位时的数组下标。
+y22@508:15	y22	endY	对齐辅助线第二端点经过缩放和平移后的垂直坐标。
+cap2@510:15	cap2	cap	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@551:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+CanvasEraseOverlay2@578:55	CanvasEraseOverlay2	CanvasEraseOverlay	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@579:17	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+transform2@590:9	transform2	transform	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+s2@590:32	s2	state	当前 store 提供的 Zustand 状态对象。
+tool2@599:11	tool2	tool	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+CanvasRedrawOverlay2@771:56	CanvasRedrawOverlay2	CanvasRedrawOverlay	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@772:17	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@778:11	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+entries2@780:36	entries2	entries	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+h2@782:15	h2	height	ResizeObserver 当前测得的底部栏高度。
+transform2@794:9	transform2	transform	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+s2@794:32	s2	state	当前 store 提供的 Zustand 状态对象。
+tool2@803:11	tool2	tool	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+raw2@993:9	raw2	raw	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@998:37	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+flow2@1008:11	flow2	flow	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+rafId2@1010:9	rafId2	rafId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+color2@1014:9	color2	color	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@1034:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@1035:22	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+schedule2@1064:11	schedule2	schedule	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@1080:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+disabled2@1121:9	disabled2	disabled	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@1122:9	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+rafId2@1145:9	rafId2	rafId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+list2@1151:13	list2	list	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@1152:11	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@1156:15	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@1178:9	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@1182:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@1192:35	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+style2@1198:13	style2	style	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@1247:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1252:53	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@1268:22	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1282:18	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1283:15	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@1329:46	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+previous2@1329:54	previous2	previous	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@1352:9	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+registry2@1366:13	registry2	registry	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@1385:13	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@1386:11	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+s2@1395:40	s2	state	当前 store 提供的 Zustand 状态对象。
+state2@1405:6	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+c3@1416:39	c3	connection	React Flow 当前连接状态对象。
+position2@1419:14	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@1420:21	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+set2@1438:11	set2	set	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+nodeTypes2@1453:9	nodeTypes2	nodeTypes	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+n2@1464:27	n2	node	当前处理的 React Flow 节点对象。
+n2@1475:46	n2	node	当前处理的 React Flow 节点对象。
+zoom2@1489:62	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active22@1498:48	active22	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@1528:57	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+g2@1550:13	g2	gesture	当前画布平移或缩放手势状态对象。
+instance2@1577:6	instance2	instance	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@1578:13	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@1601:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+x2@1047:18	x2	gridX	绘制垂直网格线时递增的横向网格坐标。
+y4@1050:18	y4	gridY	绘制水平网格线时递增的纵向网格坐标。
+x2@1056:16	x2	gridX	绘制圆点网格时当前列的横坐标。
+y4@1057:18	y4	gridY	绘制圆点网格时当前行的纵坐标。
+x2@1268:14	x2	translateX	React Flow transform 中的水平平移量。
+y4@1268:18	y4	translateY	React Flow transform 中的垂直平移量。

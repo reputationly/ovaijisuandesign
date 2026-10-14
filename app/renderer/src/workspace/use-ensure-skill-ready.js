@@ -1,5 +1,7 @@
 // use-ensure-skill-ready.js
-import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { beginSkillApplyingToast } from "../generation/settle-operation.js";
@@ -7,21 +9,21 @@ import { homeService } from "./home-service.jsx";
 import { useGatewayReady } from "../infra/inline-rename-input.jsx";
 import { showSkillInstallSuccessToast } from "./use-new-workspace-dialog.jsx";
 
-function parseInstallResponse(raw2) {
-  if (!raw2 || typeof raw2 !== "object")
+function parseInstallResponse(raw) {
+  if (!raw || typeof raw !== "object")
     return {
       ok: false,
     };
-  const response = raw2;
+  const response = raw;
   return {
     ok: response.ok === true,
     error: typeof response.error === "string" ? response.error : void 0,
   };
 }
 
-function parseLocalSkills(raw2) {
-  if (!Array.isArray(raw2)) return [];
-  return raw2.flatMap((item) => {
+function parseLocalSkills(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((item) => {
     if (!item || typeof item !== "object") return [];
     const skill = item;
     if (typeof skill.name !== "string" || typeof skill.enabled !== "boolean")
@@ -35,8 +37,8 @@ function parseLocalSkills(raw2) {
   });
 }
 
-export function useEnsureSkillReady({ preload: preload2 = false } = {}) {
-  const { t: t2 } = useTranslation();
+export function useEnsureSkillReady({ preload = false } = {}) {
+  const { t: translate } = useTranslation();
   const gatewayReady = useGatewayReady();
   const [localSkills, setLocalSkills] = reactExports.useState([]);
   const localSkillsRef = reactExports.useRef([]);
@@ -57,9 +59,9 @@ export function useEnsureSkillReady({ preload: preload2 = false } = {}) {
     } catch {}
   }, []);
   reactExports.useEffect(() => {
-    if (!preload2 || !gatewayReady) return;
+    if (!preload || !gatewayReady) return;
     void fetchLocalSkills();
-  }, [fetchLocalSkills, gatewayReady, preload2]);
+  }, [fetchLocalSkills, gatewayReady, preload]);
   reactExports.useEffect(() => {
     if (!window.hilo?.skills) return;
     return window.hilo.skills.onPermissionsChanged(() => {
@@ -67,7 +69,7 @@ export function useEnsureSkillReady({ preload: preload2 = false } = {}) {
     });
   }, [fetchLocalSkills]);
   const markReady = reactExports.useCallback((skillName) => {
-    const next2 = localSkillsRef.current.some(
+    const next = localSkillsRef.current.some(
       (skill) => skill.name === skillName,
     )
       ? localSkillsRef.current.map((skill) =>
@@ -85,9 +87,9 @@ export function useEnsureSkillReady({ preload: preload2 = false } = {}) {
             enabled: true,
           },
         ];
-    localSkillsRef.current = next2;
+    localSkillsRef.current = next;
     skillsLoadedRef.current = true;
-    setLocalSkills(next2);
+    setLocalSkills(next);
   }, []);
   const ensureSkillReady = reactExports.useCallback(
     async (skillName, onProgress) => {
@@ -102,7 +104,7 @@ export function useEnsureSkillReady({ preload: preload2 = false } = {}) {
         reportProgress(0.12);
         const toastId = onProgress
           ? void 0
-          : dedupedToast.loading(t2("skills.market.installing"));
+          : dedupedToast.loading(translate("skills.market.installing"));
         try {
           const response = await gatewayFetch(API_PATHS.marketInstall, {
             method: "POST",
@@ -116,7 +118,7 @@ export function useEnsureSkillReady({ preload: preload2 = false } = {}) {
           const installResult = parseInstallResponse(await response.json());
           if (!installResult.ok) {
             dedupedToast.error(
-              t2("skills.market.installError", {
+              translate("skills.market.installError", {
                 name: skillName,
               }),
               toastId !== void 0
@@ -144,7 +146,7 @@ export function useEnsureSkillReady({ preload: preload2 = false } = {}) {
           return true;
         } catch {
           dedupedToast.error(
-            t2("skills.market.installError", {
+            translate("skills.market.installError", {
               name: skillName,
             }),
             toastId !== void 0
@@ -160,7 +162,7 @@ export function useEnsureSkillReady({ preload: preload2 = false } = {}) {
         reportProgress(0.28);
         const applyingToast = onProgress
           ? void 0
-          : beginSkillApplyingToast(t2("skills.applying"));
+          : beginSkillApplyingToast(translate("skills.applying"));
         try {
           await homeService.hiloApp.toggleSkill(localSkill.name, true);
           reportProgress(0.82);
@@ -168,15 +170,15 @@ export function useEnsureSkillReady({ preload: preload2 = false } = {}) {
           reportProgress(1);
           markReady(localSkill.name);
           if (applyingToast) {
-            applyingToast.success(t2("skills.restartSuccess"));
+            applyingToast.success(translate("skills.restartSuccess"));
           } else {
-            dedupedToast.success(t2("skills.restartSuccess"));
+            dedupedToast.success(translate("skills.restartSuccess"));
           }
         } catch {
           if (applyingToast) {
-            applyingToast.error(t2("skills.toggleError"));
+            applyingToast.error(translate("skills.toggleError"));
           } else {
-            dedupedToast.error(t2("skills.toggleError"));
+            dedupedToast.error(translate("skills.toggleError"));
           }
           return false;
         }
@@ -184,7 +186,7 @@ export function useEnsureSkillReady({ preload: preload2 = false } = {}) {
       reportProgress(1);
       return true;
     },
-    [fetchLocalSkills, markReady, t2],
+    [fetchLocalSkills, markReady, translate],
   );
   return {
     ensureSkillReady,

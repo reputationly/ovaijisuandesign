@@ -1,0 +1,79 @@
+key	新名	依据
+X@2:165	CloseIcon	`CloseIcon` 是会话标签关闭操作显示的图标组件，并以 PascalCase 表示组件。
+cn@19:18	mergeClassNames	`mergeClassNames` 按来源实现合并并消解冲突的 CSS 类名。
+t2@41:14	translate	`translate` 是加载状态标签查询本地化文案的函数。
+out@127:9	chunks	`chunks` 保存按固定大小切分出的会话 ID 数组。
+i2@128:12	startIndex	`startIndex` 是当前分块在原数组中的起始下标。
+res@153:9	response	`response` 是读取会话费用接口返回的 HTTP 响应。
+ws2@181:29	webSocketConnection	`webSocketConnection` 提供会话树请求所需的订阅和发送方法。
+fn2@191:21	settle	`settle` 是请求完成时调用的解析或拒绝回调。
+msg@201:40	message	`message` 是收到的 WebSocket 会话树响应消息。
+ws2@229:9	webSocketConnection	`webSocketConnection` 是请求会话树的 WebSocket 连接对象。
+t2@264:14	translate	`translate` 是费用分类名称查询本地化文案的函数。
+row@275:18	costRow	`costRow` 是费用明细中的一个分类及金额记录。
+t2@296:14	translate	`translate` 是费用弹窗查询本地化文案的函数。
+t2@365:14	translate	`translate` 是标签状态徽标查询本地化文案的函数。
+t2@429:14	translate	`translate` 是会话标签查询本地化文案的函数。
+e2@432:24	clickEvent	`clickEvent` 是关闭会话标签按钮收到的点击事件。
+e2@447:29	mouseEvent	`mouseEvent` 是处理中键关闭行为时收到的鼠标事件。
+t2@570:14	translate	`translate` 是会话标签栏查询本地化文案的函数。
+t2@692:40	translate	`translate` 是会话标题生成函数使用的本地化文案函数。
+out@731:9	statusBySessionId	`statusBySessionId` 将打开的会话标识映射到派生状态。
+id2@732:14	sessionId	`sessionId` 是当前读取状态快照的打开会话标识。
+s2@733:11	sessionState	`sessionState` 是会话 store 中保存消息和繁忙状态的记录。
+id2@748:15	sessionId	`sessionId` 是比较状态映射时当前条目的会话标识。
+t2@781:14	translate	`translate` 是会话标签栏构造提示和操作标签的本地化函数。
+id2@802:17	sessionId	`sessionId` 是正在状态映射中检查的会话标识。
+id2@809:18	sessionId	`sessionId` 是上一次处于运行状态的会话标识。
+id2@828:18	sessionId	`sessionId` 是待从未读状态集合中移除的会话标识。
+id2@833:27	sessionId	`sessionId` 是相等性检查中待查找的集合成员。
+id2@834:26	sessionId	`sessionId` 是相等性检查中待查找的集合成员。
+id2@840:14	sessionId	`sessionId` 是待更新未读状态的会话标识。
+id2@860:6	sessionId	`sessionId` 是待切换到的会话标识。
+id2@870:6	sessionId	`sessionId` 是待关闭标签对应的会话标识。
+id2@882:6	sessionId	`sessionId` 是待改名会话对应的标识。
+e2@888:6	keyboardEvent	`keyboardEvent` 是会话标签列表键盘处理器收到的按键事件。
+s2@923:45	session	`session` 是用于按 ID 建立索引的会话记录。
+id2@925:14	sessionId	`sessionId` 是按打开顺序查找可见标签的会话标识。
+s2@926:11	session	`session` 是从会话索引中取出的标签会话记录。
+id2@1189:22	sessionId	`sessionId` 是从历史列表中打开的目标会话标识。
+data2@33:17	data	`data` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+image2@56:7	image	`image` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+agent2@59:7	agent	`agent` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+buckets2@78:32	buckets	`buckets` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+key2@79:36	key	`key` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+key2@83:14	key	`key` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+raw2@100:20	raw	`raw` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+record2@106:9	record	`record` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+size2@126:23	size	`size` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+raw2@163:9	raw	`raw` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+batch2@175:18	batch	`batch` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+timer2@211:11	timer	`timer` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+buckets2@263:35	buckets	`buckets` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+children2@295:50	children	`children` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+state2@300:9	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+clearTimer2@301:9	clearTimer	`clearTimer` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+schedule2@307:9	schedule	`schedule` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+hasContent2@316:9	hasContent	`hasContent` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@308:6	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+active2@364:43	active	`active` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+active2@422:11	active	`active` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+SessionTab2@420:47	SessionTab	`SessionTab` 是执行相应业务操作的函数，末尾数字是打包器为避免重名添加的后缀。
+handleMouseDown2@447:9	handleMouseDown	`handleMouseDown` 是事件或状态处理函数，末尾数字是打包器为避免重名添加的后缀。
+name2@440:6	newTitle	`newTitle` 是用户确认的会话新标题，避免与全局 `name` 冲突。
+running2@566:12	running	`running` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+identity2@703:9	identity	`identity` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+state2@730:9	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+update2@789:11	update	`update` 是执行相应状态更新或操作的函数，末尾数字是打包器为避免重名添加的后缀。
+next2@790:13	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+current2@791:25	current	`current` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@808:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@826:13	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+raw2@841:11	raw	`raw` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+name2@882:17	newTitle	`newTitle` 是传给重命名回调的新标题，避免与全局 `name` 冲突。
+isActive2@1090:21	isActive	`isActive` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+key@79:36	categoryKey	`categoryKey` 标识费用类别，用于创建可见类别行并读取对应金额。
+key@83:14	categoryKey	`categoryKey` 标识费用类别，用于筛选非零费用并添加类别行。
+raw@100:20	responseData	`responseData` 是待校验并转换为费用记录的接口响应值。
+raw@163:9	responseBody	`responseBody` 是费用分块请求解析得到的 JSON 响应。
+raw@841:11	storedStatus	`storedStatus` 是从会话状态映射中读取的当前状态值。

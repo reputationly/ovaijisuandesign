@@ -1,5 +1,7 @@
 // 首页「有什么新变化」入口与 logo 动效。
-import { reactExports, jsxRuntimeExports, ChevronRight$1 as ChevronRight } from "../vendor.js";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { ChevronRight$1 as ChevronRight } from "../media-editing/lucide-icon-wraps.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";

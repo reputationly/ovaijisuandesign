@@ -9,7 +9,11 @@ import {
   usePopoverCloseWithDeselect,
 } from "../generation/resolve-reference-texts.js";
 import { buildImageNodeView } from "../canvas/build-slot-from-node.js";
-import { BACKEND_VIBE_STORYBOARD, Handle, Position, reactExports, useReactFlow, useTranslation } from "../vendor.js";
+import { BACKEND_VIBE_STORYBOARD } from "../infra/shared-runtime.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Handle, useReactFlow } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { dedupedToast, useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { VideoMultiOverlay } from "./video-multi-overlay.jsx";
@@ -17,7 +21,7 @@ import {
   useModelForAsset,
   useRegisterZoomCounter,
 } from "../infra/create-recently-added-store.js";
-import { resolvePlaceholderCardSize } from "../infra/shallow-copy.js";
+import { resolvePlaceholderCardSize } from "../canvas/placeholder-card-size.js";
 import { isGenerationErrorStatus } from "../canvas/compute-group-bounds-from-children.js";
 import {
   MEDIA_NODE_RADIUS,
@@ -90,7 +94,7 @@ import {
 } from "./use-image-inplace-edit.jsx";
 function buildPlaceholderImageNodeView(
   nodeId,
-  data2,
+  data,
   subImages,
   metaById,
   mainRound,
@@ -98,7 +102,7 @@ function buildPlaceholderImageNodeView(
 ) {
   return buildImageNodeView(
     nodeId,
-    data2,
+    data,
     subImages,
     metaById,
     false,
@@ -133,11 +137,11 @@ function resolvePlaceholderReferencePaths({
     ),
   };
 }
-function imageViewPrimaryPrompt(data2) {
-  const d2 = data2;
-  const prompt = d2?.prompt;
+function imageViewPrimaryPrompt(data) {
+  const nodeData = data;
+  const prompt = nodeData?.prompt;
   if (typeof prompt === "string" && prompt.trim().length > 0) return prompt;
-  const description = d2?.description;
+  const description = nodeData?.description;
   return typeof description === "string" && description.trim().length > 0
     ? description
     : void 0;
@@ -166,19 +170,19 @@ function normalizePlaceholderDefaultModelId(
   return draft ?? registryModelId ?? persistedModelId;
 }
 export function PlaceholderNodeInner({
-  id: id2,
-  data: data2,
-  selected: selected2,
+  id: nodeId,
+  data,
+  selected,
 }) {
   const frameRef = reactExports.useRef(null);
   useRegisterZoomCounter(frameRef);
-  const { t: t2 } = useTranslation();
-  const placeholderData = data2;
+  const { t } = useTranslation();
+  const placeholderData = data;
   const {
     prompt,
     model,
     status,
-    errorMessage: errorMessage2,
+    errorMessage,
     mediaType,
   } = placeholderData;
   const nodePrompt =
@@ -188,7 +192,7 @@ export function PlaceholderNodeInner({
           placeholderData.description.trim().length > 0
         ? placeholderData.description
         : void 0) ??
-    imageViewPrimaryPrompt(data2) ??
+    imageViewPrimaryPrompt(data) ??
     void 0;
   const isError = isGenerationErrorStatus(status);
   const isRecoverableError = status === "recoverable_error";
@@ -213,7 +217,7 @@ export function PlaceholderNodeInner({
     subscribeGraphChange,
   } = useCanvasActions();
   const overlayStore = useMultiImageOverlayApi();
-  const isOverlayOpen = useIsOverlayOpen(id2);
+  const isOverlayOpen = useIsOverlayOpen(nodeId);
   const [showI2IPopover, setShowI2IPopover] = reactExports.useState(false);
   const [showI2VPopover, setShowI2VPopover] = reactExports.useState(false);
   const [showT2APopover, setShowT2APopover] = reactExports.useState(false);
@@ -221,12 +225,12 @@ export function PlaceholderNodeInner({
     reactExports.useState(false);
   const [cancelGenerationPending, setCancelGenerationPending] =
     reactExports.useState(false);
-  const subImages = useSubImages(id2);
+  const subImages = useSubImages(nodeId);
   const assetMetadataStore = useAssetMetadataApi();
-  const assetsMap = useAssetMetadataStore((s2) => s2.assets);
+  const assetsMap = useAssetMetadataStore((storeState) => storeState.assets);
   const getRoundSnapshot = reactExports.useCallback(
-    () => getNodeById(id2)?.round,
-    [getNodeById, id2],
+    () => getNodeById(nodeId)?.round,
+    [getNodeById, nodeId],
   );
   const mainRound = reactExports.useSyncExternalStore(
     subscribeGraphChange,
@@ -234,8 +238,8 @@ export function PlaceholderNodeInner({
     getRoundSnapshot,
   );
   const getNodeAssetId = reactExports.useCallback(
-    () => getNodeById(id2)?.assetId,
-    [getNodeById, id2],
+    () => getNodeById(nodeId)?.assetId,
+    [getNodeById, nodeId],
   );
   const nodeAssetId = reactExports.useSyncExternalStore(
     subscribeGraphChange,
@@ -251,8 +255,8 @@ export function PlaceholderNodeInner({
     [subscribeGraphChange],
   );
   const incomingSourceIds = reactExports.useMemo(
-    () => getIncomingSourceIds(id2),
-    [getIncomingSourceIds, id2, referenceRevision],
+    () => getIncomingSourceIds(nodeId),
+    [getIncomingSourceIds, nodeId, referenceRevision],
   );
   const referenceTextPaths = reactExports.useMemo(
     () =>
@@ -283,14 +287,14 @@ export function PlaceholderNodeInner({
   const imageView = reactExports.useMemo(
     () =>
       buildPlaceholderImageNodeView(
-        id2,
-        data2,
+        nodeId,
+        data,
         subImages,
         (assetId) => assetsMap.get(assetId),
         mainRound,
         nodeAssetId,
       ),
-    [id2, data2, subImages, assetsMap, mainRound, nodeAssetId],
+    [nodeId, data, subImages, assetsMap, mainRound, nodeAssetId],
   );
   const mediaLightboxItems = reactExports.useMemo(() => {
     if (mediaType !== "image" && mediaType !== "video") return [];
@@ -324,7 +328,7 @@ export function PlaceholderNodeInner({
     mediaType,
   );
   const displayModel =
-    placeholderModelInfo?.name ?? translateModelName(model ?? "", t2);
+    placeholderModelInfo?.name ?? translateModelName(model ?? "", t);
   const estimatedRemainingWaitSeconds = useGenerationWaitEstimate({
     active: !isError && !isQueuePaused && !isQueued,
     liveRemainingWaitSeconds,
@@ -337,72 +341,72 @@ export function PlaceholderNodeInner({
             placeholderModelId ?? toNonEmptyString(model),
           )
         : void 0,
-    startedAt: readGenerationStartedAt(data2),
+    startedAt: readGenerationStartedAt(data),
   });
-  const handleDelete2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+  const handleDelete = reactExports.useCallback(
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       deleteElements({
         nodes: [
           {
-            id: id2,
+            id: nodeId,
           },
         ],
       });
     },
-    [id2, deleteElements],
+    [nodeId, deleteElements],
   );
   const handleReport = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       bridge.onReportNodeError?.({
-        nodeId: id2,
+        nodeId,
         // PlaceholderNode is generation-agnostic; downstream node-type can
         // be inferred by the host from `model` / data shape if needed.
         nodeType: "placeholder",
         model,
         prompt: displayPrompt,
-        errorMessage: errorMessage2,
+        errorMessage,
         traceId: placeholderData.cloudTraceId,
       });
     },
     [
       bridge,
-      id2,
+      nodeId,
       model,
       displayPrompt,
-      errorMessage2,
+      errorMessage,
       placeholderData.cloudTraceId,
     ],
   );
   const handleRetry = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       if (!placeholderData.retryPayload) return;
-      bridge.onRetryGeneration?.(id2, placeholderData.retryPayload);
+      bridge.onRetryGeneration?.(nodeId, placeholderData.retryPayload);
     },
-    [bridge, id2, placeholderData.retryPayload],
+    [bridge, nodeId, placeholderData.retryPayload],
   );
   const handleCancelGeneration = reactExports.useCallback(
-    async (e2) => {
-      e2.stopPropagation();
+    async (clickEvent) => {
+      clickEvent.stopPropagation();
       if (!bridge.onCancelGeneration || cancelGenerationPending) return;
       setCancelGenerationPending(true);
       try {
-        await bridge.onCancelGeneration(id2);
+        await bridge.onCancelGeneration(nodeId);
       } finally {
         setCancelGenerationPending(false);
       }
     },
-    [bridge, cancelGenerationPending, id2],
+    [bridge, cancelGenerationPending, nodeId],
   );
   const handleResumeQueue = reactExports.useCallback(() => {
     if (!placeholderData.retryPayload) return;
-    bridge.onRetryGeneration?.(id2, placeholderData.retryPayload);
-  }, [bridge, id2, placeholderData.retryPayload]);
+    bridge.onRetryGeneration?.(nodeId, placeholderData.retryPayload);
+  }, [bridge, nodeId, placeholderData.retryPayload]);
   const handleCancelQueue = reactExports.useCallback(() => {
-    bridge.onCancelGenerationQueue?.(id2);
-  }, [bridge, id2]);
+    bridge.onCancelGenerationQueue?.(nodeId);
+  }, [bridge, nodeId]);
   const borderClass = "canvas-node-frame border-0 p-px";
   const showEdgeLight =
     status === "pending" || status === "generating" || status === "loading";
@@ -427,14 +431,14 @@ export function PlaceholderNodeInner({
   const totalImageCount = activeRoundSlotCount;
   const countUnit =
     mediaType === "video"
-      ? t2("canvas.multiVideo.countUnit", "段")
-      : t2("canvas.multiImage.countUnit", "张");
+      ? t("canvas.multiVideo.countUnit", "段")
+      : t("canvas.multiImage.countUnit", "张");
   const noopImageAction = reactExports.useCallback(() => {}, []);
-  const handleI2IClose = usePopoverCloseWithDeselect(id2, setShowI2IPopover);
-  const handleI2VClose = usePopoverCloseWithDeselect(id2, setShowI2VPopover);
-  const handleT2AClose = usePopoverCloseWithDeselect(id2, setShowT2APopover);
+  const handleI2IClose = usePopoverCloseWithDeselect(nodeId, setShowI2IPopover);
+  const handleI2VClose = usePopoverCloseWithDeselect(nodeId, setShowI2VPopover);
+  const handleT2AClose = usePopoverCloseWithDeselect(nodeId, setShowT2APopover);
   const handleStoryboardGridClose = usePopoverCloseWithDeselect(
-    id2,
+    nodeId,
     setShowStoryboardGridPopover,
   );
   const {
@@ -451,7 +455,7 @@ export function PlaceholderNodeInner({
   const lastUsedI2I = getLastUsedModelParams?.("i2i");
   const lastUsedI2V = getLastUsedModelParams?.("i2v");
   const lastUsedAudio = getLastUsedModelParams?.("t2a");
-  const popoverDraftMap = getPopoverDraftMap(data2);
+  const popoverDraftMap = getPopoverDraftMap(data);
   const popoverDraft = popoverDraftMap?.i2i;
   const i2vDraft = popoverDraftMap?.i2v;
   const t2aDraft = popoverDraftMap?.t2a;
@@ -521,39 +525,39 @@ export function PlaceholderNodeInner({
   const defaultAudioParams = t2aDraft?.params ?? placeholderData.params;
   const draftImagePaths = Array.isArray(i2iUserDraft?.imagePaths)
     ? i2iUserDraft.imagePaths.filter(
-        (path2) => typeof path2 === "string" && !!path2,
+        (path) => typeof path === "string" && !!path,
       )
     : void 0;
   const draftVideoImagePaths = Array.isArray(i2vUserDraft?.imagePaths)
-    ? i2vUserDraft.imagePaths.filter((path2) => typeof path2 === "string")
+    ? i2vUserDraft.imagePaths.filter((path) => typeof path === "string")
     : void 0;
   const draftVideoPaths = Array.isArray(i2vUserDraft?.videoPaths)
     ? i2vUserDraft.videoPaths.filter(
-        (path2) => typeof path2 === "string" && !!path2,
+        (path) => typeof path === "string" && !!path,
       )
     : void 0;
   const draftAudioPaths = Array.isArray(i2vUserDraft?.audioPaths)
     ? i2vUserDraft.audioPaths.filter(
-        (path2) => typeof path2 === "string" && !!path2,
+        (path) => typeof path === "string" && !!path,
       )
     : void 0;
   const t2aDraftAudioPaths = Array.isArray(t2aDraft?.audioPaths)
     ? t2aDraft.audioPaths.filter(
-        (path2) => typeof path2 === "string" && !!path2,
+        (path) => typeof path === "string" && !!path,
       )
     : void 0;
   const draftI2ITextPaths = Array.isArray(i2iUserDraft?.textPaths)
     ? i2iUserDraft.textPaths.filter(
-        (path2) => typeof path2 === "string" && !!path2,
+        (path) => typeof path === "string" && !!path,
       )
     : void 0;
   const draftI2VTextPaths = Array.isArray(i2vUserDraft?.textPaths)
     ? i2vUserDraft.textPaths.filter(
-        (path2) => typeof path2 === "string" && !!path2,
+        (path) => typeof path === "string" && !!path,
       )
     : void 0;
   const draftT2ATextPaths = Array.isArray(t2aDraft?.textPaths)
-    ? t2aDraft.textPaths.filter((path2) => typeof path2 === "string" && !!path2)
+    ? t2aDraft.textPaths.filter((path) => typeof path === "string" && !!path)
     : void 0;
   const referenceMediaPaths = reactExports.useMemo(
     () =>
@@ -620,13 +624,13 @@ export function PlaceholderNodeInner({
     draftT2ATextPaths,
   );
   const selfAssetIds = reactExports.useMemo(() => {
-    const ids2 = new Set();
+    const ids = new Set();
     for (const slot of imageView.slots) {
-      if (slot.status === "ready" && slot.id) ids2.add(slot.id);
+      if (slot.status === "ready" && slot.id) ids.add(slot.id);
     }
-    ids2.add(id2);
-    return ids2;
-  }, [id2, imageView.slots]);
+    ids.add(nodeId);
+    return ids;
+  }, [nodeId, imageView.slots]);
   const {
     handleSetPrimary,
     handleDeleteSub,
@@ -634,7 +638,7 @@ export function PlaceholderNodeInner({
     handleSubContextMenu,
     handleDownloadSub,
   } = useMultiImageActions({
-    id: id2,
+    id: nodeId,
     view: imageView,
     subImages,
     reactFlow,
@@ -654,22 +658,22 @@ export function PlaceholderNodeInner({
     [imageView.slots, mediaLightboxItems, mediaLightbox.openLightbox],
   );
   const handleToggleOverlay = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      const { open, close: close2 } = overlayStore.getState();
-      if (isOverlayOpen) close2(id2);
-      else open(id2);
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      const { open, close: closeOverlay } = overlayStore.getState();
+      if (isOverlayOpen) closeOverlay(nodeId);
+      else open(nodeId);
     },
-    [overlayStore, isOverlayOpen, id2],
+    [overlayStore, isOverlayOpen, nodeId],
   );
   const handleSelectRound = reactExports.useCallback(
     (roundIdx) => {
       if (roundIdx === imageView.activeRoundIndex) return;
       const target = imageView.rounds[roundIdx]?.[0];
       if (!target) return;
-      const subMatch = subImages.find((sub) => {
-        const subAssetId = sub.assetId ?? sub.data?.assetId;
-        return sub.id === target.id || subAssetId === target.id;
+      const subMatch = subImages.find((subImage) => {
+        const subAssetId = subImage.assetId ?? subImage.data?.assetId;
+        return subImage.id === target.id || subAssetId === target.id;
       });
       const targetNodeId = subMatch?.id ?? target.id;
       promoteSubImageToMain(targetNodeId);
@@ -687,15 +691,15 @@ export function PlaceholderNodeInner({
       if (!isError && imageView.hasLoading) return;
       const target = imageView.slots[originalIndex];
       if (!target || target.status !== "ready") return;
-      const subMatch = subImages.find((sub) => {
-        const subAssetId = sub.assetId ?? sub.data?.assetId;
-        return sub.id === target.id || subAssetId === target.id;
+      const subMatch = subImages.find((subImage) => {
+        const subAssetId = subImage.assetId ?? subImage.data?.assetId;
+        return subImage.id === target.id || subAssetId === target.id;
       });
       const targetNodeId = subMatch?.id ?? target.id;
       promoteSubImageToMain(targetNodeId, {
         persistMode: "request",
       });
-      overlayStore.getState().close(id2);
+      overlayStore.getState().close(nodeId);
     },
     [
       isError,
@@ -704,19 +708,19 @@ export function PlaceholderNodeInner({
       subImages,
       promoteSubImageToMain,
       overlayStore,
-      id2,
+      nodeId,
     ],
   );
   const handleBadgeClick = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       if (imageView.rounds.length > 1 && imageView.slots.length === 1) {
-        e2.stopPropagation();
-        const next2 =
+        clickEvent.stopPropagation();
+        const next =
           (imageView.activeRoundIndex + 1) % imageView.rounds.length;
-        handleSelectRound(next2);
+        handleSelectRound(next);
         return;
       }
-      handleToggleOverlay(e2);
+      handleToggleOverlay(clickEvent);
     },
     [
       imageView.rounds,
@@ -733,20 +737,20 @@ export function PlaceholderNodeInner({
       params,
       imagePaths,
       replaceNodeId,
-      count2,
-      displayPrompt2,
+      count,
+      displayPrompt,
       textPaths,
     ) => {
       const submit = () => {
         submitImg2Image?.(
-          id2,
+          nodeId,
           nextPrompt,
           modelId,
           params,
           imagePaths,
           replaceNodeId,
-          count2,
-          displayPrompt2,
+          count,
+          displayPrompt,
           void 0,
           void 0,
           textPaths,
@@ -757,10 +761,10 @@ export function PlaceholderNodeInner({
         flushDraft: flushPersist,
         submit,
         onFlushError: () =>
-          dedupedToast.error(t2("canvas.promptDraftSaveFailed")),
+          dedupedToast.error(t("canvas.promptDraftSaveFailed")),
       });
     },
-    [id2, submitImg2Image, flushPersist, t2],
+    [nodeId, submitImg2Image, flushPersist, t],
   );
   const handleI2VSubmit = reactExports.useCallback(
     (
@@ -771,13 +775,13 @@ export function PlaceholderNodeInner({
       videoPaths,
       audioPaths,
       replaceNodeId,
-      displayPrompt2,
-      count2,
+      displayPrompt,
+      count,
       textPaths,
     ) => {
       const submit = () => {
         submitImg2Video?.(
-          id2,
+          nodeId,
           nextPrompt,
           modelId,
           params,
@@ -785,8 +789,8 @@ export function PlaceholderNodeInner({
           videoPaths,
           audioPaths,
           replaceNodeId,
-          displayPrompt2,
-          count2,
+          displayPrompt,
+          count,
           void 0,
           void 0,
           textPaths,
@@ -797,10 +801,10 @@ export function PlaceholderNodeInner({
         flushDraft: flushPersist,
         submit,
         onFlushError: () =>
-          dedupedToast.error(t2("canvas.promptDraftSaveFailed")),
+          dedupedToast.error(t("canvas.promptDraftSaveFailed")),
       });
     },
-    [id2, submitImg2Video, flushPersist, t2],
+    [nodeId, submitImg2Video, flushPersist, t],
   );
   const handleT2ASubmit = reactExports.useCallback(
     (
@@ -815,7 +819,7 @@ export function PlaceholderNodeInner({
       void (async () => {
         if (replaceNodeId) await flushPersist();
         submitTxt2Audio?.(
-          id2,
+          nodeId,
           nextPrompt,
           modelId,
           params,
@@ -828,10 +832,10 @@ export function PlaceholderNodeInner({
         );
       })();
     },
-    [id2, submitTxt2Audio, flushPersist],
+    [nodeId, submitTxt2Audio, flushPersist],
   );
   reactExports.useEffect(() => {
-    if (!selected2) return;
+    if (!selected) return;
     if (isMultiSelect || isBoxSelecting) return;
     if ((mediaType === "image" || mediaType === "video") && isOverlayOpen)
       return;
@@ -855,7 +859,7 @@ export function PlaceholderNodeInner({
       setShowT2APopover(true);
     }
   }, [
-    selected2,
+    selected,
     isMultiSelect,
     isBoxSelecting,
     mediaType,
@@ -867,18 +871,18 @@ export function PlaceholderNodeInner({
     showStoryboardGridPopover,
   ]);
   reactExports.useEffect(() => {
-    if (!selected2) return;
+    if (!selected) return;
     if (mediaType !== "image" && mediaType !== "video" && mediaType !== "audio")
       return;
     refreshUpstreamText(incomingSourceIds);
-  }, [selected2, mediaType, incomingSourceIds, refreshUpstreamText]);
+  }, [selected, mediaType, incomingSourceIds, refreshUpstreamText]);
   const fakeSlot = reactExports.useMemo(
     () => ({
-      id: id2,
+      id: nodeId,
       status: "ready",
-      error: errorMessage2 ?? null,
+      error: errorMessage ?? null,
     }),
-    [id2, errorMessage2],
+    [nodeId, errorMessage],
   );
   const generatingIcon = reactExports.useMemo(() => {
     if (mediaType === "video") return <VideoPlaceholderIcon />;
@@ -900,14 +904,14 @@ export function PlaceholderNodeInner({
       isMiniMaxH3MaxModelValue(value),
     );
   const generationProgressStartedAt =
-    (isH3MaxVideo ? readGenerationSubmittedAt(data2) : void 0) ??
-    readGenerationStartedAt(data2);
+    (isH3MaxVideo ? readGenerationSubmittedAt(data) : void 0) ??
+    readGenerationStartedAt(data);
   const generatingProgress = useSimulatedProgress(
     !isError && !isQueuePaused && !isQueued,
     progressKind,
     generationProgressStartedAt,
     isH3MaxVideo ? "h3-max-video" : void 0,
-    readGenerationAttemptId(data2),
+    readGenerationAttemptId(data),
   );
   return (
     <NodeShell
@@ -923,7 +927,7 @@ export function PlaceholderNodeInner({
           borderRadius: MEDIA_NODE_RADIUS,
           outlineStyle: "none",
         }}
-        data-node-selected={selected2 ? "true" : "false"}
+        data-node-selected={selected ? "true" : "false"}
       >
         <NodeFrameStroke />
         <Handle
@@ -952,11 +956,11 @@ export function PlaceholderNodeInner({
           // so the user can inspect siblings or jump back to a successful round.
           <div className="relative h-full">
             <MediaErrorCard
-              errorMessage={errorMessage2}
+              errorMessage={errorMessage}
               displayModel={displayModel}
-              onDelete={handleDelete2}
+              onDelete={handleDelete}
               onReport={bridge.onReportNodeError ? handleReport : void 0}
-              reportStatus={bridge.getNodeErrorReportStatus?.(id2) ?? "idle"}
+              reportStatus={bridge.getNodeErrorReportStatus?.(nodeId) ?? "idle"}
               variant={
                 isRecoverableError
                   ? "recoverable"
@@ -981,7 +985,7 @@ export function PlaceholderNodeInner({
                   ? handleRetry
                   : void 0
               }
-              retrying={bridge.isRetryGenerationPending?.(id2) ?? false}
+              retrying={bridge.isRetryGenerationPending?.(nodeId) ?? false}
               refundStatus={placeholderData.refundStatus}
               refundedCredits={placeholderData.refundedCredits}
             />
@@ -1003,7 +1007,7 @@ export function PlaceholderNodeInner({
             }}
           >
             <ImageSlotBody
-              nodeId={id2}
+              nodeId={nodeId}
               slot={fakeSlot}
               width={cardWidth}
               height={mediaAreaHeight}
@@ -1019,9 +1023,9 @@ export function PlaceholderNodeInner({
                     onCancel={isQueued ? handleCancelQueue : void 0}
                     onResume={isQueuePaused ? handleResumeQueue : void 0}
                     cancelling={
-                      bridge.isCancelGenerationQueuePending?.(id2) ?? false
+                      bridge.isCancelGenerationQueuePending?.(nodeId) ?? false
                     }
-                    resuming={bridge.isRetryGenerationPending?.(id2) ?? false}
+                    resuming={bridge.isRetryGenerationPending?.(nodeId) ?? false}
                     canResume={!!placeholderData.retryPayload}
                     actionUiId="canvas.placeholder.queue"
                   />
@@ -1041,7 +1045,7 @@ export function PlaceholderNodeInner({
                     ? "pending"
                     : "generating"
               }
-              overrideError={errorMessage2 ?? null}
+              overrideError={errorMessage ?? null}
             />
             {(showImageChrome || showVideoChrome) && (
               <CountBadge
@@ -1063,7 +1067,7 @@ export function PlaceholderNodeInner({
       )}
       {showImageOverlay && (
         <MultiImageOverlay
-          nodeId={id2}
+          nodeId={nodeId}
           view={imageView}
           cardWidth={cardWidth}
           cardHeight={mediaAreaHeight}
@@ -1109,7 +1113,7 @@ export function PlaceholderNodeInner({
       )}
       {mediaType === "image" &&
         !isStoryboardGeneration &&
-        selected2 &&
+        selected &&
         !isOverlayOpen &&
         showI2IPopover && (
           <I2IPopover
@@ -1130,9 +1134,9 @@ export function PlaceholderNodeInner({
             resolveFileUrl={resolveFileUrl}
             selfAssetIds={selfAssetIds}
             nodeId={void 0}
-            replaceNodeId={id2}
+            replaceNodeId={nodeId}
             isGenerating={isGeneratingPopover}
-            onSaveDraft={(draft) => savePopoverDraft(id2, "i2i", draft)}
+            onSaveDraft={(draft) => savePopoverDraft(nodeId, "i2i", draft)}
             currentImageCount={imageView.slots.length}
             hasLoadingSlots={isGeneratingPopover}
             defaultTextPaths={defaultI2ITextPaths}
@@ -1145,12 +1149,12 @@ export function PlaceholderNodeInner({
         )}
       {mediaType === "image" &&
         isStoryboardGeneration &&
-        selected2 &&
+        selected &&
         !isOverlayOpen &&
         showStoryboardGridPopover && (
           <StoryboardGridPopover
             onClose={handleStoryboardGridClose}
-            replaceNodeId={id2}
+            replaceNodeId={nodeId}
             defaultPrompt={displayPrompt}
             defaultParams={placeholderData.params}
             defaultReferencePaths={defaultImagePaths}
@@ -1159,7 +1163,7 @@ export function PlaceholderNodeInner({
           />
         )}
       {mediaType === "video" &&
-        selected2 &&
+        selected &&
         !isOverlayOpen &&
         showI2VPopover && (
           <I2VPopover
@@ -1182,10 +1186,10 @@ export function PlaceholderNodeInner({
             lastUsedParams={lastUsedI2V?.params}
             resolveFileUrl={resolveFileUrl}
             nodeId={void 0}
-            replaceNodeId={id2}
+            replaceNodeId={nodeId}
             showCountChip={true}
             isGenerating={isGeneratingPopover}
-            onSaveDraft={(draft) => savePopoverDraft(id2, "i2v", draft)}
+            onSaveDraft={(draft) => savePopoverDraft(nodeId, "i2v", draft)}
             defaultTextPaths={defaultI2VTextPaths}
             hasUpstreamText={!!upstreamTextContent}
             referenceTextContent={upstreamTextContent}
@@ -1196,7 +1200,7 @@ export function PlaceholderNodeInner({
             }
           />
         )}
-      {mediaType === "audio" && selected2 && showT2APopover && (
+      {mediaType === "audio" && selected && showT2APopover && (
         <TxtPopover
           mode="audio"
           onSubmit={handleT2ASubmit}
@@ -1209,10 +1213,10 @@ export function PlaceholderNodeInner({
           lastUsedModelId={lastUsedAudio?.modelId}
           lastUsedParams={lastUsedAudio?.params}
           nodeId={void 0}
-          replaceNodeId={id2}
+          replaceNodeId={nodeId}
           isGenerating={isGeneratingPopover}
           popoverGapOffset={AUDIO_FULL_BODY_POPOVER_GAP_OFFSET}
-          onSaveDraft={(draft) => savePopoverDraft(id2, "t2a", draft)}
+          onSaveDraft={(draft) => savePopoverDraft(nodeId, "t2a", draft)}
           resolveFileUrl={resolveFileUrl}
           defaultImagePaths={t2aDraft?.imagePaths}
           defaultAudioPaths={defaultT2AAudioPaths}

@@ -1,5 +1,5 @@
 // selection-toolbar.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { SelectionToolbarInner } from "./selection-toolbar-inner.jsx";
 
 export const SelectionToolbar = reactExports.memo(SelectionToolbarInner);

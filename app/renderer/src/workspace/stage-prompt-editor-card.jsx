@@ -1,12 +1,8 @@
 // stage-prompt-editor-card.jsx
 import { resolveModelNameForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
-import {
-  Check,
-  Loader2,
-  reactExports,
-  RotateCcw,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, Loader2, RotateCcw } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -48,15 +44,15 @@ const GENERATION_FIELD_ALIASES = {
   quality: ["quality"],
   frameRate: ["fps", "frame_rate"],
 };
-function friendlyItemName(name2) {
-  return name2
+function friendlyItemName(itemName) {
+  return itemName
     .replace(/^(?:cg|shot|clip)[_-]?(\d+)\s*/i, "$1 ")
     .replaceAll("_", " ")
     .replace(/\s{2,}/g, " ")
     .trim();
 }
-function userFacingContentName(name2) {
-  return friendlyItemName(name2)
+function userFacingContentName(itemName) {
+  return friendlyItemName(itemName)
     .replace(/^\d+\s*/, "")
     .trim();
 }
@@ -81,18 +77,18 @@ function itemGenerationFields(stage, item) {
   );
 }
 function generationKind(fields, prompt) {
-  const raw2 = (
+  const raw = (
     fields.modality ||
     fields.output_type ||
     fields.media_type ||
     ""
   ).toLowerCase();
-  if (/image|photo|poster|图片|图像/.test(raw2)) return "image";
-  if (/video|clip|视频/.test(raw2)) return "video";
-  if (/music|音乐|配乐/.test(raw2)) return "music";
-  if (/audio|speech|voice|音频|声音/.test(raw2)) return "audio";
-  if (/document|文档/.test(raw2)) return "document";
-  if (/text|copy|script|文本|文案/.test(raw2)) return "text";
+  if (/image|photo|poster|图片|图像/.test(raw)) return "image";
+  if (/video|clip|视频/.test(raw)) return "video";
+  if (/music|音乐|配乐/.test(raw)) return "music";
+  if (/audio|speech|voice|音频|声音/.test(raw)) return "audio";
+  if (/document|文档/.test(raw)) return "document";
+  if (/text|copy|script|文本|文案/.test(raw)) return "text";
   if (/视频|动态|片段/.test(prompt)) return "video";
   if (/图片|图像|海报/.test(prompt)) return "image";
   if (/音频|声音|旁白|配音/.test(prompt)) return "audio";
@@ -100,15 +96,15 @@ function generationKind(fields, prompt) {
 }
 function generationParameters(fields, prompt, kind) {
   const parameters = [];
-  for (const key2 of Object.keys(GENERATION_FIELD_ALIASES)) {
-    let value = firstField(fields, GENERATION_FIELD_ALIASES[key2]);
-    if (!value && key2 === "aspectRatio")
+  for (const key of Object.keys(GENERATION_FIELD_ALIASES)) {
+    let value = firstField(fields, GENERATION_FIELD_ALIASES[key]);
+    if (!value && key === "aspectRatio")
       value = prompt.match(/\b\d{1,2}:\d{1,2}\b/)?.[0];
-    if (!value && key2 === "resolution") {
+    if (!value && key === "resolution") {
       value = prompt.match(/\b(?:\d{3,4}p|\d{3,4}\s*[x×]\s*\d{3,4})\b/i)?.[0];
     }
     if (!value) continue;
-    if (key2 === "model") {
+    if (key === "model") {
       const preferredType =
         kind === "unknown" || kind === "document"
           ? void 0
@@ -121,17 +117,17 @@ function generationParameters(fields, prompt, kind) {
       );
     }
     parameters.push({
-      key: key2,
+      key,
       value,
     });
   }
   return parameters;
 }
-function itemSequence(item, index2) {
+function itemSequence(item, index) {
   const fromName = friendlyItemName(item.name).match(/^(\d+)\b/)?.[1];
   if (fromName) return fromName.padStart(2, "0");
   const fromId = item.id.match(/(?:^|[_-])(\d+)(?:$|[_-])/i)?.[1];
-  return (fromId ?? String(index2 + 1)).padStart(2, "0");
+  return (fromId ?? String(index + 1)).padStart(2, "0");
 }
 function parseRefs(item) {
   const value = item.refs || item.ref_ids || "";
@@ -176,24 +172,24 @@ function displayedReferenceValues(stage, refs) {
   const labelCounts = new Map();
   for (const label of labels)
     labelCounts.set(label, (labelCounts.get(label) ?? 0) + 1);
-  return refs.map((ref, index2) => {
-    const label = labels[index2];
+  return refs.map((ref, index) => {
+    const label = labels[index];
     if (label === ref || labelCounts.get(label) === 1) return label;
     return `${label} [${ref}]`;
   });
 }
 function parseDisplayedReferences(stage, currentRefs, value) {
   const currentDisplayToId = new Map(
-    displayedReferenceValues(stage, currentRefs).map((label, index2) => [
+    displayedReferenceValues(stage, currentRefs).map((label, index) => [
       label,
-      currentRefs[index2],
+      currentRefs[index],
     ]),
   );
   const labelToIds = new Map();
-  for (const [id2, rawLabel] of Object.entries(stage.reference_labels)) {
+  for (const [referenceId, rawLabel] of Object.entries(stage.reference_labels)) {
     const label = rawLabel.trim();
     if (!label) continue;
-    labelToIds.set(label, [...(labelToIds.get(label) ?? []), id2]);
+    labelToIds.set(label, [...(labelToIds.get(label) ?? []), referenceId]);
   }
   return value
     .split(/[\n,]/)
@@ -202,21 +198,21 @@ function parseDisplayedReferences(stage, currentRefs, value) {
     .map((entry) => {
       const currentId = currentDisplayToId.get(entry);
       if (currentId) return currentId;
-      const ids2 = labelToIds.get(entry);
-      return ids2?.length === 1 ? ids2[0] : entry;
+      const ids = labelToIds.get(entry);
+      return ids?.length === 1 ? ids[0] : entry;
     });
 }
 function editableItems(stage) {
   return stage.work_items.flatMap((item) => {
-    const id2 = item.id?.trim();
+    const itemId = item.id?.trim();
     const prompt = item.prompt?.trim() ?? "";
-    if (!id2 || !prompt) return [];
+    if (!itemId || !prompt) return [];
     const fields = itemGenerationFields(stage, item);
     const kind = generationKind(fields, prompt);
     return [
       {
-        id: id2,
-        name: itemDisplayName(item) || id2,
+        id: itemId,
+        name: itemDisplayName(item) || itemId,
         prompt,
         kind,
         parameters: generationParameters(fields, prompt, kind),
@@ -227,16 +223,16 @@ function editableItems(stage) {
   });
 }
 export const StagePromptEditorCard = reactExports.forwardRef(
-  function StagePromptEditorCard2(
+  function StagePromptEditorCard(
     {
       stage,
-      readOnly: readOnly2 = false,
-      disabled: disabled2 = false,
+      readOnly = false,
+      disabled = false,
       saveStageWorkItems,
     },
     ref,
   ) {
-    const { t: t2 } = useTranslation();
+    const { t: translate } = useTranslation();
     const items = reactExports.useMemo(() => editableItems(stage), [stage]);
     const [expanded, setExpanded] = reactExports.useState(false);
     const [selectedId, setSelectedId] = reactExports.useState(
@@ -268,13 +264,13 @@ export const StagePromptEditorCard = reactExports.forwardRef(
       snapshot: contractSnapshot,
     });
     reactExports.useLayoutEffect(() => {
-      const previous2 = previousContractRef.current;
+      const previous = previousContractRef.current;
       previousContractRef.current = {
         stageId: stage.id,
         fingerprint: contractFingerprint,
         snapshot: contractSnapshot,
       };
-      if (previous2.stageId !== stage.id) {
+      if (previous.stageId !== stage.id) {
         setExpanded(false);
         setSelectedId("");
         setDrafts({});
@@ -285,10 +281,10 @@ export const StagePromptEditorCard = reactExports.forwardRef(
         setRemovedItems({});
         return;
       }
-      if (previous2.fingerprint === contractFingerprint) return;
+      if (previous.fingerprint === contractFingerprint) return;
       const transitions = {};
       const detectedRemovedItems = {};
-      for (const [itemId, oldItem] of Object.entries(previous2.snapshot)) {
+      for (const [itemId, oldItem] of Object.entries(previous.snapshot)) {
         const item = contractSnapshot[itemId];
         const promptDraft = drafts[itemId];
         const refsDraft = refDrafts[itemId];
@@ -333,7 +329,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
       }
       for (const item of items) {
         const existing = conflictsRef.current[item.id];
-        if (!existing?.removed || previous2.snapshot[item.id] !== void 0)
+        if (!existing?.removed || previous.snapshot[item.id] !== void 0)
           continue;
         const promptDraft = drafts[item.id];
         const refsDraft = refDrafts[item.id];
@@ -352,51 +348,51 @@ export const StagePromptEditorCard = reactExports.forwardRef(
           reappeared: true,
         };
       }
-      setConflicts((current2) => {
-        const next2 = {
-          ...current2,
+      setConflicts((current) => {
+        const next = {
+          ...current,
         };
-        for (const [itemId, transition2] of Object.entries(transitions)) {
-          if (transition2.removed) {
-            next2[itemId] = {
-              prompt: transition2.promptConflict,
-              refs: transition2.refsConflict,
+        for (const [itemId, transition] of Object.entries(transitions)) {
+          if (transition.removed) {
+            next[itemId] = {
+              prompt: transition.promptConflict,
+              refs: transition.refsConflict,
               removed: true,
             };
             continue;
           }
-          const existing = next2[itemId];
-          const prompt = transition2.promptChanged
-            ? transition2.promptConflict
+          const existing = next[itemId];
+          const prompt = transition.promptChanged
+            ? transition.promptConflict
             : (existing?.prompt ?? false);
-          const refs = transition2.refsChanged
-            ? transition2.refsConflict
+          const refs = transition.refsChanged
+            ? transition.refsConflict
             : (existing?.refs ?? false);
           if (prompt || refs)
-            next2[itemId] = {
+            next[itemId] = {
               prompt,
               refs,
               removed: false,
             };
-          else delete next2[itemId];
+          else delete next[itemId];
         }
-        return next2;
+        return next;
       });
-      setRemovedItems((current2) => {
-        const next2 = {
-          ...current2,
+      setRemovedItems((current) => {
+        const next = {
+          ...current,
           ...detectedRemovedItems,
         };
-        for (const [itemId, transition2] of Object.entries(transitions)) {
-          if (transition2.reappeared) delete next2[itemId];
+        for (const [itemId, transition] of Object.entries(transitions)) {
+          if (transition.reappeared) delete next[itemId];
         }
-        return next2;
+        return next;
       });
       const firstConflictId = Object.entries(transitions).find(
-        ([, transition2]) =>
-          transition2.removed ||
-          transition2.promptConflict ||
-          transition2.refsConflict,
+        ([, transition]) =>
+          transition.removed ||
+          transition.promptConflict ||
+          transition.refsConflict,
       )?.[0];
       if (firstConflictId) {
         setError(void 0);
@@ -423,12 +419,12 @@ export const StagePromptEditorCard = reactExports.forwardRef(
       const nextConflictId = conflictIds.find(
         (candidate) => candidate !== itemId,
       );
-      setConflicts((current2) => {
-        const next2 = {
-          ...current2,
+      setConflicts((current) => {
+        const next = {
+          ...current,
         };
-        delete next2[itemId];
-        return next2;
+        delete next[itemId];
+        return next;
       });
       if (nextConflictId) setSelectedId(nextConflictId);
     };
@@ -438,7 +434,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
         JSON.stringify(refDrafts[item.id] ?? item.refs) !==
           JSON.stringify(item.refs),
     );
-    const title = t2(
+    const title = translate(
       "productionPlan.prompt.generatedTitle",
       "将生成 {{count}} 项内容",
       {
@@ -447,17 +443,17 @@ export const StagePromptEditorCard = reactExports.forwardRef(
     );
     const kindLabel = (kind) => {
       if (kind === "image")
-        return t2("productionPlan.prompt.kind.image", "图片");
+        return translate("productionPlan.prompt.kind.image", "图片");
       if (kind === "video")
-        return t2("productionPlan.prompt.kind.video", "视频");
+        return translate("productionPlan.prompt.kind.video", "视频");
       if (kind === "audio")
-        return t2("productionPlan.prompt.kind.audio", "音频");
+        return translate("productionPlan.prompt.kind.audio", "音频");
       if (kind === "music")
-        return t2("productionPlan.prompt.kind.music", "音乐");
-      if (kind === "text") return t2("productionPlan.prompt.kind.text", "文本");
+        return translate("productionPlan.prompt.kind.music", "音乐");
+      if (kind === "text") return translate("productionPlan.prompt.kind.text", "文本");
       if (kind === "document")
-        return t2("productionPlan.prompt.kind.document", "文档");
-      return t2("productionPlan.prompt.kind.content", "内容");
+        return translate("productionPlan.prompt.kind.document", "文档");
+      return translate("productionPlan.prompt.kind.content", "内容");
     };
     const parameterValue = (parameter) => {
       if (
@@ -466,21 +462,21 @@ export const StagePromptEditorCard = reactExports.forwardRef(
       ) {
         return parameter.value;
       }
-      return t2("productionPlan.prompt.parameter.seconds", "{{value}} 秒", {
+      return translate("productionPlan.prompt.parameter.seconds", "{{value}} 秒", {
         value: parameter.value,
       });
     };
     const contentItemTitle = (item) => {
-      const index2 = Math.max(
+      const index = Math.max(
         displayItems.findIndex((candidate) => candidate.id === item.id),
         0,
       );
-      const number2 = itemSequence(item, index2);
+      const number = itemSequence(item, index);
       const contentName = userFacingContentName(item.name);
       return contentName
-        ? `${number2} ${contentName}`
-        : t2("productionPlan.prompt.content.item", "{{number}} 内容", {
-            number: number2,
+        ? `${number} ${contentName}`
+        : translate("productionPlan.prompt.content.item", "{{number}} 内容", {
+            number,
           });
     };
     const hasMorePreviews = items.length > PROMPT_PREVIEW_LIMIT;
@@ -498,10 +494,10 @@ export const StagePromptEditorCard = reactExports.forwardRef(
       return groups;
     }, []);
     const handleSave = async (closeAfterSave = true) => {
-      if (disabled2 || saving) return false;
+      if (disabled || saving) return false;
       if (conflictIds.length > 0) {
         setError(
-          t2(
+          translate(
             "productionPlan.prompt.conflictError",
             "制作计划已更新，请选择使用新版或保留当前草稿",
           ),
@@ -510,26 +506,26 @@ export const StagePromptEditorCard = reactExports.forwardRef(
         return false;
       }
       const patches = changedIds.map((item) => {
-        const patch2 = {
+        const patch = {
           item_id: item.id,
         };
         const prompt = drafts[item.id];
         const refs = refDrafts[item.id];
         if (prompt !== void 0 && prompt !== item.prompt)
-          patch2.prompt = prompt.trim();
+          patch.prompt = prompt.trim();
         if (
           refs !== void 0 &&
           JSON.stringify(refs) !== JSON.stringify(item.refs)
         ) {
-          patch2.refs = refs;
+          patch.refs = refs;
         }
-        return patch2;
+        return patch;
       });
       if (patches.length === 0) return void 0;
       if (
-        patches.some((patch2) => patch2.prompt !== void 0 && !patch2.prompt)
+        patches.some((patch) => patch.prompt !== void 0 && !patch.prompt)
       ) {
-        setError(t2("productionPlan.prompt.emptyError", "提示词不能为空"));
+        setError(translate("productionPlan.prompt.emptyError", "提示词不能为空"));
         if (!closeAfterSave) setExpanded(true);
         return false;
       }
@@ -544,7 +540,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
       } catch (saveError) {
         if (saveError instanceof StaleProductionPlanSaveError) {
           setError(
-            t2(
+            translate(
               "productionPlan.prompt.staleSaveError",
               "制作计划已更新，请重新检查后再继续",
             ),
@@ -554,7 +550,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
             "[production-plan] failed to save prompt changes",
             saveError,
           );
-          setError(t2("productionPlan.prompt.saveError", "保存失败，请重试"));
+          setError(translate("productionPlan.prompt.saveError", "保存失败，请重试"));
         }
         if (!closeAfterSave) setExpanded(true);
         return false;
@@ -567,22 +563,22 @@ export const StagePromptEditorCard = reactExports.forwardRef(
     }));
     const isActivePromptReview =
       stage.status === "waiting_user" && stage.waiting_reason === "plan_review";
-    if ((!readOnly2 && !isActivePromptReview) || displayItems.length === 0) {
+    if ((!readOnly && !isActivePromptReview) || displayItems.length === 0) {
       return null;
     }
-    const selected2 =
+    const selected =
       displayItems.find((item) => item.id === selectedId) ?? displayItems[0];
-    if (!selected2) return null;
-    const selectedPrompt = drafts[selected2.id] ?? selected2.prompt;
-    const selectedRefs = refDrafts[selected2.id] ?? selected2.refs;
-    const selectedConflict = conflicts[selected2.id];
+    if (!selected) return null;
+    const selectedPrompt = drafts[selected.id] ?? selected.prompt;
+    const selectedRefs = refDrafts[selected.id] ?? selected.refs;
+    const selectedConflict = conflicts[selected.id];
     const selectedSummary = [
-      kindLabel(selected2.kind),
-      ...selected2.parameters.map(parameterValue),
+      kindLabel(selected.kind),
+      ...selected.parameters.map(parameterValue),
     ].join(" · ");
     return (
       <Dialog open={expanded} onOpenChange={setExpanded}>
-        {readOnly2 ? (
+        {readOnly ? (
           <section
             className="overflow-hidden rounded-lg border border-border bg-card"
             aria-label={stage.name}
@@ -592,7 +588,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
               type="button"
               className="flex min-h-12 w-full items-center gap-2 px-3 py-2 text-left hover:bg-foreground/[0.03] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
               onClick={() => setExpanded(true)}
-              aria-label={t2("productionPlan.prompt.view", "查看提示词")}
+              aria-label={translate("productionPlan.prompt.view", "查看提示词")}
               data-action-ui-id={`production-plan.prompt-history-open-${stage.id}`}
             >
               <Icon
@@ -606,7 +602,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                   {stage.name}
                 </h3>
                 <p className="truncate text-body-12 text-muted-foreground">
-                  {t2(
+                  {translate(
                     "productionPlan.prompt.confirmedSummary",
                     "{{count}} 条提示词已确认",
                     {
@@ -616,7 +612,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                 </p>
               </div>
               <span className="shrink-0 text-body-12 text-muted-foreground">
-                {t2("productionPlan.prompt.view", "查看提示词")}
+                {translate("productionPlan.prompt.view", "查看提示词")}
               </span>
             </button>
           </section>
@@ -632,7 +628,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                   {title}
                 </h3>
                 <p className="mt-1 text-body-13 text-muted-foreground">
-                  {t2(
+                  {translate(
                     "productionPlan.prompt.generatedDescription",
                     "请检查对应提示词，确认后继续生成。",
                   )}
@@ -648,7 +644,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                   <div className="grid grid-cols-[120px_minmax(0,1fr)] gap-3 bg-muted/40 px-3 py-2 text-body-12 font-medium text-muted-foreground">
                     <span>{kindLabel(group.kind)}</span>
                     <span>
-                      {t2("productionPlan.prompt.table.prompt", "提示词")}
+                      {translate("productionPlan.prompt.table.prompt", "提示词")}
                     </span>
                   </div>
                   {group.items.map((item) => (
@@ -686,8 +682,8 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                   data-action-ui-id="production-plan.prompt-expand-previews"
                 >
                   {showAllPreviews
-                    ? t2("productionPlan.prompt.collapsePreviews", "收起")
-                    : t2(
+                    ? translate("productionPlan.prompt.collapsePreviews", "收起")
+                    : translate(
                         "productionPlan.prompt.expandPreviews",
                         "展开其余 {{count}} 条",
                         {
@@ -703,7 +699,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                 onClick={() => setExpanded(true)}
                 data-action-ui-id="production-plan.prompt-toggle"
               >
-                {t2("productionPlan.prompt.viewEditAll", "检查修改提示词")}
+                {translate("productionPlan.prompt.viewEditAll", "检查修改提示词")}
               </Button>
             </div>
           </section>
@@ -714,17 +710,17 @@ export const StagePromptEditorCard = reactExports.forwardRef(
         >
           <DialogHeader className="border-b border-border px-5 py-4 pr-14">
             <DialogTitle>
-              {readOnly2
-                ? t2("productionPlan.prompt.viewTitle", "已确认的提示词")
-                : t2("productionPlan.prompt.dialogTitle", "查看和修改提示词")}
+              {readOnly
+                ? translate("productionPlan.prompt.viewTitle", "已确认的提示词")
+                : translate("productionPlan.prompt.dialogTitle", "查看和修改提示词")}
             </DialogTitle>
             <DialogDescription>
-              {readOnly2
-                ? t2(
+              {readOnly
+                ? translate(
                     "productionPlan.prompt.viewDescription",
                     "已确认内容仅供回溯查看",
                   )
-                : t2(
+                : translate(
                     "productionPlan.prompt.dialogDescription",
                     "每条提示词对应一项待生成内容，修改后会同步到制作计划",
                   )}
@@ -743,11 +739,11 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                   <button
                     key={item.id}
                     type="button"
-                    className={`mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[12px] ${item.id === selected2.id ? "bg-muted font-medium text-foreground" : "text-foreground/70 hover:bg-muted/60"}`}
+                    className={`mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[12px] ${item.id === selected.id ? "bg-muted font-medium text-foreground" : "text-foreground/70 hover:bg-muted/60"}`}
                     onClick={() => setSelectedId(item.id)}
                     aria-label={
                       conflicted
-                        ? t2(
+                        ? translate(
                             "productionPlan.prompt.conflictedItem",
                             "{{item}}，有冲突",
                             {
@@ -772,11 +768,11 @@ export const StagePromptEditorCard = reactExports.forwardRef(
             <div className="flex min-w-0 flex-1 flex-col p-4">
               <div className="flex items-center justify-between gap-2">
                 <p className="truncate text-body-13 font-medium text-foreground">
-                  {contentItemTitle(selected2)}
+                  {contentItemTitle(selected)}
                 </p>
-                {changedIds.some((item) => item.id === selected2.id) && (
+                {changedIds.some((item) => item.id === selected.id) && (
                   <Badge variant="secondary">
-                    {t2("productionPlan.prompt.modified", "已修改")}
+                    {translate("productionPlan.prompt.modified", "已修改")}
                   </Badge>
                 )}
               </div>
@@ -788,7 +784,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                   className="mt-1.5 text-body-12 text-muted-foreground"
                   role="status"
                 >
-                  {t2(
+                  {translate(
                     "productionPlan.prompt.conflictCount",
                     "还有 {{count}} 项冲突需要处理",
                     {
@@ -797,10 +793,10 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                   )}
                 </p>
               )}
-              {selected2.sourceLabels.length > 0 && (
+              {selected.sourceLabels.length > 0 && (
                 <p className="mt-1.5 text-body-12 text-muted-foreground">
-                  {t2("productionPlan.prompt.source", "来源")}：
-                  {selected2.sourceLabels.join(" · ")}
+                  {translate("productionPlan.prompt.source", "来源")}：
+                  {selected.sourceLabels.join(" · ")}
                 </p>
               )}
               {selectedConflict && (
@@ -811,11 +807,11 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                 >
                   <p className="text-body-12 text-foreground/70">
                     {selectedConflict.removed
-                      ? t2(
+                      ? translate(
                           "productionPlan.prompt.removedConflict",
                           "此内容已从新版计划中删除，接受删除将放弃本地草稿",
                         )
-                      : t2(
+                      : translate(
                           "productionPlan.prompt.conflictError",
                           "制作计划已更新，请选择使用新版或保留当前草稿",
                         )}
@@ -830,31 +826,31 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                           selectedConflict.prompt ||
                           selectedConflict.removed
                         ) {
-                          setDrafts((current2) => {
-                            const next2 = {
-                              ...current2,
+                          setDrafts((current) => {
+                            const next = {
+                              ...current,
                             };
-                            delete next2[selected2.id];
-                            return next2;
+                            delete next[selected.id];
+                            return next;
                           });
                         }
                         if (selectedConflict.refs || selectedConflict.removed) {
-                          setRefDrafts((current2) => {
-                            const next2 = {
-                              ...current2,
+                          setRefDrafts((current) => {
+                            const next = {
+                              ...current,
                             };
-                            delete next2[selected2.id];
-                            return next2;
+                            delete next[selected.id];
+                            return next;
                           });
                         }
-                        resolveConflict(selected2.id);
+                        resolveConflict(selected.id);
                         if (selectedConflict.removed) {
-                          setRemovedItems((current2) => {
-                            const next2 = {
-                              ...current2,
+                          setRemovedItems((current) => {
+                            const next = {
+                              ...current,
                             };
-                            delete next2[selected2.id];
-                            return next2;
+                            delete next[selected.id];
+                            return next;
                           });
                         }
                         setError(void 0);
@@ -862,8 +858,8 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                       data-action-ui-id="production-plan.prompt-use-latest"
                     >
                       {selectedConflict.removed
-                        ? t2("productionPlan.prompt.acceptRemoval", "接受删除")
-                        : t2("productionPlan.prompt.useLatest", "使用新版")}
+                        ? translate("productionPlan.prompt.acceptRemoval", "接受删除")
+                        : translate("productionPlan.prompt.useLatest", "使用新版")}
                     </Button>
                     {!selectedConflict.removed && (
                       <Button
@@ -871,12 +867,12 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                         variant="secondary"
                         size="sm"
                         onClick={() => {
-                          resolveConflict(selected2.id);
+                          resolveConflict(selected.id);
                           setError(void 0);
                         }}
                         data-action-ui-id="production-plan.prompt.keepDraft"
                       >
-                        {t2("productionPlan.prompt.keepDraft", "保留草稿")}
+                        {translate("productionPlan.prompt.keepDraft", "保留草稿")}
                       </Button>
                     )}
                   </div>
@@ -885,31 +881,31 @@ export const StagePromptEditorCard = reactExports.forwardRef(
               <Textarea
                 value={selectedPrompt}
                 onChange={(event) => {
-                  setDrafts((current2) => ({
-                    ...current2,
-                    [selected2.id]: event.target.value,
+                  setDrafts((current) => ({
+                    ...current,
+                    [selected.id]: event.target.value,
                   }));
                   setError(void 0);
                 }}
                 className="mt-3 min-h-0 flex-1 resize-none text-[13px] leading-[20px]"
-                disabled={readOnly2 || disabled2 || saving}
-                aria-label={t2("productionPlan.prompt.editorLabel", "提示词")}
+                disabled={readOnly || disabled || saving}
+                aria-label={translate("productionPlan.prompt.editorLabel", "提示词")}
                 data-action-ui-id="production-plan.prompt-editor"
               />
               <label
                 htmlFor="production-plan-prompt-refs-editor"
                 className="mt-3 text-body-12 text-muted-foreground"
               >
-                {t2("productionPlan.prompt.references", "参考素材")}
+                {translate("productionPlan.prompt.references", "参考素材")}
                 <Textarea
                   id="production-plan-prompt-refs-editor"
                   value={displayedReferenceValues(stage, selectedRefs).join(
                     "\n",
                   )}
                   onChange={(event) => {
-                    setRefDrafts((current2) => ({
-                      ...current2,
-                      [selected2.id]: parseDisplayedReferences(
+                    setRefDrafts((current) => ({
+                      ...current,
+                      [selected.id]: parseDisplayedReferences(
                         stage,
                         selectedRefs,
                         event.target.value,
@@ -918,8 +914,8 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                     setError(void 0);
                   }}
                   className="mt-1 min-h-16 resize-none text-[13px] leading-[20px]"
-                  disabled={readOnly2 || disabled2 || saving}
-                  aria-label={t2(
+                  disabled={readOnly || disabled || saving}
+                  aria-label={translate(
                     "productionPlan.prompt.references",
                     "参考素材",
                   )}
@@ -931,43 +927,43 @@ export const StagePromptEditorCard = reactExports.forwardRef(
               )}
             </div>
           </div>
-          {!readOnly2 && (
+          {!readOnly && (
             <DialogFooter className="border-t border-border px-4 py-3">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 disabled={
-                  !changedIds.some((item) => item.id === selected2.id) || saving
+                  !changedIds.some((item) => item.id === selected.id) || saving
                 }
                 onClick={() => {
-                  setDrafts((current2) => {
-                    const next2 = {
-                      ...current2,
+                  setDrafts((current) => {
+                    const next = {
+                      ...current,
                     };
-                    delete next2[selected2.id];
-                    return next2;
+                    delete next[selected.id];
+                    return next;
                   });
-                  setRefDrafts((current2) => {
-                    const next2 = {
-                      ...current2,
+                  setRefDrafts((current) => {
+                    const next = {
+                      ...current,
                     };
-                    delete next2[selected2.id];
-                    return next2;
+                    delete next[selected.id];
+                    return next;
                   });
-                  if (conflicts[selected2.id]) resolveConflict(selected2.id);
+                  if (conflicts[selected.id]) resolveConflict(selected.id);
                   setError(void 0);
                 }}
                 data-action-ui-id="production-plan.prompt-restore"
               >
                 <Icon icon={RotateCcw} size="sm" strokeWidth={1} />
-                {t2("productionPlan.prompt.restore", "恢复原文")}
+                {translate("productionPlan.prompt.restore", "恢复原文")}
               </Button>
               <Button
                 type="button"
                 size="sm"
                 disabled={
-                  disabled2 ||
+                  disabled ||
                   saving ||
                   conflictIds.length > 0 ||
                   changedIds.length === 0
@@ -981,7 +977,7 @@ export const StagePromptEditorCard = reactExports.forwardRef(
                   strokeWidth={1.5}
                   className={saving ? "animate-spin" : void 0}
                 />
-                {t2("productionPlan.prompt.save", "保存修改")}
+                {translate("productionPlan.prompt.save", "保存修改")}
               </Button>
             </DialogFooter>
           )}

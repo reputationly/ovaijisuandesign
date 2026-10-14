@@ -1,0 +1,10 @@
+key	新名	依据
+timer2@15:11	timer	`timer`是用于超时结束异步快照操作的定时器 ID。
+frame2@26:9	frame	`frame`是等待浏览器绘制完成的动画帧 ID。
+browser2@43:12	browser	`browser`是负责捕获原生页面帧和设置页面边界的浏览器接口。
+token2@52:9	token	`token`是本次原生页面遮挡租约的标识。
+doc2@53:9	doc	`doc`是悬浮视口所属的文档对象。
+onPointerDown2@59:9	onPointerDown	`onPointerDown`在用户按下可交互元素时标记焦点已变化。
+image2@70:7	image	`image`是叠加到悬浮视口中的快照图片元素。
+browser2@171:12	browser	`browser`是负责捕获原生页面帧和设置页面边界的浏览器接口。
+next2@132:11	next	`next`是从捕获结果创建的新快照图片元素。

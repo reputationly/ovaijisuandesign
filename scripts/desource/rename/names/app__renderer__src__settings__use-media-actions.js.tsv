@@ -1,0 +1,21 @@
+key	new	reason
+getFileName$2@50:10	getFileName	原名 getFileName，去掉打包器加的 $ 去重后缀
+t2@124:14	t	useTranslation() 返回的翻译函数 t
+name2@20:37	folderName	下载文件夹名；name 是全局名
+name2@37:14	folderName	待去重的下载文件夹名；name 是全局名
+base2@39:11	base	去掉打包器加的数字后缀，恢复原名 base
+index2@41:14	index	去掉打包器加的数字后缀，恢复原名 index
+raw2@51:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+name2@54:23	fileName	取扩展名的文件名；name 是全局名
+dot2@55:9	dot	去掉打包器加的数字后缀，恢复原名 dot
+dot2@77:9	dot	去掉打包器加的数字后缀，恢复原名 dot
+extension2@94:28	extension	去掉打包器加的数字后缀，恢复原名 extension
+index2@95:12	index	去掉打包器加的数字后缀，恢复原名 index
+base2@114:9	base	去掉打包器加的数字后缀，恢复原名 base
+index2@115:12	index	去掉打包器加的数字后缀，恢复原名 index
+platform2@123:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+path2@162:12	path	去掉打包器加的数字后缀，恢复原名 path
+candidates2@223:13	candidates	去掉打包器加的数字后缀，恢复原名 candidates
+selected2@299:15	selected	去掉打包器加的数字后缀，恢复原名 selected
+path2@517:12	path	去掉打包器加的数字后缀，恢复原名 path
+path2@531:12	path	去掉打包器加的数字后缀，恢复原名 path

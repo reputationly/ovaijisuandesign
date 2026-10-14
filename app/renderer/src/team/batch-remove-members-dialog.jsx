@@ -1,5 +1,7 @@
 // batch-remove-members-dialog.jsx
-import { reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -30,16 +32,16 @@ async function mapPoolSettled(items, concurrency, worker) {
   let nextIndex = 0;
   async function runWorker() {
     while (nextIndex < items.length) {
-      const index2 = nextIndex;
+      const index = nextIndex;
       nextIndex += 1;
       try {
-        const value = await worker(items[index2]);
-        results[index2] = {
+        const value = await worker(items[index]);
+        results[index] = {
           status: "fulfilled",
           value,
         };
       } catch (reason) {
-        results[index2] = {
+        results[index] = {
           status: "rejected",
           reason,
         };
@@ -73,7 +75,7 @@ function summarizeBatch(results) {
   };
 }
 
-let ScopeChangedError$2 = class ScopeChangedError extends Error {};
+let BatchRemoveScopeChangedError = class ScopeChangedError extends Error {};
 
 const REMOVE_CONCURRENCY = 3;
 
@@ -85,14 +87,14 @@ export function BatchRemoveMembersDialog({
   onClose,
   onComplete,
 }) {
-  const { t: t2 } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { activeScope } = useTeamAccount();
   const [error, setError] = reactExports.useState(null);
   const mutation = useMutation({
     mutationFn: async () => {
       if (!activeScope || !accountScopeEquals(activeScope, scope)) {
-        throw new ScopeChangedError$2();
+        throw new BatchRemoveScopeChangedError();
       }
       const settled = await mapPoolSettled(
         members,
@@ -102,8 +104,8 @@ export function BatchRemoveMembersDialog({
           return member;
         },
       );
-      return settled.map((result, index2) => {
-        const member = members[index2];
+      return settled.map((result, index) => {
+        const member = members[index];
         if (result.status === "fulfilled") {
           return {
             userId: member.userId,
@@ -125,10 +127,10 @@ export function BatchRemoveMembersDialog({
     onSuccess: async (results) => {
       setError(null);
       await Promise.all([
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: teamQueryKeys.membership(scope),
         }),
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: creditQueryKeys.scope(scope),
         }),
       ]);
@@ -138,7 +140,7 @@ export function BatchRemoveMembersDialog({
         .map((item) => item.userId);
       if (summary.failedCount === 0) {
         dedupedToast.success(
-          t2("team.management.batchRemoveSucceeded", {
+          t("team.management.batchRemoveSucceeded", {
             defaultValue: "已移除 {{count}} 名成员。",
             count: summary.successCount,
           }),
@@ -147,7 +149,7 @@ export function BatchRemoveMembersDialog({
         onClose();
         return;
       }
-      const partial = t2("team.management.batchRemovePartial", {
+      const partial = t("team.management.batchRemovePartial", {
         defaultValue: "成功 {{ok}}，失败 {{fail}}。失败成员保持选中可重试。",
         ok: summary.successCount,
         fail: summary.failedCount,
@@ -157,9 +159,9 @@ export function BatchRemoveMembersDialog({
       onComplete(failedIds);
     },
     onError: (err) => {
-      if (err instanceof ScopeChangedError$2) {
+      if (err instanceof BatchRemoveScopeChangedError) {
         dedupedToast.error(
-          t2("team.management.scopeChanged", {
+          t("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
           }),
         );
@@ -167,7 +169,7 @@ export function BatchRemoveMembersDialog({
         return;
       }
       setError(
-        t2("team.management.batchRemoveFailed", {
+        t("team.management.batchRemoveFailed", {
           defaultValue: "批量移除失败，请稍后重试。",
         }),
       );
@@ -176,7 +178,7 @@ export function BatchRemoveMembersDialog({
   return (
     <AlertDialog
       open={true}
-      onOpenChange={(next2) => !next2 && !mutation.isPending && onClose()}
+      onOpenChange={(next) => !next && !mutation.isPending && onClose()}
     >
       <AlertDialogContent
         layer="nested"
@@ -184,12 +186,12 @@ export function BatchRemoveMembersDialog({
       >
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t2("team.management.batchRemoveTitle", {
+            {t("team.management.batchRemoveTitle", {
               defaultValue: "批量移除成员",
             })}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t2("team.management.batchRemoveDescription", {
+            {t("team.management.batchRemoveDescription", {
               defaultValue:
                 "确认从“{{team}}”移除 {{count}} 名成员？此操作不可撤销。",
               team: teamName,
@@ -211,7 +213,7 @@ export function BatchRemoveMembersDialog({
             data-action-ui-id="team.management-batch-remove-cancel"
             onClick={() => onClose()}
           >
-            {t2("common.cancel", {
+            {t("common.cancel", {
               defaultValue: "取消",
             })}
           </AlertDialogCancel>
@@ -225,7 +227,7 @@ export function BatchRemoveMembersDialog({
             }}
             data-action-ui-id="team.management-batch-remove-confirm"
           >
-            {t2("team.management.removeSelected", {
+            {t("team.management.removeSelected", {
               defaultValue: "移除成员",
             })}
           </AlertDialogAction>

@@ -1,0 +1,34 @@
+key	old	new	依据
+data2@80:7	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+dot2@263:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+f2@89:11	f2	file	媒体扫描结果中的文件条目。
+hash2@21:9	hash2	hash	去掉打包器防重名追加的后缀，恢复原名 hash，即该绑定持有的值。
+index2@118:9	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+key2@122:11	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@164:32	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@166:16	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@170:15	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@29:15	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+keys2@161:11	keys2	keys	去掉打包器防重名追加的后缀，恢复原名 keys，即该绑定持有的值。
+m3@246:11	m3	messageText	转换为小写后用于分类的错误消息文本。
+message2@243:7	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+name2@208:24	name2	workspaceName	需要持久化或新建的工作区展示名称。
+path2@153:37	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@170:21	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@24:9	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+physicalWidth2@59:9	physicalWidth2	physicalWidth	去掉打包器防重名追加的后缀，恢复原名 physicalWidth，即该绑定持有的值。
+platform2@184:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+platform2@206:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+project2@126:11	project2	project	从项目列表中读取或展示的项目对象。
+project2@136:36	project2	project	从项目列表中读取或展示的项目对象。
+project2@149:52	project2	project	从项目列表中读取或展示的项目对象。
+raw2@238:32	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+res@82:11	res	response	媒体扫描请求返回的 HTTP 响应对象。
+t2@104:14	t2	thumbnail	由工作区缩略图查询返回的缩略图条目。
+type2@242:7	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+type2@76:31	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+url2@19:30	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+url2@65:36	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+url2@73:31	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+w3@192:32	w3	workspace	最近打开的工作区记录。
+w3@201:34	w3	workspace	最近打开的工作区记录。

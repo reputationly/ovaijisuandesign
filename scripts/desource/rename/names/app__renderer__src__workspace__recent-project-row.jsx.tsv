@@ -1,0 +1,25 @@
+key	old	new	依据
+active2@492:11	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+browser2@378:9	browser2	browser	去掉打包器防重名追加的后缀，恢复原名 browser，即该绑定持有的值。
+close2@451:11	close2	closeNativePreview	通知原生预览关闭的回调；同时用于 Escape、滚动、指针按下和窗口缩放。
+current2@86:9	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+date2@78:27	date2	date	用于计算日期边界的 Date 对象。
+displayName2@123:16	displayName2	displayName	InlineRenameInput 确认后的工作区展示名称。
+displayName2@536:9	displayName2	displayName	InlineRenameInput 确认后的工作区展示名称。
+element2@390:11	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+entries2@304:8	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+hide2@401:11	hide2	hide	去掉打包器防重名追加的后缀，恢复原名 hide，即该绑定持有的值。
+index2@1183:45	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+key2@421:29	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@48:6	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+latest2@384:9	latest2	latest	去掉打包器防重名追加的后缀，恢复原名 latest，即该绑定持有的值。
+name2@1086:31	name2	displayName	InlineRenameInput 确认后的工作区展示名称。
+name2@866:27	name2	displayName	InlineRenameInput 确认后的工作区展示名称。
+now2@83:54	now2	now	去掉打包器防重名追加的后缀，恢复原名 now，即该绑定持有的值。
+observer2@303:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+platform2@521:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+t2@178:14	t2	translate	useTranslation 返回的翻译函数。
+t2@520:14	t2	translate	useTranslation 返回的翻译函数。
+timestamp2@83:34	timestamp2	timestamp	去掉打包器防重名追加的后缀，恢复原名 timestamp，即该绑定持有的值。
+token2@393:11	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+token2@545:11	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。

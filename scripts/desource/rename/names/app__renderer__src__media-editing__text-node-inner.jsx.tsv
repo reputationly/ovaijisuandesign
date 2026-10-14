@@ -1,0 +1,45 @@
+setT2TPopoverKey@536:25	setT2tPopoverKey	更新文本转表格弹窗的重开键，使每次打开时重新挂载弹窗内容。
+key	new	依据
+t2@182:14	t	useTranslation 返回的翻译函数。
+qa@201:31	quickAction	读取当前文字节点快速提示词选项。
+md@317:29	markdownText	接收用于截断预览的 Markdown 文本。
+t2@350:14	t	useTranslation 返回的翻译函数。
+m3@463:38	modelInfo	读取文字生成模型的元信息。
+id2@476:7	textNodeId	标识当前文字节点并用于读取相关状态。
+t2@482:14	t	useTranslation 返回的翻译函数。
+v2@626:55	revision	读取文本引用状态的当前版本号。
+md@738:14	loadedMarkdown	接收从文本文件加载的 Markdown 内容。
+e2@798:6	mouseEvent	处理打开文字编辑器的双击事件。
+e2@965:19	clickEvent	读取提升为素材操作的点击位置。
+m3@1024:16	modelInfo	遍历用于检查媒体能力的文字模型。
+img@1042:11	imageCount	统计当前附件中的图片路径数量。
+vid@1043:11	videoCount	统计当前附件中的视频路径数量。
+aud@1044:11	audioCount	统计当前附件中的音频路径数量。
+txt@1045:11	textCount	统计当前附件中的文本路径数量。
+n2@1046:38	pathCount	检查各类附件路径数量是否恰有一种非零。
+p3@1082:6	promptText	检查候选提示词是否包含有效文本。
+v2@1156:31	revision	递增文本引用状态的当前版本号。
+v2@1157:33	popoverKey	递增文字转提示词弹窗的重置键。
+markdown2@232:13	markdown	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本节点中保存或展示的 Markdown 内容。
+selected2@286:13	selected	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本节点当前是否处于选中状态。
+head2@323:9	head	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存Markdown 文档的头部内容。
+markdown2@343:13	markdown	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本节点中保存或展示的 Markdown 内容。
+urlTransform2@356:9	urlTransform	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存将 Markdown 资源路径转换为可加载 URL 的函数。
+components2@360:9	components	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存Markdown 渲染器使用的组件映射表。
+url2@357:12	url	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存Markdown 资源的可加载 URL。
+selected2@477:13	selected	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本节点当前是否处于选中状态。
+data2@480:9	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本节点或资源元数据。
+meta2@483:9	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本节点关联的资源元数据。
+markdown2@504:10	markdown	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本节点中保存或展示的 Markdown 内容。
+handleDoubleClick2@797:9	handleDoubleClick	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存处理文本节点双击打开编辑视图的回调。
+state2@524:6	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本节点编辑或生成流程的当前状态。
+pending2@764:9	pending	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存尚未完成的文本生成或编辑操作。
+current2@881:20	current	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前文本节点内容或选择状态。
+pending2@890:15	pending	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存尚未完成的文本生成或编辑操作。
+latest2@895:19	latest	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存最近一次更新的文本内容或状态。
+hasContent2@955:11	hasContent	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本节点是否包含可展示内容。
+list2@1008:14	list	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前选中或待展示的资源列表。
+disabled2@1023:11	disabled	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本节点控制项是否不可用。
+selection2@1193:38	selection	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前文本编辑选区。
+snapshots2@1197:33	snapshots	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文本编辑撤销和恢复使用的历史快照列表。
+path2@1247:31	path	用户移除的附件路径，传给 attachment.removePath 并据其处理结果更新引用列表。

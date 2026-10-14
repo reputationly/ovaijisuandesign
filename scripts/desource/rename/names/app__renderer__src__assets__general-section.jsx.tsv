@@ -1,0 +1,60 @@
+key	old	new	依据
+SettingsDialogDescription@2:202	SettingsDialogDescription	DialogDescriptionPrimitive	vendor.js 中的 forwardRef 对话框描述原语，与本地 DialogDescription 包装组件区分。
+SettingsDialogTitle@2:259	SettingsDialogTitle	DialogTitlePrimitive	vendor.js 中的 forwardRef 对话框标题原语，与本地 DialogTitle 包装组件区分。
+topbarWorkspaceSnapshot@59:15	topbarWorkspaceSnapshot	activeRuntimeSnapshot	来源模块的快照仅保存 currentWorkspaceId 与 activeRuntime。
+t2@141:14	t2	translate	该绑定是账户删除对话框读取界面文案的翻译函数。
+t2@319:14	t2	translate	该绑定是复制信息行读取按钮文案的翻译函数。
+t2@341:14	t2	translate	该绑定是账户名称行显示校验与更新错误文案的翻译函数。
+t2@420:14	t2	translate	该绑定是团队信息行读取界面文案的翻译函数。
+t2@433:14	t2	translate	该绑定是账户设置区读取界面文案的翻译函数。
+t2@524:14	t2	translate	该绑定是网络设置区读取代理模式文案的翻译函数。
+m3@532:14	m3	proxyMode	该值是网络诊断服务返回并用于更新代理模式状态的模式字符串。
+v2@572:29	v2	selectedMode	该值是代理模式选择控件当前选中的模式。
+m3@573:39	m3	mode	该值是代理模式选项数组中的单个模式字符串。
+t2@618:45	t2	translate	该参数是根据更新阶段生成徽标文案时调用的翻译函数。
+t2@640:14	t2	translate	该绑定是高级设置区读取界面文案的翻译函数。
+s2@673:14	s2	routerState	该值是提供 location.search 的路由状态对象。
+t2@725:14	t2	translate	该绑定是软件更新不可用面板读取文案的翻译函数。
+t2@824:14	t2	translate	该绑定是资产中心设置区读取界面文案的翻译函数。
+t2@953:14	t2	translate	该绑定是 ComfyUI 设置区读取状态与错误文案的翻译函数。
+t2@1084:14	t2	translate	该绑定是常规设置区读取界面文案的翻译函数。
+v2@1103:35	v2	language	该值是语言选择控件当前选中的语言标识。
+t2@1269:14	t2	translate	该绑定是安装位置设置区读取界面文案的翻译函数。
+id2@1356:36	id2	providerId	该值是用于校验自定义模型提供方身份的对象键。
+t2@1363:14	t2	translate	该绑定是自定义模型设置区读取界面文案的翻译函数。
+id2@1434:42	id2	providerId	该值是当前遍历的自定义模型提供方标识。
+t2@1559:14	t2	translate	该绑定是设置对话框读取各设置区标题的翻译函数。
+Settings2@13:3	Settings2	Settings	去掉打包器防重名追加的后缀，恢复原名 Settings，即该绑定持有的值。
+Input3@88:10	Input3	Input	去掉打包器防重名追加的后缀，恢复原名 Input，即该绑定持有的值。
+children2@125:42	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+index2@186:29	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+next2@346:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+length2@353:11	length2	characterCount	该值是账户名称按字符规则计算出的字符数。
+uid2@447:9	uid2	uid	去掉打包器防重名追加的后缀，恢复原名 uid，即该绑定持有的值。
+mode2@525:10	mode2	proxyModeSelection	该状态值是网络代理模式。
+next2@543:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+children2@584:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+key2@630:30	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+config2@641:19	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
+hiloApp2@681:9	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+next2@700:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+text2@946:20	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+token2@949:11	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+text2@954:10	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+data2@964:15	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+data2@998:13	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+children2@1052:35	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+keys2@1057:37	keys2	keys	去掉打包器防重名追加的后缀，恢复原名 keys，即该绑定持有的值。
+key2@1060:33	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+count2@1061:11	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+config2@1086:13	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
+set2@1087:10	set2	set	去掉打包器防重名追加的后缀，恢复原名 set，即该绑定持有的值。
+isMac2@1092:9	isMac2	isMac	去掉打包器防重名追加的后缀，恢复原名 isMac，即该绑定持有的值。
+platform2@1270:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+info2@1273:17	info2	info	去掉打包器防重名追加的后缀，恢复原名 info，即该绑定持有的值。
+config2@1354:34	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
+config2@1366:19	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
+timer2@1591:11	timer2	timer	去掉打包器防重名追加的后缀，恢复原名 timer，即该绑定持有的值。
+Icon2@1623:23	Icon2	Icon	去掉打包器防重名追加的后缀，恢复原名 Icon，即该绑定持有的值。
+isActive2@1624:23	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+setMode@525:30	setMode	setProxyModeSelection	proxyModeSelection 状态的 setter。

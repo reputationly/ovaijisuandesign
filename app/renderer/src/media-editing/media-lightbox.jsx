@@ -1,10 +1,8 @@
 // media-lightbox.jsx
-import {
-  CompositedSvg,
-  reactDomExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useCanvasShortcutGuard } from "./use-canvas-shortcut-guard.js";
 import { useNativeViewOcclusion } from "../canvas/separator.jsx";
@@ -19,53 +17,53 @@ const LIGHTBOX_FOCUSABLE_SELECTOR = [
   "video[controls]",
   "audio[controls]",
 ].join(",");
-function getFocusableElements(root2) {
-  return Array.from(root2.querySelectorAll(LIGHTBOX_FOCUSABLE_SELECTOR)).filter(
-    (element2) => {
-      if (element2.hidden || element2.getAttribute("aria-hidden") === "true")
+function getFocusableElements(root) {
+  return Array.from(root.querySelectorAll(LIGHTBOX_FOCUSABLE_SELECTOR)).filter(
+    (element) => {
+      if (element.hidden || element.getAttribute("aria-hidden") === "true")
         return false;
-      const style2 = window.getComputedStyle(element2);
-      return style2.display !== "none" && style2.visibility !== "hidden";
+      const style = window.getComputedStyle(element);
+      return style.display !== "none" && style.visibility !== "hidden";
     },
   );
 }
 function getWindowBridge() {
-  const platform2 = window.__HILO_PLATFORM__;
-  return platform2?.window;
+  const platform = window.__HILO_PLATFORM__;
+  return platform?.window;
 }
-export const MediaLightbox = reactExports.memo(function MediaLightbox2({
+export const MediaLightbox = reactExports.memo(function MediaLightbox({
   onClose,
-  children: children2,
+  children,
   onContextMenu,
   ariaLabel,
   allowHorizontalArrowKeys = false,
 }) {
-  const { t: t2 } = useTranslation();
-  const active2 = useCanvasActive();
-  useNativeViewOcclusion(active2);
+  const { t } = useTranslation();
+  const isActive = useCanvasActive();
+  useNativeViewOcclusion(isActive);
   const rootRef = reactExports.useRef(null);
   useCanvasShortcutGuard(true, rootRef, allowHorizontalArrowKeys);
-  const handleKeyDown2 = reactExports.useCallback(
-    (e2) => {
-      if (e2.key === "Escape") {
-        e2.stopPropagation();
+  const handleKeyDown = reactExports.useCallback(
+    (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") {
+        keyboardEvent.stopPropagation();
         onClose();
         return;
       }
-      if (e2.key !== "Tab") return;
-      const root2 = rootRef.current;
-      if (!root2) return;
-      const focusableElements = getFocusableElements(root2);
-      e2.preventDefault();
-      e2.stopPropagation();
+      if (keyboardEvent.key !== "Tab") return;
+      const root = rootRef.current;
+      if (!root) return;
+      const focusableElements = getFocusableElements(root);
+      keyboardEvent.preventDefault();
+      keyboardEvent.stopPropagation();
       if (focusableElements.length === 0) {
-        root2.focus({
+        root.focus({
           preventScroll: true,
         });
         return;
       }
       const currentIndex = focusableElements.indexOf(document.activeElement);
-      const nextIndex = e2.shiftKey
+      const nextIndex = keyboardEvent.shiftKey
         ? currentIndex <= 0
           ? focusableElements.length - 1
           : currentIndex - 1
@@ -79,12 +77,12 @@ export const MediaLightbox = reactExports.memo(function MediaLightbox2({
     [onClose],
   );
   reactExports.useEffect(() => {
-    if (!active2) return;
-    document.addEventListener("keydown", handleKeyDown2);
-    return () => document.removeEventListener("keydown", handleKeyDown2);
-  }, [active2, handleKeyDown2]);
+    if (!isActive) return;
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isActive, handleKeyDown]);
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!isActive) return;
     const previousFocus =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
@@ -98,31 +96,31 @@ export const MediaLightbox = reactExports.memo(function MediaLightbox2({
           preventScroll: true,
         });
     };
-  }, [active2]);
+  }, [isActive]);
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!isActive) return;
     const bridge = getWindowBridge();
     bridge?.setWindowButtonVisibility?.(false);
     return () => {
       bridge?.setWindowButtonVisibility?.(true);
     };
-  }, [active2]);
+  }, [isActive]);
   const handleBackdropClick = reactExports.useCallback(
-    (e2) => {
-      if (e2.target === e2.currentTarget) {
+    (clickEvent) => {
+      if (clickEvent.target === clickEvent.currentTarget) {
         onClose();
       }
     },
     [onClose],
   );
-  if (!active2) return null;
+  if (!isActive) return null;
   return reactDomExports.createPortal(
     // biome-ignore lint/a11y/useKeyWithClickEvents: Escape key handled via document listener above
     <div
       ref={rootRef}
       role="dialog"
       aria-modal="true"
-      aria-label={ariaLabel ?? t2("canvas.fullscreenPreview")}
+      aria-label={ariaLabel ?? t("canvas.fullscreenPreview")}
       tabIndex={-1}
       className="no-drag fixed inset-0 isolate z-[9999] flex items-center justify-center p-16 bg-black/85 backdrop-blur-[8px] cursor-zoom-out animate-[lightbox-fade-in_0.15s_ease-out]"
       onClick={handleBackdropClick}
@@ -132,7 +130,7 @@ export const MediaLightbox = reactExports.memo(function MediaLightbox2({
     >
       <button
         type="button"
-        aria-label={t2("common.close")}
+        aria-label={t("common.close")}
         className="no-drag pointer-events-auto absolute top-8 right-8 z-50 flex items-center justify-center w-9 h-9 rounded-full bg-black/55 hover:bg-black/70 text-white/80 hover:text-white transition-colors cursor-pointer"
         onClick={onClose}
         data-action-ui-id="canvas.media-lightbox.close"
@@ -153,7 +151,7 @@ export const MediaLightbox = reactExports.memo(function MediaLightbox2({
           />
         </CompositedSvg>
       </button>
-      {children2}
+      {children}
     </div>,
     document.body,
   );

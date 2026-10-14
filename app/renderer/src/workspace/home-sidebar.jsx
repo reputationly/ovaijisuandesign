@@ -1,5 +1,14 @@
 // home-sidebar.jsx
-import { ArrowUpRight, ChevronDown, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Library, MonochromeIcon, Plus, reactExports, storageKeys, useNavigate, usePlatform, useQueryClient, useStorage, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { storageKeys } from "../infra/storage-cache.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { ArrowUpRight, ChevronDown, ChevronRight$1 as ChevronRight, Library, Plus } from "../media-editing/lucide-icon-wraps.js";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Tooltip,
@@ -44,7 +53,7 @@ import {
 } from "./normalize-project-entries.js";
 import { mergeWorkspaceInventory } from "./merge-workspace-inventory.js";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   TooltipContent,
@@ -132,17 +141,17 @@ export function HomeSidebar({
   holdPreviewOpen,
   releasePreviewHold,
 } = {}) {
-  const { t: t2, i18n } = useTranslation();
-  const platform2 = usePlatform();
+  const { t: translate, i18n } = useTranslation();
+  const platform = usePlatform();
   const caseInsensitiveWorkspacePaths = isWorkspacePathCaseInsensitivePlatform(
-    platform2.app.os,
+    platform.app.os,
   );
   const { href, pathname } = useLocation();
   const navigate = useNavigate();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const {
     currentWorkspaceId,
-    entries: entries2,
+    entries,
     unreadCompletedTaskCount,
     workspaceStatusById,
   } = useTopbarState();
@@ -167,9 +176,9 @@ export function HomeSidebar({
     useProjectDelete(deleteProject);
   reactExports.useEffect(() => {
     if (!pendingDelete || !holdPreviewOpen || !releasePreviewHold) return;
-    const token2 = `home-sidebar.project-delete:${pendingDelete.id}`;
-    holdPreviewOpen(token2);
-    return () => releasePreviewHold(token2);
+    const token = `home-sidebar.project-delete:${pendingDelete.id}`;
+    holdPreviewOpen(token);
+    return () => releasePreviewHold(token);
   }, [holdPreviewOpen, pendingDelete, releasePreviewHold]);
   const [createProjectKind, setCreateProjectKind] = reactExports.useState(null);
   const [recentWorkspaces, , setRecentWorkspacesAsync] = useStorage(
@@ -208,10 +217,10 @@ export function HomeSidebar({
   );
   const handleTogglePinWorkspace = reactExports.useCallback(
     (item) => {
-      void setGlobalConfigAsync((previous2) => ({
-        ...previous2,
+      void setGlobalConfigAsync((previous) => ({
+        ...previous,
         pinnedWorkspacePaths: togglePinnedWorkspacePath(
-          previous2.pinnedWorkspacePaths ?? [],
+          previous.pinnedWorkspacePaths ?? [],
           item,
           caseInsensitiveWorkspacePaths,
         ),
@@ -221,10 +230,10 @@ export function HomeSidebar({
   );
   const handleTogglePinProject = reactExports.useCallback(
     (projectId) => {
-      void setGlobalConfigAsync((previous2) => ({
-        ...previous2,
+      void setGlobalConfigAsync((previous) => ({
+        ...previous,
         pinnedProjectIds: togglePinnedProjectId(
-          previous2.pinnedProjectIds ?? [],
+          previous.pinnedProjectIds ?? [],
           projectId,
         ),
       }));
@@ -297,39 +306,39 @@ export function HomeSidebar({
   reactExports.useEffect(() => {
     if (prevRouteRef.current !== href) {
       prevRouteRef.current = href;
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: storageKeys.global("recentWorkspaces"),
       });
     }
-  }, [href, queryClient2]);
+  }, [href, queryClient]);
   const syntheticOpenedAtByPathRef = reactExports.useRef(new Map());
   for (const workspace of effectiveRecentWorkspaces) {
-    const key2 = workspaceInventoryPathKey(
+    const key = workspaceInventoryPathKey(
       workspace.path,
       caseInsensitiveWorkspacePaths,
     );
-    const previousOpenedAt = syntheticOpenedAtByPathRef.current.get(key2);
+    const previousOpenedAt = syntheticOpenedAtByPathRef.current.get(key);
     if (previousOpenedAt === void 0 || workspace.openedAt > previousOpenedAt) {
-      syntheticOpenedAtByPathRef.current.set(key2, workspace.openedAt);
+      syntheticOpenedAtByPathRef.current.set(key, workspace.openedAt);
     }
   }
   const syntheticOpenedAtForEntry = reactExports.useCallback(
     (entry) => {
-      const key2 = workspaceInventoryPathKey(
+      const key = workspaceInventoryPathKey(
         entry.folderPath,
         caseInsensitiveWorkspacePaths,
       );
-      const existing = syntheticOpenedAtByPathRef.current.get(key2);
+      const existing = syntheticOpenedAtByPathRef.current.get(key);
       if (existing !== void 0) return existing;
       const firstSeenAt = Date.now();
-      syntheticOpenedAtByPathRef.current.set(key2, firstSeenAt);
+      syntheticOpenedAtByPathRef.current.set(key, firstSeenAt);
       return firstSeenAt;
     },
     [caseInsensitiveWorkspacePaths],
   );
   const baseWorkspaceInventory = reactExports.useMemo(
     () =>
-      mergeWorkspaceInventory(effectiveRecentWorkspaces, entries2, {
+      mergeWorkspaceInventory(effectiveRecentWorkspaces, entries, {
         caseInsensitive: caseInsensitiveWorkspacePaths,
         dismissals: recentProjectDismissals,
         sortMode: recentProjectsSortMode,
@@ -337,7 +346,7 @@ export function HomeSidebar({
       }),
     [
       caseInsensitiveWorkspacePaths,
-      entries2,
+      entries,
       recentProjectDismissals,
       recentProjectsSortMode,
       effectiveRecentWorkspaces,
@@ -347,9 +356,9 @@ export function HomeSidebar({
   const workspaceInventory = reactExports.useMemo(() => {
     if (recentProjectsSortMode !== "priority") return baseWorkspaceInventory;
     const priorityRank = (item) => {
-      const workspaceId2 = item.authoritativeEntry?.workspaceId;
-      const status = workspaceId2
-        ? workspaceStatusById.get(workspaceId2)
+      const workspaceId = item.authoritativeEntry?.workspaceId;
+      const status = workspaceId
+        ? workspaceStatusById.get(workspaceId)
         : void 0;
       if (status?.needsUserAction) return 0;
       if (status?.running) return 1;
@@ -357,12 +366,12 @@ export function HomeSidebar({
       return 3;
     };
     return baseWorkspaceInventory
-      .map((item, index2) => ({
+      .map((item, index) => ({
         item,
-        index: index2,
+        index,
         rank: priorityRank(item),
       }))
-      .sort((a2, b3) => a2.rank - b3.rank || a2.index - b3.index)
+      .sort((leftEntry, rightEntry) => leftEntry.rank - rightEntry.rank || leftEntry.index - rightEntry.index)
       .map(({ item }) => item);
   }, [baseWorkspaceInventory, recentProjectsSortMode, workspaceStatusById]);
   const [draggedPath, setDraggedPath] = reactExports.useState(null);
@@ -371,14 +380,14 @@ export function HomeSidebar({
   const draggedProjectIdRef = reactExports.useRef(null);
   const groupingEnabled = recentProjectsGroupMode === "project";
   const workspaceProjectById = reactExports.useMemo(() => {
-    const index2 = new Map();
-    for (const project2 of projects) {
-      for (const path2 of project2.workspacePaths) {
-        const key2 = projectWorkspaceKey(path2, projectCaseInsensitive);
-        if (!index2.has(key2)) index2.set(key2, project2);
+    const index = new Map();
+    for (const project of projects) {
+      for (const path of project.workspacePaths) {
+        const key = projectWorkspaceKey(path, projectCaseInsensitive);
+        if (!index.has(key)) index.set(key, project);
       }
     }
-    return index2;
+    return index;
   }, [projectCaseInsensitive, projects]);
   const [dragOverTarget, setDragOverTarget] = reactExports.useState(null);
   const [dragInventorySnapshot, setDragInventorySnapshot] =
@@ -418,12 +427,12 @@ export function HomeSidebar({
     el.addEventListener("scroll", syncSidebarScroll, {
       passive: true,
     });
-    const observer2 = new ResizeObserver(syncSidebarScroll);
-    observer2.observe(el);
-    if (sidebarContentRef.current) observer2.observe(sidebarContentRef.current);
+    const observer = new ResizeObserver(syncSidebarScroll);
+    observer.observe(el);
+    if (sidebarContentRef.current) observer.observe(sidebarContentRef.current);
     return () => {
       el.removeEventListener("scroll", syncSidebarScroll);
-      observer2.disconnect();
+      observer.disconnect();
     };
   }, [syncSidebarScroll]);
   const changelogLocale = reactExports.useMemo(
@@ -440,7 +449,7 @@ export function HomeSidebar({
           {
             to: "/asset-center",
             icon: Library,
-            label: t2("homeSidebar.assetCenter"),
+            label: translate("homeSidebar.assetCenter"),
             badgeTarget: "assetCenter",
             releaseBadge: sidebarBadges.assetCenter,
           },
@@ -449,7 +458,7 @@ export function HomeSidebar({
     {
       to: "/skills",
       icon: PluginIcon,
-      label: t2("homeSidebar.skillCommunity"),
+      label: translate("homeSidebar.skillCommunity"),
       badgeTarget: "connectors",
       releaseBadge: sidebarBadges.connectors,
     },
@@ -486,7 +495,7 @@ export function HomeSidebar({
       void stageWorkspacePreview({
         hiloApp: homeService.hiloApp,
         folderPath: workspace.path,
-        t: t2,
+        t: translate,
         onStaged: (entry) => {
           trackEvent(TRACK_EVENTS.WORKSPACE_OPEN, {
             source: "home_sidebar_recent",
@@ -498,13 +507,13 @@ export function HomeSidebar({
         },
       }).catch(() => {});
     },
-    [navigate, t2],
+    [navigate, translate],
   );
   const handleRecentCloseRuntime = reactExports.useCallback(
     (item) => {
-      const workspaceId2 = item.authoritativeEntry?.workspaceId;
-      if (!workspaceId2) return;
-      closeWorkspace(workspaceId2, "home-sidebar-recent");
+      const workspaceId = item.authoritativeEntry?.workspaceId;
+      if (!workspaceId) return;
+      closeWorkspace(workspaceId, "home-sidebar-recent");
     },
     [closeWorkspace],
   );
@@ -523,23 +532,23 @@ export function HomeSidebar({
               item.workspace.path,
               item.authoritativeEntry?.folderPath,
               item.authoritativeEntry?.workspaceId,
-            ].filter((path2) => Boolean(path2)),
+            ].filter((path) => Boolean(path)),
           ),
         ),
         recentOpenedAt: item.workspace.openedAt,
       };
-      setRecentProjectDismissals((previous2) => {
-        const next2 = upsertRecentProjectDismissal(previous2, dismissal);
-        persistRecentProjectDismissals(next2);
-        return next2;
+      setRecentProjectDismissals((previous) => {
+        const next = upsertRecentProjectDismissal(previous, dismissal);
+        persistRecentProjectDismissals(next);
+        return next;
       });
       setRecentWorkspacesIntent(null);
       const targetKey = workspaceInventoryPathKey(
         recentPath,
         caseInsensitiveWorkspacePaths,
       );
-      void setRecentWorkspacesAsync((previous2) =>
-        previous2.filter(
+      void setRecentWorkspacesAsync((previous) =>
+        previous.filter(
           (entry) =>
             workspaceInventoryPathKey(
               entry.path,
@@ -549,21 +558,21 @@ export function HomeSidebar({
       )
         .then((persisted) => {
           if (persisted) return;
-          setRecentProjectDismissals((previous2) => {
-            const next2 = removeRecentProjectDismissal(previous2, dismissal);
-            persistRecentProjectDismissals(next2);
-            return next2;
+          setRecentProjectDismissals((previous) => {
+            const next = removeRecentProjectDismissal(previous, dismissal);
+            persistRecentProjectDismissals(next);
+            return next;
           });
         })
         .catch(() => {
-          setRecentProjectDismissals((previous2) => {
-            const next2 = removeRecentProjectDismissal(previous2, dismissal);
-            persistRecentProjectDismissals(next2);
-            return next2;
+          setRecentProjectDismissals((previous) => {
+            const next = removeRecentProjectDismissal(previous, dismissal);
+            persistRecentProjectDismissals(next);
+            return next;
           });
         });
       if (!item.authoritativeEntry) {
-        void removeWorkspaceSessionTabs(recentPath, () => platform2.storage);
+        void removeWorkspaceSessionTabs(recentPath, () => platform.storage);
       }
       if (
         isInventoryItemPinned(
@@ -572,10 +581,10 @@ export function HomeSidebar({
           caseInsensitiveWorkspacePaths,
         )
       ) {
-        void setGlobalConfigAsync((previous2) => ({
-          ...previous2,
+        void setGlobalConfigAsync((previous) => ({
+          ...previous,
           pinnedWorkspacePaths: removePinnedWorkspacePaths(
-            previous2.pinnedWorkspacePaths ?? [],
+            previous.pinnedWorkspacePaths ?? [],
             pinnedWorkspaceAliases(item),
             caseInsensitiveWorkspacePaths,
           ),
@@ -586,19 +595,19 @@ export function HomeSidebar({
       caseInsensitiveWorkspacePaths,
       closeWorkspace,
       pinnedWorkspaceKeys,
-      platform2.storage,
+      platform.storage,
       setGlobalConfigAsync,
       setRecentWorkspacesAsync,
     ],
   );
   const commitRecentSortMode = reactExports.useCallback(
-    (mode2) => {
+    (mode) => {
       const revision = recentProjectsSortModeRevisionRef.current + 1;
       recentProjectsSortModeRevisionRef.current = revision;
-      setRecentProjectsSortModeIntent(mode2);
-      void setGlobalConfigAsync((previous2) => ({
-        ...previous2,
-        recentProjectsSortMode: mode2,
+      setRecentProjectsSortModeIntent(mode);
+      void setGlobalConfigAsync((previous) => ({
+        ...previous,
+        recentProjectsSortMode: mode,
       }))
         .then((persisted) => {
           if (
@@ -618,11 +627,11 @@ export function HomeSidebar({
   );
   const handleRecentSortModeChange = commitRecentSortMode;
   const handleRecentGroupModeChange = reactExports.useCallback(
-    (mode2) => {
-      setRecentProjectsGroupModeIntent(mode2);
-      void setGlobalConfigAsync((previous2) => ({
-        ...previous2,
-        recentProjectsGroupMode: mode2,
+    (mode) => {
+      setRecentProjectsGroupModeIntent(mode);
+      void setGlobalConfigAsync((previous) => ({
+        ...previous,
+        recentProjectsGroupMode: mode,
       })).catch(() => {
         setRecentProjectsGroupModeIntent(null);
       });
@@ -630,12 +639,12 @@ export function HomeSidebar({
     [setGlobalConfigAsync],
   );
   const handleCreateProject = reactExports.useCallback(
-    async (name2, kind) => {
-      const result = await createProject(name2, kind);
+    async (projectName, kind) => {
+      const result = await createProject(projectName, kind);
       if (!result.project) {
         dedupedToast.error(
           result.errorMessage ??
-            t2(result.errorMessageKey ?? "project.create.failed"),
+            translate(result.errorMessageKey ?? "project.create.failed"),
         );
         return;
       }
@@ -647,7 +656,7 @@ export function HomeSidebar({
         },
       });
     },
-    [createProject, navigate, t2],
+    [createProject, navigate, translate],
   );
   const handleOpenAllCreations = reactExports.useCallback(() => {
     void homeService.hiloApp.activateHome().catch(() => {});
@@ -680,7 +689,7 @@ export function HomeSidebar({
     [removeWorkspaceFromProject],
   );
   const rowProjectIdByKey = reactExports.useMemo(() => {
-    const index2 = new Map();
+    const index = new Map();
     for (const item of displayedWorkspaceInventory) {
       const ownerKey = projectWorkspaceKey(
         item.workspace.path,
@@ -694,10 +703,10 @@ export function HomeSidebar({
           workspaceProjectById.get(ownerKey) ??
           (recentKey ? workspaceProjectById.get(recentKey) : void 0)
         )?.id ?? null;
-      if (!index2.has(ownerKey)) index2.set(ownerKey, projectId);
-      if (recentKey && !index2.has(recentKey)) index2.set(recentKey, projectId);
+      if (!index.has(ownerKey)) index.set(ownerKey, projectId);
+      if (recentKey && !index.has(recentKey)) index.set(recentKey, projectId);
     }
-    return index2;
+    return index;
   }, [
     displayedWorkspaceInventory,
     projectCaseInsensitive,
@@ -726,7 +735,7 @@ export function HomeSidebar({
       event,
       workspacePath,
       section,
-      position2 = recentProjectDropPosition(event),
+      position = recentProjectDropPosition(event),
     ) => {
       if (draggedSection !== section) {
         event.dataTransfer.dropEffect = "none";
@@ -749,12 +758,12 @@ export function HomeSidebar({
       }
       const nextTarget = {
         path: workspacePath,
-        position: position2,
+        position,
       };
-      setDragOverTarget((previous2) =>
-        previous2?.path === nextTarget.path &&
-        previous2.position === nextTarget.position
-          ? previous2
+      setDragOverTarget((previous) =>
+        previous?.path === nextTarget.path &&
+        previous.position === nextTarget.position
+          ? previous
           : nextTarget,
       );
     },
@@ -784,7 +793,7 @@ export function HomeSidebar({
       event,
       targetPath,
       section,
-      position2 = recentProjectDropPosition(event),
+      position = recentProjectDropPosition(event),
     ) => {
       event.preventDefault();
       if (draggedSection !== section) {
@@ -803,12 +812,12 @@ export function HomeSidebar({
       event.stopPropagation();
       if (section === "pinned") {
         if (sourcePath && sourcePath !== targetPath) {
-          const dropPosition = position2;
+          const dropPosition = position;
           const visiblePinned = pinnedInventoryItems;
-          void setGlobalConfigAsync((previous2) => ({
-            ...previous2,
+          void setGlobalConfigAsync((previous) => ({
+            ...previous,
             pinnedWorkspacePaths: reorderPinnedWorkspacePaths(
-              previous2.pinnedWorkspacePaths ?? [],
+              previous.pinnedWorkspacePaths ?? [],
               visiblePinned,
               sourcePath,
               targetPath,
@@ -820,10 +829,10 @@ export function HomeSidebar({
         clearRecentDragState();
         return;
       }
-      const snapshot2 = dragInventorySnapshot ?? workspaceInventory;
-      if (sourcePath && sourcePath !== targetPath && snapshot2.length > 0) {
-        const dropPosition = position2;
-        const visibleWorkspaces = snapshot2.map((item) => item.workspace);
+      const snapshot = dragInventorySnapshot ?? workspaceInventory;
+      if (sourcePath && sourcePath !== targetPath && snapshot.length > 0) {
+        const dropPosition = position;
+        const visibleWorkspaces = snapshot.map((item) => item.workspace);
         const reordered = reorderVisibleRecentWorkspaces(
           visibleWorkspaces,
           sourcePath,
@@ -831,14 +840,14 @@ export function HomeSidebar({
           dropPosition,
         );
         const orderChanged = reordered.some(
-          (workspace, index2) =>
-            workspace.path !== visibleWorkspaces[index2]?.path,
+          (workspace, index) =>
+            workspace.path !== visibleWorkspaces[index]?.path,
         );
         if (orderChanged) {
-          const persistDropOrder = (previous2) => {
+          const persistDropOrder = (previous) => {
             const latestInventory = mergeWorkspaceInventory(
-              previous2,
-              entries2,
+              previous,
+              entries,
               {
                 caseInsensitive: caseInsensitiveWorkspacePaths,
                 dismissals: recentProjectDismissals,
@@ -881,7 +890,7 @@ export function HomeSidebar({
       dragInventorySnapshot,
       draggedPath,
       draggedSection,
-      entries2,
+      entries,
       groupingEnabled,
       pinnedInventoryItems,
       recentProjectsSortMode,
@@ -901,7 +910,7 @@ export function HomeSidebar({
   const handleGlobalSearch = reactExports.useCallback(() => {
     window.dispatchEvent(new Event(OPEN_GLOBAL_SEARCH_EVENT));
   }, []);
-  const isActive2 = reactExports.useCallback(
+  const isActive = reactExports.useCallback(
     (to) => {
       if (to === "/") return pathname === "/";
       return pathname.startsWith(to);
@@ -910,14 +919,14 @@ export function HomeSidebar({
   );
   const railProjectStatus = reactExports.useMemo(() => {
     let hasUnread = unreadCompletedTaskCount > 0;
-    for (const [workspaceId2, status] of workspaceStatusById) {
-      if (workspaceId2 === currentWorkspaceId) continue;
+    for (const [workspaceId, status] of workspaceStatusById) {
+      if (workspaceId === currentWorkspaceId) continue;
       if (status.needsUserAction) return "needs-user-action";
       if (status.unread) hasUnread = true;
     }
     return hasUnread ? "unread" : null;
   }, [currentWorkspaceId, unreadCompletedTaskCount, workspaceStatusById]);
-  const newProjectEntryActive = isActive2("/");
+  const newProjectEntryActive = isActive("/");
   const recentWorkspaceGroups = reactExports.useMemo(() => {
     if (!groupingEnabled) return [];
     const { pinned: pinnedProjects, unpinned: unpinnedProjects } =
@@ -941,19 +950,19 @@ export function HomeSidebar({
     () => new Set(),
   );
   const handleToggleProjectItems = reactExports.useCallback((projectId) => {
-    setShowAllProjectIds((previous2) => {
-      const next2 = new Set(previous2);
-      if (next2.has(projectId)) next2.delete(projectId);
-      else next2.add(projectId);
-      return next2;
+    setShowAllProjectIds((previous) => {
+      const next = new Set(previous);
+      if (next.has(projectId)) next.delete(projectId);
+      else next.add(projectId);
+      return next;
     });
   }, []);
   const handleToggleProjectExpanded = reactExports.useCallback((projectId) => {
     setCollapsedProjectIds((prev) => {
-      const next2 = new Set(prev);
-      if (next2.has(projectId)) next2.delete(projectId);
-      else next2.add(projectId);
-      return next2;
+      const next = new Set(prev);
+      if (next.has(projectId)) next.delete(projectId);
+      else next.add(projectId);
+      return next;
     });
   }, []);
   const [recentSectionCollapsed, setRecentSectionCollapsed] =
@@ -975,38 +984,38 @@ export function HomeSidebar({
     });
   }, [collapsedProjectIds, recentSectionCollapsed]);
   const selectedProjectId = reactExports.useMemo(() => {
-    const match2 = pathname.match(/^\/projects\/([^/]+)/);
-    return match2 ? decodeURIComponent(match2[1]) : null;
+    const match = pathname.match(/^\/projects\/([^/]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
   }, [pathname]);
   const handleRevealMovedWorkspace = reactExports.useCallback((projectId) => {
     setRecentSectionCollapsed(false);
     if (projectId)
-      setShowAllProjectIds((previous2) => new Set(previous2).add(projectId));
-    setCollapsedProjectIds((previous2) => {
-      const next2 = new Set(previous2);
-      next2.delete(projectId ?? UNGROUPED_RECENT_GROUP_KEY);
-      return next2;
+      setShowAllProjectIds((previous) => new Set(previous).add(projectId));
+    setCollapsedProjectIds((previous) => {
+      const next = new Set(previous);
+      next.delete(projectId ?? UNGROUPED_RECENT_GROUP_KEY);
+      return next;
     });
   }, []);
   const handleProjectReorder = reactExports.useCallback(
-    (source, target, position2) => {
+    (source, target, position) => {
       if (!isProjectPinned(source, pinnedProjectIds)) {
-        void reorderProject(source, target, position2).catch(() => {
-          dedupedToast.error(t2("common.saveFailed"));
+        void reorderProject(source, target, position).catch(() => {
+          dedupedToast.error(translate("common.saveFailed"));
         });
         return;
       }
-      void setGlobalConfigAsync((previous2) => ({
-        ...previous2,
+      void setGlobalConfigAsync((previous) => ({
+        ...previous,
         pinnedProjectIds: reorderPinnedProjectIds(
-          previous2.pinnedProjectIds ?? [],
+          previous.pinnedProjectIds ?? [],
           source,
           target,
-          position2,
+          position,
         ),
       }));
     },
-    [pinnedProjectIds, reorderProject, setGlobalConfigAsync, t2],
+    [pinnedProjectIds, reorderProject, setGlobalConfigAsync, translate],
   );
   const projectDrag = useSidebarProjectDrag({
     draggedPath,
@@ -1169,15 +1178,15 @@ export function HomeSidebar({
                 type="button"
                 aria-label={
                   pinnedSectionCollapsed
-                    ? t2("project.expand")
-                    : t2("project.collapse")
+                    ? translate("project.expand")
+                    : translate("project.collapse")
                 }
                 aria-expanded={!pinnedSectionCollapsed}
                 data-action-ui-id="home-sidebar.pinned-section-toggle"
                 onClick={togglePinnedSectionCollapsed}
                 className="flex items-center gap-1 text-[13px] text-[var(--home-sidebar-section-text)] font-normal cursor-pointer rounded-sm hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none"
               >
-                <span>{t2("homeSidebar.pinned", "置顶")}</span>
+                <span>{translate("homeSidebar.pinned", "置顶")}</span>
                 {pinnedSectionCollapsed ? (
                   <ChevronRight
                     size={14}
@@ -1217,15 +1226,15 @@ export function HomeSidebar({
               type="button"
               aria-label={
                 recentSectionCollapsed
-                  ? t2("project.expand")
-                  : t2("project.collapse")
+                  ? translate("project.expand")
+                  : translate("project.collapse")
               }
               aria-expanded={!recentSectionCollapsed}
               data-action-ui-id="home-sidebar.recent-section-toggle"
               onClick={toggleRecentSectionCollapsed}
               className="flex items-center gap-1 text-[13px] text-[var(--home-sidebar-section-text)] font-normal cursor-pointer rounded-sm hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none"
             >
-              <span>{t2("project.sidebarTitle")}</span>
+              <span>{translate("project.sidebarTitle")}</span>
               {recentSectionCollapsed ? (
                 <ChevronRight
                   size={14}
@@ -1244,7 +1253,7 @@ export function HomeSidebar({
             </button>
           ) : (
             <span className="text-[13px] text-[var(--home-sidebar-section-text)] font-normal">
-              {t2("homeSidebar.recentProjects")}
+              {translate("homeSidebar.recentProjects")}
             </span>
           )}
           {!groupingEnabled ? (
@@ -1254,7 +1263,7 @@ export function HomeSidebar({
                   render={
                     <button
                       type="button"
-                      aria-label={t2("home.viewAll")}
+                      aria-label={translate("home.viewAll")}
                       data-action-ui-id="home-sidebar.recent-view-all"
                       onClick={handleOpenAllCreations}
                       className="icon-sidebar-action-control ml-1 flex size-6 items-center justify-center rounded-sm text-muted-foreground transition-colors duration-[80ms] hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
@@ -1269,7 +1278,7 @@ export function HomeSidebar({
                     </button>
                   }
                 />
-                <TooltipContent side="top">{t2("home.viewAll")}</TooltipContent>
+                <TooltipContent side="top">{translate("home.viewAll")}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           ) : null}
@@ -1282,8 +1291,8 @@ export function HomeSidebar({
             onSelectCreateKind={groupingEnabled ? setCreateProjectKind : void 0}
             createLabel={
               groupingEnabled
-                ? t2("project.create.trigger")
-                : t2("project.newCreation")
+                ? translate("project.create.trigger")
+                : translate("project.newCreation")
             }
             holdPreviewOpen={holdPreviewOpen}
             releasePreviewHold={releasePreviewHold}
@@ -1295,7 +1304,7 @@ export function HomeSidebar({
               const projectId = group.project?.id;
               const toggleKey = projectId ?? UNGROUPED_RECENT_GROUP_KEY;
               const expanded = !collapsedProjectIds.has(toggleKey);
-              const selected2 = Boolean(
+              const selected = Boolean(
                 projectId && projectId === selectedProjectId,
               );
               const isUngrouped = !group.project;
@@ -1340,7 +1349,7 @@ export function HomeSidebar({
                     ungroupedToggleKey={
                       isUngrouped ? UNGROUPED_RECENT_GROUP_KEY : void 0
                     }
-                    selected={selected2}
+                    selected={selected}
                     depth={0}
                     onNewCreation={requestNewProjectInProject}
                     onOpenDetail={handleOpenProjectDetail}
@@ -1405,7 +1414,7 @@ export function HomeSidebar({
                                 handleToggleProjectItems(projectId)
                               }
                             >
-                              {t2(
+                              {translate(
                                 showAllItems
                                   ? "project.sidebar.showLess"
                                   : "project.sidebar.showMore",
@@ -1422,7 +1431,7 @@ export function HomeSidebar({
                         }}
                         data-action-ui-id="home-sidebar.recent-group-empty"
                       >
-                        {t2(
+                        {translate(
                           isUngrouped
                             ? "project.move.emptyUngrouped"
                             : "project.creationsEmptySidebar",
@@ -1478,12 +1487,12 @@ export function HomeSidebar({
       requestNewProjectInProject,
       unpinnedWorkspaceInventory,
       selectedProjectId,
-      t2,
+      translate,
     ],
   );
   return (
     <aside
-      aria-label={t2("topbar.toggleGlobalSidebar")}
+      aria-label={translate("topbar.toggleGlobalSidebar")}
       className="transparent-window-home-sidebar relative flex h-full shrink-0 flex-col bg-transparent"
       style={{
         width: sidebarWidth,
@@ -1576,7 +1585,7 @@ export function HomeSidebar({
             >
               <span
                 role="img"
-                aria-label={t2("common.appName")}
+                aria-label={translate("common.appName")}
                 className="flex size-[22px] items-center justify-center"
                 data-action-ui-id="home-sidebar.brand"
               >
@@ -1632,7 +1641,7 @@ export function HomeSidebar({
                 ? void 0
                 : "home-new-task-icon rounded-full",
               iconSize: HOME_NEW_TASK_PLUS_SIZE,
-              label: t2("home.newProject"),
+              label: translate("home.newProject"),
               badgeTarget: "launchpad",
               releaseBadge: sidebarBadges.launchpad,
             }}
@@ -1652,7 +1661,7 @@ export function HomeSidebar({
         )}
         <section
           ref={sidebarScrollRef}
-          aria-label={t2("homeSidebar.navigation", "Sidebar navigation")}
+          aria-label={translate("homeSidebar.navigation", "Sidebar navigation")}
           data-action-ui-id="home-sidebar.scroll"
           className={cn(
             "home-sidebar-scroll flex h-full min-h-0 flex-col overflow-y-auto scrollbar-none",
@@ -1674,17 +1683,17 @@ export function HomeSidebar({
                 type="button"
                 aria-label={
                   compactRail || projectsBadge
-                    ? `${t2("project.hubTitle")}${projectsBadge ? `, ${projectsBadge.label}` : ""}`
+                    ? `${translate("project.hubTitle")}${projectsBadge ? `, ${projectsBadge.label}` : ""}`
                     : void 0
                 }
-                title={compactRail ? t2("project.hubTitle") : void 0}
-                aria-current={isActive2("/projects") ? "page" : void 0}
+                title={compactRail ? translate("project.hubTitle") : void 0}
+                aria-current={isActive("/projects") ? "page" : void 0}
                 data-action-ui-id="home-sidebar-nav-projects"
                 onClick={() => handleNavClick("/projects")}
                 className={cn(
                   HOME_NAV_BUTTON_CLASS,
                   "icon-sidebar-nav-control min-w-0 flex-1",
-                  isActive2("/projects")
+                  isActive("/projects")
                     ? "text-foreground"
                     : HOME_NAV_INACTIVE_TEXT_CLASS,
                 )}
@@ -1693,7 +1702,7 @@ export function HomeSidebar({
                   className={cn(
                     HOME_NAV_PILL_CLASS,
                     compactRail && HOME_RAIL_PILL_CLASS,
-                    isActive2("/projects")
+                    isActive("/projects")
                       ? HOME_NAV_ACTIVE_CLASS
                       : HOME_NAV_HOVER_CLASS,
                   )}
@@ -1730,7 +1739,7 @@ export function HomeSidebar({
                     ) : null}
                   </span>
                   <span className="home-sidebar-detail truncate leading-[normal]">
-                    {t2("project.hubTitle")}
+                    {translate("project.hubTitle")}
                   </span>
                   {!compactRail ? (
                     <SidebarReleaseBadge
@@ -1747,7 +1756,7 @@ export function HomeSidebar({
                   <SidebarNavButton
                     key={item.to}
                     item={item}
-                    active={isActive2(item.to)}
+                    active={isActive(item.to)}
                     onClick={handleNavClick}
                     compact={compactRail}
                   />
@@ -1815,7 +1824,7 @@ export function HomeSidebar({
       <Dialog open={changelogOpen} onOpenChange={setChangelogOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogTitle className="text-sm font-heading font-medium">
-            {t2("homeSidebar.changelog")}
+            {translate("homeSidebar.changelog")}
           </DialogTitle>
           <ChangelogTable rows={changelogRows} onRowClick={setSelectedRow} />
         </DialogContent>
@@ -1827,7 +1836,7 @@ export function HomeSidebar({
       {!compactRail ? (
         <ResizeColHandle
           tabIndex={0}
-          aria-label={t2("a11y.resizeGlobalSidebar")}
+          aria-label={translate("a11y.resizeGlobalSidebar")}
           aria-orientation="vertical"
           aria-valuemin={minWidth}
           aria-valuemax={maxWidth}

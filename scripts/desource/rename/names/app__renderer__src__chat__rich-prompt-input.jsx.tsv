@@ -1,0 +1,38 @@
+key	新名	依据
+src_default$1@2:50	Placeholder	`Placeholder` 是 Tiptap Placeholder 扩展，用于配置富文本输入框的占位提示。
+to@105:15	triggerEndPosition	`triggerEndPosition` 是提及触发范围的结束编辑器位置。
+e2@209:26	editor	`editor` 是 TipTap 更新回调传入并用于读取文档及选择的编辑器实例。
+len@212:15	characterCount	`characterCount` 是按当前提示文本计算并传给更新回调的字符数。
+cb@220:15	fileRefsAddedCallback	`fileRefsAddedCallback` 是新增画布文件引用后异步调用的处理函数。
+r2@223:38	fileRef	`fileRef` 是从编辑器文档收集并读取路径的文件引用。
+ref@231:20	fileRef	`fileRef` 是遍历中的画布文件引用，用于识别新增引用。
+m3@278:22	mention	`mention` 是文本中提及位置与路径信息的记录。
+tr2@331:19	transaction	`transaction` 是替换当前编辑器选区并插入节点的事务。
+j2@327:21	nodeJSON	`nodeJSON` 是转换为编辑器节点的 JSON 描述对象。
+n2@328:24	node	`node` 是由 JSON 构建、筛除无效项的编辑器节点。
+i2@332:22	index	`index` 是从第二个节点开始插入后续节点的数组位置。
+len@357:11	characterCount	`characterCount` 是重新计算并写入编辑器字符长度状态的值。
+r2@369:36	fileRef	`fileRef` 是编辑器文档中的文件引用，用于初始化已知路径集合。
+e2@376:6	clickEvent	`clickEvent` 是编辑器容器点击处理器收到并检查目标的事件。
+found2@26:7	found	`found` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+node2@27:33	node	`node` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+node2@38:33	node	`node` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+active2@48:7	active	`active` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+getRect2@51:9	getRect	`getRect` 是执行相应业务操作的函数；末尾数字是打包器为避免重名添加的后缀。
+state2@70:22	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+match2@101:13	match	`match` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+view2@103:15	view	`view` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+from2@104:15	from	`from` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+disabled2@133:13	disabled	`disabled` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+textLength2@171:10	textLength	`textLength` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+handleClick2@375:9	handleClick	`handleClick` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+state2@153:44	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+path2@163:6	path	`path` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@229:15	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+path2@237:12	path	`path` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+view2@260:23	view	`view` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@261:17	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+meta2@267:27	meta	`meta` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+meta2@286:19	meta	`meta` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+from2@389:19	from	`from` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+getRect2@390:11	getRect	`getRect` 是执行相应业务操作的函数；末尾数字是打包器为避免重名添加的后缀。

@@ -1,5 +1,8 @@
 // use-canvas.js
-import { CanvasNodeType, reactExports, useEdgesState, useNodesState, useReactFlow, useStoreApi, useTranslation } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { useEdgesState, useNodesState, useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { resolvePlaceholderFlowSize } from "./node-registry.js";
 import {
@@ -45,37 +48,37 @@ import { useCanvasData } from "./use-canvas-data.js";
 function collectMeasuredSizes(storeApi) {
   const measured = new Map();
   const { nodeLookup } = storeApi.getState();
-  for (const [id2, entry] of nodeLookup) {
-    const m3 = entry.measured;
-    if (m3?.width && m3?.height && m3.width > 0 && m3.height > 0) {
-      measured.set(id2, {
-        width: Math.round(m3.width),
-        height: Math.round(m3.height),
+  for (const [id, entry] of nodeLookup) {
+    const measuredSize = entry.measured;
+    if (measuredSize?.width && measuredSize?.height && measuredSize.width > 0 && measuredSize.height > 0) {
+      measured.set(id, {
+        width: Math.round(measuredSize.width),
+        height: Math.round(measuredSize.height),
       });
     }
   }
   return measured.size > 0 ? measured : void 0;
 }
-function toHistoryActionResult(checkpoint, instance2) {
-  const current2 =
-    checkpoint && instance2.history.isCheckpointCurrent(checkpoint)
+function toHistoryActionResult(checkpoint, instance) {
+  const current =
+    checkpoint && instance.history.isCheckpointCurrent(checkpoint)
       ? checkpoint
       : null;
   return {
-    changed: current2 !== null,
-    checkpoint: current2,
+    changed: current !== null,
+    checkpoint: current,
   };
 }
 const KEYBOARD_MOVE_COMMIT_DELAY_MS = 200;
 function generateNodeId() {
   return crypto.randomUUID();
 }
-function isBoxFullyVisible(box2, rect) {
+function isBoxFullyVisible(box, rect) {
   return (
-    box2.x >= rect.x &&
-    box2.y >= rect.y &&
-    box2.x + box2.width <= rect.x + rect.width &&
-    box2.y + box2.height <= rect.y + rect.height
+    box.x >= rect.x &&
+    box.y >= rect.y &&
+    box.x + box.width <= rect.x + rect.width &&
+    box.y + box.height <= rect.y + rect.height
   );
 }
 const COMMAND_DEFINITIONS = [
@@ -159,21 +162,21 @@ const COMMAND_DEFINITIONS = [
   },
 ];
 const DEFINITIONS_BY_ID = new Map(
-  COMMAND_DEFINITIONS.map((definition2) => [definition2.id, definition2]),
+  COMMAND_DEFINITIONS.map((definition) => [definition.id, definition]),
 );
 function createCanvasCommandRegistry(resolveHandlers) {
   return {
     definitions: COMMAND_DEFINITIONS,
-    get(id2) {
-      const definition2 = DEFINITIONS_BY_ID.get(id2);
-      if (!definition2) throw new Error(`Unknown canvas command: ${id2}`);
-      return definition2;
+    get(id) {
+      const definition = DEFINITIONS_BY_ID.get(id);
+      if (!definition) throw new Error(`Unknown canvas command: ${id}`);
+      return definition;
     },
-    hasHandler(id2) {
-      return typeof resolveHandlers()[id2] === "function";
+    hasHandler(id) {
+      return typeof resolveHandlers()[id] === "function";
     },
-    execute(id2, source) {
-      const handler = resolveHandlers()[id2];
+    execute(id, source) {
+      const handler = resolveHandlers()[id];
       if (!handler) return false;
       handler(source);
       return true;
@@ -183,12 +186,12 @@ function createCanvasCommandRegistry(resolveHandlers) {
 function selectMouseAnchor(opts) {
   const { mouseScreen, containerRect, screenToFlow } = opts;
   if (!mouseScreen || !containerRect) return null;
-  const { x: x2, y: y4 } = mouseScreen;
+  const { x: mouseClientX, y: mouseClientY } = mouseScreen;
   if (
-    x2 < containerRect.left ||
-    x2 > containerRect.right ||
-    y4 < containerRect.top ||
-    y4 > containerRect.bottom
+    mouseClientX < containerRect.left ||
+    mouseClientX > containerRect.right ||
+    mouseClientY < containerRect.top ||
+    mouseClientY > containerRect.bottom
   ) {
     return null;
   }
@@ -218,47 +221,47 @@ const COLLAPSED_GROUP_FLOW_SIZE = {
   width: 1,
   height: 1,
 };
-function toFlowNode(node2, mode2, selectedNodeIds, hidden) {
-  const selected2 = selectedNodeIds ? selectedNodeIds.has(node2.id) : void 0;
-  const rawSize = isIdleEmptyVideoNode(node2)
+function toFlowNode(node, mode, selectedNodeIds, hidden) {
+  const selected = selectedNodeIds ? selectedNodeIds.has(node.id) : void 0;
+  const rawSize = isIdleEmptyVideoNode(node)
     ? VIDEO_EMPTY_CARD_SIZE
-    : getNodeSize(node2, mode2);
-  const collapsed = !!node2.meta?.collapsed;
-  const isCollapsedGroup = collapsed && node2.type === CanvasNodeType.Group;
-  const errorData = node2.data;
+    : getNodeSize(node, mode);
+  const collapsed = !!node.meta?.collapsed;
+  const isCollapsedGroup = collapsed && node.type === CanvasNodeType.Group;
+  const errorData = node.data;
   const isAutoSizedVideoError =
-    node2.type === CanvasNodeType.Video &&
+    node.type === CanvasNodeType.Video &&
     isGenerationErrorStatus(errorData?.status) &&
     typeof errorData?.errorMessage === "string" &&
     errorData.errorMessage.length > 0;
   const isCompactFile =
-    node2.type === CanvasNodeType.File &&
-    !isPluginNode(node2) &&
-    node2.data?.viewMode !== "preview";
-  const size2 = isAutoSizedVideoError
+    node.type === CanvasNodeType.File &&
+    !isPluginNode(node) &&
+    node.data?.viewMode !== "preview";
+  const size = isAutoSizedVideoError
     ? void 0
     : isCollapsedGroup
       ? COLLAPSED_GROUP_FLOW_SIZE
-      : node2.type === CanvasNodeType.Placeholder
-        ? resolvePlaceholderFlowSize(node2, rawSize)
+      : node.type === CanvasNodeType.Placeholder
+        ? resolvePlaceholderFlowSize(node, rawSize)
         : isCompactFile
           ? FILE_CARD_DEFAULT_SIZE
           : rawSize;
-  const position2 = getNodePosition(node2, mode2);
+  const position = getNodePosition(node, mode);
   return {
-    id: node2.id,
-    type: node2.type,
-    position: position2,
-    data: node2.data,
-    ...(size2
+    id: node.id,
+    type: node.type,
+    position,
+    data: node.data,
+    ...(size
       ? {
-          width: size2.width,
-          height: size2.height,
+          width: size.width,
+          height: size.height,
         }
       : {}),
-    ...(node2.meta?.zIndex !== void 0
+    ...(node.meta?.zIndex !== void 0
       ? {
-          zIndex: node2.meta.zIndex,
+          zIndex: node.meta.zIndex,
         }
       : {}),
     // Collapsed groups still allow dragging, but only via the floating chip —
@@ -268,7 +271,7 @@ function toFlowNode(node2, mode2, selectedNodeIds, hidden) {
     // `COLLAPSED_GROUP_FLOW_SIZE` (1x1) and is `pointer-events: none` in
     // `canvas-overrides.css`, so scoping the handle keeps the drag affordance
     // on the chip rather than on an invisible wrapper box.
-    draggable: !node2.meta?.locked,
+    draggable: !node.meta?.locked,
     // Collapsed groups are excluded from the selection set entirely — see
     // `canvas-overrides.css` for the matching wrapper-level pointer-events
     // rule. Force `selected: false` so any stale selection from before the
@@ -280,14 +283,14 @@ function toFlowNode(node2, mode2, selectedNodeIds, hidden) {
           className: "canvas-group-collapsed",
           dragHandle: ".canvas-group-collapsed-drag-handle",
         }
-      : selected2 !== void 0
+      : selected !== void 0
         ? {
-            selected: selected2,
+            selected,
           }
         : {}),
-    ...(node2.parentId
+    ...(node.parentId
       ? {
-          parentId: node2.parentId,
+          parentId: node.parentId,
         }
       : {}),
     // `hidden` is omitted unless explicitly true so ReactFlow's diff sees a
@@ -300,55 +303,55 @@ function toFlowNode(node2, mode2, selectedNodeIds, hidden) {
       : {}),
   };
 }
-function toFlowNodes(nodes, mode2, selectedNodeIds, hiddenNodeIds) {
-  return nodes.map((node2) =>
+function toFlowNodes(nodes, mode, selectedNodeIds, hiddenNodeIds) {
+  return nodes.map((node) =>
     toFlowNode(
-      node2,
-      mode2,
+      node,
+      mode,
       selectedNodeIds,
-      node2.meta?.hidden || hiddenNodeIds?.has(node2.id) || void 0,
+      node.meta?.hidden || hiddenNodeIds?.has(node.id) || void 0,
     ),
   );
 }
-function toFlowNodesMemo(cache2, nodes, mode2, selectedNodeIds, hiddenNodeIds) {
+function toFlowNodesMemo(cache, nodes, mode, selectedNodeIds, hiddenNodeIds) {
   const result = new Array(nodes.length);
-  const next2 = new Map();
-  for (let i2 = 0; i2 < nodes.length; i2++) {
-    const node2 = nodes[i2];
-    const selected2 = selectedNodeIds ? selectedNodeIds.has(node2.id) : void 0;
+  const next = new Map();
+  for (let index = 0; index < nodes.length; index++) {
+    const node = nodes[index];
+    const selected = selectedNodeIds ? selectedNodeIds.has(node.id) : void 0;
     const hidden =
-      node2.meta?.hidden ||
-      (hiddenNodeIds ? hiddenNodeIds.has(node2.id) : false);
-    const prev = cache2.get(node2.id);
+      node.meta?.hidden ||
+      (hiddenNodeIds ? hiddenNodeIds.has(node.id) : false);
+    const prev = cache.get(node.id);
     if (
       prev &&
-      prev.input === node2 &&
-      prev.selected === selected2 &&
-      prev.mode === mode2 &&
+      prev.input === node &&
+      prev.selected === selected &&
+      prev.mode === mode &&
       prev.hidden === hidden
     ) {
-      result[i2] = prev.output;
-      next2.set(node2.id, prev);
+      result[index] = prev.output;
+      next.set(node.id, prev);
     } else {
       const output = toFlowNode(
-        node2,
-        mode2,
+        node,
+        mode,
         selectedNodeIds,
         hidden || void 0,
       );
       const entry = {
-        input: node2,
-        selected: selected2,
-        mode: mode2,
+        input: node,
+        selected,
+        mode,
         hidden,
         output,
       };
-      result[i2] = output;
-      next2.set(node2.id, entry);
+      result[index] = output;
+      next.set(node.id, entry);
     }
   }
-  cache2.clear();
-  for (const [k2, v2] of next2) cache2.set(k2, v2);
+  cache.clear();
+  for (const [nodeId, cacheEntry] of next) cache.set(nodeId, cacheEntry);
   return result;
 }
 function toFlowEdges(edges, selectedNodeIds, hiddenNodeIds) {
@@ -369,22 +372,22 @@ function toFlowEdges(edges, selectedNodeIds, hiddenNodeIds) {
 function collectHiddenChildIds(nodes) {
   let collapsedGroups = null;
   let hidden = null;
-  for (const node2 of nodes) {
-    if (node2.meta?.hidden) {
+  for (const node of nodes) {
+    if (node.meta?.hidden) {
       hidden ??= new Set();
-      hidden.add(node2.id);
+      hidden.add(node.id);
     }
-    if (node2.type !== CanvasNodeType.Group) continue;
-    if (node2.meta?.collapsed) {
+    if (node.type !== CanvasNodeType.Group) continue;
+    if (node.meta?.collapsed) {
       collapsedGroups ??= new Set();
-      collapsedGroups.add(node2.id);
+      collapsedGroups.add(node.id);
     }
   }
   if (collapsedGroups) {
-    for (const node2 of nodes) {
-      if (node2.parentId && collapsedGroups.has(node2.parentId)) {
+    for (const node of nodes) {
+      if (node.parentId && collapsedGroups.has(node.parentId)) {
         hidden ??= new Set();
-        hidden.add(node2.id);
+        hidden.add(node.id);
       }
     }
   }
@@ -395,18 +398,18 @@ function prepareNodesForFlow(nodes, childCountByParent) {
     injectDerivedChildCounts(nodes, childCountByParent),
   );
 }
-function mergeHiddenSets(a2, b3) {
-  if (!a2) return b3;
-  if (!b3) return a2;
-  const out = new Set(a2);
-  for (const id2 of b3) out.add(id2);
+function mergeHiddenSets(firstSet, secondSet) {
+  if (!firstSet) return secondSet;
+  if (!secondSet) return firstSet;
+  const out = new Set(firstSet);
+  for (const id of secondSet) out.add(id);
   return out;
 }
 function buildIndexById(items) {
-  return new Map(items.map((item, index2) => [item.id, index2]));
+  return new Map(items.map((item, index) => [item.id, index]));
 }
-function selectionKey(ids2) {
-  return Array.from(ids2).sort().join("|");
+function selectionKey(ids) {
+  return Array.from(ids).sort().join("|");
 }
 function buildEdgeIdsByNode(edges) {
   const edgeIdsByNode = new Map();
@@ -427,41 +430,41 @@ function buildEdgeIdsByNode(edges) {
   return edgeIdsByNode;
 }
 function collectMetaHiddenIds(nodes) {
-  const ids2 = new Set();
-  for (const node2 of nodes) {
-    if (node2.meta?.hidden) ids2.add(node2.id);
+  const ids = new Set();
+  for (const node of nodes) {
+    if (node.meta?.hidden) ids.add(node.id);
   }
-  return ids2.size > 0 ? ids2 : void 0;
+  return ids.size > 0 ? ids : void 0;
 }
 function syncFlowGraph(
-  instance2,
+  instance,
   graph,
-  selected2,
+  selected,
   flowNodeCache,
   setFlowNodes,
   setFlowEdges,
 ) {
-  const mode2 = instance2.getMode();
+  const mode = instance.getMode();
   const preparedNodes = prepareNodesForFlow(
     graph.nodes,
-    instance2.getChildCountByParent(),
+    instance.getChildCountByParent(),
   );
   const hiddenIds = mergeHiddenSets(
     collectHiddenChildIds(preparedNodes),
     collectMetaHiddenIds(preparedNodes),
   );
   setFlowNodes(
-    toFlowNodesMemo(flowNodeCache, preparedNodes, mode2, selected2, hiddenIds),
+    toFlowNodesMemo(flowNodeCache, preparedNodes, mode, selected, hiddenIds),
   );
-  setFlowEdges(toFlowEdges(graph.edges, selected2, hiddenIds));
+  setFlowEdges(toFlowEdges(graph.edges, selected, hiddenIds));
   if (flowNodeCache.size > preparedNodes.length) {
-    const liveIds = new Set(preparedNodes.map((n2) => n2.id));
-    for (const id2 of flowNodeCache.keys()) {
-      if (!liveIds.has(id2)) flowNodeCache.delete(id2);
+    const liveIds = new Set(preparedNodes.map((node) => node.id));
+    for (const id of flowNodeCache.keys()) {
+      if (!liveIds.has(id)) flowNodeCache.delete(id);
     }
   }
 }
-function useGraphSync(instance2, setFlowNodes, setFlowEdges) {
+function useGraphSync(instance, setFlowNodes, setFlowEdges) {
   const [selectedIds, setSelectedIds] = reactExports.useState([]);
   const selectedIdsRef = reactExports.useRef(new Set());
   const nodeIndexByIdRef = reactExports.useRef(new Map());
@@ -471,18 +474,18 @@ function useGraphSync(instance2, setFlowNodes, setFlowEdges) {
   const lastSyncedSelectionKeyRef = reactExports.useRef(null);
   const syncingRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    return instance2.onGraphChange((graph) => {
+    return instance.onGraphChange((graph) => {
       syncingRef.current = true;
-      const selected2 = new Set(instance2.selection.getSelected());
-      selectedIdsRef.current = selected2;
-      lastSyncedSelectionKeyRef.current = selectionKey(selected2);
+      const selected = new Set(instance.selection.getSelected());
+      selectedIdsRef.current = selected;
+      lastSyncedSelectionKeyRef.current = selectionKey(selected);
       nodeIndexByIdRef.current = buildIndexById(graph.nodes);
       edgeIndexByIdRef.current = buildIndexById(graph.edges);
       edgeIdsByNodeRef.current = buildEdgeIdsByNode(graph.edges);
       syncFlowGraph(
-        instance2,
+        instance,
         graph,
-        selected2,
+        selected,
         flowNodeCacheRef.current,
         setFlowNodes,
         setFlowEdges,
@@ -491,53 +494,53 @@ function useGraphSync(instance2, setFlowNodes, setFlowEdges) {
         syncingRef.current = false;
       });
     });
-  }, [instance2, setFlowNodes, setFlowEdges]);
+  }, [instance, setFlowNodes, setFlowEdges]);
   reactExports.useEffect(() => {
-    return instance2.eventBus.on(
+    return instance.eventBus.on(
       "node:data-silent-changed",
-      ({ nodeId, data: data2 }) => {
+      ({ nodeId, data }) => {
         const entry = flowNodeCacheRef.current.get(nodeId);
-        if (entry && entry.output.data !== data2) {
+        if (entry && entry.output.data !== data) {
           entry.output = {
             ...entry.output,
-            data: data2,
+            data,
           };
         }
         setFlowNodes((nodes) => {
-          const index2 = nodes.findIndex((n2) => n2.id === nodeId);
-          if (index2 === -1) return nodes;
-          const node2 = nodes[index2];
-          if (node2.data === data2) return nodes;
-          const next2 = [...nodes];
-          next2[index2] = {
-            ...node2,
-            data: data2,
+          const index = nodes.findIndex((candidateNode) => candidateNode.id === nodeId);
+          if (index === -1) return nodes;
+          const node = nodes[index];
+          if (node.data === data) return nodes;
+          const next = [...nodes];
+          next[index] = {
+            ...node,
+            data,
           };
-          return next2;
+          return next;
         });
       },
     );
-  }, [instance2, setFlowNodes]);
+  }, [instance, setFlowNodes]);
   reactExports.useEffect(() => {
-    return instance2.selection.onChange((ids2) => {
+    return instance.selection.onChange((ids) => {
       const prevSelected = selectedIdsRef.current;
-      const selected2 = new Set(ids2);
+      const selected = new Set(ids);
       const changedNodeIds = new Set();
-      for (const id2 of prevSelected) {
-        if (!selected2.has(id2)) changedNodeIds.add(id2);
+      for (const id of prevSelected) {
+        if (!selected.has(id)) changedNodeIds.add(id);
       }
-      for (const id2 of selected2) {
-        if (!prevSelected.has(id2)) changedNodeIds.add(id2);
+      for (const id of selected) {
+        if (!prevSelected.has(id)) changedNodeIds.add(id);
       }
-      selectedIdsRef.current = selected2;
-      setSelectedIds(ids2);
+      selectedIdsRef.current = selected;
+      setSelectedIds(ids);
       if (changedNodeIds.size === 0) return;
-      const key2 = selectionKey(selected2);
-      if (key2 === lastSyncedSelectionKeyRef.current) return;
-      lastSyncedSelectionKeyRef.current = key2;
+      const key = selectionKey(selected);
+      if (key === lastSyncedSelectionKeyRef.current) return;
+      lastSyncedSelectionKeyRef.current = key;
       for (const nodeId of changedNodeIds) {
         const entry = flowNodeCacheRef.current.get(nodeId);
-        const nextSelected = selected2.has(nodeId);
+        const nextSelected = selected.has(nodeId);
         if (entry && entry.selected !== nextSelected) {
           entry.selected = nextSelected;
           entry.output = {
@@ -550,34 +553,34 @@ function useGraphSync(instance2, setFlowNodes, setFlowEdges) {
         let nextNodes = null;
         let shouldFallback = false;
         for (const nodeId of changedNodeIds) {
-          const index2 = nodeIndexByIdRef.current.get(nodeId);
-          if (index2 === void 0) {
+          const index = nodeIndexByIdRef.current.get(nodeId);
+          if (index === void 0) {
             shouldFallback = true;
             break;
           }
-          const node2 = (nextNodes ?? nodes)[index2];
-          if (!node2 || node2.id !== nodeId) {
+          const node = (nextNodes ?? nodes)[index];
+          if (!node || node.id !== nodeId) {
             shouldFallback = true;
             break;
           }
-          const nextSelected = selected2.has(nodeId);
-          if (node2.selected === nextSelected) continue;
+          const nextSelected = selected.has(nodeId);
+          if (node.selected === nextSelected) continue;
           nextNodes ??= [...nodes];
           const updated = {
-            ...node2,
+            ...node,
             selected: nextSelected,
           };
-          nextNodes[index2] = updated;
+          nextNodes[index] = updated;
         }
         if (shouldFallback) {
           const preparedNodes = prepareNodesForFlow(
-            instance2.getGraph().nodes,
-            instance2.getChildCountByParent(),
+            instance.getGraph().nodes,
+            instance.getChildCountByParent(),
           );
           return toFlowNodes(
             preparedNodes,
-            instance2.getMode(),
-            selected2,
+            instance.getMode(),
+            selected,
             mergeHiddenSets(
               collectHiddenChildIds(preparedNodes),
               collectMetaHiddenIds(preparedNodes),
@@ -586,7 +589,7 @@ function useGraphSync(instance2, setFlowNodes, setFlowEdges) {
         }
         return nextNodes ?? nodes;
       });
-      const graph = instance2.getGraph();
+      const graph = instance.getGraph();
       const affectedEdgeIds = new Set();
       for (const nodeId of changedNodeIds) {
         const edgeIds = edgeIdsByNodeRef.current.get(nodeId);
@@ -598,21 +601,21 @@ function useGraphSync(instance2, setFlowNodes, setFlowEdges) {
         let nextEdges = null;
         let shouldFallback = false;
         for (const edgeId of affectedEdgeIds) {
-          const index2 = edgeIndexByIdRef.current.get(edgeId);
-          if (index2 === void 0) {
+          const index = edgeIndexByIdRef.current.get(edgeId);
+          if (index === void 0) {
             shouldFallback = true;
             break;
           }
-          const edge = (nextEdges ?? edges)[index2];
+          const edge = (nextEdges ?? edges)[index];
           if (!edge || edge.id !== edgeId) {
             shouldFallback = true;
             break;
           }
           const nextSelected =
-            selected2.has(edge.source) || selected2.has(edge.target);
+            selected.has(edge.source) || selected.has(edge.target);
           if (edge.selected === nextSelected) continue;
           nextEdges ??= [...edges];
-          nextEdges[index2] = {
+          nextEdges[index] = {
             ...edge,
             selected: nextSelected,
           };
@@ -620,18 +623,18 @@ function useGraphSync(instance2, setFlowNodes, setFlowEdges) {
         if (shouldFallback) {
           const preparedNodes = prepareNodesForFlow(
             graph.nodes,
-            instance2.getChildCountByParent(),
+            instance.getChildCountByParent(),
           );
           return toFlowEdges(
             graph.edges,
-            selected2,
+            selected,
             collectHiddenChildIds(preparedNodes),
           );
         }
         return nextEdges ?? edges;
       });
     });
-  }, [instance2, setFlowNodes, setFlowEdges]);
+  }, [instance, setFlowNodes, setFlowEdges]);
   return {
     selectedIds,
     syncingRef,
@@ -645,15 +648,15 @@ function shortenPrompt(prompt) {
     ? `${trimmed.slice(0, PROMPT_PREVIEW_MAX)}…`
     : trimmed;
 }
-function readStr(data2, key2) {
-  if (!data2) return void 0;
-  const v2 = data2[key2];
-  return typeof v2 === "string" && v2.length > 0 ? v2 : void 0;
+function readStr(data, key) {
+  if (!data) return void 0;
+  const value = data[key];
+  return typeof value === "string" && value.length > 0 ? value : void 0;
 }
-function buildDebugInfo(node2, ctx = {}) {
-  const data2 = node2.data ?? {};
+function buildDebugInfo(node, ctx = {}) {
+  const data = node.data ?? {};
   let status = "unknown";
-  const placeholderStatus = readStr(data2, "status");
+  const placeholderStatus = readStr(data, "status");
   if (
     placeholderStatus === "pending" ||
     placeholderStatus === "generating" ||
@@ -668,22 +671,22 @@ function buildDebugInfo(node2, ctx = {}) {
     status = "generating";
   }
   const cloudTraceId =
-    readStr(data2, "cloudTraceId") ??
+    readStr(data, "cloudTraceId") ??
     ctx.meta?.cloudTraceId ??
     ctx.generating?.traceId;
   const cloudTaskId =
-    readStr(data2, "cloudTaskId") ??
+    readStr(data, "cloudTaskId") ??
     ctx.meta?.cloudTaskId ??
     ctx.generating?.cloudTaskId;
   const providerTaskId =
-    readStr(data2, "providerTaskId") ?? ctx.meta?.providerTaskId;
+    readStr(data, "providerTaskId") ?? ctx.meta?.providerTaskId;
   return {
     timestamp: new Date().toISOString(),
-    nodeId: node2.id,
-    nodeType: node2.type,
-    ...(isAssetBackedNode(node2.type)
+    nodeId: node.id,
+    nodeType: node.type,
+    ...(isAssetBackedNode(node.type)
       ? {
-          assetId: parseNodeId(node2.id).assetId,
+          assetId: parseNodeId(node.id).assetId,
         }
       : {}),
     status,
@@ -702,18 +705,18 @@ function buildDebugInfo(node2, ctx = {}) {
           providerTaskId,
         }
       : {}),
-    ...(status === "error" && readStr(data2, "errorMessage")
+    ...(status === "error" && readStr(data, "errorMessage")
       ? {
-          errorMessage: readStr(data2, "errorMessage"),
+          errorMessage: readStr(data, "errorMessage"),
         }
       : {}),
     ...(ctx.meta?.model
       ? {
           model: ctx.meta.model,
         }
-      : readStr(data2, "model")
+      : readStr(data, "model")
         ? {
-            model: readStr(data2, "model"),
+            model: readStr(data, "model"),
           }
         : {}),
     ...(ctx.meta?.backend
@@ -731,10 +734,10 @@ function buildDebugInfo(node2, ctx = {}) {
           params: ctx.meta.params,
         }
       : {}),
-    ...(shortenPrompt(ctx.meta?.prompt ?? readStr(data2, "prompt"))
+    ...(shortenPrompt(ctx.meta?.prompt ?? readStr(data, "prompt"))
       ? {
           promptPreview: shortenPrompt(
-            ctx.meta?.prompt ?? readStr(data2, "prompt"),
+            ctx.meta?.prompt ?? readStr(data, "prompt"),
           ),
         }
       : {}),
@@ -744,25 +747,25 @@ function shortTraceId(traceId) {
   if (!traceId) return void 0;
   return traceId.length > 8 ? `${traceId.slice(0, 8)}…` : traceId;
 }
-function collectPayloads(instance2, assetStore, generatingStore, nodeIds) {
-  const graph = instance2.getGraph();
-  const lookup = new Map(graph.nodes.map((n2) => [n2.id, n2]));
+function collectPayloads(instance, assetStore, generatingStore, nodeIds) {
+  const graph = instance.getGraph();
+  const lookup = new Map(graph.nodes.map((node) => [node.id, node]));
   const generating = generatingStore.getState().byNode;
   const payloads = [];
-  for (const id2 of nodeIds) {
-    const node2 = lookup.get(id2);
-    if (!node2) continue;
+  for (const id of nodeIds) {
+    const node = lookup.get(id);
+    if (!node) continue;
     payloads.push(
-      buildDebugInfo(node2, {
-        meta: getAssetMetaByNodeIdFromStore(assetStore, id2),
-        generating: generating.get(id2),
+      buildDebugInfo(node, {
+        meta: getAssetMetaByNodeIdFromStore(assetStore, id),
+        generating: generating.get(id),
       }),
     );
   }
   return payloads;
 }
-function useCopyDebugInfo(instance2) {
-  const { t: t2 } = useTranslation();
+function useCopyDebugInfo(instance) {
+  const { t: translate } = useTranslation();
   const assetStore = useAssetMetadataApi();
   const generatingStore = useGeneratingStateApi();
   const copyDebugShortcut = resolveCanvasShortcut("copyDebug").join(
@@ -770,10 +773,10 @@ function useCopyDebugInfo(instance2) {
   );
   return reactExports.useCallback(
     (args) => {
-      const targetIds = args?.nodeIds ?? instance2.selection.getSelected();
+      const targetIds = args?.nodeIds ?? instance.selection.getSelected();
       if (targetIds.length === 0) {
         dedupedToast.info(
-          t2(
+          translate(
             "canvas.debug.noSelection",
             "Select a node first, then press {{shortcut}}",
             {
@@ -784,7 +787,7 @@ function useCopyDebugInfo(instance2) {
         return;
       }
       const payloads = collectPayloads(
-        instance2,
+        instance,
         assetStore,
         generatingStore,
         targetIds,
@@ -795,7 +798,7 @@ function useCopyDebugInfo(instance2) {
         null,
         2,
       );
-      const firstTrace = payloads.find((p3) => p3.cloudTraceId)?.cloudTraceId;
+      const firstTrace = payloads.find((payload) => payload.cloudTraceId)?.cloudTraceId;
       const tracePreview = shortTraceId(firstTrace);
       const writeClipboard = async () => {
         if (
@@ -803,7 +806,7 @@ function useCopyDebugInfo(instance2) {
           !navigator.clipboard?.writeText
         ) {
           dedupedToast.error(
-            t2("canvas.debug.clipboardUnavailable", "Clipboard not available"),
+            translate("canvas.debug.clipboardUnavailable", "Clipboard not available"),
           );
           return;
         }
@@ -811,7 +814,7 @@ function useCopyDebugInfo(instance2) {
           await navigator.clipboard.writeText(serialised);
           if (tracePreview) {
             dedupedToast.success(
-              t2(
+              translate(
                 "canvas.debug.copied",
                 "Debug info copied (Trace ID: {{trace}})",
                 {
@@ -821,7 +824,7 @@ function useCopyDebugInfo(instance2) {
             );
           } else {
             dedupedToast.success(
-              t2(
+              translate(
                 "canvas.debug.copiedNoTrace",
                 "Debug info copied (no Trace ID — legacy asset)",
               ),
@@ -829,7 +832,7 @@ function useCopyDebugInfo(instance2) {
           }
         } catch (err) {
           dedupedToast.error(
-            t2("canvas.debug.copyFailed", "Copy failed: {{message}}", {
+            translate("canvas.debug.copyFailed", "Copy failed: {{message}}", {
               message: err instanceof Error ? err.message : String(err),
             }),
           );
@@ -837,14 +840,14 @@ function useCopyDebugInfo(instance2) {
       };
       void writeClipboard();
     },
-    [instance2, assetStore, generatingStore, t2, copyDebugShortcut],
+    [instance, assetStore, generatingStore, translate, copyDebugShortcut],
   );
 }
-function useCanvasInstance(mode2, plugins) {
+function useCanvasInstance(mode, plugins) {
   const pluginsRef = reactExports.useRef(plugins);
   pluginsRef.current = plugins;
-  const [instance2] = reactExports.useState(() => {
-    const inst = new CanvasInstance(mode2);
+  const [instance] = reactExports.useState(() => {
+    const inst = new CanvasInstance(mode);
     if (pluginsRef.current) {
       for (const plugin of pluginsRef.current) {
         inst.applyPlugin(plugin);
@@ -853,18 +856,18 @@ function useCanvasInstance(mode2, plugins) {
     return inst;
   });
   reactExports.useEffect(() => {
-    return () => instance2.dispose();
-  }, [instance2]);
+    return () => instance.dispose();
+  }, [instance]);
   reactExports.useEffect(() => {
-    if (instance2.getMode() !== mode2) {
-      instance2.switchMode(mode2);
+    if (instance.getMode() !== mode) {
+      instance.switchMode(mode);
     }
-  }, [mode2, instance2]);
-  return instance2;
+  }, [mode, instance]);
+  return instance;
 }
 export function useCanvas(options) {
   const {
-    mode: mode2,
+    mode,
     dataSource,
     plugins,
     isPresented = true,
@@ -919,7 +922,7 @@ export function useCanvas(options) {
       y: rect.top + rect.height / 2,
     });
   }, [screenToFlowPosition, storeApi]);
-  const getViewportRect2 = reactExports.useCallback(() => {
+  const getViewportRect = reactExports.useCallback(() => {
     const { domNode } = storeApi.getState();
     if (!domNode) return null;
     const rect = domNode.getBoundingClientRect();
@@ -940,10 +943,10 @@ export function useCanvas(options) {
   }, [screenToFlowPosition, storeApi]);
   const mouseScreenRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    const handleMove = (e2) => {
+    const handleMove = (mouseEvent) => {
       mouseScreenRef.current = {
-        x: e2.clientX,
-        y: e2.clientY,
+        x: mouseEvent.clientX,
+        y: mouseEvent.clientY,
       };
     };
     document.addEventListener("mousemove", handleMove);
@@ -991,14 +994,14 @@ export function useCanvas(options) {
   }, [onSystemPaste, getPastePosition]);
   const handleSystemTextPaste = reactExports.useMemo(() => {
     if (!onSystemTextPaste) return void 0;
-    return (text2) => onSystemTextPaste(text2, getPastePosition());
+    return (text) => onSystemTextPaste(text, getPastePosition());
   }, [onSystemTextPaste, getPastePosition]);
-  const instance2 = useCanvasInstance(mode2, plugins);
+  const instance = useCanvasInstance(mode, plugins);
   const commandRegistry = reactExports.useMemo(
     () => createCanvasCommandRegistry(commandHandlers ?? (() => ({}))),
     [commandHandlers],
   );
-  const workspaceId2 = getCurrentWorkspace?.();
+  const workspaceId = getCurrentWorkspace?.();
   const {
     loading,
     initialHydratedNodeCount,
@@ -1007,13 +1010,13 @@ export function useCanvas(options) {
     retryLoad,
     savedPositionsRef,
     hiddenAssetIdsRef,
-  } = useCanvasData(instance2, mode2, dataSource, getViewportCenter, {
+  } = useCanvasData(instance, mode, dataSource, getViewportCenter, {
     onNodesAdded,
     onFirstNodesPlaced,
-    workspaceId: workspaceId2,
+    workspaceId,
   });
   const { selectedIds, syncingRef } = useGraphSync(
-    instance2,
+    instance,
     setFlowNodes,
     setFlowEdges,
   );
@@ -1034,19 +1037,19 @@ export function useCanvas(options) {
   const handleSystemCopy = reactExports.useMemo(() => {
     if (!onSystemCopy) return void 0;
     return async () => {
-      const ids2 = instance2.selection.getSelected();
-      if (ids2.length === 0) return null;
-      const idSet = new Set(ids2);
-      const nodes = instance2.getGraph().nodes.filter((n2) => idSet.has(n2.id));
+      const ids = instance.selection.getSelected();
+      if (ids.length === 0) return null;
+      const idSet = new Set(ids);
+      const nodes = instance.getGraph().nodes.filter((node) => idSet.has(node.id));
       return onSystemCopy(nodes);
     };
-  }, [onSystemCopy, instance2]);
+  }, [onSystemCopy, instance]);
   const ensureInternalPasteInView = reactExports.useCallback(
     (_pastedIds, pastedBox) => {
-      const rect = getViewportRect2();
+      const rect = getViewportRect();
       if (!rect || isBoxFullyVisible(pastedBox, rect)) return;
-      const { transform: transform2 } = storeApi.getState();
-      const currentZoom = transform2[2];
+      const { transform } = storeApi.getState();
+      const currentZoom = transform[2];
       const centerX = pastedBox.x + pastedBox.width / 2;
       const centerY = pastedBox.y + pastedBox.height / 2;
       void setCenter(centerX, centerY, {
@@ -1054,45 +1057,45 @@ export function useCanvas(options) {
         duration: 300,
       });
     },
-    [getViewportRect2, setCenter, storeApi],
+    [getViewportRect, setCenter, storeApi],
   );
   const focusDerivedNode = reactExports.useCallback(
-    (nodeId, options2) => {
+    (nodeId, options) => {
       if (!nodeId) return;
-      const focusNow = (node2) => {
-        instance2.selection.set([nodeId]);
-        const mode22 = instance2.getMode();
-        const ns2 = sizeOf(node2, mode22);
-        const np = getNodePosition(node2, mode22);
+      const focusNow = (node) => {
+        instance.selection.set([nodeId]);
+        const mode = instance.getMode();
+        const nodeSize = sizeOf(node, mode);
+        const np = getNodePosition(node, mode);
         const nodeBox = {
           x: np.x,
           y: np.y,
-          width: ns2.width,
-          height: ns2.height,
+          width: nodeSize.width,
+          height: nodeSize.height,
         };
-        if (!options2?.alwaysCenter) {
-          const rect = getViewportRect2();
+        if (!options?.alwaysCenter) {
+          const rect = getViewportRect();
           if (!rect || isBoxFullyVisible(nodeBox, rect)) return;
         }
-        const { transform: transform2 } = storeApi.getState();
-        const currentZoom = transform2[2];
+        const { transform } = storeApi.getState();
+        const currentZoom = transform[2];
         const centerX = nodeBox.x + nodeBox.width / 2;
         const centerY = nodeBox.y + nodeBox.height / 2;
         void setCenter(centerX, centerY, {
           zoom: currentZoom,
-          duration: options2?.duration ?? 300,
+          duration: options?.duration ?? 300,
         });
       };
-      const existing = instance2
+      const existing = instance
         .getGraph()
-        .nodes.find((n2) => n2.id === nodeId);
+        .nodes.find((node) => node.id === nodeId);
       if (existing) {
         focusNow(existing);
         return;
       }
       const FOCUS_TIMEOUT_MS = 5e3;
       let timeoutId = null;
-      const unsubscribe = instance2.eventBus.on("node:added", (event) => {
+      const unsubscribe = instance.eventBus.on("node:added", (event) => {
         if (event.node.id !== nodeId) return;
         unsubscribe();
         if (timeoutId) clearTimeout(timeoutId);
@@ -1105,7 +1108,7 @@ export function useCanvas(options) {
         );
       }, FOCUS_TIMEOUT_MS);
     },
-    [instance2, getViewportRect2, storeApi, setCenter],
+    [instance, getViewportRect, storeApi, setCenter],
   );
   const focusNextDerivedFrom = reactExports.useCallback(
     (sourceNodeId) => {
@@ -1114,32 +1117,32 @@ export function useCanvas(options) {
       let timeoutId = null;
       let unsubscribe = null;
       const focusBoth = (derivedId) => {
-        const graph = instance2.getGraph();
+        const graph = instance.getGraph();
         const currentSourceNodeId =
-          instance2.resolveCurrentNodeId(sourceNodeId);
-        const source = graph.nodes.find((n2) => n2.id === currentSourceNodeId);
-        const derived = graph.nodes.find((n2) => n2.id === derivedId);
+          instance.resolveCurrentNodeId(sourceNodeId);
+        const source = graph.nodes.find((node) => node.id === currentSourceNodeId);
+        const derived = graph.nodes.find((node) => node.id === derivedId);
         if (!source || !derived) return;
-        instance2.selection.clear();
-        const mode22 = instance2.getMode();
-        const ss2 = sizeOf(source, mode22);
-        const ds = sizeOf(derived, mode22);
-        const sp = getNodePosition(source, mode22);
-        const dp = getNodePosition(derived, mode22);
+        instance.selection.clear();
+        const mode = instance.getMode();
+        const sourceSize = sizeOf(source, mode);
+        const ds = sizeOf(derived, mode);
+        const sp = getNodePosition(source, mode);
+        const dp = getNodePosition(derived, mode);
         const minX = Math.min(sp.x, dp.x);
         const minY = Math.min(sp.y, dp.y);
-        const maxX = Math.max(sp.x + ss2.width, dp.x + ds.width);
-        const maxY = Math.max(sp.y + ss2.height, dp.y + ds.height);
+        const maxX = Math.max(sp.x + sourceSize.width, dp.x + ds.width);
+        const maxY = Math.max(sp.y + sourceSize.height, dp.y + ds.height);
         const unionBox = {
           x: minX,
           y: minY,
           width: maxX - minX,
           height: maxY - minY,
         };
-        const rect = getViewportRect2();
+        const rect = getViewportRect();
         if (!rect || isBoxFullyVisible(unionBox, rect)) return;
-        const { transform: transform2 } = storeApi.getState();
-        const currentZoom = transform2[2];
+        const { transform } = storeApi.getState();
+        const currentZoom = transform[2];
         const PADDING = 0.2;
         const usable = 1 - PADDING * 2;
         const scaleX =
@@ -1160,8 +1163,8 @@ export function useCanvas(options) {
           }),
         );
       };
-      unsubscribe = instance2.eventBus.on("edge:added", (event) => {
-        if (event.edge.source !== instance2.resolveCurrentNodeId(sourceNodeId))
+      unsubscribe = instance.eventBus.on("edge:added", (event) => {
+        if (event.edge.source !== instance.resolveCurrentNodeId(sourceNodeId))
           return;
         const derivedId = event.edge.target;
         unsubscribe?.();
@@ -1178,35 +1181,35 @@ export function useCanvas(options) {
       }, FOCUS_TIMEOUT_MS);
     },
     [
-      instance2,
-      getViewportRect2,
+      instance,
+      getViewportRect,
       storeApi,
       setCenter,
       syncStableZoomAfterViewportChange,
     ],
   );
   const attachDraftOnNextDerived = reactExports.useCallback(
-    (sourceNodeId, key2, draft) => {
+    (sourceNodeId, key, draft) => {
       if (!sourceNodeId) return;
       const ATTACH_TIMEOUT_MS = 8e3;
       let timeoutId = null;
       let unsubscribe = null;
-      unsubscribe = instance2.eventBus.on("edge:added", (event) => {
-        if (event.edge.source !== instance2.resolveCurrentNodeId(sourceNodeId))
+      unsubscribe = instance.eventBus.on("edge:added", (event) => {
+        if (event.edge.source !== instance.resolveCurrentNodeId(sourceNodeId))
           return;
         const derivedId = event.edge.target;
         unsubscribe?.();
         unsubscribe = null;
         if (timeoutId) clearTimeout(timeoutId);
-        const node2 = instance2
+        const node = instance
           .getGraph()
-          .nodes.find((n2) => n2.id === derivedId);
-        if (!node2) return;
-        const prevData = node2.data ?? {};
+          .nodes.find((node) => node.id === derivedId);
+        if (!node) return;
+        const prevData = node.data ?? {};
         const prevMap = prevData[POPOVER_DRAFT_DATA_KEY] ?? {};
         const nextMap = {
           ...prevMap,
-          [key2]: {
+          [key]: {
             ...draft,
             source: "user",
           },
@@ -1215,16 +1218,16 @@ export function useCanvas(options) {
           ...prevData,
           [POPOVER_DRAFT_DATA_KEY]: nextMap,
         };
-        instance2.updateNodeDataSilent(derivedId, nextData);
+        instance.updateNodeDataSilent(derivedId, nextData);
       });
       timeoutId = setTimeout(() => {
         unsubscribe?.();
         unsubscribe = null;
       }, ATTACH_TIMEOUT_MS);
     },
-    [instance2],
+    [instance],
   );
-  useKeyboardShortcuts(instance2, {
+  useKeyboardShortcuts(instance, {
     enabled: isPresented,
     commandRegistry,
     onZoomIn: handleZoomIn,
@@ -1236,42 +1239,42 @@ export function useCanvas(options) {
     onSystemCopy: handleSystemCopy,
     getCurrentWorkspace,
     ensureInternalPasteInView,
-    getViewportRect: getViewportRect2,
+    getViewportRect,
     getViewportCenter,
     getInternalPasteAnchor,
-    onCopyDebugInfo: useCopyDebugInfo(instance2),
+    onCopyDebugInfo: useCopyDebugInfo(instance),
   });
   const pendingRemoves = reactExports.useRef(null);
   const scheduleBatchRemove = reactExports.useCallback(() => {
     if (!pendingRemoves.current) return;
     queueMicrotask(() => {
-      const batch2 = pendingRemoves.current;
+      const batch = pendingRemoves.current;
       pendingRemoves.current = null;
-      if (!batch2) return;
-      instance2.removeElements(batch2.nodeIds, batch2.edgeIds);
-      instance2.eventBus.emit({
+      if (!batch) return;
+      instance.removeElements(batch.nodeIds, batch.edgeIds);
+      instance.eventBus.emit({
         type: "persist:flush",
       });
     });
-  }, [instance2]);
+  }, [instance]);
   const onEdgesChange = reactExports.useCallback(
     (changes) => {
-      const allRemoves = changes.filter((c3) => c3.type === "remove");
-      const others = changes.filter((c3) => c3.type !== "remove");
+      const allRemoves = changes.filter((change) => change.type === "remove");
+      const others = changes.filter((change) => change.type !== "remove");
       let removes = allRemoves;
       if (allRemoves.length > 0) {
-        const graph = instance2.getGraph();
+        const graph = instance.getGraph();
         const protectedNodeIds = new Set(
           graph.nodes
-            .filter((node2) => isNodeDeleteProtected(node2))
-            .map((node2) => node2.id),
+            .filter((node) => isNodeDeleteProtected(node))
+            .map((node) => node.id),
         );
         if (protectedNodeIds.size > 0) {
-          const edgeById = new Map(graph.edges.map((e2) => [e2.id, e2]));
+          const edgeById = new Map(graph.edges.map((edge) => [edge.id, edge]));
           removes = allRemoves.filter(
-            (c3) =>
+            (change) =>
               !isEdgeAttachedToProtectedNode(
-                edgeById.get(c3.id),
+                edgeById.get(change.id),
                 protectedNodeIds,
               ),
           );
@@ -1288,20 +1291,20 @@ export function useCanvas(options) {
           };
           scheduleBatchRemove();
         }
-        pendingRemoves.current.edgeIds.push(...removes.map((c3) => c3.id));
+        pendingRemoves.current.edgeIds.push(...removes.map((change) => change.id));
       }
     },
-    [defaultOnEdgesChange, scheduleBatchRemove, instance2],
+    [defaultOnEdgesChange, scheduleBatchRemove, instance],
   );
   const commitNodeMoves = reactExports.useCallback(
     (moves) => {
       if (moves.length === 0) return;
-      instance2.moveNodes(moves);
-      instance2.eventBus.emit({
+      instance.moveNodes(moves);
+      instance.eventBus.emit({
         type: "persist:request",
       });
     },
-    [instance2],
+    [instance],
   );
   const pendingKeyboardMovesRef = reactExports.useRef(new Map());
   const keyboardMoveCommitTimerRef = reactExports.useRef(null);
@@ -1314,9 +1317,9 @@ export function useCanvas(options) {
     if (pendingMoves.size === 0) return;
     pendingKeyboardMovesRef.current = new Map();
     commitNodeMoves(
-      Array.from(pendingMoves, ([id2, position2]) => ({
-        id: id2,
-        position: position2,
+      Array.from(pendingMoves, ([id, position]) => ({
+        id,
+        position,
       })),
     );
   }, [commitNodeMoves]);
@@ -1345,20 +1348,20 @@ export function useCanvas(options) {
   }, [flushKeyboardMoves]);
   const onNodesChange = reactExports.useCallback(
     (changes) => {
-      const allNodeRemoves = changes.filter((c3) => c3.type === "remove");
-      const others = changes.filter((c3) => c3.type !== "remove");
+      const allNodeRemoves = changes.filter((change) => change.type === "remove");
+      const others = changes.filter((change) => change.type !== "remove");
       let removes = allNodeRemoves;
       if (allNodeRemoves.length > 0) {
         const nodesById = new Map(
-          instance2.getGraph().nodes.map((n2) => [n2.id, n2]),
+          instance.getGraph().nodes.map((node) => [node.id, node]),
         );
         const { deletableIds, blockedCount, blockedReason } =
           partitionDeletableIds(
-            allNodeRemoves.map((c3) => c3.id),
-            (id2) => nodesById.get(id2),
+            allNodeRemoves.map((change) => change.id),
+            (id) => nodesById.get(id),
           );
         if (blockedCount > 0) {
-          instance2.eventBus.emit({
+          instance.eventBus.emit({
             type: "delete:blocked",
             count: blockedCount,
             reason: blockedReason ?? "generating",
@@ -1366,7 +1369,7 @@ export function useCanvas(options) {
         }
         if (deletableIds.length !== allNodeRemoves.length) {
           const deletableIdSet = new Set(deletableIds);
-          removes = allNodeRemoves.filter((c3) => deletableIdSet.has(c3.id));
+          removes = allNodeRemoves.filter((change) => deletableIdSet.has(change.id));
         }
       }
       if (others.length > 0) {
@@ -1383,7 +1386,7 @@ export function useCanvas(options) {
           };
           scheduleBatchRemove();
         }
-        pendingRemoves.current.nodeIds.push(...removes.map((c3) => c3.id));
+        pendingRemoves.current.nodeIds.push(...removes.map((change) => change.id));
       }
     },
     [
@@ -1391,7 +1394,7 @@ export function useCanvas(options) {
       flushKeyboardMoves,
       scheduleBatchRemove,
       scheduleKeyboardMoves,
-      instance2,
+      instance,
     ],
   );
   const onNodeDragStop = reactExports.useCallback(
@@ -1405,12 +1408,12 @@ export function useCanvas(options) {
     (connection) => {
       if (!connection.source || !connection.target) return;
       const nodesById = new Map(
-        instance2.getGraph().nodes.map((n2) => [n2.id, n2]),
+        instance.getGraph().nodes.map((node) => [node.id, node]),
       );
       const oriented = orientUserEdge(
         connection.source,
         connection.target,
-        (id2) => nodesById.get(id2),
+        (id) => nodesById.get(id),
       );
       const flipped = oriented.source !== connection.source;
       const edge = {
@@ -1425,22 +1428,22 @@ export function useCanvas(options) {
           void 0,
         type: "derivation",
       };
-      instance2.addEdge(edge);
-      instance2.eventBus.emit({
+      instance.addEdge(edge);
+      instance.eventBus.emit({
         type: "persist:flush",
       });
     },
-    [instance2],
+    [instance],
   );
   const commands = reactExports.useMemo(
     () => ({
       addNode: (props) => {
-        const mode22 = instance2.getMode();
-        const node2 = {
+        const mode = instance.getMode();
+        const node = {
           id: props.id ?? generateNodeId(),
           type: props.type,
           positions: {
-            [mode22]: props.position ?? {
+            [mode]: props.position ?? {
               x: 100,
               y: 100,
             },
@@ -1457,27 +1460,27 @@ export function useCanvas(options) {
               }
             : {}),
         };
-        instance2.addNode(node2);
-        instance2.eventBus.emit({
+        instance.addNode(node);
+        instance.eventBus.emit({
           type: "persist:flush",
         });
       },
-      removeNodes: (ids2) => {
-        instance2.removeNodes(ids2);
-        instance2.eventBus.emit({
+      removeNodes: (ids) => {
+        instance.removeNodes(ids);
+        instance.eventBus.emit({
           type: "persist:flush",
         });
       },
       autoLayout: async (strategy) => {
         let checkpoint = null;
-        await instance2.autoLayout(
+        await instance.autoLayout(
           strategy,
           collectMeasuredSizes(storeApi),
-          (next2) => {
-            checkpoint = next2;
+          (next) => {
+            checkpoint = next;
           },
         );
-        instance2.eventBus.emit({
+        instance.eventBus.emit({
           type: "persist:request",
         });
         requestAnimationFrame(() => {
@@ -1488,17 +1491,17 @@ export function useCanvas(options) {
             }),
           );
         });
-        return toHistoryActionResult(checkpoint, instance2);
+        return toHistoryActionResult(checkpoint, instance);
       },
       autoLayoutByCategory: async () => {
         let checkpoint = null;
-        await instance2.autoLayoutByCategory(
+        await instance.autoLayoutByCategory(
           collectMeasuredSizes(storeApi),
-          (next2) => {
-            checkpoint = next2;
+          (next) => {
+            checkpoint = next;
           },
         );
-        instance2.eventBus.emit({
+        instance.eventBus.emit({
           type: "persist:request",
         });
         requestAnimationFrame(() => {
@@ -1509,33 +1512,33 @@ export function useCanvas(options) {
             }),
           );
         });
-        return toHistoryActionResult(checkpoint, instance2);
+        return toHistoryActionResult(checkpoint, instance);
       },
       autoLayoutAll: async (layout, includeDeps, sortBy = "name") => {
         let checkpoint = null;
         let applied = false;
         const sort = {
           sortBy,
-          assetName: (node2) => {
+          assetName: (node) => {
             const assets = assetMetadataStore.getState();
             return (
-              assets.get(node2.assetId ?? node2.id)?.name ??
-              assets.get(node2.id)?.name
+              assets.get(node.assetId ?? node.id)?.name ??
+              assets.get(node.id)?.name
             );
           },
         };
-        await instance2.autoLayoutAll(
+        await instance.autoLayoutAll(
           layout,
           includeDeps,
           collectMeasuredSizes(storeApi),
-          (next2, accepted) => {
-            checkpoint = next2;
+          (next, accepted) => {
+            checkpoint = next;
             applied = accepted === true;
           },
           sort,
         );
         if (applied)
-          instance2.eventBus.emit({
+          instance.eventBus.emit({
             type: "persist:request",
           });
         requestAnimationFrame(() => {
@@ -1547,7 +1550,7 @@ export function useCanvas(options) {
           );
         });
         return {
-          ...toHistoryActionResult(checkpoint, instance2),
+          ...toHistoryActionResult(checkpoint, instance),
           applied,
         };
       },
@@ -1561,38 +1564,38 @@ export function useCanvas(options) {
         let applied = false;
         const sort = {
           sortBy,
-          assetName: (node2) => {
+          assetName: (node) => {
             const assets = assetMetadataStore.getState();
             return (
-              assets.get(node2.assetId ?? node2.id)?.name ??
-              assets.get(node2.id)?.name
+              assets.get(node.assetId ?? node.id)?.name ??
+              assets.get(node.id)?.name
             );
           },
         };
-        await instance2.autoLayoutSubset(
+        await instance.autoLayoutSubset(
           nodeIds,
           layout,
           includeDeps,
           collectMeasuredSizes(storeApi),
           {
             sort,
-            onCommit: (next2, accepted) => {
-              checkpoint = next2;
+            onCommit: (next, accepted) => {
+              checkpoint = next;
               applied = accepted === true;
             },
           },
         );
         if (applied)
-          instance2.eventBus.emit({
+          instance.eventBus.emit({
             type: "persist:request",
           });
         return {
-          ...toHistoryActionResult(checkpoint, instance2),
+          ...toHistoryActionResult(checkpoint, instance),
           applied,
         };
       },
       tidyGroupChildren: async (
-        groupId2,
+        groupId,
         layout,
         includeDeps,
         sortBy = "name",
@@ -1601,36 +1604,36 @@ export function useCanvas(options) {
         let applied = false;
         const sort = {
           sortBy,
-          assetName: (node2) => {
+          assetName: (node) => {
             const assets = assetMetadataStore.getState();
             return (
-              assets.get(node2.assetId ?? node2.id)?.name ??
-              assets.get(node2.id)?.name
+              assets.get(node.assetId ?? node.id)?.name ??
+              assets.get(node.id)?.name
             );
           },
         };
-        await instance2.relayoutGroupWithDagre(
-          groupId2,
+        await instance.relayoutGroupWithDagre(
+          groupId,
           layout,
           includeDeps,
           collectMeasuredSizes(storeApi),
-          (next2, accepted) => {
-            checkpoint = next2;
+          (next, accepted) => {
+            checkpoint = next;
             applied = accepted === true;
           },
           sort,
         );
         if (applied)
-          instance2.eventBus.emit({
+          instance.eventBus.emit({
             type: "persist:request",
           });
         return {
-          ...toHistoryActionResult(checkpoint, instance2),
+          ...toHistoryActionResult(checkpoint, instance),
           applied,
         };
       },
       tidyGroupChildrenSubset: async (
-        groupId2,
+        groupId,
         childIds,
         layout,
         sortBy = "name",
@@ -1639,40 +1642,40 @@ export function useCanvas(options) {
         let applied = false;
         const sort = {
           sortBy,
-          assetName: (node2) => {
+          assetName: (node) => {
             const assets = assetMetadataStore.getState();
             return (
-              assets.get(node2.assetId ?? node2.id)?.name ??
-              assets.get(node2.id)?.name
+              assets.get(node.assetId ?? node.id)?.name ??
+              assets.get(node.id)?.name
             );
           },
         };
-        await instance2.autoLayoutGroupChildrenSubset(
-          groupId2,
+        await instance.autoLayoutGroupChildrenSubset(
+          groupId,
           childIds,
           layout,
           collectMeasuredSizes(storeApi),
-          (next2, accepted) => {
-            checkpoint = next2;
+          (next, accepted) => {
+            checkpoint = next;
             applied = accepted === true;
           },
           sort,
         );
         if (applied)
-          instance2.eventBus.emit({
+          instance.eventBus.emit({
             type: "persist:request",
           });
         return {
-          ...toHistoryActionResult(checkpoint, instance2),
+          ...toHistoryActionResult(checkpoint, instance),
           applied,
         };
       },
-      undo: () => instance2.undo(),
-      redo: () => instance2.redo(),
-      switchMode: (m3) => instance2.switchMode(m3),
+      undo: () => instance.undo(),
+      redo: () => instance.redo(),
+      switchMode: (mode) => instance.switchMode(mode),
     }),
     [
-      instance2,
+      instance,
       fitView,
       syncStableZoomAfterViewportChange,
       storeApi,
@@ -1688,14 +1691,14 @@ export function useCanvas(options) {
     loadError,
     loadRetrying,
     retryLoad,
-    mode: instance2.getMode(),
+    mode: instance.getMode(),
     commandRegistry,
     onNodesChange,
     onEdgesChange,
     onConnect,
     onNodeDragStop,
     commands,
-    instance: instance2,
+    instance,
     savedPositionsRef,
     hiddenAssetIdsRef,
     getDropPosition,

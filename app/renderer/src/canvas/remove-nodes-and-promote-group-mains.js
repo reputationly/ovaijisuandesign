@@ -8,111 +8,111 @@ import {
   ungroupInCanvas,
 } from "./ungroup-in-canvas.js";
 import { isAssetBackedNode } from "./compute-group-bounds-from-children.js";
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import { buildCanvasFileSnapshot } from "./runtime-node-to-file-node.js";
 export function removeNodesAndPromoteGroupMains(nodes, removedNodeIds) {
   const affectedGroupIds = new Set();
   const removedVisibleMainByGroup = new Map();
   const removedMainIndexByGroup = new Map();
-  for (const node2 of nodes) {
-    if (removedNodeIds.has(node2.id) && node2.groupId)
-      affectedGroupIds.add(node2.groupId);
+  for (const node of nodes) {
+    if (removedNodeIds.has(node.id) && node.groupId)
+      affectedGroupIds.add(node.groupId);
   }
-  for (const groupId2 of affectedGroupIds) {
-    const members = collectGroupMembers(nodes, groupId2);
-    const main2 = members.find((member) => member.meta?.hidden !== true);
-    if (!main2 || !removedNodeIds.has(main2.id)) continue;
+  for (const groupId of affectedGroupIds) {
+    const members = collectGroupMembers(nodes, groupId);
+    const main = members.find((member) => member.meta?.hidden !== true);
+    if (!main || !removedNodeIds.has(main.id)) continue;
     removedMainIndexByGroup.set(
-      groupId2,
-      members.findIndex((member) => member.id === main2.id),
+      groupId,
+      members.findIndex((member) => member.id === main.id),
     );
-    const runtimeMain = nodes.find((node2) => node2.id === main2.id);
-    if (runtimeMain) removedVisibleMainByGroup.set(groupId2, runtimeMain);
+    const runtimeMain = nodes.find((node) => node.id === main.id);
+    if (runtimeMain) removedVisibleMainByGroup.set(groupId, runtimeMain);
   }
-  let remaining = nodes.filter((node2) => !removedNodeIds.has(node2.id));
-  for (const groupId2 of affectedGroupIds) {
-    const members = remaining.filter((node2) => node2.groupId === groupId2);
+  let remaining = nodes.filter((node) => !removedNodeIds.has(node.id));
+  for (const groupId of affectedGroupIds) {
+    const members = remaining.filter((node) => node.groupId === groupId);
     if (
       members.length === 0 ||
-      members.some((node2) => node2.meta?.hidden !== true)
+      members.some((node) => node.meta?.hidden !== true)
     )
       continue;
     const successorId = pickSuccessorMain(
       members,
-      removedMainIndexByGroup.get(groupId2) ?? 0,
+      removedMainIndexByGroup.get(groupId) ?? 0,
     );
     const successor =
-      members.find((node2) => node2.id === successorId) ?? members[0];
-    const previousMain = removedVisibleMainByGroup.get(groupId2);
-    remaining = remaining.map((node2) => {
-      if (node2.id !== successor.id) return node2;
-      const next2 = {
-        ...node2,
+      members.find((node) => node.id === successorId) ?? members[0];
+    const previousMain = removedVisibleMainByGroup.get(groupId);
+    remaining = remaining.map((node) => {
+      if (node.id !== successor.id) return node;
+      const next = {
+        ...node,
         meta: {
-          ...(node2.meta ?? {}),
+          ...(node.meta ?? {}),
           hidden: false,
         },
       };
       if (previousMain) {
-        next2.positions = {
+        next.positions = {
           ...(previousMain.positions ?? {}),
         };
         if (previousMain.size)
-          next2.size = {
+          next.size = {
             ...previousMain.size,
           };
         if (previousMain.sizes)
-          next2.sizes = {
+          next.sizes = {
             ...previousMain.sizes,
           };
         if (previousMain.parentId !== void 0)
-          next2.parentId = previousMain.parentId;
-        else delete next2.parentId;
+          next.parentId = previousMain.parentId;
+        else delete next.parentId;
       }
       const assetId =
-        next2.assetId ??
-        (next2.data && typeof next2.data === "object"
-          ? next2.data.assetId
+        next.assetId ??
+        (next.data && typeof next.data === "object"
+          ? next.data.assetId
           : void 0);
       return typeof assetId === "string" && assetId.length > 0
         ? {
-            ...next2,
+            ...next,
             data: {
-              ...next2.data,
+              ...next.data,
               assetId,
             },
           }
-        : next2;
+        : next;
     });
   }
   return remaining;
 }
 const IN_FLIGHT_NODE_STATUSES = new Set(["pending", "generating", "loading"]);
-export function isInFlightNode(node2) {
-  if (!node2) return false;
-  const status = node2.data?.status;
+export function isInFlightNode(node) {
+  if (!node) return false;
+  const status = node.data?.status;
   return typeof status === "string" && IN_FLIGHT_NODE_STATUSES.has(status);
 }
-export function isRetainedGenerationNode(node2) {
-  if (!node2) return false;
-  const status = node2.data?.status;
+export function isRetainedGenerationNode(node) {
+  if (!node) return false;
+  const status = node.data?.status;
   return status === "recoverable_error" || status === "status_unknown";
 }
-function historyTraversalBlock(current2, candidate, isProtectedNode) {
+function historyTraversalBlock(current, candidate, isProtectedNode) {
   if (!candidate) return "empty";
   const candidateById = new Map(
-    candidate.nodes.map((node2) => [node2.id, node2]),
+    candidate.nodes.map((node) => [node.id, node]),
   );
-  for (const node2 of current2.nodes) {
-    if (!isProtectedNode(node2)) continue;
-    const twin = candidateById.get(node2.id);
+  for (const node of current.nodes) {
+    if (!isProtectedNode(node)) continue;
+    const twin = candidateById.get(node.id);
     if (!twin || !isProtectedNode(twin)) return "in-flight";
   }
   return "none";
 }
-export function decideHistoryStep(current2, candidate) {
+export function decideHistoryStep(current, candidate) {
   const inFlightBlock = historyTraversalBlock(
-    current2,
+    current,
     candidate,
     isInFlightNode,
   );
@@ -122,7 +122,7 @@ export function decideHistoryStep(current2, candidate) {
       blockReason: "generating",
     };
   const retainedBlock = historyTraversalBlock(
-    current2,
+    current,
     candidate,
     isRetainedGenerationNode,
   );
@@ -168,48 +168,48 @@ export function isChildFullyOutsideParent(
   );
 }
 const COMFYUI_PLUGIN_ID = "comfyui";
-function readComfyUiWorkflowIdentity(node2) {
-  if (!node2.data || typeof node2.data !== "object") return void 0;
-  const data2 = node2.data;
-  if (data2.pluginId !== COMFYUI_PLUGIN_ID) return void 0;
-  for (const key2 of ["currentWorkflowId", "sourceTemplateId"]) {
-    const value = data2[key2];
+function readComfyUiWorkflowIdentity(node) {
+  if (!node.data || typeof node.data !== "object") return void 0;
+  const data = node.data;
+  if (data.pluginId !== COMFYUI_PLUGIN_ID) return void 0;
+  for (const key of ["currentWorkflowId", "sourceTemplateId"]) {
+    const value = data[key];
     if (typeof value !== "string") continue;
-    const identity2 = value.trim();
-    if (identity2) return identity2;
+    const identity = value.trim();
+    if (identity) return identity;
   }
   return void 0;
 }
-function readTemplateCopyOrdinal(node2) {
-  if (!node2.data || typeof node2.data !== "object") return 0;
-  const ordinal = node2.data.comfyuiTemplateCopyOrdinal;
+function readTemplateCopyOrdinal(node) {
+  if (!node.data || typeof node.data !== "object") return 0;
+  const ordinal = node.data.comfyuiTemplateCopyOrdinal;
   return typeof ordinal === "number" && Number.isInteger(ordinal) && ordinal > 0
     ? ordinal
     : 0;
 }
 export function assignComfyUiTemplateCopyOrdinals(existingNodes, pastedNodes) {
   const nextOrdinalByTemplate = new Map();
-  for (const node2 of existingNodes) {
-    const workflowIdentity = readComfyUiWorkflowIdentity(node2);
+  for (const node of existingNodes) {
+    const workflowIdentity = readComfyUiWorkflowIdentity(node);
     if (!workflowIdentity) continue;
     nextOrdinalByTemplate.set(
       workflowIdentity,
       Math.max(
         nextOrdinalByTemplate.get(workflowIdentity) ?? 0,
-        readTemplateCopyOrdinal(node2),
+        readTemplateCopyOrdinal(node),
       ),
     );
   }
-  return pastedNodes.map((node2) => {
-    const workflowIdentity = readComfyUiWorkflowIdentity(node2);
-    if (!workflowIdentity || !node2.data || typeof node2.data !== "object")
-      return node2;
+  return pastedNodes.map((node) => {
+    const workflowIdentity = readComfyUiWorkflowIdentity(node);
+    if (!workflowIdentity || !node.data || typeof node.data !== "object")
+      return node;
     const nextOrdinal = (nextOrdinalByTemplate.get(workflowIdentity) ?? 0) + 1;
     nextOrdinalByTemplate.set(workflowIdentity, nextOrdinal);
     return {
-      ...node2,
+      ...node,
       data: {
-        ...node2.data,
+        ...node.data,
         comfyuiTemplateCopyOrdinal: nextOrdinal,
       },
     };
@@ -217,29 +217,29 @@ export function assignComfyUiTemplateCopyOrdinals(existingNodes, pastedNodes) {
 }
 export function backfillLegacyComfyUiTemplateCopyOrdinals(nodes) {
   const templatesWithOrdinals = new Set();
-  for (const node2 of nodes) {
-    const workflowIdentity = readComfyUiWorkflowIdentity(node2);
-    if (workflowIdentity && readTemplateCopyOrdinal(node2) > 0) {
+  for (const node of nodes) {
+    const workflowIdentity = readComfyUiWorkflowIdentity(node);
+    if (workflowIdentity && readTemplateCopyOrdinal(node) > 0) {
       templatesWithOrdinals.add(workflowIdentity);
     }
   }
   const nextOrdinalByTemplate = new Map();
-  return nodes.map((node2) => {
-    const workflowIdentity = readComfyUiWorkflowIdentity(node2);
+  return nodes.map((node) => {
+    const workflowIdentity = readComfyUiWorkflowIdentity(node);
     if (
       !workflowIdentity ||
       templatesWithOrdinals.has(workflowIdentity) ||
-      !node2.data ||
-      typeof node2.data !== "object"
+      !node.data ||
+      typeof node.data !== "object"
     ) {
-      return node2;
+      return node;
     }
     const nextOrdinal = (nextOrdinalByTemplate.get(workflowIdentity) ?? 0) + 1;
     nextOrdinalByTemplate.set(workflowIdentity, nextOrdinal);
     return {
-      ...node2,
+      ...node,
       data: {
-        ...node2.data,
+        ...node.data,
         comfyuiTemplateCopyOrdinal: nextOrdinal,
       },
     };
@@ -247,29 +247,29 @@ export function backfillLegacyComfyUiTemplateCopyOrdinals(nodes) {
 }
 export function planGroupAwareRemoval(
   graph,
-  mode2,
+  mode,
   requestedNodeIds,
   requestedEdgeIds,
 ) {
-  const nodeById = new Map(graph.nodes.map((node2) => [node2.id, node2]));
-  let snapshot2 = buildCanvasFileSnapshot(graph, mode2);
+  const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
+  let snapshot = buildCanvasFileSnapshot(graph, mode);
   const ungroupedChildrenByGroupId = new Map();
   const refusedGroupIds = new Set();
-  for (const id2 of requestedNodeIds) {
-    if (nodeById.get(id2)?.type !== CanvasNodeType.Group) continue;
-    const result = ungroupInCanvas(snapshot2, id2);
+  for (const id of requestedNodeIds) {
+    if (nodeById.get(id)?.type !== CanvasNodeType.Group) continue;
+    const result = ungroupInCanvas(snapshot, id);
     if (!result.removed) {
-      refusedGroupIds.add(id2);
+      refusedGroupIds.add(id);
       continue;
     }
-    snapshot2 = result.canvas;
-    ungroupedChildrenByGroupId.set(id2, result.updatedNodes);
+    snapshot = result.canvas;
+    ungroupedChildrenByGroupId.set(id, result.updatedNodes);
   }
   const edgeById = new Map(graph.edges.map((edge) => [edge.id, edge]));
   return {
-    removalNodeIds: requestedNodeIds.filter((id2) => !refusedGroupIds.has(id2)),
-    removalEdgeIds: requestedEdgeIds.filter((id2) => {
-      const edge = edgeById.get(id2);
+    removalNodeIds: requestedNodeIds.filter((id) => !refusedGroupIds.has(id)),
+    removalEdgeIds: requestedEdgeIds.filter((id) => {
+      const edge = edgeById.get(id);
       return (
         !edge ||
         (!refusedGroupIds.has(edge.source) && !refusedGroupIds.has(edge.target))
@@ -278,33 +278,33 @@ export function planGroupAwareRemoval(
     ungroupedChildrenByGroupId,
   };
 }
-export function isBoxOutsideRect(box2, rect) {
-  const a2 = {
-    x: box2.minX,
-    y: box2.minY,
-    w: box2.maxX - box2.minX,
-    h: box2.maxY - box2.minY,
+export function isBoxOutsideRect(box, rect) {
+  const boxRect = {
+    x: box.minX,
+    y: box.minY,
+    w: box.maxX - box.minX,
+    h: box.maxY - box.minY,
   };
-  const b3 = {
+  const targetRect = {
     x: rect.x,
     y: rect.y,
     w: rect.width,
     h: rect.height,
   };
-  return !rectsOverlap(a2, b3);
+  return !rectsOverlap(boxRect, targetRect);
 }
-export function computeNodeGroupBounds(nodes, mode2) {
+export function computeNodeGroupBounds(nodes, mode) {
   let minX = Number.POSITIVE_INFINITY;
   let minY = Number.POSITIVE_INFINITY;
   let maxX = Number.NEGATIVE_INFINITY;
   let maxY = Number.NEGATIVE_INFINITY;
-  for (const node2 of nodes) {
-    const size2 = sizeOf(node2, mode2);
-    const pos = getNodePosition(node2, mode2);
+  for (const node of nodes) {
+    const size = sizeOf(node, mode);
+    const pos = getNodePosition(node, mode);
     minX = Math.min(minX, pos.x);
     minY = Math.min(minY, pos.y);
-    maxX = Math.max(maxX, pos.x + size2.width);
-    maxY = Math.max(maxY, pos.y + size2.height);
+    maxX = Math.max(maxX, pos.x + size.width);
+    maxY = Math.max(maxY, pos.y + size.height);
   }
   return {
     minX,
@@ -317,18 +317,18 @@ export function computeNodeGroupBounds(nodes, mode2) {
     },
   };
 }
-export function centerNodeGroupAt(nodes, target, mode2) {
+export function centerNodeGroupAt(nodes, target, mode) {
   const topLevel = nodes.filter(
-    (n2) => !n2.parentId && n2.meta?.hidden !== true,
+    (node) => !node.parentId && node.meta?.hidden !== true,
   );
   if (topLevel.length === 0) return;
-  const { center } = computeNodeGroupBounds(topLevel, mode2);
-  const { x: cx2, y: cy } = center;
-  const dx = target.x - cx2;
+  const { center } = computeNodeGroupBounds(topLevel, mode);
+  const { x: cx, y: cy } = center;
+  const dx = target.x - cx;
   const dy = target.y - cy;
-  for (const node2 of topLevel) {
-    const cur = getNodePosition(node2, mode2);
-    setNodePosition(node2, mode2, {
+  for (const node of topLevel) {
+    const cur = getNodePosition(node, mode);
+    setNodePosition(node, mode, {
       x: cur.x + dx,
       y: cur.y + dy,
     });
@@ -336,21 +336,21 @@ export function centerNodeGroupAt(nodes, target, mode2) {
 }
 export function expandSelectionWithGroupChildren(allNodes, selectedIds) {
   const result = new Set(selectedIds);
-  for (const node2 of allNodes) {
-    if (node2.type !== CanvasNodeType.Group) continue;
-    if (!result.has(node2.id)) continue;
+  for (const node of allNodes) {
+    if (node.type !== CanvasNodeType.Group) continue;
+    if (!result.has(node.id)) continue;
     for (const candidate of allNodes) {
-      if (candidate.parentId === node2.id) result.add(candidate.id);
+      if (candidate.parentId === node.id) result.add(candidate.id);
     }
   }
   const selectedGroupIds = new Set();
-  for (const node2 of allNodes) {
+  for (const node of allNodes) {
     if (
-      result.has(node2.id) &&
-      typeof node2.groupId === "string" &&
-      node2.groupId.length > 0
+      result.has(node.id) &&
+      typeof node.groupId === "string" &&
+      node.groupId.length > 0
     ) {
-      selectedGroupIds.add(node2.groupId);
+      selectedGroupIds.add(node.groupId);
     }
   }
   if (selectedGroupIds.size > 0) {
@@ -362,20 +362,20 @@ export function expandSelectionWithGroupChildren(allNodes, selectedIds) {
   return result;
 }
 export function normalizeOrphanChildForClipboard(
-  node2,
+  node,
   allNodes,
   copiedIds,
-  mode2,
+  mode,
 ) {
-  if (node2.groupId && node2.meta?.hidden === true) {
-    const groupMembers = allNodes.filter((n2) => n2.groupId === node2.groupId);
-    const main2 = groupMembers.find((n2) => n2.meta?.hidden !== true);
-    const mainCopied = main2 ? copiedIds.has(main2.id) : false;
+  if (node.groupId && node.meta?.hidden === true) {
+    const groupMembers = allNodes.filter((memberNode) => memberNode.groupId === node.groupId);
+    const main = groupMembers.find((mainNodeCandidate) => mainNodeCandidate.meta?.hidden !== true);
+    const mainCopied = main ? copiedIds.has(main.id) : false;
     if (!mainCopied) {
-      const mainPos = main2
-        ? getNodePosition(main2, mode2)
-        : getNodePosition(node2, mode2);
-      const { groupId: _g, round: _r, ...rest } = node2;
+      const mainPos = main
+        ? getNodePosition(main, mode)
+        : getNodePosition(node, mode);
+      const { groupId: _g, round: _r, ...rest } = node;
       return {
         ...rest,
         meta: {
@@ -383,8 +383,8 @@ export function normalizeOrphanChildForClipboard(
           hidden: false,
         },
         positions: {
-          ...node2.positions,
-          [mode2]: {
+          ...node.positions,
+          [mode]: {
             x: mainPos.x,
             y: mainPos.y,
           },
@@ -392,43 +392,43 @@ export function normalizeOrphanChildForClipboard(
       };
     }
   }
-  if (!node2.parentId || copiedIds.has(node2.parentId)) return node2;
-  const parent = allNodes.find((p3) => p3.id === node2.parentId);
+  if (!node.parentId || copiedIds.has(node.parentId)) return node;
+  const parent = allNodes.find((parentNode) => parentNode.id === node.parentId);
   if (!parent)
     return {
-      ...node2,
+      ...node,
       parentId: void 0,
     };
-  const parentPos = getNodePosition(parent, mode2);
-  const childRel = getNodePosition(node2, mode2);
+  const parentPos = getNodePosition(parent, mode);
+  const childRel = getNodePosition(node, mode);
   return {
-    ...node2,
+    ...node,
     parentId: void 0,
     positions: {
-      ...node2.positions,
-      [mode2]: {
+      ...node.positions,
+      [mode]: {
         x: parentPos.x + childRel.x,
         y: parentPos.y + childRel.y,
       },
     },
   };
 }
-export function resolveNodeAssetId(node2) {
-  if (typeof node2.assetId === "string" && node2.assetId.length > 0)
-    return node2.assetId;
-  const dataAssetId = node2.data?.assetId;
+export function resolveNodeAssetId(node) {
+  if (typeof node.assetId === "string" && node.assetId.length > 0)
+    return node.assetId;
+  const dataAssetId = node.data?.assetId;
   if (typeof dataAssetId === "string" && dataAssetId.length > 0)
     return dataAssetId;
-  const parsed = parseNodeId(node2.id).assetId;
+  const parsed = parseNodeId(node.id).assetId;
   return parsed.length > 0 ? parsed : void 0;
 }
 export function collectClipboardAssetPaths(nodes, resolveAssetPath) {
   const result = {};
-  for (const node2 of nodes) {
-    if (!isAssetBackedNode(node2.type)) continue;
-    const assetId = resolveNodeAssetId(node2);
+  for (const node of nodes) {
+    if (!isAssetBackedNode(node.type)) continue;
+    const assetId = resolveNodeAssetId(node);
     if (!assetId || result[assetId]) continue;
-    const dataPath = node2.data?.path;
+    const dataPath = node.data?.path;
     if (typeof dataPath === "string" && dataPath.length > 0) {
       result[assetId] = dataPath;
       continue;

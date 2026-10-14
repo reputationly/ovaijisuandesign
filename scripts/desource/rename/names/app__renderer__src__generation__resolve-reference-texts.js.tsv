@@ -1,0 +1,8 @@
+key	old	new	依据
+c3@8:14	c3	constraint	约束对象包含禁用参数和值的条件。
+v2@13:18	v2	value	去掉打包器防重名追加的后缀，恢复原名 value，即该绑定持有的值。
+constraints2@5:61	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
+disabled2@6:9	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+seen2@26:9	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+node2@43:13	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+seen2@85:9	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。

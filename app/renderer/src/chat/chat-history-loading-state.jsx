@@ -1,10 +1,10 @@
 // chat-history-loading-state.jsx
-import { Loader2 } from "../vendor.js";
+import { Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { Skeleton } from "../team/use-wallet-query.jsx";
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
 export function ChatHistoryLoadingState({
   label,
   includeChrome = false,
@@ -12,7 +12,7 @@ export function ChatHistoryLoadingState({
 }) {
   return (
     <div
-      className={cn(
+      className={mergeClassNames(
         "chat-history-skeleton-stage flex min-h-0 flex-1 flex-col overflow-hidden bg-card",
         className,
       )}

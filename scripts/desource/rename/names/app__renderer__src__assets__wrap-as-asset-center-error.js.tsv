@@ -1,0 +1,28 @@
+key	old	new	依据
+qs@185:9	qs	queryString	该值是序列化后的 URL 查询参数字符串。
+q2@216:12	q2	searchQuery	该值是资产中心搜索查询键中的搜索字符串。
+message2@11:10	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+message2@12:10	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+logService2@14:26	logService2	logService	去掉打包器防重名追加的后缀，恢复原名 logService，即该绑定持有的值。
+message2@14:39	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+logService2@21:26	logService2	logService	去掉打包器防重名追加的后缀，恢复原名 logService，即该绑定持有的值。
+message2@21:39	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+services2@28:27	services2	services	去掉打包器防重名追加的后缀，恢复原名 services，即该绑定持有的值。
+properties2@28:49	properties2	properties	去掉打包器防重名追加的后缀，恢复原名 properties，即该绑定持有的值。
+seen2@57:7	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+key2@83:41	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+data2@84:9	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+message2@98:15	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+body2@105:36	body2	body	去掉打包器防重名追加的后缀，恢复原名 body，即该绑定持有的值。
+code2@107:9	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+message2@108:9	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+code2@121:7	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+message2@122:7	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+body2@124:11	body2	body	去掉打包器防重名追加的后缀，恢复原名 body，即该绑定持有的值。
+data2@130:13	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+path2@149:42	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+url2@150:9	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+init2@152:37	init2	init	去掉打包器防重名追加的后缀，恢复原名 init，即该绑定持有的值。
+path2@163:17	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+data2@191:9	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+base2@366:9	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。

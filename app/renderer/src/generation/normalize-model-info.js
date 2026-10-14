@@ -1,14 +1,15 @@
 // normalize-model-info.js
-import {
-  API_PATHS,
-  QUERY_KEY$1 as QUERY_KEY,
-  useGatewayScope,
-  useQuery,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useGatewayScope } from "../infra/runtime-config.js";
+import { useQuery } from "@tanstack/react-query";
 import {
   useGatewayFetch,
   useModelCatalogScopeKey,
 } from "./use-model-catalog-scope-key.js";
+
+export const QUERY_KEY$1 = ["models"];
+const QUERY_KEY = QUERY_KEY$1;
+
 const STALE_24H = 24 * 60 * 60 * 1e3;
 const REGISTRY_RETRY_COUNT = 5;
 const REGISTRY_RETRY_DELAY_MS = 300;

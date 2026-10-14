@@ -1,5 +1,7 @@
 // use-group-execution.js
-import { CanvasNodeType, reactExports, useTranslation } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import {
   resolveReferenceAudios,
@@ -23,32 +25,32 @@ import {
   useGeneratingStateApi,
 } from "../media-editing/package.jsx";
 
-function getString(data2, key2) {
-  if (!data2 || typeof data2 !== "object") return "";
-  const v2 = data2[key2];
-  return typeof v2 === "string" ? v2 : "";
+function getString(data, key) {
+  if (!data || typeof data !== "object") return "";
+  const fieldValue = data[key];
+  return typeof fieldValue === "string" ? fieldValue : "";
 }
 
-function getStringRecord(data2, key2) {
-  if (!data2 || typeof data2 !== "object") return {};
-  const v2 = data2[key2];
-  if (!v2 || typeof v2 !== "object") return {};
+function getStringRecord(data, recordKey) {
+  if (!data || typeof data !== "object") return {};
+  const fieldValue = data[recordKey];
+  if (!fieldValue || typeof fieldValue !== "object") return {};
   const out = {};
-  for (const [k2, val] of Object.entries(v2)) {
-    if (typeof val === "string") out[k2] = val;
+  for (const [key, val] of Object.entries(fieldValue)) {
+    if (typeof val === "string") out[key] = val;
   }
   return out;
 }
 
-function getStringArray(data2, key2) {
-  if (!data2 || typeof data2 !== "object") return void 0;
-  const v2 = data2[key2];
-  if (!Array.isArray(v2)) return void 0;
-  return v2.filter((item) => typeof item === "string" && item.length > 0);
+function getStringArray(data, key) {
+  if (!data || typeof data !== "object") return void 0;
+  const fieldValue = data[key];
+  if (!Array.isArray(fieldValue)) return void 0;
+  return fieldValue.filter((item) => typeof item === "string" && item.length > 0);
 }
 
 async function dispatchToBridge(
-  node2,
+  node,
   prompt,
   modelId,
   params,
@@ -59,7 +61,7 @@ async function dispatchToBridge(
   refTexts,
   bridge,
 ) {
-  switch (node2.type) {
+  switch (node.type) {
     case CanvasNodeType.Image: {
       if (refVideos.length > 0 || refAudios.length > 0) {
         if (!bridge.submitImg2Video)
@@ -68,7 +70,7 @@ async function dispatchToBridge(
             error: "no-bridge",
           };
         return bridge.submitImg2Video(
-          node2.id,
+          node.id,
           prompt,
           modelId,
           params,
@@ -89,7 +91,7 @@ async function dispatchToBridge(
           error: "no-bridge",
         };
       return bridge.submitImg2Image(
-        node2.id,
+        node.id,
         prompt,
         modelId,
         params,
@@ -109,7 +111,7 @@ async function dispatchToBridge(
           error: "no-bridge",
         };
       return bridge.submitImg2Video(
-        node2.id,
+        node.id,
         prompt,
         modelId,
         params,
@@ -131,7 +133,7 @@ async function dispatchToBridge(
           error: "no-bridge",
         };
       return bridge.submitTxt2Audio(
-        node2.id,
+        node.id,
         prompt,
         modelId,
         params,
@@ -150,7 +152,7 @@ async function dispatchToBridge(
           error: "no-bridge",
         };
       return bridge.submitTxt2Text(
-        node2.id,
+        node.id,
         prompt,
         modelId,
         params,
@@ -163,13 +165,13 @@ async function dispatchToBridge(
     default:
       return {
         success: false,
-        error: `unsupported-type:${node2.type}`,
+        error: `unsupported-type:${node.type}`,
       };
   }
 }
 
 async function runNode(
-  node2,
+  node,
   bridge,
   isCancelled,
   assetStore,
@@ -182,11 +184,11 @@ async function runNode(
       success: false,
       error: "cancelled",
     };
-  const prompt = getString(node2.data, "prompt");
-  const modelId = getString(node2.data, "model_id");
-  const params = getStringRecord(node2.data, "params");
-  const replaceNodeId = node2.id;
-  const meta2 = getAssetMetaByNodeIdFromStore(assetStore, node2.id);
+  const prompt = getString(node.data, "prompt");
+  const modelId = getString(node.data, "model_id");
+  const params = getStringRecord(node.data, "params");
+  const replaceNodeId = node.id;
+  const meta = getAssetMetaByNodeIdFromStore(assetStore, node.id);
   const {
     image: refImages,
     video: refVideos,
@@ -195,30 +197,30 @@ async function runNode(
   } = restoreCanvasReferencePaths(prompt, {
     image: resolveReferenceImages(
       incomingSourceIds,
-      meta2?.referenceImageIds,
+      meta?.referenceImageIds,
       assetStore,
     ),
     video: resolveReferenceVideos(
       incomingSourceIds,
-      meta2?.referenceVideoIds,
+      meta?.referenceVideoIds,
       assetStore,
     ),
     audio: resolveReferenceAudios(
       incomingSourceIds,
-      meta2?.referenceAudioIds,
+      meta?.referenceAudioIds,
       assetStore,
     ),
     text: resolveReferenceTexts(
       incomingSourceIds,
-      getStringArray(node2.data, "referenceTextIds") ?? meta2?.referenceTextIds,
+      getStringArray(node.data, "referenceTextIds") ?? meta?.referenceTextIds,
       assetStore,
       getNodeById,
     ),
   });
   let effectivePrompt = prompt;
   if (
-    (node2.type === CanvasNodeType.Image ||
-      node2.type === CanvasNodeType.Video) &&
+    (node.type === CanvasNodeType.Image ||
+      node.type === CanvasNodeType.Video) &&
     refTexts.length > 0
   ) {
     try {
@@ -235,12 +237,12 @@ async function runNode(
     }
   }
   const showsSpinner =
-    node2.type === CanvasNodeType.Image ||
-    node2.type === CanvasNodeType.Video ||
-    node2.type === CanvasNodeType.Audio;
+    node.type === CanvasNodeType.Image ||
+    node.type === CanvasNodeType.Video ||
+    node.type === CanvasNodeType.Audio;
   if (showsSpinner) {
-    const prevUrl = getAssetMetaByNodeIdFromStore(assetStore, node2.id)?.url;
-    generatingStore.getState().mark(node2.id, {
+    const prevUrl = getAssetMetaByNodeIdFromStore(assetStore, node.id)?.url;
+    generatingStore.getState().mark(node.id, {
       prompt,
       model: modelId,
       modelId,
@@ -250,7 +252,7 @@ async function runNode(
     });
   }
   const result = await dispatchToBridge(
-    node2,
+    node,
     effectivePrompt,
     modelId,
     params,
@@ -262,16 +264,16 @@ async function runNode(
     bridge,
   );
   if (showsSpinner && !result.success) {
-    const current2 = generatingStore.getState().byNode.get(node2.id);
-    if (!current2?.error) {
-      generatingStore.getState().clear(node2.id);
+    const current = generatingStore.getState().byNode.get(node.id);
+    if (!current?.error) {
+      generatingStore.getState().clear(node.id);
     }
   }
   return result;
 }
 
-export function useGroupExecution(instance2) {
-  const { t: t2 } = useTranslation();
+export function useGroupExecution(instance) {
+  const { t: translate } = useTranslation();
   const bridge = useCanvasBridge();
   const bridgeRef = reactExports.useRef(bridge);
   bridgeRef.current = bridge;
@@ -286,33 +288,33 @@ export function useGroupExecution(instance2) {
     new Set(),
   );
   const executeGroup = reactExports.useCallback(
-    async (groupId2) => {
-      if (executingGroupIdsRef.current.has(groupId2)) {
+    async (groupId) => {
+      if (executingGroupIdsRef.current.has(groupId)) {
         if (typeof console !== "undefined") {
           console.warn("[group-exec] re-entry blocked", {
-            groupId: groupId2,
+            groupId,
           });
         }
         return;
       }
-      const myToken = (tokensByGroupRef.current.get(groupId2) ?? 0) + 1;
-      tokensByGroupRef.current.set(groupId2, myToken);
-      cancelledGroupsRef.current.delete(groupId2);
+      const myToken = (tokensByGroupRef.current.get(groupId) ?? 0) + 1;
+      tokensByGroupRef.current.set(groupId, myToken);
+      cancelledGroupsRef.current.delete(groupId);
       const nextStart = new Set(executingGroupIdsRef.current);
-      nextStart.add(groupId2);
+      nextStart.add(groupId);
       executingGroupIdsRef.current = nextStart;
       setExecutingGroupIds(nextStart);
-      const isCancelled = () => cancelledGroupsRef.current.has(groupId2);
+      const isCancelled = () => cancelledGroupsRef.current.has(groupId);
       try {
-        const graph = instance2.getGraph();
-        const childNodes = graph.nodes.filter((n2) => n2.parentId === groupId2);
+        const graph = instance.getGraph();
+        const childNodes = graph.nodes.filter((node) => node.parentId === groupId);
         if (childNodes.length === 0) {
-          dedupedToast.info(t2("canvas.execGroup.empty", "组内没有节点"));
+          dedupedToast.info(translate("canvas.execGroup.empty", "组内没有节点"));
           return;
         }
-        const childIds = new Set(childNodes.map((n2) => n2.id));
+        const childIds = new Set(childNodes.map((node) => node.id));
         const groupEdges = graph.edges.filter(
-          (e2) => childIds.has(e2.source) && childIds.has(e2.target),
+          (edge) => childIds.has(edge.source) && childIds.has(edge.target),
         );
         const incomingByTarget = new Map();
         for (const edge of graph.edges) {
@@ -321,50 +323,50 @@ export function useGroupExecution(instance2) {
           if (arr) arr.push(edge.source);
           else incomingByTarget.set(edge.target, [edge.source]);
         }
-        const { children: children2, parents } = buildAdjacency(
+        const { children, parents } = buildAdjacency(
           childIds,
           groupEdges,
         );
-        const levelMap = topoSortLevels(childIds, children2, parents);
+        const levelMap = topoSortLevels(childIds, children, parents);
         const layers = groupByLevel(levelMap);
-        const nodeMap = new Map(childNodes.map((n2) => [n2.id, n2]));
-        const allNodesById = new Map(graph.nodes.map((n2) => [n2.id, n2]));
+        const nodeMap = new Map(childNodes.map((node) => [node.id, node]));
+        const allNodesById = new Map(graph.nodes.map((node) => [node.id, node]));
         const getNodeById = (sourceId) => {
-          const n2 = allNodesById.get(sourceId);
-          return n2
+          const sourceNode = allNodesById.get(sourceId);
+          return sourceNode
             ? {
-                type: n2.type,
-                assetId: n2.assetId,
-                data: n2.data ?? {},
+                type: sourceNode.type,
+                assetId: sourceNode.assetId,
+                data: sourceNode.data ?? {},
               }
             : null;
         };
         const executable = new Set(
           childNodes
-            .filter((n2) => isReexecutableGenerationNode(n2))
-            .map((n2) => n2.id),
+            .filter((node) => isReexecutableGenerationNode(node))
+            .map((node) => node.id),
         );
         if (executable.size === 0) {
           dedupedToast.info(
-            t2("canvas.execGroup.noExecutable", "组内没有可执行节点"),
+            translate("canvas.execGroup.noExecutable", "组内没有可执行节点"),
           );
           return;
         }
-        const totalLayers = layers.filter((layer2) =>
-          layer2.some((id2) => executable.has(id2)),
+        const totalLayers = layers.filter((layer) =>
+          layer.some((id) => executable.has(id)),
         ).length;
         let layerIdx = 0;
-        for (const layer2 of layers) {
+        for (const layer of layers) {
           if (isCancelled()) break;
-          const toRun = layer2
-            .filter((id2) => executable.has(id2))
-            .map((id2) => nodeMap.get(id2))
-            .filter((n2) => !!n2);
+          const toRun = layer
+            .filter((id) => executable.has(id))
+            .map((id) => nodeMap.get(id))
+            .filter((node) => !!node);
           if (toRun.length === 0) continue;
           layerIdx++;
           if (totalLayers > 1) {
             dedupedToast.info(
-              t2("canvas.execGroup.layer", {
+              translate("canvas.execGroup.layer", {
                 current: layerIdx,
                 total: totalLayers,
                 defaultValue: `执行第 ${layerIdx}/${totalLayers} 层`,
@@ -372,14 +374,14 @@ export function useGroupExecution(instance2) {
             );
           }
           const results = await Promise.all(
-            toRun.map((node2) =>
+            toRun.map((node) =>
               runNode(
-                node2,
+                node,
                 bridgeRef.current,
                 isCancelled,
                 assetStoreRef.current,
                 generatingStoreRef.current,
-                incomingByTarget.get(node2.id) ?? [],
+                incomingByTarget.get(node.id) ?? [],
                 getNodeById,
               ),
             ),
@@ -392,43 +394,43 @@ export function useGroupExecution(instance2) {
             );
             if (onlyRecoverable) {
               dedupedToast.warning(
-                t2(
+                translate(
                   "canvas.execGroup.incomplete",
                   "部分任务仍在恢复，已暂停后续执行",
                 ),
               );
             } else {
-              dedupedToast.error(t2("canvas.execGroup.failed", "整组执行失败"));
+              dedupedToast.error(translate("canvas.execGroup.failed", "整组执行失败"));
             }
             return;
           }
         }
         if (!isCancelled()) {
-          dedupedToast.success(t2("canvas.execGroup.complete", "整组执行完成"));
+          dedupedToast.success(translate("canvas.execGroup.complete", "整组执行完成"));
         }
       } finally {
-        if (tokensByGroupRef.current.get(groupId2) === myToken) {
+        if (tokensByGroupRef.current.get(groupId) === myToken) {
           const nextEnd = new Set(executingGroupIdsRef.current);
-          nextEnd.delete(groupId2);
+          nextEnd.delete(groupId);
           executingGroupIdsRef.current = nextEnd;
           setExecutingGroupIds(nextEnd);
-          cancelledGroupsRef.current.delete(groupId2);
+          cancelledGroupsRef.current.delete(groupId);
         }
       }
     },
-    [instance2, t2],
+    [instance, translate],
   );
-  const cancelExecution = reactExports.useCallback((groupId2) => {
-    if (!executingGroupIdsRef.current.has(groupId2)) return;
-    cancelledGroupsRef.current.add(groupId2);
+  const cancelExecution = reactExports.useCallback((groupId) => {
+    if (!executingGroupIdsRef.current.has(groupId)) return;
+    cancelledGroupsRef.current.add(groupId);
     tokensByGroupRef.current.set(
-      groupId2,
-      (tokensByGroupRef.current.get(groupId2) ?? 0) + 1,
+      groupId,
+      (tokensByGroupRef.current.get(groupId) ?? 0) + 1,
     );
-    const next2 = new Set(executingGroupIdsRef.current);
-    next2.delete(groupId2);
-    executingGroupIdsRef.current = next2;
-    setExecutingGroupIds(next2);
+    const next = new Set(executingGroupIdsRef.current);
+    next.delete(groupId);
+    executingGroupIdsRef.current = next;
+    setExecutingGroupIds(next);
   }, []);
   return {
     executeGroup,

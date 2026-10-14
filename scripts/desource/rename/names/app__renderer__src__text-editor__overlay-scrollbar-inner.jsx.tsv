@@ -1,0 +1,13 @@
+key	new	reason
+e2@86:6	mouseEvent	函数体读取指针坐标/按键的鼠标事件
+ev@102:23	mouseEvent	函数体读取指针坐标/按键的鼠标事件
+e2@122:6	mouseEvent	函数体读取指针坐标/按键的鼠标事件
+ro@80:11	resizeObserver	观察尺寸变化的 ResizeObserver
+client2@38:11	client	去掉打包器加的数字后缀，恢复原名 client
+maxOffset2@49:11	maxOffset	去掉打包器加的数字后缀，恢复原名 maxOffset
+client2@94:13	client	去掉打包器加的数字后缀，恢复原名 client
+maxOffset2@97:13	maxOffset	去掉打包器加的数字后缀，恢复原名 maxOffset
+next2@105:15	next	去掉打包器加的数字后缀，恢复原名 next
+maxOffset2@132:13	maxOffset	去掉打包器加的数字后缀，恢复原名 maxOffset
+client2@134:13	client	去掉打包器加的数字后缀，恢复原名 client
+next2@140:13	next	去掉打包器加的数字后缀，恢复原名 next

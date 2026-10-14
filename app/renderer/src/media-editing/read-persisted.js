@@ -5,7 +5,7 @@ import {
   IMAGE_TOOLBAR_TOOLS,
   LEGACY_IMAGE_TOOLBAR_TOOLS,
 } from "./use-start-cloud-edit-from-node.js";
-import { create$2 as create } from "../vendor.js";
+import { create } from "zustand";
 const STORAGE_KEY = "hilo:canvas:image-toolbar:customization";
 const PRE_RELIGHT_WORKFLOW_DEFAULT_PINNED = [
   "crop",
@@ -43,9 +43,9 @@ const MAIN_PANORAMA_DEFAULT_PINNED = [
 ];
 const LATEST_LAYOUT_VERSION = 2;
 const LEGACY_LAYOUT_VERSION = 1;
-function isImageToolbarToolId(v2) {
+function isImageToolbarToolId(toolId) {
   return (
-    LEGACY_IMAGE_TOOLBAR_TOOLS.includes(v2) || IMAGE_TOOLBAR_TOOLS.includes(v2)
+    LEGACY_IMAGE_TOOLBAR_TOOLS.includes(toolId) || IMAGE_TOOLBAR_TOOLS.includes(toolId)
   );
 }
 function readPersisted() {
@@ -57,15 +57,15 @@ function readPersisted() {
     };
   }
   try {
-    const raw2 = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw2) {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
       return {
         pinned: DEFAULT_PINNED,
         showLabels: DEFAULT_SHOW_LABELS,
         layoutVersion: LATEST_LAYOUT_VERSION,
       };
     }
-    const parsed = JSON.parse(raw2);
+    const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") {
       return {
         pinned: DEFAULT_PINNED,
@@ -73,12 +73,12 @@ function readPersisted() {
         layoutVersion: LATEST_LAYOUT_VERSION,
       };
     }
-    const p3 = parsed;
-    const parsedPinned = Array.isArray(p3.pinned)
-      ? p3.pinned.filter(isImageToolbarToolId)
+    const persistedSettings = parsed;
+    const parsedPinned = Array.isArray(persistedSettings.pinned)
+      ? persistedSettings.pinned.filter(isImageToolbarToolId)
       : DEFAULT_PINNED;
     const isKnownPreviousFactoryLayout =
-      p3.layoutVersion === LATEST_LAYOUT_VERSION &&
+      persistedSettings.layoutVersion === LATEST_LAYOUT_VERSION &&
       [
         PRE_RELIGHT_WORKFLOW_DEFAULT_PINNED,
         PRE_WATERMARK_DEFAULT_PINNED,
@@ -88,13 +88,13 @@ function readPersisted() {
       ].some(
         (factoryPinned) =>
           parsedPinned.length === factoryPinned.length &&
-          parsedPinned.every((id2, index2) => id2 === factoryPinned[index2]),
+          parsedPinned.every((pinnedToolId, index) => pinnedToolId === factoryPinned[index]),
       );
     const pinned = isKnownPreviousFactoryLayout ? DEFAULT_PINNED : parsedPinned;
     const showLabels =
-      typeof p3.showLabels === "boolean" ? p3.showLabels : DEFAULT_SHOW_LABELS;
+      typeof persistedSettings.showLabels === "boolean" ? persistedSettings.showLabels : DEFAULT_SHOW_LABELS;
     const layoutVersion =
-      p3.layoutVersion === LATEST_LAYOUT_VERSION
+      persistedSettings.layoutVersion === LATEST_LAYOUT_VERSION
         ? LATEST_LAYOUT_VERSION
         : LEGACY_LAYOUT_VERSION;
     return {
@@ -110,37 +110,37 @@ function readPersisted() {
     };
   }
 }
-function persist(state2) {
+function persist(state) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state2));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {}
 }
-export const useImageToolbarCustomizationStore = create((set2) => ({
+export const useImageToolbarCustomizationStore = create((set) => ({
   ...readPersisted(),
-  setCustomization(next2) {
-    const pinned = next2.pinned.filter(isImageToolbarToolId);
+  setCustomization(next) {
+    const pinned = next.pinned.filter(isImageToolbarToolId);
     const isDefault =
       pinned.length === DEFAULT_PINNED.length &&
-      pinned.every((id2, index2) => id2 === DEFAULT_PINNED[index2]) &&
-      !!next2.showLabels === DEFAULT_SHOW_LABELS;
-    const state2 = {
+      pinned.every((pinnedToolId, index) => pinnedToolId === DEFAULT_PINNED[index]) &&
+      !!next.showLabels === DEFAULT_SHOW_LABELS;
+    const state = {
       pinned,
-      showLabels: !!next2.showLabels,
+      showLabels: !!next.showLabels,
       layoutVersion: isDefault
         ? LATEST_LAYOUT_VERSION
         : useImageToolbarCustomizationStore.getState().layoutVersion,
     };
-    set2(state2);
-    persist(state2);
+    set(state);
+    persist(state);
   },
   resetToDefaults() {
-    const state2 = {
+    const state = {
       pinned: [...DEFAULT_PINNED],
       showLabels: DEFAULT_SHOW_LABELS,
       layoutVersion: LATEST_LAYOUT_VERSION,
     };
-    set2(state2);
-    persist(state2);
+    set(state);
+    persist(state);
   },
 }));

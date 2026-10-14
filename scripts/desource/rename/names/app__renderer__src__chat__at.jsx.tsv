@@ -1,0 +1,32 @@
+key	新名	依据
+he@2:10	mergeClassNames	`mergeClassNames` 按来源实现合并并消解冲突的 CSS 类名。
+y3@2:14	useClassNameMerger	`useClassNameMerger` 从渲染选项上下文取得类名合并函数。
+tr@6:5	lineNumberClassName	`lineNumberClassName` 是代码行号伪元素使用的 CSS 类名。
+or@20:5	parseInlineStyle	`parseInlineStyle` 将分号分隔的内联样式文本解析为属性对象。
+e2@20:11	styleText	`styleText` 是待解析的内联 CSS 声明字符串。
+t2@21:7	styleProperties	`styleProperties` 保存解析得到的 CSS 属性和值。
+o2@22:12	styleDeclaration	`styleDeclaration` 是当前拆分出的 CSS 声明文本。
+n2@23:9	colonIndex	`colonIndex` 是当前声明中属性和值分隔冒号的位置。
+r2@25:11	styleProperty	`styleProperty` 是清理空格后的 CSS 属性名。
+s2@26:9	styleValue	`styleValue` 是清理空格后的 CSS 属性值。
+e2@35:15	children	`children` 是代码块主体内渲染的内容。
+t2@36:13	result	`result` 保存高亮器返回的 token 和样式信息。
+o2@37:15	language	`language` 是代码块使用的语言标识。
+n2@38:16	className	`className` 是代码块容器和代码元素使用的 CSS 类名。
+r2@39:16	startLine	`startLine` 是代码块显示的首行行号。
+s2@40:18	lineNumbers	`lineNumbers` 控制代码块主体是否显示行号。
+a2@41:8	restProps	`restProps` 是转发给代码块容器的其余属性。
+l2@43:9	mergeClassNames	`mergeClassNames` 是构造代码块和 token CSS 类名的函数。
+i2@44:7	codeLineNumberClassName	`codeLineNumberClassName` 是行号计数伪元素的合并后类名，避免与外层基础类名同名。
+d2@45:7	rootStyle	`rootStyle` 是高亮结果根元素使用的内联样式对象。
+c3@46:13	codeBlockStyle	`codeBlockStyle` 保存高亮结果背景、前景及根样式属性。
+c3@86:29	tokenLine	`tokenLine` 是当前代码行对应的语法高亮 token 数组。
+p3@86:33	tokenLineIndex	`tokenLineIndex` 是当前代码行在 token 列表中的位置。
+m3@91:29	token	`token` 是当前语法高亮 token 及其颜色和 HTML 属性。
+u4@91:33	tokenIndex	`tokenIndex` 是当前 token 在代码行中的位置。
+f2@92:27	tokenStyle	`tokenStyle` 保存当前 token 渲染所需的 CSS 自定义属性。
+h2@93:25	hasBackgroundColor	`hasBackgroundColor` 表示 token 是否指定了背景色。
+b3@99:35	cssProperty	`cssProperty` 是从 token HTML 样式中读取的 CSS 属性名。
+g2@99:39	cssValue	`cssValue` 是当前 CSS 属性对应的样式值。
+e2@129:4	previousProps	`previousProps` 是 React memo 比较中的前一次属性对象。
+t2@129:8	nextProps	`nextProps` 是 React memo 比较中的本次属性对象。

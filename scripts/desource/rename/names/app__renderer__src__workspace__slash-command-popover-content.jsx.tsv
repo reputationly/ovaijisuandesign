@@ -1,0 +1,45 @@
+key	old	new	依据
+_2@304:10	_2	_unusedValue	Array.from 映射回调中未使用的当前元素值。
+disabled2@251:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+e2@1003:31	e2	mouseEvent	鼠标事件对象，用于阻止默认行为或阻止事件冒泡。
+e2@1263:29	e2	mouseEvent	鼠标事件对象，用于阻止默认行为或阻止事件冒泡。
+e2@1264:25	e2	clickEvent	技能探索按钮触发的点击事件对象。
+e2@1279:29	e2	mouseEvent	鼠标事件对象，用于阻止默认行为或阻止事件冒泡。
+e2@978:21	e2	mouseEvent	鼠标事件对象，用于阻止默认行为或阻止事件冒泡。
+element2@391:43	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+element2@638:11	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+element2@647:13	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+element2@666:11	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+element2@865:6	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+handleKeyDown2@716:11	handleKeyDown2	handleKeyDown	去掉打包器防重名追加的后缀，恢复原名 handleKeyDown，即该绑定持有的值。
+id2@322:7	id2	id	结合所在函数体的实际用途命名，说明该绑定持有的 id。
+id22@524:38	id22	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+index2@1186:38	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@153:18	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@243:10	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@304:24	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@926:32	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+Input3@38:10	Input3	Input	来自 select-content 模块的带图标输入框组件。
+isActive2@1187:17	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@254:9	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@927:21	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+mode2@174:34	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+mode2@203:29	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+name2@215:24	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+name2@424:57	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+name2@430:58	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+observer2@675:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+position2@328:13	position2	position	当前文本扫描位置。
+run2@438:11	run2	run	去掉打包器防重名追加的后缀，恢复原名 run，即该绑定持有的值。
+seen2@590:11	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+skills2@718:13	skills2	skills	去掉打包器防重名追加的后缀，恢复原名 skills，即该绑定持有的值。
+t2@341:14	t2	translate	useTranslation 返回的翻译函数。
+timer2@450:11	timer2	timer	去掉打包器防重名追加的后缀，恢复原名 timer，即该绑定持有的值。
+timer2@50:7	timer2	timer	去掉打包器防重名追加的后缀，恢复原名 timer，即该绑定持有的值。
+token2@90:44	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+token2@93:37	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+update2@808:11	update2	update	去掉打包器防重名追加的后缀，恢复原名 update，即该绑定持有的值。
+values3@102:24	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+values3@84:27	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+VIEWPORT_GAP2@821:13	VIEWPORT_GAP2	VIEWPORT_GAP	去掉打包器防重名追加的后缀，恢复原名 VIEWPORT_GAP，即该绑定持有的值。
+w3@218:11	w3	word	技能名称中按连字符拆分出的单词。

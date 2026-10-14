@@ -1,6 +1,8 @@
 // use-slash-command.js
 import { findTrailingTrigger } from "../chat/find-trailing-trigger.js";
-import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import {
   trackSkillCreatorInvoke,
@@ -20,14 +22,14 @@ const listeners = new Set();
 function normalizeCounts(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const counts = {};
-  for (const [name2, count2] of Object.entries(value)) {
+  for (const [skillName, count] of Object.entries(value)) {
     if (
-      name2 &&
-      typeof count2 === "number" &&
-      Number.isSafeInteger(count2) &&
-      count2 > 0
+      skillName &&
+      typeof count === "number" &&
+      Number.isSafeInteger(count) &&
+      count > 0
     ) {
-      counts[name2] = count2;
+      counts[skillName] = count;
     }
   }
   return counts;
@@ -38,35 +40,35 @@ let snapshotRaw;
 let snapshot = {};
 
 function getSkillUsageCounts() {
-  let raw2;
+  let raw;
   try {
-    raw2 = localStorage.getItem(STORAGE_KEY);
+    raw = localStorage.getItem(STORAGE_KEY);
   } catch {
     return snapshot;
   }
-  if (raw2 === snapshotRaw) return snapshot;
-  snapshotRaw = raw2;
+  if (raw === snapshotRaw) return snapshot;
+  snapshotRaw = raw;
   try {
-    snapshot = raw2 ? normalizeCounts(JSON.parse(raw2)) : {};
+    snapshot = raw ? normalizeCounts(JSON.parse(raw)) : {};
   } catch {
     snapshot = {};
   }
   return snapshot;
 }
 
-function recordSkillUsage(name2) {
-  if (!name2) return;
-  const current2 = getSkillUsageCounts();
-  const next2 = {
-    ...current2,
-    [name2]: Math.min((current2[name2] ?? 0) + 1, MAX_USAGE_COUNT),
+function recordSkillUsage(skillName) {
+  if (!skillName) return;
+  const current = getSkillUsageCounts();
+  const next = {
+    ...current,
+    [skillName]: Math.min((current[skillName] ?? 0) + 1, MAX_USAGE_COUNT),
   };
-  const serialized = JSON.stringify(next2);
+  const serialized = JSON.stringify(next);
   try {
     localStorage.setItem(STORAGE_KEY, serialized);
   } catch {}
   snapshotRaw = serialized;
-  snapshot = next2;
+  snapshot = next;
   for (const listener of listeners) listener();
 }
 
@@ -77,39 +79,39 @@ function subscribeSkillUsage(listener) {
 
 function sortSkillsByUsage(skills, counts) {
   return skills
-    .map((skill, index2) => ({
+    .map((skill, index) => ({
       skill,
-      index: index2,
+      index,
     }))
     .sort(
-      (a2, b3) =>
-        (counts[b3.skill.name] ?? 0) - (counts[a2.skill.name] ?? 0) ||
-        a2.index - b3.index,
+      (leftSkill, rightSkill) =>
+        (counts[rightSkill.skill.name] ?? 0) - (counts[leftSkill.skill.name] ?? 0) ||
+        leftSkill.index - rightSkill.index,
     )
     .map(({ skill }) => skill);
 }
 
-function isSkillInfo(v2) {
+function isSkillInfo(value) {
   return (
-    typeof v2 === "object" &&
-    v2 !== null &&
-    typeof v2.name === "string" &&
-    typeof v2.description === "string" &&
-    typeof v2.enabled === "boolean" &&
-    typeof v2.source === "string"
+    typeof value === "object" &&
+    value !== null &&
+    typeof value.name === "string" &&
+    typeof value.description === "string" &&
+    typeof value.enabled === "boolean" &&
+    typeof value.source === "string"
   );
 }
 
 const CACHE_TTL = 3e4;
 
-async function fetchSkills(gatewayFetch2, signal) {
-  const resp = await gatewayFetch2(API_PATHS.skills, {
+async function fetchSkills(gatewayFetch, signal) {
+  const resp = await gatewayFetch(API_PATHS.skills, {
     signal,
   });
   if (!resp.ok) return [];
-  const data2 = await resp.json();
-  if (!Array.isArray(data2)) return [];
-  return data2.filter(isSkillInfo);
+  const data = await resp.json();
+  if (!Array.isArray(data)) return [];
+  return data.filter(isSkillInfo);
 }
 
 export function useSlashCommand(
@@ -118,7 +120,7 @@ export function useSlashCommand(
   pageContext = "project",
   guidePromptOverride,
 ) {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const { i18n } = useTranslation();
   const [allSkills, setAllSkills] = reactExports.useState([]);
   const [open, setOpen] = reactExports.useState(false);
@@ -148,17 +150,17 @@ export function useSlashCommand(
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-    const seq2 = ++fetchSeqRef.current;
+    const seq = ++fetchSeqRef.current;
     try {
-      const skills = await fetchSkills(gatewayFetch2, controller.signal);
-      if (seq2 !== fetchSeqRef.current) return;
+      const skills = await fetchSkills(gatewayFetch, controller.signal);
+      if (seq !== fetchSeqRef.current) return;
       setAllSkills(skills);
     } catch {
       if (!controller.signal.aborted) {
         lastFetchRef.current = 0;
       }
     }
-  }, [gatewayFetch2]);
+  }, [gatewayFetch]);
   reactExports.useEffect(() => {
     return () => {
       abortRef.current?.abort();
@@ -171,7 +173,7 @@ export function useSlashCommand(
       void ensureSkills();
     });
   }, [ensureSkills]);
-  const close2 = reactExports.useCallback(() => {
+  const closeSlashCommand = reactExports.useCallback(() => {
     setOpen(false);
     setQuery("");
     setActiveIndex(0);
@@ -181,37 +183,37 @@ export function useSlashCommand(
   reactExports.useEffect(() => {
     if (!open || openedByButtonRef.current) return;
     if (!findSlashTrigger(input.slice(0, caretRef.current))) {
-      close2();
+      closeSlashCommand();
     }
-  }, [input, open, close2]);
+  }, [input, open, closeSlashCommand]);
   const enabledSkills = reactExports.useMemo(
     () => allSkills.filter((skill) => skill.enabled),
     [allSkills],
   );
   const filtered = reactExports.useMemo(() => {
     if (query) {
-      const q2 = query.toLocaleLowerCase();
+      const queryText = query.toLocaleLowerCase();
       return enabledSkills
         .filter(
-          (s2) =>
-            s2.name.toLocaleLowerCase().includes(q2) ||
-            s2.displayNameZh?.toLocaleLowerCase().includes(q2),
+          (skill) =>
+            skill.name.toLocaleLowerCase().includes(queryText) ||
+            skill.displayNameZh?.toLocaleLowerCase().includes(queryText),
         )
-        .sort((a2, b3) => {
-          const aName = a2.name.toLocaleLowerCase();
-          const bName = b3.name.toLocaleLowerCase();
-          const aDisplayName = a2.displayNameZh?.toLocaleLowerCase() ?? "";
-          const bDisplayName = b3.displayNameZh?.toLocaleLowerCase() ?? "";
+        .sort((leftSkill, rightSkill) => {
+          const aName = leftSkill.name.toLocaleLowerCase();
+          const bName = rightSkill.name.toLocaleLowerCase();
+          const aDisplayName = leftSkill.displayNameZh?.toLocaleLowerCase() ?? "";
+          const bDisplayName = rightSkill.displayNameZh?.toLocaleLowerCase() ?? "";
           const aPrefix =
-            aName.startsWith(q2) || aDisplayName.startsWith(q2) ? 0 : 1;
+            aName.startsWith(queryText) || aDisplayName.startsWith(queryText) ? 0 : 1;
           const bPrefix =
-            bName.startsWith(q2) || bDisplayName.startsWith(q2) ? 0 : 1;
+            bName.startsWith(queryText) || bDisplayName.startsWith(queryText) ? 0 : 1;
           if (aPrefix !== bPrefix) return aPrefix - bPrefix;
-          const aNameMatch = aName.includes(q2) ? 0 : 1;
-          const bNameMatch = bName.includes(q2) ? 0 : 1;
+          const aNameMatch = aName.includes(queryText) ? 0 : 1;
+          const bNameMatch = bName.includes(queryText) ? 0 : 1;
           if (aNameMatch !== bNameMatch) return aNameMatch - bNameMatch;
           return (
-            (skillUsageCounts[b3.name] ?? 0) - (skillUsageCounts[a2.name] ?? 0)
+            (skillUsageCounts[rightSkill.name] ?? 0) - (skillUsageCounts[leftSkill.name] ?? 0)
           );
         });
     }
@@ -228,29 +230,29 @@ export function useSlashCommand(
       allSkills.length > 0 &&
       filtered.length === 0
     ) {
-      close2();
+      closeSlashCommand();
     }
-  }, [open, query, allSkills.length, filtered.length, close2]);
+  }, [open, query, allSkills.length, filtered.length, closeSlashCommand]);
   const onInputChange = reactExports.useCallback(
     (value, caret, options) => {
       if (options?.syncInput !== false) setInput(value);
       setGhostText(null);
       const caretPos = caret ?? value.length;
       caretRef.current = caretPos;
-      const match2 = findSlashTrigger(value.slice(0, caretPos));
-      if (match2) {
+      const match = findSlashTrigger(value.slice(0, caretPos));
+      if (match) {
         void ensureSkills();
         openedByButtonRef.current = false;
         setOpenedByButton(false);
-        setQuery(match2.query);
+        setQuery(match.query);
         setOpen(true);
       } else if (openedByButtonRef.current) {
         setOpen(true);
       } else {
-        close2();
+        closeSlashCommand();
       }
     },
-    [setInput, ensureSkills, close2],
+    [setInput, ensureSkills, closeSlashCommand],
   );
   const openPopover = reactExports.useCallback(() => {
     void ensureSkills();
@@ -300,19 +302,19 @@ export function useSlashCommand(
           const after = original.slice(caret);
           nextInput = `${before}/${skill.name} ${after}`;
         } else {
-          let text2 = original;
+          let text = original;
           if (selectedSkillRef.current) {
             const oldCmd = `/${selectedSkillRef.current.name}`;
-            if (text2.startsWith(oldCmd)) {
-              text2 = text2.slice(oldCmd.length).replace(/^\s+/, "");
+            if (text.startsWith(oldCmd)) {
+              text = text.slice(oldCmd.length).replace(/^\s+/, "");
               const previousPrompt = selectedSkillPromptRef.current;
-              if (previousPrompt && text2.startsWith(previousPrompt)) {
-                text2 = text2.slice(previousPrompt.length).replace(/^\s+/, "");
+              if (previousPrompt && text.startsWith(previousPrompt)) {
+                text = text.slice(previousPrompt.length).replace(/^\s+/, "");
               }
             }
           }
-          const command2 = `/${skill.name}`;
-          nextInput = text2 ? `${command2} ${text2}` : `${command2} `;
+          const command = `/${skill.name}`;
+          nextInput = text ? `${command} ${text}` : `${command} `;
         }
       }
       setInput(nextInput);
@@ -321,10 +323,10 @@ export function useSlashCommand(
       selectedSkillRef.current = skill;
       selectedSkillPromptRef.current = promptText || null;
       pendingInputRef.current = nextInput;
-      close2();
+      closeSlashCommand();
       return nextInput;
     },
-    [setInput, close2, guidePromptOverride, i18n.language, pageContext],
+    [setInput, closeSlashCommand, guidePromptOverride, i18n.language, pageContext],
   );
   reactExports.useEffect(() => {
     if (!selectedSkill) return;
@@ -342,9 +344,9 @@ export function useSlashCommand(
     }
   }, [input, selectedSkill]);
   const onKeyDown = reactExports.useCallback(
-    (e2) => {
-      if (e2.key === "Tab" && !open && ghostText) {
-        e2.preventDefault();
+    (keyboardEvent) => {
+      if (keyboardEvent.key === "Tab" && !open && ghostText) {
+        keyboardEvent.preventDefault();
         const prefix = /\s$/.test(inputRef.current)
           ? inputRef.current
           : `${inputRef.current} `;
@@ -354,16 +356,16 @@ export function useSlashCommand(
       }
       if (!open || filtered.length === 0) return false;
       if (openedByButtonRef.current) return false;
-      switch (e2.key) {
+      switch (keyboardEvent.key) {
         case "ArrowUp": {
-          e2.preventDefault();
+          keyboardEvent.preventDefault();
           setActiveIndex((prev) =>
             prev <= 0 ? filtered.length - 1 : prev - 1,
           );
           return true;
         }
         case "ArrowDown": {
-          e2.preventDefault();
+          keyboardEvent.preventDefault();
           setActiveIndex((prev) =>
             prev >= filtered.length - 1 ? 0 : prev + 1,
           );
@@ -371,21 +373,21 @@ export function useSlashCommand(
         }
         case "Tab":
         case "Enter": {
-          e2.preventDefault();
+          keyboardEvent.preventDefault();
           const skill = filtered[activeIndex];
           if (skill) selectSkill(skill);
           return true;
         }
         case "Escape": {
-          e2.preventDefault();
-          close2();
+          keyboardEvent.preventDefault();
+          closeSlashCommand();
           return true;
         }
         default:
           return false;
       }
     },
-    [open, filtered, activeIndex, selectSkill, close2, ghostText, setInput],
+    [open, filtered, activeIndex, selectSkill, closeSlashCommand, ghostText, setInput],
   );
   return {
     open,
@@ -394,7 +396,7 @@ export function useSlashCommand(
     setActiveIndex,
     tabFiltered: filtered,
     selectedSkill,
-    close: close2,
+    close: closeSlashCommand,
     openPopover,
     onInputChange,
     onKeyDown,

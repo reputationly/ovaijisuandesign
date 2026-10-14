@@ -1,5 +1,6 @@
 // type-filter-popover.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FilterMenuItem, FilterTrigger } from "./filter-trigger.jsx";
 import { FilterMenu } from "../workspace/set-home-widget-dev-preview-mode.js";
@@ -34,20 +35,20 @@ const TYPE_OPTIONS = [
 ];
 
 export function TypeFilterPopover({ typeFilters, onChange }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const allSelected = typeFilters.length === 0;
   const isPartial = !allSelected;
-  const active2 = isPartial;
+  const active = isPartial;
   const triggerLabel = reactExports.useMemo(() => {
-    const base2 = t2("assetFilter.typeSection");
-    if (typeFilters.length === 0) return base2;
+    const base = translate("assetFilter.typeSection");
+    if (typeFilters.length === 0) return base;
     if (typeFilters.length === 1) {
-      const opt = TYPE_OPTIONS.find((o2) => o2.value === typeFilters[0]);
-      return opt ? t2(opt.labelKey, opt.fallback) : typeFilters[0];
+      const selectedOption = TYPE_OPTIONS.find((option) => option.value === typeFilters[0]);
+      return selectedOption ? translate(selectedOption.labelKey, selectedOption.fallback) : typeFilters[0];
     }
-    return `${base2} · ${typeFilters.length}`;
-  }, [t2, typeFilters]);
+    return `${base} · ${typeFilters.length}`;
+  }, [translate, typeFilters]);
   const clearTypeFilter = reactExports.useCallback(() => {
     onChange([]);
     setOpen(false);
@@ -62,19 +63,19 @@ export function TypeFilterPopover({ typeFilters, onChange }) {
         onChange([value]);
         return;
       }
-      const set2 = new Set(typeFilters);
-      if (set2.has(value)) {
-        if (set2.size === 1) {
+      const set = new Set(typeFilters);
+      if (set.has(value)) {
+        if (set.size === 1) {
           onChange([]);
           return;
         }
-        set2.delete(value);
+        set.delete(value);
       } else {
-        set2.add(value);
+        set.add(value);
       }
-      const next2 = Array.from(set2);
-      if (next2.length === TYPE_OPTIONS.length) onChange([]);
-      else onChange(next2);
+      const next = Array.from(set);
+      if (next.length === TYPE_OPTIONS.length) onChange([]);
+      else onChange(next);
     },
     [typeFilters, allSelected, onChange],
   );
@@ -82,11 +83,11 @@ export function TypeFilterPopover({ typeFilters, onChange }) {
     <FilterMenu open={open} onOpenChange={setOpen}>
       <FilterTrigger
         label={triggerLabel}
-        active={active2}
+        active={active}
         open={open}
         testId="asset-panel.type-filter-trigger"
-        clearLabel={t2("assetFilter.reset")}
-        onClear={active2 ? clearTypeFilter : void 0}
+        clearLabel={translate("assetFilter.reset")}
+        onClear={active ? clearTypeFilter : void 0}
       />
       <PopoverContent
         align="start"
@@ -98,17 +99,17 @@ export function TypeFilterPopover({ typeFilters, onChange }) {
           onClick={toggleAll}
           data-action-ui-id="asset-panel.type-filter-option-all"
         >
-          {t2("assetFilter.typeAll")}
+          {translate("assetFilter.typeAll")}
         </FilterMenuItem>
-        {TYPE_OPTIONS.map((opt) => {
-          const selected2 = !allSelected && typeFilters.includes(opt.value);
-          const label = t2(opt.labelKey, opt.fallback);
+        {TYPE_OPTIONS.map((option) => {
+          const selected = !allSelected && typeFilters.includes(option.value);
+          const label = translate(option.labelKey, option.fallback);
           return (
             <FilterMenuItem
-              key={opt.value}
-              selected={selected2}
-              onClick={() => toggle(opt.value)}
-              data-action-ui-id={`asset-panel.type-filter-option-${opt.value}`}
+              key={option.value}
+              selected={selected}
+              onClick={() => toggle(option.value)}
+              data-action-ui-id={`asset-panel.type-filter-option-${option.value}`}
             >
               {label}
             </FilterMenuItem>

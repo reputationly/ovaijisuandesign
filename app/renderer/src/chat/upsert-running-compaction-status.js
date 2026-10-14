@@ -1,14 +1,14 @@
 // upsert-running-compaction-status.js
 import { nextMessageId } from "./create-history-sub-agent-message.js";
 
-export function upsertRunningCompactionStatus(messages2) {
-  const hasRunningStatus = messages2.some(
-    (message2) =>
-      message2.type === "compaction_status" && message2.content !== "compacted",
+export function upsertRunningCompactionStatus(messages) {
+  const hasRunningStatus = messages.some(
+    (message) =>
+      message.type === "compaction_status" && message.content !== "compacted",
   );
-  if (hasRunningStatus) return messages2;
+  if (hasRunningStatus) return messages;
   return [
-    ...messages2,
+    ...messages,
     {
       id: nextMessageId(),
       role: "agent",

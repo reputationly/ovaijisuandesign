@@ -1,5 +1,6 @@
 // create-team-form-surface.jsx
-import { jsxRuntimeExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Label } from "./use-wallet-query.jsx";
 import { Button, DialogFooter } from "../infra/dialog-content.jsx";
@@ -12,7 +13,7 @@ export function CreateTeamFormSurface({
   submitActionId,
   teamName,
   placeholder,
-  disabled: disabled2,
+  disabled,
   submitting,
   submitDisabled,
   actionsDisabled = false,
@@ -23,13 +24,13 @@ export function CreateTeamFormSurface({
   onTeamNameChange,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <>
       <div className="space-y-4 px-4 py-4 sm:px-6 sm:py-5">
         <div className="space-y-1.5">
           <Label htmlFor={inputId}>
-            {t2("team.create.nameLabel", {
+            {t("team.create.nameLabel", {
               defaultValue: "团队名称",
             })}
           </Label>
@@ -38,7 +39,7 @@ export function CreateTeamFormSurface({
             value={teamName}
             onChange={(event) => onTeamNameChange(event.target.value)}
             placeholder={placeholder}
-            disabled={disabled2}
+            disabled={disabled}
             maxLength={MAX_TEAM_NAME_LENGTH}
             autoFocus={autoFocus}
             data-action-ui-id={inputActionId}
@@ -67,7 +68,7 @@ export function CreateTeamFormSurface({
           onClick={onCancel}
           data-action-ui-id={cancelActionId}
         >
-          {t2("common.cancel", {
+          {t("common.cancel", {
             defaultValue: "取消",
           })}
         </Button>
@@ -79,7 +80,7 @@ export function CreateTeamFormSurface({
           data-action-ui-id={submitActionId}
         >
           {submitLabel ??
-            t2("team.create.submit", {
+            t("team.create.submit", {
               defaultValue: "创建并切换",
             })}
         </Button>

@@ -1,5 +1,6 @@
 // workspace-asset-center-relocation-coach-mark.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   ASSET_CENTER_RELOCATION_REVISION,
@@ -22,11 +23,11 @@ export const CANVAS_SIDEBAR_NAVIGATION_EVENT = "canvas-sidebar:navigate";
 export const canvasSidebarNavigation = new EventTarget();
 
 export function useCanvasSidebar() {
-  const openTab = reactExports.useCallback((tab2) => {
+  const openTab = reactExports.useCallback((tab) => {
     canvasSidebarNavigation.dispatchEvent(
       new CustomEvent(CANVAS_SIDEBAR_NAVIGATION_EVENT, {
         detail: {
-          tab: tab2,
+          tab,
         },
       }),
     );
@@ -50,9 +51,9 @@ const LIBRARY_ANCHOR_SELECTOR = [
 
 export function WorkspaceAssetCenterRelocationCoachMark({
   enabled,
-  workspaceId: workspaceId2,
+  workspaceId,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { openTab } = useCanvasSidebar();
   const anchorRef = reactExports.useRef(null);
   const [anchorEl, setAnchorEl] = reactExports.useState(null);
@@ -66,21 +67,21 @@ export function WorkspaceAssetCenterRelocationCoachMark({
       const workspaceRoot = Array.from(
         document.querySelectorAll("[data-workspace-runtime-id]"),
       ).find(
-        (element2) => element2.dataset.workspaceRuntimeId === workspaceId2,
+        (element) => element.dataset.workspaceRuntimeId === workspaceId,
       );
-      const next2 =
+      const next =
         workspaceRoot?.querySelector(LIBRARY_ANCHOR_SELECTOR) ?? null;
-      anchorRef.current = next2;
-      setAnchorEl((current2) => (current2 === next2 ? current2 : next2));
+      anchorRef.current = next;
+      setAnchorEl((current) => (current === next ? current : next));
     };
     resolveAnchor();
-    const observer2 = new MutationObserver(resolveAnchor);
-    observer2.observe(document.body, {
+    const observer = new MutationObserver(resolveAnchor);
+    observer.observe(document.body, {
       childList: true,
       subtree: true,
     });
-    return () => observer2.disconnect();
-  }, [enabled, workspaceId2]);
+    return () => observer.disconnect();
+  }, [enabled, workspaceId]);
   const sequence = useCoachMarkSequence(
     HOME_INPUT_COACH_MARK_ID,
     [
@@ -111,15 +112,15 @@ export function WorkspaceAssetCenterRelocationCoachMark({
       anchorEl={anchorEl}
       side="right"
       align="start"
-      title={t2(
+      title={translate(
         "coachMark.workspace.assetCenterRelocation.title",
         "这里就是新家",
       )}
-      description={t2(
+      description={translate(
         "coachMark.workspace.assetCenterRelocation.desc",
         "以后可以在这里找到并使用原资产中心里的素材。",
       )}
-      ctaLabel={t2("coachMark.gotIt", "我知道了")}
+      ctaLabel={translate("coachMark.gotIt", "我知道了")}
       stepCurrent={2}
       stepTotal={2}
       showClose={true}

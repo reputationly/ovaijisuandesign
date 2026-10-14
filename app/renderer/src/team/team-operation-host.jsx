@@ -4,7 +4,8 @@ import {
   ITeamDataInvalidationService,
   ITeamOperationService,
 } from "../workspace/home-service.jsx";
-import { reactExports, useQueryClient } from "../vendor.js";
+import reactExports from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import {
@@ -35,14 +36,14 @@ function resolveServices(operationOverride, invalidationOverride) {
 }
 
 export function TeamOperationHost({ operationService, invalidationService }) {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const {
     integrationEnabled,
-    snapshot: snapshot2,
+    snapshot,
     activeScope,
   } = useTeamAccount();
   const [lastOperation, setLastOperation] = reactExports.useState(null);
-  const services2 = reactExports.useMemo(
+  const services = reactExports.useMemo(
     () =>
       integrationEnabled
         ? resolveServices(operationService, invalidationService)
@@ -52,17 +53,17 @@ export function TeamOperationHost({ operationService, invalidationService }) {
           },
     [integrationEnabled, invalidationService, operationService],
   );
-  const identityKey = snapshot2?.identityKey ?? null;
+  const identityKey = snapshot?.identityKey ?? null;
   reactExports.useEffect(() => {
-    if (!integrationEnabled || !identityKey || !services2.operation)
+    if (!integrationEnabled || !identityKey || !services.operation)
       return void 0;
     let disposed = false;
     const accept = (operation) => {
       if (!disposed && operation.identityKey === identityKey)
         setLastOperation(operation);
     };
-    const subscription = services2.operation.onDidChange(accept);
-    void services2.operation
+    const subscription = services.operation.onDidChange(accept);
+    void services.operation
       .getSnapshot(identityKey)
       .then((operations) => {
         if (!disposed && operations.length > 0) accept(operations.at(-1));
@@ -73,26 +74,26 @@ export function TeamOperationHost({ operationService, invalidationService }) {
       subscription.dispose();
       setLastOperation(null);
     };
-  }, [identityKey, integrationEnabled, services2.operation]);
+  }, [identityKey, integrationEnabled, services.operation]);
   reactExports.useEffect(() => {
-    if (!integrationEnabled || !identityKey || !services2.invalidation)
+    if (!integrationEnabled || !identityKey || !services.invalidation)
       return void 0;
-    const invalidateDomain = (domain2, event) => {
-      if (domain2 === "CONTEXTS") {
-        return queryClient2.invalidateQueries({
+    const invalidateDomain = (domain, event) => {
+      if (domain === "CONTEXTS") {
+        return queryClient.invalidateQueries({
           queryKey: teamQueryKeys.contexts(identityKey),
         });
       }
-      if (domain2 === "INVITATIONS") {
+      if (domain === "INVITATIONS") {
         return Promise.resolve();
       }
-      if (domain2 === "CAPABILITIES") {
-        return queryClient2.invalidateQueries({
+      if (domain === "CAPABILITIES") {
+        return queryClient.invalidateQueries({
           queryKey: teamQueryKeys.userCapabilities(identityKey),
         });
       }
       if (event.groupId && event.groupId !== activeScope?.groupId) {
-        return queryClient2.invalidateQueries({
+        return queryClient.invalidateQueries({
           predicate: (query) =>
             query.queryKey.includes(identityKey) &&
             query.queryKey.includes(event.groupId),
@@ -101,39 +102,39 @@ export function TeamOperationHost({ operationService, invalidationService }) {
       if (!activeScope) {
         return Promise.resolve();
       }
-      if (domain2 === "TEAM_DETAIL") {
-        return queryClient2.invalidateQueries({
+      if (domain === "TEAM_DETAIL") {
+        return queryClient.invalidateQueries({
           queryKey: teamQueryKeys.detail(activeScope),
         });
       }
-      if (domain2 === "MEMBERS") {
-        return queryClient2.invalidateQueries({
+      if (domain === "MEMBERS") {
+        return queryClient.invalidateQueries({
           queryKey: [...teamQueryKeys.membership(activeScope), "members"],
         });
       }
-      if (domain2 === "INVITE_LINKS") {
-        return queryClient2.invalidateQueries({
+      if (domain === "INVITE_LINKS") {
+        return queryClient.invalidateQueries({
           queryKey: [...teamQueryKeys.membership(activeScope), "invite-links"],
         });
       }
-      if (domain2 === "QUOTA") {
-        return queryClient2.invalidateQueries({
+      if (domain === "QUOTA") {
+        return queryClient.invalidateQueries({
           queryKey: teamQueryKeys.quota(activeScope),
         });
       }
-      if (domain2 === "CREDIT_SUMMARY") {
-        return queryClient2.invalidateQueries({
+      if (domain === "CREDIT_SUMMARY") {
+        return queryClient.invalidateQueries({
           queryKey: creditQueryKeys.summary(activeScope),
         });
       }
-      return queryClient2.invalidateQueries({
+      return queryClient.invalidateQueries({
         queryKey: [...creditQueryKeys.scope(activeScope), "transactions"],
       });
     };
-    const subscription = services2.invalidation.onDidInvalidate((event) => {
+    const subscription = services.invalidation.onDidInvalidate((event) => {
       if (event.identityKey !== identityKey) return;
       void Promise.all(
-        event.domains.map((domain2) => invalidateDomain(domain2, event)),
+        event.domains.map((domain) => invalidateDomain(domain, event)),
       );
     });
     return () => subscription.dispose();
@@ -141,8 +142,8 @@ export function TeamOperationHost({ operationService, invalidationService }) {
     activeScope,
     identityKey,
     integrationEnabled,
-    queryClient2,
-    services2.invalidation,
+    queryClient,
+    services.invalidation,
   ]);
   if (!lastOperation) return null;
   return (

@@ -1,0 +1,6 @@
+key	old	new	依据
+disabled2@55:15	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+Icon2@53:49	Icon2	Icon	去掉打包器防重名追加的后缀，恢复原名 Icon，即该绑定持有的值。
+key2@53:37	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+selected2@54:15	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+t2@49:14	t2	translate	useTranslation 返回的翻译函数。

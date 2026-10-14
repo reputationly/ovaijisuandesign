@@ -1,0 +1,22 @@
+key	new	依据
+t2@64:16	t	useTranslation 返回的翻译函数，为视频工具提示、禁用原因和操作按钮生成文案。
+s2@65:55	toolbarState	视频工具栏自定义 store 当前状态；pinned 选择器读取固定工具 ID 列表。
+s2@66:59	toolbarState	视频工具栏自定义 store 当前状态；showLabels 选择器读取是否显示工具标签。
+id2@89:28	toolId	工具栏工具稳定 ID，决定追加到卡片右侧的特定尾部操作。
+id2@98:32	toolId	待生成 tooltip 文案的工具 ID，根据已知工具类型返回对应翻译。
+it2@118:34	toolbarItem	contentToolbarItems 中当前条目，用其 id 构造 toolId 到工具配置的映射。
+id2@120:24	toolId	当前请求解析的工具 ID，switch 按其类型组装点击、禁用和提示配置。
+c3@151:19	clipTool	contentById 中 id 为 clip 的视频工具条目，封装为时间线剪辑按钮配置。
+c3@159:19	frameExtractionTool	contentById 中 extract-frame 工具条目，封装为提取帧按钮配置。
+c3@167:19	colorAdjustmentTool	contentById 中 color-adjust 工具条目，封装为颜色调整按钮配置。
+c3@175:19	audioExtractionTool	contentById 中 extract-audio 工具条目，封装为提取音频按钮配置。
+id2@185:18	toolId	pinned 工具 ID 列表中的当前 ID，用它解析按钮行为并读取 VIDEO_TOOL_META 配置。
+id2@205:18	toolId	VIDEO_TOOLBAR_TOOLS 中当前工具 ID；跳过已固定项后解析并添加到普通工具栏。
+it2@249:10	toolbarItem	内容工具栏中当前配置项，用其 id 判断是否为 promote-to-asset。
+it2@252:10	toolbarItem	内容工具栏中当前配置项，用其 id 判断是否为 add-to-chat。
+it2@255:10	toolbarItem	内容工具栏中当前配置项，用其 id 判断是否为 fullscreen。
+tool2@19:46	tool	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存视频工具栏中的当前工具项。
+tool2@34:27	tool	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存视频工具栏中的当前工具项。
+wrap2@76:13	wrap	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存将视频工具操作包装为事件处理器的函数。
+meta2@188:15	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存视频工具项的展示元数据。
+meta2@209:15	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存视频工具项的展示元数据。

@@ -1,29 +1,30 @@
 // text-save-status.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { useCanvasActive } from "../media-editing/package.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 
-function selectionAnchorsEqual(a2, b3) {
-  if (a2 === b3) return true;
-  if (!a2 || !b3) return false;
+function selectionAnchorsEqual(leftAnchor, rightAnchor) {
+  if (leftAnchor === rightAnchor) return true;
+  if (!leftAnchor || !rightAnchor) return false;
   return (
-    a2.exact === b3.exact &&
-    a2.prefix === b3.prefix &&
-    a2.suffix === b3.suffix &&
-    a2.occurrence === b3.occurrence
+    leftAnchor.exact === rightAnchor.exact &&
+    leftAnchor.prefix === rightAnchor.prefix &&
+    leftAnchor.suffix === rightAnchor.suffix &&
+    leftAnchor.occurrence === rightAnchor.occurrence
   );
 }
 
-function editingSelectionStatesEqual(a2, b3) {
-  const aAnchors = a2.anchors ?? (a2.anchor ? [a2.anchor] : []);
-  const bAnchors = b3.anchors ?? (b3.anchor ? [b3.anchor] : []);
+function editingSelectionStatesEqual(leftState, rightState) {
+  const aAnchors = leftState.anchors ?? (leftState.anchor ? [leftState.anchor] : []);
+  const bAnchors = rightState.anchors ?? (rightState.anchor ? [rightState.anchor] : []);
   return (
     aAnchors.length === bAnchors.length &&
-    aAnchors.every((anchor, index2) =>
-      selectionAnchorsEqual(anchor, bAnchors[index2]),
+    aAnchors.every((anchor, index) =>
+      selectionAnchorsEqual(anchor, bAnchors[index]),
     ) &&
-    selectionAnchorsEqual(a2.anchor, b3.anchor) &&
-    (a2.oversizedLength ?? null) === (b3.oversizedLength ?? null)
+    selectionAnchorsEqual(leftState.anchor, rightState.anchor) &&
+    (leftState.oversizedLength ?? null) === (rightState.oversizedLength ?? null)
   );
 }
 
@@ -32,18 +33,18 @@ const DRAFT_SAVE_INDICATOR_DELAY_MS = 400;
 const DRAFT_SAVED_INDICATOR_DURATION_MS = 1500;
 
 export function TextSaveStatus({ draftStatus, versionSaving }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [visibleDraftStatus, setVisibleDraftStatus] =
     reactExports.useState(null);
   const savingWasVisibleRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    let timer2;
+    let timer;
     if (versionSaving) {
       savingWasVisibleRef.current = false;
       setVisibleDraftStatus(null);
     } else if (draftStatus === "saving") {
       setVisibleDraftStatus(null);
-      timer2 = window.setTimeout(() => {
+      timer = window.setTimeout(() => {
         savingWasVisibleRef.current = true;
         setVisibleDraftStatus("saving");
       }, DRAFT_SAVE_INDICATOR_DELAY_MS);
@@ -53,7 +54,7 @@ export function TextSaveStatus({ draftStatus, versionSaving }) {
     } else if (draftStatus === "saved" && savingWasVisibleRef.current) {
       savingWasVisibleRef.current = false;
       setVisibleDraftStatus("saved");
-      timer2 = window.setTimeout(
+      timer = window.setTimeout(
         () => setVisibleDraftStatus(null),
         DRAFT_SAVED_INDICATOR_DURATION_MS,
       );
@@ -62,17 +63,17 @@ export function TextSaveStatus({ draftStatus, versionSaving }) {
       setVisibleDraftStatus(null);
     }
     return () => {
-      if (timer2 !== void 0) window.clearTimeout(timer2);
+      if (timer !== void 0) window.clearTimeout(timer);
     };
   }, [draftStatus, versionSaving]);
   const label = versionSaving
-    ? t2("canvas.textVersion.savingStatus", "正在保存版本…")
+    ? translate("canvas.textVersion.savingStatus", "正在保存版本…")
     : visibleDraftStatus === "saving"
-      ? t2("canvas.textDraft.saving", "正在保存…")
+      ? translate("canvas.textDraft.saving", "正在保存…")
       : visibleDraftStatus === "saved"
-        ? t2("canvas.textDraft.saved", "已保存")
+        ? translate("canvas.textDraft.saved", "已保存")
         : visibleDraftStatus === "failed"
-          ? t2("canvas.textDraft.saveFailed", "保存失败")
+          ? translate("canvas.textDraft.saveFailed", "保存失败")
           : null;
   if (!label) return null;
   return (
@@ -88,23 +89,23 @@ export function TextSaveStatus({ draftStatus, versionSaving }) {
 }
 
 function useEscapeClose(onClose) {
-  const active2 = useCanvasActive();
+  const active = useCanvasActive();
   reactExports.useEffect(() => {
-    if (!active2) return;
-    const handleKeyDown2 = (e2) => {
-      if (e2.key === "Escape") {
-        e2.stopPropagation();
+    if (!active) return;
+    const handleKeyDown = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") {
+        keyboardEvent.stopPropagation();
         onClose();
       }
     };
-    document.addEventListener("keydown", handleKeyDown2);
-    return () => document.removeEventListener("keydown", handleKeyDown2);
-  }, [active2, onClose]);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [active, onClose]);
 }
 
-export function useFindEscapeClose(find2, onCloseModal) {
-  const findRef = reactExports.useRef(find2);
-  findRef.current = find2;
+export function useFindEscapeClose(findController, onCloseModal) {
+  const findRef = reactExports.useRef(findController);
+  findRef.current = findController;
   const handleEscape = reactExports.useCallback(() => {
     if (findRef.current.isOpen) {
       findRef.current.close();
@@ -126,15 +127,15 @@ export function useEditingSelectionReporter(onEditingSelectionChange) {
   callbackRef.current = onEditingSelectionChange;
   const lastReportedRef = reactExports.useRef(EMPTY_EDITING_SELECTION);
   const timerRef = reactExports.useRef(null);
-  const schedule2 = reactExports.useCallback((compute) => {
+  const schedule = reactExports.useCallback((compute) => {
     if (!callbackRef.current) return;
     if (timerRef.current != null) window.clearTimeout(timerRef.current);
     timerRef.current = window.setTimeout(() => {
       timerRef.current = null;
-      const next2 = compute();
-      if (editingSelectionStatesEqual(lastReportedRef.current, next2)) return;
-      lastReportedRef.current = next2;
-      callbackRef.current?.(next2);
+      const next = compute();
+      if (editingSelectionStatesEqual(lastReportedRef.current, next)) return;
+      lastReportedRef.current = next;
+      callbackRef.current?.(next);
     }, EDITING_SELECTION_DEBOUNCE_MS);
   }, []);
   reactExports.useEffect(() => {
@@ -151,11 +152,11 @@ export function useEditingSelectionReporter(onEditingSelectionChange) {
       }
     };
   }, []);
-  return schedule2;
+  return schedule;
 }
 
-export function decideFullscreenCloseAction(state2) {
-  if (!state2.userEdited) return "close-without-save";
-  if (state2.externalUpdatedWhileEditing) return "show-conflict";
+export function decideFullscreenCloseAction(state) {
+  if (!state.userEdited) return "close-without-save";
+  if (state.externalUpdatedWhileEditing) return "show-conflict";
   return "flush-and-close";
 }

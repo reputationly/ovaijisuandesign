@@ -1,7 +1,9 @@
 // file-explorer-search-bar.jsx
-import { reactExports, Search, useTranslation, X$7 as X } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Search, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { StrokeIcon } from "../workspace/use-prompt-icon.jsx";
 export function FileExplorerSearchBar({
   value,
@@ -17,18 +19,18 @@ export function FileExplorerSearchBar({
   expandedFillsRow = false,
   useStrokeSpec = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const resolvedPlaceholder =
     placeholder ??
-    t2("fileExplorer.searchPlaceholder", {
+    translate("fileExplorer.searchPlaceholder", {
       defaultValue: "搜索文件",
     });
   const resolvedClearLabel =
     clearLabel ??
-    t2("fileExplorer.clearSearch", {
+    translate("fileExplorer.clearSearch", {
       defaultValue: "Clear search",
     });
-  const openLabel = t2("fileExplorer.openSearch", {
+  const openLabel = translate("fileExplorer.openSearch", {
     defaultValue: "搜索",
   });
   const [open, setOpen] = reactExports.useState(
@@ -86,7 +88,7 @@ export function FileExplorerSearchBar({
           className="min-w-0 flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground/60"
           placeholder={resolvedPlaceholder}
           value={value}
-          onChange={(e2) => onChange(e2.target.value)}
+          onChange={(changeEvent) => onChange(changeEvent.target.value)}
           onBlur={() => {
             if (collapsible && value.length === 0) setOpen(false);
           }}
@@ -104,9 +106,9 @@ export function FileExplorerSearchBar({
           data-action-ui-id={clearActionId}
         >
           {useStrokeSpec ? (
-            <StrokeIcon icon={X} size={12} />
+            <StrokeIcon icon={CloseIcon} size={12} />
           ) : (
-            <X size={12} strokeWidth={1.5} />
+            <CloseIcon size={12} strokeWidth={1.5} />
           )}
         </button>
       </div>

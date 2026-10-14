@@ -6,11 +6,9 @@ import {
   toDisplayName,
 } from "../generation/use-mention-models.jsx";
 import { Spinner } from "../team/use-team-transactions-feed-query.jsx";
-import {
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
 import { ImageOutlineIcon } from "../media-editing/package.jsx";
 import { Button } from "../infra/dialog-content.jsx";
 import { MarkdownContent } from "../generation/markdown-link.jsx";
@@ -26,14 +24,14 @@ import { VideoLightbox } from "../media-editing/video-lightbox.jsx";
 import { DEFAULT_HOME_QUICK_START_CONFIG } from "../workspace/scene-categories.js";
 import { useEnsureSkillReady } from "../workspace/use-ensure-skill-ready.js";
 import { useHomeQuickStartConfig } from "../workspace/use-home-quick-start-config.js";
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
 function shuffle(items, random) {
-  const next2 = [...items];
-  for (let index2 = next2.length - 1; index2 > 0; index2 -= 1) {
-    const swapIndex = Math.floor(random() * (index2 + 1));
-    [next2[index2], next2[swapIndex]] = [next2[swapIndex], next2[index2]];
+  const next = [...items];
+  for (let index = next.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
   }
-  return next2;
+  return next;
 }
 const EMPTY_CHAT_RECOMMENDATION_BATCH_SIZE = 4;
 function pickRecommendationBatch(
@@ -41,15 +39,15 @@ function pickRecommendationBatch(
   previousIds = [],
   random = Math.random,
 ) {
-  const seen2 = new Set();
-  const unique2 = items.filter((item) => {
-    if (seen2.has(item.id)) return false;
-    seen2.add(item.id);
+  const seen = new Set();
+  const unique = items.filter((item) => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
     return true;
   });
-  const previous2 = new Set(previousIds);
-  const preferred = unique2.filter((item) => !previous2.has(item.id));
-  const fallback = unique2.filter((item) => previous2.has(item.id));
+  const previous = new Set(previousIds);
+  const preferred = unique.filter((item) => !previous.has(item.id));
+  const fallback = unique.filter((item) => previous.has(item.id));
   const pool = [...shuffle(preferred, random), ...shuffle(fallback, random)];
   return pool.slice(0, EMPTY_CHAT_RECOMMENDATION_BATCH_SIZE);
 }
@@ -177,7 +175,7 @@ function SkillCard({
   installingLabel,
   installing,
   installProgress,
-  disabled: disabled2,
+  disabled,
   textOnly,
   onClick,
 }) {
@@ -190,7 +188,7 @@ function SkillCard({
       className={`home-media-showcase-card group relative flex h-full min-w-0 items-center gap-2 overflow-hidden p-2 text-left transition-colors ${textOnly ? "rounded-none border-0 bg-transparent hover:bg-transparent" : "rounded-lg border border-border bg-card hover:bg-muted"}`}
       data-action-ui-id="chat-skill-card"
       data-installing={installing ? "true" : void 0}
-      aria-disabled={disabled2 || void 0}
+      aria-disabled={disabled || void 0}
       aria-busy={installing || void 0}
     >
       <button
@@ -198,7 +196,7 @@ function SkillCard({
         className="absolute inset-0 z-[1] cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:cursor-default"
         aria-label={`${installing ? installingLabel : useLabel}: ${title}`}
         onClick={onClick}
-        disabled={disabled2}
+        disabled={disabled}
         data-action-ui-id="chat-skill-card-use"
       />
       {textOnly ? null : (
@@ -252,12 +250,12 @@ export function EmptyChatRecommendations({
   onSelectSkill,
   skillMode,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const { user } = useAuth();
   const { guard: loginGuard } = useLoginGuard();
   const { ensureSkillReady } = useEnsureSkillReady();
-  const { config: config2, source: configSource } = useHomeQuickStartConfig();
-  const [tab2, setTab] = reactExports.useState(
+  const { config, source: configSource } = useHomeQuickStartConfig();
+  const [tab, setTab] = reactExports.useState(
     skillMode ? "skill" : "showcase",
   );
   const [showcaseBatch, setShowcaseBatch] = reactExports.useState([]);
@@ -272,7 +270,7 @@ export function EmptyChatRecommendations({
   const recommendationCategories =
     configSource === "loading"
       ? DEFAULT_HOME_QUICK_START_CONFIG.categories
-      : config2.categories;
+      : config.categories;
   const featuredCategory = reactExports.useMemo(
     () => getFeaturedCategory(recommendationCategories),
     [recommendationCategories],
@@ -286,13 +284,13 @@ export function EmptyChatRecommendations({
     () =>
       buildMediaShowcaseCollections({
         categories: recommendationCategories,
-        featuredLabel: t2("home.mediaShowcase.featured", {
+        featuredLabel: translate("home.mediaShowcase.featured", {
           defaultValue: "精选",
         }),
       })
         .flatMap((collection) => collection.items)
         .filter((item) => item.action.kind === "query"),
-    [recommendationCategories, t2],
+    [recommendationCategories, translate],
   );
   const featuredSkills = reactExports.useMemo(() => {
     if (!skillMode) return market.skills;
@@ -304,14 +302,14 @@ export function EmptyChatRecommendations({
     void market.fetchList();
   }, [market.fetchList]);
   reactExports.useEffect(() => {
-    setShowcaseBatch((current2) =>
-      current2.length ? current2 : pickRecommendationBatch(showcaseItems),
+    setShowcaseBatch((current) =>
+      current.length ? current : pickRecommendationBatch(showcaseItems),
     );
   }, [showcaseItems]);
   reactExports.useEffect(() => {
-    setSkillBatch((current2) =>
-      current2.length
-        ? current2
+    setSkillBatch((current) =>
+      current.length
+        ? current
         : pickRecommendationBatch(
             featuredSkills.map((skill) => ({
               ...skill,
@@ -321,22 +319,22 @@ export function EmptyChatRecommendations({
     );
   }, [featuredSkills]);
   const handleRefresh = () => {
-    if (tab2 === "showcase") {
-      setShowcaseBatch((current2) =>
+    if (tab === "showcase") {
+      setShowcaseBatch((current) =>
         pickRecommendationBatch(
           showcaseItems,
-          current2.map((item) => item.id),
+          current.map((item) => item.id),
         ),
       );
       return;
     }
-    setSkillBatch((current2) =>
+    setSkillBatch((current) =>
       pickRecommendationBatch(
         featuredSkills.map((skill) => ({
           ...skill,
           id: skill.name,
         })),
-        current2.map((skill) => skill.name),
+        current.map((skill) => skill.name),
       ),
     );
   };
@@ -353,8 +351,8 @@ export function EmptyChatRecommendations({
         );
         if (!ready) return;
         market.markInstalled(skill.name);
-        setSkillBatch((current2) =>
-          current2.map((item) =>
+        setSkillBatch((current) =>
+          current.map((item) =>
             item.name === skill.name
               ? {
                   ...item,
@@ -375,17 +373,17 @@ export function EmptyChatRecommendations({
     [ensureSkillReady, loginGuard, market, onSelectSkill],
   );
   const hasCards =
-    tab2 === "showcase" ? showcaseBatch.length > 0 : skillBatch.length > 0;
+    tab === "showcase" ? showcaseBatch.length > 0 : skillBatch.length > 0;
   const greetingName =
-    user?.username?.trim() || t2("chat.emptyRecommendations.creator");
+    user?.username?.trim() || translate("chat.emptyRecommendations.creator");
   const subtitleKey = skillMode
     ? EMPTY_RECOMMENDATIONS_SUBTITLE_KEYS[skillMode]
     : "chat.emptyRecommendations.subtitle";
   const recommendationTabs = skillMode ? ["skill"] : ["showcase", "skill"];
   const skillTabLabel = skillMode
-    ? t2(NODE_AGENT_SKILL_TAB_KEYS[skillMode])
-    : t2("chat.emptyRecommendations.skillTab");
-  const nodeIntro = skillMode ? t2(NODE_AGENT_INTRO_KEYS[skillMode]) : void 0;
+    ? translate(NODE_AGENT_SKILL_TAB_KEYS[skillMode])
+    : translate("chat.emptyRecommendations.skillTab");
+  const nodeIntro = skillMode ? translate(NODE_AGENT_INTRO_KEYS[skillMode]) : void 0;
   return (
     <section
       className={`w-full px-4 ${nodeIntro ? "pt-[100px] pb-4" : "py-4"}`}
@@ -405,12 +403,12 @@ export function EmptyChatRecommendations({
           />
           <div>
             <h2 className="text-title-20 font-heading font-medium text-foreground">
-              {t2("chat.emptyRecommendations.greeting", {
+              {translate("chat.emptyRecommendations.greeting", {
                 name: greetingName,
               })}
             </h2>
             <p className="text-body-13 text-muted-foreground">
-              {t2(subtitleKey)}
+              {translate(subtitleKey)}
             </p>
           </div>
         </div>
@@ -429,12 +427,12 @@ export function EmptyChatRecommendations({
                 key={value}
                 type="button"
                 role="tab"
-                aria-selected={tab2 === value}
+                aria-selected={tab === value}
                 onClick={() => setTab(value)}
                 className={`inline-flex h-7 shrink-0 items-center whitespace-nowrap rounded-sm px-3 text-xs font-medium transition-colors ${skillMode ? "bg-tab-list-bg text-foreground" : "text-muted-foreground hover:text-foreground aria-selected:bg-tab-active-bg aria-selected:text-foreground aria-selected:shadow-tab-active"}`}
               >
                 {value === "showcase"
-                  ? t2("chat.emptyRecommendations.showcaseTab")
+                  ? translate("chat.emptyRecommendations.showcaseTab")
                   : skillTabLabel}
               </button>
             ))}
@@ -445,13 +443,13 @@ export function EmptyChatRecommendations({
             size="sm"
             onClick={handleRefresh}
             disabled={!hasCards}
-            aria-label={t2("chat.emptyRecommendations.refresh")}
+            aria-label={translate("chat.emptyRecommendations.refresh")}
             data-action-ui-id="chat-empty-recommendations-refresh"
             className="h-7 shrink-0 gap-1.5 whitespace-nowrap px-2 text-xs text-muted-foreground"
           >
             <RetryIcon size={14} aria-hidden="true" />
             <span className="hidden @min-[400px]/empty-recommendations:inline">
-              {t2("chat.emptyRecommendations.refresh")}
+              {translate("chat.emptyRecommendations.refresh")}
             </span>
           </Button>
         </div>
@@ -463,14 +461,14 @@ export function EmptyChatRecommendations({
             className={`${skillMode ? "grid grid-cols-2" : "grid grid-cols-1 @min-[480px]/recommendations:grid-cols-2"} auto-rows-[60px] gap-2`}
             data-action-ui-id="chat-empty-recommendations-grid"
           >
-            {tab2 === "showcase"
+            {tab === "showcase"
               ? showcaseBatch.map((item) => (
                   <ShowcaseCard
                     key={item.id}
                     item={item}
                     isZh={isZh}
-                    useLabel={t2("home.mediaShowcase.use")}
-                    fullscreenLabel={t2("canvas.fullscreenPreview")}
+                    useLabel={translate("home.mediaShowcase.use")}
+                    fullscreenLabel={translate("canvas.fullscreenPreview")}
                     onClick={() => onSelectShowcase(item)}
                     onFullscreen={(initialPlaybackTime, onPlaybackTimeCommit) =>
                       setPreviewSession({
@@ -482,7 +480,7 @@ export function EmptyChatRecommendations({
                   />
                 ))
               : skillBatch.map((skill) => {
-                  const preset2 = featuredCategory?.skills.find(
+                  const preset = featuredCategory?.skills.find(
                     (item) => item.name === skill.name,
                   );
                   return (
@@ -490,8 +488,8 @@ export function EmptyChatRecommendations({
                       key={skill.name}
                       skill={skill}
                       isZh={isZh}
-                      useLabel={t2("home.mediaShowcase.useSkill")}
-                      installingLabel={t2("skills.market.installing")}
+                      useLabel={translate("home.mediaShowcase.useSkill")}
+                      installingLabel={translate("skills.market.installing")}
                       installing={installingSkillName === skill.name}
                       installProgress={
                         installingSkillName === skill.name
@@ -503,7 +501,7 @@ export function EmptyChatRecommendations({
                       onClick={() =>
                         void handleSkillSelect(
                           skill,
-                          resolveHomeFeaturedSkillPrompt(skill, preset2, isZh),
+                          resolveHomeFeaturedSkillPrompt(skill, preset, isZh),
                         )
                       }
                     />

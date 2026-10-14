@@ -1,0 +1,22 @@
+{
+  "app/renderer/src/workspace/build-inspiration-media-showcase-collections.js": {
+    "c2": "isInsideMarkdownCode",
+    "L": "countInlineBackticks",
+    "f": "isInsideInlineCode",
+    "E": "escapeTaskListQuoteMarker",
+    "F": "halfClosedStrikethroughPattern",
+    "T": "strikethroughDelimiterPattern",
+    "g": "isWordCharacter",
+    "X": "findMatchingOpeningBracket",
+    "C2": "findMatchingClosingBracket",
+    "h": "isInsideMath",
+    "A": "countDoubleAsteriskMarkers",
+    "j": "repairUnclosedDoubleAsterisk",
+    "Q": "repairUnclosedDoubleUnderscore",
+    "Z": "repairUnclosedSingleAsterisk",
+    "V2": "repairUnclosedTripleAsterisk"
+  },
+  "app/renderer/src/workspace/q.js": {
+    "J2": "repairUnclosedSingleUnderscore"
+  }
+}

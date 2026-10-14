@@ -1,0 +1,21 @@
+key	new	reason
+fn2@71:18	fn	原名 fn，去掉打包器加的数字去重后缀
+id2@77:15	id	原名 id，去掉打包器加的数字去重后缀
+id2@149:30	id	原名 id，去掉打包器加的数字去重后缀
+id2@158:35	id	原名 id，去掉打包器加的数字去重后缀
+id2@166:31	id	原名 id，去掉打包器加的数字去重后缀
+id2@186:38	id	原名 id，去掉打包器加的数字去重后缀
+id2@199:34	id	原名 id，去掉打包器加的数字去重后缀
+id2@260:5	id	原名 id，去掉打包器加的数字去重后缀
+e2@32:46	serviceId	Graph 的取键函数参数：图里存的节点数据是 String(id) 服务 ID 串，原样作键
+a2@120:14	a	sort 比较函数的前一个依赖
+b3@120:18	b	sort 比较函数的后一个依赖
+d2@225:17	dependencyNode	待实例化依赖的图节点 {id, desc}
+services2@58:15	services	去掉打包器加的数字后缀，恢复原名 services
+service2@123:13	service	去掉打包器加的数字后缀，恢复原名 service
+instance2@149:34	instance	去掉打包器加的数字后缀，恢复原名 instance
+desc2@186:42	desc	去掉打包器加的数字后缀，恢复原名 desc
+desc2@199:38	desc	去掉打包器加的数字后缀，恢复原名 desc
+data2@200:30	data	去掉打包器加的数字后缀，恢复原名 data
+data2@242:26	data	去掉打包器加的数字后缀，恢复原名 data
+instance2@245:17	instance	去掉打包器加的数字后缀，恢复原名 instance

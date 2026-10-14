@@ -1,0 +1,20 @@
+y4@34:11	y4	popoverTop	该绑定持有 popoverTop 所表示的值，按其实际用途命名。
+t2@142:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+browser2@19:12	browser2	browser	去掉打包器防重名追加的后缀，恢复原名 browser，即该绑定持有的值。
+pending2@26:10	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+close2@45:9	close2	closePanel	原名去后缀后发生作用域冲突；该绑定实际表示 closePanel。
+next2@56:58	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+update2@69:11	update2	update	去掉打包器防重名追加的后缀，恢复原名 update，即该绑定持有的值。
+observer2@93:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+next2@74:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+current2@94:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+next2@116:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+platform2@143:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+browser2@144:9	browser2	browser	去掉打包器防重名追加的后缀，恢复原名 browser，即该绑定持有的值。
+snapshot2@146:10	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+pending2@160:14	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+count2@234:9	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+apply2@172:11	apply2	apply	去掉打包器防重名追加的后缀，恢复原名 apply，即该绑定持有的值。
+next2@172:21	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+current2@174:22	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+key2@242:16	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。

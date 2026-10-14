@@ -1,0 +1,8 @@
+key	new	reason
+t2@45:14	t	useTranslation() 返回的翻译函数 t
+token2@24:59	token	去掉打包器加的数字后缀，恢复原名 token
+url2@26:9	url	去掉打包器加的数字后缀，恢复原名 url
+selected2@39:22	selected	去掉打包器加的数字后缀，恢复原名 selected
+tab2@53:10	tab	去掉打包器加的数字后缀，恢复原名 tab
+message2@125:13	message	去掉打包器加的数字后缀，恢复原名 message
+next2@172:31	next	去掉打包器加的数字后缀，恢复原名 next

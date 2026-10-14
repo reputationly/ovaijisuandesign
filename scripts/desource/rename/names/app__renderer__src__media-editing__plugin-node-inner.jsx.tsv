@@ -1,0 +1,14 @@
+key	new	依据
+selected2@55:13	isSelected	此布尔属性表示当前插件预览节点是否选中，并传给 NodeBody 的 selected 属性。
+displayName2@59:16	displayName	此属性是父级提供的插件显示名，在插件元数据没有本地化名称时回退使用。
+extension2@60:14	extension	此属性是传给节点内容组件的文件扩展名。
+meta2@66:9	pluginMeta	usePluginMeta 根据 pluginId 返回的元数据用于本地化插件名称和图标 URL。
+data2@163:9	nodeData	此属性是插件节点持久化数据，后续读取路径、插件 ID 和显示配置。
+selected2@164:13	isSelected	此布尔属性表示当前插件节点选中状态，用于控制预览交互和传递给子组件。
+meta2@169:9	assetMeta	useAssetMeta 按节点 ID 查得的资源元数据，提供路径和名称等资产信息。
+displayName2@190:9	displayName	此值按资源名、持久化名称、路径末段和未命名翻译依次确定插件节点显示名。
+extension2@195:9	extension	此常量固定为 HTML 文件扩展名，供插件预览分支传递。
+handleDoubleClick2@309:9	handleDoubleClick	此回调仅在 launcher 模式双击时进入全屏，并报告 fullscreen enter 操作。
+state2@221:14	actionState	此参数是插件操作的状态值；存在时会写入上报 payload 的 state 字段。
+t2@168:20	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。
+id2@162:7	nodeId	组件 props 中的画布节点 ID，用于查询该节点的资源及交互状态。

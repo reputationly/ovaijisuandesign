@@ -31,15 +31,15 @@ export class ChatStateDiagnostics {
   }
   pendingChildren(sessionId, pendingCount) {
     if (pendingCount === 0 && !this.deltaWindows.has(sessionId)) return;
-    const window2 = this.deltaWindow(sessionId);
-    if (pendingCount > 0 && !window2.waitingLogged) {
-      window2.waitingLogged = true;
+    const deltaWindow = this.deltaWindow(sessionId);
+    if (pendingCount > 0 && !deltaWindow.waitingLogged) {
+      deltaWindow.waitingLogged = true;
     } else if (
       pendingCount === 0 &&
-      window2.waitingLogged &&
-      !window2.recoveredLogged
+      deltaWindow.waitingLogged &&
+      !deltaWindow.recoveredLogged
     ) {
-      window2.recoveredLogged = true;
+      deltaWindow.recoveredLogged = true;
     } else return;
     const context = {
       ...this.contexts.get(sessionId),
@@ -50,22 +50,22 @@ export class ChatStateDiagnostics {
     new ChatDiagnostics(this.write).record("child-recovery", context);
   }
   deltaWindow(sessionId) {
-    let window2 = this.deltaWindows.get(sessionId);
-    if (!window2) {
-      window2 = {
+    let deltaWindow = this.deltaWindows.get(sessionId);
+    if (!deltaWindow) {
+      deltaWindow = {
         counts: emptyDeltaCounts(),
         waitingLogged: false,
         recoveredLogged: false,
       };
-      this.deltaWindows.set(sessionId, window2);
+      this.deltaWindows.set(sessionId, deltaWindow);
     }
-    return window2;
+    return deltaWindow;
   }
   takeDeltas(sessionId) {
-    const window2 = this.deltaWindows.get(sessionId);
-    if (!window2 || window2.counts.received === 0) return void 0;
-    const counts = window2.counts;
-    window2.counts = emptyDeltaCounts();
+    const deltaWindow = this.deltaWindows.get(sessionId);
+    if (!deltaWindow || deltaWindow.counts.received === 0) return void 0;
+    const counts = deltaWindow.counts;
+    deltaWindow.counts = emptyDeltaCounts();
     return counts;
   }
   finish(sessionId, trigger) {
@@ -85,10 +85,10 @@ export class ChatStateDiagnostics {
     this.finish(sessionId, "session-released");
     this.contexts.delete(sessionId);
   }
-  snapshotDecision(sessionId, replace2, failed, previousCount, incomingCount) {
+  snapshotDecision(sessionId, replace, failed, previousCount, incomingCount) {
     const outcome = failed
       ? "previous-history-retained"
-      : replace2
+      : replace
         ? "replaced"
         : previousCount > 0
           ? "existing-history-retained"
@@ -101,8 +101,8 @@ export class ChatStateDiagnostics {
     });
   }
   restored(
-    message2,
-    replace2,
+    message,
+    replace,
     before,
     after,
     parts,
@@ -111,36 +111,36 @@ export class ChatStateDiagnostics {
   ) {
     try {
       const context = {
-        sessionId: message2.session_id,
+        sessionId: message.session_id,
         runtimeSessionId: runtimeId,
-        historySyncId: message2.history_sync_id,
+        historySyncId: message.history_sync_id,
       };
       const outcome =
-        this.contexts.get(message2.session_id)?.outcome ??
+        this.contexts.get(message.session_id)?.outcome ??
         "snapshot-not-applied";
-      this.contexts.set(message2.session_id, context);
+      this.contexts.set(message.session_id, context);
       const lines = [];
       const diagnostic = new ChatDiagnostics((line) => lines.push(line));
-      const previous2 = diagnosticChatTools(before);
-      const current2 = diagnosticChatTools(after);
-      const incoming = diagnosticHistoryTools(message2.messages ?? []);
-      const identity2 = {
+      const previous = diagnosticChatTools(before);
+      const current = diagnosticChatTools(after);
+      const incoming = diagnosticHistoryTools(message.messages ?? []);
+      const identity = {
         missingRootPartId: 0,
         missingToolIdentity: 0,
       };
-      for (const tool2 of incoming) {
-        if (tool2.scope !== "child" && !tool2.partId)
-          identity2.missingRootPartId++;
-        if (!tool2.partId && !tool2.callID) identity2.missingToolIdentity++;
+      for (const tool of incoming) {
+        if (tool.scope !== "child" && !tool.partId)
+          identity.missingRootPartId++;
+        if (!tool.partId && !tool.callID) identity.missingToolIdentity++;
       }
       diagnostic.record(
         "history-controller-input",
         {
           ...context,
-          runtimeSessionId: message2.runtime_session_id,
-          outcome: message2.history_load_failed
+          runtimeSessionId: message.runtime_session_id,
+          outcome: message.history_load_failed
             ? "history-load-failed"
-            : replace2
+            : replace
               ? "replace-requested"
               : "install-if-empty-requested",
         },
@@ -149,32 +149,32 @@ export class ChatStateDiagnostics {
       const appliedContext = {
         ...context,
         outcome,
-        beforeCount: previous2.length,
-        afterCount: current2.length,
+        beforeCount: previous.length,
+        afterCount: current.length,
         sourcePartCount: parts?.getDiagnostics().partCount ?? 0,
         relationshipsBefore,
         relationshipsAfter: parts?.getRecoveryDiagnostics(
-          runtimeId ?? message2.session_id,
+          runtimeId ?? message.session_id,
         ),
-        identity: identity2,
-        delta: this.takeDeltas(message2.session_id),
+        identity,
+        delta: this.takeDeltas(message.session_id),
       };
-      diagnostic.record("history-store-applied", appliedContext, current2);
+      diagnostic.record("history-store-applied", appliedContext, current);
       if (appliedContext.relationshipsAfter?.waitingChildParts === 0) {
-        this.pendingChildren(message2.session_id, 0);
+        this.pendingChildren(message.session_id, 0);
       }
       diagnostic.record(
         "history-partstore",
         context,
-        parts?.getToolDiagnosticManifest(runtimeId ?? message2.session_id) ??
+        parts?.getToolDiagnosticManifest(runtimeId ?? message.session_id) ??
           [],
       );
-      const missing = current2.filter(
-        (tool2) =>
-          tool2.scope !== "child" &&
-          tool2.tool !== "task" &&
-          tool2.partId &&
-          !parts?.getPart(tool2.partId),
+      const missing = current.filter(
+        (tool) =>
+          tool.scope !== "child" &&
+          tool.tool !== "task" &&
+          tool.partId &&
+          !parts?.getPart(tool.partId),
       );
       if (missing.length)
         diagnostic.record(
@@ -187,14 +187,14 @@ export class ChatStateDiagnostics {
           true,
         );
       const byIdentity = new Map(
-        current2.map((tool2) => [chatToolIdentity(tool2), tool2]),
+        current.map((tool) => [chatToolIdentity(tool), tool]),
       );
-      const changed = previous2.flatMap((tool2) => {
-        const fresh = byIdentity.get(chatToolIdentity(tool2));
+      const changed = previous.flatMap((tool) => {
+        const fresh = byIdentity.get(chatToolIdentity(tool));
         if (!fresh)
           return [
             {
-              ...tool2,
+              ...tool,
               reason:
                 outcome === "replaced"
                   ? "snapshot-replace"
@@ -202,7 +202,7 @@ export class ChatStateDiagnostics {
             },
           ];
         if (
-          normalizeToolStatus(tool2.status) !==
+          normalizeToolStatus(tool.status) !==
           normalizeToolStatus(fresh.status)
         )
           return [
@@ -225,18 +225,18 @@ export class ChatStateDiagnostics {
         );
       if (
         (outcome === "replaced" || outcome === "initial-history-installed") &&
-        !deriveBusy(message2.agent_running, message2.pending_reasons ?? [])
+        !deriveBusy(message.agent_running, message.pending_reasons ?? [])
       ) {
         const terminalized = incoming
           .filter(
-            (tool2) =>
-              tool2.scope !== "child" &&
-              tool2.tool !== "task" &&
-              tool2.status === "running" &&
-              byIdentity.get(chatToolIdentity(tool2))?.status === "error",
+            (tool) =>
+              tool.scope !== "child" &&
+              tool.tool !== "task" &&
+              tool.status === "running" &&
+              byIdentity.get(chatToolIdentity(tool))?.status === "error",
           )
-          .map((tool2) => ({
-            ...tool2,
+          .map((tool) => ({
+            ...tool,
             status: "error",
             reason: "idle-history-terminalized",
           }));
@@ -254,10 +254,10 @@ export class ChatStateDiagnostics {
   rederived(sessionId, trigger, before, after, removed, parts) {
     if (!removed.length && trigger !== "session-cancelled") return;
     try {
-      const tools = diagnosticChatTools(removed).map((tool2) => ({
-        ...tool2,
+      const tools = diagnosticChatTools(removed).map((tool) => ({
+        ...tool,
         reason:
-          tool2.partId && parts.getPart(tool2.partId)
+          tool.partId && parts.getPart(tool.partId)
             ? "no-derived-message"
             : "missing-source-part",
       }));
@@ -277,7 +277,7 @@ export class ChatStateDiagnostics {
       );
     } catch {}
   }
-  reset(sessionId, messages2, parts) {
+  reset(sessionId, messages, parts) {
     const context = {
       ...this.contexts.get(sessionId),
       sessionId,
@@ -288,7 +288,7 @@ export class ChatStateDiagnostics {
     new ChatDiagnostics(this.write).record(
       "partstore-reset",
       context,
-      diagnosticChatTools(messages2),
+      diagnosticChatTools(messages),
     );
   }
   clear() {

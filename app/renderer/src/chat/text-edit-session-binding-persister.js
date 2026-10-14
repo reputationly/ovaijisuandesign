@@ -14,10 +14,10 @@ import {
   readLocalCache,
 } from "./use-model-defaults.js";
 const CROSS_CONTEXT_WRITE_LOCK = "hilo:workspace-text-edit-sessions";
-function writeLocalCache(record2) {
+function writeLocalCache(record) {
   if (typeof localStorage === "undefined") return;
   try {
-    localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(record2));
+    localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(record));
   } catch {}
 }
 function getPlatformStorage() {
@@ -53,11 +53,11 @@ export class TextEditSessionBindingPersister {
       const storage = getPlatformStorage();
       if (storage) {
         try {
-          const record2 = normalizeTextEditSessionRecord(
+          const record = normalizeTextEditSessionRecord(
             await storage.globalGet(STORAGE_KEY),
           );
-          writeLocalCache(record2);
-          return record2[workspaceKey] ?? {};
+          writeLocalCache(record);
+          return record[workspaceKey] ?? {};
         } catch {}
       }
       return cachedTextEditSessionBindings(workspaceKey);
@@ -76,74 +76,74 @@ export class TextEditSessionBindingPersister {
       .then(() =>
         withCrossContextStorageLock(async () => {
           const storage = getPlatformStorage();
-          let record2 = readLocalCache();
+          let record = readLocalCache();
           if (storage) {
             try {
-              record2 = normalizeTextEditSessionRecord(
+              record = normalizeTextEditSessionRecord(
                 await storage.globalGet(STORAGE_KEY),
               );
             } catch {}
           }
-          const nextBinding = mutator(record2[workspaceKey]?.[nodeId]);
+          const nextBinding = mutator(record[workspaceKey]?.[nodeId]);
           const workspaceBindings = {
-            ...(record2[workspaceKey] ?? {}),
+            ...(record[workspaceKey] ?? {}),
           };
           if (nextBinding) workspaceBindings[nodeId] = nextBinding;
           else delete workspaceBindings[nodeId];
-          const next2 = {
-            ...record2,
+          const next = {
+            ...record,
             [workspaceKey]: workspaceBindings,
           };
-          writeLocalCache(next2);
-          if (storage) await storage.globalSet(STORAGE_KEY, next2);
+          writeLocalCache(next);
+          if (storage) await storage.globalSet(STORAGE_KEY, next);
         }),
       );
     return bindingWriteQueue;
   }
-  upsert(workspaceKey, nodeId, patch2) {
+  upsert(workspaceKey, nodeId, patch) {
     if (
       !workspaceKey ||
       !nodeId ||
-      (!patch2.uiSessionId && !patch2.runtimeSessionId)
+      (!patch.uiSessionId && !patch.runtimeSessionId)
     ) {
       return Promise.resolve();
     }
-    return this.mutate(workspaceKey, nodeId, (current2) => {
+    return this.mutate(workspaceKey, nodeId, (current) => {
       const entry = {
-        ...(patch2.uiSessionId
+        ...(patch.uiSessionId
           ? {
-              uiSessionId: patch2.uiSessionId,
+              uiSessionId: patch.uiSessionId,
             }
           : {}),
-        ...(patch2.runtimeSessionId
+        ...(patch.runtimeSessionId
           ? {
-              runtimeSessionId: patch2.runtimeSessionId,
+              runtimeSessionId: patch.runtimeSessionId,
             }
           : {}),
-        updatedAt: patch2.updatedAt ?? Date.now(),
+        updatedAt: patch.updatedAt ?? Date.now(),
       };
       const mergeable =
-        current2 !== void 0 &&
-        (sameTextEditSessionEntry(current2, entry) ||
+        current !== void 0 &&
+        (sameTextEditSessionEntry(current, entry) ||
           (Boolean(entry.runtimeSessionId) &&
-            !current2.runtimeSessionId &&
+            !current.runtimeSessionId &&
             (!entry.uiSessionId ||
-              entry.uiSessionId === current2.uiSessionId)) ||
+              entry.uiSessionId === current.uiSessionId)) ||
           (Boolean(entry.uiSessionId) &&
-            !current2.uiSessionId &&
+            !current.uiSessionId &&
             (!entry.runtimeSessionId ||
-              entry.runtimeSessionId === current2.runtimeSessionId)));
+              entry.runtimeSessionId === current.runtimeSessionId)));
       const activeEntry =
-        mergeable && current2 ? mergeEntry(current2, entry) : entry;
-      return upsertTextEditSessionEntry(current2, activeEntry, {
-        active: patch2.active !== false,
+        mergeable && current ? mergeEntry(current, entry) : entry;
+      return upsertTextEditSessionEntry(current, activeEntry, {
+        active: patch.active !== false,
       });
     });
   }
   /** Keep the node's history but stop resuming its last conversation. */
   clearActive(workspaceKey, nodeId) {
-    return this.mutate(workspaceKey, nodeId, (current2) =>
-      current2 ? clearActiveTextEditSession(current2, Date.now()) : null,
+    return this.mutate(workspaceKey, nodeId, (current) =>
+      current ? clearActiveTextEditSession(current, Date.now()) : null,
     );
   }
   /** The canvas text node is gone — drop its whole private history. */

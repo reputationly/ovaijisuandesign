@@ -1,6 +1,6 @@
 // image-rotate-preview-inner.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 function ImageRotatePreviewInner({
   src,
@@ -9,7 +9,7 @@ function ImageRotatePreviewInner({
   alt,
   width,
   height,
-  transform: transform2,
+  transform,
 }) {
   return (
     <img
@@ -28,8 +28,8 @@ function ImageRotatePreviewInner({
         // the body.
         maxWidth: "none",
         maxHeight: "none",
-        transform: transform2
-          ? `translate(-50%, -50%) ${transform2}`
+        transform: transform
+          ? `translate(-50%, -50%) ${transform}`
           : "translate(-50%, -50%)",
         transformOrigin: "center center",
       }}

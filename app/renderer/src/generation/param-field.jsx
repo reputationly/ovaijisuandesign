@@ -5,52 +5,45 @@ import {
   MODEL_NAME_KEYS,
 } from "./domestic-param-labels.jsx";
 import { resolveModelNameForCurrentRegion } from "./replace-configured-model-names-for-current-region.js";
-import {
-  Check,
-  ChevronDown,
-  reactExports,
-  SliderControl$1 as SliderControl,
-  SliderIndicator,
-  SliderRoot,
-  SliderThumb,
-  SliderTrack,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown } from "../media-editing/lucide-icon-wraps.js";
+import { SliderControl$1 as SliderControl, SliderIndicator, SliderRoot, SliderThumb, SliderTrack } from "../infra/base-ui.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { isHiddenVideoGenerationMode } from "../chat/use-tool-confirm-settlement.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { Textarea } from "../infra/badge-variants.jsx";
 import { Switch } from "./select-content.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 function Slider({
   className,
-  defaultValue: defaultValue2,
+  defaultValue,
   value,
-  min: min2 = 0,
-  max: max2 = 100,
+  min = 0,
+  max = 100,
   ...props
 }) {
   const _values = reactExports.useMemo(
     () =>
       Array.isArray(value)
         ? value
-        : Array.isArray(defaultValue2)
-          ? defaultValue2
-          : [min2, max2],
-    [value, defaultValue2, min2, max2],
+        : Array.isArray(defaultValue)
+          ? defaultValue
+          : [min, max],
+    [value, defaultValue, min, max],
   );
   return (
     <SliderRoot
       className={cn("data-horizontal:w-full data-vertical:h-full", className)}
       data-slot="slider"
-      defaultValue={defaultValue2}
+      defaultValue={defaultValue}
       value={value}
-      min={min2}
-      max={max2}
+      min={min}
+      max={max}
       thumbAlignment="edge"
       {...props}
     >
@@ -68,9 +61,9 @@ function Slider({
           {
             length: _values.length,
           },
-          (_2, index2) => (
+          (_unusedArg, index) => (
             <SliderThumb
-              key={index2}
+              key={index}
               data-slot="slider-thumb"
               className="relative block size-3 shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-1 focus-visible:ring-1 focus-visible:outline-hidden active:ring-1 disabled:pointer-events-none disabled:opacity-50"
             />
@@ -84,24 +77,24 @@ function ParamEnumPopover({
   paramKey,
   paramLabel,
   description,
-  values: values3,
+  values,
   value,
-  disabled: disabled2,
+  disabled,
   displayMap,
   onChange,
 }) {
   const [open, setOpen] = reactExports.useState(false);
-  const { t: t2 } = useTranslation();
-  const displayValue = (raw2) => {
-    const optionLabel = t2(`canvas.param.option.${raw2}`, {
-      defaultValue: raw2,
+  const { t: translate } = useTranslation();
+  const displayValue = (raw) => {
+    const optionLabel = translate(`canvas.param.option.${raw}`, {
+      defaultValue: raw,
     });
-    return optionLabel !== raw2 ? optionLabel : (displayMap?.get(raw2) ?? raw2);
+    return optionLabel !== raw ? optionLabel : (displayMap?.get(raw) ?? raw);
   };
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        disabled={disabled2}
+        disabled={disabled}
         data-action-ui-id={`tool-confirm-param-${paramKey}`}
         className={cn(
           "inline-flex min-w-[7rem] max-w-[16rem] items-center justify-between gap-1 px-2 py-1 rounded-sm",
@@ -134,26 +127,26 @@ function ParamEnumPopover({
           )}
         </div>
         <ul className="max-h-64 overflow-y-auto py-1">
-          {values3.map((opt) => {
-            const active2 = value === opt;
+          {values.map((option) => {
+            const active = value === option;
             return (
-              <li key={opt}>
+              <li key={option}>
                 <button
                   type="button"
-                  data-action-ui-id={`tool-confirm-param-${paramKey}-option-${opt}`}
+                  data-action-ui-id={`tool-confirm-param-${paramKey}-option-${option}`}
                   className={cn(
                     "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-body-12 cursor-pointer transition-colors",
-                    active2
+                    active
                       ? "bg-foreground text-background"
                       : "text-foreground hover:bg-muted",
                   )}
                   onClick={() => {
-                    onChange(opt);
+                    onChange(option);
                     setOpen(false);
                   }}
                 >
-                  <span className="truncate">{displayValue(opt)}</span>
-                  {active2 && (
+                  <span className="truncate">{displayValue(option)}</span>
+                  {active && (
                     <Check size={14} strokeWidth={1.5} className="shrink-0" />
                   )}
                 </button>
@@ -169,12 +162,12 @@ function isModelParamKey(paramKey) {
   const baseKey = paramKey.split("[")[0] ?? paramKey;
   return MODEL_NAME_KEYS.has(baseKey);
 }
-function filterModeHiddenValues(paramKey, values3) {
-  if (paramKey !== "mode") return values3;
-  return values3.filter((value) => !isHiddenVideoGenerationMode(value));
+function filterModeHiddenValues(paramKey, values) {
+  if (paramKey !== "mode") return values;
+  return values.filter((value) => !isHiddenVideoGenerationMode(value));
 }
-function displayEnumValue(paramKey, value, t2, displayMap) {
-  const optionLabel = t2(`canvas.param.option.${value}`, {
+function displayEnumValue(paramKey, value, translate, displayMap) {
+  const optionLabel = translate(`canvas.param.option.${value}`, {
     defaultValue: value,
   });
   if (optionLabel !== value) return optionLabel;
@@ -187,42 +180,42 @@ function displayEnumValue(paramKey, value, t2, displayMap) {
 }
 function InlineEnumOptions({
   paramKey,
-  values: values3,
+  values,
   value,
-  disabled: disabled2 = false,
+  disabled = false,
   displayMap,
   onChange,
   onSelect,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div
       className="flex max-h-56 flex-wrap gap-1 overflow-y-auto"
       data-action-ui-id={`tool-confirm-param-${paramKey}`}
     >
-      {values3.map((option2) => {
-        const active2 = option2 === value;
+      {values.map((option) => {
+        const active = option === value;
         return (
           <button
-            key={option2}
+            key={option}
             type="button"
-            disabled={disabled2}
-            data-action-ui-id={`tool-confirm-param-${paramKey}-option-${option2}`}
+            disabled={disabled}
+            data-action-ui-id={`tool-confirm-param-${paramKey}-option-${option}`}
             className={cn(
               "inline-flex min-w-0 max-w-full items-center gap-1 rounded-sm border px-2.5 py-1 text-left text-body-12 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
-              active2
+              active
                 ? "border-foreground bg-foreground text-background"
                 : "border-border bg-background text-foreground hover:bg-muted",
             )}
             onClick={() => {
-              onChange(option2);
+              onChange(option);
               onSelect?.();
             }}
           >
             <span className="truncate">
-              {displayEnumValue(paramKey, option2, t2, displayMap)}
+              {displayEnumValue(paramKey, option, translate, displayMap)}
             </span>
-            {active2 && <Icon icon={Check} size="sm" className="shrink-0" />}
+            {active && <Icon icon={Check} size="sm" className="shrink-0" />}
           </button>
         );
       })}
@@ -235,12 +228,12 @@ export function ParamField({
   originalValue,
   hint,
   multiline = false,
-  disabled: disabled2 = false,
+  disabled = false,
   displayMap,
   onChange,
   onEnumSelect,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (Array.isArray(originalValue)) {
     const items = (() => {
       try {
@@ -250,14 +243,14 @@ export function ParamField({
         return [value];
       }
     })();
-    const updateItem = (index2, v2) => {
-      const next2 = items.map((item, i2) => (i2 === index2 ? v2 : item));
-      onChange(JSON.stringify(next2));
+    const updateItem = (optionIndex, value) => {
+      const next = items.map((item, index) => (index === optionIndex ? value : item));
+      onChange(JSON.stringify(next));
     };
-    const itemRows = items.map((item, index2) => ({
+    const itemRows = items.map((item, index) => ({
       item,
-      index: index2,
-      key: `${paramKey}:${String(originalValue[index2] ?? item)}:${index2}`,
+      index,
+      key: `${paramKey}:${String(originalValue[index] ?? item)}:${index}`,
     }));
     if (hint?.type === "enum") {
       return (
@@ -265,17 +258,17 @@ export function ParamField({
           className="flex flex-col gap-1"
           data-action-ui-id={`tool-confirm-param-${paramKey}`}
         >
-          {itemRows.map(({ item, index: index2, key: key2 }) => (
+          {itemRows.map(({ item, index, key }) => (
             <ParamEnumPopover
-              key={key2}
-              paramKey={`${paramKey}[${index2}]`}
+              key={key}
+              paramKey={`${paramKey}[${index}]`}
               paramLabel={getParamLabel(paramKey)}
               description={hint.description}
               values={filterModeHiddenValues(paramKey, hint.values)}
               value={item}
-              disabled={disabled2}
+              disabled={disabled}
               displayMap={displayMap}
-              onChange={(v2) => updateItem(index2, v2)}
+              onChange={(value) => updateItem(index, value)}
             />
           ))}
         </div>
@@ -286,29 +279,29 @@ export function ParamField({
         className="flex flex-col gap-1"
         data-action-ui-id={`tool-confirm-param-${paramKey}`}
       >
-        {itemRows.map(({ item, index: index2, key: key2 }) => {
+        {itemRows.map(({ item, index, key }) => {
           const isLongItem =
             paramKey === "prompts" ||
             paramKey === "prompt" ||
             item.length >= 40;
           return isLongItem ? (
             <Textarea
-              key={key2}
+              key={key}
               rows={3}
               value={item}
-              disabled={disabled2}
-              onChange={(e2) => updateItem(index2, e2.target.value)}
+              disabled={disabled}
+              onChange={(changeEvent) => updateItem(index, changeEvent.target.value)}
               className="text-xs bg-background dark:bg-background resize-y overflow-y-auto min-h-0 focus-visible:border-brand-accent focus-visible:ring-brand-accent/30"
               style={{
                 fieldSizing: "fixed",
               }}
             />
           ) : (
-            <Input3
-              key={key2}
+            <Input
+              key={key}
               value={item}
-              disabled={disabled2}
-              onChange={(e2) => updateItem(index2, e2.target.value)}
+              disabled={disabled}
+              onChange={(changeEvent) => updateItem(index, changeEvent.target.value)}
               className="text-xs h-7 bg-background dark:bg-background focus-visible:border-brand-accent focus-visible:ring-brand-accent/30"
             />
           );
@@ -322,7 +315,7 @@ export function ParamField({
         paramKey={paramKey}
         values={filterModeHiddenValues(paramKey, hint.values)}
         value={value}
-        disabled={disabled2}
+        disabled={disabled}
         displayMap={displayMap}
         onChange={onChange}
         onSelect={onEnumSelect}
@@ -343,10 +336,10 @@ export function ParamField({
           max={hint.max}
           step={step}
           value={[numValue]}
-          disabled={disabled2}
-          onValueChange={(v2) => {
-            const arr = Array.isArray(v2) ? v2 : [v2];
-            onChange(String(arr[0]));
+          disabled={disabled}
+          onValueChange={(value) => {
+            const values = Array.isArray(value) ? value : [value];
+            onChange(String(values[0]));
           }}
           className="flex-1"
         />
@@ -364,24 +357,24 @@ export function ParamField({
       >
         <Switch
           checked={value === "true"}
-          disabled={disabled2}
-          onCheckedChange={(v2) => onChange(String(v2))}
+          disabled={disabled}
+          onCheckedChange={(checked) => onChange(String(checked))}
         />
         <span className="text-xs text-muted-foreground">
           {value === "true"
-            ? t2("chat.toolConfirm.booleanOn")
-            : t2("chat.toolConfirm.booleanOff")}
+            ? translate("chat.toolConfirm.booleanOn")
+            : translate("chat.toolConfirm.booleanOff")}
         </span>
       </div>
     );
   }
   if (typeof originalValue === "number") {
     return (
-      <Input3
+      <Input
         type="number"
         value={value}
-        disabled={disabled2}
-        onChange={(e2) => onChange(e2.target.value)}
+        disabled={disabled}
+        onChange={(changeEvent) => onChange(changeEvent.target.value)}
         className="text-xs h-7 bg-background dark:bg-background focus-visible:border-brand-accent focus-visible:ring-brand-accent/30"
         data-action-ui-id={`tool-confirm-param-${paramKey}`}
       />
@@ -397,8 +390,8 @@ export function ParamField({
       <Textarea
         rows={3}
         value={value}
-        disabled={disabled2}
-        onChange={(e2) => onChange(e2.target.value)}
+        disabled={disabled}
+        onChange={(changeEvent) => onChange(changeEvent.target.value)}
         className="text-xs bg-background dark:bg-background resize-y overflow-y-auto min-h-0 focus-visible:border-brand-accent focus-visible:ring-brand-accent/30"
         style={{
           fieldSizing: "fixed",
@@ -408,10 +401,10 @@ export function ParamField({
     );
   }
   return (
-    <Input3
+    <Input
       value={value}
-      disabled={disabled2}
-      onChange={(e2) => onChange(e2.target.value)}
+      disabled={disabled}
+      onChange={(changeEvent) => onChange(changeEvent.target.value)}
       className="text-xs h-7 bg-background dark:bg-background focus-visible:border-brand-accent focus-visible:ring-brand-accent/30"
       data-action-ui-id={`tool-confirm-param-${paramKey}`}
     />

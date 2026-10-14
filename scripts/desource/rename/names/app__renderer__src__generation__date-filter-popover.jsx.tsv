@@ -1,0 +1,19 @@
+key	old	new	依据
+y4@42:9	y4	year	该值是日期的四位年份。
+m3@43:9	m3	month	该值是补零后的月份字符串，用于 ISO 日期。
+d2@44:9	d2	day	该值是补零后的月份日期字符串，用于 ISO 日期。
+y4@50:10	y4	year	该值是从 ISO 日期拆出的数值年份。
+m3@50:14	m3	month	该值是从 ISO 日期拆出的数值月份。
+d2@50:18	d2	day	该值是从 ISO 日期拆出的数值日。
+d2@56:9	d2	date	该值是由 ISO 日期解析出的 Date 对象。
+m3@58:9	m3	month	该值是补零后的月份字符串，用于月日标签。
+t2@69:14	t2	translate	该绑定来自 useTranslation 并用于日期筛选标签。
+p3@87:40	p3	preset	该值是与当前筛选类型匹配的日期预设记录。
+date2@41:20	date2	date	去掉打包器防重名追加的后缀，恢复原名 date，即该绑定持有的值。
+active2@71:9	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+base2@79:11	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
+preset2@87:11	preset2	matchingPreset	该值是与当前日期筛选条件匹配的日期预设。
+from2@82:13	from2	from	去掉打包器防重名追加的后缀，恢复原名 from，即该绑定持有的值。
+from2@109:11	from2	from	去掉打包器防重名追加的后缀，恢复原名 from，即该绑定持有的值。
+range2@118:6	range2	range	去掉打包器防重名追加的后缀，恢复原名 range，即该绑定持有的值。
+preset2@164:30	preset2	preset	去掉打包器防重名追加的后缀，恢复原名 preset，即该绑定持有的值。

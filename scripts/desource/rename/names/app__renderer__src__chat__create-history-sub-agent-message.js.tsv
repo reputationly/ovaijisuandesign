@@ -1,0 +1,13 @@
+key	新名	依据
+r2@115:8	message	`message` 是历史结果中的任意消息，谓词再按类型、部件 ID 和解析状态筛选子代理消息。
+r2@124:8	message	`message` 是历史结果中的任意消息，谓词再按类型、子会话 ID 和解析状态筛选子代理消息。
+r2@133:8	message	`message` 是历史结果中的任意消息，谓词再按类型和解析状态筛选子代理消息。
+r2@138:6	message	`message` 是历史结果中的任意消息，谓词再按类型、agent 名称和解析状态筛选子代理消息。
+key2@8:44	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@40:31	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+content2@47:33	content	`content` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key2@60:59	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+content2@69:39	content	`content` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+content2@75:40	content	`content` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+message2@110:33	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+agent2@146:3	agent	`agent` 是标识值；末尾数字是打包器为避免重名添加的后缀。

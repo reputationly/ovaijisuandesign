@@ -1,5 +1,15 @@
 // team-management-dialog.jsx
-import { ArrowLeftRight, Copy, CreditCard, dispatchAccountSubmissionBlocked, getRuntimeConfig, HILO_HUB_BIZ_LINE, jsxRuntimeExports, Plus, reactExports, Search, Trans, usePlatform, useQuery, useQueryClient, useStorage, useTranslation } from "../vendor.js";
+import { Trans } from "react-i18next";
+import { dispatchAccountSubmissionBlocked } from "../infra/account-submission.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { HILO_HUB_BIZ_LINE } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { ArrowLeftRight, Copy, CreditCard, Plus, Search } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import {
   MEMBERSHIP_GC_MS,
@@ -117,7 +127,7 @@ function useTeamMemberDetailsQuery({ scope, enabled = true }) {
 }
 const QUOTA_CELL_IDS = ["used", "remaining"];
 function TeamManagementQuotaLoading() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       role="status"
@@ -126,11 +136,11 @@ function TeamManagementQuotaLoading() {
       data-action-ui-id="team.management-quota-loading"
     >
       <span className="sr-only">
-        {t2("common.loading", {
+        {t("common.loading", {
           defaultValue: "加载中…",
         })}
       </span>
-      {QUOTA_CELL_IDS.map((cellId, index2) => (
+      {QUOTA_CELL_IDS.map((cellId, index) => (
         <div
           key={cellId}
           className="space-y-2 border-b border-border p-3 last:border-b-0 sm:border-b-0"
@@ -138,7 +148,7 @@ function TeamManagementQuotaLoading() {
           <Skeleton className="h-2.5 w-20 rounded-sm" />
           <Skeleton
             className={
-              index2 === 1 ? "h-3 w-24 rounded-sm" : "h-3 w-14 rounded-sm"
+              index === 1 ? "h-3 w-24 rounded-sm" : "h-3 w-14 rounded-sm"
             }
           />
         </div>
@@ -153,18 +163,18 @@ function creditTransferTermsKey(params) {
   const scenarioKey = params.groupId?.trim() || PERSONAL_SCENARIO_KEY;
   return `${userKey}:${HILO_HUB_BIZ_LINE}:${scenarioKey}`;
 }
-function isCreditTransferTermsAccepted(accepted, key2) {
+function isCreditTransferTermsAccepted(accepted, key) {
   if (accepted === void 0 || typeof accepted === "boolean") return false;
-  return accepted[key2] !== void 0;
+  return accepted[key] !== void 0;
 }
 function isBatchRemoveEligible(member) {
   return member.permissions.removeMember.allowed;
 }
-function toggleMemberSelection(selected2, userId, nextSelected) {
-  const copy2 = new Set(selected2);
-  if (nextSelected) copy2.add(userId);
-  else copy2.delete(userId);
-  return copy2;
+function toggleMemberSelection(selected, userId, nextSelected) {
+  const copy = new Set(selected);
+  if (nextSelected) copy.add(userId);
+  else copy.delete(userId);
+  return copy;
 }
 function selectLoadedEligible(members, eligible) {
   return new Set(members.filter(eligible).map((member) => member.userId));
@@ -193,7 +203,7 @@ function TransferCreditPage({
   onOpenChange,
   onTransferred,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [transferPending, setTransferPending] = reactExports.useState(false);
   const [dialogContentElement, setDialogContentElement] =
     reactExports.useState(null);
@@ -208,12 +218,12 @@ function TransferCreditPage({
       >
         <PageHeader>
           <PageTitle>
-            {t2("team.transferCredit.title", {
+            {t("team.transferCredit.title", {
               defaultValue: "转移积分",
             })}
           </PageTitle>
           <PageDescription>
-            {t2("team.transferCredit.description", {
+            {t("team.transferCredit.description", {
               defaultValue:
                 "把「{{name}}」的剩余积分转移到你名下的其他团队或个人空间。积分保留原有效期，订阅套餐额度不参与转移。",
               name: teamName,
@@ -245,11 +255,11 @@ export function TeamManagementDialog({
   onOpenChange,
   onDissolveTransferSucceeded,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const runtimeConfig = getRuntimeConfig();
   const isOverseas = runtimeConfig.region === "overseas";
-  const platform2 = usePlatform();
-  const queryClient2 = useQueryClient();
+  const platform = usePlatform();
+  const queryClient = useQueryClient();
   const subscribeUrl = useMpSubscribeUrl();
   const purchasePendingRef = reactExports.useRef(false);
   const [purchasePending, setPurchasePending] = reactExports.useState(false);
@@ -266,7 +276,7 @@ export function TeamManagementDialog({
   );
   const detailQuery = useTeamDetailQuery(scope, open && gateOpen);
   const [searchInput, setSearchInput] = reactExports.useState("");
-  const [keyword2, setKeyword] = reactExports.useState("");
+  const [keyword, setKeyword] = reactExports.useState("");
   const [selectedMemberIds, setSelectedMemberIds] = reactExports.useState(
     () => new Set(),
   );
@@ -294,14 +304,14 @@ export function TeamManagementDialog({
   const inviteOpen = subpage?.type === "invite";
   const inviteHistoryOpen = subpage?.type === "history";
   const transferDialogOpen = subpage?.type === "transfer";
-  const handleTabChange = (tab2) => {
+  const handleTabChange = (tab) => {
     if (subpageRef.current) {
       nestedCloseRef.current?.();
       if (subpageRef.current) return;
     }
     navigationRevision.current += 1;
-    if (tab2 !== activeTab) setSelectedMemberIds(new Set());
-    setActiveTab(tab2);
+    if (tab !== activeTab) setSelectedMemberIds(new Set());
+    setActiveTab(tab);
   };
   const pageSize = Math.min(20, contract?.limits.maxMemberPageSize ?? 20);
   const isMemberView = detailQuery.data?.currentRole === "MEMBER";
@@ -326,7 +336,7 @@ export function TeamManagementDialog({
   );
   const membersQuery = useTeamMembersFeedQuery({
     scope,
-    keyword: keyword2,
+    keyword,
     pageSize,
     enabled: open && gateOpen && viewMembers,
   });
@@ -360,18 +370,18 @@ export function TeamManagementDialog({
       !isMemberView,
   });
   const memberUsageByUserId = reactExports.useMemo(() => {
-    const map3 = new Map();
+    const map = new Map();
     for (const detail of memberDetailsQuery.data ?? []) {
-      map3.set(detail.userId, detail.totalUsed);
+      map.set(detail.userId, detail.totalUsed);
     }
-    return map3;
+    return map;
   }, [memberDetailsQuery.data]);
   const memberNameByUserId = reactExports.useMemo(() => {
-    const map3 = new Map();
+    const map = new Map();
     for (const detail of memberDetailsQuery.data ?? []) {
-      map3.set(detail.userId, detail.userName);
+      map.set(detail.userId, detail.userName);
     }
-    return map3;
+    return map;
   }, [memberDetailsQuery.data]);
   const scrollRef = reactExports.useRef(null);
   const isScrolling = useIsScrolling({
@@ -416,9 +426,9 @@ export function TeamManagementDialog({
   );
   const allLoadedSelected =
     loadedSelectableIds.size > 0 &&
-    [...loadedSelectableIds].every((id2) => selectedMemberIds.has(id2));
-  const someLoadedSelected = [...loadedSelectableIds].some((id2) =>
-    selectedMemberIds.has(id2),
+    [...loadedSelectableIds].every((memberId) => selectedMemberIds.has(memberId));
+  const someLoadedSelected = [...loadedSelectableIds].some((memberId) =>
+    selectedMemberIds.has(memberId),
   );
   const canCreateInviteLink = Boolean(
     mutationOpen && detailQuery.data?.permissions.createInviteLink.allowed,
@@ -454,11 +464,11 @@ export function TeamManagementDialog({
     accountScopeEquals(checkoutDecision.scope, scope),
   );
   const checkoutUnavailableReason = !checkoutDecision.allowed
-    ? getTeamReasonText(t2, checkoutDecision.reasonCode)
+    ? getTeamReasonText(t, checkoutDecision.reasonCode)
     : !checkoutScopeMatches
-      ? getTeamReasonText(t2, "account_scope_changed")
+      ? getTeamReasonText(t, "account_scope_changed")
       : !subscribeUrl
-        ? t2("team.credit.checkoutFailed", {
+        ? t("team.credit.checkoutFailed", {
             defaultValue: "暂时无法创建团队购买链接，请稍后重试。",
           })
         : null;
@@ -479,12 +489,12 @@ export function TeamManagementDialog({
     purchasePendingRef.current = true;
     setPurchasePending(true);
     try {
-      await openExternalUrl(platform2, subscribeUrl, {
+      await openExternalUrl(platform, subscribeUrl, {
         source: "team.management.purchase",
       });
       const handleFocus = () => {
         window.removeEventListener("focus", handleFocus);
-        void queryClient2.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: creditQueryKeys.scope(scope),
         });
       };
@@ -493,7 +503,7 @@ export function TeamManagementDialog({
       });
     } catch {
       dedupedToast.error(
-        t2("team.credit.checkoutFailed", {
+        t("team.credit.checkoutFailed", {
           defaultValue: "暂时无法创建团队购买链接，请稍后重试。",
         }),
       );
@@ -515,25 +525,25 @@ export function TeamManagementDialog({
     try {
       await navigator.clipboard.writeText(scope.groupId);
       dedupedToast.success(
-        t2("common.copied", {
+        t("common.copied", {
           defaultValue: "已复制",
         }),
       );
     } catch {
       dedupedToast.error(
-        t2("common.copyFailed", {
+        t("common.copyFailed", {
           defaultValue: "复制失败",
         }),
       );
     }
   };
   reactExports.useEffect(() => {
-    if (searchInput === keyword2) return;
-    const timer2 = window.setTimeout(() => {
+    if (searchInput === keyword) return;
+    const timer = window.setTimeout(() => {
       setKeyword(searchInput);
     }, MEMBER_SEARCH_DEBOUNCE_MS);
-    return () => window.clearTimeout(timer2);
-  }, [keyword2, searchInput]);
+    return () => window.clearTimeout(timer);
+  }, [keyword, searchInput]);
   reactExports.useEffect(() => {
     if (!open) {
       setSelectedMemberIds(new Set());
@@ -558,7 +568,7 @@ export function TeamManagementDialog({
   const tabs = [
     {
       id: "members",
-      label: t2("team.management.membersTab", {
+      label: t("team.management.membersTab", {
         defaultValue: "成员信息",
       }),
       icon: Users,
@@ -566,7 +576,7 @@ export function TeamManagementDialog({
     },
     {
       id: "credits",
-      label: t2("team.management.creditsTab", {
+      label: t("team.management.creditsTab", {
         defaultValue: "积分管理",
       }),
       icon: CreditCard,
@@ -574,7 +584,7 @@ export function TeamManagementDialog({
     },
     {
       id: "ledger",
-      label: t2("team.management.ledgerTab", {
+      label: t("team.management.ledgerTab", {
         defaultValue: "积分明细",
       }),
       icon: ReceiptText,
@@ -585,11 +595,11 @@ export function TeamManagementDialog({
     <>
       <Dialog
         open={open}
-        onOpenChange={(next2) => {
-          if (!next2 && nestedCloseRef.current) nestedCloseRef.current();
+        onOpenChange={(next) => {
+          if (!next && nestedCloseRef.current) nestedCloseRef.current();
           else {
-            if (!next2) navigationRevision.current += 1;
-            onOpenChange(next2);
+            if (!next) navigationRevision.current += 1;
+            onOpenChange(next);
           }
         }}
       >
@@ -601,29 +611,29 @@ export function TeamManagementDialog({
           data-team-member-count={detailQuery.data?.memberCount}
         >
           <nav
-            aria-label={t2("team.management.title")}
+            aria-label={t("team.management.title")}
             className="flex w-40 shrink-0 flex-col gap-2 border-r border-border px-3 py-6 sm:w-48 sm:px-4"
           >
             <p className="mb-3 px-3 text-sm font-medium text-foreground">
-              {t2("team.management.title")}
+              {t("team.management.title")}
             </p>
             {tabs
-              .filter((tab2) => tab2.visible)
-              .map((tab2) => (
+              .filter((tab) => tab.visible)
+              .map((tab) => (
                 <Button
-                  key={tab2.id}
-                  variant={currentTab === tab2.id ? "default" : "ghost"}
-                  aria-pressed={currentTab === tab2.id}
+                  key={tab.id}
+                  variant={currentTab === tab.id ? "default" : "ghost"}
+                  aria-pressed={currentTab === tab.id}
                   className={
-                    currentTab === tab2.id
+                    currentTab === tab.id
                       ? "justify-start gap-2 bg-foreground text-background hover:bg-foreground hover:text-background"
                       : "justify-start gap-2 text-muted-foreground"
                   }
-                  data-action-ui-id={`team.management-tab-${tab2.id}`}
-                  onClick={() => handleTabChange(tab2.id)}
+                  data-action-ui-id={`team.management-tab-${tab.id}`}
+                  onClick={() => handleTabChange(tab.id)}
                 >
-                  <Icon icon={tab2.icon} size="sm" aria-hidden={true} />
-                  {tab2.label}
+                  <Icon icon={tab.icon} size="sm" aria-hidden={true} />
+                  {tab.label}
                 </Button>
               ))}
           </nav>
@@ -631,22 +641,22 @@ export function TeamManagementDialog({
             <div className="flex min-h-0 min-w-0 flex-1 flex-col">
               <DialogHeader className="shrink-0 border-b border-border px-4 py-6 pr-14 sm:px-6 sm:pr-16">
                 <DialogTitle className="font-heading text-xl">
-                  {tabs.find((tab2) => tab2.id === currentTab)?.label}
+                  {tabs.find((tab) => tab.id === currentTab)?.label}
                 </DialogTitle>
                 <DialogDescription>
                   {isMemberView
-                    ? t2("team.management.memberDescription", {
+                    ? t("team.management.memberDescription", {
                         defaultValue: "查看你在当前团队中的个人额度。",
                       })
                     : currentTab === "ledger"
-                      ? t2("team.credit.teamDetailDescription", {
+                      ? t("team.credit.teamDetailDescription", {
                           defaultValue: "查看当前团队整体积分消耗明细。",
                         })
                       : currentTab === "credits"
-                        ? t2("team.management.creditsDescription", {
+                        ? t("team.management.creditsDescription", {
                             defaultValue: "管理团队积分、订阅与成员额度。",
                           })
-                        : t2("team.management.description", {
+                        : t("team.management.description", {
                             defaultValue: "查看团队信息，管理团队成员",
                           })}
                 </DialogDescription>
@@ -663,7 +673,7 @@ export function TeamManagementDialog({
                     {currentTab === "members" ? (
                       <div className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
                         <span className="shrink-0">
-                          {t2("team.management.groupId", {
+                          {t("team.management.groupId", {
                             defaultValue: "Group ID",
                           })}
                         </span>
@@ -676,7 +686,7 @@ export function TeamManagementDialog({
                           size="icon-xs"
                           className="text-muted-foreground hover:text-foreground"
                           onClick={() => void handleCopyGroupId()}
-                          aria-label={t2("team.management.copyGroupId", {
+                          aria-label={t("team.management.copyGroupId", {
                             defaultValue: "复制 Group ID",
                           })}
                           data-action-ui-id="team.management-copy-group-id"
@@ -705,7 +715,7 @@ export function TeamManagementDialog({
                 ) : null}
                 {gateOpen && detailQuery.isError && !detailQuery.data ? (
                   <TeamPanelError
-                    title={t2("team.management.teamInfoLoadFailed", {
+                    title={t("team.management.teamInfoLoadFailed", {
                       defaultValue: "团队信息加载失败",
                     })}
                     onRetry={() => void detailQuery.refetch()}
@@ -729,17 +739,17 @@ export function TeamManagementDialog({
                             <div className="flex items-center gap-2">
                               <h3 className="font-heading text-sm font-medium text-foreground">
                                 {isMemberView
-                                  ? t2("team.management.memberQuotaTitle", {
+                                  ? t("team.management.memberQuotaTitle", {
                                       defaultValue: "我的额度",
                                     })
-                                  : t2("team.management.quotaOverview", {
+                                  : t("team.management.quotaOverview", {
                                       defaultValue: "积分概览",
                                     })}
                               </h3>
                             </div>
                             {isMemberView ? (
                               <p className="mt-1 text-xs text-muted-foreground">
-                                {t2("team.management.memberQuotaDescription", {
+                                {t("team.management.memberQuotaDescription", {
                                   defaultValue:
                                     "仅展示你的个人额度和使用情况。",
                                 })}
@@ -750,7 +760,7 @@ export function TeamManagementDialog({
                             {canPurchase ? (
                               checkoutUnavailableReason ? (
                                 <TeamUnavailableAction
-                                  label={t2("team.credit.purchase", {
+                                  label={t("team.credit.purchase", {
                                     defaultValue: "去购买",
                                   })}
                                   reason={checkoutUnavailableReason}
@@ -767,7 +777,7 @@ export function TeamManagementDialog({
                                   onClick={() => void handlePurchase()}
                                   data-action-ui-id="team.management-purchase"
                                 >
-                                  {t2("team.credit.purchase", {
+                                  {t("team.credit.purchase", {
                                     defaultValue: "去购买",
                                   })}
                                 </Button>
@@ -783,12 +793,12 @@ export function TeamManagementDialog({
                                         variant="ghost"
                                         size="icon-xs"
                                         className="shrink-0"
-                                        aria-label={t2("team.credit.invoice", {
+                                        aria-label={t("team.credit.invoice", {
                                           defaultValue: "开发票",
                                         })}
                                         onClick={() => {
                                           void openExternalUrl(
-                                            platform2,
+                                            platform,
                                             getTeamInvoiceUrl(
                                               runtimeConfig.region,
                                               runtimeConfig.channel,
@@ -811,7 +821,7 @@ export function TeamManagementDialog({
                                     }
                                   />
                                   <TooltipContent>
-                                    {t2("team.credit.invoice", {
+                                    {t("team.credit.invoice", {
                                       defaultValue: "开发票",
                                     })}
                                   </TooltipContent>
@@ -828,7 +838,7 @@ export function TeamManagementDialog({
                             {memberCreditQuery.isError &&
                             !memberCreditQuery.data ? (
                               <TeamPanelError
-                                title={t2(
+                                title={t(
                                   "team.management.memberQuotaLoadFailed",
                                   {
                                     defaultValue: "个人额度加载失败",
@@ -850,7 +860,7 @@ export function TeamManagementDialog({
                                   metrics={[
                                     {
                                       id: "member-remaining",
-                                      label: t2("team.credit.remaining", {
+                                      label: t("team.credit.remaining", {
                                         defaultValue: "剩余额度",
                                       }),
                                       value:
@@ -877,7 +887,7 @@ export function TeamManagementDialog({
                                       : [
                                           {
                                             id: "member-usage",
-                                            label: t2(
+                                            label: t(
                                               "team.credit.quotaUsage",
                                               {
                                                 defaultValue: "额度使用",
@@ -890,7 +900,7 @@ export function TeamManagementDialog({
                                                 .memberLimit !== null &&
                                               memberCreditQuery.data
                                                 .memberUsed !== null
-                                                ? t2(
+                                                ? t(
                                                     "team.credit.quotaUsageValue",
                                                     {
                                                       defaultValue:
@@ -909,12 +919,12 @@ export function TeamManagementDialog({
                                                       .mode === "LIMITED" &&
                                                     memberCreditQuery.data
                                                       .memberLimit !== null
-                                                  ? t2(
+                                                  ? t(
                                                       "team.credit.usageUnavailableWithAllowance",
                                                       {
                                                         defaultValue:
                                                           "{{allowance}}，用量数据暂不可获取",
-                                                        allowance: t2(
+                                                        allowance: t(
                                                           "team.credit.personalLimit",
                                                           {
                                                             defaultValue:
@@ -945,7 +955,7 @@ export function TeamManagementDialog({
                             ) : null}
                             {quotaQuery.isError && !quotaQuery.data ? (
                               <TeamPanelError
-                                title={t2("team.management.quotaLoadFailed", {
+                                title={t("team.management.quotaLoadFailed", {
                                   defaultValue: "团队额度加载失败",
                                 })}
                                 onRetry={() => void quotaQuery.refetch()}
@@ -963,7 +973,7 @@ export function TeamManagementDialog({
                                 metrics={[
                                   {
                                     id: "team-used",
-                                    label: t2("team.credit.teamUsed", {
+                                    label: t("team.credit.teamUsed", {
                                       defaultValue: "团队已用积分",
                                     }),
                                     value:
@@ -992,7 +1002,7 @@ export function TeamManagementDialog({
                                   },
                                   {
                                     id: "team-remaining",
-                                    label: t2("team.credit.teamRemaining", {
+                                    label: t("team.credit.teamRemaining", {
                                       defaultValue: "团队剩余积分",
                                     }),
                                     value: formatCreditAmount(
@@ -1010,7 +1020,7 @@ export function TeamManagementDialog({
                                                   type="button"
                                                   variant="ghost"
                                                   size="icon-xs"
-                                                  aria-label={t2(
+                                                  aria-label={t(
                                                     "team.transferCredit.entry",
                                                     {
                                                       defaultValue: "转移积分",
@@ -1044,7 +1054,7 @@ export function TeamManagementDialog({
                                               }
                                             />
                                             <TooltipContent>
-                                              {t2("team.transferCredit.entry", {
+                                              {t("team.transferCredit.entry", {
                                                 defaultValue: "转移积分",
                                               })}
                                             </TooltipContent>
@@ -1075,10 +1085,10 @@ export function TeamManagementDialog({
                       >
                         <h3 className="shrink-0 font-heading text-sm font-medium text-foreground">
                           {currentTab === "credits"
-                            ? t2("team.management.memberQuotaTitlePlural", {
+                            ? t("team.management.memberQuotaTitlePlural", {
                                 defaultValue: "成员额度",
                               })
-                            : t2("team.management.members", {
+                            : t("team.management.members", {
                                 defaultValue: "成员详情",
                               })}
                         </h3>
@@ -1096,13 +1106,13 @@ export function TeamManagementDialog({
                               />
                             }
                             className="ml-auto w-full sm:w-56"
-                            placeholder={t2(
+                            placeholder={t(
                               "team.management.searchPlaceholder",
                               {
                                 defaultValue: "搜索姓名或 UID",
                               },
                             )}
-                            aria-label={t2(
+                            aria-label={t(
                               "team.management.searchPlaceholder",
                               {
                                 defaultValue: "搜索姓名或 UID",
@@ -1133,7 +1143,7 @@ export function TeamManagementDialog({
                                     size="xs"
                                     aria-hidden={true}
                                   />
-                                  {t2("team.management.invite", {
+                                  {t("team.management.invite", {
                                     defaultValue: "邀请成员",
                                   })}
                                 </Button>
@@ -1149,7 +1159,7 @@ export function TeamManagementDialog({
                                 }
                                 data-action-ui-id="team.management-invite-records"
                               >
-                                {t2("team.management.inviteRecords", {
+                                {t("team.management.inviteRecords", {
                                   defaultValue: "邀请记录",
                                 })}
                               </Button>
@@ -1166,7 +1176,7 @@ export function TeamManagementDialog({
                               onClick={() => void handleOpenDefaultQuota()}
                               data-action-ui-id="team.management-configure-default-quota"
                             >
-                              {t2("team.management.configureDefaultQuota", {
+                              {t("team.management.configureDefaultQuota", {
                                 defaultValue: "一键配置限额",
                               })}
                             </Button>
@@ -1181,15 +1191,15 @@ export function TeamManagementDialog({
                           data-action-ui-id="team.management-batch-toolbar"
                         >
                           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                            {t2("team.management.selectedCount", {
+                            {t("team.management.selectedCount", {
                               defaultValue: "已选择 {{count}} 人",
                               count: selectedMemberIds.size,
                             })}
                             <TeamHelpTip
-                              label={t2("team.management.selectionHelp", {
+                              label={t("team.management.selectionHelp", {
                                 defaultValue: "选择说明",
                               })}
-                              content={t2(
+                              content={t(
                                 "team.management.currentPageSelection",
                                 {
                                   defaultValue: "全选仅作用于已加载成员。",
@@ -1205,7 +1215,7 @@ export function TeamManagementDialog({
                               onClick={() => setBatchRemoveOpen(true)}
                               data-action-ui-id="team.management-batch-remove"
                             >
-                              {t2("team.management.removeSelected", {
+                              {t("team.management.removeSelected", {
                                 defaultValue: "移除成员",
                               })}
                             </Button>
@@ -1231,7 +1241,7 @@ export function TeamManagementDialog({
                       membersQuery.isError &&
                       !membersQuery.data ? (
                         <TeamPanelError
-                          title={t2("team.management.membersLoadFailed", {
+                          title={t("team.management.membersLoadFailed", {
                             defaultValue: "成员列表加载失败",
                           })}
                           onRetry={() => void membersQuery.refetch()}
@@ -1248,7 +1258,7 @@ export function TeamManagementDialog({
                       membersQuery.isSuccess &&
                       rows.length === 0 ? (
                         <TeamPanelEmpty
-                          title={t2("team.management.noMembers", {
+                          title={t("team.management.noMembers", {
                             defaultValue: "没有匹配的成员",
                           })}
                         />
@@ -1274,7 +1284,7 @@ export function TeamManagementDialog({
                                   indeterminate={
                                     !allLoadedSelected && someLoadedSelected
                                   }
-                                  aria-label={t2(
+                                  aria-label={t(
                                     "team.management.selectCurrentPage",
                                     {
                                       defaultValue: "选择全部已加载成员",
@@ -1296,25 +1306,25 @@ export function TeamManagementDialog({
                                 void 0
                               )
                             }
-                            memberLabel={t2("team.management.member", {
+                            memberLabel={t("team.management.member", {
                               defaultValue: "成员",
                             })}
-                            roleLabel={t2("team.management.role", {
+                            roleLabel={t("team.management.role", {
                               defaultValue: "角色",
                             })}
                             quotaLabel={
                               <span className="inline-flex items-center justify-center gap-1">
-                                {t2("team.management.currentQuota", {
+                                {t("team.management.currentQuota", {
                                   defaultValue: "当前可用积分",
                                 })}
                                 <TeamHelpTip
-                                  label={t2(
+                                  label={t(
                                     "team.management.currentQuotaHelp",
                                     {
                                       defaultValue: "当前可用积分说明",
                                     },
                                   )}
-                                  content={t2(
+                                  content={t(
                                     "team.management.currentQuotaHelpContent",
                                     {
                                       defaultValue:
@@ -1325,22 +1335,22 @@ export function TeamManagementDialog({
                                 />
                               </span>
                             }
-                            actionLabel={t2("team.management.actions", {
+                            actionLabel={t("team.management.actions", {
                               defaultValue: "操作",
                             })}
                             usageLabel={
                               <span className="inline-flex items-center justify-center gap-1">
-                                {t2("team.management.memberTotalUsed", {
+                                {t("team.management.memberTotalUsed", {
                                   defaultValue: "累计使用",
                                 })}
                                 <TeamHelpTip
-                                  label={t2(
+                                  label={t(
                                     "team.management.memberTotalUsedHelp",
                                     {
                                       defaultValue: "累计使用说明",
                                     },
                                   )}
-                                  content={t2(
+                                  content={t(
                                     "team.management.memberTotalUsedHelpContent",
                                     {
                                       defaultValue:
@@ -1373,7 +1383,7 @@ export function TeamManagementDialog({
                                 id: member.userId,
                                 name: member.displayName,
                                 uid: member.userId,
-                                role: t2(
+                                role: t(
                                   `team.role.${member.role.toLowerCase()}`,
                                   {
                                     defaultValue: member.role,
@@ -1385,7 +1395,7 @@ export function TeamManagementDialog({
                                       member.userId,
                                     )}
                                     disabled={!selectable}
-                                    aria-label={t2(
+                                    aria-label={t(
                                       "team.management.selectMember",
                                       {
                                         defaultValue: "选择 {{name}}",
@@ -1419,7 +1429,7 @@ export function TeamManagementDialog({
                                     data-quota-limit={
                                       member.quota.limit ?? void 0
                                     }
-                                    aria-label={t2(
+                                    aria-label={t(
                                       "team.management.viewMemberUsage",
                                       {
                                         defaultValue: "查看 {{name}} 的用量",
@@ -1481,7 +1491,7 @@ export function TeamManagementDialog({
                                       data-member-id={member.userId}
                                       data-member-role={member.role}
                                     >
-                                      {t2("team.management.usageDetail", {
+                                      {t("team.management.usageDetail", {
                                         defaultValue: "明细",
                                       })}
                                     </Button>
@@ -1504,7 +1514,7 @@ export function TeamManagementDialog({
                                           canChangeQuota ? "true" : "false"
                                         }
                                       >
-                                        {t2("team.management.settings", {
+                                        {t("team.management.settings", {
                                           defaultValue: "设置",
                                         })}
                                       </Button>
@@ -1514,7 +1524,7 @@ export function TeamManagementDialog({
                                         variant="ghost"
                                         size="sm"
                                         className="col-start-2 w-full font-normal text-muted-foreground"
-                                        aria-label={t2(
+                                        aria-label={t(
                                           "team.management.settings",
                                           {
                                             defaultValue: "设置",
@@ -1522,7 +1532,7 @@ export function TeamManagementDialog({
                                         )}
                                         onClick={() =>
                                           dedupedToast.info(
-                                            t2(
+                                            t(
                                               "team.management.memberSettingsUnavailable",
                                               {
                                                 defaultValue:
@@ -1583,7 +1593,7 @@ export function TeamManagementDialog({
                   teamName={detailQuery.data.teamName}
                   protectedNote={
                     removePartition.selectedIneligible.length > 0
-                      ? t2("team.management.batchRemoveProtected", {
+                      ? t("team.management.batchRemoveProtected", {
                           defaultValue:
                             "已自动排除 {{count}} 名不可移除成员（Owner / 自己 / 无权限）。",
                           count: removePartition.selectedIneligible.length,
@@ -1634,8 +1644,8 @@ export function TeamManagementDialog({
                   <InviteMembersPage
                     open={true}
                     scope={scope}
-                    onOpenChange={(next2) => {
-                      if (!next2) closeSubpage();
+                    onOpenChange={(next) => {
+                      if (!next) closeSubpage();
                     }}
                     onInvited={() => {
                       void membersQuery.refetch();
@@ -1646,8 +1656,8 @@ export function TeamManagementDialog({
                   <CreateInviteLinkPage
                     open={true}
                     scope={scope}
-                    onOpenChange={(next2) => {
-                      if (!next2) closeSubpage();
+                    onOpenChange={(next) => {
+                      if (!next) closeSubpage();
                     }}
                     onCreated={() => void inviteLinksQuery.refetch()}
                   />
@@ -1669,8 +1679,8 @@ export function TeamManagementDialog({
                   loadMoreError={inviteLinksQuery.isFetchNextPageError}
                   loadedBatchCount={inviteLinksQuery.data?.pages.length ?? 0}
                   hasMore={Boolean(inviteLinksQuery.hasNextPage)}
-                  onOpenChange={(next2) => {
-                    if (!next2) closeSubpage();
+                  onOpenChange={(next) => {
+                    if (!next) closeSubpage();
                   }}
                   onRetry={() => void inviteLinksQuery.refetch()}
                   onLoadMore={() => inviteLinksQuery.fetchNextPage()}
@@ -1682,8 +1692,8 @@ export function TeamManagementDialog({
                   scope={scope}
                   teamName={detailQuery.data.teamName}
                   teamRemaining={teamRemaining}
-                  onOpenChange={(next2) => {
-                    if (!next2) closeSubpage();
+                  onOpenChange={(next) => {
+                    if (!next) closeSubpage();
                   }}
                 />
               ) : null}
@@ -1698,7 +1708,7 @@ export function TeamManagementDialog({
                       onClick={() => setLeaveTeamOpen(true)}
                       data-action-ui-id="team.management-leave"
                     >
-                      {t2("team.management.leave", {
+                      {t("team.management.leave", {
                         defaultValue: "退出团队",
                       })}
                     </Button>
@@ -1711,7 +1721,7 @@ export function TeamManagementDialog({
                       onClick={() => setDissolveTeamOpen(true)}
                       data-action-ui-id="team.management-dissolve"
                     >
-                      {t2("team.management.dissolve", {
+                      {t("team.management.dissolve", {
                         defaultValue: "解散团队",
                       })}
                     </Button>
@@ -1732,13 +1742,13 @@ export function TeamManagementDialog({
         >
           <AlertDialogHeader className="min-h-0 place-items-stretch gap-4 text-left">
             <AlertDialogTitle className="font-heading text-sm font-medium">
-              {t2("team.transferCredit.terms.title", {
+              {t("team.transferCredit.terms.title", {
                 defaultValue: "转移积分至你的其他账户",
               })}
             </AlertDialogTitle>
             <AlertDialogDescription className="scrollbar-fade max-h-[calc(60vh-8rem)] overflow-y-auto overscroll-none whitespace-pre-line pr-2 text-left text-xs/relaxed text-muted-foreground [contain:paint] [scrollbar-gutter:stable]">
               <Trans
-                t={t2}
+                t={t}
                 i18nKey="team.transferCredit.terms.description"
                 components={{
                   rules: (
@@ -1747,7 +1757,7 @@ export function TeamManagementDialog({
                       className="cursor-pointer text-foreground underline-offset-2 hover:underline"
                       onClick={() => {
                         void openExternalUrl(
-                          platform2,
+                          platform,
                           getUserProtocolUrl(
                             runtimeConfig.region,
                             runtimeConfig.channel,
@@ -1767,20 +1777,20 @@ export function TeamManagementDialog({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel data-action-ui-id="team.transfer-credit-terms-cancel">
-              {t2("common.cancel", {
+              {t("common.cancel", {
                 defaultValue: "取消",
               })}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                void setGlobalConfigAsync((current2) => {
+                void setGlobalConfigAsync((current) => {
                   const existing =
-                    current2.creditTransferTermsAccepted &&
-                    typeof current2.creditTransferTermsAccepted === "object"
-                      ? current2.creditTransferTermsAccepted
+                    current.creditTransferTermsAccepted &&
+                    typeof current.creditTransferTermsAccepted === "object"
+                      ? current.creditTransferTermsAccepted
                       : {};
                   return {
-                    ...current2,
+                    ...current,
                     creditTransferTermsAccepted: {
                       ...existing,
                       [creditTransferTermsScopeKey]: {
@@ -1797,7 +1807,7 @@ export function TeamManagementDialog({
               }}
               data-action-ui-id="team.transfer-credit-terms-confirm"
             >
-              {t2("team.transferCredit.terms.confirm", {
+              {t("team.transferCredit.terms.confirm", {
                 defaultValue: "同意并继续",
               })}
             </AlertDialogAction>

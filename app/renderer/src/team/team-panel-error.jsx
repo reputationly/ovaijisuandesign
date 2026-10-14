@@ -1,11 +1,12 @@
 // team-panel-error.jsx
-import { AlertCircle, LockKeyhole, useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { AlertCircle, LockKeyhole } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getTeamReasonText } from "./team-panel-stale.jsx";
 import { Button } from "../infra/dialog-content.jsx";
 export function TeamPanelError({ title, description, onRetry }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       role="alert"
@@ -17,7 +18,7 @@ export function TeamPanelError({ title, description, onRetry }) {
       <div>
         <p className="break-words font-heading text-sm font-medium text-foreground">
           {title ??
-            t2("team.common.loadFailed", {
+            t("team.common.loadFailed", {
               defaultValue: "加载失败",
             })}
         </p>
@@ -36,7 +37,7 @@ export function TeamPanelError({ title, description, onRetry }) {
           onClick={onRetry}
           data-action-ui-id="team.panel-retry"
         >
-          {t2("common.retry", {
+          {t("common.retry", {
             defaultValue: "重试",
           })}
         </Button>
@@ -62,13 +63,13 @@ const TITLE_KEY_BY_REASON = {
   user_capability_unavailable: "team.gated.permissionsSyncing",
 };
 export function TeamPanelGated({ reasonCode }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const titleKey =
     TITLE_KEY_BY_REASON[reasonCode] ?? "team.common.temporarilyUnavailable";
-  const title = t2(titleKey, {
+  const title = t(titleKey, {
     defaultValue: "团队功能暂不可用",
   });
-  const reason = getTeamReasonText(t2, reasonCode);
+  const reason = getTeamReasonText(t, reasonCode);
   return (
     <div
       className="flex min-h-40 flex-col items-center justify-center px-6 py-8 text-center"

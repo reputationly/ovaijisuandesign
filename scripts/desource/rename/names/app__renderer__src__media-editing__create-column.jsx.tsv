@@ -1,0 +1,16 @@
+key	new	依据
+op@22:44	operator	matchesCondition 根据当前运算符分派空值、文本和数字的比较逻辑。
+n2@42:11	cellNumber	数值类型的单元格内容；非数值单元格被转换为 NaN 并判为不匹配。
+t2@44:11	targetNumber	筛选条件 value 转成的数值，供 equals、gt、lt 等运算比较。
+f2@66:9	filterConfig	当前文档的筛选配置，包含过滤条件列表及 all/any 匹配模式。
+c3@69:39	column	id 与当前筛选条件 columnId 相同的列配置；其 type 决定单元格比较方式。
+row@72:13	rowData	正在应用当前筛选谓词的行对象，按 columnId 读取待比较的单元格。
+row@81:30	rowData	正在检查其所有筛选谓词均为真的表格行。
+p3@81:56	predicate	由一个筛选条件生成的判断函数，接收 rowData 并返回该行是否匹配。
+row@83:28	rowData	正在检查其至少一个筛选谓词为真的表格行。
+p3@83:53	predicate	由一个筛选条件生成的判断函数，接收 rowData 并返回该行是否匹配。
+c3@86:31	column	columnDocument.columns 中当前列配置，visible 不为 false 时保留在结果中。
+doc2@65:29	columnDocument	applyFilter 读取筛选条件并返回过滤后的 rows；该参数最终命名为 columnDocument。
+doc2@85:32	columnDocument	visibleColumns 从该文档的 columns 中筛出可见列；该参数最终命名为 columnDocument。
+doc@65:29	columnDocument	applyFilter 接收的画布表格文档，提供筛选规则、列定义和行数据。
+doc@85:32	columnDocument	visibleColumns 接收的画布表格文档，提供待筛选的列定义。

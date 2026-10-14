@@ -1,0 +1,11 @@
+key	old	new	依据
+t2@66:14	t2	translate	该绑定是缺失素材占位组件读取界面文案的翻译函数。
+e2@238:6	e2	dragEvent	该事件携带拖拽传输对象并设置拖放数据。
+e2@248:6	e2	pointerEvent	该事件提供悬停锚点对应的当前元素。
+e2@293:23	e2	clickEvent	该事件随素材路径传给选择处理函数。
+text2@22:9	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+gatewayUrl2@130:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+handleDelete2@187:9	handleDelete2	handleDelete	去掉打包器防重名追加的后缀，恢复原名 handleDelete，即该绑定持有的值。
+base2@232:11	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
+path2@264:11	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+ext2@345:41	ext2	ext	去掉打包器防重名追加的后缀，恢复原名 ext，即该绑定持有的值。

@@ -1,10 +1,7 @@
 // entity-card.jsx
-import {
-  FolderInput,
-  Library,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { FolderInput, Library } from "../media-editing/lucide-icon-wraps.js";
 import {
   assetCenterLog,
   Tooltip,
@@ -29,10 +26,10 @@ export function EntityCard({
   onClick,
   onMaterialize,
   draggable = false,
-  selected: selected2 = false,
+  selected = false,
   onToggleSelect,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const updateMutation = useUpdateEntity();
   const exportUrl = useExportEntityUrl();
   const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
@@ -62,8 +59,8 @@ export function EntityCard({
     }
   }, [entity.description, isEditing]);
   const handleDragStart = reactExports.useCallback(
-    (e2) => {
-      writeEntityDragData(e2, {
+    (dragEvent) => {
+      writeEntityDragData(dragEvent, {
         entityId: entity.id,
         name: entity.name,
         type: entity.type,
@@ -76,13 +73,13 @@ export function EntityCard({
     },
     [entity.id, entity.name, entity.type, previewUrl],
   );
-  const enterEdit = reactExports.useCallback((e2) => {
-    e2.stopPropagation();
+  const enterEdit = reactExports.useCallback((clickEvent) => {
+    clickEvent.stopPropagation();
     setIsEditing(true);
   }, []);
   const commitEdit = reactExports.useCallback(async () => {
-    const next2 = draftDescription.trim();
-    if (next2 === entity.description.trim()) {
+    const next = draftDescription.trim();
+    if (next === entity.description.trim()) {
       setIsEditing(false);
       return;
     }
@@ -90,7 +87,7 @@ export function EntityCard({
       await updateMutation.mutateAsync({
         entityId: entity.id,
         input: {
-          description: next2,
+          description: next,
         },
       });
     } catch {
@@ -104,16 +101,16 @@ export function EntityCard({
     setIsEditing(false);
   }, [entity.description]);
   const handleExport = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      const url2 = exportUrl(entity.id);
-      if (!url2) return;
-      const a2 = document.createElement("a");
-      a2.href = url2;
-      a2.rel = "noopener";
-      document.body.appendChild(a2);
-      a2.click();
-      a2.remove();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      const url = exportUrl(entity.id);
+      if (!url) return;
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.rel = "noopener";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
     },
     [entity.id, exportUrl],
   );
@@ -132,10 +129,10 @@ export function EntityCard({
       role="button"
       tabIndex={0}
       onClick={onClick}
-      onKeyDown={(e2) => {
-        if (e2.target !== e2.currentTarget) return;
-        if (e2.key === "Enter" || e2.key === " ") {
-          e2.preventDefault();
+      onKeyDown={(keyboardEvent) => {
+        if (keyboardEvent.target !== keyboardEvent.currentTarget) return;
+        if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+          keyboardEvent.preventDefault();
           onClick();
         }
       }}
@@ -143,7 +140,7 @@ export function EntityCard({
       onDragStart={draggable ? handleDragStart : void 0}
       data-action-ui-id="asset-center-entity-card"
       data-entity-id={entity.id}
-      className={`group flex flex-col bg-card text-left border rounded-lg transition-colors overflow-hidden focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:outline-none ${selected2 ? "border-foreground" : "border-border hover:border-foreground/40"} ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
+      className={`group flex flex-col bg-card text-left border rounded-lg transition-colors overflow-hidden focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:outline-none ${selected ? "border-foreground" : "border-border hover:border-foreground/40"} ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
     >
       <div className="relative aspect-[4/3] bg-muted flex items-center justify-center overflow-hidden">
         {thumbnailSrc ? (
@@ -160,15 +157,15 @@ export function EntityCard({
         {onToggleSelect && (
           // biome-ignore lint/a11y/noStaticElementInteractions: event boundary only; the child Checkbox owns all interaction semantics.
           <span
-            className={`absolute top-1 left-1 transition-opacity ${selected2 ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
+            className={`absolute top-1 left-1 transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
             onClick={(event) => event.stopPropagation()}
             onKeyDown={(event) => event.stopPropagation()}
           >
             <Checkbox
               shape="circle"
               appearance="card"
-              checked={selected2}
-              aria-label={`${t2("projectAssets.selectRow")}: ${entity.name}`}
+              checked={selected}
+              aria-label={`${translate("projectAssets.selectRow")}: ${entity.name}`}
               data-action-ui-id="asset-center-entity-card.select"
               onCheckedChange={() => onToggleSelect()}
             />
@@ -178,7 +175,7 @@ export function EntityCard({
           variant="secondary"
           className="absolute top-2 right-2 text-[10px] h-5 px-1.5 rounded-[4px] bg-background/70 backdrop-blur-sm"
         >
-          {t2(`assetCenter.types.${entity.type}`)}
+          {translate(`assetCenter.types.${entity.type}`)}
         </Badge>
       </div>
       <div className="flex flex-col gap-2 p-3">
@@ -188,23 +185,23 @@ export function EntityCard({
         {isEditing ? (
           <Textarea
             value={draftDescription}
-            onChange={(e2) => setDraftDescription(e2.target.value)}
+            onChange={(changeEvent) => setDraftDescription(changeEvent.target.value)}
             onBlur={() => {
               void commitEdit();
             }}
-            onKeyDown={(e2) => {
-              e2.stopPropagation();
-              if (e2.key === "Escape") {
-                e2.preventDefault();
+            onKeyDown={(keyboardEvent) => {
+              keyboardEvent.stopPropagation();
+              if (keyboardEvent.key === "Escape") {
+                keyboardEvent.preventDefault();
                 cancelEdit();
               }
             }}
-            onClick={(e2) => e2.stopPropagation()}
-            onMouseDown={(e2) => e2.stopPropagation()}
+            onClick={(clickEvent) => clickEvent.stopPropagation()}
+            onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
             rows={3}
             autoFocus={true}
             disabled={updateMutation.isPending}
-            placeholder={t2("assetCenter.card.noDescriptionHint")}
+            placeholder={translate("assetCenter.card.noDescriptionHint")}
             data-action-ui-id="asset-center-entity-card-description-edit"
             className="min-h-0 max-h-[4.5rem] resize-none text-xs"
           />
@@ -218,11 +215,11 @@ export function EntityCard({
             role="button"
             tabIndex={0}
             onClick={enterEdit}
-            onMouseDown={(e2) => e2.stopPropagation()}
-            onKeyDown={(e2) => {
-              if (e2.key === "Enter" || e2.key === " ") {
-                e2.preventDefault();
-                e2.stopPropagation();
+            onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+            onKeyDown={(keyboardEvent) => {
+              if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+                keyboardEvent.preventDefault();
+                keyboardEvent.stopPropagation();
                 setIsEditing(true);
               }
             }}
@@ -233,7 +230,7 @@ export function EntityCard({
             <span
               className={`text-xs truncate ${entity.description ? "text-muted-foreground" : "text-muted-foreground/40"}`}
             >
-              {entity.description || t2("assetCenter.card.noDescriptionHint")}
+              {entity.description || translate("assetCenter.card.noDescriptionHint")}
             </span>
           </span>
         )}
@@ -241,9 +238,9 @@ export function EntityCard({
           {entity.useCount > 0 ? (
             <span
               className="text-[10px] text-muted-foreground"
-              title={t2("assetCenter.useCountTooltip")}
+              title={translate("assetCenter.useCountTooltip")}
             >
-              {t2("assetCenter.useCount", {
+              {translate("assetCenter.useCount", {
                 count: entity.useCount,
               })}
             </span>
@@ -255,33 +252,33 @@ export function EntityCard({
               <Tooltip>
                 <TooltipTrigger
                   onClick={handleExport}
-                  onMouseDown={(e2) => e2.stopPropagation()}
-                  aria-label={t2("assetCenter.card.exportTooltip")}
+                  onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+                  aria-label={translate("assetCenter.card.exportTooltip")}
                   data-action-ui-id="asset-center-entity-card-export"
                   className="inline-flex items-center justify-center h-7 w-7 border border-border rounded-sm bg-background text-foreground hover:bg-muted transition-colors"
                 >
                   <Download size={14} />
                 </TooltipTrigger>
                 <TooltipContent>
-                  {t2("assetCenter.card.exportTooltip")}
+                  {translate("assetCenter.card.exportTooltip")}
                 </TooltipContent>
               </Tooltip>
               {onMaterialize && (
                 <Tooltip>
                   <TooltipTrigger
-                    onClick={(e2) => {
-                      e2.stopPropagation();
+                    onClick={(clickEvent) => {
+                      clickEvent.stopPropagation();
                       onMaterialize();
                     }}
-                    onMouseDown={(e2) => e2.stopPropagation()}
-                    aria-label={t2("assetCenter.card.materializeTooltip")}
+                    onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+                    aria-label={translate("assetCenter.card.materializeTooltip")}
                     data-action-ui-id="asset-center-entity-card-materialize"
                     className="inline-flex items-center justify-center h-7 w-7 border border-border rounded-sm bg-background text-foreground hover:bg-muted transition-colors"
                   >
                     <FolderInput size={14} />
                   </TooltipTrigger>
                   <TooltipContent>
-                    {t2("assetCenter.card.materializeTooltip")}
+                    {translate("assetCenter.card.materializeTooltip")}
                   </TooltipContent>
                 </Tooltip>
               )}

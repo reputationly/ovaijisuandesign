@@ -5,7 +5,13 @@ import {
 } from "./tool-label-definitions.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-import { AlertTriangle, instance, reactExports, usePlatform, useStorage, useTranslation, workspaceLog, X$7 as X } from "../vendor.js";
+import instance from "i18next";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
+import { workspaceLog } from "../infra/logger.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { instantiationService, IProjectMainService } from "./home-service.jsx";
@@ -34,8 +40,8 @@ function hasWorkspaceDisplayNameConflict(workspaces, workspacePath, newName) {
 }
 export function useWorkspaceDisplayNameRename(workspacePath) {
   const [, , setRecentWorkspacesAsync] = useStorage("global.recentWorkspaces");
-  const platform2 = usePlatform();
-  const { t: t2 } = useTranslation();
+  const platform = usePlatform();
+  const { t: translate } = useTranslation();
   return reactExports.useCallback(
     (newName) => {
       void (async () => {
@@ -43,10 +49,10 @@ export function useWorkspaceDisplayNameRename(workspacePath) {
           const checkedName = truncateProjectName(newName);
           const safety = await checkTextSafety(checkedName);
           if (!safety.pass) {
-            dedupedToast.error(t2("rename.safetyBlocked"));
+            dedupedToast.error(translate("rename.safetyBlocked"));
             return;
           }
-          const persisted = await platform2.storage
+          const persisted = await platform.storage
             ?.globalGet("recentWorkspaces")
             .catch(() => void 0);
           let conflicted = false;
@@ -67,31 +73,31 @@ export function useWorkspaceDisplayNameRename(workspacePath) {
               newName,
             );
           };
-          let ok2 = true;
+          let persistSucceeded = true;
           if (Array.isArray(persisted)) {
-            const next2 = renameUnlessConflict(persisted);
-            if (!conflicted) ok2 = await setRecentWorkspacesAsync(next2);
+            const next = renameUnlessConflict(persisted);
+            if (!conflicted) persistSucceeded = await setRecentWorkspacesAsync(next);
           } else {
-            ok2 = await setRecentWorkspacesAsync((prev) =>
+            persistSucceeded = await setRecentWorkspacesAsync((prev) =>
               renameUnlessConflict(prev),
             );
           }
           if (conflicted) {
-            dedupedToast.error(t2("home.workspace.duplicateName"));
+            dedupedToast.error(translate("home.workspace.duplicateName"));
             return;
           }
-          if (!ok2) dedupedToast.error(t2("canvas.renameFailed"));
+          if (!persistSucceeded) dedupedToast.error(translate("canvas.renameFailed"));
         } catch (error) {
           console.error("[workspace-display-name] rename failed:", error);
-          dedupedToast.error(t2("canvas.renameFailed"));
+          dedupedToast.error(translate("canvas.renameFailed"));
         }
       })();
     },
-    [workspacePath, setRecentWorkspacesAsync, platform2.storage, t2],
+    [workspacePath, setRecentWorkspacesAsync, platform.storage, translate],
   );
 }
 export function useNewWorkspaceDialog(onConfirm) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const shared = useNewWorkspaceDialogContext();
   const [open, setOpen] = reactExports.useState(false);
   const [presetProjectId, setPresetProjectId] = reactExports.useState(void 0);
@@ -99,11 +105,11 @@ export function useNewWorkspaceDialog(onConfirm) {
     async (projectId) => {
       if (projectId) {
         try {
-          const service2 = instantiationService.invokeFunction((accessor) =>
+          const service = instantiationService.invokeFunction((accessor) =>
             accessor.get(IProjectMainService),
           );
-          if (!(await service2.isProjectFolderAvailable(projectId))) {
-            dedupedToast.error(t2("workspace.newProject.projectFolderMissing"));
+          if (!(await service.isProjectFolderAvailable(projectId))) {
+            dedupedToast.error(translate("workspace.newProject.projectFolderMissing"));
             return;
           }
         } catch (error) {
@@ -112,7 +118,7 @@ export function useNewWorkspaceDialog(onConfirm) {
             error,
           });
           dedupedToast.error(
-            t2("workspace.newProject.projectFolderCheckFailed"),
+            translate("workspace.newProject.projectFolderCheckFailed"),
           );
           return;
         }
@@ -124,7 +130,7 @@ export function useNewWorkspaceDialog(onConfirm) {
       setPresetProjectId(projectId);
       setOpen(true);
     },
-    [onConfirm, shared, t2],
+    [onConfirm, shared, translate],
   );
   const requestOpen = reactExports.useCallback(
     () => requestOpenForProject(void 0),
@@ -177,9 +183,9 @@ export function trackSkillInstallFailed(opts) {
   if (opts.via) payload.via = opts.via;
   trackEvent(TRACK_EVENTS.SKILL_INSTALL_FAILED, payload);
 }
-export function trackSkillUninstall(name2, source) {
+export function trackSkillUninstall(skillName, source) {
   trackEvent(TRACK_EVENTS.SKILL_UNINSTALL, {
-    skill_name: name2,
+    skill_name: skillName,
     source,
   });
 }
@@ -192,9 +198,9 @@ export function trackSkillUninstallFailed(opts) {
   };
   trackEvent(TRACK_EVENTS.SKILL_UNINSTALL_FAILED, payload);
 }
-export function trackSkillToggle(name2, enabled, source) {
+export function trackSkillToggle(skillName, enabled, source) {
   trackEvent(TRACK_EVENTS.SKILL_TOGGLE, {
-    skill_name: name2,
+    skill_name: skillName,
     enabled,
     source,
   });
@@ -291,12 +297,12 @@ export function showSkillInstallSuccessToast(skillName, opts = {}) {
   const messageKey = opts.isUpdate
     ? "skills.market.updateSuccess"
     : "skills.market.installSuccess";
-  const message2 = instance.t(messageKey, {
+  const message = instance.t(messageKey, {
     name: skillName,
   });
   if (!opts.onDebugClick) {
     dedupedToast.success(
-      message2,
+      message,
       opts.id !== void 0
         ? {
             id: opts.id,
@@ -305,7 +311,7 @@ export function showSkillInstallSuccessToast(skillName, opts = {}) {
     );
     return;
   }
-  dedupedToast.success(message2, {
+  dedupedToast.success(message, {
     id: opts.id,
     action: {
       label: instance.t("skills.installSuccess.debugAction", "去调试"),
@@ -320,16 +326,16 @@ export function showSkillInstallSuccessToast(skillName, opts = {}) {
   });
 }
 function LowMemoryToastContent({ payload, toastId }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div className="elevated-surface-border-width flex items-start gap-3 w-full rounded-lg border-yellow-500/30 bg-popover p-4 text-popover-foreground shadow-lg">
       <AlertTriangle className="size-5 text-yellow-500 mt-0.5 shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium">
-          {t2("memory.lowToast.title", "System memory is running low")}
+          {translate("memory.lowToast.title", "System memory is running low")}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {t2(
+          {translate(
             "memory.lowToast.description",
             "Available memory ({{available}}MB) has stayed below {{threshold}}MB, which may affect MiniMax Design performance. Please close other large applications to free memory.",
             {
@@ -344,14 +350,14 @@ function LowMemoryToastContent({ payload, toastId }) {
         className="shrink-0 text-muted-foreground hover:text-foreground"
         onClick={() => dedupedToast.dismiss(toastId)}
       >
-        <X className="size-4" />
+        <CloseIcon className="size-4" />
       </button>
     </div>
   );
 }
 export function showLowMemoryToast(payload) {
   dedupedToast.custom(
-    (id2) => <LowMemoryToastContent payload={payload} toastId={id2} />,
+    (toastId) => <LowMemoryToastContent payload={payload} toastId={toastId} />,
     {
       duration: 15e3,
       id: TOAST_ID,

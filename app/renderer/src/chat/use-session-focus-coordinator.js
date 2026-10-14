@@ -1,25 +1,25 @@
 // use-session-focus-coordinator.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
-function fenceSessionActivation(message2, latestIntent) {
+function fenceSessionActivation(message, latestIntent) {
   if (
-    message2.type !== "session_created" &&
-    message2.type !== "session_switched"
+    message.type !== "session_created" &&
+    message.type !== "session_switched"
   )
-    return message2;
-  if (message2.activated === false || !latestIntent) return message2;
-  const matchesLatest = message2.request_id
-    ? message2.request_id === latestIntent.requestId
-    : message2.session_id === latestIntent.sessionId;
+    return message;
+  if (message.activated === false || !latestIntent) return message;
+  const matchesLatest = message.request_id
+    ? message.request_id === latestIntent.requestId
+    : message.session_id === latestIntent.sessionId;
   return matchesLatest
-    ? message2
+    ? message
     : {
-        ...message2,
+        ...message,
         activated: false,
       };
 }
 
-export function useSessionFocusCoordinator(send2) {
+export function useSessionFocusCoordinator(send) {
   const latestIntentRef = reactExports.useRef(null);
   const beginIntent = reactExports.useCallback((kind, sessionId) => {
     const requestId = crypto.randomUUID();
@@ -73,23 +73,23 @@ export function useSessionFocusCoordinator(send2) {
   );
   const requestSessionSwitch = reactExports.useCallback(
     (sessionId, options) => {
-      return send2(prepareSessionSwitch(sessionId, options));
+      return send(prepareSessionSwitch(sessionId, options));
     },
-    [prepareSessionSwitch, send2],
+    [prepareSessionSwitch, send],
   );
   const requestSessionFocus = reactExports.useCallback(
     (sessionId) => {
       const requestId = beginIntent("session", sessionId);
-      return send2({
+      return send({
         type: "focus_session",
         session_id: sessionId,
         request_id: requestId,
       });
     },
-    [beginIntent, send2],
+    [beginIntent, send],
   );
   const fence = reactExports.useCallback(
-    (message2) => fenceSessionActivation(message2, latestIntentRef.current),
+    (message) => fenceSessionActivation(message, latestIntentRef.current),
     [],
   );
   return {

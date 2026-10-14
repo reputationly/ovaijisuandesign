@@ -1,5 +1,7 @@
 // derive-subscription-status.js
-import { getRuntimeConfig, reactExports, useStorage } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import { WalletSource } from "../generation/to-workspace-browser-url.js";
 import { useWalletQuery } from "./use-wallet-query.jsx";
 import {
@@ -9,14 +11,14 @@ import {
 const DEFAULT_RENEWAL_WINDOW_DAYS = 5;
 const DAY_MS = 864e5;
 function parseRenewalDay(value) {
-  const match2 = value?.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (!match2) return null;
-  const [, month, day, year] = match2.map(Number);
-  const date2 = new Date(Date.UTC(year, month - 1, day));
-  return date2.getUTCFullYear() === year &&
-    date2.getUTCMonth() === month - 1 &&
-    date2.getUTCDate() === day
-    ? date2.getTime()
+  const match = value?.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, month, day, year] = match.map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+    ? date.getTime()
     : null;
 }
 function deriveSubscriptionStatus(
@@ -49,9 +51,9 @@ function deriveSubscriptionStatus(
       month: "2-digit",
       day: "2-digit",
     }).formatToParts(currentTimeMs);
-    const get3 = (type2) =>
-      Number(parts.find((part) => part.type === type2)?.value);
-    const today = Date.UTC(get3("year"), get3("month") - 1, get3("day"));
+    const get = (type) =>
+      Number(parts.find((part) => part.type === type)?.value);
+    const today = Date.UTC(get("year"), get("month") - 1, get("day"));
     const days = (renewalDay - today) / DAY_MS;
     if (days >= 0) daysUntilRenewal = days;
   }
@@ -93,7 +95,7 @@ export function useSubscriptionRenewalNotice() {
   const status = useSubscriptionStatus();
   const { user } = useAuth();
   const { queryScope, canReadPersonalCredit } = useCreditAccountState();
-  const [seen2, setSeen, , hydrated] = useStorage(
+  const [seen, setSeen, , hydrated] = useStorage(
     "global.subscriptionRenewalSeen",
   );
   const accountKey =
@@ -111,8 +113,8 @@ export function useSubscriptionRenewalNotice() {
       : null;
   const hasRead = Boolean(
     noticeKey &&
-    (seen2?.[noticeKey] === true ||
-      seen2?.[JSON.stringify(accountKey)] === status.renewalDate),
+    (seen?.[noticeKey] === true ||
+      seen?.[JSON.stringify(accountKey)] === status.renewalDate),
   );
   const showBadge = Boolean(
     hydrated &&
@@ -123,8 +125,8 @@ export function useSubscriptionRenewalNotice() {
   );
   const markAsRead = reactExports.useCallback(() => {
     if (!showBadge || !noticeKey) return;
-    setSeen((current2) => ({
-      ...current2,
+    setSeen((current) => ({
+      ...current,
       [noticeKey]: true,
     }));
   }, [showBadge, noticeKey, setSeen]);

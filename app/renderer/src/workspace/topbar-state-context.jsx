@@ -1,11 +1,8 @@
 // topbar-state-context.jsx
-import {
-  CDN_BASE_MAP,
-  ContextMenuRoot,
-  getCdnRegion,
-  instance,
-  reactExports,
-} from "../vendor.js";
+import instance from "i18next";
+import { CDN_BASE_MAP, getCdnRegion } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { ContextMenuRoot } from "../infra/base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { WorkspaceEvents } from "./workspace-events.js";
 export const workspaceEvents = new WorkspaceEvents();
@@ -99,20 +96,20 @@ export const listeners = new Set();
 function emit() {
   for (const listener of listeners) listener();
 }
-function acquireModalPresence(id2) {
-  activeIds.add(id2);
+function acquireModalPresence(modalId) {
+  activeIds.add(modalId);
   emit();
   let released = false;
   return () => {
     if (released) return;
     released = true;
-    activeIds.delete(id2);
+    activeIds.delete(modalId);
     emit();
   };
 }
-export function useBlockingModalPresence(id2, active2) {
+export function useBlockingModalPresence(modalId, active) {
   reactExports.useEffect(() => {
-    if (!active2) return;
-    return acquireModalPresence(id2);
-  }, [id2, active2]);
+    if (!active) return;
+    return acquireModalPresence(modalId);
+  }, [modalId, active]);
 }

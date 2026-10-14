@@ -7,7 +7,10 @@ import {
   memoryQueryKeys,
   useMemoryEntry,
 } from "./changelog-table.jsx";
-import { jsxRuntimeExports, reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   useGatewayFetch,
@@ -53,11 +56,11 @@ async function writeMemory(fetcher, payload) {
 function useMemoryWrite() {
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => writeMemory(fetcher, payload),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: memoryQueryKeys.scopeRoot(scopeKey),
       });
     },
@@ -74,7 +77,7 @@ const DEFAULT_STATE = {
   asset_uri: "",
   asset_modality: "image",
 };
-function Field({ label, hint, error, children: children2 }) {
+function Field({ label, hint, error, children }) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
@@ -83,20 +86,20 @@ function Field({ label, hint, error, children: children2 }) {
           <span className="text-[10px] text-muted-foreground">{hint}</span>
         )}
       </div>
-      {children2}
+      {children}
       {error && <p className="text-[11px] text-destructive">{error}</p>}
     </div>
   );
 }
-export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
-  const { t: t2 } = useTranslation();
-  const isEdit = mode2.mode === "edit";
+export function MemoryEditDialog({ open, mode, onOpenChange }) {
+  const { t } = useTranslation();
+  const isEdit = mode.mode === "edit";
   const writer = useMemoryWrite();
   const entry = useMemoryEntry(
-    isEdit ? mode2.scope : void 0,
-    isEdit ? mode2.name : void 0,
+    isEdit ? mode.scope : void 0,
+    isEdit ? mode.name : void 0,
   );
-  const [state2, setState] = reactExports.useState(DEFAULT_STATE);
+  const [state, setState] = reactExports.useState(DEFAULT_STATE);
   const [submitted, setSubmitted] = reactExports.useState(false);
   reactExports.useEffect(() => {
     if (!open) {
@@ -106,8 +109,8 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
     if (isEdit && entry.data) {
       const fm = entry.data.frontmatter;
       setState({
-        scope: mode2.scope,
-        name: mode2.name,
+        scope: mode.scope,
+        name: mode.name,
         type: fm.type,
         description: fm.description,
         body: entry.data.body,
@@ -117,80 +120,80 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
     } else if (!isEdit) {
       setState(DEFAULT_STATE);
     }
-  }, [open, isEdit, entry.data, mode2]);
-  const isAssetPin = state2.type === "asset-pin";
+  }, [open, isEdit, entry.data, mode]);
+  const isAssetPin = state.type === "asset-pin";
   const errors = reactExports.useMemo(() => {
     const out = {};
     if (!isEdit) {
-      if (!state2.name)
-        out.name = t2("memory.errNameRequired", "name is required");
-      else if (!NAME_RE.test(state2.name))
-        out.name = t2(
+      if (!state.name)
+        out.name = t("memory.errNameRequired", "name is required");
+      else if (!NAME_RE.test(state.name))
+        out.name = t(
           "memory.errNameFormat",
           "name must be kebab-case (1-64 chars)",
         );
-      if (isAssetPin && state2.scope === "user")
-        out.scope = t2(
+      if (isAssetPin && state.scope === "user")
+        out.scope = t(
           "memory.errAssetPinScope",
           "asset-pin requires project scope",
         );
     }
-    if (!state2.description)
-      out.description = t2("memory.errDescRequired", "description is required");
-    else if (state2.description.length > MAX_MEMORY_DESCRIPTION_LENGTH)
-      out.description = t2(
+    if (!state.description)
+      out.description = t("memory.errDescRequired", "description is required");
+    else if (state.description.length > MAX_MEMORY_DESCRIPTION_LENGTH)
+      out.description = t(
         "memory.errDescTooLong",
         `description must be ≤ ${MAX_MEMORY_DESCRIPTION_LENGTH} chars`,
       );
-    if (state2.description.includes("\n"))
-      out.description = t2(
+    if (state.description.includes("\n"))
+      out.description = t(
         "memory.errDescSingleLine",
         "description must be a single line",
       );
-    if (new Blob([state2.body]).size > MAX_MEMORY_BODY_BYTES)
-      out.body = t2(
+    if (new Blob([state.body]).size > MAX_MEMORY_BODY_BYTES)
+      out.body = t(
         "memory.errBodyTooLong",
         `body exceeds ${MAX_MEMORY_BODY_BYTES} bytes`,
       );
     if (isAssetPin) {
-      if (!state2.asset_uri)
-        out.asset_uri = t2(
+      if (!state.asset_uri)
+        out.asset_uri = t(
           "memory.errAssetUriRequired",
           "asset_uri is required",
         );
-      else if (!ASSET_URI_RE.test(state2.asset_uri))
-        out.asset_uri = t2(
+      else if (!ASSET_URI_RE.test(state.asset_uri))
+        out.asset_uri = t(
           "memory.errAssetUriFormat",
           "asset_uri must look like hilo://asset/<id>",
         );
     }
     return out;
-  }, [isEdit, isAssetPin, state2, t2]);
+  }, [isEdit, isAssetPin, state, t]);
   const hasErrors = Object.keys(errors).length > 0;
   async function submit() {
     setSubmitted(true);
     if (hasErrors) return;
     try {
       await writer.mutateAsync({
-        scope: state2.scope,
-        name: state2.name,
-        type: state2.type,
-        description: state2.description,
-        body: state2.body,
-        asset_uri: isAssetPin ? state2.asset_uri : void 0,
-        asset_modality: isAssetPin ? state2.asset_modality : void 0,
+        scope: state.scope,
+        name: state.name,
+        type: state.type,
+        description: state.description,
+        body: state.body,
+        asset_uri: isAssetPin ? state.asset_uri : void 0,
+        asset_modality: isAssetPin ? state.asset_modality : void 0,
       });
       dedupedToast.success(
         isEdit
-          ? t2("memory.savedSuccess", "Memory updated")
-          : t2("memory.createdSuccess", "Memory created"),
+          ? t("memory.savedSuccess", "Memory updated")
+          : t("memory.createdSuccess", "Memory created"),
       );
       onOpenChange(false);
     } catch (err) {
       dedupedToast.error(
         (isEdit
-          ? t2("memory.savedFailed", "Failed to save memory")
-          : t2("memory.createdFailed", "Failed to create memory")) +
+          ? t("memory.savedFailed", "Failed to save memory")
+          : t("memory.createdFailed", "Failed to create memory")) +
           (err instanceof Error ? `: ${err.message}` : ""),
       );
     }
@@ -204,16 +207,16 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
         <DialogHeader>
           <DialogTitle>
             {isEdit
-              ? t2("memory.editTitle", "Edit memory")
-              : t2("memory.createTitle", "New memory")}
+              ? t("memory.editTitle", "Edit memory")
+              : t("memory.createTitle", "New memory")}
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? t2(
+              ? t(
                   "memory.editDesc",
                   "Scope, name and type are locked once created.",
                 )
-              : t2(
+              : t(
                   "memory.createDesc",
                   "Stored as a markdown file under the chosen scope.",
                 )}
@@ -222,15 +225,15 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-2">
             <Field
-              label={t2("memory.fieldScope", "Scope")}
+              label={t("memory.fieldScope", "Scope")}
               error={submitted ? errors.scope : void 0}
             >
               <Select
-                value={state2.scope}
-                onValueChange={(v2) =>
-                  setState((s2) => ({
-                    ...s2,
-                    scope: v2,
+                value={state.scope}
+                onValueChange={(nextScope) =>
+                  setState((prevState) => ({
+                    ...prevState,
+                    scope: nextScope,
                   }))
                 }
                 disabled={isEdit}
@@ -240,30 +243,30 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                   data-action-ui-id="settings.memory.editor.scope"
                 >
                   <SelectValue>
-                    {(v2) =>
-                      v2 === "project"
-                        ? t2("memory.scopeProject", "Project")
-                        : t2("memory.scopeUser", "User")
+                    {(scope) =>
+                      scope === "project"
+                        ? t("memory.scopeProject", "Project")
+                        : t("memory.scopeUser", "User")
                     }
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="project">
-                    {t2("memory.scopeProject", "Project")}
+                    {t("memory.scopeProject", "Project")}
                   </SelectItem>
                   <SelectItem value="user">
-                    {t2("memory.scopeUser", "User")}
+                    {t("memory.scopeUser", "User")}
                   </SelectItem>
                 </SelectContent>
               </Select>
             </Field>
-            <Field label={t2("memory.fieldType", "Type")}>
+            <Field label={t("memory.fieldType", "Type")}>
               <Select
-                value={state2.type}
-                onValueChange={(v2) =>
-                  setState((s2) => ({
-                    ...s2,
-                    type: v2,
+                value={state.type}
+                onValueChange={(nextType) =>
+                  setState((prevState) => ({
+                    ...prevState,
+                    type: nextType,
                   }))
                 }
                 disabled={isEdit}
@@ -273,13 +276,13 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                   data-action-ui-id="settings.memory.editor.type"
                 >
                   <SelectValue>
-                    {(v2) => t2(`memory.type.${v2}`, v2)}
+                    {(type) => t(`memory.type.${type}`, type)}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {MEMORY_TYPES.map((type2) => (
-                    <SelectItem key={type2} value={type2}>
-                      {t2(`memory.type.${type2}`, type2)}
+                  {MEMORY_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {t(`memory.type.${type}`, type)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -287,40 +290,40 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
             </Field>
           </div>
           <Field
-            label={t2("memory.fieldName", "Name")}
+            label={t("memory.fieldName", "Name")}
             error={submitted ? errors.name : void 0}
-            hint={t2(
+            hint={t(
               "memory.fieldNameHint",
               "kebab-case, 1-64 chars (locked after create)",
             )}
           >
             <Input3
-              value={state2.name}
-              onChange={(e2) =>
-                setState((s2) => ({
-                  ...s2,
-                  name: e2.target.value,
+              value={state.name}
+              onChange={(changeEvent) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  name: changeEvent.target.value,
                 }))
               }
-              placeholder={t2("memory.namePlaceholder", "cyberpunk-hero")}
+              placeholder={t("memory.namePlaceholder", "cyberpunk-hero")}
               disabled={isEdit}
               data-action-ui-id="settings.memory.editor.name"
             />
           </Field>
           <Field
-            label={t2("memory.fieldDescription", "Description")}
+            label={t("memory.fieldDescription", "Description")}
             error={submitted ? errors.description : void 0}
-            hint={`${state2.description.length} / ${MAX_MEMORY_DESCRIPTION_LENGTH}`}
+            hint={`${state.description.length} / ${MAX_MEMORY_DESCRIPTION_LENGTH}`}
           >
             <Input3
-              value={state2.description}
-              onChange={(e2) =>
-                setState((s2) => ({
-                  ...s2,
-                  description: e2.target.value,
+              value={state.description}
+              onChange={(changeEvent) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  description: changeEvent.target.value,
                 }))
               }
-              placeholder={t2(
+              placeholder={t(
                 "memory.descPlaceholder",
                 "Single line shown in the index",
               )}
@@ -330,19 +333,19 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
           {isAssetPin && (
             <>
               <Field
-                label={t2("memory.fieldAssetUri", "Asset URI")}
+                label={t("memory.fieldAssetUri", "Asset URI")}
                 error={submitted ? errors.asset_uri : void 0}
                 hint="hilo://asset/<id>"
               >
                 <Input3
-                  value={state2.asset_uri}
-                  onChange={(e2) =>
-                    setState((s2) => ({
-                      ...s2,
-                      asset_uri: e2.target.value,
+                  value={state.asset_uri}
+                  onChange={(changeEvent) =>
+                    setState((prevState) => ({
+                      ...prevState,
+                      asset_uri: changeEvent.target.value,
                     }))
                   }
-                  placeholder={t2(
+                  placeholder={t(
                     "memory.assetUriPlaceholder",
                     "hilo://asset/01H...",
                   )}
@@ -350,13 +353,13 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                   data-action-ui-id="settings.memory.editor.asset_uri"
                 />
               </Field>
-              <Field label={t2("memory.fieldAssetModality", "Modality")}>
+              <Field label={t("memory.fieldAssetModality", "Modality")}>
                 <Select
-                  value={state2.asset_modality}
-                  onValueChange={(v2) =>
-                    setState((s2) => ({
-                      ...s2,
-                      asset_modality: v2,
+                  value={state.asset_modality}
+                  onValueChange={(nextModality) =>
+                    setState((prevState) => ({
+                      ...prevState,
+                      asset_modality: nextModality,
                     }))
                   }
                   disabled={isEdit}
@@ -365,12 +368,12 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                     className="h-8 text-xs"
                     data-action-ui-id="settings.memory.editor.asset_modality"
                   >
-                    <SelectValue>{() => state2.asset_modality}</SelectValue>
+                    <SelectValue>{() => state.asset_modality}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {ASSET_MODALITIES.map((m3) => (
-                      <SelectItem key={m3} value={m3}>
-                        {m3}
+                    {ASSET_MODALITIES.map((modality) => (
+                      <SelectItem key={modality} value={modality}>
+                        {modality}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -379,19 +382,19 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
             </>
           )}
           <Field
-            label={t2("memory.fieldBody", "Body (Markdown)")}
+            label={t("memory.fieldBody", "Body (Markdown)")}
             error={submitted ? errors.body : void 0}
-            hint={`${new Blob([state2.body]).size} / ${MAX_MEMORY_BODY_BYTES} bytes`}
+            hint={`${new Blob([state.body]).size} / ${MAX_MEMORY_BODY_BYTES} bytes`}
           >
             <Textarea
-              value={state2.body}
-              onChange={(e2) =>
-                setState((s2) => ({
-                  ...s2,
-                  body: e2.target.value,
+              value={state.body}
+              onChange={(changeEvent) =>
+                setState((prevState) => ({
+                  ...prevState,
+                  body: changeEvent.target.value,
                 }))
               }
-              placeholder={t2(
+              placeholder={t(
                 "memory.bodyPlaceholder",
                 "Markdown body — keywords, defaults, avoid notes…",
               )}
@@ -407,7 +410,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
             disabled={writer.isPending}
             data-action-ui-id="settings.memory.editor.cancel"
           >
-            {t2("common.cancel", "Cancel")}
+            {t("common.cancel", "Cancel")}
           </Button>
           <Button
             onClick={submit}
@@ -415,10 +418,10 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
             data-action-ui-id="settings.memory.editor.save"
           >
             {writer.isPending
-              ? t2("common.saving", "Saving…")
+              ? t("common.saving", "Saving…")
               : isEdit
-                ? t2("common.save", "Save")
-                : t2("common.create", "Create")}
+                ? t("common.save", "Save")
+                : t("common.create", "Create")}
           </Button>
         </DialogFooter>
       </DialogContent>

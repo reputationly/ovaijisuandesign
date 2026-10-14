@@ -1,0 +1,7 @@
+key	new	reason
+t2@55:14	t	useTranslation() 返回的翻译函数 t
+t2@176:14	t	useTranslation() 返回的翻译函数 t
+token2@192:11	token	去掉打包器加的数字后缀，恢复原名 token
+project2@151:12	project	去掉打包器加的数字后缀，恢复原名 project
+selected2@155:13	selected	去掉打包器加的数字后缀，恢复原名 selected
+depth2@156:10	depth	去掉打包器加的数字后缀，恢复原名 depth

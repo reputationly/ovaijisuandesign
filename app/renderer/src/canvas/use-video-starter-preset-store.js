@@ -1,36 +1,36 @@
 // use-video-starter-preset-store.js
-import { create$2 as create } from "../vendor.js";
-export const useVideoStarterPresetStore = create((set2, get3) => ({
+import { create } from "zustand";
+export const useVideoStarterPresetStore = create((set, get) => ({
   tokens: {},
   refNodeIds: {},
   markApplied: (nodeId) =>
-    set2((state2) => ({
+    set((state) => ({
       tokens: {
-        ...state2.tokens,
-        [nodeId]: (state2.tokens[nodeId] ?? 0) + 1,
+        ...state.tokens,
+        [nodeId]: (state.tokens[nodeId] ?? 0) + 1,
       },
     })),
   rememberRefNodes: (nodeId, refNodeIds) =>
-    set2((state2) => ({
+    set((state) => ({
       refNodeIds: {
-        ...state2.refNodeIds,
+        ...state.refNodeIds,
         [nodeId]: [...refNodeIds],
       },
     })),
   takeRefNodes: (nodeId) => {
-    const previous2 = get3().refNodeIds[nodeId] ?? [];
-    if (previous2.length > 0) {
-      set2((state2) => {
-        const next2 = {
-          ...state2.refNodeIds,
+    const previous = get().refNodeIds[nodeId] ?? [];
+    if (previous.length > 0) {
+      set((state) => {
+        const next = {
+          ...state.refNodeIds,
         };
-        delete next2[nodeId];
+        delete next[nodeId];
         return {
-          refNodeIds: next2,
+          refNodeIds: next,
         };
       });
     }
-    return previous2;
+    return previous;
   },
 }));
 export const VIDEO_TOOLBAR_TOOLS = [
@@ -51,13 +51,13 @@ export const DEFAULT_PINNED = [
   "extract-audio",
 ];
 export const DEFAULT_SHOW_LABELS = true;
-export function arePropsEqual(prev, next2) {
-  if (prev.nodes === next2.nodes) return true;
-  if (prev.nodes.length !== next2.nodes.length) return false;
-  for (let i2 = 0; i2 < prev.nodes.length; i2++) {
-    const a2 = prev.nodes[i2];
-    const b3 = next2.nodes[i2];
-    if (a2.id !== b3.id || a2.type !== b3.type) return false;
+export function arePropsEqual(prev, next) {
+  if (prev.nodes === next.nodes) return true;
+  if (prev.nodes.length !== next.nodes.length) return false;
+  for (let index = 0; index < prev.nodes.length; index++) {
+    const previousNode = prev.nodes[index];
+    const nextNode = next.nodes[index];
+    if (previousNode.id !== nextNode.id || previousNode.type !== nextNode.type) return false;
   }
   return true;
 }

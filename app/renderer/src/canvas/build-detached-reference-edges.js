@@ -9,34 +9,34 @@ const GENERATION_REFERENCE_DATA_KEYS = [
   "referenceTextIds",
 ];
 
-function nodeDataRecord(node2) {
-  return node2?.data ?? {};
+function nodeDataRecord(node) {
+  return node?.data ?? {};
 }
 
-function nodeReferenceIds(node2, resolveReferenceIds) {
-  if (!node2) return [];
-  const data2 = nodeDataRecord(node2);
-  const ids2 = [];
-  for (const key2 of GENERATION_REFERENCE_DATA_KEYS) {
-    const value = data2[key2];
+function nodeReferenceIds(node, resolveReferenceIds) {
+  if (!node) return [];
+  const data = nodeDataRecord(node);
+  const ids = [];
+  for (const key of GENERATION_REFERENCE_DATA_KEYS) {
+    const value = data[key];
     if (!Array.isArray(value)) continue;
     for (const item of value) {
-      if (typeof item === "string" && item.length > 0 && !ids2.includes(item))
-        ids2.push(item);
+      if (typeof item === "string" && item.length > 0 && !ids.includes(item))
+        ids.push(item);
     }
   }
-  if (ids2.length > 0) return ids2;
-  for (const item of resolveReferenceIds?.(node2.id) ?? []) {
-    if (typeof item === "string" && item.length > 0 && !ids2.includes(item))
-      ids2.push(item);
+  if (ids.length > 0) return ids;
+  for (const item of resolveReferenceIds?.(node.id) ?? []) {
+    if (typeof item === "string" && item.length > 0 && !ids.includes(item))
+      ids.push(item);
   }
-  return ids2;
+  return ids;
 }
 
-function nodeMatchesReference(node2, referenceId) {
-  if (!node2) return false;
-  if (node2.id === referenceId || node2.assetId === referenceId) return true;
-  return nodeDataRecord(node2).assetId === referenceId;
+function nodeMatchesReference(node, referenceId) {
+  if (!node) return false;
+  if (node.id === referenceId || node.assetId === referenceId) return true;
+  return nodeDataRecord(node).assetId === referenceId;
 }
 
 function buildDetachedReferenceEdges(
@@ -47,16 +47,16 @@ function buildDetachedReferenceEdges(
   resolveReferenceIds,
 ) {
   if (detachedIds.length === 0) return [];
-  const byId = new Map(previousNodes.map((node2) => [node2.id, node2]));
+  const byId = new Map(previousNodes.map((node) => [node.id, node]));
   const sourceNodes = [
     ...previousNodes,
-    ...nextNodes.filter((node2) => !byId.has(node2.id)),
+    ...nextNodes.filter((node) => !byId.has(node.id)),
   ];
   const additions = [];
-  const seen2 = new Set();
+  const seen = new Set();
   for (const targetId of detachedIds) {
     const oldTarget = byId.get(targetId);
-    const nextTarget = nextNodes.find((node2) => node2.id === targetId);
+    const nextTarget = nextNodes.find((node) => node.id === targetId);
     if (!oldTarget || !nextTarget) continue;
     const oldMainId = resolveGroupMainId(previousNodes, targetId);
     const oldMain = byId.get(oldMainId);
@@ -83,7 +83,7 @@ function buildDetachedReferenceEdges(
       )?.source;
       const source = incomingSource
         ? byId.get(incomingSource)
-        : sourceNodes.find((node2) => nodeMatchesReference(node2, referenceId));
+        : sourceNodes.find((node) => nodeMatchesReference(node, referenceId));
       if (source && source.id !== targetId) sourceIds.add(source.id);
     }
     if (referenceIds.length === 0) {
@@ -92,12 +92,12 @@ function buildDetachedReferenceEdges(
     for (const sourceId of sourceIds) {
       if (sourceId === targetId) continue;
       const template = incoming.find((edge) => edge.source === sourceId);
-      const id2 = deriveEdgeId(sourceId, targetId);
-      if (seen2.has(id2)) continue;
-      seen2.add(id2);
+      const id = deriveEdgeId(sourceId, targetId);
+      if (seen.has(id)) continue;
+      seen.add(id);
       additions.push({
         ...(template ?? {}),
-        id: id2,
+        id,
         source: sourceId,
         target: targetId,
         type: "derivation",
@@ -114,13 +114,13 @@ function buildDetachedReferenceEdgesForMutation(
   resolveReferenceIds,
 ) {
   const detachedIds = nextNodes
-    .filter((node2) => {
-      const previous2 = previousNodes.find(
-        (candidate) => candidate.id === node2.id,
+    .filter((node) => {
+      const previous = previousNodes.find(
+        (candidate) => candidate.id === node.id,
       );
-      return !!previous2?.groupId && !node2.groupId;
+      return !!previous?.groupId && !node.groupId;
     })
-    .map((node2) => node2.id);
+    .map((node) => node.id);
   return buildDetachedReferenceEdges(
     previousNodes,
     previousEdges,
@@ -136,15 +136,15 @@ function mergeDetachedReferenceEdges(edges, additions) {
   const seenEndpoints = new Set(
     edges.map((edge) => `${edge.source}->${edge.target}`),
   );
-  const next2 = [...edges];
+  const next = [...edges];
   for (const edge of additions) {
     const endpoint = `${edge.source}->${edge.target}`;
     if (seenIds.has(edge.id) || seenEndpoints.has(endpoint)) continue;
     seenIds.add(edge.id);
     seenEndpoints.add(endpoint);
-    next2.push(edge);
+    next.push(edge);
   }
-  return next2;
+  return next;
 }
 
 export function applyDetachedReferenceEdges(

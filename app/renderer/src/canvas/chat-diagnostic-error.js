@@ -15,7 +15,7 @@ function chatDiagnosticError(error) {
   const value = error && typeof error === "object" ? error : {};
   const cause =
     value.cause && typeof value.cause === "object" ? value.cause : {};
-  const code2 = value.code ?? cause.code;
+  const code = value.code ?? cause.code;
   const codes = [
     "SQLITE_BUSY",
     "SQLITE_LOCKED",
@@ -38,7 +38,7 @@ function chatDiagnosticError(error) {
     "UND_ERR_BODY_TIMEOUT",
   ];
   const errorCode =
-    typeof code2 === "string" && codes.includes(code2) ? code2 : void 0;
+    typeof code === "string" && codes.includes(code) ? code : void 0;
   const names = [
     "Error",
     "TypeError",
@@ -80,16 +80,16 @@ function chatDiagnosticError(error) {
     httpStatus,
   };
 }
-function describe(tool2) {
-  const status = normalizeToolStatus(tool2.status);
+function describe(tool) {
+  const status = normalizeToolStatus(tool.status);
   return {
-    identity: chatToolIdentity(tool2),
-    part: tool2.partId ? chatDiagnosticHash(`part:${tool2.partId}`) : void 0,
-    call: tool2.callID ? chatDiagnosticHash(`call:${tool2.callID}`) : void 0,
-    tool: safeToken(tool2.tool),
+    identity: chatToolIdentity(tool),
+    part: tool.partId ? chatDiagnosticHash(`part:${tool.partId}`) : void 0,
+    call: tool.callID ? chatDiagnosticHash(`call:${tool.callID}`) : void 0,
+    tool: safeToken(tool.tool),
     status,
-    scope: tool2.scope ?? "root",
-    reason: tool2.reason ? safeToken(tool2.reason) : void 0,
+    scope: tool.scope ?? "root",
+    reason: tool.reason ? safeToken(tool.reason) : void 0,
   };
 }
 function traceChatTools(
@@ -100,17 +100,17 @@ function traceChatTools(
   includeDetails = false,
 ) {
   try {
-    const root2 = tools
-      .filter((tool2) => tool2.scope !== "child")
+    const root = tools
+      .filter((tool) => tool.scope !== "child")
       .map(chatToolIdentity)
       .sort();
     const child = tools
-      .filter((tool2) => tool2.scope === "child")
+      .filter((tool) => tool.scope === "child")
       .map(chatToolIdentity)
       .sort();
     const safeContext = Object.fromEntries(
-      Object.entries(context).map(([key2, value]) => [
-        key2,
+      Object.entries(context).map(([key, value]) => [
+        key,
         typeof value === "string" ? safeToken(value) : value,
       ]),
     );
@@ -120,15 +120,15 @@ function traceChatTools(
         stage,
         ...safeContext,
         count: tools.length,
-        rootCount: root2.length,
-        rootFingerprint: chatDiagnosticHash(root2.join(",")),
+        rootCount: root.length,
+        rootFingerprint: chatDiagnosticHash(root.join(",")),
         childCount: child.length,
         childFingerprint: chatDiagnosticHash(child.join(",")),
         stateFingerprint: chatDiagnosticHash(
           tools
             .map(
-              (tool2) =>
-                `${chatToolIdentity(tool2)}:${normalizeToolStatus(tool2.status)}`,
+              (tool) =>
+                `${chatToolIdentity(tool)}:${normalizeToolStatus(tool.status)}`,
             )
             .sort()
             .join(","),
@@ -143,59 +143,59 @@ function traceChatTools(
     );
   } catch {}
 }
-function traceChatServerMessage(write, stage, message2, context = {}) {
+function traceChatServerMessage(write, stage, message, context = {}) {
   if (
     ![
       "session_switched",
       "session_cancelled",
       "question_request",
       "question_resolved",
-    ].includes(message2.type)
+    ].includes(message.type)
   )
     return;
-  const base2 = {
+  const base = {
     ...context,
-    sessionId: "session_id" in message2 ? message2.session_id : void 0,
+    sessionId: "session_id" in message ? message.session_id : void 0,
   };
-  if (message2.type === "session_switched") {
+  if (message.type === "session_switched") {
     traceChatTools(
       write,
       stage,
       {
-        ...base2,
-        historySyncId: message2.history_sync_id,
-        runtimeSessionId: message2.runtime_session_id,
-        requestId: message2.request_id,
-        trigger: message2.type,
+        ...base,
+        historySyncId: message.history_sync_id,
+        runtimeSessionId: message.runtime_session_id,
+        requestId: message.request_id,
+        trigger: message.type,
         outcome:
           context.outcome ??
-          (message2.history_load_failed ? "history-load-failed" : "received"),
+          (message.history_load_failed ? "history-load-failed" : "received"),
       },
-      diagnosticHistoryTools(message2.messages ?? []),
+      diagnosticHistoryTools(message.messages ?? []),
     );
   } else if (
-    message2.type === "session_cancelled" ||
-    message2.type === "question_resolved" ||
-    message2.type === "question_request"
+    message.type === "session_cancelled" ||
+    message.type === "question_resolved" ||
+    message.type === "question_request"
   ) {
     traceChatTools(
       write,
       stage,
       {
-        ...base2,
-        trigger: message2.type,
+        ...base,
+        trigger: message.type,
         requestId:
-          message2.type === "question_resolved"
-            ? message2.request_id
-            : message2.type === "question_request"
-              ? message2.id
+          message.type === "question_resolved"
+            ? message.request_id
+            : message.type === "question_request"
+              ? message.id
               : void 0,
       },
-      message2.type === "question_request"
+      message.type === "question_request"
         ? [
             {
               tool: "question",
-              callID: message2.tool?.callID,
+              callID: message.tool?.callID,
               status: "running",
             },
           ]
@@ -203,7 +203,7 @@ function traceChatServerMessage(write, stage, message2, context = {}) {
     );
   }
 }
-function traceChatClientOperation(write, stage, message2, outcome) {
+function traceChatClientOperation(write, stage, message, outcome) {
   if (
     ![
       "cancel",
@@ -212,18 +212,18 @@ function traceChatClientOperation(write, stage, message2, outcome) {
       "restore_session",
       "question_reply",
       "question_reject",
-    ].includes(message2.type)
+    ].includes(message.type)
   )
     return;
   traceChatTools(write, stage, {
-    sessionId: "session_id" in message2 ? message2.session_id : void 0,
-    trigger: message2.type,
+    sessionId: "session_id" in message ? message.session_id : void 0,
+    trigger: message.type,
     outcome,
     requestId:
-      "request_id" in message2 && typeof message2.request_id === "string"
-        ? message2.request_id
-        : "id" in message2 && typeof message2.id === "string"
-          ? message2.id
+      "request_id" in message && typeof message.request_id === "string"
+        ? message.request_id
+        : "id" in message && typeof message.id === "string"
+          ? message.id
           : void 0,
   });
 }
@@ -234,24 +234,24 @@ export class ChatDiagnostics {
   record(stage, context, tools = [], details = false) {
     traceChatTools(this.write, stage, context, tools, details);
   }
-  operation(message2, direction, outcome = "received") {
+  operation(message, direction, outcome = "received") {
     traceChatClientOperation(
       this.write,
       direction === "sent" ? "operation-ws-send" : "operation",
-      message2,
+      message,
       outcome,
     );
   }
-  received(message2) {
-    traceChatServerMessage(this.write, "renderer-ws-received", message2);
+  received(message) {
+    traceChatServerMessage(this.write, "renderer-ws-received", message);
   }
-  sent(message2, outcome, connectionId) {
+  sent(message, outcome, connectionId) {
     traceChatServerMessage(
       this.write,
-      message2.type === "session_switched"
+      message.type === "session_switched"
         ? "history-ws-send"
         : "control-ws-send",
-      message2,
+      message,
       {
         outcome,
         connectionId,

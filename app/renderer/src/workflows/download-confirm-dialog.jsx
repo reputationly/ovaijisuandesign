@@ -1,5 +1,8 @@
 // 下载工作流前的确认弹窗：模型依赖、许可证、兼容性与磁盘空间。
-import { useTranslation, ShieldCheck, reactExports, ExternalLink, usePlatform } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { ShieldCheck, ExternalLink } from "../media-editing/lucide-icon-wraps.js";
 import { Button, Dialog, DialogContent, DialogHeader, DialogFooter } from "../infra/dialog-content.jsx";
 import { DialogTitle, DialogDescription } from "../infra/badge-variants.jsx";
 import { Input3 as Input } from "../infra/select-content.jsx";

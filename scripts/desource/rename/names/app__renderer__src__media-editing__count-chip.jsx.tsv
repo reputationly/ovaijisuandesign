@@ -1,0 +1,22 @@
+key	new	依据
+t2@16:14	t	useTranslation 返回的翻译函数，为计数按钮标题和弹层分组标题生成本地化文案。
+e2@22:31	mouseEvent	document 的 mousedown 事件；处理器据其 target 判断点击是否发生在弹层和锚点之外。
+t22@23:13	eventTarget	mousedown 事件的 target 节点，供 popupRef 和 anchorRef 的 contains 检查使用。
+e2@29:29	keyboardEvent	document 的 keydown 事件；只有按下 Escape 时处理器才关闭计数弹层。
+i2@60:14	count	生成默认选项时从 minCount 到 maxCount 递增的当前整数计数。
+e2@73:19	clickEvent	计数按钮的点击事件；先阻止画布级冒泡，再切换弹层状态。
+v2@75:20	isOpen	状态 setter 提供的当前弹层开关值；返回其反值以切换弹层显示状态。
+e2@104:23	clickEvent	计数选项弹层容器的点击事件被阻止冒泡，避免影响画布或锚点处理。
+e2@105:25	keyboardEvent	计数选项弹层容器的键盘事件被阻止冒泡，避免触发外层键盘处理。
+opt@114:27	option	options 中当前计数选项，用于生成按钮文本、选中状态和 onChange 参数。
+e2@121:29	clickEvent	当前计数选项按钮的点击事件；阻止冒泡、提交该 option 并关闭弹层。
+disabled2@14:13	isDisabled	CountChip 的 disabled 属性值；为真时禁用计数按钮，局部绑定已按布尔命名约定写作 isDisabled。
+handleMouseDown2@22:11	handleMouseDown	处理 document mousedown：仅当目标既不在弹层内也不在锚点内时关闭弹层。
+handleKeyDown2@29:11	handleKeyDown	处理 document keydown：检测到 Escape 时关闭计数弹层。
+next2@47:11	next	收集范围内且不重复的显式计数选项，或收集 minCount 到 maxCount 的完整整数序列。
+option2@49:18	option	explicitOptions 中当前候选计数；仅在上下界内且尚未收集时加入 next。
+active2@115:21	isSelected	当前 option 是否等于 value；该结果控制 aria-selected 属性和选中项样式。
+disabled@14:3	isDisabled	保留组件对外的 disabled 属性键；局部 isDisabled 表示调用方要求禁用计数按钮的布尔值。
+open@17:10	isPopupOpen	布尔状态表示计数选项弹层当前是否打开，并控制监听器和 portal 的显示。
+setOpen@17:16	setIsPopupOpen	更新计数选项弹层开关状态；点击锚点时切换，Escape、外部点击和选项选择时关闭。
+active@115:21	isSelected	当前 option 是否等于 value；该布尔值控制 aria-selected 属性和选中项样式。

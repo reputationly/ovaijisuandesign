@@ -1,0 +1,4 @@
+key	old	new	依据
+p@11:26	p	workspacePath	用于查询文件系统可用性的工作区路径。
+p@20:38	p	workspacePath	用于查询文件系统可用性的工作区路径。
+w@6:33	w	workspace	当前检查可用性的最近工作区记录。

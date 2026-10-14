@@ -1,0 +1,5 @@
+key	new	reason
+t2@27:14	t	useTranslation() 返回的翻译函数 t
+version2@17:29	version	去掉打包器加的数字后缀，恢复原名 version
+platform2@28:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+state2@30:12	state	去掉打包器加的数字后缀，恢复原名 state

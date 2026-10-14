@@ -1,16 +1,13 @@
 // node-shell-inner.jsx
-import {
-  Button$3,
-  CompositedSvg,
-  cva,
-  jsxRuntimeExports,
-  Loader2Icon,
-  reactDomExports,
-  reactExports,
-  useStore$2 as useStore,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { cva } from "class-variance-authority";
+import { Button as BaseButton } from "@base-ui/react/button";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { Loader2Icon, X$7 as XIcon } from "../media-editing/lucide-icon-wraps.js";
+import { useStore } from "zustand";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";
 import {
@@ -22,19 +19,19 @@ import {
 } from "../infra/create-recently-added-store.js";
 import { useNodeTagColors } from "./use-inline-rename.jsx";
 import { RetryIcon } from "./fullscreen-icon.jsx";
-const useRecentlyAddedStore = (selector2) =>
-  useStore(useRecentlyAddedApi(), selector2);
+const useRecentlyAddedStore = (selector) =>
+  useStore(useRecentlyAddedApi(), selector);
 useRecentlyAddedStore.getState = defaultRecentlyAddedStore.getState;
 useRecentlyAddedStore.setState = defaultRecentlyAddedStore.setState;
 useRecentlyAddedStore.subscribe = defaultRecentlyAddedStore.subscribe;
 function useIsRecentlyAdded(nodeId) {
-  return useRecentlyAddedStore((s2) => Boolean(nodeId && s2.ids.has(nodeId)));
+  return useRecentlyAddedStore((storeState) => Boolean(nodeId && storeState.ids.has(nodeId)));
 }
-function UploadIcon({ size: size2 = 16 }) {
+function UploadIcon({ size = 16 }) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden="true"
@@ -57,10 +54,10 @@ function UploadIcon({ size: size2 = 16 }) {
   );
 }
 function NodeShellInner({
-  id: id2,
+  id,
   tagIds,
   width,
-  children: children2,
+  children,
   className,
   generating,
   onMouseEnter,
@@ -73,23 +70,23 @@ function NodeShellInner({
 }) {
   const isModalOpen = useIsCanvasModalOpen();
   const tagFilterActive = useCanvasTagFilterActive();
-  const matchesTagFilter2 = useNodeTagColors(tagIds).some((tag) => tag.active);
-  const dimmedByTagFilter = tagFilterActive && !matchesTagFilter2;
-  const isNewlyAdded = useIsRecentlyAdded(id2);
+  const matchesTagFilter = useNodeTagColors(tagIds).some((tag) => tag.active);
+  const dimmedByTagFilter = tagFilterActive && !matchesTagFilter;
+  const isNewlyAdded = useIsRecentlyAdded(id);
   const recentlyAddedApi = useRecentlyAddedApi();
-  const handleDoubleClick2 = reactExports.useCallback(
-    (e2) => {
+  const handleDoubleClick = reactExports.useCallback(
+    (doubleClickEvent) => {
       if (isModalOpen) return;
-      onDoubleClick?.(e2);
+      onDoubleClick?.(doubleClickEvent);
     },
     [isModalOpen, onDoubleClick],
   );
-  const handleClick2 = reactExports.useCallback(
-    (e2) => {
-      if (id2 && isNewlyAdded) recentlyAddedApi.getState().remove(id2);
-      onClick?.(e2);
+  const handleClick = reactExports.useCallback(
+    (clickEvent) => {
+      if (id && isNewlyAdded) recentlyAddedApi.getState().remove(id);
+      onClick?.(clickEvent);
     },
-    [id2, isNewlyAdded, recentlyAddedApi, onClick],
+    [id, isNewlyAdded, recentlyAddedApi, onClick],
   );
   const mergedClassName = `canvas-node-shell group cursor-default [contain:layout_style] relative overflow-visible${isNewlyAdded ? " is-newly-added" : ""}${generating ? " is-generating" : ""}${dimmedByTagFilter ? " opacity-25 transition-opacity duration-150" : ""}${className ? ` ${className}` : ""}`;
   return (
@@ -102,16 +99,16 @@ function NodeShellInner({
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      onClick={onClick || isNewlyAdded ? handleClick2 : void 0}
-      onDoubleClick={onDoubleClick ? handleDoubleClick2 : void 0}
+      onClick={onClick || isNewlyAdded ? handleClick : void 0}
+      onDoubleClick={onDoubleClick ? handleDoubleClick : void 0}
       data-action-ui-id={dataActionUiId}
       data-state={dataState}
       data-aspect-ratio={dataAspectRatio}
       data-tag-filter-match={
-        tagFilterActive ? String(matchesTagFilter2) : void 0
+        tagFilterActive ? String(matchesTagFilter) : void 0
       }
     >
-      {children2}
+      {children}
     </div>
   );
 }
@@ -162,28 +159,28 @@ const buttonVariants = cva(
 export function Button({
   className,
   variant = "default",
-  size: size2 = "default",
+  size = "default",
   loading = false,
-  disabled: disabled2,
-  children: children2,
+  disabled,
+  children,
   ...props
 }) {
   return (
-    <Button$3
+    <BaseButton
       data-slot="button"
-      disabled={disabled2 || loading}
+      disabled={disabled || loading}
       className={cn(
         buttonVariants({
           variant,
-          size: size2,
+          size,
           className,
         }),
       )}
       {...props}
     >
       {loading && <Loader2Icon className="animate-spin" />}
-      {children2}
-    </Button$3>
+      {children}
+    </BaseButton>
   );
 }
 export function NodeEmptyState({
@@ -240,19 +237,19 @@ export function NodeEmptyState({
 }
 export function PlaceholderUploadButton({
   icon,
-  children: children2,
+  children,
   label,
   onUpload,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [nodeShell, setNodeShell] = reactExports.useState(null);
-  const handlePlaceholderRef = reactExports.useCallback((element2) => {
-    setNodeShell(element2?.closest(".canvas-node-shell") ?? null);
+  const handlePlaceholderRef = reactExports.useCallback((element) => {
+    setNodeShell(element?.closest(".canvas-node-shell") ?? null);
   }, []);
-  const handleClick2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      onUpload(e2.currentTarget);
+  const handleClick = reactExports.useCallback(
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      onUpload(clickEvent.currentTarget);
     },
     [onUpload],
   );
@@ -260,11 +257,11 @@ export function PlaceholderUploadButton({
     <button
       type="button"
       data-action-ui-id="canvas.placeholder-upload"
-      onClick={handleClick2}
-      onPointerDown={(e2) => e2.stopPropagation()}
-      onDoubleClick={(e2) => e2.stopPropagation()}
+      onClick={handleClick}
+      onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+      onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
       className="nodrag nopan nowheel absolute bottom-[calc(100%+1.5rem)] left-1/2 z-20 inline-flex h-8 -translate-x-1/2 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-[color-mix(in_srgb,var(--canvas-controls-border)_60%,transparent)] bg-[var(--canvas-controls-bg)] px-3 text-[13px] font-normal text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)]"
-      title={t2("canvas.upload")}
+      title={translate("canvas.upload")}
     >
       <UploadIcon size={16} />
       <span>{label}</span>
@@ -276,7 +273,7 @@ export function PlaceholderUploadButton({
         ref={handlePlaceholderRef}
         className="flex h-full w-full items-center justify-center"
       >
-        {children2 ?? <NodeEmptyState icon={icon} />}
+        {children ?? <NodeEmptyState icon={icon} />}
       </div>
       {nodeShell ? reactDomExports.createPortal(button, nodeShell) : null}
     </>
@@ -316,15 +313,15 @@ function resolveGenerationWaitEstimate(seconds) {
       };
 }
 export function GenerationWaitEstimate({ seconds, actionUiId }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const estimate = resolveGenerationWaitEstimate(seconds);
   if (!estimate) return null;
   const label =
     estimate.unit === "seconds"
-      ? t2("canvas.estimatedRemainingWaitSeconds", {
+      ? translate("canvas.estimatedRemainingWaitSeconds", {
           count: estimate.count,
         })
-      : t2("canvas.estimatedRemainingWaitMinutes", {
+      : translate("canvas.estimatedRemainingWaitMinutes", {
           count: estimate.count,
         });
   return (
@@ -338,7 +335,7 @@ export function GenerationWaitEstimate({ seconds, actionUiId }) {
   );
 }
 export function QueueGenerationControl({
-  state: state2,
+  state,
   onCancel,
   onResume,
   cancelling = false,
@@ -346,12 +343,12 @@ export function QueueGenerationControl({
   canResume = true,
   actionUiId,
 }) {
-  const { t: t2 } = useTranslation();
-  const isQueued = state2 === "queued";
-  const disabled2 = isQueued ? cancelling : resuming || !canResume;
-  const handleClick2 = (event) => {
+  const { t: translate } = useTranslation();
+  const isQueued = state === "queued";
+  const disabled = isQueued ? cancelling : resuming || !canResume;
+  const handleClick = (event) => {
     event.stopPropagation();
-    if (disabled2) return;
+    if (disabled) return;
     if (isQueued) onCancel?.();
     else onResume?.();
   };
@@ -364,19 +361,19 @@ export function QueueGenerationControl({
       onPointerDown={stopEvent}
     >
       <span className="max-w-full truncate text-xs font-medium leading-5 text-muted-foreground">
-        {isQueued ? t2("canvas.pending") : t2("canvas.queuePaused")}
+        {isQueued ? translate("canvas.pending") : translate("canvas.queuePaused")}
       </span>
       {(isQueued ? onCancel : onResume) ? (
         <button
           type="button"
           className={QUEUE_ACTION_BUTTON_CLASS}
-          disabled={disabled2}
+          disabled={disabled}
           aria-busy={!isQueued && resuming ? true : void 0}
-          onClick={handleClick2}
+          onClick={handleClick}
           data-action-ui-id={`${actionUiId}.${isQueued ? "cancel" : "resume"}`}
         >
           {isQueued ? (
-            <X
+            <XIcon
               size={14}
               strokeWidth={1.5}
               className={QUEUE_ACTION_ICON_CLASS}
@@ -389,7 +386,7 @@ export function QueueGenerationControl({
             />
           )}
           <span>
-            {isQueued ? t2("canvas.queueCancel") : t2("canvas.queueResume")}
+            {isQueued ? translate("canvas.queueCancel") : translate("canvas.queueResume")}
           </span>
         </button>
       ) : null}
@@ -402,19 +399,19 @@ export function useMediaFallbackRetry(options) {
   const [failed, setFailed] = reactExports.useState(false);
   const [attempt, setAttempt] = reactExports.useState(0);
   const timerRef = reactExports.useRef(null);
-  const clearTimer2 = reactExports.useCallback(() => {
+  const clearTimer = reactExports.useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
   }, []);
-  reactExports.useEffect(() => clearTimer2, [clearTimer2]);
+  reactExports.useEffect(() => clearTimer, [clearTimer]);
   const onError = reactExports.useCallback(() => {
     if (attempt >= retries) {
       setFailed(true);
       return;
     }
-    clearTimer2();
+    clearTimer();
     timerRef.current = setTimeout(
       () => {
         timerRef.current = null;
@@ -422,17 +419,17 @@ export function useMediaFallbackRetry(options) {
       },
       delayMs * (0.5 + Math.random()),
     );
-  }, [attempt, retries, delayMs, clearTimer2]);
-  const reset2 = reactExports.useCallback(() => {
-    clearTimer2();
+  }, [attempt, retries, delayMs, clearTimer]);
+  const reset = reactExports.useCallback(() => {
+    clearTimer();
     setFailed(false);
     setAttempt(0);
-  }, [clearTimer2]);
+  }, [clearTimer]);
   return {
     failed,
     attempt,
     onError,
-    reset: reset2,
+    reset,
   };
 }
 export function getAdjacentNodePosition(reactFlow, nodeId, fallbackSize) {
@@ -446,11 +443,11 @@ export function getAdjacentNodePosition(reactFlow, nodeId, fallbackSize) {
 function resolveAddToChatPath(metaPath, fallbackPath) {
   return metaPath || fallbackPath;
 }
-export function useAddToChat(nodeId, meta2, onAddToChat, fallbackPath) {
+export function useAddToChat(nodeId, meta, onAddToChat, fallbackPath) {
   return reactExports.useCallback(() => {
-    const filePath = resolveAddToChatPath(meta2?.path, fallbackPath);
+    const filePath = resolveAddToChatPath(meta?.path, fallbackPath);
     if (!filePath || !onAddToChat) return;
     const filename = filePath.split("/").pop() ?? filePath;
     onAddToChat(filePath, filename, nodeId);
-  }, [meta2?.path, onAddToChat, nodeId, fallbackPath]);
+  }, [meta?.path, onAddToChat, nodeId, fallbackPath]);
 }

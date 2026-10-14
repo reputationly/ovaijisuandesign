@@ -1,14 +1,14 @@
 // history-manager.js
 
-export let HistoryManager$1 = class HistoryManager {
+export let MediaHistoryManager = class HistoryManager {
   undoStack = [];
   redoStack = [];
   limit;
   constructor(limit = 50) {
     this.limit = limit;
   }
-  push(snapshot2) {
-    this.undoStack.push(snapshot2);
+  push(snapshot) {
+    this.undoStack.push(snapshot);
     if (this.undoStack.length > this.limit) {
       this.undoStack.shift();
     }
@@ -19,16 +19,16 @@ export let HistoryManager$1 = class HistoryManager {
    * 返回 undo 后应当被采用的 shapes 数组。
    */
   undo(currentSnapshot) {
-    const previous2 = this.undoStack.pop();
-    if (!previous2) return null;
+    const previous = this.undoStack.pop();
+    if (!previous) return null;
     this.redoStack.push(currentSnapshot);
-    return previous2;
+    return previous;
   }
   redo(currentSnapshot) {
-    const next2 = this.redoStack.pop();
-    if (!next2) return null;
+    const next = this.redoStack.pop();
+    if (!next) return null;
     this.undoStack.push(currentSnapshot);
-    return next2;
+    return next;
   }
   get canUndo() {
     return this.undoStack.length > 0;
@@ -60,17 +60,17 @@ export const DEFAULT_STYLE = {
   textVariant: "plain",
 };
 
-export function cloneShapeData(data2) {
+export function cloneShapeData(data) {
   const cloned = {
-    ...data2,
+    ...data,
     style: {
-      ...data2.style,
+      ...data.style,
     },
   };
   if ("points" in cloned) {
-    cloned.points = cloned.points.map((p3) => ({
-      x: p3.x,
-      y: p3.y,
+    cloned.points = cloned.points.map((point) => ({
+      x: point.x,
+      y: point.y,
     }));
   }
   return cloned;

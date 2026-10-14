@@ -1,15 +1,9 @@
 // attach-native-toast-surface.jsx
-import {
-  CircleCheckIcon,
-  InfoIcon$1 as InfoIcon,
-  Loader2Icon,
-  OctagonXIcon,
-  reactDomExports,
-  reactExports,
-  Toaster$1 as Toaster,
-  TriangleAlertIcon,
-  z$3 as z,
-} from "../vendor.js";
+import { Toaster } from "sonner";
+import { z$3 as useTheme } from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { CircleCheckIcon, InfoIcon$1 as InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { isElectron } from "../infra/use-canvas-node-assets-store.js";
 import {
@@ -21,13 +15,13 @@ const NATIVE_TOAST_WINDOW_FEATURE = "hiloNativeToast";
 function bindNativeToastInput(
   mount,
   child,
-  token2,
+  token,
   bridge,
   onError,
   hotkey = ["altKey", "KeyT"],
 ) {
   let disposed = false;
-  let keyboard2 = false;
+  let keyboard = false;
   let previousFocus = null;
   let pointerPending = false;
   let pointerDirty = false;
@@ -39,7 +33,7 @@ function bindNativeToastInput(
     }
     pointerPending = true;
     void bridge
-      .refreshNativeToastPointer(token2)
+      .refreshNativeToastPointer(token)
       .catch(onError)
       .finally(() => {
         pointerPending = false;
@@ -50,10 +44,10 @@ function bindNativeToastInput(
       });
   };
   const exitKeyboard = () => {
-    if (!keyboard2 || disposed) return;
-    keyboard2 = false;
+    if (!keyboard || disposed) return;
+    keyboard = false;
     void bridge
-      .setNativeToastKeyboardFocus(token2, false)
+      .setNativeToastKeyboardFocus(token, false)
       .then(() => {
         if (!disposed && previousFocus?.isConnected)
           previousFocus.focus({
@@ -65,20 +59,20 @@ function bindNativeToastInput(
   const ownerKeyDown = (event) => {
     if (
       !hotkey.length ||
-      !hotkey.every((key2) => event[key2] || event.code === key2)
+      !hotkey.every((key) => event[key] || event.code === key)
     )
       return;
     if (!mount.querySelector('[data-sonner-toast]:not([data-removed="true"])'))
       return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    if (event.repeat || keyboard2) return;
-    keyboard2 = true;
+    if (event.repeat || keyboard) return;
+    keyboard = true;
     previousFocus = document.activeElement;
     void bridge
-      .setNativeToastKeyboardFocus(token2, true)
+      .setNativeToastKeyboardFocus(token, true)
       .then(() => {
-        if (!disposed && keyboard2)
+        if (!disposed && keyboard)
           mount.querySelector("[data-sonner-toaster]")?.focus({
             preventScroll: true,
           });
@@ -86,20 +80,20 @@ function bindNativeToastInput(
       .catch(onError);
   };
   const childKeyDown = (event) => {
-    if (event.code !== "Escape" || !keyboard2) return;
+    if (event.code !== "Escape" || !keyboard) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     exitKeyboard();
   };
-  const blur2 = () => {
-    keyboard2 = false;
+  const handleBlur = () => {
+    keyboard = false;
   };
   document.addEventListener("keydown", ownerKeyDown, true);
   child.addEventListener("keydown", childKeyDown, true);
   child.addEventListener("mousemove", refreshPointer, {
     passive: true,
   });
-  child.addEventListener("blur", blur2);
+  child.addEventListener("blur", handleBlur);
   return {
     onEmpty: exitKeyboard,
     dispose() {
@@ -107,16 +101,16 @@ function bindNativeToastInput(
       document.removeEventListener("keydown", ownerKeyDown, true);
       child.removeEventListener("keydown", childKeyDown, true);
       child.removeEventListener("mousemove", refreshPointer);
-      child.removeEventListener("blur", blur2);
+      child.removeEventListener("blur", handleBlur);
     },
   };
 }
 function mirrorToastDocument(source, target) {
-  const base2 = target.createElement("base");
-  base2.href = source.baseURI;
-  target.head.appendChild(base2);
-  const overrides2 = target.createElement("style");
-  overrides2.textContent = `
+  const base = target.createElement("base");
+  base.href = source.baseURI;
+  target.head.appendChild(base);
+  const overrides = target.createElement("style");
+  overrides.textContent = `
     html, body { background: transparent !important; margin: 0 !important; overflow: hidden !important; }
     body { min-width: 0 !important; }
     /* The native window is a compact viewport. Keep Sonner's usual desktop
@@ -140,46 +134,46 @@ function mirrorToastDocument(source, target) {
       width: 100% !important;
     }
   `;
-  target.head.appendChild(overrides2);
+  target.head.appendChild(overrides);
   const copies = new Map();
-  const syncStyles2 = () => {
+  const syncStyles = () => {
     const styles = new Set(
       source.head.querySelectorAll('style, link[rel="stylesheet"]'),
     );
-    for (const [original, copy2] of copies) {
+    for (const [original, copy] of copies) {
       if (!styles.has(original)) {
-        copy2.node.remove();
+        copy.node.remove();
         copies.delete(original);
       }
     }
     for (const original of styles) {
-      let copy2 = copies.get(original);
+      let copy = copies.get(original);
       const markup = original.outerHTML;
-      if (!copy2 || copy2.markup !== markup) {
-        copy2?.node.remove();
-        copy2 = {
+      if (!copy || copy.markup !== markup) {
+        copy?.node.remove();
+        copy = {
           node: original.cloneNode(true),
           markup,
         };
-        copies.set(original, copy2);
+        copies.set(original, copy);
       }
-      target.head.insertBefore(copy2.node, overrides2);
+      target.head.insertBefore(copy.node, overrides);
     }
   };
-  const syncAttributes2 = (original, copy2) => {
-    for (const attr2 of Array.from(copy2.attributes)) {
-      if (!original.hasAttribute(attr2.name)) copy2.removeAttribute(attr2.name);
+  const syncAttributes = (original, copy) => {
+    for (const attr of Array.from(copy.attributes)) {
+      if (!original.hasAttribute(attr.name)) copy.removeAttribute(attr.name);
     }
-    for (const attr2 of Array.from(original.attributes))
-      copy2.setAttribute(attr2.name, attr2.value);
+    for (const attr of Array.from(original.attributes))
+      copy.setAttribute(attr.name, attr.value);
   };
   const syncTheme = () => {
-    syncAttributes2(source.documentElement, target.documentElement);
-    syncAttributes2(source.body, target.body);
+    syncAttributes(source.documentElement, target.documentElement);
+    syncAttributes(source.body, target.body);
   };
-  syncStyles2();
+  syncStyles();
   syncTheme();
-  const stylesObserver = new MutationObserver(syncStyles2);
+  const stylesObserver = new MutationObserver(syncStyles);
   stylesObserver.observe(source.head, {
     childList: true,
     subtree: true,
@@ -196,69 +190,69 @@ function mirrorToastDocument(source, target) {
   return () => {
     stylesObserver.disconnect();
     themeObserver.disconnect();
-    for (const { node: node2 } of copies.values()) node2.remove();
-    base2.remove();
-    overrides2.remove();
+    for (const { node } of copies.values()) node.remove();
+    base.remove();
+    overrides.remove();
   };
 }
-function measureNativeToasts(mount, view2) {
+function measureNativeToasts(mount, view) {
   const rects = [];
-  for (const toast2 of mount.querySelectorAll("[data-sonner-toast]")) {
-    if (toast2.dataset.visible === "false") continue;
-    for (const element2 of [
-      toast2,
-      ...toast2.querySelectorAll("[data-close-button]"),
+  for (const toast of mount.querySelectorAll("[data-sonner-toast]")) {
+    if (toast.dataset.visible === "false") continue;
+    for (const element of [
+      toast,
+      ...toast.querySelectorAll("[data-close-button]"),
     ]) {
-      const bounds = element2.getBoundingClientRect();
+      const bounds = element.getBoundingClientRect();
       if (bounds.width <= 0 || bounds.height <= 0) continue;
-      const x2 = Math.max(0, Math.floor(bounds.left));
-      const y4 = Math.max(0, Math.floor(bounds.top));
-      const right = Math.min(view2.innerWidth, Math.ceil(bounds.right));
+      const x = Math.max(0, Math.floor(bounds.left));
+      const y = Math.max(0, Math.floor(bounds.top));
+      const right = Math.min(view.innerWidth, Math.ceil(bounds.right));
       const bottom = Math.ceil(bounds.bottom);
-      if (right > x2 && bottom > y4)
+      if (right > x && bottom > y)
         rects.push({
-          x: x2,
-          y: y4,
-          width: right - x2,
-          height: bottom - y4,
+          x,
+          y,
+          width: right - x,
+          height: bottom - y,
         });
     }
   }
   return {
     rects,
-    viewportWidth: view2.innerWidth,
-    viewportHeight: view2.innerHeight,
+    viewportWidth: view.innerWidth,
+    viewportHeight: view.innerHeight,
   };
 }
-function attachNativeToastSurface(mount, update2, onFailure, inputOptions) {
-  const token2 = crypto.randomUUID();
+function attachNativeToastSurface(mount, update, onFailure, inputOptions) {
+  const token = crypto.randomUUID();
   const child = window.open(
     "about:blank",
-    `${NATIVE_TOAST_WINDOW_PREFIX}${token2}`,
+    `${NATIVE_TOAST_WINDOW_PREFIX}${token}`,
     `popup,${NATIVE_TOAST_WINDOW_FEATURE}=true`,
   );
   if (!child) return void 0;
   const fallback = mount.parentNode;
   let disposed = false;
-  let frame2 = 0;
+  let frame = 0;
   let lastLayout = "";
   let settleUntil = 0;
   let emptyViewportFrames = 0;
   let stopMirror;
-  let observer2;
+  let observer;
   let resizeObserver;
   let input;
   let closedTimer;
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
-    cancelAnimationFrame(frame2);
+    cancelAnimationFrame(frame);
     if (closedTimer) clearInterval(closedTimer);
-    observer2?.disconnect();
+    observer?.disconnect();
     resizeObserver?.disconnect();
     input?.dispose();
     stopMirror?.();
-    child.removeEventListener("resize", schedule2);
+    child.removeEventListener("resize", schedule);
     child.removeEventListener("pagehide", onPageHide);
     window.removeEventListener("pagehide", cleanup);
     fallback?.appendChild(mount);
@@ -271,7 +265,7 @@ function attachNativeToastSurface(mount, update2, onFailure, inputOptions) {
   };
   const onPageHide = () => failed();
   const measure = () => {
-    frame2 = 0;
+    frame = 0;
     if (disposed) return;
     if (child.closed) {
       failed();
@@ -280,25 +274,25 @@ function attachNativeToastSurface(mount, update2, onFailure, inputOptions) {
     const layout = measureNativeToasts(mount, child);
     if (layout.viewportWidth <= 0 || layout.viewportHeight <= 0) {
       if (document.hidden || ++emptyViewportFrames <= 120)
-        frame2 = requestAnimationFrame(measure);
+        frame = requestAnimationFrame(measure);
       else failed(new Error("Native toast viewport did not initialize"));
       return;
     }
     const fingerprint = JSON.stringify(layout);
     if (fingerprint !== lastLayout) {
       lastLayout = fingerprint;
-      void update2(token2, layout).catch(failed);
+      void update(token, layout).catch(failed);
     }
     if (
       performance.now() < settleUntil &&
       mount.querySelector("[data-sonner-toast]")
     ) {
-      frame2 = requestAnimationFrame(measure);
+      frame = requestAnimationFrame(measure);
     }
   };
-  const schedule2 = () => {
+  const schedule = () => {
     settleUntil = performance.now() + 500;
-    if (!disposed && !frame2) frame2 = requestAnimationFrame(measure);
+    if (!disposed && !frame) frame = requestAnimationFrame(measure);
   };
   try {
     stopMirror = mirrorToastDocument(document, child.document);
@@ -307,45 +301,45 @@ function attachNativeToastSurface(mount, update2, onFailure, inputOptions) {
       input = bindNativeToastInput(
         mount,
         child,
-        token2,
+        token,
         inputOptions.bridge,
         failed,
         inputOptions.hotkey,
       );
     const observed = new Set();
-    resizeObserver = new ResizeObserver(schedule2);
+    resizeObserver = new ResizeObserver(schedule);
     const onMutation = () => {
       const toasts = new Set(mount.querySelectorAll("[data-sonner-toast]"));
-      for (const element2 of observed) {
-        if (!toasts.has(element2)) {
-          resizeObserver?.unobserve(element2);
-          observed.delete(element2);
+      for (const element of observed) {
+        if (!toasts.has(element)) {
+          resizeObserver?.unobserve(element);
+          observed.delete(element);
         }
       }
       if (toasts.size === 0) input?.onEmpty();
-      for (const element2 of toasts) {
-        if (!observed.has(element2)) {
-          resizeObserver?.observe(element2);
-          observed.add(element2);
+      for (const element of toasts) {
+        if (!observed.has(element)) {
+          resizeObserver?.observe(element);
+          observed.add(element);
         }
       }
-      schedule2();
+      schedule();
     };
-    observer2 = new MutationObserver(onMutation);
-    observer2.observe(mount, {
+    observer = new MutationObserver(onMutation);
+    observer.observe(mount, {
       childList: true,
       subtree: true,
       attributes: true,
       characterData: true,
     });
     onMutation();
-    child.addEventListener("resize", schedule2);
+    child.addEventListener("resize", schedule);
     child.addEventListener("pagehide", onPageHide);
     window.addEventListener("pagehide", cleanup);
     closedTimer = setInterval(() => {
       if (child.closed) failed();
     }, 1e3);
-    schedule2();
+    schedule();
   } catch (error) {
     failed(error);
     return void 0;
@@ -367,7 +361,7 @@ const GLOBAL_TOASTER_Z_INDEX = 10100;
 function resolveToasterPlacement() {
   return CENTERED_TOASTER_PLACEMENT;
 }
-function NativeToastHost({ children: children2, hotkey }) {
+function NativeToastHost({ children, hotkey }) {
   const fallbackRef = reactExports.useRef(null);
   const [mount] = reactExports.useState(() => document.createElement("div"));
   reactExports.useLayoutEffect(() => {
@@ -378,7 +372,7 @@ function NativeToastHost({ children: children2, hotkey }) {
     if (!isElectron()) return;
     let disposed = false;
     let detach;
-    const warn2 = (error) => {
+    const warn = (error) => {
       if (!disposed && error !== void 0)
         console.warn(
           "[toast] Native surface unavailable; using DOM fallback.",
@@ -386,28 +380,28 @@ function NativeToastHost({ children: children2, hotkey }) {
         );
     };
     void (async () => {
-      const { instantiationService: instantiationService2 } =
+      const { instantiationService } =
         await Promise.resolve().then(() => instantiation);
       return {
-        instantiationService: instantiationService2,
+        instantiationService,
       };
     })()
-      .then(({ instantiationService: instantiationService2 }) => {
+      .then(({ instantiationService }) => {
         if (disposed) return;
-        const service2 = instantiationService2.invokeFunction((accessor) =>
+        const service = instantiationService.invokeFunction((accessor) =>
           accessor.get(IWindowMainService),
         );
         detach = attachNativeToastSurface(
           mount,
-          (token2, layout) => service2.updateNativeToast(token2, layout),
-          warn2,
+          (token, layout) => service.updateNativeToast(token, layout),
+          warn,
           {
-            bridge: service2,
+            bridge: service,
             hotkey,
           },
         );
       })
-      .catch(warn2);
+      .catch(warn);
     return () => {
       disposed = true;
       detach?.();
@@ -415,17 +409,17 @@ function NativeToastHost({ children: children2, hotkey }) {
   }, [mount, hotkey]);
   return (
     <div ref={fallbackRef} data-native-toast-host="">
-      {reactDomExports.createPortal(children2, mount)}
+      {reactDomExports.createPortal(children, mount)}
     </div>
   );
 }
-export const Toaster2 = ({ style: style2, ...props }) => {
-  const { theme: theme2 = "system" } = z();
+export const Toaster2 = ({ style, ...props }) => {
+  const { theme = "system" } = useTheme();
   const placement = resolveToasterPlacement();
   return (
     <NativeToastHost hotkey={props.hotkey}>
       <Toaster
-        theme={theme2}
+        theme={theme}
         className="toaster group"
         position={placement.position}
         offset={placement.offset}
@@ -446,7 +440,7 @@ export const Toaster2 = ({ style: style2, ...props }) => {
           // WebContentsViews. The z-index remains for the web/error fallback,
           // above dialogs, tooltips and Canvas portals.
           zIndex: GLOBAL_TOASTER_Z_INDEX,
-          ...style2,
+          ...style,
         }}
         toastOptions={{
           classNames: {

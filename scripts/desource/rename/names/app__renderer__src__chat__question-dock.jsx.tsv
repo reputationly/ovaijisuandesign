@@ -1,0 +1,36 @@
+key	新名	依据
+t2@147:14	translate	`translate` 是问题面板查询本地化文案的函数。
+c3@222:25	isCollapsed	`isCollapsed` 是折叠状态更新器收到的当前布尔值，回调将其取反。
+idx@274:17	answerIndex	`answerIndex` 是当前答案列表中待切换标签的位置。
+ec@288:19	editingCustomFlags	`editingCustomFlags` 是自定义答案编辑状态的布尔值数组副本。
+_2@582:10	_unusedValue	`_unusedValue` 是长度填充数组传给映射回调但未使用的空值。
+_2@588:10	_unusedValue	`_unusedValue` 是长度填充数组传给映射回调但未使用的空值。
+e2@647:25	keyboardEvent	`keyboardEvent` 是面板键盘处理器收到并检查按键及修饰键的事件。
+n2@766:6	answeredCount	`answeredCount` 是已回答问题的累计数量。
+_2@766:10	_unusedQuestion	`_unusedQuestion` 是计数回调收到但未直接读取的问题记录。
+i2@766:14	questionIndex	`questionIndex` 是正在检查答案、文本及附件状态的问题位置。
+q2@894:31	question	`question` 是步骤条正在渲染的问题记录。
+i2@894:35	questionIndex	`questionIndex` 是步骤条当前问题在列表中的位置。
+opt@978:53	option	`option` 是多选问题中正在渲染的选项记录。
+i2@978:58	optionIndex	`optionIndex` 用于生成多选项 ID 并取得快捷键。
+opt@1031:53	option	`option` 是单选问题中正在渲染的选项记录。
+i2@1031:58	optionIndex	`optionIndex` 用于生成单选项 ID 并取得快捷键。
+selected2@34:45	selected	`selected` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+selected2@112:40	selected	`selected` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+question2@141:13	questionData	`questionData` 是传入 QuestionDock 的问题数据；原名 `question` 与后代问题列表回调参数冲突。
+raw2@162:9	raw	`raw` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@150:6	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@272:15	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+prev2@287:29	prev	`prev` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+option2@302:13	option	`option` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+index2@334:26	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@355:21	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@488:7	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@518:23	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+active2@915:23	active	`active` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+info2@1080:33	info	`info` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+active2@1082:25	active	`active` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+selected2@1084:25	selected	`selected` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+node2@1132:33	node	`node` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@1137:29	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@1188:43	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。

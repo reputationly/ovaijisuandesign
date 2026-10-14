@@ -1,16 +1,13 @@
 // entity-delete-confirm.jsx
-import {
-  Loader2,
-  reactExports,
-  ShieldAlert,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2, ShieldAlert } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   classifyAssetError,
   trackAssetCenterAction,
 } from "../infra/use-online.jsx";
-import { formatAssetCenterError } from "./key-entries.js";
+import { formatAssetCenterError } from "./asset-center-error.js";
 import { AlertDialog } from "../infra/dialog-content.jsx";
 import {
   AlertDialogAction,
@@ -28,7 +25,7 @@ export function EntityDeleteConfirm({
   onClose,
   surface = "asset_center_page",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const deleteMutation = useDeleteEntity();
   const [error, setError] = reactExports.useState(null);
   const handleConfirm = async () => {
@@ -47,7 +44,7 @@ export function EntityDeleteConfirm({
       });
       onClose();
     } catch (err) {
-      setError(formatAssetCenterError(err, t2));
+      setError(formatAssetCenterError(err, translate));
       trackAssetCenterAction({
         action: "entity_delete",
         surface,
@@ -69,16 +66,16 @@ export function EntityDeleteConfirm({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <ShieldAlert size={16} className="text-destructive" />
-            {t2("assetCenter.deleteEntity.confirmTitle")}
+            {translate("assetCenter.deleteEntity.confirmTitle")}
           </AlertDialogTitle>
           <AlertDialogDescription className="text-xs space-y-2">
             <span className="block">
-              {t2("assetCenter.deleteEntity.confirmDescription", {
+              {translate("assetCenter.deleteEntity.confirmDescription", {
                 name: entity?.name ?? "",
               })}
             </span>
             <span className="block text-muted-foreground/80">
-              {t2("assetCenter.deleteEntity.note")}
+              {translate("assetCenter.deleteEntity.note")}
             </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -95,7 +92,7 @@ export function EntityDeleteConfirm({
             disabled={deleteMutation.isPending}
             data-action-ui-id="asset-center-entity-delete-cancel"
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => void handleConfirm()}
@@ -106,7 +103,7 @@ export function EntityDeleteConfirm({
             {deleteMutation.isPending && (
               <Loader2 size={14} className="animate-spin mr-1.5" />
             )}
-            {t2("assetCenter.deleteEntity.confirmButton")}
+            {translate("assetCenter.deleteEntity.confirmButton")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

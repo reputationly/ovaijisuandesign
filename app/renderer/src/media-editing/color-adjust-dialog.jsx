@@ -1,5 +1,8 @@
 // color-adjust-dialog.jsx
-import { jsxRuntimeExports, Loader2, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2 } from "./lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ColorAdjustSlider } from "./color-adjust-slider.jsx";
@@ -209,7 +212,7 @@ export function ColorAdjustDialog({
   onConfirm,
   lut,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   useSuspendCanvasInteractions(open);
   const [stageEl, setStageEl] = reactExports.useState(null);
   const processorRef = reactExports.useRef(null);
@@ -229,7 +232,7 @@ export function ColorAdjustDialog({
     let cancelled = false;
     let processor = null;
     setLoading(true);
-    const rafId2 = requestAnimationFrame(() => {
+    const rafId = requestAnimationFrame(() => {
       if (cancelled) return;
       processor = new ImageColorGrading({
         backend: "auto",
@@ -255,7 +258,7 @@ export function ColorAdjustDialog({
     });
     return () => {
       cancelled = true;
-      cancelAnimationFrame(rafId2);
+      cancelAnimationFrame(rafId);
       processor?.dispose();
       processorRef.current = null;
     };
@@ -264,10 +267,10 @@ export function ColorAdjustDialog({
     settingsRef.current = settings;
     const processor = processorRef.current;
     if (!processor?.isLoaded()) return;
-    const rafId2 = requestAnimationFrame(() => {
+    const rafId = requestAnimationFrame(() => {
       processor.setSettings(settings);
     });
-    return () => cancelAnimationFrame(rafId2);
+    return () => cancelAnimationFrame(rafId);
   }, [settings]);
   reactExports.useEffect(() => {
     if (!open) {
@@ -282,8 +285,8 @@ export function ColorAdjustDialog({
     let cancelled = false;
     lut
       .listLuts()
-      .then((res) => {
-        if (!cancelled) setLuts(res);
+      .then((lutList) => {
+        if (!cancelled) setLuts(lutList);
       })
       .catch((err) =>
         console.error("[ColorAdjustDialog] list LUTs failed:", err),
@@ -303,9 +306,9 @@ export function ColorAdjustDialog({
     setLutBusy(true);
     lut
       .loadLutContent(selectedLut)
-      .then(async (text2) => {
+      .then(async (text) => {
         if (cancelled) return;
-        await processor.loadLUT(text2);
+        await processor.loadLUT(text);
         if (cancelled) return;
         processor.setLUTIntensity(lutIntensityRef.current);
       })
@@ -323,16 +326,16 @@ export function ColorAdjustDialog({
   reactExports.useEffect(() => {
     const processor = processorRef.current;
     if (!processor || !selectedLut) return;
-    const rafId2 = requestAnimationFrame(() => {
+    const rafId = requestAnimationFrame(() => {
       processor.setLUTIntensity(lutIntensity);
     });
-    return () => cancelAnimationFrame(rafId2);
+    return () => cancelAnimationFrame(rafId);
   }, [lutIntensity, selectedLut]);
   const updateSetting = reactExports.useCallback(
-    (key2) => (value) => {
+    (key) => (value) => {
       setSettings((prev) => ({
         ...prev,
-        [key2]: value,
+        [key]: value,
       }));
     },
     [],
@@ -372,10 +375,10 @@ export function ColorAdjustDialog({
       const startedAt = Date.now();
       setLutBusy(true);
       try {
-        const { name: name2 } = await lut.importLut(file);
+        const { name: importedLutName } = await lut.importLut(file);
         const fresh = await lut.listLuts();
         setLuts(fresh);
-        setSelectedLut(name2);
+        setSelectedLut(importedLutName);
         lut.onImportEvent?.({
           phase: "success",
           fileSize: file.size,
@@ -390,37 +393,37 @@ export function ColorAdjustDialog({
         });
         console.error("[ColorAdjustDialog] import LUT failed:", err);
         dedupedToast.error(
-          t2("colorAdjust.lut.errorImport", "Failed to import LUT"),
+          t("colorAdjust.lut.errorImport", "Failed to import LUT"),
         );
       } finally {
         setLutBusy(false);
       }
     },
-    [lut, t2],
+    [lut, t],
   );
   const handleDeleteLut = reactExports.useCallback(
-    async (name2) => {
+    async (lutName) => {
       if (!lut) return;
       const confirmed = window.confirm(
-        t2("colorAdjust.lut.deleteConfirm", "Delete this LUT?"),
+        t("colorAdjust.lut.deleteConfirm", "Delete this LUT?"),
       );
       if (!confirmed) return;
       setLutBusy(true);
       try {
-        await lut.deleteLut(name2);
+        await lut.deleteLut(lutName);
         const fresh = await lut.listLuts();
         setLuts(fresh);
-        if (selectedLut === name2) setSelectedLut(null);
+        if (selectedLut === lutName) setSelectedLut(null);
       } catch (err) {
         console.error("[ColorAdjustDialog] delete LUT failed:", err);
         dedupedToast.error(
-          t2("colorAdjust.lut.errorDelete", "Failed to delete LUT"),
+          t("colorAdjust.lut.errorDelete", "Failed to delete LUT"),
         );
       } finally {
         setLutBusy(false);
       }
     },
-    [lut, selectedLut, t2],
+    [lut, selectedLut, t],
   );
   const handleLutSelectChange = reactExports.useCallback((value) => {
     if (value === null || value === LUT_NONE) {
@@ -432,9 +435,9 @@ export function ColorAdjustDialog({
   const presetDisplayName = reactExports.useCallback(
     (filename) => {
       const stem = filename.replace(/\.cube$/i, "");
-      return t2(`colorAdjust.lutPreset.${stem}`, filename);
+      return t(`colorAdjust.lutPreset.${stem}`, filename);
     },
-    [t2],
+    [t],
   );
   const presetLuts = reactExports.useMemo(
     () => luts.filter((entry) => entry.isPreset),
@@ -445,14 +448,14 @@ export function ColorAdjustDialog({
     [luts],
   );
   const lutItems = reactExports.useMemo(() => {
-    const map3 = {
-      [LUT_NONE]: t2("colorAdjust.lut.none", "None"),
+    const map = {
+      [LUT_NONE]: t("colorAdjust.lut.none", "None"),
     };
     for (const entry of presetLuts)
-      map3[entry.name] = presetDisplayName(entry.name);
-    for (const entry of userLuts) map3[entry.name] = entry.name;
-    return map3;
-  }, [presetLuts, userLuts, presetDisplayName, t2]);
+      map[entry.name] = presetDisplayName(entry.name);
+    for (const entry of userLuts) map[entry.name] = entry.name;
+    return map;
+  }, [presetLuts, userLuts, presetDisplayName, t]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -465,7 +468,7 @@ export function ColorAdjustDialog({
       >
         <DialogHeader className="flex-row items-center gap-2 border-b border-[var(--canvas-controls-border)] px-3 py-2">
           <DialogTitle className="font-heading text-[13px] font-medium">
-            {t2("canvas.colorAdjust")}
+            {t("canvas.colorAdjust")}
           </DialogTitle>
           {fileName && (
             <span className="truncate text-[11px] text-muted-foreground">
@@ -477,8 +480,8 @@ export function ColorAdjustDialog({
             type="button"
             onClick={() => onOpenChange(false)}
             disabled={submitting}
-            aria-label={t2("common.cancel")}
-            title={t2("common.cancel")}
+            aria-label={t("common.cancel")}
+            title={t("common.cancel")}
             className="ml-auto flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text)] transition-colors hover:bg-[var(--canvas-controls-hover)] disabled:pointer-events-none disabled:opacity-50"
           >
             <CloseIcon />
@@ -494,7 +497,7 @@ export function ColorAdjustDialog({
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 bg-background/60 text-xs text-muted-foreground">
                 <Loader2 className="size-5 animate-spin" />
                 <span>
-                  {t2("colorAdjust.compilingShaders", "正在编译着色器…")}
+                  {t("colorAdjust.compilingShaders", "正在编译着色器…")}
                 </span>
               </div>
             )}
@@ -504,7 +507,7 @@ export function ColorAdjustDialog({
               {lut && (
                 <div className="mb-5">
                   <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                    {t2("colorAdjust.groupLut", "LUT")}
+                    {t("colorAdjust.groupLut", "LUT")}
                   </div>
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
@@ -520,7 +523,7 @@ export function ColorAdjustDialog({
                             className="w-full"
                           >
                             <SelectValue
-                              placeholder={t2(
+                              placeholder={t(
                                 "colorAdjust.lut.placeholder",
                                 "Select a LUT",
                               )}
@@ -529,7 +532,7 @@ export function ColorAdjustDialog({
                           <SelectContent>
                             <SelectItem value={LUT_NONE}>
                               <span className="text-muted-foreground">
-                                {t2("colorAdjust.lut.none", "None")}
+                                {t("colorAdjust.lut.none", "None")}
                               </span>
                             </SelectItem>
                             {presetLuts.length > 0 && (
@@ -537,7 +540,7 @@ export function ColorAdjustDialog({
                                 <SelectSeparator />
                                 <SelectGroup>
                                   <SelectLabel className="text-[11px] font-medium uppercase tracking-wider">
-                                    {t2(
+                                    {t(
                                       "colorAdjust.lutGroupPresets",
                                       "Presets",
                                     )}
@@ -560,7 +563,7 @@ export function ColorAdjustDialog({
                                 <SelectSeparator />
                                 <SelectGroup>
                                   <SelectLabel className="text-[11px] font-medium uppercase tracking-wider">
-                                    {t2("colorAdjust.lutGroupMine", "My LUTs")}
+                                    {t("colorAdjust.lutGroupMine", "My LUTs")}
                                   </SelectLabel>
                                   {userLuts.map((entry) => {
                                     const isSelected =
@@ -578,20 +581,20 @@ export function ColorAdjustDialog({
                                           {!isSelected && (
                                             <button
                                               type="button"
-                                              aria-label={t2(
+                                              aria-label={t(
                                                 "colorAdjust.lut.delete",
                                                 "Delete",
                                               )}
-                                              onClick={(e2) => {
-                                                e2.preventDefault();
-                                                e2.stopPropagation();
+                                              onClick={(clickEvent) => {
+                                                clickEvent.preventDefault();
+                                                clickEvent.stopPropagation();
                                                 void handleDeleteLut(
                                                   entry.name,
                                                 );
                                               }}
-                                              onPointerDown={(e2) => {
-                                                e2.preventDefault();
-                                                e2.stopPropagation();
+                                              onPointerDown={(pointerEvent) => {
+                                                pointerEvent.preventDefault();
+                                                pointerEvent.stopPropagation();
                                               }}
                                               className="flex size-5 shrink-0 items-center justify-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-foreground/10 hover:text-foreground"
                                               style={{
@@ -621,7 +624,7 @@ export function ColorAdjustDialog({
                         data-action-ui-id="image-color-adjust.lut-import"
                       >
                         <Upload className="size-3.5" />
-                        {t2("colorAdjust.lut.import", "Import...")}
+                        {t("colorAdjust.lut.import", "Import...")}
                       </Button>
                     </div>
                     <input
@@ -632,7 +635,7 @@ export function ColorAdjustDialog({
                       onChange={handleFilePicked}
                     />
                     <ColorAdjustSlider
-                      label={t2("colorAdjust.lut.intensity", "Intensity")}
+                      label={t("colorAdjust.lut.intensity", "Intensity")}
                       value={lutIntensity}
                       min={0}
                       max={100}
@@ -646,19 +649,19 @@ export function ColorAdjustDialog({
               {SLIDER_GROUPS.map((group) => (
                 <div key={group.i18nKey} className="mb-5 last:mb-0">
                   <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                    {t2(group.i18nKey, group.text)}
+                    {t(group.i18nKey, group.text)}
                   </div>
                   <div className="flex flex-col gap-3">
-                    {group.sliders.map((s2) => (
+                    {group.sliders.map((slider) => (
                       <ColorAdjustSlider
-                        key={s2.key}
-                        label={t2(s2.i18nKey, s2.text)}
-                        value={settings[s2.key]}
-                        min={s2.min}
-                        max={s2.max}
+                        key={slider.key}
+                        label={t(slider.i18nKey, slider.text)}
+                        value={settings[slider.key]}
+                        min={slider.min}
+                        max={slider.max}
                         disabled={loading || submitting}
-                        dataActionUiId={`image-color-adjust.${s2.key}`}
-                        onChange={updateSetting(s2.key)}
+                        dataActionUiId={`image-color-adjust.${slider.key}`}
+                        onChange={updateSetting(slider.key)}
                       />
                     ))}
                   </div>
@@ -674,7 +677,7 @@ export function ColorAdjustDialog({
             onClick={handleReset}
             disabled={submitting}
           >
-            {t2("colorAdjust.reset")}
+            {t("colorAdjust.reset")}
           </Button>
           <div className="flex items-center gap-1.5">
             <Button
@@ -682,8 +685,8 @@ export function ColorAdjustDialog({
               onClick={handleConfirm}
               disabled={loading || submitting}
               loading={submitting}
-              aria-label={t2("colorAdjust.saveToCanvas")}
-              title={t2("colorAdjust.saveToCanvas")}
+              aria-label={t("colorAdjust.saveToCanvas")}
+              title={t("colorAdjust.saveToCanvas")}
               className="bg-[var(--canvas-primary-btn-bg)] text-[var(--canvas-primary-btn-icon)] hover:bg-[var(--canvas-primary-btn-bg-hover)]"
             >
               <SendArrowIcon />

@@ -1,11 +1,9 @@
 // node-header-inner.jsx
-import {
-  CompositedSvg,
-  reactExports,
-  useNodeId,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { X$7 as XIcon } from "../media-editing/lucide-icon-wraps.js";
+import { useNodeId } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MAX_VISIBLE_CANVAS_TAG_COLORS } from "../infra/parse-connector-selection.js";
 import {
@@ -37,14 +35,14 @@ const NODE_TAG_THEME_TOKEN_BY_PRESET = {
   "#30D158": "--canvas-node-tag-green",
   "#FFD60A": "--canvas-node-tag-yellow",
 };
-function resolveNodeTagPresentationColor(color2) {
-  const token2 = NODE_TAG_THEME_TOKEN_BY_PRESET[color2.toUpperCase()];
-  return token2 ? `var(${token2}, ${color2.toUpperCase()})` : color2;
+function resolveNodeTagPresentationColor(color) {
+  const token = NODE_TAG_THEME_TOKEN_BY_PRESET[color.toUpperCase()];
+  return token ? `var(${token}, ${color.toUpperCase()})` : color;
 }
-function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
-  const { t: t2 } = useTranslation();
+function NodeTagLabels({ tags, onTagClick, onTagRemove }) {
+  const { t: translate } = useTranslation();
   const labelsRef = reactExports.useRef(null);
-  const visibleTags = tags2.slice(0, NODE_TAG_MAX_VISIBLE_COLORS);
+  const visibleTags = tags.slice(0, NODE_TAG_MAX_VISIBLE_COLORS);
   useRegisterZoomCounter(labelsRef);
   return (
     <div
@@ -60,8 +58,8 @@ function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
       }}
       data-action-ui-id="canvas.node-tag-labels"
     >
-      {visibleTags.map((tag, index2) => {
-        const isPrimary = index2 === 0;
+      {visibleTags.map((tag, index) => {
+        const isPrimary = index === 0;
         const canRemove = Boolean(tag.id && onTagRemove);
         return (
           <span
@@ -73,7 +71,7 @@ function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
               "--node-tag-ink": NODE_TAG_INK_COLOR,
               "--node-tag-border": NODE_TAG_BORDER_COLOR,
               color: "var(--node-tag-ink)",
-              zIndex: visibleTags.length - index2,
+              zIndex: visibleTags.length - index,
             }}
             data-action-ui-id="canvas.node-tag-label"
             data-tag-name={tag.name}
@@ -95,7 +93,7 @@ function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
             {canRemove ? (
               <button
                 type="button"
-                aria-label={t2("canvasTags.removeFromAsset")}
+                aria-label={translate("canvasTags.removeFromAsset")}
                 data-action-ui-id="canvas.node-tag-remove"
                 className="nodrag nopan nowheel pointer-events-none absolute right-0.5 flex size-4 scale-75 items-center justify-center rounded-full opacity-0 outline-hidden transition-opacity group-hover/tag:pointer-events-auto group-hover/tag:opacity-100 group-focus-within/tag:pointer-events-auto group-focus-within/tag:opacity-100 focus-visible:ring-2 focus-visible:ring-current/50"
                 style={{
@@ -108,7 +106,7 @@ function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
                   onTagRemove?.(tag);
                 }}
               >
-                <X className="size-3" strokeWidth={3} aria-hidden="true" />
+                <XIcon className="size-3" strokeWidth={3} aria-hidden="true" />
               </button>
             ) : null}
           </span>
@@ -216,22 +214,22 @@ const ICON_MAP = {
 };
 function NodeHeaderInner({
   nodeType,
-  name: name2,
+  name: nodeName,
   icon,
   tagIds,
   maxWidth,
-  selected: selected2,
+  selected,
   onRename,
-  preserveExtension: preserveExtension2 = true,
+  preserveExtension = true,
 }) {
   const IconComponent = ICON_MAP[nodeType] ?? TextIcon;
   const tagColors = useNodeTagColors(tagIds);
   const hasColorTag = tagColors.length > 0;
   const hasAssignedTag = (tagIds?.length ?? 0) > 0;
   const rename = useInlineRename({
-    currentValue: name2,
+    currentValue: nodeName,
     onCommit: onRename,
-    preserveExtension: preserveExtension2,
+    preserveExtension,
   });
   const nodeId = useNodeId();
   const { onNodeTagRequest, onNodeTagRemoveRequest } = useCanvasBridge();
@@ -250,18 +248,18 @@ function NodeHeaderInner({
     },
     [nodeId, onNodeTagRemoveRequest],
   );
-  const handleDoubleClick2 = reactExports.useCallback(
-    (e2) => {
+  const handleDoubleClick = reactExports.useCallback(
+    (doubleClickEvent) => {
       if (!onRename) return;
-      e2.stopPropagation();
+      doubleClickEvent.stopPropagation();
       rename.beginEdit();
     },
     [onRename, rename.beginEdit],
   );
-  const nameColor = selected2
+  const nameColor = selected
     ? "text-[var(--fg-default)]"
     : "text-[var(--fg-muted)]";
-  const iconColor = selected2
+  const iconColor = selected
     ? "text-[var(--fg-default)]"
     : "text-[var(--fg-muted)]";
   return (
@@ -288,7 +286,7 @@ function NodeHeaderInner({
             boxSizing: "border-box",
             height: NODE_TAG_HEADER_HEIGHT,
             maxWidth,
-            paddingRight: selected2 && !hasAssignedTag ? 36 : 0,
+            paddingRight: selected && !hasAssignedTag ? 36 : 0,
           }}
         >
           <span
@@ -306,12 +304,12 @@ function NodeHeaderInner({
                 width: "100%",
               }}
               value={rename.editValue}
-              onChange={(e2) => rename.setEditValue(e2.target.value)}
+              onChange={(changeEvent) => rename.setEditValue(changeEvent.target.value)}
               onBlur={rename.commit}
               onKeyDown={rename.onKeyDown}
-              onMouseDown={(e2) => e2.stopPropagation()}
-              onClick={(e2) => e2.stopPropagation()}
-              onDoubleClick={(e2) => e2.stopPropagation()}
+              onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+              onClick={(clickEvent) => clickEvent.stopPropagation()}
+              onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
             />
           ) : (
             // biome-ignore lint/a11y/noStaticElementInteractions: double-click rename trigger
@@ -324,7 +322,7 @@ function NodeHeaderInner({
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
               }}
-              onDoubleClick={handleDoubleClick2}
+              onDoubleClick={handleDoubleClick}
             >
               {rename.displayValue}
             </span>
@@ -343,7 +341,7 @@ function NodeHeaderInner({
           ) : null}
         </div>
         <NodeQuickTagTrigger
-          visible={selected2 && !hasAssignedTag}
+          visible={selected && !hasAssignedTag}
           className="absolute -top-1 right-0"
           counterScaleOrigin="right bottom"
         />

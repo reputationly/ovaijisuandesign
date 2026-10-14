@@ -1,16 +1,13 @@
 // audio-play-button.jsx
-import {
-  classifyFileType,
-  jsxRuntimeExports,
-  PlaybackCirclePauseIcon$1 as PlaybackCirclePauseIcon,
-  PlaybackCirclePlayIcon$1 as PlaybackCirclePlayIcon,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { PlaybackCirclePauseIcon$1 as PlaybackCirclePauseIcon, PlaybackCirclePlayIcon$1 as PlaybackCirclePlayIcon } from "../media-editing/playback-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   splitMentionFilename,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
@@ -27,13 +24,13 @@ export const ENTITY_TYPES = [
   "custom",
 ];
 export function FileNameLabel({
-  name: name2,
+  name: fileName,
   className,
   tooltip = true,
   actionUiId,
   tooltipPositionerClassName,
 }) {
-  const { stem, ext } = splitMentionFilename(name2);
+  const { stem, ext } = splitMentionFilename(fileName);
   const label = (
     // biome-ignore lint/a11y/useSemanticElements: Inline filename parts form a labelled group, not a form fieldset.
     <span
@@ -42,7 +39,7 @@ export function FileNameLabel({
         className,
       )}
       role="group"
-      aria-label={name2}
+      aria-label={fileName}
       data-action-ui-id={actionUiId}
       data-slot="file-name-label"
       tabIndex={tooltip ? 0 : void 0}
@@ -69,14 +66,14 @@ export function FileNameLabel({
           className="max-w-80 whitespace-normal [overflow-wrap:anywhere]"
           positionerClassName={tooltipPositionerClassName}
         >
-          {name2}
+          {fileName}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
 }
 export function AudioPlayButton({ src, filename }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const audioRef = reactExports.useRef(null);
   const [playing, setPlaying] = reactExports.useState(false);
   const toggle = reactExports.useCallback(() => {
@@ -123,7 +120,7 @@ export function AudioPlayButton({ src, filename }) {
           "relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-transparent p-0 hover:opacity-90 transition-opacity",
           playing ? "opacity-100" : "opacity-0 group-hover/audio:opacity-100",
         )}
-        aria-label={playing ? t2("common.pause") : t2("common.play")}
+        aria-label={playing ? translate("common.pause") : translate("common.play")}
         data-action-ui-id="asset-center-attachment-audio-play"
       >
         {playing ? (

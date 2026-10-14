@@ -1,8 +1,10 @@
 // project-invite-prompt.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Users } from "../media-editing/package.jsx";
-import { AlertDialog, cn$2 as cn } from "../infra/dialog-content.jsx";
-import { reactExports, useNavigate, useTranslation } from "../vendor.js";
+import { AlertDialog, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { projectLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { useAuth } from "../assets/credit-query-keys.jsx";
@@ -18,11 +20,11 @@ import {
 } from "../infra/badge-variants.jsx";
 import { useProjectActions } from "../settings/use-project-actions.js";
 function parseProjectInviteParams(params) {
-  const token2 = params.token?.trim();
-  if (!token2) return null;
+  const token = params.token?.trim();
+  if (!token) return null;
   const memberCount = Number(params.members ?? 0);
   return {
-    token: token2,
+    token,
     projectName: params.name?.trim() ?? "",
     inviterName: params.inviter?.trim() ?? "",
     memberCount:
@@ -36,7 +38,7 @@ function useProjectInviteDeepLink() {
   const recentTokensRef = reactExports.useRef(new Map());
   reactExports.useEffect(() => {
     if (!window.hilo?.projectInvite) return;
-    const off = window.hilo.projectInvite.onReceived((action) => {
+    const unsubscribe = window.hilo.projectInvite.onReceived((action) => {
       const payload = parseProjectInviteParams(action.params);
       if (!payload) {
         projectLog.warn("invite-deeplink unusable", {
@@ -44,17 +46,17 @@ function useProjectInviteDeepLink() {
         });
         return;
       }
-      const now2 = Date.now();
+      const now = Date.now();
       const seenAt = recentTokensRef.current.get(payload.token);
-      if (seenAt && now2 - seenAt < 3e3) {
+      if (seenAt && now - seenAt < 3e3) {
         projectLog.info("invite-deeplink deduped", {
-          ageMs: now2 - seenAt,
+          ageMs: now - seenAt,
         });
         return;
       }
-      recentTokensRef.current.set(payload.token, now2);
-      for (const [token2, ts2] of recentTokensRef.current) {
-        if (now2 - ts2 >= 3e3) recentTokensRef.current.delete(token2);
+      recentTokensRef.current.set(payload.token, now);
+      for (const [token, seenTimestamp] of recentTokensRef.current) {
+        if (now - seenTimestamp >= 3e3) recentTokensRef.current.delete(token);
       }
       projectLog.info("invite-deeplink received", {
         projectName: payload.projectName,
@@ -63,7 +65,7 @@ function useProjectInviteDeepLink() {
       });
       setPendingInvite(payload);
     });
-    return off;
+    return unsubscribe;
   }, []);
   const dismiss = reactExports.useCallback(() => setPendingInvite(null), []);
   return {
@@ -96,7 +98,7 @@ function ProjectFolderPreview({ className }) {
   );
 }
 export function ProjectInvitePrompt() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const navigate = useNavigate();
   const { pendingInvite, dismiss } = useProjectInviteDeepLink();
   const { isLoggedIn, unauthenticatedReason } = useAuth();
@@ -116,7 +118,7 @@ export function ProjectInvitePrompt() {
       const result = await acceptProjectInviteToken(pendingInvite.token);
       if (!result.projectId) {
         dedupedToast.error(
-          result.errorMessage || t2("project.invite.acceptFailed"),
+          result.errorMessage || translate("project.invite.acceptFailed"),
         );
         return;
       }
@@ -140,7 +142,7 @@ export function ProjectInvitePrompt() {
     loginGuard,
     navigate,
     pendingInvite,
-    t2,
+    translate,
   ]);
   const handleDecline = reactExports.useCallback(() => {
     projectLog.info("invite-prompt declined");
@@ -148,12 +150,12 @@ export function ProjectInvitePrompt() {
   }, [dismiss]);
   if (!pendingInvite) return null;
   const projectName =
-    pendingInvite.projectName || t2("project.invite.card.unknownProject");
+    pendingInvite.projectName || translate("project.invite.card.unknownProject");
   const inviteLine = pendingInvite.inviterName
-    ? t2("project.invite.card.inviteLine", {
+    ? translate("project.invite.card.inviteLine", {
         inviter: pendingInvite.inviterName,
       })
-    : t2("project.invite.card.inviteLineAnonymous");
+    : translate("project.invite.card.inviteLineAnonymous");
   return (
     <AlertDialog
       open={true}
@@ -176,14 +178,14 @@ export function ProjectInvitePrompt() {
             disabled={accepting}
             data-action-ui-id="project.invite-decline"
           >
-            {t2("project.invite.card.decline")}
+            {translate("project.invite.card.decline")}
           </AlertDialogCancel>
           <AlertDialogAction
             loading={accepting}
             onClick={() => void handleAccept()}
             data-action-ui-id="project.invite-accept"
           >
-            {t2("project.invite.card.accept")}
+            {translate("project.invite.card.accept")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

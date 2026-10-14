@@ -1,25 +1,25 @@
 // video-preview.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getExtFromMime } from "../canvas/separator.jsx";
 import { MediaClipPanel } from "./media-clip-panel.js";
 const getVideoExt = (mime) => getExtFromMime(mime, "mp4");
-function VideoPreview({ engine, state: state2, loading, previewSize }) {
+function VideoPreview({ engine, state, loading, previewSize }) {
   const previewCanvasRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     const canvas = previewCanvasRef.current;
-    if (!canvas || !state2.previewFrame) return;
+    if (!canvas || !state.previewFrame) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const { width, height } = state2.previewFrame;
+    const { width, height } = state.previewFrame;
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
     } else {
       ctx.clearRect(0, 0, width, height);
     }
-    ctx.drawImage(state2.previewFrame, 0, 0);
-  }, [state2.previewFrame]);
+    ctx.drawImage(state.previewFrame, 0, 0);
+  }, [state.previewFrame]);
   reactExports.useEffect(() => {
     if (!engine) return;
     const previewCanvas = previewCanvasRef.current;
@@ -44,13 +44,13 @@ function VideoPreview({ engine, state: state2, loading, previewSize }) {
   let displayW = maxPreviewWidth;
   let displayH = maxPreviewHeight;
   if (previewSize.w > 0 && previewSize.h > 0) {
-    const ar = previewSize.w / previewSize.h;
-    if (ar >= maxPreviewWidth / maxPreviewHeight) {
+    const aspectRatio = previewSize.w / previewSize.h;
+    if (aspectRatio >= maxPreviewWidth / maxPreviewHeight) {
       displayW = maxPreviewWidth;
-      displayH = Math.round(maxPreviewWidth / ar);
+      displayH = Math.round(maxPreviewWidth / aspectRatio);
     } else {
       displayH = maxPreviewHeight;
-      displayW = Math.round(maxPreviewHeight * ar);
+      displayW = Math.round(maxPreviewHeight * aspectRatio);
     }
   }
   return (
@@ -87,7 +87,7 @@ function VideoClipPanelInner({ videoUrl, videoName, onClose, onExport }) {
       });
     }
   }, []);
-  const renderPreview2 = reactExports.useCallback(
+  const renderPreview = reactExports.useCallback(
     (ctx) => <VideoPreview {...ctx} previewSize={previewSize} />,
     [previewSize],
   );
@@ -98,7 +98,7 @@ function VideoClipPanelInner({ videoUrl, videoName, onClose, onExport }) {
       defaultMime="video/mp4"
       onClose={onClose}
       onExport={onExport}
-      renderPreview={renderPreview2}
+      renderPreview={renderPreview}
       onMediaLoaded={handleMediaLoaded}
       getExtFromMime={getVideoExt}
       splitEnabled={true}

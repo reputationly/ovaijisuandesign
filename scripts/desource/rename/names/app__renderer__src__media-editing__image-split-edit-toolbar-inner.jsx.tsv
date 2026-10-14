@@ -1,0 +1,12 @@
+key	new	依据
+disabled2@29:13	disabled	高清放大生成控件是否禁用的布尔属性。
+zoom2@130:9	zoom	React Flow 状态中的画布视口缩放比例。
+offset2@131:9	offset	按缩放比例计算出的工具栏纵向偏移量。
+hasSelection2@132:9	hasSelection	当前是否至少选中一个宫格的布尔值。
+s2@23:23	storeState	React Flow 状态仓库提供的当前视口状态。
+t2@32:14	t	根据当前语言返回宫格工具栏文案的翻译函数。
+m3@57:38	magnificationOption	高清放大倍数列表中的当前选项对象。
+t2@129:14	t	根据当前语言返回宫格工具栏文案的翻译函数。
+e2@145:27	pointerEvent	需要阻止其传播的工具栏指针按下事件。
+e2@146:21	wheelEvent	需要阻止其传播的工具栏滚轮事件。
+e2@147:27	contextMenuEvent	需要阻止其传播的工具栏上下文菜单事件。

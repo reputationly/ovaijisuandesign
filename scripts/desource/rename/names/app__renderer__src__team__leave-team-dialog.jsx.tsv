@@ -1,0 +1,6 @@
+key	new	reason
+t2@46:14	t	useTranslation() 返回的翻译函数 t
+TeamExitResultError2@24:7	TeamExitResultError	去掉打包器加的数字后缀，恢复原名 TeamExitResultError
+TeamScopeChangedError2@23:35	TeamScopeChangedError	去掉打包器加的数字后缀，恢复原名 TeamScopeChangedError
+queryClient2@47:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+option2@74:10	option	去掉打包器加的数字后缀，恢复原名 option

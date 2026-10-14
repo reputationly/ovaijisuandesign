@@ -40,10 +40,10 @@ export function calcInitialScale(totalDuration, containerWidth) {
   const tier = getDurationTier(totalDuration);
   const {
     TRACK_PADDING_H,
-    MIN_SCALE: MIN_SCALE2,
-    MAX_SCALE: MAX_SCALE2,
+    MIN_SCALE,
+    MAX_SCALE,
   } = TIMELINE_CONFIG;
   const availableWidth = containerWidth - TRACK_PADDING_H * 2;
-  const scale2 = (availableWidth * tier.widthMultiplier) / totalDuration;
-  return Math.max(MIN_SCALE2, Math.min(MAX_SCALE2, scale2));
+  const scale = (availableWidth * tier.widthMultiplier) / totalDuration;
+  return Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
 }

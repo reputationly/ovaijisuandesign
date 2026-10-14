@@ -1,10 +1,7 @@
 // reconcile-media-fallback-style.js
 import { MEDIA_FALLBACK_NODE_SIZE } from "../generation/missing-asset-card.jsx";
-import {
-  reactExports,
-  useReactFlow,
-  useStore$3 as useStore,
-} from "../vendor.js";
+import reactExports from "react";
+import { useReactFlow, useStore } from "../vendor-fork/xyflow/react/index.js";
 const constraints = {
   minWidth: MEDIA_FALLBACK_NODE_SIZE.width,
   maxWidth: MEDIA_FALLBACK_NODE_SIZE.width,
@@ -13,62 +10,62 @@ const constraints = {
 };
 const keys = ["minWidth", "maxWidth", "minHeight", "maxHeight"];
 const savedStyles = new WeakMap();
-function reconcileMediaFallbackStyle(style2, active2, saved) {
-  if (!active2 && !saved)
+function reconcileMediaFallbackStyle(style, active, saved) {
+  if (!active && !saved)
     return {
-      style: style2,
+      style,
       saved,
     };
-  const next2 = {
-    ...style2,
+  const next = {
+    ...style,
   };
   const baseline = {
     ...saved,
   };
-  for (const key2 of keys) {
-    if (active2) {
-      if (!saved || style2?.[key2] !== constraints[key2])
-        baseline[key2] = style2?.[key2];
-      next2[key2] = constraints[key2];
-    } else if (style2?.[key2] === constraints[key2]) {
-      if (saved?.[key2] === void 0) delete next2[key2];
-      else next2[key2] = saved[key2];
+  for (const key of keys) {
+    if (active) {
+      if (!saved || style?.[key] !== constraints[key])
+        baseline[key] = style?.[key];
+      next[key] = constraints[key];
+    } else if (style?.[key] === constraints[key]) {
+      if (saved?.[key] === void 0) delete next[key];
+      else next[key] = saved[key];
     }
   }
-  const unchanged = keys.every((key2) => next2[key2] === style2?.[key2]);
+  const unchanged = keys.every((key) => next[key] === style?.[key]);
   return {
-    style: unchanged ? style2 : next2,
-    saved: active2 ? baseline : null,
+    style: unchanged ? style : next,
+    saved: active ? baseline : null,
   };
 }
-export function useMediaFallbackSize(id2, active2) {
+export function useMediaFallbackSize(id, active) {
   const { setNodes } = useReactFlow();
-  const style2 = useStore((state2) => state2.nodeLookup.get(id2)?.style);
+  const style = useStore((state) => state.nodeLookup.get(id)?.style);
   const saved = reactExports.useRef(
-    style2 ? (savedStyles.get(style2) ?? null) : null,
+    style ? (savedStyles.get(style) ?? null) : null,
   );
   reactExports.useLayoutEffect(() => {
-    if (!active2 && !saved.current) return;
+    if (!active && !saved.current) return;
     setNodes((nodes) => {
       let changed = false;
-      const next2 = nodes.map((node2) => {
-        if (node2.id !== id2) return node2;
+      const next = nodes.map((node) => {
+        if (node.id !== id) return node;
         const result = reconcileMediaFallbackStyle(
-          node2.style,
-          active2,
+          node.style,
+          active,
           saved.current,
         );
         saved.current = result.saved;
         if (result.style && result.saved)
           savedStyles.set(result.style, result.saved);
-        if (result.style === node2.style) return node2;
+        if (result.style === node.style) return node;
         changed = true;
         return {
-          ...node2,
+          ...node,
           style: result.style,
         };
       });
-      return changed ? next2 : nodes;
+      return changed ? next : nodes;
     });
-  }, [id2, active2, style2, setNodes]);
+  }, [id, active, style, setNodes]);
 }

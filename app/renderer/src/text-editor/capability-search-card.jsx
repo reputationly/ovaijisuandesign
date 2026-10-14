@@ -1,12 +1,13 @@
 // capability-search-card.jsx
 import { normalizeJsonToolResult } from "../chat/has-structured-success-payload.js";
 import { parseCapabilitySearchResult } from "../infra/parse-capability-search-result.js";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ConnectorCapabilityCard } from "../settings/connector-capability-card.jsx";
 
 export function CapabilitySearchCard({ result, searchCallId }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const actionable = result.matches.filter(
     ({ capability }) => !capability.autoActivated,
   );
@@ -18,7 +19,7 @@ export function CapabilitySearchCard({ result, searchCallId }) {
     >
       {result.partial && (
         <p role="status" className="text-xs text-muted-foreground">
-          {t2("chat.capabilitySearch.connectorsUnavailable")}
+          {t("chat.capabilitySearch.connectorsUnavailable")}
         </p>
       )}
       {actionable.map(({ capability }) => {
@@ -39,8 +40,8 @@ export function CapabilitySearchCard({ result, searchCallId }) {
   );
 }
 
-export function parseCapabilitySearchCardResult(name2, result) {
-  if (name2 !== "hub_capability_search" || !result) return null;
+export function parseCapabilitySearchCardResult(toolName, result) {
+  if (toolName !== "hub_capability_search" || !result) return null;
   try {
     let value = JSON.parse(normalizeJsonToolResult(result));
     if (
@@ -70,10 +71,10 @@ export function parseCapabilitySearchCardResult(name2, result) {
 const RECOMMENDED_SUFFIX_PATTERN =
   /\s*(?:（推荐）|\((?:推荐|recommended)\))\s*$/iu;
 
-export function localizeRecommendedQuestionOptionLabel(label, t2) {
+export function localizeRecommendedQuestionOptionLabel(label, t) {
   if (!RECOMMENDED_SUFFIX_PATTERN.test(label)) return label;
   const baseLabel = label.replace(RECOMMENDED_SUFFIX_PATTERN, "").trimEnd();
-  return t2("chat.question.recommendedLabel", {
+  return t("chat.question.recommendedLabel", {
     label: baseLabel,
   });
 }

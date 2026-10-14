@@ -1,5 +1,5 @@
 // use-asset-picker-host.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useAssetSourcePicker } from "../text-editor/read-preview-text-response.jsx";
 
 export function useAssetPickerHost({ isActive: isActive2, isPresented }) {

@@ -1,5 +1,7 @@
 // account-submission-blocked-host.jsx
-import { ACCOUNT_SUBMISSION_BLOCKED_EVENT, reactExports, useTranslation } from "../vendor.js";
+import { ACCOUNT_SUBMISSION_BLOCKED_EVENT } from "../infra/account-submission.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TeamInviteDeepLinkDialog } from "./team-invite-deep-link-dialog.jsx";
@@ -19,23 +21,23 @@ export function TeamInviteDeepLinkHost() {
       onAcceptingChange={setAccepting}
       onAccepted={handleAccepted}
       onClose={dismissTeamInvite}
-      onError={(message2) => dedupedToast.error(message2)}
+      onError={(message) => dedupedToast.error(message)}
     />
   );
 }
 export function AccountSubmissionBlockedHost() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   reactExports.useEffect(() => {
     const handleBlocked = (event) => {
       const detail = event.detail;
       if (!detail?.kind || !detail.reasonCode) return;
       dedupedToast.warning(
-        t2("team.submission.blocked", {
+        t("team.submission.blocked", {
           defaultValue: "账号状态尚未就绪，暂时无法提交",
         }),
         {
           id: `team-account-submission-${detail.reasonCode}`,
-          description: t2(`team.submission.reason.${detail.reasonCode}`, {
+          description: t(`team.submission.reason.${detail.reasonCode}`, {
             defaultValue: "正在同步团队账号信息，请稍后重试。",
           }),
         },
@@ -47,7 +49,7 @@ export function AccountSubmissionBlockedHost() {
         ACCOUNT_SUBMISSION_BLOCKED_EVENT,
         handleBlocked,
       );
-  }, [t2]);
+  }, [t]);
   return null;
 }
 export function asRecord(value) {
@@ -60,10 +62,10 @@ export function asNullableString(value) {
   return typeof value === "string" && value !== "" ? value : null;
 }
 export function mapAccountProfile(value) {
-  const raw2 = asRecord(value);
+  const raw = asRecord(value);
   return {
-    account: asString(raw2?.account),
-    uid: asString(raw2?.uid),
-    user_name: asString(raw2?.user_name),
+    account: asString(raw?.account),
+    uid: asString(raw?.uid),
+    user_name: asString(raw?.user_name),
   };
 }

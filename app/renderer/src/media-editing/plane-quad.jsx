@@ -1,6 +1,6 @@
 // plane-quad.jsx
 import { project } from "./layer-decompose-prompt.jsx";
-import { CompositedSvg } from "../vendor.js";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function planeQuad(center, width, height, basis) {
   return [
@@ -24,7 +24,7 @@ export function planeQuad(center, width, height, basis) {
       y: center.y + height / 2,
       z: center.z,
     },
-  ].map((point2) => project(point2, basis));
+  ].map((point) => project(point, basis));
 }
 export const ToolResetIcon = ({ className = "" }) => (
   <CompositedSvg

@@ -1,6 +1,6 @@
 // settings-select.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import {
   buildRendererDiagnosticsSnapshot,
   Select,
@@ -12,15 +12,15 @@ import {
   SelectValue,
 } from "../infra/select-content.jsx";
 const DEFAULT_REPORT_INTERVAL_MS = 1e4;
-export function startRendererDiagnosticsReporter(hiloApp2, options = {}) {
+export function startRendererDiagnosticsReporter(hiloApp, options = {}) {
   const intervalMs = options.intervalMs ?? DEFAULT_REPORT_INTERVAL_MS;
-  const schedule2 = options.schedule ?? setInterval;
+  const schedule = options.schedule ?? setInterval;
   const clear = options.clear ?? clearInterval;
   let stopped = false;
   const report = () => {
     if (stopped) return;
     Promise.resolve(
-      hiloApp2.updateRendererDiagnosticsSnapshot(
+      hiloApp.updateRendererDiagnosticsSnapshot(
         buildRendererDiagnosticsSnapshot(),
       ),
     ).catch(() => {});
@@ -37,37 +37,37 @@ export function startRendererDiagnosticsReporter(hiloApp2, options = {}) {
         })
       : void 0);
   report();
-  const timer2 = schedule2(report, intervalMs);
+  const timer = schedule(report, intervalMs);
   return () => {
     stopped = true;
     pressureUnsubscribe?.();
-    clear(timer2);
+    clear(timer);
   };
 }
 const DISABLED_GPU_ATTRIBUTE = "data-hilo-gpu";
 const DISABLED_GPU_REASON_ATTRIBUTE = "data-hilo-gpu-reason";
 const TRANSPARENT_WINDOW_ATTRIBUTE = "data-window-transparent";
 export function applyRenderingModeAttributes(
-  config2,
-  root2 = document.documentElement,
+  config,
+  root = document.documentElement,
 ) {
-  if (config2.transparentWindowActive) {
-    root2.setAttribute(TRANSPARENT_WINDOW_ATTRIBUTE, "true");
+  if (config.transparentWindowActive) {
+    root.setAttribute(TRANSPARENT_WINDOW_ATTRIBUTE, "true");
   } else {
-    root2.removeAttribute(TRANSPARENT_WINDOW_ATTRIBUTE);
+    root.removeAttribute(TRANSPARENT_WINDOW_ATTRIBUTE);
   }
-  if (config2.gpuAccelerationDisabled) {
-    root2.setAttribute(DISABLED_GPU_ATTRIBUTE, "disabled");
-    root2.setAttribute(
+  if (config.gpuAccelerationDisabled) {
+    root.setAttribute(DISABLED_GPU_ATTRIBUTE, "disabled");
+    root.setAttribute(
       DISABLED_GPU_REASON_ATTRIBUTE,
-      config2.gpuAccelerationDisabledReason ?? "unknown",
+      config.gpuAccelerationDisabledReason ?? "unknown",
     );
     return;
   }
-  root2.removeAttribute(DISABLED_GPU_ATTRIBUTE);
-  root2.removeAttribute(DISABLED_GPU_REASON_ATTRIBUTE);
+  root.removeAttribute(DISABLED_GPU_ATTRIBUTE);
+  root.removeAttribute(DISABLED_GPU_REASON_ATTRIBUTE);
 }
-export function SettingGroup({ title, children: children2 }) {
+export function SettingGroup({ title, children }) {
   return (
     <div className="space-y-1.5">
       {title && (
@@ -77,14 +77,14 @@ export function SettingGroup({ title, children: children2 }) {
           </span>
         </div>
       )}
-      {children2}
+      {children}
     </div>
   );
 }
 export function SettingRow({
   label,
   description,
-  children: children2,
+  children,
   className,
 }) {
   return (
@@ -100,7 +100,7 @@ export function SettingRow({
           <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
         )}
       </div>
-      <div className="shrink-0">{children2}</div>
+      <div className="shrink-0">{children}</div>
     </div>
   );
 }
@@ -112,10 +112,10 @@ export function SettingsSelect({
   "data-action-ui-id": actionUiId,
   "aria-label": ariaLabel,
 }) {
-  const selectedOption = options.find((option2) => option2.value === value);
-  const renderOption = (option2) => {
-    if (!option2) return value;
-    const OptionIcon = option2.icon;
+  const selectedOption = options.find((option) => option.value === value);
+  const renderOption = (option) => {
+    if (!option) return value;
+    const OptionIcon = option.icon;
     return (
       <span className="flex min-w-0 items-center gap-1.5">
         {OptionIcon ? (
@@ -126,15 +126,15 @@ export function SettingsSelect({
             className="shrink-0 text-muted-foreground"
           />
         ) : null}
-        <span className="truncate">{option2.label}</span>
+        <span className="truncate">{option.label}</span>
       </span>
     );
   };
   return (
     <Select
       value={value}
-      onValueChange={(v2) => {
-        if (v2 != null) onValueChange(v2);
+      onValueChange={(value) => {
+        if (value != null) onValueChange(value);
       }}
     >
       <SelectTrigger
@@ -166,11 +166,11 @@ export const entriesByWorkspace = new Map();
 function lifetimeKey(instanceId) {
   return instanceId || LEGACY_PERSISTENCE_LIFETIME;
 }
-function getOrCreateWorkspaceEntries(workspaceId2) {
-  const existing = entriesByWorkspace.get(workspaceId2);
+function getOrCreateWorkspaceEntries(workspaceId) {
+  const existing = entriesByWorkspace.get(workspaceId);
   if (existing) return existing;
   const created = new Map();
-  entriesByWorkspace.set(workspaceId2, created);
+  entriesByWorkspace.set(workspaceId, created);
   return created;
 }
 class WorkspaceCanvasPersistenceUnavailableError extends Error {
@@ -193,65 +193,65 @@ function publishPersistenceStatus(entry) {
   entry.reportPromise = promise;
 }
 export function registerWorkspaceCanvasPersistence(
-  workspaceId2,
+  workspaceId,
   instanceId,
   controller,
   reportStatus,
 ) {
-  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId2);
-  const key2 = lifetimeKey(instanceId);
-  const previous2 = workspaceEntries.get(key2);
+  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId);
+  const key = lifetimeKey(instanceId);
+  const previous = workspaceEntries.get(key);
   const entry = {
     controller,
     instanceId,
-    reportPromise: previous2?.reportPromise,
+    reportPromise: previous?.reportPromise,
     reportStatus,
-    reportVersion: previous2?.reportVersion ?? 0,
+    reportVersion: previous?.reportVersion ?? 0,
     // Never let a remount's initial clean state erase an unresolved failure
     // from the same runtime lifetime. Only a durable flush may clear it.
     status:
-      previous2?.status === "clean" || !previous2
+      previous?.status === "clean" || !previous
         ? controller.getStatus()
-        : previous2.status,
+        : previous.status,
   };
-  workspaceEntries.set(key2, entry);
+  workspaceEntries.set(key, entry);
   publishPersistenceStatus(entry);
   return () => {
-    const current2 = workspaceEntries.get(key2);
-    if (current2?.controller !== controller) return;
-    current2.controller = void 0;
-    current2.reportStatus = void 0;
-    if (current2.status === "clean") workspaceEntries.delete(key2);
-    if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId2);
+    const current = workspaceEntries.get(key);
+    if (current?.controller !== controller) return;
+    current.controller = void 0;
+    current.reportStatus = void 0;
+    if (current.status === "clean") workspaceEntries.delete(key);
+    if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId);
   };
 }
 export function reportWorkspaceCanvasPersistence(
-  workspaceId2,
+  workspaceId,
   instanceId,
   status,
 ) {
-  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId2);
-  const key2 = lifetimeKey(instanceId);
-  const entry = workspaceEntries.get(key2);
+  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId);
+  const key = lifetimeKey(instanceId);
+  const entry = workspaceEntries.get(key);
   if (entry) {
     entry.status = status;
     publishPersistenceStatus(entry);
   } else {
-    workspaceEntries.set(key2, {
+    workspaceEntries.set(key, {
       instanceId,
       reportVersion: 0,
       status,
     });
   }
-  if (status === "clean" && !workspaceEntries.get(key2)?.controller) {
-    workspaceEntries.delete(key2);
+  if (status === "clean" && !workspaceEntries.get(key)?.controller) {
+    workspaceEntries.delete(key);
   }
-  if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId2);
+  if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId);
 }
-export async function flushWorkspaceCanvasPersistence(workspaceId2) {
-  const entries2 = entriesByWorkspace.get(workspaceId2);
-  if (!entries2) return [];
-  for (const entry of entries2.values()) {
+export async function flushWorkspaceCanvasPersistence(workspaceId) {
+  const entries = entriesByWorkspace.get(workspaceId);
+  if (!entries) return [];
+  for (const entry of entries.values()) {
     if (entry.controller) {
       await entry.controller.flushAndWaitLatest();
       const controllerStatus = entry.controller.getStatus();
@@ -272,5 +272,5 @@ export async function flushWorkspaceCanvasPersistence(workspaceId2) {
       throw new WorkspaceCanvasPersistenceChangedError();
     }
   }
-  return Array.from(entries2.values(), (entry) => entry.instanceId);
+  return Array.from(entries.values(), (entry) => entry.instanceId);
 }

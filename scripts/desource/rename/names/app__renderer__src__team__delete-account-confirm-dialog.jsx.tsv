@@ -1,0 +1,5 @@
+key	new	reason
+t2@29:14	t	useTranslation() 返回的翻译函数 t
+e2@181:28	changeEvent	onChange 回调收到的事件对象
+message2@102:13	message	去掉打包器加的数字后缀，恢复原名 message
+key2@134:32	key	去掉打包器加的数字后缀，恢复原名 key

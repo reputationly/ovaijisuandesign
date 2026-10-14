@@ -1,0 +1,65 @@
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -24,4 +24,8 @@
+       "default": "./dist/modules/src/index.js"
+-    }
++    },
++    "./dist/modules/shared/bitstream.js": {
++      "import": "./dist/modules/shared/bitstream.js",
++      "default": "./dist/modules/shared/bitstream.js"
++    }
+   },
+   "files": [
+diff --git a/dist/modules/src/codec-data.js b/dist/modules/src/codec-data.js
+index 299349e345d937506ebb9a64d0b39863cbafb0f2..3e0f4d62183a4e1822038eea3c1653c2d37596ad 100644
+--- a/dist/modules/src/codec-data.js
++++ b/dist/modules/src/codec-data.js
+@@ -1103,7 +1103,7 @@ const skipHevcHrdParameters = (bitstream, commonInfPresentFlag, maxNumSubLayersM
+     let nal_hrd_parameters_present_flag = false;
+     let vcl_hrd_parameters_present_flag = false;
+     let sub_pic_hrd_params_present_flag = false;
+-    if (commonInfPresentFlag) {
++    {
+         nal_hrd_parameters_present_flag = bitstream.readBits(1) === 1;
+         vcl_hrd_parameters_present_flag = bitstream.readBits(1) === 1;
+         if (nal_hrd_parameters_present_flag || vcl_hrd_parameters_present_flag) {
+diff --git a/dist/modules/src/isobmff/isobmff-boxes.js b/dist/modules/src/isobmff/isobmff-boxes.js
+index 7623b0fd3cdb6692f8153c062e07c60cdd3a97f5..6335acc4fcc35ead994d7e4cb9ac7d0c0e50288b 100644
+--- a/dist/modules/src/isobmff/isobmff-boxes.js
++++ b/dist/modules/src/isobmff/isobmff-boxes.js
+@@ -157,9 +157,6 @@ const variableUnsignedInt = (value, byteLength) => {
+             byte |= 0x80;
+         }
+         bytes.push(byte);
+-        if (byteLength !== undefined) {
+-            byteLength--;
+-        }
+     } while (remaining > 0 || byteLength);
+     // Reverse the array since we built it backwards
+     return bytes.reverse();
+diff --git a/dist/modules/src/ogg/ogg-muxer.js b/dist/modules/src/ogg/ogg-muxer.js
+index bde2532436668fa54dcbcd36e2f4bcb000b5ab7e..419d8b9370148390919c169230f421fb4ba0e6c4 100644
+--- a/dist/modules/src/ogg/ogg-muxer.js
++++ b/dist/modules/src/ogg/ogg-muxer.js
+@@ -312,7 +312,7 @@ export class OggMuxer extends Muxer {
+         const granulePosition = trackData.currentLacingValues.every(x => x === 255)
+             ? -1 // No packets end on this page
+             : trackData.currentGranulePosition;
+-        setInt64(this.pageView, 6, granulePosition, true); // Granule position
++        setInt64(this.pageView, 6, granulePosition); // Granule position
+         this.pageView.setUint32(14, trackData.serialNumber, true); // Serial number
+         this.pageView.setUint32(18, trackData.pagesWritten, true); // Page sequence number
+         this.pageView.setUint32(22, 0, true); // Checksum placeholder
+diff --git a/dist/modules/src/source.js b/dist/modules/src/source.js
+index a136a180b6663dc9b4e98f0876cb97710ae649c9..ddf6e1855ff514c5fcd1dec3bb8e74111186875f 100644
+--- a/dist/modules/src/source.js
++++ b/dist/modules/src/source.js
+@@ -1020,7 +1020,6 @@ export class ReadableStreamSource extends Source {
+     }
+ }
+ const PREFETCH_PROFILES = {
+-    none: (start, end) => ({ start, end }),
+     fileSystem: (start, end) => {
+         const padding = 2 ** 16;
+         start = Math.floor((start - padding) / padding) * padding;

@@ -1,0 +1,27 @@
+X@11:10	X	CloseIcon	该绑定持有 CloseIcon 所表示的值，按其实际用途命名。
+id2@42:11	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+t2@57:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+a2@61:10	a2	leftGroup	该绑定持有 leftGroup 所表示的值，按其实际用途命名。
+b3@61:14	b3	rightGroup	该绑定持有 rightGroup 所表示的值，按其实际用途命名。
+id2@164:35	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+id2@378:29	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+t2@528:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@571:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@623:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@652:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@780:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+Globe2@5:3	Globe2	Globe2	Lucide 图标的正式名称包含数字，保留其原名。
+Building2@17:3	Building2	Building2	Lucide 图标的正式名称包含数字，保留其原名。
+Input3@26:10	Input3	Input	去掉打包器防重名追加的后缀，恢复原名 Input，即该绑定持有的值。
+list2@96:11	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+tab2@103:11	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+content2@110:11	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+frame2@111:11	frame2	frame	去掉打包器防重名追加的后缀，恢复原名 frame，即该绑定持有的值。
+active2@113:9	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+observer2@121:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+language2@248:39	language2	language	去掉打包器防重名追加的后缀，恢复原名 language，即该绑定持有的值。
+previous2@251:38	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+selected2@258:9	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+index2@261:13	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+previous2@386:54	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+language2@759:9	language2	language	去掉打包器防重名追加的后缀，恢复原名 language，即该绑定持有的值。

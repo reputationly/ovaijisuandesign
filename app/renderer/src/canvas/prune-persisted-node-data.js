@@ -19,43 +19,43 @@ const LEGACY_MULTI_IMAGE_DATA_KEYS = [
 const POPOVER_DRAFT_KEY = "popoverDraft";
 
 function analyzePromptJson(promptJson) {
-  let doc2;
+  let doc;
   try {
-    doc2 = JSON.parse(promptJson);
+    doc = JSON.parse(promptJson);
   } catch {
     return null;
   }
-  if (!doc2 || typeof doc2 !== "object") return null;
+  if (!doc || typeof doc !== "object") return null;
   const ALLOWED_BLOCK_TYPES = new Set(["doc", "paragraph"]);
   let hasRichContent = false;
   const blocks = [];
   const walkInline = (nodes) => {
     let out = "";
-    for (const node2 of nodes) {
-      if (!node2 || typeof node2 !== "object") continue;
-      const n2 = node2;
-      if (n2.type === "text") {
-        if (typeof n2.text === "string") out += n2.text;
+    for (const node of nodes) {
+      if (!node || typeof node !== "object") continue;
+      const inlineNode = node;
+      if (inlineNode.type === "text") {
+        if (typeof inlineNode.text === "string") out += inlineNode.text;
       } else {
         hasRichContent = true;
       }
     }
     return out;
   };
-  const walkBlocks = (node2) => {
-    if (!node2 || typeof node2 !== "object") return;
-    const n2 = node2;
-    if (typeof n2.type === "string" && !ALLOWED_BLOCK_TYPES.has(n2.type)) {
+  const walkBlocks = (node) => {
+    if (!node || typeof node !== "object") return;
+    const blockNode = node;
+    if (typeof blockNode.type === "string" && !ALLOWED_BLOCK_TYPES.has(blockNode.type)) {
       hasRichContent = true;
     }
-    if (!Array.isArray(n2.content)) return;
-    if (n2.type === "doc") {
-      for (const child of n2.content) walkBlocks(child);
+    if (!Array.isArray(blockNode.content)) return;
+    if (blockNode.type === "doc") {
+      for (const child of blockNode.content) walkBlocks(child);
     } else {
-      blocks.push(walkInline(n2.content));
+      blocks.push(walkInline(blockNode.content));
     }
   };
-  walkBlocks(doc2);
+  walkBlocks(doc);
   return {
     text: blocks.join("\n"),
     hasRichContent,
@@ -66,10 +66,10 @@ function prunePopoverDraftEntry(draftVal, nodePrompt) {
   const draftPrompt =
     draftVal && typeof draftVal.prompt === "string" ? draftVal.prompt : void 0;
   if (draftPrompt === void 0 || draftPrompt.trim().length === 0) {
-    const record2 = draftVal;
-    if (record2?.dirty === true) {
+    const record = draftVal;
+    if (record?.dirty === true) {
       const entry = {
-        ...record2,
+        ...record,
       };
       delete entry.prompt;
       delete entry.promptJson;
@@ -109,37 +109,37 @@ function prunePopoverDraftEntry(draftVal, nodePrompt) {
   };
 }
 
-export function prunePersistedNodeData(data2, ctx) {
-  if (!data2 || typeof data2 !== "object") return void 0;
-  const source = data2;
-  let copy2;
+export function prunePersistedNodeData(data, ctx) {
+  if (!data || typeof data !== "object") return void 0;
+  const source = data;
+  let copy;
   const ensureCopy = () => {
-    copy2 ??= {
+    copy ??= {
       ...source,
     };
-    return copy2;
+    return copy;
   };
-  for (const key2 of TRANSIENT_DATA_KEYS) {
-    if (Object.hasOwn(source, key2)) delete ensureCopy()[key2];
+  for (const key of TRANSIENT_DATA_KEYS) {
+    if (Object.hasOwn(source, key)) delete ensureCopy()[key];
   }
-  for (const key2 of LEGACY_MULTI_IMAGE_DATA_KEYS) {
-    if (Object.hasOwn(source, key2)) delete ensureCopy()[key2];
+  for (const key of LEGACY_MULTI_IMAGE_DATA_KEYS) {
+    if (Object.hasOwn(source, key)) delete ensureCopy()[key];
   }
-  for (const key2 of ["assetId", "cloneOf"]) {
-    if (Object.hasOwn(source, key2)) delete ensureCopy()[key2];
+  for (const key of ["assetId", "cloneOf"]) {
+    if (Object.hasOwn(source, key)) delete ensureCopy()[key];
   }
   if (ctx.hasAssetId) {
     const isErrorState = isGenerationErrorStatus(source.status);
-    for (const key2 of ASSET_PROJECTED_DATA_KEYS) {
+    for (const key of ASSET_PROJECTED_DATA_KEYS) {
       if (
         isErrorState &&
-        (key2 === "cloudTraceId" ||
-          key2 === "cloudTaskId" ||
-          key2 === "providerTaskId")
+        (key === "cloudTraceId" ||
+          key === "cloudTaskId" ||
+          key === "providerTaskId")
       ) {
         continue;
       }
-      if (Object.hasOwn(source, key2)) delete ensureCopy()[key2];
+      if (Object.hasOwn(source, key)) delete ensureCopy()[key];
     }
   }
   const rawDraft = source[POPOVER_DRAFT_KEY];
@@ -176,9 +176,9 @@ export function prunePersistedNodeData(data2, ctx) {
       }
     }
   }
-  const result = copy2 ?? source;
-  for (const key2 in result) {
-    if (Object.hasOwn(result, key2)) return result;
+  const result = copy ?? source;
+  for (const key in result) {
+    if (Object.hasOwn(result, key)) return result;
   }
   return void 0;
 }

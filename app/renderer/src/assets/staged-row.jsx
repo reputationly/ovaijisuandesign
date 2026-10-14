@@ -1,21 +1,16 @@
 // staged-row.jsx
-import {
-  API_PATHS,
-  classifyFileType,
-  Loader2,
-  reactExports,
-  Scan,
-  useTranslation,
-  Video,
-  X$7 as X,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { Loader2, Scan, Video, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AudioPlayButton, FileNameLabel } from "./audio-play-button.jsx";
 import { gatewayUrl } from "../infra/gateway-http-error.jsx";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { MediaLightbox } from "./text-preview.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 function useFilePreviewUrl(file) {
   const [preview, setPreview] = reactExports.useState(null);
   reactExports.useEffect(() => {
@@ -30,24 +25,24 @@ function useFilePreviewUrl(file) {
       setPreview(null);
       return;
     }
-    const next2 = URL.createObjectURL(file);
+    const next = URL.createObjectURL(file);
     setPreview({
-      url: next2,
+      url: next,
       media,
     });
-    return () => URL.revokeObjectURL(next2);
+    return () => URL.revokeObjectURL(next);
   }, [file]);
   return preview;
 }
 export function StagedRow({
   entry,
-  onRemove: onRemove2,
+  onRemove,
   onCaptionChange,
   onSetCover,
   isCover,
   coverPreviewSrc,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isBusy = entry.status === "uploading";
   const preview = useFilePreviewUrl(entry.file);
   const [lightboxOpen, setLightboxOpen] = reactExports.useState(false);
@@ -60,7 +55,7 @@ export function StagedRow({
       ? entry.uploaded.kind
       : void 0;
   const effectiveMedia = uploadedMedia ?? preview?.media;
-  const isImage2 = effectiveMedia === "image";
+  const isImage = effectiveMedia === "image";
   const isVideo = effectiveMedia === "video";
   const isAudio = effectiveMedia === "audio";
   const uploadedVideo =
@@ -83,14 +78,14 @@ export function StagedRow({
       data-status={entry.status}
     >
       <div className="relative aspect-[4/3] bg-muted overflow-hidden flex items-center justify-center">
-        {isImage2 && imageSrc ? (
+        {isImage && imageSrc ? (
           <button
             type="button"
             className="absolute inset-0 cursor-zoom-in focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-default"
             onClick={() => setLightboxOpen(true)}
             disabled={isBusy}
             data-action-ui-id="asset-center-staged-attachment-image"
-            aria-label={t2("assetCenter.detail.viewLarge")}
+            aria-label={translate("assetCenter.detail.viewLarge")}
           >
             {failedPreview === imageSrc ? (
               <FileTypeIcon
@@ -116,7 +111,7 @@ export function StagedRow({
             onClick={() => setLightboxOpen(true)}
             disabled={isBusy}
             data-action-ui-id="asset-center-staged-attachment-video"
-            aria-label={t2("assetCenter.detail.viewLarge")}
+            aria-label={translate("assetCenter.detail.viewLarge")}
           >
             {uploadedVideoPosterSrc ? (
               failedPreview === uploadedVideoPosterSrc ? (
@@ -175,7 +170,7 @@ export function StagedRow({
             <Loader2 size={16} className="animate-spin text-foreground" />
           </div>
         )}
-        {entry.status === "uploaded" && isImage2 && imageSrc && onSetCover ? (
+        {entry.status === "uploaded" && isImage && imageSrc && onSetCover ? (
           <Button
             variant="secondary"
             size="xs"
@@ -188,19 +183,19 @@ export function StagedRow({
             data-action-ui-id="asset-center-attachment-set-cover"
           >
             <Icon icon={Scan} size="xs" strokeWidth={2} />
-            {t2(isCover ? "assetCenter.cover.edit" : "assetCenter.cover.set")}
+            {translate(isCover ? "assetCenter.cover.edit" : "assetCenter.cover.set")}
           </Button>
         ) : null}
         <Button
           variant="ghost"
           size="icon-xs"
           className="absolute top-1 right-1 h-5 w-5 bg-background/60 text-muted-foreground hover:text-destructive hover:bg-background/80"
-          onClick={onRemove2}
+          onClick={onRemove}
           disabled={isBusy}
           data-action-ui-id="asset-center-add-entity-staged-remove"
-          aria-label={t2("common.remove")}
+          aria-label={translate("common.remove")}
         >
-          <X size={10} />
+          <CloseIcon size={10} />
         </Button>
       </div>
       <div className="flex flex-col gap-1 p-2">
@@ -216,7 +211,7 @@ export function StagedRow({
               entry.status === "pending" && "text-muted-foreground/60",
             )}
           >
-            {t2(`assetCenter.create.uploadStatus.${entry.status}`)}
+            {translate(`assetCenter.create.uploadStatus.${entry.status}`)}
           </span>
         </div>
         {(entry.status === "uploaded" || entry.status === "staged") && (
@@ -224,8 +219,8 @@ export function StagedRow({
             <div className="w-0.5 h-3 shrink-0 bg-muted-foreground/20 mr-2 mt-0.5" />
             <textarea
               value={entry.caption ?? ""}
-              onChange={(e2) => onCaptionChange?.(e2.target.value)}
-              placeholder={t2(
+              onChange={(changeEvent) => onCaptionChange?.(changeEvent.target.value)}
+              placeholder={translate(
                 "assetCenter.create.attachmentCaptionPlaceholder",
               )}
               rows={1}

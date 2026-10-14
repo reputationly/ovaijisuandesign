@@ -1,6 +1,68 @@
 // debug-panel-dialog.jsx
-import { createLucideIcon, useTranslation, useNavigate, reactExports, jsxRuntimeExports, ArrowUpRight$1 as ArrowUpRight, Brain$1 as Brain, Zap$1 as Zap, FileText$1 as FileText, Search$1 as Search, PencilRuler$1 as PencilRuler, Video$1 as Video, AudioLines$1 as AudioLines, CircleAlert$1 as CircleAlert, SquareMousePointer$1 as SquareMousePointer, Sparkles$1 as Sparkles, Cog$1 as Cog, Loader2, Plus, AlertCircle, findHcpConnector, connectorPromptActionLabelKey, Plus$1, connectorSummaryActionLabelKey, resolveConnectorIcon, Trash2$1 as Trash2, usePlatform, Check$1 as Check, RotateCcw$1 as RotateCcw, ArrowRight$1 as ArrowRight, House, ArrowUp$1 as ArrowUp, Smartphone$1 as Smartphone, Users$1 as Users, LoaderCircle$1 as LoaderCircle, TriangleAlert$1 as TriangleAlert, UserRound$1 as UserRound, ChevronRight$2 as ChevronRight, minCreditAmount, X$8 as X, Clock3$1 as Clock3, Crown$1 as Crown, ShieldCheck$1 as ShieldCheck, CircleCheck, CircleX$1 as CircleX, Settings2$1 as Settings2, Link2$1 as Link2, Copy$1 as Copy, ChevronLeft$1 as ChevronLeft, CircleUserRound$1 as CircleUserRound, Bell$1 as Bell, useStorage, getRuntimeConfig, DialogPortal$2 as DialogPortal, DialogBackdrop, DialogPopup, Wrench$1 as Wrench, Activity, PlaybackPlayIcon$1 as PlaybackPlayIcon, Eye$1 as Eye, History$1 as History, Megaphone$1 as Megaphone, ShieldAlert$1 as ShieldAlert, Clipboard, Upload$1 as Upload, Network$1 as Network, WifiOff$1 as WifiOff, Bug$1 as Bug, GLOBAL_STORAGE_VERSION } from "../vendor.js";
-import { Button, cn$2 as cn, DialogHeader, dialogChromeButtonClassName, AlertDialog, Dialog, DialogContent } from "../infra/dialog-content.jsx";
+import {
+  createLucideIcon,
+  ArrowUpRight,
+  Brain,
+  Zap,
+  FileText,
+  Search,
+  PencilRuler,
+  Video,
+  AudioLines,
+  CircleAlert,
+  SquareMousePointer,
+  Sparkles,
+  Cog,
+  Trash2,
+  Check,
+  RotateCcw,
+  ArrowRight,
+  House,
+  ArrowUp,
+  Smartphone,
+  Users,
+  LoaderCircle,
+  TriangleAlert,
+  UserRound,
+  ChevronRight,
+  X,
+  Clock3,
+  Crown,
+  ShieldCheck,
+  CircleCheck,
+  CircleX,
+  Settings2,
+  Link2,
+  Copy,
+  ChevronLeft,
+  CircleUserRound,
+  Bell,
+  Wrench,
+  Activity,
+  Eye,
+  History,
+  Megaphone,
+  ShieldAlert,
+  Clipboard,
+  Upload,
+  Network,
+  WifiOff,
+  Bug,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { usePlatform } from "../infra/platform-context.js";
+import { minCreditAmount } from "../team/credit-display.js";
+import { getRuntimeConfig, GLOBAL_STORAGE_VERSION } from "../infra/runtime-config.js";
+import { Loader2, Plus, AlertCircle, Plus$1 as PlusIcon } from "../media-editing/lucide-icon-wraps.js";
+import { findHcpConnector, resolveConnectorIcon } from "../skills/connectors/hcp-catalog.js";
+import { connectorPromptActionLabelKey, connectorSummaryActionLabelKey } from "../skills/connectors/connector-market.js";
+import { useStorage } from "../infra/use-storage.js";
+import { DialogPortal$2 as DialogPortal, DialogBackdrop, DialogPopup } from "../infra/base-ui.js";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
+import { Button, mergeTailwindClasses as mergeClassNames, DialogHeader, dialogChromeButtonClassName, AlertDialog, Dialog, DialogContent } from "../infra/dialog-content.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { ErrorMessage } from "../team/error-message.jsx";
 import { ImageOutlineIcon, Download } from "../media-editing/package.jsx";
@@ -55,7 +117,7 @@ import { clearMutesForUser } from "../settings/use-auto-announcement.js";
 import { clearTrialGrantedForUser } from "../settings/clear-trial-granted-for-user.js";
 import { ErrorFallbackUI } from "../infra/error-fallback-ui.jsx";
 import { BundleErrorScreen } from "../infra/bundle-error-screen.jsx";
-import { E as ERROR_CARD_PREVIEW_MESSAGES } from "../error-card-fixtures-GXqelGnw.js";
+import { E as ERROR_CARD_PREVIEW_MESSAGES } from "../error-card-fixtures.js";
 import {
   buildConnectorCatalog,
   isWebApiConnector,
@@ -342,15 +404,15 @@ const TABS = [
   },
 ];
 function ChatPreviewSection({ onNavigateAway } = {}) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const navigate = useNavigate();
-  const [tab, setTab] = reactExports.useState("message");
+  const [activeTab, setActiveTab] = reactExports.useState("message");
   return (
     <section className="rounded-md border border-border/70 bg-background">
       <div className="border-b border-border/70 px-4 py-3">
         <div className="flex items-center justify-between gap-3">
           <div className="text-sm font-medium">
-            {t("debugPanel.chatPreview.title", "Chat Preview")}
+            {translate("debugPanel.chatPreview.title", "Chat Preview")}
           </div>
           <Button
             variant="outline"
@@ -361,15 +423,15 @@ function ChatPreviewSection({ onNavigateAway } = {}) {
               void navigate({
                 to: "/debug/chat-case",
                 search: {
-                  case: tab === "error" ? "generation-errors" : void 0,
+                  case: activeTab === "error" ? "generation-errors" : void 0,
                 },
               });
             }}
             className="shrink-0 gap-1"
           >
-            {tab === "error"
-              ? t("debug.generationFailureReplay.open")
-              : t(
+            {activeTab === "error"
+              ? translate("debug.generationFailureReplay.open")
+              : translate(
                   "debug.chatCase.conversationSubtitle",
                   "Complete conversation case",
                 )}
@@ -377,7 +439,7 @@ function ChatPreviewSection({ onNavigateAway } = {}) {
           </Button>
         </div>
         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-          {t(
+          {translate(
             "debugPanel.chatPreview.description",
             "chat 渲染元件预览面板。不打 gateway,用 fixture 数据可视化 FileChip / Sub-Agent header / category icons / message 型态,验证 token 与灰阶。",
           )}
@@ -389,10 +451,10 @@ function ChatPreviewSection({ onNavigateAway } = {}) {
             key={entry.key}
             type="button"
             data-action-ui-id={`debug.chat-preview.tab.${entry.key}`}
-            onClick={() => setTab(entry.key)}
-            className={cn(
+            onClick={() => setActiveTab(entry.key)}
+            className={mergeClassNames(
               "rounded-sm px-2 py-1 text-xs transition-colors",
-              tab === entry.key
+              activeTab === entry.key
                 ? "bg-foreground text-background"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
@@ -402,11 +464,11 @@ function ChatPreviewSection({ onNavigateAway } = {}) {
         ))}
       </div>
       <div className="px-4 py-4">
-        {tab === "message" && <MessageTypePanel />}
-        {tab === "error" && <ErrorCardPanel />}
-        {tab === "category" && <CategoryIconPanel />}
-        {tab === "subagent" && <SubAgentHeaderPanel />}
-        {tab === "filechip" && <FileChipPanel />}
+        {activeTab === "message" && <MessageTypePanel />}
+        {activeTab === "error" && <ErrorCardPanel />}
+        {activeTab === "category" && <CategoryIconPanel />}
+        {activeTab === "subagent" && <SubAgentHeaderPanel />}
+        {activeTab === "filechip" && <FileChipPanel />}
       </div>
     </section>
   );
@@ -623,7 +685,7 @@ function SubAgentHeaderPanel() {
                 <span className="text-muted-foreground font-normal truncate">
                   {kind}
                 </span>
-                <span className={cn("truncate", state.cls)}>{state.label}</span>
+                <span className={mergeClassNames("truncate", state.cls)}>{state.label}</span>
               </div>
             ))}
           </div>
@@ -732,7 +794,7 @@ function HostAppStatusIcon({ connectorId, state }) {
       <ConnectorIcon
         iconUrl={iconUrl}
         size="detail"
-        className={cn(
+        className={mergeClassNames(
           "size-12",
           isUnconfirmed &&
             "border border-dashed border-border-strong bg-muted text-foreground [&>img]:grayscale [&>img]:opacity-50 [&>svg]:opacity-50",
@@ -764,7 +826,7 @@ function LocalConnectorQuickSetup({
   onOpenDetails,
   onDismiss,
 }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const open = controlledOpen ?? hasPopoverContent(state);
   const checking = state === "checking";
   const content = hasPopoverContent(state) ? contentKeys[state] : void 0;
@@ -803,10 +865,10 @@ function LocalConnectorQuickSetup({
             disabled={disabled || (state === "installing" && !onOpen)}
             aria-label={
               checking
-                ? t("connectors.quick.checkingAria", {
+                ? translate("connectors.quick.checkingAria", {
                     name: connectorName,
                   })
-                : t("connectors.addAria", {
+                : translate("connectors.addAria", {
                     name: connectorName,
                   })
             }
@@ -847,13 +909,13 @@ function LocalConnectorQuickSetup({
             <HostAppStatusIcon connectorId={connectorId} state={state} />
             <PopoverHeader className="w-full min-w-0 text-left">
               <PopoverTitle>
-                {t(content.title, {
+                {translate(content.title, {
                   name: connectorName,
                 })}
               </PopoverTitle>
               <PopoverDescription>
                 {errorMessage ??
-                  t(content.description, {
+                  translate(content.description, {
                     name: connectorName,
                   })}
               </PopoverDescription>
@@ -877,7 +939,7 @@ function LocalConnectorQuickSetup({
                     aria-hidden={true}
                   />
                 ) : null}
-                {t(installLabelKey)}
+                {translate(installLabelKey)}
               </Button>
             ) : null}
             {canCheckAgain ? (
@@ -889,7 +951,7 @@ function LocalConnectorQuickSetup({
                 data-action-ui-id={`connectors-quick-retry-${connectorId}`}
               >
                 <RetryIcon size={14} aria-hidden={true} />
-                {t(checkAgainLabelKey)}
+                {translate(checkAgainLabelKey)}
               </Button>
             ) : null}
             <Button
@@ -908,7 +970,7 @@ function LocalConnectorQuickSetup({
                   aria-hidden={true}
                 />
               ) : null}
-              {t("connectors.quick.viewSetup")}
+              {translate("connectors.quick.viewSetup")}
             </Button>
           </div>
         </PopoverContent>
@@ -1132,12 +1194,12 @@ const STATUS_DEFAULTS = {
     promptMode: "requiresInstall",
   },
 };
-function PreviewSelectField({ id, label, value, options, onValueChange }) {
+function PreviewSelectField({ id: fieldId, label, value, options, onValueChange }) {
   const selectedLabel =
     options.find((option) => option.value === value)?.label ?? value;
   return (
     <div className="min-w-0 space-y-1.5">
-      <Label htmlFor={id} className="text-xs font-normal text-muted-foreground">
+      <Label htmlFor={fieldId} className="text-xs font-normal text-muted-foreground">
         {label}
       </Label>
       <Select
@@ -1147,9 +1209,9 @@ function PreviewSelectField({ id, label, value, options, onValueChange }) {
         }}
       >
         <SelectTrigger
-          id={id}
+          id={fieldId}
           className="h-8 w-full min-w-0 bg-card text-xs"
-          data-action-ui-id={id}
+          data-action-ui-id={fieldId}
         >
           <SelectValue>{() => selectedLabel}</SelectValue>
         </SelectTrigger>
@@ -1165,7 +1227,7 @@ function PreviewSelectField({ id, label, value, options, onValueChange }) {
   );
 }
 function PreviewStatusPill({ status }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   if (
     status === "notConnected" ||
     status === "connected" ||
@@ -1209,7 +1271,7 @@ function PreviewStatusPill({ status }) {
     },
   };
   const current = visual[status];
-  const label = t(current.labelKey);
+  const label = translate(current.labelKey);
   return (
     <IntegrationStatusPill
       label={label}
@@ -1221,7 +1283,7 @@ function PreviewStatusPill({ status }) {
   );
 }
 function PreviewManagementActions({ mode, onAction }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   if (
     mode === "connect" ||
     mode === "install" ||
@@ -1231,7 +1293,7 @@ function PreviewManagementActions({ mode, onAction }) {
     return (
       <ConnectorSummaryAction
         mode={mode}
-        label={t(connectorSummaryActionLabelKey[mode])}
+        label={translate(connectorSummaryActionLabelKey[mode])}
         onClick={() => onAction?.(mode)}
       />
     );
@@ -1241,7 +1303,7 @@ function PreviewManagementActions({ mode, onAction }) {
     return (
       <ConnectorSummaryAction
         mode={actionMode}
-        label={t(
+        label={translate(
           mode === "connecting"
             ? "connectors.detail.connecting"
             : "connectors.connector.state.installing",
@@ -1265,13 +1327,13 @@ function PreviewManagementActions({ mode, onAction }) {
           className="bg-transparent"
           onClick={() => onAction?.("retry")}
         >
-          {t("common.retry")}
+          {translate("common.retry")}
         </IntegrationActionButton>
       ) : null}
       <IntegrationLifecycleToggleButton
         inactive={inactive}
-        activeLabel={t("connectors.stop")}
-        inactiveLabel={t("connectors.start")}
+        activeLabel={translate("connectors.stop")}
+        inactiveLabel={translate("connectors.start")}
         loading={loading}
         className="w-auto min-w-20 max-w-none px-3"
         onClick={() => onAction?.(inactive ? "start" : "disconnect")}
@@ -1279,8 +1341,8 @@ function PreviewManagementActions({ mode, onAction }) {
       <IntegrationMoreMenu
         disabled={loading}
         triggerClassName="bg-transparent"
-        triggerLabel={t("common.more")}
-        actionLabel={t("connectors.removeConnection")}
+        triggerLabel={translate("common.more")}
+        actionLabel={translate("connectors.removeConnection")}
         actionIcon={
           <Icon icon={Trash2} size="sm" strokeWidth={1.5} aria-hidden={true} />
         }
@@ -1296,7 +1358,7 @@ function PreviewManagementActions({ mode, onAction }) {
   );
 }
 function ConnectorPreviewCard({ application, selection, onOpen, onAction }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: mirrors the production connector card
     <article
@@ -1317,32 +1379,32 @@ function ConnectorPreviewCard({ application, selection, onOpen, onAction }) {
         </div>
       </div>
       <ConnectorCardContent
-        title={t(application.titleKey)}
-        description={t(application.descriptionKey)}
+        title={translate(application.titleKey)}
+        description={translate(application.descriptionKey)}
         status={<PreviewStatusPill status={selection.status} />}
       />
     </article>
   );
 }
 function ConnectorPreviewDialog({ selection, onClose }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const application =
     PREVIEW_APPLICATIONS.find(
       (candidate) => candidate.id === selection.applicationId,
     ) ?? PREVIEW_APPLICATIONS[0];
-  const applicationTitle = t(application.titleKey);
+  const applicationTitle = translate(application.titleKey);
   const title =
     selection.contentProfile === "stress"
-      ? t("debugPanel.connectorPreview.stressTitle", {
+      ? translate("debugPanel.connectorPreview.stressTitle", {
           name: applicationTitle,
         })
       : applicationTitle;
   const description =
     selection.contentProfile === "minimal"
-      ? t("debugPanel.connectorPreview.minimalDescription")
+      ? translate("debugPanel.connectorPreview.minimalDescription")
       : selection.contentProfile === "stress"
-        ? t("debugPanel.connectorPreview.stressDescription")
-        : t(application.descriptionKey);
+        ? translate("debugPanel.connectorPreview.stressDescription")
+        : translate(application.descriptionKey);
   const promptCount = selection.contentProfile === "minimal" ? 1 : 3;
   const promptDisabled =
     selection.status === "connecting" ||
@@ -1363,24 +1425,24 @@ function ConnectorPreviewDialog({ selection, onClose }) {
     {
       length: hasExamplePrompts ? promptCount : 0,
     },
-    (_, index) => {
+    (unusedEntry, index) => {
       const titleKey = application.promptTitleKeys?.[index];
       const promptTitle =
         selection.contentProfile === "stress"
-          ? t("debugPanel.connectorPreview.stressPromptTitle", {
+          ? translate("debugPanel.connectorPreview.stressPromptTitle", {
               index: index + 1,
             })
           : selection.contentProfile === "actual" && titleKey
-            ? t(titleKey)
+            ? translate(titleKey)
             : void 0;
       const promptDescription =
         selection.contentProfile === "minimal"
-          ? t("debugPanel.connectorPreview.minimalPrompt")
+          ? translate("debugPanel.connectorPreview.minimalPrompt")
           : selection.contentProfile === "stress"
-            ? t("debugPanel.connectorPreview.stressPrompt", {
+            ? translate("debugPanel.connectorPreview.stressPrompt", {
                 index: index + 1,
               })
-            : t(promptKeys[index] ?? promptKeys[0]);
+            : translate(promptKeys[index] ?? promptKeys[0]);
       return {
         key: `${selection.contentProfile}-${application.id}-${index}`,
         title: promptTitle,
@@ -1389,7 +1451,7 @@ function ConnectorPreviewDialog({ selection, onClose }) {
         action: (
           <ConnectorPromptAction
             mode={selection.promptMode}
-            label={t(connectorPromptActionLabelKey[selection.promptMode])}
+            label={translate(connectorPromptActionLabelKey[selection.promptMode])}
             disabled={promptDisabled}
             onClick={() => void 0}
             data-action-ui-id="debug.connector-preview.prompt-action"
@@ -1404,7 +1466,7 @@ function ConnectorPreviewDialog({ selection, onClose }) {
       onOpenChange={(nextOpen) => !nextOpen && onClose()}
       actionUiId="debug.connector-preview.dialog"
       closeActionUiId="debug.connector-preview.close"
-      closeLabel={t("common.close")}
+      closeLabel={translate("common.close")}
       size="md"
       stableHeight={hasExamplePrompts}
     >
@@ -1422,7 +1484,7 @@ function ConnectorPreviewDialog({ selection, onClose }) {
                 {selection.status === "connected" ? (
                   <ConnectorSummaryAction
                     mode="try"
-                    label={t(connectorSummaryActionLabelKey.try)}
+                    label={translate(connectorSummaryActionLabelKey.try)}
                     onClick={() => void 0}
                     data-action-ui-id="debug.connector-preview.use-in-chat"
                   />
@@ -1433,7 +1495,7 @@ function ConnectorPreviewDialog({ selection, onClose }) {
           >
             {showInstallPrerequisite ? (
               <ConnectorDetailNotice
-                description={t("connectors.connector.installHint", {
+                description={translate("connectors.connector.installHint", {
                   name: applicationTitle,
                 })}
                 tone="warning"
@@ -1442,7 +1504,7 @@ function ConnectorPreviewDialog({ selection, onClose }) {
             ) : null}
             {showBlenderSetup ? (
               <ConnectorSetupSection
-                title={t("connectors.blender.location.title")}
+                title={translate("connectors.blender.location.title")}
                 actionUiId="debug.connector-preview.setup-card"
               >
                 <div
@@ -1456,7 +1518,7 @@ function ConnectorPreviewDialog({ selection, onClose }) {
                     className="min-w-0 flex-1 justify-start font-normal"
                   >
                     <LocalFolderIcon />
-                    {t("connectors.blender.location.choose")}
+                    {translate("connectors.blender.location.choose")}
                   </Button>
                   <Button
                     type="button"
@@ -1464,20 +1526,20 @@ function ConnectorPreviewDialog({ selection, onClose }) {
                     variant="ghost"
                     className="shrink-0 font-normal"
                   >
-                    {t("connectors.blender.location.auto")}
+                    {translate("connectors.blender.location.auto")}
                   </Button>
                 </div>
                 <p className="mt-2 break-all rounded-md bg-secondary/60 px-2.5 py-2 font-mono text-[11px] leading-relaxed text-muted-foreground">
                   Blender 5.1 · …/Blender/5.1/scripts/addons
                 </p>
                 <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-                  {t("connectors.blender.location.hint")}
+                  {translate("connectors.blender.location.hint")}
                 </p>
               </ConnectorSetupSection>
             ) : null}
             {selection.status === "installFailed" ? (
               <ConnectorDetailNotice
-                description={t("debugPanel.connectorPreview.installFailed")}
+                description={translate("debugPanel.connectorPreview.installFailed")}
                 tone="error"
                 actionUiId="debug.connector-preview.install-error"
               />
@@ -1486,12 +1548,12 @@ function ConnectorPreviewDialog({ selection, onClose }) {
         </div>
         {hasExamplePrompts ? (
           <ConnectorPromptList
-            title={t(
+            title={translate(
               selection.status === "connected"
                 ? "connectors.detail.trySection"
                 : "connectors.detail.previewSection",
             )}
-            description={t(
+            description={translate(
               selection.status === "connected"
                 ? "connectors.detail.tryDescription"
                 : "connectors.detail.previewDescription",
@@ -1505,7 +1567,7 @@ function ConnectorPreviewDialog({ selection, onClose }) {
   );
 }
 function ConnectorPreviewSection() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [selection, setSelection] = reactExports.useState({
     applicationId: "blender",
     entryType: "local-app",
@@ -1546,18 +1608,18 @@ function ConnectorPreviewSection() {
       status === "needs_auth" ||
       status === "disabled"
     ) {
-      return t(`connectors.runtimeState.${status}`);
+      return translate(`connectors.runtimeState.${status}`);
     }
-    if (status === "removing") return t("connectors.detail.disconnecting");
-    if (status === "connecting") return t("connectors.detail.connecting");
+    if (status === "removing") return translate("connectors.detail.disconnecting");
+    if (status === "connecting") return translate("connectors.detail.connecting");
     if (status === "installFailed")
-      return t("debugPanel.connectorPreview.installFailedState");
+      return translate("debugPanel.connectorPreview.installFailedState");
     const localState = {
       notInstalled: "not_installed",
       checking: "checking",
       installing: "installing",
     };
-    return t(`connectors.connector.state.${localState[status]}`);
+    return translate(`connectors.connector.state.${localState[status]}`);
   };
   const summaryModeLabel = (mode) => {
     if (
@@ -1566,9 +1628,9 @@ function ConnectorPreviewSection() {
       mode === "reinstall" ||
       mode === "try"
     ) {
-      return t(connectorSummaryActionLabelKey[mode]);
+      return translate(connectorSummaryActionLabelKey[mode]);
     }
-    return t(`debugPanel.connectorPreview.summary.${mode}`);
+    return translate(`debugPanel.connectorPreview.summary.${mode}`);
   };
   const applicationsForEntryType = PREVIEW_APPLICATIONS.filter((candidate) =>
     candidate.entryTypes.includes(selection.entryType),
@@ -1600,20 +1662,20 @@ function ConnectorPreviewSection() {
       >
         <div className="border-b border-border/70 px-4 py-3">
           <div className="text-sm font-medium">
-            {t("debugPanel.connectorPreview.title")}
+            {translate("debugPanel.connectorPreview.title")}
           </div>
           <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-            {t("debugPanel.connectorPreview.description")}
+            {translate("debugPanel.connectorPreview.description")}
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3 px-4 py-3">
           <PreviewSelectField
             id="debug.connector-preview.entry-type"
-            label={t("debugPanel.connectorPreview.entryType")}
+            label={translate("debugPanel.connectorPreview.entryType")}
             value={selection.entryType}
             options={PREVIEW_ENTRY_TYPES.map((entryType) => ({
               value: entryType,
-              label: t(`debugPanel.connectorPreview.entry.${entryType}`),
+              label: translate(`debugPanel.connectorPreview.entry.${entryType}`),
             }))}
             onValueChange={(entryType) => {
               const nextEntryType = entryType;
@@ -1638,11 +1700,11 @@ function ConnectorPreviewSection() {
           />
           <PreviewSelectField
             id="debug.connector-preview.quick-state"
-            label={t("debugPanel.connectorPreview.quickState")}
+            label={translate("debugPanel.connectorPreview.quickState")}
             value={selection.quickSetupState}
             options={PREVIEW_QUICK_SETUP_STATES.map((state) => ({
               value: state,
-              label: t(`debugPanel.connectorPreview.quick.${state}`),
+              label: translate(`debugPanel.connectorPreview.quick.${state}`),
             }))}
             onValueChange={(quickSetupState) =>
               setSelection((current) => ({
@@ -1653,11 +1715,11 @@ function ConnectorPreviewSection() {
           />
           <PreviewSelectField
             id="debug.connector-preview.application"
-            label={t("debugPanel.connectorPreview.application")}
+            label={translate("debugPanel.connectorPreview.application")}
             value={selection.applicationId}
-            options={applicationsForEntryType.map((application2) => ({
-              value: application2.id,
-              label: t(application2.titleKey),
+            options={applicationsForEntryType.map((application) => ({
+              value: application.id,
+              label: translate(application.titleKey),
             }))}
             onValueChange={(applicationId) =>
               setSelection((current) => ({
@@ -1668,7 +1730,7 @@ function ConnectorPreviewSection() {
           />
           <PreviewSelectField
             id="debug.connector-preview.status"
-            label={t("debugPanel.connectorPreview.status")}
+            label={translate("debugPanel.connectorPreview.status")}
             value={selection.status}
             options={PREVIEW_STATUSES.map((status) => ({
               value: status,
@@ -1678,7 +1740,7 @@ function ConnectorPreviewSection() {
           />
           <PreviewSelectField
             id="debug.connector-preview.summary-action"
-            label={t("debugPanel.connectorPreview.summaryAction")}
+            label={translate("debugPanel.connectorPreview.summaryAction")}
             value={selection.summaryMode}
             options={PREVIEW_SUMMARY_MODES.map((mode) => ({
               value: mode,
@@ -1693,11 +1755,11 @@ function ConnectorPreviewSection() {
           />
           <PreviewSelectField
             id="debug.connector-preview.prompt-action"
-            label={t("debugPanel.connectorPreview.promptAction")}
+            label={translate("debugPanel.connectorPreview.promptAction")}
             value={selection.promptMode}
             options={PREVIEW_PROMPT_MODES.map((mode) => ({
               value: mode,
-              label: t(connectorPromptActionLabelKey[mode]),
+              label: translate(connectorPromptActionLabelKey[mode]),
             }))}
             onValueChange={(promptMode) =>
               setSelection((current) => ({
@@ -1709,11 +1771,11 @@ function ConnectorPreviewSection() {
           <div className="col-span-2">
             <PreviewSelectField
               id="debug.connector-preview.content-profile"
-              label={t("debugPanel.connectorPreview.contentProfile")}
+              label={translate("debugPanel.connectorPreview.contentProfile")}
               value={selection.contentProfile}
               options={PREVIEW_CONTENT_PROFILES.map((profile) => ({
                 value: profile,
-                label: t(`debugPanel.connectorPreview.content.${profile}`),
+                label: translate(`debugPanel.connectorPreview.content.${profile}`),
               }))}
               onValueChange={(contentProfile) =>
                 setSelection((current) => ({
@@ -1725,7 +1787,7 @@ function ConnectorPreviewSection() {
           </div>
           <div className="col-span-2 space-y-1.5">
             <Label className="text-xs font-normal text-muted-foreground">
-              {t("debugPanel.connectorPreview.cardPreview")}
+              {translate("debugPanel.connectorPreview.cardPreview")}
             </Label>
             <ConnectorPreviewCard
               application={application}
@@ -1736,7 +1798,7 @@ function ConnectorPreviewSection() {
           </div>
           <div className="col-span-2 space-y-1.5">
             <Label className="text-xs font-normal text-muted-foreground">
-              {t("debugPanel.connectorPreview.quickEntry")}
+              {translate("debugPanel.connectorPreview.quickEntry")}
             </Label>
             <div className="flex items-center gap-3 rounded-lg bg-secondary/60 p-3">
               <ConnectorIcon
@@ -1750,11 +1812,11 @@ function ConnectorPreviewSection() {
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium text-foreground">
                   {selection.entryType === "local-app"
-                    ? t("connectors.catalog.blender.title")
-                    : t("connectors.catalog.apify.title")}
+                    ? translate("connectors.catalog.blender.title")
+                    : translate("connectors.catalog.apify.title")}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
-                  {t(
+                  {translate(
                     `debugPanel.connectorPreview.entryHint.${selection.entryType}`,
                   )}
                 </div>
@@ -1762,11 +1824,11 @@ function ConnectorPreviewSection() {
               {selection.entryType === "local-app" ? (
                 <LocalConnectorQuickSetup
                   connectorId="debug-preview"
-                  connectorName={t("connectors.catalog.blender.title")}
+                  connectorName={translate("connectors.catalog.blender.title")}
                   state={selection.quickSetupState}
                   errorMessage={
                     selection.quickSetupState === "error"
-                      ? t("debugPanel.connectorPreview.quickError")
+                      ? translate("debugPanel.connectorPreview.quickError")
                       : void 0
                   }
                   onCheck={() =>
@@ -1794,15 +1856,15 @@ function ConnectorPreviewSection() {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  aria-label={t("connectors.addAria", {
-                    name: t("connectors.catalog.apify.title"),
+                  aria-label={translate("connectors.addAria", {
+                    name: translate("connectors.catalog.apify.title"),
                   })}
                   onClick={() => setWebApiPreviewOpen(true)}
                   className="size-10 rounded-[10px] bg-secondary text-foreground hover:bg-popup-item-active hover:text-foreground"
                   data-action-ui-id="debug.connector-preview.web-api-entry"
                 >
                   <Icon
-                    icon={Plus$1}
+                    icon={PlusIcon}
                     size="md"
                     strokeWidth={1.5}
                     aria-hidden={true}
@@ -1819,7 +1881,7 @@ function ConnectorPreviewSection() {
             onClick={() => setPreviewSelection(selection)}
             data-action-ui-id="debug.connector-preview.open"
           >
-            {t("debugPanel.connectorPreview.open")}
+            {translate("debugPanel.connectorPreview.open")}
           </Button>
         </div>
       </section>
@@ -1843,7 +1905,7 @@ function ConnectorPreviewSection() {
   );
 }
 function DevAuthBrowserCard() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   usePlatform();
   const { config } = useSettings();
   const [saving, setSaving] = reactExports.useState(false);
@@ -1852,15 +1914,15 @@ function DevAuthBrowserCard() {
   [
     {
       value: "default",
-      label: t("debugPanel.authBrowser.default"),
+      label: translate("debugPanel.authBrowser.default"),
     },
     {
       value: "in_app",
-      label: t("debugPanel.authBrowser.inApp"),
+      label: translate("debugPanel.authBrowser.inApp"),
     },
     {
       value: "system",
-      label: t("debugPanel.authBrowser.system"),
+      label: translate("debugPanel.authBrowser.system"),
     },
   ];
   {
@@ -1868,7 +1930,7 @@ function DevAuthBrowserCard() {
   }
 }
 function PreviewFlowControls({ flowId, step, steps, onNext, onReset }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const atEnd = step >= steps.length - 1;
   return (
     <div
@@ -1878,7 +1940,7 @@ function PreviewFlowControls({ flowId, step, steps, onNext, onReset }) {
     >
       <ol
         className="flex flex-wrap gap-2"
-        aria-label={t("debugPanel.teamPreview.flow.steps")}
+        aria-label={translate("debugPanel.teamPreview.flow.steps")}
       >
         {steps.map((label, index) => {
           const active = index === step;
@@ -1886,7 +1948,7 @@ function PreviewFlowControls({ flowId, step, steps, onNext, onReset }) {
           return (
             <li
               key={label}
-              className={cn(
+              className={mergeClassNames(
                 "inline-flex min-w-0 items-center gap-1.5 rounded-md border border-border px-2 py-1 text-caption-11 text-muted-foreground",
                 active &&
                   "border-foreground/30 bg-foreground/[0.06] text-foreground",
@@ -1895,7 +1957,7 @@ function PreviewFlowControls({ flowId, step, steps, onNext, onReset }) {
               aria-current={active ? "step" : void 0}
             >
               <span
-                className={cn(
+                className={mergeClassNames(
                   "flex size-4 shrink-0 items-center justify-center rounded-full bg-muted text-caption-10 tabular-nums",
                   (active || complete) && "bg-foreground text-background",
                 )}
@@ -1913,7 +1975,7 @@ function PreviewFlowControls({ flowId, step, steps, onNext, onReset }) {
       </ol>
       <div className="flex flex-col gap-3 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between">
         <span className="text-caption-11 text-muted-foreground tabular-nums">
-          {t("debugPanel.teamPreview.flow.progress", {
+          {translate("debugPanel.teamPreview.flow.progress", {
             current: step + 1,
             total: steps.length,
           })}
@@ -1928,7 +1990,7 @@ function PreviewFlowControls({ flowId, step, steps, onNext, onReset }) {
             data-action-ui-id={`debug.team-edition.flow.${flowId}.reset`}
           >
             <Icon icon={RotateCcw} size="sm" aria-hidden={true} />
-            {t("debugPanel.teamPreview.flow.reset")}
+            {translate("debugPanel.teamPreview.flow.reset")}
           </Button>
           <Button
             type="button"
@@ -1938,7 +2000,7 @@ function PreviewFlowControls({ flowId, step, steps, onNext, onReset }) {
             onClick={onNext}
             data-action-ui-id={`debug.team-edition.flow.${flowId}.next`}
           >
-            {t("debugPanel.teamPreview.flow.next")}
+            {translate("debugPanel.teamPreview.flow.next")}
             <Icon icon={ArrowRight} size="sm" aria-hidden={true} />
           </Button>
         </div>
@@ -1947,7 +2009,7 @@ function PreviewFlowControls({ flowId, step, steps, onNext, onReset }) {
   );
 }
 function ScenarioGallery({ ariaLabel, scenarios, className }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const activeTitleId = reactExports.useId();
   const [activeId, setActiveId] = reactExports.useState(scenarios[0]?.id ?? "");
   const navigationRef = reactExports.useRef(null);
@@ -1964,7 +2026,7 @@ function ScenarioGallery({ ariaLabel, scenarios, className }) {
   const source = activeScenario.source ?? "actual";
   return (
     <div
-      className={cn(
+      className={mergeClassNames(
         "grid min-h-[32rem] overflow-hidden rounded-xl border border-border bg-card lg:h-[calc(100dvh-9rem)] lg:max-h-[52rem] lg:min-h-0 lg:grid-cols-[16rem_minmax(0,1fr)]",
         className,
       )}
@@ -1977,10 +2039,10 @@ function ScenarioGallery({ ariaLabel, scenarios, className }) {
               className="min-w-0 max-w-full"
             >
               {source === "actual"
-                ? t("debugPanel.teamPreview.source.actual", {
+                ? translate("debugPanel.teamPreview.source.actual", {
                     defaultValue: "复用正式组件",
                   })
-                : t("debugPanel.teamPreview.source.prdPrototype", {
+                : translate("debugPanel.teamPreview.source.prdPrototype", {
                     defaultValue: "PRD 原型",
                   })}
             </Badge>
@@ -2007,7 +2069,7 @@ function ScenarioGallery({ ariaLabel, scenarios, className }) {
                 key={scenario.id}
                 type="button"
                 variant="ghost"
-                className={cn(
+                className={mergeClassNames(
                   "h-auto min-w-52 shrink-0 justify-start gap-2 rounded-md px-3 py-2 text-left text-foreground/70 hover:bg-foreground/[0.03] hover:text-foreground lg:w-full lg:min-w-0",
                   active &&
                     "bg-foreground/[0.06] text-foreground hover:bg-foreground/[0.06]",
@@ -2063,7 +2125,7 @@ function ScenarioGallery({ ariaLabel, scenarios, className }) {
     </div>
   );
 }
-function FixtureFrame$1({ children, actionUiId }) {
+function ScenarioFixtureFrame({ children, actionUiId }) {
   return (
     <div
       className="overflow-hidden rounded-lg border border-border bg-muted/20"
@@ -2099,7 +2161,7 @@ function HomeBottomActions() {
   );
 }
 function AccountSummary({ kind }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const isTeam = kind !== "personal";
   const unlimited = kind === "team-unlimited";
   const member = kind === "team-member";
@@ -2135,23 +2197,23 @@ function AccountSummary({ kind }) {
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-medium text-foreground">
                 {isTeam
-                  ? t("debugPanel.teamPreview.primaryTeam", {
+                  ? translate("debugPanel.teamPreview.primaryTeam", {
                       defaultValue: "星河创作组",
                     })
-                  : t("team.switcher.section.personal", {
+                  : translate("team.switcher.section.personal", {
                       defaultValue: "Personal",
                     })}
               </p>
               <p className="truncate text-xs text-muted-foreground">
                 {isTeam
                   ? member
-                    ? t("team.role.member", {
+                    ? translate("team.role.member", {
                         defaultValue: "成员",
                       })
-                    : t("team.role.admin", {
+                    : translate("team.role.admin", {
                         defaultValue: "管理员",
                       })
-                  : t("team.account.personal", {
+                  : translate("team.account.personal", {
                       defaultValue: "个人账号",
                     })}
               </p>
@@ -2168,10 +2230,10 @@ function AccountSummary({ kind }) {
               <div className="flex h-9 items-center gap-1 rounded-sm px-2 text-xs text-foreground/70">
                 <span className="min-w-0 flex-1 truncate text-left text-body-13 text-muted-foreground">
                   {member
-                    ? t("team.credit.available", {
+                    ? translate("team.credit.available", {
                         defaultValue: "可用额度",
                       })
-                    : t("team.credit.personalAvailable", {
+                    : translate("team.credit.personalAvailable", {
                         defaultValue: "个人可用额度",
                       })}
                 </span>
@@ -2188,7 +2250,7 @@ function AccountSummary({ kind }) {
               {!member ? (
                 <div className="flex h-9 items-center gap-1 px-2 text-xs text-foreground/70">
                   <span className="min-w-0 flex-1 truncate text-left text-body-13 text-muted-foreground">
-                    {t("team.credit.teamRemaining", {
+                    {translate("team.credit.teamRemaining", {
                       defaultValue: "团队剩余积分",
                     })}
                   </span>
@@ -2201,7 +2263,7 @@ function AccountSummary({ kind }) {
           ) : (
             <div className="flex h-9 items-center justify-between rounded-sm px-2 leading-5 text-foreground">
               <span className="min-w-0 truncate text-body-13 text-muted-foreground">
-                {t("mediaplan.userMenu.mpCreditLabel", {
+                {translate("mediaplan.userMenu.mpCreditLabel", {
                   defaultValue: "MP 积分",
                 })}
               </span>
@@ -2230,7 +2292,7 @@ function AccountSummary({ kind }) {
                 className="text-foreground opacity-50"
                 aria-hidden={true}
               />
-              {t("team.management.title", {
+              {translate("team.management.title", {
                 defaultValue: "团队管理",
               })}
               <Icon
@@ -2248,9 +2310,9 @@ function AccountSummary({ kind }) {
   );
 }
 function HomeSidebarFixture({ kind }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
-    <FixtureFrame$1 actionUiId="debug.team-edition.home-240">
+    <ScenarioFixtureFrame actionUiId="debug.team-edition.home-240">
       <div className="flex min-h-[30rem] overflow-hidden">
         <aside className="flex w-[var(--sidebar-width)] shrink-0 flex-col border-r border-border bg-background p-2">
           <div className="flex h-10 items-center gap-2 rounded-md px-2 text-sm font-medium text-foreground">
@@ -2262,7 +2324,7 @@ function HomeSidebarFixture({ kind }) {
           <div className="mt-3 space-y-1">
             <div className="flex h-10 items-center gap-2 rounded-md bg-foreground/[0.06] px-2 text-sm text-foreground">
               <Icon icon={House} size="lg" aria-hidden={true} />
-              {t("sidebar.home", {
+              {translate("sidebar.home", {
                 defaultValue: "首页",
               })}
             </div>
@@ -2273,7 +2335,7 @@ function HomeSidebarFixture({ kind }) {
                 className="text-foreground opacity-70"
                 aria-hidden={true}
               />
-              {t("sidebar.workspace", {
+              {translate("sidebar.workspace", {
                 defaultValue: "操作台",
               })}
             </div>
@@ -2284,13 +2346,13 @@ function HomeSidebarFixture({ kind }) {
           <AccountSummary kind={kind} />
         </main>
       </div>
-    </FixtureFrame$1>
+    </ScenarioFixtureFrame>
   );
 }
 function CompactSidebarFixture({ copy }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
-    <FixtureFrame$1 actionUiId="debug.team-edition.workspace-48">
+    <ScenarioFixtureFrame actionUiId="debug.team-edition.workspace-48">
       <div className="flex min-h-80">
         <aside className="flex w-12 shrink-0 flex-col items-center border-r border-border bg-background py-3">
           <span className="flex size-8 items-center justify-center rounded-md bg-foreground/[0.06] text-foreground">
@@ -2319,14 +2381,14 @@ function CompactSidebarFixture({ copy }) {
           <div className="w-full max-w-72 overflow-hidden rounded-lg border border-border bg-popover shadow-lg">
             <div className="flex h-10 items-center border-b border-border px-2">
               <p className="text-sm font-medium text-foreground">
-                {t("team.switcher.title", {
+                {translate("team.switcher.title", {
                   defaultValue: "切换请求与计费 Group",
                 })}
               </p>
             </div>
             <div className="p-1">
               <p className="px-2 pt-1 pb-1 text-caption-11 font-medium text-foreground/30">
-                {t("team.switcher.section.personal", {
+                {translate("team.switcher.section.personal", {
                   defaultValue: "Personal",
                 })}
               </p>
@@ -2336,14 +2398,14 @@ function CompactSidebarFixture({ copy }) {
                 onClick={() => void 0}
               />
               <p className="px-2 pt-2 pb-1 text-caption-11 font-medium text-foreground/30">
-                {t("team.switcher.section.teams", {
+                {translate("team.switcher.section.teams", {
                   defaultValue: "团队",
                 })}
               </p>
               <AccountSwitcherRowSurface
                 accountType="TEAM"
                 displayName={copy.primaryTeam}
-                meta={t("team.role.admin", {
+                meta={translate("team.role.admin", {
                   defaultValue: "管理员",
                 })}
                 active={true}
@@ -2357,8 +2419,8 @@ function CompactSidebarFixture({ copy }) {
                 onClick={() => void 0}
                 data-action-ui-id="debug.team-edition.embedded-account-create"
               >
-                <Icon icon={Plus$1} size="sm" aria-hidden={true} />
-                {t("team.create.title", {
+                <Icon icon={PlusIcon} size="sm" aria-hidden={true} />
+                {translate("team.create.title", {
                   defaultValue: "创建团队",
                 })}
               </Button>
@@ -2366,28 +2428,28 @@ function CompactSidebarFixture({ copy }) {
           </div>
         </div>
       </div>
-    </FixtureFrame$1>
+    </ScenarioFixtureFrame>
   );
 }
 function AccountSwitcherFixture({ copy, switching = false }) {
-  const { t } = useTranslation();
-  const switchingReason = t("team.account.syncing", {
+  const { t: translate } = useTranslation();
+  const switchingReason = translate("team.account.syncing", {
     defaultValue: "正在同步 Group…",
   });
   return (
-    <FixtureFrame$1 actionUiId="debug.team-edition.switcher.ordered">
+    <ScenarioFixtureFrame actionUiId="debug.team-edition.switcher.ordered">
       <div className="grid min-h-[30rem] place-content-center p-4">
         <div className="w-full max-w-72 overflow-hidden rounded-lg border border-border bg-popover shadow-lg">
           <div className="flex h-10 items-center border-b border-border px-2">
             <p className="text-sm font-medium text-foreground">
-              {t("team.switcher.title", {
+              {translate("team.switcher.title", {
                 defaultValue: "切换请求与计费 Group",
               })}
             </p>
           </div>
           <div className="p-1">
             <p className="px-2 pt-1 pb-1 text-caption-11 font-medium text-foreground/30">
-              {t("team.switcher.section.personal", {
+              {translate("team.switcher.section.personal", {
                 defaultValue: "Personal",
               })}
             </p>
@@ -2399,14 +2461,14 @@ function AccountSwitcherFixture({ copy, switching = false }) {
               onClick={() => void 0}
             />
             <p className="px-2 pt-2 pb-1 text-caption-11 font-medium text-foreground/30">
-              {t("team.switcher.section.teams", {
+              {translate("team.switcher.section.teams", {
                 defaultValue: "团队",
               })}
             </p>
             <AccountSwitcherRowSurface
               accountType="TEAM"
               displayName={copy.primaryTeam}
-              meta={t("team.role.admin", {
+              meta={translate("team.role.admin", {
                 defaultValue: "管理员",
               })}
               active={true}
@@ -2414,7 +2476,7 @@ function AccountSwitcherFixture({ copy, switching = false }) {
             <AccountSwitcherRowSurface
               accountType="TEAM"
               displayName={copy.secondaryTeam}
-              meta={t("team.role.member", {
+              meta={translate("team.role.member", {
                 defaultValue: "成员",
               })}
               loading={switching}
@@ -2423,18 +2485,18 @@ function AccountSwitcherFixture({ copy, switching = false }) {
               onClick={() => void 0}
             />
             <p className="px-2 pt-2 pb-1 text-caption-11 font-medium text-foreground/30">
-              {t("team.switcher.section.dissolved", {
+              {translate("team.switcher.section.dissolved", {
                 defaultValue: "已解散",
               })}
             </p>
             <AccountSwitcherRowSurface
               accountType="TEAM"
               displayName={copy.dissolvedTeam}
-              meta={t("debugPanel.teamPreview.dissolvedMeta", {
+              meta={translate("debugPanel.teamPreview.dissolvedMeta", {
                 defaultValue: "团队已解散",
               })}
               disabled={true}
-              disabledReason={t("team.reason.resource_closed", {
+              disabledReason={translate("team.reason.resource_closed", {
                 defaultValue: "该团队已解散。",
               })}
             />
@@ -2448,26 +2510,26 @@ function AccountSwitcherFixture({ copy, switching = false }) {
               onClick={() => void 0}
               data-action-ui-id="debug.team-edition.create-disabled"
             >
-              <Icon icon={Plus$1} size="sm" aria-hidden={true} />
-              {t("team.create.title", {
+              <Icon icon={PlusIcon} size="sm" aria-hidden={true} />
+              {translate("team.create.title", {
                 defaultValue: "创建团队",
               })}
             </Button>
           </div>
         </div>
       </div>
-    </FixtureFrame$1>
+    </ScenarioFixtureFrame>
   );
 }
 function BusySwitchFixture({ copy }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
-    <FixtureFrame$1 actionUiId="debug.team-edition.switcher.busy">
+    <ScenarioFixtureFrame actionUiId="debug.team-edition.switcher.busy">
       <div className="grid min-h-[30rem] place-content-center p-4">
         <div className="w-full max-w-72 overflow-hidden rounded-lg border border-border bg-popover shadow-lg">
           <div className="flex h-10 items-center border-b border-border px-2">
             <p className="text-sm font-medium text-foreground">
-              {t("team.switcher.title", {
+              {translate("team.switcher.title", {
                 defaultValue: "切换请求与计费 Group",
               })}
             </p>
@@ -2482,14 +2544,14 @@ function BusySwitchFixture({ copy }) {
           </div>
           <div className="p-1">
             <p className="px-2 pt-2 pb-1 text-caption-11 font-medium text-foreground/30">
-              {t("team.switcher.section.teams", {
+              {translate("team.switcher.section.teams", {
                 defaultValue: "团队",
               })}
             </p>
             <AccountSwitcherRowSurface
               accountType="TEAM"
               displayName={copy.primaryTeam}
-              meta={t("team.role.admin", {
+              meta={translate("team.role.admin", {
                 defaultValue: "管理员",
               })}
               active={true}
@@ -2497,24 +2559,24 @@ function BusySwitchFixture({ copy }) {
             <AccountSwitcherRowSurface
               accountType="TEAM"
               displayName={copy.secondaryTeam}
-              meta={t("team.role.member", {
+              meta={translate("team.role.member", {
                 defaultValue: "成员",
               })}
               disabled={true}
-              disabledReason={t("team.reason.switch_busy", {
+              disabledReason={translate("team.reason.switch_busy", {
                 defaultValue: "请求与计费 Group 正在同步，请稍候重试。",
               })}
             />
           </div>
         </div>
       </div>
-    </FixtureFrame$1>
+    </ScenarioFixtureFrame>
   );
 }
 function AccountSyncFixture({ kind, copy }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
-    <FixtureFrame$1 actionUiId={`debug.team-edition.context.${kind}`}>
+    <ScenarioFixtureFrame actionUiId={`debug.team-edition.context.${kind}`}>
       <div className="grid min-h-[30rem] place-content-center p-4">
         <div className="w-full max-w-72 overflow-hidden rounded-lg border border-border bg-popover shadow-lg">
           <UserMenuRootView>
@@ -2550,13 +2612,13 @@ function AccountSyncFixture({ kind, copy }) {
                   <span className="block truncate text-xs font-medium text-foreground">
                     {kind === "stale"
                       ? copy.primaryTeam
-                      : t("team.account.syncing", {
+                      : translate("team.account.syncing", {
                           defaultValue: "正在同步 Group…",
                         })}
                   </span>
                   {kind === "stale" ? (
                     <span className="block truncate text-xs text-muted-foreground">
-                      {t("team.role.admin", {
+                      {translate("team.role.admin", {
                         defaultValue: "管理员",
                       })}
                     </span>
@@ -2575,13 +2637,13 @@ function AccountSyncFixture({ kind, copy }) {
           </UserMenuRootView>
         </div>
       </div>
-    </FixtureFrame$1>
+    </ScenarioFixtureFrame>
   );
 }
 function CompatibilityGateFixture({ kind }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
-    <FixtureFrame$1 actionUiId={`debug.team-edition.context.${kind}`}>
+    <ScenarioFixtureFrame actionUiId={`debug.team-edition.context.${kind}`}>
       <div className="grid min-h-[30rem] place-content-center p-4">
         <div className="w-full max-w-72 rounded-lg border border-border bg-popover p-2 shadow-lg">
           {kind === "temporarily-unavailable" ? (
@@ -2592,12 +2654,12 @@ function CompatibilityGateFixture({ kind }) {
                 <Icon icon={TriangleAlert} size="md" aria-hidden={true} />
               </span>
               <p className="mt-3 text-sm font-medium text-foreground">
-                {t("team.common.temporarilyUnavailable", {
+                {translate("team.common.temporarilyUnavailable", {
                   defaultValue: "团队功能暂不可用",
                 })}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {t("team.submission.reason.upgrade_required", {
+                {translate("team.submission.reason.upgrade_required", {
                   defaultValue: "请升级客户端后再提交。",
                 })}
               </p>
@@ -2605,18 +2667,18 @@ function CompatibilityGateFixture({ kind }) {
           )}
         </div>
       </div>
-    </FixtureFrame$1>
+    </ScenarioFixtureFrame>
   );
 }
 function AccountListShell({ children, footer }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
-    <FixtureFrame$1 actionUiId="debug.team-edition.account-list-state">
+    <ScenarioFixtureFrame actionUiId="debug.team-edition.account-list-state">
       <div className="grid min-h-[30rem] place-content-center p-4">
         <div className="w-full max-w-72 overflow-hidden rounded-lg border border-border bg-popover shadow-lg">
           <div className="flex h-10 items-center border-b border-border px-2">
             <p className="text-sm font-medium text-foreground">
-              {t("team.switcher.title", {
+              {translate("team.switcher.title", {
                 defaultValue: "切换请求与计费 Group",
               })}
             </p>
@@ -2627,20 +2689,20 @@ function AccountListShell({ children, footer }) {
           ) : null}
         </div>
       </div>
-    </FixtureFrame$1>
+    </ScenarioFixtureFrame>
   );
 }
 function AccountRows({ copy, disabled = false }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const disabledReason = disabled
-    ? t("team.common.refreshFailedDescription", {
+    ? translate("team.common.refreshFailedDescription", {
         defaultValue: "暂时无法获取最新数据，请重试以确认当前状态。",
       })
     : void 0;
   return (
     <div>
       <p className="px-2 pb-1 text-caption-11 font-medium text-foreground/30">
-        {t("team.switcher.section.personal", {
+        {translate("team.switcher.section.personal", {
           defaultValue: "Personal",
         })}
       </p>
@@ -2653,14 +2715,14 @@ function AccountRows({ copy, disabled = false }) {
         dataActionUiId="team.account-switcher-item"
       />
       <p className="px-2 pt-2 pb-1 text-caption-11 font-medium text-foreground/30">
-        {t("team.switcher.section.teams", {
+        {translate("team.switcher.section.teams", {
           defaultValue: "团队",
         })}
       </p>
       <AccountSwitcherRowSurface
         accountType="TEAM"
         displayName={copy.primaryTeam}
-        meta={t("team.role.admin", {
+        meta={translate("team.role.admin", {
           defaultValue: "管理员",
         })}
         active={true}
@@ -2671,7 +2733,7 @@ function AccountRows({ copy, disabled = false }) {
       <AccountSwitcherRowSurface
         accountType="TEAM"
         displayName={copy.secondaryTeam}
-        meta={t("team.role.member", {
+        meta={translate("team.role.member", {
           defaultValue: "成员",
         })}
         disabled={disabled}
@@ -2698,12 +2760,12 @@ function AccountListStaleFixture({ copy }) {
   );
 }
 function AccountListRetryFlowFixture({ copy }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [step, setStep] = reactExports.useState(0);
   const steps = [
-    t("debugPanel.teamPreview.flowState.failed"),
-    t("debugPanel.teamPreview.flowState.retrying"),
-    t("debugPanel.teamPreview.flowState.ready"),
+    translate("debugPanel.teamPreview.flowState.failed"),
+    translate("debugPanel.teamPreview.flowState.retrying"),
+    translate("debugPanel.teamPreview.flowState.ready"),
   ];
   return (
     <div className="space-y-4">
@@ -2725,12 +2787,12 @@ function AccountListRetryFlowFixture({ copy }) {
   );
 }
 function CreateCapabilityRetryFlowFixture({ copy }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [step, setStep] = reactExports.useState(0);
   const steps = [
-    t("debugPanel.teamPreview.flowState.permissionFailed"),
-    t("debugPanel.teamPreview.flowState.retrying"),
-    t("debugPanel.teamPreview.flowState.ready"),
+    translate("debugPanel.teamPreview.flowState.permissionFailed"),
+    translate("debugPanel.teamPreview.flowState.retrying"),
+    translate("debugPanel.teamPreview.flowState.ready"),
   ];
   const footer =
     step === 0 ? (
@@ -2743,7 +2805,7 @@ function CreateCapabilityRetryFlowFixture({ copy }) {
       >
         <RetryIcon size={14} className="shrink-0" />
         <span className="min-w-0 break-words">
-          {t("team.create.capabilityRetry", {
+          {translate("team.create.capabilityRetry", {
             defaultValue: "无法确认创建权限，点击重试",
           })}
         </span>
@@ -2758,9 +2820,9 @@ function CreateCapabilityRetryFlowFixture({ copy }) {
         onClick={() => void 0}
         data-action-ui-id="debug.team-edition.account.create"
       >
-        <Icon icon={Plus$1} size="sm" className="shrink-0" aria-hidden={true} />
+        <Icon icon={PlusIcon} size="sm" className="shrink-0" aria-hidden={true} />
         <span className="min-w-0 break-words">
-          {t("team.create.title", {
+          {translate("team.create.title", {
             defaultValue: "创建团队",
           })}
         </span>
@@ -2784,13 +2846,13 @@ function CreateCapabilityRetryFlowFixture({ copy }) {
   );
 }
 function AccountSwitchFlowFixture({ copy }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [step, setStep] = reactExports.useState(0);
   const steps = [
-    t("debugPanel.teamPreview.flowState.ready"),
-    t("debugPanel.teamPreview.flowState.switching"),
-    t("debugPanel.teamPreview.flowState.recovering"),
-    t("debugPanel.teamPreview.flowState.completed"),
+    translate("debugPanel.teamPreview.flowState.ready"),
+    translate("debugPanel.teamPreview.flowState.switching"),
+    translate("debugPanel.teamPreview.flowState.recovering"),
+    translate("debugPanel.teamPreview.flowState.completed"),
   ];
   return (
     <div className="space-y-4">
@@ -2812,62 +2874,62 @@ function AccountSwitchFlowFixture({ copy }) {
   );
 }
 function AccountPreview() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const copy = {
-    dissolvedTeam: t("debugPanel.teamPreview.dissolvedTeam", {
+    dissolvedTeam: translate("debugPanel.teamPreview.dissolvedTeam", {
       defaultValue: "Archive Studio",
     }),
-    personal: t("team.switcher.section.personal", {
+    personal: translate("team.switcher.section.personal", {
       defaultValue: "Personal",
     }),
-    primaryTeam: t("debugPanel.teamPreview.primaryTeam", {
+    primaryTeam: translate("debugPanel.teamPreview.primaryTeam", {
       defaultValue: "星河创作组",
     }),
-    secondaryTeam: t("debugPanel.teamPreview.secondaryTeam", {
+    secondaryTeam: translate("debugPanel.teamPreview.secondaryTeam", {
       defaultValue: "Design Lab",
     }),
   };
   const scenarios = [
     {
       id: "sidebar-no-invitation",
-      title: t("team.switcher.section.personal", {
+      title: translate("team.switcher.section.personal", {
         defaultValue: "Personal",
       }),
       requirements: "AS-01 · AS-10",
-      description: t("debugPanel.teamPreview.personalHint", {
+      description: translate("debugPanel.teamPreview.personalHint", {
         defaultValue: "个人账号侧边栏。",
       }),
       content: <HomeSidebarFixture kind="personal" />,
     },
     {
       id: "account-personal",
-      title: t("team.switcher.section.personal", {
+      title: translate("team.switcher.section.personal", {
         defaultValue: "Personal",
       }),
       requirements: "AS-01",
-      description: t("debugPanel.teamPreview.personalHint", {
+      description: translate("debugPanel.teamPreview.personalHint", {
         defaultValue: "个人账号侧边栏。",
       }),
       content: <HomeSidebarFixture kind="personal" />,
     },
     {
       id: "account-team-limited",
-      title: t("team.credit.personalAvailable", {
+      title: translate("team.credit.personalAvailable", {
         defaultValue: "个人可用额度",
       }),
       requirements: "AS-08 · CR-01 · CR-02",
-      description: t("team.credit.limitNotice", {
+      description: translate("team.credit.limitNotice", {
         defaultValue: "实际可用积分还受团队余额限制。",
       }),
       content: <HomeSidebarFixture kind="team-limited" />,
     },
     {
       id: "account-team-member",
-      title: t("debugPanel.teamPreview.case.creditMemberPrivacy.title", {
+      title: translate("debugPanel.teamPreview.case.creditMemberPrivacy.title", {
         defaultValue: "成员 · 可用额度隐私展示",
       }),
       requirements: "AS-08 · PRIVACY-01",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditMemberPrivacy.description",
         {
           defaultValue: "成员只展示可用额度，不展示具体团队余额。",
@@ -2877,11 +2939,11 @@ function AccountPreview() {
     },
     {
       id: "account-team-unavailable",
-      title: t("debugPanel.teamPreview.case.creditUnavailable.quotaTitle", {
+      title: translate("debugPanel.teamPreview.case.creditUnavailable.quotaTitle", {
         defaultValue: "额度接口不可用",
       }),
       requirements: "AS-08 · STATE-UNAVAILABLE",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditUnavailable.quotaDescription",
         {
           defaultValue: "可用额度显示为破折号，团队余额只对管理角色静态展示。",
@@ -2891,133 +2953,133 @@ function AccountPreview() {
     },
     {
       id: "account-team-unlimited",
-      title: t("team.credit.unlimited", {
+      title: translate("team.credit.unlimited", {
         defaultValue: "无限额",
       }),
       requirements: "AS-09 · CR-03",
-      description: t("debugPanel.teamPreview.unlimitedQuota", {
+      description: translate("debugPanel.teamPreview.unlimitedQuota", {
         defaultValue: "个人额度无限制时展示团队剩余积分。",
       }),
       content: <HomeSidebarFixture kind="team-unlimited" />,
     },
     {
       id: "sidebar-compact-actions",
-      title: t("debugPanel.teamPreview.workspaceSidebar", {
+      title: translate("debugPanel.teamPreview.workspaceSidebar", {
         defaultValue: "Workspace / Canvas · 48px Sidebar",
       }),
       requirements: "IMG-03",
-      description: t("debugPanel.teamPreview.workspaceSidebarDescription", {
+      description: translate("debugPanel.teamPreview.workspaceSidebarDescription", {
         defaultValue: "更新与 IM 保留 32px 独立操作入口。",
       }),
       content: <CompactSidebarFixture copy={copy} />,
     },
     {
       id: "switcher-ordered",
-      title: t("team.switcher.title", {
+      title: translate("team.switcher.title", {
         defaultValue: "切换请求与计费 Group",
       }),
       requirements: "AS-02 · AS-03 · AS-04 · AS-05",
-      description: t("debugPanel.teamPreview.switcherOrderDescription", {
+      description: translate("debugPanel.teamPreview.switcherOrderDescription", {
         defaultValue: "Personal 固定置顶，团队按服务端顺序，已解散团队置底。",
       }),
       content: <AccountSwitcherFixture copy={copy} />,
     },
     {
       id: "switcher-switching",
-      title: t("team.account.syncing", {
+      title: translate("team.account.syncing", {
         defaultValue: "正在同步 Group…",
       }),
       requirements: "AS-11 · AS-12",
-      description: t("team.submission.reason.canonical_context_switching", {
+      description: translate("team.submission.reason.canonical_context_switching", {
         defaultValue: "请等待账号切换完成。",
       }),
       content: <AccountSwitcherFixture copy={copy} switching={true} />,
     },
     {
       id: "switcher-busy",
-      title: t("team.reason.busy", {
+      title: translate("team.reason.busy", {
         defaultValue: "当前账号仍有任务进行中。",
       }),
       requirements: "AS-11 · GUARD-01",
-      description: t("team.reason.switch_busy", {
+      description: translate("team.reason.switch_busy", {
         defaultValue: "请求与计费 Group 正在同步，请稍候重试。",
       }),
       content: <BusySwitchFixture copy={copy} />,
     },
     {
       id: "switcher-stale",
-      title: t("team.submission.reason.canonical_context_stale", {
+      title: translate("team.submission.reason.canonical_context_stale", {
         defaultValue: "账号信息已变化，正在重新校验。",
       }),
       requirements: "AS-12 · CTX-03",
-      description: t("team.reason.membership_stale", {
+      description: translate("team.reason.membership_stale", {
         defaultValue: "你的团队成员关系已变化，请刷新后重试。",
       }),
       content: <AccountSyncFixture kind="stale" copy={copy} />,
     },
     {
       id: "switcher-recovering",
-      title: t("team.reason.recovering", {
+      title: translate("team.reason.recovering", {
         defaultValue: "账号信息正在恢复，请稍候。",
       }),
       requirements: "AS-12 · TM-22",
-      description: t("team.submission.reason.canonical_context_recovering", {
+      description: translate("team.submission.reason.canonical_context_recovering", {
         defaultValue: "账号信息正在恢复。",
       }),
       content: <AccountSyncFixture kind="recovering" copy={copy} />,
     },
     {
       id: "account-bootstrap-loading",
-      title: t("debugPanel.teamPreview.case.accountBootstrapLoading.title"),
+      title: translate("debugPanel.teamPreview.case.accountBootstrapLoading.title"),
       requirements: "AS-02 · CTX-01 · STATE-LOADING",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.accountBootstrapLoading.description",
       ),
       content: <AccountBootstrapLoadingFixture />,
     },
     {
       id: "account-list-retry-flow",
-      title: t("debugPanel.teamPreview.case.accountListRetryFlow.title"),
+      title: translate("debugPanel.teamPreview.case.accountListRetryFlow.title"),
       requirements: "AS-02 · CTX-02 · STATE-ERROR",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.accountListRetryFlow.description",
       ),
       content: <AccountListRetryFlowFixture copy={copy} />,
     },
     {
       id: "account-list-stale",
-      title: t("debugPanel.teamPreview.case.accountListStale.title"),
+      title: translate("debugPanel.teamPreview.case.accountListStale.title"),
       requirements: "AS-02 · AS-11 · CTX-03",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.accountListStale.description",
       ),
       content: <AccountListStaleFixture copy={copy} />,
     },
     {
       id: "create-capability-retry-flow",
-      title: t("debugPanel.teamPreview.case.createCapabilityRetryFlow.title"),
+      title: translate("debugPanel.teamPreview.case.createCapabilityRetryFlow.title"),
       requirements: "AS-06 · AS-13 · CAP-01",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.createCapabilityRetryFlow.description",
       ),
       content: <CreateCapabilityRetryFlowFixture copy={copy} />,
     },
     {
       id: "account-switch-flow",
-      title: t("debugPanel.teamPreview.case.accountSwitchFlow.title"),
+      title: translate("debugPanel.teamPreview.case.accountSwitchFlow.title"),
       requirements: "AS-03 · AS-11 · AS-12 · FLOW-01",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.accountSwitchFlow.description",
       ),
       content: <AccountSwitchFlowFixture copy={copy} />,
     },
     {
       id: "compatibility-upgrade",
-      title: t("team.submission.reason.upgrade_required", {
+      title: translate("team.submission.reason.upgrade_required", {
         defaultValue: "请升级客户端后再提交。",
       }),
       requirements: "GATE-02 · COMPAT-01",
-      description: t(
+      description: translate(
         "team.submission.reason.canonical_context_upgrade_required",
         {
           defaultValue: "请升级客户端后再提交。",
@@ -3027,11 +3089,11 @@ function AccountPreview() {
     },
     {
       id: "compatibility-unavailable",
-      title: t("team.common.temporarilyUnavailable", {
+      title: translate("team.common.temporarilyUnavailable", {
         defaultValue: "团队功能暂不可用",
       }),
       requirements: "GATE-03 · COMPAT-02",
-      description: t(
+      description: translate(
         "team.submission.reason.canonical_context_temporarily_unavailable",
         {
           defaultValue: "团队服务暂不可用。",
@@ -3042,7 +3104,7 @@ function AccountPreview() {
   ];
   return (
     <ScenarioGallery
-      ariaLabel={t("debugPanel.teamPreview.accountTab", {
+      ariaLabel={translate("debugPanel.teamPreview.accountTab", {
         defaultValue: "账号与 Sidebar",
       })}
       scenarios={scenarios}
@@ -3079,7 +3141,7 @@ function CreditDialogSurface({
   purchaseReason,
   purchaseActionId = "debug.team-edition.credit.checkout-owner",
 }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const resolvedPurchaseState =
     purchaseState ?? (showPurchase ? "available" : void 0);
   return (
@@ -3092,26 +3154,26 @@ function CreditDialogSurface({
         variant="ghost"
         size="icon-lg"
         onClick={() => void 0}
-        className={cn(
+        className={mergeClassNames(
           "absolute top-2 right-2 size-11",
           dialogChromeButtonClassName,
         )}
       >
         <Icon icon={X} size="lg" aria-hidden={true} />
         <span className="sr-only">
-          {t("common.close", {
+          {translate("common.close", {
             defaultValue: "关闭",
           })}
         </span>
       </Button>
       <header className="shrink-0 border-b border-border px-4 pt-4 pr-14 pb-3 sm:px-6 sm:pt-5 sm:pr-16 sm:pb-4">
         <h2 className="font-heading text-sm font-medium text-foreground">
-          {t("team.credit.detailTitle", {
+          {translate("team.credit.detailTitle", {
             defaultValue: "消耗明细",
           })}
         </h2>
         <p className="mt-1 text-xs/relaxed text-muted-foreground">
-          {t("team.credit.description", {
+          {translate("team.credit.description", {
             defaultValue: "查看个人在当前团队中的可用额度和积分流水。",
           })}
         </p>
@@ -3123,12 +3185,12 @@ function CreditDialogSurface({
         <footer className="flex shrink-0 justify-end border-t border-border bg-popover px-4 py-3 sm:px-6 sm:py-4">
           {resolvedPurchaseState === "disabled" ? (
             <TeamUnavailableAction
-              label={t("team.credit.purchase", {
+              label={translate("team.credit.purchase", {
                 defaultValue: "去购买",
               })}
               reason={
                 purchaseReason ??
-                t("team.common.refreshFailedDescription", {
+                translate("team.common.refreshFailedDescription", {
                   defaultValue: "暂时无法获取最新数据，请重试以确认当前状态。",
                 })
               }
@@ -3144,7 +3206,7 @@ function CreditDialogSurface({
               onClick={() => void 0}
               data-action-ui-id={purchaseActionId}
             >
-              {t("team.credit.purchase", {
+              {translate("team.credit.purchase", {
                 defaultValue: "去购买",
               })}
             </Button>
@@ -3154,34 +3216,34 @@ function CreditDialogSurface({
     </div>
   );
 }
-function ledgerLabels(t) {
+function ledgerLabels(translate) {
   return {
-    descriptionLabel: t("team.credit.transaction", {
+    descriptionLabel: translate("team.credit.transaction", {
       defaultValue: "类型",
     }),
-    timeLabel: t("team.credit.time", {
+    timeLabel: translate("team.credit.time", {
       defaultValue: "时间",
     }),
-    amountLabel: t("team.credit.amount", {
+    amountLabel: translate("team.credit.amount", {
       defaultValue: "积分",
     }),
-    emptyLabel: t("team.credit.empty", {
+    emptyLabel: translate("team.credit.empty", {
       defaultValue: "暂无积分流水",
     }),
-    errorLabel: t("team.common.loadFailed", {
+    errorLabel: translate("team.common.loadFailed", {
       defaultValue: "加载失败",
     }),
-    retryLabel: t("common.retry", {
+    retryLabel: translate("common.retry", {
       defaultValue: "重试",
     }),
   };
 }
 function LocalizedLedger({ state }) {
-  const { t } = useTranslation();
-  const rows = LEDGER_ROWS.map((row) => ({
-    ...row,
-    description: t(`team.transaction.${row.description}`, {
-      defaultValue: row.description,
+  const { t: translate } = useTranslation();
+  const rows = LEDGER_ROWS.map((ledgerRow) => ({
+    ...ledgerRow,
+    description: translate(`team.transaction.${ledgerRow.description}`, {
+      defaultValue: ledgerRow.description,
     }),
   }));
   return (
@@ -3190,35 +3252,35 @@ function LocalizedLedger({ state }) {
       loading={state === "LOADING"}
       error={false}
       scrollable={false}
-      {...ledgerLabels(t)}
+      {...ledgerLabels(translate)}
       onRetry={() => void 0}
     />
   );
 }
 function StaticLedgerError() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div className="overflow-hidden rounded-lg border border-border">
       <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(8rem,1fr)_minmax(5rem,0.8fr)] border-b border-border bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground">
         <span>
-          {t("team.credit.transaction", {
+          {translate("team.credit.transaction", {
             defaultValue: "类型",
           })}
         </span>
         <span>
-          {t("team.credit.time", {
+          {translate("team.credit.time", {
             defaultValue: "时间",
           })}
         </span>
         <span className="text-right">
-          {t("team.credit.amount", {
+          {translate("team.credit.amount", {
             defaultValue: "积分",
           })}
         </span>
       </div>
       <div className="flex h-[320px] flex-col items-center justify-center gap-3 text-xs text-muted-foreground">
         <span>
-          {t("team.common.loadFailed", {
+          {translate("team.common.loadFailed", {
             defaultValue: "加载失败",
           })}
         </span>
@@ -3229,7 +3291,7 @@ function StaticLedgerError() {
           onClick={() => void 0}
           data-action-ui-id="debug.team-edition.credit.ledger-retry"
         >
-          {t("common.retry", {
+          {translate("common.retry", {
             defaultValue: "重试",
           })}
         </Button>
@@ -3331,11 +3393,11 @@ function QuotaUnavailableFixture({ memberOnly = false }) {
   );
 }
 function CheckoutFixture({ accountRole }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <CreditDialogSurface showPurchase={accountRole === "OWNER"}>
       <TeamPanelEmpty
-        title={t("debugPanel.teamPreview.case.creditCheckout.noCredits", {
+        title={translate("debugPanel.teamPreview.case.creditCheckout.noCredits", {
           defaultValue: "暂无团队积分",
         })}
       />
@@ -3343,7 +3405,7 @@ function CheckoutFixture({ accountRole }) {
   );
 }
 function CreditSummaryStateFixture({ state }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <CreditDialogSurface
       purchaseState={state === "STALE" ? "disabled" : void 0}
@@ -3365,7 +3427,7 @@ function CreditSummaryStateFixture({ state }) {
             actionUiId="debug.team-edition.credit.summary-stale"
           />
           <p className="sr-only">
-            {t("team.common.refreshFailedDescription", {
+            {translate("team.common.refreshFailedDescription", {
               defaultValue: "暂时无法获取最新数据，请重试以确认当前状态。",
             })}
           </p>
@@ -3375,12 +3437,12 @@ function CreditSummaryStateFixture({ state }) {
   );
 }
 function CreditSummaryErrorFlowFixture() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [step, setStep] = reactExports.useState(0);
   const steps = [
-    t("debugPanel.teamPreview.flowState.failed"),
-    t("debugPanel.teamPreview.flowState.retrying"),
-    t("debugPanel.teamPreview.flowState.ready"),
+    translate("debugPanel.teamPreview.flowState.failed"),
+    translate("debugPanel.teamPreview.flowState.retrying"),
+    translate("debugPanel.teamPreview.flowState.ready"),
   ];
   return (
     <div className="space-y-4">
@@ -3408,7 +3470,7 @@ function CreditSummaryErrorFlowFixture() {
   );
 }
 function CreditLedgerStaleFixture() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <CreditDialogSurface>
       <TeamCreditSummarySurface
@@ -3426,20 +3488,20 @@ function CreditLedgerStaleFixture() {
         <LocalizedLedger state="NORMAL" />
       </TeamCreditHistorySection>
       <span className="sr-only">
-        {t("debugPanel.teamPreview.case.creditLedgerStale.title")}
+        {translate("debugPanel.teamPreview.case.creditLedgerStale.title")}
       </span>
     </CreditDialogSurface>
   );
 }
 function CheckoutFlowFixture() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [step, setStep] = reactExports.useState(0);
   const steps = [
-    t("debugPanel.teamPreview.flowState.ready"),
-    t("debugPanel.teamPreview.flowState.creatingCheckout"),
-    t("debugPanel.teamPreview.flowState.awaitingReturn"),
-    t("debugPanel.teamPreview.flowState.refreshing"),
-    t("debugPanel.teamPreview.flowState.completed"),
+    translate("debugPanel.teamPreview.flowState.ready"),
+    translate("debugPanel.teamPreview.flowState.creatingCheckout"),
+    translate("debugPanel.teamPreview.flowState.awaitingReturn"),
+    translate("debugPanel.teamPreview.flowState.refreshing"),
+    translate("debugPanel.teamPreview.flowState.completed"),
   ];
   const purchaseState =
     step === 0 || step === 4
@@ -3463,8 +3525,8 @@ function CheckoutFlowFixture() {
         purchaseState={purchaseState}
         purchaseReason={
           step === 2
-            ? t("debugPanel.teamPreview.flowState.awaitingReturn")
-            : t("team.common.refreshFailedDescription")
+            ? translate("debugPanel.teamPreview.flowState.awaitingReturn")
+            : translate("team.common.refreshFailedDescription")
         }
         purchaseActionId="debug.team-edition.credit.purchase"
       >
@@ -3487,7 +3549,7 @@ function CheckoutFlowFixture() {
             role="status"
             className="rounded-lg border border-border bg-muted/40 px-3 py-3 text-xs text-muted-foreground"
           >
-            {t(
+            {translate(
               "debugPanel.teamPreview.case.creditCheckoutFlow.awaitingDescription",
             )}
           </div>
@@ -3497,26 +3559,26 @@ function CheckoutFlowFixture() {
   );
 }
 function CreditPreview() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const scenarios = [
     {
       id: "credit-limited",
-      title: t("debugPanel.teamPreview.case.creditLimited.title", {
+      title: translate("debugPanel.teamPreview.case.creditLimited.title", {
         defaultValue: "有限额 · 个人剩余额度较小",
       }),
       requirements: "AS-08 · CR-01 · CR-02 · CR-03",
-      description: t("debugPanel.teamPreview.case.creditLimited.description", {
+      description: translate("debugPanel.teamPreview.case.creditLimited.description", {
         defaultValue: "有限额团队账号的积分详情。",
       }),
       content: <CreditSnapshot mode="LIMITED" teamRemaining="163200" />,
     },
     {
       id: "credit-limited-team-smaller",
-      title: t("debugPanel.teamPreview.case.creditLimited.teamSmallerTitle", {
+      title: translate("debugPanel.teamPreview.case.creditLimited.teamSmallerTitle", {
         defaultValue: "有限额 · 团队剩余积分较小",
       }),
       requirements: "CR-01 · CR-02 · CR-03",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditLimited.teamSmallerDescription",
         {
           defaultValue: "团队剩余积分更小时，可用额度取团队剩余积分。",
@@ -3526,11 +3588,11 @@ function CreditPreview() {
     },
     {
       id: "credit-limited-equal",
-      title: t("debugPanel.teamPreview.case.creditLimited.equalTitle", {
+      title: translate("debugPanel.teamPreview.case.creditLimited.equalTitle", {
         defaultValue: "有限额 · 两个余额相等",
       }),
       requirements: "CR-01 · CR-02 · CR-03",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditLimited.equalDescription",
         {
           defaultValue: "个人剩余额度与团队剩余积分相等时，可用额度保持不变。",
@@ -3540,11 +3602,11 @@ function CreditPreview() {
     },
     {
       id: "credit-member-privacy",
-      title: t("debugPanel.teamPreview.case.creditMemberPrivacy.title", {
+      title: translate("debugPanel.teamPreview.case.creditMemberPrivacy.title", {
         defaultValue: "成员 · 可用额度隐私展示",
       }),
       requirements: "CR-01 · PRIVACY-01",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditMemberPrivacy.description",
         {
           defaultValue:
@@ -3561,11 +3623,11 @@ function CreditPreview() {
     },
     {
       id: "credit-unlimited",
-      title: t("debugPanel.teamPreview.case.creditUnlimited.title", {
+      title: translate("debugPanel.teamPreview.case.creditUnlimited.title", {
         defaultValue: "无限额 · 团队剩余积分",
       }),
       requirements: "AS-09 · TM-08 · COMMENT-7659717490628414442",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditUnlimited.description",
         {
           defaultValue: "无限额团队账号的积分详情。",
@@ -3575,11 +3637,11 @@ function CreditPreview() {
     },
     {
       id: "credit-team-exhausted",
-      title: t("debugPanel.teamPreview.case.creditExhausted.title", {
+      title: translate("debugPanel.teamPreview.case.creditExhausted.title", {
         defaultValue: "团队余额耗尽",
       }),
       requirements: "CR-03 · V2-05",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditExhausted.description",
         {
           defaultValue: "个人额度尚有余额、团队剩余积分为 0。",
@@ -3589,11 +3651,11 @@ function CreditPreview() {
     },
     {
       id: "credit-quota-unavailable",
-      title: t("debugPanel.teamPreview.case.creditUnavailable.quotaTitle", {
+      title: translate("debugPanel.teamPreview.case.creditUnavailable.quotaTitle", {
         defaultValue: "额度接口不可用",
       }),
       requirements: "CR-01 · STATE-UNAVAILABLE",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditUnavailable.quotaDescription",
         {
           defaultValue: "额度不可用不等于无限额，可用额度显示为破折号。",
@@ -3603,11 +3665,11 @@ function CreditPreview() {
     },
     {
       id: "credit-billing-unavailable",
-      title: t("debugPanel.teamPreview.case.creditUnavailable.title", {
+      title: translate("debugPanel.teamPreview.case.creditUnavailable.title", {
         defaultValue: "团队积分暂不可用",
       }),
       requirements: "AS-12 · V4-02 · GATE-team_billing",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditUnavailable.description",
         {
           defaultValue: "团队积分能力不可用时的正式阻断态。",
@@ -3617,22 +3679,22 @@ function CreditPreview() {
     },
     {
       id: "credit-ledger-normal",
-      title: t("debugPanel.teamPreview.case.creditLedger.normal", {
+      title: translate("debugPanel.teamPreview.case.creditLedger.normal", {
         defaultValue: "积分流水 · 正常态",
       }),
       requirements: "CR-04 · TM-18",
-      description: t("debugPanel.teamPreview.case.creditLedger.description", {
+      description: translate("debugPanel.teamPreview.case.creditLedger.description", {
         defaultValue: "团队积分流水正常返回。",
       }),
       content: <CreditSnapshot mode="LIMITED" teamRemaining="163200" />,
     },
     {
       id: "credit-ledger-empty",
-      title: t("debugPanel.teamPreview.case.creditLedger.empty", {
+      title: translate("debugPanel.teamPreview.case.creditLedger.empty", {
         defaultValue: "积分流水 · 空态",
       }),
       requirements: "CR-04 · TM-18",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditLedger.emptyDescription",
         {
           defaultValue: "当前团队没有积分流水。",
@@ -3648,11 +3710,11 @@ function CreditPreview() {
     },
     {
       id: "credit-ledger-loading",
-      title: t("debugPanel.teamPreview.case.creditLedger.loading", {
+      title: translate("debugPanel.teamPreview.case.creditLedger.loading", {
         defaultValue: "积分流水 · 加载态",
       }),
       requirements: "CR-04 · V4-02",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditLedger.loadingDescription",
         {
           defaultValue: "团队积分流水加载中。",
@@ -3668,11 +3730,11 @@ function CreditPreview() {
     },
     {
       id: "credit-ledger-error",
-      title: t("debugPanel.teamPreview.case.creditLedger.error", {
+      title: translate("debugPanel.teamPreview.case.creditLedger.error", {
         defaultValue: "积分流水 · 错误态",
       }),
       requirements: "CR-04 · V4-02",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditLedger.errorDescription",
         {
           defaultValue: "团队积分流水加载失败。",
@@ -3688,11 +3750,11 @@ function CreditPreview() {
     },
     {
       id: "credit-checkout-owner",
-      title: t("debugPanel.teamPreview.case.creditCheckout.ownerTitle", {
+      title: translate("debugPanel.teamPreview.case.creditCheckout.ownerTitle", {
         defaultValue: "购买团队积分 · Owner",
       }),
       requirements: "TM-05 · BUY-01 · BUY-02",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditCheckout.ownerDescription",
         {
           defaultValue: "Owner 可从团队积分空态进入购买。",
@@ -3702,11 +3764,11 @@ function CreditPreview() {
     },
     {
       id: "credit-checkout-member",
-      title: t("debugPanel.teamPreview.case.creditCheckout.memberTitle", {
+      title: translate("debugPanel.teamPreview.case.creditCheckout.memberTitle", {
         defaultValue: "购买团队积分 · Member",
       }),
       requirements: "TM-05 · BUY-01",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditCheckout.memberDescription",
         {
           defaultValue: "Member 只看到团队积分空态，不展示购买入口。",
@@ -3716,45 +3778,45 @@ function CreditPreview() {
     },
     {
       id: "credit-summary-loading",
-      title: t("debugPanel.teamPreview.case.creditSummaryLoading.title"),
+      title: translate("debugPanel.teamPreview.case.creditSummaryLoading.title"),
       requirements: "CR-01 · CR-02 · STATE-LOADING",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditSummaryLoading.description",
       ),
       content: <CreditSummaryStateFixture state="LOADING" />,
     },
     {
       id: "credit-summary-error-flow",
-      title: t("debugPanel.teamPreview.case.creditSummaryErrorFlow.title"),
+      title: translate("debugPanel.teamPreview.case.creditSummaryErrorFlow.title"),
       requirements: "CR-01 · CR-02 · FLOW-RETRY",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditSummaryErrorFlow.description",
       ),
       content: <CreditSummaryErrorFlowFixture />,
     },
     {
       id: "credit-summary-stale",
-      title: t("debugPanel.teamPreview.case.creditSummaryStale.title"),
+      title: translate("debugPanel.teamPreview.case.creditSummaryStale.title"),
       requirements: "CR-01 · CR-02 · STATE-STALE",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditSummaryStale.description",
       ),
       content: <CreditSummaryStateFixture state="STALE" />,
     },
     {
       id: "credit-ledger-stale",
-      title: t("debugPanel.teamPreview.case.creditLedgerStale.title"),
+      title: translate("debugPanel.teamPreview.case.creditLedgerStale.title"),
       requirements: "CR-04 · STATE-STALE",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditLedgerStale.description",
       ),
       content: <CreditLedgerStaleFixture />,
     },
     {
       id: "credit-checkout-flow",
-      title: t("debugPanel.teamPreview.case.creditCheckoutFlow.title"),
+      title: translate("debugPanel.teamPreview.case.creditCheckoutFlow.title"),
       requirements: "BUY-01 · BUY-02 · FLOW-CHECKOUT",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.creditCheckoutFlow.description",
       ),
       content: <CheckoutFlowFixture />,
@@ -3762,7 +3824,7 @@ function CreditPreview() {
   ];
   return (
     <ScenarioGallery
-      ariaLabel={t("debugPanel.teamPreview.case.creditNavigation", {
+      ariaLabel={translate("debugPanel.teamPreview.case.creditNavigation", {
         defaultValue: "积分与额度场景",
       })}
       scenarios={scenarios}
@@ -3770,10 +3832,10 @@ function CreditPreview() {
   );
 }
 function ProductDialogSurface({ children }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div
-      className={cn(
+      className={mergeClassNames(
         "relative mx-auto flex w-full max-w-[560px] flex-col overflow-hidden rounded-xl bg-popover text-xs/relaxed text-popover-foreground ring-1 ring-foreground/10",
       )}
       data-action-ui-id="debug.team-edition.create-dialog-surface"
@@ -3783,26 +3845,26 @@ function ProductDialogSurface({ children }) {
         variant="ghost"
         size="icon-lg"
         onClick={() => void 0}
-        className={cn(
+        className={mergeClassNames(
           "absolute top-2 right-2 size-11",
           dialogChromeButtonClassName,
         )}
       >
         <Icon icon={X} size="lg" aria-hidden={true} />
         <span className="sr-only">
-          {t("common.close", {
+          {translate("common.close", {
             defaultValue: "关闭",
           })}
         </span>
       </Button>
       <header className="shrink-0 border-b border-border px-4 pt-4 pr-14 pb-3 sm:px-6 sm:pt-5 sm:pr-16 sm:pb-4">
         <h2 className="font-heading text-sm font-medium text-foreground">
-          {t("team.create.title", {
+          {translate("team.create.title", {
             defaultValue: "创建团队",
           })}
         </h2>
         <p className="mt-1 text-xs/relaxed text-muted-foreground">
-          {t("team.create.description", {
+          {translate("team.create.description", {
             defaultValue: "创建后将自动切换到新团队。",
           })}
         </p>
@@ -3812,17 +3874,17 @@ function ProductDialogSurface({ children }) {
   );
 }
 function CreateTeamFixture({ teamName, status }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [fixtureTeamName, setFixtureTeamName] = reactExports.useState(teamName);
   const submitting = status === "SUBMITTING";
   const recovering = status === "RECOVERING";
   const statusText =
     status === "BUSY"
-      ? t("team.reason.switch_busy", {
+      ? translate("team.reason.switch_busy", {
           defaultValue: "请求与计费 Group 正在同步，请稍候重试。",
         })
       : status === "RECOVERING"
-        ? t("team.reason.recovering", {
+        ? translate("team.reason.recovering", {
             defaultValue: "账号信息正在恢复，请稍候。",
           })
         : null;
@@ -3843,7 +3905,7 @@ function CreateTeamFixture({ teamName, status }) {
         cancelActionId={`debug.team-edition.create.${status.toLowerCase()}.cancel`}
         submitActionId={`debug.team-edition.create.${status.toLowerCase()}.submit`}
         teamName={fixtureTeamName}
-        placeholder={t("team.create.namePlaceholder", {
+        placeholder={translate("team.create.namePlaceholder", {
           defaultValue: "输入团队名称",
         })}
         disabled={submitting || recovering}
@@ -3858,19 +3920,19 @@ function CreateTeamFixture({ teamName, status }) {
   );
 }
 function CreatePermissionRetryFlowFixture({ teamName }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [step, setStep] = reactExports.useState(0);
   const steps = [
-    t("debugPanel.teamPreview.flowState.permissionLoading", {
+    translate("debugPanel.teamPreview.flowState.permissionLoading", {
       defaultValue: "权限加载中",
     }),
-    t("debugPanel.teamPreview.flowState.permissionFailed", {
+    translate("debugPanel.teamPreview.flowState.permissionFailed", {
       defaultValue: "权限加载失败",
     }),
-    t("debugPanel.teamPreview.flowState.cachedStale", {
+    translate("debugPanel.teamPreview.flowState.cachedStale", {
       defaultValue: "缓存过期",
     }),
-    t("debugPanel.teamPreview.flowState.ready", {
+    translate("debugPanel.teamPreview.flowState.ready", {
       defaultValue: "可创建",
     }),
   ];
@@ -3900,18 +3962,18 @@ function CreatePermissionRetryFlowFixture({ teamName }) {
   );
 }
 function InvitationPreview() {
-  const { t } = useTranslation();
-  const primaryTeam = t("debugPanel.teamPreview.primaryTeam", {
+  const { t: translate } = useTranslation();
+  const primaryTeam = translate("debugPanel.teamPreview.primaryTeam", {
     defaultValue: "星河创作组",
   });
   const scenarios = [
     {
       id: "create-available",
-      title: t("debugPanel.teamPreview.case.createAvailable.title", {
+      title: translate("debugPanel.teamPreview.case.createAvailable.title", {
         defaultValue: "创建团队 · 可提交",
       }),
       requirements: "AS-06 · AS-07 · AS-13 · IMG-01",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.createAvailable.description",
         {
           defaultValue:
@@ -3922,11 +3984,11 @@ function InvitationPreview() {
     },
     {
       id: "create-limit-reached",
-      title: t("debugPanel.teamPreview.case.createLimit.title", {
+      title: translate("debugPanel.teamPreview.case.createLimit.title", {
         defaultValue: "创建团队 · 50 个账号空间上限",
       }),
       requirements: "AS-13 · V2-03",
-      description: t("debugPanel.teamPreview.case.createLimit.description", {
+      description: translate("debugPanel.teamPreview.case.createLimit.description", {
         defaultValue:
           "个人账号也计入 50 个账号空间上限；达到上限时只展示阻断态。",
       }),
@@ -3936,11 +3998,11 @@ function InvitationPreview() {
     },
     {
       id: "create-submitting",
-      title: t("debugPanel.teamPreview.case.createTransitions.submitting", {
+      title: translate("debugPanel.teamPreview.case.createTransitions.submitting", {
         defaultValue: "创建团队 · 提交中",
       }),
       requirements: "AS-07 · V5-06",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.createSubmitting.description",
         {
           defaultValue: "创建并切换请求正在提交。",
@@ -3950,33 +4012,33 @@ function InvitationPreview() {
     },
     {
       id: "create-busy",
-      title: t("debugPanel.teamPreview.case.createTransitions.busy", {
+      title: translate("debugPanel.teamPreview.case.createTransitions.busy", {
         defaultValue: "创建团队 · 任务进行中",
       }),
       requirements: "AS-11 · V5-06",
-      description: t("team.reason.switch_busy", {
+      description: translate("team.reason.switch_busy", {
         defaultValue: "请求与计费 Group 正在同步，请稍候重试。",
       }),
       content: <CreateTeamFixture teamName={primaryTeam} status="BUSY" />,
     },
     {
       id: "create-recovering",
-      title: t("debugPanel.teamPreview.case.createTransitions.recovering", {
+      title: translate("debugPanel.teamPreview.case.createTransitions.recovering", {
         defaultValue: "创建团队 · 账号信息恢复中",
       }),
       requirements: "AS-12 · V5-06",
-      description: t("team.reason.recovering", {
+      description: translate("team.reason.recovering", {
         defaultValue: "账号信息正在恢复，请稍候。",
       }),
       content: <CreateTeamFixture teamName={primaryTeam} status="RECOVERING" />,
     },
     {
       id: "create-permission-retry-flow",
-      title: t("debugPanel.teamPreview.case.createPermissionRetryFlow.title", {
+      title: translate("debugPanel.teamPreview.case.createPermissionRetryFlow.title", {
         defaultValue: "创建团队 · 权限恢复",
       }),
       requirements: "AS-06 · CAP-01 · FLOW-02",
-      description: t(
+      description: translate(
         "debugPanel.teamPreview.case.createPermissionRetryFlow.description",
         {
           defaultValue: "创建权限恢复后可继续提交。",
@@ -3987,7 +4049,7 @@ function InvitationPreview() {
   ];
   return (
     <ScenarioGallery
-      ariaLabel={t("debugPanel.teamPreview.case.invitationNavigation", {
+      ariaLabel={translate("debugPanel.teamPreview.case.invitationNavigation", {
         defaultValue: "创建与邀请场景",
       })}
       scenarios={scenarios}
@@ -4057,7 +4119,7 @@ const MEMBERS = [
   },
 ];
 function ManagementDialogSurface({ children }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div
       className="relative mx-auto flex w-full max-w-[960px] flex-col overflow-hidden rounded-xl bg-popover text-xs/relaxed text-popover-foreground ring-1 ring-foreground/10"
@@ -4068,26 +4130,26 @@ function ManagementDialogSurface({ children }) {
         variant="ghost"
         size="icon-lg"
         onClick={() => void 0}
-        className={cn(
+        className={mergeClassNames(
           "absolute top-2 right-2 size-11",
           dialogChromeButtonClassName,
         )}
       >
         <Icon icon={X} size="lg" aria-hidden={true} />
         <span className="sr-only">
-          {t("common.close", {
+          {translate("common.close", {
             defaultValue: "关闭",
           })}
         </span>
       </Button>
       <header className="shrink-0 border-b border-border px-4 pt-5 pr-14 pb-4 sm:px-6 sm:pr-16">
         <h2 className="font-heading text-sm font-medium text-foreground">
-          {t("team.management.title", {
+          {translate("team.management.title", {
             defaultValue: "团队管理",
           })}
         </h2>
         <p className="mt-1 text-xs/relaxed text-muted-foreground">
-          {t("team.management.description", {
+          {translate("team.management.description", {
             defaultValue: "查看团队信息，管理团队成员",
           })}
         </p>
@@ -4098,19 +4160,19 @@ function ManagementDialogSurface({ children }) {
     </div>
   );
 }
-function ManagementSummary({ t }) {
+function ManagementSummary({ t: translate }) {
   return (
     <TeamManagementSummary
-      teamInfoLabel={t("team.management.teamInfo", {
+      teamInfoLabel={translate("team.management.teamInfo", {
         defaultValue: "团队信息",
       })}
-      teamName={t("debugPanel.teamPreview.primaryTeam", {
+      teamName={translate("debugPanel.teamPreview.primaryTeam", {
         defaultValue: "星河创作组",
       })}
     />
   );
 }
-function QuotaOverview({ t }) {
+function QuotaOverview({ t: translate }) {
   return (
     <section className="space-y-3">
       <div>
@@ -4122,13 +4184,13 @@ function QuotaOverview({ t }) {
             aria-hidden={true}
           />
           <h3 className="font-heading text-sm font-medium text-foreground">
-            {t("team.management.quotaOverview", {
+            {translate("team.management.quotaOverview", {
               defaultValue: "积分概览",
             })}
           </h3>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
-          {t("team.management.quotaDescription", {
+          {translate("team.management.quotaDescription", {
             defaultValue: "查看团队积分池和成员默认额度。",
           })}
         </p>
@@ -4137,7 +4199,7 @@ function QuotaOverview({ t }) {
         metrics={[
           {
             id: "team-used",
-            label: t("team.credit.teamUsed", {
+            label: translate("team.credit.teamUsed", {
               defaultValue: "团队已用积分",
             }),
             value: "36,800",
@@ -4145,7 +4207,7 @@ function QuotaOverview({ t }) {
           },
           {
             id: "team-remaining",
-            label: t("team.credit.teamRemaining", {
+            label: translate("team.credit.teamRemaining", {
               defaultValue: "团队剩余积分",
             }),
             value: "163,200",
@@ -4156,19 +4218,19 @@ function QuotaOverview({ t }) {
     </section>
   );
 }
-function MemberTable({ t, memberIds }) {
+function MemberTable({ t: translate, memberIds }) {
   const members = memberIds
     ? MEMBERS.filter((member) => memberIds.includes(member.id))
     : MEMBERS;
   return (
     <TeamManagementMemberTable
-      memberLabel={t("team.management.member", {
+      memberLabel={translate("team.management.member", {
         defaultValue: "成员",
       })}
-      roleLabel={t("team.management.role", {
+      roleLabel={translate("team.management.role", {
         defaultValue: "角色",
       })}
-      quotaLabel={t("team.management.memberCreditUsage", {
+      quotaLabel={translate("team.management.memberCreditUsage", {
         defaultValue: "通用积分消耗",
       })}
       uidPrefix="UID"
@@ -4176,7 +4238,7 @@ function MemberTable({ t, memberIds }) {
         id: member.id,
         name: member.name,
         uid: member.id,
-        role: t(`team.role.${member.role.toLowerCase()}`, {
+        role: translate(`team.role.${member.role.toLowerCase()}`, {
           defaultValue: member.role,
         }),
         quota: <TeamMemberQuotaUsageCell quota={member.quota} />,
@@ -4184,12 +4246,12 @@ function MemberTable({ t, memberIds }) {
     />
   );
 }
-function MemberSection({ t, state, keyword = "", memberIds }) {
+function MemberSection({ t: translate, state, keyword = "", memberIds }) {
   if (state === "DENIED") {
     return (
       <section className="space-y-3">
         <h3 className="font-heading text-sm font-medium text-foreground">
-          {t("team.management.members", {
+          {translate("team.management.members", {
             defaultValue: "成员详情",
           })}
         </h3>
@@ -4201,7 +4263,7 @@ function MemberSection({ t, state, keyword = "", memberIds }) {
     <section className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-heading text-sm font-medium text-foreground">
-          {t("team.management.members", {
+          {translate("team.management.members", {
             defaultValue: "成员详情",
           })}
         </h3>
@@ -4210,10 +4272,10 @@ function MemberSection({ t, state, keyword = "", memberIds }) {
           value={keyword}
           startIcon={<Icon icon={Search} size="sm" aria-hidden={true} />}
           className="w-full sm:w-64"
-          placeholder={t("team.management.searchPlaceholder", {
+          placeholder={translate("team.management.searchPlaceholder", {
             defaultValue: "搜索姓名或 UID",
           })}
-          aria-label={t("team.management.searchPlaceholder", {
+          aria-label={translate("team.management.searchPlaceholder", {
             defaultValue: "搜索姓名或 UID",
           })}
           data-action-ui-id="team.management-member-search"
@@ -4222,7 +4284,7 @@ function MemberSection({ t, state, keyword = "", memberIds }) {
       {state === "LOADING" ? <TeamManagementMemberLoading /> : null}
       {state === "ERROR" ? (
         <TeamPanelError
-          title={t("team.management.membersLoadFailed", {
+          title={translate("team.management.membersLoadFailed", {
             defaultValue: "成员列表加载失败",
           })}
           onRetry={() => void 0}
@@ -4231,7 +4293,7 @@ function MemberSection({ t, state, keyword = "", memberIds }) {
       {state === "STALE" ? <TeamPanelStale onRetry={() => void 0} /> : null}
       {state === "EMPTY" ? (
         <TeamPanelEmpty
-          title={t("team.management.noMembers", {
+          title={translate("team.management.noMembers", {
             defaultValue: "没有匹配的成员",
           })}
         />
@@ -4245,7 +4307,7 @@ function MemberSection({ t, state, keyword = "", memberIds }) {
           onLoadMore={() => void 0}
           actionUiId="debug.team-edition.management-members-scroll"
         >
-          <MemberTable t={t} memberIds={memberIds} />
+          <MemberTable t={translate} memberIds={memberIds} />
         </InfiniteScrollContainer>
       ) : null}
     </section>
@@ -4257,14 +4319,14 @@ function ReadyManagement({
   keyword,
   memberIds,
 }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <ManagementDialogSurface>
       {stale ? <TeamPanelStale onRetry={() => void 0} /> : null}
-      <ManagementSummary t={t} />
-      <QuotaOverview t={t} />
+      <ManagementSummary t={translate} />
+      <QuotaOverview t={translate} />
       <MemberSection
-        t={t}
+        t={translate}
         state={memberState}
         keyword={keyword}
         memberIds={memberIds}
@@ -4273,16 +4335,16 @@ function ReadyManagement({
   );
 }
 function ManagementDetailErrorFlow() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [step, setStep] = reactExports.useState(0);
   const steps = [
-    t("debugPanel.teamPreview.flowState.failed", {
+    translate("debugPanel.teamPreview.flowState.failed", {
       defaultValue: "加载失败",
     }),
-    t("debugPanel.teamPreview.flowState.retrying", {
+    translate("debugPanel.teamPreview.flowState.retrying", {
       defaultValue: "重试中",
     }),
-    t("debugPanel.teamPreview.flowState.ready", {
+    translate("debugPanel.teamPreview.flowState.ready", {
       defaultValue: "可用",
     }),
   ];
@@ -4309,16 +4371,16 @@ function ManagementDetailErrorFlow() {
   );
 }
 function ManagementMembersErrorFlow() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [step, setStep] = reactExports.useState(0);
   const steps = [
-    t("debugPanel.teamPreview.flowState.failed", {
+    translate("debugPanel.teamPreview.flowState.failed", {
       defaultValue: "加载失败",
     }),
-    t("debugPanel.teamPreview.flowState.retrying", {
+    translate("debugPanel.teamPreview.flowState.retrying", {
       defaultValue: "重试中",
     }),
-    t("debugPanel.teamPreview.flowState.ready", {
+    translate("debugPanel.teamPreview.flowState.ready", {
       defaultValue: "可用",
     }),
   ];
@@ -4340,22 +4402,22 @@ function ManagementMembersErrorFlow() {
   );
 }
 function ManagementSearchFlow() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [step, setStep] = reactExports.useState(0);
   const steps = [
-    t("debugPanel.teamPreview.flowState.idle", {
+    translate("debugPanel.teamPreview.flowState.idle", {
       defaultValue: "待输入",
     }),
-    t("debugPanel.teamPreview.flowState.typing", {
+    translate("debugPanel.teamPreview.flowState.typing", {
       defaultValue: "输入中",
     }),
-    t("debugPanel.teamPreview.flowState.searching", {
+    translate("debugPanel.teamPreview.flowState.searching", {
       defaultValue: "搜索中",
     }),
-    t("debugPanel.teamPreview.flowState.results", {
+    translate("debugPanel.teamPreview.flowState.results", {
       defaultValue: "搜索结果",
     }),
-    t("debugPanel.teamPreview.flowState.empty", {
+    translate("debugPanel.teamPreview.flowState.empty", {
       defaultValue: "无结果",
     }),
   ];
@@ -4382,19 +4444,19 @@ function ManagementSearchFlow() {
   );
 }
 function ManagementPermissionChangeFlow() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [step, setStep] = reactExports.useState(0);
   const steps = [
-    t("debugPanel.teamPreview.flowState.ready", {
+    translate("debugPanel.teamPreview.flowState.ready", {
       defaultValue: "Owner 可查看",
     }),
-    t("debugPanel.teamPreview.flowState.refreshing", {
+    translate("debugPanel.teamPreview.flowState.refreshing", {
       defaultValue: "权限刷新中",
     }),
-    t("debugPanel.teamPreview.flowState.permissionChanged", {
+    translate("debugPanel.teamPreview.flowState.permissionChanged", {
       defaultValue: "权限已变化",
     }),
-    t("debugPanel.teamPreview.flowState.permissionFailed", {
+    translate("debugPanel.teamPreview.flowState.permissionFailed", {
       defaultValue: "成员列表无权限",
     }),
   ];
@@ -4447,46 +4509,46 @@ function ManagementActualPreviewFixture({ kind }) {
       return <ManagementPermissionChangeFlow />;
   }
 }
-const handlePreviewAction$2 = () => void 0;
-function PreviewAction$2({ actionId, children, destructive, disabled }) {
+const ignoreLifecyclePreviewAction = () => void 0;
+function LifecyclePreviewAction({ actionId, children, destructive, disabled }) {
   return (
     <Button
       type="button"
       variant={destructive ? "destructive" : "outline"}
       className="h-auto min-h-8 min-w-0 shrink whitespace-normal text-center leading-relaxed"
       disabled={disabled}
-      onClick={disabled ? void 0 : handlePreviewAction$2}
+      onClick={disabled ? void 0 : ignoreLifecyclePreviewAction}
       data-action-ui-id={`debug.team-edition.case.${actionId}.action`}
     >
       {children}
     </Button>
   );
 }
-function TeamIdentity$1({ t }) {
+function PreviewTeamIdentitySummary({ t: translate }) {
   return (
     <TeamManagementSummary
-      teamInfoLabel={t("team.management.teamInfo", {
+      teamInfoLabel={translate("team.management.teamInfo", {
         defaultValue: "团队信息",
       })}
-      teamName={t("debugPanel.teamPreview.primaryTeam", {
+      teamName={translate("debugPanel.teamPreview.primaryTeam", {
         defaultValue: "星河创作组",
       })}
     />
   );
 }
-function renderLeaveMember(t) {
+function renderLeaveMember(translate) {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
-      <TeamIdentity$1 t={t} />
+      <PreviewTeamIdentitySummary t={translate} />
       <Card>
         <CardHeader>
           <CardTitle>
-            {t("team.management.leave", {
+            {translate("team.management.leave", {
               defaultValue: "离开团队",
             })}
           </CardTitle>
           <CardDescription>
-            {t("debugPanel.teamPreview.management.leaveMember.description", {
+            {translate("debugPanel.teamPreview.management.leaveMember.description", {
               defaultValue:
                 "确定离开星河创作组？离开后将无法访问团队资源和积分。",
             })}
@@ -4494,35 +4556,35 @@ function renderLeaveMember(t) {
         </CardHeader>
         <CardContent>
           <div className="flex justify-end gap-2">
-            <PreviewAction$2 actionId="leave-member.cancel">
-              {t("common.cancel", {
+            <LifecyclePreviewAction actionId="leave-member.cancel">
+              {translate("common.cancel", {
                 defaultValue: "取消",
               })}
-            </PreviewAction$2>
-            <PreviewAction$2 actionId="leave-member.confirm" destructive={true}>
-              {t("debugPanel.teamPreview.management.leaveMember.confirm", {
+            </LifecyclePreviewAction>
+            <LifecyclePreviewAction actionId="leave-member.confirm" destructive={true}>
+              {translate("debugPanel.teamPreview.management.leaveMember.confirm", {
                 defaultValue: "确认离开",
               })}
-            </PreviewAction$2>
+            </LifecyclePreviewAction>
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
-function renderLeaveOwner(t) {
+function renderLeaveOwner(translate) {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
-      <TeamIdentity$1 t={t} />
+      <PreviewTeamIdentitySummary t={translate} />
       <Card>
         <CardHeader>
           <CardTitle>
-            {t("debugPanel.teamPreview.management.leaveOwner.title", {
+            {translate("debugPanel.teamPreview.management.leaveOwner.title", {
               defaultValue: "移交 Owner 并离开",
             })}
           </CardTitle>
           <CardDescription>
-            {t("debugPanel.teamPreview.management.leaveOwner.description", {
+            {translate("debugPanel.teamPreview.management.leaveOwner.description", {
               defaultValue: "团队必须始终有一位 Owner。选择接任者后才能继续。",
             })}
           </CardDescription>
@@ -4530,7 +4592,7 @@ function renderLeaveOwner(t) {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <p className="text-xs font-medium text-foreground">
-              {t("debugPanel.teamPreview.management.leaveOwner.newOwner", {
+              {translate("debugPanel.teamPreview.management.leaveOwner.newOwner", {
                 defaultValue: "新 Owner",
               })}
             </p>
@@ -4543,7 +4605,7 @@ function renderLeaveOwner(t) {
                     variant={index === 0 ? "secondary" : "ghost"}
                     aria-pressed={index === 0}
                     className="h-auto min-h-8 w-full min-w-0 justify-start whitespace-normal py-2 text-left leading-relaxed"
-                    onClick={handlePreviewAction$2}
+                    onClick={ignoreLifecyclePreviewAction}
                     data-action-ui-id="debug.team-edition.case.leave-owner.successor.action"
                   >
                     <Icon
@@ -4560,12 +4622,12 @@ function renderLeaveOwner(t) {
           <Alert>
             <Icon icon={ShieldCheck} size="sm" aria-hidden={true} />
             <AlertTitle>
-              {t("debugPanel.teamPreview.management.leaveOwner.summary", {
+              {translate("debugPanel.teamPreview.management.leaveOwner.summary", {
                 defaultValue: "Taylor Wang 将成为团队所有者",
               })}
             </AlertTitle>
             <AlertDescription>
-              {t(
+              {translate(
                 "debugPanel.teamPreview.management.leaveOwner.warningDescription",
                 {
                   defaultValue:
@@ -4575,30 +4637,30 @@ function renderLeaveOwner(t) {
             </AlertDescription>
           </Alert>
           <div className="flex justify-end gap-2">
-            <PreviewAction$2 actionId="leave-owner.cancel">
-              {t("common.cancel", {
+            <LifecyclePreviewAction actionId="leave-owner.cancel">
+              {translate("common.cancel", {
                 defaultValue: "取消",
               })}
-            </PreviewAction$2>
-            <PreviewAction$2 actionId="leave-owner.confirm" destructive={true}>
-              {t("debugPanel.teamPreview.management.leaveOwner.confirm", {
+            </LifecyclePreviewAction>
+            <LifecyclePreviewAction actionId="leave-owner.confirm" destructive={true}>
+              {translate("debugPanel.teamPreview.management.leaveOwner.confirm", {
                 defaultValue: "移交并离开",
               })}
-            </PreviewAction$2>
+            </LifecyclePreviewAction>
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
-function renderDissolveConfirm(t) {
-  const teamName = t("debugPanel.teamPreview.primaryTeam", {
+function renderDissolveConfirm(translate) {
+  const teamName = translate("debugPanel.teamPreview.primaryTeam", {
     defaultValue: "星河创作组",
   });
   return (
     <>
       <div className="mx-auto max-w-3xl space-y-4">
-        <TeamIdentity$1 t={t} />
+        <PreviewTeamIdentitySummary t={translate} />
       </div>
       <AlertDialog open={true}>
         <AlertDialogPortal>
@@ -4611,12 +4673,12 @@ function renderDissolveConfirm(t) {
         >
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("team.management.dissolveTitle", {
+              {translate("team.management.dissolveTitle", {
                 defaultValue: "解散团队",
               })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("team.management.dissolveDescription", {
+              {translate("team.management.dissolveDescription", {
                 defaultValue:
                   "解散“{{name}}”后，团队及成员权限将无法恢复。请先确认剩余积分的处理方式。",
                 name: teamName,
@@ -4628,7 +4690,7 @@ function renderDissolveConfirm(t) {
               htmlFor="debug-dissolve-credit-destination"
               className="text-muted-foreground font-normal"
             >
-              {t("team.management.dissolveCreditDestinationLabel", {
+              {translate("team.management.dissolveCreditDestinationLabel", {
                 defaultValue: "剩余积分去向",
               })}
             </Label>
@@ -4640,7 +4702,7 @@ function renderDissolveConfirm(t) {
               >
                 <SelectValue>
                   {() =>
-                    t("team.management.dissolveCreditDiscard", {
+                    translate("team.management.dissolveCreditDiscard", {
                       defaultValue: "不转移，放弃剩余积分",
                     })
                   }
@@ -4648,19 +4710,19 @@ function renderDissolveConfirm(t) {
               </SelectTrigger>
               <SelectContent positionerClassName="z-[70]">
                 <SelectItem value="discard">
-                  {t("team.management.dissolveCreditDiscard", {
+                  {translate("team.management.dissolveCreditDiscard", {
                     defaultValue: "不转移，放弃剩余积分",
                   })}
                 </SelectItem>
                 <SelectItem value="nebula">
-                  {t("debugPanel.teamPreview.secondaryTeam", {
+                  {translate("debugPanel.teamPreview.secondaryTeam", {
                     defaultValue: "星云设计组",
                   })}
                 </SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              {t("team.management.dissolveCreditDiscardDescription", {
+              {translate("team.management.dissolveCreditDiscardDescription", {
                 defaultValue:
                   "未选择转入账号时，团队剩余积分将在解散后失效，且无法恢复。",
               })}
@@ -4671,7 +4733,7 @@ function renderDissolveConfirm(t) {
               htmlFor="debug-dissolve-confirm-name"
               className="text-muted-foreground font-normal"
             >
-              {t("team.management.dissolveConfirmPrompt", {
+              {translate("team.management.dissolveConfirmPrompt", {
                 defaultValue: "请输入团队名称 “{{name}}” 以确认：",
                 name: teamName,
               })}
@@ -4685,16 +4747,16 @@ function renderDissolveConfirm(t) {
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel data-action-ui-id="debug.team-edition.case.dissolve-confirm.cancel.action">
-              {t("common.cancel", {
+              {translate("common.cancel", {
                 defaultValue: "取消",
               })}
             </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
-              onClick={handlePreviewAction$2}
+              onClick={ignoreLifecyclePreviewAction}
               data-action-ui-id="debug.team-edition.case.dissolve-confirm.confirm.action"
             >
-              {t("team.management.dissolveConfirm", {
+              {translate("team.management.dissolveConfirm", {
                 defaultValue: "确认解散",
               })}
             </AlertDialogAction>
@@ -4704,7 +4766,7 @@ function renderDissolveConfirm(t) {
     </>
   );
 }
-function renderDissolvePending(t) {
+function renderDissolvePending(translate) {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <Card>
@@ -4719,12 +4781,12 @@ function renderDissolvePending(t) {
           </span>
           <div>
             <h3 className="font-heading text-base font-medium text-foreground">
-              {t("debugPanel.teamPreview.management.dissolve.pendingTitle", {
+              {translate("debugPanel.teamPreview.management.dissolve.pendingTitle", {
                 defaultValue: "正在解散星河创作组",
               })}
             </h3>
             <p className="mt-2 max-w-md text-xs/relaxed text-muted-foreground">
-              {t(
+              {translate(
                 "debugPanel.teamPreview.management.dissolve.pendingDescription",
                 {
                   defaultValue:
@@ -4735,34 +4797,34 @@ function renderDissolvePending(t) {
           </div>
           <Badge variant="secondary">
             <Icon icon={Clock3} size="xs" aria-hidden={true} />
-            {t("debugPanel.teamPreview.management.dissolve.pendingBadge", {
+            {translate("debugPanel.teamPreview.management.dissolve.pendingBadge", {
               defaultValue: "处理中",
             })}
           </Badge>
-          <PreviewAction$2 actionId="dissolve-pending.repeat" disabled={true}>
-            {t("team.management.dissolve", {
+          <LifecyclePreviewAction actionId="dissolve-pending.repeat" disabled={true}>
+            {translate("team.management.dissolve", {
               defaultValue: "解散团队",
             })}
-          </PreviewAction$2>
+          </LifecyclePreviewAction>
         </CardContent>
       </Card>
     </div>
   );
 }
 function ManagementLifecyclePreviewFixture({ kind }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   switch (kind) {
     case "leave-member":
-      return renderLeaveMember(t);
+      return renderLeaveMember(translate);
     case "leave-owner":
-      return renderLeaveOwner(t);
+      return renderLeaveOwner(translate);
     case "dissolve-confirm":
-      return renderDissolveConfirm(t);
+      return renderDissolveConfirm(translate);
     case "dissolve-pending":
-      return renderDissolvePending(t);
+      return renderDissolvePending(translate);
   }
 }
-const handlePreviewAction$1 = () => void 0;
+const ignoreMemberPreviewAction = () => void 0;
 const handlePreviewCheckedChange = () => void 0;
 const MEMBER_ROWS = [
   {
@@ -4781,31 +4843,31 @@ const MEMBER_ROWS = [
     role: "member",
   },
 ];
-function PreviewAction$1({ actionId, children, destructive }) {
+function MemberPreviewAction({ actionId, children, destructive }) {
   return (
     <Button
       type="button"
       variant={destructive ? "destructive" : "outline"}
       className="h-auto min-h-8 min-w-0 shrink whitespace-normal text-center leading-relaxed"
-      onClick={handlePreviewAction$1}
+      onClick={ignoreMemberPreviewAction}
       data-action-ui-id={`debug.team-edition.case.${actionId}.action`}
     >
       {children}
     </Button>
   );
 }
-function renderMembersList(t) {
+function renderMembersList(translate) {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>
-            {t("team.management.members", {
+            {translate("team.management.members", {
               defaultValue: "成员详情",
             })}
           </CardTitle>
           <CardDescription>
-            {t("team.management.currentPageSelection", {
+            {translate("team.management.currentPageSelection", {
               defaultValue: "全选仅作用于已加载成员。",
             })}
           </CardDescription>
@@ -4816,30 +4878,30 @@ function renderMembersList(t) {
               readOnly={true}
               startIcon={<Icon icon={Search} size="sm" aria-hidden={true} />}
               value="UID 20"
-              aria-label={t("team.management.searchPlaceholder", {
+              aria-label={translate("team.management.searchPlaceholder", {
                 defaultValue: "搜索姓名或 UID",
               })}
               className="min-w-48 flex-1"
               data-action-ui-id="debug.team-edition.case.members-list.search.action"
             />
             <Badge variant="secondary">
-              {t("team.management.selectedCount", {
+              {translate("team.management.selectedCount", {
                 defaultValue: "已选择 2 人",
                 count: 2,
               })}
             </Badge>
-            <PreviewAction$1 actionId="members-list.remove">
-              {t("team.management.removeSelected", {
+            <MemberPreviewAction actionId="members-list.remove">
+              {translate("team.management.removeSelected", {
                 defaultValue: "移除成员",
               })}
-            </PreviewAction$1>
+            </MemberPreviewAction>
           </div>
           <InfiniteScrollContainer
             className="max-h-80"
             loadedBatchCount={3}
             hasMore={false}
             isLoadingMore={false}
-            onLoadMore={handlePreviewAction$1}
+            onLoadMore={ignoreMemberPreviewAction}
             actionUiId="debug.team-edition.case.members-list.scroll"
           >
             <TeamManagementMemberTable
@@ -4848,22 +4910,22 @@ function renderMembersList(t) {
                   checked={false}
                   indeterminate={true}
                   onCheckedChange={handlePreviewCheckedChange}
-                  aria-label={t("team.management.selectCurrentPage", {
+                  aria-label={translate("team.management.selectCurrentPage", {
                     defaultValue: "选择全部已加载成员",
                   })}
                   data-action-ui-id="debug.team-edition.case.members-list.select-page.action"
                 />
               }
-              memberLabel={t("team.management.member", {
+              memberLabel={translate("team.management.member", {
                 defaultValue: "成员",
               })}
-              roleLabel={t("team.management.role", {
+              roleLabel={translate("team.management.role", {
                 defaultValue: "角色",
               })}
-              quotaLabel={t("team.credit.quotaMode", {
+              quotaLabel={translate("team.credit.quotaMode", {
                 defaultValue: "个人额度",
               })}
-              actionLabel={t("team.management.actions", {
+              actionLabel={translate("team.management.actions", {
                 defaultValue: "设置",
               })}
               uidPrefix="UID"
@@ -4871,7 +4933,7 @@ function renderMembersList(t) {
                 id: member.uid,
                 name: member.name,
                 uid: member.uid,
-                role: t(`team.role.${member.role}`, {
+                role: translate(`team.role.${member.role}`, {
                   defaultValue: member.role,
                 }),
                 quota: <span aria-hidden={true}>—</span>,
@@ -4879,7 +4941,7 @@ function renderMembersList(t) {
                   <Checkbox
                     checked={index > 0}
                     onCheckedChange={handlePreviewCheckedChange}
-                    aria-label={t("team.management.selectMember", {
+                    aria-label={translate("team.management.selectMember", {
                       defaultValue: `选择 ${member.name}`,
                       name: member.name,
                     })}
@@ -4889,7 +4951,7 @@ function renderMembersList(t) {
                 action: (
                   <Button
                     type="button"
-                    aria-label={t(
+                    aria-label={translate(
                       "debugPanel.teamPreview.management.members.settings",
                       {
                         defaultValue: "设置 {{name}}",
@@ -4898,10 +4960,10 @@ function renderMembersList(t) {
                     )}
                     variant="ghost"
                     size="sm"
-                    onClick={handlePreviewAction$1}
+                    onClick={ignoreMemberPreviewAction}
                     data-action-ui-id="debug.team-edition.case.members-list.settings.action"
                   >
-                    {t("team.management.settings", {
+                    {translate("team.management.settings", {
                       defaultValue: "设置",
                     })}
                   </Button>
@@ -4914,11 +4976,11 @@ function renderMembersList(t) {
     </div>
   );
 }
-function renderMemberDetail(t) {
+function renderMemberDetail(translate) {
   const transactions = [
     {
       id: "image-generation",
-      description: t("debugPanel.teamPreview.transactionImage", {
+      description: translate("debugPanel.teamPreview.transactionImage", {
         defaultValue: "图像生成",
       }),
       createdAtMs: new Date("2026-07-15T10:24:00+08:00").getTime(),
@@ -4927,7 +4989,7 @@ function renderMemberDetail(t) {
     },
     {
       id: "agent-usage",
-      description: t("debugPanel.teamPreview.transactionAgent", {
+      description: translate("debugPanel.teamPreview.transactionAgent", {
         defaultValue: "Agent 消耗",
       }),
       createdAtMs: new Date("2026-07-14T18:06:00+08:00").getTime(),
@@ -4947,7 +5009,7 @@ function renderMemberDetail(t) {
               <CardTitle>Riley Zhou</CardTitle>
               <CardDescription>
                 {"UID 3781 · "}
-                {t("team.role.member", {
+                {translate("team.role.member", {
                   defaultValue: "成员",
                 })}
               </CardDescription>
@@ -4965,7 +5027,7 @@ function renderMemberDetail(t) {
                   aria-hidden={true}
                 />
                 <p className="text-xs font-medium text-foreground">
-                  {t("team.management.role", {
+                  {translate("team.management.role", {
                     defaultValue: "角色",
                   })}
                 </p>
@@ -4976,10 +5038,10 @@ function renderMemberDetail(t) {
                   variant="secondary"
                   className="h-auto min-h-8 min-w-0 whitespace-normal text-center leading-relaxed"
                   aria-pressed="true"
-                  onClick={handlePreviewAction$1}
+                  onClick={ignoreMemberPreviewAction}
                   data-action-ui-id="debug.team-edition.case.member-detail.member-role.action"
                 >
-                  {t("team.role.member", {
+                  {translate("team.role.member", {
                     defaultValue: "成员",
                   })}
                 </Button>
@@ -4988,10 +5050,10 @@ function renderMemberDetail(t) {
                   variant="outline"
                   className="h-auto min-h-8 min-w-0 whitespace-normal text-center leading-relaxed"
                   aria-pressed="false"
-                  onClick={handlePreviewAction$1}
+                  onClick={ignoreMemberPreviewAction}
                   data-action-ui-id="debug.team-edition.case.member-detail.admin-role.action"
                 >
-                  {t("team.role.admin", {
+                  {translate("team.role.admin", {
                     defaultValue: "管理员",
                   })}
                 </Button>
@@ -5001,7 +5063,7 @@ function renderMemberDetail(t) {
           <div className="space-y-2">
             <div>
               <p className="text-xs font-medium text-foreground">
-                {t(
+                {translate(
                   "debugPanel.teamPreview.management.memberDetail.usageTitle",
                   {
                     defaultValue: "通用积分消耗详情",
@@ -5009,7 +5071,7 @@ function renderMemberDetail(t) {
                 )}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {t("debugPanel.teamPreview.management.memberDetail.usageMeta", {
+                {translate("debugPanel.teamPreview.management.memberDetail.usageMeta", {
                   defaultValue: "已用 3,680 / 总限额 10,000",
                 })}
               </p>
@@ -5018,51 +5080,51 @@ function renderMemberDetail(t) {
               rows={transactions}
               loading={false}
               error={false}
-              descriptionLabel={t("team.credit.transaction", {
+              descriptionLabel={translate("team.credit.transaction", {
                 defaultValue: "类型",
               })}
-              timeLabel={t("team.credit.time", {
+              timeLabel={translate("team.credit.time", {
                 defaultValue: "时间",
               })}
-              amountLabel={t("team.credit.amount", {
+              amountLabel={translate("team.credit.amount", {
                 defaultValue: "积分",
               })}
-              emptyLabel={t("team.credit.empty", {
+              emptyLabel={translate("team.credit.empty", {
                 defaultValue: "暂无积分流水",
               })}
-              errorLabel={t("team.common.loadFailed", {
+              errorLabel={translate("team.common.loadFailed", {
                 defaultValue: "加载失败",
               })}
-              retryLabel={t("common.retry", {
+              retryLabel={translate("common.retry", {
                 defaultValue: "重试",
               })}
               onRetry={() => void 0}
             />
           </div>
           <div className="flex justify-end">
-            <PreviewAction$1 actionId="member-detail.confirm">
-              {t("debugPanel.teamPreview.management.memberDetail.confirm", {
+            <MemberPreviewAction actionId="member-detail.confirm">
+              {translate("debugPanel.teamPreview.management.memberDetail.confirm", {
                 defaultValue: "确认修改",
               })}
-            </PreviewAction$1>
+            </MemberPreviewAction>
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
-function renderRemoveConfirm(t) {
+function renderRemoveConfirm(translate) {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>
-            {t("team.management.removeSelected", {
+            {translate("team.management.removeSelected", {
               defaultValue: "移除成员",
             })}
           </CardTitle>
           <CardDescription>
-            {t("debugPanel.teamPreview.management.removeConfirm.description", {
+            {translate("debugPanel.teamPreview.management.removeConfirm.description", {
               defaultValue: "确认从星河创作组移除以下 3 位成员？",
             })}
           </CardDescription>
@@ -5071,7 +5133,7 @@ function renderRemoveConfirm(t) {
           <Alert variant="destructive">
             <Icon icon={TriangleAlert} size="sm" aria-hidden={true} />
             <AlertTitle>
-              {t(
+              {translate(
                 "debugPanel.teamPreview.management.removeConfirm.warningTitle",
                 {
                   defaultValue: "移除后立即失去团队访问权限",
@@ -5079,7 +5141,7 @@ function renderRemoveConfirm(t) {
               )}
             </AlertTitle>
             <AlertDescription>
-              {t(
+              {translate(
                 "debugPanel.teamPreview.management.removeConfirm.warningDescription",
                 {
                   defaultValue:
@@ -5109,45 +5171,45 @@ function renderRemoveConfirm(t) {
             ))}
           </div>
           <div className="flex justify-end gap-2">
-            <PreviewAction$1 actionId="remove-confirm.cancel">
-              {t("common.cancel", {
+            <MemberPreviewAction actionId="remove-confirm.cancel">
+              {translate("common.cancel", {
                 defaultValue: "取消",
               })}
-            </PreviewAction$1>
-            <PreviewAction$1
+            </MemberPreviewAction>
+            <MemberPreviewAction
               actionId="remove-confirm.confirm"
               destructive={true}
             >
-              {t("debugPanel.teamPreview.management.removeConfirm.confirm", {
+              {translate("debugPanel.teamPreview.management.removeConfirm.confirm", {
                 defaultValue: "移除 3 位成员",
               })}
-            </PreviewAction$1>
+            </MemberPreviewAction>
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
-function renderRemovePartial(t) {
+function renderRemovePartial(translate) {
   const results = [
     {
       name: "Riley Zhou",
       ok: true,
-      detail: t("debugPanel.teamPreview.management.removePartial.removed", {
+      detail: translate("debugPanel.teamPreview.management.removePartial.removed", {
         defaultValue: "已移除",
       }),
     },
     {
       name: "Jordan Lin",
       ok: true,
-      detail: t("debugPanel.teamPreview.management.removePartial.removed", {
+      detail: translate("debugPanel.teamPreview.management.removePartial.removed", {
         defaultValue: "已移除",
       }),
     },
     {
       name: "Taylor Wang",
       ok: false,
-      detail: t("team.reason.version_conflict", {
+      detail: translate("team.reason.version_conflict", {
         defaultValue: "数据已更新，请刷新后重试。",
       }),
     },
@@ -5157,12 +5219,12 @@ function renderRemovePartial(t) {
       <Card>
         <CardHeader>
           <CardTitle>
-            {t("debugPanel.teamPreview.management.removePartial.title", {
+            {translate("debugPanel.teamPreview.management.removePartial.title", {
               defaultValue: "批量移除完成",
             })}
           </CardTitle>
           <CardDescription>
-            {t("debugPanel.teamPreview.management.removePartial.description", {
+            {translate("debugPanel.teamPreview.management.removePartial.description", {
               defaultValue: "2 项成功，1 项失败；仅失败项保留在选择中。",
             })}
           </CardDescription>
@@ -5190,13 +5252,13 @@ function renderRemovePartial(t) {
                 </div>
                 <Badge variant={item.ok ? "secondary" : "destructive"}>
                   {item.ok
-                    ? t(
+                    ? translate(
                         "debugPanel.teamPreview.management.removePartial.success",
                         {
                           defaultValue: "成功",
                         },
                       )
-                    : t(
+                    : translate(
                         "debugPanel.teamPreview.management.removePartial.failed",
                         {
                           defaultValue: "失败",
@@ -5207,11 +5269,11 @@ function renderRemovePartial(t) {
             ))}
           </div>
           <div className="flex justify-end">
-            <PreviewAction$1 actionId="remove-partial.refresh">
-              {t("debugPanel.teamPreview.management.removePartial.refresh", {
+            <MemberPreviewAction actionId="remove-partial.refresh">
+              {translate("debugPanel.teamPreview.management.removePartial.refresh", {
                 defaultValue: "刷新成员列表",
               })}
-            </PreviewAction$1>
+            </MemberPreviewAction>
           </div>
         </CardContent>
       </Card>
@@ -5219,29 +5281,29 @@ function renderRemovePartial(t) {
   );
 }
 function ManagementMemberPreviewFixture({ kind }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   switch (kind) {
     case "members-list":
-      return renderMembersList(t);
+      return renderMembersList(translate);
     case "member-detail":
-      return renderMemberDetail(t);
+      return renderMemberDetail(translate);
     case "remove-confirm":
-      return renderRemoveConfirm(t);
+      return renderRemoveConfirm(translate);
     case "remove-partial":
-      return renderRemovePartial(t);
+      return renderRemovePartial(translate);
   }
 }
 const handlePreviewAction = () => void 0;
 function FixtureFrame({ children }) {
   return <div className="mx-auto max-w-3xl space-y-4">{children}</div>;
 }
-function TeamIdentity({ t, headerActions, footerActions }) {
+function TeamIdentity({ t: translate, headerActions, footerActions }) {
   return (
     <TeamManagementSummary
-      teamInfoLabel={t("team.management.teamInfo", {
+      teamInfoLabel={translate("team.management.teamInfo", {
         defaultValue: "团队信息",
       })}
-      teamName={t("debugPanel.teamPreview.primaryTeam", {
+      teamName={translate("debugPanel.teamPreview.primaryTeam", {
         defaultValue: "星河创作组",
       })}
       headerActions={headerActions}
@@ -5263,21 +5325,21 @@ function PreviewAction({ actionId, children, destructive, label }) {
     </Button>
   );
 }
-function renderPermissions(t, role) {
+function renderPermissions(translate, role) {
   return (
     <FixtureFrame>
       <TeamIdentity
-        t={t}
+        t={translate}
         headerActions={
           role !== "member" ? (
             <>
               <PreviewAction actionId={`permissions.${role}.invite`}>
-                {t("team.management.invite", {
+                {translate("team.management.invite", {
                   defaultValue: "邀请成员",
                 })}
               </PreviewAction>
               <PreviewAction actionId={`permissions.${role}.quota`}>
-                {t("team.management.configureQuota", {
+                {translate("team.management.configureQuota", {
                   defaultValue: "全员配置额度",
                 })}
               </PreviewAction>
@@ -5292,7 +5354,7 @@ function renderPermissions(t, role) {
               actionId={`permissions.${role}.leave`}
               destructive={true}
             >
-              {t("team.management.leave", {
+              {translate("team.management.leave", {
                 defaultValue: "离开团队",
               })}
             </PreviewAction>
@@ -5301,7 +5363,7 @@ function renderPermissions(t, role) {
                 actionId="permissions.owner.dissolve"
                 destructive={true}
               >
-                {t("team.management.dissolve", {
+                {translate("team.management.dissolve", {
                   defaultValue: "解散团队",
                 })}
               </PreviewAction>
@@ -5312,14 +5374,14 @@ function renderPermissions(t, role) {
     </FixtureFrame>
   );
 }
-function renderInviteCreate(t) {
+function renderInviteCreate(translate) {
   return (
     <FixtureFrame>
-      <TeamIdentity t={t} />
+      <TeamIdentity t={translate} />
       <Card>
         <CardHeader>
           <CardTitle>
-            {t("team.management.invite", {
+            {translate("team.management.invite", {
               defaultValue: "邀请成员",
             })}
           </CardTitle>
@@ -5327,7 +5389,7 @@ function renderInviteCreate(t) {
         <CardContent className="space-y-5">
           <div className="space-y-2">
             <p className="text-xs font-medium text-foreground">
-              {t("debugPanel.teamPreview.management.inviteCreate.role", {
+              {translate("debugPanel.teamPreview.management.inviteCreate.role", {
                 defaultValue: "受邀者角色",
               })}
             </p>
@@ -5340,7 +5402,7 @@ function renderInviteCreate(t) {
                 onClick={handlePreviewAction}
                 data-action-ui-id="debug.team-edition.case.invite-create.member-role.action"
               >
-                {t("team.role.member", {
+                {translate("team.role.member", {
                   defaultValue: "成员",
                 })}
               </Button>
@@ -5352,7 +5414,7 @@ function renderInviteCreate(t) {
                 onClick={handlePreviewAction}
                 data-action-ui-id="debug.team-edition.case.invite-create.admin-role.action"
               >
-                {t("team.role.admin", {
+                {translate("team.role.admin", {
                   defaultValue: "管理员",
                 })}
               </Button>
@@ -5361,19 +5423,19 @@ function renderInviteCreate(t) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <p className="text-xs font-medium text-foreground">
-                {t("debugPanel.teamPreview.management.inviteCreate.expiry", {
+                {translate("debugPanel.teamPreview.management.inviteCreate.expiry", {
                   defaultValue: "链接有效期",
                 })}
               </p>
               <Input
                 readOnly={true}
-                value={t(
+                value={translate(
                   "debugPanel.teamPreview.management.inviteCreate.sevenDays",
                   {
                     defaultValue: "7 天",
                   },
                 )}
-                aria-label={t(
+                aria-label={translate(
                   "debugPanel.teamPreview.management.inviteCreate.expiry",
                   {
                     defaultValue: "链接有效期",
@@ -5384,7 +5446,7 @@ function renderInviteCreate(t) {
             </div>
             <div className="space-y-2">
               <p className="text-xs font-medium text-foreground">
-                {t(
+                {translate(
                   "debugPanel.teamPreview.management.inviteCreate.usageLimit",
                   {
                     defaultValue: "使用次数限制",
@@ -5394,7 +5456,7 @@ function renderInviteCreate(t) {
               <Input
                 readOnly={true}
                 value="20"
-                aria-label={t(
+                aria-label={translate(
                   "debugPanel.teamPreview.management.inviteCreate.usageLimit",
                   {
                     defaultValue: "使用次数限制",
@@ -5406,18 +5468,18 @@ function renderInviteCreate(t) {
           </div>
           <div className="flex flex-wrap justify-end gap-2">
             <PreviewAction actionId="invite-create.cancel">
-              {t("common.cancel", {
+              {translate("common.cancel", {
                 defaultValue: "取消",
               })}
             </PreviewAction>
             <PreviewAction
               actionId="invite-create.generate"
-              label={t("debugPanel.teamPreview.management.generateLink", {
+              label={translate("debugPanel.teamPreview.management.generateLink", {
                 defaultValue: "生成链接",
               })}
             >
               <Icon icon={Link2} size="sm" aria-hidden={true} />
-              {t("debugPanel.teamPreview.management.generateLink", {
+              {translate("debugPanel.teamPreview.management.generateLink", {
                 defaultValue: "生成链接",
               })}
             </PreviewAction>
@@ -5427,14 +5489,14 @@ function renderInviteCreate(t) {
     </FixtureFrame>
   );
 }
-function renderInviteHistory(t) {
+function renderInviteHistory(translate) {
   const links = [
     {
       url: "design.minimax.io/i/••••A9K2",
       used: 3,
       limit: 20,
       role: "member",
-      status: t("debugPanel.teamPreview.management.inviteHistory.active", {
+      status: translate("debugPanel.teamPreview.management.inviteHistory.active", {
         defaultValue: "有效",
       }),
       badge: "secondary",
@@ -5444,7 +5506,7 @@ function renderInviteHistory(t) {
       used: 10,
       limit: 10,
       role: "admin",
-      status: t("debugPanel.teamPreview.management.inviteHistory.usedUp", {
+      status: translate("debugPanel.teamPreview.management.inviteHistory.usedUp", {
         defaultValue: "次数用尽",
       }),
       badge: "outline",
@@ -5454,7 +5516,7 @@ function renderInviteHistory(t) {
       used: 1,
       limit: 5,
       role: "member",
-      status: t("debugPanel.teamPreview.management.inviteHistory.expired", {
+      status: translate("debugPanel.teamPreview.management.inviteHistory.expired", {
         defaultValue: "已过期",
       }),
       badge: "outline",
@@ -5466,19 +5528,19 @@ function renderInviteHistory(t) {
         <CardHeader className="gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>
-              {t("team.management.inviteLinks", {
+              {translate("team.management.inviteLinks", {
                 defaultValue: "邀请链接记录",
               })}
             </CardTitle>
           </div>
           <PreviewAction
             actionId="invite-history.create"
-            label={t("debugPanel.teamPreview.management.generateLink", {
+            label={translate("debugPanel.teamPreview.management.generateLink", {
               defaultValue: "生成链接",
             })}
           >
             <Icon icon={Link2} size="sm" aria-hidden={true} />
-            {t("debugPanel.teamPreview.management.generateLink", {
+            {translate("debugPanel.teamPreview.management.generateLink", {
               defaultValue: "生成链接",
             })}
           </PreviewAction>
@@ -5496,13 +5558,13 @@ function renderInviteHistory(t) {
                       {link.url}
                     </p>
                     <p className="mt-1 text-[11px] text-muted-foreground">
-                      {t(
+                      {translate(
                         "debugPanel.teamPreview.management.inviteHistory.usage",
                         {
                           defaultValue: "{{used}} / {{limit}} 次 · {{role}}",
                           used: link.used,
                           limit: link.limit,
-                          role: t(`team.role.${link.role}`, {
+                          role: translate(`team.role.${link.role}`, {
                             defaultValue: link.role,
                           }),
                         },
@@ -5516,7 +5578,7 @@ function renderInviteHistory(t) {
                       variant="ghost"
                       size="icon-sm"
                       onClick={handlePreviewAction}
-                      aria-label={t(
+                      aria-label={translate(
                         "debugPanel.teamPreview.management.inviteHistory.copy",
                         {
                           defaultValue: "复制邀请链接",
@@ -5531,7 +5593,7 @@ function renderInviteHistory(t) {
                       variant="ghost"
                       size="icon-sm"
                       onClick={handlePreviewAction}
-                      aria-label={t(
+                      aria-label={translate(
                         "debugPanel.teamPreview.management.inviteHistory.revoke",
                         {
                           defaultValue: "撤销邀请链接",
@@ -5551,26 +5613,26 @@ function renderInviteHistory(t) {
     </FixtureFrame>
   );
 }
-function renderCreditsEmpty(t, role) {
+function renderCreditsEmpty(translate, role) {
   return (
     <FixtureFrame>
-      <TeamIdentity t={t} />
+      <TeamIdentity t={translate} />
       <Card>
         <CardContent className="space-y-3">
           <TeamPanelEmpty
-            title={t("debugPanel.teamPreview.management.creditsEmpty.title", {
+            title={translate("debugPanel.teamPreview.management.creditsEmpty.title", {
               defaultValue: "暂无团队积分",
             })}
             description={
               role === "owner"
-                ? t(
+                ? translate(
                     "debugPanel.teamPreview.management.creditsEmpty.ownerDescription",
                     {
                       defaultValue:
                         "团队当前没有通用积分，可为这个团队购买积分。",
                     },
                   )
-                : t(
+                : translate(
                     "debugPanel.teamPreview.management.creditsEmpty.memberDescription",
                     {
                       defaultValue:
@@ -5582,7 +5644,7 @@ function renderCreditsEmpty(t, role) {
           {role === "owner" ? (
             <div className="flex justify-end">
               <PreviewAction actionId="credits-empty.purchase">
-                {t("team.credit.purchase", {
+                {translate("team.credit.purchase", {
                   defaultValue: "去购买",
                 })}
               </PreviewAction>
@@ -5593,18 +5655,18 @@ function renderCreditsEmpty(t, role) {
     </FixtureFrame>
   );
 }
-function renderCreditsOverview(t) {
+function renderCreditsOverview(translate) {
   return (
     <FixtureFrame>
       <Card>
         <CardHeader>
           <CardTitle>
-            {t("team.management.quotaOverview", {
+            {translate("team.management.quotaOverview", {
               defaultValue: "积分概览",
             })}
           </CardTitle>
           <CardDescription>
-            {t(
+            {translate(
               "debugPanel.teamPreview.management.creditsOverview.description",
               {
                 defaultValue: "团队通用积分使用情况",
@@ -5616,7 +5678,7 @@ function renderCreditsOverview(t) {
           <div>
             <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
               <span className="text-xs text-muted-foreground">
-                {t(
+                {translate(
                   "debugPanel.teamPreview.management.creditsOverview.usedTotal",
                   {
                     defaultValue: "已用 / 总额",
@@ -5629,7 +5691,7 @@ function renderCreditsOverview(t) {
             </div>
             <Progress
               value={18.4}
-              aria-label={t(
+              aria-label={translate(
                 "debugPanel.teamPreview.management.creditsOverview.progress",
                 {
                   defaultValue: "团队积分已使用 18.4%",
@@ -5641,16 +5703,16 @@ function renderCreditsOverview(t) {
             metrics={[
               {
                 id: "default-quota",
-                label: t("team.management.defaultQuota", {
+                label: translate("team.management.defaultQuota", {
                   defaultValue: "默认个人额度",
                 }),
-                value: t("team.credit.unlimited", {
+                value: translate("team.credit.unlimited", {
                   defaultValue: "无限额",
                 }),
               },
               {
                 id: "team-remaining",
-                label: t("team.credit.teamRemaining", {
+                label: translate("team.credit.teamRemaining", {
                   defaultValue: "团队剩余积分",
                 }),
                 value: "163,200",
@@ -5658,7 +5720,7 @@ function renderCreditsOverview(t) {
               },
               {
                 id: "eligible-members",
-                label: t("team.management.eligibleMembers", {
+                label: translate("team.management.eligibleMembers", {
                   defaultValue: "适用成员",
                 }),
                 value: "38",
@@ -5669,12 +5731,12 @@ function renderCreditsOverview(t) {
           <div className="flex justify-end">
             <PreviewAction
               actionId="credits-overview.configure"
-              label={t("team.management.configureQuota", {
+              label={translate("team.management.configureQuota", {
                 defaultValue: "全员配置额度",
               })}
             >
               <Icon icon={Settings2} size="sm" aria-hidden={true} />
-              {t("team.management.configureQuota", {
+              {translate("team.management.configureQuota", {
                 defaultValue: "全员配置额度",
               })}
             </PreviewAction>
@@ -5684,31 +5746,31 @@ function renderCreditsOverview(t) {
     </FixtureFrame>
   );
 }
-function renderQuota(t, selectedOnly) {
+function renderQuota(translate, selectedOnly) {
   const count = selectedOnly ? 3 : 38;
   const scopeLabel = selectedOnly
-    ? t("debugPanel.teamPreview.management.quota.selectedMembers", {
+    ? translate("debugPanel.teamPreview.management.quota.selectedMembers", {
         defaultValue: "已选择的 3 位成员",
       })
-    : t("debugPanel.teamPreview.management.quota.allMembers", {
+    : translate("debugPanel.teamPreview.management.quota.allMembers", {
         defaultValue: "全部 38 位成员",
       });
-  const id = selectedOnly ? "quota-selected" : "quota-all";
+  const quotaId = selectedOnly ? "quota-selected" : "quota-all";
   return (
     <FixtureFrame>
       <Card>
         <CardHeader>
           <CardTitle>
             {selectedOnly
-              ? t("debugPanel.teamPreview.management.quota.selectedTitle", {
+              ? translate("debugPanel.teamPreview.management.quota.selectedTitle", {
                   defaultValue: "配置所选成员额度",
                 })
-              : t("team.management.configureQuota", {
+              : translate("team.management.configureQuota", {
                   defaultValue: "全员配置额度",
                 })}
           </CardTitle>
           <CardDescription>
-            {t("debugPanel.teamPreview.management.quota.description", {
+            {translate("debugPanel.teamPreview.management.quota.description", {
               defaultValue: "{{scope}} · 团队积分池剩余 163,200",
               scope: scopeLabel,
             })}
@@ -5717,7 +5779,7 @@ function renderQuota(t, selectedOnly) {
         <CardContent className="space-y-5">
           <div className="space-y-2">
             <p className="text-xs font-medium text-foreground">
-              {t("debugPanel.teamPreview.management.quota.limit", {
+              {translate("debugPanel.teamPreview.management.quota.limit", {
                 defaultValue: "通用积分上限",
               })}
             </p>
@@ -5728,9 +5790,9 @@ function renderQuota(t, selectedOnly) {
                 className="h-auto min-h-8 min-w-0 whitespace-normal text-center leading-relaxed"
                 aria-pressed="false"
                 onClick={handlePreviewAction}
-                data-action-ui-id={`debug.team-edition.case.${id}.unlimited.action`}
+                data-action-ui-id={`debug.team-edition.case.${quotaId}.unlimited.action`}
               >
-                {t("team.credit.unlimited", {
+                {translate("team.credit.unlimited", {
                   defaultValue: "无限额",
                 })}
               </Button>
@@ -5740,9 +5802,9 @@ function renderQuota(t, selectedOnly) {
                 className="h-auto min-h-8 min-w-0 whitespace-normal text-center leading-relaxed"
                 aria-pressed="true"
                 onClick={handlePreviewAction}
-                data-action-ui-id={`debug.team-edition.case.${id}.custom.action`}
+                data-action-ui-id={`debug.team-edition.case.${quotaId}.custom.action`}
               >
-                {t("debugPanel.teamPreview.management.quota.custom", {
+                {translate("debugPanel.teamPreview.management.quota.custom", {
                   defaultValue: "自定义额度",
                 })}
               </Button>
@@ -5750,44 +5812,44 @@ function renderQuota(t, selectedOnly) {
             <Input
               readOnly={true}
               value="10,000"
-              aria-label={t(
+              aria-label={translate(
                 "debugPanel.teamPreview.management.quota.memberLimit",
                 {
                   defaultValue: "每人通用积分上限",
                 },
               )}
-              data-action-ui-id={`debug.team-edition.case.${id}.limit.action`}
+              data-action-ui-id={`debug.team-edition.case.${quotaId}.limit.action`}
             />
             <p className="text-xs text-muted-foreground">
-              {t("debugPanel.teamPreview.management.quota.validation", {
+              {translate("debugPanel.teamPreview.management.quota.validation", {
                 defaultValue: "上限必须大于或等于 0。",
               })}
             </p>
           </div>
           <div className="space-y-2">
             <p className="text-xs font-medium text-foreground">
-              {t("debugPanel.teamPreview.management.quota.resetTime", {
+              {translate("debugPanel.teamPreview.management.quota.resetTime", {
                 defaultValue: "额度重置时间",
               })}
             </p>
             <Input
               readOnly={true}
-              value={t("debugPanel.teamPreview.management.quota.noReset", {
+              value={translate("debugPanel.teamPreview.management.quota.noReset", {
                 defaultValue: "无限期（本期不重置）",
               })}
-              aria-label={t(
+              aria-label={translate(
                 "debugPanel.teamPreview.management.quota.resetTime",
                 {
                   defaultValue: "额度重置时间",
                 },
               )}
-              data-action-ui-id={`debug.team-edition.case.${id}.reset-time.action`}
+              data-action-ui-id={`debug.team-edition.case.${quotaId}.reset-time.action`}
             />
           </div>
           <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs">
             <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3 text-muted-foreground">
               <span>
-                {t("debugPanel.teamPreview.management.quota.total", {
+                {translate("debugPanel.teamPreview.management.quota.total", {
                   defaultValue: "配置总量",
                 })}
               </span>
@@ -5800,7 +5862,7 @@ function renderQuota(t, selectedOnly) {
             </div>
             <div className="mt-2 grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3 text-muted-foreground">
               <span>
-                {t("debugPanel.teamPreview.management.quota.scope", {
+                {translate("debugPanel.teamPreview.management.quota.scope", {
                   defaultValue: "生效范围",
                 })}
               </span>
@@ -5810,13 +5872,13 @@ function renderQuota(t, selectedOnly) {
             </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2">
-            <PreviewAction actionId={`${id}.cancel`}>
-              {t("common.cancel", {
+            <PreviewAction actionId={`${quotaId}.cancel`}>
+              {translate("common.cancel", {
                 defaultValue: "取消",
               })}
             </PreviewAction>
-            <PreviewAction actionId={`${id}.confirm`}>
-              {t("debugPanel.teamPreview.management.quota.confirm", {
+            <PreviewAction actionId={`${quotaId}.confirm`}>
+              {translate("debugPanel.teamPreview.management.quota.confirm", {
                 defaultValue: "确认配置",
               })}
             </PreviewAction>
@@ -5827,28 +5889,28 @@ function renderQuota(t, selectedOnly) {
   );
 }
 function ManagementPreviewFixture({ kind }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   switch (kind) {
     case "permissions-owner":
-      return renderPermissions(t, "owner");
+      return renderPermissions(translate, "owner");
     case "permissions-admin":
-      return renderPermissions(t, "admin");
+      return renderPermissions(translate, "admin");
     case "permissions-member":
-      return renderPermissions(t, "member");
+      return renderPermissions(translate, "member");
     case "invite-create":
-      return renderInviteCreate(t);
+      return renderInviteCreate(translate);
     case "invite-history":
-      return renderInviteHistory(t);
+      return renderInviteHistory(translate);
     case "credits-empty-owner":
-      return renderCreditsEmpty(t, "owner");
+      return renderCreditsEmpty(translate, "owner");
     case "credits-empty-member":
-      return renderCreditsEmpty(t, "member");
+      return renderCreditsEmpty(translate, "member");
     case "credits-overview":
-      return renderCreditsOverview(t);
+      return renderCreditsOverview(translate);
     case "quota-all":
-      return renderQuota(t, false);
+      return renderQuota(translate, false);
     case "quota-selected":
-      return renderQuota(t, true);
+      return renderQuota(translate, true);
     case "members-list":
     case "member-detail":
     case "remove-confirm":
@@ -6065,13 +6127,13 @@ const MANAGEMENT_SCENARIOS = [
   },
 ];
 function ManagementPreview() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const scenarios = MANAGEMENT_SCENARIOS.map((scenario) => ({
     ...scenario,
-    title: t(`debugPanel.teamPreview.managementCase.${scenario.id}.title`, {
+    title: translate(`debugPanel.teamPreview.managementCase.${scenario.id}.title`, {
       defaultValue: scenario.title,
     }),
-    description: t(
+    description: translate(
       `debugPanel.teamPreview.managementCase.${scenario.id}.description`,
       {
         defaultValue: scenario.description,
@@ -6087,7 +6149,7 @@ function ManagementPreview() {
   return (
     <div data-action-ui-id="debug.team-edition.management">
       <ScenarioGallery
-        ariaLabel={t("debugPanel.teamPreview.managementScenarios", {
+        ariaLabel={translate("debugPanel.teamPreview.managementScenarios", {
           defaultValue: "团队管理场景",
         })}
         scenarios={scenarios}
@@ -6096,7 +6158,7 @@ function ManagementPreview() {
   );
 }
 function TeamEditionPreviewDialog({ onClose }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const tabListScrollRef = reactExports.useRef(null);
   const isTabListScrolling = useIsScrolling({
     scrollRef: tabListScrollRef,
@@ -6124,18 +6186,18 @@ function TeamEditionPreviewDialog({ onClose }) {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <DialogTitle className="truncate">
-                  {t("debugPanel.teamPreview.title", {
+                  {translate("debugPanel.teamPreview.title", {
                     defaultValue: "团队版前端预览",
                   })}
                 </DialogTitle>
                 <Badge variant="secondary" className="max-w-24">
-                  {t("debugPanel.teamPreview.badge", {
+                  {translate("debugPanel.teamPreview.badge", {
                     defaultValue: "静态数据",
                   })}
                 </Badge>
               </div>
               <DialogDescription className="truncate text-caption-11">
-                {t("debugPanel.teamPreview.previewHint", {
+                {translate("debugPanel.teamPreview.previewHint", {
                   defaultValue: "以下页面使用静态数据，操作仅用于预览。",
                 })}
               </DialogDescription>
@@ -6156,7 +6218,7 @@ function TeamEditionPreviewDialog({ onClose }) {
               strokeWidth={1}
               aria-hidden={true}
             />
-            {t("common.back", {
+            {translate("common.back", {
               defaultValue: "返回",
             })}
           </Button>
@@ -6169,14 +6231,14 @@ function TeamEditionPreviewDialog({ onClose }) {
           >
             <TabsList
               className="w-max"
-              aria-label={t("debugPanel.teamPreview.title")}
+              aria-label={translate("debugPanel.teamPreview.title")}
             >
               <TabsTrigger
                 value="account"
                 data-action-ui-id="debug.team-edition.tab-account"
               >
                 <Icon icon={CircleUserRound} size="sm" aria-hidden={true} />
-                {t("debugPanel.teamPreview.accountTab", {
+                {translate("debugPanel.teamPreview.accountTab", {
                   defaultValue: "账号与 Sidebar",
                 })}
               </TabsTrigger>
@@ -6185,7 +6247,7 @@ function TeamEditionPreviewDialog({ onClose }) {
                 data-action-ui-id="debug.team-edition.tab-invitation"
               >
                 <Icon icon={Bell} size="sm" aria-hidden={true} />
-                {t("debugPanel.teamPreview.invitationTab", {
+                {translate("debugPanel.teamPreview.invitationTab", {
                   defaultValue: "创建与邀请",
                 })}
               </TabsTrigger>
@@ -6194,7 +6256,7 @@ function TeamEditionPreviewDialog({ onClose }) {
                 data-action-ui-id="debug.team-edition.tab-management"
               >
                 <Icon icon={Users} size="sm" aria-hidden={true} />
-                {t("debugPanel.teamPreview.managementTab", {
+                {translate("debugPanel.teamPreview.managementTab", {
                   defaultValue: "团队管理",
                 })}
               </TabsTrigger>
@@ -6203,7 +6265,7 @@ function TeamEditionPreviewDialog({ onClose }) {
                 data-action-ui-id="debug.team-edition.tab-credits"
               >
                 <Icon icon={WalletCards} size="sm" aria-hidden={true} />
-                {t("debugPanel.teamPreview.creditTab", {
+                {translate("debugPanel.teamPreview.creditTab", {
                   defaultValue: "积分与额度",
                 })}
               </TabsTrigger>
@@ -6243,17 +6305,17 @@ function TeamEditionPreviewDialog({ onClose }) {
   );
 }
 function TeamEditionPreviewSection({ onOpen }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <section className="rounded-md border border-border/70 bg-background">
       <div className="border-b border-border/70 px-4 py-3">
         <div className="text-sm font-medium">
-          {t("debugPanel.teamPreview.title", {
+          {translate("debugPanel.teamPreview.title", {
             defaultValue: "团队版前端预览",
           })}
         </div>
         <div className="mt-0.5 text-caption-11 leading-relaxed text-muted-foreground">
-          {t("debugPanel.teamPreview.description", {
+          {translate("debugPanel.teamPreview.description", {
             defaultValue:
               "使用静态数据预览账号切换、创建、邀请、管理和积分页面，所有操作仅用于展示。",
           })}
@@ -6268,7 +6330,7 @@ function TeamEditionPreviewSection({ onOpen }) {
             aria-hidden={true}
           />
           <span className="truncate">
-            {t("debugPanel.teamPreview.openLabel", {
+            {translate("debugPanel.teamPreview.openLabel", {
               defaultValue: "打开全屏预览",
             })}
           </span>
@@ -6281,7 +6343,7 @@ function TeamEditionPreviewSection({ onOpen }) {
           onClick={onOpen}
           data-action-ui-id="debug.team-edition.open"
         >
-          {t("debugPanel.preview", {
+          {translate("debugPanel.preview", {
             defaultValue: "预览",
           })}
         </Button>
@@ -6294,7 +6356,7 @@ const HOME_TOUR_REVISION_OPTIONS = Array.from(
   {
     length: HOME_INPUT_TOUR_REVISION + 1,
   },
-  (_, i) => i,
+  (unusedValue, index) => index,
 );
 const WORKSPACE_FAILURE_PREVIEW_CODES = [
   "opencode_port_conflict",
@@ -6411,11 +6473,11 @@ function buildMemorySummary(memoryStats) {
   return parts.join(" / ");
 }
 function buildReliabilitySummary(snapshot) {
-  const raw = JSON.stringify(snapshot, null, 2);
-  return raw.length > RELIABILITY_SUMMARY_MAX_LENGTH
-    ? `${raw.slice(0, RELIABILITY_SUMMARY_MAX_LENGTH)}
+  const serializedSnapshot = JSON.stringify(snapshot, null, 2);
+  return serializedSnapshot.length > RELIABILITY_SUMMARY_MAX_LENGTH
+    ? `${serializedSnapshot.slice(0, RELIABILITY_SUMMARY_MAX_LENGTH)}
 … truncated`
-    : raw;
+    : serializedSnapshot;
 }
 function buildReliabilityUploadContext(snapshot) {
   return {
@@ -6590,8 +6652,8 @@ function buildPreviewBundleStatus(code) {
   };
 }
 function LaneCard() {
-  const { t } = useTranslation();
-  const { config, set } = useSettings();
+  const { t: translate } = useTranslation();
+  const { config, set: setSetting } = useSettings();
   const stored = config.lane ?? "";
   const [draft, setDraft] = reactExports.useState(stored);
   const [saving, setSaving] = reactExports.useState(false);
@@ -6604,17 +6666,17 @@ function LaneCard() {
   const isDirty = trimmed !== stored.trim();
   const onSave = async () => {
     if (!isValid) {
-      dedupedToast.error(t("debugPanel.lane.invalid"));
+      dedupedToast.error(translate("debugPanel.lane.invalid"));
       return;
     }
     setSaving(true);
     try {
-      const ok = await set("lane", trimmed);
-      if (ok) {
+      const settingSaved = await setSetting("lane", trimmed);
+      if (settingSaved) {
         dedupedToast.success(
           isCleared
-            ? t("debugPanel.lane.clearedToast")
-            : t("debugPanel.lane.savedToast", {
+            ? translate("debugPanel.lane.clearedToast")
+            : translate("debugPanel.lane.savedToast", {
                 lane: trimmed,
               }),
         );
@@ -6626,16 +6688,16 @@ function LaneCard() {
   return (
     <section className="rounded-md border border-border/70 bg-background">
       <div className="border-b border-border/70 px-4 py-3">
-        <div className="text-sm font-medium">{t("debugPanel.lane.title")}</div>
+        <div className="text-sm font-medium">{translate("debugPanel.lane.title")}</div>
         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-          {t("debugPanel.lane.description")}
+          {translate("debugPanel.lane.description")}
         </div>
       </div>
       <div className="flex items-center gap-2 px-4 py-3">
         <Input
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder={t("debugPanel.lane.placeholder")}
+          onChange={(inputEvent) => setDraft(inputEvent.target.value)}
+          placeholder={translate("debugPanel.lane.placeholder")}
           spellCheck={false}
           autoCapitalize="off"
           autoCorrect="off"
@@ -6650,15 +6712,15 @@ function LaneCard() {
           onClick={() => void onSave()}
           data-action-ui-id="debug.lane.save"
         >
-          {saving ? t("debugPanel.lane.saving") : t("debugPanel.lane.save")}
+          {saving ? translate("debugPanel.lane.saving") : translate("debugPanel.lane.save")}
         </Button>
       </div>
       <div className="border-t border-border/70 px-4 py-2 text-[11px] text-muted-foreground">
         {stored
-          ? t("debugPanel.lane.current", {
+          ? translate("debugPanel.lane.current", {
               lane: stored,
             })
-          : t("debugPanel.lane.currentMain")}
+          : translate("debugPanel.lane.currentMain")}
       </div>
     </section>
   );
@@ -6680,7 +6742,7 @@ function DiagnosticsRow({ icon, label, value, actionUiId }) {
   );
 }
 function ReliabilityDiagnosticsSection() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const forceOfflineBanner = useDebugFlag(DEBUG_FLAGS.forceOfflineBanner);
   const [snapshot, setSnapshot] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(false);
@@ -6754,9 +6816,9 @@ function ReliabilityDiagnosticsSection() {
     if (!snapshot) return;
     try {
       await navigator.clipboard.writeText(buildReliabilitySummary(snapshot));
-      dedupedToast.success(t("debugPanel.reliability.copied"));
+      dedupedToast.success(translate("debugPanel.reliability.copied"));
     } catch {
-      dedupedToast.error(t("debugPanel.reliability.copyFailed"));
+      dedupedToast.error(translate("debugPanel.reliability.copyFailed"));
     }
   };
   const uploadLogs = async () => {
@@ -6768,11 +6830,11 @@ function ReliabilityDiagnosticsSection() {
         buildReliabilityUploadContext(snapshot),
       );
       if (mountedRef.current) {
-        dedupedToast.success(t("debugPanel.reliability.uploaded"));
+        dedupedToast.success(translate("debugPanel.reliability.uploaded"));
       }
     } catch {
       if (mountedRef.current) {
-        dedupedToast.error(t("debugPanel.reliability.uploadFailed"));
+        dedupedToast.error(translate("debugPanel.reliability.uploadFailed"));
       }
     } finally {
       if (mountedRef.current) {
@@ -6784,37 +6846,37 @@ function ReliabilityDiagnosticsSection() {
     try {
       await window.hilo?.diagnostics?.openLogDir?.();
     } catch {
-      dedupedToast.error(t("debugPanel.reliability.openLogsFailed"));
+      dedupedToast.error(translate("debugPanel.reliability.openLogsFailed"));
     }
   };
   const networkLabel =
     snapshot?.networkStatus?.online === true
-      ? t("debugPanel.reliability.online")
+      ? translate("debugPanel.reliability.online")
       : snapshot?.networkStatus?.online === false
-        ? t("debugPanel.reliability.offline")
-        : t("debugPanel.reliability.unavailable");
+        ? translate("debugPanel.reliability.offline")
+        : translate("debugPanel.reliability.unavailable");
   const gatewayLabel = snapshot?.localGateway.ok
-    ? t("debugPanel.reliability.gatewayOk", {
+    ? translate("debugPanel.reliability.gatewayOk", {
         status: snapshot.localGateway.status ?? "—",
         duration: snapshot.localGateway.durationMs,
       })
-    : t("debugPanel.reliability.gatewayFailed", {
+    : translate("debugPanel.reliability.gatewayFailed", {
         error:
           snapshot?.localGateway.error ??
-          t("debugPanel.reliability.unavailable"),
+          translate("debugPanel.reliability.unavailable"),
         duration: snapshot?.localGateway.durationMs ?? 0,
       });
   const proxyLabel = snapshot?.proxyStatus
-    ? `${snapshot.proxyStatus.hasProxy ? t("debugPanel.reliability.proxyDetected") : t("debugPanel.reliability.proxyNone")}: ${truncateDebugValue(snapshot.proxyStatus.raw)}`
-    : t("debugPanel.reliability.unavailable");
+    ? `${snapshot.proxyStatus.hasProxy ? translate("debugPanel.reliability.proxyDetected") : translate("debugPanel.reliability.proxyNone")}: ${truncateDebugValue(snapshot.proxyStatus.raw)}`
+    : translate("debugPanel.reliability.unavailable");
   return (
     <section className="rounded-md border border-border/70 bg-background">
       <div className="border-b border-border/70 px-4 py-3">
         <div className="text-sm font-medium">
-          {t("debugPanel.reliability.title")}
+          {translate("debugPanel.reliability.title")}
         </div>
         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-          {t("debugPanel.reliability.description")}
+          {translate("debugPanel.reliability.description")}
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2 border-b border-border/70 px-4 py-2.5">
@@ -6826,7 +6888,7 @@ function ReliabilityDiagnosticsSection() {
           data-action-ui-id="debug.reliability.refresh"
         >
           <RetryIcon size={14} className={loading ? "animate-spin" : void 0} />
-          {t("debugPanel.reliability.refresh")}
+          {translate("debugPanel.reliability.refresh")}
         </Button>
         <Button
           variant="outline"
@@ -6836,7 +6898,7 @@ function ReliabilityDiagnosticsSection() {
           data-action-ui-id="debug.reliability.copy-summary"
         >
           <Clipboard className="size-3.5" />
-          {t("debugPanel.reliability.copy")}
+          {translate("debugPanel.reliability.copy")}
         </Button>
         <Button
           variant="outline"
@@ -6849,8 +6911,8 @@ function ReliabilityDiagnosticsSection() {
         >
           <Upload className="size-3.5" />
           {uploading
-            ? t("debugPanel.reliability.uploading")
-            : t("debugPanel.reliability.upload")}
+            ? translate("debugPanel.reliability.uploading")
+            : translate("debugPanel.reliability.upload")}
         </Button>
         <Button
           variant="outline"
@@ -6860,41 +6922,41 @@ function ReliabilityDiagnosticsSection() {
           data-action-ui-id="debug.reliability.open-logs"
         >
           <LocalFolderIcon className="size-3.5" />
-          {t("debugPanel.reliability.openLogs")}
+          {translate("debugPanel.reliability.openLogs")}
         </Button>
       </div>
       <div className="divide-y divide-border/70">
         <DiagnosticsRow
           icon={<Activity size={14} />}
-          label={t("debugPanel.reliability.runtime")}
+          label={translate("debugPanel.reliability.runtime")}
           value={buildRuntimeSummary(snapshot?.runtimeInfo)}
         />
         <DiagnosticsRow
           icon={<Network size={14} />}
-          label={t("debugPanel.reliability.localGateway")}
+          label={translate("debugPanel.reliability.localGateway")}
           value={gatewayLabel}
           actionUiId="debug.reliability.local-gateway-status"
         />
         <DiagnosticsRow
           icon={<Network size={14} />}
-          label={t("debugPanel.reliability.network")}
+          label={translate("debugPanel.reliability.network")}
           value={networkLabel}
         />
         <DiagnosticsRow
           icon={<ShieldAlert size={14} />}
-          label={t("debugPanel.reliability.proxy")}
+          label={translate("debugPanel.reliability.proxy")}
           value={proxyLabel}
         />
         <DiagnosticsRow
           icon={<Activity size={14} />}
-          label={t("debugPanel.reliability.memory")}
+          label={translate("debugPanel.reliability.memory")}
           value={buildMemorySummary(snapshot?.memoryStats)}
         />
         <div className="flex items-center justify-between gap-3 px-4 py-2.5">
           <div className="flex min-w-0 items-center gap-2 text-[13px]">
             <WifiOff size={14} className="shrink-0 text-muted-foreground" />
             <span className="truncate">
-              {t("debugPanel.reliability.forceOfflineBanner")}
+              {translate("debugPanel.reliability.forceOfflineBanner")}
             </span>
           </div>
           <Switch
@@ -6927,22 +6989,22 @@ function DebugTabContent({ value, children }) {
   );
 }
 function HomeWidgetPreviewSection({ onPreview }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <section className="rounded-md border border-border/70 bg-background">
       <div className="border-b border-border/70 px-4 py-3">
         <div className="text-sm font-medium">
-          {t("debugPanel.homeWidget.title")}
+          {translate("debugPanel.homeWidget.title")}
         </div>
         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-          {t("debugPanel.homeWidget.description")}
+          {translate("debugPanel.homeWidget.description")}
         </div>
       </div>
       <div className="divide-y divide-border/70">
         <div className="flex items-center justify-between gap-3 px-4 py-2.5">
           <div className="flex min-w-0 items-center gap-2 text-[13px]">
             <RotateCcw size={14} className="shrink-0 text-muted-foreground" />
-            <span className="truncate">{t("debugPanel.homeWidget.real")}</span>
+            <span className="truncate">{translate("debugPanel.homeWidget.real")}</span>
           </div>
           <Button
             variant="outline"
@@ -6951,13 +7013,13 @@ function HomeWidgetPreviewSection({ onPreview }) {
             onClick={() => onPreview("real", "off")}
             data-action-ui-id="debug.home-widget.real"
           >
-            {t("debugPanel.action")}
+            {translate("debugPanel.action")}
           </Button>
         </div>
         <div className="flex items-center justify-between gap-3 px-4 py-2.5">
           <div className="flex min-w-0 items-center gap-2 text-[13px]">
             <X size={14} className="shrink-0 text-muted-foreground" />
-            <span className="truncate">{t("debugPanel.homeWidget.empty")}</span>
+            <span className="truncate">{translate("debugPanel.homeWidget.empty")}</span>
           </div>
           <Button
             variant="outline"
@@ -6966,14 +7028,14 @@ function HomeWidgetPreviewSection({ onPreview }) {
             onClick={() => onPreview("empty", "off")}
             data-action-ui-id="debug.home-widget.empty"
           >
-            {t("debugPanel.action")}
+            {translate("debugPanel.action")}
           </Button>
         </div>
         <div className="flex items-center justify-between gap-3 px-4 py-2.5">
           <div className="flex min-w-0 items-center gap-2 text-[13px]">
             <Megaphone size={14} className="shrink-0 text-muted-foreground" />
             <span className="truncate">
-              {t("debugPanel.homeWidget.survey")}
+              {translate("debugPanel.homeWidget.survey")}
             </span>
           </div>
           <Button
@@ -6983,7 +7045,7 @@ function HomeWidgetPreviewSection({ onPreview }) {
             onClick={() => onPreview("survey", "off")}
             data-action-ui-id="debug.home-widget.survey"
           >
-            {t("debugPanel.action")}
+            {translate("debugPanel.action")}
           </Button>
         </div>
         {[
@@ -7010,7 +7072,7 @@ function HomeWidgetPreviewSection({ onPreview }) {
           >
             <div className="flex min-w-0 items-center gap-2 text-[13px]">
               <Bell size={14} className="shrink-0 text-muted-foreground" />
-              <span className="truncate">{t(labelKey)}</span>
+              <span className="truncate">{translate(labelKey)}</span>
             </div>
             <Button
               variant="outline"
@@ -7019,7 +7081,7 @@ function HomeWidgetPreviewSection({ onPreview }) {
               onClick={() => onPreview("update", updaterMode)}
               data-action-ui-id={`debug.home-widget.${action}`}
             >
-              {t("debugPanel.action")}
+              {translate("debugPanel.action")}
             </Button>
           </div>
         ))}
@@ -7027,7 +7089,7 @@ function HomeWidgetPreviewSection({ onPreview }) {
           <div className="flex min-w-0 items-center gap-2 text-[13px]">
             <ShieldAlert size={14} className="shrink-0 text-muted-foreground" />
             <span className="truncate">
-              {t("debugPanel.homeWidget.forced")}
+              {translate("debugPanel.homeWidget.forced")}
             </span>
           </div>
           <Button
@@ -7037,7 +7099,7 @@ function HomeWidgetPreviewSection({ onPreview }) {
             onClick={() => onPreview("empty", "forced")}
             data-action-ui-id="debug.home-widget.forced"
           >
-            {t("debugPanel.action")}
+            {translate("debugPanel.action")}
           </Button>
         </div>
       </div>
@@ -7045,7 +7107,7 @@ function HomeWidgetPreviewSection({ onPreview }) {
   );
 }
 function DebugPanelDialog({ open, onOpenChange }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const { user } = useAuth();
   const loginGate = useLoginGate();
   const interestSelection = useInterestSelection();
@@ -7102,12 +7164,12 @@ function DebugPanelDialog({ open, onOpenChange }) {
       }));
       if (!persisted) {
         dedupedToast.error(
-          t("debugPanel.newUserFlow.attachmentFaceNoticeResetFailed"),
+          translate("debugPanel.newUserFlow.attachmentFaceNoticeResetFailed"),
         );
         return;
       }
       dedupedToast.success(
-        t("debugPanel.newUserFlow.attachmentFaceNoticeResetSuccess"),
+        translate("debugPanel.newUserFlow.attachmentFaceNoticeResetSuccess"),
       );
       onOpenChange(false);
     } finally {
@@ -7121,9 +7183,9 @@ function DebugPanelDialog({ open, onOpenChange }) {
   const setHomeTourSeenRevision = async (revision) => {
     await setDismissedCoachMarksAsync((prev) => {
       const kept = (Array.isArray(prev) ? prev : []).filter(
-        (id) =>
-          id !== HOME_INPUT_COACH_MARK_ID &&
-          !id.startsWith(`${HOME_INPUT_COACH_MARK_ID}@`),
+        (tourId) =>
+          tourId !== HOME_INPUT_COACH_MARK_ID &&
+          !tourId.startsWith(`${HOME_INPUT_COACH_MARK_ID}@`),
       );
       if (revision >= 1) kept.push(HOME_INPUT_COACH_MARK_ID);
       if (revision > 1) kept.push(`${HOME_INPUT_COACH_MARK_ID}@${revision}`);
@@ -7144,7 +7206,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
   };
   const replayServerPopup = () => {
     if (!user?.userID) {
-      dedupedToast.error(t("debugPanel.serverPopup.notLoggedIn", "请先登录"));
+      dedupedToast.error(translate("debugPanel.serverPopup.notLoggedIn", "请先登录"));
       return;
     }
     clearMutesForUser(user.userID);
@@ -7158,7 +7220,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogPortal>
           <DialogBackdrop
-            className={cn(
+            className={mergeClassNames(
               "modal-mask fixed inset-0 isolate z-50 duration-150",
               "data-open:animate-in data-open:fade-in-0",
               "data-closed:animate-out data-closed:fade-out-0",
@@ -7167,7 +7229,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
           <DialogPopup
             data-action-ui-id="debug-panel-dialog"
             onClick={stopPropagation}
-            className={cn(
+            className={mergeClassNames(
               "fixed top-1/2 left-1/2 z-50 flex h-[85vh] w-[calc(100%-2rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 flex-col",
               "elevated-surface-border overflow-hidden rounded-xl bg-popover text-popover-foreground",
               "shadow-2xl outline-none",
@@ -7179,7 +7241,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
             <div className="relative shrink-0 overflow-hidden border-b border-border/60 px-5 py-2">
               <div
                 aria-hidden={true}
-                className={cn(
+                className={mergeClassNames(
                   "pointer-events-none absolute inset-0 -z-10 opacity-90",
                   "bg-[radial-gradient(120%_120%_at_0%_0%,oklch(from_var(--primary)_l_c_h/0.18),transparent_55%)]",
                 )}
@@ -7190,7 +7252,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <DialogTitle className="font-semibold tracking-tight">
-                    {t("debugPanel.title")}
+                    {translate("debugPanel.title")}
                   </DialogTitle>
                 </div>
                 <DialogClose
@@ -7203,7 +7265,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                   }
                 >
                   <X size={16} />
-                  <span className="sr-only">{t("common.close")}</span>
+                  <span className="sr-only">{translate("common.close")}</span>
                 </DialogClose>
               </div>
             </div>
@@ -7214,25 +7276,25 @@ function DebugPanelDialog({ open, onOpenChange }) {
                     value="runtime"
                     data-action-ui-id="debug.tabs.runtime"
                   >
-                    {t("debugPanel.tabs.runtime")}
+                    {translate("debugPanel.tabs.runtime")}
                   </TabsTrigger>
                   <TabsTrigger
                     value="preview"
                     data-action-ui-id="debug.tabs.preview"
                   >
-                    {t("debugPanel.tabs.preview")}
+                    {translate("debugPanel.tabs.preview")}
                   </TabsTrigger>
                   <TabsTrigger
                     value="tools"
                     data-action-ui-id="debug.tabs.tools"
                   >
-                    {t("debugPanel.tabs.tools")}
+                    {translate("debugPanel.tabs.tools")}
                   </TabsTrigger>
                   <TabsTrigger
                     value="flows"
                     data-action-ui-id="debug.tabs.flows"
                   >
-                    {t("debugPanel.tabs.flows")}
+                    {translate("debugPanel.tabs.flows")}
                   </TabsTrigger>
                 </TabsList>
                 <DebugTabContent value="runtime">
@@ -7270,15 +7332,15 @@ function DebugPanelDialog({ open, onOpenChange }) {
                     <section className="rounded-md border border-border/70 bg-background">
                       <div className="border-b border-border/70 px-4 py-3">
                         <div className="text-sm font-medium">
-                          {t("debugPanel.timeline.title")}
+                          {translate("debugPanel.timeline.title")}
                         </div>
                         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                          {t("debugPanel.timeline.description")}
+                          {translate("debugPanel.timeline.description")}
                         </div>
                       </div>
                       <div className="flex items-center justify-between gap-3 px-4 py-3">
                         <div className="min-w-0 truncate text-[13px]">
-                          {t("debugPanel.timeline.detailLabel")}
+                          {translate("debugPanel.timeline.detailLabel")}
                         </div>
                         <Switch
                           checked={rawToolView}
@@ -7290,7 +7352,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                       </div>
                       <div className="flex items-center justify-between gap-3 border-t border-border/70 px-4 py-3">
                         <div className="min-w-0 truncate text-[13px]">
-                          {t("debugPanel.timeline.mockMediaGenLabel")}
+                          {translate("debugPanel.timeline.mockMediaGenLabel")}
                         </div>
                         <Switch
                           checked={mockMediaGen}
@@ -7302,7 +7364,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                       </div>
                       <div className="flex items-center justify-between gap-3 border-t border-border/70 px-4 py-3">
                         <div className="min-w-0 truncate text-[13px]">
-                          {t("debugPanel.timeline.mockToolConfirmLabel")}
+                          {translate("debugPanel.timeline.mockToolConfirmLabel")}
                         </div>
                         <Switch
                           checked={mockToolConfirm}
@@ -7316,10 +7378,10 @@ function DebugPanelDialog({ open, onOpenChange }) {
                     <section className="rounded-md border border-border/70 bg-background">
                       <div className="border-b border-border/70 px-4 py-3">
                         <div className="text-sm font-medium">
-                          {t("debugPanel.trackingRecorder.title")}
+                          {translate("debugPanel.trackingRecorder.title")}
                         </div>
                         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                          {t("debugPanel.trackingRecorder.description")}
+                          {translate("debugPanel.trackingRecorder.description")}
                         </div>
                       </div>
                       <div className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -7329,7 +7391,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             className="shrink-0 text-muted-foreground"
                           />
                           <span className="truncate">
-                            {t("debugPanel.trackingRecorder.label")}
+                            {translate("debugPanel.trackingRecorder.label")}
                           </span>
                         </div>
                         <Switch
@@ -7344,10 +7406,10 @@ function DebugPanelDialog({ open, onOpenChange }) {
                     <section className="rounded-md border border-border/70 bg-background">
                       <div className="border-b border-border/70 px-4 py-3">
                         <div className="text-sm font-medium">
-                          {t("debugPanel.reactScan.title")}
+                          {translate("debugPanel.reactScan.title")}
                         </div>
                         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                          {t("debugPanel.reactScan.description")}
+                          {translate("debugPanel.reactScan.description")}
                         </div>
                       </div>
                       <div className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -7357,7 +7419,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             className="shrink-0 text-muted-foreground"
                           />
                           <span className="truncate">
-                            {t("debugPanel.reactScan.label")}
+                            {translate("debugPanel.reactScan.label")}
                           </span>
                         </div>
                         <Switch
@@ -7377,10 +7439,10 @@ function DebugPanelDialog({ open, onOpenChange }) {
                     <section className="rounded-md border border-border/70 bg-background">
                       <div className="border-b border-border/70 px-4 py-3">
                         <div className="text-sm font-medium">
-                          {t("debugPanel.newUserFlow.title")}
+                          {translate("debugPanel.newUserFlow.title")}
                         </div>
                         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                          {t("debugPanel.newUserFlow.description")}
+                          {translate("debugPanel.newUserFlow.description")}
                         </div>
                       </div>
                       <div className="divide-y divide-border/70">
@@ -7391,7 +7453,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                               className="shrink-0 text-muted-foreground"
                             />
                             <span className="truncate">
-                              {t("debugPanel.newUserFlow.triggerLoginGate")}
+                              {translate("debugPanel.newUserFlow.triggerLoginGate")}
                             </span>
                           </div>
                           <Button
@@ -7401,7 +7463,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             onClick={openLoginGate}
                             data-action-ui-id="debug.new-user-flow.login-gate"
                           >
-                            {t("debugPanel.action")}
+                            {translate("debugPanel.action")}
                           </Button>
                         </div>
                         <div className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -7411,7 +7473,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                               className="shrink-0 text-muted-foreground"
                             />
                             <span className="truncate">
-                              {t(
+                              {translate(
                                 "debugPanel.newUserFlow.triggerInterestSelection",
                               )}
                             </span>
@@ -7423,7 +7485,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             onClick={openInterestSelection}
                             data-action-ui-id="debug.new-user-flow.interest-selection"
                           >
-                            {t("debugPanel.action")}
+                            {translate("debugPanel.action")}
                           </Button>
                         </div>
                         <div className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -7434,7 +7496,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             />
                             <div className="min-w-0">
                               <div className="truncate text-[13px]">
-                                {t(
+                                {translate(
                                   "debugPanel.newUserFlow.attachmentFaceNotice",
                                 )}
                               </div>
@@ -7443,10 +7505,10 @@ function DebugPanelDialog({ open, onOpenChange }) {
                                 data-action-ui-id="debug.new-user-flow.attachment-face-notice-status"
                               >
                                 {globalConfig.attachmentFaceNoticeAccepted
-                                  ? t(
+                                  ? translate(
                                       "debugPanel.newUserFlow.attachmentFaceNoticeAccepted",
                                     )
-                                  : t(
+                                  : translate(
                                       "debugPanel.newUserFlow.attachmentFaceNoticePending",
                                     )}
                               </div>
@@ -7464,8 +7526,8 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             data-action-ui-id="debug.new-user-flow.attachment-face-notice-reset"
                           >
                             {resettingAttachmentFaceNotice
-                              ? t("common.loading")
-                              : t(
+                              ? translate("common.loading")
+                              : translate(
                                   "debugPanel.newUserFlow.attachmentFaceNoticeReset",
                                 )}
                           </Button>
@@ -7475,10 +7537,10 @@ function DebugPanelDialog({ open, onOpenChange }) {
                     <section className="rounded-md border border-border/70 bg-background">
                       <div className="border-b border-border/70 px-4 py-3">
                         <div className="text-sm font-medium">
-                          {t("debugPanel.coachMark.title")}
+                          {translate("debugPanel.coachMark.title")}
                         </div>
                         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                          {t("debugPanel.coachMark.description")}
+                          {translate("debugPanel.coachMark.description")}
                         </div>
                       </div>
                       <div className="divide-y divide-border/70">
@@ -7489,7 +7551,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                               className="shrink-0 text-muted-foreground"
                             />
                             <span className="truncate">
-                              {t("debugPanel.coachMark.reset")}
+                              {translate("debugPanel.coachMark.reset")}
                             </span>
                           </div>
                           <Button
@@ -7499,7 +7561,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             onClick={resetCoachMarks}
                             data-action-ui-id="debug.coach-mark.reset"
                           >
-                            {t("debugPanel.action")}
+                            {translate("debugPanel.action")}
                           </Button>
                         </div>
                         <div className="px-4 py-2.5">
@@ -7509,16 +7571,16 @@ function DebugPanelDialog({ open, onOpenChange }) {
                               className="shrink-0 text-muted-foreground"
                             />
                             <span className="truncate">
-                              {t("debugPanel.coachMark.homeTour.label")}
+                              {translate("debugPanel.coachMark.homeTour.label")}
                             </span>
                             <span className="ml-auto shrink-0 text-[11px] text-muted-foreground">
-                              {t("debugPanel.coachMark.homeTour.current", {
+                              {translate("debugPanel.coachMark.homeTour.current", {
                                 revision: homeTourSeenRevision,
                               })}
                             </span>
                           </div>
                           <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                            {t("debugPanel.coachMark.homeTour.description")}
+                            {translate("debugPanel.coachMark.homeTour.description")}
                           </div>
                           <div className="mt-2 flex flex-wrap gap-1.5">
                             {HOME_TOUR_REVISION_OPTIONS.map((revision) => {
@@ -7537,12 +7599,12 @@ function DebugPanelDialog({ open, onOpenChange }) {
                                   data-action-ui-id={`debug.coach-mark.home-tour-revision-${revision}`}
                                 >
                                   {revision === 0
-                                    ? t("debugPanel.coachMark.homeTour.newUser")
+                                    ? translate("debugPanel.coachMark.homeTour.newUser")
                                     : revision === HOME_INPUT_TOUR_REVISION
-                                      ? t(
+                                      ? translate(
                                           "debugPanel.coachMark.homeTour.allSeen",
                                         )
-                                      : t(
+                                      : translate(
                                           "debugPanel.coachMark.homeTour.seenUpTo",
                                           {
                                             revision,
@@ -7558,10 +7620,10 @@ function DebugPanelDialog({ open, onOpenChange }) {
                     <section className="rounded-md border border-border/70 bg-background">
                       <div className="border-b border-border/70 px-4 py-3">
                         <div className="text-sm font-medium">
-                          {t("debugPanel.serverPopup.title", "运营弹窗")}
+                          {translate("debugPanel.serverPopup.title", "运营弹窗")}
                         </div>
                         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                          {t(
+                          {translate(
                             "debugPanel.serverPopup.description",
                             "模拟新用户首次进入 MiniMax Design 的状态。点击后窗口会刷新一次,弹窗按运营配置、当前账号身份、频率规则重新判断是否出现。如果运营还没上架弹窗,或者当前账号不符合触发条件,刷新后不会弹任何东西,跟其他用户首次进入 MiniMax Design 时看到的一致。",
                           )}
@@ -7574,7 +7636,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             className="shrink-0 text-muted-foreground"
                           />
                           <span className="truncate">
-                            {t("debugPanel.serverPopup.replay", "重新触发")}
+                            {translate("debugPanel.serverPopup.replay", "重新触发")}
                           </span>
                         </div>
                         <Button
@@ -7584,7 +7646,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                           onClick={replayServerPopup}
                           data-action-ui-id="debug.server-popup.replay"
                         >
-                          {t("debugPanel.action")}
+                          {translate("debugPanel.action")}
                         </Button>
                       </div>
                     </section>
@@ -7592,10 +7654,10 @@ function DebugPanelDialog({ open, onOpenChange }) {
                     <section className="rounded-md border border-border/70 bg-background">
                       <div className="border-b border-border/70 px-4 py-3">
                         <div className="text-sm font-medium">
-                          {t("debugPanel.updater.title")}
+                          {translate("debugPanel.updater.title")}
                         </div>
                         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                          {t("debugPanel.updater.description")}
+                          {translate("debugPanel.updater.description")}
                         </div>
                       </div>
                       <div className="divide-y divide-border/70">
@@ -7606,7 +7668,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                               className="shrink-0 text-muted-foreground"
                             />
                             <span className="truncate">
-                              {t("debugPanel.updater.forced")}
+                              {translate("debugPanel.updater.forced")}
                             </span>
                           </div>
                           <Button
@@ -7616,7 +7678,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             onClick={() => previewUpdater("forced")}
                             data-action-ui-id="debug.updater.forced"
                           >
-                            {t("debugPanel.action")}
+                            {translate("debugPanel.action")}
                           </Button>
                         </div>
                         <div className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -7626,7 +7688,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                               className="shrink-0 text-muted-foreground"
                             />
                             <span className="truncate">
-                              {t("debugPanel.updater.normal")}
+                              {translate("debugPanel.updater.normal")}
                             </span>
                           </div>
                           <Button
@@ -7636,7 +7698,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             onClick={() => previewUpdater("normal")}
                             data-action-ui-id="debug.updater.normal"
                           >
-                            {t("debugPanel.action")}
+                            {translate("debugPanel.action")}
                           </Button>
                         </div>
                         <div className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -7646,7 +7708,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                               className="shrink-0 text-muted-foreground"
                             />
                             <span className="truncate">
-                              {t("debugPanel.updater.off")}
+                              {translate("debugPanel.updater.off")}
                             </span>
                           </div>
                           <Button
@@ -7656,7 +7718,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                             onClick={() => previewUpdater("off")}
                             data-action-ui-id="debug.updater.off"
                           >
-                            {t("debugPanel.action")}
+                            {translate("debugPanel.action")}
                           </Button>
                         </div>
                       </div>
@@ -7667,7 +7729,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
             </div>
             <div className="flex shrink-0 items-center justify-end gap-2 border-t border-border/60 bg-muted/30 px-5 py-2.5 text-[11px]">
               <DialogClose render={<Button variant="ghost" size="xs" />}>
-                {t("common.close")}
+                {translate("common.close")}
               </DialogClose>
             </div>
           </DialogPopup>
@@ -7693,22 +7755,22 @@ function FailureScreensSection({
   workspaceCode,
   onWorkspaceCodeChange,
 }) {
-  const { i18n, t } = useTranslation();
+  const { i18n, t: translate } = useTranslation();
   const selectedDiagnosis = resolveWorkspaceFailureDiagnosis(
     workspaceCode,
-    t,
+    translate,
     i18n.language,
   );
   return (
     <section className="rounded-md border border-border/70 bg-background">
       <div className="border-b border-border/70 px-4 py-3">
         <div className="text-sm font-medium">
-          {t("debugPanel.failureScreens.title", {
+          {translate("debugPanel.failureScreens.title", {
             defaultValue: "故障页面",
           })}
         </div>
         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-          {t("debugPanel.failureScreens.description", {
+          {translate("debugPanel.failureScreens.description", {
             defaultValue:
               "预览关键异常态页面。只使用 mock 数据，不会触发真实 runtime 或日志上传。",
           })}
@@ -7719,7 +7781,7 @@ function FailureScreensSection({
           <div className="flex min-w-0 items-center gap-2 text-[13px]">
             <Bug size={14} className="shrink-0 text-muted-foreground" />
             <span className="truncate">
-              {t("debugPanel.failureScreens.errorBoundary", {
+              {translate("debugPanel.failureScreens.errorBoundary", {
                 defaultValue: "应用异常页",
               })}
             </span>
@@ -7731,7 +7793,7 @@ function FailureScreensSection({
             onClick={onOpenErrorBoundary}
             data-action-ui-id="debug.failure-screens.error-boundary"
           >
-            {t("debugPanel.preview", {
+            {translate("debugPanel.preview", {
               defaultValue: "预览",
             })}
           </Button>
@@ -7740,7 +7802,7 @@ function FailureScreensSection({
           <div className="flex items-center gap-2 text-[13px]">
             <MonitorX size={14} className="shrink-0 text-muted-foreground" />
             <span className="truncate">
-              {t("debugPanel.failureScreens.workspaceStartup", {
+              {translate("debugPanel.failureScreens.workspaceStartup", {
                 defaultValue: "Workspace 启动失败页",
               })}
             </span>
@@ -7757,7 +7819,7 @@ function FailureScreensSection({
                 {WORKSPACE_FAILURE_PREVIEW_CODES.map((code) => {
                   const diagnosis = resolveWorkspaceFailureDiagnosis(
                     code,
-                    t,
+                    translate,
                     i18n.language,
                   );
                   return (
@@ -7775,7 +7837,7 @@ function FailureScreensSection({
               onClick={onOpenWorkspaceStartup}
               data-action-ui-id="debug.failure-screens.workspace-startup"
             >
-              {t("debugPanel.preview", {
+              {translate("debugPanel.preview", {
                 defaultValue: "预览",
               })}
             </Button>
@@ -7794,18 +7856,18 @@ function FailurePreviewOverlay({
   onWorkspaceCodeChange,
   onClose,
 }) {
-  const { i18n, t } = useTranslation();
+  const { i18n, t: translate } = useTranslation();
   const selectedDiagnosis = resolveWorkspaceFailureDiagnosis(
     workspaceCode,
-    t,
+    translate,
     i18n.language,
   );
   const title =
     kind === "error-boundary"
-      ? t("debugPanel.failureScreens.errorBoundary", {
+      ? translate("debugPanel.failureScreens.errorBoundary", {
           defaultValue: "应用异常页",
         })
-      : t("debugPanel.failureScreens.workspaceStartup", {
+      : translate("debugPanel.failureScreens.workspaceStartup", {
           defaultValue: "Workspace 启动失败页",
         });
   return (
@@ -7821,7 +7883,7 @@ function FailurePreviewOverlay({
           <div className="min-w-0">
             <div className="truncate text-sm font-medium">{title}</div>
             <p className="truncate text-[11px] text-muted-foreground">
-              {t("debugPanel.failureScreens.previewHint", {
+              {translate("debugPanel.failureScreens.previewHint", {
                 defaultValue:
                   "全屏预览模式：不会触发真实 runtime、重试或日志上传。",
               })}
@@ -7845,7 +7907,7 @@ function FailurePreviewOverlay({
                   {WORKSPACE_FAILURE_PREVIEW_CODES.map((code) => {
                     const diagnosis = resolveWorkspaceFailureDiagnosis(
                       code,
-                      t,
+                      translate,
                       i18n.language,
                     );
                     return (
@@ -7867,7 +7929,7 @@ function FailurePreviewOverlay({
             onClick={onClose}
             data-action-ui-id="debug.failure-screens.back"
           >
-            {t("common.back", {
+            {translate("common.back", {
               defaultValue: "返回",
             })}
           </Button>
@@ -7912,14 +7974,14 @@ const MIGRATION_NOTES = {
   11: "v11: 从本地项目/工作区活动补齐 hasEverLoggedIn,避免老用户被误判为新用户",
 };
 function StorageVersionSection() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const platform = usePlatform();
   const [current, setCurrent] = reactExports.useState(null);
   const [pending, setPending] = reactExports.useState("");
   reactExports.useEffect(() => {
     let cancelled = false;
-    void platform.storage?.globalGet("_version").then((v) => {
-      if (!cancelled) setCurrent(typeof v === "number" ? v : null);
+    void platform.storage?.globalGet("_version").then((storedVersion) => {
+      if (!cancelled) setCurrent(typeof storedVersion === "number" ? storedVersion : null);
     });
     return () => {
       cancelled = true;
@@ -7929,24 +7991,24 @@ function StorageVersionSection() {
     {
       length: GLOBAL_STORAGE_VERSION + 1,
     },
-    (_, n) => {
+    (unusedElement, migrationIndex) => {
       const note =
-        MIGRATION_NOTES[n] ??
-        t("debugPanel.storageVersion.initial", {
+        MIGRATION_NOTES[migrationIndex] ??
+        translate("debugPanel.storageVersion.initial", {
           defaultValue: "初始版本",
         });
       const willRun =
-        n < GLOBAL_STORAGE_VERSION
-          ? t("debugPanel.storageVersion.willRun", {
+        migrationIndex < GLOBAL_STORAGE_VERSION
+          ? translate("debugPanel.storageVersion.willRun", {
               defaultValue: "重启后跑 v{{from}}–v{{to}}",
-              from: n + 1,
+              from: migrationIndex + 1,
               to: GLOBAL_STORAGE_VERSION,
             })
-          : t("debugPanel.storageVersion.noMigration", {
+          : translate("debugPanel.storageVersion.noMigration", {
               defaultValue: "已最新,无迁移",
             });
       return {
-        version: n,
+        version: migrationIndex,
         note,
         willRun,
       };
@@ -7958,7 +8020,7 @@ function StorageVersionSection() {
     void platform.storage.globalSet("_version", next).then(() => {
       setCurrent(next);
       dedupedToast.success(
-        t("debugPanel.storageVersion.applied", {
+        translate("debugPanel.storageVersion.applied", {
           defaultValue: "已设为 v{{v}},请手动重启 app 生效",
           v: pending,
         }),
@@ -7969,12 +8031,12 @@ function StorageVersionSection() {
     <section className="rounded-md border border-border/70 bg-background">
       <div className="border-b border-border/70 px-4 py-3">
         <div className="text-sm font-medium">
-          {t("debugPanel.storageVersion.title", {
+          {translate("debugPanel.storageVersion.title", {
             defaultValue: "Storage 版本",
           })}
         </div>
         <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-          {t("debugPanel.storageVersion.description", {
+          {translate("debugPanel.storageVersion.description", {
             defaultValue:
               "查看 / 修改本地存储 schema 版本,用于复现迁移。改完需手动重启 app,启动时会从所选版本逐级跑迁移到最新。",
           })}
@@ -7983,7 +8045,7 @@ function StorageVersionSection() {
       <div className="flex items-center gap-2 px-4 py-2.5">
         <Database size={14} className="shrink-0 text-foreground opacity-50" />
         <span className="text-[13px]">
-          {t("debugPanel.storageVersion.current", {
+          {translate("debugPanel.storageVersion.current", {
             defaultValue: "当前版本",
           })}
           : <span className="font-medium tabular-nums">{current ?? "—"}</span>
@@ -7994,22 +8056,22 @@ function StorageVersionSection() {
         </span>
       </div>
       <div className="max-h-44 overflow-y-auto border-t border-border/70">
-        {options.map((opt) => {
-          const selected = pending === String(opt.version);
-          const isCurrent = current === opt.version;
+        {options.map((versionOption) => {
+          const selected = pending === String(versionOption.version);
+          const isCurrent = current === versionOption.version;
           return (
             <button
-              key={opt.version}
+              key={versionOption.version}
               type="button"
-              onClick={() => setPending(String(opt.version))}
-              data-action-ui-id={`debug.storage.version-option-${opt.version}`}
-              className={cn(
+              onClick={() => setPending(String(versionOption.version))}
+              data-action-ui-id={`debug.storage.version-option-${versionOption.version}`}
+              className={mergeClassNames(
                 "flex w-full items-start gap-2.5 border-b border-border/50 px-4 py-2 text-left last:border-b-0 transition-colors",
                 selected ? "bg-primary/10" : "hover:bg-muted/50",
               )}
             >
               <span
-                className={cn(
+                className={mergeClassNames(
                   "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border",
                   selected ? "border-primary" : "border-muted-foreground/40",
                 )}
@@ -8020,20 +8082,20 @@ function StorageVersionSection() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-1.5 text-[13px] font-medium tabular-nums">
-                  v{opt.version}
+                  v{versionOption.version}
                   {isCurrent && (
                     <span className="rounded-sm bg-muted px-1 py-0.5 text-[10px] font-normal text-muted-foreground">
-                      {t("debugPanel.storageVersion.currentBadge", {
+                      {translate("debugPanel.storageVersion.currentBadge", {
                         defaultValue: "当前",
                       })}
                     </span>
                   )}
                 </span>
                 <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">
-                  {opt.note}
+                  {versionOption.note}
                 </span>
                 <span className="mt-0.5 block text-[11px] leading-relaxed text-foreground/70">
-                  {opt.willRun}
+                  {versionOption.willRun}
                 </span>
               </span>
             </button>
@@ -8049,7 +8111,7 @@ function StorageVersionSection() {
           onClick={apply}
           data-action-ui-id="debug.storage.set-version"
         >
-          {t("debugPanel.storageVersion.apply", {
+          {translate("debugPanel.storageVersion.apply", {
             defaultValue: "设置",
           })}
         </Button>

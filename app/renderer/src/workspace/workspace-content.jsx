@@ -1,7 +1,11 @@
 // workspace-content.jsx
 import { useAccountSubmissionDecision } from "../assets/gateway-scope-provider.jsx";
 import { useWorkspaceRemoteToolOptional } from "../canvas/resolve-workspace-failure-diagnosis.js";
-import { BROWSER_IMAGE_EDIT_EVENT, ChevronDown, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { BROWSER_IMAGE_EDIT_EVENT } from "../generation/browser-image-edit.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useDiffReviewStore } from "../text-editor/use-diff-review-store.js";
 import {
@@ -19,7 +23,7 @@ import {
   useWorkspacePaneReorder,
 } from "../chat/use-browser-chat-media.jsx";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioItem,
@@ -34,7 +38,7 @@ import {
 import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { useHasBlockingModal } from "../infra/schedule.js";
 import { getPlatform } from "../infra/web-storage.js";
-import { resolveShortcutDisplay } from "./other-modifiers.js";
+import { resolveShortcutDisplay } from "./resolve-shortcut-display.js";
 import {
   ShortcutHint,
   WORKSPACE_DISPLAY_MODE_SHORTCUT,
@@ -60,36 +64,36 @@ function useWorkspaceRemoteTool() {
     );
   return ctx;
 }
-function useBrowserVideoDownload(isActive2) {
-  const gatewayFetch2 = useGatewayFetch();
+function useBrowserVideoDownload(isActive) {
+  const gatewayFetch = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
   const sessionStore = useSessionStore();
-  const { t: t2 } = useTranslation();
-  const current2 = reactExports.useRef({
-    gatewayFetch: gatewayFetch2,
+  const { t: translate } = useTranslation();
+  const current = reactExports.useRef({
+    gatewayFetch,
     scopeKey,
     sessionStore,
-    t: t2,
-    isActive: isActive2,
+    t: translate,
+    isActive,
   });
-  current2.current = {
-    gatewayFetch: gatewayFetch2,
+  current.current = {
+    gatewayFetch,
     scopeKey,
     sessionStore,
-    t: t2,
-    isActive: isActive2,
+    t: translate,
+    isActive,
   };
-  const browser2 = window.hilo?.browser;
+  const browser = window.hilo?.browser;
   reactExports.useEffect(() => {
-    if (!browser2?.onPluginEvent || !browser2.completeVideoDownload) return;
-    let active2 = true;
-    const stop = browser2.onPluginEvent((request) => {
+    if (!browser?.onPluginEvent || !browser.completeVideoDownload) return;
+    let active = true;
+    const stop = browser.onPluginEvent((request) => {
       if (
         request.type !== "video-download-requested" ||
-        !current2.current.isActive
+        !current.current.isActive
       )
         return;
-      const origin = current2.current;
+      const origin = current.current;
       const sessionId = origin.sessionStore.getState().focusedSessionId;
       void (async () => {
         let downloaded = false;
@@ -101,7 +105,7 @@ function useBrowserVideoDownload(isActive2) {
           downloaded = true;
           if (
             request.action === "chat" &&
-            (!active2 || current2.current.scopeKey !== origin.scopeKey)
+            (!active || current.current.scopeKey !== origin.scopeKey)
           )
             throw new Error("Originating workspace is no longer mounted");
           if (
@@ -116,14 +120,14 @@ function useBrowserVideoDownload(isActive2) {
             throw new Error("Chat could not accept the downloaded video");
           if (
             request.action === "canvas" &&
-            active2 &&
-            current2.current.isActive &&
-            current2.current.scopeKey === origin.scopeKey
+            active &&
+            current.current.isActive &&
+            current.current.scopeKey === origin.scopeKey
           )
             dedupedToast.success(
-              current2.current.t("workspace.browser.pluginAddedToCanvas"),
+              current.current.t("workspace.browser.pluginAddedToCanvas"),
             );
-          await browser2.completeVideoDownload({
+          await browser.completeVideoDownload({
             requestId: request.requestId,
             ok: true,
           });
@@ -134,15 +138,15 @@ function useBrowserVideoDownload(isActive2) {
               "browser-video",
             )
             .catch(() => {});
-          await browser2.completeVideoDownload({
+          await browser.completeVideoDownload({
             requestId: request.requestId,
             ok: false,
             error: downloaded
-              ? current2.current.t(
+              ? current.current.t(
                   "workspace.browser.videoAttachmentFailed",
                   "视频已保存到项目，但未能添加到对话。请从项目素材中重新添加。",
                 )
-              : current2.current.t(
+              : current.current.t(
                   "workspace.browser.videoDownloadFailed",
                   "无法下载此视频，请确认视频可以公开访问后重试。",
                 ),
@@ -151,10 +155,10 @@ function useBrowserVideoDownload(isActive2) {
       })().catch(() => {});
     });
     return () => {
-      active2 = false;
+      active = false;
       stop();
     };
-  }, [browser2]);
+  }, [browser]);
 }
 const WORKSPACE_VIEW_MODE_CONTROL_WIDTH = 104;
 const WORKSPACE_VIEW_MODE_CONTROL_SPLIT_WIDTH = 120;
@@ -166,12 +170,12 @@ function isWorkspaceMode(value) {
 function isWorkspacePaneOrder(value) {
   return value === "chat-canvas" || value === "canvas-chat";
 }
-function WorkspaceViewModeIcon({ mode: mode2, paneOrder, className }) {
+function WorkspaceViewModeIcon({ mode, paneOrder, className }) {
   const chatOnLeft = paneOrder === "chat-canvas";
   const leftActive =
-    mode2 === "split" || (mode2 === "chatOnly" ? chatOnLeft : !chatOnLeft);
+    mode === "split" || (mode === "chatOnly" ? chatOnLeft : !chatOnLeft);
   const rightActive =
-    mode2 === "split" || (mode2 === "chatOnly" ? !chatOnLeft : chatOnLeft);
+    mode === "split" || (mode === "chatOnly" ? !chatOnLeft : chatOnLeft);
   return (
     <svg
       viewBox="0 0 18 18"
@@ -217,7 +221,7 @@ function WorkspaceViewModeIcon({ mode: mode2, paneOrder, className }) {
   );
 }
 function WorkspaceViewModeMenu({
-  mode: mode2,
+  mode,
   paneOrder,
   onModeChange,
   onPaneOrderChange,
@@ -229,7 +233,7 @@ function WorkspaceViewModeMenu({
   triggerRef: externalTriggerRef,
   onControlWidthChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const paneReorder = useWorkspacePaneReorder();
   const internalTriggerRef = reactExports.useRef(null);
   const triggerRef = externalTriggerRef ?? internalTriggerRef;
@@ -243,13 +247,13 @@ function WorkspaceViewModeMenu({
       : WORKSPACE_DISPLAY_MODE_SHORTCUT.other,
     platformOs,
   ).text;
-  const label = t2("workspace.layout.label", "Workspace layout");
+  const label = translate("workspace.layout.label", "Workspace layout");
   const currentModeLabel =
-    mode2 === "split"
-      ? t2("workspace.layout.chatAndCanvas", "Chat + Canvas")
-      : mode2 === "chatOnly"
-        ? t2("workspace.layout.chatOnly", "Chat only")
-        : t2("workspace.layout.canvasOnly", "Canvas only");
+    mode === "split"
+      ? translate("workspace.layout.chatAndCanvas", "Chat + Canvas")
+      : mode === "chatOnly"
+        ? translate("workspace.layout.chatOnly", "Chat only")
+        : translate("workspace.layout.canvasOnly", "Canvas only");
   const requestPaneOrderChange = (targetOrder) => {
     if (paneReorder?.enabled && paneReorder.requestPaneOrderChange) {
       paneReorder.requestPaneOrderChange(targetOrder);
@@ -273,9 +277,9 @@ function WorkspaceViewModeMenu({
       window.addEventListener("resize", reportControlWidth);
       return () => window.removeEventListener("resize", reportControlWidth);
     }
-    const observer2 = new ResizeObserver(reportControlWidth);
-    observer2.observe(trigger);
-    return () => observer2.disconnect();
+    const observer = new ResizeObserver(reportControlWidth);
+    observer.observe(trigger);
+    return () => observer.disconnect();
   }, [onControlWidthChange, reportControlWidth, triggerRef]);
   return (
     <>
@@ -289,7 +293,7 @@ function WorkspaceViewModeMenu({
               title={compact ? currentModeLabel : void 0}
               data-action-ui-id={`workspace.view-mode-menu.${source}`}
               data-window-drag-region="no-drag"
-              data-workspace-layout-label={mode2}
+              data-workspace-layout-label={mode}
               style={{
                 width: compact
                   ? WORKSPACE_VIEW_MODE_CONTROL_COMPACT_WIDTH
@@ -309,7 +313,7 @@ function WorkspaceViewModeMenu({
                     ),
               )}
             >
-              <WorkspaceViewModeIcon mode={mode2} paneOrder={paneOrder} />
+              <WorkspaceViewModeIcon mode={mode} paneOrder={paneOrder} />
               {compact ? null : (
                 <span className="truncate">{currentModeLabel}</span>
               )}
@@ -329,7 +333,7 @@ function WorkspaceViewModeMenu({
           >
             <DropdownMenuGroup>
               <DropdownMenuLabel className="flex items-center justify-between gap-4">
-                <span>{t2("workspace.layout.mode", "Layout mode")}</span>
+                <span>{translate("workspace.layout.mode", "Layout mode")}</span>
                 <ShortcutHint
                   accelerator={WORKSPACE_DISPLAY_MODE_SHORTCUT.mac}
                   otherAccelerator={WORKSPACE_DISPLAY_MODE_SHORTCUT.other}
@@ -339,8 +343,8 @@ function WorkspaceViewModeMenu({
                 />
               </DropdownMenuLabel>
               <DropdownMenuRadioGroup
-                value={mode2}
-                aria-label={t2("workspace.layout.mode", "Layout mode")}
+                value={mode}
+                aria-label={translate("workspace.layout.mode", "Layout mode")}
                 onValueChange={(value) => {
                   if (isWorkspaceMode(value)) onModeChange(value);
                 }}
@@ -355,17 +359,17 @@ function WorkspaceViewModeMenu({
                     className="size-4"
                   />
                   <span>
-                    {t2("workspace.layout.chatAndCanvas", "Chat + Canvas")}
+                    {translate("workspace.layout.chatAndCanvas", "Chat + Canvas")}
                   </span>
                 </DropdownMenuRadioItem>
-                {mode2 === "split" ? (
+                {mode === "split" ? (
                   <div
                     className="ml-5 border-l border-border/60 pl-1"
                     data-workspace-layout-secondary="chat-position"
                   >
                     <DropdownMenuRadioGroup
                       value={paneOrder}
-                      aria-label={t2(
+                      aria-label={translate(
                         "workspace.layout.chatPosition",
                         "Chat position",
                       )}
@@ -379,7 +383,7 @@ function WorkspaceViewModeMenu({
                         data-action-ui-id="workspace.pane-order.chat-left"
                       >
                         <span>
-                          {t2("workspace.layout.chatLeft", "Chat on left")}
+                          {translate("workspace.layout.chatLeft", "Chat on left")}
                         </span>
                       </DropdownMenuRadioItem>
                       <DropdownMenuRadioItem
@@ -387,7 +391,7 @@ function WorkspaceViewModeMenu({
                         data-action-ui-id="workspace.pane-order.chat-right"
                       >
                         <span>
-                          {t2("workspace.layout.chatRight", "Chat on right")}
+                          {translate("workspace.layout.chatRight", "Chat on right")}
                         </span>
                       </DropdownMenuRadioItem>
                     </DropdownMenuRadioGroup>
@@ -402,7 +406,7 @@ function WorkspaceViewModeMenu({
                     paneOrder={paneOrder}
                     className="size-4"
                   />
-                  <span>{t2("workspace.layout.chatOnly", "Chat only")}</span>
+                  <span>{translate("workspace.layout.chatOnly", "Chat only")}</span>
                 </DropdownMenuRadioItem>
                 <DropdownMenuRadioItem
                   value="canvasOnly"
@@ -414,7 +418,7 @@ function WorkspaceViewModeMenu({
                     className="size-4"
                   />
                   <span>
-                    {t2("workspace.layout.canvasOnly", "Canvas only")}
+                    {translate("workspace.layout.canvasOnly", "Canvas only")}
                   </span>
                 </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
@@ -430,31 +434,31 @@ function WorkspaceViewModeMenu({
           side="bottom"
           align="end"
           showClose={true}
-          title={t2(
+          title={translate(
             "coachMark.workspace.displayMode.title",
             "Quickly switch display modes",
           )}
-          description={t2("coachMark.workspace.displayMode.desc", {
+          description={translate("coachMark.workspace.displayMode.desc", {
             defaultValue:
               "Press {{shortcut}} to open the full-screen display mode switcher. Use arrow keys to preselect and Enter to apply.",
             shortcut: shortcutText,
           })}
-          ctaLabel={t2("coachMark.gotIt", "Got it")}
+          ctaLabel={translate("coachMark.gotIt", "Got it")}
         />
       ) : null}
     </>
   );
 }
-function useChatReferenceReveal(isActive2, reveal) {
+function useChatReferenceReveal(isActive, reveal) {
   reactExports.useEffect(() => {
-    if (isActive2 === false) return;
+    if (isActive === false) return;
     const subscription = workspaceEvents.onAddPluginNodeToChat(reveal);
     window.addEventListener(BROWSER_IMAGE_EDIT_EVENT, reveal);
     return () => {
       subscription.dispose();
       window.removeEventListener(BROWSER_IMAGE_EDIT_EVENT, reveal);
     };
-  }, [isActive2, reveal]);
+  }, [isActive, reveal]);
 }
 function toRevertEdit(hunk) {
   return {
@@ -478,17 +482,17 @@ function toRevertEdit(hunk) {
     replacement: hunk.originalText,
   };
 }
-function mapRevertResponse(raw2) {
-  if (!raw2 || typeof raw2 !== "object") return null;
-  const record2 = raw2;
+function mapRevertResponse(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const record = raw;
   if (
-    typeof record2.nodeId !== "string" ||
-    typeof record2.content !== "string" ||
-    !Array.isArray(record2.results)
+    typeof record.nodeId !== "string" ||
+    typeof record.content !== "string" ||
+    !Array.isArray(record.results)
   )
     return null;
   const results = [];
-  for (const item of record2.results) {
+  for (const item of record.results) {
     if (!item || typeof item !== "object") return null;
     const entry = item;
     if (
@@ -502,28 +506,28 @@ function mapRevertResponse(raw2) {
     });
   }
   return {
-    nodeId: record2.nodeId,
-    status: record2.status === "applied" ? "applied" : "conflict",
+    nodeId: record.nodeId,
+    status: record.status === "applied" ? "applied" : "conflict",
     contentHash:
-      typeof record2.contentHash === "string" ? record2.contentHash : "",
-    content: record2.content,
+      typeof record.contentHash === "string" ? record.contentHash : "",
+    content: record.content,
     results,
   };
 }
 function useDocumentEditReviewHost(enabled) {
-  const gatewayFetch2 = useGatewayFetch();
-  const { t: t2 } = useTranslation();
+  const gatewayFetch = useGatewayFetch();
+  const { t: translate } = useTranslation();
   reactExports.useEffect(() => {
     if (!enabled) return;
     const handler = async (nodeId, hunks) => {
-      const ordered = [...hunks].sort((a2, b3) => b3.startLine - a2.startLine);
+      const ordered = [...hunks].sort((leftHunk, rightHunk) => rightHunk.startLine - leftHunk.startLine);
       const failAll = () => ({
         undoneIds: [],
         failedIds: ordered.map((hunk) => hunk.id),
       });
       let response = null;
       try {
-        const resp = await gatewayFetch2("/api/canvas/text-node/revert-edits", {
+        const resp = await gatewayFetch("/api/canvas/text-node/revert-edits", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -535,20 +539,20 @@ function useDocumentEditReviewHost(enabled) {
         });
         if (!resp.ok) {
           dedupedToast.error(
-            t2("chat.diffReview.undoFailed", "撤销失败，请稍后重试"),
+            translate("chat.diffReview.undoFailed", "撤销失败，请稍后重试"),
           );
           return failAll();
         }
         response = mapRevertResponse(await resp.json());
       } catch {
         dedupedToast.error(
-          t2("chat.diffReview.undoFailed", "撤销失败，请稍后重试"),
+          translate("chat.diffReview.undoFailed", "撤销失败，请稍后重试"),
         );
         return failAll();
       }
       if (!response) {
         dedupedToast.error(
-          t2("chat.diffReview.undoFailed", "撤销失败，请稍后重试"),
+          translate("chat.diffReview.undoFailed", "撤销失败，请稍后重试"),
         );
         return failAll();
       }
@@ -561,7 +565,7 @@ function useDocumentEditReviewHost(enabled) {
       }
       if (failedIds.length > 0) {
         dedupedToast.error(
-          t2(
+          translate(
             "chat.diffReview.undoPartial",
             "{{count}} 处修改无法撤销（内容已变化）",
             {
@@ -580,22 +584,22 @@ function useDocumentEditReviewHost(enabled) {
     return () => {
       useDiffReviewStore.getState().setUndoHandler(null);
     };
-  }, [enabled, gatewayFetch2, t2]);
+  }, [enabled, gatewayFetch, translate]);
 }
-function selectWorkspaceStageLayout(state2) {
-  const chatVisible = state2.workspaceMode !== "canvasOnly";
-  const canvasVisible = state2.workspaceMode !== "chatOnly";
+function selectWorkspaceStageLayout(state) {
+  const chatVisible = state.workspaceMode !== "canvasOnly";
+  const canvasVisible = state.workspaceMode !== "chatOnly";
   const structuralPanes = (canvasFirst) => {
     if (!chatVisible)
-      return state2.filesMode === "docked" ? ["canvas", "files"] : ["canvas"];
+      return state.filesMode === "docked" ? ["canvas", "files"] : ["canvas"];
     if (!canvasVisible) return ["chat"];
-    if (state2.filesMode !== "docked")
+    if (state.filesMode !== "docked")
       return canvasFirst ? ["canvas", "chat"] : ["chat", "canvas"];
     return canvasFirst
       ? ["canvas", "files", "chat"]
       : ["chat", "canvas", "files"];
   };
-  if (state2.paneOrder === "chat-canvas") {
+  if (state.paneOrder === "chat-canvas") {
     return {
       canvasSide: "right",
       seamSide: "left",
@@ -614,21 +618,21 @@ function selectWorkspaceStageLayout(state2) {
 }
 const MemoizedCanvasArea = reactExports.memo(
   CanvasArea,
-  (prev, next2) =>
-    prev.onCanvasTasksChange === next2.onCanvasTasksChange &&
-    prev.onRenderableContentChange === next2.onRenderableContentChange &&
-    prev.assetPanelOpen === next2.assetPanelOpen &&
-    prev.assetPanelControlsId === next2.assetPanelControlsId &&
-    prev.onToggleAssetPanel === next2.onToggleAssetPanel &&
-    prev.browserOpen === next2.browserOpen &&
-    prev.onToggleBrowser === next2.onToggleBrowser &&
-    prev.isActive === next2.isActive &&
-    prev.isPresented === next2.isPresented &&
-    prev.workspaceId === next2.workspaceId &&
-    prev.workspaceName === next2.workspaceName &&
-    prev.getTextEditCloseBlockReason === next2.getTextEditCloseBlockReason &&
-    prev.toolbarPlacement === next2.toolbarPlacement &&
-    prev.layoutRelocationKey === next2.layoutRelocationKey,
+  (prev, next) =>
+    prev.onCanvasTasksChange === next.onCanvasTasksChange &&
+    prev.onRenderableContentChange === next.onRenderableContentChange &&
+    prev.assetPanelOpen === next.assetPanelOpen &&
+    prev.assetPanelControlsId === next.assetPanelControlsId &&
+    prev.onToggleAssetPanel === next.onToggleAssetPanel &&
+    prev.browserOpen === next.browserOpen &&
+    prev.onToggleBrowser === next.onToggleBrowser &&
+    prev.isActive === next.isActive &&
+    prev.isPresented === next.isPresented &&
+    prev.workspaceId === next.workspaceId &&
+    prev.workspaceName === next.workspaceName &&
+    prev.getTextEditCloseBlockReason === next.getTextEditCloseBlockReason &&
+    prev.toolbarPlacement === next.toolbarPlacement &&
+    prev.layoutRelocationKey === next.layoutRelocationKey,
 );
 function RemoteToolHost() {
   const {
@@ -652,7 +656,7 @@ function RemoteToolHost() {
       locale={i18n.language}
       initialParams={remoteToolRequest.initialParams}
       interactionDisabled={!accountSubmissionAllowed}
-      onGuiEvent={(eventType, data2) => {
+      onGuiEvent={(eventType, data) => {
         if (
           eventType !== "gui:ready" &&
           eventType !== "generate:submit" &&
@@ -663,7 +667,7 @@ function RemoteToolHost() {
         const sent = sendSkillGuiEvent(
           remoteToolRequest.toolName,
           eventType,
-          data2,
+          data,
           remoteToolDialogSessionId ?? void 0,
         );
         if (eventType === "generate:submit" && sent) {
@@ -695,12 +699,12 @@ export function WorkspaceContent({
   folderPath,
   onCanvasTasksChange,
   onRenderableContentChange,
-  isActive: isActive2,
-  workspaceId: workspaceId2,
+  isActive,
+  workspaceId,
   workspaceName,
   stageLayoutReady,
 }) {
-  useBrowserVideoDownload(isActive2 !== false);
+  useBrowserVideoDownload(isActive !== false);
   const assetPanelIdSuffix = reactExports.useId();
   const assetPanelId = `workspace-project-assets-panel-${assetPanelIdSuffix}`;
   const stageLayout = selectWorkspaceStageLayout(stageState);
@@ -745,16 +749,16 @@ export function WorkspaceContent({
   const textEditSelectionRef = reactExports.useRef(null);
   const [hasTextEditSelection, setHasTextEditSelection] =
     reactExports.useState(false);
-  useDocumentEditReviewHost(isActive2 !== false);
+  useDocumentEditReviewHost(isActive !== false);
   reactExports.useEffect(() => {
-    if (isActive2 === false) return;
-    const d2 = workspaceEvents.onTextEditActive((e2) => {
-      if (e2.workspaceId !== workspaceId2) return;
+    if (isActive === false) return;
+    const textEditSubscription = workspaceEvents.onTextEditActive((textEditEvent) => {
+      if (textEditEvent.workspaceId !== workspaceId) return;
       const session = {
-        nodeId: e2.nodeId,
-        editSessionId: e2.editSessionId,
+        nodeId: textEditEvent.nodeId,
+        editSessionId: textEditEvent.editSessionId,
       };
-      if (e2.active) {
+      if (textEditEvent.active) {
         textEditSessionRef.current = session;
         textEditSelectionRef.current = null;
         setHasTextEditSelection(false);
@@ -765,10 +769,10 @@ export function WorkspaceContent({
         });
         return;
       }
-      const current2 = textEditSessionRef.current;
+      const current = textEditSessionRef.current;
       if (
-        current2?.nodeId === e2.nodeId &&
-        current2.editSessionId === e2.editSessionId
+        current?.nodeId === textEditEvent.nodeId &&
+        current.editSessionId === textEditEvent.editSessionId
       ) {
         leaveTextEditAgent(session);
         textEditSessionRef.current = null;
@@ -777,37 +781,37 @@ export function WorkspaceContent({
         setTextEditSession(null);
       }
     });
-    return () => d2.dispose();
+    return () => textEditSubscription.dispose();
   }, [
     dispatchStage,
     enterTextEditAgent,
-    isActive2,
+    isActive,
     leaveTextEditAgent,
-    workspaceId2,
+    workspaceId,
   ]);
   reactExports.useEffect(() => {
-    if (isActive2 === false) return;
-    const d2 = workspaceEvents.onPluginEditActive((e2) => {
-      if (e2.workspaceId !== workspaceId2) return;
+    if (isActive === false) return;
+    const pluginEditSubscription = workspaceEvents.onPluginEditActive((pluginEditEvent) => {
+      if (pluginEditEvent.workspaceId !== workspaceId) return;
       const session = {
-        nodeId: e2.nodeId,
-        editSessionId: e2.editSessionId,
+        nodeId: pluginEditEvent.nodeId,
+        editSessionId: pluginEditEvent.editSessionId,
       };
-      if (e2.active) {
+      if (pluginEditEvent.active) {
         pluginEditSessionRef.current = session;
-        enterTextEditAgent(session, "plugin", e2.agentName);
+        enterTextEditAgent(session, "plugin", pluginEditEvent.agentName);
         setPluginEditSession(session);
-        setPluginEditAgentName(e2.agentName);
-        setPluginEditPluginId(e2.pluginId);
+        setPluginEditAgentName(pluginEditEvent.agentName);
+        setPluginEditPluginId(pluginEditEvent.pluginId);
         dispatchStage({
           type: "files/close",
         });
         return;
       }
-      const current2 = pluginEditSessionRef.current;
+      const current = pluginEditSessionRef.current;
       if (
-        current2?.nodeId === e2.nodeId &&
-        current2.editSessionId === e2.editSessionId
+        current?.nodeId === pluginEditEvent.nodeId &&
+        current.editSessionId === pluginEditEvent.editSessionId
       ) {
         leaveTextEditAgent(session);
         pluginEditSessionRef.current = null;
@@ -816,52 +820,52 @@ export function WorkspaceContent({
         setPluginEditPluginId(void 0);
       }
     });
-    return () => d2.dispose();
+    return () => pluginEditSubscription.dispose();
   }, [
     dispatchStage,
     enterTextEditAgent,
-    isActive2,
+    isActive,
     leaveTextEditAgent,
-    workspaceId2,
+    workspaceId,
   ]);
   reactExports.useEffect(() => {
-    const d2 = workspaceEvents.onTextNodeRemoved((e2) => {
-      if (e2.workspaceId !== workspaceId2) return;
-      clearTextEditSessionsForNode(e2.nodeId);
+    const nodeRemovalSubscription = workspaceEvents.onTextNodeRemoved((nodeRemovalEvent) => {
+      if (nodeRemovalEvent.workspaceId !== workspaceId) return;
+      clearTextEditSessionsForNode(nodeRemovalEvent.nodeId);
     });
-    return () => d2.dispose();
-  }, [clearTextEditSessionsForNode, workspaceId2]);
+    return () => nodeRemovalSubscription.dispose();
+  }, [clearTextEditSessionsForNode, workspaceId]);
   const [annotations, setAnnotations] = reactExports.useState([]);
   const [activeAnnotationId, setActiveAnnotationId] =
     reactExports.useState(null);
   reactExports.useEffect(() => {
-    if (isActive2 === false) return;
+    if (isActive === false) return;
     const matchesCurrentEditor = (event) => {
-      const current2 = textEditSessionRef.current;
+      const current = textEditSessionRef.current;
       return (
-        current2?.nodeId === event.nodeId &&
-        current2.editSessionId === event.editSessionId
+        current?.nodeId === event.nodeId &&
+        current.editSessionId === event.editSessionId
       );
     };
-    const dChanged = workspaceEvents.onAnnotationsChanged((e2) => {
-      if (e2.workspaceId !== workspaceId2 || !matchesCurrentEditor(e2)) return;
-      setAnnotations(e2.annotations);
+    const dChanged = workspaceEvents.onAnnotationsChanged((annotationsChangedEvent) => {
+      if (annotationsChangedEvent.workspaceId !== workspaceId || !matchesCurrentEditor(annotationsChangedEvent)) return;
+      setAnnotations(annotationsChangedEvent.annotations);
     });
-    const dActivated = workspaceEvents.onAnnotationActivated((e2) => {
-      if (e2.workspaceId !== workspaceId2 || !matchesCurrentEditor(e2)) return;
-      setActiveAnnotationId(e2.id);
+    const dActivated = workspaceEvents.onAnnotationActivated((annotationActivatedEvent) => {
+      if (annotationActivatedEvent.workspaceId !== workspaceId || !matchesCurrentEditor(annotationActivatedEvent)) return;
+      setActiveAnnotationId(annotationActivatedEvent.id);
     });
-    const dSelection = workspaceEvents.onTextEditSelection((e2) => {
-      if (e2.workspaceId !== workspaceId2 || !matchesCurrentEditor(e2)) return;
-      textEditSelectionRef.current = e2.selection;
-      setHasTextEditSelection(Boolean(e2.selection.anchor?.exact.trim()));
+    const dSelection = workspaceEvents.onTextEditSelection((selectionChangedEvent) => {
+      if (selectionChangedEvent.workspaceId !== workspaceId || !matchesCurrentEditor(selectionChangedEvent)) return;
+      textEditSelectionRef.current = selectionChangedEvent.selection;
+      setHasTextEditSelection(Boolean(selectionChangedEvent.selection.anchor?.exact.trim()));
     });
     return () => {
       dChanged.dispose();
       dActivated.dispose();
       dSelection.dispose();
     };
-  }, [isActive2, workspaceId2]);
+  }, [isActive, workspaceId]);
   reactExports.useEffect(() => {
     if (!textEditActive) {
       setAnnotations([]);
@@ -869,35 +873,35 @@ export function WorkspaceContent({
     }
   }, [textEditActive]);
   const handleAnnotationLocate = reactExports.useCallback(
-    (id2) => {
+    (annotationId) => {
       const session = textEditSessionRef.current;
-      if (!workspaceId2 || !session) return;
-      workspaceEvents.fireAnnotationCommand(workspaceId2, session, {
+      if (!workspaceId || !session) return;
+      workspaceEvents.fireAnnotationCommand(workspaceId, session, {
         type: "locate",
-        id: id2,
+        id: annotationId,
       });
-      setActiveAnnotationId(id2);
+      setActiveAnnotationId(annotationId);
     },
-    [workspaceId2],
+    [workspaceId],
   );
   const handleAnnotationDelete = reactExports.useCallback(
-    (id2) => {
+    (annotationId) => {
       const session = textEditSessionRef.current;
-      if (!workspaceId2 || !session) return;
-      workspaceEvents.fireAnnotationCommand(workspaceId2, session, {
+      if (!workspaceId || !session) return;
+      workspaceEvents.fireAnnotationCommand(workspaceId, session, {
         type: "delete",
-        id: id2,
+        id: annotationId,
       });
     },
-    [workspaceId2],
+    [workspaceId],
   );
   const handleAnnotationClear = reactExports.useCallback(() => {
     const session = textEditSessionRef.current;
-    if (!workspaceId2 || !session) return;
-    workspaceEvents.fireAnnotationCommand(workspaceId2, session, {
+    if (!workspaceId || !session) return;
+    workspaceEvents.fireAnnotationCommand(workspaceId, session, {
       type: "clear",
     });
-  }, [workspaceId2]);
+  }, [workspaceId]);
   const chatVisible =
     editSurfaceActive || stageState.workspaceMode !== "canvasOnly";
   const canvasOpen =
@@ -910,7 +914,7 @@ export function WorkspaceContent({
   const [displayModeSwitcherOpen, setDisplayModeSwitcherOpen] =
     reactExports.useState(false);
   reactExports.useEffect(() => {
-    if (isActive2 !== false) return;
+    if (isActive !== false) return;
     setDisplayModeSwitcherOpen(false);
     const textSession = textEditSessionRef.current;
     if (textSession) {
@@ -928,7 +932,7 @@ export function WorkspaceContent({
       setPluginEditAgentName(void 0);
       setPluginEditPluginId(void 0);
     }
-  }, [isActive2, leaveTextEditAgent]);
+  }, [isActive, leaveTextEditAgent]);
   const { mode: globalSidebarMode, setPinned: setGlobalSidebarPinned } =
     useGlobalSidebar();
   const globalSidebarCollapsed = globalSidebarMode === "rail";
@@ -977,7 +981,7 @@ export function WorkspaceContent({
     setBrowserOpen((open) => !open);
   }, [setBrowserOpen]);
   reactExports.useEffect(() => {
-    if (!isActive2) return;
+    if (!isActive) return;
     const openBrowserFromFallback = () => {
       browserSurfaceSourceRef.current = "fallback_card";
       if (stageState.workspaceMode === "chatOnly")
@@ -1001,14 +1005,14 @@ export function WorkspaceContent({
       window.removeEventListener("hilo:open-browser", openBrowserFromFallback);
       unsubscribe?.();
     };
-  }, [dispatchStage, isActive2, setBrowserOpen, stageState.workspaceMode]);
+  }, [dispatchStage, isActive, setBrowserOpen, stageState.workspaceMode]);
   const handleToggleFilesDock = reactExports.useCallback(() => {
     dispatchStage({
       type: stageState.filesMode === "docked" ? "files/undock" : "files/dock",
     });
   }, [dispatchStage, stageState.filesMode]);
   useChatReferenceReveal(
-    isActive2,
+    isActive,
     reactExports.useCallback(
       () =>
         dispatchStage({
@@ -1043,7 +1047,7 @@ export function WorkspaceContent({
         source="stage"
         compact={stageViewModeCompact}
         coachMarkEnabled={
-          Boolean(isActive2) && stageLayoutReady && !displayModeSwitcherOpen
+          Boolean(isActive) && stageLayoutReady && !displayModeSwitcherOpen
         }
         triggerRef={stageViewModeTriggerRef}
         onControlWidthChange={setStageViewModeMeasuredWidth}
@@ -1056,7 +1060,7 @@ export function WorkspaceContent({
       stageState.workspaceMode,
       stageViewModeCompact,
       displayModeSwitcherOpen,
-      isActive2,
+      isActive,
       stageLayoutReady,
     ],
   );
@@ -1068,7 +1072,7 @@ export function WorkspaceContent({
       onOpenChange={setDisplayModeSwitcherOpen}
       onModeChange={handleWorkspaceModeChange}
       onPaneOrderChange={handleWorkspacePaneOrderChange}
-      isActive={Boolean(isActive2)}
+      isActive={Boolean(isActive)}
       isReady={stageLayoutReady}
       sidebarCollapsed={globalSidebarCollapsed}
       onSidebarCollapsedChange={handleSidebarCollapsedChange}
@@ -1081,7 +1085,7 @@ export function WorkspaceContent({
       data-media-preview-boundary={browserOpen && canvasOpen ? "true" : "false"}
     >
       <ChatPanel
-        isPresented={Boolean(isActive2 && chatVisible && stageLayoutReady)}
+        isPresented={Boolean(isActive && chatVisible && stageLayoutReady)}
         headerActions={
           stageControlOverChat && (canvasOpen || !editSurfaceActive) ? (
             <span
@@ -1161,15 +1165,15 @@ export function WorkspaceContent({
         onToggleAssetPanel={handleToggleFiles}
         browserOpen={browserOpen}
         onToggleBrowser={handleToggleBrowser}
-        isActive={isActive2}
-        isPresented={isActive2 && canvasOpen && !browserOpen}
-        workspaceId={workspaceId2}
+        isActive={isActive}
+        isPresented={isActive && canvasOpen && !browserOpen}
+        workspaceId={workspaceId}
         workspaceName={workspaceName}
         getTextEditCloseBlockReason={getTextEditCloseBlockReason}
         toolbarPlacement={stageLayout.toolbarCorner}
         layoutRelocationKey={stageState.paneOrder}
       />
-      {isActive2 && browserOpen && canvasOpen ? (
+      {isActive && browserOpen && canvasOpen ? (
         <div className="absolute inset-0 z-10">
           <WorkspaceBrowser
             onBackToCanvas={() => setBrowserOpen(false)}
@@ -1198,10 +1202,10 @@ export function WorkspaceContent({
       <div
         className="relative flex min-h-0 flex-1 overflow-hidden"
         data-canvas-sidebar-root="true"
-        data-workspace-active={isActive2 === false ? "false" : "true"}
+        data-workspace-active={isActive === false ? "false" : "true"}
       >
         <WorkspaceStage
-          isActive={isActive2}
+          isActive={isActive}
           paneOrder={stageState.paneOrder}
           textEditMode={editSurfaceActive}
           chatVisible={chatVisible}

@@ -1,6 +1,6 @@
 // use-editor-state.js
 import { DEFAULT_STYLE } from "./history-manager.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 const EMPTY_STATE = {
   shapes: [],
   selectedId: null,
@@ -10,33 +10,33 @@ const EMPTY_STATE = {
   canRedo: false,
 };
 export function useEditorState(handleRef) {
-  const [state2, setState] = reactExports.useState(EMPTY_STATE);
+  const [state, setState] = reactExports.useState(EMPTY_STATE);
   reactExports.useEffect(() => {
-    let off = null;
-    let rafId2 = null;
+    let unsubscribe = null;
+    let rafId = null;
     let cancelled = false;
     const attach = (retry) => {
       if (cancelled) return;
       const editor = handleRef.current?.getEditor();
       if (!editor) {
         if (retry) {
-          rafId2 = requestAnimationFrame(() => attach(false));
+          rafId = requestAnimationFrame(() => attach(false));
         }
         return;
       }
       setState(editor.getState());
-      off = editor.on("change", (s2) => {
-        if (!cancelled) setState(s2);
+      unsubscribe = editor.on("change", (editorState) => {
+        if (!cancelled) setState(editorState);
       });
     };
     attach(true);
     return () => {
       cancelled = true;
-      if (rafId2 !== null) cancelAnimationFrame(rafId2);
-      off?.();
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      unsubscribe?.();
     };
   }, [handleRef]);
-  return state2;
+  return state;
 }
 export const STROKE_WIDTHS = [
   {
@@ -74,20 +74,20 @@ const BLUR_RADIUS_RANGE = {
   min: 0,
   max: 10,
 };
-export function strengthPercentToPx(percent2, mode2) {
-  const range2 = mode2 === "blur" ? BLUR_RADIUS_RANGE : MOSAIC_BLOCK_RANGE;
-  const pct = Math.min(100, Math.max(0, percent2));
-  return Math.round(range2.min + ((range2.max - range2.min) * pct) / 100);
+export function strengthPercentToPx(percent, mode) {
+  const range = mode === "blur" ? BLUR_RADIUS_RANGE : MOSAIC_BLOCK_RANGE;
+  const percentage = Math.min(100, Math.max(0, percent));
+  return Math.round(range.min + ((range.max - range.min) * percentage) / 100);
 }
 export const ROTATE_STEP_DEG = 90;
 export const ROTATE_ANGLE_MIN = -180;
 export const ROTATE_ANGLE_MAX = 180;
-export function clamp(value, min2, max2) {
-  return Math.max(min2, Math.min(max2, value));
+export function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
 }
-export function normalizeAngle(deg) {
-  let a2 = deg % 360;
-  if (a2 > 180) a2 -= 360;
-  if (a2 < -180) a2 += 360;
-  return a2;
+export function normalizeAngle(degrees) {
+  let normalizedAngle = degrees % 360;
+  if (normalizedAngle > 180) normalizedAngle -= 360;
+  if (normalizedAngle < -180) normalizedAngle += 360;
+  return normalizedAngle;
 }

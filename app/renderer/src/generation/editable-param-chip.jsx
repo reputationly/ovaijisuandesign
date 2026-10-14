@@ -5,7 +5,9 @@ import {
   stringifyParamValue,
 } from "./domestic-param-labels.jsx";
 import { Clock } from "../media-editing/package.jsx";
-import { Info$1 as Info, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,
@@ -24,23 +26,23 @@ const TAG_ICON = {
   duration: Clock,
   durations: Clock,
 };
-function displayParamValue(value, t2, displayMap, formatBoolean) {
+function displayParamValue(value, translate, displayMap, formatBoolean) {
   if (Array.isArray(value)) {
-    const values3 = value
-      .map((item) => displayParamValue(item, t2, displayMap, formatBoolean))
+    const values = value
+      .map((item) => displayParamValue(item, translate, displayMap, formatBoolean))
       .filter(Boolean);
-    if (values3.length === 0) return "—";
-    if (values3.length <= 2) return values3.join(", ");
-    return `${values3[0]} +${values3.length - 1}`;
+    if (values.length === 0) return "—";
+    if (values.length <= 2) return values.join(", ");
+    return `${values[0]} +${values.length - 1}`;
   }
   if (typeof value === "boolean")
     return formatBoolean ? formatBoolean(value) : value ? "ON" : "OFF";
-  const raw2 = stringifyParamValue(value);
-  const optionLabel = t2(`canvas.param.option.${raw2}`, {
-    defaultValue: raw2,
+  const raw = stringifyParamValue(value);
+  const optionLabel = translate(`canvas.param.option.${raw}`, {
+    defaultValue: raw,
   });
   return (
-    (optionLabel !== raw2 ? optionLabel : (displayMap?.get(raw2) ?? raw2)) ||
+    (optionLabel !== raw ? optionLabel : (displayMap?.get(raw) ?? raw)) ||
     "—"
   );
 }
@@ -56,7 +58,7 @@ export function EditableParamChip({
   batchPageCount,
   onChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const label = getParamLabel(paramKey);
   const ParamIcon = MODEL_NAME_KEYS.has(paramKey)
     ? categoryIcon
@@ -71,19 +73,19 @@ export function EditableParamChip({
   const fieldOriginalValue = pagedArray
     ? originalValue[batchPageIndex]
     : originalValue;
-  const stringValue2 = stringifyParamValue(fieldValue);
+  const stringValue = stringifyParamValue(fieldValue);
   const handleChange = reactExports.useCallback(
     (nextValue) => {
       if (!pagedArray || batchPageIndex === void 0 || !Array.isArray(value)) {
         onChange(nextValue);
         return;
       }
-      const next2 = [...value];
-      next2[batchPageIndex] = parseParamValueLikeOriginal(
+      const next = [...value];
+      next[batchPageIndex] = parseParamValueLikeOriginal(
         fieldOriginalValue,
         nextValue,
       );
-      onChange(JSON.stringify(next2));
+      onChange(JSON.stringify(next));
     },
     [batchPageIndex, fieldOriginalValue, onChange, pagedArray, value],
   );
@@ -99,9 +101,9 @@ export function EditableParamChip({
           <ParamIcon size={16} strokeWidth={1.5} className="shrink-0" />
         )}
         <span className="whitespace-nowrap">
-          {displayParamValue(displayValue ?? value, t2, displayMap, (v2) =>
-            t2(
-              v2 ? "chat.toolConfirm.booleanOn" : "chat.toolConfirm.booleanOff",
+          {displayParamValue(displayValue ?? value, translate, displayMap, (isEnabled) =>
+            translate(
+              isEnabled ? "chat.toolConfirm.booleanOn" : "chat.toolConfirm.booleanOff",
             ),
           )}
         </span>
@@ -128,7 +130,7 @@ export function EditableParamChip({
         </div>
         <ParamField
           paramKey={paramKey}
-          value={stringValue2}
+          value={stringValue}
           originalValue={fieldOriginalValue}
           hint={hint}
           displayMap={displayMap}

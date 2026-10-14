@@ -1,5 +1,12 @@
 // file-explorer.jsx
-import { LayoutGrid, LayoutList, reactExports, useCurrentWorkspace, usePlatform, useQueryClient, useStorage, useTranslation, useVirtualizer } from "../vendor.js";
+import { useVirtualizer } from "../vendor.js";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { LayoutGrid, LayoutList } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -106,15 +113,15 @@ function useFileExplorerOverlayBridge({
 }) {
   const overlayHostRef = reactExports.useRef(null);
   const rowAnchorsRef = reactExports.useRef(new Map());
-  const registerRowAnchor = useStableCallback((path2, el) => {
+  const registerRowAnchor = useStableCallback((path, el) => {
     if (el) {
-      rowAnchorsRef.current.set(path2, el);
+      rowAnchorsRef.current.set(path, el);
     } else {
-      rowAnchorsRef.current.delete(path2);
+      rowAnchorsRef.current.delete(path);
     }
   });
-  const getRowAnchor = useStableCallback((path2) =>
-    rowAnchorsRef.current.get(path2),
+  const getRowAnchor = useStableCallback((path) =>
+    rowAnchorsRef.current.get(path),
   );
   const handleHoverIntent = useStableCallback((target) => {
     overlayHostRef.current?.notifyHoverIntent(target);
@@ -173,13 +180,13 @@ function useFileExplorerOverlayBridge({
   };
 }
 function useConflictResolver() {
-  const [batch2, setBatch] = reactExports.useState(null);
+  const [batch, setBatch] = reactExports.useState(null);
   const pendingRef = reactExports.useRef(null);
   const finishBatch = reactExports.useCallback((value) => {
-    const resolver2 = pendingRef.current;
+    const resolver = pendingRef.current;
     pendingRef.current = null;
     setBatch(null);
-    resolver2?.(value);
+    resolver?.(value);
   }, []);
   const resolve = reactExports.useCallback(
     async (conflicts) => {
@@ -249,86 +256,86 @@ function useConflictResolver() {
     [finishBatch],
   );
   const dialogProps = reactExports.useMemo(() => {
-    const conflict = batch2 ? (batch2.conflicts[batch2.cursor] ?? null) : null;
-    const remainingCount = batch2
-      ? Math.max(0, batch2.conflicts.length - batch2.cursor - 1)
+    const conflict = batch ? (batch.conflicts[batch.cursor] ?? null) : null;
+    const remainingCount = batch
+      ? Math.max(0, batch.conflicts.length - batch.cursor - 1)
       : 0;
     return {
-      open: !!batch2,
+      open: !!batch,
       conflict,
       remainingCount,
       onDecision: handleDecision,
       onDismiss: handleDismiss,
     };
-  }, [batch2, handleDecision, handleDismiss]);
+  }, [batch, handleDecision, handleDismiss]);
   return {
     dialogProps,
     resolve,
   };
 }
-function matchesTypeFilters(fileName, types2) {
-  if (types2.length === 0) return true;
-  return types2.includes(categorizeByExtension(fileName));
+function matchesTypeFilters(fileName, types) {
+  if (types.length === 0) return true;
+  return types.includes(categorizeByExtension(fileName));
 }
 function retainKnownTagFilters(tagFilters, knownTagIds) {
   const known = new Set(knownTagIds);
-  const retained = tagFilters.filter((id2) => known.has(id2));
+  const retained = tagFilters.filter((tagId) => known.has(tagId));
   return retained.length === tagFilters.length ? tagFilters : retained;
 }
-function buildTreeFileComparator(sortOrder, getAsset2) {
-  return (a2, b3) =>
+function buildTreeFileComparator(sortOrder, getAsset) {
+  return (leftEntry, rightEntry) =>
     compareByTimeOrName(
-      getAsset2(a2.path)?.time,
-      getAsset2(b3.path)?.time,
-      a2.name,
-      b3.name,
+      getAsset(leftEntry.path)?.time,
+      getAsset(rightEntry.path)?.time,
+      leftEntry.name,
+      rightEntry.name,
       sortOrder,
     );
 }
 function filterAndSortAssets(assets, options) {
-  const q2 = options.query.trim().toLowerCase();
+  const query = options.query.trim().toLowerCase();
   const dateBounds = computeDateBounds(options.dateFilter);
-  const filtered = assets.filter((a2) => {
-    const fileName = a2.path.split("/").pop() ?? "";
-    const nameMatch = q2 ? fileName.toLowerCase().includes(q2) : true;
+  const filtered = assets.filter((asset) => {
+    const fileName = asset.path.split("/").pop() ?? "";
+    const nameMatch = query ? fileName.toLowerCase().includes(query) : true;
     const tagNameMatch =
-      q2 && options.tagSearchIds
-        ? (a2.tagIds ?? []).some((id2) => options.tagSearchIds?.has(id2))
+      query && options.tagSearchIds
+        ? (asset.tagIds ?? []).some((tagId) => options.tagSearchIds?.has(tagId))
         : false;
     if (!nameMatch && !tagNameMatch) return false;
     if (!matchesTypeFilters(fileName, options.typeFilters)) return false;
-    if (!matchesTagFilter(a2.tagIds, options.tagFilters)) return false;
-    return matchesDateFilter(a2.time, dateBounds);
+    if (!matchesTagFilter(asset.tagIds, options.tagFilters)) return false;
+    return matchesDateFilter(asset.time, dateBounds);
   });
-  return [...filtered].sort((a2, b3) =>
-    compareByTimeOrName(a2.time, b3.time, a2.path, b3.path, options.sortOrder),
+  return [...filtered].sort((leftAsset, rightAsset) =>
+    compareByTimeOrName(leftAsset.time, rightAsset.time, leftAsset.path, rightAsset.path, options.sortOrder),
   );
 }
 function filterTreeByPredicate(tree, options) {
-  const q2 = options.query.trim().toLowerCase();
+  const query = options.query.trim().toLowerCase();
   const dateBounds = computeDateBounds(options.dateFilter);
   const noActiveFilter =
-    q2 === "" &&
+    query === "" &&
     options.typeFilters.length === 0 &&
     dateBounds === null &&
     (options.tagFilters?.length ?? 0) === 0;
   function matchesFile(entry) {
     const asset = options.getAsset(entry.path);
-    const nameMatch = q2 ? entry.name.toLowerCase().includes(q2) : true;
+    const nameMatch = query ? entry.name.toLowerCase().includes(query) : true;
     const tagNameMatch =
-      q2 && options.tagSearchIds
-        ? (asset?.tagIds ?? []).some((id2) => options.tagSearchIds?.has(id2))
+      query && options.tagSearchIds
+        ? (asset?.tagIds ?? []).some((tagId) => options.tagSearchIds?.has(tagId))
         : false;
     if (!nameMatch && !tagNameMatch) return false;
     if (!matchesTypeFilters(entry.name, options.typeFilters)) return false;
     if (!matchesTagFilter(asset?.tagIds, options.tagFilters)) return false;
     return matchesDateFilter(asset?.time, dateBounds);
   }
-  function walk(entries2) {
+  function walk(entries) {
     const result = [];
-    for (const entry of entries2) {
+    for (const entry of entries) {
       if (entry.isDirectory) {
-        const dirNameMatch = q2 ? entry.name.toLowerCase().includes(q2) : false;
+        const dirNameMatch = query ? entry.name.toLowerCase().includes(query) : false;
         const wasOriginallyEmpty =
           !entry.children || entry.children.length === 0;
         const filteredChildren = entry.children ? walk(entry.children) : [];
@@ -358,25 +365,25 @@ function useAssetPanelPreferences() {
   );
   const { typeFilters, dateFilter, sortOrder } = value;
   const setTypeFilters = reactExports.useCallback(
-    (next2) => {
+    (next) => {
       setAssetPanel({
-        typeFilters: next2,
+        typeFilters: next,
       });
     },
     [setAssetPanel],
   );
   const setDateFilter = reactExports.useCallback(
-    (next2) => {
+    (next) => {
       setAssetPanel({
-        dateFilter: next2,
+        dateFilter: next,
       });
     },
     [setAssetPanel],
   );
   const setSortOrder = reactExports.useCallback(
-    (next2) => {
+    (next) => {
       setAssetPanel({
-        sortOrder: next2,
+        sortOrder: next,
       });
     },
     [setAssetPanel],
@@ -405,27 +412,27 @@ function useAssetPanelPreferences() {
 }
 function expandSelectionForDelete(anchor, selectedPaths, filteredTree) {
   if (selectedPaths.size > 1 && selectedPaths.has(anchor.path)) {
-    const entries2 = [];
+    const entries = [];
     for (const selectedPath of selectedPaths) {
       const entry = findEntryByPath(filteredTree, selectedPath);
-      if (entry) entries2.push(entry);
+      if (entry) entries.push(entry);
     }
-    return entries2.length > 0 ? entries2 : [anchor];
+    return entries.length > 0 ? entries : [anchor];
   }
   return [anchor];
 }
-function useFileExplorerPanelClose({ isActive: isActive2, onClose }) {
+function useFileExplorerPanelClose({ isActive, onClose }) {
   const handlePanelKeyDownCapture = reactExports.useCallback(
     (event) => {
-      if (!isActive2 || !shouldClosePanel(event.nativeEvent)) return;
+      if (!isActive || !shouldClosePanel(event.nativeEvent)) return;
       event.preventDefault();
       event.stopPropagation();
       onClose();
     },
-    [isActive2, onClose],
+    [isActive, onClose],
   );
   reactExports.useEffect(() => {
-    if (!isActive2) return;
+    if (!isActive) return;
     const handleWindowKeyDown = (event) => {
       if (!shouldClosePanel(event)) return;
       event.preventDefault();
@@ -433,48 +440,48 @@ function useFileExplorerPanelClose({ isActive: isActive2, onClose }) {
     };
     window.addEventListener("keydown", handleWindowKeyDown);
     return () => window.removeEventListener("keydown", handleWindowKeyDown);
-  }, [isActive2, onClose]);
+  }, [isActive, onClose]);
   return {
     handlePanelKeyDownCapture,
   };
 }
-function DeleteConfirmDialog({ entries: entries2, onCancel, onConfirm }) {
-  const { t: t2 } = useTranslation();
-  const head2 = entries2[0];
+function DeleteConfirmDialog({ entries, onCancel, onConfirm }) {
+  const { t: translate } = useTranslation();
+  const head = entries[0];
   return (
     <AlertDialog
-      open={entries2.length > 0}
+      open={entries.length > 0}
       onOpenChange={(open) => !open && onCancel()}
     >
       <AlertDialogContent size="sm">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {entries2.length > 1
-              ? t2("fileExplorer.deleteMultiple", {
-                  count: entries2.length,
+            {entries.length > 1
+              ? translate("fileExplorer.deleteMultiple", {
+                  count: entries.length,
                 })
-              : head2?.isDirectory
-                ? t2("fileExplorer.deleteFolder")
-                : t2("fileExplorer.deleteFile")}
+              : head?.isDirectory
+                ? translate("fileExplorer.deleteFolder")
+                : translate("fileExplorer.deleteFile")}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {entries2.length > 1
-              ? t2("fileExplorer.deleteMultipleConfirm", {
-                  count: entries2.length,
+            {entries.length > 1
+              ? translate("fileExplorer.deleteMultipleConfirm", {
+                  count: entries.length,
                 })
-              : head2?.isDirectory
-                ? t2("fileExplorer.deleteFolderConfirm", {
-                    name: head2.name,
+              : head?.isDirectory
+                ? translate("fileExplorer.deleteFolderConfirm", {
+                    name: head.name,
                   })
-                : t2("fileExplorer.deleteFileConfirm", {
-                    name: head2?.name,
+                : translate("fileExplorer.deleteFileConfirm", {
+                    name: head?.name,
                   })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t2("common.cancel")}</AlertDialogCancel>
+          <AlertDialogCancel>{translate("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            {t2("common.delete")}
+            {translate("common.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -482,11 +489,11 @@ function DeleteConfirmDialog({ entries: entries2, onCancel, onConfirm }) {
   );
 }
 function DropOverlay() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 border-2 border-dashed border-primary rounded-lg pointer-events-none">
       <p className="text-sm text-primary font-medium">
-        {t2("fileExplorer.dropToImport")}
+        {translate("fileExplorer.dropToImport")}
       </p>
     </div>
   );
@@ -497,7 +504,7 @@ const GRID_ITEM_GAP = 4;
 const GRID_NAME_AREA = 24;
 const GRID_ROW_GAP = 4;
 const GRID_ROW_FALLBACK_HEIGHT = 120;
-const FileExplorerGridView = reactExports.memo(function FileExplorerGridView2({
+const FileExplorerGridView = reactExports.memo(function FileExplorerGridViewImpl({
   sortedFilteredAssets,
   containerWidth,
   selectedPaths,
@@ -505,7 +512,7 @@ const FileExplorerGridView = reactExports.memo(function FileExplorerGridView2({
   renamingPath,
   resolveAssetPath,
   scrollEl,
-  handlers: handlers2,
+  handlers,
 }) {
   const columnsPerRow = 2;
   const gridRowEstimateHeight = reactExports.useMemo(() => {
@@ -522,8 +529,8 @@ const FileExplorerGridView = reactExports.memo(function FileExplorerGridView2({
   }, [containerWidth]);
   const assetGridRows = reactExports.useMemo(() => {
     const rows = [];
-    for (let i2 = 0; i2 < sortedFilteredAssets.length; i2 += columnsPerRow) {
-      rows.push(sortedFilteredAssets.slice(i2, i2 + columnsPerRow));
+    for (let rowStartIndex = 0; rowStartIndex < sortedFilteredAssets.length; rowStartIndex += columnsPerRow) {
+      rows.push(sortedFilteredAssets.slice(rowStartIndex, rowStartIndex + columnsPerRow));
     }
     return rows;
   }, [sortedFilteredAssets]);
@@ -567,33 +574,33 @@ const FileExplorerGridView = reactExports.memo(function FileExplorerGridView2({
                   absolutePath={absPath}
                   isSelected={selectedPaths.has(absPath)}
                   viewMode={viewMode}
-                  buildDragPayload={handlers2.buildDragPayload}
-                  onSelect={handlers2.onSelect}
-                  onDoubleClick={handlers2.onDoubleClick}
-                  onDelete={handlers2.onDelete}
-                  onCopyPath={handlers2.onCopyPath}
-                  onCopyFile={handlers2.onCopyFile}
-                  onDuplicate={handlers2.onDuplicate}
-                  onShowInFolder={handlers2.onShowInFolder}
-                  onStartRename={handlers2.onStartRename}
-                  onRename={handlers2.onRename}
-                  onRenameCancel={handlers2.onRenameCancel}
+                  buildDragPayload={handlers.buildDragPayload}
+                  onSelect={handlers.onSelect}
+                  onDoubleClick={handlers.onDoubleClick}
+                  onDelete={handlers.onDelete}
+                  onCopyPath={handlers.onCopyPath}
+                  onCopyFile={handlers.onCopyFile}
+                  onDuplicate={handlers.onDuplicate}
+                  onShowInFolder={handlers.onShowInFolder}
+                  onStartRename={handlers.onStartRename}
+                  onRename={handlers.onRename}
+                  onRenameCancel={handlers.onRenameCancel}
                   renamingPath={renamingPath}
-                  onMergeCandidate={handlers2.onMergeCandidate}
-                  onRemoveMissing={handlers2.onRemoveMissing}
-                  onLocateMissing={handlers2.onLocateMissing}
-                  onSwitchViewMode={handlers2.onSwitchViewMode}
-                  onAddToCanvas={handlers2.onAddToCanvas}
-                  onAddToChat={handlers2.onAddToChat}
-                  onPromoteToAsset={handlers2.onPromoteToAsset}
-                  onSaveToProjectAssets={handlers2.onSaveToProjectAssets}
-                  onLocateOnCanvas={handlers2.onLocateOnCanvas}
-                  onAnchorMount={handlers2.onAnchorMount}
-                  onOpenDefault={handlers2.onOpenDefault}
-                  onOpenWith={handlers2.onOpenWith}
-                  onPickAppAndOpen={handlers2.onPickAppAndOpen}
-                  onHoverIntent={handlers2.onHoverIntent}
-                  onHoverEnd={handlers2.onHoverEnd}
+                  onMergeCandidate={handlers.onMergeCandidate}
+                  onRemoveMissing={handlers.onRemoveMissing}
+                  onLocateMissing={handlers.onLocateMissing}
+                  onSwitchViewMode={handlers.onSwitchViewMode}
+                  onAddToCanvas={handlers.onAddToCanvas}
+                  onAddToChat={handlers.onAddToChat}
+                  onPromoteToAsset={handlers.onPromoteToAsset}
+                  onSaveToProjectAssets={handlers.onSaveToProjectAssets}
+                  onLocateOnCanvas={handlers.onLocateOnCanvas}
+                  onAnchorMount={handlers.onAnchorMount}
+                  onOpenDefault={handlers.onOpenDefault}
+                  onOpenWith={handlers.onOpenWith}
+                  onPickAppAndOpen={handlers.onPickAppAndOpen}
+                  onHoverIntent={handlers.onHoverIntent}
+                  onHoverEnd={handlers.onHoverEnd}
                 />
               );
             })}
@@ -604,7 +611,7 @@ const FileExplorerGridView = reactExports.memo(function FileExplorerGridView2({
   );
 });
 const TREE_ROW_HEIGHT = 32;
-const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeView2({
+const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeViewImpl({
   flatRows,
   expanded,
   selectedPaths,
@@ -614,7 +621,7 @@ const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeView2({
   renamingPath,
   scrollEl,
   creatingEntry,
-  handlers: handlers2,
+  handlers,
 }) {
   const treeVirtualizer = useVirtualizer({
     count: flatRows.length,
@@ -625,9 +632,9 @@ const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeView2({
   reactExports.useEffect(() => {
     if (!creatingEntry) return;
     const creatingPath = `${creatingEntry.parentPath}/__creating__`;
-    const index2 = flatRows.findIndex((r2) => r2.entry.path === creatingPath);
-    if (index2 >= 0) {
-      treeVirtualizer.scrollToIndex(index2, {
+    const index = flatRows.findIndex((row) => row.entry.path === creatingPath);
+    if (index >= 0) {
+      treeVirtualizer.scrollToIndex(index, {
         align: "auto",
       });
     }
@@ -664,38 +671,38 @@ const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeView2({
               rootPath={rootPath}
               viewMode={viewMode}
               asset={assetByAbsPath.get(row.entry.path)}
-              buildDragPayload={handlers2.buildDragPayload}
-              onToggle={handlers2.onToggle}
-              onFileSelect={handlers2.onFileSelect}
-              onFileDoubleClick={handlers2.onFileDoubleClick}
-              onRename={handlers2.onRename}
-              onDelete={handlers2.onDelete}
-              onCopyPath={handlers2.onCopyPath}
-              onCopyFile={handlers2.onCopyFile}
-              onDuplicate={handlers2.onDuplicate}
-              onMove={handlers2.onMove}
-              onStartRename={handlers2.onStartRename}
-              onCreateConfirm={handlers2.onCreateConfirm}
-              onCreateCancel={handlers2.onCreateCancel}
-              onStartCreateInside={handlers2.onStartCreateInside}
+              buildDragPayload={handlers.buildDragPayload}
+              onToggle={handlers.onToggle}
+              onFileSelect={handlers.onFileSelect}
+              onFileDoubleClick={handlers.onFileDoubleClick}
+              onRename={handlers.onRename}
+              onDelete={handlers.onDelete}
+              onCopyPath={handlers.onCopyPath}
+              onCopyFile={handlers.onCopyFile}
+              onDuplicate={handlers.onDuplicate}
+              onMove={handlers.onMove}
+              onStartRename={handlers.onStartRename}
+              onCreateConfirm={handlers.onCreateConfirm}
+              onCreateCancel={handlers.onCreateCancel}
+              onStartCreateInside={handlers.onStartCreateInside}
               renamingPath={renamingPath}
-              onRenameCancel={handlers2.onRenameCancel}
-              onShowInFolder={handlers2.onShowInFolder}
-              onMergeCandidate={handlers2.onMergeCandidate}
-              onRemoveMissing={handlers2.onRemoveMissing}
-              onLocateMissing={handlers2.onLocateMissing}
-              onSwitchViewMode={handlers2.onSwitchViewMode}
-              onAddToCanvas={handlers2.onAddToCanvas}
-              onAddToChat={handlers2.onAddToChat}
-              onPromoteToAsset={handlers2.onPromoteToAsset}
-              onSaveToProjectAssets={handlers2.onSaveToProjectAssets}
-              onLocateOnCanvas={handlers2.onLocateOnCanvas}
-              onAnchorMount={handlers2.onAnchorMount}
-              onOpenDefault={handlers2.onOpenDefault}
-              onOpenWith={handlers2.onOpenWith}
-              onPickAppAndOpen={handlers2.onPickAppAndOpen}
-              onHoverIntent={handlers2.onHoverIntent}
-              onHoverEnd={handlers2.onHoverEnd}
+              onRenameCancel={handlers.onRenameCancel}
+              onShowInFolder={handlers.onShowInFolder}
+              onMergeCandidate={handlers.onMergeCandidate}
+              onRemoveMissing={handlers.onRemoveMissing}
+              onLocateMissing={handlers.onLocateMissing}
+              onSwitchViewMode={handlers.onSwitchViewMode}
+              onAddToCanvas={handlers.onAddToCanvas}
+              onAddToChat={handlers.onAddToChat}
+              onPromoteToAsset={handlers.onPromoteToAsset}
+              onSaveToProjectAssets={handlers.onSaveToProjectAssets}
+              onLocateOnCanvas={handlers.onLocateOnCanvas}
+              onAnchorMount={handlers.onAnchorMount}
+              onOpenDefault={handlers.onOpenDefault}
+              onOpenWith={handlers.onOpenWith}
+              onPickAppAndOpen={handlers.onPickAppAndOpen}
+              onHoverIntent={handlers.onHoverIntent}
+              onHoverEnd={handlers.onHoverEnd}
             />
           </div>
         );
@@ -704,15 +711,15 @@ const FileExplorerTreeView = reactExports.memo(function FileExplorerTreeView2({
   );
 });
 function PromoteToAssetDialog({ files, workspaceRoot, onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [isSubmitting, setIsSubmitting] = reactExports.useState(false);
   const filesLen = files?.length ?? 0;
   const open = files !== null && filesLen > 0;
   return (
     <Dialog
       open={open}
-      onOpenChange={(o2) => {
-        if (!o2 && !isSubmitting) onClose();
+      onOpenChange={(isOpen) => {
+        if (!isOpen && !isSubmitting) onClose();
       }}
     >
       <DialogContent
@@ -720,9 +727,9 @@ function PromoteToAssetDialog({ files, workspaceRoot, onClose }) {
         data-action-ui-id="asset-panel.promote-to-asset-dialog"
       >
         <DialogHeader>
-          <DialogTitle>{t2("assetCenter.promote.title")}</DialogTitle>
+          <DialogTitle>{translate("assetCenter.promote.title")}</DialogTitle>
           <DialogDescription className="text-xs">
-            {t2("assetCenter.promote.descriptionMulti", {
+            {translate("assetCenter.promote.descriptionMulti", {
               count: filesLen,
             })}
           </DialogDescription>
@@ -772,8 +779,8 @@ function ToolbarFilters({
     </div>
   );
 }
-function resolveTreePaths(entries2, rootPath) {
-  return entries2.map((entry) => ({
+function resolveTreePaths(entries, rootPath) {
+  return entries.map((entry) => ({
     ...entry,
     path: joinFilePath(rootPath, entry.path),
     children: entry.children
@@ -785,14 +792,14 @@ export function FileExplorer({
   onFileOpen,
   onRootPathChange,
   initialRootPath,
-  isActive: isActive2,
+  isActive,
   onClose,
   mode: _mode,
 }) {
-  const { t: t2 } = useTranslation();
-  const gatewayFetch2 = useGatewayFetch();
+  const { t: translate } = useTranslation();
+  const gatewayFetch = useGatewayFetch();
   const gatewayScopeKey = useGatewayScopeKey();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const currentWorkspace = useCurrentWorkspace();
   const [rootPath, setRootPath] = reactExports.useState(
     initialRootPath ?? null,
@@ -801,13 +808,13 @@ export function FileExplorer({
   const [selectedPaths, setSelectedPaths] = reactExports.useState(new Set());
   const [lastSelectedPath, setLastSelectedPath] = reactExports.useState(null);
   const [viewMode, setViewMode] = reactExports.useState("tree");
-  const [searchQuery, setSearchQuery2] = reactExports.useState("");
+  const [searchQuery, setSearchQuery] = reactExports.useState("");
   const deferredSearchQuery = reactExports.useDeferredValue(searchQuery);
   const conflictResolver = useConflictResolver();
   const treeRef = reactExports.useRef([]);
   const sectionRef = reactExports.useRef(null);
   const { handlePanelKeyDownCapture } = useFileExplorerPanelClose({
-    isActive: isActive2,
+    isActive,
     onClose,
   });
   const searchInputRef = reactExports.useRef(null);
@@ -824,38 +831,38 @@ export function FileExplorer({
   const tagRegistry = useTagRegistry();
   reactExports.useEffect(() => {
     const knownTagIds = tagRegistry.tags.map((tag) => tag.id);
-    setTagFilters((current2) => retainKnownTagFilters(current2, knownTagIds));
+    setTagFilters((current) => retainKnownTagFilters(current, knownTagIds));
   }, [tagRegistry.tags]);
   const tagSearchIds = reactExports.useMemo(() => {
-    const q2 = deferredSearchQuery.trim().toLowerCase();
-    if (!q2) return void 0;
-    const ids2 = new Set();
+    const normalizedSearchQuery = deferredSearchQuery.trim().toLowerCase();
+    if (!normalizedSearchQuery) return void 0;
+    const ids = new Set();
     for (const tag of tagRegistry.tags) {
-      const name2 =
+      const tagName =
         tag.name ||
-        t2(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") ||
+        translate(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") ||
         tag.id;
-      if (name2.toLowerCase().includes(q2)) ids2.add(tag.id);
+      if (tagName.toLowerCase().includes(normalizedSearchQuery)) ids.add(tag.id);
     }
-    return ids2;
-  }, [tagRegistry, deferredSearchQuery, t2]);
+    return ids;
+  }, [tagRegistry, deferredSearchQuery, translate]);
   const {
     assets,
     refresh,
     rename,
-    remove: remove2,
+    remove,
     move,
     mergeCandidate,
     removeMissing,
     manualLocate,
     duplicate,
   } = useAssets();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { assetTree, invalidateDirs } = useFileExplorerWorkspaceDirs({
     rootPath,
     assets,
-    gatewayFetch: gatewayFetch2,
-    queryClient: queryClient2,
+    gatewayFetch,
+    queryClient,
   });
   const {
     openWithDefault,
@@ -882,19 +889,19 @@ export function FileExplorer({
     onRootPathChange?.(rootPath);
   }, [rootPath, onRootPathChange]);
   const assetMap = reactExports.useMemo(() => {
-    const map3 = new Map();
-    for (const a2 of assets) {
-      map3.set(a2.path, a2);
+    const map = new Map();
+    for (const asset of assets) {
+      map.set(asset.path, asset);
     }
-    return map3;
+    return map;
   }, [assets]);
   const assetByAbsPath = reactExports.useMemo(() => {
-    const map3 = new Map();
-    if (!rootPath) return map3;
-    for (const a2 of assets) {
-      map3.set(joinFilePath(rootPath, a2.path), a2);
+    const map = new Map();
+    if (!rootPath) return map;
+    for (const asset of assets) {
+      map.set(joinFilePath(rootPath, asset.path), asset);
     }
-    return map3;
+    return map;
   }, [assets, rootPath]);
   const filteredTree = reactExports.useMemo(
     () =>
@@ -902,7 +909,7 @@ export function FileExplorer({
         query: deferredSearchQuery,
         typeFilters,
         dateFilter,
-        getAsset: (path2) => assetByAbsPath.get(path2),
+        getAsset: (path) => assetByAbsPath.get(path),
         tagFilters,
         tagSearchIds,
       }),
@@ -918,7 +925,7 @@ export function FileExplorer({
   );
   const treeFileComparator = reactExports.useMemo(
     () =>
-      buildTreeFileComparator(sortOrder, (path2) => assetByAbsPath.get(path2)),
+      buildTreeFileComparator(sortOrder, (path) => assetByAbsPath.get(path)),
     [sortOrder, assetByAbsPath],
   );
   const {
@@ -931,9 +938,9 @@ export function FileExplorer({
     expanded,
     setExpanded,
     rootPath,
-    gatewayFetch: gatewayFetch2,
+    gatewayFetch,
     conflictResolver,
-    platformFs: platform2.fs,
+    platformFs: platform.fs,
     refresh,
     invalidateDirs,
     setSelectedPaths,
@@ -969,7 +976,7 @@ export function FileExplorer({
     useFileExplorerScrollContainer();
   const columnsPerRow = Math.max(2, Math.floor(containerWidth / 100));
   const resetScrollToTop = reactExports.useCallback(
-    (_mode2 = viewMode) => {
+    (_unusedArg = viewMode) => {
       scrollEl?.scrollTo({
         top: 0,
         behavior: "auto",
@@ -977,20 +984,20 @@ export function FileExplorer({
     },
     [viewMode, scrollEl],
   );
-  const handleTypeFiltersChange = useStableCallback((next2) => {
-    setTypeFilters(next2);
+  const handleTypeFiltersChange = useStableCallback((next) => {
+    setTypeFilters(next);
     resetScrollToTop();
   });
-  const handleDateFilterChange = useStableCallback((next2) => {
-    setDateFilter(next2);
+  const handleDateFilterChange = useStableCallback((next) => {
+    setDateFilter(next);
     resetScrollToTop();
   });
-  const handleSortOrderChange = useStableCallback((next2) => {
-    setSortOrder(next2);
+  const handleSortOrderChange = useStableCallback((next) => {
+    setSortOrder(next);
     resetScrollToTop();
   });
   const openFolder = reactExports.useCallback(async () => {
-    const paths = await platform2.fs.showOpenDialog?.({
+    const paths = await platform.fs.showOpenDialog?.({
       directory: true,
     });
     if (!paths || paths.length === 0) return;
@@ -999,20 +1006,20 @@ export function FileExplorer({
     setExpanded(new Set());
     setSelectedPaths(new Set());
     setLastSelectedPath(null);
-  }, [platform2]);
+  }, [platform]);
   const refreshRoot = useStableCallback(async () => {
     await refresh();
     invalidateDirs();
   });
-  const toggleFolder = reactExports.useCallback((path2) => {
+  const toggleFolder = reactExports.useCallback((path) => {
     setExpanded((prev) => {
-      const next2 = new Set(prev);
-      if (next2.has(path2)) next2.delete(path2);
-      else next2.add(path2);
-      return next2;
+      const next = new Set(prev);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
     });
   }, []);
-  const { updateSelection: updateSelection2, handleFileSelect } =
+  const { updateSelection, handleFileSelect } =
     useFileExplorerSelection({
       lastSelectedPath,
       flatRows,
@@ -1028,20 +1035,20 @@ export function FileExplorer({
     move,
     invalidateDirs,
   });
-  const handleFileDoubleClick = useStableCallback((path2) => {
-    const findName2 = (entries2) => {
-      for (const e2 of entries2) {
-        if (e2.path === path2) return e2.name;
-        if (e2.children) {
-          const found2 = findName2(e2.children);
-          if (found2) return found2;
+  const handleFileDoubleClick = useStableCallback((path) => {
+    const findName = (entries) => {
+      for (const entry of entries) {
+        if (entry.path === path) return entry.name;
+        if (entry.children) {
+          const found = findName(entry.children);
+          if (found) return found;
         }
       }
       return null;
     };
-    const name2 = findName2(treeRef.current);
-    if (name2) {
-      onFileOpen?.(path2, name2);
+    const entryName = findName(treeRef.current);
+    if (entryName) {
+      onFileOpen?.(path, entryName);
     }
   });
   const { renamingPath, startRename, handleRename, handleRenameCancel } =
@@ -1052,7 +1059,7 @@ export function FileExplorer({
     });
   const { deletingEntries, requestDelete, cancelDelete, handleDeleteConfirm } =
     useFileExplorerDelete({
-      remove: remove2,
+      remove,
       toRelativePath,
       invalidateDirs,
       lastSelectedPath,
@@ -1062,8 +1069,8 @@ export function FileExplorer({
       setSelectedPaths,
       // Asset-undo wiring (ADR-009): hook needs both to render the
       // 10s countdown toast on successful single-file delete.
-      gatewayFetch: gatewayFetch2,
-      queryClient: queryClient2,
+      gatewayFetch,
+      queryClient,
       gatewayScopeKey,
     });
   const requestDeleteFromAnchor = useStableCallback((anchor) => {
@@ -1079,24 +1086,24 @@ export function FileExplorer({
     handleExternalDragLeave,
     handleExternalDrop,
   } = useFileExplorerImport({
-    gatewayFetch: gatewayFetch2,
-    platform: platform2,
+    gatewayFetch,
+    platform,
     rootPath,
     conflictResolver,
     refresh,
     setSelectedPaths,
     setLastSelectedPath,
   });
-  const handleShowInFolder = useStableCallback(async (path2) => {
-    if (!platform2.shell.showItemInFolder) {
-      dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+  const handleShowInFolder = useStableCallback(async (path) => {
+    if (!platform.shell.showItemInFolder) {
+      dedupedToast.error(translate("fileExplorer.platformNotSupported"));
       return;
     }
     try {
-      await platform2.shell.showItemInFolder(path2);
+      await platform.shell.showItemInFolder(path);
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.locateFailed") +
+        translate("fileExplorer.locateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -1126,7 +1133,7 @@ export function FileExplorer({
     rootPath,
     sortedFilteredAssets,
     filteredTree,
-    updateSelection: updateSelection2,
+    updateSelection,
     onFileOpen,
     requestDeleteFromAnchor,
     handleCopyPath,
@@ -1144,7 +1151,7 @@ export function FileExplorer({
     mergeCandidate,
     removeMissing,
     manualLocate,
-    platform: platform2,
+    platform,
     toRelativePath,
     assetMap,
   });
@@ -1174,17 +1181,17 @@ export function FileExplorer({
         ? Array.from(selectedPaths)
         : [target.path];
       const resolved = [];
-      for (const p3 of targetPaths) {
-        const entry = findEntryByPath(filteredTree, p3);
+      for (const targetPath of targetPaths) {
+        const entry = findEntryByPath(filteredTree, targetPath);
         if (!entry || entry.isDirectory || entry.status === "missing") continue;
-        const asset = assetByAbsPath.get(p3);
+        const asset = assetByAbsPath.get(targetPath);
         const vaultPrompt =
           asset?.prompt && asset.prompt.trim().length > 0
             ? asset.prompt
             : void 0;
         resolved.push({
-          workspaceRelPath: toRelativePath(p3),
-          absolutePath: p3,
+          workspaceRelPath: toRelativePath(targetPath),
+          absolutePath: targetPath,
           displayName: entry.name,
           ...(vaultPrompt
             ? {
@@ -1230,8 +1237,8 @@ export function FileExplorer({
     handlePasteFromMenu,
     probeClipboard,
   } = useFileExplorerClipboard({
-    gatewayFetch: gatewayFetch2,
-    platform: platform2,
+    gatewayFetch,
+    platform,
     rootPath,
     refresh,
     setSelectedPaths,
@@ -1300,11 +1307,11 @@ export function FileExplorer({
   const visiblePaths = reactExports.useMemo(() => {
     if (viewMode === "tree") {
       return flatRows
-        .filter((r2) => !r2.entry.path.endsWith("/__creating__"))
-        .map((r2) => r2.entry.path);
+        .filter((row) => !row.entry.path.endsWith("/__creating__"))
+        .map((row) => row.entry.path);
     }
-    return sortedFilteredAssets.map((a2) =>
-      rootPath ? joinFilePath(rootPath, a2.path) : a2.path,
+    return sortedFilteredAssets.map((asset) =>
+      rootPath ? joinFilePath(rootPath, asset.path) : asset.path,
     );
   }, [viewMode, flatRows, sortedFilteredAssets, rootPath]);
   const { panelLevelHandlers } = useFileExplorerShortcuts({
@@ -1321,8 +1328,8 @@ export function FileExplorer({
     toRelativePath,
     handleCopyFile,
     duplicate,
-    gatewayFetch: gatewayFetch2,
-    queryClient: queryClient2,
+    gatewayFetch,
+    queryClient,
     gatewayScopeKey,
   });
   const dispatchShortcut = useAssetMenuShortcuts(panelLevelHandlers);
@@ -1339,8 +1346,8 @@ export function FileExplorer({
     setSelectedPaths,
     setLastSelectedPath,
   });
-  const handleSectionPointerDown = reactExports.useCallback((e2) => {
-    const target = e2.target;
+  const handleSectionPointerDown = reactExports.useCallback((pointerEvent) => {
+    const target = pointerEvent.target;
     if (
       target instanceof HTMLInputElement ||
       target instanceof HTMLTextAreaElement ||
@@ -1353,24 +1360,24 @@ export function FileExplorer({
     });
   }, []);
   const handleSwitchViewMode = useStableCallback(() => {
-    const next2 = viewMode === "tree" ? "grid" : "tree";
-    setViewMode(next2);
-    resetScrollToTop(next2);
+    const next = viewMode === "tree" ? "grid" : "tree";
+    setViewMode(next);
+    resetScrollToTop(next);
   });
   const handleShowRootInFolder = reactExports.useCallback(async () => {
-    if (!rootPath || !platform2.shell.showItemInFolder) {
-      dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+    if (!rootPath || !platform.shell.showItemInFolder) {
+      dedupedToast.error(translate("fileExplorer.platformNotSupported"));
       return;
     }
     try {
-      await platform2.shell.showItemInFolder(rootPath);
+      await platform.shell.showItemInFolder(rootPath);
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.locateFailed") +
+        translate("fileExplorer.locateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
-  }, [rootPath, platform2, t2]);
+  }, [rootPath, platform, translate]);
   const treeViewHandlers = reactExports.useMemo(
     () => ({
       buildDragPayload,
@@ -1504,12 +1511,12 @@ export function FileExplorer({
         density="panel"
         className="h-full"
         emptyOptions={{
-          title: t2("fileExplorer.noOpenFolder"),
-          description: t2("fileExplorer.selectFolderHint"),
+          title: translate("fileExplorer.noOpenFolder"),
+          description: translate("fileExplorer.selectFolderHint"),
           actions: [
             {
               key: "open-folder",
-              label: t2("fileExplorer.openFolder"),
+              label: translate("fileExplorer.openFolder"),
               variant: "outline",
               icon: <FolderOpen size={14} strokeWidth={1.5} />,
               onClick: openFolder,
@@ -1537,7 +1544,7 @@ export function FileExplorer({
       <div className="flex shrink-0 items-center gap-1 px-2 pt-2 pb-2">
         <FileExplorerSearchBar
           value={searchQuery}
-          onChange={setSearchQuery2}
+          onChange={setSearchQuery}
           inputRef={searchInputRef}
           className="min-w-0 flex-1 !p-0"
         />
@@ -1553,18 +1560,18 @@ export function FileExplorer({
               options={[
                 {
                   value: "tree",
-                  label: t2("fileExplorer.treeView"),
-                  ariaLabel: t2("fileExplorer.treeView"),
+                  label: translate("fileExplorer.treeView"),
+                  ariaLabel: translate("fileExplorer.treeView"),
                   icon: LayoutList,
-                  tooltip: t2("fileExplorer.treeView"),
+                  tooltip: translate("fileExplorer.treeView"),
                   dataActionUiId: "asset-panel.view-tree",
                 },
                 {
                   value: "grid",
-                  label: t2("fileExplorer.gridView"),
-                  ariaLabel: t2("fileExplorer.gridView"),
+                  label: translate("fileExplorer.gridView"),
+                  ariaLabel: translate("fileExplorer.gridView"),
                   icon: LayoutGrid,
-                  tooltip: t2("fileExplorer.gridView"),
+                  tooltip: translate("fileExplorer.gridView"),
                   dataActionUiId: "asset-panel.view-grid",
                 },
               ]}
@@ -1574,7 +1581,7 @@ export function FileExplorer({
                 render={
                   <button
                     type="button"
-                    aria-label={t2("fileExplorer.refreshList")}
+                    aria-label={translate("fileExplorer.refreshList")}
                     className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50"
                     onClick={() => void refreshRoot()}
                     data-action-ui-id="asset-panel.refresh"
@@ -1584,7 +1591,7 @@ export function FileExplorer({
                 <RetryIcon size={14} />
               </TooltipTrigger>
               <TooltipContent side="bottom">
-                {t2("fileExplorer.refresh")}
+                {translate("fileExplorer.refresh")}
               </TooltipContent>
             </Tooltip>
           </div>
@@ -1626,15 +1633,15 @@ export function FileExplorer({
               emptyOptions={{
                 title:
                   searchQuery.trim().length > 0
-                    ? t2("fileExplorer.noMatchingFiles")
-                    : t2(
+                    ? translate("fileExplorer.noMatchingFiles")
+                    : translate(
                         "fileExplorer.assetsHint",
                         "Generated assets land here",
                       ),
                 description:
                   searchQuery.trim().length > 0
                     ? void 0
-                    : t2(
+                    : translate(
                         "fileExplorer.localStorageHint",
                         "Files are stored locally.",
                       ),

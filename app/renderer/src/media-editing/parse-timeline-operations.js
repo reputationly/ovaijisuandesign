@@ -8,40 +8,40 @@ const TIMELINE_OPERATION_TOOL_ALIASES = {
   hub_plan_write: "plan_write",
   hub_plan_replan: "plan_replan",
 };
-function normaliseTimelineOperationToolName(toolName2) {
-  if (!toolName2) return void 0;
-  return TIMELINE_OPERATION_TOOL_ALIASES[toolName2] ?? toolName2;
+function normaliseTimelineOperationToolName(toolName) {
+  if (!toolName) return void 0;
+  return TIMELINE_OPERATION_TOOL_ALIASES[toolName] ?? toolName;
 }
-function stringField(record2, keys2) {
-  if (!record2) return void 0;
-  for (const key2 of keys2) {
-    const value = record2[key2];
+function stringField(record, keys) {
+  if (!record) return void 0;
+  for (const key of keys) {
+    const value = record[key];
     if (typeof value === "string" && value.trim().length > 0)
       return value.trim();
   }
   return void 0;
 }
-function recordField(record2, keys2) {
-  if (!record2) return void 0;
-  for (const key2 of keys2) {
-    const value = record2[key2];
+function recordField(record, keys) {
+  if (!record) return void 0;
+  for (const key of keys) {
+    const value = record[key];
     if (value && typeof value === "object" && !Array.isArray(value))
       return value;
   }
   return void 0;
 }
-function booleanField(record2, keys2) {
-  if (!record2) return void 0;
-  for (const key2 of keys2) {
-    const value = record2[key2];
+function booleanField(record, keys) {
+  if (!record) return void 0;
+  for (const key of keys) {
+    const value = record[key];
     if (typeof value === "boolean") return value;
   }
   return void 0;
 }
-function recordArrayField(record2, keys2) {
-  if (!record2) return [];
-  for (const key2 of keys2) {
-    const value = record2[key2];
+function recordArrayField(record, keys) {
+  if (!record) return [];
+  for (const key of keys) {
+    const value = record[key];
     if (!Array.isArray(value)) continue;
     return value.filter(
       (item) => !!item && typeof item === "object" && !Array.isArray(item),
@@ -49,14 +49,14 @@ function recordArrayField(record2, keys2) {
   }
   return [];
 }
-function basename(path2) {
-  const trimmed = path2.trim();
+function basename(path) {
+  const trimmed = path.trim();
   const withoutSlash = trimmed.replace(/[\\/]+$/, "");
   const parts = withoutSlash.split(/[\\/]/);
   return parts[parts.length - 1] || trimmed;
 }
-function firstDefined(...values3) {
-  return values3.find((value) => value && value.trim().length > 0);
+function firstDefined(...values) {
+  return values.find((value) => value && value.trim().length > 0);
 }
 function nodeIdFrom(args, result) {
   return firstDefined(
@@ -112,17 +112,17 @@ function parseUnifiedCanvasWrite(args, result) {
       const created =
         booleanField(result, ["created"]) ?? !stringField(args, ["nodeId"]);
       if (!created) return void 0;
-      const path2 = stringField(result, ["path"]);
-      const name2 = firstDefined(
+      const path = stringField(result, ["path"]);
+      const textName = firstDefined(
         stringField(args, ["name"]),
-        path2 ? basename(path2) : void 0,
+        path ? basename(path) : void 0,
       );
       return {
         kind: "text-create",
         labelKey: "chat.canvasOperation.addText",
         activeLabelKey: "chat.canvasOperation.addText.running",
-        inputSummary: name2 ?? nodeId ?? "",
-        displayNameKnown: !!name2,
+        inputSummary: textName ?? nodeId ?? "",
+        displayNameKnown: !!textName,
         outputSummary: "chat.canvasOperation.status.created",
         targetNodeIds,
         count: 1,
@@ -132,7 +132,7 @@ function parseUnifiedCanvasWrite(args, result) {
       const created =
         booleanField(result, ["created"]) ?? !stringField(args, ["nodeId"]);
       const tablePath = stringField(result, ["tablePath", "table_path"]);
-      const name2 = firstDefined(
+      const tableName = firstDefined(
         stringField(args, ["title", "name"]),
         tablePath ? basename(tablePath) : void 0,
       );
@@ -141,8 +141,8 @@ function parseUnifiedCanvasWrite(args, result) {
         labelKey: created
           ? "chat.canvasOperation.addTable"
           : "chat.canvasOperation.updateTable",
-        inputSummary: name2 ?? nodeId ?? "",
-        displayNameKnown: !!name2,
+        inputSummary: tableName ?? nodeId ?? "",
+        displayNameKnown: !!tableName,
         outputSummary: created
           ? "chat.canvasOperation.status.created"
           : "chat.canvasOperation.status.updated",
@@ -155,12 +155,12 @@ function parseUnifiedCanvasWrite(args, result) {
       const assetType = stringField(result, ["assetType", "asset_type"]);
       const reused = booleanField(result, ["reused"]);
       if (reused) return void 0;
-      const name2 = assetPath ? basename(assetPath) : void 0;
+      const assetName = assetPath ? basename(assetPath) : void 0;
       return {
         kind: "media-node",
         labelKey: canvasMediaLabelKey(assetType),
-        inputSummary: name2 ?? assetType ?? nodeId ?? "",
-        displayNameKnown: !!name2,
+        inputSummary: assetName ?? assetType ?? nodeId ?? "",
+        displayNameKnown: !!assetName,
         outputSummary: "chat.canvasOperation.status.created",
         targetNodeIds,
         targetAssetId: assetIdFrom(args, result),
@@ -173,12 +173,12 @@ function parseUnifiedCanvasWrite(args, result) {
   }
 }
 export function parseTimelineOperations(
-  toolName2,
+  toolName,
   toolArgs,
   toolResult,
   toolStatus,
 ) {
-  const normalizedToolName = normaliseTimelineOperationToolName(toolName2);
+  const normalizedToolName = normaliseTimelineOperationToolName(toolName);
   if (!normalizedToolName) return [];
   if (
     toolStatus === "error" &&
@@ -198,51 +198,51 @@ export function parseTimelineOperations(
       }
       const results = recordArrayField(result, ["results"]);
       const resultsByIndex = new Map();
-      results.forEach((item, index2) => {
+      results.forEach((item, index) => {
         const explicitIndex = item.index;
         resultsByIndex.set(
-          typeof explicitIndex === "number" ? explicitIndex : index2,
+          typeof explicitIndex === "number" ? explicitIndex : index,
           item,
         );
       });
-      return items.flatMap((item, index2) => {
+      return items.flatMap((item, index) => {
         const operation = parseUnifiedCanvasWrite(
           item,
-          resultsByIndex.get(index2),
+          resultsByIndex.get(index),
         );
         return operation ? [operation] : [];
       });
     }
     case "canvas_group_nodes": {
       const label = stringField(args, ["label"]);
-      const groupId2 = groupIdFrom(result);
-      if (!groupId2) return [];
+      const groupId = groupIdFrom(result);
+      if (!groupId) return [];
       return [
         {
           kind: "group-nodes",
           labelKey: "chat.canvasOperation.organizeCanvas",
-          inputSummary: label ?? groupId2 ?? "",
+          inputSummary: label ?? groupId ?? "",
           displayNameKnown: !!label,
           outputSummary: "chat.canvasOperation.status.grouped",
-          targetNodeIds: [groupId2],
-          targetGroupId: groupId2,
+          targetNodeIds: [groupId],
+          targetGroupId: groupId,
           count: 1,
         },
       ];
     }
     case "canvas_group_recent_outputs": {
-      const groupId2 = groupIdFrom(result);
-      if (!groupId2) return [];
+      const groupId = groupIdFrom(result);
+      if (!groupId) return [];
       const label = stringField(args, ["label"]);
       return [
         {
           kind: "group-nodes",
           labelKey: "chat.canvasOperation.organizeCanvas",
-          inputSummary: label ?? groupId2 ?? "",
+          inputSummary: label ?? groupId ?? "",
           displayNameKnown: !!label,
           outputSummary: "chat.canvasOperation.status.grouped",
-          targetNodeIds: [groupId2],
-          targetGroupId: groupId2,
+          targetNodeIds: [groupId],
+          targetGroupId: groupId,
           count: 1,
         },
       ];
@@ -254,7 +254,7 @@ export function parseTimelineOperations(
         stringField(args, ["plan_id"]),
       );
       const plan = recordField(args, ["plan"]);
-      const name2 = firstDefined(
+      const planName = firstDefined(
         stringField(plan, ["title"]),
         stringField(args, ["name"]),
       );
@@ -268,8 +268,8 @@ export function parseTimelineOperations(
           activeLabelKey: created
             ? "chat.productionPlanOperation.create.running"
             : "chat.productionPlanOperation.update.running",
-          inputSummary: name2 ?? "",
-          displayNameKnown: !!name2,
+          inputSummary: planName ?? "",
+          displayNameKnown: !!planName,
           outputSummary: created
             ? "chat.canvasOperation.status.created"
             : "chat.canvasOperation.status.updated",

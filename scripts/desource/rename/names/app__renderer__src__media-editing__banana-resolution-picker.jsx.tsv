@@ -1,0 +1,16 @@
+key	new	依据
+disabled2@16:15	disabled	当前分辨率选择器或工具栏按钮是否禁用的布尔属性。
+BananaResolutionPicker2@13:12	BananaResolutionPicker	接收当前分辨率并渲染选项按钮组的函数组件。
+option2@20:8	option	当前候选的香蕉图像分辨率值。
+option2@35:23	option	当前候选的香蕉图像分辨率值。
+active2@36:17	active	当前分辨率选项是否等于已选值的布尔值。
+disabled2@72:13	disabled	当前分辨率选择器或工具栏按钮是否禁用的布尔属性。
+children2@75:13	children	图标按钮组件接收并渲染的子元素。
+CanvasEraseTopBar2@93:61	CanvasEraseTopBar	渲染画布擦除工具撤销和重做控件的函数组件。
+e2@33:25	pointerEvent	需要阻止其传播的工具栏指针按下事件。
+e2@53:30	mouseEvent	鼠标进入分辨率按钮时收到的事件。
+e2@58:30	mouseEvent	鼠标离开分辨率按钮时收到的事件。
+t2@104:14	t	根据当前语言返回分辨率和擦除工具文案的翻译函数。
+e2@109:23	pointerEvent	需要阻止其传播的工具栏指针按下事件。
+e2@110:17	wheelEvent	需要阻止其传播的工具栏滚轮事件。
+e2@111:23	contextMenuEvent	需要阻止其传播的工具栏上下文菜单事件。

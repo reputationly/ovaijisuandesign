@@ -1,13 +1,11 @@
 // asset-center-relocation-coach-mark.jsx
-import {
-  reactExports,
-  resolveNewProjectPreferences,
-  storageKeys,
-  useNavigate,
-  useQueryClient,
-  useStorage,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { resolveNewProjectPreferences } from "../infra/shared-runtime.js";
+import { storageKeys } from "../infra/storage-cache.js";
+import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { useStorage } from "../infra/use-storage.js";
 import { getAssetCenterMainService } from "./split-shortcut-keys.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -37,7 +35,7 @@ import { stageWorkspacePreview } from "../workspace/context-menu-content.jsx";
 import { CoachMarkPopup } from "../workspace/coach-mark-popup.jsx";
 
 function usePersistAssetCenterRelocation(relocation) {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const persistStartedRef = reactExports.useRef(false);
   const { ready, libraryInitialized, hasAssetData, assetCenterHidden } =
     relocation;
@@ -55,7 +53,7 @@ function usePersistAssetCenterRelocation(relocation) {
     void Promise.resolve()
       .then(() => getAssetCenterMainService().markLegacyEntryHidden())
       .then(() =>
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: storageKeys.global("config"),
         }),
       )
@@ -66,7 +64,7 @@ function usePersistAssetCenterRelocation(relocation) {
     assetCenterHidden,
     hasAssetData,
     libraryInitialized,
-    queryClient2,
+    queryClient,
     ready,
   ]);
 }
@@ -75,9 +73,9 @@ const ASSET_CENTER_NAV_SELECTOR =
   '[data-action-ui-id="home-sidebar-nav-asset-center-coachmark-anchor"]';
 
 export function AssetCenterRelocationCoachMark() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const navigate = useNavigate();
-  const [config2, , , configHydrated] = useStorage("global.config");
+  const [config, , , configHydrated] = useStorage("global.config");
   const [recentWorkspaces] = useStorage("global.recentWorkspaces");
   const [lastActiveWorkspacePath] = useStorage(
     "global.lastActiveWorkspacePath",
@@ -88,7 +86,7 @@ export function AssetCenterRelocationCoachMark() {
   const { createWorkspace } = useTopbarActions();
   const { projects, caseInsensitive } = useProjectStore();
   const hasBlockingModal = useHasBlockingModal();
-  const { loadUserMemory } = resolveNewProjectPreferences(config2);
+  const { loadUserMemory } = resolveNewProjectPreferences(config);
   const anchorRef = reactExports.useRef(null);
   const [anchorEl, setAnchorEl] = reactExports.useState(null);
   const [closedForSession, setClosedForSession] = reactExports.useState(false);
@@ -110,17 +108,17 @@ export function AssetCenterRelocationCoachMark() {
       return;
     }
     const resolveAnchor = () => {
-      const next2 = document.querySelector(ASSET_CENTER_NAV_SELECTOR);
-      anchorRef.current = next2;
-      setAnchorEl((current2) => (current2 === next2 ? current2 : next2));
+      const next = document.querySelector(ASSET_CENTER_NAV_SELECTOR);
+      anchorRef.current = next;
+      setAnchorEl((current) => (current === next ? current : next));
     };
     resolveAnchor();
-    const observer2 = new MutationObserver(resolveAnchor);
-    observer2.observe(document.body, {
+    const observer = new MutationObserver(resolveAnchor);
+    observer.observe(document.body, {
       childList: true,
       subtree: true,
     });
-    return () => observer2.disconnect();
+    return () => observer.disconnect();
   }, [candidate]);
   const sequence = useCoachMarkSequence(
     HOME_INPUT_COACH_MARK_ID,
@@ -140,14 +138,14 @@ export function AssetCenterRelocationCoachMark() {
     () =>
       new Set(
         projects
-          .filter((project2) => project2.kind === "team")
-          .flatMap((project2) => project2.workspacePaths)
-          .map((path2) => projectWorkspaceKey(path2, caseInsensitive)),
+          .filter((project) => project.kind === "team")
+          .flatMap((project) => project.workspacePaths)
+          .map((path) => projectWorkspaceKey(path, caseInsensitive)),
       ),
     [caseInsensitive, projects],
   );
-  const isPersonalWorkspace = (path2) =>
-    !teamWorkspaceKeys.has(projectWorkspaceKey(path2, caseInsensitive));
+  const isPersonalWorkspace = (path) =>
+    !teamWorkspaceKeys.has(projectWorkspaceKey(path, caseInsensitive));
   const handleDismiss = (method) => {
     if (method !== "button") {
       if (ctaLoading) return;
@@ -177,7 +175,7 @@ export function AssetCenterRelocationCoachMark() {
       currentEntry ??
       lastActiveEntry ??
       previewEntries.find((entry) => isPersonalWorkspace(entry.folderPath));
-    const run2 = async () => {
+    const run = async () => {
       if (openEntry) {
         await navigate({
           to: "/workspace",
@@ -195,7 +193,7 @@ export function AssetCenterRelocationCoachMark() {
           await stageWorkspacePreview({
             hiloApp: homeService.hiloApp,
             folderPath: recentEntry.path,
-            t: t2,
+            t: translate,
             onStaged: (entry) =>
               navigate({
                 to: "/workspace",
@@ -207,7 +205,7 @@ export function AssetCenterRelocationCoachMark() {
         );
       }
       return createWorkspace(
-        t2(
+        translate(
           "coachMark.home.assetCenterRelocation.defaultWorkspaceName",
           "New project",
         ),
@@ -219,7 +217,7 @@ export function AssetCenterRelocationCoachMark() {
         },
       );
     };
-    void run2()
+    void run()
       .then((opened) => {
         if (!opened) setHandoffStarted(false);
       })
@@ -234,12 +232,12 @@ export function AssetCenterRelocationCoachMark() {
       anchorEl={anchorEl}
       side="right"
       align="center"
-      title={t2("coachMark.home.assetCenterRelocation.title", "资产中心搬家啦")}
-      description={t2(
+      title={translate("coachMark.home.assetCenterRelocation.title", "资产中心搬家啦")}
+      description={translate(
         "coachMark.home.assetCenterRelocation.desc",
         "资产中心已改名为「主体库」，搬到了创作页（画布）里，让你在创作时更方便地取用素材。",
       )}
-      ctaLabel={t2("coachMark.next", "下一步")}
+      ctaLabel={translate("coachMark.next", "下一步")}
       ctaLoading={ctaLoading}
       stepCurrent={1}
       stepTotal={2}

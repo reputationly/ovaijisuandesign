@@ -1,5 +1,5 @@
 // persist-save-queue.js
-import { measurePerf } from "../vendor.js";
+import { measurePerf } from "../infra/perf-log.js";
 import {
   PERF_CANVAS_PERSIST_QUEUE,
   PERF_CANVAS_PERSIST_SAVE,
@@ -60,13 +60,13 @@ export class PersistSaveQueue {
     const requestedAt = this.now();
     const contentHash = stableCanvasHash(file);
     const deletionIntent = saveOptions?.deletionIntent;
-    const hash2 = deletionIntent
+    const hash = deletionIntent
       ? `${contentHash}:delete:${[...new Set(deletionIntent.removedNodeIds)].sort().join(",")}:${[...new Set(deletionIntent.removedEdgeIds ?? [])].sort().join(",")}:${deletionIntent.highBlastConfirmed === true}`
       : contentHash;
-    const snapshot2 = {
+    const snapshot = {
       file,
       contentHash,
-      hash: hash2,
+      hash,
       seq: ++this.seq,
       requestedAt,
       detail: {
@@ -79,17 +79,17 @@ export class PersistSaveQueue {
       saveOptions,
     };
     if (!deletionIntent && contentHash === this.lastSavedContentHash) {
-      this.recordNoop(snapshot2, "duplicate");
+      this.recordNoop(snapshot, "duplicate");
       return Promise.resolve();
     }
     const duplicateQueued =
-      this.inFlight && this.canSatisfy(this.inFlight, snapshot2)
+      this.inFlight && this.canSatisfy(this.inFlight, snapshot)
         ? this.inFlight
-        : this.pendingLatest && this.canSatisfy(this.pendingLatest, snapshot2)
+        : this.pendingLatest && this.canSatisfy(this.pendingLatest, snapshot)
           ? this.pendingLatest
           : null;
     if (duplicateQueued) {
-      this.recordNoop(snapshot2, "duplicate");
+      this.recordNoop(snapshot, "duplicate");
       return this.waitForSeq(duplicateQueued.seq);
     }
     this.metrics = {
@@ -97,19 +97,19 @@ export class PersistSaveQueue {
       enqueued: this.metrics.enqueued + 1,
     };
     if (this.inFlight) {
-      if (this.pendingLatest && this.pendingLatest.hash !== hash2) {
+      if (this.pendingLatest && this.pendingLatest.hash !== hash) {
         this.metrics = {
           ...this.metrics,
           superseded: this.metrics.superseded + 1,
         };
       }
-      this.pendingLatest = snapshot2;
+      this.pendingLatest = snapshot;
       this.updateDepth();
-      this.measureQueue(snapshot2, "queued");
-      return this.waitForSeq(snapshot2.seq);
+      this.measureQueue(snapshot, "queued");
+      return this.waitForSeq(snapshot.seq);
     }
-    this.start(snapshot2);
-    return this.waitForSeq(snapshot2.seq);
+    this.start(snapshot);
+    return this.waitForSeq(snapshot.seq);
   }
   waitForSeq(targetSeq) {
     if (this.lastSuccessfulSeq >= targetSeq) return Promise.resolve();
@@ -165,17 +165,17 @@ export class PersistSaveQueue {
       this.lastFailedSnapshot.seq >= (this.inFlight?.seq ?? 0)
         ? this.lastFailedSnapshot
         : null;
-    const next2 =
+    const next =
       !this.pendingLatest ||
       (failedCandidate?.seq ?? 0) > this.pendingLatest.seq
         ? failedCandidate
         : this.pendingLatest;
-    if (!next2) return null;
+    if (!next) return null;
     if (
-      !next2.saveOptions?.deletionIntent &&
-      next2.contentHash === this.lastSavedContentHash
+      !next.saveOptions?.deletionIntent &&
+      next.contentHash === this.lastSavedContentHash
     ) {
-      this.recordNoop(next2, "flush-noop");
+      this.recordNoop(next, "flush-noop");
       this.pendingLatest = null;
       this.lastFailedSnapshot = null;
       this.updateDepth();
@@ -187,12 +187,12 @@ export class PersistSaveQueue {
       ...this.metrics,
       actualSaves: this.metrics.actualSaves + 1,
     };
-    this.latestDispatchedSeq = Math.max(this.latestDispatchedSeq, next2.seq);
-    this.saveCanvas(next2.file, next2.saveOptions)
+    this.latestDispatchedSeq = Math.max(this.latestDispatchedSeq, next.seq);
+    this.saveCanvas(next.file, next.saveOptions)
       .then((result) => {
         if (result?.superseded) {
-          if (next2.seq >= this.latestDispatchedSeq) {
-            this.lastFailedSnapshot = next2;
+          if (next.seq >= this.latestDispatchedSeq) {
+            this.lastFailedSnapshot = next;
           }
           this.metrics = {
             ...this.metrics,
@@ -200,25 +200,25 @@ export class PersistSaveQueue {
           };
           return;
         }
-        this.lastSavedContentHash = next2.contentHash;
-        this.lastSuccessfulSeq = Math.max(this.lastSuccessfulSeq, next2.seq);
-        if ((this.lastFailure?.seq ?? 0) <= next2.seq) {
+        this.lastSavedContentHash = next.contentHash;
+        this.lastSuccessfulSeq = Math.max(this.lastSuccessfulSeq, next.seq);
+        if ((this.lastFailure?.seq ?? 0) <= next.seq) {
           this.lastFailure = null;
         }
-        if ((this.lastFailedSnapshot?.seq ?? 0) <= next2.seq) {
+        if ((this.lastFailedSnapshot?.seq ?? 0) <= next.seq) {
           this.lastFailedSnapshot = null;
         }
       })
       .catch((err) => {
         this.lastFailure = {
-          seq: next2.seq,
+          seq: next.seq,
           error: err,
         };
         if (
           isRetryableCanvasSaveError(err) &&
-          next2.seq >= this.latestDispatchedSeq
+          next.seq >= this.latestDispatchedSeq
         ) {
-          this.lastFailedSnapshot = next2;
+          this.lastFailedSnapshot = next;
         }
         this.metrics = {
           ...this.metrics,
@@ -227,14 +227,14 @@ export class PersistSaveQueue {
         this.onError?.(err);
       });
     this.updateDepth();
-    return next2.file;
+    return next.file;
   }
-  recordNoop(snapshot2, reason) {
+  recordNoop(snapshot, reason) {
     this.metrics = {
       ...this.metrics,
       skippedNoop: this.metrics.skippedNoop + 1,
     };
-    this.measureQueue(snapshot2, reason);
+    this.measureQueue(snapshot, reason);
   }
   canSatisfy(existing, incoming) {
     if (existing.hash === incoming.hash) return true;
@@ -243,14 +243,14 @@ export class PersistSaveQueue {
       existing.contentHash === incoming.contentHash
     );
   }
-  start(snapshot2) {
-    if ((this.lastFailedSnapshot?.seq ?? 0) < snapshot2.seq) {
+  start(snapshot) {
+    if ((this.lastFailedSnapshot?.seq ?? 0) < snapshot.seq) {
       this.lastFailedSnapshot = null;
     }
-    this.inFlight = snapshot2;
+    this.inFlight = snapshot;
     this.latestDispatchedSeq = Math.max(
       this.latestDispatchedSeq,
-      snapshot2.seq,
+      snapshot.seq,
     );
     this.metrics = {
       ...this.metrics,
@@ -258,12 +258,12 @@ export class PersistSaveQueue {
       inFlight: 1,
     };
     this.updateDepth();
-    this.measureQueue(snapshot2, "start");
+    this.measureQueue(snapshot, "start");
     const saveStart = this.now();
     let failed = false;
     let superseded = false;
     let retryableFailure = false;
-    this.saveCanvas(snapshot2.file, snapshot2.saveOptions)
+    this.saveCanvas(snapshot.file, snapshot.saveOptions)
       .then((result) => {
         const completedAt = this.now();
         if (result?.superseded) {
@@ -273,11 +273,11 @@ export class PersistSaveQueue {
             `Canvas snapshot was superseded by writer revision ${result.revision ?? "unknown"}`,
           );
           this.lastFailure = {
-            seq: snapshot2.seq,
+            seq: snapshot.seq,
             error,
           };
-          if (snapshot2.seq >= this.latestDispatchedSeq) {
-            this.lastFailedSnapshot = snapshot2;
+          if (snapshot.seq >= this.latestDispatchedSeq) {
+            this.lastFailedSnapshot = snapshot;
           }
           this.metrics = {
             ...this.metrics,
@@ -286,22 +286,22 @@ export class PersistSaveQueue {
           this.onError?.(error);
           return;
         }
-        this.lastSavedContentHash = snapshot2.contentHash;
-        if ((this.lastFailedSnapshot?.seq ?? 0) <= snapshot2.seq) {
+        this.lastSavedContentHash = snapshot.contentHash;
+        if ((this.lastFailedSnapshot?.seq ?? 0) <= snapshot.seq) {
           this.lastFailedSnapshot = null;
         }
         this.lastSuccessfulSeq = Math.max(
           this.lastSuccessfulSeq,
-          snapshot2.seq,
+          snapshot.seq,
         );
-        if ((this.lastFailure?.seq ?? 0) <= snapshot2.seq) {
+        if ((this.lastFailure?.seq ?? 0) <= snapshot.seq) {
           this.lastFailure = null;
         }
-        this.measure(PERF_CANVAS_PERSIST_SAVE, snapshot2.requestedAt, {
-          ...snapshot2.detail,
-          saveSeq: snapshot2.seq,
-          hash: snapshot2.hash,
-          queueWaitMs: Math.round(saveStart - snapshot2.requestedAt),
+        this.measure(PERF_CANVAS_PERSIST_SAVE, snapshot.requestedAt, {
+          ...snapshot.detail,
+          saveSeq: snapshot.seq,
+          hash: snapshot.hash,
+          queueWaitMs: Math.round(saveStart - snapshot.requestedAt),
           httpMs: Math.round(completedAt - saveStart),
           inFlight: 1,
           queued: this.pendingLatest ? 1 : 0,
@@ -314,22 +314,22 @@ export class PersistSaveQueue {
         failed = true;
         retryableFailure = isRetryableCanvasSaveError(err);
         this.lastFailure = {
-          seq: snapshot2.seq,
+          seq: snapshot.seq,
           error: err,
         };
-        if (retryableFailure && snapshot2.seq >= this.latestDispatchedSeq) {
-          this.lastFailedSnapshot = snapshot2;
+        if (retryableFailure && snapshot.seq >= this.latestDispatchedSeq) {
+          this.lastFailedSnapshot = snapshot;
         }
         const completedAt = this.now();
         this.metrics = {
           ...this.metrics,
           failedSaves: this.metrics.failedSaves + 1,
         };
-        this.measure(PERF_CANVAS_PERSIST_SAVE, snapshot2.requestedAt, {
-          ...snapshot2.detail,
-          saveSeq: snapshot2.seq,
-          hash: snapshot2.hash,
-          queueWaitMs: Math.round(saveStart - snapshot2.requestedAt),
+        this.measure(PERF_CANVAS_PERSIST_SAVE, snapshot.requestedAt, {
+          ...snapshot.detail,
+          saveSeq: snapshot.seq,
+          hash: snapshot.hash,
+          queueWaitMs: Math.round(saveStart - snapshot.requestedAt),
           httpMs: Math.round(completedAt - saveStart),
           inFlight: 1,
           queued: this.pendingLatest ? 1 : 0,
@@ -341,71 +341,71 @@ export class PersistSaveQueue {
         this.onError?.(err);
       })
       .finally(() => {
-        if (this.inFlight?.seq === snapshot2.seq) {
+        if (this.inFlight?.seq === snapshot.seq) {
           this.inFlight = null;
         }
         this.metrics = {
           ...this.metrics,
           inFlight: 0,
         };
-        const next2 = this.pendingLatest;
+        const next = this.pendingLatest;
         this.pendingLatest = null;
         this.metrics = {
           ...this.metrics,
           pending: 0,
         };
-        if (!next2) {
+        if (!next) {
           if (
             failed &&
             !superseded &&
             retryableFailure &&
-            snapshot2.seq >= this.latestDispatchedSeq &&
-            snapshot2.retryAttempt < this.maxRetryAttempts
+            snapshot.seq >= this.latestDispatchedSeq &&
+            snapshot.retryAttempt < this.maxRetryAttempts
           ) {
             const retry = {
-              ...snapshot2,
-              retryAttempt: snapshot2.retryAttempt + 1,
+              ...snapshot,
+              retryAttempt: snapshot.retryAttempt + 1,
             };
             this.pendingLatest = retry;
             this.updateDepth();
             queueMicrotask(() => {
               if (this.inFlight || this.pendingLatest?.seq !== retry.seq)
                 return;
-              const latest2 = this.pendingLatest;
+              const latest = this.pendingLatest;
               this.pendingLatest = null;
-              if (latest2) this.start(latest2);
+              if (latest) this.start(latest);
             });
             return;
           }
           this.updateDepth();
           return;
         }
-        if (next2.contentHash === this.lastSavedContentHash) {
-          this.lastSuccessfulSeq = Math.max(this.lastSuccessfulSeq, next2.seq);
-          this.recordNoop(next2, "saved-while-pending");
+        if (next.contentHash === this.lastSavedContentHash) {
+          this.lastSuccessfulSeq = Math.max(this.lastSuccessfulSeq, next.seq);
+          this.recordNoop(next, "saved-while-pending");
           this.updateDepth();
           return;
         }
-        this.start(next2);
+        this.start(next);
       });
   }
   updateDepth() {
     const inFlight = this.inFlight ? 1 : 0;
-    const pending2 = this.pendingLatest ? 1 : 0;
-    const depth2 = inFlight + pending2;
+    const pending = this.pendingLatest ? 1 : 0;
+    const depth = inFlight + pending;
     this.metrics = {
       ...this.metrics,
       inFlight,
-      pending: pending2,
-      maxDepth: Math.max(this.metrics.maxDepth, depth2),
+      pending,
+      maxDepth: Math.max(this.metrics.maxDepth, depth),
     };
   }
-  measureQueue(snapshot2, event) {
-    this.measure(PERF_CANVAS_PERSIST_QUEUE, snapshot2.requestedAt, {
-      ...snapshot2.detail,
+  measureQueue(snapshot, event) {
+    this.measure(PERF_CANVAS_PERSIST_QUEUE, snapshot.requestedAt, {
+      ...snapshot.detail,
       event,
-      saveSeq: snapshot2.seq,
-      hash: snapshot2.hash,
+      saveSeq: snapshot.seq,
+      hash: snapshot.hash,
       inFlight: this.inFlight ? 1 : 0,
       pending: this.pendingLatest ? 1 : 0,
       maxDepth: this.metrics.maxDepth,

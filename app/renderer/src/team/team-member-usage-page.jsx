@@ -1,5 +1,7 @@
 // team-member-usage-page.jsx
-import { minCreditAmount, reactExports, useTranslation } from "../vendor.js";
+import { minCreditAmount } from "./credit-display.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useMediaModels } from "../generation/normalize-model-info.js";
 import { formatCreditAmount } from "./team-panel-stale.jsx";
@@ -43,9 +45,9 @@ export function TeamMemberUsagePage({
   teamRemaining,
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { data: mediaModels } = useMediaModels();
-  const roleLabel = t2(`team.role.${member.role.toLowerCase()}`, {
+  const roleLabel = t(`team.role.${member.role.toLowerCase()}`, {
     defaultValue: member.role,
   });
   const transactionsQuery = useTeamTransactionsFeedQuery({
@@ -107,7 +109,7 @@ export function TeamMemberUsagePage({
     void handleLoadMore();
   }, [handleLoadMore]);
   return (
-    <Page open={true} onOpenChange={(next2) => !next2 && onClose()}>
+    <Page open={true} onOpenChange={(next) => !next && onClose()}>
       <PageContent
         className="flex max-h-[calc(100dvh-3rem)] flex-col gap-0 overflow-hidden p-0"
         data-action-ui-id="team.management-member-usage-dialog"
@@ -115,12 +117,12 @@ export function TeamMemberUsagePage({
       >
         <PageHeader className="shrink-0 border-b border-border px-4 pt-4 pr-14 pb-3 sm:px-6 sm:pr-16">
           <PageTitle>
-            {t2("team.management.memberUsageTitle", {
+            {t("team.management.memberUsageTitle", {
               defaultValue: "成员用量",
             })}
           </PageTitle>
           <PageDescription>
-            {t2("team.management.memberUsageDescription", {
+            {t("team.management.memberUsageDescription", {
               defaultValue: "查看 {{name}} 在“{{team}}”中的积分用量摘要。",
               name: member.displayName,
               team: teamName,
@@ -141,7 +143,7 @@ export function TeamMemberUsagePage({
           </section>
           <section className="space-y-2">
             <h3 className="text-sm font-medium text-foreground">
-              {t2("team.management.memberCreditUsage", {
+              {t("team.management.memberCreditUsage", {
                 defaultValue: "成员积分概览",
               })}
             </h3>
@@ -153,7 +155,7 @@ export function TeamMemberUsagePage({
                 metrics={[
                   {
                     id: "member-used",
-                    label: t2("team.management.memberUsedCredits", {
+                    label: t("team.management.memberUsedCredits", {
                       defaultValue: "累计已用积分",
                     }),
                     value:
@@ -166,7 +168,7 @@ export function TeamMemberUsagePage({
                   },
                   {
                     id: "member-remaining",
-                    label: t2("team.management.currentQuota", {
+                    label: t("team.management.currentQuota", {
                       defaultValue: "当前可用积分",
                     }),
                     value:
@@ -183,7 +185,7 @@ export function TeamMemberUsagePage({
             {member.permissions.viewUsage.allowed === false &&
             memberUsed === null ? (
               <p className="text-xs text-muted-foreground">
-                {t2("team.credit.usageUnavailableTooltip", {
+                {t("team.credit.usageUnavailableTooltip", {
                   defaultValue: "用量数据暂不可获取",
                 })}
               </p>
@@ -192,7 +194,7 @@ export function TeamMemberUsagePage({
           {member.permissions.viewTransactions.allowed ? (
             <section className="space-y-2">
               <h3 className="text-sm font-medium text-foreground">
-                {t2("team.management.memberTransactions", {
+                {t("team.management.memberTransactions", {
                   defaultValue: "成员积分流水",
                 })}
               </h3>
@@ -208,7 +210,7 @@ export function TeamMemberUsagePage({
                 <CreditLedgerTable
                   rows={transactions.map((transaction) => ({
                     id: transaction.transactionId,
-                    description: t2(
+                    description: t(
                       `team.transaction.${transaction.category}`,
                       {
                         defaultValue: transaction.category,
@@ -222,7 +224,7 @@ export function TeamMemberUsagePage({
                         modelDisplayName: transaction.modelDisplayName,
                         mediaType: transaction.mediaType,
                       },
-                      t2,
+                      t,
                       mediaModels,
                     ),
                     createdAtMs: transaction.createdAtMs,
@@ -232,25 +234,25 @@ export function TeamMemberUsagePage({
                   loading={transactionsQuery.isPending}
                   error={transactionsQuery.isError && !transactionsQuery.data}
                   scrollable={false}
-                  descriptionLabel={t2("team.credit.transaction", {
+                  descriptionLabel={t("team.credit.transaction", {
                     defaultValue: "类型",
                   })}
-                  modelLabel={t2("team.credit.model", {
+                  modelLabel={t("team.credit.model", {
                     defaultValue: "模型",
                   })}
-                  timeLabel={t2("team.credit.time", {
+                  timeLabel={t("team.credit.time", {
                     defaultValue: "时间",
                   })}
-                  amountLabel={t2("team.credit.amount", {
+                  amountLabel={t("team.credit.amount", {
                     defaultValue: "积分",
                   })}
-                  emptyLabel={t2("team.credit.empty", {
+                  emptyLabel={t("team.credit.empty", {
                     defaultValue: "暂无积分流水",
                   })}
-                  errorLabel={t2("team.common.loadFailed", {
+                  errorLabel={t("team.common.loadFailed", {
                     defaultValue: "加载失败",
                   })}
-                  retryLabel={t2("common.retry", {
+                  retryLabel={t("common.retry", {
                     defaultValue: "重试",
                   })}
                   onRetry={() => void transactionsQuery.refetch()}

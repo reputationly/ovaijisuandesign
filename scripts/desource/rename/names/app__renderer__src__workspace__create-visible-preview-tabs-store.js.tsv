@@ -1,0 +1,22 @@
+key	old	new	依据
+entries2@177:18	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+id2@255:20	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+id2@259:20	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+ids2@252:13	ids2	ids	去掉打包器防重名追加的后缀，恢复原名 ids，即该绑定持有的值。
+index2@52:19	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+initialized2@149:26	initialized2	initialized	去掉打包器防重名追加的后缀，恢复原名 initialized，即该绑定持有的值。
+listeners2@128:9	listeners2	listeners	去掉打包器防重名追加的后缀，恢复原名 listeners，即该绑定持有的值。
+persist2@130:9	persist2	persist	去掉打包器防重名追加的后缀，恢复原名 persist，即该绑定持有的值。
+raw2@65:11	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+snapshot2@126:7	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+tab2@172:31	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@208:10	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@241:43	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@262:32	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@268:10	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@271:10	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+values3@33:27	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+values3@72:11	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+workspaceId2@21:9	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId2@235:15	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId22@12:11	workspaceId22	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。

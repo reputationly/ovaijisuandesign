@@ -1,13 +1,9 @@
 // sticker-node-toolbar.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  ChevronDown,
-  ChevronUp,
-  CopyPlus,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronUp, CopyPlus } from "./lucide-icon-wraps.js";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
 import {
   CANVAS_EMOJI_STICKERS,
@@ -31,11 +27,11 @@ const ALL_STICKER_CHOICES = [
     kind: "asset",
     asset,
   })),
-  ...CANVAS_EMOJI_STICKERS.map((emoji2, index2) => ({
-    id: `emoji-${index2}`,
+  ...CANVAS_EMOJI_STICKERS.map((emoji, index) => ({
+    id: `emoji-${index}`,
     kind: "emoji",
-    emoji: emoji2,
-    index: index2,
+    emoji,
+    index,
   })),
 ];
 function choiceActionUiId(choice, expanded) {
@@ -46,8 +42,8 @@ function choiceActionUiId(choice, expanded) {
     ? `${prefix}-${choice.asset.id}`
     : `${prefix}-emoji-${choice.index}`;
 }
-function choiceLabel(choice, t2) {
-  return choice.kind === "asset" ? t2(choice.asset.labelKey) : choice.emoji;
+function choiceLabel(choice, t) {
+  return choice.kind === "asset" ? t(choice.asset.labelKey) : choice.emoji;
 }
 function StickerChoiceIcon({ choice }) {
   if (choice.kind === "asset") {
@@ -74,7 +70,7 @@ function StickerToolbarButton({
   icon,
   dataActionUiId,
   onClick,
-  active: active2 = false,
+  active: isActive = false,
   toggle = false,
   destructive = false,
 }) {
@@ -83,12 +79,12 @@ function StickerToolbarButton({
       <button
         type="button"
         aria-label={label}
-        aria-pressed={toggle ? active2 : void 0}
+        aria-pressed={toggle ? isActive : void 0}
         className="canvas-toolbar-action"
         onClick={onClick}
         data-action-ui-id={dataActionUiId}
         data-variant={destructive ? "destructive" : void 0}
-        data-active={active2 || void 0}
+        data-active={isActive || void 0}
         data-content={toggle ? "sticker" : void 0}
       >
         {icon}
@@ -147,13 +143,13 @@ function StickerPickerControl({
         >
           <div className="flex flex-nowrap gap-1">
             {choices.map((choice) => {
-              const active2 = choice.id === activeChoiceId;
+              const isActive = choice.id === activeChoiceId;
               return (
                 <button
                   key={choice.id}
                   type="button"
                   aria-label={getChoiceLabel(choice)}
-                  aria-pressed={active2}
+                  aria-pressed={isActive}
                   title={getChoiceLabel(choice)}
                   className="canvas-toolbar-action"
                   onClick={(event) => onSelect(choice, event)}
@@ -170,10 +166,10 @@ function StickerPickerControl({
     </div>
   );
 }
-function StickerNodeToolbar({ id: id2, data: data2, selected: selected2 }) {
-  const { t: t2 } = useTranslation();
+function StickerNodeToolbar({ id: nodeId, data, selected: isSelected }) {
+  const { t } = useTranslation();
   const toolMode = useCanvasToolMode();
-  const isDragging = useCanvasNodeIsDragging(id2);
+  const isDragging = useCanvasNodeIsDragging(nodeId);
   const {
     mergeNodeData,
     setStickerSelectionAsset,
@@ -184,28 +180,28 @@ function StickerNodeToolbar({ id: id2, data: data2, selected: selected2 }) {
   const [stickerPickerExpanded, setStickerPickerExpanded] =
     reactExports.useState(false);
   reactExports.useEffect(() => {
-    if (!selected2 || toolMode === "hand") {
+    if (!isSelected || toolMode === "hand") {
       setStickerPickerExpanded(false);
     }
-  }, [selected2, toolMode]);
+  }, [isSelected, toolMode]);
   const handleAssetChange = reactExports.useCallback(
     (assetId) => {
-      mergeNodeData(id2, {
+      mergeNodeData(nodeId, {
         brandId: assetId,
       });
       if (toolMode === "sticker") setStickerSelectionAsset?.(assetId);
     },
-    [id2, mergeNodeData, setStickerSelectionAsset, toolMode],
+    [nodeId, mergeNodeData, setStickerSelectionAsset, toolMode],
   );
   const handleEmojiChange = reactExports.useCallback(
-    (emoji2) => {
-      mergeNodeData(id2, {
+    (emoji) => {
+      mergeNodeData(nodeId, {
         brandId: void 0,
-        emoji: emoji2,
+        emoji,
       });
-      if (toolMode === "sticker") setStickerSelectionEmoji?.(emoji2);
+      if (toolMode === "sticker") setStickerSelectionEmoji?.(emoji);
     },
-    [id2, mergeNodeData, setStickerSelectionEmoji, toolMode],
+    [nodeId, mergeNodeData, setStickerSelectionEmoji, toolMode],
   );
   const handleChoiceSelect = reactExports.useCallback(
     (choice, event) => {
@@ -220,29 +216,29 @@ function StickerNodeToolbar({ id: id2, data: data2, selected: selected2 }) {
     (event) => {
       event.preventDefault();
       event.stopPropagation();
-      copyNode(id2);
+      copyNode(nodeId);
     },
-    [copyNode, id2],
+    [copyNode, nodeId],
   );
-  const handleDelete2 = reactExports.useCallback(
+  const handleDelete = reactExports.useCallback(
     (event) => {
       event.preventDefault();
       event.stopPropagation();
-      removeNode(id2);
+      removeNode(nodeId);
     },
-    [id2, removeNode],
+    [nodeId, removeNode],
   );
   const getChoiceLabel = reactExports.useCallback(
-    (choice) => choiceLabel(choice, (key2) => t2(key2)),
-    [t2],
+    (choice) => choiceLabel(choice, (key) => t(key)),
+    [t],
   );
   const activeChoiceId = reactExports.useMemo(
     () =>
-      data2.brandId ??
-      (data2.emoji
-        ? `emoji-${CANVAS_EMOJI_STICKERS.indexOf(data2.emoji)}`
+      data.brandId ??
+      (data.emoji
+        ? `emoji-${CANVAS_EMOJI_STICKERS.indexOf(data.emoji)}`
         : void 0),
-    [data2.brandId, data2.emoji],
+    [data.brandId, data.emoji],
   );
   const compactChoices = reactExports.useMemo(
     () => ALL_STICKER_CHOICES.slice(0, COMPACT_STICKER_COUNT),
@@ -272,7 +268,7 @@ function StickerNodeToolbar({ id: id2, data: data2, selected: selected2 }) {
       })),
       {
         id: "sticker-selection-expand",
-        label: t2("canvas.sticker.expand", "展开更多贴纸"),
+        label: t("canvas.sticker.expand", "展开更多贴纸"),
         render: () => (
           <StickerPickerControl
             choices={expandedChoices}
@@ -281,18 +277,18 @@ function StickerNodeToolbar({ id: id2, data: data2, selected: selected2 }) {
             onExpandedChange={setStickerPickerExpanded}
             onSelect={handleChoiceSelect}
             getChoiceLabel={getChoiceLabel}
-            expandLabel={t2("canvas.sticker.expand", "展开更多贴纸")}
-            collapseLabel={t2("canvas.sticker.collapse", "收起贴纸")}
+            expandLabel={t("canvas.sticker.expand", "展开更多贴纸")}
+            collapseLabel={t("canvas.sticker.collapse", "收起贴纸")}
           />
         ),
       },
       {
         id: "sticker-copy-node",
-        label: t2("canvas.copySticker", "Copy Sticker"),
+        label: t("canvas.copySticker", "Copy Sticker"),
         separator: true,
         render: () => (
           <StickerToolbarButton
-            label={t2("canvas.copySticker", "Copy Sticker")}
+            label={t("canvas.copySticker", "Copy Sticker")}
             icon={
               <CopyPlus
                 className="size-4"
@@ -307,15 +303,15 @@ function StickerNodeToolbar({ id: id2, data: data2, selected: selected2 }) {
       },
       {
         id: "sticker-delete-node",
-        label: t2("common.delete"),
+        label: t("common.delete"),
         render: () => (
           <StickerToolbarButton
-            label={t2("common.delete")}
+            label={t("common.delete")}
             icon={
               <Trash2 className="size-4" strokeWidth={1.5} aria-hidden="true" />
             }
             dataActionUiId="canvas.sticker-delete-node"
-            onClick={handleDelete2}
+            onClick={handleDelete}
             destructive={true}
           />
         ),
@@ -328,27 +324,27 @@ function StickerNodeToolbar({ id: id2, data: data2, selected: selected2 }) {
       getChoiceLabel,
       handleChoiceSelect,
       handleCopy,
-      handleDelete2,
+      handleDelete,
       stickerPickerExpanded,
-      t2,
+      t,
     ],
   );
   const visible =
-    selected2 &&
+    isSelected &&
     !isDragging &&
     (toolMode === "select" || toolMode === "sticker");
   return (
     <NodeToolbar items={toolbarItems} visible={visible} density="compact" />
   );
 }
-export const StickerNode = reactExports.memo(function StickerNode2({
-  id: id2,
-  data: data2,
-  selected: selected2,
+export const StickerNode = reactExports.memo(function StickerNode({
+  id: nodeId,
+  data,
+  selected: isSelected,
 }) {
   const frameRef = reactExports.useRef(null);
   useRegisterZoomCounter(frameRef);
-  const sticker = data2;
+  const sticker = data;
   const asset = getCanvasStickerAsset(sticker.brandId);
   const label = asset ? `Sticker ${asset.id}` : `Sticker ${sticker.emoji}`;
   const rotation = typeof sticker.rotation === "number" ? sticker.rotation : 0;
@@ -406,7 +402,7 @@ export const StickerNode = reactExports.memo(function StickerNode2({
         <span
           ref={frameRef}
           className="canvas-node-frame pointer-events-none absolute inset-0 rounded-[10px]"
-          data-node-selected={selected2 ? "true" : "false"}
+          data-node-selected={isSelected ? "true" : "false"}
           style={{
             transform: `rotate(${rotation}deg)`,
           }}
@@ -415,7 +411,7 @@ export const StickerNode = reactExports.memo(function StickerNode2({
           <NodeFrameStroke />
         </span>
       </div>
-      <StickerNodeToolbar id={id2} data={sticker} selected={!!selected2} />
+      <StickerNodeToolbar id={nodeId} data={sticker} selected={!!isSelected} />
     </>
   );
 });

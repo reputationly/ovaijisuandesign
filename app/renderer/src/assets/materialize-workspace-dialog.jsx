@@ -1,11 +1,15 @@
 // materialize-workspace-dialog.jsx
-import { CheckCircle2, Loader2, reactExports, ShieldAlert, usePlatform, useStorage, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { CheckCircle2 as CheckCircle, Loader2, ShieldAlert } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getFileManagerLabelKey } from "../settings/request-prompt-prefill.jsx";
 import { FolderOpen } from "../media-editing/package.jsx";
 import { sortRecentWorkspaces } from "../workspace/normalize-project-entries.js";
-import { formatAssetCenterError } from "./key-entries.js";
+import { formatAssetCenterError } from "./asset-center-error.js";
 import {
   Button,
   Dialog,
@@ -27,8 +31,8 @@ function joinMaterializedDir(workspacePath) {
   return `${trimmed}${usesBackslash ? "\\" : "/"}${subpath}`;
 }
 export function MaterializeWorkspaceDialog({ entity, onClose }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const [recent] = useStorage("global.recentWorkspaces");
   const materializeMutation = useMaterializeEntity();
   const workspaces = reactExports.useMemo(
@@ -40,20 +44,20 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
   const [error, setError] = reactExports.useState(null);
   const effectiveSelected = reactExports.useMemo(() => {
     if (selectedPaths.size > 0) return selectedPaths;
-    const first2 = workspaces[0]?.path;
-    return first2 ? new Set([first2]) : new Set();
+    const first = workspaces[0]?.path;
+    return first ? new Set([first]) : new Set();
   }, [selectedPaths, workspaces]);
   const canSubmit =
     !!entity && effectiveSelected.size > 0 && !materializeMutation.isPending;
-  const togglePath = reactExports.useCallback((path2) => {
+  const togglePath = reactExports.useCallback((path) => {
     setSelectedPaths((prev) => {
-      const next2 = new Set(prev);
-      if (next2.has(path2)) {
-        next2.delete(path2);
+      const next = new Set(prev);
+      if (next.has(path)) {
+        next.delete(path);
       } else {
-        next2.add(path2);
+        next.add(path);
       }
-      return next2;
+      return next;
     });
   }, []);
   const handleClose = () => {
@@ -62,24 +66,24 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
     setError(null);
     onClose();
   };
-  const revealLabel = t2(getFileManagerLabelKey(platform2.app.os));
+  const revealLabel = translate(getFileManagerLabelKey(platform.app.os));
   const revealTarget = reactExports.useCallback(
     async (target) => {
       try {
-        if (platform2.shell.showItemInFolder) {
-          await platform2.shell.showItemInFolder(target.revealPath);
+        if (platform.shell.showItemInFolder) {
+          await platform.shell.showItemInFolder(target.revealPath);
           return;
         }
-        if (platform2.shell.openPath) {
-          await platform2.shell.openPath(target.revealPath);
+        if (platform.shell.openPath) {
+          await platform.shell.openPath(target.revealPath);
           return;
         }
-        dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+        dedupedToast.error(translate("fileExplorer.platformNotSupported"));
       } catch {
-        dedupedToast.error(t2("fileExplorer.openFailed"));
+        dedupedToast.error(translate("fileExplorer.openFailed"));
       }
     },
-    [platform2.shell, t2],
+    [platform.shell, translate],
   );
   const handleSubmit = async () => {
     if (!entity || effectiveSelected.size === 0) return;
@@ -98,7 +102,7 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
             trigger: "context_menu",
           },
         });
-        const picked = workspaces.find((w3) => w3.path === targetPath);
+        const picked = workspaces.find((workspace) => workspace.path === targetPath);
         const label =
           picked?.displayName?.trim() ||
           picked?.path.split("/").pop() ||
@@ -109,20 +113,20 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
         });
       }
       dedupedToast.success(
-        t2("assetCenter.materialize.success", {
+        translate("assetCenter.materialize.success", {
           workspace:
             succeeded.length === 1
               ? succeeded[0].label
-              : t2("assetCenter.materialize.workspaceCount", {
+              : translate("assetCenter.materialize.workspaceCount", {
                   count: succeeded.length,
                 }),
         }),
         {
-          description: t2("assetCenter.materialize.successPathHint"),
+          description: translate("assetCenter.materialize.successPathHint"),
           action:
             succeeded.length === 1
               ? {
-                  label: t2(getFileManagerLabelKey(platform2.app.os)),
+                  label: translate(getFileManagerLabelKey(platform.app.os)),
                   onClick: () => void revealTarget(succeeded[0]),
                 }
               : void 0,
@@ -130,13 +134,13 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
       );
       handleClose();
     } catch (err) {
-      const msg = formatAssetCenterError(err, t2);
+      const msg = formatAssetCenterError(err, translate);
       if (succeeded.length > 0) {
         setSuccess({
           targets: succeeded,
         });
         setError(
-          t2("assetCenter.materialize.partialError", {
+          translate("assetCenter.materialize.partialError", {
             count: succeeded.length,
             message: msg,
           }),
@@ -149,8 +153,8 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
   return (
     <Dialog
       open={entity !== null}
-      onOpenChange={(o2) => {
-        if (!o2) handleClose();
+      onOpenChange={(isOpen) => {
+        if (!isOpen) handleClose();
       }}
     >
       <DialogContent
@@ -158,28 +162,28 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
         data-action-ui-id="asset-center-materialize-dialog"
       >
         <DialogHeader>
-          <DialogTitle>{t2("assetCenter.materialize.title")}</DialogTitle>
+          <DialogTitle>{translate("assetCenter.materialize.title")}</DialogTitle>
           <DialogDescription className="text-xs">
             {entity
-              ? t2("assetCenter.materialize.description", {
+              ? translate("assetCenter.materialize.description", {
                   name: entity.name,
                 })
-              : t2("assetCenter.materialize.descriptionFallback")}
+              : translate("assetCenter.materialize.descriptionFallback")}
           </DialogDescription>
         </DialogHeader>
         <div className="min-w-0 space-y-3">
           {workspaces.length === 0 ? (
             <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-              {t2("assetCenter.materialize.noWorkspaces")}
+              {translate("assetCenter.materialize.noWorkspaces")}
             </div>
           ) : (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-medium text-muted-foreground">
-                  {t2("assetCenter.materialize.workspaceLabel")}
+                  {translate("assetCenter.materialize.workspaceLabel")}
                 </span>
                 <span className="text-[10px] text-muted-foreground/70">
-                  {t2("assetCenter.materialize.selectedCount", {
+                  {translate("assetCenter.materialize.selectedCount", {
                     count: effectiveSelected.size,
                   })}
                 </span>
@@ -188,16 +192,16 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
                 className="w-full min-w-0 max-h-64 overflow-x-hidden overflow-y-auto rounded-lg border border-border"
                 data-action-ui-id="asset-center-materialize-workspace-list"
               >
-                {workspaces.map((w3) => {
+                {workspaces.map((workspace) => {
                   const display =
-                    w3.displayName?.trim() ||
-                    w3.path.split("/").pop() ||
-                    w3.path;
-                  const checked = effectiveSelected.has(w3.path);
-                  const inputId = `materialize-ws-${w3.path}`;
+                    workspace.displayName?.trim() ||
+                    workspace.path.split("/").pop() ||
+                    workspace.path;
+                  const checked = effectiveSelected.has(workspace.path);
+                  const inputId = `materialize-ws-${workspace.path}`;
                   return (
                     <li
-                      key={w3.path}
+                      key={workspace.path}
                       className="border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors"
                     >
                       <label
@@ -208,7 +212,7 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
                         <Checkbox
                           id={inputId}
                           checked={checked}
-                          onCheckedChange={() => togglePath(w3.path)}
+                          onCheckedChange={() => togglePath(workspace.path)}
                           data-action-ui-id="asset-center-materialize-workspace-checkbox"
                         />
                         <div className="flex flex-col min-w-0 flex-1">
@@ -217,9 +221,9 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
                           </span>
                           <span
                             className="text-[10px] text-muted-foreground truncate"
-                            title={w3.path}
+                            title={workspace.path}
                           >
-                            {w3.path}
+                            {workspace.path}
                           </span>
                         </div>
                       </label>
@@ -234,23 +238,23 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
               className="flex items-start gap-2 rounded-lg border border-foreground/20 bg-muted/20 px-3 py-2"
               data-action-ui-id="asset-center-materialize-success"
             >
-              <CheckCircle2
+              <CheckCircle
                 size={14}
                 className="mt-0.5 shrink-0 text-foreground"
               />
               <div className="text-xs space-y-1.5 min-w-0 flex-1">
                 <p className="font-medium">
-                  {t2("assetCenter.materialize.success", {
+                  {translate("assetCenter.materialize.success", {
                     workspace:
                       success.targets.length === 1
                         ? success.targets[0].label
-                        : t2("assetCenter.materialize.workspaceCount", {
+                        : translate("assetCenter.materialize.workspaceCount", {
                             count: success.targets.length,
                           }),
                   })}
                 </p>
                 <p className="text-[10px] text-muted-foreground/80">
-                  {t2("assetCenter.materialize.successPathHint")}
+                  {translate("assetCenter.materialize.successPathHint")}
                 </p>
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
                   {success.targets.map((target) => (
@@ -294,7 +298,7 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
             disabled={materializeMutation.isPending}
             data-action-ui-id="asset-center-materialize-close"
           >
-            {success ? t2("common.close") : t2("common.cancel")}
+            {success ? translate("common.close") : translate("common.cancel")}
           </Button>
           <Button
             size="sm"
@@ -307,8 +311,8 @@ export function MaterializeWorkspaceDialog({ entity, onClose }) {
               <Loader2 size={14} className="animate-spin" />
             )}
             {success
-              ? t2("assetCenter.materialize.submitAgain")
-              : t2("assetCenter.materialize.submit")}
+              ? translate("assetCenter.materialize.submitAgain")
+              : translate("assetCenter.materialize.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

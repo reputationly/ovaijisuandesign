@@ -8,12 +8,12 @@ import { getDesktopSettingsMainService } from "../team/copy-icon-button.jsx";
 const MAX_LISTED_BUSY_PROJECTS = 3;
 
 function formatBusyProjects(names) {
-  const zh2 = isChineseLocale();
+  const isChinese = isChineseLocale();
   const listed = names
     .slice(0, MAX_LISTED_BUSY_PROJECTS)
-    .join(zh2 ? "、" : ", ");
+    .join(isChinese ? "、" : ", ");
   if (names.length <= MAX_LISTED_BUSY_PROJECTS) return listed;
-  return zh2 ? `${listed} 等` : `${listed} and others`;
+  return isChinese ? `${listed} 等` : `${listed} and others`;
 }
 
 function workspaceLimitFallback() {
@@ -63,18 +63,18 @@ function storageMigrationInProgressFallback() {
     : "Projects and generated files are being migrated. Wait for migration to finish and restart when prompted.";
 }
 
-export function toastWorkspaceOpenResult(result, t2, options = {}) {
+export function toastWorkspaceOpenResult(result, translate, options = {}) {
   switch (result.kind) {
     case "limit_reached": {
       const projects = formatBusyProjects(result.busyProjectNames);
       dedupedToast.warning(
         projects
-          ? t2("workspace.open.limitReachedNamed", {
+          ? translate("workspace.open.limitReachedNamed", {
               max: result.maxOpenWorkspaces,
               projects,
               defaultValue: workspaceLimitNamedFallback(),
             })
-          : t2("workspace.open.limitReached", {
+          : translate("workspace.open.limitReached", {
               max: result.maxOpenWorkspaces,
               defaultValue: workspaceLimitFallback(),
             }),
@@ -83,19 +83,19 @@ export function toastWorkspaceOpenResult(result, t2, options = {}) {
     }
     case "retry_in_flight":
       dedupedToast.info(
-        t2("workspace.open.retryInFlight", {
+        translate("workspace.open.retryInFlight", {
           defaultValue: retryInFlightFallback(),
         }),
       );
       break;
     case "storage_restart_required":
       dedupedToast.warning(
-        t2("workspace.open.storageRestartRequired", {
+        translate("workspace.open.storageRestartRequired", {
           defaultValue: storageRestartRequiredFallback(),
         }),
         {
           action: {
-            label: t2("settings.restartNow"),
+            label: translate("settings.restartNow"),
             onClick: () => void getDesktopSettingsMainService().relaunch(),
           },
         },
@@ -110,7 +110,7 @@ export function toastWorkspaceOpenResult(result, t2, options = {}) {
         temporary_default_allowed: result.allowTemporaryDefault,
       });
       dedupedToast.warning(
-        t2(
+        translate(
           statusVerified
             ? "workspace.open.storageUnavailable"
             : "workspace.open.storageStatusUnavailable",
@@ -121,7 +121,7 @@ export function toastWorkspaceOpenResult(result, t2, options = {}) {
         result.allowTemporaryDefault && options.onTemporaryDefault
           ? {
               action: {
-                label: t2("workspace.newProject.useTemporaryDefault"),
+                label: translate("workspace.newProject.useTemporaryDefault"),
                 onClick: options.onTemporaryDefault,
               },
             }
@@ -131,14 +131,14 @@ export function toastWorkspaceOpenResult(result, t2, options = {}) {
     }
     case "storage_location_unavailable":
       dedupedToast.warning(
-        t2("workspace.open.storageLocationUnavailable", {
+        translate("workspace.open.storageLocationUnavailable", {
           defaultValue: storageLocationUnavailableFallback(),
         }),
       );
       break;
     case "storage_migration_in_progress":
       dedupedToast.warning(
-        t2("workspace.open.storageMigrationInProgress", {
+        translate("workspace.open.storageMigrationInProgress", {
           defaultValue: storageMigrationInProgressFallback(),
         }),
       );

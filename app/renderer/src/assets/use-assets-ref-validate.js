@@ -1,5 +1,6 @@
 // use-assets-ref-validate.js
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { extractCanvasEditorText } from "./parse-prompt-to-tiptap.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
@@ -10,17 +11,17 @@ import {
 } from "../text-editor/table-document-to-llm-content.js";
 import { mapCanvasReferenceResolutions } from "../text-editor/map-canvas-reference-resolutions.js";
 
-export function useAssetsRefValidate({ path: path2, anchor, submit }) {
+export function useAssetsRefValidate({ path, anchor, submit }) {
   const { directReferences } = useCanvasBridge();
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const reference = reactExports.useMemo(
-    () => parseCanvasReference(path2),
-    [path2],
+    () => parseCanvasReference(path),
+    [path],
   );
   const [result, setResult] = reactExports.useState();
-  const latest2 = reactExports.useRef(submit);
-  latest2.current = submit;
-  const pending2 = reactExports.useRef(false);
+  const latest = reactExports.useRef(submit);
+  latest.current = submit;
+  const pending = reactExports.useRef(false);
   const mounted = reactExports.useRef(true);
   const checkReferences = reactExports.useCallback(
     async (references, options) => {
@@ -34,24 +35,24 @@ export function useAssetsRefValidate({ path: path2, anchor, submit }) {
   );
   reactExports.useEffect(() => {
     mounted.current = true;
-    let active2 = true;
+    let active = true;
     let revision = 0;
     const refresh = async () => {
       if (!reference || !directReferences) return;
-      const current2 = ++revision;
-      let resolution2;
+      const current = ++revision;
+      let resolution;
       try {
-        [resolution2] = await checkReferences([reference]);
+        [resolution] = await checkReferences([reference]);
       } catch {
-        resolution2 = {
+        resolution = {
           reference,
           status: "unavailable",
         };
       }
-      if (active2 && current2 === revision)
+      if (active && current === revision)
         setResult({
           bridge: directReferences,
-          resolution: resolution2,
+          resolution,
         });
     };
     if (reference) {
@@ -60,22 +61,22 @@ export function useAssetsRefValidate({ path: path2, anchor, submit }) {
       anchor?.addEventListener("mouseenter", refresh);
     }
     return () => {
-      active2 = false;
+      active = false;
       mounted.current = false;
       window.removeEventListener("focus", refresh);
       anchor?.removeEventListener("mouseenter", refresh);
     };
   }, [reference, directReferences, anchor, checkReferences]);
   const validate = reactExports.useCallback(async () => {
-    if (pending2.current) return false;
-    const snapshot2 = latest2.current;
-    if (!snapshot2) return false;
-    const editor = snapshot2.editorRef.current;
+    if (pending.current) return false;
+    const snapshot = latest.current;
+    if (!snapshot) return false;
+    const editor = snapshot.editorRef.current;
     if (editor?.isDestroyed) return false;
     const prompt = editor
       ? extractCanvasEditorText(editor)
-      : snapshot2.promptText;
-    const attachments = snapshot2.attachmentState;
+      : snapshot.promptText;
+    const attachments = snapshot.attachmentState;
     const attachmentPaths = [
       ...attachments.imagePaths,
       ...attachments.videoPaths,
@@ -88,97 +89,97 @@ export function useAssetsRefValidate({ path: path2, anchor, submit }) {
         ...attachmentPaths,
       ]),
     ];
-    const entries2 = paths.flatMap((path22) => {
-      const reference2 = parseCanvasReference(path22);
-      return reference2
+    const entries = paths.flatMap((path) => {
+      const reference = parseCanvasReference(path);
+      return reference
         ? [
             {
-              path: path22,
-              reference: reference2,
+              path,
+              reference,
             },
           ]
         : [];
     });
-    if (!entries2.length) return true;
-    pending2.current = true;
+    if (!entries.length) return true;
+    pending.current = true;
     try {
-      const refs = entries2.map((entry) => entry.reference);
+      const refs = entries.map((entry) => entry.reference);
       const resolutions = await checkReferences(refs, {
         include_metadata: true,
       });
       if (
         !mounted.current ||
-        snapshot2.editorRef.current !== editor ||
+        snapshot.editorRef.current !== editor ||
         editor?.isDestroyed
       )
         return false;
       if (
-        snapshot2.attachmentState.updateReferenceMetadata !==
-        latest2.current?.attachmentState.updateReferenceMetadata
+        snapshot.attachmentState.updateReferenceMetadata !==
+        latest.current?.attachmentState.updateReferenceMetadata
       )
         return false;
       const currentPrompt = editor
         ? extractCanvasEditorText(editor)
-        : (latest2.current?.promptText ?? "");
+        : (latest.current?.promptText ?? "");
       if (currentPrompt !== prompt) return false;
-      const invalid2 = entries2.filter(
-        (_2, index2) =>
-          resolutions[index2].status === "deleted" ||
-          resolutions[index2].status === "missing",
+      const invalid = entries.filter(
+        (_unusedValue, index) =>
+          resolutions[index].status === "deleted" ||
+          resolutions[index].status === "missing",
       );
-      if (invalid2.length) {
-        const removed = new Set(invalid2.map((entry) => entry.path));
+      if (invalid.length) {
+        const removed = new Set(invalid.map((entry) => entry.path));
         let cleaned = prompt;
         for (const mention of findAllMentions(prompt).reverse()) {
           if (removed.has(mention.path))
             cleaned =
               cleaned.slice(0, mention.start) + cleaned.slice(mention.end);
         }
-        for (const path22 of removed) {
-          editor?.commands.removeCanvasFileRefsByPath(path22);
-          latest2.current?.attachmentState.removePath(path22);
+        for (const path of removed) {
+          editor?.commands.removeCanvasFileRefsByPath(path);
+          latest.current?.attachmentState.removePath(path);
         }
-        latest2.current?.setPromptText(
+        latest.current?.setPromptText(
           editor ? extractCanvasEditorText(editor) : cleaned,
         );
-        const subjectsOnly = invalid2.every(
-          ({ reference: reference2 }) => reference2.source === "subject",
+        const subjectsOnly = invalid.every(
+          ({ reference }) => reference.source === "subject",
         );
-        const assetsOnly = invalid2.every(
-          ({ reference: reference2 }) => reference2.source === "project",
+        const assetsOnly = invalid.every(
+          ({ reference }) => reference.source === "project",
         );
         dedupedToast.error(
           subjectsOnly
-            ? t2(
+            ? translate(
                 "canvas.reference.invalidSubjectRemoved",
                 "Invalid subject detected and automatically removed.",
               )
             : assetsOnly
-              ? t2(
+              ? translate(
                   "canvas.reference.invalidAssetRemoved",
                   "Invalid asset detected and automatically removed.",
                 )
-              : t2(
+              : translate(
                   "canvas.reference.invalidReferencesRemoved",
                   "Invalid references detected and automatically removed.",
                 ),
         );
         return false;
       }
-      if (resolutions.some((result2) => result2.status !== "available")) {
+      if (resolutions.some((result) => result.status !== "available")) {
         throw new Error("Reference check unavailable");
       }
-      const metadataChanged = entries2.some(
-        ({ path: path22 }, index2) =>
-          attachmentPaths.includes(path22) &&
+      const metadataChanged = entries.some(
+        ({ path }, index) =>
+          attachmentPaths.includes(path) &&
           JSON.stringify(
-            attachments.referenceResolutions.get(path22)?.metadata,
-          ) !== JSON.stringify(resolutions[index2].metadata),
+            attachments.referenceResolutions.get(path)?.metadata,
+          ) !== JSON.stringify(resolutions[index].metadata),
       );
-      latest2.current?.attachmentState.updateReferenceMetadata(resolutions);
+      latest.current?.attachmentState.updateReferenceMetadata(resolutions);
       if (metadataChanged) {
         dedupedToast.error(
-          t2(
+          translate(
             "canvas.reference.contentChanged",
             "Reference content changed. Review the updated limits and estimated cost, then submit again.",
           ),
@@ -189,16 +190,16 @@ export function useAssetsRefValidate({ path: path2, anchor, submit }) {
     } catch {
       if (mounted.current)
         dedupedToast.error(
-          t2(
+          translate(
             "canvas.reference.loadFailed",
             "Failed to load reference. Please try again.",
           ),
         );
       return false;
     } finally {
-      pending2.current = false;
+      pending.current = false;
     }
-  }, [checkReferences, t2]);
+  }, [checkReferences, translate]);
   const resolution =
     reference &&
     result?.bridge === directReferences &&

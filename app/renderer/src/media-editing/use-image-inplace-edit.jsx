@@ -1,5 +1,6 @@
 // use-image-inplace-edit.jsx
-import { reactExports, useNodeId } from "../vendor.js";
+import reactExports from "react";
+import { useNodeId } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { StoryboardGridEditor } from "./storyboard-grid-editor.jsx";
 import {
@@ -46,19 +47,19 @@ export function StoryboardGridPopover({
 }
 
 export function useDirectImageActions({
-  id: id2,
-  meta: meta2,
+  id: nodeId,
+  meta,
   submitSuperResolution,
   submitRemoveBg,
 }) {
   const handleSuperResolution = reactExports.useCallback(() => {
-    if (!submitSuperResolution || !meta2?.path) return;
-    void submitSuperResolution(id2, meta2.path);
-  }, [id2, meta2?.path, submitSuperResolution]);
+    if (!submitSuperResolution || !meta?.path) return;
+    void submitSuperResolution(nodeId, meta.path);
+  }, [nodeId, meta?.path, submitSuperResolution]);
   const handleRemoveBg = reactExports.useCallback(() => {
-    if (!submitRemoveBg || !meta2?.path) return;
-    void submitRemoveBg(id2, meta2.path);
-  }, [id2, meta2?.path, submitRemoveBg]);
+    if (!submitRemoveBg || !meta?.path) return;
+    void submitRemoveBg(nodeId, meta.path);
+  }, [nodeId, meta?.path, submitRemoveBg]);
   return {
     handleSuperResolution,
     handleRemoveBg,
@@ -66,8 +67,8 @@ export function useDirectImageActions({
 }
 
 export function useImageColorAdjust({
-  id: id2,
-  meta: meta2,
+  id: nodeId,
+  meta,
   nodeWidth,
   reactFlow,
   cropImage,
@@ -75,16 +76,16 @@ export function useImageColorAdjust({
 }) {
   const [open, setOpen] = reactExports.useState(false);
   const emitDerived = useEmitDerivedFromBlob({
-    id: id2,
-    meta: meta2,
+    id: nodeId,
+    meta,
     nodeWidth,
     reactFlow,
     cropImage,
   });
   const openDialog = reactExports.useCallback(() => {
-    if (!meta2?.url) return;
+    if (!meta?.url) return;
     setOpen(true);
-  }, [meta2?.url]);
+  }, [meta?.url]);
   const onConfirm = reactExports.useCallback(
     async (blob) => {
       await emitDerived(blob, {
@@ -107,9 +108,9 @@ export function useImageColorAdjust({
 }
 
 export function useImageInplaceEdit({
-  id: id2,
-  meta: meta2,
-  selected: selected2,
+  id: nodeId,
+  meta,
+  selected: isSelected,
   nodeWidth,
   nodeHeight,
   reactFlow,
@@ -120,8 +121,8 @@ export function useImageInplaceEdit({
   const [editingTarget, setEditingTarget] = reactExports.useState(null);
   const editing = editingTarget !== null;
   const emitDerived = useEmitDerivedFromBlob({
-    id: id2,
-    meta: meta2,
+    id: nodeId,
+    meta,
     nodeWidth,
     reactFlow,
     cropImage,
@@ -130,9 +131,9 @@ export function useImageInplaceEdit({
     createToolInteractionSession(),
   );
   useCropViewportZoom(editingTarget, 0, 0, INPLACE_EDIT_TOOLBAR_RESERVE_PX);
-  const enter2 = reactExports.useCallback(() => {
-    if (!meta2?.url) return;
-    const rect = getNodeFlowRect(reactFlow, id2, nodeWidth, nodeHeight);
+  const enter = reactExports.useCallback(() => {
+    if (!meta?.url) return;
+    const rect = getNodeFlowRect(reactFlow, nodeId, nodeWidth, nodeHeight);
     if (!rect) return;
     beginToolInteractionSession(interactionSessionRef.current);
     setEditingTarget({
@@ -141,7 +142,7 @@ export function useImageInplaceEdit({
       nodeWidth: rect.width,
       nodeHeight: rect.height,
     });
-  }, [meta2?.url, id2, reactFlow, nodeWidth, nodeHeight]);
+  }, [meta?.url, nodeId, reactFlow, nodeWidth, nodeHeight]);
   const setHadProgress = reactExports.useCallback((hadProgress) => {
     setToolInteractionSessionProgress(
       interactionSessionRef.current,
@@ -161,8 +162,8 @@ export function useImageInplaceEdit({
     [onAbandon],
   );
   reactExports.useEffect(() => {
-    if (editing && !selected2) cancel();
-  }, [editing, selected2, cancel]);
+    if (editing && !isSelected) cancel();
+  }, [editing, isSelected, cancel]);
   const confirm = reactExports.useCallback(
     async (blob) => {
       await emitDerived(blob, {
@@ -177,25 +178,25 @@ export function useImageInplaceEdit({
   );
   return {
     editing,
-    enter: enter2,
+    enter,
     cancel,
     confirm,
     setHadProgress,
   };
 }
 
-function clampIndex(value, length2) {
-  if (length2 <= 0) return 0;
+function clampIndex(value, itemCount) {
+  if (itemCount <= 0) return 0;
   if (!Number.isFinite(value)) return 0;
-  return Math.min(Math.max(Math.floor(value), 0), length2 - 1);
+  return Math.min(Math.max(Math.floor(value), 0), itemCount - 1);
 }
 
 export function useImageLightbox({ items, initialIndex = 0 }) {
   const [open, setOpen] = reactExports.useState(false);
-  const [index2, setIndex] = reactExports.useState(() =>
+  const [index, setIndex] = reactExports.useState(() =>
     clampIndex(initialIndex, items.length),
   );
-  const close2 = reactExports.useCallback(() => setOpen(false), []);
+  const closeEdit = reactExports.useCallback(() => setOpen(false), []);
   const openLightbox = reactExports.useCallback(
     (nextIndex) => {
       if (items.length === 0) return;
@@ -216,7 +217,7 @@ export function useImageLightbox({ items, initialIndex = 0 }) {
       if (open) setOpen(false);
       return;
     }
-    setIndex((cur) => clampIndex(cur, items.length));
+    setIndex((currentIndex) => clampIndex(currentIndex, items.length));
   }, [items.length, open]);
   return {
     open,
@@ -225,9 +226,9 @@ export function useImageLightbox({ items, initialIndex = 0 }) {
       open && items.length > 0
         ? {
             items,
-            index: index2,
+            index,
             onIndexChange: setIndex,
-            onClose: close2,
+            onClose: closeEdit,
           }
         : null,
   };

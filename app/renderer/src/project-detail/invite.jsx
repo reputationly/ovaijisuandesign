@@ -1,12 +1,16 @@
 // 邀请成员：邀请面板、成员行与邀请弹窗。
 import { createProjectOperationId, logProjectOperationAttempt, logProjectOperationSuccess, logProjectOperationFailure, removeProjectMember, cloudErrorDisplayMessage, createProjectInviteLink } from "../workspace/asset-lineage-query-key.js";
-import { useTranslation, useQueryClient, reactExports, jsxRuntimeExports, BadgeInfo, Check, Link2, ChevronDown } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { BadgeInfo, Check, Link2, ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { buildProjectInviteWebLink } from "../infra/schedule.js";
 import { Users, Clock, Trash2 } from "../media-editing/package.jsx";
-import { Button, cn$2 as cn, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
 import { MemberRole } from "../generation/normalize-skill-detail-metadata.js";
 import { Avatar, AvatarImage, AvatarFallback } from "../infra/inline-rename-input.jsx";
 import { DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";
@@ -143,7 +147,7 @@ export function InviteProjectPanel({
               defaultValue: "成员",
             })}
           </span>
-          {members.some((m) => m.userId !== user?.userID) ? (
+          {members.some((member) => member.userId !== user?.userID) ? (
             <span className="ml-auto text-[11px] tabular-nums">
               {t("project.invite.membersTotal", {
                 count: members.length,

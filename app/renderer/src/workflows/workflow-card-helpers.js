@@ -1,7 +1,7 @@
 // 工作流卡片用的推导函数：卡片元信息、下载任务状态判断。
 import { countUnavailableComfyUiModels } from "../vendor-inline/vscode-base/linked-list.js";
 import { isInstalledFeaturedWorkflow } from "./workflow-mapping.js";
-function formatFileSize$1(bytes) {
+function formatFileSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -44,7 +44,7 @@ export function workflowCardMetadata(workflow, labels, locale) {
   if (workflow.fileSize !== void 0) {
     items.push({
       key: "size",
-      text: `${labels.size} ${formatFileSize$1(workflow.fileSize)}`,
+      text: `${labels.size} ${formatFileSize(workflow.fileSize)}`,
     });
   }
   if (workflow.updatedAt !== void 0) {

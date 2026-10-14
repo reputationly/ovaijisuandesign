@@ -3,7 +3,7 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CircleUserRound } from "../media-editing/package.jsx";
 import { Button } from "../infra/dialog-content.jsx";
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { UserAvatarMenu } from "../workspace/user-avatar-menu.jsx";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 function LoggedOutSidebarActionPresentation({
@@ -80,7 +80,7 @@ export function SidebarUserMenu({
   onOverlayOpenChange,
   trailingAction,
 } = {}) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
   if (isLoading) {
     return (
@@ -101,7 +101,7 @@ export function SidebarUserMenu({
     return (
       <LoggedOutSidebarActionPresentation
         showUsername={showUsername}
-        label={t2("sidebar.loginOrRegister")}
+        label={translate("sidebar.loginOrRegister")}
         onLogin={login}
         companionAction={trailingAction}
       />

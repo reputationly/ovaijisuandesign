@@ -1,5 +1,6 @@
 // tag-filter-popover.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FilterMenuItem, FilterTrigger } from "./filter-trigger.jsx";
 import { Popover } from "../assets/credit-query-keys.jsx";
@@ -13,27 +14,27 @@ import { getCanvasTagPresentationColor } from "../assets/inline-input.jsx";
 import { useTagRegistry } from "../canvas/conflict-resolution-dialog.jsx";
 
 export function TagFilterPopover({ tagFilters, onChange }) {
-  const { t: t2 } = useTranslation();
-  const registry2 = useTagRegistry();
+  const { t: translate } = useTranslation();
+  const registry = useTagRegistry();
   const [open, setOpen] = reactExports.useState(false);
-  const active2 = tagFilters.length > 0;
-  const displayName2 = reactExports.useCallback(
-    (id2, custom, legacyNameKey) => {
+  const active = tagFilters.length > 0;
+  const displayName = reactExports.useCallback(
+    (id, custom, legacyNameKey) => {
       if (custom && custom.length > 0) return custom;
-      return t2(legacyNameKey ?? PRESET_COLOR_NAME_KEYS[id2] ?? "") || id2;
+      return translate(legacyNameKey ?? PRESET_COLOR_NAME_KEYS[id] ?? "") || id;
     },
-    [t2],
+    [translate],
   );
   const triggerLabel = reactExports.useMemo(() => {
-    const base2 = t2("assetFilter.tagSection");
-    return active2 ? `${base2} · ${tagFilters.length}` : base2;
-  }, [t2, active2, tagFilters.length]);
+    const base = translate("assetFilter.tagSection");
+    return active ? `${base} · ${tagFilters.length}` : base;
+  }, [translate, active, tagFilters.length]);
   const toggle = reactExports.useCallback(
-    (id2) => {
-      const set2 = new Set(tagFilters);
-      if (set2.has(id2)) set2.delete(id2);
-      else set2.add(id2);
-      onChange(Array.from(set2));
+    (id) => {
+      const set = new Set(tagFilters);
+      if (set.has(id)) set.delete(id);
+      else set.add(id);
+      onChange(Array.from(set));
     },
     [tagFilters, onChange],
   );
@@ -45,11 +46,11 @@ export function TagFilterPopover({ tagFilters, onChange }) {
     <Popover open={open} onOpenChange={setOpen}>
       <FilterTrigger
         label={triggerLabel}
-        active={active2}
+        active={active}
         open={open}
         testId="asset-panel.tag-filter-trigger"
-        clearLabel={t2("assetFilter.reset")}
-        onClear={active2 ? clear : void 0}
+        clearLabel={translate("assetFilter.reset")}
+        onClear={active ? clear : void 0}
       />
       <PopoverContent
         align="start"
@@ -59,13 +60,13 @@ export function TagFilterPopover({ tagFilters, onChange }) {
         {[
           {
             key: "color",
-            label: t2("canvasTags.colorLabels"),
-            tags: registry2.tags.filter(isCanvasColorTag),
+            label: translate("canvasTags.colorLabels"),
+            tags: registry.tags.filter(isCanvasColorTag),
           },
           {
             key: "keyword",
-            label: t2("canvasTags.keywords"),
-            tags: registry2.tags.filter(isCanvasKeywordTag),
+            label: translate("canvasTags.keywords"),
+            tags: registry.tags.filter(isCanvasKeywordTag),
           },
         ].map((group) =>
           group.tags.length > 0 ? (
@@ -75,7 +76,7 @@ export function TagFilterPopover({ tagFilters, onChange }) {
               </div>
               {group.tags.map((tag) => {
                 const checked = tagFilters.includes(tag.id);
-                const label = displayName2(tag.id, tag.name, tag.legacyNameKey);
+                const label = displayName(tag.id, tag.name, tag.legacyNameKey);
                 return (
                   <FilterMenuItem
                     key={tag.id}

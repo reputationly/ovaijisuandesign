@@ -1,0 +1,28 @@
+key	old	new	依据
+active2@365:11	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+color2@295:10	color2	color	去掉打包器防重名追加的后缀，恢复原名 color，即该绑定持有的值。
+color2@407:10	color2	color	去掉打包器防重名追加的后缀，恢复原名 color，即该绑定持有的值。
+e2@178:26	e2	error	捕获到的错误对象。
+FeedbackIcon22@269:62	FeedbackIcon22	FeedbackIcon	forwardRef 内部用于实现反馈图标的函数名。
+hiloApp2@211:5	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+i2@203:12	i2	decoratorIndex	装饰器在元数据列表中的索引。
+index2@207:24	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+key2@200:44	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@207:55	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+logService2@212:5	logService2	logService	去掉打包器防重名追加的后缀，恢复原名 logService，即该绑定持有的值。
+msg@179:11	msg	errorMessage	错误对应的展示文本。
+os2@325:7	os2	os	去掉打包器防重名追加的后缀，恢复原名 os，即该绑定持有的值。
+PlaybackCirclePauseIcon$1@6:3	PlaybackCirclePauseIcon$1	PlaybackCirclePauseIconBase	传给 desktopMediaIcon 包装器的暂停圆形图标组件。
+PlaybackCirclePlayIcon$1@7:3	PlaybackCirclePlayIcon$1	PlaybackCirclePlayIconBase	传给 desktopMediaIcon 包装器的播放圆形图标组件。
+PlaybackNextIcon$1@8:3	PlaybackNextIcon$1	PlaybackNextIconBase	传给 desktopMediaIcon 包装器的下一首图标组件。
+PlaybackPlayIcon$1@9:3	PlaybackPlayIcon$1	PlaybackPlayIconBase	传给 desktopMediaIcon 包装器的播放图标组件。
+PlaybackPreviousIcon$1@10:3	PlaybackPreviousIcon$1	PlaybackPreviousIconBase	传给 desktopMediaIcon 包装器的上一首图标组件。
+PlaybackStopIcon$1@11:3	PlaybackStopIcon$1	PlaybackStopIconBase	传给 desktopMediaIcon 包装器的停止图标组件。
+PluginIcon2@443:60	PluginIcon2	PluginIcon	forwardRef 内部用于实现插件图标的函数名。
+size2@250:35	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@270:11	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@293:9	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@345:44	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@405:9	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@444:11	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@469:43	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。

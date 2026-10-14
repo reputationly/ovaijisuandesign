@@ -1,0 +1,9 @@
+key	old	new	依据
+t2@62:14	t2	translate	该函数翻译素材导入反馈和素材面板中的本地化文案。
+fn2@125:60	fn2	fn	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@381:24	e2	changeEvent	文件输入 change 事件用于读取所选文件并清空 input 值。
+e2@416:26	e2	keyEvent	键盘处理器检查 Enter 或空格并触发素材库视图切换。
+project2@41:9	project2	project	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+view2@63:10	view2	view	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+setSearchQuery2@121:23	setSearchQuery2	setSearchQuery	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+project2@131:9	project2	project	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

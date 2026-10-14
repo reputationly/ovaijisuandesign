@@ -1,5 +1,7 @@
 // file-node-impl.jsx
-import { classifyFileType, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileViewerRouter } from "./pdf-viewer.jsx";
 import { TooltipProvider } from "../infra/create-recently-added-store.js";
@@ -51,23 +53,23 @@ import { isCloneData } from "./use-warn-missing-asset-meta.jsx";
 import { NodeShell, useAddToChat } from "../canvas/node-shell-inner.jsx";
 import { NodeHandles } from "../canvas/proximity-handle-inner.jsx";
 function FilePreview({
-  selected: selected2,
+  selected,
   interactive,
   filePath,
-  displayName: displayName2,
+  displayName,
   tagIds,
   sizeLabel,
-  extension: extension2,
+  extension,
   displayFileOnly,
   width,
   height,
   onShowCardView,
   onRename,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const paneWidth = width - 2;
   const rename = useInlineRename({
-    currentValue: displayName2,
+    currentValue: displayName,
     onCommit: onRename,
     preserveExtension: true,
   });
@@ -75,7 +77,7 @@ function FilePreview({
     <NodeBody
       width={width}
       height={height}
-      selected={selected2}
+      selected={selected}
       tagIds={tagIds}
       variant="media"
     >
@@ -93,7 +95,7 @@ function FilePreview({
           <div className="flex min-w-0 flex-shrink items-center gap-2">
             <FileTypeIcon
               {...classifyFileType({
-                filename: displayName2,
+                filename: displayName,
               })}
               size={24}
               decorative={true}
@@ -103,12 +105,12 @@ function FilePreview({
                 ref={rename.inputRef}
                 className="nodrag min-w-0 flex-1 truncate border-[var(--canvas-node-border)] [border-bottom-width:var(--control-border-width)] bg-transparent text-xs text-foreground outline-none focus:border-[var(--canvas-node-border-selected,#141414)]"
                 value={rename.editValue}
-                onChange={(e2) => rename.setEditValue(e2.target.value)}
+                onChange={(changeEvent) => rename.setEditValue(changeEvent.target.value)}
                 onBlur={rename.commit}
                 onKeyDown={rename.onKeyDown}
-                onMouseDown={(e2) => e2.stopPropagation()}
-                onClick={(e2) => e2.stopPropagation()}
-                onDoubleClick={(e2) => e2.stopPropagation()}
+                onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+                onClick={(clickEvent) => clickEvent.stopPropagation()}
+                onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
               />
             ) : (
               <div
@@ -120,16 +122,16 @@ function FilePreview({
             )}
             <TooltipProvider delay={300} closeDelay={0}>
               {onRename && !rename.editing ? (
-                <Tooltip content={t2("canvas.file.rename", "重命名")}>
+                <Tooltip content={t("canvas.file.rename", "重命名")}>
                   <button
                     type="button"
-                    aria-label={t2("canvas.file.rename", "重命名")}
-                    onClick={(e2) => {
-                      e2.stopPropagation();
+                    aria-label={t("canvas.file.rename", "重命名")}
+                    onClick={(clickEvent) => {
+                      clickEvent.stopPropagation();
                       rename.beginEdit();
                     }}
-                    onMouseDown={(e2) => e2.stopPropagation()}
-                    onDoubleClick={(e2) => e2.stopPropagation()}
+                    onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+                    onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
                     className="flex h-6 w-6 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                     data-action-ui-id="canvas.file-node.rename-from-preview"
                   >
@@ -141,16 +143,16 @@ function FilePreview({
           </div>
           <TooltipProvider delay={300} closeDelay={0}>
             <div className="flex shrink-0 items-center">
-              <Tooltip content={t2("canvas.file.cardView", "卡片视图")}>
+              <Tooltip content={t("canvas.file.cardView", "卡片视图")}>
                 <button
                   type="button"
-                  aria-label={t2("canvas.file.cardView", "卡片视图")}
-                  onClick={(e2) => {
-                    e2.stopPropagation();
+                  aria-label={t("canvas.file.cardView", "卡片视图")}
+                  onClick={(clickEvent) => {
+                    clickEvent.stopPropagation();
                     onShowCardView();
                   }}
-                  onMouseDown={(e2) => e2.stopPropagation()}
-                  onDoubleClick={(e2) => e2.stopPropagation()}
+                  onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+                  onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
                   className="flex h-7 w-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                   data-action-ui-id="canvas.file-node.view-card-from-preview"
                 >
@@ -163,8 +165,8 @@ function FilePreview({
         <div className="flex-1 overflow-hidden">
           <FileViewerRouter
             filePath={filePath}
-            extension={extension2}
-            displayName={displayName2}
+            extension={extension}
+            displayName={displayName}
             sizeLabel={sizeLabel}
             paneWidth={paneWidth}
             interactive={interactive}
@@ -174,24 +176,24 @@ function FilePreview({
     </NodeBody>
   );
 }
-function resolveDisplayFileOnly(data2) {
-  return data2?.displayFileOnly === true;
+function resolveDisplayFileOnly(data) {
+  return data?.displayFileOnly === true;
 }
 export function FileNodeImpl({
-  id: id2,
-  data: data2,
-  selected: selected2,
+  id: nodeId,
+  data,
+  selected,
   width,
   height,
 }) {
-  const { t: t2 } = useTranslation();
-  const meta2 = useAssetMeta(id2);
-  const persisted = data2;
+  const { t } = useTranslation();
+  const meta = useAssetMeta(nodeId);
+  const persisted = data;
   const { onAddToChat } = useCanvasBridge();
   const { updateNodeDataAndResize } = useCanvasActions();
-  const onRename = useNodeRename(id2, isCloneData(data2));
+  const onRename = useNodeRename(nodeId, isCloneData(data));
   const isMultiSelect = useCanvasIsMultiSelect();
-  const isDragging = useCanvasNodeIsDragging(id2);
+  const isDragging = useCanvasNodeIsDragging(nodeId);
   const isBoxSelecting = useCanvasIsBoxSelecting();
   const viewMode = persisted?.viewMode === "preview" ? "preview" : "card";
   const isPreview = viewMode === "preview";
@@ -212,47 +214,47 @@ export function FileNodeImpl({
     if (!isPreview) return;
     if (typeof height === "number" && height > 0) setPreviewHeight(height);
   }, [height, isPreview]);
-  const filePath = meta2?.path ?? persisted?.path;
-  const displayName2 =
-    meta2?.name ||
+  const filePath = meta?.path ?? persisted?.path;
+  const displayName =
+    meta?.name ||
     persisted?.name ||
     filePath?.split("/").pop() ||
-    t2("canvas.file.untitled", "Untitled");
-  const sizeLabel = formatFileSize(meta2?.fileSize ?? persisted?.fileSize);
-  const extension2 =
+    t("canvas.file.untitled", "Untitled");
+  const sizeLabel = formatFileSize(meta?.fileSize ?? persisted?.fileSize);
+  const extension =
     getFileExtension(filePath?.split("/").pop()) ??
-    getFileExtension(displayName2);
-  const handleAddToChat = useAddToChat(id2, meta2, onAddToChat, filePath);
-  const runInfo = usePluginRunInfo(id2);
-  const htmlViewerHandle = useHtmlViewerHandle(id2);
-  const isHtmlFullscreen = useIsHtmlFullscreen(id2);
+    getFileExtension(displayName);
+  const handleAddToChat = useAddToChat(nodeId, meta, onAddToChat, filePath);
+  const runInfo = usePluginRunInfo(nodeId);
+  const htmlViewerHandle = useHtmlViewerHandle(nodeId);
+  const isHtmlFullscreen = useIsHtmlFullscreen(nodeId);
   const fullscreenApi = useHtmlFullscreenApi();
   const enterHtmlFullscreen = reactExports.useCallback(() => {
     if (!htmlViewerHandle) return;
-    fullscreenApi.getState().enter(id2);
-  }, [id2, fullscreenApi, htmlViewerHandle]);
+    fullscreenApi.getState().enter(nodeId);
+  }, [nodeId, fullscreenApi, htmlViewerHandle]);
   const exitHtmlFullscreen = reactExports.useCallback(() => {
-    fullscreenApi.getState().exit(id2);
-  }, [id2, fullscreenApi]);
+    fullscreenApi.getState().exit(nodeId);
+  }, [nodeId, fullscreenApi]);
   const setViewMode = reactExports.useCallback(
-    (next2) => {
+    (next) => {
       const nextSize =
-        next2 === "preview" ? FILE_PREVIEW_SIZE : FILE_CARD_DEFAULT_SIZE;
-      if (next2 === "preview") {
+        next === "preview" ? FILE_PREVIEW_SIZE : FILE_CARD_DEFAULT_SIZE;
+      if (next === "preview") {
         setPreviewWidth(nextSize.width);
         setPreviewHeight(nextSize.height);
       }
       updateNodeDataAndResize(
-        id2,
+        nodeId,
         {
           ...(persisted ?? {}),
-          viewMode: next2,
+          viewMode: next,
         },
         nextSize.width,
         nextSize.height,
       );
     },
-    [id2, persisted, updateNodeDataAndResize],
+    [nodeId, persisted, updateNodeDataAndResize],
   );
   const showCardView = reactExports.useCallback(
     () => setViewMode("card"),
@@ -263,8 +265,8 @@ export function FileNodeImpl({
     [setViewMode],
   );
   const handlePreviewClick = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       showPreviewView();
     },
     [showPreviewView],
@@ -272,14 +274,14 @@ export function FileNodeImpl({
   const toolbarItems = [
     {
       id: "add-to-chat",
-      label: t2("canvas.addToChat"),
+      label: t("canvas.addToChat"),
       icon: <AddToChatIcon />,
       onClick: handleAddToChat,
       dataActionUiId: "canvas.file-node.add-to-chat",
     },
     {
       id: "view-card",
-      label: t2("canvas.file.cardView", "卡片视图"),
+      label: t("canvas.file.cardView", "卡片视图"),
       icon: <CardViewIcon />,
       onClick: showCardView,
       active: !isPreview,
@@ -287,7 +289,7 @@ export function FileNodeImpl({
     },
     {
       id: "view-preview",
-      label: t2("canvas.file.previewView", "预览视图"),
+      label: t("canvas.file.previewView", "预览视图"),
       icon: <PreviewViewIcon />,
       onClick: showPreviewView,
       active: isPreview,
@@ -297,7 +299,7 @@ export function FileNodeImpl({
       ? [
           {
             id: "refresh",
-            label: t2("canvas.file.refresh", "刷新"),
+            label: t("canvas.file.refresh", "刷新"),
             icon: <RefreshIcon />,
             onClick: htmlViewerHandle.reload,
             dataActionUiId: "canvas.file-node.refresh",
@@ -305,8 +307,8 @@ export function FileNodeImpl({
           {
             id: "fullscreen",
             label: isHtmlFullscreen
-              ? t2("canvas.file.exitFullscreen", "退出全屏")
-              : t2("canvas.file.enterFullscreen", "全屏预览"),
+              ? t("canvas.file.exitFullscreen", "退出全屏")
+              : t("canvas.file.enterFullscreen", "全屏预览"),
             icon: isHtmlFullscreen ? <MinimizeIcon /> : <FullscreenIcon />,
             onClick: isHtmlFullscreen
               ? exitHtmlFullscreen
@@ -320,7 +322,7 @@ export function FileNodeImpl({
       ? [
           {
             id: "run",
-            label: t2("canvas.file.run", "执行"),
+            label: t("canvas.file.run", "执行"),
             icon: <RunIcon />,
             onClick: runInfo.invoke,
             dataActionUiId: "canvas.file-node.run",
@@ -329,25 +331,25 @@ export function FileNodeImpl({
       : []),
   ];
   const iconSourceName =
-    meta2?.name || filePath?.split("/").pop() || persisted?.name;
+    meta?.name || filePath?.split("/").pop() || persisted?.name;
   const isInteractiveSelect = !isMultiSelect && !isDragging && !isBoxSelecting;
-  const isPreviewInteractive = !!selected2 && isInteractiveSelect;
+  const isPreviewInteractive = !!selected && isInteractiveSelect;
   const shellWidth = isPreview ? previewWidth : FILE_CARD_DEFAULT_SIZE.width;
   const handlePreviewResize = reactExports.useCallback((newW, newH) => {
     setPreviewWidth(newW);
     setPreviewHeight(newH);
   }, []);
   return (
-    <NodeShell tagIds={meta2?.tagIds} width={shellWidth}>
+    <NodeShell tagIds={meta?.tagIds} width={shellWidth}>
       {isPreview ? (
         <FilePreview
-          selected={selected2}
+          selected={selected}
           interactive={isPreviewInteractive}
           filePath={filePath}
-          displayName={displayName2}
-          tagIds={meta2?.tagIds}
+          displayName={displayName}
+          tagIds={meta?.tagIds}
           sizeLabel={sizeLabel}
-          extension={extension2}
+          extension={extension}
           displayFileOnly={displayFileOnly}
           width={previewWidth}
           height={previewHeight}
@@ -361,9 +363,9 @@ export function FileNodeImpl({
       ) : (
         <NodeBody
           width={FILE_CARD_DEFAULT_SIZE.width}
-          tagIds={meta2?.tagIds}
+          tagIds={meta?.tagIds}
           height={FILE_CARD_DEFAULT_SIZE.height}
-          selected={selected2}
+          selected={selected}
           variant="panel"
         >
           <div className="flex h-full items-center gap-3">
@@ -377,9 +379,9 @@ export function FileNodeImpl({
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
               <div
                 className="truncate text-sm font-medium text-foreground"
-                title={displayName2}
+                title={displayName}
               >
-                {displayName2}
+                {displayName}
               </div>
               {sizeLabel ? (
                 <span className="text-xs text-muted-foreground">
@@ -388,13 +390,13 @@ export function FileNodeImpl({
               ) : null}
             </div>
             <TooltipProvider delay={300} closeDelay={0}>
-              <Tooltip content={t2("canvas.preview", "预览")}>
+              <Tooltip content={t("canvas.preview", "预览")}>
                 <button
                   type="button"
-                  aria-label={t2("canvas.preview", "预览")}
+                  aria-label={t("canvas.preview", "预览")}
                   onClick={handlePreviewClick}
-                  onMouseDown={(e2) => e2.stopPropagation()}
-                  onDoubleClick={(e2) => e2.stopPropagation()}
+                  onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+                  onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
                   className="flex h-7 w-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                   data-action-ui-id="canvas.file-node.preview-eye"
                 >
@@ -405,23 +407,23 @@ export function FileNodeImpl({
           </div>
         </NodeBody>
       )}
-      {selected2 && isInteractiveSelect && !displayFileOnly && (
+      {selected && isInteractiveSelect && !displayFileOnly && (
         <NodeToolbar items={toolbarItems} visible={true} />
       )}
       <NodeQuickTagTrigger
-        visible={!!selected2 && isInteractiveSelect && !displayFileOnly}
+        visible={!!selected && isInteractiveSelect && !displayFileOnly}
         className="node-floating-ui absolute -top-7 left-full z-10 ml-1"
         counterScaleOrigin="left bottom"
       />
-      {selected2 && isPreview && (
+      {selected && isPreview && (
         <NodeResizeFrame
-          nodeId={id2}
+          nodeId={nodeId}
           minWidth={FILE_PREVIEW_MIN_SIZE.width}
           minHeight={FILE_PREVIEW_MIN_SIZE.height}
           onResize={handlePreviewResize}
         />
       )}
-      <NodeHandles nodeId={id2} selected={!!selected2} />
+      <NodeHandles nodeId={nodeId} selected={!!selected} />
     </NodeShell>
   );
 }

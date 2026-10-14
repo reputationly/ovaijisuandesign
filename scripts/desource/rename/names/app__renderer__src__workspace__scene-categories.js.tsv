@@ -1,0 +1,3 @@
+key	old	new	依据
+id2@295:45	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+name2@53:17	name2	sceneAssetName	用于查找场景素材 URL 的资产文件名。

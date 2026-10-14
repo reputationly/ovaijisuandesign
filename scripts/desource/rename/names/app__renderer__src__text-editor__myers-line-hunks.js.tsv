@@ -1,0 +1,19 @@
+key	new	reason
+x2@83:7	x	原名 x，去掉打包器加的数字去重后缀
+y4@84:7	y	原名 y，去掉打包器加的数字去重后缀
+a2@25:9	oldSlice	去掉公共首尾后的旧行
+b3@26:9	newSlice	去掉公共首尾后的新行
+n2@27:9	oldLength	旧行数
+m3@28:9	newLength	新行数
+v2@50:7	frontier	Myers 算法每条对角线能到达的最远 x
+d2@53:12	editDistance	当前编辑距离
+k2@56:14	diagonal	当前对角线 k
+x22@58:11	x	旧行序列中的位置
+y22@67:11	y	新行序列中的位置
+d2@85:12	editDistance	回溯时的编辑距离
+k2@88:11	diagonal	回溯时的对角线 k
+start2@6:7	start	去掉打包器加的数字后缀，恢复原名 start
+max2@48:9	max	去掉打包器加的数字后缀，恢复原名 max
+offset2@49:9	offset	去掉打包器加的数字后缀，恢复原名 offset
+current2@130:7	current	去掉打包器加的数字后缀，恢复原名 current
+next2@55:11	next	去掉打包器加的数字后缀，恢复原名 next

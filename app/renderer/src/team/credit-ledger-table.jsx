@@ -1,11 +1,11 @@
 // credit-ledger-table.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Skeleton } from "./use-wallet-query.jsx";
 function formatTime(ms) {
-  const date2 = new Date(ms);
+  const date = new Date(ms);
   const pad = (value) => String(value).padStart(2, "0");
-  return `${date2.getFullYear()}-${pad(date2.getMonth() + 1)}-${pad(date2.getDate())} ${pad(date2.getHours())}:${pad(date2.getMinutes())}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 export function CreditLedgerTable({
   rows,
@@ -78,9 +78,9 @@ export function CreditLedgerTable({
             <div>
               {Array.from({
                 length: 5,
-              }).map((_2, index2) => (
+              }).map((_, index) => (
                 <div
-                  key={index2}
+                  key={index}
                   className={cn(
                     "grid min-h-9 items-center border-b border-border/70 px-4 py-2 last:border-b-0",
                     gridColumns,

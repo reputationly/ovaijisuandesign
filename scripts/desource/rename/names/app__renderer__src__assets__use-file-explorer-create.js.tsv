@@ -1,0 +1,7 @@
+key	old	new	依据
+i2@19:12	i2	attempt	该值是寻找无冲突副本名称时的循环尝试次数下标。
+t2@50:14	t2	translate	该绑定是文件浏览器创建失败提示读取文案的翻译函数。
+gatewayFetch2@13:3	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+gatewayFetch2@42:17	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+name2@65:56	name2	newEntryName	该值是用户确认创建文件或目录时输入的新名称。
+first2@82:13	first2	first	去掉打包器防重名追加的后缀，恢复原名 first，即该绑定持有的值。

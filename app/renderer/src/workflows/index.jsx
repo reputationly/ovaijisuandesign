@@ -1,5 +1,13 @@
 // 工作流页路由入口：列表、详情展开、下载与教程弹窗的组装。
-import { useTranslation, jsxRuntimeExports, X$7 as X, reactExports, API_PATHS, usePlatform, useStorage, Plus, useNavigate, useSearch, Loader2, ChevronRight$1 as ChevronRight, Workflow, TAB_CONTENT_ENTER_CLASS_NAME } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { X$7 as X, Plus, Loader2, ChevronRight$1 as ChevronRight, Workflow } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
+import { TAB_CONTENT_ENTER_CLASS_NAME } from "../shared/tab-enter-class.js";
 import { useComfyUiDownloadProgress, Icon, openExternalUrl, DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";
 import { Button, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../infra/dialog-content.jsx";
 import { dedupedToast } from "../infra/agent-http-client.js";
@@ -54,7 +62,7 @@ function WorkflowsPage() {
   const [detailWorkflow, setDetailWorkflow] = reactExports.useState(null);
   const importInputRef = reactExports.useRef(null);
   const inlineBrowserRef = reactExports.useRef(null);
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const query = useComfyWorkflows(activeTab);
   const { tasks: downloadTasks } = useComfyUiDownloadProgress();
   const hasActiveDownloads = downloadTasks.some(isActiveWorkflowDownloadTask);
@@ -134,7 +142,7 @@ function WorkflowsPage() {
       setImporting(true);
       const formData = new FormData();
       formData.append("file", file);
-      void gatewayFetch2(API_PATHS.comfyUiWorkflowImport, {
+      void gatewayFetch(API_PATHS.comfyUiWorkflowImport, {
         method: "POST",
         body: formData,
       })
@@ -156,7 +164,7 @@ function WorkflowsPage() {
         })
         .finally(() => setImporting(false));
     },
-    [gatewayFetch2, importing, t],
+    [gatewayFetch, importing, t],
   );
   const handleCreateBlankWorkflow = reactExports.useCallback(async () => {
     try {
@@ -296,7 +304,7 @@ function WorkflowsPage() {
             throw new Error(completed.error || "工作流仍有不可用模型");
           }
           stage = "workflow_install";
-          const response = await gatewayFetch2(API_PATHS.comfyUiWorkflowInstall(workflowId), {
+          const response = await gatewayFetch(API_PATHS.comfyUiWorkflowInstall(workflowId), {
             method: "POST",
           });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -312,12 +320,12 @@ function WorkflowsPage() {
         }
       })();
     },
-    [downloadWorkflow, gatewayFetch2, t],
+    [downloadWorkflow, gatewayFetch, t],
   );
   const handleDeleteWorkflow = reactExports.useCallback(
     async (workflow) => {
       try {
-        const response = await gatewayFetch2(API_PATHS.comfyUiWorkflowDelete(workflow.id), {
+        const response = await gatewayFetch(API_PATHS.comfyUiWorkflowDelete(workflow.id), {
           method: "DELETE",
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -335,7 +343,7 @@ function WorkflowsPage() {
         throw error;
       }
     },
-    [detailWorkflow?.id, gatewayFetch2, t],
+    [detailWorkflow?.id, gatewayFetch, t],
   );
   const handleOpenModelsFolder = reactExports.useCallback(() => {
     void homeService.comfyUiModelDownload.openModelsFolder().catch(() => {

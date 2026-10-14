@@ -1,0 +1,11 @@
+key	new	reason
+workspaceId2@8:58	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+snapshot2@11:9	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+workspaceId2@30:9	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+active2@36:10	active	去掉打包器加的数字后缀，恢复原名 active
+setActive2@36:19	setActive	去掉打包器加的数字后缀，恢复原名 setActive
+timer2@40:9	timer	去掉打包器加的数字后缀，恢复原名 timer
+rafId2@41:9	rafId	去掉打包器加的数字后缀，恢复原名 rafId
+clearTimer2@43:11	clearTimer	去掉打包器加的数字后缀，恢复原名 clearTimer
+observer2@55:11	observer	去掉打包器加的数字后缀，恢复原名 observer
+entries2@55:49	entries	去掉打包器加的数字后缀，恢复原名 entries

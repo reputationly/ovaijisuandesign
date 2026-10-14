@@ -1,5 +1,7 @@
 // 技能页的小部件：同步横幅、标签说明气泡、创作者计划悬浮卡。
-import { useTranslation, reactExports, Info$1 as Info, Loader2 } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { Info$1 as Info, Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";

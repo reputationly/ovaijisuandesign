@@ -1,0 +1,6 @@
+key	新名	依据
+sid@17:11	sessionId	`sessionId` 是本次忙闲状态检查所针对的焦点会话标识。
+sid@27:13	sessionId	`sessionId` 是执行取消、清理待处理任务并重置状态的会话标识。
+r2@36:45	pendingReason	`pendingReason` 是用于记录取消原因的待处理交互条目。
+m3@54:21	message	`message` 是取消当前会话时需要标记为已解决的消息。
+send2@12:9	send	`send` 是标识值；末尾数字是打包器为避免重名添加的后缀。

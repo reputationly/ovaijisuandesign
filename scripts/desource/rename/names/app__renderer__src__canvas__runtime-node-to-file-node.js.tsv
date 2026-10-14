@@ -1,0 +1,6 @@
+key	old	new	依据
+n2@74:29	n2	node	graph.nodes.map 回调接收待转换为文件快照的运行时节点。
+e2@83:29	e2	edge	graph.edges.map 回调接收写入文件快照的运行时边。
+node2@4:32	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@4:39	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@70:48	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

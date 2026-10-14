@@ -17,13 +17,13 @@ function verticalClearanceViolation(rect, above, gap, margin) {
 }
 function groupRectsByRows(rects, tolerance) {
   if (rects.length === 0) return [];
-  const sorted = [...rects].sort((a2, b3) => a2.y - b3.y);
+  const sorted = [...rects].sort((firstRect, secondRect) => firstRect.y - secondRect.y);
   const rows = [];
   for (const rect of sorted) {
-    const match2 = rows.find((row) => Math.abs(row.y - rect.y) <= tolerance);
-    if (match2) {
-      match2.rects.push(rect);
-      match2.maxHeight = Math.max(match2.maxHeight, rect.h);
+    const match = rows.find((row) => Math.abs(row.y - rect.y) <= tolerance);
+    if (match) {
+      match.rects.push(rect);
+      match.maxHeight = Math.max(match.maxHeight, rect.h);
     } else {
       rows.push({
         y: rect.y,
@@ -32,7 +32,7 @@ function groupRectsByRows(rects, tolerance) {
       });
     }
   }
-  for (const row of rows) row.rects.sort((a2, b3) => a2.x - b3.x);
+  for (const row of rows) row.rects.sort((firstRect, secondRect) => firstRect.x - secondRect.x);
   return rows;
 }
 function rowFirstCandidate(occupied, newSize, gap, maxCols, rowTolerance) {

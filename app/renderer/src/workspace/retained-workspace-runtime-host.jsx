@@ -1,6 +1,9 @@
 // retained-workspace-runtime-host.jsx
 import { entries } from "../assets/credit-query-keys.jsx";
-import { HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, reactExports, useNavigate, useTranslation } from "../vendor.js";
+import { HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { resolveWorkspaceFailureDiagnosis } from "../canvas/resolve-workspace-failure-diagnosis.js";
@@ -30,33 +33,33 @@ import { useBundleStatus } from "../media-editing/use-bundle-status.js";
 import { IHiloApp } from "../settings/parse-custom-mcp-arguments.js";
 import { replaceVisiblePreviewTab } from "../infra/error-boundary.jsx";
 import { WorkspaceStage } from "./workspace-stage.jsx";
-function reportWorkspaceRetentionDiagnostics(workspaceId2, entry) {
-  entries.set(workspaceId2, entry);
+function reportWorkspaceRetentionDiagnostics(workspaceId, entry) {
+  entries.set(workspaceId, entry);
   return () => {
-    entries.delete(workspaceId2);
+    entries.delete(workspaceId);
   };
 }
-function useRetainInactiveWorkspaceContent(isActive2) {
+function useRetainInactiveWorkspaceContent(isActive) {
   return true;
 }
 function createWorkspaceResumeFailureStatus(
-  workspaceId2,
+  workspaceId,
   folderPath,
-  message2,
+  message,
 ) {
   return {
-    workspaceId: workspaceId2,
-    folderPath: folderPath ?? workspaceId2,
+    workspaceId,
+    folderPath: folderPath ?? workspaceId,
     state: "failed",
     revision: 0,
-    error: message2,
+    error: message,
     synthetic: true,
   };
 }
 function deriveWorkspaceRuntimeView(input) {
   const {
-    workspaceId: workspaceId2,
-    isActive: isActive2,
+    workspaceId,
+    isActive,
     runtime,
     status,
     lastRenderableStatus,
@@ -64,8 +67,8 @@ function deriveWorkspaceRuntimeView(input) {
     resumeFailureMessage,
   } = input;
   const activeRuntime =
-    runtime?.workspaceId === workspaceId2 ? runtime : void 0;
-  const activeStatus = status?.workspaceId === workspaceId2 ? status : void 0;
+    runtime?.workspaceId === workspaceId ? runtime : void 0;
+  const activeStatus = status?.workspaceId === workspaceId ? status : void 0;
   const liveGatewayStatus =
     activeStatus && isGatewayReady(activeStatus.state) ? activeStatus : void 0;
   const liveRenderableStatus =
@@ -83,7 +86,7 @@ function deriveWorkspaceRuntimeView(input) {
         : void 0;
   const retainedRenderableStatus =
     liveRenderableStatus ??
-    (lastRenderableStatus?.workspaceId === workspaceId2
+    (lastRenderableStatus?.workspaceId === workspaceId
       ? lastRenderableStatus
       : void 0);
   const canRenderRetainedContent =
@@ -94,7 +97,7 @@ function deriveWorkspaceRuntimeView(input) {
     !retainedRenderableStatus &&
     !failureStatus
       ? {
-          workspaceId: workspaceId2,
+          workspaceId,
           folderPath: activeRuntime.folderPath,
           state: "creating",
           revision: 0,
@@ -110,7 +113,7 @@ function deriveWorkspaceRuntimeView(input) {
   const statusUnavailableStatus =
     !activeStatus && canRenderRetainedContent
       ? createWorkspaceResumeFailureStatus(
-          workspaceId2,
+          workspaceId,
           activeRuntime?.folderPath,
           resumeFailureMessage,
         )
@@ -127,8 +130,8 @@ function deriveWorkspaceRuntimeView(input) {
             activeStatus.state === "stopped")
         ? activeStatus
         : statusUnavailableStatus);
-  const derived = (view2) => ({
-    view: view2,
+  const derived = (view) => ({
+    view,
     activeRuntime,
     activeStatus,
     liveRenderableStatus,
@@ -138,7 +141,7 @@ function deriveWorkspaceRuntimeView(input) {
   if (!activeRuntime) {
     if (failureStatus) {
       return derived(
-        isActive2
+        isActive
           ? {
               kind: "error",
               status: failureStatus,
@@ -149,11 +152,11 @@ function deriveWorkspaceRuntimeView(input) {
       );
     }
     return derived(
-      isActive2
+      isActive
         ? {
             kind: "loading",
             status: activeStatus ?? {
-              workspaceId: workspaceId2,
+              workspaceId,
               folderPath: "",
               state: "creating",
               revision: 0,
@@ -179,14 +182,14 @@ function deriveWorkspaceRuntimeView(input) {
 function toWorkspaceWsUrl(binding) {
   const protocol = binding.baseUrl.startsWith("https") ? "wss" : "ws";
   const host = binding.baseUrl.replace(/^https?:\/\//, "");
-  const url2 = new URL(`${protocol}://${host}/ws`);
-  url2.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, binding.claim);
-  url2.searchParams.set(HILO_WORKSPACE_INSTANCE_QUERY, binding.instanceId);
-  url2.searchParams.set(
+  const url = new URL(`${protocol}://${host}/ws`);
+  url.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, binding.claim);
+  url.searchParams.set(HILO_WORKSPACE_INSTANCE_QUERY, binding.instanceId);
+  url.searchParams.set(
     HILO_WORKSPACE_GENERATION_QUERY,
     String(binding.generation),
   );
-  return url2.toString();
+  return url.toString();
 }
 function resolveEffectiveWorkspaceRuntime({
   runtime,
@@ -210,8 +213,8 @@ function sameBinding(left, right) {
     left.generation === right.generation
   );
 }
-function resyncRuntimeGatewayBinding(prev, workspaceId2, nextBinding, options) {
-  if (!prev || prev.workspaceId !== workspaceId2) return prev;
+function resyncRuntimeGatewayBinding(prev, workspaceId, nextBinding, options) {
+  if (!prev || prev.workspaceId !== workspaceId) return prev;
   if (!nextBinding) return options?.dropWhenUnavailable ? void 0 : prev;
   if (prev.gatewayBinding && sameBinding(prev.gatewayBinding, nextBinding)) {
     return prev;
@@ -224,29 +227,29 @@ function resyncRuntimeGatewayBinding(prev, workspaceId2, nextBinding, options) {
     wsUrl: toWorkspaceWsUrl(nextBinding),
   };
 }
-function writeDiagnostic(level, message2) {
+function writeDiagnostic(level, message) {
   const logger = window.hilo?.logger;
   if (logger) {
     const write =
       level === "warn" ? logger.warn.bind(logger) : logger.info.bind(logger);
-    write(message2).catch(() => {
+    write(message).catch(() => {
       if (level === "warn") {
-        console.warn(message2);
+        console.warn(message);
       } else {
-        console.info(message2);
+        console.info(message);
       }
     });
     return;
   }
   if (level === "warn") {
-    console.warn(message2);
+    console.warn(message);
   } else {
-    console.info(message2);
+    console.info(message);
   }
 }
-function formatWorkspaceMatch(value, workspaceId2) {
+function formatWorkspaceMatch(value, workspaceId) {
   if (!value) return "unknown";
-  return String(value === workspaceId2);
+  return String(value === workspaceId);
 }
 function formatDiagnosticSnapshot(instanceId, input) {
   return [
@@ -342,17 +345,17 @@ function resolveWorkspaceActivationResult(result) {
   }
 }
 function WorkspaceRuntimeDegradedBanner({ status, retrying = false, onRetry }) {
-  const { i18n, t: t2 } = useTranslation();
+  const { i18n, t: translate } = useTranslation();
   const retryHintActive = useRetryHintActive(status.retryAfter?.blockedUntilMs);
   const diagnosis = resolveWorkspaceFailureDiagnosis(
     status.diagnosis?.code,
-    t2,
+    translate,
     i18n.language,
   );
-  const errorMessage2 =
+  const errorMessage =
     diagnosis?.message ??
     status.error ??
-    t2("workspace.runtimeDegraded.description", {
+    translate("workspace.runtimeDegraded.description", {
       defaultValue:
         "Workspace, canvas, chat history, and assets stay visible. Chat is paused until the local runtime reconnects.",
     });
@@ -360,14 +363,14 @@ function WorkspaceRuntimeDegradedBanner({ status, retrying = false, onRetry }) {
     <div className="pointer-events-none absolute inset-x-3 top-3 z-30 flex justify-center">
       <div className="elevated-surface-border pointer-events-auto max-w-2xl rounded-lg bg-popover/95 px-3 py-2 text-xs text-muted-foreground shadow-sm backdrop-blur">
         <div className="font-medium text-foreground">
-          {t2("workspace.runtimeDegraded.title", {
+          {translate("workspace.runtimeDegraded.title", {
             defaultValue: "Local runtime is recovering",
           })}
         </div>
-        <div className="mt-0.5">{errorMessage2}</div>
+        <div className="mt-0.5">{errorMessage}</div>
         {retryHintActive ? (
           <div className="mt-1">
-            {t2("workspace.runtimeDegraded.retryHint", {
+            {translate("workspace.runtimeDegraded.retryHint", {
               defaultValue:
                 "The runtime protection circuit is cooling down. Retry remains available and will not clear the current workspace view.",
             })}
@@ -383,10 +386,10 @@ function WorkspaceRuntimeDegradedBanner({ status, retrying = false, onRetry }) {
           >
             <RetryIcon />
             {retrying
-              ? t2("workspace.runtimeDegraded.retrying", {
+              ? translate("workspace.runtimeDegraded.retrying", {
                   defaultValue: "Retrying...",
                 })
-              : t2("common.retry")}
+              : translate("common.retry")}
           </Button>
         ) : null}
       </div>
@@ -394,8 +397,8 @@ function WorkspaceRuntimeDegradedBanner({ status, retrying = false, onRetry }) {
   );
 }
 export function RetainedWorkspaceRuntimeHost({
-  workspaceId: workspaceId2,
-  isActive: isActive2,
+  workspaceId,
+  isActive,
   initialPayloadId,
   initialMessage,
   initialAttachments,
@@ -411,9 +414,9 @@ export function RetainedWorkspaceRuntimeHost({
   menuAction,
   assetCenterRelocation,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const navigate = useNavigate();
-  const stageLayout = useWorkspaceStageLayout(workspaceId2, isActive2);
+  const stageLayout = useWorkspaceStageLayout(workspaceId, isActive);
   const [runtime, setRuntime] = reactExports.useState(void 0);
   const [lastRenderableStatus, setLastRenderableStatus] =
     reactExports.useState(void 0);
@@ -421,58 +424,58 @@ export function RetainedWorkspaceRuntimeHost({
   const [retrying, setRetrying] = reactExports.useState(false);
   const resumeFailureMessage = reactExports.useMemo(
     () =>
-      t2("bundleError.resumeFailed", {
+      translate("bundleError.resumeFailed", {
         defaultValue:
           "Workspace recovery failed. Your workspace data is still safe; retry to restart the local runtime.",
       }),
-    [t2],
+    [translate],
   );
   const [activationFailureStatus, setActivationFailureStatus] =
     reactExports.useState(void 0);
   const [retryCount, setRetryCount] = reactExports.useState(0);
   const lastReportedRetainedDegradedRef = reactExports.useRef(void 0);
   const retainContent = useRetainInactiveWorkspaceContent();
-  const status = useBundleStatus(workspaceId2, statusRefreshKey, {
-    enabled: isActive2 || runtime !== void 0,
+  const status = useBundleStatus(workspaceId, statusRefreshKey, {
+    enabled: isActive || runtime !== void 0,
   });
   const latestStatusStateRef = reactExports.useRef(void 0);
   latestStatusStateRef.current =
-    status?.workspaceId === workspaceId2 ? status.state : void 0;
+    status?.workspaceId === workspaceId ? status.state : void 0;
   reactExports.useEffect(() => {
     const notice = status?.recoveryNotice;
     if (!shouldAnnounceRecoveryNotice(notice)) return;
     if (notice.kind === "opencode_db_rebuilt") {
-      dedupedToast.warning(t2("workspace.recovery.dbRebuilt.title"), {
-        description: t2("workspace.recovery.dbRebuilt.description"),
+      dedupedToast.warning(translate("workspace.recovery.dbRebuilt.title"), {
+        description: translate("workspace.recovery.dbRebuilt.description"),
         duration: 12e3,
       });
     }
-  }, [status?.recoveryNotice, t2]);
+  }, [status?.recoveryNotice, translate]);
   reactExports.useEffect(() => {
-    setRuntime((prev) => (prev?.workspaceId === workspaceId2 ? prev : void 0));
+    setRuntime((prev) => (prev?.workspaceId === workspaceId ? prev : void 0));
     setLastRenderableStatus((prev) =>
-      prev?.workspaceId === workspaceId2 ? prev : void 0,
+      prev?.workspaceId === workspaceId ? prev : void 0,
     );
     setActivationFailureStatus(void 0);
     lastReportedRetainedDegradedRef.current = void 0;
     let disposed = false;
     const lastState = latestStatusStateRef.current;
     const resumingFromDeadHandle = shouldRefreshStatusOnResume(
-      isActive2,
+      isActive,
       lastState,
     );
-    const hiloApp2 = instantiationService.invokeFunction((accessor) =>
+    const hiloApp = instantiationService.invokeFunction((accessor) =>
       accessor.get(IHiloApp),
     );
-    const activationPromise = isActive2
-      ? hiloApp2
-          .activateWorkspaceWithResult(workspaceId2)
+    const activationPromise = isActive
+      ? hiloApp
+          .activateWorkspaceWithResult(workspaceId)
           .then(resolveWorkspaceActivationResult)
-      : hiloApp2.getWorkspaceRuntime(workspaceId2).then((runtime2) =>
-          runtime2
+      : hiloApp.getWorkspaceRuntime(workspaceId).then((runtime) =>
+          runtime
             ? {
                 kind: "runtime",
-                runtime: runtime2,
+                runtime,
               }
             : {
                 kind: "inactive",
@@ -482,10 +485,10 @@ export function RetainedWorkspaceRuntimeHost({
       .then((resolution) => {
         if (disposed) return;
         if (resolution.kind === "soft_failure") {
-          toastWorkspaceOpenResult(resolution.result, t2);
+          toastWorkspaceOpenResult(resolution.result, translate);
           setActivationFailureStatus(void 0);
-          if (isActive2 && resolution.returnHome) {
-            void hiloApp2.activateHome();
+          if (isActive && resolution.returnHome) {
+            void hiloApp.activateHome();
             void navigate({
               to: "/",
             });
@@ -493,18 +496,18 @@ export function RetainedWorkspaceRuntimeHost({
           return;
         }
         if (resolution.kind === "runtime") {
-          const next2 = resolution.runtime;
-          setRuntime(next2);
+          const next = resolution.runtime;
+          setRuntime(next);
           setActivationFailureStatus(void 0);
-          if (isActive2) requestRecentWorkspacesRefresh();
-          if (isActive2 && next2.workspaceId !== workspaceId2) {
-            replaceVisiblePreviewTab(workspaceId2, {
-              workspaceId: next2.workspaceId,
-              folderPath: next2.folderPath,
+          if (isActive) requestRecentWorkspacesRefresh();
+          if (isActive && next.workspaceId !== workspaceId) {
+            replaceVisiblePreviewTab(workspaceId, {
+              workspaceId: next.workspaceId,
+              folderPath: next.folderPath,
             });
             void navigate({
               to: "/workspace",
-              search: buildWorkspaceSearch(next2.workspaceId, {
+              search: buildWorkspaceSearch(next.workspaceId, {
                 initialPayloadId,
                 initialMessage,
                 initialAttachments,
@@ -523,14 +526,14 @@ export function RetainedWorkspaceRuntimeHost({
             });
           }
           if (resumingFromDeadHandle) {
-            setStatusRefreshKey((key2) => key2 + 1);
+            setStatusRefreshKey((key) => key + 1);
           }
           return;
         }
-        if (isActive2 && resolution.kind === "startup_failure") {
+        if (isActive && resolution.kind === "startup_failure") {
           setActivationFailureStatus(
             createWorkspaceResumeFailureStatus(
-              workspaceId2,
+              workspaceId,
               void 0,
               resumeFailureMessage,
             ),
@@ -539,10 +542,10 @@ export function RetainedWorkspaceRuntimeHost({
       })
       .catch((err) => {
         if (disposed) return;
-        if (isActive2) {
+        if (isActive) {
           setActivationFailureStatus(
             createWorkspaceResumeFailureStatus(
-              workspaceId2,
+              workspaceId,
               void 0,
               resumeFailureMessage,
             ),
@@ -561,9 +564,9 @@ export function RetainedWorkspaceRuntimeHost({
       disposed = true;
     };
   }, [
-    workspaceId2,
-    isActive2,
-    t2,
+    workspaceId,
+    isActive,
+    translate,
     resumeFailureMessage,
     navigate,
     initialPayloadId,
@@ -585,12 +588,12 @@ export function RetainedWorkspaceRuntimeHost({
     const inFlight = recoverInFlightRef.current;
     if (inFlight) return inFlight;
     const attempt = (async () => {
-      const hiloApp2 = instantiationService.invokeFunction((accessor) =>
+      const hiloApp = instantiationService.invokeFunction((accessor) =>
         accessor.get(IHiloApp),
       );
-      const next2 = await hiloApp2.getWorkspaceRuntime(workspaceId2);
-      if (next2?.gatewayBinding) {
-        const nextBinding = next2.gatewayBinding;
+      const next = await hiloApp.getWorkspaceRuntime(workspaceId);
+      if (next?.gatewayBinding) {
+        const nextBinding = next.gatewayBinding;
         setRuntime((prev) => {
           const prevBinding = prev?.gatewayBinding;
           if (
@@ -602,12 +605,12 @@ export function RetainedWorkspaceRuntimeHost({
           ) {
             return prev;
           }
-          return next2;
+          return next;
         });
         return nextBinding;
       }
-      if (isActive2 === false) return void 0;
-      const result = await hiloApp2.activateWorkspaceWithResult(workspaceId2);
+      if (isActive === false) return void 0;
+      const result = await hiloApp.activateWorkspaceWithResult(workspaceId);
       const resumed = result ? workspaceRuntimeFromOpenResult(result) : void 0;
       if (!resumed?.gatewayBinding) return void 0;
       setRuntime(resumed);
@@ -617,68 +620,68 @@ export function RetainedWorkspaceRuntimeHost({
       recoverInFlightRef.current = null;
     });
     return recoverInFlightRef.current;
-  }, [workspaceId2, isActive2]);
+  }, [workspaceId, isActive]);
   reactExports.useEffect(() => {
-    if (!workspaceId2) return;
-    const hiloApp2 = instantiationService.invokeFunction((accessor) =>
+    if (!workspaceId) return;
+    const hiloApp = instantiationService.invokeFunction((accessor) =>
       accessor.get(IHiloApp),
     );
-    const disposable = hiloApp2.onWorkspaceEntriesChanged((entries2) => {
-      const entry = entries2.find((e2) => e2.workspaceId === workspaceId2);
-      if (!isActive2 && !entry?.gatewayUrl) {
-        workspaceEvents.clearSubscribersReady(workspaceId2);
+    const disposable = hiloApp.onWorkspaceEntriesChanged((entries) => {
+      const entry = entries.find((workspaceEntry) => workspaceEntry.workspaceId === workspaceId);
+      if (!isActive && !entry?.gatewayUrl) {
+        workspaceEvents.clearSubscribersReady(workspaceId);
       }
-      if (isActive2 && !entry?.gatewayBinding) {
-        void hiloApp2
+      if (isActive && !entry?.gatewayBinding) {
+        void hiloApp
           .listWorkspaceLifecycleStates()
           .then(async (states) => {
-            if (states[workspaceId2] !== "suspended") return;
+            if (states[workspaceId] !== "suspended") return;
             await recoverWorkspaceBinding();
           })
           .catch(() => {});
       }
       setRuntime((prev) =>
-        resyncRuntimeGatewayBinding(prev, workspaceId2, entry?.gatewayBinding, {
-          dropWhenUnavailable: !isActive2,
+        resyncRuntimeGatewayBinding(prev, workspaceId, entry?.gatewayBinding, {
+          dropWhenUnavailable: !isActive,
         }),
       );
     });
     return () => {
       disposable.dispose();
     };
-  }, [isActive2, workspaceId2, recoverWorkspaceBinding]);
+  }, [isActive, workspaceId, recoverWorkspaceBinding]);
   const retryWorkspace = reactExports.useCallback(async () => {
     if (retrying) return;
     setRetrying(true);
     setActivationFailureStatus(void 0);
-    setRetryCount((c3) => c3 + 1);
+    setRetryCount((retryCount) => retryCount + 1);
     try {
-      const hiloApp2 = instantiationService.invokeFunction((accessor) =>
+      const hiloApp = instantiationService.invokeFunction((accessor) =>
         accessor.get(IHiloApp),
       );
-      const result = await hiloApp2.retryWorkspaceWithResult(workspaceId2);
-      const next2 = workspaceRuntimeFromOpenResult(result);
-      if (!next2) {
-        toastWorkspaceOpenResult(result, t2);
-        await hiloApp2.activateHome();
+      const result = await hiloApp.retryWorkspaceWithResult(workspaceId);
+      const next = workspaceRuntimeFromOpenResult(result);
+      if (!next) {
+        toastWorkspaceOpenResult(result, translate);
+        await hiloApp.activateHome();
         void navigate({
           to: "/",
         });
         return;
       } else {
         setActivationFailureStatus(void 0);
-        setRuntime(next2);
+        setRuntime(next);
       }
-      setStatusRefreshKey((key2) => key2 + 1);
+      setStatusRefreshKey((key) => key + 1);
     } catch (err) {
       setActivationFailureStatus(
         createWorkspaceResumeFailureStatus(
-          workspaceId2,
+          workspaceId,
           void 0,
           resumeFailureMessage,
         ),
       );
-      setStatusRefreshKey((key2) => key2 + 1);
+      setStatusRefreshKey((key) => key + 1);
       const detail =
         err instanceof Error ? (err.stack ?? err.message) : String(err);
       const msg = `[workspace] retryWorkspace failed: ${detail}`;
@@ -690,17 +693,17 @@ export function RetainedWorkspaceRuntimeHost({
     } finally {
       setRetrying(false);
     }
-  }, [workspaceId2, retrying, t2, resumeFailureMessage, navigate]);
+  }, [workspaceId, retrying, translate, resumeFailureMessage, navigate]);
   const {
-    view: view2,
+    view,
     activeRuntime,
     activeStatus,
     liveRenderableStatus,
     canRenderRetainedContent,
     runtimeIssueStatus,
   } = deriveWorkspaceRuntimeView({
-    workspaceId: workspaceId2,
-    isActive: isActive2,
+    workspaceId,
+    isActive,
     runtime,
     status,
     lastRenderableStatus,
@@ -712,9 +715,9 @@ export function RetainedWorkspaceRuntimeHost({
     setLastRenderableStatus(liveRenderableStatus);
   }, [liveRenderableStatus]);
   useWorkspaceRuntimeViewDiagnostics({
-    workspaceId: workspaceId2,
-    isActive: isActive2,
-    viewKind: view2.kind,
+    workspaceId,
+    isActive,
+    viewKind: view.kind,
     runtime,
     status,
     activeRuntime,
@@ -726,7 +729,7 @@ export function RetainedWorkspaceRuntimeHost({
     statusRefreshKey,
   });
   reactExports.useEffect(() => {
-    if (!isActive2 || !runtimeIssueStatus || !canRenderRetainedContent) return;
+    if (!isActive || !runtimeIssueStatus || !canRenderRetainedContent) return;
     const reportKey = [
       runtimeIssueStatus.state,
       runtimeIssueStatus.revision,
@@ -734,16 +737,16 @@ export function RetainedWorkspaceRuntimeHost({
     ].join(":");
     if (lastReportedRetainedDegradedRef.current === reportKey) return;
     lastReportedRetainedDegradedRef.current = reportKey;
-    const msg = `[workspace] runtime degraded; retaining visible workspace content workspace=${workspaceId2} state=${runtimeIssueStatus.state} diagnosis=${runtimeIssueStatus.diagnosis?.code ?? "unknown"}`;
+    const msg = `[workspace] runtime degraded; retaining visible workspace content workspace=${workspaceId} state=${runtimeIssueStatus.state} diagnosis=${runtimeIssueStatus.diagnosis?.code ?? "unknown"}`;
     if (window.hilo?.logger) {
       window.hilo.logger.warn(msg).catch(() => console.warn(msg));
     } else {
       console.warn(msg);
     }
-  }, [canRenderRetainedContent, isActive2, runtimeIssueStatus, workspaceId2]);
+  }, [canRenderRetainedContent, isActive, runtimeIssueStatus, workspaceId]);
   reactExports.useEffect(() => {
-    return reportWorkspaceRetentionDiagnostics(workspaceId2, {
-      isActive: isActive2,
+    return reportWorkspaceRetentionDiagnostics(workspaceId, {
+      isActive,
       retainContent,
       hasRuntime: activeRuntime !== void 0,
       statusState: activeStatus?.state,
@@ -751,33 +754,33 @@ export function RetainedWorkspaceRuntimeHost({
   }, [
     activeRuntime,
     activeStatus?.state,
-    isActive2,
+    isActive,
     retainContent,
-    workspaceId2,
+    workspaceId,
   ]);
-  if (view2.kind === "none") {
+  if (view.kind === "none") {
     return null;
   }
-  if (view2.kind === "error") {
+  if (view.kind === "error") {
     return (
       <BundleErrorScreen
-        status={view2.status}
+        status={view.status}
         retrying={retrying}
         retryCount={retryCount}
         onRetry={retryWorkspace}
       />
     );
   }
-  if (view2.kind === "loading") {
+  if (view.kind === "loading") {
     const chatVisible = stageLayout.stageState.workspaceMode !== "canvasOnly";
     const canvasVisible = stageLayout.stageState.workspaceMode !== "chatOnly";
     return (
       <div
-        className={isActive2 ? "relative flex h-full w-full" : "hidden"}
-        data-workspace-runtime-pending={workspaceId2}
+        className={isActive ? "relative flex h-full w-full" : "hidden"}
+        data-workspace-runtime-pending={workspaceId}
       >
         <WorkspaceStage
-          isActive={isActive2}
+          isActive={isActive}
           paneOrder={stageLayout.stageState.paneOrder}
           chatVisible={chatVisible}
           canvasVisible={canvasVisible}
@@ -791,7 +794,7 @@ export function RetainedWorkspaceRuntimeHost({
               data-chat-loading-motion="breathe"
             >
               <ChatHistoryLoadingState
-                label={t2(
+                label={translate(
                   "chat.starting.placeholder",
                   "Agent is getting ready...",
                 )}
@@ -810,7 +813,7 @@ export function RetainedWorkspaceRuntimeHost({
                   order: 0,
                 }}
               >
-                <CanvasLoadingState label={t2("a11y.loading")} />
+                <CanvasLoadingState label={translate("a11y.loading")} />
               </div>
               {stageLayout.stageState.filesMode === "docked" ? (
                 <div
@@ -829,8 +832,8 @@ export function RetainedWorkspaceRuntimeHost({
       </div>
     );
   }
-  const renderableStatus = view2.renderableStatus;
-  const contentRuntime = view2.runtime;
+  const renderableStatus = view.renderableStatus;
+  const contentRuntime = view.runtime;
   const effectiveRuntime = resolveEffectiveWorkspaceRuntime({
     runtime: contentRuntime,
     renderableStatus,
@@ -838,7 +841,7 @@ export function RetainedWorkspaceRuntimeHost({
   });
   return (
     <div
-      className={isActive2 ? "relative flex h-full w-full" : "hidden"}
+      className={isActive ? "relative flex h-full w-full" : "hidden"}
       data-workspace-runtime-id={effectiveRuntime.workspaceId}
     >
       <GatewayScopeProvider
@@ -857,7 +860,7 @@ export function RetainedWorkspaceRuntimeHost({
           status={renderableStatus}
           stageLayout={stageLayout}
           runtimeUnavailable={runtimeIssueStatus !== void 0}
-          isActive={isActive2}
+          isActive={isActive}
           initialPayloadId={initialPayloadId}
           initialMessage={initialMessage}
           initialAttachments={initialAttachments}
@@ -867,14 +870,14 @@ export function RetainedWorkspaceRuntimeHost({
           initialComfyUiWorkflowId={initialComfyUiWorkflowId}
           initialComfyUiWorkflowTarget={initialComfyUiWorkflowTarget}
           onInitialMessageSent={onInitialMessageSent}
-          skillPrompt={isActive2 ? skillPrompt : void 0}
-          skillName={isActive2 ? skillName : void 0}
-          pluginId={isActive2 ? pluginId : void 0}
-          menuAction={isActive2 ? menuAction : void 0}
-          assetCenterRelocation={isActive2 ? assetCenterRelocation : void 0}
+          skillPrompt={isActive ? skillPrompt : void 0}
+          skillName={isActive ? skillName : void 0}
+          pluginId={isActive ? pluginId : void 0}
+          menuAction={isActive ? menuAction : void 0}
+          assetCenterRelocation={isActive ? assetCenterRelocation : void 0}
         />
       </GatewayScopeProvider>
-      {runtimeIssueStatus && isActive2 ? (
+      {runtimeIssueStatus && isActive ? (
         <WorkspaceRuntimeDegradedBanner
           status={runtimeIssueStatus}
           retrying={retrying}

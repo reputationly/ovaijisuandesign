@@ -1,5 +1,9 @@
 // use-text-version-panel.jsx
-import { jsxRuntimeExports, Pencil, reactExports, Save, Trans, useTranslation } from "../vendor.js";
+import { Trans } from "react-i18next";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Pencil, Save } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   TEXT_VERSION_NOTE_MAX_CHARS,
@@ -33,13 +37,13 @@ import { Button } from "../canvas/node-shell-inner.jsx";
 import { useTextVersionPreview } from "./use-text-version-preview.jsx";
 import { useDiffReviewStore } from "./use-diff-review-store.js";
 import { selectAgentWriteSignalForNode } from "./annotation-gutter.jsx";
-async function sha256Hex(text2) {
+async function sha256Hex(text) {
   const subtle = globalThis.crypto?.subtle;
   if (!subtle) return null;
   try {
     const digest = await subtle.digest(
       "SHA-256",
-      new TextEncoder().encode(text2),
+      new TextEncoder().encode(text),
     );
     return Array.from(new Uint8Array(digest))
       .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -61,9 +65,9 @@ function useVersionBaselineDirtySync({
     if (!markDirty || !clearDirty || !getContent || !latestVersionHash) return;
     if (loading || saving) return;
     let cancelled = false;
-    void sha256Hex(getContent()).then((hash2) => {
-      if (cancelled || !hash2) return;
-      if (hash2 === latestVersionHash) clearDirty();
+    void sha256Hex(getContent()).then((hash) => {
+      if (cancelled || !hash) return;
+      if (hash === latestVersionHash) clearDirty();
       else markDirty();
     });
     return () => {
@@ -96,17 +100,17 @@ function TextVersionHistoryMenu({
   versions,
   labelOf,
   showCurrentTag,
-  disabled: disabled2,
+  disabled,
   onSelect,
   onRename,
 }) {
-  const { i18n, t: t2 } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger
-        title={t2("canvas.textVersion.historyTitle", "历史版本")}
-        disabled={disabled2}
+        title={t("canvas.textVersion.historyTitle", "历史版本")}
+        disabled={disabled}
         className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
         data-action-ui-id="canvas-text-version-history"
       >
@@ -119,17 +123,17 @@ function TextVersionHistoryMenu({
       >
         {versions.length === 0 ? (
           <div className="px-3 py-6 text-center text-[12px] opacity-60">
-            {t2("canvas.textVersion.empty", "暂无历史版本")}
+            {t("canvas.textVersion.empty", "暂无历史版本")}
           </div>
         ) : (
-          versions.map((version2, index2) => {
+          versions.map((version, index) => {
             const restoreSource =
-              version2.origin === "restore" && version2.restoredFromVersionId
+              version.origin === "restore" && version.restoredFromVersionId
                 ? versions.find(
-                    (source) => source.id === version2.restoredFromVersionId,
+                    (source) => source.id === version.restoredFromVersionId,
                   )
                 : void 0;
-            const storedNote = version2.note.trim();
+            const storedNote = version.note.trim();
             const isRestoreOperationNote =
               restoreSource &&
               (LEGACY_RESTORE_AUTO_NOTES.has(storedNote) ||
@@ -140,7 +144,7 @@ function TextVersionHistoryMenu({
               ? labelOf(restoreSource)
               : "";
             const displayNote = isRestoreOperationNote
-              ? t2(
+              ? t(
                   "canvas.textVersion.autoSnapshotTargetNote",
                   "还原「{{name}}」时自动保存",
                   {
@@ -150,27 +154,27 @@ function TextVersionHistoryMenu({
               : storedNote;
             return (
               <DropdownMenuItem
-                key={version2.id}
-                onClick={() => onSelect(version2)}
+                key={version.id}
+                onClick={() => onSelect(version)}
                 className="group/version shrink-0 flex-col items-start gap-0.5"
               >
                 <div className="flex w-full items-center gap-1.5">
                   <span className="min-w-0 flex-1 truncate">
-                    {labelOf(version2)}
+                    {labelOf(version)}
                   </span>
-                  {index2 === 0 && showCurrentTag && (
+                  {index === 0 && showCurrentTag && (
                     <span className="shrink-0 rounded bg-foreground px-1.5 py-0.5 text-[10px] leading-none text-background">
-                      {t2("canvas.textVersion.current", "当前")}
+                      {t("canvas.textVersion.current", "当前")}
                     </span>
                   )}
                   <button
                     type="button"
-                    title={t2("canvas.textVersion.name", "命名")}
-                    aria-label={t2("canvas.textVersion.name", "命名")}
+                    title={t("canvas.textVersion.name", "命名")}
+                    aria-label={t("canvas.textVersion.name", "命名")}
                     onClick={(event) => {
                       event.stopPropagation();
                       setOpen(false);
-                      onRename(version2);
+                      onRename(version);
                     }}
                     className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover/version:opacity-100"
                     data-action-ui-id="canvas-text-version-rename"
@@ -203,7 +207,7 @@ function TextVersionHistoryMenu({
                   </Tooltip>
                 )}
                 <span className="text-[11px] opacity-60">
-                  {formatVersionTimestamp(version2.createdAt, i18n.language)}
+                  {formatVersionTimestamp(version.createdAt, i18n.language)}
                 </span>
               </DropdownMenuItem>
             );
@@ -213,50 +217,50 @@ function TextVersionHistoryMenu({
     </DropdownMenu>
   );
 }
-function resolveTextVersionLabel(version2, position2, t2) {
-  const title = version2.title.trim();
+function resolveTextVersionLabel(version, position, t) {
+  const title = version.title.trim();
   if (title) return title;
-  if (version2.origin === "initial")
-    return t2("canvas.textVersion.initial", "初始版本");
-  if (version2.origin === "restore")
-    return t2("canvas.textVersion.autoSnapshot", "还原前的内容");
-  if (version2.origin === "agent")
-    return t2("canvas.textVersion.agentSnapshot", "Agent 修改前自动保存");
-  return t2("canvas.textVersion.unnamed", "版本 {{n}}", {
-    n: position2,
+  if (version.origin === "initial")
+    return t("canvas.textVersion.initial", "初始版本");
+  if (version.origin === "restore")
+    return t("canvas.textVersion.autoSnapshot", "还原前的内容");
+  if (version.origin === "agent")
+    return t("canvas.textVersion.agentSnapshot", "Agent 修改前自动保存");
+  return t("canvas.textVersion.unnamed", "版本 {{n}}", {
+    n: position,
   });
 }
 function useTextVersionLabeler(versions) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return reactExports.useMemo(() => {
     const numbers = textVersionNumbers(versions);
-    return (version2) =>
+    return (version) =>
       resolveTextVersionLabel(
-        version2,
-        numbers.get(version2.id) ?? versions.length + 1,
-        t2,
+        version,
+        numbers.get(version.id) ?? versions.length + 1,
+        t,
       );
-  }, [versions, t2]);
+  }, [versions, t]);
 }
 function NameTextVersionDialog({
-  version: version2,
+  version,
   fallbackLabel,
   saving,
   onClose,
   onConfirm,
   onGenerate,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [title, setTitle] = reactExports.useState("");
   const [note, setNote] = reactExports.useState("");
   const [noteSource, setNoteSource] = reactExports.useState("manual");
   const [generating, setGenerating] = reactExports.useState(false);
-  const versionId = version2?.id ?? null;
+  const versionId = version?.id ?? null;
   reactExports.useEffect(() => {
-    if (!version2) return;
-    setTitle(version2.title);
-    setNote(version2.note);
-    setNoteSource(version2.noteSource);
+    if (!version) return;
+    setTitle(version.title);
+    setNote(version.note);
+    setNoteSource(version.noteSource);
     setGenerating(false);
   }, [versionId]);
   const handleGenerate = async () => {
@@ -269,12 +273,12 @@ function NameTextVersionDialog({
         setNoteSource("ai");
       } else {
         dedupedToast.error(
-          t2("canvas.textVersion.aiNoteFailed", "AI 生成失败，请手动填写"),
+          t("canvas.textVersion.aiNoteFailed", "AI 生成失败，请手动填写"),
         );
       }
     } catch {
       dedupedToast.error(
-        t2("canvas.textVersion.aiNoteFailed", "AI 生成失败，请手动填写"),
+        t("canvas.textVersion.aiNoteFailed", "AI 生成失败，请手动填写"),
       );
     } finally {
       setGenerating(false);
@@ -282,22 +286,22 @@ function NameTextVersionDialog({
   };
   return (
     <Dialog
-      open={version2 !== null}
-      onOpenChange={(next2) => {
-        if (!next2) onClose();
+      open={version !== null}
+      onOpenChange={(next) => {
+        if (!next) onClose();
       }}
     >
       <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>
-            {t2("canvas.textVersion.nameTitle", "命名版本")}
+            {t("canvas.textVersion.nameTitle", "命名版本")}
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
               <Label htmlFor="text-version-title">
-                {t2("canvas.textVersion.titleLabel", "标题")}
+                {t("canvas.textVersion.titleLabel", "标题")}
               </Label>
               <button
                 type="button"
@@ -308,8 +312,8 @@ function NameTextVersionDialog({
               >
                 <Sparkles size={13} strokeWidth={1.5} aria-hidden="true" />
                 {generating
-                  ? t2("canvas.textVersion.aiNoteGenerating", "生成中…")
-                  : t2("canvas.textVersion.aiNote", "AI 一键填写")}
+                  ? t("canvas.textVersion.aiNoteGenerating", "生成中…")
+                  : t("canvas.textVersion.aiNote", "AI 一键填写")}
               </button>
             </div>
             <Input
@@ -317,25 +321,25 @@ function NameTextVersionDialog({
               value={title}
               maxLength={TEXT_VERSION_TITLE_MAX_CHARS}
               placeholder={fallbackLabel}
-              onChange={(e2) => setTitle(e2.target.value)}
+              onChange={(changeEvent) => setTitle(changeEvent.target.value)}
               data-action-ui-id="canvas-text-version-title"
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="text-version-note">
-              {t2("canvas.textVersion.noteLabel", "备注")}
+              {t("canvas.textVersion.noteLabel", "备注")}
             </Label>
             <textarea
               id="text-version-note"
               value={note}
               rows={4}
               maxLength={TEXT_VERSION_NOTE_MAX_CHARS}
-              placeholder={t2(
+              placeholder={t(
                 "canvas.textVersion.notePlaceholder",
                 "这个版本改了什么？",
               )}
-              onChange={(e2) => {
-                setNote(e2.target.value);
+              onChange={(changeEvent) => {
+                setNote(changeEvent.target.value);
                 setNoteSource("manual");
               }}
               className="w-full resize-none rounded-md border border-input bg-transparent px-2.5 py-2 text-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
@@ -345,7 +349,7 @@ function NameTextVersionDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={saving}>
-            {t2("canvas.cancel", "取消")}
+            {t("canvas.cancel", "取消")}
           </Button>
           <Button
             variant="default"
@@ -360,49 +364,49 @@ function NameTextVersionDialog({
             data-action-ui-id="canvas-text-version-confirm"
           >
             {saving
-              ? t2("canvas.textVersion.saving", "保存中…")
-              : t2("canvas.save", "保存")}
+              ? t("canvas.textVersion.saving", "保存中…")
+              : t("canvas.save", "保存")}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-function useTextVersions({ path: path2, nodeId, flushBeforeSave }) {
+function useTextVersions({ path, nodeId, flushBeforeSave }) {
   const { textVersions } = useCanvasBridge();
   const [versions, setVersions] = reactExports.useState([]);
   const [quota, setQuota] = reactExports.useState(void 0);
   const [loading, setLoading] = reactExports.useState(false);
   const [saving, setSaving] = reactExports.useState(false);
   const requestSeqRef = reactExports.useRef(0);
-  const available = !!textVersions && !!path2;
+  const available = !!textVersions && !!path;
   const refresh = reactExports.useCallback(async () => {
-    if (!textVersions || !path2) return;
-    const seq2 = requestSeqRef.current + 1;
-    requestSeqRef.current = seq2;
+    if (!textVersions || !path) return;
+    const seq = requestSeqRef.current + 1;
+    requestSeqRef.current = seq;
     setLoading(true);
     try {
-      const res = await textVersions.list(path2);
-      if (requestSeqRef.current !== seq2) return;
+      const res = await textVersions.list(path);
+      if (requestSeqRef.current !== seq) return;
       setVersions(res.versions);
       setQuota(res.quota);
     } catch {
-      if (requestSeqRef.current === seq2) setVersions([]);
+      if (requestSeqRef.current === seq) setVersions([]);
     } finally {
-      if (requestSeqRef.current === seq2) setLoading(false);
+      if (requestSeqRef.current === seq) setLoading(false);
     }
-  }, [textVersions, path2]);
+  }, [textVersions, path]);
   reactExports.useEffect(() => {
     void refresh();
   }, [refresh]);
   const save = reactExports.useCallback(
     async (input) => {
-      if (!textVersions || !path2) return null;
+      if (!textVersions || !path) return null;
       setSaving(true);
       try {
         await flushBeforeSave?.();
         const res = await textVersions.save({
-          path: path2,
+          path,
           ...(input?.title !== void 0
             ? {
                 title: input.title,
@@ -430,14 +434,14 @@ function useTextVersions({ path: path2, nodeId, flushBeforeSave }) {
         setSaving(false);
       }
     },
-    [textVersions, path2, nodeId, flushBeforeSave, refresh],
+    [textVersions, path, nodeId, flushBeforeSave, refresh],
   );
   const rename = reactExports.useCallback(
-    async (id2, patch2) => {
+    async (id, patch) => {
       if (!textVersions) return false;
       setSaving(true);
       try {
-        await textVersions.update(id2, patch2);
+        await textVersions.update(id, patch);
         await refresh();
         return true;
       } catch {
@@ -450,10 +454,10 @@ function useTextVersions({ path: path2, nodeId, flushBeforeSave }) {
   );
   const summarize = reactExports.useCallback(
     async (opts) => {
-      if (!textVersions || !path2) return null;
+      if (!textVersions || !path) return null;
       if (!opts?.versionId) await flushBeforeSave?.();
       const res = await textVersions.summarize({
-        path: path2,
+        path,
         ...(opts?.versionId
           ? {
               versionId: opts.versionId,
@@ -465,20 +469,20 @@ function useTextVersions({ path: path2, nodeId, flushBeforeSave }) {
         note: res.note,
       };
     },
-    [textVersions, path2, flushBeforeSave],
+    [textVersions, path, flushBeforeSave],
   );
-  const remove2 = reactExports.useCallback(
-    async (id2) => {
+  const remove = reactExports.useCallback(
+    async (id) => {
       if (!textVersions) return;
-      await textVersions.remove(id2);
+      await textVersions.remove(id);
       await refresh();
     },
     [textVersions, refresh],
   );
   const setPinned = reactExports.useCallback(
-    async (id2, pinned) => {
+    async (id, pinned) => {
       if (!textVersions) return;
-      await textVersions.update(id2, {
+      await textVersions.update(id, {
         pinned,
       });
       await refresh();
@@ -495,35 +499,35 @@ function useTextVersions({ path: path2, nodeId, flushBeforeSave }) {
     save,
     rename,
     summarize,
-    remove: remove2,
+    remove,
     setPinned,
   };
 }
-function shouldDisableVersionSave(state2) {
-  if (state2.dirty === void 0) return false;
-  return !state2.dirty && state2.hasVersions;
+function shouldDisableVersionSave(state) {
+  if (state.dirty === void 0) return false;
+  return !state.dirty && state.hasVersions;
 }
 function shouldShowCurrentVersionTag(dirty) {
   return dirty !== true;
 }
 export function useTextVersionPanel({
-  path: path2,
+  path,
   nodeId,
   flushBeforeSave,
   prepareForReplace,
-  disabled: disabled2,
+  disabled,
   dirty,
   getContent,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const versions = useTextVersions({
-    path: path2,
+    path,
     nodeId,
     flushBeforeSave,
   });
   const labelOf = useTextVersionLabeler(versions.versions);
-  const agentWriteSignal = useDiffReviewStore((state2) =>
-    selectAgentWriteSignalForNode(state2, nodeId),
+  const agentWriteSignal = useDiffReviewStore((state) =>
+    selectAgentWriteSignalForNode(state, nodeId),
   );
   const refreshVersions = versions.refresh;
   reactExports.useEffect(() => {
@@ -535,7 +539,7 @@ export function useTextVersionPanel({
   const namingVersion = reactExports.useMemo(
     () =>
       namingId
-        ? (versions.versions.find((v2) => v2.id === namingId) ?? null)
+        ? (versions.versions.find((version) => version.id === namingId) ?? null)
         : null,
     [namingId, versions.versions],
   );
@@ -543,13 +547,13 @@ export function useTextVersionPanel({
     try {
       const saved = await versions.save();
       if (!saved) {
-        dedupedToast.error(t2("canvas.textVersion.saveFailed", "保存版本失败"));
+        dedupedToast.error(t("canvas.textVersion.saveFailed", "保存版本失败"));
         return;
       }
       dirty?.clearDirty();
-      dedupedToast.success(t2("canvas.textVersion.saved", "已保存版本"), {
+      dedupedToast.success(t("canvas.textVersion.saved", "已保存版本"), {
         action: {
-          label: t2("canvas.textVersion.name", "命名"),
+          label: t("canvas.textVersion.name", "命名"),
           onClick: () => setNamingId(saved.id),
         },
         // Long enough to be a real offer rather than a flash the user has to
@@ -557,20 +561,20 @@ export function useTextVersionPanel({
         duration: 2e3,
       });
     } catch {
-      dedupedToast.error(t2("canvas.textVersion.saveFailed", "保存版本失败"));
+      dedupedToast.error(t("canvas.textVersion.saveFailed", "保存版本失败"));
     }
-  }, [versions, t2, dirty]);
+  }, [versions, t, dirty]);
   const handleConfirmName = reactExports.useCallback(
     async (input) => {
       if (!namingId) return;
-      const ok2 = await versions.rename(namingId, input);
-      if (!ok2) {
-        dedupedToast.error(t2("canvas.textVersion.saveFailed", "保存版本失败"));
+      const ok = await versions.rename(namingId, input);
+      if (!ok) {
+        dedupedToast.error(t("canvas.textVersion.saveFailed", "保存版本失败"));
         return;
       }
       setNamingId(null);
     },
-    [namingId, versions, t2],
+    [namingId, versions, t],
   );
   const handleGenerateName = reactExports.useCallback(
     () =>
@@ -594,7 +598,7 @@ export function useTextVersionPanel({
     () =>
       previewVersion
         ? versions.versions.findIndex(
-            (version2) => version2.id === previewVersion.id,
+            (version) => version.id === previewVersion.id,
           )
         : -1,
     [previewVersion, versions.versions],
@@ -646,7 +650,7 @@ export function useTextVersionPanel({
     dirty: dirty?.dirty,
     hasVersions: versions.versions.length > 0,
   });
-  const saveDisabled = disabled2 || versions.saving || saveDisabledForNoChanges;
+  const saveDisabled = disabled || versions.saving || saveDisabledForNoChanges;
   if (!versions.available) {
     return {
       toolbarButtons: null,
@@ -666,16 +670,16 @@ export function useTextVersionPanel({
           versions={versions.versions}
           labelOf={labelOf}
           showCurrentTag={shouldShowCurrentVersionTag(dirty?.dirty)}
-          disabled={disabled2}
+          disabled={disabled}
           onSelect={setPreviewVersion}
-          onRename={(version2) => setNamingId(version2.id)}
+          onRename={(version) => setNamingId(version.id)}
         />
         <button
           type="button"
           title={
             saveDisabledForNoChanges
-              ? t2("canvas.textVersion.saveNoChanges", "没有新的修改")
-              : t2("canvas.textVersion.saveTitle", "保存版本")
+              ? t("canvas.textVersion.saveNoChanges", "没有新的修改")
+              : t("canvas.textVersion.saveTitle", "保存版本")
           }
           disabled={saveDisabled}
           onClick={handleSave}

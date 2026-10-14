@@ -1,38 +1,33 @@
 // attachment-preview.jsx
-import {
-  AlertCircle,
-  AtSign,
-  Loader2,
-  reactExports,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AlertCircle, AtSign, Loader2, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Puzzle } from "../media-editing/package.jsx";
-import { AnnotationIcon$1 as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
+import { AnnotationIconArtwork as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
 import { isAnnotatableImage } from "./read-preview-text-response.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { getAttachmentSlotActions } from "../i18n/canvas-node-tools.jsx";
 import { FileChip } from "../generation/file-chip.jsx";
 import { isFileAttachment } from "../assets/classify-upload-error.js";
 export function AttachmentPreview({
-  active: active2 = true,
+  active = true,
   loadTextContent,
   attachments,
-  onRemove: onRemove2,
+  onRemove,
   onReplace,
   onAnnotate,
   onRequestReplace,
   onLocate,
   replacingIds,
-  disabled: disabled2 = false,
+  disabled = false,
   replacementAccept,
   onSelect,
   failedAttachments: failedOverride,
   hiddenSources,
   readOnlySources,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const replacementInputRef = reactExports.useRef(null);
   const replacementTargetRef = reactExports.useRef(null);
   const chipRefs = reactExports.useRef(new Map());
@@ -42,7 +37,7 @@ export function AttachmentPreview({
     async (attachment) => {
       const slot = chipRefs.current.get(attachment.id);
       const anchor = slot?.querySelector("button") ?? slot;
-      if (!anchor || disabled2 || choosingId) return;
+      if (!anchor || disabled || choosingId) return;
       const openLocal = () => {
         replacementTargetRef.current = {
           id: attachment.id,
@@ -59,7 +54,7 @@ export function AttachmentPreview({
         setChoosingId(null);
       }
     },
-    [disabled2, choosingId, onReplace, onRequestReplace],
+    [disabled, choosingId, onReplace, onRequestReplace],
   );
   const handleReplacementChange = reactExports.useCallback((event) => {
     const target = replacementTargetRef.current;
@@ -91,19 +86,19 @@ export function AttachmentPreview({
   );
   if (visibleAttachments.length === 0 && failedAttachments.length === 0)
     return null;
-  const uploadFailedShort = t2("chat.uploadFailedShort");
+  const uploadFailedShort = t("chat.uploadFailedShort");
   const failedSummary =
     failedAttachments.length === 1
-      ? t2("chat.uploadFailedFile", {
+      ? t("chat.uploadFailedFile", {
           name: failedAttachments[0]?.filename ?? "",
         })
-      : t2("chat.uploadFailedCount", {
+      : t("chat.uploadFailedCount", {
           count: failedAttachments.length,
         });
   const failedReason =
     failedAttachments.length === 1 && failedAttachments[0]?.error
       ? failedAttachments[0].error
-      : t2("chat.uploadFailedHint");
+      : t("chat.uploadFailedHint");
   return (
     <div
       data-message-input-attachment-preview="true"
@@ -112,20 +107,20 @@ export function AttachmentPreview({
       {visibleAttachments.length > 0 && (
         <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full pb-1">
           {visibleAttachments.map((att) => {
-            const isPluginNode2 = att.kind === "plugin-node";
-            const isImage2 = att.fileType === "image" && att.previewUrl;
+            const isPluginNode = att.kind === "plugin-node";
+            const isImage = att.fileType === "image" && att.previewUrl;
             const isFileCard =
-              !isPluginNode2 &&
-              !isImage2 &&
+              !isPluginNode &&
+              !isImage &&
               att.fileType !== "video" &&
               att.fileType !== "audio";
             const isMedia =
               (att.fileType === "video" || att.fileType === "audio") &&
               att.previewUrl;
-            const readOnly2 = isReadOnly(att);
-            const locked = disabled2 || replacingIds?.has(att.id) === true;
+            const readOnly = isReadOnly(att);
+            const locked = disabled || replacingIds?.has(att.id) === true;
             const errorText = att.error
-              ? t2("chat.uploadFailedWithReason", {
+              ? t("chat.uploadFailedWithReason", {
                   error: att.error,
                 })
               : uploadFailedShort;
@@ -133,7 +128,7 @@ export function AttachmentPreview({
             const actions = getAttachmentSlotActions({
               kind: att.fileType,
               ready: att.status === "done",
-              readOnly: readOnly2,
+              readOnly,
               busy: locked,
               canReference: Boolean(
                 onSelect && isFileAttachment(att) && att.relativePath,
@@ -145,11 +140,11 @@ export function AttachmentPreview({
             const selectable = actions.reference;
             const replaceable = actions.replace;
             const annotatable = Boolean(
-              !readOnly2 && !locked && onAnnotate && isAnnotatableImage(att),
+              !readOnly && !locked && onAnnotate && isAnnotatableImage(att),
             );
             const hoverAction = replaceable
               ? {
-                  label: t2("canvas.attachment.replace", {
+                  label: t("canvas.attachment.replace", {
                     defaultValue: "Replace",
                   }),
                   onClick: () => requestReplacement(att),
@@ -160,17 +155,17 @@ export function AttachmentPreview({
               <div
                 key={att.id}
                 data-attachment-id={att.id}
-                ref={(element2) => {
-                  if (element2) chipRefs.current.set(att.id, element2);
+                ref={(element) => {
+                  if (element) chipRefs.current.set(att.id, element);
                   else chipRefs.current.delete(att.id);
                 }}
                 className={cn(
                   "group relative h-16 min-w-0 max-w-[min(280px,100%)] shrink-0",
-                  (selectable || annotatable || !readOnly2) &&
+                  (selectable || annotatable || !readOnly) &&
                     "[&:hover_[data-slot-duration]]:invisible [&:hover_[data-slot-duration]]:delay-0 [&:focus-within_[data-slot-duration]]:invisible [&:focus-within_[data-slot-duration]]:delay-0",
                 )}
               >
-                {isPluginNode2 ? (
+                {isPluginNode ? (
                   <div
                     data-testid="plugin-node-chip"
                     className={cn(
@@ -189,7 +184,7 @@ export function AttachmentPreview({
                         {att.filename}
                       </span>
                       <span className="text-[10px] text-muted-foreground truncate">
-                        {t2("chat.pluginNodeChipMeta", {
+                        {t("chat.pluginNodeChipMeta", {
                           defaultValue: "画布插件",
                         })}
                       </span>
@@ -213,10 +208,10 @@ export function AttachmentPreview({
                   >
                     <FileChip
                       filename={att.filename}
-                      active={active2}
+                      active={active}
                       textPath={att.relativePath ?? void 0}
                       loadTextContent={loadTextContent}
-                      imageUrl={isImage2 ? att.previewUrl : void 0}
+                      imageUrl={isImage ? att.previewUrl : void 0}
                       mediaUrl={isMedia ? att.previewUrl : void 0}
                       videoThumbnailPath={att.relativePath ?? void 0}
                       fileSize={att.fileSize}
@@ -239,10 +234,10 @@ export function AttachmentPreview({
                 ) : (
                   <FileChip
                     filename={att.filename}
-                    active={active2}
+                    active={active}
                     textPath={att.relativePath ?? void 0}
                     loadTextContent={loadTextContent}
-                    imageUrl={isImage2 ? att.previewUrl : void 0}
+                    imageUrl={isImage ? att.previewUrl : void 0}
                     mediaUrl={isMedia ? att.previewUrl : void 0}
                     videoThumbnailPath={att.relativePath ?? void 0}
                     fileSize={att.fileSize}
@@ -286,11 +281,11 @@ export function AttachmentPreview({
                     type="button"
                     className={cn(
                       "absolute bottom-1 right-1 flex h-6 w-6 items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground",
-                      isImage2 || att.fileType === "video"
+                      isImage || att.fileType === "video"
                         ? "text-[var(--canvas-media-control-fg)]"
                         : "text-foreground",
                     )}
-                    aria-label={t2("canvas.reference.addReference")}
+                    aria-label={t("canvas.reference.addReference")}
                     data-action-ui-id="chat.attachment-reference"
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={() => onSelect?.(att)}
@@ -299,7 +294,7 @@ export function AttachmentPreview({
                       size={14}
                       strokeWidth={1.6}
                       style={
-                        isImage2 || att.fileType === "video"
+                        isImage || att.fileType === "video"
                           ? {
                               filter:
                                 "drop-shadow(var(--canvas-media-icon-shadow))",
@@ -313,21 +308,21 @@ export function AttachmentPreview({
                   <button
                     type="button"
                     className="absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-sm bg-[var(--attachment-annotation-background)] text-[var(--attachment-annotation-foreground)] opacity-0 shadow-sm transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100"
-                    aria-label={t2("chat.imageAnnotation.annotate")}
-                    title={t2("chat.imageAnnotation.annotate")}
+                    aria-label={t("chat.imageAnnotation.annotate")}
+                    title={t("chat.imageAnnotation.annotate")}
                     data-action-ui-id="chat-image-annotation-open"
                     onClick={() => onAnnotate?.(att)}
                   >
                     <AnnotationIcon size={14} aria-hidden={true} />
                   </button>
                 ) : null}
-                {!readOnly2 ? (
+                {!readOnly ? (
                   <button
                     type="button"
                     className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black/60 text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-black/80"
-                    aria-label={t2("common.remove")}
-                    disabled={disabled2}
-                    onClick={() => onRemove2(att.id)}
+                    aria-label={t("common.remove")}
+                    disabled={disabled}
+                    onClick={() => onRemove(att.id)}
                   >
                     <X size={10} />
                   </button>
@@ -368,10 +363,10 @@ export function AttachmentPreview({
               data-action-ui-id="attachment-remove-failed-btn"
               className="ml-auto shrink-0 rounded-md border border-destructive/30 px-2 py-1 text-[11px] leading-none hover:bg-destructive/10"
               onClick={() => {
-                for (const att of removableFailedAttachments) onRemove2(att.id);
+                for (const att of removableFailedAttachments) onRemove(att.id);
               }}
             >
-              {t2("chat.uploadRemoveFailed")}
+              {t("chat.uploadRemoveFailed")}
             </button>
           ) : null}
         </div>

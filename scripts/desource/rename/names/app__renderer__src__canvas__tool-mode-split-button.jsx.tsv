@@ -1,0 +1,6 @@
+key	old	new	依据
+id2@102:6	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+_2@189:11	_2	value	QuickZoomPresence 将保留的 value 作为第一个 children 参数传入，此处无需使用。
+mode2@16:62	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleKeyDown2@89:11	handleKeyDown2	handleKeyDown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@176:35	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

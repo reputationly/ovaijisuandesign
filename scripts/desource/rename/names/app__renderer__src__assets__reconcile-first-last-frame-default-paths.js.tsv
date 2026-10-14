@@ -1,0 +1,34 @@
+key	old	new	依据
+p3@26:14	p3	defaultPath	该路径是待合并进所选列表的默认资源路径。
+_2@42:6	_2	_unusedValue	该参数是 Array.from 生成的未使用占位元素。
+_2@87:23	_2	_unusedValue	该参数是查找空槽时未使用的数组元素。
+path2@4:29	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+name2@5:9	name2	fileName	该值是从路径末尾取得的文件名，用于解析扩展名。
+dot2@6:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+defaults2@22:45	defaults2	defaults	去掉打包器防重名追加的后缀，恢复原名 defaults，即该绑定持有的值。
+seen2@24:9	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+next2@25:7	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@38:9	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+index2@42:20	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+defaults2@48:59	defaults2	defaults	去掉打包器防重名追加的后缀，恢复原名 defaults，即该绑定持有的值。
+next2@70:9	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+seen2@71:9	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+path2@52:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+index2@52:13	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+path2@59:23	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@63:27	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@66:8	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+index2@66:15	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+path2@74:26	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+index2@74:33	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+path2@80:11	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+index2@87:37	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+path2@102:14	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@104:14	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+max2@115:3	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+count2@116:3	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+seen2@118:9	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+selected2@124:9	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+path2@121:38	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@140:32	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+meta2@141:14	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。

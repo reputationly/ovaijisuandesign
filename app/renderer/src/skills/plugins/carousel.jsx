@@ -1,6 +1,6 @@
 // 轮播组件（基于 embla-carousel 的封装）。
-import { reactExports } from "../../vendor.js";
-import { cn$2 as cn } from "../../infra/dialog-content.jsx";
+import reactExports from "react";
+import { mergeTailwindClasses as cn } from "../../infra/dialog-content.jsx";
 import useEmblaCarousel from "embla-carousel-react";
 import { __jsx } from "../../shared/jsx-runtime.js";
 const CarouselContext = reactExports.createContext(null);
@@ -29,10 +29,10 @@ export function Carousel({
   );
   const [canScrollPrev, setCanScrollPrev] = reactExports.useState(false);
   const [canScrollNext, setCanScrollNext] = reactExports.useState(false);
-  const onSelect = reactExports.useCallback((api2) => {
-    if (!api2) return;
-    setCanScrollPrev(api2.canScrollPrev());
-    setCanScrollNext(api2.canScrollNext());
+  const onSelect = reactExports.useCallback((api) => {
+    if (!api) return;
+    setCanScrollPrev(api.canScrollPrev());
+    setCanScrollNext(api.canScrollNext());
   }, []);
   const scrollPrev = reactExports.useCallback(() => {
     api?.scrollPrev();

@@ -1,5 +1,6 @@
 // use-skill-categories.js
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { getBaseUrl } from "../infra/gateway-http-error.jsx";
 import { PENDING_AUTO_UPDATE_KEY } from "./use-mention-models.jsx";
@@ -103,10 +104,10 @@ export function clearPendingAutoUpdate() {
 }
 
 export const filmArtwork =
-  "" + new URL("../graphic-design-vBqZO3xO.png", import.meta.url).href;
+  "" + new URL("../graphic-design.png", import.meta.url).href;
 
 export const shortDramaArtwork =
-  "" + new URL("../short-drama-BlgbvS1F.png", import.meta.url).href;
+  "" + new URL("../short-drama.png", import.meta.url).href;
 
 const TRUSTED_HOME_ASSET_HOSTS = new Set([
   "cdn.hailuoai.com",

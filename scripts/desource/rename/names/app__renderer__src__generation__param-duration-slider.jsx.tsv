@@ -1,0 +1,19 @@
+key	old	new	依据
+t2@16:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+disabled2@13:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+min2@22:9	min2	min	去掉打包器防重名追加的后缀，恢复原名 min，即该绑定持有的值。
+max2@23:9	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+numeric2@24:9	numeric2	numeric	去掉打包器防重名追加的后缀，恢复原名 numeric，即该绑定持有的值。
+previous2@27:9	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+next2@30:9	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+interval2@39:9	interval2	interval	去掉打包器防重名追加的后缀，恢复原名 interval，即该绑定持有的值。
+option2@20:37	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@28:14	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@30:33	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@31:23	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+mark2@43:12	mark2	mark	去掉打包器防重名追加的后缀，恢复原名 mark，即该绑定持有的值。
+next22@47:31	next22	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next22@53:11	next22	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next22@83:23	next22	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next22@123:25	next22	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+active2@150:17	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。

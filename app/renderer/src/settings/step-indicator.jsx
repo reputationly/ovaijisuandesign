@@ -1,70 +1,68 @@
 // step-indicator.jsx
-import {
-  Check,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Icon,
   Tooltip,
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
-function getStepLabelKey({ platform: platform2, state: state2, step }) {
-  if (state2 === "done") {
+import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
+function getStepLabelKey({ platform, state, step }) {
+  if (state === "done") {
     if (step === "scan")
-      return `settings.imBridge.addFlow.stepDone.scan.${platform2}`;
+      return `settings.imBridge.addFlow.stepDone.scan.${platform}`;
     if (step === "auth")
-      return `settings.imBridge.addFlow.stepDone.auth.${platform2}`;
+      return `settings.imBridge.addFlow.stepDone.auth.${platform}`;
   }
   return step === "scan"
-    ? `settings.imBridge.addFlow.step.scan.${platform2}`
+    ? `settings.imBridge.addFlow.step.scan.${platform}`
     : `settings.imBridge.addFlow.step.${step}`;
 }
-function StepHintContent({ platform: platform2, step }) {
-  const { t: t2 } = useTranslation();
+function StepHintContent({ platform, step }) {
+  const { t } = useTranslation();
   const hintKey =
     step === "scan"
-      ? `settings.imBridge.addFlow.stepHint.scan.${platform2}`
-      : `settings.imBridge.addFlow.stepHint.${step}.${platform2}`;
-  return <>{t2(hintKey)}</>;
+      ? `settings.imBridge.addFlow.stepHint.scan.${platform}`
+      : `settings.imBridge.addFlow.stepHint.${step}.${platform}`;
+  return <>{t(hintKey)}</>;
 }
 function StepIndicator({
-  platform: platform2,
+  platform,
   step,
   transitioningToStep,
   transitionLabel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const stepKeys =
-    platform2 === "feishu" ? ["scan", "auth", "done"] : ["scan", "done"];
+    platform === "feishu" ? ["scan", "auth", "done"] : ["scan", "done"];
   const activeIndex = Math.max(stepKeys.indexOf(step), 0);
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div className="flex items-center justify-center gap-3">
-        {stepKeys.map((key2, index2) => {
-          const state2 =
-            index2 < activeIndex
+        {stepKeys.map((key, index) => {
+          const state =
+            index < activeIndex
               ? "done"
-              : index2 === activeIndex
+              : index === activeIndex
                 ? "active"
                 : "pending";
-          const shouldPulse = state2 === "active" && key2 === "auth";
-          const shouldFlowLine = transitioningToStep === stepKeys[index2 + 1];
+          const shouldPulse = state === "active" && key === "auth";
+          const shouldFlowLine = transitioningToStep === stepKeys[index + 1];
           return (
-            <div key={key2} className="flex items-center gap-3">
+            <div key={key} className="flex items-center gap-3">
               <Tooltip>
                 <TooltipTrigger
                   render={
                     <span
                       className={cn(
                         "group/step relative isolate inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-1 text-[15px] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50",
-                        state2 === "active" && "font-medium text-foreground",
-                        state2 === "done" &&
+                        state === "active" && "font-medium text-foreground",
+                        state === "done" &&
                           "text-foreground/70 hover:text-foreground",
-                        state2 === "pending" &&
+                        state === "pending" &&
                           "text-muted-foreground hover:text-foreground",
                       )}
                     />
@@ -73,11 +71,11 @@ function StepIndicator({
                   <span
                     className={cn(
                       "relative isolate flex h-4 min-w-12 items-center justify-center rounded-full px-2 text-[10px] font-medium leading-none transition-colors",
-                      state2 === "active" &&
+                      state === "active" &&
                         "bg-foreground text-background group-hover/step:bg-foreground/90",
-                      state2 === "done" &&
+                      state === "done" &&
                         "min-w-8 bg-secondary text-foreground/70 group-hover/step:bg-secondary/80 group-hover/step:text-foreground",
-                      state2 === "pending" &&
+                      state === "pending" &&
                         "bg-secondary text-muted-foreground group-hover/step:bg-secondary/80",
                     )}
                   >
@@ -87,18 +85,18 @@ function StepIndicator({
                         className="absolute -inset-px -z-10 rounded-full border border-foreground/10 bg-foreground/[0.02] motion-safe:animate-[im-status-radar_3600ms_ease-out_infinite]"
                       />
                     )}
-                    {state2 === "done" ? (
+                    {state === "done" ? (
                       <Icon icon={Check} size="xs" strokeWidth={2} />
                     ) : (
-                      t2(`settings.imBridge.addFlow.stepOrdinal.${index2 + 1}`)
+                      t(`settings.imBridge.addFlow.stepOrdinal.${index + 1}`)
                     )}
                   </span>
                   <span className="leading-none">
-                    {t2(
+                    {t(
                       getStepLabelKey({
-                        platform: platform2,
-                        state: state2,
-                        step: key2,
+                        platform,
+                        state,
+                        step: key,
                       }),
                     )}
                   </span>
@@ -107,10 +105,10 @@ function StepIndicator({
                   side="top"
                   className="max-w-[260px] text-center leading-relaxed"
                 >
-                  <StepHintContent platform={platform2} step={key2} />
+                  <StepHintContent platform={platform} step={key} />
                 </TooltipContent>
               </Tooltip>
-              {index2 < stepKeys.length - 1 && (
+              {index < stepKeys.length - 1 && (
                 <span
                   className={cn(
                     "h-px w-16 bg-border",
@@ -127,7 +125,7 @@ function StepIndicator({
       {transitionLabel && (
         <p
           className="text-center text-[11px] leading-relaxed text-muted-foreground"
-          data-action-ui-id={`im-bridge.${platform2}.step-transition`}
+          data-action-ui-id={`im-bridge.${platform}.step-transition`}
         >
           {transitionLabel}
         </p>
@@ -136,17 +134,17 @@ function StepIndicator({
   );
 }
 export function AddFlowFrame({
-  platform: platform2,
+  platform,
   step,
-  children: children2,
+  children,
   layout = "dialog",
   onBack,
   onDialogHeaderChange,
   transitioningToStep,
   transitionLabel,
 }) {
-  const { t: t2 } = useTranslation();
-  const title = t2(`settings.imBridge.addFlow.title.${platform2}`);
+  const { t } = useTranslation();
+  const title = t(`settings.imBridge.addFlow.title.${platform}`);
   const onBackRef = reactExports.useRef(onBack);
   reactExports.useEffect(() => {
     onBackRef.current = onBack;
@@ -165,15 +163,15 @@ export function AddFlowFrame({
         "flex min-h-full flex-1 flex-col duration-150 animate-in fade-in-0 slide-in-from-right-4",
         layout === "settings" ? "gap-0 pt-5" : "gap-6",
       )}
-      data-action-ui-id={`im-bridge.${platform2}.flow`}
+      data-action-ui-id={`im-bridge.${platform}.flow`}
     >
       <StepIndicator
-        platform={platform2}
+        platform={platform}
         step={step}
         transitioningToStep={transitioningToStep}
         transitionLabel={transitionLabel}
       />
-      {children2}
+      {children}
     </div>
   );
 }

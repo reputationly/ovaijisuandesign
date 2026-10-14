@@ -26,39 +26,39 @@ import {
   stripContextPrefix,
 } from "../text-editor/build-asr-gateway-request.js";
 
-function trimRepeatedChildTranscriptPrefixes(messages2) {
+function trimRepeatedChildTranscriptPrefixes(messages) {
   const previousTranscriptByRenderKey = new Map();
   const trimmedMessages = [];
-  for (const message2 of messages2) {
-    if (message2.type !== "sub_agent") {
-      trimmedMessages.push(message2);
+  for (const message of messages) {
+    if (message.type !== "sub_agent") {
+      trimmedMessages.push(message);
       continue;
     }
-    const renderKey = message2.partId ?? message2.childSessionId;
+    const renderKey = message.partId ?? message.childSessionId;
     if (!renderKey) {
-      trimmedMessages.push(message2);
+      trimmedMessages.push(message);
       continue;
     }
-    const current2 = message2.subMessages ?? [];
-    const previous2 = previousTranscriptByRenderKey.get(renderKey);
-    previousTranscriptByRenderKey.set(renderKey, current2);
-    if (!previous2 || current2.length < previous2.length) {
-      trimmedMessages.push(message2);
+    const current = message.subMessages ?? [];
+    const previous = previousTranscriptByRenderKey.get(renderKey);
+    previousTranscriptByRenderKey.set(renderKey, current);
+    if (!previous || current.length < previous.length) {
+      trimmedMessages.push(message);
       continue;
     }
-    const repeatsPrevious = previous2.every(
-      (subMessage, index2) =>
+    const repeatsPrevious = previous.every(
+      (subMessage, index) =>
         subMessageSemanticKey(subMessage) ===
-        subMessageSemanticKey(current2[index2]),
+        subMessageSemanticKey(current[index]),
     );
     if (!repeatsPrevious) {
-      trimmedMessages.push(message2);
+      trimmedMessages.push(message);
       continue;
     }
-    const incrementalSubMessages = current2.slice(previous2.length);
+    const incrementalSubMessages = current.slice(previous.length);
     if (incrementalSubMessages.length > 0) {
       trimmedMessages.push({
-        ...message2,
+        ...message,
         subMessages: incrementalSubMessages,
       });
     }
@@ -66,25 +66,25 @@ function trimRepeatedChildTranscriptPrefixes(messages2) {
   return trimmedMessages;
 }
 
-function fillEmptySubAgentTaskDetails(messages2) {
+function fillEmptySubAgentTaskDetails(messages) {
   const pendingPromptBySubAgentKey = new Map();
-  return messages2.map((message2) => {
-    if (message2.type === "tool" && message2.content === "task") {
-      const key22 = message2.partId
-        ? subAgentHistoryPartId(message2.partId)
-        : message2.childSessionId;
-      const prompt2 = extractTaskDisplayPrompt(message2.toolArgs);
-      if (key22 && prompt2) pendingPromptBySubAgentKey.set(key22, prompt2);
-      return message2;
+  return messages.map((message) => {
+    if (message.type === "tool" && message.content === "task") {
+      const key = message.partId
+        ? subAgentHistoryPartId(message.partId)
+        : message.childSessionId;
+      const taskDisplayPrompt = extractTaskDisplayPrompt(message.toolArgs);
+      if (key && taskDisplayPrompt) pendingPromptBySubAgentKey.set(key, taskDisplayPrompt);
+      return message;
     }
-    if (message2.type !== "sub_agent") return message2;
-    const key2 = message2.partId ?? message2.childSessionId;
-    if (!key2) return message2;
-    const prompt = pendingPromptBySubAgentKey.get(key2);
-    pendingPromptBySubAgentKey.delete(key2);
-    if (!prompt || (message2.subMessages?.length ?? 0) > 0) return message2;
+    if (message.type !== "sub_agent") return message;
+    const key = message.partId ?? message.childSessionId;
+    if (!key) return message;
+    const prompt = pendingPromptBySubAgentKey.get(key);
+    pendingPromptBySubAgentKey.delete(key);
+    if (!prompt || (message.subMessages?.length ?? 0) > 0) return message;
     return {
-      ...message2,
+      ...message,
       subMessages: [
         {
           id: nextMessageId(),
@@ -98,64 +98,64 @@ function fillEmptySubAgentTaskDetails(messages2) {
 
 export function backendMessagesToChat(msgs) {
   const result = [];
-  for (const m3 of msgs) {
-    if (m3.type === "done") continue;
-    const identity2 = m3.runtimeMessageId
+  for (const backendMessage of msgs) {
+    if (backendMessage.type === "done") continue;
+    const identity = backendMessage.runtimeMessageId
       ? {
-          runtimeMessageId: m3.runtimeMessageId,
+          runtimeMessageId: backendMessage.runtimeMessageId,
         }
       : {};
-    switch (m3.type) {
+    switch (backendMessage.type) {
       case "tool_result": {
-        const toolIdx = findLastIndex(result, (r2) => r2.type === "tool");
+        const toolIdx = findLastIndex(result, (message) => message.type === "tool");
         if (toolIdx >= 0) {
-          const tool2 = result[toolIdx];
+          const tool = result[toolIdx];
           result[toolIdx] = {
-            ...tool2,
-            toolResult: m3.content,
+            ...tool,
+            toolResult: backendMessage.content,
           };
         }
         break;
       }
       case "text": {
-        const content2 = stripContextPrefix(m3.content);
-        if (m3.role === "user" && isCancelMarkerText(content2)) {
+        const content = stripContextPrefix(backendMessage.content);
+        if (backendMessage.role === "user" && isCancelMarkerText(content)) {
           const generationHandoffTargets =
-            m3.generationHandoffTargets ??
-            parseCanvasGenerationHandoffTargets(content2);
+            backendMessage.generationHandoffTargets ??
+            parseCanvasGenerationHandoffTargets(content);
           const hasCanvasContinuation =
             generationHandoffTargets.length > 0 ||
-            cancelMarkerHasCanvasContinuation(content2);
-          for (let i2 = result.length - 1; i2 >= 0; i2--) {
-            const r2 = result[i2];
-            if (r2.type === "text" && r2.role === "user") break;
-            if (r2.type === "sub_agent") {
-              result[i2] = {
-                ...r2,
+            cancelMarkerHasCanvasContinuation(content);
+          for (let index = result.length - 1; index >= 0; index--) {
+            const message = result[index];
+            if (message.type === "text" && message.role === "user") break;
+            if (message.type === "sub_agent") {
+              result[index] = {
+                ...message,
                 cancelled: true,
-                subMessages: r2.subMessages
+                subMessages: message.subMessages
                   ? attachHandoffTargetsToSubMessages(
-                      r2.subMessages,
+                      message.subMessages,
                       generationHandoffTargets,
                     )
-                  : r2.subMessages,
+                  : message.subMessages,
               };
-            } else if (r2.type === "tool" && r2.callID) {
-              const matches2 = generationHandoffTargets.filter(
-                (target) => target.tool_use_id === r2.callID,
+            } else if (message.type === "tool" && message.callID) {
+              const matches = generationHandoffTargets.filter(
+                (target) => target.tool_use_id === message.callID,
               );
-              if (matches2.length > 0) {
-                result[i2] = {
-                  ...r2,
+              if (matches.length > 0) {
+                result[index] = {
+                  ...message,
                   interruption: "canvas_continuation",
-                  generationHandoffTargets: matches2,
+                  generationHandoffTargets: matches,
                 };
               }
             }
           }
           result.push({
             id: nextMessageId(),
-            ...identity2,
+            ...identity,
             role: "agent",
             type: "cancelled",
             content: "",
@@ -168,48 +168,48 @@ export function backendMessagesToChat(msgs) {
           });
           break;
         }
-        const role = m3.role === "user" ? "user" : "agent";
+        const role = backendMessage.role === "user" ? "user" : "agent";
         result.push({
           id: nextMessageId(),
           role,
           type: "text",
-          content: content2,
+          content,
           agent: role === "user" ? void 0 : "main",
-          ...(role === "user" && m3.attachments?.length
+          ...(role === "user" && backendMessage.attachments?.length
             ? {
-                attachments: m3.attachments,
+                attachments: backendMessage.attachments,
               }
             : {}),
-          ...(role === "user" && m3.documentAnnotations?.length
+          ...(role === "user" && backendMessage.documentAnnotations?.length
             ? {
-                documentAnnotations: m3.documentAnnotations,
+                documentAnnotations: backendMessage.documentAnnotations,
               }
             : {}),
-          ...identity2,
+          ...identity,
         });
         break;
       }
       case "thinking":
         result.push({
           id: nextMessageId(),
-          ...identity2,
+          ...identity,
           role: "agent",
           type: "thinking",
-          content: m3.content,
-          thinkingContent: m3.content,
+          content: backendMessage.content,
+          thinkingContent: backendMessage.content,
           agent: "main",
         });
         break;
       case "error":
         if (
-          m3.error_code === ErrorCodes.CONTENT_POLICY_VIOLATION &&
-          m3.runtimeMessageId
+          backendMessage.error_code === ErrorCodes.CONTENT_POLICY_VIOLATION &&
+          backendMessage.runtimeMessageId
         ) {
           result.push({
             id: nextMessageId(),
             role: "agent",
             type: "withdrawn",
-            runtimeMessageId: m3.runtimeMessageId,
+            runtimeMessageId: backendMessage.runtimeMessageId,
             reason: ErrorCodes.CONTENT_POLICY_VIOLATION,
             content: "",
           });
@@ -217,32 +217,32 @@ export function backendMessagesToChat(msgs) {
         }
         result.push({
           id: nextMessageId(),
-          ...identity2,
+          ...identity,
           role: "agent",
           type: "error",
-          content: m3.content,
+          content: backendMessage.content,
         });
         break;
       case "tool_call": {
-        const toolStatus = mapToolStatus(m3.status);
-        if (m3.tool === "task") {
-          const childSessionId = m3.childSessionId;
+        const toolStatus = mapToolStatus(backendMessage.status);
+        if (backendMessage.tool === "task") {
+          const childSessionId = backendMessage.childSessionId;
           const taskMsg = {
             id: nextMessageId(),
-            ...identity2,
+            ...identity,
             role: "agent",
             type: "tool",
             content: "task",
-            partId: m3.taskPartId,
-            url: m3.args,
-            toolArgs: m3.args,
+            partId: backendMessage.taskPartId,
+            url: backendMessage.args,
+            toolArgs: backendMessage.args,
             toolStatus,
             agent: "main",
-            callID: m3.callID,
+            callID: backendMessage.callID,
             childSessionId,
           };
           const saIdx = findHistorySubAgentIndex(result, {
-            taskPartId: m3.taskPartId,
+            taskPartId: backendMessage.taskPartId,
             childSessionId,
             unresolvedOnly: true,
             matchAnyAgent: true,
@@ -256,84 +256,84 @@ export function backendMessagesToChat(msgs) {
         }
         result.push({
           id: nextMessageId(),
-          ...identity2,
+          ...identity,
           role: "agent",
           type: "tool",
-          content: m3.tool,
-          partId: m3.partId,
-          url: m3.args,
-          toolArgs: m3.args,
+          content: backendMessage.tool,
+          partId: backendMessage.partId,
+          url: backendMessage.args,
+          toolArgs: backendMessage.args,
           toolStatus,
           agent: "main",
-          callID: m3.callID,
+          callID: backendMessage.callID,
         });
         break;
       }
       case "file_added":
         break;
       case "sub_agent_text": {
-        const csId = m3.childSessionId;
-        let idx = findHistorySubAgentIndex(result, {
-          taskPartId: m3.taskPartId,
+        const csId = backendMessage.childSessionId;
+        let subAgentIndex = findHistorySubAgentIndex(result, {
+          taskPartId: backendMessage.taskPartId,
           childSessionId: csId,
-          agent: m3.agent,
+          agent: backendMessage.agent,
         });
-        if (idx === -1) {
+        if (subAgentIndex === -1) {
           result.push({
             ...createHistorySubAgentMessage(
-              m3.agent,
+              backendMessage.agent,
               csId,
-              m3.taskPartId,
+              backendMessage.taskPartId,
               true,
             ),
-            ...identity2,
+            ...identity,
           });
-          idx = result.length - 1;
+          subAgentIndex = result.length - 1;
         }
-        const sa = result[idx];
-        const subs = sa.subMessages ?? [];
+        const subAgentMessage = result[subAgentIndex];
+        const subs = subAgentMessage.subMessages ?? [];
         const lastSub = subs[subs.length - 1];
         if (
           lastSub?.type === "text" &&
-          !isRecoveredMessage(m3.content) &&
+          !isRecoveredMessage(backendMessage.content) &&
           !isRecoveredMessage(lastSub.content)
         ) {
           subs[subs.length - 1] = {
             ...lastSub,
-            content: lastSub.content + m3.content,
+            content: lastSub.content + backendMessage.content,
           };
         } else {
           subs.push({
             id: nextMessageId(),
             type: "text",
-            content: m3.content,
+            content: backendMessage.content,
           });
         }
-        result[idx] = {
-          ...sa,
+        result[subAgentIndex] = {
+          ...subAgentMessage,
           subMessages: subs,
         };
         break;
       }
       case "sub_agent_start": {
-        const csId = m3.childSessionId;
+        const csId = backendMessage.childSessionId;
         const existingIdx = findHistorySubAgentIndex(result, {
-          taskPartId: m3.taskPartId,
+          taskPartId: backendMessage.taskPartId,
           childSessionId: csId,
-          agent: m3.agent,
+          agent: backendMessage.agent,
         });
         const latestTaskIdx =
-          csId && !m3.taskPartId
+          csId && !backendMessage.taskPartId
             ? findLastIndex(
                 result,
-                (r2) =>
-                  r2.type === "tool" &&
-                  r2.content === "task" &&
-                  r2.childSessionId === csId,
+                (message) =>
+                  message.type === "tool" &&
+                  message.content === "task" &&
+                  message.childSessionId === csId,
               )
             : -1;
         const startsNewTaskInvocation =
-          !m3.taskPartId && existingIdx >= 0 && latestTaskIdx > existingIdx;
+          !backendMessage.taskPartId && existingIdx >= 0 && latestTaskIdx > existingIdx;
         if (existingIdx >= 0 && !startsNewTaskInvocation) {
           result[existingIdx] = {
             ...result[existingIdx],
@@ -343,22 +343,22 @@ export function backendMessagesToChat(msgs) {
         }
         result.push({
           ...createHistorySubAgentMessage(
-            m3.agent,
-            m3.childSessionId,
-            m3.taskPartId,
+            backendMessage.agent,
+            backendMessage.childSessionId,
+            backendMessage.taskPartId,
             false,
-            m3.task,
+            backendMessage.task,
           ),
-          ...identity2,
+          ...identity,
         });
         break;
       }
       case "sub_agent_end": {
-        const csId = m3.childSessionId;
+        const csId = backendMessage.childSessionId;
         const endIdx = findHistorySubAgentIndex(result, {
-          taskPartId: m3.taskPartId,
+          taskPartId: backendMessage.taskPartId,
           childSessionId: csId,
-          agent: m3.agent,
+          agent: backendMessage.agent,
           unresolvedOnly: true,
         });
         if (endIdx >= 0) {
@@ -370,121 +370,121 @@ export function backendMessagesToChat(msgs) {
         break;
       }
       case "sub_agent_tool_call": {
-        const csId = m3.childSessionId;
-        let idx = findHistorySubAgentIndex(result, {
-          taskPartId: m3.taskPartId,
+        const csId = backendMessage.childSessionId;
+        let subAgentIndex = findHistorySubAgentIndex(result, {
+          taskPartId: backendMessage.taskPartId,
           childSessionId: csId,
-          agent: m3.agent,
+          agent: backendMessage.agent,
         });
-        if (idx === -1) {
+        if (subAgentIndex === -1) {
           result.push({
             ...createHistorySubAgentMessage(
-              m3.agent,
+              backendMessage.agent,
               csId,
-              m3.taskPartId,
+              backendMessage.taskPartId,
               true,
             ),
-            ...identity2,
+            ...identity,
           });
-          idx = result.length - 1;
+          subAgentIndex = result.length - 1;
         }
-        const sa = result[idx];
-        const toolName2 = serverToolName(m3) ?? "tool";
-        result[idx] = {
-          ...sa,
+        const subAgentMessage = result[subAgentIndex];
+        const toolName = serverToolName(backendMessage) ?? "tool";
+        result[subAgentIndex] = {
+          ...subAgentMessage,
           subMessages: [
-            ...(sa.subMessages ?? []),
+            ...(subAgentMessage.subMessages ?? []),
             {
               id: nextMessageId(),
               type: "tool",
-              content: toolName2,
-              args: m3.args,
+              content: toolName,
+              args: backendMessage.args,
               toolStatus: "ok",
               hasToolResult: false,
-              callID: serverCallID(m3),
+              callID: serverCallID(backendMessage),
             },
           ],
         };
         break;
       }
       case "sub_agent_thinking": {
-        const csId = m3.childSessionId;
-        let idx = findHistorySubAgentIndex(result, {
-          taskPartId: m3.taskPartId,
+        const csId = backendMessage.childSessionId;
+        let subAgentIndex = findHistorySubAgentIndex(result, {
+          taskPartId: backendMessage.taskPartId,
           childSessionId: csId,
-          agent: m3.agent,
+          agent: backendMessage.agent,
         });
-        if (idx === -1) {
+        if (subAgentIndex === -1) {
           result.push({
             ...createHistorySubAgentMessage(
-              m3.agent,
+              backendMessage.agent,
               csId,
-              m3.taskPartId,
+              backendMessage.taskPartId,
               true,
             ),
-            ...identity2,
+            ...identity,
           });
-          idx = result.length - 1;
+          subAgentIndex = result.length - 1;
         }
-        const sa = result[idx];
-        const subs = [...(sa.subMessages ?? [])];
+        const subAgentMessage = result[subAgentIndex];
+        const subs = [...(subAgentMessage.subMessages ?? [])];
         const lastSub = subs[subs.length - 1];
         if (lastSub?.type === "thinking") {
           subs[subs.length - 1] = {
             ...lastSub,
-            content: lastSub.content + m3.content,
+            content: lastSub.content + backendMessage.content,
           };
         } else {
           subs.push({
             id: nextMessageId(),
             type: "thinking",
-            content: m3.content,
+            content: backendMessage.content,
           });
         }
-        result[idx] = {
-          ...sa,
+        result[subAgentIndex] = {
+          ...subAgentMessage,
           subMessages: subs,
         };
         break;
       }
       case "sub_agent_tool_result": {
-        const csId = m3.childSessionId;
-        const idx = findHistorySubAgentIndex(result, {
-          taskPartId: m3.taskPartId,
+        const csId = backendMessage.childSessionId;
+        const subAgentIndex = findHistorySubAgentIndex(result, {
+          taskPartId: backendMessage.taskPartId,
           childSessionId: csId,
-          agent: m3.agent,
+          agent: backendMessage.agent,
         });
-        if (idx >= 0) {
-          const sa = result[idx];
-          const subs = [...(sa.subMessages ?? [])];
-          const callID = serverCallID(m3);
-          const eventToolName = serverToolName(m3);
+        if (subAgentIndex >= 0) {
+          const subAgentMessage = result[subAgentIndex];
+          const subs = [...(subAgentMessage.subMessages ?? [])];
+          const callID = serverCallID(backendMessage);
+          const eventToolName = serverToolName(backendMessage);
           let toolIdx = findLastIndex(
             subs,
-            (s2) =>
-              s2.type === "tool" &&
+            (subMessage) =>
+              subMessage.type === "tool" &&
               (callID
-                ? s2.callID === callID
+                ? subMessage.callID === callID
                 : !eventToolName ||
-                  toolNameFromSubContent(s2.content) === eventToolName),
+                  toolNameFromSubContent(subMessage.content) === eventToolName),
           );
           if (toolIdx < 0)
-            toolIdx = findLastIndex(subs, (s2) => s2.type === "tool");
+            toolIdx = findLastIndex(subs, (subMessage) => subMessage.type === "tool");
           if (toolIdx >= 0) {
-            const sub = subs[toolIdx];
-            const toolName2 =
-              toolNameFromSubContent(sub.content) ?? eventToolName ?? "tool";
+            const toolSubMessage = subs[toolIdx];
+            const toolName =
+              toolNameFromSubContent(toolSubMessage.content) ?? eventToolName ?? "tool";
             subs[toolIdx] = {
-              ...sub,
-              content: `${toolName2}: ${m3.content}`,
+              ...toolSubMessage,
+              content: `${toolName}: ${backendMessage.content}`,
               toolStatus: inferToolResultStatus(
-                m3.content,
-                optionalStringField(m3, "status"),
+                backendMessage.content,
+                optionalStringField(backendMessage, "status"),
               ),
               hasToolResult: true,
             };
-            result[idx] = {
-              ...sa,
+            result[subAgentIndex] = {
+              ...subAgentMessage,
               subMessages: subs,
             };
           }

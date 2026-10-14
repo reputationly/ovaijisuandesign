@@ -1,0 +1,5 @@
+key	new	reason
+d@359:11	pluginsChangedSubscription	onPluginsChanged 返回的订阅，卸载时 dispose
+h@594:18	marketHook	逐个检查的技能市场 hook 结果，含 skills 列表
+m@710:13	uninstallMarket	执行卸载的市场 hook：插件市场或技能所在的社区/默认市场
+error2@527:16	error	去掉打包器加的数字后缀，恢复原名 error

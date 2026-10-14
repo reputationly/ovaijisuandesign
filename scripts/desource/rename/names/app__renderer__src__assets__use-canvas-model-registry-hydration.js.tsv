@@ -1,0 +1,19 @@
+key	old	new	依据
+t2@262:14	t2	translate	该绑定是画布标签名称解析 hook 读取标签文案的翻译函数。
+next2@12:42	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+key2@17:14	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+selector2@32:3	selector2	selector	去掉打包器防重名追加的后缀，恢复原名 selector，即该绑定持有的值。
+isEqual2@33:3	isEqual2	isEqual	去掉打包器防重名追加的后缀，恢复原名 isEqual，即该绑定持有的值。
+selected2@67:9	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+selector2@81:55	selector2	selector	去掉打包器防重名追加的后缀，恢复原名 selector，即该绑定持有的值。
+isEqual2@81:66	isEqual2	isEqual	去掉打包器防重名追加的后缀，恢复原名 isEqual，即该绑定持有的值。
+snapshot2@85:6	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+next2@86:12	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+selector2@109:42	selector2	selector	去掉打包器防重名追加的后缀，恢复原名 selector，即该绑定持有的值。
+isEqual2@109:53	isEqual2	isEqual	去掉打包器防重名追加的后缀，恢复原名 isEqual，即该绑定持有的值。
+snapshot2@151:10	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+key2@153:6	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@165:6	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+next2@167:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+message2@228:13	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+key2@266:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。

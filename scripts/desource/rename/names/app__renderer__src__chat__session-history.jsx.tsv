@@ -1,0 +1,31 @@
+key	新名	依据
+cn@13:18	mergeClassNames	`mergeClassNames` 合并并消解冲突的 CSS 类名，用于会话历史入口及图标。
+t2@61:14	translate	`translate` 是会话历史界面查询本地化文案的函数。
+q2@142:13	normalizedQuery	`normalizedQuery` 是去除首尾空格并转小写的会话搜索词。
+id2@130:31	pinnedId	`pinnedId` 是固定会话 ID 列表中的标识字符串。
+a2@132:45	leftSession	`leftSession` 是排序比较中左侧的会话记录。
+b3@132:49	rightSession	`rightSession` 是排序比较中右侧的会话记录。
+id2@157:28	preferenceId	`preferenceId` 是待切换固定状态的会话偏好 ID 字符串。
+id2@164:23	preferenceId	`preferenceId` 是从固定及隐藏列表移除或加入隐藏列表的会话偏好 ID 字符串。
+id2@172:26	preferenceId	`preferenceId` 是从隐藏会话列表恢复时使用的会话偏好 ID 字符串。
+id2@177:23	sessionId	`sessionId` 是传给打开回调并对应会话记录的界面会话 ID。
+res@192:15	response	`response` 是会话导出接口返回、用于读取文件内容及响应头的响应。
+a2@212:17	downloadLink	`downloadLink` 是浏览器下载导出文件时创建并触发的链接元素。
+e2@263:28	changeEvent	`changeEvent` 是搜索输入框内容变化时收到的表单事件。
+seen2@33:9	seen	`seen` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+nextId2@35:11	nextId	`nextId` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+index2@45:24	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+platform2@62:9	platform	`platform` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+gatewayFetch2@63:9	gatewayFetch	`gatewayFetch` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+search2@65:10	search	`search` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@81:26	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@87:26	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@114:33	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+index2@130:41	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@158:26	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@165:26	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@168:26	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@173:26	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@182:29	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+match2@195:15	match	`match` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+url2@211:17	url	`url` 是标识值；末尾数字是打包器为避免重名添加的后缀。

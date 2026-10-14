@@ -1,0 +1,40 @@
+key	new	依据
+HTTP_URL_RE$1@72:7	knowledgeHttpUrlPattern	识别知识工具结果中的 HTTP(S) 来源链接，匹配时不当作本地知识路径。
+WINDOWS_ABSOLUTE_PATH_RE$1@73:7	knowledgeWindowsAbsolutePathPattern	匹配盘符加斜杠开头的 Windows 绝对路径，用于验证知识路径格式。
+WINDOWS_UNC_PATH_RE$1@74:7	knowledgeWindowsUncPathPattern	匹配双反斜杠开头的 UNC 网络路径，用于验证知识路径格式。
+isAbsoluteLocalPath$1@80:10	isAbsoluteKnowledgePath	判断路径以 Unix 根斜杠或 Windows 绝对路径形式开头，供知识来源解析使用。
+t2@216:33	t	renderToolLabel 接收的翻译函数，根据工具运行状态返回本地化状态标签。
+t2@397:14	t	useTranslation 返回的翻译函数，为时间线操作行生成活动状态标签。
+t2@523:41	t	ProcessStepsDetail 接收的翻译函数，用于步骤输入、输出和工具名称文案。
+t2@587:14	t	useTranslation 返回的翻译函数，生成时间线活动和工具详情文案。
+v2@698:49	isExpanded	详情展开状态 updater 收到的当前值；取反后交给 setDetailExpanded 切换展开。
+id2@922:30	commandId	命令列表项的稳定 id，用作每个命令按钮的 React key。
+path2@63:29	path	待解析的知识路径文本，提取路由匹配并生成统一斜杠格式的 full/short 路径。
+match2@65:9	match	知识路径正则匹配结果；第一个捕获组提供需要规范化的短路径。
+path2@75:24	path	待判断的路径字符串，用盘符绝对路径或 UNC 前缀检测 Windows 路径。
+path2@80:32	path	待检测的路径字符串；以根斜杠开头或被 isWindowsPath 识别时视为绝对路径。
+path2@83:28	path	待规范化的路由路径，去掉问号或井号之后的查询与片段部分。
+path2@86:26	path	编码后的路由路径，传给 decodeURIComponent 解码。
+path2@93:32	path	工作区相对路径输入，拆成段后清理空段和相对路径标记。
+path2@102:38	path	工具结果提供的源路径，去空格并转换为相对于 workspacePath 的文件路径。
+content2@149:26	content	工具思考文本；移除 Markdown 标记，将空白字符折叠为单空格并去除首尾空白。
+toolName2@162:32	toolName	工具调用名称；只有 hub_read 调用才继续解析参数中的知识路径。
+record2@177:11	record	解析后的技能记录对象，从 name、skill 或 skill_name 字段取技能名。
+name2@178:11	skillName	技能记录中选出的候选名称，校验为非空字符串后返回去空格结果。
+record2@192:11	record	解析后的工具结果记录，从 output_paths、成功数和失败数提取统计信息。
+path2@195:12	path	output_paths 中当前候选路径；仅保留去空格后仍非空的字符串。
+path2@207:37	path	去重后的输出文件路径，拆出末段作为显示名称并写入文件记录。
+count2@273:11	count	当前 operation 的计数值，写入过程步骤的 count 字段。
+sum2@275:10	sum	reduce 累加器，逐项累加 operation.count 得到总操作数。
+name2@283:11	skillName	从工具参数解析出的技能名；缺失时显示回退文案，否则渲染该名称。
+count2@341:11	count	从工具结果文本提取的媒体数量，用于失败判断和活动摘要。
+isActive2@396:54	isActive	当前 operation row 是否处于活动状态，决定活动标签和选中样式。
+isActive2@436:56	isActive	传入 TimelineOperationRows 的活动状态布尔值，继续传递给各操作行。
+path2@458:25	path	网关路由路径；以 /files/ 或 /api/ 开头时判定为网关路径。
+path2@461:30	path	判断本地绝对文件路径时检查的输入，需排除网关路由并匹配 Unix 或 Windows 绝对格式。
+isImage2@486:17	isImage	当前资源 kind 是否为 image，决定生成图片预览而非视频或音频预览。
+index2@526:25	index	步骤列表当前项的零基序号，用于显示从 1 开始的步骤编号。
+children2@572:39	children	DetailCornerWrap 的子节点内容，原样放入包装容器。
+isActive2@581:13	isActive	父级活动状态属性，决定当前条目是否保留完整不透明度并展示活动标记。
+Icon2@649:9	Icon	由 entry.category 查表得到的类别图标组件，随后用于渲染活动条目图标。
+command2@922:44	command	当前命令列表项的命令文本，显示在对应按钮中。

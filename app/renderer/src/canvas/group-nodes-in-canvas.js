@@ -1,8 +1,6 @@
 // group-nodes-in-canvas.js
-import {
-  CanvasNodeType,
-  normalizeLabel$1 as normalizeLabel,
-} from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import { normalizeLabel$1 as normalizeLabel } from "./tidy-nodes.js";
 import {
   computeGroupBoundsFromChildren,
   defaultNodeSizeForType,
@@ -15,36 +13,36 @@ function createGroupNodeId() {
 }
 const GROUP_Z_INDEX = -100;
 export function groupNodesInCanvas(canvas, nodeIds, options) {
-  const mode2 = canvas.mode;
-  const nodeById = new Map(canvas.nodes.map((n2) => [n2.id, n2]));
+  const mode = canvas.mode;
+  const nodeById = new Map(canvas.nodes.map((node) => [node.id, node]));
   const selectedGroups = [];
   const outsiders = [];
   const skippedNodes = [];
-  const seen2 = new Set();
-  for (const id2 of nodeIds) {
-    if (seen2.has(id2)) continue;
-    seen2.add(id2);
-    const node2 = nodeById.get(id2);
-    if (!node2) {
+  const seen = new Set();
+  for (const id of nodeIds) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const node = nodeById.get(id);
+    if (!node) {
       skippedNodes.push({
-        nodeId: id2,
+        nodeId: id,
         reason: "unknown",
       });
       continue;
     }
-    if (node2.type === CanvasNodeType.Group) {
-      selectedGroups.push(node2);
+    if (node.type === CanvasNodeType.Group) {
+      selectedGroups.push(node);
       continue;
     }
-    if (node2.parentId) {
+    if (node.parentId) {
       skippedNodes.push({
-        nodeId: id2,
+        nodeId: id,
         reason: "already-grouped",
-        parentId: node2.parentId,
+        parentId: node.parentId,
       });
       continue;
     }
-    outsiders.push(node2);
+    outsiders.push(node);
   }
   const skipFields =
     skippedNodes.length > 0
@@ -63,29 +61,29 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
         ...skipFields,
       };
     }
-    const allModes2 = new Set();
-    allModes2.add(mode2);
-    for (const o2 of outsiders) {
-      for (const m3 of Object.keys(o2.positions ?? {})) {
-        allModes2.add(m3);
+    const allModes = new Set();
+    allModes.add(mode);
+    for (const outsider of outsiders) {
+      for (const mode of Object.keys(outsider.positions ?? {})) {
+        allModes.add(mode);
       }
     }
     const boundsByMode = new Map();
-    for (const m3 of allModes2) {
-      const allHavePos = outsiders.every((o2) => o2.positions?.[m3] !== void 0);
+    for (const mode of allModes) {
+      const allHavePos = outsiders.every((outsider) => outsider.positions?.[mode] !== void 0);
       if (!allHavePos) continue;
-      const childrenAbs = outsiders.map((n2) => ({
-        position: n2.positions?.[m3],
-        size: n2.size,
-        type: n2.type,
+      const childrenAbs = outsiders.map((outsider) => ({
+        position: outsider.positions?.[mode],
+        size: outsider.size,
+        type: outsider.type,
       }));
-      boundsByMode.set(m3, computeGroupBoundsFromChildren(childrenAbs));
+      boundsByMode.set(mode, computeGroupBoundsFromChildren(childrenAbs));
     }
-    const activeBounds = boundsByMode.get(mode2);
+    const activeBounds = boundsByMode.get(mode);
     if (!activeBounds) {
       const missingNodeIds = outsiders
-        .filter((o2) => !o2.positions?.[mode2])
-        .map((o2) => o2.id);
+        .filter((outsider) => !outsider.positions?.[mode])
+        .map((outsider) => outsider.id);
       return {
         canvas,
         addedNodes: [],
@@ -94,20 +92,20 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
         groupId: null,
         error: {
           code: "incomplete-positions",
-          mode: mode2,
+          mode,
           missingNodeIds,
         },
         ...skipFields,
       };
     }
-    const { size: size2 } = activeBounds;
-    const groupId2 = createGroupNodeId();
-    const childIdSet = new Set(outsiders.map((n2) => n2.id));
+    const { size } = activeBounds;
+    const groupId = createGroupNodeId();
+    const childIdSet = new Set(outsiders.map((outsider) => outsider.id));
     const positionsRecord = {};
     const sizesRecord = {};
-    for (const [m3, b3] of boundsByMode) {
-      positionsRecord[m3] = b3.position;
-      sizesRecord[m3] = b3.size;
+    for (const [mode, bounds] of boundsByMode) {
+      positionsRecord[mode] = bounds.position;
+      sizesRecord[mode] = bounds.size;
     }
     const normalizedLabel = normalizeLabel(options?.label);
     const groupData = normalizedLabel
@@ -116,13 +114,13 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
         }
       : {};
     const groupNode = {
-      id: groupId2,
+      id: groupId,
       type: CanvasNodeType.Group,
       positions: positionsRecord,
       // Legacy `size` mirrors the active mode's bbox; `sizes` carries the
       // full per-mode map so future mode switches read the right frame
       // without falling back to the active mode's value.
-      size: size2,
+      size,
       sizes: sizesRecord,
       // GroupNodeData is a concrete interface; cast to the wider data shape
       // accepted by the persistence schema (Record<string, unknown>).
@@ -133,60 +131,60 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
       },
     };
     const updatedChildren = [];
-    const nextNodes2 = new Array(canvas.nodes.length + 1);
-    let i2 = 0;
-    for (const node2 of canvas.nodes) {
-      if (childIdSet.has(node2.id)) {
+    const nextNodes = new Array(canvas.nodes.length + 1);
+    let index = 0;
+    for (const node of canvas.nodes) {
+      if (childIdSet.has(node.id)) {
         const newPositions = {
-          ...(node2.positions ?? {}),
+          ...(node.positions ?? {}),
         };
-        for (const [m3, b3] of boundsByMode) {
-          const abs = node2.positions?.[m3];
+        for (const [mode, bounds] of boundsByMode) {
+          const abs = node.positions?.[mode];
           if (!abs) continue;
-          newPositions[m3] = {
-            x: abs.x - b3.position.x,
-            y: abs.y - b3.position.y,
+          newPositions[mode] = {
+            x: abs.x - bounds.position.x,
+            y: abs.y - bounds.position.y,
           };
         }
         const child = withParentId(
           {
-            ...node2,
+            ...node,
             positions: newPositions,
           },
-          groupId2,
+          groupId,
         );
-        nextNodes2[i2++] = child;
+        nextNodes[index++] = child;
         updatedChildren.push(child);
       } else {
-        nextNodes2[i2++] = node2;
+        nextNodes[index++] = node;
       }
     }
-    nextNodes2[i2] = groupNode;
+    nextNodes[index] = groupNode;
     return {
       canvas: {
         ...canvas,
-        nodes: nextNodes2,
+        nodes: nextNodes,
       },
       addedNodes: [groupNode],
       removedNodeIds: [],
       updatedNodes: updatedChildren,
-      groupId: groupId2,
+      groupId,
       ...skipFields,
     };
   }
   const mergeTarget = selectedGroups[0];
   const dissolvingGroups = selectedGroups.slice(1);
   const dissolvingGroupById = new Map(
-    dissolvingGroups.map((g2) => [g2.id, g2]),
+    dissolvingGroups.map((group) => [group.id, group]),
   );
   const crossGroupChildren = [];
   if (dissolvingGroupById.size > 0) {
-    for (const node2 of canvas.nodes) {
-      if (!node2.parentId) continue;
-      const parent = dissolvingGroupById.get(node2.parentId);
+    for (const node of canvas.nodes) {
+      if (!node.parentId) continue;
+      const parent = dissolvingGroupById.get(node.parentId);
       if (parent)
         crossGroupChildren.push({
-          node: node2,
+          node,
           parentGroup: parent,
         });
     }
@@ -202,44 +200,44 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
     };
   }
   const existingMtChildren = [];
-  for (const node2 of canvas.nodes) {
-    if (node2.parentId === mergeTarget.id) existingMtChildren.push(node2);
+  for (const node of canvas.nodes) {
+    if (node.parentId === mergeTarget.id) existingMtChildren.push(node);
   }
   const allModes = new Set();
-  allModes.add(mode2);
-  for (const m3 of Object.keys(mergeTarget.positions ?? {})) allModes.add(m3);
-  for (const o2 of outsiders) {
-    for (const m3 of Object.keys(o2.positions ?? {})) allModes.add(m3);
+  allModes.add(mode);
+  for (const mode of Object.keys(mergeTarget.positions ?? {})) allModes.add(mode);
+  for (const outsider of outsiders) {
+    for (const mode of Object.keys(outsider.positions ?? {})) allModes.add(mode);
   }
-  for (const c3 of existingMtChildren) {
-    for (const m3 of Object.keys(c3.positions ?? {})) allModes.add(m3);
+  for (const child of existingMtChildren) {
+    for (const mode of Object.keys(child.positions ?? {})) allModes.add(mode);
   }
-  for (const { node: node2, parentGroup } of crossGroupChildren) {
-    for (const m3 of Object.keys(node2.positions ?? {})) allModes.add(m3);
-    for (const m3 of Object.keys(parentGroup.positions ?? {})) allModes.add(m3);
+  for (const { node, parentGroup } of crossGroupChildren) {
+    for (const mode of Object.keys(node.positions ?? {})) allModes.add(mode);
+    for (const mode of Object.keys(parentGroup.positions ?? {})) allModes.add(mode);
   }
   const dataByMode = new Map();
-  for (const m3 of allModes) {
-    const oldMtPos = mergeTarget.positions?.[m3];
+  for (const mode of allModes) {
+    const oldMtPos = mergeTarget.positions?.[mode];
     if (!oldMtPos) continue;
     let allPresent = true;
-    for (const c3 of existingMtChildren) {
-      if (!c3.positions?.[m3]) {
+    for (const child of existingMtChildren) {
+      if (!child.positions?.[mode]) {
         allPresent = false;
         break;
       }
     }
     if (allPresent) {
-      for (const o2 of outsiders) {
-        if (!o2.positions?.[m3]) {
+      for (const outsider of outsiders) {
+        if (!outsider.positions?.[mode]) {
           allPresent = false;
           break;
         }
       }
     }
     if (allPresent) {
-      for (const { node: node2, parentGroup } of crossGroupChildren) {
-        if (!node2.positions?.[m3] || !parentGroup.positions?.[m3]) {
+      for (const { node, parentGroup } of crossGroupChildren) {
+        if (!node.positions?.[mode] || !parentGroup.positions?.[mode]) {
           allPresent = false;
           break;
         }
@@ -248,46 +246,46 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
     if (!allPresent) continue;
     const survivors = [];
     const adoptionMap = new Map();
-    for (const c3 of existingMtChildren) {
-      const rel = c3.positions?.[m3];
+    for (const child of existingMtChildren) {
+      const rel = child.positions?.[mode];
       survivors.push({
         position: {
           x: oldMtPos.x + rel.x,
           y: oldMtPos.y + rel.y,
         },
-        size: c3.size,
-        type: c3.type,
+        size: child.size,
+        type: child.type,
       });
     }
-    for (const o2 of outsiders) {
-      const abs = o2.positions?.[m3];
+    for (const outsider of outsiders) {
+      const abs = outsider.positions?.[mode];
       survivors.push({
         position: {
           ...abs,
         },
-        size: o2.size,
-        type: o2.type,
+        size: outsider.size,
+        type: outsider.type,
       });
-      adoptionMap.set(o2.id, {
+      adoptionMap.set(outsider.id, {
         ...abs,
       });
     }
-    for (const { node: node2, parentGroup } of crossGroupChildren) {
-      const parentAbs = parentGroup.positions?.[m3];
-      const rel = node2.positions?.[m3];
+    for (const { node, parentGroup } of crossGroupChildren) {
+      const parentAbs = parentGroup.positions?.[mode];
+      const rel = node.positions?.[mode];
       const absPos = {
         x: parentAbs.x + rel.x,
         y: parentAbs.y + rel.y,
       };
       survivors.push({
         position: absPos,
-        size: node2.size,
-        type: node2.type,
+        size: node.size,
+        type: node.type,
       });
-      adoptionMap.set(node2.id, absPos);
+      adoptionMap.set(node.id, absPos);
     }
     const mtSize =
-      readGroupSize(mergeTarget, m3) ??
+      readGroupSize(mergeTarget, mode) ??
       mergeTarget.size ??
       defaultNodeSizeForType(mergeTarget.type);
     const newBounds =
@@ -297,7 +295,7 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
             position: oldMtPos,
             size: mtSize,
           };
-    dataByMode.set(m3, {
+    dataByMode.set(mode, {
       oldMtPos,
       newPos: newBounds.position,
       newSize: newBounds.size,
@@ -306,21 +304,21 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
       adoptionMap,
     });
   }
-  const activeData = dataByMode.get(mode2);
+  const activeData = dataByMode.get(mode);
   if (!activeData) {
-    const candidates2 = [
+    const candidates = [
       mergeTarget,
       ...existingMtChildren,
       ...outsiders,
-      ...crossGroupChildren.map((c3) => c3.node),
-      ...crossGroupChildren.map((c3) => c3.parentGroup),
+      ...crossGroupChildren.map((crossGroupChild) => crossGroupChild.node),
+      ...crossGroupChildren.map((crossGroupChild) => crossGroupChild.parentGroup),
     ];
     const seenIds = new Set();
     const missingNodeIds = [];
-    for (const n2 of candidates2) {
-      if (seenIds.has(n2.id)) continue;
-      seenIds.add(n2.id);
-      if (!n2.positions?.[mode2]) missingNodeIds.push(n2.id);
+    for (const candidateNode of candidates) {
+      if (seenIds.has(candidateNode.id)) continue;
+      seenIds.add(candidateNode.id);
+      if (!candidateNode.positions?.[mode]) missingNodeIds.push(candidateNode.id);
     }
     return {
       canvas,
@@ -330,7 +328,7 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
       groupId: null,
       error: {
         code: "incomplete-positions",
-        mode: mode2,
+        mode,
         missingNodeIds,
       },
       ...skipFields,
@@ -338,30 +336,30 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
   }
   const activeNewSize = activeData.newSize;
   const adoptionIds = new Set();
-  for (const o2 of outsiders) adoptionIds.add(o2.id);
-  for (const { node: node2 } of crossGroupChildren) adoptionIds.add(node2.id);
+  for (const outsider of outsiders) adoptionIds.add(outsider.id);
+  for (const { node } of crossGroupChildren) adoptionIds.add(node.id);
   const updatedNodes = [];
   const nextNodes = [];
-  for (const node2 of canvas.nodes) {
-    if (dissolvingGroupById.has(node2.id)) continue;
-    if (node2.id === mergeTarget.id) {
+  for (const node of canvas.nodes) {
+    if (dissolvingGroupById.has(node.id)) continue;
+    if (node.id === mergeTarget.id) {
       const newPositions = {
-        ...(node2.positions ?? {}),
+        ...(node.positions ?? {}),
       };
       const newSizes = {
-        ...(node2.sizes ?? {}),
+        ...(node.sizes ?? {}),
       };
-      for (const [m3, d2] of dataByMode) {
-        newPositions[m3] = d2.newPos;
-        newSizes[m3] = d2.newSize;
+      for (const [mode, modeData] of dataByMode) {
+        newPositions[mode] = modeData.newPos;
+        newSizes[mode] = modeData.newSize;
       }
-      const existingData = node2.data ?? {};
+      const existingData = node.data ?? {};
       const nextData = {
         ...existingData,
         frameMode: "auto",
       };
-      const next2 = {
-        ...node2,
+      const next = {
+        ...node,
         positions: newPositions,
         // Legacy `size` mirrors the active mode's bbox so older clients render
         // the right frame; per-mode entries live in `sizes`.
@@ -369,63 +367,63 @@ export function groupNodesInCanvas(canvas, nodeIds, options) {
         sizes: newSizes,
         data: nextData,
       };
-      nextNodes.push(next2);
-      updatedNodes.push(next2);
+      nextNodes.push(next);
+      updatedNodes.push(next);
       continue;
     }
-    if (node2.parentId === mergeTarget.id) {
+    if (node.parentId === mergeTarget.id) {
       const newPositions = {
-        ...(node2.positions ?? {}),
+        ...(node.positions ?? {}),
       };
       let modified = false;
-      for (const [m3, d2] of dataByMode) {
-        if (d2.dx === 0 && d2.dy === 0) continue;
-        const rel = node2.positions?.[m3];
+      for (const [mode, modeData] of dataByMode) {
+        if (modeData.dx === 0 && modeData.dy === 0) continue;
+        const rel = node.positions?.[mode];
         if (!rel) continue;
-        newPositions[m3] = {
-          x: rel.x + d2.dx,
-          y: rel.y + d2.dy,
+        newPositions[mode] = {
+          x: rel.x + modeData.dx,
+          y: rel.y + modeData.dy,
         };
         modified = true;
       }
       if (modified) {
-        const next2 = {
-          ...node2,
+        const next = {
+          ...node,
           positions: newPositions,
         };
-        nextNodes.push(next2);
-        updatedNodes.push(next2);
+        nextNodes.push(next);
+        updatedNodes.push(next);
       } else {
-        nextNodes.push(node2);
+        nextNodes.push(node);
       }
       continue;
     }
-    if (adoptionIds.has(node2.id)) {
+    if (adoptionIds.has(node.id)) {
       const newPositions = {
-        ...(node2.positions ?? {}),
+        ...(node.positions ?? {}),
       };
-      for (const [m3, d2] of dataByMode) {
-        const abs = d2.adoptionMap.get(node2.id);
+      for (const [mode, modeData] of dataByMode) {
+        const abs = modeData.adoptionMap.get(node.id);
         if (!abs) continue;
-        newPositions[m3] = {
-          x: abs.x - d2.newPos.x,
-          y: abs.y - d2.newPos.y,
+        newPositions[mode] = {
+          x: abs.x - modeData.newPos.x,
+          y: abs.y - modeData.newPos.y,
         };
       }
-      const next2 = withParentId(
+      const next = withParentId(
         {
-          ...node2,
+          ...node,
           positions: newPositions,
         },
         mergeTarget.id,
       );
-      nextNodes.push(next2);
-      updatedNodes.push(next2);
+      nextNodes.push(next);
+      updatedNodes.push(next);
       continue;
     }
-    nextNodes.push(node2);
+    nextNodes.push(node);
   }
-  const removedNodeIds = dissolvingGroups.map((g2) => g2.id);
+  const removedNodeIds = dissolvingGroups.map((group) => group.id);
   return {
     canvas: {
       ...canvas,

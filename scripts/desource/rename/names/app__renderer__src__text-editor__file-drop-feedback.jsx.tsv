@@ -1,0 +1,5 @@
+key	new	reason
+base2@11:9	base	去掉打包器加的数字后缀，恢复原名 base
+path2@16:37	path	去掉打包器加的数字后缀，恢复原名 path
+path2@26:26	path	去掉打包器加的数字后缀，恢复原名 path
+path2@29:51	path	去掉打包器加的数字后缀，恢复原名 path

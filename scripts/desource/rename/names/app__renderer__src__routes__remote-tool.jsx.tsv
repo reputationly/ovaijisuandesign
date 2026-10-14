@@ -1,0 +1,7 @@
+key	new	reason
+e@249:24	changeEvent	onChange 回调收到的事件对象
+r@209:14	response	gatewayFetch(manifestUrl) 返回的 HTTP 响应
+w@214:15	manifestGuiWidth	manifest 中的 guiWidth（非数字时为 undefined）
+h@216:15	manifestGuiHeight	manifest 中的 guiHeight（非数字时为 undefined）
+l@253:33	debugLocale	DEBUG_LOCALES 中的一个语言代码，用作下拉选项
+v@262:38	isLogShown	日志面板当前是否显示，取反后作为新值

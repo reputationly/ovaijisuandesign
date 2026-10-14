@@ -6,93 +6,93 @@ import {
 import { createStreamingBuffers } from "./create-history-sub-agent-message.js";
 import { reduceServerMessage } from "./reduce-server-message.js";
 
-export function completeLatestCompactionStatus(messages2) {
-  for (let index2 = messages2.length - 1; index2 >= 0; index2 -= 1) {
-    const message2 = messages2[index2];
+export function completeLatestCompactionStatus(messages) {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
     if (
-      message2.type !== "compaction_status" ||
-      message2.content === "compacted"
+      message.type !== "compaction_status" ||
+      message.content === "compacted"
     )
       continue;
-    const next2 = [...messages2];
-    next2[index2] = {
-      ...message2,
+    const next = [...messages];
+    next[index] = {
+      ...message,
       content: "compacted",
     };
-    return next2;
+    return next;
   }
-  return messages2;
+  return messages;
 }
 
-export function clearRunningCompactionStatus(messages2) {
-  return messages2.filter(
-    (message2) =>
-      message2.type !== "compaction_status" || message2.content === "compacted",
+export function clearRunningCompactionStatus(messages) {
+  return messages.filter(
+    (message) =>
+      message.type !== "compaction_status" || message.content === "compacted",
   );
 }
 
-function compactionAnchorKeys(message2) {
+function compactionAnchorKeys(message) {
   return [
-    ...(message2.partId ? [`part:${message2.partId}`] : []),
-    ...(message2.runtimeMessageId
-      ? [`runtime:${message2.runtimeMessageId}`]
+    ...(message.partId ? [`part:${message.partId}`] : []),
+    ...(message.runtimeMessageId
+      ? [`runtime:${message.runtimeMessageId}`]
       : []),
-    `id:${message2.id}`,
+    `id:${message.id}`,
   ];
 }
 
-export function retainCompletedCompactionStatuses(history2, previous2) {
+export function retainCompletedCompactionStatuses(messageHistory, previous) {
   if (
-    !previous2.some(
-      (message2) =>
-        message2.type === "compaction_status" &&
-        message2.content === "compacted",
+    !previous.some(
+      (message) =>
+        message.type === "compaction_status" &&
+        message.content === "compacted",
     )
   ) {
-    return history2;
+    return messageHistory;
   }
   const positions = new Map();
-  for (let index2 = history2.length - 1; index2 >= 0; index2--) {
-    for (const key2 of compactionAnchorKeys(history2[index2]))
-      positions.set(key2, index2);
+  for (let index = messageHistory.length - 1; index >= 0; index--) {
+    for (const key of compactionAnchorKeys(messageHistory[index]))
+      positions.set(key, index);
   }
-  const seenIds = new Set(history2.map((message2) => message2.id));
+  const seenIds = new Set(messageHistory.map((message) => message.id));
   const insertions = new Map();
-  let nextPosition = history2.length;
-  for (let index2 = previous2.length - 1; index2 >= 0; index2--) {
-    const message2 = previous2[index2];
-    if (message2.type === "compaction_status") {
-      if (message2.content !== "compacted" || seenIds.has(message2.id))
+  let nextPosition = messageHistory.length;
+  for (let index = previous.length - 1; index >= 0; index--) {
+    const message = previous[index];
+    if (message.type === "compaction_status") {
+      if (message.content !== "compacted" || seenIds.has(message.id))
         continue;
-      seenIds.add(message2.id);
+      seenIds.add(message.id);
       const records = insertions.get(nextPosition) ?? [];
-      records.unshift(message2);
+      records.unshift(message);
       insertions.set(nextPosition, records);
     } else {
-      const position2 = compactionAnchorKeys(message2)
-        .map((key2) => positions.get(key2))
+      const position = compactionAnchorKeys(message)
+        .map((key) => positions.get(key))
         .find((value) => value !== void 0);
-      if (position2 !== void 0) nextPosition = position2;
+      if (position !== void 0) nextPosition = position;
     }
   }
-  if (insertions.size === 0) return history2;
+  if (insertions.size === 0) return messageHistory;
   const result = [];
-  for (let index2 = 0; index2 <= history2.length; index2++) {
-    result.push(...(insertions.get(index2) ?? []));
-    if (index2 < history2.length) result.push(history2[index2]);
+  for (let index = 0; index <= messageHistory.length; index++) {
+    result.push(...(insertions.get(index) ?? []));
+    if (index < messageHistory.length) result.push(messageHistory[index]);
   }
   return result;
 }
 
 const UNKNOWN_HISTORY_TIME = 0;
 
-function restoreToolState(message2) {
-  const input = message2.toolArgs ?? "";
+function restoreToolState(message) {
+  const input = message.toolArgs ?? "";
   const time = {
     start: UNKNOWN_HISTORY_TIME,
     end: UNKNOWN_HISTORY_TIME,
   };
-  switch (message2.toolStatus) {
+  switch (message.toolStatus) {
     case "pending":
       return {
         status: "pending",
@@ -108,14 +108,14 @@ function restoreToolState(message2) {
       return {
         status: "error",
         input,
-        error: message2.toolResult ?? "",
+        error: message.toolResult ?? "",
         time,
       };
     default:
       return {
         status: "completed",
         input,
-        output: message2.toolResult ?? "",
+        output: message.toolResult ?? "",
         title: "",
         time,
       };
@@ -125,35 +125,35 @@ function restoreToolState(message2) {
 export function restoreRootToolParts(
   partStore,
   runtimeSessionId,
-  messages2,
+  messages,
   replaceSnapshot,
 ) {
   if (replaceSnapshot) {
     partStore.pruneHistoryToolSeeds(
       runtimeSessionId,
       new Set(
-        messages2.flatMap((message2) =>
-          message2.partId ? [message2.partId] : [],
+        messages.flatMap((message) =>
+          message.partId ? [message.partId] : [],
         ),
       ),
     );
   }
   const taskPartIds = [];
-  for (const message2 of messages2) {
-    if (message2.type !== "tool" || !message2.partId) continue;
+  for (const message of messages) {
+    if (message.type !== "tool" || !message.partId) continue;
     const part = {
       type: "tool",
-      id: message2.partId,
+      id: message.partId,
       sessionID: runtimeSessionId,
-      messageID: message2.runtimeMessageId ?? "",
-      tool: message2.content,
-      callID: message2.callID ?? message2.partId,
+      messageID: message.runtimeMessageId ?? "",
+      tool: message.content,
+      callID: message.callID ?? message.partId,
       state: {
-        ...restoreToolState(message2),
-        ...(message2.content === "task" && message2.childSessionId
+        ...restoreToolState(message),
+        ...(message.content === "task" && message.childSessionId
           ? {
               metadata: {
-                sessionId: message2.childSessionId,
+                sessionId: message.childSessionId,
               },
             }
           : {}),
@@ -161,89 +161,89 @@ export function restoreRootToolParts(
     };
     partStore.seedHistoryToolPart(
       part,
-      message2.interruption,
-      message2.generationHandoffTargets,
+      message.interruption,
+      message.generationHandoffTargets,
     );
     if (part.tool === "task") taskPartIds.push(part.id);
   }
   partStore.restoreHistoryTaskOwnership(taskPartIds);
 }
 
-function historySubAgentSeedKey(childSessionId, agent2) {
-  return agent2 ? `${childSessionId}\0${agent2}` : childSessionId;
+function historySubAgentSeedKey(childSessionId, agent) {
+  return agent ? `${childSessionId}\0${agent}` : childSessionId;
 }
 
 export function restoreHistorySubAgents(
   getPartStore,
-  messages2,
+  messages,
   onlyMissing = false,
 ) {
   const childSeeds = new Map();
-  for (const m3 of messages2) {
+  for (const historySubAgentMessage of messages) {
     if (
-      m3.type !== "sub_agent" ||
-      !m3.childSessionId ||
-      !m3.subMessages?.length
+      historySubAgentMessage.type !== "sub_agent" ||
+      !historySubAgentMessage.childSessionId ||
+      !historySubAgentMessage.subMessages?.length
     )
       continue;
-    const taskPartId = m3.partId?.endsWith("__sub_agent")
-      ? m3.partId.slice(0, -"__sub_agent".length)
+    const taskPartId = historySubAgentMessage.partId?.endsWith("__sub_agent")
+      ? historySubAgentMessage.partId.slice(0, -"__sub_agent".length)
       : void 0;
     if (
       onlyMissing &&
       (taskPartId
         ? getPartStore().getPart(taskPartId)
-        : getPartStore().hasChildSubMessageSeed(m3.childSessionId, m3.agent))
+        : getPartStore().hasChildSubMessageSeed(historySubAgentMessage.childSessionId, historySubAgentMessage.agent))
     )
       continue;
-    const key2 =
-      taskPartId ?? historySubAgentSeedKey(m3.childSessionId, m3.agent);
-    const entry = childSeeds.get(key2) ?? {
-      childSessionId: m3.childSessionId,
-      agent: m3.agent,
+    const key =
+      taskPartId ?? historySubAgentSeedKey(historySubAgentMessage.childSessionId, historySubAgentMessage.agent);
+    const entry = childSeeds.get(key) ?? {
+      childSessionId: historySubAgentMessage.childSessionId,
+      agent: historySubAgentMessage.agent,
       taskPartId,
       seed: [],
     };
-    entry.seed.push(...m3.subMessages);
-    childSeeds.set(key2, entry);
+    entry.seed.push(...historySubAgentMessage.subMessages);
+    childSeeds.set(key, entry);
   }
   if (childSeeds.size === 0) return;
   const partStore = getPartStore();
   for (const {
     childSessionId,
-    agent: agent2,
+    agent,
     taskPartId,
     seed,
   } of childSeeds.values()) {
-    partStore.seedChildSubMessages(childSessionId, seed, agent2, taskPartId);
+    partStore.seedChildSubMessages(childSessionId, seed, agent, taskPartId);
   }
 }
 
 export function restoreRootToolMessages(
   partStore,
   runtimeSessionId,
-  messages2,
+  messages,
   replaceSnapshot,
   childSessions,
 ) {
-  restoreHistorySubAgents(() => partStore, messages2);
+  restoreHistorySubAgents(() => partStore, messages);
   const toolsByCallId = new Map(
     partStore
       .getSessionParts(runtimeSessionId)
       .flatMap((part) => (part.type === "tool" ? [[part.callID, part]] : [])),
   );
-  messages2 = messages2.map((message2) => {
-    if (message2.type !== "tool" || message2.partId || !message2.callID)
-      return message2;
-    const part = toolsByCallId.get(message2.callID);
-    return part?.tool === message2.content
+  messages = messages.map((message) => {
+    if (message.type !== "tool" || message.partId || !message.callID)
+      return message;
+    const part = toolsByCallId.get(message.callID);
+    return part?.tool === message.content
       ? {
-          ...message2,
+          ...message,
           partId: part.id,
         }
-      : message2;
+      : message;
   });
-  restoreRootToolParts(partStore, runtimeSessionId, messages2, replaceSnapshot);
+  restoreRootToolParts(partStore, runtimeSessionId, messages, replaceSnapshot);
   const derivedByPartId = new Map();
   for (const derived of partStore.deriveMessages(
     runtimeSessionId,
@@ -255,30 +255,30 @@ export function restoreRootToolMessages(
     )
       derivedByPartId.set(derived.partId, derived);
   }
-  const restored = messages2.map((message2) => {
+  const restored = messages.map((message) => {
     if (
-      (message2.type !== "tool" && message2.type !== "sub_agent") ||
-      !message2.partId
+      (message.type !== "tool" && message.type !== "sub_agent") ||
+      !message.partId
     )
-      return message2;
-    const derived = derivedByPartId.get(message2.partId);
-    if (!derived) return message2;
-    derivedByPartId.delete(message2.partId);
-    if (message2.type === "sub_agent")
+      return message;
+    const derived = derivedByPartId.get(message.partId);
+    if (!derived) return message;
+    derivedByPartId.delete(message.partId);
+    if (message.type === "sub_agent")
       return {
-        ...message2,
+        ...message,
         ...derived,
-        id: message2.id,
+        id: message.id,
       };
     const {
       interruption: _interruption,
       generationHandoffTargets: _targets,
-      ...base2
-    } = message2;
+      ...base
+    } = message;
     return {
-      ...base2,
+      ...base,
       ...derived,
-      id: message2.id,
+      id: message.id,
     };
   });
   return [...restored, ...derivedByPartId.values()];
@@ -290,10 +290,10 @@ function transcriptContains(candidate, transcript) {
   const candidateKeys = candidate.map(subMessageSemanticKey);
   const transcriptKeys = transcript.map(subMessageSemanticKey);
   const lastStart = candidateKeys.length - transcriptKeys.length;
-  for (let start2 = 0; start2 <= lastStart; start2++) {
+  for (let start = 0; start <= lastStart; start++) {
     if (
       transcriptKeys.every(
-        (key2, offset2) => candidateKeys[start2 + offset2] === key2,
+        (key, offset) => candidateKeys[start + offset] === key,
       )
     )
       return true;
@@ -301,22 +301,22 @@ function transcriptContains(candidate, transcript) {
   return false;
 }
 
-export function dropSupersededHistorySubAgents(messages2) {
+export function dropSupersededHistorySubAgents(messages) {
   const partDerivedByChild = new Map();
-  for (const m3 of messages2) {
-    if (m3.type === "sub_agent" && m3.partId && m3.childSessionId) {
-      const transcripts = partDerivedByChild.get(m3.childSessionId) ?? [];
-      transcripts.push(m3.subMessages ?? []);
-      partDerivedByChild.set(m3.childSessionId, transcripts);
+  for (const historySubAgentMessage of messages) {
+    if (historySubAgentMessage.type === "sub_agent" && historySubAgentMessage.partId && historySubAgentMessage.childSessionId) {
+      const transcripts = partDerivedByChild.get(historySubAgentMessage.childSessionId) ?? [];
+      transcripts.push(historySubAgentMessage.subMessages ?? []);
+      partDerivedByChild.set(historySubAgentMessage.childSessionId, transcripts);
     }
   }
-  if (partDerivedByChild.size === 0) return messages2;
-  return messages2.filter((m3) => {
-    if (m3.type !== "sub_agent" || m3.partId || !m3.childSessionId) return true;
-    const derivedTranscripts = partDerivedByChild.get(m3.childSessionId);
+  if (partDerivedByChild.size === 0) return messages;
+  return messages.filter((historySubAgentMessage) => {
+    if (historySubAgentMessage.type !== "sub_agent" || historySubAgentMessage.partId || !historySubAgentMessage.childSessionId) return true;
+    const derivedTranscripts = partDerivedByChild.get(historySubAgentMessage.childSessionId);
     if (!derivedTranscripts) return true;
     return !derivedTranscripts.some((candidate) =>
-      transcriptContains(candidate, m3.subMessages ?? []),
+      transcriptContains(candidate, historySubAgentMessage.subMessages ?? []),
     );
   });
 }
@@ -333,8 +333,8 @@ export class SessionReducer {
    * Delegates to the shared reduceServerMessage function
    * with session-scoped StreamingBuffers.
    */
-  reduce(prev, msg) {
-    return reduceServerMessage(prev, msg, this.buffers, this.sessionId);
+  reduce(prev, serverMessage) {
+    return reduceServerMessage(prev, serverMessage, this.buffers, this.sessionId);
   }
   /** Reset buffers (e.g. on turn end to ensure clean state for next turn). */
   resetBuffers() {
@@ -386,22 +386,22 @@ const CHAT_INCREMENTAL_DERIVE_FLAG = "hilo.chat.incrementalDerive.enabled";
 
 export function formatQuestionToolResult(questions, answers) {
   return questions
-    .map((question2, index2) => {
-      const answer = answers[index2]?.join(", ") ?? "";
-      return `${JSON.stringify(question2.question)}=${JSON.stringify(answer)}`;
+    .map((question, index) => {
+      const answer = answers[index]?.join(", ") ?? "";
+      return `${JSON.stringify(question.question)}=${JSON.stringify(answer)}`;
     })
     .join("\n");
 }
 
 export function questionAttachmentCount(answers) {
   if (!answers) return 0;
-  let count2 = 0;
+  let count = 0;
   for (const answer of answers) {
     for (const value of answer) {
-      if (value.includes("[User attached files:\n")) count2 += 1;
+      if (value.includes("[User attached files:\n")) count += 1;
     }
   }
-  return count2;
+  return count;
 }
 
 export function extractTaskChildSessionId(part) {

@@ -5,7 +5,11 @@ import {
   getProjectAssetWritePolicy,
   PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
 } from "../assets/wrap-as-asset-center-error.js";
-import { API_PATHS, FolderPlus, Loader2, reactExports, useCurrentWorkspace, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { FolderPlus, Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { gatewayUrl } from "../infra/gateway-http-error.jsx";
@@ -28,7 +32,7 @@ import {
   DialogHeader,
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { useProjectAssetsService } from "../infra/new-folder-dialog.jsx";
 import { useProjectActions } from "../settings/use-project-actions.js";
 import { createCloudFolder } from "../assets/read-entity-drag-data.js";
@@ -40,24 +44,24 @@ function preserveExtension(customName, sourceName) {
   if (!sourceExt || cloudAssetExtension(trimmed) === sourceExt) return trimmed;
   return `${trimmed}.${sourceExt}`;
 }
-export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
-  const { t: t2 } = useTranslation();
+export function SaveToProjectAssetsDialog({ state, onOpenChange }) {
+  const { t: translate } = useTranslation();
   const workspacePath = useCurrentWorkspace();
-  const project2 = useWorkspaceProject(workspacePath || void 0);
-  const service2 = useProjectAssetsService();
+  const project = useWorkspaceProject(workspacePath || void 0);
+  const service = useProjectAssetsService();
   const { ensureProjectFolderName } = useProjectActions();
-  const files = state2?.files ?? [];
+  const files = state?.files ?? [];
   const single = files.length === 1 ? files[0] : void 0;
-  const [name2, setName] = reactExports.useState("");
+  const [assetFileName, setAssetFileName] = reactExports.useState("");
   const [options, setOptions] = reactExports.useState([]);
   const [selectedKey, setSelectedKey] = reactExports.useState(ROOT_KEY);
   const [creatingFolder, setCreatingFolder] = reactExports.useState(false);
   const [newFolderName, setNewFolderName] = reactExports.useState("");
-  const [pending2, setPending] = reactExports.useState(false);
+  const [pending, setPending] = reactExports.useState(false);
   const [loadingFolders, setLoadingFolders] = reactExports.useState(false);
   const trackedUploads = reactExports.useRef(new Map());
   reactExports.useEffect(() => {
-    const subscription = service2.onDidChangeTransfer((item) => {
+    const subscription = service.onDidChangeTransfer((item) => {
       const trackedName = trackedUploads.current.get(item.id);
       if (trackedName === void 0) return;
       if (item.status === "failed") {
@@ -65,10 +69,10 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
         dedupedToast.error(
           item.userMessage ??
             (item.errorKind === "review_blocked"
-              ? t2("localAssets.saveUploadBlocked", {
+              ? translate("localAssets.saveUploadBlocked", {
                   name: trackedName,
                 })
-              : t2("localAssets.saveUploadFailed", {
+              : translate("localAssets.saveUploadFailed", {
                   name: trackedName,
                 })),
         );
@@ -77,20 +81,20 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
       }
     });
     return () => subscription.dispose();
-  }, [service2, t2]);
+  }, [service, translate]);
   reactExports.useEffect(() => {
-    setName(single?.displayName ?? "");
+    setAssetFileName(single?.displayName ?? "");
     setSelectedKey(ROOT_KEY);
     setCreatingFolder(false);
     setNewFolderName("");
     setPending(false);
   }, [single]);
   const loadFolders = reactExports.useCallback(async () => {
-    if (!project2) return;
+    if (!project) return;
     setLoadingFolders(true);
     try {
-      if (project2.kind === "team" && project2.remoteId) {
-        const cloud = await listAllCloudFolders(project2.remoteId);
+      if (project.kind === "team" && project.remoteId) {
+        const cloud = await listAllCloudFolders(project.remoteId);
         setOptions([
           {
             key: ROOT_KEY,
@@ -102,27 +106,27 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
           })),
         ]);
       } else {
-        const folderName = await ensureProjectFolderName(project2.id);
+        const folderName = await ensureProjectFolderName(project.id);
         if (!folderName) return;
-        const locals = await service2.listLocalFolders(folderName);
+        const locals = await service.listLocalFolders(folderName);
         setOptions([
           {
             key: ROOT_KEY,
             segments: [],
           },
-          ...locals.sort().map((rel) => ({
-            key: rel,
-            segments: rel.split("/"),
+          ...locals.sort().map((relativePath) => ({
+            key: relativePath,
+            segments: relativePath.split("/"),
           })),
         ]);
       }
     } catch (err) {
       const isCloudProject =
-        project2.kind === "team" && Boolean(project2.remoteId);
+        project.kind === "team" && Boolean(project.remoteId);
       dedupedToast.error(
         (isCloudProject ? cloudErrorDisplayMessage(err) : void 0) ??
           (isCloudProject
-            ? t2("cloudAssets.failServer")
+            ? translate("cloudAssets.failServer")
             : err instanceof Error
               ? err.message
               : String(err)),
@@ -130,29 +134,29 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
     } finally {
       setLoadingFolders(false);
     }
-  }, [ensureProjectFolderName, project2, service2, t2]);
+  }, [ensureProjectFolderName, project, service, translate]);
   reactExports.useEffect(() => {
-    if (state2) void loadFolders();
-  }, [state2, loadFolders]);
-  const selected2 = reactExports.useMemo(
-    () => options.find((option2) => option2.key === selectedKey),
+    if (state) void loadFolders();
+  }, [state, loadFolders]);
+  const selected = reactExports.useMemo(
+    () => options.find((option) => option.key === selectedKey),
     [options, selectedKey],
   );
-  const selectedWritePolicy = selected2
-    ? getProjectAssetWritePolicy(selected2.segments.length)
+  const selectedWritePolicy = selected
+    ? getProjectAssetWritePolicy(selected.segments.length)
     : {
         canCreateFolder: false,
         canCreateFile: false,
       };
   const folderDepthMessage = !selectedWritePolicy.canCreateFolder
     ? selectedWritePolicy.canCreateFile
-      ? t2("projectAssets.folderDepthReached", {
+      ? translate("projectAssets.folderDepthReached", {
           count: PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
         })
-      : t2("projectAssets.depthExceeded")
+      : translate("projectAssets.depthExceeded")
     : void 0;
   const fileDepthMessage = !selectedWritePolicy.canCreateFile
-    ? t2("projectAssets.depthExceeded")
+    ? translate("projectAssets.depthExceeded")
     : void 0;
   reactExports.useEffect(() => {
     if (selectedWritePolicy.canCreateFolder) return;
@@ -162,8 +166,8 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
   const handleCreateFolder = reactExports.useCallback(async () => {
     const trimmed = newFolderName.trim();
     if (
-      !project2 ||
-      !selected2 ||
+      !project ||
+      !selected ||
       !selectedWritePolicy.canCreateFolder ||
       !trimmed
     )
@@ -171,82 +175,82 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
     try {
       const safety = await checkTextSafety(trimmed);
       if (!safety.pass) {
-        dedupedToast.error(t2("rename.safetyBlocked"));
+        dedupedToast.error(translate("rename.safetyBlocked"));
         return;
       }
-      if (project2.kind === "team" && project2.remoteId) {
-        const node2 = await createCloudFolder(
-          project2.remoteId,
-          selected2.key !== ROOT_KEY ? selected2.key : "",
+      if (project.kind === "team" && project.remoteId) {
+        const node = await createCloudFolder(
+          project.remoteId,
+          selected.key !== ROOT_KEY ? selected.key : "",
           trimmed,
         );
-        const segments = [...selected2.segments, node2.name];
-        setOptions((previous2) => [
-          ...previous2,
+        const segments = [...selected.segments, node.name];
+        setOptions((previous) => [
+          ...previous,
           {
-            key: node2.id,
+            key: node.id,
             segments,
           },
         ]);
-        setSelectedKey(node2.id);
+        setSelectedKey(node.id);
       } else {
-        const folderName = await ensureProjectFolderName(project2.id);
+        const folderName = await ensureProjectFolderName(project.id);
         if (!folderName) return;
-        const segments = [...selected2.segments, trimmed];
-        await service2.createLocalFolder(folderName, segments);
-        const rel = segments.join("/");
-        setOptions((previous2) =>
-          previous2.some((option2) => option2.key === rel)
-            ? previous2
+        const segments = [...selected.segments, trimmed];
+        await service.createLocalFolder(folderName, segments);
+        const relativePath = segments.join("/");
+        setOptions((previous) =>
+          previous.some((option) => option.key === relativePath)
+            ? previous
             : [
-                ...previous2,
+                ...previous,
                 {
-                  key: rel,
+                  key: relativePath,
                   segments,
                 },
               ],
         );
-        setSelectedKey(rel);
+        setSelectedKey(relativePath);
       }
       setCreatingFolder(false);
       setNewFolderName("");
     } catch (err) {
-      const message2 = err instanceof Error ? err.message : String(err);
+      const message = err instanceof Error ? err.message : String(err);
       dedupedToast.error(
-        project2.kind === "team" && project2.remoteId
-          ? (cloudErrorDisplayMessage(err) ?? t2("cloudAssets.failServer"))
-          : message2.includes("depth_exceeded")
-            ? t2("localAssets.folderDepthLimit", {
+        project.kind === "team" && project.remoteId
+          ? (cloudErrorDisplayMessage(err) ?? translate("cloudAssets.failServer"))
+          : message.includes("depth_exceeded")
+            ? translate("localAssets.folderDepthLimit", {
                 count: PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
               })
-            : message2,
+            : message,
       );
     }
   }, [
     ensureProjectFolderName,
     newFolderName,
-    project2,
-    selected2,
+    project,
+    selected,
     selectedWritePolicy.canCreateFolder,
-    service2,
-    t2,
+    service,
+    translate,
   ]);
   const handleSave = reactExports.useCallback(async () => {
     if (
-      !project2 ||
-      !state2 ||
-      !selected2 ||
+      !project ||
+      !state ||
+      !selected ||
       !selectedWritePolicy.canCreateFile ||
-      pending2
+      pending
     )
       return;
     setPending(true);
     try {
-      const folderName = await ensureProjectFolderName(project2.id);
+      const folderName = await ensureProjectFolderName(project.id);
       if (!folderName) throw new Error("project folder unresolved");
-      if (project2.kind === "team" && project2.remoteId) {
+      if (project.kind === "team" && project.remoteId) {
         const customName = single
-          ? preserveExtension(name2, single.displayName)
+          ? preserveExtension(assetFileName, single.displayName)
           : "";
         const uploadCandidates = [];
         for (const file of files) {
@@ -257,7 +261,7 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
           });
           if (!verdict.ok) {
             dedupedToast.error(
-              t2("cloudAssets.rejectUnsupported", {
+              translate("cloudAssets.rejectUnsupported", {
                 name: uploadName,
               }),
             );
@@ -272,7 +276,7 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
         for (const candidate of uploadCandidates) {
           const safety = await checkTextSafety(candidate.uploadName);
           if (!safety.pass) {
-            dedupedToast.error(t2("rename.safetyBlocked"));
+            dedupedToast.error(translate("rename.safetyBlocked"));
             continue;
           }
           approvedCandidates.push(candidate);
@@ -280,23 +284,23 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
         let started = 0;
         for (const { file, uploadName } of approvedCandidates) {
           try {
-            const transfer = await service2.startUpload({
+            const transfer = await service.startUpload({
               projectFolderName: folderName,
-              cloudProjectId: project2.remoteId,
-              parentId: selected2.key === ROOT_KEY ? "" : selected2.key,
+              cloudProjectId: project.remoteId,
+              parentId: selected.key === ROOT_KEY ? "" : selected.key,
               filePath: file.absolutePath,
               name: uploadName,
               // Cloud review routes by MIME prefix (image/audio → sync review);
               // without it the gateway falls back to octet-stream and the
               // cloud rejects the file as “unsupported type”.
               mime: cloudAssetMimeType(uploadName),
-              mirrorFolderSegments: selected2.segments,
+              mirrorFolderSegments: selected.segments,
             });
             trackedUploads.current.set(transfer.id, uploadName);
             started += 1;
           } catch (err) {
             dedupedToast.error(
-              t2("cloudAssets.uploadStartFailed", {
+              translate("cloudAssets.uploadStartFailed", {
                 name: uploadName,
                 message: err instanceof Error ? err.message : String(err),
               }),
@@ -304,14 +308,14 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
           }
         }
         if (started === 0) return;
-        dedupedToast.success(t2("localAssets.saveUploadStarted"));
+        dedupedToast.success(translate("localAssets.saveUploadStarted"));
         onOpenChange(false);
         return;
       }
-      const results = await service2.importLocalAssets({
+      const results = await service.importLocalAssets({
         projectFolderName: folderName,
         sourcePaths: files.map((file) => file.absolutePath),
-        folderSegments: selected2.segments,
+        folderSegments: selected.segments,
       });
       const imported = [];
       for (const result of results) {
@@ -320,7 +324,7 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
           const fileName =
             result.sourcePath.split(/[/\\]/).pop() ?? result.sourcePath;
           dedupedToast.error(
-            t2("localAssets.importFailed", {
+            translate("localAssets.importFailed", {
               name: fileName,
             }),
           );
@@ -328,10 +332,10 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
       }
       if (imported.length === 0) return;
       if (single && imported.length === 1) {
-        const trimmed = preserveExtension(name2, single.displayName);
+        const trimmed = preserveExtension(assetFileName, single.displayName);
         if (trimmed && trimmed !== imported[0].name) {
           try {
-            const renamed = await service2.renameLocalAsset(
+            const renamed = await service.renameLocalAsset(
               folderName,
               imported[0].id,
               trimmed,
@@ -340,7 +344,7 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
           } catch {}
         }
       }
-      dedupedToast.success(t2("localAssets.saveSuccess"));
+      dedupedToast.success(translate("localAssets.saveSuccess"));
       onOpenChange(false);
     } catch (err) {
       dedupedToast.error(err instanceof Error ? err.message : String(err));
@@ -350,16 +354,16 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
   }, [
     ensureProjectFolderName,
     files,
-    name2,
+    assetFileName,
     onOpenChange,
-    pending2,
-    project2,
-    selected2,
+    pending,
+    project,
+    selected,
     selectedWritePolicy.canCreateFile,
-    service2,
+    service,
     single,
-    state2,
-    t2,
+    state,
+    translate,
   ]);
   const previewSrc = single
     ? withThumbnailWidth(
@@ -367,30 +371,30 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
         480,
       )
     : void 0;
-  const isImage2 = single
+  const isImage = single
     ? /\.(png|jpe?g|gif|webp)$/i.test(single.displayName)
     : false;
   return (
-    <Dialog open={state2 !== null} onOpenChange={onOpenChange}>
+    <Dialog open={state !== null} onOpenChange={onOpenChange}>
       <DialogContent
         size="sm"
         data-action-ui-id="canvas.save-to-project-assets-dialog"
       >
         <DialogHeader>
           <DialogTitle className="text-body-14 leading-5 font-medium">
-            {t2("localAssets.saveDialogTitle")}
+            {translate("localAssets.saveDialogTitle")}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            {t2("localAssets.saveDialogTitle")}
+            {translate("localAssets.saveDialogTitle")}
           </DialogDescription>
         </DialogHeader>
-        {!project2 ? (
+        {!project ? (
           <p className="py-4 text-center text-[13px] text-muted-foreground">
-            {t2("localAssets.noProject")}
+            {translate("localAssets.noProject")}
           </p>
         ) : (
           <div className="flex flex-col gap-3">
-            {single && isImage2 && previewSrc ? (
+            {single && isImage && previewSrc ? (
               <div className="flex max-h-40 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
                 <img
                   src={previewSrc}
@@ -402,7 +406,7 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
               <p className="truncate text-[13px] text-muted-foreground">
                 {single
                   ? single.displayName
-                  : t2("localAssets.saveFileCount", {
+                  : translate("localAssets.saveFileCount", {
                       count: files.length,
                     })}
               </p>
@@ -410,18 +414,18 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
             {single ? (
               <div className="flex flex-col gap-1">
                 <span className="text-[12px] text-muted-foreground">
-                  {t2("localAssets.saveName")}
+                  {translate("localAssets.saveName")}
                 </span>
-                <Input3
-                  value={name2}
-                  onChange={(event) => setName(event.target.value)}
+                <Input
+                  value={assetFileName}
+                  onChange={(event) => setAssetFileName(event.target.value)}
                   autoComplete="off"
                 />
               </div>
             ) : null}
             <div className="flex flex-col gap-1">
               <span className="text-[12px] text-muted-foreground">
-                {t2("localAssets.saveLocation")}
+                {translate("localAssets.saveLocation")}
               </span>
               <div className="flex items-center gap-1.5">
                 <FolderDrillDownPicker
@@ -435,10 +439,10 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
                 <Button
                   variant="outline"
                   size="icon-sm"
-                  aria-label={t2("localAssets.newFolder")}
-                  title={folderDepthMessage ?? t2("localAssets.newFolder")}
+                  aria-label={translate("localAssets.newFolder")}
+                  title={folderDepthMessage ?? translate("localAssets.newFolder")}
                   disabled={!selectedWritePolicy.canCreateFolder}
-                  onClick={() => setCreatingFolder((previous2) => !previous2)}
+                  onClick={() => setCreatingFolder((previous) => !previous)}
                   data-action-ui-id="canvas.save-to-project-assets-new-folder"
                 >
                   <FolderPlus size={14} strokeWidth={1.5} />
@@ -446,10 +450,10 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
               </div>
               {creatingFolder && selectedWritePolicy.canCreateFolder ? (
                 <div className="mt-1 flex items-center gap-1.5">
-                  <Input3
+                  <Input
                     autoFocus={true}
                     value={newFolderName}
-                    placeholder={t2("localAssets.newFolderPlaceholder")}
+                    placeholder={translate("localAssets.newFolderPlaceholder")}
                     onChange={(event) => setNewFolderName(event.target.value)}
                     onKeyDown={(event) => {
                       if (event.key !== "Enter") return;
@@ -462,7 +466,7 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
                     disabled={!newFolderName.trim()}
                     onClick={() => void handleCreateFolder()}
                   >
-                    {t2("common.confirm")}
+                    {translate("common.confirm")}
                   </Button>
                 </div>
               ) : null}
@@ -475,29 +479,29 @@ export function SaveToProjectAssetsDialog({ state: state2, onOpenChange }) {
             size="sm"
             onClick={() => onOpenChange(false)}
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             size="sm"
             disabled={
-              !project2 ||
-              !selected2 ||
+              !project ||
+              !selected ||
               !selectedWritePolicy.canCreateFile ||
-              pending2 ||
-              (Boolean(single) && !name2.trim())
+              pending ||
+              (Boolean(single) && !assetFileName.trim())
             }
             title={fileDepthMessage}
             onClick={() => void handleSave()}
             data-action-ui-id="canvas.save-to-project-assets-save"
           >
-            {pending2 ? (
+            {pending ? (
               <Loader2
                 size={14}
                 className="animate-spin"
                 data-icon="inline-start"
               />
             ) : null}
-            {t2("localAssets.save")}
+            {translate("localAssets.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

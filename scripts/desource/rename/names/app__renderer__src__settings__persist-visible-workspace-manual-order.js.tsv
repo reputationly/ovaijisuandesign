@@ -1,0 +1,6 @@
+key	new	reason
+index2@46:34	index	去掉打包器加的数字后缀，恢复原名 index
+seen2@64:9	seen	去掉打包器加的数字后缀，恢复原名 seen
+key2@66:11	key	去掉打包器加的数字后缀，恢复原名 key
+key2@72:11	key	去掉打包器加的数字后缀，恢复原名 key
+key2@80:39	key	去掉打包器加的数字后缀，恢复原名 key

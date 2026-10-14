@@ -1,0 +1,8 @@
+key	new	reason
+set2@16:23	set	去掉打包器加的数字后缀，恢复原名 set
+state2@24:13	state	去掉打包器加的数字后缀，恢复原名 state
+state2@43:13	state	去掉打包器加的数字后缀，恢复原名 state
+state2@54:13	state	去掉打包器加的数字后缀，恢复原名 state
+state2@72:13	state	去掉打包器加的数字后缀，恢复原名 state
+state2@83:13	state	去掉打包器加的数字后缀，恢复原名 state
+patch2@100:15	patch	去掉打包器加的数字后缀，恢复原名 patch

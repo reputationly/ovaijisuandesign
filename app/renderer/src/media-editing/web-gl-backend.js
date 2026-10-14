@@ -2,35 +2,35 @@
 import { BaseBackend } from "./base-backend.jsx";
 import { isWebGLSupported } from "./parse-cube-lut.js";
 import { defaultLUTParams } from "./default-settings.js";
-function lutToFlat2D(lut) {
-  const { size: size2, data: data2, domainMin, domainMax } = lut;
-  const width = size2 * size2;
-  const height = size2;
-  const out = new Uint8Array(width * height * 4);
-  const dxR = domainMax[0] - domainMin[0] || 1;
-  const dxG = domainMax[1] - domainMin[1] || 1;
-  const dxB = domainMax[2] - domainMin[2] || 1;
-  for (let bSlice = 0; bSlice < size2; bSlice++) {
-    for (let gRow = 0; gRow < size2; gRow++) {
-      for (let rCol = 0; rCol < size2; rCol++) {
-        const srcIdx = (bSlice * size2 * size2 + gRow * size2 + rCol) * 3;
-        const dstX = bSlice * size2 + rCol;
+function lutToFlat2D(lookupTable) {
+  const { size, data, domainMin, domainMax } = lookupTable;
+  const width = size * size;
+  const height = size;
+  const rgbaData = new Uint8Array(width * height * 4);
+  const redDomainRange = domainMax[0] - domainMin[0] || 1;
+  const greenDomainRange = domainMax[1] - domainMin[1] || 1;
+  const blueDomainRange = domainMax[2] - domainMin[2] || 1;
+  for (let bSlice = 0; bSlice < size; bSlice++) {
+    for (let gRow = 0; gRow < size; gRow++) {
+      for (let rCol = 0; rCol < size; rCol++) {
+        const srcIdx = (bSlice * size * size + gRow * size + rCol) * 3;
+        const dstX = bSlice * size + rCol;
         const dstY = gRow;
         const dstIdx = (dstY * width + dstX) * 4;
-        const r2 = (data2[srcIdx] - domainMin[0]) / dxR;
-        const g2 = (data2[srcIdx + 1] - domainMin[1]) / dxG;
-        const b3 = (data2[srcIdx + 2] - domainMin[2]) / dxB;
-        out[dstIdx] = Math.max(0, Math.min(255, Math.round(r2 * 255)));
-        out[dstIdx + 1] = Math.max(0, Math.min(255, Math.round(g2 * 255)));
-        out[dstIdx + 2] = Math.max(0, Math.min(255, Math.round(b3 * 255)));
-        out[dstIdx + 3] = 255;
+        const normalizedRed = (data[srcIdx] - domainMin[0]) / redDomainRange;
+        const normalizedGreen = (data[srcIdx + 1] - domainMin[1]) / greenDomainRange;
+        const normalizedBlue = (data[srcIdx + 2] - domainMin[2]) / blueDomainRange;
+        rgbaData[dstIdx] = Math.max(0, Math.min(255, Math.round(normalizedRed * 255)));
+        rgbaData[dstIdx + 1] = Math.max(0, Math.min(255, Math.round(normalizedGreen * 255)));
+        rgbaData[dstIdx + 2] = Math.max(0, Math.min(255, Math.round(normalizedBlue * 255)));
+        rgbaData[dstIdx + 3] = 255;
       }
     }
   }
   return {
     width,
     height,
-    data: out,
+    data: rgbaData,
   };
 }
 const vertexSource = `
@@ -743,50 +743,50 @@ void main() {
   gl_FragColor = vec4(finalColor, base.a);
 }
 `;
-function createShader(gl, type2, source) {
-  const shader = gl.createShader(type2);
+function createShader(webGLContext, type, source) {
+  const shader = webGLContext.createShader(type);
   if (!shader) return null;
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error("Shader compile error:", gl.getShaderInfoLog(shader));
-    gl.deleteShader(shader);
+  webGLContext.shaderSource(shader, source);
+  webGLContext.compileShader(shader);
+  if (!webGLContext.getShaderParameter(shader, webGLContext.COMPILE_STATUS)) {
+    console.error("Shader compile error:", webGLContext.getShaderInfoLog(shader));
+    webGLContext.deleteShader(shader);
     return null;
   }
   return shader;
 }
-function createProgram(gl, vs2, fs) {
-  const program = gl.createProgram();
+function createProgram(webGLContext, vertexShader, fragmentShader) {
+  const program = webGLContext.createProgram();
   if (!program) return null;
-  gl.attachShader(program, vs2);
-  gl.attachShader(program, fs);
-  gl.linkProgram(program);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error("Program link error:", gl.getProgramInfoLog(program));
-    gl.deleteProgram(program);
+  webGLContext.attachShader(program, vertexShader);
+  webGLContext.attachShader(program, fragmentShader);
+  webGLContext.linkProgram(program);
+  if (!webGLContext.getProgramParameter(program, webGLContext.LINK_STATUS)) {
+    console.error("Program link error:", webGLContext.getProgramInfoLog(program));
+    webGLContext.deleteProgram(program);
     return null;
   }
   return program;
 }
-function buildProgram(gl, vertex, fragment2, uniforms) {
-  const vs2 = createShader(gl, gl.VERTEX_SHADER, vertex);
-  const fs = createShader(gl, gl.FRAGMENT_SHADER, fragment2);
-  if (!vs2 || !fs) {
+function buildProgram(webGLContext, vertex, fragment, uniforms) {
+  const vertexShader = createShader(webGLContext, webGLContext.VERTEX_SHADER, vertex);
+  const fragmentShader = createShader(webGLContext, webGLContext.FRAGMENT_SHADER, fragment);
+  if (!vertexShader || !fragmentShader) {
     throw new Error("Shader compile failed.");
   }
-  const program = createProgram(gl, vs2, fs);
+  const program = createProgram(webGLContext, vertexShader, fragmentShader);
   if (!program) {
     throw new Error("Program link failed.");
   }
   const attribs = {
-    aPosition: gl.getAttribLocation(program, "aPosition"),
-    aTexCoord: gl.getAttribLocation(program, "aTexCoord"),
-    apos: gl.getAttribLocation(program, "apos"),
-    auv: gl.getAttribLocation(program, "auv"),
+    aPosition: webGLContext.getAttribLocation(program, "aPosition"),
+    aTexCoord: webGLContext.getAttribLocation(program, "aTexCoord"),
+    apos: webGLContext.getAttribLocation(program, "apos"),
+    auv: webGLContext.getAttribLocation(program, "auv"),
   };
   const uniformMap = {};
-  ["uFlipY", ...uniforms].forEach((name2) => {
-    uniformMap[name2] = gl.getUniformLocation(program, name2);
+  ["uFlipY", ...uniforms].forEach((uniformName) => {
+    uniformMap[uniformName] = webGLContext.getUniformLocation(program, uniformName);
   });
   return {
     program,
@@ -794,36 +794,36 @@ function buildProgram(gl, vertex, fragment2, uniforms) {
     uniforms: uniformMap,
   };
 }
-function createRenderTarget(gl, width, height) {
-  const texture = gl.createTexture();
+function createRenderTarget(webGLContext, width, height) {
+  const texture = webGLContext.createTexture();
   if (!texture) {
     throw new Error("Unable to create texture");
   }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(
-    gl.TEXTURE_2D,
+  webGLContext.bindTexture(webGLContext.TEXTURE_2D, texture);
+  webGLContext.texImage2D(
+    webGLContext.TEXTURE_2D,
     0,
-    gl.RGBA,
+    webGLContext.RGBA,
     width,
     height,
     0,
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
+    webGLContext.RGBA,
+    webGLContext.UNSIGNED_BYTE,
     null,
   );
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  const framebuffer = gl.createFramebuffer();
+  webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MIN_FILTER, webGLContext.LINEAR);
+  webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MAG_FILTER, webGLContext.LINEAR);
+  webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_S, webGLContext.CLAMP_TO_EDGE);
+  webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_T, webGLContext.CLAMP_TO_EDGE);
+  const framebuffer = webGLContext.createFramebuffer();
   if (!framebuffer) {
     throw new Error("Unable to create framebuffer");
   }
-  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-  gl.framebufferTexture2D(
-    gl.FRAMEBUFFER,
-    gl.COLOR_ATTACHMENT0,
-    gl.TEXTURE_2D,
+  webGLContext.bindFramebuffer(webGLContext.FRAMEBUFFER, framebuffer);
+  webGLContext.framebufferTexture2D(
+    webGLContext.FRAMEBUFFER,
+    webGLContext.COLOR_ATTACHMENT0,
+    webGLContext.TEXTURE_2D,
     texture,
     0,
   );
@@ -833,93 +833,93 @@ function createRenderTarget(gl, width, height) {
   };
 }
 const PALETTE_SIZE = 256;
-const clamp01$1 = (value) => Math.min(1, Math.max(0, value));
-const cubicBezier = (t2, p0, p1, p22, p3) => {
-  const u4 = 1 - t2;
+const clampToUnitInterval = (value) => Math.min(1, Math.max(0, value));
+const cubicBezier = (interpolationFactor, startValue, firstControlValue, secondControlValue, endValue) => {
+  const inverseInterpolationFactor = 1 - interpolationFactor;
   return (
-    u4 * u4 * u4 * p0 +
-    3 * u4 * u4 * t2 * p1 +
-    3 * u4 * t2 * t2 * p22 +
-    t2 * t2 * t2 * p3
+    inverseInterpolationFactor * inverseInterpolationFactor * inverseInterpolationFactor * startValue +
+    3 * inverseInterpolationFactor * inverseInterpolationFactor * interpolationFactor * firstControlValue +
+    3 * inverseInterpolationFactor * interpolationFactor * interpolationFactor * secondControlValue +
+    interpolationFactor * interpolationFactor * interpolationFactor * endValue
   );
 };
 const buildCurvePalette = (lowControl, highControl) => {
-  const data2 = new Uint8Array(PALETTE_SIZE * 3);
-  for (let i2 = 0; i2 < PALETTE_SIZE; i2 += 1) {
-    const t2 = i2 / (PALETTE_SIZE - 1);
-    const y4 = cubicBezier(t2, 0, lowControl, highControl, 1);
-    const v2 = Math.round(clamp01$1(y4) * 255);
-    const idx = i2 * 3;
-    data2[idx] = v2;
-    data2[idx + 1] = v2;
-    data2[idx + 2] = v2;
+  const data = new Uint8Array(PALETTE_SIZE * 3);
+  for (let paletteIndex = 0; paletteIndex < PALETTE_SIZE; paletteIndex += 1) {
+    const interpolationFactor = paletteIndex / (PALETTE_SIZE - 1);
+    const curveValue = cubicBezier(interpolationFactor, 0, lowControl, highControl, 1);
+    const channelByte = Math.round(clampToUnitInterval(curveValue) * 255);
+    const paletteOffset = paletteIndex * 3;
+    data[paletteOffset] = channelByte;
+    data[paletteOffset + 1] = channelByte;
+    data[paletteOffset + 2] = channelByte;
   }
-  return data2;
+  return data;
 };
 const buildBlackPalette = (amount) => {
-  const amt = Math.max(-100, Math.min(100, amount)) / 100;
+  const normalizedAmount = Math.max(-100, Math.min(100, amount)) / 100;
   const strength = 0.35;
-  const lowControl = clamp01$1(0.33 - amt * strength);
+  const lowControl = clampToUnitInterval(0.33 - normalizedAmount * strength);
   const highControl = 0.66;
   return buildCurvePalette(lowControl, highControl);
 };
-const createPaletteTexture = (gl, data2) => {
-  const texture = gl.createTexture();
+const createPaletteTexture = (webGLContext, data) => {
+  const texture = webGLContext.createTexture();
   if (!texture) {
     throw new Error("Unable to create palette texture");
   }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(
-    gl.TEXTURE_2D,
+  webGLContext.bindTexture(webGLContext.TEXTURE_2D, texture);
+  webGLContext.texImage2D(
+    webGLContext.TEXTURE_2D,
     0,
-    gl.RGB,
+    webGLContext.RGB,
     PALETTE_SIZE,
     1,
     0,
-    gl.RGB,
-    gl.UNSIGNED_BYTE,
-    data2,
+    webGLContext.RGB,
+    webGLContext.UNSIGNED_BYTE,
+    data,
   );
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MIN_FILTER, webGLContext.NEAREST);
+  webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MAG_FILTER, webGLContext.NEAREST);
+  webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_S, webGLContext.CLAMP_TO_EDGE);
+  webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_T, webGLContext.CLAMP_TO_EDGE);
   return texture;
 };
-const updatePaletteTexture = (gl, texture, data2) => {
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texSubImage2D(
-    gl.TEXTURE_2D,
+const updatePaletteTexture = (webGLContext, texture, data) => {
+  webGLContext.bindTexture(webGLContext.TEXTURE_2D, texture);
+  webGLContext.texSubImage2D(
+    webGLContext.TEXTURE_2D,
     0,
     0,
     0,
     PALETTE_SIZE,
     1,
-    gl.RGB,
-    gl.UNSIGNED_BYTE,
-    data2,
+    webGLContext.RGB,
+    webGLContext.UNSIGNED_BYTE,
+    data,
   );
 };
 const buildContrastMatrix = (amount) => {
-  const t2 = Math.max(-100, Math.min(100, amount)) / 100;
-  const scale2 = 1 + t2;
-  const offset2 = 0.5 * (1 - scale2);
+  const normalizedAmount = Math.max(-100, Math.min(100, amount)) / 100;
+  const scale = 1 + normalizedAmount;
+  const offset = 0.5 * (1 - scale);
   return new Float32Array([
-    scale2,
+    scale,
     0,
     0,
     0,
-    offset2,
+    offset,
     0,
-    scale2,
-    0,
-    0,
-    offset2,
+    scale,
     0,
     0,
-    scale2,
+    offset,
     0,
-    offset2,
+    0,
+    scale,
+    0,
+    offset,
     0,
     0,
     0,
@@ -928,26 +928,26 @@ const buildContrastMatrix = (amount) => {
   ]);
 };
 const buildSaturationMatrix = (amount) => {
-  const t2 = Math.max(-100, Math.min(100, amount)) / 100;
-  const scale2 = 1 + t2;
+  const normalizedAmount = Math.max(-100, Math.min(100, amount)) / 100;
+  const scale = 1 + normalizedAmount;
   const lumR = 0.299;
   const lumG = 0.587;
   const lumB = 0.114;
-  const inv = 1 - scale2;
+  const inverseScale = 1 - scale;
   return new Float32Array([
-    inv * lumR + scale2,
-    inv * lumG,
-    inv * lumB,
+    inverseScale * lumR + scale,
+    inverseScale * lumG,
+    inverseScale * lumB,
     0,
     0,
-    inv * lumR,
-    inv * lumG + scale2,
-    inv * lumB,
+    inverseScale * lumR,
+    inverseScale * lumG + scale,
+    inverseScale * lumB,
     0,
     0,
-    inv * lumR,
-    inv * lumG,
-    inv * lumB + scale2,
+    inverseScale * lumR,
+    inverseScale * lumG,
+    inverseScale * lumB + scale,
     0,
     0,
     0,
@@ -999,71 +999,71 @@ export class WebGLBackend extends BaseBackend {
     }
     this.initialized = true;
   }
-  loadFromImage(image2) {
+  loadFromImage(image) {
     if (!this.gl) this.init();
-    const gl = this.gl;
-    if (!gl) throw new Error("WebGL context not available");
+    const webGLContext = this.gl;
+    if (!webGLContext) throw new Error("WebGL context not available");
     this.sourceNeedsFlipY = false;
-    const width = image2.naturalWidth || image2.width;
-    const height = image2.naturalHeight || image2.height;
+    const width = image.naturalWidth || image.width;
+    const height = image.naturalHeight || image.height;
     this.width = width;
     this.height = height;
     this.canvas.width = width;
     this.canvas.height = height;
     this.disposeResources();
-    gl.disable(gl.DEPTH_TEST);
-    gl.viewport(0, 0, width, height);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-    const sourceTexture = gl.createTexture();
+    webGLContext.disable(webGLContext.DEPTH_TEST);
+    webGLContext.viewport(0, 0, width, height);
+    webGLContext.pixelStorei(webGLContext.UNPACK_FLIP_Y_WEBGL, 1);
+    const sourceTexture = webGLContext.createTexture();
     if (!sourceTexture) throw new Error("Failed to create texture");
-    gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image2);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    this.initResources(gl, width, height, sourceTexture);
+    webGLContext.bindTexture(webGLContext.TEXTURE_2D, sourceTexture);
+    webGLContext.texImage2D(webGLContext.TEXTURE_2D, 0, webGLContext.RGBA, webGLContext.RGBA, webGLContext.UNSIGNED_BYTE, image);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MIN_FILTER, webGLContext.LINEAR);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MAG_FILTER, webGLContext.LINEAR);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_S, webGLContext.CLAMP_TO_EDGE);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_T, webGLContext.CLAMP_TO_EDGE);
+    this.initResources(webGLContext, width, height, sourceTexture);
   }
   loadFromImageData(imageData) {
     if (!this.gl) this.init();
-    const gl = this.gl;
-    if (!gl) throw new Error("WebGL context not available");
+    const webGLContext = this.gl;
+    if (!webGLContext) throw new Error("WebGL context not available");
     this.sourceNeedsFlipY = true;
-    const { width, height, data: data2 } = imageData;
+    const { width, height, data } = imageData;
     this.width = width;
     this.height = height;
     this.canvas.width = width;
     this.canvas.height = height;
     this.disposeResources();
-    gl.viewport(0, 0, width, height);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-    const sourceTexture = gl.createTexture();
+    webGLContext.viewport(0, 0, width, height);
+    webGLContext.pixelStorei(webGLContext.UNPACK_FLIP_Y_WEBGL, 1);
+    const sourceTexture = webGLContext.createTexture();
     if (!sourceTexture) throw new Error("Failed to create texture");
-    gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
+    webGLContext.bindTexture(webGLContext.TEXTURE_2D, sourceTexture);
+    webGLContext.texImage2D(
+      webGLContext.TEXTURE_2D,
       0,
-      gl.RGBA,
+      webGLContext.RGBA,
       width,
       height,
       0,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      data2,
+      webGLContext.RGBA,
+      webGLContext.UNSIGNED_BYTE,
+      data,
     );
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    this.initResources(gl, width, height, sourceTexture);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MIN_FILTER, webGLContext.LINEAR);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MAG_FILTER, webGLContext.LINEAR);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_S, webGLContext.CLAMP_TO_EDGE);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_T, webGLContext.CLAMP_TO_EDGE);
+    this.initResources(webGLContext, width, height, sourceTexture);
   }
   loadFromVideo(video) {
     this.loadFromSource(video, video.videoWidth, video.videoHeight);
   }
   loadFromSource(source, width, height) {
     if (!this.gl) this.init();
-    const gl = this.gl;
-    if (!gl) throw new Error("WebGL context not available");
+    const webGLContext = this.gl;
+    if (!webGLContext) throw new Error("WebGL context not available");
     if (!width || !height) {
       throw new Error("Source dimensions unavailable");
     }
@@ -1074,67 +1074,67 @@ export class WebGLBackend extends BaseBackend {
     this.canvas.width = width;
     this.canvas.height = height;
     this.disposeResources();
-    gl.disable(gl.DEPTH_TEST);
-    gl.viewport(0, 0, width, height);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-    const sourceTexture = gl.createTexture();
+    webGLContext.disable(webGLContext.DEPTH_TEST);
+    webGLContext.viewport(0, 0, width, height);
+    webGLContext.pixelStorei(webGLContext.UNPACK_FLIP_Y_WEBGL, 1);
+    const sourceTexture = webGLContext.createTexture();
     if (!sourceTexture) throw new Error("Failed to create texture");
-    gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    this.initResources(gl, width, height, sourceTexture);
+    webGLContext.bindTexture(webGLContext.TEXTURE_2D, sourceTexture);
+    webGLContext.texImage2D(webGLContext.TEXTURE_2D, 0, webGLContext.RGBA, webGLContext.RGBA, webGLContext.UNSIGNED_BYTE, source);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MIN_FILTER, webGLContext.LINEAR);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MAG_FILTER, webGLContext.LINEAR);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_S, webGLContext.CLAMP_TO_EDGE);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_T, webGLContext.CLAMP_TO_EDGE);
+    this.initResources(webGLContext, width, height, sourceTexture);
   }
   updateFromVideo(video) {
     this.updateFromSource(video);
   }
   updateFromSource(source) {
-    const gl = this.gl;
-    if (!gl || !this.resources) {
+    const webGLContext = this.gl;
+    if (!webGLContext || !this.resources) {
       throw new Error("Backend not ready, call loadFromSource first");
     }
     this.sourceNeedsFlipY =
       typeof ImageBitmap !== "undefined" && source instanceof ImageBitmap;
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-    gl.bindTexture(gl.TEXTURE_2D, this.resources.sourceTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+    webGLContext.pixelStorei(webGLContext.UNPACK_FLIP_Y_WEBGL, 1);
+    webGLContext.bindTexture(webGLContext.TEXTURE_2D, this.resources.sourceTexture);
+    webGLContext.texImage2D(webGLContext.TEXTURE_2D, 0, webGLContext.RGBA, webGLContext.RGBA, webGLContext.UNSIGNED_BYTE, source);
   }
-  setLUT(lut) {
-    const gl = this.gl;
-    if (!gl || !this.resources) {
+  setLUT(lookupTable) {
+    const webGLContext = this.gl;
+    if (!webGLContext || !this.resources) {
       throw new Error("Backend not initialized");
     }
     if (this.resources.lutTexture) {
-      gl.deleteTexture(this.resources.lutTexture);
+      webGLContext.deleteTexture(this.resources.lutTexture);
       this.resources.lutTexture = null;
       this.resources.lutSize = 0;
     }
-    if (!lut) return;
-    const flat = lutToFlat2D(lut);
-    const tex = gl.createTexture();
-    if (!tex) throw new Error("Failed to create LUT texture");
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
+    if (!lookupTable) return;
+    const flat = lutToFlat2D(lookupTable);
+    const lutTexture = webGLContext.createTexture();
+    if (!lutTexture) throw new Error("Failed to create LUT texture");
+    webGLContext.bindTexture(webGLContext.TEXTURE_2D, lutTexture);
+    webGLContext.pixelStorei(webGLContext.UNPACK_FLIP_Y_WEBGL, 0);
+    webGLContext.texImage2D(
+      webGLContext.TEXTURE_2D,
       0,
-      gl.RGBA,
+      webGLContext.RGBA,
       flat.width,
       flat.height,
       0,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
+      webGLContext.RGBA,
+      webGLContext.UNSIGNED_BYTE,
       flat.data,
     );
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-    this.resources.lutTexture = tex;
-    this.resources.lutSize = lut.size;
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MIN_FILTER, webGLContext.LINEAR);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MAG_FILTER, webGLContext.LINEAR);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_S, webGLContext.CLAMP_TO_EDGE);
+    webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_T, webGLContext.CLAMP_TO_EDGE);
+    webGLContext.pixelStorei(webGLContext.UNPACK_FLIP_Y_WEBGL, 1);
+    this.resources.lutTexture = lutTexture;
+    this.resources.lutSize = lookupTable.size;
   }
   setLUTParams(params) {
     this.lutParams = {
@@ -1148,16 +1148,16 @@ export class WebGLBackend extends BaseBackend {
     this.drawFrame(this.resources, settings);
   }
   getImageData() {
-    const gl = this.gl;
-    if (gl) {
+    const webGLContext = this.gl;
+    if (webGLContext) {
       const pixels = new Uint8ClampedArray(this.width * this.height * 4);
-      gl.readPixels(
+      webGLContext.readPixels(
         0,
         0,
         this.width,
         this.height,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
+        webGLContext.RGBA,
+        webGLContext.UNSIGNED_BYTE,
         pixels,
       );
       return new ImageData(pixels, this.width, this.height);
@@ -1173,113 +1173,113 @@ export class WebGLBackend extends BaseBackend {
     this.gl = null;
     this.initialized = false;
   }
-  initResources(gl, width, height, sourceTexture) {
-    const blackPalette = createPaletteTexture(gl, buildBlackPalette(0));
+  initResources(webGLContext, width, height, sourceTexture) {
+    const blackPalette = createPaletteTexture(webGLContext, buildBlackPalette(0));
     this.lastBlacksPalette = 0;
-    const positionBuffer = gl.createBuffer();
-    const texCoordBuffer = gl.createBuffer();
+    const positionBuffer = webGLContext.createBuffer();
+    const texCoordBuffer = webGLContext.createBuffer();
     if (!positionBuffer || !texCoordBuffer) {
       throw new Error("Failed to create buffers");
     }
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
+    webGLContext.bindBuffer(webGLContext.ARRAY_BUFFER, positionBuffer);
+    webGLContext.bufferData(
+      webGLContext.ARRAY_BUFFER,
       new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-      gl.STATIC_DRAW,
+      webGLContext.STATIC_DRAW,
     );
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
+    webGLContext.bindBuffer(webGLContext.ARRAY_BUFFER, texCoordBuffer);
+    webGLContext.bufferData(
+      webGLContext.ARRAY_BUFFER,
       new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]),
-      gl.STATIC_DRAW,
+      webGLContext.STATIC_DRAW,
     );
-    const vs2 = vertexSource;
+    const vertexShaderSource = vertexSource;
     const blackVs = blackVertexSource;
     const programs = {
-      pass: buildProgram(gl, vs2, passFragment, ["uTexture"]),
-      vibrance: buildProgram(gl, vs2, vibranceFragment, [
+      pass: buildProgram(webGLContext, vertexShaderSource, passFragment, ["uTexture"]),
+      vibrance: buildProgram(webGLContext, vertexShaderSource, vibranceFragment, [
         "uTexture",
         "uAmount",
       ]),
-      saturation: buildProgram(gl, vs2, saturationFragment, [
+      saturation: buildProgram(webGLContext, vertexShaderSource, saturationFragment, [
         "uTexture",
         "uMatrix[0]",
       ]),
-      temperature: buildProgram(gl, vs2, temperatureFragment, [
+      temperature: buildProgram(webGLContext, vertexShaderSource, temperatureFragment, [
         "uTexture",
         "uAmount",
       ]),
-      tint: buildProgram(gl, vs2, tintFragment, ["uTexture", "uAmount"]),
-      hue: buildProgram(gl, vs2, hueFragment, ["uTexture", "uRotation"]),
-      brightness: buildProgram(gl, vs2, brightnessFragment, [
+      tint: buildProgram(webGLContext, vertexShaderSource, tintFragment, ["uTexture", "uAmount"]),
+      hue: buildProgram(webGLContext, vertexShaderSource, hueFragment, ["uTexture", "uRotation"]),
+      brightness: buildProgram(webGLContext, vertexShaderSource, brightnessFragment, [
         "uTexture",
         "uAmount",
       ]),
-      exposure: buildProgram(gl, vs2, exposureFragment, [
+      exposure: buildProgram(webGLContext, vertexShaderSource, exposureFragment, [
         "uTexture",
         "uAmount",
       ]),
-      contrast: buildProgram(gl, vs2, contrastFragment, [
+      contrast: buildProgram(webGLContext, vertexShaderSource, contrastFragment, [
         "uTexture",
         "uMatrix[0]",
       ]),
-      blacks: buildProgram(gl, blackVs, blackPaletteFragment, [
+      blacks: buildProgram(webGLContext, blackVs, blackPaletteFragment, [
         "uTexture",
         "uPaletteMap",
         "transform",
       ]),
-      whites: buildProgram(gl, vs2, whitesFragment, ["uTexture", "uAmount"]),
-      highlights: buildProgram(gl, vs2, highlightsFragment, [
+      whites: buildProgram(webGLContext, vertexShaderSource, whitesFragment, ["uTexture", "uAmount"]),
+      highlights: buildProgram(webGLContext, vertexShaderSource, highlightsFragment, [
         "uTexture",
         "uAmount",
       ]),
-      shadows: buildProgram(gl, vs2, shadowsFragment, ["uTexture", "uAmount"]),
-      dehaze: buildProgram(gl, vs2, dehazeFragment, [
+      shadows: buildProgram(webGLContext, vertexShaderSource, shadowsFragment, ["uTexture", "uAmount"]),
+      dehaze: buildProgram(webGLContext, vertexShaderSource, dehazeFragment, [
         "uTexture",
         "uAmount",
         "uSize",
       ]),
-      bloom: buildProgram(gl, vs2, bloomFragment, [
+      bloom: buildProgram(webGLContext, vertexShaderSource, bloomFragment, [
         "uTexture",
         "uAmount",
         "uTexel",
         "uThreshold",
       ]),
-      glamour: buildProgram(gl, vs2, glamourFragment, [
+      glamour: buildProgram(webGLContext, vertexShaderSource, glamourFragment, [
         "uTexture",
         "uAmount",
         "uTexel",
       ]),
-      clarity: buildProgram(gl, vs2, clarityFragment, [
+      clarity: buildProgram(webGLContext, vertexShaderSource, clarityFragment, [
         "uTexture",
         "uAmount",
         "uTexel",
       ]),
-      sharpen: buildProgram(gl, vs2, kernelFragment, [
-        "uTexture",
-        "uTexel",
-        "uKernel[0]",
-        "uAmount",
-      ]),
-      smooth: buildProgram(gl, vs2, kernelFragment, [
+      sharpen: buildProgram(webGLContext, vertexShaderSource, kernelFragment, [
         "uTexture",
         "uTexel",
         "uKernel[0]",
         "uAmount",
       ]),
-      blur: buildProgram(gl, vs2, blurFragment, ["uTexture", "uSize"]),
-      vignette: buildProgram(gl, vs2, vignetteFragment, [
+      smooth: buildProgram(webGLContext, vertexShaderSource, kernelFragment, [
+        "uTexture",
+        "uTexel",
+        "uKernel[0]",
+        "uAmount",
+      ]),
+      blur: buildProgram(webGLContext, vertexShaderSource, blurFragment, ["uTexture", "uSize"]),
+      vignette: buildProgram(webGLContext, vertexShaderSource, vignetteFragment, [
         "uTexture",
         "uAmount",
         "uSize",
       ]),
-      grain: buildProgram(gl, vs2, grainFragment, [
+      grain: buildProgram(webGLContext, vertexShaderSource, grainFragment, [
         "uTexture",
         "uResolution",
         "uAmount",
         "uTime",
       ]),
-      lut: buildProgram(gl, vs2, lutFragment, [
+      lut: buildProgram(webGLContext, vertexShaderSource, lutFragment, [
         "uTexture",
         "uLUT",
         "uLUTSize",
@@ -1287,11 +1287,11 @@ export class WebGLBackend extends BaseBackend {
       ]),
     };
     const targets = [
-      createRenderTarget(gl, width, height),
-      createRenderTarget(gl, width, height),
+      createRenderTarget(webGLContext, width, height),
+      createRenderTarget(webGLContext, width, height),
     ];
     this.resources = {
-      gl,
+      gl: webGLContext,
       width,
       height,
       sourceTexture,
@@ -1309,7 +1309,7 @@ export class WebGLBackend extends BaseBackend {
   disposeResources() {
     if (!this.resources) return;
     const {
-      gl,
+      gl: webGLContext,
       sourceTexture,
       blackPalette,
       lutTexture,
@@ -1317,23 +1317,23 @@ export class WebGLBackend extends BaseBackend {
       programs,
       targets,
     } = this.resources;
-    gl.deleteTexture(sourceTexture);
-    gl.deleteTexture(blackPalette);
-    if (lutTexture) gl.deleteTexture(lutTexture);
-    gl.deleteBuffer(quad.positionBuffer);
-    gl.deleteBuffer(quad.texCoordBuffer);
+    webGLContext.deleteTexture(sourceTexture);
+    webGLContext.deleteTexture(blackPalette);
+    if (lutTexture) webGLContext.deleteTexture(lutTexture);
+    webGLContext.deleteBuffer(quad.positionBuffer);
+    webGLContext.deleteBuffer(quad.texCoordBuffer);
     targets.forEach((target) => {
-      gl.deleteFramebuffer(target.framebuffer);
-      gl.deleteTexture(target.texture);
+      webGLContext.deleteFramebuffer(target.framebuffer);
+      webGLContext.deleteTexture(target.texture);
     });
     Object.values(programs).forEach((programInfo) => {
-      gl.deleteProgram(programInfo.program);
+      webGLContext.deleteProgram(programInfo.program);
     });
     this.resources = null;
   }
   drawFrame(resources, settings) {
     const {
-      gl,
+      gl: webGLContext,
       width,
       height,
       sourceTexture,
@@ -1342,44 +1342,44 @@ export class WebGLBackend extends BaseBackend {
       programs,
       targets,
     } = resources;
-    gl.viewport(0, 0, width, height);
+    webGLContext.viewport(0, 0, width, height);
     const texel = [1 / width, 1 / height];
     let inputTexture = sourceTexture;
     let pingIndex = 0;
     const bindAttributes = (program) => {
-      gl.bindBuffer(gl.ARRAY_BUFFER, quad.positionBuffer);
+      webGLContext.bindBuffer(webGLContext.ARRAY_BUFFER, quad.positionBuffer);
       const positionAttrib =
         program.attribs.aPosition >= 0
           ? program.attribs.aPosition
           : program.attribs.apos;
       if (positionAttrib >= 0) {
-        gl.enableVertexAttribArray(positionAttrib);
-        gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 0, 0);
+        webGLContext.enableVertexAttribArray(positionAttrib);
+        webGLContext.vertexAttribPointer(positionAttrib, 2, webGLContext.FLOAT, false, 0, 0);
       }
-      gl.bindBuffer(gl.ARRAY_BUFFER, quad.texCoordBuffer);
+      webGLContext.bindBuffer(webGLContext.ARRAY_BUFFER, quad.texCoordBuffer);
       const texAttrib =
         program.attribs.aTexCoord >= 0
           ? program.attribs.aTexCoord
           : program.attribs.auv;
       if (texAttrib >= 0) {
-        gl.enableVertexAttribArray(texAttrib);
-        gl.vertexAttribPointer(texAttrib, 2, gl.FLOAT, false, 0, 0);
+        webGLContext.enableVertexAttribArray(texAttrib);
+        webGLContext.vertexAttribPointer(texAttrib, 2, webGLContext.FLOAT, false, 0, 0);
       }
     };
     const drawPass = (program, setupUniforms, output) => {
-      gl.useProgram(program.program);
+      webGLContext.useProgram(program.program);
       bindAttributes(program);
-      gl.uniform1f(
+      webGLContext.uniform1f(
         program.uniforms.uFlipY,
         this.sourceNeedsFlipY && inputTexture === sourceTexture ? 1 : 0,
       );
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, inputTexture);
+      webGLContext.activeTexture(webGLContext.TEXTURE0);
+      webGLContext.bindTexture(webGLContext.TEXTURE_2D, inputTexture);
       const textureLoc = program.uniforms.uTexture;
-      if (textureLoc) gl.uniform1i(textureLoc, 0);
+      if (textureLoc) webGLContext.uniform1i(textureLoc, 0);
       setupUniforms();
-      gl.bindFramebuffer(gl.FRAMEBUFFER, output ? output.framebuffer : null);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      webGLContext.bindFramebuffer(webGLContext.FRAMEBUFFER, output ? output.framebuffer : null);
+      webGLContext.drawArrays(webGLContext.TRIANGLE_STRIP, 0, 4);
       inputTexture = output ? output.texture : inputTexture;
     };
     const swapTarget = () => {
@@ -1387,21 +1387,21 @@ export class WebGLBackend extends BaseBackend {
       pingIndex += 1;
       return target;
     };
-    const lut = resources.lutTexture;
+    const lutTexture = resources.lutTexture;
     const lutSize = resources.lutSize;
-    if (lut && lutSize > 0 && this.lutParams.intensity > 5e-3) {
+    if (lutTexture && lutSize > 0 && this.lutParams.intensity > 5e-3) {
       drawPass(
         programs.lut,
         () => {
-          gl.activeTexture(gl.TEXTURE1);
-          gl.bindTexture(gl.TEXTURE_2D, lut);
-          gl.uniform1i(programs.lut.uniforms.uLUT, 1);
-          gl.uniform1f(programs.lut.uniforms.uLUTSize, lutSize);
-          gl.uniform1f(
+          webGLContext.activeTexture(webGLContext.TEXTURE1);
+          webGLContext.bindTexture(webGLContext.TEXTURE_2D, lutTexture);
+          webGLContext.uniform1i(programs.lut.uniforms.uLUT, 1);
+          webGLContext.uniform1f(programs.lut.uniforms.uLUTSize, lutSize);
+          webGLContext.uniform1f(
             programs.lut.uniforms.uIntensity,
             this.lutParams.intensity,
           );
-          gl.activeTexture(gl.TEXTURE0);
+          webGLContext.activeTexture(webGLContext.TEXTURE0);
         },
         swapTarget(),
       );
@@ -1410,7 +1410,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.vibrance,
         () => {
-          gl.uniform1f(
+          webGLContext.uniform1f(
             programs.vibrance.uniforms.uAmount,
             settings.vibrance / 100,
           );
@@ -1423,7 +1423,7 @@ export class WebGLBackend extends BaseBackend {
         programs.saturation,
         () => {
           const matrix = buildSaturationMatrix(settings.saturation);
-          gl.uniform1fv(programs.saturation.uniforms["uMatrix[0]"], matrix);
+          webGLContext.uniform1fv(programs.saturation.uniforms["uMatrix[0]"], matrix);
         },
         swapTarget(),
       );
@@ -1432,7 +1432,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.temperature,
         () => {
-          gl.uniform1f(
+          webGLContext.uniform1f(
             programs.temperature.uniforms.uAmount,
             settings.temperature / 500,
           );
@@ -1444,7 +1444,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.tint,
         () => {
-          gl.uniform1f(programs.tint.uniforms.uAmount, settings.tint / 500);
+          webGLContext.uniform1f(programs.tint.uniforms.uAmount, settings.tint / 500);
         },
         swapTarget(),
       );
@@ -1453,7 +1453,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.hue,
         () => {
-          gl.uniform1f(programs.hue.uniforms.uRotation, settings.hue / 200);
+          webGLContext.uniform1f(programs.hue.uniforms.uRotation, settings.hue / 200);
         },
         swapTarget(),
       );
@@ -1462,7 +1462,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.brightness,
         () => {
-          gl.uniform1f(
+          webGLContext.uniform1f(
             programs.brightness.uniforms.uAmount,
             settings.brightness / 200,
           );
@@ -1474,7 +1474,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.exposure,
         () => {
-          gl.uniform1f(
+          webGLContext.uniform1f(
             programs.exposure.uniforms.uAmount,
             settings.exposure / 100,
           );
@@ -1487,7 +1487,7 @@ export class WebGLBackend extends BaseBackend {
         programs.contrast,
         () => {
           const matrix = buildContrastMatrix(settings.contrast);
-          gl.uniform1fv(programs.contrast.uniforms["uMatrix[0]"], matrix);
+          webGLContext.uniform1fv(programs.contrast.uniforms["uMatrix[0]"], matrix);
         },
         swapTarget(),
       );
@@ -1495,7 +1495,7 @@ export class WebGLBackend extends BaseBackend {
     if (Math.abs(settings.blacks) > 0.5) {
       if (this.lastBlacksPalette !== settings.blacks) {
         updatePaletteTexture(
-          gl,
+          webGLContext,
           blackPalette,
           buildBlackPalette(settings.blacks),
         );
@@ -1504,11 +1504,11 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.blacks,
         () => {
-          gl.activeTexture(gl.TEXTURE1);
-          gl.bindTexture(gl.TEXTURE_2D, blackPalette);
-          gl.uniform1i(programs.blacks.uniforms.uPaletteMap, 1);
-          gl.uniform4f(programs.blacks.uniforms.transform, 1, 1, 0, 0);
-          gl.activeTexture(gl.TEXTURE0);
+          webGLContext.activeTexture(webGLContext.TEXTURE1);
+          webGLContext.bindTexture(webGLContext.TEXTURE_2D, blackPalette);
+          webGLContext.uniform1i(programs.blacks.uniforms.uPaletteMap, 1);
+          webGLContext.uniform4f(programs.blacks.uniforms.transform, 1, 1, 0, 0);
+          webGLContext.activeTexture(webGLContext.TEXTURE0);
         },
         swapTarget(),
       );
@@ -1517,7 +1517,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.whites,
         () => {
-          gl.uniform1f(programs.whites.uniforms.uAmount, settings.whites / 400);
+          webGLContext.uniform1f(programs.whites.uniforms.uAmount, settings.whites / 400);
         },
         swapTarget(),
       );
@@ -1526,7 +1526,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.highlights,
         () => {
-          gl.uniform1f(
+          webGLContext.uniform1f(
             programs.highlights.uniforms.uAmount,
             settings.highlights / 100,
           );
@@ -1538,7 +1538,7 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.shadows,
         () => {
-          gl.uniform1f(
+          webGLContext.uniform1f(
             programs.shadows.uniforms.uAmount,
             settings.shadows / 100,
           );
@@ -1550,8 +1550,8 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.dehaze,
         () => {
-          gl.uniform1f(programs.dehaze.uniforms.uAmount, settings.dehaze / 100);
-          gl.uniform2f(programs.dehaze.uniforms.uSize, width, height);
+          webGLContext.uniform1f(programs.dehaze.uniforms.uAmount, settings.dehaze / 100);
+          webGLContext.uniform2f(programs.dehaze.uniforms.uSize, width, height);
         },
         swapTarget(),
       );
@@ -1560,9 +1560,9 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.bloom,
         () => {
-          gl.uniform1f(programs.bloom.uniforms.uAmount, settings.bloom / 100);
-          gl.uniform2f(programs.bloom.uniforms.uTexel, texel[0], texel[1]);
-          gl.uniform1f(programs.bloom.uniforms.uThreshold, 0.5);
+          webGLContext.uniform1f(programs.bloom.uniforms.uAmount, settings.bloom / 100);
+          webGLContext.uniform2f(programs.bloom.uniforms.uTexel, texel[0], texel[1]);
+          webGLContext.uniform1f(programs.bloom.uniforms.uThreshold, 0.5);
         },
         swapTarget(),
       );
@@ -1571,11 +1571,11 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.glamour,
         () => {
-          gl.uniform1f(
+          webGLContext.uniform1f(
             programs.glamour.uniforms.uAmount,
             settings.glamour / 100,
           );
-          gl.uniform2f(programs.glamour.uniforms.uTexel, texel[0], texel[1]);
+          webGLContext.uniform2f(programs.glamour.uniforms.uTexel, texel[0], texel[1]);
         },
         swapTarget(),
       );
@@ -1584,11 +1584,11 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.clarity,
         () => {
-          gl.uniform1f(
+          webGLContext.uniform1f(
             programs.clarity.uniforms.uAmount,
             settings.clarity / 100,
           );
-          gl.uniform2f(programs.clarity.uniforms.uTexel, texel[0], texel[1]);
+          webGLContext.uniform2f(programs.clarity.uniforms.uTexel, texel[0], texel[1]);
         },
         swapTarget(),
       );
@@ -1597,12 +1597,12 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.sharpen,
         () => {
-          gl.uniform2f(programs.sharpen.uniforms.uTexel, texel[0], texel[1]);
-          gl.uniform1f(
+          webGLContext.uniform2f(programs.sharpen.uniforms.uTexel, texel[0], texel[1]);
+          webGLContext.uniform1f(
             programs.sharpen.uniforms.uAmount,
             settings.sharpen / 100,
           );
-          gl.uniform1fv(
+          webGLContext.uniform1fv(
             programs.sharpen.uniforms["uKernel[0]"],
             SHARPEN_KERNEL,
           );
@@ -1614,9 +1614,9 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.smooth,
         () => {
-          gl.uniform2f(programs.smooth.uniforms.uTexel, texel[0], texel[1]);
-          gl.uniform1f(programs.smooth.uniforms.uAmount, settings.smooth / 100);
-          gl.uniform1fv(programs.smooth.uniforms["uKernel[0]"], SMOOTH_KERNEL);
+          webGLContext.uniform2f(programs.smooth.uniforms.uTexel, texel[0], texel[1]);
+          webGLContext.uniform1f(programs.smooth.uniforms.uAmount, settings.smooth / 100);
+          webGLContext.uniform1fv(programs.smooth.uniforms["uKernel[0]"], SMOOTH_KERNEL);
         },
         swapTarget(),
       );
@@ -1626,14 +1626,14 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.blur,
         () => {
-          gl.uniform2f(programs.blur.uniforms.uSize, blurRadius / width, 0);
+          webGLContext.uniform2f(programs.blur.uniforms.uSize, blurRadius / width, 0);
         },
         swapTarget(),
       );
       drawPass(
         programs.blur,
         () => {
-          gl.uniform2f(programs.blur.uniforms.uSize, 0, blurRadius / height);
+          webGLContext.uniform2f(programs.blur.uniforms.uSize, 0, blurRadius / height);
         },
         swapTarget(),
       );
@@ -1642,11 +1642,11 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.vignette,
         () => {
-          gl.uniform1f(
+          webGLContext.uniform1f(
             programs.vignette.uniforms.uAmount,
             settings.vignette / 100,
           );
-          gl.uniform1f(programs.vignette.uniforms.uSize, 0.25);
+          webGLContext.uniform1f(programs.vignette.uniforms.uSize, 0.25);
         },
         swapTarget(),
       );
@@ -1655,9 +1655,9 @@ export class WebGLBackend extends BaseBackend {
       drawPass(
         programs.grain,
         () => {
-          gl.uniform2f(programs.grain.uniforms.uResolution, width, height);
-          gl.uniform1f(programs.grain.uniforms.uAmount, settings.grain / 800);
-          gl.uniform1f(programs.grain.uniforms.uTime, 0);
+          webGLContext.uniform2f(programs.grain.uniforms.uResolution, width, height);
+          webGLContext.uniform1f(programs.grain.uniforms.uAmount, settings.grain / 800);
+          webGLContext.uniform1f(programs.grain.uniforms.uTime, 0);
         },
         swapTarget(),
       );

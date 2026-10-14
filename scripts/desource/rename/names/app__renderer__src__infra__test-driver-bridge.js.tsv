@@ -1,0 +1,9 @@
+key	new	reason
+r@258:18	resolve	Promise 的 resolve，延时后调用
+r@629:22	resolve	Promise 的 resolve，延时后调用
+dt@588:15	dataTransfer	构造粘贴事件用的 DataTransfer
+wc@1036:11	waitCountStep	步骤中的 wait-count 配置
+ws@1044:11	waitStageStep	步骤中的 wait-stage 配置
+wc@1332:11	waitCountStep	步骤中的 wait-count 配置
+ws@1342:11	waitStageStep	步骤中的 wait-stage 配置
+value2@45:11	value	去掉打包器加的数字后缀，恢复原名 value

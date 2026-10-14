@@ -1,0 +1,67 @@
+key	new	reason
+t2@337:14	t	useTranslation() 返回的翻译函数 t
+t2@407:14	t	useTranslation() 返回的翻译函数 t
+t2@508:14	t	useTranslation() 返回的翻译函数 t
+t2@654:14	t	useTranslation() 返回的翻译函数 t
+t2@759:14	t	useTranslation() 返回的翻译函数 t
+t2@839:14	t	useTranslation() 返回的翻译函数 t
+e2@896:26	changeEvent	onChange 回调收到的事件对象
+t2@990:14	t	useTranslation() 返回的翻译函数 t
+t2@1093:14	t	useTranslation() 返回的翻译函数 t
+t2@1115:14	t	useTranslation() 返回的翻译函数 t
+t2@1148:14	t	useTranslation() 返回的翻译函数 t
+t2@1189:14	t	useTranslation() 返回的翻译函数 t
+t2@1363:14	t	useTranslation() 返回的翻译函数 t
+a2@1419:27	a	sort 比较函数的前一个账号
+b3@1419:31	b	sort 比较函数的后一个账号
+a2@1428:33	account	单个 IM 账号，取其平台
+a2@1444:10	account	单个 IM 账号，检查凭据是否损坏
+state2@79:10	state	去掉打包器加的数字后缀，恢复原名 state
+start2@114:9	start	去掉打包器加的数字后缀，恢复原名 start
+update2@92:40	update	去掉打包器加的数字后缀，恢复原名 update
+state2@157:10	state	去掉打包器加的数字后缀，恢复原名 state
+start2@212:9	start	去掉打包器加的数字后缀，恢复原名 start
+update2@168:50	update	去掉打包器加的数字后缀，恢复原名 update
+update2@191:40	update	去掉打包器加的数字后缀，恢复原名 update
+displayName2@290:32	displayName	去掉打包器加的数字后缀，恢复原名 displayName
+platform2@309:41	platform	去掉打包器加的数字后缀，恢复原名 platform
+platform2@322:13	platform	去掉打包器加的数字后缀，恢复原名 platform
+isChineseLocale2@344:9	isChineseLocale	去掉打包器加的数字后缀，恢复原名 isChineseLocale
+platform2@401:13	platform	去掉打包器加的数字后缀，恢复原名 platform
+isChineseLocale2@416:9	isChineseLocale	去掉打包器加的数字后缀，恢复原名 isChineseLocale
+index2@462:34	index	去掉打包器加的数字后缀，恢复原名 index
+state2@510:12	state	去掉打包器加的数字后缀，恢复原名 state
+start2@511:12	start	去掉打包器加的数字后缀，恢复原名 start
+state2@655:18	state	去掉打包器加的数字后缀，恢复原名 state
+state2@760:18	state	去掉打包器加的数字后缀，恢复原名 state
+start2@760:33	start	去掉打包器加的数字后缀，恢复原名 start
+platform2@832:13	platform	去掉打包器加的数字后缀，恢复原名 platform
+state2@928:9	state	去掉打包器加的数字后缀，恢复原名 state
+onRemove2@989:49	onRemove	去掉打包器加的数字后缀，恢复原名 onRemove
+platform2@1006:40	platform	去掉打包器加的数字后缀，恢复原名 platform
+state2@1031:9	state	去掉打包器加的数字后缀，恢复原名 state
+option2@1114:38	option	去掉打包器加的数字后缀，恢复原名 option
+onAdd2@1114:54	onAdd	去掉打包器加的数字后缀，恢复原名 onAdd
+platform2@1147:35	platform	去掉打包器加的数字后缀，恢复原名 platform
+onRemove2@1184:13	onRemove	去掉打包器加的数字后缀，恢复原名 onRemove
+displayName2@1191:9	displayName	去掉打包器加的数字后缀，恢复原名 displayName
+onAdd2@1307:10	onAdd	去掉打包器加的数字后缀，恢复原名 onAdd
+onRemove2@1308:13	onRemove	去掉打包器加的数字后缀，恢复原名 onRemove
+map3@1314:11	map	去掉打包器加的数字后缀，恢复原名 map
+option2@1323:39	option	去掉打包器加的数字后缀，恢复原名 option
+platform2@1329:33	platform	去掉打包器加的数字后缀，恢复原名 platform
+option2@1344:17	option	去掉打包器加的数字后缀，恢复原名 option
+config2@1377:19	config	去掉打包器加的数字后缀，恢复原名 config
+set2@1377:33	set	去掉打包器加的数字后缀，恢复原名 set
+platform2@1384:47	platform	去掉打包器加的数字后缀，恢复原名 platform
+error2@1384:58	error	去掉打包器加的数字后缀，恢复原名 error
+platform2@1414:34	platform	去掉打包器加的数字后缀，恢复原名 platform
+index2@1414:45	index	去掉打包器加的数字后缀，恢复原名 index
+platform2@1434:10	platform	去掉打包器加的数字后缀，恢复原名 platform
+platform2@1436:13	platform	去掉打包器加的数字后缀，恢复原名 platform
+error2@1564:26	error	去掉打包器加的数字后缀，恢复原名 error
+platform2@1590:21	platform	去掉打包器加的数字后缀，恢复原名 platform
+error2@1602:24	error	去掉打包器加的数字后缀，恢复原名 error
+error2@1620:24	error	去掉打包器加的数字后缀，恢复原名 error
+error2@1638:24	error	去掉打包器加的数字后缀，恢复原名 error
+error2@1683:25	error	去掉打包器加的数字后缀，恢复原名 error

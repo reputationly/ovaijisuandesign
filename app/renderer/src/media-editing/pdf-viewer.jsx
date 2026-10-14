@@ -1,86 +1,13 @@
 // pdf-viewer.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MediaUnpreviewableFallback } from "../generation/missing-asset-card.jsx";
-import {
-  __webpack_exports__getDocument,
-  _$5 as _,
-  _t$2 as _t,
-  $$8,
-  $t$2 as $t,
-  at$3 as at,
-  At$3 as At,
-  B$7 as B,
-  Bt$1 as Bt,
-  bt$3 as bt,
-  classifyFileType,
-  CompositedSvg,
-  ct$3 as ct,
-  Ct$3 as Ct,
-  D$7 as D,
-  Dt$2 as Dt,
-  dt$4 as dt,
-  Et$2 as Et,
-  et$4 as et,
-  f$4 as f,
-  F$6 as F,
-  Ft$2 as Ft,
-  ft$3 as ft,
-  G$5 as G,
-  getDefaultExportFromCjs$1 as getDefaultExportFromCjs,
-  Gt$1 as Gt,
-  gt$2 as gt,
-  H$5 as H,
-  Ht$1 as Ht,
-  ht$2 as ht,
-  It$1 as It,
-  it$3 as it,
-  j$5 as j,
-  J$6 as J,
-  jsxRuntimeExports,
-  k$6 as k,
-  K$6 as K,
-  kt$2 as kt,
-  L$7 as L,
-  Lt$1 as Lt,
-  lt$3 as lt,
-  Mt$1 as Mt,
-  mt$2 as mt,
-  N$4 as N,
-  Nt$1 as Nt,
-  nt$4 as nt,
-  Ot$2 as Ot,
-  ot$3 as ot,
-  P$7 as P,
-  pt$2 as pt,
-  Pt$2 as Pt,
-  q$5 as q,
-  R$6 as R,
-  reactExports,
-  requireJszip_min,
-  Rt$2 as Rt,
-  rt$3 as rt,
-  S$7 as S,
-  St$2 as St,
-  st$3 as st,
-  Tt$2 as Tt,
-  tt$4 as tt,
-  useTranslation,
-  ut$2 as ut,
-  Ut$2 as Ut,
-  V$6 as V,
-  v$7 as v,
-  vt$2 as vt,
-  W$7 as W,
-  wt$3 as wt,
-  X$6 as X,
-  xt$2 as xt,
-  Y$4 as Y,
-  yt$2 as yt,
-  Yt$2 as Yt,
-  Z$4 as Z,
-  z$7 as z,
-  zt$2 as zt,
-} from "../vendor.js";
+import JSZip from "jszip";
+import { getDocument as __webpack_exports__getDocument } from "pdfjs-dist";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { CompositedSvg } from "./icon-compositing.js";
 import { ViewerLoading, ViewerStateShell } from "./input.jsx";
 import {
   CANVAS_FILE_VERSION_QUERY_KEY,
@@ -97,45 +24,45 @@ import { useCanvasBridge } from "./package.jsx";
 import { renderAsync } from "docx-preview";
 import { useViewerActive } from "../infra/use-viewer-active.js";
 import { HtmlViewer } from "../infra/create-html-iframe-pool-store.jsx";
-function isWorkspaceFileViewerAdmissionAvailable(kind, state2) {
+function isWorkspaceFileViewerAdmissionAvailable(kind, state) {
   if (!HEAVY_FILE_VIEWER_KINDS.has(kind)) return true;
   let heavyMountedCount = 0;
-  for (const viewer of state2.fileViewers.values()) {
+  for (const viewer of state.fileViewers.values()) {
     if (!viewer.admitted) continue;
     if (HEAVY_FILE_VIEWER_KINDS.has(viewer.kind)) heavyMountedCount += 1;
   }
   return heavyMountedCount < CONTENT_BUDGET_HEAVY_FILE_VIEWER_WARN_COUNT;
 }
 function registerWorkspaceFileViewerWithAdmission(input) {
-  const state2 = getOrCreateState(input.workspaceId);
-  const admitted = isWorkspaceFileViewerAdmissionAvailable(input.kind, state2);
-  const id2 = state2.nextViewerRegistrationId++;
+  const state = getOrCreateState(input.workspaceId);
+  const admitted = isWorkspaceFileViewerAdmissionAvailable(input.kind, state);
+  const registrationId = state.nextViewerRegistrationId++;
   if (!admitted) {
-    state2.fileViewers.set(id2, {
+    state.fileViewers.set(registrationId, {
       kind: input.kind,
       filePath: input.filePath,
       admitted: false,
     });
-    touch(state2);
+    touch(state);
     return {
       admitted: false,
       unregister: () => {
-        if (!state2.fileViewers.delete(id2)) return;
-        touch(state2);
+        if (!state.fileViewers.delete(registrationId)) return;
+        touch(state);
       },
     };
   }
-  state2.fileViewers.set(id2, {
+  state.fileViewers.set(registrationId, {
     kind: input.kind,
     filePath: input.filePath,
     admitted: true,
   });
-  touch(state2);
+  touch(state);
   return {
     admitted: true,
     unregister: () => {
-      if (!state2.fileViewers.delete(id2)) return;
-      touch(state2);
+      if (!state.fileViewers.delete(registrationId)) return;
+      touch(state);
     },
   };
 }
@@ -194,103 +121,102 @@ function useWorkspaceFileViewerAdmission(input) {
     overLimit: admission.overLimit,
   };
 }
-var w = (t2) => (e2) => {
-  var p3 = t2[e2];
-  if (p3) return p3();
-  throw new Error("Module not found in bundle: " + e2);
+var createLanguageModuleLoader = (moduleFactories) => (modulePath) => {
+  var moduleFactory = moduleFactories[modulePath];
+  if (moduleFactory) return moduleFactory();
+  throw new Error("Module not found in bundle: " + modulePath);
 };
-var Se = w({
-  "./languages/asm.js": () => Promise.resolve().then(() => (F(), P)),
-  "./languages/bash.js": () => Promise.resolve().then(() => (f(), $$8)),
-  "./languages/bf.js": () => Promise.resolve().then(() => (B(), v)),
-  "./languages/c.js": () => Promise.resolve().then(() => (H(), G)),
-  "./languages/css.js": () => Promise.resolve().then(() => (k(), _)),
-  "./languages/csv.js": () => Promise.resolve().then(() => (Y(), z)),
-  "./languages/diff.js": () => Promise.resolve().then(() => (N(), Z)),
-  "./languages/docker.js": () => Promise.resolve().then(() => (W(), X)),
-  "./languages/git.js": () => Promise.resolve().then(() => (K(), j)),
-  "./languages/go.js": () => Promise.resolve().then(() => (q(), V)),
-  "./languages/html.js": () => Promise.resolve().then(() => (et(), tt)),
-  "./languages/http.js": () => Promise.resolve().then(() => (st(), at)),
-  "./languages/ini.js": () => Promise.resolve().then(() => (nt(), pt)),
-  "./languages/java.js": () => Promise.resolve().then(() => (mt(), ct)),
-  "./languages/js.js": () => Promise.resolve().then(() => (L(), rt)),
-  "./languages/js_template_literals.js": () =>
-    Promise.resolve().then(() => (ut(), ot)),
-  "./languages/jsdoc.js": () => Promise.resolve().then(() => (ht(), Et)),
-  "./languages/json.js": () => Promise.resolve().then(() => (gt(), it)),
-  "./languages/leanpub-md.js": () => Promise.resolve().then(() => (yt(), bt)),
-  "./languages/log.js": () => Promise.resolve().then(() => (ft(), Tt)),
-  "./languages/lua.js": () => Promise.resolve().then(() => (Nt(), It)),
-  "./languages/make.js": () => Promise.resolve().then(() => (Rt(), At)),
-  "./languages/md.js": () => Promise.resolve().then(() => (D(), dt)),
-  "./languages/pl.js": () => Promise.resolve().then(() => (Lt(), Ot)),
-  "./languages/plain.js": () => Promise.resolve().then(() => (St(), xt)),
-  "./languages/py.js": () => Promise.resolve().then(() => (Dt(), Ct)),
-  "./languages/regex.js": () => Promise.resolve().then(() => (Ut(), wt)),
-  "./languages/rs.js": () => Promise.resolve().then(() => (Ft(), Pt)),
-  "./languages/sql.js": () => Promise.resolve().then(() => ($t(), Mt)),
-  "./languages/todo.js": () => Promise.resolve().then(() => (S(), lt)),
-  "./languages/toml.js": () => Promise.resolve().then(() => (Bt(), vt)),
-  "./languages/ts.js": () => Promise.resolve().then(() => (Ht(), Gt)),
-  "./languages/uri.js": () => Promise.resolve().then(() => (kt(), _t)),
-  "./languages/xml.js": () => Promise.resolve().then(() => (R(), J)),
-  "./languages/yaml.js": () => Promise.resolve().then(() => (Yt(), zt)),
+var loadCodeLanguageModule = createLanguageModuleLoader({
+  "./languages/asm.js": () => import("@speed-highlight/core/languages/asm.js"),
+  "./languages/bash.js": () => import("@speed-highlight/core/languages/bash.js"),
+  "./languages/bf.js": () => import("@speed-highlight/core/languages/bf.js"),
+  "./languages/c.js": () => import("@speed-highlight/core/languages/c.js"),
+  "./languages/css.js": () => import("@speed-highlight/core/languages/css.js"),
+  "./languages/csv.js": () => import("@speed-highlight/core/languages/csv.js"),
+  "./languages/diff.js": () => import("@speed-highlight/core/languages/diff.js"),
+  "./languages/docker.js": () => import("@speed-highlight/core/languages/docker.js"),
+  "./languages/git.js": () => import("@speed-highlight/core/languages/git.js"),
+  "./languages/go.js": () => import("@speed-highlight/core/languages/go.js"),
+  "./languages/html.js": () => import("@speed-highlight/core/languages/html.js"),
+  "./languages/http.js": () => import("@speed-highlight/core/languages/http.js"),
+  "./languages/ini.js": () => import("@speed-highlight/core/languages/ini.js"),
+  "./languages/java.js": () => import("@speed-highlight/core/languages/java.js"),
+  "./languages/js.js": () => import("@speed-highlight/core/languages/js.js"),
+  "./languages/js_template_literals.js": () => import("@speed-highlight/core/languages/js_template_literals.js"),
+  "./languages/jsdoc.js": () => import("@speed-highlight/core/languages/jsdoc.js"),
+  "./languages/json.js": () => import("@speed-highlight/core/languages/json.js"),
+  "./languages/leanpub-md.js": () => import("@speed-highlight/core/languages/leanpub-md.js"),
+  "./languages/log.js": () => import("@speed-highlight/core/languages/log.js"),
+  "./languages/lua.js": () => import("@speed-highlight/core/languages/lua.js"),
+  "./languages/make.js": () => import("@speed-highlight/core/languages/make.js"),
+  "./languages/md.js": () => import("@speed-highlight/core/languages/md.js"),
+  "./languages/pl.js": () => import("@speed-highlight/core/languages/pl.js"),
+  "./languages/plain.js": () => import("@speed-highlight/core/languages/plain.js"),
+  "./languages/py.js": () => import("@speed-highlight/core/languages/py.js"),
+  "./languages/regex.js": () => import("@speed-highlight/core/languages/regex.js"),
+  "./languages/rs.js": () => import("@speed-highlight/core/languages/rs.js"),
+  "./languages/sql.js": () => import("@speed-highlight/core/languages/sql.js"),
+  "./languages/todo.js": () => import("@speed-highlight/core/languages/todo.js"),
+  "./languages/toml.js": () => import("@speed-highlight/core/languages/toml.js"),
+  "./languages/ts.js": () => import("@speed-highlight/core/languages/ts.js"),
+  "./languages/uri.js": () => import("@speed-highlight/core/languages/uri.js"),
+  "./languages/xml.js": () => import("@speed-highlight/core/languages/xml.js"),
+  "./languages/yaml.js": () => import("@speed-highlight/core/languages/yaml.js"),
 });
 const INITIAL = {
   status: "loading",
 };
 async function equalBytes(left, right, signal) {
   if (left.byteLength !== right.byteLength) return false;
-  const a2 = new Uint8Array(left);
-  const b3 = new Uint8Array(right);
+  const leftBytes = new Uint8Array(left);
+  const rightBytes = new Uint8Array(right);
   const chunkSize = 1024 * 1024;
-  for (let start2 = 0; start2 < a2.length; start2 += chunkSize) {
+  for (let start = 0; start < leftBytes.length; start += chunkSize) {
     if (signal.aborted) return false;
-    const end2 = Math.min(start2 + chunkSize, a2.length);
-    for (let i2 = start2; i2 < end2; i2++) {
-      if (a2[i2] !== b3[i2]) return false;
+    const end = Math.min(start + chunkSize, leftBytes.length);
+    for (let byteIndex = start; byteIndex < end; byteIndex++) {
+      if (leftBytes[byteIndex] !== rightBytes[byteIndex]) return false;
     }
-    if (end2 < a2.length)
+    if (end < leftBytes.length)
       await new Promise((resolve) => setTimeout(resolve, 0));
   }
   return true;
 }
 function useFileBytes(filePath, maxBytes, options) {
-  const url2 = useFileUrl(filePath);
-  const [state2, setState] = reactExports.useState(INITIAL);
+  const url = useFileUrl(filePath);
+  const [state, setState] = reactExports.useState(INITIAL);
   const revalidate = options?.revalidate ?? false;
-  const previous2 = reactExports.useRef(null);
+  const previous = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (!filePath) {
-      previous2.current = null;
+      previous.current = null;
       setState({
         status: "error",
         errorKey: "canvas.file.viewer.loadFailed",
       });
       return;
     }
-    if (!url2) {
-      previous2.current = null;
+    if (!url) {
+      previous.current = null;
       setState(INITIAL);
       return;
     }
     let cancelled = false;
     const controller = new AbortController();
-    let requestUrl = url2;
+    let requestUrl = url;
     if (revalidate) {
-      const stable = new URL(url2);
+      const stable = new URL(url);
       stable.searchParams.delete(CANVAS_FILE_VERSION_QUERY_KEY);
       requestUrl = stable.href;
     }
     const cached =
       revalidate &&
-      previous2.current?.url === requestUrl &&
-      previous2.current.bytes.byteLength <= maxBytes
-        ? previous2.current
+      previous.current?.url === requestUrl &&
+      previous.current.bytes.byteLength <= maxBytes
+        ? previous.current
         : null;
     if (!cached) {
-      previous2.current = null;
+      previous.current = null;
       setState(INITIAL);
     }
     fetch(requestUrl, {
@@ -312,29 +238,29 @@ function useFileBytes(filePath, maxBytes, options) {
         if (Number.isFinite(declared) && declared > maxBytes) {
           throw new Error("TOO_LARGE");
         }
-        const buf = await resp.arrayBuffer();
-        if (buf.byteLength > maxBytes) {
+        const fileBytes = await resp.arrayBuffer();
+        if (fileBytes.byteLength > maxBytes) {
           throw new Error("TOO_LARGE");
         }
         if (cancelled) return;
-        if (cached && (await equalBytes(cached.bytes, buf, controller.signal)))
+        if (cached && (await equalBytes(cached.bytes, fileBytes, controller.signal)))
           return;
         if (cancelled) return;
-        previous2.current = revalidate
+        previous.current = revalidate
           ? {
               url: requestUrl,
-              bytes: buf,
+              bytes: fileBytes,
             }
           : null;
         setState({
           status: "success",
-          bytes: buf,
+          bytes: fileBytes,
         });
       })
       .catch((err) => {
         if (cancelled) return;
         if (controller.signal.aborted) return;
-        previous2.current = null;
+        previous.current = null;
         const errorKey =
           err instanceof Error && err.message === "TOO_LARGE"
             ? "canvas.file.viewer.tooLarge"
@@ -348,8 +274,8 @@ function useFileBytes(filePath, maxBytes, options) {
       cancelled = true;
       controller.abort();
     };
-  }, [filePath, url2, maxBytes, revalidate]);
-  return state2;
+  }, [filePath, url, maxBytes, revalidate]);
+  return state;
 }
 const CODE_EXTS = new Set([
   ".ts",
@@ -426,16 +352,16 @@ const ZIP_EXTS = new Set([
   ".xpi",
   ".epub",
 ]);
-function pickViewerKind(extension2) {
-  if (!extension2) return "none";
-  const ext = extension2.toLowerCase();
-  if (IMAGE_EXTS.has(ext)) return "image";
-  if (ext === ".pdf") return "pdf";
-  if (ext === ".docx") return "docx";
-  if (ext === ".srt" || ext === ".ass") return "srt";
-  if (ext === ".html" || ext === ".htm") return "html";
-  if (ZIP_EXTS.has(ext)) return "zip";
-  if (CODE_EXTS.has(ext)) return "code";
+function pickViewerKind(extension) {
+  if (!extension) return "none";
+  const normalizedExtension = extension.toLowerCase();
+  if (IMAGE_EXTS.has(normalizedExtension)) return "image";
+  if (normalizedExtension === ".pdf") return "pdf";
+  if (normalizedExtension === ".docx") return "docx";
+  if (normalizedExtension === ".srt" || normalizedExtension === ".ass") return "srt";
+  if (normalizedExtension === ".html" || normalizedExtension === ".htm") return "html";
+  if (ZIP_EXTS.has(normalizedExtension)) return "zip";
+  if (CODE_EXTS.has(normalizedExtension)) return "code";
   return "none";
 }
 const HTML_VIEWER_UNLOAD_AFTER_MS = 6e3;
@@ -448,16 +374,16 @@ const ACTIVE_GATED_VIEWER_KINDS = new Set([
   "html",
 ]);
 function ViewerError({ messageKey }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <ViewerStateShell>
       <div className="text-sm font-medium text-foreground">
-        {t2(messageKey ?? "canvas.file.viewer.loadFailed", "预览加载失败")}
+        {t(messageKey ?? "canvas.file.viewer.loadFailed", "预览加载失败")}
       </div>
     </ViewerStateShell>
   );
 }
-var U = {
+var expandedGrammarTokens = {
   num: {
     type: "num",
     match: /(\.e?|\b)\d(e-|[\d.oxa-fA-F_])*(\.|\b)/g,
@@ -471,95 +397,95 @@ var U = {
     match: /"((?!")[^\r\n\\]|\\[^])*"?/g,
   },
 };
-var b = {};
-var Ce = (t2 = "") =>
-  t2
+var languageGrammarCache = {};
+var escapeHighlightText = (text = "") =>
+  text
     .replaceAll("&", "&#38;")
     .replaceAll?.("<", "&lt;")
     .replaceAll?.(">", "&gt;");
-var De = (t2, e2) => (e2 ? `<span class="shj-syn-${e2}">${t2}</span>` : t2);
-async function Zt(t2, e2, p3) {
+var renderSyntaxHighlightSpan = (highlightedText, tokenType) => (tokenType ? `<span class="shj-syn-${tokenType}">${highlightedText}</span>` : highlightedText);
+async function highlightCodeTokens(codeText, languageGrammar, renderSegment) {
   try {
-    let n2,
-      m3,
-      c3 = {},
-      i2,
-      r2 = [],
-      h2 = 0,
-      y4 =
-        typeof e2 == "string"
-          ? await (b[e2] ?? (b[e2] = Se(`./languages/${e2}.js`)))
-          : e2,
-      g2 = [...(typeof e2 == "string" ? y4.default : e2.sub)];
-    for (; h2 < t2.length;) {
-      for (c3.index = null, n2 = g2.length; n2-- > 0;) {
+    let ruleIndex,
+      grammarRule,
+      nextMatch = {},
+      matchResult,
+      cachedMatches = [],
+      textOffset = 0,
+      languageGrammarModule =
+        typeof languageGrammar == "string"
+          ? await (languageGrammarCache[languageGrammar] ?? (languageGrammarCache[languageGrammar] = loadCodeLanguageModule(`./languages/${languageGrammar}.js`)))
+          : languageGrammar,
+      grammarRules = [...(typeof languageGrammar == "string" ? languageGrammarModule.default : languageGrammar.sub)];
+    for (; textOffset < codeText.length;) {
+      for (nextMatch.index = null, ruleIndex = grammarRules.length; ruleIndex-- > 0;) {
         if (
-          ((m3 = g2[n2].expand ? U[g2[n2].expand] : g2[n2]),
-          r2[n2] === void 0 || r2[n2].match.index < h2)
+          ((grammarRule = grammarRules[ruleIndex].expand ? expandedGrammarTokens[grammarRules[ruleIndex].expand] : grammarRules[ruleIndex]),
+          cachedMatches[ruleIndex] === void 0 || cachedMatches[ruleIndex].match.index < textOffset)
         ) {
           if (
-            ((m3.match.lastIndex = h2), (i2 = m3.match.exec(t2)), i2 === null)
+            ((grammarRule.match.lastIndex = textOffset), (matchResult = grammarRule.match.exec(codeText)), matchResult === null)
           ) {
-            (g2.splice(n2, 1), r2.splice(n2, 1));
+            (grammarRules.splice(ruleIndex, 1), cachedMatches.splice(ruleIndex, 1));
             continue;
           }
-          r2[n2] = {
-            match: i2,
-            lastIndex: m3.match.lastIndex,
+          cachedMatches[ruleIndex] = {
+            match: matchResult,
+            lastIndex: grammarRule.match.lastIndex,
           };
         }
-        r2[n2].match[0] &&
-          (r2[n2].match.index <= c3.index || c3.index === null) &&
-          (c3 = {
-            part: m3,
-            index: r2[n2].match.index,
-            match: r2[n2].match[0],
-            end: r2[n2].lastIndex,
+        cachedMatches[ruleIndex].match[0] &&
+          (cachedMatches[ruleIndex].match.index <= nextMatch.index || nextMatch.index === null) &&
+          (nextMatch = {
+            part: grammarRule,
+            index: cachedMatches[ruleIndex].match.index,
+            match: cachedMatches[ruleIndex].match[0],
+            end: cachedMatches[ruleIndex].lastIndex,
           });
       }
-      if (c3.index === null) break;
-      (p3(t2.slice(h2, c3.index), y4.type),
-        (h2 = c3.end),
-        c3.part.sub
-          ? await Zt(
-              c3.match,
-              typeof c3.part.sub == "string"
-                ? c3.part.sub
-                : typeof c3.part.sub == "function"
-                  ? c3.part.sub(c3.match)
-                  : c3.part,
-              p3,
+      if (nextMatch.index === null) break;
+      (renderSegment(codeText.slice(textOffset, nextMatch.index), languageGrammarModule.type),
+        (textOffset = nextMatch.end),
+        nextMatch.part.sub
+          ? await highlightCodeTokens(
+              nextMatch.match,
+              typeof nextMatch.part.sub == "string"
+                ? nextMatch.part.sub
+                : typeof nextMatch.part.sub == "function"
+                  ? nextMatch.part.sub(nextMatch.match)
+                  : nextMatch.part,
+              renderSegment,
             )
-          : p3(c3.match, c3.part.type));
+          : renderSegment(nextMatch.match, nextMatch.part.type));
     }
-    p3(t2.slice(h2, t2.length), y4.type);
+    renderSegment(codeText.slice(textOffset, codeText.length), languageGrammarModule.type);
   } catch {
-    p3(t2);
+    renderSegment(codeText);
   }
 }
-async function we(t2, e2, p3 = true, n2 = {}) {
-  let m3 = "";
+async function renderHighlightedCodeHtml(codeText, languageGrammar, showLineNumbers = true, renderOptions = {}) {
+  let highlightedHtml = "";
   return (
-    await Zt(t2, e2, (c3, i2) => (m3 += De(Ce(c3), i2))),
-    p3
+    await highlightCodeTokens(codeText, languageGrammar, (textSegment, tokenType) => (highlightedHtml += renderSyntaxHighlightSpan(escapeHighlightText(textSegment), tokenType))),
+    showLineNumbers
       ? `<div><div class="shj-numbers">${"<div></div>".repeat(
-          !n2.hideLineNumbers &&
-            t2.split(`
+          !renderOptions.hideLineNumbers &&
+            codeText.split(`
 `).length,
-        )}</div><div>${m3}</div></div>`
-      : m3
+        )}</div><div>${highlightedHtml}</div></div>`
+      : highlightedHtml
   );
 }
 function UnpreviewableViewer({
-  extension: extension2,
-  displayName: displayName2,
+  extension,
+  displayName,
   sizeLabel,
   reason = "unsupported",
 }) {
   return (
     <MediaUnpreviewableFallback
-      extension={extension2}
-      displayName={displayName2}
+      extension={extension}
+      displayName={displayName}
       sizeLabel={sizeLabel}
       reason={reason}
     />
@@ -575,8 +501,8 @@ const VIEWER_SIZE_LIMITS = {
   // 20 MB — docx-preview unzips fully into memory
   zip: 256 * 1024 * 1024,
 };
-function pickLanguage(ext) {
-  switch (ext) {
+function pickLanguage(extension) {
+  switch (extension) {
     case ".ts":
     case ".tsx":
       return "ts";
@@ -650,78 +576,78 @@ function pickLanguage(ext) {
   }
 }
 const MAX_HIGHLIGHTED_HTML_CHARS = 4 * 1024 * 1024;
-function escapeHtml(s2) {
-  return s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-function plainTextHtml(text2) {
-  const lineCount = text2.split("\n").length;
+function plainTextHtml(text) {
+  const lineCount = text.split("\n").length;
   const numbers = "<div></div>".repeat(lineCount);
-  return `<div><div class="shj-numbers">${numbers}</div><div>${escapeHtml(text2)}</div></div>`;
+  return `<div><div class="shj-numbers">${numbers}</div><div>${escapeHtml(text)}</div></div>`;
 }
 async function yieldToMain() {
-  const scheduler2 = globalThis.scheduler;
-  if (scheduler2?.yield) return scheduler2.yield();
+  const schedulerApi = globalThis.scheduler;
+  if (schedulerApi?.yield) return schedulerApi.yield();
   return new Promise((resolve) => {
     setTimeout(resolve, 0);
   });
 }
 function CodeViewer({
   filePath,
-  extension: extension2,
+  extension,
   interactive,
-  displayName: displayName2,
+  displayName,
   sizeLabel,
 }) {
-  const bytes2 = useFileBytes(filePath, VIEWER_SIZE_LIMITS.code, {
+  const bytes = useFileBytes(filePath, VIEWER_SIZE_LIMITS.code, {
     revalidate: true,
   });
-  const [html2, setHtml] = reactExports.useState(null);
+  const [html, setHtml] = reactExports.useState(null);
   const innerHtml = reactExports.useMemo(
     () => ({
-      __html: html2 ?? "",
+      __html: html ?? "",
     }),
-    [html2],
+    [html],
   );
-  const [lang, setLang] = reactExports.useState(() => pickLanguage(extension2));
-  const errorKey = bytes2.status === "error" ? bytes2.errorKey : null;
+  const [lang, setLang] = reactExports.useState(() => pickLanguage(extension));
+  const errorKey = bytes.status === "error" ? bytes.errorKey : null;
   reactExports.useEffect(() => {
-    if (bytes2.status !== "success" || !bytes2.bytes) return;
+    if (bytes.status !== "success" || !bytes.bytes) return;
     let cancelled = false;
     setHtml(null);
-    const chosen = pickLanguage(extension2);
+    const chosen = pickLanguage(extension);
     setLang(chosen);
-    const text2 = new TextDecoder().decode(bytes2.bytes);
+    const text = new TextDecoder().decode(bytes.bytes);
     void (async () => {
       await yieldToMain();
       if (cancelled) return;
       let rendered;
       try {
-        rendered = await we(text2, chosen /* multiline */, true);
+        rendered = await renderHighlightedCodeHtml(text, chosen /* multiline */, true);
       } catch {
-        rendered = plainTextHtml(text2);
+        rendered = plainTextHtml(text);
       }
       if (cancelled) return;
       const final =
         rendered.length > MAX_HIGHLIGHTED_HTML_CHARS
-          ? plainTextHtml(text2)
+          ? plainTextHtml(text)
           : rendered;
       if (!cancelled) setHtml(final);
     })();
     return () => {
       cancelled = true;
     };
-  }, [bytes2.status, bytes2.bytes, extension2]);
+  }, [bytes.status, bytes.bytes, extension]);
   if (errorKey === "canvas.file.viewer.tooLarge")
     return (
       <UnpreviewableViewer
         reason="tooLarge"
-        extension={extension2}
-        displayName={displayName2 ?? ""}
+        extension={extension}
+        displayName={displayName ?? ""}
         sizeLabel={sizeLabel}
       />
     );
   if (errorKey) return <ViewerError messageKey={errorKey} />;
-  if (bytes2.status === "loading" || !html2) return <ViewerLoading />;
+  if (bytes.status === "loading" || !html) return <ViewerLoading />;
   return (
     <div
       className={`${interactive ? "nowheel " : ""}hilo-code-viewer shj-lang-${lang} h-full w-full overflow-auto bg-background px-4 py-3 text-xs leading-relaxed`}
@@ -729,29 +655,27 @@ function CodeViewer({
     />
   );
 }
-var jszip_minExports = requireJszip_min();
-const JSZip = getDefaultExportFromCjs(jszip_minExports);
 function DocxViewer({
   filePath,
   interactive,
-  displayName: displayName2,
+  displayName,
   sizeLabel,
 }) {
-  const bytes2 = useFileBytes(filePath, VIEWER_SIZE_LIMITS.docx, {
+  const bytes = useFileBytes(filePath, VIEWER_SIZE_LIMITS.docx, {
     revalidate: true,
   });
   const bodyRef = reactExports.useRef(null);
   const styleRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    if (bytes2.status !== "success" || !bytes2.bytes) return;
+    if (bytes.status !== "success" || !bytes.bytes) return;
     if (!bodyRef.current || !styleRef.current) return;
     let cancelled = false;
-    const body2 = bodyRef.current;
+    const body = bodyRef.current;
     const styleHost = styleRef.current;
     const nextBody = document.createElement("div");
     const nextStyle = document.createElement("div");
-    const data2 = bytes2.bytes.slice(0);
-    renderAsync(new Blob([data2]), nextBody, nextStyle, {
+    const data = bytes.bytes.slice(0);
+    renderAsync(new Blob([data]), nextBody, nextStyle, {
       className: "hilo-docx",
       inWrapper: true,
       breakPages: true,
@@ -761,33 +685,33 @@ function DocxViewer({
     })
       .then(() => {
         if (cancelled) return;
-        body2.replaceChildren(...nextBody.childNodes);
+        body.replaceChildren(...nextBody.childNodes);
         styleHost.replaceChildren(...nextStyle.childNodes);
       })
       .catch(() => {
         if (cancelled) return;
-        body2.replaceChildren();
+        body.replaceChildren();
         styleHost.replaceChildren();
       });
     return () => {
       cancelled = true;
-      body2.replaceChildren();
+      body.replaceChildren();
       styleHost.replaceChildren();
     };
-  }, [bytes2.status, bytes2.bytes]);
-  if (bytes2.status === "loading") return <ViewerLoading />;
-  if (bytes2.status === "error") {
-    if (bytes2.errorKey === "canvas.file.viewer.tooLarge") {
+  }, [bytes.status, bytes.bytes]);
+  if (bytes.status === "loading") return <ViewerLoading />;
+  if (bytes.status === "error") {
+    if (bytes.errorKey === "canvas.file.viewer.tooLarge") {
       return (
         <UnpreviewableViewer
           reason="tooLarge"
           extension=".docx"
-          displayName={displayName2 ?? ""}
+          displayName={displayName ?? ""}
           sizeLabel={sizeLabel}
         />
       );
     }
-    return <ViewerError messageKey={bytes2.errorKey} />;
+    return <ViewerError messageKey={bytes.errorKey} />;
   }
   return (
     <div
@@ -801,13 +725,13 @@ function DocxViewer({
     </div>
   );
 }
-function ImageViewer({ filePath, displayName: displayName2 }) {
-  const url2 = useFileUrl(filePath, {
+function ImageViewer({ filePath, displayName }) {
+  const url = useFileUrl(filePath, {
     versionScope: "path",
   });
   const [result, setResult] = reactExports.useState(null);
-  const status = result && result.url === url2 ? result.status : "loading";
-  if (!url2) return <ViewerLoading />;
+  const status = result && result.url === url ? result.status : "loading";
+  if (!url) return <ViewerLoading />;
   if (status === "error") return <ViewerError />;
   return (
     <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-muted">
@@ -817,20 +741,20 @@ function ImageViewer({ filePath, displayName: displayName2 }) {
         </div>
       ) : null}
       <img
-        src={url2}
-        alt={displayName2}
+        src={url}
+        alt={displayName}
         draggable={false}
         loading="lazy"
         decoding="async"
         onLoad={() =>
           setResult({
-            url: url2,
+            url,
             status: "ready",
           })
         }
         onError={() =>
           setResult({
-            url: url2,
+            url,
             status: "error",
           })
         }
@@ -843,16 +767,16 @@ function PdfViewer({
   filePath,
   paneWidth,
   interactive,
-  displayName: displayName2,
+  displayName,
   sizeLabel,
 }) {
-  const { t: t2 } = useTranslation();
-  const bytes2 = useFileBytes(filePath, VIEWER_SIZE_LIMITS.pdf, {
+  const { t } = useTranslation();
+  const bytes = useFileBytes(filePath, VIEWER_SIZE_LIMITS.pdf, {
     revalidate: true,
   });
   const canvasRef = reactExports.useRef(null);
-  const [doc2, setDoc] = reactExports.useState(null);
-  const pageCount = doc2?.numPages ?? 0;
+  const [doc, setDoc] = reactExports.useState(null);
+  const pageCount = doc?.numPages ?? 0;
   const [pageIndex, setPageIndex] = reactExports.useState(0);
   const [renderError, setRenderError] = reactExports.useState(null);
   const pageFilePathRef = reactExports.useRef(filePath);
@@ -864,22 +788,22 @@ function PdfViewer({
   }, [filePath]);
   reactExports.useEffect(() => {
     setDoc(null);
-    if (bytes2.status !== "success" || !bytes2.bytes) return;
+    if (bytes.status !== "success" || !bytes.bytes) return;
     let cancelled = false;
     setRenderError(null);
-    const data2 = bytes2.bytes.slice(0);
+    const data = bytes.bytes.slice(0);
     const task = __webpack_exports__getDocument({
-      data: data2,
+      data,
     });
     task.promise
-      .then((doc22) => {
+      .then((loadedDocument) => {
         if (cancelled) {
-          doc22.destroy();
+          loadedDocument.destroy();
           return;
         }
-        setDoc(doc22);
-        setPageIndex((index2) =>
-          Math.min(index2, Math.max(0, doc22.numPages - 1)),
+        setDoc(loadedDocument);
+        setPageIndex((index) =>
+          Math.min(index, Math.max(0, loadedDocument.numPages - 1)),
         );
       })
       .catch(() => {
@@ -889,13 +813,13 @@ function PdfViewer({
       cancelled = true;
       void task.destroy();
     };
-  }, [bytes2.status, bytes2.bytes]);
+  }, [bytes.status, bytes.bytes]);
   reactExports.useEffect(() => {
-    if (bytes2.status !== "success" || !doc2 || !canvasRef.current) return;
+    if (bytes.status !== "success" || !doc || !canvasRef.current) return;
     const canvas = canvasRef.current;
     let cancelled = false;
     let renderTask = null;
-    doc2
+    doc
       .getPage(pageIndex + 1)
       .then((page) => {
         if (cancelled) return;
@@ -904,19 +828,19 @@ function PdfViewer({
         });
         const padding = 16;
         const targetWidth = Math.max(paneWidth - padding * 2, 100);
-        const scale2 = targetWidth / viewport.width;
-        const dpr = window.devicePixelRatio || 1;
+        const scale = targetWidth / viewport.width;
+        const pixelRatio = window.devicePixelRatio || 1;
         const scaled = page.getViewport({
-          scale: scale2 * dpr,
+          scale: scale * pixelRatio,
         });
         canvas.width = scaled.width;
         canvas.height = scaled.height;
-        canvas.style.width = `${scaled.width / dpr}px`;
-        canvas.style.height = `${scaled.height / dpr}px`;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        canvas.style.width = `${scaled.width / pixelRatio}px`;
+        canvas.style.height = `${scaled.height / pixelRatio}px`;
+        const canvasContext = canvas.getContext("2d");
+        if (!canvasContext) return;
         renderTask = page.render({
-          canvasContext: ctx,
+          canvasContext,
           viewport: scaled,
         });
         return renderTask.promise;
@@ -935,24 +859,24 @@ function PdfViewer({
       cancelled = true;
       renderTask?.cancel();
     };
-  }, [doc2, bytes2.status, pageIndex, paneWidth]);
-  if (bytes2.status === "loading") return <ViewerLoading />;
-  if (bytes2.status === "error") {
-    if (bytes2.errorKey === "canvas.file.viewer.tooLarge") {
+  }, [doc, bytes.status, pageIndex, paneWidth]);
+  if (bytes.status === "loading") return <ViewerLoading />;
+  if (bytes.status === "error") {
+    if (bytes.errorKey === "canvas.file.viewer.tooLarge") {
       return (
         <UnpreviewableViewer
           reason="tooLarge"
           extension=".pdf"
-          displayName={displayName2 ?? ""}
+          displayName={displayName ?? ""}
           sizeLabel={sizeLabel}
         />
       );
     }
-    return <ViewerError messageKey={bytes2.errorKey} />;
+    return <ViewerError messageKey={bytes.errorKey} />;
   }
   if (renderError) return <ViewerError messageKey={renderError} />;
-  const goPrev = () => setPageIndex((i2) => Math.max(0, i2 - 1));
-  const goNext = () => setPageIndex((i2) => Math.min(pageCount - 1, i2 + 1));
+  const goPrev = () => setPageIndex((currentIndex) => Math.max(0, currentIndex - 1));
+  const goNext = () => setPageIndex((currentIndex) => Math.min(pageCount - 1, currentIndex + 1));
   return (
     <div className="flex h-full w-full flex-col bg-muted">
       <div className={`${interactive ? "nowheel " : ""}flex-1 overflow-auto`}>
@@ -965,13 +889,13 @@ function PdfViewer({
           <button
             type="button"
             onClick={goPrev}
-            onMouseDown={(e2) => e2.stopPropagation()}
+            onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
             disabled={pageIndex === 0}
             className="px-2 py-0.5 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
-            aria-label={t2("canvas.file.viewer.prevPage", "上一页")}
+            aria-label={t("canvas.file.viewer.prevPage", "上一页")}
             data-action-ui-id="canvas.file-node.pdf-prev-page"
           >
-            {t2("canvas.file.viewer.prevPage", "上一页")}
+            {t("canvas.file.viewer.prevPage", "上一页")}
           </button>
           <span>
             {pageIndex + 1}
@@ -981,13 +905,13 @@ function PdfViewer({
           <button
             type="button"
             onClick={goNext}
-            onMouseDown={(e2) => e2.stopPropagation()}
+            onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
             disabled={pageIndex >= pageCount - 1}
             className="px-2 py-0.5 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
-            aria-label={t2("canvas.file.viewer.nextPage", "下一页")}
+            aria-label={t("canvas.file.viewer.nextPage", "下一页")}
             data-action-ui-id="canvas.file-node.pdf-next-page"
           >
-            {t2("canvas.file.viewer.nextPage", "下一页")}
+            {t("canvas.file.viewer.nextPage", "下一页")}
           </button>
         </div>
       ) : null}
@@ -998,25 +922,25 @@ const SAVE_DEBOUNCE_MS = 500;
 function SrtEditor({
   filePath,
   interactive,
-  displayName: displayName2,
+  displayName,
   sizeLabel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { saveTextContent } = useCanvasBridge();
   const bytesState = useFileBytes(filePath, VIEWER_SIZE_LIMITS.code, {
     revalidate: true,
   });
-  const [content2, setContent2] = reactExports.useState(null);
+  const [content, setContent] = reactExports.useState(null);
   const persistedRef = reactExports.useRef(null);
   const saveTimerRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (bytesState.status !== "success" || !bytesState.bytes) return;
-    const text2 = new TextDecoder("utf-8").decode(bytesState.bytes);
-    setContent2(text2);
-    persistedRef.current = text2;
+    const text = new TextDecoder("utf-8").decode(bytesState.bytes);
+    setContent(text);
+    persistedRef.current = text;
   }, [bytesState.status, bytesState.bytes]);
   reactExports.useEffect(() => {
-    setContent2(null);
+    setContent(null);
     persistedRef.current = null;
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current);
@@ -1024,12 +948,12 @@ function SrtEditor({
     }
   }, [filePath]);
   const flushSave = reactExports.useCallback(
-    (next2) => {
+    (next) => {
       if (!saveTextContent) return;
-      if (next2 === persistedRef.current) return;
-      saveTextContent(filePath, next2)
+      if (next === persistedRef.current) return;
+      saveTextContent(filePath, next)
         .then(() => {
-          persistedRef.current = next2;
+          persistedRef.current = next;
         })
         .catch(() => {});
     },
@@ -1040,35 +964,35 @@ function SrtEditor({
       if (saveTimerRef.current) {
         clearTimeout(saveTimerRef.current);
         saveTimerRef.current = null;
-        if (content2 !== null) flushSave(content2);
+        if (content !== null) flushSave(content);
       }
     };
   }, []);
   const handleChange = reactExports.useCallback(
-    (e2) => {
-      const next2 = e2.target.value;
-      setContent2(next2);
+    (changeEvent) => {
+      const next = changeEvent.target.value;
+      setContent(next);
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => {
         saveTimerRef.current = null;
-        flushSave(next2);
+        flushSave(next);
       }, SAVE_DEBOUNCE_MS);
     },
     [flushSave],
   );
   if (
     bytesState.status === "loading" ||
-    (bytesState.status === "success" && content2 === null)
+    (bytesState.status === "success" && content === null)
   ) {
     return <ViewerLoading />;
   }
   if (bytesState.status === "error") {
     if (bytesState.errorKey === "canvas.file.viewer.tooLarge") {
-      const ext = filePath.toLowerCase().endsWith(".ass") ? ".ass" : ".srt";
+      const extension = filePath.toLowerCase().endsWith(".ass") ? ".ass" : ".srt";
       return (
         <UnpreviewableViewer
-          extension={ext}
-          displayName={displayName2 ?? filePath}
+          extension={extension}
+          displayName={displayName ?? filePath}
           sizeLabel={sizeLabel}
         />
       );
@@ -1094,73 +1018,73 @@ function SrtEditor({
         outline: "none",
         whiteSpace: "pre",
       }}
-      value={content2 ?? ""}
+      value={content ?? ""}
       onChange={handleChange}
-      onPointerDown={(e2) => e2.stopPropagation()}
-      onKeyDown={(e2) => e2.stopPropagation()}
+      onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+      onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
       spellCheck={false}
-      placeholder={t2(
+      placeholder={t(
         "canvas.file.viewer.srt.placeholder",
         "字幕内容（SRT / ASS 格式）",
       )}
     />
   );
 }
-function formatSize(bytes2) {
-  if (!Number.isFinite(bytes2) || bytes2 < 0) return "";
-  if (bytes2 < 1024) return `${bytes2} B`;
-  const kb = bytes2 / 1024;
-  if (kb < 1024) return `${kb.toFixed(2)} KB`;
-  const mb = kb / 1024;
-  if (mb < 1024) return `${mb.toFixed(2)} MB`;
-  return `${(mb / 1024).toFixed(2)} GB`;
+function formatSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  const kilobytes = bytes / 1024;
+  if (kilobytes < 1024) return `${kilobytes.toFixed(2)} KB`;
+  const megabytes = kilobytes / 1024;
+  if (megabytes < 1024) return `${megabytes.toFixed(2)} MB`;
+  return `${(megabytes / 1024).toFixed(2)} GB`;
 }
-function buildTree(entries2) {
-  const root2 = {
+function buildTree(entries) {
+  const root = {
     children: [],
   };
-  for (const entry of entries2) {
-    const cleanPath2 = entry.isFolder
+  for (const entry of entries) {
+    const cleanPath = entry.isFolder
       ? entry.path.replace(/\/$/, "")
       : entry.path;
-    if (!cleanPath2) continue;
-    const parts = cleanPath2.split("/");
-    let cursor = root2;
-    for (let i2 = 0; i2 < parts.length; i2++) {
-      const part = parts[i2];
-      const isLast = i2 === parts.length - 1;
+    if (!cleanPath) continue;
+    const parts = cleanPath.split("/");
+    let cursor = root;
+    for (let pathSegmentIndex = 0; pathSegmentIndex < parts.length; pathSegmentIndex++) {
+      const part = parts[pathSegmentIndex];
+      const isLast = pathSegmentIndex === parts.length - 1;
       const isLeafFolder = isLast && entry.isFolder;
       const isLeafFile = isLast && !entry.isFolder;
-      let next2 = cursor.children.find((n2) => n2.name === part);
-      if (!next2) {
-        next2 = {
+      let next = cursor.children.find((childNode) => childNode.name === part);
+      if (!next) {
+        next = {
           name: part,
-          path: parts.slice(0, i2 + 1).join("/"),
+          path: parts.slice(0, pathSegmentIndex + 1).join("/"),
           isFolder: !isLeafFile,
           size: isLeafFile ? entry.size : 0,
           children: [],
         };
-        cursor.children.push(next2);
+        cursor.children.push(next);
       } else if (isLeafFolder) {
-        next2.isFolder = true;
+        next.isFolder = true;
       } else if (isLeafFile) {
-        next2.isFolder = false;
-        next2.size = entry.size;
+        next.isFolder = false;
+        next.size = entry.size;
       }
-      cursor = next2;
+      cursor = next;
     }
   }
   const sortNodes = (nodes) => {
-    nodes.sort((a2, b3) => {
-      if (a2.isFolder !== b3.isFolder) return a2.isFolder ? -1 : 1;
-      return a2.name.localeCompare(b3.name, void 0, {
+    nodes.sort((leftNode, rightNode) => {
+      if (leftNode.isFolder !== rightNode.isFolder) return leftNode.isFolder ? -1 : 1;
+      return leftNode.name.localeCompare(rightNode.name, void 0, {
         sensitivity: "base",
       });
     });
-    for (const n2 of nodes) if (n2.isFolder) sortNodes(n2.children);
+    for (const node of nodes) if (node.isFolder) sortNodes(node.children);
   };
-  sortNodes(root2.children);
-  return root2.children;
+  sortNodes(root.children);
+  return root.children;
 }
 function FolderGlyph() {
   return (
@@ -1198,72 +1122,72 @@ function ChevronGlyph({ open }) {
     </CompositedSvg>
   );
 }
-function EntryRow({ node: node2, depth: depth2, isOpen, onToggle }) {
-  const sizeLabel = node2.isFolder ? "" : formatSize(node2.size);
-  const handleClick2 = reactExports.useCallback(() => {
-    if (node2.isFolder) onToggle(node2.path);
-  }, [node2.isFolder, node2.path, onToggle]);
-  const Wrapper2 = node2.isFolder ? "button" : "div";
-  const wrapperProps = node2.isFolder
+function EntryRow({ node, depth, isOpen, onToggle }) {
+  const sizeLabel = node.isFolder ? "" : formatSize(node.size);
+  const handleClick = reactExports.useCallback(() => {
+    if (node.isFolder) onToggle(node.path);
+  }, [node.isFolder, node.path, onToggle]);
+  const Wrapper = node.isFolder ? "button" : "div";
+  const wrapperProps = node.isFolder
     ? {
         type: "button",
-        onClick: handleClick2,
-        onMouseDown: (e2) => e2.stopPropagation(),
+        onClick: handleClick,
+        onMouseDown: (mouseEvent) => mouseEvent.stopPropagation(),
         "data-action-ui-id": "canvas.file-node.zip-folder-toggle",
       }
     : {};
   return (
-    <Wrapper2
+    <Wrapper
       {...wrapperProps}
       className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-foreground"
       style={{
-        paddingLeft: `${12 + depth2 * 16}px`,
+        paddingLeft: `${12 + depth * 16}px`,
       }}
     >
-      {node2.isFolder ? (
+      {node.isFolder ? (
         <ChevronGlyph open={isOpen} />
       ) : (
         <span className="w-3 shrink-0" />
       )}
-      {node2.isFolder ? (
+      {node.isFolder ? (
         <FolderGlyph />
       ) : (
         <FileTypeIcon
           {...classifyFileType({
-            filename: node2.name,
+            filename: node.name,
           })}
           size={24}
           decorative={true}
         />
       )}
-      <span className="flex-1 truncate" title={node2.name}>
-        {node2.name}
+      <span className="flex-1 truncate" title={node.name}>
+        {node.name}
       </span>
       {sizeLabel ? (
         <span className="shrink-0 text-muted-foreground tabular-nums">
           {sizeLabel}
         </span>
       ) : null}
-    </Wrapper2>
+    </Wrapper>
   );
 }
-function TreeBranch({ nodes, depth: depth2, openSet, onToggle }) {
+function TreeBranch({ nodes, depth, openSet, onToggle }) {
   return (
     <>
-      {nodes.map((node2) => (
-        <div key={node2.path}>
+      {nodes.map((node) => (
+        <div key={node.path}>
           <EntryRow
-            node={node2}
-            depth={depth2}
-            isOpen={openSet.has(node2.path)}
+            node={node}
+            depth={depth}
+            isOpen={openSet.has(node.path)}
             onToggle={onToggle}
           />
-          {node2.isFolder &&
-          openSet.has(node2.path) &&
-          node2.children.length > 0 ? (
+          {node.isFolder &&
+          openSet.has(node.path) &&
+          node.children.length > 0 ? (
             <TreeBranch
-              nodes={node2.children}
-              depth={depth2 + 1}
+              nodes={node.children}
+              depth={depth + 1}
               openSet={openSet}
               onToggle={onToggle}
             />
@@ -1274,48 +1198,48 @@ function TreeBranch({ nodes, depth: depth2, openSet, onToggle }) {
   );
 }
 function countLeaves(nodes) {
-  let n2 = 0;
-  for (const node2 of nodes) {
-    if (node2.isFolder) n2 += countLeaves(node2.children);
-    else n2 += 1;
+  let leafCount = 0;
+  for (const node of nodes) {
+    if (node.isFolder) leafCount += countLeaves(node.children);
+    else leafCount += 1;
   }
-  return n2;
+  return leafCount;
 }
 function ZipViewer({
   filePath,
   interactive,
-  displayName: displayName2,
+  displayName,
   sizeLabel,
 }) {
-  const { t: t2 } = useTranslation();
-  const bytes2 = useFileBytes(filePath, VIEWER_SIZE_LIMITS.zip, {
+  const { t } = useTranslation();
+  const bytes = useFileBytes(filePath, VIEWER_SIZE_LIMITS.zip, {
     revalidate: true,
   });
   const [tree, setTree] = reactExports.useState(null);
   const [parseError, setParseError] = reactExports.useState(false);
   const [openSet, setOpenSet] = reactExports.useState(() => new Set());
   reactExports.useEffect(() => {
-    if (bytes2.status !== "success" || !bytes2.bytes) return;
+    if (bytes.status !== "success" || !bytes.bytes) return;
     let cancelled = false;
     setParseError(false);
     setTree(null);
-    JSZip.loadAsync(bytes2.bytes)
-      .then((zip) => {
+    JSZip.loadAsync(bytes.bytes)
+      .then((zipArchive) => {
         if (cancelled) return;
-        const raw2 = [];
-        zip.forEach((relPath, file) => {
-          const internal2 = file;
-          const size2 = internal2._data?.uncompressedSize ?? 0;
-          raw2.push({
+        const raw = [];
+        zipArchive.forEach((relPath, file) => {
+          const internal = file;
+          const size = internal._data?.uncompressedSize ?? 0;
+          raw.push({
             path: relPath,
             isFolder: file.dir,
-            size: size2,
+            size,
           });
         });
-        const built = buildTree(raw2);
+        const built = buildTree(raw);
         setTree(built);
         const initial = new Set();
-        for (const node2 of built) if (node2.isFolder) initial.add(node2.path);
+        for (const node of built) if (node.isFolder) initial.add(node.path);
         setOpenSet(initial);
       })
       .catch(() => {
@@ -1324,28 +1248,28 @@ function ZipViewer({
     return () => {
       cancelled = true;
     };
-  }, [bytes2.status, bytes2.bytes]);
-  const handleToggle = reactExports.useCallback((path2) => {
+  }, [bytes.status, bytes.bytes]);
+  const handleToggle = reactExports.useCallback((path) => {
     setOpenSet((prev) => {
-      const next2 = new Set(prev);
-      if (next2.has(path2)) next2.delete(path2);
-      else next2.add(path2);
-      return next2;
+      const next = new Set(prev);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
     });
   }, []);
-  if (bytes2.status === "loading") return <ViewerLoading />;
-  if (bytes2.status === "error") {
-    if (bytes2.errorKey === "canvas.file.viewer.tooLarge") {
+  if (bytes.status === "loading") return <ViewerLoading />;
+  if (bytes.status === "error") {
+    if (bytes.errorKey === "canvas.file.viewer.tooLarge") {
       return (
         <UnpreviewableViewer
           reason="tooLarge"
           extension=".zip"
-          displayName={displayName2 ?? ""}
+          displayName={displayName ?? ""}
           sizeLabel={sizeLabel}
         />
       );
     }
-    return <ViewerError messageKey={bytes2.errorKey} />;
+    return <ViewerError messageKey={bytes.errorKey} />;
   }
   if (parseError)
     return <ViewerError messageKey="canvas.file.viewer.loadFailed" />;
@@ -1355,17 +1279,17 @@ function ZipViewer({
     <div className="flex h-full w-full flex-col bg-background">
       <div className="flex h-8 shrink-0 items-center gap-2 border-border border-b bg-muted px-3 text-[11px] font-medium text-muted-foreground">
         <span className="flex-1">
-          {t2("canvas.file.viewer.zipName", "名称")}
+          {t("canvas.file.viewer.zipName", "名称")}
           <span className="ml-2 text-muted-foreground/70">
             (
-            {t2("canvas.file.viewer.zipEntryCount", "{{count}} 项", {
+            {t("canvas.file.viewer.zipEntryCount", "{{count}} 项", {
               count: totalEntries,
             })}
             )
           </span>
         </span>
         <span className="shrink-0">
-          {t2("canvas.file.viewer.zipSize", "大小")}
+          {t("canvas.file.viewer.zipSize", "大小")}
         </span>
       </div>
       <div className={`${interactive ? "nowheel " : ""}flex-1 overflow-auto`}>
@@ -1381,30 +1305,30 @@ function ZipViewer({
 }
 export function FileViewerRouter({
   filePath,
-  extension: extension2,
-  displayName: displayName2,
+  extension,
+  displayName,
   sizeLabel,
   paneWidth,
   interactive,
 }) {
-  const kind = pickViewerKind(extension2);
-  const workspaceId2 = useWorkspaceContentBudgetScope();
-  const [setHostEl, active2] = useViewerActive({
+  const kind = pickViewerKind(extension);
+  const workspaceId = useWorkspaceContentBudgetScope();
+  const [setHostEl, active] = useViewerActive({
     unloadAfterMs: kind === "html" ? HTML_VIEWER_UNLOAD_AFTER_MS : void 0,
   });
   const activeGated = ACTIVE_GATED_VIEWER_KINDS.has(kind);
-  const viewerActive = activeGated ? active2 : true;
+  const viewerActive = activeGated ? active : true;
   const admission = useWorkspaceFileViewerAdmission({
     kind,
     filePath,
-    workspaceId: workspaceId2,
+    workspaceId,
     active: viewerActive,
   });
   if (!filePath || kind === "none") {
     return (
       <UnpreviewableViewer
-        extension={extension2}
-        displayName={displayName2}
+        extension={extension}
+        displayName={displayName}
         sizeLabel={sizeLabel}
         reason="unsupported"
       />
@@ -1421,8 +1345,8 @@ export function FileViewerRouter({
     return (
       <div ref={setHostEl} className="h-full w-full">
         <UnpreviewableViewer
-          extension={extension2}
-          displayName={displayName2}
+          extension={extension}
+          displayName={displayName}
           sizeLabel={sizeLabel}
           reason={admission.overLimit ? "resourceLimit" : "unsupported"}
         />
@@ -1431,14 +1355,14 @@ export function FileViewerRouter({
   }
   let viewer;
   if (kind === "image") {
-    viewer = <ImageViewer filePath={filePath} displayName={displayName2} />;
+    viewer = <ImageViewer filePath={filePath} displayName={displayName} />;
   } else if (kind === "pdf") {
     viewer = (
       <PdfViewer
         filePath={filePath}
         paneWidth={paneWidth}
         interactive={interactive}
-        displayName={displayName2}
+        displayName={displayName}
         sizeLabel={sizeLabel}
       />
     );
@@ -1447,7 +1371,7 @@ export function FileViewerRouter({
       <DocxViewer
         filePath={filePath}
         interactive={interactive}
-        displayName={displayName2}
+        displayName={displayName}
         sizeLabel={sizeLabel}
       />
     );
@@ -1456,7 +1380,7 @@ export function FileViewerRouter({
       <ZipViewer
         filePath={filePath}
         interactive={interactive}
-        displayName={displayName2}
+        displayName={displayName}
         sizeLabel={sizeLabel}
       />
     );
@@ -1465,7 +1389,7 @@ export function FileViewerRouter({
       <HtmlViewer
         filePath={filePath}
         interactive={interactive}
-        displayName={displayName2}
+        displayName={displayName}
         sizeLabel={sizeLabel}
       />
     );
@@ -1474,7 +1398,7 @@ export function FileViewerRouter({
       <SrtEditor
         filePath={filePath}
         interactive={interactive}
-        displayName={displayName2}
+        displayName={displayName}
         sizeLabel={sizeLabel}
       />
     );
@@ -1482,9 +1406,9 @@ export function FileViewerRouter({
     viewer = (
       <CodeViewer
         filePath={filePath}
-        extension={extension2}
+        extension={extension}
         interactive={interactive}
-        displayName={displayName2}
+        displayName={displayName}
         sizeLabel={sizeLabel}
       />
     );

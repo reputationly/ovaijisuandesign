@@ -1,12 +1,16 @@
 // 技能导入弹窗：选择文件、校验、导入与错误提示。
 import { isValidSkillName } from "../generation/normalize-skill-detail-metadata.js";
-import { useTranslation, reactExports, jsxRuntimeExports, API_PATHS, CheckCircle2, Loader2, AlertCircle, FilePlus2 } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { CheckCircle2, Loader2, AlertCircle, FilePlus2 } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useNavigateToWorkspace } from "../workspace/use-deep-link-router.js";
 import { homeService } from "../workspace/home-service.jsx";
 import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
 import { toastWorkspaceOpenResult } from "../workspace/toast-workspace-open-result.js";
-import { DialogHeader, cn$2 as cn, Button, Dialog, DialogContent } from "../infra/dialog-content.jsx";
+import { DialogHeader, mergeTailwindClasses as cn, Button, Dialog, DialogContent } from "../infra/dialog-content.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { DialogTitle } from "../infra/badge-variants.jsx";
 import { Input3 as Input } from "../infra/select-content.jsx";
@@ -136,16 +140,16 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
     [t],
   );
   const handleInputChange = reactExports.useCallback(
-    (e) => {
-      const selected = e.target.files?.[0];
+    (changeEvent) => {
+      const selected = changeEvent.target.files?.[0];
       if (selected) handleFileSelect(selected);
     },
     [handleFileSelect],
   );
-  const handleDragOver = reactExports.useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const items = e.dataTransfer.items;
+  const handleDragOver = reactExports.useCallback((dragEvent) => {
+    dragEvent.preventDefault();
+    dragEvent.stopPropagation();
+    const items = dragEvent.dataTransfer.items;
     if (items.length > 0) {
       const mimeType = items[0].type || "";
       if (mimeType.includes("zip") || mimeType.includes("markdown") || mimeType === "") {
@@ -157,19 +161,19 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
       }
     }
   }, []);
-  const handleDragLeave = reactExports.useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDragLeave = reactExports.useCallback((dragEvent) => {
+    dragEvent.preventDefault();
+    dragEvent.stopPropagation();
     setDragOver(false);
     setDragInvalid(false);
   }, []);
   const handleDrop = reactExports.useCallback(
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    (dragEvent) => {
+      dragEvent.preventDefault();
+      dragEvent.stopPropagation();
       setDragOver(false);
       setDragInvalid(false);
-      const dropped = e.dataTransfer.files[0];
+      const dropped = dragEvent.dataTransfer.files[0];
       if (dropped) handleFileSelect(dropped);
     },
     [handleFileSelect],
@@ -436,7 +440,7 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
     if (!stagingPath || !newName) return;
     if (needsAdaptationAfterRename) {
       setState("installing");
-      const fileExt2 = file ? detectSkillImportFileExt(file.name) : "other";
+      const fileExt = file ? detectSkillImportFileExt(file.name) : "other";
       try {
         const res = await gatewayFetch("/api/skills/import/confirm-staging", {
           method: "POST",
@@ -457,7 +461,7 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
             type: data.errorType,
           });
           trackSkillImportFailed({
-            fileExt: fileExt2,
+            fileExt,
             name: newName,
             error: new Error(data.error || "Install failed"),
             errorType: "business",
@@ -469,7 +473,7 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
         setState("needsAdaptation");
         trackSkillImport({
           skill_name: newName,
-          file_ext: fileExt2,
+          file_ext: fileExt,
           result: "renamed_adapt",
         });
       } catch (err) {
@@ -480,7 +484,7 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
           type: "network",
         });
         trackSkillImportFailed({
-          fileExt: fileExt2,
+          fileExt,
           name: newName,
           error: err,
           errorType: "network",
@@ -549,9 +553,9 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
     reset();
   }, [reset]);
   const handleOpenChange = reactExports.useCallback(
-    (v) => {
-      if (!v) reset();
-      onOpenChange(v);
+    (isOpen) => {
+      if (!isOpen) reset();
+      onOpenChange(isOpen);
     },
     [onOpenChange, reset],
   );
@@ -580,12 +584,12 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
                 <p className="font-medium">{errorInfo.message}</p>
                 {errorInfo.missingFields && errorInfo.missingFields.length > 0 && (
                   <div className="flex items-center gap-1.5 mt-1">
-                    {errorInfo.missingFields.map((f) => (
+                    {errorInfo.missingFields.map((missingField) => (
                       <span
-                        key={f}
+                        key={missingField}
                         className="rounded-sm bg-destructive/10 px-1 py-0.5 font-mono text-[11px]"
                       >
-                        {f}
+                        {missingField}
                       </span>
                     ))}
                   </div>
@@ -712,8 +716,8 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
                   data-action-ui-id="skills-import-rename-input"
                   className="h-10 text-sm"
                   value={newName}
-                  onChange={(e) => {
-                    const val = e.target.value;
+                  onChange={(changeEvent) => {
+                    const val = changeEvent.target.value;
                     setNewName(val);
                     setNameError(
                       val && !isValidSkillName(val)

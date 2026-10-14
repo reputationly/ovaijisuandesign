@@ -1,0 +1,94 @@
+key	old	new	依据
+$$splitComponentImporter$1@384:7	$$splitComponentImporter$1	loadRemoteToolDebugRoute	动态导入远程工具调试路由模块的函数。
+$$splitComponentImporter$2@376:7	$$splitComponentImporter$2	loadProjectDetailRoute	动态导入项目详情路由模块的函数。
+$$splitComponentImporter$3@340:7	$$splitComponentImporter$3	loadSkillsRoute	动态导入技能路由模块的函数。
+$$splitComponentImporter$4@247:7	$$splitComponentImporter$4	loadWorkspaceRoute	动态导入工作区路由模块的函数。
+$$splitComponentImporter$5@234:7	$$splitComponentImporter$5	loadHomeAssetCenterRoute	动态导入首页素材中心路由模块的函数。
+$$splitComponentImporter$6@224:7	$$splitComponentImporter$6	loadHomeChangelogRoute	动态导入首页更新日志路由模块的函数。
+$$splitComponentImporter$7@219:7	$$splitComponentImporter$7	loadHomeCreationsRoute	动态导入首页创作路由模块的函数。
+$$splitComponentImporter$8@213:7	$$splitComponentImporter$8	loadHomeProjectsRoute	动态导入首页项目路由模块的函数。
+$$splitComponentImporter$9@160:7	$$splitComponentImporter$9	loadHomeWorkflowsRoute	动态导入首页工作流路由模块的函数。
+active2@1021:13	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+children2@1233:45	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+children2@1248:44	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+children2@1384:37	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+data2@101:34	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+data2@1533:15	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+dispatch2@472:9	dispatch2	dispatch	去掉打包器防重名追加的后缀，恢复原名 dispatch，即该绑定持有的值。
+doc2@113:37	doc2	doc	去掉打包器防重名追加的后缀，恢复原名 doc，即该绑定持有的值。
+e2@773:22	e2	keyboardEvent	新建工作区名称输入框收到的键盘事件。
+element2@136:17	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+entries2@1037:20	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+err@1563:16	err	error	捕获到的错误对象。
+gatewayFetch2@1162:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+hiloApp2@104:30	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+id2@1088:34	id2	workspaceId	工作区的唯一标识。
+id2@275:46	id2	modelId	初始媒体模型列表中的模型 ID。
+id2@947:46	id2	modelId	初始媒体模型列表中的模型 ID。
+ids2@1045:11	ids2	ids	去掉打包器防重名追加的后缀，恢复原名 ids，即该绑定持有的值。
+idx@500:37	idx	itemIndex	顶栏菜单分组内当前条目的数组索引。
+image2@280:9	image2	image	用于预加载媒体 URL 的浏览器 Image 对象。
+image2@952:9	image2	image	用于预加载媒体 URL 的浏览器 Image 对象。
+key2@272:17	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@470:18	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@944:17	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+list2@273:11	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+list2@945:11	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+m3@535:56	m3	module	动态导入的全局搜索模块。
+mod@774:13	mod	modifierPressed	键盘事件是否按下 Meta 或 Ctrl 修饰键。
+next2@732:30	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@742:16	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@754:64	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+obj@271:9	obj	parsedObject	JSON 解析并确认是普通对象后的初始媒体模型配置。
+obj@943:9	obj	parsedObject	JSON 解析并确认是普通对象后的初始媒体模型配置。
+out@343:9	out	validatedSearch	筛选并返回允许保留的技能路由搜索参数。
+parseInitialAttachments$1@921:10	parseInitialAttachments$1	parseWorkspaceInitialAttachments	解析工作区 URL 中的初始附件字符串数组。
+parseInitialSelectedMediaModels$1@933:10	parseInitialSelectedMediaModels$1	parseWorkspaceInitialSelectedMediaModels	解析工作区 URL 中按媒体类型分类的已选模型 ID。
+path2@101:27	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+platform2@708:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+queryClient2@1163:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+raw2@262:7	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+raw2@934:7	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+res@1524:15	res	response	媒体扫描请求返回的 HTTP 响应对象。
+Route$1@386:7	Route$1	remoteToolDebugRoute	远程工具调试页的 TanStack 文件路由。
+Route$2@378:7	Route$2	projectDetailRoute	项目详情页的 TanStack 文件路由。
+Route$3@367:7	Route$3	skillsRoute	技能页面的 TanStack 文件路由。
+Route$4@288:7	Route$4	workspaceRoute	应用工作区页面的 TanStack 文件路由。
+Route$5@243:7	Route$5	homeAssetCenterRoute	首页素材中心的 TanStack 文件路由。
+Route$6@226:7	Route$6	homeChangelogRoute	首页更新日志的 TanStack 文件路由。
+Route$7@221:7	Route$7	homeCreationsRoute	首页创作列表的 TanStack 文件路由。
+Route$8@215:7	Route$8	homeProjectsRoute	首页项目列表的 TanStack 文件路由。
+Route2@403:7	Route2	chatCaseRoute	聊天用例调试页面的 TanStack 文件路由。
+search2@1631:15	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@167:20	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@177:20	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@201:26	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@208:33	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@228:20	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@236:36	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@289:20	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@332:26	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@342:31	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@379:20	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@387:20	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@405:20	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+search2@968:13	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+state2@1266:14	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+state2@962:14	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+t2@1514:14	t2	translate	useTranslation 返回的翻译函数。
+t2@465:14	t2	translate	useTranslation 返回的翻译函数。
+t2@541:14	t2	translate	useTranslation 返回的翻译函数。
+t2@841:14	t2	translate	useTranslation 返回的翻译函数。
+t2@889:14	t2	translate	useTranslation 返回的翻译函数。
+tab2@348:9	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+timer2@136:27	timer2	timer	去掉打包器防重名追加的后缀，恢复原名 timer，即该绑定持有的值。
+timer2@728:9	timer2	timer	去掉打包器防重名追加的后缀，恢复原名 timer，即该绑定持有的值。
+Toaster2@100:10	Toaster2	Toaster	去掉打包器防重名追加的后缀，恢复原名 Toaster，即该绑定持有的值。
+v2@250:44	v2	stringValue	正在校验是否为字符串的数组元素。
+v2@256:48	v2	stringValue	正在校验是否为字符串的数组元素。
+v2@922:44	v2	stringValue	正在校验是否为字符串的数组元素。
+v2@928:48	v2	stringValue	正在校验是否为字符串的数组元素。
+workspaceId2@1022:18	workspaceId2	activeWorkspaceId	当前保留运行时层所关联的工作区 ID。
+workspaceId2@1614:15	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@1632:15	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId22@1597:17	workspaceId22	workspaceId	工作区的唯一标识。

@@ -1,15 +1,11 @@
 // mention-chip-node-view.jsx
-import {
-  classifyFileType,
-  jsxRuntimeExports,
-  Music,
-  NodeSelection,
-  NodeViewWrapper,
-  reactExports,
-  useTranslation,
-  Video,
-  X$7 as X,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { NodeSelection } from "prosemirror-state";
+import { NodeViewWrapper } from "@tiptap/react";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { Music, Video, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ReferenceSwitchPopover } from "./reference-switch-popover.jsx";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
@@ -26,15 +22,15 @@ import { TextReadDialog } from "../media-editing/use-preview-text.jsx";
 import { VideoPlayIndicator } from "./attachment-bar.jsx";
 const THUMB_PX = 18;
 export function MentionChipNodeView({
-  node: node2,
-  selected: selected2,
+  node,
+  selected,
   editor,
-  extension: extension2,
-  deleteNode: deleteNode2,
-  updateAttributes: updateAttributes2,
+  extension,
+  deleteNode,
+  updateAttributes,
 }) {
-  const { t: t2 } = useTranslation();
-  const { kind, filename, path: path2 } = node2.attrs;
+  const { t: translate } = useTranslation();
+  const { kind, filename, path } = node.attrs;
   const [hovered, setHovered] = reactExports.useState(false);
   const [reading, setReading] = reactExports.useState(false);
   const [chipEl, setChipEl] = reactExports.useState(null);
@@ -44,63 +40,63 @@ export function MentionChipNodeView({
     resolution: currentResolution,
     status,
     unavailable,
-    invalid: invalid2,
+    invalid,
   } = useAssetsRefValidate({
-    path: path2,
+    path,
     anchor: chipEl,
   });
   const isSubject = reference?.target === "entity";
   const subjectTypeLabel = isSubject
-    ? t2(
+    ? translate(
         `assetCenter.types.${reference.entityType ?? "other"}`,
-        reference.entityType ?? t2("canvas.reference.subject", "Subject"),
+        reference.entityType ?? translate("canvas.reference.subject", "Subject"),
       )
     : "";
-  const statusLabel2 =
-    !reference || status === "available" || invalid2
+  const statusLabel =
+    !reference || status === "available" || invalid
       ? ""
       : status === "unavailable"
-        ? t2("canvas.reference.checkFailed", "Unavailable")
-        : t2("canvas.reference.checking", "Checking");
-  const displayName2 = currentResolution?.name ?? filename;
+        ? translate("canvas.reference.checkFailed", "Unavailable")
+        : translate("canvas.reference.checking", "Checking");
+  const displayName = currentResolution?.name ?? filename;
   reactExports.useEffect(() => {
     if (
       currentResolution?.status === "available" &&
       currentResolution.name &&
       currentResolution.name !== filename
     ) {
-      updateAttributes2({
+      updateAttributes({
         filename: currentResolution.name,
       });
     }
-  }, [currentResolution, filename, updateAttributes2]);
+  }, [currentResolution, filename, updateAttributes]);
   const [switchConfig, setSwitchConfig] = reactExports.useState(null);
   const previewCloseTimerRef = reactExports.useRef(null);
-  const resolveFileUrl = extension2.options.resolveFileUrl;
-  const getFileRefSwitchConfig = extension2.options.getFileRefSwitchConfig;
+  const resolveFileUrl = extension.options.resolveFileUrl;
+  const getFileRefSwitchConfig = extension.options.getFileRefSwitchConfig;
   const canSwitchReference = !isSubject && !!getFileRefSwitchConfig?.();
   const previewUrl =
-    path2 && !unavailable && !isSubject ? (resolveFileUrl?.(path2) ?? "") : "";
-  const assetMetadataStore = extension2.options.assetMetadataStore;
+    path && !unavailable && !isSubject ? (resolveFileUrl?.(path) ?? "") : "";
+  const assetMetadataStore = extension.options.assetMetadataStore;
   let intrinsicWidth;
   let intrinsicHeight;
-  if (path2 && assetMetadataStore) {
-    for (const meta2 of assetMetadataStore.getState().assets.values()) {
-      if (meta2.path !== path2) continue;
-      intrinsicWidth = meta2.width;
-      intrinsicHeight = meta2.height;
+  if (path && assetMetadataStore) {
+    for (const meta of assetMetadataStore.getState().assets.values()) {
+      if (meta.path !== path) continue;
+      intrinsicWidth = meta.width;
+      intrinsicHeight = meta.height;
       break;
     }
   }
   const hasCustomPreview = Boolean(
-    (reference && (isSubject || invalid2) && directReferences?.renderPreview) ||
-    (!isSubject && !unavailable && path2 && (kind === "text" || previewUrl)),
+    (reference && (isSubject || invalid) && directReferences?.renderPreview) ||
+    (!isSubject && !unavailable && path && (kind === "text" || previewUrl)),
   );
-  const fallbackStatusLabel = invalid2
+  const fallbackStatusLabel = invalid
     ? status === "deleted"
-      ? t2("canvas.reference.deleted", "Deleted")
-      : t2("canvas.reference.missing", "File missing")
-    : statusLabel2;
+      ? translate("canvas.reference.deleted", "Deleted")
+      : translate("canvas.reference.missing", "File missing")
+    : statusLabel;
   const [failedPreviewUrl, setFailedPreviewUrl] = reactExports.useState(null);
   const showImageThumb =
     kind === "image" && !!previewUrl && failedPreviewUrl !== previewUrl;
@@ -108,10 +104,10 @@ export function MentionChipNodeView({
     kind === "video" && !!previewUrl && failedPreviewUrl !== previewUrl;
   const { stem: displayStem, ext: displayExt } = isSubject
     ? {
-        stem: displayName2,
+        stem: displayName,
         ext: "",
       }
-    : splitMentionFilename(displayName2);
+    : splitMentionFilename(displayName);
   const clearPreviewCloseTimer = reactExports.useCallback(() => {
     if (previewCloseTimerRef.current) {
       clearTimeout(previewCloseTimerRef.current);
@@ -131,29 +127,29 @@ export function MentionChipNodeView({
     [clearPreviewCloseTimer],
   );
   const openSwitchPanel = reactExports.useCallback(() => {
-    const config2 = getFileRefSwitchConfig?.();
-    if (!config2) return;
+    const config = getFileRefSwitchConfig?.();
+    if (!config) return;
     clearPreviewCloseTimer();
     setHovered(false);
-    setSwitchConfig(config2);
+    setSwitchConfig(config);
   }, [clearPreviewCloseTimer, getFileRefSwitchConfig]);
   const clearChipSelection = reactExports.useCallback(() => {
-    const { selection: selection2 } = editor.state;
+    const { selection } = editor.state;
     if (
-      !(selection2 instanceof NodeSelection) ||
-      selection2.node.type.name !== "canvasFileRef"
+      !(selection instanceof NodeSelection) ||
+      selection.node.type.name !== "canvasFileRef"
     ) {
       return;
     }
-    editor.commands.setTextSelection(selection2.to);
+    editor.commands.setTextSelection(selection.to);
   }, [editor]);
   const closeSwitchPanel = reactExports.useCallback(() => {
     setSwitchConfig(null);
     clearChipSelection();
   }, [clearChipSelection]);
   reactExports.useEffect(() => {
-    if (!selected2) setSwitchConfig(null);
-  }, [selected2]);
+    if (!selected) setSwitchConfig(null);
+  }, [selected]);
   const chip = (
     // biome-ignore lint/a11y/noStaticElementInteractions: Tiptap inline atom owns focus/keyboard navigation
     // biome-ignore lint/a11y/useKeyWithClickEvents: Tiptap inline atom owns focus/keyboard navigation
@@ -163,7 +159,7 @@ export function MentionChipNodeView({
       title={
         hasCustomPreview
           ? void 0
-          : [displayName2 || path2, fallbackStatusLabel]
+          : [displayName || path, fallbackStatusLabel]
               .filter(Boolean)
               .join(" · ")
       }
@@ -171,8 +167,8 @@ export function MentionChipNodeView({
         "group/reference relative inline-flex items-center gap-1 py-0.5 pr-1.5 pl-0.5 text-xs leading-tight select-none rounded-[8px]",
         canSwitchReference ? "cursor-pointer" : "cursor-default",
         "border",
-        invalid2 ? "text-muted-foreground opacity-50" : "text-foreground",
-        selected2
+        invalid ? "text-muted-foreground opacity-50" : "text-foreground",
+        selected
           ? "bg-transparent border-black/70 dark:border-white/50"
           : "bg-[var(--chat-inline-code-bg,var(--canvas-controls-hover))] border-transparent",
         "max-w-[180px] overflow-hidden whitespace-nowrap",
@@ -190,7 +186,7 @@ export function MentionChipNodeView({
     >
       {isSubject ? (
         <span
-          className={`shrink-0 rounded-sm px-1 py-0.5 text-xs ${invalid2 ? "bg-muted text-muted-foreground" : "bg-foreground text-background"}`}
+          className={`shrink-0 rounded-sm px-1 py-0.5 text-xs ${invalid ? "bg-muted text-muted-foreground" : "bg-foreground text-background"}`}
         >
           {subjectTypeLabel}
         </span>
@@ -234,13 +230,13 @@ export function MentionChipNodeView({
             <Video size={12} />
           ) : kind === "image" &&
             classifyFileType({
-              filename: displayName2,
+              filename: displayName,
             }).category !== "photoshop" ? (
             <ImageOutlineIcon size={12} />
           ) : (
             <FileTypeIcon
               {...classifyFileType({
-                filename: displayName2,
+                filename: displayName,
               })}
               size={14}
               decorative={true}
@@ -254,16 +250,16 @@ export function MentionChipNodeView({
           <span className="shrink-0 text-muted-foreground">{displayExt}</span>
         )}
       </span>
-      {!invalid2 && statusLabel2 && (
+      {!invalid && statusLabel && (
         <span className="shrink-0 text-muted-foreground">
           {"· "}
-          {statusLabel2}
+          {statusLabel}
         </span>
       )}
       <button
         type="button"
         contentEditable={false}
-        aria-label={t2("mention.popover.removeReference", "Remove")}
+        aria-label={translate("mention.popover.removeReference", "Remove")}
         data-action-ui-id="popover.prompt-reference-remove"
         className="pointer-events-none absolute right-0.5 top-1/2 flex size-3.5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-foreground text-background opacity-0 transition-opacity focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring group-hover/reference:pointer-events-auto group-hover/reference:opacity-100"
         onMouseDown={(event) => {
@@ -274,10 +270,10 @@ export function MentionChipNodeView({
           event.preventDefault();
           event.stopPropagation();
           setHovered(false);
-          deleteNode2();
+          deleteNode();
         }}
       >
-        <X size={9} strokeWidth={2.2} />
+        <CloseIcon size={9} strokeWidth={2.2} />
       </button>
     </span>
   );
@@ -286,19 +282,19 @@ export function MentionChipNodeView({
       as="span"
       className="canvas-prompt-reference-chip-wrapper mx-0.5 inline-flex"
     >
-      {reference && (isSubject || invalid2) && directReferences?.renderPreview
+      {reference && (isSubject || invalid) && directReferences?.renderPreview
         ? directReferences.renderPreview({
             reference,
             trigger: chip,
             status: status ?? "checking",
           })
         : chip}
-      {reading && path2 && (
+      {reading && path && (
         <TextReadDialog
           open={reading}
           onOpenChange={setReading}
-          path={path2}
-          name={displayName2 || path2}
+          path={path}
+          name={displayName || path}
         />
       )}
       {hovered &&
@@ -307,14 +303,14 @@ export function MentionChipNodeView({
         !unavailable &&
         chipEl &&
         kind === "text" &&
-        path2 && (
+        path && (
           <TextHoverPreview
             onReadFull={() => {
               setHovered(false);
               setReading(true);
             }}
-            path={path2}
-            name={displayName2 || path2}
+            path={path}
+            name={displayName || path}
             anchorElement={chipEl}
             anchorRect={chipEl.getBoundingClientRect()}
             onPreviewMouseEnter={showPreview}
@@ -326,7 +322,7 @@ export function MentionChipNodeView({
           showFileName={true}
           kind={kind}
           url={previewUrl}
-          name={displayName2 || path2}
+          name={displayName || path}
           width={intrinsicWidth}
           height={intrinsicHeight}
           anchorElement={chipEl}
@@ -339,24 +335,24 @@ export function MentionChipNodeView({
         <ReferenceSwitchPopover
           anchorRect={chipEl.getBoundingClientRect()}
           getAnchorRect={() => chipEl.getBoundingClientRect()}
-          currentPath={path2}
+          currentPath={path}
           config={switchConfig}
           resolveFileUrl={resolveFileUrl}
-          onSelect={(meta2, assetId, sourceNodeId) => {
-            if (meta2.path === path2) {
+          onSelect={(meta, assetId, sourceNodeId) => {
+            if (meta.path === path) {
               closeSwitchPanel();
               return;
             }
             const nextKind =
-              meta2.type === "video" ||
-              meta2.type === "audio" ||
-              meta2.type === "text"
-                ? meta2.type
+              meta.type === "video" ||
+              meta.type === "audio" ||
+              meta.type === "text"
+                ? meta.type
                 : "image";
-            switchConfig.onSelectAsset(meta2, assetId, sourceNodeId);
-            updateAttributes2({
-              path: meta2.path,
-              filename: meta2.name,
+            switchConfig.onSelectAsset(meta, assetId, sourceNodeId);
+            updateAttributes({
+              path: meta.path,
+              filename: meta.name,
               kind: nextKind,
             });
             closeSwitchPanel();

@@ -1,5 +1,5 @@
 // team-panel-loading.jsx
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Skeleton } from "./use-wallet-query.jsx";
 
@@ -10,7 +10,7 @@ export function isCreditTransferTarget(item, sourceGroupId) {
 }
 
 export function TeamPanelLoading({ rows = 3 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const rowIds = ["first", "second", "third", "fourth", "fifth"].slice(0, rows);
   return (
     <div
@@ -20,7 +20,7 @@ export function TeamPanelLoading({ rows = 3 }) {
       data-action-ui-id="team.panel-loading"
     >
       <span className="sr-only">
-        {t2("common.loading", {
+        {t("common.loading", {
           defaultValue: "加载中…",
         })}
       </span>

@@ -7,7 +7,13 @@ import {
   useMpWallet,
 } from "./hailuo-credit-row.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
-import { ChevronLeft, ChevronRight$1 as ChevronRight, getRuntimeConfig, Info$1 as Info, reactExports, Trans, usePlatform, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import { Trans } from "react-i18next";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { ChevronLeft, ChevronRight$1 as ChevronRight, Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import {
   creditQueryKeys,
@@ -117,23 +123,23 @@ function asBoolean(value, field) {
 }
 function asTimestamp(value, field) {
   const decimal = asDecimal(value, field);
-  const timestamp2 = Number(decimal);
-  if (!Number.isSafeInteger(timestamp2)) {
+  const timestamp = Number(decimal);
+  if (!Number.isSafeInteger(timestamp)) {
     throw new TypeError(
       `Invalid billing response at ${field}: expected safe timestamp`,
     );
   }
-  return timestamp2;
+  return timestamp;
 }
-function mapBillingTransaction(value, index2) {
-  const field = `$.items[${index2}]`;
+function mapBillingTransaction(value, index) {
+  const field = `$.items[${index}]`;
   const source = asRecord(value, field);
-  const type2 = asString(source.type, `${field}.type`);
+  const type = asString(source.type, `${field}.type`);
   if (
-    type2 !== "consume" &&
-    type2 !== "refund" &&
-    type2 !== "grant" &&
-    type2 !== "expired"
+    type !== "consume" &&
+    type !== "refund" &&
+    type !== "grant" &&
+    type !== "expired"
   ) {
     throw new TypeError(
       `Invalid billing response at ${field}.type: unsupported value`,
@@ -146,7 +152,7 @@ function mapBillingTransaction(value, index2) {
   );
   return {
     id: asDecimal(source.id, `${field}.id`),
-    type: type2,
+    type,
     source: asString(source.source, `${field}.source`),
     billing_type: asString(source.billing_type, `${field}.billing_type`),
     amount: asPositiveDecimal(source.amount, `${field}.amount`),
@@ -208,26 +214,26 @@ async function fetchTransactions(params, options) {
     searchParams.set("cursor_create_time", String(params.cursor.createTime));
     searchParams.set("cursor_id", String(params.cursor.id));
   }
-  const qs = searchParams.toString();
+  const queryString = searchParams.toString();
   const res = await gatewayFetch(
-    `/api/v1/billing/transactions${qs ? `?${qs}` : ""}`,
+    `/api/v1/billing/transactions${queryString ? `?${queryString}` : ""}`,
     {
       signal: options?.signal,
     },
   );
-  const raw2 = await res.json();
+  const raw = await res.json();
   options?.signal?.throwIfAborted();
-  const data2 = mapBillingTransactionsResponse(raw2);
+  const data = mapBillingTransactionsResponse(raw);
   return {
-    items: data2.items,
-    hasMore: data2.hasMore,
-    nextCursor: data2.hasMore
+    items: data.items,
+    hasMore: data.hasMore,
+    nextCursor: data.hasMore
       ? {
-          createTime: data2.nextCursorCreateTime,
-          id: data2.nextCursorId,
+          createTime: data.nextCursorCreateTime,
+          id: data.nextCursorId,
         }
       : null,
-    balance: data2.balance,
+    balance: data.balance,
   };
 }
 function useMpCreditSummary() {
@@ -247,7 +253,7 @@ function useCreditDetails(open) {
   );
   const [pageSize, setPageSizeState] = reactExports.useState(DEFAULT_PAGE_SIZE);
   const [cursorStack, setCursorStack] = reactExports.useState([]);
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { queryScope, canReadPersonalCredit } = useCreditAccountState();
   const dialogScopeRef = reactExports.useRef(null);
   const currentCursor = cursorStack.at(-1) ?? null;
@@ -257,8 +263,8 @@ function useCreditDetails(open) {
     setCursorStack((prev) => (prev.length === 0 ? prev : []));
   }, []);
   const setActiveTab = reactExports.useCallback(
-    (tab2) => {
-      setActiveTabState(tab2);
+    (tab) => {
+      setActiveTabState(tab);
       resetCursorStack();
     },
     [resetCursorStack],
@@ -278,12 +284,12 @@ function useCreditDetails(open) {
     const closedScope = dialogScopeRef.current;
     dialogScopeRef.current = null;
     if (closedScope) {
-      queryClient2.removeQueries({
+      queryClient.removeQueries({
         queryKey: creditQueryKeys.personalTransactionsRoot(closedScope),
       });
     }
     resetCursorStack();
-  }, [open, queryClient2, queryScope, resetCursorStack]);
+  }, [open, queryClient, queryScope, resetCursorStack]);
   const {
     data: pageData,
     isLoading: loadingList,
@@ -350,7 +356,7 @@ function useCreditDetails(open) {
     goNext,
   };
 }
-function getModelDisplayName(item, t2, models) {
+function getModelDisplayName(item, t, models) {
   return getBillingModelDisplayName(
     {
       billingType: item.billing_type,
@@ -358,16 +364,16 @@ function getModelDisplayName(item, t2, models) {
       modelDisplayName: item.model_display_name,
       mediaType: item.media_type,
     },
-    t2,
+    t,
     models,
   );
 }
 function formatNumber(value) {
   return BigInt(value).toLocaleString();
 }
-function getBillingTransactionCategory(item, t2) {
+function getBillingTransactionCategory(item, t) {
   if (item.type !== "grant" && item.type !== "expired") return void 0;
-  return getPackageCreditCategoryLabel(item.credit_category, t2);
+  return getPackageCreditCategoryLabel(item.credit_category, t);
 }
 function getBillingTransactionReason(item) {
   if (item.type !== "grant" && item.type !== "expired") return void 0;
@@ -375,17 +381,17 @@ function getBillingTransactionReason(item) {
   if (!reason || reason.trim() === "") return void 0;
   return reason;
 }
-function getBillingTransactionPresentation(item, t2) {
+function getBillingTransactionPresentation(item, t) {
   const isCredit = item.type === "refund" || item.type === "grant";
-  const category = getBillingTransactionCategory(item, t2);
+  const category = getBillingTransactionCategory(item, t);
   const reason = getBillingTransactionReason(item);
   const label =
     item.type === "grant"
-      ? (t2?.("credits.transaction.grant", {
+      ? (t?.("credits.transaction.grant", {
           defaultValue: "Credit issued",
         }) ?? "Credit issued")
       : item.type === "expired"
-        ? (t2?.("credits.transaction.expired", {
+        ? (t?.("credits.transaction.expired", {
             defaultValue: "Credits expired",
           }) ?? "Credits expired")
         : void 0;
@@ -428,11 +434,11 @@ function CreditPagination({
   isFetching,
   loading,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <span>{t2("credits.show")}</span>
+        <span>{t("credits.show")}</span>
         <Select
           value={String(pageSize)}
           onValueChange={(value) => setPageSize(Number(value))}
@@ -441,19 +447,19 @@ function CreditPagination({
             <SelectValue>{() => pageSize}</SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {CREDIT_PAGE_SIZE_OPTIONS.map((option2) => (
-              <SelectItem key={option2} value={String(option2)}>
-                {option2}
+            {CREDIT_PAGE_SIZE_OPTIONS.map((option) => (
+              <SelectItem key={option} value={String(option)}>
+                {option}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <span>{t2("credits.entries")}</span>
+        <span>{t("credits.entries")}</span>
       </div>
       <div className="flex items-center gap-3">
         {isFetching && !loading && <Skeleton className="h-4 w-12" />}
         <span className="text-xs text-muted-foreground">
-          {t2("credits.pageNumber", {
+          {t("credits.pageNumber", {
             page: currentPage,
           })}
         </span>
@@ -463,7 +469,7 @@ function CreditPagination({
           size="icon-sm"
           disabled={!canPrev}
           onClick={goPrev}
-          aria-label={t2("credits.prev")}
+          aria-label={t("credits.prev")}
           data-action-ui-id="credits.pagination-prev"
         >
           <ChevronLeft />
@@ -474,7 +480,7 @@ function CreditPagination({
           size="icon-sm"
           disabled={!canNext}
           onClick={goNext}
-          aria-label={t2("credits.next")}
+          aria-label={t("credits.next")}
           data-action-ui-id="credits.pagination-next"
         >
           <ChevronRight />
@@ -484,8 +490,8 @@ function CreditPagination({
   );
 }
 function BillingModelDescription({ item, models }) {
-  const { t: t2 } = useTranslation();
-  const modelName = getModelDisplayName(item, t2, models);
+  const { t } = useTranslation();
+  const modelName = getModelDisplayName(item, t, models);
   return isLegacyMedia(item) ? (
     <TooltipProvider delay={200}>
       <Tooltip>
@@ -495,7 +501,7 @@ function BillingModelDescription({ item, models }) {
           </span>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-56 text-xs">
-          {t2("credits.legacyMediaTip")}
+          {t("credits.legacyMediaTip")}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -511,13 +517,13 @@ function CreditModelTable({
   error,
   onRetry,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <CreditLedgerTable
       rows={items
         .filter((item) => isBillingTransactionVisibleOnTab(item, activeTab))
         .map((item) => {
-          const presentation = getBillingTransactionPresentation(item, t2);
+          const presentation = getBillingTransactionPresentation(item, t);
           return {
             id: `${item.id}-${item.type}-${item.create_time}`,
             description: presentation.label ? (
@@ -546,12 +552,12 @@ function CreditModelTable({
         })}
       loading={loading}
       error={error}
-      descriptionLabel={t2("credits.colModel")}
-      timeLabel={t2("credits.colTime")}
-      amountLabel={t2("credits.colCreditAmount")}
-      emptyLabel={t2("credits.noConsumptionRecords")}
-      errorLabel={t2("credits.fetchErrorMP")}
-      retryLabel={t2("credits.retry")}
+      descriptionLabel={t("credits.colModel")}
+      timeLabel={t("credits.colTime")}
+      amountLabel={t("credits.colCreditAmount")}
+      emptyLabel={t("credits.noConsumptionRecords")}
+      errorLabel={t("credits.fetchErrorMP")}
+      retryLabel={t("credits.retry")}
       onRetry={onRetry}
     />
   );
@@ -563,8 +569,8 @@ const CYCLE_LABEL_KEYS = {
   3: "credits.billingCycle.yearly",
 };
 function SubscriptionInfoPanel() {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t } = useTranslation();
+  const platform = usePlatform();
   const { isLoading: loading } = useWalletQuery();
   const mpWallet = useMpWallet();
   const subscribeUrl = useMpSubscribeUrl();
@@ -574,10 +580,10 @@ function SubscriptionInfoPanel() {
     const decision = guardAccountSubmission("personal_checkout");
     if (!decision.allowed) return;
     if (!subscribeUrl) {
-      dedupedToast.error(t2("credits.walletUrlNotReady"));
+      dedupedToast.error(t("credits.walletUrlNotReady"));
       return;
     }
-    void openExternalUrl(platform2, subscribeUrl, {
+    void openExternalUrl(platform, subscribeUrl, {
       source: "credits.subscription-panel",
     });
   };
@@ -590,21 +596,21 @@ function SubscriptionInfoPanel() {
     );
   }
   const isFree = !mpWallet || mpWallet.privilege_type === FREE_PRIVILEGE_TYPE;
-  const planName = mpWallet?.plan_name?.trim() || t2("credits.freePlan");
-  const cta = isFree
-    ? t2("credits.upgradeSubscription")
-    : t2("credits.viewSubscription");
+  const planName = mpWallet?.plan_name?.trim() || t("credits.freePlan");
+  const subscriptionCtaLabel = isFree
+    ? t("credits.upgradeSubscription")
+    : t("credits.viewSubscription");
   const cycleKey = mpWallet?.cycle_type
     ? CYCLE_LABEL_KEYS[mpWallet.cycle_type]
     : void 0;
-  const cycleLabel = cycleKey ? t2(cycleKey) : "";
+  const cycleLabel = cycleKey ? t(cycleKey) : "";
   const title =
     !isFree && cycleLabel ? `${planName} · ${cycleLabel}` : planName;
   const description = (() => {
-    if (isFree) return t2("credits.freeDesc");
+    if (isFree) return t("credits.freeDesc");
     const renew = mpWallet?.next_renewal_time?.trim();
     if (renew) {
-      return t2(
+      return t(
         isWithinRenewalWindow
           ? "credits.subscriptionDesc.renewalNotice"
           : "credits.subscriptionDesc.renewal",
@@ -613,17 +619,17 @@ function SubscriptionInfoPanel() {
         },
       );
     }
-    const end2 = mpWallet?.end_time?.trim();
+    const end = mpWallet?.end_time?.trim();
     const creditRefresh = mpWallet?.next_credit_refresh_time?.trim();
-    if (end2 && mpWallet?.cycle_type === 3 && creditRefresh) {
-      return t2("credits.subscriptionDesc.cancelWithCreditRefresh", {
-        date: end2,
+    if (end && mpWallet?.cycle_type === 3 && creditRefresh) {
+      return t("credits.subscriptionDesc.cancelWithCreditRefresh", {
+        date: end,
         refreshDate: creditRefresh,
       });
     }
-    if (end2)
-      return t2("credits.subscriptionDesc.cancel", {
-        date: end2,
+    if (end)
+      return t("credits.subscriptionDesc.cancel", {
+        date: end,
       });
     return "";
   })();
@@ -653,7 +659,7 @@ function SubscriptionInfoPanel() {
         onClick={openSubscribePage}
         data-action-ui-id="credits.subscription-cta"
       >
-        {cta}
+        {subscriptionCtaLabel}
       </Button>
     </div>
   );
@@ -673,22 +679,22 @@ const TAB_VALUES = [
     labelKey: "credits.tabRefunded",
   },
 ];
-function formatNumber$1(n2) {
-  return n2.toLocaleString();
+function formatLocaleNumber(value) {
+  return value.toLocaleString();
 }
 function formatTransferCounterparty(transfer) {
-  const name2 = transfer.counterpartyGroupName;
-  const id2 = transfer.counterpartyGroupId;
-  if (!name2 && !id2) return "—";
+  const counterpartyName = transfer.counterpartyGroupName;
+  const counterpartyGroupId = transfer.counterpartyGroupId;
+  if (!counterpartyName && !counterpartyGroupId) return "—";
   return (
     <span className="flex min-w-0 flex-wrap items-baseline gap-x-1">
-      {name2 ? <span className="min-w-0 break-words">{name2}</span> : null}
-      {name2 && id2 ? (
+      {counterpartyName ? <span className="min-w-0 break-words">{counterpartyName}</span> : null}
+      {counterpartyName && counterpartyGroupId ? (
         <span className="shrink-0 text-muted-foreground">/</span>
       ) : null}
-      {id2 ? (
+      {counterpartyGroupId ? (
         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-          {id2}
+          {counterpartyGroupId}
         </span>
       ) : null}
     </span>
@@ -704,20 +710,20 @@ function findCreditInfo(wallet, creditType) {
   return wallet?.sub_credits?.find((item) => item?.credit_type === creditType);
 }
 function creditExpiryBatches(creditInfo, fallbackCredit) {
-  const now2 = Date.now();
+  const now = Date.now();
   const creditByEndTime = new Map();
-  for (const record2 of creditInfo?.records ?? []) {
+  for (const record of creditInfo?.records ?? []) {
     if (
-      !Number.isFinite(record2.credit) ||
-      record2.credit <= 0 ||
-      !Number.isFinite(record2.end_time) ||
-      record2.end_time <= now2
+      !Number.isFinite(record.credit) ||
+      record.credit <= 0 ||
+      !Number.isFinite(record.end_time) ||
+      record.end_time <= now
     ) {
       continue;
     }
     creditByEndTime.set(
-      record2.end_time,
-      (creditByEndTime.get(record2.end_time) ?? 0) + record2.credit,
+      record.end_time,
+      (creditByEndTime.get(record.end_time) ?? 0) + record.credit,
     );
   }
   if (creditByEndTime.size > 0) {
@@ -726,14 +732,14 @@ function creditExpiryBatches(creditInfo, fallbackCredit) {
         credit,
         endTime,
       }))
-      .sort((a2, b3) => a2.endTime - b3.endTime);
+      .sort((a, b) => a.endTime - b.endTime);
   }
   const fallbackEndTime = creditInfo?.end_time ?? 0;
   if (
     Number.isFinite(fallbackCredit) &&
     fallbackCredit > 0 &&
     Number.isFinite(fallbackEndTime) &&
-    fallbackEndTime > now2
+    fallbackEndTime > now
   ) {
     return [
       {
@@ -744,8 +750,8 @@ function creditExpiryBatches(creditInfo, fallbackCredit) {
   }
   return [];
 }
-function formatCreditExpiry(timestamp2) {
-  if (!Number.isFinite(timestamp2) || timestamp2 <= 0) return "";
+function formatCreditExpiry(timestamp) {
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return "";
   return new Intl.DateTimeFormat(void 0, {
     year: "numeric",
     month: "2-digit",
@@ -754,7 +760,7 @@ function formatCreditExpiry(timestamp2) {
     minute: "2-digit",
     hour12: false,
     hourCycle: "h23",
-  }).format(new Date(timestamp2));
+  }).format(new Date(timestamp));
 }
 function Operator({ symbol }) {
   return (
@@ -764,7 +770,7 @@ function Operator({ symbol }) {
   );
 }
 function SummaryCard({ label, value, tooltipKey, creditInfo }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const expiryBatches = creditExpiryBatches(creditInfo, value);
   const validityActionId = tooltipKey
     ?.replace(/^credits\./, "")
@@ -777,7 +783,7 @@ function SummaryCard({ label, value, tooltipKey, creditInfo }) {
         render={
           <button
             type="button"
-            aria-label={t2("credits.creditExpiry.open", {
+            aria-label={t("credits.creditExpiry.open", {
               type: label,
             })}
             className="inline-flex cursor-pointer rounded-md p-0.5 text-muted-foreground outline-hidden hover:bg-foreground/5 hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50"
@@ -797,29 +803,29 @@ function SummaryCard({ label, value, tooltipKey, creditInfo }) {
         className="max-h-(--available-height) w-80 gap-3 overflow-y-auto p-4"
       >
         <PopoverTitle className="font-heading text-sm font-medium">
-          {t2("credits.creditExpiry.title", {
+          {t("credits.creditExpiry.title", {
             type: label,
           })}
         </PopoverTitle>
-        <p className="text-xs text-muted-foreground">{t2(tooltipKey)}</p>
+        <p className="text-xs text-muted-foreground">{t(tooltipKey)}</p>
         {expiryBatches.length > 0 ? (
           <div className="flex flex-col gap-2 border-t border-border pt-3">
-            {expiryBatches.map((batch2) => (
+            {expiryBatches.map((batch) => (
               <p
-                key={batch2.endTime}
+                key={batch.endTime}
                 className="text-xs tabular-nums text-foreground"
                 data-action-ui-id="credits.expiry-batch"
               >
-                {t2("credits.creditExpiry.batch", {
-                  credit: formatNumber$1(batch2.credit),
-                  date: formatCreditExpiry(batch2.endTime),
+                {t("credits.creditExpiry.batch", {
+                  credit: formatLocaleNumber(batch.credit),
+                  date: formatCreditExpiry(batch.endTime),
                 })}
               </p>
             ))}
           </div>
         ) : (
           <p className="border-t border-border pt-3 text-xs text-muted-foreground">
-            {t2("credits.creditExpiry.empty")}
+            {t("credits.creditExpiry.empty")}
           </p>
         )}
       </PopoverContent>
@@ -832,13 +838,13 @@ function SummaryCard({ label, value, tooltipKey, creditInfo }) {
         {validityPopover}
       </div>
       <div className="truncate text-xl font-medium tabular-nums text-foreground">
-        {formatNumber$1(value)}
+        {formatLocaleNumber(value)}
       </div>
     </div>
   );
 }
 function CreditTypeSummary({ loading, error, creditTypes, wallet }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (loading) {
     return (
       <div className="rounded-lg border border-border bg-muted/40 px-5 py-4">
@@ -849,7 +855,7 @@ function CreditTypeSummary({ loading, error, creditTypes, wallet }) {
   if (error) {
     return (
       <div className="flex h-20 items-center justify-center rounded-lg border border-border bg-muted/40 text-xs text-muted-foreground">
-        {t2("credits.fetchErrorMP")}
+        {t("credits.fetchErrorMP")}
       </div>
     );
   }
@@ -861,33 +867,33 @@ function CreditTypeSummary({ loading, error, creditTypes, wallet }) {
     <div className="overflow-hidden rounded-lg border border-border bg-muted/40">
       <div className="grid grid-cols-2 items-end gap-3 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-3">
         <SummaryCard
-          label={t2("credits.remaining")}
+          label={t("credits.remaining")}
           value={creditTypes.total}
         />
         <Operator symbol="=" />
         <SummaryCard
-          label={t2("credits.membership")}
+          label={t("credits.membership")}
           value={creditTypes.membership}
           tooltipKey="credits.membershipTipMP"
           creditInfo={membership}
         />
         <Operator symbol="+" />
         <SummaryCard
-          label={t2("credits.topUp")}
+          label={t("credits.topUp")}
           value={creditTypes.topUp}
           tooltipKey="credits.topUpTipMP"
           creditInfo={topUp}
         />
         <Operator symbol="+" />
         <SummaryCard
-          label={t2("credits.bonus")}
+          label={t("credits.bonus")}
           value={creditTypes.bonus}
           tooltipKey="credits.bonusTipMP"
           creditInfo={bonus}
         />
         <Operator symbol="+" />
         <SummaryCard
-          label={t2("credits.transfer")}
+          label={t("credits.transfer")}
           value={creditTypes.transfer}
           tooltipKey="credits.transferTipMP"
           creditInfo={transfer}
@@ -897,14 +903,14 @@ function CreditTypeSummary({ loading, error, creditTypes, wallet }) {
         className="border-t border-border px-5 py-2.5 text-xs text-muted-foreground"
         data-action-ui-id="credits.expiry-priority-note"
       >
-        {t2("credits.creditExpiry.globalPriority")}
+        {t("credits.creditExpiry.globalPriority")}
       </p>
     </div>
   );
 }
 export function CreditDetailsDialog({ open, onOpenChange }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t } = useTranslation();
+  const platform = usePlatform();
   const { data: mediaModels } = useMediaModels();
   const {
     activeTab,
@@ -938,8 +944,8 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
   const transferScope =
     (teamAccount?.integrationEnabled ? teamAccount.activeScope : null) ?? null;
   const transferTabVisible = transferScope !== null;
-  const [tab2, setTab] = reactExports.useState(TRANSACTION_TYPE.ALL);
-  const transferTabActive = transferTabVisible && tab2 === TRANSFER_TAB;
+  const [tab, setTab] = reactExports.useState(TRANSACTION_TYPE.ALL);
+  const transferTabActive = transferTabVisible && tab === TRANSFER_TAB;
   const transfersQuery = useTeamTransfersFeedQuery({
     scope: transferScope,
     enabled: open && transferTabActive,
@@ -949,11 +955,11 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
     transfersQuery.data?.pages.flatMap((page) => page.items) ?? [];
   const formatTransferDirection = (direction) =>
     direction === "IN"
-      ? t2("team.credit.transferIn", {
+      ? t("team.credit.transferIn", {
           defaultValue: "转入",
         })
       : direction === "OUT"
-        ? t2("team.credit.transferOut", {
+        ? t("team.credit.transferOut", {
             defaultValue: "转出",
           })
         : "—";
@@ -974,10 +980,10 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
       action: "purchase_more",
     });
     if (!subscribeUrl) {
-      dedupedToast.error(t2("credits.walletUrlNotReady"));
+      dedupedToast.error(t("credits.walletUrlNotReady"));
       return;
     }
-    void openExternalUrl(platform2, subscribeUrl, {
+    void openExternalUrl(platform, subscribeUrl, {
       source: "credits.details.purchase",
     });
   };
@@ -999,7 +1005,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
       >
         <DialogHeader className="shrink-0 px-6 pt-5 pb-3">
           <DialogTitle className="font-heading text-sm font-medium">
-            {t2("credits.detailsTitleMP")}
+            {t("credits.detailsTitleMP")}
           </DialogTitle>
         </DialogHeader>
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-6 pb-6">
@@ -1013,7 +1019,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
           <SegmentedSwitch
             value={transferTabActive ? TRANSFER_TAB : activeTab}
             onValueChange={handleTabChange}
-            ariaLabel={t2("credits.detailsTitleMP")}
+            ariaLabel={t("credits.detailsTitleMP")}
             dataActionUiId="credits.transaction-type-switch"
             thumbDataSlot="credits-transaction-type-thumb"
             variant="label"
@@ -1021,14 +1027,14 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
             options={[
               ...TAB_VALUES.map(({ value, labelKey }) => ({
                 value,
-                label: t2(labelKey),
+                label: t(labelKey),
                 dataActionUiId: `credits.tab-${value}`,
               })),
               ...(transferTabVisible
                 ? [
                     {
                       value: TRANSFER_TAB,
-                      label: t2("credits.tabTransfer"),
+                      label: t("credits.tabTransfer"),
                       dataActionUiId: "credits.tab-transfer",
                     },
                   ]
@@ -1057,25 +1063,25 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
                 loading={transfersQuery.isPending}
                 error={transfersQuery.isError && !transfersQuery.data}
                 scrollable={false}
-                descriptionLabel={t2("team.credit.transferType", {
+                descriptionLabel={t("team.credit.transferType", {
                   defaultValue: "类型",
                 })}
-                modelLabel={t2("team.credit.transferCounterparty", {
+                modelLabel={t("team.credit.transferCounterparty", {
                   defaultValue: "团队 / 账号",
                 })}
-                timeLabel={t2("team.credit.time", {
+                timeLabel={t("team.credit.time", {
                   defaultValue: "时间",
                 })}
-                amountLabel={t2("team.credit.amount", {
+                amountLabel={t("team.credit.amount", {
                   defaultValue: "积分",
                 })}
-                emptyLabel={t2("team.credit.transferEmpty", {
+                emptyLabel={t("team.credit.transferEmpty", {
                   defaultValue: "暂无积分转移",
                 })}
-                errorLabel={t2("team.common.loadFailed", {
+                errorLabel={t("team.common.loadFailed", {
                   defaultValue: "加载失败",
                 })}
-                retryLabel={t2("common.retry", {
+                retryLabel={t("common.retry", {
                   defaultValue: "重试",
                 })}
                 onRetry={() => void transfersQuery.refetch()}
@@ -1138,7 +1144,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
             <div className="min-w-0 flex-1">
               <p>
                 <Trans
-                  t={t2}
+                  t={t}
                   i18nKey="credits.costVaryNoteMP"
                   components={{
                     modelCosts: (
@@ -1147,7 +1153,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
                         className="cursor-pointer text-foreground underline-offset-2 hover:underline"
                         onClick={() => {
                           void openExternalUrl(
-                            platform2,
+                            platform,
                             getHailuoCreditsRulesUrl(region),
                             {
                               source: "credits.details.model-costs",
@@ -1163,7 +1169,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
                         className="cursor-pointer text-foreground underline-offset-2 hover:underline"
                         onClick={() => {
                           void openExternalUrl(
-                            platform2,
+                            platform,
                             getUserProtocolUrl(
                               region,
                               getRuntimeConfig().channel,
@@ -1193,7 +1199,7 @@ export function CreditDetailsDialog({ open, onOpenChange }) {
               onClick={openSubscribePage}
               data-action-ui-id="credits.purchase-more"
             >
-              {t2("credits.purchaseMore")}
+              {t("credits.purchaseMore")}
             </Button>
           </div>
         </div>

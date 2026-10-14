@@ -1,0 +1,66 @@
+key	新名	依据
+m3@78:21	message	`message` 是引用比较中当前响应数组的消息记录。
+i2@78:25	messageIndex	`messageIndex` 是比较消息数组中响应记录的位置。
+t0@179:11	startedAt	`startedAt` 是本次 store 通知开始计时的性能时间。
+id2@207:14	sessionId	`sessionId` 是被写入会话映射的标识。
+id2@251:17	sessionId	`sessionId` 是遍历会话映射时的会话标识。
+id2@270:5	sessionId	`sessionId` 是新建会话的标识。
+id2@327:17	sessionId	`sessionId` 是要更新模型选择的会话标识。
+id2@345:26	sessionId	`sessionId` 是要更新媒体模型白名单的会话标识。
+id2@358:24	sessionId	`sessionId` 是要更新历史加载状态的会话标识。
+id2@367:17	sessionId	`sessionId` 是待切换并应用快照的会话标识。
+id2@386:5	sessionId	`sessionId` 是待后台载入并应用快照的会话标识。
+id2@404:16	sessionId	`sessionId` 是待切换焦点的会话标识。
+id2@458:5	sessionId	`sessionId` 是应用会话快照时定位状态记录的标识。
+id2@536:17	sessionId	`sessionId` 是从会话、撤回及打开标签状态中移除的标识。
+r2@587:26	pendingReason	`pendingReason` 是用于判断工具是否需要用户操作的待处理原因记录。
+id2@604:11	sessionId	`sessionId` 是待加入打开标签列表的会话标识。
+id2@672:12	sessionId	`sessionId` 是待关闭标签对应的会话标识。
+idx@675:11	previousTabIndex	`previousTabIndex` 是关闭标签前会话在顺序数组中的位置。
+msg@796:15	message	`message` 是追加到指定会话消息列表的消息记录。
+m3@808:8	message	`message` 是待检查是否为未完成任务卡片的任意消息。
+m3@815:17	message	`message` 是待保留或标记为错误的任意消息。
+m3@839:8	message	`message` 是待检查是否为未解决确认请求的任意消息。
+m3@845:19	message	`message` 是待保留或解决的任意消息。
+m3@868:33	message	`message` 是待按 ID 检查是否仍存在的任意消息。
+m3@871:42	message	`message` 是待按 ID 从会话历史中移除的任意消息。
+id2@1009:54	sessionId	`sessionId` 是待检查是否仍存在于新会话映射中的打开标签标识。
+id2@1011:53	sessionId	`sessionId` 是待保留在打开标签顺序中的会话标识。
+ids2@14:9	ids	`ids` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@31:9	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+messages2@47:22	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+seen2@59:11	seen	`seen` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@48:16	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+message2@61:16	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+name2@117:31	sessionName	`sessionName` 是用于判断是否为默认会话名的字符串，避免与全局 `name` 冲突。
+info2@121:33	info	`info` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+info2@128:39	info	`info` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+info2@140:41	info	`info` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@202:12	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@208:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+order2@216:22	order	`order` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+name2@271:5	sessionName	`sessionName` 是新建会话时传入的名称，避免与全局 `name` 冲突。
+displayName2@275:5	displayName	`displayName` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@281:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@330:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@367:28	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+messages2@387:5	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+messages2@459:5	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+focus2@464:5	shouldFocus	`shouldFocus` 表示应用快照后是否聚焦该会话，避免与全局 `focus` 冲突。
+hasSelectedMediaModelsSnapshot2@468:11	hasSelectedMediaModelsSnapshot	`hasSelectedMediaModelsSnapshot` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@482:13	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@538:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+candidates2@580:11	candidates	`candidates` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+pending2@586:13	pending	`pending` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+running2@588:13	running	`running` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@709:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@769:30	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+message2@784:10	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+name2@881:28	sessionName	`sessionName` 是重命名会话时传入的新名称，避免与全局 `name` 冲突。
+displayName2@903:36	displayName	`displayName` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@906:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@949:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+info2@957:16	info	`info` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+update2@1050:23	update	`update` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+update2@1065:30	update	`update` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+ids@14:9	partIds	`partIds` 是当前会话对应运行时消息下已撤回片段的 ID 集合。

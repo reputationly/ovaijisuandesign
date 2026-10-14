@@ -1,11 +1,9 @@
 // canvas-move-object-overlay.jsx
-import {
-  CompositedSvg,
-  jsxRuntimeExports,
-  reactExports,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   CloseIcon,
@@ -19,17 +17,17 @@ import { BananaResolutionPicker } from "../media-editing/banana-resolution-picke
 import { useCropViewportZoom } from "./use-crop-viewport-zoom.js";
 import { useMoveObjectState } from "../media-editing/use-start-cloud-edit-from-node.js";
 const CanvasMoveObjectPanel = reactExports.memo(
-  function CanvasMoveObjectPanel2({
+  function CanvasMoveObjectPanel({
     croppedUrl,
     canRun,
-    running: running2,
+    running,
     onReset,
     onCancel,
     onRun,
     resolution,
     onResolutionChange,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t: translate } = useTranslation();
     const creditCost = useImageEditCost("move-object", resolution);
     return (
       // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so panel events don't reach the canvas pan/zoom handlers
@@ -41,56 +39,56 @@ const CanvasMoveObjectPanel = reactExports.memo(
           boxShadow: "var(--canvas-shadow-dropdown)",
           color: "var(--canvas-controls-text, #fff)",
         }}
-        onPointerDown={(e2) => e2.stopPropagation()}
-        onWheel={(e2) => e2.stopPropagation()}
-        onContextMenu={(e2) => e2.stopPropagation()}
+        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+        onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+        onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
       >
         <div className="flex items-center justify-between">
           <span className="font-heading text-[13px] font-medium">
-            {t2("canvas.moveObject.title")}
+            {translate("canvas.moveObject.title")}
           </span>
           <div className="flex items-center gap-1">
             <button
               type="button"
-              title={t2("canvas.moveObject.reset")}
-              aria-label={t2("canvas.moveObject.reset")}
+              title={translate("canvas.moveObject.reset")}
+              aria-label={translate("canvas.moveObject.reset")}
               data-action-ui-id="move-object.reset"
               onClick={onReset}
-              disabled={!croppedUrl || running2}
+              disabled={!croppedUrl || running}
               className="flex h-7 w-7 items-center justify-center rounded-md transition-opacity duration-150 disabled:cursor-not-allowed disabled:opacity-40"
               style={{
                 color: "var(--canvas-controls-text, #fff)",
                 opacity: 0.7,
               }}
-              onMouseEnter={(e2) => {
-                if (!croppedUrl || running2) return;
-                e2.currentTarget.style.opacity = "1";
+              onMouseEnter={(mouseEvent) => {
+                if (!croppedUrl || running) return;
+                mouseEvent.currentTarget.style.opacity = "1";
               }}
-              onMouseLeave={(e2) => {
-                if (!croppedUrl || running2) return;
-                e2.currentTarget.style.opacity = "0.7";
+              onMouseLeave={(mouseEvent) => {
+                if (!croppedUrl || running) return;
+                mouseEvent.currentTarget.style.opacity = "0.7";
               }}
             >
               <UndoIcon />
             </button>
             <button
               type="button"
-              title={t2("canvas.close")}
-              aria-label={t2("canvas.close")}
+              title={translate("canvas.close")}
+              aria-label={translate("canvas.close")}
               onClick={onCancel}
-              disabled={running2}
+              disabled={running}
               className="flex h-7 w-7 items-center justify-center rounded-md transition-opacity duration-150 disabled:cursor-not-allowed"
               style={{
                 color: "var(--canvas-controls-text, #fff)",
-                opacity: running2 ? 0.4 : 0.7,
+                opacity: running ? 0.4 : 0.7,
               }}
-              onMouseEnter={(e2) => {
-                if (running2) return;
-                e2.currentTarget.style.opacity = "1";
+              onMouseEnter={(mouseEvent) => {
+                if (running) return;
+                mouseEvent.currentTarget.style.opacity = "1";
               }}
-              onMouseLeave={(e2) => {
-                if (running2) return;
-                e2.currentTarget.style.opacity = "0.7";
+              onMouseLeave={(mouseEvent) => {
+                if (running) return;
+                mouseEvent.currentTarget.style.opacity = "0.7";
               }}
             >
               <CloseIcon />
@@ -105,7 +103,7 @@ const CanvasMoveObjectPanel = reactExports.memo(
               opacity: 0.7,
             }}
           >
-            {t2("canvas.moveObject.objectSelection")}
+            {translate("canvas.moveObject.objectSelection")}
           </span>
           <div
             className="flex items-center gap-2 rounded-md border p-2"
@@ -124,7 +122,7 @@ const CanvasMoveObjectPanel = reactExports.memo(
               {croppedUrl ? (
                 <img
                   src={croppedUrl}
-                  alt={t2("canvas.moveObject.thumbnailAlt")}
+                  alt={translate("canvas.moveObject.thumbnailAlt")}
                   className="h-full w-full object-contain"
                   draggable={false}
                 />
@@ -136,7 +134,7 @@ const CanvasMoveObjectPanel = reactExports.memo(
                     opacity: 0.4,
                   }}
                 >
-                  {t2("canvas.moveObject.empty")}
+                  {translate("canvas.moveObject.empty")}
                 </span>
               )}
             </div>
@@ -147,7 +145,7 @@ const CanvasMoveObjectPanel = reactExports.memo(
                 opacity: 0.7,
               }}
             >
-              {t2("canvas.moveObject.hint.editObject")}
+              {translate("canvas.moveObject.hint.editObject")}
             </span>
           </div>
         </div>
@@ -155,55 +153,55 @@ const CanvasMoveObjectPanel = reactExports.memo(
           <BananaResolutionPicker
             value={resolution}
             onChange={onResolutionChange}
-            disabled={running2}
+            disabled={running}
           />
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={onCancel}
-              disabled={running2}
+              disabled={running}
               data-action-ui-id="move-object.cancel"
               className="flex size-8 items-center justify-center rounded-md transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label={t2("common.cancel")}
-              title={t2("common.cancel")}
+              aria-label={translate("common.cancel")}
+              title={translate("common.cancel")}
               style={{
                 color: "var(--canvas-controls-text, #fff)",
                 background: "transparent",
-                opacity: running2 ? 0.4 : 0.7,
+                opacity: running ? 0.4 : 0.7,
               }}
-              onMouseEnter={(e2) => {
-                if (running2) return;
-                e2.currentTarget.style.opacity = "1";
+              onMouseEnter={(mouseEvent) => {
+                if (running) return;
+                mouseEvent.currentTarget.style.opacity = "1";
               }}
-              onMouseLeave={(e2) => {
-                if (running2) return;
-                e2.currentTarget.style.opacity = "0.7";
+              onMouseLeave={(mouseEvent) => {
+                if (running) return;
+                mouseEvent.currentTarget.style.opacity = "0.7";
               }}
             >
               <CloseIcon />
             </button>
             <div className="flex items-center gap-2">
-              {!running2 && (
+              {!running && (
                 <CreditCostBadge cost={creditCost} compact={true} />
               )}
               <button
                 type="button"
-                disabled={!canRun || running2}
+                disabled={!canRun || running}
                 onClick={onRun}
                 data-action-ui-id="move-object.run"
                 className="flex size-8 items-center justify-center rounded-md transition-colors duration-150 disabled:opacity-50"
-                aria-label={t2("canvas.moveObject.run")}
-                title={t2("canvas.moveObject.run")}
+                aria-label={translate("canvas.moveObject.run")}
+                title={translate("canvas.moveObject.run")}
                 style={{
                   background: "var(--canvas-primary-btn-bg, #000000d9)",
                   color: "var(--canvas-primary-btn-icon, #fff)",
                 }}
-                onMouseEnter={(e2) => {
-                  if (running2 || !canRun) return;
-                  e2.currentTarget.style.opacity = "0.9";
+                onMouseEnter={(mouseEvent) => {
+                  if (running || !canRun) return;
+                  mouseEvent.currentTarget.style.opacity = "0.9";
                 }}
-                onMouseLeave={(e2) => {
-                  e2.currentTarget.style.opacity = "1";
+                onMouseLeave={(mouseEvent) => {
+                  mouseEvent.currentTarget.style.opacity = "1";
                 }}
               >
                 <SendArrowIcon />
@@ -247,44 +245,44 @@ function LassoIcon() {
   );
 }
 function ToolButton({
-  active: active2,
+  active,
   onClick,
   title,
   e2eId,
-  children: children2,
+  children,
 }) {
   return (
     <button
       type="button"
       title={title}
-      aria-pressed={active2}
+      aria-pressed={active}
       onClick={onClick}
       data-action-ui-id={e2eId}
       className="canvas-toolbar-action"
     >
-      {children2}
+      {children}
     </button>
   );
 }
 function IconButton({
-  disabled: disabled2,
+  disabled,
   onClick,
   title,
   ariaLabel,
   e2eId,
-  children: children2,
+  children,
 }) {
   return (
     <button
       type="button"
-      disabled={disabled2}
+      disabled={disabled}
       onClick={onClick}
       title={title}
       aria-label={ariaLabel}
       data-action-ui-id={e2eId}
       className="canvas-toolbar-action"
     >
-      {children2}
+      {children}
     </button>
   );
 }
@@ -292,56 +290,56 @@ function Divider() {
   return <div className="canvas-toolbar-separator" aria-hidden="true" />;
 }
 const CanvasMoveObjectTopBar = reactExports.memo(
-  function CanvasMoveObjectTopBar2({
-    tool: tool2,
+  function CanvasMoveObjectTopBar({
+    tool,
     onToolChange,
-    hasSelection: hasSelection2,
+    hasSelection,
     onUndo,
     onClose,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t: translate } = useTranslation();
     return (
       // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so toolbar events don't reach the canvas pan/zoom handlers
       <div
         className="canvas-toolbar-surface"
-        onPointerDown={(e2) => e2.stopPropagation()}
-        onWheel={(e2) => e2.stopPropagation()}
-        onContextMenu={(e2) => e2.stopPropagation()}
+        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+        onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+        onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
         data-canvas-toolbar="true"
         data-density="compact"
       >
         <IconButton
           disabled={false}
           onClick={onClose}
-          title={t2("canvas.close")}
-          ariaLabel={t2("canvas.close")}
+          title={translate("canvas.close")}
+          ariaLabel={translate("canvas.close")}
           e2eId="move-object.close"
         >
           <CloseIcon />
         </IconButton>
         <Divider />
         <ToolButton
-          active={tool2 === "rect"}
+          active={tool === "rect"}
           onClick={() => onToolChange("rect")}
-          title={t2("canvas.moveObject.tool.rect")}
+          title={translate("canvas.moveObject.tool.rect")}
           e2eId="move-object.tool-rect"
         >
           <SelectRectIcon />
         </ToolButton>
         <ToolButton
-          active={tool2 === "lasso"}
+          active={tool === "lasso"}
           onClick={() => onToolChange("lasso")}
-          title={t2("canvas.moveObject.tool.lasso")}
+          title={translate("canvas.moveObject.tool.lasso")}
           e2eId="move-object.tool-lasso"
         >
           <LassoIcon />
         </ToolButton>
         <Divider />
         <IconButton
-          disabled={!hasSelection2}
+          disabled={!hasSelection}
           onClick={onUndo}
-          title={t2("canvas.moveObject.undo")}
-          ariaLabel={t2("canvas.moveObject.undo")}
+          title={translate("canvas.moveObject.undo")}
+          ariaLabel={translate("canvas.moveObject.undo")}
           e2eId="move-object.undo"
         >
           <UndoIcon />
@@ -354,13 +352,13 @@ const MOVE_OBJECT_SOURCE_COLOR = "#FF3B30";
 const MOVE_OBJECT_TARGET_COLOR = "#34C759";
 const MOVE_OBJECT_ARROW_COLOR = "#FFFFFF";
 const MOVE_OBJECT_ARROW_SHADOW = "rgba(0, 0, 0, 0.45)";
-function loadImage(url2) {
+function loadImage(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error(`Failed to load image: ${url2}`));
-    img.src = url2;
+    img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+    img.src = url;
   });
 }
 function canvasToPngBlob(canvas) {
@@ -376,24 +374,24 @@ function canvasToPngBlob(canvas) {
   });
 }
 function clampBboxToImage(bbox, imageWidth, imageHeight) {
-  let [x2, y4, w3, h2] = bbox;
-  w3 = Math.max(1, Math.min(Math.round(w3), imageWidth));
-  h2 = Math.max(1, Math.min(Math.round(h2), imageHeight));
-  x2 = Math.max(0, Math.min(Math.round(x2), imageWidth - w3));
-  y4 = Math.max(0, Math.min(Math.round(y4), imageHeight - h2));
-  return [x2, y4, w3, h2];
+  let [bboxLeft, bboxTop, bboxWidth, bboxHeight] = bbox;
+  bboxWidth = Math.max(1, Math.min(Math.round(bboxWidth), imageWidth));
+  bboxHeight = Math.max(1, Math.min(Math.round(bboxHeight), imageHeight));
+  bboxLeft = Math.max(0, Math.min(Math.round(bboxLeft), imageWidth - bboxWidth));
+  bboxTop = Math.max(0, Math.min(Math.round(bboxTop), imageHeight - bboxHeight));
+  return [bboxLeft, bboxTop, bboxWidth, bboxHeight];
 }
-function bboxFromPath(path2) {
-  if (path2.length === 0) return [0, 0, 0, 0];
+function bboxFromPath(path) {
+  if (path.length === 0) return [0, 0, 0, 0];
   let minX = Number.POSITIVE_INFINITY;
   let minY = Number.POSITIVE_INFINITY;
   let maxX = Number.NEGATIVE_INFINITY;
   let maxY = Number.NEGATIVE_INFINITY;
-  for (const [x2, y4] of path2) {
-    if (x2 < minX) minX = x2;
-    if (y4 < minY) minY = y4;
-    if (x2 > maxX) maxX = x2;
-    if (y4 > maxY) maxY = y4;
+  for (const [pointX, pointY] of path) {
+    if (pointX < minX) minX = pointX;
+    if (pointY < minY) minY = pointY;
+    if (pointX > maxX) maxX = pointX;
+    if (pointY > maxY) maxY = pointY;
   }
   return [
     Math.floor(minX),
@@ -413,9 +411,9 @@ async function cropObjectByRect(srcImageUrl, bbox) {
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
   return canvasToPngBlob(canvas);
 }
-async function cropObjectByLasso(srcImageUrl, path2) {
+async function cropObjectByLasso(srcImageUrl, path) {
   const img = await loadImage(srcImageUrl);
-  const [bx, by, bw, bh] = bboxFromPath(path2);
+  const [bx, by, bw, bh] = bboxFromPath(path);
   const canvas = document.createElement("canvas");
   canvas.width = bw;
   canvas.height = bh;
@@ -423,12 +421,12 @@ async function cropObjectByLasso(srcImageUrl, path2) {
   if (!ctx) throw new Error("cropObjectByLasso: 2d context unavailable");
   ctx.save();
   ctx.beginPath();
-  for (let i2 = 0; i2 < path2.length; i2 += 1) {
-    const [px, py] = path2[i2];
-    const x2 = px - bx;
-    const y4 = py - by;
-    if (i2 === 0) ctx.moveTo(x2, y4);
-    else ctx.lineTo(x2, y4);
+  for (let pointIndex = 0; pointIndex < path.length; pointIndex += 1) {
+    const [px, py] = path[pointIndex];
+    const relativeX = px - bx;
+    const relativeY = py - by;
+    if (pointIndex === 0) ctx.moveTo(relativeX, relativeY);
+    else ctx.lineTo(relativeX, relativeY);
   }
   ctx.closePath();
   ctx.clip();
@@ -471,8 +469,8 @@ async function renderSchematic(params) {
   const sy = source[1] + source[3] / 2;
   const tx = target[0] + target[2] / 2;
   const ty = target[1] + target[3] / 2;
-  const dash2 = Math.max(8, stroke * 4);
-  ctx.setLineDash([dash2, dash2]);
+  const dash = Math.max(8, stroke * 4);
+  ctx.setLineDash([dash, dash]);
   ctx.lineWidth = stroke + 2;
   ctx.strokeStyle = MOVE_OBJECT_ARROW_SHADOW;
   ctx.beginPath();
@@ -518,7 +516,7 @@ async function renderSchematic(params) {
   return canvasToPngBlob(canvas);
 }
 function useMoveObjectEdit({ src, imageWidth, imageHeight }) {
-  const [tool2, setTool] = reactExports.useState("rect");
+  const [tool, setTool] = reactExports.useState("rect");
   const [status, setStatus] = reactExports.useState("selecting");
   const [source, setSource] = reactExports.useState(null);
   const [target, setTarget] = reactExports.useState(null);
@@ -552,16 +550,16 @@ function useMoveObjectEdit({ src, imageWidth, imageHeight }) {
       if (clamped[2] < 4 || clamped[3] < 4) return;
       try {
         const blob = await cropObjectByRect(src, clamped);
-        const url2 = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
         if (croppedUrlRef.current) URL.revokeObjectURL(croppedUrlRef.current);
-        croppedUrlRef.current = url2;
+        croppedUrlRef.current = url;
         setSource({
           type: "rect",
           bbox: clamped,
         });
         setTarget(clamped);
         setCroppedBlob(blob);
-        setCroppedUrl(url2);
+        setCroppedUrl(url);
         setDraftRect(null);
         setStatus("positioning");
       } catch (err) {
@@ -572,30 +570,30 @@ function useMoveObjectEdit({ src, imageWidth, imageHeight }) {
     [src, imageWidth, imageHeight],
   );
   const commitLassoSelection = reactExports.useCallback(
-    async (path2) => {
-      if (path2.length < 3) {
+    async (path) => {
+      if (path.length < 3) {
         setDraftLasso(null);
         return;
       }
-      const bbox = bboxFromPath(path2);
+      const bbox = bboxFromPath(path);
       const clamped = clampBboxToImage(bbox, imageWidth, imageHeight);
       if (clamped[2] < 4 || clamped[3] < 4) {
         setDraftLasso(null);
         return;
       }
       try {
-        const blob = await cropObjectByLasso(src, path2);
-        const url2 = URL.createObjectURL(blob);
+        const blob = await cropObjectByLasso(src, path);
+        const url = URL.createObjectURL(blob);
         if (croppedUrlRef.current) URL.revokeObjectURL(croppedUrlRef.current);
-        croppedUrlRef.current = url2;
+        croppedUrlRef.current = url;
         setSource({
           type: "lasso",
-          path: path2,
+          path,
           bbox: clamped,
         });
         setTarget(clamped);
         setCroppedBlob(blob);
-        setCroppedUrl(url2);
+        setCroppedUrl(url);
         setDraftLasso(null);
         setStatus("positioning");
       } catch (err) {
@@ -606,11 +604,11 @@ function useMoveObjectEdit({ src, imageWidth, imageHeight }) {
     [src, imageWidth, imageHeight],
   );
   const setTargetPosition = reactExports.useCallback(
-    (x2, y4) => {
+    (targetX, targetY) => {
       setTarget((prev) => {
         if (!prev) return prev;
-        const [, , w3, h2] = prev;
-        return clampBboxToImage([x2, y4, w3, h2], imageWidth, imageHeight);
+        const [, , targetWidth, targetHeight] = prev;
+        return clampBboxToImage([targetX, targetY, targetWidth, targetHeight], imageWidth, imageHeight);
       });
     },
     [imageWidth, imageHeight],
@@ -623,7 +621,7 @@ function useMoveObjectEdit({ src, imageWidth, imageHeight }) {
   }, [source, target]);
   return {
     // tool
-    tool: tool2,
+    tool,
     setTool,
     // status
     status,
@@ -672,7 +670,7 @@ function SelectionPreview({
   src,
   croppedUrl,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const imgToDisplayX = displayWidth / Math.max(1, imageWidth);
   const imgToDisplayY = displayHeight / Math.max(1, imageHeight);
   const sourceRectDisplay = source
@@ -685,10 +683,10 @@ function SelectionPreview({
     ? toDisplayRect(draftRect, imgToDisplayX, imgToDisplayY)
     : null;
   const lassoPolylineDisplay = reactExports.useMemo(() => {
-    const path2 = draftLasso ?? (source?.type === "lasso" ? source.path : null);
-    if (!path2) return null;
-    return path2
-      .map(([x2, y4]) => `${x2 * imgToDisplayX},${y4 * imgToDisplayY}`)
+    const path = draftLasso ?? (source?.type === "lasso" ? source.path : null);
+    if (!path) return null;
+    return path
+      .map(([imageX, imageY]) => `${imageX * imgToDisplayX},${imageY * imgToDisplayY}`)
       .join(" ");
   }, [draftLasso, source, imgToDisplayX, imgToDisplayY]);
   const SOURCE_FILL = "rgba(82, 166, 255, 0.28)";
@@ -701,7 +699,7 @@ function SelectionPreview({
         height={displayHeight}
         viewBox={`0 0 ${displayWidth} ${displayHeight}`}
         role="img"
-        aria-label={t2("a11y.moveObjectGuides", "Move object selection guides")}
+        aria-label={translate("a11y.moveObjectGuides", "Move object selection guides")}
       >
         {draftRectDisplay && (
           <rect
@@ -794,20 +792,20 @@ function SelectionPreview({
   );
 }
 export const CanvasMoveObjectOverlay = reactExports.memo(
-  function CanvasMoveObjectOverlay2() {
-    const { meta: meta2, cancelMoveObject } = useMoveObjectState();
-    useCropViewportZoom(meta2, BOTTOM_PANEL_RESERVE + BAR_GAP);
-    const transform2 = useStore((s2) => s2.transform);
-    const [vpX, vpY, vpZoom] = transform2;
+  function CanvasMoveObjectOverlay() {
+    const { meta, cancelMoveObject } = useMoveObjectState();
+    useCropViewportZoom(meta, BOTTOM_PANEL_RESERVE + BAR_GAP);
+    const transform = useStore((state) => state.transform);
+    const [viewportX, viewportY, vpZoom] = transform;
     const [confirming, setConfirming] = reactExports.useState(false);
     const [resolution, setResolution] = reactExports.useState("2K");
     const editApi = useMoveObjectEdit({
-      src: meta2?.src ?? "",
-      imageWidth: meta2?.originalWidth ?? 0,
-      imageHeight: meta2?.originalHeight ?? 0,
+      src: meta?.src ?? "",
+      imageWidth: meta?.originalWidth ?? 0,
+      imageHeight: meta?.originalHeight ?? 0,
     });
     const {
-      tool: tool2,
+      tool,
       setTool,
       status,
       source,
@@ -824,71 +822,71 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
       hasMoved,
     } = editApi;
     const imagePos = reactExports.useMemo(() => {
-      if (!meta2) return null;
+      if (!meta) return null;
       return {
-        x: meta2.nodeFlowX * vpZoom + vpX,
-        y: meta2.nodeFlowY * vpZoom + vpY,
-        w: meta2.nodeWidth * vpZoom,
-        h: meta2.nodeHeight * vpZoom,
+        x: meta.nodeFlowX * vpZoom + viewportX,
+        y: meta.nodeFlowY * vpZoom + viewportY,
+        w: meta.nodeWidth * vpZoom,
+        h: meta.nodeHeight * vpZoom,
       };
-    }, [meta2, vpX, vpY, vpZoom]);
+    }, [meta, viewportX, viewportY, vpZoom]);
     const imageRectRef = reactExports.useRef(null);
     const screenToImage = reactExports.useCallback(
       (clientX, clientY) => {
         const el = imageRectRef.current;
-        if (!el || !meta2) return null;
+        if (!el || !meta) return null;
         const rect = el.getBoundingClientRect();
         if (rect.width <= 0 || rect.height <= 0) return null;
-        const sx = ((clientX - rect.left) / rect.width) * meta2.originalWidth;
-        const sy = ((clientY - rect.top) / rect.height) * meta2.originalHeight;
+        const sx = ((clientX - rect.left) / rect.width) * meta.originalWidth;
+        const sy = ((clientY - rect.top) / rect.height) * meta.originalHeight;
         return [sx, sy];
       },
-      [meta2],
+      [meta],
     );
     const drawingRef = reactExports.useRef(null);
     const dragModeRef = reactExports.useRef(null);
     reactExports.useEffect(() => {
-      if (!meta2) return;
-      const onKey = (e2) => {
+      if (!meta) return;
+      const onKey = (keyboardEvent) => {
         if (
-          (e2.metaKey || e2.ctrlKey) &&
-          !e2.shiftKey &&
-          e2.key.toLowerCase() === "z"
+          (keyboardEvent.metaKey || keyboardEvent.ctrlKey) &&
+          !keyboardEvent.shiftKey &&
+          keyboardEvent.key.toLowerCase() === "z"
         ) {
           if (status === "positioning" || status === "error") {
-            e2.preventDefault();
-            e2.stopPropagation();
+            keyboardEvent.preventDefault();
+            keyboardEvent.stopPropagation();
             clearSelection();
           }
         }
-        if (e2.key === "Escape") {
-          e2.preventDefault();
-          e2.stopPropagation();
+        if (keyboardEvent.key === "Escape") {
+          keyboardEvent.preventDefault();
+          keyboardEvent.stopPropagation();
           cancelMoveObject();
         }
       };
       window.addEventListener("keydown", onKey, true);
       return () => window.removeEventListener("keydown", onKey, true);
-    }, [meta2, status, clearSelection, cancelMoveObject]);
+    }, [meta, status, clearSelection, cancelMoveObject]);
     const handleImagePointerDown = reactExports.useCallback(
-      (e2) => {
-        if (e2.button !== 0) return;
-        e2.preventDefault();
-        e2.stopPropagation();
-        e2.currentTarget.setPointerCapture(e2.pointerId);
-        const pt2 = screenToImage(e2.clientX, e2.clientY);
-        if (!pt2) return;
+      (pointerEvent) => {
+        if (pointerEvent.button !== 0) return;
+        pointerEvent.preventDefault();
+        pointerEvent.stopPropagation();
+        pointerEvent.currentTarget.setPointerCapture(pointerEvent.pointerId);
+        const pt = screenToImage(pointerEvent.clientX, pointerEvent.clientY);
+        if (!pt) return;
         if ((status === "positioning" || status === "error") && target) {
           const [tx, ty, tw, th] = target;
           if (
-            pt2[0] >= tx &&
-            pt2[0] <= tx + tw &&
-            pt2[1] >= ty &&
-            pt2[1] <= ty + th
+            pt[0] >= tx &&
+            pt[0] <= tx + tw &&
+            pt[1] >= ty &&
+            pt[1] <= ty + th
           ) {
             dragModeRef.current = {
-              offsetX: pt2[0] - tx,
-              offsetY: pt2[1] - ty,
+              offsetX: pt[0] - tx,
+              offsetY: pt[1] - ty,
             };
             return;
           }
@@ -896,22 +894,22 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
         if (status === "positioning" || status === "error") {
           clearSelection();
         }
-        if (tool2 === "rect") {
+        if (tool === "rect") {
           drawingRef.current = {
             mode: "rect",
-            rectStart: pt2,
+            rectStart: pt,
           };
-          setDraftRect([pt2[0], pt2[1], 0, 0]);
+          setDraftRect([pt[0], pt[1], 0, 0]);
         } else {
           drawingRef.current = {
             mode: "lasso",
-            lassoPath: [pt2],
+            lassoPath: [pt],
           };
-          setDraftLasso([pt2]);
+          setDraftLasso([pt]);
         }
       },
       [
-        tool2,
+        tool,
         status,
         target,
         screenToImage,
@@ -921,45 +919,45 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
       ],
     );
     const handleImagePointerMove = reactExports.useCallback(
-      (e2) => {
+      (pointerEvent) => {
         if (dragModeRef.current && target) {
-          const pt22 = screenToImage(e2.clientX, e2.clientY);
-          if (!pt22) return;
+          const pt = screenToImage(pointerEvent.clientX, pointerEvent.clientY);
+          if (!pt) return;
           setTargetPosition(
-            Math.round(pt22[0] - dragModeRef.current.offsetX),
-            Math.round(pt22[1] - dragModeRef.current.offsetY),
+            Math.round(pt[0] - dragModeRef.current.offsetX),
+            Math.round(pt[1] - dragModeRef.current.offsetY),
           );
           return;
         }
         const drawing = drawingRef.current;
         if (!drawing) return;
-        const pt2 = screenToImage(e2.clientX, e2.clientY);
-        if (!pt2) return;
+        const imagePoint = screenToImage(pointerEvent.clientX, pointerEvent.clientY);
+        if (!imagePoint) return;
         if (drawing.mode === "rect" && drawing.rectStart) {
           const [sx, sy] = drawing.rectStart;
-          const x2 = Math.min(sx, pt2[0]);
-          const y4 = Math.min(sy, pt2[1]);
-          const w3 = Math.abs(pt2[0] - sx);
-          const h2 = Math.abs(pt2[1] - sy);
-          setDraftRect([x2, y4, w3, h2]);
+          const rectLeft = Math.min(sx, imagePoint[0]);
+          const rectTop = Math.min(sy, imagePoint[1]);
+          const rectWidth = Math.abs(imagePoint[0] - sx);
+          const rectHeight = Math.abs(imagePoint[1] - sy);
+          setDraftRect([rectLeft, rectTop, rectWidth, rectHeight]);
         } else if (drawing.mode === "lasso" && drawing.lassoPath) {
-          const last2 = drawing.lassoPath[drawing.lassoPath.length - 1];
+          const last = drawing.lassoPath[drawing.lassoPath.length - 1];
           if (
-            last2 &&
-            Math.abs(last2[0] - pt2[0]) < 1 &&
-            Math.abs(last2[1] - pt2[1]) < 1
+            last &&
+            Math.abs(last[0] - imagePoint[0]) < 1 &&
+            Math.abs(last[1] - imagePoint[1]) < 1
           )
             return;
-          drawing.lassoPath.push(pt2);
+          drawing.lassoPath.push(imagePoint);
           setDraftLasso([...drawing.lassoPath]);
         }
       },
       [target, screenToImage, setDraftRect, setDraftLasso, setTargetPosition],
     );
     const handleImagePointerUp = reactExports.useCallback(
-      (e2) => {
+      (pointerEvent) => {
         try {
-          e2.currentTarget.releasePointerCapture(e2.pointerId);
+          pointerEvent.currentTarget.releasePointerCapture(pointerEvent.pointerId);
         } catch {}
         if (dragModeRef.current) {
           dragModeRef.current = null;
@@ -969,17 +967,17 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
         if (!drawing) return;
         drawingRef.current = null;
         if (drawing.mode === "rect" && drawing.rectStart) {
-          const pt2 = screenToImage(e2.clientX, e2.clientY);
-          if (!pt2) {
+          const pt = screenToImage(pointerEvent.clientX, pointerEvent.clientY);
+          if (!pt) {
             setDraftRect(null);
             return;
           }
           const [sx, sy] = drawing.rectStart;
-          const x2 = Math.min(sx, pt2[0]);
-          const y4 = Math.min(sy, pt2[1]);
-          const w3 = Math.abs(pt2[0] - sx);
-          const h2 = Math.abs(pt2[1] - sy);
-          void commitRectSelection([x2, y4, w3, h2]);
+          const rectLeft = Math.min(sx, pt[0]);
+          const rectTop = Math.min(sy, pt[1]);
+          const rectWidth = Math.abs(pt[0] - sx);
+          const rectHeight = Math.abs(pt[1] - sy);
+          void commitRectSelection([rectLeft, rectTop, rectWidth, rectHeight]);
         } else if (drawing.mode === "lasso" && drawing.lassoPath) {
           void commitLassoSelection(drawing.lassoPath);
         }
@@ -987,14 +985,14 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
       [screenToImage, commitRectSelection, commitLassoSelection, setDraftRect],
     );
     const handleConfirm = reactExports.useCallback(async () => {
-      if (confirming || !meta2 || !source || !target) return;
+      if (confirming || !meta || !source || !target) return;
       if (!hasMoved()) return;
       setConfirming(true);
       try {
         const schematic = await renderSchematic({
-          srcImageUrl: meta2.src,
-          imageWidth: meta2.originalWidth,
-          imageHeight: meta2.originalHeight,
+          srcImageUrl: meta.src,
+          imageWidth: meta.originalWidth,
+          imageHeight: meta.originalHeight,
           source: source.bbox,
           target,
         });
@@ -1003,7 +1001,7 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
           setConfirming(false);
           return;
         }
-        void meta2
+        void meta
           .onConfirm({
             schematic,
             croppedObject: croppedBlob,
@@ -1021,7 +1019,7 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
       }
     }, [
       confirming,
-      meta2,
+      meta,
       source,
       target,
       editApi.croppedBlob,
@@ -1029,10 +1027,10 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
       cancelMoveObject,
       hasMoved,
     ]);
-    if (!meta2 || !imagePos) return null;
+    if (!meta || !imagePos) return null;
     const canRun =
       (status === "positioning" || status === "error") && hasMoved();
-    const hasSelection2 = source !== null;
+    const hasSelection = source !== null;
     const topBarWidth = Math.max(imagePos.w, TOP_BAR_MIN_WIDTH);
     const topBarLeft = imagePos.x + (imagePos.w - topBarWidth) / 2;
     const bottomBarWidth = Math.max(
@@ -1063,18 +1061,18 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
           onPointerMove={handleImagePointerMove}
           onPointerUp={handleImagePointerUp}
           onPointerCancel={handleImagePointerUp}
-          onWheel={(e2) => e2.stopPropagation()}
+          onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
         >
           <SelectionPreview
-            imageWidth={meta2.originalWidth}
-            imageHeight={meta2.originalHeight}
+            imageWidth={meta.originalWidth}
+            imageHeight={meta.originalHeight}
             displayWidth={imagePos.w}
             displayHeight={imagePos.h}
             source={source}
             target={target}
             draftRect={draftRect}
             draftLasso={draftLasso}
-            src={meta2.src}
+            src={meta.src}
             croppedUrl={croppedUrl}
           />
         </div>
@@ -1090,9 +1088,9 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
           }}
         >
           <CanvasMoveObjectTopBar
-            tool={tool2}
+            tool={tool}
             onToolChange={setTool}
-            hasSelection={hasSelection2}
+            hasSelection={hasSelection}
             onUndo={clearSelection}
             onClose={cancelMoveObject}
           />

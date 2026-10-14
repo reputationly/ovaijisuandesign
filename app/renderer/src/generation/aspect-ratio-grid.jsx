@@ -1,5 +1,6 @@
 // aspect-ratio-grid.jsx
-import { CompositedSvg, useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AspectRatioIcon, optClass } from "./resolution-tabs.jsx";
 
@@ -27,15 +28,15 @@ export function AspectRatioGrid({
   options,
   value,
   onChange,
-  disabled: disabled2,
+  disabled,
   disabledOptions,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const autoOption = options.find(isAutoOption);
-  const ratioOptions = options.filter((o2) => !isAutoOption(o2));
-  const handlePick = (opt, optDisabled) => (e2) => {
-    e2.stopPropagation();
-    if (optDisabled || disabled2) return;
+  const ratioOptions = options.filter((ratioOption) => !isAutoOption(ratioOption));
+  const handlePick = (opt, optDisabled) => (clickEvent) => {
+    clickEvent.stopPropagation();
+    if (optDisabled || disabled) return;
     onChange?.(opt);
   };
   return (
@@ -45,16 +46,16 @@ export function AspectRatioGrid({
           type="button"
           onClick={handlePick(
             autoOption,
-            disabled2 || (disabledOptions?.has(autoOption) ?? false),
+            disabled || (disabledOptions?.has(autoOption) ?? false),
           )}
-          disabled={disabled2 || (disabledOptions?.has(autoOption) ?? false)}
-          className={`${optClass(value === autoOption, disabled2 || (disabledOptions?.has(autoOption) ?? false))} flex items-center justify-center gap-2 px-3.5 py-2.5`}
+          disabled={disabled || (disabledOptions?.has(autoOption) ?? false)}
+          className={`${optClass(value === autoOption, disabled || (disabledOptions?.has(autoOption) ?? false))} flex items-center justify-center gap-2 px-3.5 py-2.5`}
           data-action-ui-id="popover.aspect-ratio-option"
           data-aspect-ratio={autoOption}
         >
           <MaximizeIcon />
           <span className="text-[13px]">
-            {t2("canvas.param.option.auto", {
+            {translate("canvas.param.option.auto", {
               defaultValue: "Auto",
             })}
           </span>
@@ -62,11 +63,11 @@ export function AspectRatioGrid({
       )}
       <div className="grid grid-cols-5 gap-1.5">
         {ratioOptions.map((opt) => {
-          const optDisabled = disabled2 || (disabledOptions?.has(opt) ?? false);
-          const selected2 = opt === value;
+          const optDisabled = disabled || (disabledOptions?.has(opt) ?? false);
+          const selected = opt === value;
           const label =
             opt.toLowerCase() === "adaptive"
-              ? t2("canvas.param.option.auto", {
+              ? translate("canvas.param.option.auto", {
                   defaultValue: "Auto",
                 })
               : opt;
@@ -76,7 +77,7 @@ export function AspectRatioGrid({
               type="button"
               onClick={handlePick(opt, optDisabled)}
               disabled={optDisabled}
-              className={`${optClass(selected2, optDisabled)} flex flex-col items-center justify-center gap-1 py-2.5 px-1`}
+              className={`${optClass(selected, optDisabled)} flex flex-col items-center justify-center gap-1 py-2.5 px-1`}
               data-action-ui-id="popover.aspect-ratio-option"
               data-aspect-ratio={opt}
             >

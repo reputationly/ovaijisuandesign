@@ -1,35 +1,16 @@
 // dialog-content.jsx
-import {
-  AlertDialogRoot,
-  Button$3,
-  Check,
-  clsx,
-  createTailwindMerge,
-  cva,
-  DialogBackdrop,
-  DialogClose$1 as DialogClose,
-  DialogPopup,
-  DialogRoot,
-  FieldControl,
-  Loader2Icon,
-  MenuGroupLabel,
-  MenuItem$3 as MenuItem,
-  MenuPopup,
-  MenuPortal,
-  MenuPositioner,
-  MenuRadioItem,
-  MenuRadioItemIndicator,
-  MenuTrigger,
-  reactExports,
-  TooltipPopup,
-  TooltipPortal,
-  TooltipPositioner,
-  useTranslation,
-  XIcon,
-} from "../vendor.js";
+import { cva } from "class-variance-authority";
+import { Button as Button$3 } from "@base-ui/react/button";
+import clsx from "clsx";
+import { createTailwindMerge } from "tailwind-merge";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AlertDialogRoot, DialogBackdrop, DialogClose$1 as DialogClose, DialogPopup, DialogRoot, MenuGroupLabel, MenuItem$3 as MenuItem, MenuPopup, MenuPortal, MenuPositioner, MenuRadioItem, MenuRadioItemIndicator, MenuTrigger, TooltipPopup, TooltipPortal, TooltipPositioner } from "./base-ui.js";
+import { Check, Loader2Icon, XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { getDefaultConfig } from "tailwind-merge";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogPortal, listeners$a } from "./gateway-http-error.jsx";
+export { Input } from "@base-ui/react/input";
 const subscribe = (listener) => {
   listeners$a.add(listener);
   return () => listeners$a.delete(listener);
@@ -39,23 +20,18 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 export function splitMentionFilename(filename) {
-  const dot2 = filename.lastIndexOf(".");
-  if (dot2 <= 0 || dot2 >= filename.length - 1)
+  const dot = filename.lastIndexOf(".");
+  if (dot <= 0 || dot >= filename.length - 1)
     return {
       stem: filename,
       ext: "",
     };
   return {
-    stem: filename.slice(0, dot2),
-    ext: filename.slice(dot2),
+    stem: filename.slice(0, dot),
+    ext: filename.slice(dot),
   };
 }
-export const Input = reactExports.forwardRef(
-  function Input2(props, forwardedRef) {
-    return <FieldControl ref={forwardedRef} {...props} />;
-  },
-);
-export function cn$2(...inputs) {
+export function mergeTailwindClasses(...inputs) {
   return twMerge(clsx(inputs));
 }
 export const MENU_ITEM_LAYOUT =
@@ -66,7 +42,7 @@ export function DropdownMenuTrigger({ className, ...props }) {
   return (
     <MenuTrigger
       data-slot="dropdown-menu-trigger"
-      className={cn$2("select-none outline-none", className)}
+      className={mergeTailwindClasses("select-none outline-none", className)}
       {...props}
     />
   );
@@ -91,7 +67,7 @@ export function DropdownMenuContent({
       >
         <MenuPopup
           data-slot="dropdown-menu-content"
-          className={cn$2(
+          className={mergeTailwindClasses(
             "elevated-surface-border z-50 max-h-(--available-height) min-w-28 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-lg outline-none",
             motion !== "none" && "dp-motion-quick-zoom",
             className,
@@ -107,7 +83,7 @@ export function DropdownMenuItem({ className, variant = "default", ...props }) {
     <MenuItem
       data-slot="dropdown-menu-item"
       data-variant={variant}
-      className={cn$2(
+      className={mergeTailwindClasses(
         MENU_ITEM_LAYOUT,
         "list-row-hit-area relative flex cursor-default items-center rounded-sm whitespace-nowrap outline-hidden select-none hover:bg-popup-item-hover hover:text-foreground focus:bg-popup-item-hover focus:text-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:hover:bg-destructive/10 data-[variant=destructive]:hover:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 transition-colors duration-[80ms]",
         className,
@@ -120,21 +96,21 @@ export function DropdownMenuLabel({ className, ...props }) {
   return (
     <MenuGroupLabel
       data-slot="dropdown-menu-label"
-      className={cn$2(MENU_LABEL_LAYOUT, className)}
+      className={mergeTailwindClasses(MENU_LABEL_LAYOUT, className)}
       {...props}
     />
   );
 }
 export function DropdownMenuRadioItem({
   className,
-  children: children2,
+  children,
   closeOnClick = true,
   ...props
 }) {
   return (
     <MenuRadioItem
       data-slot="dropdown-menu-radio-item"
-      className={cn$2(
+      className={mergeTailwindClasses(
         MENU_ITEM_LAYOUT,
         "list-row-hit-area relative flex cursor-default items-center rounded-sm pr-7 outline-hidden select-none hover:bg-popup-item-hover hover:text-foreground focus:bg-popup-item-hover focus:text-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 transition-colors duration-[80ms]",
         className,
@@ -142,7 +118,7 @@ export function DropdownMenuRadioItem({
       closeOnClick={closeOnClick}
       {...props}
     >
-      {children2}
+      {children}
       <span className="pointer-events-none absolute right-2 flex size-3.5 items-center justify-center">
         <MenuRadioItemIndicator>
           <Check className="size-3" strokeWidth={1.75} />
@@ -158,7 +134,7 @@ export function TooltipContent({
   sideOffset = 4,
   align = "center",
   alignOffset = 0,
-  children: children2,
+  children,
   ...props
 }) {
   return (
@@ -168,21 +144,21 @@ export function TooltipContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
-        className={cn$2(
+        className={mergeTailwindClasses(
           "pointer-events-none isolate z-[100]",
           positionerClassName,
         )}
       >
         <TooltipPopup
           data-slot="tooltip-content"
-          className={cn$2(
+          className={mergeTailwindClasses(
             "dp-motion-quick-zoom z-[100] inline-flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-sm bg-foreground px-3 py-1.5 text-xs text-background has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-[100] **:data-[slot=kbd]:rounded-sm",
             className,
             "pointer-events-none select-none",
           )}
           {...props}
         >
-          {children2}
+          {children}
         </TooltipPopup>
       </TooltipPositioner>
     </TooltipPortal>
@@ -232,27 +208,27 @@ export const buttonVariants = cva(
 export function Button({
   className,
   variant = "default",
-  size: size2 = "default",
+  size = "default",
   loading = false,
-  disabled: disabled2,
-  children: children2,
+  disabled,
+  children,
   ...props
 }) {
   return (
     <Button$3
       data-slot="button"
-      disabled={disabled2 || loading}
-      className={cn$2(
+      disabled={disabled || loading}
+      className={mergeTailwindClasses(
         buttonVariants({
           variant,
-          size: size2,
+          size,
           className,
         }),
       )}
       {...props}
     >
       {loading && <Loader2Icon className="animate-spin" />}
-      {children2}
+      {children}
     </Button$3>
   );
 }
@@ -337,13 +313,13 @@ export function useBrowserOverlayDialogProps(
     ...props,
     defaultOpen: void 0,
     open,
-    onOpenChange(next2, details) {
-      props.onOpenChange?.(next2, details);
-      if (!details.isCanceled) setUncontrolledOpen(next2);
+    onOpenChange(next, details) {
+      props.onOpenChange?.(next, details);
+      if (!details.isCanceled) setUncontrolledOpen(next);
     },
-    onOpenChangeComplete(next2) {
-      if (!next2) setVisible(false);
-      props.onOpenChangeComplete?.(next2);
+    onOpenChangeComplete(next) {
+      if (!next) setVisible(false);
+      props.onOpenChangeComplete?.(next);
     },
   };
 }
@@ -370,7 +346,7 @@ function DialogOverlay({ className, ...props }) {
   return (
     <DialogBackdrop
       data-slot="dialog-overlay"
-      className={cn$2(
+      className={mergeTailwindClasses(
         "modal-mask no-drag fixed inset-0 isolate z-50 duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className,
       )}
@@ -380,32 +356,32 @@ function DialogOverlay({ className, ...props }) {
 }
 export function DialogContent({
   className,
-  children: children2,
+  children,
   showCloseButton = true,
-  size: size2 = "sm",
-  layer: layer2 = "default",
+  size = "sm",
+  layer = "default",
   portalContainer,
   overlayClassName,
   ...props
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <DialogPortal container={portalContainer ?? void 0}>
       <DialogOverlay
-        forceRender={layer2 === "nested"}
-        className={cn$2(DIALOG_CONTENT_LAYER_CLASSES[layer2], overlayClassName)}
+        forceRender={layer === "nested"}
+        className={mergeTailwindClasses(DIALOG_CONTENT_LAYER_CLASSES[layer], overlayClassName)}
       />
       <DialogPopup
         data-slot="dialog-content"
-        className={cn$2(
+        className={mergeTailwindClasses(
           "elevated-surface-border no-drag fixed top-1/2 left-1/2 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-xs/relaxed text-popover-foreground duration-100 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
-          DIALOG_CONTENT_LAYER_CLASSES[layer2],
-          DIALOG_CONTENT_SIZE_CLASSES[size2],
+          DIALOG_CONTENT_LAYER_CLASSES[layer],
+          DIALOG_CONTENT_SIZE_CLASSES[size],
           className,
         )}
         {...props}
       >
-        {children2}
+        {children}
         {showCloseButton && (
           <DialogClose
             data-slot="dialog-close"
@@ -417,7 +393,7 @@ export function DialogContent({
             }
           >
             <XIcon className="size-6" strokeWidth={1.75} />
-            <span className="sr-only">{t2("common.close")}</span>
+            <span className="sr-only">{t("common.close")}</span>
           </DialogClose>
         )}
       </DialogPopup>
@@ -428,7 +404,7 @@ export function DialogHeader({ className, ...props }) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn$2("flex flex-col gap-1 text-left", className)}
+      className={mergeTailwindClasses("flex flex-col gap-1 text-left", className)}
       {...props}
     />
   );
@@ -436,23 +412,23 @@ export function DialogHeader({ className, ...props }) {
 export function DialogFooter({
   className,
   showCloseButton = false,
-  children: children2,
+  children,
   ...props
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       data-slot="dialog-footer"
-      className={cn$2(
+      className={mergeTailwindClasses(
         "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}
     >
-      {children2}
+      {children}
       {showCloseButton && (
         <DialogClose render={<Button variant="outline" />}>
-          {t2("common.close")}
+          {t("common.close")}
         </DialogClose>
       )}
     </div>

@@ -1,12 +1,9 @@
 // use-online.jsx
-import {
-  cva,
-  reactExports,
-  Toggle$1 as Toggle,
-  ToggleGroup$1,
-  useMutation,
-  useQueryClient,
-} from "../vendor.js";
+import { cva } from "class-variance-authority";
+import reactExports from "react";
+import { Toggle } from "@base-ui/react/toggle";
+import { ToggleGroup as ToggleGroup$1 } from "@base-ui/react/toggle-group";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   BASE,
   isRecord,
@@ -18,14 +15,14 @@ import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { TRACK_EVENTS } from "./track-events.js";
 import { trackEvent } from "./sanitize-track-props.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "./dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "./dialog-content.jsx";
 import { ImportEntityConflictError } from "../assets/import-entity-conflict-error.js";
-function extractConflictPayload(body2) {
-  if (!isRecord(body2)) return null;
-  if (isRecord(body2.existingEntity) && isRecord(body2.importedManifest)) {
-    return body2;
+function extractConflictPayload(body) {
+  if (!isRecord(body)) return null;
+  if (isRecord(body.existingEntity) && isRecord(body.importedManifest)) {
+    return body;
   }
-  const nested = body2.message;
+  const nested = body.message;
   if (
     isRecord(nested) &&
     isRecord(nested.existingEntity) &&
@@ -35,37 +32,37 @@ function extractConflictPayload(body2) {
   }
   return null;
 }
-async function importEntity(buildUrl, file, mode2 = "create-new") {
+async function importEntity(buildUrl, file, mode = "create-new") {
   const form = new FormData();
   form.append("file", file);
   const params = new URLSearchParams();
-  if (mode2 !== "create-new") params.set("mode", mode2);
+  if (mode !== "create-new") params.set("mode", mode);
   const qs = params.toString();
-  const path2 = `${BASE}/import${qs ? `?${qs}` : ""}`;
-  const url2 = buildUrl(path2);
-  if (!url2) {
+  const path = `${BASE}/import${qs ? `?${qs}` : ""}`;
+  const url = buildUrl(path);
+  if (!url) {
     throw new Error("Gateway not ready");
   }
   const controller = new AbortController();
-  const timer2 = setTimeout(() => controller.abort(), 18e4);
+  const timer = setTimeout(() => controller.abort(), 18e4);
   let res;
   try {
-    res = await fetch(url2, {
+    res = await fetch(url, {
       method: "POST",
       body: form,
       signal: controller.signal,
     });
   } finally {
-    clearTimeout(timer2);
+    clearTimeout(timer);
   }
   if (res.status === 409) {
-    let body2;
+    let body;
     try {
-      body2 = await res.json();
+      body = await res.json();
     } catch {
       throw new Error(`Import failed: 409 ${res.statusText}`);
     }
-    const payload = extractConflictPayload(body2);
+    const payload = extractConflictPayload(body);
     if (payload) {
       throw new ImportEntityConflictError(payload);
     }
@@ -125,13 +122,13 @@ export function useOnline() {
   }, []);
   return online;
 }
-export function jsonInit(method, body2) {
+export function jsonInit(method, body) {
   return {
     method,
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body2),
+    body: JSON.stringify(body),
   };
 }
 function exportEntityUrl(buildUrl, entityId) {
@@ -139,20 +136,20 @@ function exportEntityUrl(buildUrl, entityId) {
 }
 export function classifyAssetError(err) {
   const msg = err instanceof Error ? err.message : String(err);
-  const lower2 = msg.toLowerCase();
+  const lower = msg.toLowerCase();
   if (
-    lower2.includes("network") ||
-    lower2.includes("fetch") ||
-    lower2.includes("econnrefused")
+    lower.includes("network") ||
+    lower.includes("fetch") ||
+    lower.includes("econnrefused")
   )
     return "network";
-  if (lower2.includes("timeout") || lower2.includes("timed out"))
+  if (lower.includes("timeout") || lower.includes("timed out"))
     return "timeout";
-  if (lower2.includes("conflict") || lower2.includes("409")) return "conflict";
+  if (lower.includes("conflict") || lower.includes("409")) return "conflict";
   if (
-    lower2.includes("valid") ||
-    lower2.includes("required") ||
-    lower2.includes("400")
+    lower.includes("valid") ||
+    lower.includes("required") ||
+    lower.includes("400")
   )
     return "validation";
   return "unknown";
@@ -204,12 +201,12 @@ export function trackAssetCenterAction(props) {
   trackEvent(eventName, props);
 }
 export function useImportEntity() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const buildUrl = useGatewayUrl();
   return useMutation({
-    mutationFn: ({ file, mode: mode2 }) => importEntity(buildUrl, file, mode2),
+    mutationFn: ({ file, mode }) => importEntity(buildUrl, file, mode),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ROOT_KEY,
       });
     },
@@ -220,9 +217,9 @@ export function useExportEntityUrl() {
   return (entityId) => exportEntityUrl(buildUrl, entityId);
 }
 export const ENTITY_DRAG_MIME = "application/x-hilo-asset-entity";
-export function writeEntityDragData(e2, payload) {
-  e2.dataTransfer?.setData(ENTITY_DRAG_MIME, JSON.stringify(payload));
-  if (e2.dataTransfer) e2.dataTransfer.effectAllowed = "copy";
+export function writeEntityDragData(dragEvent, payload) {
+  dragEvent.dataTransfer?.setData(ENTITY_DRAG_MIME, JSON.stringify(payload));
+  if (dragEvent.dataTransfer) dragEvent.dataTransfer.effectAllowed = "copy";
 }
 export const toggleVariants = cva(
   "group/toggle inline-flex items-center justify-center gap-1 rounded-sm text-xs font-medium whitespace-nowrap transition-all outline-none hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -254,17 +251,17 @@ const ToggleGroupContext = reactExports.createContext({
 export function ToggleGroup({
   className,
   variant,
-  size: size2,
+  size,
   spacing = 0,
   orientation = "horizontal",
-  children: children2,
+  children,
   ...props
 }) {
   return (
     <ToggleGroup$1
       data-slot="toggle-group"
       data-variant={variant}
-      data-size={size2}
+      data-size={size}
       data-spacing={spacing}
       data-orientation={orientation}
       style={{
@@ -279,21 +276,21 @@ export function ToggleGroup({
       <ToggleGroupContext.Provider
         value={{
           variant,
-          size: size2,
+          size,
           spacing,
           orientation,
         }}
       >
-        {children2}
+        {children}
       </ToggleGroupContext.Provider>
     </ToggleGroup$1>
   );
 }
 export function ToggleGroupItem({
   className,
-  children: children2,
+  children,
   variant = "default",
-  size: size2 = "default",
+  size = "default",
   ...props
 }) {
   const context = reactExports.useContext(ToggleGroupContext);
@@ -301,19 +298,19 @@ export function ToggleGroupItem({
     <Toggle
       data-slot="toggle-group-item"
       data-variant={context.variant || variant}
-      data-size={context.size || size2}
+      data-size={context.size || size}
       data-spacing={context.spacing}
       className={cn(
         "shrink-0 group-data-[spacing=0]/toggle-group:rounded-sm group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-sm group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-sm group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-sm group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-sm group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-l-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:[border-left-width:var(--control-border-width)] group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:[border-top-width:var(--control-border-width)]",
         toggleVariants({
           variant: context.variant || variant,
-          size: context.size || size2,
+          size: context.size || size,
         }),
         className,
       )}
       {...props}
     >
-      {children2}
+      {children}
     </Toggle>
   );
 }

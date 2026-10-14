@@ -1,6 +1,8 @@
 // migration-dialog.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { MpIcon } from "../assets/gateway-scope-provider.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
@@ -22,10 +24,10 @@ import {
   useMpWallet,
 } from "../team/hailuo-credit-row.jsx";
 const MIN_AMOUNT = 10;
-function renderBoldPrefix(text2) {
-  const match2 = text2.match(/^\*\*(.+?)\*\*(.*)$/s);
-  if (!match2) return text2;
-  const [, bold, rest] = match2;
+function renderBoldPrefix(text) {
+  const match = text.match(/^\*\*(.+?)\*\*(.*)$/s);
+  if (!match) return text;
+  const [, bold, rest] = match;
   return (
     <>
       <strong className="font-medium text-foreground">{bold}</strong>
@@ -33,10 +35,10 @@ function renderBoldPrefix(text2) {
     </>
   );
 }
-function NoteItem({ text: text2 }) {
+function NoteItem({ text }) {
   return (
     <li className="relative pl-2.5 before:absolute before:left-0 before:top-[7px] before:size-[3px] before:rounded-full before:bg-muted-foreground before:content-['']">
-      {renderBoldPrefix(text2)}
+      {renderBoldPrefix(text)}
     </li>
   );
 }
@@ -55,7 +57,7 @@ function ExchangeSide({ tone, icon, label, value, hint }) {
   );
 }
 export function MigrationDialog({ open, onOpenChange, onSuccess }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const mpWallet = useMpWallet();
   const hailuoWallet = useHailuoWallet();
   const deadline = useMigrateDeadline();
@@ -76,8 +78,8 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
     setConfirmed(false);
     setAmount(hailuoCredits);
   }, [open, hailuoCredits]);
-  const handleAmountChange = (raw2) => {
-    const trimmed = raw2.trim();
+  const handleAmountChange = (raw) => {
+    const trimmed = raw.trim();
     if (trimmed === "") {
       setAmount(0);
       return;
@@ -105,13 +107,13 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
         onSuccess: (resp) => {
           if (!resp.ok) {
             dedupedToast.error(
-              resp.error_message || t2("mediaplan.migration.failed"),
+              resp.error_message || t("mediaplan.migration.failed"),
             );
             return;
           }
           const transferred = resp.transferred_amount ?? effectiveAmount;
           dedupedToast.success(
-            t2("mediaplan.migration.success", {
+            t("mediaplan.migration.success", {
               amount: transferred.toLocaleString(),
             }),
           );
@@ -119,7 +121,7 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
           onOpenChange(false);
         },
         onError: () => {
-          dedupedToast.error(t2("mediaplan.migration.failed"));
+          dedupedToast.error(t("mediaplan.migration.failed"));
         },
       },
     );
@@ -132,9 +134,9 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
         data-action-ui-id="migration.dialog"
       >
         <DialogHeader>
-          <DialogTitle>{t2("mediaplan.migration.title")}</DialogTitle>
+          <DialogTitle>{t("mediaplan.migration.title")}</DialogTitle>
           <DialogDescription>
-            {t2("mediaplan.migration.subtitle", {
+            {t("mediaplan.migration.subtitle", {
               ratio,
             })}
           </DialogDescription>
@@ -144,9 +146,9 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
             <ExchangeSide
               tone="from"
               icon={<ShellIcon size={18} />}
-              label={t2("mediaplan.migration.fromHailuo")}
+              label={t("mediaplan.migration.fromHailuo")}
               value={effectiveAmount}
-              hint={t2("mediaplan.migration.hailuoBalanceHint", {
+              hint={t("mediaplan.migration.hailuoBalanceHint", {
                 balance: hailuoCredits.toLocaleString(),
               })}
             />
@@ -154,9 +156,9 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
             <ExchangeSide
               tone="to"
               icon={<MpIcon size={18} />}
-              label={t2("mediaplan.migration.toHub")}
+              label={t("mediaplan.migration.toHub")}
               value={willReceive}
-              hint={t2("mediaplan.migration.hubCurrentBalanceHint", {
+              hint={t("mediaplan.migration.hubCurrentBalanceHint", {
                 balance: hubCredits.toLocaleString(),
               })}
             />
@@ -168,16 +170,16 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
               htmlFor="migration-amount"
               className="text-[11px] font-medium text-foreground"
             >
-              {t2("mediaplan.migration.amountLabel")}
+              {t("mediaplan.migration.amountLabel")}
             </label>
             <div className="flex items-stretch gap-2">
               <Input3
                 id="migration-amount"
                 inputMode="numeric"
                 value={amount === 0 ? "" : String(amount)}
-                onChange={(e2) => handleAmountChange(e2.target.value)}
+                onChange={(changeEvent) => handleAmountChange(changeEvent.target.value)}
                 onBlur={handleAmountBlur}
-                placeholder={t2("mediaplan.migration.amountPlaceholder")}
+                placeholder={t("mediaplan.migration.amountPlaceholder")}
                 data-action-ui-id="migration.amount-input"
                 className="flex-1"
               />
@@ -186,11 +188,11 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
                 onClick={() => setAmount(hailuoCredits)}
                 data-action-ui-id="migration.amount-max"
               >
-                {t2("mediaplan.migration.amountMax")}
+                {t("mediaplan.migration.amountMax")}
               </Button>
             </div>
             <p className="text-[10px] text-muted-foreground tabular-nums">
-              {t2("mediaplan.migration.willReceive", {
+              {t("mediaplan.migration.willReceive", {
                 credits: willReceive.toLocaleString(),
               })}
             </p>
@@ -198,25 +200,25 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
         )}
         <ul className="flex flex-col gap-1 px-0.5 pt-1 text-[11px] leading-[1.55] text-muted-foreground">
           <NoteItem
-            text={t2("mediaplan.migration.noteRatio", {
+            text={t("mediaplan.migration.noteRatio", {
               ratio,
             })}
           />
           <NoteItem
-            text={t2("mediaplan.migration.noteDeadline", {
+            text={t("mediaplan.migration.noteDeadline", {
               date: deadline?.date ?? "--",
             })}
           />
-          <NoteItem text={t2("mediaplan.migration.noteIrreversible")} />
+          <NoteItem text={t("mediaplan.migration.noteIrreversible")} />
         </ul>
         <label className="hilo-checkbox-label flex cursor-pointer items-start text-xs text-foreground/80">
           <Checkbox
             checked={confirmed}
-            onCheckedChange={(v2) => setConfirmed(v2 === true)}
+            onCheckedChange={(checkedState) => setConfirmed(checkedState === true)}
             data-action-ui-id="migration.confirm-check"
           />
           <span className="pt-2 pointer-coarse:pt-3.5">
-            {t2("mediaplan.migration.confirmCheckText")}
+            {t("mediaplan.migration.confirmCheckText")}
           </span>
         </label>
         <DialogFooter>
@@ -225,7 +227,7 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
             onClick={() => onOpenChange(false)}
             data-action-ui-id="migration.cancel"
           >
-            {t2("common.cancel")}
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
@@ -233,7 +235,7 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
             loading={migrate.isPending}
             data-action-ui-id="migration.confirm"
           >
-            {t2("mediaplan.migration.confirmCta")}
+            {t("mediaplan.migration.confirmCta")}
           </Button>
         </DialogFooter>
       </DialogContent>

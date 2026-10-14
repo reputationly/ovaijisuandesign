@@ -1,0 +1,25 @@
+key	new	依据
+image2@25:11	image	由浏览器解码加载的水印源图像对象。
+image2@33:9	image	由浏览器解码加载的水印源图像对象。
+option2@88:21	option	当前字体、字重或选择器列表中的选项值。
+option2@109:23	option	当前字体、字重或选择器列表中的选项值。
+color2@116:10	color	颜色透明度控件当前接收的颜色值。
+size2@210:18	size	字号选择列表中的单个像素字号值。
+size2@231:23	size	字号选择列表中的单个像素字号值。
+children2@244:13	children	控制分区组件接收并渲染的子元素。
+min2@261:8	min	滑块允许设置的最小数值。
+max2@262:8	max	滑块允许设置的最大数值。
+values3@294:11	values	分段选择控件提供的全部候选值。
+format2@296:11	format	将分段选择值转换成显示文案的函数。
+active2@308:17	active	当前分段选项是否与选中值一致的布尔值。
+selected2@347:9	selected	当前画布节点是否被选中的布尔值。
+state2@344:6	state	用于读取当前画布节点选择状态的状态仓库快照。
+frame2@364:11	frame	阴影启用后安排的动画帧请求编号。
+key2@382:6	key	水印设置对象中即将更新的属性名。
+option2@491:36	option	当前字体、字重或选择器列表中的选项值。
+option2@519:40	option	当前字体、字重或选择器列表中的选项值。
+position2@574:35	position	水印文本位置网格中的当前候选位置。
+cn@4:10	mergeClassNames	合并 clsx 输入并用 Tailwind Merge 消除冲突类名的函数。
+a2@208:43	fontSizeA	字号排序比较器左侧参与比较的字号数值。
+b3@208:47	fontSizeB	字号排序比较器右侧参与比较的字号数值。
+t2@336:14	t	根据当前语言返回水印控件文案的翻译函数。

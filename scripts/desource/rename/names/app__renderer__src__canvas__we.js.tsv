@@ -1,0 +1,83 @@
+key	old	new	依据
+e2@4:13	e2	graph	simplify 把 compound Graph 压成单层图时遍历的原图，保留 graph-level label。
+n2@5:7	n2	simplifiedGraph	simplify 创建的非 compound Graph，合并平行边的 weight 与 minlen。
+t2@7:25	t2	nodeId	simplify 复制到新图中的原节点 ID。
+t2@8:25	t2	edge	simplify 正在合并权重与 minlen 的原图边描述。
+r2@9:11	r2	simplifiedEdge	新图中相同端点已有的边标签，供累加 weight 和取最大 minlen。
+o2@13:9	o2	originalEdge	从原 Graph 读取的边标签对象。
+e2@23:13	e2	tree	以 Graphlib 节点属性存放 low/lim/parent 的遍历树。
+n2@23:17	n2	visitedNodes	记录已经进入 DFS 的节点 ID，避免重复访问。
+t2@23:21	t2	nextLim	分配给下一个节点的 lim 序号。
+r2@23:25	r2	nodeId	dfsAssignLowLim 当前进入的树节点 ID。
+o2@23:29	o2	parentId	nodeId 在遍历树中的父节点 ID；根节点时删除 parent 属性。
+i2@24:7	i2	currentLim	进入当前节点时保留的 low/lim 起始序号。
+s2@25:5	s2	node	tree.node(nodeId) 返回、将写入 low/lim/parent 的节点标签。
+a2@27:7	a2	neighbors	tree 中当前节点的邻接节点 ID 列表。
+d2@30:19	d2	neighborId	DFS 正准备递归访问的相邻节点 ID。
+e2@39:13	e2	tree	需要初始化 low/lim 的无向遍历树。
+n2@39:17	n2	root	DFS 起点；未传入时取 tree 的第一个节点。
+e2@42:13	e2	tree	其边 cutvalue 用来筛选负值离开边的树。
+n2@43:27	n2	edge	tree 中 cutvalue 为负的候选边。
+e2@45:13	e2	tree	提供根、parent 关系及 preorder 的当前 spanning tree。
+n2@45:17	n2	graph	更新节点 rank 时查询 minlen 的原始有向图。
+t2@46:7	t2	rootNode	树中没有 parent 的根节点 ID。
+r2@48:7	r2	preorderNodes	preorder 遍历得到的树节点 ID 序列，去掉根后用于传播 rank。
+o2@46:29	o2	nodeId	preorderNodes 当前检查的节点 ID，用于筛选根节点。
+o2@50:17	o2	nodeId	沿 preorder 更新 rank 的当前节点 ID。
+s2@51:11	s2	parentId	当前节点在 spanning tree 中的父节点 ID。
+a2@52:9	a2	parentEdge	graph 中连接当前节点与父节点的边标签。
+d2@53:9	d2	isReversed	父到子方向才找到边时置为 true，以选择正确的 minlen 符号。
+e2@58:13	e2	tree	用于判断 source-target 是否是 spanning tree 边的树。
+n2@58:17	n2	sourceId	待测树边的源节点 ID。
+t2@58:21	t2	targetId	待测树边的目标节点 ID。
+e2@61:13	e2	tree	保存 parent 与 cutvalue 的当前 spanning tree。
+n2@61:17	n2	graph	提供 edge weight/minlen 的原始图。
+t2@61:21	t2	childId	当前计算 cut value 的树子节点 ID。
+o2@62:7	o2	parentId	tree.node(childId).parent 得到的父节点 ID。
+i2@63:5	i2	isOutgoingTreeEdge	树父边最初按 child 到 parent 查询成功的方向标志。
+s2@64:5	s2	parentEdge	原图中连接 child 与 parent 的树边标签。
+a2@65:5	a2	cutValue	当前子节点切割的初始边权及随后累计的净权值。
+d2@67:7	d2	incidentEdges	与 childId 相接的所有原图边。
+l2@70:19	l2	edge	当前遍历的 childId 关联边。
+u4@71:13	u4	edgeStartsAtChild	当前边是否从 childId 发出。
+c3@72:11	c3	adjacentNode	当前边另一端的节点 ID。
+h2@74:15	h2	followsTreeOrientation	当前边方向与父树边方向一致的标志。
+f2@75:13	f2	edgeWeight	当前关联边在原图中的权重。
+b3@77:17	b3	edgeCutValue	tree 中相邻子树边已有的 cutvalue。
+e2@85:13	e2	tree	需更新 childId 到 parentId 树边标签的 spanning tree。
+n2@85:17	n2	graph	计算该树边 cutvalue 所用的原始图。
+t2@85:21	t2	childId	待计算其父边 cutvalue 的子节点 ID。
+o2@86:7	o2	parentId	从 child 节点属性读取的父节点 ID。
+i2@87:5	i2	treeEdge	tree 中 childId 与 parentId 之间的树边标签。
+e2@90:12	e2	tree	需要按 postorder 初始化 cutvalue 的树。
+n2@90:16	n2	graph	计算每个树边 cutvalue 所依赖的原始图。
+t2@91:7	t2	postorderNodes	postorder 排列的树节点 ID，末尾根节点不参与 cutvalue 初始化。
+r2@92:51	r2	childId	传给 assignCutValue 的当前非根树节点 ID。
+e2@94:13	e2	tree	将被移除离开边并加入进入边的 spanning tree。
+n2@94:17	n2	graph	用于重算树边 cutvalue 和节点 rank 的原始图。
+t2@94:21	t2	leavingEdge	从当前 spanning tree 中移除的边描述。
+r2@94:25	r2	enteringEdge	加入 spanning tree 以替换 leavingEdge 的边描述。
+o2@95:7	o2	leavingSource	leavingEdge.v，移除时作为树边起点。
+i2@96:5	i2	leavingTarget	leavingEdge.w，移除时作为树边终点。
+e2@103:13	e2	treeGraph	保存 DFS low/lim 区间的树图。
+n2@103:17	n2	nodeLabel	被判断是否落在子树内的节点 low/lim 标签：检查其 lim 是否位于 rootLabel 的 [low, lim] 区间；对应 dagre isDescendant 的 vLabel。
+t2@103:21	t2	rootLabel	提供 low/lim 区间的子树根节点标签；对应 dagre isDescendant 的 rootLabel。
+e2@106:13	e2	tree	用于确定 leavingEdge 切分出的两个子树的 spanning tree。
+n2@106:17	n2	graph	包含候选替换边及其 slack 的原始图。
+t2@106:21	t2	leavingEdge	当前被替换、用于定义 cut 两侧的树边。
+r2@107:7	r2	sourceId	离开边方向归一化后候选边的起点 ID。
+o2@108:5	o2	targetId	离开边方向归一化后候选边的终点 ID。
+i2@110:7	i2	sourceNode	tree.node(sourceId) 返回的端点节点 low/lim 标签。
+s2@111:5	s2	targetNode	tree.node(targetId) 返回的另一端点 low/lim 标签。
+a2@112:5	a2	subtreeRoot	由两端 low/lim 次序确定、用于切分候选边的子树根标签。
+d2@113:5	d2	targetIsRoot	sourceNode.lim 大于 targetNode.lim、subtreeRoot 改取 targetNode 时置为 true；对应 dagre enterEdge 的 flip。
+u4@119:10	u4	edge	过滤跨越 leavingEdge 切分边界的原图候选边。
+u4@122:16	u4	currentBestEdge	reduce 中当前 slack 最小的进入边候选。
+c3@122:20	c3	candidateEdge	正在与 currentBestEdge 比较 slack 的候选进入边。
+e2@131:12	e2	graph	networkSimplex 处理的原始 Dagre Graph；随后简化并写入节点 rank。
+n2@133:7	n2	feasibleTree	V(graph) 构造的 tight-edge 可行 spanning tree。
+t2@135:7	t2	leavingEdge	当前 cutvalue 为负、需要换出的树边。
+r2@135:11	r2	enteringEdge	跨越离开边切分且 slack 最小的替换边。
+e2@139:20	e2	graph	qe 导出包装器接收并交给 networkSimplexFn 修改 rank 的图。
+export:qe	qe	runNetworkSimplex	qe 调用本文件 networkSimplex 函数就地重排节点 rank；runNetworkSimplex 与私有 networkSimplex 实现名区分。
+file:we.js	we.js	network-simplex.js	we.js 集中实现 Dagre rank/network-simplex.ts 的简化、换边、cutvalue 与 rank 更新流程。

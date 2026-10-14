@@ -1,5 +1,6 @@
 // use-canvas-viewport-focus.js
-import { reactExports, useReactFlow, useStoreApi } from "../vendor.js";
+import reactExports from "react";
+import { useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import {
   CANVAS_MAX_ZOOM,
   CANVAS_MIN_ZOOM,
@@ -14,19 +15,19 @@ const FRAME_PADDING_RATIO = 0.15;
 
 const CENTER_ON_NODES_MAX_FRAME_ZOOM = 2;
 
-function easeOutQuart(t2) {
-  return 1 - (1 - t2) ** 4;
+function easeOutQuart(progress) {
+  return 1 - (1 - progress) ** 4;
 }
 
-function interpolateFocusView(a2, b3) {
-  const widthRatio = b3[2] / a2[2];
-  return (t2) => {
-    const scale2 = widthRatio ** t2;
-    const remaining = (1 - t2) * scale2;
+function interpolateFocusView(startView, targetView) {
+  const widthRatio = targetView[2] / startView[2];
+  return (progress) => {
+    const scale = widthRatio ** progress;
+    const remaining = (1 - progress) * scale;
     return [
-      b3[0] - (b3[0] - a2[0]) * remaining,
-      b3[1] - (b3[1] - a2[1]) * remaining,
-      a2[2] * scale2,
+      targetView[0] - (targetView[0] - startView[0]) * remaining,
+      targetView[1] - (targetView[1] - startView[1]) * remaining,
+      startView[2] * scale,
     ];
   };
 }
@@ -51,13 +52,13 @@ function computeCenterOnBoundsViewport(
         CENTER_ON_NODES_MAX_FRAME_ZOOM,
       )
     : currentZoom;
-  const zoom2 = Math.max(minZoom, Math.min(maxZoom, fitZoom));
+  const zoom = Math.max(minZoom, Math.min(maxZoom, fitZoom));
   const centerX = bounds.x + bounds.width / 2;
   const centerY = bounds.y + bounds.height / 2;
   return {
-    x: canvasSize.width / 2 - centerX * zoom2,
-    y: canvasSize.height / 2 - centerY * zoom2,
-    zoom: zoom2,
+    x: canvasSize.width / 2 - centerX * zoom,
+    y: canvasSize.height / 2 - centerY * zoom,
+    zoom,
   };
 }
 
@@ -66,16 +67,16 @@ function getNodesBounds(nodeIds, nodeLookup) {
   let minY = Number.POSITIVE_INFINITY;
   let maxX = Number.NEGATIVE_INFINITY;
   let maxY = Number.NEGATIVE_INFINITY;
-  for (const id2 of nodeIds) {
-    const node2 = nodeLookup.get(id2);
-    const width = node2?.measured?.width;
-    const height = node2?.measured?.height;
-    if (!node2 || !width || !height) continue;
-    const position2 = node2.internals.positionAbsolute;
-    minX = Math.min(minX, position2.x);
-    minY = Math.min(minY, position2.y);
-    maxX = Math.max(maxX, position2.x + width);
-    maxY = Math.max(maxY, position2.y + height);
+  for (const id of nodeIds) {
+    const node = nodeLookup.get(id);
+    const width = node?.measured?.width;
+    const height = node?.measured?.height;
+    if (!node || !width || !height) continue;
+    const position = node.internals.positionAbsolute;
+    minX = Math.min(minX, position.x);
+    minY = Math.min(minY, position.y);
+    maxX = Math.max(maxX, position.x + width);
+    maxY = Math.max(maxY, position.y + height);
   }
   if (!Number.isFinite(minX)) return null;
   return {
@@ -86,7 +87,7 @@ function getNodesBounds(nodeIds, nodeLookup) {
   };
 }
 
-export function useCanvasViewportFocus(instance2) {
+export function useCanvasViewportFocus(instance) {
   const { fitView, getViewport, setViewport } = useReactFlow();
   const storeApi = useStoreApi();
   const syncStableZoomAfterViewportChange = reactExports.useCallback(
@@ -102,7 +103,7 @@ export function useCanvasViewportFocus(instance2) {
     );
   }, [fitView, syncStableZoomAfterViewportChange]);
   const centerViewportOnNodes = reactExports.useCallback(
-    (nodeIds, frame2 = false) => {
+    (nodeIds, frame = false) => {
       const { nodeLookup, width, height } = storeApi.getState();
       const bounds = getNodesBounds(nodeIds, nodeLookup);
       if (!bounds || width <= 0 || height <= 0) return;
@@ -115,7 +116,7 @@ export function useCanvasViewportFocus(instance2) {
         getViewport().zoom,
         CANVAS_MIN_ZOOM,
         {
-          frame: frame2,
+          frame,
           maxZoom: CANVAS_MAX_ZOOM,
         },
       );
@@ -130,18 +131,18 @@ export function useCanvasViewportFocus(instance2) {
     [getViewport, setViewport, storeApi, syncStableZoomAfterViewportChange],
   );
   const handleFocusSelection = reactExports.useCallback(() => {
-    centerViewportOnNodes(instance2.selection.getSelected(), true);
-  }, [centerViewportOnNodes, instance2]);
+    centerViewportOnNodes(instance.selection.getSelected(), true);
+  }, [centerViewportOnNodes, instance]);
   const handleMinimapNodeSelect = reactExports.useCallback(
     (nodeId, additive) => {
       if (additive) {
-        instance2.selection.toggle(nodeId);
+        instance.selection.toggle(nodeId);
         return;
       }
-      instance2.selection.set([nodeId]);
+      instance.selection.set([nodeId]);
       centerViewportOnNodes([nodeId]);
     },
-    [centerViewportOnNodes, instance2],
+    [centerViewportOnNodes, instance],
   );
   return {
     handleFitView,

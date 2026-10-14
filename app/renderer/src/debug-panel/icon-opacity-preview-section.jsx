@@ -1,6 +1,30 @@
 // icon-opacity-preview-section.jsx
-import { useTranslation, reactExports, jsxRuntimeExports, Button$3 as Button$2, LoaderCircle$1 as LoaderCircle, cva, CloudOff$1 as CloudOff, Minus, CompositedSvg, Globe, Brain$2 as Brain, Pin, Smartphone, Globe2, ArrowLeft, RotateCw, Settings2$1 as Settings2, Users$1 as Users, FolderOpen$1 as FolderOpen, Folder$1 as Folder, ChevronDown$1 as ChevronDown, ChevronRight$2 as ChevronRight, ArrowUpRight$1 as ArrowUpRight, Plus$1 as Plus, Library$1 as Library, Workflow$1 as Workflow, MonochromeIcon, Pin$1, Search$1 as Search, Copy$1 as Copy, ThumbsUp$1 as ThumbsUp } from "../vendor.js";
-import { Button as Button$1, cn$2 as cn, TooltipContent, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
+import { cva as createVariantClassNames } from "class-variance-authority";
+import {
+  LoaderCircle,
+  CloudOff,
+  Settings2,
+  Users,
+  FolderOpen,
+  Folder,
+  ChevronDown,
+  ChevronRight,
+  ArrowUpRight,
+  Library,
+  Workflow,
+  Pin as PinnedIcon,
+  Search,
+  Copy,
+  ThumbsUp,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { Button as PrimitiveButton } from "@base-ui/react/button";
+import { Minus, Globe, Pin, Smartphone, Globe2, ArrowLeft, RotateCw, Plus$1 as Plus } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing.js";
+import { Brain$2 as Brain } from "../media-editing/custom-icons.js";
+import { Button as DialogButton, mergeTailwindClasses as mergeClassNames, TooltipContent, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
 import { CanvasLoadError } from "../canvas/canvas-load-error.jsx";
 import { CircleUserRound, HardDrive, Megaphone, PencilLine, RotateIcon, Rotate90Icon, FlipHorizontalIcon, FlipVerticalIcon } from "../media-editing/package.jsx";
 import { Icon, TooltipProvider, Tooltip, TooltipTrigger, MoreVerticalIcon } from "../vendor-inline/vscode-base/graph.jsx";
@@ -23,15 +47,15 @@ import {
 } from "./opacity-sample-cell.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 function PageIconDiagnosticsSection({ revision }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [icons, setIcons] = reactExports.useState([]);
   const handleRefresh = reactExports.useCallback(
     () => setIcons(readPageIconDiagnostics()),
     [],
   );
   reactExports.useEffect(() => {
-    const id = requestAnimationFrame(handleRefresh);
-    return () => cancelAnimationFrame(id);
+    const animationFrameId = requestAnimationFrame(handleRefresh);
+    return () => cancelAnimationFrame(animationFrameId);
   }, [handleRefresh, revision]);
   return (
     <section
@@ -40,26 +64,26 @@ function PageIconDiagnosticsSection({ revision }) {
     >
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-sm font-medium">
-          {t("debugPanel.iconOpacity.pageTitle", {
+          {translate("debugPanel.iconOpacity.pageTitle", {
             count: icons.length,
           })}
         </h3>
-        <Button$1
+        <DialogButton
           type="button"
           variant="outline"
           size="xs"
           onClick={handleRefresh}
           data-action-ui-id="debug.icon-opacity.refresh-page"
         >
-          {t("debugPanel.iconOpacity.refresh")}
-        </Button$1>
+          {translate("debugPanel.iconOpacity.refresh")}
+        </DialogButton>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        {t("debugPanel.iconOpacity.pageHint")}
+        {translate("debugPanel.iconOpacity.pageHint")}
       </p>
       {icons.length === 0 ? (
         <p className="mt-2 text-xs text-muted-foreground">
-          {t("debugPanel.iconOpacity.pageEmpty")}
+          {translate("debugPanel.iconOpacity.pageEmpty")}
         </p>
       ) : (
         <div className="mt-3 max-h-60 space-y-2 overflow-y-auto">
@@ -72,30 +96,30 @@ function PageIconDiagnosticsSection({ revision }) {
               <summary className="cursor-pointer break-all font-mono">
                 {icon.control || icon.id}
                 {" / "}
-                {icon.tone || t("debugPanel.iconOpacity.unmapped")}
+                {icon.tone || translate("debugPanel.iconOpacity.unmapped")}
                 {" / alpha="}
                 {icon.colorAlpha}
               </summary>
               <dl className="mt-2 space-y-1 break-all font-mono text-muted-foreground">
-                <dt>{t("debugPanel.iconOpacity.control")}</dt>
+                <dt>{translate("debugPanel.iconOpacity.control")}</dt>
                 <dd>
                   {icon.control} {icon.label}
                 </dd>
-                <dt>{t("debugPanel.iconOpacity.colorAlpha")}</dt>
+                <dt>{translate("debugPanel.iconOpacity.colorAlpha")}</dt>
                 <dd>
                   {icon.color}
                   {" / alpha="}
                   {icon.colorAlpha}
                 </dd>
-                <dt>{t("debugPanel.iconOpacity.root")}</dt>
+                <dt>{translate("debugPanel.iconOpacity.root")}</dt>
                 <dd>
                   {icon.rootOpacity}
                   {" / "}
                   {icon.filter}
                 </dd>
-                <dt>{t("debugPanel.iconOpacity.ancestors")}</dt>
+                <dt>{translate("debugPanel.iconOpacity.ancestors")}</dt>
                 <dd>{icon.ancestors}</dd>
-                <dt>{t("debugPanel.iconOpacity.primitives")}</dt>
+                <dt>{translate("debugPanel.iconOpacity.primitives")}</dt>
                 <dd className="whitespace-pre-wrap">{icon.primitives}</dd>
               </dl>
             </details>
@@ -105,7 +129,7 @@ function PageIconDiagnosticsSection({ revision }) {
     </section>
   );
 }
-const buttonVariants = cva(
+const buttonVariants = createVariantClassNames(
   "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-xs font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
@@ -149,10 +173,10 @@ function Button({
   ...props
 }) {
   return (
-    <Button$2
+    <PrimitiveButton
       data-slot="button"
       disabled={disabled || loading}
-      className={cn(
+      className={mergeClassNames(
         buttonVariants({
           variant,
           size,
@@ -163,18 +187,18 @@ function Button({
     >
       {loading && <LoaderCircle className="animate-spin" />}
       {children}
-    </Button$2>
+    </PrimitiveButton>
   );
 }
-const LegacyRetryIcon = reactExports.forwardRef(function LegacyRetryIcon2(
+const LegacyRetryIcon = reactExports.forwardRef(function LegacyRetryIconRenderer(
   { size = 24, ...props },
-  ref,
+  forwardedRef,
 ) {
   const ariaHidden =
     props["aria-hidden"] ?? (props["aria-label"] ? void 0 : true);
   return (
     <svg
-      ref={ref}
+      ref={forwardedRef}
       {...props}
       width={size}
       height={size}
@@ -199,7 +223,7 @@ const INITIAL_DESCRIPTION_KEYS = {
   unknown: "canvas.loadError.unknownDescription",
 };
 function LegacyCanvasLoadError({ failure, retrying, onRetry }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const retryButton = (
     <Button
       type="button"
@@ -212,7 +236,7 @@ function LegacyCanvasLoadError({ failure, retrying, onRetry }) {
       className="rounded-md"
     >
       {!retrying && <LegacyRetryIcon size={16} />}
-      {retrying ? t("canvas.loadError.retrying") : t("canvas.loadError.retry")}
+      {retrying ? translate("canvas.loadError.retrying") : translate("canvas.loadError.retry")}
     </Button>
   );
   if (failure.phase === "refresh") {
@@ -232,10 +256,10 @@ function LegacyCanvasLoadError({ failure, retrying, onRetry }) {
           <p className="min-w-0 flex-1 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">
               {retrying
-                ? t("canvas.loadError.refreshRetryingTitle")
-                : t("canvas.loadError.refreshTitle")}
+                ? translate("canvas.loadError.refreshRetryingTitle")
+                : translate("canvas.loadError.refreshTitle")}
             </span>{" "}
-            {t("canvas.loadError.refreshDescription")}
+            {translate("canvas.loadError.refreshDescription")}
           </p>
           {retryButton}
         </div>
@@ -257,13 +281,13 @@ function LegacyCanvasLoadError({ failure, retrying, onRetry }) {
           <div className="min-w-0 flex-1">
             <h2 className="text-sm font-medium text-foreground">
               {retrying
-                ? t("canvas.loadError.initialRetryingTitle")
-                : t("canvas.loadError.initialTitle")}
+                ? translate("canvas.loadError.initialRetryingTitle")
+                : translate("canvas.loadError.initialTitle")}
             </h2>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">
               {retrying
-                ? t("canvas.loadError.retryingDescription")
-                : t(INITIAL_DESCRIPTION_KEYS[failure.kind])}
+                ? translate("canvas.loadError.retryingDescription")
+                : translate(INITIAL_DESCRIPTION_KEYS[failure.kind])}
             </p>
             <div className="mt-4">{retryButton}</div>
           </div>
@@ -359,12 +383,12 @@ const INHERITED_COLOR_SAMPLES = [
     category: "inherited",
     owner: "root",
     noteKey: "debugPanel.iconOpacity.inherited.fixture",
-    render: (_fixed, disabled, t) => (
+    render: (_fixed, disabled, translate) => (
       <button
         type="button"
         disabled={disabled}
         className="flex items-center gap-3 text-foreground/70 hover:text-foreground disabled:text-muted-foreground disabled:opacity-60"
-        aria-label={t("debugPanel.iconOpacity.inherited.settings")}
+        aria-label={translate("debugPanel.iconOpacity.inherited.settings")}
       >
         {[CircleUserRound, HardDrive, Globe, Brain, Smartphone].map(
           (Glyph, index) => (
@@ -409,12 +433,12 @@ const INHERITED_COLOR_SAMPLES = [
     category: "inherited",
     owner: "root",
     noteKey: "debugPanel.iconOpacity.inherited.customModelHint",
-    render: (_fixed, _disabled, t) => (
+    render: (_fixed, _disabled, translate) => (
       <button
         type="button"
         aria-disabled="true"
         className="inline-flex cursor-not-allowed items-center gap-1 rounded-md px-1.5 py-1 text-xs text-muted-foreground/50"
-        aria-label={t("debugPanel.iconOpacity.inherited.customModel")}
+        aria-label={translate("debugPanel.iconOpacity.inherited.customModel")}
       >
         <Icon icon={PencilLine} size="sm" strokeWidth={1.5} />
       </button>
@@ -455,17 +479,17 @@ function AspectRatioIcon({ ratio }) {
   let rectW = maxSize;
   let rectH = maxSize;
   if (parsed) {
-    const [w, h] = parsed;
-    if (w >= h) {
+    const [width, height] = parsed;
+    if (width >= height) {
       rectW = maxSize;
-      rectH = (maxSize * h) / w;
+      rectH = (maxSize * height) / width;
     } else {
       rectH = maxSize;
-      rectW = (maxSize * w) / h;
+      rectW = (maxSize * width) / height;
     }
   }
-  const x = (18 - rectW) / 2;
-  const y = (18 - rectH) / 2;
+  const offsetX = (18 - rectW) / 2;
+  const offsetY = (18 - rectH) / 2;
   return (
     <svg
       width="18"
@@ -476,17 +500,17 @@ function AspectRatioIcon({ ratio }) {
       strokeWidth="1.5"
       aria-hidden="true"
     >
-      <rect x={x} y={y} width={rectW} height={rectH} />
+      <rect x={offsetX} y={offsetY} width={rectW} height={rectH} />
     </svg>
   );
 }
 function parseRatio(value) {
-  const m = value.match(/^(\d+)\s*[:x]\s*(\d+)$/i);
-  if (!m) return null;
-  const w = Number(m[1]);
-  const h = Number(m[2]);
-  if (!w || !h) return null;
-  return [w, h];
+  const dimensionMatch = value.match(/^(\d+)\s*[:x]\s*(\d+)$/i);
+  if (!dimensionMatch) return null;
+  const width = Number(dimensionMatch[1]);
+  const height = Number(dimensionMatch[2]);
+  if (!width || !height) return null;
+  return [width, height];
 }
 function ClockIcon({ size = 12, className }) {
   return (
@@ -526,22 +550,22 @@ function splitSummary(summary) {
   if (!summary) return [];
   const tokens = summary
     .split(/\s*[·•|]\s*/)
-    .map((s) => s.trim())
+    .map((sourceLine) => sourceLine.trim())
     .filter(Boolean);
-  return tokens.map((tok) => {
-    if (parseRatio(tok))
+  return tokens.map((token) => {
+    if (parseRatio(token))
       return {
         kind: "ratio",
-        text: tok,
+        text: token,
       };
-    if (DURATION_REGEX.test(tok))
+    if (DURATION_REGEX.test(token))
       return {
         kind: "duration",
-        text: tok,
+        text: token,
       };
     return {
       kind: "text",
-      text: tok,
+      text: token,
     };
   });
 }
@@ -554,16 +578,16 @@ function LegacyParamsChip({
   iconOnly = false,
   showSummaryIcons = true,
 }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const segments = splitSummary(summary);
   const hasSegments = segments.length > 0;
-  const tooltipContent = summary || t("canvas.param.chip.placeholder");
+  const tooltipContent = summary || translate("canvas.param.chip.placeholder");
   return (
     <button
       ref={anchorRef}
       type="button"
-      onClick={(e) => {
-        e.stopPropagation();
+      onClick={(mouseEvent) => {
+        mouseEvent.stopPropagation();
         onToggle();
       }}
       disabled={disabled}
@@ -575,12 +599,12 @@ function LegacyParamsChip({
         <Settings2 size={16} strokeWidth={1.7} aria-hidden="true" />
       ) : !showSummaryIcons ? (
         <span className="min-w-0 flex-1 truncate text-left">
-          {summary || t("canvas.param.chip.placeholder")}
+          {summary || translate("canvas.param.chip.placeholder")}
         </span>
       ) : hasSegments ? (
         <span className="min-w-0 flex-1 truncate text-left">
           <span className="inline-flex items-center gap-1">
-            {segments.map((seg, i) =>
+            {segments.map((segment, segmentIndex) =>
               // Index is part of the key only to disambiguate the rare case
               // of duplicate raw tokens; segments are short-lived render-only
               // data with no per-item state, so position-based identity is fine.
@@ -589,35 +613,35 @@ function LegacyParamsChip({
                 reactExports.Fragment,
                 {
                   children: [
-                    i > 0 && <span className="opacity-60">·</span>,
-                    seg.kind === "ratio" ? (
+                    segmentIndex > 0 && <span className="opacity-60">·</span>,
+                    segment.kind === "ratio" ? (
                       <span className="inline-flex items-center gap-0.5">
                         <span
                           aria-hidden={true}
                           className="inline-flex size-3 shrink-0 items-center justify-center opacity-70 [&>svg]:size-full"
                         >
-                          <AspectRatioIcon ratio={seg.text} />
+                          <AspectRatioIcon ratio={segment.text} />
                         </span>
-                        <span>{seg.text}</span>
+                        <span>{segment.text}</span>
                       </span>
-                    ) : seg.kind === "duration" ? (
+                    ) : segment.kind === "duration" ? (
                       <span className="inline-flex items-center gap-0.5">
                         <ClockIcon className="opacity-70 shrink-0" />
-                        <span>{seg.text}</span>
+                        <span>{segment.text}</span>
                       </span>
                     ) : (
-                      <span>{seg.text}</span>
+                      <span>{segment.text}</span>
                     ),
                   ],
                 },
-                `${seg.kind}-${i}-${seg.text}`,
+                `${segment.kind}-${segmentIndex}-${segment.text}`,
               ),
             )}
           </span>
         </span>
       ) : (
         <span className="min-w-0 flex-1 truncate text-left">
-          {summary || t("canvas.param.chip.placeholder")}
+          {summary || translate("canvas.param.chip.placeholder")}
         </span>
       )}
     </button>
@@ -720,9 +744,9 @@ function LegacyRecentProjectGroupHeader({
   holdPreviewOpen,
   releasePreviewHold,
 }) {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const [contextMenuOpen, setContextMenuOpen] = reactExports.useState(false);
-  const label = project?.name ?? t("project.ungrouped");
+  const label = project?.name ?? translate("project.ungrouped");
   const projectId = project?.id;
   const FolderIcon =
     project?.kind === "team" ? Users : expanded ? FolderOpen : Folder;
@@ -751,7 +775,7 @@ function LegacyRecentProjectGroupHeader({
     if (projectId) onToggle(projectId);
     else if (ungroupedToggleKey) onToggle(ungroupedToggleKey);
   }, [onToggle, projectId, ungroupedToggleKey]);
-  const headerClass = cn(
+  const headerClass = mergeClassNames(
     "group relative isolate flex h-[32px] items-center gap-1 pr-2 text-sm",
     project
       ? "text-[var(--home-sidebar-secondary-text)]"
@@ -776,7 +800,7 @@ function LegacyRecentProjectGroupHeader({
       {projectId ? (
         <button
           type="button"
-          aria-label={expanded ? t("project.collapse") : t("project.expand")}
+          aria-label={expanded ? translate("project.collapse") : translate("project.expand")}
           aria-expanded={expanded}
           data-action-ui-id="home-sidebar.recent-group-toggle"
           className="relative z-10 flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground focus-visible:outline-none"
@@ -826,7 +850,7 @@ function LegacyRecentProjectGroupHeader({
               render={
                 <button
                   type="button"
-                  aria-label={t("home.viewAll")}
+                  aria-label={translate("home.viewAll")}
                   data-action-ui-id="home-sidebar.recent-group-ungrouped-view-all"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -842,7 +866,7 @@ function LegacyRecentProjectGroupHeader({
                 </button>
               }
             />
-            <TooltipContent side="top">{t("home.viewAll")}</TooltipContent>
+            <TooltipContent side="top">{translate("home.viewAll")}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ) : null}
@@ -853,7 +877,7 @@ function LegacyRecentProjectGroupHeader({
               render={
                 <button
                   type="button"
-                  aria-label={t("project.newCreation")}
+                  aria-label={translate("project.newCreation")}
                   data-action-ui-id="home-sidebar.recent-group-ungrouped-new-creation"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -866,7 +890,7 @@ function LegacyRecentProjectGroupHeader({
               }
             />
             <TooltipContent side="top">
-              {t("project.newCreation")}
+              {translate("project.newCreation")}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -882,7 +906,7 @@ function LegacyRecentProjectGroupHeader({
                 render={
                   <button
                     type="button"
-                    aria-label={t("project.openDetail")}
+                    aria-label={translate("project.openDetail")}
                     data-action-ui-id="home-sidebar.recent-group-open-detail"
                     className={HOME_RECENT_GROUP_ACTION_CLASS}
                     onClick={(event) => {
@@ -895,7 +919,7 @@ function LegacyRecentProjectGroupHeader({
                 <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" />
               </TooltipTrigger>
               <TooltipContent side="top">
-                {t("project.openDetail")}
+                {translate("project.openDetail")}
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -903,7 +927,7 @@ function LegacyRecentProjectGroupHeader({
                 render={
                   <button
                     type="button"
-                    aria-label={t("project.newCreation")}
+                    aria-label={translate("project.newCreation")}
                     data-action-ui-id="home-sidebar.recent-group-new-creation"
                     className={HOME_RECENT_GROUP_ACTION_CLASS}
                     onClick={(event) => {
@@ -916,7 +940,7 @@ function LegacyRecentProjectGroupHeader({
                 <Plus size={16} strokeWidth={1.5} aria-hidden="true" />
               </TooltipTrigger>
               <TooltipContent side="top">
-                {t("project.newCreation")}
+                {translate("project.newCreation")}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -934,11 +958,11 @@ function LegacyRecentProjectGroupHeader({
       >
         <ContextMenuItem onClick={() => onNewCreation(project.id)}>
           <Plus size={14} strokeWidth={1.5} />
-          {t("project.newCreation")}
+          {translate("project.newCreation")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onOpenDetail(project.id)}>
           <ArrowUpRight size={14} strokeWidth={1.5} />
-          {t("project.openDetail")}
+          {translate("project.openDetail")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -946,11 +970,11 @@ function LegacyRecentProjectGroupHeader({
 }
 function LegacySidebarNavButton({ item, active, onClick, compact = false }) {
   const {
-    icon: Icon2,
+    icon: IconComponent,
     iconClassName,
     iconSize = HOME_NAV_ICON_SIZE,
     label,
-    to,
+    to: destinationPath,
     disabled,
     tooltip,
     badgeTarget,
@@ -964,9 +988,9 @@ function LegacySidebarNavButton({ item, active, onClick, compact = false }) {
       type="button"
       aria-label={compact || releaseBadge ? accessibleLabel : void 0}
       aria-current={active ? "page" : void 0}
-      data-action-ui-id={`home-sidebar-nav-${to.replace(/^\//, "") || "home"}`}
-      onClick={disabled ? void 0 : () => onClick(to)}
-      className={cn(
+      data-action-ui-id={`home-sidebar-nav-${destinationPath.replace(/^\//, "") || "home"}`}
+      onClick={disabled ? void 0 : () => onClick(destinationPath)}
+      className={mergeClassNames(
         HOME_NAV_BUTTON_CLASS,
         disabled
           ? "text-muted-foreground/30 cursor-not-allowed"
@@ -976,13 +1000,13 @@ function LegacySidebarNavButton({ item, active, onClick, compact = false }) {
       )}
     >
       <span
-        className={cn(
+        className={mergeClassNames(
           HOME_NAV_PILL_CLASS,
           compact && HOME_RAIL_PILL_CLASS,
           !disabled && (active ? HOME_NAV_ACTIVE_CLASS : HOME_NAV_HOVER_CLASS),
         )}
       >
-        {to === "/asset-center" ? (
+        {destinationPath === "/asset-center" ? (
           <span
             aria-hidden="true"
             className="pointer-events-none absolute inset-y-0 left-0"
@@ -994,10 +1018,10 @@ function LegacySidebarNavButton({ item, active, onClick, compact = false }) {
           />
         ) : null}
         <span
-          className={cn(HOME_NAV_ICON_SLOT_CLASS, "relative", iconClassName)}
+          className={mergeClassNames(HOME_NAV_ICON_SLOT_CLASS, "relative", iconClassName)}
           data-action-ui-id="home-sidebar.nav-icon-slot"
         >
-          <Icon2 aria-hidden={true} size={iconSize} strokeWidth={1.5} />
+          <IconComponent aria-hidden={true} size={iconSize} strokeWidth={1.5} />
           {compact && (
             <SidebarReleaseBadge
               compact={true}
@@ -1031,7 +1055,7 @@ function LegacySidebarNavButton({ item, active, onClick, compact = false }) {
     </TooltipProvider>
   );
 }
-const handlePreview$1 = () => {};
+const noopPreviewHandler = () => {};
 const SIDEBAR_OPACITY_SAMPLES = [
   ...[false, true].map((active) => ({
     id: active ? "sidebar-nav-selected" : "sidebar-nav",
@@ -1044,28 +1068,28 @@ const SIDEBAR_OPACITY_SAMPLES = [
     location: "layout/HomeSidebar.tsx",
     noteKey: "debugPanel.iconOpacity.sidebarNavHint",
     owner: "control",
-    render: (fixed, disabled, t) => {
+    render: (fixed, disabled, translate) => {
       const NavButton = fixed ? SidebarNavButton : LegacySidebarNavButton;
       const items = [
         {
           to: "/projects",
           icon: FolderOpen,
-          label: t("project.hubTitle"),
+          label: translate("project.hubTitle"),
         },
         {
           to: "/asset-center",
           icon: Library,
-          label: t("homeSidebar.assetCenter"),
+          label: translate("homeSidebar.assetCenter"),
         },
         {
           to: "/skills",
           icon: PluginIcon,
-          label: t("homeSidebar.skillCommunity"),
+          label: translate("homeSidebar.skillCommunity"),
         },
         {
           to: "/workflows",
           icon: Workflow,
-          label: t("homeSidebar.comfyWorkflows"),
+          label: translate("homeSidebar.comfyWorkflows"),
         },
       ];
       return (
@@ -1081,7 +1105,7 @@ const SIDEBAR_OPACITY_SAMPLES = [
                 disabled,
               }}
               active={active}
-              onClick={handlePreview$1}
+              onClick={noopPreviewHandler}
             />
           ))}
         </div>
@@ -1096,7 +1120,7 @@ const SIDEBAR_OPACITY_SAMPLES = [
     source: "layout/HomeSidebar.tsx → RecentProjectGroupHeader",
     location: "layout/HomeSidebar.tsx",
     owner: "control",
-    render: (fixed, _disabled, t) => {
+    render: (fixed, _disabled, translate) => {
       const GroupHeader = fixed
         ? RecentProjectGroupHeader
         : LegacyRecentProjectGroupHeader;
@@ -1110,13 +1134,13 @@ const SIDEBAR_OPACITY_SAMPLES = [
       const project = {
         ...base,
         id: "icon-opacity-local",
-        name: t("project.create.local"),
+        name: translate("project.create.local"),
         kind: "local",
       };
       const team = {
         ...base,
         id: "icon-opacity-team",
-        name: t("project.create.team"),
+        name: translate("project.create.team"),
         kind: "team",
       };
       return (
@@ -1124,44 +1148,44 @@ const SIDEBAR_OPACITY_SAMPLES = [
           <GroupHeader
             project={project}
             expanded={false}
-            onToggle={handlePreview$1}
-            onNewCreation={handlePreview$1}
-            onOpenDetail={handlePreview$1}
-            onRequestDelete={handlePreview$1}
+            onToggle={noopPreviewHandler}
+            onNewCreation={noopPreviewHandler}
+            onOpenDetail={noopPreviewHandler}
+            onRequestDelete={noopPreviewHandler}
           />
           <GroupHeader
             project={project}
             expanded={true}
-            onToggle={handlePreview$1}
-            onNewCreation={handlePreview$1}
-            onOpenDetail={handlePreview$1}
-            onRequestDelete={handlePreview$1}
+            onToggle={noopPreviewHandler}
+            onNewCreation={noopPreviewHandler}
+            onOpenDetail={noopPreviewHandler}
+            onRequestDelete={noopPreviewHandler}
           />
           <GroupHeader
             project={team}
             expanded={true}
-            onToggle={handlePreview$1}
-            onNewCreation={handlePreview$1}
-            onOpenDetail={handlePreview$1}
-            onRequestDelete={handlePreview$1}
+            onToggle={noopPreviewHandler}
+            onNewCreation={noopPreviewHandler}
+            onOpenDetail={noopPreviewHandler}
+            onRequestDelete={noopPreviewHandler}
           />
           <GroupHeader
             expanded={false}
             ungroupedToggleKey="icon-preview"
-            onToggle={handlePreview$1}
-            onNewCreation={handlePreview$1}
-            onOpenDetail={handlePreview$1}
-            onRequestDelete={handlePreview$1}
-            onNewCreationUngrouped={handlePreview$1}
-            onOpenAllUngrouped={handlePreview$1}
+            onToggle={noopPreviewHandler}
+            onNewCreation={noopPreviewHandler}
+            onOpenDetail={noopPreviewHandler}
+            onRequestDelete={noopPreviewHandler}
+            onNewCreationUngrouped={noopPreviewHandler}
+            onOpenAllUngrouped={noopPreviewHandler}
           />
           <GroupHeader
             expanded={true}
             ungroupedToggleKey="icon-preview"
-            onToggle={handlePreview$1}
-            onNewCreation={handlePreview$1}
-            onOpenDetail={handlePreview$1}
-            onRequestDelete={handlePreview$1}
+            onToggle={noopPreviewHandler}
+            onNewCreation={noopPreviewHandler}
+            onOpenDetail={noopPreviewHandler}
+            onRequestDelete={noopPreviewHandler}
           />
         </div>
       );
@@ -1176,28 +1200,28 @@ const SIDEBAR_OPACITY_SAMPLES = [
     source: "layout/home-sidebar/RecentProjectRow.tsx",
     location: "layout/home-sidebar/RecentProjectRow.tsx",
     owner: "control",
-    render: (fixed, disabled, t) => (
+    render: (fixed, disabled, translate) => (
       <div className="flex items-center gap-2 bg-[var(--topbar-transparent-bg)] p-3">
         {[false, true].map((pinned) => (
           <button
             key={String(pinned)}
             type="button"
             disabled={disabled}
-            aria-label={t(pinned ? "session.unpin" : "session.pin")}
+            aria-label={translate(pinned ? "session.unpin" : "session.pin")}
             data-icon-active={pinned ? true : void 0}
             className={`${fixed ? "icon-sidebar-action-control" : ""} flex size-6 items-center justify-center rounded-md ${pinned ? "text-foreground" : "text-muted-foreground"} hover:text-foreground disabled:opacity-50`}
             data-action-ui-id={`debug.icon-opacity.pin.${pinned}`}
           >
             {fixed ? (
               <MonochromeIcon tone="control">
-                <Pin$1
+                <PinnedIcon
                   size={14}
                   strokeWidth={1.5}
                   fill={pinned ? "currentColor" : "none"}
                 />
               </MonochromeIcon>
             ) : (
-              <Pin$1
+              <PinnedIcon
                 size={14}
                 strokeWidth={1.5}
                 fill={pinned ? "currentColor" : "none"}
@@ -1208,7 +1232,7 @@ const SIDEBAR_OPACITY_SAMPLES = [
         <button
           type="button"
           disabled={disabled}
-          aria-label={t("homeSidebar.recentProjectsMore")}
+          aria-label={translate("homeSidebar.recentProjectsMore")}
           className={`${fixed ? "icon-sidebar-action-control" : ""} flex size-6 items-center justify-center rounded-md text-muted-foreground hover:text-foreground disabled:opacity-50`}
           data-action-ui-id="debug.icon-opacity.project-more"
         >
@@ -1311,12 +1335,12 @@ const OPACITY_SAMPLES = [
     location: "pages/workspace/components/chat/AssistantMessageActions.tsx",
     noteKey: "debugPanel.iconOpacity.buttonFixture",
     owner: "control",
-    render: (fixed, disabled, t) => (
-      <Button$1
+    render: (fixed, disabled, translate) => (
+      <DialogButton
         variant="ghost"
         size="icon"
         disabled={disabled}
-        aria-label={t("common.copy")}
+        aria-label={translate("common.copy")}
         data-action-ui-id={`debug.icon-opacity.${fixed ? "after" : "before"}.button`}
         className={
           fixed
@@ -1325,7 +1349,7 @@ const OPACITY_SAMPLES = [
         }
       >
         <Icon icon={Copy} size="sm" tone={fixed ? "control" : void 0} />
-      </Button$1>
+      </DialogButton>
     ),
   },
   {
@@ -1334,10 +1358,10 @@ const OPACITY_SAMPLES = [
     source: "@hilo/canvas/react",
     location: "pages/workspace/components/canvas-global-tag-manager.tsx",
     owner: "control",
-    render: (fixed, disabled, t) => (
+    render: (fixed, disabled, translate) => (
       <div className="h-8 rounded-full bg-[var(--canvas-controls-bg)]">
         <CanvasToolbarExtensionButton
-          label={t("debugPanel.iconOpacity.background.canvas")}
+          label={translate("debugPanel.iconOpacity.background.canvas")}
           onClick={handlePreview}
           disabled={disabled}
           dataActionUiId={`debug.icon-opacity.${fixed ? "after" : "before"}.canvas-label`}
@@ -1392,7 +1416,7 @@ const BACKGROUNDS = {
   topbar: "bg-[var(--topbar-bg)]",
 };
 function IconOpacityPreviewSection() {
-  const { t } = useTranslation();
+  const { t: translate } = useTranslation();
   const { theme, resolved, setTheme } = useTheme();
   const previousTheme = reactExports.useRef(theme);
   const [open, setOpen] = reactExports.useState(false);
@@ -1412,22 +1436,22 @@ function IconOpacityPreviewSection() {
     >
       <div className="border-b border-border/70 px-4 py-3">
         <div className="text-sm font-medium">
-          {t("debugPanel.iconOpacity.title")}
+          {translate("debugPanel.iconOpacity.title")}
         </div>
         <p className="mt-0.5 text-caption-11 leading-relaxed text-muted-foreground">
-          {t("debugPanel.iconOpacity.description")}
+          {translate("debugPanel.iconOpacity.description")}
         </p>
       </div>
       <div className="flex justify-end px-4 py-2.5">
-        <Button$1
+        <DialogButton
           type="button"
           variant="outline"
           size="xs"
           onClick={() => handleOpenChange(true)}
           data-action-ui-id="debug.icon-opacity.open"
         >
-          {t("debugPanel.preview")}
-        </Button$1>
+          {translate("debugPanel.preview")}
+        </DialogButton>
       </div>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
@@ -1440,56 +1464,56 @@ function IconOpacityPreviewSection() {
         >
           <DialogHeader className="shrink-0 border-b border-border bg-background p-4">
             <div className="flex items-center justify-between gap-4">
-              <DialogTitle>{t("debugPanel.iconOpacity.title")}</DialogTitle>
-              <Button$1
+              <DialogTitle>{translate("debugPanel.iconOpacity.title")}</DialogTitle>
+              <DialogButton
                 type="button"
                 size="xs"
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
                 data-action-ui-id="debug.icon-opacity.close"
               >
-                {t("common.back")}
-              </Button$1>
+                {translate("common.back")}
+              </DialogButton>
             </div>
             <DialogDescription>
-              {t("debugPanel.iconOpacity.hint")}
+              {translate("debugPanel.iconOpacity.hint")}
             </DialogDescription>
             <div className="flex flex-wrap items-center gap-2 pt-2">
               <span className="text-xs text-muted-foreground">
-                {t("debugPanel.iconOpacity.theme")}
+                {translate("debugPanel.iconOpacity.theme")}
               </span>
               {["light", "dark"].map((value) => (
-                <Button$1
+                <DialogButton
                   key={value}
                   size="xs"
                   variant={resolved === value ? "default" : "outline"}
                   onClick={() => setTheme(value)}
                   data-action-ui-id={`debug.icon-opacity.theme.${value}`}
                 >
-                  {t(`debugPanel.iconOpacity.${value}`)}
-                </Button$1>
+                  {translate(`debugPanel.iconOpacity.${value}`)}
+                </DialogButton>
               ))}
               <span className="ml-2 text-xs text-muted-foreground">
-                {t("debugPanel.iconOpacity.background")}
+                {translate("debugPanel.iconOpacity.background")}
               </span>
               {Object.keys(BACKGROUNDS).map((value) => (
-                <Button$1
+                <DialogButton
                   key={value}
                   size="xs"
                   variant={background === value ? "default" : "outline"}
                   onClick={() => setBackground(value)}
                   data-action-ui-id={`debug.icon-opacity.background.${value}`}
                 >
-                  {t(`debugPanel.iconOpacity.background.${value}`)}
-                </Button$1>
+                  {translate(`debugPanel.iconOpacity.background.${value}`)}
+                </DialogButton>
               ))}
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground">
-                {t("debugPanel.iconOpacity.opacity")}
+                {translate("debugPanel.iconOpacity.opacity")}
               </span>
               {[1, 0.7, 0.5, 0.4].map((value) => (
-                <Button$1
+                <DialogButton
                   key={value}
                   size="xs"
                   variant={opacity === value ? "default" : "outline"}
@@ -1497,25 +1521,25 @@ function IconOpacityPreviewSection() {
                   data-action-ui-id={`debug.icon-opacity.opacity.${value}`}
                 >
                   {Math.round(value * 100)}%
-                </Button$1>
+                </DialogButton>
               ))}
               <span className="ml-2 text-xs text-muted-foreground">
-                {t("debugPanel.iconOpacity.state")}
+                {translate("debugPanel.iconOpacity.state")}
               </span>
               {[false, true].map((value) => (
-                <Button$1
+                <DialogButton
                   key={String(value)}
                   size="xs"
                   variant={disabled === value ? "default" : "outline"}
                   onClick={() => setDisabled(value)}
                   data-action-ui-id={`debug.icon-opacity.state.${value ? "disabled" : "normal"}`}
                 >
-                  {t(
+                  {translate(
                     value
                       ? "debugPanel.iconOpacity.disabled"
                       : "debugPanel.iconOpacity.normal",
                   )}
-                </Button$1>
+                </DialogButton>
               ))}
             </div>
           </DialogHeader>
@@ -1524,21 +1548,21 @@ function IconOpacityPreviewSection() {
             data-action-ui-id="debug.icon-opacity.samples"
           >
             <p className="mb-4 text-xs text-muted-foreground">
-              {t("debugPanel.iconOpacity.scope")}
+              {translate("debugPanel.iconOpacity.scope")}
             </p>
             <PageIconDiagnosticsSection revision={resolved} />
             <div className="mb-4 flex flex-wrap gap-2">
               {["all", "sidebar", "reconnect", "inherited", ...[]].map(
                 (value) => (
-                  <Button$1
+                  <DialogButton
                     key={value}
                     size="sm"
                     variant={category === value ? "default" : "outline"}
                     onClick={() => setCategory(value)}
                     data-action-ui-id={`debug.icon-opacity.category.${value}`}
                   >
-                    {t(`debugPanel.iconOpacity.category.${value}`)}
-                  </Button$1>
+                    {translate(`debugPanel.iconOpacity.category.${value}`)}
+                  </DialogButton>
                 ),
               )}
             </div>
@@ -1552,7 +1576,7 @@ function IconOpacityPreviewSection() {
                   data-opacity-sample={sample.id}
                 >
                   <div className="text-sm font-medium">
-                    {sample.titleKey ? t(sample.titleKey) : sample.name}
+                    {sample.titleKey ? translate(sample.titleKey) : sample.name}
                   </div>
                   {sample.titleKey && (
                     <p className="text-caption-11 text-muted-foreground">
@@ -1560,24 +1584,24 @@ function IconOpacityPreviewSection() {
                     </p>
                   )}
                   <p className="mt-1 break-all text-caption-11 text-muted-foreground">
-                    {t("debugPanel.iconOpacity.source")}
+                    {translate("debugPanel.iconOpacity.source")}
                     {": "}
                     {sample.source}
                     <br />
-                    {t("debugPanel.iconOpacity.location")}
+                    {translate("debugPanel.iconOpacity.location")}
                     {": "}
                     {sample.location}
                   </p>
                   {sample.noteKey && (
                     <p className="mt-1 text-caption-11 text-muted-foreground">
-                      {t(sample.noteKey)}
+                      {translate(sample.noteKey)}
                     </p>
                   )}
                   <div className="mt-3 grid grid-cols-2 gap-3">
                     {[false, true].map((fixed) => (
                       <div key={String(fixed)} className="min-w-0">
                         <p className="mb-2 text-xs font-medium">
-                          {t(
+                          {translate(
                             fixed
                               ? "debugPanel.iconOpacity.after"
                               : "debugPanel.iconOpacity.before",

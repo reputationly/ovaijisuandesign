@@ -1,5 +1,5 @@
 // resolve-panorama-generation-presentation.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { CanvasRenderRuntimeContext } from "../infra/use-plugin-metadata-store.js";
 import { isGenerationErrorStatus } from "../canvas/compute-group-bounds-from-children.js";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";
@@ -19,13 +19,13 @@ export const CLIP_STUDIO_PLUGIN_ID = "clip-studio";
 export function formatPluginAddNodeType(pluginId) {
   return `${PLUGIN_ADD_NODE_TYPE_PREFIX}${pluginId}`;
 }
-export function parsePluginAddNodeType(type2) {
-  if (!type2.startsWith(PLUGIN_ADD_NODE_TYPE_PREFIX)) return null;
-  const pluginId = type2.slice(PLUGIN_ADD_NODE_TYPE_PREFIX.length);
+export function parsePluginAddNodeType(type) {
+  if (!type.startsWith(PLUGIN_ADD_NODE_TYPE_PREFIX)) return null;
+  const pluginId = type.slice(PLUGIN_ADD_NODE_TYPE_PREFIX.length);
   return pluginId.length > 0 ? pluginId : null;
 }
-export function isPluginEditorSurface(agent2) {
-  return agent2?.editorSurface === true;
+export function isPluginEditorSurface(agent) {
+  return agent?.editorSurface === true;
 }
 export function useCanvasSurfaceRecovery(registration, eligible) {
   const { registerSurface } = reactExports.useContext(
@@ -35,49 +35,49 @@ export function useCanvasSurfaceRecovery(registration, eligible) {
   registrationRef.current = registration;
   const handleRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    const handle2 = registerSurface({
+    const handle = registerSurface({
       surfaceType: registrationRef.current.surfaceType,
       isEligible: () => registrationRef.current.isEligible(),
       recover: () => registrationRef.current.recover(),
     });
-    handleRef.current = handle2;
+    handleRef.current = handle;
     return () => {
       handleRef.current = null;
-      handle2.dispose();
+      handle.dispose();
     };
   }, [registerSurface]);
   reactExports.useEffect(() => {
     if (eligible) handleRef.current?.notifyEligibilityChanged();
   }, [eligible]);
 }
-export function resolvePanoramaGenerationPresentation(node2) {
-  const data2 = node2?.data;
-  if (node2?.type !== "placeholder" || data2?.mediaType !== "image") {
+export function resolvePanoramaGenerationPresentation(node) {
+  const data = node?.data;
+  if (node?.type !== "placeholder" || data?.mediaType !== "image") {
     return {
       status: "idle",
     };
   }
-  if (!isGenerationErrorStatus(data2.status)) {
+  if (!isGenerationErrorStatus(data.status)) {
     return {
       status: "loading",
     };
   }
   const retryPayload =
-    data2.retryPayload !== null && typeof data2.retryPayload === "object"
-      ? data2.retryPayload
+    data.retryPayload !== null && typeof data.retryPayload === "object"
+      ? data.retryPayload
       : void 0;
   return {
     status: "error",
-    errorStatus: data2.status,
+    errorStatus: data.status,
     errorMessage:
-      typeof data2.errorMessage === "string" ? data2.errorMessage : "",
+      typeof data.errorMessage === "string" ? data.errorMessage : "",
     errorReason:
-      typeof data2.errorReason === "string" ? data2.errorReason : void 0,
+      typeof data.errorReason === "string" ? data.errorReason : void 0,
     retryPayload,
   };
 }
-export function panoramaGenerationPresentationKey(node2) {
-  const presentation = resolvePanoramaGenerationPresentation(node2);
+export function panoramaGenerationPresentationKey(node) {
+  const presentation = resolvePanoramaGenerationPresentation(node);
   if (presentation.status !== "error") return presentation.status;
   return [
     presentation.status,

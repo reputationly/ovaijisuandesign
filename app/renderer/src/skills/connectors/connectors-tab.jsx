@@ -1,11 +1,16 @@
 // 连接器标签页：分类筛选、排序菜单、头部与整页列表。
-import { useTranslation, reactExports, jsxRuntimeExports, Plus, connectorDescription, Search, ChevronDown, getRuntimeConfig } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { getRuntimeConfig } from "../../infra/runtime-config.js";
+import { Plus, Search, ChevronDown } from "../../media-editing/lucide-icon-wraps.js";
+import { connectorDescription } from "./connector-market.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { homeService } from "../../workspace/home-service.jsx";
 import { ConnectorIcon } from "../../settings/connector-relationship-graphic.jsx";
 import { Icon } from "../../vendor-inline/vscode-base/graph.jsx";
 import { CustomConnectorDialog } from "../../settings/custom-connector-dialog.jsx";
-import { cn$2 as cn, Button } from "../../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, Button } from "../../infra/dialog-content.jsx";
 import { connectorTitle } from "../../settings/make-async-image-task.jsx";
 import { CatalogPageHeading } from "../../assets/catalog-page-heading.jsx";
 import { useConnectorInventory } from "../../text-editor/get-wire-content-text.jsx";
@@ -580,12 +585,12 @@ export function ConnectorsTab({
                   {section.cards.map((card) => {
                     if (card.kind === "browser") return browserCard;
                     if (card.kind === "saved") {
-                      const { connector: connector2, catalogEntry, title, description } = card;
+                      const { connector, catalogEntry, title, description } = card;
                       return (
                         <CustomConnectorCard
-                          key={`saved:${connector2.name}`}
-                          connector={connector2}
-                          editable={!findOfficialConnectorForServer(connector2)}
+                          key={`saved:${connector.name}`}
+                          connector={connector}
+                          editable={!findOfficialConnectorForServer(connector)}
                           title={title}
                           description={description}
                           icon={catalogEntry?.icon}
@@ -596,7 +601,7 @@ export function ConnectorsTab({
                           }
                           onClick={
                             catalogEntry?.detail
-                              ? () => handleCardClick(catalogEntry, connector2)
+                              ? () => handleCardClick(catalogEntry, connector)
                               : void 0
                           }
                           onUpdated={handleConnectorUpdated}

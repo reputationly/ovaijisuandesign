@@ -1,13 +1,11 @@
 // create-html-iframe-pool-store.jsx
-import {
-  classifyFileType,
-  createStore$1 as createStore,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  reactExports,
-  useNodeId,
-  useStore$2 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "./file-type.js";
+import { createStore } from "zustand/vanilla";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
+import { useStore } from "zustand";
+import { useNodeId } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "./file-type-icon.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";
@@ -16,64 +14,64 @@ import { HtmlViewerInner } from "../media-editing/html-viewer-inner.jsx";
 import { useHtmlViewerHandleApi } from "./use-plugin-metadata-store.js";
 const DEFAULT_MAX_ACTIVE = 6;
 const DEFAULT_HOLDER = "__default__";
-function withHolder(holders, holderId2) {
-  if (holders.has(holderId2)) return holders;
-  const next2 = new Set(holders);
-  next2.add(holderId2);
-  return next2;
+function withHolder(holders, holderId) {
+  if (holders.has(holderId)) return holders;
+  const next = new Set(holders);
+  next.add(holderId);
+  return next;
 }
-function oldestNonStickyId(active2) {
-  let oldestId2 = null;
+function oldestNonStickyId(active) {
+  let oldestId = null;
   let oldestTs = Number.POSITIVE_INFINITY;
-  for (const [id2, entry] of active2) {
+  for (const [id, entry] of active) {
     if (entry.sticky) continue;
     if (entry.activatedAt < oldestTs) {
       oldestTs = entry.activatedAt;
-      oldestId2 = id2;
+      oldestId = id;
     }
   }
-  return oldestId2;
+  return oldestId;
 }
-function oldestId(active2) {
-  let id2 = null;
-  let ts2 = Number.POSITIVE_INFINITY;
-  for (const [k2, entry] of active2) {
-    if (entry.activatedAt < ts2) {
-      ts2 = entry.activatedAt;
-      id2 = k2;
+function oldestId(active) {
+  let id = null;
+  let ts = Number.POSITIVE_INFINITY;
+  for (const [entryId, entry] of active) {
+    if (entry.activatedAt < ts) {
+      ts = entry.activatedAt;
+      id = entryId;
     }
   }
-  return id2;
+  return id;
 }
 function createHtmlIframePoolStore(opts = {}) {
   const maxActive = opts.maxActive ?? DEFAULT_MAX_ACTIVE;
-  return createStore((set2, get3) => ({
+  return createStore((set, get) => ({
     active: new Map(),
     maxActive,
-    requestAuto: (nodeId, holderId2 = DEFAULT_HOLDER) => {
-      const cur = get3().active;
+    requestAuto: (nodeId, holderId = DEFAULT_HOLDER) => {
+      const cur = get().active;
       const existing = cur.get(nodeId);
       if (existing) {
-        const next22 = new Map(cur);
-        next22.set(nodeId, {
+        const next = new Map(cur);
+        next.set(nodeId, {
           activatedAt: Date.now(),
           sticky: existing.sticky,
-          holders: withHolder(existing.holders, holderId2),
+          holders: withHolder(existing.holders, holderId),
         });
-        set2({
-          active: next22,
+        set({
+          active: next,
         });
         return true;
       }
       if (cur.size < maxActive) {
-        const next22 = new Map(cur);
-        next22.set(nodeId, {
+        const next = new Map(cur);
+        next.set(nodeId, {
           activatedAt: Date.now(),
           sticky: false,
-          holders: new Set([holderId2]),
+          holders: new Set([holderId]),
         });
-        set2({
-          active: next22,
+        set({
+          active: next,
         });
         return true;
       }
@@ -81,64 +79,64 @@ function createHtmlIframePoolStore(opts = {}) {
       if (evictId == null) {
         return false;
       }
-      const next2 = new Map(cur);
-      next2.delete(evictId);
-      next2.set(nodeId, {
+      const next = new Map(cur);
+      next.delete(evictId);
+      next.set(nodeId, {
         activatedAt: Date.now(),
         sticky: false,
-        holders: new Set([holderId2]),
+        holders: new Set([holderId]),
       });
-      set2({
-        active: next2,
+      set({
+        active: next,
       });
       return true;
     },
-    activateManual: (nodeId, holderId2 = DEFAULT_HOLDER) => {
-      const cur = get3().active;
+    activateManual: (nodeId, holderId = DEFAULT_HOLDER) => {
+      const cur = get().active;
       const existing = cur.get(nodeId);
       if (existing) {
-        const next22 = new Map(cur);
-        next22.set(nodeId, {
+        const next = new Map(cur);
+        next.set(nodeId, {
           activatedAt: Date.now(),
           sticky: true,
-          holders: withHolder(existing.holders, holderId2),
+          holders: withHolder(existing.holders, holderId),
         });
-        set2({
-          active: next22,
+        set({
+          active: next,
         });
         return;
       }
-      const next2 = new Map(cur);
+      const next = new Map(cur);
       if (cur.size >= maxActive) {
         const evictId = oldestNonStickyId(cur) ?? oldestId(cur);
-        if (evictId != null) next2.delete(evictId);
+        if (evictId != null) next.delete(evictId);
       }
-      next2.set(nodeId, {
+      next.set(nodeId, {
         activatedAt: Date.now(),
         sticky: true,
-        holders: new Set([holderId2]),
+        holders: new Set([holderId]),
       });
-      set2({
-        active: next2,
+      set({
+        active: next,
       });
     },
-    release: (nodeId, holderId2 = DEFAULT_HOLDER) => {
-      const cur = get3().active;
+    release: (nodeId, holderId = DEFAULT_HOLDER) => {
+      const cur = get().active;
       const existing = cur.get(nodeId);
-      if (!existing?.holders.has(holderId2)) return;
-      const next2 = new Map(cur);
+      if (!existing?.holders.has(holderId)) return;
+      const next = new Map(cur);
       if (existing.holders.size > 1) {
         const holders = new Set(existing.holders);
-        holders.delete(holderId2);
-        next2.set(nodeId, {
+        holders.delete(holderId);
+        next.set(nodeId, {
           ...existing,
           holders,
         });
       } else {
-        next2.delete(nodeId);
+        next.delete(nodeId);
       }
-      set2({
-        active: next2,
+      set({
+        active: next,
       });
     },
   }));
@@ -151,22 +149,22 @@ function useHtmlIframePoolApi() {
     defaultHtmlIframePoolStore
   );
 }
-const useHtmlIframePoolStore = (selector2) =>
-  useStore(useHtmlIframePoolApi(), selector2);
+const useHtmlIframePoolStore = (selector) =>
+  useStore(useHtmlIframePoolApi(), selector);
 useHtmlIframePoolStore.getState = defaultHtmlIframePoolStore.getState;
 useHtmlIframePoolStore.setState = defaultHtmlIframePoolStore.setState;
 useHtmlIframePoolStore.subscribe = defaultHtmlIframePoolStore.subscribe;
 function useIsHtmlIframeActive(nodeId) {
-  return useHtmlIframePoolStore((s2) => s2.active.has(nodeId));
+  return useHtmlIframePoolStore((state) => state.active.has(nodeId));
 }
-function HtmlViewerPlaceholder({ displayName: displayName2, onActivate }) {
-  const { t: t2 } = useTranslation();
-  const label = displayName2?.trim() || t2("canvas.file.untitled");
+function HtmlViewerPlaceholder({ displayName, onActivate }) {
+  const { t } = useTranslation();
+  const label = displayName?.trim() || t("canvas.file.untitled");
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-muted px-6 text-center">
       <FileTypeIcon
         {...classifyFileType({
-          filename: displayName2,
+          filename: displayName,
         })}
         size={48}
         decorative={true}
@@ -179,15 +177,15 @@ function HtmlViewerPlaceholder({ displayName: displayName2, onActivate }) {
       </div>
       <Button
         size="sm"
-        onClick={(e2) => {
-          e2.stopPropagation();
+        onClick={(clickEvent) => {
+          clickEvent.stopPropagation();
           onActivate();
         }}
-        onMouseDown={(e2) => e2.stopPropagation()}
+        onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
         data-action-ui-id="canvas.file-node.html-activate"
       >
         <PlaybackPlayIcon />
-        {t2("canvas.file.html.activatePreview")}
+        {t("canvas.file.html.activatePreview")}
       </Button>
     </div>
   );
@@ -196,7 +194,7 @@ let htmlViewerHolderCounter = 0;
 export function HtmlViewer({
   filePath,
   interactive,
-  displayName: displayName2,
+  displayName,
   eagerActivate,
   pluginOpenRequest,
   supportsCanvasPresentation,
@@ -204,7 +202,7 @@ export function HtmlViewer({
   requestExitFullscreen,
 }) {
   const nodeId = useNodeId() ?? "";
-  const [holderId2] = reactExports.useState(
+  const [holderId] = reactExports.useState(
     () => `html-viewer-${++htmlViewerHolderCounter}`,
   );
   const poolApi = useHtmlIframePoolApi();
@@ -213,19 +211,19 @@ export function HtmlViewer({
   const [eager] = reactExports.useState(() => !!eagerActivate);
   reactExports.useEffect(() => {
     if (!nodeId) return;
-    if (eager) poolApi.getState().activateManual(nodeId, holderId2);
-    else poolApi.getState().requestAuto(nodeId, holderId2);
+    if (eager) poolApi.getState().activateManual(nodeId, holderId);
+    else poolApi.getState().requestAuto(nodeId, holderId);
     return () => {
-      poolApi.getState().release(nodeId, holderId2);
+      poolApi.getState().release(nodeId, holderId);
     };
-  }, [nodeId, poolApi, holderId2, eager]);
+  }, [nodeId, poolApi, holderId, eager]);
   const handleManualActivate = reactExports.useCallback(() => {
     if (!nodeId) return;
-    poolApi.getState().activateManual(nodeId, holderId2);
-  }, [nodeId, poolApi, holderId2]);
+    poolApi.getState().activateManual(nodeId, holderId);
+  }, [nodeId, poolApi, holderId]);
   const [reloadKey, setReloadKey] = reactExports.useState(0);
   const reload = reactExports.useCallback(() => {
-    setReloadKey((key2) => key2 + 1);
+    setReloadKey((key) => key + 1);
   }, []);
   reactExports.useEffect(() => {
     if (!nodeId) return;
@@ -243,7 +241,7 @@ export function HtmlViewer({
       <HtmlViewerInner
         filePath={filePath}
         interactive={interactive}
-        displayName={displayName2}
+        displayName={displayName}
         pluginOpenRequest={pluginOpenRequest}
         supportsCanvasPresentation={supportsCanvasPresentation}
         surface={surface}
@@ -254,7 +252,7 @@ export function HtmlViewer({
   }
   return (
     <HtmlViewerPlaceholder
-      displayName={displayName2}
+      displayName={displayName}
       onActivate={handleManualActivate}
     />
   );

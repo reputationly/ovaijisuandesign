@@ -13,15 +13,12 @@ import {
   runtimeRegion,
   uniqueBy,
 } from "./parse-localized-text.js";
-import {
-  API_PATHS,
-  Film,
-  getRuntimeConfig,
-  Palette,
-  reactExports,
-  useQuery,
-  workspaceLog,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Film, Palette } from "../media-editing/lucide-icon-wraps.js";
+import { workspaceLog } from "../infra/logger.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { SkillIcon } from "./use-prompt-icon.jsx";
@@ -33,44 +30,44 @@ import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
 import { useGatewayReady } from "../infra/inline-rename-input.jsx";
 const STRICT_SEMVER_PATTERN =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
-function parseStrictSemver(version2) {
-  const match2 = version2
+function parseStrictSemver(version) {
+  const match = version
     .trim()
     .replace(/^v/i, "")
     .match(STRICT_SEMVER_PATTERN);
-  if (!match2) return null;
-  const prerelease = match2[4]?.split(".") ?? [];
+  if (!match) return null;
+  const prerelease = match[4]?.split(".") ?? [];
   if (prerelease.some((part) => /^0\d+$/.test(part))) return null;
   return {
-    core: match2.slice(1, 4),
+    core: match.slice(1, 4),
     prerelease,
   };
 }
-function compareNumericIdentifiers(a2, b3) {
-  if (a2.length !== b3.length) return a2.length - b3.length;
-  return a2 === b3 ? 0 : a2 < b3 ? -1 : 1;
+function compareNumericIdentifiers(leftIdentifier, rightIdentifier) {
+  if (leftIdentifier.length !== rightIdentifier.length) return leftIdentifier.length - rightIdentifier.length;
+  return leftIdentifier === rightIdentifier ? 0 : leftIdentifier < rightIdentifier ? -1 : 1;
 }
-function compareSemverStrict(a2, b3) {
-  const pa = parseStrictSemver(a2);
-  const pb = parseStrictSemver(b3);
-  if (!pa || !pb) return null;
-  for (let index2 = 0; index2 < pa.core.length; index2 += 1) {
+function compareSemverStrict(leftVersion, rightVersion) {
+  const leftVersionParts = parseStrictSemver(leftVersion);
+  const rightVersionParts = parseStrictSemver(rightVersion);
+  if (!leftVersionParts || !rightVersionParts) return null;
+  for (let index = 0; index < leftVersionParts.core.length; index += 1) {
     const comparison = compareNumericIdentifiers(
-      pa.core[index2],
-      pb.core[index2],
+      leftVersionParts.core[index],
+      rightVersionParts.core[index],
     );
     if (comparison !== 0) return comparison;
   }
-  if (pa.prerelease.length === 0 && pb.prerelease.length === 0) return 0;
-  if (pa.prerelease.length === 0) return 1;
-  if (pb.prerelease.length === 0) return -1;
+  if (leftVersionParts.prerelease.length === 0 && rightVersionParts.prerelease.length === 0) return 0;
+  if (leftVersionParts.prerelease.length === 0) return 1;
+  if (rightVersionParts.prerelease.length === 0) return -1;
   for (
-    let index2 = 0;
-    index2 < Math.max(pa.prerelease.length, pb.prerelease.length);
-    index2 += 1
+    let index = 0;
+    index < Math.max(leftVersionParts.prerelease.length, rightVersionParts.prerelease.length);
+    index += 1
   ) {
-    const left = pa.prerelease[index2];
-    const right = pb.prerelease[index2];
+    const left = leftVersionParts.prerelease[index];
+    const right = rightVersionParts.prerelease[index];
     if (left === void 0) return -1;
     if (right === void 0) return 1;
     if (left === right) continue;
@@ -119,20 +116,20 @@ function parseAgentModelId(value) {
     isRecord(value) ? value[runtimeRegion()] : value,
   );
   if (!modelId || /[\s\p{Cc}]/u.test(modelId)) return void 0;
-  const slash2 = modelId.indexOf("/");
-  return slash2 > 0 && slash2 < modelId.length - 1 ? modelId : void 0;
+  const slash = modelId.indexOf("/");
+  return slash > 0 && slash < modelId.length - 1 ? modelId : void 0;
 }
 function parseSelectedMediaModels(value) {
   if (!isRecord(value)) return void 0;
-  const image2 = stringArray(value.image);
+  const image = stringArray(value.image);
   const video = stringArray(value.video);
   const audio = stringArray(value.audio);
-  if (image2.length === 0 && video.length === 0 && audio.length === 0)
+  if (image.length === 0 && video.length === 0 && audio.length === 0)
     return void 0;
   return {
-    ...(image2.length > 0
+    ...(image.length > 0
       ? {
-          image: image2,
+          image,
         }
       : {}),
     ...(video.length > 0
@@ -176,24 +173,24 @@ function parseShowcaseConfig(value) {
   const defaultTabId = configIdentifier(value.default_tab_id);
   const parsedTabs = [];
   if (Array.isArray(value.tabs)) {
-    for (const tab2 of value.tabs.slice(
+    for (const tab of value.tabs.slice(
       0,
       HOME_QUICK_START_MAX_SHOWCASE_TABS,
     )) {
-      if (!isRecord(tab2)) continue;
-      const id2 = configIdentifier(tab2.id);
-      if (!id2) continue;
-      const title = parseOptionalLocalizedText(tab2.title);
-      const badge = parseShowcaseTabBadge(tab2.badge);
+      if (!isRecord(tab)) continue;
+      const tabId = configIdentifier(tab.id);
+      if (!tabId) continue;
+      const title = parseOptionalLocalizedText(tab.title);
+      const badge = parseShowcaseTabBadge(tab.badge);
       parsedTabs.push({
-        id: id2,
+        id: tabId,
         ...(title
           ? {
               label: title.zh,
               labelEn: title.en,
             }
           : {}),
-        videoOrientation: parseShowcaseOrientation(tab2.video_orientation),
+        videoOrientation: parseShowcaseOrientation(tab.video_orientation),
         ...(badge
           ? {
               badge,
@@ -202,14 +199,14 @@ function parseShowcaseConfig(value) {
       });
     }
   } else if (isRecord(value.tabs)) {
-    for (const [id2, tab2] of Object.entries(value.tabs).slice(
+    for (const [tabId, tab] of Object.entries(value.tabs).slice(
       0,
       HOME_QUICK_START_MAX_SHOWCASE_TABS,
     )) {
-      const normalizedId = configIdentifier(id2);
-      if (!normalizedId || !isRecord(tab2)) continue;
-      const title = parseOptionalLocalizedText(tab2.title);
-      const badge = parseShowcaseTabBadge(tab2.badge);
+      const normalizedId = configIdentifier(tabId);
+      if (!normalizedId || !isRecord(tab)) continue;
+      const title = parseOptionalLocalizedText(tab.title);
+      const badge = parseShowcaseTabBadge(tab.badge);
       parsedTabs.push({
         id: normalizedId,
         ...(title
@@ -218,7 +215,7 @@ function parseShowcaseConfig(value) {
               labelEn: title.en,
             }
           : {}),
-        videoOrientation: parseShowcaseOrientation(tab2.video_orientation),
+        videoOrientation: parseShowcaseOrientation(tab.video_orientation),
         ...(badge
           ? {
               badge,
@@ -233,7 +230,7 @@ function parseShowcaseConfig(value) {
           defaultTabId,
         }
       : {}),
-    tabs: Object.fromEntries(parsedTabs.map((tab2) => [tab2.id, tab2])),
+    tabs: Object.fromEntries(parsedTabs.map((tab) => [tab.id, tab])),
   };
 }
 const ATTACHMENT_TYPES = new Set([
@@ -246,16 +243,16 @@ const ATTACHMENT_TYPES = new Set([
 ]);
 function parseAttachment(value) {
   if (!isRecord(value)) return void 0;
-  const name2 = nonEmptyString(value.name);
-  const type2 = nonEmptyString(value.type);
-  if (!name2 || !type2 || !ATTACHMENT_TYPES.has(type2)) return void 0;
+  const attachmentName = nonEmptyString(value.name);
+  const type = nonEmptyString(value.type);
+  if (!attachmentName || !type || !ATTACHMENT_TYPES.has(type)) return void 0;
   const aliases = [...new Set(stringArray(value.aliases))].filter(
-    (alias) => alias !== name2,
+    (alias) => alias !== attachmentName,
   );
   const assetUrl = normalizeConfiguredAssetUrl(value.url);
   return {
-    name: name2,
-    type: type2,
+    name: attachmentName,
+    type,
     ...(aliases.length > 0
       ? {
           displayNames: aliases,
@@ -271,9 +268,9 @@ function parseAttachment(value) {
 const MEDIA_TYPES = new Set(["image", "video", "audio", "document"]);
 function parsePromptOutput(value) {
   if (!isRecord(value)) return void 0;
-  const id2 = configIdentifier(value.id);
+  const outputId = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
-  if (!id2 || !title) return void 0;
+  if (!outputId || !title) return void 0;
   const mediaType = nonEmptyString(value.media);
   const description =
     parseOptionalLocalizedText(value.description) ??
@@ -282,7 +279,7 @@ function parsePromptOutput(value) {
     parseOptionalLocalizedText(value.attribution) ??
     parseOptionalLocalizedText(value.author);
   return {
-    id: id2,
+    id: outputId,
     videoId: configIdentifier(value.video_id),
     title: title.zh,
     titleEn: title.en,
@@ -311,10 +308,10 @@ function parsePromptOutput(value) {
 }
 function parsePromptItem(value) {
   if (!isRecord(value)) return void 0;
-  const id2 = configIdentifier(value.id);
+  const promptItemId = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
   const prompt = parseLocalizedText(value.prompt);
-  if (!id2 || !title || !prompt) return void 0;
+  if (!promptItemId || !title || !prompt) return void 0;
   const mediaType = nonEmptyString(value.media);
   const description =
     parseOptionalLocalizedText(value.description) ??
@@ -340,7 +337,7 @@ function parsePromptItem(value) {
       )
     : [];
   return {
-    id: id2,
+    id: promptItemId,
     videoId: configIdentifier(value.video_id),
     label: title.zh,
     labelEn: title.en,
@@ -355,7 +352,7 @@ function parsePromptItem(value) {
     skill: configIdentifier(value.skill),
     connectorId:
       configIdentifier(value.connector_id) ??
-      (id2 === "tool-figma" ? "figma" : void 0),
+      (promptItemId === "tool-figma" ? "figma" : void 0),
     agentModelId: parseAgentModelId(value.model_id),
     models: parseSelectedMediaModels(value.models),
     coverUrl: normalizeConfiguredAssetUrl(value.cover),
@@ -387,12 +384,12 @@ function parsePromptItem(value) {
 }
 function parseFeaturedSkill(value) {
   if (!isRecord(value)) return void 0;
-  const name2 = configIdentifier(value.skill);
+  const skillName = configIdentifier(value.skill);
   const prompt = parseLocalizedText(value.prompt);
-  if (!name2 || !prompt) return void 0;
+  if (!skillName || !prompt) return void 0;
   const tag = parseOptionalLocalizedText(value.tag);
   return {
-    name: name2,
+    name: skillName,
     prompt: prompt.zh,
     promptEn: prompt.en,
     tag: tag?.zh,
@@ -400,11 +397,11 @@ function parseFeaturedSkill(value) {
   };
 }
 function parsePromptSection(value) {
-  const id2 = configIdentifier(value.id);
+  const sectionId = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
   const iconName = nonEmptyString(value.icon);
   const icon = (iconName && PROMPT_ICON_MAP[iconName]) || Palette;
-  if (!id2 || !title) return void 0;
+  if (!sectionId || !title) return void 0;
   const queries = Array.isArray(value.items)
     ? uniqueBy(
         value.items
@@ -418,7 +415,7 @@ function parsePromptSection(value) {
     : [];
   if (queries.length === 0) return void 0;
   const scene = {
-    id: id2,
+    id: sectionId,
     name: title.zh,
     nameEn: title.en,
     icon,
@@ -426,7 +423,7 @@ function parsePromptSection(value) {
   };
   return {
     kind: "scene",
-    id: id2,
+    id: sectionId,
     name: title.zh,
     nameEn: title.en,
     icon,
@@ -441,14 +438,14 @@ function parsePromptSection(value) {
   };
 }
 function parseFeaturePopupSection(value) {
-  const id2 = configIdentifier(value.id);
+  const sectionId = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
-  if (!id2 || !title) return void 0;
+  if (!sectionId || !title) return void 0;
   const iconName = nonEmptyString(value.icon);
   const icon = (iconName && PROMPT_ICON_MAP[iconName]) || Palette;
   return {
     kind: "feature-popup",
-    id: id2,
+    id: sectionId,
     name: title.zh,
     nameEn: title.en,
     icon,
@@ -479,10 +476,10 @@ function boundedChannel(channel) {
 function utf8ByteLength(value) {
   return textEncoder.encode(value).byteLength;
 }
-function isRawPayloadWithinLimit(raw2) {
+function isRawPayloadWithinLimit(raw) {
   let serialized;
   try {
-    serialized = JSON.stringify(raw2);
+    serialized = JSON.stringify(raw);
   } catch {
     return false;
   }
@@ -494,26 +491,26 @@ function isRawPayloadWithinLimit(raw2) {
 function homeQuickStartLkgKey(region, channel) {
   return `${HOME_QUICK_START_LKG_PREFIX}:v${HOME_QUICK_START_SCHEMA_VERSION}:${encodeURIComponent(region)}:${encodeURIComponent(channel)}`;
 }
-function removeHomeQuickStartLkg(key2) {
+function removeHomeQuickStartLkg(key) {
   try {
-    localStorage.removeItem(key2);
+    localStorage.removeItem(key);
   } catch {}
 }
 function pruneOtherHomeQuickStartLkgEntries(currentKey) {
   try {
     const staleKeys = [];
     const prefix = `${HOME_QUICK_START_LKG_PREFIX}:`;
-    for (let index2 = 0; index2 < localStorage.length; index2 += 1) {
-      const key2 = localStorage.key(index2);
-      if (key2?.startsWith(prefix) && key2 !== currentKey) staleKeys.push(key2);
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index);
+      if (key?.startsWith(prefix) && key !== currentKey) staleKeys.push(key);
     }
-    for (const key2 of staleKeys) localStorage.removeItem(key2);
+    for (const key of staleKeys) localStorage.removeItem(key);
   } catch {}
 }
 async function readBoundedConfigJson(response) {
-  const contentLength2 = response.headers.get("content-length");
-  if (contentLength2) {
-    const declaredBytes = Number.parseInt(contentLength2, 10);
+  const contentLength = response.headers.get("content-length");
+  if (contentLength) {
+    const declaredBytes = Number.parseInt(contentLength, 10);
     if (
       Number.isFinite(declaredBytes) &&
       declaredBytes > HOME_QUICK_START_CONFIG_MAX_BYTES
@@ -569,10 +566,10 @@ function gatewayHttpStatus(error) {
   return typeof nested === "number" ? nested : void 0;
 }
 function parseSkillSection(value) {
-  const id2 = configIdentifier(value.id);
+  const sectionId = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
   const marketSource = configIdentifier(value.source);
-  if (!id2 || !title || !marketSource) return void 0;
+  if (!sectionId || !title || !marketSource) return void 0;
   const skills = Array.isArray(value.items)
     ? uniqueBy(
         value.items
@@ -587,7 +584,7 @@ function parseSkillSection(value) {
   if (skills.length === 0) return void 0;
   return {
     kind: "featured-skills",
-    id: id2,
+    id: sectionId,
     name: title.zh,
     nameEn: title.en,
     icon: SkillIcon,
@@ -600,11 +597,11 @@ function parseSkillSection(value) {
 function parseSection(value) {
   if (!isRecord(value)) return void 0;
   if (!meetsMinClientVersion(value.min_client_version)) return void 0;
-  const type2 = nonEmptyString(value.type);
-  if (type2 === "prompt") return parsePromptSection(value);
-  if (type2 === "skill") return parseSkillSection(value);
-  if (type2 === "feature-popup") return parseFeaturePopupSection(value);
-  if (type2 === "project-archive") return parseProjectArchiveSection(value);
+  const type = nonEmptyString(value.type);
+  if (type === "prompt") return parsePromptSection(value);
+  if (type === "skill") return parseSkillSection(value);
+  if (type === "feature-popup") return parseFeaturePopupSection(value);
+  if (type === "project-archive") return parseProjectArchiveSection(value);
   return void 0;
 }
 function parseHomeQuickStartConfig(rawConfig) {
@@ -660,7 +657,7 @@ function parseHomeQuickStartConfig(rawConfig) {
   };
 }
 function reportConfigResolution(region, channel, phase, outcome, failureKind) {
-  const properties2 = {
+  const properties = {
     phase,
     outcome,
     region: boundedRegion(region),
@@ -673,9 +670,9 @@ function reportConfigResolution(region, channel, phase, outcome, failureKind) {
       : {}),
   };
   try {
-    trackEvent(TRACK_EVENTS.HOME_QUICK_START_CONFIG_RESOLUTION, properties2);
+    trackEvent(TRACK_EVENTS.HOME_QUICK_START_CONFIG_RESOLUTION, properties);
   } catch {}
-  const message2 = "home: quick-start-config-resolution";
+  const message = "home: quick-start-config-resolution";
   try {
     if (
       outcome === "corrupt" ||
@@ -685,9 +682,9 @@ function reportConfigResolution(region, channel, phase, outcome, failureKind) {
       outcome === "fetch_failed" ||
       outcome === "revalidate_failed"
     ) {
-      workspaceLog.warn(message2, properties2);
+      workspaceLog.warn(message, properties);
     } else {
-      workspaceLog.info(message2, properties2);
+      workspaceLog.info(message, properties);
     }
   } catch {}
 }
@@ -748,11 +745,11 @@ function readHomeQuickStartLkg(region, channel) {
   reportConfigResolution(region, channel, "lkg_read", "hit");
   return parsed;
 }
-function writeHomeQuickStartLkg(region, channel, raw2) {
+function writeHomeQuickStartLkg(region, channel, raw) {
   let serialized;
   try {
     serialized = JSON.stringify({
-      raw: raw2,
+      raw,
       schemaVersion: HOME_QUICK_START_SCHEMA_VERSION,
     });
   } catch {
@@ -811,7 +808,7 @@ export function useHomeQuickStartConfig() {
     [channel, region],
   );
   const {
-    data: data2,
+    data,
     isLoading,
     isError,
   } = useQuery({
@@ -842,9 +839,9 @@ export function useHomeQuickStartConfig() {
         reportFailure("http");
         throw new Error(`home_quick_start_config HTTP ${response.status}`);
       }
-      let raw2;
+      let raw;
       try {
-        raw2 = await readBoundedConfigJson(response);
+        raw = await readBoundedConfigJson(response);
       } catch (error) {
         reportFailure(
           error instanceof InvalidHomeQuickStartPayloadError
@@ -853,16 +850,16 @@ export function useHomeQuickStartConfig() {
         );
         throw error;
       }
-      if (!isRawPayloadWithinLimit(raw2)) {
+      if (!isRawPayloadWithinLimit(raw)) {
         reportFailure("invalid_payload");
         throw new Error("oversized home_quick_start_config");
       }
-      const parsed = parseHomeQuickStartConfig(raw2);
+      const parsed = parseHomeQuickStartConfig(raw);
       if (!parsed) {
         reportFailure("invalid_payload");
         throw new Error("invalid home_quick_start_config");
       }
-      writeHomeQuickStartLkg(region, channel, raw2);
+      writeHomeQuickStartLkg(region, channel, raw);
       reportConfigResolution(region, channel, "remote_fetch", "success");
       return {
         config: parsed,
@@ -883,20 +880,20 @@ export function useHomeQuickStartConfig() {
     retry: 1,
     throwOnError: false,
   });
-  let config2;
+  let config;
   let source;
-  if (data2) {
-    config2 = data2.config;
-    source = data2.origin;
+  if (data) {
+    config = data.config;
+    source = data.origin;
   } else if (isError) {
-    config2 = DEFAULT_HOME_QUICK_START_CONFIG;
+    config = DEFAULT_HOME_QUICK_START_CONFIG;
     source = "bundle";
   } else {
-    config2 = LOADING_HOME_QUICK_START_CONFIG;
+    config = LOADING_HOME_QUICK_START_CONFIG;
     source = "loading";
   }
   return {
-    config: config2,
+    config,
     source,
     isLoading: gatewayReady && isLoading,
   };

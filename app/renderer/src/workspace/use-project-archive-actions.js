@@ -2,7 +2,11 @@
 import { projectLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-import { reactExports, storageKeys, usePlatform, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { storageKeys } from "../infra/storage-cache.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
 import { useNavigateToWorkspace } from "./use-deep-link-router.js";
@@ -23,13 +27,13 @@ function logProjectOperationCanceled(
   operationId,
   startedAt,
   reason,
-  meta2,
+  meta,
 ) {
   projectLog.info(`${action} canceled`, {
     operationId,
     reason,
     durationMs: Date.now() - startedAt,
-    ...meta2,
+    ...meta,
   });
 }
 
@@ -64,7 +68,7 @@ const PERMISSION_FAILURE_REASONS = new Set([
   "destination_busy",
 ]);
 
-function buildProjectExportFailureProps(reason, phase, durationMs, platform2) {
+function buildProjectExportFailureProps(reason, phase, durationMs, platform) {
   let errorType = "business";
   if (reason === "unexpected") errorType = "unknown";
   else if (PERMISSION_FAILURE_REASONS.has(reason)) errorType = "permission";
@@ -75,17 +79,17 @@ function buildProjectExportFailureProps(reason, phase, durationMs, platform2) {
     duration_ms: Math.max(0, Math.round(durationMs)),
     phase,
     platform:
-      platform2 === "win32" || platform2 === "darwin" || platform2 === "linux"
-        ? platform2
+      platform === "win32" || platform === "darwin" || platform === "linux"
+        ? platform
         : "other",
     reason,
   };
 }
 
-function trackProjectExportFailure(reason, phase, durationMs, platform2) {
+function trackProjectExportFailure(reason, phase, durationMs, platform) {
   trackEvent(
     TRACK_EVENTS.PROJECT_EXPORT_FAILED,
-    buildProjectExportFailureProps(reason, phase, durationMs, platform2),
+    buildProjectExportFailureProps(reason, phase, durationMs, platform),
   );
 }
 
@@ -172,7 +176,7 @@ function safeCount(value) {
     : 0;
 }
 
-function buildProjectImportResultProps(result, source, platform2) {
+function buildProjectImportResultProps(result, source, platform) {
   const failure = result.failure;
   const partial =
     !failure &&
@@ -189,7 +193,7 @@ function buildProjectImportResultProps(result, source, platform2) {
       : partial
         ? "partial"
         : "success";
-  const code2 = failure?.errorCode ?? result.opencodeImportErrorCode;
+  const code = failure?.errorCode ?? result.opencodeImportErrorCode;
   return {
     source:
       source === "file-picker" ||
@@ -212,30 +216,30 @@ function buildProjectImportResultProps(result, source, platform2) {
         ? failure.reason
         : "unexpected"
       : partial
-        ? code2 === "ETIMEDOUT"
+        ? code === "ETIMEDOUT"
           ? "session_restore_unconfirmed"
           : "partial_session_restore"
         : "none",
     error_code:
-      code2 && (ERROR_CODES.has(code2) || /^HTTP_[1-5]\d\d$/.test(code2))
-        ? code2
+      code && (ERROR_CODES.has(code) || /^HTTP_[1-5]\d\d$/.test(code))
+        ? code
         : failure || partial
           ? "unknown"
           : "none",
     duration_ms: safeCount(result.durationMs),
     publish_retry_count: safeCount(result.publishRetryCount),
     platform:
-      platform2 === "win32" || platform2 === "darwin" || platform2 === "linux"
-        ? platform2
+      platform === "win32" || platform === "darwin" || platform === "linux"
+        ? platform
         : "other",
   };
 }
 
-function trackProjectImportResult(result, source, platform2) {
+function trackProjectImportResult(result, source, platform) {
   try {
     trackEvent(
       TRACK_EVENTS.PROJECT_IMPORT_RESULT,
-      buildProjectImportResultProps(result, source, platform2),
+      buildProjectImportResultProps(result, source, platform),
     );
   } catch {
     projectLog.warn("project-import telemetry enqueue failed");
@@ -249,10 +253,10 @@ const IMPORT_TOAST_ID = "project-archive-import";
 const getImportToastId = (operationId) => `${IMPORT_TOAST_ID}:${operationId}`;
 
 export function useProjectArchiveActions() {
-  const { t: t2 } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const { t: translate } = useTranslation();
+  const queryClient = useQueryClient();
   const navigateToWorkspace = useNavigateToWorkspace();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const runExport = reactExports.useCallback(
     async (folderPath) => {
       const operationId = createProjectOperationId("export-project");
@@ -271,17 +275,17 @@ export function useProjectArchiveActions() {
           "preflight",
           "workspace-missing",
         );
-        dedupedToast.error(t2("projectArchive.export.noWorkspace"));
+        dedupedToast.error(translate("projectArchive.export.noWorkspace"));
         return;
       }
-      const progressSub = homeService.projectArchive.onProgress((p3) => {
-        if (p3.kind !== "export") return;
+      const progressSub = homeService.projectArchive.onProgress((progress) => {
+        if (progress.kind !== "export") return;
         dedupedToast.loading(
-          `${t2("projectArchive.export.inProgress")} ${p3.percent}%`,
+          `${translate("projectArchive.export.inProgress")} ${progress.percent}%`,
           {
             id: EXPORT_TOAST_ID,
             action: {
-              label: t2("common.cancel"),
+              label: translate("common.cancel"),
               onClick: () => {
                 void homeService.projectArchive.cancelExport();
               },
@@ -301,7 +305,7 @@ export function useProjectArchiveActions() {
             result.cancelReason ?? "unknown",
           );
           if (result.cancelReason === "aborted") {
-            dedupedToast(t2("projectArchive.export.cancelled"), {
+            dedupedToast(translate("projectArchive.export.cancelled"), {
               id: EXPORT_TOAST_ID,
             });
           } else {
@@ -323,11 +327,11 @@ export function useProjectArchiveActions() {
             result.failureReason,
             "result",
             Date.now() - exportStartedAt,
-            platform2.app.os,
+            platform.app.os,
           );
-          dedupedToast.error(t2("projectArchive.export.failed"), {
+          dedupedToast.error(translate("projectArchive.export.failed"), {
             id: EXPORT_TOAST_ID,
-            description: t2(
+            description: translate(
               getProjectExportFailureMessageKey(result.failureReason),
             ),
           });
@@ -338,14 +342,14 @@ export function useProjectArchiveActions() {
           sizeBytes: result.size,
           opencodeSessionCount: result.opencodeSessionCount,
         });
-        dedupedToast.success(t2("projectArchive.export.success"), {
+        dedupedToast.success(translate("projectArchive.export.success"), {
           id: EXPORT_TOAST_ID,
           description: filePath,
           action: filePath
             ? {
-                label: t2(getFileManagerLabelKey(platform2.app.os)),
+                label: translate(getFileManagerLabelKey(platform.app.os)),
                 onClick: () => {
-                  void platform2.shell.showItemInFolder?.(filePath);
+                  void platform.shell.showItemInFolder?.(filePath);
                 },
               }
             : void 0,
@@ -366,17 +370,17 @@ export function useProjectArchiveActions() {
           reason ?? "unexpected",
           "exception",
           Date.now() - exportStartedAt,
-          platform2.app.os,
+          platform.app.os,
         );
-        dedupedToast.error(t2("projectArchive.export.failed"), {
+        dedupedToast.error(translate("projectArchive.export.failed"), {
           id: EXPORT_TOAST_ID,
-          description: t2(getProjectExportFailureMessageKey(reason)),
+          description: translate(getProjectExportFailureMessageKey(reason)),
         });
       } finally {
         progressSub.dispose();
       }
     },
-    [platform2, t2],
+    [platform, translate],
   );
   const handleImportResult = reactExports.useCallback(
     async (result, operation) => {
@@ -400,9 +404,9 @@ export function useProjectArchiveActions() {
             failureReason: failure.reason,
           },
         );
-        dedupedToast.error(t2("projectArchive.import.failed"), {
+        dedupedToast.error(translate("projectArchive.import.failed"), {
           id: toastId,
-          description: t2(getProjectImportFailureMessageKey(failure)),
+          description: translate(getProjectImportFailureMessageKey(failure)),
         });
         return false;
       }
@@ -437,12 +441,12 @@ export function useProjectArchiveActions() {
         );
       }
       if (partial) {
-        dedupedToast.warning(t2("projectArchive.import.partial"), {
+        dedupedToast.warning(translate("projectArchive.import.partial"), {
           id: toastId,
-          description: t2("projectArchive.import.partialDetail"),
+          description: translate("projectArchive.import.partialDetail"),
         });
       } else {
-        dedupedToast.success(t2("projectArchive.import.success"), {
+        dedupedToast.success(translate("projectArchive.import.success"), {
           id: toastId,
           description: result.targetDir,
         });
@@ -466,10 +470,10 @@ export function useProjectArchiveActions() {
                 source: operation.source,
               },
             );
-            toastWorkspaceOpenResult(openResult, t2);
+            toastWorkspaceOpenResult(openResult, translate);
             return false;
           }
-          await queryClient2.invalidateQueries({
+          await queryClient.invalidateQueries({
             queryKey: storageKeys.global("recentWorkspaces"),
           });
           navigateToWorkspace(runtime);
@@ -497,7 +501,7 @@ export function useProjectArchiveActions() {
         );
         const msg =
           openErr instanceof Error ? openErr.message : String(openErr);
-        dedupedToast.error(t2("projectArchive.import.openFailed"), {
+        dedupedToast.error(translate("projectArchive.import.openFailed"), {
           description: msg,
         });
         return false;
@@ -516,7 +520,7 @@ export function useProjectArchiveActions() {
       );
       return false;
     },
-    [navigateToWorkspace, queryClient2, t2],
+    [navigateToWorkspace, queryClient, translate],
   );
   const runImport = reactExports.useCallback(async () => {
     const operationId = createProjectOperationId("import-project");
@@ -529,9 +533,9 @@ export function useProjectArchiveActions() {
         source: "file-picker",
       },
     );
-    const progressSub = homeService.projectArchive.onProgress((p3) => {
-      if (p3.kind !== "import" || p3.operationId !== operationId) return;
-      dedupedToast.loading(t2("projectArchive.import.inProgress"), {
+    const progressSub = homeService.projectArchive.onProgress((progress) => {
+      if (progress.kind !== "import" || progress.operationId !== operationId) return;
+      dedupedToast.loading(translate("projectArchive.import.inProgress"), {
         id: toastId,
       });
     });
@@ -540,7 +544,7 @@ export function useProjectArchiveActions() {
         operationId,
       });
       reported = true;
-      trackProjectImportResult(result, "file-picker", platform2.app.os);
+      trackProjectImportResult(result, "file-picker", platform.app.os);
       if (result.cancelled) {
         logProjectOperationCanceled(
           "import-project",
@@ -571,7 +575,7 @@ export function useProjectArchiveActions() {
             },
           },
           "file-picker",
-          platform2.app.os,
+          platform.app.os,
         );
       logProjectOperationFailure(
         "import-project",
@@ -583,14 +587,14 @@ export function useProjectArchiveActions() {
           source: "file-picker",
         },
       );
-      dedupedToast.error(t2("projectArchive.import.failed"), {
+      dedupedToast.error(translate("projectArchive.import.failed"), {
         id: toastId,
-        description: t2(getProjectImportFailureMessageKey()),
+        description: translate(getProjectImportFailureMessageKey()),
       });
     } finally {
       progressSub.dispose();
     }
-  }, [handleImportResult, platform2.app.os, t2]);
+  }, [handleImportResult, platform.app.os, translate]);
   const finishTemplateImport = reactExports.useCallback(
     async (source, importProject) => {
       const operationId = createProjectOperationId("import-project");
@@ -603,13 +607,13 @@ export function useProjectArchiveActions() {
           source,
         },
       );
-      dedupedToast.loading(t2("projectArchive.import.inProgress"), {
+      dedupedToast.loading(translate("projectArchive.import.inProgress"), {
         id: toastId,
       });
       try {
         const result = await importProject(operationId);
         reported = true;
-        trackProjectImportResult(result, source, platform2.app.os);
+        trackProjectImportResult(result, source, platform.app.os);
         const opened = await handleImportResult(result, {
           operationId,
           startedAt,
@@ -639,7 +643,7 @@ export function useProjectArchiveActions() {
               },
             },
             source,
-            platform2.app.os,
+            platform.app.os,
           );
         logProjectOperationFailure(
           "import-project",
@@ -651,9 +655,9 @@ export function useProjectArchiveActions() {
             source,
           },
         );
-        dedupedToast.error(t2("projectArchive.import.failed"), {
+        dedupedToast.error(translate("projectArchive.import.failed"), {
           id: toastId,
-          description: t2(getProjectImportFailureMessageKey()),
+          description: translate(getProjectImportFailureMessageKey()),
         });
         return {
           success: false,
@@ -661,12 +665,12 @@ export function useProjectArchiveActions() {
         };
       }
     },
-    [handleImportResult, platform2.app.os, t2],
+    [handleImportResult, platform.app.os, translate],
   );
   const runImportFromUrl = reactExports.useCallback(
-    (url2, projectName) =>
+    (url, projectName) =>
       finishTemplateImport("remote-template", (operationId) =>
-        homeService.projectArchive.importProjectFromUrl(url2, projectName, {
+        homeService.projectArchive.importProjectFromUrl(url, projectName, {
           operationId,
         }),
       ),

@@ -1,5 +1,8 @@
 // 工作流列表的数据 hook：用户工作流与精选工作流、安装状态对齐、变更通知。
-import { useTranslation, reactExports, useQuery, API_PATHS } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { API_PATHS } from "../infra/workspace-gateway.js";
 import { useGatewayReady } from "../infra/inline-rename-input.jsx";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";

@@ -1,0 +1,26 @@
+key	新名	依据
+t2@27:14	translate	`translate` 是历史刻度按钮查询本地化标签的函数。
+s2@85:34	attachmentSummary	`attachmentSummary` 提供附件类别、文件名及数量供摘要格式化。
+t2@85:38	translate	`translate` 是按附件类别与数量查询本地化摘要的函数。
+t2@99:37	translate	`translate` 是用户信号行格式化附件摘要时使用的本地化函数。
+t2@121:38	translate	`translate` 是代理信号行查询角色与工具文案的本地化函数。
+t2@165:14	translate	`translate` 是预览卡片传递给信号行组件的本地化函数。
+t2@188:14	translate	`translate` 是历史锚点轨道查询辅助标签的本地化函数。
+e2@239:54	mouseEvent	`mouseEvent` 是鼠标移动回调收到并用于计算导航栏悬停位置的事件。
+index2@18:10	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+top2@19:8	railTop	`railTop` 是时间轴标记相对轨道容器的顶部偏移；原名 `top` 与全局名冲突。
+RailTick2@17:45	RailTick	`RailTick` 是执行相应业务操作的函数；末尾数字是打包器为避免重名添加的后缀。
+handleClick2@28:9	handleClick	`handleClick` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+PreviewCard2@159:48	PreviewCard	`PreviewCard` 是执行相应业务操作的函数；末尾数字是打包器为避免重名添加的后缀。
+handleMouseMove2@239:9	handleMouseMove	`handleMouseMove` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+handleMouseLeave2@267:9	handleMouseLeave	`handleMouseLeave` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+position2@207:36	position	`position` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+start2@216:11	start	`start` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+end2@220:11	end	`end` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+offset2@225:49	offset	`offset` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+nav2@244:13	nav	`nav` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+list2@245:13	list	`list` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+position2@253:13	position	`position` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+list2@286:11	list	`list` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+nav2@307:11	nav	`nav` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+position2@346:42	position	`position` 是标识值；末尾数字是打包器为避免重名添加的后缀。

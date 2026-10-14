@@ -1,16 +1,17 @@
 // create-paste-node-transformer.js
 import { resolveNodeAssetId } from "./remove-nodes-and-promote-group-mains.js";
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { getClipboard } from "./partition-user-removal-elements.js";
 
-function readSourcePath(sourceNode, clipboard2, assetMetadataStore) {
+function readSourcePath(sourceNode, clipboard, assetMetadataStore) {
   const assetId = resolveNodeAssetId(sourceNode);
-  const clipboardPath = assetId ? clipboard2?.assetPaths?.[assetId] : void 0;
+  const clipboardPath = assetId ? clipboard?.assetPaths?.[assetId] : void 0;
   if (typeof clipboardPath === "string" && clipboardPath.length > 0)
     return clipboardPath;
-  const data2 = sourceNode.data;
-  const dataPath = data2?.path;
+  const data = sourceNode.data;
+  const dataPath = data?.path;
   if (typeof dataPath === "string" && dataPath.length > 0) return dataPath;
   return assetId ? assetMetadataStore.getState().get(assetId)?.path : void 0;
 }
@@ -28,13 +29,13 @@ function inferKind(nodeType) {
   return void 0;
 }
 
-function promoteToPrimary(node2, duplicated, assetMetadataStore) {
-  const { cloneOf: sourceNodeId, ...metaWithoutClone } = node2.meta ?? {};
+function promoteToPrimary(node, duplicated, assetMetadataStore) {
+  const { cloneOf: sourceNodeId, ...metaWithoutClone } = node.meta ?? {};
   const {
     cloneOf: _dataCloneOf,
     assetId: _dataAssetId,
     ...dataWithoutClone
-  } = node2.data ?? {};
+  } = node.data ?? {};
   const pluginId = dataWithoutClone.pluginId;
   const pluginStorageCloneOf =
     typeof pluginId === "string" &&
@@ -50,9 +51,9 @@ function promoteToPrimary(node2, duplicated, assetMetadataStore) {
         }
       : {}),
   };
-  assetMetadataStore.getState().merge(node2.id, duplicated);
+  assetMetadataStore.getState().merge(node.id, duplicated);
   return {
-    ...node2,
+    ...node,
     assetId: duplicated.assetId,
     data: {
       ...dataWithoutClone,
@@ -64,34 +65,34 @@ function promoteToPrimary(node2, duplicated, assetMetadataStore) {
   };
 }
 
-function shouldPreserveImportedMediaClone(sourceNode, clipboard2) {
+function shouldPreserveImportedMediaClone(sourceNode, clipboard) {
   const sourceAssetId = resolveNodeAssetId(sourceNode);
   if (!sourceAssetId) return false;
-  const matchingNodes2 =
-    clipboard2?.nodes.filter(
+  const matchingNodes =
+    clipboard?.nodes.filter(
       (candidate) => resolveNodeAssetId(candidate) === sourceAssetId,
     ) ?? [];
   const primarySource =
-    matchingNodes2.find((candidate) => candidate.meta?.cloneOf == null) ??
-    matchingNodes2[0];
+    matchingNodes.find((candidate) => candidate.meta?.cloneOf == null) ??
+    matchingNodes[0];
   return primarySource != null && primarySource.id !== sourceNode.id;
 }
 
-function retargetImportedMediaClone(node2, duplicated, assetMetadataStore) {
-  const cloneOf = node2.meta?.cloneOf ?? node2.id;
-  assetMetadataStore.getState().merge(node2.id, duplicated);
+function retargetImportedMediaClone(node, duplicated, assetMetadataStore) {
+  const cloneOf = node.meta?.cloneOf ?? node.id;
+  assetMetadataStore.getState().merge(node.id, duplicated);
   return {
-    ...node2,
+    ...node,
     assetId: duplicated.assetId,
     data: {
-      ...(node2.data ?? {}),
+      ...(node.data ?? {}),
       assetId: duplicated.assetId,
       name: duplicated.name,
       path: duplicated.path,
       cloneOf,
     },
     meta: {
-      ...node2.meta,
+      ...node.meta,
       cloneOf,
     },
   };
@@ -100,14 +101,14 @@ function retargetImportedMediaClone(node2, duplicated, assetMetadataStore) {
 function createPromiseDedupe() {
   const inFlight = new Map();
   return {
-    run(key2, factory) {
-      const existing = inFlight.get(key2);
+    run(key, factory) {
+      const existing = inFlight.get(key);
       if (existing) return existing;
       const promise = factory().catch((err) => {
-        inFlight.delete(key2);
+        inFlight.delete(key);
         throw err;
       });
-      inFlight.set(key2, promise);
+      inFlight.set(key, promise);
       return promise;
     },
     size() {
@@ -131,21 +132,21 @@ function createPasteNodeTransformer({
   if (noTextDup && noFileDup && noTableDup && noCrossWsDup) {
     return void 0;
   }
-  const dedupe2 = createPromiseDedupe();
+  const dedupe = createPromiseDedupe();
   const cacheKey = (sourceWorkspace, sourcePath) =>
     `${sourceWorkspace ?? ""}|${sourcePath}`;
-  return async (node2, sourceNode) => {
-    const clipboard2 = getClipboard();
-    const sourceWorkspace = clipboard2?.sourceWorkspace;
+  return async (node, sourceNode) => {
+    const clipboard = getClipboard();
+    const sourceWorkspace = clipboard?.sourceWorkspace;
     const currentWorkspace = getCurrentWorkspace?.();
     const crossWorkspace = isCrossWorkspacePaste(
       sourceWorkspace,
       currentWorkspace,
     );
     if (
-      node2.type === CanvasNodeType.Image ||
-      node2.type === CanvasNodeType.Video ||
-      node2.type === CanvasNodeType.Audio
+      node.type === CanvasNodeType.Image ||
+      node.type === CanvasNodeType.Video ||
+      node.type === CanvasNodeType.Audio
     ) {
       if (!crossWorkspace) {
         const originAssetId =
@@ -153,49 +154,49 @@ function createPasteNodeTransformer({
           sourceNode.assetId.length > 0
             ? sourceNode.assetId
             : void 0) ?? sourceNode.data?.assetId;
-        if (originAssetId && node2.id !== originAssetId) {
+        if (originAssetId && node.id !== originAssetId) {
           const originMeta = assetMetadataStore.getState().get(originAssetId);
           if (originMeta)
-            assetMetadataStore.getState().set(node2.id, originMeta);
+            assetMetadataStore.getState().set(node.id, originMeta);
         }
-        return node2;
+        return node;
       }
-      if (!duplicateAssetByPath) return node2;
+      if (!duplicateAssetByPath) return node;
       const sourcePath = readSourcePath(
         sourceNode,
-        clipboard2,
+        clipboard,
         assetMetadataStore,
       );
-      if (!sourcePath) return node2;
+      if (!sourcePath) return node;
       try {
-        const duplicated = await dedupe2.run(
+        const duplicated = await dedupe.run(
           cacheKey(sourceWorkspace, sourcePath),
           () =>
             duplicateAssetByPath({
               sourceWorkspace,
               sourceRelativePath: sourcePath,
-              expectedKind: inferKind(node2.type),
+              expectedKind: inferKind(node.type),
             }),
         );
         assetMetadataStore.getState().merge(duplicated.assetId, duplicated);
         const rewrittenData = {
-          ...node2.data,
+          ...node.data,
           assetId: duplicated.assetId,
           name: duplicated.name,
           path: duplicated.path,
         };
-        if (shouldPreserveImportedMediaClone(sourceNode, clipboard2)) {
+        if (shouldPreserveImportedMediaClone(sourceNode, clipboard)) {
           return retargetImportedMediaClone(
-            node2,
+            node,
             duplicated,
             assetMetadataStore,
           );
         }
-        const { cloneOf: _metaCloneOf, ...metaWithoutClone } = node2.meta ?? {};
+        const { cloneOf: _metaCloneOf, ...metaWithoutClone } = node.meta ?? {};
         const { cloneOf: _dataCloneOf, ...dataWithoutClone } = rewrittenData;
-        assetMetadataStore.getState().merge(node2.id, duplicated);
+        assetMetadataStore.getState().merge(node.id, duplicated);
         return {
-          ...node2,
+          ...node,
           assetId: duplicated.assetId,
           data: dataWithoutClone,
           meta:
@@ -208,19 +209,19 @@ function createPasteNodeTransformer({
           "[paste-transformer] cross-workspace media duplicate failed:",
           err,
         );
-        return node2;
+        return node;
       }
     }
-    if (node2.type === CanvasNodeType.File) {
+    if (node.type === CanvasNodeType.File) {
       const sourcePath = readSourcePath(
         sourceNode,
-        clipboard2,
+        clipboard,
         assetMetadataStore,
       );
-      if (!sourcePath) return node2;
+      if (!sourcePath) return node;
       if (crossWorkspace && duplicateAssetByPath) {
         try {
-          const duplicated = await dedupe2.run(
+          const duplicated = await dedupe.run(
             cacheKey(sourceWorkspace, sourcePath),
             () =>
               duplicateAssetByPath({
@@ -229,35 +230,35 @@ function createPasteNodeTransformer({
               }),
           );
           assetMetadataStore.getState().merge(duplicated.assetId, duplicated);
-          return promoteToPrimary(node2, duplicated, assetMetadataStore);
+          return promoteToPrimary(node, duplicated, assetMetadataStore);
         } catch (err) {
           console.warn(
             "[paste-transformer] cross-workspace file duplicate failed:",
             err,
           );
-          return node2;
+          return node;
         }
       }
-      if (!duplicateFileAsset) return node2;
+      if (!duplicateFileAsset) return node;
       try {
         const duplicated = await duplicateFileAsset(sourcePath);
         assetMetadataStore.getState().merge(duplicated.assetId, duplicated);
-        return promoteToPrimary(node2, duplicated, assetMetadataStore);
+        return promoteToPrimary(node, duplicated, assetMetadataStore);
       } catch (err) {
         console.warn("[paste-transformer] file duplicate failed:", err);
-        return node2;
+        return node;
       }
     }
-    if (node2.type === CanvasNodeType.Text) {
+    if (node.type === CanvasNodeType.Text) {
       const sourcePath = readSourcePath(
         sourceNode,
-        clipboard2,
+        clipboard,
         assetMetadataStore,
       );
-      if (!sourcePath) return node2;
+      if (!sourcePath) return node;
       if (crossWorkspace && duplicateAssetByPath) {
         try {
-          const duplicated2 = await dedupe2.run(
+          const duplicated = await dedupe.run(
             cacheKey(sourceWorkspace, sourcePath),
             () =>
               duplicateAssetByPath({
@@ -266,43 +267,43 @@ function createPasteNodeTransformer({
                 expectedKind: "text",
               }),
           );
-          assetMetadataStore.getState().merge(duplicated2.assetId, duplicated2);
-          return promoteToPrimary(node2, duplicated2, assetMetadataStore);
+          assetMetadataStore.getState().merge(duplicated.assetId, duplicated);
+          return promoteToPrimary(node, duplicated, assetMetadataStore);
         } catch (err) {
           console.warn(
             "[paste-transformer] cross-workspace text duplicate failed:",
             err,
           );
-          return node2;
+          return node;
         }
       }
-      if (!duplicateTextAsset) return node2;
+      if (!duplicateTextAsset) return node;
       let duplicated;
       try {
         duplicated = await duplicateTextAsset(sourcePath);
       } catch (err) {
         console.warn("[paste-transformer] text duplicate failed:", err);
-        return node2;
+        return node;
       }
       assetMetadataStore.getState().merge(duplicated.assetId, duplicated);
-      return promoteToPrimary(node2, duplicated, assetMetadataStore);
+      return promoteToPrimary(node, duplicated, assetMetadataStore);
     }
-    if (node2.type === CanvasNodeType.Table && duplicateTableAsset) {
+    if (node.type === CanvasNodeType.Table && duplicateTableAsset) {
       const sourceData = sourceNode.data;
       const sourcePath = sourceData?.tablePath;
-      if (!sourcePath) return node2;
+      if (!sourcePath) return node;
       const duplicated = await duplicateTableAsset(
         sourcePath,
         sourceData?.title,
       );
-      const { cloneOf: _metaCloneOf, ...metaWithoutClone } = node2.meta ?? {};
+      const { cloneOf: _metaCloneOf, ...metaWithoutClone } = node.meta ?? {};
       const {
         cloneOf: _dataCloneOf,
         assetId: _dataAssetId,
         ...dataWithoutClone
-      } = node2.data ?? {};
+      } = node.data ?? {};
       return {
-        ...node2,
+        ...node,
         id: crypto.randomUUID(),
         assetId: void 0,
         data: {
@@ -315,12 +316,12 @@ function createPasteNodeTransformer({
           Object.keys(metaWithoutClone).length > 0 ? metaWithoutClone : void 0,
       };
     }
-    return node2;
+    return node;
   };
 }
 
 export function usePasteNodeTransformer({
-  instance: instance2,
+  instance,
   duplicateTextAsset,
   duplicateFileAsset,
   duplicateTableAsset,
@@ -337,9 +338,9 @@ export function usePasteNodeTransformer({
       duplicateAssetByPath,
       getCurrentWorkspace,
     });
-    instance2.setPasteNodeTransformer(transformer);
+    instance.setPasteNodeTransformer(transformer);
     return () => {
-      instance2.setPasteNodeTransformer(void 0);
+      instance.setPasteNodeTransformer(void 0);
     };
   }, [
     assetMetadataStore,
@@ -348,6 +349,6 @@ export function usePasteNodeTransformer({
     duplicateTableAsset,
     duplicateAssetByPath,
     getCurrentWorkspace,
-    instance2,
+    instance,
   ]);
 }

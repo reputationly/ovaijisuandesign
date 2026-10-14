@@ -1,54 +1,56 @@
 // assets-dropzone-empty.jsx
-import { FolderUp, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { FolderUp } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 function useDragDepth() {
-  const [count2, setCount] = reactExports.useState(0);
+  const [count, setCount] = reactExports.useState(0);
   return {
-    count: count2,
-    enter: () => setCount((n2) => n2 + 1),
-    leave: () => setCount((n2) => Math.max(0, n2 - 1)),
+    count,
+    enter: () => setCount((currentCount) => currentCount + 1),
+    leave: () => setCount((currentCount) => Math.max(0, currentCount - 1)),
     reset: () => setCount(0),
   };
 }
 export function AssetsDropzoneEmpty({
-  disabled: disabled2,
+  disabled,
   onPickFiles,
   onOpenPicker,
   title,
   description,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [dragActive, setDragActive] = reactExports.useState(false);
   const dragDepth = useDragDepth();
   return (
     <button
       type="button"
-      disabled={disabled2}
+      disabled={disabled}
       onClick={() => {
-        if (!disabled2) onOpenPicker();
+        if (!disabled) onOpenPicker();
       }}
       onDragEnter={(event) => {
-        if (disabled2) return;
+        if (disabled) return;
         if (!event.dataTransfer.types.includes("Files")) return;
         event.preventDefault();
         dragDepth.enter();
         setDragActive(true);
       }}
       onDragOver={(event) => {
-        if (disabled2) return;
+        if (disabled) return;
         if (!event.dataTransfer.types.includes("Files")) return;
         event.preventDefault();
         event.dataTransfer.dropEffect = "copy";
       }}
       onDragLeave={(event) => {
-        if (disabled2) return;
+        if (disabled) return;
         if (!event.dataTransfer.types.includes("Files")) return;
         dragDepth.leave();
         if (dragDepth.count <= 1) setDragActive(false);
       }}
       onDrop={(event) => {
-        if (disabled2) return;
+        if (disabled) return;
         if (!event.dataTransfer.types.includes("Files")) return;
         event.preventDefault();
         dragDepth.reset();
@@ -58,13 +60,13 @@ export function AssetsDropzoneEmpty({
       }}
       className={cn(
         "flex flex-1 min-h-0 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border/70 bg-card/40 py-8 text-center transition-colors",
-        !disabled2 &&
+        !disabled &&
           "cursor-pointer hover:border-foreground/25 hover:bg-muted/40",
         dragActive && "border-brand-accent bg-brand-accent/[0.06]",
-        disabled2 && "cursor-not-allowed opacity-60",
+        disabled && "cursor-not-allowed opacity-60",
       )}
       data-action-ui-id="project-assets.dropzone"
-      aria-disabled={disabled2}
+      aria-disabled={disabled}
     >
       <span
         className={cn(
@@ -76,10 +78,10 @@ export function AssetsDropzoneEmpty({
       </span>
       <div className="flex max-w-sm flex-col gap-1 px-6">
         <p className="text-body-14 font-medium text-foreground">
-          {title ?? t2("projectAssets.dropzoneTitle")}
+          {title ?? translate("projectAssets.dropzoneTitle")}
         </p>
         <p className="text-caption-11 text-muted-foreground">
-          {description ?? t2("projectAssets.dropzoneDesc")}
+          {description ?? translate("projectAssets.dropzoneDesc")}
         </p>
       </div>
     </button>

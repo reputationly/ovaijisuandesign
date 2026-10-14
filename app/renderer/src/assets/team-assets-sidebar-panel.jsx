@@ -1,8 +1,13 @@
 // team-assets-sidebar-panel.jsx
-import { ChevronDown, ChevronRight$1 as ChevronRight, FolderInput, FolderPlus, getVisibleCloudUploads, jsxRuntimeExports, LoaderCircle, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronRight$1 as ChevronRight, FolderInput, FolderPlus, LoaderCircle } from "../media-editing/lucide-icon-wraps.js";
+import { getVisibleCloudUploads } from "./visible-cloud-uploads.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import {
   AssetRowThumb,
   useAnchorProjectAssets,
@@ -82,39 +87,39 @@ import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { MediaLightbox } from "./text-preview.jsx";
 function flattenCloudTree(childrenByFolder, expanded) {
   const rows = [];
-  const visit2 = (folderId, depth2, segments, parentIds) => {
-    const children2 = childrenByFolder.get(folderId) ?? [];
-    for (const node2 of children2.filter((child) => child.kind === "folder")) {
+  const visit = (folderId, depth, segments, parentIds) => {
+    const children = childrenByFolder.get(folderId) ?? [];
+    for (const node of children.filter((child) => child.kind === "folder")) {
       rows.push({
-        node: node2,
-        depth: depth2,
+        node,
+        depth,
         segments,
         parentIds,
       });
-      if (expanded.has(node2.id)) {
-        visit2(
-          node2.id,
-          depth2 + 1,
-          [...segments, node2.name],
-          [...parentIds, node2.id],
+      if (expanded.has(node.id)) {
+        visit(
+          node.id,
+          depth + 1,
+          [...segments, node.name],
+          [...parentIds, node.id],
         );
       }
     }
-    for (const node2 of children2.filter((child) => child.kind === "file")) {
+    for (const node of children.filter((child) => child.kind === "file")) {
       rows.push({
-        node: node2,
-        depth: depth2,
+        node,
+        depth,
         segments,
         parentIds,
       });
     }
   };
-  visit2("", 0, [], []);
+  visit("", 0, [], []);
   return rows;
 }
-function waitForTransferDone(service2, transferId) {
+function waitForTransferDone(service, transferId) {
   return new Promise((resolve, reject) => {
-    const settle2 = (status, error) => {
+    const settle = (status, error) => {
       if (status === "done") {
         subscription.dispose();
         resolve();
@@ -123,43 +128,43 @@ function waitForTransferDone(service2, transferId) {
         reject(new Error(error ?? status));
       }
     };
-    const subscription = service2.onDidChangeTransfer((item) => {
-      if (item.id === transferId) settle2(item.status, item.error);
+    const subscription = service.onDidChangeTransfer((item) => {
+      if (item.id === transferId) settle(item.status, item.error);
     });
-    void service2.listTransfers().then((items) => {
+    void service.listTransfers().then((items) => {
       const item = items.find((entry) => entry.id === transferId);
-      if (item) settle2(item.status, item.error);
+      if (item) settle(item.status, item.error);
     });
   });
 }
-function mediaKind(node2) {
-  if (node2.mimeType.startsWith("image/")) return "image";
-  if (node2.mimeType.startsWith("video/")) return "video";
-  const ext = node2.name.split(".").pop()?.toLowerCase() ?? "";
+function mediaKind(node) {
+  if (node.mimeType.startsWith("image/")) return "image";
+  if (node.mimeType.startsWith("video/")) return "video";
+  const ext = node.name.split(".").pop()?.toLowerCase() ?? "";
   if (["png", "jpg", "jpeg", "gif", "webp"].includes(ext)) return "image";
   if (["mp4", "webm", "mov"].includes(ext)) return "video";
   return void 0;
 }
-function cloudThumbSrc(node2) {
-  return node2.review === "pass" && node2.cdnUrl && mediaKind(node2) === "image"
-    ? node2.cdnUrl
+function cloudThumbSrc(node) {
+  return node.review === "pass" && node.cdnUrl && mediaKind(node) === "image"
+    ? node.cdnUrl
     : void 0;
 }
-function ReviewBadge({ node: node2 }) {
-  const { t: t2 } = useTranslation();
-  if (node2.kind === "folder" || node2.review === "pass") return null;
+function ReviewBadge({ node }) {
+  const { t: translate } = useTranslation();
+  if (node.kind === "folder" || node.review === "pass") return null;
   return (
     <span
       className={cn(
         "shrink-0 rounded-full px-1.5 py-px text-[10px] font-medium",
-        node2.review === "reviewing"
+        node.review === "reviewing"
           ? "bg-muted text-muted-foreground"
           : "bg-destructive/10 text-destructive",
       )}
     >
-      {node2.review === "reviewing"
-        ? t2("cloudAssets.reviewing")
-        : t2("cloudAssets.blocked")}
+      {node.review === "reviewing"
+        ? translate("cloudAssets.reviewing")
+        : translate("cloudAssets.blocked")}
     </span>
   );
 }
@@ -182,18 +187,18 @@ function CloudAssetGridCard({
   dndProps,
   dropActive,
 }) {
-  const { t: t2 } = useTranslation();
-  const node2 = row.node;
-  const isFolder = node2.kind === "folder";
+  const { t: translate } = useTranslation();
+  const node = row.node;
+  const isFolder = node.kind === "folder";
   const typeBucket = resolveTypeBucket({
-    kind: node2.kind,
-    name: node2.name,
-    mime: node2.mimeType,
+    kind: node.kind,
+    name: node.name,
+    mime: node.mimeType,
   });
-  const Chevron2 = expanded ? ChevronDown : ChevronRight;
-  const canFetch2 = node2.review === "pass" && !!node2.cdnUrl;
-  const canDownload = isCloudFileDownloadEnabled(node2, syncState);
-  const canUse = downloaded || canFetch2;
+  const Chevron = expanded ? ChevronDown : ChevronRight;
+  const canFetch = node.review === "pass" && !!node.cdnUrl;
+  const canDownload = isCloudFileDownloadEnabled(node, syncState);
+  const canUse = downloaded || canFetch;
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -201,12 +206,12 @@ function CloudAssetGridCard({
           <button
             type="button"
             aria-expanded={isFolder ? expanded : void 0}
-            onClick={() => (isFolder ? onToggle(node2) : onClick(node2))}
+            onClick={() => (isFolder ? onToggle(node) : onClick(node))}
             {...dndProps}
             className={cn(
               "group relative flex min-w-0 flex-col rounded-lg p-1 text-left outline-none transition-colors hover:bg-foreground/5 focus-visible:ring-1 focus-visible:ring-ring/50",
               !isFolder && "cursor-grab active:cursor-grabbing",
-              node2.review === "block" && "opacity-60",
+              node.review === "block" && "opacity-60",
               dropActive && "bg-foreground/[0.12]",
             )}
             data-action-ui-id={
@@ -216,24 +221,24 @@ function CloudAssetGridCard({
             }
           >
             <ProjectAssetThumbnail
-              name={node2.name}
-              kind={node2.kind}
+              name={node.name}
+              kind={node.kind}
               typeBucket={typeBucket}
-              thumbnailSrc={isFolder ? void 0 : cloudThumbSrc(node2)}
+              thumbnailSrc={isFolder ? void 0 : cloudThumbSrc(node)}
               variant="grid"
-              muted={node2.review === "reviewing"}
+              muted={node.review === "reviewing"}
               className="aspect-square rounded-sm border-0"
             />
             {!isFolder ? (
               <span className="absolute left-2 top-2 flex max-w-[calc(100%-1rem)] items-center gap-1">
-                <ReviewBadge node={node2} />
+                <ReviewBadge node={node} />
                 <SyncBadge state={syncState} className="text-[10px]" />
               </span>
             ) : null}
             <span className="flex min-w-0 items-center gap-1 px-1 py-1">
               {isFolder ? (
                 <Icon
-                  icon={Chevron2}
+                  icon={Chevron}
                   size="xs"
                   strokeWidth={1.5}
                   className="shrink-0 text-muted-foreground"
@@ -241,9 +246,9 @@ function CloudAssetGridCard({
               ) : null}
               <span
                 className="min-w-0 flex-1 truncate text-[12px] text-foreground/70"
-                title={node2.name}
+                title={node.name}
               >
-                {node2.name}
+                {node.name}
               </span>
               {isFolder && loading ? (
                 <LoaderCircle
@@ -261,15 +266,15 @@ function CloudAssetGridCard({
           <>
             <ContextMenuItem onClick={() => onDownloadFolder(row)}>
               <Icon icon={Download} size="sm" strokeWidth={1.5} />
-              {t2("cloudAssets.download")}
+              {translate("cloudAssets.download")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => onRename(row)}>
               <PencilIcon size={14} strokeWidth={1.5} />
-              {t2("cloudAssets.rename")}
+              {translate("cloudAssets.rename")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => onMove(row)}>
               <Icon icon={FolderInput} size="sm" strokeWidth={1.5} />
-              {t2("cloudAssets.moveTo")}
+              {translate("cloudAssets.moveTo")}
             </ContextMenuItem>
           </>
         ) : (
@@ -279,45 +284,45 @@ function CloudAssetGridCard({
               onClick={() => void onAddToCanvas(row)}
             >
               <Icon icon={ImageOutlineIcon} size="sm" strokeWidth={1.5} />
-              {t2("localAssets.addToCanvas")}
+              {translate("localAssets.addToCanvas")}
             </ContextMenuItem>
             <ContextMenuItem
               disabled={!canUse}
               onClick={() => void onAddToAgent(row)}
             >
               <AddToChatIcon size={14} />
-              {t2("localAssets.addToAgent")}
+              {translate("localAssets.addToAgent")}
             </ContextMenuItem>
             <ContextMenuItem
               disabled={!canDownload}
               onClick={() => void onDownload(row)}
             >
               <Icon icon={Download} size="sm" strokeWidth={1.5} />
-              {t2("cloudAssets.download")}
+              {translate("cloudAssets.download")}
             </ContextMenuItem>
             <ContextMenuItem
               disabled={!downloaded}
-              onClick={() => void onReveal(node2)}
+              onClick={() => void onReveal(node)}
             >
               <Icon icon={FolderOpen} size="sm" strokeWidth={1.5} />
               <PlatformFileManagerLabel />
             </ContextMenuItem>
             <ContextMenuItem
-              disabled={node2.review === "block"}
+              disabled={node.review === "block"}
               onClick={() => onRename(row)}
             >
               <PencilIcon size={14} strokeWidth={1.5} />
-              {t2("cloudAssets.rename")}
+              {translate("cloudAssets.rename")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => onMove(row)}>
               <Icon icon={FolderInput} size="sm" strokeWidth={1.5} />
-              {t2("cloudAssets.moveTo")}
+              {translate("cloudAssets.moveTo")}
             </ContextMenuItem>
           </>
         )}
         <ContextMenuItem variant="destructive" onClick={() => onDelete(row)}>
           <Icon icon={Trash2} size="sm" strokeWidth={1.5} />
-          {t2("cloudAssets.delete")}
+          {translate("cloudAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -336,8 +341,8 @@ function CloudFolderRow({
   dndProps,
   dropActive,
 }) {
-  const { t: t2 } = useTranslation();
-  const Chevron2 = expanded ? ChevronDown : ChevronRight;
+  const { t: translate } = useTranslation();
+  const Chevron = expanded ? ChevronDown : ChevronRight;
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -355,7 +360,7 @@ function CloudFolderRow({
             }}
             data-action-ui-id="project-assets-sidebar.cloud-folder-row"
           >
-            <Chevron2
+            <Chevron
               size={13}
               strokeWidth={1.5}
               className="shrink-0 text-muted-foreground/70"
@@ -384,19 +389,19 @@ function CloudFolderRow({
       <ContextMenuContent>
         <ContextMenuItem onClick={() => onDownload(row)}>
           <Download size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.download")}
+          {translate("cloudAssets.download")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onRename(row)}>
           <PencilIcon size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.rename")}
+          {translate("cloudAssets.rename")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onMove(row)}>
           <FolderInput size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.moveTo")}
+          {translate("cloudAssets.moveTo")}
         </ContextMenuItem>
         <ContextMenuItem variant="destructive" onClick={() => onDelete(row)}>
           <Trash2 size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.delete")}
+          {translate("cloudAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -417,10 +422,10 @@ function CloudFileRow({
   onDelete,
   dndProps,
 }) {
-  const { t: t2 } = useTranslation();
-  const canFetch2 = row.node.review === "pass" && !!row.node.cdnUrl;
+  const { t: translate } = useTranslation();
+  const canFetch = row.node.review === "pass" && !!row.node.cdnUrl;
   const canDownload = isCloudFileDownloadEnabled(row.node, syncState);
-  const canUse = downloaded || canFetch2;
+  const canUse = downloaded || canFetch;
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -465,21 +470,21 @@ function CloudFileRow({
           onClick={() => void onAddToCanvas(row)}
         >
           <ImageOutlineIcon size={14} strokeWidth={1.5} />
-          {t2("localAssets.addToCanvas")}
+          {translate("localAssets.addToCanvas")}
         </ContextMenuItem>
         <ContextMenuItem
           disabled={!canUse}
           onClick={() => void onAddToAgent(row)}
         >
           <AddToChatIcon size={14} strokeWidth={1.5} />
-          {t2("localAssets.addToAgent")}
+          {translate("localAssets.addToAgent")}
         </ContextMenuItem>
         <ContextMenuItem
           disabled={!canDownload}
           onClick={() => void onDownload(row)}
         >
           <Download size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.download")}
+          {translate("cloudAssets.download")}
         </ContextMenuItem>
         <ContextMenuItem
           disabled={!downloaded}
@@ -493,29 +498,29 @@ function CloudFileRow({
           onClick={() => onRename(row)}
         >
           <PencilIcon size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.rename")}
+          {translate("cloudAssets.rename")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onMove(row)}>
           <FolderInput size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.moveTo")}
+          {translate("cloudAssets.moveTo")}
         </ContextMenuItem>
         <ContextMenuItem variant="destructive" onClick={() => onDelete(row)}>
           <Trash2 size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.delete")}
+          {translate("cloudAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );
 }
 export function TeamAssetsSidebarPanel({
-  project: project2,
+  project,
   cloudProjectId,
   onToolbarStateChange,
   searchQuery,
 }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
-  const service2 = useProjectAssetsService();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
+  const service = useProjectAssetsService();
   const { ensureProjectFolderName } = useProjectActions();
   const review = useCloudReviewNodes(cloudProjectId);
   const transfers = useTransfers();
@@ -538,47 +543,47 @@ export function TeamAssetsSidebarPanel({
   const [localRecords, setLocalRecords] = reactExports.useState(new Map());
   reactExports.useEffect(() => {
     let disposed = false;
-    void ensureProjectFolderName(project2.id).then((name2) => {
-      if (!disposed) setFolderName(name2);
+    void ensureProjectFolderName(project.id).then((resolvedFolderName) => {
+      if (!disposed) setFolderName(resolvedFolderName);
     });
     return () => {
       disposed = true;
     };
-  }, [ensureProjectFolderName, project2.id]);
+  }, [ensureProjectFolderName, project.id]);
   reactExports.useEffect(() => {
     if (!folderName) return;
     let disposed = false;
-    void service2.getAssetsDir(folderName).then((dir) => {
+    void service.getAssetsDir(folderName).then((dir) => {
       if (!disposed) setAssetsDir(dir);
     });
     return () => {
       disposed = true;
     };
-  }, [folderName, service2]);
+  }, [folderName, service]);
   const refreshLocalRecords = reactExports.useCallback(async () => {
     if (!folderName) return;
     try {
-      const records = await service2.listAssets(folderName);
-      setLocalRecords(new Map(records.map((record2) => [record2.id, record2])));
+      const records = await service.listAssets(folderName);
+      setLocalRecords(new Map(records.map((record) => [record.id, record])));
     } catch {}
-  }, [folderName, service2]);
+  }, [folderName, service]);
   reactExports.useEffect(() => {
     void refreshLocalRecords();
   }, [refreshLocalRecords]);
   reactExports.useEffect(() => {
     if (!folderName) return;
-    const subscription = service2.onDidChangeAssets((event) => {
+    const subscription = service.onDidChangeAssets((event) => {
       if (event.projectFolderName === folderName) void refreshLocalRecords();
     });
     return () => subscription.dispose();
-  }, [folderName, refreshLocalRecords, service2]);
+  }, [folderName, refreshLocalRecords, service]);
   const syncMap = reactExports.useMemo(() => {
-    const next2 = new Map();
-    for (const [id2, record2] of localRecords) {
-      if (record2.remoteUpdatedAt !== void 0)
-        next2.set(id2, record2.remoteUpdatedAt);
+    const next = new Map();
+    for (const [assetId, record] of localRecords) {
+      if (record.remoteUpdatedAt !== void 0)
+        next.set(assetId, record.remoteUpdatedAt);
     }
-    return next2;
+    return next;
   }, [localRecords]);
   const [childrenByFolder, setChildrenByFolder] = reactExports.useState(
     new Map(),
@@ -589,9 +594,9 @@ export function TeamAssetsSidebarPanel({
   const loadFolder = reactExports.useCallback(
     async (folderId, silent = false) => {
       const epoch = epochRef.current;
-      setLoadingFolders((previous2) => new Set(previous2).add(folderId));
+      setLoadingFolders((previous) => new Set(previous).add(folderId));
       try {
-        const all2 = [];
+        const all = [];
         let cursor = "";
         do {
           const page = await listCloudFolderChildren(
@@ -599,28 +604,28 @@ export function TeamAssetsSidebarPanel({
             folderId,
             cursor || void 0,
           );
-          all2.push(...page.nodes);
+          all.push(...page.nodes);
           cursor = page.hasMore ? page.nextCursor : "";
         } while (cursor);
         if (epoch !== epochRef.current) return;
-        setChildrenByFolder((previous2) =>
-          new Map(previous2).set(folderId, all2),
+        setChildrenByFolder((previous) =>
+          new Map(previous).set(folderId, all),
         );
       } catch (err) {
         if (!silent && epoch === epochRef.current) {
           dedupedToast.error(
-            cloudErrorDisplayMessage(err) ?? t2("cloudAssets.failServer"),
+            cloudErrorDisplayMessage(err) ?? translate("cloudAssets.failServer"),
           );
         }
       } finally {
-        setLoadingFolders((previous2) => {
-          const next2 = new Set(previous2);
-          next2.delete(folderId);
-          return next2;
+        setLoadingFolders((previous) => {
+          const next = new Set(previous);
+          next.delete(folderId);
+          return next;
         });
       }
     },
-    [cloudProjectId, t2],
+    [cloudProjectId, translate],
   );
   reactExports.useEffect(() => {
     epochRef.current += 1;
@@ -644,16 +649,16 @@ export function TeamAssetsSidebarPanel({
     return () => subscription.dispose();
   }, [cloudProjectId, refresh]);
   const toggleFolder = reactExports.useCallback(
-    (node2) => {
-      const willExpand = !expanded.has(node2.id);
-      setExpanded((previous2) => {
-        const next2 = new Set(previous2);
-        if (next2.has(node2.id)) next2.delete(node2.id);
-        else next2.add(node2.id);
-        return next2;
+    (node) => {
+      const willExpand = !expanded.has(node.id);
+      setExpanded((previous) => {
+        const next = new Set(previous);
+        if (next.has(node.id)) next.delete(node.id);
+        else next.add(node.id);
+        return next;
       });
-      if (willExpand && !childrenByFolder.has(node2.id))
-        void loadFolder(node2.id);
+      if (willExpand && !childrenByFolder.has(node.id))
+        void loadFolder(node.id);
     },
     [childrenByFolder, expanded, loadFolder],
   );
@@ -668,25 +673,25 @@ export function TeamAssetsSidebarPanel({
     [projectTransfers, trimmedSearch],
   );
   const hasVisibleUploads = visibleUploads.length > 0;
-  const search2 = useCloudSearch(
+  const search = useCloudSearch(
     trimmedSearch ? cloudProjectId : void 0,
     trimmedSearch,
   );
   const isSearching = trimmedSearch.length > 0;
   const searchRows = reactExports.useMemo(() => {
     if (!isSearching) return [];
-    return search2.nodes.map((node2) => {
+    return search.nodes.map((node) => {
       const crumbs =
-        search2.folderPathsById.get(normalizeCloudParentId(node2.parentId)) ??
+        search.folderPathsById.get(normalizeCloudParentId(node.parentId)) ??
         [];
       return {
-        node: node2,
+        node,
         depth: 0,
         segments: crumbs.map((crumb) => crumb.name),
         parentIds: crumbs.map((crumb) => crumb.id),
       };
     });
-  }, [isSearching, search2.nodes, search2.folderPathsById]);
+  }, [isSearching, search.nodes, search.folderPathsById]);
   const [viewMode, setViewMode] = reactExports.useState("tree");
   const handleMove = reactExports.useCallback(
     async (row, target) => {
@@ -694,14 +699,14 @@ export function TeamAssetsSidebarPanel({
         await moveCloudNode(row.node.id, target.folderId);
       } catch (err) {
         dedupedToast.error(
-          cloudErrorDisplayMessage(err) ?? t2("cloudAssets.failServer"),
+          cloudErrorDisplayMessage(err) ?? translate("cloudAssets.failServer"),
         );
         return;
       }
       if (folderName) {
         try {
           if (row.node.kind === "folder") {
-            await service2.moveLocalFolder(
+            await service.moveLocalFolder(
               folderName,
               [...row.segments, row.node.name],
               target.segments,
@@ -711,7 +716,7 @@ export function TeamAssetsSidebarPanel({
               },
             );
           } else {
-            await service2.moveLocalAsset(
+            await service.moveLocalAsset(
               folderName,
               row.node.id,
               target.segments,
@@ -723,23 +728,23 @@ export function TeamAssetsSidebarPanel({
           }
         } catch {
           dedupedToast.warning(
-            t2("cloudAssets.moveLocalFailed", {
+            translate("cloudAssets.moveLocalFailed", {
               name: row.node.name,
             }),
           );
         }
       }
       if (target.folderId && !expanded.has(target.folderId)) {
-        setChildrenByFolder((previous2) => {
-          if (!previous2.has(target.folderId)) return previous2;
-          const next2 = new Map(previous2);
-          next2.delete(target.folderId);
-          return next2;
+        setChildrenByFolder((previous) => {
+          if (!previous.has(target.folderId)) return previous;
+          const next = new Map(previous);
+          next.delete(target.folderId);
+          return next;
         });
       }
       refresh(true);
     },
-    [expanded, folderName, refresh, service2, t2],
+    [expanded, folderName, refresh, service, translate],
   );
   const canDropRow = reactExports.useCallback((row, target) => {
     if (row.node.kind === "folder" && target.idPath.includes(row.node.id))
@@ -763,17 +768,17 @@ export function TeamAssetsSidebarPanel({
         onDragStart: (event) => {
           moveDnd.startDrag(event, row);
           if (row.node.kind !== "file") return;
-          const record2 = localRecords.get(row.node.id);
-          if (!record2 || !assetsDir || !folderName) return;
+          const record = localRecords.get(row.node.id);
+          if (!record || !assetsDir || !folderName) return;
           const item = {
             ...buildResourceDragItem(
-              `${assetsDir}/${record2.relPath}`,
-              record2.relPath,
-              record2.name,
+              `${assetsDir}/${record.relPath}`,
+              record.relPath,
+              record.name,
               false,
               void 0,
               {
-                assetId: record2.id,
+                assetId: record.id,
                 projectFolderName: folderName,
               },
             ),
@@ -828,25 +833,25 @@ export function TeamAssetsSidebarPanel({
   const ensureLocalCopy = reactExports.useCallback(
     async (row) => {
       if (!folderName) return null;
-      const find2 = async () => {
-        const records = await service2.listAssets(folderName);
-        const record2 = records.find((entry) => entry.id === row.node.id);
-        if (!record2) return null;
-        const absolute = await service2.getAssetAbsolutePath(
+      const findExistingAsset = async () => {
+        const records = await service.listAssets(folderName);
+        const record = records.find((entry) => entry.id === row.node.id);
+        if (!record) return null;
+        const absolute = await service.getAssetAbsolutePath(
           folderName,
           row.node.id,
         );
         return absolute
           ? {
               absolute,
-              record: record2,
+              record,
             }
           : null;
       };
-      const existing = await find2();
+      const existing = await findExistingAsset();
       if (existing) return existing;
       if (row.node.review !== "pass" || !row.node.cdnUrl) return null;
-      const transfer = await service2.startDownload({
+      const transfer = await service.startDownload({
         projectFolderName: folderName,
         cloudProjectId,
         nodeId: row.node.id,
@@ -858,45 +863,45 @@ export function TeamAssetsSidebarPanel({
         remoteUpdatedAt: row.node.updatedAt || void 0,
         remoteCreatedAt: row.node.createdAt || void 0,
       });
-      await waitForTransferDone(service2, transfer.id);
+      await waitForTransferDone(service, transfer.id);
       void refreshLocalRecords();
-      return find2();
+      return findExistingAsset();
     },
-    [cloudProjectId, folderName, refreshLocalRecords, service2],
+    [cloudProjectId, folderName, refreshLocalRecords, service],
   );
   const withLocalCopy = reactExports.useCallback(
     async (row, action) => {
       const needsDownload = !localRecords.has(row.node.id);
       const toastId = needsDownload
-        ? dedupedToast.loading(t2("cloudAssets.statusDownloading"))
+        ? dedupedToast.loading(translate("cloudAssets.statusDownloading"))
         : void 0;
       try {
-        const copy2 = await ensureLocalCopy(row);
-        if (!copy2) {
+        const copy = await ensureLocalCopy(row);
+        if (!copy) {
           dedupedToast.error(
-            t2("localAssets.importFailed", {
+            translate("localAssets.importFailed", {
               name: row.node.name,
             }),
           );
           return;
         }
-        await action(copy2);
+        await action(copy);
       } catch (err) {
         dedupedToast.error(err instanceof Error ? err.message : String(err));
       } finally {
         if (toastId !== void 0) dedupedToast.dismiss(toastId);
       }
     },
-    [ensureLocalCopy, localRecords, t2],
+    [ensureLocalCopy, localRecords, translate],
   );
   const anchorLocalCopy = reactExports.useCallback(
-    async ({ absolute, record: record2 }) => {
+    async ({ absolute, record }) => {
       if (!folderName) return void 0;
       try {
         const [anchored] = await anchorProjectAssets([
           {
             path: absolute,
-            assetId: record2.id,
+            assetId: record.id,
             projectFolderName: folderName,
           },
         ]);
@@ -904,30 +909,30 @@ export function TeamAssetsSidebarPanel({
         return anchored;
       } catch {
         dedupedToast.error(
-          t2("localAssets.importFailed", {
-            name: record2.name,
+          translate("localAssets.importFailed", {
+            name: record.name,
           }),
         );
         return void 0;
       }
     },
-    [anchorProjectAssets, folderName, t2],
+    [anchorProjectAssets, folderName, translate],
   );
   const handleAddToCanvas = reactExports.useCallback(
     (row) =>
-      withLocalCopy(row, async (copy2) => {
+      withLocalCopy(row, async (copy) => {
         if (!folderName) return;
-        const { absolute, record: record2 } = copy2;
+        const { absolute, record } = copy;
         workspaceEvents.fireAddToCanvas([
           {
             ...buildResourceDragItem(
               absolute,
-              record2.relPath,
-              record2.name,
+              record.relPath,
+              record.name,
               false,
               void 0,
               {
-                assetId: record2.id,
+                assetId: record.id,
                 projectFolderName: folderName,
               },
             ),
@@ -939,32 +944,32 @@ export function TeamAssetsSidebarPanel({
   );
   const handleAddToAgent = reactExports.useCallback(
     (row) =>
-      withLocalCopy(row, async (copy2) => {
-        const anchored = await anchorLocalCopy(copy2);
+      withLocalCopy(row, async (copy) => {
+        const anchored = await anchorLocalCopy(copy);
         if (anchored)
-          workspaceEvents.fireAddToChat(anchored.path, copy2.record.name);
+          workspaceEvents.fireAddToChat(anchored.path, copy.record.name);
       }),
     [anchorLocalCopy, withLocalCopy],
   );
   const handleReveal = reactExports.useCallback(
-    async (node2) => {
+    async (node) => {
       if (!folderName) return;
-      const absolute = await service2.getAssetAbsolutePath(
+      const absolute = await service.getAssetAbsolutePath(
         folderName,
-        node2.id,
+        node.id,
       );
-      if (!absolute || !platform2.shell.showItemInFolder) {
+      if (!absolute || !platform.shell.showItemInFolder) {
         dedupedToast.error(
-          t2("localAssets.openFailed", {
-            name: node2.name,
+          translate("localAssets.openFailed", {
+            name: node.name,
           }),
         );
         void refreshLocalRecords();
         return;
       }
-      await platform2.shell.showItemInFolder(absolute);
+      await platform.shell.showItemInFolder(absolute);
     },
-    [folderName, platform2.shell, refreshLocalRecords, service2, t2],
+    [folderName, platform.shell, refreshLocalRecords, service, translate],
   );
   const [newFolderOpen, setNewFolderOpen] = reactExports.useState(false);
   const [renameTarget, setRenameTarget] = reactExports.useState(null);
@@ -1008,7 +1013,7 @@ export function TeamAssetsSidebarPanel({
       }
       downloadStartingIdsRef.current.add(row.node.id);
       try {
-        await service2.startDownload({
+        await service.startDownload({
           projectFolderName: folderName,
           cloudProjectId,
           nodeId: row.node.id,
@@ -1026,30 +1031,30 @@ export function TeamAssetsSidebarPanel({
         downloadStartingIdsRef.current.delete(row.node.id);
       }
     },
-    [cloudProjectId, downloadingIds, folderName, service2],
+    [cloudProjectId, downloadingIds, folderName, service],
   );
   const handleDownloadFolder = reactExports.useCallback(
     async (row) => {
       if (!folderName) return;
       try {
-        const summary = await service2.startFolderDownload({
+        const summary = await service.startFolderDownload({
           projectFolderName: folderName,
           cloudProjectId,
           folderNodeId: row.node.id,
           folderName: row.node.name,
           folderSegments: [...row.segments, row.node.name],
         });
-        toastFolderDownloadSummary(t2, summary);
+        toastFolderDownloadSummary(translate, summary);
       } catch (err) {
         dedupedToast.error(
           cloudErrorDisplayMessage(err) ??
-            t2("cloudAssets.folderDownloadFailed", {
-              message: t2("cloudAssets.failServer"),
+            translate("cloudAssets.folderDownloadFailed", {
+              message: translate("cloudAssets.failServer"),
             }),
         );
       }
     },
-    [cloudProjectId, folderName, service2, t2],
+    [cloudProjectId, folderName, service, translate],
   );
   const handleUploadPicked = reactExports.useCallback(
     async (files) => {
@@ -1059,11 +1064,11 @@ export function TeamAssetsSidebarPanel({
         (file) => window.hilo?.webUtils?.getPathForFile(file),
       );
       for (const rejection of rejected) {
-        dedupedToast.error(rejectionToastText(t2, rejection));
+        dedupedToast.error(rejectionToastText(translate, rejection));
       }
       for (const entry of accepted) {
         try {
-          await service2.startUpload({
+          await service.startUpload({
             projectFolderName: folderName,
             cloudProjectId,
             parentId: "",
@@ -1078,7 +1083,7 @@ export function TeamAssetsSidebarPanel({
           });
         } catch (err) {
           dedupedToast.error(
-            t2("cloudAssets.uploadStartFailed", {
+            translate("cloudAssets.uploadStartFailed", {
               name: entry.file.name,
               message: err instanceof Error ? err.message : String(err),
             }),
@@ -1086,39 +1091,39 @@ export function TeamAssetsSidebarPanel({
         }
       }
     },
-    [cloudProjectId, folderName, service2, t2],
+    [cloudProjectId, folderName, service, translate],
   );
-  const handleDelete2 = reactExports.useCallback(
-    async (node2) => {
-      await deleteCloudNode(node2.id);
+  const handleDelete = reactExports.useCallback(
+    async (node) => {
+      await deleteCloudNode(node.id);
       if (folderName) {
         try {
-          if (node2.kind === "folder") {
-            await service2.deleteLocalFolder(folderName, [
+          if (node.kind === "folder") {
+            await service.deleteLocalFolder(folderName, [
               ...(deleteTarget?.segments ?? []),
-              node2.name,
+              node.name,
             ]);
           } else {
-            await service2.deleteLocalAsset(folderName, node2.id);
+            await service.deleteLocalAsset(folderName, node.id);
           }
         } catch {
           dedupedToast.warning(
-            t2("cloudAssets.deleteLocalFailed", {
-              name: node2.name,
+            translate("cloudAssets.deleteLocalFailed", {
+              name: node.name,
             }),
           );
         }
       }
       refresh(true);
     },
-    [deleteTarget, folderName, refresh, service2, t2],
+    [deleteTarget, folderName, refresh, service, translate],
   );
   const handleRenamed = reactExports.useCallback(
     async (row, newName) => {
       if (folderName) {
         try {
           if (row.node.kind === "folder") {
-            await service2.renameLocalFolder(
+            await service.renameLocalFolder(
               folderName,
               [...row.segments, row.node.name],
               newName,
@@ -1128,10 +1133,10 @@ export function TeamAssetsSidebarPanel({
               },
             );
           } else {
-            const snapshot2 = syncMap.get(row.node.id);
+            const snapshot = syncMap.get(row.node.id);
             const wasSynced =
-              snapshot2 !== void 0 && snapshot2 >= row.node.updatedAt;
-            await service2.renameLocalAsset(folderName, row.node.id, newName, {
+              snapshot !== void 0 && snapshot >= row.node.updatedAt;
+            await service.renameLocalAsset(folderName, row.node.id, newName, {
               onConflict: "uniquify",
               missingOk: true,
               ...(wasSynced && row.node.updatedAt
@@ -1143,7 +1148,7 @@ export function TeamAssetsSidebarPanel({
           }
         } catch {
           dedupedToast.warning(
-            t2("cloudAssets.renameLocalFailed", {
+            translate("cloudAssets.renameLocalFailed", {
               name: row.node.name,
             }),
           );
@@ -1152,31 +1157,31 @@ export function TeamAssetsSidebarPanel({
       }
       refresh(true);
     },
-    [folderName, refresh, refreshLocalRecords, service2, syncMap, t2],
+    [folderName, refresh, refreshLocalRecords, service, syncMap, translate],
   );
-  const handleFileClick = reactExports.useCallback((node2) => {
-    if (node2.review !== "pass" || !node2.cdnUrl) return;
-    const media = mediaKind(node2);
+  const handleFileClick = reactExports.useCallback((node) => {
+    if (node.review !== "pass" || !node.cdnUrl) return;
+    const media = mediaKind(node);
     if (media)
       setPreview({
         kind: media,
-        node: node2,
+        node,
       });
   }, []);
   const handleDeleteBlocked = reactExports.useCallback(
-    async (node2) => {
+    async (node) => {
       try {
-        await deleteCloudNode(node2.id);
+        await deleteCloudNode(node.id);
       } catch (err) {
         dedupedToast.error(
-          cloudErrorDisplayMessage(err) ?? t2("cloudAssets.failServer"),
+          cloudErrorDisplayMessage(err) ?? translate("cloudAssets.failServer"),
         );
         return;
       }
       review.refresh();
       refresh(true);
     },
-    [refresh, review.refresh, t2],
+    [refresh, review.refresh, translate],
   );
   reactExports.useEffect(() => {
     if (!onToolbarStateChange) return;
@@ -1185,7 +1190,7 @@ export function TeamAssetsSidebarPanel({
       onViewModeChange: setViewMode,
       onRefresh: () => {
         refresh(true);
-        if (isSearching) search2.refresh();
+        if (isSearching) search.refresh();
       },
       trailingSlot: (
         <TransfersButton
@@ -1194,7 +1199,7 @@ export function TeamAssetsSidebarPanel({
           transfers={projectTransfers}
           onOpen={review.refresh}
           onCancelTransfer={transfers.cancelTransfer}
-          onDeleteBlocked={(node2) => void handleDeleteBlocked(node2)}
+          onDeleteBlocked={(node) => void handleDeleteBlocked(node)}
           onRemoveTransfer={transfers.removeTransfer}
         />
       ),
@@ -1205,7 +1210,7 @@ export function TeamAssetsSidebarPanel({
     viewMode,
     refresh,
     isSearching,
-    search2.refresh,
+    search.refresh,
     review.nodes,
     review.loading,
     review.refresh,
@@ -1301,7 +1306,7 @@ export function TeamAssetsSidebarPanel({
     >
       <section
         {...externalDropProps}
-        aria-label={t2("projectAssets.title")}
+        aria-label={translate("projectAssets.title")}
         data-action-ui-id="project-assets-sidebar.drop-area"
         className={cn(
           "min-h-0 flex-1 overflow-y-auto py-1",
@@ -1310,39 +1315,39 @@ export function TeamAssetsSidebarPanel({
       >
         {isSearching ? (
           <>
-            {search2.error ? (
+            {search.error ? (
               <PageStateBoundary
                 error={true}
                 density="panel"
                 className="h-full"
                 errorOptions={{
-                  title: search2.membershipError
-                    ? t2("cloudAssets.notTeamMemberTitle")
+                  title: search.membershipError
+                    ? translate("cloudAssets.notTeamMemberTitle")
                     : void 0,
-                  description: search2.membershipError
-                    ? t2("cloudAssets.notTeamMemberDescription")
-                    : (search2.userMessage ?? t2("cloudAssets.failServer")),
+                  description: search.membershipError
+                    ? translate("cloudAssets.notTeamMemberDescription")
+                    : (search.userMessage ?? translate("cloudAssets.failServer")),
                   retry: {
                     icon: <RetryIcon size={14} />,
-                    onClick: search2.refresh,
+                    onClick: search.refresh,
                   },
                 }}
               />
             ) : searchRows.length === 0 &&
               !hasVisibleUploads &&
-              !search2.loading ? (
+              !search.loading ? (
               <PageStateBoundary
                 empty={true}
                 density="panel"
                 className="h-full"
                 emptyOptions={{
-                  title: t2("fileExplorer.noMatchingFiles"),
+                  title: translate("fileExplorer.noMatchingFiles"),
                 }}
               />
             ) : (
               renderAssetRows(searchRows, true)
             )}
-            {search2.loading ? (
+            {search.loading ? (
               <p className="flex items-center justify-center gap-1 px-4 py-3 text-xs text-muted-foreground">
                 <LoaderCircle
                   size={12}
@@ -1350,14 +1355,14 @@ export function TeamAssetsSidebarPanel({
                   className="animate-spin"
                 />
               </p>
-            ) : search2.hasMore ? (
+            ) : search.hasMore ? (
               <button
                 type="button"
-                onClick={() => search2.loadMore()}
+                onClick={() => search.loadMore()}
                 className="mx-2 my-1 flex h-7 w-[calc(100%-1rem)] items-center justify-center rounded-md text-xs text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
                 data-action-ui-id="project-assets-sidebar.search-load-more"
               >
-                {t2("cloudAssets.loadMore")}
+                {translate("cloudAssets.loadMore")}
               </button>
             ) : null}
           </>
@@ -1367,8 +1372,8 @@ export function TeamAssetsSidebarPanel({
             density="panel"
             className="h-full"
             emptyOptions={{
-              title: t2("cloudAssets.emptyTitle"),
-              description: t2("cloudAssets.emptyDescription"),
+              title: translate("cloudAssets.emptyTitle"),
+              description: translate("cloudAssets.emptyDescription"),
             }}
           />
         ) : (
@@ -1384,7 +1389,7 @@ export function TeamAssetsSidebarPanel({
           data-action-ui-id="project-assets-sidebar.new-folder"
         >
           <FolderPlus size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.newFolder")}
+          {translate("cloudAssets.newFolder")}
         </Button>
         <Button
           type="button"
@@ -1396,7 +1401,7 @@ export function TeamAssetsSidebarPanel({
           data-action-ui-id="project-assets-sidebar.upload"
         >
           <Upload size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.upload")}
+          {translate("cloudAssets.upload")}
         </Button>
         <input
           ref={fileInputRef}
@@ -1433,7 +1438,7 @@ export function TeamAssetsSidebarPanel({
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        onConfirm={handleDelete2}
+        onConfirm={handleDelete}
       />
       <MoveNodeDialog
         open={moveDialogTarget !== null}

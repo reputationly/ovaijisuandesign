@@ -1,0 +1,4 @@
+key	新名	依据
+tr2@94:45	transaction	`transaction` 是用于删除引用标记并派发文档更新的 ProseMirror 事务。
+state2@94:65	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+selection2@95:30	selection	`selection` 是标识值；末尾数字是打包器为避免重名添加的后缀。

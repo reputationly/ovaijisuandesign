@@ -7,11 +7,11 @@ import {
 } from "./list-all-cloud-folders.js";
 import { CloudProjectRequestError } from "../workspace/asset-lineage-query-key.js";
 
-export function readEntityDragData(e2) {
-  const raw2 = e2.dataTransfer?.getData(ENTITY_DRAG_MIME);
-  if (!raw2) return null;
+export function readEntityDragData(dragEvent) {
+  const raw = dragEvent.dataTransfer?.getData(ENTITY_DRAG_MIME);
+  if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw2);
+    const parsed = JSON.parse(raw);
     if (
       parsed &&
       typeof parsed.entityId === "string" &&
@@ -37,8 +37,8 @@ function notifyCloudAssetsChanged(projectId) {
     });
 }
 
-export async function createCloudFolder(projectId, parentId, name2) {
-  const data2 = await requestJson("/api/v1/cloud-folder/folders", {
+export async function createCloudFolder(projectId, parentId, folderName) {
+  const data = await requestJson("/api/v1/cloud-folder/folders", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -46,11 +46,11 @@ export async function createCloudFolder(projectId, parentId, name2) {
     body: JSON.stringify({
       project_id: projectId,
       parent_id: parentId,
-      name: name2,
+      name: folderName,
     }),
   });
-  const node2 = mapCloudNode(data2.node);
-  if (!node2) throw new CloudProjectRequestError(200, void 0);
+  const node = mapCloudNode(data.node);
+  if (!node) throw new CloudProjectRequestError(200, void 0);
   notifyCloudAssetsChanged(projectId);
-  return node2;
+  return node;
 }

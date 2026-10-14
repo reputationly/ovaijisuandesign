@@ -1,0 +1,40 @@
+key	old	new	依据
+a2@74:14	a2	leftFolderPath	该值是待按字典序排序的左侧相对文件夹路径。
+b3@74:18	b3	rightFolderPath	该值是待按字典序排序的右侧相对文件夹路径。
+a2@87:10	a2	leftRecord	该值是按更新时间比较的左侧本地资产记录。
+b3@87:14	b3	rightRecord	该值是按更新时间比较的右侧本地资产记录。
+t2@118:14	t2	translate	该绑定是本地资产网格卡片读取操作文案的翻译函数。
+t2@247:14	t2	translate	该绑定是本地资产列表行读取操作文案的翻译函数。
+t2@313:14	t2	translate	该绑定是侧边栏资产面板读取操作文案的翻译函数。
+t2@377:14	t2	translate	该绑定是侧边栏资产面板读取提示与错误文案的翻译函数。
+id2@396:11	id2	timeoutId	该值是用于更新防抖搜索词的定时器标识。
+i2@478:18	i2	pathSegmentIndex	该值是当前搜索路径的目录段索引。
+visit2@71:9	visit2	visit	去掉打包器防重名追加的后缀，恢复原名 visit，即该绑定持有的值。
+depth2@71:30	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。
+record2@85:16	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+record2@90:16	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+record2@119:9	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+Chevron2@125:9	Chevron2	Chevron	去掉打包器防重名追加的后缀，恢复原名 Chevron，即该绑定持有的值。
+content2@131:9	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+Chevron2@248:9	Chevron2	Chevron	去掉打包器防重名追加的后缀，恢复原名 Chevron，即该绑定持有的值。
+record2@302:11	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+depth2@303:10	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。
+project2@373:12	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。
+platform2@378:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+service2@379:9	service2	service	去掉打包器防重名追加的后缀，恢复原名 service，即该绑定持有的值。
+gatewayUrl2@381:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+flattened2@463:9	flattened2	flattened	去掉打包器防重名追加的后缀，恢复原名 flattened，即该绑定持有的值。
+handleDelete2@628:9	handleDelete2	handleDelete	去掉打包器防重名追加的后缀，恢复原名 handleDelete，即该绑定持有的值。
+name2@405:53	name2	resolvedFolderName	该异步结果是当前项目的目录名称。
+previous2@492:18	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+next2@493:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+record2@500:6	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+record2@504:6	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+record2@527:6	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+record2@548:12	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+record2@578:6	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+record2@586:12	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+record2@593:12	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+name2@661:12	name2	newFolderName	该参数是用户创建本地文件夹时输入的名称。
+message2@703:15	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+record2@873:28	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。

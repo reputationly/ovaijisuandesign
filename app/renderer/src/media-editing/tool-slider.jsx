@@ -1,13 +1,13 @@
 // tool-slider.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Slider } from "../generation/slider.jsx";
 const DEFAULT_THUMB_SIZE = 16;
 export function ToolSlider({
   label,
   value,
-  min: min2 = 0,
-  max: max2 = 100,
+  min = 0,
+  max = 100,
   step,
   onChange,
   formatValue,
@@ -25,51 +25,51 @@ export function ToolSlider({
   const trackRef = reactExports.useRef(null);
   const thumbRadius = thumbSize / 2;
   const resolvedMarkerValue =
-    markerValue ?? (min2 < 0 && max2 > 0 ? 0 : void 0);
+    markerValue ?? (min < 0 && max > 0 ? 0 : void 0);
   const cleanupRef = reactExports.useRef(void 0);
   reactExports.useEffect(() => () => cleanupRef.current?.(), []);
   const getValueFromClientX = (clientX) => {
     const track = trackRef.current;
-    if (!track) return min2;
+    if (!track) return min;
     const rect = track.getBoundingClientRect();
     const usableWidth = Math.max(1, rect.width - thumbSize);
-    const x2 = Math.max(
+    const thumbOffset = Math.max(
       0,
       Math.min(clientX - rect.left - thumbRadius, usableWidth),
     );
-    const ratio = x2 / usableWidth;
-    const raw2 = min2 + ratio * (max2 - min2);
+    const ratio = thumbOffset / usableWidth;
+    const raw = min + ratio * (max - min);
     const snapped =
-      step && step > 0 ? Math.round(raw2 / step) * step : Math.round(raw2);
-    return Math.max(min2, Math.min(max2, snapped));
+      step && step > 0 ? Math.round(raw / step) * step : Math.round(raw);
+    return Math.max(min, Math.min(max, snapped));
   };
-  const handleMouseDown2 = (e2) => {
-    e2.preventDefault();
-    e2.stopPropagation();
+  const handleMouseDown = (mouseEvent) => {
+    mouseEvent.preventDefault();
+    mouseEvent.stopPropagation();
     cleanupRef.current?.();
-    onChange(getValueFromClientX(e2.clientX));
-    const handleMouseMove2 = (moveEvent) => {
-      onChange(getValueFromClientX(moveEvent.clientX));
+    onChange(getValueFromClientX(mouseEvent.clientX));
+    const handleMouseMove = (mouseMoveEvent) => {
+      onChange(getValueFromClientX(mouseMoveEvent.clientX));
     };
     const handleMouseUp = () => {
-      document.removeEventListener("mousemove", handleMouseMove2);
+      document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("blur", handleMouseUp);
     };
-    document.addEventListener("mousemove", handleMouseMove2);
+    document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
     window.addEventListener("blur", handleMouseUp);
     cleanupRef.current = handleMouseUp;
   };
-  const handleTouchStart = (e2) => {
-    e2.stopPropagation();
+  const handleTouchStart = (touchEvent) => {
+    touchEvent.stopPropagation();
     cleanupRef.current?.();
-    const touch2 = e2.touches[0];
-    if (!touch2) return;
-    onChange(getValueFromClientX(touch2.clientX));
-    const handleTouchMove = (moveEvent) => {
-      const point2 = moveEvent.touches[0];
-      if (point2) onChange(getValueFromClientX(point2.clientX));
+    const touch = touchEvent.touches[0];
+    if (!touch) return;
+    onChange(getValueFromClientX(touch.clientX));
+    const handleTouchMove = (touchMoveEvent) => {
+      const point = touchMoveEvent.touches[0];
+      if (point) onChange(getValueFromClientX(point.clientX));
     };
     const handleTouchEnd = () => {
       document.removeEventListener("touchmove", handleTouchMove);
@@ -87,21 +87,21 @@ export function ToolSlider({
   };
   const displayValue = formatValue ? formatValue(value) : `${value}%`;
   const keyboardStep = step && step > 0 ? step : 1;
-  const handleKeyDown2 = (event) => {
+  const handleKeyDown = (event) => {
     let nextValue = null;
     if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
       nextValue = value - keyboardStep;
     } else if (event.key === "ArrowRight" || event.key === "ArrowUp") {
       nextValue = value + keyboardStep;
     } else if (event.key === "Home") {
-      nextValue = min2;
+      nextValue = min;
     } else if (event.key === "End") {
-      nextValue = max2;
+      nextValue = max;
     }
     if (nextValue === null) return;
     event.preventDefault();
     event.stopPropagation();
-    onChange(Math.max(min2, Math.min(max2, nextValue)));
+    onChange(Math.max(min, Math.min(max, nextValue)));
   };
   return (
     <div className={`flex flex-col ${className}`}>
@@ -129,8 +129,8 @@ export function ToolSlider({
           variant="rounded"
           size="compact"
           value={value}
-          min={min2}
-          max={max2}
+          min={min}
+          max={max}
           step={keyboardStep}
           markerValue={resolvedMarkerValue}
           trackAppearance={trackAppearance}
@@ -149,9 +149,9 @@ export function ToolSlider({
             "data-action-ui-id": dataActionUiId,
           }}
           onPointerDownCapture={(event) => event.stopPropagation()}
-          onMouseDownCapture={handleMouseDown2}
+          onMouseDownCapture={handleMouseDown}
           onTouchStartCapture={handleTouchStart}
-          onKeyDownCapture={handleKeyDown2}
+          onKeyDownCapture={handleKeyDown}
         />
       </div>
     </div>

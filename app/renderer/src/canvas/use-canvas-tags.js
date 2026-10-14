@@ -1,5 +1,7 @@
 // use-canvas-tags.js
-import { API_PATHS, reactExports, useMutation, useQuery, useQueryClient } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import {
   aggregateTagState,
@@ -25,54 +27,54 @@ function deduplicateCanvasTagAssets(assets) {
   return uniqueAssets;
 }
 
-function createJsonMutationRequest(method, body2) {
+function createJsonMutationRequest(method, body) {
   return {
     method,
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body2),
+    body: JSON.stringify(body),
   };
 }
 
 export function useCanvasTags() {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const gatewayScopeKey = useGatewayScopeKey();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const assetMetadataStore = useAssetMetadataApi();
   const queryKey = canvasTagRegistryQueryKey(gatewayScopeKey);
-  const { data: data2, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey,
-    queryFn: () => fetchTagRegistry(gatewayFetch2),
+    queryFn: () => fetchTagRegistry(gatewayFetch),
     staleTime: Number.POSITIVE_INFINITY,
   });
-  const registry2 = reactExports.useMemo(
-    () => normalizeTagRegistry(data2 ?? seedTagRegistry()),
-    [data2],
+  const registry = reactExports.useMemo(
+    () => normalizeTagRegistry(data ?? seedTagRegistry()),
+    [data],
   );
   const refreshAssets = reactExports.useCallback(
     () =>
       refreshAssetIndex({
-        qc: queryClient2,
+        qc: queryClient,
         gatewayScopeKey,
       }),
-    [gatewayScopeKey, queryClient2],
+    [gatewayScopeKey, queryClient],
   );
   const recoverRegistryAfterError = reactExports.useCallback(async () => {
-    await queryClient2.invalidateQueries({
+    await queryClient.invalidateQueries({
       queryKey,
     });
-  }, [queryClient2, queryKey]);
+  }, [queryClient, queryKey]);
   const saveTagsMutation = useMutation({
     mutationFn: async (request) => {
-      const res = await gatewayFetch2(
+      const res = await gatewayFetch(
         API_PATHS.assetTagMutationsBatch,
         createJsonMutationRequest("PATCH", request),
       );
       return await res.json();
     },
-    onSuccess: (body2) => {
-      for (const asset of body2.updatedAssets) {
+    onSuccess: (body) => {
+      for (const asset of body.updatedAssets) {
         assetMetadataStore.getState().mergeAsset(asset.id, {
           tagIds: asset.tagIds,
         });
@@ -80,11 +82,11 @@ export function useCanvasTags() {
     },
   });
   const updateAssignments = reactExports.useCallback(
-    async (tagId, assets, mode2) => {
+    async (tagId, assets, mode) => {
       if (assets.length === 0) return;
       const uniqueAssets = deduplicateCanvasTagAssets(assets);
       const shouldRemove =
-        mode2 === "toggle" && aggregateTagState(tagId, uniqueAssets) === "all";
+        mode === "toggle" && aggregateTagState(tagId, uniqueAssets) === "all";
       await saveTagsMutation.mutateAsync({
         assetIds: uniqueAssets.map((asset) => asset.id),
         tagId,
@@ -103,111 +105,111 @@ export function useCanvasTags() {
     [updateAssignments],
   );
   const createTag = reactExports.useCallback(
-    async (name2, assets) => {
+    async (tagName, assets) => {
       try {
-        const res = await gatewayFetch2(
+        const res = await gatewayFetch(
           API_PATHS.canvasTags,
           createJsonMutationRequest("POST", {
-            name: name2,
+            name: tagName,
             kind: "keyword",
-            revision: registry2.revision,
+            revision: registry.revision,
           }),
         );
-        const body2 = await res.json();
-        queryClient2.setQueryData(queryKey, body2.registry);
+        const body = await res.json();
+        queryClient.setQueryData(queryKey, body.registry);
         if (assets?.length)
-          await updateAssignments(body2.tag.id, assets, "assign");
-        return body2.tag;
+          await updateAssignments(body.tag.id, assets, "assign");
+        return body.tag;
       } catch (error) {
         await recoverRegistryAfterError();
         throw error;
       }
     },
     [
-      gatewayFetch2,
-      queryClient2,
+      gatewayFetch,
+      queryClient,
       queryKey,
       recoverRegistryAfterError,
-      registry2.revision,
+      registry.revision,
       updateAssignments,
     ],
   );
   const updateTag = reactExports.useCallback(
-    async (tagId, patch2) => {
+    async (tagId, patch) => {
       try {
-        const res = await gatewayFetch2(
+        const res = await gatewayFetch(
           API_PATHS.canvasTag(tagId),
           createJsonMutationRequest("PATCH", {
-            ...patch2,
-            revision: registry2.revision,
+            ...patch,
+            revision: registry.revision,
           }),
         );
-        const body2 = await res.json();
-        queryClient2.setQueryData(queryKey, body2.registry);
-        return body2.tag;
+        const body = await res.json();
+        queryClient.setQueryData(queryKey, body.registry);
+        return body.tag;
       } catch (error) {
         await recoverRegistryAfterError();
         throw error;
       }
     },
     [
-      gatewayFetch2,
-      queryClient2,
+      gatewayFetch,
+      queryClient,
       queryKey,
       recoverRegistryAfterError,
-      registry2.revision,
+      registry.revision,
     ],
   );
   const reorderTags = reactExports.useCallback(
     async (tagIds) => {
       try {
-        const res = await gatewayFetch2(
+        const res = await gatewayFetch(
           API_PATHS.canvasTagOrder,
           createJsonMutationRequest("PUT", {
             tagIds,
-            revision: registry2.revision,
+            revision: registry.revision,
           }),
         );
-        const body2 = await res.json();
-        queryClient2.setQueryData(queryKey, body2.registry);
+        const body = await res.json();
+        queryClient.setQueryData(queryKey, body.registry);
       } catch (error) {
         await recoverRegistryAfterError();
         throw error;
       }
     },
     [
-      gatewayFetch2,
-      queryClient2,
+      gatewayFetch,
+      queryClient,
       queryKey,
       recoverRegistryAfterError,
-      registry2.revision,
+      registry.revision,
     ],
   );
   const getTagImpact = reactExports.useCallback(
     async (tagId) => {
-      const res = await gatewayFetch2(API_PATHS.canvasTagImpact(tagId));
+      const res = await gatewayFetch(API_PATHS.canvasTagImpact(tagId));
       return await res.json();
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const deleteTag = reactExports.useCallback(
     async (tagId) => {
       try {
-        const res = await gatewayFetch2(
+        const res = await gatewayFetch(
           API_PATHS.canvasTag(tagId),
           createJsonMutationRequest("DELETE", {
-            revision: registry2.revision,
+            revision: registry.revision,
           }),
         );
-        const body2 = await res.json();
-        queryClient2.setQueryData(queryKey, body2.registry);
-        for (const asset of body2.updatedAssets) {
+        const body = await res.json();
+        queryClient.setQueryData(queryKey, body.registry);
+        for (const asset of body.updatedAssets) {
           assetMetadataStore.getState().mergeAsset(asset.id, {
             tagIds: asset.tagIds,
           });
         }
         await refreshAssets();
-        return body2;
+        return body;
       } catch (error) {
         await recoverRegistryAfterError();
         throw error;
@@ -215,16 +217,16 @@ export function useCanvasTags() {
     },
     [
       assetMetadataStore,
-      gatewayFetch2,
-      queryClient2,
+      gatewayFetch,
+      queryClient,
       queryKey,
       recoverRegistryAfterError,
       refreshAssets,
-      registry2.revision,
+      registry.revision,
     ],
   );
   return {
-    registry: registry2,
+    registry,
     isLoading,
     toggleTagForAssets,
     assignTagToAssets,

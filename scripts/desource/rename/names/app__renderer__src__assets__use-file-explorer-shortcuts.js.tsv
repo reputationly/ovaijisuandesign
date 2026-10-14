@@ -1,0 +1,7 @@
+key	old	new	依据
+id2@10:9	id2	toastId	该值是最近显示的删除撤销提示标识。
+t2@32:14	t2	translate	该绑定是文件浏览器快捷键操作读取错误提示的翻译函数。
+gatewayFetch2@28:17	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+queryClient2@29:16	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+first2@60:11	first2	first	去掉打包器防重名追加的后缀，恢复原名 first，即该绑定持有的值。
+body2@120:11	body2	body	去掉打包器防重名追加的后缀，恢复原名 body，即该绑定持有的值。

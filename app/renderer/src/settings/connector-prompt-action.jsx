@@ -1,12 +1,8 @@
 // connector-prompt-action.jsx
-import {
-  CONNECTOR_STATUS_VISUAL,
-  Link2,
-  Loader2,
-  MessageCircle,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  useTranslation,
-} from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { CONNECTOR_STATUS_VISUAL } from "../skills/connectors/connector-market.js";
+import { Link2, Loader2, MessageCircle } from "../media-editing/lucide-icon-wraps.js";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
 import {
   Icon,
   PlaybackPauseIcon,
@@ -15,7 +11,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { IntegrationStatusPill } from "./integration-status-pill.jsx";
 import { Download } from "../media-editing/package.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 const connectorPromptActionIcon = {
   requiresInstall: Download,
   installing: Loader2,
@@ -25,13 +21,13 @@ const connectorPromptActionIcon = {
   requiresRecovery: RetryIcon,
 };
 export function ConnectorPromptAction({
-  mode: mode2,
+  mode,
   label,
   checking = false,
   className,
   ...props
 }) {
-  const actionIcon = connectorPromptActionIcon[mode2];
+  const actionIcon = connectorPromptActionIcon[mode];
   return (
     <Button
       type="button"
@@ -41,7 +37,7 @@ export function ConnectorPromptAction({
         "h-[30px] shrink-0 self-center gap-1 rounded-[10px] pl-2.5 pr-3 font-normal",
         className,
       )}
-      data-connector-prompt-action-mode={mode2}
+      data-connector-prompt-action-mode={mode}
       {...props}
     >
       <span
@@ -54,7 +50,7 @@ export function ConnectorPromptAction({
           size="sm"
           strokeWidth={1.5}
           className={
-            mode2 === "installing"
+            mode === "installing"
               ? "animate-spin"
               : checking
                 ? "motion-safe:animate-spin"
@@ -67,13 +63,13 @@ export function ConnectorPromptAction({
     </Button>
   );
 }
-export function ConnectorStatusPill({ state: state2 }) {
-  const { t: t2 } = useTranslation();
-  const visual = CONNECTOR_STATUS_VISUAL[state2];
-  const label = t2(
-    state2 === "removing"
+export function ConnectorStatusPill({ state }) {
+  const { t } = useTranslation();
+  const visual = CONNECTOR_STATUS_VISUAL[state];
+  const label = t(
+    state === "removing"
       ? "connectors.detail.disconnecting"
-      : `connectors.runtimeState.${state2}`,
+      : `connectors.runtimeState.${state}`,
   );
   return (
     <IntegrationStatusPill
@@ -81,12 +77,12 @@ export function ConnectorStatusPill({ state: state2 }) {
       tone={visual.tone}
       markerTone={visual.markerTone}
       markerActive={
-        state2 === "removing" ||
-        state2 === "checking" ||
-        state2 === "installing"
+        state === "removing" ||
+        state === "checking" ||
+        state === "installing"
       }
       markerIcon={
-        state2 === "disabled" ? (
+        state === "disabled" ? (
           <PlaybackPauseIcon size={10} className="shrink-0 text-warning/80" />
         ) : (
           void 0

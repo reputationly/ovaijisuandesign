@@ -1,5 +1,8 @@
 // 项目列表页的云端项目调试入口：调试工具可用时才显示，列出云端项目与原始数据。
-import { useTranslation, reactExports, jsxRuntimeExports, CloudDownload } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { CloudDownload } from "../media-editing/lucide-icon-wraps.js";
 import { canUseDebugTooling } from "../workspace/use-deep-link-router.js";
 import { listCloudProjects } from "../workspace/asset-lineage-query-key.js";
 import { Dialog, DialogContent, DialogHeader, Button } from "../infra/dialog-content.jsx";

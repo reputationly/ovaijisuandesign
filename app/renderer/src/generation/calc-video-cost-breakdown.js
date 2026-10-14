@@ -6,8 +6,8 @@ const HAILUO03_DEFAULT_FREE_IMAGE_COUNT = 5;
 
 const HAILUO03_MAX_DEFAULT_FREE_IMAGE_COUNT = 2;
 
-function normalizePricingKey(key2) {
-  return key2.trim().toLowerCase().replace(/_/g, "-");
+function normalizePricingKey(key) {
+  return key.trim().toLowerCase().replace(/_/g, "-");
 }
 
 function isHailuo03PricingId(modelId) {
@@ -81,20 +81,20 @@ export function calcVideoCostBreakdown(
   imageCount = 0,
 ) {
   if (!pricing?.video) return void 0;
-  const model = pricing.video.find((m3) => m3.modelID === modelId);
+  const model = pricing.video.find((videoPricingModel) => videoPricingModel.modelID === modelId);
   if (!model) return void 0;
-  for (const c3 of model.videoCosts) {
+  for (const videoCost of model.videoCosts) {
     if (
       !videoCostMatchesNonResolutionFilters(
-        c3,
+        videoCost,
         hasReferenceVideo,
         hasSound,
         fps,
       )
     )
       continue;
-    const resMatch = matchesResolution(c3.resolutions, resolution);
-    if (c3.costPerSecond && c3.costPerSecond > 0 && resMatch) {
+    const resMatch = matchesResolution(videoCost.resolutions, resolution);
+    if (videoCost.costPerSecond && videoCost.costPerSecond > 0 && resMatch) {
       if (!durationSec || durationSec <= 0) {
         return model.defaultCost > 0
           ? createVideoCostBreakdown({
@@ -108,13 +108,13 @@ export function calcVideoCostBreakdown(
         hasReferenceVideo && inputDurationSec > 0 ? inputDurationSec : 0;
       const chargeableOutputDurationSec = Math.ceil(durationSec);
       const referenceVideoCostPerSecond =
-        c3.costPerReferenceVideoSecond && c3.costPerReferenceVideoSecond > 0
-          ? c3.costPerReferenceVideoSecond
-          : c3.costPerSecond;
+        videoCost.costPerReferenceVideoSecond && videoCost.costPerReferenceVideoSecond > 0
+          ? videoCost.costPerReferenceVideoSecond
+          : videoCost.costPerSecond;
       return createVideoCostBreakdown({
         modelId,
-        cost: c3,
-        costPerSecond: c3.costPerSecond,
+        cost: videoCost,
+        costPerSecond: videoCost.costPerSecond,
         referenceVideoCostPerSecond,
         outputDurationSec: chargeableOutputDurationSec,
         inputVideoDurationSec: chargeableInputDurationSec,
@@ -122,25 +122,25 @@ export function calcVideoCostBreakdown(
       });
     }
     const dur = durationSec ?? 0;
-    if (!c3.resolutions?.length && c3.durations?.includes(dur)) {
-      return c3.realCost > 0
+    if (!videoCost.resolutions?.length && videoCost.durations?.includes(dur)) {
+      return videoCost.realCost > 0
         ? createVideoCostBreakdown({
             modelId,
-            cost: c3,
-            fixedCost: c3.realCost,
+            cost: videoCost,
+            fixedCost: videoCost.realCost,
             imageCount,
           })
         : void 0;
     }
     if (
-      matchesResolution(c3.resolutions, resolution) &&
-      c3.durations?.includes(dur)
+      matchesResolution(videoCost.resolutions, resolution) &&
+      videoCost.durations?.includes(dur)
     ) {
-      return c3.realCost > 0
+      return videoCost.realCost > 0
         ? createVideoCostBreakdown({
             modelId,
-            cost: c3,
-            fixedCost: c3.realCost,
+            cost: videoCost,
+            fixedCost: videoCost.realCost,
             imageCount,
           })
         : void 0;

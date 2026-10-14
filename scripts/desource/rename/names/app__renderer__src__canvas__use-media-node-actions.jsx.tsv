@@ -1,0 +1,5 @@
+key	old	new	依据
+t2@28:14	t2	translate	该函数翻译媒体节点工具栏的操作标签。
+e2@77:6	e2	clickEvent	该 onClick 回调使用点击事件的 clientX 和 clientY 作为提升素材时的画布位置输入。
+meta2@18:9	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@51:13	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

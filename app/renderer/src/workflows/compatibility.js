@@ -1,5 +1,5 @@
 // 工作流与本机配置的兼容性判断（系统、显卡、内存、版本），纯函数。
-const ITEM_KEYS$1 = ["os", "memory", "gpu", "storage"];
+const EVALUATED_ITEM_KEYS = ["os", "memory", "gpu", "storage"];
 const SYSTEM_MEMORY_REPORTING_TOLERANCE_MAX_BYTES = 512 * 1024 ** 2;
 const SYSTEM_MEMORY_REPORTING_TOLERANCE_RATIO = 0.01;
 const GPU_MEMORY_REPORTING_TOLERANCE_BYTES = 512 * 1024 ** 2;
@@ -23,11 +23,11 @@ export function evaluateWorkflowCompatibility(recommendation, snapshot) {
   };
   return {
     statuses,
-    result: ITEM_KEYS$1.some(
+    result: EVALUATED_ITEM_KEYS.some(
       (key) => statuses[key] === "insufficient" || statuses[key] === "unsupported",
     )
       ? "insufficient"
-      : ITEM_KEYS$1.some((key) => statuses[key] === "unknown")
+      : EVALUATED_ITEM_KEYS.some((key) => statuses[key] === "unknown")
         ? "review"
         : "likely",
   };

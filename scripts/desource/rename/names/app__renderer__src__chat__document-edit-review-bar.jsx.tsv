@@ -1,0 +1,13 @@
+key	新名	依据
+Eye@5:3	EyeIcon	`EyeIcon` 是审阅栏中表示预览或查看操作的图标组件。
+t2@15:14	translate	`translate` 为文档编辑审阅栏获取本地化文案。
+navigation2@27:9	reviewNavigation	`reviewNavigation` 是 diff review store 返回的导航状态；原名 `navigation` 与全局名冲突。
+nav2@38:9	nav	`nav` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+state2@16:39	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+state2@17:41	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+state2@18:46	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+state2@20:6	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+state2@22:41	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+state2@23:43	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+state2@25:6	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+state2@27:43	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。

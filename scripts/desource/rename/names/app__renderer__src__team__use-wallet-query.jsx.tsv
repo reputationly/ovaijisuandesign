@@ -1,0 +1,9 @@
+key	new	reason
+v2@36:18	value	要转成数字的原始值
+n2@39:13	parsedNumber	Number(value) 的解析结果
+v2@44:24	value	要转成积分数字的原始值
+w3@56:40	wallet	wallets 中的单个钱包，逐项清洗字段
+sc@60:48	subCredit	钱包 sub_credits 中的单条子积分
+raw2@35:29	raw	去掉打包器加的数字后缀，恢复原名 raw
+record2@64:49	record	去掉打包器加的数字后缀，恢复原名 record
+raw2@81:11	raw	去掉打包器加的数字后缀，恢复原名 raw

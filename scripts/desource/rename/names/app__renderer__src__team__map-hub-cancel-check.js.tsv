@@ -1,0 +1,12 @@
+key	new	reason
+t2@56:56	blockingTeam	mapBlockingTeam 映射后的阻塞团队（无效项为 null）
+raw2@18:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+raw2@25:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+raw2@32:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+groupId2@34:9	groupId	去掉打包器加的数字后缀，恢复原名 groupId
+raw2@45:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+body2@73:9	body	去掉打包器加的数字后缀，恢复原名 body
+body2@113:9	body	去掉打包器加的数字后缀，恢复原名 body
+groupId2@141:44	groupId	去掉打包器加的数字后缀，恢复原名 groupId
+queryClient2@169:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+groupId2@126:55	groupId	去掉打包器加的数字后缀，恢复原名 groupId

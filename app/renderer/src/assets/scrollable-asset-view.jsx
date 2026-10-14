@@ -1,20 +1,14 @@
 // scrollable-asset-view.jsx
-import {
-  AudioLines,
-  classifyFileType,
-  estimateGridRowSize,
-  FileImage,
-  Film,
-  GRID_COLUMN_COUNT_WIDE,
-  jsxRuntimeExports,
-  reactExports,
-  Tag$1 as Tag,
-  useTranslation,
-  useVirtualizer,
-} from "../vendor.js";
+import { useVirtualizer } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AudioLines, FileImage, Film, Tag$1 as Tag } from "../media-editing/lucide-icon-wraps.js";
+import { classifyFileType } from "../infra/file-type.js";
+import { estimateGridRowSize, GRID_COLUMN_COUNT_WIDE } from "./grid-row-size.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileText, Maximize2, Paperclip } from "../media-editing/package.jsx";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import {
   describeMeta,
   DurationBadge,
@@ -72,12 +66,12 @@ function AssetTypeBadge({ resource, compact = false, className }) {
     </span>
   );
 }
-function Thumbnail({ resource, size: size2 }) {
-  const dim = size2 === "grid" ? "h-full w-full" : "h-10 w-10 shrink-0";
+function Thumbnail({ resource, size }) {
+  const dim = size === "grid" ? "h-full w-full" : "h-10 w-10 shrink-0";
   const thumbnailDisplayWidth =
-    size2 === "grid" ? GRID_THUMBNAIL_DISPLAY_PX : LIST_THUMBNAIL_DISPLAY_PX;
+    size === "grid" ? GRID_THUMBNAIL_DISPLAY_PX : LIST_THUMBNAIL_DISPLAY_PX;
   const mediaThumbnailWidth =
-    size2 === "grid"
+    size === "grid"
       ? GRID_MEDIA_THUMBNAIL_WIDTH_PX
       : LIST_MEDIA_THUMBNAIL_WIDTH_PX;
   const [thumbFailed, setThumbFailed] = reactExports.useState(false);
@@ -126,7 +120,7 @@ function Thumbnail({ resource, size: size2 }) {
         {...classifyFileType({
           filename: resource.name,
         })}
-        size={size2 === "grid" ? 48 : 24}
+        size={size === "grid" ? 48 : 24}
         decorative={true}
       />
     </div>
@@ -140,7 +134,7 @@ const LIST_OVERSCAN_ROWS = 6;
 const LIST_KEYBOARD_PAGE_SIZE = 7;
 function AssetTagMark({
   tag,
-  size: size2,
+  size,
   className,
   ringColor,
   overlay = false,
@@ -164,8 +158,8 @@ function AssetTagMark({
               onPointerMove={(event) => event.stopPropagation()}
               onPointerLeave={(event) => event.stopPropagation()}
               style={{
-                width: size2,
-                height: size2,
+                width: size,
+                height: size,
                 backgroundColor: overlay
                   ? void 0
                   : getCanvasTagPresentationColor(tag.color),
@@ -196,9 +190,9 @@ function ResourceMeta({ row, compact = false }) {
       title={description}
       data-action-ui-id="asset-picker.resource-meta"
     >
-      {description.split(" · ").map((part, index2) => (
+      {description.split(" · ").map((part, index) => (
         <span key={part} className="shrink-0 whitespace-nowrap">
-          {index2 > 0 && (
+          {index > 0 && (
             <span aria-hidden={true} className={compact ? "mr-0.5" : "mr-1"}>
               ·
             </span>
@@ -210,19 +204,19 @@ function ResourceMeta({ row, compact = false }) {
   );
 }
 function assetNavigationIndex(
-  key2,
+  key,
   currentIndex,
   itemCount,
-  view2,
+  view,
   gridColumnCount,
 ) {
   if (itemCount <= 0) return void 0;
   const pageSize =
-    view2 === "grid"
+    view === "grid"
       ? gridColumnCount * GRID_KEYBOARD_PAGE_ROWS
       : LIST_KEYBOARD_PAGE_SIZE;
   let nextIndex;
-  switch (key2) {
+  switch (key) {
     case "Home":
       nextIndex = 0;
       break;
@@ -236,16 +230,16 @@ function assetNavigationIndex(
       nextIndex = currentIndex + pageSize;
       break;
     case "ArrowUp":
-      nextIndex = currentIndex - (view2 === "grid" ? gridColumnCount : 1);
+      nextIndex = currentIndex - (view === "grid" ? gridColumnCount : 1);
       break;
     case "ArrowDown":
-      nextIndex = currentIndex + (view2 === "grid" ? gridColumnCount : 1);
+      nextIndex = currentIndex + (view === "grid" ? gridColumnCount : 1);
       break;
     case "ArrowLeft":
-      if (view2 === "grid") nextIndex = currentIndex - 1;
+      if (view === "grid") nextIndex = currentIndex - 1;
       break;
     case "ArrowRight":
-      if (view2 === "grid") nextIndex = currentIndex + 1;
+      if (view === "grid") nextIndex = currentIndex + 1;
       break;
     default:
       return void 0;
@@ -285,9 +279,9 @@ function ProblemStatusTag({ label }) {
     </span>
   );
 }
-function SelectionOrderBadge({ order: order2, className }) {
-  const { t: t2 } = useTranslation();
-  if (order2 === void 0) return null;
+function SelectionOrderBadge({ order, className }) {
+  const { t: translate } = useTranslation();
+  if (order === void 0) return null;
   return (
     <span
       role="img"
@@ -295,20 +289,20 @@ function SelectionOrderBadge({ order: order2, className }) {
         "inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border-2 border-white bg-black px-1 text-[10px] font-semibold leading-none text-white shadow-sm tabular-nums",
         className,
       )}
-      aria-label={`${t2("assetPicker.selected", "已选择")} ${order2}`}
+      aria-label={`${translate("assetPicker.selected", "已选择")} ${order}`}
       data-action-ui-id="asset-picker.selection-order"
-      data-selection-order={order2}
+      data-selection-order={order}
     >
-      {order2}
+      {order}
     </span>
   );
 }
-function RowBadge({ existing, reason, labelForReason, t: t2, selectionOrder }) {
+function RowBadge({ existing, reason, labelForReason, t: translate, selectionOrder }) {
   return (
     <>
       {existing ? (
         <ExistingStatusTag
-          label={t2("assetPicker.existing", "已添加")}
+          label={translate("assetPicker.existing", "已添加")}
           overlay={true}
           className="absolute left-2 top-2"
         />
@@ -326,8 +320,8 @@ function RowBadge({ existing, reason, labelForReason, t: t2, selectionOrder }) {
     </>
   );
 }
-function SelectionOutline({ selected: selected2, className }) {
-  if (!selected2) return null;
+function SelectionOutline({ selected, className }) {
+  if (!selected) return null;
   return (
     <span
       aria-hidden="true"
@@ -354,11 +348,11 @@ function VideoPlayIndicator() {
   );
 }
 function AssetPreviewButton({ row, onPreview, className }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <button
       type="button"
-      aria-label={t2("assetPicker.preview", "预览")}
+      aria-label={translate("assetPicker.preview", "预览")}
       data-action-ui-id={`asset-picker.preview.${row.type}`}
       className={cn(
         "flex cursor-pointer items-center justify-center rounded-full bg-black/20 text-white opacity-0 shadow-sm backdrop-blur-md transition-[opacity,background-color] hover:bg-black/30 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white [@media(hover:none)]:opacity-100",
@@ -377,7 +371,7 @@ function GridTile({
   isFocused,
   onFocusedRowChange,
   optionIdPrefix,
-  selected: selected2,
+  selected,
   selectionOrderByKey,
   onToggle,
   reasonForRow,
@@ -385,16 +379,16 @@ function GridTile({
   isRowExisting,
   onPreview,
 }) {
-  const { t: t2 } = useTranslation();
-  const sel = selected2.has(row.rowKey);
+  const { t: translate } = useTranslation();
+  const sel = selected.has(row.rowKey);
   const selectionOrder = selectionOrderByKey.get(row.rowKey);
   const existing = isRowExisting(row);
   const reason = reasonForRow(row);
-  const disabled2 = existing || (!!reason && !sel);
+  const disabled = existing || (!!reason && !sel);
   return (
     <div
       onPointerMove={() => onFocusedRowChange(row.rowKey)}
-      aria-disabled={disabled2 || void 0}
+      aria-disabled={disabled || void 0}
       aria-label={row.name}
       aria-selected={sel}
       aria-posinset={assetIndex + 1}
@@ -409,7 +403,7 @@ function GridTile({
           "group-focus-visible/asset-view:ring-2 group-focus-visible/asset-view:ring-ring group-focus-visible/asset-view:ring-offset-1",
         sel
           ? "border-transparent"
-          : disabled2
+          : disabled
             ? "border-foreground/[0.06]"
             : "border-foreground/[0.06] hover:border-foreground/20",
       )}
@@ -420,16 +414,16 @@ function GridTile({
           onFocusedRowChange(row.rowKey);
           onToggle(row);
         }}
-        disabled={disabled2}
+        disabled={disabled}
         tabIndex={-1}
         data-asset-index={assetIndex}
         data-marquee-start="true"
-        aria-label={existing ? t2("assetPicker.existing", "已添加") : row.name}
+        aria-label={existing ? translate("assetPicker.existing", "已添加") : row.name}
         className={cn(
           "flex h-full w-full cursor-pointer flex-col items-stretch text-left outline-none",
           isFocused &&
             "group-focus-visible/asset-view:ring-2 group-focus-visible/asset-view:ring-ring",
-          disabled2 && "cursor-not-allowed opacity-45",
+          disabled && "cursor-not-allowed opacity-45",
         )}
         data-action-ui-id={`asset-picker.tile.${row.type}`}
       >
@@ -476,7 +470,7 @@ function GridTile({
         existing={existing}
         reason={reason === "full" ? void 0 : reason}
         labelForReason={labelForReason}
-        t={t2}
+        t={translate}
         selectionOrder={selectionOrder}
       />
       {!existing && (
@@ -492,7 +486,7 @@ function GridTile({
 function GridView({
   rows,
   leadingAction,
-  selected: selected2,
+  selected,
   selectionOrderByKey,
   onToggle,
   reasonForRow,
@@ -511,8 +505,8 @@ function GridView({
   const gridRows = reactExports.useMemo(() => {
     const slots = leadingAction ? [null, ...rows] : rows;
     const groupedRows = [];
-    for (let index2 = 0; index2 < slots.length; index2 += gridColumnCount) {
-      groupedRows.push(slots.slice(index2, index2 + gridColumnCount));
+    for (let index = 0; index < slots.length; index += gridColumnCount) {
+      groupedRows.push(slots.slice(index, index + gridColumnCount));
     }
     return groupedRows;
   }, [rows, leadingAction, gridColumnCount]);
@@ -524,8 +518,8 @@ function GridView({
         scrollEl?.clientWidth || ASSET_VIEW_INITIAL_RECT.width,
         gridColumnCount,
       ),
-    measureElement: (element2) => element2.getBoundingClientRect().height,
-    getItemKey: (index2) => gridRows[index2]?.[0]?.rowKey ?? "upload-action",
+    measureElement: (element) => element.getBoundingClientRect().height,
+    getItemKey: (index) => gridRows[index]?.[0]?.rowKey ?? "upload-action",
     overscan: GRID_OVERSCAN_ROWS,
     paddingStart: 8,
     paddingEnd: 8,
@@ -533,10 +527,10 @@ function GridView({
     enabled: shouldVirtualize,
   });
   const scrollAssetAtIndex = reactExports.useCallback(
-    (index2) => {
+    (index) => {
       if (shouldVirtualize) {
         gridVirtualizer.scrollToIndex(
-          Math.floor((index2 + leadingCount) / gridColumnCount),
+          Math.floor((index + leadingCount) / gridColumnCount),
           {
             align: "auto",
           },
@@ -544,7 +538,7 @@ function GridView({
         return;
       }
       scrollEl
-        ?.querySelector(`[data-asset-index="${index2}"]`)
+        ?.querySelector(`[data-asset-index="${index}"]`)
         ?.scrollIntoView?.({
           block: "nearest",
         });
@@ -577,16 +571,16 @@ function GridView({
         data-grid-row-gap="8"
       >
         {leadingAction}
-        {rows.map((row, index2) => (
+        {rows.map((row, index) => (
           <GridTile
             key={row.rowKey}
             row={row}
-            assetIndex={index2}
+            assetIndex={index}
             totalSize={rows.length}
-            isFocused={focusedIndex === index2}
+            isFocused={focusedIndex === index}
             onFocusedRowChange={onFocusedRowChange}
             optionIdPrefix={optionIdPrefix}
-            selected={selected2}
+            selected={selected}
             selectionOrderByKey={selectionOrderByKey}
             onToggle={onToggle}
             reasonForRow={reasonForRow}
@@ -644,7 +638,7 @@ function GridView({
                   isFocused={focusedIndex === assetIndex}
                   onFocusedRowChange={onFocusedRowChange}
                   optionIdPrefix={optionIdPrefix}
-                  selected={selected2}
+                  selected={selected}
                   selectionOrderByKey={selectionOrderByKey}
                   onToggle={onToggle}
                   reasonForRow={reasonForRow}
@@ -667,7 +661,7 @@ function ListRow({
   isFocused,
   onFocusedRowChange,
   optionIdPrefix,
-  selected: selected2,
+  selected,
   selectionOrderByKey,
   onToggle,
   reasonForRow,
@@ -675,16 +669,16 @@ function ListRow({
   isRowExisting,
   onPreview,
 }) {
-  const { t: t2 } = useTranslation();
-  const sel = selected2.has(row.rowKey);
+  const { t: translate } = useTranslation();
+  const sel = selected.has(row.rowKey);
   const selectionOrder = selectionOrderByKey.get(row.rowKey);
   const existing = isRowExisting(row);
   const reason = reasonForRow(row);
-  const disabled2 = existing || (!!reason && !sel);
+  const disabled = existing || (!!reason && !sel);
   return (
     <div
       onPointerMove={() => onFocusedRowChange(row.rowKey)}
-      aria-disabled={disabled2 || void 0}
+      aria-disabled={disabled || void 0}
       aria-label={row.name}
       aria-selected={sel}
       aria-posinset={assetIndex + 1}
@@ -700,7 +694,7 @@ function ListRow({
         data-action-ui-id="asset-picker.list-cell"
         className={cn(
           "relative flex h-14 items-center rounded-md border border-transparent",
-          !sel && !disabled2 && "hover:bg-muted/60",
+          !sel && !disabled && "hover:bg-muted/60",
           isFocused &&
             "group-focus-visible/asset-view:ring-2 group-focus-visible/asset-view:ring-ring group-focus-visible/asset-view:ring-inset",
         )}
@@ -712,16 +706,16 @@ function ListRow({
             onFocusedRowChange(row.rowKey);
             onToggle(row);
           }}
-          disabled={disabled2}
+          disabled={disabled}
           tabIndex={-1}
           data-asset-index={assetIndex}
           data-marquee-start="true"
           aria-label={
-            existing ? t2("assetPicker.existing", "已添加") : row.name
+            existing ? translate("assetPicker.existing", "已添加") : row.name
           }
           className={cn(
             "flex h-full min-w-0 flex-1 cursor-pointer items-center gap-3 px-3 text-left outline-none",
-            disabled2 && "cursor-not-allowed opacity-45",
+            disabled && "cursor-not-allowed opacity-45",
           )}
           data-action-ui-id={`asset-picker.row.${row.type}`}
         >
@@ -767,7 +761,7 @@ function ListRow({
         )}
         <div className="flex shrink-0 items-center gap-2 pr-3 text-[11px]">
           {existing ? (
-            <ExistingStatusTag label={t2("assetPicker.existing", "已添加")} />
+            <ExistingStatusTag label={translate("assetPicker.existing", "已添加")} />
           ) : (
             reason &&
             reason !== "full" && (
@@ -775,7 +769,7 @@ function ListRow({
             )
           )}
           <span className="text-muted-foreground">
-            {t2(`assetPicker.typeFilter.${row.type}`, row.type)}
+            {translate(`assetPicker.typeFilter.${row.type}`, row.type)}
           </span>
           <span className="flex h-5 min-w-5 shrink-0 items-center justify-center">
             <SelectionOrderBadge order={selectionOrder} />
@@ -788,7 +782,7 @@ function ListRow({
 function ListView({
   rows,
   leadingAction,
-  selected: selected2,
+  selected,
   selectionOrderByKey,
   onToggle,
   reasonForRow,
@@ -806,10 +800,10 @@ function ListView({
   const listVirtualizer = useVirtualizer({
     count: rows.length + leadingCount,
     getScrollElement: () => scrollEl,
-    estimateSize: (index2) =>
-      LIST_ROW_ESTIMATE_PX + (leadingCount && index2 === 0 ? 8 : 0),
-    getItemKey: (index2) =>
-      rows[index2 - leadingCount]?.rowKey ?? "upload-action",
+    estimateSize: (index) =>
+      LIST_ROW_ESTIMATE_PX + (leadingCount && index === 0 ? 8 : 0),
+    getItemKey: (index) =>
+      rows[index - leadingCount]?.rowKey ?? "upload-action",
     overscan: LIST_OVERSCAN_ROWS,
     paddingStart: 8,
     paddingEnd: 8,
@@ -817,15 +811,15 @@ function ListView({
     enabled: shouldVirtualize,
   });
   const scrollAssetAtIndex = reactExports.useCallback(
-    (index2) => {
+    (index) => {
       if (shouldVirtualize) {
-        listVirtualizer.scrollToIndex(index2 + leadingCount, {
+        listVirtualizer.scrollToIndex(index + leadingCount, {
           align: "auto",
         });
         return;
       }
       scrollEl
-        ?.querySelector(`[data-asset-index="${index2}"]`)
+        ?.querySelector(`[data-asset-index="${index}"]`)
         ?.scrollIntoView?.({
           block: "nearest",
         });
@@ -843,16 +837,16 @@ function ListView({
     return (
       <ul className="py-2 pl-2 pr-3">
         {leadingAction && <li className="pb-2">{leadingAction}</li>}
-        {rows.map((row, index2) => (
+        {rows.map((row, index) => (
           <li key={row.rowKey}>
             <ListRow
               row={row}
-              assetIndex={index2}
+              assetIndex={index}
               totalSize={rows.length}
-              isFocused={focusedIndex === index2}
+              isFocused={focusedIndex === index}
               onFocusedRowChange={onFocusedRowChange}
               optionIdPrefix={optionIdPrefix}
-              selected={selected2}
+              selected={selected}
               selectionOrderByKey={selectionOrderByKey}
               onToggle={onToggle}
               reasonForRow={reasonForRow}
@@ -893,7 +887,7 @@ function ListView({
                 isFocused={focusedIndex === assetIndex}
                 onFocusedRowChange={onFocusedRowChange}
                 optionIdPrefix={optionIdPrefix}
-                selected={selected2}
+                selected={selected}
                 selectionOrderByKey={selectionOrderByKey}
                 onToggle={onToggle}
                 reasonForRow={reasonForRow}
@@ -912,10 +906,10 @@ function ListView({
 }
 export function ScrollableAssetView({
   rows,
-  view: view2,
+  view,
   multiple,
   leadingAction,
-  selected: selected2,
+  selected,
   canAddSelection,
   onSelectionChange,
   onToggle,
@@ -933,16 +927,16 @@ export function ScrollableAssetView({
   const selectionOrderByKey = reactExports.useMemo(
     () =>
       new Map(
-        Array.from(selected2.keys(), (rowKey, index2) => [rowKey, index2 + 1]),
+        Array.from(selected.keys(), (rowKey, index) => [rowKey, index + 1]),
       ),
-    [selected2],
+    [selected],
   );
   const rectangle = useMarqueeSelection({
     scrollEl,
     enabled: multiple,
     rows,
-    view: view2,
-    selected: selected2,
+    view,
+    selected,
     canAddSelection,
     onSelectionChange,
   });
@@ -966,11 +960,11 @@ export function ScrollableAssetView({
       : void 0;
   reactExports.useEffect(() => {
     if (!scrollEl) return;
-    if (view2 !== "grid" && view2 !== "list") return;
+    if (view !== "grid" && view !== "list") return;
     scrollEl.scrollTo?.({
       top: 0,
     });
-  }, [scrollEl, view2]);
+  }, [scrollEl, view]);
   reactExports.useEffect(() => {
     if (rows.some((row) => row.rowKey === activeRowKey)) return;
     setActiveRowKey(rows[0]?.rowKey ?? "");
@@ -1031,11 +1025,11 @@ export function ScrollableAssetView({
     };
     syncColumnCount(scrollEl.getBoundingClientRect().width);
     if (typeof ResizeObserver === "undefined") return;
-    const observer2 = new ResizeObserver(([entry]) =>
+    const observer = new ResizeObserver(([entry]) =>
       syncColumnCount(entry.contentRect.width),
     );
-    observer2.observe(scrollEl);
-    return () => observer2.disconnect();
+    observer.observe(scrollEl);
+    return () => observer.disconnect();
   }, [scrollEl]);
   const handleAssetKeyDown = (event) => {
     if (event.target !== event.currentTarget) return;
@@ -1043,17 +1037,17 @@ export function ScrollableAssetView({
       const activeRow = rows[focusedIndex];
       if (!activeRow) return;
       event.preventDefault();
-      const disabled2 =
+      const disabled =
         isRowExisting(activeRow) ||
-        (!!reasonForRow(activeRow) && !selected2.has(activeRow.rowKey));
-      if (!disabled2) onToggle(activeRow);
+        (!!reasonForRow(activeRow) && !selected.has(activeRow.rowKey));
+      if (!disabled) onToggle(activeRow);
       return;
     }
     const nextIndex = assetNavigationIndex(
       event.key,
       focusedIndex,
       rows.length,
-      view2,
+      view,
       gridColumnCount,
     );
     if (nextIndex === void 0) return;
@@ -1079,11 +1073,11 @@ export function ScrollableAssetView({
       data-asset-picker-scroll="true"
       data-action-ui-id="asset-picker.resource-list"
     >
-      {view2 === "grid" ? (
+      {view === "grid" ? (
         <GridView
           rows={rows}
           leadingAction={leadingAction}
-          selected={selected2}
+          selected={selected}
           selectionOrderByKey={selectionOrderByKey}
           onToggle={onToggle}
           reasonForRow={reasonForRow}
@@ -1101,7 +1095,7 @@ export function ScrollableAssetView({
         <ListView
           rows={rows}
           leadingAction={leadingAction}
-          selected={selected2}
+          selected={selected}
           selectionOrderByKey={selectionOrderByKey}
           onToggle={onToggle}
           reasonForRow={reasonForRow}

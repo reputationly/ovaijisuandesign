@@ -1,0 +1,29 @@
+key	old	new	依据
+a2@16:12	a2	leftWorkspaceEntry	最近工作区排序比较中的左侧包装条目，包含工作区和原始索引。
+a2@166:20	a2	leftProject	项目排序比较中的左侧项目对象。
+a2@169:20	a2	leftProject	项目排序比较中的左侧项目对象。
+a2@176:20	a2	leftProject	项目排序比较中的左侧项目对象。
+b3@16:16	b3	rightWorkspaceEntry	最近工作区排序比较中的右侧包装条目，包含工作区和原始索引。
+b3@166:24	b3	rightProject	项目排序比较中的右侧项目对象。
+b3@169:24	b3	rightProject	项目排序比较中的右侧项目对象。
+b3@176:24	b3	rightProject	项目排序比较中的右侧项目对象。
+id2@88:11	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+index2@148:9	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+key2@151:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+keyword2@181:51	keyword2	keyword	去掉打包器防重名追加的后缀，恢复原名 keyword，即该绑定持有的值。
+keyword2@226:9	keyword2	keyword	去掉打包器防重名追加的后缀，恢复原名 keyword，即该绑定持有的值。
+mode2@162:40	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+name2@62:38	name2	projectName	用户输入或提交的项目名称。
+name2@89:11	name2	projectName	用户输入或提交的项目名称。
+os2@24:56	os2	os	去掉打包器防重名追加的后缀，恢复原名 os，即该绑定持有的值。
+path2@150:16	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@27:43	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@59:37	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+platform2@195:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+project2@144:6	project2	project	从项目列表中读取或展示的项目对象。
+project2@149:14	project2	project	从项目列表中读取或展示的项目对象。
+project2@185:31	project2	project	从项目列表中读取或展示的项目对象。
+project2@191:6	project2	project	从项目列表中读取或展示的项目对象。
+project2@245:26	project2	project	从项目列表中读取或展示的项目对象。
+project2@76:31	project2	project	从项目列表中读取或展示的项目对象。
+unified2@32:9	unified2	unified	去掉打包器防重名追加的后缀，恢复原名 unified，即该绑定持有的值。

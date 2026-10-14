@@ -1,17 +1,15 @@
 // search-button.jsx
-import {
-  MonochromeIcon,
-  Search,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
+import { Search } from "../media-editing/lucide-icon-wraps.js";
 import {
   Tooltip,
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
-import { resolveShortcutDisplay } from "../workspace/other-modifiers.js";
+import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { resolveShortcutDisplay } from "../workspace/resolve-shortcut-display.js";
 import { ShortcutHint } from "../workspace/shortcut-hint.jsx";
 export const SIDEBAR_BADGE_TARGET_BY_ROUTE = {
   "/": "launchpad",
@@ -21,7 +19,7 @@ export const SIDEBAR_BADGE_TARGET_BY_ROUTE = {
   "/workflows": "workflows",
 };
 export function SearchButton({ onClick, surface = "topbar", dataActionUiId }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { app } = usePlatform();
   const shortcut = resolveShortcutDisplay("CommandOrControl+K", app.os);
   const sidebar = surface === "sidebar";
@@ -31,7 +29,7 @@ export function SearchButton({ onClick, surface = "topbar", dataActionUiId }) {
         render={
           <button
             type="button"
-            aria-label={`${t2("topbar.search")} ${shortcut.text}`}
+            aria-label={`${t("topbar.search")} ${shortcut.text}`}
             data-action-ui-id={dataActionUiId}
             onClick={onClick}
             className={cn(
@@ -48,7 +46,7 @@ export function SearchButton({ onClick, surface = "topbar", dataActionUiId }) {
         </MonochromeIcon>
       </TooltipTrigger>
       <TooltipContent side={sidebar ? "right" : "bottom"}>
-        {t2("topbar.search")}
+        {t("topbar.search")}
         <ShortcutHint
           accelerator="CommandOrControl+K"
           os={app.os}

@@ -1,16 +1,10 @@
 // badge-variants.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "./dialog-content.jsx";
-import {
-  cva,
-  DialogBackdrop,
-  DialogClose$1 as DialogClose,
-  DialogDescription$2,
-  DialogPopup,
-  DialogTitle$2,
-  mergeProps$1 as mergeProps,
-  useRender,
-} from "../vendor.js";
+import { Button, mergeTailwindClasses as cn } from "./dialog-content.jsx";
+import { cva } from "class-variance-authority";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
+import { DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2, DialogPopup, DialogTitle$2 } from "./base-ui.js";
 import { AlertDialogPortal } from "../assets/credit-query-keys.jsx";
 export function DialogTitle({ className, ...props }) {
   return (
@@ -59,20 +53,20 @@ export function AlertDialogOverlay({ className, ...props }) {
 }
 export function AlertDialogContent({
   className,
-  size: size2 = "default",
-  layer: layer2 = "default",
+  size = "default",
+  layer = "default",
   ...props
 }) {
-  const layerClassName = layer2 === "nested" ? "z-[60]" : "z-50";
+  const layerClassName = layer === "nested" ? "z-[60]" : "z-50";
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay
-        forceRender={layer2 === "nested"}
+        forceRender={layer === "nested"}
         className={layerClassName}
       />
       <DialogPopup
         data-slot="alert-dialog-content"
-        data-size={size2}
+        data-size={size}
         className={cn(
           "elevated-surface-border group/alert-dialog-content fixed top-1/2 left-1/2 grid w-full -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl bg-popover p-6 text-popover-foreground shadow-xl duration-100 outline-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-md data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           layerClassName,
@@ -143,14 +137,14 @@ export function AlertDialogAction({ className, ...props }) {
 export function AlertDialogCancel({
   className,
   variant = "outline",
-  size: size2 = "default",
+  size = "default",
   ...props
 }) {
   return (
     <DialogClose
       data-slot="alert-dialog-cancel"
       className={cn(className)}
-      render={<Button variant={variant} size={size2} />}
+      render={<Button variant={variant} size={size} />}
       {...props}
     />
   );
@@ -185,7 +179,7 @@ const badgeVariants = cva(
 export function Badge({
   className,
   variant = "default",
-  render: render2,
+  render,
   ...props
 }) {
   return useRender({
@@ -201,7 +195,7 @@ export function Badge({
       },
       props,
     ),
-    render: render2,
+    render,
     state: {
       slot: "badge",
       variant,

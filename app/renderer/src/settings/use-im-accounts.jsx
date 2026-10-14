@@ -1,12 +1,12 @@
 // use-im-accounts.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { services } from "../vendor-inline/vscode-base/graph.jsx";
 import {
   IImBridgeMainService,
   PlaybackPlayIcon,
 } from "../workspace/home-service.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 const integrationActionGroupClassName =
   "flex w-52 shrink-0 items-center justify-end gap-1.5";
 export function IntegrationCard({ className, ...props }) {
@@ -43,7 +43,7 @@ export function IntegrationActionButton({
   className,
   tone,
   leadingIcon,
-  children: children2,
+  children,
   ...props
 }) {
   return (
@@ -58,7 +58,7 @@ export function IntegrationActionButton({
       {...props}
     >
       {leadingIcon}
-      {children2}
+      {children}
     </Button>
   );
 }
@@ -100,7 +100,7 @@ export function getImBridgeMainService() {
   return _service;
 }
 export function useImAccounts() {
-  const [state2, setState] = reactExports.useState({
+  const [state, setState] = reactExports.useState({
     accounts: [],
     legacyCredentialsPresent: false,
     loading: true,
@@ -167,7 +167,7 @@ export function useImAccounts() {
     await refresh();
   }, [refresh]);
   return {
-    ...state2,
+    ...state,
     refresh,
     addAccount,
     removeAccount,
@@ -184,9 +184,9 @@ export function useImStatuses() {
     let cancelled = false;
     void svc.listStatuses().then((initial) => {
       if (cancelled) return;
-      const map3 = {};
-      for (const s2 of initial) map3[s2.accountId] = s2;
-      setStatuses(map3);
+      const map = {};
+      for (const accountStatus of initial) map[accountStatus.accountId] = accountStatus;
+      setStatuses(map);
     });
     const unsubscribe = svc.onStatusChange((status) => {
       setStatuses((prev) => ({

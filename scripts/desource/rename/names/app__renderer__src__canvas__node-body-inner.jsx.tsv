@@ -1,0 +1,14 @@
+key	old	new	依据
+i2@27:12	i2	index	循环下标逐段读取 padding 字符串并识别括号和空白边界。
+e2@71:55	e2	pointerEvent	onPointerDown 回调用事件的 clientX、clientY 记录拖拽起点。
+e2@78:55	e2	pointerEvent	onPointerMove 回调用事件坐标计算拖拽距离。
+e2@89:6	e2	mouseEvent	onDoubleClick 回调在未拖动且没有模态框时转交双击事件。
+selected2@12:34	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+tags2@12:45	tags2	tags	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+values3@24:9	values3	values	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+depth2@25:7	depth2	depth	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+start2@26:7	start2	start	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+selected2@43:13	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@45:13	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleDoubleClick2@88:9	handleDoubleClick2	handleDoubleClick	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+start2@79:11	start2	start	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

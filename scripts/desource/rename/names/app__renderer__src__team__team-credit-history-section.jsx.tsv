@@ -1,0 +1,9 @@
+key	new	reason
+t2@116:14	t	useTranslation() 返回的翻译函数 t
+t2@163:14	t	useTranslation() 返回的翻译函数 t
+uid2@35:37	uid	去掉打包器加的数字后缀，恢复原名 uid
+config2@61:28	config	去掉打包器加的数字后缀，恢复原名 config
+config2@79:9	config	去掉打包器加的数字后缀，恢复原名 config
+next2@84:12	next	去掉打包器加的数字后缀，恢复原名 next
+current2@87:48	current	去掉打包器加的数字后缀，恢复原名 current
+children2@112:13	children	去掉打包器加的数字后缀，恢复原名 children

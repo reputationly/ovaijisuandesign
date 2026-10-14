@@ -1,0 +1,8 @@
+id2@6:7	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+children2@10:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+close2@18:11	close2	closeButton	原名去后缀后发生作用域冲突；该绑定实际表示 closeButton。
+node2@19:11	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+style2@21:11	style2	style	去掉打包器防重名追加的后缀，恢复原名 style，即该绑定持有的值。
+node2@29:11	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+close2@94:11	close2	closeButton	原名去后缀后发生作用域冲突；该绑定实际表示 closeButton。
+current2@125:15	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。

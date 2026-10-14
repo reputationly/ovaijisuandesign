@@ -1,0 +1,6 @@
+key	new	reason
+navigation2@14:9	dialogNavigation	团队弹窗导航上下文；navigation 是全局名
+close2@19:11	handleClose	关闭回调；close 是全局名
+previous2@35:11	previous	去掉打包器加的数字后缀，恢复原名 previous
+children2@13:54	children	去掉打包器加的数字后缀，恢复原名 children
+children2@32:41	children	去掉打包器加的数字后缀，恢复原名 children

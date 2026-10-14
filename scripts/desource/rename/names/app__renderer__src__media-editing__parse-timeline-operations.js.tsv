@@ -1,0 +1,26 @@
+key	new	依据
+toolName2@11:45	toolName	传入别名归一化函数的工具名，用于查找时间线操作对应的规范名称。
+record2@15:22	record	stringField 接收的结果对象，供后续按候选字段名读取字符串。
+keys2@15:31	keys	stringField 用于依次尝试读取的字段名列表。
+key2@17:14	key	当前尝试读取的字段名，命中字符串时立即返回对应值。
+record2@24:22	record	recordField 接收的结果对象，供后续按候选字段名读取对象。
+keys2@24:31	keys	recordField 用于依次尝试读取的字段名列表。
+key2@26:14	key	当前尝试读取的字段名，命中记录对象时立即返回该对象。
+record2@33:23	record	booleanField 接收的结果对象，供后续按候选字段名读取布尔值。
+keys2@33:32	keys	booleanField 用于依次尝试读取的字段名列表。
+key2@35:14	key	当前尝试读取的字段名，命中布尔值时立即返回该值。
+record2@41:27	record	recordArrayField 接收的结果对象，供后续按候选字段名读取数组。
+keys2@41:36	keys	recordArrayField 用于依次尝试读取的字段名列表。
+key2@43:14	key	当前尝试读取的字段名，命中数组时立即返回该数组。
+path2@52:19	path	basename 从该路径中移除查询部分并提取末段文件名。
+values3@58:26	values	firstDefined 依次检查这些候选字符串并返回第一个非空值。
+path2@115:13	path	canvas 写入结果中的路径，用于在文本操作摘要缺少名称时提取显示名。
+name2@116:13	textName	文本创建操作从参数名称或结果路径末段得到的输入摘要名称。
+name2@135:13	tableName	表格操作从标题或表格路径末段得到的输入摘要名称。
+name2@158:13	assetName	新建媒体素材路径末段的文件名，用作操作输入摘要。
+toolName2@176:3	toolName	待解析的工具名，由函数内部归一化后用于选择操作解析分支。
+index2@201:30	index	结果项缺少显式索引时，当前结果在 results 数组中的位置。
+index2@208:35	index	当前画布写入项在 items 数组中的位置，用于关联其解析结果。
+groupId2@218:13	groupId	从分组操作结果提取的分组 ID，用作摘要和目标组标识。
+groupId2@234:13	groupId	从最近输出分组结果提取的分组 ID，用作摘要和目标组标识。
+name2@257:13	planName	从计划标题或参数名称得到的生产计划输入摘要名称。

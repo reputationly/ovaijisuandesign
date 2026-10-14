@@ -1,0 +1,8 @@
+key	old	new	依据
+isMac2@110:9	isMac2	isMac	去掉打包器防重名追加的后缀，恢复原名 isMac，即该绑定持有的值。
+modifiers2@111:9	modifiers2	modifiers	去掉打包器防重名追加的后缀，恢复原名 modifiers，即该绑定持有的值。
+os2@109:53	os2	os	去掉打包器防重名追加的后缀，恢复原名 os，即该绑定持有的值。
+raw2@116:11	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+token2@126:29	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+token2@128:24	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+tokens2@112:9	tokens2	tokens	去掉打包器防重名追加的后缀，恢复原名 tokens，即该绑定持有的值。

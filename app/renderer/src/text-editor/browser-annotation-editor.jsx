@@ -1,12 +1,7 @@
 // browser-annotation-editor.jsx
-import {
-  Check,
-  LoaderCircle,
-  reactExports,
-  Send,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, LoaderCircle, Send, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
@@ -22,12 +17,12 @@ const DEFAULT_IMAGE_SIZE = {
   width: 1200,
   height: 800,
 };
-function sameBounds(a2, b3) {
+function sameBounds(a, b) {
   return (
-    a2.x === b3.x &&
-    a2.y === b3.y &&
-    a2.width === b3.width &&
-    a2.height === b3.height
+    a.x === b.x &&
+    a.y === b.y &&
+    a.width === b.width &&
+    a.height === b.height
   );
 }
 function resolveDisplaySize(imageSize, stageSize) {
@@ -36,21 +31,21 @@ function resolveDisplaySize(imageSize, stageSize) {
     stageSize.width > 0 ? Math.max(1, stageSize.width) : source.width;
   const availableHeight =
     stageSize.height > 0 ? Math.max(1, stageSize.height) : source.height;
-  const scale2 = Math.min(
+  const scale = Math.min(
     1,
     availableWidth / source.width,
     availableHeight / source.height,
   );
   return {
-    width: Math.max(1, Math.round(source.width * scale2)),
-    height: Math.max(1, Math.round(source.height * scale2)),
-    scale: scale2,
+    width: Math.max(1, Math.round(source.width * scale)),
+    height: Math.max(1, Math.round(source.height * scale)),
+    scale,
   };
 }
-function buildTagData(id2, text2, bounds, imageSize) {
+function buildTagData(id, text, bounds, imageSize) {
   const fontSize = 18;
   const longestLine = Math.max(
-    ...text2.split("\n").map((line) => line.length),
+    ...text.split("\n").map((line) => line.length),
     1,
   );
   const estimatedWidth = Math.max(
@@ -59,7 +54,7 @@ function buildTagData(id2, text2, bounds, imageSize) {
   );
   const estimatedHeight = Math.max(
     34,
-    text2.split("\n").length * fontSize * 1.4 + 8,
+    text.split("\n").length * fontSize * 1.4 + 8,
   );
   const gap = 14;
   const canPlaceRight =
@@ -80,7 +75,7 @@ function buildTagData(id2, text2, bounds, imageSize) {
     Math.min(cardY + estimatedHeight - 8, bounds.y + bounds.height * 0.78),
   );
   return {
-    id: id2,
+    id,
     type: "tag",
     anchorX,
     anchorY,
@@ -93,7 +88,7 @@ function buildTagData(id2, text2, bounds, imageSize) {
       96,
       Math.min(imageSize.width * 0.48, imageSize.width - 16),
     ),
-    text: text2,
+    text,
     style: {
       stroke: ANNOTATION_STROKE,
       strokeWidth: ANNOTATION_STROKE_WIDTH,
@@ -124,17 +119,17 @@ const COMMITTED_RECTANGLE_STYLE = {
   selectionHandleStroke: "#FFFFFF",
   selectionHandleFill: ANNOTATION_STROKE,
 };
-function commentLengthBucket(length2) {
-  if (length2 <= 20) return "1_20";
-  if (length2 <= 100) return "21_100";
+function commentLengthBucket(commentLength) {
+  if (commentLength <= 20) return "1_20";
+  if (commentLength <= 100) return "21_100";
   return "101_plus";
 }
 function AnnotationHeaderButton({
   actionId,
   label,
-  disabled: disabled2 = false,
+  disabled = false,
   onClick,
-  children: children2,
+  children,
 }) {
   return (
     <button
@@ -142,17 +137,17 @@ function AnnotationHeaderButton({
       data-action-ui-id={actionId}
       aria-label={label}
       title={label}
-      disabled={disabled2}
+      disabled={disabled}
       onClick={onClick}
       className="browser-annotation-header-button flex size-8 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-35"
     >
-      {children2}
+      {children}
     </button>
   );
 }
 function DraftCommentInput({
   bounds,
-  scale: scale2,
+  scale,
   canvasWidth,
   canvasHeight,
   value,
@@ -160,41 +155,41 @@ function DraftCommentInput({
   onConfirm,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const inputRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    const frame2 = requestAnimationFrame(() => inputRef.current?.focus());
-    return () => cancelAnimationFrame(frame2);
+    const frame = requestAnimationFrame(() => inputRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
   }, []);
-  const box2 = {
-    left: bounds.x * scale2,
-    top: bounds.y * scale2,
-    width: bounds.width * scale2,
-    height: bounds.height * scale2,
+  const box = {
+    left: bounds.x * scale,
+    top: bounds.y * scale,
+    width: bounds.width * scale,
+    height: bounds.height * scale,
   };
   const inputWidth = Math.max(180, Math.min(420, canvasWidth - 16));
   const inputHeight = 50;
   const gap = 14;
   const edgeInset = 8;
-  let left = box2.left + (box2.width - inputWidth) / 2;
+  let left = box.left + (box.width - inputWidth) / 2;
   left = Math.max(
     edgeInset,
     Math.min(left, Math.max(edgeInset, canvasWidth - inputWidth - edgeInset)),
   );
-  let top2 = box2.top + box2.height + gap;
-  if (top2 + inputHeight > canvasHeight - edgeInset) {
-    top2 = box2.top - gap - inputHeight;
+  let popoverTop = box.top + box.height + gap;
+  if (popoverTop + inputHeight > canvasHeight - edgeInset) {
+    popoverTop = box.top - gap - inputHeight;
   }
-  top2 = Math.max(
+  popoverTop = Math.max(
     edgeInset,
-    Math.min(top2, Math.max(edgeInset, canvasHeight - inputHeight - edgeInset)),
+    Math.min(popoverTop, Math.max(edgeInset, canvasHeight - inputHeight - edgeInset)),
   );
   return (
     <form
       className="browser-annotation-comment absolute z-20 flex items-center gap-1 rounded-full border border-border bg-card p-1.5 shadow-lg"
       style={{
         left,
-        top: top2,
+        top: popoverTop,
         width: inputWidth,
         minHeight: inputHeight,
       }}
@@ -209,10 +204,10 @@ function DraftCommentInput({
         value={value}
         rows={1}
         data-action-ui-id="browser.annotation-comment"
-        aria-label={t2("workspace.browser.annotationComment", {
+        aria-label={t("workspace.browser.annotationComment", {
           defaultValue: "批注内容",
         })}
-        placeholder={t2("workspace.browser.annotationCommentPlaceholder", {
+        placeholder={t("workspace.browser.annotationCommentPlaceholder", {
           defaultValue: "添加批注…",
         })}
         onChange={(event) => onChange(event.target.value)}
@@ -236,10 +231,10 @@ function DraftCommentInput({
       <button
         type="submit"
         data-action-ui-id="browser.annotation-add"
-        aria-label={t2("workspace.browser.annotationConfirm", {
+        aria-label={t("workspace.browser.annotationConfirm", {
           defaultValue: "确认批注",
         })}
-        title={t2("workspace.browser.annotationConfirm", {
+        title={t("workspace.browser.annotationConfirm", {
           defaultValue: "确认批注",
         })}
         disabled={!value.trim()}
@@ -267,7 +262,7 @@ export function BrowserAnnotationEditor({
   onClose,
   onSend,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const editorRef = reactExports.useRef(null);
   const stageRef = reactExports.useRef(null);
   const shapeAddCleanupRef = reactExports.useRef(null);
@@ -285,29 +280,29 @@ export function BrowserAnnotationEditor({
   const [sending, setSending] = reactExports.useState(false);
   reactExports.useEffect(() => {
     let disposed = false;
-    const image2 = new Image();
-    image2.decoding = "async";
-    image2.onload = () => {
+    const image = new Image();
+    image.decoding = "async";
+    image.onload = () => {
       if (disposed) return;
       const width =
         viewportSize?.width ??
-        (Number.isFinite(image2.naturalWidth) && image2.naturalWidth > 0
-          ? image2.naturalWidth
+        (Number.isFinite(image.naturalWidth) && image.naturalWidth > 0
+          ? image.naturalWidth
           : DEFAULT_IMAGE_SIZE.width);
       const height =
         viewportSize?.height ??
-        (Number.isFinite(image2.naturalHeight) && image2.naturalHeight > 0
-          ? image2.naturalHeight
+        (Number.isFinite(image.naturalHeight) && image.naturalHeight > 0
+          ? image.naturalHeight
           : DEFAULT_IMAGE_SIZE.height);
       setImageSize({
         width,
         height,
       });
     };
-    image2.onerror = () => {
+    image.onerror = () => {
       if (!disposed) setImageSize(DEFAULT_IMAGE_SIZE);
     };
-    image2.src = src;
+    image.src = src;
     return () => {
       disposed = true;
     };
@@ -315,18 +310,18 @@ export function BrowserAnnotationEditor({
   reactExports.useLayoutEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
-    const update2 = () => {
+    const update = () => {
       const rect = stage.getBoundingClientRect();
       setStageSize({
         width: rect.width,
         height: rect.height,
       });
     };
-    update2();
+    update();
     if (typeof ResizeObserver === "undefined") return;
-    const observer2 = new ResizeObserver(update2);
-    observer2.observe(stage);
-    return () => observer2.disconnect();
+    const observer = new ResizeObserver(update);
+    observer.observe(stage);
+    return () => observer.disconnect();
   }, []);
   reactExports.useEffect(
     () => () => {
@@ -383,8 +378,8 @@ export function BrowserAnnotationEditor({
     if (
       remaining.length !== currentAnnotations.length ||
       remaining.some(
-        (annotation, index2) =>
-          annotation.comment !== currentAnnotations[index2]?.comment,
+        (annotation, index) =>
+          annotation.comment !== currentAnnotations[index]?.comment,
       )
     ) {
       annotationsRef.current = remaining;
@@ -443,12 +438,12 @@ export function BrowserAnnotationEditor({
       if (frameId !== null) cancelAnimationFrame(frameId);
     };
   }, [draft?.rectangleId]);
-  const updateDraftComment = reactExports.useCallback((comment2) => {
+  const updateDraftComment = reactExports.useCallback((comment) => {
     const currentDraft = draftRef.current;
     if (!currentDraft) return;
     const nextDraft = {
       ...currentDraft,
-      comment: comment2,
+      comment,
     };
     draftRef.current = nextDraft;
     setDraft(nextDraft);
@@ -466,7 +461,7 @@ export function BrowserAnnotationEditor({
     editor?.setStyle(DRAFT_RECTANGLE_STYLE);
   }, []);
   reactExports.useEffect(() => {
-    const handleKeyDown2 = (event) => {
+    const handleKeyDown = (event) => {
       if (
         event.isComposing ||
         (event.key !== "Delete" && event.key !== "Backspace")
@@ -483,10 +478,10 @@ export function BrowserAnnotationEditor({
         return;
       }
       const editor = editorRef.current?.getEditor();
-      const selected2 = editor?.getSelectedShape();
-      if (!editor || !selected2) return;
+      const selected = editor?.getSelectedShape();
+      if (!editor || !selected) return;
       const currentDraft = draftRef.current;
-      if (currentDraft?.rectangleId === selected2.id) {
+      if (currentDraft?.rectangleId === selected.id) {
         event.preventDefault();
         event.stopImmediatePropagation();
         cancelDraft();
@@ -494,7 +489,7 @@ export function BrowserAnnotationEditor({
       }
       const annotation = annotationsRef.current.find(
         (item) =>
-          item.rectangleId === selected2.id || item.tagId === selected2.id,
+          item.rectangleId === selected.id || item.tagId === selected.id,
       );
       if (!annotation) return;
       event.preventDefault();
@@ -504,14 +499,14 @@ export function BrowserAnnotationEditor({
       editor.setTool("rectangle");
       editor.setStyle(DRAFT_RECTANGLE_STYLE);
     };
-    window.addEventListener("keydown", handleKeyDown2, true);
-    return () => window.removeEventListener("keydown", handleKeyDown2, true);
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, [cancelDraft]);
   const confirmDraft = reactExports.useCallback(() => {
     const currentDraft = draftRef.current;
     const editor = editorRef.current?.getEditor();
-    const comment2 = currentDraft?.comment.trim() ?? "";
-    if (!currentDraft || !editor || !comment2) return;
+    const comment = currentDraft?.comment.trim() ?? "";
+    if (!currentDraft || !editor || !comment) return;
     const rectangle = editor
       .getState()
       .shapes.find((shape) => shape.id === currentDraft.rectangleId);
@@ -521,7 +516,7 @@ export function BrowserAnnotationEditor({
     const tagId = `browser-annotation-tag-${Date.now().toString(36)}-${sequence}`;
     const tag = buildTagData(
       tagId,
-      comment2,
+      comment,
       bounds,
       imageSize ?? DEFAULT_IMAGE_SIZE,
     );
@@ -537,7 +532,7 @@ export function BrowserAnnotationEditor({
       id: `browser-annotation-${sequence}`,
       rectangleId: currentDraft.rectangleId,
       tagId,
-      comment: comment2,
+      comment,
     };
     const nextAnnotations = [...annotationsRef.current, nextAnnotation];
     annotationsRef.current = nextAnnotations;
@@ -545,7 +540,7 @@ export function BrowserAnnotationEditor({
     trackEvent(TRACK_EVENTS.BROWSER_ANNOTATION_ACTION, {
       action: "add",
       annotation_count: nextAnnotations.length,
-      comment_length_bucket: commentLengthBucket(comment2.length),
+      comment_length_bucket: commentLengthBucket(comment.length),
       result: "success",
     });
   }, [imageSize]);
@@ -594,7 +589,7 @@ export function BrowserAnnotationEditor({
   return (
     <section
       className="flex min-h-0 flex-1 flex-col bg-background"
-      aria-label={t2("workspace.browser.annotation", {
+      aria-label={t("workspace.browser.annotation", {
         defaultValue: "批注",
       })}
     >
@@ -607,7 +602,7 @@ export function BrowserAnnotationEditor({
         <div className="flex shrink-0 items-center gap-1">
           <AnnotationHeaderButton
             actionId="browser.annotation-exit"
-            label={t2("workspace.browser.annotationClose", {
+            label={t("workspace.browser.annotationClose", {
               defaultValue: "退出批注",
             })}
             onClick={() => void closeEditor()}
@@ -616,7 +611,7 @@ export function BrowserAnnotationEditor({
           </AnnotationHeaderButton>
         </div>
         <div className="min-w-0 flex-1 truncate text-center text-sm font-medium">
-          {t2("workspace.browser.annotationTitle", {
+          {t("workspace.browser.annotationTitle", {
             defaultValue: "正在批注 · {{site}}",
             site: title,
           })}
@@ -625,10 +620,10 @@ export function BrowserAnnotationEditor({
           <button
             type="button"
             data-action-ui-id="browser.annotation-send"
-            aria-label={t2("workspace.browser.annotationSend", {
+            aria-label={t("workspace.browser.annotationSend", {
               defaultValue: "发送批注",
             })}
-            title={t2("workspace.browser.annotationSend", {
+            title={t("workspace.browser.annotationSend", {
               defaultValue: "发送批注",
             })}
             disabled={annotations.length === 0 || sending || !editorReady}
@@ -641,7 +636,7 @@ export function BrowserAnnotationEditor({
               <Icon icon={Send} size="sm" />
             )}
             <span>
-              {t2("workspace.browser.annotationSend", {
+              {t("workspace.browser.annotationSend", {
                 defaultValue: "发送",
               })}
             </span>
@@ -701,7 +696,7 @@ export function BrowserAnnotationEditor({
         ) : (
           <div className="flex size-full items-center justify-center text-sm text-muted-foreground">
             <Icon icon={LoaderCircle} size="md" className="mr-2 animate-spin" />
-            {t2("workspace.browser.annotationLoading", {
+            {t("workspace.browser.annotationLoading", {
               defaultValue: "正在准备截图…",
             })}
           </div>

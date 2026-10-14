@@ -1,5 +1,8 @@
 // delete-account-confirm-dialog.jsx
-import { AlertTriangle, reactExports, useMutation, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";
@@ -26,7 +29,7 @@ import { Checkbox } from "../infra/checkbox.jsx";
 import { Label } from "./use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { clearLocalAuth } = useAuth();
   const dataErasedId = reactExports.useId();
   const selfInitiatedId = reactExports.useId();
@@ -77,7 +80,7 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
     mutationFn: () => sendCancelCode(),
     retry: false,
     onSuccess: () => {
-      dedupedToast.success(t2("account.delete.codeSent"));
+      dedupedToast.success(t("account.delete.codeSent"));
       startCountdown();
       setSubmitLocked(true);
       if (submitLockTimerRef.current) clearTimeout(submitLockTimerRef.current);
@@ -87,27 +90,27 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
       );
     },
     onError: () => {
-      dedupedToast.error(t2("account.delete.codeSendFailed"));
+      dedupedToast.error(t("account.delete.codeSendFailed"));
     },
   });
   const mutation = useMutation({
     mutationFn: () => deleteAccount(verifyCode.trim()),
     retry: false,
     onSuccess: () => {
-      dedupedToast.success(t2("account.delete.successToast"));
+      dedupedToast.success(t("account.delete.successToast"));
       onDeleted();
       clearLocalAuth();
     },
     onError: (error) => {
-      const message2 = backendUserMessage(error);
-      if (message2) {
-        setActionError(message2);
+      const message = backendUserMessage(error);
+      if (message) {
+        setActionError(message);
         return;
       }
       setActionError(
         isVerifyCodeError(error)
-          ? t2("account.delete.verifyCodeError")
-          : t2("account.delete.failed"),
+          ? t("account.delete.verifyCodeError")
+          : t("account.delete.failed"),
       );
     },
   });
@@ -123,16 +126,16 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
       >
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t2("account.delete.confirmTitle")}
+            {t("account.delete.confirmTitle")}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t2("account.delete.confirmIntro")}
+            {t("account.delete.confirmIntro")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="scrollbar-fade min-h-0 space-y-6 overflow-y-auto pr-1.5 [scrollbar-gutter:stable]">
           <ol className="list-decimal space-y-1 rounded-lg bg-secondary py-2.5 pr-3 pl-7 text-xs/relaxed text-foreground/70">
-            {WARNING_KEYS.map((key2) => (
-              <li key={key2}>{t2(key2)}</li>
+            {WARNING_KEYS.map((key) => (
+              <li key={key}>{t(key)}</li>
             ))}
           </ol>
           <div className="space-y-2.5">
@@ -150,7 +153,7 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
                 htmlFor={dataErasedId}
                 className="cursor-pointer pt-1.5 text-sm font-normal pointer-coarse:pt-3"
               >
-                {t2("account.delete.ackDataErased")}
+                {t("account.delete.ackDataErased")}
               </Label>
             </div>
             <div className="hilo-checkbox-label flex items-start">
@@ -167,19 +170,19 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
                 htmlFor={selfInitiatedId}
                 className="cursor-pointer pt-1.5 text-sm font-normal pointer-coarse:pt-3"
               >
-                {t2("account.delete.ackSelfInitiated")}
+                {t("account.delete.ackSelfInitiated")}
               </Label>
             </div>
           </div>
           <div className="space-y-1.5">
             <Label className="text-sm font-normal">
-              {t2("account.delete.verifyCodeLabel")}
+              {t("account.delete.verifyCodeLabel")}
             </Label>
             <div className="flex gap-2">
               <Input3
                 value={verifyCode}
-                onChange={(e2) => setVerifyCode(e2.target.value)}
-                placeholder={t2("account.delete.verifyCodePlaceholder")}
+                onChange={(changeEvent) => setVerifyCode(changeEvent.target.value)}
+                placeholder={t("account.delete.verifyCodePlaceholder")}
                 disabled={mutation.isPending}
                 inputMode="numeric"
                 autoComplete="one-time-code"
@@ -197,10 +200,10 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
                 data-action-ui-id="account-delete-confirm.send-code"
               >
                 {countdown > 0
-                  ? t2("account.delete.resendCodeIn", {
+                  ? t("account.delete.resendCodeIn", {
                       seconds: countdown,
                     })
-                  : t2("account.delete.sendCode")}
+                  : t("account.delete.sendCode")}
               </Button>
             </div>
           </div>
@@ -225,7 +228,7 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={mutation.isPending}>
-            {t2("common.cancel")}
+            {t("common.cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
@@ -238,7 +241,7 @@ export function DeleteAccountConfirmDialog({ open, onOpenChange, onDeleted }) {
             }}
             data-action-ui-id="account-delete-confirm.submit"
           >
-            {t2("account.delete.submitButton")}
+            {t("account.delete.submitButton")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

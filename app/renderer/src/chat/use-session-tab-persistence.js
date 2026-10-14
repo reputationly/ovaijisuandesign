@@ -1,29 +1,29 @@
 // use-session-tab-persistence.js
 import { getElectronPlatform } from "../infra/use-canvas-node-assets-store.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { SessionTabsPersister } from "../canvas/session-tabs-persister.js";
 
 function createWorkspaceSessionTabsSnapshot(
-  state2,
+  state,
   excludedSessionIds = new Set(),
 ) {
-  const openedTabIds = state2.openedTabOrder
-    .filter((id2) => {
-      const session = state2.sessions.get(id2);
+  const openedTabIds = state.openedTabOrder
+    .filter((sessionId) => {
+      const session = state.sessions.get(sessionId);
       return (
         session !== void 0 &&
-        !excludedSessionIds.has(id2) &&
+        !excludedSessionIds.has(sessionId) &&
         !(session.runtimeSessionId
           ? excludedSessionIds.has(session.runtimeSessionId)
           : false)
       );
     })
-    .map((id2) => {
-      const session = state2.sessions.get(id2);
-      return session?.runtimeSessionId ?? id2;
+    .map((sessionId) => {
+      const session = state.sessions.get(sessionId);
+      return session?.runtimeSessionId ?? sessionId;
     });
-  const rawFocused = state2.focusedSessionId;
-  const focusedSession = rawFocused ? state2.sessions.get(rawFocused) : void 0;
+  const rawFocused = state.focusedSessionId;
+  const focusedSession = rawFocused ? state.sessions.get(rawFocused) : void 0;
   const persistedFocusedId = focusedSession
     ? (focusedSession.runtimeSessionId ?? rawFocused)
     : null;
@@ -43,8 +43,8 @@ function createWorkspaceSessionTabsSnapshot(
   };
 }
 
-function workspaceSessionTabsSignature(snapshot2) {
-  return JSON.stringify([snapshot2.focusedSessionId, snapshot2.openedTabIds]);
+function workspaceSessionTabsSignature(snapshot) {
+  return JSON.stringify([snapshot.focusedSessionId, snapshot.openedTabIds]);
 }
 
 function resolveRestoreDecision(saved, sessions) {
@@ -52,9 +52,9 @@ function resolveRestoreDecision(saved, sessions) {
     return {
       kind: "no-saved-state",
     };
-  const availableIds = new Set(sessions.map((s2) => s2.id));
-  const openedTabIds = saved.openedTabIds.filter((id2) =>
-    availableIds.has(id2),
+  const availableIds = new Set(sessions.map((session) => session.id));
+  const openedTabIds = saved.openedTabIds.filter((sessionId) =>
+    availableIds.has(sessionId),
   );
   if (openedTabIds.length === 0) {
     return saved.openedTabIds.length > 0
@@ -116,15 +116,15 @@ export function useSessionTabPersistence(
   const persistIfReady = reactExports.useCallback(() => {
     const workspaceKey = workspaceRef.current;
     if (!readyRef.current || !workspaceKey) return;
-    const state2 = sessionStore.getState();
+    const state = sessionStore.getState();
     const excludedSessionIds = getExcludedSessionIds?.() ?? new Set();
-    let snapshot2 = createWorkspaceSessionTabsSnapshot(
-      state2,
+    let snapshot = createWorkspaceSessionTabsSnapshot(
+      state,
       excludedSessionIds,
     );
-    const rawFocusedId = state2.focusedSessionId;
+    const rawFocusedId = state.focusedSessionId;
     const focusedSession = rawFocusedId
-      ? state2.sessions.get(rawFocusedId)
+      ? state.sessions.get(rawFocusedId)
       : void 0;
     const focusedIsExcluded = Boolean(
       rawFocusedId &&
@@ -137,38 +137,38 @@ export function useSessionTabPersistence(
     const scopedConversationActive = preservedRawFocusedId !== void 0;
     if (scopedConversationActive) {
       const preservedSession = preservedRawFocusedId
-        ? state2.sessions.get(preservedRawFocusedId)
+        ? state.sessions.get(preservedRawFocusedId)
         : void 0;
       const preservedFocusedId = preservedRawFocusedId
         ? (preservedSession?.runtimeSessionId ?? preservedRawFocusedId)
         : null;
-      snapshot2 = {
-        ...snapshot2,
+      snapshot = {
+        ...snapshot,
         focusedSessionId:
           preservedFocusedId &&
-          snapshot2.openedTabIds.includes(preservedFocusedId)
+          snapshot.openedTabIds.includes(preservedFocusedId)
             ? preservedFocusedId
             : null,
       };
-      lastPresentableFocusedIdRef.current = snapshot2.focusedSessionId;
+      lastPresentableFocusedIdRef.current = snapshot.focusedSessionId;
     } else if (focusedIsExcluded) {
       const previousFocusedId = lastPresentableFocusedIdRef.current;
       if (
         previousFocusedId &&
-        snapshot2.openedTabIds.includes(previousFocusedId)
+        snapshot.openedTabIds.includes(previousFocusedId)
       ) {
-        snapshot2 = {
-          ...snapshot2,
+        snapshot = {
+          ...snapshot,
           focusedSessionId: previousFocusedId,
         };
       }
     } else {
-      lastPresentableFocusedIdRef.current = snapshot2.focusedSessionId;
+      lastPresentableFocusedIdRef.current = snapshot.focusedSessionId;
     }
-    const signature = workspaceSessionTabsSignature(snapshot2);
+    const signature = workspaceSessionTabsSignature(snapshot);
     if (signature === lastSignatureRef.current) return;
     lastSignatureRef.current = signature;
-    void persister.persist(workspaceKey, snapshot2);
+    void persister.persist(workspaceKey, snapshot);
   }, [
     getExcludedSessionIds,
     getPreservedFocusedSessionId,
@@ -186,10 +186,10 @@ export function useSessionTabPersistence(
   }, [sessionStore, persistIfReady]);
   const openDefaultSession = reactExports.useCallback(
     (sessions) => {
-      const active2 = sessions.find((s2) => s2.active) ?? sessions[0];
-      if (active2) {
-        sessionStore.openTab(active2.id);
-        requestSessionSwitch(active2.id);
+      const active = sessions.find((session) => session.active) ?? sessions[0];
+      if (active) {
+        sessionStore.openTab(active.id);
+        requestSessionSwitch(active.id);
       } else {
         onConfirmedEmptyConversation?.(workspaceRef.current);
       }

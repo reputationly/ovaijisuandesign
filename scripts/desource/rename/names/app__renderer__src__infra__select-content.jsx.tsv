@@ -1,0 +1,6 @@
+key	new	reason
+type2@25:9	type	去掉打包器加的数字后缀，恢复原名 type
+children2@78:13	children	去掉打包器加的数字后缀，恢复原名 children
+size2@77:9	size	去掉打包器加的数字后缀，恢复原名 size
+children2@100:51	children	去掉打包器加的数字后缀，恢复原名 children
+children2@153:13	children	去掉打包器加的数字后缀，恢复原名 children

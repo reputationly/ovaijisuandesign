@@ -1,20 +1,15 @@
 // feature-popup.jsx
-import {
-  GiftIcon,
-  Markdown$1 as Markdown,
-  reactExports,
-  remarkGfm,
-  useTranslation,
-  Volume2Icon,
-  VolumeXIcon,
-  XIcon,
-} from "../vendor.js";
+import Markdown from "react-markdown";
+import reactExports from "react";
+import remarkGfm from "remark-gfm";
+import { useTranslation } from "react-i18next";
+import { GiftIcon, Volume2Icon, VolumeXIcon, XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { H3_LAUNCH_POPUP_ID } from "./normalize-hailuo03-video-trial-eligibility.js";
 import { useFeaturePopupAction } from "./use-feature-popup-action.js";
 import { DialogClose } from "../infra/gateway-http-error.jsx";
-import { rehypeSanitize } from "./request-prompt-prefill.jsx";
+import rehypeSanitize from "rehype-sanitize";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import {
   Button,
@@ -28,7 +23,7 @@ import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 const POPUP_TYPE = "feature";
 export function FeaturePopup({ popup, onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const videoRef = reactExports.useRef(null);
   const closePendingRef = reactExports.useRef(false);
   const [isOpen, setIsOpen] = reactExports.useState(true);
@@ -41,7 +36,7 @@ export function FeaturePopup({ popup, onClose }) {
   } = useFeaturePopupAction(popup, {
     source: "server-popup.feature",
   });
-  const url2 = activeAction?.url ?? "";
+  const url = activeAction?.url ?? "";
   const label = activeAction?.label ?? "";
   const trialWindowActive = popup.trial_active !== false;
   const isH3TrialPopup = popup.id === H3_LAUNCH_POPUP_ID;
@@ -91,7 +86,7 @@ export function FeaturePopup({ popup, onClose }) {
       eventDetails.reason === "escape-key" ? "escape" : "cancel_button";
     trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_DISMISS, {
       popup_type: POPUP_TYPE,
-      url: url2,
+      url,
       method,
     });
     beginClose();
@@ -99,9 +94,9 @@ export function FeaturePopup({ popup, onClose }) {
   const visibleTitle = popup.title?.trim() || "";
   const subtitle =
     popup.subtitle?.trim() ||
-    (isH3TrialPopup ? t2("serverPopup.feature.topTitle") : "");
+    (isH3TrialPopup ? t("serverPopup.feature.topTitle") : "");
   const a11yTitle =
-    visibleTitle || popup.description || t2("serverPopup.a11yTitle");
+    visibleTitle || popup.description || t("serverPopup.a11yTitle");
   return (
     <Dialog
       open={isOpen}
@@ -127,7 +122,7 @@ export function FeaturePopup({ popup, onClose }) {
             }
           >
             <Icon icon={XIcon} size="lg" strokeWidth={2} />
-            <span className="sr-only">{t2("common.close")}</span>
+            <span className="sr-only">{t("common.close")}</span>
           </DialogClose>
         )}
         {videoUrl ? (
@@ -153,7 +148,7 @@ export function FeaturePopup({ popup, onClose }) {
               <button
                 type="button"
                 onClick={handleToggleVideo}
-                aria-label={t2(isVideoPlaying ? "common.pause" : "common.play")}
+                aria-label={t(isVideoPlaying ? "common.pause" : "common.play")}
                 className="group absolute inset-0 flex cursor-pointer items-center justify-center"
                 data-action-ui-id={`server-popup.feature.${isVideoPlaying ? "pause" : "play"}`}
               >
@@ -177,7 +172,7 @@ export function FeaturePopup({ popup, onClose }) {
                   event.stopPropagation();
                   handleToggleMute();
                 }}
-                aria-label={t2(
+                aria-label={t(
                   isVideoMuted
                     ? "serverPopup.feature.unmute"
                     : "serverPopup.feature.mute",

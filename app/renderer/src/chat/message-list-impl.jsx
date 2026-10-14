@@ -4,7 +4,8 @@ import {
   ChatPresentationProvider,
   collectAssistantCopyText,
 } from "./use-copy.jsx";
-import { reactExports, useVirtualizer } from "../vendor.js";
+import { useVirtualizer } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MessageTurn } from "./message-turn.jsx";
 import { BusyTipIndicator } from "./busy-tip-indicator.jsx";
@@ -18,21 +19,21 @@ import { useAutoScroll } from "./use-auto-scroll.js";
 import { useBottomAnchorState } from "./use-bottom-anchor-state.js";
 import { HistoryAnchorRail } from "./history-anchor-rail-impl.jsx";
 import { useHistoryRailState } from "./use-history-rail-state.js";
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
 
-function attachmentTypeKey(type2) {
-  if (type2 === "image") return "image";
-  if (type2 === "video") return "video";
-  if (type2 === "audio") return "audio";
+function attachmentTypeKey(type) {
+  if (type === "image") return "image";
+  if (type === "video") return "video";
+  if (type === "audio") return "audio";
   return "file";
 }
 
 function summarizeAttachments(attachments) {
   if (!attachments || attachments.length === 0) return void 0;
   if (attachments.length === 1) {
-    const a2 = attachments[0];
-    if (!a2) return void 0;
-    const filename = a2.path.split("/").pop() || a2.path;
+    const firstAttachment = attachments[0];
+    if (!firstAttachment) return void 0;
+    const filename = firstAttachment.path.split("/").pop() || firstAttachment.path;
     return {
       kind: "single",
       filename,
@@ -40,7 +41,7 @@ function summarizeAttachments(attachments) {
   }
   const firstType = attachmentTypeKey(attachments[0]?.type ?? "file");
   const allSameType = attachments.every(
-    (a2) => attachmentTypeKey(a2.type) === firstType,
+    (attachment) => attachmentTypeKey(attachment.type) === firstType,
   );
   if (allSameType) {
     return {
@@ -58,12 +59,12 @@ function summarizeAttachments(attachments) {
 function extractUserSignalRaw(turn) {
   const user = turn.user;
   if (!user) return null;
-  const text2 = user.content?.trim() ?? "";
+  const text = user.content?.trim() ?? "";
   const attachments = summarizeAttachments(user.attachments);
-  if (text2) {
+  if (text) {
     return {
       kind: "text",
-      text: text2,
+      text,
       attachments,
     };
   }
@@ -80,9 +81,9 @@ function extractAgentSignalRaw(turn) {
   const flat = turn.responses.flat();
   if (flat.length === 0) return null;
   const textMsg = flat.find(
-    (m3) =>
-      (m3.type === "text" || m3.type === "thinking") &&
-      typeof m3.content === "string",
+    (message) =>
+      (message.type === "text" || message.type === "thinking") &&
+      typeof message.content === "string",
   );
   const textContent = textMsg?.content?.trim();
   if (textContent) {
@@ -91,7 +92,7 @@ function extractAgentSignalRaw(turn) {
       text: textContent,
     };
   }
-  const subAgent = flat.find((m3) => m3.type === "sub_agent");
+  const subAgent = flat.find((message) => message.type === "sub_agent");
   if (subAgent) {
     const role = subAgent.agent?.trim() || "agent";
     const subText = subAgent.content?.trim();
@@ -101,13 +102,13 @@ function extractAgentSignalRaw(turn) {
       text: subText || void 0,
     };
   }
-  const tool2 = flat.find((m3) => m3.type === "tool");
-  if (tool2) {
-    const toolName2 = tool2.toolName?.trim() || tool2.content?.trim() || "";
-    if (toolName2)
+  const tool = flat.find((message) => message.type === "tool");
+  if (tool) {
+    const toolName = tool.toolName?.trim() || tool.content?.trim() || "";
+    if (toolName)
       return {
         kind: "tool",
-        toolName: toolName2,
+        toolName,
       };
   }
   return null;
@@ -141,29 +142,29 @@ function findMessageTurnIndex(turns, messageId) {
   return turns.findIndex((turn) => {
     if (turn.user?.id === messageId) return true;
     return turn.responses.some((group) =>
-      group.some((message2) => message2.id === messageId),
+      group.some((message) => message.id === messageId),
     );
   });
 }
 
-function groupTools(messages2) {
+function groupTools(messages) {
   const groups = [];
-  for (const msg of messages2) {
-    const last2 = groups[groups.length - 1];
-    if (msg.type === "tool" && last2?.[0]?.type === "tool") {
-      last2.push(msg);
+  for (const message of messages) {
+    const last = groups[groups.length - 1];
+    if (message.type === "tool" && last?.[0]?.type === "tool") {
+      last.push(message);
     } else {
-      groups.push([msg]);
+      groups.push([message]);
     }
   }
   return groups;
 }
 
-function groupIntoTurns(messages2) {
+function groupIntoTurns(messages) {
   const turns = [];
   let currentResponses = [];
-  for (const msg of messages2) {
-    if (msg.type === "text" && msg.role === "user") {
+  for (const message of messages) {
+    if (message.type === "text" && message.role === "user") {
       if (currentResponses.length > 0) {
         const prev = turns[turns.length - 1];
         if (prev) {
@@ -177,11 +178,11 @@ function groupIntoTurns(messages2) {
         currentResponses = [];
       }
       turns.push({
-        user: msg,
+        user: message,
         responses: [],
       });
     } else {
-      currentResponses.push(msg);
+      currentResponses.push(message);
     }
   }
   if (currentResponses.length > 0) {
@@ -199,42 +200,42 @@ function groupIntoTurns(messages2) {
 }
 
 function findLatestAssistantActionTurnIndex(turns, activeTurnPending) {
-  for (let index2 = turns.length - 1; index2 >= 0; index2 -= 1) {
-    const turn = turns[index2];
+  for (let index = turns.length - 1; index >= 0; index -= 1) {
+    const turn = turns[index];
     if (!turn) continue;
-    const isActiveTurn = index2 === turns.length - 1;
+    const isActiveTurn = index === turns.length - 1;
     if (isActiveTurn && activeTurnPending) continue;
-    if (collectAssistantCopyText(turn.responses.flat())) return index2;
+    if (collectAssistantCopyText(turn.responses.flat())) return index;
   }
   return -1;
 }
 
-function getTurnKey(turn, index2) {
+function getTurnKey(turn, index) {
   return (
     turn?.user?.id ??
     turn?.responses.find((group) => group[0])?.[0]?.id ??
-    `turn-${index2}`
+    `turn-${index}`
   );
 }
 
-function measureMessageTurnElement(element2, isPresented) {
+function measureMessageTurnElement(element, isPresented) {
   if (!isPresented) {
     return (
-      MESSAGE_TURN_HEIGHT_CACHE.get(element2) ?? MESSAGE_TURN_ESTIMATED_HEIGHT
+      MESSAGE_TURN_HEIGHT_CACHE.get(element) ?? MESSAGE_TURN_ESTIMATED_HEIGHT
     );
   }
-  const measured = Math.round(element2.getBoundingClientRect().height);
+  const measured = Math.round(element.getBoundingClientRect().height);
   if (measured > 0) {
-    MESSAGE_TURN_HEIGHT_CACHE.set(element2, measured);
+    MESSAGE_TURN_HEIGHT_CACHE.set(element, measured);
     return measured;
   }
   return (
-    MESSAGE_TURN_HEIGHT_CACHE.get(element2) ?? MESSAGE_TURN_ESTIMATED_HEIGHT
+    MESSAGE_TURN_HEIGHT_CACHE.get(element) ?? MESSAGE_TURN_ESTIMATED_HEIGHT
   );
 }
 
 export function MessageListImpl({
-  messages: messages2,
+  messages,
   busy,
   busyLabel,
   focusMessageId,
@@ -254,9 +255,9 @@ export function MessageListImpl({
   const mockMediaGen = useDebugFlag(DEBUG_FLAGS.mockMediaGen);
   const showHiddenTools = useDebugFlag(DEBUG_FLAGS.rawToolView);
   const effectiveMessages = reactExports.useMemo(() => {
-    if (!mockMediaGen) return messages2;
-    return [...MOCK_MEDIA_GEN_MESSAGES, ...messages2];
-  }, [messages2, mockMediaGen]);
+    if (!mockMediaGen) return messages;
+    return [...MOCK_MEDIA_GEN_MESSAGES, ...messages];
+  }, [messages, mockMediaGen]);
   const turns = reactExports.useMemo(
     () => groupIntoTurns(effectiveMessages),
     [effectiveMessages],
@@ -272,29 +273,29 @@ export function MessageListImpl({
       const turnIndex = turns.findIndex((turn) => {
         if (turn.user?.id === tail.anchorMessageId) return true;
         return turn.responses.some((group) =>
-          group.some((message2) => message2.id === tail.anchorMessageId),
+          group.some((message) => message.id === tail.anchorMessageId),
         );
       });
       if (turnIndex < 0) continue;
-      const current2 = byIndex.get(turnIndex);
-      if (current2) current2.push(tail);
+      const current = byIndex.get(turnIndex);
+      if (current) current.push(tail);
       else byIndex.set(turnIndex, [tail]);
     }
     return byIndex;
   }, [turnTails, turns]);
-  const lastMessageId = messages2[messages2.length - 1]?.id;
+  const lastMessageId = messages[messages.length - 1]?.id;
   const scrollRef = reactExports.useRef(null);
   const virtualizerRootRef = reactExports.useRef(null);
   const isPresentedRef = reactExports.useRef(isPresented);
   isPresentedRef.current = isPresented;
   const measuredScrollRectRef = reactExports.useRef(MESSAGE_LIST_INITIAL_RECT);
   const [scrollElement, setScrollElement] = reactExports.useState(null);
-  const setScrollRef = reactExports.useCallback((node2) => {
-    scrollRef.current = node2;
-    setScrollElement(node2);
+  const setScrollRef = reactExports.useCallback((node) => {
+    scrollRef.current = node;
+    setScrollElement(node);
   }, []);
   const measurePresentedMessageTurnElement = reactExports.useCallback(
-    (element2) => measureMessageTurnElement(element2, isPresentedRef.current),
+    (element) => measureMessageTurnElement(element, isPresentedRef.current),
     [],
   );
   const turnVirtualizer = useVirtualizer({
@@ -302,7 +303,7 @@ export function MessageListImpl({
     getScrollElement: () => scrollElement,
     estimateSize: () => MESSAGE_TURN_ESTIMATED_HEIGHT,
     measureElement: measurePresentedMessageTurnElement,
-    getItemKey: (index2) => getTurnKey(turns[index2], index2),
+    getItemKey: (index) => getTurnKey(turns[index], index),
     overscan: MESSAGE_TURN_OVERSCAN,
     initialRect: MESSAGE_LIST_INITIAL_RECT,
     // Coalesce the per-item ResizeObserver callbacks into one notify per animation
@@ -311,16 +312,16 @@ export function MessageListImpl({
     // synchronously. rAF batching means at most one re-render per frame from
     // measurement, on top of the integer-px rounding in measureMessageTurnElement.
     useAnimationFrameWithResizeObserver: true,
-    observeElementRect: (instance2, callback) => {
-      const element2 = instance2.scrollElement;
-      if (!element2) return;
+    observeElementRect: (instance, callback) => {
+      const element = instance.scrollElement;
+      if (!element) return;
       const readRect = () => {
         if (!isPresentedRef.current) return measuredScrollRectRef.current;
-        const rect = element2.getBoundingClientRect();
+        const rect = element.getBoundingClientRect();
         const nextRect = {
           width: rect.width,
           height:
-            element2.clientHeight ||
+            element.clientHeight ||
             rect.height ||
             MESSAGE_LIST_INITIAL_RECT.height,
         };
@@ -331,9 +332,9 @@ export function MessageListImpl({
       };
       callback(readRect());
       if (typeof ResizeObserver === "undefined") return;
-      const observer2 = new ResizeObserver(() => callback(readRect()));
-      observer2.observe(element2);
-      return () => observer2.disconnect();
+      const observer = new ResizeObserver(() => callback(readRect()));
+      observer.observe(element);
+      return () => observer.disconnect();
     },
   });
   reactExports.useLayoutEffect(() => {
@@ -342,12 +343,12 @@ export function MessageListImpl({
     if (!virtualizerRoot) return;
     for (const child of virtualizerRoot.children) {
       if (!(child instanceof HTMLElement)) continue;
-      const index2 = Number(child.dataset.index);
-      if (!Number.isInteger(index2)) continue;
+      const index = Number(child.dataset.index);
+      if (!Number.isInteger(index)) continue;
       const measured = Math.round(child.getBoundingClientRect().height);
       if (measured <= 0) continue;
       MESSAGE_TURN_HEIGHT_CACHE.set(child, measured);
-      turnVirtualizer.resizeItem(index2, measured);
+      turnVirtualizer.resizeItem(index, measured);
     }
   }, [isPresented, turnVirtualizer]);
   const totalVirtualSize = turnVirtualizer.getTotalSize();
@@ -355,40 +356,40 @@ export function MessageListImpl({
   const [conversationTailHeight, setConversationTailHeight] =
     reactExports.useState(0);
   reactExports.useLayoutEffect(() => {
-    const element2 = conversationTailRef.current;
-    if (!element2 || !conversationTail) {
+    const element = conversationTailRef.current;
+    if (!element || !conversationTail) {
       setConversationTailHeight(0);
       return;
     }
     if (!isPresented) return;
     const updateHeight = () => {
-      const measured = element2.getBoundingClientRect().height;
+      const measured = element.getBoundingClientRect().height;
       if (measured > 0) setConversationTailHeight(measured);
     };
     updateHeight();
     if (typeof ResizeObserver === "undefined") return;
-    const observer2 = new ResizeObserver(updateHeight);
-    observer2.observe(element2);
-    return () => observer2.disconnect();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(element);
+    return () => observer.disconnect();
   }, [conversationTail, isPresented]);
   const scrollToVirtualBottom = reactExports.useCallback(
     (behavior = "instant") => {
-      const element2 = scrollRef.current;
-      if (conversationTail && element2) {
+      const element = scrollRef.current;
+      if (conversationTail && element) {
         if (behavior === "smooth") {
-          element2.scrollTo({
-            top: element2.scrollHeight,
+          element.scrollTo({
+            top: element.scrollHeight,
             behavior: "smooth",
           });
         } else {
-          element2.scrollTop = element2.scrollHeight;
+          element.scrollTop = element.scrollHeight;
         }
         return;
       }
       const lastTurnIndex = turns.length - 1;
       if (lastTurnIndex < 0) {
-        const el = scrollRef.current;
-        if (el) el.scrollTop = 0;
+        const scrollElement = scrollRef.current;
+        if (scrollElement) scrollElement.scrollTop = 0;
         return;
       }
       turnVirtualizer.scrollToIndex(lastTurnIndex, {
@@ -421,10 +422,10 @@ export function MessageListImpl({
     let animationFrame;
     let framesLeft = 60;
     const revealFocusedMessage = () => {
-      const root2 = scrollRef.current;
-      const target = root2
-        ? Array.from(root2.querySelectorAll("[data-message-id]")).find(
-            (element2) => element2.dataset.messageId === focusMessageId,
+      const root = scrollRef.current;
+      const target = root
+        ? Array.from(root.querySelectorAll("[data-message-id]")).find(
+            (element) => element.dataset.messageId === focusMessageId,
           )
         : void 0;
       if (target) {
@@ -472,8 +473,8 @@ export function MessageListImpl({
   const mockHistoryRail = useDebugFlag(DEBUG_FLAGS.mockHistoryRail);
   const showHistoryRail = historyRail.showRail || mockHistoryRail;
   const railTurns = reactExports.useMemo(() => {
-    const real = turns.map((turn, index2) => ({
-      index: index2,
+    const real = turns.map((turn, index) => ({
+      index,
       userSignal: extractUserSignalRaw(turn),
       agentSignal: extractAgentSignalRaw(turn),
     }));
@@ -481,16 +482,16 @@ export function MessageListImpl({
     const TARGET = 80;
     if (real.length >= TARGET) return real;
     const filler = [];
-    for (let i2 = real.length; i2 < TARGET; i2++) {
+    for (let index = real.length; index < TARGET; index++) {
       filler.push({
-        index: i2,
+        index,
         userSignal: {
           kind: "text",
-          text: `[mock] turn ${i2 + 1} user 提示 — 这是为了 QA 压缩模式生成的占位文本.`,
+          text: `[mock] turn ${index + 1} user 提示 — 这是为了 QA 压缩模式生成的占位文本.`,
         },
         agentSignal: {
           kind: "text",
-          text: `[mock] turn ${i2 + 1} assistant 回复 — 压缩模式下 tick 间距收缩, 命中靠 y-ratio.`,
+          text: `[mock] turn ${index + 1} assistant 回复 — 压缩模式下 tick 间距收缩, 命中靠 y-ratio.`,
         },
       });
     }
@@ -523,9 +524,9 @@ export function MessageListImpl({
       const MAX_RETRY_FRAMES = 60;
       const tryHighlight = (framesLeft) => {
         highlightRafRef.current = null;
-        const root2 = scrollRef.current;
-        if (!root2) return;
-        const target = root2.querySelector(`[data-index="${turnIndex}"]`);
+        const root = scrollRef.current;
+        if (!root) return;
+        const target = root.querySelector(`[data-index="${turnIndex}"]`);
         if (target) {
           target.classList.add("chat-turn-highlight");
           highlightTimerRef.current = setTimeout(() => {

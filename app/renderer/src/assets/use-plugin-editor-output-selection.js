@@ -1,5 +1,5 @@
 // use-plugin-editor-output-selection.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { isBlobRef } from "../media-editing/input.jsx";
 import { joinFilePath } from "./use-file-explorer-canvas-integration.js";

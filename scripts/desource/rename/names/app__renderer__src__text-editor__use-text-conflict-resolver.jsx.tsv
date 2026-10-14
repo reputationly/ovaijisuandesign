@@ -1,0 +1,23 @@
+key	new	reason
+t2@127:14	t	useTranslation() 返回的翻译函数 t
+t2@185:14	t	useTranslation() 返回的翻译函数 t
+t2@249:14	t	useTranslation() 返回的翻译函数 t
+id2@278:49	id	原名 id，去掉打包器加的数字去重后缀
+id2@282:44	id	原名 id，去掉打包器加的数字去重后缀
+text2@16:29	text	去掉打包器加的数字后缀，恢复原名 text
+indent2@22:9	indent	去掉打包器加的数字后缀，恢复原名 indent
+body2@23:9	body	去掉打包器加的数字后缀，恢复原名 body
+current2@32:7	current	去掉打包器加的数字后缀，恢复原名 current
+previous2@35:13	previous	去掉打包器加的数字后缀，恢复原名 previous
+raw2@54:7	raw	去掉打包器加的数字后缀，恢复原名 raw
+index2@66:36	index	去掉打包器加的数字后缀，恢复原名 index
+first2@67:11	first	去掉打包器加的数字后缀，恢复原名 first
+last2@68:11	last	去掉打包器加的数字后缀，恢复原名 last
+index2@146:26	index	去掉打包器加的数字后缀，恢复原名 index
+selected2@160:13	selected	去掉打包器加的数字后缀，恢复原名 selected
+children2@162:13	children	去掉打包器加的数字后缀，恢复原名 children
+index2@180:10	index	去掉打包器加的数字后缀，恢复原名 index
+body2@404:9	body	去掉打包器加的数字后缀，恢复原名 body
+next2@291:13	next	去掉打包器加的数字后缀，恢复原名 next
+next2@302:15	next	去掉打包器加的数字后缀，恢复原名 next
+index2@420:37	index	去掉打包器加的数字后缀，恢复原名 index

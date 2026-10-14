@@ -1,0 +1,11 @@
+旧路径	新路径	依据
+app/renderer/src/chat/ae.jsx	app/renderer/src/chat/chat-markdown-rendering.jsx	`ae.jsx` 对外提供 Markdown 渲染上下文、代码块组件及下载和滚动工具，改用能概括这些职责的文件名。
+app/renderer/src/chat/nn.jsx	app/renderer/src/chat/mermaid-renderer.jsx	`nn.jsx` 对外提供 Mermaid 图表渲染器，文件名应反映其导出职责。
+app/renderer/src/chat/yt.js	app/renderer/src/chat/language-file-extensions.js	`yt.js` 导出按语言标识查询文件扩展名的映射表。
+app/renderer/src/chat/xn.js	app/renderer/src/chat/markdown-rendering-defaults.js	`xn.js` 导出代码主题列表和链接安全默认配置。
+app/renderer/src/chat/at.jsx	app/renderer/src/chat/code-block-body.jsx	`at.jsx` 仅导出负责渲染高亮代码块主体的组件。
+app/renderer/src/chat/st.jsx	app/renderer/src/chat/highlighted-code-block.jsx	`st.jsx` 导出封装代码块结构、语言标题和高亮主体的组件。
+app/renderer/src/chat/fo.jsx	app/renderer/src/chat/mermaid-fullscreen-button.jsx	`fo.jsx` 导出控制 Mermaid 图表进入和退出全屏的按钮。
+app/renderer/src/chat/pe.jsx	app/renderer/src/chat/table-download-menu.jsx	`pe.jsx` 导出提供 CSV 和 Markdown 下载选项的表格菜单。
+app/renderer/src/chat/te.jsx	app/renderer/src/chat/table-copy-button.jsx	`te.jsx` 导出提供 TSV、CSV 和 Markdown 复制格式的表格菜单。
+app/renderer/src/chat/co.jsx	app/renderer/src/chat/mermaid-download-button.jsx	`co.jsx` 导出提供 MMD、SVG 和 PNG 下载格式的 Mermaid 菜单。

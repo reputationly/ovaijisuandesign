@@ -1,0 +1,26 @@
+key	old	new	依据
+w3@174:13	w3	mediaWidth	图像自然宽度用于验证尺寸并设置结果宽度。
+h2@175:13	h2	mediaHeight	图像自然高度用于验证尺寸并设置结果高度。
+w3@203:13	w3	mediaWidth	视频宽度用于验证尺寸并设置结果宽度。
+h2@204:13	h2	mediaHeight	视频高度用于验证尺寸并设置结果高度。
+b3@250:22	b3	blob	toBlob 回调收到的 PNG Blob 被传递给 Promise。
+isActive2@17:41	isActive2	isActive	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@22:11	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+workspaceId2@45:3	workspaceId2	workspaceId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@50:15	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+now2@61:13	now2	now	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+previous2@62:13	previous2	previous	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@65:13	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+router2@84:9	router2	router	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+location2@90:15	location2	routeLocation	该值是路由器构建的目标位置对象；与全局绑定 location 冲突，故使用 routeLocation。
+key2@136:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@140:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@170:11	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@195:11	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+shortEdge2@259:9	shortEdge2	shortEdge	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+clampScale2@270:11	clampScale2	clampScale	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@284:45	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@285:9	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+raw2@315:41	raw2	raw	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+record2@319:9	record2	record	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@325:26	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

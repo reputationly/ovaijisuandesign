@@ -1,0 +1,46 @@
+{
+  "app/renderer/src/chat/yt.js": {
+    "Yt": "languageFileExtensions"
+  },
+  "app/renderer/src/chat/xn.js": {
+    "vn": "defaultCodeThemes",
+    "xn": "defaultLinkSafety"
+  },
+  "app/renderer/src/chat/nn.jsx": {
+    "po": "MermaidRenderer"
+  },
+  "app/renderer/src/chat/ae.jsx": {
+    "R": "markdownRenderOptionsContext",
+    "he": "mergeClassNames",
+    "W2": "downloadFile",
+    "Ee": "classNameMergerContext",
+    "y3": "useClassNameMerger",
+    "ot": "CodeBlockContainer",
+    "rt": "CodeBlockHeader",
+    "Oe": "CodeBlockSkeleton",
+    "le": "lockBodyScroll",
+    "ce": "unlockBodyScroll",
+    "ao": "findRendererForLanguage",
+    "To": "isCodeRenderingEnabled",
+    "Fe": "isMermaidRenderingEnabled",
+    "Ae": "CopyCodeButton"
+  },
+  "app/renderer/src/chat/at.jsx": {
+    "At": "CodeBlockBody"
+  },
+  "app/renderer/src/chat/st.jsx": {
+    "st": "HighlightedCodeBlock"
+  },
+  "app/renderer/src/chat/fo.jsx": {
+    "fo": "MermaidFullscreenButton"
+  },
+  "app/renderer/src/chat/pe.jsx": {
+    "Pe": "TableDownloadMenu"
+  },
+  "app/renderer/src/chat/te.jsx": {
+    "Te": "TableCopyButton"
+  },
+  "app/renderer/src/chat/co.jsx": {
+    "co": "MermaidDownloadButton"
+  }
+}

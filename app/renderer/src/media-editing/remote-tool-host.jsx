@@ -1,23 +1,21 @@
 // remote-tool-host.jsx
-import {
-  jsxRuntimeExports,
-  m$4 as m,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { m$4 as ErrorBoundary } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-async function loadRemoteToolModule(url2) {
-  const res = await fetch(url2);
-  if (!res.ok) throw new Error(`Failed to fetch remote tool: ${res.status}`);
-  const content2 = await res.text();
-  const blob = new Blob([content2], {
+async function loadRemoteToolModule(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch remote tool: ${response.status}`);
+  const content = await response.text();
+  const blob = new Blob([content], {
     type: "text/javascript",
   });
   const blobUrl = URL.createObjectURL(blob);
   try {
-    const mod = await import(/* @vite-ignore */ blobUrl);
-    return mod;
+    const remoteModule = await import(/* @vite-ignore */ blobUrl);
+    return remoteModule;
   } finally {
     URL.revokeObjectURL(blobUrl);
   }
@@ -25,19 +23,19 @@ async function loadRemoteToolModule(url2) {
 export function RemoteToolHost({
   toolUrl,
   toolId,
-  sdk,
+  sdk: toolSdk,
   layout = "fill",
   availableWidth,
   className,
   logger = remoteToolLog,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const containerRef = reactExports.useRef(null);
   const shadowRef = reactExports.useRef(null);
   const mountPointRef = reactExports.useRef(null);
   const mountHandleRef = reactExports.useRef(null);
-  const sdkRef = reactExports.useRef(sdk);
-  sdkRef.current = sdk;
+  const sdkRef = reactExports.useRef(toolSdk);
+  sdkRef.current = toolSdk;
   const [loading, setLoading] = reactExports.useState(false);
   const [error, setError] = reactExports.useState(null);
   const [productSize, setProductSize] = reactExports.useState({
@@ -57,19 +55,19 @@ export function RemoteToolHost({
         mode: "open",
       });
     }
-    const shadow2 = shadowRef.current;
-    while (shadow2.firstChild) shadow2.removeChild(shadow2.firstChild);
+    const shadow = shadowRef.current;
+    while (shadow.firstChild) shadow.removeChild(shadow.firstChild);
     const mountPoint = document.createElement("div");
     mountPoint.style.cssText =
       layout === "fit"
         ? "display: inline-block;"
         : "width: 100%; min-height: 100%;";
-    shadow2.appendChild(mountPoint);
+    shadow.appendChild(mountPoint);
     mountPointRef.current = mountPoint;
-    let ro = null;
+    let resizeObserver = null;
     if (layout === "fit") {
-      ro = new ResizeObserver((entries2) => {
-        for (const entry of entries2) {
+      resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
           const { width, height } = entry.contentRect;
           setProductSize((prev) =>
             prev.w === width && prev.h === height
@@ -81,7 +79,7 @@ export function RemoteToolHost({
           );
         }
       });
-      ro.observe(mountPoint);
+      resizeObserver.observe(mountPoint);
     }
     let cancelled = false;
     const loadStart = Date.now();
@@ -90,16 +88,16 @@ export function RemoteToolHost({
       tool_url: toolUrl,
     });
     loadRemoteToolModule(toolUrl)
-      .then((mod) => {
+      .then((remoteModule) => {
         if (cancelled) return;
-        for (const node2 of Array.from(
+        for (const node of Array.from(
           document.head.querySelectorAll('style, link[rel="stylesheet"]'),
         )) {
-          shadow2.insertBefore(node2.cloneNode(true), mountPoint);
+          shadow.insertBefore(node.cloneNode(true), mountPoint);
         }
-        shadow2.adoptedStyleSheets = [...document.adoptedStyleSheets];
+        shadow.adoptedStyleSheets = [...document.adoptedStyleSheets];
         try {
-          mountHandleRef.current = mod.mount(mountPoint, sdkRef.current);
+          mountHandleRef.current = remoteModule.mount(mountPoint, sdkRef.current);
           logger.info("host mounted", {
             tool_id: toolId,
             elapsed_ms: Date.now() - loadStart,
@@ -128,7 +126,7 @@ export function RemoteToolHost({
       });
     return () => {
       cancelled = true;
-      ro?.disconnect();
+      resizeObserver?.disconnect();
       try {
         mountHandleRef.current?.unmount();
       } catch (err) {
@@ -142,13 +140,13 @@ export function RemoteToolHost({
     };
   }, [toolUrl, toolId, layout, logger]);
   reactExports.useEffect(() => {
-    mountHandleRef.current?.update(sdk);
-  }, [sdk]);
-  const scale2 =
+    mountHandleRef.current?.update(toolSdk);
+  }, [toolSdk]);
+  const scale =
     layout === "fit" && availableWidth && productSize.w > availableWidth
       ? availableWidth / productSize.w
       : 1;
-  const scaled = scale2 < 1;
+  const scaled = scale < 1;
   const shadowHostStyle = {
     // fill mode: explicit height so the tool's h-full chain resolves to the
     // dialog container's height, enabling flex row layouts to work correctly.
@@ -161,7 +159,7 @@ export function RemoteToolHost({
       height: "max-content",
     }),
     ...(scaled && {
-      transform: `scale(${scale2})`,
+      transform: `scale(${scale})`,
       transformOrigin: "center center",
     }),
   };
@@ -175,7 +173,7 @@ export function RemoteToolHost({
       {loading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50">
           <span className="animate-pulse text-sm text-muted-foreground">
-            {t2("remoteTool.loading", "Loading tool...")}
+            {t("remoteTool.loading", "Loading tool...")}
           </span>
         </div>
       )}
@@ -183,7 +181,7 @@ export function RemoteToolHost({
         <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
           <div className="max-w-md bg-destructive/15 p-4 text-sm text-destructive">
             <p className="font-medium">
-              {t2("remoteTool.loadFailed", "Failed to load tool")}
+              {t("remoteTool.loadFailed", "Failed to load tool")}
             </p>
             <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap text-xs opacity-80">
               {error}
@@ -191,8 +189,8 @@ export function RemoteToolHost({
           </div>
         </div>
       )}
-      {jsxRuntimeExports.jsx(m, {
-        onError: (boundaryError, info2) => {
+      {jsxRuntimeExports.jsx(ErrorBoundary, {
+        onError: (boundaryError, info) => {
           logger.error("host render error", {
             tool_id: toolId,
             error:
@@ -203,7 +201,7 @@ export function RemoteToolHost({
               boundaryError instanceof Error
                 ? boundaryError.stack?.slice(0, 1024)
                 : void 0,
-            component_stack: info2.componentStack?.slice(0, 1024),
+            component_stack: info.componentStack?.slice(0, 1024),
           });
         },
         fallbackRender: ({ error: boundaryError }) => (

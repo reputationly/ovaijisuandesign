@@ -2,41 +2,41 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
 } from "../infra/dialog-content.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 export const TeamDialogNavigationContext = reactExports.createContext(null);
-export function Page({ open, onOpenChange, children: children2 }) {
-  const navigation2 = reactExports.useContext(TeamDialogNavigationContext);
+export function Page({ open, onOpenChange, children }) {
+  const dialogNavigation = reactExports.useContext(TeamDialogNavigationContext);
   const closeRef = reactExports.useRef(onOpenChange);
   closeRef.current = onOpenChange;
   reactExports.useEffect(() => {
-    if (!open || !navigation2) return;
-    const close2 = () => closeRef.current(false);
-    navigation2.current = close2;
+    if (!open || !dialogNavigation) return;
+    const handleClose = () => closeRef.current(false);
+    dialogNavigation.current = handleClose;
     return () => {
-      if (navigation2.current === close2) navigation2.current = null;
+      if (dialogNavigation.current === handleClose) dialogNavigation.current = null;
     };
-  }, [open, navigation2]);
+  }, [open, dialogNavigation]);
   if (!open) return null;
   return (
     <Dialog open={true} onOpenChange={onOpenChange}>
-      {children2}
+      {children}
     </Dialog>
   );
 }
-export function PageContent({ children: children2, className, ...props }) {
+export function PageContent({ children, className, ...props }) {
   const focusRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    const previous2 = document.activeElement;
+    const previous = document.activeElement;
     focusRef.current?.focus();
     return () => {
-      if (previous2 instanceof HTMLElement && previous2.isConnected)
-        previous2.focus();
+      if (previous instanceof HTMLElement && previous.isConnected)
+        previous.focus();
     };
   }, []);
   return (
@@ -50,7 +50,7 @@ export function PageContent({ children: children2, className, ...props }) {
         className,
       )}
     >
-      {children2}
+      {children}
     </DialogContent>
   );
 }

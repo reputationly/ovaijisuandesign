@@ -4,7 +4,9 @@ import {
   isCustomModelId,
   RESOURCE_DRAG_MIME,
 } from "../text-editor/build-asr-gateway-request.js";
-import { reactExports, usePlatform, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { useOptionalTeamAccount } from "../assets/credit-query-keys.jsx";
@@ -19,28 +21,28 @@ import {
 } from "../infra/parse-connector-selection.js";
 import { useActiveCustomModel } from "../team/copy-icon-button.jsx";
 
-export function resolveLegacyInteractionReply(messages2, requestId) {
+export function resolveLegacyInteractionReply(messages, requestId) {
   let changed = false;
-  const next2 = messages2.map((message2) => {
+  const next = messages.map((message) => {
     if (
-      (message2.type === "interact" || message2.type === "confirm") &&
-      message2.requestId === requestId &&
-      !message2.resolved
+      (message.type === "interact" || message.type === "confirm") &&
+      message.requestId === requestId &&
+      !message.resolved
     ) {
       changed = true;
       return {
-        ...message2,
+        ...message,
         resolved: true,
       };
     }
-    return message2;
+    return message;
   });
-  return changed ? next2 : messages2;
+  return changed ? next : messages;
 }
 
 export function useAgentModelMembershipAccess() {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const { mpWallet, isError, isRefetchError } = useMpSubscriptionWalletQuery();
   const subscribeUrl = useMpSubscribeUrl();
   const teamAccount = useOptionalTeamAccount();
@@ -63,21 +65,21 @@ export function useAgentModelMembershipAccess() {
     (access, source) => {
       if (access?.requirement !== "membership") return true;
       if (!membershipKnown) {
-        dedupedToast.error(t2("chat.astraMembershipUnavailable"));
+        dedupedToast.error(translate("chat.astraMembershipUnavailable"));
         return false;
       }
       if (isReadyTeam || privilegeType !== 0) return true;
       if (!guardAccountSubmission("personal_checkout").allowed) return false;
       if (!subscribeUrl) {
-        dedupedToast.error(t2("credits.walletUrlNotReady"));
+        dedupedToast.error(translate("credits.walletUrlNotReady"));
         return false;
       }
-      void openExternalUrl(platform2, subscribeUrl, {
+      void openExternalUrl(platform, subscribeUrl, {
         source,
       });
       return false;
     },
-    [membershipKnown, isReadyTeam, privilegeType, subscribeUrl, platform2, t2],
+    [membershipKnown, isReadyTeam, privilegeType, subscribeUrl, platform, translate],
   );
   return {
     membershipState,
@@ -86,7 +88,7 @@ export function useAgentModelMembershipAccess() {
 }
 
 export function useAstraSendGate(modelId) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const activeCustomModel = useActiveCustomModel();
   const access = resolveAgentModelAccess(
     resolveActiveModelId(modelId, activeCustomModel.data),
@@ -97,7 +99,7 @@ export function useAstraSendGate(modelId) {
     access?.requirement === "membership" && membershipState === "non-member";
   const sendGuard = reactExports.useCallback(() => {
     if (!isSuccess) {
-      dedupedToast.error(t2("settings.models.loadFailed"));
+      dedupedToast.error(translate("settings.models.loadFailed"));
       if (isError && !isFetching) {
         void refetch();
       }
@@ -105,11 +107,11 @@ export function useAstraSendGate(modelId) {
     }
     if (isCustomModelId(modelId)) {
       if (activeCustomModel.data?.applyStatus === "pending") {
-        dedupedToast.error(t2("settings.models.applying"));
+        dedupedToast.error(translate("settings.models.applying"));
         return false;
       }
       if (activeCustomModel.data?.applyStatus === "failed") {
-        dedupedToast.error(t2("settings.models.applyFailed"));
+        dedupedToast.error(translate("settings.models.applyFailed"));
         return false;
       }
       if (
@@ -117,7 +119,7 @@ export function useAstraSendGate(modelId) {
           agentModelMatchesSelection(model, modelId),
         )
       ) {
-        dedupedToast.error(t2("settings.models.modelRemoved"));
+        dedupedToast.error(translate("settings.models.modelRemoved"));
         return false;
       }
     }
@@ -130,46 +132,46 @@ export function useAstraSendGate(modelId) {
     isError,
     isFetching,
     refetch,
-    t2,
+    translate,
     modelId,
     activeCustomModel.data,
   ]);
   return {
     sendGuard,
-    sendLabel: requiresMembership ? t2("chat.astraMembershipOnly") : void 0,
+    sendLabel: requiresMembership ? translate("chat.astraMembershipOnly") : void 0,
     sendTooltip: requiresMembership
-      ? t2("chat.astraMembershipRequired")
+      ? translate("chat.astraMembershipRequired")
       : void 0,
   };
 }
 
 function resolveResourceAbsolutePath(workspacePath, relativePath) {
   if (!workspacePath || !relativePath) return void 0;
-  const base2 = workspacePath.replace(/[\\/]+$/, "");
-  const rel = relativePath.replace(/^[\\/]+/, "");
-  return `${base2}/${rel}`;
+  const base = workspacePath.replace(/[\\/]+$/, "");
+  const trimmedPath = relativePath.replace(/^[\\/]+/, "");
+  return `${base}/${trimmedPath}`;
 }
 
 export function canWriteResourceDragData(source) {
   const relativePath = source.relativePath?.trim();
-  const name2 = source.name?.trim();
+  const resourceName = source.name?.trim();
   const absolutePath =
     source.absolutePath ??
     resolveResourceAbsolutePath(source.workspacePath, relativePath);
-  return Boolean(relativePath && absolutePath && name2);
+  return Boolean(relativePath && absolutePath && resourceName);
 }
 
 export function writeResourceDragData(event, source) {
   const relativePath = source.relativePath?.trim();
-  const name2 = source.name?.trim();
+  const resourceName = source.name?.trim();
   const absolutePath =
     source.absolutePath ??
     resolveResourceAbsolutePath(source.workspacePath, relativePath);
-  if (!relativePath || !absolutePath || !name2) return false;
+  if (!relativePath || !absolutePath || !resourceName) return false;
   const item = buildResourceDragItem(
     absolutePath,
     relativePath,
-    name2,
+    resourceName,
     false,
     source.assetId,
   );

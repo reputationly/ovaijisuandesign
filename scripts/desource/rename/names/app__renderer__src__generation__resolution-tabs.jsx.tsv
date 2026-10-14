@@ -1,0 +1,24 @@
+key	old	new	依据
+m3@56:41	m3	pricingModel	回调值是定价配置中的模型记录。
+m3@66:36	m3	pricingModel	回调值是定价配置中的模型记录。
+t2@91:36	t2	pricingModel	该参数是 pricing.text 中按 modelID 匹配的文本计费模型条目。
+_2@106:6	_2	_unusedArg	去掉打包器防重名追加的后缀，恢复原名 _unusedArg，即该绑定持有的值。
+t2@172:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+m3@217:9	m3	sizeMatch	正则对分辨率字符串的匹配结果。
+w3@219:9	w3	width	分辨率字符串解析出的宽度。
+h2@220:9	h2	height	分辨率字符串解析出的高度。
+x2@239:9	x2	x	SVG 矩形的横坐标。
+y4@240:9	y4	y	SVG 矩形顶部的纵坐标。
+w3@230:12	w3	width	已解析比例中的宽度。
+h2@230:16	h2	height	已解析比例中的高度。
+t2@281:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+e2@298:23	e2	clickEvent	去掉打包器防重名追加的后缀，恢复原名 clickEvent，即该绑定持有的值。
+model2@56:11	model2	videoModel	去掉打包器防重名追加的后缀，恢复原名 videoModel，即该绑定持有的值。
+first2@59:11	first2	first	去掉打包器防重名追加的后缀，恢复原名 first，即该绑定持有的值。
+index2@106:10	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+option2@120:8	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+children2@164:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+children2@209:47	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+selected2@263:26	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+disabled2@276:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+selected2@286:15	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。

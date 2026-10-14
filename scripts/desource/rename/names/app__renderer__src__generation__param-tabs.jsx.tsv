@@ -1,0 +1,5 @@
+key	old	new	依据
+t2@28:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+e2@84:25	e2	clickEvent	去掉打包器防重名追加的后缀，恢复原名 clickEvent，即该绑定持有的值。
+opt@65:23	opt	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+disabled2@18:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。

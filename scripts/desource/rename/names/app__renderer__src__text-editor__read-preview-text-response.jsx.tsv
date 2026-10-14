@@ -1,0 +1,16 @@
+key	new	reason
+t2@138:66	t	调用方传入的翻译函数 t
+t2@184:14	t	useTranslation() 返回的翻译函数 t
+length2@25:9	contentLength	content-length 响应头的数值；length 是全局名
+gatewayFetch2@66:9	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+path2@68:12	path	去掉打包器加的数字后缀，恢复原名 path
+data2@84:9	data	去掉打包器加的数字后缀，恢复原名 data
+data2@114:9	data	去掉打包器加的数字后缀，恢复原名 data
+workspaceId2@138:42	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+dot2@202:9	dot	去掉打包器加的数字后缀，恢复原名 dot
+fetch2@83:55	fetchImpl	调用方传入的 fetch 实现；fetch 是全局名
+fetch2@107:51	fetchImpl	调用方传入的 fetch 实现；fetch 是全局名
+children2@124:55	children	去掉打包器加的数字后缀，恢复原名 children
+isActive2@181:3	isActive	去掉打包器加的数字后缀，恢复原名 isActive
+current2@214:45	current	去掉打包器加的数字后缀，恢复原名 current
+snapshot2@214:55	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot

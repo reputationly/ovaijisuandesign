@@ -1,0 +1,42 @@
+key	old	new	依据
+active2@1478:35	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+browser2@74:9	browser2	browser	去掉打包器防重名追加的后缀，恢复原名 browser，即该绑定持有的值。
+config2@73:19	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
+current2@1119:19	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@1162:19	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@259:21	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@376:19	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@404:21	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+file2@308:15	file2	file	媒体扫描结果中的文件条目。
+id2@1549:20	id2	tabId	传给浏览器后退、前进或刷新的标签页 ID。
+id2@1563:20	id2	tabId	传给浏览器后退、前进或刷新的标签页 ID。
+id2@1577:20	id2	tabId	传给浏览器后退、前进或刷新的标签页 ID。
+id2@992:18	id2	bookmarkId	传给浏览器菜单的书签标识符。
+image2@324:22	image2	image	用于头像解码与绘制的浏览器 Image 对象。
+next2@1120:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@1163:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@260:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@379:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@400:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+nextState2@533:19	nextState2	nextState	去掉打包器防重名追加的后缀，恢复原名 nextState，即该绑定持有的值。
+observer2@747:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+observer2@760:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+observer2@804:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+pendingUrl2@551:15	pendingUrl2	pendingUrl	去掉打包器防重名追加的后缀，恢复原名 pendingUrl，即该绑定持有的值。
+pendingUrl22@530:17	pendingUrl22	pendingUrl	去掉打包器防重名追加的后缀，恢复原名 pendingUrl，即该绑定持有的值。
+platform2@72:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+png@274:13	png	pngBlob	将选中的浏览器图片转换为 PNG 后得到的 Blob。
+result2@1331:15	result2	result	去掉打包器防重名追加的后缀，恢复原名 result，即该绑定持有的值。
+search2@901:34	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+t2@71:14	t2	translate	useTranslation 返回的翻译函数。
+tab2@1063:50	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@133:45	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@1478:21	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@429:16	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@927:12	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+update2@739:11	update2	update	去掉打包器防重名追加的后缀，恢复原名 update，即该绑定持有的值。
+url2@595:13	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+url2@992:42	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+X@2:155	X	CloseIcon	来自 vendor 的关闭图标组件。
+x2@223:11	x2	menuX	工作区浏览器更多菜单弹层的水平位置。
+y4@232:11	y4	menuY	工作区浏览器更多菜单弹层的垂直位置。

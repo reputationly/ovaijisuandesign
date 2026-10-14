@@ -1,14 +1,16 @@
 // use-deep-link-router.js
-import { getRuntimeConfig, reactExports, useNavigate } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { IPC_CHANNELS } from "../infra/gateway-http-error.jsx";
 
 export function canUseDebugTooling() {
   try {
-    const config2 = getRuntimeConfig();
+    const config = getRuntimeConfig();
     return (
-      config2.env === "development" ||
-      config2.env === "test" ||
-      config2.channel !== "prod"
+      config.env === "development" ||
+      config.env === "test" ||
+      config.channel !== "prod"
     );
   } catch {
     return false;
@@ -43,48 +45,48 @@ export const DEBUG_FLAGS = {
   mockHistoryRail: "hilo.debug.mockHistoryRail",
 };
 
-function readFlag(key2) {
+function readFlag(key) {
   if (!canUseDebugTooling()) return false;
   try {
-    return localStorage.getItem(key2) === "1";
+    return localStorage.getItem(key) === "1";
   } catch {
     return false;
   }
 }
 
-export function setDebugFlag(key2, enabled) {
+export function setDebugFlag(key, enabled) {
   if (!canUseDebugTooling()) return;
   try {
-    if (enabled) localStorage.setItem(key2, "1");
-    else localStorage.removeItem(key2);
+    if (enabled) localStorage.setItem(key, "1");
+    else localStorage.removeItem(key);
   } catch {}
   window.dispatchEvent(
     new CustomEvent(EVENT, {
       detail: {
-        key: key2,
+        key,
       },
     }),
   );
 }
 
-export function useDebugFlag(key2) {
-  const [enabled, setEnabled] = reactExports.useState(() => readFlag(key2));
+export function useDebugFlag(key) {
+  const [enabled, setEnabled] = reactExports.useState(() => readFlag(key));
   reactExports.useEffect(() => {
-    const sync = () => setEnabled(readFlag(key2));
+    const sync = () => setEnabled(readFlag(key));
     window.addEventListener(EVENT, sync);
     window.addEventListener("storage", sync);
     return () => {
       window.removeEventListener(EVENT, sync);
       window.removeEventListener("storage", sync);
     };
-  }, [key2]);
+  }, [key]);
   return enabled;
 }
 
 const SKILL_NAME_PATTERN = /^[a-zA-Z0-9._-]{1,64}$/;
 
-function isValidSkillName(name2) {
-  return SKILL_NAME_PATTERN.test(name2);
+function isValidSkillName(skillName) {
+  return SKILL_NAME_PATTERN.test(skillName);
 }
 
 export function useDeepLinkRouter() {
@@ -94,29 +96,29 @@ export function useDeepLinkRouter() {
   reactExports.useEffect(() => {
     if (!window.hilo?.ipcRenderer) return;
     const dedupeTimers = new Set();
-    const off = window.hilo.ipcRenderer.on(
+    const unsubscribe = window.hilo.ipcRenderer.on(
       IPC_CHANNELS.DEEPLINK_RECEIVED,
       (_event, ...args) => {
         const action = args[0];
         if (!action) return;
         if (action.action === "team/invite") {
-          const { token: token2 } = action.params;
-          if (!token2) return;
+          const { token } = action.params;
+          if (!token) return;
           const region =
             action.params.region === "domestic" ||
             action.params.region === "overseas"
               ? action.params.region
               : void 0;
-          const dedupeKey2 = `team-invite:${region ?? "runtime"}:${token2}`;
-          if (processedRef.current.has(dedupeKey2)) return;
-          processedRef.current.add(dedupeKey2);
-          const timer22 = window.setTimeout(() => {
-            processedRef.current.delete(dedupeKey2);
-            dedupeTimers.delete(timer22);
+          const dedupeKey = `team-invite:${region ?? "runtime"}:${token}`;
+          if (processedRef.current.has(dedupeKey)) return;
+          processedRef.current.add(dedupeKey);
+          const timer = window.setTimeout(() => {
+            processedRef.current.delete(dedupeKey);
+            dedupeTimers.delete(timer);
           }, 3e3);
-          dedupeTimers.add(timer22);
+          dedupeTimers.add(timer);
           setPendingTeamInvite({
-            token: token2,
+            token,
             ...(region
               ? {
                   region,
@@ -126,28 +128,28 @@ export function useDeepLinkRouter() {
           return;
         }
         if (action.action !== "skill/install") return;
-        const { name: name2, source } = action.params;
-        if (!name2 || !isValidSkillName(name2)) {
+        const { name: skillName, source } = action.params;
+        if (!skillName || !isValidSkillName(skillName)) {
           return;
         }
-        const dedupeKey = `${name2}:${source || ""}`;
+        const dedupeKey = `${skillName}:${source || ""}`;
         if (processedRef.current.has(dedupeKey)) return;
         processedRef.current.add(dedupeKey);
-        const timer2 = window.setTimeout(() => {
+        const timer = window.setTimeout(() => {
           processedRef.current.delete(dedupeKey);
-          dedupeTimers.delete(timer2);
+          dedupeTimers.delete(timer);
         }, 3e3);
-        dedupeTimers.add(timer2);
+        dedupeTimers.add(timer);
         setPendingInstall({
-          name: name2,
+          name: skillName,
           source,
         });
       },
     );
     return () => {
-      off();
-      for (const timer2 of dedupeTimers) {
-        window.clearTimeout(timer2);
+      unsubscribe();
+      for (const timer of dedupeTimers) {
+        window.clearTimeout(timer);
       }
       dedupeTimers.clear();
     };
@@ -165,9 +167,9 @@ export function useDeepLinkRouter() {
   };
 }
 
-export function buildWorkspaceSearch(workspaceId2, opts) {
+export function buildWorkspaceSearch(workspaceId, opts) {
   return {
-    workspaceId: workspaceId2 || void 0,
+    workspaceId: workspaceId || void 0,
     initialPayloadId: opts?.initialPayloadId,
     initialMessage: opts?.initialMessage,
     initialAttachments: opts?.initialAttachments,
@@ -197,21 +199,21 @@ export function useNavigateToWorkspace() {
   );
 }
 
-export function resolveVisiblePreviewEntries(entries2, references) {
+export function resolveVisiblePreviewEntries(entries, references) {
   const byWorkspaceId = new Map(
-    entries2.map((entry) => [entry.workspaceId, entry]),
+    entries.map((entry) => [entry.workspaceId, entry]),
   );
   const byFolderPath = new Map(
-    entries2.map((entry) => [entry.folderPath, entry]),
+    entries.map((entry) => [entry.folderPath, entry]),
   );
-  const seen2 = new Set();
+  const seen = new Set();
   const visible = [];
   for (const reference of references) {
     const entry =
       byWorkspaceId.get(reference.workspaceId) ??
       (reference.folderPath ? byFolderPath.get(reference.folderPath) : void 0);
-    if (!entry || seen2.has(entry.workspaceId)) continue;
-    seen2.add(entry.workspaceId);
+    if (!entry || seen.has(entry.workspaceId)) continue;
+    seen.add(entry.workspaceId);
     visible.push(entry);
   }
   return visible;
@@ -224,7 +226,7 @@ export function getNextPreviewTabIdAfterHide(
   const hiddenIndex = orderedWorkspaceIds.indexOf(hiddenWorkspaceId);
   if (hiddenIndex === -1) return null;
   const remaining = orderedWorkspaceIds.filter(
-    (id2) => id2 !== hiddenWorkspaceId,
+    (workspaceId) => workspaceId !== hiddenWorkspaceId,
   );
   return remaining[Math.min(hiddenIndex, remaining.length - 1)] ?? null;
 }

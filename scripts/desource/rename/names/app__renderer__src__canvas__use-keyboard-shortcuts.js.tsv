@@ -1,0 +1,29 @@
+key	old	new	依据
+f2@79:40	f2	file	该值是被检查名称的剪贴板文件。
+e2@223:25	e2	clipboardEvent	handleCopy 绑定 document 的 copy 事件，参数是剪贴板事件对象。
+e2@235:24	e2	clipboardEvent	handleCut 绑定 cut 事件，参数是剪贴板事件对象。
+e2@247:27	e2	clipboardEvent	handlePaste 绑定 paste 事件，参数是剪贴板事件对象。
+e2@279:22	e2	keyboardEvent	该值是全局快捷键处理器收到的键盘事件。
+id2@344:14	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+n2@345:33	n2	node	该值是用于查找目标类型的画布节点。
+active2@38:11	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@44:32	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+seen2@47:9	seen2	seen	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+push2@48:9	push2	push	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@49:11	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@80:31	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@81:11	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@82:11	name2	nodeName	该值是节点数据中用于匹配内部复制文件的名称；与全局绑定 name 冲突，故使用 nodeName。
+path2@83:11	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+basename2@84:11	basename2	basename	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@119:32	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+html2@119:39	html2	html	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@138:11	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+html2@139:11	html2	html	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+instance2@174:38	instance2	instance	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+getViewportRect2@188:22	getViewportRect2	getViewportRect	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handlePaste2@247:11	handlePaste2	handlePaste	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@251:13	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+html2@252:13	html2	html	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@310:13	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+selected2@340:15	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

@@ -1,20 +1,11 @@
 // node-context-menu.jsx
-import {
-  ActionListItem,
-  ActionListPanel,
-  ActionListSeparator,
-  CanvasNodeType,
-  Copy,
-  CopyPlus,
-  FolderInput,
-  jsxRuntimeExports,
-  Library,
-  reactDomExports,
-  reactExports,
-  Save,
-  Tag$1 as Tag,
-  useTranslation,
-} from "../vendor.js";
+import { CanvasNodeType } from "../canvas/canvas-geometry.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ActionListItem, ActionListPanel, ActionListSeparator } from "../media-editing/action-list.jsx";
+import { Copy, CopyPlus, FolderInput, Library, Save, Tag$1 as Tag } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
@@ -36,10 +27,10 @@ function NodeContextMenuIcon({ icon, viewBoxSize = 24 }) {
   return <StrokeIcon icon={icon} size={16} viewBoxSize={viewBoxSize} />;
 }
 function TagMenuItem({ assets }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const panelId = reactExports.useId();
-  const label = t2("canvasTags.entry");
+  const label = t("canvasTags.entry");
   const trigger = (
     <ActionListItem
       aria-haspopup="dialog"
@@ -102,7 +93,7 @@ function MenuButton({ icon, label, onClick, testId, destructive }) {
   );
 }
 export function NodeContextMenu({
-  position: position2,
+  position,
   targets,
   actions,
   onCopy,
@@ -115,13 +106,13 @@ export function NodeContextMenu({
   onClose,
   motionProps,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const fallbackRef = reactExports.useRef(null);
   const ref = motionProps?.ref ?? fallbackRef;
-  const closing2 = motionProps?.["data-ending-style"] !== void 0;
+  const closing = motionProps?.["data-ending-style"] !== void 0;
   const [menuPosition, setMenuPosition] = reactExports.useState(() =>
     resolveNodeContextMenuPosition({
-      anchor: position2,
+      anchor: position,
       menuSize: ESTIMATED_MENU_SIZE,
       viewportSize:
         typeof window === "undefined"
@@ -137,16 +128,16 @@ export function NodeContextMenu({
   );
   const updateMenuPosition = reactExports.useCallback(() => {
     if (typeof window === "undefined") return;
-    const menu2 = ref.current;
-    const next2 = resolveNodeContextMenuPosition({
+    const menu = ref.current;
+    const next = resolveNodeContextMenuPosition({
       anchor: {
-        x: position2.x,
-        y: position2.y,
+        x: position.x,
+        y: position.y,
       },
-      menuSize: menu2
+      menuSize: menu
         ? {
-            width: menu2.offsetWidth,
-            height: menu2.offsetHeight,
+            width: menu.offsetWidth,
+            height: menu.offsetHeight,
           }
         : ESTIMATED_MENU_SIZE,
       viewportSize: {
@@ -154,10 +145,10 @@ export function NodeContextMenu({
         height: window.innerHeight,
       },
     });
-    setMenuPosition((current2) =>
-      current2.x === next2.x && current2.y === next2.y ? current2 : next2,
+    setMenuPosition((current) =>
+      current.x === next.x && current.y === next.y ? current : next,
     );
-  }, [position2.x, position2.y, ref]);
+  }, [position.x, position.y, ref]);
   reactExports.useLayoutEffect(updateMenuPosition, [updateMenuPosition]);
   reactExports.useEffect(() => {
     window.addEventListener("resize", updateMenuPosition);
@@ -172,9 +163,9 @@ export function NodeContextMenu({
     };
   }, [updateMenuPosition, ref]);
   reactExports.useEffect(() => {
-    if (closing2) return;
-    const handleClick2 = (e2) => {
-      const target = e2.target;
+    if (closing) return;
+    const handleClick = (mouseEvent) => {
+      const target = mouseEvent.target;
       if (ref.current?.contains(target)) return;
       if (
         target instanceof Element &&
@@ -183,26 +174,26 @@ export function NodeContextMenu({
         return;
       onClose();
     };
-    const handleKey = (e2) => {
-      if (e2.key === "Escape") onClose();
+    const handleKey = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") onClose();
     };
-    document.addEventListener("mousedown", handleClick2);
+    document.addEventListener("mousedown", handleClick);
     document.addEventListener("keydown", handleKey);
     return () => {
-      document.removeEventListener("mousedown", handleClick2);
+      document.removeEventListener("mousedown", handleClick);
       document.removeEventListener("keydown", handleKey);
     };
-  }, [onClose, closing2, ref]);
-  const wrap2 = (fn2) => () => {
-    fn2();
+  }, [onClose, closing, ref]);
+  const wrap = (fn) => () => {
+    fn();
     onClose();
   };
   const isSingle = targets.length === 1;
   const single = isSingle ? targets[0] : null;
   const isSingleGroup = isSingle && single?.nodeType === CanvasNodeType.Group;
-  const fileBackedTargets = targets.filter((t22) => t22.filePath);
+  const fileBackedTargets = targets.filter((menuTarget) => menuTarget.filePath);
   const hasFileBackedTargets = fileBackedTargets.length > 0;
-  const fsTargets = targets.filter((t22) => t22.filePath && t22.absolutePath);
+  const fsTargets = targets.filter((menuTarget) => menuTarget.filePath && menuTarget.absolutePath);
   const isTable = single?.fileType === "table";
   const showAddToChat = hasFileBackedTargets;
   const hasFileSlot = isSingle && !!single?.filePath && !!single.absolutePath;
@@ -217,9 +208,9 @@ export function NodeContextMenu({
   const showGroup = !isSingle;
   const showUngroup = !!isSingleGroup && !!single;
   const hasGroupTarget = targets.some(
-    (t22) => t22.nodeType === CanvasNodeType.Group,
+    (menuTarget) => menuTarget.nodeType === CanvasNodeType.Group,
   );
-  const hasTableTarget = targets.some((t22) => t22.fileType === "table");
+  const hasTableTarget = targets.some((menuTarget) => menuTarget.fileType === "table");
   const showPromoteToAsset =
     !!actions.promoteToAsset &&
     !hasTableTarget &&
@@ -235,8 +226,8 @@ export function NodeContextMenu({
       (target.generationErrorStatus === "status_unknown" &&
         target.nodeType !== CanvasNodeType.Placeholder),
   );
-  const handleAddToChat = wrap2(() => onAddToChat(fileBackedTargets));
-  const handleCopy = wrap2(() => {
+  const handleAddToChat = wrap(() => onAddToChat(fileBackedTargets));
+  const handleCopy = wrap(() => {
     if (!single) return;
     if (single.isMultiImage) {
       trackEvent(TRACK_EVENTS.CANVAS_NODE_COPY_PASTE, {
@@ -253,7 +244,7 @@ export function NodeContextMenu({
     });
     onCopy(single);
   });
-  const handleSaveAs = wrap2(() => {
+  const handleSaveAs = wrap(() => {
     if (!single) return;
     trackEvent(TRACK_EVENTS.CANVAS_NODE_SAVE, {
       node_id: single.nodeId,
@@ -261,20 +252,20 @@ export function NodeContextMenu({
     });
     onSaveAs(single);
   });
-  const handleShowInFolder = wrap2(() => {
+  const handleShowInFolder = wrap(() => {
     if (fsTargets.length === 0) return;
-    const seen2 = new Set();
+    const seen = new Set();
     for (const target of fsTargets) {
       const abs = target.absolutePath;
       if (!abs) continue;
-      const slash2 = Math.max(abs.lastIndexOf("/"), abs.lastIndexOf("\\"));
-      const dir = slash2 >= 0 ? abs.slice(0, slash2) : abs;
-      if (seen2.has(dir)) continue;
-      seen2.add(dir);
+      const slash = Math.max(abs.lastIndexOf("/"), abs.lastIndexOf("\\"));
+      const dir = slash >= 0 ? abs.slice(0, slash) : abs;
+      if (seen.has(dir)) continue;
+      seen.add(dir);
       onShowInFolder(target);
     }
   });
-  const handleCopyCanvas = wrap2(() => {
+  const handleCopyCanvas = wrap(() => {
     trackEvent(TRACK_EVENTS.CANVAS_NODE_COPY_PASTE, {
       action: "copy",
       node_count: targets.length,
@@ -282,21 +273,21 @@ export function NodeContextMenu({
     });
     actions.duplicateToCanvas();
   });
-  const handleGroup = wrap2(actions.groupSelected);
-  const handleUngroup = wrap2(() => {
+  const handleGroup = wrap(actions.groupSelected);
+  const handleUngroup = wrap(() => {
     if (single?.nodeType === CanvasNodeType.Group)
       actions.ungroupGroup(single.nodeId);
   });
-  const handlePromoteToAsset = wrap2(() => {
+  const handlePromoteToAsset = wrap(() => {
     actions.promoteToAsset?.(targets.map((target) => target.nodeId));
   });
-  const handleSaveToProjectAssets = wrap2(() => {
+  const handleSaveToProjectAssets = wrap(() => {
     actions.saveToProjectAssets?.(targets.map((target) => target.nodeId));
   });
-  const handleRename = wrap2(() => {
+  const handleRename = wrap(() => {
     if (single && onRename) onRename(single);
   });
-  const handleDelete2 = wrap2(actions.deleteSelected);
+  const handleDelete = wrap(actions.deleteSelected);
   const menu = (
     <ActionListPanel
       {...motionProps}
@@ -314,7 +305,7 @@ export function NodeContextMenu({
         <MenuButton
           testId="canvas-add-to-chat"
           icon={<NodeContextMenuIcon icon={AddToChatIcon} viewBoxSize={20} />}
-          label={t2("canvas.addToChat")}
+          label={t("canvas.addToChat")}
           onClick={handleAddToChat}
         />
       )}
@@ -323,12 +314,12 @@ export function NodeContextMenu({
           <MenuButton
             testId="canvas-copy-from-menu"
             icon={<NodeContextMenuIcon icon={Copy} />}
-            label={t2("common.copy")}
+            label={t("common.copy")}
             onClick={handleCopy}
           />
           <MenuButton
             icon={<NodeContextMenuIcon icon={Save} />}
-            label={t2("common.saveAs")}
+            label={t("common.saveAs")}
             onClick={handleSaveAs}
           />
         </>
@@ -337,7 +328,7 @@ export function NodeContextMenu({
         <MenuButton
           testId="canvas-rename-from-menu"
           icon={<NodeContextMenuIcon icon={PencilIcon} />}
-          label={t2("common.rename")}
+          label={t("common.rename")}
           onClick={handleRename}
         />
       )}
@@ -347,14 +338,14 @@ export function NodeContextMenu({
       <MenuButton
         testId="canvas-copy-canvas"
         icon={<NodeContextMenuIcon icon={CopyPlus} />}
-        label={t2("canvas.copyCanvasNode")}
+        label={t("canvas.copyCanvasNode")}
         onClick={handleCopyCanvas}
       />
       {showGroup && (
         <MenuButton
           testId="canvas-group-from-menu"
           icon={<GroupIcon size={16} />}
-          label={t2("canvas.group")}
+          label={t("canvas.group")}
           onClick={handleGroup}
         />
       )}
@@ -362,7 +353,7 @@ export function NodeContextMenu({
         <MenuButton
           testId="canvas-ungroup-from-menu"
           icon={<UngroupIcon size={16} />}
-          label={t2("canvas.ungroup")}
+          label={t("canvas.ungroup")}
           onClick={handleUngroup}
         />
       )}
@@ -370,7 +361,7 @@ export function NodeContextMenu({
         <MenuButton
           testId="canvas-promote-to-asset-from-menu"
           icon={<NodeContextMenuIcon icon={Library} />}
-          label={t2("canvas.addToLibrary")}
+          label={t("canvas.addToLibrary")}
           onClick={handlePromoteToAsset}
         />
       )}
@@ -378,7 +369,7 @@ export function NodeContextMenu({
         <MenuButton
           testId="canvas-save-to-project-assets-from-menu"
           icon={<NodeContextMenuIcon icon={FolderInput} />}
-          label={t2("canvas.saveToProjectAssets")}
+          label={t("canvas.saveToProjectAssets")}
           onClick={handleSaveToProjectAssets}
         />
       )}
@@ -401,10 +392,10 @@ export function NodeContextMenu({
           icon={<NodeContextMenuIcon icon={Trash2} />}
           label={
             single?.generationErrorStatus === "status_unknown"
-              ? t2("canvas.removeLocalPlaceholder")
-              : t2("common.delete")
+              ? t("canvas.removeLocalPlaceholder")
+              : t("common.delete")
           }
-          onClick={handleDelete2}
+          onClick={handleDelete}
         />
       )}
     </ActionListPanel>

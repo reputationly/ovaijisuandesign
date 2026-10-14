@@ -1,0 +1,14 @@
+key	new	依据
+t2@68:14	t	useTranslation 返回的文本函数，用于显示所选增强分辨率不高于原图时的提示。
+t2@125:16	t	useTranslation 返回的文本函数，用于增强弹窗标题、字段标签及按钮文案。
+s2@135:8	storeState	此 Zustand 状态参数供选择器从 nodeLookup 读取当前图像节点的选中状态。
+e2@172:27	pointerEvent	该指针事件在弹窗控件处理后调用 stopPropagation，避免触发画布操作。
+option2@42:46	option	该候选分辨率用于查询其长边像素值，并与原图长边比较。
+option2@47:36	option	该候选分辨率用于计算目标长边以及输出图像宽高。
+option2@62:14	option	循环中的分辨率候选在长边高于原图时作为建议值返回。
+option2@76:39	option	此分辨率按钮候选用于比较当前选项并计算是否应禁用。
+scale2@51:9	scale	此值是目标长边与原图长边的比例，用来换算输出宽高。
+active2@77:15	isActive	此布尔值表示候选分辨率是否等于当前 value，并控制按钮选中样式。
+disabled2@78:15	isDisabled	此布尔值表示候选长边不高于原图；为真时禁用按钮和点击处理。
+EnhanceImagePopover2@118:12	EnhanceImagePopover	该组件读取图像尺寸与提交回调，渲染分辨率选择及高清增强弹窗。
+selected2@138:11	isSelected	此布尔值来自节点选择器；当前图像未选中时关闭弹窗。

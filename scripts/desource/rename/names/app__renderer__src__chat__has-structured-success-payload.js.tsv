@@ -1,0 +1,17 @@
+key	新名	依据
+p3@80:27	path	`path` 是用于判断结果是否包含有效输出路径的路径字符串。
+p3@93:30	path	`path` 是用于检查每条结果是否包含有效输出路径的路径字符串。
+r2@130:46	result	`result` 是待统计成功条数或路径字段的结果项。
+r2@132:37	result	`result` 是用于统计携带路径字段的结果项。
+p3@136:10	path	`path` 是用于统计媒体输出数量的路径字符串。
+toolName2@21:35	toolName	`toolName` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+toolName2@26:32	toolName	`toolName` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+tool2@32:42	tool	`tool` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@59:42	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+record2@72:11	record	`record` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@106:41	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+record2@180:11	record	`record` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+path2@244:43	path	`path` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+toolName2@281:25	toolName	`toolName` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+base2@281:36	base	`base` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+toolName2@290:38	toolName	`toolName` 是标识值；末尾数字是打包器为避免重名添加的后缀。

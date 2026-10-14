@@ -1,13 +1,7 @@
 // render-cost-disclosure.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  Info$1 as Info,
-  PreviewCardPopup,
-  PreviewCardPortal,
-  PreviewCardPositioner,
-  PreviewCardRoot,
-  PreviewCardTrigger$1 as PreviewCardTrigger,
-} from "../vendor.js";
+import { Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
+import { PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, PreviewCardTrigger$1 as PreviewCardTrigger } from "../infra/base-ui.js";
 import { TokenIcon } from "./expand-arrow-icon.jsx";
 import { Tooltip } from "./missing-asset-card.jsx";
 const FULL_EMPHASIS_PATTERN = /^\*\*(.+)\*\*$/;

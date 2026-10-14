@@ -1,0 +1,42 @@
+key	old	new	依据
+current2@355:21	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@385:24	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@426:21	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@833:38	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@842:41	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@852:44	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@888:30	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@910:35	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@944:30	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@951:33	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+disabled2@234:17	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+id2@193:15	id2	referenceId	引用标签映射中的源引用 ID。
+id2@211:11	id2	itemId	工作项自身的 ID，用于编辑器列表和选中状态。
+ids2@205:13	ids2	ids	去掉打包器防重名追加的后缀，恢复原名 ids，即该绑定持有的值。
+index2@130:29	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@179:25	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@187:62	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@474:13	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+key2@103:14	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+name2@51:27	name2	itemName	工作项原始名称，用于生成面向用户的名称。
+name2@58:32	name2	itemName	工作项原始名称，用于生成面向用户的名称。
+next2@356:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@386:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@427:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@834:35	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@843:35	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@853:35	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@945:27	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@952:27	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+number2@478:13	number2	number	去掉打包器防重名追加的后缀，恢复原名 number，即该绑定持有的值。
+patch2@513:15	patch2	patch	去掉打包器防重名追加的后缀，恢复原名 patch，即该绑定持有的值。
+patch2@530:23	patch2	patch	去掉打包器防重名追加的后缀，恢复原名 patch，即该绑定持有的值。
+previous2@271:13	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+raw2@84:9	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+readOnly2@233:17	readOnly2	readOnly	去掉打包器防重名追加的后缀，恢复原名 readOnly，即该绑定持有的值。
+selected2@573:11	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+StagePromptEditorCard2@230:12	StagePromptEditorCard2	StagePromptEditorCard	去掉打包器防重名追加的后缀，恢复原名 StagePromptEditorCard，即该绑定持有的值。
+t2@239:16	t2	translate	useTranslation 返回的翻译函数。
+transition2@359:29	transition2	transition	去掉打包器防重名追加的后缀，恢复原名 transition，即该绑定持有的值。
+transition2@390:29	transition2	transition	去掉打包器防重名追加的后缀，恢复原名 transition，即该绑定持有的值。
+transition2@396:13	transition2	transition	去掉打包器防重名追加的后缀，恢复原名 transition，即该绑定持有的值。

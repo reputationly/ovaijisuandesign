@@ -1,0 +1,33 @@
+key	new	依据
+t2@22:14	t	useTranslation 返回的翻译函数，为图片标注按钮生成无障碍标签。
+t2@133:14	t	useTranslation 返回的翻译函数，用于图片、视频和音频插槽的名称与错误提示。
+id2@183:58	assetId	assets.forEach 当前资源映射键；作为 assetId 字段写入既有资源 ID 集合。
+a2@206:56	attachment	现有附件列表中的当前项；读取其 assetId 构造 existingAssetIds。
+r2@216:20	assetRecord	过滤中的资源元数据项，仅保留 type 与当前 mediaKind 相同的记录。
+r2@217:17	assetRecord	映射中的资源元数据项，转成 assetId、name 和 kind 字段。
+p3@232:15	pickedAsset	用户选择的当前资源记录；从 assetMap 查询其路径。
+p3@233:18	assetPath	picked assets 查出的候选字符串；Boolean 过滤会移除缺失值。
+p3@236:42	assetPath	当前待加入素材的候选路径；仅在 existing 集合未收录该路径时保留。
+p3@246:20	writtenPath	写入磁盘后的当前资源路径，传给 ensureStandaloneNodeForPath 创建独立节点。
+s2@417:41	storeState	资源元数据 store 的状态对象；选择器从中读取 assets 映射。
+_2@450:15	_unusedValue	Array.from({ length }) 生成的 undefined 元素占位参数，回调实际按 slotIndex 读取 imagePaths。
+idx@450:19	slotIndex	当前插槽在 map 中的位置，用于读取 imagePaths 并构造标签、操作 ID 和样式。
+e2@484:25	clickEvent	图片插槽按钮的点击事件；阻止冒泡后把当前按钮节点交给文件选择处理器。
+e2@681:25	clickEvent	插槽中的交互按钮点击事件；阻止冒泡以免触发画布节点点击。
+path2@56:14	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存子图像关联的文件路径。
+disabled2@116:13	disabled	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存图像槽位操作是否不可用。
+mediaKind2@128:14	mediaKind	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前图像槽位允许选择的媒体类型。
+list2@182:11	list	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前图像槽位的资源列表。
+meta2@183:51	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存资源元数据对象。
+assets2@230:13	assetMap	恢复 assets 会与外层 assets@417:9 冲突，因此改为 assetMap；此处保存按资源 ID 索引的元数据映射。
+next2@268:13	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存更新图像槽位后的路径列表。
+path2@381:12	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存子图像关联的文件路径。
+index2@381:19	index	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存图像槽位或资源列表中的数组索引。
+map3@420:11	map	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存资源 ID 到路径或媒体信息的映射。
+meta2@421:21	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存资源元数据对象。
+map3@434:11	map	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存资源 ID 到路径或媒体信息的映射。
+meta2@435:21	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存资源元数据对象。
+path2@451:15	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存子图像关联的文件路径。
+element2@548:19	element	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前图像槽位的 DOM 元素。
+map@420:11	assetDurationsByPath	以资源路径为键、媒体时长为值的 Map，用于后续按路径查找 durationSec。
+map@434:11	assetDurationsByPath	按资源路径索引媒体时长的 Map，供插槽渲染读取当前资源时长。

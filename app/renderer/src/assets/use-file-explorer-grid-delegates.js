@@ -1,5 +1,6 @@
 // use-file-explorer-grid-delegates.js
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { findEntryByPath } from "../workspace/set-home-widget-dev-preview-mode.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
@@ -14,25 +15,25 @@ export function useFileExplorerDrag({
   move,
   invalidateDirs,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const buildDragPayload = useStableCallback((anchorAbsPath) => {
     const pathsToDrag = selectedPaths.has(anchorAbsPath)
       ? Array.from(selectedPaths)
       : [anchorAbsPath];
     const items = pathsToDrag.map((absPath) => {
       const relPath = toRelativePath(absPath);
-      const name2 = getFileName(absPath);
+      const fileName = getFileName(absPath);
       const treeEntry = findEntryByPath(treeRef.current, absPath);
       const isDir = treeEntry?.isDirectory ?? false;
       const asset = assetMap.get(relPath);
-      return buildResourceDragItem(absPath, relPath, name2, isDir, asset?.id);
+      return buildResourceDragItem(absPath, relPath, fileName, isDir, asset?.id);
     });
     return JSON.stringify(items);
   });
   const handleMove = useStableCallback(async (sourcePaths, targetDir) => {
     if (sourcePaths.length === 0) return;
     try {
-      const relativeSources = sourcePaths.map((p3) => toRelativePath(p3));
+      const relativeSources = sourcePaths.map((sourcePath) => toRelativePath(sourcePath));
       const relativeTarget = toRelativePath(targetDir);
       await move({
         paths: relativeSources,
@@ -41,7 +42,7 @@ export function useFileExplorerDrag({
       invalidateDirs();
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.moveFailed") +
+        translate("fileExplorer.moveFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -55,7 +56,7 @@ export function useFileExplorerGridDelegates({
   rootPath,
   sortedFilteredAssets,
   filteredTree,
-  updateSelection: updateSelection2,
+  updateSelection,
   onFileOpen,
   requestDeleteFromAnchor,
   handleCopyPath,
@@ -67,17 +68,17 @@ export function useFileExplorerGridDelegates({
       rootPath ? joinFilePath(rootPath, relativePath) : relativePath,
     [rootPath],
   );
-  const handleGridSelect = useStableCallback((relativePath, e2) => {
+  const handleGridSelect = useStableCallback((relativePath, selectionModifiers) => {
     const absPath = resolveAssetPath(relativePath);
-    const visiblePaths = sortedFilteredAssets.map((a2) =>
-      resolveAssetPath(a2.path),
+    const visiblePaths = sortedFilteredAssets.map((asset) =>
+      resolveAssetPath(asset.path),
     );
-    updateSelection2(absPath, e2, visiblePaths);
+    updateSelection(absPath, selectionModifiers, visiblePaths);
   });
   const handleGridDoubleClick = useStableCallback((relativePath) => {
     const absPath = resolveAssetPath(relativePath);
-    const name2 = getFileName(relativePath);
-    onFileOpen?.(absPath, name2);
+    const fileName = getFileName(relativePath);
+    onFileOpen?.(absPath, fileName);
   });
   const handleGridDelete = useStableCallback((absolutePath) => {
     const entry = findEntryByPath(filteredTree, absolutePath) ?? {

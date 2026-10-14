@@ -1,12 +1,7 @@
 // browser-tab-overview.jsx
-import {
-  Check,
-  ChevronDown,
-  Globe,
-  reactExports,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown, Globe, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
@@ -19,23 +14,23 @@ import { trackEvent } from "../infra/sanitize-track-props.js";
 export function BrowserTabOverview({
   tabs,
   activeTabId,
-  disabled: disabled2,
+  disabled,
   onSelect,
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [requested, setRequested] = reactExports.useState(false);
   const triggerRef = reactExports.useRef(null);
   const [popupMounted, setPopupMounted] = reactExports.useState(false);
-  const popupRef = reactExports.useCallback((element2) => {
-    setPopupMounted(element2 !== null);
+  const popupRef = reactExports.useCallback((element) => {
+    setPopupMounted(element !== null);
   }, []);
   const cancelPreparation = reactExports.useCallback(
     () => setRequested(false),
     [],
   );
   const ready = useBrowserHoverPreview(
-    (requested && !disabled2) || popupMounted,
+    (requested && !disabled) || popupMounted,
     {
       requireSnapshot: true,
       // A failed capture leaves the live page visible. Reset intent so the next
@@ -43,7 +38,7 @@ export function BrowserTabOverview({
       onError: cancelPreparation,
     },
   );
-  const open = requested && !disabled2 && ready;
+  const open = requested && !disabled && ready;
   const previouslyOpenRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
     if (open && !previouslyOpenRef.current) {
@@ -56,21 +51,21 @@ export function BrowserTabOverview({
     previouslyOpenRef.current = open;
   }, [open]);
   reactExports.useEffect(() => {
-    if (disabled2) setRequested(false);
-  }, [disabled2]);
+    if (disabled) setRequested(false);
+  }, [disabled]);
   reactExports.useEffect(() => {
     if (!requested || open) return;
     const onKeyDown = (event) => {
       if (event.key === "Escape") setRequested(false);
     };
-    const onPointerDown2 = (event) => {
+    const onPointerDown = (event) => {
       if (!triggerRef.current?.contains(event.target)) setRequested(false);
     };
     document.addEventListener("keydown", onKeyDown);
-    document.addEventListener("pointerdown", onPointerDown2);
+    document.addEventListener("pointerdown", onPointerDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      document.removeEventListener("pointerdown", onPointerDown2);
+      document.removeEventListener("pointerdown", onPointerDown);
     };
   }, [requested, open]);
   return (
@@ -84,8 +79,8 @@ export function BrowserTabOverview({
             setRequested(false);
           }
         }}
-        disabled={disabled2}
-        aria-label={t2("workspace.browser.allTabs")}
+        disabled={disabled}
+        aria-label={translate("workspace.browser.allTabs")}
         className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground disabled:cursor-default disabled:opacity-40"
       >
         <Icon
@@ -102,34 +97,34 @@ export function BrowserTabOverview({
         className="w-72 max-w-[calc(100vw-24px)] gap-1 p-2"
       >
         <PopoverTitle className="flex h-7 shrink-0 items-center justify-between px-2 text-xs">
-          {t2("workspace.browser.allTabs")}
+          {translate("workspace.browser.allTabs")}
           <span className="font-normal tabular-nums text-muted-foreground">
             {tabs.length}
           </span>
         </PopoverTitle>
         <div className="flex max-h-[min(480px,60vh)] flex-col gap-1 overflow-y-auto">
-          {tabs.map((tab2) => {
-            const title = tab2.title || t2("workspace.browser.newTab");
-            const active2 = tab2.id === activeTabId;
+          {tabs.map((tab) => {
+            const title = tab.title || translate("workspace.browser.newTab");
+            const active = tab.id === activeTabId;
             return (
               <div
-                key={tab2.id}
-                className={`flex shrink-0 items-center gap-2 rounded-md p-2 ${tab2.url ? "h-12" : "h-10"} ${active2 ? "bg-secondary" : "bg-muted/40 hover:bg-muted"}`}
+                key={tab.id}
+                className={`flex shrink-0 items-center gap-2 rounded-md p-2 ${tab.url ? "h-12" : "h-10"} ${active ? "bg-secondary" : "bg-muted/40 hover:bg-muted"}`}
               >
                 <button
                   type="button"
-                  aria-current={active2 ? "page" : void 0}
+                  aria-current={active ? "page" : void 0}
                   onClick={() => {
-                    onSelect(tab2.id);
+                    onSelect(tab.id);
                     setRequested(false);
                   }}
                   className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <span className="relative flex size-6 shrink-0 items-center justify-center rounded-sm bg-card">
                     <Icon icon={Globe} size="sm" />
-                    {tab2.faviconUrl && (
+                    {tab.faviconUrl && (
                       <img
-                        src={tab2.faviconUrl}
+                        src={tab.faviconUrl}
                         alt=""
                         className="absolute size-4 bg-card object-contain"
                         onError={(event) => {
@@ -142,25 +137,25 @@ export function BrowserTabOverview({
                     <span className="block truncate text-xs font-medium leading-4">
                       {title}
                     </span>
-                    {tab2.url && (
+                    {tab.url && (
                       <span className="block truncate text-[11px] leading-4 text-muted-foreground">
-                        {tab2.url}
+                        {tab.url}
                       </span>
                     )}
                   </span>
-                  {active2 && (
+                  {active && (
                     <Check className="size-3.5 shrink-0" aria-hidden="true" />
                   )}
                 </button>
                 <button
                   type="button"
-                  aria-label={t2("workspace.browser.closeTabNamed", {
+                  aria-label={translate("workspace.browser.closeTabNamed", {
                     title,
                   })}
-                  onClick={() => onClose(tab2.id)}
+                  onClick={() => onClose(tab.id)}
                   className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <X className="size-3.5" />
+                  <CloseIcon className="size-3.5" />
                 </button>
               </div>
             );

@@ -1,0 +1,3 @@
+key	新名	依据
+messages2@4:47	messages	`messages`是当前会话的消息列表。
+message2@6:6	message	`message`是用于判断是否已有运行中压缩状态的消息。

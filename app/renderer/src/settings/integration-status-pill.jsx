@@ -1,7 +1,8 @@
 // integration-status-pill.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
-import { InfoIcon$1 as InfoIcon, jsxRuntimeExports } from "../vendor.js";
+import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { InfoIcon$1 as InfoIcon } from "../media-editing/lucide-icon-wraps.js";
 import {
   Tooltip,
   TooltipTrigger,
@@ -26,7 +27,7 @@ const integrationStatusMarkerInnerClass = {
 };
 function IntegrationStatusMarker({
   tone,
-  active: active2 = false,
+  active = false,
   icon,
   label,
 }) {
@@ -42,7 +43,7 @@ function IntegrationStatusMarker({
       </span>
     );
   }
-  if (!active2) {
+  if (!active) {
     return (
       <span
         role="status"
@@ -89,7 +90,7 @@ export function IntegrationStatusPill({
   tooltipContent,
   className,
 }) {
-  const content2 = (
+  const content = (
     <>
       <IntegrationStatusMarker
         tone={markerTone}
@@ -110,7 +111,7 @@ export function IntegrationStatusPill({
     className,
   );
   if (!tooltipContent) {
-    return <span className={pillClassName}>{content2}</span>;
+    return <span className={pillClassName}>{content}</span>;
   }
   return (
     <Tooltip>
@@ -126,7 +127,7 @@ export function IntegrationStatusPill({
           />
         }
       >
-        {content2}
+        {content}
       </TooltipTrigger>
       <TooltipContent
         side="top"

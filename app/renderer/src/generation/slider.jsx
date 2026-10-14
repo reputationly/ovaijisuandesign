@@ -1,12 +1,6 @@
 // slider.jsx
-import {
-  reactExports,
-  SliderControl$1 as SliderControl,
-  SliderIndicator,
-  SliderRoot,
-  SliderThumb,
-  SliderTrack,
-} from "../vendor.js";
+import reactExports from "react";
+import { SliderControl$1 as SliderControl, SliderIndicator, SliderRoot, SliderThumb, SliderTrack } from "../infra/base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";
 import { Tooltip } from "./missing-asset-card.jsx";
@@ -21,17 +15,17 @@ function useSliderBoundaryHint(enabled, boundaryKey) {
       if (timerRef.current !== null) clearTimeout(timerRef.current);
     };
   }, [enabled, boundaryKey]);
-  const start2 = (root2) => {
+  const start = (root) => {
     if (!enabled) return;
     cleanupRef.current?.();
-    const doc2 = root2.ownerDocument;
-    const win2 = doc2.defaultView;
+    const doc = root.ownerDocument;
+    const win = doc.defaultView;
     let shown = false;
     const inspect = (clientX) => {
-      const control = root2.querySelector('[data-slot="slider-control"]');
+      const control = root.querySelector('[data-slot="slider-control"]');
       if (!control || shown) return;
       const bounds = control.getBoundingClientRect();
-      const rtl = win2?.getComputedStyle(root2).direction === "rtl";
+      const rtl = win?.getComputedStyle(root).direction === "rtl";
       if (rtl ? clientX <= bounds.right + 2 : clientX >= bounds.left - 2)
         return;
       shown = true;
@@ -50,35 +44,35 @@ function useSliderBoundaryHint(enabled, boundaryKey) {
       if (event.touches.length === 1) inspect(event.touches[0].clientX);
     };
     const stop = () => {
-      doc2.removeEventListener("pointermove", handlePointerMove);
-      doc2.removeEventListener("touchmove", handleTouchMove);
-      doc2.removeEventListener("pointerup", stop);
-      doc2.removeEventListener("pointercancel", stop);
-      doc2.removeEventListener("touchend", stop);
-      doc2.removeEventListener("touchcancel", stop);
-      win2?.removeEventListener("blur", stop);
+      doc.removeEventListener("pointermove", handlePointerMove);
+      doc.removeEventListener("touchmove", handleTouchMove);
+      doc.removeEventListener("pointerup", stop);
+      doc.removeEventListener("pointercancel", stop);
+      doc.removeEventListener("touchend", stop);
+      doc.removeEventListener("touchcancel", stop);
+      win?.removeEventListener("blur", stop);
       cleanupRef.current = null;
     };
     cleanupRef.current = stop;
-    doc2.addEventListener("pointermove", handlePointerMove);
-    doc2.addEventListener("touchmove", handleTouchMove, {
+    doc.addEventListener("pointermove", handlePointerMove);
+    doc.addEventListener("touchmove", handleTouchMove, {
       passive: true,
     });
-    doc2.addEventListener("pointerup", stop);
-    doc2.addEventListener("pointercancel", stop);
-    doc2.addEventListener("touchend", stop);
-    doc2.addEventListener("touchcancel", stop);
-    win2?.addEventListener("blur", stop);
+    doc.addEventListener("pointerup", stop);
+    doc.addEventListener("pointercancel", stop);
+    doc.addEventListener("touchend", stop);
+    doc.addEventListener("touchcancel", stop);
+    win?.addEventListener("blur", stop);
   };
   return {
     open: enabled && open,
-    start: start2,
+    start,
   };
 }
 export function Slider({
   className,
   variant = "standard",
-  size: size2 = "default",
+  size = "default",
   markerValue,
   trackAppearance = "neutral",
   thumbSize = 16,
@@ -87,45 +81,45 @@ export function Slider({
   minBoundaryMessage,
   thumbProps,
   value,
-  defaultValue: defaultValue2,
+  defaultValue,
   orientation = "horizontal",
   ...props
 }) {
-  const values3 = value ?? defaultValue2 ?? 0;
-  const count2 = Array.isArray(values3) ? values3.length : 1;
+  const values = value ?? defaultValue ?? 0;
+  const count = Array.isArray(values) ? values.length : 1;
   const appearance =
-    count2 > 1 || orientation === "vertical" ? "standard" : variant;
-  const min2 = props.min ?? 0;
-  const max2 = props.max ?? 100;
+    count > 1 || orientation === "vertical" ? "standard" : variant;
+  const min = props.min ?? 0;
+  const max = props.max ?? 100;
   const axisMin =
     appearance === "filled" &&
     typeof visualMin === "number" &&
     Number.isFinite(visualMin) &&
-    visualMin < min2 &&
-    max2 >= min2
+    visualMin < min &&
+    max >= min
       ? visualMin
-      : min2;
-  const offset2 = max2 > min2 ? (min2 - axisMin) / (max2 - axisMin) : 0;
+      : min;
+  const offset = max > min ? (min - axisMin) / (max - axisMin) : 0;
   const boundaryHint = useSliderBoundaryHint(
-    offset2 > 0 && !props.disabled && Boolean(minBoundaryMessage),
-    `${min2}:${max2}:${axisMin}:${minBoundaryMessage ?? ""}`,
+    offset > 0 && !props.disabled && Boolean(minBoundaryMessage),
+    `${min}:${max}:${axisMin}:${minBoundaryMessage ?? ""}`,
   );
   const {
     className: thumbClassName,
     style: thumbStyle,
     ...otherThumbProps
   } = thumbProps ?? {};
-  const isLockedPrefix = (root2, target, clientX) => {
+  const isLockedPrefix = (root, target, clientX) => {
     if (
-      offset2 <= 0 ||
+      offset <= 0 ||
       !(target instanceof Element) ||
       target.closest('[data-slot="slider-thumb"]')
     )
       return false;
-    const bounds = root2
+    const bounds = root
       .querySelector('[data-slot="slider-control"]')
       ?.getBoundingClientRect();
-    const rtl = getComputedStyle(root2).direction === "rtl";
+    const rtl = getComputedStyle(root).direction === "rtl";
     return (
       bounds !== void 0 &&
       (rtl ? clientX > bounds.right : clientX < bounds.left)
@@ -135,12 +129,12 @@ export function Slider({
     <SliderRoot
       {...props}
       value={value}
-      defaultValue={defaultValue2}
+      defaultValue={defaultValue}
       orientation={orientation}
       data-orientation={orientation}
       data-slot="slider"
       data-variant={appearance}
-      data-size={size2}
+      data-size={size}
       data-track-appearance={
         appearance === "rounded" ? trackAppearance : void 0
       }
@@ -156,10 +150,10 @@ export function Slider({
         props.onPointerDownCapture?.(event);
       }}
       onTouchStartCapture={(event) => {
-        const touch2 = event.touches[0];
+        const touch = event.touches[0];
         if (
-          touch2 &&
-          isLockedPrefix(event.currentTarget, event.target, touch2.clientX)
+          touch &&
+          isLockedPrefix(event.currentTarget, event.target, touch.clientX)
         ) {
           event.stopPropagation();
           return;
@@ -167,10 +161,10 @@ export function Slider({
         if (event.touches.length === 1) boundaryHint.start(event.currentTarget);
         props.onTouchStartCapture?.(event);
       }}
-      className={(state2) =>
+      className={(state) =>
         cn(
           "hilo-slider w-full min-w-0",
-          typeof className === "function" ? className(state2) : className,
+          typeof className === "function" ? className(state) : className,
         )
       }
     >
@@ -178,9 +172,9 @@ export function Slider({
         className="hilo-slider__control"
         data-slot="slider-control"
         style={
-          offset2 > 0
+          offset > 0
             ? {
-                marginInlineStart: `${offset2 * 100}%`,
+                marginInlineStart: `${offset * 100}%`,
               }
             : void 0
         }
@@ -189,10 +183,10 @@ export function Slider({
           className="hilo-slider__track"
           data-slot="slider-track"
           style={
-            offset2 > 0
+            offset > 0
               ? {
-                  width: `${100 / (1 - offset2)}%`,
-                  marginInlineStart: `${(-offset2 / (1 - offset2)) * 100}%`,
+                  width: `${100 / (1 - offset)}%`,
+                  marginInlineStart: `${(-offset / (1 - offset)) * 100}%`,
                   flexShrink: 0,
                 }
               : void 0
@@ -201,15 +195,15 @@ export function Slider({
           {appearance === "rounded" &&
             markerValue !== void 0 &&
             Number.isFinite(markerValue) &&
-            max2 > min2 &&
-            markerValue >= min2 &&
-            markerValue <= max2 && (
+            max > min &&
+            markerValue >= min &&
+            markerValue <= max && (
               <span
                 aria-hidden="true"
                 className="hilo-slider__marker"
                 data-slot="slider-marker"
                 style={{
-                  insetInlineStart: `${((markerValue - min2) / (max2 - min2)) * 100}%`,
+                  insetInlineStart: `${((markerValue - min) / (max - min)) * 100}%`,
                 }}
               />
             )}
@@ -217,9 +211,9 @@ export function Slider({
             className="hilo-slider__indicator"
             data-slot="slider-range"
             style={
-              axisMin < min2
-                ? (state2) => ({
-                    width: `${Math.min(100, Math.max(0, ((state2.values[0] - axisMin) / (max2 - axisMin)) * 100))}%`,
+              axisMin < min
+                ? (state) => ({
+                    width: `${Math.min(100, Math.max(0, ((state.values[0] - axisMin) / (max - axisMin)) * 100))}%`,
                   })
                 : void 0
             }
@@ -228,7 +222,7 @@ export function Slider({
             [...new Set(ticks)]
               .filter(
                 (tick) =>
-                  Number.isFinite(tick) && tick > axisMin && tick < max2,
+                  Number.isFinite(tick) && tick > axisMin && tick < max,
               )
               .map((tick) => (
                 <span
@@ -237,20 +231,20 @@ export function Slider({
                   className="hilo-slider__tick"
                   data-slot="slider-tick"
                   style={{
-                    insetInlineStart: `${((tick - axisMin) / (max2 - axisMin)) * 100}%`,
+                    insetInlineStart: `${((tick - axisMin) / (max - axisMin)) * 100}%`,
                   }}
                 />
               ))}
         </SliderTrack>
         {Array.from(
           {
-            length: count2,
+            length: count,
           },
-          (_2, index2) =>
+          (_unusedArg, index) =>
             reactExports.createElement(SliderThumb, {
               ...otherThumbProps,
-              key: index2,
-              index: index2,
+              key: index,
+              index,
               "aria-label":
                 otherThumbProps["aria-label"] ?? props["aria-label"],
               "aria-labelledby":
@@ -261,21 +255,21 @@ export function Slider({
               "data-slot": "slider-thumb",
               "data-action-ui-id":
                 otherThumbProps["data-action-ui-id"] ?? "slider.thumb",
-              className: (state2) =>
+              className: (state) =>
                 cn(
                   "hilo-slider__thumb",
                   typeof thumbClassName === "function"
-                    ? thumbClassName(state2)
+                    ? thumbClassName(state)
                     : thumbClassName,
                 ),
-              style: (state2) => ({
+              style: (state) => ({
                 ...(appearance === "filled"
                   ? {
-                      insetInlineStart: `clamp(${offset2 > 0 ? -4 : 4}px, calc(${max2 === min2 && axisMin < min2 ? 100 : ((state2.values[0] - state2.min) / (state2.max - state2.min || 1)) * 100}% - 4px), calc(100% - 4px))`,
+                      insetInlineStart: `clamp(${offset > 0 ? -4 : 4}px, calc(${max === min && axisMin < min ? 100 : ((state.values[0] - state.min) / (state.max - state.min || 1)) * 100}% - 4px), calc(100% - 4px))`,
                     }
                   : {}),
                 ...(typeof thumbStyle === "function"
-                  ? thumbStyle(state2)
+                  ? thumbStyle(state)
                   : thumbStyle),
               }),
             }),

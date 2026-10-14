@@ -1,6 +1,8 @@
 // credit-threshold-reminder-card.jsx
 import { resolveModelNameForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
-import { CircleAlert, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CircleAlert } from "../media-editing/lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,
@@ -49,8 +51,8 @@ export function CreditThresholdReminderCard({
   decision,
   settlementStatus,
 }) {
-  const { t: t2 } = useTranslation();
-  const [state2, setState] = reactExports.useState("pending");
+  const { t } = useTranslation();
+  const [state, setState] = reactExports.useState("pending");
   const [actionFailed, setActionFailed] = reactExports.useState(false);
   const [selectedItemIds, setSelectedItemIds] = reactExports.useState(() =>
     estimate.selectedItemIds
@@ -71,35 +73,35 @@ export function CreditThresholdReminderCard({
   const thresholdCredits = formatCredits(estimate.thresholdCredits);
   const currentCredits = formatCredits(estimate.currentCredits);
   const remainingCredits = formatCredits(estimate.remainingCredits);
-  const busy = state2 === "cancelling" || state2 === "continuing";
+  const busy = state === "cancelling" || state === "continuing";
   const resolved =
-    externallyResolved || state2 === "cancelled" || state2 === "continued";
+    externallyResolved || state === "cancelled" || state === "continued";
   const countdown = useCreditCountdown(expiresAt, !resolved);
   const settlementExpired = settlementStatus === "expired";
   const settlementFailed =
     settlementStatus === "insufficient" || settlementStatus === "unavailable";
   const settledSummary = settlementExpired
-    ? t2(
+    ? t(
         "chat.creditReminder.expired",
         "Confirmation timed out; this generation was cancelled.",
       )
     : settlementFailed
-      ? t2(
+      ? t(
           "chat.creditReminder.actionError",
           "Could not update this generation. Try again.",
         )
-      : decision === "continue" || state2 === "continued"
-        ? t2(
+      : decision === "continue" || state === "continued"
+        ? t(
             "chat.creditReminder.continued",
             "Confirmed. Generation is continuing.",
           )
-        : t2("chat.creditReminder.cancelled", "Generation cancelled.");
+        : t("chat.creditReminder.cancelled", "Generation cancelled.");
   const { collapsed, expand, collapse } = useSettledCollapse(resolved);
   const selectedCredits = reactExports.useMemo(
     () =>
       (estimate.batchItems ?? [])
         .filter((item) => selectedItemIds.includes(item.itemId))
-        .reduce((sum2, item) => sum2 + item.estimatedCredits, 0),
+        .reduce((sum, item) => sum + item.estimatedCredits, 0),
     [estimate.batchItems, selectedItemIds],
   );
   const isBatch = (estimate.batchItems?.length ?? 0) > 0;
@@ -113,12 +115,12 @@ export function CreditThresholdReminderCard({
     (selectedItemIds.length > 0 &&
       selectedCredits <=
         (estimate.maxSelectableCredits ?? Number.MAX_SAFE_INTEGER));
-  const handleAction = async (nextState, resolvedState, action, selected2) => {
+  const handleAction = async (nextState, resolvedState, action, selected) => {
     if (busy || resolved) return;
     setActionFailed(false);
     setState(nextState);
     try {
-      const accepted = await action(selected2);
+      const accepted = await action(selected);
       if (accepted === false)
         throw new Error("credit threshold reply was not sent");
       if (!awaitSettlement) setState(resolvedState);
@@ -131,7 +133,7 @@ export function CreditThresholdReminderCard({
     return (
       <CollapsedSettledRow
         icon={CircleAlert}
-        title={t2("chat.creditReminder.cardTitle", "Credit usage reminder")}
+        title={t("chat.creditReminder.cardTitle", "Credit usage reminder")}
         summary={settledSummary}
         onExpand={expand}
         actionUiId="chat.credit-threshold-card.expand"
@@ -141,7 +143,7 @@ export function CreditThresholdReminderCard({
   return (
     <section
       className="w-full rounded-lg border border-border bg-card p-4"
-      aria-label={t2("chat.creditReminder.cardTitle", "Credit usage reminder")}
+      aria-label={t("chat.creditReminder.cardTitle", "Credit usage reminder")}
       data-action-ui-id="chat.credit-threshold-card"
     >
       <div className="flex items-center gap-2">
@@ -152,7 +154,7 @@ export function CreditThresholdReminderCard({
           className="text-foreground/70"
         />
         <h3 className="font-heading text-sm font-medium text-foreground">
-          {t2("chat.creditReminder.cardTitle", "Credit usage reminder")}
+          {t("chat.creditReminder.cardTitle", "Credit usage reminder")}
         </h3>
         {countdown && (
           <span
@@ -166,7 +168,7 @@ export function CreditThresholdReminderCard({
       </div>
       {showSelection ? (
         <p className="mt-3 text-[14px] leading-[22px] text-muted-foreground">
-          {t2("chat.creditReminder.batchDescription", {
+          {t("chat.creditReminder.batchDescription", {
             estimated: estimatedCredits ?? "-",
             defaultValue:
               "This generation is estimated to use {{estimated}} credits. Confirm what you want to generate (you can change the reminder threshold under “Agent Mode” in the input box).",
@@ -174,7 +176,7 @@ export function CreditThresholdReminderCard({
         </p>
       ) : estimatedCredits && thresholdCredits ? (
         <p className="mt-3 text-[14px] leading-[22px] text-muted-foreground">
-          {t2("chat.creditReminder.cardDescription", {
+          {t("chat.creditReminder.cardDescription", {
             estimated: estimatedCredits,
             threshold: thresholdCredits,
             defaultValue:
@@ -183,7 +185,7 @@ export function CreditThresholdReminderCard({
         </p>
       ) : (
         <p className="mt-3 text-[14px] leading-[22px] text-muted-foreground">
-          {t2(
+          {t(
             "chat.creditReminder.cardDescriptionFallback",
             "This generation has reached your credit usage reminder.",
           )}
@@ -192,7 +194,7 @@ export function CreditThresholdReminderCard({
       {showSelection && (
         <div className="mt-3 rounded-md border border-border/70 bg-secondary/40 p-2.5">
           <p className="text-xs font-medium text-foreground">
-            {t2("chat.creditReminder.batchTitle", "Choose what to generate")}
+            {t("chat.creditReminder.batchTitle", "Choose what to generate")}
           </p>
           <div className="mt-2 flex flex-col gap-1.5">
             {estimate.batchItems?.map((item) => {
@@ -216,10 +218,10 @@ export function CreditThresholdReminderCard({
                     disabled={busy || resolved || !itemFitsSelection}
                     aria-label={batchItemLabel(item)}
                     onCheckedChange={() =>
-                      setSelectedItemIds((current2) =>
+                      setSelectedItemIds((current) =>
                         checked
-                          ? current2.filter((id2) => id2 !== item.itemId)
-                          : [...current2, item.itemId],
+                          ? current.filter((selectedItemId) => selectedItemId !== item.itemId)
+                          : [...current, item.itemId],
                       )
                     }
                     data-action-ui-id={`chat.credit-threshold.item.${item.itemId}`}
@@ -249,7 +251,7 @@ export function CreditThresholdReminderCard({
             })}
           </div>
           <p className="mt-2 text-[11px] text-muted-foreground">
-            {t2("chat.creditReminder.batchSelectionSummary", {
+            {t("chat.creditReminder.batchSelectionSummary", {
               selected: selectedCredits.toLocaleString(),
               limit: estimate.maxSelectableCredits?.toLocaleString() ?? "-",
               defaultValue:
@@ -263,7 +265,7 @@ export function CreditThresholdReminderCard({
           {currentCredits && (
             <div>
               <dt className="text-muted-foreground">
-                {t2("chat.creditReminder.currentCredits", "Current credits")}
+                {t("chat.creditReminder.currentCredits", "Current credits")}
               </dt>
               <dd className="mt-0.5 text-foreground">{currentCredits}</dd>
             </div>
@@ -271,7 +273,7 @@ export function CreditThresholdReminderCard({
           {remainingCredits && (
             <div>
               <dt className="text-muted-foreground">
-                {t2(
+                {t(
                   "chat.creditReminder.remainingCredits",
                   "Estimated remaining",
                 )}
@@ -283,7 +285,7 @@ export function CreditThresholdReminderCard({
       )}
       {actionFailed && (
         <p className="mt-3 text-xs text-destructive" role="alert">
-          {t2(
+          {t(
             "chat.creditReminder.actionError",
             "Could not update this generation. Try again.",
           )}
@@ -299,19 +301,19 @@ export function CreditThresholdReminderCard({
             type="button"
             variant="outline"
             size="sm"
-            loading={state2 === "cancelling"}
+            loading={state === "cancelling"}
             disabled={busy}
             onClick={() =>
               void handleAction("cancelling", "cancelled", onCancel)
             }
             data-action-ui-id="chat.credit-threshold.cancel"
           >
-            {t2("chat.creditReminder.cancelGeneration", "Cancel generation")}
+            {t("chat.creditReminder.cancelGeneration", "Cancel generation")}
           </Button>
           <Button
             type="button"
             size="sm"
-            loading={state2 === "continuing"}
+            loading={state === "continuing"}
             disabled={
               busy ||
               !selectionValid ||
@@ -327,7 +329,7 @@ export function CreditThresholdReminderCard({
             }
             data-action-ui-id="chat.credit-threshold.continue"
           >
-            {t2(
+            {t(
               "chat.creditReminder.continueGeneration",
               "Continue generation",
             )}

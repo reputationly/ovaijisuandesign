@@ -1,58 +1,58 @@
 // create-box-faces.js
 import { add, localToWorld, project } from "./layer-decompose-prompt.jsx";
 export function createBoxFaces({
-  key: key2,
+  key,
   center,
-  size: size2,
+  size,
   basis,
   fills,
   stroke,
 }) {
-  const x2 = size2.x / 2;
-  const y4 = size2.y / 2;
-  const z3 = size2.z / 2;
+  const halfWidth = size.x / 2;
+  const halfHeight = size.y / 2;
+  const halfDepth = size.z / 2;
   const vertices = [
     {
-      x: -x2,
-      y: -y4,
-      z: -z3,
+      x: -halfWidth,
+      y: -halfHeight,
+      z: -halfDepth,
     },
     {
-      x: x2,
-      y: -y4,
-      z: -z3,
+      x: halfWidth,
+      y: -halfHeight,
+      z: -halfDepth,
     },
     {
-      x: x2,
-      y: y4,
-      z: -z3,
+      x: halfWidth,
+      y: halfHeight,
+      z: -halfDepth,
     },
     {
-      x: -x2,
-      y: y4,
-      z: -z3,
+      x: -halfWidth,
+      y: halfHeight,
+      z: -halfDepth,
     },
     {
-      x: -x2,
-      y: -y4,
-      z: z3,
+      x: -halfWidth,
+      y: -halfHeight,
+      z: halfDepth,
     },
     {
-      x: x2,
-      y: -y4,
-      z: z3,
+      x: halfWidth,
+      y: -halfHeight,
+      z: halfDepth,
     },
     {
-      x: x2,
-      y: y4,
-      z: z3,
+      x: halfWidth,
+      y: halfHeight,
+      z: halfDepth,
     },
     {
-      x: -x2,
-      y: y4,
-      z: z3,
+      x: -halfWidth,
+      y: halfHeight,
+      z: halfDepth,
     },
-  ].map((point2) => add(point2, center));
+  ].map((point) => add(point, center));
   const definitions = [
     {
       name: "back",
@@ -109,19 +109,19 @@ export function createBoxFaces({
       },
     },
   ];
-  return definitions.flatMap((definition2) => {
-    const visibility = localToWorld(definition2.normal, basis).z;
+  return definitions.flatMap((definition) => {
+    const visibility = localToWorld(definition.normal, basis).z;
     if (visibility <= 1e-3) return [];
-    const points = definition2.indices.map((index2) =>
-      project(vertices[index2], basis),
+    const points = definition.indices.map((index) =>
+      project(vertices[index], basis),
     );
     return [
       {
-        key: `${key2}-${definition2.name}`,
+        key: `${key}-${definition.name}`,
         points,
         depth:
-          points.reduce((sum2, point2) => sum2 + point2.z, 0) / points.length,
-        fill: fills[definition2.name] ?? fills.front,
+          points.reduce((sum, point) => sum + point.z, 0) / points.length,
+        fill: fills[definition.name] ?? fills.front,
         stroke,
       },
     ];

@@ -1,0 +1,67 @@
+key	old	new	依据
+X@12:10	X	CloseIcon	该导入组件用于封面编辑界面的关闭控件。
+t2@426:14	t2	translate	该绑定是封面编辑区域读取界面文案的翻译函数。
+t2@664:14	t2	translate	该绑定是附件预览与封面操作读取界面文案的翻译函数。
+e2@794:24	e2	changeEvent	该事件提供封面说明输入框的新文本。
+t2@823:14	t2	translate	该绑定是封面裁剪对话框读取界面文案的翻译函数。
+t2@882:14	t2	translate	该绑定是附件上传流程生成错误提示和状态文案的翻译函数。
+s2@962:28	s2	stagedEntry	该值是当前待更新列表中的暂存附件条目。
+i2@963:39	i2	initialEntry	该值是本次加入列表的初始附件条目。
+s2@981:28	s2	stagedEntry	该值是正在转换为上传中状态的暂存附件条目。
+s2@995:30	s2	stagedEntry	该值是正在转换为上传成功状态的暂存附件条目。
+s2@1006:30	s2	stagedEntry	该值是正在转换为上传失败状态的暂存附件条目。
+e2@1043:6	e2	dragEvent	该事件提供拖放到附件区域的文件列表。
+id2@1050:6	id2	entryId	该参数标识要移除的暂存附件及其封面预览地址。
+s2@1059:53	s2	stagedEntry	该值是过滤暂存列表时检查的附件条目。
+id2@1074:6	id2	entryId	该参数标识要更新说明文本的暂存附件。
+s2@1076:38	s2	stagedEntry	该值是遍历并检查说明文本更新条件的附件条目。
+e2@1196:26	e2	dragEvent	该事件用于阻止文件拖放时的默认行为。
+e2@1217:25	e2	clickEvent	该事件用于阻止文件输入框点击冒泡。
+e2@1218:26	e2	changeEvent	该事件提供文件输入框选取的文件列表。
+e2@1237:29	e2	keyboardEvent	该事件用于键盘激活添加附件区域。
+e2@1240:30	e2	dragEvent	该事件用于阻止文件拖放时的默认行为。
+e2@1264:29	e2	clickEvent	该事件用于阻止文件输入框点击冒泡。
+e2@1265:30	e2	changeEvent	该事件提供文件输入框选取的文件列表。
+e2@1277:26	e2	dragEvent	该事件用于阻止文件拖放时的默认行为。
+e2@1300:25	e2	clickEvent	该事件用于阻止文件输入框点击冒泡。
+e2@1301:26	e2	changeEvent	该事件提供文件输入框选取的文件列表。
+min2@98:23	min2	min	去掉打包器防重名追加的后缀，恢复原名 min，即该绑定持有的值。
+max2@98:29	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+handle2@137:11	handle2	handle	去掉打包器防重名追加的后缀，恢复原名 handle，即该绑定持有的值。
+top2@156:7	top2	cropTop	该值是裁剪框的顶部坐标。
+scale2@202:9	scale2	scale	去掉打包器防重名追加的后缀，恢复原名 scale，即该绑定持有的值。
+image2@214:11	image2	image	去掉打包器防重名追加的后缀，恢复原名 image，即该绑定持有的值。
+drag2@295:11	drag2	drag	去掉打包器防重名追加的后缀，恢复原名 drag，即该绑定持有的值。
+latest2@296:11	latest2	latest	去掉打包器防重名追加的后缀，恢复原名 latest，即该绑定持有的值。
+frame2@313:9	frame2	frame	去掉打包器防重名追加的后缀，恢复原名 frame，即该绑定持有的值。
+pending2@314:9	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+handle2@344:13	handle2	handle	去掉打包器防重名追加的后缀，恢复原名 handle，即该绑定持有的值。
+next2@360:52	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+latest2@362:11	latest2	latest	去掉打包器防重名追加的后缀，恢复原名 latest，即该绑定持有的值。
+position2@392:13	position2	position	去掉打包器防重名追加的后缀，恢复原名 position，即该绑定持有的值。
+onPointerDown2@393:18	onPointerDown2	onPointerDown	去掉打包器防重名追加的后缀，恢复原名 onPointerDown，即该绑定持有的值。
+observer2@440:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+scale2@452:11	scale2	scale	去掉打包器防重名追加的后缀，恢复原名 scale，即该绑定持有的值。
+position2@575:46	position2	position	去掉打包器防重名追加的后缀，恢复原名 position，即该绑定持有的值。
+position2@583:35	position2	position	去掉打包器防重名追加的后缀，恢复原名 position，即该绑定持有的值。
+position2@592:35	position2	position	去掉打包器防重名追加的后缀，恢复原名 position，即该绑定持有的值。
+option2@624:34	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+entries2@649:33	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+index2@650:9	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+entry2@650:38	entry2	entry	去掉打包器防重名追加的后缀，恢复原名 entry，即该绑定持有的值。
+onRemove2@658:13	onRemove2	onRemove	去掉打包器防重名追加的后缀，恢复原名 onRemove，即该绑定持有的值。
+isImage2@665:9	isImage2	isImage	去掉打包器防重名追加的后缀，恢复原名 isImage，即该绑定持有的值。
+all2@851:9	all2	all	去掉打包器防重名追加的后缀，恢复原名 all，即该绑定持有的值。
+list2@852:14	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+set2@858:9	set2	set	去掉打包器防重名追加的后缀，恢复原名 set，即该绑定持有的值。
+list2@859:14	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+dot2@865:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+max2@873:8	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+mode2@874:9	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+handleDrop2@1042:9	handleDrop2	handleDrop	去掉打包器防重名追加的后缀，恢复原名 handleDrop，即该绑定持有的值。
+next2@894:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+url2@902:18	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+next2@959:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@1059:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@1118:17	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+index2@1159:39	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。

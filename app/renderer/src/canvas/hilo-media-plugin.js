@@ -1,5 +1,6 @@
 // hilo-media-plugin.js
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
 import {
   AUDIO_CARD_SIZE,
   FILE_CARD_DEFAULT_SIZE,
@@ -12,7 +13,7 @@ import {
 } from "./is-reexecutable-generation-node.js";
 import { areNodePropsEqual } from "./fullscreen-icon.jsx";
 import { VideoNodeInner } from "../media-editing/video-node-inner.jsx";
-import { TextNode3 } from "../media-editing/video-tool-meta.jsx";
+import { TextNode } from "../media-editing/video-tool-meta.jsx";
 import { AudioNode } from "../media-editing/resolve-panorama-generation-presentation.js";
 import { ImageNode } from "../media-editing/canvas-sticker-assets.jsx";
 import { PlaceholderNode } from "../media-editing/create-column.jsx";
@@ -135,7 +136,7 @@ export const hiloMediaPlugin = {
     },
     {
       definition: textNodeDef,
-      component: TextNode3,
+      component: TextNode,
     },
     {
       definition: fileNodeDef,

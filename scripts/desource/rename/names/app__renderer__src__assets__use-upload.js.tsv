@@ -1,0 +1,107 @@
+key	old	new	依据
+t2@180:14	t2	translate	该绑定是上传 hook 读取错误、状态和操作提示的翻译函数。
+a2@536:41	a2	attachment	该值是当前上传附件列表中的记录，用于检查本地标识是否仍存在。
+a2@542:19	a2	attachment	该值是不可变更新时遍历的上传附件记录。
+a2@610:12	a2	attachment	该值是用于确认上传目标仍在附件列表中的记录。
+a2@618:21	a2	attachment	该值是更新上传状态时遍历的附件记录。
+a2@656:43	a2	attachment	该值是用于确认失败上传目标仍存在的附件记录。
+a2@659:21	a2	attachment	该值是写入错误状态时遍历的附件记录。
+a2@1021:12	a2	attachment	该值是用于构造文件去重键的已有附件记录。
+f2@1026:10	f2	file	该值是待与已有附件去重的浏览器 File 对象。
+ft2@1035:17	ft2	fileType	该值是由文件名推断出的类型，用于预览和 HEIC 判断。
+id2@1043:17	id2	localAttachmentId	该值是新建附件记录的本地 ID，供上传和预览任务关联。
+id2@1070:32	id2	localAttachmentId	该值是 filesToUpload 中记录的本地附件 ID。
+id2@1241:6	id2	localAttachmentId	该值是转发给替换逻辑的本地附件记录 ID。
+id2@1245:6	id2	localAttachmentId	该值是资产替换逻辑使用的本地附件记录 ID。
+ft2@1321:13	ft2	fileType	该值是由资产文件名推断出的类型，用于预览判断。
+id2@1325:13	id2	localAttachmentId	该值是新建资产附件记录的本地 ID。
+a2@1288:10	a2	attachment	该值是用于查找重复相对路径的已有附件记录。
+ft2@1364:13	ft2	fileType	该值是重命名后文件名对应的类型，用于更新预览信息。
+a2@1360:10	a2	attachment	该值是待按旧路径定位的非暂存文件附件记录。
+a2@1369:20	a2	attachment	该值是重命名时遍历并更新的附件记录。
+a2@1393:10	a2	attachment	该值是用于检查该画布节点是否已添加的附件记录。
+id2@1424:6	id2	localAttachmentId	该值是移除本地附件记录时匹配的记录 ID。
+a2@1425:51	a2	attachment	该值是按本地 ID 查找的目标附件记录。
+a2@1436:48	a2	attachment	该值是从列表中筛选移除目标时遍历的附件记录。
+a2@1444:25	a2	attachment	该值是按来源筛选时检查的附件记录。
+a2@1451:18	a2	attachment	该值是待清理暂存路径的附件记录。
+a2@1452:15	a2	attachment	该值提供待清理附件的相对路径。
+a2@1453:18	a2	attachment	该值是待清理预览 URL 和暂存文件的附件记录。
+a2@1472:8	a2	pluginNodeAttachment	该值是用于筛选有效插件节点引用的附件记录。
+a2@1476:32	a2	pluginNodeAttachment	该值是转换为提交载荷的插件节点附件记录。
+a2@1494:8	a2	attachment	该值是待筛选为已完成文件附件的记录。
+a2@1503:36	a2	attachment	该值提供提交载荷中的文件相对路径。
+a2@1516:18	a2	attachment	该值是待筛选为画布节点引用的文件附件记录。
+a2@1517:15	a2	attachment	该值提供画布节点引用载荷中的路径和节点标识。
+a2@1533:37	a2	attachment	该值用于判断已就绪附件是否仍需提交暂存文件。
+a2@1549:33	a2	attachment	该值提供待提交文件的相对路径。
+c3@1607:50	c3	committedPathMapping	该值记录上传提交前后路径的 from/to 映射。
+a2@1653:17	a2	attachment	该值是更新提交后相对路径与暂存状态的附件记录。
+a2@1687:23	a2	attachment	该值用于判断当前是否仍有上传中的附件。
+data2@34:12	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+keys2@39:9	keys2	keys	去掉打包器防重名追加的后缀，恢复原名 keys，即该绑定持有的值。
+key2@42:18	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+message2@61:15	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+code2@61:33	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+code2@71:9	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+record2@87:9	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+record2@104:11	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+from2@119:48	from2	from	去掉打包器防重名追加的后缀，恢复原名 from，即该绑定持有的值。
+path2@122:25	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+seen2@129:11	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+record2@132:13	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+key2@142:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+hex2@171:9	hex2	hex	去掉打包器防重名追加的后缀，恢复原名 hex，即该绑定持有的值。
+gatewayFetch2@184:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+gatewayUrl2@186:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+remove2@1423:9	remove2	remove	去掉打包器防重名追加的后缀，恢复原名 remove，即该绑定持有的值。
+next2@224:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+options2@224:13	options2	options	去掉打包器防重名追加的后缀，恢复原名 options，即该绑定持有的值。
+next2@246:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+options2@246:13	options2	options	去掉打包器防重名追加的后缀，恢复原名 options，即该绑定持有的值。
+previous2@254:17	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+version2@255:17	version2	version	去掉打包器防重名追加的后缀，恢复原名 version，即该绑定持有的值。
+options2@272:15	options2	options	去掉打包器防重名追加的后缀，恢复原名 options，即该绑定持有的值。
+next2@273:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@279:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+url2@288:18	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+pending2@434:11	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+record2@435:8	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+batch2@484:60	batch2	batch	去掉打包器防重名追加的后缀，恢复原名 batch，即该绑定持有的值。
+url2@562:22	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+data2@608:15	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+message2@593:15	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+body2@596:19	body2	body	去掉打包器防重名追加的后缀，恢复原名 body，即该绑定持有的值。
+code2@600:19	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+errorMessage2@648:15	errorMessage2	errorMessage	去掉打包器防重名追加的后缀，恢复原名 errorMessage，即该绑定持有的值。
+errorMessage2@738:15	errorMessage2	errorMessage	去掉打包器防重名追加的后缀，恢复原名 errorMessage，即该绑定持有的值。
+options2@760:32	options2	options	去掉打包器防重名追加的后缀，恢复原名 options，即该绑定持有的值。
+version2@761:13	version2	version	去掉打包器防重名追加的后缀，恢复原名 version，即该绑定持有的值。
+isValid2@762:13	isValid2	isValid	去掉打包器防重名追加的后缀，恢复原名 isValid，即该绑定持有的值。
+previous2@783:15	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+index2@784:15	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+next2@798:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+batch2@873:13	batch2	batch	去掉打包器防重名追加的后缀，恢复原名 batch，即该绑定持有的值。
+key2@855:28	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+batch2@890:6	batch2	batch	去掉打包器防重名追加的后缀，恢复原名 batch，即该绑定持有的值。
+index2@926:22	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@980:19	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+batch2@998:12	batch2	batch	去掉打包器防重名追加的后缀，恢复原名 batch，即该绑定持有的值。
+options2@1101:33	options2	options	去掉打包器防重名追加的后缀，恢复原名 options，即该绑定持有的值。
+version2@1112:13	version2	version	去掉打包器防重名追加的后缀，恢复原名 version，即该绑定持有的值。
+valid2@1115:13	valid2	valid	去掉打包器防重名追加的后缀，恢复原名 valid，即该绑定持有的值。
+next2@1184:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+options2@1241:31	options2	options	去掉打包器防重名追加的后缀，恢复原名 options，即该绑定持有的值。
+options2@1245:32	options2	options	去掉打包器防重名追加的后缀，恢复原名 options，即该绑定持有的值。
+key2@1251:26	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+updated2@1296:17	updated2	updated	去掉打包器防重名追加的后缀，恢复原名 updated，即该绑定持有的值。
+list2@1368:26	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+name2@1386:24	name2	pluginName	该参数是插件节点附件的显示名称，后续用作附件文件名。
+displayName2@1404:13	displayName2	displayName	去掉打包器防重名追加的后缀，恢复原名 displayName，即该绑定持有的值。
+options2@1424:25	options2	options	去掉打包器防重名追加的后缀，恢复原名 options，即该绑定持有的值。
+filter2@1442:13	filter2	filter	去掉打包器防重名追加的后缀，恢复原名 filter，即该绑定持有的值。
+matches2@1444:13	matches2	matches	去掉打包器防重名追加的后缀，恢复原名 matches，即该绑定持有的值。
+current2@1462:26	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+data2@1605:11	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+from2@1633:42	from2	from	去掉打包器防重名追加的后缀，恢复原名 from，即该绑定持有的值。
+current2@1638:28	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。

@@ -1,5 +1,7 @@
 // text-preview.jsx
-import { DialogPopup, Loader2, Music2, reactExports } from "../vendor.js";
+import reactExports from "react";
+import { DialogPopup } from "../infra/base-ui.js";
+import { Loader2, Music2 } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileText, Paperclip } from "../media-editing/package.jsx";
 import { CloseButton } from "./close-button.jsx";

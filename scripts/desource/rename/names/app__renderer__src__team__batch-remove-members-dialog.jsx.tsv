@@ -1,0 +1,7 @@
+key	new	reason
+ScopeChangedError$2@76:5	BatchRemoveScopeChangedError	批量移除过程中账号范围变化时抛出的错误类（内部类名 ScopeChangedError 占用了同名）
+t2@88:14	t	useTranslation() 返回的翻译函数 t
+index2@33:13	index	去掉打包器加的数字后缀，恢复原名 index
+queryClient2@89:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+index2@105:35	index	去掉打包器加的数字后缀，恢复原名 index
+next2@179:22	next	去掉打包器加的数字后缀，恢复原名 next

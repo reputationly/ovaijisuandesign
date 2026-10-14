@@ -1,5 +1,6 @@
 // 运营后台的数据与规则：运营工作流 hook、权限、发布校验与批量发布组装。
-import { reactExports, API_PATHS } from "../../vendor.js";
+import reactExports from "react";
+import { API_PATHS } from "../../infra/workspace-gateway.js";
 import { gatewayFetch } from "../../infra/gateway-fetch.js";
 import { normalizeSkillCategoriesResponse } from "../../generation/use-skill-categories.js";
 async function readJson(response) {

@@ -1,6 +1,6 @@
 // sidebar-release-badge.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 export function SidebarReleaseBadge({ compact = false, target, releaseBadge }) {
   if (!target || !releaseBadge) return null;
   if (compact) {

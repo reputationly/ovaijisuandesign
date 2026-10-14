@@ -1,10 +1,8 @@
 // connector-required-input-fields.jsx
 import { homeService } from "../workspace/home-service.jsx";
-import {
-  jsxRuntimeExports,
-  localizedI18nText,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
+import { localizedI18nText } from "../i18n/localized-text.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
@@ -12,9 +10,9 @@ import { Input3 } from "../infra/select-content.jsx";
 export function isRequiredInputSatisfied(
   input,
   value,
-  normalize2 = (raw2) => raw2.trim(),
+  normalize = (raw) => raw.trim(),
 ) {
-  const normalized = normalize2(value);
+  const normalized = normalize(value);
   if (normalized.length === 0) return false;
   if (!input.pattern) return true;
   try {
@@ -27,20 +25,20 @@ export function isRequiredInputSatisfied(
 export function ConnectorRequiredInputFields({
   connectorId,
   requiredInputs,
-  values: values3,
-  disabled: disabled2,
-  normalize: normalize2,
+  values,
+  disabled,
+  normalize,
   onChange,
 }) {
-  const { t: t2, i18n } = useTranslation();
-  const language2 = i18n?.language ?? "en";
+  const { t, i18n } = useTranslation();
+  const language = i18n?.language ?? "en";
   return (
     <>
       {requiredInputs.map((field) => {
-        const value = values3[field.key] ?? "";
-        const invalid2 =
+        const value = values[field.key] ?? "";
+        const invalid =
           value.trim().length > 0 &&
-          !isRequiredInputSatisfied(field, value, normalize2);
+          !isRequiredInputSatisfied(field, value, normalize);
         const fieldId = `connectors-${connectorId}-${field.key}`;
         return (
           <div key={field.key}>
@@ -48,18 +46,18 @@ export function ConnectorRequiredInputFields({
               htmlFor={fieldId}
               className="text-sm font-medium text-foreground"
             >
-              {localizedI18nText(field.label, language2)}
+              {localizedI18nText(field.label, language)}
             </Label>
             <Input3
               id={fieldId}
               type="text"
               value={value}
               onChange={(event) => onChange(field.key, event.target.value)}
-              disabled={disabled2}
+              disabled={disabled}
               autoComplete="off"
               autoCapitalize="none"
               spellCheck={false}
-              aria-invalid={invalid2}
+              aria-invalid={invalid}
               aria-required="true"
               {...(field.placeholder
                 ? {
@@ -69,11 +67,11 @@ export function ConnectorRequiredInputFields({
               className="mt-1.5 h-10 rounded-lg bg-card"
               data-action-ui-id={fieldId}
             />
-            {invalid2 ? (
+            {invalid ? (
               <p role="alert" className="mt-1.5 text-xs text-destructive">
                 {field.patternMessage
-                  ? localizedI18nText(field.patternMessage, language2)
-                  : t2("connectors.oauth.invalidInput")}
+                  ? localizedI18nText(field.patternMessage, language)
+                  : t("connectors.oauth.invalidInput")}
               </p>
             ) : null}
           </div>

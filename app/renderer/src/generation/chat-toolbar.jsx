@@ -1,5 +1,7 @@
 // chat-toolbar.jsx
-import { Box, Plus, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Box, Plus } from "../media-editing/lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,
@@ -12,20 +14,20 @@ import { Paperclip } from "../media-editing/package.jsx";
 import {
   countVisibleSelectedMediaModels,
   isAllVisibleMediaModelsSelected,
-} from "../media-editing/wt.js";
+} from "../media-editing/media-model-selection.js";
 import { useMediaModels } from "./normalize-model-info.js";
 import { useComposerActionsCompact } from "../chat/create-expanded-composer-actions-measurer.jsx";
 import { TooltipContent } from "../infra/dialog-content.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
 import { useAttachmentFaceNoticeGate } from "../chat/use-attachment-face-notice-gate.jsx";
 
-export const ChatToolbar = reactExports.memo(function ChatToolbar2({
+export const ChatToolbar = reactExports.memo(function ChatToolbar({
   addFromLocal,
   attachmentAccept,
   uploading,
   interactionLocked = false,
   busy,
-  running: running2,
+  running,
   triggerSlash,
   skillTriggerRef,
   selectedModelId,
@@ -37,26 +39,26 @@ export const ChatToolbar = reactExports.memo(function ChatToolbar2({
   showModelSelector = false,
   showSkillSelector = true,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const actionsCompact = useComposerActionsCompact();
   const fileInputRef = reactExports.useRef(null);
   const attachmentButtonRef = reactExports.useRef(null);
   const modelButtonRef = reactExports.useRef(null);
   const [modelPickerOpen, setModelPickerOpen] = reactExports.useState(false);
   const { data: mediaModels } = useMediaModels();
-  const controlsLocked = busy || running2 || interactionLocked;
+  const controlsLocked = busy || running || interactionLocked;
   const modelSelectorVisible = showModelSelector && !hideMediaModelSelector;
   const attachmentOnly = !modelSelectorVisible && !showSkillSelector;
   reactExports.useEffect(() => {
     if (actionsCompact || controlsLocked) setModelPickerOpen(false);
   }, [actionsCompact, controlsLocked]);
   const handleFileChange = reactExports.useCallback(
-    (e2) => {
-      const selected2 = e2.target.files;
-      if (selected2 && selected2.length > 0) {
-        addFromLocal(selected2);
+    (changeEvent) => {
+      const selected = changeEvent.target.files;
+      if (selected && selected.length > 0) {
+        addFromLocal(selected);
       }
-      e2.target.value = "";
+      changeEvent.target.value = "";
     },
     [addFromLocal],
   );
@@ -75,12 +77,12 @@ export const ChatToolbar = reactExports.memo(function ChatToolbar2({
   }, [requestAssetSource, requestAttachmentPicker]);
   const handleModelToggle = reactExports.useCallback(() => {
     if (controlsLocked) return;
-    setModelPickerOpen((v2) => !v2);
+    setModelPickerOpen((isModelPickerOpen) => !isModelPickerOpen);
   }, [controlsLocked]);
   const handleModelCommit = reactExports.useCallback(
-    (next2, rememberForNewChats) => {
+    (next, rememberForNewChats) => {
       if (controlsLocked) return;
-      onModelSelectionChange(next2, rememberForNewChats);
+      onModelSelectionChange(next, rememberForNewChats);
     },
     [controlsLocked, onModelSelectionChange],
   );
@@ -97,8 +99,8 @@ export const ChatToolbar = reactExports.memo(function ChatToolbar2({
       : 0;
   const buttonLabel =
     allVisibleModelsSelected || selectedModelCount === 0
-      ? t2("chat.mediaModels.label")
-      : `${t2("chat.mediaModels.label")} · ${selectedModelCount}`;
+      ? translate("chat.mediaModels.label")
+      : `${translate("chat.mediaModels.label")} · ${selectedModelCount}`;
   const modelButton = (
     <button
       ref={modelButtonRef}
@@ -137,8 +139,8 @@ export const ChatToolbar = reactExports.memo(function ChatToolbar2({
         data-action-ui-id="chat-attach-btn"
         onClick={handleAttachmentClick}
         disabled={busy || uploading}
-        aria-label={t2("chat.addFile")}
-        title={t2("chat.addFile")}
+        aria-label={translate("chat.addFile")}
+        title={translate("chat.addFile")}
         className={
           attachmentOnly
             ? "flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md bg-transparent text-muted-foreground transition-colors duration-75 hover:bg-foreground/5 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
@@ -171,7 +173,7 @@ export const ChatToolbar = reactExports.memo(function ChatToolbar2({
                 <Tooltip>
                   <TooltipTrigger render={modelButton} />
                   <TooltipContent side="top">
-                    {t2("chat.mediaModels.busyTooltip")}
+                    {translate("chat.mediaModels.busyTooltip")}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -194,13 +196,13 @@ export const ChatToolbar = reactExports.memo(function ChatToolbar2({
           data-action-ui-id="chat-skill-btn"
           onClick={triggerSlash}
           disabled={interactionLocked}
-          aria-label={skillLabel ?? t2("skills.popover.buttonLabel")}
-          title={skillLabel ?? t2("skills.popover.buttonLabel")}
+          aria-label={skillLabel ?? translate("skills.popover.buttonLabel")}
+          title={skillLabel ?? translate("skills.popover.buttonLabel")}
           className="flex h-[var(--btn-height-sm)] shrink-0 items-center gap-[var(--home-input-control-content-gap)] whitespace-nowrap rounded-full px-[var(--home-input-toolbar-padding-x)] text-[length:var(--home-input-toolbar-font-size)] font-normal leading-5 tracking-[var(--home-input-toolbar-letter-spacing)] text-foreground/70 transition-colors duration-75 hover:bg-[var(--message-input-control-hover)] hover:text-foreground cursor-pointer group-data-[actions-compact=true]/composer:size-[var(--btn-height-sm)] group-data-[actions-compact=true]/composer:justify-center group-data-[actions-compact=true]/composer:gap-0 group-data-[actions-compact=true]/composer:p-0"
         >
           <SkillIcon size={16} strokeWidth={1.5} className="shrink-0" />
           <span className="group-data-[actions-compact=true]/composer:hidden">
-            {skillLabel ?? t2("skills.popover.buttonLabel")}
+            {skillLabel ?? translate("skills.popover.buttonLabel")}
           </span>
         </button>
       )}

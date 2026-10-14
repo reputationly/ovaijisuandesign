@@ -1,12 +1,12 @@
 // dev-tool-confirm-trigger.jsx
 import { MOCK_MEDIA_GEN_MESSAGES } from "../chat/mock-media-gen-messages.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 
-function parseMockToolArgs(raw2) {
-  if (!raw2) return {};
+function parseMockToolArgs(raw) {
+  if (!raw) return {};
   try {
-    const parsed = JSON.parse(raw2);
+    const parsed = JSON.parse(raw);
     return parsed && typeof parsed === "object" && !Array.isArray(parsed)
       ? parsed
       : {};
@@ -95,48 +95,48 @@ const MOCK_ENUM_HINTS = {
   ],
 };
 
-function uniqueStrings(values3, current2) {
-  const next2 = new Set();
-  const add2 = (value) => {
+function uniqueStrings(values, current) {
+  const next = new Set();
+  const add = (value) => {
     if (value == null || value === "") return;
-    next2.add(String(value));
+    next.add(String(value));
   };
-  if (Array.isArray(current2)) {
-    for (const item of current2) add2(item);
+  if (Array.isArray(current)) {
+    for (const item of current) add(item);
   } else {
-    add2(current2);
+    add(current);
   }
-  for (const value of values3) next2.add(value);
-  return [...next2];
+  for (const value of values) next.add(value);
+  return [...next];
 }
 
 function mockParamHintsForArgs(args) {
   const hints = {};
-  const visit2 = (entries2) => {
-    for (const [key2, value] of Object.entries(entries2)) {
+  const visit = (entries) => {
+    for (const [key, value] of Object.entries(entries)) {
       if (
-        key2 === "vendor_params" &&
+        key === "vendor_params" &&
         value &&
         typeof value === "object" &&
         !Array.isArray(value)
       ) {
-        visit2(value);
+        visit(value);
         continue;
       }
-      const enumValues = MOCK_ENUM_HINTS[key2];
+      const enumValues = MOCK_ENUM_HINTS[key];
       if (enumValues) {
-        hints[key2] = {
+        hints[key] = {
           type: "enum",
           values: uniqueStrings(enumValues, value),
         };
-      } else if (key2 === "count" || key2 === "n" || key2 === "concurrency") {
-        hints[key2] = {
+      } else if (key === "count" || key === "n" || key === "concurrency") {
+        hints[key] = {
           type: "range",
           min: 1,
           max: 5,
         };
-      } else if (key2 === "speed" || key2 === "speeds") {
-        hints[key2] = {
+      } else if (key === "speed" || key === "speeds") {
+        hints[key] = {
           type: "range",
           min: 0.5,
           max: 2,
@@ -144,22 +144,22 @@ function mockParamHintsForArgs(args) {
       }
     }
   };
-  visit2(args);
+  visit(args);
   return hints;
 }
 
 function mockToolConfirmSources() {
-  return MOCK_MEDIA_GEN_MESSAGES.flatMap((message2) => {
-    if (message2.type !== "tool" || !message2.toolName) return [];
-    const args = parseMockToolArgs(message2.toolArgs);
+  return MOCK_MEDIA_GEN_MESSAGES.flatMap((message) => {
+    if (message.type !== "tool" || !message.toolName) return [];
+    const args = parseMockToolArgs(message.toolArgs);
     return [
       {
-        id: message2.id,
-        tool: message2.toolName,
+        id: message.id,
+        tool: message.toolName,
         args,
-        label: message2.toolName,
+        label: message.toolName,
         paramHints: mockParamHintsForArgs(args),
-        toolMessage: message2,
+        toolMessage: message,
       },
     ];
   });
@@ -170,23 +170,23 @@ export function DevToolConfirmTrigger({ sessionStore, focusedSessionId }) {
   const [selectedId, setSelectedId] = reactExports.useState(
     () => sources[0]?.id ?? "",
   );
-  const selected2 =
+  const selected =
     sources.find((source) => source.id === selectedId) ?? sources[0];
   const inject = reactExports.useCallback(() => {
     const sid = focusedSessionId;
-    if (!sid || !selected2) return;
-    const now2 = Date.now();
-    const toolId = `dev-tool-${now2}`;
-    const confirmId = `dev-confirm-${now2}`;
+    if (!sid || !selected) return;
+    const now = Date.now();
+    const toolId = `dev-tool-${now}`;
+    const confirmId = `dev-confirm-${now}`;
     const toolMsg = {
-      ...selected2.toolMessage,
+      ...selected.toolMessage,
       id: toolId,
       role: "agent",
       type: "tool",
-      content: selected2.tool,
-      toolName: selected2.tool,
+      content: selected.tool,
+      toolName: selected.tool,
       toolStatus: "pending",
-      toolArgs: JSON.stringify(selected2.args),
+      toolArgs: JSON.stringify(selected.args),
       toolResult: void 0,
     };
     const confirmMsg = {
@@ -197,18 +197,18 @@ export function DevToolConfirmTrigger({ sessionStore, focusedSessionId }) {
       requestId: confirmId,
       resolved: false,
       toolConfirmData: {
-        tool: selected2.tool,
-        args: selected2.args,
-        paramHints: selected2.paramHints,
+        tool: selected.tool,
+        args: selected.args,
+        paramHints: selected.paramHints,
       },
     };
     sessionStore.updateMessages(sid, (prev) => [...prev, toolMsg, confirmMsg]);
-  }, [focusedSessionId, selected2, sessionStore]);
+  }, [focusedSessionId, selected, sessionStore]);
   return (
     <div className="mx-4 mb-1 flex items-center gap-1">
       <select
-        value={selected2?.id ?? ""}
-        onChange={(e2) => setSelectedId(e2.target.value)}
+        value={selected?.id ?? ""}
+        onChange={(changeEvent) => setSelectedId(changeEvent.target.value)}
         className="h-5 max-w-72 min-w-0 flex-1 rounded-sm border border-dashed border-border bg-background px-1.5 font-mono text-caption-10 text-muted-foreground"
       >
         {sources.map((source) => (
@@ -220,7 +220,7 @@ export function DevToolConfirmTrigger({ sessionStore, focusedSessionId }) {
       <button
         type="button"
         onClick={inject}
-        disabled={!focusedSessionId || !selected2}
+        disabled={!focusedSessionId || !selected}
         className="shrink-0 cursor-pointer rounded-sm border border-dashed border-border px-1.5 py-0.5 text-caption-10 text-muted-foreground hover:bg-muted disabled:cursor-default disabled:opacity-50"
       >
         Inject confirm

@@ -1,0 +1,7 @@
+t2@56:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+code2@8:35	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+code2@22:41	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+url2@22:48	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+code2@35:28	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+url2@35:35	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+index2@110:41	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。

@@ -1,0 +1,13 @@
+key	new	依据
+NodeToolbar$1@8:3	NodeToolbarPrimitive	vendor 导出的底层 NodeToolbar，供本文件同名 memoized 包装组件渲染。
+state2@41:10	state	工具栏进入或退出动画所处的状态字符串。
+isActive2@102:43	isActive	当前菜单项是否处于激活状态的布尔属性。
+isActive2@171:47	isActive	当前菜单项是否处于激活状态的布尔属性。
+state2@343:10	state	工具栏进入或退出动画所处的状态字符串。
+zoom2@374:9	zoom	React Flow 画布视口的当前缩放比例。
+state2@379:32	state	工具栏进入或退出动画所处的状态字符串。
+offset2@389:9	offset	根据画布缩放计算出的工具栏垂直偏移量。
+s2@35:23	storeState	React Flow 状态仓库提供的画布 transform 状态。
+idx@258:48	dropdownChildIndex	当前下拉菜单子项在列表中的索引。
+idx@303:46	dropdownChildIndex	当前下拉菜单子项在列表中的索引。
+i2@362:27	toolbarItemIndex	当前工具栏项目在项目列表中的索引。

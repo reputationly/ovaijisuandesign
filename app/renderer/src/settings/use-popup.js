@@ -1,7 +1,9 @@
 // use-popup.js
 import { PopupType } from "../generation/normalize-skill-detail-metadata.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
-import { reactExports, useQuery, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   creditQueryKeys,
   useAuth,
@@ -15,8 +17,8 @@ function isRecord$a(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function readString(record2, key2) {
-  const value = record2[key2];
+function readString(record, key) {
+  const value = record[key];
   return typeof value === "string" ? value : "";
 }
 
@@ -25,8 +27,8 @@ function readQueryIds(value) {
     ? [
         ...new Set(
           value
-            .filter((id2) => typeof id2 === "string")
-            .map((id2) => id2.trim())
+            .filter((id) => typeof id === "string")
+            .map((id) => id.trim())
             .filter(Boolean),
         ),
       ]
@@ -134,16 +136,16 @@ async function fetchPopup(signal) {
 function hasSameQueryKey(actual, expected) {
   return (
     actual?.length === expected.length &&
-    actual.every((part, index2) => Object.is(part, expected[index2]))
+    actual.every((part, index) => Object.is(part, expected[index]))
   );
 }
 
-function isGlobalFeatureResponse(raw2) {
+function isGlobalFeatureResponse(raw) {
   return (
-    raw2?.popup_type === PopupType.POPUP_TYPE_FEATURE ||
-    (raw2?.popup_type === PopupType.POPUP_TYPE_NONE &&
-      Array.isArray(raw2.announcements) &&
-      raw2.announcements.every(
+    raw?.popup_type === PopupType.POPUP_TYPE_FEATURE ||
+    (raw?.popup_type === PopupType.POPUP_TYPE_NONE &&
+      Array.isArray(raw.announcements) &&
+      raw.announcements.every(
         (popup) => popup.popup_type === PopupType.POPUP_TYPE_FEATURE,
       ))
   );
@@ -186,18 +188,18 @@ export function usePopup() {
     refetchOnWindowFocus: true,
   });
   const retainedFeatureRef = reactExports.useRef(null);
-  const language2 = i18n.language;
+  const language = i18n.language;
   const hasSettledQueryResult = query.isSuccess && !query.isPlaceholderData;
   reactExports.useEffect(() => {
     if (!enabled || !userID) {
       retainedFeatureRef.current = null;
       return;
     }
-    const retainedFeature2 = retainedFeatureRef.current;
+    const retainedFeature = retainedFeatureRef.current;
     if (
-      retainedFeature2 &&
-      (retainedFeature2.userID !== userID ||
-        retainedFeature2.language !== language2)
+      retainedFeature &&
+      (retainedFeature.userID !== userID ||
+        retainedFeature.language !== language)
     ) {
       retainedFeatureRef.current = null;
     }
@@ -206,12 +208,12 @@ export function usePopup() {
         query.data && isGlobalFeatureResponse(query.data)
           ? {
               userID,
-              language: language2,
+              language,
               popup: query.data,
             }
           : null;
     }
-  }, [enabled, hasSettledQueryResult, language2, query.data, userID]);
+  }, [enabled, hasSettledQueryResult, language, query.data, userID]);
   const canExposePersonalPopup =
     queryScope !== null && creditAccount.canReadPersonalCredit;
   const queryData =
@@ -223,7 +225,7 @@ export function usePopup() {
     enabled &&
     !hasSettledQueryResult &&
     retainedFeature?.userID === userID &&
-    retainedFeature.language === language2
+    retainedFeature.language === language
       ? retainedFeature.popup
       : void 0;
   const visibleData = queryData ?? retainedData;

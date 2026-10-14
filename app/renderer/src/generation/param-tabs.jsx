@@ -1,5 +1,5 @@
 // param-tabs.jsx
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { formatSecondsOption } from "./expand-arrow-icon.jsx";
 import { Tooltip } from "./missing-asset-card.jsx";
@@ -15,7 +15,7 @@ export function ParamTabs({
   options,
   value,
   onChange,
-  disabled: disabled2,
+  disabled,
   disabledOptions,
   getDisabledOptionTooltip,
   getOptionLabel,
@@ -25,7 +25,7 @@ export function ParamTabs({
   trackColumns,
   allowDeselect,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (!shouldRenderParamTabs(options.length, variant)) return null;
   const selectedIndex = Math.max(0, options.indexOf(value));
   const trackColumnCount = Math.max(
@@ -62,33 +62,33 @@ export function ParamTabs({
             style={thumbStyle}
           />
         )}
-        {options.map((opt) => {
-          const isSelected = opt === value;
+        {options.map((option) => {
+          const isSelected = option === value;
           const isOptDisabled =
-            disabled2 || (disabledOptions?.has(opt) ?? false);
-          const secondsLabel = formatSecondsOption(opt);
+            disabled || (disabledOptions?.has(option) ?? false);
+          const secondsLabel = formatSecondsOption(option);
           const optionLabel = getOptionLabel
-            ? getOptionLabel(opt)
-            : optionUnit === "seconds" && secondsLabel !== opt
-              ? t2("canvas.params.durationOption", {
-                  duration: opt,
+            ? getOptionLabel(option)
+            : optionUnit === "seconds" && secondsLabel !== option
+              ? translate("canvas.params.durationOption", {
+                  duration: option,
                   defaultValue: secondsLabel,
                 })
-              : t2(`canvas.param.option.${opt}`, {
-                  defaultValue: opt,
+              : translate(`canvas.param.option.${option}`, {
+                  defaultValue: option,
                 });
           const button = (
             <button
-              key={opt}
+              key={option}
               type="button"
-              onClick={(e2) => {
-                e2.stopPropagation();
-                if (isOptDisabled || disabled2) return;
+              onClick={(clickEvent) => {
+                clickEvent.stopPropagation();
+                if (isOptDisabled || disabled) return;
                 if (isSelected && allowDeselect) {
                   onChange?.("");
                   return;
                 }
-                onChange?.(opt);
+                onChange?.(option);
               }}
               disabled={isOptDisabled}
               aria-pressed={isSelected}
@@ -118,11 +118,11 @@ export function ParamTabs({
             </button>
           );
           const disabledOptionTooltip =
-            !disabled2 && disabledOptions?.has(opt)
-              ? getDisabledOptionTooltip?.(opt)
+            !disabled && disabledOptions?.has(option)
+              ? getDisabledOptionTooltip?.(option)
               : void 0;
           return disabledOptionTooltip ? (
-            <Tooltip key={opt} content={disabledOptionTooltip}>
+            <Tooltip key={option} content={disabledOptionTooltip}>
               <span
                 className={
                   variant === "track"

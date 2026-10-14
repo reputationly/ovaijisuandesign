@@ -1,10 +1,8 @@
 // plugin-node-inner.jsx
-import {
-  CompositedSvg,
-  Position,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileViewerRouter } from "./pdf-viewer.jsx";
 import {
@@ -52,34 +50,34 @@ import {
 } from "./director-stage-header-icon.jsx";
 import { PluginLauncher } from "./plugin-launcher.jsx";
 function PluginPreview({
-  selected: selected2,
+  selected: isSelected,
   interactive,
   filePath,
   pluginId,
-  displayName: displayName2,
-  extension: extension2,
+  displayName,
+  extension,
   width,
   height,
 }) {
   const paneWidth = width - 2;
   const { i18n } = useTranslation();
-  const meta2 = usePluginMeta(pluginId);
+  const pluginMeta = usePluginMeta(pluginId);
   const rawLang = i18n.language || "en-US";
   const locale = rawLang.startsWith("zh")
     ? "zh-CN"
     : rawLang.startsWith("en")
       ? "en-US"
       : rawLang;
-  const localizedName = meta2 ? pickLocalized(meta2.name, locale) : "";
-  const headerName = localizedName || displayName2;
-  const iconUrl = meta2 ? pickLocalized(meta2.iconUrl, locale) : "";
+  const localizedName = pluginMeta ? pickLocalized(pluginMeta.name, locale) : "";
+  const headerName = localizedName || displayName;
+  const iconUrl = pluginMeta ? pickLocalized(pluginMeta.iconUrl, locale) : "";
   const [iconBroken, setIconBroken] = reactExports.useState(false);
   const showIcon = !!iconUrl && !iconBroken;
   return (
     <NodeBody
       width={width}
       height={height}
-      selected={selected2}
+      selected={isSelected}
       variant="media"
     >
       <div
@@ -148,8 +146,8 @@ function PluginPreview({
         <div className="flex-1 overflow-hidden">
           <FileViewerRouter
             filePath={filePath}
-            extension={extension2}
-            displayName={displayName2}
+            extension={extension}
+            displayName={displayName}
             paneWidth={paneWidth}
             interactive={interactive}
           />
@@ -159,18 +157,18 @@ function PluginPreview({
   );
 }
 export function PluginNodeInner({
-  id: id2,
-  data: data2,
-  selected: selected2,
+  id: nodeId,
+  data: nodeData,
+  selected: isSelected,
   width,
   height,
 }) {
-  const { i18n, t: t2 } = useTranslation();
-  const meta2 = useAssetMeta(id2);
-  const persisted = data2;
+  const { i18n, t } = useTranslation();
+  const assetMeta = useAssetMeta(nodeId);
+  const persisted = nodeData;
   const { onPluginAction } = useCanvasBridge();
   const isMultiSelect = useCanvasIsMultiSelect();
-  const isDragging = useCanvasNodeIsDragging(id2);
+  const isDragging = useCanvasNodeIsDragging(nodeId);
   const isBoxSelecting = useCanvasIsBoxSelecting();
   const [previewWidth, setPreviewWidth] = reactExports.useState(
     typeof width === "number" && width > 0 ? width : FILE_PREVIEW_SIZE.width,
@@ -186,13 +184,13 @@ export function PluginNodeInner({
   reactExports.useEffect(() => {
     if (typeof height === "number" && height > 0) setPreviewHeight(height);
   }, [height]);
-  const filePath = meta2?.path ?? persisted?.path;
-  const displayName2 =
-    meta2?.name ||
+  const filePath = assetMeta?.path ?? persisted?.path;
+  const displayName =
+    assetMeta?.name ||
     persisted?.name ||
     filePath?.split("/").pop() ||
-    t2("canvas.file.untitled", "Untitled");
-  const extension2 = ".html";
+    t("canvas.file.untitled", "Untitled");
+  const extension = ".html";
   const pluginMeta = usePluginMeta(persisted?.pluginId);
   const rawLang = i18n.language || "en-US";
   const locale = rawLang.startsWith("zh")
@@ -200,34 +198,34 @@ export function PluginNodeInner({
     : rawLang.startsWith("en")
       ? "en-US"
       : rawLang;
-  const savedName = meta2?.name || persisted?.name;
+  const savedName = assetMeta?.name || persisted?.name;
   const isCustomName =
     savedName &&
     pluginMeta &&
     !Object.values(pluginMeta.name).includes(savedName);
   const headerName =
-    (!isCustomName && pickLocalized(pluginMeta?.name, locale)) || displayName2;
+    (!isCustomName && pickLocalized(pluginMeta?.name, locale)) || displayName;
   const displayMode =
     pluginMeta?.displayMode ?? persisted?.pluginDisplayMode ?? "inline";
   const isLauncher = displayMode === "launcher";
   const isComfyUi = persisted?.pluginId === COMFYUI_PLUGIN_ID;
   const isEditorSurface =
     isLauncher && isPluginEditorSurface(pluginMeta?.agent);
-  const runInfo = usePluginRunInfo(id2);
-  const htmlViewerHandle = useHtmlViewerHandle(id2);
-  const isHtmlFullscreen = useIsHtmlFullscreen(id2);
+  const runInfo = usePluginRunInfo(nodeId);
+  const htmlViewerHandle = useHtmlViewerHandle(nodeId);
+  const isHtmlFullscreen = useIsHtmlFullscreen(nodeId);
   const fullscreenApi = useHtmlFullscreenApi();
   const reportPluginAction = reactExports.useCallback(
-    (action, state2, runPath) => {
+    (action, actionState, runPath) => {
       if (!persisted.pluginId) return;
       onPluginAction?.({
         pluginId: persisted.pluginId,
         pluginVersion: persisted.pluginVersion,
-        pluginInstanceId: id2,
+        pluginInstanceId: nodeId,
         action,
-        ...(state2
+        ...(actionState
           ? {
-              state: state2,
+              state: actionState,
             }
           : {}),
         ...(runPath
@@ -237,17 +235,17 @@ export function PluginNodeInner({
           : {}),
       });
     },
-    [id2, onPluginAction, persisted.pluginId, persisted.pluginVersion],
+    [nodeId, onPluginAction, persisted.pluginId, persisted.pluginVersion],
   );
   const enterHtmlFullscreen = reactExports.useCallback(() => {
     if (!htmlViewerHandle) return;
-    fullscreenApi.getState().enter(id2);
+    fullscreenApi.getState().enter(nodeId);
     reportPluginAction("fullscreen", "enter");
-  }, [id2, fullscreenApi, htmlViewerHandle, reportPluginAction]);
+  }, [nodeId, fullscreenApi, htmlViewerHandle, reportPluginAction]);
   const exitHtmlFullscreen = reactExports.useCallback(() => {
-    fullscreenApi.getState().exit(id2);
+    fullscreenApi.getState().exit(nodeId);
     reportPluginAction("fullscreen", "exit");
-  }, [id2, fullscreenApi, reportPluginAction]);
+  }, [nodeId, fullscreenApi, reportPluginAction]);
   const refreshPlugin = reactExports.useCallback(() => {
     if (!htmlViewerHandle) return;
     htmlViewerHandle.reload();
@@ -269,7 +267,7 @@ export function PluginNodeInner({
       ? [
           {
             id: "refresh",
-            label: t2("canvas.file.refresh", "刷新"),
+            label: t("canvas.file.refresh", "刷新"),
             icon: <RefreshIcon />,
             onClick: refreshPlugin,
             dataActionUiId: "canvas.plugin-node.refresh",
@@ -277,8 +275,8 @@ export function PluginNodeInner({
           {
             id: "fullscreen",
             label: isHtmlFullscreen
-              ? t2("canvas.file.exitFullscreen", "退出全屏")
-              : t2("canvas.file.enterFullscreen", "全屏预览"),
+              ? t("canvas.file.exitFullscreen", "退出全屏")
+              : t("canvas.file.enterFullscreen", "全屏预览"),
             icon: isHtmlFullscreen ? <MinimizeIcon /> : <FullscreenIcon />,
             onClick: isHtmlFullscreen
               ? exitHtmlFullscreen
@@ -292,7 +290,7 @@ export function PluginNodeInner({
       ? [
           {
             id: "run",
-            label: t2("canvas.file.run", "执行"),
+            label: t("canvas.file.run", "执行"),
             icon: <RunIcon />,
             onClick: runPlugin,
             dataActionUiId: "canvas.plugin-node.run",
@@ -301,27 +299,27 @@ export function PluginNodeInner({
       : []),
   ];
   const isInteractiveSelect = !isMultiSelect && !isDragging && !isBoxSelecting;
-  const isPreviewInteractive = !!selected2 && isInteractiveSelect;
+  const isPreviewInteractive = !!isSelected && isInteractiveSelect;
   const handlePreviewResize = reactExports.useCallback((newW, newH) => {
     setPreviewWidth(newW);
     setPreviewHeight(newH);
   }, []);
-  const handleDoubleClick2 = reactExports.useCallback(() => {
+  const handleDoubleClick = reactExports.useCallback(() => {
     if (isLauncher) {
-      fullscreenApi.getState().enter(id2);
+      fullscreenApi.getState().enter(nodeId);
       reportPluginAction("fullscreen", "enter");
     }
-  }, [isLauncher, fullscreenApi, id2, reportPluginAction]);
+  }, [isLauncher, fullscreenApi, nodeId, reportPluginAction]);
   return (
     <NodeShell
       width={previewWidth}
-      onDoubleClick={isLauncher ? handleDoubleClick2 : void 0}
+      onDoubleClick={isLauncher ? handleDoubleClick : void 0}
     >
       <NodeHeader
         nodeType="file"
         name={headerName}
         maxWidth={previewWidth}
-        selected={selected2}
+        selected={isSelected}
         icon={
           persisted.pluginId === DIRECTOR_STAGE_PLUGIN_ID ? (
             <DirectorStageHeaderIcon />
@@ -335,13 +333,13 @@ export function PluginNodeInner({
       {isLauncher ? (
         isComfyUi ? (
           <ComfyUiPluginLauncher
-            nodeId={id2}
+            nodeId={nodeId}
             pluginId={persisted.pluginId}
             filePath={filePath}
-            displayName={displayName2}
+            displayName={displayName}
             width={previewWidth}
             height={previewHeight}
-            selected={!!selected2}
+            selected={!!isSelected}
             currentWorkflowId={persisted.currentWorkflowId}
             currentWorkflowName={persisted.currentWorkflowName}
             templateCopyOrdinal={persisted.comfyuiTemplateCopyOrdinal}
@@ -356,20 +354,20 @@ export function PluginNodeInner({
           />
         ) : (
           <PluginLauncher
-            nodeId={id2}
+            nodeId={nodeId}
             pluginId={persisted.pluginId}
             filePath={filePath}
-            displayName={displayName2}
+            displayName={displayName}
             width={previewWidth}
             height={previewHeight}
-            selected={!!selected2}
+            selected={!!isSelected}
             onReportAction={reportPluginAction}
             editorSurface={isEditorSurface}
           />
         )
       ) : (
         <PluginPreview
-          selected={selected2}
+          selected={isSelected}
           interactive={isPreviewInteractive}
           filePath={filePath}
           {...(persisted?.pluginId
@@ -377,26 +375,26 @@ export function PluginNodeInner({
                 pluginId: persisted.pluginId,
               }
             : {})}
-          displayName={displayName2}
-          extension={extension2}
+          displayName={displayName}
+          extension={extension}
           width={previewWidth}
           height={previewHeight}
         />
       )}
-      {selected2 && isInteractiveSelect && toolbarItems.length > 0 && (
+      {isSelected && isInteractiveSelect && toolbarItems.length > 0 && (
         <NodeToolbar items={toolbarItems} visible={true} />
       )}
-      {selected2 && (
+      {isSelected && (
         <NodeResizeFrame
-          nodeId={id2}
+          nodeId={nodeId}
           minWidth={FILE_PREVIEW_MIN_SIZE.width}
           minHeight={FILE_PREVIEW_MIN_SIZE.height}
           onResize={handlePreviewResize}
         />
       )}
       <NodeHandles
-        nodeId={id2}
-        selected={!!selected2}
+        nodeId={nodeId}
+        selected={!!isSelected}
         showSourceAffordance={shouldShowPluginNodeSourceAffordance(
           persisted?.pluginId,
         )}

@@ -3,22 +3,11 @@ import {
   filterSupersededTransientTools,
   parseToolResult,
 } from "./use-tool-confirm-settlement.js";
-import {
-  Bot,
-  Check,
-  ChevronDown,
-  Copy,
-  jsxRuntimeExports,
-  LoaderCircle,
-  NotebookPen,
-  reactExports,
-  RotateCcw,
-  Save,
-  Scissors,
-  ShieldOff,
-  useCurrentWorkspace,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
+import { Bot, Check, ChevronDown, Copy, LoaderCircle, NotebookPen, RotateCcw, Save, Scissors, ShieldOff } from "../media-editing/lucide-icon-wraps.js";
 import {
   RecoveringChildrenContext,
   useMentionModels,
@@ -75,7 +64,7 @@ import {
   ContextMenu,
   workspaceEvents,
 } from "../workspace/topbar-state-context.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { useAssets } from "../settings/use-assets.js";
 import {
   canWriteResourceDragData,
@@ -117,16 +106,16 @@ function useIsChildRecovering(childSessionId) {
   return childSessionId ? recovering.has(childSessionId) : false;
 }
 function AudioArtifactChip({
-  src,
+  src: sourcePath,
   originalSrc,
   label,
   dataSlot = "audio-artifact-chip",
   className,
 }) {
-  const workspaceId2 = useCurrentWorkspace();
+  const workspaceId = useCurrentWorkspace();
   const relativePath = reactExports.useMemo(
-    () => toWorkspaceRelativePath(originalSrc, src),
-    [originalSrc, src],
+    () => toWorkspaceRelativePath(originalSrc, sourcePath),
+    [originalSrc, sourcePath],
   );
   const { assets } = useAssets({
     enabled: Boolean(relativePath),
@@ -135,24 +124,24 @@ function AudioArtifactChip({
     () => findAssetForPath(assets, relativePath),
     [assets, relativePath],
   );
-  const fileName = displayName(originalSrc ?? src, label, asset?.name);
-  const { head: stem, tail: ext } = splitFilename(fileName);
+  const fileName = displayName(originalSrc ?? sourcePath, label, asset?.name);
+  const { head: stem, tail: fileExtension } = splitFilename(fileName);
   const dragSource = reactExports.useMemo(
     () => ({
       relativePath,
-      workspacePath: workspaceId2,
+      workspacePath: workspaceId,
       name: fileName,
       assetId: asset?.id,
     }),
-    [asset?.id, fileName, relativePath, workspaceId2],
+    [asset?.id, fileName, relativePath, workspaceId],
   );
   const canDrag = canWriteResourceDragData(dragSource);
   const handleLocate = reactExports.useCallback(() => {
-    if (!asset?.id || !workspaceId2) return;
-    const nodeIds = getNodeIdsForAsset(asset.id, workspaceId2);
+    if (!asset?.id || !workspaceId) return;
+    const nodeIds = getNodeIdsForAsset(asset.id, workspaceId);
     if (nodeIds.length === 0) return;
-    workspaceEvents.fireCanvasFocus(workspaceId2, nodeIds);
-  }, [asset?.id, workspaceId2]);
+    workspaceEvents.fireCanvasFocus(workspaceId, nodeIds);
+  }, [asset?.id, workspaceId]);
   const handleDragStart = reactExports.useCallback(
     (event) => {
       if (!writeResourceDragData(event, dragSource)) event.preventDefault();
@@ -165,8 +154,8 @@ function AudioArtifactChip({
       data-action-ui-id="chat-artifact-audio"
       data-slot={dataSlot}
       data-artifact-type="audio"
-      data-artifact-path={src}
-      className={cn(
+      data-artifact-path={sourcePath}
+      className={mergeClassNames(
         "my-2 flex h-8 w-full items-center gap-1.5 rounded-md bg-foreground/[0.05] pr-2 pl-0.5 text-left transition-colors hover:bg-foreground/[0.08] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
         canDrag && "cursor-grab active:cursor-grabbing",
         className,
@@ -181,32 +170,32 @@ function AudioArtifactChip({
       </span>
       <span className="flex min-w-0 flex-1 items-baseline text-[14px] font-normal leading-none text-foreground/80">
         <span className="min-w-0 truncate">{stem}</span>
-        {ext && <span className="shrink-0">{ext}</span>}
+        {fileExtension && <span className="shrink-0">{fileExtension}</span>}
       </span>
     </button>
   );
 }
-function SubImage({ sub }) {
-  const { t: t2 } = useTranslation();
+function SubImage({ sub: subMessage }) {
+  const { t } = useTranslation();
   const [error, setError] = reactExports.useState(false);
-  const resolveMediaUrl2 = useResolveMediaUrl();
-  const src = resolveMediaUrl2(sub.url) ?? sub.content;
-  const thumbSrc = withThumbnail(src, 300);
-  if (error || !src)
+  const resolveMediaUrl = useResolveMediaUrl();
+  const mediaUrl = resolveMediaUrl(subMessage.url) ?? subMessage.content;
+  const thumbSrc = withThumbnail(mediaUrl, 300);
+  if (error || !mediaUrl)
     return (
       <div className="text-xs text-muted-foreground">
-        {t2("chat.imageUnavailable")}
+        {t("chat.imageUnavailable")}
       </div>
     );
-  const mime = inferArtifactMime(src, "image");
+  const mime = inferArtifactMime(mediaUrl, "image");
   return (
     <img
       data-action-ui-id="chat-generated-image"
       data-artifact-type="image"
-      data-artifact-path={src}
+      data-artifact-path={mediaUrl}
       data-artifact-mime={mime}
       src={thumbSrc}
-      alt={t2("chat.generatedContent")}
+      alt={t("chat.generatedContent")}
       className="rounded-lg max-w-full h-auto"
       style={{
         maxWidth: 300,
@@ -215,26 +204,26 @@ function SubImage({ sub }) {
     />
   );
 }
-function SubVideo({ sub }) {
-  const { t: t2 } = useTranslation();
+function SubVideo({ sub: subMessage }) {
+  const { t } = useTranslation();
   const [error, setError] = reactExports.useState(false);
-  const resolveMediaUrl2 = useResolveMediaUrl();
-  const src = resolveMediaUrl2(sub.url) ?? sub.content;
-  if (error || !src)
+  const resolveMediaUrl = useResolveMediaUrl();
+  const mediaUrl = resolveMediaUrl(subMessage.url) ?? subMessage.content;
+  if (error || !mediaUrl)
     return (
       <div className="text-xs text-muted-foreground">
-        {t2("chat.videoUnavailable")}
+        {t("chat.videoUnavailable")}
       </div>
     );
-  const mime = inferArtifactMime(src, "video");
+  const mime = inferArtifactMime(mediaUrl, "video");
   return (
     // biome-ignore lint/a11y/useMediaCaption: generated video sub-message
     <video
       data-action-ui-id="chat-artifact-video"
       data-artifact-type="video"
-      data-artifact-path={src}
+      data-artifact-path={mediaUrl}
       data-artifact-mime={mime}
-      src={src}
+      src={mediaUrl}
       controls={true}
       className="rounded-lg max-w-full h-auto"
       style={{
@@ -244,27 +233,27 @@ function SubVideo({ sub }) {
     />
   );
 }
-function SubAudio({ sub }) {
-  const { t: t2 } = useTranslation();
-  const resolveMediaUrl2 = useResolveMediaUrl();
-  const src = resolveMediaUrl2(sub.url) ?? sub.content;
-  if (!src)
+function SubAudio({ sub: subMessage }) {
+  const { t } = useTranslation();
+  const resolveMediaUrl = useResolveMediaUrl();
+  const mediaUrl = resolveMediaUrl(subMessage.url) ?? subMessage.content;
+  if (!mediaUrl)
     return (
       <div className="text-xs text-muted-foreground">
-        {t2("chat.audioUnavailable")}
+        {t("chat.audioUnavailable")}
       </div>
     );
-  return <AudioArtifactChip src={src} originalSrc={sub.url ?? sub.content} />;
+  return <AudioArtifactChip src={mediaUrl} originalSrc={subMessage.url ?? subMessage.content} />;
 }
 function collectArtifactsFromSubMessages(subs) {
   if (!subs?.length) return [];
-  const seen2 = new Set();
-  const out = [];
-  collectFromSubMessages(subs, seen2, out);
-  return out;
+  const seen = new Set();
+  const artifacts = [];
+  collectFromSubMessages(subs, seen, artifacts);
+  return artifacts;
 }
-function isOutputProducingTool(toolName2) {
-  const labelId = getToolLabelId(toolName2);
+function isOutputProducingTool(toolName) {
+  const labelId = getToolLabelId(toolName);
   return labelId === "mediaGen" || labelId === "contentProcess";
 }
 function isFailedGenerationResult(result) {
@@ -273,14 +262,14 @@ function isFailedGenerationResult(result) {
     const parsed = JSON.parse(result);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
       return false;
-    const record2 = parsed;
+    const record = parsed;
     const requestGroupUnavailable =
-      typeof record2.error === "string" &&
-      record2.error.includes("REQUEST_GROUP_UNAVAILABLE");
+      typeof record.error === "string" &&
+      record.error.includes("REQUEST_GROUP_UNAVAILABLE");
     return (
-      record2.ok === false ||
-      record2.success === false ||
-      record2.is_error === true ||
+      record.ok === false ||
+      record.success === false ||
+      record.is_error === true ||
       requestGroupUnavailable
     );
   } catch {
@@ -293,25 +282,25 @@ function subAgentHasError(subs) {
   if (!subs?.length) return false;
   let generationError = false;
   let hasOkGeneration = false;
-  const walk = (list2) => {
-    for (const s2 of list2) {
-      if (s2.type === "tool") {
-        const parsed = parseToolResult(s2.content);
+  const walk = (list) => {
+    for (const subMessage of list) {
+      if (subMessage.type === "tool") {
+        const parsed = parseToolResult(subMessage.content);
         if (isOutputProducingTool(parsed.name)) {
           const failedResult = isFailedGenerationResult(parsed.result);
           if (
-            (s2.toolStatus === "error" || failedResult) &&
+            (subMessage.toolStatus === "error" || failedResult) &&
             !isGenerationFailureNonTerminal(parsed.result) &&
             !isToolRecoveredInterrupted(parsed.result) &&
             !hasSuccessfulMediaOutput(parsed.result)
           ) {
             generationError = true;
-          } else if (s2.toolStatus === "ok" && !failedResult) {
+          } else if (subMessage.toolStatus === "ok" && !failedResult) {
             hasOkGeneration = true;
           }
         }
       }
-      if (s2.subMessages?.length) walk(s2.subMessages);
+      if (subMessage.subMessages?.length) walk(subMessage.subMessages);
     }
   };
   walk(subs);
@@ -323,145 +312,145 @@ const SUB_AGENT_TIMELINE_ICON_STROKE_WIDTH = 1.24;
 const MIN_REPLAY_SEQUENCE_LENGTH = 3;
 const IN_PROGRESS_AGENT_KEYS = new Set(["planner", "executor", "excutor"]);
 function dropResumePrompts(subs) {
-  return subs.filter((s2) => !isResumeChildPrompt(s2.content ?? ""));
+  return subs.filter((subMessage) => !isResumeChildPrompt(subMessage.content ?? ""));
 }
-function replayBlocksMatch(keys2, firstStart, secondStart, length2) {
-  for (let offset2 = 0; offset2 < length2; offset2++) {
-    if (keys2[firstStart + offset2] !== keys2[secondStart + offset2])
+function replayBlocksMatch(keys, firstStart, secondStart, blockLength) {
+  for (let offset = 0; offset < blockLength; offset++) {
+    if (keys[firstStart + offset] !== keys[secondStart + offset])
       return false;
   }
   return true;
 }
-function collapseReplayedSubMessageSequences(messages2) {
-  const keys2 = messages2.map(subMessageSemanticKey);
+function collapseReplayedSubMessageSequences(messages) {
+  const keys = messages.map(subMessageSemanticKey);
   const result = [];
-  let index2 = 0;
-  while (index2 < messages2.length) {
+  let index = 0;
+  while (index < messages.length) {
     let bestLength = 0;
     let bestRepeatCount = 1;
     let bestRemovedCount = 0;
-    const maxLength = Math.floor((messages2.length - index2) / 2);
+    const maxLength = Math.floor((messages.length - index) / 2);
     for (
-      let length2 = MIN_REPLAY_SEQUENCE_LENGTH;
-      length2 <= maxLength;
-      length2++
+      let blockLength = MIN_REPLAY_SEQUENCE_LENGTH;
+      blockLength <= maxLength;
+      blockLength++
     ) {
       let repeatCount = 1;
       while (
-        index2 + (repeatCount + 1) * length2 <= messages2.length &&
+        index + (repeatCount + 1) * blockLength <= messages.length &&
         replayBlocksMatch(
-          keys2,
-          index2,
-          index2 + repeatCount * length2,
-          length2,
+          keys,
+          index,
+          index + repeatCount * blockLength,
+          blockLength,
         )
       ) {
         repeatCount++;
       }
-      const removedCount = (repeatCount - 1) * length2;
+      const removedCount = (repeatCount - 1) * blockLength;
       if (removedCount <= bestRemovedCount) continue;
-      bestLength = length2;
+      bestLength = blockLength;
       bestRepeatCount = repeatCount;
       bestRemovedCount = removedCount;
     }
     if (bestRepeatCount > 1) {
-      result.push(...messages2.slice(index2, index2 + bestLength));
-      index2 += bestLength * bestRepeatCount;
+      result.push(...messages.slice(index, index + bestLength));
+      index += bestLength * bestRepeatCount;
       continue;
     }
-    result.push(messages2[index2]);
-    index2++;
+    result.push(messages[index]);
+    index++;
   }
   return result;
 }
-function ToolCallCard({ msg, repeatCount, questionDefaultExpanded = true }) {
-  const toolName2 = msg.content;
+function ToolCallCard({ msg: message, repeatCount, questionDefaultExpanded = true }) {
+  const toolName = message.content;
   const capabilityResult =
-    msg.toolStatus === "ok"
-      ? parseCapabilitySearchCardResult(toolName2, msg.toolResult)
+    message.toolStatus === "ok"
+      ? parseCapabilitySearchCardResult(toolName, message.toolResult)
       : null;
   if (capabilityResult)
     return (
       <CapabilitySearchCard
         result={capabilityResult}
-        searchCallId={msg.callID ?? msg.id}
+        searchCallId={message.callID ?? message.id}
       />
     );
-  if (toolName2 === "todowrite") {
-    return <TodoCard msg={msg} />;
+  if (toolName === "todowrite") {
+    return <TodoCard msg={message} />;
   }
-  if (toolName2 === "question") {
+  if (toolName === "question") {
     return (
-      <QuestionToolCard msg={msg} defaultExpanded={questionDefaultExpanded} />
+      <QuestionToolCard msg={message} defaultExpanded={questionDefaultExpanded} />
     );
   }
-  return <GenericToolCard msg={msg} repeatCount={repeatCount} />;
+  return <GenericToolCard msg={message} repeatCount={repeatCount} />;
 }
-function subMessageToChatMessage(sub) {
-  const maybeConfirm = sub;
+function subMessageToChatMessage(subMessage) {
+  const maybeConfirm = subMessage;
   if (maybeConfirm.type === "tool_confirm_ask") {
     return maybeConfirm;
   }
-  if (sub.type === "thinking") {
+  if (subMessage.type === "thinking") {
     return {
-      id: sub.id,
+      id: subMessage.id,
       type: "thinking",
-      content: sub.content,
+      content: subMessage.content,
       role: "agent",
     };
   }
-  if (sub.type === "tool") {
-    const { name: name2, result } = parseToolResult(sub.content);
+  if (subMessage.type === "tool") {
+    const { name: toolName, result } = parseToolResult(subMessage.content);
     const trimmedResult = result?.replace(/^:\s*/, "");
     return {
-      id: sub.id,
+      id: subMessage.id,
       type: "tool",
-      content: name2,
-      toolStatus: sub.toolStatus,
-      toolArgs: sub.args,
+      content: toolName,
+      toolStatus: subMessage.toolStatus,
+      toolArgs: subMessage.args,
       toolResult: trimmedResult || void 0,
-      interruption: sub.interruption,
-      generationHandoffTargets: sub.generationHandoffTargets,
-      callID: sub.callID,
-      comfyUiProgress: sub.comfyUiProgress,
+      interruption: subMessage.interruption,
+      generationHandoffTargets: subMessage.generationHandoffTargets,
+      callID: subMessage.callID,
+      comfyUiProgress: subMessage.comfyUiProgress,
       role: "agent",
     };
   }
-  if (sub.type === "question") {
+  if (subMessage.type === "question") {
     return {
-      id: sub.id,
+      id: subMessage.id,
       type: "question",
-      content: sub.content,
+      content: subMessage.content,
       role: "agent",
-      requestId: sub.requestId,
-      resolved: sub.resolved,
-      questionData: sub.questionData,
-      questionAnswers: sub.questionAnswers,
+      requestId: subMessage.requestId,
+      resolved: subMessage.resolved,
+      questionData: subMessage.questionData,
+      questionAnswers: subMessage.questionAnswers,
     };
   }
   return {
-    id: sub.id,
-    type: sub.type,
-    content: sub.content,
+    id: subMessage.id,
+    type: subMessage.type,
+    content: subMessage.content,
     role: "agent",
   };
 }
-function AudioMessage({ msg }) {
-  const { t: t2 } = useTranslation();
-  const resolveMediaUrl2 = useResolveMediaUrl();
-  const src = resolveMediaUrl2(msg.url) ?? msg.content;
-  if (!src) {
+function AudioMessage({ msg: message }) {
+  const { t } = useTranslation();
+  const resolveMediaUrl = useResolveMediaUrl();
+  const mediaUrl = resolveMediaUrl(message.url) ?? message.content;
+  if (!mediaUrl) {
     return (
       <div className="rounded-lg bg-muted px-4 py-3 text-sm text-muted-foreground">
-        {t2("chat.failedToLoadAudio")}
+        {t("chat.failedToLoadAudio")}
       </div>
     );
   }
-  return <AudioArtifactChip src={src} originalSrc={msg.url ?? msg.content} />;
+  return <AudioArtifactChip src={mediaUrl} originalSrc={message.url ?? message.content} />;
 }
 const CANCELLED_MESSAGE_ICON_STROKE_WIDTH = 1.24;
 function CancelledMessage() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-2 min-w-0">
       <span className="shrink-0 size-4 flex items-center justify-center text-muted-foreground">
@@ -472,14 +461,14 @@ function CancelledMessage() {
         />
       </span>
       <span className="min-w-0 text-body-14 text-muted-foreground font-normal truncate">
-        {t2("chat.cancelled")}
+        {t("chat.cancelled")}
       </span>
     </div>
   );
 }
-function CompactionStatusMessage({ message: message2 }) {
-  const { t: t2 } = useTranslation();
-  const completed = message2.content === "compacted";
+function CompactionStatusMessage({ message }) {
+  const { t } = useTranslation();
+  const completed = message.content === "compacted";
   return (
     <div
       data-action-ui-id="chat-compaction-status"
@@ -495,32 +484,32 @@ function CompactionStatusMessage({ message: message2 }) {
         />
       )}
       <span className="min-w-0 truncate">
-        {t2(
+        {t(
           completed ? "chat.compaction.completed" : "chat.compaction.running",
         )}
       </span>
     </div>
   );
 }
-function ConfirmRequest({ msg, onSend }) {
-  const { t: t2 } = useTranslation();
+function ConfirmRequest({ msg: message, onSend }) {
+  const { t } = useTranslation();
   const [choice, setChoice] = reactExports.useState(null);
-  const resolved = msg.resolved || choice !== null;
+  const resolved = message.resolved || choice !== null;
   const handleRespond = (approved) => {
-    if (!msg.requestId || !onSend) return;
+    if (!message.requestId || !onSend) return;
     onSend({
       type: "user_reply",
-      id: msg.requestId,
+      id: message.requestId,
       content: approved ? "approved" : "rejected",
     });
     setChoice(approved ? "approved" : "rejected");
   };
   return (
     <div className="min-w-0 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
-      <p className="text-foreground mb-3 whitespace-pre-wrap">{msg.content}</p>
+      <p className="text-foreground mb-3 whitespace-pre-wrap">{message.content}</p>
       {resolved ? (
         <p className="text-muted-foreground italic text-xs">
-          {choice === "approved" ? t2("chat.approved") : t2("chat.rejected")}
+          {choice === "approved" ? t("chat.approved") : t("chat.rejected")}
         </p>
       ) : (
         <div className="flex gap-2">
@@ -529,41 +518,41 @@ function ConfirmRequest({ msg, onSend }) {
             className="px-3 py-1 rounded-md bg-success text-white text-xs hover:bg-success/85 cursor-pointer"
             onClick={() => handleRespond(true)}
           >
-            {t2("chat.approve")}
+            {t("chat.approve")}
           </button>
           <button
             type="button"
             className="px-3 py-1 rounded-md bg-destructive text-destructive-foreground text-xs hover:bg-destructive/90 cursor-pointer"
             onClick={() => handleRespond(false)}
           >
-            {t2("chat.reject")}
+            {t("chat.reject")}
           </button>
         </div>
       )}
     </div>
   );
 }
-function getFileName(path2) {
-  const normalized = path2.replace(/\\/g, "/");
+function getFileName(path) {
+  const normalized = path.replace(/\\/g, "/");
   const parts = normalized.split("/");
-  return parts[parts.length - 1] || path2;
+  return parts[parts.length - 1] || path;
 }
-function isSafeUrl(url2) {
+function isSafeUrl(url) {
   try {
-    const { protocol } = new URL(url2);
+    const { protocol } = new URL(url);
     return protocol === "http:" || protocol === "https:";
   } catch {
     return false;
   }
 }
-function FileAddedMessage({ msg }) {
-  const resolveMediaUrl2 = useResolveMediaUrl();
-  const path2 = msg.content;
-  if (!path2) return null;
-  const fileName = getFileName(path2);
-  const resolved = resolveMediaUrl2(msg.url);
+function FileAddedMessage({ msg: message }) {
+  const resolveMediaUrl = useResolveMediaUrl();
+  const path = message.content;
+  if (!path) return null;
+  const fileName = getFileName(path);
+  const resolved = resolveMediaUrl(message.url);
   const safeUrl = resolved && isSafeUrl(resolved) ? resolved : void 0;
-  const artifactPath = safeUrl ?? path2;
+  const artifactPath = safeUrl ?? path;
   const mime = inferArtifactMime(artifactPath, "file");
   return (
     <div
@@ -596,20 +585,20 @@ function FileAddedMessage({ msg }) {
   );
 }
 const LOCATE_CLICK_DELAY_MS = 180;
-function ImageMessage({ msg }) {
-  const { t: t2 } = useTranslation();
+function ImageMessage({ msg: message }) {
+  const { t } = useTranslation();
   const [error, setError] = reactExports.useState(false);
   const [fullSize, setFullSize] = reactExports.useState(false);
-  const resolveMediaUrl2 = useResolveMediaUrl();
-  const src = resolveMediaUrl2(msg.url) ?? msg.content;
-  const thumbSrc = withThumbnail(src, 400);
-  useNativeViewOcclusion(fullSize && !error && Boolean(src));
+  const resolveMediaUrl = useResolveMediaUrl();
+  const mediaUrl = resolveMediaUrl(message.url) ?? message.content;
+  const thumbSrc = withThumbnail(mediaUrl, 400);
+  useNativeViewOcclusion(fullSize && !error && Boolean(mediaUrl));
   const { copyImage, saveAs } = useMediaActions();
   const locateTimerRef = reactExports.useRef(null);
-  const workspaceId2 = useCurrentWorkspace();
+  const workspaceId = useCurrentWorkspace();
   const relativePath = reactExports.useMemo(
-    () => toWorkspaceRelativePath(msg.url, src),
-    [msg.url, src],
+    () => toWorkspaceRelativePath(message.url, mediaUrl),
+    [message.url, mediaUrl],
   );
   const { assets } = useAssets({
     enabled: Boolean(relativePath),
@@ -620,8 +609,8 @@ function ImageMessage({ msg }) {
   );
   reactExports.useEffect(() => {
     if (!fullSize) return;
-    const handleKey = (e2) => {
-      if (e2.key === "Escape") setFullSize(false);
+    const handleKey = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") setFullSize(false);
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -633,13 +622,13 @@ function ImageMessage({ msg }) {
     };
   }, []);
   const locateOnCanvas = reactExports.useCallback(() => {
-    if (!asset?.id || !workspaceId2) return false;
-    const nodeIds = getNodeIdsForAsset(asset.id, workspaceId2);
+    if (!asset?.id || !workspaceId) return false;
+    const nodeIds = getNodeIdsForAsset(asset.id, workspaceId);
     if (nodeIds.length === 0) return false;
-    workspaceEvents.fireCanvasFocus(workspaceId2, nodeIds);
+    workspaceEvents.fireCanvasFocus(workspaceId, nodeIds);
     return true;
-  }, [asset?.id, workspaceId2]);
-  const handleClick2 = reactExports.useCallback(() => {
+  }, [asset?.id, workspaceId]);
+  const handleClick = reactExports.useCallback(() => {
     if (locateTimerRef.current != null)
       window.clearTimeout(locateTimerRef.current);
     locateTimerRef.current = window.setTimeout(() => {
@@ -647,21 +636,21 @@ function ImageMessage({ msg }) {
       if (!locateOnCanvas()) setFullSize(true);
     }, LOCATE_CLICK_DELAY_MS);
   }, [locateOnCanvas]);
-  const handleDoubleClick2 = reactExports.useCallback(() => {
+  const handleDoubleClick = reactExports.useCallback(() => {
     if (locateTimerRef.current != null) {
       window.clearTimeout(locateTimerRef.current);
       locateTimerRef.current = null;
     }
     setFullSize(true);
   }, []);
-  if (error || !src) {
+  if (error || !mediaUrl) {
     return (
       <div className="rounded-lg bg-muted px-4 py-3 text-sm text-muted-foreground">
-        {t2("chat.failedToLoadImage")}
+        {t("chat.failedToLoadImage")}
       </div>
     );
   }
-  const mime = inferArtifactMime(src, "image");
+  const mime = inferArtifactMime(mediaUrl, "image");
   return (
     <>
       <div>
@@ -670,16 +659,16 @@ function ImageMessage({ msg }) {
             <button
               type="button"
               className="cursor-pointer border-0 p-0 bg-transparent"
-              onClick={handleClick2}
-              onDoubleClick={handleDoubleClick2}
+              onClick={handleClick}
+              onDoubleClick={handleDoubleClick}
             >
               <img
                 data-action-ui-id="chat-generated-image"
                 data-artifact-type="image"
-                data-artifact-path={src}
+                data-artifact-path={mediaUrl}
                 data-artifact-mime={mime}
                 src={thumbSrc}
-                alt={msg.content || t2("chat.generatedImage")}
+                alt={message.content || t("chat.generatedImage")}
                 className="rounded-lg max-w-full h-auto hover:opacity-90 transition-opacity"
                 style={{
                   maxWidth: 400,
@@ -689,13 +678,13 @@ function ImageMessage({ msg }) {
             </button>
           </ContextMenuTrigger>
           <ContextMenuContent>
-            <ContextMenuItem onClick={() => copyImage(src)}>
+            <ContextMenuItem onClick={() => copyImage(mediaUrl)}>
               <Copy />
-              {t2("common.copy")}
+              {t("common.copy")}
             </ContextMenuItem>
-            <ContextMenuItem onClick={() => saveAs(src)}>
+            <ContextMenuItem onClick={() => saveAs(mediaUrl)}>
               <Save />
-              {t2("common.saveAs")}
+              {t("common.saveAs")}
             </ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
@@ -707,8 +696,8 @@ function ImageMessage({ msg }) {
             onClick={() => setFullSize(false)}
           >
             <img
-              src={src}
-              alt={msg.content || t2("chat.generatedImage")}
+              src={mediaUrl}
+              alt={message.content || t("chat.generatedImage")}
               className="max-w-[90vw] max-h-[90vh] object-contain"
             />
           </div>
@@ -717,37 +706,37 @@ function ImageMessage({ msg }) {
     </>
   );
 }
-function InteractRequest({ msg, onSend }) {
-  const { t: t2 } = useTranslation();
+function InteractRequest({ msg: message, onSend }) {
+  const { t } = useTranslation();
   const [reply, setReply] = reactExports.useState("");
   const [localSubmitted, setLocalSubmitted] = reactExports.useState(false);
-  const resolved = msg.resolved || localSubmitted;
+  const resolved = message.resolved || localSubmitted;
   const handleSubmit = () => {
-    if (!reply.trim() || !msg.requestId || !onSend) return;
+    if (!reply.trim() || !message.requestId || !onSend) return;
     onSend({
       type: "user_reply",
-      id: msg.requestId,
+      id: message.requestId,
       content: reply.trim(),
     });
     setLocalSubmitted(true);
   };
   return (
     <div className="min-w-0 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
-      <p className="text-foreground mb-2 whitespace-pre-wrap">{msg.content}</p>
+      <p className="text-foreground mb-2 whitespace-pre-wrap">{message.content}</p>
       {resolved ? (
         <p className="text-muted-foreground italic text-xs">
-          {t2("chat.replied")} {reply || t2("chat.submitted")}
+          {t("chat.replied")} {reply || t("chat.submitted")}
         </p>
       ) : (
         <div className="flex gap-2">
           <input
             type="text"
             className="flex-1 bg-background border border-input rounded-sm px-2 py-1 text-sm focus:outline-none focus:border-primary/50"
-            placeholder={t2("chat.replyPlaceholder")}
+            placeholder={t("chat.replyPlaceholder")}
             value={reply}
-            onChange={(e2) => setReply(e2.target.value)}
-            onKeyDown={(e2) => {
-              if (e2.key === "Enter" && !e2.nativeEvent.isComposing)
+            onChange={(inputEvent) => setReply(inputEvent.target.value)}
+            onKeyDown={(keyboardEvent) => {
+              if (keyboardEvent.key === "Enter" && !keyboardEvent.nativeEvent.isComposing)
                 handleSubmit();
             }}
           />
@@ -757,7 +746,7 @@ function InteractRequest({ msg, onSend }) {
             onClick={handleSubmit}
             disabled={!reply.trim()}
           >
-            {t2("common.send")}
+            {t("common.send")}
           </button>
         </div>
       )}
@@ -765,7 +754,7 @@ function InteractRequest({ msg, onSend }) {
   );
 }
 function MessageWithdrawn({ reason }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       role="status"
@@ -779,7 +768,7 @@ function MessageWithdrawn({ reason }) {
         strokeWidth={1.5}
       />
       <span>
-        {t2(
+        {t(
           "chat.messageWithdrawn.contentPolicyViolation",
           "This response was withdrawn because it did not pass the safety review.",
         )}
@@ -787,11 +776,11 @@ function MessageWithdrawn({ reason }) {
     </div>
   );
 }
-function QuestionMessage({ msg }) {
-  const { t: t2 } = useTranslation();
-  const raw2 = msg.questionData?.questions;
-  const questions = Array.isArray(raw2) ? raw2 : [];
-  const resolved = msg.resolved ?? false;
+function QuestionMessage({ msg: message }) {
+  const { t } = useTranslation();
+  const raw = message.questionData?.questions;
+  const questions = Array.isArray(raw) ? raw : [];
+  const resolved = message.resolved ?? false;
   if (resolved) return null;
   return (
     <div
@@ -859,118 +848,118 @@ function QuestionMessage({ msg }) {
         <div className="min-w-0 flex-1">
           <p className="truncate text-body-13 font-medium leading-5 text-foreground">
             {questions
-              .map((q2) => redactForCurrentRegion(q2.header))
+              .map((question) => redactForCurrentRegion(question.header))
               .join(", ")}
           </p>
           <div
             data-action-ui-id="chat-question-waiting-status"
             className="text-shimmer mt-0.5 text-body-12 leading-[18px]"
           >
-            {t2("chat.question.waiting")}
+            {t("chat.question.waiting")}
           </div>
         </div>
       </div>
     </div>
   );
 }
-function dedupeReplayedSubMessages(messages2) {
-  const seen2 = new Set();
-  return messages2.filter((message2) => {
-    const key2 = subMessageSemanticKey(message2);
-    if (seen2.has(key2)) return false;
-    seen2.add(key2);
+function dedupeReplayedSubMessages(messages) {
+  const seen = new Set();
+  return messages.filter((message) => {
+    const key = subMessageSemanticKey(message);
+    if (seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 }
-function keepLatestSubAgentThinking(messages2) {
+function keepLatestSubAgentThinking(messages) {
   let latestThinkingIndex = -1;
-  for (let index2 = messages2.length - 1; index2 >= 0; index2--) {
-    if (messages2[index2]?.type === "thinking") {
-      latestThinkingIndex = index2;
+  for (let index = messages.length - 1; index >= 0; index--) {
+    if (messages[index]?.type === "thinking") {
+      latestThinkingIndex = index;
       break;
     }
   }
-  if (latestThinkingIndex < 0) return messages2;
-  return messages2.filter(
-    (message2, index2) =>
-      message2.type !== "thinking" || index2 === latestThinkingIndex,
+  if (latestThinkingIndex < 0) return messages;
+  return messages.filter(
+    (message, index) =>
+      message.type !== "thinking" || index === latestThinkingIndex,
   );
 }
 function getInitialExpandedState(collapsed, resolved) {
   return !collapsed && !resolved;
 }
-function pendingToolConfirmIds(messages2) {
-  return messages2.flatMap((message2) => {
-    if (message2.type === "tool_confirm_ask") {
-      return !message2.resolved && !message2.expired
-        ? [message2.requestId ?? message2.id]
+function pendingToolConfirmIds(messages) {
+  return messages.flatMap((message) => {
+    if (message.type === "tool_confirm_ask") {
+      return !message.resolved && !message.expired
+        ? [message.requestId ?? message.id]
         : [];
     }
-    return message2.type === "sub_agent"
-      ? pendingToolConfirmIds(message2.subMessages ?? [])
+    return message.type === "sub_agent"
+      ? pendingToolConfirmIds(message.subMessages ?? [])
       : [];
   });
 }
-function IndentL({ children: children2 }) {
-  return <div className="ml-[9px] pl-3 min-w-0">{children2}</div>;
+function IndentL({ children }) {
+  return <div className="ml-[9px] pl-3 min-w-0">{children}</div>;
 }
 function SubAgentIcon({ agentKey, agentLabel }) {
-  const identity2 = `${agentKey} ${agentLabel}`.toLocaleLowerCase();
-  const Icon$12 =
-    identity2.includes("director") || identity2.includes("导演")
+  const identity = `${agentKey} ${agentLabel}`.toLocaleLowerCase();
+  const SubAgentIconComponent =
+    identity.includes("director") || identity.includes("导演")
       ? Clapperboard
-      : identity2.includes("dialogue") ||
-          identity2.includes("script") ||
-          identity2.includes("台词")
+      : identity.includes("dialogue") ||
+          identity.includes("script") ||
+          identity.includes("台词")
         ? MessageSquareQuote
-        : identity2.includes("editing") ||
-            identity2.includes("editor") ||
-            identity2.includes("剪辑")
+        : identity.includes("editing") ||
+            identity.includes("editor") ||
+            identity.includes("剪辑")
           ? Scissors
-          : identity2.includes("summary") ||
-              identity2.includes("brief") ||
-              identity2.includes("简介")
+          : identity.includes("summary") ||
+              identity.includes("brief") ||
+              identity.includes("简介")
             ? NotebookPen
             : Bot;
   return (
     <Icon
-      icon={Icon$12}
+      icon={SubAgentIconComponent}
       size="md"
       strokeWidth={SUB_AGENT_TIMELINE_ICON_STROKE_WIDTH}
     />
   );
 }
-function nodeKey(node2, idx) {
-  if (node2.kind === "activity-group") return node2.items[0]?.id ?? `ag-${idx}`;
-  return node2.msg.id;
+function nodeKey(node, index) {
+  if (node.kind === "activity-group") return node.items[0]?.id ?? `ag-${index}`;
+  return node.msg.id;
 }
 function isGroupedNodeStreaming(
-  node2,
-  index2,
+  node,
+  index,
   total,
   isSubAgentStreaming,
   pinnedStreamingActionId,
 ) {
   if (!isSubAgentStreaming) return false;
-  if (node2.kind === "activity-group") {
+  if (node.kind === "activity-group") {
     if (
       pinnedStreamingActionId &&
-      node2.items.some((item) => item.id === pinnedStreamingActionId)
+      node.items.some((item) => item.id === pinnedStreamingActionId)
     ) {
       return false;
     }
     if (
-      node2.aggregatedStatus === "running" ||
-      node2.aggregatedStatus === "pending"
+      node.aggregatedStatus === "running" ||
+      node.aggregatedStatus === "pending"
     )
       return true;
   }
-  return !pinnedStreamingActionId && index2 === total - 1;
+  return !pinnedStreamingActionId && index === total - 1;
 }
-function SubTextBlock({ sub }) {
-  const { t: t2 } = useTranslation();
+function SubTextBlock({ sub: subMessage }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = reactExports.useState(false);
-  const rawContent = sub.content ?? "";
+  const rawContent = subMessage.content ?? "";
   const isRecovered = isRecoveredMessage(rawContent);
   const displayContent = redactForCurrentRegion(
     isRecovered ? stripRecoveredPrefix(rawContent) : rawContent,
@@ -978,14 +967,14 @@ function SubTextBlock({ sub }) {
   if (!displayContent) return null;
   const DisplayIcon = isRecovered ? RotateCcw : FileText;
   const label = isRecovered
-    ? t2("chat.subAgentRecovered")
-    : t2("chat.subAgentDetail");
+    ? t("chat.subAgentRecovered")
+    : t("chat.subAgentDetail");
   return (
     <div className="min-w-0">
       <button
         type="button"
         className="flex w-full items-center gap-2 py-0 text-left cursor-pointer"
-        onClick={() => setExpanded((v2) => !v2)}
+        onClick={() => setExpanded((isExpanded) => !isExpanded)}
         aria-expanded={expanded}
       >
         <span className="shrink-0 size-4 flex items-center justify-center text-muted-foreground">
@@ -1021,16 +1010,16 @@ function SubTextBlock({ sub }) {
   );
 }
 function SubGroupedNode({
-  node: node2,
+  node,
   subLookup,
   isStreaming,
   onSend,
   showStreamingLabel,
 }) {
-  if (node2.kind === "activity-group") {
+  if (node.kind === "activity-group") {
     return (
       <ActivityGroup
-        data={node2}
+        data={node}
         isStreaming={isStreaming}
         onSend={onSend}
         showRail={false}
@@ -1039,62 +1028,62 @@ function SubGroupedNode({
       />
     );
   }
-  if (node2.msg.type === "tool" && node2.msg.content === "question") {
-    return <ToolCallCard msg={node2.msg} questionDefaultExpanded={true} />;
+  if (node.msg.type === "tool" && node.msg.content === "question") {
+    return <ToolCallCard msg={node.msg} questionDefaultExpanded={true} />;
   }
-  if (node2.msg.type === "tool_confirm_ask") {
+  if (node.msg.type === "tool_confirm_ask") {
     return onSend ? (
-      <div data-message-id={node2.msg.id}>
-        <ToolConfirmCard message={node2.msg} onSend={onSend} embedded={true} />
+      <div data-message-id={node.msg.id}>
+        <ToolConfirmCard message={node.msg} onSend={onSend} embedded={true} />
       </div>
     ) : null;
   }
-  const sub = subLookup.get(node2.msg.id);
-  if (!sub) return null;
-  if (sub.type === "image") return <SubImage sub={sub} />;
-  if (sub.type === "video") return <SubVideo sub={sub} />;
-  if (sub.type === "audio") return <SubAudio sub={sub} />;
-  if (sub.type === "question") {
-    const question2 = subMessageToChatMessage(sub);
-    return question2.type === "question" ? (
-      <QuestionMessage msg={question2} />
+  const subMessage = subLookup.get(node.msg.id);
+  if (!subMessage) return null;
+  if (subMessage.type === "image") return <SubImage sub={subMessage} />;
+  if (subMessage.type === "video") return <SubVideo sub={subMessage} />;
+  if (subMessage.type === "audio") return <SubAudio sub={subMessage} />;
+  if (subMessage.type === "question") {
+    const question = subMessageToChatMessage(subMessage);
+    return question.type === "question" ? (
+      <QuestionMessage msg={question} />
     ) : null;
   }
-  if (sub.type === "sub_agent")
-    return <NestedSubAgent sub={sub} onSend={onSend} />;
-  return <SubTextBlock sub={sub} />;
+  if (subMessage.type === "sub_agent")
+    return <NestedSubAgent sub={subMessage} onSend={onSend} />;
+  return <SubTextBlock sub={subMessage} />;
 }
-function NestedSubAgent({ sub, onSend }) {
-  const { t: t2 } = useTranslation();
+function NestedSubAgent({ sub: subMessage, onSend }) {
+  const { t } = useTranslation();
   const pendingConfirmKey = JSON.stringify(
-    pendingToolConfirmIds(sub.subMessages ?? []),
+    pendingToolConfirmIds(subMessage.subMessages ?? []),
   );
   const [expanded, setExpanded] = reactExports.useState(
     () =>
       pendingConfirmKey !== "[]" ||
-      getInitialExpandedState(sub.collapsed, sub.resolved),
+      getInitialExpandedState(subMessage.collapsed, subMessage.resolved),
   );
-  const agentKey = sub.agent ?? "";
+  const agentKey = subMessage.agent ?? "";
   const agentLabel =
-    t2(`chat.agentLabel.${agentKey}`, {
+    t(`chat.agentLabel.${agentKey}`, {
       defaultValue: "",
     }) ||
     AGENT_LABELS[agentKey] ||
-    sub.agent ||
-    t2("chat.agentFallback");
-  const children2 = sub.subMessages ?? [];
+    subMessage.agent ||
+    t("chat.agentFallback");
+  const children = subMessage.subMessages ?? [];
   const showHiddenTools = useDebugFlag(DEBUG_FLAGS.rawToolView);
   const visibleChildren = reactExports.useMemo(() => {
     const productVisible = showHiddenTools
-      ? dropResumePrompts(children2)
+      ? dropResumePrompts(children)
       : filterSupersededTransientTools(
           dropResumePrompts(
-            filterSilentTools(children2, (s2) =>
-              s2.type === "tool" ? parseToolResult(s2.content).name : void 0,
+            filterSilentTools(children, (childMessage) =>
+              childMessage.type === "tool" ? parseToolResult(childMessage.content).name : void 0,
             ),
           ),
-          (s2) =>
-            s2.type === "tool" ? parseToolResult(s2.content).name : void 0,
+          (childMessage) =>
+            childMessage.type === "tool" ? parseToolResult(childMessage.content).name : void 0,
         );
     const normalized = collapseReplayedSubMessageSequences(productVisible);
     const deduped =
@@ -1102,7 +1091,7 @@ function NestedSubAgent({ sub, onSend }) {
         ? dedupeReplayedSubMessages(normalized)
         : normalized;
     return keepLatestSubAgentThinking(deduped);
-  }, [agentKey, children2, showHiddenTools]);
+  }, [agentKey, children, showHiddenTools]);
   const asChatMessages = reactExports.useMemo(
     () => visibleChildren.map(subMessageToChatMessage),
     [visibleChildren],
@@ -1112,16 +1101,16 @@ function NestedSubAgent({ sub, onSend }) {
     [asChatMessages, showHiddenTools],
   );
   const subLookup = reactExports.useMemo(() => {
-    const map3 = new Map();
-    for (const s2 of visibleChildren) map3.set(s2.id, s2);
-    return map3;
+    const childMessagesById = new Map();
+    for (const childMessage of visibleChildren) childMessagesById.set(childMessage.id, childMessage);
+    return childMessagesById;
   }, [visibleChildren]);
-  const isStreaming = !sub.resolved;
-  const fallbackTask = sub.task?.trim();
+  const isStreaming = !subMessage.resolved;
+  const fallbackTask = subMessage.task?.trim();
   reactExports.useEffect(() => {
     if (pendingConfirmKey !== "[]") setExpanded(true);
-    else if (sub.collapsed || sub.resolved) setExpanded(false);
-  }, [sub.collapsed, sub.resolved, pendingConfirmKey]);
+    else if (subMessage.collapsed || subMessage.resolved) setExpanded(false);
+  }, [subMessage.collapsed, subMessage.resolved, pendingConfirmKey]);
   const streamingAction = reactExports.useMemo(
     () => (isStreaming ? getStreamingAction(asChatMessages) : void 0),
     [isStreaming, asChatMessages],
@@ -1179,23 +1168,23 @@ function NestedSubAgent({ sub, onSend }) {
               <IndentL showCorner={true}>
                 <SubTextBlock
                   sub={{
-                    id: `${sub.id}__task`,
+                    id: `${subMessage.id}__task`,
                     type: "text",
                     content: fallbackTask,
                   }}
                 />
               </IndentL>
             )}
-            {grouped.map((node2, nIdx) => (
+            {grouped.map((node, nIdx) => (
               <IndentL
-                key={nodeKey(node2, nIdx)}
+                key={nodeKey(node, nIdx)}
                 showCorner={!pinnedStreamingAction && nIdx === 0}
               >
                 <SubGroupedNode
-                  node={node2}
+                  node={node}
                   subLookup={subLookup}
                   isStreaming={isGroupedNodeStreaming(
-                    node2,
+                    node,
                     nIdx,
                     grouped.length,
                     isStreaming,
@@ -1212,29 +1201,29 @@ function NestedSubAgent({ sub, onSend }) {
     </div>
   );
 }
-function SubAgentGroup({ msg, onSend }) {
-  const { t: t2 } = useTranslation();
-  const agentKey = msg.agent ?? "";
+function SubAgentGroup({ msg: message, onSend }) {
+  const { t } = useTranslation();
+  const agentKey = message.agent ?? "";
   const agentLabel =
-    t2(`chat.agentLabel.${agentKey}`, {
+    t(`chat.agentLabel.${agentKey}`, {
       defaultValue: "",
     }) ||
     AGENT_LABELS[agentKey] ||
-    msg.agent ||
-    t2("chat.agentFallback");
-  const subs = msg.subMessages ?? [];
+    message.agent ||
+    t("chat.agentFallback");
+  const subs = message.subMessages ?? [];
   const showHiddenTools = useDebugFlag(DEBUG_FLAGS.rawToolView);
   const visibleSubs = reactExports.useMemo(() => {
     const productVisible = showHiddenTools
       ? dropResumePrompts(subs)
       : filterSupersededTransientTools(
           dropResumePrompts(
-            filterSilentTools(subs, (s2) =>
-              s2.type === "tool" ? parseToolResult(s2.content).name : void 0,
+            filterSilentTools(subs, (subMessage) =>
+              subMessage.type === "tool" ? parseToolResult(subMessage.content).name : void 0,
             ),
           ),
-          (s2) =>
-            s2.type === "tool" ? parseToolResult(s2.content).name : void 0,
+          (subMessage) =>
+            subMessage.type === "tool" ? parseToolResult(subMessage.content).name : void 0,
         );
     const normalized = collapseReplayedSubMessageSequences(productVisible);
     const deduped =
@@ -1252,11 +1241,11 @@ function SubAgentGroup({ msg, onSend }) {
     [asChatMessages, showHiddenTools],
   );
   const subLookup = reactExports.useMemo(() => {
-    const map3 = new Map();
-    for (const s2 of visibleSubs) map3.set(s2.id, s2);
-    return map3;
+    const subMessagesById = new Map();
+    for (const subMessage of visibleSubs) subMessagesById.set(subMessage.id, subMessage);
+    return subMessagesById;
   }, [visibleSubs]);
-  const isStreaming = !msg.resolved && !msg.cancelled;
+  const isStreaming = !message.resolved && !message.cancelled;
   const streamingAction = reactExports.useMemo(
     () => (isStreaming ? getStreamingAction(asChatMessages) : void 0),
     [isStreaming, asChatMessages],
@@ -1274,8 +1263,8 @@ function SubAgentGroup({ msg, onSend }) {
       ? void 0
       : streamingAction;
   const hasError = reactExports.useMemo(() => subAgentHasError(subs), [subs]);
-  const isRecovering = useIsChildRecovering(msg.childSessionId);
-  const status = msg.cancelled
+  const isRecovering = useIsChildRecovering(message.childSessionId);
+  const status = message.cancelled
     ? "cancelled"
     : isRecovering
       ? "recovering"
@@ -1284,10 +1273,10 @@ function SubAgentGroup({ msg, onSend }) {
         : hasError
           ? "error"
           : "done";
-  const statusLabel2 =
+  const statusLabel =
     status === "running" && IN_PROGRESS_AGENT_KEYS.has(agentKey)
-      ? t2("chat.subAgentStatus.running")
-      : t2(`gen.status.${status}`);
+      ? t("chat.subAgentStatus.running")
+      : t(`gen.status.${status}`);
   const statusClass =
     status === "error"
       ? "text-destructive/50"
@@ -1298,13 +1287,13 @@ function SubAgentGroup({ msg, onSend }) {
   const hasPendingConfirm = pendingConfirmKey !== "[]";
   const [expanded, setExpanded] = reactExports.useState(
     () =>
-      hasPendingConfirm || getInitialExpandedState(msg.collapsed, msg.resolved),
+      hasPendingConfirm || getInitialExpandedState(message.collapsed, message.resolved),
   );
   reactExports.useEffect(() => {
     if (pendingConfirmKey !== "[]") setExpanded(true);
-    else if (msg.collapsed || msg.resolved) setExpanded(false);
-  }, [msg.collapsed, msg.resolved, pendingConfirmKey]);
-  const fallbackTask = msg.task?.trim();
+    else if (message.collapsed || message.resolved) setExpanded(false);
+  }, [message.collapsed, message.resolved, pendingConfirmKey]);
+  const fallbackTask = message.task?.trim();
   const hasExpandedContent =
     grouped.length > 0 || !!pinnedStreamingAction || !!fallbackTask;
   return (
@@ -1315,7 +1304,7 @@ function SubAgentGroup({ msg, onSend }) {
       <button
         type="button"
         className="-mx-1 flex w-[calc(100%+0.5rem)] cursor-pointer items-center gap-1 rounded-md px-1 py-0.5 text-left text-muted-foreground transition-colors hover:bg-foreground/[0.03] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
-        onClick={() => setExpanded((v2) => !v2)}
+        onClick={() => setExpanded((isExpanded) => !isExpanded)}
         aria-expanded={expanded}
       >
         <span className="flex size-4 shrink-0 items-center justify-center">
@@ -1329,7 +1318,7 @@ function SubAgentGroup({ msg, onSend }) {
             }
             className={`truncate ${statusClass}`}
           >
-            {statusLabel2}
+            {statusLabel}
           </span>
         </div>
         <ChevronDown
@@ -1367,23 +1356,23 @@ function SubAgentGroup({ msg, onSend }) {
               <IndentL showCorner={true}>
                 <SubTextBlock
                   sub={{
-                    id: `${msg.id}__task`,
+                    id: `${message.id}__task`,
                     type: "text",
                     content: fallbackTask,
                   }}
                 />
               </IndentL>
             )}
-            {grouped.map((node2, nIdx) => (
+            {grouped.map((node, nIdx) => (
               <IndentL
-                key={nodeKey(node2, nIdx)}
+                key={nodeKey(node, nIdx)}
                 showCorner={!pinnedStreamingAction && nIdx === 0}
               >
                 <SubGroupedNode
-                  node={node2}
+                  node={node}
                   subLookup={subLookup}
                   isStreaming={isGroupedNodeStreaming(
-                    node2,
+                    node,
                     nIdx,
                     grouped.length,
                     isStreaming,
@@ -1400,8 +1389,8 @@ function SubAgentGroup({ msg, onSend }) {
     </div>
   );
 }
-function RecoveredMessage({ content: content2 }) {
-  const headline = stripRecoveredPrefix(content2.split("\n")[0] ?? "")
+function RecoveredMessage({ content }) {
+  const headline = stripRecoveredPrefix(content.split("\n")[0] ?? "")
     .replace(/[:：]\s*$/, "")
     .trim();
   return (
@@ -1419,7 +1408,7 @@ const BILLING_ERROR_CODE_PATTERN =
   /`{1,3}billing_insufficient_balance`{1,3}|\[billing_insufficient_balance\]|billing_insufficient_balance/gi;
 function RemoteToolGuiLink() {
   const remoteTool = useWorkspaceRemoteToolOptional();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (!remoteTool?.pendingRemoteToolRequest || remoteTool.remoteToolRequest)
     return null;
   return (
@@ -1429,7 +1418,7 @@ function RemoteToolGuiLink() {
       onClick={remoteTool.openPendingRemoteTool}
       data-action-ui-id="chat.open-remote-tool"
     >
-      {t2("chat.openRemoteToolUi", {
+      {t("chat.openRemoteToolUi", {
         defaultValue: "Open {{toolName}} GUI",
         toolName: redactForCurrentRegion(
           remoteTool.pendingRemoteToolRequest.toolName,
@@ -1438,38 +1427,38 @@ function RemoteToolGuiLink() {
     </button>
   );
 }
-const TextMessage = reactExports.memo(function TextMessage2({
-  msg,
+const TextMessage = reactExports.memo(function TextMessage({
+  msg: message,
   isLast,
   isStreaming = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { data: mentionModels = [] } = useMentionModels();
   const displayContent = reactExports.useMemo(() => {
-    if (msg.role === "user") return msg.content ?? "";
-    const billingRedacted = (msg.content ?? "").replace(
+    if (message.role === "user") return message.content ?? "";
+    const billingRedacted = (message.content ?? "").replace(
       BILLING_ERROR_CODE_PATTERN,
-      t2("chat.billingInsufficient.title"),
+      t("chat.billingInsufficient.title"),
     );
     return replaceConfiguredModelNamesForCurrentRegion(
       billingRedacted,
       mentionModels,
     );
-  }, [mentionModels, msg.content, msg.role, t2]);
-  if (msg.role === "user") {
-    const annotations = msg.type === "text" ? msg.documentAnnotations : void 0;
-    const recovered = stripContextPrefix(msg.content ?? "").trimStart();
+  }, [mentionModels, message.content, message.role, t]);
+  if (message.role === "user") {
+    const annotations = message.type === "text" ? message.documentAnnotations : void 0;
+    const recovered = stripContextPrefix(message.content ?? "").trimStart();
     if (isRecoveredMessage(recovered)) {
       return <RecoveredMessage content={recovered} />;
     }
     return (
       <div className="text-body-14 text-foreground min-w-0">
-        {msg.content ? (
-          <RichUserPromptContent content={msg.content} />
+        {message.content ? (
+          <RichUserPromptContent content={message.content} />
         ) : (
           !annotations?.length && (
             <span className="text-muted-foreground italic">
-              {t2("chat.noContent")}
+              {t("chat.noContent")}
             </span>
           )
         )}
@@ -1485,23 +1474,23 @@ const TextMessage = reactExports.memo(function TextMessage2({
         <MarkdownContent content={displayContent} isStreaming={isStreaming} />
       ) : (
         <span className="text-muted-foreground italic">
-          {t2("chat.noContent")}
+          {t("chat.noContent")}
         </span>
       )}
       {isLast && <RemoteToolGuiLink />}
     </div>
   );
 });
-function stripMdMarkers(text2) {
-  return text2.replace(/\*\*(.+?)\*\*/g, "$1").replace(/__(.+?)__/g, "$1");
+function stripMdMarkers(text) {
+  return text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/__(.+?)__/g, "$1");
 }
-function ThinkingBlock({ msg, isStreaming }) {
-  const { t: t2 } = useTranslation();
+function ThinkingBlock({ msg: message, isStreaming }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = reactExports.useState(!!isStreaming);
-  const content2 = stripMdMarkers(
-    redactForCurrentRegion(msg.thinkingContent ?? msg.content),
+  const content = stripMdMarkers(
+    redactForCurrentRegion(message.thinkingContent ?? message.content),
   );
-  const hasContent2 = !!content2;
+  const hasContent = !!content;
   reactExports.useEffect(() => {
     if (!isStreaming) setExpanded(false);
   }, [isStreaming]);
@@ -1518,7 +1507,7 @@ function ThinkingBlock({ msg, isStreaming }) {
         </span>
         <div className="min-w-0 text-body-14 flex items-center gap-1">
           <span className="text-muted-foreground font-normal truncate">
-            {isStreaming ? t2("chat.thinking") : t2("chat.thought")}
+            {isStreaming ? t("chat.thinking") : t("chat.thought")}
           </span>
           <Icon
             icon={ChevronDown}
@@ -1534,11 +1523,11 @@ function ThinkingBlock({ msg, isStreaming }) {
         <div className="overflow-hidden min-h-0">
           <div className="ml-[9px] border-l-2 border-border-soft pl-3 pt-2 min-w-0">
             <div className="text-body-14 text-muted-foreground">
-              {hasContent2 ? (
-                <ExpandableText lineClamp={8}>{content2}</ExpandableText>
+              {hasContent ? (
+                <ExpandableText lineClamp={8}>{content}</ExpandableText>
               ) : (
                 <p className="whitespace-pre-wrap break-words">
-                  {t2("chat.noReasoningContent")}
+                  {t("chat.noReasoningContent")}
                 </p>
               )}
             </div>
@@ -1548,20 +1537,20 @@ function ThinkingBlock({ msg, isStreaming }) {
     </div>
   );
 }
-function VideoMessage({ msg }) {
-  const { t: t2 } = useTranslation();
+function VideoMessage({ msg: message }) {
+  const { t } = useTranslation();
   const [error, setError] = reactExports.useState(false);
-  const resolveMediaUrl2 = useResolveMediaUrl();
-  const src = resolveMediaUrl2(msg.url) ?? msg.content;
+  const resolveMediaUrl = useResolveMediaUrl();
+  const mediaUrl = resolveMediaUrl(message.url) ?? message.content;
   const { copyPath, saveAs } = useMediaActions();
-  if (error || !src) {
+  if (error || !mediaUrl) {
     return (
       <div className="rounded-lg bg-muted px-4 py-3 text-sm text-muted-foreground">
-        {t2("chat.failedToLoadVideo")}
+        {t("chat.failedToLoadVideo")}
       </div>
     );
   }
-  const mime = inferArtifactMime(src, "video");
+  const mime = inferArtifactMime(mediaUrl, "video");
   return (
     <div>
       <ContextMenu>
@@ -1569,11 +1558,11 @@ function VideoMessage({ msg }) {
           <video
             data-action-ui-id="chat-artifact-video"
             data-artifact-type="video"
-            data-artifact-path={src}
+            data-artifact-path={mediaUrl}
             data-artifact-mime={mime}
-            src={src}
+            src={mediaUrl}
             controls={true}
-            poster={msg.metadata?.poster}
+            poster={message.metadata?.poster}
             className="h-auto max-w-full rounded-lg"
             style={{
               maxWidth: 400,
@@ -1582,35 +1571,35 @@ function VideoMessage({ msg }) {
           />
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem onClick={() => copyPath(src)}>
+          <ContextMenuItem onClick={() => copyPath(mediaUrl)}>
             <Copy />
-            {t2("chat.copyUrl")}
+            {t("chat.copyUrl")}
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => saveAs(src)}>
+          <ContextMenuItem onClick={() => saveAs(mediaUrl)}>
             <Save />
-            {t2("common.saveAs")}
+            {t("common.saveAs")}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
       <div className="text-xs text-muted-foreground mt-1 flex gap-2 flex-wrap">
-        {msg.agent && (
+        {message.agent && (
           <span>
-            {t2("chat.generatedBy", {
-              agent: msg.agent,
+            {t("chat.generatedBy", {
+              agent: message.agent,
             })}
           </span>
         )}
-        {msg.metadata?.model && (
+        {message.metadata?.model && (
           <span>
-            {t2("chat.modelLabel", {
-              model: msg.metadata.model,
+            {t("chat.modelLabel", {
+              model: message.metadata.model,
             })}
           </span>
         )}
-        {msg.metadata?.duration && (
+        {message.metadata?.duration && (
           <span>
-            {t2("chat.durationLabel", {
-              duration: msg.metadata.duration,
+            {t("chat.durationLabel", {
+              duration: message.metadata.duration,
             })}
           </span>
         )}
@@ -1618,8 +1607,8 @@ function VideoMessage({ msg }) {
     </div>
   );
 }
-export const MessageBubble = reactExports.memo(function MessageBubble2({
-  msg,
+export const MessageBubble = reactExports.memo(function MessageBubble({
+  msg: message,
   isStreaming,
   onSend,
   onRetry,
@@ -1627,45 +1616,45 @@ export const MessageBubble = reactExports.memo(function MessageBubble2({
   isLast,
   repeatCount,
 }) {
-  switch (msg.type) {
+  switch (message.type) {
     case "text":
       return (
-        <TextMessage msg={msg} isLast={isLast} isStreaming={isStreaming} />
+        <TextMessage msg={message} isLast={isLast} isStreaming={isStreaming} />
       );
     case "thinking":
-      return <ThinkingBlock msg={msg} isStreaming={isStreaming} />;
+      return <ThinkingBlock msg={message} isStreaming={isStreaming} />;
     case "tool":
-      return <ToolCallCard msg={msg} repeatCount={repeatCount} />;
+      return <ToolCallCard msg={message} repeatCount={repeatCount} />;
     case "error":
-      return <ErrorMessage msg={msg} onRetry={onRetry} retrying={retrying} />;
+      return <ErrorMessage msg={message} onRetry={onRetry} retrying={retrying} />;
     case "interact":
-      return <InteractRequest msg={msg} onSend={onSend} />;
+      return <InteractRequest msg={message} onSend={onSend} />;
     case "confirm":
-      return <ConfirmRequest msg={msg} onSend={onSend} />;
+      return <ConfirmRequest msg={message} onSend={onSend} />;
     case "credit_threshold":
-      if (msg.kind === "insufficient") {
+      if (message.kind === "insufficient") {
         return (
           <BillingInsufficientCard
             estimate={{
-              estimatedCredits: msg.estimatedCredits,
-              currentCredits: msg.currentCredits,
-              shortfallCredits: msg.shortfallCredits,
+              estimatedCredits: message.estimatedCredits,
+              currentCredits: message.currentCredits,
+              shortfallCredits: message.shortfallCredits,
             }}
-            expiresAt={msg.expiresAt}
-            resolved={msg.resolved}
-            settlementStatus={msg.settlementStatus}
-            refreshRevision={msg.revision}
+            expiresAt={message.expiresAt}
+            resolved={message.resolved}
+            settlementStatus={message.settlementStatus}
+            refreshRevision={message.revision}
             retryResetMs={3e3}
             onRetry={() => {
-              if (!onSend || msg.resolved) return false;
+              if (!onSend || message.resolved) return false;
               const reply = {
                 type: "credit_threshold_reply",
-                id: msg.requestId,
-                session_id: msg.sessionId,
+                id: message.requestId,
+                session_id: message.sessionId,
                 decision: "continue",
-                ...(msg.batchId
+                ...(message.batchId
                   ? {
-                      batch_id: msg.batchId,
+                      batch_id: message.batchId,
                     }
                   : {}),
               };
@@ -1677,48 +1666,48 @@ export const MessageBubble = reactExports.memo(function MessageBubble2({
       return (
         <CreditThresholdReminderCard
           estimate={{
-            estimatedCredits: msg.estimatedCredits,
-            currentCredits: msg.currentCredits,
-            remainingCredits: msg.remainingCredits,
-            thresholdCredits: msg.thresholdCredits,
-            batchId: msg.batchId,
-            batchItems: msg.batchItems,
-            maxSelectableCredits: msg.maxSelectableCredits,
-            selectedItemIds: msg.selectedItemIds,
+            estimatedCredits: message.estimatedCredits,
+            currentCredits: message.currentCredits,
+            remainingCredits: message.remainingCredits,
+            thresholdCredits: message.thresholdCredits,
+            batchId: message.batchId,
+            batchItems: message.batchItems,
+            maxSelectableCredits: message.maxSelectableCredits,
+            selectedItemIds: message.selectedItemIds,
           }}
-          expiresAt={msg.expiresAt}
-          resolved={msg.resolved}
-          decision={msg.decision}
-          settlementStatus={msg.settlementStatus}
+          expiresAt={message.expiresAt}
+          resolved={message.resolved}
+          decision={message.decision}
+          settlementStatus={message.settlementStatus}
           awaitSettlement={true}
           onCancel={() => {
-            if (!onSend || msg.resolved) return;
+            if (!onSend || message.resolved) return;
             const reply = {
               type: "credit_threshold_reply",
-              id: msg.requestId,
-              session_id: msg.sessionId,
+              id: message.requestId,
+              session_id: message.sessionId,
               decision: "cancel",
-              ...(msg.batchId
+              ...(message.batchId
                 ? {
-                    batch_id: msg.batchId,
+                    batch_id: message.batchId,
                   }
                 : {}),
             };
             return onSend(reply) !== false;
           }}
           onContinue={(selectedItemIds) => {
-            if (!onSend || msg.resolved) return;
+            if (!onSend || message.resolved) return;
             const reply = {
               type: "credit_threshold_reply",
-              id: msg.requestId,
-              session_id: msg.sessionId,
+              id: message.requestId,
+              session_id: message.sessionId,
               decision: "continue",
-              ...(msg.batchId
+              ...(message.batchId
                 ? {
-                    batch_id: msg.batchId,
+                    batch_id: message.batchId,
                   }
                 : {}),
-              ...(msg.batchId && selectedItemIds
+              ...(message.batchId && selectedItemIds
                 ? {
                     selected_item_ids: [...selectedItemIds],
                   }
@@ -1729,26 +1718,26 @@ export const MessageBubble = reactExports.memo(function MessageBubble2({
         />
       );
     case "question":
-      return <QuestionMessage msg={msg} />;
+      return <QuestionMessage msg={message} />;
     case "image":
-      return <ImageMessage msg={msg} />;
+      return <ImageMessage msg={message} />;
     case "video":
-      return <VideoMessage msg={msg} />;
+      return <VideoMessage msg={message} />;
     case "audio":
-      return <AudioMessage msg={msg} />;
+      return <AudioMessage msg={message} />;
     case "sub_agent":
-      return <SubAgentGroup msg={msg} onSend={onSend} />;
+      return <SubAgentGroup msg={message} onSend={onSend} />;
     case "file_added":
-      return <FileAddedMessage msg={msg} />;
+      return <FileAddedMessage msg={message} />;
     case "withdrawn":
-      return <MessageWithdrawn reason={msg.reason} />;
+      return <MessageWithdrawn reason={message.reason} />;
     case "cancelled":
       return <CancelledMessage />;
     case "compaction_status":
-      return <CompactionStatusMessage message={msg} />;
+      return <CompactionStatusMessage message={message} />;
     case "tool_confirm_ask":
-      if (msg.resolved) return null;
-      return onSend ? <ToolConfirmCard message={msg} onSend={onSend} /> : null;
+      if (message.resolved) return null;
+      return onSend ? <ToolConfirmCard message={message} onSend={onSend} /> : null;
     default:
       return null;
   }

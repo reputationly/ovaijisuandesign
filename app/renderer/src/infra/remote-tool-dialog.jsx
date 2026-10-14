@@ -1,7 +1,9 @@
 // remote-tool-dialog.jsx
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { gatewayFetch } from "./gateway-fetch.js";
-import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useRemoteToolSdk } from "../assets/create-remote-tool-sdk.js";
 import { Button } from "./dialog-content.jsx";
@@ -17,9 +19,9 @@ function looksLikeLocalPath(value) {
   return !value.includes("://") && MEDIA_EXT_RE.test(value);
 }
 async function normalizeInitialParams(params) {
-  const entries2 = await Promise.all(
-    Object.entries(params).map(async ([key2, value]) => {
-      if (!looksLikeLocalPath(value)) return [key2, value];
+  const entries = await Promise.all(
+    Object.entries(params).map(async ([key, value]) => {
+      if (!looksLikeLocalPath(value)) return [key, value];
       try {
         const res = await gatewayFetch("/api/files/upload-cdn", {
           method: "POST",
@@ -31,31 +33,31 @@ async function normalizeInitialParams(params) {
           }),
           timeoutMs: 12e4,
         });
-        const json2 = await res.json();
-        if (json2.ok && json2.url) {
+        const json = await res.json();
+        if (json.ok && json.url) {
           remoteToolLog.info("initial_params normalized", {
-            key: key2,
+            key,
             from: value,
-            to: json2.url,
+            to: json.url,
           });
-          return [key2, json2.url];
+          return [key, json.url];
         }
         remoteToolLog.warn("initial_params upload-cdn returned not ok", {
-          key: key2,
+          key,
           path: value,
-          error: json2.error ?? "unknown",
+          error: json.error ?? "unknown",
         });
       } catch (err) {
         remoteToolLog.warn("initial_params upload-cdn exception", {
-          key: key2,
+          key,
           path: value,
           error: err instanceof Error ? err.message : String(err),
         });
       }
-      return [key2, value];
+      return [key, value];
     }),
   );
-  return Object.fromEntries(entries2);
+  return Object.fromEntries(entries);
 }
 export function RemoteToolDialog({
   open,
@@ -70,7 +72,7 @@ export function RemoteToolDialog({
   onCheckLogin,
   interactionDisabled = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const initialParamsRef = reactExports.useRef(initialParams);
   const { sdk, dispatchHostEvent } = useRemoteToolSdk({
     toolId,
@@ -125,8 +127,8 @@ export function RemoteToolDialog({
     }
     let cancelled = false;
     gatewayFetch(manifestPath)
-      .then((r2) =>
-        r2.ok ? r2.json() : Promise.reject(new Error(`HTTP ${r2.status}`)),
+      .then((response) =>
+        response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`)),
       )
       .then((manifest) => {
         if (cancelled) return;
@@ -164,7 +166,7 @@ export function RemoteToolDialog({
     >
       <button
         type="button"
-        aria-label={t2("a11y.closeDialog", "Close dialog")}
+        aria-label={t("a11y.closeDialog", "Close dialog")}
         className="modal-mask absolute inset-0"
         onClick={onClose}
       />
@@ -176,7 +178,7 @@ export function RemoteToolDialog({
             size="icon-sm"
             className="absolute top-2 right-2 z-20"
             onClick={onClose}
-            aria-label={t2("common.close")}
+            aria-label={t("common.close")}
             data-action-ui-id="remote-tool-dialog.close"
           >
             <X size={16} strokeWidth={1.5} />
@@ -203,7 +205,7 @@ export function RemoteToolDialog({
               className="absolute inset-x-4 bottom-4 z-20 rounded-md border border-border bg-background px-3 py-2 text-center text-xs text-muted-foreground shadow-sm"
               data-action-ui-id="remote-tool-dialog.account-blocked"
             >
-              {t2("team.submission.blocked", {
+              {t("team.submission.blocked", {
                 defaultValue: "账号正在切换或恢复，暂时无法提交。",
               })}
             </div>

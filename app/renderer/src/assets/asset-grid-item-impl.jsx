@@ -1,14 +1,12 @@
 // asset-grid-item-impl.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { formatDuration } from "../workspace/set-home-widget-dev-preview-mode.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
-import {
-  AlertTriangle,
-  API_PATHS,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle } from "../media-editing/lucide-icon-wraps.js";
 import { FileTypeBadge, InlineInput, TagDots } from "./inline-input.jsx";
 import { MissingCandidateActions } from "./missing-candidate-actions.jsx";
 import { withThumbnail } from "../workspace/tool-label-definitions.js";
@@ -19,8 +17,8 @@ import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js"
 import { ContextMenuTrigger } from "../workspace/context-menu-content.jsx";
 import { AssetContextMenuContent } from "./asset-context-menu-content.jsx";
 function DurationBadge({ seconds, className }) {
-  const text2 = formatDuration(seconds);
-  if (!text2) return null;
+  const text = formatDuration(seconds);
+  if (!text) return null;
   return (
     <span
       data-slot="duration-badge"
@@ -29,7 +27,7 @@ function DurationBadge({ seconds, className }) {
         className,
       )}
     >
-      {text2}
+      {text}
     </span>
   );
 }
@@ -63,7 +61,7 @@ function FormatBadge({ ext, className }) {
   );
 }
 function MissingPlaceholder() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div className="flex flex-col items-center gap-1">
       <AlertTriangle
@@ -72,7 +70,7 @@ function MissingPlaceholder() {
         className="text-foreground/30"
       />
       <span className="text-[9px] text-foreground/30">
-        {t2("fileExplorer.assetMissing")}
+        {translate("fileExplorer.assetMissing")}
       </span>
     </div>
   );
@@ -127,7 +125,7 @@ export function AssetGridItemImpl({
   const [openWithSubOpen, setOpenWithSubOpen] = reactExports.useState(false);
   const [imgError, setImgError] = reactExports.useState(false);
   const [imgRetried, setImgRetried] = reactExports.useState(false);
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const isMissing = asset.status === "missing";
   const fileName = asset.name || getFileName(asset.path) || asset.path;
   const target = reactExports.useMemo(
@@ -184,7 +182,7 @@ export function AssetGridItemImpl({
     () => onStartRename(absolutePath),
     [onStartRename, absolutePath],
   );
-  const handleDelete2 = reactExports.useCallback(
+  const handleDelete = reactExports.useCallback(
     () => onDelete(absolutePath),
     [onDelete, absolutePath],
   );
@@ -209,14 +207,14 @@ export function AssetGridItemImpl({
     if (isMissing) return null;
     if (asset.type === "image") {
       return (
-        withThumbnail(gatewayUrl2(API_PATHS.serveFile(asset.path)), 200) ?? null
+        withThumbnail(gatewayUrl(API_PATHS.serveFile(asset.path)), 200) ?? null
       );
     }
     if (asset.type === "video" || asset.type === "audio") {
-      return gatewayUrl2(API_PATHS.thumbnail(asset.path)) ?? null;
+      return gatewayUrl(API_PATHS.thumbnail(asset.path)) ?? null;
     }
     return null;
-  }, [asset.path, asset.type, gatewayUrl2, isMissing]);
+  }, [asset.path, asset.type, gatewayUrl, isMissing]);
   const handleImgError = reactExports.useCallback(() => {
     if (!imgRetried) {
       setImgRetried(true);
@@ -229,27 +227,27 @@ export function AssetGridItemImpl({
     return `${thumbnailUrl}${thumbnailUrl.includes("?") ? "&" : "?"}force=1`;
   }, [thumbnailUrl, imgRetried]);
   const ext = reactExports.useMemo(() => {
-    const base2 = asset.path.split(/[/\\]/).pop() ?? "";
-    const dotIdx = base2.lastIndexOf(".");
+    const base = asset.path.split(/[/\\]/).pop() ?? "";
+    const dotIdx = base.lastIndexOf(".");
     if (dotIdx <= 0) return "";
-    return base2.slice(dotIdx + 1).toLowerCase();
+    return base.slice(dotIdx + 1).toLowerCase();
   }, [asset.path]);
   const handleDragStart = reactExports.useCallback(
-    (e2) => {
-      e2.dataTransfer.setData(
+    (dragEvent) => {
+      dragEvent.dataTransfer.setData(
         RESOURCE_DRAG_MIME,
         buildDragPayload(absolutePath),
       );
-      e2.dataTransfer.effectAllowed = "copyMove";
+      dragEvent.dataTransfer.effectAllowed = "copyMove";
     },
     [buildDragPayload, absolutePath],
   );
   const handlePointerEnter = reactExports.useCallback(
-    (e2) => {
+    (pointerEvent) => {
       if (!onHoverIntent) return;
       onHoverIntent({
         asset,
-        anchor: e2.currentTarget,
+        anchor: pointerEvent.currentTarget,
         absolutePath,
       });
     },
@@ -261,11 +259,11 @@ export function AssetGridItemImpl({
   const cellRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (!onAnchorMount) return;
-    const path2 = absolutePath;
+    const path = absolutePath;
     const el = cellRef.current;
     if (!el) return;
-    onAnchorMount(path2, el);
-    return () => onAnchorMount(path2, null);
+    onAnchorMount(path, el);
+    return () => onAnchorMount(path, null);
   }, [onAnchorMount, absolutePath]);
   return (
     <ContextMenu
@@ -290,7 +288,7 @@ export function AssetGridItemImpl({
                 ? "bg-foreground/[0.12]"
                 : "hover:bg-foreground/5",
             )}
-            onClick={(e2) => onSelect(asset.path, e2)}
+            onClick={(clickEvent) => onSelect(asset.path, clickEvent)}
             onContextMenu={handleContextMenu}
             onDoubleClick={() => onDoubleClick?.(asset.path)}
             onDragStart={handleDragStart}
@@ -342,7 +340,7 @@ export function AssetGridItemImpl({
             />
           ) : (
             (() => {
-              const { head: stem, tail: ext2 } = splitFilename(fileName);
+              const { head: stem, tail: ext } = splitFilename(fileName);
               return (
                 <span
                   className={cn(
@@ -351,7 +349,7 @@ export function AssetGridItemImpl({
                   )}
                 >
                   <span className="truncate min-w-0">{stem}</span>
-                  {ext2 && <span className="shrink-0">{ext2}</span>}
+                  {ext && <span className="shrink-0">{ext}</span>}
                 </span>
               );
             })()
@@ -384,7 +382,7 @@ export function AssetGridItemImpl({
         onCopyFile={handleCopyFile}
         onDuplicate={handleDuplicate}
         onRename={handleStartRename}
-        onDelete={handleDelete2}
+        onDelete={handleDelete}
         openWithSubOpen={openWithSubOpen}
         onOpenWithSubOpenChange={setOpenWithSubOpen}
       />

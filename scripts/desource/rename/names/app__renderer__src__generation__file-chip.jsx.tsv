@@ -1,0 +1,20 @@
+key	old	new	依据
+t2@39:14	t2	translate	该绑定来自 useTranslation 并用于视频图标的无障碍标签。
+t2@72:14	t2	translate	该绑定来自 useTranslation 并用于音频图标的无障碍标签。
+i2@120:12	i2	characterIndex	该值是按字符遍历文件名以计算渐变哈希的下标。
+t2@306:14	t2	translate	该绑定来自 useTranslation 并用于文件卡片操作及预览文案。
+e2@574:19	e2	clickEvent	该事件来自定位按钮点击并用于阻止冒泡。
+e2@811:32	e2	metadataEvent	该事件来自音频 loadedmetadata 回调，用于读取媒体时长。
+size2@38:28	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@71:32	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+hash2@119:7	hash2	hash	去掉打包器防重名追加的后缀，恢复原名 hash，即该绑定持有的值。
+content2@138:11	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+observer2@143:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+url2@213:8	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+dot2@280:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+active2@288:11	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+handleKeyDown2@545:9	handleKeyDown2	handleKeyDown	去掉打包器防重名追加的后缀，恢复原名 handleKeyDown，即该绑定持有的值。
+meta2@896:9	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+url2@376:6	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+dimensions2@386:13	dimensions2	dimensions	去掉打包器防重名追加的后缀，恢复原名 dimensions，即该绑定持有的值。
+close2@490:11	close2	dismissPreview	该函数在外部点击、滚动、窗口失焦或按 Escape 时关闭悬浮预览；点击预览内部则忽略。

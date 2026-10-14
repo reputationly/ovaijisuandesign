@@ -1,12 +1,12 @@
 // use-image-erase.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
-function normaliseRect(a2, b3) {
+function normaliseRect(firstPoint, secondPoint) {
   return {
-    x1: Math.max(0, Math.min(1, Math.min(a2.x, b3.x))),
-    y1: Math.max(0, Math.min(1, Math.min(a2.y, b3.y))),
-    x2: Math.max(0, Math.min(1, Math.max(a2.x, b3.x))),
-    y2: Math.max(0, Math.min(1, Math.max(a2.y, b3.y))),
+    x1: Math.max(0, Math.min(1, Math.min(firstPoint.x, secondPoint.x))),
+    y1: Math.max(0, Math.min(1, Math.min(firstPoint.y, secondPoint.y))),
+    x2: Math.max(0, Math.min(1, Math.max(firstPoint.x, secondPoint.x))),
+    y2: Math.max(0, Math.min(1, Math.max(firstPoint.y, secondPoint.y))),
   };
 }
 
@@ -22,42 +22,42 @@ export function useImageErase() {
   const [redoSelections, setRedoSelections] = reactExports.useState([]);
   const startRef = reactExports.useRef(null);
   const draftRef = reactExports.useRef(null);
-  const beginSelection = reactExports.useCallback((point2) => {
-    startRef.current = point2;
+  const beginSelection = reactExports.useCallback((point) => {
+    startRef.current = point;
     draftRef.current = null;
     setDraftSelection(null);
   }, []);
-  const extendSelection = reactExports.useCallback((point2) => {
+  const extendSelection = reactExports.useCallback((point) => {
     if (!startRef.current) return;
-    const next2 = normaliseRect(startRef.current, point2);
-    draftRef.current = next2;
-    setDraftSelection(next2);
+    const next = normaliseRect(startRef.current, point);
+    draftRef.current = next;
+    setDraftSelection(next);
   }, []);
   const endSelection = reactExports.useCallback(() => {
     startRef.current = null;
-    const current2 = draftRef.current;
+    const current = draftRef.current;
     draftRef.current = null;
     setDraftSelection(null);
-    if (!isValidSelectionRect(current2)) return null;
-    setSelections((previous2) => [...previous2, current2]);
+    if (!isValidSelectionRect(current)) return null;
+    setSelections((previous) => [...previous, current]);
     setRedoSelections([]);
-    return current2;
+    return current;
   }, []);
-  const undoSelection2 = reactExports.useCallback(() => {
-    setSelections((previous2) => {
-      if (previous2.length === 0) return previous2;
-      const next2 = previous2.slice(0, -1);
-      const removed = previous2[previous2.length - 1];
-      setRedoSelections((redo22) => [...redo22, removed]);
-      return next2;
+  const undoSelection = reactExports.useCallback(() => {
+    setSelections((previous) => {
+      if (previous.length === 0) return previous;
+      const next = previous.slice(0, -1);
+      const removed = previous[previous.length - 1];
+      setRedoSelections((previousRedoSelections) => [...previousRedoSelections, removed]);
+      return next;
     });
   }, []);
-  const redo2 = reactExports.useCallback(() => {
-    setRedoSelections((previous2) => {
-      if (previous2.length === 0) return previous2;
-      const restored = previous2[previous2.length - 1];
-      setSelections((current2) => [...current2, restored]);
-      return previous2.slice(0, -1);
+  const redo = reactExports.useCallback(() => {
+    setRedoSelections((previous) => {
+      if (previous.length === 0) return previous;
+      const restored = previous[previous.length - 1];
+      setSelections((current) => [...current, restored]);
+      return previous.slice(0, -1);
     });
   }, []);
   const clearSelection = reactExports.useCallback(() => {
@@ -67,7 +67,7 @@ export function useImageErase() {
     draftRef.current = null;
     startRef.current = null;
   }, []);
-  const selection2 = selections[selections.length - 1] ?? null;
+  const selection = selections[selections.length - 1] ?? null;
   const strokes = [
     ...selections,
     ...(draftSelection ? [draftSelection] : []),
@@ -86,20 +86,20 @@ export function useImageErase() {
     ],
   }));
   const beginStroke = reactExports.useCallback(
-    (point2) => beginSelection(point2),
+    (point) => beginSelection(point),
     [beginSelection],
   );
   const extendStroke = reactExports.useCallback(
-    (point2) => extendSelection(point2),
+    (point) => extendSelection(point),
     [extendSelection],
   );
   const endStroke = endSelection;
-  const undoStroke = undoSelection2;
-  const redoStroke = redo2;
+  const undoStroke = undoSelection;
+  const redoStroke = redo;
   const setTool = reactExports.useCallback((_tool) => {}, []);
   const setBrushSize = reactExports.useCallback((_value) => {}, []);
   return {
-    selection: selection2,
+    selection,
     strokes,
     brushSize: 0,
     tool: "rect",
@@ -114,8 +114,8 @@ export function useImageErase() {
     beginSelection,
     extendSelection,
     endSelection,
-    undoSelection: undoSelection2,
-    redoSelection: redo2,
+    undoSelection,
+    redoSelection: redo,
     clearSelection,
     hasStrokes: selections.length > 0,
     hasSelection: selections.length > 0,

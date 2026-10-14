@@ -1,5 +1,6 @@
 // lib-tv-connector-dialog.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ConnectorDialogFrame } from "./connector-dialog-frame.jsx";
 import { ConnectorRelationshipGraphic } from "./connector-relationship-graphic.jsx";
@@ -11,12 +12,12 @@ import {
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { homeService } from "../workspace/home-service.jsx";
-function preparationErrorKey(code2) {
-  return code2 === "runtime_unavailable"
+function preparationErrorKey(code) {
+  return code === "runtime_unavailable"
     ? "connectors.libtv.runtimeRequired"
-    : code2 === "busy"
+    : code === "busy"
       ? "connectors.libtv.busy"
-      : code2 === "server_exists"
+      : code === "server_exists"
         ? "connectors.libtv.conflict"
         : "connectors.libtv.failed";
 }
@@ -27,10 +28,10 @@ export function LibTvConnectorDialog({
   onBusyChange,
   preparation,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [localPending, setPending] = reactExports.useState(false);
   const [retryStarted, setRetryStarted] = reactExports.useState(false);
-  const pending2 = localPending || preparation?.state === "installing";
+  const pending = localPending || preparation?.state === "installing";
   const [error, setError] = reactExports.useState();
   const busy = reactExports.useRef(false);
   const mounted = reactExports.useRef(true);
@@ -48,7 +49,7 @@ export function LibTvConnectorDialog({
     onClose();
   };
   const handleAuthorize = async () => {
-    if (busy.current || pending2 || dismissed.current) return;
+    if (busy.current || pending || dismissed.current) return;
     setRetryStarted(true);
     busy.current = true;
     setPending(true);
@@ -61,10 +62,10 @@ export function LibTvConnectorDialog({
       if (!mounted.current || dismissed.current) return;
       onPrepared?.();
       if (result.ok && result.mcpConnected) handleClose();
-      else setError(t2(preparationErrorKey(result.code)));
+      else setError(t(preparationErrorKey(result.code)));
     } catch {
       if (mounted.current && !dismissed.current)
-        setError(t2("connectors.libtv.failed"));
+        setError(t("connectors.libtv.failed"));
     } finally {
       busy.current = false;
       if (mounted.current && !dismissed.current) {
@@ -79,9 +80,9 @@ export function LibTvConnectorDialog({
     preparation &&
     preparation.state !== "installing" &&
     !preparation.ok
-      ? t2(preparationErrorKey(preparation.code))
+      ? t(preparationErrorKey(preparation.code))
       : void 0);
-  const content2 = (
+  const content = (
     <div
       className="flex min-h-0 flex-1 flex-col p-6"
       data-action-ui-id="connectors-libtv-setup"
@@ -91,13 +92,13 @@ export function LibTvConnectorDialog({
         className="mb-4 justify-center"
       />
       <DialogHeader className="items-center text-center">
-        <DialogTitle>{t2("connectors.libtv.title")}</DialogTitle>
+        <DialogTitle>{t("connectors.libtv.title")}</DialogTitle>
         <DialogDescription>
-          {t2("connectors.libtv.description")}
+          {t("connectors.libtv.description")}
         </DialogDescription>
       </DialogHeader>
       <p className="my-5 text-sm text-muted-foreground" role="status">
-        {t2(pending2 ? "connectors.libtv.waiting" : "connectors.libtv.hint")}
+        {t(pending ? "connectors.libtv.waiting" : "connectors.libtv.hint")}
       </p>
       {visibleError ? (
         <p className="mb-4 text-sm text-destructive" role="alert">
@@ -111,31 +112,31 @@ export function LibTvConnectorDialog({
           onClick={handleClose}
           data-action-ui-id="connectors-libtv-dismiss"
         >
-          {t2("connectors.libtv.dismiss")}
+          {t("connectors.libtv.dismiss")}
         </Button>
         <Button
           className="h-9 min-w-26 rounded-lg px-4"
           onClick={() => void handleAuthorize()}
-          disabled={pending2}
-          loading={pending2}
+          disabled={pending}
+          loading={pending}
           data-action-ui-id="connectors-libtv-authorize"
         >
-          {t2("connectors.libtv.authorize")}
+          {t("connectors.libtv.authorize")}
         </Button>
       </DialogFooter>
     </div>
   );
   return embedded ? (
-    content2
+    content
   ) : (
     <ConnectorDialogFrame
       open={true}
       onOpenChange={(open) => !open && handleClose()}
       actionUiId="connectors-libtv-dialog"
-      closeLabel={t2("common.close")}
+      closeLabel={t("common.close")}
       closeActionUiId="connectors-libtv-close"
     >
-      {content2}
+      {content}
     </ConnectorDialogFrame>
   );
 }

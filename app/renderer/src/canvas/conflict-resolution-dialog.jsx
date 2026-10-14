@@ -1,10 +1,8 @@
 // conflict-resolution-dialog.jsx
-import {
-  API_PATHS,
-  reactExports,
-  useQuery,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { normalizeTagRegistry } from "../infra/normalize-v2-registry.js";
 import { canvasTagRegistryQueryKey } from "../workspace/asset-lineage-query-key.js";
 import {
@@ -23,22 +21,22 @@ import {
   AlertDialogTitle,
 } from "../infra/badge-variants.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
-export async function fetchTagRegistry(gatewayFetch2) {
-  const res = await gatewayFetch2(API_PATHS.tagRegistry);
-  const data2 = await res.json();
-  return normalizeTagRegistry(data2.registry);
+export async function fetchTagRegistry(gatewayFetch) {
+  const res = await gatewayFetch(API_PATHS.tagRegistry);
+  const data = await res.json();
+  return normalizeTagRegistry(data.registry);
 }
 export function useTagRegistry() {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const gatewayScopeKey = useGatewayScopeKey();
-  const { data: data2 } = useQuery({
+  const { data } = useQuery({
     queryKey: canvasTagRegistryQueryKey(gatewayScopeKey),
-    queryFn: () => fetchTagRegistry(gatewayFetch2),
+    queryFn: () => fetchTagRegistry(gatewayFetch),
     staleTime: Number.POSITIVE_INFINITY,
   });
   return reactExports.useMemo(
-    () => normalizeTagRegistry(data2 ?? seedTagRegistry()),
-    [data2],
+    () => normalizeTagRegistry(data ?? seedTagRegistry()),
+    [data],
   );
 }
 export function aggregateTagState(tagId, assets) {
@@ -58,7 +56,7 @@ export function ConflictResolutionDialog({
   onDecision,
   onDismiss,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [applyToAll, setApplyToAll] = reactExports.useState(false);
   const isFolder = conflict?.existingKind === "folder";
   const showApplyToAll = remainingCount > 0;
@@ -78,11 +76,11 @@ export function ConflictResolutionDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>
             {isFolder
-              ? t2("fileExplorer.folderAlreadyExists")
-              : t2("fileExplorer.fileAlreadyExists")}
+              ? translate("fileExplorer.folderAlreadyExists")
+              : translate("fileExplorer.fileAlreadyExists")}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t2("fileExplorer.conflictDescription", {
+            {translate("fileExplorer.conflictDescription", {
               name: conflict?.name ?? "",
             })}
           </AlertDialogDescription>
@@ -98,7 +96,7 @@ export function ConflictResolutionDialog({
               htmlFor="apply-to-remaining-conflicts"
               className="cursor-pointer"
             >
-              {t2("fileExplorer.applyToRemaining", {
+              {translate("fileExplorer.applyToRemaining", {
                 count: remainingCount,
               })}
             </label>
@@ -110,14 +108,14 @@ export function ConflictResolutionDialog({
             onClick={() => decide("skip")}
             data-action-ui-id="asset-panel.conflict-skip"
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             variant="secondary"
             onClick={() => decide("rename")}
             data-action-ui-id="asset-panel.conflict-rename"
           >
-            {t2("fileExplorer.conflictRename")}
+            {translate("fileExplorer.conflictRename")}
           </Button>
           <AlertDialogAction
             variant="destructive"
@@ -125,7 +123,7 @@ export function ConflictResolutionDialog({
             onClick={() => decide("overwrite")}
             data-action-ui-id="asset-panel.conflict-overwrite"
           >
-            {t2("fileExplorer.conflictOverwrite")}
+            {translate("fileExplorer.conflictOverwrite")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

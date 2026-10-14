@@ -1,5 +1,6 @@
 // camera-model3-d.jsx
-import { jsxRuntimeExports, reactExports } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { planeQuad } from "./plane-quad.jsx";
 import {
@@ -16,7 +17,7 @@ export function CameraModel3D({
   className = "",
 }) {
   const model = reactExports.useMemo(() => {
-    const view2 = getCameraModelView(horizontalAngle, verticalAngle);
+    const view = getCameraModelView(horizontalAngle, verticalAngle);
     const edge = "var(--hl_camera_edge, #8b939d)";
     const bodyFaces = createBoxFaces({
       key: "body",
@@ -30,7 +31,7 @@ export function CameraModel3D({
         y: 13,
         z: 13,
       },
-      basis: view2,
+      basis: view,
       stroke: edge,
       fills: {
         front: "var(--hl_camera_body, #3b4654)",
@@ -53,7 +54,7 @@ export function CameraModel3D({
         y: 3,
         z: 5,
       },
-      basis: view2,
+      basis: view,
       stroke: "var(--hl_camera_top_edge, #9ca3af)",
       fills: {
         front: "var(--hl_camera_top, #5a6676)",
@@ -65,14 +66,14 @@ export function CameraModel3D({
       },
     });
     const faces = [...bodyFaces, ...topFaces].sort(
-      (a2, b3) => a2.depth - b3.depth,
+      (firstFace, secondFace) => firstFace.depth - secondFace.depth,
     );
-    const frontVisible = view2.frontVisibility > 0.04;
-    const backVisible = view2.backVisibility > 0.04;
+    const frontVisible = view.frontVisibility > 0.04;
+    const backVisible = view.backVisibility > 0.04;
     const frontZ = 7.05;
     const backZ = -6.55;
     return {
-      view: view2,
+      view,
       faces,
       frontVisible,
       backVisible,
@@ -83,7 +84,7 @@ export function CameraModel3D({
           z: frontZ,
         },
         radius: 4.4,
-        basis: view2,
+        basis: view,
       }),
       lensDark: planeEllipse({
         center: {
@@ -92,7 +93,7 @@ export function CameraModel3D({
           z: frontZ + 0.08,
         },
         radius: 2.9,
-        basis: view2,
+        basis: view,
       }),
       lensCore: planeEllipse({
         center: {
@@ -101,7 +102,7 @@ export function CameraModel3D({
           z: frontZ + 0.12,
         },
         radius: 1.65,
-        basis: view2,
+        basis: view,
       }),
       lensOuterRing: planeEllipse({
         center: {
@@ -110,7 +111,7 @@ export function CameraModel3D({
           z: frontZ + 0.16,
         },
         radius: 3.55,
-        basis: view2,
+        basis: view,
       }),
       lensInnerRing: planeEllipse({
         center: {
@@ -119,7 +120,7 @@ export function CameraModel3D({
           z: frontZ + 0.2,
         },
         radius: 2.35,
-        basis: view2,
+        basis: view,
       }),
       recordDot: planeEllipse({
         center: {
@@ -128,7 +129,7 @@ export function CameraModel3D({
           z: frontZ + 0.24,
         },
         radius: 0.95,
-        basis: view2,
+        basis: view,
         steps: 16,
       }),
       backScreen: planeQuad(
@@ -139,7 +140,7 @@ export function CameraModel3D({
         },
         9.5,
         6.2,
-        view2,
+        view,
       ),
       handle: [
         {
@@ -162,7 +163,7 @@ export function CameraModel3D({
           y: 9.1,
           z: -0.5,
         },
-      ].map((point2) => project(point2, view2)),
+      ].map((point) => project(point, view)),
     };
   }, [horizontalAngle, verticalAngle]);
   return (

@@ -1,5 +1,5 @@
 // use-file-explorer-keyboard.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 function findNextRowPath(currentPath, visiblePaths, direction, step = 1) {
   if (visiblePaths.length === 0) return null;

@@ -2,12 +2,10 @@
 import { MEDIA_NODE_RADIUS } from "./package.jsx";
 import { GROUP_NODE_PADDING } from "../canvas/compute-group-bounds-from-children.js";
 import { GROUP_COLOR_PRESETS } from "./group-color-presets.jsx";
-import {
-  ChevronDown$2 as ChevronDown,
-  reactExports,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown$2 as ChevronDown } from "./custom-icons.js";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { NodeResizeFrame } from "../infra/node-resize-frame-inner.jsx";
 import {
@@ -23,9 +21,9 @@ import {
 import { NodeFrameStroke } from "../canvas/node-shell-inner.jsx";
 import { useInlineRename } from "../canvas/use-inline-rename.jsx";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";
-function getGroupColorPreset(key2) {
-  if (!key2) return null;
-  return GROUP_COLOR_PRESETS[key2] ?? null;
+function getGroupColorPreset(key) {
+  if (!key) return null;
+  return GROUP_COLOR_PRESETS[key] ?? null;
 }
 const GROUP_RESIZE_MIN_WIDTH = GROUP_NODE_PADDING.x * 2;
 const GROUP_RESIZE_MIN_HEIGHT =
@@ -50,7 +48,7 @@ const LABEL_PADDING_LEFT_PX = 4;
 const LABEL_CHEVRON_SIZE_PX = 14;
 const LABEL_GAP_PX = 4;
 const LABEL_INPUT_MIN_WIDTH_PX = 140;
-const zoomSelector = (s2) => s2.transform[2];
+const zoomSelector = (storeState) => storeState.transform[2];
 const GROUP_LABEL_INNER_BASE_STYLE = {
   position: "relative",
   display: "inline-flex",
@@ -71,59 +69,59 @@ const GROUP_LABEL_INNER_BASE_STYLE = {
   userSelect: "none",
   boxSizing: "border-box",
 };
-const stopMouseEvent = (e2) => e2.stopPropagation();
+const stopMouseEvent = (interactionEvent) => interactionEvent.stopPropagation();
 function GroupNodeInner({
-  id: id2,
-  selected: selected2,
-  data: data2,
+  id: nodeId,
+  selected,
+  data,
   width: nodeWidth,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { resizeGroupNode, mergeNodeData, setGroupCollapsed } =
     useCanvasActions();
   const tagFilterActive = useCanvasTagFilterActive();
-  const zoom2 = useStore(zoomSelector);
+  const zoom = useStore(zoomSelector);
   const frameRef = reactExports.useRef(null);
   useRegisterZoomCounter(frameRef);
-  const groupData = data2;
+  const groupData = data;
   const childCount = groupData?.[GROUP_DERIVED_CHILD_COUNT_KEY] ?? 0;
   const customLabel = groupData?.label?.trim();
   const collapsed = !!groupData?.[GROUP_DERIVED_COLLAPSED_KEY];
   const dynamicTitle = reactExports.useMemo(
     () =>
-      t2("canvas.groupCount", {
+      t("canvas.groupCount", {
         count: childCount,
       }),
-    [t2, childCount],
+    [t, childCount],
   );
   const handleLabelCommit = reactExports.useCallback(
-    (next2) =>
-      mergeNodeData(id2, {
-        label: next2,
+    (next) =>
+      mergeNodeData(nodeId, {
+        label: next,
       }),
-    [id2, mergeNodeData],
+    [nodeId, mergeNodeData],
   );
   const rename = useInlineRename({
     currentValue: customLabel ?? "",
     onCommit: handleLabelCommit,
   });
-  useRenameRequest(id2, rename.beginEdit);
+  useRenameRequest(nodeId, rename.beginEdit);
   const handleToggleCollapsed = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      setGroupCollapsed(id2, !collapsed);
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      setGroupCollapsed(nodeId, !collapsed);
     },
-    [id2, setGroupCollapsed, collapsed],
+    [nodeId, setGroupCollapsed, collapsed],
   );
   const handleLabelDoubleClick = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (mouseEvent) => {
+      mouseEvent.stopPropagation();
       rename.beginEdit();
     },
     [rename.beginEdit],
   );
   const handleRenameInputChange = reactExports.useCallback(
-    (e2) => rename.setEditValue(e2.target.value),
+    (changeEvent) => rename.setEditValue(changeEvent.target.value),
     [rename.setEditValue],
   );
   const renderedTitle = rename.displayValue || dynamicTitle;
@@ -148,13 +146,13 @@ function GroupNodeInner({
   }, [collapsed, groupData?.backgroundColor]);
   const labelMaxWidthLocal = collapsed
     ? 200
-    : Math.max(0, (nodeWidth ?? 0) * zoom2);
+    : Math.max(0, (nodeWidth ?? 0) * zoom);
   const labelWrapperStyle = reactExports.useMemo(
     () => ({
       position: "absolute",
       bottom: "100%",
       left: 0,
-      transform: `scale(${1 / zoom2})`,
+      transform: `scale(${1 / zoom})`,
       transformOrigin: "bottom left",
       // Padding-bottom inside the counter-scaled wrapper resolves to a
       // constant physical-pixel gap above the node body.
@@ -164,7 +162,7 @@ function GroupNodeInner({
       // intercepting pan/click on the canvas.
       pointerEvents: "none",
     }),
-    [zoom2],
+    [zoom],
   );
   const labelInnerStyle = reactExports.useMemo(
     () => ({
@@ -195,7 +193,7 @@ function GroupNodeInner({
       style={frameStyle}
       className={`canvas-node-frame${tagFilterActive ? " opacity-25 transition-opacity duration-150" : ""}`}
       data-node-frame-hidden={collapsed ? "true" : void 0}
-      data-node-selected={selected2 ? "true" : "false"}
+      data-node-selected={selected ? "true" : "false"}
       data-action-ui-id="canvas.group-node"
       data-tag-filter-match={tagFilterActive ? "false" : void 0}
     >
@@ -221,8 +219,8 @@ function GroupNodeInner({
             }}
             aria-label={
               collapsed
-                ? t2("canvas.group.expand")
-                : t2("canvas.group.collapse")
+                ? t("canvas.group.expand")
+                : t("canvas.group.collapse")
             }
             aria-expanded={!collapsed}
             data-action-ui-id="canvas.group-collapse-toggle"
@@ -260,9 +258,9 @@ function GroupNodeInner({
           )}
         </div>
       </div>
-      {selected2 && !collapsed && (
+      {selected && !collapsed && (
         <NodeResizeFrame
-          nodeId={id2}
+          nodeId={nodeId}
           minWidth={GROUP_RESIZE_MIN_WIDTH}
           minHeight={GROUP_RESIZE_MIN_HEIGHT}
           onCommit={resizeGroupNode}

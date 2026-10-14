@@ -1,5 +1,7 @@
 // use-hailuo03-video-trial.js
-import { reactExports, useMutation, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   claimHailuo03VideoTrial,
@@ -15,7 +17,7 @@ export function useHailuo03VideoSuperResolutionSubmit({
   httpClient,
   canvasGenerationErrorToastId,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return reactExports.useCallback(
     async (nodeId, sourceVideoPath, providerTaskId) => {
       try {
@@ -29,7 +31,7 @@ export function useHailuo03VideoSuperResolutionSubmit({
         if (!resp.ok) {
           dedupedToast.error(
             stripErrorHtml(
-              pickUserMessage(resp, t2("canvas.superResolution.error")),
+              pickUserMessage(resp, t("canvas.superResolution.error")),
             ),
             {
               id: canvasGenerationErrorToastId,
@@ -39,19 +41,19 @@ export function useHailuo03VideoSuperResolutionSubmit({
       } catch (err) {
         console.error("[canvas] hailuo03 video super-resolution failed:", err);
         dedupedToast.error(
-          pickEditErrorMessage(err, t2("canvas.superResolution.error")),
+          pickEditErrorMessage(err, t("canvas.superResolution.error")),
           {
             id: canvasGenerationErrorToastId,
           },
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, t2],
+    [canvasGenerationErrorToastId, httpClient, t],
   );
 }
 
 export function useHailuo03VideoTrial() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const statusQuery = useQuery({
     queryKey: HAILUO03_VIDEO_TRIAL_QUERY_KEY,
     queryFn: fetchHailuo03VideoTrialStatus,
@@ -63,21 +65,21 @@ export function useHailuo03VideoTrial() {
   const claimMutation = useMutation({
     mutationFn: claimHailuo03VideoTrial,
     onSuccess: (status) => {
-      queryClient2.setQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY, status);
+      queryClient.setQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY, status);
     },
   });
   const refresh = reactExports.useCallback(async () => {
     try {
       const status = await fetchHailuo03VideoTrialStatus();
-      queryClient2.setQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY, status);
+      queryClient.setQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY, status);
       return status;
     } catch {
       return (
-        queryClient2.getQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY) ??
+        queryClient.getQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY) ??
         EMPTY_HAILUO03_VIDEO_TRIAL_STATUS
       );
     }
-  }, [queryClient2]);
+  }, [queryClient]);
   return {
     status: statusQuery.data ?? EMPTY_HAILUO03_VIDEO_TRIAL_STATUS,
     isLoading: statusQuery.isLoading,

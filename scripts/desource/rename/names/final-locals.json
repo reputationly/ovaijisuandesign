@@ -1,0 +1,11 @@
+{
+  "app/renderer/src/settings/attach-native-toast-surface.jsx": {
+    "z@11": "useTheme"
+  },
+  "app/renderer/src/settings/server-driven-popup-orchestrator.jsx": {
+    "m@2": "ErrorBoundary"
+  },
+  "app/renderer/src/settings/update-sidebar-widget-inner.jsx": {
+    "m@6": "ErrorBoundary"
+  }
+}

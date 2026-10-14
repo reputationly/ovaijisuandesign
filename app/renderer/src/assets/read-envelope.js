@@ -1,5 +1,5 @@
 // read-envelope.js
-import { editorDocSnapshot } from "../vendor.js";
+import { editorDocSnapshot } from "../text-editor/editor-doc-snapshot.js";
 
 export const KEY_PREFIX = "hilo.chat.draft";
 

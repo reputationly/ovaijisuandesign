@@ -1,10 +1,12 @@
 // resolve-retry-message-payload.jsx
 import { hasMessagePayload } from "../media-editing/package.jsx";
-import { API_PATHS, reactExports, useStorage } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import { detectFileType } from "../canvas/diagnostic-history-tools.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MascotLoadingAnimation } from "./mascot-loading-animation.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { OPEN_BROWSER_EVENT } from "../canvas/resolve-workspace-failure-diagnosis.js";
 import { SessionStore } from "../chat/session-store.js";
@@ -38,11 +40,11 @@ export function CanvasLoadingState({ label, className }) {
   );
 }
 const SessionStoreContext = reactExports.createContext(null);
-export function SessionStoreProvider({ children: children2 }) {
+export function SessionStoreProvider({ children }) {
   const store = reactExports.useMemo(() => new SessionStore(), []);
   return (
     <SessionStoreContext.Provider value={store}>
-      {children2}
+      {children}
     </SessionStoreContext.Provider>
   );
 }
@@ -52,10 +54,10 @@ export function useSessionStore() {
     throw new Error("useSessionStore must be used within SessionStoreProvider");
   return ctx;
 }
-export function subscribeAddEntityToCanvas(events2, handlers2) {
-  return events2.onAddEntityToCanvas(({ entityId, attachmentIds }) => {
-    if (!handlers2.isActiveRef.current) return;
-    handlers2.dropEntityById(entityId, void 0, attachmentIds);
+export function subscribeAddEntityToCanvas(events, handlers) {
+  return events.onAddEntityToCanvas(({ entityId, attachmentIds }) => {
+    if (!handlers.isActiveRef.current) return;
+    handlers.dropEntityById(entityId, void 0, attachmentIds);
   });
 }
 const DEFAULT_AGENT_MODE_PREFERENCE = "auto";
@@ -63,19 +65,19 @@ function resolveAgentModePreference(preference) {
   return preference === "ask" ? "ask" : DEFAULT_AGENT_MODE_PREFERENCE;
 }
 export function useAgentModePreference() {
-  const [config2, setConfig] = useStorage("global.config");
-  const mode2 = resolveAgentModePreference(config2.agentModePreference);
+  const [config, setConfig] = useStorage("global.config");
+  const mode = resolveAgentModePreference(config.agentModePreference);
   const setMode = reactExports.useCallback(
     (nextMode) => {
       if (nextMode !== "auto" && nextMode !== "ask") return;
-      setConfig((previous2) => ({
-        ...previous2,
+      setConfig((previous) => ({
+        ...previous,
         agentModePreference: nextMode,
       }));
     },
     [setConfig],
   );
-  return [mode2, setMode];
+  return [mode, setMode];
 }
 export const BROWSER_SCREENSHOT_EVENT = "hilo:browser-screenshot";
 export const BROWSER_FILE_EVENT = "hilo:browser-file";
@@ -130,32 +132,32 @@ export function getBuiltinBrowserChatContextForSend() {
   const context = getBuiltinBrowserChatContext();
   return context.surface_open ? context : void 0;
 }
-function isWebUrl(url2) {
+function isWebUrl(url) {
   try {
-    const parsed = new URL(url2);
+    const parsed = new URL(url);
     return parsed.protocol === "http:" || parsed.protocol === "https:";
   } catch {
     return false;
   }
 }
-function canOpenInBuiltinBrowser(url2) {
-  return Boolean(window.hilo?.browser) && isWebUrl(url2);
+function canOpenInBuiltinBrowser(url) {
+  return Boolean(window.hilo?.browser) && isWebUrl(url);
 }
 let pendingUrl = null;
 export function takePendingBuiltinBrowserUrl() {
-  const url2 = pendingUrl;
+  const url = pendingUrl;
   pendingUrl = null;
-  return url2;
+  return url;
 }
-export async function openUrlInBuiltinBrowser(platform2, url2, options) {
-  if (!canOpenInBuiltinBrowser(url2)) {
-    return openExternalUrl(platform2, url2, options);
+export async function openUrlInBuiltinBrowser(platform, url, options) {
+  if (!canOpenInBuiltinBrowser(url)) {
+    return openExternalUrl(platform, url, options);
   }
-  pendingUrl = url2;
+  pendingUrl = url;
   window.dispatchEvent(
     new CustomEvent(OPEN_BROWSER_EVENT, {
       detail: {
-        url: url2,
+        url,
       },
     }),
   );
@@ -192,11 +194,11 @@ export function applyQueuedMessageScrollRequest(container, request) {
   if (!row) return;
   container.scrollTop = container.scrollHeight;
 }
-export function resolveRetryMessagePayload(messages2, targetUserMessage) {
+export function resolveRetryMessagePayload(messages, targetUserMessage) {
   const userMessage =
     targetUserMessage ??
-    [...messages2].reverse().find((message2) => {
-      return message2.role === "user" && message2.type === "text";
+    [...messages].reverse().find((message) => {
+      return message.role === "user" && message.type === "text";
     });
   if (!userMessage) return void 0;
   const attachmentPaths = userMessage.attachments?.map(
@@ -220,23 +222,23 @@ export function resolveRetryMessagePayload(messages2, targetUserMessage) {
   };
 }
 export const DRAFT_NEW_TAB = "__new_tab__";
-export function equalStringSets(a2, b3) {
-  if (a2.size !== b3.size) return false;
-  for (const value of a2) {
-    if (!b3.has(value)) return false;
+export function equalStringSets(leftSet, rightSet) {
+  if (leftSet.size !== rightSet.size) return false;
+  for (const value of leftSet) {
+    if (!rightSet.has(value)) return false;
   }
   return true;
 }
 export function chatAttachmentsFromPaths(attachments, attachmentRefs) {
   if (!attachments?.length) return void 0;
   const refsByPath = new Map(attachmentRefs?.map((ref) => [ref.path, ref]));
-  return attachments.map((path2) => {
-    const ref = refsByPath.get(path2);
+  return attachments.map((path) => {
+    const ref = refsByPath.get(path);
     return {
-      path: path2,
-      url: API_PATHS.serveFile(path2),
+      path,
+      url: API_PATHS.serveFile(path),
       // Unknown extensions use a generic file chip instead of a broken image.
-      type: detectFileType(path2) ?? "file",
+      type: detectFileType(path) ?? "file",
       ...(ref
         ? {
             attachment_source: ref.attachment_source,

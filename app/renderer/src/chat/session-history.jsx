@@ -1,5 +1,10 @@
 // session-history.jsx
-import { API_PATHS, DownloadIcon, EyeIcon$1 as EyeIcon, EyeOffIcon$1 as EyeOffIcon, HistoryIcon, PinIcon, reactExports, SearchIcon, usePlatform, useStorage, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { DownloadIcon, EyeIcon$1 as EyeIcon, EyeOffIcon$1 as EyeOffIcon, HistoryIcon, PinIcon, SearchIcon } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Tooltip,
@@ -10,7 +15,7 @@ import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { ContextMenu } from "../workspace/topbar-state-context.jsx";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames, TooltipContent } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import {
   ContextMenuContent,
@@ -30,19 +35,19 @@ function migrateSessionPreferenceIds(storedIds, sessions) {
     }
   }
   const migrated = [];
-  const seen2 = new Set();
+  const seen = new Set();
   for (const storedId of storedIds) {
-    const nextId2 = runtimeByUiId.get(storedId) ?? storedId;
-    if (seen2.has(nextId2)) continue;
-    seen2.add(nextId2);
-    migrated.push(nextId2);
+    const nextId = runtimeByUiId.get(storedId) ?? storedId;
+    if (seen.has(nextId)) continue;
+    seen.add(nextId);
+    migrated.push(nextId);
   }
   return migrated;
 }
 function sessionPreferenceIdsEqual(left, right) {
   return (
     left.length === right.length &&
-    left.every((value, index2) => value === right[index2])
+    left.every((value, index) => value === right[index])
   );
 }
 const SESSION_EVICTION_TOAST_LIMIT = 3;
@@ -58,11 +63,11 @@ export function SessionHistory({
   hasUnseen = false,
   onOpenChange,
 }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
-  const gatewayFetch2 = useGatewayFetch();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
+  const gatewayFetch = useGatewayFetch();
   const [open, setOpen] = reactExports.useState(false);
-  const [search2, setSearch] = reactExports.useState("");
+  const [search, setSearch] = reactExports.useState("");
   const [exportingId, setExportingId] = reactExports.useState(null);
   const [showHidden, setShowHidden] = reactExports.useState(false);
   const [pinnedSessionIds, setPinnedSessionIds] = useStorage(
@@ -78,16 +83,16 @@ export function SessionHistory({
     isToastCountHydrated,
   ] = useStorage("global.sessionEvictionToastCount");
   reactExports.useEffect(() => {
-    setPinnedSessionIds((previous2) => {
-      const migrated = migrateSessionPreferenceIds(previous2, sessions);
-      return sessionPreferenceIdsEqual(previous2, migrated)
-        ? previous2
+    setPinnedSessionIds((previous) => {
+      const migrated = migrateSessionPreferenceIds(previous, sessions);
+      return sessionPreferenceIdsEqual(previous, migrated)
+        ? previous
         : migrated;
     });
-    setHiddenSessionIds((previous2) => {
-      const migrated = migrateSessionPreferenceIds(previous2, sessions);
-      return sessionPreferenceIdsEqual(previous2, migrated)
-        ? previous2
+    setHiddenSessionIds((previous) => {
+      const migrated = migrateSessionPreferenceIds(previous, sessions);
+      return sessionPreferenceIdsEqual(previous, migrated)
+        ? previous
         : migrated;
     });
   }, [sessions, setHiddenSessionIds, setPinnedSessionIds]);
@@ -106,14 +111,14 @@ export function SessionHistory({
     )
       return;
     dedupedToast(
-      t2(
+      translate(
         "session.tabs.evictedToHistory",
         "已打开该对话，较早的对话已收纳到历史记录",
       ),
     );
-    setEvictionToastShownCount((current2) =>
+    setEvictionToastShownCount((current) =>
       Math.min(
-        normalizeEvictionToastCount(current2) + 1,
+        normalizeEvictionToastCount(current) + 1,
         SESSION_EVICTION_TOAST_LIMIT,
       ),
     );
@@ -122,27 +127,27 @@ export function SessionHistory({
     hasUnseen,
     isToastCountHydrated,
     setEvictionToastShownCount,
-    t2,
+    translate,
   ]);
   const { filteredSessions, filteredHiddenSessions } =
     reactExports.useMemo(() => {
       const pinOrder = new Map(
-        pinnedSessionIds.map((id2, index2) => [id2, index2]),
+        pinnedSessionIds.map((pinnedId, index) => [pinnedId, index]),
       );
-      const sorted = sessions.slice().sort((a2, b3) => {
-        const aPinOrder = pinOrder.get(sessionPreferenceId(a2));
-        const bPinOrder = pinOrder.get(sessionPreferenceId(b3));
+      const sorted = sessions.slice().sort((leftSession, rightSession) => {
+        const aPinOrder = pinOrder.get(sessionPreferenceId(leftSession));
+        const bPinOrder = pinOrder.get(sessionPreferenceId(rightSession));
         if (aPinOrder !== void 0 || bPinOrder !== void 0) {
           if (aPinOrder === void 0) return 1;
           if (bPinOrder === void 0) return -1;
           return aPinOrder - bPinOrder;
         }
-        return b3.created_at.localeCompare(a2.created_at);
+        return rightSession.created_at.localeCompare(leftSession.created_at);
       });
-      const q2 = search2.trim().toLowerCase();
-      const searched = q2
+      const normalizedQuery = search.trim().toLowerCase();
+      const searched = normalizedQuery
         ? sorted.filter((session) =>
-            sessionDisplayName(session, t2).toLowerCase().includes(q2),
+            sessionDisplayName(session, translate).toLowerCase().includes(normalizedQuery),
           )
         : sorted;
       return {
@@ -153,49 +158,49 @@ export function SessionHistory({
           hiddenSessionIds.includes(sessionPreferenceId(session)),
         ),
       };
-    }, [sessions, search2, t2, pinnedSessionIds, hiddenSessionIds]);
-  const handleTogglePin = (id2) => {
-    setPinnedSessionIds((previous2) =>
-      previous2.includes(id2)
-        ? previous2.filter((sessionId) => sessionId !== id2)
-        : [id2, ...previous2],
+    }, [sessions, search, translate, pinnedSessionIds, hiddenSessionIds]);
+  const handleTogglePin = (preferenceId) => {
+    setPinnedSessionIds((previous) =>
+      previous.includes(preferenceId)
+        ? previous.filter((sessionId) => sessionId !== preferenceId)
+        : [preferenceId, ...previous],
     );
   };
-  const handleHide = (id2) => {
-    setPinnedSessionIds((previous2) =>
-      previous2.filter((sessionId) => sessionId !== id2),
+  const handleHide = (preferenceId) => {
+    setPinnedSessionIds((previous) =>
+      previous.filter((sessionId) => sessionId !== preferenceId),
     );
-    setHiddenSessionIds((previous2) =>
-      previous2.includes(id2) ? previous2 : [...previous2, id2],
-    );
-  };
-  const handleRestore = (id2) => {
-    setHiddenSessionIds((previous2) =>
-      previous2.filter((sessionId) => sessionId !== id2),
+    setHiddenSessionIds((previous) =>
+      previous.includes(preferenceId) ? previous : [...previous, preferenceId],
     );
   };
-  const handleOpen = (id2) => {
-    onOpen(id2);
+  const handleRestore = (preferenceId) => {
+    setHiddenSessionIds((previous) =>
+      previous.filter((sessionId) => sessionId !== preferenceId),
+    );
+  };
+  const handleOpen = (sessionId) => {
+    onOpen(sessionId);
     setOpen(false);
     setSearch("");
   };
-  const handleOpenChange = (next2) => {
-    setOpen(next2);
-    if (!next2) setSearch("");
-    onOpenChange?.(next2);
+  const handleOpenChange = (next) => {
+    setOpen(next);
+    if (!next) setSearch("");
+    onOpenChange?.(next);
   };
   const handleExport = reactExports.useCallback(
     async (sessionId) => {
       if (exportingId) return;
       setExportingId(sessionId);
       try {
-        const res = await gatewayFetch2(API_PATHS.exportSession(sessionId));
-        const blob = await res.blob();
-        const disposition = res.headers.get("Content-Disposition") ?? "";
-        const match2 = disposition.match(/filename="(.+)"/);
-        const defaultName = match2?.[1] ?? `chat-${sessionId}.zip`;
-        if (platform2.fs.showSaveDialog && platform2.fs.writeBinaryFile) {
-          const targetPath = await platform2.fs.showSaveDialog({
+        const response = await gatewayFetch(API_PATHS.exportSession(sessionId));
+        const blob = await response.blob();
+        const disposition = response.headers.get("Content-Disposition") ?? "";
+        const match = disposition.match(/filename="(.+)"/);
+        const defaultName = match?.[1] ?? `chat-${sessionId}.zip`;
+        if (platform.fs.showSaveDialog && platform.fs.writeBinaryFile) {
+          const targetPath = await platform.fs.showSaveDialog({
             defaultPath: defaultName,
             filters: [
               {
@@ -206,23 +211,23 @@ export function SessionHistory({
           });
           if (!targetPath) return;
           const buffer = await blob.arrayBuffer();
-          await platform2.fs.writeBinaryFile(targetPath, buffer);
+          await platform.fs.writeBinaryFile(targetPath, buffer);
         } else {
-          const url2 = URL.createObjectURL(blob);
-          const a2 = document.createElement("a");
-          a2.href = url2;
-          a2.download = defaultName;
-          a2.click();
-          URL.revokeObjectURL(url2);
+          const url = URL.createObjectURL(blob);
+          const downloadLink = document.createElement("a");
+          downloadLink.href = url;
+          downloadLink.download = defaultName;
+          downloadLink.click();
+          URL.revokeObjectURL(url);
         }
-        dedupedToast.success(t2("session.export.success", "Chat exported"));
+        dedupedToast.success(translate("session.export.success", "Chat exported"));
       } catch {
-        dedupedToast.error(t2("session.export.failed", "Export failed"));
+        dedupedToast.error(translate("session.export.failed", "Export failed"));
       } finally {
         setExportingId(null);
       }
     },
-    [exportingId, gatewayFetch2, platform2, t2],
+    [exportingId, gatewayFetch, platform, translate],
   );
   return (
     <div className="relative">
@@ -231,7 +236,7 @@ export function SessionHistory({
           <TooltipTrigger
             render={
               <PopoverTrigger
-                className={cn(
+                className={mergeClassNames(
                   "relative flex size-7 shrink-0 items-center justify-center rounded-md cursor-pointer transition-colors",
                   "hover:bg-foreground/[0.06] hover:text-foreground",
                   "text-foreground/55",
@@ -243,7 +248,7 @@ export function SessionHistory({
             }
           />
           <TooltipContent side="bottom">
-            {t2("session.history", "History")}
+            {translate("session.history", "History")}
           </TooltipContent>
         </Tooltip>
         <PopoverContent
@@ -258,9 +263,9 @@ export function SessionHistory({
               <input
                 type="text"
                 className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-                placeholder={t2("session.searchSessions", "Search sessions...")}
-                value={search2}
-                onChange={(e2) => setSearch(e2.target.value)}
+                placeholder={translate("session.searchSessions", "Search sessions...")}
+                value={search}
+                onChange={(changeEvent) => setSearch(changeEvent.target.value)}
                 data-action-ui-id="session-history-search"
               />
             </div>
@@ -270,7 +275,7 @@ export function SessionHistory({
               <div className="px-3 py-1.5 text-sm text-muted-foreground flex items-center gap-2">
                 <Spinner className="size-3" />
                 <span>
-                  {t2("session.loadingSessions", "Loading sessions...")}
+                  {translate("session.loadingSessions", "Loading sessions...")}
                 </span>
               </div>
             )}
@@ -278,9 +283,9 @@ export function SessionHistory({
               filteredSessions.length === 0 &&
               filteredHiddenSessions.length === 0 && (
                 <div className="px-3 py-1.5 text-sm text-muted-foreground">
-                  {search2.trim()
-                    ? t2("session.noMatchingSessions", "No matching sessions")
-                    : t2("session.noSessions", "No sessions")}
+                  {search.trim()
+                    ? translate("session.noMatchingSessions", "No matching sessions")
+                    : translate("session.noSessions", "No sessions")}
                 </div>
               )}
             {filteredSessions.map((session) => {
@@ -308,11 +313,11 @@ export function SessionHistory({
                       )}
                       <span className="min-w-0 flex-1">
                         <span className="block truncate">
-                          {sessionDisplayName(session, t2)}
+                          {sessionDisplayName(session, translate)}
                         </span>
                         {isOpened && (
                           <span className="block text-caption-10 leading-tight text-muted-foreground">
-                            {t2("session.opened", "opened")}
+                            {translate("session.opened", "opened")}
                           </span>
                         )}
                       </span>
@@ -320,7 +325,7 @@ export function SessionHistory({
                     <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-0.5 bg-accent opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                       <button
                         type="button"
-                        aria-label={t2(
+                        aria-label={translate(
                           isPinned ? "session.unpin" : "session.pin",
                         )}
                         data-action-ui-id={`session-history-pin-${session.id}`}
@@ -331,13 +336,13 @@ export function SessionHistory({
                         }}
                       >
                         <PinIcon
-                          className={cn("size-3.5", isPinned && "fill-current")}
+                          className={mergeClassNames("size-3.5", isPinned && "fill-current")}
                           strokeWidth={1.5}
                         />
                       </button>
                       <button
                         type="button"
-                        aria-label={t2("session.hideFromHistory")}
+                        aria-label={translate("session.hideFromHistory")}
                         data-action-ui-id={`session-history-hide-${session.id}`}
                         className="flex size-6 items-center justify-center rounded-sm text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground"
                         onClick={(event) => {
@@ -353,8 +358,8 @@ export function SessionHistory({
                     <ContextMenuItem
                       onClick={() => handleTogglePin(preferenceId)}
                     >
-                      <PinIcon className={cn(isPinned && "fill-current")} />
-                      {t2(isPinned ? "session.unpin" : "session.pin")}
+                      <PinIcon className={mergeClassNames(isPinned && "fill-current")} />
+                      {translate(isPinned ? "session.unpin" : "session.pin")}
                     </ContextMenuItem>
                     <ContextMenuItem
                       disabled={isExporting}
@@ -367,12 +372,12 @@ export function SessionHistory({
                         <DownloadIcon />
                       )}
                       {isExporting
-                        ? t2("session.export.exporting", "Exporting...")
-                        : t2("session.export.menuItem", "Export Chat")}
+                        ? translate("session.export.exporting", "Exporting...")
+                        : translate("session.export.menuItem", "Export Chat")}
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => handleHide(preferenceId)}>
                       <EyeOffIcon />
-                      {t2("session.hideFromHistory")}
+                      {translate("session.hideFromHistory")}
                     </ContextMenuItem>
                   </ContextMenuContent>
                 </ContextMenu>
@@ -388,7 +393,7 @@ export function SessionHistory({
                 >
                   <EyeOffIcon className="size-3.5" strokeWidth={1.5} />
                   <span className="flex-1 text-left">
-                    {t2("session.hiddenSessions", {
+                    {translate("session.hiddenSessions", {
                       count: filteredHiddenSessions.length,
                     })}
                   </span>
@@ -403,13 +408,13 @@ export function SessionHistory({
                         data-action-ui-id={`session-history-hidden-item-${session.id}`}
                       >
                         <span className="min-w-0 flex-1 truncate">
-                          {sessionDisplayName(session, t2)}
+                          {sessionDisplayName(session, translate)}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleRestore(preferenceId)}
                           className="flex size-6 items-center justify-center rounded-sm hover:bg-foreground/[0.06] hover:text-foreground"
-                          aria-label={t2("session.restoreToHistory")}
+                          aria-label={translate("session.restoreToHistory")}
                           data-action-ui-id={`session-history-restore-${session.id}`}
                         >
                           <EyeIcon className="size-3.5" strokeWidth={1.5} />

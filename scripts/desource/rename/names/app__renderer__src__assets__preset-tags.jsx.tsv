@@ -1,0 +1,15 @@
+key	old	new	依据
+X@7:10	X	CloseIcon	该导入图标用于自定义标签的删除按钮。
+t2@13:14	t2	translate	该绑定是预设标签编辑区读取按钮与占位文案的翻译函数。
+t22@28:58	t22	existingTag	该值是筛选掉当前被取消选择标签的既有标签项。
+t22@62:30	t22	existingTag	该值是筛选掉当前被删除标签的既有标签项。
+e2@89:25	e2	keyboardEvent	该事件用于通过回车或空格切换自定义标签。
+e2@102:25	e2	clickEvent	该事件用于阻止标签删除按钮点击冒泡。
+e2@120:22	e2	changeEvent	该事件提供自定义标签输入框的新文本。
+e2@122:23	e2	keyboardEvent	该事件用于提交或取消自定义标签输入。
+t2@158:14	t2	translate	该绑定是可折叠标签区域读取标题文案的翻译函数。
+selected2@20:11	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+next2@36:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@57:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+selected2@81:15	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+tags2@154:9	tags2	tags	去掉打包器防重名追加的后缀，恢复原名 tags，即该绑定持有的值。

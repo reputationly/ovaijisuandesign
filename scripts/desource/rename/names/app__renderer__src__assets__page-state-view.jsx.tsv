@@ -1,0 +1,5 @@
+key	old	new	依据
+t2@71:14	t2	translate	该绑定是空态与错误态视图读取默认文案的翻译函数。
+type2@41:9	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+state2@66:10	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+children2@67:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。

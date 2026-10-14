@@ -1,5 +1,14 @@
 // 技能页路由入口：标签页切换、搜索与各视图的组装。
-import { useTranslation, reactExports, jsxRuntimeExports, Plus, getRuntimeConfig, API_PATHS, usePlatform, useStorage, useSearch, Link2, TAB_CONTENT_ENTER_CLASS_NAME, Import, ExternalLink } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useSearch } from "@tanstack/react-router";
+import { Plus, Link2, Import, ExternalLink } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
+import { TAB_CONTENT_ENTER_CLASS_NAME } from "../shared/tab-enter-class.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { homeService } from "../workspace/home-service.jsx";
 import { AlertDialog, Button, Dialog, DialogContent, TooltipContent } from "../infra/dialog-content.jsx";
@@ -356,10 +365,10 @@ function SkillsPage() {
     fetchSkills();
   }, [fetchSkills]);
   reactExports.useEffect(() => {
-    const d = pluginEvents.onPluginsChanged(() => {
+    const pluginsChangedSubscription = pluginEvents.onPluginsChanged(() => {
       fetchSkills();
     });
-    return () => d.dispose();
+    return () => pluginsChangedSubscription.dispose();
   }, [fetchSkills]);
   reactExports.useEffect(() => {
     if (!window.hilo?.skills) return;
@@ -524,9 +533,9 @@ function SkillsPage() {
           force: true,
         });
         dedupedToast.success(t("skills.mine.offlineSuccess", "Skill 已下线"));
-      } catch (error2) {
+      } catch (error) {
         dedupedToast.error(
-          `${t("skills.mine.offlineError", "下线失败")}: ${error2 instanceof Error ? error2.message : String(error2)}`,
+          `${t("skills.mine.offlineError", "下线失败")}: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
     },
@@ -591,8 +600,8 @@ function SkillsPage() {
   }, []);
   const findCommunityHostHook = reactExports.useCallback(
     (name) => {
-      for (const h of [market, marketOfficialFeatured, marketCommunity, marketOther]) {
-        if (h.skills.some((s) => s.name === name)) return h;
+      for (const marketHook of [market, marketOfficialFeatured, marketCommunity, marketOther]) {
+        if (marketHook.skills.some((s) => s.name === name)) return marketHook;
       }
       return null;
     },
@@ -707,8 +716,8 @@ function SkillsPage() {
         });
       }
     } else {
-      const m = skillType === "plugin" ? pluginMarket : (findCommunityHostHook(name) ?? market);
-      ok = await m.uninstall(name);
+      const uninstallMarket = skillType === "plugin" ? pluginMarket : (findCommunityHostHook(name) ?? market);
+      ok = await uninstallMarket.uninstall(name);
     }
     const isPlugin = skillType === "plugin";
     if (ok) {

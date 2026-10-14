@@ -8,6 +8,7 @@
     "@babel/parser": "^7.29.9",
     "@babel/traverse": "^7.29.8",
     "@babel/types": "^7.29.8",
+    "globals": "^17.13.0",
     "prettier": "^3.9.9"
   }
 }

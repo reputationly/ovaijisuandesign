@@ -1,6 +1,7 @@
 // use-workspace-focus-navigation.js
 import { workspaceEvents } from "./topbar-state-context.jsx";
-import { reactExports, useNavigate } from "../vendor.js";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { buildWorkspaceSearch } from "./use-deep-link-router.js";
 
 const READY_TIMEOUT_MS = 2e3;

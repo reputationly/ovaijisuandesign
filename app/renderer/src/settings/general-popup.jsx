@@ -1,9 +1,12 @@
 // general-popup.jsx
-import { Markdown$1 as Markdown, remarkGfm, usePlatform, useTranslation } from "../vendor.js";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { rehypeSanitize } from "./request-prompt-prefill.jsx";
+import rehypeSanitize from "rehype-sanitize";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import {
   Button,
@@ -16,22 +19,22 @@ import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 const POPUP_TYPE = "general";
 export function GeneralPopup({ popup, onClose }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
-  const url2 = popup.action?.url ?? "";
+  const { t } = useTranslation();
+  const platform = usePlatform();
+  const url = popup.action?.url ?? "";
   const label = popup.action?.label ?? "";
-  const trackedUrl = url2;
+  const trackedUrl = url;
   const handleAction = async () => {
     trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_ACTION_CLICK, {
       popup_type: POPUP_TYPE,
       url: trackedUrl,
     });
-    if (!url2) {
+    if (!url) {
       onClose();
       return;
     }
     try {
-      const opened = await openExternalUrl(platform2, url2, {
+      const opened = await openExternalUrl(platform, url, {
         source: "server-popup.general",
       });
       if (!opened) throw new Error("open_external_failed");
@@ -42,7 +45,7 @@ export function GeneralPopup({ popup, onClose }) {
         error_type: "unknown",
         error_message: String(err),
       });
-      dedupedToast.error(t2("serverPopup.errorToast"));
+      dedupedToast.error(t("serverPopup.errorToast"));
       return;
     }
     onClose();
@@ -79,7 +82,7 @@ export function GeneralPopup({ popup, onClose }) {
   };
   const visibleTitle = popup.title?.trim() || "";
   const a11yTitle =
-    visibleTitle || popup.description || t2("serverPopup.a11yTitle");
+    visibleTitle || popup.description || t("serverPopup.a11yTitle");
   if (popup.cover_url) {
     return (
       <Dialog open={true} onOpenChange={handleOpenChange}>
@@ -122,7 +125,7 @@ export function GeneralPopup({ popup, onClose }) {
                   onClick={handleCancel}
                   data-action-ui-id="server-popup.general.cancel"
                 >
-                  {t2("common.cancel")}
+                  {t("common.cancel")}
                 </Button>
               )}
               <Button
@@ -171,7 +174,7 @@ export function GeneralPopup({ popup, onClose }) {
               onClick={handleCancel}
               data-action-ui-id="server-popup.general.cancel"
             >
-              {t2("common.cancel")}
+              {t("common.cancel")}
             </Button>
           )}
           <Button

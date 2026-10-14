@@ -1,9 +1,10 @@
 // sent-annotation-cards.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 const MAX_VISIBLE_CARDS = 3;
 export function SentAnnotationCards({ annotations }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [expanded, setExpanded] = reactExports.useState(false);
   if (annotations.length === 0) return null;
   const visible = expanded
@@ -16,7 +17,7 @@ export function SentAnnotationCards({ annotations }) {
       data-action-ui-id="chat.sent-annotations"
     >
       <div className="mb-1.5 flex items-center gap-1.5 px-1 text-caption-11 font-medium text-muted-foreground">
-        <span>{t2("chat.sentAnnotations.title", "已提交批注")}</span>
+        <span>{translate("chat.sentAnnotations.title", "已提交批注")}</span>
         <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary/15 px-1 text-caption-10 text-primary">
           {annotations.length}
         </span>
@@ -54,8 +55,8 @@ export function SentAnnotationCards({ annotations }) {
           data-action-ui-id="chat.sent-annotations-toggle"
         >
           {expanded
-            ? t2("chat.collapse", "收起")
-            : t2("chat.sentAnnotations.showMore", "还有 {{count}} 条", {
+            ? translate("chat.collapse", "收起")
+            : translate("chat.sentAnnotations.showMore", "还有 {{count}} 条", {
                 count: hiddenCount,
               })}
         </button>

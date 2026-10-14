@@ -1,0 +1,27 @@
+key	new	reason
+id2@178:13	id	原名 id，去掉打包器加的数字去重后缀
+id2@179:12	id	原名 id，去掉打包器加的数字去重后缀
+id2@193:46	id	原名 id，去掉打包器加的数字去重后缀
+t2@206:14	t	useTranslation() 返回的翻译函数 t
+id2@227:11	id	原名 id，去掉打包器加的数字去重后缀
+key2@39:35	key	去掉打包器加的数字后缀，恢复原名 key
+key2@43:37	key	去掉打包器加的数字后缀，恢复原名 key
+timer2@46:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+service2@66:50	service	去掉打包器加的数字后缀，恢复原名 service
+snapshot2@67:7	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+active2@68:9	active	去掉打包器加的数字后缀，恢复原名 active
+listeners2@69:9	listeners	去掉打包器加的数字后缀，恢复原名 listeners
+update2@71:9	update	去掉打包器加的数字后缀，恢复原名 update
+selection2@282:10	selection	去掉打包器加的数字后缀，恢复原名 selection
+state2@298:10	state	去掉打包器加的数字后缀，恢复原名 state
+timer2@260:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+timer2@295:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+body2@315:26	body	去掉打包器加的数字后缀，恢复原名 body
+catalog2@352:21	catalog	去掉打包器加的数字后缀，恢复原名 catalog
+entries2@361:11	entries	去掉打包器加的数字后缀，恢复原名 entries
+current2@362:11	current	去掉打包器加的数字后缀，恢复原名 current
+record2@366:11	record	去掉打包器加的数字后缀，恢复原名 record
+timer2@388:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+current2@503:13	current	去掉打包器加的数字后缀，恢复原名 current
+snapshot2@659:13	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+current2@950:31	current	去掉打包器加的数字后缀，恢复原名 current

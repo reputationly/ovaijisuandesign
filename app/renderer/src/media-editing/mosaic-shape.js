@@ -7,23 +7,23 @@ import {
 } from "./free-path-shape.js";
 import { createOffscreen } from "./keep-tag-in-canvas.js";
 
-function normalizeBounds(d2) {
+function normalizeBounds(rectangleData) {
   return {
-    x: d2.width >= 0 ? d2.x : d2.x + d2.width,
-    y: d2.height >= 0 ? d2.y : d2.y + d2.height,
-    width: Math.abs(d2.width),
-    height: Math.abs(d2.height),
+    x: rectangleData.width >= 0 ? rectangleData.x : rectangleData.x + rectangleData.width,
+    y: rectangleData.height >= 0 ? rectangleData.y : rectangleData.y + rectangleData.height,
+    width: Math.abs(rectangleData.width),
+    height: Math.abs(rectangleData.height),
   };
 }
 
 function brushBounds(points, brushSize) {
   const half = brushSize / 2;
-  const b3 = pointsBounds(points);
+  const bounds = pointsBounds(points);
   return {
-    x: b3.x - half,
-    y: b3.y - half,
-    width: b3.width + brushSize,
-    height: b3.height + brushSize,
+    x: bounds.x - half,
+    y: bounds.y - half,
+    width: bounds.width + brushSize,
+    height: bounds.height + brushSize,
   };
 }
 
@@ -31,7 +31,7 @@ export class MosaicShape extends Shape {
   // 笔刷模式渲染时复用的临时 canvas，避免每次拖动都 createElement('canvas')
   brushTmp = null;
   brushTmpCtx = null;
-  draw(ctx, helpers) {
+  draw(context, helpers) {
     if (!helpers) return;
     const source = helpers.getProcessedSource(
       this.data.mode,
@@ -39,32 +39,32 @@ export class MosaicShape extends Shape {
     );
     if (!source) return;
     if (this.data.shape === "rectangle") {
-      this.drawRect(ctx, source, this.data);
+      this.drawRect(context, source, this.data);
     } else {
-      this.drawBrush(ctx, source, this.data);
+      this.drawBrush(context, source, this.data);
     }
   }
-  drawRect(ctx, source, data2) {
-    const b3 = normalizeBounds(data2);
-    if (b3.width <= 0 || b3.height <= 0) return;
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(b3.x, b3.y, b3.width, b3.height);
-    ctx.clip();
-    ctx.drawImage(source, 0, 0);
-    ctx.restore();
+  drawRect(context, source, data) {
+    const bounds = normalizeBounds(data);
+    if (bounds.width <= 0 || bounds.height <= 0) return;
+    context.save();
+    context.beginPath();
+    context.rect(bounds.x, bounds.y, bounds.width, bounds.height);
+    context.clip();
+    context.drawImage(source, 0, 0);
+    context.restore();
   }
-  drawBrush(ctx, source, data2) {
-    const { points, brushSize } = data2;
+  drawBrush(context, source, data) {
+    const { points, brushSize } = data;
     if (points.length === 0 || brushSize <= 0) return;
-    const b3 = brushBounds(points, brushSize);
-    if (b3.width <= 0 || b3.height <= 0) return;
-    const tmpW = Math.max(1, Math.ceil(b3.width));
-    const tmpH = Math.max(1, Math.ceil(b3.height));
-    const tmp = this.acquireBrushTmp(tmpW, tmpH);
-    const tctx = tmp.ctx;
-    tctx.clearRect(0, 0, tmp.canvas.width, tmp.canvas.height);
-    tctx.drawImage(source, -b3.x, -b3.y);
+    const bounds = brushBounds(points, brushSize);
+    if (bounds.width <= 0 || bounds.height <= 0) return;
+    const tmpW = Math.max(1, Math.ceil(bounds.width));
+    const tmpH = Math.max(1, Math.ceil(bounds.height));
+    const temporaryCanvas = this.acquireBrushTmp(tmpW, tmpH);
+    const tctx = temporaryCanvas.ctx;
+    tctx.clearRect(0, 0, temporaryCanvas.canvas.width, temporaryCanvas.canvas.height);
+    tctx.drawImage(source, -bounds.x, -bounds.y);
     tctx.globalCompositeOperation = "destination-in";
     tctx.lineWidth = brushSize;
     tctx.lineCap = "round";
@@ -73,40 +73,40 @@ export class MosaicShape extends Shape {
     tctx.fillStyle = "#000";
     tctx.beginPath();
     if (points.length === 1) {
-      const p3 = points[0];
-      tctx.arc(p3.x - b3.x, p3.y - b3.y, brushSize / 2, 0, Math.PI * 2);
+      const point = points[0];
+      tctx.arc(point.x - bounds.x, point.y - bounds.y, brushSize / 2, 0, Math.PI * 2);
       tctx.fill();
     } else {
-      tctx.moveTo(points[0].x - b3.x, points[0].y - b3.y);
-      for (let i2 = 1; i2 < points.length - 1; i2++) {
-        const p3 = points[i2];
-        const next2 = points[i2 + 1];
-        const cx2 = (p3.x + next2.x) / 2;
-        const cy = (p3.y + next2.y) / 2;
-        tctx.quadraticCurveTo(p3.x - b3.x, p3.y - b3.y, cx2 - b3.x, cy - b3.y);
+      tctx.moveTo(points[0].x - bounds.x, points[0].y - bounds.y);
+      for (let pointIndex = 1; pointIndex < points.length - 1; pointIndex++) {
+        const point = points[pointIndex];
+        const next = points[pointIndex + 1];
+        const midpointX = (point.x + next.x) / 2;
+        const midpointY = (point.y + next.y) / 2;
+        tctx.quadraticCurveTo(point.x - bounds.x, point.y - bounds.y, midpointX - bounds.x, midpointY - bounds.y);
       }
-      const last2 = points[points.length - 1];
-      tctx.lineTo(last2.x - b3.x, last2.y - b3.y);
+      const last = points[points.length - 1];
+      tctx.lineTo(last.x - bounds.x, last.y - bounds.y);
       tctx.stroke();
     }
     tctx.globalCompositeOperation = "source-over";
-    ctx.drawImage(tmp.canvas, b3.x, b3.y);
+    context.drawImage(temporaryCanvas.canvas, bounds.x, bounds.y);
   }
   /**
    * 取或重建 brush 用临时 canvas。仅当尺寸不足时扩容（不缩容），减少 resize 抖动。
    */
-  acquireBrushTmp(w3, h2) {
+  acquireBrushTmp(width, height) {
     if (!this.brushTmp || !this.brushTmpCtx) {
-      this.brushTmp = createOffscreen(w3, h2);
+      this.brushTmp = createOffscreen(width, height);
       this.brushTmpCtx = this.brushTmp.getContext("2d");
       return {
         canvas: this.brushTmp,
         ctx: this.brushTmpCtx,
       };
     }
-    if (this.brushTmp.width < w3 || this.brushTmp.height < h2) {
-      this.brushTmp.width = Math.max(this.brushTmp.width, w3);
-      this.brushTmp.height = Math.max(this.brushTmp.height, h2);
+    if (this.brushTmp.width < width || this.brushTmp.height < height) {
+      this.brushTmp.width = Math.max(this.brushTmp.width, width);
+      this.brushTmp.height = Math.max(this.brushTmp.height, height);
       this.brushTmpCtx = this.brushTmp.getContext("2d");
     }
     return {
@@ -114,18 +114,18 @@ export class MosaicShape extends Shape {
       ctx: this.brushTmpCtx,
     };
   }
-  hitTest(p3) {
+  hitTest(point) {
     if (this.data.shape === "rectangle") {
-      return pointInBounds(p3, this.getBounds(), 0);
+      return pointInBounds(point, this.getBounds(), 0);
     }
     const { points, brushSize } = this.data;
     if (points.length === 0) return false;
     const half = brushSize / 2;
     if (points.length === 1) {
-      return Math.hypot(p3.x - points[0].x, p3.y - points[0].y) <= half;
+      return Math.hypot(point.x - points[0].x, point.y - points[0].y) <= half;
     }
-    for (let i2 = 0; i2 < points.length - 1; i2++) {
-      if (distanceToSegment(p3, points[i2], points[i2 + 1]) <= half)
+    for (let pointIndex = 0; pointIndex < points.length - 1; pointIndex++) {
+      if (distanceToSegment(point, points[pointIndex], points[pointIndex + 1]) <= half)
         return true;
     }
     return false;
@@ -136,50 +136,50 @@ export class MosaicShape extends Shape {
     }
     return brushBounds(this.data.points, this.data.brushSize);
   }
-  move(dx, dy) {
+  move(deltaX, deltaY) {
     if (this.data.shape === "rectangle") {
-      this.data.x += dx;
-      this.data.y += dy;
+      this.data.x += deltaX;
+      this.data.y += deltaY;
     } else {
-      for (const p3 of this.data.points) {
-        p3.x += dx;
-        p3.y += dy;
+      for (const point of this.data.points) {
+        point.x += deltaX;
+        point.y += deltaY;
       }
     }
   }
-  resize(b3) {
+  resize(bounds) {
     if (this.data.shape === "rectangle") {
-      this.data.x = b3.x;
-      this.data.y = b3.y;
-      this.data.width = b3.width;
-      this.data.height = b3.height;
+      this.data.x = bounds.x;
+      this.data.y = bounds.y;
+      this.data.width = bounds.width;
+      this.data.height = bounds.height;
       return;
     }
-    const cur = brushBounds(this.data.points, this.data.brushSize);
-    if (cur.width === 0 || cur.height === 0) return;
+    const currentBounds = brushBounds(this.data.points, this.data.brushSize);
+    if (currentBounds.width === 0 || currentBounds.height === 0) return;
     const innerCur = {
-      x: cur.x + this.data.brushSize / 2,
-      y: cur.y + this.data.brushSize / 2,
-      width: Math.max(1e-3, cur.width - this.data.brushSize),
-      height: Math.max(1e-3, cur.height - this.data.brushSize),
+      x: currentBounds.x + this.data.brushSize / 2,
+      y: currentBounds.y + this.data.brushSize / 2,
+      width: Math.max(1e-3, currentBounds.width - this.data.brushSize),
+      height: Math.max(1e-3, currentBounds.height - this.data.brushSize),
     };
     const innerB = {
-      x: b3.x + this.data.brushSize / 2,
-      y: b3.y + this.data.brushSize / 2,
-      width: Math.max(1e-3, b3.width - this.data.brushSize),
-      height: Math.max(1e-3, b3.height - this.data.brushSize),
+      x: bounds.x + this.data.brushSize / 2,
+      y: bounds.y + this.data.brushSize / 2,
+      width: Math.max(1e-3, bounds.width - this.data.brushSize),
+      height: Math.max(1e-3, bounds.height - this.data.brushSize),
     };
-    const sx = innerB.width / innerCur.width;
-    const sy = innerB.height / innerCur.height;
-    for (const p3 of this.data.points) {
-      p3.x = innerB.x + (p3.x - innerCur.x) * sx;
-      p3.y = innerB.y + (p3.y - innerCur.y) * sy;
+    const scaleX = innerB.width / innerCur.width;
+    const scaleY = innerB.height / innerCur.height;
+    for (const point of this.data.points) {
+      point.x = innerB.x + (point.x - innerCur.x) * scaleX;
+      point.y = innerB.y + (point.y - innerCur.y) * scaleY;
     }
   }
   /** 给笔刷工具实时追加点用。 */
-  addPoint(p3) {
+  addPoint(point) {
     if (this.data.shape === "brush") {
-      this.data.points.push(p3);
+      this.data.points.push(point);
     }
   }
 }

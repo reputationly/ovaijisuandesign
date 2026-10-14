@@ -1,5 +1,14 @@
 // 项目列表页路由入口：分类标签、搜索与排序、分页加载、新建与删除。
-import { useTranslation, reactExports, jsxRuntimeExports, useNavigate, useSearch, usePlatform, useStorage, getRuntimeConfig, Plus, MonochromeIcon, CloudUpload, ChevronDown, TAB_CONTENT_ENTER_CLASS_NAME } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { usePlatform } from "../infra/platform-context.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { useStorage } from "../infra/use-storage.js";
+import { Plus, CloudUpload, ChevronDown } from "../media-editing/lucide-icon-wraps.js";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
+import { TAB_CONTENT_ENTER_CLASS_NAME } from "../shared/tab-enter-class.js";
 import { Button, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioItem } from "../infra/dialog-content.jsx";
 import { DropdownMenu, getProjectTutorialUrl, openExternalUrl, DropdownMenuGroup, DropdownMenuRadioGroup } from "../vendor-inline/vscode-base/graph.jsx";
 import { useProjects } from "../workspace/normalize-project-entries.js";

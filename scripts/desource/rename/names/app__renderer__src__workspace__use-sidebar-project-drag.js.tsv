@@ -1,0 +1,21 @@
+key	old	new	依据
+element2@130:13	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+element2@234:10	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+frame2@95:9	frame2	frame	去掉打包器防重名追加的后缀，恢复原名 frame，即该绑定持有的值。
+hasPath2@351:11	hasPath2	hasPath	去掉打包器防重名追加的后缀，恢复原名 hasPath，即该绑定持有的值。
+id2@193:38	id2	projectId	项目记录或项目排序列表中的项目标识符。
+key2@140:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+p3@296:24	p3	project	从项目列表中读取或展示的项目对象。
+p3@299:24	p3	project	从项目列表中读取或展示的项目对象。
+p3@361:25	p3	project	从项目列表中读取或展示的项目对象。
+path2@139:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@351:23	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+position2@188:15	position2	position	当前文本扫描位置。
+position2@37:68	position2	position	当前文本扫描位置。
+project2@149:24	project2	project	从项目列表中读取或展示的项目对象。
+project2@194:30	project2	project	从项目列表中读取或展示的项目对象。
+project2@198:18	project2	project	从项目列表中读取或展示的项目对象。
+project2@200:21	project2	project	从项目列表中读取或展示的项目对象。
+t2@69:14	t2	translate	useTranslation 返回的翻译函数。
+timeout2@135:11	timeout2	timeout	去掉打包器防重名追加的后缀，恢复原名 timeout，即该绑定持有的值。
+token2@89:11	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。

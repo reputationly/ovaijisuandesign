@@ -1,86 +1,86 @@
 // renderer.js
 import { HANDLE_SIZE } from "./hit-handle.js";
 import { createOffscreen } from "./keep-tag-in-canvas.js";
-function clearCanvas(ctx) {
-  const c3 = ctx.canvas;
-  ctx.save();
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, c3.width, c3.height);
-  ctx.restore();
+function clearCanvas(context) {
+  const canvas = context.canvas;
+  context.save();
+  context.setTransform(1, 0, 0, 1, 0, 0);
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.restore();
 }
-function drawSelectionHandles(ctx, b3, uiScale = 1, style2) {
+function drawSelectionHandles(context, bounds, uiScale = 1, style) {
   const positions = [
     {
-      x: b3.x,
-      y: b3.y,
+      x: bounds.x,
+      y: bounds.y,
     },
     {
-      x: b3.x + b3.width,
-      y: b3.y,
+      x: bounds.x + bounds.width,
+      y: bounds.y,
     },
     {
-      x: b3.x,
-      y: b3.y + b3.height,
+      x: bounds.x,
+      y: bounds.y + bounds.height,
     },
     {
-      x: b3.x + b3.width,
-      y: b3.y + b3.height,
+      x: bounds.x + bounds.width,
+      y: bounds.y + bounds.height,
     },
   ];
-  const size2 = uiScale > 0 ? HANDLE_SIZE / uiScale : HANDLE_SIZE;
+  const size = uiScale > 0 ? HANDLE_SIZE / uiScale : HANDLE_SIZE;
   const stroke = uiScale > 0 ? 1.5 / uiScale : 1.5;
-  ctx.save();
-  ctx.fillStyle = style2?.selectionHandleFill ?? "#FFFFFF";
-  ctx.strokeStyle =
-    style2?.selectionHandleStroke ?? style2?.selectionStroke ?? "#3370FF";
-  ctx.lineWidth = stroke;
-  for (const p3 of positions) {
-    ctx.beginPath();
-    ctx.rect(p3.x - size2 / 2, p3.y - size2 / 2, size2, size2);
-    ctx.fill();
-    ctx.stroke();
+  context.save();
+  context.fillStyle = style?.selectionHandleFill ?? "#FFFFFF";
+  context.strokeStyle =
+    style?.selectionHandleStroke ?? style?.selectionStroke ?? "#3370FF";
+  context.lineWidth = stroke;
+  for (const handlePosition of positions) {
+    context.beginPath();
+    context.rect(handlePosition.x - size / 2, handlePosition.y - size / 2, size, size);
+    context.fill();
+    context.stroke();
   }
-  ctx.restore();
+  context.restore();
 }
 function generateBlur(source, radius) {
-  const w3 = source.width;
-  const h2 = source.height;
-  const r2 = Math.max(1, Math.round(radius));
-  const pad = r2 * 2;
-  const tmp = createOffscreen(w3 + pad * 2, h2 + pad * 2);
-  const tmpCtx = tmp.getContext("2d");
-  tmpCtx.drawImage(source, pad, pad);
-  tmpCtx.drawImage(source, 0, 0, w3, 1, pad, 0, w3, pad);
-  tmpCtx.drawImage(source, 0, h2 - 1, w3, 1, pad, h2 + pad, w3, pad);
-  tmpCtx.drawImage(source, 0, 0, 1, h2, 0, pad, pad, h2);
-  tmpCtx.drawImage(source, w3 - 1, 0, 1, h2, w3 + pad, pad, pad, h2);
-  tmpCtx.drawImage(source, 0, 0, 1, 1, 0, 0, pad, pad);
-  tmpCtx.drawImage(source, w3 - 1, 0, 1, 1, w3 + pad, 0, pad, pad);
-  tmpCtx.drawImage(source, 0, h2 - 1, 1, 1, 0, h2 + pad, pad, pad);
-  tmpCtx.drawImage(source, w3 - 1, h2 - 1, 1, 1, w3 + pad, h2 + pad, pad, pad);
-  const out = createOffscreen(w3, h2);
-  const outCtx = out.getContext("2d");
-  outCtx.filter = `blur(${r2}px)`;
-  outCtx.drawImage(tmp, -pad, -pad);
+  const sourceWidth = source.width;
+  const sourceHeight = source.height;
+  const blurRadius = Math.max(1, Math.round(radius));
+  const padding = blurRadius * 2;
+  const paddedCanvas = createOffscreen(sourceWidth + padding * 2, sourceHeight + padding * 2);
+  const tmpCtx = paddedCanvas.getContext("2d");
+  tmpCtx.drawImage(source, padding, padding);
+  tmpCtx.drawImage(source, 0, 0, sourceWidth, 1, padding, 0, sourceWidth, padding);
+  tmpCtx.drawImage(source, 0, sourceHeight - 1, sourceWidth, 1, padding, sourceHeight + padding, sourceWidth, padding);
+  tmpCtx.drawImage(source, 0, 0, 1, sourceHeight, 0, padding, padding, sourceHeight);
+  tmpCtx.drawImage(source, sourceWidth - 1, 0, 1, sourceHeight, sourceWidth + padding, padding, padding, sourceHeight);
+  tmpCtx.drawImage(source, 0, 0, 1, 1, 0, 0, padding, padding);
+  tmpCtx.drawImage(source, sourceWidth - 1, 0, 1, 1, sourceWidth + padding, 0, padding, padding);
+  tmpCtx.drawImage(source, 0, sourceHeight - 1, 1, 1, 0, sourceHeight + padding, padding, padding);
+  tmpCtx.drawImage(source, sourceWidth - 1, sourceHeight - 1, 1, 1, sourceWidth + padding, sourceHeight + padding, padding, padding);
+  const resultCanvas = createOffscreen(sourceWidth, sourceHeight);
+  const outCtx = resultCanvas.getContext("2d");
+  outCtx.filter = `blur(${blurRadius}px)`;
+  outCtx.drawImage(paddedCanvas, -padding, -padding);
   outCtx.filter = "none";
-  return out;
+  return resultCanvas;
 }
 function generateMosaic(source, blockSize) {
-  const w3 = source.width;
-  const h2 = source.height;
+  const sourceWidth = source.width;
+  const sourceHeight = source.height;
   const block = Math.max(2, Math.round(blockSize));
-  const smallW = Math.max(1, Math.ceil(w3 / block));
-  const smallH = Math.max(1, Math.ceil(h2 / block));
+  const smallW = Math.max(1, Math.ceil(sourceWidth / block));
+  const smallH = Math.max(1, Math.ceil(sourceHeight / block));
   const small = createOffscreen(smallW, smallH);
   const smallCtx = small.getContext("2d");
   smallCtx.imageSmoothingEnabled = true;
   smallCtx.imageSmoothingQuality = "high";
   smallCtx.drawImage(source, 0, 0, smallW, smallH);
-  const out = createOffscreen(w3, h2);
-  const outCtx = out.getContext("2d");
+  const resultCanvas = createOffscreen(sourceWidth, sourceHeight);
+  const outCtx = resultCanvas.getContext("2d");
   outCtx.imageSmoothingEnabled = false;
-  outCtx.drawImage(small, 0, 0, w3, h2);
-  return out;
+  outCtx.drawImage(small, 0, 0, sourceWidth, sourceHeight);
+  return resultCanvas;
 }
 const PROCESSED_CACHE_LIMIT = 8;
 export class Renderer {
@@ -152,8 +152,8 @@ export class Renderer {
   dprMql = null;
   dprListener = null;
   drawHelpers = {
-    getProcessedSource: (mode2, strength) =>
-      this.getProcessedSource(mode2, strength),
+    getProcessedSource: (mode, strength) =>
+      this.getProcessedSource(mode, strength),
   };
   pendingSelected = null;
   constructor() {
@@ -185,22 +185,22 @@ export class Renderer {
    */
   applyDimensions() {
     const { width, height } = this;
-    const scale2 = this.pixelScale;
-    this.main.width = Math.round(width * scale2);
-    this.main.height = Math.round(height * scale2);
+    const scale = this.pixelScale;
+    this.main.width = Math.round(width * scale);
+    this.main.height = Math.round(height * scale);
     this.main.style.width = `${width}px`;
     this.main.style.height = `${height}px`;
-    this.mainCtx.setTransform(scale2, 0, 0, scale2, 0, 0);
-    const physW = Math.round(width * scale2);
-    const physH = Math.round(height * scale2);
-    for (const [c3, ctx] of [
+    this.mainCtx.setTransform(scale, 0, 0, scale, 0, 0);
+    const physW = Math.round(width * scale);
+    const physH = Math.round(height * scale);
+    for (const [layerCanvas, context] of [
       [this.bgLayer, this.bgCtx],
       [this.shapeLayer, this.shapeCtx],
       [this.previewLayer, this.previewCtx],
     ]) {
-      c3.width = physW;
-      c3.height = physH;
-      ctx.setTransform(scale2, 0, 0, scale2, 0, 0);
+      layerCanvas.width = physW;
+      layerCanvas.height = physH;
+      context.setTransform(scale, 0, 0, scale, 0, 0);
     }
     this.composedSnapshot.width = width;
     this.composedSnapshot.height = height;
@@ -227,7 +227,7 @@ export class Renderer {
         this.height,
       );
     }
-    for (const s2 of this.lastShapes) s2.draw(this.shapeCtx, this.drawHelpers);
+    for (const shape of this.lastShapes) shape.draw(this.shapeCtx, this.drawHelpers);
   }
   /**
    * matchMedia 监听 dpr 变化（跨显示器拖动）。每次变化重绑监听（query 包含旧 dpr）。
@@ -235,7 +235,7 @@ export class Renderer {
    */
   bindDprListener() {
     if (typeof window === "undefined" || !window.matchMedia) return;
-    const mql = window.matchMedia(`(resolution: ${this.dpr}dppx)`);
+    const resolutionMediaQuery = window.matchMedia(`(resolution: ${this.dpr}dppx)`);
     const listener = () => {
       const newDpr = window.devicePixelRatio || 1;
       if (newDpr === this.dpr) return;
@@ -244,9 +244,9 @@ export class Renderer {
       this.unbindDprListener();
       this.bindDprListener();
     };
-    if ("addEventListener" in mql) mql.addEventListener("change", listener);
-    else mql.addListener(listener);
-    this.dprMql = mql;
+    if ("addEventListener" in resolutionMediaQuery) resolutionMediaQuery.addEventListener("change", listener);
+    else resolutionMediaQuery.addListener(listener);
+    this.dprMql = resolutionMediaQuery;
     this.dprListener = listener;
   }
   unbindDprListener() {
@@ -259,24 +259,24 @@ export class Renderer {
     this.dprMql = null;
     this.dprListener = null;
   }
-  drawBackground(img) {
-    this.currentBgImage = img;
-    if (img.naturalWidth !== this.imageNaturalWidth) {
-      this.imageNaturalWidth = img.naturalWidth;
+  drawBackground(imageElement) {
+    this.currentBgImage = imageElement;
+    if (imageElement.naturalWidth !== this.imageNaturalWidth) {
+      this.imageNaturalWidth = imageElement.naturalWidth;
       this.applyDimensions();
       return;
     }
     clearCanvas(this.bgCtx);
-    this.bgCtx.drawImage(img, 0, 0, this.width, this.height);
+    this.bgCtx.drawImage(imageElement, 0, 0, this.width, this.height);
     clearCanvas(this.bgSourceCtx);
-    this.bgSourceCtx.drawImage(img, 0, 0, this.width, this.height);
+    this.bgSourceCtx.drawImage(imageElement, 0, 0, this.width, this.height);
     this.processedCache.clear();
     this.requestRender("all");
   }
   drawShapes(shapes) {
     this.lastShapes = shapes;
     clearCanvas(this.shapeCtx);
-    for (const s2 of shapes) s2.draw(this.shapeCtx, this.drawHelpers);
+    for (const shape of shapes) shape.draw(this.shapeCtx, this.drawHelpers);
     this.requestRender("shapes");
   }
   drawPreview(shape) {
@@ -288,14 +288,14 @@ export class Renderer {
    * 选中状态绘制：放在主 canvas 合成最上层（不污染 shapeLayer），
    * 这样移动选中框时不需要重绘整个 shapeLayer。
    */
-  drawSelectionOverlay(selected2) {
-    if (!selected2) return;
-    selected2.drawSelection(this.mainCtx, this.uiScale);
+  drawSelectionOverlay(selected) {
+    if (!selected) return;
+    selected.drawSelection(this.mainCtx, this.uiScale);
     drawSelectionHandles(
       this.mainCtx,
-      selected2.getBounds(),
+      selected.getBounds(),
       this.uiScale,
-      selected2.style,
+      selected.style,
     );
   }
   /**
@@ -312,41 +312,41 @@ export class Renderer {
    * 导出 PNG 用：以 pixelScale 输出高清 canvas（背景图、文字、形状全部保持设备像素细节）。
    */
   exportComposed() {
-    const scale2 = this.pixelScale;
-    const out = createOffscreen(
-      Math.round(this.width * scale2),
-      Math.round(this.height * scale2),
+    const scale = this.pixelScale;
+    const outputCanvas = createOffscreen(
+      Math.round(this.width * scale),
+      Math.round(this.height * scale),
     );
-    const ctx = out.getContext("2d");
-    ctx.drawImage(this.bgLayer, 0, 0);
-    ctx.drawImage(this.shapeLayer, 0, 0);
-    return out;
+    const outputContext = outputCanvas.getContext("2d");
+    outputContext.drawImage(this.bgLayer, 0, 0);
+    outputContext.drawImage(this.shapeLayer, 0, 0);
+    return outputCanvas;
   }
   /**
    * 取或生成 (mode, strength) 全图处理版。LRU 限制最多 PROCESSED_CACHE_LIMIT 张。
    */
-  getProcessedSource(mode2, strength) {
+  getProcessedSource(mode, strength) {
     if (this.width <= 0 || this.height <= 0) return null;
-    const key2 = `${mode2}-${strength}`;
-    const cached = this.processedCache.get(key2);
+    const key = `${mode}-${strength}`;
+    const cached = this.processedCache.get(key);
     if (cached) {
-      this.processedCache.delete(key2);
-      this.processedCache.set(key2, cached);
+      this.processedCache.delete(key);
+      this.processedCache.set(key, cached);
       return cached;
     }
     const generated =
-      mode2 === "blur"
+      mode === "blur"
         ? generateBlur(this.bgSource, strength)
         : generateMosaic(this.bgSource, strength);
-    this.processedCache.set(key2, generated);
+    this.processedCache.set(key, generated);
     if (this.processedCache.size > PROCESSED_CACHE_LIMIT) {
       const oldest = this.processedCache.keys().next().value;
       if (oldest !== void 0) this.processedCache.delete(oldest);
     }
     return generated;
   }
-  requestRender(job = "all") {
-    this.pending.add(job);
+  requestRender(renderJob = "all") {
+    this.pending.add(renderJob);
     if (this.rafId !== null) return;
     this.rafId = requestAnimationFrame(() => {
       this.rafId = null;
@@ -355,9 +355,9 @@ export class Renderer {
   }
   composite() {
     this.pending.clear();
-    const scale2 = this.pixelScale;
+    const scale = this.pixelScale;
     this.mainCtx.save();
-    this.mainCtx.setTransform(scale2, 0, 0, scale2, 0, 0);
+    this.mainCtx.setTransform(scale, 0, 0, scale, 0, 0);
     this.mainCtx.clearRect(0, 0, this.width, this.height);
     this.mainCtx.drawImage(this.bgLayer, 0, 0, this.width, this.height);
     this.mainCtx.drawImage(this.shapeLayer, 0, 0, this.width, this.height);
@@ -377,11 +377,11 @@ export class Renderer {
    * 同时驱动 pixelScale：跨 tier（整数阶梯）时重建画布物理像素，让 shapes
    * 在外层放大时也能跟得上屏幕物理像素，避免被浏览器上采样变模糊。
    */
-  setUiScale(scale2) {
-    if (!Number.isFinite(scale2) || scale2 <= 0) return;
-    if (scale2 === this.uiScale) return;
+  setUiScale(scale) {
+    if (!Number.isFinite(scale) || scale <= 0) return;
+    if (scale === this.uiScale) return;
     const prevTier = this.uiScaleTier;
-    this.uiScale = scale2;
+    this.uiScale = scale;
     if (this.uiScaleTier !== prevTier) {
       this.applyDimensions();
     } else if (this.pendingSelected) {

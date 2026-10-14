@@ -1,13 +1,14 @@
 // progress-bar-inner.jsx
-import { jsxRuntimeExports, reactExports } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { formatTime } from "./package.jsx";
 function formatControlTime(seconds, roundUp = false) {
   if (!Number.isFinite(seconds) || seconds < 0) return "00:00";
   const total = roundUp ? Math.ceil(seconds) : Math.floor(seconds);
-  const m3 = Math.floor(total / 60);
-  const s2 = total % 60;
-  return `${m3.toString().padStart(2, "0")}:${s2.toString().padStart(2, "0")}`;
+  const minutes = Math.floor(total / 60);
+  const secondsPart = total % 60;
+  return `${minutes.toString().padStart(2, "0")}:${secondsPart.toString().padStart(2, "0")}`;
 }
 function ProgressBarInner({
   videoRef,
@@ -23,26 +24,26 @@ function ProgressBarInner({
   const rafRef = reactExports.useRef(0);
   const [isDragging, setIsDragging] = reactExports.useState(false);
   const syncDOM = reactExports.useCallback(() => {
-    const el = videoRef.current;
-    if (!el) return;
-    const t2 = el.currentTime;
-    const d2 = el.duration;
-    const displayTime = el.ended ? d2 : t2;
-    const pct = d2 > 0 && Number.isFinite(d2) ? (t2 / d2) * 100 : 0;
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+    const currentTime = videoElement.currentTime;
+    const duration = videoElement.duration;
+    const displayTime = videoElement.ended ? duration : currentTime;
+    const progressPercent = duration > 0 && Number.isFinite(duration) ? (currentTime / duration) * 100 : 0;
     if (timeRef.current) {
       timeRef.current.textContent =
         display === "time"
-          ? `${formatControlTime(displayTime, el.ended)} / ${formatControlTime(d2, true)}`
-          : formatTime(displayTime, el.ended);
+          ? `${formatControlTime(displayTime, videoElement.ended)} / ${formatControlTime(duration, true)}`
+          : formatTime(displayTime, videoElement.ended);
     }
     if (durationRef.current)
-      durationRef.current.textContent = formatTime(d2, true);
-    if (filledRef.current) filledRef.current.style.width = `${pct}%`;
-    if (thumbRef.current) thumbRef.current.style.left = `${pct}%`;
+      durationRef.current.textContent = formatTime(duration, true);
+    if (filledRef.current) filledRef.current.style.width = `${progressPercent}%`;
+    if (thumbRef.current) thumbRef.current.style.left = `${progressPercent}%`;
   }, [display, videoRef]);
   reactExports.useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
     function tick() {
       syncDOM();
       rafRef.current = requestAnimationFrame(tick);
@@ -56,51 +57,51 @@ function ProgressBarInner({
     return () => cancelAnimationFrame(rafRef.current);
   }, [isPlaying, isDragging, syncDOM, videoRef]);
   reactExports.useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-    const events2 = [
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+    const events = [
       "loadedmetadata",
       "durationchange",
       "seeked",
       "ended",
       "emptied",
     ];
-    for (const event of events2) el.addEventListener(event, syncDOM);
+    for (const event of events) videoElement.addEventListener(event, syncDOM);
     syncDOM();
     return () => {
-      for (const event of events2) el.removeEventListener(event, syncDOM);
+      for (const event of events) videoElement.removeEventListener(event, syncDOM);
     };
   }, [videoRef, syncDOM]);
   const seekToPosition = reactExports.useCallback(
     (clientX) => {
-      const el = videoRef.current;
-      const bar = barRef.current;
-      if (!el || !bar) return;
-      const d2 = el.duration;
-      if (!Number.isFinite(d2) || d2 <= 0) return;
-      const rect = bar.getBoundingClientRect();
+      const videoElement = videoRef.current;
+      const progressBar = barRef.current;
+      if (!videoElement || !progressBar) return;
+      const duration = videoElement.duration;
+      if (!Number.isFinite(duration) || duration <= 0) return;
+      const rect = progressBar.getBoundingClientRect();
       const ratio = Math.max(
         0,
         Math.min(1, (clientX - rect.left) / rect.width),
       );
-      el.currentTime = ratio * d2;
+      videoElement.currentTime = ratio * duration;
       syncDOM();
     },
     [videoRef, syncDOM],
   );
-  const handleClick2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      seekToPosition(e2.clientX);
+  const handleClick = reactExports.useCallback(
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      seekToPosition(clickEvent.clientX);
     },
     [seekToPosition],
   );
   const handleThumbDown = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      e2.preventDefault();
+    (mouseEvent) => {
+      mouseEvent.stopPropagation();
+      mouseEvent.preventDefault();
       setIsDragging(true);
-      const onMove = (ev) => seekToPosition(ev.clientX);
+      const onMove = (mouseMoveEvent) => seekToPosition(mouseMoveEvent.clientX);
       const onUp = () => {
         setIsDragging(false);
         document.removeEventListener("mousemove", onMove);
@@ -148,7 +149,7 @@ function ProgressBarInner({
         style={{
           height: display === "bar" ? 12 : 16,
         }}
-        onClick={handleClick2}
+        onClick={handleClick}
       >
         <div
           className="absolute top-1/2 left-0 right-0 -translate-y-1/2 rounded-full"

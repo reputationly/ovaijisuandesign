@@ -1,0 +1,6 @@
+key	new	reason
+queryClient2@38:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+snapshot2@41:15	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+services2@45:9	services	去掉打包器加的数字后缀，恢复原名 services
+domain2@80:31	domain	去掉打包器加的数字后缀，恢复原名 domain
+domain2@136:28	domain	去掉打包器加的数字后缀，恢复原名 domain

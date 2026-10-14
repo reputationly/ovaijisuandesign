@@ -8,19 +8,16 @@ import {
   sourceHandleSide,
   subscribers,
 } from "./control-points-for.js";
-import {
-  jsxRuntimeExports,
-  reactExports,
-  useNodesInitialized,
-  useStoreApi,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useNodesInitialized, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-function tracePath(target, p3, side = "right") {
-  const cp2 = controlPointsFor(p3, side);
-  target.moveTo(cp2.sx, cp2.sy);
-  target.bezierCurveTo(cp2.cp1x, cp2.cp1y, cp2.cp2x, cp2.cp2y, cp2.tx, cp2.ty);
+function tracePath(target, points, side = "right") {
+  const cp = controlPointsFor(points, side);
+  target.moveTo(cp.sx, cp.sy);
+  target.bezierCurveTo(cp.cp1x, cp.cp1y, cp.cp2x, cp.cp2y, cp.tx, cp.ty);
 }
-function subscribe$2(cb) {
+function subscribe(cb) {
   subscribers.add(cb);
   return () => {
     subscribers.delete(cb);
@@ -31,7 +28,7 @@ function getSnapshot() {
 }
 function useHoveredEdgeId() {
   return reactExports.useSyncExternalStore(
-    subscribe$2,
+    subscribe,
     getSnapshot,
     getSnapshot,
   );
@@ -49,22 +46,22 @@ const EDGE_FLOW_HEAD_OPACITY = 0.96;
 const EDGE_FLOW_BREATH_MIN = 0.9;
 const EDGE_FLOW_BREATH_RANGE = 0.1;
 const EDGE_FLOW_BREATH_PERIOD_MS = 1600;
-function safeZoom(zoom2) {
-  return Number.isFinite(zoom2) && zoom2 > 0
-    ? Math.max(zoom2, EDGE_FLOW_MIN_ZOOM)
+function safeZoom(zoom) {
+  return Number.isFinite(zoom) && zoom > 0
+    ? Math.max(zoom, EDGE_FLOW_MIN_ZOOM)
     : 1;
 }
-function getEdgeFlowFrame(timestampMs, zoom2) {
-  const resolvedZoom = safeZoom(zoom2);
+function getEdgeFlowFrame(timestampMs, zoom) {
+  const resolvedZoom = safeZoom(zoom);
   const patternLengthPx = EDGE_FLOW_PULSE_LENGTH_PX + EDGE_FLOW_GAP_LENGTH_PX;
   const segmentLengthPx = EDGE_FLOW_PULSE_LENGTH_PX / EDGE_FLOW_SEGMENT_COUNT;
-  const elapsedMs2 = Number.isFinite(timestampMs)
+  const elapsedMs = Number.isFinite(timestampMs)
     ? Math.max(0, timestampMs)
     : 0;
   const distancePx =
-    ((elapsedMs2 / 1e3) * EDGE_FLOW_SPEED_PX_PER_SECOND) % patternLengthPx;
+    ((elapsedMs / 1e3) * EDGE_FLOW_SPEED_PX_PER_SECOND) % patternLengthPx;
   const breathPhase =
-    (elapsedMs2 % EDGE_FLOW_BREATH_PERIOD_MS) / EDGE_FLOW_BREATH_PERIOD_MS;
+    (elapsedMs % EDGE_FLOW_BREATH_PERIOD_MS) / EDGE_FLOW_BREATH_PERIOD_MS;
   const breath =
     EDGE_FLOW_BREATH_MIN +
     ((Math.sin(breathPhase * Math.PI * 2 - Math.PI / 2) + 1) / 2) *
@@ -74,8 +71,8 @@ function getEdgeFlowFrame(timestampMs, zoom2) {
       {
         length: EDGE_FLOW_SEGMENT_COUNT,
       },
-      (_2, index2) => {
-        const progress = index2 / (EDGE_FLOW_SEGMENT_COUNT - 1);
+      (unusedValue, index) => {
+        const progress = index / (EDGE_FLOW_SEGMENT_COUNT - 1);
         const taperedProgress = progress ** 1.35;
         const coreWidth =
           EDGE_FLOW_TAIL_WIDTH +
@@ -90,7 +87,7 @@ function getEdgeFlowFrame(timestampMs, zoom2) {
             segmentLengthPx / resolvedZoom,
             (patternLengthPx - segmentLengthPx) / resolvedZoom,
           ],
-          dashOffset: -(distancePx + index2 * segmentLengthPx) / resolvedZoom,
+          dashOffset: -(distancePx + index * segmentLengthPx) / resolvedZoom,
           haloWidth: coreWidth + EDGE_FLOW_HALO_EXTRA_WIDTH,
           coreWidth,
           opacity,
@@ -116,46 +113,46 @@ function resolveColors(host) {
   };
 }
 export function EdgesCanvas({
-  active: active2 = true,
+  active = true,
   onlySelectedNodes = false,
 }) {
   const storeApi = useStoreApi();
-  const hoveredId2 = useHoveredEdgeId();
+  const hoveredId = useHoveredEdgeId();
   const canvasRef = reactExports.useRef(null);
   const flowCanvasRef = reactExports.useRef(null);
   const nodesInitialized = useNodesInitialized();
   const initLatchRef = reactExports.useRef(false);
   if (nodesInitialized) initLatchRef.current = true;
   const hoveredIdRef = reactExports.useRef(null);
-  hoveredIdRef.current = hoveredId2;
+  hoveredIdRef.current = hoveredId;
   const scheduleRef = reactExports.useRef(null);
   const flowScheduleRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    if (!active2) {
+    if (!active) {
       scheduleRef.current = null;
-      const canvas2 = canvasRef.current;
-      const ctx = canvas2?.getContext("2d");
-      if (canvas2 && ctx) {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (canvas && ctx) {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, canvas2.width, canvas2.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
       return;
     }
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const flow2 = canvas.closest(".react-flow");
-    if (!flow2) return;
-    let rafId2 = 0;
+    const flow = canvas.closest(".react-flow");
+    if (!flow) return;
+    let rafId = 0;
     let cancelled = false;
     let lastWidth = 0;
     let lastHeight = 0;
     let lastDpr = 0;
     const paint = () => {
-      rafId2 = 0;
+      rafId = 0;
       if (cancelled) return;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      const rect = flow2.getBoundingClientRect();
+      const rect = flow.getBoundingClientRect();
       const dpr = Math.max(1, window.devicePixelRatio || 1);
       const cssW = Math.max(1, Math.round(rect.width));
       const cssH = Math.max(1, Math.round(rect.height));
@@ -171,12 +168,12 @@ export function EdgesCanvas({
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (!initLatchRef.current) return;
-      const state2 = storeApi.getState();
-      const [tx, ty, zoom2] = state2.transform;
-      if (!zoom2 || zoom2 <= 0) return;
-      const colors = resolveColors(flow2);
+      const state = storeApi.getState();
+      const [tx, ty, zoom] = state.transform;
+      if (!zoom || zoom <= 0) return;
+      const colors = resolveColors(flow);
       const hovered = hoveredIdRef.current;
-      ctx.setTransform(dpr * zoom2, 0, 0, dpr * zoom2, dpr * tx, dpr * ty);
+      ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, dpr * tx, dpr * ty);
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       const defaultPath = new Path2D();
@@ -185,12 +182,12 @@ export function EdgesCanvas({
       let hasDefault = false;
       let hasHovered = false;
       let hasSelected = false;
-      for (const edge of state2.edges) {
-        if (!isEdgeVisible(edge, state2.nodeLookup, onlySelectedNodes))
+      for (const edge of state.edges) {
+        if (!isEdgeVisible(edge, state.nodeLookup, onlySelectedNodes))
           continue;
-        const srcEntry = state2.nodeLookup.get(edge.source);
+        const srcEntry = state.nodeLookup.get(edge.source);
         const src = readNodeBox(srcEntry);
-        const tgt = readNodeBox(state2.nodeLookup.get(edge.target));
+        const tgt = readNodeBox(state.nodeLookup.get(edge.target));
         if (!src || !tgt) continue;
         const side = sourceHandleSide(srcEntry, src, tgt);
         const points = pointsForSide(src, tgt, side);
@@ -223,63 +220,63 @@ export function EdgesCanvas({
         ctx.stroke(selectedPath);
       }
     };
-    const schedule2 = () => {
-      if (rafId2 !== 0) return;
-      rafId2 = requestAnimationFrame(paint);
+    const schedule = () => {
+      if (rafId !== 0) return;
+      rafId = requestAnimationFrame(paint);
     };
-    scheduleRef.current = schedule2;
-    schedule2();
-    const unsubStore = storeApi.subscribe(schedule2);
-    const resizeObserver = new ResizeObserver(schedule2);
-    resizeObserver.observe(flow2);
-    const onWindowResize = () => schedule2();
+    scheduleRef.current = schedule;
+    schedule();
+    const unsubStore = storeApi.subscribe(schedule);
+    const resizeObserver = new ResizeObserver(schedule);
+    resizeObserver.observe(flow);
+    const onWindowResize = () => schedule();
     window.addEventListener("resize", onWindowResize);
-    const themeObserver = new MutationObserver(schedule2);
+    const themeObserver = new MutationObserver(schedule);
     themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class", "style"],
     });
     return () => {
       cancelled = true;
-      if (rafId2 !== 0) cancelAnimationFrame(rafId2);
+      if (rafId !== 0) cancelAnimationFrame(rafId);
       unsubStore();
       resizeObserver.disconnect();
       themeObserver.disconnect();
       window.removeEventListener("resize", onWindowResize);
       scheduleRef.current = null;
     };
-  }, [active2, onlySelectedNodes, storeApi]);
+  }, [active, onlySelectedNodes, storeApi]);
   reactExports.useEffect(() => {
-    if (!active2) {
+    if (!active) {
       flowScheduleRef.current = null;
-      const canvas2 = flowCanvasRef.current;
-      const ctx = canvas2?.getContext("2d");
-      if (canvas2 && ctx) {
+      const canvas = flowCanvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (canvas && ctx) {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, canvas2.width, canvas2.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
       return;
     }
     const canvas = flowCanvasRef.current;
     if (!canvas) return;
-    const flow2 = canvas.closest(".react-flow");
-    if (!flow2) return;
+    const flow = canvas.closest(".react-flow");
+    if (!flow) return;
     const reducedMotionQuery = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     );
     const FLOW_FRAME_MIN_INTERVAL_MS = 15;
     let windowFocused = document.hasFocus();
     let lastFramePaintMs = 0;
-    let rafId2 = 0;
+    let rafId = 0;
     let cancelled = false;
     let needsResize = true;
     let needsPalette = true;
     let cssWidth = 1;
     let cssHeight = 1;
     let dpr = Math.max(1, window.devicePixelRatio || 1);
-    let colors = resolveColors(flow2);
+    let colors = resolveColors(flow);
     const syncCanvasSize = () => {
-      const rect = flow2.getBoundingClientRect();
+      const rect = flow.getBoundingClientRect();
       cssWidth = Math.max(1, Math.round(rect.width));
       cssHeight = Math.max(1, Math.round(rect.height));
       dpr = Math.max(1, window.devicePixelRatio || 1);
@@ -294,10 +291,10 @@ export function EdgesCanvas({
       needsResize = false;
     };
     const paint = (timestampMs) => {
-      rafId2 = 0;
+      rafId = 0;
       if (cancelled) return;
       if (timestampMs - lastFramePaintMs < FLOW_FRAME_MIN_INTERVAL_MS) {
-        rafId2 = requestAnimationFrame(paint);
+        rafId = requestAnimationFrame(paint);
         return;
       }
       lastFramePaintMs = timestampMs;
@@ -305,47 +302,47 @@ export function EdgesCanvas({
       if (!ctx) return;
       if (needsResize) syncCanvasSize();
       if (needsPalette) {
-        colors = resolveColors(flow2);
+        colors = resolveColors(flow);
         needsPalette = false;
       }
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (!initLatchRef.current) return;
-      const state2 = storeApi.getState();
-      const [tx, ty, zoom2] = state2.transform;
-      if (!zoom2 || zoom2 <= 0) return;
+      const state = storeApi.getState();
+      const [tx, ty, zoom] = state.transform;
+      if (!zoom || zoom <= 0) return;
       const selectedPath = new Path2D();
       let hasSelected = false;
-      for (const edge of state2.edges) {
+      for (const edge of state.edges) {
         if (
           edge.selected !== true ||
-          !isEdgeVisible(edge, state2.nodeLookup, onlySelectedNodes)
+          !isEdgeVisible(edge, state.nodeLookup, onlySelectedNodes)
         )
           continue;
-        const srcEntry = state2.nodeLookup.get(edge.source);
+        const srcEntry = state.nodeLookup.get(edge.source);
         const src = readNodeBox(srcEntry);
-        const tgt = readNodeBox(state2.nodeLookup.get(edge.target));
+        const tgt = readNodeBox(state.nodeLookup.get(edge.target));
         if (!src || !tgt) continue;
         const side = sourceHandleSide(srcEntry, src, tgt);
         tracePath(selectedPath, pointsForSide(src, tgt, side), side);
         hasSelected = true;
       }
       if (!hasSelected) return;
-      ctx.setTransform(dpr * zoom2, 0, 0, dpr * zoom2, dpr * tx, dpr * ty);
+      ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, dpr * tx, dpr * ty);
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       if (reducedMotionQuery.matches) {
         ctx.setLineDash([]);
         ctx.globalAlpha = 0.42;
-        ctx.lineWidth = 2 / zoom2;
+        ctx.lineWidth = 2 / zoom;
         ctx.strokeStyle = colors.flowColor;
         ctx.stroke(selectedPath);
         ctx.globalAlpha = 1;
         return;
       }
-      const frame2 = getEdgeFlowFrame(timestampMs, zoom2);
+      const frame = getEdgeFlowFrame(timestampMs, zoom);
       ctx.strokeStyle = colors.flowGlowColor;
-      for (const segment of frame2.segments) {
+      for (const segment of frame.segments) {
         ctx.setLineDash(segment.dashPattern);
         ctx.lineDashOffset = segment.dashOffset;
         ctx.globalAlpha = segment.opacity;
@@ -353,7 +350,7 @@ export function EdgesCanvas({
         ctx.stroke(selectedPath);
       }
       ctx.strokeStyle = colors.flowColor;
-      for (const segment of frame2.segments) {
+      for (const segment of frame.segments) {
         ctx.setLineDash(segment.dashPattern);
         ctx.lineDashOffset = segment.dashOffset;
         ctx.globalAlpha = segment.opacity;
@@ -362,48 +359,48 @@ export function EdgesCanvas({
       }
       ctx.globalAlpha = 1;
       if (!document.hidden && windowFocused)
-        rafId2 = requestAnimationFrame(paint);
+        rafId = requestAnimationFrame(paint);
     };
-    const schedule2 = () => {
-      if (rafId2 !== 0 || document.hidden) return;
-      rafId2 = requestAnimationFrame(paint);
+    const schedule = () => {
+      if (rafId !== 0 || document.hidden) return;
+      rafId = requestAnimationFrame(paint);
     };
-    flowScheduleRef.current = schedule2;
+    flowScheduleRef.current = schedule;
     const handleResize = () => {
       needsResize = true;
-      schedule2();
+      schedule();
     };
     const handleThemeChange = () => {
       needsPalette = true;
-      schedule2();
+      schedule();
     };
     const handleVisibilityChange = () => {
-      if (!document.hidden) schedule2();
+      if (!document.hidden) schedule();
     };
     const handleWindowBlur = () => {
       windowFocused = false;
     };
     const handleWindowFocus = () => {
       windowFocused = true;
-      schedule2();
+      schedule();
     };
-    const unsubStore = storeApi.subscribe(schedule2);
+    const unsubStore = storeApi.subscribe(schedule);
     const resizeObserver = new ResizeObserver(handleResize);
-    resizeObserver.observe(flow2);
+    resizeObserver.observe(flow);
     window.addEventListener("resize", handleResize);
     window.addEventListener("blur", handleWindowBlur);
     window.addEventListener("focus", handleWindowFocus);
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    reducedMotionQuery.addEventListener("change", schedule2);
+    reducedMotionQuery.addEventListener("change", schedule);
     const themeObserver = new MutationObserver(handleThemeChange);
     themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class", "style"],
     });
-    schedule2();
+    schedule();
     return () => {
       cancelled = true;
-      if (rafId2 !== 0) cancelAnimationFrame(rafId2);
+      if (rafId !== 0) cancelAnimationFrame(rafId);
       unsubStore();
       resizeObserver.disconnect();
       themeObserver.disconnect();
@@ -411,22 +408,22 @@ export function EdgesCanvas({
       window.removeEventListener("blur", handleWindowBlur);
       window.removeEventListener("focus", handleWindowFocus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      reducedMotionQuery.removeEventListener("change", schedule2);
+      reducedMotionQuery.removeEventListener("change", schedule);
       flowScheduleRef.current = null;
     };
-  }, [active2, onlySelectedNodes, storeApi]);
+  }, [active, onlySelectedNodes, storeApi]);
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     scheduleRef.current?.();
-  }, [active2, hoveredId2]);
+  }, [active, hoveredId]);
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     if (nodesInitialized) {
       scheduleRef.current?.();
       flowScheduleRef.current?.();
     }
-  }, [active2, nodesInitialized]);
-  return active2 ? (
+  }, [active, nodesInitialized]);
+  return active ? (
     <>
       <canvas
         ref={canvasRef}

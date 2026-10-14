@@ -1,5 +1,9 @@
 // canvas-tag-manager-panel.jsx
-import { closestCenter, DndContext, KeyboardSensor, Loader2, Plus, PointerSensor, reactExports, useSensor, useSensors, useTranslation } from "../vendor.js";
+import { useSensor, useSensors } from "../vendor.js";
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor } from "@dnd-kit/core";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2, Plus } from "../media-editing/lucide-icon-wraps.js";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
@@ -18,7 +22,7 @@ import {
   validateCanvasTagName,
 } from "../infra/parse-connector-selection.js";
 import { Button, TooltipContent } from "../infra/dialog-content.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { useCanvasTags } from "./use-canvas-tags.js";
 import { useCanvasTagName } from "../assets/use-canvas-model-registry-hydration.js";
 export function CanvasTagManagerPanel({
@@ -30,17 +34,17 @@ export function CanvasTagManagerPanel({
   onDownloadTag,
   onDownloadAllTagged,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const tagNameInputLimit = useCanvasTagNameInputLimit();
-  const resolveName2 = useCanvasTagName();
+  const resolveName = useCanvasTagName();
   const {
-    registry: registry2,
+    registry,
     createTag,
     updateTag,
     reorderTags,
     deleteTag,
   } = useCanvasTags();
-  const [localTags, setLocalTags] = reactExports.useState(registry2.tags);
+  const [localTags, setLocalTags] = reactExports.useState(registry.tags);
   const [creating, setCreating] = reactExports.useState(false);
   const [newName, setNewName] = reactExports.useState("");
   const submittedCreateNameRef = reactExports.useRef("");
@@ -58,17 +62,17 @@ export function CanvasTagManagerPanel({
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
-  reactExports.useEffect(() => setLocalTags(registry2.tags), [registry2.tags]);
+  reactExports.useEffect(() => setLocalTags(registry.tags), [registry.tags]);
   const resolvedNames = reactExports.useMemo(
-    () => new Map(registry2.tags.map((tag) => [tag.id, resolveName2(tag)])),
-    [registry2.tags, resolveName2],
+    () => new Map(registry.tags.map((tag) => [tag.id, resolveName(tag)])),
+    [registry.tags, resolveName],
   );
   const pendingName = submittedCreateNameRef.current.trim();
   const pendingKeywordCommitted = Boolean(
     pendingName &&
     localTags.some(
       (tag) =>
-        isCanvasKeywordTag(tag) && resolveName2(tag).trim() === pendingName,
+        isCanvasKeywordTag(tag) && resolveName(tag).trim() === pendingName,
     ),
   );
   const resetCreate = () => {
@@ -77,16 +81,16 @@ export function CanvasTagManagerPanel({
   };
   const handleCreate = async () => {
     if (creatingSavingRef.current) return;
-    const name2 = newName.trim();
-    if (!name2) {
+    const trimmedName = newName.trim();
+    if (!trimmedName) {
       resetCreate();
       return;
     }
-    const validation = validateCanvasTagName(name2);
-    const duplicate = isTagNameTaken(name2, resolvedNames);
+    const validation = validateCanvasTagName(trimmedName);
+    const duplicate = isTagNameTaken(trimmedName, resolvedNames);
     if (validation || duplicate) {
       dedupedToast.error(
-        t2(
+        translate(
           duplicate
             ? "canvasTags.nameTaken"
             : validation === "required"
@@ -98,56 +102,56 @@ export function CanvasTagManagerPanel({
       return;
     }
     creatingSavingRef.current = true;
-    submittedCreateNameRef.current = name2;
+    submittedCreateNameRef.current = trimmedName;
     setCreatingSaving(true);
     try {
-      await createTag(name2);
+      await createTag(trimmedName);
       resetCreate();
     } catch {
       submittedCreateNameRef.current = "";
-      dedupedToast.error(t2("canvasTags.saveFailed"));
+      dedupedToast.error(translate("canvasTags.saveFailed"));
     } finally {
       creatingSavingRef.current = false;
       setCreatingSaving(false);
     }
   };
   const handleUpdate = reactExports.useCallback(
-    async (tagId, patch2) => {
-      await updateTag(tagId, patch2);
+    async (tagId, patch) => {
+      await updateTag(tagId, patch);
     },
     [updateTag],
   );
-  const handleDragEnd = async ({ active: active2, over }) => {
-    if (!over || active2.id === over.id) return;
-    const activeTag = localTags.find((tag) => tag.id === active2.id);
+  const handleDragEnd = async ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+    const activeTag = localTags.find((tag) => tag.id === active.id);
     const overTag = localTags.find((tag) => tag.id === over.id);
     if (!activeTag || !overTag || activeTag.kind !== overTag.kind) return;
     const colorTags = localTags.filter(isCanvasColorTag);
     const keywordTags = localTags.filter(isCanvasKeywordTag);
     const group = activeTag.kind === "color" ? colorTags : keywordTags;
-    const oldIndex = group.findIndex((tag) => tag.id === active2.id);
+    const oldIndex = group.findIndex((tag) => tag.id === active.id);
     const newIndex = group.findIndex((tag) => tag.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
     const reordered = arrayMove(group, oldIndex, newIndex);
-    const next2 =
+    const next =
       activeTag.kind === "color"
         ? [...reordered, ...keywordTags]
         : [...colorTags, ...reordered];
-    setLocalTags(next2);
+    setLocalTags(next);
     try {
-      await reorderTags(next2.map((tag) => tag.id));
+      await reorderTags(next.map((tag) => tag.id));
     } catch {
-      setLocalTags(registry2.tags);
-      dedupedToast.error(t2("canvasTags.sortFailed"));
+      setLocalTags(registry.tags);
+      dedupedToast.error(translate("canvasTags.sortFailed"));
     }
   };
-  const handleDelete2 = async (tag) => {
+  const handleDelete = async (tag) => {
     if (deletingTagIdsRef.current.has(tag.id)) return;
     deletingTagIdsRef.current.add(tag.id);
     try {
       await deleteTag(tag.id);
     } catch {
-      dedupedToast.error(t2("canvasTags.deleteFailed"));
+      dedupedToast.error(translate("canvasTags.deleteFailed"));
     } finally {
       deletingTagIdsRef.current.delete(tag.id);
     }
@@ -170,12 +174,12 @@ export function CanvasTagManagerPanel({
           {[
             {
               key: "color",
-              label: t2("canvasTags.colorLabels"),
+              label: translate("canvasTags.colorLabels"),
               tags: localTags.filter(isCanvasColorTag),
             },
             {
               key: "keyword",
-              label: t2("canvasTags.keywords"),
+              label: translate("canvasTags.keywords"),
               tags: localTags.filter(isCanvasKeywordTag),
             },
           ].map((group) =>
@@ -201,7 +205,7 @@ export function CanvasTagManagerPanel({
                       side="top"
                       align="start"
                     >
-                      {t2(
+                      {translate(
                         group.key === "color"
                           ? "canvasTags.canvasLabelInfo"
                           : "canvasTags.keywordInfo",
@@ -212,7 +216,7 @@ export function CanvasTagManagerPanel({
                     <button
                       type="button"
                       disabled={creating}
-                      aria-label={t2("canvasTags.newKeyword")}
+                      aria-label={translate("canvasTags.newKeyword")}
                       data-action-ui-id="canvas.tag-manager-new"
                       className="-mr-1 flex h-6 shrink-0 items-center gap-0.5 rounded-full border border-border px-[7px] text-[11px] text-foreground/70 outline-hidden hover:border-foreground/80 hover:bg-popup-item-hover hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
                       onClick={() => {
@@ -227,7 +231,7 @@ export function CanvasTagManagerPanel({
                         strokeWidth={1.5}
                         aria-hidden={true}
                       />
-                      <span>{t2("canvasTags.add")}</span>
+                      <span>{translate("canvasTags.add")}</span>
                     </button>
                   ) : null}
                 </div>
@@ -240,10 +244,10 @@ export function CanvasTagManagerPanel({
                       <SortableTagRow
                         key={tag.id}
                         tag={tag}
-                        label={resolveName2(tag)}
+                        label={resolveName(tag)}
                         resolvedNames={resolvedNames}
                         onUpdate={handleUpdate}
-                        onDelete={(target) => void handleDelete2(target)}
+                        onDelete={(target) => void handleDelete(target)}
                         assetCount={assetCountsByTag?.get(tag.id) ?? 0}
                         downloadDisabled={
                           !downloadEnabled ||
@@ -267,12 +271,12 @@ export function CanvasTagManagerPanel({
                             className="size-4 shrink-0 rounded-full border-[1px] border-solid border-[rgba(0,0,0,0.3)] dark:border-[rgba(255,255,255,0.4)]"
                             aria-hidden={true}
                           />
-                          <Input3
+                          <Input
                             autoFocus={true}
                             value={newName}
                             disabled={creatingSaving}
-                            placeholder={t2("canvasTags.keywordPlaceholder")}
-                            aria-label={t2("canvasTags.keywordPlaceholder")}
+                            placeholder={translate("canvasTags.keywordPlaceholder")}
+                            aria-label={translate("canvasTags.keywordPlaceholder")}
                             data-action-ui-id="canvas.tag-manager-create-input"
                             className="col-span-3 h-8 min-w-0 w-full rounded-md px-1.5 py-0 text-[13px] font-normal"
                             onChange={(event) =>
@@ -320,7 +324,7 @@ export function CanvasTagManagerPanel({
           <Button
             variant="ghost"
             size="sm"
-            aria-label={t2("canvasTags.downloadAllTagged")}
+            aria-label={translate("canvasTags.downloadAllTagged")}
             disabled={
               !downloadEnabled ||
               taggedAssetCount === 0 ||
@@ -332,7 +336,7 @@ export function CanvasTagManagerPanel({
             onClick={() => void onDownloadAllTagged()}
           >
             <span className="min-w-0 truncate text-left text-[13px] font-normal">
-              {t2("canvasTags.downloadAllTagged")}
+              {translate("canvasTags.downloadAllTagged")}
             </span>
             <span
               className="flex size-7 items-center justify-center justify-self-center rounded-full border border-foreground/10 bg-transparent text-popover-foreground transition-colors group-hover/download-all:border-black/50 group-hover/download-all:text-black group-focus-visible/download-all:border-black/50 group-focus-visible/download-all:text-black dark:group-hover/download-all:border-white/50 dark:group-hover/download-all:text-white dark:group-focus-visible/download-all:border-white/50 dark:group-focus-visible/download-all:text-white"

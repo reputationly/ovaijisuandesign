@@ -1,0 +1,5 @@
+key	old	new	依据
+dot2@46:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+t2@65:14	t2	translate	useTranslation 返回的翻译函数。
+type2@43:41	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+url2@43:35	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。

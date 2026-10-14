@@ -1,14 +1,8 @@
 // media-error-card.jsx
-import {
-  Check,
-  CircleAlert,
-  CompositedSvg,
-  Loader2,
-  reactExports,
-  TriangleAlert,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, CircleAlert, Loader2, TriangleAlert, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   looksLikeHtml,
@@ -20,8 +14,8 @@ import { isGenerationRefundStatus } from "../canvas/compute-group-bounds-from-ch
 import { Trash2 } from "../media-editing/package.jsx";
 import { classifyRawErrorText } from "./normalize-skill-detail-metadata.js";
 import { RetryIcon } from "../canvas/fullscreen-icon.jsx";
-const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon2(
-  { size: size2 = 24, ...props },
+const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon(
+  { size = 24, ...props },
   ref,
 ) {
   const ariaHidden =
@@ -30,8 +24,8 @@ const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon2(
     <CompositedSvg
       ref={ref}
       {...props}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 1024 1024"
       fill="currentColor"
       aria-hidden={ariaHidden}
@@ -42,21 +36,21 @@ const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon2(
     </CompositedSvg>
   );
 });
-function handleAnchorClick(e2) {
-  const target = e2.target;
+function handleAnchorClick(clickEvent) {
+  const target = clickEvent.target;
   if (target?.tagName === "A") {
-    e2.stopPropagation();
+    clickEvent.stopPropagation();
   }
 }
-function ErrorHtmlContent({ html: html2 }) {
-  if (!html2) return null;
-  if (!looksLikeHtml(html2)) {
-    return <span>{html2}</span>;
+function ErrorHtmlContent({ html }) {
+  if (!html) return null;
+  if (!looksLikeHtml(html)) {
+    return <span>{html}</span>;
   }
   return (
     <span
       dangerouslySetInnerHTML={{
-        __html: html2,
+        __html: html,
       }}
       onClick={handleAnchorClick}
     />
@@ -82,7 +76,7 @@ const ERROR_ACTION_BUTTON_CLASS =
   "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-foreground/10 bg-foreground/[0.04] px-2.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/[0.08] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
 const ERROR_ACTION_ICON_CLASS = "size-3.5 shrink-0";
 export function MediaErrorCard({
-  errorMessage: errorMessage2,
+  errorMessage,
   displayModel,
   onDelete,
   onReport,
@@ -98,35 +92,35 @@ export function MediaErrorCard({
   refundStatus,
   refundedCredits,
 }) {
-  const { t: t2 } = useTranslation();
-  const plainError = stripErrorHtml(errorMessage2);
+  const { t: translate } = useTranslation();
+  const plainError = stripErrorHtml(errorMessage);
   const rawClass = classifyRawErrorText(plainError);
   const isConcurrencyLimit =
     variant === "concurrency_limit" || rawClass === "concurrency";
   const isRecoverable = variant === "recoverable";
   const isUncertain = variant === "uncertain";
   const title = isRecoverable
-    ? t2("canvas.generationRecovery.title")
+    ? translate("canvas.generationRecovery.title")
     : isConcurrencyLimit
-      ? t2("canvas.concurrencyLimit.title")
-      : t2("canvas.generationFailed");
+      ? translate("canvas.concurrencyLimit.title")
+      : translate("canvas.generationFailed");
   const iconLabel = isRecoverable
     ? title
     : isConcurrencyLimit
-      ? t2("canvas.concurrencyLimit.title")
-      : t2("common.error");
+      ? translate("canvas.concurrencyLimit.title")
+      : translate("common.error");
   const stateDescription = isRecoverable
-    ? t2("canvas.generationRecovery.description")
+    ? translate("canvas.generationRecovery.description")
     : isUncertain
       ? (uncertainDescription ??
-        t2("canvas.generationStatusUnknown.description"))
+        translate("canvas.generationStatusUnknown.description"))
       : void 0;
   const displayError =
     stateDescription ??
-    (rawClass ? t2(RAW_ERROR_CLASS_I18N[rawClass]) : errorMessage2);
+    (rawClass ? translate(RAW_ERROR_CLASS_I18N[rawClass]) : errorMessage);
   const plainDisplayError = stripErrorHtml(displayError);
   const uncertainReason =
-    isUncertain && rawClass ? t2(UNCERTAIN_REASON_I18N[rawClass]) : void 0;
+    isUncertain && rawClass ? translate(UNCERTAIN_REASON_I18N[rawClass]) : void 0;
   const tooltipText = uncertainReason
     ? `${plainDisplayError}
 ${uncertainReason}`
@@ -204,7 +198,7 @@ ${uncertainReason}`
                   className={`${ERROR_ACTION_ICON_CLASS} animate-spin`}
                 />
               ) : onDismissUnknown ? (
-                <X
+                <CloseIcon
                   size={14}
                   strokeWidth={1.5}
                   className={ERROR_ACTION_ICON_CLASS}
@@ -217,8 +211,8 @@ ${uncertainReason}`
                 />
               )}
               {onDismissUnknown
-                ? t2("canvas.dismissGenerationStatus")
-                : t2("canvas.removeLocalPlaceholder")}
+                ? translate("canvas.dismissGenerationStatus")
+                : translate("canvas.removeLocalPlaceholder")}
             </button>
           ) : !isRecoverable ? (
             <button
@@ -232,7 +226,7 @@ ${uncertainReason}`
                 strokeWidth={1.5}
                 className={ERROR_ACTION_ICON_CLASS}
               />
-              {t2("common.delete")}
+              {translate("common.delete")}
             </button>
           ) : onCancel ? (
             <button
@@ -256,7 +250,7 @@ ${uncertainReason}`
                   className={ERROR_ACTION_ICON_CLASS}
                 />
               )}
-              {t2("canvas.cancelGeneration")}
+              {translate("canvas.cancelGeneration")}
             </button>
           ) : null}
           {isConcurrencyLimit && onRetry ? (
@@ -273,8 +267,8 @@ ${uncertainReason}`
                 className={`${ERROR_ACTION_ICON_CLASS}${retrying ? " animate-spin" : ""}`}
               />
               {retrying
-                ? t2("canvas.retryGeneration.retrying")
-                : t2("common.retry")}
+                ? translate("canvas.retryGeneration.retrying")
+                : translate("common.retry")}
             </button>
           ) : onReport ? (
             <button
@@ -285,8 +279,8 @@ ${uncertainReason}`
               aria-busy={reportStatus === "submitting"}
               title={
                 isRecoverable
-                  ? t2("canvas.reportGenerationRecoveryTooltip")
-                  : t2("canvas.reportGenerationFailureTooltip")
+                  ? translate("canvas.reportGenerationRecoveryTooltip")
+                  : translate("canvas.reportGenerationFailureTooltip")
               }
               data-action-ui-id="canvas.media-error.report"
             >
@@ -306,8 +300,8 @@ ${uncertainReason}`
                 <FeedbackIcon size={14} className={ERROR_ACTION_ICON_CLASS} />
               )}
               {reportStatus === "submitted"
-                ? t2("feedback.reported")
-                : t2("canvas.mediaError.report")}
+                ? translate("feedback.reported")
+                : translate("canvas.mediaError.report")}
             </button>
           ) : null}
         </div>

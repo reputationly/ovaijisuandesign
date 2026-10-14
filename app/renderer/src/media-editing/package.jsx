@@ -1,16 +1,99 @@
 // package.jsx
-import { AlignCenter$1, AlignLeft$1, AlignRight$1, Ban$1, Blocks$1, Bookmark$1, BookOpen$1, Brain$1, Brush$1, Building2$1, Cable$1, CalendarDays$1, Camera$1, CaseSensitive$1, Check$1 as Check, Chrome$1, Circle$1, CircleHelp$1, CircleUserRound$1, Clapperboard$1, ClipboardPaste$1, Clock$1, Clock3$1, CloudOff$1, CompositedSvg, CornerDownRight$1, create$2 as create, createLucideIcon, createStore$1 as createStore, Download$1, Droplet$1, Expand$1, FileArchive$1, FileAudio$1, FileClock$1, FileCode$1, FileDiff$1, FileInput$1, FileJson2$1, Files$1, FileText$1, FileVideo$1, FileWarning$1, Flag$1, Folder$1, FolderKey$1, FolderOpen$1, HardDrive$1, History$1, List$1, LogOut$1, Maximize2$1, Megaphone$1, MessageSquare$1, MessageSquarePlus$1, MessageSquareQuote$1, Mic$1, Minimize2$1, Moon$1, MousePointer2$1, Paperclip$1, PencilLine$1, PenLine$1, Plug$1, Puzzle$1, reactExports, ReceiptText$1, Replace$1, ReplaceAll$1, Settings$1, Settings2$1, ShoppingBag$1, SlidersHorizontal$1, Sparkles$1, Sprout$1, Stamp$1, Trash2$1, Type$2, Upload$1, Users$1, useStore$2 as useStore, VolumeX$1, withArtworkOpacity, withIconCompositing } from "../vendor.js";
+import {
+  AlignCenter as AlignCenterIcon,
+  AlignLeft as AlignLeftIcon,
+  AlignRight as AlignRightIcon,
+  Ban as BanIcon,
+  Blocks as BlocksIcon,
+  Bookmark as BookmarkIcon,
+  BookOpen as BookOpenIcon,
+  Brain as BrainIcon,
+  Brush as BrushIcon,
+  Building2 as Building2Icon,
+  Cable as CableIcon,
+  CalendarDays as CalendarDaysIcon,
+  Camera as CameraIcon,
+  CaseSensitive as CaseSensitiveIcon,
+  Check,
+  Chrome as ChromeIcon,
+  Circle as CircleIcon,
+  CircleHelp as CircleHelpIcon,
+  CircleUserRound as CircleUserRoundIcon,
+  Clapperboard as ClapperboardIcon,
+  ClipboardPaste as ClipboardPasteIcon,
+  Clock as ClockIcon,
+  Clock3 as Clock3Icon,
+  CloudOff as CloudOffIcon,
+  CornerDownRight as CornerDownRightIcon,
+  createLucideIcon,
+  Download as DownloadIcon,
+  Droplet as DropletIcon,
+  Expand as ExpandIcon,
+  FileArchive as FileArchiveIcon,
+  FileAudio as FileAudioIcon,
+  FileClock as FileClockIcon,
+  FileCode as FileCodeIcon,
+  FileDiff as FileDiffIcon,
+  FileInput as FileInputIcon,
+  FileJson2 as FileJson2Icon,
+  Files as FilesIcon,
+  FileText as FileTextIcon,
+  FileVideo as FileVideoIcon,
+  FileWarning as FileWarningIcon,
+  Flag as FlagIcon,
+  Folder as FolderIcon,
+  FolderKey as FolderKeyIcon,
+  FolderOpen as FolderOpenIcon,
+  HardDrive as HardDriveIcon,
+  History as HistoryIcon,
+  List as ListIcon,
+  LogOut as LogOutIcon,
+  Maximize2 as Maximize2Icon,
+  Megaphone as MegaphoneIcon,
+  MessageSquare as MessageSquareIcon,
+  MessageSquarePlus as MessageSquarePlusIcon,
+  MessageSquareQuote as MessageSquareQuoteIcon,
+  Mic as MicIcon,
+  Minimize2 as Minimize2Icon,
+  Moon as MoonIcon,
+  MousePointer2 as MousePointer2Icon,
+  Paperclip as PaperclipIcon,
+  PencilLine as PencilLineIcon,
+  PenLine as PenLineIcon,
+  Plug as PlugIcon,
+  Puzzle as PuzzleIcon,
+  ReceiptText as ReceiptTextIcon,
+  Replace as ReplaceIcon,
+  ReplaceAll as ReplaceAllIcon,
+  Settings as SettingsIcon,
+  Settings2 as Settings2Icon,
+  ShoppingBag as ShoppingBagIcon,
+  SlidersHorizontal as SlidersHorizontalIcon,
+  Sparkles as SparklesIcon,
+  Sprout as SproutIcon,
+  Stamp as StampIcon,
+  Trash2 as Trash2Icon,
+  Type as TypeIcon,
+  Upload as UploadIcon,
+  Users as UsersIcon,
+  VolumeX as VolumeXIcon,
+} from "lucide-react";
+import reactExports from "react";
+import { CompositedSvg, withIconCompositing } from "./icon-compositing.js";
+import { create, useStore } from "zustand";
+import { createStore } from "zustand/vanilla";
+import { withArtworkOpacity } from "../canvas/artwork-opacity.js";
 import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function hasMessagePayload(
-  content2,
+  content,
   attachments,
   entityRefs,
   canvasNodeAttachments,
   pluginNodeAttachments,
 ) {
   return (
-    !!content2.trim() ||
+    !!content.trim() ||
     !!attachments?.length ||
     !!entityRefs?.length ||
     !!canvasNodeAttachments?.length ||
@@ -24,8 +107,8 @@ export function useDelayedFalse(flag, delayMs) {
   }
   reactExports.useEffect(() => {
     if (flag) return;
-    const timer2 = window.setTimeout(() => setValue(false), delayMs);
-    return () => window.clearTimeout(timer2);
+    const timer = window.setTimeout(() => setValue(false), delayMs);
+    return () => window.clearTimeout(timer);
   }, [flag, delayMs]);
   return flag || value;
 }
@@ -33,8 +116,8 @@ export const INACTIVE_NODE_UNMOUNT_GRACE_MS = 2e3;
 export const CanvasActiveContext = reactExports.createContext(null);
 export const CanvasActiveDeferredContext = reactExports.createContext(null);
 export function useCanvasActive() {
-  const ctx = reactExports.useContext(CanvasActiveContext);
-  return ctx ?? true;
+  const isCanvasActive = reactExports.useContext(CanvasActiveContext);
+  return isCanvasActive ?? true;
 }
 export const CanvasBridgeContext = reactExports.createContext({});
 export function useCanvasBridge() {
@@ -52,43 +135,43 @@ export function useCanvasIsMultiSelect() {
 export function useCanvasIsBoxSelecting() {
   return reactExports.useContext(IsBoxSelectingContext);
 }
-export function isDraggingSelector(s2) {
-  for (const [, node2] of s2.nodeLookup) {
-    if (node2.dragging) return true;
+export function isDraggingSelector(state) {
+  for (const [, node] of state.nodeLookup) {
+    if (node.dragging) return true;
   }
   return false;
 }
-export function isMultiSelectSelector(s2) {
-  let count2 = 0;
-  for (const n2 of s2.nodes) {
-    if (n2.selected && ++count2 > 1) return true;
+export function isMultiSelectSelector(state) {
+  let count = 0;
+  for (const node of state.nodes) {
+    if (node.selected && ++count > 1) return true;
   }
   return false;
 }
-export function isBoxSelectingSelector(s2) {
-  return s2.userSelectionActive;
+export function isBoxSelectingSelector(state) {
+  return state.userSelectionActive;
 }
-export function useAssetMeta(key2) {
-  return useAssetMetadataStore((s2) => s2.assets.get(key2));
+export function useAssetMeta(key) {
+  return useAssetMetadataStore((state) => state.assets.get(key));
 }
 export function createGeneratingStateStore() {
-  return createStore((set2) => ({
+  return createStore((set) => ({
     byNode: new Map(),
-    mark: (nodeId, info2) =>
-      set2((state2) => {
-        const next2 = new Map(state2.byNode);
-        next2.set(nodeId, info2);
+    mark: (nodeId, info) =>
+      set((state) => {
+        const next = new Map(state.byNode);
+        next.set(nodeId, info);
         return {
-          byNode: next2,
+          byNode: next,
         };
       }),
     clear: (nodeId) =>
-      set2((state2) => {
-        if (!state2.byNode.has(nodeId)) return state2;
-        const next2 = new Map(state2.byNode);
-        next2.delete(nodeId);
+      set((state) => {
+        if (!state.byNode.has(nodeId)) return state;
+        const next = new Map(state.byNode);
+        next.delete(nodeId);
         return {
-          byNode: next2,
+          byNode: next,
         };
       }),
   }));
@@ -101,31 +184,31 @@ export function useGeneratingStateApi() {
     defaultGeneratingStateStore
   );
 }
-export const useGeneratingStateStore = (selector2) =>
-  useStore(useGeneratingStateApi(), selector2);
+export const useGeneratingStateStore = (selector) =>
+  useStore(useGeneratingStateApi(), selector);
 useGeneratingStateStore.getState = defaultGeneratingStateStore.getState;
 useGeneratingStateStore.setState = defaultGeneratingStateStore.setState;
 useGeneratingStateStore.subscribe = defaultGeneratingStateStore.subscribe;
 export function useGenerating(nodeId) {
-  return useGeneratingStateStore((s2) => s2.byNode.get(nodeId));
+  return useGeneratingStateStore((state) => state.byNode.get(nodeId));
 }
-export const useMediaPlayback = create((set2) => ({
+export const useMediaPlayback = create((set) => ({
   playingId: null,
-  play: (id2) =>
-    set2({
-      playingId: id2,
+  play: (mediaId) =>
+    set({
+      playingId: mediaId,
     }),
   stop: () =>
-    set2({
+    set({
       playingId: null,
     }),
 }));
 export function formatTime(seconds, roundUp = false) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
   const total = roundUp ? Math.ceil(seconds) : Math.floor(seconds);
-  const m3 = Math.floor(total / 60);
-  const s2 = total % 60;
-  return `${m3}:${s2.toString().padStart(2, "0")}`;
+  const minuteCount = Math.floor(total / 60);
+  const remainingSeconds = total % 60;
+  return `${minuteCount}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 const File = createLucideIcon("File", [
   [
@@ -143,7 +226,7 @@ const File = createLucideIcon("File", [
     },
   ],
 ]);
-const Package$1 = createLucideIcon("Package", [
+const PackageIcon = createLucideIcon("Package", [
   [
     "path",
     {
@@ -173,7 +256,7 @@ const Package$1 = createLucideIcon("Package", [
     },
   ],
 ]);
-const Square$1 = createLucideIcon("Square", [
+const SquareIcon = createLucideIcon("Square", [
   [
     "rect",
     {
@@ -254,91 +337,91 @@ export const ImagePlusOutlineIcon = withIconCompositing(
     ],
   ]),
 );
-export const AlignCenter = withIconCompositing(AlignCenter$1);
-export const AlignLeft = withIconCompositing(AlignLeft$1);
-export const AlignRight = withIconCompositing(AlignRight$1);
-export const Ban = withIconCompositing(Ban$1);
-export const Blocks = withIconCompositing(Blocks$1);
-export const BookOpen = withIconCompositing(BookOpen$1);
-export const Bookmark = withIconCompositing(Bookmark$1);
-export const Brain = withIconCompositing(Brain$1);
-export const Brush = withIconCompositing(Brush$1);
-export const Building2 = withIconCompositing(Building2$1);
-export const Cable = withIconCompositing(Cable$1);
-export const CalendarDays = withIconCompositing(CalendarDays$1);
-export const Camera = withIconCompositing(Camera$1);
-export const CaseSensitive = withIconCompositing(CaseSensitive$1);
+export const AlignCenter = withIconCompositing(AlignCenterIcon);
+export const AlignLeft = withIconCompositing(AlignLeftIcon);
+export const AlignRight = withIconCompositing(AlignRightIcon);
+export const Ban = withIconCompositing(BanIcon);
+export const Blocks = withIconCompositing(BlocksIcon);
+export const BookOpen = withIconCompositing(BookOpenIcon);
+export const Bookmark = withIconCompositing(BookmarkIcon);
+export const Brain = withIconCompositing(BrainIcon);
+export const Brush = withIconCompositing(BrushIcon);
+export const Building2 = withIconCompositing(Building2Icon);
+export const Cable = withIconCompositing(CableIcon);
+export const CalendarDays = withIconCompositing(CalendarDaysIcon);
+export const Camera = withIconCompositing(CameraIcon);
+export const CaseSensitive = withIconCompositing(CaseSensitiveIcon);
 export const CheckIcon = withIconCompositing(Check);
-export const Chrome = withIconCompositing(Chrome$1);
-export const Circle = withIconCompositing(Circle$1);
-export const CircleHelp = withIconCompositing(CircleHelp$1);
-export const CircleUserRound = withIconCompositing(CircleUserRound$1);
-export const Clapperboard = withIconCompositing(Clapperboard$1);
-export const ClipboardPaste = withIconCompositing(ClipboardPaste$1);
-export const Clock = withIconCompositing(Clock$1);
-export const Clock3 = withIconCompositing(Clock3$1);
-export const CloudOff = withIconCompositing(CloudOff$1);
-export const CornerDownRight = withIconCompositing(CornerDownRight$1);
-export const Download = withIconCompositing(Download$1);
-export const Droplet = withIconCompositing(Droplet$1);
-export const Expand = withIconCompositing(Expand$1);
-export const File$1 = withIconCompositing(File);
-export const FileArchive = withIconCompositing(FileArchive$1);
-export const FileAudio = withIconCompositing(FileAudio$1);
-export const FileClock = withIconCompositing(FileClock$1);
-export const FileCode = withIconCompositing(FileCode$1);
-export const FileDiff = withIconCompositing(FileDiff$1);
-export const FileInput = withIconCompositing(FileInput$1);
-export const FileJson2 = withIconCompositing(FileJson2$1);
-export const FileText = withIconCompositing(FileText$1);
-export const FileVideo = withIconCompositing(FileVideo$1);
-export const FileWarning = withIconCompositing(FileWarning$1);
-export const Files = withIconCompositing(Files$1);
-export const Flag = withIconCompositing(Flag$1);
-export const Folder = withIconCompositing(Folder$1);
-export const FolderKey = withIconCompositing(FolderKey$1);
-export const FolderOpen = withIconCompositing(FolderOpen$1);
-export const HardDrive = withIconCompositing(HardDrive$1);
-export const History = withIconCompositing(History$1);
-export const List = withIconCompositing(List$1);
-export const LogOut = withIconCompositing(LogOut$1);
-export const Maximize2 = withIconCompositing(Maximize2$1);
-export const Megaphone = withIconCompositing(Megaphone$1);
-export const MessageSquare = withIconCompositing(MessageSquare$1);
-export const MessageSquarePlus = withIconCompositing(MessageSquarePlus$1);
-export const MessageSquareQuote = withIconCompositing(MessageSquareQuote$1);
-export const Mic = withIconCompositing(Mic$1);
-export const Minimize2 = withIconCompositing(Minimize2$1);
-export const Moon = withIconCompositing(Moon$1);
-export const MousePointer2 = withIconCompositing(MousePointer2$1);
-export const Package = withIconCompositing(Package$1);
-export const Paperclip = withIconCompositing(Paperclip$1);
-export const PenLine = withIconCompositing(PenLine$1);
-export const PencilLine = withIconCompositing(PencilLine$1);
-export const Plug = withIconCompositing(Plug$1);
-export const Puzzle = withIconCompositing(Puzzle$1);
-export const ReceiptText = withIconCompositing(ReceiptText$1);
-export const Replace = withIconCompositing(Replace$1);
-export const ReplaceAll = withIconCompositing(ReplaceAll$1);
-export const Settings = withIconCompositing(Settings$1);
-export const Settings2 = withIconCompositing(Settings2$1);
-export const ShoppingBag = withIconCompositing(ShoppingBag$1);
-export const SlidersHorizontal = withIconCompositing(SlidersHorizontal$1);
-export const Sparkles = withIconCompositing(Sparkles$1);
-export const Sprout = withIconCompositing(Sprout$1);
-export const Square = withIconCompositing(Square$1);
-export const Stamp = withIconCompositing(Stamp$1);
-export const Trash2 = withIconCompositing(Trash2$1);
-export const Type = withIconCompositing(Type$2);
-export const Upload = withIconCompositing(Upload$1);
-export const Users = withIconCompositing(Users$1);
-export const VolumeX = withIconCompositing(VolumeX$1);
-export function RotateIcon({ size: size2 = 20, ...props }) {
+export const Chrome = withIconCompositing(ChromeIcon);
+export const Circle = withIconCompositing(CircleIcon);
+export const CircleHelp = withIconCompositing(CircleHelpIcon);
+export const CircleUserRound = withIconCompositing(CircleUserRoundIcon);
+export const Clapperboard = withIconCompositing(ClapperboardIcon);
+export const ClipboardPaste = withIconCompositing(ClipboardPasteIcon);
+export const Clock = withIconCompositing(ClockIcon);
+export const Clock3 = withIconCompositing(Clock3Icon);
+export const CloudOff = withIconCompositing(CloudOffIcon);
+export const CornerDownRight = withIconCompositing(CornerDownRightIcon);
+export const Download = withIconCompositing(DownloadIcon);
+export const Droplet = withIconCompositing(DropletIcon);
+export const Expand = withIconCompositing(ExpandIcon);
+export const FileIcon = withIconCompositing(File);
+export const FileArchive = withIconCompositing(FileArchiveIcon);
+export const FileAudio = withIconCompositing(FileAudioIcon);
+export const FileClock = withIconCompositing(FileClockIcon);
+export const FileCode = withIconCompositing(FileCodeIcon);
+export const FileDiff = withIconCompositing(FileDiffIcon);
+export const FileInput = withIconCompositing(FileInputIcon);
+export const FileJson2 = withIconCompositing(FileJson2Icon);
+export const FileText = withIconCompositing(FileTextIcon);
+export const FileVideo = withIconCompositing(FileVideoIcon);
+export const FileWarning = withIconCompositing(FileWarningIcon);
+export const Files = withIconCompositing(FilesIcon);
+export const Flag = withIconCompositing(FlagIcon);
+export const Folder = withIconCompositing(FolderIcon);
+export const FolderKey = withIconCompositing(FolderKeyIcon);
+export const FolderOpen = withIconCompositing(FolderOpenIcon);
+export const HardDrive = withIconCompositing(HardDriveIcon);
+export const History = withIconCompositing(HistoryIcon);
+export const List = withIconCompositing(ListIcon);
+export const LogOut = withIconCompositing(LogOutIcon);
+export const Maximize2 = withIconCompositing(Maximize2Icon);
+export const Megaphone = withIconCompositing(MegaphoneIcon);
+export const MessageSquare = withIconCompositing(MessageSquareIcon);
+export const MessageSquarePlus = withIconCompositing(MessageSquarePlusIcon);
+export const MessageSquareQuote = withIconCompositing(MessageSquareQuoteIcon);
+export const Mic = withIconCompositing(MicIcon);
+export const Minimize2 = withIconCompositing(Minimize2Icon);
+export const Moon = withIconCompositing(MoonIcon);
+export const MousePointer2 = withIconCompositing(MousePointer2Icon);
+export const Package = withIconCompositing(PackageIcon);
+export const Paperclip = withIconCompositing(PaperclipIcon);
+export const PenLine = withIconCompositing(PenLineIcon);
+export const PencilLine = withIconCompositing(PencilLineIcon);
+export const Plug = withIconCompositing(PlugIcon);
+export const Puzzle = withIconCompositing(PuzzleIcon);
+export const ReceiptText = withIconCompositing(ReceiptTextIcon);
+export const Replace = withIconCompositing(ReplaceIcon);
+export const ReplaceAll = withIconCompositing(ReplaceAllIcon);
+export const Settings = withIconCompositing(SettingsIcon);
+export const Settings2 = withIconCompositing(Settings2Icon);
+export const ShoppingBag = withIconCompositing(ShoppingBagIcon);
+export const SlidersHorizontal = withIconCompositing(SlidersHorizontalIcon);
+export const Sparkles = withIconCompositing(SparklesIcon);
+export const Sprout = withIconCompositing(SproutIcon);
+export const Square = withIconCompositing(SquareIcon);
+export const Stamp = withIconCompositing(StampIcon);
+export const Trash2 = withIconCompositing(Trash2Icon);
+export const Type = withIconCompositing(TypeIcon);
+export const Upload = withIconCompositing(UploadIcon);
+export const Users = withIconCompositing(UsersIcon);
+export const VolumeX = withIconCompositing(VolumeXIcon);
+export function RotateIcon({ size = 20, ...props }) {
   return (
     <CompositedSvg
       {...props}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden="true"

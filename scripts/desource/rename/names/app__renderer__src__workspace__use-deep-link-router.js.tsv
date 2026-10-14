@@ -1,0 +1,17 @@
+key	old	new	依据
+config2@7:11	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
+dedupeKey2@110:17	dedupeKey2	dedupeKey	去掉打包器防重名追加的后缀，恢复原名 dedupeKey，即该绑定持有的值。
+entries2@200:46	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+id2@227:6	id2	workspaceId	工作区的唯一标识。
+key2@46:19	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@55:30	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@70:30	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+name2@129:23	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+name2@86:27	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+off@97:11	off	unsubscribe	结束订阅项目邀请深链的清理函数。
+seen2@207:9	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+timer2@136:15	timer2	timer	去掉打包器防重名追加的后缀，恢复原名 timer，即该绑定持有的值。
+timer2@149:18	timer2	timer	去掉打包器防重名追加的后缀，恢复原名 timer，即该绑定持有的值。
+timer22@113:17	timer22	timer	去掉打包器防重名追加的后缀，恢复原名 timer，即该绑定持有的值。
+token2@103:26	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+workspaceId2@168:38	workspaceId2	workspaceId	工作区的唯一标识。

@@ -4,10 +4,13 @@ import {
   HOME_WIDGET_DEV_PREVIEW_EVENT,
   snapshot,
 } from "./set-home-widget-dev-preview-mode.js";
-import { reactExports, usePlatform, useTranslation, X$7 as X } from "../vendor.js";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { useRouterState } from "../vendor-inline/vscode-base/linked-list.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";
@@ -39,17 +42,17 @@ function getHomeSurveyDismissalKey(accountScope, surveyId) {
 function isHomeSurveyDismissed(
   accountScope,
   surveyId,
-  now2 = Date.now(),
+  now = Date.now(),
   storage = typeof window === "undefined" ? void 0 : window.localStorage,
 ) {
   if (!storage) return false;
   try {
-    const raw2 = storage.getItem(
+    const raw = storage.getItem(
       getHomeSurveyDismissalKey(accountScope, surveyId),
     );
-    if (!raw2) return false;
-    const dismissedUntil = Number(raw2);
-    return Number.isFinite(dismissedUntil) && dismissedUntil > now2;
+    if (!raw) return false;
+    const dismissedUntil = Number(raw);
+    return Number.isFinite(dismissedUntil) && dismissedUntil > now;
   } catch {
     return false;
   }
@@ -58,19 +61,19 @@ function dismissHomeSurvey(
   accountScope,
   surveyId,
   cooldownMs,
-  now2 = Date.now(),
+  now = Date.now(),
   storage = typeof window === "undefined" ? void 0 : window.localStorage,
 ) {
   if (!storage) return;
   try {
     storage.setItem(
       getHomeSurveyDismissalKey(accountScope, surveyId),
-      String(now2 + Math.max(0, cooldownMs)),
+      String(now + Math.max(0, cooldownMs)),
     );
   } catch {}
 }
 const HomeSurveyCard = ({ survey, onCta, onDismiss }) => {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [imageVisible, setImageVisible] = reactExports.useState(true);
   reactExports.useEffect(() => {
     setImageVisible(Boolean(survey.imageUrl));
@@ -107,10 +110,10 @@ const HomeSurveyCard = ({ survey, onCta, onDismiss }) => {
             type="button"
             className="absolute top-1.5 right-1.5 z-10 inline-flex size-5 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-black/45 text-white transition-colors hover:bg-black/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/80"
             onClick={onDismiss}
-            aria-label={t2("common.close")}
+            aria-label={translate("common.close")}
             data-action-ui-id="home-widget.survey.close"
           >
-            <X className="size-2.5" strokeWidth={1.8} />
+            <CloseIcon className="size-2.5" strokeWidth={1.8} />
           </button>
         ) : null}
       </div>
@@ -130,14 +133,14 @@ const HomeSurveyCard = ({ survey, onCta, onDismiss }) => {
 };
 export const HomeWidgetHost = () => {
   const pathname = useRouterState({
-    select: (state2) => state2.location.pathname,
+    select: (state) => state.location.pathname,
   });
   const isHomeRoute = pathname === "/";
   const { user } = useAuth();
   const accountScope = user?.userID ? `user:${user.userID}` : "anonymous";
   const { homeWidget: configuredWidget } = useHubClientConfig();
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const preview = useHomeWidgetDevPreviewMode();
   const isSurveyPreview = preview.selection === "survey";
   const homeWidget =
@@ -215,7 +218,7 @@ export const HomeWidgetHost = () => {
         action: "cta",
       });
     }
-    void openExternalUrl(platform2, survey.ctaUrl, {
+    void openExternalUrl(platform, survey.ctaUrl, {
       source: "home-widget.survey",
     }).then((opened) => {
       if (opened && !isSurveyPreview) {
@@ -236,7 +239,7 @@ export const HomeWidgetHost = () => {
           reason: "external_link_failed",
         });
       }
-      dedupedToast.error(t2("homeWidget.actionFailed"));
+      dedupedToast.error(translate("homeWidget.actionFailed"));
     });
   };
   if (!surveyAvailable || !survey) return null;

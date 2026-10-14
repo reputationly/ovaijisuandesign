@@ -1,6 +1,6 @@
 // use-history-rail-state.js
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
-import { reactExports } from "../vendor.js";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
+import reactExports from "react";
 
 const MIN_TURNS_FOR_RAIL = 5;
 
@@ -46,7 +46,7 @@ export function useHistoryRailState(options) {
     enabled = true,
   } = options;
   const [showRail, setShowRail] = reactExports.useState(false);
-  const [mode2, setMode] = reactExports.useState("hidden");
+  const [mode, setMode] = reactExports.useState("hidden");
   const [activeIndex, setActiveIndex] = reactExports.useState(-1);
   const [activeIndexes, setActiveIndexes] = reactExports.useState([]);
   const rafIdRef = reactExports.useRef(null);
@@ -63,10 +63,10 @@ export function useHistoryRailState(options) {
     if (rafIdRef.current != null) return;
     rafIdRef.current = requestAnimationFrame(() => {
       rafIdRef.current = null;
-      const el = scrollRef.current;
-      if (!el) return;
-      const nextMode = resolveHistoryRailMode(el.clientWidth);
-      const shouldShow = shouldShowHistoryRail(el.clientWidth, turnCount);
+      const scrollElement = scrollRef.current;
+      if (!scrollElement) return;
+      const nextMode = resolveHistoryRailMode(scrollElement.clientWidth);
+      const shouldShow = shouldShowHistoryRail(scrollElement.clientWidth, turnCount);
       setShowRail((prev) => (prev === shouldShow ? prev : shouldShow));
       setMode((prev) => {
         const resolved = shouldShow ? nextMode : "hidden";
@@ -74,41 +74,41 @@ export function useHistoryRailState(options) {
       });
       if (!shouldShow) return;
       const nextIndexes = findActiveTurns(
-        el.scrollTop,
-        el.clientHeight,
+        scrollElement.scrollTop,
+        scrollElement.clientHeight,
         virtualItemsRef.current,
       );
-      const next2 = nextIndexes.at(-1) ?? -1;
+      const next = nextIndexes.at(-1) ?? -1;
       setActiveIndexes((prev) =>
         prev.length === nextIndexes.length &&
-        prev.every((value, index2) => value === nextIndexes[index2])
+        prev.every((value, index) => value === nextIndexes[index])
           ? prev
           : nextIndexes,
       );
-      setActiveIndex((prev) => (prev === next2 ? prev : next2));
+      setActiveIndex((prev) => (prev === next ? prev : next));
     });
   }, [scrollRef, turnCount, enabled]);
   reactExports.useEffect(() => {
     if (!enabled) return;
-    const el = scrollRef.current;
-    if (!el) return;
+    const scrollElement = scrollRef.current;
+    if (!scrollElement) return;
     recompute();
     const handler = () => recompute();
-    el.addEventListener("scroll", handler, {
+    scrollElement.addEventListener("scroll", handler, {
       passive: true,
     });
     return () => {
-      el.removeEventListener("scroll", handler);
+      scrollElement.removeEventListener("scroll", handler);
       cancelRaf();
     };
   }, [scrollRef, recompute, cancelRaf, enabled]);
   reactExports.useEffect(() => {
     if (!enabled) return;
-    const el = scrollRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const observer2 = new ResizeObserver(() => recompute());
-    observer2.observe(el);
-    return () => observer2.disconnect();
+    const scrollElement = scrollRef.current;
+    if (!scrollElement || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => recompute());
+    observer.observe(scrollElement);
+    return () => observer.disconnect();
   }, [scrollRef, recompute, enabled]);
   reactExports.useEffect(() => {
     if (!enabled) return;
@@ -121,7 +121,7 @@ export function useHistoryRailState(options) {
   }, [resetKey]);
   return {
     showRail: enabled && showRail,
-    mode: enabled ? mode2 : "hidden",
+    mode: enabled ? mode : "hidden",
     activeIndex,
     activeIndexes,
   };

@@ -1,20 +1,13 @@
 // calendar.jsx
-import {
-  Animation,
-  ChevronDownIcon$1 as ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  DayFlag,
-  reactExports,
-  UI,
-} from "../vendor.js";
+import reactExports from "react";
+import { ChevronDownIcon$1 as ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Button,
   buttonVariants,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
 } from "../infra/dialog-content.jsx";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, getDefaultClassNames } from "react-day-picker";
 var SelectionState2;
 (function (SelectionState3) {
   SelectionState3["range_end"] = "range_end";
@@ -22,34 +15,18 @@ var SelectionState2;
   SelectionState3["range_start"] = "range_start";
   SelectionState3["selected"] = "selected";
 })(SelectionState2 || (SelectionState2 = {}));
-function getDefaultClassNames() {
-  const classNames = {};
-  for (const key2 in UI) {
-    classNames[UI[key2]] = `rdp-${UI[key2]}`;
-  }
-  for (const key2 in DayFlag) {
-    classNames[DayFlag[key2]] = `rdp-${DayFlag[key2]}`;
-  }
-  for (const key2 in SelectionState2) {
-    classNames[SelectionState2[key2]] = `rdp-${SelectionState2[key2]}`;
-  }
-  for (const key2 in Animation) {
-    classNames[Animation[key2]] = `rdp-${Animation[key2]}`;
-  }
-  return classNames;
-}
 function CalendarDayButton({
   className,
   day,
-  modifiers: modifiers2,
+  modifiers,
   locale,
   ...props
 }) {
   const defaultClassNames = getDefaultClassNames();
   const ref = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    if (modifiers2.focused) ref.current?.focus();
-  }, [modifiers2.focused]);
+    if (modifiers.focused) ref.current?.focus();
+  }, [modifiers.focused]);
   return (
     <Button
       ref={ref}
@@ -57,14 +34,14 @@ function CalendarDayButton({
       size="icon"
       data-day={day.date.toLocaleDateString(locale?.code)}
       data-selected-single={
-        modifiers2.selected &&
-        !modifiers2.range_start &&
-        !modifiers2.range_end &&
-        !modifiers2.range_middle
+        modifiers.selected &&
+        !modifiers.range_start &&
+        !modifiers.range_end &&
+        !modifiers.range_middle
       }
-      data-range-start={modifiers2.range_start}
-      data-range-end={modifiers2.range_end}
-      data-range-middle={modifiers2.range_middle}
+      data-range-start={modifiers.range_start}
+      data-range-end={modifiers.range_end}
+      data-range-middle={modifiers.range_middle}
       className={cn(
         "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 rounded-lg border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:bg-primary/10 data-[range-middle=true]:text-foreground data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground [&>span]:text-xs [&>span]:opacity-70",
         defaultClassNames.day,
@@ -81,8 +58,8 @@ export function Calendar({
   captionLayout = "label",
   buttonVariant = "ghost",
   locale,
-  formatters: formatters2,
-  components: components2,
+  formatters,
+  components,
   ...props
 }) {
   const defaultClassNames = getDefaultClassNames();
@@ -98,11 +75,11 @@ export function Calendar({
       captionLayout={captionLayout}
       locale={locale}
       formatters={{
-        formatMonthDropdown: (date2) =>
-          date2.toLocaleString(locale?.code, {
+        formatMonthDropdown: (date) =>
+          date.toLocaleString(locale?.code, {
             month: "short",
           }),
-        ...formatters2,
+        ...formatters,
       }}
       classNames={{
         root: cn("w-fit", defaultClassNames.root),
@@ -196,50 +173,50 @@ export function Calendar({
         ...classNames,
       }}
       components={{
-        Root: ({ className: className2, rootRef, ...props2 }) => {
+        Root: ({ className, rootRef, ...props }) => {
           return (
             <div
               data-slot="calendar"
               ref={rootRef}
-              className={cn(className2)}
-              {...props2}
+              className={cn(className)}
+              {...props}
             />
           );
         },
-        Chevron: ({ className: className2, orientation, ...props2 }) => {
+        Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
             return (
               <ChevronLeftIcon
-                className={cn("size-4", className2)}
-                {...props2}
+                className={cn("size-4", className)}
+                {...props}
               />
             );
           }
           if (orientation === "right") {
             return (
               <ChevronRightIcon
-                className={cn("size-4", className2)}
-                {...props2}
+                className={cn("size-4", className)}
+                {...props}
               />
             );
           }
           return (
-            <ChevronDownIcon className={cn("size-4", className2)} {...props2} />
+            <ChevronDownIcon className={cn("size-4", className)} {...props} />
           );
         },
-        DayButton: ({ ...props2 }) => (
-          <CalendarDayButton locale={locale} {...props2} />
+        DayButton: ({ ...props }) => (
+          <CalendarDayButton locale={locale} {...props} />
         ),
-        WeekNumber: ({ children: children2, ...props2 }) => {
+        WeekNumber: ({ children, ...props }) => {
           return (
-            <td {...props2}>
+            <td {...props}>
               <div className="flex size-(--cell-size) items-center justify-center text-center">
-                {children2}
+                {children}
               </div>
             </td>
           );
         },
-        ...components2,
+        ...components,
       }}
       {...props}
     />

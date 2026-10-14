@@ -1,0 +1,25 @@
+key	新名	依据
+Brain$1@2:2996	MxBrainIcon	`MxBrainIcon` 对应目录中 source 为 @mx/icon 的 Brain 条目，用 Mx 前缀标明图标集。
+Check$1@2:3016	MxCheckIcon	`MxCheckIcon` 对应目录中 source 为 @mx/icon 的 Check 条目，用 Mx 前缀标明图标集。
+ChevronDown$1@2:3042	MxChevronDownIcon	`MxChevronDownIcon` 对应目录中 source 为 @mx/icon 的 ChevronDown 条目，用 Mx 前缀标明图标集。
+CircleAlert$1@2:3074	MxCircleAlertIcon	`MxCircleAlertIcon` 对应目录中 source 为 @mx/icon 的 CircleAlert 条目，用 Mx 前缀标明图标集。
+Clapperboard$1@2:3107	MxClapperboardIcon	`MxClapperboardIcon` 对应目录中 source 为 @mx/icon 的 Clapperboard 条目，用 Mx 前缀标明图标集。
+Download$1@2:3137	MxDownloadIcon	`MxDownloadIcon` 对应目录中 source 为 @mx/icon 的 Download 条目，用 Mx 前缀标明图标集。
+ExternalLink$1@2:3167	MxExternalLinkIcon	`MxExternalLinkIcon` 对应目录中 source 为 @mx/icon 的 ExternalLink 条目，用 Mx 前缀标明图标集。
+Eye$1@2:3192	MxEyeIcon	`MxEyeIcon` 对应目录中 source 为 @mx/icon 的 Eye 条目，用 Mx 前缀标明图标集。
+File$1@2:3209	MxFileIcon	`MxFileIcon` 对应目录中 source 为 @mx/icon 的 File 条目，用 Mx 前缀标明图标集。
+Film$1@2:3227	MxFilmIcon	`MxFilmIcon` 对应目录中 source 为 @mx/icon 的 Film 条目，用 Mx 前缀标明图标集。
+FolderInput$1@2:3252	MxFolderInputIcon	`MxFolderInputIcon` 对应目录中 source 为 @mx/icon 的 FolderInput 条目，用 Mx 前缀标明图标集。
+Headphones$1@2:3283	MxHeadphonesIcon	`MxHeadphonesIcon` 对应目录中 source 为 @mx/icon 的 Headphones 条目，用 Mx 前缀标明图标集。
+Megaphone$1@2:3312	MxMegaphoneIcon	`MxMegaphoneIcon` 对应目录中 source 为 @mx/icon 的 Megaphone 条目，用 Mx 前缀标明图标集。
+Music$1@2:3336	MxMusicIcon	`MxMusicIcon` 对应目录中 source 为 @mx/icon 的 Music 条目，用 Mx 前缀标明图标集。
+Package$1@2:3358	MxPackageIcon	`MxPackageIcon` 对应目录中 source 为 @mx/icon 的 Package 条目，用 Mx 前缀标明图标集。
+Plus$1@2:3379	MxPlusIcon	`MxPlusIcon` 对应目录中 source 为 @mx/icon 的 Plus 条目，用 Mx 前缀标明图标集。
+Search$1@2:3399	MxSearchIcon	`MxSearchIcon` 对应目录中 source 为 @mx/icon 的 Search 条目，用 Mx 前缀标明图标集。
+Share2$1@2:3421	MxShare2Icon	`MxShare2Icon` 对应目录中 source 为 @mx/icon 的 Share2 条目，用 Mx 前缀标明图标集。
+ShoppingBag$1@2:3448	MxShoppingBagIcon	`MxShoppingBagIcon` 对应目录中 source 为 @mx/icon 的 ShoppingBag 条目，用 Mx 前缀标明图标集。
+Square$1@2:3475	MxSquareIcon	`MxSquareIcon` 对应目录中 source 为 @mx/icon 的 Square 条目，用 Mx 前缀标明图标集。
+Trash2$1@2:3497	MxTrash2Icon	`MxTrash2Icon` 对应目录中 source 为 @mx/icon 的 Trash2 条目，用 Mx 前缀标明图标集。
+Video$1@2:3518	MxVideoIcon	`MxVideoIcon` 对应目录中 source 为 @mx/icon 的 Video 条目，用 Mx 前缀标明图标集。
+Wrench$1@2:3539	MxWrenchIcon	`MxWrenchIcon` 对应目录中 source 为 @mx/icon 的 Wrench 条目，用 Mx 前缀标明图标集。
+t@4171:11	translate	`translate` 是项目图标目录查询显示文案的本地化函数。

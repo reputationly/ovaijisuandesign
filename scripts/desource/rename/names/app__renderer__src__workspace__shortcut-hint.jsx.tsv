@@ -1,0 +1,16 @@
+key	old	new	依据
+children2@170:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+children2@255:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+groupId2@128:13	groupId2	groupId	去掉打包器防重名追加的后缀，恢复原名 groupId，即该绑定持有的值。
+groupId2@70:52	groupId2	groupId	去掉打包器防重名追加的后缀，恢复原名 groupId，即该绑定持有的值。
+id2@379:30	id2	tokenId	快捷键显示条目的唯一标识。
+key2@130:18	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@97:53	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+os2@348:7	os2	operatingSystem	用于解析快捷键显示格式的操作系统标识。
+TabsList$1@14:3	TabsList$1	TabsListPrimitive	结合所在函数体的实际用途命名，说明该绑定持有的 TabsListPrimitive。
+token2@319:41	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+token2@358:42	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+token2@379:46	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+u4@126:11	u4	urlObject	由订阅地址构造、用于修改查询参数的 URL 对象。
+url2@117:3	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+url2@72:9	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。

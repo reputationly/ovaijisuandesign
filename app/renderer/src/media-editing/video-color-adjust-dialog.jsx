@@ -1,13 +1,22 @@
 // video-color-adjust-dialog.jsx
-import { BlobSource, BufferTarget, jsxRuntimeExports, Mp4OutputFormat, Output, PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon, reactExports, UrlSource, useTranslation, WebMOutputFormat } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon } from "./playback-icons.js";
+import {
+  ALL_FORMATS,
+  BlobSource,
+  BufferTarget,
+  Conversion,
+  Input,
+  Mp4OutputFormat,
+  Output,
+  UrlSource,
+  WebMOutputFormat,
+} from "mediabunny";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { VolumeIcon, VolumeMuteIcon } from "./build-video-thumb-base.jsx";
-import {
-  ALL_FORMATS,
-  Conversion,
-  Input$3 as Input,
-} from "../vendor-inline/mediabunny/hls-segmented-input.js";
 import { Dialog } from "../canvas/separator.jsx";
 import { Trash2, Upload } from "./package.jsx";
 import { SendArrowIcon } from "../canvas/file-missing-icon.jsx";
@@ -30,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../generation/select-content.jsx";
-import { cn } from "../infra/dialog-content.jsx";
+import { cn as classNames } from "../infra/dialog-content.jsx";
 import { ProgressBar } from "./progress-bar-inner.jsx";
 import { defaultSettings } from "./default-settings.js";
 import { VideoColorGrading } from "./video-color-grading.js";
@@ -47,10 +56,10 @@ async function openInput(source) {
       source: new UrlSource(source),
     });
   }
-  const url2 = source.currentSrc || source.src;
-  if (!url2) throw new Error("Video element has no src to export from");
-  if (url2.startsWith("blob:")) {
-    const blob = await fetch(url2).then((r2) => r2.blob());
+  const url = source.currentSrc || source.src;
+  if (!url) throw new Error("Video element has no src to export from");
+  if (url.startsWith("blob:")) {
+    const blob = await fetch(url).then((response) => response.blob());
     return new Input({
       formats: ALL_FORMATS,
       source: new BlobSource(blob),
@@ -58,15 +67,15 @@ async function openInput(source) {
   }
   return new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(url2),
+    source: new UrlSource(url),
   });
 }
-function makeEven(n2) {
-  return n2 - (n2 % 2);
+function makeEven(dimension) {
+  return dimension - (dimension % 2);
 }
 async function exportVideo(processor, source, opts = {}) {
-  const format2 = opts.format ?? "mp4";
-  const codec = opts.codec ?? (format2 === "webm" ? "vp9" : "avc");
+  const format = opts.format ?? "mp4";
+  const codec = opts.codec ?? (format === "webm" ? "vp9" : "avc");
   const bitrate = opts.bitrate ?? 5e6;
   const input = await openInput(source);
   const videoTrack = await input.getPrimaryVideoTrack();
@@ -92,7 +101,7 @@ async function exportVideo(processor, source, opts = {}) {
   await processor.ensureReadyForSource(outW, outH);
   const canvas = processor.getCanvas();
   const output = new Output({
-    format: format2 === "webm" ? new WebMOutputFormat() : new Mp4OutputFormat(),
+    format: format === "webm" ? new WebMOutputFormat() : new Mp4OutputFormat(),
     target: new BufferTarget(),
   });
   let conversion;
@@ -115,27 +124,27 @@ async function exportVideo(processor, source, opts = {}) {
         processedWidth: outW,
         processedHeight: outH,
         process: async (sample) => {
-          const frame2 = sample.toVideoFrame();
+          const frame = sample.toVideoFrame();
           try {
-            processor.renderFromSource(frame2);
+            processor.renderFromSource(frame);
           } finally {
-            frame2.close();
+            frame.close();
           }
           return await createImageBitmap(canvas);
         },
       },
     });
-  } catch (e2) {
+  } catch (error) {
     input.dispose();
-    throw e2;
+    throw error;
   }
   if (opts.onProgress) {
     let lastProgress = -1;
-    conversion.onProgress = (p3) => {
-      const v2 = Math.min(1, Math.max(0, p3));
-      if (v2 - lastProgress >= 0.01 || v2 >= 1) {
-        opts.onProgress(v2);
-        lastProgress = v2;
+    conversion.onProgress = (progress) => {
+      const progressValue = Math.min(1, Math.max(0, progress));
+      if (progressValue - lastProgress >= 0.01 || progressValue >= 1) {
+        opts.onProgress(progressValue);
+        lastProgress = progressValue;
       }
     };
   }
@@ -146,7 +155,7 @@ async function exportVideo(processor, source, opts = {}) {
   }
   const buffer = output.target.buffer;
   if (!buffer) throw new Error("Export failed: no buffer produced");
-  const mime = format2 === "webm" ? "video/webm" : "video/mp4";
+  const mime = format === "webm" ? "video/webm" : "video/mp4";
   return new Blob([buffer], {
     type: mime,
   });
@@ -161,7 +170,7 @@ function useDelayedHover(delay = 100) {
     }
     setIsOpen(true);
   }, []);
-  const close2 = reactExports.useCallback(() => {
+  const scheduleClose = reactExports.useCallback(() => {
     timerRef.current = setTimeout(() => setIsOpen(false), delay);
   }, [delay]);
   const dismiss = reactExports.useCallback(() => {
@@ -174,7 +183,7 @@ function useDelayedHover(delay = 100) {
   return {
     isOpen,
     open,
-    close: close2,
+    close: scheduleClose,
     dismiss,
   };
 }
@@ -182,15 +191,15 @@ function VolumeControlInner({ videoRef, tone = "dark" }) {
   const trackRef = reactExports.useRef(null);
   const [volume, setVolume] = reactExports.useState(100);
   const [muted, setMuted] = reactExports.useState(false);
-  const { isOpen, open, close: close2 } = useDelayedHover();
+  const { isOpen, open, close: scheduleClose } = useDelayedHover();
   reactExports.useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-    el.muted = muted;
-    el.volume = volume / 100;
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+    videoElement.muted = muted;
+    videoElement.volume = volume / 100;
   }, [muted, volume, videoRef]);
-  const handleToggleMute = reactExports.useCallback((e2) => {
-    e2.stopPropagation();
+  const handleToggleMute = reactExports.useCallback((clickEvent) => {
+    clickEvent.stopPropagation();
     setMuted((prev) => !prev);
   }, []);
   const seekVolume = reactExports.useCallback((clientY) => {
@@ -203,19 +212,19 @@ function VolumeControlInner({ videoRef, tone = "dark" }) {
     setVolume(newVol);
     setMuted(newVol === 0);
   }, []);
-  const handleClick2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      seekVolume(e2.clientY);
+  const handleClick = reactExports.useCallback(
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      seekVolume(clickEvent.clientY);
     },
     [seekVolume],
   );
   const handleDragStart = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      e2.preventDefault();
-      seekVolume(e2.clientY);
-      const onMove = (ev) => seekVolume(ev.clientY);
+    (mouseEvent) => {
+      mouseEvent.stopPropagation();
+      mouseEvent.preventDefault();
+      seekVolume(mouseEvent.clientY);
+      const onMove = (mouseEvent) => seekVolume(mouseEvent.clientY);
       const onUp = () => {
         document.removeEventListener("mousemove", onMove);
         document.removeEventListener("mouseup", onUp);
@@ -243,11 +252,11 @@ function VolumeControlInner({ videoRef, tone = "dark" }) {
   const sliderColorCls = isLight ? "text-foreground" : "text-white";
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: hover menu container
-    <div className="relative" onMouseEnter={open} onMouseLeave={close2}>
+    <div className="relative" onMouseEnter={open} onMouseLeave={scheduleClose}>
       <button
         type="button"
         onClick={handleToggleMute}
-        onDoubleClick={(e2) => e2.stopPropagation()}
+        onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
         className={btnCls}
         style={{
           background: "none",
@@ -265,7 +274,7 @@ function VolumeControlInner({ videoRef, tone = "dark" }) {
             zIndex: 10,
           }}
           onMouseEnter={open}
-          onMouseLeave={close2}
+          onMouseLeave={scheduleClose}
         >
           <div
             className={`flex flex-col items-center rounded-md px-1.5 py-2 ${sliderColorCls}`}
@@ -293,7 +302,7 @@ function VolumeControlInner({ videoRef, tone = "dark" }) {
                 display: "flex",
                 justifyContent: "center",
               }}
-              onClick={handleClick2}
+              onClick={handleClick}
               onMouseDown={handleDragStart}
             >
               <div
@@ -515,16 +524,16 @@ export function VideoColorAdjustDialog({
   videoSrc,
   videoName,
   onConfirm,
-  lut,
+  lut: lutBundle,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   useSuspendCanvasInteractions(open);
   const [stageEl, setStageEl] = reactExports.useState(null);
   const [videoEl, setVideoEl] = reactExports.useState(null);
   const videoRef = reactExports.useRef(null);
-  const setVideoNode = reactExports.useCallback((node2) => {
-    videoRef.current = node2;
-    setVideoEl(node2);
+  const setVideoNode = reactExports.useCallback((node) => {
+    videoRef.current = node;
+    setVideoEl(node);
   }, []);
   const processorRef = reactExports.useRef(null);
   const settingsRef = reactExports.useRef(defaultSettings);
@@ -563,7 +572,7 @@ export function VideoColorAdjustDialog({
         if (cancelled) return;
         console.error("[VideoColorAdjustDialog] attachVideo failed:", err);
         dedupedToast.error(
-          t2(
+          t(
             "colorAdjust.errorAttachFailed",
             "Failed to load video for color grading",
           ),
@@ -584,16 +593,16 @@ export function VideoColorAdjustDialog({
       processor.dispose();
       processorRef.current = null;
     };
-  }, [open, stageEl, videoEl, videoSrc, t2]);
+  }, [open, stageEl, videoEl, videoSrc, t]);
   reactExports.useEffect(() => {
     settingsRef.current = settings;
     const processor = processorRef.current;
     if (!processor) return;
-    const rafId2 = requestAnimationFrame(() => {
+    const rafId = requestAnimationFrame(() => {
       processor.setSettings(settings);
       if (videoEl?.paused) processor.renderOnce();
     });
-    return () => cancelAnimationFrame(rafId2);
+    return () => cancelAnimationFrame(rafId);
   }, [settings, videoEl]);
   reactExports.useEffect(() => {
     if (!open) {
@@ -606,12 +615,12 @@ export function VideoColorAdjustDialog({
     }
   }, [open]);
   reactExports.useEffect(() => {
-    if (!open || !lut) return;
+    if (!open || !lutBundle) return;
     let cancelled = false;
-    lut
+    lutBundle
       .listLuts()
-      .then((res) => {
-        if (!cancelled) setLuts(res);
+      .then((lutEntries) => {
+        if (!cancelled) setLuts(lutEntries);
       })
       .catch((err) =>
         console.error("[VideoColorAdjustDialog] list LUTs failed:", err),
@@ -619,10 +628,10 @@ export function VideoColorAdjustDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, lut]);
+  }, [open, lutBundle]);
   reactExports.useEffect(() => {
     const processor = processorRef.current;
-    if (!processor || !lut) return;
+    if (!processor || !lutBundle) return;
     if (!selectedLut) {
       processor.clearLUT();
       if (videoEl?.paused) processor.renderOnce();
@@ -630,11 +639,11 @@ export function VideoColorAdjustDialog({
     }
     let cancelled = false;
     setLutBusy(true);
-    lut
+    lutBundle
       .loadLutContent(selectedLut)
-      .then(async (text2) => {
+      .then(async (text) => {
         if (cancelled) return;
-        await processor.loadLUT(text2);
+        await processor.loadLUT(text);
         if (cancelled) return;
         processor.setLUTIntensity(lutIntensityRef.current);
         if (videoEl?.paused) processor.renderOnce();
@@ -649,21 +658,21 @@ export function VideoColorAdjustDialog({
     return () => {
       cancelled = true;
     };
-  }, [selectedLut, lut, videoEl]);
+  }, [selectedLut, lutBundle, videoEl]);
   reactExports.useEffect(() => {
     const processor = processorRef.current;
     if (!processor || !selectedLut) return;
-    const rafId2 = requestAnimationFrame(() => {
+    const rafId = requestAnimationFrame(() => {
       processor.setLUTIntensity(lutIntensity);
       if (videoEl?.paused) processor.renderOnce();
     });
-    return () => cancelAnimationFrame(rafId2);
+    return () => cancelAnimationFrame(rafId);
   }, [lutIntensity, selectedLut, videoEl]);
   const updateSetting = reactExports.useCallback(
-    (key2) => (value) => {
+    (key) => (value) => {
       setSettings((prev) => ({
         ...prev,
-        [key2]: value,
+        [key]: value,
       }));
     },
     [],
@@ -698,7 +707,7 @@ export function VideoColorAdjustDialog({
         videoEl.currentSrc || videoSrc,
         {
           format: "mp4",
-          onProgress: (p3) => setProgress(p3),
+          onProgress: (progress) => setProgress(progress),
         },
       );
       await onConfirm(blob);
@@ -706,37 +715,37 @@ export function VideoColorAdjustDialog({
     } catch (err) {
       console.error("[VideoColorAdjustDialog] export failed:", err);
       dedupedToast.error(
-        t2("colorAdjust.errorExportFailed", "Failed to export graded video"),
+        t("colorAdjust.errorExportFailed", "Failed to export graded video"),
       );
     } finally {
       setSubmitting(false);
     }
-  }, [onConfirm, onOpenChange, videoSrc, videoEl, t2]);
+  }, [onConfirm, onOpenChange, videoSrc, videoEl, t]);
   const handleImportClick = reactExports.useCallback(() => {
-    lut?.onImportEvent?.({
+    lutBundle?.onImportEvent?.({
       phase: "click",
     });
     fileInputRef.current?.click();
-  }, [lut]);
+  }, [lutBundle]);
   const handleFilePicked = reactExports.useCallback(
     async (event) => {
       const file = event.target.files?.[0];
       event.target.value = "";
-      if (!file || !lut) return;
+      if (!file || !lutBundle) return;
       const startedAt = Date.now();
       setLutBusy(true);
       try {
-        const { name: name2 } = await lut.importLut(file);
-        const fresh = await lut.listLuts();
+        const { name: lutName } = await lutBundle.importLut(file);
+        const fresh = await lutBundle.listLuts();
         setLuts(fresh);
-        setSelectedLut(name2);
-        lut.onImportEvent?.({
+        setSelectedLut(lutName);
+        lutBundle.onImportEvent?.({
           phase: "success",
           fileSize: file.size,
           durationMs: Date.now() - startedAt,
         });
       } catch (err) {
-        lut.onImportEvent?.({
+        lutBundle.onImportEvent?.({
           phase: "failed",
           fileSize: file.size,
           durationMs: Date.now() - startedAt,
@@ -744,37 +753,37 @@ export function VideoColorAdjustDialog({
         });
         console.error("[VideoColorAdjustDialog] import LUT failed:", err);
         dedupedToast.error(
-          t2("colorAdjust.lut.errorImport", "Failed to import LUT"),
+          t("colorAdjust.lut.errorImport", "Failed to import LUT"),
         );
       } finally {
         setLutBusy(false);
       }
     },
-    [lut, t2],
+    [lutBundle, t],
   );
   const handleDeleteLut = reactExports.useCallback(
-    async (name2) => {
-      if (!lut) return;
+    async (lutName) => {
+      if (!lutBundle) return;
       const confirmed = window.confirm(
-        t2("colorAdjust.lut.deleteConfirm", "Delete this LUT?"),
+        t("colorAdjust.lut.deleteConfirm", "Delete this LUT?"),
       );
       if (!confirmed) return;
       setLutBusy(true);
       try {
-        await lut.deleteLut(name2);
-        const fresh = await lut.listLuts();
+        await lutBundle.deleteLut(lutName);
+        const fresh = await lutBundle.listLuts();
         setLuts(fresh);
-        if (selectedLut === name2) setSelectedLut(null);
+        if (selectedLut === lutName) setSelectedLut(null);
       } catch (err) {
         console.error("[VideoColorAdjustDialog] delete LUT failed:", err);
         dedupedToast.error(
-          t2("colorAdjust.lut.errorDelete", "Failed to delete LUT"),
+          t("colorAdjust.lut.errorDelete", "Failed to delete LUT"),
         );
       } finally {
         setLutBusy(false);
       }
     },
-    [lut, selectedLut, t2],
+    [lutBundle, selectedLut, t],
   );
   const handleLutSelectChange = reactExports.useCallback((value) => {
     if (value === null || value === LUT_NONE) {
@@ -786,9 +795,9 @@ export function VideoColorAdjustDialog({
   const presetDisplayName = reactExports.useCallback(
     (filename) => {
       const stem = filename.replace(/\.cube$/i, "");
-      return t2(`colorAdjust.lutPreset.${stem}`, filename);
+      return t(`colorAdjust.lutPreset.${stem}`, filename);
     },
-    [t2],
+    [t],
   );
   const presetLuts = reactExports.useMemo(
     () => luts.filter((entry) => entry.isPreset),
@@ -799,19 +808,19 @@ export function VideoColorAdjustDialog({
     [luts],
   );
   const lutItems = reactExports.useMemo(() => {
-    const map3 = {
-      [LUT_NONE]: t2("colorAdjust.lut.none", "None"),
+    const map = {
+      [LUT_NONE]: t("colorAdjust.lut.none", "None"),
     };
     for (const entry of presetLuts)
-      map3[entry.name] = presetDisplayName(entry.name);
-    for (const entry of userLuts) map3[entry.name] = entry.name;
-    return map3;
-  }, [presetLuts, userLuts, presetDisplayName, t2]);
+      map[entry.name] = presetDisplayName(entry.name);
+    for (const entry of userLuts) map[entry.name] = entry.name;
+    return map;
+  }, [presetLuts, userLuts, presetDisplayName, t]);
   const progressPct = Math.round(progress * 100);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={cn(
+        className={classNames(
           "grid h-[min(700px,80vh)] gap-0 overflow-hidden p-0",
           "sm:!max-w-[min(1040px,92vw)]",
           "grid-rows-[auto_minmax(0,1fr)_auto]",
@@ -819,7 +828,7 @@ export function VideoColorAdjustDialog({
       >
         <DialogHeader className="flex-row items-center gap-2 border-b border-border/40 px-4 py-2.5">
           <DialogTitle className="text-sm font-medium">
-            {t2("canvas.colorAdjust")}
+            {t("canvas.colorAdjust")}
           </DialogTitle>
           {videoName && (
             <span className="truncate text-xs text-muted-foreground">
@@ -856,8 +865,8 @@ export function VideoColorAdjustDialog({
                 disabled={loading || submitting}
                 aria-label={
                   playing
-                    ? t2("common.pause", "Pause")
-                    : t2("common.play", "Play")
+                    ? t("common.pause", "Pause")
+                    : t("common.play", "Play")
                 }
                 className="flex size-6 shrink-0 items-center justify-center rounded-full text-foreground/80 hover:bg-foreground/10 disabled:opacity-50"
                 style={{
@@ -885,13 +894,13 @@ export function VideoColorAdjustDialog({
             </div>
             {loading && (
               <div className="absolute inset-0 flex items-center justify-center bg-background/40 text-xs text-muted-foreground">
-                {t2("common.loading")}
+                {t("common.loading")}
               </div>
             )}
             {submitting && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/70 backdrop-blur-sm">
                 <div className="text-sm text-foreground/85">
-                  {t2("colorAdjust.exportingVideo", "Exporting video...")}
+                  {t("colorAdjust.exportingVideo", "Exporting video...")}
                 </div>
                 <div className="h-1 w-64 overflow-hidden bg-foreground/15">
                   <div
@@ -909,10 +918,10 @@ export function VideoColorAdjustDialog({
           </div>
           <div className="flex min-h-0 flex-col border-l border-border/40">
             <div className="min-h-0 flex-1 overflow-y-auto p-4">
-              {lut && (
+              {lutBundle && (
                 <div className="mb-5 border-b border-border/40 pb-5">
                   <div className="mb-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                    {t2("colorAdjust.groupLut", "LUT")}
+                    {t("colorAdjust.groupLut", "LUT")}
                   </div>
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
@@ -928,7 +937,7 @@ export function VideoColorAdjustDialog({
                             className="w-full"
                           >
                             <SelectValue
-                              placeholder={t2(
+                              placeholder={t(
                                 "colorAdjust.lut.placeholder",
                                 "Select a LUT",
                               )}
@@ -937,7 +946,7 @@ export function VideoColorAdjustDialog({
                           <SelectContent>
                             <SelectItem value={LUT_NONE}>
                               <span className="text-muted-foreground">
-                                {t2("colorAdjust.lut.none", "None")}
+                                {t("colorAdjust.lut.none", "None")}
                               </span>
                             </SelectItem>
                             {presetLuts.length > 0 && (
@@ -945,7 +954,7 @@ export function VideoColorAdjustDialog({
                                 <SelectSeparator />
                                 <SelectGroup>
                                   <SelectLabel className="text-[10px] font-medium uppercase tracking-wider">
-                                    {t2(
+                                    {t(
                                       "colorAdjust.lutGroupPresets",
                                       "Presets",
                                     )}
@@ -968,7 +977,7 @@ export function VideoColorAdjustDialog({
                                 <SelectSeparator />
                                 <SelectGroup>
                                   <SelectLabel className="text-[10px] font-medium uppercase tracking-wider">
-                                    {t2("colorAdjust.lutGroupMine", "My LUTs")}
+                                    {t("colorAdjust.lutGroupMine", "My LUTs")}
                                   </SelectLabel>
                                   {userLuts.map((entry) => {
                                     const isSelected =
@@ -986,20 +995,20 @@ export function VideoColorAdjustDialog({
                                           {!isSelected && (
                                             <button
                                               type="button"
-                                              aria-label={t2(
+                                              aria-label={t(
                                                 "colorAdjust.lut.delete",
                                                 "Delete",
                                               )}
-                                              onClick={(e2) => {
-                                                e2.preventDefault();
-                                                e2.stopPropagation();
+                                              onClick={(clickEvent) => {
+                                                clickEvent.preventDefault();
+                                                clickEvent.stopPropagation();
                                                 void handleDeleteLut(
                                                   entry.name,
                                                 );
                                               }}
-                                              onPointerDown={(e2) => {
-                                                e2.preventDefault();
-                                                e2.stopPropagation();
+                                              onPointerDown={(pointerEvent) => {
+                                                pointerEvent.preventDefault();
+                                                pointerEvent.stopPropagation();
                                               }}
                                               className="flex size-5 shrink-0 items-center justify-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-foreground/10 hover:text-foreground"
                                               style={{
@@ -1028,7 +1037,7 @@ export function VideoColorAdjustDialog({
                         data-action-ui-id="video-color-adjust.lut-import"
                       >
                         <Upload className="size-3.5" />
-                        {t2("colorAdjust.lut.import", "Import...")}
+                        {t("colorAdjust.lut.import", "Import...")}
                       </Button>
                     </div>
                     <input
@@ -1039,7 +1048,7 @@ export function VideoColorAdjustDialog({
                       onChange={handleFilePicked}
                     />
                     <ColorAdjustSlider
-                      label={t2("colorAdjust.lut.intensity", "Intensity")}
+                      label={t("colorAdjust.lut.intensity", "Intensity")}
                       value={lutIntensity}
                       min={0}
                       max={100}
@@ -1056,19 +1065,19 @@ export function VideoColorAdjustDialog({
                   className="mb-5 border-b border-border/40 pb-5 last:mb-0 last:border-b-0 last:pb-0"
                 >
                   <div className="mb-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                    {t2(group.i18nKey, group.text)}
+                    {t(group.i18nKey, group.text)}
                   </div>
                   <div className="flex flex-col gap-3">
-                    {group.sliders.map((s2) => (
+                    {group.sliders.map((slider) => (
                       <ColorAdjustSlider
-                        key={s2.key}
-                        label={t2(s2.i18nKey, s2.text)}
-                        value={settings[s2.key]}
-                        min={s2.min}
-                        max={s2.max}
+                        key={slider.key}
+                        label={t(slider.i18nKey, slider.text)}
+                        value={settings[slider.key]}
+                        min={slider.min}
+                        max={slider.max}
                         disabled={loading || submitting}
-                        dataActionUiId={`video-color-adjust.${s2.key}`}
-                        onChange={updateSetting(s2.key)}
+                        dataActionUiId={`video-color-adjust.${slider.key}`}
+                        onChange={updateSetting(slider.key)}
                       />
                     ))}
                   </div>
@@ -1084,7 +1093,7 @@ export function VideoColorAdjustDialog({
             onClick={handleReset}
             disabled={submitting}
           >
-            {t2("colorAdjust.reset")}
+            {t("colorAdjust.reset")}
           </Button>
           <div className="flex items-center gap-1.5">
             <Button
@@ -1094,15 +1103,15 @@ export function VideoColorAdjustDialog({
               disabled={submitting}
               className="border-[var(--canvas-controls-border)] bg-transparent text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"
             >
-              {t2("common.cancel")}
+              {t("common.cancel")}
             </Button>
             <Button
               size="icon"
               onClick={handleConfirm}
               disabled={loading || submitting}
               loading={submitting}
-              aria-label={t2("colorAdjust.saveToCanvas")}
-              title={t2("colorAdjust.saveToCanvas")}
+              aria-label={t("colorAdjust.saveToCanvas")}
+              title={t("colorAdjust.saveToCanvas")}
               className="border-transparent bg-[var(--canvas-primary-btn-bg)] text-[var(--canvas-primary-btn-icon)] hover:bg-[var(--canvas-primary-btn-bg-hover)]"
             >
               <SendArrowIcon />

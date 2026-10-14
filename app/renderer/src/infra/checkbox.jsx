@@ -1,11 +1,12 @@
 // checkbox.jsx
-import { CheckboxRoot, reactExports } from "../vendor.js";
+import reactExports from "react";
+import { CheckboxRoot } from "./base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "./dialog-content.jsx";
 export function Checkbox({
   className,
   shape = "square",
-  size: size2 = "md",
+  size = "md",
   appearance = "default",
   label,
   description,
@@ -19,31 +20,31 @@ export function Checkbox({
   ...props
 }) {
   const generatedId = reactExports.useId();
-  const id2 = providedId ?? `checkbox-${generatedId}`;
+  const id = providedId ?? `checkbox-${generatedId}`;
   const gradientId = `checkbox-gradient-${generatedId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const handleInputRef = reactExports.useCallback(
-    (node2) => {
-      if (node2) {
-        if (form) node2.setAttribute("form", form);
-        else node2.removeAttribute("form");
+    (node) => {
+      if (node) {
+        if (form) node.setAttribute("form", form);
+        else node.removeAttribute("form");
       }
-      if (typeof inputRef === "function") return inputRef(node2);
-      if (inputRef) inputRef.current = node2;
+      if (typeof inputRef === "function") return inputRef(node);
+      if (inputRef) inputRef.current = node;
     },
     [inputRef, form],
   );
   const describedBy =
     [
       props["aria-describedby"],
-      description && `${id2}-description`,
-      error && `${id2}-error`,
+      description && `${id}-description`,
+      error && `${id}-error`,
     ]
       .filter(Boolean)
       .join(" ") || void 0;
   const control = (
     <CheckboxRoot
       {...props}
-      id={id2}
+      id={id}
       inputRef={handleInputRef}
       indeterminate={indeterminate}
       onCheckedChange={(checked, details) =>
@@ -57,14 +58,14 @@ export function Checkbox({
       }}
       data-slot="checkbox"
       data-shape={shape}
-      data-size={size2}
+      data-size={size}
       data-appearance={appearance}
       aria-invalid={error ? true : props["aria-invalid"]}
       aria-describedby={describedBy}
-      className={(state2) =>
+      className={(state) =>
         cn(
           "peer hilo-checkbox",
-          typeof className === "function" ? className(state2) : className,
+          typeof className === "function" ? className(state) : className,
         )
       }
     >
@@ -110,22 +111,22 @@ export function Checkbox({
   return (
     <span
       className="hilo-checkbox-field"
-      data-size={size2}
+      data-size={size}
       data-disabled={props.disabled || void 0}
     >
       {control}
       <span className="hilo-checkbox-field__copy">
-        {label && <label htmlFor={id2}>{label}</label>}
+        {label && <label htmlFor={id}>{label}</label>}
         {description && (
           <span
             className="hilo-checkbox-field__description"
-            id={`${id2}-description`}
+            id={`${id}-description`}
           >
             {description}
           </span>
         )}
         {error && (
-          <span className="hilo-checkbox-field__error" id={`${id2}-error`}>
+          <span className="hilo-checkbox-field__error" id={`${id}-error`}>
             {error}
           </span>
         )}

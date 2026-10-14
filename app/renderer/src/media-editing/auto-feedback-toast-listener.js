@@ -1,5 +1,8 @@
 // auto-feedback-toast-listener.js
-import { reactExports, useNavigate, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { buildWorkspaceSearch } from "../workspace/use-deep-link-router.js";
 import {
@@ -12,29 +15,29 @@ import {
   useOptionalWSConnection,
 } from "../settings/changelog-table.jsx";
 
-function autoFeedbackToastId(evt, gatewayScopeKey) {
-  const name2 = encodeURIComponent(evt.name);
-  if (evt.scope === "project") {
-    return `memory-auto:project:${encodeURIComponent(gatewayScopeKey)}:${name2}`;
+function autoFeedbackToastId(autoFeedbackEvent, gatewayScopeKey) {
+  const memoryEntryName = encodeURIComponent(autoFeedbackEvent.name);
+  if (autoFeedbackEvent.scope === "project") {
+    return `memory-auto:project:${encodeURIComponent(gatewayScopeKey)}:${memoryEntryName}`;
   }
-  return `memory-auto:user:${name2}`;
+  return `memory-auto:user:${memoryEntryName}`;
 }
 
 export function AutoFeedbackToastListener({
-  workspaceId: workspaceId2,
-  isActive: isActive2,
+  workspaceId,
+  isActive,
 }) {
   const connection = useOptionalWSConnection();
-  const subscribe2 = connection?.subscribe;
+  const subscribe = connection?.subscribe;
   const missingProviderWarnedRef = reactExports.useRef(false);
-  const { t: t2 } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { openSettings } = useSettingsDialog();
   const navigate = useNavigate();
   const gatewayScopeKey = useGatewayScopeKey();
   const fetcher = useGatewayFetch();
   reactExports.useEffect(() => {
-    if (!subscribe2 || connection.scope !== "workspace") {
+    if (!subscribe || connection.scope !== "workspace") {
       if (!missingProviderWarnedRef.current) {
         missingProviderWarnedRef.current = true;
         try {
@@ -45,27 +48,27 @@ export function AutoFeedbackToastListener({
       }
       return;
     }
-    return subscribe2((msg) => {
-      if (msg.type !== "memory_changed") return;
-      const evt = msg;
-      if (!evt.auto_extracted || evt.action !== "created") return;
-      const toastId = autoFeedbackToastId(evt, gatewayScopeKey);
+    return subscribe((websocketMessage) => {
+      if (websocketMessage.type !== "memory_changed") return;
+      const memoryChangedEvent = websocketMessage;
+      if (!memoryChangedEvent.auto_extracted || memoryChangedEvent.action !== "created") return;
+      const toastId = autoFeedbackToastId(memoryChangedEvent, gatewayScopeKey);
       dedupedToast.success(
-        t2("memory.autoToast.title", "Agent learnt a preference"),
+        t("memory.autoToast.title", "Agent learnt a preference"),
         {
           id: toastId,
-          description: t2("memory.autoToast.description", {
-            name: evt.name,
+          description: t("memory.autoToast.description", {
+            name: memoryChangedEvent.name,
             defaultValue:
               'Captured "{{name}}". Find it under Settings → Memory.',
           }),
           action: {
-            label: t2("memory.autoToast.view", "View"),
+            label: t("memory.autoToast.view", "View"),
             onClick: () => {
-              if (evt.scope === "project" && !isActive2) {
+              if (memoryChangedEvent.scope === "project" && !isActive) {
                 void navigate({
                   to: "/workspace",
-                  search: buildWorkspaceSearch(workspaceId2),
+                  search: buildWorkspaceSearch(workspaceId),
                 }).then(
                   () => openSettings("memory"),
                   (error) => {
@@ -80,33 +83,33 @@ export function AutoFeedbackToastListener({
             },
           },
           cancel: {
-            label: t2("memory.autoToast.undo", "Undo"),
+            label: t("memory.autoToast.undo", "Undo"),
             onClick: () => {
               void (async () => {
                 try {
-                  const res = await deleteMemory(fetcher, evt.scope, evt.name);
+                  const deleteResult = await deleteMemory(fetcher, memoryChangedEvent.scope, memoryChangedEvent.name);
                   dedupedToast.dismiss(toastId);
-                  if (res.deleted) {
+                  if (deleteResult.deleted) {
                     dedupedToast.success(
-                      t2(
+                      t(
                         "memory.autoToast.undoSuccess",
                         "Undone — entry removed",
                       ),
                     );
                   } else {
                     dedupedToast.info(
-                      t2(
+                      t(
                         "memory.autoToast.undoNotFound",
                         "Entry was already removed",
                       ),
                     );
                   }
-                  queryClient2.invalidateQueries({
+                  queryClient.invalidateQueries({
                     queryKey: ["memory"],
                   });
                 } catch (err) {
                   dedupedToast.error(
-                    t2("memory.autoToast.undoFailed", "Undo failed") +
+                    t("memory.autoToast.undoFailed", "Undo failed") +
                       (err instanceof Error ? `: ${err.message}` : ""),
                   );
                 }
@@ -118,15 +121,15 @@ export function AutoFeedbackToastListener({
     });
   }, [
     connection?.scope,
-    subscribe2,
-    t2,
-    queryClient2,
+    subscribe,
+    t,
+    queryClient,
     fetcher,
     gatewayScopeKey,
-    isActive2,
+    isActive,
     navigate,
     openSettings,
-    workspaceId2,
+    workspaceId,
   ]);
   return null;
 }

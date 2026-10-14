@@ -1,0 +1,2 @@
+key	new	reason
+ITEM_KEYS$1@2:7	EVALUATED_ITEM_KEYS	计算兼容性结论时逐项检查的状态键（与下方 ITEM_KEYS 内容相同，来自另一模块）

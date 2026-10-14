@@ -1,0 +1,17 @@
+key	new	依据
+option2@63:35	option	当前候选的增强视频帧率或分辨率档位。
+current2@63:44	current	用于比较最低可选档位的当前帧率或分辨率值。
+option2@67:28	option	当前候选的增强视频帧率或分辨率档位。
+current2@67:37	current	用于比较最低可选档位的当前帧率或分辨率值。
+option2@80:39	option	当前候选的增强视频帧率或分辨率档位。
+active2@81:15	active	当前帧率按钮是否对应已选帧率的布尔值。
+disabled2@82:15	disabled	当前帧率选项是否因低于原视频帧率而禁用的布尔值。
+EnhanceVideoPopover2@113:12	EnhanceVideoPopover	渲染视频增强设置弹层的 memoized 函数组件。
+selected2@134:11	selected	当前节点是否被画布选中的布尔值。
+body2@177:11	body	包含分辨率与帧率控件的视频增强弹层内容元素。
+option2@203:47	option	当前候选的增强视频帧率或分辨率档位。
+t2@123:16	t	根据当前语言返回视频增强界面文案的翻译函数。
+s2@131:8	storeState	React Flow 状态仓库提供的节点选择状态。
+e2@184:25	pointerEvent	需要阻止传播以免拖动画布节点的指针按下事件。
+e2@185:25	mouseEvent	需要阻止传播以免触发节点编辑的双击事件。
+v2@194:54	resolutionValue	Select 控件回调收到的新分辨率字符串。

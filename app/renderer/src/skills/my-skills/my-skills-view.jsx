@@ -1,5 +1,8 @@
 // 「我的技能」视图：单个条目与整体列表。
-import { useTranslation, reactExports, getRuntimeConfig, MoreHorizontal } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { getRuntimeConfig } from "../../infra/runtime-config.js";
+import { MoreHorizontal } from "../../media-editing/lucide-icon-wraps.js";
 import { Switch } from "../../generation/select-content.jsx";
 import { AlertDialog, Button, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../../infra/dialog-content.jsx";
 import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "../../infra/badge-variants.jsx";

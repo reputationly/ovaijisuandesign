@@ -1,28 +1,28 @@
 // use-canvas-node-error-feedback.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useDirectFeedback } from "../settings/use-direct-feedback.jsx";
 
 export function useCanvasNodeErrorFeedback() {
   const { submitDirect, getSubmissionStatus } = useDirectFeedback();
   const onReportNodeError = reactExports.useCallback(
-    (info2) => {
+    (info) => {
       void submitDirect(
         {
           source: "context",
           contextType: "canvas_node_error",
-          traceId: info2.traceId,
+          traceId: info.traceId,
           context: {
-            node_id: info2.nodeId,
-            node_type: info2.nodeType,
-            model_id: info2.model,
-            prompt: info2.prompt,
-            error_code: info2.errorMessage,
-            trace_id: info2.traceId,
+            node_id: info.nodeId,
+            node_type: info.nodeType,
+            model_id: info.model,
+            prompt: info.prompt,
+            error_code: info.errorMessage,
+            trace_id: info.traceId,
           },
-          logUploadReason: `canvas_node_error:${info2.nodeType}`,
-          defaultDescription: info2.errorMessage ?? "",
+          logUploadReason: `canvas_node_error:${info.nodeType}`,
+          defaultDescription: info.errorMessage ?? "",
         },
-        info2.nodeId,
+        info.nodeId,
       );
     },
     [submitDirect],

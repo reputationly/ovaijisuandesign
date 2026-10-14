@@ -1,5 +1,9 @@
 // image-annotation-dialog.jsx
-import { ArrowUpRight, ChevronDown, Grid3X3, jsxRuntimeExports, Minus, reactExports, Redo2, Tag$1 as Tag, Undo2, usePlatform, useTranslation, X$7 as X } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { ArrowUpRight, ChevronDown, Grid3X3, Minus, Redo2, Tag$1 as Tag, Undo2, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Brush,
@@ -16,7 +20,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import {
   AlertDialog,
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -102,54 +106,54 @@ function getImageAnnotationOutput(filename) {
     mimeType: "image/png",
   };
 }
-function getAnnotatedFilename(filename, extension2) {
-  const dot2 = filename.lastIndexOf(".");
-  const base2 =
-    (dot2 > 0 ? filename.slice(0, dot2) : filename).trim() || "image";
-  return `${base2}-annotated.${extension2}`;
+function getAnnotatedFilename(filename, extension) {
+  const dot = filename.lastIndexOf(".");
+  const base =
+    (dot > 0 ? filename.slice(0, dot) : filename).trim() || "image";
+  return `${base}-annotated.${extension}`;
 }
 const IMAGE_ANNOTATION_VIEWPORT_INSET = 16;
-function observeImageAnnotationViewport(element2, onSize) {
+function observeImageAnnotationViewport(element, onSize) {
   let disposed = false;
-  let frame2 = 0;
+  let frame = 0;
   const measure = () => {
     if (disposed) return;
     onSize({
-      width: element2.clientWidth,
-      height: element2.clientHeight,
+      width: element.clientWidth,
+      height: element.clientHeight,
     });
   };
   const scheduleMeasure = () => {
-    if (disposed || frame2) return;
+    if (disposed || frame) return;
     if (typeof requestAnimationFrame === "undefined") {
       measure();
       return;
     }
-    frame2 = requestAnimationFrame(() => {
-      frame2 = 0;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
       measure();
     });
   };
   measure();
   scheduleMeasure();
-  const observer2 =
+  const observer =
     typeof ResizeObserver === "undefined"
       ? null
       : new ResizeObserver(scheduleMeasure);
-  observer2?.observe(element2);
+  observer?.observe(element);
   return () => {
     disposed = true;
-    if (frame2 && typeof cancelAnimationFrame !== "undefined")
-      cancelAnimationFrame(frame2);
-    observer2?.disconnect();
+    if (frame && typeof cancelAnimationFrame !== "undefined")
+      cancelAnimationFrame(frame);
+    observer?.disconnect();
   };
 }
-function isUsableSize(size2) {
+function isUsableSize(size) {
   return (
-    Number.isFinite(size2.width) &&
-    Number.isFinite(size2.height) &&
-    size2.width > 0 &&
-    size2.height > 0
+    Number.isFinite(size.width) &&
+    Number.isFinite(size.height) &&
+    size.width > 0 &&
+    size.height > 0
   );
 }
 function calculateImageAnnotationDisplayFrame(
@@ -180,15 +184,15 @@ function calculateImageAnnotationDisplayFrame(
       scale: 1,
     };
   }
-  const scale2 = Math.min(
+  const scale = Math.min(
     1,
     availableWidth / editorSize.width,
     availableHeight / editorSize.height,
   );
   return {
-    width: editorSize.width * scale2,
-    height: editorSize.height * scale2,
-    scale: scale2,
+    width: editorSize.width * scale,
+    height: editorSize.height * scale,
+    scale,
   };
 }
 const COLORS = [
@@ -215,8 +219,8 @@ export function ImageAnnotationDialog({
     requireSnapshot: true,
     onError: onClose,
   });
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t } = useTranslation();
+  const platform = usePlatform();
   const editorRef = reactExports.useRef(null);
   const viewportRef = reactExports.useRef(null);
   const [viewportElement, setViewportElement] = reactExports.useState(null);
@@ -284,21 +288,21 @@ export function ImageAnnotationDialog({
   const syncViewportSize = reactExports.useCallback(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
-    const next2 = {
+    const next = {
       width: viewport.clientWidth,
       height: viewport.clientHeight,
     };
-    if (next2.width <= 0 || next2.height <= 0) return;
-    setViewportSize((current2) =>
-      current2.width === next2.width && current2.height === next2.height
-        ? current2
-        : next2,
+    if (next.width <= 0 || next.height <= 0) return;
+    setViewportSize((current) =>
+      current.width === next.width && current.height === next.height
+        ? current
+        : next,
     );
   }, []);
-  const handleViewportRef = reactExports.useCallback((element2) => {
-    viewportRef.current = element2;
-    setViewportElement((current2) =>
-      current2 === element2 ? current2 : element2,
+  const handleViewportRef = reactExports.useCallback((element) => {
+    viewportRef.current = element;
+    setViewportElement((current) =>
+      current === element ? current : element,
     );
   }, []);
   const handleEditorReady = reactExports.useCallback(() => {
@@ -310,12 +314,12 @@ export function ImageAnnotationDialog({
   }, [syncViewportSize]);
   reactExports.useEffect(() => {
     if (!viewportElement) return;
-    return observeImageAnnotationViewport(viewportElement, (next2) => {
-      if (next2.width <= 0 || next2.height <= 0) return;
-      setViewportSize((current2) =>
-        current2.width === next2.width && current2.height === next2.height
-          ? current2
-          : next2,
+    return observeImageAnnotationViewport(viewportElement, (next) => {
+      if (next.width <= 0 || next.height <= 0) return;
+      setViewportSize((current) =>
+        current.width === next.width && current.height === next.height
+          ? current
+          : next,
       );
     });
   }, [viewportElement]);
@@ -330,14 +334,14 @@ export function ImageAnnotationDialog({
       ?.loadImage(attachment.previewUrl)
       .catch(() => void 0);
   }, [attachment.previewUrl]);
-  const selectTool = reactExports.useCallback((tool2) => {
-    setActiveTool(tool2);
-    editorRef.current?.setTool(tool2);
+  const selectTool = reactExports.useCallback((tool) => {
+    setActiveTool(tool);
+    editorRef.current?.setTool(tool);
   }, []);
-  const selectColor = reactExports.useCallback((color2) => {
-    setActiveColor(color2);
+  const selectColor = reactExports.useCallback((color) => {
+    setActiveColor(color);
     editorRef.current?.setStyle({
-      stroke: color2,
+      stroke: color,
     });
   }, []);
   const selectStrokeWidth = reactExports.useCallback((strokeWidth) => {
@@ -346,10 +350,10 @@ export function ImageAnnotationDialog({
       strokeWidth,
     });
   }, []);
-  const selectMosaicMode = reactExports.useCallback((mode2) => {
-    setMosaicMode(mode2);
+  const selectMosaicMode = reactExports.useCallback((mode) => {
+    setMosaicMode(mode);
     editorRef.current?.setStyle({
-      mosaicMode: mode2,
+      mosaicMode: mode,
     });
   }, []);
   const selectMosaicShape = reactExports.useCallback((shape) => {
@@ -359,11 +363,11 @@ export function ImageAnnotationDialog({
     });
   }, []);
   const exportBlob = reactExports.useCallback(async () => {
-    const handle2 = editorRef.current;
-    if (!handle2) throw new Error("Image editor is not ready");
-    return handle2.toBlob(output.mimeType, output.quality);
+    const handle = editorRef.current;
+    if (!handle) throw new Error("Image editor is not ready");
+    return handle.toBlob(output.mimeType, output.quality);
   }, [output]);
-  const handleKeyDown2 = reactExports.useCallback(
+  const handleKeyDown = reactExports.useCallback(
     (event) => {
       event.stopPropagation();
       if (
@@ -379,16 +383,16 @@ export function ImageAnnotationDialog({
       ) {
         return;
       }
-      const key2 = event.key.toLowerCase();
+      const key = event.key.toLowerCase();
       const mod = event.metaKey || event.ctrlKey;
-      if (mod && !event.altKey && (key2 === "z" || key2 === "y")) {
+      if (mod && !event.altKey && (key === "z" || key === "y")) {
         event.preventDefault();
-        if (key2 === "y" || event.shiftKey) editorRef.current?.redo();
+        if (key === "y" || event.shiftKey) editorRef.current?.redo();
         else editorRef.current?.undo();
       } else if (
         !mod &&
         !event.altKey &&
-        (key2 === "delete" || key2 === "backspace")
+        (key === "delete" || key === "backspace")
       ) {
         event.preventDefault();
         editorRef.current?.deleteSelected();
@@ -396,21 +400,21 @@ export function ImageAnnotationDialog({
     },
     [editorReady, working, discardOpen, privacyOpen],
   );
-  const apply2 = reactExports.useCallback(
-    async (mode2) => {
+  const apply = reactExports.useCallback(
+    async (mode) => {
       if (operationRef.current || applyDisabled || !editorReady || !hasChanges)
         return;
       const operation = new AbortController();
       operationRef.current = operation;
-      setWorking(mode2);
-      const timeout2 = window.setTimeout(() => {
+      setWorking(mode);
+      const timeout = window.setTimeout(() => {
         if (operationRef.current !== operation) return;
         operation.abort();
         operationRef.current = null;
         setWorking(null);
-        dedupedToast.error(t2("chat.imageAnnotation.saveTimedOut"));
+        dedupedToast.error(t("chat.imageAnnotation.saveTimedOut"));
       }, IMAGE_ANNOTATION_SAVE_TIMEOUT_MS);
-      const stopTimeout = () => window.clearTimeout(timeout2);
+      const stopTimeout = () => window.clearTimeout(timeout);
       operation.signal.addEventListener("abort", stopTimeout, {
         once: true,
       });
@@ -421,23 +425,23 @@ export function ImageAnnotationDialog({
           type: output.mimeType,
           lastModified: Date.now(),
         });
-        const current2 = applyContextRef.current;
+        const current = applyContextRef.current;
         if (
-          current2.applyDisabled ||
-          (mode2 === "append" && !current2.canAppend)
+          current.applyDisabled ||
+          (mode === "append" && !current.canAppend)
         ) {
-          dedupedToast.error(t2("chat.imageAnnotation.targetChanged"));
+          dedupedToast.error(t("chat.imageAnnotation.targetChanged"));
           return;
         }
-        const accepted = await current2.onApply(
+        const accepted = await current.onApply(
           attachment,
           file,
-          mode2,
+          mode,
           operation.signal,
         );
         if (operation.signal.aborted) return;
         if (!accepted) {
-          dedupedToast.error(t2("chat.imageAnnotation.targetChanged"));
+          dedupedToast.error(t("chat.imageAnnotation.targetChanged"));
           return;
         }
         applyContextRef.current.onClose();
@@ -447,7 +451,7 @@ export function ImageAnnotationDialog({
           `[image-annotation] apply failed: ${getErrorMessage(error)}`,
           "image-annotation",
         );
-        dedupedToast.error(t2("chat.imageAnnotation.applyFailed"));
+        dedupedToast.error(t("chat.imageAnnotation.applyFailed"));
       } finally {
         stopTimeout();
         operation.signal.removeEventListener("abort", stopTimeout);
@@ -465,18 +469,18 @@ export function ImageAnnotationDialog({
       hasChanges,
       output.mimeType,
       outputFilename,
-      t2,
+      t,
     ],
   );
   const requestApply = reactExports.useCallback(
-    (mode2) => {
-      if (mode2 === "append" && hasMosaic) {
+    (mode) => {
+      if (mode === "append" && hasMosaic) {
         setPrivacyOpen(true);
         return;
       }
-      void apply2(mode2);
+      void apply(mode);
     },
-    [apply2, hasMosaic],
+    [apply, hasMosaic],
   );
   const exportLocal = reactExports.useCallback(async () => {
     if (operationRef.current || !editorReady || !hasChanges) return;
@@ -486,8 +490,8 @@ export function ImageAnnotationDialog({
     try {
       const blob = await exportBlob();
       if (operation.signal.aborted) return;
-      if (platform2.fs.showSaveDialog && platform2.fs.writeBinaryFile) {
-        const targetPath = await platform2.fs.showSaveDialog({
+      if (platform.fs.showSaveDialog && platform.fs.writeBinaryFile) {
+        const targetPath = await platform.fs.showSaveDialog({
           defaultPath: outputFilename,
           filters: [
             {
@@ -497,26 +501,26 @@ export function ImageAnnotationDialog({
           ],
         });
         if (!targetPath || operation.signal.aborted) return;
-        const bytes2 = await blob.arrayBuffer();
+        const bytes = await blob.arrayBuffer();
         if (operation.signal.aborted) return;
-        await platform2.fs.writeBinaryFile(targetPath, bytes2);
+        await platform.fs.writeBinaryFile(targetPath, bytes);
       } else {
-        const url2 = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
         const anchor = document.createElement("a");
-        anchor.href = url2;
+        anchor.href = url;
         anchor.download = outputFilename;
         anchor.click();
-        URL.revokeObjectURL(url2);
+        URL.revokeObjectURL(url);
       }
       if (!operation.signal.aborted)
-        dedupedToast.success(t2("chat.imageAnnotation.exported"));
+        dedupedToast.success(t("chat.imageAnnotation.exported"));
     } catch (error) {
       if (operation.signal.aborted) return;
       void window.hilo?.logger?.error?.(
         `[image-annotation] export failed: ${getErrorMessage(error)}`,
         "image-annotation",
       );
-      dedupedToast.error(t2("chat.imageAnnotation.exportFailed"));
+      dedupedToast.error(t("chat.imageAnnotation.exportFailed"));
     } finally {
       if (operationRef.current === operation) {
         operationRef.current = null;
@@ -529,8 +533,8 @@ export function ImageAnnotationDialog({
     hasChanges,
     output.extension,
     outputFilename,
-    platform2,
-    t2,
+    platform,
+    t,
   ]);
   const requestClose = reactExports.useCallback(() => {
     if (operationRef.current && working !== "export") {
@@ -559,12 +563,12 @@ export function ImageAnnotationDialog({
           showCloseButton={false}
           className="h-[min(820px,calc(100vh-2rem))] grid-rows-[auto_auto_minmax(0,1fr)_auto] gap-3 p-0"
           data-action-ui-id="chat-image-annotation-dialog"
-          onKeyDown={handleKeyDown2}
+          onKeyDown={handleKeyDown}
         >
           <DialogHeader className="px-4 pt-4 pr-14">
-            <DialogTitle>{t2("chat.imageAnnotation.title")}</DialogTitle>
+            <DialogTitle>{t("chat.imageAnnotation.title")}</DialogTitle>
             <DialogDescription className="truncate">
-              {t2("chat.imageAnnotation.description", {
+              {t("chat.imageAnnotation.description", {
                 name: attachment.filename,
               })}
             </DialogDescription>
@@ -574,7 +578,7 @@ export function ImageAnnotationDialog({
             variant="ghost"
             size="icon"
             className="absolute right-2 top-2"
-            aria-label={t2("common.close")}
+            aria-label={t("common.close")}
             data-action-ui-id="chat-image-annotation-close"
             onClick={requestClose}
           >
@@ -584,18 +588,18 @@ export function ImageAnnotationDialog({
             inert={Boolean(working) || !editorReady}
             className="flex min-h-10 flex-wrap items-center gap-1 border-y border-border px-3 py-2"
           >
-            {TOOLS.map((option2) => (
+            {TOOLS.map((option) => (
               <Button
-                key={option2.tool}
+                key={option.tool}
                 type="button"
-                variant={activeTool === option2.tool ? "secondary" : "ghost"}
+                variant={activeTool === option.tool ? "secondary" : "ghost"}
                 size="icon-sm"
-                aria-label={t2(option2.labelKey)}
-                title={t2(option2.labelKey)}
-                data-action-ui-id={`chat-image-annotation-tool-${option2.tool}`}
-                onClick={() => selectTool(option2.tool)}
+                aria-label={t(option.labelKey)}
+                title={t(option.labelKey)}
+                data-action-ui-id={`chat-image-annotation-tool-${option.tool}`}
+                onClick={() => selectTool(option.tool)}
               >
-                <Icon icon={option2.icon} size="md" aria-hidden={true} />
+                <Icon icon={option.icon} size="md" aria-hidden={true} />
               </Button>
             ))}
             <div className="mx-1 h-5 w-px bg-border" />
@@ -603,30 +607,30 @@ export function ImageAnnotationDialog({
               <>
                 <fieldset className="flex items-center gap-1">
                   <legend className="sr-only">
-                    {t2("chat.imageAnnotation.color")}
+                    {t("chat.imageAnnotation.color")}
                   </legend>
-                  {COLORS.map((color2) => (
+                  {COLORS.map((color) => (
                     <button
-                      key={color2}
+                      key={color}
                       type="button"
                       className={cn(
                         "size-5 rounded-full border border-border outline-none transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring",
-                        activeColor === color2 &&
+                        activeColor === color &&
                           "ring-2 ring-ring ring-offset-1 ring-offset-popover",
                       )}
                       style={{
-                        backgroundColor: color2,
+                        backgroundColor: color,
                       }}
-                      aria-label={color2}
+                      aria-label={color}
                       data-action-ui-id="chat-image-annotation-color"
-                      onClick={() => selectColor(color2)}
+                      onClick={() => selectColor(color)}
                     />
                   ))}
                 </fieldset>
                 <div className="mx-1 h-5 w-px bg-border" />
                 <fieldset className="flex items-center gap-1">
                   <legend className="sr-only">
-                    {t2("imageEdit.strokeWidth")}
+                    {t("imageEdit.strokeWidth")}
                   </legend>
                   {STROKE_WIDTHS.map((width) => (
                     <Button
@@ -636,7 +640,7 @@ export function ImageAnnotationDialog({
                         activeStrokeWidth === width ? "secondary" : "ghost"
                       }
                       size="icon-sm"
-                      aria-label={`${t2("imageEdit.strokeWidth")} ${width}`}
+                      aria-label={`${t("imageEdit.strokeWidth")} ${width}`}
                       data-action-ui-id="chat-image-annotation-stroke-width"
                       onClick={() => selectStrokeWidth(width)}
                     >
@@ -653,17 +657,17 @@ export function ImageAnnotationDialog({
             ) : null}
             {activeTool === "mosaic" ? (
               <div className="flex items-center gap-1">
-                {["mosaic", "blur"].map((mode2) => (
+                {["mosaic", "blur"].map((mode) => (
                   <Button
-                    key={mode2}
+                    key={mode}
                     type="button"
-                    variant={mosaicMode === mode2 ? "secondary" : "ghost"}
+                    variant={mosaicMode === mode ? "secondary" : "ghost"}
                     size="sm"
-                    data-action-ui-id={`chat-image-annotation-${mode2}`}
-                    onClick={() => selectMosaicMode(mode2)}
+                    data-action-ui-id={`chat-image-annotation-${mode}`}
+                    onClick={() => selectMosaicMode(mode)}
                   >
-                    {t2(
-                      mode2 === "mosaic"
+                    {t(
+                      mode === "mosaic"
                         ? "imageEdit.mosaicModeMosaic"
                         : "imageEdit.mosaicModeBlur",
                     )}
@@ -678,7 +682,7 @@ export function ImageAnnotationDialog({
                     data-action-ui-id={`chat-image-annotation-mosaic-${shape}`}
                     onClick={() => selectMosaicShape(shape)}
                   >
-                    {t2(
+                    {t(
                       shape === "rectangle"
                         ? "imageEdit.mosaicShapeRect"
                         : "imageEdit.mosaicShapeBrush",
@@ -693,8 +697,8 @@ export function ImageAnnotationDialog({
                 variant="ghost"
                 size="icon-sm"
                 disabled={!editorState.canUndo || Boolean(working)}
-                aria-label={t2("imageEdit.undo")}
-                title={t2("imageEdit.undo")}
+                aria-label={t("imageEdit.undo")}
+                title={t("imageEdit.undo")}
                 data-action-ui-id="chat-image-annotation-undo"
                 onClick={() => editorRef.current?.undo()}
               >
@@ -705,8 +709,8 @@ export function ImageAnnotationDialog({
                 variant="ghost"
                 size="icon-sm"
                 disabled={!editorState.canRedo || Boolean(working)}
-                aria-label={t2("imageEdit.redo")}
-                title={t2("imageEdit.redo")}
+                aria-label={t("imageEdit.redo")}
+                title={t("imageEdit.redo")}
                 data-action-ui-id="chat-image-annotation-redo"
                 onClick={() => editorRef.current?.redo()}
               >
@@ -717,8 +721,8 @@ export function ImageAnnotationDialog({
                 variant="ghost"
                 size="icon-sm"
                 disabled={!hasChanges || Boolean(working)}
-                aria-label={t2("imageEdit.clear")}
-                title={t2("imageEdit.clear")}
+                aria-label={t("imageEdit.clear")}
+                title={t("imageEdit.clear")}
                 data-action-ui-id="chat-image-annotation-clear"
                 onClick={() => editorRef.current?.clear()}
               >
@@ -765,19 +769,19 @@ export function ImageAnnotationDialog({
                 role="alert"
                 className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-popover p-4 text-sm text-muted-foreground"
               >
-                <p>{t2("chat.imageAnnotation.loadFailed")}</p>
+                <p>{t("chat.imageAnnotation.loadFailed")}</p>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleRetryLoad}
                   data-action-ui-id="chat-image-annotation-retry"
                 >
-                  {t2("common.retry")}
+                  {t("common.retry")}
                 </Button>
               </div>
             ) : !displayReady ? (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-muted/40 text-sm text-muted-foreground">
-                {t2("chat.imageAnnotation.loading")}
+                {t("chat.imageAnnotation.loading")}
               </div>
             ) : null}
           </div>
@@ -792,7 +796,7 @@ export function ImageAnnotationDialog({
                 onClick={() => void exportLocal()}
               >
                 <Icon icon={Download} size="sm" aria-hidden={true} />
-                {t2("chat.imageAnnotation.export")}
+                {t("chat.imageAnnotation.export")}
               </Button>
               <Button
                 type="button"
@@ -800,7 +804,7 @@ export function ImageAnnotationDialog({
                 disabled={working === "export"}
                 onClick={requestClose}
               >
-                {t2("common.cancel")}
+                {t("common.cancel")}
               </Button>
               <div className="flex">
                 <Button
@@ -811,7 +815,7 @@ export function ImageAnnotationDialog({
                   data-action-ui-id="chat-image-annotation-replace"
                   onClick={() => requestApply("replace")}
                 >
-                  {t2("chat.imageAnnotation.replace")}
+                  {t("chat.imageAnnotation.replace")}
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger
@@ -820,7 +824,7 @@ export function ImageAnnotationDialog({
                         type="button"
                         className="rounded-l-none border-l-primary-foreground/25 px-2"
                         disabled={!canFinish}
-                        aria-label={t2("chat.imageAnnotation.moreActions")}
+                        aria-label={t("chat.imageAnnotation.moreActions")}
                         data-action-ui-id="chat-image-annotation-more-actions"
                       />
                     }
@@ -833,7 +837,7 @@ export function ImageAnnotationDialog({
                       data-action-ui-id="chat-image-annotation-append"
                       onClick={() => requestApply("append")}
                     >
-                      {t2("chat.imageAnnotation.append")}
+                      {t("chat.imageAnnotation.append")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -843,37 +847,37 @@ export function ImageAnnotationDialog({
         </DialogContent>
       </Dialog>
       <AlertDialog open={discardOpen} onOpenChange={setDiscardOpen}>
-        <AlertDialogContent layer="nested" onKeyDown={handleKeyDown2}>
+        <AlertDialogContent layer="nested" onKeyDown={handleKeyDown}>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t2("chat.imageAnnotation.discardTitle")}
+              {t("chat.imageAnnotation.discardTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t2("chat.imageAnnotation.discardDescription")}
+              {t("chat.imageAnnotation.discardDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t2("common.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction variant="destructive" onClick={onClose}>
-              {t2("chat.imageAnnotation.discard")}
+              {t("chat.imageAnnotation.discard")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
       <AlertDialog open={privacyOpen} onOpenChange={setPrivacyOpen}>
-        <AlertDialogContent layer="nested" onKeyDown={handleKeyDown2}>
+        <AlertDialogContent layer="nested" onKeyDown={handleKeyDown}>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t2("chat.imageAnnotation.privacyTitle")}
+              {t("chat.imageAnnotation.privacyTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t2("chat.imageAnnotation.privacyDescription")}
+              {t("chat.imageAnnotation.privacyDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t2("common.cancel")}</AlertDialogCancel>
-            <AlertDialogAction onClick={() => void apply2("append")}>
-              {t2("chat.imageAnnotation.appendAnyway")}
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void apply("append")}>
+              {t("chat.imageAnnotation.appendAnyway")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,7 +1,11 @@
 // 技能列表里的卡片：普通技能、精选技能卡与精选区。
-import { useTranslation, jsxRuntimeExports, Download$2 as Download, MessageCircle, Loader2, getSkillCoverUrl, Eye$2 as Eye, BadgeCheck } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { Download$2 as Download, Eye$2 as Eye } from "../../media-editing/custom-icons.js";
+import { MessageCircle, Loader2, BadgeCheck } from "../../media-editing/lucide-icon-wraps.js";
+import { getSkillCoverUrl } from "../skill-cover-url.js";
 import { Switch } from "../../generation/select-content.jsx";
-import { cn$2 as cn } from "../../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../../infra/dialog-content.jsx";
 import { PageStateBoundary } from "../../assets/page-state-boundary.jsx";
 import { toDisplayName, formatDownloads, SkillCoverMedia } from "../../generation/use-mention-models.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
@@ -39,7 +43,7 @@ export function OtherSkillItem({ skill, installing, onInstall, onToggle, onDetai
       </div>
       <div
         className="relative flex shrink-0 items-center gap-2"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(clickEvent) => clickEvent.stopPropagation()}
       >
         {isInstalled ? (
           <>
@@ -127,7 +131,7 @@ function FeaturedSkillCard({ skill, installing, onInstall, onTryItOut, onDetail,
         <SkillCoverMedia url={cover} />
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 flex gap-3 p-3 opacity-0 translate-y-2 transition-[opacity,transform] duration-200 ease-out group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-y-0"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(clickEvent) => clickEvent.stopPropagation()}
         >
           {onDetail && (
             <button

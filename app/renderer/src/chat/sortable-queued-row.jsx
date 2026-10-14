@@ -1,16 +1,10 @@
 // sortable-queued-row.jsx
-import {
-  closestCenter,
-  DndContext,
-  jsxRuntimeExports,
-  KeyboardSensor,
-  Loader2,
-  PointerSensor,
-  reactExports,
-  useSensor,
-  useSensors,
-  useTranslation,
-} from "../vendor.js";
+import { useSensor, useSensors } from "../vendor.js";
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor } from "@dnd-kit/core";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { CSS } from "@dnd-kit/utilities";
 import {
   SortableContext,
@@ -33,72 +27,72 @@ import { Button, TooltipContent } from "../infra/dialog-content.jsx";
 import { PencilIcon } from "../workspace/home-service.jsx";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
 import { applyQueuedMessageScrollRequest } from "../workspace/resolve-retry-message-payload.jsx";
-const restrictToVerticalAxis = ({ transform: transform2 }) => ({
-  ...transform2,
+const restrictToVerticalAxis = ({ transform }) => ({
+  ...transform,
   x: 0,
 });
 const restrictToParentElement = ({
-  transform: transform2,
+  transform,
   draggingNodeRect,
   containerNodeRect,
 }) => {
-  if (!draggingNodeRect || !containerNodeRect) return transform2;
-  const next2 = {
-    ...transform2,
+  if (!draggingNodeRect || !containerNodeRect) return transform;
+  const next = {
+    ...transform,
   };
-  if (draggingNodeRect.top + next2.y < containerNodeRect.top) {
-    next2.y = containerNodeRect.top - draggingNodeRect.top;
+  if (draggingNodeRect.top + next.y < containerNodeRect.top) {
+    next.y = containerNodeRect.top - draggingNodeRect.top;
   }
-  if (draggingNodeRect.bottom + next2.y > containerNodeRect.bottom) {
-    next2.y = containerNodeRect.bottom - draggingNodeRect.bottom;
+  if (draggingNodeRect.bottom + next.y > containerNodeRect.bottom) {
+    next.y = containerNodeRect.bottom - draggingNodeRect.bottom;
   }
-  return next2;
+  return next;
 };
 function SortableQueuedRow({
-  id: id2,
-  message: message2,
-  index: index2,
+  id: sortableId,
+  message,
+  index,
   draggable,
   onEdit,
   onDelete,
   onSendNow,
-  t: t2,
+  t: translate,
 }) {
   const {
     attributes,
-    listeners: listeners2,
+    listeners,
     setNodeRef,
-    transform: transform2,
-    transition: transition2,
+    transform,
+    transition,
     isDragging,
   } = useSortable({
-    id: id2,
+    id: sortableId,
   });
-  const style2 = {
-    transform: CSS.Transform.toString(transform2),
-    transition: transition2,
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
     opacity: isDragging ? 0.9 : 1,
     // 提高拖拽时的层级,避免被相邻行覆盖
     zIndex: isDragging ? 1 : 0,
     position: "relative",
   };
-  const displayText = message2.text
-    ? redactForCurrentRegion(message2.text)
-    : t2("chat.queue.attachmentOnly");
+  const displayText = message.text
+    ? redactForCurrentRegion(message.text)
+    : translate("chat.queue.attachmentOnly");
   return (
     <div
       ref={setNodeRef}
-      data-queued-client-message-id={message2.clientMessageId}
-      style={style2}
+      data-queued-client-message-id={message.clientMessageId}
+      style={style}
       className={`group/queued-row relative flex h-8 items-center gap-1 rounded-md pr-0.5 text-xs text-muted-foreground ${isDragging ? "bg-foreground/5" : ""}`}
     >
       {draggable && (
         <button
           type="button"
           {...attributes}
-          {...listeners2}
+          {...listeners}
           className="absolute -left-3 top-1/2 z-10 inline-flex size-6 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0 text-muted-foreground/40 transition-colors group-hover/queued-row:text-foreground/70 hover:bg-transparent hover:text-foreground/70 focus-visible:text-foreground/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 cursor-grab active:cursor-grabbing"
-          aria-label={t2("chat.queue.dragToReorder", {
+          aria-label={translate("chat.queue.dragToReorder", {
             defaultValue: "Drag to reorder",
           })}
         >
@@ -115,22 +109,22 @@ function SortableQueuedRow({
           </span>
         </button>
       )}
-      <span className="w-4 text-right tabular-nums shrink-0">{index2 + 1}</span>
+      <span className="w-4 text-right tabular-nums shrink-0">{index + 1}</span>
       <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">
         {displayText}
       </span>
-      {(message2.attachments?.length ?? 0) > 0 && (
+      {(message.attachments?.length ?? 0) > 0 && (
         <span className="inline-flex items-center gap-0.5 whitespace-nowrap shrink-0 mr-1">
           <Paperclip className="size-3" />
-          {message2.attachments?.length}
+          {message.attachments?.length}
         </span>
       )}
       <div className="flex h-7 w-36 shrink-0 items-center justify-end gap-1">
-        {message2.status === "sending" ? (
+        {message.status === "sending" ? (
           // 瞬态状态原位替换动作区；固定 action rail 宽度避免发送时正文突然回流。
           <span className="inline-flex h-7 items-center gap-1 whitespace-nowrap pl-1.5 pr-2 text-muted-foreground">
             <Loader2 className="size-3 animate-spin" />
-            {t2("chat.queue.sending")}
+            {translate("chat.queue.sending")}
           </span>
         ) : (
           <>
@@ -142,19 +136,19 @@ function SortableQueuedRow({
                     variant="ghost"
                     size="xs"
                     className="h-7 gap-0.5 rounded-md pl-1.5 pr-2 text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-                    aria-label={t2("chat.queue.sendNow")}
+                    aria-label={translate("chat.queue.sendNow")}
                     data-action-ui-id="chat-queued-message-send-now"
-                    onClick={() => onSendNow(message2)}
+                    onClick={() => onSendNow(message)}
                   >
                     <Icon icon={CornerDownRight} size="sm" aria-hidden={true} />
-                    {message2.reviewPaused
-                      ? t2("common.retry")
-                      : t2("chat.queue.sendNow")}
+                    {message.reviewPaused
+                      ? translate("common.retry")
+                      : translate("chat.queue.sendNow")}
                   </Button>
                 }
               />
               <TooltipContent side="top">
-                {t2(
+                {translate(
                   "chat.queue.sendNowTooltip",
                   "Stop the current response and send immediately",
                 )}
@@ -168,16 +162,16 @@ function SortableQueuedRow({
                     variant="ghost"
                     size="icon-xs"
                     className="size-7 -ml-1 rounded-md text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
-                    aria-label={t2("chat.queue.edit")}
+                    aria-label={translate("chat.queue.edit")}
                     data-action-ui-id="chat-queued-message-edit"
-                    onClick={() => onEdit(message2)}
+                    onClick={() => onEdit(message)}
                   >
                     <PencilIcon className="size-3" />
                   </Button>
                 }
               />
               <TooltipContent side="top">
-                {t2("chat.queue.edit")}
+                {translate("chat.queue.edit")}
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -188,16 +182,16 @@ function SortableQueuedRow({
                     variant="ghost"
                     size="icon-xs"
                     className="size-7 -ml-1 rounded-md text-muted-foreground hover:bg-foreground/10 hover:text-destructive"
-                    aria-label={t2("chat.queue.delete")}
+                    aria-label={translate("chat.queue.delete")}
                     data-action-ui-id="chat-queued-message-delete"
-                    onClick={() => onDelete(message2)}
+                    onClick={() => onDelete(message)}
                   >
                     <Trash2 className="size-3.5" strokeWidth={1.5} />
                   </Button>
                 }
               />
               <TooltipContent side="top">
-                {t2("chat.queue.delete")}
+                {translate("chat.queue.delete")}
               </TooltipContent>
             </Tooltip>
           </>
@@ -207,14 +201,14 @@ function SortableQueuedRow({
   );
 }
 export function QueuedUserMessageList({
-  messages: messages2,
+  messages,
   scrollRequest,
   onEdit,
   onDelete,
   onSendNow,
   onReorder,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -226,53 +220,53 @@ export function QueuedUserMessageList({
     }),
   );
   const itemIds = reactExports.useMemo(
-    () => messages2.map((m3) => m3.queueId ?? m3.clientMessageId),
-    [messages2],
+    () => messages.map((message) => message.queueId ?? message.clientMessageId),
+    [messages],
   );
   const queuedMessageScrollRef = reactExports.useRef(null);
   const [canScrollUp, setCanScrollUp] = reactExports.useState(false);
   const [canScrollDown, setCanScrollDown] = reactExports.useState(false);
   const syncQueuedMessageScroll = reactExports.useCallback(() => {
-    const el = queuedMessageScrollRef.current;
-    if (!el) return;
-    const maxScrollTop = Math.max(0, el.scrollHeight - el.clientHeight);
-    setCanScrollUp(el.scrollTop > 1);
-    setCanScrollDown(el.scrollTop < maxScrollTop - 1);
+    const scrollElement = queuedMessageScrollRef.current;
+    if (!scrollElement) return;
+    const maxScrollTop = Math.max(0, scrollElement.scrollHeight - scrollElement.clientHeight);
+    setCanScrollUp(scrollElement.scrollTop > 1);
+    setCanScrollDown(scrollElement.scrollTop < maxScrollTop - 1);
   }, []);
   reactExports.useLayoutEffect(() => {
-    if (messages2.length === 0) {
+    if (messages.length === 0) {
       setCanScrollUp(false);
       setCanScrollDown(false);
       return;
     }
-    const el = queuedMessageScrollRef.current;
-    if (!el) return;
+    const scrollElement = queuedMessageScrollRef.current;
+    if (!scrollElement) return;
     syncQueuedMessageScroll();
     if (typeof ResizeObserver === "undefined") return;
-    const observer2 = new ResizeObserver(syncQueuedMessageScroll);
-    observer2.observe(el);
-    return () => observer2.disconnect();
-  }, [messages2.length, syncQueuedMessageScroll]);
+    const observer = new ResizeObserver(syncQueuedMessageScroll);
+    observer.observe(scrollElement);
+    return () => observer.disconnect();
+  }, [messages.length, syncQueuedMessageScroll]);
   reactExports.useLayoutEffect(() => {
     if (!scrollRequest) return;
-    const el = queuedMessageScrollRef.current;
-    if (!el) return;
-    applyQueuedMessageScrollRequest(el, scrollRequest);
+    const scrollElement = queuedMessageScrollRef.current;
+    if (!scrollElement) return;
+    applyQueuedMessageScrollRequest(scrollElement, scrollRequest);
     syncQueuedMessageScroll();
   }, [scrollRequest, syncQueuedMessageScroll]);
   const handleDragEnd = reactExports.useCallback(
     (event) => {
-      const { active: active2, over } = event;
-      if (!over || active2.id === over.id) return;
-      const sourceIndex = itemIds.indexOf(active2.id);
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const sourceIndex = itemIds.indexOf(active.id);
       const targetIndex = itemIds.indexOf(over.id);
       if (sourceIndex === -1 || targetIndex === -1) return;
       onReorder(sourceIndex, targetIndex);
     },
     [itemIds, onReorder],
   );
-  if (messages2.length === 0) return null;
-  const isDraggable = messages2.length >= 2;
+  if (messages.length === 0) return null;
+  const isDraggable = messages.length >= 2;
   return (
     <div className="-mb-3 mx-3 overflow-hidden rounded-xl border border-border bg-card pl-3 pr-1 pt-1 pb-4 relative z-0">
       <div
@@ -291,17 +285,17 @@ export function QueuedUserMessageList({
             items={itemIds}
             strategy={verticalListSortingStrategy}
           >
-            {messages2.map((message2, index2) => (
+            {messages.map((message, index) => (
               <SortableQueuedRow
-                key={message2.queueId ?? message2.clientMessageId}
-                id={message2.queueId ?? message2.clientMessageId}
-                message={message2}
-                index={index2}
+                key={message.queueId ?? message.clientMessageId}
+                id={message.queueId ?? message.clientMessageId}
+                message={message}
+                index={index}
                 draggable={isDraggable}
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onSendNow={onSendNow}
-                t={t2}
+                t={translate}
               />
             ))}
           </SortableContext>

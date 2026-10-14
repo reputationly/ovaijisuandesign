@@ -1,0 +1,15 @@
+key	new	依据
+disabled2@11:49	disabled	拆分按钮是否因当前界面条件而禁用的布尔属性。
+handleClick2@14:9	handleClick	分离全部图像按钮点击后阻止画布冒泡、检查禁用状态并执行拆分回调。
+disabled2@34:51	disabled	拆分按钮是否因当前界面条件而禁用的布尔属性。
+handleClick2@37:9	handleClick	独立展示主图按钮点击后阻止画布冒泡、检查禁用状态并执行拆分回调。
+view2@58:9	view	多图画布视图中的子图、轮次及主图布局信息。
+isEmpty2@61:12	isEmpty	当前多图视图是否为空的布尔标志。
+MultiImageChrome2@57:60	MultiImageChrome	渲染多图节点覆盖操作条的 memoized 函数组件。
+t2@12:14	t	根据当前语言返回多图操作文案的翻译函数。
+e2@14:25	clickEvent	触发图片拆分按钮并需要阻止冒泡的点击事件。
+t2@35:14	t	根据当前语言返回多图操作文案的翻译函数。
+e2@37:25	clickEvent	触发图片拆分按钮并需要阻止冒泡的点击事件。
+t2@69:14	t	根据当前语言返回多图操作文案的翻译函数。
+s2@81:8	slot	多图视图中的当前子图插槽记录。
+i2@81:12	slotIndex	当前子图插槽在视图列表中的索引。

@@ -1,17 +1,9 @@
 // find-bar.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  ChevronDown,
-  ChevronRight$1 as ChevronRight,
-  ChevronUp,
-  reactDomExports,
-  reactExports,
-  Regex,
-  Search,
-  useTranslation,
-  WholeWord,
-  X$7 as X,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronRight$1 as ChevronRight, ChevronUp, Regex, Search, WholeWord, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import {
   CaseSensitive,
   Replace,
@@ -28,8 +20,8 @@ function FindBtn({
   title,
   onClick,
   variant,
-  active: active2,
-  disabled: disabled2,
+  active,
+  disabled,
   dataActionUiId,
 }) {
   const toggle = variant === "toggle";
@@ -38,8 +30,8 @@ function FindBtn({
       type="button"
       title={title}
       onClick={onClick}
-      onMouseDown={(e2) => e2.preventDefault()}
-      disabled={disabled2}
+      onMouseDown={(mouseEvent) => mouseEvent.preventDefault()}
+      disabled={disabled}
       className={
         toggle
           ? "flex h-5 w-5 shrink-0 items-center justify-center rounded transition-colors"
@@ -48,10 +40,10 @@ function FindBtn({
       style={
         toggle
           ? {
-              background: active2
+              background: active
                 ? "var(--bg-subtle-hover, #e8e8e8)"
                 : "transparent",
-              color: active2
+              color: active
                 ? "var(--fg-default, #141414)"
                 : "var(--fg-muted, #666)",
             }
@@ -66,7 +58,7 @@ function FindBtn({
   );
 }
 function FindBar({ controller }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const {
     query,
     options,
@@ -81,27 +73,27 @@ function FindBar({ controller }) {
     [query, options],
   );
   const handleInputKeyDown = reactExports.useCallback(
-    (e2) => {
-      if (e2.key === "Enter") {
-        e2.preventDefault();
-        if (e2.shiftKey) controller.prev();
+    (keyboardEvent) => {
+      if (keyboardEvent.key === "Enter") {
+        keyboardEvent.preventDefault();
+        if (keyboardEvent.shiftKey) controller.prev();
         else controller.next();
-      } else if (e2.key === "Escape") {
-        e2.preventDefault();
-        e2.stopPropagation();
+      } else if (keyboardEvent.key === "Escape") {
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopPropagation();
         controller.close();
       }
     },
     [controller],
   );
   const handleReplaceKeyDown = reactExports.useCallback(
-    (e2) => {
-      if (e2.key === "Enter") {
-        e2.preventDefault();
+    (keyboardEvent) => {
+      if (keyboardEvent.key === "Enter") {
+        keyboardEvent.preventDefault();
         controller.replaceCurrent();
-      } else if (e2.key === "Escape") {
-        e2.preventDefault();
-        e2.stopPropagation();
+      } else if (keyboardEvent.key === "Escape") {
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopPropagation();
         controller.close();
       }
     },
@@ -124,9 +116,9 @@ function FindBar({ controller }) {
     >
       <button
         type="button"
-        title={t2("canvas.find.toggleReplace", "切换替换")}
+        title={t("canvas.find.toggleReplace", "切换替换")}
         onClick={controller.toggleReplaceOpen}
-        onMouseDown={(e2) => e2.preventDefault()}
+        onMouseDown={(mouseEvent) => mouseEvent.preventDefault()}
         className="flex w-4 items-center justify-center self-stretch rounded transition-colors hover:bg-[var(--bg-subtle,#f5f5f5)]"
         style={{
           color: "var(--fg-muted, #666)",
@@ -151,9 +143,9 @@ function FindBar({ controller }) {
             <input
               ref={controller.inputRef}
               value={query}
-              onChange={(e2) => controller.setQuery(e2.target.value)}
+              onChange={(changeEvent) => controller.setQuery(changeEvent.target.value)}
               onKeyDown={handleInputKeyDown}
-              placeholder={t2("canvas.find.placeholder", "查找")}
+              placeholder={t("canvas.find.placeholder", "查找")}
               spellCheck={false}
               className="w-40 border-0 bg-transparent text-xs outline-none"
               style={{
@@ -164,7 +156,7 @@ function FindBar({ controller }) {
             <FindBtn
               variant="toggle"
               icon={<CaseSensitive size={14} strokeWidth={1.5} />}
-              title={t2("canvas.find.matchCase", "区分大小写")}
+              title={t("canvas.find.matchCase", "区分大小写")}
               active={options.matchCase}
               onClick={() => controller.toggleOption("matchCase")}
               dataActionUiId="canvas-text-find-match-case"
@@ -172,7 +164,7 @@ function FindBar({ controller }) {
             <FindBtn
               variant="toggle"
               icon={<WholeWord size={14} strokeWidth={1.5} />}
-              title={t2("canvas.find.wholeWord", "全字匹配")}
+              title={t("canvas.find.wholeWord", "全字匹配")}
               active={options.wholeWord}
               onClick={() => controller.toggleOption("wholeWord")}
               dataActionUiId="canvas-text-find-whole-word"
@@ -180,7 +172,7 @@ function FindBar({ controller }) {
             <FindBtn
               variant="toggle"
               icon={<Regex size={14} strokeWidth={1.5} />}
-              title={t2("canvas.find.regex", "使用正则表达式")}
+              title={t("canvas.find.regex", "使用正则表达式")}
               active={options.regex}
               onClick={() => controller.toggleOption("regex")}
               dataActionUiId="canvas-text-find-regex"
@@ -195,12 +187,12 @@ function FindBar({ controller }) {
           >
             {total > 0
               ? `${currentIndex + 1}/${total}${limited ? "+" : ""}`
-              : t2("canvas.find.noResults", "无结果")}
+              : t("canvas.find.noResults", "无结果")}
           </span>
           <FindBtn
             variant="nav"
             icon={<ChevronUp size={14} strokeWidth={1.5} />}
-            title={t2("canvas.find.previous", "上一个匹配")}
+            title={t("canvas.find.previous", "上一个匹配")}
             onClick={controller.prev}
             disabled={total === 0}
             dataActionUiId="canvas-text-find-prev"
@@ -208,7 +200,7 @@ function FindBar({ controller }) {
           <FindBtn
             variant="nav"
             icon={<ChevronDown size={14} strokeWidth={1.5} />}
-            title={t2("canvas.find.next", "下一个匹配")}
+            title={t("canvas.find.next", "下一个匹配")}
             onClick={controller.next}
             disabled={total === 0}
             dataActionUiId="canvas-text-find-next"
@@ -216,7 +208,7 @@ function FindBar({ controller }) {
           <FindBtn
             variant="nav"
             icon={<X size={14} strokeWidth={1.5} />}
-            title={t2("canvas.close")}
+            title={t("canvas.close")}
             onClick={controller.close}
             dataActionUiId="canvas-text-find-close"
           />
@@ -229,9 +221,9 @@ function FindBar({ controller }) {
             >
               <input
                 value={replaceValue}
-                onChange={(e2) => controller.setReplaceValue(e2.target.value)}
+                onChange={(changeEvent) => controller.setReplaceValue(changeEvent.target.value)}
                 onKeyDown={handleReplaceKeyDown}
-                placeholder={t2("canvas.find.replacePlaceholder", "替换")}
+                placeholder={t("canvas.find.replacePlaceholder", "替换")}
                 spellCheck={false}
                 className="w-40 border-0 bg-transparent text-xs outline-none"
                 style={{
@@ -244,7 +236,7 @@ function FindBar({ controller }) {
             <FindBtn
               variant="nav"
               icon={<Replace size={14} strokeWidth={1.5} />}
-              title={t2("canvas.find.replace", "替换")}
+              title={t("canvas.find.replace", "替换")}
               onClick={controller.replaceCurrent}
               disabled={total === 0}
               dataActionUiId="canvas-text-find-replace-one"
@@ -252,7 +244,7 @@ function FindBar({ controller }) {
             <FindBtn
               variant="nav"
               icon={<ReplaceAll size={14} strokeWidth={1.5} />}
-              title={t2("canvas.find.replaceAll", "全部替换")}
+              title={t("canvas.find.replaceAll", "全部替换")}
               onClick={controller.replaceAll}
               disabled={total === 0}
               dataActionUiId="canvas-text-find-replace-all"
@@ -264,34 +256,34 @@ function FindBar({ controller }) {
   );
 }
 function useCanvasShortcutGuard() {
-  const active2 = useCanvasActive();
+  const active = useCanvasActive();
   useSuspendCanvasInteractions(true);
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     const isInEditor = (target) =>
       target instanceof HTMLElement &&
       (target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
         target.isContentEditable);
-    const deleteKeyCapture = (e2) => {
-      if (e2.key !== "Delete" && e2.key !== "Backspace") return;
-      if (isInEditor(e2.target)) return;
-      e2.stopPropagation();
-      e2.stopImmediatePropagation();
+    const deleteKeyCapture = (keyboardEvent) => {
+      if (keyboardEvent.key !== "Delete" && keyboardEvent.key !== "Backspace") return;
+      if (isInEditor(keyboardEvent.target)) return;
+      keyboardEvent.stopPropagation();
+      keyboardEvent.stopImmediatePropagation();
     };
-    const shortcutBubble = (e2) => {
-      if (e2.key === "Escape") return;
-      const meta2 = e2.metaKey || e2.ctrlKey;
+    const shortcutBubble = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") return;
+      const meta = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
       if (
-        meta2 ||
-        (e2.shiftKey && (e2.code === "Digit1" || e2.code === "Digit2"))
+        meta ||
+        (keyboardEvent.shiftKey && (keyboardEvent.code === "Digit1" || keyboardEvent.code === "Digit2"))
       ) {
-        e2.stopPropagation();
+        keyboardEvent.stopPropagation();
       }
     };
-    const clipboardCapture = (e2) => {
-      if (isInEditor(e2.target)) return;
-      e2.stopPropagation();
+    const clipboardCapture = (clipboardEvent) => {
+      if (isInEditor(clipboardEvent.target)) return;
+      clipboardEvent.stopPropagation();
     };
     document.addEventListener("keydown", deleteKeyCapture, true);
     document.addEventListener("keydown", shortcutBubble);
@@ -305,7 +297,7 @@ function useCanvasShortcutGuard() {
       document.removeEventListener("cut", clipboardCapture, true);
       document.removeEventListener("paste", clipboardCapture, true);
     };
-  }, [active2]);
+  }, [active]);
 }
 export function FullscreenShell({
   toolbarActions,
@@ -314,47 +306,47 @@ export function FullscreenShell({
   overlay,
   hideFind,
   hideClose,
-  find: find2,
+  find: findController,
   editorOwnsScroll,
   onClose,
-  children: children2,
+  children,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const canvasRootEl = useCanvasRootElement();
   useCanvasShortcutGuard();
   const findItem = reactExports.useMemo(
     () =>
-      find2 && !hideFind
+      findController && !hideFind
         ? {
             id: "find",
-            label: t2("canvas.find.title", "查找"),
+            label: t("canvas.find.title", "查找"),
             icon: <Search size={16} strokeWidth={1.5} />,
-            onClick: () => find2.open(),
-            active: find2.isOpen,
+            onClick: () => findController.open(),
+            active: findController.isOpen,
             dataActionUiId: "canvas-text-find-open",
           }
         : null,
-    [find2, hideFind, t2],
+    [findController, hideFind, t],
   );
   const handlePanelKeyDown = reactExports.useCallback(
-    (e2) => {
+    (keyboardEvent) => {
       if (
-        find2 &&
+        findController &&
         !hideFind &&
-        (e2.metaKey || e2.ctrlKey) &&
-        !e2.altKey &&
-        !e2.shiftKey &&
-        e2.key.toLowerCase() === "f"
+        (keyboardEvent.metaKey || keyboardEvent.ctrlKey) &&
+        !keyboardEvent.altKey &&
+        !keyboardEvent.shiftKey &&
+        keyboardEvent.key.toLowerCase() === "f"
       ) {
-        e2.preventDefault();
-        find2.open();
-      } else if (find2?.isOpen && e2.key === "Escape") {
-        e2.preventDefault();
-        find2.close();
+        keyboardEvent.preventDefault();
+        findController.open();
+      } else if (findController?.isOpen && keyboardEvent.key === "Escape") {
+        keyboardEvent.preventDefault();
+        findController.close();
       }
-      e2.stopPropagation();
+      keyboardEvent.stopPropagation();
     },
-    [find2, hideFind],
+    [findController, hideFind],
   );
   return reactDomExports.createPortal(
     <div
@@ -365,8 +357,8 @@ export function FullscreenShell({
         background: "var(--canvas-node-bg, #fff)",
       }}
       onKeyDown={handlePanelKeyDown}
-      onKeyUp={(e2) => e2.stopPropagation()}
-      onContextMenu={(e2) => e2.stopPropagation()}
+      onKeyUp={(keyboardEvent) => keyboardEvent.stopPropagation()}
+      onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
     >
       <div
         className="flex items-center shrink-0 px-3 py-2"
@@ -382,7 +374,7 @@ export function FullscreenShell({
           {!hideClose && (
             <button
               type="button"
-              title={t2("canvas.close")}
+              title={t("canvas.close")}
               onClick={onClose}
               className="flex h-7 w-7 items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-subtle,#f5f5f5)]"
               style={{
@@ -395,7 +387,7 @@ export function FullscreenShell({
         </div>
       </div>
       <div className="relative min-h-0 flex-1">
-        {find2?.isOpen && <FindBar controller={find2} />}
+        {findController?.isOpen && <FindBar controller={findController} />}
         <div className="flex h-full min-h-0">
           <div
             className={
@@ -405,7 +397,7 @@ export function FullscreenShell({
             }
             data-diff-scroll-root="true"
           >
-            {children2}
+            {children}
           </div>
         </div>
         {overlay}

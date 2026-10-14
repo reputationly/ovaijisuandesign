@@ -1,15 +1,15 @@
 // use-viewer-active.js
 import { getWorkspaceContentBudgetSnapshot } from "./aggregate-snapshots.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useWorkspaceContentBudgetScope } from "./use-plugin-metadata-store.js";
 
 const CONTENT_BUDGET_PRESSURE_FILE_VIEWER_UNLOAD_MS = 5e3;
 
-function resolveWorkspaceFileViewerUnloadMs(requestedMs, workspaceId2) {
+function resolveWorkspaceFileViewerUnloadMs(requestedMs, workspaceId) {
   if (!Number.isFinite(requestedMs) || requestedMs <= 0)
     return CONTENT_BUDGET_PRESSURE_FILE_VIEWER_UNLOAD_MS;
-  const snapshot2 = getWorkspaceContentBudgetSnapshot(workspaceId2);
-  if (!snapshot2.overBudget) return requestedMs;
+  const snapshot = getWorkspaceContentBudgetSnapshot(workspaceId);
+  if (!snapshot.overBudget) return requestedMs;
   return Math.min(requestedMs, CONTENT_BUDGET_PRESSURE_FILE_VIEWER_UNLOAD_MS);
 }
 
@@ -27,59 +27,59 @@ function isHostOffscreen(host) {
 }
 
 export function useViewerActive(opts = {}) {
-  const workspaceId2 = useWorkspaceContentBudgetScope();
+  const workspaceId = useWorkspaceContentBudgetScope();
   const unloadAfterMs = resolveWorkspaceFileViewerUnloadMs(
     opts.unloadAfterMs ?? DEFAULT_UNLOAD_MS,
-    workspaceId2,
+    workspaceId,
   );
   const [hostEl, setHostEl] = reactExports.useState(null);
-  const [active2, setActive2] = reactExports.useState(true);
+  const [active, setActive] = reactExports.useState(true);
   reactExports.useEffect(() => {
     if (!hostEl) return;
     if (typeof IntersectionObserver === "undefined") return;
-    let timer2 = null;
-    let rafId2 = null;
+    let timer = null;
+    let rafId = null;
     let firstCallback = true;
-    const clearTimer2 = () => {
-      if (timer2 != null) {
-        clearTimeout(timer2);
-        timer2 = null;
+    const clearTimer = () => {
+      if (timer != null) {
+        clearTimeout(timer);
+        timer = null;
       }
     };
     const clearRaf = () => {
-      if (rafId2 != null) {
-        cancelAnimationFrame(rafId2);
-        rafId2 = null;
+      if (rafId != null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
       }
     };
-    const observer2 = new IntersectionObserver((entries2) => {
-      const visible = entries2[0]?.isIntersecting ?? false;
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries[0]?.isIntersecting ?? false;
       if (visible) {
-        clearTimer2();
+        clearTimer();
         clearRaf();
-        setActive2(true);
+        setActive(true);
       } else if (firstCallback) {
-        clearTimer2();
+        clearTimer();
         clearRaf();
-        rafId2 = requestAnimationFrame(() => {
-          rafId2 = null;
-          if (isHostOffscreen(hostEl)) setActive2(false);
+        rafId = requestAnimationFrame(() => {
+          rafId = null;
+          if (isHostOffscreen(hostEl)) setActive(false);
         });
       } else {
-        clearTimer2();
-        timer2 = setTimeout(() => {
-          setActive2(false);
-          timer2 = null;
+        clearTimer();
+        timer = setTimeout(() => {
+          setActive(false);
+          timer = null;
         }, unloadAfterMs);
       }
       firstCallback = false;
     });
-    observer2.observe(hostEl);
+    observer.observe(hostEl);
     return () => {
-      observer2.disconnect();
-      clearTimer2();
+      observer.disconnect();
+      clearTimer();
       clearRaf();
     };
   }, [hostEl, unloadAfterMs]);
-  return [setHostEl, active2];
+  return [setHostEl, active];
 }

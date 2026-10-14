@@ -1,12 +1,8 @@
 // canvas-help-button.jsx
-import {
-  ChevronRight$1 as ChevronRight,
-  Keyboard,
-  Lightbulb,
-  reactExports,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { ChevronRight$1 as ChevronRight, Keyboard, Lightbulb } from "../media-editing/lucide-icon-wraps.js";
 import {
   DropdownMenu,
   getTutorialUrlByLocale,
@@ -30,8 +26,8 @@ export function CanvasHelpButton({
   onMenuOpenChange,
   variant = "floating",
 }) {
-  const { t: t2, i18n } = useTranslation();
-  const platform2 = usePlatform();
+  const { t, i18n } = useTranslation();
+  const platform = usePlatform();
   const { openFeedback } = useFeedback();
   const [shortcutsOpen, setShortcutsOpen] = reactExports.useState(false);
   const [uncontrolledMenuOpen, setUncontrolledMenuOpen] =
@@ -42,7 +38,7 @@ export function CanvasHelpButton({
     onMenuOpenChange?.(open);
   };
   const handleTutorial = () => {
-    void openExternalUrl(platform2, getTutorialUrlByLocale(i18n.language), {
+    void openExternalUrl(platform, getTutorialUrlByLocale(i18n.language), {
       source: "canvas.help.tutorial",
     });
   };
@@ -57,7 +53,7 @@ export function CanvasHelpButton({
       category: "feature_request",
     });
   };
-  const helpLabel = t2("canvas.help.tooltip", {
+  const helpLabel = t("canvas.help.tooltip", {
     defaultValue: "帮助指南",
   });
   const helpTrigger = (
@@ -107,7 +103,7 @@ export function CanvasHelpButton({
           >
             <span className="flex items-center gap-2">
               <Lightbulb size={16} strokeWidth={1.5} />
-              {t2("canvas.help.tutorial")}
+              {t("canvas.help.tutorial")}
             </span>
             <ChevronRight
               size={14}
@@ -122,7 +118,7 @@ export function CanvasHelpButton({
           >
             <span className="flex items-center gap-2">
               <FeedbackIcon size={16} />
-              {t2("canvas.help.feedback")}
+              {t("canvas.help.feedback")}
             </span>
             <ChevronRight
               size={14}
@@ -137,7 +133,7 @@ export function CanvasHelpButton({
           >
             <span className="flex items-center gap-2">
               <MessageSquarePlus size={16} strokeWidth={1.5} />
-              {t2("canvas.help.featureRequest")}
+              {t("canvas.help.featureRequest")}
             </span>
             <ChevronRight
               size={14}
@@ -152,7 +148,7 @@ export function CanvasHelpButton({
           >
             <span className="flex items-center gap-2">
               <Keyboard size={16} strokeWidth={1.5} />
-              {t2("canvas.help.shortcuts")}
+              {t("canvas.help.shortcuts")}
             </span>
             <ChevronRight
               size={14}

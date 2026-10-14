@@ -1,5 +1,5 @@
 // music-length-param.jsx
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   isCustomMusicLength,
@@ -16,11 +16,11 @@ function splitCustomMusicLength(value) {
       mm: "",
       ss: "",
     };
-  const m3 = /^(\d{0,2}):(\d{0,2})$/.exec(trimmed);
-  if (m3)
+  const durationMatch = /^(\d{0,2}):(\d{0,2})$/.exec(trimmed);
+  if (durationMatch)
     return {
-      mm: m3[1],
-      ss: m3[2],
+      mm: durationMatch[1],
+      ss: durationMatch[2],
     };
   return {
     mm: "",
@@ -28,8 +28,8 @@ function splitCustomMusicLength(value) {
   };
 }
 
-export function MusicLengthParam({ value, onChange, disabled: disabled2 }) {
-  const { t: t2 } = useTranslation();
+export function MusicLengthParam({ value, onChange, disabled }) {
+  const { t } = useTranslation();
   const customSelected = value === "custom" || isCustomMusicLength(value);
   const custom =
     value === "custom" ? "" : isCustomMusicLength(value) ? value : "";
@@ -37,9 +37,9 @@ export function MusicLengthParam({ value, onChange, disabled: disabled2 }) {
   const belowMinDuration =
     customSeconds != null && customSeconds < MIN_MUSIC_BILLING_SECONDS;
   const { mm: mmField, ss: ssField } = splitCustomMusicLength(custom);
-  const emitCustom = (mm, ss2) => {
-    const cleanMm = mm.replace(/\D/g, "").slice(0, 2);
-    const cleanSs = ss2.replace(/\D/g, "").slice(0, 2);
+  const emitCustom = (minutesText, secondsText) => {
+    const cleanMm = minutesText.replace(/\D/g, "").slice(0, 2);
+    const cleanSs = secondsText.replace(/\D/g, "").slice(0, 2);
     if (!cleanMm && !cleanSs) {
       onChange("custom");
       return;
@@ -49,34 +49,34 @@ export function MusicLengthParam({ value, onChange, disabled: disabled2 }) {
   return (
     <div>
       <div className="mb-2 text-[13px] font-medium text-foreground/50">
-        {t2("canvas.params.duration", {
+        {t("canvas.params.duration", {
           defaultValue: "时长",
         })}
       </div>
       <div className="flex flex-col gap-1">
-        {MUSIC_LENGTH_PRESETS.map((preset2) => {
-          const selected2 =
-            value === preset2.value || (!value && preset2.value === "auto");
+        {MUSIC_LENGTH_PRESETS.map((preset) => {
+          const selected =
+            value === preset.value || (!value && preset.value === "auto");
           return (
             <button
-              key={preset2.value}
+              key={preset.value}
               type="button"
-              onClick={(e2) => {
-                e2.stopPropagation();
-                if (!disabled2) onChange(preset2.value);
+              onClick={(clickEvent) => {
+                clickEvent.stopPropagation();
+                if (!disabled) onChange(preset.value);
               }}
-              disabled={disabled2}
+              disabled={disabled}
               className={[
                 "flex h-8 items-center justify-between rounded-md px-3 text-left text-[14px] transition-colors disabled:cursor-default disabled:opacity-50",
-                selected2
+                selected
                   ? "bg-[var(--canvas-controls-hover)] text-foreground"
                   : "text-foreground/80 hover:enabled:bg-[var(--canvas-controls-hover)]",
               ]
                 .filter(Boolean)
                 .join(" ")}
             >
-              <span>{musicLengthPresetLabel(t2, preset2)}</span>
-              {selected2 && <span aria-hidden={true}>✓</span>}
+              <span>{musicLengthPresetLabel(t, preset)}</span>
+              {selected && <span aria-hidden={true}>✓</span>}
             </button>
           );
         })}
@@ -86,19 +86,19 @@ export function MusicLengthParam({ value, onChange, disabled: disabled2 }) {
               <input
                 type="text"
                 value={mmField}
-                onChange={(e2) => {
-                  if (/^\d{0,2}$/.test(e2.target.value))
-                    emitCustom(e2.target.value, ssField);
+                onChange={(changeEvent) => {
+                  if (/^\d{0,2}$/.test(changeEvent.target.value))
+                    emitCustom(changeEvent.target.value, ssField);
                 }}
-                onClick={(e2) => e2.stopPropagation()}
-                onKeyDown={(e2) => e2.stopPropagation()}
-                disabled={disabled2}
-                placeholder={t2("canvas.params.placeholder.durationMm", {
+                onClick={(clickEvent) => clickEvent.stopPropagation()}
+                onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
+                disabled={disabled}
+                placeholder={t("canvas.params.placeholder.durationMm", {
                   defaultValue: "mm",
                 })}
                 inputMode="numeric"
                 maxLength={2}
-                aria-label={t2("canvas.params.durationMinutes", {
+                aria-label={t("canvas.params.durationMinutes", {
                   defaultValue: "分钟",
                 })}
                 aria-invalid={belowMinDuration}
@@ -118,19 +118,19 @@ export function MusicLengthParam({ value, onChange, disabled: disabled2 }) {
               <input
                 type="text"
                 value={ssField}
-                onChange={(e2) => {
-                  if (/^\d{0,2}$/.test(e2.target.value))
-                    emitCustom(mmField, e2.target.value);
+                onChange={(changeEvent) => {
+                  if (/^\d{0,2}$/.test(changeEvent.target.value))
+                    emitCustom(mmField, changeEvent.target.value);
                 }}
-                onClick={(e2) => e2.stopPropagation()}
-                onKeyDown={(e2) => e2.stopPropagation()}
-                disabled={disabled2}
-                placeholder={t2("canvas.params.placeholder.durationSs", {
+                onClick={(clickEvent) => clickEvent.stopPropagation()}
+                onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
+                disabled={disabled}
+                placeholder={t("canvas.params.placeholder.durationSs", {
                   defaultValue: "ss",
                 })}
                 inputMode="numeric"
                 maxLength={2}
-                aria-label={t2("canvas.params.durationSeconds", {
+                aria-label={t("canvas.params.durationSeconds", {
                   defaultValue: "秒",
                 })}
                 aria-invalid={belowMinDuration}
@@ -144,7 +144,7 @@ export function MusicLengthParam({ value, onChange, disabled: disabled2 }) {
             </div>
             {belowMinDuration && (
               <div className="mt-1 px-1 text-[12px] text-destructive">
-                {t2("canvas.params.durationMinSeconds", {
+                {t("canvas.params.durationMinSeconds", {
                   defaultValue: "最小时长 {{n}}s",
                   n: MIN_MUSIC_BILLING_SECONDS,
                 })}
@@ -154,14 +154,14 @@ export function MusicLengthParam({ value, onChange, disabled: disabled2 }) {
         ) : (
           <button
             type="button"
-            onClick={(e2) => {
-              e2.stopPropagation();
-              if (!disabled2) onChange("custom");
+            onClick={(clickEvent) => {
+              clickEvent.stopPropagation();
+              if (!disabled) onChange("custom");
             }}
-            disabled={disabled2}
+            disabled={disabled}
             className="mt-1 h-9 rounded-lg bg-[var(--canvas-controls-hover)] px-3 text-[14px] font-medium text-foreground/50 transition-colors hover:enabled:text-foreground disabled:cursor-default disabled:opacity-50"
           >
-            {t2("canvas.params.custom", {
+            {t("canvas.params.custom", {
               defaultValue: "自定义",
             })}
           </button>

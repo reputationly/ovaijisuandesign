@@ -1,5 +1,6 @@
 // delete-local-node-dialog.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -11,18 +12,18 @@ import {
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 export function DeleteLocalNodeDialog({
-  node: node2,
+  node,
   batchNodes,
   onOpenChange,
   onConfirm,
   onCompleted,
 }) {
-  const { t: t2 } = useTranslation();
-  const [pending2, setPending] = reactExports.useState(false);
-  const targets = batchNodes?.length ? batchNodes : node2 ? [node2] : [];
+  const { t: translate } = useTranslation();
+  const [pending, setPending] = reactExports.useState(false);
+  const targets = batchNodes?.length ? batchNodes : node ? [node] : [];
   const isBatch = targets.length > 1;
-  const run2 = reactExports.useCallback(async () => {
-    if (targets.length === 0 || pending2) return;
+  const run = reactExports.useCallback(async () => {
+    if (targets.length === 0 || pending) return;
     setPending(true);
     let failed = 0;
     try {
@@ -41,7 +42,7 @@ export function DeleteLocalNodeDialog({
     } finally {
       setPending(false);
     }
-  }, [onCompleted, onConfirm, onOpenChange, pending2, targets]);
+  }, [onCompleted, onConfirm, onOpenChange, pending, targets]);
   const isFolder = targets.length === 1 && targets[0]?.kind === "folder";
   return (
     <Dialog open={targets.length > 0} onOpenChange={onOpenChange}>
@@ -49,45 +50,45 @@ export function DeleteLocalNodeDialog({
         <DialogHeader>
           <DialogTitle className="text-body-14 leading-5 font-medium">
             {isBatch
-              ? t2("projectAssets.batchDeleteTitle", {
+              ? translate("projectAssets.batchDeleteTitle", {
                   count: targets.length,
                 })
               : isFolder
-                ? t2("localAssets.deleteFolderTitle", {
+                ? translate("localAssets.deleteFolderTitle", {
                     name: targets[0]?.name ?? "",
                   })
-                : t2("localAssets.deleteFileTitle", {
+                : translate("localAssets.deleteFileTitle", {
                     name: targets[0]?.name ?? "",
                   })}
           </DialogTitle>
           <DialogDescription className="text-[12px]/relaxed text-muted-foreground">
             {isBatch
-              ? t2("projectAssets.batchDeleteLocalBody", {
+              ? translate("projectAssets.batchDeleteLocalBody", {
                   count: targets.length,
                 })
               : isFolder
-                ? t2("localAssets.deleteFolderBody")
-                : t2("localAssets.deleteFileBody")}
+                ? translate("localAssets.deleteFolderBody")
+                : translate("localAssets.deleteFileBody")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button
             variant="outline"
             size="sm"
-            disabled={pending2}
+            disabled={pending}
             onClick={() => onOpenChange(false)}
             data-action-ui-id="local-assets.delete-cancel"
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             variant="destructive"
             size="sm"
-            disabled={pending2}
-            onClick={() => void run2()}
+            disabled={pending}
+            onClick={() => void run()}
             data-action-ui-id="local-assets.delete-confirm"
           >
-            {t2("localAssets.delete")}
+            {translate("localAssets.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

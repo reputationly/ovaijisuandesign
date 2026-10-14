@@ -1,5 +1,7 @@
 // leave-team-dialog.jsx
-import { reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Alert, AlertDescription } from "./alert-variants.jsx";
@@ -20,8 +22,8 @@ import { Label } from "./use-wallet-query.jsx";
 import { TeamMemberCombobox } from "./team-member-combobox.jsx";
 import { accountScopeEquals } from "./account-scope-equals.js";
 import { useInGroupMembersQuery } from "./use-team-transactions-feed-query.jsx";
-let TeamScopeChangedError = class TeamScopeChangedError2 extends Error {};
-class TeamExitResultError2 extends Error {
+let TeamScopeChangedError = class TeamScopeChangedError extends Error {};
+class TeamExitResultError extends Error {
   constructor(result) {
     super(result.status);
     this.result = result;
@@ -43,8 +45,8 @@ export function LeaveTeamDialog({
   onOpenChange,
   onLeft,
 }) {
-  const { t: t2 } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { activeScope, exitCurrentTeam } = useTeamAccount();
   const { user } = useAuth();
   const selfUserId = user?.userID ?? null;
@@ -71,9 +73,9 @@ export function LeaveTeamDialog({
   const normalizedSearch = searchInput.trim().toLocaleLowerCase();
   const visibleSuccessors = normalizedSearch
     ? eligibleSuccessors.filter(
-        (option2) =>
-          option2.displayName.toLocaleLowerCase().includes(normalizedSearch) ||
-          option2.userId.includes(normalizedSearch),
+        (option) =>
+          option.displayName.toLocaleLowerCase().includes(normalizedSearch) ||
+          option.userId.includes(normalizedSearch),
       )
     : eligibleSuccessors;
   const remoteProvedEmpty =
@@ -125,21 +127,21 @@ export function LeaveTeamDialog({
         result.status === "partial" ||
         result.status === "rejected"
       ) {
-        throw new TeamExitResultError2(result);
+        throw new TeamExitResultError(result);
       }
       return result;
     },
     retry: false,
     onSuccess: () => {
       setActionError(null);
-      queryClient2.removeQueries({
+      queryClient.removeQueries({
         queryKey: teamQueryKeys.membership(scope),
       });
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: teamQueryKeys.contexts(scope.identityKey),
       });
       dedupedToast.success(
-        t2("team.management.leaveSucceeded", {
+        t("team.management.leaveSucceeded", {
           defaultValue: "已退出团队。",
         }),
       );
@@ -149,7 +151,7 @@ export function LeaveTeamDialog({
     onError: (error) => {
       if (error instanceof TeamScopeChangedError) {
         dedupedToast.error(
-          t2("team.management.scopeChanged", {
+          t("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
           }),
         );
@@ -157,12 +159,12 @@ export function LeaveTeamDialog({
         return;
       }
       if (
-        error instanceof TeamExitResultError2 &&
+        error instanceof TeamExitResultError &&
         error.result.status === "partial" &&
         error.result.phase === "OWNERSHIP_TRANSFERRED"
       ) {
         setActionError(
-          t2("team.management.transferLeavePartialFailed", {
+          t("team.management.transferLeavePartialFailed", {
             defaultValue:
               "所有权已移交，但退出失败。请刷新后重试退出，勿重复移交以免产生双 Owner。",
           }),
@@ -170,12 +172,12 @@ export function LeaveTeamDialog({
         return;
       }
       if (
-        error instanceof TeamExitResultError2 &&
+        error instanceof TeamExitResultError &&
         error.result.status === "partial" &&
         error.result.phase === "EXIT_RESULT_UNKNOWN"
       ) {
         setActionError(
-          t2("team.management.leaveResultUnknown", {
+          t("team.management.leaveResultUnknown", {
             defaultValue:
               "退出结果尚未确认，已切换到个人空间并暂停原团队的新请求。成员关系刷新后再确认最终状态。",
           }),
@@ -183,30 +185,30 @@ export function LeaveTeamDialog({
         return;
       }
       setActionError(
-        error instanceof TeamExitResultError2 && error.result.status === "busy"
-          ? t2("team.management.exitBusy", {
+        error instanceof TeamExitResultError && error.result.status === "busy"
+          ? t("team.management.exitBusy", {
               defaultValue:
                 "当前仍有运行中的任务或待发送内容，请完成后再退出团队。",
             })
-          : t2("team.management.leaveFailed", {
+          : t("team.management.leaveFailed", {
               defaultValue: "退出团队失败，请稍后重试。",
             }),
       );
     },
   });
   const leaveDescription = effectiveDissolveOnly
-    ? t2("team.management.leaveOwnerSoleDescription", {
+    ? t("team.management.leaveOwnerSoleDescription", {
         defaultValue:
           "你是“{{name}}”的唯一成员。请使用「解散团队」完成退出，不能直接退出。若解散因上游服务异常失败，团队与积分保持不变，请稍后重试。",
         name: teamName,
       })
     : effectiveNeedsSuccessor
-      ? t2("team.management.leaveOwnerDescription", {
+      ? t("team.management.leaveOwnerDescription", {
           defaultValue:
             "退出“{{name}}”前须指定继任 Owner。移交并退出后将切换回个人空间。",
           name: teamName,
         })
-      : t2("team.management.leaveDescription", {
+      : t("team.management.leaveDescription", {
           defaultValue: "退出“{{name}}”后，将立即切换回个人空间。是否继续？",
           name: teamName,
         });
@@ -221,7 +223,7 @@ export function LeaveTeamDialog({
       >
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t2("team.management.leaveTitle", {
+            {t("team.management.leaveTitle", {
               defaultValue: "退出团队",
             })}
           </AlertDialogTitle>
@@ -230,7 +232,7 @@ export function LeaveTeamDialog({
         {effectiveNeedsSuccessor ? (
           <div className="grid gap-2">
             <Label className="text-muted-foreground font-normal">
-              {t2("team.management.successorLabel", {
+              {t("team.management.successorLabel", {
                 defaultValue: "继任 Owner",
               })}
             </Label>
@@ -244,7 +246,7 @@ export function LeaveTeamDialog({
               loading={membersQuery.isPending}
               error={membersQuery.isError}
               onRetry={() => void membersQuery.refetch()}
-              placeholder={t2("team.management.successorPlaceholder", {
+              placeholder={t("team.management.successorPlaceholder", {
                 defaultValue: "搜索并选择继任 Owner",
               })}
               data-action-ui-id="team.management-leave-successor"
@@ -257,7 +259,7 @@ export function LeaveTeamDialog({
               htmlFor={confirmInputId}
               className="text-muted-foreground font-normal"
             >
-              {t2("team.management.leaveConfirmPrompt", {
+              {t("team.management.leaveConfirmPrompt", {
                 defaultValue: "请输入团队名称 “{{name}}” 以确认：",
                 name: teamName,
               })}
@@ -289,7 +291,7 @@ export function LeaveTeamDialog({
         ) : null}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={mutation.isPending}>
-            {t2("common.cancel", {
+            {t("common.cancel", {
               defaultValue: "取消",
             })}
           </AlertDialogCancel>
@@ -305,7 +307,7 @@ export function LeaveTeamDialog({
               }}
               data-action-ui-id="team.management-leave-confirm"
             >
-              {t2("team.management.leaveConfirm", {
+              {t("team.management.leaveConfirm", {
                 defaultValue: "确认退出",
               })}
             </AlertDialogAction>

@@ -1,14 +1,9 @@
 // domestic-param-labels.jsx
-import {
-  AudioLines,
-  getRuntimeConfig,
-  Music,
-  reactExports,
-  Scissors,
-  Video,
-} from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { AudioLines, Music, Scissors, Video } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { VIDEO_DISPATCHER_TOOL } from "../chat/use-tool-confirm-settlement.js";
 import { resolveMediaTaskCategory } from "../chat/has-structured-success-payload.js";
 import { Clapperboard, ImageOutlineIcon } from "../media-editing/package.jsx";
@@ -19,16 +14,16 @@ function nextProductionPlanExpanded(expanded, event) {
   return expanded ?? false;
 }
 export function updateProductionPlanDisclosureState(
-  current2,
+  current,
   conversationKey,
   event,
 ) {
-  const expanded = current2.get(conversationKey);
+  const expanded = current.get(conversationKey);
   const nextExpanded = nextProductionPlanExpanded(expanded, event);
-  if (expanded === nextExpanded) return current2;
-  const next2 = new Map(current2);
-  next2.set(conversationKey, nextExpanded);
-  return next2;
+  if (expanded === nextExpanded) return current;
+  const next = new Map(current);
+  next.set(conversationKey, nextExpanded);
+  return next;
 }
 export function canOpenProductionPlan(activePlanId, requestedPlanId) {
   return Boolean(activePlanId && requestedPlanId === activePlanId);
@@ -164,18 +159,18 @@ export function isComfyUiPromptParameter(parameter) {
   );
 }
 export function mergeComfyUiInputValues(preflightValues, explicitValues) {
-  const values3 = new Map();
+  const values = new Map();
   for (const entry of preflightValues) {
-    values3.set(`${entry.node_id}:${entry.parameter}`, entry);
+    values.set(`${entry.node_id}:${entry.parameter}`, entry);
   }
   for (const entry of explicitValues) {
-    const key2 = `${entry.node_id}:${entry.parameter}`;
-    values3.set(key2, {
-      ...values3.get(key2),
+    const key = `${entry.node_id}:${entry.parameter}`;
+    values.set(key, {
+      ...values.get(key),
       ...entry,
     });
   }
-  return [...values3.values()];
+  return [...values.values()];
 }
 export const VENDOR_PARAM_KEYS = new Set([
   // image dispatcher
@@ -192,20 +187,20 @@ export const VENDOR_PARAM_KEYS = new Set([
   // sit in the PM-decided "advanced" bucket (INTERNAL_KEYS) and never
   // render in the inline card.
 ]);
-export function isVendorParamsObject(v2) {
-  return v2 != null && typeof v2 === "object" && !Array.isArray(v2);
+export function isVendorParamsObject(vendorParams) {
+  return vendorParams != null && typeof vendorParams === "object" && !Array.isArray(vendorParams);
 }
 function isMiniMaxH3ModelValue(value) {
   return typeof value === "string" && value.trim() === MINIMAX_H3_MODEL_ID;
 }
 function isMiniMaxH3ConfirmArgs(args) {
-  for (const key2 of MODEL_NAME_KEYS) {
-    if (isMiniMaxH3ModelValue(args[key2])) return true;
+  for (const key of MODEL_NAME_KEYS) {
+    if (isMiniMaxH3ModelValue(args[key])) return true;
   }
   const vendorParams = args.vendor_params;
   if (isVendorParamsObject(vendorParams)) {
-    for (const key2 of MODEL_NAME_KEYS) {
-      if (isMiniMaxH3ModelValue(vendorParams[key2])) return true;
+    for (const key of MODEL_NAME_KEYS) {
+      if (isMiniMaxH3ModelValue(vendorParams[key])) return true;
     }
   }
   return false;
@@ -295,11 +290,11 @@ const DOMESTIC_PARAM_LABELS = {
   // DAG
   inputs: "参数",
 };
-export function getParamLabel(key2) {
+export function getParamLabel(key) {
   if (getRuntimeConfig().region === "domestic") {
-    return DOMESTIC_PARAM_LABELS[key2] ?? key2;
+    return DOMESTIC_PARAM_LABELS[key] ?? key;
   }
-  return key2;
+  return key;
 }
 export const CATEGORY_ICON = {
   imageGen: ImageOutlineIcon,
@@ -310,35 +305,35 @@ export const CATEGORY_ICON = {
   other: Clapperboard,
 };
 export const resolveTaskCategory = resolveMediaTaskCategory;
-export function mediaKindForKey(key2) {
+export function mediaKindForKey(key) {
   if (
-    key2 === "image_path" ||
-    key2 === "image_paths" ||
-    key2 === "first_frame_image" ||
-    key2 === "first_frame_images" ||
-    key2 === "first_frame_image_path" ||
-    key2 === "last_frame_image" ||
-    key2 === "last_frame_images" ||
-    key2 === "last_frame_image_path" ||
-    key2 === "reference_image_paths" ||
-    key2 === "reference_images"
+    key === "image_path" ||
+    key === "image_paths" ||
+    key === "first_frame_image" ||
+    key === "first_frame_images" ||
+    key === "first_frame_image_path" ||
+    key === "last_frame_image" ||
+    key === "last_frame_images" ||
+    key === "last_frame_image_path" ||
+    key === "reference_image_paths" ||
+    key === "reference_images"
   ) {
     return "image";
   }
   if (
-    key2 === "video_path" ||
-    key2 === "video_paths" ||
-    key2 === "reference_video_url" ||
-    key2 === "reference_video_urls" ||
-    key2 === "video_url"
+    key === "video_path" ||
+    key === "video_paths" ||
+    key === "reference_video_url" ||
+    key === "reference_video_urls" ||
+    key === "video_url"
   ) {
     return "video";
   }
   if (
-    key2 === "audio_path" ||
-    key2 === "audio_paths" ||
-    key2 === "reference_audio_urls" ||
-    key2 === "audio"
+    key === "audio_path" ||
+    key === "audio_paths" ||
+    key === "reference_audio_urls" ||
+    key === "audio"
   ) {
     return "audio";
   }
@@ -373,38 +368,38 @@ export function stringifyParamValue(value) {
   if (typeof value === "object" && value !== null) return JSON.stringify(value);
   return String(value ?? "");
 }
-export function isInheritedSeedance25Param(tool2, args, paramKey) {
+export function isInheritedSeedance25Param(tool, args, paramKey) {
   if (
-    tool2 !== VIDEO_DISPATCHER_TOOL ||
+    tool !== VIDEO_DISPATCHER_TOOL ||
     args.vendor !== "seedance" ||
     args.model_id !== "seedance2.5"
   ) {
     return false;
   }
-  const mode2 = args.mode;
+  const mode = args.mode;
   if (paramKey === "aspect_ratio") {
     return (
-      mode2 === "i2v" ||
-      mode2 === "first-last-frame" ||
-      mode2 === "video-edit" ||
-      mode2 === "video-extend"
+      mode === "i2v" ||
+      mode === "first-last-frame" ||
+      mode === "video-edit" ||
+      mode === "video-extend"
     );
   }
-  return paramKey === "duration" && mode2 === "video-edit";
+  return paramKey === "duration" && mode === "video-edit";
 }
-export function batchPageCountForArgs(args, keys2) {
-  let count2 = 1;
-  for (const key2 of keys2) {
-    const value = args[key2];
+export function batchPageCountForArgs(args, keys) {
+  let count = 1;
+  for (const key of keys) {
+    const value = args[key];
     if (
-      BATCH_PROMPT_KEYS.has(key2) &&
+      BATCH_PROMPT_KEYS.has(key) &&
       Array.isArray(value) &&
-      value.length > count2
+      value.length > count
     ) {
-      count2 = value.length;
+      count = value.length;
     }
   }
-  return count2;
+  return count;
 }
 export function valueAtBatchPage(value, pageIndex, pageCount) {
   if (pageCount > 1 && Array.isArray(value) && value.length === pageCount) {
@@ -412,21 +407,21 @@ export function valueAtBatchPage(value, pageIndex, pageCount) {
   }
   return value;
 }
-export function mediaItemId(paramKey, index2) {
-  return `${paramKey}:${index2}`;
+export function mediaItemId(paramKey, index) {
+  return `${paramKey}:${index}`;
 }
-export function uploadedRelativePath(body2) {
-  if (!body2 || typeof body2 !== "object") return void 0;
-  const record2 = body2;
-  if (typeof record2.relative === "string" && record2.relative.length > 0)
-    return record2.relative;
-  if (typeof record2.path === "string" && record2.path.length > 0)
-    return record2.path;
+export function uploadedRelativePath(body) {
+  if (!body || typeof body !== "object") return void 0;
+  const record = body;
+  if (typeof record.relative === "string" && record.relative.length > 0)
+    return record.relative;
+  if (typeof record.path === "string" && record.path.length > 0)
+    return record.path;
   return void 0;
 }
-export function updateIndexedMediaValue(current2, index2, nextPath) {
-  if (!Array.isArray(current2)) return nextPath;
-  return current2.map((item, i2) => (i2 === index2 ? nextPath : item));
+export function updateIndexedMediaValue(current, index, nextPath) {
+  if (!Array.isArray(current)) return nextPath;
+  return current.map((item, itemIndex) => (itemIndex === index ? nextPath : item));
 }
 export function AudioBarsIcon({ className }) {
   return (

@@ -1,5 +1,6 @@
 // parse-page-state-preview-schema.js
-import { reactExports, X$7 as X } from "../vendor.js";
+import reactExports from "react";
+import { X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { FeedbackIcon } from "../workspace/home-service.jsx";
@@ -62,24 +63,24 @@ export function parsePageStatePreviewSchema(source) {
   if (!Array.isArray(rawActions)) return invalid('"actions" must be an array.');
   const actionKeys = new Set();
   const actions = [];
-  for (const [index2, rawAction] of rawActions.entries()) {
+  for (const [index, rawAction] of rawActions.entries()) {
     if (!isRecord(rawAction))
-      return invalid(`actions[${index2}] must be an object.`);
-    const key2 = rawAction.key;
+      return invalid(`actions[${index}] must be an object.`);
+    const key = rawAction.key;
     const label = rawAction.label;
     const variant = rawAction.variant ?? "default";
     const placement = rawAction.placement ?? "inline";
-    if (typeof key2 !== "string" || key2.trim() === "") {
-      return invalid(`actions[${index2}].key must be a non-empty string.`);
+    if (typeof key !== "string" || key.trim() === "") {
+      return invalid(`actions[${index}].key must be a non-empty string.`);
     }
-    if (actionKeys.has(key2))
-      return invalid(`Action key "${key2}" must be unique.`);
+    if (actionKeys.has(key))
+      return invalid(`Action key "${key}" must be unique.`);
     if (typeof label !== "string" || label.trim() === "") {
-      return invalid(`actions[${index2}].label must be a non-empty string.`);
+      return invalid(`actions[${index}].label must be a non-empty string.`);
     }
     if (!isActionVariant(variant)) {
       return invalid(
-        `actions[${index2}].variant must be one of: ${ACTION_VARIANTS.join(", ")}.`,
+        `actions[${index}].variant must be one of: ${ACTION_VARIANTS.join(", ")}.`,
       );
     }
     if (
@@ -87,19 +88,19 @@ export function parsePageStatePreviewSchema(source) {
       !ACTION_PLACEMENTS.includes(placement)
     ) {
       return invalid(
-        `actions[${index2}].placement must be one of: ${ACTION_PLACEMENTS.join(", ")}.`,
+        `actions[${index}].placement must be one of: ${ACTION_PLACEMENTS.join(", ")}.`,
       );
     }
     if (rawAction.icon != null && !isActionIcon(rawAction.icon)) {
       return invalid(
-        `actions[${index2}].icon must be one of: ${ACTION_ICON_KEYS.join(", ")}.`,
+        `actions[${index}].icon must be one of: ${ACTION_ICON_KEYS.join(", ")}.`,
       );
     }
     if (rawAction.disabled != null && typeof rawAction.disabled !== "boolean") {
-      return invalid(`actions[${index2}].disabled must be a boolean.`);
+      return invalid(`actions[${index}].disabled must be a boolean.`);
     }
     if (rawAction.loading != null && typeof rawAction.loading !== "boolean") {
-      return invalid(`actions[${index2}].loading must be a boolean.`);
+      return invalid(`actions[${index}].loading must be a boolean.`);
     }
     const actionIcon =
       rawAction.icon == null
@@ -120,9 +121,9 @@ export function parsePageStatePreviewSchema(source) {
                 size: "sm",
                 "aria-hidden": true,
               });
-    actionKeys.add(key2);
+    actionKeys.add(key);
     actions.push({
-      key: key2,
+      key,
       icon: actionIcon,
       label,
       variant,

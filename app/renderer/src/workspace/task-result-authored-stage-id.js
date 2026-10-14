@@ -4,16 +4,16 @@ import {
   toolName,
 } from "../text-editor/skill-reload-dock.jsx";
 
-function containsExactId(serialized, id2) {
-  return serialized.includes(id2);
+function containsExactId(serialized, targetId) {
+  return serialized.includes(targetId);
 }
 
 function recordStageId(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     return void 0;
-  const record2 = value;
-  const id2 = record2.stage_id ?? record2.id;
-  return typeof id2 === "string" ? id2 : void 0;
+  const record = value;
+  const stageId = record.stage_id ?? record.id;
+  return typeof stageId === "string" ? stageId : void 0;
 }
 
 function taskResultAuthoredStageId(value) {
@@ -78,72 +78,72 @@ function writerArgsContainStage(toolNameValue, args, stageId) {
   return operations.some((operation) => {
     if (!operation || typeof operation !== "object" || Array.isArray(operation))
       return false;
-    const record2 = operation;
-    if (record2.type !== "revise_stage" && record2.type !== "insert_stage")
+    const record = operation;
+    if (record.type !== "revise_stage" && record.type !== "insert_stage")
       return false;
     return (
-      recordStageId(record2.stage) === stageId || record2.stage_id === stageId
+      recordStageId(record.stage) === stageId || record.stage_id === stageId
     );
   });
 }
 
-function normalizedWriterToolName(message2) {
-  const raw2 = toolName(message2).split(":", 1)[0]?.trim() ?? "";
-  return raw2.startsWith("hub_") ? raw2.slice(4) : raw2;
+function normalizedWriterToolName(message) {
+  const raw = toolName(message).split(":", 1)[0]?.trim() ?? "";
+  return raw.startsWith("hub_") ? raw.slice(4) : raw;
 }
 
-function taskResultContainsAuthoredStage(message2, stageId) {
+function taskResultContainsAuthoredStage(message, stageId) {
   return [
-    "toolResult" in message2 ? message2.toolResult : void 0,
-    message2.content,
+    "toolResult" in message ? message.toolResult : void 0,
+    message.content,
   ].some((value) => {
     if (!value) return false;
     return taskResultAuthoredStageId(value) === stageId;
   });
 }
 
-function messageContainsStageContractWrite(message2, stageId) {
-  if (message2.type === "sub_agent") {
+function messageContainsStageContractWrite(message, stageId) {
+  if (message.type === "sub_agent") {
     return Boolean(
-      message2.subMessages?.some((nested) =>
+      message.subMessages?.some((nested) =>
         messageContainsStageContractWrite(nested, stageId),
       ),
     );
   }
-  if (message2.type !== "tool") return false;
-  const name2 = normalizedWriterToolName(message2);
-  if (name2 === "task")
-    return taskResultContainsAuthoredStage(message2, stageId);
+  if (message.type !== "tool") return false;
+  const toolName = normalizedWriterToolName(message);
+  if (toolName === "task")
+    return taskResultContainsAuthoredStage(message, stageId);
   if (
-    name2 !== "plan_write" &&
-    name2 !== "plan_patch_stage" &&
-    name2 !== "plan_replan"
+    toolName !== "plan_write" &&
+    toolName !== "plan_patch_stage" &&
+    toolName !== "plan_replan"
   ) {
     return false;
   }
   for (const value of [
-    "toolArgs" in message2 ? message2.toolArgs : void 0,
-    "args" in message2 ? message2.args : void 0,
-    "url" in message2 ? message2.url : void 0,
-    message2.content,
+    "toolArgs" in message ? message.toolArgs : void 0,
+    "args" in message ? message.args : void 0,
+    "url" in message ? message.url : void 0,
+    message.content,
   ]) {
     const args = parseJsonObject(value);
-    if (args && writerArgsContainStage(name2, args, stageId)) return true;
+    if (args && writerArgsContainStage(toolName, args, stageId)) return true;
   }
   return false;
 }
 
-export function findStageReviewAnchorMessageId(messages2, planId, stageId) {
-  for (let index2 = messages2.length - 1; index2 >= 0; index2 -= 1) {
-    const message2 = messages2[index2];
-    if (!message2) continue;
-    if (message2.role === "user") continue;
-    const serialized = JSON.stringify(message2);
+export function findStageReviewAnchorMessageId(messages, planId, stageId) {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (!message) continue;
+    if (message.role === "user") continue;
+    const serialized = JSON.stringify(message);
     if (
       containsExactId(serialized, planId) &&
-      messageContainsStageContractWrite(message2, stageId)
+      messageContainsStageContractWrite(message, stageId)
     ) {
-      return message2.id;
+      return message.id;
     }
   }
   return void 0;

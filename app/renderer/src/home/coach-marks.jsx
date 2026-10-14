@@ -1,5 +1,8 @@
 // 首页输入框的新手引导（coach mark）。
-import { useTranslation, useStorage, reactExports, jsxRuntimeExports } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useStorage } from "../infra/use-storage.js";
 import { useAssetCenterRelocation, resolveSeenRevision, HOME_INPUT_COACH_MARK_ID } from "../assets/wrap-as-asset-center-error.js";
 import { useHasBlockingModal, useModalSlot, STARTUP_MODAL_IDS } from "../infra/schedule.js";
 import { CDN_COACHMARK_HOME_AT, CDN_COACHMARK_HOME_SLASH } from "../workspace/topbar-state-context.jsx";

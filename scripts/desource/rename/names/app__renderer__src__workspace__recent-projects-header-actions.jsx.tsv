@@ -1,0 +1,2 @@
+key	old	new	依据
+t2@48:14	t2	translate	useTranslation 返回的翻译函数。

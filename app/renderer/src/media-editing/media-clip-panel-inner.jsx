@@ -4,13 +4,11 @@ import {
   LIGHT_THEME_COLORS,
   TIMELINE_CONFIG,
 } from "../generation/time-intervals.jsx";
-import {
-  jsxRuntimeExports,
-  reactDomExports,
-  reactExports,
-  Undo2,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Undo2 } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PauseIcon, PlayIcon } from "./build-video-thumb-base.jsx";
 import { useCanvasActive } from "./package.jsx";
@@ -21,41 +19,41 @@ import { MediaClipEngine } from "./media-clip-engine.js";
 function formatTime(seconds, showMs = false) {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
-  const ms = Math.floor((seconds % 1) * 100);
+  const centiseconds = Math.floor((seconds % 1) * 100);
   const minsStr = mins.toString().padStart(2, "0");
   const secsStr = secs.toString().padStart(2, "0");
   if (showMs) {
-    const msStr = ms.toString().padStart(2, "0");
+    const msStr = centiseconds.toString().padStart(2, "0");
     return `${minsStr}:${secsStr}.${msStr}`;
   }
   return `${minsStr}:${secsStr}`;
 }
 const MIN_MEDIA_CLIP_DURATION = 0.1;
 function splitMediaClipRange(
-  range2,
+  range,
   playhead,
   minDuration = MIN_MEDIA_CLIP_DURATION,
 ) {
   if (
-    !Number.isFinite(range2.start) ||
-    !Number.isFinite(range2.end) ||
+    !Number.isFinite(range.start) ||
+    !Number.isFinite(range.end) ||
     !Number.isFinite(playhead) ||
     !Number.isFinite(minDuration) ||
     minDuration <= 0 ||
-    range2.end - range2.start < minDuration * 2 ||
-    playhead - range2.start < minDuration ||
-    range2.end - playhead < minDuration
+    range.end - range.start < minDuration * 2 ||
+    playhead - range.start < minDuration ||
+    range.end - playhead < minDuration
   ) {
     return null;
   }
   return [
     {
-      start: range2.start,
+      start: range.start,
       end: playhead,
     },
     {
       start: playhead,
-      end: range2.end,
+      end: range.end,
     },
   ];
 }
@@ -65,7 +63,7 @@ function splitMediaClipSegments(
   minDuration = MIN_MEDIA_CLIP_DURATION,
 ) {
   const targetIndex = ranges.findIndex(
-    (range2) => playhead > range2.start && playhead < range2.end,
+    (range) => playhead > range.start && playhead < range.end,
   );
   if (targetIndex < 0) return null;
   const splitRanges = splitMediaClipRange(
@@ -82,10 +80,10 @@ function splitMediaClipSegments(
 }
 function undoMediaClipSegmentSplit(ranges, splitPoint) {
   const rightSegmentIndex = ranges.findIndex(
-    (range2, index2) =>
-      index2 > 0 &&
-      ranges[index2 - 1].end === splitPoint &&
-      range2.start === splitPoint,
+    (range, index) =>
+      index > 0 &&
+      ranges[index - 1].end === splitPoint &&
+      range.start === splitPoint,
   );
   if (rightSegmentIndex < 0) return null;
   const leftSegment = ranges[rightSegmentIndex - 1];
@@ -122,18 +120,18 @@ export function MediaClipPanelInner({
   defaultMime,
   onClose,
   onExport,
-  renderPreview: renderPreview2,
+  renderPreview,
   exportOptions,
   onMediaLoaded,
-  getExtFromMime: getExtFromMime2,
+  getExtFromMime,
   titleKey = "canvas.clip",
   exportLabelKey = "canvas.export",
   cropEnabled = true,
   splitEnabled = false,
   produceExport,
 }) {
-  const { t: t2 } = useTranslation();
-  const active2 = useCanvasActive();
+  const { t } = useTranslation();
+  const active = useCanvasActive();
   const [engine, setEngine] = reactExports.useState(null);
   const timelineCanvasRef = reactExports.useRef(null);
   const containerRef = reactExports.useRef(null);
@@ -155,7 +153,7 @@ export function MediaClipPanelInner({
             .getPropertyValue("--canvas-controls-bg")
             .trim() || baseColors.BACKGROUND
         : baseColors.BACKGROUND;
-    const eng = new MediaClipEngine({
+    const mediaClipEngine = new MediaClipEngine({
       colors: {
         ...baseColors,
         BACKGROUND: controlsBg,
@@ -171,27 +169,27 @@ export function MediaClipPanelInner({
       // 抽帧场景禁用拖拽滚动：单帧操作时缩略图区点击直接 seek，不进入 grab 抓手态。
       disableScrollDrag: !cropEnabled,
     });
-    setEngine(eng);
-    return () => eng.destroy();
+    setEngine(mediaClipEngine);
+    return () => mediaClipEngine.destroy();
   }, []);
-  const subscribe2 = reactExports.useCallback(
-    (cb) => engine?.subscribe(cb) ?? (() => {}),
+  const subscribe = reactExports.useCallback(
+    (listener) => engine?.subscribe(listener) ?? (() => {}),
     [engine],
   );
-  const getSnapshot2 = reactExports.useCallback(
+  const getSnapshot = reactExports.useCallback(
     () => engine?.getState() ?? EMPTY_STATE,
     [engine],
   );
-  const state2 = reactExports.useSyncExternalStore(subscribe2, getSnapshot2);
+  const state = reactExports.useSyncExternalStore(subscribe, getSnapshot);
   reactExports.useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver((entries2) => {
-      const entry = entries2[0];
+    const element = containerRef.current;
+    if (!element) return;
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
       if (entry) setContainerWidth(entry.contentRect.width);
     });
-    ro.observe(el);
-    return () => ro.disconnect();
+    resizeObserver.observe(element);
+    return () => resizeObserver.disconnect();
   }, []);
   reactExports.useEffect(() => {
     if (!engine) return;
@@ -228,8 +226,8 @@ export function MediaClipPanelInner({
     if (!engine || containerWidth <= 0) return;
     const { totalDuration } = engine.getState();
     if (totalDuration <= 0) return;
-    const scale2 = calcInitialScale(totalDuration, containerWidth);
-    engine.setScale(scale2);
+    const scale = calcInitialScale(totalDuration, containerWidth);
+    engine.setScale(scale);
   }, [engine, containerWidth, loading]);
   reactExports.useEffect(() => {
     if (!engine) return;
@@ -239,18 +237,18 @@ export function MediaClipPanelInner({
     return () => engine.detachCanvas();
   }, [engine, containerWidth]);
   reactExports.useEffect(() => {
-    if (!engine || !state2.isPlaying) return;
-    let rafId2;
+    if (!engine || !state.isPlaying) return;
+    let rafId;
     const tick = () => {
-      const s2 = engine.getState();
+      const engineState = engine.getState();
       if (timeDisplayRef.current) {
-        timeDisplayRef.current.textContent = `${formatTime(s2.currentTime)} / ${formatTime(s2.totalDuration, true)}`;
+        timeDisplayRef.current.textContent = `${formatTime(engineState.currentTime)} / ${formatTime(engineState.totalDuration, true)}`;
       }
-      rafId2 = requestAnimationFrame(tick);
+      rafId = requestAnimationFrame(tick);
     };
-    rafId2 = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId2);
-  }, [engine, state2.isPlaying]);
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [engine, state.isPlaying]);
   const handleTogglePlay = reactExports.useCallback(() => {
     engine?.togglePlay();
   }, [engine]);
@@ -260,26 +258,26 @@ export function MediaClipPanelInner({
   const handleZoomOut = reactExports.useCallback(() => {
     engine?.zoomOut();
   }, [engine]);
-  const segmentRanges = state2.segmentRanges;
-  const matchingSegmentIndex = state2.cropRange
+  const segmentRanges = state.segmentRanges;
+  const matchingSegmentIndex = state.cropRange
     ? segmentRanges.findIndex(
-        (range2) =>
-          range2.start === state2.cropRange?.start &&
-          range2.end === state2.cropRange?.end,
+        (range) =>
+          range.start === state.cropRange?.start &&
+          range.end === state.cropRange?.end,
       )
     : -1;
   const splitSourceRanges =
     segmentRanges.length > 0
       ? segmentRanges
-      : state2.cropRange
-        ? [state2.cropRange]
+      : state.cropRange
+        ? [state.cropRange]
         : [];
   const splitRanges =
     cropEnabled && splitEnabled
-      ? splitMediaClipSegments(splitSourceRanges, state2.currentTime)
+      ? splitMediaClipSegments(splitSourceRanges, state.currentTime)
       : null;
   reactExports.useEffect(() => {
-    const activeCropRange = state2.cropRange;
+    const activeCropRange = state.cropRange;
     if (!engine || exporting || segmentRanges.length === 0 || !activeCropRange)
       return;
     if (matchingSegmentIndex >= 0) {
@@ -289,8 +287,8 @@ export function MediaClipPanelInner({
     const selectedIndex = selectedSegmentIndexRef.current;
     if (selectedIndex === null || !segmentRanges[selectedIndex]) return;
     splitHistoryRef.current = [];
-    const nextRanges = segmentRanges.map((range2, index2) =>
-      index2 === selectedIndex ? activeCropRange : range2,
+    const nextRanges = segmentRanges.map((range, index) =>
+      index === selectedIndex ? activeCropRange : range,
     );
     engine.setSegmentRanges(nextRanges, activeCropRange);
   }, [
@@ -298,7 +296,7 @@ export function MediaClipPanelInner({
     exporting,
     matchingSegmentIndex,
     segmentRanges,
-    state2.cropRange,
+    state.cropRange,
   ]);
   const handleExport = reactExports.useCallback(async () => {
     if (!engine || exporting) return;
@@ -306,8 +304,8 @@ export function MediaClipPanelInner({
     setExportProgress(0);
     try {
       if (produceExport) {
-        const result = await produceExport(engine, mediaName, (p3) =>
-          setExportProgress(p3),
+        const result = await produceExport(engine, mediaName, (progress) =>
+          setExportProgress(progress),
         );
         if (!result) return;
         await onExport(result.blob, result.filename);
@@ -315,14 +313,14 @@ export function MediaClipPanelInner({
         return;
       }
       const blob = await engine.exportCrop({
-        onProgress: (p3) => setExportProgress(p3),
+        onProgress: (progress) => setExportProgress(progress),
         ...exportOptions,
       });
       if (!blob) return;
-      const ext = getExtFromMime2(blob.type);
+      const extension = getExtFromMime(blob.type);
       const baseName = mediaName.replace(/\.[^.]+$/, "");
       const uuid = crypto.randomUUID().slice(0, 4);
-      const filename = `${baseName}-clip-${uuid}.${ext}`;
+      const filename = `${baseName}-clip-${uuid}.${extension}`;
       await onExport(blob, filename);
       onClose();
     } catch (err) {
@@ -337,23 +335,23 @@ export function MediaClipPanelInner({
     mediaName,
     onExport,
     onClose,
-    getExtFromMime2,
+    getExtFromMime,
     exportOptions,
     produceExport,
   ]);
   const handleSplit = reactExports.useCallback(() => {
     if (!engine || exporting || !splitRanges) return;
     const splitIndex = splitSourceRanges.findIndex(
-      (range2) =>
-        state2.currentTime > range2.start && state2.currentTime < range2.end,
+      (range) =>
+        state.currentTime > range.start && state.currentTime < range.end,
     );
     const activeRange = splitRanges[splitIndex + 1];
     if (!activeRange) return;
     engine.pause();
-    splitHistoryRef.current.push(state2.currentTime);
+    splitHistoryRef.current.push(state.currentTime);
     selectedSegmentIndexRef.current = splitIndex + 1;
     engine.setSegmentRanges(splitRanges, activeRange);
-  }, [engine, exporting, splitRanges, splitSourceRanges, state2.currentTime]);
+  }, [engine, exporting, splitRanges, splitSourceRanges, state.currentTime]);
   const handleUndoSplit = reactExports.useCallback(() => {
     if (!engine || exporting || segmentRanges.length < 2) return;
     const splitPoint = splitHistoryRef.current.at(-1);
@@ -363,7 +361,7 @@ export function MediaClipPanelInner({
     engine.pause();
     splitHistoryRef.current.pop();
     const activeRange = restoredRanges.find(
-      (range2) => range2.start <= splitPoint && range2.end >= splitPoint,
+      (range) => range.start <= splitPoint && range.end >= splitPoint,
     );
     selectedSegmentIndexRef.current = activeRange
       ? restoredRanges.indexOf(activeRange)
@@ -378,37 +376,37 @@ export function MediaClipPanelInner({
     segmentRanges.length > 1 &&
     splitHistoryRef.current.length > 0;
   reactExports.useEffect(() => {
-    if (!active2) return;
-    const handleKeyDown2 = (e2) => {
-      if (e2.key === "Escape") {
-        e2.stopPropagation();
+    if (!active) return;
+    const handleKeyDown = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") {
+        keyboardEvent.stopPropagation();
         onClose();
-      } else if (e2.key === " ") {
-        e2.preventDefault();
-        e2.stopPropagation();
+      } else if (keyboardEvent.key === " ") {
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopPropagation();
         engine?.togglePlay();
       }
     };
-    document.addEventListener("keydown", handleKeyDown2);
-    return () => document.removeEventListener("keydown", handleKeyDown2);
-  }, [active2, engine, onClose]);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [active, engine, onClose]);
   const backdropMouseDownTarget = reactExports.useRef(null);
-  const handleBackdropMouseDown = reactExports.useCallback((e2) => {
-    backdropMouseDownTarget.current = e2.target;
+  const handleBackdropMouseDown = reactExports.useCallback((mouseEvent) => {
+    backdropMouseDownTarget.current = mouseEvent.target;
   }, []);
   const handleBackdropClick = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       if (
-        e2.target === e2.currentTarget &&
-        backdropMouseDownTarget.current === e2.currentTarget
+        clickEvent.target === clickEvent.currentTarget &&
+        backdropMouseDownTarget.current === clickEvent.currentTarget
       ) {
         onClose();
       }
     },
     [onClose],
   );
-  const cropDuration = state2.cropRange
-    ? (state2.cropRange.end - state2.cropRange.start).toFixed(1)
+  const cropDuration = state.cropRange
+    ? (state.cropRange.end - state.cropRange.start).toFixed(1)
     : "0.0";
   return reactDomExports.createPortal(
     // biome-ignore lint/a11y/useKeyWithClickEvents: Escape key handled via document listener
@@ -420,12 +418,12 @@ export function MediaClipPanelInner({
     >
       <div
         className="flex h-[min(760px,calc(100dvh-2rem))] w-[calc(100vw-2rem)] max-w-[900px] flex-col overflow-hidden rounded-xl border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] text-foreground shadow-[var(--canvas-shadow-dropdown)]"
-        onClick={(e2) => e2.stopPropagation()}
-        onDoubleClick={(e2) => e2.stopPropagation()}
+        onClick={(clickEvent) => clickEvent.stopPropagation()}
+        onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
       >
         <div className="flex shrink-0 items-center justify-between border-b border-[var(--canvas-controls-border)] px-4 py-3">
           <span className="font-heading text-sm font-medium text-[var(--canvas-controls-text)]">
-            {t2(titleKey)}
+            {t(titleKey)}
           </span>
           <button
             type="button"
@@ -435,10 +433,10 @@ export function MediaClipPanelInner({
             <CloseIcon />
           </button>
         </div>
-        {renderPreview2({
+        {renderPreview({
           loading,
           engine,
-          state: state2,
+          state,
         })}
         <div className="flex shrink-0 items-center gap-3 border-t border-[var(--canvas-controls-border)] px-4 py-2">
           <button
@@ -447,21 +445,21 @@ export function MediaClipPanelInner({
             disabled={loading}
             className="flex size-8 items-center justify-center rounded-full text-[var(--canvas-controls-text)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] disabled:opacity-30 focus-visible:ring-1 focus-visible:ring-[var(--canvas-controls-text)]"
           >
-            {state2.isPlaying ? <PauseIcon /> : <PlayIcon />}
+            {state.isPlaying ? <PauseIcon /> : <PlayIcon />}
           </button>
           <span
             ref={timeDisplayRef}
             className="min-w-[70px] font-mono text-xs tabular-nums text-[var(--canvas-controls-text-muted)]"
           >
-            {formatTime(state2.currentTime)}
+            {formatTime(state.currentTime)}
             {" / "}
-            {formatTime(state2.totalDuration, true)}
+            {formatTime(state.totalDuration, true)}
           </span>
-          {cropEnabled && state2.cropRange && (
+          {cropEnabled && state.cropRange && (
             <span className="font-mono text-xs tabular-nums text-[var(--canvas-controls-text-muted)]">
-              [{formatTime(state2.cropRange.start)}
+              [{formatTime(state.cropRange.start)}
               {" - "}
-              {formatTime(state2.cropRange.end)}] ({cropDuration}s)
+              {formatTime(state.cropRange.end)}] ({cropDuration}s)
             </span>
           )}
           <div className="flex-1" />
@@ -497,7 +495,7 @@ export function MediaClipPanelInner({
             <>
               <button
                 type="button"
-                aria-label={t2("canvas.undo", "Undo")}
+                aria-label={t("canvas.undo", "Undo")}
                 data-action-ui-id="canvas.media-clip.undo-split"
                 onClick={handleUndoSplit}
                 disabled={!canUndoSplit}
@@ -513,7 +511,7 @@ export function MediaClipPanelInner({
                 disabled={loading || exporting || !splitRanges}
                 className="border-[var(--canvas-controls-border)] bg-transparent text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"
               >
-                {t2("canvas.split", "切分")}
+                {t("canvas.split", "切分")}
               </Button>
             </>
           )}
@@ -521,14 +519,14 @@ export function MediaClipPanelInner({
             size="sm"
             onClick={handleExport}
             disabled={
-              loading || exporting || (cropEnabled && !state2.cropRange)
+              loading || exporting || (cropEnabled && !state.cropRange)
             }
             loading={exporting}
             className="border-transparent bg-[var(--canvas-primary-btn-bg)] text-[var(--canvas-primary-btn-icon)] hover:bg-[var(--canvas-primary-btn-bg-hover)]"
           >
             {exporting
               ? `${Math.round(exportProgress * 100)}%`
-              : t2(exportLabelKey)}
+              : t(exportLabelKey)}
           </Button>
         </div>
       </div>

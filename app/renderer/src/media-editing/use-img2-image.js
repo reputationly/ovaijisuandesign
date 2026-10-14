@@ -1,5 +1,8 @@
 // use-img2-image.js
-import { AccountSubmissionBlockedError, instance, MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_REQUEST_HEADER, mediaLineageRequestId, reactExports } from "../vendor.js";
+import instance from "i18next";
+import { AccountSubmissionBlockedError } from "../infra/account-submission.js";
+import { MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_REQUEST_HEADER, mediaLineageRequestId } from "../infra/media-lineage.js";
+import reactExports from "react";
 import { canvasLog, dedupedToast, logMediaLineage, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import { stripErrorHtml } from "../infra/create-recently-added-store.js";
@@ -26,13 +29,13 @@ import {
 import { trackEvent } from "../infra/sanitize-track-props.js";
 function logReferenceSubmission(paths, context, assets) {
   try {
-    for (const [referenceIndex, path2] of paths
+    for (const [referenceIndex, path] of paths
       .slice(0, MEDIA_LINEAGE_MAX_REFERENCES)
       .entries()) {
       let assetId;
       if (assets) {
         for (const [, asset] of assets) {
-          if (asset.path !== path2) continue;
+          if (asset.path !== path) continue;
           assetId = asset.url?.match(/\/files\/id\/([\w-]+)/)?.[1];
           if (assetId) break;
         }
@@ -42,7 +45,7 @@ function logReferenceSubmission(paths, context, assets) {
         stage: "reference.client-submit",
         referenceIndex,
         referenceCount: paths.length,
-        path: path2,
+        path,
         assetId,
       });
     }
@@ -81,7 +84,7 @@ export function useImg2Image({ httpClient, catalogScopeKey }) {
       params,
       imagePaths,
       replaceNodeId,
-      count2,
+      count,
       displayPrompt,
       replaceTargetIsEmpty,
       backendOverride,
@@ -115,7 +118,7 @@ export function useImg2Image({ httpClient, catalogScopeKey }) {
         const effectiveCount =
           backend === BACKEND_MIDJOURNEY
             ? 1
-            : Math.max(1, Math.min(9, Math.floor(count2 ?? 1)));
+            : Math.max(1, Math.min(9, Math.floor(count ?? 1)));
         recordAction("generate:img2img", {
           model: modelId,
         });
@@ -225,9 +228,9 @@ export function useImg2Image({ httpClient, catalogScopeKey }) {
                           textPaths,
                         }
                       : {}),
-                    ...(typeof count2 === "number"
+                    ...(typeof count === "number"
                       ? {
-                          count: count2,
+                          count,
                         }
                       : {}),
                     ...(displayPrompt

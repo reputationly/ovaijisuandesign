@@ -1,5 +1,5 @@
 // text-editor-skill-categories.jsx
-import { Info$1 as Info } from "../vendor.js";
+import { Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,
@@ -8,29 +8,29 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TooltipContent } from "../infra/dialog-content.jsx";
-function adaptPluginToMarketSkill(p3) {
-  const displayNameZh = p3.name?.["zh-CN"] || p3.id;
-  const summaryEn = p3.description?.["en-US"] || "";
-  const summaryZh = p3.description?.["zh-CN"] || "";
+function adaptPluginToMarketSkill(plugin) {
+  const displayNameZh = plugin.name?.["zh-CN"] || plugin.id;
+  const summaryEn = plugin.description?.["en-US"] || "";
+  const summaryZh = plugin.description?.["zh-CN"] || "";
   return {
-    name: p3.id,
+    name: plugin.id,
     displayNameZh,
     summary: summaryEn,
     summaryZh,
     description: summaryEn,
     tools: [],
-    tags: p3.tags?.["en-US"] ?? [],
-    tagsCn: p3.tags?.["zh-CN"] ?? [],
+    tags: plugin.tags?.["en-US"] ?? [],
+    tagsCn: plugin.tags?.["zh-CN"] ?? [],
     creator: "",
     triggerWords: [],
     guidePrompt: "",
     guidePromptEn: "",
     skillType: "plugin",
-    version: p3.version,
-    hash: p3.hash ?? "",
-    installed: p3.installed,
-    installedVersion: p3.installedVersion,
-    downloads: p3.downloads,
+    version: plugin.version,
+    hash: plugin.hash ?? "",
+    installed: plugin.installed,
+    installedVersion: plugin.installedVersion,
+    downloads: plugin.downloads,
   };
 }
 export function CapabilityPopoverHeader({ title, description, trailing }) {

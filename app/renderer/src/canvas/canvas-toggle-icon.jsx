@@ -1,10 +1,7 @@
 // canvas-toggle-icon.jsx
-import {
-  CompositedSvg,
-  jsxRuntimeExports,
-  MonochromeIcon,
-  reactExports,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 const ANIMATION_MS = 250;
@@ -15,16 +12,16 @@ export function CanvasToggleIcon({ enabled, kind }) {
   const previousRef = reactExports.useRef(enabled);
   const instanceId = `canvas-toggle-${reactExports.useId().replace(/:/g, "")}`;
   reactExports.useEffect(() => {
-    const element2 = stackRef.current;
-    if (!element2 || previousRef.current === enabled) return;
+    const element = stackRef.current;
+    if (!element || previousRef.current === enabled) return;
     previousRef.current = enabled;
     window.clearTimeout(cleanupTimerRef.current);
-    element2.classList.remove("is-opening", "is-closing");
+    element.classList.remove("is-opening", "is-closing");
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    void element2.offsetWidth;
-    element2.classList.add(enabled ? "is-opening" : "is-closing");
+    void element.offsetWidth;
+    element.classList.add(enabled ? "is-opening" : "is-closing");
     cleanupTimerRef.current = window.setTimeout(() => {
-      element2.classList.remove("is-opening", "is-closing");
+      element.classList.remove("is-opening", "is-closing");
     }, ANIMATION_MS);
   }, [enabled]);
   reactExports.useEffect(() => {

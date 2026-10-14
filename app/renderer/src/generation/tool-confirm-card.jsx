@@ -27,7 +27,12 @@ import {
   VENDOR_PARAM_KEYS,
   withMiniMaxH3ParamHints,
 } from "./domestic-param-labels.jsx";
-import { AlertTriangle, API_PATHS, CompositedSvg, jsxRuntimeExports, Loader2, reactExports, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, Loader2 } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -48,7 +53,7 @@ import { Clock } from "../media-editing/package.jsx";
 import { useMentionModels } from "./use-mention-models.jsx";
 import { useGatewayFetch } from "./use-model-catalog-scope-key.js";
 import { useMediaModels } from "./normalize-model-info.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { homeService } from "../workspace/home-service.jsx";
 import {
   redactForCurrentRegion,
@@ -79,8 +84,8 @@ function ToolConfirmBranchIcon() {
 function useToolConfirmEdits() {
   return reactExports.useContext(ToolConfirmEditsContext);
 }
-function isInternalKey(key2) {
-  return key2.startsWith("_") || INTERNAL_KEYS.has(key2);
+function isInternalKey(key) {
+  return key.startsWith("_") || INTERNAL_KEYS.has(key);
 }
 const PROMPT_KEYS = new Set([
   "prompt",
@@ -241,18 +246,18 @@ function getComfyUiInputLabel(parameter) {
     : getParamLabel(parameter);
 }
 export function ToolConfirmCard({
-  message: message2,
+  message: cardMessage,
   onSend,
   embedded = false,
 }) {
-  const { t: t2 } = useTranslation();
-  const gatewayFetch2 = useGatewayFetch();
+  const { t: translate } = useTranslation();
+  const gatewayFetch = useGatewayFetch();
   const resolveUrl = useResolveMediaUrl();
-  const data2 = message2.toolConfirmData;
-  const requestId = message2.requestId;
-  const originalArgs = reactExports.useMemo(() => data2?.args ?? {}, [data2]);
-  const unionParamHints = data2?.paramHints;
-  const vendorParamHints = data2?.vendorParamHints;
+  const data = cardMessage.toolConfirmData;
+  const requestId = cardMessage.requestId;
+  const originalArgs = reactExports.useMemo(() => data?.args ?? {}, [data]);
+  const unionParamHints = data?.paramHints;
+  const vendorParamHints = data?.vendorParamHints;
   const liftedEdits = useToolConfirmEdits();
   const submitting = Boolean(
     requestId && liftedEdits?.submittingIds?.has(requestId),
@@ -305,11 +310,11 @@ export function ToolConfirmCard({
   const comfyInputRef = reactExports.useRef(null);
   const pendingComfyInputRef = reactExports.useRef(null);
   const taskCategory = reactExports.useMemo(
-    () => resolveTaskCategory(data2?.tool ?? ""),
-    [data2],
+    () => resolveTaskCategory(data?.tool ?? ""),
+    [data],
   );
-  const isComfyUiRun = data2?.tool === COMFYUI_RUN_TOOL;
-  const isComfyUiDraftEdit = data2?.tool === COMFYUI_DRAFT_EDIT_TOOL;
+  const isComfyUiRun = data?.tool === COMFYUI_RUN_TOOL;
+  const isComfyUiDraftEdit = data?.tool === COMFYUI_DRAFT_EDIT_TOOL;
   const reviewMode = comfyUiReviewMode(editedArgs.review_mode);
   const { tasks: comfyDownloadTasks } = useComfyUiDownloadProgress();
   const repairOperations = reactExports.useMemo(
@@ -377,14 +382,14 @@ export function ToolConfirmCard({
       ...comfyDraftStructuralOperations,
       ...comfyDraftParameters.flatMap((entry) => {
         if (isLockedComfyUiDraftParameter(entry)) return [];
-        const key2 = comfyUiInputValueKey(entry);
-        if (!(key2 in comfyDraftEdits)) return [];
+        const key = comfyUiInputValueKey(entry);
+        if (!(key in comfyDraftEdits)) return [];
         return [
           {
             type: "set_node_parameter",
             node_id: entry.node_id,
             parameter: entry.parameter,
-            value: comfyDraftEdits[key2],
+            value: comfyDraftEdits[key],
           },
         ];
       }),
@@ -396,8 +401,8 @@ export function ToolConfirmCard({
     return {
       ...Object.fromEntries(
         Object.entries(editedArgs).filter(
-          ([key2]) =>
-            key2 !== "operations" && key2 !== "expected_source_sha256",
+          ([key]) =>
+            key !== "operations" && key !== "expected_source_sha256",
         ),
       ),
       expected_source_sha256: comfyDraftMetadata.source_sha256,
@@ -415,7 +420,7 @@ export function ToolConfirmCard({
     editedArgs,
   ]);
   reactExports.useEffect(() => {
-    if (!isComfyUiRun || !requestId || message2.expired) {
+    if (!isComfyUiRun || !requestId || cardMessage.expired) {
       setComfyPreflight(null);
       setComfyPreflightError(null);
       return;
@@ -429,7 +434,7 @@ export function ToolConfirmCard({
       typeof editedArgs.source_node_id === "string"
         ? editedArgs.source_node_id
         : "";
-    void gatewayFetch2(API_PATHS.comfyUiWorkflowPreflight, {
+    void gatewayFetch(API_PATHS.comfyUiWorkflowPreflight, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -485,16 +490,16 @@ export function ToolConfirmCard({
   }, [
     editedArgs.source_node_id,
     editedArgs.workflow_id,
-    gatewayFetch2,
+    gatewayFetch,
     isComfyUiRun,
-    message2.expired,
+    cardMessage.expired,
     requestId,
     comfyPreflightRevision,
     explicitComfyInputValues,
     repairOperations,
   ]);
   reactExports.useEffect(() => {
-    if (!isComfyUiDraftEdit || !requestId || message2.expired) {
+    if (!isComfyUiDraftEdit || !requestId || cardMessage.expired) {
       setComfyDraftMetadata(null);
       setComfyDraftError(null);
       return;
@@ -508,7 +513,7 @@ export function ToolConfirmCard({
       typeof editedArgs.source_node_id === "string"
         ? editedArgs.source_node_id
         : "";
-    void gatewayFetch2(API_PATHS.comfyUiWorkflowDraftParameters, {
+    void gatewayFetch(API_PATHS.comfyUiWorkflowDraftParameters, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -555,9 +560,9 @@ export function ToolConfirmCard({
     comfyDraftRevision,
     editedArgs.source_node_id,
     editedArgs.workflow_id,
-    gatewayFetch2,
+    gatewayFetch,
     isComfyUiDraftEdit,
-    message2.expired,
+    cardMessage.expired,
     requestId,
   ]);
   reactExports.useEffect(() => {
@@ -595,23 +600,23 @@ export function ToolConfirmCard({
   );
   const { data: mentionModels } = useMentionModels();
   const modelDisplayMap = reactExports.useMemo(() => {
-    const map3 = new Map();
-    if (!mentionModels) return map3;
-    for (const m3 of mentionModels) {
-      if (!m3.display_name) continue;
-      const displayName2 = redactForCurrentRegion(
-        m3.display_name ||
-          resolveModelNameForCurrentRegion(m3.model_name, modelPreferType),
+    const map = new Map();
+    if (!mentionModels) return map;
+    for (const mentionModel of mentionModels) {
+      if (!mentionModel.display_name) continue;
+      const displayName = redactForCurrentRegion(
+        mentionModel.display_name ||
+          resolveModelNameForCurrentRegion(mentionModel.model_name, modelPreferType),
       );
-      const publicToken = m3.mention_name ?? m3.model_name;
-      map3.set(publicToken, displayName2);
-      map3.set(m3.model_name, displayName2);
-      map3.set(m3.id, displayName2);
+      const publicToken = mentionModel.mention_name ?? mentionModel.model_name;
+      map.set(publicToken, displayName);
+      map.set(mentionModel.model_name, displayName);
+      map.set(mentionModel.id, displayName);
     }
-    return map3;
+    return map;
   }, [mentionModels, modelPreferType]);
-  for (const key2 of MODEL_NAME_KEYS) {
-    const value = editedArgs[key2];
+  for (const key of MODEL_NAME_KEYS) {
+    const value = editedArgs[key];
     if (typeof value === "string" && value) {
       modelDisplayMap.set(
         value,
@@ -632,66 +637,66 @@ export function ToolConfirmCard({
   }
   const { data: mediaModels } = useMediaModels();
   reactExports.useMemo(() => {
-    const tool2 = data2?.tool;
-    if (!tool2 || !mediaModels) return void 0;
-    if (tool2 === IMAGE_DISPATCHER_TOOL || tool2 === VIDEO_DISPATCHER_TOOL) {
+    const tool = data?.tool;
+    if (!tool || !mediaModels) return void 0;
+    if (tool === IMAGE_DISPATCHER_TOOL || tool === VIDEO_DISPATCHER_TOOL) {
       const vendor =
         typeof originalArgs.vendor === "string" ? originalArgs.vendor : void 0;
-      return resolveDispatcherSeriesLabel(tool2, vendor, mediaModels);
+      return resolveDispatcherSeriesLabel(tool, vendor, mediaModels);
     }
-    const match2 = mediaModels.find((m3) => m3.tool_names.includes(tool2));
-    return match2?.display_name
-      ? redactForCurrentRegion(match2.display_name)
+    const match = mediaModels.find((mediaModel) => mediaModel.tool_names.includes(tool));
+    return match?.display_name
+      ? redactForCurrentRegion(match.display_name)
       : void 0;
-  }, [data2?.tool, originalArgs.vendor, mediaModels]);
+  }, [data?.tool, originalArgs.vendor, mediaModels]);
   const visibleKeys = reactExports.useMemo(() => {
-    const vp = editedArgs.vendor_params;
-    const hasVp = isVendorParamsObject(vp);
-    const overrides2 = editedArgs.overrides;
-    const hasOverrides = isComfyUiRun && isVendorParamsObject(overrides2);
-    const isVisible = (key2) =>
-      !(isComfyUiRun && key2 === "review_mode") &&
-      !isInheritedSeedance25Param(data2?.tool, editedArgs, key2) &&
-      (!isInternalKey(key2) ||
-        (isComfyUiRun && COMFYUI_OVERRIDE_KEYS.has(key2)));
-    const top2 = Object.keys(editedArgs).filter(
-      (k2) =>
-        isVisible(k2) &&
-        k2 !== "vendor_params" &&
-        k2 !== "overrides" &&
+    const vendorParams = editedArgs.vendor_params;
+    const hasVp = isVendorParamsObject(vendorParams);
+    const overrides = editedArgs.overrides;
+    const hasOverrides = isComfyUiRun && isVendorParamsObject(overrides);
+    const isVisible = (key) =>
+      !(isComfyUiRun && key === "review_mode") &&
+      !isInheritedSeedance25Param(data?.tool, editedArgs, key) &&
+      (!isInternalKey(key) ||
+        (isComfyUiRun && COMFYUI_OVERRIDE_KEYS.has(key)));
+    const topLevelKeys = Object.keys(editedArgs).filter(
+      (key) =>
+        isVisible(key) &&
+        key !== "vendor_params" &&
+        key !== "overrides" &&
         // A vendor knob that ALSO lives in vendor_params is rendered from the
         // nested copy (readArg reads vendor_params first). Drop the top-level
         // duplicate so it doesn't render twice — and so the dispatcher's
         // top-level `mode` (generation TYPE t2v/i2v) doesn't shadow
         // vendor_params.mode (kling quality std/pro/4k → resolution).
-        !(hasVp && VENDOR_PARAM_KEYS.has(k2) && k2 in vp),
+        !(hasVp && VENDOR_PARAM_KEYS.has(key) && key in vendorParams),
     );
     const nestedOverrides = hasOverrides
-      ? Object.keys(overrides2).filter(
-          (key2) => COMFYUI_OVERRIDE_KEYS.has(key2) && isVisible(key2),
+      ? Object.keys(overrides).filter(
+          (key) => COMFYUI_OVERRIDE_KEYS.has(key) && isVisible(key),
         )
       : [];
-    if (!hasVp) return [...top2, ...nestedOverrides];
-    const nested = Object.keys(vp).filter(
-      (k2) =>
-        VENDOR_PARAM_KEYS.has(k2) &&
-        !isInternalKey(k2) &&
-        !isInheritedSeedance25Param(data2?.tool, editedArgs, k2),
+    if (!hasVp) return [...topLevelKeys, ...nestedOverrides];
+    const nested = Object.keys(vendorParams).filter(
+      (key) =>
+        VENDOR_PARAM_KEYS.has(key) &&
+        !isInternalKey(key) &&
+        !isInheritedSeedance25Param(data?.tool, editedArgs, key),
     );
-    return [...top2, ...nested, ...nestedOverrides];
-  }, [data2?.tool, editedArgs, isComfyUiRun]);
+    return [...topLevelKeys, ...nested, ...nestedOverrides];
+  }, [data?.tool, editedArgs, isComfyUiRun]);
   const readArg = reactExports.useCallback(
-    (source, key2) => {
-      if (isComfyUiRun && COMFYUI_OVERRIDE_KEYS.has(key2)) {
-        const overrides2 = source.overrides;
-        if (isVendorParamsObject(overrides2) && key2 in overrides2)
-          return overrides2[key2];
+    (source, key) => {
+      if (isComfyUiRun && COMFYUI_OVERRIDE_KEYS.has(key)) {
+        const overrides = source.overrides;
+        if (isVendorParamsObject(overrides) && key in overrides)
+          return overrides[key];
       }
-      if (VENDOR_PARAM_KEYS.has(key2)) {
-        const vp = source.vendor_params;
-        if (isVendorParamsObject(vp) && key2 in vp) return vp[key2];
+      if (VENDOR_PARAM_KEYS.has(key)) {
+        const vendorParams = source.vendor_params;
+        if (isVendorParamsObject(vendorParams) && key in vendorParams) return vendorParams[key];
       }
-      return source[key2];
+      return source[key];
     },
     [isComfyUiRun],
   );
@@ -700,30 +705,30 @@ export function ToolConfirmCard({
     [editedArgs, visibleKeys],
   );
   reactExports.useEffect(() => {
-    setBatchPageIndex((index2) =>
-      Math.min(index2, Math.max(0, batchPageCount - 1)),
+    setBatchPageIndex((index) =>
+      Math.min(index, Math.max(0, batchPageCount - 1)),
     );
   }, [batchPageCount]);
   const promptKeys = reactExports.useMemo(
-    () => visibleKeys.filter((key2) => PROMPT_KEYS.has(key2)),
+    () => visibleKeys.filter((key) => PROMPT_KEYS.has(key)),
     [visibleKeys],
   );
   const mediaKeys = reactExports.useMemo(
     () =>
       visibleKeys.filter(
-        (key2) =>
-          !!mediaKindForKey(key2) &&
-          mediaValues(readArg(editedArgs, key2)).length > 0,
+        (key) =>
+          !!mediaKindForKey(key) &&
+          mediaValues(readArg(editedArgs, key)).length > 0,
       ),
     [visibleKeys, editedArgs, readArg],
   );
   const chipKeys = reactExports.useMemo(
     () =>
       visibleKeys.filter(
-        (key2) =>
-          !PROMPT_KEYS.has(key2) &&
-          !mediaKindForKey(key2) &&
-          TIMELINE_VISIBLE_TAG_KEYS.has(key2) &&
+        (key) =>
+          !PROMPT_KEYS.has(key) &&
+          !mediaKindForKey(key) &&
+          TIMELINE_VISIBLE_TAG_KEYS.has(key) &&
           // Skip the `mode` chip when the value is a hidden capability
           // generation type (t2v / i2v). The agent picks these based on
           // trigger context, not user-meaningful choices — the chip would
@@ -731,71 +736,71 @@ export function ToolConfirmCard({
           // The dropdown options for `mode` are also filtered (see
           // ParamField) so users can't pick the hidden values either.
           !(
-            key2 === "mode" &&
-            isHiddenVideoGenerationMode(String(readArg(editedArgs, key2) ?? ""))
+            key === "mode" &&
+            isHiddenVideoGenerationMode(String(readArg(editedArgs, key) ?? ""))
           ),
       ),
     [visibleKeys, editedArgs, readArg],
   );
   const modeDisplayMap = reactExports.useMemo(() => {
-    const map3 = new Map(VIDEO_QUALITY_VALUE_DISPLAY_MAP);
-    map3.set("first-last-frame", t2("chat.videoMode.firstLastFrame", "首尾帧"));
-    map3.set("multimodal", t2("chat.videoMode.omniReference", "全能参考"));
-    map3.set("omni", t2("chat.videoMode.omniReference", "全能参考"));
-    map3.set("video-edit", t2("chat.videoMode.videoEdit", "视频编辑"));
-    map3.set("video-extend", t2("chat.videoMode.videoExtend", "视频续写"));
-    map3.set("avatar", t2("chat.videoMode.avatar", "数字人"));
-    return map3;
-  }, [t2]);
+    const map = new Map(VIDEO_QUALITY_VALUE_DISPLAY_MAP);
+    map.set("first-last-frame", translate("chat.videoMode.firstLastFrame", "首尾帧"));
+    map.set("multimodal", translate("chat.videoMode.omniReference", "全能参考"));
+    map.set("omni", translate("chat.videoMode.omniReference", "全能参考"));
+    map.set("video-edit", translate("chat.videoMode.videoEdit", "视频编辑"));
+    map.set("video-extend", translate("chat.videoMode.videoExtend", "视频续写"));
+    map.set("avatar", translate("chat.videoMode.avatar", "数字人"));
+    return map;
+  }, [translate]);
   const setArgValue = reactExports.useCallback(
-    (key2, value) => {
-      const current2 = editedArgsRef.current;
-      let next2;
+    (key, value) => {
+      const current = editedArgsRef.current;
+      let next;
       if (
         isComfyUiRun &&
-        COMFYUI_OVERRIDE_KEYS.has(key2) &&
-        isVendorParamsObject(current2.overrides)
+        COMFYUI_OVERRIDE_KEYS.has(key) &&
+        isVendorParamsObject(current.overrides)
       ) {
-        next2 = {
-          ...current2,
+        next = {
+          ...current,
           overrides: {
-            ...current2.overrides,
-            [key2]: value,
+            ...current.overrides,
+            [key]: value,
           },
         };
       } else if (
-        VENDOR_PARAM_KEYS.has(key2) &&
-        isVendorParamsObject(current2.vendor_params) &&
-        (key2 !== "mode" || Object.hasOwn(current2.vendor_params, key2))
+        VENDOR_PARAM_KEYS.has(key) &&
+        isVendorParamsObject(current.vendor_params) &&
+        (key !== "mode" || Object.hasOwn(current.vendor_params, key))
       ) {
-        next2 = {
-          ...current2,
+        next = {
+          ...current,
           vendor_params: {
-            ...current2.vendor_params,
-            [key2]: value,
+            ...current.vendor_params,
+            [key]: value,
           },
         };
       } else {
-        next2 = {
-          ...current2,
-          [key2]: value,
+        next = {
+          ...current,
+          [key]: value,
         };
       }
       if (liftedEdits && requestId) {
-        liftedEdits.setEdit(requestId, next2);
+        liftedEdits.setEdit(requestId, next);
       } else {
-        setLocalArgs(next2);
+        setLocalArgs(next);
       }
     },
     [isComfyUiRun, liftedEdits, requestId],
   );
   const updateArg = reactExports.useCallback(
-    (key2, value) => {
-      const original = readArg(originalArgs, key2);
+    (key, value) => {
+      const original = readArg(originalArgs, key);
       let parsed = value;
       if (typeof original === "number") {
-        const n2 = Number(value);
-        if (Number.isFinite(n2)) parsed = n2;
+        const numericValue = Number(value);
+        if (Number.isFinite(numericValue)) parsed = numericValue;
       } else if (typeof original === "boolean") {
         parsed = value === "true";
       } else if (Array.isArray(original)) {
@@ -805,7 +810,7 @@ export function ToolConfirmCard({
           parsed = value;
         }
       }
-      setArgValue(key2, parsed);
+      setArgValue(key, parsed);
     },
     [originalArgs, setArgValue, readArg],
   );
@@ -813,19 +818,19 @@ export function ToolConfirmCard({
     (entry, value) => {
       if (isLockedComfyUiDraftParameter(entry)) return;
       const nextValue = parseParamValueLikeOriginal(entry.value, value);
-      const key2 = comfyUiInputValueKey(entry);
-      setComfyDraftEdits((current2) => {
+      const key = comfyUiInputValueKey(entry);
+      setComfyDraftEdits((current) => {
         if (Object.is(nextValue, entry.value)) {
-          if (!(key2 in current2)) return current2;
-          const next2 = {
-            ...current2,
+          if (!(key in current)) return current;
+          const next = {
+            ...current,
           };
-          delete next2[key2];
-          return next2;
+          delete next[key];
+          return next;
         }
         return {
-          ...current2,
-          [key2]: nextValue,
+          ...current,
+          [key]: nextValue,
         };
       });
     },
@@ -841,8 +846,8 @@ export function ToolConfirmCard({
         );
         if (parameter) {
           setComfyDraftParameterValue(parameter, filename);
-          setComfyDraftInputBindings((current2) => [
-            ...current2.filter(
+          setComfyDraftInputBindings((current) => [
+            ...current.filter(
               (binding) =>
                 binding.node_id !== issue.node_id ||
                 binding.parameter !== issue.parameter,
@@ -901,19 +906,19 @@ export function ToolConfirmCard({
   );
   const setComfyInputValue = reactExports.useCallback(
     (entry, value) => {
-      const current2 = structuredClone(explicitComfyInputValues);
-      const key2 = comfyUiInputValueKey(entry);
-      const index2 = current2.findIndex(
-        (candidate) => comfyUiInputValueKey(candidate) === key2,
+      const current = structuredClone(explicitComfyInputValues);
+      const key = comfyUiInputValueKey(entry);
+      const index = current.findIndex(
+        (candidate) => comfyUiInputValueKey(candidate) === key,
       );
-      const next2 = {
+      const next = {
         node_id: entry.node_id,
         parameter: entry.parameter,
         value: parseParamValueLikeOriginal(entry.value, value),
       };
-      if (index2 >= 0) current2[index2] = next2;
-      else current2.push(next2);
-      setArgValue("input_values", comfyUiRunInputValues(current2));
+      if (index >= 0) current[index] = next;
+      else current.push(next);
+      setArgValue("input_values", comfyUiRunInputValues(current));
     },
     [explicitComfyInputValues, setArgValue],
   );
@@ -926,14 +931,14 @@ export function ToolConfirmCard({
     }
   }, []);
   const handleComfyExistingInputPick = reactExports.useCallback((entry) => {
-    const mediaKind2 = comfyUiInputMediaKind(entry);
-    if (!mediaKind2) return;
+    const mediaKind = comfyUiInputMediaKind(entry);
+    if (!mediaKind) return;
     pendingComfyInputRef.current = {
       type: "missing_input",
       node_id: entry.node_id,
       node_type: "",
       parameter: entry.parameter,
-      media_kind: mediaKind2,
+      media_kind: mediaKind,
       ...(typeof entry.value === "string" && entry.value
         ? {
             current_value: entry.value,
@@ -941,7 +946,7 @@ export function ToolConfirmCard({
         : {}),
     };
     if (comfyInputRef.current) {
-      comfyInputRef.current.accept = acceptForMediaKind(mediaKind2) ?? "";
+      comfyInputRef.current.accept = acceptForMediaKind(mediaKind) ?? "";
       comfyInputRef.current.click();
     }
   }, []);
@@ -958,7 +963,7 @@ export function ToolConfirmCard({
         const form = new FormData();
         form.append("file", file, file.name);
         form.append("media_kind", issue.media_kind);
-        const response = await gatewayFetch2(API_PATHS.comfyUiInputImport, {
+        const response = await gatewayFetch(API_PATHS.comfyUiInputImport, {
           method: "POST",
           body: form,
         });
@@ -979,7 +984,7 @@ export function ToolConfirmCard({
         );
       } catch (error) {
         dedupedToast.error(
-          t2(
+          translate(
             "chat.toolConfirm.comfyInputImportFailed",
             "导入 ComfyUI 输入失败：{{reason}}",
             {
@@ -991,7 +996,7 @@ export function ToolConfirmCard({
         setComfyInputUploading(null);
       }
     },
-    [gatewayFetch2, setComfyImportedInput, t2],
+    [gatewayFetch, setComfyImportedInput, translate],
   );
   const handleComfyModelDownload = reactExports.useCallback(
     async (issue) => {
@@ -1008,13 +1013,13 @@ export function ToolConfirmCard({
           workflowTitle: comfyPreflight.workflow_title,
           models: [issue.dependency],
         });
-        setComfyDownloadTaskIds((current2) => ({
-          ...current2,
+        setComfyDownloadTaskIds((current) => ({
+          ...current,
           [issueKey]: task.id,
         }));
       } catch (error) {
         dedupedToast.error(
-          t2(
+          translate(
             "chat.toolConfirm.comfyModelDownloadFailed",
             "模型下载失败：{{reason}}",
             {
@@ -1024,12 +1029,12 @@ export function ToolConfirmCard({
         );
       }
     },
-    [comfyPreflight, t2],
+    [comfyPreflight, translate],
   );
-  const handleMediaPick = reactExports.useCallback((paramKey, index2, kind) => {
+  const handleMediaPick = reactExports.useCallback((paramKey, index, kind) => {
     pendingMediaPickRef.current = {
       paramKey,
-      index: index2,
+      index,
       kind,
     };
     setMediaInputAccept(acceptForMediaKind(kind));
@@ -1039,32 +1044,32 @@ export function ToolConfirmCard({
     async (event) => {
       const file = event.target.files?.[0];
       event.target.value = "";
-      const pending2 = pendingMediaPickRef.current;
+      const pending = pendingMediaPickRef.current;
       pendingMediaPickRef.current = null;
-      if (!file || !pending2) return;
-      const id2 = mediaItemId(pending2.paramKey, pending2.index);
-      setUploadingMediaId(id2);
+      if (!file || !pending) return;
+      const id = mediaItemId(pending.paramKey, pending.index);
+      setUploadingMediaId(id);
       try {
         const form = new FormData();
         form.append("file", file, file.name);
-        const response = await gatewayFetch2(API_PATHS.upload, {
+        const response = await gatewayFetch(API_PATHS.upload, {
           method: "POST",
           body: form,
         });
         const nextPath = uploadedRelativePath(await response.json());
-        if (!nextPath) throw new Error(t2("chat.uploadError.missingPath"));
-        const current2 = editedArgsRef.current[pending2.paramKey];
+        if (!nextPath) throw new Error(translate("chat.uploadError.missingPath"));
+        const current = editedArgsRef.current[pending.paramKey];
         setArgValue(
-          pending2.paramKey,
-          updateIndexedMediaValue(current2, pending2.index, nextPath),
+          pending.paramKey,
+          updateIndexedMediaValue(current, pending.index, nextPath),
         );
       } catch (err) {
         const reason =
           err instanceof Error
             ? err.message
-            : t2("chat.uploadError.generic", "Upload failed");
+            : translate("chat.uploadError.generic", "Upload failed");
         dedupedToast.error(
-          t2("chat.uploadFailed", "Failed to upload {{name}}: {{reason}}", {
+          translate("chat.uploadFailed", "Failed to upload {{name}}: {{reason}}", {
             name: file.name,
             reason,
           }),
@@ -1073,15 +1078,15 @@ export function ToolConfirmCard({
         setUploadingMediaId(null);
       }
     },
-    [gatewayFetch2, setArgValue, t2],
+    [gatewayFetch, setArgValue, translate],
   );
   const hasChanges = reactExports.useMemo(() => {
     if (isComfyUiDraftEdit && Object.keys(comfyDraftEdits).length > 0)
       return true;
-    for (const key2 of visibleKeys) {
+    for (const key of visibleKeys) {
       if (
-        JSON.stringify(readArg(editedArgs, key2)) !==
-        JSON.stringify(readArg(originalArgs, key2))
+        JSON.stringify(readArg(editedArgs, key)) !==
+        JSON.stringify(readArg(originalArgs, key))
       )
         return true;
     }
@@ -1116,7 +1121,7 @@ export function ToolConfirmCard({
     visibleKeys,
     readArg,
   ]);
-  const dispatch2 = reactExports.useCallback(
+  const dispatch = reactExports.useCallback(
     (decision) => {
       if (!requestId || submitting) return;
       const sanitizedArgs = isComfyUiRun
@@ -1124,8 +1129,8 @@ export function ToolConfirmCard({
         : isComfyUiDraftEdit
           ? Object.fromEntries(
               Object.entries(editedArgs).filter(
-                ([key2]) =>
-                  key2 !== "operations" && key2 !== "expected_source_sha256",
+                ([key]) =>
+                  key !== "operations" && key !== "expected_source_sha256",
               ),
             )
           : editedArgs;
@@ -1142,7 +1147,7 @@ export function ToolConfirmCard({
         isComfyUiDraftEdit ||
         hasChanges ||
         (isComfyUiRun && Boolean(comfyPreflight?.source_sha256));
-      const msg = {
+      const message = {
         type: "tool_confirm_reply",
         id: requestId,
         decision,
@@ -1152,7 +1157,7 @@ export function ToolConfirmCard({
             }
           : {}),
       };
-      onSend(msg);
+      onSend(message);
     },
     [
       requestId,
@@ -1167,14 +1172,14 @@ export function ToolConfirmCard({
     ],
   );
   const handleConfirm = reactExports.useCallback(
-    () => dispatch2("confirm"),
-    [dispatch2],
+    () => dispatch("confirm"),
+    [dispatch],
   );
   const handleReject = reactExports.useCallback(
-    () => dispatch2("reject"),
-    [dispatch2],
+    () => dispatch("reject"),
+    [dispatch],
   );
-  const isExpired = message2.expired === true;
+  const isExpired = cardMessage.expired === true;
   const unresolvedComfyIssues = reactExports.useMemo(() => {
     if (!comfyPreflight) return [];
     return comfyPreflight.issues.filter((issue) => {
@@ -1219,12 +1224,12 @@ export function ToolConfirmCard({
     const isChecking = isComfyUiRun
       ? comfyPreflightLoading || !comfyPreflight
       : comfyDraftLoading || !comfyDraftMetadata;
-    const state2 = isChecking
+    const state = isChecking
       ? "checking"
       : comfyConfirmBlocked
         ? "blocked"
         : "ready";
-    liftedEdits.setApprovalState(requestId, state2);
+    liftedEdits.setApprovalState(requestId, state);
   }, [
     comfyConfirmBlocked,
     comfyDraftLoading,
@@ -1236,14 +1241,14 @@ export function ToolConfirmCard({
     liftedEdits,
     requestId,
   ]);
-  if (!requestId || !data2) return null;
-  const content2 = (
+  if (!requestId || !data) return null;
+  const content = (
     <>
       {isExpired ? (
         <div className="flex items-center justify-between gap-2">
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Icon icon={Clock} size="xs" className="shrink-0" />
-            {t2("chat.toolConfirm.expired", "Request timed out")}
+            {translate("chat.toolConfirm.expired", "Request timed out")}
           </span>
           <button
             type="button"
@@ -1251,7 +1256,7 @@ export function ToolConfirmCard({
             className="cursor-pointer rounded-md border border-border px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             onClick={handleReject}
           >
-            {t2("chat.toolConfirm.close", "Close")}
+            {translate("chat.toolConfirm.close", "Close")}
           </button>
         </div>
       ) : (
@@ -1262,7 +1267,7 @@ export function ToolConfirmCard({
                 <div className="mb-2 flex items-center justify-between gap-3 border-b border-border pb-2">
                   <span className="min-w-0 truncate text-body-12 font-medium text-foreground">
                     {comfyPreflight?.workflow_title ??
-                      t2(
+                      translate(
                         "chat.toolConfirm.comfyWorkflowFallback",
                         "ComfyUI 工作流",
                       )}
@@ -1271,7 +1276,7 @@ export function ToolConfirmCard({
                     {typeof editedArgs.count === "number"
                       ? editedArgs.count
                       : 1}{" "}
-                    {t2("chat.toolConfirm.comfyRunCountUnit", "次")}
+                    {translate("chat.toolConfirm.comfyRunCountUnit", "次")}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-body-12 font-medium text-foreground">
@@ -1288,16 +1293,16 @@ export function ToolConfirmCard({
                   )}
                   <span>
                     {comfyPreflightLoading
-                      ? t2(
+                      ? translate(
                           "chat.toolConfirm.comfyPreflightChecking",
                           "正在检查工作流输入和模型",
                         )
                       : comfyPreflight?.ready
-                        ? t2(
+                        ? translate(
                             "chat.toolConfirm.comfyPreflightReady",
                             "工作流已通过执行检查",
                           )
-                        : t2(
+                        : translate(
                             "chat.toolConfirm.comfyPreflightNeedsRepair",
                             "执行前需要处理以下问题",
                           )}
@@ -1316,7 +1321,7 @@ export function ToolConfirmCard({
                         setComfyPreflightRevision((value) => value + 1)
                       }
                     >
-                      {t2("chat.toolConfirm.retry", "重试")}
+                      {translate("chat.toolConfirm.retry", "重试")}
                     </button>
                   </div>
                 )}
@@ -1340,19 +1345,19 @@ export function ToolConfirmCard({
                         <div className="min-w-0">
                           <div className="text-body-12 text-foreground">
                             {issue.type === "missing_input"
-                              ? t2(
+                              ? translate(
                                   "chat.toolConfirm.comfyMissingInput",
                                   "缺少{{kind}}输入",
                                   {
                                     kind:
                                       issue.media_kind === "image"
-                                        ? t2("common.image", "图片")
+                                        ? translate("common.image", "图片")
                                         : issue.media_kind === "audio"
-                                          ? t2("common.audio", "音频")
-                                          : t2("common.video", "视频"),
+                                          ? translate("common.audio", "音频")
+                                          : translate("common.video", "视频"),
                                   },
                                 )
-                              : t2(
+                              : translate(
                                   "chat.toolConfirm.comfyMissingModel",
                                   "模型不可用",
                                 )}
@@ -1368,13 +1373,13 @@ export function ToolConfirmCard({
                           {downloadTask && (
                             <div className="mt-1 text-caption-11 text-muted-foreground">
                               {downloadTask.status === "completed"
-                                ? t2(
+                                ? translate(
                                     "chat.toolConfirm.comfyDownloadCompleted",
                                     "模型已准备完成",
                                   )
                                 : downloadTask.status === "failed"
                                   ? downloadTask.error
-                                  : t2(
+                                  : translate(
                                       "chat.toolConfirm.comfyDownloading",
                                       "正在准备模型",
                                     )}
@@ -1394,11 +1399,11 @@ export function ToolConfirmCard({
                                 <Loader2 size={13} className="animate-spin" />
                               )}
                               {repair
-                                ? t2(
+                                ? translate(
                                     "chat.toolConfirm.comfyReplaceInput",
                                     "重新选择",
                                   )
-                                : t2(
+                                : translate(
                                     "chat.toolConfirm.comfySelectInput",
                                     "选择文件",
                                   )}
@@ -1419,7 +1424,7 @@ export function ToolConfirmCard({
                                   void handleComfyModelDownload(issue)
                                 }
                               >
-                                {t2(
+                                {translate(
                                   "chat.toolConfirm.comfyDownloadModel",
                                   "下载缺失模型",
                                 )}
@@ -1432,7 +1437,7 @@ export function ToolConfirmCard({
                   })}
                 {!comfyPreflightLoading && shouldConfirmComfyUiPrompt && (
                   <div className="mt-2 border-t border-border pt-2 text-caption-11 text-muted-foreground">
-                    {t2(
+                    {translate(
                       "chat.toolConfirm.comfyReferencePromptWarning",
                       "已更换参考素材，请确认提示词仍与新素材一致",
                     )}
@@ -1445,19 +1450,19 @@ export function ToolConfirmCard({
                 <div className="mb-2 flex items-center justify-between gap-3 border-b border-border pb-2">
                   <span className="min-w-0 truncate text-body-12 font-medium text-foreground">
                     {comfyDraftMetadata?.workflow_title ??
-                      t2(
+                      translate(
                         "chat.toolConfirm.comfyWorkflowFallback",
                         "ComfyUI 工作流",
                       )}
                   </span>
                   <span className="shrink-0 text-caption-11 text-muted-foreground">
-                    {t2("chat.toolConfirm.comfyDraftBadge", "Workflow Draft")}
+                    {translate("chat.toolConfirm.comfyDraftBadge", "Workflow Draft")}
                   </span>
                 </div>
                 {comfyDraftLoading && (
                   <div className="flex items-center gap-1.5 text-body-12 text-muted-foreground">
                     <Loader2 size={14} className="animate-spin" />
-                    {t2(
+                    {translate(
                       "chat.toolConfirm.comfyDraftLoading",
                       "正在读取工作流参数",
                     )}
@@ -1476,7 +1481,7 @@ export function ToolConfirmCard({
                         setComfyDraftRevision((value) => value + 1)
                       }
                     >
-                      {t2("chat.toolConfirm.retry", "重试")}
+                      {translate("chat.toolConfirm.retry", "重试")}
                     </button>
                   </div>
                 )}
@@ -1484,7 +1489,7 @@ export function ToolConfirmCard({
                   !comfyDraftError &&
                   comfyDraftParameters.length === 0 && (
                     <div className="text-body-12 text-muted-foreground">
-                      {t2(
+                      {translate(
                         "chat.toolConfirm.comfyDraftNoParameters",
                         "没有可编辑的工作流参数",
                       )}
@@ -1496,12 +1501,12 @@ export function ToolConfirmCard({
                     className="divide-y divide-border rounded-sm border border-border bg-background"
                   >
                     {comfyDraftParameters.map((entry) => {
-                      const key2 = comfyUiInputValueKey(entry);
+                      const key = comfyUiInputValueKey(entry);
                       const parameterLocked =
                         isLockedComfyUiDraftParameter(entry);
                       const currentValue =
-                        key2 in comfyDraftEdits
-                          ? comfyDraftEdits[key2]
+                        key in comfyDraftEdits
+                          ? comfyDraftEdits[key]
                           : entry.value;
                       const label =
                         entry.label === entry.parameter
@@ -1509,7 +1514,7 @@ export function ToolConfirmCard({
                           : entry.label;
                       return (
                         <div
-                          key={key2}
+                          key={key}
                           className="grid gap-1 px-2.5 py-2 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] sm:items-center sm:gap-3"
                         >
                           <div className="min-w-0">
@@ -1529,17 +1534,17 @@ export function ToolConfirmCard({
                                 {typeof currentValue === "string" &&
                                 currentValue
                                   ? currentValue
-                                  : t2(
+                                  : translate(
                                       "chat.toolConfirm.comfyInputNotSelected",
                                       "未选择文件",
                                     )}
                               </span>
                               <button
                                 type="button"
-                                data-action-ui-id={`chat-tool-confirm-comfy-draft-media-${key2}`}
+                                data-action-ui-id={`chat-tool-confirm-comfy-draft-media-${key}`}
                                 disabled={
                                   parameterLocked ||
-                                  comfyInputUploading === key2
+                                  comfyInputUploading === key
                                 }
                                 className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-border px-2 py-1 text-body-12 text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
                                 onClick={() =>
@@ -1549,10 +1554,10 @@ export function ToolConfirmCard({
                                   })
                                 }
                               >
-                                {comfyInputUploading === key2 && (
+                                {comfyInputUploading === key && (
                                   <Loader2 size={13} className="animate-spin" />
                                 )}
-                                {t2(
+                                {translate(
                                   "chat.toolConfirm.comfyReplaceExistingInput",
                                   "重新选择",
                                 )}
@@ -1585,13 +1590,13 @@ export function ToolConfirmCard({
                 )}
               </div>
             )}
-            {promptKeys.map((key2) => (
+            {promptKeys.map((key) => (
               <EditablePromptBlock
-                key={key2}
-                paramKey={key2}
-                value={readArg(editedArgs, key2)}
+                key={key}
+                paramKey={key}
+                value={readArg(editedArgs, key)}
                 pageIndex={batchPageCount > 1 ? batchPageIndex : void 0}
-                onChange={(v2) => updateArg(key2, v2)}
+                onChange={(value) => updateArg(key, value)}
               />
             ))}
             {isComfyUiRun && displayedComfyInputValues.length > 0 && (
@@ -1620,7 +1625,7 @@ export function ToolConfirmCard({
                         <span className="min-w-0 truncate text-body-12 text-muted-foreground">
                           {typeof entry.value === "string" && entry.value
                             ? entry.value
-                            : t2(
+                            : translate(
                                 "chat.toolConfirm.comfyInputNotSelected",
                                 "未选择文件",
                               )}
@@ -1639,15 +1644,15 @@ export function ToolConfirmCard({
                             `${entry.node_id}:${entry.parameter}` && (
                             <Loader2 size={13} className="animate-spin" />
                           )}
-                          {t2(
+                          {translate(
                             "chat.toolConfirm.comfyReplaceExistingInput",
                             "重新选择",
                           )}
                           {comfyUiInputMediaKind(entry) === "image"
-                            ? t2("common.image", "图片")
+                            ? translate("common.image", "图片")
                             : comfyUiInputMediaKind(entry) === "audio"
-                              ? t2("common.audio", "音频")
-                              : t2("common.video", "视频")}
+                              ? translate("common.audio", "音频")
+                              : translate("common.video", "视频")}
                         </button>
                       </div>
                     ) : (
@@ -1667,27 +1672,27 @@ export function ToolConfirmCard({
               <div className="flex min-w-0 items-center">
                 {chipKeys.length > 0 && (
                   <div className="flex min-w-0 items-center gap-1 h-7 text-body-12 text-foreground/70 overflow-x-auto scrollbar-none">
-                    {chipKeys.map((key2, index2) => {
-                      const isLast = index2 === chipKeys.length - 1;
+                    {chipKeys.map((key, index) => {
+                      const isLast = index === chipKeys.length - 1;
                       return (
                         <span
-                          key={key2}
+                          key={key}
                           className="inline-flex items-center gap-1 shrink-0"
                         >
                           <EditableParamChip
-                            paramKey={key2}
-                            value={readArg(editedArgs, key2)}
+                            paramKey={key}
+                            value={readArg(editedArgs, key)}
                             displayValue={valueAtBatchPage(
-                              readArg(editedArgs, key2),
+                              readArg(editedArgs, key),
                               batchPageIndex,
                               batchPageCount,
                             )}
-                            originalValue={readArg(originalArgs, key2)}
-                            hint={paramHints?.[key2]}
+                            originalValue={readArg(originalArgs, key)}
+                            hint={paramHints?.[key]}
                             displayMap={
-                              MODEL_NAME_KEYS.has(key2)
+                              MODEL_NAME_KEYS.has(key)
                                 ? modelDisplayMap
-                                : key2 === "mode"
+                                : key === "mode"
                                   ? modeDisplayMap
                                   : void 0
                             }
@@ -1696,7 +1701,7 @@ export function ToolConfirmCard({
                               batchPageCount > 1 ? batchPageIndex : void 0
                             }
                             batchPageCount={batchPageCount}
-                            onChange={(v2) => updateArg(key2, v2)}
+                            onChange={(value) => updateArg(key, value)}
                           />
                           {!isLast && (
                             <span
@@ -1718,11 +1723,11 @@ export function ToolConfirmCard({
             )}
             {mediaKeys.length > 0 && (
               <div className="flex flex-col">
-                {mediaKeys.map((key2) => (
+                {mediaKeys.map((key) => (
                   <ReferenceMediaStrip
-                    key={key2}
-                    paramKey={key2}
-                    value={readArg(editedArgs, key2)}
+                    key={key}
+                    paramKey={key}
+                    value={readArg(editedArgs, key)}
                     uploadingId={uploadingMediaId}
                     onPick={handleMediaPick}
                     resolveUrl={resolveUrl}
@@ -1739,7 +1744,7 @@ export function ToolConfirmCard({
               className="inline-flex items-center justify-center px-2.5 py-1.5 rounded-md bg-foreground/5 text-body-12 font-medium text-foreground transition-colors hover:bg-foreground/10 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
               onClick={handleReject}
             >
-              {t2("chat.toolConfirm.cancel", "Cancel")}
+              {translate("chat.toolConfirm.cancel", "Cancel")}
             </button>
             <button
               type="button"
@@ -1748,10 +1753,10 @@ export function ToolConfirmCard({
               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-foreground text-body-12 font-medium text-background transition-colors hover:bg-foreground/90 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
               onClick={handleConfirm}
             >
-              <span>{t2("chat.toolConfirm.confirm", "Confirm")}</span>
+              <span>{translate("chat.toolConfirm.confirm", "Confirm")}</span>
               {hasChanges && (
                 <span className="text-caption-10 opacity-70">
-                  {t2("chat.toolConfirm.paramEdited", "(edited)")}
+                  {translate("chat.toolConfirm.paramEdited", "(edited)")}
                 </span>
               )}
             </button>
@@ -1780,7 +1785,7 @@ export function ToolConfirmCard({
         data-tool-confirm-request-id={requestId}
         className={cn("min-w-0 flex flex-col gap-2", isExpired && "opacity-70")}
       >
-        {content2}
+        {content}
       </div>
     );
   }
@@ -1796,7 +1801,7 @@ export function ToolConfirmCard({
       <span className="shrink-0 size-6 flex items-center justify-center text-tertiary">
         <ToolConfirmBranchIcon />
       </span>
-      <div className="flex-1 min-w-0 flex flex-col gap-2">{content2}</div>
+      <div className="flex-1 min-w-0 flex flex-col gap-2">{content}</div>
     </div>
   );
 }

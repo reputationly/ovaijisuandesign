@@ -1,0 +1,20 @@
+key	old	new	依据
+t2@18:6	t2	translate	该参数是删除撤销提示读取错误与按钮文案的翻译函数。
+s2@26:21	s2	remainingSeconds	该值是撤销倒计时更新前剩余的秒数。
+id2@90:33	id2	toastId	该值用于从活动撤销提示列表中查找并移除提示标识。
+id2@95:9	id2	toastId	该值是 dedupedToast.custom 返回的撤销提示标识。
+t2@112:19	t2	toast	该值是 onDismiss 回调提供的提示对象，其 id 用于移除活动提示。
+t2@113:21	t2	toast	该值是 onAutoClose 回调提供的提示对象，其 id 用于移除活动提示。
+t2@132:14	t2	translate	该绑定是文件删除 hook 读取操作失败提示的翻译函数。
+p3@181:18	p3	selectedPath	该值是遍历并保留或移除的已选文件路径。
+count2@15:10	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+gatewayFetch2@16:17	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+body2@40:13	body2	body	去掉打包器防重名追加的后缀，恢复原名 body，即该绑定持有的值。
+id22@96:6	id22	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+remove2@120:11	remove2	remove	去掉打包器防重名追加的后缀，恢复原名 remove，即该绑定持有的值。
+gatewayFetch2@128:17	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+queryClient2@129:16	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+entries2@134:44	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+seen2@136:11	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+unique2@137:11	unique2	unique	去掉打包器防重名追加的后缀，恢复原名 unique，即该绑定持有的值。
+entries2@150:11	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。

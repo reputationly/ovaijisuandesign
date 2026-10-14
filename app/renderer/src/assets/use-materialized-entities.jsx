@@ -1,14 +1,10 @@
 // use-materialized-entities.jsx
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-import {
-  API_PATHS,
-  useCurrentWorkspace,
-  useMutation,
-  usePlatform,
-  useQuery,
-  useQueryClient,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CoachMarkPopup } from "../workspace/coach-mark-popup.jsx";
@@ -61,7 +57,7 @@ async function appendAttachmentFromWorkspace(fetcher, entityId, input) {
   return readEnvelope(res, "attachment", "appended attachment");
 }
 export function useMaterializedEntities() {
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const workspacePath = useCurrentWorkspace();
   return useQuery({
     queryKey: ["materialized-entities", workspacePath],
@@ -71,19 +67,19 @@ export function useMaterializedEntities() {
         const res = await gatewayFetch(
           API_PATHS.assetCenterWorkspaceRefs(workspacePath),
         );
-        const data2 = await res.json();
-        return data2.refs.map((r2) => ({
-          entityId: r2.entityId,
-          materializedAt: r2.materializedAt,
+        const data = await res.json();
+        return data.refs.map((workspaceRef) => ({
+          entityId: workspaceRef.entityId,
+          materializedAt: workspaceRef.materializedAt,
         }));
       } catch {}
       try {
         const matDir = `${workspacePath}/.hilo/materialized-entities`;
-        const entries2 = await platform2.fs.readDir(matDir);
-        return entries2
-          .filter((e2) => e2.isDirectory || e2.isSymbolicLink)
-          .map((e2) => ({
-            entityId: e2.name,
+        const entries = await platform.fs.readDir(matDir);
+        return entries
+          .filter((entry) => entry.isDirectory || entry.isSymbolicLink)
+          .map((entry) => ({
+            entityId: entry.name,
           }));
       } catch {
         return [];
@@ -100,29 +96,29 @@ export function trackAssetUse(props) {
   trackEvent(TRACK_EVENTS.ASSET_USE, props);
 }
 export function useDropEntityToCanvas() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const fetcher = useAssetCenterFetcher();
   return useMutation({
     mutationFn: ({ entityId, input }) =>
       dropEntityToCanvas(fetcher, entityId, input),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ROOT_KEY,
       });
     },
   });
 }
 export function useAppendAttachmentFromWorkspace() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const fetcher = useAssetCenterFetcher();
   return useMutation({
     mutationFn: ({ entityId, input }) =>
       appendAttachmentFromWorkspace(fetcher, entityId, input),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ROOT_KEY,
       });
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["materialized-entities"],
       });
     },

@@ -1,5 +1,6 @@
 // canvas-load-error.jsx
-import { MonochromeIcon, useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CloudOff } from "../media-editing/package.jsx";
 import { Button } from "./node-shell-inner.jsx";
@@ -11,7 +12,7 @@ const INITIAL_DESCRIPTION_KEYS = {
   unknown: "canvas.loadError.unknownDescription",
 };
 export function CanvasLoadError({ failure, retrying, onRetry }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const retryButton = (
     <Button
       type="button"
@@ -25,8 +26,8 @@ export function CanvasLoadError({ failure, retrying, onRetry }) {
     >
       {!retrying && <RetryIcon size={16} />}
       {retrying
-        ? t2("canvas.loadError.retrying")
-        : t2("canvas.loadError.retry")}
+        ? translate("canvas.loadError.retrying")
+        : translate("canvas.loadError.retry")}
     </Button>
   );
   if (failure.phase === "refresh") {
@@ -45,10 +46,10 @@ export function CanvasLoadError({ failure, retrying, onRetry }) {
           <p className="min-w-0 flex-1 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">
               {retrying
-                ? t2("canvas.loadError.refreshRetryingTitle")
-                : t2("canvas.loadError.refreshTitle")}
+                ? translate("canvas.loadError.refreshRetryingTitle")
+                : translate("canvas.loadError.refreshTitle")}
             </span>{" "}
-            {t2("canvas.loadError.refreshDescription")}
+            {translate("canvas.loadError.refreshDescription")}
           </p>
           {retryButton}
         </div>
@@ -72,13 +73,13 @@ export function CanvasLoadError({ failure, retrying, onRetry }) {
           <div className="min-w-0 flex-1">
             <h2 className="text-sm font-medium text-foreground">
               {retrying
-                ? t2("canvas.loadError.initialRetryingTitle")
-                : t2("canvas.loadError.initialTitle")}
+                ? translate("canvas.loadError.initialRetryingTitle")
+                : translate("canvas.loadError.initialTitle")}
             </h2>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">
               {retrying
-                ? t2("canvas.loadError.retryingDescription")
-                : t2(INITIAL_DESCRIPTION_KEYS[failure.kind])}
+                ? translate("canvas.loadError.retryingDescription")
+                : translate(INITIAL_DESCRIPTION_KEYS[failure.kind])}
             </p>
             <div className="mt-4">{retryButton}</div>
           </div>

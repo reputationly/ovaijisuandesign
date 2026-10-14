@@ -7,7 +7,8 @@ import {
   MultiImageOverlayStoreContext,
 } from "./use-start-cloud-edit-from-node.js";
 import { IMAGE_TOOL_META } from "./image-tool-meta.jsx";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useImageToolbarCustomizationStore } from "./read-persisted.js";
 import {
@@ -16,7 +17,7 @@ import {
   FullscreenIcon,
 } from "../canvas/fullscreen-icon.jsx";
 import { PromoteToAssetIcon } from "../canvas/generating-media-area.jsx";
-import { CustomizeToolbarDialog as CustomizeToolbarDialog$2 } from "./customize-toolbar-dialog.jsx";
+import { CustomizeToolbarDialog as CustomizeToolbarDialogBase } from "./customize-toolbar-dialog.jsx";
 const IMAGE_TOOLBAR_DEFAULT_PINNED = DEFAULT_PINNED;
 const IMAGE_TOOLBAR_DEFAULT_SHOW_LABELS = DEFAULT_SHOW_LABELS;
 const TOOL_META = IMAGE_TOOL_META;
@@ -25,7 +26,7 @@ const DEFAULTS = {
   showLabels: IMAGE_TOOLBAR_DEFAULT_SHOW_LABELS,
 };
 export function CustomizeToolbarDialog({ open, onOpenChange }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const store = useImageToolbarCustomizationStore();
   const allToolIds =
     store.layoutVersion === 1
@@ -35,30 +36,30 @@ export function CustomizeToolbarDialog({ open, onOpenChange }) {
     {
       id: "promote-to-asset",
       icon: <PromoteToAssetIcon />,
-      label: t2("canvas.promoteToAsset"),
+      label: t("canvas.promoteToAsset"),
       showLabel: true,
     },
     {
       id: "image-inplace-edit",
       icon: <AnnotationIcon size={20} />,
-      label: t2("canvas.imageEdit.label", "Edit Image"),
+      label: t("canvas.imageEdit.label", "Edit Image"),
       showLabel: false,
     },
     {
       id: "add-to-chat",
       icon: <AddToChatIcon />,
-      label: t2("canvas.addToChat"),
+      label: t("canvas.addToChat"),
       showLabel: false,
     },
     {
       id: "fullscreen",
       icon: <FullscreenIcon />,
-      label: t2("canvas.fullscreen"),
+      label: t("canvas.fullscreen"),
       showLabel: false,
     },
   ];
   return (
-    <CustomizeToolbarDialog$2
+    <CustomizeToolbarDialogBase
       open={open}
       onOpenChange={onOpenChange}
       allToolIds={allToolIds}
@@ -69,12 +70,12 @@ export function CustomizeToolbarDialog({ open, onOpenChange }) {
     />
   );
 }
-export function MultiImageOverlayStoreProvider({ store, children: children2 }) {
+export function MultiImageOverlayStoreProvider({ store, children }) {
   return reactExports.createElement(
     MultiImageOverlayStoreContext.Provider,
     {
       value: store,
     },
-    children2,
+    children,
   );
 }

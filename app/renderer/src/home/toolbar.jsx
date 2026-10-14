@@ -1,10 +1,13 @@
 // 首页工具栏。
-import { useTranslation, reactExports, jsxRuntimeExports, Plus, X$7 as X, RotateCcw } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { Plus, X$7 as X, RotateCcw } from "../media-editing/lucide-icon-wraps.js";
 import { useMediaModels } from "../generation/normalize-model-info.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { useAttachmentFaceNoticeGate } from "../chat/use-attachment-face-notice-gate.jsx";
-import "../media-editing/wt.js";
+import "../media-editing/media-model-selection.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { MediaModelSelector } from "../generation/media-model-selector.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
@@ -39,8 +42,8 @@ export function HomeToolbar({
   const modelButtonRef = reactExports.useRef(null);
   const workspaceButtonRef = reactExports.useRef(null);
   const [modelPickerOpen, setModelPickerOpen] = reactExports.useState(false);
-  const handleFileChange = reactExports.useCallback(e => {
-    const selected = e.target.files;
+  const handleFileChange = reactExports.useCallback(changeEvent => {
+    const selected = changeEvent.target.files;
     if (selected && selected.length > 0) {
       trackEvent(TRACK_EVENTS.HOME_ATTACHMENT_ADD, {
         count: selected.length,
@@ -48,14 +51,14 @@ export function HomeToolbar({
       });
       addFromLocal(selected);
     }
-    e.target.value = "";
+    changeEvent.target.value = "";
   }, [addFromLocal]);
   const handleSkillsPopover = reactExports.useCallback(() => {
     trackEvent(TRACK_EVENTS.HOME_SKILLS_POPOVER_OPEN, {});
     triggerSlash();
   }, [triggerSlash]);
   const handleModelToggle = reactExports.useCallback(() => {
-    setModelPickerOpen(v => !v);
+    setModelPickerOpen(isOpen => !isOpen);
   }, []);
   const handleModelClose = reactExports.useCallback(() => {
     setModelPickerOpen(false);

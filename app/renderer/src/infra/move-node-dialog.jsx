@@ -1,5 +1,7 @@
 // move-node-dialog.jsx
-import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Button,
@@ -12,7 +14,7 @@ import { DialogDescription, DialogTitle } from "./badge-variants.jsx";
 import { FolderDrillDownPicker } from "../assets/folder-drill-down-picker.jsx";
 export function MoveNodeDialog({
   open,
-  name: name2,
+  name: nodeName,
   itemCount = 1,
   options,
   loading = false,
@@ -20,31 +22,31 @@ export function MoveNodeDialog({
   onOpenChange,
   onConfirm,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [selectedKey, setSelectedKey] = reactExports.useState(void 0);
-  const [pending2, setPending] = reactExports.useState(false);
+  const [pending, setPending] = reactExports.useState(false);
   reactExports.useEffect(() => {
     if (open) {
       setSelectedKey(void 0);
       setPending(false);
     }
   }, [open]);
-  const selected2 = options.find((option2) => option2.key === selectedKey);
+  const selected = options.find((option) => option.key === selectedKey);
   const handleConfirm = reactExports.useCallback(async () => {
     if (
-      !selected2 ||
-      (noopKey !== void 0 && selected2.key === noopKey) ||
-      pending2
+      !selected ||
+      (noopKey !== void 0 && selected.key === noopKey) ||
+      pending
     )
       return;
     setPending(true);
     try {
-      await onConfirm(selected2);
+      await onConfirm(selected);
       onOpenChange(false);
     } finally {
       setPending(false);
     }
-  }, [noopKey, onConfirm, onOpenChange, pending2, selected2]);
+  }, [noopKey, onConfirm, onOpenChange, pending, selected]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -56,23 +58,23 @@ export function MoveNodeDialog({
           <DialogTitle className="flex min-w-0 items-baseline gap-1 pr-10 text-body-14 leading-5 font-medium">
             {itemCount > 1 ? (
               <span className="min-w-0 truncate">
-                {t2("projectAssets.batchMoveDialogTitle", {
+                {t("projectAssets.batchMoveDialogTitle", {
                   count: itemCount,
                 })}
               </span>
             ) : (
               <>
                 <span className="shrink-0">
-                  {t2("localAssets.moveDialogTitlePrefix", {
+                  {t("localAssets.moveDialogTitlePrefix", {
                     defaultValue: "移动",
                   })}
                 </span>
                 <span
                   className="min-w-0 flex-1 truncate"
-                  title={name2}
-                >{`“${name2}”`}</span>
+                  title={nodeName}
+                >{`“${nodeName}”`}</span>
                 <span className="shrink-0">
-                  {t2("localAssets.moveDialogTitleSuffix", {
+                  {t("localAssets.moveDialogTitleSuffix", {
                     defaultValue: "到",
                   })}
                 </span>
@@ -81,11 +83,11 @@ export function MoveNodeDialog({
           </DialogTitle>
           <DialogDescription className="sr-only">
             {itemCount > 1
-              ? t2("projectAssets.batchMoveDialogTitle", {
+              ? t("projectAssets.batchMoveDialogTitle", {
                   count: itemCount,
                 })
-              : t2("localAssets.moveDialogTitle", {
-                  name: name2,
+              : t("localAssets.moveDialogTitle", {
+                  name: nodeName,
                 })}
           </DialogDescription>
         </DialogHeader>
@@ -102,20 +104,20 @@ export function MoveNodeDialog({
             size="sm"
             onClick={() => onOpenChange(false)}
           >
-            {t2("common.cancel")}
+            {t("common.cancel")}
           </Button>
           <Button
             size="sm"
             disabled={
-              !selected2 ||
-              (noopKey !== void 0 && selected2.key === noopKey) ||
-              pending2 ||
+              !selected ||
+              (noopKey !== void 0 && selected.key === noopKey) ||
+              pending ||
               loading
             }
             onClick={() => void handleConfirm()}
             data-action-ui-id="asset-move.confirm"
           >
-            {t2("localAssets.move")}
+            {t("localAssets.move")}
           </Button>
         </DialogFooter>
       </DialogContent>

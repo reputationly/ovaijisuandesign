@@ -1,6 +1,12 @@
 // workspace-card.jsx
 import { useWorkspaceThumbnails } from "./use-project-delete.js";
-import { jsxRuntimeExports, SquareDashed, useTranslation, useNavigate, usePlatform, useStorage, reactExports, FolderX } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { SquareDashed, FolderX } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { folderNameFromPath, workspaceDisplayName, formatTimestampDot } from "../generation/use-model-catalog-scope-key.js";
 import { useWorkspaceDisplayNameRename } from "./use-new-workspace-dialog.jsx";
 import { useProjectStore, useWorkspaceProject, isWorkspacePathCaseInsensitivePlatform } from "./normalize-project-entries.js";
@@ -57,7 +63,7 @@ function WorkspaceCard({
   className,
   hideDelete = false,
 }) {
-  const { t, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const navigate = useNavigate();
   const platform = usePlatform();
   const [, , setRecentWorkspacesAsync] = useStorage("global.recentWorkspaces");
@@ -76,13 +82,13 @@ function WorkspaceCard({
     useProjectActions();
   const handleClick = reactExports.useCallback(() => {
     if (unavailable) {
-      dedupedToast.error(t("home.workspaceUnavailable"));
+      dedupedToast.error(translate("home.workspaceUnavailable"));
       return;
     }
     void stageWorkspacePreview({
       hiloApp: homeService.hiloApp,
       folderPath: workspace.path,
-      t,
+      t: translate,
       onStaged: (entry) => {
         trackEvent(TRACK_EVENTS.WORKSPACE_OPEN, {
           source: "card",
@@ -93,7 +99,7 @@ function WorkspaceCard({
         });
       },
     }).catch(() => {});
-  }, [navigate, unavailable, workspace.path, t]);
+  }, [navigate, unavailable, workspace.path, translate]);
   const handleRenameConfirm = reactExports.useCallback(
     (newName) => {
       renameDisplayName(newName);
@@ -189,7 +195,7 @@ function WorkspaceCard({
             {unavailable && (
               <div className="absolute inset-0 flex items-center justify-center bg-background/60">
                 <span className="text-[12px] text-muted-foreground px-2 text-center">
-                  {t("home.workspaceUnavailable")}
+                  {translate("home.workspaceUnavailable")}
                 </span>
               </div>
             )}
@@ -198,7 +204,7 @@ function WorkspaceCard({
             {renaming ? (
               <InlineRenameInput
                 initialName={displayName}
-                placeholder={t("home.workspace.displayNamePlaceholder")}
+                placeholder={translate("home.workspace.displayNamePlaceholder")}
                 onConfirm={handleRenameConfirm}
                 onCancel={() => setRenaming(false)}
               />
@@ -237,7 +243,7 @@ function WorkspaceCard({
               }}
             >
               <PencilIcon size={14} strokeWidth={1.5} />
-              {t("common.rename")}
+              {translate("common.rename")}
             </DropdownMenuItem>
             <AddToProjectSubMenu
               projects={projects}
@@ -263,7 +269,7 @@ function WorkspaceCard({
                 data-action-ui-id="workspace-card.remove-from-project"
               >
                 <FolderX size={14} strokeWidth={1.5} />
-                {t("project.removeFromProject")}
+                {translate("project.removeFromProject")}
               </DropdownMenuItem>
             ) : null}
             {hideDelete ? null : (
@@ -275,7 +281,7 @@ function WorkspaceCard({
                 }}
               >
                 <Trash2 size={14} strokeWidth={1.5} />
-                {t("common.delete")}
+                {translate("common.delete")}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>

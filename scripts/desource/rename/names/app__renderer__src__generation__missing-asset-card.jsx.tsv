@@ -1,0 +1,15 @@
+key	old	new	依据
+t2@66:43	t2	translate	该参数是翻译模型名称时调用的翻译函数。
+t2@162:14	t2	translate	该绑定来自 useTranslation 并用于退款提示文案。
+t2@205:14	t2	translate	该绑定来自 useTranslation 并用于文件预览状态文案。
+t2@242:14	t2	translate	该绑定来自 useTranslation 并用于缺失资产卡片文案。
+e2@245:6	e2	clickEvent	该事件来自删除缺失资产操作并用于阻止冒泡。
+children2@74:63	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+content2@84:12	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+children2@85:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+size2@127:35	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+extension2@200:14	extension2	extension	去掉打包器防重名追加的后缀，恢复原名 extension，即该绑定持有的值。
+displayName2@201:16	displayName2	displayName	去掉打包器防重名追加的后缀，恢复原名 displayName，即该绑定持有的值。
+name2@241:50	name2	assetName	该属性值是缺失资产节点对应的资产名称。
+handleDelete2@244:9	handleDelete2	handleDelete	去掉打包器防重名追加的后缀，恢复原名 handleDelete，即该绑定持有的值。
+data2@303:40	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。

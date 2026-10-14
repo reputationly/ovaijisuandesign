@@ -1,10 +1,8 @@
 // layer-decompose-prompt.jsx
-import {
-  Layers3,
-  reactExports,
-  usePromptFontSizeStore,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Layers3 } from "./lucide-icon-wraps.js";
+import { usePromptFontSizeStore } from "../generation/prompt-font-size.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TokenIcon } from "../generation/missing-asset-card.jsx";
 import { PopoverShell } from "../generation/attachment-bar.jsx";
@@ -29,7 +27,7 @@ export const DEFAULT_WATERMARK_SETTINGS = {
   shadowBlur: 4,
 };
 export const ImageWatermarkPreview = reactExports.memo(
-  function ImageWatermarkPreview2({
+  function ImageWatermarkPreviewComponent({
     displayWidth,
     displayHeight,
     sourceWidth,
@@ -78,9 +76,9 @@ export function LayerDecomposePrompt({
   onSubmit,
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const inputRef = reactExports.useRef(null);
-  const fontSize = usePromptFontSizeStore((state2) => state2.fontSize);
+  const fontSize = usePromptFontSizeStore((state) => state.fontSize);
   reactExports.useEffect(() => {
     inputRef.current?.focus();
   }, []);
@@ -92,7 +90,7 @@ export function LayerDecomposePrompt({
       >
         <TokenIcon />
         <span className="pointer-events-none tabular-nums">{creditCost}</span>
-        <span>{t2("canvas.layerDecompose.costPerImage", "积分/张")}</span>
+        <span>{t("canvas.layerDecompose.costPerImage", "积分/张")}</span>
       </span>
     ) : (
       void 0
@@ -111,11 +109,11 @@ export function LayerDecomposePrompt({
           data-action-ui-id="canvas.layer-decompose-prompt.input"
           value={prompt}
           disabled={submitting}
-          placeholder={t2(
+          placeholder={t(
             "canvas.layerDecompose.promptPlaceholder",
             "不填提示词：自动识别所有主要元素逐一拆分；也可用自然语言描述要拆的元素。",
           )}
-          aria-label={t2("canvas.layerDecompose.promptLabel", "图层拆分提示词")}
+          aria-label={t("canvas.layerDecompose.promptLabel", "图层拆分提示词")}
           className="canvas-prompt-font-size-textarea nowheel nopan min-h-0 flex-1 resize-none border-0 bg-transparent px-1 text-[var(--canvas-controls-text)] outline-none placeholder:text-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-50"
           onChange={(event) => onPromptChange(event.target.value)}
           onKeyDown={(event) => {
@@ -131,7 +129,7 @@ export function LayerDecomposePrompt({
             className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-[var(--canvas-controls-text)]"
           >
             <Layers3 size={18} strokeWidth={1.75} aria-hidden="true" />
-            <span>{t2("canvas.layerDecompose.label", "Split Layers")}</span>
+            <span>{t("canvas.layerDecompose.label", "Split Layers")}</span>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
             <SubmitButton
@@ -140,7 +138,7 @@ export function LayerDecomposePrompt({
               creditCost={creditCost}
               costBadge={costBadge}
               onClick={() => onSubmit()}
-              title={t2("canvas.layerDecompose.start", "开始拆分")}
+              title={t("canvas.layerDecompose.start", "开始拆分")}
             />
           </div>
         </div>
@@ -151,24 +149,24 @@ export function LayerDecomposePrompt({
 export const VIEWBOX_SIZE = 40;
 const VIEWBOX_CENTER = VIEWBOX_SIZE / 2;
 const DEG = Math.PI / 180;
-export const add = (a2, b3) => ({
-  x: a2.x + b3.x,
-  y: a2.y + b3.y,
-  z: a2.z + b3.z,
+export const add = (leftVector, rightVector) => ({
+  x: leftVector.x + rightVector.x,
+  y: leftVector.y + rightVector.y,
+  z: leftVector.z + rightVector.z,
 });
 const scale = (value, amount) => ({
   x: value.x * amount,
   y: value.y * amount,
   z: value.z * amount,
 });
-const cross = (a2, b3) => ({
-  x: a2.y * b3.z - a2.z * b3.y,
-  y: a2.z * b3.x - a2.x * b3.z,
-  z: a2.x * b3.y - a2.y * b3.x,
+const cross = (leftVector, rightVector) => ({
+  x: leftVector.y * rightVector.z - leftVector.z * rightVector.y,
+  y: leftVector.z * rightVector.x - leftVector.x * rightVector.z,
+  z: leftVector.x * rightVector.y - leftVector.y * rightVector.x,
 });
-const length$1 = (value) => Math.hypot(value.x, value.y, value.z);
+const vectorMagnitude = (value) => Math.hypot(value.x, value.y, value.z);
 const normalize = (value) => {
-  const magnitude = length$1(value);
+  const magnitude = vectorMagnitude(value);
   return magnitude < 1e-6
     ? {
         x: 0,
@@ -178,14 +176,14 @@ const normalize = (value) => {
     : scale(value, 1 / magnitude);
 };
 export function getCameraModelView(horizontalAngle, verticalAngle) {
-  const h2 = horizontalAngle * DEG;
-  const v2 = verticalAngle * DEG;
-  const position2 = normalize({
-    x: Math.sin(h2) * Math.cos(v2),
-    y: Math.sin(v2),
-    z: Math.cos(h2) * Math.cos(v2),
+  const horizontalRadians = horizontalAngle * DEG;
+  const verticalRadians = verticalAngle * DEG;
+  const position = normalize({
+    x: Math.sin(horizontalRadians) * Math.cos(verticalRadians),
+    y: Math.sin(verticalRadians),
+    z: Math.cos(horizontalRadians) * Math.cos(verticalRadians),
   });
-  const forward = scale(position2, -1);
+  const forward = scale(position, -1);
   let right = normalize(
     cross(forward, {
       x: 0,
@@ -193,29 +191,29 @@ export function getCameraModelView(horizontalAngle, verticalAngle) {
       z: 0,
     }),
   );
-  if (length$1(right) < 1e-6)
+  if (vectorMagnitude(right) < 1e-6)
     right = {
       x: 1,
       y: 0,
       z: 0,
     };
-  const up = normalize(cross(right, forward));
+  const upVector = normalize(cross(right, forward));
   return {
     right,
-    up,
+    up: upVector,
     forward,
     frontVisibility: forward.z,
     backVisibility: -forward.z,
   };
 }
-export function localToWorld(point2, basis) {
+export function localToWorld(point, basis) {
   return add(
-    add(scale(basis.right, point2.x), scale(basis.up, point2.y)),
-    scale(basis.forward, point2.z),
+    add(scale(basis.right, point.x), scale(basis.up, point.y)),
+    scale(basis.forward, point.z),
   );
 }
-export function project(point2, basis) {
-  const world = localToWorld(point2, basis);
+export function project(point, basis) {
+  const world = localToWorld(point, basis);
   return {
     x: VIEWBOX_CENTER + world.x,
     y: VIEWBOX_CENTER - world.y,
@@ -224,7 +222,7 @@ export function project(point2, basis) {
 }
 export function pointsAttribute(points) {
   return points
-    .map(({ x: x2, y: y4 }) => `${x2.toFixed(2)},${y4.toFixed(2)}`)
+    .map(({ x: pointX, y: pointY }) => `${pointX.toFixed(2)},${pointY.toFixed(2)}`)
     .join(" ");
 }
 export function planeEllipse({ center, radius, basis, steps = 28 }) {
@@ -232,8 +230,8 @@ export function planeEllipse({ center, radius, basis, steps = 28 }) {
     {
       length: steps,
     },
-    (_2, index2) => {
-      const angle = (index2 / steps) * Math.PI * 2;
+    (_unusedValue, index) => {
+      const angle = (index / steps) * Math.PI * 2;
       return project(
         {
           x: center.x + Math.cos(angle) * radius,

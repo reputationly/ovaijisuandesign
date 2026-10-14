@@ -1,0 +1,11 @@
+key	old	new	依据
+disabled2@34:44	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+Input3@33:10	Input3	Input	来自 select-content 模块的带图标输入框组件。
+name2@141:10	name2	projectName	用户输入或提交的项目名称。
+pending2@142:10	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+platform2@36:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+root2@47:16	root2	root	去掉打包器防重名追加的后缀，恢复原名 root，即该绑定持有的值。
+t2@140:14	t2	translate	useTranslation 返回的翻译函数。
+t2@35:14	t2	translate	useTranslation 返回的翻译函数。
+X@10:10	X	CloseIcon	来自 vendor 的关闭图标组件。
+setName@141:23	setName	setProjectName	projectName 状态的 setter。

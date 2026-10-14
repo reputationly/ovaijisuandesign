@@ -1,5 +1,7 @@
 // use-direct-feedback.jsx
-import { Check, Loader2, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   FeedbackContext,
@@ -12,8 +14,8 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { FeedbackIcon } from "../workspace/home-service.jsx";
 import { FeedbackDialog } from "./feedback-dialog.jsx";
 
-export function FeedbackProvider({ children: children2 }) {
-  const [current2, setCurrent] = reactExports.useState(null);
+export function FeedbackProvider({ children }) {
+  const [current, setCurrent] = reactExports.useState(null);
   const openFeedback = reactExports.useCallback((options) => {
     setCurrent(options);
   }, []);
@@ -35,19 +37,19 @@ export function FeedbackProvider({ children: children2 }) {
   }, []);
   const value = reactExports.useMemo(
     () => ({
-      isOpen: current2 !== null,
-      current: current2,
+      isOpen: current !== null,
+      current,
       openFeedback,
       closeFeedback,
     }),
-    [current2, openFeedback, closeFeedback],
+    [current, openFeedback, closeFeedback],
   );
   return (
     <FeedbackContext.Provider value={value}>
-      {children2}
+      {children}
       <FeedbackDialog
-        open={current2 !== null}
-        options={current2}
+        open={current !== null}
+        options={current}
         onClose={closeFeedback}
       />
     </FeedbackContext.Provider>
@@ -68,31 +70,31 @@ export function useFeedback() {
 const DEFAULT_SUBMISSION_KEY = "default";
 
 export function useDirectFeedback() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const statusByKeyRef = reactExports.useRef(new Map());
   const [statusByKey, setStatusByKey] = reactExports.useState({});
   const routerState = useRouterState({
-    select: (s2) => s2.location.pathname,
+    select: (routerState) => routerState.location.pathname,
   });
-  const setSubmissionStatus = reactExports.useCallback((key2, status) => {
+  const setSubmissionStatus = reactExports.useCallback((key, status) => {
     if (status === "idle") {
-      statusByKeyRef.current.delete(key2);
+      statusByKeyRef.current.delete(key);
     } else {
-      statusByKeyRef.current.set(key2, status);
+      statusByKeyRef.current.set(key, status);
     }
-    setStatusByKey((current2) => {
+    setStatusByKey((current) => {
       if (status === "idle") {
-        if (!(key2 in current2)) return current2;
-        const next2 = {
-          ...current2,
+        if (!(key in current)) return current;
+        const next = {
+          ...current,
         };
-        delete next2[key2];
-        return next2;
+        delete next[key];
+        return next;
       }
-      if (current2[key2] === status) return current2;
+      if (current[key] === status) return current;
       return {
-        ...current2,
-        [key2]: status,
+        ...current,
+        [key]: status,
       };
     });
   }, []);
@@ -122,21 +124,21 @@ export function useDirectFeedback() {
         });
         setSubmissionStatus(submissionKey, "submitted");
         dedupedToast.success(
-          t2("feedback.toast.successWithId", {
+          t("feedback.toast.successWithId", {
             id: res.ticket_id,
           }),
         );
       } catch (err) {
         setSubmissionStatus(submissionKey, "idle");
-        const message2 = err instanceof Error ? err.message : String(err);
+        const message = err instanceof Error ? err.message : String(err);
         dedupedToast.error(
-          t2("feedback.toast.failed", {
-            error: message2,
+          t("feedback.toast.failed", {
+            error: message,
           }),
         );
       }
     },
-    [routerState, setSubmissionStatus, t2],
+    [routerState, setSubmissionStatus, t],
   );
   const defaultStatus = getSubmissionStatus(DEFAULT_SUBMISSION_KEY);
   return {
@@ -157,12 +159,12 @@ export function FeedbackButton({
   contextType,
   context,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { openFeedback } = useFeedback();
   const { submitting, submitted, submitDirect } = useDirectFeedback();
   const resolvedContextType =
     contextType ?? (errorContext ? "chat_error" : void 0);
-  const handleClick2 = () => {
+  const handleClick = () => {
     const options = {
       source: "context",
       contextType: resolvedContextType,
@@ -188,7 +190,7 @@ export function FeedbackButton({
   };
   const displayLabel =
     directSubmit && submitted
-      ? t2("feedback.reported", {
+      ? t("feedback.reported", {
           defaultValue: "Reported",
         })
       : (label ?? "Report Issue");
@@ -210,7 +212,7 @@ export function FeedbackButton({
     <button
       type="button"
       className={`${baseClasses} ${variantClasses[variant]} ${className}`}
-      onClick={handleClick2}
+      onClick={handleClick}
       disabled={isDisabled}
       data-action-ui-id="feedback-button"
     >

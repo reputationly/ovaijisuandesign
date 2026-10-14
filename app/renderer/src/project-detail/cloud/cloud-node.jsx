@@ -1,6 +1,8 @@
 // 云端资产节点的展示：面包屑、审核标记、菜单、卡片与行。
-import { useTranslation, jsxRuntimeExports, ChevronRight$1 as ChevronRight, FolderInput } from "../../vendor.js";
-import { cn$2 as cn, DropdownMenuTrigger } from "../../infra/dialog-content.jsx";
+import { useTranslation } from "react-i18next";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { ChevronRight$1 as ChevronRight, FolderInput } from "../../media-editing/lucide-icon-wraps.js";
+import { mergeTailwindClasses as cn, DropdownMenuTrigger } from "../../infra/dialog-content.jsx";
 import { DropdownMenu, MoreVerticalIcon } from "../../vendor-inline/vscode-base/graph.jsx";
 import { Trash2, Download, FolderOpen } from "../../media-editing/package.jsx";
 import { formatBytes, resolveSyncState, isCloudFileDownloadEnabled } from "../../assets/use-cloud-review-nodes.js";
@@ -13,7 +15,7 @@ import { PlatformFileManagerLabel } from "../../settings/request-prompt-prefill.
 import { PencilIcon } from "../../workspace/home-service.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { AssetsRowCheckbox } from "../assets-common.jsx";
-export function Breadcrumb$1({ stack, onCrumb, crumbDnd, crumbDropActive }) {
+export function Breadcrumb({ stack, onCrumb, crumbDnd, crumbDropActive }) {
   const { t } = useTranslation();
   const rootLabel = t("cloudAssets.breadcrumbRoot", {
     defaultValue: "全部文件",
@@ -74,7 +76,7 @@ export function isCloudNodeDownloadable(node, downloadingIds) {
   if (node.kind === "folder") return true;
   return node.review === "pass" && Boolean(node.cdnUrl) && !downloadingIds.has(node.id);
 }
-export function mediaKind$1(node) {
+export function mediaKind(node) {
   if (node.mimeType.startsWith("image/")) return "image";
   if (node.mimeType.startsWith("video/")) return "video";
   return void 0;
@@ -95,7 +97,7 @@ function ReviewBadge({ node }) {
     </span>
   );
 }
-function NodeMenu$1({
+function NodeMenu({
   node,
   syncMap,
   downloadingIds,
@@ -158,7 +160,7 @@ function NodeMenu$1({
     </DropdownMenu>
   );
 }
-function NodeContextMenuContent$1({
+function NodeContextMenuContent({
   node,
   syncMap,
   downloadingIds,
@@ -229,7 +231,7 @@ function NodeContextMenuContent$1({
     </ActionContextMenuContent>
   );
 }
-export function NodeCard$1({
+export function NodeCard({
   node,
   thumbSrc,
   syncMap,
@@ -301,7 +303,7 @@ export function NodeCard$1({
               <SyncBadge state={syncState} />
             </div>
             <div className="absolute bottom-2 right-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
-              <NodeMenu$1
+              <NodeMenu
                 node={node}
                 syncMap={syncMap}
                 downloadingIds={downloadingIds}
@@ -316,7 +318,7 @@ export function NodeCard$1({
           </div>
         }
       />
-      <NodeContextMenuContent$1
+      <NodeContextMenuContent
         node={node}
         syncMap={syncMap}
         downloadingIds={downloadingIds}
@@ -330,7 +332,7 @@ export function NodeCard$1({
     </ContextMenu>
   );
 }
-export function NodeRow$1({
+export function NodeRow({
   node,
   thumbSrc,
   isLast,
@@ -429,7 +431,7 @@ export function NodeRow$1({
               </span>
             </button>
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
-              <NodeMenu$1
+              <NodeMenu
                 node={node}
                 syncMap={syncMap}
                 downloadingIds={downloadingIds}
@@ -444,7 +446,7 @@ export function NodeRow$1({
           </div>
         }
       />
-      <NodeContextMenuContent$1
+      <NodeContextMenuContent
         node={node}
         syncMap={syncMap}
         downloadingIds={downloadingIds}

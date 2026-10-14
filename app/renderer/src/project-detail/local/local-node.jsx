@@ -1,6 +1,7 @@
 // 本地资产节点的展示：面包屑、菜单、卡片与行。
-import { useTranslation, ChevronRight$1 as ChevronRight, FolderInput, ExternalLink } from "../../vendor.js";
-import { cn$2 as cn, DropdownMenuTrigger } from "../../infra/dialog-content.jsx";
+import { useTranslation } from "react-i18next";
+import { ChevronRight$1 as ChevronRight, FolderInput, ExternalLink } from "../../media-editing/lucide-icon-wraps.js";
+import { mergeTailwindClasses as cn, DropdownMenuTrigger } from "../../infra/dialog-content.jsx";
 import { DropdownMenu, MoreVerticalIcon } from "../../vendor-inline/vscode-base/graph.jsx";
 import { Trash2, FolderOpen } from "../../media-editing/package.jsx";
 import { formatBytes } from "../../assets/use-cloud-review-nodes.js";

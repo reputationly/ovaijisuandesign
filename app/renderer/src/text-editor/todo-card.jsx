@@ -1,5 +1,7 @@
 // todo-card.jsx
-import { CompositedSvg, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
 
@@ -27,7 +29,7 @@ function parseTodos(args) {
 }
 
 export function TodoCard({ msg }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const todos = reactExports.useMemo(
     () => parseTodos(msg.toolArgs ?? msg.url),
     [msg.toolArgs, msg.url],
@@ -39,7 +41,7 @@ export function TodoCard({ msg }) {
     <div className="min-w-0 flex flex-col gap-3">
       <div className="flex items-center gap-2 text-body-14">
         <span className="font-medium text-muted-foreground shrink-0">
-          {t2("chat.todoList")}
+          {t("chat.todoList")}
         </span>
         <div className="flex-1 flex items-center gap-2">
           <div className="flex-1 h-1 bg-foreground/10 rounded-full overflow-hidden max-w-20">

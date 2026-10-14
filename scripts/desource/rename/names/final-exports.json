@@ -1,0 +1,52 @@
+{
+  "app/renderer/src/canvas/history-manager2.js": {
+    "HistoryManager2": "CanvasHistoryManager"
+  },
+  "app/renderer/src/canvas/fullscreen-icon.jsx": {
+    "AnnotationIcon$1": "AnnotationIconArtwork"
+  },
+  "app/renderer/src/media-editing/package.jsx": {
+    "File$1": "FileIcon"
+  },
+  "app/renderer/src/media-editing/editor2.js": {
+    "Editor2": "CanvasEditor"
+  },
+  "app/renderer/src/media-editing/video-tool-meta.jsx": {
+    "TextNode3": "TextNode"
+  },
+  "app/renderer/src/media-editing/history-manager.js": {
+    "HistoryManager$1": "MediaHistoryManager"
+  },
+  "app/renderer/src/project-detail/cloud/cloud-node.jsx": {
+    "Breadcrumb$1": "Breadcrumb",
+    "mediaKind$1": "mediaKind",
+    "NodeCard$1": "NodeCard",
+    "NodeRow$1": "NodeRow"
+  },
+  "app/renderer/src/skills/creator-plan/form-parts.jsx": {
+    "Field$1": "Field"
+  },
+  "app/renderer/src/infra/dialog-content.jsx": {
+    "cn$2": "mergeTailwindClasses"
+  },
+  "app/renderer/src/infra/from-vendor.js": {
+    "Bitstream2": "Bitstream",
+    "TableView2": "TableView",
+    "WidgetType2": "WidgetType",
+    "slash$1": "slash",
+    "question$1": "question",
+    "dash$1": "dash",
+    "identifier$2": "identifier",
+    "EventEmitter3": "EventEmitter",
+    "noop2": "noop",
+    "Context2": "Context",
+    "Target2": "Target"
+  },
+  "app/renderer/src/vendor-inline/vscode-base/vs-buffer.js": {
+    "Event$1": "VSCodeEvent",
+    "__decorateClass$1": "applyMemberDecorators"
+  },
+  "app/renderer/src/vendor-inline/vscode-base/graph.jsx": {
+    "TUTORIAL_URL$2": "TUTORIAL_URL_BY_REGION"
+  }
+}

@@ -1,0 +1,7 @@
+key	old	new	依据
+t2@89:14	t2	translate	该函数翻译画布右键菜单各操作项的标签。
+disabled2@21:13	disabled2	disabled	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+isMac2@26:9	isMac2	isMac	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+token2@47:26	token2	token	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@79:13	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+element2@107:13	element2	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

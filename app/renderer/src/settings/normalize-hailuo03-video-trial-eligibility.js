@@ -1,5 +1,7 @@
 // normalize-hailuo03-video-trial-eligibility.js
-import { API_PATHS, cdnPublicAsset, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { cdnPublicAsset } from "../infra/runtime-config.js";
+import reactExports from "react";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { buildShownKey } from "./use-auto-announcement.js";
 import { useHubClientConfig } from "./parse-home-survey.js";
@@ -37,9 +39,9 @@ function stringListField(value, options) {
 function boolField(value) {
   return value === true;
 }
-function normalizeHailuo03VideoTrialEligibility(raw2) {
-  if (!raw2 || typeof raw2 !== "object") return void 0;
-  const obj = raw2;
+function normalizeHailuo03VideoTrialEligibility(raw) {
+  if (!raw || typeof raw !== "object") return void 0;
+  const obj = raw;
   const models = stringListField(obj.models, {
     allowEmpty: false,
   });
@@ -72,10 +74,10 @@ function normalizeHailuo03VideoTrialEligibility(raw2) {
     allowOmniVideos: boolField(obj.allowOmniVideos ?? obj.allow_omni_videos),
   };
 }
-function normalizeHailuo03VideoTrialStatus(raw2) {
-  if (!raw2 || typeof raw2 !== "object")
+function normalizeHailuo03VideoTrialStatus(raw) {
+  if (!raw || typeof raw !== "object")
     return EMPTY_HAILUO03_VIDEO_TRIAL_STATUS;
-  const obj = raw2;
+  const obj = raw;
   return {
     claimed: obj.claimed === true,
     claimable: obj.claimable === true,
@@ -121,8 +123,8 @@ export function useUpdatePoster() {
     CDN_UPDATE_POSTER;
   const [failure, setFailure] = reactExports.useState(null);
   reactExports.useEffect(() => {
-    setFailure((current2) =>
-      current2?.sourceUrl === sourceUrl ? current2 : null,
+    setFailure((current) =>
+      current?.sourceUrl === sourceUrl ? current : null,
     );
   }, [sourceUrl]);
   const imageUrl =

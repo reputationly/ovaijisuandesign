@@ -5,11 +5,11 @@ const FILE_CHANGE_DEBOUNCE_MS = 150;
 
 function assetInfoToCanvasItem(asset, fileUrlById) {
   if (!asset.id) return void 0;
-  const meta2 = assetInfoToAssetMeta(asset, fileUrlById);
-  return meta2
+  const meta = assetInfoToAssetMeta(asset, fileUrlById);
+  return meta
     ? {
         id: asset.id,
-        meta: meta2,
+        meta,
       }
     : void 0;
 }
@@ -18,8 +18,8 @@ function mergeFileChangeEvents(left, right) {
   if (!left) return right;
   if (!right) return left;
   const paths = new Set();
-  for (const path2 of left.paths ?? []) paths.add(path2);
-  for (const path2 of right.paths ?? []) paths.add(path2);
+  for (const path of left.paths ?? []) paths.add(path);
+  for (const path of right.paths ?? []) paths.add(path);
   return {
     requiresCanvasReload:
       left.requiresCanvasReload || right.requiresCanvasReload,
@@ -32,13 +32,13 @@ function assetEventToFileChangeEvent(event) {
   if (event.type === "assets_changed_batch") {
     return event.events
       .map(assetEventToFileChangeEvent)
-      .reduce((acc, next2) => mergeFileChangeEvents(acc, next2) ?? acc, {
+      .reduce((acc, next) => mergeFileChangeEvents(acc, next) ?? acc, {
         requiresCanvasReload: false,
         paths: [],
       });
   }
-  const path2 = event.path ?? event.asset?.path;
-  const paths = path2 ? [path2] : void 0;
+  const path = event.path ?? event.asset?.path;
+  const paths = path ? [path] : void 0;
   return {
     requiresCanvasReload: true,
     paths,
@@ -91,14 +91,14 @@ export class HiloCanvasDataSource {
     this.addSessionDepth += 1;
     let closed = false;
     let ttlHandle;
-    const close2 = () => {
+    const handleClose = () => {
       if (closed) return;
       closed = true;
       if (ttlHandle !== void 0) clearTimeout(ttlHandle);
       this.addSessionDepth = Math.max(0, this.addSessionDepth - 1);
     };
-    ttlHandle = setTimeout(close2, ttlMs);
-    return close2;
+    ttlHandle = setTimeout(handleClose, ttlMs);
+    return handleClose;
   }
   /**
    * Downgrade a reload-requiring event to metadata-only while a canvas-add
@@ -128,9 +128,9 @@ export class HiloCanvasDataSource {
       signal,
     });
     const items = [];
-    for (const a2 of allAssetsRes.assets) {
+    for (const assetInfo of allAssetsRes.assets) {
       const item = assetInfoToCanvasItem(
-        a2,
+        assetInfo,
         this.httpClient.fileUrlById.bind(this.httpClient),
       );
       if (item) items.push(item);
@@ -145,9 +145,9 @@ export class HiloCanvasDataSource {
     } catch (error) {
       const isAbort = error instanceof Error && error.type === "abort";
       if (!isAbort) {
-        const message2 = error instanceof Error ? error.message : String(error);
+        const message = error instanceof Error ? error.message : String(error);
         void Promise.resolve(
-          this.logger?.error(`[CanvasData] canvas load failed: ${message2}`),
+          this.logger?.error(`[CanvasData] canvas load failed: ${message}`),
         ).catch(() => void 0);
       }
       throw error;
@@ -175,19 +175,19 @@ export class HiloCanvasDataSource {
     return this.sessionStore.onCanvasNodeGenerating(callback);
   }
   onFileChanged(callback) {
-    let timer2;
+    let timer;
     let pendingEvent;
     const debounced = (event) => {
       pendingEvent = mergeFileChangeEvents(
         pendingEvent,
         this.downgradeSuppressedReload(event),
       );
-      if (timer2 !== void 0) clearTimeout(timer2);
-      timer2 = setTimeout(() => {
-        timer2 = void 0;
-        const next2 = pendingEvent;
+      if (timer !== void 0) clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = void 0;
+        const next = pendingEvent;
         pendingEvent = void 0;
-        callback(next2);
+        callback(next);
       }, FILE_CHANGE_DEBOUNCE_MS);
     };
     const unsubFile = this.sessionStore.onFileChanged((event) =>
@@ -203,17 +203,17 @@ export class HiloCanvasDataSource {
         debounced(assetEventToFileChangeEvent(event)),
       ) ?? (() => {});
     return () => {
-      if (timer2 !== void 0) {
-        clearTimeout(timer2);
-        timer2 = void 0;
+      if (timer !== void 0) {
+        clearTimeout(timer);
+        timer = void 0;
       }
       pendingEvent = void 0;
       unsubFile();
       unsubAsset();
     };
   }
-  resolveFileUrl(path2) {
-    return this.httpClient.fileUrl(path2);
+  resolveFileUrl(path) {
+    return this.httpClient.fileUrl(path);
   }
   resolveFileUrlById(assetId) {
     return this.httpClient.fileUrlById(assetId);

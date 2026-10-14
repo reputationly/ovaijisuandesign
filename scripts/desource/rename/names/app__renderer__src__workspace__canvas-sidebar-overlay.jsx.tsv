@@ -1,0 +1,50 @@
+key	old	new	依据
+active2@617:15	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+CanvasSidebarOverlay2@601:12	CanvasSidebarOverlay2	CanvasSidebarOverlay	去掉打包器防重名追加的后缀，恢复原名 CanvasSidebarOverlay，即该绑定持有的值。
+content2@704:11	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+copy2@375:9	copy2	copy	去掉打包器防重名追加的后缀，恢复原名 copy，即该绑定持有的值。
+dir@47:10	dir	directoryPath	项目资产目录的文件系统路径。
+displayName2@174:9	displayName2	displayName	InlineRenameInput 确认后的工作区展示名称。
+e2@292:21	e2	pointerEvent	指针移入处理函数收到的事件对象。
+e2@459:12	e2	changeEvent	画布侧栏文件上传输入框触发的 change 事件。
+gatewayFetch2@451:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+id2@602:9	id2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+isActive2@279:56	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@408:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@537:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@558:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+mode2@132:50	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+mode2@167:9	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+mode2@410:9	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+mode2@539:9	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+mode2@560:9	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+mode2@605:11	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+next2@664:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+observer2@672:13	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+path2@417:12	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@428:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@84:12	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+platform2@281:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+platform2@413:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+platform2@42:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+platform2@81:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+previous2@665:23	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+project2@180:9	project2	project	从项目列表中读取或展示的项目对象。
+project2@44:9	project2	project	从项目列表中读取或展示的项目对象。
+raf@330:9	raf	animationFrameId	requestAnimationFrame 返回的句柄。
+res@470:17	res	response	异步请求返回的响应对象。
+resolver2@327:11	resolver2	resolver	去掉打包器防重名追加的后缀，恢复原名 resolver，即该绑定持有的值。
+root2@276:22	root2	root	去掉打包器防重名追加的后缀，恢复原名 root，即该绑定持有的值。
+seq2@310:9	seq2	seq	去掉打包器防重名追加的后缀，恢复原名 seq，即该绑定持有的值。
+service2@46:9	service2	service	去掉打包器防重名追加的后缀，恢复原名 service，即该绑定持有的值。
+t2@133:14	t2	translate	useTranslation 返回的翻译函数。
+t2@170:14	t2	translate	useTranslation 返回的翻译函数。
+t2@280:14	t2	translate	useTranslation 返回的翻译函数。
+t2@414:14	t2	translate	useTranslation 返回的翻译函数。
+t2@450:14	t2	translate	useTranslation 返回的翻译函数。
+t2@611:16	t2	translate	useTranslation 返回的翻译函数。
+t2@80:14	t2	translate	useTranslation 返回的翻译函数。
+tab2@644:15	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+w3@175:43	w3	recentWorkspace	最近打开的工作区条目。
+X@2:93	X	CloseIcon	来自 vendor 的关闭图标组件。
+setDir@47:25	setDir	setDirectoryPath	directoryPath 状态的 setter。

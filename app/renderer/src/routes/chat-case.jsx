@@ -1,6 +1,10 @@
 // chat-case.jsx
 import { GENERATION_FAILURE_ERROR_CODES } from "../chat/has-structured-success-payload.js";
-import { useTranslation, reactExports, jsxRuntimeExports, useSearch, MessageCircleMore, Check } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useSearch } from "@tanstack/react-router";
+import { MessageCircleMore, Check } from "../media-editing/lucide-icon-wraps.js";
 import { ActivityGroup } from "../team/activity-group.jsx";
 import { groupIntoActivityGroups } from "../media-editing/group-into-activity-groups.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
@@ -11,7 +15,7 @@ import { QuestionDock } from "../chat/question-dock.jsx";
 import { LoopGuardAskDock } from "../chat/loop-guard-ask-dock.jsx";
 import { StageConfirmationBar } from "../text-editor/skill-reload-dock.jsx";
 import { StagePromptEditorCard } from "../workspace/stage-prompt-editor-card.jsx";
-import { E as ERROR_CARD_PREVIEW_MESSAGES } from "../error-card-fixtures-GXqelGnw.js";
+import { E as ERROR_CARD_PREVIEW_MESSAGES } from "../error-card-fixtures.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 const PLANNER_CHILD_ID = "chat-case-planner-child";
 const EXECUTOR_CHILD_ID = "chat-case-executor-child";

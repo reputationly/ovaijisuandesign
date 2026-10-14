@@ -1,19 +1,17 @@
 // params-chip.jsx
 import { AspectRatioIcon, parseRatio } from "./resolution-tabs.jsx";
-import {
-  CompositedSvg,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Settings2 } from "../media-editing/package.jsx";
+import { Settings2 as Settings } from "../media-editing/package.jsx";
 import { Tooltip } from "./missing-asset-card.jsx";
-function ClockIcon({ size: size2 = 12, className }) {
+function ClockIcon({ size = 12, className }) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 12 12"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -45,24 +43,24 @@ const DURATION_REGEX =
   /^\d+(?:[.-]\d+)*\s*(?:s|sec|secs|seconds?|m|min|mins|minutes?|秒|分钟)$/i;
 function splitSummary(summary) {
   if (!summary) return [];
-  const tokens2 = summary
+  const tokens = summary
     .split(/\s*[·•|]\s*/)
-    .map((s2) => s2.trim())
+    .map((segment) => segment.trim())
     .filter(Boolean);
-  return tokens2.map((tok) => {
-    if (parseRatio(tok))
+  return tokens.map((token) => {
+    if (parseRatio(token))
       return {
         kind: "ratio",
-        text: tok,
+        text: token,
       };
-    if (DURATION_REGEX.test(tok))
+    if (DURATION_REGEX.test(token))
       return {
         kind: "duration",
-        text: tok,
+        text: token,
       };
     return {
       kind: "text",
-      text: tok,
+      text: token,
     };
   });
 }
@@ -71,38 +69,38 @@ export function ParamsChip({
   summary,
   open: _open,
   onToggle,
-  disabled: disabled2,
+  disabled,
   iconOnly = false,
   showSummaryIcons = true,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const segments = splitSummary(summary);
   const hasSegments = segments.length > 0;
-  const tooltipContent = summary || t2("canvas.param.chip.placeholder");
+  const tooltipContent = summary || translate("canvas.param.chip.placeholder");
   return (
     <Tooltip content={tooltipContent} side="top">
       <button
         ref={anchorRef}
         type="button"
-        onClick={(e2) => {
-          e2.stopPropagation();
+        onClick={(clickEvent) => {
+          clickEvent.stopPropagation();
           onToggle();
         }}
-        disabled={disabled2}
+        disabled={disabled}
         className="h-8 shrink-0 px-2 text-[13px] font-normal tracking-normal leading-[20px] opacity-70 text-foreground hover:enabled:opacity-100 disabled:cursor-default disabled:opacity-40 min-w-0 max-w-[320px] flex items-center gap-1 canvas-prompt-control"
         aria-label={tooltipContent}
         data-action-ui-id="popover.params-chip"
       >
         {iconOnly ? (
-          <Settings2 size={16} strokeWidth={1.7} aria-hidden="true" />
+          <Settings size={16} strokeWidth={1.7} aria-hidden="true" />
         ) : !showSummaryIcons ? (
           <span className="min-w-0 flex-1 truncate text-left">
-            {summary || t2("canvas.param.chip.placeholder")}
+            {summary || translate("canvas.param.chip.placeholder")}
           </span>
         ) : hasSegments ? (
           <span className="min-w-0 flex-1 truncate text-left">
             <span className="inline-flex items-center gap-1">
-              {segments.map((seg, i2) =>
+              {segments.map((segment, index) =>
                 // Index is part of the key only to disambiguate the rare case
                 // of duplicate raw tokens; segments are short-lived render-only
                 // data with no per-item state, so position-based identity is fine.
@@ -111,35 +109,35 @@ export function ParamsChip({
                   reactExports.Fragment,
                   {
                     children: [
-                      i2 > 0 && <span className="opacity-60">·</span>,
-                      seg.kind === "ratio" ? (
+                      index > 0 && <span className="opacity-60">·</span>,
+                      segment.kind === "ratio" ? (
                         <span className="inline-flex items-center gap-0.5">
                           <span
                             aria-hidden={true}
                             className="inline-flex size-3 shrink-0 items-center justify-center [&>svg]:size-full"
                           >
-                            <AspectRatioIcon ratio={seg.text} />
+                            <AspectRatioIcon ratio={segment.text} />
                           </span>
-                          <span>{seg.text}</span>
+                          <span>{segment.text}</span>
                         </span>
-                      ) : seg.kind === "duration" ? (
+                      ) : segment.kind === "duration" ? (
                         <span className="inline-flex items-center gap-0.5">
                           <ClockIcon className="shrink-0" />
-                          <span>{seg.text}</span>
+                          <span>{segment.text}</span>
                         </span>
                       ) : (
-                        <span>{seg.text}</span>
+                        <span>{segment.text}</span>
                       ),
                     ],
                   },
-                  `${seg.kind}-${i2}-${seg.text}`,
+                  `${segment.kind}-${index}-${segment.text}`,
                 ),
               )}
             </span>
           </span>
         ) : (
           <span className="min-w-0 flex-1 truncate text-left">
-            {summary || t2("canvas.param.chip.placeholder")}
+            {summary || translate("canvas.param.chip.placeholder")}
           </span>
         )}
       </button>

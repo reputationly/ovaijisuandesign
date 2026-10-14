@@ -1,5 +1,9 @@
 // 「使用此工作流」菜单：按最近项目与工作区分组。
-import { useTranslation, reactExports, PanelsTopLeft, usePlatform, useStorage, Plus, FolderClock } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { PanelsTopLeft, Plus, FolderClock } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { Button, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from "../infra/dialog-content.jsx";
 import { useTopbarState } from "../workspace/topbar-state-context.jsx";
 import { useProjectStore, workspaceInventoryPathKey, resolveRecentProjectsSortMode } from "../workspace/normalize-project-entries.js";

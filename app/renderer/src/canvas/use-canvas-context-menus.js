@@ -4,31 +4,32 @@ import {
   partitionDeletableIds,
 } from "./partition-user-removal-elements.js";
 import { writeCanvasSystemClipboard } from "./reorder-parents-before-children.js";
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { isPluginNode } from "./separator.jsx";
 import { isGenerationErrorStatus } from "./compute-group-bounds-from-children.js";
 import { useGeneratingStateApi } from "../media-editing/package.jsx";
 import { parseNodeId } from "./find-free-position-from-anchor.js";
 
-function isNodeGenerationActive(node2, hasLiveGenerationState) {
-  return hasLiveGenerationState || isNodeGenerating(node2);
+function isNodeGenerationActive(node, hasLiveGenerationState) {
+  return hasLiveGenerationState || isNodeGenerating(node);
 }
 
 function beginSelectionChromeSuppression(
-  current2,
+  current,
   selectionChangedByContextMenu,
 ) {
   return {
     suppressed: true,
     retainAfterDismiss:
-      current2.retainAfterDismiss || selectionChangedByContextMenu,
+      current.retainAfterDismiss || selectionChangedByContextMenu,
   };
 }
 
-function dismissSelectionChromeSuppression(current2) {
-  return current2.retainAfterDismiss
-    ? current2
+function dismissSelectionChromeSuppression(current) {
+  return current.retainAfterDismiss
+    ? current
     : {
         suppressed: false,
         retainAfterDismiss: false,
@@ -42,18 +43,18 @@ function restoreSelectionChromeSuppression() {
   };
 }
 
-function isGraphLevelContextMenuTarget(node2, filePath, isGenerating) {
+function isGraphLevelContextMenuTarget(node, filePath, isGenerating) {
   return (
-    node2?.type === CanvasNodeType.Group ||
+    node?.type === CanvasNodeType.Group ||
     !!filePath ||
     isGenerating ||
-    isPluginNode(node2)
+    isPluginNode(node)
   );
 }
 
-async function dispatchContextMenuCopy(instance2, sourceContext, onSystemCopy) {
-  instance2.copySelected(sourceContext);
-  const rootEl = instance2.getRootEl();
+async function dispatchContextMenuCopy(instance, sourceContext, onSystemCopy) {
+  instance.copySelected(sourceContext);
+  const rootEl = instance.getRootEl();
   rootEl?.focus({
     preventScroll: true,
   });
@@ -64,28 +65,28 @@ async function dispatchContextMenuCopy(instance2, sourceContext, onSystemCopy) {
       }),
     );
   }
-  const selectedIds = new Set(instance2.selection.getSelected());
-  const selectedNodes = instance2
+  const selectedIds = new Set(instance.selection.getSelected());
+  const selectedNodes = instance
     .getGraph()
-    .nodes.filter((node2) => selectedIds.has(node2.id));
+    .nodes.filter((node) => selectedIds.has(node.id));
   await writeCanvasSystemClipboard(
     onSystemCopy ? () => onSystemCopy(selectedNodes) : void 0,
   );
 }
 
-function dispatchPanePaste(instance2, position2, onRequestSystemPaste) {
+function dispatchPanePaste(instance, position, onRequestSystemPaste) {
   if (onRequestSystemPaste) {
-    instance2.getRootEl()?.focus({
+    instance.getRootEl()?.focus({
       preventScroll: true,
     });
-    onRequestSystemPaste(position2);
+    onRequestSystemPaste(position);
     return;
   }
-  void instance2.pasteAtPosition(position2);
+  void instance.pasteAtPosition(position);
 }
 
 export function useCanvasContextMenus({
-  instance: instance2,
+  instance,
   onNodeContextMenu,
   onUpload,
   onRequestSystemPaste,
@@ -127,13 +128,13 @@ export function useCanvasContextMenus({
     (event, hintNodeId) => {
       if (!onNodeContextMenu) return;
       if (hintNodeId) {
-        const hinted = instance2
+        const hinted = instance
           .getGraph()
-          .nodes.find((n2) => n2.id === hintNodeId);
+          .nodes.find((node) => node.id === hintNodeId);
         if (hinted?.type === CanvasNodeType.Group && hinted.meta?.collapsed)
           return;
       }
-      const currentSelected = instance2.selection.getSelected();
+      const currentSelected = instance.selection.getSelected();
       const isInMultiSelection =
         !!hintNodeId &&
         currentSelected.length > 1 &&
@@ -154,19 +155,19 @@ export function useCanvasContextMenus({
       const assetStore = assetMetadataStore.getState();
       const generatingByNode = generatingStateStore.getState().byNode;
       const nodesById = new Map(
-        instance2.getGraph().nodes.map((n2) => [n2.id, n2]),
+        instance.getGraph().nodes.map((node) => [node.id, node]),
       );
-      const nodes = targetIds.map((id2) => {
-        const targetNode = nodesById.get(id2);
+      const nodes = targetIds.map((id) => {
+        const targetNode = nodesById.get(id);
         const nodeType = targetNode?.type ?? "unknown";
         const isMultiImage =
           nodeType === CanvasNodeType.Image &&
           typeof targetNode?.groupId === "string" &&
           [...nodesById.values()].some(
             (candidate) =>
-              candidate.id !== id2 && candidate.groupId === targetNode.groupId,
+              candidate.id !== id && candidate.groupId === targetNode.groupId,
           );
-        const generatingInfo = generatingByNode.get(id2);
+        const generatingInfo = generatingByNode.get(id);
         const isGenerating = isNodeGenerationActive(
           targetNode,
           generatingInfo !== void 0,
@@ -184,7 +185,7 @@ export function useCanvasContextMenus({
           nodeType === CanvasNodeType.Placeholder
         ) {
           return {
-            nodeId: id2,
+            nodeId: id,
             nodeType,
             isGenerating,
             generationErrorStatus,
@@ -193,7 +194,7 @@ export function useCanvasContextMenus({
         if (nodeType === CanvasNodeType.Table) {
           const tableData = targetNode?.data;
           return {
-            nodeId: id2,
+            nodeId: id,
             nodeType,
             filePath: tableData?.tablePath,
             fileType: "table",
@@ -204,13 +205,13 @@ export function useCanvasContextMenus({
             generationErrorStatus,
           };
         }
-        const { assetId } = parseNodeId(id2);
-        const meta2 = assetStore.get(assetId);
+        const { assetId } = parseNodeId(id);
+        const meta = assetStore.get(assetId);
         return {
-          nodeId: id2,
+          nodeId: id,
           nodeType,
-          filePath: meta2?.path,
-          fileType: meta2?.type,
+          filePath: meta?.path,
+          fileType: meta?.type,
           width: targetNode?.size?.width,
           height: targetNode?.size?.height,
           isMultiImage,
@@ -218,69 +219,69 @@ export function useCanvasContextMenus({
           generationErrorStatus,
         };
       });
-      const hasGraphLevelTarget = targetIds.some((id2, index2) =>
+      const hasGraphLevelTarget = targetIds.some((id, index) =>
         isGraphLevelContextMenuTarget(
-          nodesById.get(id2),
-          nodes[index2]?.filePath,
-          !!nodes[index2]?.isGenerating,
+          nodesById.get(id),
+          nodes[index]?.filePath,
+          !!nodes[index]?.isGenerating,
         ),
       );
       if (!hasGraphLevelTarget) return;
-      setSelectionChromeSuppression((current2) =>
+      setSelectionChromeSuppression((current) =>
         beginSelectionChromeSuppression(
-          current2,
+          current,
           selectionChangedByContextMenu,
         ),
       );
       if (hintNodeId && !isInMultiSelection) {
-        instance2.selection.set([hintNodeId]);
+        instance.selection.set([hintNodeId]);
       }
-      instance2.copySelected({
+      instance.copySelected({
         workspace: getCurrentWorkspace?.(),
-        resolveAssetPath: (id2) => assetMetadataStore.getState().get(id2)?.path,
+        resolveAssetPath: (id) => assetMetadataStore.getState().get(id)?.path,
       });
       event.preventDefault();
       const actions = {
         deleteSelected: () => {
           const { deletableIds, blockedCount, blockedReason } =
-            partitionDeletableIds(targetIds, (id2) => nodesById.get(id2));
+            partitionDeletableIds(targetIds, (id) => nodesById.get(id));
           if (blockedCount > 0) {
-            instance2.eventBus.emit({
+            instance.eventBus.emit({
               type: "delete:blocked",
               count: blockedCount,
               reason: blockedReason ?? "generating",
             });
           }
           if (deletableIds.length === 0) return;
-          instance2.removeNodes(deletableIds);
-          instance2.eventBus.emit({
+          instance.removeNodes(deletableIds);
+          instance.eventBus.emit({
             type: "persist:flush",
           });
         },
         copyToCanvasClipboard: () => {
           void dispatchContextMenuCopy(
-            instance2,
+            instance,
             {
               workspace: getCurrentWorkspace?.(),
-              resolveAssetPath: (id2) =>
-                assetMetadataStore.getState().get(id2)?.path,
+              resolveAssetPath: (id) =>
+                assetMetadataStore.getState().get(id)?.path,
             },
             onSystemCopy,
           );
         },
         duplicateToCanvas: () => {
-          instance2.copySelected({
+          instance.copySelected({
             workspace: getCurrentWorkspace?.(),
-            resolveAssetPath: (id2) =>
-              assetMetadataStore.getState().get(id2)?.path,
+            resolveAssetPath: (id) =>
+              assetMetadataStore.getState().get(id)?.path,
           });
-          void instance2.pasteFromClipboard();
+          void instance.pasteFromClipboard();
         },
         groupSelected: () => {
-          instance2.groupNodes(targetIds);
+          instance.groupNodes(targetIds);
         },
-        ungroupGroup: (groupId2) => {
-          instance2.ungroup(groupId2);
+        ungroupGroup: (groupId) => {
+          instance.ungroup(groupId);
         },
         dismissContextMenu: dismissNodeContextMenu,
       };
@@ -289,7 +290,7 @@ export function useCanvasContextMenus({
     [
       assetMetadataStore,
       generatingStateStore,
-      instance2,
+      instance,
       onNodeContextMenu,
       onSystemCopy,
       getCurrentWorkspace,
@@ -297,8 +298,8 @@ export function useCanvasContextMenus({
     ],
   );
   const handleNodeContextMenu = reactExports.useCallback(
-    (event, node2) => {
-      dispatchNodeMenu(event, node2.id);
+    (event, node) => {
+      dispatchNodeMenu(event, node.id);
     },
     [dispatchNodeMenu],
   );
@@ -310,7 +311,7 @@ export function useCanvasContextMenus({
   );
   const handlePaneDoubleClick = reactExports.useCallback(
     (event) => {
-      if (instance2.selection.count() > 0) return;
+      if (instance.selection.count() > 0) return;
       contextMenuFlowPos.current = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
@@ -321,7 +322,7 @@ export function useCanvasContextMenus({
         y: event.clientY,
       });
     },
-    [instance2, screenToFlowPosition],
+    [instance, screenToFlowPosition],
   );
   const handlePaneContextMenu = reactExports.useCallback(
     (event) => {
@@ -356,11 +357,11 @@ export function useCanvasContextMenus({
   }, [paneContextMenu]);
   const handlePanePaste = reactExports.useCallback(() => {
     dispatchPanePaste(
-      instance2,
+      instance,
       paneContextMenuFlowPos.current,
       onRequestSystemPaste,
     );
-  }, [instance2, onRequestSystemPaste]);
+  }, [instance, onRequestSystemPaste]);
   const getAddNodePosition = reactExports.useCallback(
     () => contextMenuFlowPos.current,
     [],

@@ -1,0 +1,7 @@
+key	old	new	依据
+now2@47:13	now2	now	去掉打包器防重名追加的后缀，恢复原名 now，即该绑定持有的值。
+off@39:11	off	unsubscribe	结束订阅项目邀请深链的清理函数。
+t2@99:14	t2	translate	useTranslation 返回的翻译函数。
+token2@21:9	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+token2@56:19	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+ts2@56:27	ts2	seenTimestamp	最近邀请令牌被记录的时间戳。

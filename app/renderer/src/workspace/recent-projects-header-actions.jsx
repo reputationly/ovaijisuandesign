@@ -1,11 +1,8 @@
 // recent-projects-header-actions.jsx
-import {
-  ArrowUpDown,
-  MonochromeIcon,
-  Plus,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowUpDown, Plus } from "../media-editing/lucide-icon-wraps.js";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
 import {
   DropdownMenu,
   DropdownMenuGroup,
@@ -16,7 +13,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioItem,
@@ -45,12 +42,12 @@ export function RecentProjectsHeaderActions({
   holdPreviewOpen,
   releasePreviewHold,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [sortMenuOpen, setSortMenuOpen] = reactExports.useState(false);
   const [createMenuOpen, setCreateMenuOpen] = reactExports.useState(false);
   const sortTriggerRef = reactExports.useRef(null);
-  const moreLabel = t2("homeSidebar.recentProjectsMore");
-  const createLabel = createLabelProp ?? t2("project.newCreation");
+  const moreLabel = translate("homeSidebar.recentProjectsMore");
+  const createLabel = createLabelProp ?? translate("project.newCreation");
   const previewHoldActive = sortMenuOpen || createMenuOpen;
   reactExports.useEffect(() => {
     if (!previewHoldActive || !holdPreviewOpen || !releasePreviewHold) return;
@@ -110,11 +107,11 @@ export function RecentProjectsHeaderActions({
         >
           <DropdownMenuGroup>
             <DropdownMenuLabel>
-              {t2("homeSidebar.recentProjectsGroupLabel")}
+              {translate("homeSidebar.recentProjectsGroupLabel")}
             </DropdownMenuLabel>
             <DropdownMenuRadioGroup
               value={groupMode}
-              aria-label={t2("homeSidebar.recentProjectsGroupLabel")}
+              aria-label={translate("homeSidebar.recentProjectsGroupLabel")}
               onValueChange={(value) => {
                 if (isRecentProjectsGroupMode(value)) onGroupModeChange(value);
               }}
@@ -123,24 +120,24 @@ export function RecentProjectsHeaderActions({
                 value="project"
                 data-action-ui-id="home-sidebar.recent-group-project"
               >
-                {t2("homeSidebar.recentProjectsGroupProject")}
+                {translate("homeSidebar.recentProjectsGroupProject")}
               </DropdownMenuRadioItem>
               <DropdownMenuRadioItem
                 value="none"
                 data-action-ui-id="home-sidebar.recent-group-none"
               >
-                {t2("homeSidebar.recentProjectsGroupNone")}
+                {translate("homeSidebar.recentProjectsGroupNone")}
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuLabel>
-              {t2("homeSidebar.recentProjectsSortLabel")}
+              {translate("homeSidebar.recentProjectsSortLabel")}
             </DropdownMenuLabel>
             <DropdownMenuRadioGroup
               value={sortMode}
-              aria-label={t2("homeSidebar.recentProjectsSortLabel")}
+              aria-label={translate("homeSidebar.recentProjectsSortLabel")}
               onValueChange={(value) => {
                 if (isRecentProjectsSortMode(value)) onSortModeChange(value);
               }}
@@ -149,13 +146,13 @@ export function RecentProjectsHeaderActions({
                 value="manual"
                 data-action-ui-id="home-sidebar.recent-sort-manual"
               >
-                {t2("homeSidebar.recentProjectsSortManual")}
+                {translate("homeSidebar.recentProjectsSortManual")}
               </DropdownMenuRadioItem>
               <DropdownMenuRadioItem
                 value="recent"
                 data-action-ui-id="home-sidebar.recent-sort-recent"
               >
-                {t2("homeSidebar.recentProjectsSortRecent")}
+                {translate("homeSidebar.recentProjectsSortRecent")}
               </DropdownMenuRadioItem>
               <TooltipProvider>
                 <Tooltip>
@@ -165,12 +162,12 @@ export function RecentProjectsHeaderActions({
                         value="priority"
                         data-action-ui-id="home-sidebar.recent-sort-priority"
                       >
-                        {t2("homeSidebar.recentProjectsSortPriority")}
+                        {translate("homeSidebar.recentProjectsSortPriority")}
                       </DropdownMenuRadioItem>
                     }
                   />
                   <TooltipContent side="right">
-                    {t2("homeSidebar.recentProjectsSortPriorityTooltip")}
+                    {translate("homeSidebar.recentProjectsSortPriorityTooltip")}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

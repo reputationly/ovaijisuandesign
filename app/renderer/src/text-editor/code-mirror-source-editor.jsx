@@ -1,11 +1,9 @@
 // code-mirror-source-editor.jsx
-import {
-  Decoration2,
-  reactExports,
-  StateEffect,
-  StateField,
-  tags$1 as tags,
-} from "../vendor.js";
+import reactExports from "react";
+import { Compartment, EditorState as EditorState2, StateEffect, StateField } from "@codemirror/state";
+import { Decoration, EditorView as EditorView2, drawSelection, keymap } from "@codemirror/view";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { tags } from "@lezer/highlight";
 import {
   defaultKeymap,
   history,
@@ -16,71 +14,61 @@ import {
   undo,
   undoDepth,
 } from "@codemirror/commands";
-import { EditorView2 } from "../vendor-inline/codemirror/editor-view2.js";
-import {
-  drawSelection,
-  HighlightStyle,
-  keymap,
-  syntaxHighlighting,
-} from "../vendor-inline/codemirror/tree-node.js";
 import {
   buildCodeMirrorSelectionAnchor,
   buildCodeMirrorSelectionState,
-  markdown,
   markdownLivePreview,
-  replaceAll,
-  search$1,
-  SearchQuery,
 } from "../vendor-inline/codemirror/delete-markup-backward.js";
-import { setSearchQuery } from "../vendor-inline/codemirror/line2.js";
-import { markdownLanguage } from "../vendor-inline/codemirror/insert-newline-continue-markup-command.js";
+import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import {
-  Compartment,
-  EditorState2,
-} from "../vendor-inline/codemirror/editor-state2.js";
+  replaceAll,
+  SearchQuery,
+  search,
+  setSearchQuery,
+} from "@codemirror/search";
 import { __jsx } from "../shared/jsx-runtime.js";
 const setSourceFindHighlights = StateEffect.define();
-const sourceFindMatch = Decoration2.mark({
+const sourceFindMatch = Decoration.mark({
   class: "canvas-find-match",
 });
-const sourceFindMatchActive = Decoration2.mark({
+const sourceFindMatchActive = Decoration.mark({
   class: "canvas-find-match canvas-find-match-active",
 });
 const MAX_SOURCE_FIND_DECORATIONS = 2e3;
 function buildSourceFindDecorations(
   docLength,
-  { matches: matches2, activeIndex },
+  { matches, activeIndex },
 ) {
   const ranges = [];
-  const push2 = (match2, active2) => {
-    if (match2.from < 0 || match2.from >= match2.to || match2.to > docLength)
+  const push = (match, active) => {
+    if (match.from < 0 || match.from >= match.to || match.to > docLength)
       return;
     ranges.push(
-      (active2 ? sourceFindMatchActive : sourceFindMatch).range(
-        match2.from,
-        match2.to,
+      (active ? sourceFindMatchActive : sourceFindMatch).range(
+        match.from,
+        match.to,
       ),
     );
   };
-  const count2 = Math.min(matches2.length, MAX_SOURCE_FIND_DECORATIONS);
-  for (let i2 = 0; i2 < count2; i2++) push2(matches2[i2], i2 === activeIndex);
-  if (activeIndex >= count2 && activeIndex < matches2.length)
-    push2(matches2[activeIndex], true);
-  return Decoration2.set(ranges, true);
+  const count = Math.min(matches.length, MAX_SOURCE_FIND_DECORATIONS);
+  for (let i = 0; i < count; i++) push(matches[i], i === activeIndex);
+  if (activeIndex >= count && activeIndex < matches.length)
+    push(matches[activeIndex], true);
+  return Decoration.set(ranges, true);
 }
 const sourceFindHighlightField = StateField.define({
-  create: () => Decoration2.none,
+  create: () => Decoration.none,
   update(value, transaction) {
-    let next2 = transaction.docChanged ? value.map(transaction.changes) : value;
-    for (const effect2 of transaction.effects) {
-      if (effect2.is(setSourceFindHighlights)) {
-        next2 = buildSourceFindDecorations(
+    let next = transaction.docChanged ? value.map(transaction.changes) : value;
+    for (const effect of transaction.effects) {
+      if (effect.is(setSourceFindHighlights)) {
+        next = buildSourceFindDecorations(
           transaction.state.doc.length,
-          effect2.value,
+          effect.value,
         );
       }
     }
-    return next2;
+    return next;
   },
   provide: (field) => EditorView2.decorations.from(field),
 });
@@ -96,7 +84,7 @@ function createSourceSearchQuery(query, options, replacement = "") {
     replace: replacement,
     // The shared find logic ignores zero-width regex matches; keep source mode
     // aligned so replace-all never inserts at every character boundary.
-    test: (match2) => match2.length > 0,
+    test: (match) => match.length > 0,
   });
 }
 const emptySourceSearchQuery = new SearchQuery({
@@ -210,17 +198,17 @@ const sourceEditorTheme = EditorView2.theme({
         "color-mix(in srgb, var(--canvas-text-accent) 28%, transparent)",
     },
 });
-function historyAvailability(state2) {
+function historyAvailability(state) {
   return {
-    canUndo: undoDepth(state2) > 0,
-    canRedo: redoDepth(state2) > 0,
+    canUndo: undoDepth(state) > 0,
+    canRedo: redoDepth(state) > 0,
   };
 }
 export const CodeMirrorSourceEditor = reactExports.forwardRef(
-  function CodeMirrorSourceEditor2(
+  function CodeMirrorSourceEditor(
     {
       initialValue,
-      readOnly: readOnly2 = false,
+      readOnly = false,
       onDocumentChange,
       onSelectionChange,
       onHistoryAvailabilityChange,
@@ -233,8 +221,8 @@ export const CodeMirrorSourceEditor = reactExports.forwardRef(
     const editabilityCompartmentRef = reactExports.useRef(new Compartment());
     const initialValueRef = reactExports.useRef(initialValue);
     initialValueRef.current = initialValue;
-    const readOnlyRef = reactExports.useRef(readOnly2);
-    readOnlyRef.current = readOnly2;
+    const readOnlyRef = reactExports.useRef(readOnly);
+    readOnlyRef.current = readOnly;
     const onDocumentChangeRef = reactExports.useRef(onDocumentChange);
     onDocumentChangeRef.current = onDocumentChange;
     const onSelectionChangeRef = reactExports.useRef(onSelectionChange);
@@ -246,7 +234,7 @@ export const CodeMirrorSourceEditor = reactExports.forwardRef(
     reactExports.useLayoutEffect(() => {
       const host = hostRef.current;
       if (!host) return;
-      const extensions2 = [
+      const extensions = [
         history(),
         // Layer-drawn selection stays visible while the editor is blurred (focus
         // in the sibling chat/agent input) — the native selection would vanish.
@@ -261,7 +249,7 @@ export const CodeMirrorSourceEditor = reactExports.forwardRef(
         sourceFindHighlightField,
         // Search state is headless here: FullscreenShell keeps the product FindBar,
         // while CodeMirror supplies rope-backed scanning and replace-all commands.
-        search$1(),
+        search(),
         sourceEditorTheme,
         EditorView2.lineWrapping,
         EditorView2.contentAttributes.of({
@@ -270,177 +258,177 @@ export const CodeMirrorSourceEditor = reactExports.forwardRef(
           autocapitalize: "off",
         }),
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
-        EditorView2.updateListener.of((update2) => {
-          if (update2.docChanged) {
+        EditorView2.updateListener.of((update) => {
+          if (update.docChanged) {
             onDocumentChangeRef.current(() =>
-              update2.view.state.doc.toString(),
+              update.view.state.doc.toString(),
             );
             onHistoryAvailabilityChangeRef.current(
-              historyAvailability(update2.state),
+              historyAvailability(update.state),
             );
           }
-          if (update2.docChanged || update2.selectionSet)
+          if (update.docChanged || update.selectionSet)
             onSelectionChangeRef.current();
         }),
       ];
-      const createState2 = (doc2) =>
+      const createState = (doc) =>
         EditorState2.create({
-          doc: doc2,
+          doc,
           extensions: [
-            ...extensions2,
+            ...extensions,
             editabilityCompartmentRef.current.of([
               EditorState2.readOnly.of(readOnlyRef.current),
               EditorView2.editable.of(!readOnlyRef.current),
             ]),
           ],
         });
-      createStateRef.current = createState2;
-      const view2 = new EditorView2({
-        state: createState2(initialValueRef.current),
+      createStateRef.current = createState;
+      const view = new EditorView2({
+        state: createState(initialValueRef.current),
         parent: host,
       });
-      viewRef.current = view2;
-      onHistoryAvailabilityChangeRef.current(historyAvailability(view2.state));
+      viewRef.current = view;
+      onHistoryAvailabilityChangeRef.current(historyAvailability(view.state));
       return () => {
         viewRef.current = null;
         createStateRef.current = null;
-        view2.destroy();
+        view.destroy();
       };
     }, []);
     reactExports.useLayoutEffect(() => {
-      const view2 = viewRef.current;
-      if (!view2) return;
-      view2.dispatch({
+      const view = viewRef.current;
+      if (!view) return;
+      view.dispatch({
         effects: editabilityCompartmentRef.current.reconfigure([
-          EditorState2.readOnly.of(readOnly2),
-          EditorView2.editable.of(!readOnly2),
+          EditorState2.readOnly.of(readOnly),
+          EditorView2.editable.of(!readOnly),
         ]),
       });
-    }, [readOnly2]);
+    }, [readOnly]);
     reactExports.useImperativeHandle(
       forwardedRef,
       () => ({
         getValue: () =>
           viewRef.current?.state.doc.toString() ?? initialValueRef.current,
         setValue: (value) => {
-          const view2 = viewRef.current;
-          const createState2 = createStateRef.current;
-          if (!view2 || !createState2 || view2.state.doc.toString() === value)
+          const view = viewRef.current;
+          const createState = createStateRef.current;
+          if (!view || !createState || view.state.doc.toString() === value)
             return;
-          view2.setState(createState2(value));
+          view.setState(createState(value));
           onHistoryAvailabilityChangeRef.current(
-            historyAvailability(view2.state),
+            historyAvailability(view.state),
           );
           onSelectionChangeRef.current();
         },
         getSelectionAnchor: () => {
-          const view2 = viewRef.current;
-          return view2 ? buildCodeMirrorSelectionAnchor(view2.state) : null;
+          const view = viewRef.current;
+          return view ? buildCodeMirrorSelectionAnchor(view.state) : null;
         },
         getSelectionState: () => {
-          const view2 = viewRef.current;
-          return view2
-            ? buildCodeMirrorSelectionState(view2.state)
+          const view = viewRef.current;
+          return view
+            ? buildCodeMirrorSelectionState(view.state)
             : {
                 anchor: null,
               };
         },
         getSelectedText: () => {
-          const view2 = viewRef.current;
-          if (!view2) return "";
-          const { from: from2, to } = view2.state.selection.main;
-          return from2 === to ? "" : view2.state.sliceDoc(from2, to);
+          const view = viewRef.current;
+          if (!view) return "";
+          const { from, to } = view.state.selection.main;
+          return from === to ? "" : view.state.sliceDoc(from, to);
         },
-        getText: (from2, to) => {
-          const view2 = viewRef.current;
-          if (!view2) return "";
-          const start2 = Math.max(0, Math.min(from2, view2.state.doc.length));
-          const end2 = Math.max(start2, Math.min(to, view2.state.doc.length));
-          return view2.state.sliceDoc(start2, end2);
+        getText: (from, to) => {
+          const view = viewRef.current;
+          if (!view) return "";
+          const start = Math.max(0, Math.min(from, view.state.doc.length));
+          const end = Math.max(start, Math.min(to, view.state.doc.length));
+          return view.state.sliceDoc(start, end);
         },
         getCaretPosition: () => viewRef.current?.state.selection.main.head ?? 0,
         findMatches: (query, options, maxMatches) => {
-          const view2 = viewRef.current;
+          const view = viewRef.current;
           const sourceQuery = createSourceSearchQuery(query, options);
-          if (!view2 || !sourceQuery.valid || maxMatches <= 0) {
+          if (!view || !sourceQuery.valid || maxMatches <= 0) {
             return {
               matches: [],
               limited: false,
             };
           }
-          const matches2 = [];
-          const cursor = sourceQuery.getCursor(view2.state);
+          const matches = [];
+          const cursor = sourceQuery.getCursor(view.state);
           for (
             let result = cursor.next();
             !result.done;
             result = cursor.next()
           ) {
-            const match2 = result.value;
-            if (match2.from >= match2.to) continue;
-            matches2.push({
-              from: match2.from,
-              to: match2.to,
+            const match = result.value;
+            if (match.from >= match.to) continue;
+            matches.push({
+              from: match.from,
+              to: match.to,
             });
-            if (matches2.length >= maxMatches)
+            if (matches.length >= maxMatches)
               return {
-                matches: matches2,
+                matches,
                 limited: true,
               };
           }
           return {
-            matches: matches2,
+            matches,
             limited: false,
           };
         },
-        setSelection: (from2, to) => {
-          const view2 = viewRef.current;
-          if (!view2) return;
-          const start2 = Math.max(0, Math.min(from2, view2.state.doc.length));
-          const end2 = Math.max(start2, Math.min(to, view2.state.doc.length));
-          view2.dispatch({
+        setSelection: (from, to) => {
+          const view = viewRef.current;
+          if (!view) return;
+          const start = Math.max(0, Math.min(from, view.state.doc.length));
+          const end = Math.max(start, Math.min(to, view.state.doc.length));
+          view.dispatch({
             selection: {
-              anchor: start2,
-              head: end2,
+              anchor: start,
+              head: end,
             },
-            effects: EditorView2.scrollIntoView(start2, {
+            effects: EditorView2.scrollIntoView(start, {
               y: "center",
             }),
           });
         },
         clearSelection: () => {
-          const view2 = viewRef.current;
-          if (!view2) return;
-          const { from: from2, to } = view2.state.selection.main;
-          if (from2 === to) return;
-          view2.dispatch({
+          const view = viewRef.current;
+          if (!view) return;
+          const { from, to } = view.state.selection.main;
+          if (from === to) return;
+          view.dispatch({
             selection: {
               anchor: to,
             },
           });
         },
-        setFindMatches: (matches2, activeIndex) => {
-          const view2 = viewRef.current;
-          const active2 = matches2[activeIndex];
-          if (!view2 || !active2) return;
-          const start2 = Math.max(
+        setFindMatches: (matches, activeIndex) => {
+          const view = viewRef.current;
+          const active = matches[activeIndex];
+          if (!view || !active) return;
+          const start = Math.max(
             0,
-            Math.min(active2.from, view2.state.doc.length),
+            Math.min(active.from, view.state.doc.length),
           );
-          const end2 = Math.max(
-            start2,
-            Math.min(active2.to, view2.state.doc.length),
+          const end = Math.max(
+            start,
+            Math.min(active.to, view.state.doc.length),
           );
-          view2.dispatch({
+          view.dispatch({
             selection: {
-              anchor: start2,
-              head: end2,
+              anchor: start,
+              head: end,
             },
             effects: [
               setSourceFindHighlights.of({
-                matches: matches2,
+                matches,
                 activeIndex,
               }),
-              EditorView2.scrollIntoView(start2, {
+              EditorView2.scrollIntoView(start, {
                 y: "center",
               }),
             ],
@@ -454,45 +442,45 @@ export const CodeMirrorSourceEditor = reactExports.forwardRef(
             }),
           });
         },
-        replaceRange: (from2, to, value) => {
-          const view2 = viewRef.current;
-          if (!view2) return;
-          view2.dispatch({
+        replaceRange: (from, to, value) => {
+          const view = viewRef.current;
+          if (!view) return;
+          view.dispatch({
             changes: {
-              from: from2,
+              from,
               to,
               insert: value,
             },
             selection: {
-              anchor: from2 + value.length,
+              anchor: from + value.length,
             },
             scrollIntoView: true,
           });
         },
         replaceAll: (query, options, replacement) => {
-          const view2 = viewRef.current;
+          const view = viewRef.current;
           const sourceQuery = createSourceSearchQuery(
             query,
             options,
             replacement,
           );
-          if (!view2 || !sourceQuery.valid) return false;
-          view2.dispatch({
+          if (!view || !sourceQuery.valid) return false;
+          view.dispatch({
             effects: setSearchQuery.of(sourceQuery),
           });
-          const replaced = replaceAll(view2);
-          view2.dispatch({
+          const replaced = replaceAll(view);
+          view.dispatch({
             effects: setSearchQuery.of(emptySourceSearchQuery),
           });
           return replaced;
         },
         replaceDocument: (value) => {
-          const view2 = viewRef.current;
-          if (!view2) return;
-          view2.dispatch({
+          const view = viewRef.current;
+          if (!view) return;
+          view.dispatch({
             changes: {
               from: 0,
-              to: view2.state.doc.length,
+              to: view.state.doc.length,
               insert: value,
             },
             selection: {
@@ -503,12 +491,12 @@ export const CodeMirrorSourceEditor = reactExports.forwardRef(
         },
         focus: () => viewRef.current?.focus(),
         undo: () => {
-          const view2 = viewRef.current;
-          return view2 ? undo(view2) : false;
+          const view = viewRef.current;
+          return view ? undo(view) : false;
         },
         redo: () => {
-          const view2 = viewRef.current;
-          return view2 ? redo(view2) : false;
+          const view = viewRef.current;
+          return view ? redo(view) : false;
         },
       }),
       [],

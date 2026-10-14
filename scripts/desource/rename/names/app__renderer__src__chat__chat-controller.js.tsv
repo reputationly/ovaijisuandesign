@@ -1,0 +1,110 @@
+key	新名	依据
+msg@72:23	serverMessage	`serverMessage` 是 ChatStateController 接收并分发的服务端消息。
+msg@127:22	serverMessage	`serverMessage` 是 applyServerMessage 解析并应用的服务端消息。
+sid@128:11	sessionId	`sessionId` 是从服务端消息中提取的会话标识。
+m3@209:22	message	`message` 是待将过期确认请求标记为完成的聊天消息。
+m3@261:22	message	`message` 是待将问题请求标记为已处理的聊天消息。
+msg@323:29	serverMessage	`serverMessage` 是判断是否忽略的服务端消息。
+sid@324:11	sessionId	`sessionId` 是从消息中提取并用于检查发送预处理状态的会话标识。
+sid@426:17	sessionId	`sessionId` 是 part store 遍历项对应的会话标识。
+sid@666:34	sessionId	`sessionId` 是问题交互错误所属的会话标识。
+msg@666:39	message	`message` 是待处理问题交互错误的服务端消息。
+sid@704:26	sessionId	`sessionId` 是根消息错误所属的会话标识。
+msg@704:31	message	`message` 是待转换为根错误提示的服务端消息。
+sid@741:26	sessionId	`sessionId` 是当前 part 消息所属的会话标识。
+msg@741:31	message	`message` 是按 part 处理的服务端消息。
+sid@881:28	sessionId	`sessionId` 是重新推导或排程消息更新的会话标识。
+sid@903:29	sessionId	`sessionId` 是更新或回退 part 数据时的会话标识。
+sid@1033:30	sessionId	`sessionId` 是安排 part patch 微任务时的会话标识。
+sid@1081:29	sessionId	`sessionId` 是安排消息重新推导微任务时的会话标识。
+sid@1092:23	sessionId	`sessionId` 是刷新排队重新推导结果时的会话标识。
+sid@1101:26	sessionId	`sessionId` 是刷新推导结果并更新 store 时的会话标识。
+sid@1109:26	sessionId	`sessionId` 是刷新排队 part patch 时的会话标识。
+sid@1142:33	sessionId	`sessionId` 是协调终态子会话消息时的父会话标识。
+sid@1157:34	sessionId	`sessionId` 是登记待协调子会话时的父会话标识。
+sid@1163:35	sessionId	`sessionId` 是清除待协调子会话记录时的父会话标识。
+sid@1172:43	sessionId	`sessionId` 是清理可见待协调子会话时的父会话标识。
+sid@1184:23	sessionId	`sessionId` 是查询 part 消息索引的会话标识。
+sid@1188:25	sessionId	`sessionId` 是检查派生 part 消息的会话标识。
+sid@1195:25	sessionId	`sessionId` 是检查子会话可见状态的父会话标识。
+sid@1208:5	sessionId	`sessionId` 是记录 part 应用诊断信息的会话标识。
+sid@1241:25	sessionId	`sessionId` 是应用派生 part patch 时更新的会话标识。
+t0@1242:11	startTime	`startTime` 是测量派生 part patch 执行耗时的起始时间。
+sid@1324:21	sessionId	`sessionId` 是完整重新推导并更新消息的会话标识。
+t0@1325:11	startTime	`startTime` 是测量完整消息重新推导耗时的起始时间。
+m3@1345:47	derivedMessage	`derivedMessage` 是用于判断派生结果是否包含取消状态的消息。
+m3@1347:16	derivedMessage	`derivedMessage` 是建立 part ID 索引的派生消息。
+m3@1351:16	derivedMessage	`derivedMessage` 是检查用户运行时消息标识的派生消息。
+m3@1361:18	previousMessage	`previousMessage` 是与新推导结果对比并合并的旧消息。
+d2@1387:18	derivedMessage	`derivedMessage` 是尚未被消费且需要追加的派生消息。
+ask@1393:18	toolConfirmAsk	`toolConfirmAsk` 是需要插入合并结果的工具确认请求消息。
+sid@1419:21	sessionId	`sessionId` 是按 delta 内容更新聊天消息的会话标识。
+t0@1420:11	startTime	`startTime` 是测量 delta 内容更新耗时的起始时间。
+idx@1443:13	messageIndex	`messageIndex` 是匹配 part ID 的聊天消息在会话列表中的下标。
+msg@1475:28	interaction	`interaction` 是转换为聊天消息的交互请求对象。
+m3@1478:15	questionRequest	`questionRequest` 是 question_request 分支中转换为聊天消息的问题请求。
+m3@1494:15	loopGuardAsk	`loopGuardAsk` 是 loop_guard_ask 分支中转换为聊天消息的循环保护请求。
+m3@1513:15	interactRequest	`interactRequest` 是 interact_request 分支中转换为聊天消息的交互请求。
+m3@1524:15	confirmRequest	`confirmRequest` 是 confirm_request 分支中转换为聊天消息的确认请求。
+m3@1535:15	toolConfirmAsk	`toolConfirmAsk` 是 tool_confirm_ask 分支中转换为聊天消息的工具确认请求。
+m3@1552:15	creditThresholdRequest	`creditThresholdRequest` 是 credit_threshold_request 分支中转换为聊天消息的额度请求。
+msg@1678:26	rawMessage	`rawMessage` 是待补充运行状态信息的历史聊天消息。
+idx@1929:11	messageIndex	`messageIndex` 是按 part ID 查找出的消息列表下标。
+m3@1929:38	message	`message` 是按 part ID 搜索的聊天消息。
+idx@1942:34	messageIndex	`messageIndex` 是当前消息在重建索引时的数组下标。
+sid@2018:19	sessionId	`sessionId` 是解析消息列表时可选的会话标识。
+previous2@74:11	previous	`previous` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+prev2@137:10	prev	`prev` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@138:22	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+prev2@171:45	prev	`prev` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+prev2@196:12	prev	`prev` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+prev2@208:10	prev	`prev` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+prev2@229:10	prev	`prev` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+prev2@239:10	prev	`prev` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@249:10	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+prev2@260:10	prev	`prev` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+reducer2@307:13	reducer	`reducer` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+effect2@312:18	effect	`effect` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+effect2@317:18	effect	`effect` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+previous2@378:11	previous	`previous` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@363:51	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+message2@364:22	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+message2@383:18	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+state2@534:11	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+state2@556:11	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+content2@676:22	content	`content` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@670:8	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+content2@705:22	content	`content` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+content2@843:49	content	`content` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+pending2@1158:11	pending	`pending` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+pending2@1164:11	pending	`pending` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+pending2@1173:11	pending	`pending` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+index2@1185:11	index	`index` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+index2@1189:11	index	`index` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@1201:12	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+mode2@1212:5	mode	`mode` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+state2@1243:11	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@1282:13	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@1261:42	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+merged2@1269:15	merged	`merged` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@1277:18	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+message2@1283:10	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+message2@1286:42	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+state2@1328:11	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+state2@1457:11	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@1605:35	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+messages2@1615:11	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+effect2@1627:15	effect	`effect` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@1689:20	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+message2@1704:14	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+message2@1714:14	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+messages2@1789:16	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+messages2@1799:14	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+messages2@1813:14	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+messages2@1825:14	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+reducer2@1917:9	reducer	`reducer` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@1924:39	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+index2@1931:11	index	`index` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@1940:34	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+index2@1941:11	index	`index` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@1942:24	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。

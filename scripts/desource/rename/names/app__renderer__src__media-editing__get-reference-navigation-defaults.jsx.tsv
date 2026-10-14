@@ -1,0 +1,15 @@
+key	new	依据
+info2@8:37	info	传给画布桥接 onPopoverOpen 的当前弹窗打开信息。
+mode2@29:56	mode	快照匹配所用的引用导航模式。
+navigation2@30:9	navigationContext	上下文中的引用导航对象，包含记录并供返回值继续使用。
+snapshot2@31:10	snapshot	useState 初始化得到的匹配导航快照；节点或模式不匹配时为 null。
+record2@32:11	record	导航上下文中保存的当前快照记录。
+snapshot2@45:48	snapshot	用于恢复提示词、模型、参数及媒体引用路径的导航快照。
+current2@48:25	current	当前实时引用路径列表，作为恢复草稿路径时的上游值。
+path2@51:22	path	正在检查的已保存路径，保留不为空且未包含在原始路径中的草稿项。
+path2@54:39	path	正在检查的草稿路径，仅将尚未存在于上游列表的路径追加进去。
+mode2@91:60	mode	决定包装弹窗应读取哪种引用导航快照的固定模式或计算函数。
+snapshot2@93:23	snapshot	为包装后的弹窗选出的导航快照，并传递给默认值恢复函数。
+preset2@140:44	preset	当前音乐时长预设对象，提供自动/固定时长值及对应显示标签。
+t2@140:40	translate	调用方传入的 i18n 翻译函数，用于把音乐时长选项的文案 key 转成文本。
+p3@150:38	preset	当前音乐时长预设用于判断选项是否为自定义值。

@@ -1,5 +1,5 @@
 // use-debounced-draft-save.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 export function useDebouncedDraftSave(initialMarkdown, onDraftChange) {
   const [status, setStatus] = reactExports.useState("idle");
@@ -14,28 +14,28 @@ export function useDebouncedDraftSave(initialMarkdown, onDraftChange) {
   const lastWriteFailureRef = reactExports.useRef(null);
   const onDraftChangeRef = reactExports.useRef(onDraftChange);
   onDraftChangeRef.current = onDraftChange;
-  const setLatestDraft = reactExports.useCallback((markdown2) => {
+  const setLatestDraft = reactExports.useCallback((markdown) => {
     latestDraftReaderRef.current = null;
-    latestDraftRef.current = markdown2;
+    latestDraftRef.current = markdown;
   }, []);
   const readLatestDraft = reactExports.useCallback(() => {
     const reader = latestDraftReaderRef.current;
     if (!reader) return latestDraftRef.current;
-    const markdown2 = reader();
-    latestDraftRef.current = markdown2;
-    return markdown2;
+    const markdown = reader();
+    latestDraftRef.current = markdown;
+    return markdown;
   }, []);
   const runDraftChange = reactExports.useCallback(
-    (markdown2, force = false) => {
+    (markdown, force = false) => {
       if (!onDraftChangeRef.current || pausedRef.current) return;
       if (
         !force &&
-        (markdown2 === lastPersistedDraftRef.current ||
-          markdown2 === activeWriteDraftRef.current ||
-          markdown2 === queuedWriteRef.current)
+        (markdown === lastPersistedDraftRef.current ||
+          markdown === activeWriteDraftRef.current ||
+          markdown === queuedWriteRef.current)
       )
         return;
-      queuedWriteRef.current = markdown2;
+      queuedWriteRef.current = markdown;
       if (writeLoopRef.current) return;
       const startWriteLoop = () => {
         if (
@@ -48,16 +48,16 @@ export function useDebouncedDraftSave(initialMarkdown, onDraftChange) {
         let tracked;
         const loop = (async () => {
           while (queuedWriteRef.current !== null && !pausedRef.current) {
-            const next2 = queuedWriteRef.current;
+            const next = queuedWriteRef.current;
             queuedWriteRef.current = null;
-            activeWriteDraftRef.current = next2;
+            activeWriteDraftRef.current = next;
             try {
-              await onDraftChangeRef.current?.(next2);
-              lastPersistedDraftRef.current = next2;
+              await onDraftChangeRef.current?.(next);
+              lastPersistedDraftRef.current = next;
               lastWriteFailureRef.current = null;
             } catch (error) {
               lastWriteFailureRef.current = {
-                markdown: next2,
+                markdown: next,
                 error:
                   error instanceof Error
                     ? error
@@ -155,14 +155,14 @@ export function useDebouncedDraftSave(initialMarkdown, onDraftChange) {
     pausedRef.current = false;
   }, []);
   const forceDraftSave = reactExports.useCallback(
-    (markdown2) => {
+    (markdown) => {
       if (timerRef.current != null) {
         window.clearTimeout(timerRef.current);
         timerRef.current = null;
       }
-      setLatestDraft(markdown2);
+      setLatestDraft(markdown);
       pausedRef.current = false;
-      runDraftChange(markdown2, true);
+      runDraftChange(markdown, true);
     },
     [runDraftChange, setLatestDraft],
   );

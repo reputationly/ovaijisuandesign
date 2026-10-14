@@ -1,0 +1,15 @@
+key	old	new	依据
+t2@62:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+a2@141:18	a2	leftItem	排序比较器的左侧条目。
+b3@141:22	b3	rightItem	排序比较器的右侧条目。
+config2@57:11	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
+computePosition2@202:9	computePosition2	computePosition	去掉打包器防重名追加的后缀，恢复原名 computePosition，即该绑定持有的值。
+position2@225:10	position2	position	去掉打包器防重名追加的后缀，恢复原名 position，即该绑定持有的值。
+state2@65:41	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+state2@66:39	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+meta2@99:21	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+handleKeyDown2@189:11	handleKeyDown2	handleKeyDown	去掉打包器防重名追加的后缀，恢复原名 handleKeyDown，即该绑定持有的值。
+maxOffset2@248:11	maxOffset2	maxOffset	去掉打包器防重名追加的后缀，恢复原名 maxOffset，即该绑定持有的值。
+selected2@313:11	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+Icon2@399:48	Icon2	Icon	去掉打包器防重名追加的后缀，恢复原名 Icon，即该绑定持有的值。
+count2@399:62	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。

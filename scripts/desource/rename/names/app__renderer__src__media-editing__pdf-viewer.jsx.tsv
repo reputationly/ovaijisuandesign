@@ -1,0 +1,195 @@
+key	new	依据
+_@6:10	cssGrammarModule	持有 CSS 语法高亮模块导出的语法定义。
+_t@7:11	uriGrammarModule	持有 URI 语法高亮模块导出的语法定义。
+$$8@8:3	bashGrammarModule	持有 Bash 语法高亮模块导出的语法定义。
+$t@9:11	initializeSqlGrammarModule	初始化 SQL 语法高亮模块。
+at@10:11	httpGrammarModule	持有 HTTP 语法高亮模块导出的语法定义。
+At@11:11	makeGrammarModule	持有 Make 语法高亮模块导出的语法定义。
+B@12:10	initializeBrainfuckGrammarModule	初始化 Brainfuck 语法高亮模块。
+Bt@13:11	initializeTomlGrammarModule	初始化 TOML 语法高亮模块。
+bt@14:11	leanpubMarkdownGrammarModule	持有 Leanpub Markdown 语法高亮模块导出的语法定义。
+ct@17:11	javaGrammarModule	持有 Java 语法高亮模块导出的语法定义。
+Ct@18:11	pythonGrammarModule	持有 Python 语法高亮模块导出的语法定义。
+D@19:10	initializeMarkdownGrammarModule	初始化 Markdown 语法高亮模块。
+Dt@20:11	initializePythonGrammarModule	初始化 Python 语法高亮模块。
+dt@21:11	markdownGrammarModule	持有 Markdown 语法高亮模块导出的语法定义。
+Et@22:11	jsdocGrammarModule	持有 JSDoc 语法高亮模块导出的语法定义。
+et@23:11	initializeHtmlGrammarModule	初始化 HTML 语法高亮模块。
+f@24:10	initializeBashGrammarModule	初始化 Bash 语法高亮模块。
+F@25:10	initializeAssemblyGrammarModule	初始化 Assembly 语法高亮模块。
+Ft@26:11	initializeRustGrammarModule	初始化 Rust 语法高亮模块。
+ft@27:11	initializeLogGrammarModule	初始化 log 语法高亮模块。
+G@28:10	cGrammarModule	持有 C 语法高亮模块导出的语法定义。
+Gt@30:11	typescriptGrammarModule	持有 TypeScript 语法高亮模块导出的语法定义。
+gt@31:11	initializeJsonGrammarModule	初始化 JSON 语法高亮模块。
+H@32:10	initializeCGrammarModule	初始化 C 语法高亮模块。
+Ht@33:11	initializeTypeScriptGrammarModule	初始化 TypeScript 语法高亮模块。
+ht@34:11	initializeJsdocGrammarModule	初始化 JSDoc 语法高亮模块。
+It@35:11	luaGrammarModule	持有 Lua 语法高亮模块导出的语法定义。
+it@36:11	jsonGrammarModule	持有 JSON 语法高亮模块导出的语法定义。
+j@37:10	gitGrammarModule	持有 Git 语法高亮模块导出的语法定义。
+J@38:10	xmlGrammarModule	持有 XML 语法高亮模块导出的语法定义。
+k@40:10	initializeCssGrammarModule	初始化 CSS 语法高亮模块。
+K@41:10	initializeGitGrammarModule	初始化 Git 语法高亮模块。
+kt@42:11	initializeUriGrammarModule	初始化 URI 语法高亮模块。
+L@43:10	initializeJavaScriptGrammarModule	初始化 JavaScript 语法高亮模块。
+Lt@44:11	initializePerlGrammarModule	初始化 Perl 语法高亮模块。
+lt@45:11	todoGrammarModule	持有 todo 语法高亮模块导出的语法定义。
+Mt@46:11	sqlGrammarModule	持有 SQL 语法高亮模块导出的语法定义。
+mt@47:11	initializeJavaGrammarModule	初始化 Java 语法高亮模块。
+N@48:10	initializeDiffGrammarModule	初始化 diff 语法高亮模块。
+Nt@49:11	initializeLuaGrammarModule	初始化 Lua 语法高亮模块。
+nt@50:11	initializeIniGrammarModule	初始化 INI 语法高亮模块。
+Ot@51:11	perlGrammarModule	持有 Perl 语法高亮模块导出的语法定义。
+ot@52:11	javascriptTemplateLiteralsGrammarModule	持有 JavaScript 模板字面量语法高亮模块导出的语法定义。
+P@53:10	assemblyGrammarModule	持有 Assembly 语法高亮模块导出的语法定义。
+pt@54:11	iniGrammarModule	持有 INI 语法高亮模块导出的语法定义。
+Pt@55:11	rustGrammarModule	持有 Rust 语法高亮模块导出的语法定义。
+q@56:10	initializeGoGrammarModule	初始化 Go 语法高亮模块。
+R@57:10	initializeXmlGrammarModule	初始化 XML 语法高亮模块。
+Rt@60:11	initializeMakeGrammarModule	初始化 Make 语法高亮模块。
+rt@61:11	javascriptGrammarModule	持有 JavaScript 语法高亮模块导出的语法定义。
+S@62:10	initializeTodoGrammarModule	初始化 todo 语法高亮模块。
+St@63:11	initializePlainTextGrammarModule	初始化纯文本语法高亮模块。
+st@64:11	initializeHttpGrammarModule	初始化 HTTP 语法高亮模块。
+Tt@65:11	logGrammarModule	持有 log 语法高亮模块导出的语法定义。
+tt@66:11	htmlGrammarModule	持有 HTML 语法高亮模块导出的语法定义。
+ut@68:11	initializeJavaScriptTemplateLiteralsGrammarModule	初始化 JavaScript 模板字面量语法高亮模块。
+Ut@69:11	initializeRegexGrammarModule	初始化正则表达式语法高亮模块。
+V@70:10	goGrammarModule	持有 Go 语法高亮模块导出的语法定义。
+v@71:10	brainfuckGrammarModule	持有 Brainfuck 语法高亮模块导出的语法定义。
+vt@72:11	tomlGrammarModule	持有 TOML 语法高亮模块导出的语法定义。
+W@73:10	initializeDockerGrammarModule	初始化 Docker 语法高亮模块。
+wt@74:11	regexGrammarModule	持有正则表达式语法高亮模块导出的语法定义。
+X@75:10	dockerGrammarModule	持有 Docker 语法高亮模块导出的语法定义。
+xt@76:11	plainTextGrammarModule	持有纯文本语法高亮模块导出的语法定义。
+Y@77:10	initializeCsvGrammarModule	初始化 CSV 语法高亮模块。
+yt@78:11	initializeLeanpubMarkdownGrammarModule	初始化 Leanpub Markdown 语法高亮模块。
+Yt@79:11	initializeYamlGrammarModule	初始化 YAML 语法高亮模块。
+Z@80:10	diffGrammarModule	持有 diff 语法高亮模块导出的语法定义。
+z@81:10	csvGrammarModule	持有 CSV 语法高亮模块导出的语法定义。
+zt@82:11	yamlGrammarModule	持有 YAML 语法高亮模块导出的语法定义。
+w@197:5	createLanguageModuleLoader	根据语言模块映射创建按路径加载的函数。
+Se@202:5	loadCodeLanguageModule	按路径异步加载对应的代码语言模块。
+U@460:5	expandedGrammarTokens	保存供语法规则引用的数字和字符串展开规则。
+b@474:5	languageGrammarCache	缓存按语言名加载的语法模块。
+Ce@475:5	escapeHighlightText	转义语法高亮 HTML 中的文本。
+De@480:5	renderSyntaxHighlightSpan	将文本和语法类别包装为高亮 span。
+Zt@481:16	highlightCodeTokens	按语言语法匹配代码并逐段调用渲染回调。
+we@540:16	renderHighlightedCodeHtml	生成可选行号的语法高亮 HTML。
+id2@112:9	registrationId	保存此文件查看器注册项的 ID。
+t2@197:10	moduleFactories	保存模块路径到模块加载函数的映射。
+e2@197:18	modulePath	语言模块工厂表中的请求路径键；命中时执行对应 loader，缺失时抛出模块未找到错误。
+p3@198:7	moduleFactory	保存模块路径对应的加载函数。
+a2@245:9	leftBytes	保存字节比较左侧的输入数据。
+b3@246:9	rightBytes	保存字节比较右侧的输入数据。
+buf@315:15	fileBytes	保存响应体读取出的文件字节。
+ext@431:9	normalizedExtension	保存转为小写的文件扩展名。
+t2@451:14	t	保存 i18n 返回的翻译函数。
+t2@475:11	text	保存待转义的语法高亮文本。
+t2@480:11	highlightedText	保存将被高亮 span 包裹的文本。
+e2@480:15	tokenType	保存用于构造高亮 CSS 类名的语法类别。
+t2@481:19	codeText	保存待按语法规则分段处理的代码文本。
+e2@481:23	languageGrammar	保存语言名称字符串或已加载的语法规则对象。
+p3@481:27	renderSegment	保存接收文本片段和语法类别的回调。
+n2@483:9	ruleIndex	保存当前遍历的语法规则索引。
+m3@484:7	grammarRule	保存当前处理的语法规则。
+c3@485:7	nextMatch	保存当前最早匹配位置及对应语法规则。
+i2@486:7	matchResult	保存正则表达式执行得到的匹配结果。
+r2@487:7	cachedMatches	缓存各语法规则的匹配位置。
+h2@488:7	textOffset	保存已处理文本的结束偏移。
+y4@489:7	languageGrammarModule	保存按语言名称加载的语法模块，或直接传入的语法规则对象。
+g2@493:7	grammarRules	保存当前语言定义使用的语法规则列表。
+t2@540:19	codeText	保存待渲染为语法高亮 HTML 的代码文本。
+e2@540:23	languageGrammar	保存语言名称字符串或已加载的语法规则对象。
+p3@540:27	showLineNumbers	控制生成的 HTML 是否包含行号栏。
+n2@540:38	renderOptions	保存高亮 HTML 的渲染选项。
+m3@541:7	highlightedHtml	累积语法高亮渲染回调生成的 HTML。
+c3@543:23	textSegment	保存当前需要转义并渲染的文本片段。
+i2@543:27	tokenType	保存当前文本片段对应的语法类别。
+ext@578:23	extension	保存用于选择代码语法的文件扩展名。
+s2@653:21	text	保存待转义为 HTML 的原始文本。
+t2@849:14	t	保存 i18n 返回的翻译函数。
+dpr@908:15	pixelRatio	保存设备像素比以缩放 PDF 页面画布。
+i2@954:38	currentIndex	保存更新 PDF 页面索引时的当前索引。
+i2@955:38	currentIndex	保存更新 PDF 页面索引时的当前索引。
+e2@968:27	mouseEvent	保存上一页按钮 mouse down 事件对象。
+e2@984:27	mouseEvent	保存下一页按钮 mouse down 事件对象。
+t2@1004:14	t	保存 i18n 返回的翻译函数。
+e2@1048:6	changeEvent	保存字幕文本框的 change 事件对象。
+ext@1067:13	extension	保存字幕文件实际采用的扩展名。
+e2@1099:23	pointerEvent	保存字幕文本框的 pointer down 事件对象。
+e2@1100:19	keyboardEvent	保存字幕文本框的 key down 事件对象。
+kb@1112:9	kilobytes	保存用于格式化文件大小的 KB 数值。
+mb@1114:9	megabytes	保存用于格式化文件大小的 MB 数值。
+n2@1134:41	childNode	保存当前路径部分对应的树节点。
+a2@1154:17	leftNode	保存排序比较左侧的文件树节点。
+b3@1154:21	rightNode	保存排序比较右侧的文件树节点。
+n2@1160:16	node	保存递归排序时当前访问的文件树节点。
+e2@1211:23	mouseEvent	保存 ZIP 文件夹行的 mouse down 事件对象。
+n2@1277:7	leafCount	累积文件树中非文件夹叶节点的数量。
+t2@1290:14	t	保存 i18n 返回的翻译函数。
+zip@1303:14	zipArchive	保存 JSZip 解析出的压缩档案对象。
+i2@251:14	byteIndex	递增比较左右字节数组时表示当前字节位置的下标。
+ctx@916:15	canvasContext	保存 PDF 页面画布的 2D 渲染上下文。
+i2@1129:14	pathSegmentIndex	遍历文件路径片段时表示当前片段位置的下标。
+state2@100:56	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件查看器资源登记状态对象。
+state2@110:9	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件查看器资源登记状态对象。
+start2@248:12	start	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存字节比较区间的起始偏移。
+end2@250:11	end	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存字节比较区间的结束偏移。
+url2@260:9	url	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前文件预览 URL。
+state2@261:10	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件查看器资源登记状态对象。
+previous2@263:9	previous	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存上一次缓存的文件资源状态。
+extension2@429:25	extension	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件扩展名。
+extension2@554:14	extension	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件扩展名。
+displayName2@555:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。
+text2@656:24	text	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存解码后的文件文本。
+scheduler2@662:9	schedulerApi	原名 scheduler 与浏览器全局对象名冲突，因此改用描述名 schedulerApi；此处持有浏览器提供的调度接口对象。
+extension2@670:14	extension	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件扩展名。
+displayName2@672:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。
+bytes2@675:9	bytes	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件字节请求状态对象。
+html2@678:10	html	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存语法高亮后的 HTML 字符串。
+text2@693:11	text	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存解码后的文件文本。
+displayName2@737:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。
+bytes2@740:9	bytes	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件字节请求状态对象。
+body2@749:11	body	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存DOCX 内容容器元素。
+data2@753:11	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存复制后的文件字节数据。
+displayName2@804:47	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。
+url2@805:9	url	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前文件预览 URL。
+displayName2@846:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。
+bytes2@850:9	bytes	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件字节请求状态对象。
+doc2@854:10	doc	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前 PDF 文档对象。
+data2@870:11	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存复制后的文件字节数据。
+doc22@875:14	loadedDocument	外层已有 doc2 保存 PDF 状态，为避免遮蔽改用描述名 loadedDocument；此处持有 PDF.js Promise 解析出的文档对象。
+index2@881:23	index	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前 PDF 页码索引。
+scale2@907:15	scale	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存PDF 页面渲染缩放比例。
+displayName2@1001:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。
+content2@1009:10	content	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前字幕文本。
+setContent2@1009:20	setContent	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存更新字幕文本状态的 setter。
+text2@1014:11	text	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存解码后的文件文本。
+next2@1027:6	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前保存或目录遍历步骤计算出的下一值。
+next2@1049:13	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前保存或目录遍历步骤计算出的下一值。
+bytes2@1109:21	bytes	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件字节请求状态对象。
+entries2@1118:20	entries	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存ZIP 文件条目列表。
+root2@1119:9	root	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存ZIP 目录树根节点。
+cleanPath2@1123:11	cleanPath	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存清理 ZIP 路径的函数。
+next2@1134:11	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前保存或目录遍历步骤计算出的下一值。
+node2@1201:27	node	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前 ZIP 目录树节点。
+depth2@1201:41	depth	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存ZIP 目录树当前深度。
+handleClick2@1203:9	handleClick	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存切换 ZIP 文件夹的点击处理函数。
+Wrapper2@1206:9	Wrapper	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存按文件夹状态选择的包装元素类型。
+depth2@1250:37	depth	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存ZIP 目录树当前深度。
+node2@1253:19	node	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前 ZIP 目录树节点。
+node2@1278:14	node	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前 ZIP 目录树节点。
+displayName2@1287:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。
+bytes2@1291:9	bytes	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件字节请求状态对象。
+raw2@1305:15	raw	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存ZIP 中读取出的原始文件条目数组。
+internal2@1307:17	internal	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存JSZip 提供的当前文件条目对象。
+size2@1308:17	size	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存ZIP 文件解压后的字节数。
+node2@1318:20	node	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前 ZIP 目录树节点。
+path2@1328:50	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前 ZIP 条目路径。
+next2@1330:13	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前保存或目录遍历步骤计算出的下一值。
+extension2@1384:14	extension	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件扩展名。
+displayName2@1385:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。
+workspaceId2@1391:9	workspaceId	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存内容预算作用域对应的工作区 ID。
+active2@1392:21	active	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存查看器是否处于活动状态。

@@ -1,5 +1,8 @@
 // remote-tool.jsx
-import { reactExports, jsxRuntimeExports, useTranslation, useSearch } from "../vendor.js";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
+import { useSearch } from "@tanstack/react-router";
 import { useRemoteToolSdk } from "../assets/create-remote-tool-sdk.js";
 import { remoteDebugLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
@@ -206,21 +209,21 @@ function RemoteToolDebugPage() {
       return;
     }
     gatewayFetch(manifestUrl)
-      .then((r) =>
-        r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)),
+      .then((response) =>
+        response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`)),
       )
       .then((manifest) => {
         if (cancelled) return;
-        const w =
+        const manifestGuiWidth =
           typeof manifest?.guiWidth === "number" ? manifest.guiWidth : void 0;
-        const h =
+        const manifestGuiHeight =
           typeof manifest?.guiHeight === "number" ? manifest.guiHeight : void 0;
-        setGuiWidth(w);
-        setGuiHeight(h);
+        setGuiWidth(manifestGuiWidth);
+        setGuiHeight(manifestGuiHeight);
         remoteDebugLog.info("gui manifest loaded", {
           tool_id: toolId,
-          gui_width: w ?? null,
-          gui_height: h ?? null,
+          gui_width: manifestGuiWidth ?? null,
+          gui_height: manifestGuiHeight ?? null,
         });
       })
       .catch((err) => {
@@ -246,20 +249,20 @@ function RemoteToolDebugPage() {
           Locale
           <select
             value={locale}
-            onChange={(e) => setLocale(e.target.value)}
+            onChange={(changeEvent) => setLocale(changeEvent.target.value)}
             data-action-ui-id="remote-tool-debug.locale"
             className="border border-input bg-background px-2 py-1 text-xs text-foreground"
           >
-            {DEBUG_LOCALES.map((l) => (
-              <option key={l} value={l}>
-                {l}
+            {DEBUG_LOCALES.map((debugLocale) => (
+              <option key={debugLocale} value={debugLocale}>
+                {debugLocale}
               </option>
             ))}
           </select>
         </label>
         <button
           type="button"
-          onClick={() => setShowLog((v) => !v)}
+          onClick={() => setShowLog((isLogShown) => !isLogShown)}
           data-action-ui-id="remote-tool-debug.toggle-log"
           className="ml-auto border border-input bg-background px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
         >

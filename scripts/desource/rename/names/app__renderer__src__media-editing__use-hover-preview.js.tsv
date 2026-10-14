@@ -1,0 +1,19 @@
+key	new	依据
+x2@5:33	x	此参数是鼠标点的横坐标，用来判断它是否落在锚点、预览框或两者之间。
+y4@5:37	y	此参数是鼠标点的纵坐标，用来判断它是否落在锚点、预览框或两者之间。
+contains2@6:9	contains	该谓词检查给定矩形是否包含当前鼠标坐标。
+start2@15:9	start	此对象描述锚点与预览框间桥接区域的起始水平边界。
+end2@26:9	end	此对象描述桥接区域另一端的水平边界，用于插值判断鼠标是否在区域内。
+min2@44:23	min	clamp 的此参数是数值允许的下界。
+max2@44:29	max	clamp 的此参数是数值允许的上界。
+top2@54:9	previewTop	工具将 top 判为全局名；此值是依据上下方空间计算并限制后的预览框顶边坐标。
+top2@89:9	boundaryTop	工具将 top 判为全局名；此值是预览边界矩形的顶边坐标，用来计算可用高度和锚点相对位置。
+scale2@92:9	scale	此比例按边界可用宽高缩小预览尺寸，并应用到预览的宽和高。
+size2@97:9	size	此对象是按 fit 模式及缩放比例计算出的预览宽高。
+position2@113:9	position	此对象是 getMediaPreviewPosition 返回的预览坐标，用来生成最终的 left 与 top。
+size2@143:9	size	此参数是传给布局钩子的预览尺寸对象，后续读取其 width 和 height。
+top2@158:16	anchorTop	工具将 top 判为全局名；此值是锚点矩形的上边坐标，用于构造备用矩形并参与布局重算。
+update2@199:11	update	该回调重新测量预览布局，并仅在坐标或尺寸变化时更新状态。
+frame2@225:9	frame	此值是 requestAnimationFrame 返回的帧 ID，在清理时交给 cancelAnimationFrame。
+next2@200:13	next	此对象是本次 measure 得到的新布局，用于和当前布局逐项比较。
+previous2@201:18	previous	此参数是状态更新前的布局对象，相等时继续复用以避免多余渲染。

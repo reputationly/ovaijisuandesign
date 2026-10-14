@@ -11,10 +11,10 @@ function configuredConnectorId(runtimeName) {
   return `custom.${runtimeName}`;
 }
 
-function isConfiguredConnectorId(id2) {
+function isConfiguredConnectorId(id) {
   return (
-    /^custom\.[a-zA-Z0-9_.-]{1,80}$/.test(id2) &&
-    !/^custom\.hub(?:[._]|$)/i.test(id2)
+    /^custom\.[a-zA-Z0-9_.-]{1,80}$/.test(id) &&
+    !/^custom\.hub(?:[._]|$)/i.test(id)
   );
 }
 
@@ -63,10 +63,10 @@ export function parseConnectorCatalog(value) {
           typeof item.autoActivated !== "boolean") ||
         (item.aliases !== void 0 &&
           (!Array.isArray(item.aliases) ||
-            !item.aliases.every((v2) => typeof v2 === "string"))) ||
+            !item.aliases.every((alias) => typeof alias === "string"))) ||
         (item.inputTypes !== void 0 &&
           (!Array.isArray(item.inputTypes) ||
-            !item.inputTypes.every((v2) => typeof v2 === "string")))
+            !item.inputTypes.every((inputType) => typeof inputType === "string")))
       )
         throw new Error("Invalid connector entry");
       return {

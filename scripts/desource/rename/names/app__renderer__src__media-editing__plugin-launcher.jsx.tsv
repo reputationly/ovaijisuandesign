@@ -1,0 +1,17 @@
+key	new	依据
+data2@57:42	data	插件编辑器通过窗口消息传递的 overlay 数据对象。
+message2@59:9	message	通过结构校验前的插件 overlay 消息对象。
+children2@96:13	children	插件编辑器容器接收并渲染的子元素。
+element2@112:6	element	React ref 回调收到的容器 DOM 元素。
+data2@129:13	data	插件编辑器通过窗口消息传递的 overlay 数据对象。
+displayName2@277:16	displayName	调用方为插件提供的备用显示名称。
+selected2@280:13	selected	插件画布节点当前是否被选中的布尔属性。
+meta2@285:9	meta	当前插件的本地化元数据对象。
+name2@292:9	pluginName	按当前语言解析并回退到显示属性的插件名称；原名 name 会被识别为全局名。
+state2@350:11	state	用于查询或退出全屏状态的 fullscreen API 状态对象。
+timer2@421:11	timer	延迟关闭插件启动器的 timeout 编号。
+n2@107:61	renderVersion	用于强制重渲染插件编辑器容器的递增状态值。
+e2@181:19	keyboardEvent	需要阻止传播的插件编辑器键盘按下事件。
+e2@182:17	keyboardEvent	需要阻止传播的插件编辑器键盘抬起事件。
+t2@284:20	t	根据当前语言返回插件启动按钮文案的翻译函数。
+e2@475:21	clickEvent	打开插件编辑器按钮收到并阻止冒泡的点击事件。

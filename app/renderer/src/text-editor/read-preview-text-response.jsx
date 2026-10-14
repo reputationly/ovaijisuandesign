@@ -1,5 +1,7 @@
 // read-preview-text-response.jsx
-import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { canvasLog, dedupedToast, observeClientMediaUpload } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
@@ -22,8 +24,8 @@ async function readPreviewTextResponse(response, signal) {
     throw Object.assign(new Error("Text preview request failed"), {
       status: response.status,
     });
-  const length2 = Number(response.headers.get("content-length"));
-  if (Number.isFinite(length2) && length2 > MAX_PREVIEW_TEXT_BYTES) {
+  const contentLength = Number(response.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > MAX_PREVIEW_TEXT_BYTES) {
     await response.body?.cancel();
     throw tooLarge();
   }
@@ -63,32 +65,32 @@ async function readPreviewTextResponse(response, signal) {
   }
 }
 export function usePreviewTextLoader() {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   return reactExports.useCallback(
-    async (path2, signal) => {
+    async (path, signal) => {
       signal?.throwIfAborted();
-      const endpoint = isCanvasReferenceUri(path2)
-        ? `${CANVAS_REFERENCE_API.content}?ref=${encodeURIComponent(path2)}`
-        : API_PATHS.serveFile(path2);
+      const endpoint = isCanvasReferenceUri(path)
+        ? `${CANVAS_REFERENCE_API.content}?ref=${encodeURIComponent(path)}`
+        : API_PATHS.serveFile(path);
       return readPreviewTextResponse(
-        await gatewayFetch2(endpoint, {
+        await gatewayFetch(endpoint, {
           signal,
         }),
         signal,
       );
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
 }
-export async function uploadCanvasReferenceFile(file, fetch2) {
-  const data2 = await observeClientMediaUpload(
+export async function uploadCanvasReferenceFile(file, fetchImpl) {
+  const data = await observeClientMediaUpload(
     file,
     file.name,
     "attachment",
     async (headers) => {
       const form = new FormData();
       form.append("file", file, file.name);
-      const response = await fetch2(API_PATHS.upload, {
+      const response = await fetchImpl(API_PATHS.upload, {
         method: "POST",
         body: form,
         ...(headers
@@ -100,34 +102,34 @@ export async function uploadCanvasReferenceFile(file, fetch2) {
       return await response.json();
     },
   );
-  if (!data2?.ok || !data2.relative)
+  if (!data?.ok || !data.relative)
     throw new Error("Upload failed: missing relative path in response");
-  return data2.relative;
+  return data.relative;
 }
-export async function uploadCanvasFileToCdn(file, fetch2) {
+export async function uploadCanvasFileToCdn(file, fetchImpl) {
   const form = new FormData();
   form.append("file", file, file.name);
-  const response = await fetch2(API_PATHS.filesUploadCdn, {
+  const response = await fetchImpl(API_PATHS.filesUploadCdn, {
     method: "POST",
     body: form,
   });
-  const data2 = await response.json();
-  if (!data2.ok || !data2.url)
-    throw new Error(data2.error || "CDN upload failed");
-  return data2.url;
+  const data = await response.json();
+  if (!data.ok || !data.url)
+    throw new Error(data.error || "CDN upload failed");
+  return data.url;
 }
 const AssetSourcePickerContext = reactExports.createContext(null);
 const AttachmentLocatorContext = reactExports.createContext(null);
 export function useAttachmentLocator() {
   return reactExports.useContext(AttachmentLocatorContext);
 }
-export function AssetSourcePickerProvider({ children: children2 }) {
+export function AssetSourcePickerProvider({ children }) {
   const picker = reactExports.useRef(null);
   const locator = reactExports.useRef(null);
   return (
     <AssetSourcePickerContext.Provider value={picker}>
       <AttachmentLocatorContext.Provider value={locator}>
-        {children2}
+        {children}
       </AttachmentLocatorContext.Provider>
     </AssetSourcePickerContext.Provider>
   );
@@ -135,17 +137,17 @@ export function AssetSourcePickerProvider({ children: children2 }) {
 export function useAssetSourcePicker() {
   return reactExports.useContext(AssetSourcePickerContext);
 }
-async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
+async function notifyBrowserCanvasImport(workspaceId, addFiles, t) {
   try {
     const nodeIds = await addFiles();
     if (nodeIds.length === 0) {
       dedupedToast.error(
-        t2("workspace.browser.pluginCanvasError", "添加到画布失败，请重试"),
+        t("workspace.browser.pluginCanvasError", "添加到画布失败，请重试"),
       );
       return;
     }
     const toastId = dedupedToast.success(
-      t2("workspace.browser.pluginAddedToCanvas", "已添加到画布"),
+      t("workspace.browser.pluginAddedToCanvas", "已添加到画布"),
       {
         duration: 8e3,
         action: (
@@ -156,13 +158,13 @@ async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
             data-action-ui-id="browser-toast-view-on-canvas"
             onClick={() => {
               dedupedToast.dismiss(toastId);
-              workspaceEvents.fireCanvasFocus(workspaceId2, nodeIds, {
+              workspaceEvents.fireCanvasFocus(workspaceId, nodeIds, {
                 select: true,
                 preferParentGroup: false,
               });
             }}
           >
-            {t2("workspace.browser.viewOnCanvas", "查看")}
+            {t("workspace.browser.viewOnCanvas", "查看")}
           </Button>
         ),
       },
@@ -172,35 +174,35 @@ async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
       error,
     });
     dedupedToast.error(
-      t2("workspace.browser.pluginCanvasError", "添加到画布失败，请重试"),
+      t("workspace.browser.pluginCanvasError", "添加到画布失败，请重试"),
     );
   }
 }
 export function useBrowserCanvasImport(
   currentWorkspace,
-  isActive2,
+  isActive,
   handleSystemPasteToCanvas,
 ) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   reactExports.useEffect(() => {
-    if (isActive2 === false || !currentWorkspace) return;
+    if (isActive === false || !currentWorkspace) return;
     const subscription = workspaceEvents.onAddFilesToCanvas(
       ({ files, source }) => {
         if (files.length === 0) return;
         void notifyBrowserCanvasImport(
           currentWorkspace,
           () => handleSystemPasteToCanvas(files, void 0, source),
-          t2,
+          t,
         );
       },
     );
     return () => subscription.dispose();
-  }, [currentWorkspace, handleSystemPasteToCanvas, isActive2, t2]);
+  }, [currentWorkspace, handleSystemPasteToCanvas, isActive, t]);
 }
 const ANIMATED_IMAGE_EXTENSIONS = new Set(["gif"]);
 export function filenameExtension(filename) {
-  const dot2 = filename.lastIndexOf(".");
-  return dot2 > -1 ? filename.slice(dot2 + 1).toLocaleLowerCase() : "";
+  const dot = filename.lastIndexOf(".");
+  return dot > -1 ? filename.slice(dot + 1).toLocaleLowerCase() : "";
 }
 export function isAnnotatableImage(attachment) {
   return (
@@ -211,11 +213,11 @@ export function isAnnotatableImage(attachment) {
     !ANIMATED_IMAGE_EXTENSIONS.has(filenameExtension(attachment.filename))
   );
 }
-export function isSameImageAnnotationTarget(current2, snapshot2) {
+export function isSameImageAnnotationTarget(current, snapshot) {
   return (
-    current2.id === snapshot2.id &&
-    current2.filename === snapshot2.filename &&
-    current2.previewUrl === snapshot2.previewUrl &&
-    current2.relativePath === snapshot2.relativePath
+    current.id === snapshot.id &&
+    current.filename === snapshot.filename &&
+    current.previewUrl === snapshot.previewUrl &&
+    current.relativePath === snapshot.relativePath
   );
 }

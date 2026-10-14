@@ -1,0 +1,3 @@
+key	old	new	依据
+clearTimer2@62:9	clearTimer2	clearTimer	去掉打包器防重名追加的后缀，恢复原名 clearTimer，即该绑定持有的值。
+e2@97:22	e2	keyboardEvent	新建工作区名称输入框收到的键盘事件。

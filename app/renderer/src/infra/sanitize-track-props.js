@@ -15,8 +15,8 @@ const MAX_STACK_PROP_STRING_LENGTH = 2048;
 
 const MAX_PROP_COUNT = 64;
 
-function isStackField(key2) {
-  return key2.toLowerCase().includes("stack");
+function isStackField(key) {
+  return key.toLowerCase().includes("stack");
 }
 
 function isSafelySerializable(value) {
@@ -28,12 +28,12 @@ function isSafelySerializable(value) {
   }
 }
 
-function sanitizeTrackProps(properties2) {
+function sanitizeTrackProps(properties) {
   const out = {};
   let truncated = 0;
   let dropped = 0;
   let kept = 0;
-  for (const [key2, value] of Object.entries(properties2)) {
+  for (const [key, value] of Object.entries(properties)) {
     if (kept >= MAX_PROP_COUNT) {
       dropped++;
       continue;
@@ -43,14 +43,14 @@ function sanitizeTrackProps(properties2) {
       continue;
     }
     if (typeof value === "string") {
-      const limit = isStackField(key2)
+      const limit = isStackField(key)
         ? MAX_STACK_PROP_STRING_LENGTH
         : MAX_PROP_STRING_LENGTH;
       if (value.length > limit) {
-        out[key2] = value.slice(0, limit);
+        out[key] = value.slice(0, limit);
         truncated++;
       } else {
-        out[key2] = value;
+        out[key] = value;
       }
       kept++;
       continue;
@@ -67,7 +67,7 @@ function sanitizeTrackProps(properties2) {
       dropped++;
       continue;
     }
-    out[key2] = value;
+    out[key] = value;
     kept++;
   }
   if (dropped > 0) {
@@ -84,11 +84,11 @@ function sanitizeTrackProps(properties2) {
 
 const _debugListeners = new Set();
 
-function _notifyDebugListeners(eventName, properties2) {
+function _notifyDebugListeners(eventName, properties) {
   if (_debugListeners.size === 0) return;
   const event = {
     eventName,
-    properties: properties2,
+    properties,
     timestamp: Date.now(),
   };
   for (const listener of _debugListeners) {
@@ -98,8 +98,8 @@ function _notifyDebugListeners(eventName, properties2) {
   }
 }
 
-export function trackEvent(eventName, properties2 = {}) {
-  const sanitized = sanitizeTrackProps(properties2);
+export function trackEvent(eventName, properties = {}) {
+  const sanitized = sanitizeTrackProps(properties);
   if (sanitized.truncatedStrings > 0 || sanitized.droppedProps > 0) {
     _guard.note({
       truncated_strings: sanitized.truncatedStrings,

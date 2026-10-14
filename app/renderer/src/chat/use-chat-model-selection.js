@@ -1,12 +1,12 @@
 // use-chat-model-selection.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useModelDefaults } from "./use-model-defaults.js";
 import { resolveActiveModelId } from "../generation/use-model-catalog-scope-key.js";
 import { useActiveCustomModel } from "../team/copy-icon-button.jsx";
 
 export function useChatModelSelection({
   sessionStore,
-  send: send2,
+  send,
   initialModelId,
   initialSelectedMediaModels,
   defaultModelId,
@@ -76,40 +76,40 @@ export function useChatModelSelection({
     (modelId) => {
       editedRef.current.model = true;
       syncSelectedModelId(modelId);
-      const sid = sessionStore.getState().focusedSessionId;
-      if (sid) {
-        sessionStore.updateModelId(sid, modelId);
-        send2({
+      const sessionId = sessionStore.getState().focusedSessionId;
+      if (sessionId) {
+        sessionStore.updateModelId(sessionId, modelId);
+        send({
           type: "update_model",
           model_id: modelId,
-          session_id: sid,
+          session_id: sessionId,
         });
       }
     },
-    [send2, sessionStore, syncSelectedModelId],
+    [send, sessionStore, syncSelectedModelId],
   );
   const handleSelectedMediaModelsChange = reactExports.useCallback(
-    (next2) => {
+    (next) => {
       editedRef.current.media = true;
-      syncSelectedMediaModels(next2);
-      const sid = sessionStore.getState().focusedSessionId;
-      if (sid) {
-        sessionStore.setSelectedMediaModels(sid, next2);
-        send2({
+      syncSelectedMediaModels(next);
+      const sessionId = sessionStore.getState().focusedSessionId;
+      if (sessionId) {
+        sessionStore.setSelectedMediaModels(sessionId, next);
+        send({
           type: "update_selected_media_models",
-          session_id: sid,
-          selected_media_models: next2,
+          session_id: sessionId,
+          selected_media_models: next,
         });
       }
     },
-    [send2, sessionStore, syncSelectedMediaModels],
+    [send, sessionStore, syncSelectedMediaModels],
   );
   const handleModelSelectionChange = reactExports.useCallback(
-    (selection2, rememberForNewChats = false) => {
-      if (selection2.media !== void 0)
-        handleSelectedMediaModelsChange(selection2.media);
-      if (selection2.modelId !== void 0) handleModelChange(selection2.modelId);
-      if (rememberForNewChats) void rememberDefaults(selection2);
+    (selection, rememberForNewChats = false) => {
+      if (selection.media !== void 0)
+        handleSelectedMediaModelsChange(selection.media);
+      if (selection.modelId !== void 0) handleModelChange(selection.modelId);
+      if (rememberForNewChats) void rememberDefaults(selection);
     },
     [handleModelChange, handleSelectedMediaModelsChange, rememberDefaults],
   );

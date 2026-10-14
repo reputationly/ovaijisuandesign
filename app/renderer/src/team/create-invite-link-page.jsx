@@ -1,6 +1,9 @@
 // create-invite-link-page.jsx
 import { HUB_WEB_INVITE_DOMAINS } from "../vendor-inline/vscode-base/graph.jsx";
-import { AlertTriangle, Copy, getRuntimeConfig, Link2, reactExports, useTranslation } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, Copy, Link2 } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PastTeamMembersPanel } from "./past-team-members-panel.jsx";
@@ -12,7 +15,7 @@ import {
   PageHeader,
   PageTitle,
 } from "./page-content.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import {
   describeTeamMutationError,
@@ -21,14 +24,14 @@ import {
 } from "./team-management-detail-loading.jsx";
 import { teamApi } from "./team-api.js";
 import { SegmentedSwitch } from "../canvas/popover-title.jsx";
-function buildTeamInviteWebLink({ region, channel, token: token2 }) {
+function buildTeamInviteWebLink({ region, channel, token }) {
   const environment = channel === "prod" ? "prod" : "test";
-  const url2 = new URL(
+  const url = new URL(
     "/media-plan/team/invite",
     HUB_WEB_INVITE_DOMAINS[environment][region],
   );
-  url2.searchParams.set("token", token2);
-  return url2.toString();
+  url.searchParams.set("token", token);
+  return url.toString();
 }
 const EXPIRY_OPTIONS = [1, 7, 14, 30, 0];
 const MAX_USE_OPTIONS = [1, 5, 10, 20, -1, 0];
@@ -36,13 +39,13 @@ const MAX_CUSTOM_USES = 2147483647;
 const MAX_QUOTA_LIMIT = 9007199254740991;
 const DAY_SECONDS = 24 * 60 * 60;
 const UNSIGNED_DECIMAL = /^(0|[1-9]\d*)$/;
-function optionClass(selected2) {
-  return selected2
+function optionClass(selected) {
+  return selected
     ? "border-foreground bg-foreground text-background"
     : "border-border bg-background text-muted-foreground hover:text-foreground";
 }
 export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [expiryDays, setExpiryDays] = reactExports.useState(7);
   const [maxUsesOption, setMaxUsesOption] = reactExports.useState(5);
   const [customMaxUses, setCustomMaxUses] = reactExports.useState("50");
@@ -50,9 +53,9 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
   const [creating, setCreating] = reactExports.useState(false);
   const [createdLink, setCreatedLink] = reactExports.useState(null);
   const [actionError, setActionError] = reactExports.useState(null);
-  const [tab2, setTab] = reactExports.useState("link");
+  const [tab, setTab] = reactExports.useState("link");
   const [pastTabMounted, setPastTabMounted] = reactExports.useState(false);
-  const showLinkTab = tab2 === "link" || createdLink !== null;
+  const showLinkTab = tab === "link" || createdLink !== null;
   const maxUses = reactExports.useMemo(() => {
     if (maxUsesOption === 0) return 0;
     if (maxUsesOption !== -1) return maxUsesOption;
@@ -115,16 +118,16 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
       const detail = describeTeamMutationError(error);
       const suffix = formatTeamMutationErrorSuffix(detail);
       const primary = isUpstreamContractFailure(detail)
-        ? t2("team.inviteLink.createUpstreamUnavailable", {
+        ? t("team.inviteLink.createUpstreamUnavailable", {
             defaultValue:
               "邀请链接创建暂不可用（上游未就绪或参数被拒绝），请稍后重试或联系支持。",
           })
-        : t2("team.inviteLink.createFailed", {
+        : t("team.inviteLink.createFailed", {
             defaultValue: "创建邀请链接失败",
           });
-      const message2 = suffix ? `${primary}（${suffix}）` : primary;
-      setActionError(message2);
-      dedupedToast.error(message2);
+      const message = suffix ? `${primary}（${suffix}）` : primary;
+      setActionError(message);
+      dedupedToast.error(message);
     } finally {
       setCreating(false);
     }
@@ -133,7 +136,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
     if (!createdLink) return;
     await navigator.clipboard.writeText(createdLink);
     dedupedToast.success(
-      t2("common.copied", {
+      t("common.copied", {
         defaultValue: "已复制",
       }),
     );
@@ -147,16 +150,16 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
         <PageHeader className="shrink-0 border-b border-border px-4 pt-4 pr-14 pb-3 sm:px-6 sm:pr-16">
           <PageTitle>
             {createdLink
-              ? t2("team.inviteLink.createdTitle", {
+              ? t("team.inviteLink.createdTitle", {
                   defaultValue: "邀请链接已创建",
                 })
-              : t2("team.inviteMembers.title", {
+              : t("team.inviteMembers.title", {
                   defaultValue: "邀请成员",
                 })}
           </PageTitle>
           {!createdLink ? (
             <PageDescription>
-              {t2("team.inviteMembers.managementDescription", {
+              {t("team.inviteMembers.managementDescription", {
                 defaultValue:
                   "通过链接邀请或从过往团队添加成员，按需设置积分上限。",
               })}
@@ -168,26 +171,26 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
             <SegmentedSwitch
               variant="label"
               stretch={true}
-              value={tab2}
-              onValueChange={(next2) => {
-                setTab(next2);
-                if (next2 === "past-teams") setPastTabMounted(true);
+              value={tab}
+              onValueChange={(next) => {
+                setTab(next);
+                if (next === "past-teams") setPastTabMounted(true);
               }}
-              ariaLabel={t2("team.inviteMembers.title", {
+              ariaLabel={t("team.inviteMembers.title", {
                 defaultValue: "邀请成员",
               })}
               dataActionUiId="team.invite-tab-switch"
               options={[
                 {
                   value: "link",
-                  label: t2("team.pastTeams.tabLink", {
+                  label: t("team.pastTeams.tabLink", {
                     defaultValue: "通过链接邀请",
                   }),
                   dataActionUiId: "team.invite-tab-link",
                 },
                 {
                   value: "past-teams",
-                  label: t2("team.pastTeams.tabPast", {
+                  label: t("team.pastTeams.tabPast", {
                     defaultValue: "从过往团队中添加",
                   }),
                   dataActionUiId: "team.invite-tab-past-teams",
@@ -204,7 +207,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
         >
           <section className="space-y-3">
             <h3 className="text-sm font-medium text-foreground">
-              {t2("team.inviteLink.expiry", {
+              {t("team.inviteLink.expiry", {
                 defaultValue: "链接有效期",
               })}
             </h3>
@@ -217,10 +220,10 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
                   onClick={() => setExpiryDays(days)}
                 >
                   {days === 0
-                    ? t2("team.inviteLink.neverExpires", {
+                    ? t("team.inviteLink.neverExpires", {
                         defaultValue: "永久有效",
                       })
-                    : t2("team.inviteLink.days", {
+                    : t("team.inviteLink.days", {
                         defaultValue: "{{count}} 天",
                         count: days,
                       })}
@@ -229,10 +232,10 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
             </div>
             <p className="text-xs text-muted-foreground">
               {expiryDays === 0
-                ? t2("team.inviteLink.foreverNote", {
+                ? t("team.inviteLink.foreverNote", {
                     defaultValue: "该链接永久有效，可随时在团队管理页撤销。",
                   })
-                : t2("team.inviteLink.expiryNote", {
+                : t("team.inviteLink.expiryNote", {
                     defaultValue: "{{date}} 前有效，过期后邀请链接自动失效。",
                     date: new Date(
                       Date.now() + expiryDays * DAY_SECONDS * 1e3,
@@ -242,7 +245,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
           </section>
           <section className="space-y-3">
             <h3 className="text-sm font-medium text-foreground">
-              {t2("team.inviteLink.maxUses", {
+              {t("team.inviteLink.maxUses", {
                 defaultValue: "使用次数限制",
               })}
             </h3>
@@ -255,11 +258,11 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
                   onClick={() => setMaxUsesOption(value)}
                 >
                   {value === -1
-                    ? t2("team.inviteLink.custom", {
+                    ? t("team.inviteLink.custom", {
                         defaultValue: "自定义",
                       })
                     : value === 0
-                      ? t2("team.inviteLink.unlimited", {
+                      ? t("team.inviteLink.unlimited", {
                           defaultValue: "不限次数",
                         })
                       : value}
@@ -273,7 +276,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
                 max={MAX_CUSTOM_USES}
                 value={customMaxUses}
                 onChange={(event) => setCustomMaxUses(event.target.value)}
-                aria-label={t2("team.inviteLink.customMaxUses", {
+                aria-label={t("team.inviteLink.customMaxUses", {
                   defaultValue: "自定义使用次数",
                 })}
               />
@@ -281,7 +284,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
           </section>
           <section className="space-y-3">
             <h3 className="text-sm font-medium text-foreground">
-              {t2("team.inviteLink.quotaLimit", {
+              {t("team.inviteLink.quotaLimit", {
                 defaultValue: "积分额度",
               })}
             </h3>
@@ -289,13 +292,13 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
               type="number"
               min={0}
               value={quotaLimit}
-              placeholder={t2("team.inviteLink.quotaLimitPlaceholder", {
+              placeholder={t("team.inviteLink.quotaLimitPlaceholder", {
                 defaultValue:
                   "设置成员积分上限；不设置时，成员可自由共享团队积分",
               })}
               aria-invalid={!quotaLimitValue.valid}
               onChange={(event) => setQuotaLimit(event.target.value)}
-              aria-label={t2("team.inviteLink.quotaLimit", {
+              aria-label={t("team.inviteLink.quotaLimit", {
                 defaultValue: "积分额度",
               })}
               data-action-ui-id="team.create-invite-link-quota"
@@ -343,7 +346,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
                     strokeWidth={1.5}
                     aria-hidden={true}
                   />
-                  {t2("common.copy", {
+                  {t("common.copy", {
                     defaultValue: "复制",
                   })}
                 </Button>
@@ -352,7 +355,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
                 className="text-xs text-muted-foreground"
                 data-action-ui-id="team.create-invite-link-save-notice"
               >
-                {t2("team.inviteLink.saveLinkNotice", {
+                {t("team.inviteLink.saveLinkNotice", {
                   defaultValue: "请在关闭前复制链接，关闭后将无法再次查看。",
                 })}
               </p>
@@ -381,10 +384,10 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
             onClick={() => onOpenChange(false)}
           >
             {createdLink
-              ? t2("common.close", {
+              ? t("common.close", {
                   defaultValue: "关闭",
                 })
-              : t2("common.cancel", {
+              : t("common.cancel", {
                   defaultValue: "取消",
                 })}
           </Button>
@@ -396,7 +399,7 @@ export function CreateInviteLinkPage({ open, scope, onOpenChange, onCreated }) {
               onClick={() => void handleCreate()}
               data-action-ui-id="team.create-invite-link-generate"
             >
-              {t2("team.inviteLink.generate", {
+              {t("team.inviteLink.generate", {
                 defaultValue: "生成邀请链接",
               })}
             </Button>

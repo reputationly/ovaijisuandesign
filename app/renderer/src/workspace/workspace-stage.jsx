@@ -1,8 +1,10 @@
 // workspace-stage.jsx
-import { reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   useBrowserHoverPreview,
 } from "../infra/dialog-content.jsx";
 import { WorkspacePaneReorderProvider } from "../chat/use-browser-chat-media.jsx";
@@ -28,8 +30,8 @@ const PANE_REORDER_EASING = "cubic-bezier(0.2, 0.9, 0.25, 1.02)";
 function clampChatRatio(value) {
   return Math.min(MAX_CHAT_RATIO, Math.max(MIN_CHAT_RATIO, value));
 }
-function clamp(value, min2, max2) {
-  return Math.min(max2, Math.max(min2, value));
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
 }
 function resolvePaneReorderSwapDistance(stageWidth) {
   return clamp(
@@ -39,7 +41,7 @@ function resolvePaneReorderSwapDistance(stageWidth) {
   );
 }
 function usePrefersReducedMotion() {
-  const [prefersReducedMotion2, setPrefersReducedMotion] =
+  const [prefersReducedMotion, setPrefersReducedMotion] =
     reactExports.useState(false);
   reactExports.useEffect(() => {
     const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
@@ -49,7 +51,7 @@ function usePrefersReducedMotion() {
     mediaQuery.addEventListener?.("change", syncPreference);
     return () => mediaQuery.removeEventListener?.("change", syncPreference);
   }, []);
-  return prefersReducedMotion2;
+  return prefersReducedMotion;
 }
 function resolveWorkspaceStagePixelBudget(stageWidth, chatRatio) {
   const availablePaneWidth = Math.max(0, stageWidth - DIVIDER_LAYOUT_WIDTH);
@@ -89,7 +91,7 @@ function dismissWorkspaceFloatingPanels() {
   );
 }
 export function WorkspaceStage({
-  isActive: isActive2 = true,
+  isActive = true,
   paneOrder,
   chatVisible,
   canvasVisible,
@@ -105,7 +107,7 @@ export function WorkspaceStage({
   chat,
   canvas,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const rootRef = reactExports.useRef(null);
   const canvasPaneRef = reactExports.useRef(null);
   const activePaneReorderRef = reactExports.useRef(null);
@@ -121,11 +123,11 @@ export function WorkspaceStage({
     IDLE_PANE_REORDER_STATE,
   );
   const paneReorderStateRef = reactExports.useRef(IDLE_PANE_REORDER_STATE);
-  const prefersReducedMotion2 = usePrefersReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const normalizedChatRatio = clampChatRatio(chatRatio);
   const splitVisible = chatVisible && canvasVisible;
   const paneReorderEnabled =
-    isActive2 && splitVisible && Boolean(onPaneOrderChange);
+    isActive && splitVisible && Boolean(onPaneOrderChange);
   const browserPreviewReady = useBrowserHoverPreview(
     paneReorderEnabled && paneReorderState.phase !== "idle",
   );
@@ -135,31 +137,31 @@ export function WorkspaceStage({
     paneReorderStateRef.current = nextState;
     setPaneReorderState(nextState);
   }, []);
-  const isActiveRef = reactExports.useRef(isActive2);
-  isActiveRef.current = isActive2;
+  const isActiveRef = reactExports.useRef(isActive);
+  isActiveRef.current = isActive;
   const syncStageWidth = reactExports.useCallback(() => {
-    const root2 = rootRef.current;
-    if (!root2 || !isActiveRef.current) return;
-    const nextWidth = root2.getBoundingClientRect().width || root2.clientWidth;
+    const root = rootRef.current;
+    if (!root || !isActiveRef.current) return;
+    const nextWidth = root.getBoundingClientRect().width || root.clientWidth;
     if (!Number.isFinite(nextWidth) || nextWidth <= 0) return;
-    setStageWidth((previous2) =>
-      previous2 === nextWidth ? previous2 : nextWidth,
+    setStageWidth((previous) =>
+      previous === nextWidth ? previous : nextWidth,
     );
   }, []);
   reactExports.useLayoutEffect(() => {
-    if (isActive2) syncStageWidth();
-  }, [isActive2, syncStageWidth]);
+    if (isActive) syncStageWidth();
+  }, [isActive, syncStageWidth]);
   reactExports.useEffect(() => {
-    const root2 = rootRef.current;
-    if (!root2) return;
+    const root = rootRef.current;
+    if (!root) return;
     syncStageWidth();
     if (typeof ResizeObserver === "undefined") {
       window.addEventListener("resize", syncStageWidth);
       return () => window.removeEventListener("resize", syncStageWidth);
     }
-    const observer2 = new ResizeObserver(syncStageWidth);
-    observer2.observe(root2);
-    return () => observer2.disconnect();
+    const observer = new ResizeObserver(syncStageWidth);
+    observer.observe(root);
+    return () => observer.disconnect();
   }, [syncStageWidth]);
   const setCanvasPaneRef = reactExports.useCallback(
     (pane) => {
@@ -175,7 +177,7 @@ export function WorkspaceStage({
   }, []);
   const dockPaneSurfaces = reactExports.useCallback(() => {
     clearSettleTimer();
-    if (prefersReducedMotion2) {
+    if (prefersReducedMotion) {
       commitPaneReorderState(IDLE_PANE_REORDER_STATE);
       return;
     }
@@ -188,38 +190,38 @@ export function WorkspaceStage({
       settleTimerRef.current = null;
       commitPaneReorderState(IDLE_PANE_REORDER_STATE);
     }, PANE_REORDER_DOCK_TRANSITION_MS);
-  }, [clearSettleTimer, commitPaneReorderState, prefersReducedMotion2]);
+  }, [clearSettleTimer, commitPaneReorderState, prefersReducedMotion]);
   const releaseActivePaneReorder = reactExports.useCallback(() => {
-    const active2 = activePaneReorderRef.current;
-    if (!active2) return null;
+    const active = activePaneReorderRef.current;
+    if (!active) return null;
     activePaneReorderRef.current = null;
-    if (active2.targetDwellTimer !== null) {
-      window.clearTimeout(active2.targetDwellTimer);
-      active2.targetDwellTimer = null;
+    if (active.targetDwellTimer !== null) {
+      window.clearTimeout(active.targetDwellTimer);
+      active.targetDwellTimer = null;
     }
     if (interactionOwnerRef.current === "reorder")
       interactionOwnerRef.current = "none";
-    document.body.style.cursor = active2.previousCursor;
-    document.body.style.userSelect = active2.previousUserSelect;
+    document.body.style.cursor = active.previousCursor;
+    document.body.style.userSelect = active.previousUserSelect;
     try {
       if (
-        typeof active2.handle.hasPointerCapture !== "function" ||
-        active2.handle.hasPointerCapture(active2.pointerId)
+        typeof active.handle.hasPointerCapture !== "function" ||
+        active.handle.hasPointerCapture(active.pointerId)
       ) {
-        active2.handle.releasePointerCapture?.(active2.pointerId);
+        active.handle.releasePointerCapture?.(active.pointerId);
       }
     } catch {}
-    return active2;
+    return active;
   }, []);
   const cancelPaneReorder = reactExports.useCallback(() => {
-    const previous2 = paneReorderStateRef.current;
+    const previous = paneReorderStateRef.current;
     pendingPaneOrderRef.current = null;
     releaseActivePaneReorder();
     clearSettleTimer();
     if (
-      prefersReducedMotion2 ||
-      previous2.phase === "idle" ||
-      previous2.phase === "armed"
+      prefersReducedMotion ||
+      previous.phase === "idle" ||
+      previous.phase === "armed"
     ) {
       commitPaneReorderState(IDLE_PANE_REORDER_STATE);
       return;
@@ -237,7 +239,7 @@ export function WorkspaceStage({
     clearSettleTimer,
     commitPaneReorderState,
     dockPaneSurfaces,
-    prefersReducedMotion2,
+    prefersReducedMotion,
     releaseActivePaneReorder,
   ]);
   const settlePaneReorder = reactExports.useCallback(
@@ -293,7 +295,7 @@ export function WorkspaceStage({
     )
       return;
     pendingPaneOrderRef.current = null;
-    if (prefersReducedMotion2) {
+    if (prefersReducedMotion) {
       settlePaneReorder(targetOrder);
       return;
     }
@@ -310,7 +312,7 @@ export function WorkspaceStage({
     browserPreviewReady,
     paneReorderEnabled,
     paneReorderState.phase,
-    prefersReducedMotion2,
+    prefersReducedMotion,
     commitPaneReorderState,
     settlePaneReorder,
   ]);
@@ -332,13 +334,13 @@ export function WorkspaceStage({
       clearSettleTimer();
       releaseActivePaneReorder();
       interactionOwnerRef.current = "reorder";
-      const handle2 = event.currentTarget;
+      const handle = event.currentTarget;
       try {
-        handle2.setPointerCapture?.(event.pointerId);
+        handle.setPointerCapture?.(event.pointerId);
       } catch {}
       activePaneReorderRef.current = {
         pointerId: event.pointerId,
-        handle: handle2,
+        handle,
         startX: event.clientX,
         startY: event.clientY,
         latestPointer: null,
@@ -370,30 +372,30 @@ export function WorkspaceStage({
   );
   const updatePaneReorderPointer = reactExports.useCallback(
     (clientX, clientY) => {
-      const active2 = activePaneReorderRef.current;
-      if (!active2) return;
-      active2.latestPointer = {
+      const active = activePaneReorderRef.current;
+      if (!active) return;
+      active.latestPointer = {
         clientX,
         clientY,
       };
       if (!browserPreviewReady) return;
-      const deltaX = clientX - active2.startX;
-      const deltaY = clientY - active2.startY;
-      if (!active2.activated) {
+      const deltaX = clientX - active.startX;
+      const deltaY = clientY - active.startY;
+      if (!active.activated) {
         if (Math.abs(deltaX) < PANE_REORDER_ACTIVATION_DISTANCE) return;
         if (Math.abs(deltaY) > Math.abs(deltaX)) {
           cancelPaneReorder();
           return;
         }
-        active2.activated = true;
+        active.activated = true;
         document.body.style.cursor = "grabbing";
         document.body.style.userSelect = "none";
       }
-      const previous2 = paneReorderStateRef.current;
-      const directionalDistance = deltaX * active2.direction;
-      const releaseDistance = active2.swapDistance - PANE_REORDER_HYSTERESIS;
-      const alreadyTargeted = previous2.targetOrder === active2.targetOrder;
-      const dragOffsetX = prefersReducedMotion2
+      const previous = paneReorderStateRef.current;
+      const directionalDistance = deltaX * active.direction;
+      const releaseDistance = active.swapDistance - PANE_REORDER_HYSTERESIS;
+      const alreadyTargeted = previous.targetOrder === active.targetOrder;
+      const dragOffsetX = prefersReducedMotion
         ? 0
         : Math.round(
             clamp(
@@ -402,49 +404,49 @@ export function WorkspaceStage({
               PANE_REORDER_MAX_FOLLOW_DISTANCE,
             ),
           );
-      active2.latestDirectionalDistance = directionalDistance;
-      active2.latestDragOffsetX = dragOffsetX;
+      active.latestDirectionalDistance = directionalDistance;
+      active.latestDragOffsetX = dragOffsetX;
       let targetOrder = null;
       if (alreadyTargeted && directionalDistance >= releaseDistance) {
-        targetOrder = active2.targetOrder;
-      } else if (directionalDistance >= active2.swapDistance) {
-        if (active2.targetDwellTimer === null) {
-          active2.targetDwellTimer = window.setTimeout(() => {
-            const latest2 = activePaneReorderRef.current;
-            active2.targetDwellTimer = null;
+        targetOrder = active.targetOrder;
+      } else if (directionalDistance >= active.swapDistance) {
+        if (active.targetDwellTimer === null) {
+          active.targetDwellTimer = window.setTimeout(() => {
+            const latest = activePaneReorderRef.current;
+            active.targetDwellTimer = null;
             if (
-              latest2 !== active2 ||
-              latest2.latestDirectionalDistance < latest2.swapDistance ||
-              paneReorderStateRef.current.targetOrder === latest2.targetOrder
+              latest !== active ||
+              latest.latestDirectionalDistance < latest.swapDistance ||
+              paneReorderStateRef.current.targetOrder === latest.targetOrder
             ) {
               return;
             }
-            latest2.targetedAt = Date.now();
+            latest.targetedAt = Date.now();
             commitPaneReorderState({
               phase: "targeted",
-              targetOrder: latest2.targetOrder,
-              dragOffsetX: latest2.latestDragOffsetX,
+              targetOrder: latest.targetOrder,
+              dragOffsetX: latest.latestDragOffsetX,
             });
           }, PANE_REORDER_TARGET_DWELL_MS);
         }
-      } else if (active2.targetDwellTimer !== null) {
-        window.clearTimeout(active2.targetDwellTimer);
-        active2.targetDwellTimer = null;
+      } else if (active.targetDwellTimer !== null) {
+        window.clearTimeout(active.targetDwellTimer);
+        active.targetDwellTimer = null;
       }
       if (
         alreadyTargeted &&
         targetOrder === null &&
-        active2.targetDwellTimer !== null
+        active.targetDwellTimer !== null
       ) {
-        window.clearTimeout(active2.targetDwellTimer);
-        active2.targetDwellTimer = null;
+        window.clearTimeout(active.targetDwellTimer);
+        active.targetDwellTimer = null;
       }
-      if (alreadyTargeted && targetOrder === null) active2.targetedAt = null;
+      if (alreadyTargeted && targetOrder === null) active.targetedAt = null;
       const phase = targetOrder ? "targeted" : "dragging";
       if (
-        previous2.phase !== phase ||
-        previous2.targetOrder !== targetOrder ||
-        previous2.dragOffsetX !== dragOffsetX
+        previous.phase !== phase ||
+        previous.targetOrder !== targetOrder ||
+        previous.dragOffsetX !== dragOffsetX
       ) {
         commitPaneReorderState({
           phase,
@@ -457,7 +459,7 @@ export function WorkspaceStage({
       browserPreviewReady,
       cancelPaneReorder,
       commitPaneReorderState,
-      prefersReducedMotion2,
+      prefersReducedMotion,
     ],
   );
   const handlePaneReorderPointerMove = reactExports.useCallback(
@@ -469,17 +471,17 @@ export function WorkspaceStage({
     [updatePaneReorderPointer],
   );
   reactExports.useEffect(() => {
-    const pointer2 = activePaneReorderRef.current?.latestPointer;
-    if (browserPreviewReady && pointer2)
-      updatePaneReorderPointer(pointer2.clientX, pointer2.clientY);
+    const pointer = activePaneReorderRef.current?.latestPointer;
+    if (browserPreviewReady && pointer)
+      updatePaneReorderPointer(pointer.clientX, pointer.clientY);
   }, [browserPreviewReady, updatePaneReorderPointer]);
   const handlePaneReorderPointerUp = reactExports.useCallback(
     (event) => {
-      const active2 = activePaneReorderRef.current;
-      if (!active2 || active2.pointerId !== event.pointerId) return;
+      const active = activePaneReorderRef.current;
+      if (!active || active.pointerId !== event.pointerId) return;
       event.preventDefault();
       const targetOrder = paneReorderStateRef.current.targetOrder;
-      const targetedAt = active2.targetedAt;
+      const targetedAt = active.targetedAt;
       releaseActivePaneReorder();
       if (targetOrder && targetOrder !== paneOrder) {
         const elapsedPreviewMs =
@@ -490,7 +492,7 @@ export function WorkspaceStage({
           0,
           PANE_REORDER_TRANSITION_MS - elapsedPreviewMs,
         );
-        if (prefersReducedMotion2 || remainingPreviewMs === 0) {
+        if (prefersReducedMotion || remainingPreviewMs === 0) {
           settlePaneReorder(targetOrder);
         } else {
           clearSettleTimer();
@@ -507,23 +509,23 @@ export function WorkspaceStage({
       cancelPaneReorder,
       clearSettleTimer,
       paneOrder,
-      prefersReducedMotion2,
+      prefersReducedMotion,
       releaseActivePaneReorder,
       settlePaneReorder,
     ],
   );
   const handlePaneReorderPointerCancel = reactExports.useCallback(
     (event) => {
-      const active2 = activePaneReorderRef.current;
-      if (!active2 || active2.pointerId !== event.pointerId) return;
+      const active = activePaneReorderRef.current;
+      if (!active || active.pointerId !== event.pointerId) return;
       cancelPaneReorder();
     },
     [cancelPaneReorder],
   );
   const handlePaneReorderLostPointerCapture = reactExports.useCallback(
     (event) => {
-      const active2 = activePaneReorderRef.current;
-      if (!active2 || active2.pointerId !== event.pointerId) return;
+      const active = activePaneReorderRef.current;
+      if (!active || active.pointerId !== event.pointerId) return;
       cancelPaneReorder();
     },
     [cancelPaneReorder],
@@ -550,14 +552,14 @@ export function WorkspaceStage({
     ) {
       return;
     }
-    const handleKeyDown2 = (event) => {
+    const handleKeyDown = (event) => {
       if (event.key === "Escape") cancelPaneReorder();
     };
     const handleWindowBlur = () => cancelPaneReorder();
-    window.addEventListener("keydown", handleKeyDown2);
+    window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("blur", handleWindowBlur);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown2);
+      window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("blur", handleWindowBlur);
     };
   }, [cancelPaneReorder, paneReorderState.phase]);
@@ -570,7 +572,7 @@ export function WorkspaceStage({
       return;
     }
     clearSettleTimer();
-    if (prefersReducedMotion2) {
+    if (prefersReducedMotion) {
       commitPaneReorderState(IDLE_PANE_REORDER_STATE);
       return;
     }
@@ -588,7 +590,7 @@ export function WorkspaceStage({
     commitPaneReorderState,
     paneOrder,
     paneReorderState,
-    prefersReducedMotion2,
+    prefersReducedMotion,
   ]);
   reactExports.useLayoutEffect(() => {
     const browserInterrupted =
@@ -614,10 +616,10 @@ export function WorkspaceStage({
   reactExports.useEffect(
     () => () => {
       clearSettleTimer();
-      const active2 = releaseActivePaneReorder();
-      if (active2) {
-        document.body.style.cursor = active2.previousCursor;
-        document.body.style.userSelect = active2.previousUserSelect;
+      const active = releaseActivePaneReorder();
+      if (active) {
+        document.body.style.cursor = active.previousCursor;
+        document.body.style.userSelect = active.previousUserSelect;
       }
     },
     [clearSettleTimer, releaseActivePaneReorder],
@@ -671,18 +673,18 @@ export function WorkspaceStage({
     [normalizedChatRatio, onChatRatioChange, paneOrder],
   );
   const releaseActiveResize = reactExports.useCallback(() => {
-    const active2 = activeResizeRef.current;
-    if (!active2) return;
+    const active = activeResizeRef.current;
+    if (!active) return;
     activeResizeRef.current = null;
-    document.removeEventListener("mousemove", active2.handleMouseMove);
-    document.removeEventListener("mouseup", active2.handleMouseUp);
-    window.removeEventListener("blur", active2.handleWindowBlur);
+    document.removeEventListener("mousemove", active.handleMouseMove);
+    document.removeEventListener("mouseup", active.handleMouseUp);
+    window.removeEventListener("blur", active.handleWindowBlur);
     if (interactionOwnerRef.current === "resize")
       interactionOwnerRef.current = "none";
     setResizeActive(false);
     document.body.classList.remove("workspace-stage-resizing");
-    document.body.style.cursor = active2.previousCursor;
-    document.body.style.userSelect = active2.previousUserSelect;
+    document.body.style.cursor = active.previousCursor;
+    document.body.style.userSelect = active.previousUserSelect;
   }, []);
   reactExports.useEffect(
     () => () => releaseActiveResize(),
@@ -703,19 +705,19 @@ export function WorkspaceStage({
       const previousCursor = document.body.style.cursor;
       const previousUserSelect = document.body.style.userSelect;
       updateRatioFromClientX(event.clientX);
-      const handleMouseMove2 = (moveEvent) => {
+      const handleMouseMove = (moveEvent) => {
         updateRatioFromClientX(moveEvent.clientX);
       };
       const handleMouseUp = () => releaseActiveResize();
       const handleWindowBlur = () => releaseActiveResize();
       activeResizeRef.current = {
-        handleMouseMove: handleMouseMove2,
+        handleMouseMove,
         handleMouseUp,
         handleWindowBlur,
         previousCursor,
         previousUserSelect,
       };
-      document.addEventListener("mousemove", handleMouseMove2);
+      document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
       window.addEventListener("blur", handleWindowBlur);
       document.body.style.cursor = "col-resize";
@@ -741,7 +743,7 @@ export function WorkspaceStage({
     paneReorderState.phase === "settling" ||
     paneReorderState.phase === "docking";
   const paneSurfacesSeparated =
-    !prefersReducedMotion2 &&
+    !prefersReducedMotion &&
     (paneReorderState.phase === "dragging" ||
       paneReorderState.phase === "targeted" ||
       paneReorderState.phase === "settling");
@@ -769,7 +771,7 @@ export function WorkspaceStage({
   const paneMotionDuration =
     resizeActive || paneMotionBlocked
       ? 0
-      : prefersReducedMotion2
+      : prefersReducedMotion
         ? 0
         : paneReorderState.phase === "docking"
           ? PANE_REORDER_DOCK_TRANSITION_MS
@@ -795,7 +797,7 @@ export function WorkspaceStage({
     ? "0 12px 30px rgb(0 0 0 / 0.14), 0 2px 8px rgb(0 0 0 / 0.08)"
     : "none";
   const surfaceMotionDuration =
-    resizeActive || prefersReducedMotion2 || paneMotionBlocked
+    resizeActive || prefersReducedMotion || paneMotionBlocked
       ? 0
       : PANE_REORDER_LIFT_TRANSITION_MS;
   const chatLiftStyle = {
@@ -938,14 +940,14 @@ export function WorkspaceStage({
         data-workspace-divider-line="chat-canvas"
         style={{
           opacity: paneSurfacesSeparated ? 0 : 1,
-          transition: `opacity ${prefersReducedMotion2 ? 0 : PANE_REORDER_DOCK_TRANSITION_MS}ms ease`,
+          transition: `opacity ${prefersReducedMotion ? 0 : PANE_REORDER_DOCK_TRANSITION_MS}ms ease`,
           width: "0.5px",
         }}
         aria-hidden="true"
       />
       <ResizeColHandle
         tabIndex={0}
-        aria-label={t2("a11y.resizeChatCanvas", "Resize Chat and Canvas")}
+        aria-label={translate("a11y.resizeChatCanvas", "Resize Chat and Canvas")}
         aria-orientation="vertical"
         aria-valuemin={roundedMinChatWidth}
         aria-valuemax={roundedMaxChatWidth}
@@ -990,7 +992,7 @@ export function WorkspaceStage({
         data-layout-mode={splitVisible ? "split" : "focus"}
         data-pane-reorder-state={paneReorderState.phase}
         data-pane-reorder-preview={paneSwapPreviewed ? "swapped" : "origin"}
-        data-pane-reorder-motion={prefersReducedMotion2 ? "reduced" : "full"}
+        data-pane-reorder-motion={prefersReducedMotion ? "reduced" : "full"}
         data-pane-reorder-threshold={Math.round(
           resolvePaneReorderSwapDistance(stageWidth),
         )}

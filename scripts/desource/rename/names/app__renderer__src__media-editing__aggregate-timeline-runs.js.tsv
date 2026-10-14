@@ -1,0 +1,40 @@
+key	new	依据
+obj@31:9	parsedObject	tryParseVendorJson 解析工具参数后得到的对象，代码从 path、file_path 或 filePath 读取路径候选。
+obj@178:9	parsedObject	tryParseJson 解析搜索工具参数后得到的对象，代码从 queries 和单词字段提取搜索词。
+q2@186:15	queryText	entry.query 中的搜索文本；只有非空字符串才会 trim 后加入搜索 chips。
+i2@221:7	entryIndex	指向 entries 中当前待处理的时间线条目，并在各类连续分组扫描后推进。
+id2@231:54	toolId	成员工具调用原有的 id，被写入聚合命令对象以保留调用标识。
+id2@248:19	toolId	成员工具调用原有的 id，被写入聚合进程步骤以保留调用标识。
+j2@305:11	thinkingIndex	在 entries 中向后扫描连续 thinking 条目的游标，用于合并其 thinkingContent。
+j2@331:11	relatedToolIndex	扫描同类别 read 或 analyseMedia 工具条目的游标，并在分组结束后更新 entryIndex。
+j2@375:11	searchToolIndex	扫描连续且未报错的搜索工具条目的游标，同时排除 hub_capability_search。
+j2@417:11	groupedToolIndex	扫描同类别、同状态且无确认操作的 canvas 或 plan 工具条目，作为一个时间线操作组。
+j2@444:11	toolGroupIndex	扫描同类别、同状态且无确认操作的 execute 或 process 工具条目，供 count-only 聚合使用。
+tryParseJson$1@10:3	tryParseVendorJson	恢复 tryParseJson 会与本文件后方同名函数冲突，因此改为 tryParseVendorJson；此处解析 vendor 工具提供的 JSON。
+dedupe$1@107:10	dedupeMediaItems	恢复 dedupe 会与本文件后方的通用去重函数冲突，因此改为 dedupeMediaItems；此处按媒体路径去重记录。
+path2@17:26	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体或知识文件路径。
+path2@21:19	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体或知识文件路径。
+path2@44:17	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体或知识文件路径。
+record2@55:37	record	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前工具返回的媒体记录对象。
+record2@64:37	record	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前工具返回的媒体记录对象。
+seen2@85:9	seen	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存用于记录已处理路径或值的集合。
+path2@87:14	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体或知识文件路径。
+seen2@108:9	seen	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存用于记录已处理路径或值的集合。
+record2@124:13	record	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前工具返回的媒体记录对象。
+path2@125:15	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体或知识文件路径。
+path2@140:6	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体或知识文件路径。
+toolName2@144:31	toolName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前调用的工具名称。
+path2@148:11	path	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体或知识文件路径。
+raw2@156:23	raw	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存尚未解析的 JSON 文本。
+values3@164:17	values	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存待去重或聚合的搜索值列表。
+seen2@165:9	seen	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存用于记录已处理路径或值的集合。
+toolName2@174:29	toolName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前调用的工具名称。
+key2@200:11	key	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前搜索字段或聚合项的键。
+previous2@201:11	previous	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存上一个相邻时间轴操作条目。
+entries2@219:39	entries	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存待遍历的时间轴或工具条目列表。
+command2@232:19	command	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前聚合的工具命令对象。
+toolName2@249:25	toolName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前调用的工具名称。
+content2@307:15	content	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存思考或工具条目的文本内容。
+seen2@326:13	seen	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存用于记录已处理路径或值的集合。
+seen2@374:13	seen	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存用于记录已处理路径或值的集合。
+operationEntry2@410:15	operationEntry	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前时间轴操作条目对象。

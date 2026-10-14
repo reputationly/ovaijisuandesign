@@ -1,12 +1,8 @@
 // skill-reload-dock.jsx
-import {
-  ArrowRight,
-  CompositedSvg,
-  Crosshair,
-  useCurrentWorkspace,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
+import { ArrowRight, Crosshair, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
@@ -14,14 +10,14 @@ import { Flag } from "../media-editing/package.jsx";
 import { Button } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 export function SkillReloadDock({ skillNames, onReload, onDismiss }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const hasNames = skillNames && skillNames.length > 0;
   const title = hasNames
-    ? t2("skills.reloadDock.titleWithCount", {
+    ? t("skills.reloadDock.titleWithCount", {
         count: skillNames.length,
         defaultValue: "{{count}} 个新 Skill 已就绪",
       })
-    : t2("skills.reloadDock.title", {
+    : t("skills.reloadDock.title", {
         defaultValue: "Skill 已更新",
       });
   return (
@@ -46,7 +42,7 @@ export function SkillReloadDock({ skillNames, onReload, onDismiss }) {
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {t2("skills.reloadDock.warning", {
+            {t("skills.reloadDock.warning", {
               defaultValue: "重新加载将重启 Agent，当前对话会中断",
             })}
           </p>
@@ -59,7 +55,7 @@ export function SkillReloadDock({ skillNames, onReload, onDismiss }) {
             className="h-7 rounded-md text-xs"
             onClick={onReload}
           >
-            {t2("skills.reloadDock.reload", {
+            {t("skills.reloadDock.reload", {
               defaultValue: "重新加载",
             })}
           </Button>
@@ -105,7 +101,7 @@ export function ToolConfirmMiniBar({
   onJump,
   onApproveAll,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (pendingCount <= 0) return null;
   return (
     <div
@@ -117,13 +113,13 @@ export function ToolConfirmMiniBar({
           <ApprovalIcon className="shrink-0 text-brand-accent" />
           <span className="text-body-12 text-foreground">
             {approvalState === "checking"
-              ? t2("chat.toolConfirm.miniBar.checking", "Checking workflow")
+              ? t("chat.toolConfirm.miniBar.checking", "Checking workflow")
               : approvalState === "blocked"
-                ? t2(
+                ? t(
                     "chat.toolConfirm.miniBar.blocked",
                     "Complete required inputs",
                   )
-                : t2(
+                : t(
                     "chat.toolConfirm.miniBar.needsApproval",
                     "Needs approval to run",
                   )}
@@ -136,7 +132,7 @@ export function ToolConfirmMiniBar({
             className="inline-flex items-center h-7 px-2.5 text-body-12 font-medium rounded-md bg-foreground/5 text-foreground hover:bg-foreground/10 transition-colors cursor-pointer"
             onClick={onJump}
           >
-            {t2("chat.toolConfirm.miniBar.jumpToTop", "Jump")}
+            {t("chat.toolConfirm.miniBar.jumpToTop", "Jump")}
           </button>
           {approvalState === "ready" && (
             <button
@@ -146,7 +142,7 @@ export function ToolConfirmMiniBar({
               className="inline-flex items-center gap-0.5 h-7 px-2.5 text-body-12 font-medium rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
               onClick={onApproveAll}
             >
-              {t2("chat.toolConfirm.miniBar.generate", "Generate")}
+              {t("chat.toolConfirm.miniBar.generate", "Generate")}
               <span>X</span>
               <span>{pendingCount}</span>
             </button>
@@ -164,17 +160,17 @@ const CLIP_EDITOR_PLACEHOLDER = {
   key: "chat.clipEditAgent.inputPlaceholder",
   fallback: "想用 AI 做简单剪辑或生成字幕？告诉我视频和处理需求",
 };
-export function nodeAgentInputPlaceholder(mode2) {
-  return mode2 === "director-stage"
+export function nodeAgentInputPlaceholder(mode) {
+  return mode === "director-stage"
     ? DIRECTOR_STAGE_PLACEHOLDER
     : CLIP_EDITOR_PLACEHOLDER;
 }
-export function findPendingQuestionState(messages2) {
+export function findPendingQuestionState(messages) {
   let pendingQuestion = null;
-  for (let index2 = messages2.length - 1; index2 >= 0; index2--) {
-    const message2 = messages2[index2];
-    if (message2.type === "question" && !message2.resolved) {
-      pendingQuestion = message2;
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index];
+    if (message.type === "question" && !message.resolved) {
+      pendingQuestion = message;
       break;
     }
   }
@@ -182,15 +178,15 @@ export function findPendingQuestionState(messages2) {
     return {
       pendingQuestion,
     };
-  for (let index2 = messages2.length - 1; index2 >= 0; index2--) {
-    const message2 = messages2[index2];
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index];
     if (
-      message2.type === "error" &&
-      message2.requestId === pendingQuestion.requestId
+      message.type === "error" &&
+      message.requestId === pendingQuestion.requestId
     ) {
       return {
         pendingQuestion,
-        pendingQuestionFailureId: message2.id,
+        pendingQuestionFailureId: message.id,
       };
     }
   }
@@ -260,7 +256,7 @@ function runtimeNodeId(item) {
 }
 function getStageRuntimeNodeIds(stage) {
   return [
-    ...new Set(stage.runtime_refs.map(runtimeNodeId).filter((id2) => !!id2)),
+    ...new Set(stage.runtime_refs.map(runtimeNodeId).filter((id) => !!id)),
   ];
 }
 function getStageOutputPaths(stage) {
@@ -268,8 +264,8 @@ function getStageOutputPaths(stage) {
     ...new Set(
       stage.runtime_refs
         .flatMap((item) => [item.path, item.file_path, item.output_path])
-        .map((path2) => path2?.trim())
-        .filter((path2) => Boolean(path2)),
+        .map((path) => path?.trim())
+        .filter((path) => Boolean(path)),
     ),
   ];
 }
@@ -285,7 +281,7 @@ function getStageFocusNodeIds(stage) {
           item.node_id,
           item.document_node_id,
         ])
-        .filter((id2) => !!id2),
+        .filter((id) => !!id),
     ),
   ];
 }
@@ -295,11 +291,11 @@ export function canFocusStageOutputs(stage) {
     getStageOutputPaths(stage).length > 0
   );
 }
-export function focusStageOutputs(workspaceId2, stage) {
+export function focusStageOutputs(workspaceId, stage) {
   const nodeIds = getStageFocusNodeIds(stage);
   const outputPaths = getStageOutputPaths(stage);
   if (nodeIds.length === 0 && outputPaths.length === 0) return false;
-  workspaceEvents.fireLocateCanvasTargets(workspaceId2, {
+  workspaceEvents.fireLocateCanvasTargets(workspaceId, {
     nodeIds,
     paths: outputPaths,
     preferParentGroup: true,
@@ -309,18 +305,18 @@ export function focusStageOutputs(workspaceId2, stage) {
 export function StageConfirmationBar({
   stage,
   finalStage,
-  disabled: disabled2 = false,
+  disabled = false,
   onConfirm,
 }) {
-  const { t: t2 } = useTranslation();
-  const workspaceId2 = useCurrentWorkspace();
+  const { t } = useTranslation();
+  const workspaceId = useCurrentWorkspace();
   const canLocate = canFocusStageOutputs(stage);
   const confirmationCopy = getStageConfirmationCopy(stage, finalStage);
   const ConfirmationIcon =
     stage.waiting_reason === "plan_review" || !finalStage ? ArrowRight : Flag;
   const handleLocate = () => {
-    if (!workspaceId2) return;
-    focusStageOutputs(workspaceId2, stage);
+    if (!workspaceId) return;
+    focusStageOutputs(workspaceId, stage);
   };
   return (
     <div
@@ -334,7 +330,7 @@ export function StageConfirmationBar({
           size="sm"
           className="relative rounded-md"
           onClick={handleLocate}
-          disabled={!workspaceId2}
+          disabled={!workspaceId}
           data-action-ui-id="production-plan.view-stage-output"
         >
           <span
@@ -344,7 +340,7 @@ export function StageConfirmationBar({
           />
           <Icon icon={Crosshair} size="sm" strokeWidth={1.5} />
           <span className="pointer-events-none">
-            {t2("productionPlan.actions.viewOutput", "查看产物")}
+            {t("productionPlan.actions.viewOutput", "查看产物")}
           </span>
         </Button>
       )}
@@ -352,7 +348,7 @@ export function StageConfirmationBar({
         type="button"
         size="sm"
         className="relative rounded-md"
-        disabled={disabled2}
+        disabled={disabled}
         onClick={onConfirm}
         data-action-ui-id="production-plan.confirm-stage"
       >
@@ -363,7 +359,7 @@ export function StageConfirmationBar({
         />
         <Icon icon={ConfirmationIcon} size="sm" strokeWidth={1.5} />
         <span className="pointer-events-none">
-          {t2(confirmationCopy.actionKey, confirmationCopy.actionFallback)}
+          {t(confirmationCopy.actionKey, confirmationCopy.actionFallback)}
         </span>
       </Button>
     </div>
@@ -384,11 +380,11 @@ export function parseJsonObject(value) {
       ? parsed
       : void 0;
   } catch {
-    const start2 = value.indexOf("{");
-    const end2 = value.lastIndexOf("}");
-    if (start2 < 0 || end2 <= start2) return void 0;
+    const start = value.indexOf("{");
+    const end = value.lastIndexOf("}");
+    if (start < 0 || end <= start) return void 0;
     try {
-      const parsed = JSON.parse(value.slice(start2, end2 + 1));
+      const parsed = JSON.parse(value.slice(start, end + 1));
       return parsed && typeof parsed === "object" && !Array.isArray(parsed)
         ? parsed
         : void 0;
@@ -397,8 +393,8 @@ export function parseJsonObject(value) {
     }
   }
 }
-export function toolName(message2) {
+export function toolName(message) {
   return (
-    ("toolName" in message2 ? message2.toolName : void 0) || message2.content
+    ("toolName" in message ? message.toolName : void 0) || message.content
   );
 }

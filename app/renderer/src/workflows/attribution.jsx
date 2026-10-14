@@ -1,5 +1,8 @@
 // 工作流署名与许可证的悬浮说明。
-import { useTranslation, reactExports, ExternalLink, usePlatform } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { ExternalLink } from "../media-editing/lucide-icon-wraps.js";
 import { Button } from "../infra/dialog-content.jsx";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { Popover } from "../assets/credit-query-keys.jsx";

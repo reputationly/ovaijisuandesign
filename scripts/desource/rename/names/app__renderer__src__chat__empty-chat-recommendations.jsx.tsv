@@ -1,0 +1,16 @@
+key	新名	依据
+t2@255:14	translate	`translate` 用于获取空聊天推荐界面的本地化文案。
+next2@31:9	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+index2@32:12	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+seen2@44:9	seen	`seen` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+unique2@45:9	unique	`unique` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@50:9	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+disabled2@180:13	disabled	`disabled` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+config2@259:19	config	`config` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+tab2@260:10	tab	`tab` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@307:23	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@312:20	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@325:25	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@333:20	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@356:24	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+preset2@485:25	preset	`preset` 是标识值；末尾数字是打包器为避免重名添加的后缀。

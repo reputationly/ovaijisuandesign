@@ -1,0 +1,17 @@
+key	new	依据
+t2@115:9	translationLabels	此对象按当前语言从中文或英文消息表中选出故事板编辑器文案。
+_2@311:28	_unusedReference	过滤待移除的参考图时只使用 itemIndex，因此该回调收到的 reference 值不读取。
+_2@442:22	_unusedArrayValue	Array.from 生成 25 个网格候选时忽略占位元素，只用 index 计算行列。
+seen2@90:9	seen	此 Set 记录已处理的参考图路径，避免恢复列表包含重复资源。
+path2@93:8	path	此值是待恢复参考图的文件路径，用于过滤空路径和重复路径。
+path2@96:11	path	此值是参考图资源路径，同时用于 resolveFileUrl 生成显示 URL。
+index2@96:18	index	map 的顺序索引用来把第一张恢复的参考图标记为锁定项。
+previous2@149:20	previous	此回调参数是已有参考图列表，更新默认图时仅保留未锁定的用户添加项。
+previous2@207:24	previous	此回调参数是已有参考图列表，新增资源时将新选项接到其后再截取上限。
+index2@291:41	index	此索引对应当前渲染的参考图，删除按钮据此从列表中移除该项。
+previous2@309:38	previous	此状态回调收到当前参考图数组，并按被点选的索引过滤条目。
+current2@339:42	isExpanded	此布尔状态参数表示展开按钮触发前的展开状态，更新时取反。
+current2@365:31	isRatioOpen	此布尔状态参数表示比例菜单当前是否打开，点击时切换其状态。
+current2@377:30	isGridOpen	此布尔状态参数表示网格布局菜单当前是否打开，点击时切换其状态。
+index2@442:26	index	此索引范围为 0 到 24，用于换算 5×5 网格候选的行与列。
+valid2@445:29	isGridValid	此布尔值来自 isStoryboardGridValid，控制候选网格是否可选及其提示文案。

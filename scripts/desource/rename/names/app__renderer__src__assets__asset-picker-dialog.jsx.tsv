@@ -1,0 +1,83 @@
+key	old	new	依据
+X@2:199	X	CloseIcon	该导入组件用于资源选择器中的关闭控件。
+t2@125:14	t2	translate	该绑定是资源来源菜单读取界面文案的翻译函数。
+t2@227:14	t2	translate	该绑定是资源列表读取界面文案的翻译函数。
+d2@302:11	d2	durationSeconds	该值是当前所选资源的有效时长秒数。
+t2@372:14	t2	translate	该绑定是本地上传入口读取界面文案的翻译函数。
+t2@424:38	t2	translate	该参数用于把资源不可用原因翻译为提示文案。
+t2@519:3	t2	translate	该参数用于生成资源行中的标签译名。
+a2@576:13	a2	leftRow	该行是名称排序比较中的左侧资源行。
+b3@576:17	b3	rightRow	该行是名称排序比较中的右侧资源行。
+q2@615:9	q2	normalizedQuery	该字符串是去空格并转为小写后的筛选词。
+r2@622:23	r2	row	该回调项是应用类型、标签和文本筛选的资源行。
+t2@658:14	t2	mediaType	该值是生成文件类型接受列表时遍历的媒体类型。
+t2@681:14	t2	translate	该绑定是资源上传流程读取界面文案的翻译函数。
+e2@699:31	e2	changeEvent	该事件提供文件输入框选取的文件列表。
+v2@759:11	v2	storedViewMode	该值是从本地存储读取并校验过的网格或列表视图模式。
+t2@780:14	t2	translate	该绑定是资源选择对话框读取界面文案的翻译函数。
+s2@820:41	s2	storeState	该参数是资源元数据存储的状态对象。
+id2@959:18	id2	tagId	该值是当前资源行关联的标签标识。
+id2@1026:8	id2	assetId	该值是解码后的资产 ID。
+id2@1032:16	id2	assetId	该值是尚未获取帧率的资源标识。
+id2@1038:23	id2	assetId	该值是批量帧率结果对应的视频资源标识。
+id2@1044:20	id2	assetId	该值是当前清理的待获取帧率资源标识。
+d2@1159:13	d2	durationSeconds	该值是当前选择的有效音频时长秒数。
+d2@1165:13	d2	durationSeconds	该值是当前选择的有效视频时长秒数。
+id2@1202:40	id2	rowKey	该值是已选映射项对应的资源行键。
+id2@1212:35	id2	assetId	该值用于从资源元数据存储中查找现有资产。
+id2@1270:17	id2	rowKey	该键标识当前所选映射中的资源行。
+id2@1301:7	id2	rowKey	该参数是当前用于约束校验的资源行键。
+e2@1307:22	e2	keyboardEvent	该事件用于在资源选择器按回车确认选择。
+id2@1313:31	id2	tagId	该参数是进入标签视图时选中的标签标识。
+r2@1347:27	r2	resource	该回调项是本地上传完成后的视频资源。
+r2@1347:60	r2	resource	该回调项是本地上传完成后的视频资源。
+id2@1354:19	id2	assetId	该值是批量帧率结果对应的视频资源标识。
+Input3@52:10	Input3	Input	去掉打包器防重名追加的后缀，恢复原名 Input，即该绑定持有的值。
+view2@62:9	view2	view	去掉打包器防重名追加的后缀，恢复原名 view，即该绑定持有的值。
+now2@60:8	now2	now	去掉打包器防重名追加的后缀，恢复原名 now，即该绑定持有的值。
+snapshot2@68:9	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+count2@97:24	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+view2@212:9	view2	view	去掉打包器防重名追加的后缀，恢复原名 view，即该绑定持有的值。
+selected2@215:13	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+selection2@288:33	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+active2@332:11	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+children2@334:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+count2@335:10	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+type2@368:36	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+view2@371:30	view2	view	去掉打包器防重名追加的后缀，恢复原名 view，即该绑定持有的值。
+constraints2@424:49	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
+min2@439:11	min2	min	去掉打包器防重名追加的后缀，恢复原名 min，即该绑定持有的值。
+max2@440:11	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+meta2@525:19	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+key2@525:26	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+type2@526:11	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+name2@629:28	name2	tagName	该值是用于匹配搜索词的资产标签名称。
+raw2@635:30	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+types2@655:23	types2	types	去掉打包器防重名追加的后缀，恢复原名 types，即该绑定持有的值。
+dot2@667:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+type2@711:15	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+next2@765:26	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+gatewayFetch2@781:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+filter2@796:9	filter2	filter	去掉打包器防重名追加的后缀，恢复原名 filter，即该绑定持有的值。
+constraints2@812:9	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
+selected2@822:10	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+view2@833:10	view2	view	去掉打包器防重名追加的后缀，恢复原名 view，即该绑定持有的值。
+browser2@1417:9	browser2	browser	去掉打包器防重名追加的后缀，恢复原名 browser，即该绑定持有的值。
+type2@854:32	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+candidates2@934:11	candidates2	candidates	去掉打包器防重名追加的后缀，恢复原名 candidates，即该绑定持有的值。
+type2@943:31	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+candidates2@951:11	candidates2	candidates	去掉打包器防重名追加的后缀，恢复原名 candidates，即该绑定持有的值。
+byTag2@957:11	byTag2	byTag	去掉打包器防重名追加的后缀，恢复原名 byTag，即该绑定持有的值。
+ids2@966:11	ids2	ids	去掉打包器防重名追加的后缀，恢复原名 ids，即该绑定持有的值。
+entries2@1034:14	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+next2@1037:17	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+selection2@1197:28	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+selection2@1199:25	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+next2@1218:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@1256:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+selection2@1265:27	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+next2@1296:29	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+entries2@1346:13	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+next2@1421:22	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+type2@1462:34	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+next2@1724:24	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。

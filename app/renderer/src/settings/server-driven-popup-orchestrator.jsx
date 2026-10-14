@@ -1,5 +1,16 @@
 // server-driven-popup-orchestrator.jsx
-import { ChevronLeftIcon, DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2, DialogPopup, DialogPortal$2 as DialogPortal, DialogTitle$2, getRuntimeConfig, jsxRuntimeExports, m$4 as m, QueryClientProvider, reactExports, storageKeys, Trans, usePlatform, useQueryClient, useStorage, useTranslation, XIcon } from "../vendor.js";
+import { Trans } from "react-i18next";
+import { m$4 as ErrorBoundary } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { storageKeys } from "../infra/storage-cache.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronLeftIcon, XIcon } from "../media-editing/lucide-icon-wraps.js";
+import { DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2, DialogPopup, DialogPortal$2 as DialogPortal, DialogTitle$2 } from "../infra/base-ui.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   resolveDesktopCanvasRenderPolicy,
@@ -151,7 +162,7 @@ function writeSessionDismissed(value) {
     else sessionStorage.removeItem(SESSION_DISMISS_KEY);
   } catch {}
 }
-function LoginGateProvider({ children: children2 }) {
+function LoginGateProvider({ children }) {
   const { user, isLoggedIn, isLoading, login } = useAuth();
   const [isOpen, setIsOpen] = reactExports.useState(false);
   const sessionDismissedRef = reactExports.useRef(readSessionDismissed());
@@ -201,7 +212,7 @@ function LoginGateProvider({ children: children2 }) {
   );
   return (
     <LoginGateContext.Provider value={value}>
-      {children2}
+      {children}
     </LoginGateContext.Provider>
   );
 }
@@ -211,7 +222,7 @@ const DebugPanelDialog = reactExports.lazy(() =>
 function canUseDebugPanel() {
   return canUseDebugTooling();
 }
-function DebugPanelProvider({ children: children2 }) {
+function DebugPanelProvider({ children }) {
   const [open, setOpen] = reactExports.useState(false);
   const isEnabled = canUseDebugPanel();
   reactExports.useEffect(() => {
@@ -220,14 +231,14 @@ function DebugPanelProvider({ children: children2 }) {
     const onKeyDown = (event) => {
       if (event.key !== ";") return;
       if (event.altKey || event.shiftKey) return;
-      const isMac2 =
+      const isMac =
         typeof navigator !== "undefined" &&
         /Mac|iPhone|iPad|iPod/.test(navigator.platform);
-      const primary = isMac2 ? event.metaKey : event.ctrlKey;
-      const otherModifier = isMac2 ? event.ctrlKey : event.metaKey;
+      const primary = isMac ? event.metaKey : event.ctrlKey;
+      const otherModifier = isMac ? event.ctrlKey : event.metaKey;
       if (!primary || otherModifier) return;
       event.preventDefault();
-      setOpen((v2) => !v2);
+      setOpen((isOpen) => !isOpen);
     };
     window.addEventListener(DEBUG_PANEL_OPEN_EVENT, onOpenDebugPanel);
     window.addEventListener("keydown", onKeyDown);
@@ -236,17 +247,17 @@ function DebugPanelProvider({ children: children2 }) {
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [isEnabled]);
-  if (!isEnabled) return <>{children2}</>;
+  if (!isEnabled) return <>{children}</>;
   return (
     <>
-      {children2}
+      {children}
       <reactExports.Suspense fallback={null}>
         <DebugPanelDialog open={open} onOpenChange={setOpen} />
       </reactExports.Suspense>
     </>
   );
 }
-function InterestSelectionProvider({ children: children2 }) {
+function InterestSelectionProvider({ children }) {
   const { isLoggedIn } = useAuth();
   const loginGate = useLoginGate();
   const [
@@ -259,7 +270,7 @@ function InterestSelectionProvider({ children: children2 }) {
     "global.selectedInterests",
   );
   const [forcedOpen, setForcedOpen] = reactExports.useState(false);
-  const [selected2, setSelected] = reactExports.useState([]);
+  const [selected, setSelected] = reactExports.useState([]);
   const autoCandidate =
     isLoggedIn &&
     hasSelectedInterestsHydrated &&
@@ -270,11 +281,11 @@ function InterestSelectionProvider({ children: children2 }) {
   });
   const isOpen = (granted && autoCandidate) || forcedOpen;
   useBlockingModalPresence(BLOCKING_MODAL_IDS.interestSelection, isOpen);
-  const toggle = reactExports.useCallback((key2) => {
+  const toggle = reactExports.useCallback((toggledKey) => {
     setSelected((prev) => {
-      if (prev.includes(key2)) return prev.filter((k2) => k2 !== key2);
+      if (prev.includes(toggledKey)) return prev.filter((key) => key !== toggledKey);
       if (prev.length >= 3) return prev;
-      return [...prev, key2];
+      return [...prev, toggledKey];
     });
   }, []);
   const forceOpen = reactExports.useCallback(() => {
@@ -285,41 +296,41 @@ function InterestSelectionProvider({ children: children2 }) {
   const complete = reactExports.useCallback(async () => {
     await Promise.all([
       setHasSelectedInterestsAsync(true),
-      setSelectedInterestsAsync(selected2),
+      setSelectedInterestsAsync(selected),
     ]);
     setForcedOpen(false);
-  }, [selected2, setHasSelectedInterestsAsync, setSelectedInterestsAsync]);
+  }, [selected, setHasSelectedInterestsAsync, setSelectedInterestsAsync]);
   const value = reactExports.useMemo(
     () => ({
       isOpen,
-      selected: selected2,
+      selected,
       toggle,
       forceOpen,
       complete,
     }),
-    [isOpen, selected2, toggle, forceOpen, complete],
+    [isOpen, selected, toggle, forceOpen, complete],
   );
   return (
     <InterestSelectionContext.Provider value={value}>
-      {children2}
+      {children}
     </InterestSelectionContext.Provider>
   );
 }
 function V1LaunchNoticeSilentMigration() {
   const { isLoggedIn, isLoading: authLoading, clearLocalAuth } = useAuth();
-  const [pending2, setPending, , isHydrated] = useStorage(
+  const [pending, setPending, , isHydrated] = useStorage(
     "global.v1LaunchNoticePending",
   );
   const consumedRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    if (!isHydrated || pending2 !== true || authLoading || consumedRef.current)
+    if (!isHydrated || pending !== true || authLoading || consumedRef.current)
       return;
     consumedRef.current = true;
     void setPending(false);
     if (isLoggedIn) clearLocalAuth();
   }, [
     isHydrated,
-    pending2,
+    pending,
     authLoading,
     isLoggedIn,
     clearLocalAuth,
@@ -327,9 +338,9 @@ function V1LaunchNoticeSilentMigration() {
   ]);
   return null;
 }
-function isGlobalStorageSchema(data2) {
-  if (data2 == null || typeof data2 !== "object") return false;
-  const obj = data2;
+function isGlobalStorageSchema(data) {
+  if (data == null || typeof data !== "object") return false;
+  const obj = data;
   return (
     typeof obj._version === "number" &&
     obj.config != null &&
@@ -337,52 +348,52 @@ function isGlobalStorageSchema(data2) {
   );
 }
 const TEAM_ACCOUNT_BOOTSTRAP_ENABLED = true;
-function AppWSConnectionProvider({ children: children2 }) {
+function AppWSConnectionProvider({ children }) {
   return (
     <WSConnectionProviderCore
       wsUrl={getRuntimeConfig().wsUrl}
       scope="app"
       syncCanvasAssetMetadata={false}
     >
-      {children2}
+      {children}
     </WSConnectionProviderCore>
   );
 }
-function ThemeProvider({ children: children2 }) {
-  const { config: config2, set: set2 } = useSettings();
-  const theme2 = config2.theme ?? "system";
+function ThemeProvider({ children }) {
+  const { config, set } = useSettings();
+  const theme = config.theme ?? "system";
   const [systemTheme, setSystemTheme] = reactExports.useState(getSystemTheme);
-  const resolved = theme2 === "system" ? systemTheme : resolveTheme(theme2);
+  const resolved = theme === "system" ? systemTheme : resolveTheme(theme);
   const setTheme = reactExports.useCallback(
-    (next2) => {
-      void set2("theme", next2);
+    (next) => {
+      void set("theme", next);
     },
-    [set2],
+    [set],
   );
   reactExports.useEffect(() => {
     applyClass(resolved);
   }, [resolved]);
   reactExports.useEffect(() => {
-    if (theme2 !== "system") return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setSystemTheme(mq.matches ? "dark" : "light");
+    if (theme !== "system") return;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setSystemTheme(mediaQuery.matches ? "dark" : "light");
     const handler = (event) => {
       setSystemTheme(event.matches ? "dark" : "light");
     };
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, [theme2]);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, [theme]);
   const value = reactExports.useMemo(
     () => ({
-      theme: theme2,
+      theme,
       resolved,
       setTheme,
     }),
-    [theme2, resolved, setTheme],
+    [theme, resolved, setTheme],
   );
-  return <ThemeCtx value={value}>{children2}</ThemeCtx>;
+  return <ThemeCtx value={value}>{children}</ThemeCtx>;
 }
-function SettingsDialogProvider({ children: children2 }) {
+function SettingsDialogProvider({ children }) {
   const [open, setOpen] = reactExports.useState(false);
   const [initialSection, setInitialSection] = reactExports.useState("general");
   const { isLoggedIn } = useAuth();
@@ -417,7 +428,7 @@ function SettingsDialogProvider({ children: children2 }) {
   );
   return (
     <SettingsDialogCtx value={value}>
-      {children2}
+      {children}
       <SettingsDialog
         open={open}
         onOpenChange={setOpen}
@@ -428,7 +439,7 @@ function SettingsDialogProvider({ children: children2 }) {
 }
 function LoginGateDialog() {
   const { isOpen, dismissForSession, triggerLogin } = useLoginGate();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const handleDismiss = () => {
     dismissForSession();
     try {
@@ -456,14 +467,14 @@ function LoginGateDialog() {
         data-action-ui-id="auth.login-gate"
       >
         <DialogDescription className="sr-only">
-          {t2("auth.loginGate.subtitle")}
+          {t("auth.loginGate.subtitle")}
         </DialogDescription>
         <Button
           variant="ghost"
           size="icon-sm"
           className="absolute top-3 right-3 z-10 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
           onClick={handleDismiss}
-          aria-label={t2("common.close")}
+          aria-label={t("common.close")}
           data-action-ui-id="auth.login-gate.close"
         >
           <XIcon size={16} strokeWidth={1.5} />
@@ -511,22 +522,22 @@ function LoginGateDialog() {
             />
             <div className="mt-6 flex flex-col gap-4">
               <DialogTitle className="font-heading text-[22px] font-medium leading-snug text-foreground">
-                {t2("auth.loginGate.title")}
+                {t("auth.loginGate.title")}
               </DialogTitle>
               <p className="text-sm leading-relaxed text-foreground/70">
-                {t2("auth.loginGate.subtitle")}
+                {t("auth.loginGate.subtitle")}
               </p>
             </div>
             <ul className="mt-5 flex flex-col gap-3.5 text-sm leading-relaxed text-foreground/70">
-              {BULLET_KEYS.map((key2) => (
-                <li key={key2} className="flex gap-2.5">
+              {BULLET_KEYS.map((key) => (
+                <li key={key} className="flex gap-2.5">
                   <span
                     aria-hidden={true}
                     className="mt-2 h-1.5 w-1.5 shrink-0 bg-foreground/70"
                   />
                   <span>
                     <Trans
-                      i18nKey={key2}
+                      i18nKey={key}
                       components={{
                         i: <i />,
                       }}
@@ -543,7 +554,7 @@ function LoginGateDialog() {
                 onClick={triggerLogin}
                 data-action-ui-id="auth.login-gate.confirm"
               >
-                {t2("auth.loginGate.button")}
+                {t("auth.loginGate.button")}
               </Button>
             </div>
           </div>
@@ -552,14 +563,14 @@ function LoginGateDialog() {
     </Dialog>
   );
 }
-function NewWorkspaceDialogProvider({ children: children2 }) {
+function NewWorkspaceDialogProvider({ children }) {
   const { createWorkspace } = useTopbarActions();
   const [open, setOpen] = reactExports.useState(false);
   const [presetProjectId, setPresetProjectId] = reactExports.useState(void 0);
   const confirmHandlerRef = reactExports.useRef(null);
   const defaultConfirm = reactExports.useCallback(
-    (name2, options) => {
-      return createWorkspace(name2, options);
+    (workspaceName, options) => {
+      return createWorkspace(workspaceName, options);
     },
     [createWorkspace],
   );
@@ -571,7 +582,7 @@ function NewWorkspaceDialogProvider({ children: children2 }) {
     },
     [],
   );
-  const close2 = reactExports.useCallback(() => {
+  const closePopup = reactExports.useCallback(() => {
     confirmHandlerRef.current = null;
     setPresetProjectId(void 0);
     setOpen(false);
@@ -583,10 +594,10 @@ function NewWorkspaceDialogProvider({ children: children2 }) {
       window.removeEventListener(OPEN_NEW_WORKSPACE_DIALOG_EVENT, handleOpen);
   }, [requestOpen]);
   const handleConfirm = reactExports.useCallback(
-    (name2, options) => {
+    (workspaceName, options) => {
       const handler = confirmHandlerRef.current ?? defaultConfirm;
       confirmHandlerRef.current = null;
-      return handler(name2, options);
+      return handler(workspaceName, options);
     },
     [defaultConfirm],
   );
@@ -601,13 +612,13 @@ function NewWorkspaceDialogProvider({ children: children2 }) {
     () => ({
       open,
       requestOpen,
-      close: close2,
+      close: closePopup,
     }),
-    [close2, open, requestOpen],
+    [closePopup, open, requestOpen],
   );
   return (
     <NewWorkspaceDialogContext value={value}>
-      {children2}
+      {children}
       <NewWorkspaceDialog
         open={open}
         onOpenChange={handleOpenChange}
@@ -670,9 +681,9 @@ function ProxyDetectedToast() {
     let lastReportedDecision = "";
     let recheckTimer;
     function reportDecision(decision, reason) {
-      const key2 = `${decision}:${reason}`;
-      if (lastReportedDecision === key2) return;
-      lastReportedDecision = key2;
+      const key = `${decision}:${reason}`;
+      if (lastReportedDecision === key) return;
+      lastReportedDecision = key;
       reportRumAction("Proxy warning decision", {
         decision,
         reason,
@@ -727,11 +738,11 @@ function ProxyDetectedToast() {
         const shouldWarn = status.shouldWarn === true;
         if (shouldWarn) {
           if (warningAcknowledged && !warningVisible) return;
-          const now2 = Date.now();
+          const now = Date.now();
           if (warningObservationCount === 0) {
             warningObservationCount = 1;
-            nextWarningObservationAt = now2 + PROXY_RECHECK_INTERVAL_MS;
-          } else if (now2 >= nextWarningObservationAt) {
+            nextWarningObservationAt = now + PROXY_RECHECK_INTERVAL_MS;
+          } else if (now >= nextWarningObservationAt) {
             warningObservationCount = Math.min(
               WARNING_CONFIRMATION_COUNT,
               warningObservationCount + 1,
@@ -743,7 +754,7 @@ function ProxyDetectedToast() {
           ) {
             warningVisible = true;
             warningAcknowledged = true;
-            warningExpiresAt = now2 + TOAST_DURATION_MS;
+            warningExpiresAt = now + TOAST_DURATION_MS;
             showProxyToast(dismissProxyToast);
             reportDecision("shown", status.error ?? "connection_failed");
           }
@@ -792,11 +803,11 @@ function RemoteConnectorAuthorizationHost() {
   const [preparation, setPreparation] = reactExports.useState();
   const dismissed = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    let active2 = true;
+    let active = true;
     let receivedEvent = false;
     let previousState;
-    const update2 = (result) => {
-      if (!active2 || result?.connectorId !== "libtv") return;
+    const update = (result) => {
+      if (!active || result?.connectorId !== "libtv") return;
       const newAttempt =
         result.state === "installing" && previousState !== "installing";
       previousState = result.state;
@@ -807,17 +818,17 @@ function RemoteConnectorAuthorizationHost() {
     const subscription = homeService.customMcp.onDidChangeRemotePreparation(
       (result) => {
         receivedEvent = true;
-        update2(result);
+        update(result);
       },
     );
     void homeService.customMcp
       .getRemotePreparation()
       .then((result) => {
-        if (!receivedEvent) update2(result);
+        if (!receivedEvent) update(result);
       })
       .catch(() => {});
     return () => {
-      active2 = false;
+      active = false;
       subscription.dispose();
     };
   }, []);
@@ -834,20 +845,20 @@ function RemoteConnectorAuthorizationHost() {
 function InterestSelectionDialog() {
   const {
     isOpen,
-    selected: selected2,
+    selected,
     toggle,
     complete,
   } = useInterestSelection();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   reactExports.useEffect(() => {
     if (isOpen) {
       trackEvent(TRACK_EVENTS.INTEREST_SELECTION_VIEW, {});
     }
   }, [isOpen]);
   const handleStart = async () => {
-    if (selected2.length === 0) return;
+    if (selected.length === 0) return;
     trackEvent(TRACK_EVENTS.INTEREST_SELECTION_COMPLETE, {
-      interests: [...selected2],
+      interests: [...selected],
     });
     await complete();
   };
@@ -863,10 +874,10 @@ function InterestSelectionDialog() {
         data-action-ui-id="interestSelection"
       >
         <DialogTitle className="sr-only">
-          {t2("interestSelection.heading")}
+          {t("interestSelection.heading")}
         </DialogTitle>
         <DialogDescription className="sr-only">
-          {t2("interestSelection.description")}
+          {t("interestSelection.description")}
         </DialogDescription>
         <div className="flex flex-col">
           <div className="px-8 pt-8 pb-6">
@@ -875,18 +886,18 @@ function InterestSelectionDialog() {
           <div className="flex flex-col gap-5 px-8 pb-7">
             <div className="flex flex-col gap-1">
               <h2 className="font-heading text-base font-medium text-foreground">
-                {t2("interestSelection.heading")}
+                {t("interestSelection.heading")}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {t2("interestSelection.description")}
+                {t("interestSelection.description")}
               </p>
             </div>
-            <InterestOptionGrid value={selected2} onToggle={toggle} />
+            <InterestOptionGrid value={selected} onToggle={toggle} />
           </div>
           <div className="flex items-center justify-between gap-4 px-8 pt-2 pb-7">
             <div className="text-sm text-muted-foreground">
-              {t2("interestSelection.counter", {
-                count: selected2.length,
+              {t("interestSelection.counter", {
+                count: selected.length,
                 max: MAX_INTERESTS,
               })}
             </div>
@@ -895,10 +906,10 @@ function InterestSelectionDialog() {
               size="lg"
               className="h-10 px-5 text-sm font-medium"
               onClick={handleStart}
-              disabled={selected2.length === 0}
+              disabled={selected.length === 0}
               data-action-ui-id="interestSelection.cta"
             >
-              {t2("interestSelection.cta")}
+              {t("interestSelection.cta")}
             </Button>
           </div>
         </div>
@@ -906,10 +917,10 @@ function InterestSelectionDialog() {
     </Dialog>
   );
 }
-function ProjectArchiveMenuProvider({ children: children2 }) {
+function ProjectArchiveMenuProvider({ children }) {
   const { runExport, runImport } = useProjectArchiveActions();
   const routerSearch = useRouterState({
-    select: (s2) => s2.location.search,
+    select: (routerState) => routerState.location.search,
   });
   const currentWorkspaceId = routerSearch?.workspaceId;
   const workspaceIdRef = reactExports.useRef(currentWorkspaceId);
@@ -919,15 +930,15 @@ function ProjectArchiveMenuProvider({ children: children2 }) {
     if (!ipc) return;
     const offExport = ipc.on(IPC_CHANNELS.MENU_EXPORT_PROJECT, () => {
       void (async () => {
-        const workspaceId2 = workspaceIdRef.current;
-        if (!workspaceId2) {
+        const workspaceId = workspaceIdRef.current;
+        if (!workspaceId) {
           await runExport(void 0);
           return;
         }
-        const hiloApp2 = instantiationService.invokeFunction((accessor) =>
+        const hiloApp = instantiationService.invokeFunction((accessor) =>
           accessor.get(IHiloApp),
         );
-        const runtime = await hiloApp2.getWorkspaceRuntime(workspaceId2);
+        const runtime = await hiloApp.getWorkspaceRuntime(workspaceId);
         await runExport(runtime?.folderPath);
       })();
     });
@@ -939,12 +950,12 @@ function ProjectArchiveMenuProvider({ children: children2 }) {
       offImport();
     };
   }, [runExport, runImport]);
-  return <>{children2}</>;
+  return <>{children}</>;
 }
 const UpdaterRoot = () => {
-  const { state: state2 } = useUpdaterContext();
+  const { state } = useUpdaterContext();
   return (
-    <UpdaterErrorBoundary forcedMode={state2.forced}>
+    <UpdaterErrorBoundary forcedMode={state.forced}>
       <UpdaterRouterInner />
     </UpdaterErrorBoundary>
   );
@@ -1125,10 +1136,10 @@ function ServerDrivenPopupOrchestrator() {
     }
     if (!wasShownRef.current || !activation) return;
     wasShownRef.current = false;
-    const closedByUser2 =
+    const closedByUser =
       closedFor?.userID === activation.userID &&
       closedFor?.popupId === activation.popupId;
-    if (closedByUser2) {
+    if (closedByUser) {
       serverPopupLog.info("closed by user", {
         popupId: activation.popupId,
         userID: activation.userID,
@@ -1172,8 +1183,8 @@ function ServerDrivenPopupOrchestrator() {
   }
 }
 function WatermarkOnboarding() {
-  const [config2, , , isHydrated] = useStorage("global.config");
-  const { set: set2 } = useSettings();
+  const [config, , , isHydrated] = useStorage("global.config");
+  const { set } = useSettings();
   const [pendingRemove, setPendingRemove] = reactExports.useState(false);
   const isDomestic = getRuntimeConfig().region === "domestic";
   const candidate = false;
@@ -1184,17 +1195,17 @@ function WatermarkOnboarding() {
   const wasOpenRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
     if (open && !wasOpenRef.current) {
-      setPendingRemove(config2?.watermarkEnabled === false);
+      setPendingRemove(config?.watermarkEnabled === false);
     }
     wasOpenRef.current = open;
-  }, [open, config2]);
+  }, [open, config]);
   useBlockingModalPresence(BLOCKING_MODAL_IDS.watermarkOnboarding, open);
   const handleSave = async () => {
-    await set2("watermarkEnabled", !pendingRemove);
-    await set2("watermarkOnboardingShown", true);
+    await set("watermarkEnabled", !pendingRemove);
+    await set("watermarkOnboardingShown", true);
   };
-  const handleOpenChange = (next2, eventDetails) => {
-    if (!next2) eventDetails.cancel();
+  const handleOpenChange = (next, eventDetails) => {
+    if (!next) eventDetails.cancel();
   };
   return (
     <Dialog
@@ -1326,31 +1337,31 @@ function WatermarkOnboarding() {
   );
 }
 function WindowCloseDialog() {
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const [request, setRequest] = reactExports.useState(null);
   const serviceRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    if (!isElectron() || platform2.app.os !== "win32") return;
+    if (!isElectron() || platform.app.os !== "win32") return;
     let disposed = false;
     let eventReceived = false;
     let subscription;
     let connectedService;
     void (() => Promise.resolve().then(() => instantiation))()
-      .then(async ({ services: services2 }) => {
+      .then(async ({ services }) => {
         if (disposed) return;
-        const service2 = services2.get(IWindowMainService);
-        connectedService = service2;
-        serviceRef.current = service2;
-        subscription = service2.onDidChangeWindowCloseConfirmation(
-          (pending22) => {
+        const service = services.get(IWindowMainService);
+        connectedService = service;
+        serviceRef.current = service;
+        subscription = service.onDidChangeWindowCloseConfirmation(
+          (pending) => {
             eventReceived = true;
-            if (!disposed) setRequest(pending22);
+            if (!disposed) setRequest(pending);
           },
         );
-        await service2.setWindowCloseConfirmationReady(true);
+        await service.setWindowCloseConfirmationReady(true);
         if (disposed) return;
-        const pending2 = await service2.getPendingWindowCloseConfirmation();
-        if (!disposed && !eventReceived) setRequest(pending2);
+        const pending = await service.getPendingWindowCloseConfirmation();
+        if (!disposed && !eventReceived) setRequest(pending);
       })
       .catch((error) =>
         actionTrailLog.error("window-close subscription failed", {
@@ -1369,7 +1380,7 @@ function WindowCloseDialog() {
         );
       serviceRef.current = null;
     };
-  }, [platform2.app.os]);
+  }, [platform.app.os]);
   const requestId = request?.id;
   reactExports.useEffect(() => {
     if (requestId === void 0) return;
@@ -1391,20 +1402,20 @@ function WindowCloseDialog() {
           request.id,
           choice,
         );
-        setRequest((current2) =>
-          current2?.id === request.id ? null : current2,
+        setRequest((current) =>
+          current?.id === request.id ? null : current,
         );
       }}
     />
   );
 }
 function CanvasRenderRuntimeProvider({
-  services: services2,
-  children: children2,
+  services,
+  children,
 }) {
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const runtimeConfig = useRuntimeConfig();
-  const { arch, os: os2, runningUnderARM64Translation } = platform2.app;
+  const { arch, os, runningUnderARM64Translation } = platform.app;
   const translationState = runningUnderARM64Translation ?? "unknown";
   const { canvasContentVisibilityOverride, canvasResumeRecoveryEnabled } =
     runtimeConfig;
@@ -1413,7 +1424,7 @@ function CanvasRenderRuntimeProvider({
       resolveDesktopCanvasRenderPolicy(
         {
           arch,
-          os: os2,
+          os,
           runningUnderARM64Translation,
         },
         {
@@ -1423,17 +1434,17 @@ function CanvasRenderRuntimeProvider({
       ),
     [
       arch,
-      os2,
+      os,
       runningUnderARM64Translation,
       canvasContentVisibilityOverride,
       canvasResumeRecoveryEnabled,
     ],
   );
   const runtimeServices = reactExports.useMemo(
-    () => services2 ?? resolveRuntimeServices(policy.recoverAfterResume),
-    [policy.recoverAfterResume, services2],
+    () => services ?? resolveRuntimeServices(policy.recoverAfterResume),
+    [policy.recoverAfterResume, services],
   );
-  const { logService: logService2, powerStateService } = runtimeServices;
+  const { logService, powerStateService } = runtimeServices;
   const [resumeEpoch, setResumeEpoch] = reactExports.useState(0);
   const didTrackPolicyRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
@@ -1443,12 +1454,12 @@ function CanvasRenderRuntimeProvider({
       resume_recovery_enabled: policy.recoverAfterResume,
       recovery_frame_budget_ms: policy.recoveryFrameBudgetMs,
       recovery_max_per_frame: policy.recoveryMaxPerFrame,
-      os: os2,
+      os,
       arch,
       running_under_arm64_translation: translationState,
     };
     safeInfo(
-      logService2,
+      logService,
       `[canvas-render] policy_applied ${JSON.stringify(profile)}`,
     );
     if (!didTrackPolicyRef.current) {
@@ -1459,41 +1470,41 @@ function CanvasRenderRuntimeProvider({
         profile,
       );
     }
-  }, [arch, logService2, os2, policy, runtimeServices, translationState]);
+  }, [arch, logService, os, policy, runtimeServices, translationState]);
   reactExports.useEffect(() => {
     if (!policy.recoverAfterResume) return;
     if (!powerStateService) {
-      safeWarn(logService2, "[canvas-render] power_bridge_unavailable");
+      safeWarn(logService, "[canvas-render] power_bridge_unavailable");
       return;
     }
     let subscription;
     try {
       subscription = powerStateService.onDidResume((event) => {
-        setResumeEpoch((current2) => Math.max(current2, event.resumeEpoch));
+        setResumeEpoch((current) => Math.max(current, event.resumeEpoch));
       });
     } catch (error) {
       safeWarn(
-        logService2,
+        logService,
         `[canvas-render] power_bridge_subscribe_failed ${error instanceof Error ? error.message : String(error)}`,
       );
       return;
     }
     try {
       Promise.resolve(powerStateService.getSnapshot())
-        .then((snapshot2) => {
-          setResumeEpoch((current2) =>
-            Math.max(current2, snapshot2.resumeEpoch),
+        .then((snapshot) => {
+          setResumeEpoch((current) =>
+            Math.max(current, snapshot.resumeEpoch),
           );
         })
         .catch((error) => {
           safeWarn(
-            logService2,
+            logService,
             `[canvas-render] power_snapshot_failed ${error instanceof Error ? error.message : String(error)}`,
           );
         });
     } catch (error) {
       safeWarn(
-        logService2,
+        logService,
         `[canvas-render] power_snapshot_failed ${error instanceof Error ? error.message : String(error)}`,
       );
     }
@@ -1502,25 +1513,25 @@ function CanvasRenderRuntimeProvider({
         subscription?.dispose();
       } catch {}
     };
-  }, [logService2, policy.recoverAfterResume, powerStateService]);
+  }, [logService, policy.recoverAfterResume, powerStateService]);
   const handleRecovery = reactExports.useCallback(
     (result) => {
       const detail = {
         ...result,
         profile: policy.reason,
         content_visibility: policy.contentVisibility,
-        os: os2,
+        os,
         arch,
         running_under_arm64_translation: translationState,
       };
       safeInfo(
-        logService2,
+        logService,
         `[canvas-render] recovery_completed ${JSON.stringify(detail)}`,
       );
       const recoveryProperties = {
         profile: policy.reason,
         content_visibility: policy.contentVisibility,
-        os: os2,
+        os,
         arch,
         running_under_arm64_translation: translationState,
         resume_epoch: result.resumeEpoch,
@@ -1557,8 +1568,8 @@ function CanvasRenderRuntimeProvider({
     },
     [
       arch,
-      logService2,
-      os2,
+      logService,
+      os,
       policy.contentVisibility,
       policy.reason,
       runtimeServices,
@@ -1571,23 +1582,23 @@ function CanvasRenderRuntimeProvider({
       resumeEpoch={resumeEpoch}
       onRecovery={handleRecovery}
     >
-      {children2}
+      {children}
     </CanvasRenderPolicyProvider>
   );
 }
 function ImBridgeDialog({ open, onOpenChange }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const regionSuffix =
     getRuntimeConfig().region === "overseas" ? "overseas" : "domestic";
-  const defaultTitle = t2(`imBridge.title.${regionSuffix}`);
+  const defaultTitle = t(`imBridge.title.${regionSuffix}`);
   const [headerConfig, setHeaderConfig] = reactExports.useState(null);
   const title = headerConfig?.title ?? defaultTitle;
   const hasBackButton = Boolean(headerConfig?.onBack);
   reactExports.useEffect(() => {
     if (!open) setHeaderConfig(null);
   }, [open]);
-  const handleHeaderChange = reactExports.useCallback((next2) => {
-    setHeaderConfig(next2);
+  const handleHeaderChange = reactExports.useCallback((next) => {
+    setHeaderConfig(next);
   }, []);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1613,7 +1624,7 @@ function ImBridgeDialog({ open, onOpenChange }) {
                 data-action-ui-id="im-bridge-dialog.back"
               >
                 <ChevronLeftIcon className="size-6" strokeWidth={1.5} />
-                <span className="sr-only">{t2("common.back")}</span>
+                <span className="sr-only">{t("common.back")}</span>
               </Button>
             )}
             <DialogTitle$2 className="min-w-0 flex-1 truncate pr-14 font-heading font-medium text-base text-foreground">
@@ -1630,7 +1641,7 @@ function ImBridgeDialog({ open, onOpenChange }) {
               }
             >
               <XIcon className="size-6" strokeWidth={1.75} />
-              <span className="sr-only">{t2("common.close")}</span>
+              <span className="sr-only">{t("common.close")}</span>
             </DialogClose>
           </div>
           <DialogDescription$2 className="sr-only">{title}</DialogDescription$2>
@@ -1644,7 +1655,7 @@ function ImBridgeDialog({ open, onOpenChange }) {
     </Dialog>
   );
 }
-function ImBridgeDialogProvider({ children: children2 }) {
+function ImBridgeDialogProvider({ children }) {
   const [open, setOpen] = reactExports.useState(false);
   const openImBridge = reactExports.useCallback(() => setOpen(true), []);
   const closeImBridge = reactExports.useCallback(() => setOpen(false), []);
@@ -1658,17 +1669,17 @@ function ImBridgeDialogProvider({ children: children2 }) {
   );
   return (
     <ImBridgeDialogCtx value={value}>
-      {children2}
+      {children}
       <ImBridgeDialog open={open} onOpenChange={setOpen} />
     </ImBridgeDialogCtx>
   );
 }
-function AppQueryProvider({ children: children2 }) {
+function AppQueryProvider({ children }) {
   reactExports.useEffect(() => {
-    const service2 = instantiationService.invokeFunction((accessor) =>
+    const service = instantiationService.invokeFunction((accessor) =>
       accessor.get(IProjectMainService),
     );
-    const disposable = service2.onDidChangeProjects(() => {
+    const disposable = service.onDidChangeProjects(() => {
       void queryClient.invalidateQueries({
         queryKey: ["storage", "global", "projects"],
       });
@@ -1676,18 +1687,18 @@ function AppQueryProvider({ children: children2 }) {
     return () => disposable.dispose();
   }, []);
   return (
-    <QueryClientProvider client={queryClient}>{children2}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 }
 function StorageEffect() {
-  const platform2 = usePlatform();
-  const queryClient2 = useQueryClient();
+  const platform = usePlatform();
+  const queryClient = useQueryClient();
   reactExports.useEffect(() => {
     try {
       if (!isElectron()) return;
       const subscription =
         getDesktopSettingsMainService().onDidChangeCustomModel(() => {
-          void queryClient2.invalidateQueries({
+          void queryClient.invalidateQueries({
             queryKey: ACTIVE_CUSTOM_MODEL_QUERY_KEY,
           });
         });
@@ -1697,17 +1708,17 @@ function StorageEffect() {
         "[StorageEffect] Model configuration updates are unavailable",
       );
     }
-  }, [queryClient2]);
+  }, [queryClient]);
   reactExports.useEffect(() => {
-    if (!platform2.capabilities.has("storage") || !platform2.storage) return;
+    if (!platform.capabilities.has("storage") || !platform.storage) return;
     let cancelled = false;
-    platform2.storage
+    platform.storage
       .globalLoad()
-      .then((data2) => {
-        if (cancelled || !data2 || !isGlobalStorageSchema(data2)) return;
-        for (const [key2, value] of Object.entries(data2)) {
-          if (key2 === "_version" || key2 === "currentWorkspace") continue;
-          queryClient2.setQueryData(storageKeys.global(key2), value);
+      .then((data) => {
+        if (cancelled || !data || !isGlobalStorageSchema(data)) return;
+        for (const [key, value] of Object.entries(data)) {
+          if (key === "_version" || key === "currentWorkspace") continue;
+          queryClient.setQueryData(storageKeys.global(key), value);
         }
       })
       .catch((err) => {
@@ -1716,11 +1727,11 @@ function StorageEffect() {
     return () => {
       cancelled = true;
     };
-  }, [platform2, queryClient2]);
-  const [config2] = useStorage("global.config");
+  }, [platform, queryClient]);
+  const [config] = useStorage("global.config");
   reactExports.useEffect(() => {
-    syncLanguage(config2.language);
-  }, [config2.language]);
+    syncLanguage(config.language);
+  }, [config.language]);
   return null;
 }
 function ErrorFallback({ error }) {
@@ -1731,12 +1742,12 @@ function ErrorFallback({ error }) {
   );
   const showStack = getRuntimeConfig().channel !== "prod";
   reactExports.useEffect(() => {
-    const timer2 = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setDiagnostic(
         getLoggedErrorBoundaryDiagnostic(err) ?? logErrorBoundary(err),
       );
     }, 0);
-    return () => window.clearTimeout(timer2);
+    return () => window.clearTimeout(timer);
   }, [err]);
   return (
     <ErrorFallbackUI
@@ -1745,24 +1756,24 @@ function ErrorFallback({ error }) {
       failureId={diagnostic?.failureId}
       failureTimestamp={diagnostic?.timestamp}
       showDetails={showDetails}
-      onToggleDetails={() => setShowDetails((v2) => !v2)}
+      onToggleDetails={() => setShowDetails((isShown) => !isShown)}
       onRetry={() => window.location.reload()}
     />
   );
 }
-function handleBoundaryError(error, info2) {
+function handleBoundaryError(error, info) {
   const err = error instanceof Error ? error : new Error(String(error));
-  logErrorBoundary(err, info2.componentStack);
+  logErrorBoundary(err, info.componentStack);
 }
-function PlatformCanvasRenderProvider({ children: children2 }) {
+function PlatformCanvasRenderProvider({ children }) {
   return (
     <PlatformProvider>
-      <CanvasRenderRuntimeProvider>{children2}</CanvasRenderRuntimeProvider>
+      <CanvasRenderRuntimeProvider>{children}</CanvasRenderRuntimeProvider>
     </PlatformProvider>
   );
 }
-export function AppProviders({ children: children2 }) {
-  return jsxRuntimeExports.jsx(m, {
+export function AppProviders({ children }) {
+  return jsxRuntimeExports.jsx(ErrorBoundary, {
     FallbackComponent: ErrorFallback,
     onError: handleBoundaryError,
     children: (
@@ -1785,7 +1796,7 @@ export function AppProviders({ children: children2 }) {
                                 <DebugPanelProvider>
                                   <TopbarProvider>
                                     <NewWorkspaceDialogProvider>
-                                      {children2}
+                                      {children}
                                     </NewWorkspaceDialogProvider>
                                   </TopbarProvider>
                                   <LoginGateDialog />

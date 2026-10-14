@@ -1,0 +1,10 @@
+key	new	依据
+x2@55:6	x	此处是右键菜单锚点的横坐标，传给菜单定位样式。
+y4@56:6	y	此处是右键菜单锚点的纵坐标，传给菜单定位样式。
+x2@134:25	x	clampMenuPoint 用它限制待显示菜单的横坐标不越出视口。
+y4@134:29	y	clampMenuPoint 用它限制待显示菜单的纵坐标不越出视口。
+t2@155:14	t	useTranslation 返回的文本函数，用来生成复制、保存等菜单标签。
+seen2@36:9	seen	此 Set 记录已加入批量下载列表的资源地址，以跳过重复下载源。
+point2@255:19	point	状态更新回调收到当前菜单锚点，项目动作标识变化时据此清空或保留菜单。
+close2@259:11	closeMenu	工具将 close 判为全局名；此回调把菜单锚点设为 null 并响应鼠标按下或窗口失焦。
+handleKeyDown2@260:11	handleKeyDown	该键盘回调仅在 Escape 时阻止事件冒泡并调用 closeMenu。

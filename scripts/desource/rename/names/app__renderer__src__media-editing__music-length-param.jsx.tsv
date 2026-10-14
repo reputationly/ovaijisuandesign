@@ -1,0 +1,16 @@
+key	new	依据
+m3@19:9	durationMatch	匹配 mm:ss 格式的正则结果；捕获组 1 和 2 分别提供分钟与秒文本。
+t2@32:14	t	useTranslation 返回的翻译函数，用于时长预设、输入占位符和最小时长提示。
+mm@40:23	minutesText	自定义时长输入的分钟文本，在 emitCustom 中移除非数字并限制为两位。
+ss2@40:27	secondsText	自定义时长输入的秒数文本，在 emitCustom 中移除非数字并限制为两位。
+e2@64:25	clickEvent	时长预设按钮的点击事件；阻止冒泡后在未禁用时提交该预设值。
+e2@89:28	changeEvent	分钟输入框的 change 事件；仅接受至多两位数字并和秒字段合并提交。
+e2@93:27	clickEvent	分钟输入框的 click 事件被阻止冒泡，避免触发画布节点点击。
+e2@94:29	keyboardEvent	分钟输入框的 keydown 事件被阻止冒泡，避免触发画布键盘快捷键。
+e2@121:28	changeEvent	秒输入框的 change 事件；仅接受至多两位数字并和分钟字段合并提交。
+e2@125:27	clickEvent	秒输入框的 click 事件被阻止冒泡，避免触发画布节点点击。
+e2@126:29	keyboardEvent	秒输入框的 keydown 事件被阻止冒泡，避免触发画布键盘快捷键。
+e2@157:23	clickEvent	自定义时长按钮的点击事件；阻止冒泡后在未禁用时切换到 custom 模式。
+disabled2@31:63	disabled	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存自定义时长输入是否被禁用。
+preset2@57:36	preset	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前遍历的音乐时长预设。
+selected2@58:17	selected	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前时长预设是否被选中。

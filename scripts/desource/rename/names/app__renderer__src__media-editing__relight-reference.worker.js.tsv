@@ -1,0 +1,44 @@
+key	new	依据
+a@12:17	startValue	接收线性插值的起始通道值。
+b@12:20	endValue	接收线性插值的结束通道值。
+t@12:23	interpolationFactor	接收两端颜色之间的插值比例。
+lo@18:9	lowerStop	保存色温范围内较低的颜色停点。
+hi@19:9	upperStop	保存色温范围内较高的颜色停点。
+t@27:11	temperatureFactor	保存当前色温在相邻停点间的归一化比例。
+r@28:11	redChannel	保存插值得到的红色通道值。
+g@29:11	greenChannel	保存插值得到的绿色通道值。
+b@30:11	blueChannel	保存插值得到的蓝色通道值。
+v@31:20	channelValue	接收转换为十六进制文本的颜色通道值。
+hex@77:21	hexColor	接收需要解析为线性 RGB 的十六进制颜色。
+az@98:11	azimuthRadians	保存水平角换算后的弧度。
+el@99:11	elevationRadians	保存垂直角换算后的弧度。
+px@151:13	pixelOffsetX	保存像素中心相对图像中心的水平偏移。
+py@152:13	pixelOffsetY	保存像素中心相对图像中心的垂直偏移。
+u@173:15	viewPlaneX	保存像素映射到相机视平面的水平坐标。
+v@174:15	viewPlaneY	保存像素映射到相机视平面的垂直坐标。
+a@175:15	rayDirectionLengthSquared	保存视线方向向量的平方长度。
+t@176:15	rayDistance	保存相机视线与球面交点对应的距离参数。
+nx@182:15	surfaceNormalX	保存球面交点法线的 x 分量。
+ny@183:15	surfaceNormalY	保存球面交点法线的 y 分量。
+nz@184:15	surfaceNormalZ	保存球面交点法线的 z 分量。
+vx@186:15	viewDirectionX	保存朝向相机的视线方向 x 分量。
+vy@187:15	viewDirectionY	保存朝向相机的视线方向 y 分量。
+vz@188:15	viewDirectionZ	保存朝向相机的视线方向 z 分量。
+nv@189:15	normalViewDot	保存表面法线与视线方向的点积。
+sky@190:15	skyBlend	保存用于混合天光与地面光的垂直权重。
+r@191:13	linearRed	累积环境光和半球光的线性红色通道。
+g@195:13	linearGreen	累积环境光和半球光的线性绿色通道。
+b@199:13	linearBlue	累积环境光和半球光的线性蓝色通道。
+sy@158:20	sampleYIndex	遍历像素边缘抗锯齿采样的垂直下标。
+sx@159:22	sampleXIndex	遍历像素边缘抗锯齿采样的水平下标。
+dx@160:21	sampleXOffset	保存当前子像素采样点的水平偏移。
+dy@161:21	sampleYOffset	保存当前子像素采样点的垂直偏移。
+lx@204:15	lightDirectionX	保存当前灯光方向向量的 x 分量。
+ly@205:15	lightDirectionY	保存当前灯光方向向量的 y 分量。
+lz@206:15	lightDirectionZ	保存当前灯光方向向量的 z 分量。
+nl@226:17	normalLightDot	保存表面法线与灯光方向的点积。
+hx@228:17	halfwayVectorX	保存视线方向与灯光方向中间向量的 x 分量。
+hy@229:17	halfwayVectorY	保存视线方向与灯光方向中间向量的 y 分量。
+hz@230:17	halfwayVectorZ	保存视线方向与灯光方向中间向量的 z 分量。
+nh@232:17	normalHalfwayDot	保存表面法线与中间向量的点积。
+vh@233:17	viewHalfwayDot	保存视线方向与中间向量的点积。

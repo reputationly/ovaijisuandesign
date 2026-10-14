@@ -1,0 +1,135 @@
+key	new	reason
+t2@162:14	t	useTranslation() 返回的翻译函数 t
+e2@215:19	keyboardEvent	onKeyDown 回调收到的事件对象
+t2@286:14	t	useTranslation() 返回的翻译函数 t
+e2@377:19	keyboardEvent	onKeyDown 回调收到的事件对象
+t2@452:14	t	useTranslation() 返回的翻译函数 t
+e2@479:19	keyboardEvent	onKeyDown 回调收到的事件对象
+i2@568:14	i	原名 i，去掉打包器加的数字去重后缀
+i2@573:14	i	原名 i，去掉打包器加的数字去重后缀
+i2@581:14	i	原名 i，去掉打包器加的数字去重后缀
+i2@592:14	i	原名 i，去掉打包器加的数字去重后缀
+t2@837:14	t	useTranslation() 返回的翻译函数 t
+e2@857:20	changeEvent	onChange 回调收到的事件对象
+e2@859:21	keyboardEvent	onKeyDown 回调收到的事件对象
+t2@1006:14	t	useTranslation() 返回的翻译函数 t
+id2@1019:16	id	原名 id，去掉打包器加的数字去重后缀
+id2@1029:18	id	原名 id，去掉打包器加的数字去重后缀
+e2@1059:29	keyboardEvent	函数体读取 key/code 的键盘事件
+e2@1065:22	keyboardEvent	函数体读取 key/code 的键盘事件
+e2@1132:21	keyboardEvent	onKeyDown 回调收到的事件对象
+e2@1133:19	keyboardEvent	onKeyUp 回调收到的事件对象
+e2@1134:19	clickEvent	onClick 回调收到的事件对象
+t2@1165:14	t	useTranslation() 返回的翻译函数 t
+s2@1166:40	state	useAssetMetadataStore 选择器收到的 store 状态
+t2@1368:14	t	useTranslation() 返回的翻译函数 t
+id2@1529:7	id	原名 id，去掉打包器加的数字去重后缀
+t2@1535:14	t	useTranslation() 返回的翻译函数 t
+c3@74:40	column	表格列
+r2@75:31	row	表格行
+c3@94:32	column	表格列
+r2@115:29	row	表格行
+c3@141:50	condition	筛选条件
+e2@168:22	domEvent	document 监听收到的事件，判断目标
+e2@293:22	domEvent	document 监听收到的事件，判断目标
+c3@309:39	column	表格列
+c3@314:10	condition	筛选条件
+c3@331:10	condition	筛选条件
+v2@389:31	nextMatch	匹配方式下拉选中的新值
+m3@397:38	matchMode	筛选匹配方式 all/any
+e2@457:22	domEvent	document 监听收到的事件，判断是否点在面板外
+n2@569:13	nextItem	新数组中对应位置的元素
+n2@574:13	nextItem	新数组中对应位置的元素
+n2@582:13	nextItem	新数组中对应位置的元素
+n2@594:13	nextItem	新数组中对应位置的元素
+p3@570:13	prevItem	旧数组中对应位置的元素
+p3@575:13	prevItem	旧数组中对应位置的元素
+p3@583:13	prevItem	旧数组中对应位置的元素
+p3@593:13	prevItem	旧数组中对应位置的元素
+e2@687:49	mouseEvent	遮罩 mousedown 事件，记录是否按在遮罩上
+e2@691:6	mouseEvent	遮罩点击事件，判断是否在遮罩上松开
+p3@917:29	prevPanel	切换前打开的面板
+p3@936:29	prevPanel	切换前打开的面板
+p3@956:29	prevPanel	切换前打开的面板
+r2@1016:49	row	历史快照中的表格行
+c3@1384:16	column	预览中的表格列
+c3@1425:25	column	预览中的表格列
+c3@1440:27	column	预览中的表格列
+c3@1484:31	column	预览中的表格列
+e2@1593:6	domEvent	回调收到的事件，阻止冒泡
+doc2@73:23	doc	去掉打包器加的数字后缀，恢复原名 doc
+filter2@83:9	filter	去掉打包器加的数字后缀，恢复原名 filter
+doc2@91:33	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@104:21	doc	去掉打包器加的数字后缀，恢复原名 doc
+position2@104:41	position	去掉打包器加的数字后缀，恢复原名 position
+doc2@112:20	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@118:25	doc	去掉打包器加的数字后缀，恢复原名 doc
+match2@118:31	match	去掉打包器加的数字后缀，恢复原名 match
+doc2@129:29	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@139:32	doc	去掉打包器加的数字后缀，恢复原名 doc
+patch2@139:51	patch	去掉打包器加的数字后缀，恢复原名 patch
+history2@158:12	tableHistory	表格撤销历史；history 是全局名
+doc2@163:16	doc	去掉打包器加的数字后缀，恢复原名 doc
+apply2@163:29	apply	去掉打包器加的数字后缀，恢复原名 apply
+handleDelete2@184:9	handleDelete	去掉打包器加的数字后缀，恢复原名 handleDelete
+position2@188:20	position	去掉打包器加的数字后缀，恢复原名 position
+type2@194:21	type	去掉打包器加的数字后缀，恢复原名 type
+history2@285:38	tableHistory	表格撤销历史；history 是全局名
+doc2@287:16	doc	去掉打包器加的数字后缀，恢复原名 doc
+apply2@287:29	apply	去掉打包器加的数字后缀，恢复原名 apply
+match2@290:9	match	去掉打包器加的数字后缀，恢复原名 match
+current2@313:13	current	去掉打包器加的数字后缀，恢复原名 current
+current2@330:13	current	去掉打包器加的数字后缀，恢复原名 current
+raw2@340:43	raw	去掉打包器加的数字后缀，恢复原名 raw
+next2@357:30	next	去掉打包器加的数字后缀，恢复原名 next
+raw2@430:31	raw	去掉打包器加的数字后缀，恢复原名 raw
+history2@451:41	tableHistory	表格撤销历史；history 是全局名
+doc2@453:16	doc	去掉打包器加的数字后缀，恢复原名 doc
+apply2@453:29	apply	去掉打包器加的数字后缀，恢复原名 apply
+current2@455:9	current	去掉打包器加的数字后缀，恢复原名 current
+next2@465:23	next	去掉打包器加的数字后缀，恢复原名 next
+active2@498:17	active	去掉打包器加的数字后缀，恢复原名 active
+key2@531:36	key	去掉打包器加的数字后缀，恢复原名 key
+next2@531:42	next	去掉打包器加的数字后缀，恢复原名 next
+next2@538:33	next	去掉打包器加的数字后缀，恢复原名 next
+next2@546:32	next	去掉打包器加的数字后缀，恢复原名 next
+key2@547:14	key	去掉打包器加的数字后缀，恢复原名 key
+key2@550:14	key	去掉打包器加的数字后缀，恢复原名 key
+next2@554:30	next	去掉打包器加的数字后缀，恢复原名 next
+next2@565:35	next	去掉打包器加的数字后缀，恢复原名 next
+next2@610:35	next	去掉打包器加的数字后缀，恢复原名 next
+doc2@640:10	doc	去掉打包器加的数字后缀，恢复原名 doc
+apply2@645:9	apply	去掉打包器加的数字后缀，恢复原名 apply
+reset2@657:9	reset	去掉打包器加的数字后缀，恢复原名 reset
+undo2@661:9	undo	去掉打包器加的数字后缀，恢复原名 undo
+redo2@667:9	redo	去掉打包器加的数字后缀，恢复原名 redo
+transform2@645:44	transform	去掉打包器加的数字后缀，恢复原名 transform
+travels2@646:11	travels	去掉打包器加的数字后缀，恢复原名 travels
+next2@649:11	next	去掉打包器加的数字后缀，恢复原名 next
+next2@657:44	next	去掉打包器加的数字后缀，恢复原名 next
+travels2@662:11	travels	去掉打包器加的数字后缀，恢复原名 travels
+travels2@668:11	travels	去掉打包器加的数字后缀，恢复原名 travels
+disabled2@707:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+active2@708:11	active	去掉打包器加的数字后缀，恢复原名 active
+dot2@709:8	dot	去掉打包器加的数字后缀，恢复原名 dot
+children2@710:13	children	去掉打包器加的数字后缀，恢复原名 children
+history2@832:12	tableHistory	表格撤销历史；history 是全局名
+active2@1007:9	active	去掉打包器加的数字后缀，恢复原名 active
+history2@1009:9	tableHistory	表格撤销历史；history 是全局名
+cap2@1104:9	cap	去掉打包器加的数字后缀，恢复原名 cap
+next2@1018:11	next	去掉打包器加的数字后缀，恢复原名 next
+next2@1028:11	next	去掉打包器加的数字后缀，恢复原名 next
+next2@1037:11	next	去掉打包器加的数字后缀，恢复原名 next
+meta2@1072:13	meta	去掉打包器加的数字后缀，恢复原名 meta
+size2@1164:52	size	去掉打包器加的数字后缀，恢复原名 size
+meta2@1166:9	meta	去掉打包器加的数字后缀，恢复原名 meta
+type2@1273:37	type	去掉打包器加的数字后缀，恢复原名 type
+text2@1306:9	text	去掉打包器加的数字后缀，恢复原名 text
+list2@1275:11	list	去掉打包器加的数字后缀，恢复原名 list
+type2@1362:28	type	去掉打包器加的数字后缀，恢复原名 type
+doc2@1367:35	doc	去掉打包器加的数字后缀，恢复原名 doc
+selected2@1530:13	selected	去掉打包器加的数字后缀，恢复原名 selected
+data2@1533:9	data	去掉打包器加的数字后缀，恢复原名 data
+doc2@1557:10	doc	去掉打包器加的数字后缀，恢复原名 doc
+handleDoubleClick2@1592:9	handleDoubleClick	去掉打包器加的数字后缀，恢复原名 handleDoubleClick
+raw2@1573:14	raw	去掉打包器加的数字后缀，恢复原名 raw

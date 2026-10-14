@@ -1,9 +1,15 @@
 // 连接器详情与管理：授权信息整理、管理操作、可见性开关、自定义连接器卡片。
-import { useTranslation, reactExports, jsxRuntimeExports, getMergedHcpCatalog, matchesLocalConnectorServer, connectorSummaryActionLabelKey, localizedI18nText } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { matchesLocalConnectorServer } from "./connector-match.js";
+import { getMergedHcpCatalog } from "./hcp-catalog.js";
+import { connectorSummaryActionLabelKey } from "./connector-market.js";
+import { localizedI18nText } from "../../i18n/localized-text.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { homeService, PencilIcon } from "../../workspace/home-service.jsx";
 import { ConnectorDialogFrame } from "../../settings/connector-dialog-frame.jsx";
-import { DialogHeader, cn$2 as cn, AlertDialog } from "../../infra/dialog-content.jsx";
+import { DialogHeader, mergeTailwindClasses as cn, AlertDialog } from "../../infra/dialog-content.jsx";
 import { ConnectorRelationshipGraphic, ConnectorIcon } from "../../settings/connector-relationship-graphic.jsx";
 import { ConnectorDialogScrollableBody, OFFICIAL_CONNECTORS } from "../../settings/request-prompt-prefill.jsx";
 import { ConnectorSummaryAction, ConnectorDetailNotice } from "../../settings/connector-summary-action.jsx";
@@ -168,13 +174,13 @@ export function ConnectorManagementActions({
     setPendingAction(action);
     try {
       if (enabled && action === "retry" && isManagedLibTv) {
-        const result2 = await homeService.customMcp.authorizeServer(connector.name);
-        if (!result2.ok) {
-          if (result2.code !== "authorization_cancelled")
-            dedupedToast.error(t(`connectors.customDialog.error.${result2.code}`));
+        const result = await homeService.customMcp.authorizeServer(connector.name);
+        if (!result.ok) {
+          if (result.code !== "authorization_cancelled")
+            dedupedToast.error(t(`connectors.customDialog.error.${result.code}`));
           return;
         }
-        onUpdated(result2.server);
+        onUpdated(result.server);
         return;
       }
       const reauthorize =

@@ -1,38 +1,38 @@
 // frame-preview.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MediaClipPanel } from "./media-clip-panel.js";
 
-function FramePreview({ engine, state: state2, loading, previewSize }) {
+function FramePreview({ engine, state, loading, previewSize }) {
   const previewCanvasRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     const canvas = previewCanvasRef.current;
-    if (!canvas || !state2.previewFrame) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const { width, height } = state2.previewFrame;
+    if (!canvas || !state.previewFrame) return;
+    const canvasContext = canvas.getContext("2d");
+    if (!canvasContext) return;
+    const { width, height } = state.previewFrame;
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
     } else {
-      ctx.clearRect(0, 0, width, height);
+      canvasContext.clearRect(0, 0, width, height);
     }
-    ctx.drawImage(state2.previewFrame, 0, 0);
-  }, [state2.previewFrame]);
+    canvasContext.drawImage(state.previewFrame, 0, 0);
+  }, [state.previewFrame]);
   reactExports.useEffect(() => {
     if (!engine) return;
     const previewCanvas = previewCanvasRef.current;
     if (!previewCanvas) return;
-    const ctx = previewCanvas.getContext("2d");
-    if (!ctx) return;
+    const previewCanvasContext = previewCanvas.getContext("2d");
+    if (!previewCanvasContext) return;
     engine.onPreviewFrameDirect = (source, width, height) => {
       if (previewCanvas.width !== width || previewCanvas.height !== height) {
         previewCanvas.width = width;
         previewCanvas.height = height;
       } else {
-        ctx.clearRect(0, 0, width, height);
+        previewCanvasContext.clearRect(0, 0, width, height);
       }
-      ctx.drawImage(source, 0, 0, width, height);
+      previewCanvasContext.drawImage(source, 0, 0, width, height);
     };
     return () => {
       engine.onPreviewFrameDirect = null;
@@ -43,13 +43,13 @@ function FramePreview({ engine, state: state2, loading, previewSize }) {
   let displayW = maxPreviewWidth;
   let displayH = maxPreviewHeight;
   if (previewSize.w > 0 && previewSize.h > 0) {
-    const ar = previewSize.w / previewSize.h;
-    if (ar >= maxPreviewWidth / maxPreviewHeight) {
+    const aspectRatio = previewSize.w / previewSize.h;
+    if (aspectRatio >= maxPreviewWidth / maxPreviewHeight) {
       displayW = maxPreviewWidth;
-      displayH = Math.round(maxPreviewWidth / ar);
+      displayH = Math.round(maxPreviewWidth / aspectRatio);
     } else {
       displayH = maxPreviewHeight;
-      displayW = Math.round(maxPreviewHeight * ar);
+      displayW = Math.round(maxPreviewHeight * aspectRatio);
     }
   }
   return (
@@ -80,11 +80,11 @@ async function extractFrameAtPlayhead(engine, videoName) {
   const canvas = document.createElement("canvas");
   canvas.width = bitmap.width;
   canvas.height = bitmap.height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.drawImage(bitmap, 0, 0);
+  const captureCanvasContext = canvas.getContext("2d");
+  if (!captureCanvasContext) return null;
+  captureCanvasContext.drawImage(bitmap, 0, 0);
   const blob = await new Promise((resolve) => {
-    canvas.toBlob((b3) => resolve(b3), "image/png");
+    canvas.toBlob((imageBlob) => resolve(imageBlob), "image/png");
   });
   if (!blob) return null;
   const baseName = videoName.replace(/\.[^.]+$/, "");
@@ -110,8 +110,8 @@ function VideoFramePanelInner({ videoUrl, videoName, onClose, onExport }) {
       });
     }
   }, []);
-  const renderPreview2 = reactExports.useCallback(
-    (ctx) => <FramePreview {...ctx} previewSize={previewSize} />,
+  const renderPreview = reactExports.useCallback(
+    (previewProps) => <FramePreview {...previewProps} previewSize={previewSize} />,
     [previewSize],
   );
   return (
@@ -121,7 +121,7 @@ function VideoFramePanelInner({ videoUrl, videoName, onClose, onExport }) {
       defaultMime="video/mp4"
       onClose={onClose}
       onExport={onExport}
-      renderPreview={renderPreview2}
+      renderPreview={renderPreview}
       onMediaLoaded={handleMediaLoaded}
       getExtFromMime={() => "png"}
       titleKey="canvas.extractFrame"

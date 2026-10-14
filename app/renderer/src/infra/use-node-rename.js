@@ -1,29 +1,29 @@
 // use-node-rename.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useAssetMetadataApi } from "./agent-http-client.js";
 import { useAssetMeta, useCanvasBridge } from "../media-editing/package.jsx";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
 
 export function useNodeRename(nodeId, isClone) {
-  const { renameAsset: renameAsset2, forkAsset } = useCanvasBridge();
+  const { renameAsset, forkAsset } = useCanvasBridge();
   const { promoteCloneToPrimary } = useCanvasActions();
   const assetMetadataStore = useAssetMetadataApi();
-  const meta2 = useAssetMeta(nodeId);
+  const meta = useAssetMeta(nodeId);
   const needsFork = reactExports.useMemo(
-    () => isClone === true && meta2?.type !== "text",
-    [isClone, meta2?.type],
+    () => isClone === true && meta?.type !== "text",
+    [isClone, meta?.type],
   );
   const handleRename = reactExports.useCallback(
     (newName) => {
-      if (!meta2?.path) return;
+      if (!meta?.path) return;
       if (needsFork) {
         if (!forkAsset) return;
-        forkAsset(meta2.path, newName)
+        forkAsset(meta.path, newName)
           .then((forked) => {
             if (!forked) return;
-            const state2 = assetMetadataStore.getState();
-            const forkMeta = state2.get(forked.id);
-            if (forkMeta) state2.set(nodeId, forkMeta);
+            const state = assetMetadataStore.getState();
+            const forkMeta = state.get(forked.id);
+            if (forkMeta) state.set(nodeId, forkMeta);
             promoteCloneToPrimary(nodeId, {
               assetId: forked.id,
               name: forked.name,
@@ -35,20 +35,20 @@ export function useNodeRename(nodeId, isClone) {
           });
         return;
       }
-      if (!renameAsset2) return;
-      renameAsset2(meta2.path, newName);
+      if (!renameAsset) return;
+      renameAsset(meta.path, newName);
     },
     [
-      renameAsset2,
+      renameAsset,
       forkAsset,
       promoteCloneToPrimary,
       assetMetadataStore,
-      meta2?.path,
+      meta?.path,
       needsFork,
       nodeId,
     ],
   );
-  const canRename = (needsFork ? !!forkAsset : !!renameAsset2) && !!meta2?.path;
+  const canRename = (needsFork ? !!forkAsset : !!renameAsset) && !!meta?.path;
   if (!canRename) return void 0;
   return handleRename;
 }

@@ -1,0 +1,135 @@
+类型	路径	旧名/旧路径	新名/新路径	依据
+导出	app/renderer/src/canvas/history-manager2.js	HistoryManager2	CanvasHistoryManager	该类维护画布图形状态的撤销历史，CanvasHistoryManager能与媒体编辑历史区分。
+导出	app/renderer/src/canvas/fullscreen-icon.jsx	AnnotationIcon$1	AnnotationIconArtwork	该导出是画布批注图标的 SVG 图案，Artwork 描述其实际值。
+导出	app/renderer/src/media-editing/package.jsx	File$1	FileIcon	该导出是媒体编辑工具栏使用的文件图标组件，FileIcon描述其职责。
+导出	app/renderer/src/media-editing/editor2.js	Editor2	CanvasEditor	该类封装画布编辑器状态与操作，CanvasEditor区分其他 Editor 类型。
+导出	app/renderer/src/media-editing/video-tool-meta.jsx	TextNode3	TextNode	该组件渲染视频工具元信息中的文本节点，TextNode描述其职责。
+导出	app/renderer/src/media-editing/history-manager.js	HistoryManager$1	MediaHistoryManager	该类维护媒体编辑的 undo/redo 快照栈，MediaHistoryManager区分画布历史类。
+导出	app/renderer/src/project-detail/cloud/cloud-node.jsx	Breadcrumb$1	Breadcrumb	该导出渲染云项目节点路径导航，Breadcrumb描述其内容。
+导出	app/renderer/src/project-detail/cloud/cloud-node.jsx	mediaKind$1	mediaKind	该导出表示媒体资源的类型，mediaKind概括其值。
+导出	app/renderer/src/project-detail/cloud/cloud-node.jsx	NodeCard$1	NodeCard	该组件呈现单个云项目节点的卡片，NodeCard描述其职责。
+导出	app/renderer/src/project-detail/cloud/cloud-node.jsx	NodeRow$1	NodeRow	该组件呈现云项目节点列表中的一行，NodeRow描述其职责。
+导出	app/renderer/src/skills/creator-plan/form-parts.jsx	Field$1	Field	该导出封装创建计划表单字段，Field描述其作用。
+导出	app/renderer/src/infra/dialog-content.jsx	cn$2	mergeTailwindClasses	该函数将 clsx 结果交给 tailwind-merge 去除冲突类名，目标名也避免与已有 cn 冲突。
+导出	app/renderer/src/infra/from-vendor.js	Bitstream2	Bitstream	该导出是 mediabunny 的位流实现，Bitstream是其原始语义名称。
+导出	app/renderer/src/infra/from-vendor.js	TableView2	TableView	该导出实现 CodeMirror 表格节点视图，TableView是其组件名称。
+导出	app/renderer/src/infra/from-vendor.js	WidgetType2	WidgetType	该导出是 CodeMirror 的 WidgetType 基类，WidgetType是其库内名称。
+导出	app/renderer/src/infra/from-vendor.js	slash$1	slash	该导出表示查询语法中的斜杠操作符，slash对应其词法含义。
+导出	app/renderer/src/infra/from-vendor.js	question$1	question	该导出表示查询语法中的问号操作符，question对应其词法含义。
+导出	app/renderer/src/infra/from-vendor.js	dash$1	dash	该导出表示查询语法中的连字符操作符，dash对应其词法含义。
+导出	app/renderer/src/infra/from-vendor.js	identifier$2	identifier	该导出解析查询语法中的标识符，identifier对应其词法类别。
+导出	app/renderer/src/infra/from-vendor.js	EventEmitter3	EventEmitter	该导出是应用使用的事件发射器实现，EventEmitter描述其接口。
+导出	app/renderer/src/infra/from-vendor.js	noop2	noop	该导出是无副作用的空操作函数，noop描述其行为。
+导出	app/renderer/src/infra/from-vendor.js	Context2	Context	该导出保存媒体节点上下文，Context概括其用途。
+导出	app/renderer/src/infra/from-vendor.js	Target2	Target	该导出表示媒体操作的目标对象，Target概括其值。
+导出	app/renderer/src/vendor-inline/vscode-base/vs-buffer.js	Event$1	VSCodeEvent	该对象提供 once、map、filter 等 VS Code 事件组合工具，VSCodeEvent避免与浏览器全局 Event 混淆。
+导出	app/renderer/src/vendor-inline/vscode-base/vs-buffer.js	__decorateClass$1	applyMemberDecorators	该函数将装饰器应用到类成员，applyMemberDecorators描述其参数和效果。
+导出	app/renderer/src/vendor-inline/vscode-base/graph.jsx	TUTORIAL_URL$2	TUTORIAL_URL_BY_REGION	该映射的键是 domestic 与 overseas，值是对应地区的教程 URL。按语言选择的逻辑在 getTutorialUrlByLocale。
+局部	app/renderer/src/settings/attach-native-toast-surface.jsx	z	useTheme	该别名调用 next-themes 的主题上下文 hook 并返回当前主题。
+局部	app/renderer/src/settings/server-driven-popup-orchestrator.jsx	m	ErrorBoundary	该别名是 React 错误边界类，组件用它包裹弹窗内容。
+局部	app/renderer/src/settings/update-sidebar-widget-inner.jsx	m	ErrorBoundary	该别名是 React 错误边界类，组件用它包裹侧栏更新控件。
+文件	app/renderer/src/workspace/q.js	app/renderer/src/workspace/q.js	app/renderer/src/workspace/empty-workspace-module.js	该文件当前仅保留文件名注释且没有实现，用中性名称准确标明空模块。
+文件	app/renderer/src/workspace/other-modifiers.js	app/renderer/src/workspace/other-modifiers.js	app/renderer/src/workspace/resolve-shortcut-display.js	文件导出解析快捷键显示名的辅助函数，目标名对应其用途。
+文件	app/renderer/src/assets/key-entries.js	app/renderer/src/assets/key-entries.js	app/renderer/src/assets/asset-center-error.js	文件导出资产中心错误键与展示逻辑，目标名概括该职责。
+文件	app/renderer/src/generation/summarize-params.js	app/renderer/src/generation/summarize-params.js	app/renderer/src/generation/summarize-txt-params.js	该文件给文本/音频提示词弹层 txt-popover 生成参数摘要，包括音乐时长和时长选项。文件名沿用 txt 前缀，与调用方一致。
+文件	app/renderer/src/generation/summarize-params-2.js	app/renderer/src/generation/summarize-params-2.js	app/renderer/src/generation/summarize-i2v-params.js	该文件给图生视频弹层汇总标准参数，并处理 Seedance 图像模式。文件名对应 i2v 调用方。
+文件	app/renderer/src/canvas/history-manager2.js	app/renderer/src/canvas/history-manager2.js	app/renderer/src/canvas/history-manager.js	该文件声明画布历史管理器，采用稳定文件名并与媒体历史文件分处不同目录。
+文件	app/renderer/src/chat/ae.jsx	app/renderer/src/chat/ae.jsx	app/renderer/src/chat/chat-content-width.jsx	该文件当前仅导出聊天内容最大宽度常量，目标名反映当前保留职责。
+文件	app/renderer/src/media-editing/wt.js	app/renderer/src/media-editing/wt.js	app/renderer/src/media-editing/media-model-selection.js	该文件导出可见媒体模型是否被选中的判断，以及 cleanPath。Streamdown 迁走后已没有 Markdown 渲染逻辑，不用旧提议里的 markdown 文件名。
+文件	app/renderer/src/media-editing/editor2.js	app/renderer/src/media-editing/editor2.js	app/renderer/src/media-editing/canvas-editor.js	该文件实现媒体画布编辑器，目标名比压缩文件名更清晰。
+文件	app/renderer/src/routes/app.jsx	app/renderer/src/routes/app.jsx	app/renderer/src/routes/application-route-group.jsx	该文件导出路由分组组件，目标名反映其动态加载用途。
+文件	app/renderer/src/i18n/en.js	app/renderer/src/i18n/en.js	app/renderer/src/i18n/english-translations.js	该文件包含英文 locale 消息，目标名明确语言职责。
+文件	app/renderer/src/i18n/zh.js	app/renderer/src/i18n/zh.js	app/renderer/src/i18n/chinese-translations.js	该文件包含中文 locale 消息，目标名明确语言职责。
+哈希文件	app/renderer/src/BG-DBIf81Iw.png	app/renderer/src/BG-DBIf81Iw.png	app/renderer/src/update-bg.png	该资源是更新界面的背景图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/ecommerce-B8DC3jB9.png	app/renderer/src/ecommerce-B8DC3jB9.png	app/renderer/src/ecommerce.png	该资源是电商场景配图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/empty-dark-BE6TzTYo.svg	app/renderer/src/empty-dark-BE6TzTYo.svg	app/renderer/src/empty-dark.svg	该资源是深色空状态插图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/empty-light-BIA_9y_3.svg	app/renderer/src/empty-light-BIA_9y_3.svg	app/renderer/src/empty-light.svg	该资源是浅色空状态插图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/empty-project-dark-DfthmI8z.svg	app/renderer/src/empty-project-dark-DfthmI8z.svg	app/renderer/src/empty-project-dark.svg	该资源是深色空项目插图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/empty-project-light-VIJs1g6w.svg	app/renderer/src/empty-project-light-VIJs1g6w.svg	app/renderer/src/empty-project-light.svg	该资源是浅色空项目插图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/error-dark-DDp36kGq.svg	app/renderer/src/error-dark-DDp36kGq.svg	app/renderer/src/error-dark.svg	该资源是深色错误页插图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/error-light-WSZvGPdq.svg	app/renderer/src/error-light-WSZvGPdq.svg	app/renderer/src/error-light.svg	该资源是浅色错误页插图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/featured-skill-C1bqOHc_.png	app/renderer/src/featured-skill-C1bqOHc_.png	app/renderer/src/featured-skill.png	该资源展示推荐技能，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/graphic-design-vBqZO3xO.png	app/renderer/src/graphic-design-vBqZO3xO.png	app/renderer/src/graphic-design.png	该资源是平面设计场景配图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/mac-CHMBn6kt.png	app/renderer/src/mac-CHMBn6kt.png	app/renderer/src/mac-local-folder-icon.png	该资源是 macOS 本地文件夹图标，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/network-error-dark-DyHxJMnZ.svg	app/renderer/src/network-error-dark-DyHxJMnZ.svg	app/renderer/src/network-error-dark.svg	该资源是深色网络错误插图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/network-error-light-brwv6dty.svg	app/renderer/src/network-error-light-brwv6dty.svg	app/renderer/src/network-error-light.svg	该资源是浅色网络错误插图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/short-drama-BlgbvS1F.png	app/renderer/src/short-drama-BlgbvS1F.png	app/renderer/src/short-drama.png	该资源是短剧场景配图，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/sticker-approved-Cvm_nH-W.png	app/renderer/src/sticker-approved-Cvm_nH-W.png	app/renderer/src/sticker-approved.png	该资源是已批准状态贴纸，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/sticker-cursor-bowD96zH.svg	app/renderer/src/sticker-cursor-bowD96zH.svg	app/renderer/src/sticker-cursor.svg	该资源是贴纸光标图形，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/sticker-dot-CxhF5shh.png	app/renderer/src/sticker-dot-CxhF5shh.png	app/renderer/src/sticker-dot.png	该资源是圆点贴纸，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/sticker-rejected-Z3JcNklb.png	app/renderer/src/sticker-rejected-Z3JcNklb.png	app/renderer/src/sticker-rejected.png	该资源是拒绝状态贴纸，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/sticker-thumbs-down-CO0P0mLl.png	app/renderer/src/sticker-thumbs-down-CO0P0mLl.png	app/renderer/src/sticker-thumbs-down.png	该资源是 thumbs-down 贴纸，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/sticker-thumbs-up-DL9-hU6T.png	app/renderer/src/sticker-thumbs-up-DL9-hU6T.png	app/renderer/src/sticker-thumbs-up.png	该资源是 thumbs-up 贴纸，移除构建哈希后保留其图像内容。
+哈希文件	app/renderer/src/decode-worker-DBC09hCG.js	app/renderer/src/decode-worker-DBC09hCG.js	app/renderer/src/decode-worker.js	该 worker 内容保留不变，仅去除文件名中的构建哈希以使用稳定路径。
+哈希文件	app/renderer/src/error-card-fixtures-GXqelGnw.js	app/renderer/src/error-card-fixtures-GXqelGnw.js	app/renderer/src/error-card-fixtures.js	该 fixture 模块内容保留不变，仅去除文件名中的构建哈希以使用稳定路径。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	c2	categories	当前 HEAD 的文件已无 c2 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	L	parseRows	当前 HEAD 的文件已无 L 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	f	normalizeRow	当前 HEAD 的文件已无 f 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	E	parseDate	当前 HEAD 的文件已无 E 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	F	getPresentationFields	当前 HEAD 的文件已无 F 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	T	sortByUpdatedAt	当前 HEAD 的文件已无 T 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	g	toText	当前 HEAD 的文件已无 g 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	X	getString	当前 HEAD 的文件已无 X 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	C2	extractString	当前 HEAD 的文件已无 C2 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	h	getTags	当前 HEAD 的文件已无 h 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	A	getCollectionForItem	当前 HEAD 的文件已无 A 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	j	getMediaKind	当前 HEAD 的文件已无 j 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	Q	isPortraitImage	当前 HEAD 的文件已无 Q 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	Z	filterByKind	当前 HEAD 的文件已无 Z 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/build-inspiration-media-showcase-collections.js	V2	rankCollection	当前 HEAD 的文件已无 V2 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/workspace/q.js	J2	repairUnclosedSingleUnderscore	当前 HEAD 的 q.js 已无 J2 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/yt.js	Yt	languageFileExtensions	当前 HEAD 的文件已无 Yt 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/xn.js	vn	defaultCodeThemes	当前 HEAD 的文件已无 vn 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/xn.js	xn	defaultLinkSafety	当前 HEAD 的文件已无 xn 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/nn.jsx	po	MermaidRenderer	当前 HEAD 的文件已无 po 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	R	markdownRenderOptionsContext	当前 HEAD 的文件已无 R 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	he	mergeClassNames	当前 HEAD 的文件已无 he 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	W2	downloadFile	当前 HEAD 的文件已无 W2 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	Ee	classNameMergerContext	当前 HEAD 的文件已无 Ee 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	y3	useClassNameMerger	当前 HEAD 的文件已无 y3 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	ot	CodeBlockContainer	当前 HEAD 的文件已无 ot 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	rt	CodeBlockHeader	当前 HEAD 的文件已无 rt 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	Oe	CodeBlockSkeleton	当前 HEAD 的文件已无 Oe 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	le	lockBodyScroll	当前 HEAD 的文件已无 le 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	ce	unlockBodyScroll	当前 HEAD 的文件已无 ce 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	ao	findRendererForLanguage	当前 HEAD 的文件已无 ao 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	To	isCodeRenderingEnabled	当前 HEAD 的文件已无 To 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	Fe	isMermaidRenderingEnabled	当前 HEAD 的文件已无 Fe 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/ae.jsx	Ae	CopyCodeButton	当前 HEAD 的文件已无 Ae 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/at.jsx	At	CodeBlockBody	当前 HEAD 的文件已无 At 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/st.jsx	st	HighlightedCodeBlock	当前 HEAD 的文件已无 st 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/fo.jsx	fo	MermaidFullscreenButton	当前 HEAD 的文件已无 fo 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/pe.jsx	Pe	TableDownloadMenu	当前 HEAD 的文件已无 Pe 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/te.jsx	Te	TableCopyButton	当前 HEAD 的文件已无 Te 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/chat/co.jsx	co	MermaidDownloadButton	当前 HEAD 的文件已无 co 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	et	DEFAULT_GENERATE_IMAGE_MODEL	当前 HEAD 的文件已无 et 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	tt	DEFAULT_GENERATE_TEXT_MODEL	当前 HEAD 的文件已无 tt 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	nt	DEFAULT_GENERATE_VIDEO_MODEL	当前 HEAD 的文件已无 nt 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	He	getVideoEditorOptions	当前 HEAD 的文件已无 He 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	De	useOptionalVideoEditor	当前 HEAD 的文件已无 De 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	Be	useVideoEditorConfig	当前 HEAD 的文件已无 Be 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	D3	DEFAULT_VIDEO_ADJUST_CONFIG	当前 HEAD 的文件已无 D3 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	Ve	useVideoAdjustConfig	当前 HEAD 的文件已无 Ve 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	ct2	DEFAULT_COLOR_ADJUST_CONFIG	当前 HEAD 的文件已无 ct2 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	Li	useImageModelPreference	当前 HEAD 的文件已无 Li 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	de	useOptionalImageEditor	当前 HEAD 的文件已无 de 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	wt	useImageEditorConfig	当前 HEAD 的文件已无 wt 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	ks	useOptionalImageEditorFallback	当前 HEAD 的文件已无 ks 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	on	useImageAdjustConfig	当前 HEAD 的文件已无 on 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	vs	DEFAULT_IMAGE_ADJUST_CONFIG	当前 HEAD 的文件已无 vs 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	xs	DEFAULT_VIDEO_EDITOR_CONFIG	当前 HEAD 的文件已无 xs 命名导出，按陈旧映射丢弃。
+丢弃导出	app/renderer/src/media-editing/wt.js	Ts	DEFAULT_VIDEO_ADJUST_CONFIG	当前 HEAD 的文件已无 Ts 命名导出，按陈旧映射丢弃。
+丢弃哈希路径	app/renderer/src/pdf.worker.min-yatZIOMy.mjs	app/renderer/src/pdf.worker.min-yatZIOMy.mjs	—	该 PDF worker 路径在当前 HEAD 已删除，按要求丢弃。
+丢弃哈希路径	app/renderer/src/chat/mermaid-ghxkkrxx.js	app/renderer/src/chat/mermaid-ghxkkrxx.js	—	该 Mermaid 路径在 Streamdown 闭包迁移后已删除，按要求丢弃。
+丢弃文件	app/renderer/src/chat/nn.jsx	app/renderer/src/chat/nn.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/yt.js	app/renderer/src/chat/yt.js	—	换掉 Streamdown 后只剩文件名注释，没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/xn.js	app/renderer/src/chat/xn.js	—	换掉 Streamdown 后只剩文件名注释，没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/at.jsx	app/renderer/src/chat/at.jsx	—	换掉 Streamdown 后只剩未使用的 import。main.jsx 的副作用导入已去掉，文件删除。
+丢弃文件	app/renderer/src/chat/st.jsx	app/renderer/src/chat/st.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/fo.jsx	app/renderer/src/chat/fo.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/pe.jsx	app/renderer/src/chat/pe.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/te.jsx	app/renderer/src/chat/te.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/co.jsx	app/renderer/src/chat/co.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+保留文件	app/renderer/src/chat/ae.jsx	app/renderer/src/chat/ae.jsx	app/renderer/src/chat/chat-content-width.jsx	该文件不是转发壳，仍然导出聊天内容最大宽度常量，且有 7 处命名导入。按实际职责改名，不删除。
+延后文件	app/renderer/src/canvas/it.js	app/renderer/src/canvas/it.js	—	内联 dagre，按 6.2 换包，不在统一改名里处理。同组还有 w.js、we.js、ot.js、grid-slot-layout.js、layout-category-lanes.js、dagre-layout.js。
+删除转发	app/renderer/src/vendor-inline/minified/ct.js	app/renderer/src/vendor-inline/minified/ct.js	—	唯一调用方改为直接 import { Travels as Ct } from "travels"，然后删除该转发文件。

@@ -1,11 +1,8 @@
 // media-hover-preview.jsx
-import {
-  CompositedSvg,
-  Crosshair,
-  Maximize,
-  reactDomExports,
-  reactExports,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { CompositedSvg } from "./icon-compositing.js";
+import { Crosshair, Maximize } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AudioPreviewPlayer } from "./audio-preview-player.jsx";
 import { useHoverPreview } from "./use-hover-preview.js";
@@ -15,14 +12,14 @@ const PREVIEW_MAX_W = 180;
 const PREVIEW_MAX_H = 240;
 const PREVIEW_FALLBACK_W = 180;
 const PREVIEW_FALLBACK_H = 135;
-function hasValidMediaSize(size2) {
+function hasValidMediaSize(size) {
   return (
-    typeof size2.width === "number" &&
-    typeof size2.height === "number" &&
-    Number.isFinite(size2.width) &&
-    Number.isFinite(size2.height) &&
-    size2.width > 0 &&
-    size2.height > 0
+    typeof size.width === "number" &&
+    typeof size.height === "number" &&
+    Number.isFinite(size.width) &&
+    Number.isFinite(size.height) &&
+    size.width > 0 &&
+    size.height > 0
   );
 }
 function getMediaPreviewSize(width, height) {
@@ -36,19 +33,19 @@ function getMediaPreviewSize(width, height) {
       height: PREVIEW_FALLBACK_H,
     };
   }
-  const scale2 = Math.min(
+  const scale = Math.min(
     PREVIEW_MAX_W / intrinsicSize.width,
     PREVIEW_MAX_H / intrinsicSize.height,
   );
   return {
-    width: Math.max(1, Math.round(intrinsicSize.width * scale2)),
-    height: Math.max(1, Math.round(intrinsicSize.height * scale2)),
+    width: Math.max(1, Math.round(intrinsicSize.width * scale)),
+    height: Math.max(1, Math.round(intrinsicSize.height * scale)),
   };
 }
-function getInteractiveMediaPreviewSize(size2) {
+function getInteractiveMediaPreviewSize(size) {
   return {
-    width: Math.max(144, size2.width),
-    height: Math.max(72, size2.height),
+    width: Math.max(144, size.width),
+    height: Math.max(72, size.height),
   };
 }
 const AUDIO_PREVIEW_W = 320;
@@ -79,9 +76,9 @@ function ReferenceAudioIcon() {
 }
 export function MediaHoverPreview({
   kind,
-  active: active2 = true,
-  url: url2,
-  name: name2,
+  active: isActive = true,
+  url,
+  name: mediaName,
   showFileName = false,
   description,
   durationSec,
@@ -100,17 +97,17 @@ export function MediaHoverPreview({
   onPreviewMouseLeave,
 }) {
   const bridge = useCanvasBridge();
-  const effectiveActive = active2 && bridge.previewActive !== false;
+  const effectiveActive = isActive && bridge.previewActive !== false;
   const isAudio = kind === "audio";
   const [audioDuration, setAudioDuration] = reactExports.useState(
     durationSec ?? 0,
   );
   const [loadedMedia, setLoadedMedia] = reactExports.useState(null);
   const loadedMediaForCurrentUrl =
-    loadedMedia?.url === url2 ? loadedMedia : null;
+    loadedMedia?.url === url ? loadedMedia : null;
   reactExports.useEffect(() => {
     setAudioDuration(durationSec ?? 0);
-  }, [durationSec, url2]);
+  }, [durationSec, url]);
   const mediaSize = getMediaPreviewSize(
     loadedMediaForCurrentUrl?.width ?? intrinsicWidth,
     loadedMediaForCurrentUrl?.height ?? intrinsicHeight,
@@ -141,7 +138,7 @@ export function MediaHoverPreview({
     onPreviewMouseEnter,
     onPreviewMouseLeave,
   });
-  const { top: top2, left, width, height } = layout;
+  const { top: previewTop, left, width, height } = layout;
   const paddedImage = width !== mediaSize.width || height !== mediaSize.height;
   const effectiveDuration = audioDuration || durationSec || 0;
   const durationLabel =
@@ -151,32 +148,32 @@ export function MediaHoverPreview({
         : formatTime(effectiveDuration, true)
       : void 0;
   const handleImageLoad = reactExports.useCallback(
-    (e2) => {
-      const image2 = e2.currentTarget;
+    (loadEvent) => {
+      const image = loadEvent.currentTarget;
       const loadedSize = {
-        width: image2.naturalWidth,
-        height: image2.naturalHeight,
+        width: image.naturalWidth,
+        height: image.naturalHeight,
       };
       if (hasValidMediaSize(loadedSize)) {
         setLoadedMedia({
-          url: url2,
+          url,
           ...loadedSize,
         });
         onDimensionsChange?.(loadedSize);
       }
     },
-    [onDimensionsChange, url2],
+    [onDimensionsChange, url],
   );
   const handleVideoLoadedMetadata = reactExports.useCallback(
-    (e2) => {
-      const video = e2.currentTarget;
+    (metadataEvent) => {
+      const video = metadataEvent.currentTarget;
       const loadedSize = {
         width: video.videoWidth,
         height: video.videoHeight,
       };
       if (hasValidMediaSize(loadedSize)) {
         setLoadedMedia({
-          url: url2,
+          url,
           ...loadedSize,
         });
         onDimensionsChange?.(loadedSize);
@@ -188,7 +185,7 @@ export function MediaHoverPreview({
         video.currentTime = 1e-3;
       } catch {}
     },
-    [onDimensionsChange, onDurationChange, url2],
+    [onDimensionsChange, onDurationChange, url],
   );
   if (!effectiveActive) return null;
   return reactDomExports.createPortal(
@@ -198,7 +195,7 @@ export function MediaHoverPreview({
       role="group"
       className={`fixed z-[10002] box-border ${isAudio ? "flex flex-col rounded-[16px] border border-[var(--canvas-node-border)]" : "rounded-lg border-0"} overflow-hidden ${isAudio ? "bg-[var(--canvas-node-bg)]" : "bg-[var(--canvas-controls-bg)]"} shadow-md ${interactive ? "pointer-events-auto" : "pointer-events-none"}`}
       style={{
-        top: top2,
+        top: previewTop,
         left,
         width,
         height,
@@ -211,8 +208,8 @@ export function MediaHoverPreview({
     >
       {kind === "image" && (
         <img
-          src={url2}
-          alt={name2}
+          src={url}
+          alt={mediaName}
           onLoad={handleImageLoad}
           className={`block w-full h-full ${paddedImage ? "object-contain" : "object-cover"}`}
         />
@@ -221,7 +218,7 @@ export function MediaHoverPreview({
         // muted + autoplay + loop:自动循环播放,无需用户交互;
         // playsInline 防止 iOS 全屏;preload="metadata" 让首帧尽快可见。
         <video
-          src={url2}
+          src={url}
           poster={posterUrl}
           muted={true}
           autoPlay={true}
@@ -250,7 +247,7 @@ export function MediaHoverPreview({
                 data-testid="preview-file-name"
                 className="min-w-0 flex-1 line-clamp-2 break-words text-[13px] leading-4 [overflow-wrap:anywhere]"
               >
-                {name2}
+                {mediaName}
               </span>
             )}
             <span className="shrink-0 tabular-nums text-[12px] text-[var(--canvas-controls-text-muted)]">
@@ -263,9 +260,9 @@ export function MediaHoverPreview({
             </p>
           )}
           <AudioPreviewPlayer
-            key={url2}
-            url={url2}
-            fileName={name2}
+            key={url}
+            url={url}
+            fileName={mediaName}
             active={effectiveActive}
             durationSec={durationSec}
             onDurationChange={(duration) => {
@@ -281,7 +278,7 @@ export function MediaHoverPreview({
             data-testid="preview-file-name"
             className="min-w-0 max-h-12 flex-1 overflow-y-auto overscroll-contain whitespace-normal break-words [overflow-wrap:anywhere]"
           >
-            {name2}
+            {mediaName}
           </span>
           {durationLabel && (
             <span className="shrink-0 tabular-nums">{durationLabel}</span>

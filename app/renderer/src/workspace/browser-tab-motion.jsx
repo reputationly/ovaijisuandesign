@@ -1,13 +1,13 @@
 // browser-tab-motion.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 export function BrowserTabMotion({
-  id: id2,
+  id,
   entering,
   exiting,
   className,
-  children: children2,
+  children,
   onExit,
 }) {
   const ref = reactExports.useRef(null);
@@ -15,26 +15,26 @@ export function BrowserTabMotion({
   const closeAppearance = reactExports.useRef(null);
   const captureCloseAppearance = (target) => {
     if (!(target instanceof Element)) return;
-    const close2 = target.closest("[data-browser-tab-close]");
-    const node2 = ref.current;
-    if (!close2 || !node2) return;
-    const style2 = getComputedStyle(node2);
+    const closeButton = target.closest("[data-browser-tab-close]");
+    const node = ref.current;
+    if (!closeButton || !node) return;
+    const style = getComputedStyle(node);
     closeAppearance.current = {
-      backgroundColor: style2.backgroundColor,
-      color: style2.color,
-      opacity: getComputedStyle(close2).opacity,
+      backgroundColor: style.backgroundColor,
+      color: style.color,
+      opacity: getComputedStyle(closeButton).opacity,
     };
   };
   reactExports.useLayoutEffect(() => {
-    const node2 = ref.current;
-    if (!node2 || (!entering && !exiting)) return;
+    const node = ref.current;
+    if (!node || (!entering && !exiting)) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reduced.matches || typeof node2.animate !== "function") {
-      if (exiting) onExit(id2);
+    if (reduced.matches || typeof node.animate !== "function") {
+      if (exiting) onExit(id);
       return;
     }
-    const width = node2.getBoundingClientRect().width;
-    const computed = getComputedStyle(node2);
+    const width = node.getBoundingClientRect().width;
+    const computed = getComputedStyle(node);
     const collapsed = {
       overflow: "hidden",
       minWidth: "0px",
@@ -66,7 +66,7 @@ export function BrowserTabMotion({
             color: closeAppearance.current.color,
           }
         : {};
-    const animation = node2.animate(
+    const animation = node.animate(
       exiting
         ? [
             {
@@ -91,10 +91,10 @@ export function BrowserTabMotion({
         fill: "both",
       },
     );
-    const close2 = node2.querySelector("[data-browser-tab-close]");
+    const closeButton = node.querySelector("[data-browser-tab-close]");
     const closeAnimation =
-      exiting && close2 && closeAppearance.current
-        ? close2.animate(
+      exiting && closeButton && closeAppearance.current
+        ? closeButton.animate(
             [
               {
                 opacity: closeAppearance.current.opacity,
@@ -110,7 +110,7 @@ export function BrowserTabMotion({
           )
         : null;
     const finish = () => {
-      if (exiting) onExit(id2);
+      if (exiting) onExit(id);
       else animation.cancel();
     };
     animation.addEventListener("finish", finish, {
@@ -122,17 +122,17 @@ export function BrowserTabMotion({
     reduced.addEventListener("change", handleReducedMotion);
     return () => {
       if (animation.playState === "running") {
-        const current2 = getComputedStyle(node2);
-        const currentWidth = `${node2.getBoundingClientRect().width}px`;
+        const current = getComputedStyle(node);
+        const currentWidth = `${node.getBoundingClientRect().width}px`;
         interrupted.current = {
           minWidth: currentWidth,
           maxWidth: currentWidth,
           flexBasis: currentWidth,
-          paddingLeft: current2.paddingLeft,
-          paddingRight: current2.paddingRight,
-          marginRight: current2.marginRight,
-          opacity: current2.opacity,
-          transform: current2.transform,
+          paddingLeft: current.paddingLeft,
+          paddingRight: current.paddingRight,
+          marginRight: current.marginRight,
+          opacity: current.opacity,
+          transform: current.transform,
         };
       } else interrupted.current = null;
       closeAnimation?.cancel();
@@ -140,7 +140,7 @@ export function BrowserTabMotion({
       reduced.removeEventListener("change", handleReducedMotion);
       animation.cancel();
     };
-  }, [entering, exiting, id2, onExit]);
+  }, [entering, exiting, id, onExit]);
   return (
     <div
       ref={ref}
@@ -154,7 +154,7 @@ export function BrowserTabMotion({
           captureCloseAppearance(event.target);
       }}
     >
-      {children2}
+      {children}
     </div>
   );
 }

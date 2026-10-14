@@ -1,0 +1,19 @@
+key	old	new	依据
+t2@147:41	t2	translate	该参数是根据预览类型生成不可用提示文案时调用的翻译函数。
+t2@157:14	t2	translate	该绑定来自 useTranslation 并传给预览提示文案函数。
+t2@270:14	t2	translate	该绑定来自 useTranslation 并用于卡片内的多处界面文案。
+path2@49:30	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+url2@49:37	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+raw2@50:9	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+raw2@61:20	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+url2@63:11	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+path2@69:28	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+raw2@72:34	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+path2@98:24	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+type2@130:9	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+type2@147:34	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+type2@156:40	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+type2@181:36	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+size2@267:9	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+handleClick2@363:9	handleClick2	handleClick	去掉打包器防重名追加的后缀，恢复原名 handleClick，即该绑定持有的值。
+handleDoubleClick2@371:9	handleDoubleClick2	handleDoubleClick	去掉打包器防重名追加的后缀，恢复原名 handleDoubleClick，即该绑定持有的值。

@@ -1,0 +1,4 @@
+key	new	reason
+Eye$1@2:59	Eye	导入别名（来源导出 Eye），去掉打包器加的 $ 去重后缀
+resolvePluginIcon$2@105:10	resolvePluginIcon	原名 resolvePluginIcon，去掉打包器加的 $ 去重后缀
+e@130:21	clickEvent	onClick 回调收到的事件对象

@@ -1,16 +1,10 @@
 // editor-history-controls.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  jsxRuntimeExports,
-  redo$1 as redo,
-  Redo2,
-  redoDepth$1 as redoDepth,
-  undo$1 as undo,
-  Undo2,
-  undoDepth$1,
-  useEditorState$1 as useEditorState,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { redo, redoDepth, undo, undoDepth as undoDepth$1 } from "prosemirror-history";
+import { useEditorState } from "@tiptap/react";
+import { useTranslation } from "react-i18next";
+import { Redo2, Undo2 } from "../media-editing/lucide-icon-wraps.js";
 import { useDiffReviewStore } from "./use-diff-review-store.js";
 export function ToolbarSeparator({ contextToolbar = false }) {
   if (contextToolbar)
@@ -54,16 +48,16 @@ export function ToolbarBtn({ item, contextToolbar = false }) {
     </>
   );
 }
-function getEditorHistoryAvailability(state2) {
+function getEditorHistoryAvailability(state) {
   return {
-    canUndo: undoDepth$1(state2) > 0,
-    canRedo: redoDepth(state2) > 0,
+    canUndo: undoDepth$1(state) > 0,
+    canRedo: redoDepth(state) > 0,
   };
 }
 export function EditorHistoryControls({ editor, nodeId }) {
-  const { t: t2 } = useTranslation();
-  const reviewReverting = useDiffReviewStore((state2) => state2.reverting);
-  const reviewSession = useDiffReviewStore((state2) => state2.session);
+  const { t } = useTranslation();
+  const reviewReverting = useDiffReviewStore((state) => state.reverting);
+  const reviewSession = useDiffReviewStore((state) => state.session);
   const availability = useEditorState({
     editor,
     selector: ({ editor: currentEditor }) =>
@@ -93,7 +87,7 @@ export function EditorHistoryControls({ editor, nodeId }) {
       <ToolbarBtn
         item={{
           id: "undo",
-          label: t2("canvas.undo", "Undo"),
+          label: t("canvas.undo", "Undo"),
           icon: <Undo2 size={16} strokeWidth={1.5} aria-hidden="true" />,
           disabled:
             reviewReverting || reviewUndoBlocked || !availability.canUndo,
@@ -107,7 +101,7 @@ export function EditorHistoryControls({ editor, nodeId }) {
       <ToolbarBtn
         item={{
           id: "redo",
-          label: t2("canvas.redo", "Redo"),
+          label: t("canvas.redo", "Redo"),
           icon: <Redo2 size={16} strokeWidth={1.5} aria-hidden="true" />,
           disabled: reviewReverting || !availability.canRedo,
           onClick: () => {

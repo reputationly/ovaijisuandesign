@@ -1,77 +1,77 @@
 // runtime-node-to-file-node.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 
-function runtimeNodeToFileNode(node2, mode2) {
-  const isGroup = node2.type === CanvasNodeType.Group;
+function runtimeNodeToFileNode(node, mode) {
+  const isGroup = node.type === CanvasNodeType.Group;
   const sizesField =
-    isGroup && (node2.sizes || node2.size)
+    isGroup && (node.sizes || node.size)
       ? {
           sizes: {
-            ...(node2.sizes ?? {}),
-            ...(node2.size
+            ...(node.sizes ?? {}),
+            ...(node.size
               ? {
-                  [mode2]: node2.size,
+                  [mode]: node.size,
                 }
               : {}),
           },
         }
       : {};
   return {
-    id: node2.id,
-    type: node2.type,
+    id: node.id,
+    type: node.type,
     positions: {
-      ...node2.positions,
+      ...node.positions,
     },
-    ...(node2.size
+    ...(node.size
       ? {
-          size: node2.size,
+          size: node.size,
         }
       : {}),
     ...sizesField,
-    ...(node2.assetId
+    ...(node.assetId
       ? {
-          assetId: node2.assetId,
+          assetId: node.assetId,
         }
       : {}),
     // Keep empty placeholders stable across runtime ↔ protocol snapshots.
-    ...(node2.isEmpty === true
+    ...(node.isEmpty === true
       ? {
           isEmpty: true,
         }
       : {}),
-    ...(node2.parentId
+    ...(node.parentId
       ? {
-          parentId: node2.parentId,
+          parentId: node.parentId,
         }
       : {}),
-    ...(node2.groupId
+    ...(node.groupId
       ? {
-          groupId: node2.groupId,
+          groupId: node.groupId,
         }
       : {}),
-    ...(Number.isInteger(node2.round)
+    ...(Number.isInteger(node.round)
       ? {
-          round: node2.round,
+          round: node.round,
         }
       : {}),
-    ...(node2.data !== void 0
+    ...(node.data !== void 0
       ? {
-          data: node2.data,
+          data: node.data,
         }
       : {}),
-    ...(node2.meta
+    ...(node.meta
       ? {
-          meta: node2.meta,
+          meta: node.meta,
         }
       : {}),
   };
 }
 
-export function buildCanvasFileSnapshot(graph, mode2) {
+export function buildCanvasFileSnapshot(graph, mode) {
   return {
     version: 1,
-    mode: mode2,
-    nodes: graph.nodes.map((n2) => runtimeNodeToFileNode(n2, mode2)),
+    mode,
+    nodes: graph.nodes.map((node) => runtimeNodeToFileNode(node, mode)),
     // Pure functions that only mutate node geometry (group / ungroup) ignore
     // edges entirely. `relayoutGroupChildren`, however, reads the inner edges
     // of a group in every mode (grid packs edge-connected components as
@@ -80,14 +80,14 @@ export function buildCanvasFileSnapshot(graph, mode2) {
     // protocol `CanvasFileEdge` share the same shape modulo a defaulted
     // `type` -- hand-rolling the conversion keeps the protocol package
     // edge-agnostic.
-    edges: graph.edges.map((e2) => ({
-      id: e2.id,
-      source: e2.source,
-      sourceHandle: e2.sourceHandle,
-      target: e2.target,
-      targetHandle: e2.targetHandle,
-      type: e2.type ?? "derivation",
-      data: e2.data,
+    edges: graph.edges.map((edge) => ({
+      id: edge.id,
+      source: edge.source,
+      sourceHandle: edge.sourceHandle,
+      target: edge.target,
+      targetHandle: edge.targetHandle,
+      type: edge.type ?? "derivation",
+      data: edge.data,
     })),
   };
 }

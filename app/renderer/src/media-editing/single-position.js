@@ -2,7 +2,7 @@
 
 function singlePosition(width, height, settings) {
   const padding = settings.padding;
-  const top2 = padding + settings.fontSize / 2;
+  const topY = padding + settings.fontSize / 2;
   const middle = height / 2;
   const bottom = height - padding - settings.fontSize / 2;
   const left = padding;
@@ -11,17 +11,17 @@ function singlePosition(width, height, settings) {
   const positions = {
     tl: {
       x: left,
-      y: top2,
+      y: topY,
       align: "left",
     },
     tc: {
       x: center,
-      y: top2,
+      y: topY,
       align: "center",
     },
     tr: {
       x: right,
-      y: top2,
+      y: topY,
       align: "right",
     },
     ml: {
@@ -75,14 +75,14 @@ export function drawWatermark(context, width, height, settings) {
   const lineHeight = settings.fontSize * 1.3;
   const rotation = (settings.rotation * Math.PI) / 180;
   if (settings.mode === "single") {
-    const { x: x2, y: y4, align } = singlePosition(width, height, settings);
-    const startY = y4 - ((lines.length - 1) * lineHeight) / 2;
+    const { x: positionX, y: positionY, align } = singlePosition(width, height, settings);
+    const startY = positionY - ((lines.length - 1) * lineHeight) / 2;
     context.textAlign = align;
-    context.translate(x2, y4);
+    context.translate(positionX, positionY);
     context.rotate(rotation);
-    context.translate(-x2, -y4);
-    lines.forEach((line, index2) => {
-      context.fillText(line, x2, startY + index2 * lineHeight);
+    context.translate(-positionX, -positionY);
+    lines.forEach((line, index) => {
+      context.fillText(line, positionX, startY + index * lineHeight);
     });
   } else {
     context.textAlign = "center";
@@ -98,10 +98,10 @@ export function drawWatermark(context, width, height, settings) {
     context.translate(centerX, centerY);
     context.rotate(rotation);
     context.translate(-centerX, -centerY);
-    for (let y4 = -diagonal; y4 < height + diagonal; y4 += stepY) {
-      for (let x2 = -diagonal; x2 < width + diagonal; x2 += stepX) {
-        lines.forEach((line, index2) => {
-          context.fillText(line, x2, y4 + index2 * lineHeight);
+    for (let tileY = -diagonal; tileY < height + diagonal; tileY += stepY) {
+      for (let tileX = -diagonal; tileX < width + diagonal; tileX += stepX) {
+        lines.forEach((line, index) => {
+          context.fillText(line, tileX, tileY + index * lineHeight);
         });
       }
     }

@@ -1,24 +1,11 @@
 // action-list-section.jsx
-import {
-  ActionListItem,
-  ActionListPanel,
-  ActionListSeparator,
-  Bold$1 as Bold,
-  CircleAlert,
-  classifyFileType,
-  Copy,
-  DialogTrigger$1,
-  FILE_TYPE_EXTENSIONS,
-  Info$1 as Info,
-  Italic$1 as Italic,
-  PlaybackPauseIcon$1 as PlaybackPauseIcon,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  reactExports,
-  Search,
-  Trash2Icon,
-  Underline$1 as Underline,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ActionListItem, ActionListPanel, ActionListSeparator } from "./action-list.jsx";
+import { Bold$1 as Bold, CircleAlert, Copy, Info$1 as Info, Italic$1 as Italic, Search, Trash2Icon, Underline$1 as Underline } from "./lucide-icon-wraps.js";
+import { classifyFileType, FILE_TYPE_EXTENSIONS } from "../infra/file-type.js";
+import { DialogTrigger$1 as DialogTriggerPrimitive } from "../infra/base-ui.js";
+import { PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon } from "./playback-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Card,
@@ -33,7 +20,7 @@ import { Label, Skeleton } from "../team/use-wallet-query.jsx";
 import {
   AlertDialog,
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -48,10 +35,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "../settings/changelog-table.jsx";
-import { Separator as Separator$1 } from "../canvas/separator.jsx";
+import { Separator as CanvasSeparator } from "../canvas/separator.jsx";
 import { Popover, Select } from "../assets/credit-query-keys.jsx";
 import {
-  Input3,
+  Input3 as Input,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -150,13 +137,13 @@ import { Switch } from "../generation/select-content.jsx";
 import { Spinner } from "../team/use-team-transactions-feed-query.jsx";
 import { SliderSection } from "./slider-section.jsx";
 function DialogTrigger({ ...props }) {
-  return <DialogTrigger$1 data-slot="dialog-trigger" {...props} />;
+  return <DialogTriggerPrimitive data-slot="dialog-trigger" {...props} />;
 }
 function AlertDialogTrigger({ ...props }) {
-  return <DialogTrigger$1 data-slot="alert-dialog-trigger" {...props} />;
+  return <DialogTriggerPrimitive data-slot="alert-dialog-trigger" {...props} />;
 }
 function SheetTrigger({ ...props }) {
-  return <DialogTrigger$1 data-slot="sheet-trigger" {...props} />;
+  return <DialogTriggerPrimitive data-slot="sheet-trigger" {...props} />;
 }
 function AccordionSection() {
   return (
@@ -181,12 +168,12 @@ function AccordionSection() {
   );
 }
 function ActionListSection() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [lastAction, setLastAction] = reactExports.useState();
-  const openLabel = t2("uiSpec.actionList.open");
-  const copyLabel = t2("common.copy");
-  const deleteLabel = t2("common.delete");
-  const unavailableLabel = t2("uiSpec.actionList.unavailable");
+  const openLabel = t("uiSpec.actionList.open");
+  const copyLabel = t("common.copy");
+  const deleteLabel = t("common.delete");
+  const unavailableLabel = t("uiSpec.actionList.unavailable");
   const labels = {
     open: openLabel,
     copy: copyLabel,
@@ -197,12 +184,12 @@ function ActionListSection() {
     <ComponentSection
       name="List"
       importPath="@hilo/canvas/action-list · @/modules/base/action-list"
-      description={t2("uiSpec.actionList.description")}
+      description={t("uiSpec.actionList.description")}
     >
       <p className="text-xs text-muted-foreground">
-        {t2("uiSpec.actionList.states")}
+        {t("uiSpec.actionList.states")}
       </p>
-      <VariantGrid label={t2("uiSpec.actionList.inline")}>
+      <VariantGrid label={t("uiSpec.actionList.inline")}>
         <ActionListPanel
           className="w-60 max-w-full"
           data-action-ui-id="ui-spec-list-panel"
@@ -243,13 +230,13 @@ function ActionListSection() {
           </ActionListItem>
         </ActionListPanel>
       </VariantGrid>
-      <VariantGrid label={t2("uiSpec.actionList.interactive")}>
+      <VariantGrid label={t("uiSpec.actionList.interactive")}>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={<Button size="sm" variant="outline" />}
             data-action-ui-id="ui-spec-list-dropdown-trigger"
           >
-            {t2("uiSpec.actionList.dropdown")}
+            {t("uiSpec.actionList.dropdown")}
           </DropdownMenuTrigger>
           <ActionDropdownMenuContent
             className="w-60"
@@ -289,7 +276,7 @@ function ActionListSection() {
             className="flex min-h-9 items-center rounded-md border border-dashed border-border px-4 text-sm"
             data-action-ui-id="ui-spec-list-context-trigger"
           >
-            {t2("uiSpec.actionList.context")}
+            {t("uiSpec.actionList.context")}
           </ContextMenuTrigger>
           <ActionContextMenuContent
             className="w-60"
@@ -309,7 +296,7 @@ function ActionListSection() {
             <ContextMenuSub>
               <ActionContextMenuSubTrigger data-action-ui-id="ui-spec-list-submenu-trigger">
                 <span className="size-4 shrink-0" aria-hidden={true} />
-                {t2("common.more")}
+                {t("common.more")}
               </ActionContextMenuSubTrigger>
               <ActionContextMenuSubContent data-action-ui-id="ui-spec-list-submenu">
                 <ActionContextMenuItem
@@ -350,21 +337,21 @@ function ActionListSection() {
         data-action-ui-id="ui-spec-list-result"
       >
         {lastAction
-          ? t2("uiSpec.actionList.result", {
+          ? t("uiSpec.actionList.result", {
               action: labels[lastAction],
             })
-          : t2("uiSpec.actionList.hint")}
+          : t("uiSpec.actionList.hint")}
       </p>
       <details className="text-xs text-muted-foreground">
         <summary
           className="w-fit cursor-pointer text-foreground"
           data-action-ui-id="ui-spec-list-usage"
         >
-          {t2("uiSpec.actionList.usage")}
+          {t("uiSpec.actionList.usage")}
         </summary>
         <div className="flex flex-col gap-2 py-2">
-          <p>{t2("uiSpec.actionList.tokens")}</p>
-          <p>{t2("uiSpec.actionList.behavior")}</p>
+          <p>{t("uiSpec.actionList.tokens")}</p>
+          <p>{t("uiSpec.actionList.behavior")}</p>
           <pre className="overflow-x-auto rounded-md bg-secondary p-2 text-foreground">
             <code>{`import { ActionListPanel, ActionListItem, ActionListSeparator } from '@hilo/canvas/action-list';
 
@@ -594,24 +581,24 @@ function CardSection() {
   );
 }
 function CheckboxSection() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <ComponentSection
       name="Checkbox"
       importPath="@hilo/canvas/controls"
-      description={t2("uiSpec.checkbox.description")}
+      description={t("uiSpec.checkbox.description")}
     >
       <details className="text-xs text-muted-foreground">
         <summary
           className="w-fit cursor-pointer text-foreground"
           data-action-ui-id="ui-spec-checkbox-usage"
         >
-          {t2("uiSpec.checkbox.usage")}
+          {t("uiSpec.checkbox.usage")}
         </summary>
         <div className="flex flex-col gap-2 py-2">
-          <p>{t2("uiSpec.checkbox.api")}</p>
-          <p>{t2("uiSpec.checkbox.card")}</p>
-          <p>{t2("uiSpec.checkbox.behavior")}</p>
+          <p>{t("uiSpec.checkbox.api")}</p>
+          <p>{t("uiSpec.checkbox.card")}</p>
+          <p>{t("uiSpec.checkbox.behavior")}</p>
           <pre className="overflow-x-auto rounded-md bg-secondary p-2 text-foreground">
             <code>{`import { Checkbox } from '@hilo/canvas/controls';
 
@@ -624,53 +611,53 @@ function CheckboxSection() {
         </div>
       </details>
       <p className="text-xs text-muted-foreground">
-        {t2("uiSpec.checkbox.states")}
+        {t("uiSpec.checkbox.states")}
       </p>
       {["square", "circle"].flatMap((shape) =>
-        ["sm", "md", "lg"].map((size2) => (
-          <VariantGrid key={`${shape}-${size2}`} label={`${shape} / ${size2}`}>
+        ["sm", "md", "lg"].map((size) => (
+          <VariantGrid key={`${shape}-${size}`} label={`${shape} / ${size}`}>
             <Checkbox
               shape={shape}
-              size={size2}
-              aria-label={`${shape} ${size2} unchecked`}
+              size={size}
+              aria-label={`${shape} ${size} unchecked`}
             />
             <Checkbox
               shape={shape}
-              size={size2}
+              size={size}
               defaultChecked={true}
-              aria-label={`${shape} ${size2} checked`}
+              aria-label={`${shape} ${size} checked`}
             />
             <Checkbox
               shape={shape}
-              size={size2}
+              size={size}
               indeterminate={true}
-              aria-label={`${shape} ${size2} mixed`}
+              aria-label={`${shape} ${size} mixed`}
             />
             <Checkbox
               shape={shape}
-              size={size2}
+              size={size}
               disabled={true}
-              aria-label={`${shape} ${size2} disabled`}
+              aria-label={`${shape} ${size} disabled`}
             />
             <Checkbox
               shape={shape}
-              size={size2}
+              size={size}
               disabled={true}
               defaultChecked={true}
-              aria-label={`${shape} ${size2} disabled checked`}
+              aria-label={`${shape} ${size} disabled checked`}
             />
             <Checkbox
               shape={shape}
-              size={size2}
+              size={size}
               disabled={true}
               indeterminate={true}
-              aria-label={`${shape} ${size2} disabled mixed`}
+              aria-label={`${shape} ${size} disabled mixed`}
             />
             <Checkbox
               shape={shape}
-              size={size2}
+              size={size}
               aria-invalid={true}
-              aria-label={`${shape} ${size2} error`}
+              aria-label={`${shape} ${size} error`}
             />
           </VariantGrid>
         )),
@@ -698,41 +685,41 @@ function CheckboxSection() {
       </VariantGrid>
       <div className="max-w-60">
         <Checkbox
-          label={t2("uiSpec.checkbox.label")}
-          description={t2("uiSpec.checkbox.help")}
+          label={t("uiSpec.checkbox.label")}
+          description={t("uiSpec.checkbox.help")}
         />
       </div>
     </ComponentSection>
   );
 }
 function ContextMenuSection() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <ComponentSection
       name="ContextMenu"
       importPath="@/modules/base/action-list"
     >
-      <VariantGrid label={t2("uiSpec.actionList.context")}>
+      <VariantGrid label={t("uiSpec.actionList.context")}>
         <ContextMenu>
           <ContextMenuTrigger
             className="flex h-12 w-full items-center justify-center rounded-lg border border-dashed border-border text-[10px] text-muted-foreground"
             data-action-ui-id="ui-spec-context-trigger"
           >
-            {t2("uiSpec.actionList.context")}
+            {t("uiSpec.actionList.context")}
           </ContextMenuTrigger>
           <ActionContextMenuContent>
             <ActionContextMenuItem data-action-ui-id="ui-spec-context-open">
-              {t2("uiSpec.actionList.open")}
+              {t("uiSpec.actionList.open")}
             </ActionContextMenuItem>
             <ActionContextMenuItem data-action-ui-id="ui-spec-context-copy">
-              {t2("common.copy")}
+              {t("common.copy")}
             </ActionContextMenuItem>
             <ActionContextMenuSeparator />
             <ActionContextMenuItem
               variant="destructive"
               data-action-ui-id="ui-spec-context-delete"
             >
-              {t2("common.delete")}
+              {t("common.delete")}
             </ActionContextMenuItem>
           </ActionContextMenuContent>
         </ContextMenu>
@@ -765,33 +752,33 @@ function DialogSection() {
   );
 }
 function DropdownMenuSection() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <ComponentSection
       name="DropdownMenu"
       importPath="@/modules/base/action-list"
     >
-      <VariantGrid label={t2("uiSpec.actionList.dropdown")}>
+      <VariantGrid label={t("uiSpec.actionList.dropdown")}>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={<Button size="xs" />}
             data-action-ui-id="ui-spec-dropdown-trigger"
           >
-            {t2("common.more")}
+            {t("common.more")}
           </DropdownMenuTrigger>
           <ActionDropdownMenuContent>
             <ActionDropdownMenuItem data-action-ui-id="ui-spec-dropdown-open">
-              {t2("uiSpec.actionList.open")}
+              {t("uiSpec.actionList.open")}
             </ActionDropdownMenuItem>
             <ActionDropdownMenuItem data-action-ui-id="ui-spec-dropdown-copy">
-              {t2("common.copy")}
+              {t("common.copy")}
             </ActionDropdownMenuItem>
             <ActionDropdownMenuSeparator />
             <ActionDropdownMenuItem
               variant="destructive"
               data-action-ui-id="ui-spec-dropdown-delete"
             >
-              {t2("common.delete")}
+              {t("common.delete")}
             </ActionDropdownMenuItem>
           </ActionDropdownMenuContent>
         </DropdownMenu>
@@ -800,27 +787,27 @@ function DropdownMenuSection() {
   );
 }
 function FileTypeIconSection() {
-  const { t: t2 } = useTranslation();
-  const psd = classifyFileType({
+  const { t } = useTranslation();
+  const fileType = classifyFileType({
     filename: "poster.psd",
   });
   return (
     <ComponentSection
       name="FileTypeIcon"
       importPath="@hilo/canvas/controls"
-      description={t2("uiSpec.fileTypeIcon.description")}
+      description={t("uiSpec.fileTypeIcon.description")}
     >
       <details className="text-xs text-muted-foreground">
         <summary
           className="w-fit cursor-pointer text-foreground"
           data-action-ui-id="ui-spec-file-type-icon-usage"
         >
-          {t2("uiSpec.fileTypeIcon.usage")}
+          {t("uiSpec.fileTypeIcon.usage")}
         </summary>
         <div className="flex flex-col gap-2 py-2">
-          <p>{t2("uiSpec.fileTypeIcon.api")}</p>
-          <p>{t2("uiSpec.fileTypeIcon.boundary")}</p>
-          <p>{t2("uiSpec.fileTypeIcon.colors")}</p>
+          <p>{t("uiSpec.fileTypeIcon.api")}</p>
+          <p>{t("uiSpec.fileTypeIcon.boundary")}</p>
+          <p>{t("uiSpec.fileTypeIcon.colors")}</p>
           <pre className="overflow-x-auto rounded-md bg-secondary p-2 text-foreground">
             <code>{`import { classifyFileType, FileTypeIcon } from '@hilo/canvas/controls';
 
@@ -831,29 +818,29 @@ const type = classifyFileType({ filename });
         </div>
       </details>
       <p className="text-xs text-muted-foreground">
-        {t2("uiSpec.fileTypeIcon.colors")}
+        {t("uiSpec.fileTypeIcon.colors")}
       </p>
-      <VariantGrid label={t2("uiSpec.fileTypeIcon.sizes")}>
-        {[14, 16, 24, 28, 32, 48, 64, 80, 99].map((size2) => (
-          <div key={size2} className="flex flex-col items-center gap-2">
+      <VariantGrid label={t("uiSpec.fileTypeIcon.sizes")}>
+        {[14, 16, 24, 28, 32, 48, 64, 80, 99].map((size) => (
+          <div key={size} className="flex flex-col items-center gap-2">
             <FileTypeIcon
-              {...psd}
-              size={size2}
-              accessibleLabel={t2("uiSpec.fileTypeIcon.accessible", {
+              {...fileType}
+              size={size}
+              accessibleLabel={t("uiSpec.fileTypeIcon.accessible", {
                 type: "PSD",
               })}
             />
-            <span className="text-xs text-muted-foreground">{size2}px</span>
+            <span className="text-xs text-muted-foreground">{size}px</span>
           </div>
         ))}
       </VariantGrid>
-      <VariantGrid label={t2("uiSpec.fileTypeIcon.scenes")}>
+      <VariantGrid label={t("uiSpec.fileTypeIcon.scenes")}>
         <div className="flex min-w-0 max-w-full items-center gap-2 rounded-md bg-secondary p-2">
           <FileTypeBadge fileName="poster.psd" variant="inline" />
           <span className="truncate">poster.psd</span>
         </div>
         <div className="flex flex-col items-center gap-3 rounded-lg bg-card p-3">
-          <FileTypeIcon {...psd} size={48} decorative={true} />
+          <FileTypeIcon {...fileType} size={48} decorative={true} />
           <span>poster.psd</span>
         </div>
         <div className="h-[250px] w-[350px] max-w-full overflow-hidden rounded-lg">
@@ -863,7 +850,7 @@ const type = classifyFileType({ filename });
           />
         </div>
       </VariantGrid>
-      <VariantGrid label={t2("uiSpec.fileTypeIcon.states")}>
+      <VariantGrid label={t("uiSpec.fileTypeIcon.states")}>
         {["unknown.xyz", "README", "long.abcdefghijk"].map((filename) => (
           <div key={filename} className="flex flex-col items-center gap-2">
             <FileTypeIcon
@@ -878,30 +865,30 @@ const type = classifyFileType({ filename });
         ))}
         <div className="flex flex-col items-center gap-2">
           <FileTypeIcon
-            {...psd}
+            {...fileType}
             readFailure={true}
             size={48}
             decorative={true}
           />
           <span className="text-xs">
-            {t2("uiSpec.fileTypeIcon.readFailure")}
+            {t("uiSpec.fileTypeIcon.readFailure")}
           </span>
         </div>
       </VariantGrid>
-      <VariantGrid label={t2("uiSpec.fileTypeIcon.coverage")}>
+      <VariantGrid label={t("uiSpec.fileTypeIcon.coverage")}>
         {Object.values(FILE_TYPE_EXTENSIONS)
           .flat()
-          .map((ext) => (
-            <div key={ext} className="flex w-16 flex-col items-center gap-2">
+          .map((extension) => (
+            <div key={extension} className="flex w-16 flex-col items-center gap-2">
               <FileTypeIcon
                 {...classifyFileType({
-                  filename: `sample.${ext}`,
+                  filename: `sample.${extension}`,
                 })}
                 size={32}
                 decorative={true}
               />
               <span className="text-xs text-muted-foreground">
-                {ext.toUpperCase()}
+                {extension.toUpperCase()}
               </span>
             </div>
           ))}
@@ -917,20 +904,20 @@ function InputSection() {
       description="支持 startIcon / endIcon slot。"
     >
       <VariantGrid label="Default">
-        <Input3 placeholder="输入文字..." className="w-full" />
+        <Input placeholder="输入文字..." className="w-full" />
       </VariantGrid>
       <VariantGrid label="With Icon">
-        <Input3
+        <Input
           placeholder="搜索..."
           startIcon={<Search />}
           className="w-full"
         />
       </VariantGrid>
       <VariantGrid label="Disabled">
-        <Input3 placeholder="disabled" disabled={true} className="w-full" />
+        <Input placeholder="disabled" disabled={true} className="w-full" />
       </VariantGrid>
       <VariantGrid label="Invalid">
-        <Input3 placeholder="invalid" aria-invalid={true} className="w-full" />
+        <Input placeholder="invalid" aria-invalid={true} className="w-full" />
       </VariantGrid>
     </ComponentSection>
   );
@@ -1156,7 +1143,7 @@ function ResizeColHandleSection() {
     width,
     onMouseDown,
     onValueChange,
-    reset: reset2,
+    reset,
   } = useResizableWidth({
     defaultWidth: PREVIEW_DEFAULT_WIDTH,
     minWidth: PREVIEW_MIN_WIDTH,
@@ -1192,7 +1179,7 @@ function ResizeColHandleSection() {
             indicatorVariant="grip"
             onMouseDown={onMouseDown}
             onValueChange={onValueChange}
-            onDoubleClick={reset2}
+            onDoubleClick={reset}
           />
           <div className="flex min-w-0 flex-1 items-center justify-center bg-muted">
             <span className="text-[10px] text-muted-foreground">
@@ -1228,7 +1215,7 @@ function SelectSection() {
 }
 function Separator({ className, orientation = "horizontal", ...props }) {
   return (
-    <Separator$1
+    <CanvasSeparator
       data-slot="separator"
       orientation={orientation}
       className={cn(

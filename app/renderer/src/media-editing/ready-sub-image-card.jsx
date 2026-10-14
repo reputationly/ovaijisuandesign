@@ -1,5 +1,7 @@
 // ready-sub-image-card.jsx
-import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { X$7 as X } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";
 import { ImageSlotBody } from "./image-slot-body.jsx";
@@ -25,11 +27,11 @@ function computeExpandedFrameRect(positions, cardWidth, cardHeight) {
   let minY = 0;
   let maxX = cardWidth;
   let maxY = cardHeight;
-  for (const position2 of positions) {
-    minX = Math.min(minX, position2.dx);
-    minY = Math.min(minY, position2.dy);
-    maxX = Math.max(maxX, position2.dx + cardWidth);
-    maxY = Math.max(maxY, position2.dy + cardHeight);
+  for (const position of positions) {
+    minX = Math.min(minX, position.dx);
+    minY = Math.min(minY, position.dy);
+    maxX = Math.max(maxX, position.dx + cardWidth);
+    maxY = Math.max(maxY, position.dy + cardHeight);
   }
   return {
     left: minX - MULTI_IMAGE_FRAME_INSET,
@@ -41,23 +43,23 @@ function computeExpandedFrameRect(positions, cardWidth, cardHeight) {
 function CardWrapper({
   cardWidth,
   cardHeight,
-  position: position2,
-  children: children2,
+  position,
+  children,
 }) {
-  const animationDelayMs = Math.min(position2.originalIndex, 6) * 18;
+  const animationDelayMs = Math.min(position.originalIndex, 6) * 18;
   return (
     <div
       data-action-ui-id="canvas.image-node.sub-image-card"
       className="canvas-media-expanded-card group pointer-events-none absolute block"
       style={{
-        left: position2.dx,
-        top: position2.dy,
+        left: position.dx,
+        top: position.dy,
         width: cardWidth,
         height: cardHeight,
         animationDelay: `${animationDelayMs}ms`,
       }}
     >
-      {children2}
+      {children}
     </div>
   );
 }
@@ -92,7 +94,7 @@ function DownloadButton({ onDownload, label }) {
 function ReadySubImageCard({
   nodeId,
   slot,
-  position: position2,
+  position,
   cardWidth,
   cardHeight,
   onSetPrimary,
@@ -105,57 +107,57 @@ function ReadySubImageCard({
 }) {
   const frameRef = reactExports.useRef(null);
   useRegisterZoomCounter(frameRef);
-  const { t: t2 } = useTranslation();
-  const handleCardClick = (e2) => {
-    e2.stopPropagation();
+  const { t } = useTranslation();
+  const handleCardClick = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (!slot.url) return;
-    onOpenSlot(position2.originalIndex);
+    onOpenSlot(position.originalIndex);
   };
-  const handleSetPrimary = (e2) => {
-    e2.stopPropagation();
+  const handleSetPrimary = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (readonly) return;
-    onSetPrimary(position2.originalIndex);
+    onSetPrimary(position.originalIndex);
   };
-  const handleDoubleClick2 = (e2) => {
-    e2.preventDefault();
-    e2.stopPropagation();
+  const handleDoubleClick = (mouseEvent) => {
+    mouseEvent.preventDefault();
+    mouseEvent.stopPropagation();
     if (!slot.url) return;
-    onOpenSlot(position2.originalIndex);
+    onOpenSlot(position.originalIndex);
   };
-  const handleDelete2 = (e2) => {
-    e2.stopPropagation();
+  const handleDelete = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (readonly) return;
-    onDeleteSub(position2.originalIndex);
+    onDeleteSub(position.originalIndex);
   };
-  const handleSplit = (e2) => {
-    e2.stopPropagation();
+  const handleSplit = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (readonly) return;
-    onSplitSub(position2.originalIndex);
+    onSplitSub(position.originalIndex);
   };
-  const handleDownload = (e2) => {
-    e2.stopPropagation();
-    onDownloadSub(position2.originalIndex);
+  const handleDownload = (clickEvent) => {
+    clickEvent.stopPropagation();
+    onDownloadSub(position.originalIndex);
   };
-  const handleContextMenu = (e2) => {
-    e2.preventDefault();
-    e2.stopPropagation();
+  const handleContextMenu = (contextMenuEvent) => {
+    contextMenuEvent.preventDefault();
+    contextMenuEvent.stopPropagation();
     if (readonly) return;
-    onSubContextMenu(position2.originalIndex, e2);
+    onSubContextMenu(position.originalIndex, contextMenuEvent);
   };
-  const promoteLabel = t2("canvas.multiImage.setAsPrimary", "设为主图");
-  const splitLabel = t2("canvas.multiImage.splitToNode", "独立展示");
-  const previewLabel = t2("canvas.fullscreenPreview", "全屏预览");
+  const promoteLabel = t("canvas.multiImage.setAsPrimary", "设为主图");
+  const splitLabel = t("canvas.multiImage.splitToNode", "独立展示");
+  const previewLabel = t("canvas.fullscreenPreview", "全屏预览");
   return (
     <CardWrapper
       cardWidth={cardWidth}
       cardHeight={cardHeight}
-      position={position2}
+      position={position}
     >
       <button
         ref={frameRef}
         type="button"
         onClick={handleCardClick}
-        onDoubleClick={handleDoubleClick2}
+        onDoubleClick={handleDoubleClick}
         onContextMenu={handleContextMenu}
         aria-label={previewLabel}
         title={previewLabel}
@@ -202,11 +204,11 @@ function ReadySubImageCard({
       )}
       {!readonly && (
         <DeleteButton
-          onDelete={handleDelete2}
+          onDelete={handleDelete}
           label={
             slot.status === "status_unknown"
-              ? t2("canvas.removeLocalPlaceholder", "移除本地占位")
-              : t2("canvas.multiImage.deleteImage", "删除该图")
+              ? t("canvas.removeLocalPlaceholder", "移除本地占位")
+              : t("canvas.multiImage.deleteImage", "删除该图")
           }
           className="right-8"
         />
@@ -214,7 +216,7 @@ function ReadySubImageCard({
       {slot.url && (
         <DownloadButton
           onDownload={handleDownload}
-          label={t2("canvas.multiImage.downloadImage", "下载该图")}
+          label={t("canvas.multiImage.downloadImage", "下载该图")}
         />
       )}
     </CardWrapper>
@@ -223,17 +225,17 @@ function ReadySubImageCard({
 function LoadingSubImageCard({
   nodeId,
   slot,
-  position: position2,
+  position,
   cardWidth,
   cardHeight,
 }) {
   const frameRef = reactExports.useRef(null);
   useRegisterZoomCounter(frameRef);
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const queued = slot.status === "pending";
   const label = queued
-    ? t2("canvas.pending")
-    : t2("canvas.multiImage.slotLoading", "生成中…");
+    ? t("canvas.pending")
+    : t("canvas.multiImage.slotLoading", "生成中…");
   const estimatedRemainingWaitSeconds = useGenerationWaitEstimate({
     active: !queued,
     liveRemainingWaitSeconds: slot.estimatedRemainingWaitSeconds,
@@ -252,7 +254,7 @@ function LoadingSubImageCard({
     <CardWrapper
       cardWidth={cardWidth}
       cardHeight={cardHeight}
-      position={position2}
+      position={position}
     >
       <div
         ref={frameRef}
@@ -303,23 +305,23 @@ function LoadingSubImageCard({
 function ErrorSubImageCard({
   nodeId,
   slot,
-  position: position2,
+  position,
   cardWidth,
   cardHeight,
   onDeleteSub,
   readonly,
 }) {
-  const { t: t2 } = useTranslation();
-  const handleDelete2 = (e2) => {
-    e2.stopPropagation();
+  const { t } = useTranslation();
+  const handleDelete = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (readonly) return;
-    onDeleteSub(position2.originalIndex);
+    onDeleteSub(position.originalIndex);
   };
   return (
     <CardWrapper
       cardWidth={cardWidth}
       cardHeight={cardHeight}
-      position={position2}
+      position={position}
     >
       <ImageSlotBody
         nodeId={nodeId}
@@ -331,20 +333,20 @@ function ErrorSubImageCard({
       />
       {!readonly && slot.status !== "recoverable_error" && (
         <DeleteButton
-          onDelete={handleDelete2}
+          onDelete={handleDelete}
           label={
             slot.status === "status_unknown"
-              ? t2("canvas.removeLocalPlaceholder", "移除本地占位")
-              : t2("canvas.multiImage.deleteImage", "删除该图")
+              ? t("canvas.removeLocalPlaceholder", "移除本地占位")
+              : t("canvas.multiImage.deleteImage", "删除该图")
           }
         />
       )}
     </CardWrapper>
   );
 }
-export const MultiImageOverlay = reactExports.memo(function MultiImageOverlay2({
+export const MultiImageOverlay = reactExports.memo(function MultiImageOverlayView({
   nodeId,
-  view: view2,
+  view,
   cardWidth,
   cardHeight,
   onSetPrimary,
@@ -354,13 +356,13 @@ export const MultiImageOverlay = reactExports.memo(function MultiImageOverlay2({
   onDownloadSub,
   onOpenSlot,
   readonly,
-  closing: closing2 = false,
+  closing = false,
 }) {
-  const imageIds = view2.slots.map((s2) => s2.id);
-  const imageStatuses = view2.slots.map((s2) => s2.status);
+  const imageIds = view.slots.map((slot) => slot.id);
+  const imageStatuses = view.slots.map((slot) => slot.status);
   const positions = computeMultiImageGridPositions(
     imageIds,
-    view2.primaryIndex,
+    view.primaryIndex,
     cardWidth,
     cardHeight,
     SUB_CARD_GAP,
@@ -371,7 +373,7 @@ export const MultiImageOverlay = reactExports.memo(function MultiImageOverlay2({
   return (
     <div
       data-action-ui-id="canvas.image-node.multi-image-overlay"
-      data-state={closing2 ? "closing" : "open"}
+      data-state={closing ? "closing" : "open"}
       className="pointer-events-none absolute inset-0 z-50"
     >
       <div
@@ -379,35 +381,35 @@ export const MultiImageOverlay = reactExports.memo(function MultiImageOverlay2({
         className="canvas-media-expanded-frame pointer-events-none absolute z-0"
         style={frameRect}
       />
-      {positions.map((pos) => {
-        const slot = view2.slots[pos.originalIndex];
+      {positions.map((position) => {
+        const slot = view.slots[position.originalIndex];
         if (!slot) return null;
         if (
-          pos.status === "pending" ||
-          pos.status === "generating" ||
-          pos.status === "loading"
+          position.status === "pending" ||
+          position.status === "generating" ||
+          position.status === "loading"
         ) {
           return (
             <LoadingSubImageCard
-              key={`loading:${pos.imageId}:${pos.status}`}
+              key={`loading:${position.imageId}:${position.status}`}
               nodeId={nodeId}
               slot={slot}
-              position={pos}
+              position={position}
               cardWidth={cardWidth}
               cardHeight={cardHeight}
             />
           );
         }
         if (
-          isGenerationErrorStatus(pos.status) ||
+          isGenerationErrorStatus(position.status) ||
           (slot.error !== null && slot.error !== void 0)
         ) {
           return (
             <ErrorSubImageCard
-              key={`error:${pos.originalIndex}:${pos.imageId}`}
+              key={`error:${position.originalIndex}:${position.imageId}`}
               nodeId={nodeId}
               slot={slot}
-              position={pos}
+              position={position}
               cardWidth={cardWidth}
               cardHeight={cardHeight}
               onDeleteSub={onDeleteSub}
@@ -415,13 +417,13 @@ export const MultiImageOverlay = reactExports.memo(function MultiImageOverlay2({
             />
           );
         }
-        const key2 = `ready:${pos.imageId}`;
+        const key = `ready:${position.imageId}`;
         return (
           <ReadySubImageCard
-            key={key2}
+            key={key}
             nodeId={nodeId}
             slot={slot}
-            position={pos}
+            position={position}
             cardWidth={cardWidth}
             cardHeight={cardHeight}
             onSetPrimary={onSetPrimary}

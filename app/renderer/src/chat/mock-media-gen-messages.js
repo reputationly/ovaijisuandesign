@@ -2,16 +2,16 @@
 
 let _seq = 0;
 
-function id() {
+function createMockMessageId() {
   return `mock_media_gen_${++_seq}`;
 }
 
 const PREFIX = "hub_";
 
-function tool(name2, args, result, status = "ok") {
-  const fullName = `${PREFIX}${name2}`;
+function tool(mediaToolName, args, result, status = "ok") {
+  const fullName = `${PREFIX}${mediaToolName}`;
   return {
-    id: id(),
+    id: createMockMessageId(),
     role: "agent",
     type: "tool",
     content: fullName,
@@ -22,10 +22,10 @@ function tool(name2, args, result, status = "ok") {
   };
 }
 
-function running(name2, args) {
-  const fullName = `${PREFIX}${name2}`;
+function running(mediaToolName, args) {
+  const fullName = `${PREFIX}${mediaToolName}`;
   return {
-    id: id(),
+    id: createMockMessageId(),
     role: "agent",
     type: "tool",
     content: fullName,
@@ -38,7 +38,7 @@ function running(name2, args) {
 export const MOCK_MEDIA_GEN_MESSAGES = [
   // User prompt
   {
-    id: id(),
+    id: createMockMessageId(),
     role: "user",
     type: "text",
     content: "[Mock] Media generation test — all categories (domestic region)",
@@ -885,7 +885,7 @@ export const MOCK_MEDIA_GEN_MESSAGES = [
   //     rendering nothing. See message-reducer ERROR_RESULT_PATTERN /
   //     TimelineItem unparsedFailure fallback.
   {
-    id: id(),
+    id: createMockMessageId(),
     role: "agent",
     type: "tool",
     content: `${PREFIX}generate_image`,

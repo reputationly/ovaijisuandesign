@@ -1,11 +1,13 @@
 // skill-filter-bar.jsx
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   FEATURED_TAG,
   StableTabLabel,
 } from "../generation/use-mention-models.jsx";
-import { ChevronDown, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import {
   FilterMenu,
   FilterMenuTrigger,
@@ -18,22 +20,22 @@ import {
 import { Switch } from "../generation/select-content.jsx";
 const SKILL_SECONDARY_TAB_CLASS_NAME =
   "skills-category-secondary-tab inline-flex h-8 shrink-0 cursor-pointer items-center whitespace-nowrap rounded-md border px-2.5 py-0 text-[15px] font-normal leading-5 tracking-[0.02em] shadow-none transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50";
-function skillSecondaryTabClassName(active2) {
+function skillSecondaryTabClassName(active) {
   return cn(
     SKILL_SECONDARY_TAB_CLASS_NAME,
-    active2
+    active
       ? "border-transparent bg-[var(--secondary-tab-active-bg)] font-medium text-foreground"
       : "border-transparent bg-transparent text-foreground/50 hover:text-foreground",
   );
 }
-function SkillSecondaryTab({ actionId, active: active2, label, onClick }) {
+function SkillSecondaryTab({ actionId, active, label, onClick }) {
   return (
     <button
       type="button"
       data-action-ui-id={actionId}
-      data-active={active2 ? "true" : void 0}
-      aria-pressed={active2}
-      className={skillSecondaryTabClassName(active2)}
+      data-active={active ? "true" : void 0}
+      aria-pressed={active}
+      className={skillSecondaryTabClassName(active)}
       onClick={onClick}
     >
       <span className="text-[15px] leading-5">
@@ -78,18 +80,18 @@ function SkillFilterDropdown({
         data-action-ui-id={`${actionId}-menu`}
       >
         <FilterMenuGroup className="gap-0 [--filter-menu-row-gap:0px]">
-          {options.map((option2) => (
+          {options.map((option) => (
             <FilterMenuItem
-              key={option2.value}
+              key={option.value}
               className="h-auto min-h-7 rounded-sm py-1.5 text-[11px] font-medium hover:bg-popup-item-hover focus-visible:bg-popup-item-hover"
-              selected={option2.value === value}
+              selected={option.value === value}
               onClick={() => {
-                onValueChange?.(option2.value);
+                onValueChange?.(option.value);
                 setOpen(false);
               }}
-              data-action-ui-id={`${actionId}-option-${option2.value}`}
+              data-action-ui-id={`${actionId}-option-${option.value}`}
             >
-              {option2.label}
+              {option.label}
             </FilterMenuItem>
           ))}
         </FilterMenuGroup>
@@ -106,14 +108,14 @@ export function SkillFilterBar({
   onViewModeChange: _onViewModeChange,
   sortBy: _sortBy,
   onSortChange: _onSortChange,
-  autoUpdate: autoUpdate2,
+  autoUpdate,
   onAutoUpdateChange,
   mineCategoryFilter,
   onMineCategoryFilterChange,
   mineSourceFilter = "all",
   onMineSourceFilterChange,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const isZh = i18n.language.startsWith("zh");
   return (
     <div
@@ -126,13 +128,13 @@ export function SkillFilterBar({
             <SkillSecondaryTab
               actionId="skills-filter-tag-all"
               active={!activeTag}
-              label={t2("skills.tag.all", "All")}
+              label={translate("skills.tag.all", "All")}
               onClick={() => onTagChange(null)}
             />
             <SkillSecondaryTab
               actionId="skills-filter-tag-featured"
               active={activeTag === FEATURED_TAG}
-              label={t2("skills.tag.featured", "精选")}
+              label={translate("skills.tag.featured", "精选")}
               onClick={() => onTagChange(FEATURED_TAG)}
             />
             {categories.map((category) => (
@@ -151,26 +153,26 @@ export function SkillFilterBar({
             <div className="flex min-w-0 items-center gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <SkillFilterDropdown
                 value={mineCategoryFilter ?? "__all__"}
-                label={t2("skills.mine.filterCategoryLabel", "分类")}
+                label={translate("skills.mine.filterCategoryLabel", "分类")}
                 valueLabel={
                   mineCategoryFilter
                     ? (() => {
-                        const match2 = categories.find(
+                        const match = categories.find(
                           (category) =>
                             category.category === mineCategoryFilter,
                         );
-                        return match2
+                        return match
                           ? isZh
-                            ? match2.cn_name
-                            : match2.en_name
+                            ? match.cn_name
+                            : match.en_name
                           : mineCategoryFilter;
                       })()
-                    : t2("skills.mine.filterCategoryAll", "全部")
+                    : translate("skills.mine.filterCategoryAll", "全部")
                 }
                 options={[
                   {
                     value: "__all__",
-                    label: t2("skills.mine.filterCategoryAll", "全部"),
+                    label: translate("skills.mine.filterCategoryAll", "全部"),
                   },
                   ...categories.map((category) => ({
                     value: category.category,
@@ -186,26 +188,26 @@ export function SkillFilterBar({
               />
               <SkillFilterDropdown
                 value={mineSourceFilter}
-                label={t2("skills.mine.filterSourceLabel", "来源")}
+                label={translate("skills.mine.filterSourceLabel", "来源")}
                 valueLabel={
                   mineSourceFilter === "community"
-                    ? t2("skills.mine.filterSourceCommunity", "来自社区")
+                    ? translate("skills.mine.filterSourceCommunity", "来自社区")
                     : mineSourceFilter === "local"
-                      ? t2("skills.mine.filterSourceLocal", "本地创建")
-                      : t2("skills.mine.filterSourceAll", "全部")
+                      ? translate("skills.mine.filterSourceLocal", "本地创建")
+                      : translate("skills.mine.filterSourceAll", "全部")
                 }
                 options={[
                   {
                     value: "all",
-                    label: t2("skills.mine.filterSourceAll", "全部"),
+                    label: translate("skills.mine.filterSourceAll", "全部"),
                   },
                   {
                     value: "community",
-                    label: t2("skills.mine.filterSourceCommunity", "来自社区"),
+                    label: translate("skills.mine.filterSourceCommunity", "来自社区"),
                   },
                   {
                     value: "local",
-                    label: t2("skills.mine.filterSourceLocal", "本地创建"),
+                    label: translate("skills.mine.filterSourceLocal", "本地创建"),
                   },
                 ]}
                 actionId="skills-mine-source-dropdown"
@@ -217,11 +219,11 @@ export function SkillFilterBar({
                 htmlFor="skill-auto-update-filter"
                 className="inline-flex shrink-0 cursor-pointer select-none items-center gap-2 text-xs text-muted-foreground"
               >
-                {t2("skills.mine.autoUpdateInstalled", "自动更新已安装 Skill")}
+                {translate("skills.mine.autoUpdateInstalled", "自动更新已安装 Skill")}
                 <Switch
                   id="skill-auto-update-filter"
                   data-action-ui-id="skills.auto-update-toggle"
-                  checked={autoUpdate2}
+                  checked={autoUpdate}
                   onCheckedChange={onAutoUpdateChange}
                 />
               </label>

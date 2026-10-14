@@ -1,5 +1,6 @@
 // use-local-comfy-ui-workflows.js
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { currentCanvasWorkflowNodeKey } from "./find-trailing-trigger.js";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { mapLocalComfyUiWorkflows } from "../text-editor/canvas-host-toolbar-button.jsx";
@@ -39,12 +40,12 @@ function asRecord(value) {
     ? value
     : null;
 }
-function requiredString(record2, key2) {
-  const value = record2[key2];
+function requiredString(record, key) {
+  const value = record[key];
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
-function positiveInteger(record2, key2) {
-  const value = record2[key2];
+function positiveInteger(record, key) {
+  const value = record[key];
   return typeof value === "number" && Number.isInteger(value) && value > 0
     ? value
     : void 0;
@@ -53,21 +54,21 @@ function mapCurrentCanvasComfyUiWorkflowBindings(value) {
   const nodes = asRecord(value)?.nodes;
   if (!Array.isArray(nodes)) return [];
   const bindings = nodes.flatMap((candidate) => {
-    const record2 = asRecord(candidate);
-    if (!record2 || record2.pluginId !== "comfyui") return [];
-    const nodeId = requiredString(record2, "id");
-    const id2 = requiredString(record2, "currentWorkflowId");
-    const title = requiredString(record2, "currentWorkflowName");
-    if (!nodeId || !id2 || !title || isWorkflowIdentity(title)) return [];
-    const copyOrdinal = positiveInteger(record2, "comfyuiTemplateCopyOrdinal");
+    const record = asRecord(candidate);
+    if (!record || record.pluginId !== "comfyui") return [];
+    const nodeId = requiredString(record, "id");
+    const currentWorkflowId = requiredString(record, "currentWorkflowId");
+    const title = requiredString(record, "currentWorkflowName");
+    if (!nodeId || !currentWorkflowId || !title || isWorkflowIdentity(title)) return [];
+    const copyOrdinal = positiveInteger(record, "comfyuiTemplateCopyOrdinal");
     return [
       {
         nodeId,
         workflow: {
-          id: id2,
+          id: currentWorkflowId,
           name: title,
           title,
-          source: id2.startsWith("template:") ? "template" : "user",
+          source: currentWorkflowId.startsWith("template:") ? "template" : "user",
           canvasNodeId: nodeId,
           ...(copyOrdinal
             ? {
@@ -88,7 +89,7 @@ function mapComfyUiWorkflowGraph(value) {
   return graph;
 }
 export function useLocalComfyUiWorkflows() {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const [workflows, setWorkflows] = reactExports.useState([]);
   const [currentCanvasWorkflows, setCurrentCanvasWorkflows] =
     reactExports.useState([]);
@@ -101,8 +102,8 @@ export function useLocalComfyUiWorkflows() {
     const controller = new AbortController();
     refreshAbortRef.current = controller;
     setLoading(true);
-    const loadJson = async (path2) => {
-      const response = await gatewayFetch2(path2, {
+    const loadJson = async (path) => {
+      const response = await gatewayFetch(path, {
         signal: controller.signal,
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -121,11 +122,11 @@ export function useLocalComfyUiWorkflows() {
         canvasResult.status === "fulfilled"
           ? mapCurrentCanvasComfyUiWorkflowBindings(canvasResult.value)
           : [];
-      const currentCanvasWorkflows2 = currentCanvasWorkflowBindings.map(
+      const currentCanvasWorkflows = currentCanvasWorkflowBindings.map(
         ({ workflow }) => workflow,
       );
       setWorkflows(localWorkflows);
-      setCurrentCanvasWorkflows(currentCanvasWorkflows2);
+      setCurrentCanvasWorkflows(currentCanvasWorkflows);
       setCurrentCanvasWorkflowNodeIds(
         new Map(
           currentCanvasWorkflowBindings.map(({ workflow, nodeId }) => [
@@ -136,20 +137,20 @@ export function useLocalComfyUiWorkflows() {
       );
     });
     if (!controller.signal.aborted) setLoading(false);
-  }, [gatewayFetch2]);
+  }, [gatewayFetch]);
   reactExports.useEffect(() => {
     void refresh();
     return () => refreshAbortRef.current?.abort();
   }, [refresh]);
   const loadGraph = reactExports.useCallback(
     async (workflowId) => {
-      const response = await gatewayFetch2(
+      const response = await gatewayFetch(
         API_PATHS.comfyUiWorkflow(workflowId, true),
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return mapComfyUiWorkflowGraph(await response.json());
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   return {
     workflows,

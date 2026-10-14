@@ -1,14 +1,11 @@
 // create-project-dialog.jsx
-import {
-  BadgeInfo,
-  jsxRuntimeExports,
-  reactExports,
-  useNewProjectFolder,
-  usePlatform,
-  useTranslation,
-  workspaceLog,
-  X$7 as X,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { BadgeInfo, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { useNewProjectFolder } from "./use-new-project-folder.js";
+import { workspaceLog } from "../infra/logger.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useFolderPermissionGate } from "./use-folder-permission-gate.jsx";
 import { LocalFolderIcon } from "./home-service.jsx";
@@ -30,10 +27,10 @@ import {
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { Label } from "../team/use-wallet-query.jsx";
-import { Input3 } from "../infra/select-content.jsx";
-function ProjectOutputLocation({ disabled: disabled2 }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+import { Input3 as Input } from "../infra/select-content.jsx";
+function ProjectOutputLocation({ disabled }) {
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const [folderPath, setFolderPath] = useNewProjectFolder();
   const [projectsRoot, setProjectsRoot] = reactExports.useState();
   const [picking, setPicking] = reactExports.useState(false);
@@ -44,8 +41,8 @@ function ProjectOutputLocation({ disabled: disabled2 }) {
       const request = ++generation;
       void getDataDirectoryMainService()
         .getProjectsRoot()
-        .then((root2) => {
-          if (request === generation) setProjectsRoot(root2);
+        .then((root) => {
+          if (request === generation) setProjectsRoot(root);
         })
         .catch((error) => {
           workspaceLog.info("project-output-location: root-unavailable", {
@@ -61,13 +58,13 @@ function ProjectOutputLocation({ disabled: disabled2 }) {
     };
   }, []);
   const handlePick = async () => {
-    if (disabled2 || picking || !platform2.fs.showOpenDialog) return;
+    if (disabled || picking || !platform.fs.showOpenDialog) return;
     setPicking(true);
     try {
-      const paths = await platform2.fs.showOpenDialog({
+      const paths = await platform.fs.showOpenDialog({
         directory: true,
         multiple: false,
-        title: t2("workspace.newProject.selectFolderTitle"),
+        title: translate("workspace.newProject.selectFolderTitle"),
         defaultPath: folderPath ?? projectsRoot,
       });
       const picked = paths?.[0];
@@ -81,7 +78,7 @@ function ProjectOutputLocation({ disabled: disabled2 }) {
     }
   };
   const displayedPath =
-    folderPath ?? projectsRoot ?? t2("workspace.newProject.locationLoading");
+    folderPath ?? projectsRoot ?? translate("workspace.newProject.locationLoading");
   return (
     <>
       <div
@@ -95,7 +92,7 @@ function ProjectOutputLocation({ disabled: disabled2 }) {
           <LocalFolderIcon className="size-4 shrink-0" />
           <span className="flex min-w-0 flex-1 items-baseline gap-2 overflow-hidden">
             <span className="max-w-[82px] shrink truncate text-body-14 text-muted-foreground">
-              {t2("workspace.newProject.locationLabel")}
+              {translate("workspace.newProject.locationLabel")}
             </span>
             <span
               className="min-w-0 flex-1 truncate whitespace-nowrap text-body-14 text-muted-foreground"
@@ -111,23 +108,23 @@ function ProjectOutputLocation({ disabled: disabled2 }) {
         >
           <button
             type="button"
-            disabled={disabled2 || picking || !platform2.fs.showOpenDialog}
+            disabled={disabled || picking || !platform.fs.showOpenDialog}
             onClick={() => void handlePick()}
             className="shrink-0 rounded-sm px-1.5 py-1 text-body-14 font-medium whitespace-nowrap text-brand-accent transition-colors disabled:opacity-50 disabled:pointer-events-none hover:bg-brand-accent/10"
             data-action-ui-id="create-project-folder-pick"
           >
-            {t2("workspace.newProject.changeFolder")}
+            {translate("workspace.newProject.changeFolder")}
           </button>
           {folderPath ? (
             <button
               type="button"
-              disabled={disabled2 || picking}
+              disabled={disabled || picking}
               onClick={() => setFolderPath(void 0)}
               className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none hover:bg-foreground/5 hover:text-foreground"
               data-action-ui-id="create-project-folder-clear"
-              aria-label={t2("common.clear", "清除")}
+              aria-label={translate("common.clear", "清除")}
             >
-              <X size={14} strokeWidth={1.5} />
+              <CloseIcon size={14} strokeWidth={1.5} />
             </button>
           ) : null}
         </div>
@@ -137,25 +134,25 @@ function ProjectOutputLocation({ disabled: disabled2 }) {
   );
 }
 export function CreateProjectDialog({ open, kind, onConfirm, onOpenChange }) {
-  const { t: t2 } = useTranslation();
-  const [name2, setName] = reactExports.useState("");
-  const [pending2, setPending] = reactExports.useState(false);
+  const { t: translate } = useTranslation();
+  const [projectName, setProjectName] = reactExports.useState("");
+  const [pending, setPending] = reactExports.useState(false);
   const composingRef = reactExports.useRef(false);
-  const trimmed = truncateProjectName(name2);
+  const trimmed = truncateProjectName(projectName);
   reactExports.useEffect(() => {
     if (open) return;
-    setName("");
+    setProjectName("");
     setPending(false);
   }, [open]);
   const handleConfirm = reactExports.useCallback(async () => {
-    if (!trimmed || pending2) return;
+    if (!trimmed || pending) return;
     setPending(true);
     try {
       await onConfirm(trimmed, kind);
     } finally {
       setPending(false);
     }
-  }, [kind, onConfirm, pending2, trimmed]);
+  }, [kind, onConfirm, pending, trimmed]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -176,26 +173,26 @@ export function CreateProjectDialog({ open, kind, onConfirm, onOpenChange }) {
                 aria-hidden="true"
               />
               {kind === "team"
-                ? t2("project.create.teamTitle")
-                : t2("project.create.localTitle")}
+                ? translate("project.create.teamTitle")
+                : translate("project.create.localTitle")}
             </DialogTitle>
             <DialogDescription className="sr-only">
               {kind === "team"
-                ? t2("project.create.teamDescription")
-                : t2("project.create.localDescription")}
+                ? translate("project.create.teamDescription")
+                : translate("project.create.localDescription")}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-1.5">
             <Label htmlFor="create-project-name" className="sr-only">
-              {t2("project.create.nameLabel")}
+              {translate("project.create.nameLabel")}
             </Label>
             <div className="relative min-w-0 overflow-visible">
-              <Input3
+              <Input
                 id="create-project-name"
                 className="creation-dialog-name-input relative z-2 h-12 rounded-lg px-3 text-body-15 font-normal tracking-normal"
                 autoFocus={true}
-                value={name2}
-                onChange={(event) => setName(event.target.value)}
+                value={projectName}
+                onChange={(event) => setProjectName(event.target.value)}
                 onCompositionStart={() => {
                   composingRef.current = true;
                 }}
@@ -209,14 +206,14 @@ export function CreateProjectDialog({ open, kind, onConfirm, onOpenChange }) {
                   event.preventDefault();
                   void handleConfirm();
                 }}
-                aria-label={t2("project.create.nameLabel")}
-                placeholder={t2("project.create.namePlaceholder")}
+                aria-label={translate("project.create.nameLabel")}
+                placeholder={translate("project.create.namePlaceholder")}
                 autoComplete="off"
                 maxLength={PROJECT_NAME_MAX_CHARS}
                 data-action-ui-id="create-project-name-input"
               />
               {open && kind === "local" ? (
-                <ProjectOutputLocation disabled={pending2} />
+                <ProjectOutputLocation disabled={pending} />
               ) : null}
             </div>
           </div>
@@ -228,8 +225,8 @@ export function CreateProjectDialog({ open, kind, onConfirm, onOpenChange }) {
             />
             <p>
               {kind === "team"
-                ? t2("project.create.teamDescription")
-                : t2("project.create.localDescription")}
+                ? translate("project.create.teamDescription")
+                : translate("project.create.localDescription")}
             </p>
           </div>
         </div>
@@ -237,18 +234,18 @@ export function CreateProjectDialog({ open, kind, onConfirm, onOpenChange }) {
           <Button
             variant="secondary"
             onClick={() => onOpenChange(false)}
-            disabled={pending2}
+            disabled={pending}
             className="creation-dialog-action-button min-w-20 font-medium"
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             onClick={() => void handleConfirm()}
-            disabled={!trimmed || pending2}
+            disabled={!trimmed || pending}
             className="creation-dialog-action-button min-w-22 font-medium"
             data-action-ui-id="create-project-submit"
           >
-            {t2("project.create.submit")}
+            {translate("project.create.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

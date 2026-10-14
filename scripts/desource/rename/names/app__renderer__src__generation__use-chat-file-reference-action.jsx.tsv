@@ -1,0 +1,9 @@
+os2@77:61	os2	os	去掉打包器防重名追加的后缀，恢复原名 os，即该绑定持有的值。
+t2@97:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+raw2@22:33	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+text2@23:9	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+name2@58:9	name2	fileName	原名去后缀后发生作用域冲突；该绑定实际表示 fileName。
+raw2@96:44	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+platform2@98:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+handleClick2@288:9	handleClick2	handleClick	去掉打包器防重名追加的后缀，恢复原名 handleClick，即该绑定持有的值。
+handleKeyDown2@297:9	handleKeyDown2	handleKeyDown	去掉打包器防重名追加的后缀，恢复原名 handleKeyDown，即该绑定持有的值。

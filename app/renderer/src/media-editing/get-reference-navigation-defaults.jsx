@@ -1,18 +1,18 @@
 // get-reference-navigation-defaults.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { syncStableZoomSignals } from "../canvas/separator.jsx";
 import { useCanvasBridge } from "./package.jsx";
 import { resolveDefaultReferencePaths } from "../generation/param-label-fallbacks.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
-export function usePopoverOpenTrack(info2) {
+export function usePopoverOpenTrack(info) {
   const { onPopoverOpen } = useCanvasBridge();
   const emittedRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
     if (emittedRef.current || !onPopoverOpen) return;
     emittedRef.current = true;
-    onPopoverOpen(info2);
-  }, [info2, onPopoverOpen]);
+    onPopoverOpen(info);
+  }, [info, onPopoverOpen]);
 }
 
 export function syncStableZoomAfter(result, getZoom) {
@@ -26,32 +26,32 @@ export function syncStableZoomAfter(result, getZoom) {
 
 export const ReferenceNavigationContext = reactExports.createContext(null);
 
-export function useReferenceNavigationSnapshot(nodeId, mode2) {
-  const navigation2 = reactExports.useContext(ReferenceNavigationContext);
-  const [snapshot2] = reactExports.useState(() => {
-    const record2 = navigation2?.record;
-    return record2 &&
-      record2.nodeId === nodeId &&
-      record2.snapshot.mode === mode2
-      ? record2.snapshot
+export function useReferenceNavigationSnapshot(nodeId, mode) {
+  const navigationContext = reactExports.useContext(ReferenceNavigationContext);
+  const [snapshot] = reactExports.useState(() => {
+    const record = navigationContext?.record;
+    return record &&
+      record.nodeId === nodeId &&
+      record.snapshot.mode === mode
+      ? record.snapshot
       : null;
   });
   return {
-    navigation: navigation2,
-    snapshot: snapshot2,
+    navigation: navigationContext,
+    snapshot,
   };
 }
 
-export function getReferenceNavigationDefaults(snapshot2, live) {
-  if (!snapshot2) return {};
-  const draft = snapshot2.draft;
-  const restorePaths = (current2, saved, original) => {
-    const upstream = current2 ?? [];
+export function getReferenceNavigationDefaults(snapshot, live) {
+  if (!snapshot) return {};
+  const draft = snapshot.draft;
+  const restorePaths = (current, saved, original) => {
+    const upstream = current ?? [];
     const staged =
-      saved?.filter((path2) => path2 && !(original ?? saved).includes(path2)) ??
+      saved?.filter((path) => path && !(original ?? saved).includes(path)) ??
       [];
     return resolveDefaultReferencePaths(
-      [...upstream, ...staged.filter((path2) => !upstream.includes(path2))],
+      [...upstream, ...staged.filter((path) => !upstream.includes(path))],
       saved,
       {
         preserveDraftSlots: true,
@@ -61,7 +61,7 @@ export function getReferenceNavigationDefaults(snapshot2, live) {
   const imagePaths = restorePaths(
     live.defaultImagePaths,
     draft.imagePaths,
-    snapshot2.defaults?.imagePaths,
+    snapshot.defaults?.imagePaths,
   );
   return {
     defaultPrompt: draft.prompt,
@@ -73,32 +73,32 @@ export function getReferenceNavigationDefaults(snapshot2, live) {
     defaultVideoPaths: restorePaths(
       live.defaultVideoPaths,
       draft.videoPaths,
-      snapshot2.defaults?.videoPaths,
+      snapshot.defaults?.videoPaths,
     ),
     defaultAudioPaths: restorePaths(
       live.defaultAudioPaths,
       draft.audioPaths,
-      snapshot2.defaults?.audioPaths,
+      snapshot.defaults?.audioPaths,
     ),
     defaultTextPaths: restorePaths(
       live.defaultTextPaths,
       draft.textPaths,
-      snapshot2.defaults?.textPaths,
+      snapshot.defaults?.textPaths,
     ),
   };
 }
 
-export function withReferenceNavigationSnapshot(Component, mode2) {
+export function withReferenceNavigationSnapshot(Component, mode) {
   return reactExports.memo(function ReferenceNavigationPopover(props) {
-    const { snapshot: snapshot2 } = useReferenceNavigationSnapshot(
+    const { snapshot } = useReferenceNavigationSnapshot(
       props.nodeId ?? props.replaceNodeId,
-      typeof mode2 === "function" ? mode2(props) : mode2,
+      typeof mode === "function" ? mode(props) : mode,
     );
     return (
       <Component
         {...props}
-        {...getReferenceNavigationDefaults(snapshot2, props)}
-        navigationSnapshot={snapshot2}
+        {...getReferenceNavigationDefaults(snapshot, props)}
+        navigationSnapshot={snapshot}
       />
     );
   });
@@ -137,17 +137,17 @@ export const MUSIC_LENGTH_PRESETS = [
   },
 ];
 
-export function musicLengthPresetLabel(t2, preset2) {
-  return preset2.value === "auto"
-    ? t2("canvas.param.option.auto", {
-        defaultValue: preset2.label,
+export function musicLengthPresetLabel(translate, preset) {
+  return preset.value === "auto"
+    ? translate("canvas.param.option.auto", {
+        defaultValue: preset.label,
       })
-    : preset2.label;
+    : preset.label;
 }
 
 export function isCustomMusicLength(value) {
   if (!value || value === "auto") return false;
-  return !MUSIC_LENGTH_PRESETS.some((p3) => p3.value === value);
+  return !MUSIC_LENGTH_PRESETS.some((preset) => preset.value === value);
 }
 
 export function parseCustomMusicLengthSeconds(value) {

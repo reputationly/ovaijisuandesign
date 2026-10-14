@@ -1,14 +1,10 @@
 // get-wire-content-text.jsx
 import { formatConnectorMention } from "../canvas/diagnostic-history-tools.js";
-import {
-  createConnectorInventory,
-  Decoration$1 as Decoration,
-  DecorationSet,
-  Extension,
-  Plugin,
-  PluginKey,
-  reactExports,
-} from "../vendor.js";
+import { Decoration, DecorationSet } from "prosemirror-view";
+import { Extension } from "@tiptap/core";
+import { Plugin, PluginKey } from "prosemirror-state";
+import reactExports from "react";
+import { createConnectorInventory } from "../skills/connectors/connector-market.js";
 import { homeService } from "../workspace/home-service.jsx";
 import { connectorReferenceFromServer } from "../generation/use-mention-models.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -26,8 +22,8 @@ export function WorkspaceCreationGuidePlaceholder({
     />
   );
 }
-export function connectorMentionToken(serverName, displayName2) {
-  return formatConnectorMention(serverName, displayName2);
+export function connectorMentionToken(serverName, displayName) {
+  return formatConnectorMention(serverName, displayName);
 }
 function isUsableConnector(server) {
   return (
@@ -39,7 +35,7 @@ const connectorInventory = createConnectorInventory(() =>
   homeService.customMcp.list(),
 );
 export function useConnectorInventory() {
-  const snapshot2 = reactExports.useSyncExternalStore(
+  const snapshot = reactExports.useSyncExternalStore(
     connectorInventory.subscribe,
     connectorInventory.getSnapshot,
   );
@@ -47,7 +43,7 @@ export function useConnectorInventory() {
     void connectorInventory.refresh().catch(() => void 0);
   }, []);
   return {
-    ...snapshot2,
+    ...snapshot,
     refresh: connectorInventory.refresh,
     update: connectorInventory.update,
   };
@@ -81,7 +77,7 @@ const INLINE_CODE_PATTERN = /(`+)(?!`)[\s\S]*?\1/g;
 const INLINE_MARKDOWN_LINK_PATTERN = /!?\[[^\]\n]*\]\((?:\\.|[^)\n])*\)/g;
 const REFERENCE_MARKDOWN_LINK_PATTERN = /!?\[[^\]\n]*\]\[[^\]\n]*\]/g;
 const IDENTIFIER_CHAR_PATTERN = /[\dA-Za-z_]/;
-function collectExcludedRanges(text2) {
+function collectExcludedRanges(text) {
   const ranges = [];
   for (const pattern of [
     URL_PATTERN,
@@ -92,52 +88,52 @@ function collectExcludedRanges(text2) {
   ]) {
     pattern.lastIndex = 0;
     for (
-      let match2 = pattern.exec(text2);
-      match2;
-      match2 = pattern.exec(text2)
+      let match = pattern.exec(text);
+      match;
+      match = pattern.exec(text)
     ) {
       ranges.push({
-        start: match2.index,
-        end: match2.index + match2[0].length,
+        start: match.index,
+        end: match.index + match[0].length,
       });
     }
   }
   return ranges;
 }
-function overlapsExcludedRange(start2, end2, ranges) {
-  return ranges.some((range2) => start2 < range2.end && end2 > range2.start);
+function overlapsExcludedRange(start, end, ranges) {
+  return ranges.some((range) => start < range.end && end > range.start);
 }
 function colorHasAlpha(value) {
   return value.length === 5 || value.length === 9;
 }
-export function findInlineVisualTokens(text2, { allowEnd = true } = {}) {
-  const excludedRanges = collectExcludedRanges(text2);
-  const tokens2 = [];
+export function findInlineVisualTokens(text, { allowEnd = true } = {}) {
+  const excludedRanges = collectExcludedRanges(text);
+  const tokens = [];
   HEX_COLOR_PATTERN.lastIndex = 0;
   for (
-    let match2 = HEX_COLOR_PATTERN.exec(text2);
-    match2;
-    match2 = HEX_COLOR_PATTERN.exec(text2)
+    let match = HEX_COLOR_PATTERN.exec(text);
+    match;
+    match = HEX_COLOR_PATTERN.exec(text)
   ) {
-    const raw2 = match2[0];
-    const start2 = match2.index;
-    const end2 = start2 + raw2.length;
-    const previous2 = text2[start2 - 1];
-    const next2 = text2[end2];
-    if (previous2 && IDENTIFIER_CHAR_PATTERN.test(previous2)) continue;
-    if (next2 && IDENTIFIER_CHAR_PATTERN.test(next2)) continue;
-    if (!allowEnd && end2 === text2.length) continue;
-    if (overlapsExcludedRange(start2, end2, excludedRanges)) continue;
-    tokens2.push({
+    const raw = match[0];
+    const start = match.index;
+    const end = start + raw.length;
+    const previous = text[start - 1];
+    const next = text[end];
+    if (previous && IDENTIFIER_CHAR_PATTERN.test(previous)) continue;
+    if (next && IDENTIFIER_CHAR_PATTERN.test(next)) continue;
+    if (!allowEnd && end === text.length) continue;
+    if (overlapsExcludedRange(start, end, excludedRanges)) continue;
+    tokens.push({
       type: "color",
-      start: start2,
-      end: end2,
-      raw: raw2,
-      value: raw2.toUpperCase(),
-      hasAlpha: colorHasAlpha(raw2),
+      start,
+      end,
+      raw,
+      value: raw.toUpperCase(),
+      hasAlpha: colorHasAlpha(raw),
     });
   }
-  return tokens2;
+  return tokens;
 }
 const colorVisualPluginKey = new PluginKey("chatColorVisual");
 function createColorSwatch(value, hasAlpha) {
@@ -153,33 +149,33 @@ function createColorSwatch(value, hasAlpha) {
   swatch.append(fill);
   return swatch;
 }
-function buildColorDecorations(doc2) {
-  const decorations2 = [];
-  doc2.descendants((node2, position2) => {
-    if (!node2.isText || !node2.text) return;
-    for (const token2 of findInlineVisualTokens(node2.text)) {
-      const from2 = position2 + token2.start;
-      const to = position2 + token2.end;
-      decorations2.push(
-        Decoration.inline(from2, to, {
+function buildColorDecorations(doc) {
+  const decorations = [];
+  doc.descendants((node, position) => {
+    if (!node.isText || !node.text) return;
+    for (const token of findInlineVisualTokens(node.text)) {
+      const from = position + token.start;
+      const to = position + token.end;
+      decorations.push(
+        Decoration.inline(from, to, {
           class: "inline-color-value-label",
           "data-inline-visual": "color",
-          "data-color-value": token2.value,
+          "data-color-value": token.value,
         }),
       );
-      decorations2.push(
+      decorations.push(
         Decoration.widget(
           to,
-          () => createColorSwatch(token2.value, token2.hasAlpha),
+          () => createColorSwatch(token.value, token.hasAlpha),
           {
-            key: `color-${position2}-${token2.start}-${token2.value}`,
+            key: `color-${position}-${token.start}-${token.value}`,
             side: 1,
           },
         ),
       );
     }
   });
-  return DecorationSet.create(doc2, decorations2);
+  return DecorationSet.create(doc, decorations);
 }
 export const ColorVisualDecoration = Extension.create({
   name: "chatColorVisual",
@@ -188,14 +184,14 @@ export const ColorVisualDecoration = Extension.create({
       new Plugin({
         key: colorVisualPluginKey,
         state: {
-          init: (_config, state2) => buildColorDecorations(state2.doc),
-          apply(tr2, previous2) {
-            return tr2.docChanged ? buildColorDecorations(tr2.doc) : previous2;
+          init: (_config, state) => buildColorDecorations(state.doc),
+          apply(tr, previous) {
+            return tr.docChanged ? buildColorDecorations(tr.doc) : previous;
           },
         },
         props: {
-          decorations(state2) {
-            return colorVisualPluginKey.getState(state2) ?? DecorationSet.empty;
+          decorations(state) {
+            return colorVisualPluginKey.getState(state) ?? DecorationSet.empty;
           },
         },
       }),
@@ -203,7 +199,7 @@ export const ColorVisualDecoration = Extension.create({
   },
 });
 export const ghostTextPluginKey = new PluginKey("chatGhostText");
-function createGhostWidget(text2) {
+function createGhostWidget(text) {
   const wrapper = document.createElement("span");
   wrapper.className = "ghost-text-wrapper";
   wrapper.contentEditable = "false";
@@ -211,7 +207,7 @@ function createGhostWidget(text2) {
   wrapper.setAttribute("aria-hidden", "true");
   const ghost = document.createElement("span");
   ghost.className = "ghost-text";
-  ghost.textContent = text2;
+  ghost.textContent = text;
   wrapper.appendChild(ghost);
   const badge = document.createElement("span");
   badge.className = "ghost-tab-badge";
@@ -229,25 +225,25 @@ export const GhostTextDecoration = Extension.create({
           init() {
             return null;
           },
-          apply(tr2, prev) {
-            const meta2 = tr2.getMeta(ghostTextPluginKey);
-            if (meta2 !== void 0) return meta2;
+          apply(tr, prev) {
+            const meta = tr.getMeta(ghostTextPluginKey);
+            if (meta !== void 0) return meta;
             return prev;
           },
         },
         props: {
-          decorations(state2) {
-            const text2 = ghostTextPluginKey.getState(state2);
-            if (!text2) return DecorationSet.empty;
-            const pos = Math.max(1, state2.doc.content.size - 1);
+          decorations(state) {
+            const text = ghostTextPluginKey.getState(state);
+            if (!text) return DecorationSet.empty;
+            const pos = Math.max(1, state.doc.content.size - 1);
             const widget = Decoration.widget(
               pos,
-              () => createGhostWidget(text2),
+              () => createGhostWidget(text),
               {
                 side: 1,
               },
             );
-            return DecorationSet.create(state2.doc, [widget]);
+            return DecorationSet.create(state.doc, [widget]);
           },
         },
       }),
@@ -279,53 +275,53 @@ export function mentionRefLeafText(leafNode) {
   if (!value) return "";
   return marker === "bracket" ? `[${attrs.name}]` : `@${value}`;
 }
-function getWireContentText(content2) {
-  let text2 = "";
-  let previous2;
-  for (const node2 of content2) {
+function getWireContentText(content) {
+  let text = "";
+  let previous;
+  for (const node of content) {
     const value =
-      node2.type === "text"
-        ? (node2.text ?? "")
-        : node2.content
-          ? getWireContentText(node2.content)
+      node.type === "text"
+        ? (node.text ?? "")
+        : node.content
+          ? getWireContentText(node.content)
           : mentionRefLeafText({
               type: {
-                name: node2.type ?? "",
+                name: node.type ?? "",
               },
-              attrs: node2.attrs ?? {},
+              attrs: node.attrs ?? {},
             });
     if (
-      previous2 &&
-      (previous2.type === "paragraph" || node2.type === "paragraph")
+      previous &&
+      (previous.type === "paragraph" || node.type === "paragraph")
     ) {
-      text2 += "\n";
+      text += "\n";
     } else if (
-      text2 &&
+      text &&
       value &&
-      (previous2?.type === "mentionRef" || node2.type === "mentionRef") &&
-      !/\s$/.test(text2) &&
+      (previous?.type === "mentionRef" || node.type === "mentionRef") &&
+      !/\s$/.test(text) &&
       !/^\s/.test(value)
     ) {
-      text2 += " ";
+      text += " ";
     }
-    text2 += value;
-    previous2 = node2;
+    text += value;
+    previous = node;
   }
-  return text2;
+  return text;
 }
-export function getDocText(doc2) {
-  return doc2.textBetween(0, doc2.content.size, "\n", mentionRefLeafText);
+export function getDocText(doc) {
+  return doc.textBetween(0, doc.content.size, "\n", mentionRefLeafText);
 }
-export function getDocTriggerText(doc2) {
-  return doc2.textBetween(0, doc2.content.size, "\n", (node2) =>
-    node2.type.name === "mentionRef"
-      ? " ".repeat(mentionRefLeafText(node2).length)
-      : mentionRefLeafText(node2),
+export function getDocTriggerText(doc) {
+  return doc.textBetween(0, doc.content.size, "\n", (node) =>
+    node.type.name === "mentionRef"
+      ? " ".repeat(mentionRefLeafText(node).length)
+      : mentionRefLeafText(node),
   );
 }
-export function getWireFragmentText(fragment2) {
-  return getWireContentText(fragment2.toJSON() ?? []);
+export function getWireFragmentText(fragment) {
+  return getWireContentText(fragment.toJSON() ?? []);
 }
-export function getDocWireText(doc2) {
-  return getWireFragmentText(doc2.content);
+export function getDocWireText(doc) {
+  return getWireFragmentText(doc.content);
 }

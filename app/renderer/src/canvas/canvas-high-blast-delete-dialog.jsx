@@ -1,5 +1,7 @@
 // canvas-high-blast-delete-dialog.jsx
-import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CircleHelp } from "../media-editing/package.jsx";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
@@ -47,22 +49,22 @@ export function CanvasConfirmationDialog({
     </Dialog>
   );
 }
-export function CanvasHighBlastDeleteDialog({ instance: instance2 }) {
-  const { t: t2 } = useTranslation();
+export function CanvasHighBlastDeleteDialog({ instance }) {
+  const { t: translate } = useTranslation();
   const [pendingRequest, setPendingRequest] = reactExports.useState(null);
   const pendingRequestRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    instance2.setHighBlastDeleteConfirmer((request) => {
+    instance.setHighBlastDeleteConfirmer((request) => {
       pendingRequestRef.current?.cancel();
       pendingRequestRef.current = request;
       setPendingRequest(request);
     });
     return () => {
-      instance2.setHighBlastDeleteConfirmer(void 0);
+      instance.setHighBlastDeleteConfirmer(void 0);
       pendingRequestRef.current?.cancel();
       pendingRequestRef.current = null;
     };
-  }, [instance2]);
+  }, [instance]);
   const handleCancel = reactExports.useCallback(() => {
     const request = pendingRequestRef.current;
     pendingRequestRef.current = null;
@@ -78,18 +80,18 @@ export function CanvasHighBlastDeleteDialog({ instance: instance2 }) {
   return (
     <CanvasConfirmationDialog
       open={pendingRequest !== null}
-      title={t2(
+      title={translate(
         "canvas.persistence.highBlastDeleteTitle",
         "确认删除大量画布内容",
       )}
-      description={t2("canvas.persistence.highBlastDeleteConfirm", {
+      description={translate("canvas.persistence.highBlastDeleteConfirm", {
         defaultValue:
           "此操作将从画布移除 {{nodeCount}} 个节点和 {{edgeCount}} 条连线。为防止误清空，请确认是否继续。",
         nodeCount: pendingRequest?.removedNodeCount ?? 0,
         edgeCount: pendingRequest?.removedEdgeCount ?? 0,
       })}
-      cancelLabel={t2("common.cancel", "取消")}
-      confirmLabel={t2("canvas.persistence.highBlastDeleteAction", "确认删除")}
+      cancelLabel={translate("common.cancel", "取消")}
+      confirmLabel={translate("canvas.persistence.highBlastDeleteAction", "确认删除")}
       onCancel={handleCancel}
       onConfirm={handleConfirm}
     />
@@ -107,33 +109,33 @@ export function useDismissMenu(
   const captureEscape = !!onEscape;
   reactExports.useEffect(() => {
     if (!enabled) return;
-    const handleMouseDown2 = (e2) => {
-      if (trigger?.contains(e2.target)) return;
-      if (menuRef.current && !menuRef.current.contains(e2.target)) {
+    const handleMouseDown = (mouseEvent) => {
+      if (trigger?.contains(mouseEvent.target)) return;
+      if (menuRef.current && !menuRef.current.contains(mouseEvent.target)) {
         onClose();
       }
     };
-    const handleKeyDown2 = (e2) => {
-      if (e2.key !== "Escape") return;
+    const handleKeyDown = (keyboardEvent) => {
+      if (keyboardEvent.key !== "Escape") return;
       if (escapeHandlerRef.current?.()) {
-        e2.preventDefault();
-        e2.stopImmediatePropagation();
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopImmediatePropagation();
         return;
       }
       onClose();
     };
-    const timer2 = setTimeout(() => {
-      document.addEventListener("mousedown", handleMouseDown2);
-      document.addEventListener("keydown", handleKeyDown2, captureEscape);
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleMouseDown);
+      document.addEventListener("keydown", handleKeyDown, captureEscape);
     }, 0);
     return () => {
-      clearTimeout(timer2);
-      document.removeEventListener("mousedown", handleMouseDown2);
-      document.removeEventListener("keydown", handleKeyDown2, captureEscape);
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown, captureEscape);
     };
   }, [menuRef, onClose, captureEscape, trigger, enabled]);
 }
-export function QuickZoomPresence({ value, elementRef, children: children2 }) {
+export function QuickZoomPresence({ value, elementRef, children }) {
   const [retained, setRetained] = reactExports.useState(value);
   const internalRef = reactExports.useRef(null);
   const ref = elementRef ?? internalRef;
@@ -156,10 +158,10 @@ export function QuickZoomPresence({ value, elementRef, children: children2 }) {
       cancelled = true;
     };
   }, [open, retained, ref]);
-  const content2 = value ?? retained;
-  return content2 === null
+  const content = value ?? retained;
+  return content === null
     ? null
-    : children2(content2, {
+    : children(content, {
         ref,
         "data-ending-style": open ? void 0 : "",
         inert: !open,
@@ -171,33 +173,33 @@ export const TidySortContext = reactExports.createContext({
   setSortBy: () => {},
 });
 export function useTidySortPreference(scope) {
-  const key2 = `hilo:canvas:tidy:sortBy:${scope}`;
+  const key = `hilo:canvas:tidy:sortBy:${scope}`;
   const [choice, setChoice] = reactExports.useState(() => ({
-    key: key2,
-    value: readCanvasPreference(key2, SORT_OPTIONS, "name"),
+    key,
+    value: readCanvasPreference(key, SORT_OPTIONS, "name"),
   }));
   const sortBy =
-    choice.key === key2
+    choice.key === key
       ? choice.value
-      : readCanvasPreference(key2, SORT_OPTIONS, "name");
+      : readCanvasPreference(key, SORT_OPTIONS, "name");
   const context = reactExports.useMemo(
     () => ({
       sortBy,
       setSortBy: (value) =>
         setChoice({
-          key: key2,
+          key,
           value,
         }),
     }),
-    [key2, sortBy],
+    [key, sortBy],
   );
   const finish = reactExports.useCallback(
     async (action) => {
       const result = await action;
-      if (result.applied) writeCanvasPreference(key2, sortBy);
+      if (result.applied) writeCanvasPreference(key, sortBy);
       return result;
     },
-    [key2, sortBy],
+    [key, sortBy],
   );
   return reactExports.useMemo(
     () => ({

@@ -1,0 +1,9 @@
+key	new	reason
+os2@33:51	os	原名 os，去掉打包器加的数字去重后缀
+t2@81:14	t	useTranslation() 返回的翻译函数 t
+p3@67:30	filePath	要规整成可比较形式的路径
+t2@73:9	normalizedTarget	规整后的目标路径
+d2@75:11	normalizedDir	规整后的白名单目录
+percent2@25:9	percent	去掉打包器加的数字后缀，恢复原名 percent
+unified2@68:9	unified	去掉打包器加的数字后缀，恢复原名 unified
+url2@43:3	url	去掉打包器加的数字后缀，恢复原名 url

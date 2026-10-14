@@ -1,0 +1,9 @@
+key	new	依据
+state2@6:40	state	当前视频预览帧及其相关编辑器状态。
+renderPreview2@113:9	renderPreview	为媒体剪辑面板创建带预览尺寸的 FramePreview 元素的渲染回调。
+ctx@11:11	canvasContext	绘制状态缓存预览帧的 CanvasRenderingContext2D。
+ctx@26:11	previewCanvasContext	向媒体引擎绘制实时预览帧的 CanvasRenderingContext2D。
+ar@46:11	aspectRatio	按预览帧宽高计算出的显示宽高比。
+ctx@83:9	captureCanvasContext	将播放头帧绘制到导出画布的 CanvasRenderingContext2D。
+b3@87:20	imageBlob	由导出画布编码得到的 PNG 图像 Blob。
+ctx@114:6	previewProps	媒体剪辑面板传给预览渲染回调的组件属性对象。

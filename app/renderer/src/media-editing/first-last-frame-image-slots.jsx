@@ -1,5 +1,6 @@
 // first-last-frame-image-slots.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { ImageSlotList } from "./image-slot-list.jsx";
@@ -22,7 +23,7 @@ const SWAP_ANIMATION_DURATION_MS = 260;
 function FirstLastFrameImageSlots({
   imagePaths,
   contextKey,
-  disabled: disabled2,
+  disabled,
   resolveFileUrl,
   onUpdatePaths,
   onReplacePath,
@@ -30,13 +31,13 @@ function FirstLastFrameImageSlots({
   onReference,
   onEditImage,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [swapAnimationRun, setSwapAnimationRun] = reactExports.useState(0);
   const [swapAnimationActive, setSwapAnimationActive] =
     reactExports.useState(false);
-  const hasFrame = imagePaths.slice(0, 2).some((path2) => path2?.trim());
-  const swapDisabled = disabled2 || !hasFrame;
-  const swapLabel = t2("canvas.imageSlot.swapFrames", {
+  const hasFrame = imagePaths.slice(0, 2).some((path) => path?.trim());
+  const swapDisabled = disabled || !hasFrame;
+  const swapLabel = t("canvas.imageSlot.swapFrames", {
     defaultValue: "交换首尾帧",
   });
   reactExports.useEffect(() => {
@@ -60,19 +61,19 @@ function FirstLastFrameImageSlots({
       contextKey={contextKey}
       renderedSlotCount={2}
       maxSlots={2}
-      disabled={disabled2}
+      disabled={disabled}
       resolveFileUrl={resolveFileUrl}
-      getSlotLabel={(index2) =>
-        index2 === 0
-          ? t2("canvas.imageSlot.firstFrame")
-          : t2("canvas.imageSlot.lastFrame")
+      getSlotLabel={(index) =>
+        index === 0
+          ? t("canvas.imageSlot.firstFrame")
+          : t("canvas.imageSlot.lastFrame")
       }
-      getSlotActionUiId={(index2) =>
-        index2 === 0 ? "popover.frame-slot.first" : "popover.frame-slot.last"
+      getSlotActionUiId={(index) =>
+        index === 0 ? "popover.frame-slot.first" : "popover.frame-slot.last"
       }
-      getSlotClassName={(index2) =>
+      getSlotClassName={(index) =>
         swapAnimationActive
-          ? SWAP_SLOT_ANIMATION_CLASSES[swapAnimationVariant][index2]
+          ? SWAP_SLOT_ANIMATION_CLASSES[swapAnimationVariant][index]
           : void 0
       }
       enableHoverReplace={true}
@@ -147,19 +148,19 @@ export function VideoPopoverReferenceSection({
             resolveFileUrl={resolveFileUrl}
             onUpdatePaths={onUpdatePaths}
             disabled={attachments.disabled}
-            onReference={(path2) =>
+            onReference={(path) =>
               attachments.onItemClick({
-                path: path2,
+                path,
                 kind: "image",
-                name: basename$c(path2),
+                name: basename$c(path),
                 thumbUrl: "",
               })
             }
-            getLocateAction={(path2) =>
+            getLocateAction={(path) =>
               attachments.getLocateAction?.({
-                path: path2,
+                path,
                 kind: "image",
-                name: path2,
+                name: path,
                 thumbUrl: "",
               })
             }

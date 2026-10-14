@@ -5,100 +5,100 @@ import { RectangleShape } from "./keep-tag-in-canvas.js";
 import { TagShape } from "./tag-shape.js";
 import { TextShape } from "./text-shape.js";
 
-function pointsToBounds(p1, p22) {
-  const x2 = Math.min(p1.x, p22.x);
-  const y4 = Math.min(p1.y, p22.y);
-  const width = Math.abs(p22.x - p1.x);
-  const height = Math.abs(p22.y - p1.y);
+function pointsToBounds(firstPoint, secondPoint) {
+  const left = Math.min(firstPoint.x, secondPoint.x);
+  const topEdge = Math.min(firstPoint.y, secondPoint.y);
+  const width = Math.abs(secondPoint.x - firstPoint.x);
+  const height = Math.abs(secondPoint.y - firstPoint.y);
   return {
-    x: x2,
-    y: y4,
+    x: left,
+    y: topEdge,
     width,
     height,
   };
 }
 
-function pointInEllipse(p3, b3) {
-  const cx2 = b3.x + b3.width / 2;
-  const cy = b3.y + b3.height / 2;
-  const rx = b3.width / 2;
-  const ry = b3.height / 2;
-  if (rx <= 0 || ry <= 0) return false;
-  const nx = (p3.x - cx2) / rx;
-  const ny = (p3.y - cy) / ry;
-  return nx * nx + ny * ny <= 1;
+function pointInEllipse(point, bounds) {
+  const centerX = bounds.x + bounds.width / 2;
+  const centerY = bounds.y + bounds.height / 2;
+  const radiusX = bounds.width / 2;
+  const radiusY = bounds.height / 2;
+  if (radiusX <= 0 || radiusY <= 0) return false;
+  const normalizedX = (point.x - centerX) / radiusX;
+  const normalizedY = (point.y - centerY) / radiusY;
+  return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
 }
 
-function pointInEllipseInflated(p3, cx2, cy, rx, ry) {
-  if (rx <= 0 || ry <= 0) return false;
-  const nx = (p3.x - cx2) / rx;
-  const ny = (p3.y - cy) / ry;
-  return nx * nx + ny * ny <= 1;
+function pointInEllipseInflated(point, centerX, centerY, radiusX, radiusY) {
+  if (radiusX <= 0 || radiusY <= 0) return false;
+  const normalizedX = (point.x - centerX) / radiusX;
+  const normalizedY = (point.y - centerY) / radiusY;
+  return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
 }
 
-function pointOnEllipseStroke(p3, b3, padding) {
-  const cx2 = b3.x + b3.width / 2;
-  const cy = b3.y + b3.height / 2;
-  const rx = b3.width / 2;
-  const ry = b3.height / 2;
-  if (rx <= 0 || ry <= 0) return false;
-  const inner = pointInEllipseInflated(p3, cx2, cy, rx - padding, ry - padding);
-  const outer = pointInEllipseInflated(p3, cx2, cy, rx + padding, ry + padding);
+function pointOnEllipseStroke(point, bounds, padding) {
+  const centerX = bounds.x + bounds.width / 2;
+  const centerY = bounds.y + bounds.height / 2;
+  const radiusX = bounds.width / 2;
+  const radiusY = bounds.height / 2;
+  if (radiusX <= 0 || radiusY <= 0) return false;
+  const inner = pointInEllipseInflated(point, centerX, centerY, radiusX - padding, radiusY - padding);
+  const outer = pointInEllipseInflated(point, centerX, centerY, radiusX + padding, radiusY + padding);
   return outer && !inner;
 }
 
 class ArrowShape extends Shape {
-  draw(ctx) {
-    const { x1, y1, x2, y2: y22, style: style2 } = this.data;
-    const dx = x2 - x1;
-    const dy = y22 - y1;
-    const len = Math.hypot(dx, dy);
-    if (len === 0) return;
-    const headLen = Math.max(12, style2.strokeWidth * 4);
-    const headWidth = Math.max(8, style2.strokeWidth * 3);
-    const ux = dx / len;
-    const uy = dy / len;
-    const bodyEndX = x2 - ux * headLen * 0.5;
-    const bodyEndY = y22 - uy * headLen * 0.5;
-    ctx.save();
-    ctx.lineWidth = style2.strokeWidth;
-    ctx.strokeStyle = style2.stroke;
-    ctx.fillStyle = style2.stroke;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(bodyEndX, bodyEndY);
-    ctx.stroke();
-    const baseX = x2 - ux * headLen;
-    const baseY = y22 - uy * headLen;
-    const perpX = -uy;
-    const perpY = ux;
-    ctx.beginPath();
-    ctx.moveTo(x2, y22);
-    ctx.lineTo(
+  draw(canvasContext) {
+    const { x1: startX, y1: startY, x2: endX, y2: endY, style } = this.data;
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    const segmentLength = Math.hypot(deltaX, deltaY);
+    if (segmentLength === 0) return;
+    const headLen = Math.max(12, style.strokeWidth * 4);
+    const headWidth = Math.max(8, style.strokeWidth * 3);
+    const directionX = deltaX / segmentLength;
+    const directionY = deltaY / segmentLength;
+    const bodyEndX = endX - directionX * headLen * 0.5;
+    const bodyEndY = endY - directionY * headLen * 0.5;
+    canvasContext.save();
+    canvasContext.lineWidth = style.strokeWidth;
+    canvasContext.strokeStyle = style.stroke;
+    canvasContext.fillStyle = style.stroke;
+    canvasContext.lineCap = "round";
+    canvasContext.lineJoin = "round";
+    canvasContext.beginPath();
+    canvasContext.moveTo(startX, startY);
+    canvasContext.lineTo(bodyEndX, bodyEndY);
+    canvasContext.stroke();
+    const baseX = endX - directionX * headLen;
+    const baseY = endY - directionY * headLen;
+    const perpX = -directionY;
+    const perpY = directionX;
+    canvasContext.beginPath();
+    canvasContext.moveTo(endX, endY);
+    canvasContext.lineTo(
       baseX + perpX * headWidth * 0.5,
       baseY + perpY * headWidth * 0.5,
     );
-    ctx.lineTo(
+    canvasContext.lineTo(
       baseX - perpX * headWidth * 0.5,
       baseY - perpY * headWidth * 0.5,
     );
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.restore();
   }
-  hitTest(p3) {
+  hitTest(point) {
     const padding = Math.max(8, this.data.style.strokeWidth);
-    const a2 = {
+    const segmentStart = {
       x: this.data.x1,
       y: this.data.y1,
     };
-    const b3 = {
+    const segmentEnd = {
       x: this.data.x2,
       y: this.data.y2,
     };
-    return distanceToSegment(p3, a2, b3) <= padding;
+    return distanceToSegment(point, segmentStart, segmentEnd) <= padding;
   }
   getBounds() {
     return pointsToBounds(
@@ -112,101 +112,101 @@ class ArrowShape extends Shape {
       },
     );
   }
-  move(dx, dy) {
-    this.data.x1 += dx;
-    this.data.y1 += dy;
-    this.data.x2 += dx;
-    this.data.y2 += dy;
+  move(deltaX, deltaY) {
+    this.data.x1 += deltaX;
+    this.data.y1 += deltaY;
+    this.data.x2 += deltaX;
+    this.data.y2 += deltaY;
   }
-  resize(b3) {
-    const cur = this.getBounds();
-    if (cur.width === 0 && cur.height === 0) {
-      this.data.x1 = b3.x;
-      this.data.y1 = b3.y;
-      this.data.x2 = b3.x + b3.width;
-      this.data.y2 = b3.y + b3.height;
+  resize(newBounds) {
+    const currentBounds = this.getBounds();
+    if (currentBounds.width === 0 && currentBounds.height === 0) {
+      this.data.x1 = newBounds.x;
+      this.data.y1 = newBounds.y;
+      this.data.x2 = newBounds.x + newBounds.width;
+      this.data.y2 = newBounds.y + newBounds.height;
       return;
     }
-    const sx = cur.width === 0 ? 1 : b3.width / cur.width;
-    const sy = cur.height === 0 ? 1 : b3.height / cur.height;
-    this.data.x1 = b3.x + (this.data.x1 - cur.x) * sx;
-    this.data.y1 = b3.y + (this.data.y1 - cur.y) * sy;
-    this.data.x2 = b3.x + (this.data.x2 - cur.x) * sx;
-    this.data.y2 = b3.y + (this.data.y2 - cur.y) * sy;
+    const scaleX = currentBounds.width === 0 ? 1 : newBounds.width / currentBounds.width;
+    const scaleY = currentBounds.height === 0 ? 1 : newBounds.height / currentBounds.height;
+    this.data.x1 = newBounds.x + (this.data.x1 - currentBounds.x) * scaleX;
+    this.data.y1 = newBounds.y + (this.data.y1 - currentBounds.y) * scaleY;
+    this.data.x2 = newBounds.x + (this.data.x2 - currentBounds.x) * scaleX;
+    this.data.y2 = newBounds.y + (this.data.y2 - currentBounds.y) * scaleY;
   }
 }
 
 class EllipseShape extends Shape {
-  draw(ctx) {
-    const { x: x2, y: y4, width, height, style: style2 } = this.data;
+  draw(canvasContext) {
+    const { x: originX, y: originY, width, height, style } = this.data;
     if (width === 0 || height === 0) return;
-    const cx2 = x2 + width / 2;
-    const cy = y4 + height / 2;
-    const rx = Math.abs(width / 2);
-    const ry = Math.abs(height / 2);
-    ctx.save();
-    ctx.lineWidth = style2.strokeWidth;
-    ctx.strokeStyle = style2.stroke;
-    ctx.beginPath();
-    ctx.ellipse(cx2, cy, rx, ry, 0, 0, Math.PI * 2);
-    if (style2.fill) {
-      ctx.fillStyle = style2.fill;
-      ctx.fill();
+    const centerX = originX + width / 2;
+    const centerY = originY + height / 2;
+    const radiusX = Math.abs(width / 2);
+    const radiusY = Math.abs(height / 2);
+    canvasContext.save();
+    canvasContext.lineWidth = style.strokeWidth;
+    canvasContext.strokeStyle = style.stroke;
+    canvasContext.beginPath();
+    canvasContext.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+    if (style.fill) {
+      canvasContext.fillStyle = style.fill;
+      canvasContext.fill();
     }
-    ctx.stroke();
-    ctx.restore();
+    canvasContext.stroke();
+    canvasContext.restore();
   }
-  hitTest(p3) {
+  hitTest(point) {
     const padding = Math.max(8, this.data.style.strokeWidth);
-    const b3 = this.getBounds();
-    if (this.data.style.fill) return pointInEllipse(p3, b3);
-    return pointOnEllipseStroke(p3, b3, padding);
+    const bounds = this.getBounds();
+    if (this.data.style.fill) return pointInEllipse(point, bounds);
+    return pointOnEllipseStroke(point, bounds, padding);
   }
   getBounds() {
-    const { x: x2, y: y4, width, height } = this.data;
+    const { x: originX, y: originY, width, height } = this.data;
     return {
-      x: width >= 0 ? x2 : x2 + width,
-      y: height >= 0 ? y4 : y4 + height,
+      x: width >= 0 ? originX : originX + width,
+      y: height >= 0 ? originY : originY + height,
       width: Math.abs(width),
       height: Math.abs(height),
     };
   }
-  move(dx, dy) {
-    this.data.x += dx;
-    this.data.y += dy;
+  move(deltaX, deltaY) {
+    this.data.x += deltaX;
+    this.data.y += deltaY;
   }
-  resize(b3) {
-    this.data.x = b3.x;
-    this.data.y = b3.y;
-    this.data.width = b3.width;
-    this.data.height = b3.height;
+  resize(newBounds) {
+    this.data.x = newBounds.x;
+    this.data.y = newBounds.y;
+    this.data.width = newBounds.width;
+    this.data.height = newBounds.height;
   }
 }
 
 class LineShape extends Shape {
-  draw(ctx) {
-    const { x1, y1, x2, y2: y22, style: style2 } = this.data;
-    ctx.save();
-    ctx.lineWidth = style2.strokeWidth;
-    ctx.strokeStyle = style2.stroke;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y22);
-    ctx.stroke();
-    ctx.restore();
+  draw(canvasContext) {
+    const { x1: startX, y1: startY, x2: endX, y2: endY, style } = this.data;
+    canvasContext.save();
+    canvasContext.lineWidth = style.strokeWidth;
+    canvasContext.strokeStyle = style.stroke;
+    canvasContext.lineCap = "round";
+    canvasContext.beginPath();
+    canvasContext.moveTo(startX, startY);
+    canvasContext.lineTo(endX, endY);
+    canvasContext.stroke();
+    canvasContext.restore();
   }
-  hitTest(p3) {
+  hitTest(point) {
     const padding = Math.max(8, this.data.style.strokeWidth);
-    const a2 = {
+    const segmentStart = {
       x: this.data.x1,
       y: this.data.y1,
     };
-    const b3 = {
+    const segmentEnd = {
       x: this.data.x2,
       y: this.data.y2,
     };
-    return distanceToSegment(p3, a2, b3) <= padding;
+    return distanceToSegment(point, segmentStart, segmentEnd) <= padding;
   }
   getBounds() {
     return pointsToBounds(
@@ -220,47 +220,47 @@ class LineShape extends Shape {
       },
     );
   }
-  move(dx, dy) {
-    this.data.x1 += dx;
-    this.data.y1 += dy;
-    this.data.x2 += dx;
-    this.data.y2 += dy;
+  move(deltaX, deltaY) {
+    this.data.x1 += deltaX;
+    this.data.y1 += deltaY;
+    this.data.x2 += deltaX;
+    this.data.y2 += deltaY;
   }
-  resize(b3) {
-    const cur = this.getBounds();
-    if (cur.width === 0 || cur.height === 0) {
-      this.data.x1 = b3.x;
-      this.data.y1 = b3.y;
-      this.data.x2 = b3.x + b3.width;
-      this.data.y2 = b3.y + b3.height;
+  resize(newBounds) {
+    const currentBounds = this.getBounds();
+    if (currentBounds.width === 0 || currentBounds.height === 0) {
+      this.data.x1 = newBounds.x;
+      this.data.y1 = newBounds.y;
+      this.data.x2 = newBounds.x + newBounds.width;
+      this.data.y2 = newBounds.y + newBounds.height;
       return;
     }
-    const sx = b3.width / cur.width;
-    const sy = b3.height / cur.height;
-    this.data.x1 = b3.x + (this.data.x1 - cur.x) * sx;
-    this.data.y1 = b3.y + (this.data.y1 - cur.y) * sy;
-    this.data.x2 = b3.x + (this.data.x2 - cur.x) * sx;
-    this.data.y2 = b3.y + (this.data.y2 - cur.y) * sy;
+    const scaleX = newBounds.width / currentBounds.width;
+    const scaleY = newBounds.height / currentBounds.height;
+    this.data.x1 = newBounds.x + (this.data.x1 - currentBounds.x) * scaleX;
+    this.data.y1 = newBounds.y + (this.data.y1 - currentBounds.y) * scaleY;
+    this.data.x2 = newBounds.x + (this.data.x2 - currentBounds.x) * scaleX;
+    this.data.y2 = newBounds.y + (this.data.y2 - currentBounds.y) * scaleY;
   }
 }
 
-export function createShape(data2) {
-  switch (data2.type) {
+export function createShape(data) {
+  switch (data.type) {
     case "rectangle":
-      return new RectangleShape(data2);
+      return new RectangleShape(data);
     case "ellipse":
-      return new EllipseShape(data2);
+      return new EllipseShape(data);
     case "line":
-      return new LineShape(data2);
+      return new LineShape(data);
     case "arrow":
-      return new ArrowShape(data2);
+      return new ArrowShape(data);
     case "brush":
-      return new FreePathShape(data2);
+      return new FreePathShape(data);
     case "text":
-      return new TextShape(data2);
+      return new TextShape(data);
     case "tag":
-      return new TagShape(data2);
+      return new TagShape(data);
     case "mosaic":
-      return new MosaicShape(data2);
+      return new MosaicShape(data);
   }
 }

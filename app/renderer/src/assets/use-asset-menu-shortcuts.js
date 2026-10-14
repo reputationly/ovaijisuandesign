@@ -1,5 +1,5 @@
 // use-asset-menu-shortcuts.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 export function useAssetMenuShortcuts(handlers2) {
   return reactExports.useCallback(

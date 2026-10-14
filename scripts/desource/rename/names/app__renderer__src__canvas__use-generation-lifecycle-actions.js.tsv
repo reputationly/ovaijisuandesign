@@ -1,0 +1,5 @@
+key	old	new	依据
+t2@28:6	t2	translate	该参数函数翻译取消或关闭生成状态时的提示文案。
+raw2@5:38	raw2	raw	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+record2@9:9	record2	record	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+gatewayFetch2@27:17	gatewayFetch2	gatewayFetch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

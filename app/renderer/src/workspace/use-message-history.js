@@ -1,54 +1,54 @@
 // use-message-history.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
-function extractUserMessages(messages2) {
+function extractUserMessages(messages) {
   const result = [];
-  for (let i2 = messages2.length - 1; i2 >= 0; i2--) {
-    const m3 = messages2[i2];
-    if (m3.role === "user" && m3.type === "text") {
-      result.push(m3);
+  for (let messageIndex = messages.length - 1; messageIndex >= 0; messageIndex--) {
+    const message = messages[messageIndex];
+    if (message.role === "user" && message.type === "text") {
+      result.push(message);
     }
   }
   return result;
 }
 
-export function useMessageHistory(messages2, resetKey) {
+export function useMessageHistory(messages, resetKey) {
   const userMessages = reactExports.useMemo(
-    () => extractUserMessages(messages2 ?? []),
-    [messages2],
+    () => extractUserMessages(messages ?? []),
+    [messages],
   );
-  const [index2, setIndex] = reactExports.useState(-1);
+  const [index, setIndex] = reactExports.useState(-1);
   const indexRef = reactExports.useRef(-1);
   const draftRef = reactExports.useRef(null);
   const resetKeyRef = reactExports.useRef(resetKey);
   const navigateUp = reactExports.useCallback(
     (currentText, currentAttachmentPaths) => {
       if (userMessages.length === 0) return null;
-      const current2 = indexRef.current;
-      const next2 = current2 + 1;
-      if (next2 >= userMessages.length) return null;
-      if (current2 === -1) {
+      const current = indexRef.current;
+      const next = current + 1;
+      if (next >= userMessages.length) return null;
+      if (current === -1) {
         draftRef.current = {
           text: currentText,
           attachmentPaths: [...currentAttachmentPaths],
         };
       }
-      indexRef.current = next2;
-      setIndex(next2);
-      return userMessages[next2];
+      indexRef.current = next;
+      setIndex(next);
+      return userMessages[next];
     },
     [userMessages],
   );
   const navigateDown = reactExports.useCallback(() => {
-    const current2 = indexRef.current;
-    if (current2 <= -1) return null;
-    const next2 = current2 - 1;
-    indexRef.current = next2;
-    setIndex(next2);
-    if (next2 >= 0) {
+    const current = indexRef.current;
+    if (current <= -1) return null;
+    const next = current - 1;
+    indexRef.current = next;
+    setIndex(next);
+    if (next >= 0) {
       return {
         type: "history",
-        message: userMessages[next2],
+        message: userMessages[next],
       };
     }
     const draft = draftRef.current;
@@ -59,7 +59,7 @@ export function useMessageHistory(messages2, resetKey) {
       attachmentPaths: draft?.attachmentPaths ?? [],
     };
   }, [userMessages]);
-  const reset2 = reactExports.useCallback(() => {
+  const reset = reactExports.useCallback(() => {
     if (indexRef.current !== -1) {
       indexRef.current = -1;
       setIndex(-1);
@@ -69,28 +69,28 @@ export function useMessageHistory(messages2, resetKey) {
   reactExports.useEffect(() => {
     if (Object.is(resetKeyRef.current, resetKey)) return;
     resetKeyRef.current = resetKey;
-    reset2();
-  }, [resetKey, reset2]);
+    reset();
+  }, [resetKey, reset]);
   return {
-    isActive: index2 >= 0,
+    isActive: index >= 0,
     navigateUp,
     navigateDown,
-    reset: reset2,
+    reset,
   };
 }
 
-export function filenameFromPath(path2) {
-  return path2.split("/").pop() ?? path2;
+export function filenameFromPath(path) {
+  return path.split("/").pop() ?? path;
 }
 
 export function attachmentsFromHistory(attachments) {
   if (!attachments?.length) return [];
-  return attachments.map((att) => ({
-    path: att.path,
-    filename: filenameFromPath(att.path),
-    ...(att.attachment_source === "asset_vault" && att.attachment_id
+  return attachments.map((attachment) => ({
+    path: attachment.path,
+    filename: filenameFromPath(attachment.path),
+    ...(attachment.attachment_source === "asset_vault" && attachment.attachment_id
       ? {
-          attachmentId: att.attachment_id,
+          attachmentId: attachment.attachment_id,
         }
       : {}),
   }));

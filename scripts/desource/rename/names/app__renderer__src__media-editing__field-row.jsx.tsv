@@ -1,0 +1,17 @@
+key	new	依据
+t2@104:14	t	useTranslation 返回的翻译函数，用于字段菜单的编辑和删除标签。
+pos@106:10	menuPosition	按锚点矩形与窗口边界计算出的字段菜单 fixed 定位坐标。
+id2@128:11	timeoutId	延迟注册外部点击监听器的定时器标识，清理时传给 clearTimeout。
+e2@122:22	mouseEvent	document mousedown 事件；用其 target 判断点击是否在菜单或锚点之外。
+t2@203:14	t	useTranslation 返回的翻译函数，用于拖拽、显示状态和更多操作的提示文案。
+e2@224:28	dragStartEvent	HTML5 拖拽开始事件；写入列 ID、设置 move 效果并指定拖拽图像。
+e2@235:27	dragOverEvent	HTML5 拖拽经过事件；验证拖拽类型并按指针位置设置插入边缘。
+e2@243:28	dragLeaveEvent	HTML5 拖拽离开事件；指针真正离开字段行时清除插入边缘。
+e2@248:24	dropEvent	HTML5 放置事件；读取源列 ID 并在有效时调用 onMove 完成排序。
+e2@309:23	keyboardEvent	字段标题输入框的键盘事件；Enter 提交编辑，Escape 取消，且阻止冒泡。
+v2@356:39	isOpen	状态 setter 提供的字段更多菜单开关值；返回反值以切换显示状态。
+type2@36:32	type	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存字段列当前的数据类型。
+handleDrop2@248:9	handleDrop	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存处理字段行拖放并调用排序回调的函数。
+next2@220:11	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存编辑完成后输入框中的下一字段标题。
+isAfter2@240:11	isAfter	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存拖拽指针是否位于字段行中线之后。
+setPos@106:24	setMenuPosition	与 menuPosition 配对的 setter；更新根据锚点和窗口边界计算出的菜单坐标。

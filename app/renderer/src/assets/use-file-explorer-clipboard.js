@@ -1,5 +1,7 @@
 // use-file-explorer-clipboard.js
-import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 import {
@@ -16,15 +18,15 @@ const PASTED_IMAGE_EXTENSION = {
 };
 
 export function useFileExplorerClipboard({
-  gatewayFetch: gatewayFetch2,
-  platform: platform2,
+  gatewayFetch,
+  platform,
   rootPath,
   refresh,
   setSelectedPaths,
   setLastSelectedPath,
   sectionRef,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const clipboardService = reactExports.useMemo(
     () =>
       instantiationService.invokeFunction((accessor) =>
@@ -46,7 +48,7 @@ export function useFileExplorerClipboard({
     const cd = event.clipboardData;
     const files = Array.from(cd?.files ?? []);
     if (files.length === 0) {
-      dedupedToast.info(t2("fileExplorer.pasteEmpty"));
+      dedupedToast.info(translate("fileExplorer.pasteEmpty"));
       return;
     }
     event.preventDefault();
@@ -64,7 +66,7 @@ export function useFileExplorerClipboard({
         }
       }
       if (onDiskPaths.length > 0) {
-        const res = await gatewayFetch2(API_PATHS.importExternal, {
+        const res = await gatewayFetch(API_PATHS.importExternal, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -89,42 +91,42 @@ export function useFileExplorerClipboard({
             `Import failed: ${res.status} ${res.statusText}${detail}`,
           );
         }
-        let data2;
+        let data;
         try {
-          data2 = await res.json();
+          data = await res.json();
         } catch (err) {
           throw new Error(
             `import-external response is not JSON: ${err instanceof Error ? err.message : String(err)}`,
           );
         }
-        if (data2.imported && rootPath) {
-          for (const it2 of data2.imported) {
-            newAbsPaths.push(joinFilePath(rootPath, it2.path));
+        if (data.imported && rootPath) {
+          for (const importedItem of data.imported) {
+            newAbsPaths.push(joinFilePath(rootPath, importedItem.path));
           }
         }
-        if (data2.errors?.length) {
+        if (data.errors?.length) {
           console.warn(
             "[fileExplorer] import-external partial failures:",
-            data2.errors,
+            data.errors,
           );
           dedupedToast.warning(
-            t2("fileExplorer.importFailedCount", {
-              count: data2.errors.length,
+            translate("fileExplorer.importFailedCount", {
+              count: data.errors.length,
             }),
           );
         }
         await refresh();
       }
       if (inMemoryFiles.length > 0 && rootPath) {
-        if (!platform2.fs.writeBinaryFile) {
+        if (!platform.fs.writeBinaryFile) {
           if (onDiskPaths.length > 0) {
-            dedupedToast.warning(t2("fileExplorer.platformNotSupported"));
+            dedupedToast.warning(translate("fileExplorer.platformNotSupported"));
           } else {
-            dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+            dedupedToast.error(translate("fileExplorer.platformNotSupported"));
           }
           return;
         }
-        const ts2 = new Date()
+        const timestamp = new Date()
           .toISOString()
           .replace(/[-:T.]/g, "")
           .slice(0, 14);
@@ -132,16 +134,16 @@ export function useFileExplorerClipboard({
         let successCount = 0;
         for (const file of inMemoryFiles) {
           const rand = Math.random().toString(36).slice(2, 6);
-          const dot2 = file.name?.lastIndexOf(".") ?? -1;
+          const dot = file.name?.lastIndexOf(".") ?? -1;
           const ext =
-            dot2 > 0
-              ? file.name.slice(dot2)
+            dot > 0
+              ? file.name.slice(dot)
               : (PASTED_IMAGE_EXTENSION[file.type] ?? ".bin");
-          const filename = `pasted_${ts2}_${rand}${ext}`;
+          const filename = `pasted_${timestamp}_${rand}${ext}`;
           const destPath = joinFilePath(rootPath, filename);
           try {
-            const ab = await file.arrayBuffer();
-            await platform2.fs.writeBinaryFile(destPath, ab);
+            const arrayBuffer = await file.arrayBuffer();
+            await platform.fs.writeBinaryFile(destPath, arrayBuffer);
             successCount++;
             newAbsPaths.push(destPath);
           } catch (err) {
@@ -160,7 +162,7 @@ export function useFileExplorerClipboard({
           const showFn =
             successCount > 0 ? dedupedToast.warning : dedupedToast.error;
           showFn(
-            t2("fileExplorer.importFailedCount", {
+            translate("fileExplorer.importFailedCount", {
               count: writeFailures.length,
             }),
           );
@@ -172,7 +174,7 @@ export function useFileExplorerClipboard({
       }
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.pasteFailed") +
+        translate("fileExplorer.pasteFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -181,18 +183,18 @@ export function useFileExplorerClipboard({
     sectionRef.current?.focus({
       preventScroll: true,
     });
-    await new Promise((r2) => requestAnimationFrame(() => r2()));
+    await new Promise((resolve) => requestAnimationFrame(() => resolve()));
     const result = await clipboardService.triggerPasteOnFocusedWindow();
     if (result.ok) {
       return;
     }
     if (result.reason === "paste-threw") {
       dedupedToast.error(
-        t2("fileExplorer.pasteFailed") +
+        translate("fileExplorer.pasteFailed") +
           (result.message ? `: ${result.message}` : ""),
       );
     } else {
-      dedupedToast.info(t2("fileExplorer.pasteEmpty"));
+      dedupedToast.info(translate("fileExplorer.pasteEmpty"));
     }
   });
   const probeClipboard = useStableCallback(() => {

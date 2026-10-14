@@ -1,0 +1,8 @@
+key	old	new	依据
+current2@74:20	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+element2@69:10	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+next2@71:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+observer2@77:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+t2@55:14	t2	translate	useTranslation 返回的翻译函数。
+tab2@25:45	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+workspaceId2@53:16	workspaceId2	workspaceId	工作区的唯一标识。

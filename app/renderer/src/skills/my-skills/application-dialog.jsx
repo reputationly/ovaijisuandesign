@@ -1,5 +1,5 @@
 // 技能上架申请弹窗。
-import { useTranslation } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
 import { DialogHeader, Button, Dialog, DialogContent, DialogFooter } from "../../infra/dialog-content.jsx";
 import { Badge, DialogTitle, DialogDescription } from "../../infra/badge-variants.jsx";
 import { selectSkillStructuredInfo } from "../../generation/normalize-skill-detail-metadata.js";

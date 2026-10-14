@@ -1,5 +1,5 @@
 // use-visible-conversation-hydration-timeout.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { DRAFT_NEW_TAB } from "../workspace/resolve-retry-message-payload.jsx";
 
@@ -8,16 +8,16 @@ export function useSessionSwitchTimeout(switching, onTimeout, timeoutMs = 1e4) {
   onTimeoutRef.current = onTimeout;
   reactExports.useEffect(() => {
     if (!switching) return;
-    const timer2 = setTimeout(() => onTimeoutRef.current(), timeoutMs);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => onTimeoutRef.current(), timeoutMs);
+    return () => clearTimeout(timer);
   }, [switching, timeoutMs]);
 }
 
 export function useSessionSwitchErrorFeedback(switchError, setSwitchError) {
   reactExports.useEffect(() => {
     if (!switchError) return;
-    const timer2 = setTimeout(() => setSwitchError(null), 5e3);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => setSwitchError(null), 5e3);
+    return () => clearTimeout(timer);
   }, [switchError, setSwitchError]);
   reactExports.useEffect(() => {
     if (!switchError) return;
@@ -25,8 +25,8 @@ export function useSessionSwitchErrorFeedback(switchError, setSwitchError) {
   }, [switchError]);
 }
 
-export function sessionSwitchTimeoutMessage(t2) {
-  return t2(
+export function sessionSwitchTimeoutMessage(translate) {
+  return translate(
     "chat.sessionSwitch.timeout",
     "Session switch timed out. Please try again.",
   );
@@ -37,7 +37,7 @@ const INITIAL_PAYLOAD_STALLED_TOAST_ID =
 
 export function useInitialPayloadHydrationStalledFeedback(
   stalled,
-  t2,
+  translate,
   onRetry,
 ) {
   const onRetryRef = reactExports.useRef(onRetry);
@@ -48,7 +48,7 @@ export function useInitialPayloadHydrationStalledFeedback(
       return;
     }
     dedupedToast.error(
-      t2(
+      translate(
         "chat.initialPayload.hydrationStalled",
         "Could not confirm the target conversation, so the first message was not sent. Retry to send it.",
       ),
@@ -56,7 +56,7 @@ export function useInitialPayloadHydrationStalledFeedback(
         id: INITIAL_PAYLOAD_STALLED_TOAST_ID,
         duration: Number.POSITIVE_INFINITY,
         action: {
-          label: t2("common.retry", "Retry"),
+          label: translate("common.retry", "Retry"),
           onClick: () => onRetryRef.current(),
         },
       },
@@ -64,11 +64,11 @@ export function useInitialPayloadHydrationStalledFeedback(
     return () => {
       dedupedToast.dismiss(INITIAL_PAYLOAD_STALLED_TOAST_ID);
     };
-  }, [stalled, t2]);
+  }, [stalled, translate]);
 }
 
-export function sessionSwitchNotConnectedMessage(t2) {
-  return t2(
+export function sessionSwitchNotConnectedMessage(translate) {
+  return translate(
     "chat.sessionSwitch.notConnected",
     "Not connected to the local runtime yet. Reconnecting — please try again shortly.",
   );
@@ -78,7 +78,7 @@ export function useVisibleConversationHydrationRequest(
   pendingRequestsRef,
   retainVisibleTranscriptUntilHydrationRef,
   prepareSessionSwitch,
-  send2,
+  send,
   setConversationLoading,
 ) {
   return reactExports.useCallback(
@@ -89,7 +89,7 @@ export function useVisibleConversationHydrationRequest(
         pendingRequestsRef.current.set(request.request_id, sessionId);
         setConversationLoading(true);
       }
-      if (send2(request)) return true;
+      if (send(request)) return true;
       if (request.activate) {
         pendingRequestsRef.current.delete(request.request_id);
         setConversationLoading(false);
@@ -100,14 +100,14 @@ export function useVisibleConversationHydrationRequest(
       pendingRequestsRef,
       prepareSessionSwitch,
       retainVisibleTranscriptUntilHydrationRef,
-      send2,
+      send,
       setConversationLoading,
     ],
   );
 }
 
 export function useVisibleConversationHydrationTimeout({
-  active: active2,
+  active,
   pendingRequestsRef,
   sessionStore,
   rejectSessionFocusIntent,
@@ -117,7 +117,7 @@ export function useVisibleConversationHydrationTimeout({
   timeoutMessage,
 }) {
   const failHydration = reactExports.useCallback(
-    (requestId, errorMessage2 = timeoutMessage) => {
+    (requestId, errorMessage = timeoutMessage) => {
       const pendingRequests = [...pendingRequestsRef.current];
       if (pendingRequests.length === 0) return false;
       const latestRequestId = pendingRequests.at(-1)?.[0];
@@ -139,7 +139,7 @@ export function useVisibleConversationHydrationTimeout({
         sessionStore.setHistoryLoadFailed(targetSessionId, true);
         setHistoryLoadFailed(true);
       }
-      setSwitchError(errorMessage2);
+      setSwitchError(errorMessage);
       return true;
     },
     [
@@ -152,6 +152,6 @@ export function useVisibleConversationHydrationTimeout({
       timeoutMessage,
     ],
   );
-  useSessionSwitchTimeout(active2, failHydration);
+  useSessionSwitchTimeout(active, failHydration);
   return failHydration;
 }

@@ -1,5 +1,8 @@
 // storyboard-grid-editor.jsx
-import { BACKEND_VIBE_STORYBOARD, Plus, reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import { BACKEND_VIBE_STORYBOARD } from "../infra/shared-runtime.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Plus, X$7 as X } from "./lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TooltipProvider } from "../infra/create-recently-added-store.js";
@@ -87,16 +90,16 @@ function sourceReference(imageUrl, imagePath) {
     : void 0;
 }
 function restoredReferences(paths, resolveFileUrl) {
-  const seen2 = new Set();
+  const seen = new Set();
   return paths
     .filter(
-      (path2) => path2.length > 0 && !seen2.has(path2) && seen2.add(path2),
+      (path) => path.length > 0 && !seen.has(path) && seen.add(path),
     )
     .slice(0, MAX_STORYBOARD_REFERENCES)
-    .map((path2, index2) => ({
-      path: path2,
-      url: resolveFileUrl?.(path2) ?? path2,
-      locked: index2 === 0,
+    .map((path, index) => ({
+      path,
+      url: resolveFileUrl?.(path) ?? path,
+      locked: index === 0,
     }));
 }
 export function StoryboardGridEditor({
@@ -112,7 +115,7 @@ export function StoryboardGridEditor({
   onClose,
 }) {
   const { i18n } = useTranslation();
-  const t2 = reactExports.useMemo(
+  const translationLabels = reactExports.useMemo(
     () => (i18n.resolvedLanguage?.startsWith("zh") ? messages.zh : messages.en),
     [i18n.resolvedLanguage],
   );
@@ -146,8 +149,8 @@ export function StoryboardGridEditor({
       setReferences(restoredReferences(defaultReferencePaths, resolveFileUrl));
       return;
     }
-    setReferences((previous2) => {
-      const extras = previous2.filter((reference) => !reference.locked);
+    setReferences((previous) => {
+      const extras = previous.filter((reference) => !reference.locked);
       const source = sourceReference(imageUrl, imagePath);
       return source
         ? [source, ...extras].slice(0, MAX_STORYBOARD_REFERENCES)
@@ -190,7 +193,7 @@ export function StoryboardGridEditor({
       const added = [];
       for (const resource of resources) {
         if (!resource.url || !resource.path) {
-          dedupedToast.error(t2.missingAsset);
+          dedupedToast.error(translationLabels.missingAsset);
           continue;
         }
         if (
@@ -204,16 +207,16 @@ export function StoryboardGridEditor({
         });
       }
       if (added.length > 0) {
-        setReferences((previous2) =>
-          [...previous2, ...added].slice(0, MAX_STORYBOARD_REFERENCES),
+        setReferences((previous) =>
+          [...previous, ...added].slice(0, MAX_STORYBOARD_REFERENCES),
         );
       }
     } catch (error) {
       dedupedToast.error(
-        `${t2.pickerError}: ${readableGenerationError(error)}`,
+        `${translationLabels.pickerError}: ${readableGenerationError(error)}`,
       );
     }
-  }, [pickAsset, references, t2]);
+  }, [pickAsset, references, translationLabels]);
   const canSubmit =
     !isSubmitting &&
     !isGenerating &&
@@ -252,7 +255,7 @@ export function StoryboardGridEditor({
       if (!result.success && result.error) throw new Error(result.error);
     } catch (error) {
       dedupedToast.error(
-        `${t2.generateError}: ${readableGenerationError(error)}`,
+        `${translationLabels.generateError}: ${readableGenerationError(error)}`,
       );
     } finally {
       submitLockRef.current = false;
@@ -270,7 +273,7 @@ export function StoryboardGridEditor({
     replaceNodeId,
     rows,
     submitImg2Image,
-    t2,
+    translationLabels,
   ]);
   const previewGrid = hoveredGrid ?? {
     rows,
@@ -288,7 +291,7 @@ export function StoryboardGridEditor({
       >
         <div className="flex shrink-0 items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-1">
-            {references.map((reference, index2) => (
+            {references.map((reference, index) => (
               <div
                 key={reference.path}
                 className="group/reference relative size-12 shrink-0 overflow-hidden rounded-[8px] border-[1.5px] border-transparent"
@@ -304,11 +307,11 @@ export function StoryboardGridEditor({
                     type="button"
                     variant="default"
                     size="icon-xs"
-                    aria-label={t2.removeReference}
+                    aria-label={translationLabels.removeReference}
                     onClick={() =>
-                      setReferences((previous2) =>
-                        previous2.filter(
-                          (_2, itemIndex) => itemIndex !== index2,
+                      setReferences((previous) =>
+                        previous.filter(
+                          (_unusedReference, itemIndex) => itemIndex !== index,
                         ),
                       )
                     }
@@ -327,7 +330,7 @@ export function StoryboardGridEditor({
                 disabled={!pickAsset || isSubmitting}
                 onClick={() => void handlePickReferences()}
                 className="size-12 rounded-[8px] border-[1.5px] border-dashed border-foreground/10 bg-transparent text-foreground/50 hover:border-foreground/30 hover:bg-transparent hover:text-foreground"
-                aria-label={t2.addReference}
+                aria-label={translationLabels.addReference}
                 data-action-ui-id="canvas.storyboard-grid.add-reference"
               >
                 <Plus size={18} strokeWidth={1.5} />
@@ -336,14 +339,14 @@ export function StoryboardGridEditor({
           </div>
           <ExpandToggleButton
             expanded={expanded}
-            onToggle={() => setExpanded((current2) => !current2)}
+            onToggle={() => setExpanded((isExpanded) => !isExpanded)}
           />
         </div>
         <div className="min-h-0 flex-1 pt-3">
           <PromptTextarea
             value={prompt}
             onChange={setPrompt}
-            placeholder={t2.promptPlaceholder}
+            placeholder={translationLabels.promptPlaceholder}
             onClose={onClose}
             blockKeyHandlers={isSubmitting}
             maxLength={MAX_STORYBOARD_PROMPT_LENGTH}
@@ -353,16 +356,16 @@ export function StoryboardGridEditor({
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-[var(--canvas-controls-text)]">
               <StoryboardGridIcon size={18} strokeWidth={1.75} />
-              {t2.title}
+              {translationLabels.title}
             </div>
             <span aria-hidden="true" className="h-3 w-px bg-foreground/15" />
             <ParamsChip
               anchorRef={ratioAnchorRef}
-              summary={`${t2.cellRatio} · ${ratio}`}
+              summary={`${translationLabels.cellRatio} · ${ratio}`}
               open={ratioOpen}
               onToggle={() => {
                 setGridOpen(false);
-                setRatioOpen((current2) => !current2);
+                setRatioOpen((isRatioOpen) => !isRatioOpen);
               }}
               disabled={isSubmitting}
               showSummaryIcons={false}
@@ -374,7 +377,7 @@ export function StoryboardGridEditor({
               open={gridOpen}
               onToggle={() => {
                 setRatioOpen(false);
-                setGridOpen((current2) => !current2);
+                setGridOpen((isGridOpen) => !isGridOpen);
               }}
               disabled={isSubmitting}
               showSummaryIcons={false}
@@ -382,13 +385,13 @@ export function StoryboardGridEditor({
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
             {isGenerating ? (
-              <GeneratingButton label={t2.generating} />
+              <GeneratingButton label={translationLabels.generating} />
             ) : (
               <SubmitButton
                 submitting={isSubmitting}
                 canSubmit={canSubmit}
                 onClick={() => void handleSubmit()}
-                title={t2.generate}
+                title={translationLabels.generate}
                 creditCost={pricingConfig?.storyboard?.creditCost}
               />
             )}
@@ -401,7 +404,7 @@ export function StoryboardGridEditor({
             widthPx={320}
           >
             <div data-action-ui-id="canvas.storyboard-grid.ratio-popup">
-              <ParamSectionLabel>{t2.cellRatio}</ParamSectionLabel>
+              <ParamSectionLabel>{translationLabels.cellRatio}</ParamSectionLabel>
               <AspectRatioGrid
                 options={STORYBOARD_RATIOS}
                 value={ratio}
@@ -421,7 +424,7 @@ export function StoryboardGridEditor({
             <div data-action-ui-id="canvas.storyboard-grid.layout-popup">
               <div className="mb-3 flex items-center justify-between text-base">
                 <span className="font-medium text-muted-foreground">
-                  {t2.customGrid}
+                  {translationLabels.customGrid}
                 </span>
                 <span className="text-foreground">
                   {cols}
@@ -431,7 +434,7 @@ export function StoryboardGridEditor({
               </div>
               <TooltipProvider delay={180} closeDelay={0}>
                 <fieldset
-                  aria-label={t2.gridLayout}
+                  aria-label={translationLabels.gridLayout}
                   className="grid grid-cols-5 gap-2"
                   onPointerLeave={() => setHoveredGrid(null)}
                 >
@@ -439,10 +442,10 @@ export function StoryboardGridEditor({
                     {
                       length: 25,
                     },
-                    (_2, index2) => {
-                      const optionRows = Math.floor(index2 / 5) + 1;
-                      const optionCols = (index2 % 5) + 1;
-                      const valid2 = isStoryboardGridValid(
+                    (_unusedArrayValue, index) => {
+                      const optionRows = Math.floor(index / 5) + 1;
+                      const optionCols = (index % 5) + 1;
+                      const isGridValid = isStoryboardGridValid(
                         ratio,
                         optionRows,
                         optionCols,
@@ -454,7 +457,7 @@ export function StoryboardGridEditor({
                       return (
                         <Tooltip
                           key={`${optionRows}-${optionCols}`}
-                          content={valid2 ? optionLabel : t2.invalidLayout}
+                          content={isGridValid ? optionLabel : translationLabels.invalidLayout}
                           side="top"
                           sideOffset={8}
                         >
@@ -463,14 +466,14 @@ export function StoryboardGridEditor({
                             variant="ghost"
                             size="icon"
                             aria-label={
-                              valid2
+                              isGridValid
                                 ? optionLabel
-                                : `${optionLabel}: ${t2.invalidLayout}`
+                                : `${optionLabel}: ${translationLabels.invalidLayout}`
                             }
-                            aria-disabled={!valid2 || isSubmitting}
+                            aria-disabled={!isGridValid || isSubmitting}
                             onPointerEnter={() => {
                               setHoveredGrid(
-                                valid2 && !isSubmitting
+                                isGridValid && !isSubmitting
                                   ? {
                                       rows: optionRows,
                                       cols: optionCols,
@@ -480,7 +483,7 @@ export function StoryboardGridEditor({
                             }}
                             onFocus={() => {
                               setHoveredGrid(
-                                valid2 && !isSubmitting
+                                isGridValid && !isSubmitting
                                   ? {
                                       rows: optionRows,
                                       cols: optionCols,
@@ -490,7 +493,7 @@ export function StoryboardGridEditor({
                             }}
                             onBlur={() => setHoveredGrid(null)}
                             onClick={() => selectGrid(optionRows, optionCols)}
-                            className={`aspect-square h-auto w-full rounded-[10px] p-0 transition-[background-color,border-color,opacity] focus-visible:ring-2 focus-visible:ring-brand-accent/35 ${filled ? "border-brand-accent/80 bg-brand-accent/80 hover:bg-brand-accent/90 dark:hover:bg-brand-accent/90" : "border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-hover)] hover:bg-[var(--canvas-controls-active)] dark:hover:bg-[var(--canvas-controls-active)]"} ${valid2 && !isSubmitting ? "cursor-pointer" : filled ? "cursor-not-allowed" : "cursor-not-allowed opacity-45"}`}
+                            className={`aspect-square h-auto w-full rounded-[10px] p-0 transition-[background-color,border-color,opacity] focus-visible:ring-2 focus-visible:ring-brand-accent/35 ${filled ? "border-brand-accent/80 bg-brand-accent/80 hover:bg-brand-accent/90 dark:hover:bg-brand-accent/90" : "border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-hover)] hover:bg-[var(--canvas-controls-active)] dark:hover:bg-[var(--canvas-controls-active)]"} ${isGridValid && !isSubmitting ? "cursor-pointer" : filled ? "cursor-not-allowed" : "cursor-not-allowed opacity-45"}`}
                             data-action-ui-id={`canvas.storyboard-grid.layout-${optionCols}x${optionRows}`}
                           />
                         </Tooltip>

@@ -1,16 +1,12 @@
 // canvas-context-menu.jsx
-import {
-  CanvasNodeType,
-  CompositedSvg,
-  getBezierPath,
-  jsxRuntimeExports,
-  Position,
-  reactDomExports,
-  reactExports,
-  useReactFlow,
-  useStore$3 as useStore,
-  useTranslation,
-  } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { getBezierPath, Position } from "../vendor-fork/xyflow/system/index.js";
+import { useReactFlow, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   ImageOutlineIcon,
@@ -100,8 +96,8 @@ const MENU_ESTIMATED_HEIGHT_PX =
   MENU_CHROME_HEIGHT_PX +
   MENU_HEADER_HEIGHT_PX +
   MENU_MAX_ROW_COUNT * (MENU_ITEM_HEIGHT_PX + MENU_ROW_GAP_PX);
-function oppositeHandlePosition(p3) {
-  switch (p3) {
+function oppositeHandlePosition(handlePosition) {
+  switch (handlePosition) {
     case Position.Left:
       return Position.Right;
     case Position.Right:
@@ -111,7 +107,7 @@ function oppositeHandlePosition(p3) {
     case Position.Bottom:
       return Position.Top;
     default: {
-      const _exhaustive = p3;
+      const _exhaustive = handlePosition;
       throw new Error(`Unhandled handle position: ${String(_exhaustive)}`);
     }
   }
@@ -223,12 +219,12 @@ function MenuItem({
       style={{
         color: "var(--canvas-controls-text)",
       }}
-      onMouseEnter={(e2) => {
-        e2.currentTarget.style.backgroundColor = "var(--canvas-controls-hover)";
-        onMouseEnter?.(e2);
+      onMouseEnter={(mouseEvent) => {
+        mouseEvent.currentTarget.style.backgroundColor = "var(--canvas-controls-hover)";
+        onMouseEnter?.(mouseEvent);
       }}
-      onMouseLeave={(e2) => {
-        e2.currentTarget.style.backgroundColor = "transparent";
+      onMouseLeave={(mouseEvent) => {
+        mouseEvent.currentTarget.style.backgroundColor = "transparent";
       }}
       onClick={onClick}
     >
@@ -289,21 +285,21 @@ function MenuItem({
 }
 function ConnectionLineOverlay({ source }) {
   const { flowToScreenPosition } = useReactFlow();
-  useStore((s2) => s2.transform);
-  const paths = source.points.map((p3) => {
+  useStore((state) => state.transform);
+  const paths = source.points.map((point) => {
     const screenSource = flowToScreenPosition({
-      x: p3.sourceFlowX,
-      y: p3.sourceFlowY,
+      x: point.sourceFlowX,
+      y: point.sourceFlowY,
     });
-    const [d2] = getBezierPath({
+    const [path] = getBezierPath({
       sourceX: screenSource.x,
       sourceY: screenSource.y,
-      sourcePosition: p3.handlePosition,
+      sourcePosition: point.handlePosition,
       targetX: source.endX,
       targetY: source.endY,
-      targetPosition: oppositeHandlePosition(p3.handlePosition),
+      targetPosition: oppositeHandlePosition(point.handlePosition),
     });
-    return d2;
+    return path;
   });
   return (
     <>
@@ -318,11 +314,11 @@ function ConnectionLineOverlay({ source }) {
           zIndex: 49,
         }}
       >
-        {paths.map((d2, i2) => (
+        {paths.map((path, pathIndex) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: paths are positionally tied to source.points order
           <path
-            key={i2}
-            d={d2}
+            key={pathIndex}
+            d={path}
             fill="none"
             stroke="var(--canvas-edge)"
             strokeWidth={1.5}
@@ -380,7 +376,7 @@ function ConnectionLineOverlay({ source }) {
 const VIDEO_MODEL_BADGE = "MiniMax H3";
 export function CanvasContextMenu({
   motionProps,
-  position: position2,
+  position,
   flowPosition,
   onClose,
   onAddNode,
@@ -388,7 +384,7 @@ export function CanvasContextMenu({
   sourceNodeType,
   sourceNodePluginId,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { addNodeMenuBadges, onAddNodeMenuBadgeComplete } = useCanvasBridge();
   const [comfyUiOpen, setComfyUiOpen] = reactExports.useState(false);
   const handleOpenComfyUi = reactExports.useCallback(
@@ -410,20 +406,20 @@ export function CanvasContextMenu({
   }, [comfyUiOpen]);
   const getAnchorPosition = reactExports.useCallback(
     (menuHeight) => {
-      if (!position2.dockAnchor) return position2;
+      if (!position.dockAnchor) return position;
       return {
-        x: position2.dockAnchor.button.getBoundingClientRect().left,
+        x: position.dockAnchor.button.getBoundingClientRect().left,
         y:
-          position2.dockAnchor.toolbar.getBoundingClientRect().top -
+          position.dockAnchor.toolbar.getBoundingClientRect().top -
           8 -
           menuHeight,
       };
     },
-    [position2],
+    [position],
   );
   const { menuRef, clampedPosition } = useClampedMenuPosition({
-    position: position2,
-    getAnchorPosition: position2.dockAnchor ? getAnchorPosition : void 0,
+    position,
+    getAnchorPosition: position.dockAnchor ? getAnchorPosition : void 0,
     estimatedWidth: MENU_WIDTH_PX,
     estimatedHeight: MENU_ESTIMATED_HEIGHT_PX,
   });
@@ -431,10 +427,10 @@ export function CanvasContextMenu({
     menuRef,
     handleClose,
     handleEscape,
-    position2.dockAnchor?.button,
+    position.dockAnchor?.button,
     !motionProps?.inert,
   );
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     (action) => {
       setComfyUiOpen(false);
       action();
@@ -457,13 +453,13 @@ export function CanvasContextMenu({
         video: true,
         audio: true,
       };
-    const s2 = new Set(allowed);
+    const allowedTypes = new Set(allowed);
     return {
-      text: s2.has(CanvasNodeType.Text),
-      table: s2.has(CanvasNodeType.Table),
-      image: s2.has(CanvasNodeType.Image),
-      video: s2.has(CanvasNodeType.Video),
-      audio: s2.has(CanvasNodeType.Audio),
+      text: allowedTypes.has(CanvasNodeType.Text),
+      table: allowedTypes.has(CanvasNodeType.Table),
+      image: allowedTypes.has(CanvasNodeType.Image),
+      video: allowedTypes.has(CanvasNodeType.Video),
+      audio: allowedTypes.has(CanvasNodeType.Audio),
     };
   }, [allowed]);
   const menu = (
@@ -471,9 +467,9 @@ export function CanvasContextMenu({
       {connectionSource && <ConnectionLineOverlay source={connectionSource} />}
       <div
         {...motionProps}
-        ref={(element2) => {
-          menuRef.current = element2;
-          if (motionProps) motionProps.ref.current = element2;
+        ref={(element) => {
+          menuRef.current = element;
+          if (motionProps) motionProps.ref.current = element;
         }}
         data-action-ui-id="canvas.add-node-menu"
         className="dp-motion-quick-zoom fixed flex w-[240px] flex-col rounded-[16px] p-2 select-none"
@@ -498,9 +494,9 @@ export function CanvasContextMenu({
             "1px solid var(--canvas-border-subtle, var(--canvas-controls-border))",
           boxShadow: "var(--canvas-prompt-panel-shadow)",
           zIndex: 50,
-          transformOrigin: position2.dockAnchor
+          transformOrigin: position.dockAnchor
             ? "bottom left"
-            : `${position2.x - clampedPosition.x}px ${position2.y - clampedPosition.y}px`,
+            : `${position.x - clampedPosition.x}px ${position.y - clampedPosition.y}px`,
         }}
       >
         <h4
@@ -509,66 +505,66 @@ export function CanvasContextMenu({
             color: "var(--canvas-controls-text-muted)",
           }}
         >
-          {t2("canvas.addNode")}
+          {translate("canvas.addNode")}
         </h4>
         {show.text && (
           <MenuItem
             icon={<TextIcon />}
-            label={t2("canvas.text")}
-            description={t2("canvas.textDesc")}
+            label={translate("canvas.text")}
+            description={translate("canvas.textDesc")}
             dataActionUiId="canvas.menu-add-text"
-            onClick={() => handleClick2(() => onAddNode("text"))}
+            onClick={() => handleClick(() => onAddNode("text"))}
           />
         )}
         {show.table && (
           <MenuItem
             icon={<TableIcon />}
-            label={t2("canvas.table", "Table")}
-            description={t2(
+            label={translate("canvas.table", "Table")}
+            description={translate(
               "canvas.tableDesc",
               "Structured data with rows and columns",
             )}
             dataActionUiId="canvas.menu-add-table"
-            onClick={() => handleClick2(() => onAddNode("table"))}
+            onClick={() => handleClick(() => onAddNode("table"))}
           />
         )}
         {show.image && (
           <MenuItem
             icon={<ImageIcon />}
-            label={t2("canvas.image")}
-            description={t2("canvas.imageDesc")}
+            label={translate("canvas.image")}
+            description={translate("canvas.imageDesc")}
             dataActionUiId="canvas.menu-add-image"
-            onClick={() => handleClick2(() => onAddNode("image"))}
+            onClick={() => handleClick(() => onAddNode("image"))}
           />
         )}
         {show.video && (
           <MenuItem
             icon={<VideoIcon />}
-            label={t2("canvas.video")}
-            description={t2("canvas.videoDesc")}
+            label={translate("canvas.video")}
+            description={translate("canvas.videoDesc")}
             badge={VIDEO_MODEL_BADGE}
             badgeVariant="accent"
             dataActionUiId="canvas.menu-add-video"
-            onClick={() => handleClick2(() => onAddNode("video"))}
+            onClick={() => handleClick(() => onAddNode("video"))}
           />
         )}
         {show.audio && (
           <MenuItem
             icon={<AudioIcon />}
-            label={t2("canvas.audio")}
-            description={t2("canvas.audioDesc")}
+            label={translate("canvas.audio")}
+            description={translate("canvas.audioDesc")}
             dataActionUiId="canvas.menu-add-audio"
-            onClick={() => handleClick2(() => onAddNode("audio"))}
+            onClick={() => handleClick(() => onAddNode("audio"))}
           />
         )}
         <MenuItem
           icon={<DirectorStageMenuIcon />}
-          label={t2("canvas.directorStage")}
-          description={t2("canvas.directorStageDesc")}
+          label={translate("canvas.directorStage")}
+          description={translate("canvas.directorStageDesc")}
           badge={addNodeMenuBadges?.directorStage}
           dataActionUiId="canvas.menu-add-director-stage"
           onClick={() =>
-            handleClick2(() => {
+            handleClick(() => {
               completeAddNodeMenuBadge(
                 onAddNodeMenuBadgeComplete,
                 "directorStage",
@@ -579,12 +575,12 @@ export function CanvasContextMenu({
         />
         <MenuItem
           icon={<VideoEditingMenuIcon />}
-          label={t2("canvas.videoEditing")}
-          description={t2("canvas.videoEditingDesc")}
+          label={translate("canvas.videoEditing")}
+          description={translate("canvas.videoEditingDesc")}
           badge={addNodeMenuBadges?.videoEditing}
           dataActionUiId="canvas.menu-add-video-editing"
           onClick={() =>
-            handleClick2(() => {
+            handleClick(() => {
               completeAddNodeMenuBadge(
                 onAddNodeMenuBadgeComplete,
                 "videoEditing",

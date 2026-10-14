@@ -1,5 +1,5 @@
 // classify-upload-error.js
-import { API_PATHS } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { UPLOAD_COMMIT_SAFE_PUBLISH_UNSUPPORTED } from "../generation/to-workspace-browser-url.js";
 import { cloudAssetMimeType } from "./wrap-as-asset-center-error.js";
@@ -16,16 +16,16 @@ export function isHeicFilename(filename) {
   return HEIC_EXTENSIONS.has(extensionFromFilename(filename));
 }
 
-export async function createHeicPreviewObjectUrl(filename, data2) {
+export async function createHeicPreviewObjectUrl(filename, data) {
   if (!isHeicFilename(filename)) return null;
   try {
-    const path2 = `${API_PATHS.heicPreview}?filename=${encodeURIComponent(filename)}`;
-    const response = await gatewayFetch(path2, {
+    const path = `${API_PATHS.heicPreview}?filename=${encodeURIComponent(filename)}`;
+    const response = await gatewayFetch(path, {
       method: "POST",
       headers: {
         "Content-Type": "application/octet-stream",
       },
-      body: data2,
+      body: data,
       timeoutMs: 2e4,
     });
     return URL.createObjectURL(await response.blob());
@@ -36,12 +36,12 @@ export async function createHeicPreviewObjectUrl(filename, data2) {
 
 export async function createHeicPreviewObjectUrlFromUrl(
   filename,
-  url2,
+  url,
   fetcher = (target) => fetch(target),
 ) {
   if (!isHeicFilename(filename)) return null;
   try {
-    const response = await fetcher(url2);
+    const response = await fetcher(url);
     if (!response.ok) return null;
     return createHeicPreviewObjectUrl(filename, await response.arrayBuffer());
   } catch {
@@ -51,8 +51,8 @@ export async function createHeicPreviewObjectUrlFromUrl(
 
 export const MESSAGE_INPUT_POPOVER_Z_INDEX = 40;
 
-export function isFileAttachment(a2) {
-  return (a2.kind ?? "file") === "file";
+export function isFileAttachment(attachment) {
+  return (attachment.kind ?? "file") === "file";
 }
 
 export class UploadCommitUnsupportedFilesystemError extends Error {
@@ -63,8 +63,8 @@ export class UploadCommitUnsupportedFilesystemError extends Error {
   }
 }
 
-function kindFromErrorCode(code2) {
-  switch (code2) {
+function kindFromErrorCode(code) {
+  switch (code) {
     case "FILE_TOO_LARGE":
     case "PAYLOAD_TOO_LARGE":
       return "fileTooLarge";
@@ -84,68 +84,68 @@ function kindFromErrorCode(code2) {
   }
 }
 
-export function classifyUploadError(rawMessage, status, code2) {
-  const codeKind = kindFromErrorCode(code2);
+export function classifyUploadError(rawMessage, status, code) {
+  const codeKind = kindFromErrorCode(code);
   if (codeKind) return codeKind;
   if (status === 413) return "fileTooLarge";
   if (status && status >= 500) return "serverUnavailable";
-  const message2 = rawMessage.toLowerCase();
+  const message = rawMessage.toLowerCase();
   if (
-    message2.includes("payload too large") ||
-    message2.includes("file too large") ||
-    message2.includes("too large") ||
-    message2.includes("request entity too large") ||
-    message2.includes("413")
+    message.includes("payload too large") ||
+    message.includes("file too large") ||
+    message.includes("too large") ||
+    message.includes("request entity too large") ||
+    message.includes("413")
   ) {
     return "fileTooLarge";
   }
   if (
-    message2.includes("failed to fetch") ||
-    message2.includes("network") ||
-    message2.includes("load failed") ||
-    message2.includes("fetch failed")
+    message.includes("failed to fetch") ||
+    message.includes("network") ||
+    message.includes("load failed") ||
+    message.includes("fetch failed")
   ) {
     return "network";
   }
   if (
-    message2.includes("unsupported") ||
-    message2.includes("invalid file type") ||
-    message2.includes("not supported")
+    message.includes("unsupported") ||
+    message.includes("invalid file type") ||
+    message.includes("not supported")
   ) {
     return "unsupportedType";
   }
   if (
-    message2.includes("timeout") ||
-    message2.includes("timed out") ||
-    message2.includes("aborted")
+    message.includes("timeout") ||
+    message.includes("timed out") ||
+    message.includes("aborted")
   ) {
     return "timeout";
   }
-  if (message2.includes("no file") || message2.includes("missing file")) {
+  if (message.includes("no file") || message.includes("missing file")) {
     return "empty";
   }
-  if (message2.includes("internal server error") || message2.includes("500")) {
+  if (message.includes("internal server error") || message.includes("500")) {
     return "serverUnavailable";
   }
   return "generic";
 }
 
-export function uploadErrorMessage(t2, kind) {
+export function uploadErrorMessage(translate, kind) {
   switch (kind) {
     case "fileTooLarge":
-      return t2("chat.uploadError.fileTooLarge");
+      return translate("chat.uploadError.fileTooLarge");
     case "network":
-      return t2("chat.uploadError.network");
+      return translate("chat.uploadError.network");
     case "unsupportedType":
-      return t2("chat.uploadError.unsupportedType");
+      return translate("chat.uploadError.unsupportedType");
     case "timeout":
-      return t2("chat.uploadError.timeout");
+      return translate("chat.uploadError.timeout");
     case "empty":
-      return t2("chat.uploadError.empty");
+      return translate("chat.uploadError.empty");
     case "serverUnavailable":
-      return t2("chat.uploadError.serverUnavailable");
+      return translate("chat.uploadError.serverUnavailable");
     case "generic":
-      return t2("chat.uploadError.generic");
+      return translate("chat.uploadError.generic");
   }
 }
 
@@ -159,19 +159,19 @@ export function fileMatchesAccept(file, accept) {
   ).toLowerCase();
   return accept
     .split(",")
-    .map((token2) => token2.trim().toLowerCase())
+    .map((token) => token.trim().toLowerCase())
     .filter(Boolean)
-    .some((token2) => {
-      if (token2 === "*/*") return true;
-      if (token2.startsWith(".")) return filename.endsWith(token2);
-      if (token2.endsWith("/*")) {
-        if (mimeType) return mimeType.startsWith(token2.slice(0, -1));
+    .some((token) => {
+      if (token === "*/*") return true;
+      if (token.startsWith(".")) return filename.endsWith(token);
+      if (token.endsWith("/*")) {
+        if (mimeType) return mimeType.startsWith(token.slice(0, -1));
         const kind = detectFileType(file.name);
         return (
-          ["image", "video", "audio"].includes(kind) && token2 === `${kind}/*`
+          ["image", "video", "audio"].includes(kind) && token === `${kind}/*`
         );
       }
-      return mimeType === token2;
+      return mimeType === token;
     });
 }
 
@@ -188,16 +188,16 @@ export const UPLOAD_FINALIZE_OUTBOX_KEY =
 
 const UPLOAD_FINALIZE_OUTBOX_TTL_MS = 7 * 24 * 60 * 60 * 1e3;
 
-export function compactUploadFinalizeOutbox(records, now2) {
-  const minimumQueuedAt = now2 - UPLOAD_FINALIZE_OUTBOX_TTL_MS;
+export function compactUploadFinalizeOutbox(records, now) {
+  const minimumQueuedAt = now - UPLOAD_FINALIZE_OUTBOX_TTL_MS;
   const byOperation = new Map();
-  for (const record2 of records) {
-    if (record2.queuedAt < minimumQueuedAt || record2.queuedAt > now2 + 6e4)
+  for (const record of records) {
+    if (record.queuedAt < minimumQueuedAt || record.queuedAt > now + 6e4)
       continue;
-    const key2 = `${record2.scopeKey}\0${record2.operationId}`;
-    const previous2 = byOperation.get(key2);
-    if (!previous2 || record2.queuedAt > previous2.queuedAt)
-      byOperation.set(key2, record2);
+    const key = `${record.scopeKey}\0${record.operationId}`;
+    const previous = byOperation.get(key);
+    if (!previous || record.queuedAt > previous.queuedAt)
+      byOperation.set(key, record);
   }
   return [...byOperation.values()].sort(
     (left, right) => left.queuedAt - right.queuedAt,
@@ -223,7 +223,7 @@ export function uploadCommitTimeoutMs(attachments) {
     return UPLOAD_COMMIT_MAX_TIMEOUT_MS;
   }
   const totalBytes = staged.reduce(
-    (sum2, attachment) => sum2 + (attachment.fileSize ?? 0),
+    (sum, attachment) => sum + (attachment.fileSize ?? 0),
     0,
   );
   const estimatedCommitMs = Math.ceil(

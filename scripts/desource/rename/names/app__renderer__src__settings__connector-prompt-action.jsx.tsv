@@ -1,0 +1,4 @@
+key	new	reason
+t2@71:14	t	useTranslation() 返回的翻译函数 t
+mode2@28:9	mode	去掉打包器加的数字后缀，恢复原名 mode
+state2@70:46	state	去掉打包器加的数字后缀，恢复原名 state

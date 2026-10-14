@@ -1,5 +1,6 @@
 // use-renderable-content-change.js
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
 
 const RENDERABLE_CANVAS_NODE_TYPES = new Set([
   CanvasNodeType.Image,
@@ -12,14 +13,14 @@ const RENDERABLE_CANVAS_NODE_TYPES = new Set([
 
 function hasRenderableCanvasContent(nodes) {
   return nodes.some(
-    (node2) =>
-      node2.type !== void 0 && RENDERABLE_CANVAS_NODE_TYPES.has(node2.type),
+    (node) =>
+      node.type !== void 0 && RENDERABLE_CANVAS_NODE_TYPES.has(node.type),
   );
 }
 
-function notifyRenderableContentChange(state2, nextValue, callback) {
-  if (state2.lastValue === nextValue) return false;
-  state2.lastValue = nextValue;
+function notifyRenderableContentChange(state, nextValue, callback) {
+  if (state.lastValue === nextValue) return false;
+  state.lastValue = nextValue;
   callback?.(nextValue);
   return true;
 }

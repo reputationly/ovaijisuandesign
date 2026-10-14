@@ -1,5 +1,14 @@
 // 首页路由入口：组装输入框、工具栏、展示区。
-import { useTranslation, useStorage, reactExports, jsxRuntimeExports, workspaceLog, usePlatform, useNavigate, resolveNewProjectPreferences, useNewProjectFolder, isWorkspaceFolderMissingError } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { usePlatform } from "../infra/platform-context.js";
+import { resolveNewProjectPreferences } from "../infra/shared-runtime.js";
+import { useNavigate } from "@tanstack/react-router";
+import { useStorage } from "../infra/use-storage.js";
+import { workspaceLog } from "../infra/logger.js";
+import { useNewProjectFolder } from "../workspace/use-new-project-folder.js";
+import { isWorkspaceFolderMissingError } from "../workspace/workspace-folder-missing.js";
 import { useProjectActions } from "../settings/use-project-actions.js";
 import { useProjectArchiveActions } from "../workspace/use-project-archive-actions.js";
 import { useNavigateToWorkspace } from "../workspace/use-deep-link-router.js";

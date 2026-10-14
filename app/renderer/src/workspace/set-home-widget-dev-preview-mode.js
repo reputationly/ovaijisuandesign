@@ -1,14 +1,16 @@
 // set-home-widget-dev-preview-mode.js
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { Popover } from "../assets/credit-query-keys.jsx";
-import { reactExports, storageKeys, useQueryClient } from "../vendor.js";
+import reactExports from "react";
+import { storageKeys } from "../infra/storage-cache.js";
+import { useQueryClient } from "@tanstack/react-query";
 import { canUseDebugTooling } from "./use-deep-link-router.js";
-export function findEntryByPath(entries2, path2) {
-  for (const entry of entries2) {
-    if (entry.path === path2) return entry;
+export function findEntryByPath(entries, path) {
+  for (const entry of entries) {
+    if (entry.path === path) return entry;
     if (entry.children) {
-      const found2 = findEntryByPath(entry.children, path2);
-      if (found2) return found2;
+      const found = findEntryByPath(entry.children, path);
+      if (found) return found;
     }
   }
   return null;
@@ -16,21 +18,21 @@ export function findEntryByPath(entries2, path2) {
 export function formatDuration(seconds) {
   if (seconds == null || !Number.isFinite(seconds) || seconds < 0) return "";
   const total = Math.ceil(seconds);
-  const mm = Math.floor(total / 60);
-  const ss2 = total % 60;
-  return `${mm}:${ss2.toString().padStart(2, "0")}`;
+  const minutes = Math.floor(total / 60);
+  const remainingSeconds = total % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
-export function formatFileSizeCompact(bytes2) {
-  if (bytes2 == null || !Number.isFinite(bytes2) || bytes2 < 0) return "";
+export function formatFileSizeCompact(bytes) {
+  if (bytes == null || !Number.isFinite(bytes) || bytes < 0) return "";
   const units = ["B", "KB", "MB", "GB"];
-  let n2 = bytes2;
-  let i2 = 0;
-  while (n2 >= 1024 && i2 < units.length - 1) {
-    n2 /= 1024;
-    i2++;
+  let scaledBytes = bytes;
+  let unitIndex = 0;
+  while (scaledBytes >= 1024 && unitIndex < units.length - 1) {
+    scaledBytes /= 1024;
+    unitIndex++;
   }
-  const fixed = i2 === 0 ? 0 : n2 >= 100 ? 0 : 1;
-  return `${n2.toFixed(fixed)} ${units[i2]}`;
+  const fixed = unitIndex === 0 ? 0 : scaledBytes >= 100 ? 0 : 1;
+  return `${scaledBytes.toFixed(fixed)} ${units[unitIndex]}`;
 }
 export const FilterMenu = Popover;
 export const FilterMenuTrigger = PopoverTrigger;
@@ -53,23 +55,23 @@ export let snapshot = {
   revision: 0,
 };
 export function getSnapshot() {
-  const selection2 = readSelection();
-  if (selection2 !== snapshot.selection)
+  const selection = readSelection();
+  if (selection !== snapshot.selection)
     snapshot = {
-      selection: selection2,
+      selection,
       revision: snapshot.revision + 1,
     };
   return snapshot;
 }
-export function setHomeWidgetDevPreviewMode(mode2) {
+export function setHomeWidgetDevPreviewMode(mode) {
   if (!canUseHomeWidgetDevPreview()) return;
-  if (mode2 === "real") {
+  if (mode === "real") {
     globalThis.sessionStorage?.removeItem(STORAGE_KEY);
   } else {
-    globalThis.sessionStorage?.setItem(STORAGE_KEY, mode2);
+    globalThis.sessionStorage?.setItem(STORAGE_KEY, mode);
   }
   snapshot = {
-    selection: mode2,
+    selection: mode,
     revision: snapshot.revision + 1,
   };
   globalThis.window?.dispatchEvent(
@@ -78,10 +80,10 @@ export function setHomeWidgetDevPreviewMode(mode2) {
 }
 export const RECENT_WORKSPACES_REFRESH_EVENT = "hilo:recent-workspaces-refresh";
 export function useRecentWorkspacesRefresh() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   reactExports.useEffect(() => {
     const invalidateRecentWorkspaces = () => {
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: storageKeys.global("recentWorkspaces"),
       });
     };
@@ -98,7 +100,7 @@ export function useRecentWorkspacesRefresh() {
         invalidateRecentWorkspaces,
       );
     };
-  }, [queryClient2]);
+  }, [queryClient]);
 }
 export const HOME_SIDEBAR_WIDTH = 264;
 export const GLOBAL_SIDEBAR_MIN_WIDTH = 220;

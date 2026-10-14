@@ -1,5 +1,5 @@
 // use-cloud-folder.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import {
   isCloudProjectMembershipError,
   listCloudFolderChildren,

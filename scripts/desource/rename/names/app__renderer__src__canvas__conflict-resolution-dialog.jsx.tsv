@@ -1,0 +1,6 @@
+key	old	new	依据
+t2@61:14	t2	translate	该函数翻译冲突对话框的标题、说明和操作文本。
+gatewayFetch2@26:40	gatewayFetch2	gatewayFetch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@28:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+gatewayFetch2@32:9	gatewayFetch2	gatewayFetch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@34:17	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

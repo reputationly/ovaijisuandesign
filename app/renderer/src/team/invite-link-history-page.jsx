@@ -1,5 +1,5 @@
 // invite-link-history-page.jsx
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TeamPanelLoading } from "./team-panel-loading.jsx";
 import { Badge } from "../infra/badge-variants.jsx";
@@ -21,7 +21,7 @@ export function InviteLinkHistoryPage({
   items,
   isPending,
   isError,
-  isStale: isStale2,
+  isStale,
   isLoadingMore,
   loadMoreError,
   loadedBatchCount,
@@ -30,19 +30,19 @@ export function InviteLinkHistoryPage({
   onRetry,
   onLoadMore,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <Page open={open} onOpenChange={onOpenChange}>
       <PageContent data-action-ui-id="team.invite-link-history-dialog">
         <PageHeader>
           <PageTitle>
-            {t2("team.management.inviteRecordsForTeam", {
+            {t("team.management.inviteRecordsForTeam", {
               defaultValue: "邀请记录 - {{name}}",
               name: teamName,
             })}
           </PageTitle>
           <PageDescription>
-            {t2("team.management.inviteLinksDescription", {
+            {t("team.management.inviteLinksDescription", {
               defaultValue: "查看仍有效或已失效的团队邀请链接。",
             })}
           </PageDescription>
@@ -51,7 +51,7 @@ export function InviteLinkHistoryPage({
           className="text-xs text-muted-foreground"
           data-action-ui-id="team.invite-link-history-no-revoke"
         >
-          {t2("team.management.inviteLinksNoRevokeOrCopy", {
+          {t("team.management.inviteLinksNoRevokeOrCopy", {
             defaultValue:
               "历史记录仅展示脱敏链接，不支持复制完整链接或撤销。完整链接仅在创建成功时可复制一次。",
           })}
@@ -60,16 +60,16 @@ export function InviteLinkHistoryPage({
           {isPending ? <TeamPanelLoading rows={3} /> : null}
           {isError && items.length === 0 ? (
             <TeamPanelError
-              title={t2("team.management.inviteLinksLoadFailed", {
+              title={t("team.management.inviteLinksLoadFailed", {
                 defaultValue: "邀请链接加载失败",
               })}
               onRetry={onRetry}
             />
           ) : null}
-          {isStale2 ? <TeamPanelStale onRetry={onRetry} /> : null}
+          {isStale ? <TeamPanelStale onRetry={onRetry} /> : null}
           {!isPending && !isError && items.length === 0 ? (
             <TeamPanelEmpty
-              title={t2("team.management.noInviteLinks", {
+              title={t("team.management.noInviteLinks", {
                 defaultValue: "暂无邀请链接记录",
               })}
             />
@@ -85,42 +85,42 @@ export function InviteLinkHistoryPage({
               actionUiId="team.management-invite-links-scroll"
             >
               <div className="divide-y divide-border border-y border-border">
-                {items.map((link2) => (
+                {items.map((link) => (
                   <div
-                    key={link2.inviteLinkId}
+                    key={link.inviteLinkId}
                     className="flex items-center gap-3 py-3 text-xs"
                   >
                     <Badge variant="secondary" className="shrink-0">
-                      {t2(`team.role.${link2.role.toLowerCase()}`, {
-                        defaultValue: link2.role,
+                      {t(`team.role.${link.role.toLowerCase()}`, {
+                        defaultValue: link.role,
                       })}
                     </Badge>
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium text-foreground">
-                        {link2.maskedUrl}
+                        {link.maskedUrl}
                       </p>
                       <p className="mt-1 text-[11px] text-muted-foreground">
-                        {t2("team.management.inviteLinkExpiryAndUsage", {
+                        {t("team.management.inviteLinkExpiryAndUsage", {
                           defaultValue:
                             "有效期至 {{date}} · 已使用 {{used}} / {{limit}}",
-                          date: new Date(link2.expiresAtMs).toLocaleString(),
-                          used: link2.usedCount,
-                          limit: link2.usageLimit,
+                          date: new Date(link.expiresAtMs).toLocaleString(),
+                          used: link.usedCount,
+                          limit: link.usageLimit,
                         })}
                       </p>
                     </div>
                     <Badge
                       variant="secondary"
                       className={
-                        link2.status === "ACTIVE"
+                        link.status === "ACTIVE"
                           ? "bg-success/10 text-success"
                           : "text-muted-foreground"
                       }
                     >
-                      {t2(
-                        `team.inviteLinkStatus.${link2.status.toLowerCase()}`,
+                      {t(
+                        `team.inviteLinkStatus.${link.status.toLowerCase()}`,
                         {
-                          defaultValue: link2.status,
+                          defaultValue: link.status,
                         },
                       )}
                     </Badge>

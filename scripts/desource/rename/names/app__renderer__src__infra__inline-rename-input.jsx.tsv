@@ -1,0 +1,27 @@
+key	new	reason
+AvatarFallback$1@164:7	AvatarFallbackPrimitive	未带样式的头像占位基础组件，由导出的 AvatarFallback 包装
+t2@72:14	t	useTranslation() 返回的翻译函数 t
+t2@111:14	t	useTranslation() 返回的翻译函数 t
+e2@254:21	keyboardEvent	onKeyDown 回调收到的事件对象
+e2@306:18	changeEvent	onChange 回调收到的事件对象
+e2@313:19	keyboardEvent	onKeyDown 回调收到的事件对象
+e2@320:17	clickEvent	onClick 回调收到的事件对象
+e2@321:23	clickEvent	onDoubleClick 回调收到的事件对象
+e2@322:21	mouseEvent	onMouseDown 回调收到的事件对象
+e2@323:23	pointerEvent	onPointerDown 回调收到的事件对象
+s2@356:14	initialSnapshot	首次读取到的网关就绪快照
+s2@360:39	nextSnapshot	onDidChange 推送的新就绪快照
+AvatarRoot2@137:12	AvatarRoot	去掉打包器加的数字后缀，恢复原名 AvatarRoot
+render2@138:32	render	去掉打包器加的数字后缀，恢复原名 render
+state2@141:11	state	去掉打包器加的数字后缀，恢复原名 state
+element2@151:11	element	去掉打包器加的数字后缀，恢复原名 element
+AvatarFallback2@165:12	AvatarFallback	去掉打包器加的数字后缀，恢复原名 AvatarFallback
+render2@168:15	render	去掉打包器加的数字后缀，恢复原名 render
+timeout2@176:11	timeout	去掉打包器加的数字后缀，恢复原名 timeout
+state2@183:11	state	去掉打包器加的数字后缀，恢复原名 state
+element2@186:11	element	去掉打包器加的数字后缀，恢复原名 element
+children2@246:36	children	去掉打包器加的数字后缀，恢复原名 children
+snapshot2@332:10	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+service2@334:9	service	去掉打包器加的数字后缀，恢复原名 service
+project2@107:12	project	去掉打包器加的数字后缀，恢复原名 project
+size2@196:43	size	去掉打包器加的数字后缀，恢复原名 size
