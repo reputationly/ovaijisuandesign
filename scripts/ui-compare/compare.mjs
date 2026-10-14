@@ -736,6 +736,8 @@ async function cdp(port) {
           });
         await send("Runtime.enable");
         await send("Page.enable");
+        // 画布上传会点到 file input，macOS 会弹出系统选择框。拦截后框不出现，文件仍由 DOM.setFileInputFiles 填入。
+        await send("Page.setInterceptFileChooserDialog", { enabled: true });
         const frameTree = await send("Page.getFrameTree");
         mainFrameId = frameTree.result.frameTree.frame.id;
         // 挡掉封面 CDN 后会抛网络错误，这是预期内的，不算界面报错
@@ -1107,7 +1109,15 @@ async function writeMarkdownDiagnostic(c) {
     const node = document.querySelector('.react-flow__node[data-id="c0a00000-0000-4000-8000-000000000002"]');
     const preview = node?.querySelector(".canvas-text-preview, .canvas-text-node-content") ?? node;
     return {
+      href: location.href,
       nodeFound: !!node,
+      nodeCount: document.querySelectorAll(".react-flow__node").length,
+      nodeIds: [...document.querySelectorAll(".react-flow__node")].slice(0, 30).map((element) => ({
+        id: element.getAttribute("data-id"),
+        type: [...element.classList].find((name) => name.startsWith("react-flow__node-")),
+        text: element.innerText?.slice(0, 80),
+      })),
+      body: document.body?.innerText?.slice(0, 800) ?? null,
       nodeText: node?.innerText?.slice(0, 2000) ?? null,
       nodeHtml: preview?.outerHTML?.slice(0, 40000) ?? null,
       descendants: [...(preview?.querySelectorAll("h1,h2,p,pre,code,span,table,thead,tbody,tr,td,th") ?? [])]

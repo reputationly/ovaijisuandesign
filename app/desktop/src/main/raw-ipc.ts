@@ -216,6 +216,8 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   handle("fs:unwatch", () => undefined);
   // 渲染层给的是 { directory, multiple, title, filters }，要的是选中路径数组（取消 = 空数组）
   handle("dialog:open", async (e, opts) => {
+    // 界面对比时窗口藏在后台，系统选择框会盖住操作者的桌面，又点不到。取消等于渲染层拿到空数组。
+    if (process.env.OV_DEV_HIDDEN_WINDOW === "1") return [];
     const w = windowOf(e);
     const o = (opts ?? {}) as { directory?: boolean; multiple?: boolean; title?: string; filters?: Electron.FileFilter[]; defaultPath?: string };
     const properties: Electron.OpenDialogOptions["properties"] = o.directory ? ["openDirectory", "createDirectory"] : ["openFile"];
@@ -226,6 +228,7 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   });
   // 要的是选中的路径，取消给 undefined（渲染层 `if (!path) return`）
   handle("dialog:save", async (e, opts) => {
+    if (process.env.OV_DEV_HIDDEN_WINDOW === "1") return undefined;
     const w = windowOf(e);
     const o = (opts ?? {}) as { title?: string; defaultPath?: string; filters?: Electron.FileFilter[] };
     const options: Electron.SaveDialogOptions = { title: o.title, defaultPath: o.defaultPath, filters: o.filters };

@@ -1,6 +1,5 @@
 // create-recently-added-store.js
 import { register } from "@base-ui/utils/fastHooks";
-import { useStore } from "@base-ui/utils/store";
 import {
   createStore$1 as createStore,
   reactExports,
@@ -24,6 +23,14 @@ export function createModelRegistryStore() {
   }));
 }
 const defaultModelRegistryStore = createModelRegistryStore();
+// vendor 里的 createStore 是 zustand：对外是 getState。Base UI 的 useStore 会读 getSnapshot，套上去节点头会直接崩。
+function useZustandStore(store, selector) {
+  return reactExports.useSyncExternalStore(
+    store.subscribe,
+    () => selector(store.getState()),
+    () => selector(store.getState()),
+  );
+}
 export const ModelRegistryStoreContext = reactExports.createContext(null);
 export function useModelRegistryApi() {
   return (
@@ -32,7 +39,7 @@ export function useModelRegistryApi() {
   );
 }
 export const useModelRegistryStore = (selector) =>
-  useStore(useModelRegistryApi(), selector);
+  useZustandStore(useModelRegistryApi(), selector);
 useModelRegistryStore.getState = defaultModelRegistryStore.getState;
 useModelRegistryStore.setState = defaultModelRegistryStore.setState;
 useModelRegistryStore.subscribe = defaultModelRegistryStore.subscribe;
@@ -176,7 +183,7 @@ export const renameRequestStore = createStore((set) => ({
     ),
 }));
 export function useRenameRequest(nodeId, beginEdit, enabled = true) {
-  const pending = useStore(
+  const pending = useZustandStore(
     renameRequestStore,
     (state) => nodeId != null && state.pendingNodeId === nodeId,
   );
