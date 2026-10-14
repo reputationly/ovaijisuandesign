@@ -1,11 +1,11 @@
 // agent-http-client.js
+import { toast } from "sonner";
+import instance from "i18next";
 import {
   createStore$1,
   useStore$2,
-  toast,
   makeLogger,
   readRecord,
-  instance,
   emit$5,
   basename$8,
   uploadResponseFilename,

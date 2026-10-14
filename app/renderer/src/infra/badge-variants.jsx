@@ -1,8 +1,8 @@
 // badge-variants.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, mergeTailwindClasses as cn } from "./dialog-content.jsx";
+import { cva } from "class-variance-authority";
 import {
-  cva,
   DialogBackdrop,
   DialogClose$1 as DialogClose,
   DialogDescription$2,

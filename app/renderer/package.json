@@ -79,6 +79,7 @@
     "@tiptap/starter-kit": "3.31.3",
     "ccount": "2.0.1",
     "character-entities": "2.0.2",
+    "class-variance-authority": "0.7.1",
     "classcat": "5.0.5",
     "clsx": "2.1.1",
     "comma-separated-tokens": "2.0.3",

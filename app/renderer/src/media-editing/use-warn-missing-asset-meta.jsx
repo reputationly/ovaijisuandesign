@@ -1,5 +1,6 @@
 // use-warn-missing-asset-meta.jsx
-import { MenuRoot, MenuSubmenuRoot, MenuTrigger, reactExports, toast, withAutomaticDedupeId } from "../vendor.js";
+import { toast } from "sonner";
+import { MenuRoot, MenuSubmenuRoot, MenuTrigger, reactExports, withAutomaticDedupeId } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn as mergeClassNames } from "../infra/dialog-content.jsx";

@@ -5,7 +5,8 @@ import {
 } from "./tool-label-definitions.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-import { AlertTriangle, instance, reactExports, usePlatform, useStorage, useTranslation, workspaceLog, X$7 as CloseIcon } from "../vendor.js";
+import instance from "i18next";
+import { AlertTriangle, reactExports, usePlatform, useStorage, useTranslation, workspaceLog, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { instantiationService, IProjectMainService } from "./home-service.jsx";

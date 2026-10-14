@@ -1,11 +1,11 @@
 // dialog-content.jsx
+import { cva } from "class-variance-authority";
 import {
   AlertDialogRoot,
   Button$3,
   Check,
   clsx,
   createTailwindMerge,
-  cva,
   DialogBackdrop,
   DialogClose$1 as DialogClose,
   DialogPopup,
