@@ -86,10 +86,14 @@ export class CloudConfigController {
     if (!dir) throw new NotFoundException();
     const media = showcaseMediaEntry(name);
     if (media) {
-      const cached = path.join(showcaseCacheDir(this.paths), name);
-      if (existsSync(cached)) return res.sendFile(cached, { dotfiles: "allow" });
-      const file = path.join(dir, "media", name);
-      if (existsSync(file)) return res.sendFile(file, { dotfiles: "allow" });
+      // 界面对比会挡住封面 CDN，截到的视频帧才稳定。仓库里 gitignore 的 media/ 和预热缓存
+      // 会把封面画出来，基线工作副本没有这些文件，像素就对不上。对比进程带 OV_UI，这时直接 302。
+      if (!process.env.OV_UI) {
+        const cached = path.join(showcaseCacheDir(this.paths), name);
+        if (existsSync(cached)) return res.sendFile(cached, { dotfiles: "allow" });
+        const file = path.join(dir, "media", name);
+        if (existsSync(file)) return res.sendFile(file, { dotfiles: "allow" });
+      }
       return res.redirect(302, media.cdnUrl);
     }
     if (!(HOME_SHOWCASE_ASSET_FILES as readonly string[]).includes(name)) throw new NotFoundException();

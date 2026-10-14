@@ -164,6 +164,11 @@ export class ShowcaseWarmer implements OnApplicationBootstrap {
       this.log.log("测试环境，跳过首启预热");
       return;
     }
+    // 对比时封面必须走被挡住的 CDN。预热写进 userData 后，下一轮仍会把封面画出来。
+    if (process.env.OV_UI) {
+      this.log.log("界面对比，跳过首启预热");
+      return;
+    }
     // 不 await：启动路径不因为下载图片变慢。
     void warmShowcaseCovers(this.paths).then((r) => {
       if (r.warmed > 0) this.log.log(`首启预热：写入 ${r.warmed} 张封面${r.reason ? `（${r.reason}）` : ""}`);
