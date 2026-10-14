@@ -417,13 +417,20 @@ node scripts/desource/rename/rename-files.mjs scripts/desource/rename/names/fina
 | 改名工具 | 完成 | PR #1，35 个测试 |
 | 局部改名 5 组 + 独立复核 | 完成 | PR #2~#6 |
 | 换包：markdown/hast、CodeMirror、Shiki、Tiptap、TanStack Table、mutative/travels、mediabunny、Base UI、PDF worker、Streamdown | 完成 | 见第 1 节；门禁报告路径见 `handoff-renderer-desource.md` |
-| 6.1 统一改名 | 草稿，待修正后执行 | `scripts/desource/rename/names/final-*` |
-| 6.2 dagre | 已换成 `@dagrejs/dagre@3.0.0`（传递依赖 `@dagrejs/graphlib@4.0.1`，只有这一版） | 未跑 UI 门禁（9360 被占用）。`vendor.js` 1059598 → 1039395 字节。库声明与该版本逐声明一致，没有补丁 |
-| 6.3 剩余库换包 | 清单已出，执行计划未做 | `analysis/remaining/vendor-residual/` |
-| 6.4 xyflow 方案 2 | 已批准，未开始 | `analysis/xyflow/` |
-| 6.5 vendor-inline 收尾 | 未开始 | — |
-| 6.6 应用代码拆分 | 未开始 | — |
-| 6.7 总 PR | 未开始 | — |
+| 6.1 统一改名 | 完成 | `13edf291`、`c71d3989`、`aaa614e1`、`28025a36`。同文件连续再导出的偏移、以及已改过的导入文件被重置，都在改名工具里修掉了。改名测试 37 个通过 |
+| 6.2 dagre | 完成 | `b5d752c5`，合入 `70985e3d`。`@dagrejs/dagre@3.0.0`，传递依赖 `@dagrejs/graphlib@4.0.1`，只有这一版。没有补丁。当时 `vendor.js` 1,059,598 → 1,039,395 字节。`ws-layout`、`ws-canvas-ops` 在下面两轮门禁里非抗锯齿像素差是 0 |
+| 6.3 剩余库换包 | 计划已验收，执行未开始 | 计划在 `origin/devin/vendor-swap-plan` @ `fe63116a` 的 `analysis/remaining/vendor-swap-plan/`。`DELETIONS.md` 的行号是 xyflow、graphlib 删掉之前的，执行时按声明名定位。三批：①+①′；jszip、lucide、wavesurfer、tiptap table；其余 |
+| 6.4 xyflow 方案 2 | 完成 | `6454e65e`，合入 `5f2d2c8c`。可读副本在 `app/renderer/src/vendor-fork/xyflow/`，`CHANGES.md` 记了 17 处行为改动。zustand 4.5.7、classcat 5.0.5 来自 npm。renderer 不再依赖 `@xyflow/system`、`@xyflow/react`。画布页两轮门禁非抗锯齿像素差是 0 |
+| 6.5 vendor-inline 收尾 | 完成 | `ab5156f2`，合入 `34c1e62a`。四个纯再导出改成直接引用 `@codemirror/state@6.7.5`、`@codemirror/view@6.43.6`、`@codemirror/language@6.12.4`、`@codemirror/lang-markdown@6.5.2`。留下 `delete-markup-backward.js`、`line2.js` 和四份带来源说明的 vscode-base |
+| 6.6 应用代码拆分 | 未开始 | 等 6.3 三批删完库声明 |
+| 6.7 总 PR | 未开始 | 下面两轮只覆盖已经合入的 6.1、6.2、6.4、6.5。换包和拆分之后还要再跑 |
+
+已合入树（HEAD `39c51e5f`，`vendor.js` 828,241 字节）的两轮 `gate.sh`，退出码都是 0。raw 像素在通过的报告里是 0，没有 raw-only 差异。
+
+| 轮次 | 报告 | 结果 |
+|---|---|---|
+| 第一轮 `gate.sh` | `.probe/ui-compare/2026-10-14T05-00-13-875Z/report.json`，以及自动第二遍 `.probe/ui-compare/2026-10-14T05-18-52-426Z/report.json` | 第二遍 40 页像素、DOM、状态、新增报错都是 0。不稳定、不阻断：`user-menu`、`settings-platform` 第一遍是网络通道，第二遍通过 |
+| 第二轮 `gate.sh` | `.probe/ui-compare/2026-10-14T05-38-08-948Z/report.json` | 一次比较即通过。40 页像素原始/非抗锯齿都是 0/0，网络、DOM、状态、新增报错都是 0 |
 
 ---
 
