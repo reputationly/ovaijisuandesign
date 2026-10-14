@@ -418,7 +418,7 @@ node scripts/desource/rename/rename-files.mjs scripts/desource/rename/names/fina
 | 局部改名 5 组 + 独立复核 | 完成 | PR #2~#6 |
 | 换包：markdown/hast、CodeMirror、Shiki、Tiptap、TanStack Table、mutative/travels、mediabunny、Base UI、PDF worker、Streamdown | 完成 | 见第 1 节；门禁报告路径见 `handoff-renderer-desource.md` |
 | 6.1 统一改名 | 草稿，待修正后执行 | `scripts/desource/rename/names/final-*` |
-| 6.2 dagre | 未开始 | — |
+| 6.2 dagre | 已换成 `@dagrejs/dagre@3.0.0`（传递依赖 `@dagrejs/graphlib@4.0.1`，只有这一版） | 未跑 UI 门禁（9360 被占用）。`vendor.js` 1059598 → 1039395 字节。库声明与该版本逐声明一致，没有补丁 |
 | 6.3 剩余库换包 | 清单已出，执行计划未做 | `analysis/remaining/vendor-residual/` |
 | 6.4 xyflow 方案 2 | 已批准，未开始 | `analysis/xyflow/` |
 | 6.5 vendor-inline 收尾 | 未开始 | — |
