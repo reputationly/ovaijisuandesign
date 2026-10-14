@@ -1,5 +1,6 @@
 // markdown-link.jsx
-import { API_PATHS, ArrowUpRight, classifyFileType, Copy, Crosshair, ExternalLink, G$1 as codeHighlighterPlugin, Globe, jsxRuntimeExports, reactExports, useCurrentWorkspace, usePlatform, useTranslation, Video, VideoOff } from "../vendor.js";
+import { API_PATHS, ArrowUpRight, classifyFileType, Copy, Crosshair, ExternalLink, Globe, jsxRuntimeExports, reactExports, useCurrentWorkspace, usePlatform, useTranslation, Video, VideoOff } from "../vendor.js";
+import { codeHighlighterPlugin } from "./code-highlighter-plugin.js";
 import { defaultSchema } from "hast-util-sanitize";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {

@@ -1,5 +1,6 @@
 // im-bridge-manager.jsx
-import { ArrowUpRight, getDefaultExportFromCjs$1 as getDefaultExportFromCjs, getRuntimeConfig, Info$1 as Info, jsxRuntimeExports, reactExports, requireLib, usePlatform, useTranslation } from "../vendor.js";
+import QRCode from "react-qr-code";
+import { ArrowUpRight, getRuntimeConfig, Info$1 as Info, jsxRuntimeExports, reactExports, usePlatform, useTranslation } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   getImBridgeMainService,
@@ -278,8 +279,6 @@ function useFeishuQrLogin() {
     cancel,
   };
 }
-var libExports = requireLib();
-const QRCode = getDefaultExportFromCjs(libExports);
 const DEFAULT_ALIAS = {
   feishu: "Feishu",
   telegram: "Telegram",

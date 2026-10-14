@@ -1,5 +1,6 @@
 // text-node-inner.jsx
-import { ClipboardList, jsxRuntimeExports, Markdown$1 as Markdown, reactExports, remarkGfm, useTranslation } from "../vendor.js";
+import Markdown from "react-markdown";
+import { ClipboardList, jsxRuntimeExports, reactExports, remarkGfm, useTranslation } from "../vendor.js";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
