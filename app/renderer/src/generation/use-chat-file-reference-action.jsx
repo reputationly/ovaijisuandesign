@@ -6,7 +6,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { dispatchCanvasLocate } from "./dispatch-canvas-locate.js";
 import { getNodeIdsForAsset } from "../infra/use-canvas-node-assets-store.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
-import { AlertDialog, Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { AlertDialog, Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import {
   AlertDialogCancel,
   AlertDialogContent,

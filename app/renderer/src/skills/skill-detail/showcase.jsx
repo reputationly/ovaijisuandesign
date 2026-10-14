@@ -1,6 +1,6 @@
 // 技能详情里的展示：视频播放器、展示区、结构化概览。
 import { useTranslation, reactExports, ChevronLeft, ChevronRight$1 as ChevronRight, PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon, Volume2, ListChecks, ArrowUpRight } from "../../vendor.js";
-import { cn$2 as cn, Button } from "../../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, Button } from "../../infra/dialog-content.jsx";
 import { selectSkillStructuredInfo } from "../../generation/normalize-skill-detail-metadata.js";
 import { CDN_SKILL_SHOWCASE_FALLBACK } from "../../workspace/topbar-state-context.jsx";
 import { ProgressBar } from "../../media-editing/progress-bar-inner.jsx";

@@ -19,7 +19,7 @@ import {
   useGatewayScopeKey,
 } from "../generation/use-model-catalog-scope-key.js";
 import { useConnectorInventory } from "../text-editor/get-wire-content-text.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { SESSION_ID_HEADER } from "../generation/to-workspace-browser-url.js";
 import { useSessionStore } from "../workspace/resolve-retry-message-payload.jsx";
 import { useWorkspaceChatOptional } from "../assets/use-canvas-model-registry-hydration.js";

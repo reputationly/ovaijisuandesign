@@ -75,7 +75,7 @@ import {
   ContextMenu,
   workspaceEvents,
 } from "../workspace/topbar-state-context.jsx";
-import { cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { useAssets } from "../settings/use-assets.js";
 import {
   canWriteResourceDragData,

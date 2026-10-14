@@ -2,7 +2,7 @@
 import { useTranslation, reactExports, jsxRuntimeExports, X$7 as X, Loader2, BadgeCheck, reactDomExports, UserRound, Share2 } from "../../vendor.js";
 import { Switch } from "../../generation/select-content.jsx";
 import { StrokeIcon, RetryIcon } from "../../workspace/use-prompt-icon.jsx";
-import { cn$2 as cn, Button, TooltipContent } from "../../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, Button, TooltipContent } from "../../infra/dialog-content.jsx";
 import { toDisplayName, formatDownloads, UPDATE_INDICATOR_STYLES } from "../../generation/use-mention-models.jsx";
 import { Download, MessageSquare } from "../../media-editing/package.jsx";
 import { Tooltip, TooltipTrigger } from "../../vendor-inline/vscode-base/graph.jsx";

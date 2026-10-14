@@ -1,6 +1,6 @@
 // 云端资产节点的展示：面包屑、审核标记、菜单、卡片与行。
 import { useTranslation, jsxRuntimeExports, ChevronRight$1 as ChevronRight, FolderInput } from "../../vendor.js";
-import { cn$2 as cn, DropdownMenuTrigger } from "../../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, DropdownMenuTrigger } from "../../infra/dialog-content.jsx";
 import { DropdownMenu, MoreVerticalIcon } from "../../vendor-inline/vscode-base/graph.jsx";
 import { Trash2, Download, FolderOpen } from "../../media-editing/package.jsx";
 import { formatBytes, resolveSyncState, isCloudFileDownloadEnabled } from "../../assets/use-cloud-review-nodes.js";
@@ -13,7 +13,7 @@ import { PlatformFileManagerLabel } from "../../settings/request-prompt-prefill.
 import { PencilIcon } from "../../workspace/home-service.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { AssetsRowCheckbox } from "../assets-common.jsx";
-export function Breadcrumb$1({ stack, onCrumb, crumbDnd, crumbDropActive }) {
+export function Breadcrumb({ stack, onCrumb, crumbDnd, crumbDropActive }) {
   const { t } = useTranslation();
   const rootLabel = t("cloudAssets.breadcrumbRoot", {
     defaultValue: "全部文件",
@@ -74,7 +74,7 @@ export function isCloudNodeDownloadable(node, downloadingIds) {
   if (node.kind === "folder") return true;
   return node.review === "pass" && Boolean(node.cdnUrl) && !downloadingIds.has(node.id);
 }
-export function mediaKind$1(node) {
+export function mediaKind(node) {
   if (node.mimeType.startsWith("image/")) return "image";
   if (node.mimeType.startsWith("video/")) return "video";
   return void 0;
@@ -229,7 +229,7 @@ function NodeContextMenuContent({
     </ActionContextMenuContent>
   );
 }
-export function NodeCard$1({
+export function NodeCard({
   node,
   thumbSrc,
   syncMap,
@@ -330,7 +330,7 @@ export function NodeCard$1({
     </ContextMenu>
   );
 }
-export function NodeRow$1({
+export function NodeRow({
   node,
   thumbSrc,
   isLast,

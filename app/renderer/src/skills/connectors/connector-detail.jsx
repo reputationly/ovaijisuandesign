@@ -3,7 +3,7 @@ import { useTranslation, reactExports, jsxRuntimeExports, getMergedHcpCatalog, m
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { homeService, PencilIcon } from "../../workspace/home-service.jsx";
 import { ConnectorDialogFrame } from "../../settings/connector-dialog-frame.jsx";
-import { DialogHeader, cn$2 as cn, AlertDialog } from "../../infra/dialog-content.jsx";
+import { DialogHeader, mergeTailwindClasses as cn, AlertDialog } from "../../infra/dialog-content.jsx";
 import { ConnectorRelationshipGraphic, ConnectorIcon } from "../../settings/connector-relationship-graphic.jsx";
 import { ConnectorDialogScrollableBody, OFFICIAL_CONNECTORS } from "../../settings/request-prompt-prefill.jsx";
 import { ConnectorSummaryAction, ConnectorDetailNotice } from "../../settings/connector-summary-action.jsx";

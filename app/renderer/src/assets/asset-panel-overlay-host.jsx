@@ -31,7 +31,7 @@ import {
   useGatewayScopeKey,
   useGatewayUrl,
 } from "../generation/use-model-catalog-scope-key.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Skeleton } from "../team/use-wallet-query.jsx";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { withThumbnail } from "../workspace/tool-label-definitions.js";

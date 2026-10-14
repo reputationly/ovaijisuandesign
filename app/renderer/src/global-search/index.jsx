@@ -3,7 +3,7 @@ import { reactExports, useTranslation, Search } from "../vendor.js";
 import { useIsScrolling } from "../assets/credit-query-keys.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
-import { Dialog, DialogContent, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Dialog, DialogContent, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
 import { KbdGroup, Kbd } from "../workspace/shortcut-hint.jsx";

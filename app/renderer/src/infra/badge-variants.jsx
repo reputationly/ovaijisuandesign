@@ -1,6 +1,6 @@
 // badge-variants.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "./dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "./dialog-content.jsx";
 import {
   cva,
   DialogBackdrop,

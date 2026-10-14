@@ -1,7 +1,7 @@
 // history-manager2.js
 import { createEmptyGraph } from "./use-active-mode.js";
 import { Tt as createHistoryStore } from "../text-editor/is-diff-review-session-ready.js";
-export class HistoryManager2 {
+export class CanvasHistoryManager {
   travels;
   unsubscribe;
   maxHistorySize;

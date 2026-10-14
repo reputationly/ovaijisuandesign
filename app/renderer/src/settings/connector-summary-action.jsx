@@ -5,7 +5,7 @@ import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { IntegrationActionButton } from "./use-im-accounts.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 export function ConnectorDetailNotice({
   description,
   tone = "neutral",

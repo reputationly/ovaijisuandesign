@@ -13,7 +13,7 @@ import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { useTopbarState } from "../workspace/topbar-state-context.jsx";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";

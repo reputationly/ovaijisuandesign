@@ -10,7 +10,7 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { resolveShortcutDisplay } from "../workspace/other-modifiers.js";
 import { ShortcutHint } from "../workspace/shortcut-hint.jsx";
 export const SIDEBAR_BADGE_TARGET_BY_ROUTE = {

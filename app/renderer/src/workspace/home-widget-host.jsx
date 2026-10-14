@@ -7,7 +7,7 @@ import {
 import { reactExports, usePlatform, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { useRouterState } from "../vendor-inline/vscode-base/linked-list.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";

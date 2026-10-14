@@ -1,7 +1,7 @@
 // asset-grid-item-impl.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { formatDuration } from "../workspace/set-home-widget-dev-preview-mode.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
 import {
   AlertTriangle,

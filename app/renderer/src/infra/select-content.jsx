@@ -1,6 +1,6 @@
 // select-content.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn, Input } from "./dialog-content.jsx";
+import { mergeTailwindClasses as cn, Input } from "./dialog-content.jsx";
 import {
   ChevronDownIcon$1 as ChevronDownIcon,
   ChevronUpIcon,

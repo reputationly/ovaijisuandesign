@@ -15,7 +15,7 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useResolveMediaUrl } from "../workspace/tool-label-definitions.js";
-import { cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { ArtifactAssetCard } from "../generation/artifact-asset-card.jsx";
 import { normalizeJsonToolResult } from "../chat/has-structured-success-payload.js";
 import { parseToolConfirmRejectReason } from "../canvas/fullscreen-icon.jsx";

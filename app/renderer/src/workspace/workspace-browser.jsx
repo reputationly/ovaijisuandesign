@@ -45,7 +45,7 @@ import { useSettings } from "../settings/use-settings.js";
 import { useBrowserHoverSnapshot } from "../chat/prepare-browser-hover-snapshot.js";
 import { blobToPng } from "../text-editor/use-placeholder-asset-source.jsx";
 import { resolveTrackingDomain } from "../i18n/canvas-node-tools.jsx";
-import { AnnotationIcon$1 as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
+import { AnnotationIconArtwork as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
 import { BrowserAnnotationEditor } from "../text-editor/browser-annotation-editor.jsx";
 import {
   browserBookmarkImportNotice,

@@ -33,7 +33,7 @@ import { Label, Skeleton } from "../team/use-wallet-query.jsx";
 import {
   AlertDialog,
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogFooter,

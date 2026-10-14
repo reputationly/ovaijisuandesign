@@ -2,7 +2,7 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
 import {
-  File$1 as File,
+  FileIcon as File,
   FileArchive,
   FileAudio,
   FileCode,
@@ -16,7 +16,7 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { FolderTileGlyph } from "./new-folder-dialog.jsx";
 import { FileTypeIcon } from "./file-type-icon.jsx";
 import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
-import { cn$2 as cn } from "./dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "./dialog-content.jsx";
 function VideoThumbnailPlayIndicator({ size = 14 }) {
   return (
     <span

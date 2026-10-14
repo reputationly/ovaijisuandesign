@@ -1,6 +1,6 @@
 // shortcut-hint.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn, MENU_ITEM_LAYOUT } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, MENU_ITEM_LAYOUT } from "../infra/dialog-content.jsx";
 import { resolveShortcutDisplay } from "./other-modifiers.js";
 import { getPlatform } from "../infra/web-storage.js";
 import {
@@ -19,7 +19,7 @@ import {
 import { WalletSource } from "../generation/to-workspace-browser-url.js";
 import {
   HUB_WEB_INVITE_DOMAINS,
-  TUTORIAL_URL$2 as TUTORIAL_URL,
+  TUTORIAL_URL_BY_REGION as TUTORIAL_URL,
 } from "../vendor-inline/vscode-base/graph.jsx";
 function getShortcutTokenKind(label) {
   const normalized = label.trim().toLowerCase();

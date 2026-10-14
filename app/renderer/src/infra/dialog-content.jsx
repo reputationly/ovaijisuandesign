@@ -50,7 +50,7 @@ export function splitMentionFilename(filename) {
     ext: filename.slice(dot),
   };
 }
-export function cn$2(...inputs) {
+export function mergeTailwindClasses(...inputs) {
   return twMerge(clsx(inputs));
 }
 export const MENU_ITEM_LAYOUT =
@@ -61,7 +61,7 @@ export function DropdownMenuTrigger({ className, ...props }) {
   return (
     <MenuTrigger
       data-slot="dropdown-menu-trigger"
-      className={cn$2("select-none outline-none", className)}
+      className={mergeTailwindClasses("select-none outline-none", className)}
       {...props}
     />
   );
@@ -86,7 +86,7 @@ export function DropdownMenuContent({
       >
         <MenuPopup
           data-slot="dropdown-menu-content"
-          className={cn$2(
+          className={mergeTailwindClasses(
             "elevated-surface-border z-50 max-h-(--available-height) min-w-28 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-lg outline-none",
             motion !== "none" && "dp-motion-quick-zoom",
             className,
@@ -102,7 +102,7 @@ export function DropdownMenuItem({ className, variant = "default", ...props }) {
     <MenuItem
       data-slot="dropdown-menu-item"
       data-variant={variant}
-      className={cn$2(
+      className={mergeTailwindClasses(
         MENU_ITEM_LAYOUT,
         "list-row-hit-area relative flex cursor-default items-center rounded-sm whitespace-nowrap outline-hidden select-none hover:bg-popup-item-hover hover:text-foreground focus:bg-popup-item-hover focus:text-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:hover:bg-destructive/10 data-[variant=destructive]:hover:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 transition-colors duration-[80ms]",
         className,
@@ -115,7 +115,7 @@ export function DropdownMenuLabel({ className, ...props }) {
   return (
     <MenuGroupLabel
       data-slot="dropdown-menu-label"
-      className={cn$2(MENU_LABEL_LAYOUT, className)}
+      className={mergeTailwindClasses(MENU_LABEL_LAYOUT, className)}
       {...props}
     />
   );
@@ -129,7 +129,7 @@ export function DropdownMenuRadioItem({
   return (
     <MenuRadioItem
       data-slot="dropdown-menu-radio-item"
-      className={cn$2(
+      className={mergeTailwindClasses(
         MENU_ITEM_LAYOUT,
         "list-row-hit-area relative flex cursor-default items-center rounded-sm pr-7 outline-hidden select-none hover:bg-popup-item-hover hover:text-foreground focus:bg-popup-item-hover focus:text-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 transition-colors duration-[80ms]",
         className,
@@ -163,14 +163,14 @@ export function TooltipContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
-        className={cn$2(
+        className={mergeTailwindClasses(
           "pointer-events-none isolate z-[100]",
           positionerClassName,
         )}
       >
         <TooltipPopup
           data-slot="tooltip-content"
-          className={cn$2(
+          className={mergeTailwindClasses(
             "dp-motion-quick-zoom z-[100] inline-flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-sm bg-foreground px-3 py-1.5 text-xs text-background has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-[100] **:data-[slot=kbd]:rounded-sm",
             className,
             "pointer-events-none select-none",
@@ -237,7 +237,7 @@ export function Button({
     <Button$3
       data-slot="button"
       disabled={disabled || loading}
-      className={cn$2(
+      className={mergeTailwindClasses(
         buttonVariants({
           variant,
           size,
@@ -365,7 +365,7 @@ function DialogOverlay({ className, ...props }) {
   return (
     <DialogBackdrop
       data-slot="dialog-overlay"
-      className={cn$2(
+      className={mergeTailwindClasses(
         "modal-mask no-drag fixed inset-0 isolate z-50 duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className,
       )}
@@ -388,11 +388,11 @@ export function DialogContent({
     <DialogPortal container={portalContainer ?? void 0}>
       <DialogOverlay
         forceRender={layer === "nested"}
-        className={cn$2(DIALOG_CONTENT_LAYER_CLASSES[layer], overlayClassName)}
+        className={mergeTailwindClasses(DIALOG_CONTENT_LAYER_CLASSES[layer], overlayClassName)}
       />
       <DialogPopup
         data-slot="dialog-content"
-        className={cn$2(
+        className={mergeTailwindClasses(
           "elevated-surface-border no-drag fixed top-1/2 left-1/2 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-xs/relaxed text-popover-foreground duration-100 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           DIALOG_CONTENT_LAYER_CLASSES[layer],
           DIALOG_CONTENT_SIZE_CLASSES[size],
@@ -423,7 +423,7 @@ export function DialogHeader({ className, ...props }) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn$2("flex flex-col gap-1 text-left", className)}
+      className={mergeTailwindClasses("flex flex-col gap-1 text-left", className)}
       {...props}
     />
   );
@@ -438,7 +438,7 @@ export function DialogFooter({
   return (
     <div
       data-slot="dialog-footer"
-      className={cn$2(
+      className={mergeTailwindClasses(
         "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
         className,
       )}

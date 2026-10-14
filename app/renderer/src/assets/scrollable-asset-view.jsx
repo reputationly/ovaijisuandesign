@@ -14,7 +14,7 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileText, Maximize2, Paperclip } from "../media-editing/package.jsx";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import {
   describeMeta,
   DurationBadge,

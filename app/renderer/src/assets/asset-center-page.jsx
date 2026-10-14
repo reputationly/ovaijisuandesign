@@ -18,7 +18,7 @@ import {
 import {
   AlertDialog,
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioItem,

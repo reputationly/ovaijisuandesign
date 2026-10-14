@@ -1,6 +1,6 @@
 // 资产列表的通用界面：表头、空态、错误态、骨架屏、行勾选与批量操作栏。
 import { useTranslation, Search, X$7 as X, LayoutGrid, AlertTriangle, Inbox, Loader2 } from "../vendor.js";
-import { Button, cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { Trash2, List, Download } from "../media-editing/package.jsx";
 import { SegmentedSwitch } from "../canvas/popover-title.jsx";
 import { Skeleton } from "../team/use-wallet-query.jsx";

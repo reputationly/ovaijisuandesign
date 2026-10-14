@@ -1,7 +1,7 @@
 // infinite-scroll-container.jsx
 import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Spinner } from "./use-team-transactions-feed-query.jsx";
 const INFINITE_SCROLL_PRELOAD_BATCHES = 3;
 const LOAD_AHEAD_PX = 160;

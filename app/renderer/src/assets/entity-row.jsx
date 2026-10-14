@@ -21,7 +21,7 @@ import {
   workspaceEvents,
 } from "../workspace/topbar-state-context.jsx";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,

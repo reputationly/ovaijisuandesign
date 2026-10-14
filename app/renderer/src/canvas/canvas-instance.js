@@ -39,7 +39,7 @@ import {
   isSamePersistedData,
   rebaseRetainedHistoryNodes,
 } from "./canvas-event-bus.js";
-import { HistoryManager2 } from "./history-manager2.js";
+import { CanvasHistoryManager } from "./history-manager2.js";
 import { GridSlotLayout } from "./grid-slot-layout.js";
 import { LayoutEngine } from "./layout-engine.js";
 import { applyDetachedReferenceEdges } from "./build-detached-reference-edges.js";
@@ -233,7 +233,7 @@ export class CanvasInstance {
   rootEl = null;
   constructor(mode = CanvasMode.Workflow) {
     this.mode = mode;
-    this.history = new HistoryManager2(createEmptyGraph());
+    this.history = new CanvasHistoryManager(createEmptyGraph());
     this.history.setBeforeWriteHook((draft) =>
       this.bakePendingFillsIntoDraft(draft),
     );

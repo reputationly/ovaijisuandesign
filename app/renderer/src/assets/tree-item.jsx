@@ -20,7 +20,7 @@ import { MissingCandidateActions } from "./missing-candidate-actions.jsx";
 import { Folder, FolderOpen } from "../media-editing/package.jsx";
 import { ContextMenu } from "../workspace/topbar-state-context.jsx";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { splitFilename } from "../canvas/uploading-assets.jsx";
 import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js";
 import { ContextMenuTrigger } from "../workspace/context-menu-content.jsx";

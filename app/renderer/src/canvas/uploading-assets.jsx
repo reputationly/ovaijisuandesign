@@ -9,7 +9,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogFooter,

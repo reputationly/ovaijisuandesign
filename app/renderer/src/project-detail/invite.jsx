@@ -6,7 +6,7 @@ import { useAuth } from "../assets/credit-query-keys.jsx";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { buildProjectInviteWebLink } from "../infra/schedule.js";
 import { Users, Clock, Trash2 } from "../media-editing/package.jsx";
-import { Button, cn$2 as cn, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
 import { MemberRole } from "../generation/normalize-skill-detail-metadata.js";
 import { Avatar, AvatarImage, AvatarFallback } from "../infra/inline-rename-input.jsx";
 import { DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";

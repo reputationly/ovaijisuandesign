@@ -6,7 +6,7 @@ import { useNavigateToWorkspace } from "../workspace/use-deep-link-router.js";
 import { homeService } from "../workspace/home-service.jsx";
 import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
 import { toastWorkspaceOpenResult } from "../workspace/toast-workspace-open-result.js";
-import { DialogHeader, cn$2 as cn, Button, Dialog, DialogContent } from "../infra/dialog-content.jsx";
+import { DialogHeader, mergeTailwindClasses as cn, Button, Dialog, DialogContent } from "../infra/dialog-content.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { DialogTitle } from "../infra/badge-variants.jsx";
 import { Input3 as Input } from "../infra/select-content.jsx";

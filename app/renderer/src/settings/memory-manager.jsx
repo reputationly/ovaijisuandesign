@@ -15,7 +15,7 @@ import {
 import {
   AlertDialog,
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import {

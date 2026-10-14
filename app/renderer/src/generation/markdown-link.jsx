@@ -20,7 +20,7 @@ import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useChatFileReferenceAction } from "./use-chat-file-reference-action.jsx";
 import {
-  File$1 as File,
+  FileIcon as File,
   FileAudio,
   ImageOffOutlineIcon,
   ImageOutlineIcon,
@@ -30,7 +30,7 @@ import {
   ContextMenu,
   workspaceEvents,
 } from "../workspace/topbar-state-context.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { openUrlInBuiltinBrowser } from "../workspace/resolve-retry-message-payload.jsx";
 import { resolveTrackingDomain } from "../i18n/canvas-node-tools.jsx";
 import {

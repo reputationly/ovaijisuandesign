@@ -18,7 +18,7 @@ import { DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";
 import { FolderOpen, Upload } from "../media-editing/package.jsx";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogFooter,

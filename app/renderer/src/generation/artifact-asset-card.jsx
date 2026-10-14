@@ -19,7 +19,7 @@ import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { ImageOutlineIcon } from "../media-editing/package.jsx";
 import { artifactAssetTypeFromPath } from "../chat/has-structured-success-payload.js";
 import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { splitFilename } from "../canvas/uploading-assets.jsx";
 import { buildResourceDragItem } from "../text-editor/build-asr-gateway-request.js";
 import { buildVideoThumbnailUrl } from "../media-editing/build-video-thumb-base.jsx";

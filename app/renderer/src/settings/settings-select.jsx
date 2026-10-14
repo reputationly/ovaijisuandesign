@@ -1,6 +1,6 @@
 // settings-select.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import {
   buildRendererDiagnosticsSnapshot,
   Select,

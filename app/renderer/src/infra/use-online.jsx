@@ -18,7 +18,7 @@ import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { TRACK_EVENTS } from "./track-events.js";
 import { trackEvent } from "./sanitize-track-props.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "./dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "./dialog-content.jsx";
 import { ImportEntityConflictError } from "../assets/import-entity-conflict-error.js";
 function extractConflictPayload(body) {
   if (!isRecord(body)) return null;

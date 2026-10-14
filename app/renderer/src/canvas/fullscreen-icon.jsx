@@ -207,7 +207,7 @@ export function AddToChatIcon({ size = 20, ...props } = {}) {
     </CompositedSvg>
   );
 }
-export function AnnotationIcon$1({ size = 24, ...props } = {}) {
+export function AnnotationIconArtwork({ size = 24, ...props } = {}) {
   return (
     <CompositedSvg
       width={size}
@@ -253,7 +253,7 @@ export const RetryIcon = reactExports.forwardRef(function RetryIcon(
 const TOOLBAR_STROKE_WIDTH_24 = 1.8;
 export function AnnotationIcon({ size = 20 } = {}) {
   return (
-    <AnnotationIcon$1 size={size} strokeWidth={TOOLBAR_STROKE_WIDTH_24} />
+    <AnnotationIconArtwork size={size} strokeWidth={TOOLBAR_STROKE_WIDTH_24} />
   );
 }
 export function TextEditIcon() {

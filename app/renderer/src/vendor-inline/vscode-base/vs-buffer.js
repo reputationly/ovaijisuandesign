@@ -9,7 +9,7 @@ import {
   onUnexpectedError,
   toDisposable,
 } from "./linked-list.js";
-export var Event$1;
+export var VSCodeEvent;
 ((eventNamespace) => {
   eventNamespace.None = () => Disposable.None;
   function once(event) {
@@ -148,7 +148,7 @@ export var Event$1;
     }
     return d;
   }
-})(Event$1 || (Event$1 = {}));
+})(VSCodeEvent || (VSCodeEvent = {}));
 export class Emitter {
   _options;
   _disposed;
@@ -285,7 +285,7 @@ export var CancellationToken;
   CancellationToken.isCancellationToken = isCancellationToken;
   CancellationToken.None = Object.freeze({
     isCancellationRequested: false,
-    onCancellationRequested: Event$1.None,
+    onCancellationRequested: VSCodeEvent.None,
   });
   CancellationToken.Cancelled = Object.freeze({
     isCancellationRequested: true,
@@ -608,7 +608,7 @@ export function isUndefinedOrNull(obj) {
 }
 var defineProperty = Object.defineProperty;
 var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-export var __decorateClass$1 = (decorators, target, key, kind) => {
+export var applyMemberDecorators = (decorators, target, key, kind) => {
   var result = getOwnPropertyDescriptor(target, key);
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if ((decorator = decorators[i])) result = decorator(target, key, result) || result;

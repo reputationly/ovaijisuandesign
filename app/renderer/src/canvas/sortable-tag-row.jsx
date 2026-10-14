@@ -19,7 +19,7 @@ import {
 } from "../infra/parse-connector-selection.js";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import { getCanvasTagPresentationColor } from "../assets/inline-input.jsx";

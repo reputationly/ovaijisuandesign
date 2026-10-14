@@ -16,7 +16,7 @@ import {
 } from "../media-editing/package.jsx";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   dialogChromeButtonClassName,
   DialogContent,

@@ -13,7 +13,7 @@ import { useRouterState } from "../vendor-inline/vscode-base/linked-list.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Download } from "../media-editing/package.jsx";
 import { useChangelog, useUpdaterContext } from "./use-active-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { ChangelogDetailDialog } from "./changelog-detail-dialog.jsx";
 import {

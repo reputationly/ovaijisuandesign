@@ -1,5 +1,5 @@
 // is-diff-review-session-ready.js
-import { Ct$2 as Ct } from "../vendor-inline/minified/ct.js";
+import { Travels as Ct } from "travels";
 export function Tt(input, options = {}) {
   return new Ct(input, options);
 }

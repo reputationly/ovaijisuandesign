@@ -1,7 +1,7 @@
 // 首页促销气泡与弹窗，以及每日展示次数的本地记录。
 import { useTranslation, reactExports, jsxRuntimeExports, ArrowRight, useQuery } from "../vendor.js";
 import { useModalSlot, STARTUP_MODAL_IDS } from "../infra/schedule.js";
-import { cn$2 as cn, Dialog, DialogContent, DialogHeader, DialogFooter, Button } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, Dialog, DialogContent, DialogHeader, DialogFooter, Button } from "../infra/dialog-content.jsx";
 import { CDN_PROMOTION_SEEDANCE } from "../workspace/topbar-state-context.jsx";
 import { DialogTitle, DialogDescription } from "../infra/badge-variants.jsx";
 import { useGatewayReady } from "../infra/inline-rename-input.jsx";

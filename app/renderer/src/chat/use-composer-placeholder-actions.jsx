@@ -9,7 +9,7 @@ import {
 import { mentionRefLeafText } from "../text-editor/get-wire-content-text.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  File$1 as File,
+  FileIcon as File,
   FileText,
   FileVideo,
   ImageOutlineIcon,

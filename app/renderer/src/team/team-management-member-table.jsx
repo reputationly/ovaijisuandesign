@@ -1,6 +1,6 @@
 // team-management-member-table.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 function Table({ className, ...props }) {
   return (
     <div

@@ -1,7 +1,7 @@
 // project-invite-prompt.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Users } from "../media-editing/package.jsx";
-import { AlertDialog, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { AlertDialog, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { reactExports, useNavigate, useTranslation } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { projectLog } from "../vendor-inline/vscode-base/graph.jsx";

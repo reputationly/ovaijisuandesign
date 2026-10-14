@@ -12,7 +12,7 @@ import {
   PageHeader,
   PageTitle,
 } from "./page-content.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import {
   describeTeamMutationError,

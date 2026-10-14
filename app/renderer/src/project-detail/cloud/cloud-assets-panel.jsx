@@ -2,7 +2,7 @@
 import { useTranslation, reactExports, jsxRuntimeExports, usePlatform, useStorage, API_PATHS, getVisibleCloudUploads, FolderPlus, Bug } from "../../vendor.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { cloudErrorDisplayMessage } from "../../workspace/asset-lineage-query-key.js";
-import { Button, cn$2 as cn, Dialog, DialogContent, DialogHeader } from "../../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn, Dialog, DialogContent, DialogHeader } from "../../infra/dialog-content.jsx";
 import { DialogTitle, DialogDescription } from "../../infra/badge-variants.jsx";
 import { useCloudFolder } from "../../assets/use-cloud-folder.js";
 import { useProjectAssetsService, useTransfers, rejectionToastText, toastFolderDownloadSummary, NewFolderDialog } from "../../infra/new-folder-dialog.jsx";
@@ -38,11 +38,11 @@ import {
   useAssetsListState,
 } from "../assets-state.js";
 import {
-  Breadcrumb$1,
-  NodeCard$1,
-  NodeRow$1,
+  Breadcrumb,
+  NodeCard,
+  NodeRow,
   isCloudNodeDownloadable,
-  mediaKind$1,
+  mediaKind,
 } from "./cloud-node.jsx";
 import { CloudUsagePanel } from "./cloud-usage-panel.jsx";
 import { DebugDumpView } from "./debug-dump-view.jsx";
@@ -509,7 +509,7 @@ export function CloudAssetsPanel({ project }) {
         return;
       }
       if (node.review !== "pass" || !node.cdnUrl) return;
-      const media = mediaKind$1(node);
+      const media = mediaKind(node);
       if (media)
         setPreview({
           kind: media,
@@ -845,7 +845,7 @@ export function CloudAssetsPanel({ project }) {
           breadcrumb={
             // Always show the "全部文件" root crumb, even at an empty root, so
             // users always see where uploads will land.
-            <Breadcrumb$1
+            <Breadcrumb
               stack={folder.stack}
               onCrumb={folder.goToCrumb}
               crumbDnd={(index) => moveDnd.targetProps(crumbTarget(index))}
@@ -948,7 +948,7 @@ export function CloudAssetsPanel({ project }) {
         <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
           <UploadingAssets transfers={visibleUploads} viewMode={viewMode} />
           {visibleNodes.map((node) => (
-            <NodeCard$1
+            <NodeCard
               key={node.id}
               node={node}
               thumbSrc={thumbnailSrcFor(node, 480)}
@@ -999,7 +999,7 @@ export function CloudAssetsPanel({ project }) {
           </div>
           <UploadingAssets transfers={visibleUploads} viewMode={viewMode} />
           {visibleNodes.map((node, index) => (
-            <NodeRow$1
+            <NodeRow
               key={node.id}
               node={node}
               thumbSrc={thumbnailSrcFor(node, 48)}

@@ -2,7 +2,7 @@
 import { jsxRuntimeExports, reactExports, useTranslation, X$7 as X } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Badge } from "../infra/badge-variants.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import {

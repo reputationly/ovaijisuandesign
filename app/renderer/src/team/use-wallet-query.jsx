@@ -1,6 +1,6 @@
 // use-wallet-query.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { creditLog } from "../workspace/shortcut-hint.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { getLastGatewayTraceId } from "../infra/gateway-http-error.jsx";

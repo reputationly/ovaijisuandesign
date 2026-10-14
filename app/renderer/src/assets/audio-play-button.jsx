@@ -10,7 +10,7 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   splitMentionFilename,
   TooltipContent,
 } from "../infra/dialog-content.jsx";

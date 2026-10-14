@@ -3,7 +3,7 @@ import { ActionListItem, ActionListPanel, ActionListSeparator, CDN_BASE_MAP, cdn
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   DropdownMenuContent,
   DropdownMenuItem,
   MENU_ITEM_LAYOUT,

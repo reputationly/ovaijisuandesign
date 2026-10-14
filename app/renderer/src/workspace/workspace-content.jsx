@@ -19,7 +19,7 @@ import {
   useWorkspacePaneReorder,
 } from "../chat/use-browser-chat-media.jsx";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioItem,

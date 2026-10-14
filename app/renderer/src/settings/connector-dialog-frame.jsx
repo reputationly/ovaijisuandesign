@@ -4,7 +4,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogClose } from "../infra/gateway-http-error.jsx";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   dialogChromeButtonClassName,
   DialogContent,

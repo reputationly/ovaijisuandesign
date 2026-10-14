@@ -58,7 +58,7 @@ import {
 } from "./use-new-workspace-dialog.jsx";
 import { GROUPS } from "./groups.js";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,

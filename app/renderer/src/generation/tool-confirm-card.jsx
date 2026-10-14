@@ -48,7 +48,7 @@ import { Clock } from "../media-editing/package.jsx";
 import { useMentionModels } from "./use-mention-models.jsx";
 import { useGatewayFetch } from "./use-model-catalog-scope-key.js";
 import { useMediaModels } from "./normalize-model-info.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { homeService } from "../workspace/home-service.jsx";
 import {
   redactForCurrentRegion,

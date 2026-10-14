@@ -20,7 +20,7 @@ import {
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
 import { formatFileSizeCompact } from "../workspace/set-home-widget-dev-preview-mode.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { TextReadDialog } from "../media-editing/use-preview-text.jsx";
 import { buildVideoThumbnailUrl } from "../media-editing/build-video-thumb-base.jsx";
 import { MediaLightbox } from "../assets/text-preview.jsx";

@@ -1,6 +1,6 @@
 // use-im-accounts.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { services } from "../vendor-inline/vscode-base/graph.jsx";
 import {
   IImBridgeMainService,

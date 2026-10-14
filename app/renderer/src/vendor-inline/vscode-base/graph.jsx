@@ -20,7 +20,7 @@ import { __jsx } from "../../shared/jsx-runtime.js";
 import { IPCClient, ProxyChannel } from "./channel-client.js";
 import { DisposableStore } from "./linked-list.js";
 import { getPlatform } from "../../infra/web-storage.js";
-import { Event$1 as eventApi, VSBuffer } from "./vs-buffer.js";
+import { VSCodeEvent as eventApi, VSBuffer } from "./vs-buffer.js";
 class Protocol {
   constructor(sender, onMessage) {
     this.sender = sender;
@@ -306,7 +306,7 @@ export function Icon({
   );
   return tone ? <MonochromeIcon tone={tone}>{glyph}</MonochromeIcon> : glyph;
 }
-export const TUTORIAL_URL$2 = {
+export const TUTORIAL_URL_BY_REGION = {
   domestic: "https://my.feishu.cn/wiki/VEoVwpfCKiTHvHkAGQ7cQJxCncf",
   overseas: "https://my.feishu.cn/wiki/X3pGw8I5Gi6E1fkMqQpcP5ZBnHd?from=from_parent_docx",
 };
@@ -356,7 +356,7 @@ export function getProjectTutorialUrl(region) {
   return PROJECT_TUTORIAL_URL[region];
 }
 export function getTutorialUrlByLocale(language) {
-  return TUTORIAL_URL$2[language.startsWith("zh") ? "domestic" : "overseas"];
+  return TUTORIAL_URL_BY_REGION[language.startsWith("zh") ? "domestic" : "overseas"];
 }
 export function getCreationGuideUrlsByLocale(language) {
   return CREATION_GUIDE_URLS[language.startsWith("zh") ? "domestic" : "overseas"];

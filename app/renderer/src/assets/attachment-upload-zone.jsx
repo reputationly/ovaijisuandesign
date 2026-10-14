@@ -20,7 +20,7 @@ import {
 } from "../infra/select-content.jsx";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogHeader,

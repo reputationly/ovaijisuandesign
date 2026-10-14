@@ -21,7 +21,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { FourCornerLoading } from "../chat/chat-empty-state.jsx";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,

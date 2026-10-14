@@ -22,7 +22,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { AddFlowFrame } from "./step-indicator.jsx";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import { QrCard } from "./qr-card.jsx";

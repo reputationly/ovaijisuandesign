@@ -27,7 +27,7 @@ import {
   ContextMenuTrigger,
 } from "../workspace/context-menu-content.jsx";
 import { AddToChatIcon } from "../canvas/fullscreen-icon.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import {
   FolderTileGlyph,
   useProjectAssetsService,

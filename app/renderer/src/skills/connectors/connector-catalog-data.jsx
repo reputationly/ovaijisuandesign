@@ -1,7 +1,7 @@
 // connector-catalog-data.jsx
 import { useTranslation, getRuntimeConfig, jsxRuntimeExports, reactExports, satisfiesMinHubVersion, matchesRemoteConnectorServer, matchesLocalConnectorServer, resolveConnectorSetupAsset, resolveConnectorIcon, Globe, Cloud, ChartNoAxesCombined, Box, supportsConnectorDialog } from "../../vendor.js";
 import { Badge, DialogTitle, DialogDescription } from "../../infra/badge-variants.jsx";
-import { cn$2 as cn } from "../../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../../infra/dialog-content.jsx";
 import { HardDrive } from "../../media-editing/package.jsx";
 import { ConnectorDialog } from "../../settings/connector-hub-o-auth-section.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";

@@ -17,7 +17,7 @@ import { Spinner } from "./use-team-transactions-feed-query.jsx";
 import { Users } from "../media-editing/package.jsx";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 export function AccountSwitcherRowSurface({

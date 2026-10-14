@@ -1,6 +1,6 @@
 // history-manager.js
 
-export let HistoryManager$1 = class HistoryManager {
+export let MediaHistoryManager = class HistoryManager {
   undoStack = [];
   redoStack = [];
   limit;

@@ -10,7 +10,7 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import { PopoverContent } from "./hailuo-credit-row.jsx";
 export function TeamMemberCombobox({

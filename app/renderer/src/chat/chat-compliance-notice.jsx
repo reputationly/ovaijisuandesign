@@ -11,7 +11,7 @@ import { MessageInputBase } from "./message-input-base.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
-import { cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { getMediaUsageGuidelinesUrl } from "../workspace/shortcut-hint.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";

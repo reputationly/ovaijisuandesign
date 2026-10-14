@@ -12,7 +12,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getFileManagerLabelKey } from "../settings/request-prompt-prefill.jsx";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { LocalFolderIcon } from "./home-service.jsx";
 import { Maximize2, Minimize2, Upload } from "../media-editing/package.jsx";
 import {

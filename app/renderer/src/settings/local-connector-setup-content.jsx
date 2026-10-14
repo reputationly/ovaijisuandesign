@@ -3,7 +3,7 @@ import { Check, CircleAlert, connectorSummaryActionLabelKey, focusManager, isCan
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn, DialogHeader } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn, DialogHeader } from "../infra/dialog-content.jsx";
 import { queryClient } from "../assets/wrap-as-asset-center-error.js";
 import { homeService } from "../workspace/home-service.jsx";
 import {

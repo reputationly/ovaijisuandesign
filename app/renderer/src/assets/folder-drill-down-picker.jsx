@@ -9,7 +9,7 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Folder } from "../media-editing/package.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Popover } from "./credit-query-keys.jsx";
 import { PopoverTrigger } from "./gateway-scope-provider.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";

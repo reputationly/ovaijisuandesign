@@ -2,7 +2,7 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogFooter,

@@ -6,7 +6,7 @@ import {
   GLOBAL_SIDEBAR_MIN_WIDTH,
   GLOBAL_SIDEBAR_RAIL_WIDTH,
 } from "../workspace/set-home-widget-dev-preview-mode.js";
-import { cn$2 as cn, useBrowserHoverPreview } from "./dialog-content.jsx";
+import { mergeTailwindClasses as cn, useBrowserHoverPreview } from "./dialog-content.jsx";
 import { useWindowChrome } from "../workspace/offline-banner.jsx";
 import {
   GLOBAL_SIDEBAR_PREVIEW_EDGE_HIT_WIDTH,

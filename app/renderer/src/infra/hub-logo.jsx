@@ -1,6 +1,6 @@
 // hub-logo.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "./dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "./dialog-content.jsx";
 import mascotUrl from "../brand/suanli-mascot.png";
 export function HubLogo({
   size = 20,

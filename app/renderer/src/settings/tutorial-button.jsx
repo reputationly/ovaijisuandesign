@@ -2,7 +2,7 @@
 import { ArrowUpRight, Bot, usePlatform } from "../vendor.js";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 export function isZhLocale(locale) {
   return Boolean(locale?.toLowerCase().startsWith("zh"));
 }

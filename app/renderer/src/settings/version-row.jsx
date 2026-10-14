@@ -5,7 +5,7 @@ import { useUpdaterContext } from "./use-active-runtime.js";
 import { BLOCKING_MODAL_IDS } from "../infra/schedule.js";
 import { useBlockingModalPresence } from "../workspace/topbar-state-context.jsx";
 import { CircleArrowUp, reactExports, useTranslation } from "../vendor.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { useSettingsDialog } from "./persist-visible-workspace-manual-order.js";
 import { useUpdateActions } from "./use-update-actions.js";

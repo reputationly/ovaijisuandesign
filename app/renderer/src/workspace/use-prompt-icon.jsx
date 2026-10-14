@@ -6,7 +6,7 @@ import {
   reactExports,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { services } from "../vendor-inline/vscode-base/graph.jsx";
 import { homeService } from "./home-service.jsx";
 import { createDecorator } from "../settings/parse-custom-mcp-arguments.js";

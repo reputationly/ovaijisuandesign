@@ -937,7 +937,7 @@ export const stateAttributesMapping$a = {
 
 export const FRAME_HEADER_SIZE$1 = 4;
 
-export { Bitstream as Bitstream2 } from "mediabunny/dist/modules/shared/bitstream.js";
+export { Bitstream as Bitstream } from "mediabunny/dist/modules/shared/bitstream.js";
 
 export const NOT_DIRTY = 0,
   CHILD_DIRTY = 1,
@@ -1057,7 +1057,7 @@ export function updateColumns(node, colgroup, table, cellMinWidth, overrideCol, 
   }
 }
 
-export var TableView2 = class {
+export var TableView = class {
   constructor(node, cellMinWidth, _view, HTMLAttributes = {}) {
     this.node = node;
     this.cellMinWidth = cellMinWidth;
@@ -1255,7 +1255,7 @@ export function renderTableToMarkdown(node, helpers, options = {}) {
 export let rangeFrom = [],
   rangeTo = [];
 
-export { WidgetType as WidgetType2 } from "@codemirror/view";
+export { WidgetType as WidgetType } from "@codemirror/view";
 
 export const EmptyLine = /^[ \t]*$/,
   CommentEnd = /-->/,
@@ -1265,14 +1265,14 @@ export var define_process_env_default$1 = {};
 
 export const lessThan = 60,
   greaterThan = 62,
-  slash$1 = 47,
-  question$1 = 63,
+  slash = 47,
+  question = 63,
   bang = 33,
-  dash$1 = 45;
+  dash = 45;
 
 export const descendantOp = 145,
   Unit = 1,
-  identifier$2 = 146,
+  identifier = 146,
   callee = 147,
   VariableName = 2,
   queryIdentifier = 148,
@@ -1417,7 +1417,7 @@ export var intersectionObserverOptions = {
 
 export var define_process_env_default = {};
 
-export class EventEmitter3 {
+export class EventEmitter {
   constructor() {
     this.observers = {};
   }
@@ -1875,7 +1875,7 @@ export const WORKSPACE_STORAGE_DEFAULTS = {
   capabilityCardSelections: {}
 };
 
-export function noop2() {}
+export function noop() {}
 
 export function resolveEnabled(enabled, query) {
   return typeof enabled === "function" ? enabled(query) : enabled;
@@ -2364,12 +2364,12 @@ export function warnEnrollError(op, res) {
   }
 }
 
-export const Context2 = Object.freeze({
+export const Context = Object.freeze({
   DEFAULT: "DEFAULT",
   CHAR_CLASS: "CHAR_CLASS"
 });
 
-export var Target2 = /** @type {const} */
+export var Target = /** @type {const} */
 {
   auto: "auto",
   ES2025: "ES2025",

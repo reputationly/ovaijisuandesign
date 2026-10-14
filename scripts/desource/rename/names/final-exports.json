@@ -5,56 +5,6 @@
   "app/renderer/src/canvas/fullscreen-icon.jsx": {
     "AnnotationIcon$1": "AnnotationIconArtwork"
   },
-  "app/renderer/src/canvas/it.js": {
-    "It": "horizontalCompaction"
-  },
-  "app/renderer/src/canvas/w.js": {
-    "W": "sortSubgraph"
-  },
-  "app/renderer/src/canvas/we.js": {
-    "qe": "runNetworkSimplex"
-  },
-  "app/renderer/src/canvas/ot.js": {
-    "L": "applyWithChunking",
-    "dt": "findPath",
-    "en": "swapWidthHeight",
-    "ne": "invertY",
-    "te": "swapXY",
-    "mt": "twoLayerCrossCount",
-    "le": "addSubgraphConstraints",
-    "dn": "addConflict",
-    "vt": "findType1Conflicts",
-    "Ot": "verticalAlignment",
-    "Rt": "findSmallestWidthAlignment"
-  },
-  "app/renderer/src/canvas/grid-slot-layout.js": {
-    "st": "tightTreeRanker",
-    "lt2": "computeLowLimValues",
-    "Qe": "addRankBorderNode",
-    "de": "buildLayerGraph",
-    "_t": "findType2Conflicts",
-    "Pt": "alignCoordinates",
-    "Mt": "balance",
-    "Ft": "positionY"
-  },
-  "app/renderer/src/canvas/layout-category-lanes.js": {
-    "H": "intersectRect",
-    "X": "maxRank",
-    "j": "uniqueId",
-    "w$3": "addDummyNode",
-    "q": "addBorderNode",
-    "k": "rangeByStep",
-    "N": "buildLayerMatrix",
-    "T": "pick",
-    "O": "mapValues",
-    "_": "GRAPH_NODE",
-    "Bn": "doGreedyFAS",
-    "Yn": "buildState",
-    "S": "longestPath",
-    "v$4": "slack",
-    "V": "buildFeasibleTree",
-    "it": "assignRanksByLongestPath"
-  },
   "app/renderer/src/media-editing/package.jsx": {
     "File$1": "FileIcon"
   },
@@ -97,9 +47,6 @@
     "__decorateClass$1": "applyMemberDecorators"
   },
   "app/renderer/src/vendor-inline/vscode-base/graph.jsx": {
-    "TUTORIAL_URL$2": "TUTORIAL_URL_BY_LOCALE"
-  },
-  "app/renderer/src/vendor-inline/minified/ct.js": {
-    "Ct$2": "Travels"
+    "TUTORIAL_URL$2": "TUTORIAL_URL_BY_REGION"
   }
 }

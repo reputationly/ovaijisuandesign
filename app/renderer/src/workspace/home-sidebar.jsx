@@ -44,7 +44,7 @@ import {
 } from "./normalize-project-entries.js";
 import { mergeWorkspaceInventory } from "./merge-workspace-inventory.js";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   TooltipContent,

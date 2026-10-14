@@ -13,7 +13,7 @@ import { useEntities } from "./wrap-as-asset-center-error.js";
 import { FileText } from "../media-editing/package.jsx";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,

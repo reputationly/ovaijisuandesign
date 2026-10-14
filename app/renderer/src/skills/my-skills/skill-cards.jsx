@@ -1,7 +1,7 @@
 // 技能列表里的卡片：普通技能、精选技能卡与精选区。
 import { useTranslation, jsxRuntimeExports, Download$2 as Download, MessageCircle, Loader2, getSkillCoverUrl, Eye$2 as Eye, BadgeCheck } from "../../vendor.js";
 import { Switch } from "../../generation/select-content.jsx";
-import { cn$2 as cn } from "../../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../../infra/dialog-content.jsx";
 import { PageStateBoundary } from "../../assets/page-state-boundary.jsx";
 import { toDisplayName, formatDownloads, SkillCoverMedia } from "../../generation/use-mention-models.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";

@@ -15,7 +15,7 @@ import { AudioPlayButton, FileNameLabel } from "./audio-play-button.jsx";
 import { gatewayUrl } from "../infra/gateway-http-error.jsx";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { MediaLightbox } from "./text-preview.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 function useFilePreviewUrl(file) {
   const [preview, setPreview] = reactExports.useState(null);
   reactExports.useEffect(() => {

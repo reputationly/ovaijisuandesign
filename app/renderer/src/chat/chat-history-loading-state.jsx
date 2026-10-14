@@ -2,7 +2,7 @@
 import { Loader2 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { Skeleton } from "../team/use-wallet-query.jsx";
 import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
 export function ChatHistoryLoadingState({

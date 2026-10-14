@@ -10,7 +10,7 @@ import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { ContextMenu } from "../workspace/topbar-state-context.jsx";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
-import { cn$2 as mergeClassNames, TooltipContent } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames, TooltipContent } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import {
   ContextMenuContent,

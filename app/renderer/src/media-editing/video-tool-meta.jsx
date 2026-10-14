@@ -32,7 +32,7 @@ import { useVideoToolbarCustomizationStore } from "../canvas/read-persisted.js";
 import { PromoteToAssetIcon } from "../canvas/generating-media-area.jsx";
 import { CustomizeToolbarDialog as CustomizeToolbarDialogPrimitive } from "./customize-toolbar-dialog.jsx";
 import { useCanvasActions } from "./use-canvas-actions.js";
-export const TextNode3 = reactExports.memo(TextNodeInner, areNodePropsEqual);
+export const TextNode = reactExports.memo(TextNodeInner, areNodePropsEqual);
 export function useVideoColorAdjust({
   id: nodeId,
   meta,

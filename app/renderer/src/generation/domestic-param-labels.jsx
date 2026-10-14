@@ -8,7 +8,7 @@ import {
   Video,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { VIDEO_DISPATCHER_TOOL } from "../chat/use-tool-confirm-settlement.js";
 import { resolveMediaTaskCategory } from "../chat/has-structured-success-payload.js";
 import { Clapperboard, ImageOutlineIcon } from "../media-editing/package.jsx";

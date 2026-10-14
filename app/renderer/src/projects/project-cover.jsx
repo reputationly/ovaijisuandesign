@@ -3,7 +3,7 @@ import { reactExports, useQueryClient, useQueries } from "../vendor.js";
 import { WORKSPACE_THUMBNAILS_QUERY_ROOT, WORKSPACE_THUMBNAILS_STALE_TIME, fetchWorkspaceThumbnails, workspaceThumbnailsQueryKey } from "../workspace/tool-label-definitions.js";
 import { useGatewayReady } from "../infra/inline-rename-input.jsx";
 import { FolderOpen } from "../media-editing/package.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 const PROJECT_COVER_TILE_LIMIT = 4;

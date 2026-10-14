@@ -9,7 +9,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { CalendarDays } from "../media-editing/package.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Calendar } from "./calendar.jsx";
 import { TeamMemberCombobox } from "./team-member-combobox.jsx";
 import { PopoverContent } from "./hailuo-credit-row.jsx";

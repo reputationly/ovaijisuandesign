@@ -7,7 +7,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { GLOBAL_SIDEBAR_RAIL_WIDTH } from "./set-home-widget-dev-preview-mode.js";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { SidebarReleaseBadge } from "./sidebar-release-badge.jsx";
 import {
   HOME_NAV_ACTIVE_CLASS,

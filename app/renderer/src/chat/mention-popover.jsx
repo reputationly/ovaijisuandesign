@@ -16,7 +16,7 @@ import { withThumbnail } from "../workspace/tool-label-definitions.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
-import { Button, cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { AssetMentionList } from "../assets/asset-mention-list.jsx";
 import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
 import { MESSAGE_INPUT_POPOVER_Z_INDEX } from "../assets/classify-upload-error.js";

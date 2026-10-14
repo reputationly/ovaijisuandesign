@@ -3,7 +3,7 @@ import {
   AlertTriangle,
   jsxRuntimeExports,
   LoaderCircle,
-  m$4 as m,
+  m$4 as ErrorBoundary,
   reactExports,
   RotateCw,
   usePlatform,
@@ -14,7 +14,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { UpdateBanner } from "./update-banner.jsx";
 import { Download } from "../media-editing/package.jsx";
 import { useOptionalUpdaterContext } from "./use-active-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import {
   isManualRecoveryCheckRetryable,
   isManualRecoveryRetryable,
@@ -208,7 +208,7 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
   );
 };
 export const UpdateSidebarWidget = (props) =>
-  jsxRuntimeExports.jsx(m, {
+  jsxRuntimeExports.jsx(ErrorBoundary, {
     fallback: null,
     onError: (error, info) => {
       actionTrailLog.error("update sidebar render failed", {

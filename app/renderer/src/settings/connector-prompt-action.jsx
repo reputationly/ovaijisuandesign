@@ -15,7 +15,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { IntegrationStatusPill } from "./integration-status-pill.jsx";
 import { Download } from "../media-editing/package.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 const connectorPromptActionIcon = {
   requiresInstall: Download,
   installing: Loader2,

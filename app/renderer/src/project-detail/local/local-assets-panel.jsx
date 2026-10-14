@@ -1,7 +1,7 @@
 // 本地资产面板：目录浏览、搜索、移动、导入与批量操作。
 import { useTranslation, reactExports, usePlatform, useStorage, API_PATHS, FolderPlus } from "../../vendor.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
-import { Button, cn$2 as cn } from "../../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../../infra/dialog-content.jsx";
 import { useProjectAssetsService } from "../../infra/new-folder-dialog.jsx";
 import { useProjectActions } from "../../settings/use-project-actions.js";
 import { gatewayUrl } from "../../infra/gateway-http-error.jsx";

@@ -2,7 +2,7 @@
 import { LoaderCircle, useTranslation } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 function qrStatusLabel(t, platform, status, errorReason) {
   const keyPrefix = `settings.imBridge.${platform}.qr.status`;

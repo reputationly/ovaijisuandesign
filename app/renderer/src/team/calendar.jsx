@@ -9,7 +9,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Button,
   buttonVariants,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
 } from "../infra/dialog-content.jsx";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 var SelectionState2;

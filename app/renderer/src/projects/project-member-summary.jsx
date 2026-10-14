@@ -1,7 +1,7 @@
 // project-member-summary.jsx
 import { reactExports, jsxRuntimeExports, ChevronDown } from "../vendor.js";
 import { AvatarGroup, Avatar, AvatarImage, AvatarFallback } from "../infra/inline-rename-input.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 const AVATAR_PALETTE = [
   {

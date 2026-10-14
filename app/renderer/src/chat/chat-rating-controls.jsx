@@ -22,7 +22,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import {
   Button,
-  cn$2 as mergeClassNames,
+  mergeTailwindClasses as mergeClassNames,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import { Textarea } from "../infra/badge-variants.jsx";

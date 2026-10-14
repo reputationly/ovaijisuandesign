@@ -2,7 +2,7 @@
 import { reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogHeader,

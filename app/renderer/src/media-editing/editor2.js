@@ -12,7 +12,7 @@ import { MosaicTool } from "./mosaic-tool.js";
 import {
   cloneShapeData,
   DEFAULT_STYLE,
-  HistoryManager$1 as HistoryManager,
+  MediaHistoryManager as HistoryManager,
 } from "./history-manager.js";
 import { Renderer } from "./renderer.js";
 import { MosaicShape } from "./mosaic-shape.js";
@@ -45,7 +45,7 @@ function autoResizeTextarea(textareaElement, fontSize, lineHeight, maxWidth) {
   textareaElement.style.width = `${Math.min(widthCap, Math.max(8, Math.ceil(maxW) + 2))}px`;
   textareaElement.style.height = `${Math.max(1, lines.length) * fontSize * lineHeight}px`;
 }
-export class Editor2 {
+export class CanvasEditor {
   container;
   renderer;
   bus = new EventBus();

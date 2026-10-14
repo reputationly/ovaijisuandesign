@@ -1,6 +1,6 @@
 // credit-ledger-table.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Skeleton } from "./use-wallet-query.jsx";
 function formatTime(ms) {
   const date = new Date(ms);

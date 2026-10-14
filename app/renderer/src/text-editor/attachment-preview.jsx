@@ -9,9 +9,9 @@ import {
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Puzzle } from "../media-editing/package.jsx";
-import { AnnotationIcon$1 as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
+import { AnnotationIconArtwork as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
 import { isAnnotatableImage } from "./read-preview-text-response.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { getAttachmentSlotActions } from "../i18n/canvas-node-tools.jsx";
 import { FileChip } from "../generation/file-chip.jsx";
 import { isFileAttachment } from "../assets/classify-upload-error.js";

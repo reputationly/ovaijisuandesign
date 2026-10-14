@@ -8,7 +8,7 @@ import {
   reactExports,
   Toaster$1 as Toaster,
   TriangleAlertIcon,
-  z$3 as z,
+  z$3 as useTheme,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { isElectron } from "../infra/use-canvas-node-assets-store.js";
@@ -420,7 +420,7 @@ function NativeToastHost({ children, hotkey }) {
   );
 }
 export const Toaster2 = ({ style, ...props }) => {
-  const { theme = "system" } = z();
+  const { theme = "system" } = useTheme();
   const placement = resolveToasterPlacement();
   return (
     <NativeToastHost hotkey={props.hotkey}>

@@ -26,7 +26,7 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   useBrowserOverlayDialogProps,
 } from "../infra/dialog-content.jsx";
 import { buildWSUrl } from "../infra/gateway-http-error.jsx";

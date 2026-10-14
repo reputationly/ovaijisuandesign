@@ -1,44 +1,6 @@
 类型	路径	旧名/旧路径	新名/新路径	依据
 导出	app/renderer/src/canvas/history-manager2.js	HistoryManager2	CanvasHistoryManager	该类维护画布图形状态的撤销历史，CanvasHistoryManager能与媒体编辑历史区分。
 导出	app/renderer/src/canvas/fullscreen-icon.jsx	AnnotationIcon$1	AnnotationIconArtwork	该导出是画布批注图标的 SVG 图案，Artwork 描述其实际值。
-导出	app/renderer/src/canvas/it.js	It	horizontalCompaction	该函数按水平方向压缩画布布局，horizontalCompaction概括其行为。
-导出	app/renderer/src/canvas/w.js	W	sortSubgraph	该函数对 Dagre 子图节点排序，sortSubgraph描述其输出。
-导出	app/renderer/src/canvas/we.js	qe	runNetworkSimplex	该函数执行 network-simplex 排序算法，runNetworkSimplex对应其算法职责。
-导出	app/renderer/src/canvas/ot.js	L	applyWithChunking	该函数分块执行待处理的操作，applyWithChunking概括其行为。
-导出	app/renderer/src/canvas/ot.js	dt	findPath	该函数从画布连线数据中查找路径，findPath概括其用途。
-导出	app/renderer/src/canvas/ot.js	en	swapWidthHeight	该函数交换矩形宽高，swapWidthHeight直接描述操作。
-导出	app/renderer/src/canvas/ot.js	ne	invertY	该函数反转布局中的 Y 方向坐标，invertY描述其变换。
-导出	app/renderer/src/canvas/ot.js	te	swapXY	该函数交换点的 X、Y 坐标，swapXY直接描述操作。
-导出	app/renderer/src/canvas/ot.js	mt	twoLayerCrossCount	该函数统计两层图布局中的交叉边，twoLayerCrossCount描述计算内容。
-导出	app/renderer/src/canvas/ot.js	le	addSubgraphConstraints	该函数为子图布局追加约束，addSubgraphConstraints描述其行为。
-导出	app/renderer/src/canvas/ot.js	dn	addConflict	该函数把冲突记录加入布局集合，addConflict描述其操作。
-导出	app/renderer/src/canvas/ot.js	vt	findType1Conflicts	该函数查找 Type 1 布局冲突，findType1Conflicts描述其结果。
-导出	app/renderer/src/canvas/ot.js	Ot	verticalAlignment	该函数执行纵向对齐步骤，verticalAlignment描述其算法阶段。
-导出	app/renderer/src/canvas/ot.js	Rt	findSmallestWidthAlignment	该函数选择宽度最小的对齐结果，名称对应比较逻辑。
-导出	app/renderer/src/canvas/grid-slot-layout.js	st	tightTreeRanker	该函数为层次布局计算 tight-tree rank，名称对应其算法职责。
-导出	app/renderer/src/canvas/grid-slot-layout.js	lt2	computeLowLimValues	该函数计算节点的 low/lim 值，名称对应所写入的字段。
-导出	app/renderer/src/canvas/grid-slot-layout.js	Qe	addRankBorderNode	该函数在图层边界加入虚拟节点，名称描述其用途。
-导出	app/renderer/src/canvas/grid-slot-layout.js	de	buildLayerGraph	该函数构造指定层的子图，名称描述其返回值。
-导出	app/renderer/src/canvas/grid-slot-layout.js	_t	findType2Conflicts	该函数查找 Type 2 布局冲突，findType2Conflicts描述其结果。
-导出	app/renderer/src/canvas/grid-slot-layout.js	Pt	alignCoordinates	该函数根据布局约束对齐坐标，alignCoordinates描述其行为。
-导出	app/renderer/src/canvas/grid-slot-layout.js	Mt	balance	该函数平衡节点两侧的布局长度，balance概括其算法步骤。
-导出	app/renderer/src/canvas/grid-slot-layout.js	Ft	positionY	该函数为节点计算 Y 位置，名称对应其返回值。
-导出	app/renderer/src/canvas/layout-category-lanes.js	H	intersectRect	该函数计算两个矩形的交集，intersectRect描述其输出。
-导出	app/renderer/src/canvas/layout-category-lanes.js	X	maxRank	该函数取得节点集合中的最大 rank，maxRank描述其结果。
-导出	app/renderer/src/canvas/layout-category-lanes.js	j	uniqueId	该函数生成图布局使用的唯一标识符，uniqueId描述其返回值。
-导出	app/renderer/src/canvas/layout-category-lanes.js	w$3	addDummyNode	该函数向层次图加入虚拟节点，addDummyNode描述其操作。
-导出	app/renderer/src/canvas/layout-category-lanes.js	q	addBorderNode	该函数向层次图边界加入节点，addBorderNode描述其行为。
-导出	app/renderer/src/canvas/layout-category-lanes.js	k	rangeByStep	该函数按给定步长遍历数值范围，rangeByStep描述其迭代方式。
-导出	app/renderer/src/canvas/layout-category-lanes.js	N	buildLayerMatrix	该函数构造按层排列的节点矩阵，名称对应其输出。
-导出	app/renderer/src/canvas/layout-category-lanes.js	T	pick	该函数按输入选择一个可用值，pick概括其用途。
-导出	app/renderer/src/canvas/layout-category-lanes.js	O	mapValues	该函数将转换应用到对象值，mapValues描述其操作。
-导出	app/renderer/src/canvas/layout-category-lanes.js	_	GRAPH_NODE	该常量表示布局图中的节点类型，GRAPH_NODE明确其值。
-导出	app/renderer/src/canvas/layout-category-lanes.js	Bn	doGreedyFAS	该函数按贪心反馈弧集算法处理图边，名称对应 Dagre 算法。
-导出	app/renderer/src/canvas/layout-category-lanes.js	Yn	buildState	该函数从节点关系生成布局状态，buildState描述其结果。
-导出	app/renderer/src/canvas/layout-category-lanes.js	S	longestPath	该函数计算 DAG 中的最长路径，名称对应其算法。
-导出	app/renderer/src/canvas/layout-category-lanes.js	v$4	slack	该函数计算约束边的松弛量，slack描述其数值。
-导出	app/renderer/src/canvas/layout-category-lanes.js	V	buildFeasibleTree	该函数构造满足约束的生成树，名称对应其结果。
-导出	app/renderer/src/canvas/layout-category-lanes.js	it	assignRanksByLongestPath	该函数依据最长路径为节点分配 rank，名称描述其逻辑。
 导出	app/renderer/src/media-editing/package.jsx	File$1	FileIcon	该导出是媒体编辑工具栏使用的文件图标组件，FileIcon描述其职责。
 导出	app/renderer/src/media-editing/editor2.js	Editor2	CanvasEditor	该类封装画布编辑器状态与操作，CanvasEditor区分其他 Editor 类型。
 导出	app/renderer/src/media-editing/video-tool-meta.jsx	TextNode3	TextNode	该组件渲染视频工具元信息中的文本节点，TextNode描述其职责。
@@ -62,38 +24,20 @@
 导出	app/renderer/src/infra/from-vendor.js	Target2	Target	该导出表示媒体操作的目标对象，Target概括其值。
 导出	app/renderer/src/vendor-inline/vscode-base/vs-buffer.js	Event$1	VSCodeEvent	该对象提供 once、map、filter 等 VS Code 事件组合工具，VSCodeEvent避免与浏览器全局 Event 混淆。
 导出	app/renderer/src/vendor-inline/vscode-base/vs-buffer.js	__decorateClass$1	applyMemberDecorators	该函数将装饰器应用到类成员，applyMemberDecorators描述其参数和效果。
-导出	app/renderer/src/vendor-inline/vscode-base/graph.jsx	TUTORIAL_URL$2	TUTORIAL_URL_BY_LOCALE	该映射按 locale 选择教程 URL，名称描述其键和值。
-导出	app/renderer/src/vendor-inline/minified/ct.js	Ct$2	Travels	该导出是 travels 包的重导出绑定，Travels与包入口提供的名称一致。
-局部	app/renderer/src/canvas/dagre-layout.js	p	Graph	该别名来自 vendor.js 中的 Graph 类，调用点用它创建 Dagre 图实例。
-局部	app/renderer/src/canvas/dagre-layout.js	tr	updateCompoundNodeBoundsAndRemoveBorderNodes	该别名执行 compound 节点边界更新并清除 dummy border nodes，名称覆盖其两个行为。
-局部	app/renderer/src/canvas/dagre-layout.js	z	graphlib	该别名是含 Graph、alg、json、version 的 graphlib 模块对象。
+导出	app/renderer/src/vendor-inline/vscode-base/graph.jsx	TUTORIAL_URL$2	TUTORIAL_URL_BY_REGION	该映射的键是 domestic 与 overseas，值是对应地区的教程 URL。按语言选择的逻辑在 getTutorialUrlByLocale。
 局部	app/renderer/src/settings/attach-native-toast-surface.jsx	z	useTheme	该别名调用 next-themes 的主题上下文 hook 并返回当前主题。
 局部	app/renderer/src/settings/server-driven-popup-orchestrator.jsx	m	ErrorBoundary	该别名是 React 错误边界类，组件用它包裹弹窗内容。
 局部	app/renderer/src/settings/update-sidebar-widget-inner.jsx	m	ErrorBoundary	该别名是 React 错误边界类，组件用它包裹侧栏更新控件。
 文件	app/renderer/src/workspace/q.js	app/renderer/src/workspace/q.js	app/renderer/src/workspace/empty-workspace-module.js	该文件当前仅保留文件名注释且没有实现，用中性名称准确标明空模块。
 文件	app/renderer/src/workspace/other-modifiers.js	app/renderer/src/workspace/other-modifiers.js	app/renderer/src/workspace/resolve-shortcut-display.js	文件导出解析快捷键显示名的辅助函数，目标名对应其用途。
 文件	app/renderer/src/assets/key-entries.js	app/renderer/src/assets/key-entries.js	app/renderer/src/assets/asset-center-error.js	文件导出资产中心错误键与展示逻辑，目标名概括该职责。
-文件	app/renderer/src/generation/summarize-params.js	app/renderer/src/generation/summarize-params.js	app/renderer/src/generation/summarize-txt-params.js	文件归一化文生视频摘要生成参数，目标名区分图生视频参数。
-文件	app/renderer/src/generation/summarize-params-2.js	app/renderer/src/generation/summarize-params-2.js	app/renderer/src/generation/summarize-i2v-params.js	文件归一化图生视频摘要生成参数，目标名体现 I2V 职责。
+文件	app/renderer/src/generation/summarize-params.js	app/renderer/src/generation/summarize-params.js	app/renderer/src/generation/summarize-txt-params.js	该文件给文本/音频提示词弹层 txt-popover 生成参数摘要，包括音乐时长和时长选项。文件名沿用 txt 前缀，与调用方一致。
+文件	app/renderer/src/generation/summarize-params-2.js	app/renderer/src/generation/summarize-params-2.js	app/renderer/src/generation/summarize-i2v-params.js	该文件给图生视频弹层汇总标准参数，并处理 Seedance 图像模式。文件名对应 i2v 调用方。
 文件	app/renderer/src/canvas/history-manager2.js	app/renderer/src/canvas/history-manager2.js	app/renderer/src/canvas/history-manager.js	该文件声明画布历史管理器，采用稳定文件名并与媒体历史文件分处不同目录。
-文件	app/renderer/src/canvas/it.js	app/renderer/src/canvas/it.js	app/renderer/src/canvas/horizontal-compaction.js	该文件导出 Dagre 水平压缩步骤，目标名对应算法职责。
-文件	app/renderer/src/canvas/w.js	app/renderer/src/canvas/w.js	app/renderer/src/canvas/sort-subgraph.js	该文件导出子图排序函数，目标名概括其内容。
-文件	app/renderer/src/canvas/we.js	app/renderer/src/canvas/we.js	app/renderer/src/canvas/network-simplex.js	该文件导出 network-simplex 布局算法，目标名对应算法。
-文件	app/renderer/src/canvas/ot.js	app/renderer/src/canvas/ot.js	app/renderer/src/canvas/dagre-layout-utils.js	该文件包含 Dagre 布局的多种辅助步骤，目标名概括其内容。
 文件	app/renderer/src/chat/ae.jsx	app/renderer/src/chat/ae.jsx	app/renderer/src/chat/chat-content-width.jsx	该文件当前仅导出聊天内容最大宽度常量，目标名反映当前保留职责。
-文件	app/renderer/src/chat/nn.jsx	app/renderer/src/chat/nn.jsx	app/renderer/src/chat/mermaid-renderer.jsx	该路径属于 Mermaid 渲染模块，Streamdown 闭包迁移后仅留历史残壳，按已复核提议保留其职责名。
-文件	app/renderer/src/chat/yt.js	app/renderer/src/chat/yt.js	app/renderer/src/chat/language-file-extensions.js	该路径属于按语言选择文件扩展名的模块，Streamdown 闭包迁移后仅留历史残壳，按已复核提议命名。
-文件	app/renderer/src/chat/xn.js	app/renderer/src/chat/xn.js	app/renderer/src/chat/markdown-rendering-defaults.js	该路径属于 Markdown 渲染默认配置模块，Streamdown 闭包迁移后仅留历史残壳，按已复核提议命名。
-文件	app/renderer/src/chat/at.jsx	app/renderer/src/chat/at.jsx	app/renderer/src/chat/code-block-body.jsx	该路径属于代码块主体模块，Streamdown 闭包迁移后仅留历史残壳，按已复核提议命名。
-文件	app/renderer/src/chat/st.jsx	app/renderer/src/chat/st.jsx	app/renderer/src/chat/highlighted-code-block.jsx	该路径属于高亮代码块模块，Streamdown 闭包迁移后仅留历史残壳，按已复核提议命名。
-文件	app/renderer/src/chat/fo.jsx	app/renderer/src/chat/fo.jsx	app/renderer/src/chat/mermaid-fullscreen-button.jsx	该路径属于 Mermaid 全屏控制模块，Streamdown 闭包迁移后仅留历史残壳，按已复核提议命名。
-文件	app/renderer/src/chat/pe.jsx	app/renderer/src/chat/pe.jsx	app/renderer/src/chat/table-download-menu.jsx	该路径属于表格下载菜单模块，Streamdown 闭包迁移后仅留历史残壳，按已复核提议命名。
-文件	app/renderer/src/chat/te.jsx	app/renderer/src/chat/te.jsx	app/renderer/src/chat/table-copy-button.jsx	该路径属于表格复制菜单模块，Streamdown 闭包迁移后仅留历史残壳，按已复核提议命名。
-文件	app/renderer/src/chat/co.jsx	app/renderer/src/chat/co.jsx	app/renderer/src/chat/mermaid-download-button.jsx	该路径属于 Mermaid 下载菜单模块，Streamdown 闭包迁移后仅留历史残壳，按已复核提议命名。
-文件	app/renderer/src/media-editing/wt.js	app/renderer/src/media-editing/wt.js	app/renderer/src/media-editing/markdown-and-media-model-utils.js	该文件保存媒体选择、模型及 Markdown 兼容辅助逻辑，目标名概括其职责。
+文件	app/renderer/src/media-editing/wt.js	app/renderer/src/media-editing/wt.js	app/renderer/src/media-editing/media-model-selection.js	该文件导出可见媒体模型是否被选中的判断，以及 cleanPath。Streamdown 迁走后已没有 Markdown 渲染逻辑，不用旧提议里的 markdown 文件名。
 文件	app/renderer/src/media-editing/editor2.js	app/renderer/src/media-editing/editor2.js	app/renderer/src/media-editing/canvas-editor.js	该文件实现媒体画布编辑器，目标名比压缩文件名更清晰。
 文件	app/renderer/src/routes/app.jsx	app/renderer/src/routes/app.jsx	app/renderer/src/routes/application-route-group.jsx	该文件导出路由分组组件，目标名反映其动态加载用途。
-文件	app/renderer/src/vendor-inline/minified/ct.js	app/renderer/src/vendor-inline/minified/ct.js	app/renderer/src/vendor-inline/minified/travels-reexport.js	该文件仅从 travels 包重导出绑定，目标名描述其内容。
 文件	app/renderer/src/i18n/en.js	app/renderer/src/i18n/en.js	app/renderer/src/i18n/english-translations.js	该文件包含英文 locale 消息，目标名明确语言职责。
 文件	app/renderer/src/i18n/zh.js	app/renderer/src/i18n/zh.js	app/renderer/src/i18n/chinese-translations.js	该文件包含中文 locale 消息，目标名明确语言职责。
 哈希文件	app/renderer/src/BG-DBIf81Iw.png	app/renderer/src/BG-DBIf81Iw.png	app/renderer/src/update-bg.png	该资源是更新界面的背景图，移除构建哈希后保留其图像内容。
@@ -177,3 +121,15 @@
 丢弃导出	app/renderer/src/media-editing/wt.js	Ts	DEFAULT_VIDEO_ADJUST_CONFIG	当前 HEAD 的文件已无 Ts 命名导出，按陈旧映射丢弃。
 丢弃哈希路径	app/renderer/src/pdf.worker.min-yatZIOMy.mjs	app/renderer/src/pdf.worker.min-yatZIOMy.mjs	—	该 PDF worker 路径在当前 HEAD 已删除，按要求丢弃。
 丢弃哈希路径	app/renderer/src/chat/mermaid-ghxkkrxx.js	app/renderer/src/chat/mermaid-ghxkkrxx.js	—	该 Mermaid 路径在 Streamdown 闭包迁移后已删除，按要求丢弃。
+丢弃文件	app/renderer/src/chat/nn.jsx	app/renderer/src/chat/nn.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/yt.js	app/renderer/src/chat/yt.js	—	换掉 Streamdown 后只剩文件名注释，没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/xn.js	app/renderer/src/chat/xn.js	—	换掉 Streamdown 后只剩文件名注释，没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/at.jsx	app/renderer/src/chat/at.jsx	—	换掉 Streamdown 后只剩未使用的 import。main.jsx 的副作用导入已去掉，文件删除。
+丢弃文件	app/renderer/src/chat/st.jsx	app/renderer/src/chat/st.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/fo.jsx	app/renderer/src/chat/fo.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/pe.jsx	app/renderer/src/chat/pe.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/te.jsx	app/renderer/src/chat/te.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+丢弃文件	app/renderer/src/chat/co.jsx	app/renderer/src/chat/co.jsx	—	换掉 Streamdown 后只剩未再导出的空壳，且没有引用，删除而不是改名。
+保留文件	app/renderer/src/chat/ae.jsx	app/renderer/src/chat/ae.jsx	app/renderer/src/chat/chat-content-width.jsx	该文件不是转发壳，仍然导出聊天内容最大宽度常量，且有 7 处命名导入。按实际职责改名，不删除。
+延后文件	app/renderer/src/canvas/it.js	app/renderer/src/canvas/it.js	—	内联 dagre，按 6.2 换包，不在统一改名里处理。同组还有 w.js、we.js、ot.js、grid-slot-layout.js、layout-category-lanes.js、dagre-layout.js。
+删除转发	app/renderer/src/vendor-inline/minified/ct.js	app/renderer/src/vendor-inline/minified/ct.js	—	唯一调用方改为直接 import { Travels as Ct } from "travels"，然后删除该转发文件。

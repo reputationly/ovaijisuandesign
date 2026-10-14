@@ -16,7 +16,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import {
   AlertDialog,
   Button,
-  cn$2 as cn,
+  mergeTailwindClasses as cn,
   Dialog,
   DialogContent,
   DialogFooter,

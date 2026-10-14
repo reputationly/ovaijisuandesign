@@ -12,7 +12,7 @@ import {
 } from "./is-reexecutable-generation-node.js";
 import { areNodePropsEqual } from "./fullscreen-icon.jsx";
 import { VideoNodeInner } from "../media-editing/video-node-inner.jsx";
-import { TextNode3 } from "../media-editing/video-tool-meta.jsx";
+import { TextNode } from "../media-editing/video-tool-meta.jsx";
 import { AudioNode } from "../media-editing/resolve-panorama-generation-presentation.js";
 import { ImageNode } from "../media-editing/canvas-sticker-assets.jsx";
 import { PlaceholderNode } from "../media-editing/create-column.jsx";
@@ -135,7 +135,7 @@ export const hiloMediaPlugin = {
     },
     {
       definition: textNodeDef,
-      component: TextNode3,
+      component: TextNode,
     },
     {
       definition: fileNodeDef,

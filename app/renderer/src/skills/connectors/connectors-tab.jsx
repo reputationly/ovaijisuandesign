@@ -5,7 +5,7 @@ import { homeService } from "../../workspace/home-service.jsx";
 import { ConnectorIcon } from "../../settings/connector-relationship-graphic.jsx";
 import { Icon } from "../../vendor-inline/vscode-base/graph.jsx";
 import { CustomConnectorDialog } from "../../settings/custom-connector-dialog.jsx";
-import { cn$2 as cn, Button } from "../../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, Button } from "../../infra/dialog-content.jsx";
 import { connectorTitle } from "../../settings/make-async-image-task.jsx";
 import { CatalogPageHeading } from "../../assets/catalog-page-heading.jsx";
 import { useConnectorInventory } from "../../text-editor/get-wire-content-text.jsx";

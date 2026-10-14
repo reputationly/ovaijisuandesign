@@ -3,7 +3,7 @@ import { API_PATHS, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Loader2, 
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { RetryIcon, StrokeIcon } from "../workspace/use-prompt-icon.jsx";
 import { EntityHoverCardBody } from "./attachment-row.jsx";
 import { TooltipProvider } from "../vendor-inline/vscode-base/graph.jsx";

@@ -1,7 +1,7 @@
 // file-explorer-search-bar.jsx
 import { reactExports, Search, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { StrokeIcon } from "../workspace/use-prompt-icon.jsx";
 export function FileExplorerSearchBar({
   value,

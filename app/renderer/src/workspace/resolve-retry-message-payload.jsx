@@ -4,7 +4,7 @@ import { API_PATHS, reactExports, useStorage } from "../vendor.js";
 import { detectFileType } from "../canvas/diagnostic-history-tools.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MascotLoadingAnimation } from "./mascot-loading-animation.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { OPEN_BROWSER_EVENT } from "../canvas/resolve-workspace-failure-diagnosis.js";
 import { SessionStore } from "../chat/session-store.js";

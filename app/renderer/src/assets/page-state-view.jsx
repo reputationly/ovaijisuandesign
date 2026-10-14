@@ -1,7 +1,7 @@
 // page-state-view.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useTheme } from "../generation/use-model-catalog-scope-key.js";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { jsxRuntimeExports, useTranslation } from "../vendor.js";
 const emptyDarkUrl =
   "" + new URL("../empty-dark-BE6TzTYo.svg", import.meta.url).href;

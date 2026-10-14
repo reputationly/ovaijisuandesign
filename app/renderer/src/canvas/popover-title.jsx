@@ -4,7 +4,7 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { SegmentedSwitch as BaseSegmentedSwitch } from "../generation/segmented-switch.jsx";
 import { Popover as BaseUiPopover } from "@base-ui/react/popover";
 const BasePopoverTitle = BaseUiPopover.Title;

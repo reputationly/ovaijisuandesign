@@ -8,7 +8,7 @@ import {
 } from "../vendor.js";
 import { Progress as BaseUiProgress } from "@base-ui/react/progress";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { TeamApiError } from "./map-team-credit-summary.js";
 import {
   Icon,

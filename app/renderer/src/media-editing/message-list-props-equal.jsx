@@ -14,7 +14,7 @@ import {
   useCurrentWorkspace,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { MessageListImpl } from "../chat/message-list-impl.jsx";
 import { useGatewayScopeKey } from "../generation/use-model-catalog-scope-key.js";
 import { useWorkspaceChatSelector } from "../assets/use-canvas-model-registry-hydration.js";

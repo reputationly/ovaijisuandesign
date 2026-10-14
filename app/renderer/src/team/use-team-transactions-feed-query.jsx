@@ -1,7 +1,7 @@
 // use-team-transactions-feed-query.jsx
 import { Loader2Icon, useQuery, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import { teamApi } from "./team-api.js";
 import {

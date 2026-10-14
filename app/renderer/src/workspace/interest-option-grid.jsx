@@ -9,7 +9,7 @@ import {
 } from "../media-editing/package.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Checkbox } from "../infra/checkbox.jsx";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 const INTEREST_OPTIONS = [
   {
     key: "shortDrama",

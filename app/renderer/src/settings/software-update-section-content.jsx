@@ -4,7 +4,7 @@ import { useChangelog } from "./use-active-runtime.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ChangelogDetailDialog } from "./changelog-detail-dialog.jsx";
 import { FileText } from "../media-editing/package.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Label } from "../team/use-wallet-query.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { Switch } from "../generation/select-content.jsx";

@@ -15,7 +15,7 @@ import {
   PROJECT_NAME_MAX_CHARS,
   truncateProjectName,
 } from "../generation/normalize-skill-detail-metadata.js";
-import { AlertDialog, cn$2 as cn } from "./dialog-content.jsx";
+import { AlertDialog, mergeTailwindClasses as cn } from "./dialog-content.jsx";
 import { Users } from "../media-editing/package.jsx";
 import { useLoginGuard } from "./schedule.js";
 import {

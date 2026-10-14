@@ -38,7 +38,7 @@ import {
   errorListeners,
 } from "../vendor-inline/vscode-base/linked-list.js";
 import { InstantiationService } from "../settings/instantiation-service.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 const IQuarkDriveAuthService = createDecorator("quarkDriveAuthService");
 function errorHandler(listener) {
   errorListeners.push(listener);

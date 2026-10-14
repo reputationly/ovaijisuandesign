@@ -2,7 +2,7 @@
 import { CompositedSvg, jsxRuntimeExports, Loader2, Plus, reactExports, useTranslation } from "../vendor.js";
 import { useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { AnnotationIcon$1 as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
+import { AnnotationIconArtwork as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
 import { formatTime, ImageOutlineIcon, useCanvasBridge } from "./package.jsx";
 import {
   ReferenceMediaLightbox,

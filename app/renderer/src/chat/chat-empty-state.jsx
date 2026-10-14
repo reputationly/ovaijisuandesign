@@ -3,7 +3,7 @@ import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DEFAULT_SESSION_NAME } from "../canvas/fullscreen-icon.jsx";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
-import { cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
+import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { EmptyChatRecommendations } from "./empty-chat-recommendations.jsx";
 import {
   usePendingFirstMessage,

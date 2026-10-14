@@ -10,7 +10,7 @@ import {
   useSettledCollapse,
 } from "./streaming-label.jsx";
 import { useOptionalTeamAccount } from "../assets/credit-query-keys.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import {
   useMpSubscribeUrl,
   useMpSubscriptionWalletQuery,

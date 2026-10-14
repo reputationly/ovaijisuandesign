@@ -19,7 +19,7 @@ export function FormSection({ title, description, children }) {
     </section>
   );
 }
-export function Field$1({ label, required, hint, error, children }) {
+export function Field({ label, required, hint, error, children }) {
   return (
     <div className="flex flex-col gap-2">
       <Label>
