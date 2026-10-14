@@ -7,6 +7,7 @@ import {
   MY_SKILLS_TAG,
   TEXT_EDITOR_SKILL_CATEGORIES,
 } from "./text-editor-skill-categories.jsx";
+import { Trans } from "react-i18next";
 import {
   ChevronLeft,
   ChevronRight$1 as ChevronRight,
@@ -15,7 +16,6 @@ import {
   reactDomExports,
   reactExports,
   Search$2 as Search,
-  Trans,
   useTranslation,
 } from "../vendor.js";
 import { getAgentSkillBrowseSkills } from "./clip-editor-skill-categories.js";

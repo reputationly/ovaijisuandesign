@@ -1,4 +1,5 @@
 // attach-native-toast-surface.jsx
+import { Toaster } from "sonner";
 import {
   CircleCheckIcon,
   InfoIcon$1 as InfoIcon,
@@ -6,7 +7,6 @@ import {
   OctagonXIcon,
   reactDomExports,
   reactExports,
-  Toaster$1 as Toaster,
   TriangleAlertIcon,
   z$3 as useTheme,
 } from "../vendor.js";

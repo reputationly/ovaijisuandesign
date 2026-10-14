@@ -655,6 +655,9 @@ importers:
       character-entities:
         specifier: 2.0.2
         version: 2.0.2
+      class-variance-authority:
+        specifier: 0.7.1
+        version: 0.7.1
       classcat:
         specifier: 5.0.5
         version: 5.0.5

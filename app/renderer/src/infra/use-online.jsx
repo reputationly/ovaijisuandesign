@@ -1,6 +1,6 @@
 // use-online.jsx
+import { cva } from "class-variance-authority";
 import {
-  cva,
   reactExports,
   Toggle$1 as Toggle,
   ToggleGroup$1,

@@ -1,7 +1,7 @@
 // mention-ref-chip.js
+import instance from "i18next";
 import {
   classifyFileType,
-  instance,
   NodeViewWrapper,
   reactExports,
   Workflow,

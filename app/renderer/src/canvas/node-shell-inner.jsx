@@ -1,8 +1,8 @@
 // node-shell-inner.jsx
+import { cva } from "class-variance-authority";
 import {
   Button$3 as BaseButton,
   CompositedSvg,
-  cva,
   jsxRuntimeExports,
   Loader2Icon,
   reactDomExports,

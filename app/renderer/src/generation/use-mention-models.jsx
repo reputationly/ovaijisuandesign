@@ -1,9 +1,9 @@
 // use-mention-models.jsx
+import instance from "i18next";
 import {
   API_PATHS,
   ApiError,
   getSkillCoverUrl,
-  instance,
   jsxRuntimeExports,
   reactExports,
   useGatewayScope,

@@ -1,8 +1,8 @@
 // chat-compliance-notice.jsx
+import { Trans } from "react-i18next";
 import {
   API_PATHS,
   reactExports,
-  Trans,
   usePlatform,
   useQuery,
   useTranslation,

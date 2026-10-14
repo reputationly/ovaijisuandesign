@@ -1,9 +1,9 @@
 // topbar-state-context.jsx
+import instance from "i18next";
 import {
   CDN_BASE_MAP,
   ContextMenuRoot,
   getCdnRegion,
-  instance,
   reactExports,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
