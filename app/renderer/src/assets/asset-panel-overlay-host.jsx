@@ -1,4 +1,5 @@
 // asset-panel-overlay-host.jsx
+import WaveSurfer from "wavesurfer.js";
 import {
   AlertTriangle,
   API_PATHS,
@@ -8,7 +9,6 @@ import {
   ChevronRight$1 as ChevronRight,
   classifyFileType,
   Crosshair,
-  E$4 as WaveSurfer,
   jsxRuntimeExports,
   Network,
   PopoverPopup,

@@ -1,6 +1,23 @@
 // icon-opacity-preview-section.jsx
 import { cva as createVariantClassNames } from "class-variance-authority";
-import { useTranslation, reactExports, jsxRuntimeExports, Button$3 as PrimitiveButton, LoaderCircle$1 as LoaderCircle, CloudOff$1 as CloudOff, Minus, CompositedSvg, Globe, Brain$2 as Brain, Pin, Smartphone, Globe2, ArrowLeft, RotateCw, Settings2$1 as Settings2, Users$1 as Users, FolderOpen$1 as FolderOpen, Folder$1 as Folder, ChevronDown$1 as ChevronDown, ChevronRight$2 as ChevronRight, ArrowUpRight$1 as ArrowUpRight, Plus$1 as Plus, Library$1 as Library, Workflow$1 as Workflow, MonochromeIcon, Pin$1 as PinnedIcon, Search$1 as Search, Copy$1 as Copy, ThumbsUp$1 as ThumbsUp } from "../vendor.js";
+import {
+  LoaderCircle,
+  CloudOff,
+  Settings2,
+  Users,
+  FolderOpen,
+  Folder,
+  ChevronDown,
+  ChevronRight,
+  ArrowUpRight,
+  Library,
+  Workflow,
+  Pin as PinnedIcon,
+  Search,
+  Copy,
+  ThumbsUp,
+} from "lucide-react";
+import { useTranslation, reactExports, jsxRuntimeExports, Button$3 as PrimitiveButton, Minus, CompositedSvg, Globe, Brain$2 as Brain, Pin, Smartphone, Globe2, ArrowLeft, RotateCw, Plus$1 as Plus, MonochromeIcon } from "../vendor.js";
 import { Button as DialogButton, mergeTailwindClasses as mergeClassNames, TooltipContent, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
 import { CanvasLoadError } from "../canvas/canvas-load-error.jsx";
 import { CircleUserRound, HardDrive, Megaphone, PencilLine, RotateIcon, Rotate90Icon, FlipHorizontalIcon, FlipVerticalIcon } from "../media-editing/package.jsx";

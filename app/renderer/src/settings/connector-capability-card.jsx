@@ -1,7 +1,9 @@
 // connector-capability-card.jsx
 import { homeService } from "../workspace/home-service.jsx";
 import {
-  LoaderCircle$1 as LoaderCircle,
+  LoaderCircle,
+} from "lucide-react";
+import {
   matchesLocalConnectorServer,
   matchesRemoteConnectorServer,
   reactExports,

@@ -1,6 +1,7 @@
 // pdf-viewer.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MediaUnpreviewableFallback } from "../generation/missing-asset-card.jsx";
+import JSZip from "jszip";
 import {
   __webpack_exports__getDocument,
   _$5 as cssGrammarModule,
@@ -26,7 +27,6 @@ import {
   Ft$2 as initializeRustGrammarModule,
   ft$3 as initializeLogGrammarModule,
   G$5 as cGrammarModule,
-  getDefaultExportFromCjs$1 as getDefaultExportFromCjs,
   Gt$1 as typescriptGrammarModule,
   gt$2 as initializeJsonGrammarModule,
   H$5 as initializeCGrammarModule,
@@ -56,7 +56,6 @@ import {
   q$5 as initializeGoGrammarModule,
   R$6 as initializeXmlGrammarModule,
   reactExports,
-  requireJszip_min,
   Rt$2 as initializeMakeGrammarModule,
   rt$3 as javascriptGrammarModule,
   S$7 as initializeTodoGrammarModule,
@@ -729,8 +728,6 @@ function CodeViewer({
     />
   );
 }
-var jszip_minExports = requireJszip_min();
-const JSZip = getDefaultExportFromCjs(jszip_minExports);
 function DocxViewer({
   filePath,
   interactive,
