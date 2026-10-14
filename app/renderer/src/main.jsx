@@ -1,3 +1,4 @@
+// 下面这些 import 的先后就是模块初始化顺序。只为副作用引入的文件不要调换位置，后加载的模块会读到先加载模块留下的状态。
 import jsxRuntimeExports from "react/jsx-runtime";
 import "./infra/agent-http-client.js";
 import "@lezer/lr";
