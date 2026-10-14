@@ -1,3 +1,4 @@
+// 留在这里：对应 VS Code 这些没有 npm 包的源文件，所以保留可读副本：src/vs/base/common/lifecycle.ts、src/vs/base/common/linkedList.ts、src/vs/base/common/functional.ts、src/vs/base/common/errors.ts、src/vs/base/common/cancellation.ts、src/vs/platform/instantiation/common/descriptors.ts。同一文件里还有应用自己的 RUM、语言和模型可用性判断，跟这套生命周期工具绑在一起，不能整文件换成包。
 // linked-list.js
 import { regionToLocale, getRuntimeConfig, instance } from "../../vendor.js";
 export { Router, useRouterState, useLocation } from "@tanstack/react-router";

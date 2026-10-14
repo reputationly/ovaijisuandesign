@@ -1,3 +1,4 @@
+// 留在这里：markdownLivePreview、buildPmSelectionState、buildTextareaSelectionState、buildCodeMirrorSelectionState、buildCodeMirrorSelectionAnchor 在已安装的 @codemirror/lang-markdown@6.5.2、@codemirror/view@6.43.6、@codemirror/language@6.12.4、@codemirror/state@6.7.5 的 dist/index.js 导出和源码里都不存在。这是应用自己的 Markdown 实时预览和选区锚点，不能改成 npm import。
 import { syntaxTree } from "@codemirror/language";
 import { Decoration, EditorView, ViewPlugin } from "@codemirror/view";
 import { getAnnotationSelectionRanges } from "../../text-editor/configuration2.js";

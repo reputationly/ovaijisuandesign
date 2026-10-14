@@ -151,7 +151,6 @@ import "./media-editing/web-gl-backend.js";
 import "./media-editing/web-gpu-backend.js";
 import "./media-editing/layer-decompose-prompt.jsx";
 import "./media-editing/single-position.js";
-import "./vendor-inline/codemirror/editor-state2.js";
 import "./media-editing/image-editor.jsx";
 import "./media-editing/use-editor-state.js";
 import "./media-editing/image-inplace-editor.jsx";

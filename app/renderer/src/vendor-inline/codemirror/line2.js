@@ -1,3 +1,4 @@
+// 留在这里：ATX_HEADINGS、collectHeadingMarks、collectLinkChrome、collectInlineMarks、isBlankLine$1、HorizontalRuleWidget 在已安装的 @codemirror/view@6.43.6、@codemirror/lang-markdown@6.5.2、@codemirror/language@6.12.4 的 dist/index.js 导出和源码里都不存在。WidgetType 已经从 @codemirror/view 导入。这是应用 Markdown 预览用来收集标记的逻辑，不能改成 npm import。
 import { WidgetType } from "@codemirror/view";
 
 export const ATX_HEADINGS = new Set([

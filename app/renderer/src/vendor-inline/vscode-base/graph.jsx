@@ -1,3 +1,4 @@
+// 留在这里：对应 VS Code 这些没有 npm 包的源文件，所以保留可读副本：src/vs/base/parts/ipc/common/ipc.electron.ts、src/vs/base/parts/ipc/electron-sandbox/ipc.electron.ts、src/vs/platform/instantiation/common/graph.ts、src/vs/platform/instantiation/common/serviceCollection.ts、src/vs/platform/instantiation/common/instantiationService.ts。渲染进程客户端和依赖图在这里接上应用自己的服务、菜单和图标，没有可整文件替换的包。
 // graph.jsx
 import {
   reactExports,
