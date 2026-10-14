@@ -1,12 +1,8 @@
 // video-lightbox.jsx
-import {
-  Archive,
-  ChevronLeft,
-  ChevronRight$1 as ChevronRight,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Archive, ChevronLeft, ChevronRight$1 as ChevronRight } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Download, FolderOpen, useCanvasActive } from "./package.jsx";
 import {

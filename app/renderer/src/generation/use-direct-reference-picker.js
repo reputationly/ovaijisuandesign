@@ -3,7 +3,8 @@ import {
   reasonForDisabled,
   ReferenceDisabledReason,
 } from "./attachment-bar.jsx";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
 import {

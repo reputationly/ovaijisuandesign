@@ -1,11 +1,8 @@
 // use-lightbox-media-actions.jsx
-import {
-  Archive,
-  Copy,
-  reactDomExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Archive, Copy } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Download, FolderOpen, useCanvasBridge } from "./package.jsx";
 import { getCanvasFileManagerLabelKey } from "./use-warn-missing-asset-meta.jsx";

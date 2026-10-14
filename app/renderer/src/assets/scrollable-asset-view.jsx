@@ -1,17 +1,11 @@
 // scrollable-asset-view.jsx
-import {
-  AudioLines,
-  classifyFileType,
-  estimateGridRowSize,
-  FileImage,
-  Film,
-  GRID_COLUMN_COUNT_WIDE,
-  jsxRuntimeExports,
-  reactExports,
-  Tag$1 as Tag,
-  useTranslation,
-  useVirtualizer,
-} from "../vendor.js";
+import { useVirtualizer } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AudioLines, FileImage, Film, Tag$1 as Tag } from "../media-editing/lucide-icon-wraps.js";
+import { classifyFileType } from "../infra/file-type.js";
+import { estimateGridRowSize, GRID_COLUMN_COUNT_WIDE } from "./grid-row-size.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileText, Maximize2, Paperclip } from "../media-editing/package.jsx";
 import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";

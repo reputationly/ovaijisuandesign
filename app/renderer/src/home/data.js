@@ -1,5 +1,8 @@
 // 首页展示区的远端配置：拉取、错误分类，以及读取配置的 react-query hooks。
-import { reactExports, useQuery, workspaceLog, API_PATHS } from "../vendor.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { workspaceLog } from "../infra/logger.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { useGatewayReady } from "../infra/inline-rename-input.jsx";

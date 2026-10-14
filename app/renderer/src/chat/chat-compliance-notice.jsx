@@ -1,12 +1,10 @@
 // chat-compliance-notice.jsx
 import { Trans } from "react-i18next";
-import {
-  API_PATHS,
-  reactExports,
-  usePlatform,
-  useQuery,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { MessageInputBase } from "./message-input-base.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

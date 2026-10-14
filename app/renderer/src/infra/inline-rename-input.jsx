@@ -1,9 +1,7 @@
 // inline-rename-input.jsx
-import {
-  AvatarImage$1,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AvatarImage$1 } from "./base-ui.js";
 import { Avatar as BaseUiAvatar } from "@base-ui/react/avatar";
 import { services } from "../vendor-inline/vscode-base/graph.jsx";
 import {

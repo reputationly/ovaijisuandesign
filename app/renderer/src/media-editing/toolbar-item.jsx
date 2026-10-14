@@ -1,5 +1,8 @@
 // toolbar-item.jsx
-import { ActionListItem, ActionListPanel, ActionListSeparator, CompositedSvg, jsxRuntimeExports, reactExports } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { ActionListItem, ActionListPanel, ActionListSeparator } from "./action-list.jsx";
+import { CompositedSvg } from "./icon-compositing.js";
 import { NodeToolbar as NodeToolbarPrimitive, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";

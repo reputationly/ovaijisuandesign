@@ -1,5 +1,8 @@
 // video-node-inner.jsx
-import { CompositedSvg, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
 import { useReactFlow } from "../vendor-fork/xyflow/react/index.js";
 import { useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { useNodeIsEmpty } from "../infra/create-recently-added-store.js";

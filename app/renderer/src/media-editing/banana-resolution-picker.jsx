@@ -1,6 +1,7 @@
 // banana-resolution-picker.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { CloseIcon, RedoIcon, UndoIcon } from "../canvas/file-missing-icon.jsx";
 import { selectionToNormalizedBBox } from "./selection-to-normalized-b-box.js";
 export function selectionsToNormalizedBBoxes(rects) {

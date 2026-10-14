@@ -1,6 +1,7 @@
 // resolve-reference-texts.js
 import { getAssetMetaByNodeIdFromStore } from "../canvas/fullscreen-icon.jsx";
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "../canvas/canvas-geometry.js";
+import reactExports from "react";
 import { useReactFlow } from "../vendor-fork/xyflow/react/index.js";
 
 export function getDisabledOptions(paramKey, currentParams, constraints) {

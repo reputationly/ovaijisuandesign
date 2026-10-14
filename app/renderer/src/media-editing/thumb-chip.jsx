@@ -1,12 +1,8 @@
 // thumb-chip.jsx
-import {
-  CircleAlert,
-  CompositedSvg,
-  reactExports,
-  Scissors,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CircleAlert, Scissors, X$7 as X } from "./lucide-icon-wraps.js";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileText, formatTime, ImageOutlineIcon } from "./package.jsx";
 import { TextHoverPreview } from "./text-hover-preview.jsx";

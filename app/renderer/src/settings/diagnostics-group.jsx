@@ -3,7 +3,8 @@ import {
   actionTrailLog,
   externalUrlTargetForLog,
 } from "../vendor-inline/vscode-base/graph.jsx";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Upload } from "../media-editing/package.jsx";

@@ -8,7 +8,7 @@ import {
   POPOVER_DRAFT_DATA_KEY,
   TEXT_CARD_DEFAULT_SIZE,
 } from "./compute-group-bounds-from-children.js";
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import { DRAFT_PROTECTED_GENERATION_STATUSES } from "./find-free-position-from-anchor.js";
 export const CANVAS_VERSION = 1;
 export const GROUP_COLOR_KEYS = [

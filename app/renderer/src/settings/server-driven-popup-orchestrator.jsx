@@ -1,6 +1,16 @@
 // server-driven-popup-orchestrator.jsx
 import { Trans } from "react-i18next";
-import { ChevronLeftIcon, DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2, DialogPopup, DialogPortal$2 as DialogPortal, DialogTitle$2, getRuntimeConfig, jsxRuntimeExports, m$4 as ErrorBoundary, QueryClientProvider, reactExports, storageKeys, usePlatform, useQueryClient, useStorage, useTranslation, XIcon } from "../vendor.js";
+import { m$4 as ErrorBoundary } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { storageKeys } from "../infra/storage-cache.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronLeftIcon, XIcon } from "../media-editing/lucide-icon-wraps.js";
+import { DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2, DialogPopup, DialogPortal$2 as DialogPortal, DialogTitle$2 } from "../infra/base-ui.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   resolveDesktopCanvasRenderPolicy,

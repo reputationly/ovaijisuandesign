@@ -3,7 +3,7 @@ import {
   DEFAULT_MAX_RECOVERIES_PER_FRAME,
   DEFAULT_RECOVERY_FRAME_BUDGET_MS,
 } from "./separator.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   CanvasRenderRuntimeContext,

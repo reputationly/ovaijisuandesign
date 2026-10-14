@@ -1,5 +1,7 @@
 // use-inline-rename.jsx
-import { CompositedSvg, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { useNodeId, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import {
   CanvasModalGuardContext,

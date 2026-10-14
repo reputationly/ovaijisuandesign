@@ -8,7 +8,7 @@ import {
   ungroupInCanvas,
 } from "./ungroup-in-canvas.js";
 import { isAssetBackedNode } from "./compute-group-bounds-from-children.js";
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import { buildCanvasFileSnapshot } from "./runtime-node-to-file-node.js";
 export function removeNodesAndPromoteGroupMains(nodes, removedNodeIds) {
   const affectedGroupIds = new Set();

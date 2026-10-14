@@ -1,15 +1,9 @@
 // missing-asset-card.jsx
-import {
-  classifyFileType,
-  CompositedSvg,
-  reactExports,
-  TooltipPopup,
-  TooltipPortal,
-  TooltipPositioner,
-  TooltipRoot,
-  TooltipTrigger$1 as TooltipTrigger,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { TooltipPopup, TooltipPortal, TooltipPositioner, TooltipRoot, TooltipTrigger$1 as TooltipTrigger } from "../infra/base-ui.js";
 import { useReactFlow } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";

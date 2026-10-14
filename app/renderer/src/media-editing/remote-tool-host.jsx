@@ -1,10 +1,8 @@
 // remote-tool-host.jsx
-import {
-  jsxRuntimeExports,
-  m$4 as ErrorBoundary,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { m$4 as ErrorBoundary } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 async function loadRemoteToolModule(url) {

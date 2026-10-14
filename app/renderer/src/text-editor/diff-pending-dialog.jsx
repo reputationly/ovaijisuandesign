@@ -1,5 +1,5 @@
 // diff-pending-dialog.jsx
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Dialog } from "../canvas/separator.jsx";
 import {

@@ -1,10 +1,8 @@
 // connector-required-input-fields.jsx
 import { homeService } from "../workspace/home-service.jsx";
-import {
-  jsxRuntimeExports,
-  localizedI18nText,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
+import { localizedI18nText } from "../i18n/localized-text.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";

@@ -1,5 +1,7 @@
 // 云端资产节点的展示：面包屑、审核标记、菜单、卡片与行。
-import { useTranslation, jsxRuntimeExports, ChevronRight$1 as ChevronRight, FolderInput } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { ChevronRight$1 as ChevronRight, FolderInput } from "../../media-editing/lucide-icon-wraps.js";
 import { mergeTailwindClasses as cn, DropdownMenuTrigger } from "../../infra/dialog-content.jsx";
 import { DropdownMenu, MoreVerticalIcon } from "../../vendor-inline/vscode-base/graph.jsx";
 import { Trash2, Download, FolderOpen } from "../../media-editing/package.jsx";

@@ -1,5 +1,5 @@
 // reference-navigation-provider.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ReferenceNavigationContext } from "./get-reference-navigation-defaults.jsx";

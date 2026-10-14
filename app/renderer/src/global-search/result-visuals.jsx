@@ -1,5 +1,8 @@
 // 搜索结果左侧的图标与缩略图：命令图标、媒体图标、工作区预览。
-import { reactExports, Search, PlaybackPlayIcon$1 as PlaybackPlayIcon, LayoutGrid, classifyFileType, Command, PackageSearch, FolderPlus, Music, Video } from "../vendor.js";
+import reactExports from "react";
+import { Search, LayoutGrid, Command, PackageSearch, FolderPlus, Music, Video } from "../media-editing/lucide-icon-wraps.js";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
+import { classifyFileType } from "../infra/file-type.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { BookOpen, MessageSquare, Folder, FolderOpen, Brain, Settings, MessageSquarePlus, FileText, ImageOutlineIcon } from "../media-editing/package.jsx";
 import { PluginIcon } from "../workspace/home-service.jsx";

@@ -1,16 +1,9 @@
 // use-preview-text.jsx
-import {
-  DialogBackdrop,
-  DialogClose$1 as DialogClose,
-  DialogDescription$2 as DialogDescriptionPrimitive,
-  DialogPopup,
-  DialogPortal$2 as DialogPortalPrimitive,
-  DialogTitle$2 as DialogTitlePrimitive,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  XIcon,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2 as DialogDescriptionPrimitive, DialogPopup, DialogPortal$2 as DialogPortalPrimitive, DialogTitle$2 as DialogTitlePrimitive } from "../infra/base-ui.js";
+import { XIcon } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn as mergeClassNames } from "../infra/dialog-content.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";

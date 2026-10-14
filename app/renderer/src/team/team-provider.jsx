@@ -8,7 +8,11 @@ import {
   useTeamMembersFeedQuery,
   useTeamQuotaQuery,
 } from "./use-team-transactions-feed-query.jsx";
-import { deriveActiveScope, getRuntimeConfig, reactExports, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import { deriveActiveScope } from "./credit-display.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { activateAccountSubmissionGuard, dedupedToast, evaluateAccountSubmission, updateAccountSubmissionDecision } from "../infra/agent-http-client.js";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import { teamApi } from "./team-api.js";

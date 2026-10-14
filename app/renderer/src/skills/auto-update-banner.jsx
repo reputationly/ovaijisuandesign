@@ -1,5 +1,7 @@
 // 技能自动更新横幅：显示/退出动画与状态订阅。
-import { useTranslation, reactExports, X$7 as X } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { Button } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { useWSConnection } from "../workspace/asset-lineage-query-key.js";

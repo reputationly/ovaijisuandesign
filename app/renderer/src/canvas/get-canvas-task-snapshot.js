@@ -1,5 +1,5 @@
 // get-canvas-task-snapshot.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 
 function isMonitorableNodeType(type) {
   return (

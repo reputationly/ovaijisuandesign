@@ -1,12 +1,9 @@
 // use-online.jsx
 import { cva } from "class-variance-authority";
-import {
-  reactExports,
-  Toggle$1 as Toggle,
-  ToggleGroup$1,
-  useMutation,
-  useQueryClient,
-} from "../vendor.js";
+import reactExports from "react";
+import { Toggle } from "@base-ui/react/toggle";
+import { ToggleGroup as ToggleGroup$1 } from "@base-ui/react/toggle-group";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   BASE,
   isRecord,

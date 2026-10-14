@@ -1,6 +1,8 @@
 // resolve-retry-message-payload.jsx
 import { hasMessagePayload } from "../media-editing/package.jsx";
-import { API_PATHS, reactExports, useStorage } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import { detectFileType } from "../canvas/diagnostic-history-tools.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MascotLoadingAnimation } from "./mascot-loading-animation.jsx";

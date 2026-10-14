@@ -1,5 +1,8 @@
 // use-assets.js
-import { API_PATHS, reactExports, useMutation, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   ASSETS_QUERY_KEY,

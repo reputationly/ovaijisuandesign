@@ -1,7 +1,5 @@
 // code-mirror-source-editor.jsx
-import {
-  reactExports,
-} from "../vendor.js";
+import reactExports from "react";
 import { Compartment, EditorState as EditorState2, StateEffect, StateField } from "@codemirror/state";
 import { Decoration, EditorView as EditorView2, drawSelection, keymap } from "@codemirror/view";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";

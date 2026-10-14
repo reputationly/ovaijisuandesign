@@ -1,16 +1,13 @@
 // node-shell-inner.jsx
 import { cva } from "class-variance-authority";
-import {
-  Button$3 as BaseButton,
-  CompositedSvg,
-  jsxRuntimeExports,
-  Loader2Icon,
-  reactDomExports,
-  reactExports,
-  useStore$2 as useStore,
-  useTranslation,
-  X$7 as XIcon,
-} from "../vendor.js";
+import { Button as BaseButton } from "@base-ui/react/button";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { Loader2Icon, X$7 as XIcon } from "../media-editing/lucide-icon-wraps.js";
+import { useStore } from "zustand";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";
 import {

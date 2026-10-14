@@ -1,6 +1,8 @@
 // migration-dialog.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { MpIcon } from "../assets/gateway-scope-provider.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";

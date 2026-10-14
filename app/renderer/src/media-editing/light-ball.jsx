@@ -1,6 +1,7 @@
 // light-ball.jsx
 import { kelvinToHex, roundAngle } from "./color-stops.js";
-import { jsxRuntimeExports, reactExports } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { planeQuad } from "./plane-quad.jsx";
 import { createBoxFaces } from "./create-box-faces.js";

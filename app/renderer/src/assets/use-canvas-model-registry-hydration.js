@@ -1,10 +1,8 @@
 // use-canvas-model-registry-hydration.js
-import {
-  ApiError,
-  reactExports,
-  useStorage,
-  useTranslation,
-} from "../vendor.js";
+import { ApiError } from "../infra/generation-errors.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { useStorage } from "../infra/use-storage.js";
 import { stripErrorHtml } from "../infra/create-recently-added-store.js";
 import { pickUserMessage } from "../generation/normalize-skill-detail-metadata.js";
 import { PRESET_COLOR_NAME_KEYS } from "../infra/parse-connector-selection.js";

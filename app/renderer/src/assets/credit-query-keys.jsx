@@ -7,7 +7,9 @@ import {
 import { canUseDebugTooling } from "../workspace/use-deep-link-router.js";
 import { getWorkspaceContentBudgetSnapshot } from "../infra/aggregate-snapshots.js";
 import instance from "i18next";
-import { DialogPortal$2 as DialogPortal, PopoverRoot, reactExports, SelectRoot, workspaceLog } from "../vendor.js";
+import reactExports from "react";
+import { DialogPortal$2 as DialogPortal, PopoverRoot, SelectRoot } from "../infra/base-ui.js";
+import { workspaceLog } from "../infra/logger.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { showVisiblePreviewTab } from "../workspace/show-visible-preview-tab.js";
 import { __jsx } from "../shared/jsx-runtime.js";

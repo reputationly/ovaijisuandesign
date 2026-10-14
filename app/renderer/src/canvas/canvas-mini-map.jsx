@@ -1,14 +1,9 @@
 // canvas-mini-map.jsx
-import {
-  CanvasNodeType,
-  flowPointToMiniMap,
-  MIN_SELECTED_NODE_SIZE,
-  NODE_HIT_SLOP,
-  nodeToMiniMapRect,
-  reactExports,
-  SELECTED_GLOW_BLUR,
-  shallow,
-} from "../vendor.js";
+import { CanvasNodeType, flowPointToMiniMap } from "./canvas-geometry.js";
+import reactExports from "react";
+import { MIN_SELECTED_NODE_SIZE, NODE_HIT_SLOP, SELECTED_GLOW_BLUR } from "./selection-metrics.js";
+import { nodeToMiniMapRect } from "./connection-target.js";
+import { shallow } from "zustand/shallow";
 import { getBoundsOfRects, getNodeDimensions, nodeHasDimensions, XYMinimap } from "../vendor-fork/xyflow/system/index.js";
 import { Panel, useStore, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";

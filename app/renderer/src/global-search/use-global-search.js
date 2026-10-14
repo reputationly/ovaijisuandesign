@@ -1,5 +1,5 @@
 // 全局搜索的数据 hook：关键字防抖、多来源结果合并与排序。
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { gatewayFetchFromBase } from "../infra/perform-gateway-fetch.js";
 import { DEBOUNCE_MS } from "./constants.js";
 import {

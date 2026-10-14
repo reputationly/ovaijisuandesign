@@ -1,6 +1,7 @@
 // resolve-canvas-focus-targets.js
 import { getCanvasTaskSnapshot } from "./get-canvas-task-snapshot.js";
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
 
 function buildStickerFollowIndex(nodes) {
   const nodeById = new Map();

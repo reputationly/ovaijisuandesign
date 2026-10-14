@@ -1,6 +1,8 @@
 // use-slash-command.js
 import { findTrailingTrigger } from "../chat/find-trailing-trigger.js";
-import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import {
   trackSkillCreatorInvoke,

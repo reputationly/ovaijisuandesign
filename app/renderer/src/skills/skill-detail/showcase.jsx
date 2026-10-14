@@ -1,5 +1,8 @@
 // 技能详情里的展示：视频播放器、展示区、结构化概览。
-import { useTranslation, reactExports, ChevronLeft, ChevronRight$1 as ChevronRight, PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon, Volume2, ListChecks, ArrowUpRight } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { ChevronLeft, ChevronRight$1 as ChevronRight, Volume2, ListChecks, ArrowUpRight } from "../../media-editing/lucide-icon-wraps.js";
+import { PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../../media-editing/playback-icons.js";
 import { mergeTailwindClasses as cn, Button } from "../../infra/dialog-content.jsx";
 import { selectSkillStructuredInfo } from "../../generation/normalize-skill-detail-metadata.js";
 import { CDN_SKILL_SHOWCASE_FALLBACK } from "../../workspace/topbar-state-context.jsx";

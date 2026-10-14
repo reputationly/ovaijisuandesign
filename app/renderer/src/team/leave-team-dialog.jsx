@@ -1,5 +1,7 @@
 // leave-team-dialog.jsx
-import { reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Alert, AlertDescription } from "./alert-variants.jsx";

@@ -1,12 +1,10 @@
 // file-chip.jsx
-import {
-  classifyFileType,
-  CompositedSvg,
-  Crosshair,
-  reactDomExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { Crosshair } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useHoverPreview } from "../media-editing/use-hover-preview.js";
 import { MediaHoverPreview } from "../media-editing/media-hover-preview.jsx";

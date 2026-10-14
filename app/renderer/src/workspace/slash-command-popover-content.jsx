@@ -8,16 +8,12 @@ import {
   TEXT_EDITOR_SKILL_CATEGORIES,
 } from "./text-editor-skill-categories.jsx";
 import { Trans } from "react-i18next";
-import {
-  ChevronLeft,
-  ChevronRight$1 as ChevronRight,
-  jsxRuntimeExports,
-  Plus$2 as Plus,
-  reactDomExports,
-  reactExports,
-  Search$2 as Search,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronLeft, ChevronRight$1 as ChevronRight } from "../media-editing/lucide-icon-wraps.js";
+import { Plus$2 as Plus, Search$2 as Search } from "../media-editing/custom-icons.js";
 import { getAgentSkillBrowseSkills } from "./clip-editor-skill-categories.js";
 import {
   filterMarketSkillsByTag,

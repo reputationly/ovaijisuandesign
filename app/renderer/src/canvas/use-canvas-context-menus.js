@@ -4,7 +4,8 @@ import {
   partitionDeletableIds,
 } from "./partition-user-removal-elements.js";
 import { writeCanvasSystemClipboard } from "./reorder-parents-before-children.js";
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { isPluginNode } from "./separator.jsx";
 import { isGenerationErrorStatus } from "./compute-group-bounds-from-children.js";

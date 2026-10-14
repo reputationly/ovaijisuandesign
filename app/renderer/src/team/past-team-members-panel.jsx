@@ -1,5 +1,9 @@
 // past-team-members-panel.jsx
-import { jsxRuntimeExports, reactExports, Search, useQuery, useQueryClient, UserRoundPlus, useTranslation, X$7 as X } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { Search, UserRoundPlus, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   MEMBERSHIP_GC_MS,

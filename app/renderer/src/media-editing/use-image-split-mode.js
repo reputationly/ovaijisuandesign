@@ -1,5 +1,6 @@
 // use-image-split-mode.js
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { SPLIT_MAGNIFICATIONS } from "./image-rotate-preview-inner.jsx";
 import { rectCellIndices } from "./node-tool-interaction.js";
 import { splitSelectedCellsToBlobs } from "./split-selected-cells-to-blobs.js";

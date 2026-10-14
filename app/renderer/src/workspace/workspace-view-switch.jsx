@@ -1,11 +1,8 @@
 // workspace-view-switch.jsx
-import {
-  getRuntimeConfig,
-  Globe,
-  PanelsTopLeft,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Globe, PanelsTopLeft } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useHasBlockingModal } from "../infra/schedule.js";
 import { useCoachMark } from "./use-coach-mark.js";

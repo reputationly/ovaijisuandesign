@@ -1,5 +1,6 @@
 // sent-annotation-cards.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 const MAX_VISIBLE_CARDS = 3;
 export function SentAnnotationCards({ annotations }) {

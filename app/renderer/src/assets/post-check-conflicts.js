@@ -1,5 +1,5 @@
 // post-check-conflicts.js
-import { API_PATHS } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
 
 export async function postCheckConflicts(gatewayFetch2, body2) {
   const res = await gatewayFetch2(API_PATHS.checkConflicts, {

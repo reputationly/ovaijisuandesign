@@ -1,5 +1,8 @@
 // 插件市场详情：图标解析、首帧静态图、详情弹窗、预览视频与列表条目。
-import { useTranslation, reactExports, jsxRuntimeExports, Loader2 } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { Loader2 } from "../../media-editing/lucide-icon-wraps.js";
 import { Trash2, Download } from "../../media-editing/package.jsx";
 import { Badge } from "../../infra/badge-variants.jsx";
 import { Button, Dialog, DialogContent } from "../../infra/dialog-content.jsx";

@@ -1,5 +1,7 @@
 // condition-row.jsx
-import { CompositedSvg, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   operatorsForFieldType,

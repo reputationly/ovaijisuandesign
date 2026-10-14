@@ -1,5 +1,7 @@
 // team-member-quota-usage-cell.jsx
-import { CircleAlert, minCreditAmount, useTranslation } from "../vendor.js";
+import { minCreditAmount } from "./credit-display.js";
+import { useTranslation } from "react-i18next";
+import { CircleAlert } from "../media-editing/lucide-icon-wraps.js";
 import {
   Tooltip,
   TooltipTrigger,

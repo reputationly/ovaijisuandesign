@@ -1,18 +1,7 @@
 // markdown-manager.js
 import { STANDARD_HTML_TAGS } from "./standard-html-tags.js";
 import { marked as g } from "marked";
-import {
-  attrsEqual,
-  callOrReturn,
-  decodeHtmlEntities,
-  encodeHtmlEntities,
-  flattenExtensions,
-  generateJSON,
-  getExtensionField,
-  getSchema,
-  marksEqual,
-  sortExtensions,
-} from "../vendor.js";
+import { attrsEqual, callOrReturn, decodeHtmlEntities, encodeHtmlEntities, flattenExtensions, generateJSON, getExtensionField, getSchema, marksEqual, sortExtensions } from "@tiptap/core";
 const TRAILING_BLANK_LINES = /\n[^\S\n]*(?:\n[^\S\n]*)+$/;
 function extractAbsorbedBlankLines(tokens) {
   return tokens.flatMap((token, index) => {

@@ -1,5 +1,7 @@
 // account-submission-blocked-host.jsx
-import { ACCOUNT_SUBMISSION_BLOCKED_EVENT, reactExports, useTranslation } from "../vendor.js";
+import { ACCOUNT_SUBMISSION_BLOCKED_EVENT } from "../infra/account-submission.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TeamInviteDeepLinkDialog } from "./team-invite-deep-link-dialog.jsx";

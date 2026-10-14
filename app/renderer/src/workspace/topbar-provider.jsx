@@ -1,12 +1,10 @@
 // topbar-provider.jsx
-import {
-  reactExports,
-  useNavigate,
-  usePlatform,
-  useStorage,
-  useTranslation,
-  workspaceLog,
-} from "../vendor.js";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { useStorage } from "../infra/use-storage.js";
+import { workspaceLog } from "../infra/logger.js";
 import { visiblePreviewTabsStore } from "./create-visible-preview-tabs-store.js";
 import {
   pruneWorkspaceBundleCache,

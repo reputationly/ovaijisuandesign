@@ -1,7 +1,8 @@
 // capability-search-card.jsx
 import { normalizeJsonToolResult } from "../chat/has-structured-success-payload.js";
 import { parseCapabilitySearchResult } from "../infra/parse-capability-search-result.js";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ConnectorCapabilityCard } from "../settings/connector-capability-card.jsx";
 

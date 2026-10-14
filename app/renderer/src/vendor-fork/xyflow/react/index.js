@@ -7,7 +7,7 @@ export { ConnectionLineType, ConnectionMode, MarkerType, PanOnScrollMode, Positi
 import { useStoreWithEqualityFn, createWithEqualityFn } from 'zustand/traditional';
 import { shallow } from 'zustand/shallow';
 import { createPortal, flushSync } from 'react-dom';
-import { AUTO_PAN_ARM_SLACK, OVERSCAN_PX, RECOMPUTE_DELTA_PX, cascadeAbsolutePosition, edgeZones, getKeyboardMoveFactor, getNodesSelectionActiveOnPointerUp, maskAutoPanSides } from "../../../infra/from-vendor.js";
+import { AUTO_PAN_ARM_SLACK, OVERSCAN_PX, RECOMPUTE_DELTA_PX, cascadeAbsolutePosition, edgeZones, getKeyboardMoveFactor, getNodesSelectionActiveOnPointerUp, maskAutoPanSides } from "../../../canvas/canvas-geometry.js";
 const StoreContext = createContext(null);
 const Provider$1 = StoreContext.Provider;
 

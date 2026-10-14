@@ -1,5 +1,7 @@
 // project-member-summary.jsx
-import { reactExports, jsxRuntimeExports, ChevronDown } from "../vendor.js";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import { AvatarGroup, Avatar, AvatarImage, AvatarFallback } from "../infra/inline-rename-input.jsx";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

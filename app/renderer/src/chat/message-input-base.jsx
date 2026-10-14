@@ -1,5 +1,12 @@
 // message-input-base.jsx
-import { ArrowUp, DOMParser$1 as DOMParser, EditorContent, jsxRuntimeExports, reactExports, Slice, src_default$1 as Placeholder, useCurrentWorkspace, useEditor, useTranslation } from "../vendor.js";
+import { DOMParser, Slice } from "prosemirror-model";
+import { EditorContent, useEditor } from "@tiptap/react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { Placeholder } from "@tiptap/extensions";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
+import { ArrowUp } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   chatLog,

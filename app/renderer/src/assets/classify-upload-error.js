@@ -1,5 +1,5 @@
 // classify-upload-error.js
-import { API_PATHS } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { UPLOAD_COMMIT_SAFE_PUBLISH_UNSUPPORTED } from "../generation/to-workspace-browser-url.js";
 import { cloudAssetMimeType } from "./wrap-as-asset-center-error.js";

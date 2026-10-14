@@ -1,5 +1,9 @@
 // transfer-credit-form.jsx
-import { AlertTriangle, dispatchAccountSubmissionBlocked, reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import { dispatchAccountSubmissionBlocked } from "../infra/account-submission.js";
+import reactExports from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

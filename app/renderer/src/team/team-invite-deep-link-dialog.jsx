@@ -1,5 +1,8 @@
 // team-invite-deep-link-dialog.jsx
-import { getRuntimeConfig, Loader2, reactExports, ShieldCheck, UserRound, useTranslation } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2, ShieldCheck, UserRound } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useTeamAccount } from "../assets/credit-query-keys.jsx";

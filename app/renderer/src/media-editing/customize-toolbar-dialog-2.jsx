@@ -7,7 +7,8 @@ import {
   MultiImageOverlayStoreContext,
 } from "./use-start-cloud-edit-from-node.js";
 import { IMAGE_TOOL_META } from "./image-tool-meta.jsx";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useImageToolbarCustomizationStore } from "./read-persisted.js";
 import {

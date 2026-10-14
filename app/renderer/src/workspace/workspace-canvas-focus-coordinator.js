@@ -1,5 +1,5 @@
 // workspace-canvas-focus-coordinator.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { workspaceEvents } from "./topbar-state-context.jsx";
 
 const CANVAS_NAVIGATION_TIMEOUT_MS = 4e3;

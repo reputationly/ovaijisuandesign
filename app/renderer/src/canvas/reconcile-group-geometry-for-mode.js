@@ -1,5 +1,5 @@
 // reconcile-group-geometry-for-mode.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import {
   computeGroupBoundsFromChildren,
   defaultNodeSizeForType,

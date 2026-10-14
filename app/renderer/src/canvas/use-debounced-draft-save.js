@@ -1,5 +1,5 @@
 // use-debounced-draft-save.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 export function useDebouncedDraftSave(initialMarkdown, onDraftChange) {
   const [status, setStatus] = reactExports.useState("idle");

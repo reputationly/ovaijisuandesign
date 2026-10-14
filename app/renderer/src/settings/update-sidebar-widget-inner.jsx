@@ -1,14 +1,10 @@
 // update-sidebar-widget-inner.jsx
-import {
-  AlertTriangle,
-  jsxRuntimeExports,
-  LoaderCircle,
-  m$4 as ErrorBoundary,
-  reactExports,
-  RotateCw,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { m$4 as ErrorBoundary } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, LoaderCircle, RotateCw } from "../media-editing/lucide-icon-wraps.js";
 import { actionTrailLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { UpdateBanner } from "./update-banner.jsx";

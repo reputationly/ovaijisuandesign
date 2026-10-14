@@ -1,5 +1,9 @@
 // image-annotation-dialog.jsx
-import { ArrowUpRight, ChevronDown, Grid3X3, jsxRuntimeExports, Minus, reactExports, Redo2, Tag$1 as Tag, Undo2, usePlatform, useTranslation, X$7 as X } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { ArrowUpRight, ChevronDown, Grid3X3, Minus, Redo2, Tag$1 as Tag, Undo2, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Brush,

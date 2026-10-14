@@ -1,5 +1,9 @@
 // asset-center-page.jsx
-import { ArrowLeft, Check, CheckCircle2 as CheckCircle, ChevronDown, ChevronUp, LayoutGrid, Loader2, Plus, reactExports, Search, ShieldAlert, useMutation, useNavigate, useQuery, useQueryClient, useSearch, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import reactExports from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { ArrowLeft, Check, CheckCircle2 as CheckCircle, ChevronDown, ChevronUp, LayoutGrid, Loader2, Plus, Search, ShieldAlert, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PageStateBoundary } from "./page-state-boundary.jsx";

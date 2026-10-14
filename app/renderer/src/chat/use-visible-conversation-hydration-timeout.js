@@ -1,5 +1,5 @@
 // use-visible-conversation-hydration-timeout.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { DRAFT_NEW_TAB } from "../workspace/resolve-retry-message-payload.jsx";
 

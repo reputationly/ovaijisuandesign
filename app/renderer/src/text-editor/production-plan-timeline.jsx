@@ -1,15 +1,8 @@
 // production-plan-timeline.jsx
-import {
-  Check,
-  ChevronDown,
-  CircleAlert,
-  ClipboardList,
-  Crosshair,
-  Loader2,
-  reactExports,
-  useCurrentWorkspace,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown, CircleAlert, ClipboardList, Crosshair, Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

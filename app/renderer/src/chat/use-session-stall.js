@@ -1,5 +1,5 @@
 // use-session-stall.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";

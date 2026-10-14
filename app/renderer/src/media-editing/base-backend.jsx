@@ -6,11 +6,9 @@ import {
   VIDEO_EMPTY_CARD_SIZE,
 } from "../canvas/compute-group-bounds-from-children.js";
 import { parseRatio } from "../generation/resolution-tabs.jsx";
-import {
-  CanvasNodeType,
-  isUserProvidedAssetModel,
-  reactExports,
-} from "../vendor.js";
+import { CanvasNodeType } from "../canvas/canvas-geometry.js";
+import { isUserProvidedAssetModel } from "../infra/shared-runtime.js";
+import reactExports from "react";
 import { getAssetMetaByNodeIdFromStore } from "../canvas/fullscreen-icon.jsx";
 import { DEFAULT_CROP } from "./image-edit-pricing.js";
 import { __jsx } from "../shared/jsx-runtime.js";

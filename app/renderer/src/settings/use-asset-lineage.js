@@ -1,5 +1,6 @@
 // use-asset-lineage.js
-import { API_PATHS, useQuery } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useQuery } from "@tanstack/react-query";
 import { assetLineageQueryKey } from "../workspace/asset-lineage-query-key.js";
 import {
   useGatewayFetch,

@@ -1,13 +1,7 @@
 // build-video-thumb-base.jsx
-import {
-  HILO_WORKSPACE_GENERATION_QUERY,
-  HILO_WORKSPACE_IDENTITY_QUERY,
-  HILO_WORKSPACE_INSTANCE_QUERY,
-  Maximize,
-  PlaybackPauseIcon$1 as PlaybackPauseIcon,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  Volume2,
-} from "../vendor.js";
+import { HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY } from "../infra/workspace-gateway.js";
+import { Maximize, Volume2 } from "./lucide-icon-wraps.js";
+import { PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon } from "./playback-icons.js";
 import { appendWidth } from "./append-width.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { VolumeX } from "./package.jsx";

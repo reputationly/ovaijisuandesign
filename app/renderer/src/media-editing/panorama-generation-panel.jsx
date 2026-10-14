@@ -2,14 +2,11 @@
 import { findModelByStoredId } from "../generation/param-label-fallbacks.js";
 import { resolvePricingId } from "../generation/select-content.jsx";
 import { calcImageCost } from "../generation/resolve-video-billing-tooltip.js";
-import {
-  ArrowUp,
-  jsxRuntimeExports,
-  reactExports,
-  usePromptFontSizeStore,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowUp, X$7 as X } from "./lucide-icon-wraps.js";
+import { usePromptFontSizeStore } from "../generation/prompt-font-size.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useModelRegistryStore } from "../infra/create-recently-added-store.js";
 import { ImageOutlineIcon, Sparkles, useCanvasBridge } from "./package.jsx";

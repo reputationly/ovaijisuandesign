@@ -1,9 +1,6 @@
 // canvas-file-ref-node.js
-import {
-  mergeAttributes,
-  Node$3 as Node,
-  ReactNodeViewRenderer,
-} from "../vendor.js";
+import { mergeAttributes, Node } from "@tiptap/core";
+import { ReactNodeViewRenderer } from "@tiptap/react";
 import { MentionChipNodeView } from "./mention-chip-node-view.jsx";
 import { parseCanvasReference } from "../text-editor/table-document-to-llm-content.js";
 import { serializeMentionToken } from "../assets/parse-prompt-to-tiptap.js";

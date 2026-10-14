@@ -1,5 +1,7 @@
 // empty-viewport-toast.jsx
-import { reactExports, useTranslation, X$7 as XIcon } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { X$7 as XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { Panel, useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button } from "./node-shell-inner.jsx";

@@ -1,5 +1,7 @@
 // inline-input.jsx
-import { classifyFileType, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
 import {
   Tooltip,
   TooltipProvider,

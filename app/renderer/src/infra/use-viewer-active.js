@@ -1,6 +1,6 @@
 // use-viewer-active.js
 import { getWorkspaceContentBudgetSnapshot } from "./aggregate-snapshots.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useWorkspaceContentBudgetScope } from "./use-plugin-metadata-store.js";
 
 const CONTENT_BUDGET_PRESSURE_FILE_VIEWER_UNLOAD_MS = 5e3;

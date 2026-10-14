@@ -1,5 +1,8 @@
 // auto-feedback-toast-listener.js
-import { reactExports, useNavigate, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { buildWorkspaceSearch } from "../workspace/use-deep-link-router.js";
 import {

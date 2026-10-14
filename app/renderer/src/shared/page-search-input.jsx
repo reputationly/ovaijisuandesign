@@ -1,5 +1,6 @@
 // page-search-input.jsx
-import { jsxRuntimeExports, Search, X$7 as X } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { Search, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { Input3 as Input } from "../infra/select-content.jsx";
 import { __jsx } from "./jsx-runtime.js";

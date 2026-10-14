@@ -1,5 +1,6 @@
 // 项目成员概览气泡。
-import { useTranslation, reactExports } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
 import { Tooltip, TooltipTrigger, TooltipProvider } from "../vendor-inline/vscode-base/graph.jsx";
 import { TooltipContent } from "../infra/dialog-content.jsx";
 import { Popover } from "../assets/credit-query-keys.jsx";

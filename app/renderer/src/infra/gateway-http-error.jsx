@@ -1,15 +1,9 @@
 // gateway-http-error.jsx
-import {
-  DEFAULT_RUNTIME_CONFIG,
-  DialogClose$1,
-  DialogPortal$2,
-  getRuntimeConfig,
-  HILO_WORKSPACE_IDENTITY_QUERY,
-  normalizeGatewayBaseUrl,
-  reactExports,
-  selectedRequestGroupId,
-  workspaceGatewayUrl,
-} from "../vendor.js";
+import { DEFAULT_RUNTIME_CONFIG, getRuntimeConfig, normalizeGatewayBaseUrl } from "./runtime-config.js";
+import { HILO_WORKSPACE_IDENTITY_QUERY, workspaceGatewayUrl } from "./workspace-gateway.js";
+import { selectedRequestGroupId } from "./shared-runtime.js";
+import reactExports from "react";
+import { DialogClose$1, DialogPortal$2 } from "./base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { actionTrailLog } from "../vendor-inline/vscode-base/graph.jsx";
 export const IPC_CHANNELS = {

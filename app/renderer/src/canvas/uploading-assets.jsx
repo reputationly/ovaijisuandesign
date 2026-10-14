@@ -3,7 +3,11 @@ import {
   requestJson,
   resolveTypeBucket,
 } from "../assets/list-all-cloud-folders.js";
-import { classifyFileType, Cloud, CloudDownload, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { Cloud, CloudDownload } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";

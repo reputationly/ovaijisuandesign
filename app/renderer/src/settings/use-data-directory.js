@@ -7,7 +7,11 @@ import {
   DATA_DIRECTORY_STATUS_CHANGED_EVENT,
   getDataDirectoryMainService,
 } from "./get-data-directory-main-service.js";
-import { reactExports, storageKeys, usePlatform, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { storageKeys } from "../infra/storage-cache.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useSettings } from "./use-settings.js";
 import {

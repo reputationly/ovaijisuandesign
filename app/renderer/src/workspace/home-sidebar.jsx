@@ -1,5 +1,14 @@
 // home-sidebar.jsx
-import { ArrowUpRight, ChevronDown, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Library, MonochromeIcon, Plus, reactExports, storageKeys, useNavigate, usePlatform, useQueryClient, useStorage, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { storageKeys } from "../infra/storage-cache.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { ArrowUpRight, ChevronDown, ChevronRight$1 as ChevronRight, Library, Plus } from "../media-editing/lucide-icon-wraps.js";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Tooltip,

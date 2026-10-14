@@ -3,22 +3,12 @@ import {
   useWSConnection,
   WSConnectionContext,
 } from "../workspace/asset-lineage-query-key.js";
-import {
-  DialogBackdrop,
-  DialogClose$1 as DialogClose,
-  DialogDescription$2 as DialogDescription,
-  DialogPopup,
-  DialogPortal$2 as DialogPortal,
-  DialogRoot,
-  DialogTitle$2 as DialogTitle,
-  reactExports,
-  useGatewayBaseUrl,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useTranslation,
-  XIcon,
-} from "../vendor.js";
+import reactExports from "react";
+import { useGatewayBaseUrl } from "../infra/runtime-config.js";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2 as DialogDescription, DialogPopup, DialogPortal$2 as DialogPortal, DialogRoot, DialogTitle$2 as DialogTitle } from "../infra/base-ui.js";
+import { XIcon } from "../media-editing/lucide-icon-wraps.js";
 import {
   useGatewayFetch,
   useGatewayScopeKey,

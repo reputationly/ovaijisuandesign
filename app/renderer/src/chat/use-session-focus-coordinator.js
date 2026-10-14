@@ -1,5 +1,5 @@
 // use-session-focus-coordinator.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 function fenceSessionActivation(message, latestIntent) {
   if (

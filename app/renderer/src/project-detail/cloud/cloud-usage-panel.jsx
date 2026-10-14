@@ -1,5 +1,5 @@
 // 云端资产的空间用量面板。
-import { useTranslation } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
 import { mergeTailwindClasses as cn, TooltipContent } from "../../infra/dialog-content.jsx";
 import { Tooltip, TooltipTrigger } from "../../vendor-inline/vscode-base/graph.jsx";
 import { formatBytes } from "../../assets/use-cloud-review-nodes.js";

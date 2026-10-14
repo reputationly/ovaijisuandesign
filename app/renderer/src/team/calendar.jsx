@@ -1,10 +1,6 @@
 // calendar.jsx
-import {
-  ChevronDownIcon$1 as ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  reactExports,
-} from "../vendor.js";
+import reactExports from "react";
+import { ChevronDownIcon$1 as ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Button,

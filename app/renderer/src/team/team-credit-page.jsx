@@ -1,5 +1,10 @@
 // team-credit-page.jsx
-import { deriveTeamCreditDisplay, jsxRuntimeExports, reactExports, usePlatform, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import { deriveTeamCreditDisplay } from "./credit-display.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { deriveMpCreditSummary } from "./hailuo-credit-row.jsx";
 import {

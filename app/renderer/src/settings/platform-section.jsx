@@ -1,6 +1,7 @@
 // platform-section.jsx
 // 设置页「平台接入」分区：填平台地址和令牌（API Key），模型只读展示（取值来自主进程的产品预设和配置覆盖）。
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { Button } from "../infra/dialog-content.jsx";

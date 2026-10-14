@@ -1,29 +1,14 @@
 // asset-panel-overlay-host.jsx
 import WaveSurfer from "wavesurfer.js";
-import {
-  AlertTriangle,
-  API_PATHS,
-  BROWSER_ASSET_SOURCE_METADATA_KEYS,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight$1 as ChevronRight,
-  classifyFileType,
-  Crosshair,
-  jsxRuntimeExports,
-  Network,
-  PopoverPopup,
-  PopoverPortal,
-  PopoverPositioner,
-  PopoverRoot,
-  PreviewCardPopup,
-  PreviewCardPortal,
-  PreviewCardPositioner,
-  PreviewCardRoot,
-  reactExports,
-  useQuery,
-  useTranslation,
-  Volume2 as Volume,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { BROWSER_ASSET_SOURCE_METADATA_KEYS } from "../infra/shared-runtime.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight$1 as ChevronRight, Crosshair, Network, Volume2 as Volume } from "../media-editing/lucide-icon-wraps.js";
+import { classifyFileType } from "../infra/file-type.js";
+import { PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot } from "../infra/base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Package, Sprout, VolumeX } from "../media-editing/package.jsx";
 import {

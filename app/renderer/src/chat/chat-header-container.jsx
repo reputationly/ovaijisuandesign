@@ -1,5 +1,5 @@
 // chat-header-container.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { SessionTabStrip } from "./session-tab-strip.jsx";
 import {

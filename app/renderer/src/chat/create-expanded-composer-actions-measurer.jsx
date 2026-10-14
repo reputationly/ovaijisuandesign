@@ -1,6 +1,6 @@
 // create-expanded-composer-actions-measurer.jsx
 import { withThumbnail } from "../workspace/tool-label-definitions.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getDocText } from "../text-editor/get-wire-content-text.jsx";
 export function computeComposerActions({ agentRunning, canSend, hasCancel }) {

@@ -1,10 +1,7 @@
 // canvas-toggle-icon.jsx
-import {
-  CompositedSvg,
-  jsxRuntimeExports,
-  MonochromeIcon,
-  reactExports,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 const ANIMATION_MS = 250;

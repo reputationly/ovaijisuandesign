@@ -1,5 +1,6 @@
 // type-filter-popover.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FilterMenuItem, FilterTrigger } from "./filter-trigger.jsx";
 import { FilterMenu } from "../workspace/set-home-widget-dev-preview-mode.js";

@@ -1,15 +1,13 @@
 // use-mention-models.jsx
 import instance from "i18next";
-import {
-  API_PATHS,
-  ApiError,
-  getSkillCoverUrl,
-  jsxRuntimeExports,
-  reactExports,
-  useGatewayScope,
-  useQuery,
-  useStorage,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { ApiError } from "../infra/generation-errors.js";
+import { useGatewayScope } from "../infra/runtime-config.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getSkillCoverUrl } from "../skills/skill-cover-url.js";
+import { useStorage } from "../infra/use-storage.js";
 import {
   classifyRawErrorText,
   GENERATE_ERROR_CODE_CONCURRENCY_LIMIT,

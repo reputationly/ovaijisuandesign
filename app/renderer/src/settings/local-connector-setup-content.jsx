@@ -1,5 +1,12 @@
 // local-connector-setup-content.jsx
-import { Check, CircleAlert, connectorSummaryActionLabelKey, focusManager, isCancelledError, jsxRuntimeExports, Loader2, queryOptions, reactExports, usePlatform, useQueries, useTranslation } from "../vendor.js";
+import { focusManager, isCancelledError } from "@tanstack/query-core";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { queryOptions, useQueries } from "@tanstack/react-query";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { Check, CircleAlert, Loader2 } from "../media-editing/lucide-icon-wraps.js";
+import { connectorSummaryActionLabelKey } from "../skills/connectors/connector-market.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

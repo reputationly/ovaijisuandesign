@@ -1,5 +1,6 @@
 // draft-controller.js
-import { API_PATHS, editorDocSnapshot } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { editorDocSnapshot } from "../text-editor/editor-doc-snapshot.js";
 import {
   clearDraft,
   cloneSelectedMediaModels,

@@ -19,7 +19,9 @@ import {
   readGroupSize,
 } from "./compute-group-bounds-from-children.js";
 import { computeDerivedNodePosition } from "./resolve-derived-collision.js";
-import { CanvasNodeType, reactExports, selectGeneratedMediaNodeIds } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
+import { selectGeneratedMediaNodeIds } from "./selection-metrics.js";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { buildCanvasNodes } from "./build-canvas-nodes.js";
 import {

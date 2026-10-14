@@ -34,7 +34,19 @@ import {
   reconstructDiffReviewBaseline,
 } from "./build-decorations.js";
 import { Table, TableCell, TableHeader, TableRow } from "@tiptap/extension-table";
-import { ActionListPanel, ActionListSeparator, BubbleMenu, commands_exports, Decoration$1 as Decoration, DecorationSet, EditorContent, Extension, Grid2x2Plus, jsxRuntimeExports, Plugin, PluginKey, reactDomExports, reactExports, redo$1 as redo, src_default$1, TextSelection, undo$1 as undo, undoDepth$1 as undoDepth, useEditor, useTranslation } from "../vendor.js";
+import { BubbleMenu } from "@tiptap/react/menus";
+import { commands as commands_exports, Extension } from "@tiptap/core";
+import { Decoration, DecorationSet } from "prosemirror-view";
+import { EditorContent, useEditor } from "@tiptap/react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { redo, undo, undoDepth } from "prosemirror-history";
+import { Placeholder as src_default$1 } from "@tiptap/extensions";
+import { useTranslation } from "react-i18next";
+import { ActionListPanel, ActionListSeparator } from "../media-editing/action-list.jsx";
+import { Grid2x2Plus } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AnnotationIcon } from "../canvas/fullscreen-icon.jsx";

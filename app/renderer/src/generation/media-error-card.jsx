@@ -1,14 +1,8 @@
 // media-error-card.jsx
-import {
-  Check,
-  CircleAlert,
-  CompositedSvg,
-  Loader2,
-  reactExports,
-  TriangleAlert,
-  useTranslation,
-  X$7 as CloseIcon,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, CircleAlert, Loader2, TriangleAlert, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   looksLikeHtml,

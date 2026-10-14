@@ -6,7 +6,12 @@ import {
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import instance from "i18next";
-import { AlertTriangle, reactExports, usePlatform, useStorage, useTranslation, workspaceLog, X$7 as CloseIcon } from "../vendor.js";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
+import { workspaceLog } from "../infra/logger.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { instantiationService, IProjectMainService } from "./home-service.jsx";

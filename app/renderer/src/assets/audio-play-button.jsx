@@ -1,12 +1,9 @@
 // audio-play-button.jsx
-import {
-  classifyFileType,
-  jsxRuntimeExports,
-  PlaybackCirclePauseIcon$1 as PlaybackCirclePauseIcon,
-  PlaybackCirclePlayIcon$1 as PlaybackCirclePlayIcon,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { PlaybackCirclePauseIcon$1 as PlaybackCirclePauseIcon, PlaybackCirclePlayIcon$1 as PlaybackCirclePlayIcon } from "../media-editing/playback-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {

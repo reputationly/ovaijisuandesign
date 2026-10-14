@@ -1,8 +1,6 @@
 // group-nodes-in-canvas.js
-import {
-  CanvasNodeType,
-  normalizeLabel$1 as normalizeLabel,
-} from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import { normalizeLabel$1 as normalizeLabel } from "./tidy-nodes.js";
 import {
   computeGroupBoundsFromChildren,
   defaultNodeSizeForType,

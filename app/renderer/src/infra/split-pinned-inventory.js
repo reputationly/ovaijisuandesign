@@ -1,7 +1,7 @@
 // split-pinned-inventory.js
 import { workspaceInventoryPathKey } from "../workspace/normalize-project-entries.js";
 import { useReleaseBadges } from "../generation/use-mention-models.jsx";
-import { getRuntimeConfig } from "../vendor.js";
+import { getRuntimeConfig } from "./runtime-config.js";
 import { resolveDesktopCanvasRenderPolicy } from "../assets/credit-query-keys.jsx";
 import { recordCanvasRenderPolicy } from "./use-plugin-metadata-store.js";
 import { getPlatform } from "./web-storage.js";

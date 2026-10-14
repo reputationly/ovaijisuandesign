@@ -1,7 +1,9 @@
 // use-popup.js
 import { PopupType } from "../generation/normalize-skill-detail-metadata.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
-import { reactExports, useQuery, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   creditQueryKeys,
   useAuth,

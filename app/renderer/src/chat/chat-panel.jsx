@@ -1,5 +1,10 @@
 // chat-panel.jsx
-import { Loader2, reactExports, useCurrentWorkspace, useNavigate, useTranslation, workspaceLog } from "../vendor.js";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { Loader2 } from "../media-editing/lucide-icon-wraps.js";
+import { workspaceLog } from "../infra/logger.js";
 import { dedupedToast, guardAccountSubmission, useBrowserImageEdit } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

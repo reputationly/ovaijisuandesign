@@ -1,6 +1,6 @@
 // round-dots-inner.jsx
 import { isStoryboardGridValid } from "./grid-validity-map.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";

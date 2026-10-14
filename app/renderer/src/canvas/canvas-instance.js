@@ -1,11 +1,7 @@
 // canvas-instance.js
-import {
-  BACKEND_VIBE_STORYBOARD,
-  CanvasNodeType,
-  orderTidyNodes,
-  pinnedTidyNodeIds,
-  tidyNodeName,
-} from "../vendor.js";
+import { BACKEND_VIBE_STORYBOARD } from "../infra/shared-runtime.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import { orderTidyNodes, pinnedTidyNodeIds, tidyNodeName } from "./tidy-nodes.js";
 import { DagreLayout } from "./dagre-layout.js";
 import {
   applyFillToNode,

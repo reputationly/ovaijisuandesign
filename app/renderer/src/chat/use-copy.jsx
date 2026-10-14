@@ -1,5 +1,8 @@
 // use-copy.jsx
-import { ArrowDown, getRuntimeConfig, reactExports, useTranslation } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowDown } from "../media-editing/lucide-icon-wraps.js";
 import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { isMacPlatform } from "../workspace/shortcut-hint.jsx";

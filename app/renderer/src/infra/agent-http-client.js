@@ -1,78 +1,35 @@
 // agent-http-client.js
 import { toast } from "sonner";
 import instance from "i18next";
-import {
-  createStore$1,
-  useStore$2,
-  makeLogger,
-  readRecord,
-  emit$5,
-  basename$8,
-  uploadResponseFilename,
-  useTranslation,
-  isBrowserImageEditRequest,
-  workspaceLog,
-  browserImageEditPrompt,
-  BROWSER_IMAGE_EDIT_EVENT,
-} from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { BROWSER_IMAGE_EDIT_EVENT } from "../generation/browser-image-edit.js";
+import { createStore as createStore$1 } from "zustand/vanilla";
+import { useStore as useStore$2 } from "zustand";
+import { makeLogger, workspaceLog } from "./logger.js";
+import { emit$5 } from "./decision-version.js";
+import { isBrowserImageEditRequest, browserImageEditPrompt } from "../generation/browser-image-edit.js";
 import reactExports from "react";
-import {
-  AssetMetadataStoreContext,
-  withAutomaticDedupeId,
-  normalizeGenerationFailurePresentation,
-  normalizeGenerateErrorCode,
-  DEFAULT_RUNTIME_CONFIG,
-  headersToRecord,
-  withWorkspaceGatewayHeaders,
-  HILO_WORKSPACE_IDENTITY_HEADER,
-  defaultLogger,
-  API_PATHS,
-  DEFAULT_READ_TIMEOUT_MS,
-  nextCanvasWriterRevision,
-  HILO_CANVAS_WRITER_REVISION_HEADER,
-  advanceCanvasWriterRevision,
-  measurePerf,
-  PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP,
-  DEFAULT_GENERATE_TIMEOUT_MS,
-  DEFAULT_GENERATE_VIDEO_TIMEOUT_MS,
-  isSafeIdentityRecoveryMethod,
-  normalizeRecoveredBinding,
-  HILO_WORKSPACE_IDENTITY_QUERY,
-  HILO_WORKSPACE_INSTANCE_QUERY,
-  HILO_WORKSPACE_GENERATION_QUERY,
-  WorkspaceGatewayClient,
-  isWorkspaceIdentityErrorCode,
-  ApiError,
-  LOG_TAG,
-  getRuntimeConfig,
-  HILO_DEFAULT_VERSION_CODE,
-  HILO_APP_ID,
-  normalizeVersionCodeForCloud,
-  HILO_BIZ_ID,
-  getOsName,
-  getBrowserName,
-  toCloudLang,
-  getDeviceMemory,
-  deriveActiveScope,
-  setSelectedRequestGroupId,
-  isBillableSubmission,
-  deriveTeamCreditDisplay,
-  dispatchAccountSubmissionBlocked,
-  ACCOUNT_SENSITIVE_CANVAS_PATHS,
-  AccountSubmissionBlockedError,
-  GROUP_ID_HEADER,
-  mediaLineageFields,
-  isMediaLineageImage,
-  mediaLineageRequestId,
-  mediaFingerprintFile,
-  MEDIA_LINEAGE_REQUEST_HEADER,
-  mediaLineageError,
-  probeMediaDurationSec,
-  warnEnrollError,
-  useGatewayBaseUrl,
-  useGatewayScope,
-  browserAssetSourceMetadata,
-} from "./from-vendor.js";
+import { AssetMetadataStoreContext, withAutomaticDedupeId, headersToRecord, DEFAULT_READ_TIMEOUT_MS, DEFAULT_GENERATE_TIMEOUT_MS, DEFAULT_GENERATE_VIDEO_TIMEOUT_MS, isSafeIdentityRecoveryMethod, normalizeRecoveredBinding, setSelectedRequestGroupId, GROUP_ID_HEADER, warnEnrollError, browserAssetSourceMetadata } from "./shared-runtime.js";
+import { normalizeGenerationFailurePresentation, normalizeGenerateErrorCode, ApiError } from "./generation-errors.js";
+import { DEFAULT_RUNTIME_CONFIG, getRuntimeConfig, HILO_DEFAULT_VERSION_CODE, HILO_APP_ID, normalizeVersionCodeForCloud, HILO_BIZ_ID, useGatewayBaseUrl, useGatewayScope } from "./runtime-config.js";
+import { withWorkspaceGatewayHeaders, HILO_WORKSPACE_IDENTITY_HEADER, API_PATHS, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, HILO_WORKSPACE_GENERATION_QUERY, WorkspaceGatewayClient, isWorkspaceIdentityErrorCode, ACCOUNT_SENSITIVE_CANVAS_PATHS } from "./workspace-gateway.js";
+import { defaultLogger, measurePerf, PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, LOG_TAG } from "./perf-log.js";
+import { nextCanvasWriterRevision, HILO_CANVAS_WRITER_REVISION_HEADER, advanceCanvasWriterRevision } from "./canvas-writer.js";
+import { getOsName, getBrowserName, toCloudLang, getDeviceMemory } from "./platform-context.js";
+import { deriveActiveScope, isBillableSubmission, deriveTeamCreditDisplay } from "../team/credit-display.js";
+import { dispatchAccountSubmissionBlocked, AccountSubmissionBlockedError } from "./account-submission.js";
+import { mediaLineageFields, isMediaLineageImage, mediaLineageRequestId, mediaFingerprintFile, MEDIA_LINEAGE_REQUEST_HEADER, mediaLineageError, probeMediaDurationSec } from "./media-lineage.js";
+
+export function readRecord(value) {
+  return value && typeof value === "object" ? value : void 0;
+}
+export function basename$8(path2) {
+  return path2.split("/").pop() ?? "";
+}
+export function uploadResponseFilename(res, originalName) {
+  return /\.gif$/i.test(res.relative) && !/\.gif$/i.test(originalName) ? basename$8(res.relative) : originalName;
+}
+
 
 export function createAssetMetadataStore() {
   return createStore$1((set, get) => ({

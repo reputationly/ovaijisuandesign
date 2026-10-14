@@ -1,5 +1,14 @@
 // new-workspace-dialog.jsx
-import { AlertTriangle, ChevronDown, isWorkspaceFolderMissingError, jsxRuntimeExports, Plus, reactExports, resolveNewProjectPreferences, updateNewProjectPreferences, useNewProjectFolder, usePlatform, useStorage, useTranslation, workspaceLog, X$7 as CloseIcon } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { resolveNewProjectPreferences, updateNewProjectPreferences } from "../infra/shared-runtime.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, ChevronDown, Plus, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { isWorkspaceFolderMissingError } from "./workspace-folder-missing.js";
+import { useNewProjectFolder } from "./use-new-project-folder.js";
+import { useStorage } from "../infra/use-storage.js";
+import { workspaceLog } from "../infra/logger.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   DropdownMenu,

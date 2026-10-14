@@ -7,7 +7,8 @@ import {
 } from "../infra/use-plugin-metadata-store.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn, Input as BaseInput } from "../infra/dialog-content.jsx";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 export function exitFullscreenForRemovedNode(store, nodeId) {
   if (store.getState().nodeId === nodeId) {
     store.getState().exit(nodeId);

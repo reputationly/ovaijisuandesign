@@ -1,6 +1,6 @@
 // build-asr-gateway-request.js
 import { detectFileType } from "../canvas/diagnostic-history-tools.js";
-import { CONNECTOR_TOKEN_SOURCE } from "../vendor.js";
+import { CONNECTOR_TOKEN_SOURCE } from "../skills/connectors/connector-match.js";
 
 const CANCELLED_MESSAGE_TEXT = "[Request interrupted by user]";
 

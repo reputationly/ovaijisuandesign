@@ -1,5 +1,8 @@
 // 插件模板项目：地区适配、模板插件准备与一键导入。
-import { useTranslation, reactExports, API_PATHS, useStorage } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { API_PATHS } from "../../infra/workspace-gateway.js";
+import { useStorage } from "../../infra/use-storage.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { gatewayFetch } from "../../infra/gateway-fetch.js";
 import { CDN_TEMPLATE_PROJECT_WATERMARK_TOOL, CDN_TEMPLATE_PROJECT_RELIGHT, CDN_TEMPLATE_PROJECT_PANORAMA_VIEWER, CDN_TEMPLATE_PROJECT_N_STORYBOARD, CDN_TEMPLATE_PROJECT_MULTI_SHOT, CDN_TEMPLATE_PROJECT_3D_DIRECTOR } from "../../workspace/topbar-state-context.jsx";

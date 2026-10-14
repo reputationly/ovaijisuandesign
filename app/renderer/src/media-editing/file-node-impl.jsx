@@ -1,5 +1,7 @@
 // file-node-impl.jsx
-import { classifyFileType, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileViewerRouter } from "./pdf-viewer.jsx";
 import { TooltipProvider } from "../infra/create-recently-added-store.js";

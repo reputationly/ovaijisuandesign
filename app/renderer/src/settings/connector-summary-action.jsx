@@ -1,5 +1,5 @@
 // connector-summary-action.jsx
-import { KeyRound, Link2, Loader2, MessageCircle } from "../vendor.js";
+import { KeyRound, Link2, Loader2, MessageCircle } from "../media-editing/lucide-icon-wraps.js";
 import { Download } from "../media-editing/package.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";

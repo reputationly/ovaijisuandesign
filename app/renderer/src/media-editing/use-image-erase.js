@@ -1,5 +1,5 @@
 // use-image-erase.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 function normaliseRect(firstPoint, secondPoint) {
   return {

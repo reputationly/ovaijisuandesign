@@ -1,5 +1,5 @@
 // use-auto-scroll.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 const NEAR_BOTTOM_THRESHOLD_PX = 80;
 

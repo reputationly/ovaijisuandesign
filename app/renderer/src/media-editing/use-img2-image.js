@@ -1,6 +1,8 @@
 // use-img2-image.js
 import instance from "i18next";
-import { AccountSubmissionBlockedError, MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_REQUEST_HEADER, mediaLineageRequestId, reactExports } from "../vendor.js";
+import { AccountSubmissionBlockedError } from "../infra/account-submission.js";
+import { MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_REQUEST_HEADER, mediaLineageRequestId } from "../infra/media-lineage.js";
+import reactExports from "react";
 import { canvasLog, dedupedToast, logMediaLineage, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import { stripErrorHtml } from "../infra/create-recently-added-store.js";

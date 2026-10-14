@@ -1,12 +1,7 @@
 // asset-center-migrate-dialog.jsx
-import {
-  ArrowRight,
-  FolderInput,
-  Loader2,
-  reactExports,
-  ShieldAlert,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowRight, FolderInput, Loader2, ShieldAlert } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AlertDialog, Button } from "../infra/dialog-content.jsx";
 import {

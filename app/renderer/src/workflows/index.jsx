@@ -1,5 +1,13 @@
 // 工作流页路由入口：列表、详情展开、下载与教程弹窗的组装。
-import { useTranslation, jsxRuntimeExports, X$7 as X, reactExports, API_PATHS, usePlatform, useStorage, Plus, useNavigate, useSearch, Loader2, ChevronRight$1 as ChevronRight, Workflow, TAB_CONTENT_ENTER_CLASS_NAME } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { X$7 as X, Plus, Loader2, ChevronRight$1 as ChevronRight, Workflow } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
+import { TAB_CONTENT_ENTER_CLASS_NAME } from "../shared/tab-enter-class.js";
 import { useComfyUiDownloadProgress, Icon, openExternalUrl, DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";
 import { Button, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../infra/dialog-content.jsx";
 import { dedupedToast } from "../infra/agent-http-client.js";

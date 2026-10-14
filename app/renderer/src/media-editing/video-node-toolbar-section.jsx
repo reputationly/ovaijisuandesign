@@ -4,7 +4,8 @@ import {
   VIDEO_TOOL_META,
   VIDEO_TOOL_PRICING,
 } from "./video-tool-meta.jsx";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { Settings2, useCanvasBridge } from "./package.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useVideoToolbarCustomizationStore } from "../canvas/read-persisted.js";

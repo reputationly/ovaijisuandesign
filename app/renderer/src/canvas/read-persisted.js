@@ -4,7 +4,7 @@ import {
   DEFAULT_SHOW_LABELS,
   VIDEO_TOOLBAR_TOOLS,
 } from "./use-video-starter-preset-store.js";
-import { create$2 as create } from "../vendor.js";
+import { create } from "zustand";
 const STORAGE_KEY = "hilo:canvas:video-toolbar:customization";
 const TOOLBAR_ORDER_MIGRATION_KEY =
   "hilo:canvas:video-toolbar:h3-first-migrated-v2";

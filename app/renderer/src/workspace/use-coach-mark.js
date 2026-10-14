@@ -1,5 +1,6 @@
 // use-coach-mark.js
-import { reactExports, useStorage } from "../vendor.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 const DEFAULT_AUTO_DISMISS_MS = 8e3;

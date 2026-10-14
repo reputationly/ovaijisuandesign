@@ -1,5 +1,9 @@
 // auth-provider.jsx
-import { getRuntimeConfig, reactExports, useNavigate, usePlatform, useTranslation } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   entriesByWorkspace,

@@ -1,5 +1,6 @@
 // media-generation-error-overlay.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { useNodesData, useReactFlow } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { translateModelName } from "./missing-asset-card.jsx";

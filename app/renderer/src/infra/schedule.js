@@ -3,7 +3,7 @@ import {
   activeIds,
   listeners as modalPresenceListeners,
 } from "../workspace/topbar-state-context.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 import { HUB_WEB_INVITE_DOMAINS } from "../vendor-inline/vscode-base/graph.jsx";
 function subscribeModalPresence(listener) {

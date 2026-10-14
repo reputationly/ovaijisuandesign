@@ -1,5 +1,5 @@
 // 运营后台的投稿详情弹窗。
-import { useTranslation } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
 import { DialogHeader, Button, Dialog, DialogContent, DialogFooter } from "../../infra/dialog-content.jsx";
 import { normalizeSkillDetailMetadata } from "../../generation/normalize-skill-detail-metadata.js";
 import { DialogTitle, DialogDescription, Textarea } from "../../infra/badge-variants.jsx";

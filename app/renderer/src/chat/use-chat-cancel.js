@@ -1,5 +1,5 @@
 // use-chat-cancel.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import { nextMessageId } from "./create-history-sub-agent-message.js";
 

@@ -3,7 +3,7 @@ import {
   DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT,
   VIEWPORT_CONTROLS_INSET,
 } from "./use-video-starter-preset-store.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CanvasShellInner } from "./canvas-shell-inner.jsx";
 import { useActiveMode } from "./use-active-mode.js";

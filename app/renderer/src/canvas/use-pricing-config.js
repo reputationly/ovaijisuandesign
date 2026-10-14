@@ -1,5 +1,7 @@
 // use-pricing-config.js
-import { API_PATHS, useGatewayScope, useQuery } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useGatewayScope } from "../infra/runtime-config.js";
+import { useQuery } from "@tanstack/react-query";
 import {
   accountScopeKey,
   useOptionalTeamAccount,

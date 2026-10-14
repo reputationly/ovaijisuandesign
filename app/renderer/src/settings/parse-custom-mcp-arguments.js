@@ -1,5 +1,5 @@
 // parse-custom-mcp-arguments.js
-import { isWorkspaceFolderMissingError } from "../vendor.js";
+import { isWorkspaceFolderMissingError } from "../workspace/workspace-folder-missing.js";
 import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
 export var _util;
 ((_util) => {

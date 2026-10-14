@@ -1,5 +1,7 @@
 // image-lightbox.jsx
-import { DialogPopup, Minus, Plus, reactExports } from "../vendor.js";
+import reactExports from "react";
+import { DialogPopup } from "../infra/base-ui.js";
+import { Minus, Plus } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CloseButton } from "./close-button.jsx";
 const MIN_SCALE = 0.5;

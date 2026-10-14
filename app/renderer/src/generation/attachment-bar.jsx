@@ -1,5 +1,9 @@
 // attachment-bar.jsx
-import { PlaybackPlayIcon$1 as PlaybackPlayIcon, Plus, reactExports, StarterKit, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { StarterKit } from "@tiptap/starter-kit";
+import { useTranslation } from "react-i18next";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
+import { Plus } from "../media-editing/lucide-icon-wraps.js";
 import { NodeToolbar, useNodeId, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";

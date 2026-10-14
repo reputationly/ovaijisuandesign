@@ -1,7 +1,9 @@
 // pick-canvas-node-tool-apply-details.js
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-import { inferMediaKind, reactExports, useRouter } from "../vendor.js";
+import { inferMediaKind } from "../infra/media-lineage.js";
+import reactExports from "react";
+import { useRouter } from "@tanstack/react-router";
 import { getPluginMeta } from "../infra/use-plugin-metadata-store.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
 import { GatewayNotReadyError } from "../infra/gateway-http-error.jsx";

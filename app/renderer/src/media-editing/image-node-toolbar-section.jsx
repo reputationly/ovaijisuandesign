@@ -1,13 +1,9 @@
 // image-node-toolbar-section.jsx
-import {
-  ActionListItem,
-  ActionListPanel,
-  ActionListSeparator,
-  CompositedSvg,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ActionListItem, ActionListPanel, ActionListSeparator } from "./action-list.jsx";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   DropdownMenuContent,

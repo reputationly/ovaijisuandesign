@@ -2,7 +2,7 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
-import { Check, ChevronDown, X$7 as CloseIcon } from "../vendor.js";
+import { Check, ChevronDown, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { FilterMenuTrigger } from "../workspace/set-home-widget-dev-preview-mode.js";
 export function FilterMenuContent({
   className,

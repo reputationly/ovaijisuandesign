@@ -5,7 +5,10 @@ import {
   INetworkDiagnosticsMainService,
 } from "../workspace/home-service.jsx";
 import { isElectron } from "../infra/use-canvas-node-assets-store.js";
-import { AlertTriangle, Check, Copy, reactExports, useQuery, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, Check, Copy } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { ACTIVE_CUSTOM_MODEL_QUERY_KEY } from "../generation/use-model-catalog-scope-key.js";
 import { __jsx } from "../shared/jsx-runtime.js";

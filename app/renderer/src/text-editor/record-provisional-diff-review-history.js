@@ -1,5 +1,5 @@
 // record-provisional-diff-review-history.js
-import { undoDepth$1 as undoDepth } from "../vendor.js";
+import { undoDepth } from "prosemirror-history";
 import {
   closeDiffReviewHistoryGroup,
   replaceEditorMarkdown,

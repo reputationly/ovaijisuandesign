@@ -2,7 +2,11 @@
 import { projectLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-import { reactExports, storageKeys, usePlatform, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { storageKeys } from "../infra/storage-cache.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
 import { useNavigateToWorkspace } from "./use-deep-link-router.js";

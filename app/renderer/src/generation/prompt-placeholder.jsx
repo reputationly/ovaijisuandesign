@@ -1,5 +1,7 @@
 // prompt-placeholder.jsx
-import { ArrowUpRight, jsxRuntimeExports, reactExports } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { ArrowUpRight } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 const textClass =

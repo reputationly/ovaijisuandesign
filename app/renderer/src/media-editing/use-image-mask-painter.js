@@ -1,5 +1,5 @@
 // use-image-mask-painter.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useDevicePixelRatio } from "../shared/use-device-pixel-ratio.js";
 
 const ERASE_BRUSH_COLOR = "rgb(128, 84, 255)";

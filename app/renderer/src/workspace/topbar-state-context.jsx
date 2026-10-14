@@ -1,11 +1,8 @@
 // topbar-state-context.jsx
 import instance from "i18next";
-import {
-  CDN_BASE_MAP,
-  ContextMenuRoot,
-  getCdnRegion,
-  reactExports,
-} from "../vendor.js";
+import { CDN_BASE_MAP, getCdnRegion } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { ContextMenuRoot } from "../infra/base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { WorkspaceEvents } from "./workspace-events.js";
 export const workspaceEvents = new WorkspaceEvents();

@@ -2,7 +2,8 @@
 import { detectFileType } from "../canvas/diagnostic-history-tools.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { FILE_ADOPTION_IDEMPOTENCY_HEADER } from "../generation/to-workspace-browser-url.js";
 

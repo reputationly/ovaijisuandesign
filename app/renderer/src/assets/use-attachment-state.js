@@ -1,5 +1,7 @@
 // use-attachment-state.js
-import { MEDIA_LINEAGE_MAX_REFERENCES, reactExports, useTranslation } from "../vendor.js";
+import { MEDIA_LINEAGE_MAX_REFERENCES } from "../infra/media-lineage.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast, useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import {
   useCanvasBridge,

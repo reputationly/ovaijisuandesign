@@ -1,11 +1,8 @@
 // use-text-conflict-resolver.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  ChevronDown,
-  ChevronUp,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronUp } from "../media-editing/lucide-icon-wraps.js";
 import { myersLineHunks } from "./myers-line-hunks.js";
 import { coarseLineHunk } from "./build-asr-gateway-request.js";
 

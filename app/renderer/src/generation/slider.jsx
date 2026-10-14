@@ -1,12 +1,6 @@
 // slider.jsx
-import {
-  reactExports,
-  SliderControl$1 as SliderControl,
-  SliderIndicator,
-  SliderRoot,
-  SliderThumb,
-  SliderTrack,
-} from "../vendor.js";
+import reactExports from "react";
+import { SliderControl$1 as SliderControl, SliderIndicator, SliderRoot, SliderThumb, SliderTrack } from "../infra/base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";
 import { Tooltip } from "./missing-asset-card.jsx";

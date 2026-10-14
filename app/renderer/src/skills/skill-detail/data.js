@@ -1,5 +1,5 @@
 // 技能详情的数据：拉取、媒体整理、合并与可提交判断。
-import { reactExports } from "../../vendor.js";
+import reactExports from "react";
 import { gatewayFetch } from "../../infra/gateway-fetch.js";
 import { mapCloudSkillDetail } from "../../generation/map-cloud-skill-to-market-skill-info.js";
 import { isSkillShowcaseUrl } from "../../generation/normalize-skill-detail-metadata.js";

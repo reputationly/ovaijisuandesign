@@ -1,11 +1,7 @@
 // document-edit-review-bar.jsx
-import {
-  ChevronDown,
-  ChevronUp,
-  Eye as EyeIcon,
-  jsxRuntimeExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronUp, Eye as EyeIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileDiff } from "../media-editing/package.jsx";
 import { useDiffReviewStore } from "../text-editor/use-diff-review-store.js";

@@ -1,5 +1,7 @@
 // use-deep-link-router.js
-import { getRuntimeConfig, reactExports, useNavigate } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { IPC_CHANNELS } from "../infra/gateway-http-error.jsx";
 
 export function canUseDebugTooling() {

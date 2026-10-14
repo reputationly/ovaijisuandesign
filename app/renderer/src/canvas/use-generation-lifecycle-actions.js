@@ -1,5 +1,6 @@
 // use-generation-lifecycle-actions.js
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { canvasLog, dedupedToast } from "../infra/agent-http-client.js";
 
 function mapGenerationCancelResponse(raw) {

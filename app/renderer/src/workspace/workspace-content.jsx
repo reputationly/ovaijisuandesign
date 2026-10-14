@@ -1,7 +1,11 @@
 // workspace-content.jsx
 import { useAccountSubmissionDecision } from "../assets/gateway-scope-provider.jsx";
 import { useWorkspaceRemoteToolOptional } from "../canvas/resolve-workspace-failure-diagnosis.js";
-import { BROWSER_IMAGE_EDIT_EVENT, ChevronDown, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { BROWSER_IMAGE_EDIT_EVENT } from "../generation/browser-image-edit.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useDiffReviewStore } from "../text-editor/use-diff-review-store.js";
 import {

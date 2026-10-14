@@ -1,6 +1,8 @@
 // credit-threshold-reminder-card.jsx
 import { resolveModelNameForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
-import { CircleAlert, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CircleAlert } from "../media-editing/lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,

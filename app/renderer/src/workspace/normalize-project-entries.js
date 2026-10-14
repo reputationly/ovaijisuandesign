@@ -1,6 +1,8 @@
 // normalize-project-entries.js
 import { sortRecentWorkspacesByStableOrder } from "./asset-lineage-query-key.js";
-import { reactExports, usePlatform, useStorage } from "../vendor.js";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useStorage } from "../infra/use-storage.js";
 import { isCaseInsensitiveOs } from "../settings/use-active-runtime.js";
 export function resolveRecentProjectsSortMode(value) {
   return value === "recent" || value === "priority" ? value : "manual";

@@ -1,5 +1,6 @@
 // use-workspace-availability.js
-import { usePlatform, useQuery } from "../vendor.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useQuery } from "@tanstack/react-query";
 const AVAILABILITY_QUERY_KEY = ["workspace-availability"];
 function useWorkspaceAvailability(workspaces) {
   const platform = usePlatform();

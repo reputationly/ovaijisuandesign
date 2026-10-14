@@ -4,7 +4,10 @@ import {
   HOME_WIDGET_DEV_PREVIEW_EVENT,
   snapshot,
 } from "./set-home-widget-dev-preview-mode.js";
-import { reactExports, usePlatform, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";

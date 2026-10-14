@@ -3,7 +3,7 @@ import { registrySelectionRowIds } from "../generation/normalize-skill-detail-me
 import { AUDIO_MODELS } from "../generation/audio-models.js";
 import { IMAGE_MODELS } from "../generation/image-models.js";
 import { VIDEO_MODELS } from "../generation/video-models.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { urlAttributes } from "html-url-attributes";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";

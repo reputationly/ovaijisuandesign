@@ -1,15 +1,9 @@
 // mode-selector.jsx
-import {
-  BellRing,
-  Check,
-  ChevronDown,
-  ChevronRight$1 as ChevronRight,
-  CompositedSvg,
-  Hand,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { BellRing, Check, ChevronDown, ChevronRight$1 as ChevronRight, Hand } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useComposerActionsCompact } from "./create-expanded-composer-actions-measurer.jsx";
 import { StrokeIcon } from "../workspace/use-prompt-icon.jsx";

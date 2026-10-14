@@ -1,10 +1,7 @@
 // streaming-label.jsx
-import {
-  ChevronDown,
-  ChevronUp,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronUp } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { parseTimelineOperations } from "../media-editing/parse-timeline-operations.js";
 import { categorizeToolAction } from "../chat/has-structured-success-payload.js";

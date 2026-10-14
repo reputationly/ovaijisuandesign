@@ -1,11 +1,8 @@
 // account-switcher-row-surface.jsx
-import {
-  Check,
-  jsxRuntimeExports,
-  reactExports,
-  UserRound,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, UserRound } from "../media-editing/lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,

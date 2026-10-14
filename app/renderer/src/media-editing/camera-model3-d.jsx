@@ -1,5 +1,6 @@
 // camera-model3-d.jsx
-import { jsxRuntimeExports, reactExports } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { planeQuad } from "./plane-quad.jsx";
 import {

@@ -1,6 +1,6 @@
 // minimal-forced-fallback.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 const MinimalForcedFallback = () => (
   <div

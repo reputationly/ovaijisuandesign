@@ -1,5 +1,5 @@
 // ungroup-in-canvas.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import { withParentId } from "./compute-group-bounds-from-children.js";
 export function ungroupInCanvas(canvas, groupId) {
   const mode = canvas.mode;

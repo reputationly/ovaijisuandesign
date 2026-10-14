@@ -1,14 +1,11 @@
 // create-project-dialog.jsx
-import {
-  BadgeInfo,
-  jsxRuntimeExports,
-  reactExports,
-  useNewProjectFolder,
-  usePlatform,
-  useTranslation,
-  workspaceLog,
-  X$7 as CloseIcon,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { BadgeInfo, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { useNewProjectFolder } from "./use-new-project-folder.js";
+import { workspaceLog } from "../infra/logger.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useFolderPermissionGate } from "./use-folder-permission-gate.jsx";
 import { LocalFolderIcon } from "./home-service.jsx";

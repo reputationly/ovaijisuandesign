@@ -1,5 +1,8 @@
 // color-adjust-dialog.jsx
-import { jsxRuntimeExports, Loader2, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2 } from "./lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ColorAdjustSlider } from "./color-adjust-slider.jsx";

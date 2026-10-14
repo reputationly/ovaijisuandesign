@@ -1,5 +1,7 @@
 // use-hailuo03-video-trial.js
-import { reactExports, useMutation, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   claimHailuo03VideoTrial,

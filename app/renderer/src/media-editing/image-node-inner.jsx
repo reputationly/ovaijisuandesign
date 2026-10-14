@@ -1,5 +1,7 @@
 // image-node-inner.jsx
-import { BACKEND_VIBE_STORYBOARD, reactExports, useTranslation } from "../vendor.js";
+import { BACKEND_VIBE_STORYBOARD } from "../infra/shared-runtime.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { useReactFlow, useUpdateNodeInternals } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";

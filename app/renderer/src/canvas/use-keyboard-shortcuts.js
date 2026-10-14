@@ -6,7 +6,8 @@ import {
   getClipboard,
   INTERNAL_COPY_HTML_ATTRIBUTE,
 } from "./partition-user-removal-elements.js";
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import {
   buildInternalClipboardItemData,

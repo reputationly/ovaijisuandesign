@@ -1,5 +1,5 @@
 // generating-media-area.jsx
-import { CompositedSvg } from "../vendor.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MEDIA_NODE_RADIUS } from "../media-editing/package.jsx";
 import { ImagePlaceholderIcon } from "./file-missing-icon.jsx";

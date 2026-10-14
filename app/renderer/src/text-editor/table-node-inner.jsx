@@ -1,5 +1,10 @@
 // table-node-inner.jsx
-import { classifyFileType, CompositedSvg, jsxRuntimeExports, reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { dedupedToast, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

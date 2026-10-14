@@ -1,5 +1,15 @@
 // general-section.jsx
-import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, Brain$2 as Brain, ChevronLeftIcon, CircleArrowUp, CurrentWorkspaceContext, DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2 as DialogDescriptionPrimitive, DialogPopup, DialogTitle$2 as DialogTitlePrimitive, getRuntimeConfig, Globe, jsxRuntimeExports, Library, Loader2, Monitor, Pencil, Plus, reactExports, ServerIcon, ShieldAlert, Smartphone, Sun, useNavigate, usePlatform, useQueries, useQuery, useTranslation, XIcon } from "../vendor.js";
+import { CurrentWorkspaceContext } from "../infra/shared-runtime.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, ChevronLeftIcon, CircleArrowUp, Globe, Library, Loader2, Monitor, Pencil, Plus, ServerIcon, ShieldAlert, Smartphone, Sun, XIcon } from "../media-editing/lucide-icon-wraps.js";
+import { Brain$2 as Brain } from "../media-editing/custom-icons.js";
+import { DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2 as DialogDescriptionPrimitive, DialogPopup, DialogTitle$2 as DialogTitlePrimitive } from "../infra/base-ui.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { PlatformSection } from "../settings/platform-section.jsx";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";

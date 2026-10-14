@@ -10,7 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../generation/select-content.jsx";
-import { jsxRuntimeExports, reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { X$7 as X } from "./lucide-icon-wraps.js";
 import { NodeToolbar, useNodeId, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { dedupedToast } from "../infra/agent-http-client.js";

@@ -1,5 +1,5 @@
 // invite-link-history-page.jsx
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TeamPanelLoading } from "./team-panel-loading.jsx";
 import { Badge } from "../infra/badge-variants.jsx";

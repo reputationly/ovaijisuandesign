@@ -1,5 +1,5 @@
 // use-node-rename.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useAssetMetadataApi } from "./agent-http-client.js";
 import { useAssetMeta, useCanvasBridge } from "../media-editing/package.jsx";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";

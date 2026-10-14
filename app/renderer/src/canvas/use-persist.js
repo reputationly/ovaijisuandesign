@@ -1,5 +1,7 @@
 // use-persist.js
-import { CanvasNodeType, measurePerf, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import { measurePerf } from "../infra/perf-log.js";
+import reactExports from "react";
 import { isAssetBackedNode } from "./compute-group-bounds-from-children.js";
 import { normaliseHandle } from "./partition-user-removal-elements.js";
 import {

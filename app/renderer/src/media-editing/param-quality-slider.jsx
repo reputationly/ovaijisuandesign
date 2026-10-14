@@ -1,5 +1,6 @@
 // param-quality-slider.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ParamSectionLabel } from "../generation/resolution-tabs.jsx";
 import { Slider } from "../generation/slider.jsx";

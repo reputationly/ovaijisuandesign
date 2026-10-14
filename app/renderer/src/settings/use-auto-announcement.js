@@ -1,6 +1,6 @@
 // use-auto-announcement.js
 import { PopupType } from "../generation/normalize-skill-detail-metadata.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 const SHOWN_KEY_PREFIX = "hilo:popup:trial-granted-shown:";
 export const PENDING_KEY = "hilo:popup:trial-granted-pending";
 export const CHANGE_EVENT = "hilo:trial-granted-changed";

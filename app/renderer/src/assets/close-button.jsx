@@ -1,5 +1,7 @@
 // close-button.jsx
-import { reactExports, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export const CloseButton = reactExports.memo(function CloseButton({
   onClose,

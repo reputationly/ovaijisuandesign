@@ -3,7 +3,11 @@ import {
   classifyRawErrorText,
   ErrorCodes,
 } from "../generation/normalize-skill-detail-metadata.js";
-import { AlertCircle, CreditCard, ExternalLink, jsxRuntimeExports, KeyRound, reactExports, ServerOff, ShieldAlert, usePlatform, useTranslation, WifiOff, Zap } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { AlertCircle, CreditCard, ExternalLink, KeyRound, ServerOff, ShieldAlert, WifiOff, Zap } from "../media-editing/lucide-icon-wraps.js";
 import { guardAccountSubmission } from "../infra/agent-http-client.js";
 import { Upload } from "../media-editing/package.jsx";
 import { INSUFFICIENT_BALANCE_TEXT_PATTERN } from "../generation/to-workspace-browser-url.js";

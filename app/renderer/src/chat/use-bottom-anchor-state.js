@@ -1,5 +1,5 @@
 // use-bottom-anchor-state.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 const SHOW_THRESHOLD_PX = 200;
 

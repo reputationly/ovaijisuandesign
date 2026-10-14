@@ -1,6 +1,8 @@
 // canvas-host-toolbar-button.jsx
 import { DEFAULT_PLACEMENT_GAP } from "../canvas/ungroup-in-canvas.js";
-import { jsxRuntimeExports, useStorage, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
+import { useStorage } from "../infra/use-storage.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CoachMark } from "../assets/use-materialized-entities.jsx";
 import { CDN_COACHMARK_CANVAS_GROUP } from "../workspace/context-menu-content.jsx";

@@ -1,5 +1,7 @@
 // video-player-inner.jsx
-import { create$2 as create, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { create } from "zustand";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ProgressBar } from "./progress-bar-inner.jsx";
 import { useMediaPlayback } from "./package.jsx";

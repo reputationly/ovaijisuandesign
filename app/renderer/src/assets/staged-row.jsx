@@ -1,14 +1,9 @@
 // staged-row.jsx
-import {
-  API_PATHS,
-  classifyFileType,
-  Loader2,
-  reactExports,
-  Scan,
-  useTranslation,
-  Video,
-  X$7 as CloseIcon,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { Loader2, Scan, Video, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AudioPlayButton, FileNameLabel } from "./audio-play-button.jsx";

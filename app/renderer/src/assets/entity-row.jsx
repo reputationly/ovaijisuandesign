@@ -1,5 +1,10 @@
 // entity-row.jsx
-import { classifyFileType, File$3 as File, FolderInput$2 as FolderInput, jsxRuntimeExports, Music$2 as Music, Plus, reactExports, useTranslation, Video$2 as Video } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { File$3 as File, FolderInput$2 as FolderInput, Music$2 as Music, Video$2 as Video } from "../media-editing/custom-icons.js";
+import { Plus } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

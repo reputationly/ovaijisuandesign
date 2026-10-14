@@ -27,7 +27,12 @@ import {
   VENDOR_PARAM_KEYS,
   withMiniMaxH3ParamHints,
 } from "./domestic-param-labels.jsx";
-import { AlertTriangle, API_PATHS, CompositedSvg, jsxRuntimeExports, Loader2, reactExports, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, Loader2 } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

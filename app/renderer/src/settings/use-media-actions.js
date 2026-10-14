@@ -1,5 +1,7 @@
 // use-media-actions.js
-import { reactExports, usePlatform, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { isAbsoluteLocalFilePath } from "./restart-banner.jsx";
 import {

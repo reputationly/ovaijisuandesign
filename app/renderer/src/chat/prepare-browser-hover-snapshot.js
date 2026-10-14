@@ -1,5 +1,5 @@
 // prepare-browser-hover-snapshot.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { registerBrowserHoverPreview } from "../infra/dialog-content.jsx";
 
 const CAPTURE_TIMEOUT_MS = 800;

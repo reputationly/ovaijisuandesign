@@ -1,5 +1,6 @@
 // use-active-runtime.js
-import { reactExports, useQuery } from "../vendor.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
 import { BUNDLED_CHANGELOG } from "./bundled-changelog.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
 function isRenderableAssetType(type) {

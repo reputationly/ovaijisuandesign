@@ -1,12 +1,8 @@
 // skill-reload-dock.jsx
-import {
-  ArrowRight,
-  CompositedSvg,
-  Crosshair,
-  useCurrentWorkspace,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
+import { ArrowRight, Crosshair, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";

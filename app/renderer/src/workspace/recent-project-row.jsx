@@ -1,5 +1,11 @@
 // recent-project-row.jsx
-import { API_PATHS, Check, CircleAlert, CircleX, CompositedSvg, Copy, FolderX, MonochromeIcon, Pin, reactExports, usePlatform, useQuery, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { Check, CircleAlert, CircleX, Copy, FolderX, Pin } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { __jsx } from "../shared/jsx-runtime.js";

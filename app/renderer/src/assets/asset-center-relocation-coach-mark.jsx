@@ -1,13 +1,11 @@
 // asset-center-relocation-coach-mark.jsx
-import {
-  reactExports,
-  resolveNewProjectPreferences,
-  storageKeys,
-  useNavigate,
-  useQueryClient,
-  useStorage,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { resolveNewProjectPreferences } from "../infra/shared-runtime.js";
+import { storageKeys } from "../infra/storage-cache.js";
+import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { useStorage } from "../infra/use-storage.js";
 import { getAssetCenterMainService } from "./split-shortcut-keys.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

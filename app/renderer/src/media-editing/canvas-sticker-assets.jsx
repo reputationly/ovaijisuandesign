@@ -1,12 +1,10 @@
 // canvas-sticker-assets.jsx
-import {
-  CompositedSvg,
-  ExternalLink$2 as ExternalLink,
-  reactDomExports,
-  reactExports,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
+import { ExternalLink$2 as ExternalLink } from "./custom-icons.js";
+import { X$7 as X } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DEFAULT_ROW_HEIGHT } from "../canvas/is-reexecutable-generation-node.js";
 import {

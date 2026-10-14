@@ -1,14 +1,10 @@
 // use-materialized-entities.jsx
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-import {
-  API_PATHS,
-  useCurrentWorkspace,
-  useMutation,
-  usePlatform,
-  useQuery,
-  useQueryClient,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CoachMarkPopup } from "../workspace/coach-mark-popup.jsx";

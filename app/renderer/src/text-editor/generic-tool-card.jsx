@@ -1,5 +1,6 @@
 // generic-tool-card.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getToolLabelId } from "../chat/has-structured-success-payload.js";
 import { BrailleSpinner } from "../chat/chat-empty-state.jsx";

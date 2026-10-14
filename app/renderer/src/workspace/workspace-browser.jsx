@@ -1,5 +1,9 @@
 // workspace-browser.jsx
-import { ArrowLeft, ArrowRight, ArrowUpRight, Globe, jsxRuntimeExports, MoreHorizontal, Plus, reactExports, RotateCw, usePlatform, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Globe, MoreHorizontal, Plus, RotateCw, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Icon,

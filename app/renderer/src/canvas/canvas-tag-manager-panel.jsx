@@ -1,5 +1,9 @@
 // canvas-tag-manager-panel.jsx
-import { closestCenter, DndContext, KeyboardSensor, Loader2, Plus, PointerSensor, reactExports, useSensor, useSensors, useTranslation } from "../vendor.js";
+import { useSensor, useSensors } from "../vendor.js";
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor } from "@dnd-kit/core";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2, Plus } from "../media-editing/lucide-icon-wraps.js";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {

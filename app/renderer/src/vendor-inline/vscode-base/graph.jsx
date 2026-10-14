@@ -1,22 +1,12 @@
 // 留在这里：对应 VS Code 这些没有 npm 包的源文件，所以保留可读副本：src/vs/base/parts/ipc/common/ipc.electron.ts、src/vs/base/parts/ipc/electron-sandbox/ipc.electron.ts、src/vs/platform/instantiation/common/graph.ts、src/vs/platform/instantiation/common/serviceCollection.ts、src/vs/platform/instantiation/common/instantiationService.ts。渲染进程客户端和依赖图在这里接上应用自己的服务、菜单和图标，没有可整文件替换的包。
 // graph.jsx
-import {
-  reactExports,
-  CompositedSvg,
-  TooltipProvider$2 as BaseUiTooltipProvider,
-  getRuntimeConfig,
-  desktopMediaIcon,
-  PlaybackPauseIcon$1 as BasePlaybackPauseIcon,
-  MonochromeIcon,
-  MenuRoot,
-  MenuGroup,
-  MenuRadioGroup,
-  MenuSubmenuRoot,
-  TooltipRoot,
-  TooltipTrigger$1 as BaseUiTooltipTrigger,
-  PlatformContext,
-  makeLogger,
-} from "../../vendor.js";
+import reactExports from "react";
+import { getRuntimeConfig } from "../../infra/runtime-config.js";
+import { PlatformContext } from "../../infra/platform-context.js";
+import { CompositedSvg, MonochromeIcon } from "../../media-editing/icon-compositing.js";
+import { TooltipProvider$2 as BaseUiTooltipProvider, MenuRoot, MenuGroup, MenuRadioGroup, MenuSubmenuRoot, TooltipRoot, TooltipTrigger$1 as BaseUiTooltipTrigger } from "../../infra/base-ui.js";
+import { desktopMediaIcon, PlaybackPauseIcon$1 as BasePlaybackPauseIcon } from "../../media-editing/playback-icons.js";
+import { makeLogger } from "../../infra/logger.js";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { IPCClient, ProxyChannel } from "./channel-client.js";
 import { DisposableStore } from "./linked-list.js";

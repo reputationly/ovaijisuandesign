@@ -1,11 +1,9 @@
 // tool-label-definitions.js
-import {
-  API_PATHS,
-  reactExports,
-  usePlatform,
-  useStorage,
-  workspaceLog,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
+import { workspaceLog } from "../infra/logger.js";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { applyWorkspaceDisplayNameRename } from "./record-recent-workspace-opened.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";

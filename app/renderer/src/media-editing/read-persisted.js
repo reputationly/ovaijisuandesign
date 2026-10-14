@@ -5,7 +5,7 @@ import {
   IMAGE_TOOLBAR_TOOLS,
   LEGACY_IMAGE_TOOLBAR_TOOLS,
 } from "./use-start-cloud-edit-from-node.js";
-import { create$2 as create } from "../vendor.js";
+import { create } from "zustand";
 const STORAGE_KEY = "hilo:canvas:image-toolbar:customization";
 const PRE_RELIGHT_WORKFLOW_DEFAULT_PINNED = [
   "crop",

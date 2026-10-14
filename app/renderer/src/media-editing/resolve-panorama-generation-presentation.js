@@ -1,5 +1,5 @@
 // resolve-panorama-generation-presentation.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { CanvasRenderRuntimeContext } from "../infra/use-plugin-metadata-store.js";
 import { isGenerationErrorStatus } from "../canvas/compute-group-bounds-from-children.js";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";

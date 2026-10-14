@@ -17,7 +17,13 @@ import {
   Copy,
   ThumbsUp,
 } from "lucide-react";
-import { useTranslation, reactExports, jsxRuntimeExports, Button$3 as PrimitiveButton, Minus, CompositedSvg, Globe, Brain$2 as Brain, Pin, Smartphone, Globe2, ArrowLeft, RotateCw, Plus$1 as Plus, MonochromeIcon } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { Button as PrimitiveButton } from "@base-ui/react/button";
+import { Minus, Globe, Pin, Smartphone, Globe2, ArrowLeft, RotateCw, Plus$1 as Plus } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing.js";
+import { Brain$2 as Brain } from "../media-editing/custom-icons.js";
 import { Button as DialogButton, mergeTailwindClasses as mergeClassNames, TooltipContent, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
 import { CanvasLoadError } from "../canvas/canvas-load-error.jsx";
 import { CircleUserRound, HardDrive, Megaphone, PencilLine, RotateIcon, Rotate90Icon, FlipHorizontalIcon, FlipVerticalIcon } from "../media-editing/package.jsx";

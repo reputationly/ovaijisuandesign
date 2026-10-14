@@ -1,11 +1,8 @@
 // audio-preview-player.jsx
-import {
-  Loader2,
-  PlaybackCircleToggleIcon,
-  reactExports,
-  useTranslation,
-  Volume2,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2, Volume2 } from "./lucide-icon-wraps.js";
+import { PlaybackCircleToggleIcon } from "./playback-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { formatTime, useMediaPlayback, VolumeX } from "./package.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";

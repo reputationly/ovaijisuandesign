@@ -17,13 +17,10 @@ import {
   selectionFromSnapshot,
   selectionNearPosition,
 } from "./scrollable-markdown-table-view.js";
-import {
-  closeHistory,
-  DOMSerializer,
-  Node$4 as Node,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { closeHistory } from "prosemirror-history";
+import { DOMSerializer, Node } from "prosemirror-model";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { recordProvisionalDiffReviewHistory } from "./record-provisional-diff-review-history.js";
 import { useDiffReviewStore } from "./use-diff-review-store.js";
 import { selectPendingHunksForNode } from "./annotation-gutter.jsx";

@@ -1,5 +1,6 @@
 // tutorial-button.jsx
-import { ArrowUpRight, Bot, usePlatform } from "../vendor.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { ArrowUpRight, Bot } from "../media-editing/lucide-icon-wraps.js";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";

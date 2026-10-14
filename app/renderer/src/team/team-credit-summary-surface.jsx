@@ -1,5 +1,6 @@
 // team-credit-summary-surface.jsx
-import { Info$1 as Info, useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,

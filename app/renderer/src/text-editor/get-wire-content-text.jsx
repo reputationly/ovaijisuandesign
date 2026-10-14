@@ -1,14 +1,10 @@
 // get-wire-content-text.jsx
 import { formatConnectorMention } from "../canvas/diagnostic-history-tools.js";
-import {
-  createConnectorInventory,
-  Decoration$1 as Decoration,
-  DecorationSet,
-  Extension,
-  Plugin,
-  PluginKey,
-  reactExports,
-} from "../vendor.js";
+import { Decoration, DecorationSet } from "prosemirror-view";
+import { Extension } from "@tiptap/core";
+import { Plugin, PluginKey } from "prosemirror-state";
+import reactExports from "react";
+import { createConnectorInventory } from "../skills/connectors/connector-market.js";
 import { homeService } from "../workspace/home-service.jsx";
 import { connectorReferenceFromServer } from "../generation/use-mention-models.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

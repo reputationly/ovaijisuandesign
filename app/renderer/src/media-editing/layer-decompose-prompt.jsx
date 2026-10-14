@@ -1,10 +1,8 @@
 // layer-decompose-prompt.jsx
-import {
-  Layers3,
-  reactExports,
-  usePromptFontSizeStore,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Layers3 } from "./lucide-icon-wraps.js";
+import { usePromptFontSizeStore } from "../generation/prompt-font-size.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TokenIcon } from "../generation/missing-asset-card.jsx";
 import { PopoverShell } from "../generation/attachment-bar.jsx";

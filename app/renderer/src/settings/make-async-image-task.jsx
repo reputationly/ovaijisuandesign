@@ -1,11 +1,9 @@
 // make-async-image-task.jsx
-import {
-  jsxRuntimeExports,
-  localizedI18nText,
-  reactExports,
-  ShieldCheck,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { localizedI18nText } from "../i18n/localized-text.js";
+import { ShieldCheck } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ConnectorDialogFrame } from "./connector-dialog-frame.jsx";
 import { useIsScrolling } from "../assets/credit-query-keys.jsx";

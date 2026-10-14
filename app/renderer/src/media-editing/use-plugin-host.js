@@ -7,7 +7,7 @@ import {
   PLUGIN_STORAGE_KEY,
   upsert,
 } from "./input.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { buildDispatch } from "./build-dispatch.js";
 import {

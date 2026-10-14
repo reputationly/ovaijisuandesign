@@ -1,5 +1,7 @@
 // use-chat.js
-import { reactExports, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { chatLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { recordAction } from "../infra/gateway-http-error.jsx";

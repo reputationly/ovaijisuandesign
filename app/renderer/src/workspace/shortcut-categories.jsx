@@ -10,12 +10,10 @@ import {
   TabsList,
   TabsTrigger,
 } from "./shortcut-hint.jsx";
-import {
-  reactDomExports,
-  reactExports,
-  useTranslation,
-  X$7 as CloseIcon,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 function fromDef(definition) {

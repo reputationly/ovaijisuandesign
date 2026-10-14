@@ -3,12 +3,8 @@ import {
   inferFileKind,
   KNOWLEDGE_PATH_RE,
 } from "../chat/has-structured-success-payload.js";
-import {
-  collectMediaResultRecords,
-  getFileActivityKind,
-  isRecord$2 as isRecord,
-  tryParseJson$1 as tryParseVendorJson,
-} from "../vendor.js";
+import { tryParseJson$1 as tryParseVendorJson } from "../infra/shared-runtime.js";
+import { collectMediaResultRecords, getFileActivityKind, isRecord$2 as isRecord } from "../chat/media-tool-result.js";
 import {
   parseJsonRecord,
   timelineOperationTargetKey,

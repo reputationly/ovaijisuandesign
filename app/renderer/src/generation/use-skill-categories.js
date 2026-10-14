@@ -1,5 +1,6 @@
 // use-skill-categories.js
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { getBaseUrl } from "../infra/gateway-http-error.jsx";
 import { PENDING_AUTO_UPDATE_KEY } from "./use-mention-models.jsx";

@@ -1,5 +1,7 @@
 // ComfyUI 模型下载区：下载任务行、进度与详情文案。
-import { useTranslation, PlaybackStopIcon$1 as PlaybackStopIcon, X$7 as X, CircleAlert, ShieldCheck } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { PlaybackStopIcon$1 as PlaybackStopIcon } from "../media-editing/playback-icons.js";
+import { X$7 as X, CircleAlert, ShieldCheck } from "../media-editing/lucide-icon-wraps.js";
 import { useComfyUiDownloadProgress, isActiveComfyUiDownloadTask } from "../vendor-inline/vscode-base/graph.jsx";
 import { Download } from "../media-editing/package.jsx";
 import { Progress } from "../team/team-management-detail-loading.jsx";

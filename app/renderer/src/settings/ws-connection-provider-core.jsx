@@ -12,7 +12,10 @@ import {
   canvasTagRegistryQueryKey,
   WSConnectionContext,
 } from "../workspace/asset-lineage-query-key.js";
-import { API_PATHS, reactExports, useGatewayScope, useQueryClient } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useGatewayScope } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { guardAccountSubmission, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

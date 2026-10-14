@@ -1,6 +1,9 @@
 // use-text-version-panel.jsx
 import { Trans } from "react-i18next";
-import { jsxRuntimeExports, Pencil, reactExports, Save, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Pencil, Save } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   TEXT_VERSION_NOTE_MAX_CHARS,

@@ -1,5 +1,7 @@
 // plugin-node-inner.jsx
-import { CompositedSvg, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileViewerRouter } from "./pdf-viewer.jsx";

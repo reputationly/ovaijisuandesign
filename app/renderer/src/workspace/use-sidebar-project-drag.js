@@ -1,5 +1,6 @@
 // use-sidebar-project-drag.js
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { UNGROUPED_RECENT_GROUP_KEY } from "./tool-label-definitions.js";
 import { workspaceDisplayName } from "../generation/use-model-catalog-scope-key.js";

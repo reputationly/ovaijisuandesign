@@ -1,5 +1,6 @@
 // 项目列表里的单张项目卡片：封面、名称、成员与时间、重命名与删除菜单。
-import { useTranslation, reactExports } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
 import { formatTimestampDot } from "../generation/use-model-catalog-scope-key.js";
 import { ClickableArea, InlineRenameInput } from "../infra/inline-rename-input.jsx";
 import { TooltipProvider, Tooltip, TooltipTrigger, DropdownMenu, MoreVerticalIcon } from "../vendor-inline/vscode-base/graph.jsx";

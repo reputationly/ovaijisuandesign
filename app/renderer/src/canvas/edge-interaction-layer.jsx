@@ -8,7 +8,9 @@ import {
   setHoveredEdgeId,
   sourceHandleSide,
 } from "./control-points-for.js";
-import { reactExports, Scissors, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Scissors } from "../media-editing/lucide-icon-wraps.js";
 import { EdgeLabelRenderer, useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { getInternalNodesBounds } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";

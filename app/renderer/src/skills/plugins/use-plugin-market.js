@@ -1,5 +1,6 @@
 // 插件市场的数据 hook：分页、筛选、搜索。
-import { reactExports, API_PATHS } from "../../vendor.js";
+import reactExports from "react";
+import { API_PATHS } from "../../infra/workspace-gateway.js";
 import { gatewayFetch } from "../../infra/gateway-fetch.js";
 import { pluginEvents } from "../../canvas/resolve-workspace-failure-diagnosis.js";
 import { trackPluginInstall, trackPluginInstallFailed, trackPluginUninstall, trackPluginUninstallFailed } from "../../assets/use-plugin-editor-output-selection.js";

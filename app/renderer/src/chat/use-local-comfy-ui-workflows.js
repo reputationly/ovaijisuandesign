@@ -1,5 +1,6 @@
 // use-local-comfy-ui-workflows.js
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { currentCanvasWorkflowNodeKey } from "./find-trailing-trigger.js";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { mapLocalComfyUiWorkflows } from "../text-editor/canvas-host-toolbar-button.jsx";

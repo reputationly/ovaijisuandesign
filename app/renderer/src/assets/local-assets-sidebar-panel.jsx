@@ -1,5 +1,10 @@
 // local-assets-sidebar-panel.jsx
-import { API_PATHS, ChevronDown, ChevronRight$1 as ChevronRight, FolderInput, FolderPlus, jsxRuntimeExports, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronRight$1 as ChevronRight, FolderInput, FolderPlus } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

@@ -1,5 +1,6 @@
 // use-plugin-chat-bridge.js
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { guardAccountSubmission } from "../infra/agent-http-client.js";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import { detectFileType } from "../canvas/diagnostic-history-tools.js";

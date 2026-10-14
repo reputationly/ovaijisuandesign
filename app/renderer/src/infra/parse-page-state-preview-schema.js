@@ -1,5 +1,6 @@
 // parse-page-state-preview-schema.js
-import { reactExports, X$7 as X } from "../vendor.js";
+import reactExports from "react";
+import { X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { FeedbackIcon } from "../workspace/home-service.jsx";

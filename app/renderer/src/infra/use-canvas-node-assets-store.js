@@ -1,6 +1,6 @@
 // use-canvas-node-assets-store.js
 import { parseNodeId } from "../canvas/find-free-position-from-anchor.js";
-import { create$2 as create } from "../vendor.js";
+import { create } from "zustand";
 const DEFAULT_WORKSPACE_SCOPE = "__default__";
 function workspaceScope(workspaceId) {
   return workspaceId || DEFAULT_WORKSPACE_SCOPE;

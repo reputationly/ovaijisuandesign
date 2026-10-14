@@ -1,5 +1,6 @@
 // interest-option-grid.jsx
-import { Film, GraduationCap, Music, useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { Film, GraduationCap, Music } from "../media-editing/lucide-icon-wraps.js";
 import {
   Brush,
   Clapperboard,

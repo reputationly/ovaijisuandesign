@@ -1,5 +1,5 @@
 // use-canvas-actions.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 export const CanvasActionsContext = reactExports.createContext(null);
 

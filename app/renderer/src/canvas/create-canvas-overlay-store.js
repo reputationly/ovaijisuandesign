@@ -1,5 +1,5 @@
 // create-canvas-overlay-store.js
-import { createStore$1 as createStore } from "../vendor.js";
+import { createStore } from "zustand/vanilla";
 export function createCanvasOverlayStore() {
   return createStore((set) => ({
     active: null,

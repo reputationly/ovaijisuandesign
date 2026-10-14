@@ -1,5 +1,5 @@
 // text-editor-skill-categories.jsx
-import { Info$1 as Info } from "../vendor.js";
+import { Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,

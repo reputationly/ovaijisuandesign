@@ -1,11 +1,7 @@
 // preset-tags.jsx
-import {
-  ChevronRight$1 as ChevronRight,
-  Plus,
-  reactExports,
-  useTranslation,
-  X$7 as CloseIcon,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronRight$1 as ChevronRight, Plus, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { trackAssetCenterAction } from "../infra/use-online.jsx";
 const PRESET_TAGS = ["写实", "二次元", "赛博朋克", "水墨", "像素风"];

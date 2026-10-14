@@ -4,7 +4,7 @@ import {
   CANVAS_MAX_ZOOM,
   CANVAS_MIN_ZOOM,
 } from "../infra/use-plugin-metadata-store.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useReactFlow, useStore } from "../vendor-fork/xyflow/react/index.js";
 const SAFE_AREA = {
   top: 80,

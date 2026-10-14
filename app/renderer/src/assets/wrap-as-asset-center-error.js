@@ -1,5 +1,8 @@
 // wrap-as-asset-center-error.js
-import { QueryClient, reactExports, useQuery, useStorage } from "../vendor.js";
+import { QueryClient } from "@tanstack/query-core";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useStorage } from "../infra/use-storage.js";
 import {
   useGatewayFetch,
   useGatewayReady,

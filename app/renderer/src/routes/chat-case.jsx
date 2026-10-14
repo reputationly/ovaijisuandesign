@@ -1,6 +1,10 @@
 // chat-case.jsx
 import { GENERATION_FAILURE_ERROR_CODES } from "../chat/has-structured-success-payload.js";
-import { useTranslation, reactExports, jsxRuntimeExports, useSearch, MessageCircleMore, Check } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useSearch } from "@tanstack/react-router";
+import { MessageCircleMore, Check } from "../media-editing/lucide-icon-wraps.js";
 import { ActivityGroup } from "../team/activity-group.jsx";
 import { groupIntoActivityGroups } from "../media-editing/group-into-activity-groups.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";

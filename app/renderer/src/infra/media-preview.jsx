@@ -1,20 +1,10 @@
 // media-preview.jsx
-import {
-  ActionListItem,
-  ActionListPanel,
-  ActionListSeparator,
-  ChevronDown,
-  Copy,
-  ICON_STROKE_SPEC,
-  Maximize,
-  Pencil,
-  PlaybackCircleToggleIcon,
-  reactExports,
-  Search,
-  Tag$1 as Tag,
-  useTranslation,
-  Volume2,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ActionListItem, ActionListPanel, ActionListSeparator } from "../media-editing/action-list.jsx";
+import { ChevronDown, Copy, Maximize, Pencil, Search, Tag$1 as Tag, Volume2 } from "../media-editing/lucide-icon-wraps.js";
+import { ICON_STROKE_SPEC } from "../media-editing/icon-compositing.js";
+import { PlaybackCircleToggleIcon } from "../media-editing/playback-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ICON_TEXT_SPEC, StrokeIcon } from "../workspace/use-prompt-icon.jsx";
 import {

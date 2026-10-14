@@ -1,11 +1,8 @@
 // team-panel-stale.jsx
-import {
-  jsxRuntimeExports,
-  Loader2,
-  reactExports,
-  TriangleAlert,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2, TriangleAlert } from "../media-editing/lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,

@@ -1,20 +1,11 @@
 // node-context-menu.jsx
-import {
-  ActionListItem,
-  ActionListPanel,
-  ActionListSeparator,
-  CanvasNodeType,
-  Copy,
-  CopyPlus,
-  FolderInput,
-  jsxRuntimeExports,
-  Library,
-  reactDomExports,
-  reactExports,
-  Save,
-  Tag$1 as Tag,
-  useTranslation,
-} from "../vendor.js";
+import { CanvasNodeType } from "../canvas/canvas-geometry.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ActionListItem, ActionListPanel, ActionListSeparator } from "../media-editing/action-list.jsx";
+import { Copy, CopyPlus, FolderInput, Library, Save, Tag$1 as Tag } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";

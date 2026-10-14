@@ -15,7 +15,8 @@ import {
   stripContextPrefix,
 } from "../text-editor/build-asr-gateway-request.js";
 import { ErrorCodes } from "../generation/normalize-skill-detail-metadata.js";
-import { API_PATHS, measurePerf } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { measurePerf } from "../infra/perf-log.js";
 import { PERF_DERIVE_MESSAGES } from "../generation/to-workspace-browser-url.js";
 function extractErrorString(error) {
   if (typeof error === "string") return error;

@@ -10,7 +10,7 @@ import {
   readEnvelope,
   removeKey,
 } from "../assets/read-envelope.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import {
   GlobalSidebarContext,
   RECENT_WORKSPACES_REFRESH_EVENT,

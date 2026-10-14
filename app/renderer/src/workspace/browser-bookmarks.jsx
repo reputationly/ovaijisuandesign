@@ -1,15 +1,9 @@
 // browser-bookmarks.jsx
-import {
-  CDN_BROWSER_START_ICON,
-  ChevronDown,
-  Globe2,
-  Palette,
-  reactExports,
-  Shuffle,
-  TAB_CONTENT_ENTER_CLASS_NAME,
-  useTranslation,
-  X$7 as CloseIcon,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CDN_BROWSER_START_ICON } from "./browser-start-icon.js";
+import { ChevronDown, Globe2, Palette, Shuffle, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { TAB_CONTENT_ENTER_CLASS_NAME } from "../shared/tab-enter-class.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

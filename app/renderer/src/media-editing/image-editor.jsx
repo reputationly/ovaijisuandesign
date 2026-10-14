@@ -1,6 +1,6 @@
 // image-editor.jsx
 import { CanvasEditor as CanvasEditor } from "./canvas-editor.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 function createEditor(options) {

@@ -1,5 +1,5 @@
 // tool-slider.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Slider } from "../generation/slider.jsx";
 const DEFAULT_THUMB_SIZE = 16;

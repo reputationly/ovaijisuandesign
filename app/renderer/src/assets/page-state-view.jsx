@@ -2,7 +2,8 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useTheme } from "../generation/use-model-catalog-scope-key.js";
 import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
-import { jsxRuntimeExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
 const emptyDarkUrl =
   "" + new URL("../empty-dark.svg", import.meta.url).href;
 const emptyLightUrl =

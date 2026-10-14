@@ -1,6 +1,8 @@
 // compute-multi-image-grid-positions.jsx
 import { parseGenerationStartedAt } from "./use-warn-missing-asset-meta.jsx";
-import { CompositedSvg, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 function MultiImageCountIcon() {

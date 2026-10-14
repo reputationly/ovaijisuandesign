@@ -1,5 +1,6 @@
 // hilo-media-plugin.js
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
 import {
   AUDIO_CARD_SIZE,
   FILE_CARD_DEFAULT_SIZE,

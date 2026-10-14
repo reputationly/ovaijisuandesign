@@ -1,5 +1,6 @@
 // use-coach-mark-sequence.js
-import { reactExports, useStorage } from "../vendor.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import { resolveSeenRevision } from "./wrap-as-asset-center-error.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";

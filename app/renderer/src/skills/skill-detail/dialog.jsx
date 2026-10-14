@@ -1,5 +1,9 @@
 // 技能详情弹窗。
-import { useTranslation, reactExports, jsxRuntimeExports, X$7 as X, Loader2, BadgeCheck, reactDomExports, UserRound, Share2 } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import { X$7 as X, Loader2, BadgeCheck, UserRound, Share2 } from "../../media-editing/lucide-icon-wraps.js";
 import { Switch } from "../../generation/select-content.jsx";
 import { StrokeIcon, RetryIcon } from "../../workspace/use-prompt-icon.jsx";
 import { mergeTailwindClasses as cn, Button, TooltipContent } from "../../infra/dialog-content.jsx";

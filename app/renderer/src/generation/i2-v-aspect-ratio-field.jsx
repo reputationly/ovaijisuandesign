@@ -26,7 +26,7 @@ import {
   mediaExtensionDurationOptions,
   ParamSectionLabel,
 } from "./resolution-tabs.jsx";
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AspectRatioGrid } from "./aspect-ratio-grid.jsx";
 import { MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO } from "./normalize-skill-detail-metadata.js";

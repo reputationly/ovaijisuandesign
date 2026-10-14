@@ -1,7 +1,7 @@
 // 全局搜索结果的组装与打分：项目、会话、固定入口、推荐与最近记录、本地结果。
 import { withThumbnail } from "../workspace/tool-label-definitions.js";
 import { gatewayUrlFromBase } from "../infra/gateway-http-error.jsx";
-import { API_PATHS } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
 import { CATEGORY_WEIGHT, HUB_PROJECT_RESULT_LIMIT } from "./constants.js";
 import { STATIC_RESULTS } from "./static-results.js";
 function normalize(value) {

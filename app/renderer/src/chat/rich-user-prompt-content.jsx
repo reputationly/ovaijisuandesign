@@ -9,12 +9,10 @@ import { parseConnectorMentionAt } from "../text-editor/build-asr-gateway-reques
 import { findAllMentions } from "../text-editor/table-document-to-llm-content.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ConnectorIcon } from "../settings/connector-relationship-graphic.jsx";
-import {
-  classifyFileType,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
 import {
   FileKindIcon,
   ModelTypeIcon,

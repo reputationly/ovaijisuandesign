@@ -1,5 +1,7 @@
 // team-member-usage-page.jsx
-import { minCreditAmount, reactExports, useTranslation } from "../vendor.js";
+import { minCreditAmount } from "./credit-display.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useMediaModels } from "../generation/normalize-model-info.js";
 import { formatCreditAmount } from "./team-panel-stale.jsx";

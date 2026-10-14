@@ -1,5 +1,5 @@
 // use-canvas-node-error-feedback.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useDirectFeedback } from "../settings/use-direct-feedback.jsx";
 
 export function useCanvasNodeErrorFeedback() {

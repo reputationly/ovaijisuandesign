@@ -1,5 +1,5 @@
 // chat-controller.js
-import { measurePerf } from "../vendor.js";
+import { measurePerf } from "../infra/perf-log.js";
 import {
   clearRunningCompactionStatus,
   completeLatestCompactionStatus,

@@ -1,14 +1,8 @@
 // transfers-button.jsx
-import {
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  CloudUpload,
-  jsxRuntimeExports,
-  LoaderCircle,
-  reactExports,
-  useTranslation,
-  X$7 as XIcon,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowDownToLine, ArrowUpFromLine, CloudUpload, LoaderCircle, X$7 as XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Trash2 } from "../media-editing/package.jsx";

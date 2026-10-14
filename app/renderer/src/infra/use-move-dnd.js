@@ -1,5 +1,5 @@
 // use-move-dnd.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 const ASSET_MOVE_MIME = "application/x-hilo-asset-move";
 

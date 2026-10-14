@@ -1,6 +1,6 @@
 // use-editor-state.js
 import { DEFAULT_STYLE } from "./history-manager.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 const EMPTY_STATE = {
   shapes: [],
   selectedId: null,

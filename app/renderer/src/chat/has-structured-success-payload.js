@@ -1,10 +1,8 @@
 // has-structured-success-payload.js
 import { configuredLabelIds } from "../settings/request-prompt-prefill.jsx";
 import { getBuiltInToolLabelId } from "../media-editing/tool-name-to-label-id.js";
-import {
-  GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT,
-  getFileActivityKind,
-} from "../vendor.js";
+import { GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT } from "../infra/generation-errors.js";
+import { getFileActivityKind } from "./media-tool-result.js";
 import { TOOL_ABORTED_BY_USER_TEXT } from "../canvas/diagnostic-history-tools.js";
 import {
   ErrorCodes,

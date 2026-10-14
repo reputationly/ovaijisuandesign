@@ -1,10 +1,8 @@
 // field-row.jsx
-import {
-  CompositedSvg,
-  reactDomExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DragHandleIcon, TrashIcon } from "./canvas-sticker-assets.jsx";
 import { MoreVerticalIcon } from "../canvas/fullscreen-icon.jsx";

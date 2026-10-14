@@ -1,5 +1,5 @@
 // use-reference-attachment-navigation.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { ReferenceNavigationContext } from "./get-reference-navigation-defaults.jsx";
 import { CanvasActionsContext } from "./use-canvas-actions.js";
 import { extractCanvasEditorText } from "../assets/parse-prompt-to-tiptap.js";

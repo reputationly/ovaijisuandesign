@@ -1,5 +1,7 @@
 // canvas-crop-overlay.jsx
-import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { cropImageToBlob, cropRectForAspectRatio } from "./base-backend.jsx";
 import { ASPECT_RATIOS, DEFAULT_CROP } from "./image-edit-pricing.js";

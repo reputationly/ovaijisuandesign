@@ -1,5 +1,7 @@
 // 技能页的状态 hook：布局、筛选、更新检查、同步状态、试用技能。
-import { useTranslation, reactExports, API_PATHS } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { API_PATHS } from "../infra/workspace-gateway.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useNavigateToWorkspace } from "../workspace/use-deep-link-router.js";
 import { homeService } from "../workspace/home-service.jsx";

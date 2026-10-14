@@ -1,4 +1,4 @@
-import { jsxRuntimeExports } from "./vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
 import "./infra/agent-http-client.js";
 import "@lezer/lr";
 import "@lezer/common";

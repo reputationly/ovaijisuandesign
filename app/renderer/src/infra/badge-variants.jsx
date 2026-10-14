@@ -2,15 +2,9 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, mergeTailwindClasses as cn } from "./dialog-content.jsx";
 import { cva } from "class-variance-authority";
-import {
-  DialogBackdrop,
-  DialogClose$1 as DialogClose,
-  DialogDescription$2,
-  DialogPopup,
-  DialogTitle$2,
-  mergeProps$1 as mergeProps,
-  useRender,
-} from "../vendor.js";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
+import { DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2, DialogPopup, DialogTitle$2 } from "./base-ui.js";
 import { AlertDialogPortal } from "../assets/credit-query-keys.jsx";
 export function DialogTitle({ className, ...props }) {
   return (

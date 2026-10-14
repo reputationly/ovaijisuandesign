@@ -1,7 +1,10 @@
 // multi-angle-editor.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CANVAS_SIZE, ToolResetIcon } from "./plane-quad.jsx";
-import { CompositedSvg, reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
+import { X$7 as X } from "./lucide-icon-wraps.js";
 import { NodeToolbar, useNodeId, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { dedupedToast } from "../infra/agent-http-client.js";

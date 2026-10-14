@@ -1,5 +1,5 @@
 // use-history-state.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 export function useHistoryState(instance) {
   const [canUndo, setCanUndo] = reactExports.useState(() =>

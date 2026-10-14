@@ -6,7 +6,9 @@ import {
   getAnnotationMarks,
   getAnnotationSelectionRanges,
 } from "./configuration2.js";
-import { closeHistory, reactExports, TextSelection } from "../vendor.js";
+import { closeHistory } from "prosemirror-history";
+import reactExports from "react";
+import { TextSelection } from "prosemirror-state";
 
 function dispatchMeta(editor, meta) {
   editor.view.dispatch(editor.state.tr.setMeta(annotationPluginKey, meta));

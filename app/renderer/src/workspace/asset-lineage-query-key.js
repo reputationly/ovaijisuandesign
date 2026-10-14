@@ -6,7 +6,7 @@ import {
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { GatewayHttpError } from "../infra/gateway-http-error.jsx";
 import { MemberRole } from "../generation/normalize-skill-detail-metadata.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 const ASSET_LINEAGE_QUERY_PREFIX = ["asset-lineage"];
 const DEFAULT_GATEWAY_SCOPE_KEY = "app";
 export const assetLineageQueryKey = {

@@ -1,5 +1,5 @@
 // node-registry.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import { isInFlightNode } from "./remove-nodes-and-promote-group-mains.js";
 import { resolvePlaceholderCardSize } from "./placeholder-card-size.js";
 import { parseAspectRatio } from "./compute-group-bounds-from-children.js";

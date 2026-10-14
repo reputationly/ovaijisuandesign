@@ -5,7 +5,8 @@ import { creditLog } from "../workspace/shortcut-hint.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { getLastGatewayTraceId } from "../infra/gateway-http-error.jsx";
 import { CLOUD_SERVER_TIME_HEADER } from "../text-editor/table-document-to-llm-content.js";
-import { reactExports, useQuery } from "../vendor.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   creditQueryKeys,
   useAuth,

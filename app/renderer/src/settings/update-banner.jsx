@@ -1,13 +1,9 @@
 // update-banner.jsx
-import {
-  CircleArrowUp,
-  jsxRuntimeExports,
-  reactExports,
-  RotateCw,
-  usePlatform,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { CircleArrowUp, RotateCw, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { actionTrailLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { useRouterState } from "../vendor-inline/vscode-base/linked-list.js";
 import { __jsx } from "../shared/jsx-runtime.js";

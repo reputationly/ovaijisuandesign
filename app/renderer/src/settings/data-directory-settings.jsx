@@ -1,12 +1,6 @@
 // data-directory-settings.jsx
-import {
-  AlertTriangle,
-  ArrowRight,
-  FolderInput,
-  Loader2,
-  ShieldAlert,
-  useTranslation,
-} from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, ArrowRight, FolderInput, Loader2, ShieldAlert } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AlertDialog, Button } from "../infra/dialog-content.jsx";
 import {

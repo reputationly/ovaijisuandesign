@@ -1,5 +1,5 @@
 // load-asset-fps-batch.js
-import { API_PATHS } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
 const FPS_BATCH_CONCURRENCY = 4;
 const FPS_BATCH_TIMEOUT_MS = 15e3;
 function isRecord(value) {

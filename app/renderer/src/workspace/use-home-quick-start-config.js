@@ -13,15 +13,12 @@ import {
   runtimeRegion,
   uniqueBy,
 } from "./parse-localized-text.js";
-import {
-  API_PATHS,
-  Film,
-  getRuntimeConfig,
-  Palette,
-  reactExports,
-  useQuery,
-  workspaceLog,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Film, Palette } from "../media-editing/lucide-icon-wraps.js";
+import { workspaceLog } from "../infra/logger.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { SkillIcon } from "./use-prompt-icon.jsx";

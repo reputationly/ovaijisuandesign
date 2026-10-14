@@ -1,16 +1,11 @@
 // attachment-upload-zone.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  API_PATHS,
-  classifyFileType,
-  FolderUp,
-  jsxRuntimeExports,
-  reactExports,
-  Scan,
-  useTranslation,
-  Video,
-  X$7 as CloseIcon,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { FolderUp, Scan, Video, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { Select } from "./credit-query-keys.jsx";
 import {
   SelectContent,

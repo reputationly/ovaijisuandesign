@@ -1,5 +1,5 @@
 // use-canvas-interaction-tool.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { CANVAS_DEFAULT_STICKER_ASSET_ID } from "../media-editing/canvas-sticker-assets.jsx";
 import { CANVAS_COMMAND_IDS } from "./use-active-mode.js";
 

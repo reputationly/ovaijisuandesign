@@ -1,10 +1,7 @@
 // team-ledger-filters.jsx
-import {
-  ChevronDown,
-  formatDate,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
@@ -13,6 +10,14 @@ import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Calendar } from "./calendar.jsx";
 import { TeamMemberCombobox } from "./team-member-combobox.jsx";
 import { PopoverContent } from "./hailuo-credit-row.jsx";
+
+export function formatDate(value) {
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+  return `${year}/${month}/${day}`;
+}
+
 const DATE_PRESETS = [
   {
     value: "today",

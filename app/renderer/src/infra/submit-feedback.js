@@ -1,6 +1,7 @@
 // submit-feedback.js
 import instance from "i18next";
-import { API_PATHS, getRuntimeConfig } from "../vendor.js";
+import { API_PATHS } from "./workspace-gateway.js";
+import { getRuntimeConfig } from "./runtime-config.js";
 import { FEEDBACK_CONSTRAINTS } from "../generation/normalize-skill-detail-metadata.js";
 import { getLastGatewayTraceId, recordAction } from "./gateway-http-error.jsx";
 import { gatewayFetch } from "./gateway-fetch.js";

@@ -1,5 +1,6 @@
 // add-column-dialog-inner.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Dialog } from "../canvas/separator.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";

@@ -1,9 +1,5 @@
 // agent-ws-client.js
-import {
-  HILO_WORKSPACE_GENERATION_QUERY,
-  HILO_WORKSPACE_IDENTITY_QUERY,
-  HILO_WORKSPACE_INSTANCE_QUERY,
-} from "../vendor.js";
+import { HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY } from "./workspace-gateway.js";
 import { ChatDiagnostics } from "../canvas/chat-diagnostic-error.js";
 
 const WORKSPACE_IDENTITY_WS_CLOSE_CODE = 1008;

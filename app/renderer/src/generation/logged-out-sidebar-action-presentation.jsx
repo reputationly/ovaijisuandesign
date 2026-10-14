@@ -3,7 +3,7 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CircleUserRound } from "../media-editing/package.jsx";
 import { Button } from "../infra/dialog-content.jsx";
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { UserAvatarMenu } from "../workspace/user-avatar-menu.jsx";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 function LoggedOutSidebarActionPresentation({

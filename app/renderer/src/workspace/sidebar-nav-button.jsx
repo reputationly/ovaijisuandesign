@@ -1,5 +1,5 @@
 // sidebar-nav-button.jsx
-import { MonochromeIcon } from "../vendor.js";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
 import {
   Tooltip,
   TooltipProvider,

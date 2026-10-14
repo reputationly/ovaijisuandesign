@@ -1,18 +1,12 @@
 // artifact-asset-card.jsx
-import {
-  classifyFileType,
-  Copy,
-  jsxRuntimeExports,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  PopoverPopup,
-  PopoverPortal,
-  PopoverPositioner,
-  PopoverRoot,
-  reactExports,
-  useCurrentWorkspace,
-  useTranslation,
-  Video,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { Copy, Video } from "../media-editing/lucide-icon-wraps.js";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
+import { PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot } from "../infra/base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AudioBarsIcon } from "./domestic-param-labels.jsx";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";

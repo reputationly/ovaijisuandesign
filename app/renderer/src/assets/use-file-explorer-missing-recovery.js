@@ -1,5 +1,6 @@
 // use-file-explorer-missing-recovery.js
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 

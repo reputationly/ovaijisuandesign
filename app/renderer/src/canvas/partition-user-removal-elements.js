@@ -1,6 +1,6 @@
 // partition-user-removal-elements.js
 import { clipboard } from "./remap-clipboard.js";
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import {
   isEmptyNode,
   isUnmaterialisedGenerationNode,

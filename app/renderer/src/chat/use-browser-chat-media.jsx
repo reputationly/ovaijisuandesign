@@ -1,11 +1,9 @@
 // use-browser-chat-media.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  API_PATHS,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import {
   BROWSER_FILE_EVENT,
   BROWSER_SCREENSHOT_EVENT,

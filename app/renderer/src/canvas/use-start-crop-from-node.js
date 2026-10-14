@@ -1,6 +1,7 @@
 // use-start-crop-from-node.js
 import { createCanvasOverlayStore } from "./create-canvas-overlay-store.js";
-import { reactExports, useStore$2 as useStore } from "../vendor.js";
+import reactExports from "react";
+import { useStore } from "zustand";
 import { getDerivedNodePosition } from "../infra/create-recently-added-store.js";
 export const GROUP_DERIVED_CHILD_COUNT_KEY = "__derivedChildCount";
 export const GROUP_DERIVED_COLLAPSED_KEY = "__derivedCollapsed";

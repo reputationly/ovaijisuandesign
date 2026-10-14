@@ -13,15 +13,11 @@ import {
   isMainAgentThinkingTool,
   isTransientTool,
 } from "../generation/use-tool-confirm-edit-state.js";
-import {
-  Check,
-  Copy,
-  jsxRuntimeExports,
-  reactExports,
-  Split,
-  useCurrentWorkspace,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
+import { Check, Copy, Split } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { BrailleSpinner } from "./chat-empty-state.jsx";
 import { useResolveMediaUrl } from "../workspace/tool-label-definitions.js";

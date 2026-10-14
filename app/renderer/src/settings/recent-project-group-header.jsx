@@ -1,15 +1,8 @@
 // recent-project-group-header.jsx
-import {
-  ArrowUpDown,
-  ArrowUpRight,
-  ChevronDown,
-  ChevronRight$1 as ChevronRight,
-  MonochromeIcon,
-  Pin,
-  Plus,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowUpDown, ArrowUpRight, ChevronDown, ChevronRight$1 as ChevronRight, Pin, Plus } from "../media-editing/lucide-icon-wraps.js";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
 import {
   DropdownMenu,
   DropdownMenuGroup,

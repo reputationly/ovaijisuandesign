@@ -1,5 +1,13 @@
 // canvas-area.jsx
-import { API_PATHS, browserAssetSourceMetadata, CanvasNodeType, FolderClosed, getRuntimeConfig, inferMediaKind, reactExports, useCurrentWorkspace, useGatewayScope, usePlatform, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { browserAssetSourceMetadata, useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import { getRuntimeConfig, useGatewayScope } from "../infra/runtime-config.js";
+import { inferMediaKind } from "../infra/media-lineage.js";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { FolderClosed } from "../media-editing/lucide-icon-wraps.js";
 import { canvasLog, dedupedToast, logMediaLineage, useAssetMetadataApi, useScopedHttpClient } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

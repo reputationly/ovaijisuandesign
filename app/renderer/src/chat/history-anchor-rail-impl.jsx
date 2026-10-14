@@ -1,6 +1,7 @@
 // history-anchor-rail-impl.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 
 const MAX_VISIBLE_RAIL_TURNS = 50;
 

@@ -1,5 +1,5 @@
 // create-html-fullscreen-store.js
-import { createStore$1 as createStore } from "../vendor.js";
+import { createStore } from "zustand/vanilla";
 function isSamePluginOpenRequest(left, right) {
   return (
     left === right ||

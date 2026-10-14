@@ -1,5 +1,7 @@
 // build-asset-tree.js
-import { API_PATHS, reactExports, useQuery } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useWorkspaceWSConnection } from "../settings/changelog-table.jsx";
 
 function ensureDirNode(currentPath, currentChildren, dirMap, segment) {

@@ -1,7 +1,9 @@
 // use-active-mode.js
 import { NODE_SIZE_MAX } from "./compute-group-bounds-from-children.js";
 import { resolveNodeFootprint } from "./placeholder-node-size.js";
-import { CanvasNodeType, create$2 as create, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
+import { create } from "zustand";
 import { useCropState } from "./use-start-crop-from-node.js";
 import {
   useEraseState,

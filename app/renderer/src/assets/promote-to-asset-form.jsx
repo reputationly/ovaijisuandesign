@@ -1,6 +1,9 @@
 // promote-to-asset-form.jsx
 import { ENTITY_TYPES } from "./audio-play-button.jsx";
-import { AtSign, ChevronDown, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Loader2, reactExports, ShieldAlert, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AtSign, ChevronDown, ChevronRight$1 as ChevronRight, Loader2, ShieldAlert } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   DropdownMenu,

@@ -1,7 +1,9 @@
 // use-hub-entries.js
 import { useGatewayReady } from "../infra/inline-rename-input.jsx";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
-import { useTranslation, useQuery, API_PATHS } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { API_PATHS } from "../infra/workspace-gateway.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";

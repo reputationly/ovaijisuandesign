@@ -1,16 +1,10 @@
 // sortable-queued-row.jsx
-import {
-  closestCenter,
-  DndContext,
-  jsxRuntimeExports,
-  KeyboardSensor,
-  Loader2,
-  PointerSensor,
-  reactExports,
-  useSensor,
-  useSensors,
-  useTranslation,
-} from "../vendor.js";
+import { useSensor, useSensors } from "../vendor.js";
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor } from "@dnd-kit/core";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { CSS } from "@dnd-kit/utilities";
 import {
   SortableContext,

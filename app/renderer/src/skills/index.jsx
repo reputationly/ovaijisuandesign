@@ -1,5 +1,14 @@
 // 技能页路由入口：标签页切换、搜索与各视图的组装。
-import { useTranslation, reactExports, jsxRuntimeExports, Plus, getRuntimeConfig, API_PATHS, usePlatform, useStorage, useSearch, Link2, TAB_CONTENT_ENTER_CLASS_NAME, Import, ExternalLink } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useSearch } from "@tanstack/react-router";
+import { Plus, Link2, Import, ExternalLink } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
+import { TAB_CONTENT_ENTER_CLASS_NAME } from "../shared/tab-enter-class.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { homeService } from "../workspace/home-service.jsx";
 import { AlertDialog, Button, Dialog, DialogContent, TooltipContent } from "../infra/dialog-content.jsx";

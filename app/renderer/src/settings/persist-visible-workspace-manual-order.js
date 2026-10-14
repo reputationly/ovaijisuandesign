@@ -1,5 +1,5 @@
 // persist-visible-workspace-manual-order.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import {
   retainCompleteWorkspaceCatalog,
   SettingsDialogCtx,

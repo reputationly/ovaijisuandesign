@@ -1,6 +1,7 @@
 // stalled-turn-banner.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { jsxRuntimeExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
 import { Button } from "../infra/dialog-content.jsx";
 export function QuestionComposerGate({ blocked, dock, children }) {
   return (

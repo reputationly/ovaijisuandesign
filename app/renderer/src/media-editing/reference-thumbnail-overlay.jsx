@@ -1,9 +1,7 @@
 // reference-thumbnail-overlay.jsx
-import {
-  AtSign,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  useTranslation,
-} from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { AtSign } from "./lucide-icon-wraps.js";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "./playback-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageLightbox } from "./image-lightbox.jsx";
 import { VideoLightbox } from "./video-lightbox.jsx";

@@ -5,7 +5,7 @@ import {
   resolveToolInterruption,
 } from "./has-structured-success-payload.js";
 import { isTransientTool } from "../generation/use-tool-confirm-edit-state.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 export function parseToolResult(content) {
   if (!content)

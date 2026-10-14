@@ -1,9 +1,7 @@
 // use-project-asset-references.jsx
-import {
-  reactExports,
-  useCurrentWorkspace,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   PreviewCard,

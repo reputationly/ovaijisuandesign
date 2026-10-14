@@ -1,5 +1,5 @@
 // image-tool-meta.jsx
-import { Layers3 } from "../vendor.js";
+import { Layers3 } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { RotateIcon, Stamp } from "./package.jsx";
 import {

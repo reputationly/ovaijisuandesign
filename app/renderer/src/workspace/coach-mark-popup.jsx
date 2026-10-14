@@ -1,16 +1,10 @@
 // coach-mark-popup.jsx
-import {
-  jsxRuntimeExports,
-  Loader2,
-  PopoverPopup,
-  PopoverPortal,
-  PopoverPositioner,
-  PopoverRoot,
-  reactDomExports,
-  reactExports,
-  useTranslation,
-  X$7 as CloseIcon,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Loader2, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot } from "../infra/base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 function extractDominantColor(img) {

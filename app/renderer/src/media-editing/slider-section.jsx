@@ -1,5 +1,7 @@
 // slider-section.jsx
-import { FieldRoot, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { FieldRoot } from "../infra/base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ComponentSection, VariantGrid } from "./scroll-bar.jsx";
 import { useTheme } from "../generation/use-model-catalog-scope-key.js";

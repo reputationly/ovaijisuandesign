@@ -1,5 +1,5 @@
 // page-state-boundary.jsx
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PageStateView } from "./page-state-view.jsx";
 import { useOnline } from "../infra/use-online.jsx";

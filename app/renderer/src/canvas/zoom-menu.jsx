@@ -1,6 +1,7 @@
 // zoom-menu.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { CANVAS_ZOOM_PRESETS, Input } from "../media-editing/input.jsx";
 import { QuickZoomPresence } from "./canvas-high-blast-delete-dialog.jsx";

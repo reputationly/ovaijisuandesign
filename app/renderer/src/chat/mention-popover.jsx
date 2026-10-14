@@ -1,11 +1,9 @@
 // mention-popover.jsx
-import {
-  classifyFileType,
-  reactDomExports,
-  reactExports,
-  useTranslation,
-  Workflow,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { Workflow } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ConnectorIcon } from "../settings/connector-relationship-graphic.jsx";
 import {

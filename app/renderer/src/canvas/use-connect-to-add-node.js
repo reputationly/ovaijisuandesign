@@ -1,5 +1,7 @@
 // use-connect-to-add-node.js
-import { CanvasNodeType, findConnectionTarget, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
+import { findConnectionTarget } from "./connection-target.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { orientUserEdge } from "./separator.jsx";

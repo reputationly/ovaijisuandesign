@@ -1,11 +1,8 @@
 // use-composer-placeholder-actions.jsx
-import {
-  CompositedSvg,
-  Music,
-  PluginKey,
-  reactExports,
-  Video,
-} from "../vendor.js";
+import { PluginKey } from "prosemirror-state";
+import reactExports from "react";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { Music, Video } from "../media-editing/lucide-icon-wraps.js";
 import { mentionRefLeafText } from "../text-editor/get-wire-content-text.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

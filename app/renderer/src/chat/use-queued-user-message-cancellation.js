@@ -1,5 +1,5 @@
 // use-queued-user-message-cancellation.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 const QUEUED_USER_MESSAGE_CANCEL_TIMEOUT_MS = 5e3;
 

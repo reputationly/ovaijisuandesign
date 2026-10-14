@@ -1,5 +1,6 @@
 // camera-ball.jsx
-import { CompositedSvg, reactExports } from "../vendor.js";
+import reactExports from "react";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CameraModel3D } from "./camera-model3-d.jsx";
 import { CANVAS_SIZE } from "./plane-quad.jsx";

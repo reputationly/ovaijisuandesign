@@ -1,5 +1,6 @@
 // expand-arrow-icon.jsx
-import { CompositedSvg, useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ParamSectionLabel } from "./resolution-tabs.jsx";
 const SECONDS_OPTION_PATTERN = /^\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?$/;

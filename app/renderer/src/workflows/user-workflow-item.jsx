@@ -1,5 +1,9 @@
 // 「我的工作流」列表里的单个条目：重命名、描述、删除等。
-import { useTranslation, jsxRuntimeExports, reactExports, API_PATHS, PanelsTopLeft } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { PanelsTopLeft } from "../media-editing/lucide-icon-wraps.js";
 import { Button, Dialog, DialogContent, DialogHeader, DialogFooter, AlertDialog } from "../infra/dialog-content.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { PencilIcon } from "../workspace/home-service.jsx";

@@ -1,5 +1,9 @@
 // image-slot-list.jsx
-import { CompositedSvg, jsxRuntimeExports, Loader2, Plus, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
+import { Loader2, Plus } from "./lucide-icon-wraps.js";
 import { useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AnnotationIconArtwork as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";

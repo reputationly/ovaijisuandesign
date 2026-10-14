@@ -2,7 +2,9 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Folder, Users } from "../media-editing/package.jsx";
 import { StrokeIcon } from "./use-prompt-icon.jsx";
-import { Check, reactExports, Search, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, Search } from "../media-editing/lucide-icon-wraps.js";
 import { DropdownMenuSub } from "../vendor-inline/vscode-base/graph.jsx";
 import {
   filterProjectsByKeyword,

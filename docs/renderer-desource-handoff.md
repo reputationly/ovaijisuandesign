@@ -422,7 +422,7 @@ node scripts/desource/rename/rename-files.mjs scripts/desource/rename/names/fina
 | 6.3 剩余库换包 | 三批两轮门禁都已通过 | 计划在 `origin/devin/vendor-swap-plan` @ `fe63116a`。第一批 `7657ae9d` 合入 `f8188c52`，`vendor.js` 828,241 → 568,125 字节，顶层声明少 360 个，没有新补丁，14 个包都是单实例。`src_default$1` 是 Tiptap 的 Placeholder，没有误换成 mediabunny。第二批 `6b4e19b6` 已快进合入，`vendor.js` 568,125 → 246,415 字节。jszip 3.10.1、lucide-react 0.468.0、wavesurfer.js 7.12.7、`@tiptap/extension-table` 3.31.3 各一个实例，没有新补丁。`Plus$1` 和 245 个图标包装留下。第三批 `23845cbf` 合入 `a7c894fb`，`vendor.js` 246,415 → 135,927 字节，没有新补丁 |
 | 6.4 xyflow 方案 2 | 完成 | `6454e65e`，合入 `5f2d2c8c`。可读副本在 `app/renderer/src/vendor-fork/xyflow/`，`CHANGES.md` 记了 17 处行为改动。zustand 4.5.7、classcat 5.0.5 来自 npm。renderer 不再依赖 `@xyflow/system`、`@xyflow/react`。画布页两轮门禁非抗锯齿像素差是 0 |
 | 6.5 vendor-inline 收尾 | 完成 | `ab5156f2`，合入 `34c1e62a`。四个纯再导出改成直接引用 `@codemirror/state@6.7.5`、`@codemirror/view@6.43.6`、`@codemirror/language@6.12.4`、`@codemirror/lang-markdown@6.5.2`。留下 `delete-markup-backward.js`、`line2.js` 和四份带来源说明的 vscode-base |
-| 6.6 应用代码拆分 | 未开始 | 三批换包的门禁已经过完，按声明名拆，不用旧行号 |
+| 6.6 应用代码拆分 | 代码已拆，门禁未跑 | 474 个确认的应用声明按名字拆进现有目录。zustand 副本改走 4.5.7 的公开入口。`vendor.js` 135,927 → 7,641 字节，只留还没对上包的声明，文件头写了原因。`from-vendor.js` 里确认是应用的声明已拆开；表格、选择器和打包垫片还留在原文件，并写了原因。两轮 `gate.sh` 还没跑 |
 | 6.7 总 PR | 未开始 | 换包合入后还要再跑两轮，再做构建产物审计和向 main 的总 PR |
 
 下面两轮覆盖的是第一批换包之前的树（当时 HEAD `39c51e5f`，`vendor.js` 828,241 字节），退出码都是 0。raw 像素在通过的报告里是 0，没有 raw-only 差异。

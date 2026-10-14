@@ -1,5 +1,6 @@
 // use-renderable-content-change.js
-import { CanvasNodeType, reactExports } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
 
 const RENDERABLE_CANVAS_NODE_TYPES = new Set([
   CanvasNodeType.Image,

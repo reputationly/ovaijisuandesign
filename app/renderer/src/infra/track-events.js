@@ -1,5 +1,16 @@
+
+
+export const AUTH_TRACK_EVENTS = {
+  AUTH_LOGIN_START: "auth_login_start",
+  AUTH_LOGIN_DISPATCH: "auth_login_dispatch",
+  AUTH_LOGIN_STRATEGY_CHANGED: "auth_login_strategy_changed",
+  AUTH_LOGIN_SUCCESS: "auth_login_success",
+  AUTH_LOGIN_FAILED: "auth_login_failed",
+  AUTH_LOGIN_CALLBACK_IGNORED: "auth_login_callback_ignored",
+  AUTH_LOGOUT: "auth_logout"
+};
 // track-events.js
-import { AUTH_TRACK_EVENTS } from "../vendor.js";
+
 
 export const TRACK_EVENTS = {
   // App lifecycle

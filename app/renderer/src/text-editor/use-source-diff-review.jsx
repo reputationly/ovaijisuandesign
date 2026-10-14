@@ -1,11 +1,8 @@
 // use-source-diff-review.jsx
-import {
-  ChevronDown,
-  ChevronUp,
-  reactExports,
-  useTranslation,
-  useVirtualizer,
-} from "../vendor.js";
+import { useVirtualizer } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronUp } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TextDiffHunkView } from "./text-diff-hunk-view.jsx";
 import { useDiffReviewStore } from "./use-diff-review-store.js";

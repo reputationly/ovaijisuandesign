@@ -1,5 +1,13 @@
 // media-model-selector.jsx
-import { API_PATHS, ArrowUpRight, Bot, Check, getRuntimeConfig, jsxRuntimeExports, Music, reactDomExports, reactExports, useGatewayScope, usePlatform, useQuery, useQueryClient, useTranslation, Video } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { getRuntimeConfig, useGatewayScope } from "../infra/runtime-config.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { ArrowUpRight, Bot, Check, Music, Video } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageOutlineIcon } from "../media-editing/package.jsx";

@@ -3,19 +3,9 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn, MENU_ITEM_LAYOUT } from "../infra/dialog-content.jsx";
 import { resolveShortcutDisplay } from "./resolve-shortcut-display.js";
 import { getPlatform } from "../infra/web-storage.js";
-import {
-  ChevronRight$1 as ChevronRight,
-  makeLogger,
-  MenuPopup,
-  MenuPortal,
-  MenuPositioner,
-  MenuSubmenuTrigger,
-  TabsIndicator,
-  TabsList$1 as TabsListPrimitive,
-  TabsPanel,
-  TabsRoot,
-  TabsTab,
-} from "../vendor.js";
+import { ChevronRight$1 as ChevronRight } from "../media-editing/lucide-icon-wraps.js";
+import { makeLogger } from "../infra/logger.js";
+import { MenuPopup, MenuPortal, MenuPositioner, MenuSubmenuTrigger, TabsIndicator, TabsList$1 as TabsListPrimitive, TabsPanel, TabsRoot, TabsTab } from "../infra/base-ui.js";
 import { WalletSource } from "../generation/to-workspace-browser-url.js";
 import {
   HUB_WEB_INVITE_DOMAINS,

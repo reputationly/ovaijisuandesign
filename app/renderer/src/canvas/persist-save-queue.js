@@ -1,5 +1,5 @@
 // persist-save-queue.js
-import { measurePerf } from "../vendor.js";
+import { measurePerf } from "../infra/perf-log.js";
 import {
   PERF_CANVAS_PERSIST_QUEUE,
   PERF_CANVAS_PERSIST_SAVE,

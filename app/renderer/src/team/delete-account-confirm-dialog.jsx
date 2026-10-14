@@ -1,5 +1,8 @@
 // delete-account-confirm-dialog.jsx
-import { AlertTriangle, reactExports, useMutation, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";

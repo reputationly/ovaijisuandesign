@@ -78,7 +78,11 @@ import {
   Users as UsersIcon,
   VolumeX as VolumeXIcon,
 } from "lucide-react";
-import { CompositedSvg, create$2 as create, createStore$1 as createStore, reactExports, useStore$2 as useStore, withArtworkOpacity, withIconCompositing } from "../vendor.js";
+import reactExports from "react";
+import { CompositedSvg, withIconCompositing } from "./icon-compositing.js";
+import { create, useStore } from "zustand";
+import { createStore } from "zustand/vanilla";
+import { withArtworkOpacity } from "../canvas/artwork-opacity.js";
 import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function hasMessagePayload(

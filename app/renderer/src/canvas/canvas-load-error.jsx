@@ -1,5 +1,6 @@
 // canvas-load-error.jsx
-import { MonochromeIcon, useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CloudOff } from "../media-editing/package.jsx";
 import { Button } from "./node-shell-inner.jsx";

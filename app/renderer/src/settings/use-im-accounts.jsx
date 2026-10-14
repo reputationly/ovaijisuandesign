@@ -6,7 +6,7 @@ import {
   IImBridgeMainService,
   PlaybackPlayIcon,
 } from "../workspace/home-service.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 const integrationActionGroupClassName =
   "flex w-52 shrink-0 items-center justify-end gap-1.5";
 export function IntegrationCard({ className, ...props }) {

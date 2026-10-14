@@ -1,9 +1,7 @@
 // workspace-chat-provider.jsx
-import {
-  CurrentWorkspaceContext,
-  reactExports,
-  useStorage,
-} from "../vendor.js";
+import { CurrentWorkspaceContext } from "../infra/shared-runtime.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   PendingFirstMessageContext,

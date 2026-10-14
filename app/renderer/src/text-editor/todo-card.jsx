@@ -1,5 +1,7 @@
 // todo-card.jsx
-import { CompositedSvg, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
 

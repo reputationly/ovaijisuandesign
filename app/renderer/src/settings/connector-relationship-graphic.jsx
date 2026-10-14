@@ -1,5 +1,8 @@
 // connector-relationship-graphic.jsx
-import { jsxRuntimeExports, Link2, reactExports, ShieldAlert, useTranslation, X$7 as X } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Link2, ShieldAlert, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";

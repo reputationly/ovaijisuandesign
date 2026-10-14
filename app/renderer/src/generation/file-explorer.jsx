@@ -1,5 +1,12 @@
 // file-explorer.jsx
-import { LayoutGrid, LayoutList, reactExports, useCurrentWorkspace, usePlatform, useQueryClient, useStorage, useTranslation, useVirtualizer } from "../vendor.js";
+import { useVirtualizer } from "../vendor.js";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { LayoutGrid, LayoutList } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

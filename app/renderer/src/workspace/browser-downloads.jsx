@@ -1,5 +1,8 @@
 // browser-downloads.jsx
-import { API_PATHS, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Icon,

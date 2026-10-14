@@ -1,7 +1,7 @@
 // audio-preview.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getExtFromMime } from "../canvas/separator.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { MediaClipPanel } from "./media-clip-panel.js";
 const getAudioExt = (mime) => getExtFromMime(mime, "mp3");
 function AudioPreview({ loading, state }) {

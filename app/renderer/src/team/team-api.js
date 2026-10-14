@@ -13,7 +13,7 @@ import {
 } from "./map-team-credit-summary.js";
 import { GatewayHttpError } from "../infra/gateway-http-error.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
-import { API_PATHS, HILO_HUB_BIZ_LINE } from "../vendor.js";
+import { API_PATHS, HILO_HUB_BIZ_LINE } from "../infra/workspace-gateway.js";
 const TEAM_ERROR_CODES = new Set([
   "invalid_request",
   "permission_denied",

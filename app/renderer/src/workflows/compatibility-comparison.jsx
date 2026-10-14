@@ -1,5 +1,6 @@
 // 兼容性对照表：需求与本机配置逐项对比。
-import { useTranslation, CheckCircle2, CircleX, Gauge, CircleMinus } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { CheckCircle2, CircleX, Gauge, CircleMinus } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { CircleHelp } from "../media-editing/package.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

@@ -1,5 +1,5 @@
 // apply-changeset-to-draft.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import {
   fileNodeToRuntimeNode,
   shouldClearAssetIdForServerNode,

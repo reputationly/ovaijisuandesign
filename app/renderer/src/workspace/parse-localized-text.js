@@ -1,5 +1,5 @@
 // parse-localized-text.js
-import { getRuntimeConfig } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
 import { normalizeHomeQuickStartAssetUrl } from "../generation/use-skill-categories.js";
 export const HOME_QUICK_START_SCHEMA_VERSION = 2;
 export const HOME_QUICK_START_MAX_SECTIONS = 16;

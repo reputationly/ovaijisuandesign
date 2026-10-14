@@ -1,5 +1,6 @@
 // workspace-asset-center-relocation-coach-mark.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   ASSET_CENTER_RELOCATION_REVISION,

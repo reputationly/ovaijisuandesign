@@ -1,12 +1,7 @@
 // attachment-preview.jsx
-import {
-  AlertCircle,
-  AtSign,
-  Loader2,
-  reactExports,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AlertCircle, AtSign, Loader2, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Puzzle } from "../media-editing/package.jsx";
 import { AnnotationIconArtwork as AnnotationIcon } from "../canvas/fullscreen-icon.jsx";

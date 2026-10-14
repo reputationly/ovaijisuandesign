@@ -6,11 +6,9 @@ import {
   toDisplayName,
 } from "../generation/use-mention-models.jsx";
 import { Spinner } from "../team/use-team-transactions-feed-query.jsx";
-import {
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
 import { ImageOutlineIcon } from "../media-editing/package.jsx";
 import { Button } from "../infra/dialog-content.jsx";
 import { MarkdownContent } from "../generation/markdown-link.jsx";

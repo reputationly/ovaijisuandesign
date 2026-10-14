@@ -1,6 +1,6 @@
 // billing-model-display-labels.js
 import { redactModelAliasesForDisplay } from "../generation/domestic-model-display-aliases.js";
-import { getRuntimeConfig } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
 import { normalizeLegacyModelId } from "../generation/normalize-skill-detail-metadata.js";
 import { resolveModelDisplayName } from "../generation/text-models.js";
 

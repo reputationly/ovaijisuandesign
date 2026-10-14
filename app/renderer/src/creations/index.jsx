@@ -1,4 +1,10 @@
-import { useTranslation, useStorage, useNavigate, reactExports, workspaceLog, jsxRuntimeExports, Plus } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useStorage } from "../infra/use-storage.js";
+import { workspaceLog } from "../infra/logger.js";
+import { Plus } from "../media-editing/lucide-icon-wraps.js";
 import { useNavigateToWorkspace, buildWorkspaceSearch } from "../workspace/use-deep-link-router.js";
 import { useLoginGuard } from "../infra/schedule.js";
 import { sortRecentWorkspaces } from "../workspace/normalize-project-entries.js";

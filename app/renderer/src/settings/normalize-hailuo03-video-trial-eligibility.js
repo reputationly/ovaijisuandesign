@@ -1,5 +1,7 @@
 // normalize-hailuo03-video-trial-eligibility.js
-import { API_PATHS, cdnPublicAsset, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { cdnPublicAsset } from "../infra/runtime-config.js";
+import reactExports from "react";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { buildShownKey } from "./use-auto-announcement.js";
 import { useHubClientConfig } from "./parse-home-survey.js";

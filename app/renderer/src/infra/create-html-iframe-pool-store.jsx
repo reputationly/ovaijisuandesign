@@ -1,12 +1,10 @@
 // create-html-iframe-pool-store.jsx
-import {
-  classifyFileType,
-  createStore$1 as createStore,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  reactExports,
-  useStore$2 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "./file-type.js";
+import { createStore } from "zustand/vanilla";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
+import { useStore } from "zustand";
 import { useNodeId } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "./file-type-icon.jsx";

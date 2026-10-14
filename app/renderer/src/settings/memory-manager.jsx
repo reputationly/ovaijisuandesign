@@ -1,5 +1,13 @@
 // memory-manager.jsx
-import { API_PATHS, getRuntimeConfig, jsxRuntimeExports, LoaderCircle, normalizeGatewayBaseUrl, Plus, reactExports, RotateCcw, Search, Undo2, useCurrentWorkspace, useGatewayBaseUrl, useMutation, useQuery, useQueryClient, useStorage, useTranslation, WandSparkles } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { getRuntimeConfig, normalizeGatewayBaseUrl, useGatewayBaseUrl } from "../infra/runtime-config.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { LoaderCircle, Plus, RotateCcw, Search, Undo2, WandSparkles } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

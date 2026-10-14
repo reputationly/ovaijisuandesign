@@ -1,17 +1,10 @@
 // media-gen-detail.jsx
-import {
-  API_PATHS,
-  Check,
-  ChevronLeft,
-  ChevronRight$1 as ChevronRight,
-  CircleAlert,
-  Copy,
-  Crosshair,
-  GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT,
-  reactExports,
-  useCurrentWorkspace,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT } from "../infra/generation-errors.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronLeft, ChevronRight$1 as ChevronRight, CircleAlert, Copy, Crosshair } from "./lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,

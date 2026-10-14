@@ -1,5 +1,5 @@
 // use-diff-review-store.js
-import { create$2 as create } from "../vendor.js";
+import { create } from "zustand";
 import { isDiffReviewSessionReady } from "./is-diff-review-session-ready.js";
 function diffReviewHunkId(edit) {
   return `${edit.annotationId}:${edit.targetIndex ?? 0}`;

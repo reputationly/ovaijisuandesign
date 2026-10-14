@@ -1,11 +1,8 @@
 // highlight-decoration.js
 import { mentionRefLeafText } from "../text-editor/get-wire-content-text.jsx";
-import {
-  Decoration$1 as Decoration,
-  DecorationSet,
-  Extension,
-  Plugin,
-} from "../vendor.js";
+import { Decoration, DecorationSet } from "prosemirror-view";
+import { Extension } from "@tiptap/core";
+import { Plugin } from "prosemirror-state";
 import { highlightPluginKey } from "./use-composer-placeholder-actions.jsx";
 function textOffsetToPmPos(doc, textOffset) {
   if (textOffset <= 0) return 1;

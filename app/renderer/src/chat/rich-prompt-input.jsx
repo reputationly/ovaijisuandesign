@@ -1,5 +1,9 @@
 // rich-prompt-input.jsx
-import { EditorContent, Extension, reactExports, src_default$1 as Placeholder, useEditor, usePromptFontSizeStore } from "../vendor.js";
+import { EditorContent, useEditor } from "@tiptap/react";
+import { Extension } from "@tiptap/core";
+import reactExports from "react";
+import { Placeholder } from "@tiptap/extensions";
+import { usePromptFontSizeStore } from "../generation/prompt-font-size.js";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PromptInputMetaRow } from "../generation/prompt-font-size-control.jsx";

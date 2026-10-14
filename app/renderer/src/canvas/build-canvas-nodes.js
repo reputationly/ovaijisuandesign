@@ -4,7 +4,7 @@ import {
   defaultNodeSizeForType,
   isAssetBackedNode,
 } from "./compute-group-bounds-from-children.js";
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import { mirrorImageFieldsIntoData } from "./build-incremental-node-data.js";
 import {
   parseNodeId,

@@ -1,5 +1,8 @@
 // 首页工具栏。
-import { useTranslation, reactExports, jsxRuntimeExports, Plus, X$7 as X, RotateCcw } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { Plus, X$7 as X, RotateCcw } from "../media-editing/lucide-icon-wraps.js";
 import { useMediaModels } from "../generation/normalize-model-info.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";

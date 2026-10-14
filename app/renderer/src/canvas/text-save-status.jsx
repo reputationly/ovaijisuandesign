@@ -1,5 +1,6 @@
 // text-save-status.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { useCanvasActive } from "../media-editing/package.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 

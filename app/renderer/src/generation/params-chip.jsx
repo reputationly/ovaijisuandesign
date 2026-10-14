@@ -1,11 +1,9 @@
 // params-chip.jsx
 import { AspectRatioIcon, parseRatio } from "./resolution-tabs.jsx";
-import {
-  CompositedSvg,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Settings2 as Settings } from "../media-editing/package.jsx";
 import { Tooltip } from "./missing-asset-card.jsx";

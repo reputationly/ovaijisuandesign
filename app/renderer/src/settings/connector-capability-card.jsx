@@ -3,15 +3,11 @@ import { homeService } from "../workspace/home-service.jsx";
 import {
   LoaderCircle,
 } from "lucide-react";
-import {
-  matchesLocalConnectorServer,
-  matchesRemoteConnectorServer,
-  reactExports,
-  resolveConnectorIcon,
-  resolveConnectorSetupAsset,
-  supportsConnectorDialog,
-  useTranslation,
-} from "../vendor.js";
+import { matchesLocalConnectorServer } from "../skills/connectors/connector-match.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { matchesRemoteConnectorServer, supportsConnectorDialog } from "../skills/connectors/connector-market.js";
+import { resolveConnectorIcon, resolveConnectorSetupAsset } from "../skills/connectors/hcp-catalog.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { LocalConnectorDialog } from "./local-connector-dialog.jsx";
 import { useConnectorCatalog } from "./use-connector-catalog.js";

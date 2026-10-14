@@ -1,5 +1,5 @@
 // use-cloud-review-nodes.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import {
   listAllCloudFolders,
   mapNodes,

@@ -5,7 +5,7 @@ import {
   mapNodes,
   requestJson,
 } from "./list-all-cloud-folders.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { cloudErrorDisplayMessage } from "../workspace/asset-lineage-query-key.js";
 
 async function searchCloudNodes(projectId, keyword2, cursor, pageSize = 50) {

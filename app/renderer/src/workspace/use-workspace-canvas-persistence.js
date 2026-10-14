@@ -1,5 +1,6 @@
 // use-workspace-canvas-persistence.js
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { homeService } from "./home-service.jsx";
 import { HiloCanvasDataSource } from "../settings/hilo-canvas-data-source.js";

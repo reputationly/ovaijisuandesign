@@ -1,6 +1,6 @@
 // zh.js
 import instance from "i18next";
-import { initReactI18next } from "../vendor.js";
+import { initReactI18next } from "react-i18next";
 import { getDefaultLanguage } from "../vendor-inline/vscode-base/linked-list.js";
 import { en as en$2 } from "./english-translations.js";
 import {

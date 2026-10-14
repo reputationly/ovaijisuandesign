@@ -1,5 +1,7 @@
 // proximity-handle-inner.jsx
-import { CompositedSvg, jsxRuntimeExports, reactExports } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { Handle, useStore, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";

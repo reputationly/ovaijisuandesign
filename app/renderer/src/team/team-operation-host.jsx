@@ -4,7 +4,8 @@ import {
   ITeamDataInvalidationService,
   ITeamOperationService,
 } from "../workspace/home-service.jsx";
-import { reactExports, useQueryClient } from "../vendor.js";
+import reactExports from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import {

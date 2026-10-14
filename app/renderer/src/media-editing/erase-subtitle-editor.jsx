@@ -1,12 +1,9 @@
 // erase-subtitle-editor.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  jsxRuntimeExports,
-  PlaybackPauseIcon$1 as PlaybackPauseIcon,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon } from "./playback-icons.js";
 import { cn as classNames } from "../infra/dialog-content.jsx";
 import { Dialog } from "../canvas/separator.jsx";
 import { Trash2, useCanvasActive } from "./package.jsx";

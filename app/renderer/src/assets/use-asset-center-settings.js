@@ -1,5 +1,7 @@
 // use-asset-center-settings.js
-import { reactExports, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { getAssetCenterMainService } from "./split-shortcut-keys.js";
 
 const ASSET_CENTER_ROOT_KEY = ["asset-center"];

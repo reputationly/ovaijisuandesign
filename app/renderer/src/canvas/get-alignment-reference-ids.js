@@ -1,5 +1,5 @@
 // get-alignment-reference-ids.js
-import { createStore$1 as createStore } from "../vendor.js";
+import { createStore } from "zustand/vanilla";
 export const DEFAULT_BUFFER_RATIO = 1.5;
 export const MIN_EDGES_TO_CULL = 32;
 export function applyEdgeCullingVisibility(edges, hiddenIds) {

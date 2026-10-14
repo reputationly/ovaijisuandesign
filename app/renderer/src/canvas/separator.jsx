@@ -1,9 +1,7 @@
 // separator.jsx
-import {
-  CanvasNodeType,
-  DialogRoot,
-  reactExports,
-} from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
+import { DialogRoot } from "../infra/base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export { Separator } from "@base-ui/react/separator";
 export function useNativeViewOcclusion(active = true) {

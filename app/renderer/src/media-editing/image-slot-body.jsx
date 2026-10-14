@@ -1,9 +1,7 @@
 // image-slot-body.jsx
-import {
-  CircleAlert$2 as CircleAlert,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CircleAlert$2 as CircleAlert } from "./custom-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { isGenerationRefundStatus } from "../canvas/compute-group-bounds-from-children.js";
 import { RefundHint } from "../generation/missing-asset-card.jsx";

@@ -1,5 +1,5 @@
 // layout-category-lanes.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import { CanvasMode } from "./compute-group-bounds-from-children.js";
 import { getNodePosition, sizeOf } from "./use-active-mode.js";
 export function topoSortLevels(nodeIds, children, parents) {

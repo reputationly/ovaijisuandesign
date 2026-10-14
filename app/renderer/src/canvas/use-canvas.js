@@ -1,5 +1,7 @@
 // use-canvas.js
-import { CanvasNodeType, reactExports, useTranslation } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { useEdgesState, useNodesState, useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { resolvePlaceholderFlowSize } from "./node-registry.js";

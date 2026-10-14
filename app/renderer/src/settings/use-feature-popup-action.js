@@ -12,7 +12,12 @@ import {
   requestPromptPrefill,
   requestRandomInspiration,
 } from "./request-prompt-prefill.jsx";
-import { reactExports, useNavigate, usePlatform, useQuery, useQueryClient, useStorage, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { usePlatform } from "../infra/platform-context.js";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { useAuth } from "../assets/credit-query-keys.jsx";

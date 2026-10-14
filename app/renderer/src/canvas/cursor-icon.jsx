@@ -1,6 +1,6 @@
 // cursor-icon.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { parseNodeId } from "./find-free-position-from-anchor.js";
 import { CHAT_ARTIFACT_UI_ID } from "../generation/to-workspace-browser-url.js";

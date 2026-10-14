@@ -1,12 +1,9 @@
 // plugin-launcher.jsx
 import { getPluginAgentEditSession, upsert } from "./input.jsx";
-import {
-  Layers,
-  MoreHorizontal,
-  reactDomExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Layers, MoreHorizontal } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   DirectorStageHeaderIcon,

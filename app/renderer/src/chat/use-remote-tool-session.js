@@ -1,5 +1,5 @@
 // use-remote-tool-session.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { guardAccountSubmission } from "../infra/agent-http-client.js";
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 

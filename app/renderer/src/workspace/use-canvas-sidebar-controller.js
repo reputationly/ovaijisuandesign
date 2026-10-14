@@ -1,5 +1,6 @@
 // use-canvas-sidebar-controller.js
-import { reactExports, useStorage } from "../vendor.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import {
   CONTENT_PANEL_MAX_WIDTH,
   CONTENT_PANEL_MIN_WIDTH,

@@ -1,5 +1,10 @@
 // team-assets-sidebar-panel.jsx
-import { ChevronDown, ChevronRight$1 as ChevronRight, FolderInput, FolderPlus, getVisibleCloudUploads, jsxRuntimeExports, LoaderCircle, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronRight$1 as ChevronRight, FolderInput, FolderPlus, LoaderCircle } from "../media-editing/lucide-icon-wraps.js";
+import { getVisibleCloudUploads } from "./visible-cloud-uploads.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";

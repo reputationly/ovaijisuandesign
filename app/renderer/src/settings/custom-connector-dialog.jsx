@@ -8,7 +8,9 @@ import {
 } from "./parse-custom-mcp-arguments.js";
 import { normalizeCustomMcpServerInput } from "./normalize-config.js";
 import { normalizeCustomMcpLaunch } from "./normalize-custom-mcp-launch.js";
-import { ChevronDown, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Select } from "../assets/credit-query-keys.jsx";

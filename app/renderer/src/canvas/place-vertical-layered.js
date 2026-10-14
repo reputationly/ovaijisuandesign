@@ -4,7 +4,7 @@ import {
   DEFAULT_WORKFLOW_NODE_SPACING,
 } from "./ungroup-in-canvas.js";
 import { resolveNodeFootprint } from "./placeholder-node-size.js";
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import {
   GROUP_NODE_PADDING,
   readGroupSize,

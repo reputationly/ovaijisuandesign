@@ -1,14 +1,9 @@
 // feature-popup.jsx
 import Markdown from "react-markdown";
-import {
-  GiftIcon,
-  reactExports,
-  remarkGfm,
-  useTranslation,
-  Volume2Icon,
-  VolumeXIcon,
-  XIcon,
-} from "../vendor.js";
+import reactExports from "react";
+import remarkGfm from "remark-gfm";
+import { useTranslation } from "react-i18next";
+import { GiftIcon, Volume2Icon, VolumeXIcon, XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { H3_LAUNCH_POPUP_ID } from "./normalize-hailuo03-video-trial-eligibility.js";

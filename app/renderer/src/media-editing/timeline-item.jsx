@@ -18,16 +18,12 @@ import {
   formatArgs,
   getToolStatusLabel,
 } from "../chat/use-tool-confirm-settlement.js";
-import {
-  API_PATHS,
-  ChevronDown,
-  ClipboardList,
-  jsxRuntimeExports,
-  reactExports,
-  SquareMousePointer,
-  useCurrentWorkspace,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ClipboardList, SquareMousePointer } from "./lucide-icon-wraps.js";
 import { useResolveMediaUrl } from "../workspace/tool-label-definitions.js";
 import {
   extractMediaCount,

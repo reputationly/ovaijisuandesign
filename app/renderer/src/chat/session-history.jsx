@@ -1,5 +1,10 @@
 // session-history.jsx
-import { API_PATHS, DownloadIcon, EyeIcon$1 as EyeIcon, EyeOffIcon$1 as EyeOffIcon, HistoryIcon, PinIcon, reactExports, SearchIcon, usePlatform, useStorage, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { DownloadIcon, EyeIcon$1 as EyeIcon, EyeOffIcon$1 as EyeOffIcon, HistoryIcon, PinIcon, SearchIcon } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Tooltip,

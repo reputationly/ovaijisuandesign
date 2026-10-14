@@ -1,12 +1,8 @@
 // canvas-toolbar.jsx
-import {
-  CompositedSvg,
-  MonochromeIcon,
-  Plus,
-  reactExports,
-  useTranslation,
-  X$7 as XIcon,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing.js";
+import { Plus, X$7 as XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { CANVAS_COMMAND_IDS } from "./use-active-mode.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Tooltip } from "../generation/missing-asset-card.jsx";

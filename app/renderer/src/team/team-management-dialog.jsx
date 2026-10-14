@@ -1,6 +1,15 @@
 // team-management-dialog.jsx
 import { Trans } from "react-i18next";
-import { ArrowLeftRight, Copy, CreditCard, dispatchAccountSubmissionBlocked, getRuntimeConfig, HILO_HUB_BIZ_LINE, jsxRuntimeExports, Plus, reactExports, Search, usePlatform, useQuery, useQueryClient, useStorage, useTranslation } from "../vendor.js";
+import { dispatchAccountSubmissionBlocked } from "../infra/account-submission.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { HILO_HUB_BIZ_LINE } from "../infra/workspace-gateway.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { ArrowLeftRight, Copy, CreditCard, Plus, Search } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import {
   MEMBERSHIP_GC_MS,

@@ -1,7 +1,7 @@
 // 创作者计划表单的通用部件：必填标记、分区、字段、安装包与素材选择器。
 import { Icon } from "../../vendor-inline/vscode-base/graph.jsx";
 import { Button } from "../../infra/dialog-content.jsx";
-import { X$7 as X } from "../../vendor.js";
+import { X$7 as X } from "../../media-editing/lucide-icon-wraps.js";
 import { FileArchive } from "../../media-editing/package.jsx";
 import { Label } from "../../team/use-wallet-query.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";

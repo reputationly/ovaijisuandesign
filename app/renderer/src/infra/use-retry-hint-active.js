@@ -1,5 +1,6 @@
 // use-retry-hint-active.js
-import { getRuntimeConfig, reactExports } from "../vendor.js";
+import { getRuntimeConfig } from "./runtime-config.js";
+import reactExports from "react";
 import { getNetworkDiagnosticsMainService } from "../team/copy-icon-button.jsx";
 import { WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY } from "../workspace/workspace-failure-diagnosis-registry.js";
 

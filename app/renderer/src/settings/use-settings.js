@@ -1,5 +1,9 @@
 // use-settings.js
-import { reactExports, storageKeys, useQueryClient, useStorage, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { storageKeys } from "../infra/storage-cache.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { ACTIVE_CUSTOM_MODEL_QUERY_KEY } from "../generation/use-model-catalog-scope-key.js";

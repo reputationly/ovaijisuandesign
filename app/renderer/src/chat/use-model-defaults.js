@@ -5,7 +5,8 @@ import {
   normalizeEntryList,
   normalizeTextEditSessionRecord,
 } from "./handle-session-created-response.js";
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 export function readLocalCache() {
   if (typeof localStorage === "undefined") return {};

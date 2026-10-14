@@ -1,5 +1,6 @@
 // first-last-frame-image-slots.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { ImageSlotList } from "./image-slot-list.jsx";

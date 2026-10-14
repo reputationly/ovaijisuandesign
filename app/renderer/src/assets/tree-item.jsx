@@ -1,12 +1,8 @@
 // tree-item.jsx
-import {
-  API_PATHS,
-  ChevronDown,
-  ChevronRight$1 as ChevronRight,
-  Crosshair,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronRight$1 as ChevronRight, Crosshair } from "../media-editing/lucide-icon-wraps.js";
 import { withThumbnail } from "../workspace/tool-label-definitions.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

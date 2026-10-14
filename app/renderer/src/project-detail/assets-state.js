@@ -1,5 +1,5 @@
 // 资产列表的排序、选择与批量操作状态。
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 const DEFAULT_SORT = {
   by: "updated",
   dir: "desc",

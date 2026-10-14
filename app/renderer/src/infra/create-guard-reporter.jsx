@@ -1,5 +1,6 @@
 // create-guard-reporter.jsx
-import { jsxRuntimeExports, reactExports } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 const GUARD_SUMMARY_INTERVAL_MS = 6e4;

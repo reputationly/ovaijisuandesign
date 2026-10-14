@@ -1,5 +1,8 @@
 // 创作者计划投稿弹窗：安装包、封面、展示素材、分类与提交流程。
-import { useTranslation, reactExports, jsxRuntimeExports, X$7 as X, Info$1 as Info, CheckCircle2, ImagePlus, Video } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { X$7 as X, Info$1 as Info, CheckCircle2, ImagePlus, Video } from "../../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { DialogHeader, Button, Dialog, DialogContent, DialogFooter } from "../../infra/dialog-content.jsx";
 import { Icon } from "../../vendor-inline/vscode-base/graph.jsx";

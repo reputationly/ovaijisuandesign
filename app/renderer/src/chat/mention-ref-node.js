@@ -1,9 +1,6 @@
 // mention-ref-node.js
-import {
-  mergeAttributes,
-  Node$3 as Node,
-  ReactNodeViewRenderer,
-} from "../vendor.js";
+import { mergeAttributes, Node } from "@tiptap/core";
+import { ReactNodeViewRenderer } from "@tiptap/react";
 import { MentionRefChip } from "./mention-ref-chip.js";
 export const MentionRefNode = Node.create({
   name: "mentionRef",

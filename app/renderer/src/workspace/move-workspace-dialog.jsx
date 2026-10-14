@@ -6,7 +6,8 @@ import {
 } from "../infra/split-pinned-inventory.js";
 import { workspaceInventoryPathKey } from "./normalize-project-entries.js";
 import { Trans } from "react-i18next";
-import { MonochromeIcon, useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Folder } from "../media-editing/package.jsx";
 import {

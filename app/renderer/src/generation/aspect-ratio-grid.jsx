@@ -1,5 +1,6 @@
 // aspect-ratio-grid.jsx
-import { CompositedSvg, useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AspectRatioIcon, optClass } from "./resolution-tabs.jsx";
 

@@ -1,10 +1,8 @@
 // conflict-resolution-dialog.jsx
-import {
-  API_PATHS,
-  reactExports,
-  useQuery,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { normalizeTagRegistry } from "../infra/normalize-v2-registry.js";
 import { canvasTagRegistryQueryKey } from "../workspace/asset-lineage-query-key.js";
 import {

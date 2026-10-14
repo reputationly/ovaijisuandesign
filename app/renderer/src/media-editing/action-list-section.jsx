@@ -1,24 +1,11 @@
 // action-list-section.jsx
-import {
-  ActionListItem,
-  ActionListPanel,
-  ActionListSeparator,
-  Bold$1 as Bold,
-  CircleAlert,
-  classifyFileType,
-  Copy,
-  DialogTrigger$1 as DialogTriggerPrimitive,
-  FILE_TYPE_EXTENSIONS,
-  Info$1 as Info,
-  Italic$1 as Italic,
-  PlaybackPauseIcon$1 as PlaybackPauseIcon,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  reactExports,
-  Search,
-  Trash2Icon,
-  Underline$1 as Underline,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ActionListItem, ActionListPanel, ActionListSeparator } from "./action-list.jsx";
+import { Bold$1 as Bold, CircleAlert, Copy, Info$1 as Info, Italic$1 as Italic, Search, Trash2Icon, Underline$1 as Underline } from "./lucide-icon-wraps.js";
+import { classifyFileType, FILE_TYPE_EXTENSIONS } from "../infra/file-type.js";
+import { DialogTrigger$1 as DialogTriggerPrimitive } from "../infra/base-ui.js";
+import { PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon } from "./playback-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Card,

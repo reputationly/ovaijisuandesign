@@ -1,5 +1,5 @@
 // resolve-workspace-failure-diagnosis.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { Emitter } from "../vendor-inline/vscode-base/vs-buffer.js";
 import { WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY } from "../workspace/workspace-failure-diagnosis-registry.js";
 import { SessionTabsPersister } from "./session-tabs-persister.js";

@@ -1,5 +1,6 @@
 // delete-node-dialog.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "./agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cloudErrorDisplayMessage } from "../workspace/asset-lineage-query-key.js";

@@ -1,5 +1,10 @@
 // session-tab-strip.jsx
-import { CircleAlert, GripVertical, jsxRuntimeExports, NotebookPen, Pencil, PencilRuler, Plus, reactExports, Scissors, useQuery, useStorage, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { CircleAlert, GripVertical, NotebookPen, Pencil, PencilRuler, Plus, Scissors, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FourCornerLoading, sessionDisplayName } from "./chat-empty-state.jsx";

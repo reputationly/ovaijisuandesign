@@ -1,5 +1,11 @@
 // asset-picker-dialog.jsx
-import { ChevronDown, inferMediaKind, jsxRuntimeExports, LayoutGrid, LayoutList, Loader2, measurePerf, MenuPopup, MenuPortal, MenuPositioner, MonitorUp, reactExports, Search, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import { inferMediaKind } from "../infra/media-lineage.js";
+import { measurePerf } from "../infra/perf-log.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, LayoutGrid, LayoutList, Loader2, MonitorUp, Search, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { MenuPopup, MenuPortal, MenuPositioner } from "../infra/base-ui.js";
 import { dedupedToast, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ScrollableAssetView } from "./scrollable-asset-view.jsx";

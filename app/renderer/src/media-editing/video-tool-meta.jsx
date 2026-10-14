@@ -1,5 +1,6 @@
 // video-tool-meta.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { TextNodeInner } from "./text-node-inner.jsx";
 import {
   AddToChatIcon,

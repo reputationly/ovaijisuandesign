@@ -1,5 +1,8 @@
 // remote-tool.jsx
-import { reactExports, jsxRuntimeExports, useTranslation, useSearch } from "../vendor.js";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
+import { useSearch } from "@tanstack/react-router";
 import { useRemoteToolSdk } from "../assets/create-remote-tool-sdk.js";
 import { remoteDebugLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";

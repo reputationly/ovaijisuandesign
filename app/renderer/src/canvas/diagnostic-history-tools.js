@@ -1,5 +1,7 @@
 // diagnostic-history-tools.js
-import { MEDIA_EXTENSIONS, Ungroup$1 as UngroupIcon, withIconCompositing } from "../vendor.js";
+import { MEDIA_EXTENSIONS } from "../infra/media-lineage.js";
+import { Ungroup$1 as UngroupIcon } from "../media-editing/custom-icons.js";
+import { withIconCompositing } from "../media-editing/icon-compositing.js";
 export const Ungroup = withIconCompositing(UngroupIcon);
 export const TOOL_ABORTED_BY_USER_TEXT = "Tool execution aborted";
 export function chatDiagnosticHash(value) {

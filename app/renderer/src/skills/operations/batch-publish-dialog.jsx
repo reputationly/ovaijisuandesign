@@ -1,5 +1,6 @@
 // 运营后台的批量发布弹窗。
-import { useTranslation, reactExports } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
 import { DialogHeader, Button, Dialog, DialogContent, DialogFooter } from "../../infra/dialog-content.jsx";
 import { DialogTitle, DialogDescription } from "../../infra/badge-variants.jsx";
 import { Label } from "../../team/use-wallet-query.jsx";

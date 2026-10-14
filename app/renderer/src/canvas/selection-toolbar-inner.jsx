@@ -1,5 +1,11 @@
 // selection-toolbar-inner.jsx
-import { CanvasNodeType, CompositedSvg, jsxRuntimeExports, LayoutTemplate, reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { LayoutTemplate } from "../media-editing/lucide-icon-wraps.js";
 import { NodeToolbar, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { useAssetMetadataStore } from "../infra/agent-http-client.js";

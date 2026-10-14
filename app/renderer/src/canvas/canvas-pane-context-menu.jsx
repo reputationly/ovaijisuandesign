@@ -1,12 +1,8 @@
 // canvas-pane-context-menu.jsx
-import {
-  ActionListItem,
-  ActionListPanel,
-  ActionListSeparator,
-  reactDomExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ActionListItem, ActionListPanel, ActionListSeparator } from "../media-editing/action-list.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   resolveCanvasPlatform,

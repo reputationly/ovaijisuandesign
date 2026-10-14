@@ -1,6 +1,6 @@
 // installer-failure-code-keys.js
 import { UPDATE_CHECK_TIMED_OUT } from "./use-active-runtime.js";
-import { parseSemver } from "../vendor.js";
+import { parseSemver } from "../infra/runtime-config.js";
 
 const UPDATE_CHECK_ALREADY_IN_PROGRESS = "Update check already in progress";
 

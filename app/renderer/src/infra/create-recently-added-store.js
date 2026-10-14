@@ -1,11 +1,9 @@
 // create-recently-added-store.js
 import { register } from "@base-ui/utils/fastHooks";
-import {
-  createStore$1 as createStore,
-  reactExports,
-  shimExports,
-  TooltipProvider$2,
-} from "../vendor.js";
+import reactExports from "react";
+import shimExports from "use-sync-external-store/shim";
+import { createStore } from "zustand/vanilla";
+import { TooltipProvider$2 } from "./base-ui.js";
 import { DEFAULT_WORKFLOW_NODE_SPACING } from "../canvas/ungroup-in-canvas.js";
 import { computeDerivedNodePosition } from "../canvas/resolve-derived-collision.js";
 import { normalizeLegacyModelId } from "../generation/normalize-skill-detail-metadata.js";

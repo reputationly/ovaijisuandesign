@@ -3,7 +3,10 @@ import {
   selectDownloadableCanvasAssets,
   useCanvasTagName,
 } from "../assets/use-canvas-model-registry-hydration.js";
-import { API_PATHS, ChevronLeft, ChevronRight$1 as ChevronRight, CircleX, Ellipsis, Loader2, Music2, reactExports, useTranslation, Video, X$7 as XIcon } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronLeft, ChevronRight$1 as ChevronRight, CircleX, Ellipsis, Loader2, Music2, Video, X$7 as XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

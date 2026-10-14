@@ -1,6 +1,9 @@
 // trial-granted-popup.jsx
 import { cdnRegionalImage } from "../workspace/topbar-state-context.jsx";
-import { reactExports, useQuery, useTranslation, XIcon } from "../vendor.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   fetchHailuo03VideoTrialStatus,

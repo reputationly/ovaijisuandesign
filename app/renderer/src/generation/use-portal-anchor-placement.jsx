@@ -1,5 +1,6 @@
 // use-portal-anchor-placement.jsx
-import { CompositedSvg, reactExports } from "../vendor.js";
+import reactExports from "react";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { svgBase } from "./expand-arrow-icon.jsx";
 export function GptImageDomesticIcon(props) {

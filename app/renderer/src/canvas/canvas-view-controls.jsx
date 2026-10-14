@@ -1,19 +1,10 @@
 // canvas-view-controls.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
-import {
-  ChevronRight$1 as ChevronRight,
-  CompositedSvg,
-  Grid2X2,
-  LayoutTemplate,
-  Library,
-  Map$1 as MapIcon,
-  MonochromeIcon,
-  reactExports,
-  useTranslation,
-  Workflow,
-  X$7 as XIcon,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronRight$1 as ChevronRight, Grid2X2, LayoutTemplate, Library, Map$1 as MapIcon, Workflow, X$7 as XIcon } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import {
   DropdownMenuContent,

@@ -1,5 +1,11 @@
 // prompt-font-size-control.jsx
-import { Check, Copy, jsxRuntimeExports, PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot, PopoverTrigger$1 as PopoverTrigger, PROMPT_FONT_SIZE_DEFAULT, PROMPT_FONT_SIZE_MAX, PROMPT_FONT_SIZE_MIN, reactExports, RotateCcw, usePromptFontSizeStore, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { PROMPT_FONT_SIZE_DEFAULT, PROMPT_FONT_SIZE_MAX, PROMPT_FONT_SIZE_MIN } from "./prompt-font-size.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, Copy, RotateCcw } from "../media-editing/lucide-icon-wraps.js";
+import { PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot, PopoverTrigger$1 as PopoverTrigger } from "../infra/base-ui.js";
+import { usePromptFontSizeStore } from "./prompt-font-size.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Type } from "../media-editing/package.jsx";

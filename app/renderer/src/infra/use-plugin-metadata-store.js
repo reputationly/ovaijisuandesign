@@ -4,13 +4,10 @@ import {
   DEFAULT_RECOVERY_FRAME_BUDGET_MS,
 } from "../canvas/separator.jsx";
 import { createHtmlFullscreenStore } from "./create-html-fullscreen-store.js";
-import {
-  CanvasNodeType,
-  create$2 as create,
-  createStore$1 as createStore,
-  reactExports,
-  useStore$2 as useStore,
-} from "../vendor.js";
+import { CanvasNodeType } from "../canvas/canvas-geometry.js";
+import reactExports from "react";
+import { create, useStore } from "zustand";
+import { createStore } from "zustand/vanilla";
 import { useCanvasBridge } from "../media-editing/package.jsx";
 export const DEFAULT_CANVAS_RENDER_POLICY = Object.freeze({
   contentVisibility: "auto",

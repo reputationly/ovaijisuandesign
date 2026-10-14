@@ -1,5 +1,5 @@
 // infinite-scroll-container.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Spinner } from "./use-team-transactions-feed-query.jsx";

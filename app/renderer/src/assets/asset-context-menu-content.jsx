@@ -1,16 +1,7 @@
 // asset-context-menu-content.jsx
-import {
-  Copy,
-  Crosshair,
-  ExternalLink,
-  FolderInput,
-  FolderPlus,
-  jsxRuntimeExports,
-  LayoutGrid,
-  LayoutList,
-  Plus,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
+import { Copy, Crosshair, ExternalLink, FolderInput, FolderPlus, LayoutGrid, LayoutList, Plus } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PlatformFileManagerLabel } from "../settings/request-prompt-prefill.jsx";
 import { Files, Sparkles, Trash2 } from "../media-editing/package.jsx";

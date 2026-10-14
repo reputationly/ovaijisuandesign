@@ -1,5 +1,7 @@
 // use-canvas-add-node.js
-import { CanvasNodeType, reactExports, useTranslation } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import {
   TABLE_CARD_DEFAULT_SIZE,
   TEXT_CARD_DEFAULT_SIZE,

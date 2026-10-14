@@ -1,31 +1,12 @@
 // dialog-content.jsx
 import { cva } from "class-variance-authority";
-import {
-  AlertDialogRoot,
-  Button$3,
-  Check,
-  clsx,
-  createTailwindMerge,
-  DialogBackdrop,
-  DialogClose$1 as DialogClose,
-  DialogPopup,
-  DialogRoot,
-  Loader2Icon,
-  MenuGroupLabel,
-  MenuItem$3 as MenuItem,
-  MenuPopup,
-  MenuPortal,
-  MenuPositioner,
-  MenuRadioItem,
-  MenuRadioItemIndicator,
-  MenuTrigger,
-  reactExports,
-  TooltipPopup,
-  TooltipPortal,
-  TooltipPositioner,
-  useTranslation,
-  XIcon,
-} from "../vendor.js";
+import { Button as Button$3 } from "@base-ui/react/button";
+import clsx from "clsx";
+import { createTailwindMerge } from "tailwind-merge";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AlertDialogRoot, DialogBackdrop, DialogClose$1 as DialogClose, DialogPopup, DialogRoot, MenuGroupLabel, MenuItem$3 as MenuItem, MenuPopup, MenuPortal, MenuPositioner, MenuRadioItem, MenuRadioItemIndicator, MenuTrigger, TooltipPopup, TooltipPortal, TooltipPositioner } from "./base-ui.js";
+import { Check, Loader2Icon, XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { getDefaultConfig } from "tailwind-merge";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogPortal, listeners$a } from "./gateway-http-error.jsx";

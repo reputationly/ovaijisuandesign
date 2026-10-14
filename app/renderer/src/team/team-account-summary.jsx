@@ -1,11 +1,7 @@
 // team-account-summary.jsx
-import {
-  ArrowLeftRight,
-  ChevronRight$1 as ChevronRight,
-  deriveTeamCreditDisplay,
-  UserRound,
-  useTranslation,
-} from "../vendor.js";
+import { deriveTeamCreditDisplay } from "./credit-display.js";
+import { useTranslation } from "react-i18next";
+import { ArrowLeftRight, ChevronRight$1 as ChevronRight, UserRound } from "../media-editing/lucide-icon-wraps.js";
 import {
   Icon,
   Tooltip,

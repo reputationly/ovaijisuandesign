@@ -1,10 +1,7 @@
 // file-missing-icon.jsx
-import {
-  CompositedSvg,
-  Pencil,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  Speech,
-} from "../vendor.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { Pencil, Speech } from "../media-editing/lucide-icon-wraps.js";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   PLACEHOLDER_ICON_CLASS,

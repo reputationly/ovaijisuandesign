@@ -1,5 +1,7 @@
 // 全局搜索弹窗：输入框、筛选标签、分组结果列表与键盘操作。
-import { reactExports, useTranslation, Search } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Search } from "../media-editing/lucide-icon-wraps.js";
 import { useIsScrolling } from "../assets/credit-query-keys.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";

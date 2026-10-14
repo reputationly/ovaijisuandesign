@@ -1,13 +1,9 @@
 // forced-update-dialog.jsx
-import {
-  CircleArrowUp,
-  jsxRuntimeExports,
-  Loader2,
-  reactExports,
-  RotateCw,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { CircleArrowUp, Loader2, RotateCw } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { IPC_CHANNELS } from "../infra/gateway-http-error.jsx";
 import { CircleHelp, Download, LogOut } from "../media-editing/package.jsx";

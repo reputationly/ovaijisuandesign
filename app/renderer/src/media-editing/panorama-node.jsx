@@ -1,5 +1,7 @@
 // panorama-node.jsx
-import { Grid2X2, Grid3X3, Power, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Grid2X2, Grid3X3, Power } from "./lucide-icon-wraps.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { useReactFlow } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataStore } from "../infra/agent-http-client.js";

@@ -1,4 +1,4 @@
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 function readDpr() {
   if (typeof window === "undefined") return 1;

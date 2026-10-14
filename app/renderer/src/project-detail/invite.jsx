@@ -1,6 +1,10 @@
 // 邀请成员：邀请面板、成员行与邀请弹窗。
 import { createProjectOperationId, logProjectOperationAttempt, logProjectOperationSuccess, logProjectOperationFailure, removeProjectMember, cloudErrorDisplayMessage, createProjectInviteLink } from "../workspace/asset-lineage-query-key.js";
-import { useTranslation, useQueryClient, reactExports, jsxRuntimeExports, BadgeInfo, Check, Link2, ChevronDown } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { BadgeInfo, Check, Link2, ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 import { dedupedToast } from "../infra/agent-http-client.js";

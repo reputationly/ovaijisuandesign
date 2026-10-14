@@ -3,7 +3,8 @@ import {
   useAuth,
   useOptionalTeamAccount,
 } from "../assets/credit-query-keys.jsx";
-import { API_PATHS, useMutation, useQuery, useQueryClient } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import {
   asNullableString,

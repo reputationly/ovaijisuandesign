@@ -8,7 +8,7 @@ import {
   ROOT_KEY,
   useAssetCenterFetcher,
 } from "./wrap-as-asset-center-error.js";
-import { useMutation, useQuery, useQueryClient } from "../vendor.js";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 async function getEntityCanvas(fetcher, entityId) {

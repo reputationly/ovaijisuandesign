@@ -1,5 +1,5 @@
 // runtime-node-to-file-node.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 
 function runtimeNodeToFileNode(node, mode) {
   const isGroup = node.type === CanvasNodeType.Group;

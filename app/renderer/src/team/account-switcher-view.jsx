@@ -1,5 +1,8 @@
 // account-switcher-view.jsx
-import { ChevronLeft, Plus, reactExports, useQuery, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { ChevronLeft, Plus } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   IDENTITY_GC_MS,

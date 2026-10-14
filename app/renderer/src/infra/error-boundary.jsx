@@ -6,7 +6,8 @@ import {
   scopedAssetsQueryKey,
   tracesByClientId,
 } from "../assets/credit-query-keys.jsx";
-import { measurePerf, reactExports } from "../vendor.js";
+import { measurePerf } from "./perf-log.js";
+import reactExports from "react";
 import { PERF_CHAT_FIRST_PROGRESS } from "../generation/to-workspace-browser-url.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ErrorFallbackUI } from "./error-fallback-ui.jsx";

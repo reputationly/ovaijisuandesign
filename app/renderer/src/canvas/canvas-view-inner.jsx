@@ -1,5 +1,8 @@
 // canvas-view-inner.jsx
-import { CanvasNodeType, Check, ChevronDown, Loader2Icon, reactExports, useTranslation } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown, Loader2Icon } from "../media-editing/lucide-icon-wraps.js";
 import { useNodesInitialized, useReactFlow, useStore, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";

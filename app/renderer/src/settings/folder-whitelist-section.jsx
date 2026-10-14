@@ -1,14 +1,11 @@
 // folder-whitelist-section.jsx
-import {
-  FolderPlus,
-  jsxRuntimeExports,
-  reactDomExports,
-  reactExports,
-  usePlatform,
-  useStorage,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { FolderPlus, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { isPathInWhitelist } from "./diagnostics-group.jsx";
 import { isCaseInsensitiveOs } from "./use-active-runtime.js";
 import { __jsx } from "../shared/jsx-runtime.js";

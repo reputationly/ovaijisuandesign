@@ -1,5 +1,5 @@
 // get-reference-navigation-defaults.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { syncStableZoomSignals } from "../canvas/separator.jsx";
 import { useCanvasBridge } from "./package.jsx";
 import { resolveDefaultReferencePaths } from "../generation/param-label-fallbacks.js";

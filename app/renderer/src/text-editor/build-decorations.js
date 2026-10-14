@@ -1,9 +1,6 @@
 // build-decorations.js
-import {
-  Decoration$1 as Decoration,
-  DecorationSet,
-  PluginKey,
-} from "../vendor.js";
+import { Decoration, DecorationSet } from "prosemirror-view";
+import { PluginKey } from "prosemirror-state";
 export const findPluginKey = new PluginKey("canvasFindHighlight");
 const FIND_MATCH_CLASS = "canvas-find-match";
 export const FIND_MATCH_ACTIVE_CLASS = "canvas-find-match-active";

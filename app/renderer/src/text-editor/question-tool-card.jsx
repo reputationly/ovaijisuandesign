@@ -1,11 +1,8 @@
 // question-tool-card.jsx
-import {
-  API_PATHS,
-  Check,
-  ChevronDown,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useResolveMediaUrl } from "../workspace/tool-label-definitions.js";
 import { FileChip } from "../generation/file-chip.jsx";

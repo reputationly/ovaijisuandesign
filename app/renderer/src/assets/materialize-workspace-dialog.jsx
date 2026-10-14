@@ -1,5 +1,9 @@
 // materialize-workspace-dialog.jsx
-import { CheckCircle2 as CheckCircle, Loader2, reactExports, ShieldAlert, usePlatform, useStorage, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { CheckCircle2 as CheckCircle, Loader2, ShieldAlert } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getFileManagerLabelKey } from "../settings/request-prompt-prefill.jsx";

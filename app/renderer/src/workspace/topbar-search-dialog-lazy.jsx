@@ -5,7 +5,19 @@ import {
   hideVisiblePreviewTabs,
   requestWorkspaceRuntimeClose,
 } from "../assets/credit-query-keys.jsx";
-import { AlertTriangle, API_PATHS, clientExports, createFileRoute, createRootRoute, jsxRuntimeExports, lazyRouteComponent, reactExports, redirect, useGatewayScope, useNavigate, usePlatform, useQueryClient, useStorage, useTranslation } from "../vendor.js";
+import { createFileRoute, lazyRouteComponent } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useGatewayScope } from "../infra/runtime-config.js";
+import { usePlatform } from "../infra/platform-context.js";
+import clientExports from "react-dom/client";
+import { createRootRoute, useNavigate } from "@tanstack/react-router";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { redirect } from "@tanstack/router-core";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

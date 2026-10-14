@@ -1,12 +1,8 @@
 // folder-drill-down-picker.jsx
 import { ROOT_KEY } from "./list-all-cloud-folders.js";
-import {
-  Check,
-  ChevronDown,
-  ChevronRight$1 as ChevronRight,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown, ChevronRight$1 as ChevronRight } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Folder } from "../media-editing/package.jsx";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";

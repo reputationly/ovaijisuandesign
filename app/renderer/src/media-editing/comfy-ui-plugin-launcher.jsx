@@ -7,16 +7,10 @@ import {
   usePluginMeta,
   usePluginRunInfo,
 } from "../infra/use-plugin-metadata-store.js";
-import {
-  Check,
-  CircleAlert,
-  jsxRuntimeExports,
-  LoaderCircle,
-  reactExports,
-  Search,
-  useTranslation,
-  Workflow,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, CircleAlert, LoaderCircle, Search, Workflow } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Dialog } from "../canvas/separator.jsx";
 import { useViewerActive } from "../infra/use-viewer-active.js";

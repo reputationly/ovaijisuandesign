@@ -1,13 +1,8 @@
 // model-chip.jsx
-import {
-  Bot,
-  jsxRuntimeExports,
-  Music,
-  reactExports,
-  ScrollText,
-  useTranslation,
-  Video,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Bot, Music, ScrollText, Video } from "../media-editing/lucide-icon-wraps.js";
 import { CanvasReleaseRegionContext } from "../canvas/separator.jsx";
 import {
   GeneralImageIcon,

@@ -1,11 +1,6 @@
 // canvas-command-panel-content.jsx
-import {
-  ChevronDown,
-  ChevronUp,
-  Eye,
-  EyeOff,
-  useTranslation,
-} from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronUp, Eye, EyeOff } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CANVAS_COMMAND_IDS } from "./use-active-mode.js";
 import { Trash2 } from "../media-editing/package.jsx";

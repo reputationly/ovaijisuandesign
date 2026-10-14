@@ -1,5 +1,6 @@
 // 首页场景面板的选择与跳转逻辑。
-import { reactExports, findConnectorMentions } from "../vendor.js";
+import reactExports from "react";
+import { findConnectorMentions } from "../skills/connectors/connector-market.js";
 import { OFFICIAL_CONNECTORS } from "../settings/request-prompt-prefill.jsx";
 import { formatConnectorMention } from "../canvas/diagnostic-history-tools.js";
 export function useScenePanel(categories) {

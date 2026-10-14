@@ -1,5 +1,7 @@
 // offline-banner.jsx
-import { reactExports, usePlatform, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DEBUG_FLAGS, useDebugFlag } from "./use-deep-link-router.js";
 import { useOnline } from "../infra/use-online.jsx";

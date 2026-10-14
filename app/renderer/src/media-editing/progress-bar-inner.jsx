@@ -1,5 +1,6 @@
 // progress-bar-inner.jsx
-import { jsxRuntimeExports, reactExports } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { formatTime } from "./package.jsx";
 function formatControlTime(seconds, roundUp = false) {

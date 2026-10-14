@@ -1,5 +1,8 @@
 // opacity-sample-cell.jsx
-import { useTranslation, reactExports, jsxRuntimeExports, IconCompositingContext } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { IconCompositingContext } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 const svgIds = new WeakMap();
 let nextSvgId = 0;

@@ -4,16 +4,11 @@ import {
   readObject,
   useAssetCenterFetcher,
 } from "./wrap-as-asset-center-error.js";
-import {
-  AtSign,
-  ChevronDown,
-  FolderInput,
-  jsxRuntimeExports,
-  Loader2,
-  reactExports,
-  useMutation,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { AtSign, ChevronDown, FolderInput, Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { ENTITY_TYPES } from "./audio-play-button.jsx";
 import {
   assetCenterLog,

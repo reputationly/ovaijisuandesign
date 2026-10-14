@@ -1,5 +1,7 @@
 // 插件市场的卡片：图标取色、封面横幅、工作流按钮。
-import { useTranslation, reactExports, BadgeCheck, Eye, Workflow } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { BadgeCheck, Eye, Workflow } from "../../media-editing/lucide-icon-wraps.js";
 import { PluginIcon } from "../../workspace/home-service.jsx";
 import { pickLocalized } from "../../generation/normalize-skill-detail-metadata.js";
 import { pluginTrackBase } from "../../generation/use-mention-models.jsx";

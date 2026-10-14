@@ -1,6 +1,6 @@
 // dev-tool-confirm-trigger.jsx
 import { MOCK_MEDIA_GEN_MESSAGES } from "../chat/mock-media-gen-messages.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 function parseMockToolArgs(raw) {

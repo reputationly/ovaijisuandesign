@@ -1,13 +1,9 @@
 // sticker-node-toolbar.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  ChevronDown,
-  ChevronUp,
-  CopyPlus,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronUp, CopyPlus } from "./lucide-icon-wraps.js";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
 import {
   CANVAS_EMOJI_STICKERS,

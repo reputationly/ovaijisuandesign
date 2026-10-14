@@ -6,7 +6,10 @@ import {
   findMatchesInText,
   MAX_FIND_MATCHES,
 } from "./paragraph-line-placement.js";
-import { jsxRuntimeExports, reactExports, Redo2, Undo2, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Redo2, Undo2 } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ToolbarBtn, ToolbarSeparator } from "./editor-history-controls.jsx";

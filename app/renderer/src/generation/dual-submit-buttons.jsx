@@ -1,5 +1,6 @@
 // dual-submit-buttons.jsx
-import { jsxRuntimeExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   ACTION_BTN_BASE,

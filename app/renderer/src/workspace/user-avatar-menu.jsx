@@ -1,5 +1,12 @@
 // user-avatar-menu.jsx
-import { ChevronRight$1 as ChevronRight, getRuntimeConfig, jsxRuntimeExports, Monitor, Palette, reactDomExports, reactExports, Smartphone, Sun, SwatchBook, usePlatform, useQueryClient, useTranslation, Wrench } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { ChevronRight$1 as ChevronRight, Monitor, Palette, Smartphone, Sun, SwatchBook, Wrench } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import {
   Icon,

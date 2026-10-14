@@ -1,23 +1,6 @@
 // select-content.jsx
-import {
-  ChevronDownIcon$1 as ChevronDownIcon,
-  ChevronUpIcon,
-  SelectIcon,
-  SelectItem$2 as SelectItemPrimitive,
-  SelectItemIndicator,
-  SelectItemText,
-  SelectList,
-  SelectPopup,
-  SelectPortal,
-  SelectPositioner,
-  SelectRoot,
-  SelectScrollDownArrow,
-  SelectScrollUpArrow,
-  SelectTrigger$2 as SelectTriggerPrimitive,
-  SelectValue$2 as SelectValuePrimitive,
-  SwitchRoot,
-  SwitchThumb,
-} from "../vendor.js";
+import { ChevronDownIcon$1 as ChevronDownIcon, ChevronUpIcon } from "../media-editing/lucide-icon-wraps.js";
+import { SelectIcon, SelectItem$2 as SelectItemPrimitive, SelectItemIndicator, SelectItemText, SelectList, SelectPopup, SelectPortal, SelectPositioner, SelectRoot, SelectScrollDownArrow, SelectScrollUpArrow, SelectTrigger$2 as SelectTriggerPrimitive, SelectValue$2 as SelectValuePrimitive, SwitchRoot, SwitchThumb } from "../infra/base-ui.js";
 import { Select as BaseUiSelect } from "@base-ui/react/select";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";

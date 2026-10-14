@@ -1,5 +1,10 @@
 // 本地资产面板：目录浏览、搜索、移动、导入与批量操作。
-import { useTranslation, reactExports, usePlatform, useStorage, API_PATHS, FolderPlus } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { usePlatform } from "../../infra/platform-context.js";
+import { API_PATHS } from "../../infra/workspace-gateway.js";
+import { useStorage } from "../../infra/use-storage.js";
+import { FolderPlus } from "../../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { Button, mergeTailwindClasses as cn } from "../../infra/dialog-content.jsx";
 import { useProjectAssetsService } from "../../infra/new-folder-dialog.jsx";

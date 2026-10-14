@@ -1,15 +1,9 @@
 // audio-lightbox.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";
-import {
-  MenuItem$3 as MenuItem,
-  MenuPopup,
-  MenuPortal,
-  MenuPositioner,
-  MenuSubmenuTrigger,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { MenuItem$3 as MenuItem, MenuPopup, MenuPortal, MenuPositioner, MenuSubmenuTrigger } from "../infra/base-ui.js";
 import { Download } from "./package.jsx";
 import { normalizeLegacyLightboxItems } from "./use-warn-missing-asset-meta.jsx";
 import { useLightboxMediaActions } from "./use-lightbox-media-actions.jsx";

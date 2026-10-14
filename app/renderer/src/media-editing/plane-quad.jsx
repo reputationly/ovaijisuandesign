@@ -1,6 +1,6 @@
 // plane-quad.jsx
 import { project } from "./layer-decompose-prompt.jsx";
-import { CompositedSvg } from "../vendor.js";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function planeQuad(center, width, height, basis) {
   return [

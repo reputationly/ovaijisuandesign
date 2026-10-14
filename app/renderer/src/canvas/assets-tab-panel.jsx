@@ -1,5 +1,9 @@
 // assets-tab-panel.jsx
-import { Check, ChevronDown, ChevronLeft, ChevronRight$1 as ChevronRight, getIconStrokeWidth, Info$1 as Info, LayoutGrid, LayoutList, Library, Plus, reactExports, useCurrentWorkspace, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown, ChevronLeft, ChevronRight$1 as ChevronRight, Info$1 as Info, LayoutGrid, LayoutList, Library, Plus } from "../media-editing/lucide-icon-wraps.js";
+import { getIconStrokeWidth } from "../media-editing/icon-compositing.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TeamAssetsSidebarPanel } from "../assets/team-assets-sidebar-panel.jsx";

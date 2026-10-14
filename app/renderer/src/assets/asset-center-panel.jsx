@@ -1,5 +1,12 @@
 // asset-center-panel.jsx
-import { API_PATHS, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Loader2, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, reactDomExports, reactExports, Search, useCurrentWorkspace, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronRight$1 as ChevronRight, Loader2, Search, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
+import { PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot } from "../infra/base-ui.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";

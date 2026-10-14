@@ -1,5 +1,7 @@
 // use-project-delete.js
-import { reactExports, useQuery, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   fetchWorkspaceThumbnails,

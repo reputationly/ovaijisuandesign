@@ -1,5 +1,6 @@
 // 创作者计划的数据层：投稿内容整理、上传、保存、提交记录查询与 hook。
-import { reactExports, API_PATHS } from "../../vendor.js";
+import reactExports from "react";
+import { API_PATHS } from "../../infra/workspace-gateway.js";
 import { normalizePublicSkillShowcaseUrl, normalizeSkillDetailMetadata, normalizeSkillContentLocale } from "../../generation/normalize-skill-detail-metadata.js";
 import { gatewayFetch } from "../../infra/gateway-fetch.js";
 import { DEFAULT_SKILL_PACKAGE_VERSION } from "../review-rules.js";

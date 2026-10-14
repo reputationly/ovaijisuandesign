@@ -1,19 +1,9 @@
 // image-inplace-edit-toolbar-inner.jsx
-import {
-  BoxSelect,
-  Check,
-  ChevronDown,
-  CompositedSvg,
-  Hand,
-  jsxRuntimeExports,
-  Pencil,
-  reactExports,
-  Redo2,
-  Slash,
-  Tag$1 as Tag,
-  Undo2,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { BoxSelect, Check, ChevronDown, Hand, Pencil, Redo2, Slash, Tag$1 as Tag, Undo2 } from "./lucide-icon-wraps.js";
+import { CompositedSvg } from "./icon-compositing.js";
 import { NodeToolbar, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";

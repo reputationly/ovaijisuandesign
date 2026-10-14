@@ -1,5 +1,5 @@
 // build-controls.js
-import { PluginKey } from "../vendor.js";
+import { PluginKey } from "prosemirror-state";
 
 export const DIFF_ADD_CLASS = "canvas-diff-add";
 

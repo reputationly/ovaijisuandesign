@@ -1,5 +1,7 @@
 // relight-popover.jsx
-import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { X$7 as X } from "./lucide-icon-wraps.js";
 import { NodeToolbar, useNodeId, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";

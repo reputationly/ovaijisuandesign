@@ -1,7 +1,8 @@
 // connection-indicator.jsx
 // 侧栏左下角的平台连接状态，替代用户头像和用户名（没有账户体系）。
 // 每 3 秒取一次主进程缓存的探测结果；颜色用内联样式，不依赖 CSS 里是否生成了对应的颜色类。
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { platformService } from "../infra/platform-service.js";
 const POLL_INTERVAL_MS = 3e3;

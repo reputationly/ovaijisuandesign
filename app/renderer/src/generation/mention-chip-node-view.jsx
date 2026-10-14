@@ -1,15 +1,11 @@
 // mention-chip-node-view.jsx
-import {
-  classifyFileType,
-  jsxRuntimeExports,
-  Music,
-  NodeSelection,
-  NodeViewWrapper,
-  reactExports,
-  useTranslation,
-  Video,
-  X$7 as CloseIcon,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { NodeSelection } from "prosemirror-state";
+import { NodeViewWrapper } from "@tiptap/react";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { Music, Video, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ReferenceSwitchPopover } from "./reference-switch-popover.jsx";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";

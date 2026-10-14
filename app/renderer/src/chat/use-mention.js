@@ -4,7 +4,8 @@ import {
   findMentionTrigger,
 } from "./find-trailing-trigger.js";
 import { formatConnectorMention } from "../canvas/diagnostic-history-tools.js";
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 
 const DEBOUNCE_MS = 150;

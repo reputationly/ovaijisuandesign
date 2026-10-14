@@ -1,10 +1,7 @@
 // changelog-detail-dialog.jsx
-import {
-  CircleArrowUp,
-  reactExports,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CircleArrowUp, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogClose } from "../infra/gateway-http-error.jsx";
 import {

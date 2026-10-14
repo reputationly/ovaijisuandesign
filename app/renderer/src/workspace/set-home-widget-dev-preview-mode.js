@@ -1,7 +1,9 @@
 // set-home-widget-dev-preview-mode.js
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { Popover } from "../assets/credit-query-keys.jsx";
-import { reactExports, storageKeys, useQueryClient } from "../vendor.js";
+import reactExports from "react";
+import { storageKeys } from "../infra/storage-cache.js";
+import { useQueryClient } from "@tanstack/react-query";
 import { canUseDebugTooling } from "./use-deep-link-router.js";
 export function findEntryByPath(entries, path) {
   for (const entry of entries) {

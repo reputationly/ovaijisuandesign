@@ -1,6 +1,12 @@
 // workspace-card.jsx
 import { useWorkspaceThumbnails } from "./use-project-delete.js";
-import { jsxRuntimeExports, SquareDashed, useTranslation, useNavigate, usePlatform, useStorage, reactExports, FolderX } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
+import { usePlatform } from "../infra/platform-context.js";
+import reactExports from "react";
+import { SquareDashed, FolderX } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import { folderNameFromPath, workspaceDisplayName, formatTimestampDot } from "../generation/use-model-catalog-scope-key.js";
 import { useWorkspaceDisplayNameRename } from "./use-new-workspace-dialog.jsx";
 import { useProjectStore, useWorkspaceProject, isWorkspacePathCaseInsensitivePlatform } from "./normalize-project-entries.js";

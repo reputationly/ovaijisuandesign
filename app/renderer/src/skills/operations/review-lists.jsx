@@ -1,5 +1,7 @@
 // 运营后台的待审核与待发布列表。
-import { useTranslation, reactExports, Loader2 } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { Loader2 } from "../../media-editing/lucide-icon-wraps.js";
 import { Badge } from "../../infra/badge-variants.jsx";
 import { Button } from "../../infra/dialog-content.jsx";
 import { Select } from "../../assets/credit-query-keys.jsx";

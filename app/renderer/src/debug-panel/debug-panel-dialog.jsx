@@ -49,7 +49,19 @@ import {
   WifiOff,
   Bug,
 } from "lucide-react";
-import { useTranslation, useNavigate, reactExports, jsxRuntimeExports, Loader2, Plus, AlertCircle, findHcpConnector, connectorPromptActionLabelKey, Plus$1 as PlusIcon, connectorSummaryActionLabelKey, resolveConnectorIcon, usePlatform, minCreditAmount, useStorage, getRuntimeConfig, DialogPortal$2 as DialogPortal, DialogBackdrop, DialogPopup, PlaybackPlayIcon$1 as PlaybackPlayIcon, GLOBAL_STORAGE_VERSION } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { usePlatform } from "../infra/platform-context.js";
+import { minCreditAmount } from "../team/credit-display.js";
+import { getRuntimeConfig, GLOBAL_STORAGE_VERSION } from "../infra/runtime-config.js";
+import { Loader2, Plus, AlertCircle, Plus$1 as PlusIcon } from "../media-editing/lucide-icon-wraps.js";
+import { findHcpConnector, resolveConnectorIcon } from "../skills/connectors/hcp-catalog.js";
+import { connectorPromptActionLabelKey, connectorSummaryActionLabelKey } from "../skills/connectors/connector-market.js";
+import { useStorage } from "../infra/use-storage.js";
+import { DialogPortal$2 as DialogPortal, DialogBackdrop, DialogPopup } from "../infra/base-ui.js";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
 import { Button, mergeTailwindClasses as mergeClassNames, DialogHeader, dialogChromeButtonClassName, AlertDialog, Dialog, DialogContent } from "../infra/dialog-content.jsx";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { ErrorMessage } from "../team/error-message.jsx";

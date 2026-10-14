@@ -1,5 +1,12 @@
 // markdown-link.jsx
-import { API_PATHS, ArrowUpRight, classifyFileType, Copy, Crosshair, ExternalLink, Globe, jsxRuntimeExports, reactExports, useCurrentWorkspace, usePlatform, useTranslation, Video, VideoOff } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowUpRight, Copy, Crosshair, ExternalLink, Globe, Video, VideoOff } from "../media-editing/lucide-icon-wraps.js";
+import { classifyFileType } from "../infra/file-type.js";
 import { codeHighlighterPlugin } from "./code-highlighter-plugin.js";
 import { defaultSchema } from "hast-util-sanitize";
 import { dedupedToast } from "../infra/agent-http-client.js";

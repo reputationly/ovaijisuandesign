@@ -1,5 +1,5 @@
 // use-marquee-selection.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 
 function intersects(firstRect, secondRect) {
   return (

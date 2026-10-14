@@ -1,5 +1,7 @@
 // count-chip.jsx
-import { reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { usePortalAnchorPlacement } from "../generation/use-portal-anchor-placement.jsx";
 

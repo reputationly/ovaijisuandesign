@@ -1,15 +1,9 @@
 // panorama-viewer.jsx
-import {
-  CompositedSvg,
-  Maximize,
-  reactDomExports,
-  reactExports,
-  RotateCw,
-  useTranslation,
-  X$7 as X,
-  ZoomIn,
-  ZoomOut,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
+import { Maximize, RotateCw, X$7 as X, ZoomIn, ZoomOut } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { Camera } from "./package.jsx";

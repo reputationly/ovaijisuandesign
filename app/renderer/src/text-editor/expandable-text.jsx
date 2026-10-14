@@ -1,5 +1,6 @@
 // expandable-text.jsx
-import { reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useChatPresentation } from "../chat/use-copy.jsx";
 

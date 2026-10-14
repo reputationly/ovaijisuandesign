@@ -1,11 +1,8 @@
 // team-management-detail-loading.jsx
-import {
-  Inbox,
-  Info$1 as Info,
-  jsxRuntimeExports,
-  ProgressRoot,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { useTranslation } from "react-i18next";
+import { Inbox, Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
+import { ProgressRoot } from "../infra/base-ui.js";
 import { Progress as BaseUiProgress } from "@base-ui/react/progress";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";

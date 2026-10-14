@@ -1,5 +1,5 @@
 // compute-group-bounds-from-children.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 const GENERATION_REFERENCE_DATA_KEYS = [
   "referenceImageIds",
   "referenceAudioIds",

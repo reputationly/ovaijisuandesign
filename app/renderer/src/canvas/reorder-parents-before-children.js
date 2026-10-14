@@ -1,5 +1,5 @@
 // reorder-parents-before-children.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import {
   GROUP_DERIVED_CHILD_COUNT_KEY,
   GROUP_DERIVED_COLLAPSED_KEY,

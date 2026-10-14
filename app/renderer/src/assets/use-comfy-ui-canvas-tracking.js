@@ -1,7 +1,7 @@
 // use-comfy-ui-canvas-tracking.js
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { getPluginMeta } from "../infra/use-plugin-metadata-store.js";
 import { folderNameFromPath } from "../generation/use-model-catalog-scope-key.js";
 

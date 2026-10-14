@@ -3,12 +3,10 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { formatDuration } from "../workspace/set-home-widget-dev-preview-mode.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
-import {
-  AlertTriangle,
-  API_PATHS,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AlertTriangle } from "../media-editing/lucide-icon-wraps.js";
 import { FileTypeBadge, InlineInput, TagDots } from "./inline-input.jsx";
 import { MissingCandidateActions } from "./missing-candidate-actions.jsx";
 import { withThumbnail } from "../workspace/tool-label-definitions.js";

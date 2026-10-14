@@ -1,5 +1,7 @@
 // derive-subscription-status.js
-import { getRuntimeConfig, reactExports, useStorage } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import { WalletSource } from "../generation/to-workspace-browser-url.js";
 import { useWalletQuery } from "./use-wallet-query.jsx";
 import {

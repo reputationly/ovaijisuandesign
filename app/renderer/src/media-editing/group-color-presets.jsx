@@ -6,7 +6,7 @@ import { PANORAMA_VIEWER_PLUGIN_ID } from "./resolve-panorama-generation-present
 import { PanoramaNode } from "./panorama-node.jsx";
 import { GlobalWorkerOptions } from "pdfjs-dist";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";
 
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl;

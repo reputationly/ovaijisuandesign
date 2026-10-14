@@ -1,11 +1,7 @@
 // team-member-combobox.jsx
-import {
-  Check,
-  ChevronDown,
-  reactExports,
-  Search,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown, Search } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Popover } from "../assets/credit-query-keys.jsx";

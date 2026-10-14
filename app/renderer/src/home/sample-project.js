@@ -1,5 +1,7 @@
 // 首次进入时的示例项目：准备、恢复可见性、导入内置包。
-import { useTranslation, useStorage, reactExports } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import { useProjectStore } from "../workspace/normalize-project-entries.js";
 import { useProjectActions } from "../settings/use-project-actions.js";
 import { useProjectArchiveActions } from "../workspace/use-project-archive-actions.js";

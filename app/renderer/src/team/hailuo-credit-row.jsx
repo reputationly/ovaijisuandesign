@@ -1,5 +1,9 @@
 // hailuo-credit-row.jsx
-import { ArrowRight, ChevronRight$1 as ChevronRight, Info$1 as Info, PopoverArrow$1, PopoverPopup, PopoverPortal, PopoverPositioner, reactExports, useMutation, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { ArrowRight, ChevronRight$1 as ChevronRight, Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
+import { PopoverArrow$1, PopoverPopup, PopoverPortal, PopoverPositioner } from "../infra/base-ui.js";
 import { evaluateAccountSubmission, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";

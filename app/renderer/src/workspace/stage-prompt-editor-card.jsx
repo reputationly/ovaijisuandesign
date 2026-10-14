@@ -1,12 +1,8 @@
 // stage-prompt-editor-card.jsx
 import { resolveModelNameForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
-import {
-  Check,
-  Loader2,
-  reactExports,
-  RotateCcw,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, Loader2, RotateCcw } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

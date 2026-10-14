@@ -1,12 +1,7 @@
 // domestic-param-labels.jsx
-import {
-  AudioLines,
-  getRuntimeConfig,
-  Music,
-  reactExports,
-  Scissors,
-  Video,
-} from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { AudioLines, Music, Scissors, Video } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { VIDEO_DISPATCHER_TOOL } from "../chat/use-tool-confirm-settlement.js";

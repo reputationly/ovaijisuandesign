@@ -1,5 +1,7 @@
 // workspace-stage.jsx
-import { reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   mergeTailwindClasses as cn,

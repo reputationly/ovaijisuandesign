@@ -11,15 +11,10 @@ import {
   ROOT_KEY,
   useAssetCenterFetcher,
 } from "./wrap-as-asset-center-error.js";
-import {
-  AtSign,
-  ChevronDown,
-  Loader2,
-  reactExports,
-  useMutation,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { AtSign, ChevronDown, Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { ENTITY_TYPES } from "./audio-play-button.jsx";
 import { DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";

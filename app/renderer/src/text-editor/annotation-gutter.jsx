@@ -1,5 +1,5 @@
 // annotation-gutter.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 export function selectPendingHunksForNode(state, nodeId) {

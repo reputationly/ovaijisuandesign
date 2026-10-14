@@ -1,6 +1,6 @@
 // session-store.js
 import { DEFAULT_SESSION_NAME } from "../canvas/fullscreen-icon.jsx";
-import { measurePerf } from "../vendor.js";
+import { measurePerf } from "../infra/perf-log.js";
 import { PERF_STORE_NOTIFY } from "../generation/to-workspace-browser-url.js";
 
 class MessageWithdrawals {

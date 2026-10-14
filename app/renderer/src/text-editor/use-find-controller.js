@@ -1,5 +1,5 @@
 // use-find-controller.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 function pickInitialMatchIndex(matches, caretPos) {
   if (matches.length === 0) return -1;
   for (let i = 0; i < matches.length; i++) {

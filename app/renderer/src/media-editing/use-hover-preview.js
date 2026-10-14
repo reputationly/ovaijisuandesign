@@ -1,5 +1,5 @@
 // use-hover-preview.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 const ANCHOR_GAP = 8;
 const VIEWPORT_PADDING = 8;
 function isPointInPreviewBridge(x, y, anchor, preview) {

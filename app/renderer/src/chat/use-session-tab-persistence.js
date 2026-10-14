@@ -1,6 +1,6 @@
 // use-session-tab-persistence.js
 import { getElectronPlatform } from "../infra/use-canvas-node-assets-store.js";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { SessionTabsPersister } from "../canvas/session-tabs-persister.js";
 
 function createWorkspaceSessionTabsSnapshot(

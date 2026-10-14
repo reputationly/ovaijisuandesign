@@ -1,22 +1,12 @@
 // customize-toolbar-dialog.jsx
-import {
-  closestCenter,
-  CompositedSvg,
-  DndContext,
-  DragOverlay,
-  jsxRuntimeExports,
-  KeyboardSensor,
-  Pin,
-  PinOff,
-  PointerSensor,
-  reactDomExports,
-  reactExports,
-  RotateCcw,
-  useSensor,
-  useSensors,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { useSensor, useSensors } from "../vendor.js";
+import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor } from "@dnd-kit/core";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
+import { Pin, PinOff, RotateCcw, X$7 as X } from "./lucide-icon-wraps.js";
 import { CSS } from "@dnd-kit/utilities";
 import {
   arrayMove,

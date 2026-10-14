@@ -1,12 +1,9 @@
 // mention-ref-chip.js
 import instance from "i18next";
-import {
-  classifyFileType,
-  NodeViewWrapper,
-  reactExports,
-  Workflow,
-  X$7 as CloseIcon,
-} from "../vendor.js";
+import { NodeViewWrapper } from "@tiptap/react";
+import reactExports from "react";
+import { classifyFileType } from "../infra/file-type.js";
+import { Workflow, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import {
   FileKindIcon,
   ModelTypeIcon,

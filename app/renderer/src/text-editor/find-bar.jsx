@@ -1,17 +1,9 @@
 // find-bar.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  ChevronDown,
-  ChevronRight$1 as ChevronRight,
-  ChevronUp,
-  reactDomExports,
-  reactExports,
-  Regex,
-  Search,
-  useTranslation,
-  WholeWord,
-  X$7 as X,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, ChevronRight$1 as ChevronRight, ChevronUp, Regex, Search, WholeWord, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import {
   CaseSensitive,
   Replace,

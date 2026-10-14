@@ -1,6 +1,7 @@
 // use-img2-video.js
 import instance from "i18next";
-import {  reactExports, workspaceLog } from "../vendor.js";
+import reactExports from "react";
+import { workspaceLog } from "../infra/logger.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   areHailuo03VideoTrialReferencesEligible,

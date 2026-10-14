@@ -1,5 +1,6 @@
 // file-type-icon.jsx
-import { ARCHIVE_ZIPPER, BODY, FOLD, JPEG, reactExports } from "../vendor.js";
+import reactExports from "react";
+import { ARCHIVE_ZIPPER, BODY, FOLD, JPEG } from "./file-type.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 const normalizeLabel = (value) => {

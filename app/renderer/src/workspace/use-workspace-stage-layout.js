@@ -1,5 +1,6 @@
 // use-workspace-stage-layout.js
-import { reactExports, useStorage } from "../vendor.js";
+import reactExports from "react";
+import { useStorage } from "../infra/use-storage.js";
 import { useCanvasSidebarController } from "./use-canvas-sidebar-controller.js";
 function oppositeWorkspacePaneOrder(order2) {
   return order2 === "chat-canvas" ? "canvas-chat" : "chat-canvas";

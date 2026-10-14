@@ -4,7 +4,7 @@ import {
   StaleProductionPlanSaveError,
   toolName,
 } from "../text-editor/skill-reload-dock.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { useWorkspaceWSConnection } from "../settings/changelog-table.jsx";
 

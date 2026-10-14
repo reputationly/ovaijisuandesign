@@ -1,12 +1,8 @@
 // connector-prompt-action.jsx
-import {
-  CONNECTOR_STATUS_VISUAL,
-  Link2,
-  Loader2,
-  MessageCircle,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  useTranslation,
-} from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { CONNECTOR_STATUS_VISUAL } from "../skills/connectors/connector-market.js";
+import { Link2, Loader2, MessageCircle } from "../media-editing/lucide-icon-wraps.js";
+import { PlaybackPlayIcon$1 as PlaybackPlayIcon } from "../media-editing/playback-icons.js";
 import {
   Icon,
   PlaybackPauseIcon,

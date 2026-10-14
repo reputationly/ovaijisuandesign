@@ -1,5 +1,5 @@
 // use-bundle-status.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import {
   getWorkspaceBundle,
   services,

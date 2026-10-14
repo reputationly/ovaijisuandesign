@@ -1,10 +1,8 @@
 // search-button.jsx
-import {
-  MonochromeIcon,
-  Search,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
+import { Search } from "../media-editing/lucide-icon-wraps.js";
 import {
   Tooltip,
   TooltipTrigger,

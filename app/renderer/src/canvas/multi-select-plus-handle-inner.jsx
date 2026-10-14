@@ -1,5 +1,10 @@
 // multi-select-plus-handle-inner.jsx
-import { CompositedSvg, findHitTarget, jsxRuntimeExports, reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import { findHitTarget } from "./canvas-geometry.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { getBezierPath, Position } from "../vendor-fork/xyflow/system/index.js";
 import { NodeToolbar, useReactFlow, useStore, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";

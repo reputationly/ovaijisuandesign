@@ -1,10 +1,7 @@
 // connector-hub-o-auth-section.jsx
-import {
-  isSkillsOnly,
-  reactExports,
-  resolveConnectorIcon,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { isSkillsOnly, resolveConnectorIcon } from "../skills/connectors/hcp-catalog.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button } from "../infra/dialog-content.jsx";
 import { homeService } from "../workspace/home-service.jsx";

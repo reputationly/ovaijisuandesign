@@ -1,16 +1,8 @@
 // home-service.jsx
 import "./browser-inspiration-urls-effects.js";
-import {
-  CompositedSvg,
-  desktopMediaIcon,
-  PlaybackCirclePauseIcon$1 as PlaybackCirclePauseIconBase,
-  PlaybackCirclePlayIcon$1 as PlaybackCirclePlayIconBase,
-  PlaybackNextIcon$1 as PlaybackNextIconBase,
-  PlaybackPlayIcon$1 as PlaybackPlayIconBase,
-  PlaybackPreviousIcon$1 as PlaybackPreviousIconBase,
-  PlaybackStopIcon$1 as PlaybackStopIconBase,
-  reactExports,
-} from "../vendor.js";
+import reactExports from "react";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { desktopMediaIcon, PlaybackCirclePauseIcon$1 as PlaybackCirclePauseIconBase, PlaybackCirclePlayIcon$1 as PlaybackCirclePlayIconBase, PlaybackNextIcon$1 as PlaybackNextIconBase, PlaybackPlayIcon$1 as PlaybackPlayIconBase, PlaybackPreviousIcon$1 as PlaybackPreviousIconBase, PlaybackStopIcon$1 as PlaybackStopIconBase } from "../media-editing/playback-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ProxyChannel } from "../vendor-inline/vscode-base/channel-client.js";
 import {

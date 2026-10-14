@@ -1,7 +1,8 @@
 // integration-status-pill.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
-import { InfoIcon$1 as InfoIcon, jsxRuntimeExports } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { InfoIcon$1 as InfoIcon } from "../media-editing/lucide-icon-wraps.js";
 import {
   Tooltip,
   TooltipTrigger,

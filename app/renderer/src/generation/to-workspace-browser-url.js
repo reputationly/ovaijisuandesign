@@ -1,14 +1,7 @@
 // to-workspace-browser-url.js
-import {
-  DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT,
-  HILO_WORKSPACE_GENERATION_QUERY,
-  HILO_WORKSPACE_IDENTITY_QUERY,
-  HILO_WORKSPACE_INSTANCE_QUERY,
-  LIBTV_CONNECTOR,
-  PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP,
-  PERF_LOG_FLUSH,
-  videoPlaybackPath,
-} from "../vendor.js";
+import { DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT, HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, videoPlaybackPath } from "../infra/workspace-gateway.js";
+import { LIBTV_CONNECTOR } from "../skills/connectors/connector-match.js";
+import { PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, PERF_LOG_FLUSH } from "../infra/perf-log.js";
 import {
   normalizeLegacyModelId,
   registrySelectionRowIds,

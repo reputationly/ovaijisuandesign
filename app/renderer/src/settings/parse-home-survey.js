@@ -4,7 +4,9 @@ import {
   DEFAULT_MODAL_SCHEDULE_CONFIG,
   STARTUP_MODAL_IDS,
 } from "../infra/schedule.js";
-import { API_PATHS, useQuery, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { setToolCallDisplayConfig } from "./request-prompt-prefill.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";

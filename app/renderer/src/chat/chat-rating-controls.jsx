@@ -1,5 +1,10 @@
 // chat-rating-controls.jsx
-import { isRecord$g, jsxRuntimeExports, MonochromeIcon, reactExports, RotateCcw, ThumbsDown, ThumbsUp, useIsMutating, useMutation, useQuery, useQueryClient, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useIsMutating, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
+import { RotateCcw, ThumbsDown, ThumbsUp, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { submitFeedback } from "../infra/submit-feedback.js";
 import {
@@ -28,6 +33,11 @@ import {
 import { Textarea } from "../infra/badge-variants.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { PopoverTitle } from "../canvas/popover-title.jsx";
+
+export function isRecord$g(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 const CHAT_MODEL_TRACES_PATH = "/api/chat/model-traces";
 const CHAT_MODEL_TRACE_LOOKUP_LIMIT = 100;
 const AUXILIARY_AGENTS = new Set(["title", "summary", "compaction"]);

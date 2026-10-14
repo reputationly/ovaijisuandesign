@@ -1,5 +1,12 @@
 // 云端资产面板：目录浏览、上传、移动、下载、搜索与批量操作。
-import { useTranslation, reactExports, jsxRuntimeExports, usePlatform, useStorage, API_PATHS, getVisibleCloudUploads, FolderPlus, Bug } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { usePlatform } from "../../infra/platform-context.js";
+import { API_PATHS } from "../../infra/workspace-gateway.js";
+import { useStorage } from "../../infra/use-storage.js";
+import { getVisibleCloudUploads } from "../../assets/visible-cloud-uploads.js";
+import { FolderPlus, Bug } from "../../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { cloudErrorDisplayMessage } from "../../workspace/asset-lineage-query-key.js";
 import { Button, mergeTailwindClasses as cn, Dialog, DialogContent, DialogHeader } from "../../infra/dialog-content.jsx";

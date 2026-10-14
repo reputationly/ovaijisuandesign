@@ -1,5 +1,7 @@
 // pending-annotation-list.jsx
-import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button } from "../infra/dialog-content.jsx";
 import { shouldIgnoreChatGlobalShortcut } from "../media-editing/message-list-props-equal.jsx";

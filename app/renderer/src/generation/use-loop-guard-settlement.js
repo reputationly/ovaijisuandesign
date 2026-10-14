@@ -1,5 +1,5 @@
 // use-loop-guard-settlement.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 
 const LOOP_GUARD_SETTLEMENT_ACK_TIMEOUT_MS = 5e3;

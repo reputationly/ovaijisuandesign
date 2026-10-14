@@ -1,10 +1,8 @@
 // media-lightbox.jsx
-import {
-  CompositedSvg,
-  reactDomExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useCanvasShortcutGuard } from "./use-canvas-shortcut-guard.js";
 import { useNativeViewOcclusion } from "../canvas/separator.jsx";

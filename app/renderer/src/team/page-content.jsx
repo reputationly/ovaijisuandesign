@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
 } from "../infra/dialog-content.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 export const TeamDialogNavigationContext = reactExports.createContext(null);
 export function Page({ open, onOpenChange, children }) {
   const dialogNavigation = reactExports.useContext(TeamDialogNavigationContext);

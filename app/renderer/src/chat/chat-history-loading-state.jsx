@@ -1,5 +1,5 @@
 // chat-history-loading-state.jsx
-import { Loader2 } from "../vendor.js";
+import { Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";

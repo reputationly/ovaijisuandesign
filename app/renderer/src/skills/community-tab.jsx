@@ -1,5 +1,8 @@
 // 技能页「社区」标签页内容。
-import { useTranslation, reactExports, jsxRuntimeExports, Loader2 } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
 import { Select } from "../assets/credit-query-keys.jsx";
 import { SelectTrigger, SelectValue, SelectContent, SelectItem } from "../infra/select-content.jsx";

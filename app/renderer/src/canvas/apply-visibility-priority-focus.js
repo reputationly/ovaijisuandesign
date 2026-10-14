@@ -1,5 +1,5 @@
 // apply-visibility-priority-focus.js
-import { CanvasNodeType } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
 import { getViewportForBounds } from "../vendor-fork/xyflow/system/index.js";
 import { getAssetMetaByNodeIdFromStore } from "./fullscreen-icon.jsx";
 import { getNodePosition, sizeOf } from "./use-active-mode.js";

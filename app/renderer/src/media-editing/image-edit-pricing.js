@@ -1,7 +1,7 @@
 // image-edit-pricing.js
 import { calcImageCost } from "../generation/resolve-video-billing-tooltip.js";
 import { useCanvasBridge } from "./package.jsx";
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { CanvasOverlayStoreContext } from "../canvas/use-start-crop-from-node.js";
 
 const NANO_BANANA_EDIT_PRICING_MODEL_ID = "nano_banana_2";

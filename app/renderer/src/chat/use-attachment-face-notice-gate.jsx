@@ -1,5 +1,7 @@
 // use-attachment-face-notice-gate.jsx
-import { reactExports, useStorage, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { useStorage } from "../infra/use-storage.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AlertDialog } from "../infra/dialog-content.jsx";
 import {

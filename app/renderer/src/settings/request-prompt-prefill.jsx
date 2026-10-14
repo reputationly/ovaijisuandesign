@@ -1,14 +1,10 @@
 // request-prompt-prefill.jsx
-import {
-  buildOfficialConnectorList,
-  findHcpConnector,
-  hcpToDefinition,
-  jsxRuntimeExports,
-  namesMatch,
-  reactExports,
-  SPECIAL_CONNECTORS,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { namesMatch } from "../skills/connectors/connector-match.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { buildOfficialConnectorList, SPECIAL_CONNECTORS } from "../skills/connectors/connector-market.js";
+import { findHcpConnector, hcpToDefinition } from "../skills/connectors/hcp-catalog.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getPlatform } from "../infra/web-storage.js";
 import { TOOL_LABEL_DEFINITIONS } from "../workspace/tool-label-definitions.js";

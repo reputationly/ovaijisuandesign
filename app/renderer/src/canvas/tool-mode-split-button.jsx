@@ -1,11 +1,7 @@
 // tool-mode-split-button.jsx
-import {
-  Check,
-  ChevronUp,
-  Hand,
-  MonochromeIcon,
-  reactExports,
-} from "../vendor.js";
+import reactExports from "react";
+import { Check, ChevronUp, Hand } from "../media-editing/lucide-icon-wraps.js";
+import { MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ToolbarTooltipContent } from "./canvas-toolbar-extension-button.jsx";
 import { CANVAS_COMMAND_IDS } from "./use-active-mode.js";

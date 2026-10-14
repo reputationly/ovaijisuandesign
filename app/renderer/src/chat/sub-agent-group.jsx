@@ -3,22 +3,11 @@ import {
   filterSupersededTransientTools,
   parseToolResult,
 } from "./use-tool-confirm-settlement.js";
-import {
-  Bot,
-  Check,
-  ChevronDown,
-  Copy,
-  jsxRuntimeExports,
-  LoaderCircle,
-  NotebookPen,
-  reactExports,
-  RotateCcw,
-  Save,
-  Scissors,
-  ShieldOff,
-  useCurrentWorkspace,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { useTranslation } from "react-i18next";
+import { Bot, Check, ChevronDown, Copy, LoaderCircle, NotebookPen, RotateCcw, Save, Scissors, ShieldOff } from "../media-editing/lucide-icon-wraps.js";
 import {
   RecoveringChildrenContext,
   useMentionModels,

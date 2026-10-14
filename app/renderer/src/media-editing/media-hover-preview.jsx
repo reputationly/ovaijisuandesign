@@ -1,11 +1,8 @@
 // media-hover-preview.jsx
-import {
-  CompositedSvg,
-  Crosshair,
-  Maximize,
-  reactDomExports,
-  reactExports,
-} from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { CompositedSvg } from "./icon-compositing.js";
+import { Crosshair, Maximize } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AudioPreviewPlayer } from "./audio-preview-player.jsx";
 import { useHoverPreview } from "./use-hover-preview.js";

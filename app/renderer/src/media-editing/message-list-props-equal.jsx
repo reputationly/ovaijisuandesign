@@ -1,18 +1,9 @@
 // message-list-props-equal.jsx
-import {
-  AccordionHeader,
-  AccordionItem$1 as AccordionItemPrimitive,
-  AccordionPanel,
-  AccordionRoot,
-  AccordionTrigger$1 as AccordionTriggerPrimitive,
-  ChevronDownIcon$1 as ChevronDownIcon,
-  ChevronUpIcon,
-  RadioGroup$1 as RadioGroupPrimitive,
-  RadioIndicator,
-  RadioRoot,
-  reactExports,
-  useCurrentWorkspace,
-} from "../vendor.js";
+import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { AccordionHeader, AccordionItem$1 as AccordionItemPrimitive, AccordionPanel, AccordionRoot, AccordionTrigger$1 as AccordionTriggerPrimitive, RadioIndicator, RadioRoot } from "../infra/base-ui.js";
+import { ChevronDownIcon$1 as ChevronDownIcon, ChevronUpIcon } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { MessageListImpl } from "../chat/message-list-impl.jsx";

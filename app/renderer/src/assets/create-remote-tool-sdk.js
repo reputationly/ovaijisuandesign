@@ -1,5 +1,6 @@
 // create-remote-tool-sdk.js
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 

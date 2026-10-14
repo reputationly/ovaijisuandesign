@@ -1,9 +1,7 @@
 // ready-sub-video-card.jsx
-import {
-  Download$2 as Download,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Download$2 as Download } from "./custom-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { VideoPlayer } from "./video-player-inner.jsx";
 import { CardWrapper, DeleteButton } from "./canvas-sticker-assets.jsx";

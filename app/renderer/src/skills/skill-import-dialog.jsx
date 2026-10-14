@@ -1,6 +1,10 @@
 // 技能导入弹窗：选择文件、校验、导入与错误提示。
 import { isValidSkillName } from "../generation/normalize-skill-detail-metadata.js";
-import { useTranslation, reactExports, jsxRuntimeExports, API_PATHS, CheckCircle2, Loader2, AlertCircle, FilePlus2 } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { CheckCircle2, Loader2, AlertCircle, FilePlus2 } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useNavigateToWorkspace } from "../workspace/use-deep-link-router.js";
 import { homeService } from "../workspace/home-service.jsx";

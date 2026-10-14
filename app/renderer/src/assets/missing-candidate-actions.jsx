@@ -1,5 +1,6 @@
 // missing-candidate-actions.jsx
-import { Check, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { Check, X$7 as CloseIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { LocalFolderIcon } from "../workspace/home-service.jsx";

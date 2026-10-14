@@ -1,18 +1,8 @@
 // turn-artifact-strip.jsx
-import {
-  API_PATHS,
-  AudioLines,
-  ChevronDown,
-  CircleAlert,
-  ClipboardList,
-  Cog,
-  reactExports,
-  Search,
-  SquareMousePointer,
-  useTranslation,
-  Video,
-  Zap,
-} from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { AudioLines, ChevronDown, CircleAlert, ClipboardList, Cog, Search, SquareMousePointer, Video, Zap } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useResolveMediaUrl } from "../workspace/tool-label-definitions.js";
 import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";

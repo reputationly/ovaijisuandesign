@@ -1,14 +1,9 @@
 // table-ops.jsx
-import {
-  ActionListItem,
-  ArrowDownToLine,
-  ArrowLeftToLine,
-  ArrowRightToLine,
-  ArrowUpToLine,
-  jsxRuntimeExports,
-  reactDomExports,
-  reactExports,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { ActionListItem } from "../media-editing/action-list.jsx";
+import { ArrowDownToLine, ArrowLeftToLine, ArrowRightToLine, ArrowUpToLine } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Trash2 } from "../media-editing/package.jsx";
 import { OverlayScrollbar } from "./overlay-scrollbar-inner.jsx";

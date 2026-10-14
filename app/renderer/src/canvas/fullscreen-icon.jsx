@@ -1,5 +1,9 @@
 // fullscreen-icon.jsx
-import { AssetMetadataStoreContext, CompositedSvg, PencilRuler, reactExports, withArtworkOpacity } from "../vendor.js";
+import { AssetMetadataStoreContext } from "../infra/shared-runtime.js";
+import reactExports from "react";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { PencilRuler } from "../media-editing/lucide-icon-wraps.js";
+import { withArtworkOpacity } from "./artwork-opacity.js";
 import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

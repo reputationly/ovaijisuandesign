@@ -2,14 +2,12 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MediaUnpreviewableFallback } from "../generation/missing-asset-card.jsx";
 import JSZip from "jszip";
-import {
-  __webpack_exports__getDocument,
-  classifyFileType,
-  CompositedSvg,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { getDocument as __webpack_exports__getDocument } from "pdfjs-dist";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { classifyFileType } from "../infra/file-type.js";
+import { CompositedSvg } from "./icon-compositing.js";
 import { ViewerLoading, ViewerStateShell } from "./input.jsx";
 import {
   CANVAS_FILE_VERSION_QUERY_KEY,

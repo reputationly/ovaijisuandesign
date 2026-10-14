@@ -1,6 +1,10 @@
 // 浏览器连接器：状态、试用、详情弹窗与卡片，以及能力列表。
 import { useSettings } from "../../settings/use-settings.js";
-import { useTranslation, reactExports, jsxRuntimeExports, CDN_BROWSER_START_ICON, Boxes, ScrollText } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { CDN_BROWSER_START_ICON } from "../../workspace/browser-start-icon.js";
+import { Boxes, ScrollText } from "../../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { useNavigateToWorkspace } from "../../workspace/use-deep-link-router.js";
 import { homeService } from "../../workspace/home-service.jsx";

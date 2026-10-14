@@ -1,12 +1,9 @@
 // question-dock.jsx
-import {
-  Check,
-  ChevronDown,
-  CompositedSvg,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import {

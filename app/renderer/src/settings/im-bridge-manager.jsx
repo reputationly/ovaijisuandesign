@@ -1,6 +1,11 @@
 // im-bridge-manager.jsx
 import QRCode from "react-qr-code";
-import { ArrowUpRight, getRuntimeConfig, Info$1 as Info, jsxRuntimeExports, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { usePlatform } from "../infra/platform-context.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowUpRight, Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   getImBridgeMainService,

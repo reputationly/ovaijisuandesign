@@ -5,17 +5,10 @@ import {
   MODEL_NAME_KEYS,
 } from "./domestic-param-labels.jsx";
 import { resolveModelNameForCurrentRegion } from "./replace-configured-model-names-for-current-region.js";
-import {
-  Check,
-  ChevronDown,
-  reactExports,
-  SliderControl$1 as SliderControl,
-  SliderIndicator,
-  SliderRoot,
-  SliderThumb,
-  SliderTrack,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check, ChevronDown } from "../media-editing/lucide-icon-wraps.js";
+import { SliderControl$1 as SliderControl, SliderIndicator, SliderRoot, SliderThumb, SliderTrack } from "../infra/base-ui.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";

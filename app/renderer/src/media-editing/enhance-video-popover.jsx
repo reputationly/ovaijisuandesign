@@ -5,7 +5,9 @@ import {
   ENHANCE_VIDEO_FPS_OPTIONS,
   ENHANCE_VIDEO_RESOLUTIONS,
 } from "./video-tool-meta.jsx";
-import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { NodeToolbar, useNodeId, useStore } from "../vendor-fork/xyflow/react/index.js";
 import { Position } from "../vendor-fork/xyflow/system/index.js";
 import {

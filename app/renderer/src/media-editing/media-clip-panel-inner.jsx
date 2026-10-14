@@ -4,13 +4,11 @@ import {
   LIGHT_THEME_COLORS,
   TIMELINE_CONFIG,
 } from "../generation/time-intervals.jsx";
-import {
-  jsxRuntimeExports,
-  reactDomExports,
-  reactExports,
-  Undo2,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactDomExports from "react-dom";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Undo2 } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PauseIcon, PlayIcon } from "./build-video-thumb-base.jsx";
 import { useCanvasActive } from "./package.jsx";

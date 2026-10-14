@@ -1,5 +1,5 @@
 // use-drop-handler.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { hasFileDropPayload } from "./find-trailing-trigger.js";
 import { useImportExternalFiles } from "../text-editor/use-placeholder-asset-source.jsx";

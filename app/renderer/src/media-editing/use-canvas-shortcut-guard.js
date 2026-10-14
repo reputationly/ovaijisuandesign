@@ -1,5 +1,5 @@
 // use-canvas-shortcut-guard.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useCanvasActive } from "./package.jsx";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
 const CANVAS_DIRECTIONAL_KEYS = new Set([

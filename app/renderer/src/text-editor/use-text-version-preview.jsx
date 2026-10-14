@@ -1,7 +1,10 @@
 // use-text-version-preview.jsx
 import { TEXT_VERSION_TIER_S_MAX_BYTES } from "../generation/to-workspace-browser-url.js";
 import Markdown from "react-markdown";
-import { ArrowLeft, ChevronLeft, ChevronRight$1 as ChevronRight, Copy, GitCompare, reactExports, remarkGfm, RotateCcw, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import remarkGfm from "remark-gfm";
+import { useTranslation } from "react-i18next";
+import { ArrowLeft, ChevronLeft, ChevronRight$1 as ChevronRight, Copy, GitCompare, RotateCcw } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { bumpFileVersion } from "../infra/use-plugin-metadata-store.js";

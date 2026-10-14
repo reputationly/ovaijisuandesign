@@ -1,8 +1,6 @@
 // use-model-catalog-scope-key.js
-import {
-  reactExports,
-  useGatewayScope,
-} from "../vendor.js";
+import reactExports from "react";
+import { useGatewayScope } from "../infra/runtime-config.js";
 export {
   useProgressRootContext,
 } from "@base-ui/react/esm/progress/root/ProgressRootContext.js";

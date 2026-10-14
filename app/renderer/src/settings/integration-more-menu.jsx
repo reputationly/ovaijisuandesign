@@ -1,5 +1,5 @@
 // integration-more-menu.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { MoreVerticalIcon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Popover } from "../assets/credit-query-keys.jsx";

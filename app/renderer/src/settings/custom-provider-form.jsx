@@ -1,14 +1,7 @@
 // custom-provider-form.jsx
-import {
-  ChevronDown,
-  Eye,
-  EyeOff,
-  Plus,
-  reactExports,
-  RotateCcw,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown, Eye, EyeOff, Plus, RotateCcw, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Trash2 } from "../media-editing/package.jsx";
 import { AlertDialog, Button } from "../infra/dialog-content.jsx";

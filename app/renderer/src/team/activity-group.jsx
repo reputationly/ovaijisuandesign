@@ -1,11 +1,7 @@
 // activity-group.jsx
-import {
-  ChevronRight$1 as ChevronRight,
-  Globe,
-  reactExports,
-  useTranslation,
-  Wrench,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronRight$1 as ChevronRight, Globe, Wrench } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   CATEGORY_I18N,

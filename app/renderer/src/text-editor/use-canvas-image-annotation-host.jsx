@@ -1,5 +1,5 @@
 // use-canvas-image-annotation-host.jsx
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageAnnotationDialog } from "./image-annotation-dialog.jsx";
 

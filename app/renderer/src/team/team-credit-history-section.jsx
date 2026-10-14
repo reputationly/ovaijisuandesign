@@ -3,12 +3,10 @@ import {
   DEFAULT_CREDIT_REMINDER_THRESHOLD,
   normalizeCreditReminderConfig,
 } from "../generation/to-workspace-browser-url.js";
-import {
-  Info$1 as Info,
-  reactExports,
-  useStorage,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
+import { useStorage } from "../infra/use-storage.js";
 import {
   useAuth,
   useOptionalTeamAccount,

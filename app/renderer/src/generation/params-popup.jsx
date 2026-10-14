@@ -1,5 +1,6 @@
 // params-popup.jsx
-import { reactDomExports, reactExports } from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { usePortalAnchorPlacement } from "./use-portal-anchor-placement.jsx";
 

@@ -1,6 +1,8 @@
 // ae.jsx
 
-import { clsx, jsxRuntimeExports, reactExports } from "../vendor.js";
+import clsx from "clsx";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
 import { twMerge } from "../infra/dialog-content.jsx";
 
 import { __jsx } from "../shared/jsx-runtime.js";

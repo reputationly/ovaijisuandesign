@@ -4,7 +4,11 @@ import {
   scopedAssetsQueryKey,
   scopeParts,
 } from "./credit-query-keys.jsx";
-import { decisionVersion, GatewayScopeContext, getRuntimeConfig, listeners$8 as listeners, normalizeGatewayBaseUrl, PopoverTrigger$1 as PopoverTriggerPrimitive, reactExports, WorkspaceGatewayClient } from "../vendor.js";
+import { GatewayScopeContext, getRuntimeConfig, normalizeGatewayBaseUrl } from "../infra/runtime-config.js";
+import { WorkspaceGatewayClient } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { decisionVersion, listeners$8 as listeners } from "../infra/decision-version.js";
+import { PopoverTrigger$1 as PopoverTriggerPrimitive } from "../infra/base-ui.js";
 import { evaluateAccountSubmission, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export async function refreshAssetIndex({ qc: queryClient, gatewayScopeKey }) {

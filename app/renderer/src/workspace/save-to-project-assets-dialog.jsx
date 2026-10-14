@@ -5,7 +5,11 @@ import {
   getProjectAssetWritePolicy,
   PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
 } from "../assets/wrap-as-asset-center-error.js";
-import { API_PATHS, FolderPlus, Loader2, reactExports, useCurrentWorkspace, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { FolderPlus, Loader2 } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { gatewayUrl } from "../infra/gateway-http-error.jsx";

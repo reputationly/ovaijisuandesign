@@ -5,7 +5,9 @@ import {
   FEATURED_TAG,
   StableTabLabel,
 } from "../generation/use-mention-models.jsx";
-import { ChevronDown, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ChevronDown } from "../media-editing/lucide-icon-wraps.js";
 import {
   FilterMenu,
   FilterMenuTrigger,

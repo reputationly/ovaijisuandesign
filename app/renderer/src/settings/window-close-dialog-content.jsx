@@ -1,5 +1,7 @@
 // window-close-dialog-content.jsx
-import { PanelBottomClose, reactExports, useTranslation } from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { PanelBottomClose } from "../media-editing/lucide-icon-wraps.js";
 import { actionTrailLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useBlockingModalPresence } from "../workspace/topbar-state-context.jsx";

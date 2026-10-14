@@ -1,11 +1,7 @@
 // asset-empty-area-menu-content.jsx
-import {
-  FolderPlus,
-  LayoutGrid,
-  LayoutList,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { FolderPlus, LayoutGrid, LayoutList } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PlatformFileManagerLabel } from "../settings/request-prompt-prefill.jsx";
 import { ClipboardPaste, FileInput } from "../media-editing/package.jsx";

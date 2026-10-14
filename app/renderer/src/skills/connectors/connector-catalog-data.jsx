@@ -1,5 +1,12 @@
 // connector-catalog-data.jsx
-import { useTranslation, getRuntimeConfig, jsxRuntimeExports, reactExports, satisfiesMinHubVersion, matchesRemoteConnectorServer, matchesLocalConnectorServer, resolveConnectorSetupAsset, resolveConnectorIcon, Globe, Cloud, ChartNoAxesCombined, Box, supportsConnectorDialog } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import { getRuntimeConfig } from "../../infra/runtime-config.js";
+import { matchesLocalConnectorServer } from "./connector-match.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { satisfiesMinHubVersion, resolveConnectorSetupAsset, resolveConnectorIcon } from "./hcp-catalog.js";
+import { matchesRemoteConnectorServer, supportsConnectorDialog } from "./connector-market.js";
+import { Globe, Cloud, ChartNoAxesCombined, Box } from "../../media-editing/lucide-icon-wraps.js";
 import { Badge, DialogTitle, DialogDescription } from "../../infra/badge-variants.jsx";
 import { mergeTailwindClasses as cn } from "../../infra/dialog-content.jsx";
 import { HardDrive } from "../../media-editing/package.jsx";

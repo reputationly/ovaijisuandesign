@@ -1,5 +1,5 @@
 // local-connector-dialog.jsx
-import { useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ConnectorDialogFrame } from "./connector-dialog-frame.jsx";
 import { LocalConnectorSetupContent } from "./local-connector-setup-content.jsx";

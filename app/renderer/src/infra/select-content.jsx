@@ -1,22 +1,8 @@
 // select-content.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn, Input } from "./dialog-content.jsx";
-import {
-  ChevronDownIcon$1 as ChevronDownIcon,
-  ChevronUpIcon,
-  SelectIcon,
-  SelectItem$2,
-  SelectItemIndicator,
-  SelectItemText,
-  SelectList,
-  SelectPopup,
-  SelectPortal,
-  SelectPositioner,
-  SelectScrollDownArrow,
-  SelectScrollUpArrow,
-  SelectTrigger$2,
-  SelectValue$2,
-} from "../vendor.js";
+import { ChevronDownIcon$1 as ChevronDownIcon, ChevronUpIcon } from "../media-editing/lucide-icon-wraps.js";
+import { SelectIcon, SelectItem$2, SelectItemIndicator, SelectItemText, SelectList, SelectPopup, SelectPortal, SelectPositioner, SelectScrollDownArrow, SelectScrollUpArrow, SelectTrigger$2, SelectValue$2 } from "./base-ui.js";
 import { CheckIcon } from "../media-editing/package.jsx";
 const inputBaseClass =
   "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-xs transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-xs file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-foreground focus-visible:ring-0 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 md:text-xs dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40";

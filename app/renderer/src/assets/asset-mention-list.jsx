@@ -1,15 +1,7 @@
 // asset-mention-list.jsx
-import {
-  Check$2 as Check,
-  File$3 as File,
-  Music$2 as Music,
-  Package$2 as Package,
-  reactExports,
-  Search$2 as Search,
-  Square$2 as Square,
-  useTranslation,
-  Video$2 as Video,
-} from "../vendor.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { Check$2 as Check, File$3 as File, Music$2 as Music, Package$2 as Package, Search$2 as Search, Square$2 as Square, Video$2 as Video } from "../media-editing/custom-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageOutlineIcon } from "../media-editing/package.jsx";
 import { withThumbnail } from "../workspace/tool-label-definitions.js";

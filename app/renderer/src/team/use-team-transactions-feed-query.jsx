@@ -1,5 +1,7 @@
 // use-team-transactions-feed-query.jsx
-import { Loader2Icon, useQuery, useTranslation } from "../vendor.js";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { Loader2Icon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";

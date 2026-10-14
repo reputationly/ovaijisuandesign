@@ -1,5 +1,5 @@
 // use-session-list-retry.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { chatLog } from "../vendor-inline/vscode-base/graph.jsx";
 
 const SESSION_LIST_RETRY_AFTER_FALLBACK_MS = 1e3;

@@ -1,9 +1,7 @@
 // use-connector-catalog.js
-import {
-  emptyConnectorMarketPolicy,
-  reactExports,
-  registerDynamicHcpManifests,
-} from "../vendor.js";
+import reactExports from "react";
+import { emptyConnectorMarketPolicy } from "../skills/connectors/connector-market.js";
+import { registerDynamicHcpManifests } from "../skills/connectors/hcp-catalog.js";
 import { AuthContext } from "../assets/credit-query-keys.jsx";
 import { homeService } from "../workspace/home-service.jsx";
 

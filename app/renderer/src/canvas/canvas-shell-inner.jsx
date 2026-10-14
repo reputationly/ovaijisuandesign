@@ -1,5 +1,9 @@
 // canvas-shell-inner.jsx
-import { CanvasNodeType, ConnectionTargetMarker, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { CanvasNodeType } from "./canvas-geometry.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ConnectionTargetMarker } from "./connection-target.js";
 import {
   Panel,
   ReactFlow,

@@ -1,5 +1,11 @@
 // 展示区的卡片、技能卡片、以及视频预览（含预览的状态与生命周期）。
-import { useTranslation, reactExports, jsxRuntimeExports, workspaceLog, LoaderCircle, Volume2, BadgeCheck, usePlatform, TabsIndicator } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { usePlatform } from "../infra/platform-context.js";
+import { workspaceLog } from "../infra/logger.js";
+import { LoaderCircle, Volume2, BadgeCheck } from "../media-editing/lucide-icon-wraps.js";
+import { TabsIndicator } from "../infra/base-ui.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { Icon, getCreationGuideUrlsByLocale, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";

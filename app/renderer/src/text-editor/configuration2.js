@@ -1,5 +1,6 @@
 // configuration2.js
-import { PluginKey, Step, StepMap, StepResult } from "../vendor.js";
+import { PluginKey } from "prosemirror-state";
+import { Step, StepMap, StepResult } from "prosemirror-transform";
 function cloneSnapshot(snapshot) {
   return {
     marks: snapshot.marks.map((mark) => ({

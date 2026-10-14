@@ -11,7 +11,8 @@ import {
   Folder,
   ImageOutlineIcon,
 } from "../media-editing/package.jsx";
-import { classifyFileType, reactExports } from "../vendor.js";
+import reactExports from "react";
+import { classifyFileType } from "./file-type.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { FolderTileGlyph } from "./new-folder-dialog.jsx";
 import { FileTypeIcon } from "./file-type-icon.jsx";

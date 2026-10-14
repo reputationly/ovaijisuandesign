@@ -1,5 +1,5 @@
 // use-chat-model-selection.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { useModelDefaults } from "./use-model-defaults.js";
 import { resolveActiveModelId } from "../generation/use-model-catalog-scope-key.js";
 import { useActiveCustomModel } from "../team/copy-icon-button.jsx";

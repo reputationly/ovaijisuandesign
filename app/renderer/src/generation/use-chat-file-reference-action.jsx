@@ -1,6 +1,11 @@
 // use-chat-file-reference-action.jsx
 import { buildResourceDragItem } from "../text-editor/build-asr-gateway-request.js";
-import { jsxRuntimeExports, PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot, reactExports, useCurrentWorkspace, usePlatform, useTranslation } from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useCurrentWorkspace } from "../infra/shared-runtime.js";
+import { usePlatform } from "../infra/platform-context.js";
+import { useTranslation } from "react-i18next";
+import { PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot } from "../infra/base-ui.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { dispatchCanvasLocate } from "./dispatch-canvas-locate.js";

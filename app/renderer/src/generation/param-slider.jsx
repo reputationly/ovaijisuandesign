@@ -1,11 +1,5 @@
 // param-slider.jsx
-import {
-  SliderControl$1 as SliderControl,
-  SliderIndicator,
-  SliderRoot,
-  SliderThumb,
-  SliderTrack,
-} from "../vendor.js";
+import { SliderControl$1 as SliderControl, SliderIndicator, SliderRoot, SliderThumb, SliderTrack } from "../infra/base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Slider } from "./slider.jsx";
 import { ParamSectionLabel, ParamStepper } from "./resolution-tabs.jsx";

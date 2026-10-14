@@ -11,7 +11,7 @@ import {
   hasSuccessfulMediaOutput,
   isToolRecoveredInterrupted,
 } from "../chat/has-structured-success-payload.js";
-import { hasMediaAnalysisFailure } from "../vendor.js";
+import { hasMediaAnalysisFailure } from "../chat/media-tool-result.js";
 import { aggregateTimelineRuns } from "./aggregate-timeline-runs.js";
 function mergeAdjacentThinkingEntries(entries) {
   const merged = [];

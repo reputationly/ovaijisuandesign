@@ -3,12 +3,31 @@ import {
   recentLongTasks,
   recentSlowMeasures,
 } from "../assets/credit-query-keys.jsx";
-import { flush, pendingLogLines } from "../vendor.js";
+
 import {
   PERF_PREFIX,
   PERF_SLOW_DEFAULT_MS,
   PERF_SLOW_THRESHOLDS,
 } from "../generation/to-workspace-browser-url.js";
+import { measurePerf, PERF_LOG_FLUSH } from "./perf-log.js";
+
+export let pendingLogLines = [];
+export function flush() {
+  if (pendingLogLines.length === 0) return;
+  const start2 = performance.now();
+  const lines = pendingLogLines;
+  pendingLogLines = [];
+  const combined = lines.join("\n");
+  try {
+    window.hilo.logger.info(combined, "perf");
+  } catch {} finally {
+    measurePerf(PERF_LOG_FLUSH, start2, {
+      lines: lines.length,
+      bytes: combined.length
+    });
+  }
+}
+
 
 const MAX_BUFFER = 200;
 

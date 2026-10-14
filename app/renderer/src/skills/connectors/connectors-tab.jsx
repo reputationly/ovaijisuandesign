@@ -1,5 +1,10 @@
 // 连接器标签页：分类筛选、排序菜单、头部与整页列表。
-import { useTranslation, reactExports, jsxRuntimeExports, Plus, connectorDescription, Search, ChevronDown, getRuntimeConfig } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { getRuntimeConfig } from "../../infra/runtime-config.js";
+import { Plus, Search, ChevronDown } from "../../media-editing/lucide-icon-wraps.js";
+import { connectorDescription } from "./connector-market.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { homeService } from "../../workspace/home-service.jsx";
 import { ConnectorIcon } from "../../settings/connector-relationship-graphic.jsx";

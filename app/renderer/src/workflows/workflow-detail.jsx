@@ -1,5 +1,9 @@
 // 工作流详情：右侧栏、署名区、封面媒体与详情主视图。
-import { useTranslation, PlaybackStopIcon$1 as PlaybackStopIcon, reactExports, usePlatform, Layers3, ArrowLeft, PlaybackPlayIcon$1 as PlaybackPlayIcon, PlaybackPauseIcon$1 as PlaybackPauseIcon } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { usePlatform } from "../infra/platform-context.js";
+import { PlaybackStopIcon$1 as PlaybackStopIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon, PlaybackPauseIcon$1 as PlaybackPauseIcon } from "../media-editing/playback-icons.js";
+import { Layers3, ArrowLeft } from "../media-editing/lucide-icon-wraps.js";
 import { useComfyUiDownloadProgress, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { Download, Package } from "../media-editing/package.jsx";
 import { Progress } from "../team/team-management-detail-loading.jsx";

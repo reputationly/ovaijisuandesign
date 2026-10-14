@@ -1,5 +1,5 @@
 // replace-configured-model-names-for-current-region.js
-import { getRuntimeConfig } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
 import { redactModelAliasesForDisplay } from "./domestic-model-display-aliases.js";
 import { resolveModelDisplayName } from "./text-models.js";
 export function redactForCurrentRegion(text2) {

@@ -1,5 +1,10 @@
 // context-menu-content.jsx
-import { ActionListItem, ActionListPanel, ActionListSeparator, CDN_BASE_MAP, cdnPublicAsset, ChevronRightIcon, ContextMenuTrigger$1 as ContextMenuTriggerPrimitive, getCdnRegion, MenuItem$3 as MenuItem, MenuPopup, MenuPortal, MenuPositioner, MenuSubmenuRoot, MenuSubmenuTrigger, reactExports, useTranslation } from "../vendor.js";
+import { CDN_BASE_MAP, cdnPublicAsset, getCdnRegion } from "../infra/runtime-config.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ActionListItem, ActionListPanel, ActionListSeparator } from "../media-editing/action-list.jsx";
+import { ChevronRightIcon } from "../media-editing/lucide-icon-wraps.js";
+import { ContextMenuTrigger$1 as ContextMenuTriggerPrimitive, MenuItem$3 as MenuItem, MenuPopup, MenuPortal, MenuPositioner, MenuSubmenuRoot, MenuSubmenuTrigger } from "../infra/base-ui.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

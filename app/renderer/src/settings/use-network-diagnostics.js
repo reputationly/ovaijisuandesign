@@ -1,5 +1,5 @@
 // use-network-diagnostics.js
-import { reactExports } from "../vendor.js";
+import reactExports from "react";
 import { runFullNetworkDiagnostics } from "../infra/use-retry-hint-active.js";
 import { getNetworkDiagnosticsMainService } from "../team/copy-icon-button.jsx";
 

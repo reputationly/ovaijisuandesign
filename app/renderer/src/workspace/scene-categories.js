@@ -4,7 +4,8 @@ import {
   filmArtwork,
   shortDramaArtwork,
 } from "../generation/use-skill-categories.js";
-import { Film, getRuntimeConfig, Palette } from "../vendor.js";
+import { getRuntimeConfig } from "../infra/runtime-config.js";
+import { Film, Palette } from "../media-editing/lucide-icon-wraps.js";
 import { ShoppingBag } from "../media-editing/package.jsx";
 import { SkillIcon } from "./use-prompt-icon.jsx";
 import { HOME_QUICK_START_SCHEMA_VERSION } from "./parse-localized-text.js";

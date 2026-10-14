@@ -6,7 +6,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TooltipContent } from "../infra/dialog-content.jsx";
-import { Globe } from "../vendor.js";
+import { Globe } from "../media-editing/lucide-icon-wraps.js";
 
 export function BrowserTabIcon({ tab: tab2 }) {
   return (

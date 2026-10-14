@@ -1,5 +1,9 @@
 // 本地连接器的介绍内容与详情弹窗。
-import { useTranslation, reactExports, jsxRuntimeExports, connectorSummaryActionLabelKey, localizedI18nText } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { connectorSummaryActionLabelKey } from "./connector-market.js";
+import { localizedI18nText } from "../../i18n/localized-text.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { homeService } from "../../workspace/home-service.jsx";
 import { ConnectorDialogFrame } from "../../settings/connector-dialog-frame.jsx";

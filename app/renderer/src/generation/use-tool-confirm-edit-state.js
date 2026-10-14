@@ -8,7 +8,8 @@ import { TOOL_LABEL_DEFINITIONS as importedToolLabelDefinitions } from "../works
 import { getBuiltInToolLabelId } from "../media-editing/tool-name-to-label-id.js";
 import { getConfiguredToolDisplayLabel } from "../settings/request-prompt-prefill.jsx";
 import { RECONNECTING_STUCK_THRESHOLD_MS } from "../chat/use-browser-chat-media.jsx";
-import { BROWSER_IMAGE_EDIT_EVENT, reactExports } from "../vendor.js";
+import { BROWSER_IMAGE_EDIT_EVENT } from "./browser-image-edit.js";
+import reactExports from "react";
 export function dispatchBrowserImageEditToChat(request) {
   const event = new CustomEvent(BROWSER_IMAGE_EDIT_EVENT, {
     detail: request,

@@ -1,5 +1,5 @@
 // use-video-starter-preset-store.js
-import { create$2 as create } from "../vendor.js";
+import { create } from "zustand";
 export const useVideoStarterPresetStore = create((set, get) => ({
   tokens: {},
   refNodeIds: {},

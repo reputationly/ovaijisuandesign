@@ -1,5 +1,7 @@
 // read-preview-text-response.jsx
-import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
 import { canvasLog, dedupedToast, observeClientMediaUpload } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";

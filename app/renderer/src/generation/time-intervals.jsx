@@ -1,5 +1,5 @@
 // time-intervals.jsx
-import { usePromptFontSizeStore } from "../vendor.js";
+import { usePromptFontSizeStore } from "./prompt-font-size.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PromptInputMetaRow } from "./prompt-font-size-control.jsx";
 import { countPromptCharacters } from "../assets/parse-prompt-to-tiptap.js";

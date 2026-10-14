@@ -18,13 +18,11 @@ import {
   mapCloudProject,
   requestJson,
 } from "../workspace/asset-lineage-query-key.js";
-import {
-  reactExports,
-  storageKeys,
-  useNewProjectFolder,
-  useQueryClient,
-  useStorage,
-} from "../vendor.js";
+import reactExports from "react";
+import { storageKeys } from "../infra/storage-cache.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNewProjectFolder } from "../workspace/use-new-project-folder.js";
+import { useStorage } from "../infra/use-storage.js";
 import { projectLog } from "../vendor-inline/vscode-base/graph.jsx";
 import {
   instantiationService,

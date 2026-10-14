@@ -1,5 +1,6 @@
 // create-column.jsx
-import { CompositedSvg, reactExports } from "../vendor.js";
+import reactExports from "react";
+import { CompositedSvg } from "./icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PlaceholderNodeInner } from "./placeholder-node-inner.jsx";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";

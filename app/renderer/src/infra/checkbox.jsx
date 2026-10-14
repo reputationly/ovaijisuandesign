@@ -1,5 +1,6 @@
 // checkbox.jsx
-import { CheckboxRoot, reactExports } from "../vendor.js";
+import reactExports from "react";
+import { CheckboxRoot } from "./base-ui.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "./dialog-content.jsx";
 export function Checkbox({

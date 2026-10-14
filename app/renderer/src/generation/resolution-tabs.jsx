@@ -1,6 +1,7 @@
 // resolution-tabs.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import { CompositedSvg, useTranslation } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { Tooltip } from "./missing-asset-card.jsx";
 import { cn } from "../infra/dialog-content.jsx";
 import { BACKEND_ELEVENLABS_MUSIC } from "./normalize-skill-detail-metadata.js";

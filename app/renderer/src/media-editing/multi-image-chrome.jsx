@@ -1,10 +1,8 @@
 // multi-image-chrome.jsx
-import {
-  ExternalLink$2 as ExternalLink,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import reactExports from "react";
+import { useTranslation } from "react-i18next";
+import { ExternalLink$2 as ExternalLink } from "./custom-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Ungroup } from "../canvas/diagnostic-history-tools.js";
 import { CountBadge } from "./compute-multi-image-grid-positions.jsx";

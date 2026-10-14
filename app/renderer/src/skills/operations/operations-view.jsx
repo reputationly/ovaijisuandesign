@@ -1,5 +1,8 @@
 // 运营后台主视图：待审、待发布、已发布与分类管理的容器。
-import { useTranslation, reactExports, Plus, X$7 as X, Loader2, ChevronLeft, ChevronRight$1 as ChevronRight, usePlatform, Check } from "../../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import { usePlatform } from "../../infra/platform-context.js";
+import { Plus, X$7 as X, Loader2, ChevronLeft, ChevronRight$1 as ChevronRight, Check } from "../../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { useNavigateToWorkspace } from "../../workspace/use-deep-link-router.js";
 import { homeService } from "../../workspace/home-service.jsx";

@@ -1,5 +1,6 @@
 // connector-dialog-frame.jsx
-import { reactExports, XIcon } from "../vendor.js";
+import reactExports from "react";
+import { XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogClose } from "../infra/gateway-http-error.jsx";
 import {

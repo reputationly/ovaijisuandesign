@@ -1,10 +1,7 @@
 // error-block.jsx
-import {
-  AlertCircle,
-  ChevronDown,
-  CompositedSvg,
-  reactExports,
-} from "../vendor.js";
+import reactExports from "react";
+import { AlertCircle, ChevronDown } from "../media-editing/lucide-icon-wraps.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ExpandableText } from "./expandable-text.jsx";
 

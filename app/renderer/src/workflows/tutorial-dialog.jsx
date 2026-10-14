@@ -1,5 +1,7 @@
 // 工作流使用教程弹窗与常见问题。
-import { useTranslation, ExternalLink, usePlatform } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import { usePlatform } from "../infra/platform-context.js";
+import { ExternalLink } from "../media-editing/lucide-icon-wraps.js";
 import { Button, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
 import { Icon, openExternalUrl, WORKFLOW_TUTORIAL_SOURCE_URL } from "../vendor-inline/vscode-base/graph.jsx";
 import { DialogTitle, DialogDescription } from "../infra/badge-variants.jsx";

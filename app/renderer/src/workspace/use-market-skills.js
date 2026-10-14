@@ -1,6 +1,7 @@
 // use-market-skills.js
 import { Emitter } from "../vendor-inline/vscode-base/vs-buffer.js";
-import { API_PATHS, reactExports } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import {
   trackSkillInstallEvent,

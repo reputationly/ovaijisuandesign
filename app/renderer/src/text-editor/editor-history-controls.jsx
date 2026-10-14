@@ -1,16 +1,10 @@
 // editor-history-controls.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  jsxRuntimeExports,
-  redo$1 as redo,
-  Redo2,
-  redoDepth$1 as redoDepth,
-  undo$1 as undo,
-  Undo2,
-  undoDepth$1,
-  useEditorState$1 as useEditorState,
-  useTranslation,
-} from "../vendor.js";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { redo, redoDepth, undo, undoDepth as undoDepth$1 } from "prosemirror-history";
+import { useEditorState } from "@tiptap/react";
+import { useTranslation } from "react-i18next";
+import { Redo2, Undo2 } from "../media-editing/lucide-icon-wraps.js";
 import { useDiffReviewStore } from "./use-diff-review-store.js";
 export function ToolbarSeparator({ contextToolbar = false }) {
   if (contextToolbar)

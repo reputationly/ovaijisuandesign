@@ -1,5 +1,6 @@
 // use-resizable-width.js
-import { reactDomExports, reactExports } from "../vendor.js";
+import reactDomExports from "react-dom";
+import reactExports from "react";
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }

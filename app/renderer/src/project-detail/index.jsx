@@ -1,5 +1,11 @@
 // 项目详情页路由入口：标签页、资产面板与成员的组装。
-import { useTranslation, reactExports, jsxRuntimeExports, usePlatform, useStorage, ChevronRight$1 as ChevronRight, useNavigate, useParams, useSearch, ArrowLeft, UserRoundPlus, Plus, Info$1 as Info } from "../vendor.js";
+import { useTranslation } from "react-i18next";
+import reactExports from "react";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { usePlatform } from "../infra/platform-context.js";
+import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
+import { useStorage } from "../infra/use-storage.js";
+import { ChevronRight$1 as ChevronRight, ArrowLeft, UserRoundPlus, Plus, Info$1 as Info } from "../media-editing/lucide-icon-wraps.js";
 import { MemberRole } from "../generation/normalize-skill-detail-metadata.js";
 import { Tooltip, TooltipTrigger, TooltipProvider, projectLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { TooltipContent } from "../infra/dialog-content.jsx";

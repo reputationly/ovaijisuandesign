@@ -1,5 +1,7 @@
 // use-canvas-tags.js
-import { API_PATHS, reactExports, useMutation, useQuery, useQueryClient } from "../vendor.js";
+import { API_PATHS } from "../infra/workspace-gateway.js";
+import reactExports from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import {
   aggregateTagState,
