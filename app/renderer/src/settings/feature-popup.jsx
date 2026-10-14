@@ -1,7 +1,7 @@
 // feature-popup.jsx
+import Markdown from "react-markdown";
 import {
   GiftIcon,
-  Markdown$1 as Markdown,
   reactExports,
   remarkGfm,
   useTranslation,

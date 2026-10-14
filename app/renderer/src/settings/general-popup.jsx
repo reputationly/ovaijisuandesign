@@ -1,5 +1,6 @@
 // general-popup.jsx
-import { Markdown$1 as Markdown, remarkGfm, usePlatform, useTranslation } from "../vendor.js";
+import Markdown from "react-markdown";
+import { remarkGfm, usePlatform, useTranslation } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
