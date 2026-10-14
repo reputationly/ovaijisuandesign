@@ -1,3 +1,4 @@
+// 留在这里：对应 VS Code src/vs/base/parts/ipc/common/ipc.ts 的 ChannelClient、IPCClient、ProxyChannel，没有可替换的 npm 包。
 // channel-client.js
 import {
   CancellationError,

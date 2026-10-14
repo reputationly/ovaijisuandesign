@@ -1,3 +1,4 @@
+// 留在这里：对应 VS Code 这些没有 npm 包的源文件，所以保留可读副本：src/vs/base/common/event.ts、src/vs/base/common/cancellation.ts、src/vs/base/common/buffer.ts、src/vs/base/common/decorators.ts、src/vs/base/common/marshalling.ts、src/vs/base/common/strings.ts、src/vs/base/common/types.ts、src/vs/base/parts/ipc/common/ipc.ts。applyMemberDecorators 是这些类上装饰器编译出来的辅助函数，同样没有独立包。
 // vs-buffer.js
 import {
   CancellationError,

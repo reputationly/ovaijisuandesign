@@ -2,8 +2,9 @@
 import {
   reactExports,
 } from "../vendor.js";
-import { StateEffect, StateField } from "@codemirror/state";
-import { Decoration } from "@codemirror/view";
+import { Compartment, EditorState as EditorState2, StateEffect, StateField } from "@codemirror/state";
+import { Decoration, EditorView as EditorView2, drawSelection, keymap } from "@codemirror/view";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags } from "@lezer/highlight";
 import {
   defaultKeymap,
@@ -15,30 +16,18 @@ import {
   undo,
   undoDepth,
 } from "@codemirror/commands";
-import { EditorView2 } from "../vendor-inline/codemirror/editor-view2.js";
-import {
-  drawSelection,
-  HighlightStyle,
-  keymap,
-  syntaxHighlighting,
-} from "../vendor-inline/codemirror/tree-node.js";
 import {
   buildCodeMirrorSelectionAnchor,
   buildCodeMirrorSelectionState,
   markdownLivePreview,
 } from "../vendor-inline/codemirror/delete-markup-backward.js";
-import { markdown } from "@codemirror/lang-markdown";
+import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import {
   replaceAll,
   SearchQuery,
   search,
   setSearchQuery,
 } from "@codemirror/search";
-import { markdownLanguage } from "../vendor-inline/codemirror/insert-newline-continue-markup-command.js";
-import {
-  Compartment,
-  EditorState2,
-} from "../vendor-inline/codemirror/editor-state2.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 const setSourceFindHighlights = StateEffect.define();
 const sourceFindMatch = Decoration.mark({
