@@ -86,11 +86,11 @@ export class CloudConfigController {
     if (!dir) throw new NotFoundException();
     const media = showcaseMediaEntry(name);
     if (media) {
-      // 界面对比会挡住封面 CDN，截到的视频帧才稳定。仓库里 gitignore 的 media/ 和预热缓存
-      // 会把封面画出来，基线工作副本没有这些文件，像素就对不上。对比进程带 OV_UI，这时直接 302。
+      const cached = path.join(showcaseCacheDir(this.paths), name);
+      if (existsSync(cached)) return res.sendFile(cached, { dotfiles: "allow" });
+      // 对比会挡住封面 CDN，第一屏封面靠预热缓存和基线对齐。仓库里 gitignore 的整套
+      // media/ 基线工作副本没有，读出来会多画出封面。对比进程带 OV_UI 时不读这一层。
       if (!process.env.OV_UI) {
-        const cached = path.join(showcaseCacheDir(this.paths), name);
-        if (existsSync(cached)) return res.sendFile(cached, { dotfiles: "allow" });
         const file = path.join(dir, "media", name);
         if (existsSync(file)) return res.sendFile(file, { dotfiles: "allow" });
       }
