@@ -18,7 +18,7 @@ import { useAutoScroll } from "./use-auto-scroll.js";
 import { useBottomAnchorState } from "./use-bottom-anchor-state.js";
 import { HistoryAnchorRail } from "./history-anchor-rail-impl.jsx";
 import { useHistoryRailState } from "./use-history-rail-state.js";
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
 
 function attachmentTypeKey(type) {
   if (type === "image") return "image";

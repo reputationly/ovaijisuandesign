@@ -43,7 +43,7 @@ import {
   useAssetCenterFetcher,
   useEntities,
 } from "./wrap-as-asset-center-error.js";
-import { formatAssetCenterError } from "./key-entries.js";
+import { formatAssetCenterError } from "./asset-center-error.js";
 import { Download, List, Sparkles, Upload } from "../media-editing/package.jsx";
 import { buildWorkspaceSearch } from "../workspace/use-deep-link-router.js";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";

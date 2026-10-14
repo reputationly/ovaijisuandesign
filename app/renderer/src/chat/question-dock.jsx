@@ -19,8 +19,8 @@ import { useMentionModels } from "../generation/use-mention-models.jsx";
 import { ChatToolbar } from "../generation/chat-toolbar.jsx";
 import { Button } from "../infra/dialog-content.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
-import { resolveShortcutDisplay } from "../workspace/other-modifiers.js";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
+import { resolveShortcutDisplay } from "../workspace/resolve-shortcut-display.js";
 import { isMacPlatform } from "../workspace/shortcut-hint.jsx";
 import { QuestionPromptIcon } from "../workspace/home-service.jsx";
 import {

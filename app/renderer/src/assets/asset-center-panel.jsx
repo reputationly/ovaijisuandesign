@@ -12,7 +12,7 @@ import { useEntities } from "./wrap-as-asset-center-error.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
-import { formatAssetCenterError } from "./key-entries.js";
+import { formatAssetCenterError } from "./asset-center-error.js";
 import { MediaLightbox } from "./text-preview.jsx";
 import { useExportEntityUrl } from "../infra/use-online.jsx";
 import { useMaterializeEntity } from "./use-materialize-entity.js";

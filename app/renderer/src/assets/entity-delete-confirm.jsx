@@ -10,7 +10,7 @@ import {
   classifyAssetError,
   trackAssetCenterAction,
 } from "../infra/use-online.jsx";
-import { formatAssetCenterError } from "./key-entries.js";
+import { formatAssetCenterError } from "./asset-center-error.js";
 import { AlertDialog } from "../infra/dialog-content.jsx";
 import {
   AlertDialogAction,

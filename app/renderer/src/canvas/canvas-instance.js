@@ -39,7 +39,7 @@ import {
   isSamePersistedData,
   rebaseRetainedHistoryNodes,
 } from "./canvas-event-bus.js";
-import { CanvasHistoryManager } from "./history-manager2.js";
+import { CanvasHistoryManager } from "./history-manager.js";
 import { GridSlotLayout } from "./grid-slot-layout.js";
 import { LayoutEngine } from "./layout-engine.js";
 import { applyDetachedReferenceEdges } from "./build-detached-reference-edges.js";

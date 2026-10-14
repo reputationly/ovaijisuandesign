@@ -2,7 +2,7 @@
 import { ChevronDown, jsxRuntimeExports, Lock, reactDomExports, reactExports, useMusicPromptLayout, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast, useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { summarizeParams } from "./summarize-params.js";
+import { summarizeParams } from "./summarize-txt-params.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
 import { BACKEND_SEEDAUDIO } from "./normalize-skill-detail-metadata.js";
 import { PromptTextarea } from "./time-intervals.jsx";

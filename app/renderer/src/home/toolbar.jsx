@@ -4,7 +4,7 @@ import { useMediaModels } from "../generation/normalize-model-info.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { useAttachmentFaceNoticeGate } from "../chat/use-attachment-face-notice-gate.jsx";
-import "../media-editing/wt.js";
+import "../media-editing/media-model-selection.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { MediaModelSelector } from "../generation/media-model-selector.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";

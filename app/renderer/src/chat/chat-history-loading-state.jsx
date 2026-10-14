@@ -4,7 +4,7 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as mergeClassNames } from "../infra/dialog-content.jsx";
 import { Skeleton } from "../team/use-wallet-query.jsx";
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
 export function ChatHistoryLoadingState({
   label,
   includeChrome = false,

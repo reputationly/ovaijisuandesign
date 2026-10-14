@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
-import { formatAssetCenterError } from "../assets/key-entries.js";
+import { formatAssetCenterError } from "../assets/asset-center-error.js";
 import {
   ICON_TEXT_SPEC,
   RetryIcon,

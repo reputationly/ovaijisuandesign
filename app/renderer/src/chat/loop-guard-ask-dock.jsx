@@ -16,7 +16,7 @@ import {
   shouldIgnoreChatGlobalShortcut,
 } from "../media-editing/message-list-props-equal.jsx";
 import { Button } from "../infra/dialog-content.jsx";
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
 import { Kbd as KeyboardShortcut } from "../workspace/shortcut-hint.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 export function LoopGuardAskDock({

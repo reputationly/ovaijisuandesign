@@ -1,7 +1,7 @@
 // zh.js
 import { initReactI18next, instance } from "../vendor.js";
 import { getDefaultLanguage } from "../vendor-inline/vscode-base/linked-list.js";
-import { en as en$2 } from "./en.js";
+import { en as en$2 } from "./english-translations.js";
 import {
   canvas_lyrics,
   error_auth_unauthorized,

@@ -5,7 +5,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { getFileManagerLabelKey } from "../settings/request-prompt-prefill.jsx";
 import { FolderOpen } from "../media-editing/package.jsx";
 import { sortRecentWorkspaces } from "../workspace/normalize-project-entries.js";
-import { formatAssetCenterError } from "./key-entries.js";
+import { formatAssetCenterError } from "./asset-center-error.js";
 import {
   Button,
   Dialog,

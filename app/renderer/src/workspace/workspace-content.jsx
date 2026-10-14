@@ -34,7 +34,7 @@ import {
 import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { useHasBlockingModal } from "../infra/schedule.js";
 import { getPlatform } from "../infra/web-storage.js";
-import { resolveShortcutDisplay } from "./other-modifiers.js";
+import { resolveShortcutDisplay } from "./resolve-shortcut-display.js";
 import {
   ShortcutHint,
   WORKSPACE_DISPLAY_MODE_SHORTCUT,

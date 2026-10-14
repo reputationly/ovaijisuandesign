@@ -35,7 +35,7 @@ import { StagedRow } from "./staged-row.jsx";
 import { AssetCenterApiError } from "./wrap-as-asset-center-error.js";
 import { Upload } from "../media-editing/package.jsx";
 import { trackAssetCenterAction } from "../infra/use-online.jsx";
-import { resolveAssetCenterErrorKey } from "./key-entries.js";
+import { resolveAssetCenterErrorKey } from "./asset-center-error.js";
 const ATTACHMENT_EXTENSIONS = {
   image: ["png", "jpg", "jpeg", "webp", "gif", "heic", "heif"],
   video: ["mp4", "webm"],

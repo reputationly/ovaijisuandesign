@@ -12,7 +12,7 @@ import { Paperclip } from "../media-editing/package.jsx";
 import {
   countVisibleSelectedMediaModels,
   isAllVisibleMediaModelsSelected,
-} from "../media-editing/wt.js";
+} from "../media-editing/media-model-selection.js";
 import { useMediaModels } from "./normalize-model-info.js";
 import { useComposerActionsCompact } from "../chat/create-expanded-composer-actions-measurer.jsx";
 import { TooltipContent } from "../infra/dialog-content.jsx";

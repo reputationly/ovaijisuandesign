@@ -40,7 +40,7 @@ import {
   resolveImageMode,
   STANDARD_PARAMS,
   summarizeParams,
-} from "./summarize-params-2.js";
+} from "./summarize-i2v-params.js";
 import { useModelRegistryStore } from "../infra/create-recently-added-store.js";
 import { FileClock, useCanvasBridge } from "../media-editing/package.jsx";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";

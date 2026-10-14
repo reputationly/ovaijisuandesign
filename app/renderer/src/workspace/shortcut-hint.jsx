@@ -1,7 +1,7 @@
 // shortcut-hint.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn, MENU_ITEM_LAYOUT } from "../infra/dialog-content.jsx";
-import { resolveShortcutDisplay } from "./other-modifiers.js";
+import { resolveShortcutDisplay } from "./resolve-shortcut-display.js";
 import { getPlatform } from "../infra/web-storage.js";
 import {
   ChevronRight$1 as ChevronRight,

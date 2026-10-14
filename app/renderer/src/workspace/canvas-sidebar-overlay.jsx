@@ -27,7 +27,7 @@ import {
 } from "./context-menu-content.jsx";
 import { useLocation } from "../vendor-inline/vscode-base/linked-list.js";
 import { useCoachMarkSequence } from "../assets/use-coach-mark-sequence.js";
-import { resolveShortcutDisplay } from "./other-modifiers.js";
+import { resolveShortcutDisplay } from "./resolve-shortcut-display.js";
 import { CoachMarkPopup } from "./coach-mark-popup.jsx";
 import { FileExplorer } from "../generation/file-explorer.jsx";
 import { AssetsTabPanel } from "../canvas/assets-tab-panel.jsx";

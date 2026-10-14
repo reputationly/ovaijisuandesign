@@ -11,7 +11,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn, TooltipContent } from "../infra/dialog-content.jsx";
-import { resolveShortcutDisplay } from "../workspace/other-modifiers.js";
+import { resolveShortcutDisplay } from "../workspace/resolve-shortcut-display.js";
 import { ShortcutHint } from "../workspace/shortcut-hint.jsx";
 export const SIDEBAR_BADGE_TARGET_BY_ROUTE = {
   "/": "launchpad",

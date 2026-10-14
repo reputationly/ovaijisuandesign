@@ -1,5 +1,5 @@
 // use-history-rail-state.js
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
 import { reactExports } from "../vendor.js";
 
 const MIN_TURNS_FOR_RAIL = 5;

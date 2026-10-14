@@ -43,7 +43,7 @@ import { InlineColorValue } from "./use-mention-models.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
 import { useAssets } from "../settings/use-assets.js";
 import { resolveChatFileReference } from "./resolve-chat-file-reference.js";
-import { cleanPath } from "../media-editing/wt.js";
+import { cleanPath } from "../media-editing/media-model-selection.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
   useResolveMediaUrl,

@@ -1,5 +1,5 @@
 // parse-workspace-path.js
-import { cleanPath } from "./wt.js";
+import { cleanPath } from "./media-model-selection.js";
 function stripLeadingSlash(path) {
   return path.replace(/^\/+/, "");
 }

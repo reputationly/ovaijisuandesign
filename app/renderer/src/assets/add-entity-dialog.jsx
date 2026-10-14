@@ -25,7 +25,7 @@ import { DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AttachmentUploadZone } from "./attachment-upload-zone.jsx";
 import { CollapsibleTags } from "./preset-tags.jsx";
-import { formatAssetCenterError } from "./key-entries.js";
+import { formatAssetCenterError } from "./asset-center-error.js";
 import {
   Badge,
   DialogDescription,

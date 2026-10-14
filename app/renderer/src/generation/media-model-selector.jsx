@@ -33,7 +33,7 @@ import { isPromotionActive } from "./param-label-fallbacks.js";
 import {
   isVisibleMediaModelSelected,
   MEDIA_CATEGORIES,
-} from "../media-editing/wt.js";
+} from "../media-editing/media-model-selection.js";
 import { isCustomModelProvider } from "../text-editor/build-asr-gateway-request.js";
 import {
   agentModelMatchesSelection,

@@ -149,7 +149,7 @@ const Route$d = createFileRoute("/_home")({
   component: lazyRouteComponent($$splitComponentImporter$c, "component"),
 });
 const $$splitComponentImporter$b = () =>
-  (() => import("../routes/app.jsx"))();
+  (() => import("../routes/application-route-group.jsx"))();
 const Route$c = createFileRoute("/_app")({
   component: lazyRouteComponent($$splitComponentImporter$b, "component"),
 });

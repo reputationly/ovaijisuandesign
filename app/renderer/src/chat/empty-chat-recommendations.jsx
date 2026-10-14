@@ -26,7 +26,7 @@ import { VideoLightbox } from "../media-editing/video-lightbox.jsx";
 import { DEFAULT_HOME_QUICK_START_CONFIG } from "../workspace/scene-categories.js";
 import { useEnsureSkillReady } from "../workspace/use-ensure-skill-ready.js";
 import { useHomeQuickStartConfig } from "../workspace/use-home-quick-start-config.js";
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
 function shuffle(items, random) {
   const next = [...items];
   for (let index = next.length - 1; index > 0; index -= 1) {

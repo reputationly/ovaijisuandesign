@@ -27,7 +27,7 @@ import {
   trackAssetCenterAction,
   useExportEntityUrl,
 } from "../infra/use-online.jsx";
-import { formatAssetCenterError } from "./key-entries.js";
+import { formatAssetCenterError } from "./asset-center-error.js";
 import {
   Badge,
   DialogDescription,

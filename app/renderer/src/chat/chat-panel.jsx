@@ -47,7 +47,7 @@ import {
   useAstraSendGate,
 } from "../generation/use-astra-send-gate.js";
 import { Button } from "../infra/dialog-content.jsx";
-import { CHAT_CONTENT_MAX_WIDTH_PX } from "./ae.jsx";
+import { CHAT_CONTENT_MAX_WIDTH_PX } from "./chat-content-width.jsx";
 import {
   shallowEqualObject,
   useWorkspaceChatSelector,

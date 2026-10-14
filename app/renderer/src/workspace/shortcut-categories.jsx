@@ -1,5 +1,5 @@
 // shortcut-categories.jsx
-import { resolveShortcutDisplay } from "./other-modifiers.js";
+import { resolveShortcutDisplay } from "./resolve-shortcut-display.js";
 import {
   isMacPlatform,
   KbdGroup,
