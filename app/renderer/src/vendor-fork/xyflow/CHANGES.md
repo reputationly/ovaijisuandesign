@@ -9,7 +9,7 @@
 
 `react/index.js` 用 `../system/index.js` 引用旁边这份 system，不再依赖 npm 上的 `@xyflow/system`，避免产物里再打进一份。
 
-应用 helper 不复制函数体，从 `../../../infra/from-vendor.js` 引入。system 直接用到的是 `clamp$c`、`getDragBounds`、`getDragSnapAffectedIds`、`getDragSnapReferenceBounds`。react 直接用到的是 `AUTO_PAN_ARM_SLACK`、`OVERSCAN_PX`、`RECOMPUTE_DELTA_PX`、`cascadeAbsolutePosition`、`edgeZones`、`getKeyboardMoveFactor`、`getNodesSelectionActiveOnPointerUp`、`maskAutoPanSides`。`hasDraggedAncestor`、`AUTO_PAN_DISTANCE`、`DEFAULT_LARGE_MOVE_FACTOR` 只被这些 helper 自己调用，留在 `from-vendor.js` 里。
+应用 helper 不复制函数体。`clamp$c` 仍从 `../../../infra/from-vendor.js` 引入。其余画布几何从 `../../../canvas/canvas-geometry.js` 引入：system 直接用到 `getDragBounds`、`getDragSnapAffectedIds`、`getDragSnapReferenceBounds`；react 直接用到 `AUTO_PAN_ARM_SLACK`、`OVERSCAN_PX`、`RECOMPUTE_DELTA_PX`、`cascadeAbsolutePosition`、`edgeZones`、`getKeyboardMoveFactor`、`getNodesSelectionActiveOnPointerUp`、`maskAutoPanSides`。`hasDraggedAncestor`、`AUTO_PAN_DISTANCE`、`DEFAULT_LARGE_MOVE_FACTOR` 只被这些 helper 自己调用，和它们放在同一个 `canvas-geometry.js` 里。
 
 `resolveInterpolate` 不是 `from-vendor.js` 里的函数，它跟平移缩放写在一起，留在 `system/index.js`。
 

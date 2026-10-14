@@ -353,14 +353,14 @@ async function boot(): Promise<Running | undefined> {
         // CDP 点不到系统保存框。OV_DIALOG_EXPORT_FILE 指向一个文本文件，里面是本次要保存的路径。
         const forced = readDialogPointer(process.env.OV_DIALOG_EXPORT_FILE);
         if (forced) return Promise.resolve({ canceled: false, filePath: forced });
-        if (process.env.OV_DEV_HIDDEN_WINDOW === "1") return Promise.resolve({ canceled: true });
+        if (devHiddenWindow()) return Promise.resolve({ canceled: true });
         const w = BrowserWindow.getFocusedWindow();
         return w ? dialog.showSaveDialog(w, o) : dialog.showSaveDialog(o);
       },
       showOpenDialog: (o) => {
         const forced = readDialogPointer(process.env.OV_DIALOG_IMPORT_FILE);
         if (forced) return Promise.resolve({ canceled: false, filePaths: [forced] });
-        if (process.env.OV_DEV_HIDDEN_WINDOW === "1") return Promise.resolve({ canceled: true, filePaths: [] });
+        if (devHiddenWindow()) return Promise.resolve({ canceled: true, filePaths: [] });
         const w = BrowserWindow.getFocusedWindow();
         const opts = o as Electron.OpenDialogOptions;
         return w ? dialog.showOpenDialog(w, opts) : dialog.showOpenDialog(opts);

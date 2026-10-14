@@ -1,4 +1,4 @@
-// topbar-search-dialog-lazy.jsx
+// 渲染进程的启动入口：路由树、AppRoot 和 createRoot 都在这里，文件名跟着这个职责走。
 import {
   AuthContext,
   buildRendererDiagnosticsSnapshot,
