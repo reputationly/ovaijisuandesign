@@ -1,7 +1,7 @@
 // 拖线落点、落点标记、小地图矩形。
 import reactExports from "react";
 import { flowPointToMiniMap, findHitTarget, CanvasNodeType } from "./canvas-geometry.js";
-import { useStoreApi } from "./vendor-fork/xyflow/react/index.js";
+import { useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 
 export function nodeToMiniMapRect(node2, layout, minSize = 0) {
   const topLeft = flowPointToMiniMap({
