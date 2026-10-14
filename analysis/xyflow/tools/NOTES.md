@@ -1,0 +1,15 @@
+# 进度笔记
+- worktree ~/xyflow-analysis/wt @478cc70（分支 HEAD）；npm 包在 ~/xyflow-analysis/npm
+- 运行：cd ~/xyflow-analysis && REGION=800-7620 node tools/analyze.mjs wt/app/renderer/src/vendor.js npm out-base
+- 当前：220 配对 = 180 same + 18 equiv + 22 diff；区间外引用 resolveInterpolate（vendor 独有）
+- 旧 vendor（aee54ac^，全内联）在 vendor-pre-aee54ac.js，用于核对已换成 npm import 的 system 声明
+- 分支 HEAD 仍 478cc70（15:1x 已 fetch 确认）
+- exports: browser.import -> dist/esm/index.js；node.import -> index.mjs（两者内容相同）
+- vendor 里 xyflow 代码 import 了 ./infra/from-vendor.js 的应用 helper（getKeyboardMoveFactor/OVERSCAN_PX/RECOMPUTE_DELTA_PX/clamp$c/getDragBounds/getDragSnapReferenceBounds/getNodesSelectionActiveOnPointerUp/cascadeAbsolutePosition/maskAutoPanSides/edgeZones/AUTO_PAN_*...），补丁需内联
+- 22 diff 中非行为：ZoomPane/useDrag(useRef(void 0))、ResizeControlVariant(TS 枚举改写)、useNodeOrEdgeTypesWarning/useStylesLoadedWarning(未用绑定保留调用)
+- 新版 system 0.0.77-0.0.83 / react 12.11.x 差异更多 -> 不是上游回移，是应用改动
+- 计划：tools/port.mjs AST 引导生成补丁（相等语句保留 dist 原文，只替换不同语句）
+- 规则新增 REFARG/UNUSEDCALL/ENUM；基线：180 same + 22 equiv + 18 diff（220 配对）
+- tools/port.mjs 生成补丁：node tools/port.mjs wt/.../vendor.js wt/.../infra/from-vendor.js npm out-base/mapping.json npm-patched（先 cp npm 包到 npm-patched）
+- 验证：REGION=800-7620 node tools/analyze.mjs wt/app/renderer/src/vendor.js npm-patched out-patched ；第一次补丁后剩 8 diff
+- 修 paren 后：补丁验证 193 same + 28 equiv + 0 diff；helper 15 个全 same

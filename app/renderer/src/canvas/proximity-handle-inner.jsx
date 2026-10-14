@@ -1,13 +1,7 @@
 // proximity-handle-inner.jsx
-import {
-  CompositedSvg,
-  Handle,
-  jsxRuntimeExports,
-  Position,
-  reactExports,
-  useStore$3 as useStore,
-  useStoreApi,
-} from "../vendor.js";
+import { CompositedSvg, jsxRuntimeExports, reactExports } from "../vendor.js";
+import { Handle, useStore, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { createTracker } from "../generation/create-tracker.js";
 import { trackers } from "../generation/missing-asset-card.jsx";

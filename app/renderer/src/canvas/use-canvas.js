@@ -1,5 +1,6 @@
 // use-canvas.js
-import { CanvasNodeType, reactExports, useEdgesState, useNodesState, useReactFlow, useStoreApi, useTranslation } from "../vendor.js";
+import { CanvasNodeType, reactExports, useTranslation } from "../vendor.js";
+import { useEdgesState, useNodesState, useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { resolvePlaceholderFlowSize } from "./node-registry.js";
 import {

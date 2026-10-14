@@ -1,14 +1,9 @@
 // image-split-edit-toolbar-inner.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CloseIcon, GroupIcon } from "../canvas/file-missing-icon.jsx";
-import {
-  jsxRuntimeExports,
-  NodeToolbar$1 as NodeToolbar,
-  Position,
-  reactExports,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { NodeToolbar, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { SPLIT_MAGNIFICATIONS } from "./image-rotate-preview-inner.jsx";
 import { DropdownArrowIcon } from "../canvas/generating-media-area.jsx";
 import { CreditCostBadge, Tooltip } from "../generation/missing-asset-card.jsx";

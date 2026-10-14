@@ -1,5 +1,6 @@
 // node-resize-frame-inner.jsx
-import { NodeResizer, reactExports } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { NodeResizer } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useRegisterZoomCounter } from "./create-recently-added-store.js";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";

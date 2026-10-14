@@ -1,5 +1,6 @@
 // reference-navigation-provider.jsx
-import { reactExports, useReactFlow, useStoreApi } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ReferenceNavigationContext } from "./get-reference-navigation-defaults.jsx";
 import { syncStableZoomSignals } from "../canvas/separator.jsx";

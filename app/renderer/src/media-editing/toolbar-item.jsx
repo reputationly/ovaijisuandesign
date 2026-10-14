@@ -1,15 +1,7 @@
 // toolbar-item.jsx
-import {
-  ActionListItem,
-  ActionListPanel,
-  ActionListSeparator,
-  CompositedSvg,
-  jsxRuntimeExports,
-  NodeToolbar$1 as NodeToolbarPrimitive,
-  Position,
-  reactExports,
-  useStore$3 as useStore,
-} from "../vendor.js";
+import { ActionListItem, ActionListPanel, ActionListSeparator, CompositedSvg, jsxRuntimeExports, reactExports } from "../vendor.js";
+import { NodeToolbar as NodeToolbarPrimitive, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   DropdownMenuContent,

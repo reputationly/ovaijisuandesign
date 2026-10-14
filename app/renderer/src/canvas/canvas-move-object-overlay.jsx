@@ -1,11 +1,6 @@
 // canvas-move-object-overlay.jsx
-import {
-  CompositedSvg,
-  jsxRuntimeExports,
-  reactExports,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import { CompositedSvg, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { useStore } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   CloseIcon,

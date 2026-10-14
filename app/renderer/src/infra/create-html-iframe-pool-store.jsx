@@ -4,10 +4,10 @@ import {
   createStore$1 as createStore,
   PlaybackPlayIcon$1 as PlaybackPlayIcon,
   reactExports,
-  useNodeId,
   useStore$2 as useStore,
   useTranslation,
 } from "../vendor.js";
+import { useNodeId } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "./file-type-icon.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";

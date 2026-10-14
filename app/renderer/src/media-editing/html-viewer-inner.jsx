@@ -1,11 +1,6 @@
 // html-viewer-inner.jsx
-import {
-  reactExports,
-  useConnection,
-  useNodeId,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import { useConnection, useNodeId } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileMissingIcon } from "../canvas/file-missing-icon.jsx";
 import { usePluginHost } from "./use-plugin-host.js";

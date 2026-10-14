@@ -9,7 +9,9 @@ import {
   usePopoverCloseWithDeselect,
 } from "../generation/resolve-reference-texts.js";
 import { buildImageNodeView } from "../canvas/build-slot-from-node.js";
-import { BACKEND_VIBE_STORYBOARD, Handle, Position, reactExports, useReactFlow, useTranslation } from "../vendor.js";
+import { BACKEND_VIBE_STORYBOARD, reactExports, useTranslation } from "../vendor.js";
+import { Handle, useReactFlow } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { dedupedToast, useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { VideoMultiOverlay } from "./video-multi-overlay.jsx";

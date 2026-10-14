@@ -8,15 +8,9 @@ import {
   setHoveredEdgeId,
   sourceHandleSide,
 } from "./control-points-for.js";
-import {
-  EdgeLabelRenderer,
-  getInternalNodesBounds,
-  reactExports,
-  Scissors,
-  useReactFlow,
-  useStoreApi,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, Scissors, useTranslation } from "../vendor.js";
+import { EdgeLabelRenderer, useReactFlow, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
+import { getInternalNodesBounds } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 const BEZIER_HIT_SAMPLES = 16;

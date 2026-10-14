@@ -1,6 +1,7 @@
 // video-action-surface.jsx
 import { useVideoStarterPresetStore } from "../canvas/use-video-starter-preset-store.js";
-import { isUserProvidedAssetModel, jsxRuntimeExports, reactDomExports, reactExports, useReactFlow, useTranslation } from "../vendor.js";
+import { isUserProvidedAssetModel, jsxRuntimeExports, reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import { useReactFlow } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

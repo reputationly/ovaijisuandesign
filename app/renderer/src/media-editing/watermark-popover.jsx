@@ -10,7 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../generation/select-content.jsx";
-import { jsxRuntimeExports, NodeToolbar$1 as NodeToolbar, Position, reactExports, useNodeId, useStore$3 as useStore, useTranslation, X$7 as X } from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import { NodeToolbar, useNodeId, useStore } from "../vendor-fork/xyflow/react/index.js";
+import { Position } from "../vendor-fork/xyflow/system/index.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { WATERMARK_PANEL_WIDTH } from "./storyboard-resize-max-edge.js";
 import {

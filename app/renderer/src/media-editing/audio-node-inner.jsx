@@ -3,15 +3,8 @@ import {
   AUDIO_CARD_SIZE,
   isGenerationErrorStatus,
 } from "../canvas/compute-group-bounds-from-children.js";
-import {
-  Download$2 as Download,
-  isUserProvidedAssetModel,
-  jsxRuntimeExports,
-  PlaybackCircleToggleIcon,
-  reactExports,
-  useReactFlow,
-  useTranslation,
-} from "../vendor.js";
+import { Download$2 as Download, isUserProvidedAssetModel, jsxRuntimeExports, PlaybackCircleToggleIcon, reactExports, useTranslation } from "../vendor.js";
+import { useReactFlow } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AudioActionSurface } from "./audio-action-surface.jsx";
 import { useNodeRename } from "../infra/use-node-rename.js";

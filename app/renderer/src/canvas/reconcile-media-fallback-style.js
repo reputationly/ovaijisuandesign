@@ -1,10 +1,7 @@
 // reconcile-media-fallback-style.js
 import { MEDIA_FALLBACK_NODE_SIZE } from "../generation/missing-asset-card.jsx";
-import {
-  reactExports,
-  useReactFlow,
-  useStore$3 as useStore,
-} from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { useReactFlow, useStore } from "../vendor-fork/xyflow/react/index.js";
 const constraints = {
   minWidth: MEDIA_FALLBACK_NODE_SIZE.width,
   maxWidth: MEDIA_FALLBACK_NODE_SIZE.width,

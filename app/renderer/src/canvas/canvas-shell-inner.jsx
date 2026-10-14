@@ -1,19 +1,15 @@
 // canvas-shell-inner.jsx
+import { CanvasNodeType, ConnectionTargetMarker, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
 import {
-  CanvasNodeType,
-  ConnectionTargetMarker,
-  jsxRuntimeExports,
   Panel,
-  reactExports,
-  ReactFlow$1 as ReactFlow,
-  SelectionMode,
+  ReactFlow,
   useConnection,
   useNodesInitialized,
   useReactFlow,
-  useStore$3 as useStore,
+  useStore,
   useStoreApi,
-  useTranslation,
-} from "../vendor.js";
+} from "../vendor-fork/xyflow/react/index.js";
+import { SelectionMode } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   CanvasE2EMarkersInner,

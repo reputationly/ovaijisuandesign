@@ -8,9 +8,9 @@ import {
   TooltipPositioner,
   TooltipRoot,
   TooltipTrigger$1 as TooltipTrigger,
-  useReactFlow,
   useTranslation,
 } from "../vendor.js";
+import { useReactFlow } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";
 import { isGenerationRefundStatus } from "../canvas/compute-group-bounds-from-children.js";

@@ -1,18 +1,7 @@
 // multi-select-plus-handle-inner.jsx
-import {
-  CompositedSvg,
-  findHitTarget,
-  getBezierPath,
-  jsxRuntimeExports,
-  NodeToolbar$1 as NodeToolbar,
-  Position,
-  reactDomExports,
-  reactExports,
-  useReactFlow,
-  useStore$3 as useStore,
-  useStoreApi,
-  useTranslation,
-} from "../vendor.js";
+import { CompositedSvg, findHitTarget, jsxRuntimeExports, reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import { getBezierPath, Position } from "../vendor-fork/xyflow/system/index.js";
+import { NodeToolbar, useReactFlow, useStore, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   useCanvasIsBoxSelecting,

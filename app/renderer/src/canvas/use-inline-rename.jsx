@@ -1,11 +1,6 @@
 // use-inline-rename.jsx
-import {
-  CompositedSvg,
-  reactExports,
-  useNodeId,
-  useStoreApi,
-  useTranslation,
-} from "../vendor.js";
+import { CompositedSvg, reactExports, useTranslation } from "../vendor.js";
+import { useNodeId, useStoreApi } from "../vendor-fork/xyflow/react/index.js";
 import {
   CanvasModalGuardContext,
   CanvasTagColorsContext,
