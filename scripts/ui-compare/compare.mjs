@@ -1,11 +1,11 @@
 // 逐屏对比：同一份测试数据起桌面应用，访问同一组页面、截图，和基线逐像素比较，并收集控制台报错。
-// 界面每次改动都靠它验收。
+// 基线守的是当前认可的界面。有意改了某几页之后，门禁会在这几页上报差异；确认没有波及别的页，再重录这几页。
 //
 //   node scripts/ui-compare/compare.mjs [基准=golden] [对比模式=recovered]
-//   node scripts/ui-compare/compare.mjs --record [模式=recovered]     # 把这一份界面的截图录成基线
+//   ONLY=home,skills GOLDEN="$HOME/ov-golden/.probe/ui-golden" node scripts/ui-compare/compare.mjs --record
 //
 // 基准写 golden 时读录好的基线截图（默认 .probe/ui-golden/，可用 GOLDEN=目录 指定），不再起第二个应用；
-// 写成别的就是 OV_UI 的取值（recovered / ours），两种界面各起一次对比。ONLY 只跑几屏时，录基线也只更新这几屏。
+// 写成别的就是 OV_UI 的取值（recovered / ours），两种界面各起一次对比。ONLY 只跑几屏时，录基线也只更新这几屏，其它屏的基线保留。
 // 基线是整轮按顺序录的，前面的屏会改应用状态（比如进过技能页，侧栏的新功能小圆点就消了）；
 // ONLY 跳过前面的屏再和基线比，可能差出这类零星像素，以整轮结果为准。
 // 前提：app/desktop 已构建（pnpm --filter @ov/desktop build，会顺带构建 app/renderer 到 out/recovered-ui）。

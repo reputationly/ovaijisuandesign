@@ -1,5 +1,5 @@
 // canvas-tag-manager-panel.jsx
-import { useSensor, useSensors } from "../vendor.js";
+import { useSensor, useSensors } from "../infra/pointer-sensors.js";
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor } from "@dnd-kit/core";
 import reactExports from "react";
 import { useTranslation } from "react-i18next";

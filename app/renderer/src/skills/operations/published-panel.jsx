@@ -1,5 +1,5 @@
 // 运营后台「已发布」面板：分页列表与投稿人筛选。
-import { useSensors, useSensor } from "../../vendor.js";
+import { useSensors, useSensor } from "../../infra/pointer-sensors.js";
 import { useTranslation } from "react-i18next";
 import reactExports from "react";
 import { API_PATHS } from "../../infra/workspace-gateway.js";

@@ -3,7 +3,7 @@ import { closeHistory, undo, undoDepth } from "prosemirror-history";
 import { Decoration as Decoration2 } from "@codemirror/view";
 import { Selection } from "prosemirror-state";
 import { Step, StepMap, StepResult } from "prosemirror-transform";
-import { TableView as TableView2 } from "../infra/from-vendor.js";
+import { TableView as TableView2 } from "./prosemirror-table-view.js";
 import { HorizontalRuleWidget } from "../vendor-inline/codemirror/line2.js";
 export const hiddenMark = Decoration2.replace({});
 export const horizontalRule = Decoration2.replace({

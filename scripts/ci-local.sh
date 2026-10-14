@@ -57,5 +57,4 @@ sys.exit(bad)
 EOF
 
 printf "\n\033[32m全部通过。\033[0m\n"
-printf "提示：CI 上没有 \033[1mreference/\033[0m（gitignore）。\n"
-printf "      要模拟的话：mv reference /tmp/ && ./scripts/ci-local.sh; mv /tmp/reference .\n"
+printf "提示：参照应用的编译快照已从仓库移除，CI 不依赖 \033[1mreference/\033[0m。\n"

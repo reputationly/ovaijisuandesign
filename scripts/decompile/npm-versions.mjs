@@ -19,6 +19,7 @@ const [cutoff, ...pkgs] = process.argv.slice(2);
 if (!/^\d{4}-\d{2}-\d{2}$/.test(cutoff ?? "") || !pkgs.length) throw new Error("用法：npm-versions.mjs <YYYY-MM-DD> 包名...");
 
 const bundle = path.join(repo, "reference/3.0.16/app/out/renderer/assets/index-C4qF1HE0.js");
+if (!existsSync(bundle)) throw new Error("参照应用的渲染层编译包已从仓库移除，这个脚本不能再反推版本。");
 const src = readFileSync(bundle, "utf8");
 const body = parse(src, { sourceType: "module", plugins: ["jsx"], errorRecovery: true }).program.body;
 const cls = JSON.parse(readFileSync(path.join(probe, "classified.json"), "utf8"));

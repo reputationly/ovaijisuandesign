@@ -6,8 +6,8 @@
  * 分派，逐条 switch。喂给它 `{info, parts}` 原始结构的话每条都落进 default，结果数组
  * 始终为空 —— 表现就是历史面板一片空白（`history-store-applied afterCount=0`）。
  *
- * 所以 gateway 必须在**网关上**把原始消息压平成这套帧。官方 bundle 对应函数：
- * `reference/3.0.21/gateway/dist/main.js` 的 `convertOpenCodeMessages`（~264710）。
+ * 所以 gateway 必须在**网关上**把原始消息压平成这套帧。行为对齐旧 gateway 的
+ * `convertOpenCodeMessages`。那份编译包已经不在仓库里。
  *
  * 与官方的差异（有意保留）：
  * - 不做 benchmark / connector / 文档编辑包装的解包（我们没有这些上游包装）；

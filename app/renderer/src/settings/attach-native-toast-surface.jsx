@@ -1,6 +1,6 @@
 // attach-native-toast-surface.jsx
 import { Toaster } from "sonner";
-import { z$3 as useTheme } from "../vendor.js";
+import { useTheme } from "../infra/theme-script.js";
 import reactDomExports from "react-dom";
 import reactExports from "react";
 import { CircleCheckIcon, InfoIcon$1 as InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon } from "../media-editing/lucide-icon-wraps.js";

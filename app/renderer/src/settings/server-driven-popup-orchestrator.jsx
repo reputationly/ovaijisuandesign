@@ -1,6 +1,6 @@
 // server-driven-popup-orchestrator.jsx
 import { Trans } from "react-i18next";
-import { m$4 as ErrorBoundary } from "../vendor.js";
+import { ResetErrorBoundary as ErrorBoundary } from "../infra/reset-error-boundary.js";
 import { getRuntimeConfig } from "../infra/runtime-config.js";
 import { storageKeys } from "../infra/storage-cache.js";
 import { usePlatform } from "../infra/platform-context.js";

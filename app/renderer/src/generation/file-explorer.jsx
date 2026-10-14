@@ -1,5 +1,5 @@
 // file-explorer.jsx
-import { useVirtualizer } from "../vendor.js";
+import { useVirtualizer } from "../infra/use-virtualizer.js";
 import reactExports from "react";
 import { useCurrentWorkspace } from "../infra/shared-runtime.js";
 import { usePlatform } from "../infra/platform-context.js";
