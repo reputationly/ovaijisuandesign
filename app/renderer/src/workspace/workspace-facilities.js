@@ -34,7 +34,10 @@ const createChatSessionState = () => ({});
 const createProjectQueryModule = () => ({});
 const createResourceCommands = () => ({});
 const createResourceDetailModule = () => ({});
-const createSidebarOrderController = () => ({ dispose() {} });
+const createSidebarOrderController = () => ({
+  reconcile: () => void 0, move: () => void 0, snapshot: () => [], dispose() {},
+  bind: () => ({ dispose() {} }), subscribe: () => () => {},
+});
 const createStructureModule = () => ({});
 const createTaskInvalidationBridge = () => ({ dispose() {} });
 import {

@@ -338,6 +338,10 @@ function WorkspaceStructureProvider({
     scope.gatewayBinding,
     scope.recoverWorkspace,
     projectArchitecture.refetch,
+    // 第 179 轮：参考实现的依赖数组里没有 architecture，它靠「查询已被更早的组件预热」。
+    // 我们的首帧网关就绪、但 architecture 仍在加载，effect 不会重跑，
+    // 于是 transportReady 永远是 false。显式加进来（effect 本身幂等）。
+    architecture,
     accountReady,
     account?.integrationEnabled,
     account?.recoverSelectedGroup,
