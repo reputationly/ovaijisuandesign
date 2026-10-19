@@ -17,28 +17,75 @@ function analyze(file) {
         decls.set(d.id.name, { start: st.start, end: st.end, line: st.loc.start.line });
     }
   }
+  // 顶层函数表 + 通用标识符收集（第 153 轮：覆盖跨语句间接引用）
+  const fnByName = new Map();
+  for (const st of ast.program.body) {
+    if (st.type === "FunctionDeclaration" && st.id) fnByName.set(st.id.name, st);
+    if (st.type === "VariableDeclaration")
+      for (const d of st.declarations)
+        if (d.id.type === "Identifier" && d.init && /Function/.test(d.init.type)) fnByName.set(d.id.name, d.init);
+  }
+  const collectIds = (node) => {
+    const acc = [];
+    (function w(n, mode) {
+      if (!n || typeof n.type !== "string") return;
+      if (n.type === "Identifier" && mode !== "member" && mode !== "prop" && mode !== "declid")
+        acc.push({ name: n.name, start: n.start, line: n.loc.start.line });
+      for (const k of Object.keys(n)) {
+        if (k === "loc" || k === "start" || k === "end") continue;
+        let m = null;
+        if ((n.type === "MemberExpression" || n.type === "OptionalMemberExpression") && k === "property") m = "member";
+        if (/ObjectProperty|ObjectMethod|ClassProperty|Property/.test(n.type) && k === "key") m = "prop";
+        if (n.type === "VariableDeclarator" && k === "id") m = "declid";
+        const v = n[k];
+        if (Array.isArray(v)) v.forEach((c) => w(c, m));
+        else if (v && typeof v.type === "string") w(v, m);
+      }
+    })(node, null);
+    return acc;
+  };
+
   const issues = [];
   for (const st of ast.program.body) {
     if (st.type === "FunctionDeclaration" || st.type === "ClassDeclaration") continue;
     const refs = [];
-    (function walk(node, inFn, mode) {
+    (function walk(node, mode, lazy) {
       if (!node || typeof node.type !== "string") return;
-      const fn = inFn || /Function|ArrowFunctionExpression|ClassMethod|ObjectMethod/.test(node.type);
-      if (!fn && node.type === "Identifier" && mode !== "member" && mode !== "prop")
+      let nowLazy = lazy;
+      if (node.type === "CallExpression" && node.callee?.type === "Identifier" &&
+          ["useEffect","useLayoutEffect","useMemo","useCallback","useInsertionEffect"].includes(node.callee.name)) nowLazy = true;
+      if (node.type === "ObjectProperty" || node.type === "JSXAttribute") {
+        const k = node.key?.name ?? node.name?.name;
+        if (typeof k === "string" && k.startsWith("on")) nowLazy = true;
+      }
+      if (!nowLazy && node.type === "Identifier" && mode !== "member" && mode !== "prop" && mode !== "declid")
         refs.push({ name: node.name, pos: node.start, line: node.loc.start.line });
       for (const k of Object.keys(node)) {
         if (k === "loc" || k === "start" || k === "end") continue;
         let m = null;
         if ((node.type === "MemberExpression" || node.type === "OptionalMemberExpression") && k === "property") m = "member";
-        if (/ObjectProperty|ObjectMethod|ClassProperty/.test(node.type) && k === "key") m = "prop";
+        if (/ObjectProperty|ObjectMethod|ClassProperty|Property/.test(node.type) && k === "key") m = "prop";
+        if (node.type === "VariableDeclarator" && k === "id") m = "declid";
         const v = node[k];
-        if (Array.isArray(v)) v.forEach((c) => walk(c, fn, m));
-        else if (v && typeof v.type === "string") walk(v, fn, m);
+        if (Array.isArray(v)) v.forEach((c) => walk(c, m, nowLazy));
+        else if (v && typeof v.type === "string") walk(v, m, nowLazy);
       }
-    })(st, false, null);
+    })(st, null, false);
+    // 跨语句：本语句引用的顶层函数，其体内标识符也算求值期
+    const fnQueue = [...new Set(refs.map((r) => r.name).filter((n) => fnByName.has(n)))];
+    const seenFn = new Set();
+    while (fnQueue.length) {
+      const fname = fnQueue.pop();
+      if (seenFn.has(fname)) continue;
+      seenFn.add(fname);
+      for (const r of collectIds(fnByName.get(fname))) {
+        refs.push(r);
+        if (fnByName.has(r.name)) fnQueue.push(r.name);
+      }
+    }
     for (const r of refs) {
       const d = decls.get(r.name);
-      if (d && d.start > r.pos) issues.push({ name: r.name, usePos: r.pos, declStart: d.start, declEnd: d.end, use: r.line, decl: d.line });
+      if (d && d.start > st.start) issues.push({ name: r.name, usePos: st.start, declStart: d.start, declEnd: d.end, use: st.loc.start.line, decl: d.line });
     }
   }
   // 每个名字只取最早的一次

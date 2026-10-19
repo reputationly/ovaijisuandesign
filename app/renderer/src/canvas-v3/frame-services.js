@@ -2323,6 +2323,9 @@ const isFailureCode = (value) => typeof value === "string" && /^[A-Z0-9_]{1,80}$
 
 const isFrameId = (value) => typeof value === "string" && value.length > 0 && value.length <= 128;
 
+// [tdz] isIdentity$2 上移（原第 2864 行，被第 2326 行引用）
+const isIdentity$2 = (value, limit = 512) => typeof value === "string" && value.length > 0 && value.length <= limit && !!value.trim() && !Array.from(value).some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127);
+
 const isFrameId$1 = (value) => isIdentity$2(value) && value.length <= 128;
 
 function isHostLutName(value) {
@@ -2385,6 +2388,9 @@ function isJsonObjectBody(value) {
     return false;
   }
 }
+
+// [tdz] hasControl$1 上移（原第 2774 行，被第 2392 行引用）
+const hasControl$1 = (value) => Array.from(value).some((c3) => c3.charCodeAt(0) < 32 || c3.charCodeAt(0) === 127);
 
 const isLutName = isHostLutName;
 
@@ -2589,6 +2595,20 @@ function parseCanvasV3MediaReferenceOrigin(value) {
   return { resourceId: id$7(v2.resourceId), versionId: id$7(v2.versionId), start: start2, end: end2 };
 }
 
+// [tdz] CANVAS_V3_LIMITS 上移（原第 2629 行，被第 2598 行引用）
+const CANVAS_V3_LIMITS = {
+  nodes: 1e4,
+  edges: 2e4,
+  changes: 3e4,
+  idLength: 256,
+  titleLength: 4096,
+  promptLength: 2e4,
+  draftReferences: 64,
+  batchCommands: 64,
+  importItems: 100,
+  contentBatch: 200
+};
+
 const parseCanvasV3MediaVersionTarget = parseCanvasV3ImageVersionTarget;
 
 function parseProjectResourceReadResults(value, count2) {
@@ -2620,18 +2640,6 @@ const CANVAS_MEDIA_IMPORT_MAX_BYTES = 512 * 1024 * 1024;
 
 const CANVAS_TEXT_REQUEST_LIMIT = 1024 * 1024;
 
-const CANVAS_V3_LIMITS = {
-  nodes: 1e4,
-  edges: 2e4,
-  changes: 3e4,
-  idLength: 256,
-  titleLength: 4096,
-  promptLength: 2e4,
-  draftReferences: 64,
-  batchCommands: 64,
-  importItems: 100,
-  contentBatch: 200
-};
 
 const CANVAS_V3_MEDIA_MIME_TYPES = {
   video: ["video/mp4", "video/webm", "video/quicktime"],
@@ -2768,7 +2776,6 @@ function finite$1(value, positive2 = false) {
   return value;
 }
 
-const hasControl$1 = (value) => Array.from(value).some((c3) => c3.charCodeAt(0) < 32 || c3.charCodeAt(0) === 127);
 
 function hasGroupFields(value) {
   return isParent(value) && Array.isArray(value.nodeIds) && value.nodeIds.length <= MAX_IDENTITIES$1 && value.nodeIds.every(isNodeIdentity) && new Set(value.nodeIds).size === value.nodeIds.length;
@@ -2861,7 +2868,6 @@ function isHostFileName(value) {
   return typeof value === "string" && value.length > 0 && value.trim() === value && ![".", ".."].includes(value) && new TextEncoder().encode(value).byteLength <= 255 && !hasControl$1(value) && !/[/\\:]/.test(value);
 }
 
-const isIdentity$2 = (value, limit = 512) => typeof value === "string" && value.length > 0 && value.length <= limit && !!value.trim() && !Array.from(value).some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127);
 
 function isPageStorageKey(namespace2, key2) {
   const prefix = PAGE_STORAGE_NAMESPACES[namespace2];

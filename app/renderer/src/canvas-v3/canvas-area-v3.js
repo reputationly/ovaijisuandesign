@@ -19596,66 +19596,7 @@ const memberGlyphs = {
   file: FileText,
   table: Table2$1
 };
-const CanvasV3NodeView = reactExports.memo(function CanvasV3NodeView2(props) {
-  return props.data.subjectType ? /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3SubjectTypeView, { ...props }) : props.data.subjectFrame ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      CanvasV3Frame,
-      {
-        ...props,
-        readOnly: true,
-        collapsible: false,
-        background: "var(--canvas-bg)",
-        header: props.data.subjectIdentity ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-          CanvasV3CompositionTitle,
-          {
-            title: props.data.subjectFrame.title ?? "",
-            disabled: props.data.disabled,
-            renameRequest: props.data.renameRequest,
-            onRename: (title) => props.data.onRename(props.id, title)
-          }
-        ),
-        data: {
-          ...props.data,
-          node: { ...props.data.subjectFrame, kind: "frame" },
-          resizeDisabled: true
-        }
-      }
-    ),
-    props.data.subjectIdentity && /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3SubjectIdentity, { ...props.data.subjectIdentity }),
-    props.data.subjectPreview && /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3SubjectPreview, { ...props.data.subjectPreview }),
-    props.data.subjectGridControls && /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3SubjectGridControls, { ...props.data.subjectGridControls }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3NodeHandles, { id: props.id, disabled: true })
-  ] }) : props.data.node.kind === "frame" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3Frame, { ...props }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3ContentNodeView, { ...props });
-});
-function CanvasV3SubjectTypeView(props) {
-  const { t } = useTranslation();
-  const node = props.data.node;
-  const title = node.kind === "frame" && node.title ? node.title : t("canvas.subject.typeUnsorted");
-  return (
-    // Drops land here through the surface router (capture phase), which resolves the group
-    // from this marker; the element itself needs no drag handlers.
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: "pointer-events-auto h-full w-full",
-        "data-action-ui-id": "canvas.subject-type-group",
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          CanvasV3Frame,
-          {
-            ...props,
-            readOnly: true,
-            collapsible: true,
-            renamable: true,
-            data: {
-              ...props.data,
-              node: node.kind === "frame" ? { ...node, title } : node
-            }
-          }
-        )
-      }
-    )
-  );
-}
+// [tdz] CanvasV3ContentNodeView 上移（原第 19659 行，被第 19599 行引用）
 const CanvasV3ContentNodeView = reactExports.memo(function CanvasV3ContentNodeView2({
   id: flowId,
   data,
@@ -21110,6 +21051,67 @@ const CanvasV3ContentNodeView = reactExports.memo(function CanvasV3ContentNodeVi
     )
   );
 });
+
+const CanvasV3NodeView = reactExports.memo(function CanvasV3NodeView2(props) {
+  return props.data.subjectType ? /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3SubjectTypeView, { ...props }) : props.data.subjectFrame ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      CanvasV3Frame,
+      {
+        ...props,
+        readOnly: true,
+        collapsible: false,
+        background: "var(--canvas-bg)",
+        header: props.data.subjectIdentity ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+          CanvasV3CompositionTitle,
+          {
+            title: props.data.subjectFrame.title ?? "",
+            disabled: props.data.disabled,
+            renameRequest: props.data.renameRequest,
+            onRename: (title) => props.data.onRename(props.id, title)
+          }
+        ),
+        data: {
+          ...props.data,
+          node: { ...props.data.subjectFrame, kind: "frame" },
+          resizeDisabled: true
+        }
+      }
+    ),
+    props.data.subjectIdentity && /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3SubjectIdentity, { ...props.data.subjectIdentity }),
+    props.data.subjectPreview && /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3SubjectPreview, { ...props.data.subjectPreview }),
+    props.data.subjectGridControls && /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3SubjectGridControls, { ...props.data.subjectGridControls }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3NodeHandles, { id: props.id, disabled: true })
+  ] }) : props.data.node.kind === "frame" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3Frame, { ...props }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasV3ContentNodeView, { ...props });
+});
+function CanvasV3SubjectTypeView(props) {
+  const { t } = useTranslation();
+  const node = props.data.node;
+  const title = node.kind === "frame" && node.title ? node.title : t("canvas.subject.typeUnsorted");
+  return (
+    // Drops land here through the surface router (capture phase), which resolves the group
+    // from this marker; the element itself needs no drag handlers.
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "pointer-events-auto h-full w-full",
+        "data-action-ui-id": "canvas.subject-type-group",
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          CanvasV3Frame,
+          {
+            ...props,
+            readOnly: true,
+            collapsible: true,
+            renamable: true,
+            data: {
+              ...props.data,
+              node: node.kind === "frame" ? { ...node, title } : node
+            }
+          }
+        )
+      }
+    )
+  );
+}
 const canvasV3NodeTypes = {
   placeholder: CanvasV3NodeView,
   frame: CanvasV3NodeView,
@@ -34379,6 +34381,24 @@ function CanvasV3SurfaceView({
     }
   );
 }
+// [tdz] PageStateIllustration$1 上移（原第 60978 行，被第 34384 行引用）
+const PageStateIllustration$1 = PageStateIllustration;
+
+// [tdz] resolveRetryAction 上移（原第 60984 行，被第 34387 行引用）
+const resolveRetryAction = () => "retry";
+
+// [tdz] empty$2 上移（原第 60994 行，被第 34390 行引用）
+const empty$2 = { edges: [], nodes: [] };
+
+// [tdz] arrangeCanvasV3SelectionPatch 上移（原第 60988 行，被第 34393 行引用）
+const arrangeCanvasV3SelectionPatch = (patch) => patch;
+
+// [tdz] matchesReferenceSelectionDuration 上移（原第 60991 行，被第 34396 行引用）
+const matchesReferenceSelectionDuration = () => false;
+
+// [tdz] CanvasV3ResourcePickerDialog$1 上移（原第 60992 行，被第 34399 行引用）
+const CanvasV3ResourcePickerDialog$1 = CanvasV3ResourcePickerDialog;
+
 const CanvasV3Surface = withCanvasV3DocumentEditing(CanvasV3SurfaceView);
 const RESOURCE_HISTORY_PAGE_SIZE = 20;
 const HISTORY_METADATA_BATCH_SIZE = RESOURCE_HISTORY_PAGE_SIZE;
@@ -58253,6 +58273,24 @@ function DesktopHelpButton(props) {
 function DesktopUtilityControls() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasWatermarkChip, { variant: "floating" });
 }
+// [tdz] AssetSaveMenuContent 上移（原第 60995 行，被第 58276 行引用）
+const AssetSaveMenuContent = (props) => jsxRuntimeExports.jsx("div", { "data-menu": "asset-save", className: props?.className });
+
+// [tdz] __vitePreload 上移（原第 61000 行，被第 58279 行引用）
+const __vitePreload = (fn) => fn();
+
+// [tdz] __vite__mapDeps 上移（原第 61003 行，被第 58282 行引用）
+const __vite__mapDeps = (i) => i.map(String);
+
+// [tdz] parseClipMediaId 上移（原第 61007 行，被第 58285 行引用）
+const parseClipMediaId = (value) => String(value ?? "");
+
+// [tdz] clipMediaId 上移（原第 61009 行，被第 58288 行引用）
+const clipMediaId = (id) => String(id ?? "");
+
+// [tdz] ImageIcon$1 上移（原第 61012 行，被第 58291 行引用）
+const ImageIcon$1 = Image$2;
+
 const DESKTOP_CANVAS_V3_SURFACE_SLOTS = Object.freeze({
   resourceDetailPanel: CanvasV3ResourceDetailPanel,
   creationLayer: CanvasV3CreationLayer,
@@ -60972,20 +61010,8 @@ function CanvasV3Loader({
   );
 }
 // $n 别名 + 本地缺的 4 个（第 149 轮补）
-const CanvasV3ResourcePickerDialog$1 = CanvasV3ResourcePickerDialog;
-const PageStateIllustration$1 = PageStateIllustration;
-const AssetSaveMenuContent = (props) => jsxRuntimeExports.jsx("div", { "data-menu": "asset-save", className: props?.className });
-const arrangeCanvasV3SelectionPatch = (patch) => patch;
-const matchesReferenceSelectionDuration = () => false;
-const resolveRetryAction = () => "retry";
 
 // 第 149 轮：这 9 个原来经 main-exports 取，现在本地补（main-exports 未覆盖）
-const __vitePreload = (fn) => fn();
-const __vite__mapDeps = (i) => i.map(String);
-const clipMediaId = (id) => String(id ?? "");
-const parseClipMediaId = (value) => String(value ?? "");
-const ImageIcon$1 = Image$2;
-const empty$2 = { edges: [], nodes: [] };
 const freeze = (o) => Object.freeze(o);
 
 export {

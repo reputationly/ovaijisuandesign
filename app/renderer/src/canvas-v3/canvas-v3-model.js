@@ -4287,6 +4287,16 @@ function canvasV3MediaKind(file) {
 
 const canvasV3ReferencePath = (ref) => `${CANVAS_V3_ROUTES.previews}/${encodeURIComponent(ref.resourceId)}/${encodeURIComponent(ref.versionId)}`;
 
+// [tdz] resourceKinds 上移（原第 5179 行，被第 4290 行引用）
+const resourceKinds = {
+  image: ProjectResourceKind.IMAGE,
+  video: ProjectResourceKind.VIDEO,
+  audio: ProjectResourceKind.AUDIO,
+  text: ProjectResourceKind.TEXT_DOCUMENT,
+  table: ProjectResourceKind.TEXT_DOCUMENT,
+  file: ProjectResourceKind.FILE
+};
+
 const canvasV3PickerKind = (kind2, relativePath) => kind2 === ProjectResourceKind.TEXT_DOCUMENT && /\.htable$/i.test(relativePath ?? "") ? "table" : Object.keys(resourceKinds).find(
   (key2) => resourceKinds[key2] === kind2
 );
@@ -4832,6 +4842,9 @@ function findFreePosition(existingNodes, mode2, newSize = TEXT_CARD_DEFAULT_SIZE
 
 const isCount$1 = (value) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 
+// [tdz] ID_LIMIT 上移（原第 5237 行，被第 4845 行引用）
+const ID_LIMIT = 512;
+
 const isId$4 = (value) => typeof value === "string" && !!value.trim() && value.length <= ID_LIMIT && !value.includes("\0");
 
 const isObject$2 = (value) => typeof value === "object" && value !== null;
@@ -5176,14 +5189,6 @@ function resolveDerivedOrFreePosition(canvas, sourceNodeId, mode2, size2, option
   return derived ?? findFreePosition(canvas.nodes, mode2, size2);
 }
 
-const resourceKinds = {
-  image: ProjectResourceKind.IMAGE,
-  video: ProjectResourceKind.VIDEO,
-  audio: ProjectResourceKind.AUDIO,
-  text: ProjectResourceKind.TEXT_DOCUMENT,
-  table: ProjectResourceKind.TEXT_DOCUMENT,
-  file: ProjectResourceKind.FILE
-};
 
 function subjectOuterSize(size2) {
   return {
@@ -5232,7 +5237,6 @@ async function validateCanvasV3ResourceReference(fetch2, ref, signal) {
 
 const DEFAULT_MAX_DERIVED_COLLISION_SHIFT = 1200;
 
-const ID_LIMIT = 512;
 
 const KIND_NAMES = {
   image: "image",
@@ -5531,6 +5535,9 @@ const bound = (label, min2, max2) => min2 === void 0 && max2 === void 0 ? [] : [
 
 
 
+// [tdz] powers 上移（原第 5775 行，被第 5538 行引用）
+let powers = 0;
+
 const number$3 = increment();
 
 
@@ -5768,7 +5775,6 @@ function fromText(schema, value) {
 
 const isOptionalSize = (value) => value === void 0 || typeof value === "number" && Number.isFinite(value) && value >= 0;
 
-let powers = 0;
 
 function reject(message2) {
   throw new CapabilityInputError(message2);

@@ -10,7 +10,7 @@
  * 只搬实现，未改语义。
  */
 // ==== npm 导入：按真实导出映射生成（scripts/v3preload/map-npm-exports.mjs）====
-import { Extension, InputRule, NodeView, PasteRule, callOrReturn, canInsertNode, combineTransactionSteps, findChildrenInRange, getAttributes, getChangedRanges, getExtensionField, getMarksBetween, getNodeAtPosition, getNodeType, getRenderedAttributes, isAtEndOfNode, isAtStartOfNode, isNodeActive, isNodeEmpty, isNodeSelection, isTextSelection, markInputRule, markPasteRule, mergeAttributes, nodeInputRule, selectionToInsertionEnd, textblockTypeInputRule, wrappingInputRule } from "@tiptap/core";
+import { Extension, InputRule, Mark as TiptapMark, Node as TiptapNode, NodeView, PasteRule, callOrReturn, canInsertNode, combineTransactionSteps, findChildrenInRange, getAttributes, getChangedRanges, getExtensionField, getMarksBetween, getNodeAtPosition, getNodeType, getRenderedAttributes, isAtEndOfNode, isAtStartOfNode, isNodeActive, isNodeEmpty, isNodeSelection, isTextSelection, markInputRule, markPasteRule, mergeAttributes, nodeInputRule, selectionToInsertionEnd, textblockTypeInputRule, wrappingInputRule } from "@tiptap/core";
 import { EditorContent, NodeViewWrapper, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import { gapCursor } from "prosemirror-gapcursor";
 import { Node } from "prosemirror-model";
@@ -2511,6 +2511,9 @@ function subscribeCanvasV3SubjectConnections(listener) {
   return () => resourceConnectionListeners.delete(listener);
 }
 
+// [tdz] resourceConnectionRevision 上移（原第 34822 行，被第 2514 行引用）
+let resourceConnectionRevision = 0;
+
 const getCanvasV3SubjectConnectionRevision = () => resourceConnectionRevision;
 
 function resolveCanvasV3DraftReferences(draft, upstream, available, video = false, positionalFrames = false) {
@@ -2552,6 +2555,63 @@ function rotatedAabb(w3, h2, angleDeg) {
     height: w3 * sin + h2 * cos
   };
 }
+
+// [tdz] EDGE_HANDLE_THRESHOLD$1 上移（原第 9133 行，被第 2559 行引用）
+const EDGE_HANDLE_THRESHOLD$1 = 80;
+
+// [tdz] ASPECT_OPTIONS$1 上移（原第 7971 行，被第 2562 行引用）
+const ASPECT_OPTIONS$1 = [
+  { label: "free", value: "free" },
+  { label: "1:1", value: "1:1" },
+  { label: "4:3", value: "4:3" },
+  { label: "3:4", value: "3:4" },
+  { label: "16:9", value: "16:9" },
+  { label: "9:16", value: "9:16" }
+];
+
+// [tdz] EDGE_CLASSES$1 上移（原第 18497 行，被第 2572 行引用）
+const EDGE_CLASSES$1 = {
+  t: "absolute -top-[2px] left-6 right-6 h-[12px] -mt-[5px] cursor-n-resize z-10 flex items-center justify-center",
+  b: "absolute -bottom-[2px] left-6 right-6 h-[12px] -mb-[5px] cursor-s-resize z-10 flex items-center justify-center",
+  l: "absolute -left-[2px] top-6 bottom-6 w-[12px] -ml-[5px] cursor-w-resize z-10 flex items-center justify-center",
+  r: "absolute -right-[2px] top-6 bottom-6 w-[12px] -mr-[5px] cursor-e-resize z-10 flex items-center justify-center"
+};
+
+// [tdz] EDGE_BAR_CLASSES$1 上移（原第 18505 行，被第 2580 行引用）
+const EDGE_BAR_CLASSES$1 = {
+  t: "h-[3px] w-8 rounded-full bg-white",
+  b: "h-[3px] w-8 rounded-full bg-white",
+  l: "h-8 w-[3px] rounded-full bg-white",
+  r: "h-8 w-[3px] rounded-full bg-white"
+};
+
+// [tdz] CORNER_LINES$1 上移（原第 18494 行，被第 2588 行引用）
+const CORNER_LINES$1 = {
+  tl: [
+    "absolute left-0 top-0 h-[3px] w-full bg-white",
+    "absolute left-0 top-0 h-full w-[3px] bg-white"
+  ],
+  tr: [
+    "absolute right-0 top-0 h-[3px] w-full bg-white",
+    "absolute right-0 top-0 h-full w-[3px] bg-white"
+  ],
+  bl: [
+    "absolute bottom-0 left-0 h-[3px] w-full bg-white",
+    "absolute bottom-0 left-0 h-full w-[3px] bg-white"
+  ],
+  br: [
+    "absolute bottom-0 right-0 h-[3px] w-full bg-white",
+    "absolute bottom-0 right-0 h-full w-[3px] bg-white"
+  ]
+};
+
+// [tdz] CORNER_CLASSES$1 上移（原第 18508 行，被第 2608 行引用）
+const CORNER_CLASSES$1 = {
+  tl: "absolute -left-[2px] -top-[2px] h-6 w-6 cursor-nw-resize z-10",
+  tr: "absolute -right-[2px] -top-[2px] h-6 w-6 cursor-ne-resize z-10",
+  bl: "absolute -bottom-[2px] -left-[2px] h-6 w-6 cursor-sw-resize z-10",
+  br: "absolute -bottom-[2px] -right-[2px] h-6 w-6 cursor-se-resize z-10"
+};
 
 const ImageCropOverlay = reactExports.memo(function ImageCropOverlay2({
   meta: meta2,
@@ -4435,6 +4495,11 @@ function SelectionToolbarView({
   );
 }
 
+// [tdz] SelectionTidyControl$1 上移（原第 10881 行，被第 4454 行引用）
+const SelectionTidyControl$1 = reactExports.memo(
+  SelectionTidyControlInner
+);
+
 const SelectionTidyControl = reactExports.memo(function SelectionTidyControl2(props) {
   const { sortBy, setSortBy } = useTidySort();
   const includeDeps = reactExports.useSyncExternalStore(subscribeAutoAlign, getAutoAlignSnapshot, () => false);
@@ -4625,6 +4690,12 @@ function CanvasZoomControls({
     }
   ) });
 }
+
+// [tdz] CanvasTidyControl$1 上移（原第 9016 行，被第 4650 行引用）
+// [tdz] MENU_CONTENT_CLASS 上移（原第 38004 行，被第 4695 行引用）
+const MENU_CONTENT_CLASS = "min-w-[200px] border border-[var(--canvas-controls-border)] [border-width:var(--divider-width)]";
+
+const CanvasTidyControl$1 = reactExports.memo(CanvasTidyControlInner);
 
 const CanvasTidyControl = reactExports.memo(function CanvasTidyControl2(props) {
   const { sortBy, setSortBy } = useTidySort();
@@ -5149,9 +5220,34 @@ function PickerListRow({
 const LightboxMediaActionsProvider = LightboxMediaActionsContext.Provider;
 
 // [tdz] TableFullscreen$1 上移（原第 11165 行，被第 5151 行引用）
+// [tdz] TableToolbar 上移（原第 38668 行，被第 5223 行引用）
+// [tdz] FieldConfigPanel 上移（原第 41916 行，被第 5224 行引用）
+const FieldConfigPanel = reactExports.memo(FieldConfigPanelInner);
+
+// [tdz] FilterPanel 上移（原第 41939 行，被第 5227 行引用）
+const FilterPanel = reactExports.memo(FilterPanelInner);
+
+// [tdz] RowHeightPanel 上移（原第 41953 行，被第 5230 行引用）
+const RowHeightPanel = reactExports.memo(RowHeightPanelInner);
+
+const TableToolbar = reactExports.memo(TableToolbarInner);
+
+// [tdz] NOOP_TITLE_CHANGE 上移（原第 38681 行，被第 5235 行引用）
+const NOOP_TITLE_CHANGE = () => {
+};
+
+// [tdz] TableEditor 上移（原第 38686 行，被第 5239 行引用）
+const TableEditor = reactExports.memo(TableEditorInner);
+
+// [tdz] MAX_HISTORY 上移（原第 41791 行，被第 5242 行引用）
+const MAX_HISTORY = 100;
+
 const TableFullscreen$1 = reactExports.memo(TableFullscreenInner);
 
 const TableFullscreen = withLegacyTableHost(TableFullscreen$1);
+
+// [tdz] TextFullscreen$1 上移（原第 11924 行，被第 5180 行引用）
+const TextFullscreen$1 = reactExports.memo(TextFullscreenInner);
 
 const TextFullscreen = reactExports.memo(function TextFullscreen2(props) {
   const rootElement = useCanvasRootElement();
@@ -5266,6 +5362,24 @@ function PanoramaToolbar({
   return renderToolbar2 ? renderToolbar2(visibleItems) : /* @__PURE__ */ jsxRuntimeExports.jsx(NodeToolbarPalette, { items: visibleItems });
 }
 
+// [tdz] FALLBACK_ROW_HEIGHT 上移（原第 36681 行，被第 5365 行引用）
+const FALLBACK_ROW_HEIGHT = 32;
+
+// [tdz] FALLBACK_COL_WIDTH 上移（原第 36685 行，被第 5368 行引用）
+const FALLBACK_COL_WIDTH = 200;
+
+// [tdz] HEADER_HEIGHT 上移（原第 36689 行，被第 5371 行引用）
+const HEADER_HEIGHT = 32;
+
+// [tdz] ATTACHMENT_VERTICAL_PADDING 上移（原第 40643 行，被第 5374 行引用）
+const ATTACHMENT_VERTICAL_PADDING = 4;
+
+// [tdz] MIN_ATTACHMENT_CHIP_SIZE 上移（原第 40647 行，被第 5377 行引用）
+const MIN_ATTACHMENT_CHIP_SIZE = 18;
+
+// [tdz] MAX_PREVIEW_CHIPS 上移（原第 40651 行，被第 5380 行引用）
+const MAX_PREVIEW_CHIPS = 2;
+
 const TablePreview = reactExports.memo(TablePreviewInner);
 
 function TextNodeQuickActions({
@@ -5341,6 +5455,18 @@ function TextPreview({ asset: _asset, previewText, loading, error }) {
     }
   );
 }
+
+// [tdz] MAGNETIC_OUTWARD 上移（原第 13937 行，被第 5459 行引用）
+const MAGNETIC_OUTWARD = 42;
+
+// [tdz] MAGNETIC_VERTICAL 上移（原第 13940 行，被第 5462 行引用）
+const MAGNETIC_VERTICAL = 42;
+
+// [tdz] TRANSITION_SPRING 上移（原第 13941 行，被第 5465 行引用）
+const TRANSITION_SPRING = "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
+
+// [tdz] TRANSITION_ENTRY 上移（原第 13944 行，被第 5468 行引用）
+const TRANSITION_ENTRY = "transform 0.25s cubic-bezier(0.34, 1.8, 0.64, 1)";
 
 const NodeHandleEntry = reactExports.memo(NodeHandleEntryInner);
 
@@ -6727,6 +6853,18 @@ async function readResourceDocument(services2, resourceId2, versionId, options2 
   return parseDocumentContent(await response.json(), resourceId2, versionId, startLine);
 }
 
+// [tdz] LIGHTBOX_FOCUSABLE_SELECTOR 上移（原第 37254 行，被第 6856 行引用）
+const LIGHTBOX_FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  'input:not([disabled]):not([type="hidden"])',
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+  "video[controls]",
+  "audio[controls]"
+].join(",");
+
 const MediaLightboxView = reactExports.memo(function MediaLightboxView2({
   active: active2 = true,
   mask: mask2 = "immersive",
@@ -7463,6 +7601,17 @@ function SubtitleEditor({
   ] });
 }
 
+// [tdz] DEFAULT_ENHANCE_VIDEO_FPS 上移（原第 9129 行，被第 7493 行引用）
+const DEFAULT_ENHANCE_VIDEO_FPS = 60;
+
+// [tdz] RESOLUTION_RANK 上移（原第 37709 行，被第 7607 行引用）
+const RESOLUTION_RANK = {
+  "720p": 0,
+  "1080p": 1,
+  "2k": 2,
+  "4k": 3
+};
+
 const EnhanceVideoPanel = reactExports.memo(function EnhanceVideoPanel2({
   onSubmit,
   onClose,
@@ -7586,6 +7735,23 @@ async function renderWatermarkedVideoBlob(sourceUrl, settings, options2 = {}) {
   }
 }
 
+// [tdz] ASR_LANGUAGES 上移（原第 7996 行，被第 7619 行引用）
+const ASR_LANGUAGES = ["zh", "en", "other"];
+
+// [tdz] ASR_LANGUAGE_LABEL_KEYS 上移（原第 8006 行，被第 7622 行引用）
+const ASR_LANGUAGE_LABEL_KEYS = {
+  zh: "canvas.asr.language.zh",
+  en: "canvas.asr.language.en",
+  other: "canvas.asr.language.other"
+};
+
+// [tdz] ASR_LANGUAGE_LABEL_FALLBACKS 上移（原第 8007 行，被第 7629 行引用）
+const ASR_LANGUAGE_LABEL_FALLBACKS = {
+  zh: "中文",
+  en: "英文",
+  other: "其他"
+};
+
 const AsrPopoverContent = reactExports.memo(function AsrPopoverContent2({
   onSubmit,
   onClose,
@@ -7633,6 +7799,18 @@ const AsrPopoverContent = reactExports.memo(function AsrPopoverContent2({
     }
   );
 });
+
+// [tdz] DESCRIPTIONS 上移（原第 9145 行，被第 7684 行引用）
+const DESCRIPTIONS = {
+  auto: "自动识别并去除视频底部字幕条文字（OCR + AIGC 修复）。处理耗时与视频时长相关，约为原视频时长的 6～10 倍（1 分钟以内的短视频相对更久），请耐心等待。",
+  manual: "点击下方「开始」后，在视频上手动框选要消除的文字区域。"
+};
+
+// [tdz] MODES 上移（原第 9503 行，被第 7690 行引用）
+const MODES = ["auto", "manual"];
+
+// [tdz] LABELS 上移（原第 9454 行，被第 7693 行引用）
+const LABELS = { auto: "自动识别字幕", manual: "手动框选" };
 
 const EraseSubtitlePopoverContent = reactExports.memo(function EraseSubtitlePopoverContent2({
   mode: mode2,
@@ -7962,28 +8140,9 @@ const ALL_STICKER_CHOICES = [
   }))
 ];
 
-const ASPECT_OPTIONS$1 = [
-  { label: "free", value: "free" },
-  { label: "1:1", value: "1:1" },
-  { label: "4:3", value: "4:3" },
-  { label: "3:4", value: "3:4" },
-  { label: "16:9", value: "16:9" },
-  { label: "9:16", value: "9:16" }
-];
 
-const ASR_LANGUAGES = ["zh", "en", "other"];
 
-const ASR_LANGUAGE_LABEL_FALLBACKS = {
-  zh: "中文",
-  en: "英文",
-  other: "其他"
-};
 
-const ASR_LANGUAGE_LABEL_KEYS = {
-  zh: "canvas.asr.language.zh",
-  en: "canvas.asr.language.en",
-  other: "canvas.asr.language.other"
-};
 
 function AudioBinding({ src, active: active2, fileName, onDownload }) {
   const { playing, play, stop } = useMediaPlayback(active2, src);
@@ -8059,6 +8218,224 @@ const CAPABILITY_OPERATIONS = [...PROJECT_GENERATION_OPERATIONS, "edit_media"];
 const COMPACT_STICKER_COUNT = 7;
 
 const CONTAINER_TICK_SEC = 1e-3;
+
+// [tdz] BAR_MIN_WIDTH 上移（原第 23808 行，被第 8103 行引用）
+const BAR_MIN_WIDTH = 360;
+
+// [tdz] BAR_HEIGHT$1 上移（原第 23810 行，被第 8106 行引用）
+const BAR_HEIGHT$1 = 40;
+
+// [tdz] BAR_GAP$3 上移（原第 23812 行，被第 8109 行引用）
+const BAR_GAP$3 = 16;
+
+// [tdz] CanvasEraseTopBar 上移（原第 23760 行，被第 8112 行引用）
+const CanvasEraseTopBar = reactExports.memo(function CanvasEraseTopBar2({
+  tool: _tool,
+  onToolChange: _onToolChange,
+  brushSize: _brushSize,
+  onBrushSizeChange: _onBrushSizeChange,
+  hasStrokes,
+  canRedo,
+  onUndo,
+  onRedo,
+  onClose
+}) {
+  const { t: t2 } = useTranslation();
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so toolbar events don't reach the canvas pan/zoom handlers
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "canvas-toolbar-surface",
+        onPointerDown: (e2) => e2.stopPropagation(),
+        onWheel: (e2) => e2.stopPropagation(),
+        onContextMenu: (e2) => e2.stopPropagation(),
+        "data-canvas-toolbar": "true",
+        "data-density": "compact",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton$3, { disabled: false, onClick: onClose, title: t2("canvas.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(CloseIcon, {}) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Divider$2, {}),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton$3, { disabled: !hasStrokes, onClick: onUndo, title: t2("canvas.eraseUndo"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(UndoIcon$1, {}) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton$3, { disabled: !canRedo, onClick: onRedo, title: t2("canvas.eraseRedo"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(RedoIcon$1, {}) })
+        ]
+      }
+    )
+  );
+});
+
+// [tdz] CanvasEraseBottomBar 上移（原第 23701 行，被第 8147 行引用）
+// [tdz] ERASE_REF_COUNT 上移（原第 23796 行，被第 8148 行引用）
+const ERASE_REF_COUNT = 1;
+
+// [tdz] BananaResolutionPicker 上移（原第 23746 行，被第 8151 行引用）
+// [tdz] DEFAULT_OPTIONS$1 上移（原第 23799 行，被第 8152 行引用）
+const DEFAULT_OPTIONS$1 = ["1K", "2K", "4K"];
+
+const BananaResolutionPicker = reactExports.memo(function BananaResolutionPicker2({
+  value,
+  onChange,
+  disabled,
+  options: options2 = DEFAULT_OPTIONS$1
+}) {
+  const handleSelect = reactExports.useCallback(
+    (option2) => {
+      if (disabled) return;
+      if (option2 === value) return;
+      onChange(option2);
+    },
+    [disabled, onChange, value]
+  );
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: "flex h-7 items-center gap-0.5 rounded-md p-0.5",
+      style: {
+        opacity: disabled ? 0.5 : 1
+      },
+      onPointerDown: (e2) => e2.stopPropagation(),
+      children: options2.map((option2) => {
+        const active2 = option2 === value;
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            disabled,
+            onClick: () => handleSelect(option2),
+            className: "h-6 rounded-md px-2.5 text-[13px] transition-colors duration-150",
+            style: {
+              background: active2 ? "var(--canvas-controls-active, #ffffff26)" : "transparent",
+              color: active2 ? "var(--canvas-controls-text, #fff)" : "var(--canvas-controls-text-muted, #ffffff8c)",
+              cursor: disabled ? "not-allowed" : "pointer"
+            },
+            onMouseEnter: (e2) => {
+              if (active2 || disabled) return;
+              e2.currentTarget.style.background = "var(--canvas-controls-active, #ffffff14)";
+            },
+            onMouseLeave: (e2) => {
+              if (active2 || disabled) return;
+              e2.currentTarget.style.background = "transparent";
+            },
+            children: option2
+          },
+          option2
+        );
+      })
+    }
+  );
+});
+
+// [tdz] ERASE_RESOLUTIONS 上移（原第 23802 行，被第 8208 行引用）
+const ERASE_RESOLUTIONS = ["1K", "2K"];
+
+const CanvasEraseBottomBar = reactExports.memo(function CanvasEraseBottomBar2({
+  onCancel,
+  onConfirm,
+  confirming,
+  canConfirm,
+  resolution: resolution2,
+  onResolutionChange
+}) {
+  const { t: t2 } = useTranslation();
+  const creditCost = useImageModeHost().resolveCost?.(
+    "erase",
+    resolution2,
+    void 0,
+    ERASE_REF_COUNT
+  );
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so bar events don't reach the canvas pan/zoom handlers
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex h-10 items-center gap-2 rounded-lg border p-1",
+        style: {
+          background: "var(--canvas-controls-bg, #262626)",
+          borderColor: "var(--canvas-controls-border, #363636)",
+          boxShadow: "var(--canvas-shadow-dropdown)"
+        },
+        onPointerDown: (e2) => e2.stopPropagation(),
+        onWheel: (e2) => e2.stopPropagation(),
+        onContextMenu: (e2) => e2.stopPropagation(),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-16", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: onCancel,
+                className: "flex size-8 items-center justify-center rounded-md transition-colors duration-150",
+                "aria-label": t2("common.cancel"),
+                title: t2("common.cancel"),
+                style: {
+                  color: "var(--canvas-controls-text, #fff)",
+                  background: "transparent",
+                  opacity: 0.7
+                },
+                onMouseEnter: (e2) => {
+                  e2.currentTarget.style.opacity = "1";
+                },
+                onMouseLeave: (e2) => {
+                  e2.currentTarget.style.opacity = "0.7";
+                },
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(CloseIcon, {})
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              BananaResolutionPicker,
+              {
+                value: resolution2,
+                onChange: onResolutionChange,
+                disabled: confirming,
+                options: ERASE_RESOLUTIONS
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+            !confirming && /* @__PURE__ */ jsxRuntimeExports.jsx(CreditCostBadge, { cost: creditCost, compact: true }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                disabled: !canConfirm || confirming,
+                onClick: onConfirm,
+                className: "inline-flex size-8 items-center justify-center rounded-md transition-colors duration-150 disabled:opacity-50",
+                "aria-label": confirming ? t2("canvas.erasing") : t2("canvas.eraseApply"),
+                title: confirming ? t2("canvas.erasing") : t2("canvas.eraseApply"),
+                style: {
+                  background: "var(--canvas-primary-btn-bg, #000000d9)",
+                  color: "var(--canvas-primary-btn-icon, #fff)"
+                },
+                onMouseEnter: (e2) => {
+                  if (confirming || !canConfirm) return;
+                  e2.currentTarget.style.opacity = "0.9";
+                },
+                onMouseLeave: (e2) => {
+                  e2.currentTarget.style.opacity = "1";
+                },
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(SendArrowIcon, {})
+              }
+            )
+          ] })
+        ]
+      }
+    )
+  );
+});
+
+// [tdz] ERASE_BRUSH_COLOR 上移（原第 23447 行，被第 8425 行引用）
+const ERASE_BRUSH_COLOR = "rgb(128, 84, 255)";
+
+// [tdz] ERASE_MASK_OVERLAY_OPACITY 上移（原第 23450 行，被第 8428 行引用）
+const ERASE_MASK_OVERLAY_OPACITY = 0.4;
+
+// [tdz] SAFE_AREA$1 上移（原第 23546 行，被第 8431 行引用）
+const SAFE_AREA$1 = { top: 80, bottom: 88, horizontal: 72 };
+
+// [tdz] GEOMETRY_REFIT_THRESHOLD$1 上移（原第 23549 行，被第 8434 行引用）
+const GEOMETRY_REFIT_THRESHOLD$1 = 4;
+
+// [tdz] RESERVE_REFIT_THRESHOLD$1 上移（原第 23552 行，被第 8437 行引用）
+const RESERVE_REFIT_THRESHOLD$1 = 8;
 
 const CanvasEraseOverlay$1 = reactExports.memo(function CanvasEraseOverlay2({
   meta: meta2,
@@ -8791,6 +9168,18 @@ function CanvasGlobalTagControl$1({
   );
 }
 
+// [tdz] REDRAW_HIGHLIGHT_CSS_COLOR 上移（原第 23865 行，被第 9037 行引用）
+// [tdz] REDRAW_HIGHLIGHT_RGB 上移（原第 23866 行，被第 9038 行引用）
+const REDRAW_HIGHLIGHT_RGB = { r: 168, g: 255, b: 112 };
+
+const REDRAW_HIGHLIGHT_CSS_COLOR = `rgb(${REDRAW_HIGHLIGHT_RGB.r}, ${REDRAW_HIGHLIGHT_RGB.g}, ${REDRAW_HIGHLIGHT_RGB.b})`;
+
+// [tdz] REDRAW_HIGHLIGHT_UI_OPACITY 上移（原第 23870 行，被第 9043 行引用）
+// [tdz] REDRAW_HIGHLIGHT_ALPHA 上移（原第 23872 行，被第 9044 行引用）
+const REDRAW_HIGHLIGHT_ALPHA = 128;
+
+const REDRAW_HIGHLIGHT_UI_OPACITY = REDRAW_HIGHLIGHT_ALPHA / 255;
+
 const CanvasRedrawOverlay$1 = reactExports.memo(function CanvasRedrawOverlay2({
   meta: meta2,
   onSubmit,
@@ -9000,7 +9389,6 @@ const CanvasRedrawOverlay$1 = reactExports.memo(function CanvasRedrawOverlay2({
   ] });
 });
 
-const CanvasTidyControl$1 = reactExports.memo(CanvasTidyControlInner);
 
 const CanvasV3ReferenceContext = reactExports.createContext({ references: [], disabled: true, onOpen: () => {
 } });
@@ -9108,7 +9496,6 @@ function CustomizeIcon() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { size: 20, strokeWidth: 1.5, "aria-hidden": "true" });
 }
 
-const DEFAULT_ENHANCE_VIDEO_FPS = 60;
 
 const DEFAULT_HOLDER = "__default__";
 
@@ -9116,10 +9503,6 @@ const DEFAULT_MAX_ACTIVE = 6;
 
 const DEFAULT_TILE = "size-5 rounded";
 
-const DESCRIPTIONS = {
-  auto: "自动识别并去除视频底部字幕条文字（OCR + AIGC 修复）。处理耗时与视频时长相关，约为原视频时长的 6～10 倍（1 分钟以内的短视频相对更久），请耐心等待。",
-  manual: "点击下方「开始」后，在视频上手动框选要消除的文字区域。"
-};
 
 const DOT_RADIUS = 1;
 
@@ -9127,7 +9510,6 @@ function Divider$5() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "canvas-toolbar-separator", "aria-hidden": "true" });
 }
 
-const EDGE_HANDLE_THRESHOLD$1 = 80;
 
 function EdgeHandle$1({
   position: position2,
@@ -9290,7 +9672,10 @@ const I2I_STANDARD_PARAMS = [
 ];
 
 // [tdz] Node$1 上移（原第 43035 行，被第 9292 行引用）
-const Node$1 = Node;
+const Node$1 = TiptapNode;
+
+// [tdz] THUMB_PX$7 上移（原第 40317 行，被第 9677 行引用）
+const THUMB_PX$7 = 18;
 
 const ImageReference = Node$1.create({
   name: "v3ImageReference",
@@ -9421,7 +9806,6 @@ function ImageRequest({
   ] });
 }
 
-const LABELS = { auto: "自动识别字幕", manual: "手动框选" };
 
 function LegacyImageModeHost({
   nodeId,
@@ -9473,7 +9857,6 @@ function LegacyImageModeHost({
 
 const MIN_VISIBLE_GRID_ZOOM = 0.5;
 
-const MODES = ["auto", "manual"];
 
 const MP3_PADDING_SEC = 2 * 1152 / 8e3;
 
@@ -10871,9 +11254,6 @@ const STICKER_POINTER_ANCHOR = { x: 0, y: 0 };
 
 const SWATCH_SIZE = 20;
 
-const SelectionTidyControl$1 = reactExports.memo(
-  SelectionTidyControlInner
-);
 
 function StickerChoiceIcon({ choice }) {
   if (choice.kind === "asset") {
@@ -11196,6 +11576,12 @@ const SEEDREAM_5 = {
   quote: (params2) => ({ resolution: params2.size === "1K" ? "1K" : "2K" })
 };
 
+// [tdz] BBOX 上移（原第 40334 行，被第 11442 行引用）
+const BBOX = /<bbox>\s*\d+\s+\d+\s+\d+\s+\d+\s*<\/bbox>/;
+
+// [tdz] snapAspectRatio 上移（原第 43284 行，被第 11582 行引用）
+const snapAspectRatio = (w, h) => (h ? w / h : 1);
+
 const redraw = {
   ...canvasTool,
   id: "generate_image:redraw",
@@ -11478,6 +11864,9 @@ const VOICE_CLONE_MODEL = "voice-clone";
 // [tdz] VOICE_DESIGN_MODEL 上移（原第 38244 行，被第 11554 行引用）
 const VOICE_DESIGN_MODEL = "voice-design";
 
+// [tdz] VOICE_PREVIEW_MODEL 上移（原第 38535 行，被第 11727 行引用）
+const VOICE_PREVIEW_MODEL = "speech-2.8-hd";
+
 const AUDIO_TOOLS = [
   {
     id: "generate_speech:voice_isolation",
@@ -11562,6 +11951,9 @@ const AUDIO_TOOLS = [
 
 // [tdz] IMAGE_DAGS 上移（原第 36124 行，被第 11567 行引用）
 // [tdz] dag 上移（原第 38250 行，被第 11565 行引用）
+// [tdz] dagParam 上移（原第 40371 行，被第 11814 行引用）
+const dagParam = {};
+
 const dag = (name2, model, backend, displayName2, description, keys2, references, options2 = {}) => ({
   id: `generate_image:${name2}`,
   operation: "generate_image",
@@ -11910,7 +12302,6 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
   ] });
 }
 
-const TextFullscreen$1 = reactExports.memo(TextFullscreenInner);
 
 function ToolbarButton({
   children: children2,
@@ -12919,6 +13310,29 @@ function createNavigation(workbench) {
   };
 }
 
+// [tdz] createStoreImpl 上移（原第 37122 行，被第 13173 行引用）
+const createStoreImpl = (createState2) => {
+  let state2;
+  const listeners2 = /* @__PURE__ */ new Set();
+  const setState = (partial, replace2) => {
+    const nextState = typeof partial === "function" ? partial(state2) : partial;
+    if (!Object.is(nextState, state2)) {
+      const previousState = state2;
+      state2 = (replace2 != null ? replace2 : typeof nextState !== "object" || nextState === null) ? nextState : Object.assign({}, state2, nextState);
+      listeners2.forEach((listener) => listener(state2, previousState));
+    }
+  };
+  const getState2 = () => state2;
+  const getInitialState2 = () => initialState;
+  const subscribe2 = (listener) => {
+    listeners2.add(listener);
+    return () => listeners2.delete(listener);
+  };
+  const api = { setState, getState: getState2, getInitialState: getInitialState2, subscribe: subscribe2 };
+  const initialState = state2 = createState2(setState, getState2, api);
+  return api;
+};
+
 const createStore$1 = ((createState2) => createState2 ? createStoreImpl(createState2) : createStoreImpl);
 
 // [tdz] COMPACT_GRID_MIN_COLUMNS_DEFAULT 上移（原第 37037 行，被第 12925 行引用）
@@ -13571,10 +13985,6 @@ function useGenerationWaitEstimate({
   if (!active2) return void 0;
   return liveSeconds ?? calculateStaticRemainingWaitSeconds(estimatedGenerationSeconds, startedAt, Date.now());
 }
-const TRANSITION_SPRING = "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
-const TRANSITION_ENTRY = "transform 0.25s cubic-bezier(0.34, 1.8, 0.64, 1)";
-const MAGNETIC_OUTWARD = 42;
-const MAGNETIC_VERTICAL = 42;
 function NodeHandleIcon() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "svg",
@@ -18195,43 +18605,7 @@ function cropRectForAspectRatio$1(ratio, containerWidth, containerHeight) {
 
 
 
-const CORNER_CLASSES$1 = {
-  tl: "absolute -left-[2px] -top-[2px] h-6 w-6 cursor-nw-resize z-10",
-  tr: "absolute -right-[2px] -top-[2px] h-6 w-6 cursor-ne-resize z-10",
-  bl: "absolute -bottom-[2px] -left-[2px] h-6 w-6 cursor-sw-resize z-10",
-  br: "absolute -bottom-[2px] -right-[2px] h-6 w-6 cursor-se-resize z-10"
-};
-const CORNER_LINES$1 = {
-  tl: [
-    "absolute left-0 top-0 h-[3px] w-full bg-white",
-    "absolute left-0 top-0 h-full w-[3px] bg-white"
-  ],
-  tr: [
-    "absolute right-0 top-0 h-[3px] w-full bg-white",
-    "absolute right-0 top-0 h-full w-[3px] bg-white"
-  ],
-  bl: [
-    "absolute bottom-0 left-0 h-[3px] w-full bg-white",
-    "absolute bottom-0 left-0 h-full w-[3px] bg-white"
-  ],
-  br: [
-    "absolute bottom-0 right-0 h-[3px] w-full bg-white",
-    "absolute bottom-0 right-0 h-full w-[3px] bg-white"
-  ]
-};
 
-const EDGE_CLASSES$1 = {
-  t: "absolute -top-[2px] left-6 right-6 h-[12px] -mt-[5px] cursor-n-resize z-10 flex items-center justify-center",
-  b: "absolute -bottom-[2px] left-6 right-6 h-[12px] -mb-[5px] cursor-s-resize z-10 flex items-center justify-center",
-  l: "absolute -left-[2px] top-6 bottom-6 w-[12px] -ml-[5px] cursor-w-resize z-10 flex items-center justify-center",
-  r: "absolute -right-[2px] top-6 bottom-6 w-[12px] -mr-[5px] cursor-e-resize z-10 flex items-center justify-center"
-};
-const EDGE_BAR_CLASSES$1 = {
-  t: "h-[3px] w-8 rounded-full bg-white",
-  b: "h-[3px] w-8 rounded-full bg-white",
-  l: "h-8 w-[3px] rounded-full bg-white",
-  r: "h-8 w-[3px] rounded-full bg-white"
-};
 
 function pointsToBounds(p1, p22) {
   const x2 = Math.min(p1.x, p22.x);
@@ -23091,8 +23465,6 @@ function selectionToNormalizedBBox(rect) {
 function selectionsToNormalizedBBoxes(rects) {
   return rects.map(selectionToNormalizedBBox).filter((bbox) => bbox.x1 < bbox.x2 && bbox.y1 < bbox.y2);
 }
-const ERASE_BRUSH_COLOR = "rgb(128, 84, 255)";
-const ERASE_MASK_OVERLAY_OPACITY = 0.4;
 function paintStrokes(ctx, strokes, imagePxWidth, imagePxHeight, brushScale, fillStyle, activeStrokeIndex = -1) {
   for (let index2 = 0; index2 < strokes.length; index2++) {
     const stroke = strokes[index2];
@@ -23186,9 +23558,6 @@ function paintStrokes(ctx, strokes, imagePxWidth, imagePxHeight, brushScale, fil
     ctx.restore();
   }
 }
-const SAFE_AREA$1 = { top: 80, bottom: 88, horizontal: 72 };
-const GEOMETRY_REFIT_THRESHOLD$1 = 4;
-const RESERVE_REFIT_THRESHOLD$1 = 8;
 function shouldRefitViewportFocusLayout$1(previous2, next2) {
   if (!previous2) return true;
   const geometryChanged = Math.abs(next2.canvasWidth - previous2.canvasWidth) >= GEOMETRY_REFIT_THRESHOLD$1 || Math.abs(next2.canvasHeight - previous2.canvasHeight) >= GEOMETRY_REFIT_THRESHOLD$1 || Math.abs(next2.nodeFlowX - previous2.nodeFlowX) >= GEOMETRY_REFIT_THRESHOLD$1 || Math.abs(next2.nodeFlowY - previous2.nodeFlowY) >= GEOMETRY_REFIT_THRESHOLD$1 || Math.abs(next2.nodeWidth - previous2.nodeWidth) >= GEOMETRY_REFIT_THRESHOLD$1 || Math.abs(next2.nodeHeight - previous2.nodeHeight) >= GEOMETRY_REFIT_THRESHOLD$1;
@@ -23572,188 +23941,6 @@ function useImageMaskPainter({
     maskOverlayOpacity: overlayOpacity
   };
 }
-const DEFAULT_OPTIONS$1 = ["1K", "2K", "4K"];
-const BananaResolutionPicker = reactExports.memo(function BananaResolutionPicker2({
-  value,
-  onChange,
-  disabled,
-  options: options2 = DEFAULT_OPTIONS$1
-}) {
-  const handleSelect = reactExports.useCallback(
-    (option2) => {
-      if (disabled) return;
-      if (option2 === value) return;
-      onChange(option2);
-    },
-    [disabled, onChange, value]
-  );
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
-    {
-      className: "flex h-7 items-center gap-0.5 rounded-md p-0.5",
-      style: {
-        opacity: disabled ? 0.5 : 1
-      },
-      onPointerDown: (e2) => e2.stopPropagation(),
-      children: options2.map((option2) => {
-        const active2 = option2 === value;
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            disabled,
-            onClick: () => handleSelect(option2),
-            className: "h-6 rounded-md px-2.5 text-[13px] transition-colors duration-150",
-            style: {
-              background: active2 ? "var(--canvas-controls-active, #ffffff26)" : "transparent",
-              color: active2 ? "var(--canvas-controls-text, #fff)" : "var(--canvas-controls-text-muted, #ffffff8c)",
-              cursor: disabled ? "not-allowed" : "pointer"
-            },
-            onMouseEnter: (e2) => {
-              if (active2 || disabled) return;
-              e2.currentTarget.style.background = "var(--canvas-controls-active, #ffffff14)";
-            },
-            onMouseLeave: (e2) => {
-              if (active2 || disabled) return;
-              e2.currentTarget.style.background = "transparent";
-            },
-            children: option2
-          },
-          option2
-        );
-      })
-    }
-  );
-});
-const ERASE_RESOLUTIONS = ["1K", "2K"];
-const ERASE_REF_COUNT = 1;
-const CanvasEraseBottomBar = reactExports.memo(function CanvasEraseBottomBar2({
-  onCancel,
-  onConfirm,
-  confirming,
-  canConfirm,
-  resolution: resolution2,
-  onResolutionChange
-}) {
-  const { t: t2 } = useTranslation();
-  const creditCost = useImageModeHost().resolveCost?.(
-    "erase",
-    resolution2,
-    void 0,
-    ERASE_REF_COUNT
-  );
-  return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so bar events don't reach the canvas pan/zoom handlers
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        className: "flex h-10 items-center gap-2 rounded-lg border p-1",
-        style: {
-          background: "var(--canvas-controls-bg, #262626)",
-          borderColor: "var(--canvas-controls-border, #363636)",
-          boxShadow: "var(--canvas-shadow-dropdown)"
-        },
-        onPointerDown: (e2) => e2.stopPropagation(),
-        onWheel: (e2) => e2.stopPropagation(),
-        onContextMenu: (e2) => e2.stopPropagation(),
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-16", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: onCancel,
-                className: "flex size-8 items-center justify-center rounded-md transition-colors duration-150",
-                "aria-label": t2("common.cancel"),
-                title: t2("common.cancel"),
-                style: {
-                  color: "var(--canvas-controls-text, #fff)",
-                  background: "transparent",
-                  opacity: 0.7
-                },
-                onMouseEnter: (e2) => {
-                  e2.currentTarget.style.opacity = "1";
-                },
-                onMouseLeave: (e2) => {
-                  e2.currentTarget.style.opacity = "0.7";
-                },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(CloseIcon, {})
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              BananaResolutionPicker,
-              {
-                value: resolution2,
-                onChange: onResolutionChange,
-                disabled: confirming,
-                options: ERASE_RESOLUTIONS
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            !confirming && /* @__PURE__ */ jsxRuntimeExports.jsx(CreditCostBadge, { cost: creditCost, compact: true }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "button",
-                disabled: !canConfirm || confirming,
-                onClick: onConfirm,
-                className: "inline-flex size-8 items-center justify-center rounded-md transition-colors duration-150 disabled:opacity-50",
-                "aria-label": confirming ? t2("canvas.erasing") : t2("canvas.eraseApply"),
-                title: confirming ? t2("canvas.erasing") : t2("canvas.eraseApply"),
-                style: {
-                  background: "var(--canvas-primary-btn-bg, #000000d9)",
-                  color: "var(--canvas-primary-btn-icon, #fff)"
-                },
-                onMouseEnter: (e2) => {
-                  if (confirming || !canConfirm) return;
-                  e2.currentTarget.style.opacity = "0.9";
-                },
-                onMouseLeave: (e2) => {
-                  e2.currentTarget.style.opacity = "1";
-                },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(SendArrowIcon, {})
-              }
-            )
-          ] })
-        ]
-      }
-    )
-  );
-});
-const CanvasEraseTopBar = reactExports.memo(function CanvasEraseTopBar2({
-  tool: _tool,
-  onToolChange: _onToolChange,
-  brushSize: _brushSize,
-  onBrushSizeChange: _onBrushSizeChange,
-  hasStrokes,
-  canRedo,
-  onUndo,
-  onRedo,
-  onClose
-}) {
-  const { t: t2 } = useTranslation();
-  return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so toolbar events don't reach the canvas pan/zoom handlers
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        className: "canvas-toolbar-surface",
-        onPointerDown: (e2) => e2.stopPropagation(),
-        onWheel: (e2) => e2.stopPropagation(),
-        onContextMenu: (e2) => e2.stopPropagation(),
-        "data-canvas-toolbar": "true",
-        "data-density": "compact",
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton$3, { disabled: false, onClick: onClose, title: t2("canvas.close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(CloseIcon, {}) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Divider$2, {}),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton$3, { disabled: !hasStrokes, onClick: onUndo, title: t2("canvas.eraseUndo"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(UndoIcon$1, {}) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton$3, { disabled: !canRedo, onClick: onRedo, title: t2("canvas.eraseRedo"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(RedoIcon$1, {}) })
-        ]
-      }
-    )
-  );
-});
 function IconButton$3({
   disabled,
   onClick,
@@ -23776,9 +23963,6 @@ function IconButton$3({
 function Divider$2() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "canvas-toolbar-separator", "aria-hidden": "true" });
 }
-const BAR_GAP$3 = 16;
-const BAR_HEIGHT$1 = 40;
-const BAR_MIN_WIDTH = 360;
 
 function loadImage$2(url2) {
   return new Promise((resolve, reject2) => {
@@ -23815,10 +23999,6 @@ async function loadSourceAsPngBlob(srcImageUrl, opts) {
   ctx.drawImage(srcImg, 0, 0);
   return canvasToPngBlob$1(canvas);
 }
-const REDRAW_HIGHLIGHT_RGB = { r: 168, g: 255, b: 112 };
-const REDRAW_HIGHLIGHT_ALPHA = 128;
-const REDRAW_HIGHLIGHT_CSS_COLOR = `rgb(${REDRAW_HIGHLIGHT_RGB.r}, ${REDRAW_HIGHLIGHT_RGB.g}, ${REDRAW_HIGHLIGHT_RGB.b})`;
-const REDRAW_HIGHLIGHT_UI_OPACITY = REDRAW_HIGHLIGHT_ALPHA / 255;
 async function compositeOutpaintCanvas(srcImageUrl, params) {
   const srcImg = await loadImage$2(srcImageUrl);
   const canvas = document.createElement("canvas");
@@ -25899,6 +26079,18 @@ function initAttrs(typeName2, attrs) {
       result[name2] = new Attribute$1(typeName2, name2, attrs[name2]);
   return result;
 }
+// [tdz] Attribute$1 上移（原第 26295 行，被第 26082 行引用）
+let Attribute$1 = class Attribute {
+  constructor(typeName2, attrName, options2) {
+    this.hasDefault = Object.prototype.hasOwnProperty.call(options2, "default");
+    this.default = options2.default;
+    this.validate = typeof options2.validate == "string" ? validateType(typeName2, attrName, options2.validate) : options2.validate;
+  }
+  get isRequired() {
+    return !this.hasDefault;
+  }
+};
+
 let NodeType$2 = class NodeType {
   /**
   @internal
@@ -26112,16 +26304,6 @@ function validateType(typeName2, attrName, type) {
       throw new RangeError(`Expected value of type ${types2} for attribute ${attrName} on type ${typeName2}, got ${name2}`);
   };
 }
-let Attribute$1 = class Attribute {
-  constructor(typeName2, attrName, options2) {
-    this.hasDefault = Object.prototype.hasOwnProperty.call(options2, "default");
-    this.default = options2.default;
-    this.validate = typeof options2.validate == "string" ? validateType(typeName2, attrName, options2.validate) : options2.validate;
-  }
-  get isRequired() {
-    return !this.hasDefault;
-  }
-};
 class MarkType {
   /**
   @internal
@@ -26290,135 +26472,24 @@ function isTagRule(rule) {
 function isStyleRule(rule) {
   return rule.style != null;
 }
-let DOMParser$1 = class DOMParser2 {
-  /**
-  Create a parser that targets the given schema, using the given
-  parsing rules.
-  */
-  constructor(schema, rules) {
-    this.schema = schema;
-    this.rules = rules;
-    this.tags = [];
-    this.styles = [];
-    let matchedStyles = this.matchedStyles = [];
-    rules.forEach((rule) => {
-      if (isTagRule(rule)) {
-        this.tags.push(rule);
-      } else if (isStyleRule(rule)) {
-        let prop = /[^=]*/.exec(rule.style)[0];
-        if (matchedStyles.indexOf(prop) < 0)
-          matchedStyles.push(prop);
-        this.styles.push(rule);
-      }
-    });
-    this.normalizeLists = !this.tags.some((r2) => {
-      if (!/^(ul|ol)\b/.test(r2.tag) || !r2.node)
-        return false;
-      let node2 = schema.nodes[r2.node];
-      return node2.contentMatch.matchType(node2);
-    });
-  }
-  /**
-  Parse a document from the content of a DOM node.
-  */
-  parse(dom, options2 = {}) {
-    let context = new ParseContext$1(this, options2, false);
-    context.addAll(dom, Mark$1.none, options2.from, options2.to);
-    return context.finish();
-  }
-  /**
-  Parses the content of the given DOM node, like
-  [`parse`](https://prosemirror.net/docs/ref/#model.DOMParser.parse), and takes the same set of
-  options. But unlike that method, which produces a whole node,
-  this one returns a slice that is open at the sides, meaning that
-  the schema constraints aren't applied to the start of nodes to
-  the left of the input and the end of nodes at the end.
-  */
-  parseSlice(dom, options2 = {}) {
-    let context = new ParseContext$1(this, options2, true);
-    context.addAll(dom, Mark$1.none, options2.from, options2.to);
-    return Slice.maxOpen(context.finish());
-  }
-  /**
-  @internal
-  */
-  matchTag(dom, context, after) {
-    for (let i2 = after ? this.tags.indexOf(after) + 1 : 0; i2 < this.tags.length; i2++) {
-      let rule = this.tags[i2];
-      if (matches$1(dom, rule.tag) && (rule.namespace === void 0 || dom.namespaceURI == rule.namespace) && (!rule.context || context.matchesContext(rule.context))) {
-        if (rule.getAttrs) {
-          let result = rule.getAttrs(dom);
-          if (result === false)
-            continue;
-          rule.attrs = result || void 0;
-        }
-        return rule;
-      }
-    }
-  }
-  /**
-  @internal
-  */
-  matchStyle(prop, value, context, after) {
-    for (let i2 = after ? this.styles.indexOf(after) + 1 : 0; i2 < this.styles.length; i2++) {
-      let rule = this.styles[i2], style2 = rule.style;
-      if (style2.indexOf(prop) != 0 || rule.context && !context.matchesContext(rule.context) || // Test that the style string either precisely matches the prop,
-      // or has an '=' sign after the prop, followed by the given
-      // value.
-      style2.length > prop.length && (style2.charCodeAt(prop.length) != 61 || style2.slice(prop.length + 1) != value))
-        continue;
-      if (rule.getAttrs) {
-        let result = rule.getAttrs(value);
-        if (result === false)
-          continue;
-        rule.attrs = result || void 0;
-      }
-      return rule;
-    }
-  }
-  /**
-  @internal
-  */
-  static schemaRules(schema) {
-    let result = [];
-    function insert2(rule) {
-      let priority = rule.priority == null ? 50 : rule.priority, i2 = 0;
-      for (; i2 < result.length; i2++) {
-        let next2 = result[i2], nextPriority = next2.priority == null ? 50 : next2.priority;
-        if (nextPriority < priority)
-          break;
-      }
-      result.splice(i2, 0, rule);
-    }
-    for (let name2 in schema.marks) {
-      let rules = schema.marks[name2].spec.parseDOM;
-      if (rules)
-        rules.forEach((rule) => {
-          insert2(rule = copy(rule));
-          if (!(rule.mark || rule.ignore || rule.clearMark))
-            rule.mark = name2;
-        });
-    }
-    for (let name2 in schema.nodes) {
-      let rules = schema.nodes[name2].spec.parseDOM;
-      if (rules)
-        rules.forEach((rule) => {
-          insert2(rule = copy(rule));
-          if (!(rule.node || rule.ignore || rule.mark))
-            rule.node = name2;
-        });
-    }
-    return result;
-  }
-  /**
-  Construct a DOM parser using the parsing rules listed in a
-  schema's [node specs](https://prosemirror.net/docs/ref/#model.NodeSpec.parseDOM), reordered by
-  [priority](https://prosemirror.net/docs/ref/#model.GenericParseRule.priority).
-  */
-  static fromSchema(schema) {
-    return schema.cached.domParser || (schema.cached.domParser = new DOMParser2(schema, DOMParser2.schemaRules(schema)));
-  }
+// [tdz] ParseContext$1 上移（原第 26611 行，被第 26378 行引用）
+// [tdz] OPT_OPEN_LEFT 上移（原第 26943 行，被第 26379 行引用）
+const OPT_PRESERVE_WS = 1, OPT_PRESERVE_WS_FULL = 2, OPT_OPEN_LEFT = 4;
+
+// [tdz] listTags 上移（原第 26945 行，被第 26382 行引用）
+const listTags = { ol: true, ul: true };
+
+// [tdz] ignoreTags 上移（原第 26940 行，被第 26385 行引用）
+const ignoreTags = {
+  head: true,
+  noscript: true,
+  object: true,
+  script: true,
+  style: true,
+  title: true
 };
+
+// [tdz] blockTags 上移（原第 26915 行，被第 26395 行引用）
 const blockTags = {
   address: true,
   article: true,
@@ -26454,75 +26525,7 @@ const blockTags = {
   tfoot: true,
   ul: true
 };
-const ignoreTags = {
-  head: true,
-  noscript: true,
-  object: true,
-  script: true,
-  style: true,
-  title: true
-};
-const listTags = { ol: true, ul: true };
-const OPT_PRESERVE_WS = 1, OPT_PRESERVE_WS_FULL = 2, OPT_OPEN_LEFT = 4;
-function wsOptionsFor(type, preserveWhitespace, base2) {
-  if (preserveWhitespace != null)
-    return (preserveWhitespace ? OPT_PRESERVE_WS : 0) | (preserveWhitespace === "full" ? OPT_PRESERVE_WS_FULL : 0);
-  return type && type.whitespace == "pre" ? OPT_PRESERVE_WS | OPT_PRESERVE_WS_FULL : base2 & ~OPT_OPEN_LEFT;
-}
-class NodeContext {
-  constructor(type, attrs, marks, solid, match2, options2) {
-    this.type = type;
-    this.attrs = attrs;
-    this.marks = marks;
-    this.solid = solid;
-    this.options = options2;
-    this.content = [];
-    this.activeMarks = Mark$1.none;
-    this.match = match2 || (options2 & OPT_OPEN_LEFT ? null : type.contentMatch);
-  }
-  findWrapping(node2) {
-    if (!this.match) {
-      if (!this.type)
-        return [];
-      let fill = this.type.contentMatch.fillBefore(Fragment.from(node2));
-      if (fill) {
-        this.match = this.type.contentMatch.matchFragment(fill);
-      } else {
-        let start2 = this.type.contentMatch, wrap2;
-        if (wrap2 = start2.findWrapping(node2.type)) {
-          this.match = start2;
-          return wrap2;
-        } else {
-          return null;
-        }
-      }
-    }
-    return this.match.findWrapping(node2.type);
-  }
-  finish(openEnd) {
-    if (!(this.options & OPT_PRESERVE_WS)) {
-      let last2 = this.content[this.content.length - 1], m2;
-      if (last2 && last2.isText && (m2 = /[ \t\r\n\u000c]+$/.exec(last2.text))) {
-        let text2 = last2;
-        if (last2.text.length == m2[0].length)
-          this.content.pop();
-        else
-          this.content[this.content.length - 1] = text2.withText(text2.text.slice(0, text2.text.length - m2[0].length));
-      }
-    }
-    let content2 = Fragment.from(this.content);
-    if (!openEnd && this.match)
-      content2 = content2.append(this.match.fillBefore(Fragment.empty, true));
-    return this.type ? this.type.create(this.attrs, content2, this.marks) : content2;
-  }
-  inlineContext(node2) {
-    if (this.type)
-      return this.type.inlineContent;
-    if (this.content.length)
-      return this.content[0].isInline;
-    return node2.parentNode && !blockTags.hasOwnProperty(node2.parentNode.nodeName.toLowerCase());
-  }
-}
+
 let ParseContext$1 = class ParseContext {
   constructor(parser2, options2, isOpen) {
     this.parser = parser2;
@@ -26913,6 +26916,195 @@ let ParseContext$1 = class ParseContext {
     }
   }
 };
+
+let DOMParser$1 = class DOMParser2 {
+  /**
+  Create a parser that targets the given schema, using the given
+  parsing rules.
+  */
+  constructor(schema, rules) {
+    this.schema = schema;
+    this.rules = rules;
+    this.tags = [];
+    this.styles = [];
+    let matchedStyles = this.matchedStyles = [];
+    rules.forEach((rule) => {
+      if (isTagRule(rule)) {
+        this.tags.push(rule);
+      } else if (isStyleRule(rule)) {
+        let prop = /[^=]*/.exec(rule.style)[0];
+        if (matchedStyles.indexOf(prop) < 0)
+          matchedStyles.push(prop);
+        this.styles.push(rule);
+      }
+    });
+    this.normalizeLists = !this.tags.some((r2) => {
+      if (!/^(ul|ol)\b/.test(r2.tag) || !r2.node)
+        return false;
+      let node2 = schema.nodes[r2.node];
+      return node2.contentMatch.matchType(node2);
+    });
+  }
+  /**
+  Parse a document from the content of a DOM node.
+  */
+  parse(dom, options2 = {}) {
+    let context = new ParseContext$1(this, options2, false);
+    context.addAll(dom, Mark$1.none, options2.from, options2.to);
+    return context.finish();
+  }
+  /**
+  Parses the content of the given DOM node, like
+  [`parse`](https://prosemirror.net/docs/ref/#model.DOMParser.parse), and takes the same set of
+  options. But unlike that method, which produces a whole node,
+  this one returns a slice that is open at the sides, meaning that
+  the schema constraints aren't applied to the start of nodes to
+  the left of the input and the end of nodes at the end.
+  */
+  parseSlice(dom, options2 = {}) {
+    let context = new ParseContext$1(this, options2, true);
+    context.addAll(dom, Mark$1.none, options2.from, options2.to);
+    return Slice.maxOpen(context.finish());
+  }
+  /**
+  @internal
+  */
+  matchTag(dom, context, after) {
+    for (let i2 = after ? this.tags.indexOf(after) + 1 : 0; i2 < this.tags.length; i2++) {
+      let rule = this.tags[i2];
+      if (matches$1(dom, rule.tag) && (rule.namespace === void 0 || dom.namespaceURI == rule.namespace) && (!rule.context || context.matchesContext(rule.context))) {
+        if (rule.getAttrs) {
+          let result = rule.getAttrs(dom);
+          if (result === false)
+            continue;
+          rule.attrs = result || void 0;
+        }
+        return rule;
+      }
+    }
+  }
+  /**
+  @internal
+  */
+  matchStyle(prop, value, context, after) {
+    for (let i2 = after ? this.styles.indexOf(after) + 1 : 0; i2 < this.styles.length; i2++) {
+      let rule = this.styles[i2], style2 = rule.style;
+      if (style2.indexOf(prop) != 0 || rule.context && !context.matchesContext(rule.context) || // Test that the style string either precisely matches the prop,
+      // or has an '=' sign after the prop, followed by the given
+      // value.
+      style2.length > prop.length && (style2.charCodeAt(prop.length) != 61 || style2.slice(prop.length + 1) != value))
+        continue;
+      if (rule.getAttrs) {
+        let result = rule.getAttrs(value);
+        if (result === false)
+          continue;
+        rule.attrs = result || void 0;
+      }
+      return rule;
+    }
+  }
+  /**
+  @internal
+  */
+  static schemaRules(schema) {
+    let result = [];
+    function insert2(rule) {
+      let priority = rule.priority == null ? 50 : rule.priority, i2 = 0;
+      for (; i2 < result.length; i2++) {
+        let next2 = result[i2], nextPriority = next2.priority == null ? 50 : next2.priority;
+        if (nextPriority < priority)
+          break;
+      }
+      result.splice(i2, 0, rule);
+    }
+    for (let name2 in schema.marks) {
+      let rules = schema.marks[name2].spec.parseDOM;
+      if (rules)
+        rules.forEach((rule) => {
+          insert2(rule = copy(rule));
+          if (!(rule.mark || rule.ignore || rule.clearMark))
+            rule.mark = name2;
+        });
+    }
+    for (let name2 in schema.nodes) {
+      let rules = schema.nodes[name2].spec.parseDOM;
+      if (rules)
+        rules.forEach((rule) => {
+          insert2(rule = copy(rule));
+          if (!(rule.node || rule.ignore || rule.mark))
+            rule.node = name2;
+        });
+    }
+    return result;
+  }
+  /**
+  Construct a DOM parser using the parsing rules listed in a
+  schema's [node specs](https://prosemirror.net/docs/ref/#model.NodeSpec.parseDOM), reordered by
+  [priority](https://prosemirror.net/docs/ref/#model.GenericParseRule.priority).
+  */
+  static fromSchema(schema) {
+    return schema.cached.domParser || (schema.cached.domParser = new DOMParser2(schema, DOMParser2.schemaRules(schema)));
+  }
+};
+function wsOptionsFor(type, preserveWhitespace, base2) {
+  if (preserveWhitespace != null)
+    return (preserveWhitespace ? OPT_PRESERVE_WS : 0) | (preserveWhitespace === "full" ? OPT_PRESERVE_WS_FULL : 0);
+  return type && type.whitespace == "pre" ? OPT_PRESERVE_WS | OPT_PRESERVE_WS_FULL : base2 & ~OPT_OPEN_LEFT;
+}
+class NodeContext {
+  constructor(type, attrs, marks, solid, match2, options2) {
+    this.type = type;
+    this.attrs = attrs;
+    this.marks = marks;
+    this.solid = solid;
+    this.options = options2;
+    this.content = [];
+    this.activeMarks = Mark$1.none;
+    this.match = match2 || (options2 & OPT_OPEN_LEFT ? null : type.contentMatch);
+  }
+  findWrapping(node2) {
+    if (!this.match) {
+      if (!this.type)
+        return [];
+      let fill = this.type.contentMatch.fillBefore(Fragment.from(node2));
+      if (fill) {
+        this.match = this.type.contentMatch.matchFragment(fill);
+      } else {
+        let start2 = this.type.contentMatch, wrap2;
+        if (wrap2 = start2.findWrapping(node2.type)) {
+          this.match = start2;
+          return wrap2;
+        } else {
+          return null;
+        }
+      }
+    }
+    return this.match.findWrapping(node2.type);
+  }
+  finish(openEnd) {
+    if (!(this.options & OPT_PRESERVE_WS)) {
+      let last2 = this.content[this.content.length - 1], m2;
+      if (last2 && last2.isText && (m2 = /[ \t\r\n\u000c]+$/.exec(last2.text))) {
+        let text2 = last2;
+        if (last2.text.length == m2[0].length)
+          this.content.pop();
+        else
+          this.content[this.content.length - 1] = text2.withText(text2.text.slice(0, text2.text.length - m2[0].length));
+      }
+    }
+    let content2 = Fragment.from(this.content);
+    if (!openEnd && this.match)
+      content2 = content2.append(this.match.fillBefore(Fragment.empty, true));
+    return this.type ? this.type.create(this.attrs, content2, this.marks) : content2;
+  }
+  inlineContext(node2) {
+    if (this.type)
+      return this.type.inlineContent;
+    if (this.content.length)
+      return this.content[0].isInline;
+    return node2.parentNode && !blockTags.hasOwnProperty(node2.parentNode.nodeName.toLowerCase());
+  }
+}
 function normalizeList(dom) {
   for (let child = dom.firstChild, prevItem = null; child; child = child.nextSibling) {
     let name2 = child.nodeType == 1 ? child.nodeName.toLowerCase() : null;
@@ -29487,6 +29679,9 @@ const Dropcursor = Extension.create({
     return [dropCursor(this.options)];
   }
 });
+// [tdz] Decoration$1 上移（原第 43208 行，被第 29585 行引用）
+const Decoration$1 = Decoration;
+
 Extension.create({
   name: "focus",
   addOptions() {
@@ -30419,6 +30614,293 @@ function createContentComponent() {
     }
   };
 }
+// [tdz] jsxFragments 上移（原第 31444 行，被第 30617 行引用）
+const jsxFragments = /* @__PURE__ */ new WeakSet();
+
+// [tdz] jsxElements 上移（原第 31446 行，被第 30620 行引用）
+const jsxElements = /* @__PURE__ */ new WeakSet();
+
+// [tdz] INIT 上移（原第 33329 行，被第 30623 行引用）
+const INIT = {
+  scanner: null,
+  parser: null,
+  tokenQueue: [],
+  pluginQueue: [],
+  customSchemes: [],
+  initialized: false
+};
+
+// [tdz] AMPERSAND 上移（原第 32513 行，被第 30633 行引用）
+const AMPERSAND = "AMPERSAND";
+
+// [tdz] ASTERISK 上移（原第 32517 行，被第 30636 行引用）
+const ASTERISK = "ASTERISK";
+
+// [tdz] AT 上移（原第 32520 行，被第 30639 行引用）
+const AT = "AT";
+
+// [tdz] BACKSLASH 上移（原第 32523 行，被第 30642 行引用）
+const BACKSLASH = "BACKSLASH";
+
+// [tdz] BACKTICK 上移（原第 32526 行，被第 30645 行引用）
+const BACKTICK = "BACKTICK";
+
+// [tdz] CARET 上移（原第 32529 行，被第 30648 行引用）
+const CARET = "CARET";
+
+// [tdz] DOLLAR 上移（原第 32534 行，被第 30651 行引用）
+const DOLLAR = "DOLLAR";
+
+// [tdz] EQUALS 上移（原第 32538 行，被第 30654 行引用）
+const EQUALS = "EQUALS";
+
+// [tdz] HYPHEN 上移（原第 32542 行，被第 30657 行引用）
+const HYPHEN = "HYPHEN";
+
+// [tdz] NUM 上移（原第 32521 行，被第 30660 行引用）
+const NUM = "NUM";
+
+// [tdz] PERCENT 上移（原第 32547 行，被第 30663 行引用）
+const PERCENT = "PERCENT";
+
+// [tdz] PIPE 上移（原第 32550 行，被第 30666 行引用）
+const PIPE = "PIPE";
+
+// [tdz] PLUS 上移（原第 32553 行，被第 30669 行引用）
+const PLUS = "PLUS";
+
+// [tdz] POUND 上移（原第 32556 行，被第 30672 行引用）
+const POUND = "POUND";
+
+// [tdz] SLASH 上移（原第 32563 行，被第 30675 行引用）
+const SLASH = "SLASH";
+
+// [tdz] SYM 上移（原第 32569 行，被第 30678 行引用）
+const SYM = "SYM";
+
+// [tdz] TILDE 上移（原第 32569 行，被第 30681 行引用）
+const TILDE = "TILDE";
+
+// [tdz] UNDERSCORE 上移（原第 32572 行，被第 30684 行引用）
+const UNDERSCORE = "UNDERSCORE";
+
+// [tdz] APOSTROPHE 上移（原第 32566 行，被第 30687 行引用）
+const APOSTROPHE = "APOSTROPHE";
+
+// [tdz] COLON 上移（原第 32569 行，被第 30690 行引用）
+const COLON = "COLON";
+
+// [tdz] COMMA 上移（原第 32572 行，被第 30693 行引用）
+const COMMA = "COMMA";
+
+// [tdz] DOT 上移（原第 32575 行，被第 30696 行引用）
+const DOT = "DOT";
+
+// [tdz] EXCLAMATION 上移（原第 32578 行，被第 30699 行引用）
+const EXCLAMATION = "EXCLAMATION";
+
+// [tdz] QUERY 上移（原第 32581 行，被第 30702 行引用）
+const QUERY = "QUERY";
+
+// [tdz] QUOTE 上移（原第 32584 行，被第 30705 行引用）
+const QUOTE = "QUOTE";
+
+// [tdz] SEMI 上移（原第 32588 行，被第 30708 行引用）
+const SEMI = "SEMI";
+
+// [tdz] OPENANGLEBRACKET 上移（原第 32580 行，被第 30711 行引用）
+const OPENANGLEBRACKET = "OPENANGLEBRACKET";
+
+// [tdz] CLOSEANGLEBRACKET 上移（原第 32583 行，被第 30714 行引用）
+const CLOSEANGLEBRACKET = "CLOSEANGLEBRACKET";
+
+// [tdz] OPENBRACE 上移（原第 32580 行，被第 30717 行引用）
+const OPENBRACE = "OPENBRACE";
+
+// [tdz] CLOSEBRACE 上移（原第 32583 行，被第 30720 行引用）
+const CLOSEBRACE = "CLOSEBRACE";
+
+// [tdz] CLOSEBRACKET 上移（原第 32587 行，被第 30723 行引用）
+const CLOSEBRACKET = "CLOSEBRACKET";
+
+// [tdz] OPENBRACKET 上移（原第 32589 行，被第 30726 行引用）
+const OPENBRACKET = "OPENBRACKET";
+
+// [tdz] OPENPAREN 上移（原第 32592 行，被第 30729 行引用）
+const OPENPAREN = "OPENPAREN";
+
+// [tdz] CLOSEPAREN 上移（原第 32595 行，被第 30732 行引用）
+const CLOSEPAREN = "CLOSEPAREN";
+
+// [tdz] FULLWIDTHLEFTPAREN 上移（原第 32598 行，被第 30735 行引用）
+const FULLWIDTHLEFTPAREN = "FULLWIDTHLEFTPAREN";
+
+// [tdz] FULLWIDTHRIGHTPAREN 上移（原第 32601 行，被第 30738 行引用）
+const FULLWIDTHRIGHTPAREN = "FULLWIDTHRIGHTPAREN";
+
+// [tdz] LEFTCORNERBRACKET 上移（原第 32604 行，被第 30741 行引用）
+const LEFTCORNERBRACKET = "LEFTCORNERBRACKET";
+
+// [tdz] RIGHTCORNERBRACKET 上移（原第 32607 行，被第 30744 行引用）
+const RIGHTCORNERBRACKET = "RIGHTCORNERBRACKET";
+
+// [tdz] LEFTWHITECORNERBRACKET 上移（原第 32610 行，被第 30747 行引用）
+const LEFTWHITECORNERBRACKET = "LEFTWHITECORNERBRACKET";
+
+// [tdz] RIGHTWHITECORNERBRACKET 上移（原第 32613 行，被第 30750 行引用）
+const RIGHTWHITECORNERBRACKET = "RIGHTWHITECORNERBRACKET";
+
+// [tdz] FULLWIDTHLESSTHAN 上移（原第 32616 行，被第 30753 行引用）
+const FULLWIDTHLESSTHAN = "FULLWIDTHLESSTHAN";
+
+// [tdz] FULLWIDTHGREATERTHAN 上移（原第 32619 行，被第 30756 行引用）
+const FULLWIDTHGREATERTHAN = "FULLWIDTHGREATERTHAN";
+
+// [tdz] makeState$1 上移（原第 33243 行，被第 30759 行引用）
+const makeState$1 = (arg) => new State$1(arg);
+
+// [tdz] tt$4 上移（原第 32613 行，被第 30762 行引用）
+const tt$4 = (state2, input, next2, flags, groups) => state2.tt(input, next2, flags, groups);
+
+// [tdz] ta 上移（原第 32613 行，被第 30765 行引用）
+const ta = (state2, input, next2, flags, groups) => state2.ta(input, next2, flags, groups);
+
+// [tdz] Email 上移（原第 33221 行，被第 30768 行引用）
+const Email = createTokenClass("email", {
+  isLink: true,
+  toHref() {
+    return "mailto:" + this.toString();
+  }
+});
+
+// [tdz] LOCALHOST 上移（原第 32630 行，被第 30776 行引用）
+const LOCALHOST = "LOCALHOST";
+
+// [tdz] Url 上移（原第 33233 行，被第 30779 行引用）
+// [tdz] defaults$1 上移（原第 32995 行，被第 30780 行引用）
+const defaults$1 = {
+  defaultProtocol: "http",
+  events: null,
+  format: noop$3,
+  formatHref: noop$3,
+  nl2br: false,
+  tagName: "a",
+  target: null,
+  rel: null,
+  validate: true,
+  truncate: Infinity,
+  className: null,
+  attributes: null,
+  ignoreTags: [],
+  render: null
+};
+
+const Url = createTokenClass("url", {
+  isLink: true,
+  /**
+  	Lowercases relevant parts of the domain and adds the protocol if
+  	required. Note that this will not escape unsafe HTML characters in the
+  	URL.
+  		@param {string} [scheme] default scheme (e.g., 'https')
+  	@return {string} the full href
+  */
+  toHref(scheme2 = defaults$1.defaultProtocol) {
+    return this.hasProtocol() ? this.v : `${scheme2}://${this.v}`;
+  },
+  /**
+   * Check whether this URL token has a protocol
+   * @return {boolean}
+   */
+  hasProtocol() {
+    const tokens2 = this.tk;
+    return tokens2.length >= 2 && tokens2[0].t !== LOCALHOST && tokens2[1].t === COLON;
+  }
+});
+
+// [tdz] NL 上移（原第 32679 行，被第 30820 行引用）
+const NL = "NL";
+
+// [tdz] Nl 上移（原第 33259 行，被第 30823 行引用）
+const Nl = createTokenClass("nl");
+
+// [tdz] tlds 上移（原第 32755 行，被第 30826 行引用）
+let tlds = null, utlds = null;
+
+// [tdz] encodedTlds 上移（原第 32464 行，被第 30829 行引用）
+const encodedTlds = "aaa1rp3bb0ott3vie4c1le2ogado5udhabi7c0ademy5centure6ountant0s9o1tor4d0s1ult4e0g1ro2tna4f0l1rica5g0akhan5ency5i0g1rbus3force5tel5kdn3l0ibaba4pay4lfinanz6state5y2sace3tom5m0azon4ericanexpress7family11x2fam3ica3sterdam8nalytics7droid5quan4z2o0l2partments8p0le4q0uarelle8r0ab1mco4chi3my2pa2t0e3s0da2ia2sociates9t0hleta5torney7u0ction5di0ble3o3spost5thor3o0s4w0s2x0a2z0ure5ba0by2idu3namex4d1k2r0celona5laycard4s5efoot5gains6seball5ketball8uhaus5yern5b0c1t1va3cg1n2d1e0ats2uty4er2rlin4st0buy5t2f1g1h0arti5i0ble3d1ke2ng0o3o1z2j1lack0friday9ockbuster8g1omberg7ue3m0s1w2n0pparibas9o0ats3ehringer8fa2m1nd2o0k0ing5sch2tik2on4t1utique6x2r0adesco6idgestone9oadway5ker3ther5ussels7s1t1uild0ers6siness6y1zz3v1w1y1z0h3ca0b1fe2l0l1vinklein9m0era3p2non3petown5ital0one8r0avan4ds2e0er0s4s2sa1e1h1ino4t0ering5holic7ba1n1re3c1d1enter4o1rn3f0a1d2g1h0anel2nel4rity4se2t2eap3intai5ristmas6ome4urch5i0priani6rcle4sco3tadel4i0c2y3k1l0aims4eaning6ick2nic1que6othing5ud3ub0med6m1n1o0ach3des3ffee4llege4ogne5m0mbank4unity6pany2re3uter5sec4ndos3struction8ulting7tact3ractors9oking4l1p2rsica5untry4pon0s4rses6pa2r0edit0card4union9icket5own3s1uise0s6u0isinella9v1w1x1y0mru3ou3z2dad1nce3ta1e1ing3sun4y2clk3ds2e0al0er2s3gree4livery5l1oitte5ta3mocrat6ntal2ist5si0gn4v2hl2iamonds6et2gital5rect0ory7scount3ver5h2y2j1k1m1np2o0cs1tor4g1mains5t1wnload7rive4tv2ubai3pont4rban5vag2r2z2earth3t2c0o2deka3u0cation8e1g1mail3erck5nergy4gineer0ing9terprises10pson4quipment8r0icsson6ni3s0q1tate5t1u0rovision8s2vents5xchange6pert3osed4ress5traspace10fage2il1rwinds6th3mily4n0s2rm0ers5shion4t3edex3edback6rrari3ero6i0delity5o2lm2nal1nce1ial7re0stone6mdale6sh0ing5t0ness6j1k1lickr3ghts4r2orist4wers5y2m1o0o0d1tball6rd1ex2sale4um3undation8x2r0ee1senius7l1ogans4ntier7tr2ujitsu5n0d2rniture7tbol5yi3ga0l0lery3o1up4me0s3p1rden4y2b0iz3d0n2e0a1nt0ing5orge5f1g0ee3h1i0ft0s3ves2ing5l0ass3e1obal2o4m0ail3bh2o1x2n1odaddy5ld0point6f2odyear5g0le4p1t1v2p1q1r0ainger5phics5tis4een3ipe3ocery4up4s1t1u0cci3ge2ide2tars5ru3w1y2hair2mburg5ngout5us3bo2dfc0bank7ealth0care8lp1sinki6re1mes5iphop4samitsu7tachi5v2k0t2m1n1ockey4ldings5iday5medepot5goods5s0ense7nda3rse3spital5t0ing5t0els3mail5use3w2r1sbc3t1u0ghes5yatt3undai7ibm2cbc2e1u2d1e0ee3fm2kano4l1m0amat4db2mo0bilien9n0c1dustries8finiti5o2g1k1stitute6urance4e4t0ernational10uit4vestments10o1piranga7q1r0ish4s0maili5t0anbul7t0au2v3jaguar4va3cb2e0ep2tzt3welry6io2ll2m0p2nj2o0bs1urg4t1y2p0morgan6rs3uegos4niper7kaufen5ddi3e0rryhotels6properties14fh2g1h1i0a1ds2m1ndle4tchen5wi3m1n1oeln3matsu5sher5p0mg2n2r0d1ed3uokgroup8w1y0oto4z2la0caixa5mborghini8er3nd0rover6xess5salle5t0ino3robe5w0yer5b1c1ds2ease3clerc5frak4gal2o2xus4gbt3i0dl2fe0insurance9style7ghting6ke2lly3mited4o2ncoln4k2ve1ing5k1lc1p2oan0s3cker3us3l1ndon4tte1o3ve3pl0financial11r1s1t0d0a3u0ndbeck6xe1ury5v1y2ma0drid4if1son4keup4n0agement7go3p1rket0ing3s4riott5shalls7ttel5ba2c0kinsey7d1e0d0ia3et2lbourne7me1orial6n0u2rck0msd7g1h1iami3crosoft7l1ni1t2t0subishi9k1l0b1s2m0a2n1o0bi0le4da2e1i1m1nash3ey2ster5rmon3tgage6scow4to0rcycles9v0ie4p1q1r1s0d2t0n1r2u0seum3ic4v1w1x1y1z2na0b1goya4me2vy3ba2c1e0c1t0bank4flix4work5ustar5w0s2xt0direct7us4f0l2g0o2hk2i0co2ke1on3nja3ssan1y5l1o0kia3rton4w0ruz3tv4p1r0a1w2tt2u1yc2z2obi1server7ffice5kinawa6layan0group9lo3m0ega4ne1g1l0ine5oo2pen3racle3nge4g0anic5igins6saka4tsuka4t2vh3pa0ge2nasonic7ris2s1tners4s1y3y2ccw3e0t2f0izer5g1h0armacy6d1ilips5one2to0graphy6s4ysio5ics1tet2ures6d1n0g1k2oneer5zza4k1l0ace2y0station9umbing5s3m1n0c2ohl2ker3litie5rn2st3r0axi3ess3ime3o0d0uctions8f1gressive8mo2perties3y5tection8u0dential9s1t1ub2w0c2y2qa1pon3uebec3st5racing4dio4e0ad1lestate6tor2y4cipes5d0umbrella9hab3ise0n3t2liance6n0t0als5pair3ort3ublican8st0aurant8view0s5xroth6ich0ardli6oh3l1o1p2o0cks3deo3gers4om3s0vp3u0gby3hr2n2w0e2yukyu6sa0arland6fe0ty4kura4le1on3msclub4ung5ndvik0coromant12ofi4p1rl2s1ve2xo3b0i1s2c0b1haeffler7midt4olarships8ol3ule3warz5ience5ot3d1e0arch3t2cure1ity6ek2lect4ner3rvices6ven3w1x0y3fr2g1h0angrila6rp3ell3ia1ksha5oes2p0ping5uji3w3i0lk2na1gles5te3j1k0i0n2y0pe4l0ing4m0art3ile4n0cf3o0ccer3ial4ftbank4ware6hu2lar2utions7ng1y2y2pa0ce3ort2t3r0l2s1t0ada2ples4r1tebank4farm7c0group6ockholm6rage3e3ream4udio2y3yle4u0cks3pplies3y2ort5rf1gery5zuki5v1watch4iss4x1y0dney4stems6z2tab1ipei4lk2obao4rget4tamotors6r2too4x0i3c0i2d0k2eam2ch0nology8l1masek5nnis4va3f1g1h0d1eater2re6iaa2ckets5enda4ps2res2ol4j0maxx4x2k0maxx5l1m0all4n1o0day3kyo3ols3p1ray3shiba5tal3urs3wn2yota3s3r0ade1ing4ining5vel0ers0insurance16ust3v2t1ube2i1nes3shu4v0s2w1z2ua1bank3s2g1k1nicom3versity8o2ol2ps2s1y1z2va0cations7na1guard7c1e0gas3ntures6risign5mögensberater2ung14sicherung10t2g1i0ajes4deo3g1king4llas4n1p1rgin4sa1ion4va1o3laanderen9n1odka3lvo3te1ing3o2yage5u2wales2mart4ter4ng0gou5tch0es6eather0channel12bcam3er2site5d0ding5ibo2r3f1hoswho6ien2ki2lliamhill9n0dows4e1ners6me2oodside6rk0s2ld3w2s1tc1f3xbox3erox4ihuan4n2xx2yz3yachts4hoo3maxun5ndex5e1odobashi7ga2kohama6u0tube6t1un3za0ppos4ra3ero3ip2m1one3uerich6w2";
+
+// [tdz] encodedUtlds 上移（原第 32467 行，被第 30832 行引用）
+const encodedUtlds = "ελ1υ2бг1ел3дети4ею2католик6ом3мкд2он1сква6онлайн5рг3рус2ф2сайт3рб3укр3қаз3հայ3ישראל5קום3ابوظبي5رامكو5لاردن4بحرين5جزائر5سعودية6عليان5مغرب5مارات5یران5بارت2زار4يتك3ھارت5تونس4سودان3رية5شبكة4عراق2ب2مان4فلسطين6قطر3كاثوليك6وم3مصر2ليسيا5وريتانيا7قع4همراه5پاکستان7ڀارت4कॉम3नेट3भारत0म्3ोत5संगठन5বাংলা5ভারত2ৰত4ਭਾਰਤ4ભારત4ଭାରତ4இந்தியா6லங்கை6சிங்கப்பூர்11భారత్5ಭಾರತ4ഭാരതം5ලංකා4คอม3ไทย3ລາວ3გე2みんな3アマゾン4クラウド4グーグル4コム2ストア3セール3ファッション6ポイント4世界2中信1国1國1文网3亚马逊3企业2佛山2信息2健康2八卦2公司1益2台湾1灣2商城1店1标2嘉里0大酒店5在线2大拿2天主教3娱乐2家電2广东2微博2慈善2我爱你3手机2招聘2政务1府2新加坡2闻2时尚2書籍2机构2淡马锡3游戏2澳門2点看2移动2组织机构4网址1店1站1络2联通2谷歌2购物2通販2集团2電訊盈科4飞利浦3食品2餐厅2香格里拉3港2닷넷1컴2삼성2한국2";
+
+// [tdz] FULLWIDTHMIDDLEDOT 上移（原第 32692 行，被第 30835 行引用）
+const FULLWIDTHMIDDLEDOT = "FULLWIDTHMIDDLEDOT";
+
+// [tdz] tr$3 上移（原第 32684 行，被第 30838 行引用）
+const tr$3 = (state2, regexp, next2, flags, groups) => state2.tr(regexp, next2, flags, groups);
+
+// [tdz] DIGIT 上移（原第 32759 行，被第 30841 行引用）
+const DIGIT = /\d/;
+
+// [tdz] ASCII_LETTER 上移（原第 32759 行，被第 30844 行引用）
+const ASCII_LETTER = /[a-z]/;
+
+// [tdz] ASCIINUMERICAL 上移（原第 32696 行，被第 30847 行引用）
+const ASCIINUMERICAL = "ASCIINUMERICAL";
+
+// [tdz] LETTER 上移（原第 32764 行，被第 30850 行引用）
+const LETTER = new RegExp("\\p{L}", "u");
+
+// [tdz] ALPHANUMERICAL 上移（原第 32702 行，被第 30853 行引用）
+const ALPHANUMERICAL = "ALPHANUMERICAL";
+
+// [tdz] WORD 上移（原第 32703 行，被第 30856 行引用）
+const WORD = "WORD";
+
+// [tdz] UWORD 上移（原第 32706 行，被第 30859 行引用）
+const UWORD = "UWORD";
+
+// [tdz] LF 上移（原第 32776 行，被第 30862 行引用）
+const LF = "\n";
+
+// [tdz] CR 上移（原第 32778 行，被第 30865 行引用）
+const CR = "\r";
+
+// [tdz] WS 上移（原第 32719 行，被第 30868 行引用）
+const WS = "WS";
+
+// [tdz] SPACE 上移（原第 32782 行，被第 30871 行引用）
+const SPACE = /\s/;
+
+// [tdz] OBJECT_REPLACEMENT 上移（原第 32787 行，被第 30874 行引用）
+const OBJECT_REPLACEMENT = "￼";
+
+// [tdz] EMOJI 上移（原第 32787 行，被第 30877 行引用）
+const EMOJI = new RegExp("\\p{Emoji}", "u");
+
+// [tdz] EMOJI$1 上移（原第 32731 行，被第 30880 行引用）
+const EMOJI$1 = "EMOJI";
+
+// [tdz] EMOJI_VARIATION 上移（原第 32792 行，被第 30883 行引用）
+const EMOJI_VARIATION = "️";
+
+// [tdz] EMOJI_JOINER 上移（原第 32795 行，被第 30886 行引用）
+const EMOJI_JOINER = "‍";
+
+// [tdz] TLD 上移（原第 32736 行，被第 30889 行引用）
+const TLD = "TLD";
+
+// [tdz] UTLD 上移（原第 32739 行，被第 30892 行引用）
+const UTLD = "UTLD";
+
+// [tdz] SCHEME 上移（原第 32742 行，被第 30895 行引用）
+const SCHEME = "SCHEME";
+
+// [tdz] SLASH_SCHEME 上移（原第 32745 行，被第 30898 行引用）
+const SLASH_SCHEME = "SLASH_SCHEME";
+
+// [tdz] ts$1 上移（原第 32747 行，被第 30901 行引用）
+const ts$1 = (state2, input, next2, flags, groups) => state2.ts(input, next2, flags, groups);
+
 var PureEditorContent = class extends React.Component {
   constructor(props) {
     super(props);
@@ -30559,6 +31041,9 @@ function useEditorState(options2) {
 const isDev = false;
 const isSSR = typeof window === "undefined";
 const isNext = isSSR || Boolean(typeof window !== "undefined" && window.next);
+// [tdz] Editor2 上移（原第 43205 行，被第 30660 行引用）
+const Editor2 = class {};
+
 var EditorInstanceManager = class EditorInstanceManager2 {
   constructor(options2) {
     this.editor = null;
@@ -31242,8 +31727,6 @@ Object.assign(TiptapWrapper, {
   */
   Content: TiptapContent
 });
-const jsxElements = /* @__PURE__ */ new WeakSet();
-const jsxFragments = /* @__PURE__ */ new WeakSet();
 function createJSXElement(spec) {
   const element2 = spec;
   jsxElements.add(element2);
@@ -31388,7 +31871,7 @@ const starPasteRegex$1 = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))/g;
 const underscoreInputRegex$1 = /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))$/;
 const underscorePasteRegex$1 = /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))/g;
 // [tdz] Mark2 上移（原第 43116 行，被第 31390 行引用）
-const Mark2 = class {};
+const Mark2 = TiptapMark;
 
 const Bold = Mark2.create({
   name: "bold",
@@ -32053,8 +32536,6 @@ const Italic = Mark2.create({
     })];
   }
 });
-const encodedTlds = "aaa1rp3bb0ott3vie4c1le2ogado5udhabi7c0ademy5centure6ountant0s9o1tor4d0s1ult4e0g1ro2tna4f0l1rica5g0akhan5ency5i0g1rbus3force5tel5kdn3l0ibaba4pay4lfinanz6state5y2sace3tom5m0azon4ericanexpress7family11x2fam3ica3sterdam8nalytics7droid5quan4z2o0l2partments8p0le4q0uarelle8r0ab1mco4chi3my2pa2t0e3s0da2ia2sociates9t0hleta5torney7u0ction5di0ble3o3spost5thor3o0s4w0s2x0a2z0ure5ba0by2idu3namex4d1k2r0celona5laycard4s5efoot5gains6seball5ketball8uhaus5yern5b0c1t1va3cg1n2d1e0ats2uty4er2rlin4st0buy5t2f1g1h0arti5i0ble3d1ke2ng0o3o1z2j1lack0friday9ockbuster8g1omberg7ue3m0s1w2n0pparibas9o0ats3ehringer8fa2m1nd2o0k0ing5sch2tik2on4t1utique6x2r0adesco6idgestone9oadway5ker3ther5ussels7s1t1uild0ers6siness6y1zz3v1w1y1z0h3ca0b1fe2l0l1vinklein9m0era3p2non3petown5ital0one8r0avan4ds2e0er0s4s2sa1e1h1ino4t0ering5holic7ba1n1re3c1d1enter4o1rn3f0a1d2g1h0anel2nel4rity4se2t2eap3intai5ristmas6ome4urch5i0priani6rcle4sco3tadel4i0c2y3k1l0aims4eaning6ick2nic1que6othing5ud3ub0med6m1n1o0ach3des3ffee4llege4ogne5m0mbank4unity6pany2re3uter5sec4ndos3struction8ulting7tact3ractors9oking4l1p2rsica5untry4pon0s4rses6pa2r0edit0card4union9icket5own3s1uise0s6u0isinella9v1w1x1y0mru3ou3z2dad1nce3ta1e1ing3sun4y2clk3ds2e0al0er2s3gree4livery5l1oitte5ta3mocrat6ntal2ist5si0gn4v2hl2iamonds6et2gital5rect0ory7scount3ver5h2y2j1k1m1np2o0cs1tor4g1mains5t1wnload7rive4tv2ubai3pont4rban5vag2r2z2earth3t2c0o2deka3u0cation8e1g1mail3erck5nergy4gineer0ing9terprises10pson4quipment8r0icsson6ni3s0q1tate5t1u0rovision8s2vents5xchange6pert3osed4ress5traspace10fage2il1rwinds6th3mily4n0s2rm0ers5shion4t3edex3edback6rrari3ero6i0delity5o2lm2nal1nce1ial7re0stone6mdale6sh0ing5t0ness6j1k1lickr3ghts4r2orist4wers5y2m1o0o0d1tball6rd1ex2sale4um3undation8x2r0ee1senius7l1ogans4ntier7tr2ujitsu5n0d2rniture7tbol5yi3ga0l0lery3o1up4me0s3p1rden4y2b0iz3d0n2e0a1nt0ing5orge5f1g0ee3h1i0ft0s3ves2ing5l0ass3e1obal2o4m0ail3bh2o1x2n1odaddy5ld0point6f2odyear5g0le4p1t1v2p1q1r0ainger5phics5tis4een3ipe3ocery4up4s1t1u0cci3ge2ide2tars5ru3w1y2hair2mburg5ngout5us3bo2dfc0bank7ealth0care8lp1sinki6re1mes5iphop4samitsu7tachi5v2k0t2m1n1ockey4ldings5iday5medepot5goods5s0ense7nda3rse3spital5t0ing5t0els3mail5use3w2r1sbc3t1u0ghes5yatt3undai7ibm2cbc2e1u2d1e0ee3fm2kano4l1m0amat4db2mo0bilien9n0c1dustries8finiti5o2g1k1stitute6urance4e4t0ernational10uit4vestments10o1piranga7q1r0ish4s0maili5t0anbul7t0au2v3jaguar4va3cb2e0ep2tzt3welry6io2ll2m0p2nj2o0bs1urg4t1y2p0morgan6rs3uegos4niper7kaufen5ddi3e0rryhotels6properties14fh2g1h1i0a1ds2m1ndle4tchen5wi3m1n1oeln3matsu5sher5p0mg2n2r0d1ed3uokgroup8w1y0oto4z2la0caixa5mborghini8er3nd0rover6xess5salle5t0ino3robe5w0yer5b1c1ds2ease3clerc5frak4gal2o2xus4gbt3i0dl2fe0insurance9style7ghting6ke2lly3mited4o2ncoln4k2ve1ing5k1lc1p2oan0s3cker3us3l1ndon4tte1o3ve3pl0financial11r1s1t0d0a3u0ndbeck6xe1ury5v1y2ma0drid4if1son4keup4n0agement7go3p1rket0ing3s4riott5shalls7ttel5ba2c0kinsey7d1e0d0ia3et2lbourne7me1orial6n0u2rck0msd7g1h1iami3crosoft7l1ni1t2t0subishi9k1l0b1s2m0a2n1o0bi0le4da2e1i1m1nash3ey2ster5rmon3tgage6scow4to0rcycles9v0ie4p1q1r1s0d2t0n1r2u0seum3ic4v1w1x1y1z2na0b1goya4me2vy3ba2c1e0c1t0bank4flix4work5ustar5w0s2xt0direct7us4f0l2g0o2hk2i0co2ke1on3nja3ssan1y5l1o0kia3rton4w0ruz3tv4p1r0a1w2tt2u1yc2z2obi1server7ffice5kinawa6layan0group9lo3m0ega4ne1g1l0ine5oo2pen3racle3nge4g0anic5igins6saka4tsuka4t2vh3pa0ge2nasonic7ris2s1tners4s1y3y2ccw3e0t2f0izer5g1h0armacy6d1ilips5one2to0graphy6s4ysio5ics1tet2ures6d1n0g1k2oneer5zza4k1l0ace2y0station9umbing5s3m1n0c2ohl2ker3litie5rn2st3r0axi3ess3ime3o0d0uctions8f1gressive8mo2perties3y5tection8u0dential9s1t1ub2w0c2y2qa1pon3uebec3st5racing4dio4e0ad1lestate6tor2y4cipes5d0umbrella9hab3ise0n3t2liance6n0t0als5pair3ort3ublican8st0aurant8view0s5xroth6ich0ardli6oh3l1o1p2o0cks3deo3gers4om3s0vp3u0gby3hr2n2w0e2yukyu6sa0arland6fe0ty4kura4le1on3msclub4ung5ndvik0coromant12ofi4p1rl2s1ve2xo3b0i1s2c0b1haeffler7midt4olarships8ol3ule3warz5ience5ot3d1e0arch3t2cure1ity6ek2lect4ner3rvices6ven3w1x0y3fr2g1h0angrila6rp3ell3ia1ksha5oes2p0ping5uji3w3i0lk2na1gles5te3j1k0i0n2y0pe4l0ing4m0art3ile4n0cf3o0ccer3ial4ftbank4ware6hu2lar2utions7ng1y2y2pa0ce3ort2t3r0l2s1t0ada2ples4r1tebank4farm7c0group6ockholm6rage3e3ream4udio2y3yle4u0cks3pplies3y2ort5rf1gery5zuki5v1watch4iss4x1y0dney4stems6z2tab1ipei4lk2obao4rget4tamotors6r2too4x0i3c0i2d0k2eam2ch0nology8l1masek5nnis4va3f1g1h0d1eater2re6iaa2ckets5enda4ps2res2ol4j0maxx4x2k0maxx5l1m0all4n1o0day3kyo3ols3p1ray3shiba5tal3urs3wn2yota3s3r0ade1ing4ining5vel0ers0insurance16ust3v2t1ube2i1nes3shu4v0s2w1z2ua1bank3s2g1k1nicom3versity8o2ol2ps2s1y1z2va0cations7na1guard7c1e0gas3ntures6risign5mögensberater2ung14sicherung10t2g1i0ajes4deo3g1king4llas4n1p1rgin4sa1ion4va1o3laanderen9n1odka3lvo3te1ing3o2yage5u2wales2mart4ter4ng0gou5tch0es6eather0channel12bcam3er2site5d0ding5ibo2r3f1hoswho6ien2ki2lliamhill9n0dows4e1ners6me2oodside6rk0s2ld3w2s1tc1f3xbox3erox4ihuan4n2xx2yz3yachts4hoo3maxun5ndex5e1odobashi7ga2kohama6u0tube6t1un3za0ppos4ra3ero3ip2m1one3uerich6w2";
-const encodedUtlds = "ελ1υ2бг1ел3дети4ею2католик6ом3мкд2он1сква6онлайн5рг3рус2ф2сайт3рб3укр3қаз3հայ3ישראל5קום3ابوظبي5رامكو5لاردن4بحرين5جزائر5سعودية6عليان5مغرب5مارات5یران5بارت2زار4يتك3ھارت5تونس4سودان3رية5شبكة4عراق2ب2مان4فلسطين6قطر3كاثوليك6وم3مصر2ليسيا5وريتانيا7قع4همراه5پاکستان7ڀارت4कॉम3नेट3भारत0म्3ोत5संगठन5বাংলা5ভারত2ৰত4ਭਾਰਤ4ભારત4ଭାରତ4இந்தியா6லங்கை6சிங்கப்பூர்11భారత్5ಭಾರತ4ഭാരതം5ලංකා4คอม3ไทย3ລາວ3გე2みんな3アマゾン4クラウド4グーグル4コム2ストア3セール3ファッション6ポイント4世界2中信1国1國1文网3亚马逊3企业2佛山2信息2健康2八卦2公司1益2台湾1灣2商城1店1标2嘉里0大酒店5在线2大拿2天主教3娱乐2家電2广东2微博2慈善2我爱你3手机2招聘2政务1府2新加坡2闻2时尚2書籍2机构2淡马锡3游戏2澳門2点看2移动2组织机构4网址1店1站1络2联通2谷歌2购物2通販2集团2電訊盈科4飞利浦3食品2餐厅2香格里拉3港2닷넷1컴2삼성2한국2";
 const numeric = "numeric";
 const ascii$1 = "ascii";
 const alpha$1 = "alpha";
@@ -32266,65 +32747,6 @@ State$1.prototype = {
     return nextState;
   }
 };
-const ta = (state2, input, next2, flags, groups) => state2.ta(input, next2, flags, groups);
-const tr$3 = (state2, regexp, next2, flags, groups) => state2.tr(regexp, next2, flags, groups);
-const ts$1 = (state2, input, next2, flags, groups) => state2.ts(input, next2, flags, groups);
-const tt$4 = (state2, input, next2, flags, groups) => state2.tt(input, next2, flags, groups);
-const WORD = "WORD";
-const UWORD = "UWORD";
-const ASCIINUMERICAL = "ASCIINUMERICAL";
-const ALPHANUMERICAL = "ALPHANUMERICAL";
-const LOCALHOST = "LOCALHOST";
-const TLD = "TLD";
-const UTLD = "UTLD";
-const SCHEME = "SCHEME";
-const SLASH_SCHEME = "SLASH_SCHEME";
-const NUM = "NUM";
-const WS = "WS";
-const NL = "NL";
-const OPENBRACE = "OPENBRACE";
-const CLOSEBRACE = "CLOSEBRACE";
-const OPENBRACKET = "OPENBRACKET";
-const CLOSEBRACKET = "CLOSEBRACKET";
-const OPENPAREN = "OPENPAREN";
-const CLOSEPAREN = "CLOSEPAREN";
-const OPENANGLEBRACKET = "OPENANGLEBRACKET";
-const CLOSEANGLEBRACKET = "CLOSEANGLEBRACKET";
-const FULLWIDTHLEFTPAREN = "FULLWIDTHLEFTPAREN";
-const FULLWIDTHRIGHTPAREN = "FULLWIDTHRIGHTPAREN";
-const LEFTCORNERBRACKET = "LEFTCORNERBRACKET";
-const RIGHTCORNERBRACKET = "RIGHTCORNERBRACKET";
-const LEFTWHITECORNERBRACKET = "LEFTWHITECORNERBRACKET";
-const RIGHTWHITECORNERBRACKET = "RIGHTWHITECORNERBRACKET";
-const FULLWIDTHLESSTHAN = "FULLWIDTHLESSTHAN";
-const FULLWIDTHGREATERTHAN = "FULLWIDTHGREATERTHAN";
-const AMPERSAND = "AMPERSAND";
-const APOSTROPHE = "APOSTROPHE";
-const ASTERISK = "ASTERISK";
-const AT = "AT";
-const BACKSLASH = "BACKSLASH";
-const BACKTICK = "BACKTICK";
-const CARET = "CARET";
-const COLON = "COLON";
-const COMMA = "COMMA";
-const DOLLAR = "DOLLAR";
-const DOT = "DOT";
-const EQUALS = "EQUALS";
-const EXCLAMATION = "EXCLAMATION";
-const HYPHEN = "HYPHEN";
-const PERCENT = "PERCENT";
-const PIPE = "PIPE";
-const PLUS = "PLUS";
-const POUND = "POUND";
-const QUERY = "QUERY";
-const QUOTE = "QUOTE";
-const FULLWIDTHMIDDLEDOT = "FULLWIDTHMIDDLEDOT";
-const SEMI = "SEMI";
-const SLASH = "SLASH";
-const TILDE = "TILDE";
-const UNDERSCORE = "UNDERSCORE";
-const EMOJI$1 = "EMOJI";
-const SYM = "SYM";
 var tk = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   ALPHANUMERICAL,
@@ -32383,17 +32805,6 @@ var tk = /* @__PURE__ */ Object.freeze({
   WORD,
   WS
 });
-const ASCII_LETTER = /[a-z]/;
-const LETTER = new RegExp("\\p{L}", "u");
-const EMOJI = new RegExp("\\p{Emoji}", "u");
-const DIGIT = /\d/;
-const SPACE = /\s/;
-const CR = "\r";
-const LF = "\n";
-const EMOJI_VARIATION = "️";
-const EMOJI_JOINER = "‍";
-const OBJECT_REPLACEMENT = "￼";
-let tlds = null, utlds = null;
 function init$2(customSchemes = []) {
   const groups = {};
   State$1.groups = groups;
@@ -32656,22 +33067,6 @@ function decodeTlds(encoded) {
   }
   return words;
 }
-const defaults$1 = {
-  defaultProtocol: "http",
-  events: null,
-  format: noop$3,
-  formatHref: noop$3,
-  nl2br: false,
-  tagName: "a",
-  target: null,
-  rel: null,
-  validate: true,
-  truncate: Infinity,
-  className: null,
-  attributes: null,
-  ignoreTags: [],
-  render: null
-};
 function Options(opts, defaultRender = null) {
   let o2 = Object.assign({}, defaults$1);
   if (opts) {
@@ -32915,36 +33310,7 @@ function createTokenClass(type, props) {
   Token.t = type;
   return Token;
 }
-const Email = createTokenClass("email", {
-  isLink: true,
-  toHref() {
-    return "mailto:" + this.toString();
-  }
-});
 const Text$2 = createTokenClass("text");
-const Nl = createTokenClass("nl");
-const Url = createTokenClass("url", {
-  isLink: true,
-  /**
-  	Lowercases relevant parts of the domain and adds the protocol if
-  	required. Note that this will not escape unsafe HTML characters in the
-  	URL.
-  		@param {string} [scheme] default scheme (e.g., 'https')
-  	@return {string} the full href
-  */
-  toHref(scheme2 = defaults$1.defaultProtocol) {
-    return this.hasProtocol() ? this.v : `${scheme2}://${this.v}`;
-  },
-  /**
-   * Check whether this URL token has a protocol
-   * @return {boolean}
-   */
-  hasProtocol() {
-    const tokens2 = this.tk;
-    return tokens2.length >= 2 && tokens2[0].t !== LOCALHOST && tokens2[1].t === COLON;
-  }
-});
-const makeState$1 = (arg) => new State$1(arg);
 function init$1({
   groups
 }) {
@@ -33124,14 +33490,6 @@ function initMultiToken(Multi, input, tokens2) {
 const warn$1 = typeof console !== "undefined" && console && console.warn || (() => {
 });
 const warnAdvice = "until manual call of linkify.init(). Register all schemes and plugins before invoking linkify the first time.";
-const INIT = {
-  scanner: null,
-  parser: null,
-  tokenQueue: [],
-  pluginQueue: [],
-  customSchemes: [],
-  initialized: false
-};
 function reset() {
   State$1.groups = {};
   INIT.scanner = null;
@@ -33929,6 +34287,9 @@ function parseSameLineOrderedListText(text2, helpers) {
     text: text2
   }]);
 }
+// [tdz] renderNestedMarkdownContent 上移（原第 43210 行，被第 34033 行引用）
+const renderNestedMarkdownContent = () => void 0;
+
 const ListItem = Node$1.create({
   name: "listItem",
   addOptions() {
@@ -34096,6 +34457,9 @@ const handleDelete$2 = (editor2, name2) => {
   if (nextListIsHigher(name2, editor2.state)) return editor2.chain().joinForward().joinBackward().run();
   return editor2.commands.joinItemForward();
 };
+// [tdz] getPreviousBlockSibling 上移（原第 43211 行，被第 34203 行引用）
+const getPreviousBlockSibling = () => void 0;
+
 const handleTab = (editor2, name2, parentListTypes) => {
   const { state: state2 } = editor2;
   const { selection: selection2 } = state2;
@@ -34612,6 +34976,9 @@ function propertiesFactory(check) {
   }
 }
 
+// [tdz] resourceConnectionListeners 上移（原第 34927 行，被第 34722 行引用）
+const resourceConnectionListeners = /* @__PURE__ */ new Set();
+
 const publish$1 = () => {
   resourceConnectionRevision += 1;
   for (const listener of resourceConnectionListeners) listener();
@@ -34817,9 +35184,7 @@ async function renderWatermarkedVideoSource(sourceUrl, settings, { signal }) {
   }
 }
 
-const resourceConnectionListeners = /* @__PURE__ */ new Set();
 
-let resourceConnectionRevision = 0;
 
 function restoreHtableDocument(raw2) {
   const source = parseHtableDocument(raw2);
@@ -35190,6 +35555,12 @@ function world(d2, n2) {
 
 
 // converge 取回
+// [tdz] WAVEFORM_WIDTH$1 上移（原第 37974 行，被第 35301 行引用）
+const WAVEFORM_WIDTH$1 = 318;
+
+// [tdz] WAVEFORM_CONTAINER_HEIGHT$1 上移（原第 37978 行，被第 35304 行引用）
+const WAVEFORM_CONTAINER_HEIGHT$1 = 64;
+
 const AudioPlayer$1 = reactExports.memo(function AudioPlayer2({
   src,
   fileName,
@@ -36131,6 +36502,12 @@ function MultiAnglePresetsPanel({
   }) });
 }
 
+// [tdz] CDN_BASE 上移（原第 40589 行，被第 36505 行引用）
+const CDN_BASE = "https://cdn.hailuoai.com/asset/2026-04-03-17/multiview";
+
+// [tdz] THUMB_SUFFIX 上移（原第 40593 行，被第 36508 行引用）
+const THUMB_SUFFIX = "?x-oss-process=image/resize,w_540/format,webp";
+
 const ANGLE_PRESETS = [
   preset("eye-level", "eye_level", "preset_eye_level", 0, 0, 5),
   preset("close-up", "extreme_closeup", "preset_close_up", 0, 0, 10),
@@ -36199,6 +36576,15 @@ const COPY_FEEDBACK_DURATION_MS$1 = 1500;
 const PROMPT_FONT_SIZE_STEP = 1;
 
 const EMPTY_EXTENSIONS = [];
+
+// [tdz] INTERACTIVE_TARGET 上移（原第 40603 行，被第 36580 行引用）
+const INTERACTIVE_TARGET = "button, a, input, textarea, select, [data-prompt-native-pointer]";
+
+// [tdz] DRAG_THRESHOLD_PX$2 上移（原第 40619 行，被第 36583 行引用）
+const DRAG_THRESHOLD_PX$2 = 3;
+
+// [tdz] CHIP_IN_SELECTION_CLASS 上移（原第 40607 行，被第 36586 行引用）
+const CHIP_IN_SELECTION_CLASS = "canvas-prompt-chip-in-selection";
 
 const InlineAtomDragSelection = Extension.create({
   name: "inlineAtomDragSelection",
@@ -36531,11 +36917,8 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
   );
 }
 
-const FALLBACK_ROW_HEIGHT = 32;
 
-const FALLBACK_COL_WIDTH = 200;
 
-const HEADER_HEIGHT = 32;
 
 function FieldIcon({ type }) {
   if (type === "number") return /* @__PURE__ */ jsxRuntimeExports.jsx(NumberIcon, {});
@@ -36759,6 +37142,30 @@ function DraftEditor({
 function formatCropOutputDuration(range2) {
   return String(Number(getCropOutputDuration(range2).toFixed(3)));
 }
+
+// [tdz] useButton 上移（原第 43204 行，被第 36877 行引用）
+const useButton = () => ({});
+
+// [tdz] useRenderElement 上移（原第 43208 行，被第 36880 行引用）
+const useRenderElement = () => null;
+
+// [tdz] createChangeEventDetails 上移（原第 43204 行，被第 36883 行引用）
+const createChangeEventDetails = () => ({});
+
+// [tdz] closePress 上移（原第 43206 行，被第 36886 行引用）
+const closePress = () => void 0;
+
+// [tdz] ClosePartContext 上移（原第 40901 行，被第 37158 行引用）
+const ClosePartContext = /* @__PURE__ */ reactExports.createContext(void 0);
+
+// [tdz] useIsoLayoutEffect 上移（原第 43457 行，被第 37161 行引用）
+const useIsoLayoutEffect = (fn, deps) => React.useLayoutEffect(fn, deps);
+
+// [tdz] PopoverRootContext 上移（原第 40905 行，被第 37164 行引用）
+const PopoverRootContext = /* @__PURE__ */ reactExports.createContext(void 0);
+
+// [tdz] formatErrorMessage 上移（原第 43463 行，被第 37167 行引用）
+const formatErrorMessage = (e) => (e instanceof Error ? e.message : String(e));
 
 const PopoverClose = /* @__PURE__ */ reactExports.forwardRef(function PopoverClose2(componentProps, forwardedRef) {
   const {
@@ -37058,27 +37465,6 @@ function looksLikeANode(value) {
 
 const COMPACT_GRID_MIN_COLUMNS_LIMIT = { min: 1, max: 10 };
 
-const createStoreImpl = (createState2) => {
-  let state2;
-  const listeners2 = /* @__PURE__ */ new Set();
-  const setState = (partial, replace2) => {
-    const nextState = typeof partial === "function" ? partial(state2) : partial;
-    if (!Object.is(nextState, state2)) {
-      const previousState = state2;
-      state2 = (replace2 != null ? replace2 : typeof nextState !== "object" || nextState === null) ? nextState : Object.assign({}, state2, nextState);
-      listeners2.forEach((listener) => listener(state2, previousState));
-    }
-  };
-  const getState2 = () => state2;
-  const getInitialState2 = () => initialState;
-  const subscribe2 = (listener) => {
-    listeners2.add(listener);
-    return () => listeners2.delete(listener);
-  };
-  const api = { setState, getState: getState2, getInitialState: getInitialState2, subscribe: subscribe2 };
-  const initialState = state2 = createState2(setState, getState2, api);
-  return api;
-};
 
 let idCounter = 0;
 
@@ -37090,16 +37476,6 @@ const APPEARANCE_PANEL_POSITION_CLASSES = {
   "top-right": "top-full right-0 mt-2"
 };
 
-const LIGHTBOX_FOCUSABLE_SELECTOR = [
-  "a[href]",
-  "button:not([disabled])",
-  'input:not([disabled]):not([type="hidden"])',
-  "select:not([disabled])",
-  "textarea:not([disabled])",
-  '[tabindex]:not([tabindex="-1"])',
-  "video[controls]",
-  "audio[controls]"
-].join(",");
 
 function combineExtensions(extensions2) {
   const all2 = {};
@@ -37543,12 +37919,6 @@ function inspectBudget(totalSec, constraints2) {
     return { code: "budget", excessSec: durationDifference(totalSec, budget) };
 }
 
-const RESOLUTION_RANK = {
-  "720p": 0,
-  "1080p": 1,
-  "2k": 2,
-  "4k": 3
-};
 
 
 const VIDEO_MODE_ORDER = [
@@ -37884,13 +38254,10 @@ function scheduleReleaseRecovery(gatewayFetch2, leaseRequest, attempt = 0) {
 
 
 // converge 取回
-const WAVEFORM_WIDTH$1 = 318;
 
-const WAVEFORM_CONTAINER_HEIGHT$1 = 64;
 
 const ICON_PX = { xs: 12, sm: 14, md: 16, lg: 20 };
 
-const MENU_CONTENT_CLASS = "min-w-[200px] border border-[var(--canvas-controls-border)] [border-width:var(--divider-width)]";
 
 function TidyCategoryIcon(props) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(CompositedSvg, { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", ...props, children: [
@@ -38477,7 +38844,6 @@ function voiceClip(reference, role2, fits, window2) {
     reject(`${role2} needs a measured duration ${window2}`);
 }
 
-const VOICE_PREVIEW_MODEL = "speech-2.8-hd";
 
 
 
@@ -38553,12 +38919,8 @@ function useBackdropDismiss(onDismiss) {
   return { onMouseDown, onClick };
 }
 
-const TableToolbar = reactExports.memo(TableToolbarInner);
 
-const NOOP_TITLE_CHANGE = () => {
-};
 
-const TableEditor = reactExports.memo(TableEditorInner);
 
 function NumberIcon() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(CompositedSvg, { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -38672,6 +39034,9 @@ const Subscribable = class { subscribe() { return () => void 0; } };
 
 // [tdz] replaceEqualDeep$1 上移（原第 43112 行，被第 38802 行引用）
 const replaceEqualDeep$1 = (a, b) => (a === b ? a : b);
+
+// [tdz] shallowEqualObjects 上移（原第 43217 行，被第 38778 行引用）
+const shallowEqualObjects = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 var QueriesObserver = class extends Subscribable {
   #client;
@@ -40011,6 +40376,46 @@ function handleDelete$1(node2, _2, state2, info2) {
 // [tdz] listItem 上移（原第 43120 行，被第 40026 行引用）
 const listItem = (o) => o;
 
+// [tdz] unicodeWhitespace$1 上移（原第 41110 行，被第 40379 行引用）
+const unicodeWhitespace$1 = regexCheck$1(/\s/);
+
+// [tdz] unicodePunctuation$1 上移（原第 41114 行，被第 40382 行引用）
+const unicodePunctuation$1 = regexCheck$1(new RegExp("\\p{P}|\\p{S}", "u"));
+
+// [tdz] phrasing 上移（原第 42765 行，被第 40385 行引用）
+const phrasing = (
+  /** @type {(node?: unknown) => node is Exclude<PhrasingContent, Html>} */
+  convert([
+    "break",
+    "delete",
+    "emphasis",
+    // To do: next major: removed since footnotes were added to GFM.
+    "footnote",
+    "footnoteReference",
+    "image",
+    "imageReference",
+    "inlineCode",
+    // Enabled by `mdast-util-math`:
+    "inlineMath",
+    "link",
+    "linkReference",
+    // Enabled by `mdast-util-mdx`:
+    "mdxJsxTextElement",
+    // Enabled by `mdast-util-mdx`:
+    "mdxTextExpression",
+    "strong",
+    "text",
+    // Enabled by `mdast-util-directive`:
+    "textDirective"
+  ])
+);
+
+// [tdz] emptyOptions$4 上移（原第 43416 行，被第 40413 行引用）
+const emptyOptions$4 = {};
+
+// [tdz] CONTINUE 上移（原第 40522 行，被第 40416 行引用）
+const CONTINUE = true;
+
 const handle$1 = {
   blockquote,
   break: hardBreak,
@@ -40117,7 +40522,6 @@ function isCell(value) {
 
 const RESOURCE_THUMBNAIL_MAX_EDGE = 256;
 
-const CONTINUE = true;
 
 const ACTIVITY_REQUEST_TIMEOUT_MS = 5e3;
 
@@ -40144,7 +40548,6 @@ function isScrollAffectingPreviewAnchor(event, anchorElement) {
   return !(target instanceof Node) || target.contains(anchorElement);
 }
 
-const THUMB_PX$7 = 18;
 
 
 
@@ -40249,17 +40652,13 @@ function PresetMediaCover$1({
   );
 }
 
-const CDN_BASE = "https://cdn.hailuoai.com/asset/2026-04-03-17/multiview";
 
-const THUMB_SUFFIX = "?x-oss-process=image/resize,w_540/format,webp";
 
 function isChipNode(node2) {
   return !!node2 && node2.isInline && node2.isAtom && node2.type.spec.selectable !== false;
 }
 
-const CHIP_IN_SELECTION_CLASS = "canvas-prompt-chip-in-selection";
 
-const INTERACTIVE_TARGET = "button, a, input, textarea, select, [data-prompt-native-pointer]";
 
 function inlineAtomAt(view2, inside) {
   if (inside < 0) return null;
@@ -40273,13 +40672,11 @@ function isAtomBoundary(view2, pos) {
   return isChipNode($pos.nodeBefore) || isChipNode($pos.nodeAfter);
 }
 
-const DRAG_THRESHOLD_PX$2 = 3;
 
 
 
 
 
-const BBOX = /<bbox>\s*\d+\s+\d+\s+\d+\s+\d+\s*<\/bbox>/;
 
 function seedreamEdit({ params: params2 }, prompt) {
   return {
@@ -40312,7 +40709,6 @@ function wire(params) {
   );
 }
 
-const dagParam = {};
 
 
 
@@ -40503,11 +40899,8 @@ function TableToolbarInner({
   );
 }
 
-const ATTACHMENT_VERTICAL_PADDING = 4;
 
-const MIN_ATTACHMENT_CHIP_SIZE = 18;
 
-const MAX_PREVIEW_CHIPS = 2;
 
 function AttachmentPreviewChip({ attachment, size: size2 }) {
   const { t: t2 } = useTranslation();
@@ -40554,9 +40947,7 @@ function AttachmentPreviewChip({ attachment, size: size2 }) {
   );
 }
 
-const PopoverRootContext = /* @__PURE__ */ reactExports.createContext(void 0);
 
-const ClosePartContext = /* @__PURE__ */ reactExports.createContext(void 0);
 
 function difference(array1, array2) {
   const excludeSet = new Set(array2);
@@ -40755,9 +41146,7 @@ const indent = {
   partial: true
 };
 
-const unicodeWhitespace$1 = regexCheck$1(/\s/);
 
-const unicodePunctuation$1 = regexCheck$1(new RegExp("\\p{P}|\\p{S}", "u"));
 
 function markdownLineEnding(code2) {
   return code2 !== null && code2 < -2;
@@ -41660,7 +42049,6 @@ function CoverSkeleton() {
 
 const OPACITY_TRANSITION_MS = 300;
 
-const MAX_HISTORY = 100;
 
 function tryMergeArrayById(draft, next2, prev, mergeItem) {
   if (next2 === prev) return true;
@@ -41798,7 +42186,6 @@ function SettingsIcon() {
   );
 }
 
-const FieldConfigPanel = reactExports.memo(FieldConfigPanelInner);
 
 function FilterIcon() {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(CompositedSvg, { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", children: [
@@ -41819,7 +42206,6 @@ function FilterIcon() {
   ] });
 }
 
-const FilterPanel = reactExports.memo(FilterPanelInner);
 
 function RowHeightIcon() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(CompositedSvg, { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -41831,7 +42217,6 @@ function RowHeightIcon() {
   ) });
 }
 
-const RowHeightPanel = reactExports.memo(RowHeightPanelInner);
 
 function MediaRequest({
   src,
@@ -42410,32 +42795,6 @@ function checkRule(state2) {
   return marker;
 }
 
-const phrasing = (
-  /** @type {(node?: unknown) => node is Exclude<PhrasingContent, Html>} */
-  convert([
-    "break",
-    "delete",
-    "emphasis",
-    // To do: next major: removed since footnotes were added to GFM.
-    "footnote",
-    "footnoteReference",
-    "image",
-    "imageReference",
-    "inlineCode",
-    // Enabled by `mdast-util-math`:
-    "inlineMath",
-    "link",
-    "linkReference",
-    // Enabled by `mdast-util-mdx`:
-    "mdxJsxTextElement",
-    // Enabled by `mdast-util-mdx`:
-    "mdxTextExpression",
-    "strong",
-    "text",
-    // Enabled by `mdast-util-directive`:
-    "textDirective"
-  ])
-);
 
 function checkStrong(state2) {
   const marker = state2.options.strong || "*";
@@ -43059,7 +43418,6 @@ function escapeStringRegexp(string2) {
   return string2.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&").replace(/-/g, "\\x2d");
 }
 
-const emptyOptions$4 = {};
 
 function one$4(value, includeImageAlt, includeHtml) {
   if (node(value)) {
@@ -43106,36 +43464,24 @@ import {
   Grid2x2, Grid3x3, Image as Image$1, ImageOff, Smile, X as X$8, X as X$9,
 } from "lucide-react";
 
-const closePress = () => void 0;
-const createChangeEventDetails = () => ({});
 const ensurePreventErrorBoundaryRetry = (o) => o;
 const ensureSuspenseTimers = (o) => o;
 const fetchOptimistic = () => void 0;
 const getHasError = () => false;
 const shouldSuspend = () => false;
-const useButton = () => ({});
 const useClearResetErrorBoundary = () => void 0;
-const useRenderElement = () => null;
 const withSelectorExports = (o) => o;
 const os = { platform: () => "browser" };
-const shallowEqualObjects = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const useIsoLayoutEffect = (fn, deps) => React.useLayoutEffect(fn, deps);
 const computeDagreLayout = (n) => n;
-const formatErrorMessage = (e) => (e instanceof Error ? e.message : String(e));
 const markdownTable = () => "";
-const snapAspectRatio = (w, h) => (h ? w / h : 1);
 const K2 = "k2";
 const FixedMediaLightbox = (props) => React.createElement("div", { className: props?.className, "data-lightbox": "media" });
 const ImageLightboxView = (props) => React.createElement("div", { className: props?.className, "data-lightbox": "image" });
 
 // 这些是产物内联的 ProseMirror 内部工具，保留本地占位
-const Editor2 = class {};
-const getPreviousBlockSibling = () => void 0;
 const insertCanvasRedrawRegion = () => void 0;
-const renderNestedMarkdownContent = () => void 0;
 
 // $n 变体指向同一个 npm 导出（第 149 轮）
-const Decoration$1 = Decoration;
 const selectionToInsertionEnd$1 = selectionToInsertionEnd;
 
 
