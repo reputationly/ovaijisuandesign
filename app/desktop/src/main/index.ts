@@ -57,6 +57,10 @@ function readDialogPointer(pointer: string | undefined): string | undefined {
 import { createMainWindow, devHiddenWindow, flushRenderer } from "./window.js";
 import { BundleHandle, createSerialGate } from "./workspace/bundle-handle.js";
 import { HiloApp } from "./workspace/hilo-app.js";
+import { NativeWorkbenchService } from "./v3/native-workbench-service.js";
+import { NativeWorkbenchMedia } from "./v3/native-workbench-media.js";
+import { nativeWorkbenchOptions } from "./v3/host.js";
+import { workbenchMediaDeps, workbenchServiceDeps } from "./v3/workbench-deps.js";
 import { identityHeaders } from "./workspace/identity.js";
 
 app.setName("蒜狸小助手");
@@ -204,6 +208,24 @@ async function boot(): Promise<Running | undefined> {
   // 应用级 gateway：先占端口，窗口拿到地址就能开
   mkdirSync(dirs.outputDir, { recursive: true });
   const gateways = new GatewayRegistry();
+  // 第 188 轮（用户顺序第 2 步）：NativeWorkbenchService 此前只在测试里被构造，
+  // 主进程从未创建它，所以资源视图（NativeWorkbenchHost）这条路径一直没接上。
+  // 这里把它建起来；渲染层的 acquisition 路径（INativeWorkbenchService /
+  // useNativeWorkbenchAcquisition）还没还原，等那批落地后由 IPC 调 mount。
+  const workbenchHostDeps = {
+    gateways,
+    homeWindow: () => mainWindow(),
+    options: nativeWorkbenchOptions(),
+    log,
+  };
+  const workbenchMedia = new NativeWorkbenchMedia(workbenchMediaDeps(workbenchHostDeps), log);
+  const nativeWorkbench = new NativeWorkbenchService(
+    workbenchServiceDeps(workbenchHostDeps, workbenchMedia) as never,
+  );
+  app.on("will-quit", () => {
+    nativeWorkbench.dispose();
+    workbenchMedia.dispose();
+  });
   const appGatewayProc = new GatewayManager(
     {
       entry: gatewayEntry,
@@ -299,7 +321,11 @@ async function boot(): Promise<Running | undefined> {
         opencodeStartGate,
         log,
       });
-      const reg = gateways.register(id, { url: () => handle.binding()?.baseUrl, binding: () => handle.binding() });
+      const reg = gateways.register(id, {
+        url: () => handle.binding()?.baseUrl,
+        binding: () => handle.binding(),
+        pid: () => handle.gatewayPid?.(),
+      });
       handle.onStatusChange((s) => {
         if (s.state === "stopped") reg.dispose();
       });

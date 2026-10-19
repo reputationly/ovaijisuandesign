@@ -12,6 +12,8 @@ export interface RegisteredGateway {
   url(): string | undefined;
   /** 工作区 gateway 的身份；应用级没有。 */
   binding?(): GatewayBinding | undefined;
+  /** gateway 子进程 pid；用于 v3 媒体票据把「签发时的进程」与「当前进程」对上。 */
+  pid?(): number | undefined;
 }
 
 export class GatewayRegistry {

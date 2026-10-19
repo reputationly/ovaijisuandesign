@@ -27,7 +27,7 @@ export interface GatewayProcess extends EventEmitter {
   start(): Promise<{ url: string }>;
   stop(): Promise<void>;
   stopSync(): void;
-  readonly running: { url: string } | undefined;
+  readonly running: { url: string; pid?: number } | undefined;
 }
 
 /** opencode 进程控制（OpenCodeRuntime 满足）。 */
@@ -105,6 +105,11 @@ export class BundleHandle implements WorkspaceRuntime {
 
   status(): BundleStatus {
     return { ...this.current };
+  }
+
+  /** gateway 子进程 pid；v3 媒体票据用它把签发时与当前进程对上。 */
+  gatewayPid(): number | undefined {
+    return this.gateway.running?.pid;
   }
 
   binding(): GatewayBinding | undefined {
