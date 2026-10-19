@@ -177,6 +177,7 @@ export function GatewayScopeProvider({
       baseUrl,
       gatewayReady: gatewayReady ?? baseUrl !== void 0,
       scopeKey: scopeKey ?? baseUrl ?? "app",
+      workspaceId: scopeKey,
       workspaceClaim: stableGatewayBinding?.claim ?? workspaceClaim,
       gatewayBinding: stableGatewayBinding,
       workspaceClient,

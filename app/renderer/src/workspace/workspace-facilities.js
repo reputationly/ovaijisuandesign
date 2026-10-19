@@ -1521,5 +1521,6 @@ export {
   guardAccountSubmission,
   resourceQueryKeys,
   taskQueryKeys,
+  taskRecoveryWorkspaceId,
   workspaceEvents,
 };

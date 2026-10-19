@@ -22,8 +22,9 @@ import {
 import { useWorkspaceProjectArchitecture } from "./use-workspace-project-architecture.jsx";
 import { WorkspaceStructureContext } from "../canvas-v3/contexts.js";
 import { parseTaskServerMessage } from "../canvas-v3/canvas-v3-model.js";
-// 第 174 轮：真实 runtime 已就位，但接上后 ws-a-v3 会在
-// 「等待工作区聊天运行时恢复」处超时（运行期抛错/阻塞），故暂回占位。
+// 第 175 轮：接真实现后守卫条件已全部满足（workspaceId 之前是占位函数导致的 undefined），
+// 但 createWorkspaceStructureRuntime 内部会阻塞，导致 ws-a-v3 等待工作区运行时超时。
+// 故仍用占位；断点已收敛到该函数内部。
 const createWorkspaceStructureRuntime = () => undefined;
 
 // 第 164 轮：以下 5 个在产物里属于另外几个未还原的模块，先给最小实现，
@@ -32,7 +33,16 @@ const useGatewayFetch = () => fetch;
 
 const ensurePersistenceOwner = (owner) => owner;
 const taskQueryKeys = { all: (scope) => ["tasks", scope] };
-const taskRecoveryWorkspaceId = (scope) => scope?.workspaceId;
+// 第 175 轮：这里原本是 `(scope) => scope?.workspaceId` 的占位，
+// 但调用方传的是**字符串**（scope.workspaceId），于是永远返回 undefined。
+// 真实现取的是值本身，见 workspace-facilities.js。
+// 就地实现（与 workspace-facilities.js 里的一致）。不 import 那个文件：
+// 它是「未接线草案」，整模块求值会带进大量未还原依赖。
+function taskRecoveryWorkspaceId(value) {
+  if (typeof value !== "string" || !value.trim() || value === "app" || /^https?:\/\//i.test(value))
+    return void 0;
+  return value;
+}
 
 function createTaskSubscriptionNegotiation(prefix) {
   let subscriptionId = `${prefix}-${crypto.randomUUID()}`;
