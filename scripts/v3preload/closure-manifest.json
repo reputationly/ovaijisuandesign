@@ -1,0 +1,876 @@
+{
+ "generatedFor": "4.0.0",
+ "seeds": [
+  "createWorkspaceStructureRuntime",
+  "useWorkspaceStructureEvents",
+  "createTaskSubscriptionNegotiation",
+  "WorkspaceStructureProvider"
+ ],
+ "total": 77,
+ "lines": 3001,
+ "perRing": [
+  4,
+  12,
+  15,
+  18,
+  23,
+  3,
+  2
+ ],
+ "byStatus": {
+  "todo": 48,
+  "restored": 28,
+  "stub": 1
+ },
+ "items": [
+  {
+   "i": 12188,
+   "names": [
+    "WorkbenchCapabilityUnavailableError"
+   ],
+   "start": 12532106,
+   "end": 12532415,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 12267,
+   "names": [
+    "isSidebarOrderParents"
+   ],
+   "start": 12556562,
+   "end": 12556820,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 13677,
+   "names": [
+    "ContextResolutionError"
+   ],
+   "start": 13595091,
+   "end": 13595382,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 13678,
+   "names": [
+    "resolvePinnedResources"
+   ],
+   "start": 13595383,
+   "end": 13596275,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 13792,
+   "names": [
+    "TaskDecisionUnreadableError"
+   ],
+   "start": 13713049,
+   "end": 13713214,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 13794,
+   "names": [
+    "parseStoredTaskDecision"
+   ],
+   "start": 13713420,
+   "end": 13715654,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 13795,
+   "names": [
+    "exactFields"
+   ],
+   "start": 13715655,
+   "end": 13715961,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 13796,
+   "names": [
+    "role"
+   ],
+   "start": 13715962,
+   "end": 13716133,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 13797,
+   "names": [
+    "parsePlacementTarget"
+   ],
+   "start": 13716134,
+   "end": 13717248,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 13798,
+   "names": [
+    "decisionPayload"
+   ],
+   "start": 13717249,
+   "end": 13717993,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 13799,
+   "names": [
+    "TaskDecisionPendingError"
+   ],
+   "start": 13717994,
+   "end": 13718128,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 13800,
+   "names": [
+    "sameDecision"
+   ],
+   "start": 13718129,
+   "end": 13718348,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 13801,
+   "names": [
+    "createTaskDecisionStore"
+   ],
+   "start": 13718349,
+   "end": 13724017,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 13802,
+   "names": [
+    "createTaskSubscription"
+   ],
+   "start": 13724018,
+   "end": 13728784,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 13803,
+   "names": [
+    "createTaskModule"
+   ],
+   "start": 13728785,
+   "end": 13731062,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 13916,
+   "names": [
+    "synchronizeWorkspacePersistenceReportsOnce"
+   ],
+   "start": 13852612,
+   "end": 13854062,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 13917,
+   "names": [
+    "synchronizeWorkspacePersistenceReports"
+   ],
+   "start": 13854063,
+   "end": 13854347,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16446,
+   "names": [
+    "notifyStructureObserver"
+   ],
+   "start": 16637280,
+   "end": 16637639,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16448,
+   "names": [
+    "fingerprint$1"
+   ],
+   "start": 16637957,
+   "end": 16638220,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16449,
+   "names": [
+    "receiptCheckedRejectionCodes"
+   ],
+   "start": 16638221,
+   "end": 16638734,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16450,
+   "names": [
+    "rejectedCodes"
+   ],
+   "start": 16638735,
+   "end": 16638974,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16451,
+   "names": [
+    "isKnownRejection"
+   ],
+   "start": 16638975,
+   "end": 16639386,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16452,
+   "names": [
+    "createStructureCommandContext"
+   ],
+   "start": 16639387,
+   "end": 16643906,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16485,
+   "names": [
+    "createStructureModule"
+   ],
+   "start": 16661054,
+   "end": 16663745,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16488,
+   "names": [
+    "ProjectQueryError"
+   ],
+   "start": 16664455,
+   "end": 16665644,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16602,
+   "names": [
+    "aborted"
+   ],
+   "start": 16812038,
+   "end": 16812139,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16603,
+   "names": [
+    "createProjectQueryClient"
+   ],
+   "start": 16812140,
+   "end": 16815185,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 16604,
+   "names": [
+    "createProjectQueryModule"
+   ],
+   "start": 16815186,
+   "end": 16815561,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16623,
+   "names": [
+    "createResourceCommands"
+   ],
+   "start": 16839335,
+   "end": 16839816,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16895,
+   "names": [
+    "readCompositionResources"
+   ],
+   "start": 17252856,
+   "end": 17254193,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 16914,
+   "names": [
+    "ResourceGenerationHistoryUnavailableError"
+   ],
+   "start": 17273004,
+   "end": 17273217,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16915,
+   "names": [
+    "createIntentRunner"
+   ],
+   "start": 17273218,
+   "end": 17273720,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16916,
+   "names": [
+    "versionOutput"
+   ],
+   "start": 17273721,
+   "end": 17273976,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16917,
+   "names": [
+    "hasBlankPromptHistory"
+   ],
+   "start": 17273977,
+   "end": 17274130,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16918,
+   "names": [
+    "createResourceDetailModule"
+   ],
+   "start": 17274131,
+   "end": 17279332,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16948,
+   "names": [
+    "queues"
+   ],
+   "start": 17300364,
+   "end": 17300409,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16949,
+   "names": [
+    "MAX_RANK_LENGTH"
+   ],
+   "start": 17300410,
+   "end": 17300437,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16950,
+   "names": [
+    "migrateLegacyMemberRanks"
+   ],
+   "start": 17300438,
+   "end": 17301501,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16951,
+   "names": [
+    "compareRank$1"
+   ],
+   "start": 17301502,
+   "end": 17301577,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16952,
+   "names": [
+    "reconcileParent"
+   ],
+   "start": 17301578,
+   "end": 17301978,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16953,
+   "names": [
+    "boundedRanks"
+   ],
+   "start": 17301979,
+   "end": 17302331,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16954,
+   "names": [
+    "sameRanks"
+   ],
+   "start": 17302332,
+   "end": 17302493,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16955,
+   "names": [
+    "readState"
+   ],
+   "start": 17302494,
+   "end": 17302928,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16956,
+   "names": [
+    "createSidebarOrderController"
+   ],
+   "start": 17302929,
+   "end": 17306049,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17190,
+   "names": [
+    "ready"
+   ],
+   "start": 17658036,
+   "end": 17658046,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 17191,
+   "names": [
+    "ensurePersistenceOwner"
+   ],
+   "start": 17658047,
+   "end": 17659613,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17195,
+   "names": [
+    "createTaskSubscriptionNegotiation"
+   ],
+   "start": 17660178,
+   "end": 17661052,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 17196,
+   "names": [
+    "useWorkspaceStructureEvents"
+   ],
+   "start": 17661053,
+   "end": 17666555,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 17197,
+   "names": [
+    "createCanvasDuplication"
+   ],
+   "start": 17666556,
+   "end": 17669100,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17198,
+   "names": [
+    "createCanvasInsertion"
+   ],
+   "start": 17669101,
+   "end": 17671808,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17201,
+   "names": [
+    "SUBJECT_LIMIT"
+   ],
+   "start": 17671931,
+   "end": 17671957,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17202,
+   "names": [
+    "isHostGenerationSubject"
+   ],
+   "start": 17671958,
+   "end": 17672454,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17281,
+   "names": [
+    "createResourceAudioWaveformReader"
+   ],
+   "start": 17707165,
+   "end": 17707479,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17282,
+   "names": [
+    "validateHostConnection"
+   ],
+   "start": 17707480,
+   "end": 17714022,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 17283,
+   "names": [
+    "snapshotHostCapabilities"
+   ],
+   "start": 17714023,
+   "end": 17714649,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 17367,
+   "names": [
+    "createElectronHost"
+   ],
+   "start": 17778647,
+   "end": 17779178,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17368,
+   "names": [
+    "PRE_DISPATCH_REJECTIONS"
+   ],
+   "start": 17779179,
+   "end": 17779390,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17369,
+   "names": [
+    "createChatSessionState"
+   ],
+   "start": 17779391,
+   "end": 17788460,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17378,
+   "names": [
+    "MAX_TRACKED_TASKS"
+   ],
+   "start": 17816979,
+   "end": 17817010,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17379,
+   "names": [
+    "createTaskInvalidationBridge"
+   ],
+   "start": 17817011,
+   "end": 17818358,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17380,
+   "names": [
+    "initialInvalidationRevision"
+   ],
+   "start": 17818359,
+   "end": 17818460,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17381,
+   "names": [
+    "createWorkbenchEvents"
+   ],
+   "start": 17818461,
+   "end": 17820259,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17383,
+   "names": [
+    "createWorkbench"
+   ],
+   "start": 17822609,
+   "end": 17828600,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 17384,
+   "names": [
+    "createHostWorkbench"
+   ],
+   "start": 17828601,
+   "end": 17828981,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17385,
+   "names": [
+    "workspaces"
+   ],
+   "start": 17828982,
+   "end": 17829027,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17386,
+   "names": [
+    "storage"
+   ],
+   "start": 17829028,
+   "end": 17829181,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17387,
+   "names": [
+    "createSidebarOrderBinding"
+   ],
+   "start": 17829182,
+   "end": 17829635,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 17388,
+   "names": [
+    "createTreeHostBindings"
+   ],
+   "start": 17829636,
+   "end": 17833236,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17390,
+   "names": [
+    "createNativeWorkbenchPreferences"
+   ],
+   "start": 17835422,
+   "end": 17836274,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17391,
+   "names": [
+    "DATABASE$1"
+   ],
+   "start": 17836275,
+   "end": 17836319,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 17392,
+   "names": [
+    "STORE"
+   ],
+   "start": 17836320,
+   "end": 17836344,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 17393,
+   "names": [
+    "createTaskIntentPersistence"
+   ],
+   "start": 17836345,
+   "end": 17842004,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17394,
+   "names": [
+    "bindStructurePersistence"
+   ],
+   "start": 17842005,
+   "end": 17843208,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17395,
+   "names": [
+    "READ_ONLY_STRUCTURE_ROUTES"
+   ],
+   "start": 17843209,
+   "end": 17843698,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 17396,
+   "names": [
+    "isReadOnlyStructureRequest"
+   ],
+   "start": 17843699,
+   "end": 17843853,
+   "ring": 1,
+   "status": "restored"
+  },
+  {
+   "i": 17397,
+   "names": [
+    "createWorkspaceStructureRuntime"
+   ],
+   "start": 17843854,
+   "end": 17849762,
+   "ring": 0,
+   "status": "stub"
+  },
+  {
+   "i": 17399,
+   "names": [
+    "WorkspaceStructureProvider"
+   ],
+   "start": 17849831,
+   "end": 17856505,
+   "ring": 0,
+   "status": "restored"
+  }
+ ],
+ "segments": [
+  {
+   "from": 12188,
+   "to": 12188,
+   "start": 12532106,
+   "end": 12532415,
+   "count": 1
+  },
+  {
+   "from": 12267,
+   "to": 12267,
+   "start": 12556562,
+   "end": 12556820,
+   "count": 1
+  },
+  {
+   "from": 13677,
+   "to": 13678,
+   "start": 13595091,
+   "end": 13596275,
+   "count": 2
+  },
+  {
+   "from": 13792,
+   "to": 13803,
+   "start": 13713049,
+   "end": 13731062,
+   "count": 11
+  },
+  {
+   "from": 13916,
+   "to": 13917,
+   "start": 13852612,
+   "end": 13854347,
+   "count": 2
+  },
+  {
+   "from": 16446,
+   "to": 16488,
+   "start": 16637280,
+   "end": 16665644,
+   "count": 8
+  },
+  {
+   "from": 16602,
+   "to": 16623,
+   "start": 16812038,
+   "end": 16839816,
+   "count": 4
+  },
+  {
+   "from": 16895,
+   "to": 16956,
+   "start": 17252856,
+   "end": 17306049,
+   "count": 15
+  },
+  {
+   "from": 17190,
+   "to": 17202,
+   "start": 17658036,
+   "end": 17672454,
+   "count": 8
+  },
+  {
+   "from": 17281,
+   "to": 17283,
+   "start": 17707165,
+   "end": 17714649,
+   "count": 3
+  },
+  {
+   "from": 17367,
+   "to": 17399,
+   "start": 17778647,
+   "end": 17856505,
+   "count": 22
+  }
+ ]
+}
