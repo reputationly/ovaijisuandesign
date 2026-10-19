@@ -351,6 +351,21 @@ const MASK_VOLATILE = `(() => {
     else node.nodeValue = node.nodeValue.replace(requestId, "$1<request>");
   }
 })()`;
+/** 已登记的有意差异（scripts/ui-compare/intentional.json）。 */
+const INTENTIONAL = (() => {
+  try { return JSON.parse(readFileSync(path.join("scripts/ui-compare/intentional.json"), "utf8")); }
+  catch { return { textReplacements: [], excludedSelectors: [] }; }
+})();
+/** 把登记过的文本在**参照截图**里替换成我们的措辞，剩下的差异才算回归。 */
+const MASK_INTENTIONAL = `(() => {
+  const pairs = ${JSON.stringify((INTENTIONAL.textReplacements ?? []).map((r) => [r.from, r.to]))};
+  if (!pairs.length) return;
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) {
+    for (const [from, to] of pairs) if (node.nodeValue.includes(from)) node.nodeValue = node.nodeValue.split(from).join(to);
+  }
+})()`;
 const SETTLE = `(async()=>{
   for (const v of document.querySelectorAll("video,audio")) { try { v.pause(); const target=v.dataset.ovCompareSeek?Number(v.dataset.ovCompareSeek):0; if(Math.abs(v.currentTime-target)>0.01)v.currentTime=target; } catch {} }
   const images = [...document.images];
@@ -607,6 +622,7 @@ async function stableShot(c) {
     await c.send("Runtime.evaluate", { expression: SETTLE, awaitPromise: true });
     await sleep(700);
     await c.send("Runtime.evaluate", { expression: MASK_VOLATILE });
+    if (process.env.OV_REFERENCE === "1") await c.send("Runtime.evaluate", { expression: MASK_INTENTIONAL });
     await waitForNoToasts(c);
     const shot = await c.send("Page.captureScreenshot", { format: "png" });
     const buf = Buffer.from(shot.result.data, "base64");
@@ -1493,6 +1509,9 @@ async function runMode(mode) {
   const env = {
     ...process.env,
     OV_UI: mode,
+    // 第 195 轮：参考界面渲染时自动套用「已登记的有意差异」遮罩，
+    // 这样基线与我们的品牌文案一致，剩下的像素差才算回归。
+    ...(mode === "reference" ? { OV_REFERENCE: "1" } : {}),
     // 录基线用 OV_UI=reference（4.0.0 原版界面）；v3 屏需要 resource_v3 架构
     ...(process.env.HILO_PROJECT_ARCHITECTURE ? { HILO_PROJECT_ARCHITECTURE: process.env.HILO_PROJECT_ARCHITECTURE } : {}),
     OV_DEV_HIDDEN_WINDOW: "1",

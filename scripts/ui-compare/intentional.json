@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "note": "已登记的有意差异。门禁在渲染参照界面时自动套用这些归一化，剩下的像素差才算回归。",
+  "textReplacements": [
+    {
+      "id": "brand-name",
+      "from": "MiniMax Design",
+      "to": "蒜狸小助手",
+      "reason": "仓库原则第 2 条：品牌名按本仓库品牌走。M9 要求单独登记，不得靠改阈值通过。"
+    }
+  ],
+  "excludedSelectors": [],
+  "findings": [
+    {
+      "id": "brand-is-aria-only",
+      "measured": true,
+      "conclusion": "品牌名只出现在 aria-label（基线 3 处），不是可见文本；套用遮罩后基线 PNG 字节完全相同（sha256 159e79ba…），像素差 4.088% 不变。",
+      "implication": "4.088% 与品牌名无关，不能再用「品牌文案」解释像素差异。"
+    },
+    {
+      "id": "text-not-the-cause",
+      "measured": true,
+      "conclusion": "把「浏览器」「列表」「Beta」三处可见文本也归一化后，像素差仍是 4.088%。",
+      "implication": "4.088% 也不是文字差异造成的，是布局/渲染层面。"
+    }
+  ],
+  "pendingAttribution": [
+    { "text": "列表", "status": "unexplained", "reason": "基线可见、我们没有，且不属于范围排除项。" },
+    { "text": "Beta", "status": "needs-source", "reason": "疑似 ComfyUI 徽章，需确认来源。" }
+  ]
+}
