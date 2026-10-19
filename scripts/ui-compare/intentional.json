@@ -22,10 +22,24 @@
       "measured": true,
       "conclusion": "把「浏览器」「列表」「Beta」三处可见文本也归一化后，像素差仍是 4.088%。",
       "implication": "4.088% 也不是文字差异造成的，是布局/渲染层面。"
+    },
+    {
+      "id": "thumbnails-missing",
+      "measured": true,
+      "conclusion": "4.088% 的具体位置是项目卡片的缩略图：基线有图，我们是灰块。逐块统计显示差异集中在整块（2048,384）、(2048,512)、(64..384, 640..704），裁剪确认是卡片缩略图区域；卡片标题两边一致（珍珠白星轨 / 废墟花海）。",
+      "implication": "我们的实现请求 4 个 /api/v1/home/showcase-assets/*.jpg（基线一次都不请求），且参考 bundle 里没有 'showcase-assets' 这个字符串。缩略图的数据来源走错了路径。"
     }
   ],
   "pendingAttribution": [
-    { "text": "列表", "status": "unexplained", "reason": "基线可见、我们没有，且不属于范围排除项。" },
-    { "text": "Beta", "status": "needs-source", "reason": "疑似 ComfyUI 徽章，需确认来源。" }
+    {
+      "text": "列表",
+      "status": "unexplained",
+      "reason": "基线可见、我们没有，且不属于范围排除项。"
+    },
+    {
+      "text": "Beta",
+      "status": "needs-source",
+      "reason": "疑似 ComfyUI 徽章，需确认来源。"
+    }
   ]
 }
