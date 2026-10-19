@@ -100,7 +100,7 @@ console.log(`  4. unbound 出现次数  : ${occurrences}`);
     if (f.includes("canvas-v3/")) continue;
     // 第 167 轮：这几个是「已取回但未接线」的设施层草案，未接入任何应用代码，
     // 故不计入「应用缺口」；单独统计并显式打印，避免变成第二个假绿。
-    if (f.endsWith("workspace-facilities.js") || f.endsWith("workspace-structure-runtime.js")) {
+    if (f.endsWith("workspace-facilities.js") || f.endsWith("workspace-structure-runtime.js") || f.endsWith("workspace-facilities-closure.js")) {
       (globalThis.__draft ??= new Map()).set(f, (globalThis.__draft.get(f) ?? 0) + 1);
       continue;
     }
