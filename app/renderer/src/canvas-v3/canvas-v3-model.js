@@ -4,6 +4,9 @@
  * 合并原因：这两个文件来自 4.0.0 主包同一区域，彼此有 50 个同名重复声明，
  * 逐名字归并会形成 import 环；合并后重复变成文件内重复，可直接清理。
  */
+import { assignments } from "./shared/assignments.js";
+import { forbidden } from "./shared/forbidden.js";
+import { ProjectResourceHttpError } from "./shared/ProjectResourceHttpError.js";
 import { CANVAS_V3_AGENT_COMPOSITION_PAGE_LIMIT, CANVAS_V3_LIMITS, CANVAS_V3_MEDIA_MIME_TYPES, PROJECT_RESOURCE_HTTP_ROUTES, UUID$1, array$2, detail, enumeration$1, exact, fail, finite$1, id$5, id$7, integer$2, integer$4, invalid$5, nullableId, object$3, object$5, parseCanvasV3ImageImportResult, parseCanvasV3ImageVersionTarget, parseCanvasV3MediaImportResult, parseCanvasV3MediaReferenceOrigin, parseCanvasV3MediaVersionTarget, parseProjectResourceReadResults, resource, shape$1, string$1, version } from "./frame-services.js";
 import { id$2, invalid$3, keys, object$1, parseProjectResourceTagReceipt, parseProjectResourceTagSnapshot, revision$2 } from "./project-resource-tags.js";
 // ==== P3 严格归并 ====
@@ -476,7 +479,6 @@ function applyCanvasV3Patch(document2, patch2, allowEmpty = false) {
 function isCanvasV3Subject(node2) {
   return node2?.kind === "placeholder" ? node2.expectedKind === "subject" : node2?.kind === "composition" && node2.containerKind === "subject";
 }
-const forbidden = /* @__PURE__ */ new Set(["__proto__", "prototype", "constructor"]);
 function boolean(value) {
   if (typeof value !== "boolean") fail("expected boolean");
   return value;
@@ -3051,20 +3053,6 @@ function registry(value) {
   });
   if (Object.keys(PRESET_COLOR_NAME_KEYS).some((key2) => !seen.has(key2))) invalid$3();
   return { version: 2, revision: revision$2(raw2.revision), orderMode: raw2.orderMode, tags: tags2 };
-}
-function assignments(value) {
-  if (!Array.isArray(value)) invalid$3();
-  const seen = /* @__PURE__ */ new Set();
-  return value.map((candidate) => {
-    const item = object$1(candidate);
-    keys(item, ["resourceId", "tagIds"]);
-    const resourceId2 = id$2(item.resourceId);
-    if (seen.has(resourceId2) || !Array.isArray(item.tagIds) || item.tagIds.length > 1e3) invalid$3();
-    seen.add(resourceId2);
-    const tagIds = item.tagIds.map(id$2);
-    if (new Set(tagIds).size !== tagIds.length) invalid$3();
-    return { resourceId: resourceId2, tagIds };
-  });
 }
 const PROJECT_TASK_OPERATIONS = [...PROJECT_GENERATION_OPERATIONS];
 const PROJECT_SUBTITLE_FORMATS = ["ass", "srt", "vtt"];
@@ -5829,32 +5817,6 @@ function createProjectResourceClient(request) {
       return parseProjectResourceReceipt(await post2(PROJECT_RESOURCE_HTTP_ROUTES.commands, snapshot2), snapshot2);
     }
   };
-}
-class ProjectResourceHttpError extends Error {
-  constructor(status, code2, message2) {
-    super(message2);
-    this.status = status;
-    this.code = code2;
-    this.name = "ProjectResourceHttpError";
-  }
-  status;
-  code;
-  static async fromResponse(response) {
-    const fallback = new ProjectResourceHttpError(
-      response.status,
-      "PROJECT_HTTP_ERROR",
-      `Resource request failed (${response.status})`
-    );
-    let body2;
-    try {
-      body2 = await response.json();
-    } catch {
-      return fallback;
-    }
-    if (!body2 || typeof body2 !== "object" || !("code" in body2) || !("message" in body2) || typeof body2.code !== "string" || typeof body2.message !== "string")
-      return fallback;
-    return new ProjectResourceHttpError(response.status, body2.code, body2.message);
-  }
 }
 
 export {

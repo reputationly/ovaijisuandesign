@@ -12,6 +12,7 @@
  *
  * 只搬实现，未改语义。
  */
+import { forbidden } from "./shared/forbidden.js";
 import { API_PATHS } from "../infra/workspace-gateway.js";
 
 const CLIP_STUDIO_CAPABILITY_ID = "plugin:clip-studio";
@@ -3036,7 +3037,6 @@ function editor(value) {
   return record$a(value) && keys$1(value, ["nodeId", "editSessionId"]) && id$9(value.nodeId) && id$9(value.editSessionId);
 }
 
-const forbidden = /* @__PURE__ */ new Set(["__proto__", "prototype", "constructor"]);
 
 function id$5(value) {
   string$1(value);

@@ -9,6 +9,7 @@
  *
  * 只搬实现，未改语义。
  */
+import { ProjectResourceHttpError } from "./shared/ProjectResourceHttpError.js";
 // ==== P3 严格归并 ====
 import { PROJECT_RESOURCE_HTTP_ROUTES, assertProjectResourceDetail, detail, page$1, parseListProjectResourceVersionsResult, parseProjectResourceReadResults, parseProjectResourceReceipt, parseSearchProjectResourcesResult, resource, version } from "./canvas-v3-model.js";
 // ==== P3 严格归并 ====
@@ -50,32 +51,6 @@ import { AssetRole } from "../../../packages/protocol/src/asset-role.ts";
 
 
 
-class ProjectResourceHttpError extends Error {
-  constructor(status, code2, message2) {
-    super(message2);
-    this.status = status;
-    this.code = code2;
-    this.name = "ProjectResourceHttpError";
-  }
-  status;
-  code;
-  static async fromResponse(response) {
-    const fallback = new ProjectResourceHttpError(
-      response.status,
-      "PROJECT_HTTP_ERROR",
-      `Resource request failed (${response.status})`
-    );
-    let body2;
-    try {
-      body2 = await response.json();
-    } catch {
-      return fallback;
-    }
-    if (!body2 || typeof body2 !== "object" || !("code" in body2) || !("message" in body2) || typeof body2.code !== "string" || typeof body2.message !== "string")
-      return fallback;
-    return new ProjectResourceHttpError(response.status, body2.code, body2.message);
-  }
-}
 function createProjectResourceClient(request) {
   async function post2(path2, body2, options2) {
     const response = await request(path2, {

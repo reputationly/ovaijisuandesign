@@ -9,6 +9,7 @@
  *
  * 只搬实现，未改语义。
  */
+import { WorkspaceCanvasPersistenceChangedError } from "./shared/WorkspaceCanvasPersistenceChangedError.js";
 // ==== P2-1：tiptap 入口改 npm（3.31.3，与 package.json 一致）====
 import { useEditor, EditorContent, NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { Extension, mergeAttributes } from "@tiptap/core";
@@ -7849,12 +7850,6 @@ function PluginRunStateStoreProvider({
   return reactExports.createElement(PluginRunStateStoreContext.Provider, { value: store }, children2);
 }
 
-class WorkspaceCanvasPersistenceChangedError extends Error {
-  constructor() {
-    super("Canvas changed while waiting for the durability barrier");
-    this.name = "WorkspaceCanvasPersistenceChangedError";
-  }
-}
 
 class CanvasV3TableImport {
   constructor(file, requestId) {

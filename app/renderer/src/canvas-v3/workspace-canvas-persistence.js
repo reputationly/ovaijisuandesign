@@ -5,6 +5,7 @@
  * `register…` 登记控制器、`report…` 汇报当前状态（clean 且已无控制器就顺手清掉），
  * 状态变化通过 `reportStatus` 回调发布，并把 promise 记在 entry 上供恢复判断使用。
  */
+import { WorkspaceCanvasPersistenceChangedError } from "./shared/WorkspaceCanvasPersistenceChangedError.js";
 
 // 没有 sourceId 时用的「旧版」生命周期标记
 const LEGACY_PERSISTENCE_LIFETIME = "legacy";
@@ -23,12 +24,6 @@ class WorkspaceCanvasPersistenceUnavailableError extends Error {
   constructor() {
     super("Canvas persistence controller is unavailable");
     this.name = "WorkspaceCanvasPersistenceUnavailableError";
-  }
-}
-class WorkspaceCanvasPersistenceChangedError extends Error {
-  constructor() {
-    super("Canvas changed while waiting for the durability barrier");
-    this.name = "WorkspaceCanvasPersistenceChangedError";
   }
 }
 function publishPersistenceStatus(entry) {

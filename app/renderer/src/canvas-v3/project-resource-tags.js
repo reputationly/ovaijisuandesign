@@ -4,6 +4,7 @@
  * `invalid$3`…`parseProjectResourceTagReceipt` 是产物里**连续的一整段**，整段搬；
  * `buildTagIndex` / `validateAssetTagIds` 在另一个 chunk，一并取回。
  */
+import { assignments } from "./shared/assignments.js";
 import {
   PRESET_COLOR_NAME_KEYS,
   countCanvasTagNameUnits,
@@ -91,20 +92,6 @@ function registry(value) {
   });
   if (Object.keys(PRESET_COLOR_NAME_KEYS).some((key2) => !seen.has(key2))) invalid$3();
   return { version: 2, revision: revision$2(raw2.revision), orderMode: raw2.orderMode, tags: tags2 };
-}
-function assignments(value) {
-  if (!Array.isArray(value)) invalid$3();
-  const seen = /* @__PURE__ */ new Set();
-  return value.map((candidate) => {
-    const item = object$1(candidate);
-    keys(item, ["resourceId", "tagIds"]);
-    const resourceId2 = id$2(item.resourceId);
-    if (seen.has(resourceId2) || !Array.isArray(item.tagIds) || item.tagIds.length > 1e3) invalid$3();
-    seen.add(resourceId2);
-    const tagIds = item.tagIds.map(id$2);
-    if (new Set(tagIds).size !== tagIds.length) invalid$3();
-    return { resourceId: resourceId2, tagIds };
-  });
 }
 function parseProjectResourceTagSnapshot(value) {
   const raw2 = object$1(value);
