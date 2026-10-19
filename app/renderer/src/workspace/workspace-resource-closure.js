@@ -10,6 +10,24 @@
  * 边界：清单入库，只减不增。
  */
 
+// ---- 第 191 轮：13 个 lucide 图标，从 lucide-react 按真实名导入 ----
+// 产物里的 `$n` 是 bundle 内部去重后缀，不是包导出名。
+import {
+  ChevronRight as ChevronRight$2,
+  Download as Download$3,
+  Ellipsis as Ellipsis$1,
+  FileText as FileText$1,
+  Folder as Folder$1,
+  Image as Image$2,
+  Library as Library$1,
+  Music as Music$3,
+  RefreshCw as RefreshCw,
+  Search as Search$3,
+  Trash2 as Trash2$3,
+  Video as Video$3,
+  X as X$9
+} from "lucide-react";
+
 import reactExports from "react";
 import jsxRuntimeExports from "react/jsx-runtime";
 import { useTranslation } from "react-i18next";
