@@ -26,6 +26,7 @@ import {
 import { useGatewayScope } from "../infra/runtime-config.js";
 import { accountScopeKey } from "../assets/credit-query-keys.jsx";
 import { PageStateViewInner as PageStateView$1 } from "../canvas-v3/page-state-view-inner.jsx";
+import { useWorkbenchEditorEvents, useWorkbenchTaskEvents } from "./workbench-events.js";
 
 // ==== 产物里与本文件紧邻的四个零依赖小件（第 109 轮）====
 const PREFIX$1 = "hilo:workspace-resource-view:";
