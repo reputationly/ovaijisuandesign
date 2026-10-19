@@ -71,7 +71,7 @@ function NewFeatureDot() {
   return (
     <span
       aria-hidden="true"
-      className="relative -top-2 -ml-px inline-block size-[6px] shrink-0 rounded-full bg-[var(--canvas-toolbar-new-feature)]"
+      className="relative -top-2 -ml-px inline-block size-[6px] shrink-0 rounded-full bg-brand-accent"
     />
   );
 }
@@ -175,17 +175,13 @@ function ToolbarItem({ item, showSeparator }) {
   const hasDropdown = !!item.dropdownItems;
   const hasMainAction = hasDropdown && !!item.onClick;
   const iconOnlyDropdown = hasDropdown && item.hideDropdownArrow;
-  const showLabel =
-    !!item.label &&
-    (!item.icon || (hasDropdown && !iconOnlyDropdown) || item.forceLabel);
+  const showLabel = !!item.label && (!item.icon || (hasDropdown && !iconOnlyDropdown) || item.forceLabel);
   const [open, setOpen] = reactExports.useState(false);
   const handleOpenChange = (nextOpen) => {
     setOpen(nextOpen);
     if (nextOpen) item.onDropdownOpen?.();
   };
-  const labelEl = showLabel ? (
-    <span className="canvas-toolbar-label whitespace-nowrap">{item.label}</span>
-  ) : null;
+  const labelEl = showLabel ? <span className="canvas-toolbar-label whitespace-nowrap">{item.label}</span> : null;
   const newFeatureDot = item.showNewFeatureDot ? <NewFeatureDot /> : null;
   const trailingEl = null;
   const tooltipContent = item.tooltipLabel ? (
@@ -200,9 +196,7 @@ function ToolbarItem({ item, showSeparator }) {
   ) : (
     item.label
   );
-  const separator = showSeparator ? (
-    <div className="canvas-toolbar-separator" aria-hidden="true" />
-  ) : null;
+  const separator = showSeparator ? <div className="canvas-toolbar-separator" aria-hidden="true" /> : null;
   if (item.render) {
     return (
       <>
@@ -222,6 +216,7 @@ function ToolbarItem({ item, showSeparator }) {
             onClick={item.onClick}
             className="canvas-toolbar-action"
             data-content={!showLabel ? "icon" : void 0}
+            data-active={item.active || void 0}
           >
             {item.icon}
             {labelEl}
@@ -250,12 +245,12 @@ function ToolbarItem({ item, showSeparator }) {
                 />
               }
             >
-              {item.dropdownItems?.map((child, dropdownChildIndex) => (
+              {item.dropdownItems?.map((child, idx) => (
                 <DropdownChildSlot
                   key={child.id}
                   child={child}
                   isActive={item.activeChildId === child.id}
-                  showSeparator={!!child.separator && dropdownChildIndex > 0}
+                  showSeparator={!!child.separator && idx > 0}
                 />
               ))}
             </ActionListPanel>
@@ -275,6 +270,7 @@ function ToolbarItem({ item, showSeparator }) {
               className="canvas-toolbar-action"
               data-action-ui-id={`canvas.toolbar-dropdown-${item.id}`}
               data-content={!showLabel ? "icon" : void 0}
+              data-active={item.active || void 0}
             >
               {item.icon}
               {labelEl}
@@ -295,12 +291,12 @@ function ToolbarItem({ item, showSeparator }) {
               />
             }
           >
-            {item.dropdownItems?.map((child, dropdownChildIndex) => (
+            {item.dropdownItems?.map((child, idx) => (
               <DropdownChildSlot
                 key={child.id}
                 child={child}
                 isActive={item.activeChildId === child.id}
-                showSeparator={!!child.separator && dropdownChildIndex > 0}
+                showSeparator={!!child.separator && idx > 0}
               />
             ))}
           </ActionListPanel>
@@ -315,14 +311,12 @@ function ToolbarItem({ item, showSeparator }) {
         <button
           type="button"
           aria-disabled={item.disabled || void 0}
-          aria-label={
-            !showLabel && typeof item.label === "string" ? item.label : void 0
-          }
+          aria-label={!showLabel && typeof item.label === "string" ? item.label : void 0}
           onClick={item.disabled ? void 0 : item.onClick}
           className="canvas-toolbar-action"
           data-content={!showLabel ? "icon" : void 0}
-          data-action-ui-id={item.dataActionUiId}
           data-active={item.active || void 0}
+          data-action-ui-id={item.dataActionUiId ?? `canvas.image-tool.${item.id}`}
         >
           {item.icon}
           {labelEl}
@@ -365,13 +359,13 @@ function NodeToolbarPalette({
     </TooltipProvider>
   );
 }
-function NodeToolbarInner({ items, visible, renderShell, density }) {
+function NodeToolbarInner({ items, visible: visible2, renderShell, density }) {
   const zoom = useStore(zoomSelector);
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
   const hidden = isDragging || isMultiSelect || isBoxSelecting;
-  const { shouldRender, state } = useDelayedUnmount(visible, hidden);
+  const { shouldRender, state } = useDelayedUnmount(visible2, hidden);
   if (items.length === 0) return null;
   if (hidden) return null;
   if (!shouldRender) return null;

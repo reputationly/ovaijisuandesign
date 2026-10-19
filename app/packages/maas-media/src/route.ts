@@ -200,6 +200,11 @@ export function route(
     models.speech,
   ];
   if (configured.some((m) => m !== null && m !== undefined && eqIgnoreAsciiCase(m, w))) {
+    // 目录里帧族和参考族共用一个模型条目，界面用生成方式切换。点名的是帧族 id、
+    // 这次却是参考生视频时，必须换成参考族 checkpoint，反过来也一样。
+    if (modality === Modality.VideoRef && models.video && models.video_ref && eqIgnoreAsciiCase(models.video, w)) {
+      return { model: models.video_ref, requested: w, substituted: true };
+    }
     return exact(w);
   }
 

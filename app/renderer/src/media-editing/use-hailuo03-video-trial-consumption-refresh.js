@@ -78,9 +78,9 @@ const HAILUO03_VIDEO_TRIAL_REFRESH_DELAYS_MS = [
   0, 200, 300, 500, 1e3, 3e3, 5e3, 1e4, 3e4, 6e4,
 ];
 const HAILUO03_VIDEO_TRIAL_BATCH_MAX_WAIT_MS = 2e3;
-function wait(ms) {
-  return new Promise((resolve) => globalThis.setTimeout(resolve, ms));
-}
+const wait = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
 export function useHailuo03VideoTrialConsumptionRefresh({
   sessionStore,
   status,

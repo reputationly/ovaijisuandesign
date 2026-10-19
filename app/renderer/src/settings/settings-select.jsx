@@ -163,8 +163,10 @@ export function SettingsSelect({
 }
 const LEGACY_PERSISTENCE_LIFETIME = "legacy";
 export const entriesByWorkspace = new Map();
-function lifetimeKey(instanceId) {
-  return instanceId || LEGACY_PERSISTENCE_LIFETIME;
+function lifetimeKey(instanceId, sourceId) {
+  return sourceId
+    ? JSON.stringify([instanceId || LEGACY_PERSISTENCE_LIFETIME, sourceId])
+    : instanceId || LEGACY_PERSISTENCE_LIFETIME;
 }
 function getOrCreateWorkspaceEntries(workspaceId) {
   const existing = entriesByWorkspace.get(workspaceId);
@@ -179,7 +181,7 @@ class WorkspaceCanvasPersistenceUnavailableError extends Error {
     this.name = "WorkspaceCanvasPersistenceUnavailableError";
   }
 }
-class WorkspaceCanvasPersistenceChangedError extends Error {
+export class WorkspaceCanvasPersistenceChangedError extends Error {
   constructor() {
     super("Canvas changed while waiting for the durability barrier");
     this.name = "WorkspaceCanvasPersistenceChangedError";

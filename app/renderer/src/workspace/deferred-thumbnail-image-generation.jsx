@@ -21,12 +21,13 @@ class ThumbnailLoadScheduler {
       throw new Error("maxConcurrency must be a positive integer");
     }
   }
+  maxConcurrency;
   activeCount = 0;
   interactiveBurstCount = 0;
   queues = createEmptyQueues();
-  schedule(start2, priority = "normal") {
+  schedule(start, priority = "normal") {
     const task = {
-      start: start2,
+      start,
       priority,
       state: "queued",
     };
@@ -81,13 +82,9 @@ class ThumbnailLoadScheduler {
     const normalQueue = this.queues.normal;
     if (
       interactiveQueue.length > 0 &&
-      (this.interactiveBurstCount < INTERACTIVE_BURST_LIMIT ||
-        normalQueue.length === 0)
+      (this.interactiveBurstCount < INTERACTIVE_BURST_LIMIT || normalQueue.length === 0)
     ) {
-      this.interactiveBurstCount = Math.min(
-        this.interactiveBurstCount + 1,
-        INTERACTIVE_BURST_LIMIT,
-      );
+      this.interactiveBurstCount = Math.min(this.interactiveBurstCount + 1, INTERACTIVE_BURST_LIMIT);
       return interactiveQueue.shift();
     }
     if (normalQueue.length > 0) {
@@ -113,6 +110,7 @@ function DeferredThumbnailImageGeneration({
   priority = "normal",
   maxRetries = 0,
   retryDelayMs = 2e3,
+  eager = false,
   ...props
 }) {
   const imageRef = reactExports.useRef(null);
@@ -121,15 +119,14 @@ function DeferredThumbnailImageGeneration({
   const retryTimerRef = reactExports.useRef(null);
   const onFailureRef = reactExports.useRef(onFailure);
   onFailureRef.current = onFailure;
-  const [activeSrc, setActiveSrc] = reactExports.useState();
+  const [activeSrc, setActiveSrc] = reactExports.useState(() => (eager ? src : void 0));
   const [loaded, setLoaded] = reactExports.useState(false);
   const [retryCount, setRetryCount] = reactExports.useState(0);
   const failOrRetry = reactExports.useCallback(() => {
     imageRef.current?.removeAttribute("src");
     setActiveSrc(void 0);
     if (retryCount < maxRetries) {
-      if (retryTimerRef.current !== null)
-        window.clearTimeout(retryTimerRef.current);
+      if (retryTimerRef.current !== null) window.clearTimeout(retryTimerRef.current);
       retryTimerRef.current = window.setTimeout(() => {
         retryTimerRef.current = null;
         setRetryCount((count2) => count2 + 1);
@@ -147,7 +144,15 @@ function DeferredThumbnailImageGeneration({
     releaseRef.current = null;
   }, []);
   reactExports.useEffect(() => {
-    if (!src) return;
+    if (!src || !eager || retryCount !== 0 || loaded) return;
+    timeoutRef.current = window.setTimeout(() => {
+      releaseSlot();
+      failOrRetry();
+    }, THUMBNAIL_LOAD_TIMEOUT_MS);
+    return releaseSlot;
+  }, [eager, failOrRetry, loaded, releaseSlot, retryCount, src]);
+  reactExports.useEffect(() => {
+    if (!src || (eager && retryCount === 0)) return;
     let observer2 = null;
     let visibilityTimer = null;
     let cancelScheduled = null;
@@ -184,8 +189,7 @@ function DeferredThumbnailImageGeneration({
             clearPending();
             return;
           }
-          if (visibilityTimer !== null || loadStarted || cancelScheduled)
-            return;
+          if (visibilityTimer !== null || loadStarted || cancelScheduled) return;
           visibilityTimer = window.setTimeout(() => {
             visibilityTimer = null;
             scheduleLoad();
@@ -205,11 +209,10 @@ function DeferredThumbnailImageGeneration({
       cancelScheduled?.();
       releaseSlot();
     };
-  }, [failOrRetry, priority, releaseSlot, src]);
+  }, [eager, failOrRetry, priority, releaseSlot, retryCount, src]);
   reactExports.useEffect(
     () => () => {
-      if (retryTimerRef.current !== null)
-        window.clearTimeout(retryTimerRef.current);
+      if (retryTimerRef.current !== null) window.clearTimeout(retryTimerRef.current);
     },
     [],
   );

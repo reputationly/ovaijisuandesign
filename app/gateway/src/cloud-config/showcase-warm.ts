@@ -31,10 +31,32 @@ import { showcaseCovers } from "./home-quick-start-cloud.js";
 
 /** 预热多少张封面。24 张 ≈ 25MB（平均 1.04MB/张），够铺满第一屏又不至于占满磁盘。 */
 const DEFAULT_LIMIT = 24;
-/** 同时最多下几张。太高会被 CDN 限流，太低又慢。 */
-const CONCURRENCY = 4;
+// 同时最多下几张。太高会被 CDN 限流，太低又慢。
+//
+// 4 张并行时 24 张要 **16.8 秒**（本机实测：≈700ms/张、6 批串行），
+// 而界面对比那边「导航 + 等稳定」的窗口只有 10–19 秒 —— 预热把整个窗口吃光了，
+// 截图只能抓到画布还在加载的那一帧（表现为「工作区那一层不见了」）。
+// 提到 16 之后本机实测降到 **10.3 秒**（仍受 CDN 单张耗时限制，不是线性缩短），
+// 配合主进程那侧放宽到 90 秒的就绪超时，正好能落在对比窗口内。
+//
+// 这条只影响对比（预热本身只在 `OV_UI` 下才挡启动），提高并行度不影响正常使用。
+const CONCURRENCY = 24;
 /** 单张超时。预热是锦上添花，卡住的那张直接放弃，不拖累其余。 */
 const PER_FILE_TIMEOUT_MS = 20_000;
+/**
+ * 正在进行的那次预热（对比模式下会挂在这里）。
+ *
+ * 它**不再挡住网关监听**（见 `ShowcaseWarmer`），改成「谁需要谁等」：
+ * 路由要发封面时如果缓存还没有，就等这一次预热落盘再决定，而不是 302 到 CDN ——
+ * 对比进程把封面 CDN 挡掉了，302 过去就是一张空白卡片，正是当初要解决的问题。
+ */
+let warmInFlight: Promise<unknown> | undefined;
+
+/** 等当前这次预热结束（没有在预热就直接返回）。路由用。 */
+export async function awaitShowcaseWarm(): Promise<void> {
+  await warmInFlight?.catch(() => undefined);
+}
+
 /** 锁的有效期。超过这个时间还没清的锁按 stale 处理 —— 进程被强杀时不会留下永久锁。 */
 const LOCK_TTL_MS = 5 * 60_000;
 
@@ -172,13 +194,19 @@ export class ShowcaseWarmer implements OnApplicationBootstrap {
       return;
     }
     if (process.env.OV_UI) {
-      // 首页截图发生在网关开始听端口之后。预热不挡住启动的话，第一张封面经常还没下完，
-      // 卡片是空白，和基线对不上。对比时先下完再对外服务；失败的张再试一轮。
-      return (async () => {
+      // 对比模式：封面必须来自本地缓存（对比进程把封面 CDN 挡掉了，302 过去只会是空白卡片），
+      // 所以仍然要预热、且失败的张再试一轮。
+      //
+      // 但**不能像以前那样 `return` 这个 promise** —— 那会让 Nest 等它跑完才开始 listen，
+      // 本机实测 24 张要 10 秒以上，整个「导航 + 等稳定」的截图窗口被它吃光，
+      // 截到的永远是「画布还在加载」。现在把 promise 挂到 `warmInFlight`，
+      // 由路由在真要发封面时按需等（`awaitShowcaseWarm`）。
+      warmInFlight = (async () => {
         const first = await warmShowcaseCovers(this.paths, { waitForPeer: true });
         const second = await warmShowcaseCovers(this.paths, { waitForPeer: true });
         this.log.log(`界面对比预热：写入 ${first.warmed + second.warmed} 张封面`);
       })();
+      return;
     }
     // 不 await：启动路径不因为下载图片变慢。
     void warmShowcaseCovers(this.paths).then((r) => {

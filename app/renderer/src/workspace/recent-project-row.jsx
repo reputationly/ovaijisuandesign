@@ -44,6 +44,27 @@ import { AddToProjectSubMenu } from "./add-to-project-sub-menu.jsx";
 import { InlineRenameInput } from "../infra/inline-rename-input.jsx";
 import { useWorkspaceDisplayNameRename } from "./use-new-workspace-dialog.jsx";
 import { DeleteConfirmDialog } from "./move-workspace-dialog.jsx";
+import { TEXT_EDIT_SELECTION_MAX_LENGTH as TEXT_EDIT_SELECTION_MAX_LENGTH } from "../text-editor/build-asr-gateway-request.js";
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function text$a(value, limit) {
+  return typeof value === "string" && value.length <= limit;
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function keys$1(value, allowed) {
+  return Object.keys(value).every((key2) => allowed.includes(key2));
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function record$a(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function anchor(value) {
+  return record$a(value) && keys$1(value, ["exact", "prefix", "suffix", "occurrence"]) && text$a(value.exact, TEXT_EDIT_SELECTION_MAX_LENGTH) && (value.prefix === void 0 || text$a(value.prefix, TEXT_EDIT_SELECTION_MAX_LENGTH)) && (value.suffix === void 0 || text$a(value.suffix, TEXT_EDIT_SELECTION_MAX_LENGTH)) && (value.occurrence === void 0 || Number.isSafeInteger(value.occurrence) && value.occurrence >= 0);
+}
+
 function isWorkspaceMediaSummary(value) {
   if (value === null || typeof value !== "object" || !("counts" in value))
     return false;
@@ -287,22 +308,19 @@ const HOME_RECENT_THUMBNAIL_STABLE_DELAY_MS = 240;
 function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
   const hostRef = reactExports.useRef(null);
   const [loadEnabled, setLoadEnabled] = reactExports.useState(
-    () => typeof IntersectionObserver === "undefined",
+    () => typeof IntersectionObserver === "undefined" || enabledThumbnailPaths.has(workspacePath),
   );
-  const { data: thumbnails } = useWorkspaceThumbnails(
-    workspacePath,
-    scanAllowed && loadEnabled,
-  );
+  const { data: thumbnails } = useWorkspaceThumbnails(workspacePath, scanAllowed && loadEnabled);
   const [failedSource, setFailedSource] = reactExports.useState(null);
   const thumbnail = thumbnails?.[0];
   const thumbnailFailed = thumbnail ? failedSource === thumbnail.src : false;
+  const thumbnailPending = scanAllowed && thumbnails === void 0;
+  const [loadedSource, setLoadedSource] = reactExports.useState(null);
+  const [cachedSources] = reactExports.useState(() => new Set(loadedThumbnailSources));
+  const thumbnailCached = thumbnail ? cachedSources.has(thumbnail.src) : false;
+  const thumbnailLoaded = thumbnail ? loadedSource === thumbnail.src || thumbnailCached : false;
   reactExports.useEffect(() => {
-    if (
-      !scanAllowed ||
-      loadEnabled ||
-      typeof IntersectionObserver === "undefined"
-    )
-      return;
+    if (!scanAllowed || loadEnabled || typeof IntersectionObserver === "undefined") return;
     const host = hostRef.current;
     if (!host) return;
     let visibilityTimer = null;
@@ -318,6 +336,7 @@ function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
         if (visibilityTimer !== null) return;
         visibilityTimer = window.setTimeout(() => {
           visibilityTimer = null;
+          enabledThumbnailPaths.add(workspacePath);
           setLoadEnabled(true);
           observer.disconnect();
         }, HOME_RECENT_THUMBNAIL_STABLE_DELAY_MS);
@@ -331,22 +350,31 @@ function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
       observer.disconnect();
       if (visibilityTimer !== null) window.clearTimeout(visibilityTimer);
     };
-  }, [loadEnabled, scanAllowed]);
+  }, [loadEnabled, scanAllowed, workspacePath]);
   return (
     <span
       ref={hostRef}
       data-action-ui-id="home-sidebar.recent-thumbnail"
       className="relative flex size-6 shrink-0 overflow-hidden rounded-sm"
     >
-      {!thumbnail || thumbnailFailed ? (
-        <WorkspaceThumbnailFallback />
-      ) : (
-        <span className="relative size-6 shrink-0 overflow-hidden rounded-sm bg-muted">
+      {thumbnail && !thumbnailFailed ? (
+        <span className="relative size-6 shrink-0 overflow-hidden rounded-sm">
+          {!thumbnailLoaded && <RecentThumbnailPlaceholder />}
           <DeferredThumbnailImage
             src={thumbnail.src}
             alt=""
             draggable={false}
-            className="h-full w-full object-cover"
+            eager={thumbnailCached}
+            className={cn(
+              "relative h-full w-full object-cover",
+              !thumbnailCached &&
+                "transition-[opacity,filter,transform] duration-300 ease-out motion-reduce:transition-none",
+              thumbnailLoaded ? "scale-100 blur-0" : "scale-110 blur-[4px]",
+            )}
+            onLoad={() => {
+              loadedThumbnailSources.add(thumbnail.src);
+              setLoadedSource(thumbnail.src);
+            }}
             onFailure={() => {
               setFailedSource(thumbnail.src);
             }}
@@ -356,13 +384,14 @@ function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
               className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[var(--media-overlay-surface)] text-[var(--media-overlay-foreground)]"
               data-home-video-play="true"
             >
-              <PlaybackPlayIcon
-                size={9}
-                className="text-[var(--media-overlay-foreground)]"
-              />
+              <PlaybackPlayIcon size={9} className="text-[var(--media-overlay-foreground)]" />
             </span>
           )}
         </span>
+      ) : thumbnailPending ? (
+        <RecentThumbnailPlaceholder />
+      ) : (
+        <WorkspaceThumbnailFallback />
       )}
     </span>
   );
@@ -390,7 +419,7 @@ function useNativeProjectPreview(options) {
   const latest = reactExports.useRef(options);
   latest.current = options;
   const publishRef = reactExports.useRef(null);
-  const { open, anchor } = options;
+  const { open, anchor : anchor2} = options;
   reactExports.useLayoutEffect(() => {
     if (!open || !supported || !browser) return;
     const element = anchor.current;
@@ -1217,3 +1246,19 @@ ${openedAtLabel}`
     </Popover>
   );
 }
+
+const enabledThumbnailPaths = new Set();
+
+function RecentThumbnailPlaceholder() {
+  return (
+    <span
+      aria-hidden="true"
+      data-home-thumbnail-placeholder="true"
+      className="absolute inset-0 overflow-hidden rounded-sm bg-foreground/[0.05]"
+    >
+      <span className="absolute -inset-1 bg-[radial-gradient(circle_at_28%_30%,color-mix(in_oklab,var(--foreground)_14%,transparent),transparent_62%),radial-gradient(circle_at_78%_74%,color-mix(in_oklab,var(--foreground)_10%,transparent),transparent_58%)] blur-[3px]" />
+    </span>
+  );
+}
+
+const loadedThumbnailSources = new Set();

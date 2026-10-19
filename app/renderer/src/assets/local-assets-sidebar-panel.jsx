@@ -32,7 +32,7 @@ import {
   ContextMenuTrigger,
 } from "../workspace/context-menu-content.jsx";
 import { AddToChatIcon } from "../canvas/fullscreen-icon.jsx";
-import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
+import { Button, cn as cn$5, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import {
   FolderTileGlyph,
   useProjectAssetsService,
@@ -58,6 +58,7 @@ import { MoveNodeDialog } from "../infra/move-node-dialog.jsx";
 import { useProjectActions } from "../settings/use-project-actions.js";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
 import { AssetsDropzoneEmpty } from "./assets-dropzone-empty.jsx";
+import { ChevronRight as ChevronRight$3 } from "lucide-react";
 const GRID_THUMBNAIL_DISPLAY_WIDTH = 128;
 const LIST_THUMBNAIL_DISPLAY_WIDTH = 20;
 function assetTreeRowToLocalNode(row) {
@@ -120,14 +121,13 @@ function LocalAssetGridCard({
   dndProps,
   dropActive,
 }) {
-  const { t: translate } = useTranslation();
+  const { t } = useTranslation();
   const record = row.record;
   const typeBucket = resolveTypeBucket({
     kind: row.kind,
     name: row.name,
     mime: record?.mime,
   });
-  const Chevron = expanded ? ChevronDown : ChevronRight;
   const cardClassName = cn(
     "group relative flex min-w-0 flex-col rounded-lg p-1 text-left outline-none transition-colors hover:bg-foreground/5 focus-visible:ring-1 focus-visible:ring-ring/50",
     row.kind === "file" && "cursor-grab active:cursor-grabbing",
@@ -145,17 +145,9 @@ function LocalAssetGridCard({
       />
       <span className="flex min-w-0 items-center gap-1 px-1 py-1">
         {row.kind === "folder" ? (
-          <Icon
-            icon={Chevron}
-            size="xs"
-            strokeWidth={1.5}
-            className="shrink-0 text-muted-foreground"
-          />
+          <DisclosureChevron expanded={expanded} size={12} strokeWidth={1.5} className="text-muted-foreground" />
         ) : null}
-        <span
-          className="min-w-0 flex-1 truncate text-[12px] text-foreground/70"
-          title={row.name}
-        >
+        <span className="min-w-0 flex-1 truncate text-[12px] text-foreground/70" title={row.name}>
           {row.name}
         </span>
       </span>
@@ -177,11 +169,7 @@ function LocalAssetGridCard({
               {content}
             </button>
           ) : (
-            <div
-              {...dndProps}
-              className={cardClassName}
-              data-action-ui-id="project-assets-sidebar.file-grid-card"
-            >
+            <div {...dndProps} className={cardClassName} data-action-ui-id="project-assets-sidebar.file-grid-card">
               {content}
             </div>
           )
@@ -196,61 +184,47 @@ function LocalAssetGridCard({
             </ContextMenuItem>
             <ContextMenuItem onClick={onRename}>
               <PencilIcon size={14} strokeWidth={1.5} />
-              {translate("localAssets.rename")}
+              {t("localAssets.rename")}
             </ContextMenuItem>
             <ContextMenuItem onClick={onMove}>
               <Icon icon={FolderInput} size="sm" strokeWidth={1.5} />
-              {translate("localAssets.moveTo")}
+              {t("localAssets.moveTo")}
             </ContextMenuItem>
           </>
         ) : record ? (
           <>
             <ContextMenuItem onClick={() => onAddToCanvas(record)}>
               <Icon icon={ImageOutlineIcon} size="sm" strokeWidth={1.5} />
-              {translate("localAssets.addToCanvas")}
+              {t("localAssets.addToCanvas")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => void onAddToAgent(record)}>
               <AddToChatIcon size={14} />
-              {translate("localAssets.addToAgent")}
+              {t("localAssets.addToAgent")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => void onRevealFile(record)}>
               <Icon icon={FolderOpen} size="sm" strokeWidth={1.5} />
               <PlatformFileManagerLabel />
             </ContextMenuItem>
-            <ContextMenuItem
-              onClick={onRename}
-              data-action-ui-id="project-assets-sidebar.file-rename"
-            >
+            <ContextMenuItem onClick={onRename} data-action-ui-id="project-assets-sidebar.file-rename">
               <PencilIcon size={14} strokeWidth={1.5} />
-              {translate("localAssets.rename")}
+              {t("localAssets.rename")}
             </ContextMenuItem>
             <ContextMenuItem onClick={onMove}>
               <Icon icon={FolderInput} size="sm" strokeWidth={1.5} />
-              {translate("localAssets.moveTo")}
+              {t("localAssets.moveTo")}
             </ContextMenuItem>
           </>
         ) : null}
         <ContextMenuItem variant="destructive" onClick={onDelete}>
           <Icon icon={Trash2} size="sm" strokeWidth={1.5} />
-          {translate("localAssets.delete")}
+          {t("localAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );
 }
-function FolderRow({
-  row,
-  expanded,
-  onToggle,
-  onReveal,
-  onRename,
-  onMove,
-  onDelete,
-  dndProps,
-  dropActive,
-}) {
-  const { t: translate } = useTranslation();
-  const Chevron = expanded ? ChevronDown : ChevronRight;
+function FolderRow({ row, expanded, onToggle, onReveal, onRename, onMove, onDelete, dndProps, dropActive }) {
+  const { t } = useTranslation();
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -259,7 +233,7 @@ function FolderRow({
             type="button"
             onClick={() => onToggle(row.rel)}
             {...dndProps}
-            className={cn(
+            className={cn$5(
               "list-row-hit-area flex h-7 w-full items-center gap-0.5 rounded-md px-2 text-left transition-colors hover:bg-foreground/5",
               dropActive && "bg-primary/10",
             )}
@@ -268,17 +242,11 @@ function FolderRow({
             }}
             data-action-ui-id="project-assets-sidebar.folder-row"
           >
-            <Chevron
-              size={13}
-              strokeWidth={1.5}
-              className="shrink-0 text-muted-foreground/70"
-            />
+            <DisclosureChevron expanded={expanded} size={13} strokeWidth={1.5} className="text-muted-foreground/70" />
             <span className="inline-flex size-5 shrink-0 items-center justify-center">
               <FolderTileGlyph className="!h-8 !w-8 origin-center scale-[0.625]" />
             </span>
-            <span className="min-w-0 flex-1 truncate text-[13px] text-foreground/70">
-              {row.name}
-            </span>
+            <span className="min-w-0 flex-1 truncate text-[13px] text-foreground/70">{row.name}</span>
           </button>
         }
       />
@@ -289,15 +257,15 @@ function FolderRow({
         </ContextMenuItem>
         <ContextMenuItem onClick={onRename}>
           <PencilIcon size={14} strokeWidth={1.5} />
-          {translate("localAssets.rename")}
+          {t("localAssets.rename")}
         </ContextMenuItem>
         <ContextMenuItem onClick={onMove}>
           <FolderInput size={14} strokeWidth={1.5} />
-          {translate("localAssets.moveTo")}
+          {t("localAssets.moveTo")}
         </ContextMenuItem>
         <ContextMenuItem variant="destructive" onClick={onDelete}>
           <Trash2 size={14} strokeWidth={1.5} />
-          {translate("localAssets.delete")}
+          {t("localAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -964,5 +932,20 @@ export function LocalAssetsSidebarPanel({
         }}
       />
     </div>
+  );
+}
+
+export function DisclosureChevron({ expanded, size: size2 = 14, strokeWidth = 1.5, className }) {
+  return (
+    <ChevronRight$3
+      size={size2}
+      strokeWidth={strokeWidth}
+      aria-hidden="true"
+      className={cn$5(
+        "shrink-0 origin-center transition-transform duration-150 ease-out motion-reduce:transition-none",
+        expanded && "rotate-90",
+        className,
+      )}
+    />
   );
 }

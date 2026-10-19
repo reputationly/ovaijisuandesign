@@ -13,7 +13,7 @@ import {
 import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";
-const ASR_LANGUAGES = ["zh", "en", "other"];
+export const ASR_LANGUAGES = ["zh", "en", "other"];
 const ASR_LANGUAGE_LABEL_KEYS = {
   zh: "canvas.asr.language.zh",
   en: "canvas.asr.language.en",

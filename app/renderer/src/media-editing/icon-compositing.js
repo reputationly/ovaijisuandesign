@@ -3,7 +3,6 @@ import reactExports from "react";
 import jsxRuntimeExports from "react/jsx-runtime";
 
 export const IconCompositingContext = reactExports.createContext(true);
-const ICON_CLASS_FILTERS = "var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)";
 export function withIconCompositing(Glyph) {
   const Composited = reactExports.forwardRef(function CompositedIcon({
     children: children2,
@@ -75,6 +74,8 @@ export function withIconCompositing(Glyph) {
   Composited.displayName = `Composited(${Glyph.displayName ?? "Icon"})`;
   return Composited;
 }
+const ICON_CLASS_FILTERS =
+  "var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)";
 const TONES = {
   muted: {
     color: "var(--icon-muted-ink)",

@@ -79,7 +79,7 @@ import {
   IProjectMainService,
   IWindowMainService,
 } from "../workspace/home-service.jsx";
-import { IHiloApp } from "./parse-custom-mcp-arguments.js";
+import { IHiloApp, hilo } from "./parse-custom-mcp-arguments.js";
 import { useProjectArchiveActions } from "../workspace/use-project-archive-actions.js";
 import { UpdaterRouterInner } from "./version-row.jsx";
 import {
@@ -224,6 +224,19 @@ function canUseDebugPanel() {
 }
 function DebugPanelProvider({ children }) {
   const [open, setOpen] = reactExports.useState(false);
+  const [workspaceTools, setWorkspaceTools] = reactExports.useState(null);
+  const [workspaceViews, setWorkspaceViews] = reactExports.useState(null);
+  const handleClose = reactExports.useCallback(() => setOpen(false), []);
+  const views = reactExports.useMemo(
+    () =>
+      open && workspaceViews
+        ? {
+            target: workspaceViews,
+            close: handleClose,
+          }
+        : null,
+    [open, workspaceViews, handleClose],
+  );
   const isEnabled = canUseDebugPanel();
   reactExports.useEffect(() => {
     if (!isEnabled) return;
@@ -231,14 +244,12 @@ function DebugPanelProvider({ children }) {
     const onKeyDown = (event) => {
       if (event.key !== ";") return;
       if (event.altKey || event.shiftKey) return;
-      const isMac =
-        typeof navigator !== "undefined" &&
-        /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+      const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
       const primary = isMac ? event.metaKey : event.ctrlKey;
       const otherModifier = isMac ? event.ctrlKey : event.metaKey;
       if (!primary || otherModifier) return;
       event.preventDefault();
-      setOpen((isOpen) => !isOpen);
+      setOpen((v2) => !v2);
     };
     window.addEventListener(DEBUG_PANEL_OPEN_EVENT, onOpenDebugPanel);
     window.addEventListener("keydown", onKeyDown);
@@ -249,12 +260,17 @@ function DebugPanelProvider({ children }) {
   }, [isEnabled]);
   if (!isEnabled) return <>{children}</>;
   return (
-    <>
-      {children}
+    <DebugPanelWorkspaceToolsContext.Provider value={open ? workspaceTools : null}>
+      <DebugPanelWorkspaceViewsContext.Provider value={views}>{children}</DebugPanelWorkspaceViewsContext.Provider>
       <reactExports.Suspense fallback={null}>
-        <DebugPanelDialog open={open} onOpenChange={setOpen} />
+        <DebugPanelDialog
+          open={open}
+          onOpenChange={setOpen}
+          workspaceToolsRef={setWorkspaceTools}
+          workspaceViewsRef={setWorkspaceViews}
+        />
       </reactExports.Suspense>
-    </>
+    </DebugPanelWorkspaceToolsContext.Provider>
   );
 }
 function InterestSelectionProvider({ children }) {
@@ -461,14 +477,11 @@ function LoginGateDialog() {
       disablePointerDismissal={true}
     >
       <DialogContent
-        overlayClassName="![backdrop-filter:none] ![-webkit-backdrop-filter:none]"
         className="!grid !h-[480px] !w-[760px] !max-w-[760px] !grid-cols-1 !grid-rows-[auto] !gap-0 !p-0 elevated-surface-border overflow-hidden rounded-xl bg-popover shadow-lg ring-0 sm:!max-w-[760px]"
         showCloseButton={false}
         data-action-ui-id="auth.login-gate"
       >
-        <DialogDescription className="sr-only">
-          {t("auth.loginGate.subtitle")}
-        </DialogDescription>
+        <DialogDescription className="sr-only">{t("auth.loginGate.subtitle")}</DialogDescription>
         <Button
           variant="ghost"
           size="icon-sm"
@@ -495,14 +508,8 @@ function LoginGateDialog() {
               />
             </div>
           </div>
-          <div
-            className="flex h-full flex-col px-8 pt-4 pr-12 pb-8"
-            data-slot="login-gate-content"
-          >
-            <div
-              className="mt-0.5 flex items-center gap-1.5"
-              data-slot="login-gate-brand"
-            >
+          <div className="flex h-full flex-col px-8 pt-4 pr-12 pb-8" data-slot="login-gate-content">
+            <div className="mt-0.5 flex items-center gap-1.5" data-slot="login-gate-brand">
               <HubLogo
                 size={17}
                 className="shrink-0 [&_g:has(>[data-hub-logo-eye])]:transform-none!"
@@ -515,26 +522,17 @@ function LoginGateDialog() {
                 data-slot="login-gate-brand-wordmark"
               />
             </div>
-            <div
-              aria-hidden="true"
-              className="mt-6 border-t border-border"
-              data-slot="login-gate-brand-divider"
-            />
+            <div aria-hidden="true" className="mt-6 border-t border-border" data-slot="login-gate-brand-divider" />
             <div className="mt-6 flex flex-col gap-4">
               <DialogTitle className="font-heading text-[22px] font-medium leading-snug text-foreground">
                 {t("auth.loginGate.title")}
               </DialogTitle>
-              <p className="text-sm leading-relaxed text-foreground/70">
-                {t("auth.loginGate.subtitle")}
-              </p>
+              <p className="text-sm leading-relaxed text-foreground/70">{t("auth.loginGate.subtitle")}</p>
             </div>
             <ul className="mt-5 flex flex-col gap-3.5 text-sm leading-relaxed text-foreground/70">
               {BULLET_KEYS.map((key) => (
                 <li key={key} className="flex gap-2.5">
-                  <span
-                    aria-hidden={true}
-                    className="mt-2 h-1.5 w-1.5 shrink-0 bg-foreground/70"
-                  />
+                  <span aria-hidden={true} className="mt-2 h-1.5 w-1.5 shrink-0 bg-foreground/70" />
                   <span>
                     <Trans
                       i18nKey={key}
@@ -645,8 +643,11 @@ function LowMemoryToast() {
     showLowMemoryToast(payload);
   }, []);
   reactExports.useEffect(() => {
-    if (typeof hilo === "undefined") return;
-    return hilo.diagnostics.onLowMemory((payload) => {
+    // 这里要的是**预加载暴露的全局** `hilo`（本文件其它地方也都写 `window.hilo`）。
+    // 写成裸 `hilo` 会绑到第 82 行那个同名的本地导入（它来自 parse-custom-mcp-arguments，
+    // 是个完全无关的对象），于是 `hilo.diagnostics` 是 undefined、读 `.onLowMemory` 直接抛。
+    if (typeof window.hilo === "undefined") return;
+    return window.hilo.diagnostics.onLowMemory((payload) => {
       showOrDefer(payload);
     });
   }, [showOrDefer]);
@@ -708,13 +709,9 @@ function ProxyDetectedToast() {
     }
     function scheduleRecheck() {
       clearRecheckTimer();
-      if ((!warningVisible && warningObservationCount === 0) || disposed)
-        return;
+      if ((!warningVisible && warningObservationCount === 0) || disposed) return;
       if (!warningVisible) {
-        recheckTimer = setTimeout(
-          () => void syncProxyToast(),
-          Math.max(0, nextWarningObservationAt - Date.now()),
-        );
+        recheckTimer = setTimeout(() => void syncProxyToast(), Math.max(0, nextWarningObservationAt - Date.now()));
         return;
       }
       const remainingMs = warningExpiresAt - Date.now();
@@ -725,10 +722,7 @@ function ProxyDetectedToast() {
         warningExpiresAt = 0;
         return;
       }
-      recheckTimer = setTimeout(
-        () => void syncProxyToast(),
-        Math.min(PROXY_RECHECK_INTERVAL_MS, remainingMs),
-      );
+      recheckTimer = setTimeout(() => void syncProxyToast(), Math.min(PROXY_RECHECK_INTERVAL_MS, remainingMs));
     }
     async function syncProxyToast() {
       const revision = ++requestRevision;
@@ -743,15 +737,9 @@ function ProxyDetectedToast() {
             warningObservationCount = 1;
             nextWarningObservationAt = now + PROXY_RECHECK_INTERVAL_MS;
           } else if (now >= nextWarningObservationAt) {
-            warningObservationCount = Math.min(
-              WARNING_CONFIRMATION_COUNT,
-              warningObservationCount + 1,
-            );
+            warningObservationCount = Math.min(WARNING_CONFIRMATION_COUNT, warningObservationCount + 1);
           }
-          if (
-            !warningVisible &&
-            warningObservationCount >= WARNING_CONFIRMATION_COUNT
-          ) {
+          if (!warningVisible && warningObservationCount >= WARNING_CONFIRMATION_COUNT) {
             warningVisible = true;
             warningAcknowledged = true;
             warningExpiresAt = now + TOAST_DURATION_MS;
@@ -760,10 +748,7 @@ function ProxyDetectedToast() {
           }
           scheduleRecheck();
         } else {
-          const hadWarningEpisode =
-            warningVisible ||
-            warningAcknowledged ||
-            warningObservationCount > 0;
+          const hadWarningEpisode = warningVisible || warningAcknowledged || warningObservationCount > 0;
           hideProxyToast(false);
           if (hadWarningEpisode) reportDecision("recovered", "route_healthy");
           else if (status.hasProxy && status.error === "connection_failed") {
@@ -1346,7 +1331,13 @@ function WindowCloseDialog() {
     let eventReceived = false;
     let subscription;
     let connectedService;
-    void (() => Promise.resolve().then(() => instantiation))()
+    // 同样是**动态**导入（产物里按需拉 chunk）。这里原来被写坏成 `Promise("…")`，
+    // 会在不带 `new` 调用 `Promise` 时抛「Promise constructor cannot be invoked without 'new'」，
+    // 于是窗口关闭确认这条路从来没接上过。
+    void (async () => {
+      const { services } = await import("../vendor-inline/vscode-base/graph.jsx");
+      return { services };
+    })()
       .then(async ({ services }) => {
         if (disposed) return;
         const service = services.get(IWindowMainService);
@@ -1831,3 +1822,7 @@ export function AppProviders({ children }) {
     ),
   });
 }
+
+const DebugPanelWorkspaceToolsContext = reactExports.createContext(null);
+
+const DebugPanelWorkspaceViewsContext = reactExports.createContext(null);

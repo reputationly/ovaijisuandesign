@@ -157,7 +157,7 @@ function computeClickPanViewport(flowPoint, canvasSize, currentZoom) {
     zoom: currentZoom,
   };
 }
-function getMinimapViewportColor(viewportAreaRatio) {
+export function getMinimapViewportColor(viewportAreaRatio) {
   return isMinimapViewportIndicatorVisible(viewportAreaRatio)
     ? "var(--canvas-minimap-viewport-fill)"
     : void 0;
@@ -984,9 +984,9 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay() {
 function getCanvasMinimapPositionStyle(placement) {
   return MINIMAP_POSITION_STYLES[placement];
 }
-const DOT_RADIUS = 1;
-const MIN_VISIBLE_GRID_ZOOM = 0.5;
-function getVisibleGridStart(visibleMin) {
+export const DOT_RADIUS = 1;
+export const MIN_VISIBLE_GRID_ZOOM = 0.5;
+export function getVisibleGridStart(visibleMin) {
   return Math.floor(visibleMin / VISIBLE_GRID_GAP) * VISIBLE_GRID_GAP;
 }
 function readDotColor(host) {

@@ -9,7 +9,11 @@ export function selectionsToNormalizedBBoxes(rects) {
     .map(selectionToNormalizedBBox)
     .filter((bbox) => bbox.x1 < bbox.x2 && bbox.y1 < bbox.y2);
 }
-const DEFAULT_OPTIONS = ["1K", "2K", "4K"];
+const DEFAULT_OPTIONS = {
+  matchCase: false,
+  wholeWord: false,
+  regex: false,
+};
 export const BananaResolutionPicker = reactExports.memo(
   function BananaResolutionPicker({
     value,

@@ -1,4 +1,5 @@
 // use-active-runtime.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import reactExports from "react";
 import { useQuery } from "@tanstack/react-query";
 import { BUNDLED_CHANGELOG } from "./bundled-changelog.js";

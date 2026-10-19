@@ -2,7 +2,7 @@ import reactExports from "react";
 
 function readDpr() {
   if (typeof window === "undefined") return 1;
-  return window.devicePixelRatio || 1;
+  return Math.max(1, window.devicePixelRatio || 1);
 }
 
 export function useDevicePixelRatio() {

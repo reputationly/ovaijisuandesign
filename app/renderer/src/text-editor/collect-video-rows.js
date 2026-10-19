@@ -24,10 +24,8 @@ function displayQuality(value) {
     ? value
     : `${value[0]?.toUpperCase()}${value.slice(1).toLowerCase()}`;
 }
-function formatNumber(value, locale) {
-  return new Intl.NumberFormat(locale, {
-    maximumFractionDigits: 4,
-  }).format(value);
+function formatNumber(n) {
+  return n.toLocaleString();
 }
 function withQualifier(label, resolution, quality, mode) {
   const qualifier = [
@@ -39,12 +37,24 @@ function withQualifier(label, resolution, quality, mode) {
     .join(" · ");
   return qualifier ? `${label} (${qualifier})` : label;
 }
-function render(rows, copy, locale) {
-  if (rows.length === 0) return null;
-  const separator = locale.toLowerCase().startsWith("zh") ? "：" : ": ";
-  return `### ${copy.heading}
-
-${rows.map((row) => `- ${row.label}${separator}${row.value}`).join("\n")}`;
+export function render(tag, attributes2) {
+  if (tag === "slot") return 0;
+  if (tag instanceof Function) {
+    const result = tag(attributes2);
+    if (Array.isArray(result) && !isJSXElement(result) && !jsxFragments.has(result)) return createJSXElement(result);
+    return result;
+  }
+  const { children: children2, ...rest } = attributes2 !== null && attributes2 !== void 0 ? attributes2 : {};
+  if (tag === "svg") throw new Error("SVG elements are not supported in the JSX syntax, use the array syntax instead");
+  if (Array.isArray(children2)) {
+    if (isJSXElement(children2)) return createJSXElement([tag, rest, children2]);
+    if (children2.length === 0) return createJSXElement([tag, rest]);
+    const flattenedChildren = flattenFragmentChildren(children2);
+    if (flattenedChildren.length === 0) return createJSXElement([tag, rest]);
+    return createJSXElement([tag, rest, ...flattenedChildren]);
+  }
+  if (children2 !== void 0 && children2 !== null) return createJSXElement([tag, rest, children2]);
+  return createJSXElement([tag, rest]);
 }
 function uniqueReferenceRules(costs) {
   const seen = new Set();

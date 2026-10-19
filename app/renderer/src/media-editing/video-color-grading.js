@@ -1,4 +1,5 @@
 // video-color-grading.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import {
   isWebGLSupported,
   parseCubeLUT,

@@ -500,6 +500,8 @@ const VIEWER_SIZE_LIMITS = {
   docx: 20 * 1024 * 1024,
   // 20 MB — docx-preview unzips fully into memory
   zip: 256 * 1024 * 1024,
+  // 256 MB — JSZip parses the central directory only, but useFileBytes still buffers the whole file into a renderer-process ArrayBuffer; raising this risks Electron OOM
+  html: 10 * 1024 * 1024,
 };
 function pickLanguage(extension) {
   switch (extension) {

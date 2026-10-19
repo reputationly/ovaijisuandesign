@@ -60,8 +60,13 @@ export function buildOpencodeConfig(i: BuildInputs): Record<string, any> {
       config.disabled_providers = config.disabled_providers.filter((p: unknown) => p !== PROVIDER_ID);
     }
     // 启用自定义模型时删掉各 agent 的 model 和 small_model —— 否则 agent 会去找
-    // 一个平台上不存在的模型。
-    for (const a of Object.values(config.agent ?? {})) if (a && typeof a === "object") delete (a as any).model;
+    // 一个平台上不存在的模型。思考档位留着：qwen 在 opencode 里没有内置档位，
+    // 不写 variant 的话会话一直是 default，请求里不会带 reasoning_effort。
+    for (const a of Object.values(config.agent ?? {})) {
+      if (!a || typeof a !== "object") continue;
+      delete (a as any).model;
+      (a as any).variant = "max";
+    }
     delete config.small_model;
     config.model = `${PROVIDER_ID}/${model}`;
   }
@@ -116,7 +121,17 @@ function customProvider(p: Platform) {
     npm: "@ai-sdk/openai-compatible",
     options: { baseURL: p.base_url, apiKey: p.api_key, headers: {} },
     models: {
-      [model]: { id: model, name: model, tool_call: true, limit: { context, output } },
+      [model]: {
+        id: model,
+        name: model,
+        tool_call: true,
+        limit: { context, output },
+        // opencode 看到模型 id 里有 qwen 就不上思考档。这里显式给 max，
+        // 请求体会带 reasoning_effort=max，并打开 enable_thinking。
+        variants: {
+          max: { reasoningEffort: "max", enable_thinking: true },
+        },
+      },
     },
   };
 }

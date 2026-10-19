@@ -2,6 +2,8 @@
 import { BaseBackend } from "./base-backend.jsx";
 import { isWebGLSupported } from "./parse-cube-lut.js";
 import { defaultLUTParams } from "./default-settings.js";
+import { noop } from "../infra/shared-runtime.js";
+import { binarySubdivide, calcBezier } from "./calc-bezier.jsx";
 function lutToFlat2D(lookupTable) {
   const { size, data, domainMin, domainMax } = lookupTable;
   const width = size * size;
@@ -33,7 +35,7 @@ function lutToFlat2D(lookupTable) {
     data: rgbaData,
   };
 }
-const vertexSource = `
+export const vertexSource = `
 precision highp float;
 attribute vec2 aPosition;
 attribute vec2 aTexCoord;
@@ -44,7 +46,7 @@ void main() {
   gl_Position = vec4(aPosition, 0.0, 1.0);
 }
 `;
-const blackVertexSource = `
+export const blackVertexSource = `
 precision highp float;
 attribute vec2 apos;
 attribute vec2 auv;
@@ -155,7 +157,7 @@ precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
 uniform float uAmount;
-const float PI = 3.1415926535897932384626433832795;
+export const float PI = 3.1415926535897932384626433832795;
 void main() {
   vec4 color = texture2D(uTexture, vUv);
   if (uAmount >= 0.0) {
@@ -245,7 +247,7 @@ precision highp float;
 varying vec2 vUv;
 uniform sampler2D uTexture;
 uniform float uAmount;
-const vec3 RGB2Y = vec3(0.2126, 0.7152, 0.0722);
+export const vec3 RGB2Y = vec3(0.2126, 0.7152, 0.0722);
 void main() {
   vec4 base = texture2D(uTexture, vUv.xy);
   vec3 color = base.rgb;
@@ -255,7 +257,7 @@ void main() {
   gl_FragColor = vec4(clamp(color, 0.0, 1.0), base.a);
 }
 `;
-const blackPaletteFragment = `
+export const blackPaletteFragment = `
 precision highp float;
 varying vec2 uv;
 uniform sampler2D uTexture;
@@ -832,17 +834,13 @@ function createRenderTarget(webGLContext, width, height) {
     texture,
   };
 }
-const PALETTE_SIZE = 256;
+export const PALETTE_SIZE = 256;
 const clampToUnitInterval = (value) => Math.min(1, Math.max(0, value));
-const cubicBezier = (interpolationFactor, startValue, firstControlValue, secondControlValue, endValue) => {
-  const inverseInterpolationFactor = 1 - interpolationFactor;
-  return (
-    inverseInterpolationFactor * inverseInterpolationFactor * inverseInterpolationFactor * startValue +
-    3 * inverseInterpolationFactor * inverseInterpolationFactor * interpolationFactor * firstControlValue +
-    3 * inverseInterpolationFactor * interpolationFactor * interpolationFactor * secondControlValue +
-    interpolationFactor * interpolationFactor * interpolationFactor * endValue
-  );
-};
+function cubicBezier(mX1, mY1, mX2, mY2) {
+  if (mX1 === mY1 && mX2 === mY2) return noop;
+  const getTForX = (aX) => binarySubdivide(aX, 0, 1, mX1, mX2);
+  return (t) => (t === 0 || t === 1 ? t : calcBezier(getTForX(t), mY1, mY2));
+}
 const buildCurvePalette = (lowControl, highControl) => {
   const data = new Uint8Array(PALETTE_SIZE * 3);
   for (let paletteIndex = 0; paletteIndex < PALETTE_SIZE; paletteIndex += 1) {

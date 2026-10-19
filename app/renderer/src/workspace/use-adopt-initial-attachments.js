@@ -8,11 +8,13 @@ import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { FILE_ADOPTION_IDEMPOTENCY_HEADER } from "../generation/to-workspace-browser-url.js";
 
 class AdoptionFailure extends Error {
-  constructor(reason, message2, httpStatusClass) {
-    super(message2);
-    this.reason = reason;
+  constructor(reason2, message, httpStatusClass) {
+    super(message);
+    this.reason = reason2;
     this.httpStatusClass = httpStatusClass;
   }
+  reason;
+  httpStatusClass;
 }
 
 function classifyHttpStatus(status) {

@@ -82,44 +82,20 @@ export function useCanvasNodeIsDragging(nodeId) {
   return useStore(selector);
 }
 const DEFAULT_VIEWPORT_BUFFER_RATIO = 1.5;
-function classify(state, nodeId, nodeWidth, nodeHeight, bufferRatio) {
-  const lookup = state.nodeLookup?.get(nodeId);
-  if (!lookup) return "far";
-  const pos = lookup.internals?.positionAbsolute ?? lookup.position;
-  if (!pos) return "far";
-  const [tx, ty, zoom] = state.transform;
-  if (!zoom || zoom <= 0) return "far";
-  const vLeft = -tx / zoom;
-  const vTop = -ty / zoom;
-  const vRight = vLeft + state.width / zoom;
-  const vBottom = vTop + state.height / zoom;
-  const renderBounds = lookup.renderBounds;
-  const hostWidth = lookup.measured?.width ?? lookup.width ?? nodeWidth;
-  const hostHeight = lookup.measured?.height ?? lookup.height ?? nodeHeight;
-  const nLeft = pos.x - (renderBounds?.left ?? 0);
-  const nTop = pos.y - (renderBounds?.top ?? 0);
-  const nRight = pos.x + hostWidth + (renderBounds?.right ?? 0);
-  const nBottom = pos.y + hostHeight + (renderBounds?.bottom ?? 0);
-  const visible = !(
-    nRight < vLeft ||
-    nLeft > vRight ||
-    nBottom < vTop ||
-    nTop > vBottom
-  );
-  if (visible) return "inView";
-  const bufW = (state.width / zoom) * (bufferRatio - 1) * 0.5;
-  const bufH = (state.height / zoom) * (bufferRatio - 1) * 0.5;
-  const bLeft = vLeft - bufW;
-  const bTop = vTop - bufH;
-  const bRight = vRight + bufW;
-  const bBottom = vBottom + bufH;
-  const near = !(
-    nRight < bLeft ||
-    nLeft > bRight ||
-    nBottom < bTop ||
-    nTop > bBottom
-  );
-  return near ? "nearView" : "far";
+function classify(status, code2) {
+  if (code2 === "CURSOR_STALE") return "cursor_stale";
+  if (code2 === "ABORTED") return "aborted";
+  if (status === 401 || status === 403) return "auth";
+  if (code2 === "INVALID_RESPONSE" || status === 400 || status === 422) return "invalid";
+  if (
+    code2 === "DEPENDENCY_UNAVAILABLE" ||
+    code2 === "QUERY_UNAVAILABLE" ||
+    code2 === "HOST_DISCONNECTED" ||
+    status === 503
+  )
+    return "unavailable";
+  if (code2 === "NETWORK_ERROR" || status === 408 || status === 429 || status >= 500) return "transient";
+  return "unknown";
 }
 export function useViewportStatus(nodeId, width, height, options) {
   const bufferRatio = DEFAULT_VIEWPORT_BUFFER_RATIO;

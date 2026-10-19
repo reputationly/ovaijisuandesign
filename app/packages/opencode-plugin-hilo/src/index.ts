@@ -29,6 +29,7 @@ import { loadMemoryContext, shouldIncludeUserMemory } from "./load-memory-contex
 import { askUserViaGateway } from "./loop-guard/ask-client.js";
 import { createLoopGuard, LoopGuardError } from "./loop-guard/index.js";
 import { fetchMediaModels } from "./media-models-cache.js";
+import { createModelTraceCapture } from "./model-trace-capture.js";
 import { assertQuestionModelOptionsMatchCatalog, questionModelSelectionCategory } from "./question-model-catalog-guard.js";
 import { putRecommendedQuestionOptionsFirst, QUESTION_FORMAT_HINT } from "./question-option-order.js";
 import { fetchRequestGroup, groupScopeMarker, shouldFailOpenRequestGroup } from "./request-group.js";
@@ -79,6 +80,7 @@ const plugin: Plugin = async (input) => {
   if (!envGatewayUrl) throw new Error("[hilo-plugin] GATEWAY_URL must be set; the gateway must inject it when launching opencode");
   const gatewayUrl: string = envGatewayUrl;
   console.log(`[hilo-plugin] initialized; gatewayUrl=${gatewayUrl}`);
+  const modelTraceCapture = createModelTraceCapture(gatewayUrl);
   const projectRoot = () => input?.directory || process.cwd();
 
   const loopGuardMode = process.env.LOOP_GUARD_MODE === "block" ? "block" : "ask";
@@ -111,8 +113,20 @@ const plugin: Plugin = async (input) => {
     "chat.headers": async (inp, out) => {
       const model = inp.model as { providerID?: unknown; modelID?: unknown; id?: unknown } | undefined;
       const providerId = typeof model?.providerID === "string" ? model.providerID : "unknown";
-      if (isCustomModelProvider(providerId)) return;
+      if (isCustomModelProvider(providerId)) {
+        modelTraceCapture.enableDiagnostics();
+        return;
+      }
       const modelId = typeof model?.modelID === "string" ? model.modelID : typeof model?.id === "string" ? model.id : "unknown";
+      const agent = (inp as { agent?: unknown }).agent;
+      const agentName = typeof agent === "string" ? agent : agent && typeof agent === "object" && typeof (agent as { name?: unknown }).name === "string" ? (agent as { name: string }).name : "unknown";
+      const messageId = (inp as { message?: { id?: unknown } }).message?.id;
+      modelTraceCapture.attach({
+        session_id: inp.sessionID,
+        request_id: typeof messageId === "string" ? messageId : "",
+        agent: agentName,
+        model_id: modelId,
+      }, out.headers);
       const resolution = await fetchRequestGroup(gatewayUrl, inp.sessionID, "chat.headers", ` provider_id=${providerId} model_id=${modelId}`);
       const toolRefs = resolution.chatTurnId ? toolAttachmentRefsForTurn(inp.sessionID, resolution.chatTurnId) : [];
       const attachmentRefs = mergeAttachmentRefs(attachmentRefsBySession.get(inp.sessionID) ?? [], toolRefs);
@@ -416,7 +430,7 @@ const plugin: Plugin = async (input) => {
     }
   }
 
-  return hooks;
+  return { ...hooks, dispose: () => modelTraceCapture.dispose() };
 };
 
 /** 每个会话正在进行的用户消息附件登记（用来识别"登记期间又来了新消息"）。 */

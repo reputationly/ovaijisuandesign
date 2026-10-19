@@ -11,7 +11,7 @@ const MinimalForcedFallback = () => (
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "var(--modal-mask-bg)",
+      backgroundColor: "var(--modal-mask-dim-bg)",
     }}
     role="alertdialog"
     aria-modal="true"
@@ -19,8 +19,7 @@ const MinimalForcedFallback = () => (
     <div
       style={{
         background: "var(--elevated-surface)",
-        border:
-          "var(--elevated-border-width) solid var(--elevated-border-color)",
+        border: "var(--elevated-border-width) solid var(--elevated-border-color)",
         padding: 32,
         maxWidth: 400,
         textAlign: "center",

@@ -85,6 +85,7 @@ import {
   Streamdown,
   useIsCodeFenceIncomplete as useIsIncompleteCode,
 } from "streamdown";
+import { EXCLUDED_TAGS } from "./excluded-tags.jsx";
 function resolveMediaUrl(relativeUrl) {
   if (!relativeUrl) return void 0;
   if (/^https?:\/\//.test(relativeUrl)) return relativeUrl;
@@ -598,13 +599,13 @@ function MarkdownMediaCard({
   );
 }
 function MediaUnavailable({ kind }) {
-  const { t: translate } = useTranslation();
+  const { t } = useTranslation();
   const label =
     kind === "image"
-      ? translate("chat.failedToLoadImage", {
+      ? t("chat.failedToLoadImage", {
           defaultValue: "Failed to load image",
         })
-      : translate("chat.failedToLoadVideo", {
+      : t("chat.failedToLoadVideo", {
           defaultValue: "Failed to load video",
         });
   const FailIcon = kind === "image" ? ImageOffOutlineIcon : VideoOff;
@@ -615,15 +616,10 @@ function MediaUnavailable({ kind }) {
     </span>
   );
 }
-function formatDuration(seconds) {
-  if (!Number.isFinite(seconds) || seconds == null || seconds < 0) return "";
-  const total = Math.floor(seconds);
-  const hours = Math.floor(total / 3600);
-  const minutes = Math.floor((total % 3600) / 60);
-  const remainingSeconds = total % 60;
-  if (hours > 0)
-    return `${hours}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+function formatDuration(value) {
+  const trimmed = value?.trim();
+  if (!trimmed) return void 0;
+  return /^\d+(\.\d+)?$/.test(trimmed) ? `${trimmed}s` : trimmed;
 }
 function videoThumbnailUrl(relativePath, resolveUrl) {
   if (!relativePath) return void 0;
@@ -663,11 +659,12 @@ function encodeMarkdownUrlSpaces(markdown) {
 function MarkdownImage({ src, alt, ...rest }) {
   const workspace = useCurrentWorkspace();
   const resolveMediaUrl = useResolveMediaUrl();
+  const platform = usePlatform();
   const [fullSize, setFullSize] = reactExports.useState(false);
   const [error, setError] = reactExports.useState(false);
   const [dimensions, setDimensions] = reactExports.useState("");
   const resolvedSrc = rewriteImgSrc(src, workspace, resolveMediaUrl);
-  const thumbSrc = withThumbnail(resolvedSrc, 260);
+  const thumbSrc = /^https:\/\//i.test(src ?? "") ? resolvedSrc : withThumbnail(resolvedSrc, 260);
   const extension = getMediaExtension(src ?? resolvedSrc);
   const metadata = joinMetadata([extension, dimensions]);
   const handleClick = reactExports.useCallback(() => {
@@ -682,6 +679,12 @@ function MarkdownImage({ src, alt, ...rest }) {
   const handleError = reactExports.useCallback(() => {
     setError(true);
   }, []);
+  const handleOpenSource = reactExports.useCallback(() => {
+    if (!isRemoteWebUrl(src)) return;
+    void openUrlInBuiltinBrowser(platform, src, {
+      source: "chat.markdown-image.open-source",
+    });
+  }, [platform, src]);
   return (
     <>
       <MarkdownMediaCard
@@ -692,6 +695,7 @@ function MarkdownImage({ src, alt, ...rest }) {
         metadata={metadata || extension || "IMAGE"}
         onPreview={handleClick}
         unavailable={error || !resolvedSrc}
+        onOpenSource={isRemoteWebUrl(src) ? handleOpenSource : void 0}
       >
         {error || !resolvedSrc ? (
           <MediaUnavailable kind="image" />
@@ -707,11 +711,7 @@ function MarkdownImage({ src, alt, ...rest }) {
         )}
       </MarkdownMediaCard>
       {fullSize && resolvedSrc && (
-        <ImageLightbox
-          src={resolvedSrc}
-          alt={alt ?? ""}
-          onClose={() => setFullSize(false)}
-        />
+        <ImageLightbox src={resolvedSrc} alt={alt ?? ""} onClose={() => setFullSize(false)} />
       )}
     </>
   );
@@ -1234,15 +1234,7 @@ function MarkdownMedia(props) {
   }
   return <MarkdownImage {...props} />;
 }
-const EXCLUDED_TAGS = new Set([
-  "a",
-  "code",
-  "kbd",
-  "pre",
-  "samp",
-  "script",
-  "style",
-]);
+const IMAGE_EXTS = new Set(["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "bmp"]);
 function colorTokenNode(value, raw) {
   return {
     type: "element",
@@ -1727,3 +1719,16 @@ export function MarkdownContent({
     </CanvasNodeReferencesContext.Provider>
   );
 }
+
+function isRemoteWebUrl(src) {
+  if (!src) return false;
+  try {
+    const { protocol, hostname } = new URL(src);
+    if (protocol !== "http:" && protocol !== "https:") return false;
+    return hostname !== "localhost" && hostname !== "127.0.0.1" && !hostname.endsWith(".localhost");
+  } catch {
+    return false;
+  }
+}
+
+const EXCLUDED_TAGS$1 = new Set(["a", "code", "kbd", "pre", "samp", "script", "style"]);

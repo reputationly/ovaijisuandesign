@@ -18,6 +18,12 @@ import { Button, mergeTailwindClasses as mergeClassNames } from "../infra/dialog
 import { AssetMentionList } from "../assets/asset-mention-list.jsx";
 import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
 import { MESSAGE_INPUT_POPOVER_Z_INDEX } from "../assets/classify-upload-error.js";
+import { Video$2 } from "../media-editing/custom-icons.js";
+import { FileText } from "../media-editing/package.jsx";
+import { KEY_PREFIX as KEY_PREFIX$1 } from "../assets/read-envelope.js";
+import { AudioFileIcon } from "../assets/scrollable-asset-view.jsx";
+import { Image as Image$1 } from "lucide-react";
+import { MentionThumb } from "./mention-file-thumbnail.jsx";
 const POPOVER_FALLBACK_WIDTH = 380;
 const HOME_POPOVER_GAP = 4;
 const THUMB_PX = 24;
@@ -63,26 +69,25 @@ const FILE_KIND_FILTERS = [
     kind: "image",
     labelKey: "assetFilter.typeImage",
     fallback: "Image",
+    Icon: Image$1,
   },
   {
     kind: "video",
     labelKey: "assetFilter.typeVideo",
     fallback: "Video",
+    Icon: Video$2,
   },
   {
     kind: "audio",
     labelKey: "assetFilter.typeAudio",
     fallback: "Audio",
+    Icon: AudioFileIcon,
   },
   {
     kind: "text",
     labelKey: "assetFilter.typeText",
     fallback: "Text",
-  },
-  {
-    kind: "other",
-    labelKey: "assetFilter.typeOther",
-    fallback: "Other",
+    Icon: FileText,
   },
 ];
 function buildMentionThumbUrl(
@@ -100,60 +105,34 @@ function buildMentionThumbUrl(
   const base = gatewayUrl(`${prefix}${encoded}`);
   return withThumbnail(base, displayWidth);
 }
-const MentionThumb = reactExports.memo(function MentionThumb({ item }) {
-  const gatewayUrl = useGatewayUrl();
-  const thumbnailUrl = buildMentionThumbUrl(
-    gatewayUrl,
-    item.kind,
-    item.path,
-    THUMB_PX,
-  );
-  const [errored, setErrored] = reactExports.useState(false);
-  const wrapperCls =
-    "flex-shrink-0 flex items-center justify-center rounded-sm bg-muted/40 overflow-hidden";
-  const wrapperStyle = {
-    width: THUMB_PX,
-    height: THUMB_PX,
-  };
-  if (!thumbnailUrl || errored) {
-    return (
-      <span className={wrapperCls} style={wrapperStyle}>
-        {(item.kind === "image" ||
-          item.kind === "video" ||
-          item.kind === "audio") &&
-        classifyFileType({
-          filename: item.name,
-        }).category !== "photoshop" ? (
-          <FileKindIcon
-            kind={item.kind}
-            className="size-4 text-muted-foreground"
-          />
-        ) : (
-          <FileTypeIcon
-            {...classifyFileType({
-              filename: item.name,
-            })}
-            size={16}
-            decorative={true}
-          />
-        )}
-      </span>
-    );
-  }
-  return (
-    <span className={wrapperCls} style={wrapperStyle}>
-      <img
-        src={thumbnailUrl}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        draggable={false}
-        className="w-full h-full object-cover"
-        onError={() => setErrored(true)}
-      />
-    </span>
-  );
-});
+const KEY_ENTRIES = {
+  // resource not found (404)
+  entity_not_found: `${KEY_PREFIX$1}entityNotFound`,
+  attachment_not_found: `${KEY_PREFIX$1}attachmentNotFound`,
+  suggestion_not_found: `${KEY_PREFIX$1}suggestionNotFound`,
+  // attachment / upload validation (400)
+  attachment_format_unsupported: `${KEY_PREFIX$1}attachmentFormatUnsupported`,
+  attachment_count_exceeded: `${KEY_PREFIX$1}attachmentCountExceeded`,
+  attachment_kind_uninferred: `${KEY_PREFIX$1}attachmentKindUninferred`,
+  attachment_file_missing: `${KEY_PREFIX$1}attachmentFileMissing`,
+  attachment_filename_invalid: `${KEY_PREFIX$1}attachmentFilenameInvalid`,
+  blob_path_invalid: `${KEY_PREFIX$1}blobPathInvalid`,
+  file_too_large: `${KEY_PREFIX$1}fileTooLarge`,
+  // import / export (400 / 409)
+  import_invalid_zip: `${KEY_PREFIX$1}importInvalidZip`,
+  import_manifest_invalid: `${KEY_PREFIX$1}importManifestInvalid`,
+  import_version_unsupported: `${KEY_PREFIX$1}importVersionUnsupported`,
+  import_entity_conflict: `${KEY_PREFIX$1}importEntityConflict`,
+  export_no_attachments: `${KEY_PREFIX$1}exportNoAttachments`,
+  // suggestions (400)
+  suggestion_not_pending: `${KEY_PREFIX$1}suggestionNotPending`,
+  // generic request validation (400)
+  invalid_request: `${KEY_PREFIX$1}invalidRequest`,
+  // infra (500 / 503)
+  asset_center_unavailable: `${KEY_PREFIX$1}assetCenterUnavailable`,
+  internal_error: `${KEY_PREFIX$1}internalError`,
+};
+const ASSET_CENTER_ERROR_KEYS = KEY_ENTRIES;
 MentionThumb.displayName = "MentionThumb";
 const ModelIcon = reactExports.memo(function ModelIcon({ model }) {
   const [errored, setErrored] = reactExports.useState(false);
@@ -196,35 +175,35 @@ function EmptyState({ text }) {
     />
   );
 }
-const MentionFileRow = reactExports.memo(function MentionFileRow({
-  item,
-  gi: globalIndex,
-  isActive,
-  onSelect,
-  onHover,
-}) {
-  const handleClick = reactExports.useCallback(
-    () => onSelect(item),
-    [onSelect, item],
-  );
-  const handleHover = reactExports.useCallback(
-    () => onHover(globalIndex),
-    [onHover, globalIndex],
-  );
+const MentionFileRow = reactExports.memo(function MentionFileRow2({ item, gi, isActive, onSelect, onHover }) {
+  const { t } = useTranslation();
+  const handleClick = reactExports.useCallback(() => onSelect(item), [onSelect, item]);
+  const handleHover = reactExports.useCallback(() => onHover(gi), [onHover, gi]);
   return (
     <button
-      id={`mention-opt-${globalIndex}`}
+      id={`mention-opt-${gi}`}
       type="button"
       role="option"
       aria-selected={isActive}
-      data-action-ui-id={`mention-opt-${globalIndex}`}
-      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
+      data-action-ui-id={`mention-opt-${gi}`}
+      className={`flex h-12 w-full shrink-0 cursor-pointer items-center gap-2 rounded-md px-2 text-left transition-colors ${isActive ? "bg-popup-item-hover text-foreground" : "hover:bg-popup-item-hover"}`}
       onClick={handleClick}
-      onMouseEnter={handleHover}
+      onMouseMove={handleHover}
     >
       <MentionThumb item={item.file} />
-      <span className="text-sm text-foreground font-medium truncate min-w-0 flex-1">
-        {item.file.name}
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="truncate text-sm font-normal leading-5 text-foreground">
+          {item.file.displayName ?? item.file.name}
+        </span>
+        {item.file.compositionRefs?.length ? (
+          <span
+            className="truncate text-xs leading-4 text-muted-foreground"
+            title={item.file.compositionRefs.map((ref) => ref.name).join(" · ")}
+          >
+            {t("mention.popover.materialGroupRelation", "Material group")}
+            {" ·"} {item.file.compositionRefs.map((ref) => ref.name).join(" · ")}
+          </span>
+        ) : null}
       </span>
     </button>
   );
@@ -253,12 +232,12 @@ const MentionModelRow = reactExports.memo(function MentionModelRow({
       role="option"
       aria-selected={isActive}
       data-action-ui-id={`mention-opt-${globalIndex}`}
-      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
+      className={`w-full min-h-10 shrink-0 flex items-center gap-2 rounded-md px-2 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-hover text-foreground" : "hover:bg-popup-item-hover"}`}
       onClick={handleClick}
       onMouseEnter={handleHover}
     >
       <ModelIcon model={item.model} />
-      <span className="text-sm text-foreground font-medium truncate min-w-0 flex-1">
+      <span className="text-sm text-foreground font-normal truncate min-w-0 flex-1">
         {item.model.displayName}
       </span>
       {isSearching && (
@@ -292,12 +271,12 @@ const MentionConnectorRow = reactExports.memo(function MentionConnectorRow({
       role="option"
       aria-selected={isActive}
       data-action-ui-id={`mention-connector-${item.connector.serverName}`}
-      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
+      className={`w-full min-h-10 shrink-0 flex items-center gap-2 rounded-md px-2 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-hover text-foreground" : "hover:bg-popup-item-hover"}`}
       onClick={handleClick}
       onMouseEnter={handleHover}
     >
       <ConnectorIcon iconUrl={item.connector.iconUrl} size="list" />
-      <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
+      <span className="min-w-0 flex-1 truncate text-sm font-normal text-foreground">
         {item.connector.displayName}
       </span>
     </button>
@@ -337,7 +316,7 @@ const MentionWorkflowRow = reactExports.memo(function MentionWorkflowRow({
       role="option"
       aria-selected={isActive}
       data-action-ui-id={`mention-workflow-${item.canvasNodeId ?? item.workflow.id}`}
-      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
+      className={`w-full min-h-10 shrink-0 flex items-center gap-2 rounded-md px-2 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-hover text-foreground" : "hover:bg-popup-item-hover"}`}
       onClick={handleClick}
       onMouseEnter={handleHover}
     >
@@ -349,7 +328,7 @@ const MentionWorkflowRow = reactExports.memo(function MentionWorkflowRow({
         />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-foreground">
+        <span className="block truncate text-sm font-normal text-foreground">
           {title}
         </span>
         {item.context === "current-canvas" && item.workflow.short_desc && (
@@ -980,3 +959,4 @@ export function MentionPopover({
     document.body,
   );
 }
+

@@ -28,7 +28,12 @@ export function registerAppScheme() {
  * - `ours`：我们早先自己写的 `out/renderer`
  */
 export function rendererRoot(): string {
-  const dirs: Record<string, string> = { recovered: "out/recovered-ui", ours: "out/renderer" };
+  const dirs: Record<string, string> = {
+    recovered: "out/recovered-ui",
+    ours: "out/renderer",
+    // 4.0.0 原版界面（界面走查录基线时用）。由 scripts/ui-compare/stage-reference-ui.mjs 铺好。
+    reference: "out/reference-ui",
+  };
   const picked = join(app.getAppPath(), dirs[process.env.OV_UI ?? ""] ?? "out/recovered-ui");
   return existsSync(join(picked, "index.html")) ? picked : join(app.getAppPath(), "out/renderer");
 }

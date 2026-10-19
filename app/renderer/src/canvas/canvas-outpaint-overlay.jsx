@@ -403,19 +403,19 @@ function defaultPresetLabel(preset) {
       return "Twitter";
   }
 }
-function CheckIcon({ className }) {
+function CheckIcon() {
   return (
     <CompositedSvg
-      opacity={0.9}
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="currentColor"
+      width="12"
+      height="12"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      role="img"
       aria-hidden="true"
-      className={className}
     >
-      <path d="M17.942 6.498a.75.75 0 0 1 1.116 1.004l-9 10a.75.75 0 0 1-1.088.028l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.94 3.94z" />
+      <path d="M3 8.5L6.5 12L13 4.5" />
     </CompositedSvg>
   );
 }
@@ -654,14 +654,14 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel({
   scale,
   onScaleChange,
   disabledScales,
-  resolution,
+  resolution: resolution2,
   onResolutionChange,
   onCancel,
   onConfirm,
   confirming,
 }) {
   const { t: translate } = useTranslation();
-  const creditCost = useImageEditCost("outpaint", resolution);
+  const creditCost = useImageEditCost().resolveCost?.("outpaint", resolution);
   const items = OUTPAINT_PRESET_ITEMS[preset];
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so panel events don't reach the canvas pan/zoom handlers

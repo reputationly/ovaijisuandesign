@@ -1,4 +1,5 @@
 // zh.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import instance from "i18next";
 import { initReactI18next } from "react-i18next";
 import { getDefaultLanguage } from "../vendor-inline/vscode-base/linked-list.js";

@@ -1,4 +1,5 @@
 // is-reexecutable-generation-node.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import {
   AUDIO_CARD_SIZE,
   computeNodeSize,

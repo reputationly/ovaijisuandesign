@@ -1,5 +1,6 @@
 // chat-controller.js
 import { measurePerf } from "../infra/perf-log.js";
+import { DEFAULT_SESSION_NAME } from "../canvas/fullscreen-icon.jsx";
 import {
   clearRunningCompactionStatus,
   completeLatestCompactionStatus,
@@ -1772,6 +1773,14 @@ export class ChatController {
             effect.modelId,
             effect.selectedMediaModels,
             snapshotOptions,
+          );
+        }
+        const switchedName = effect.name?.trim();
+        if (switchedName && switchedName !== DEFAULT_SESSION_NAME) {
+          this.store.renameSession(
+            effect.sessionId,
+            switchedName,
+            effect.runtimeSessionId,
           );
         }
         this.diagnostics.snapshotDecision(

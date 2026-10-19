@@ -10,7 +10,6 @@ function isMarketConnectorId(value) {
 function configuredConnectorId(runtimeName) {
   return `custom.${runtimeName}`;
 }
-
 function isConfiguredConnectorId(id) {
   return (
     /^custom\.[a-zA-Z0-9_.-]{1,80}$/.test(id) &&

@@ -42,6 +42,7 @@ const MODEL_PARAM_ALIAS_GROUPS = [ASPECT_RATIO_PARAM_KEYS];
 
 const PARAM_I18N_KEYS = {
   aspect_ratio: "canvas.params.aspectRatio",
+  audio: "canvas.params.generateAudio",
   audio_url: "canvas.params.audioUrl",
   background: "canvas.params.background",
   chaos: "canvas.params.chaos",
@@ -75,6 +76,7 @@ const PARAM_I18N_KEYS = {
 
 const PARAM_LABEL_FALLBACKS = {
   aspect_ratio: "Aspect Ratio",
+  audio: "Sound",
   audio_url: "Original Audio URL",
   background: "Background",
   chaos: "Chaos",

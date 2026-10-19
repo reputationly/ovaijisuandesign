@@ -1,5 +1,6 @@
 // use-find-controller.js
 import reactExports from "react";
+import { DEFAULT_LIGHTS } from "./default-color-temp.jsx";
 function pickInitialMatchIndex(matches, caretPos) {
   if (matches.length === 0) return -1;
   for (let i = 0; i < matches.length; i++) {
@@ -19,14 +20,14 @@ const DEFAULT_OPTIONS = {
   regex: false,
 };
 const INITIAL_STATE = {
-  isOpen: false,
-  query: "",
-  options: DEFAULT_OPTIONS,
-  total: 0,
-  limited: false,
-  currentIndex: -1,
-  replaceOpen: false,
-  replaceValue: "",
+  lights: DEFAULT_LIGHTS,
+  activeLightId: DEFAULT_LIGHTS[0].id,
+  studioMode: "default",
+  effectType: "default",
+  panelMode: "presets",
+  activeSubTab: "lighting",
+  selectedPresetId: null,
+  imageInfo: null,
 };
 export function useFindController(adapter) {
   const adapterRef = reactExports.useRef(adapter);

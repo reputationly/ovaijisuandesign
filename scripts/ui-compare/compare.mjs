@@ -324,7 +324,14 @@ const ALL_PAGES = [
 ];
 // 只跑指定几屏：ONLY=home,skills-mine node scripts/ui-compare/compare.mjs
 const ONLY = process.env.ONLY?.split(",").filter(Boolean);
-const PAGES = (ONLY ? ALL_PAGES.filter((p) => ONLY.includes(p.id)) : ALL_PAGES)
+const V3_PAGES = [
+  { id: "ws-a-v3", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}` },
+  { id: "ws-b-v3", url: `/workspace?workspaceId=${encodeURIComponent(WS_B)}` },
+];
+const ARCH_PAGES = process.env.HILO_PROJECT_ARCHITECTURE === "resource_v3"
+  ? [...ALL_PAGES, ...V3_PAGES]
+  : ALL_PAGES;
+const PAGES = (ONLY ? ARCH_PAGES.filter((p) => ONLY.includes(p.id)) : ARCH_PAGES)
   .filter((p) => !DISABLED_PAGES.some((disabled) => disabled.id === p.id));
 const DISABLED_ONLY = ONLY?.filter((id) => DISABLED_PAGES.some((page) => page.id === id)) ?? [];
 if (DISABLED_ONLY.length) {
@@ -1425,6 +1432,8 @@ async function runMode(mode) {
   const env = {
     ...process.env,
     OV_UI: mode,
+    // 录基线用 OV_UI=reference（4.0.0 原版界面）；v3 屏需要 resource_v3 架构
+    ...(process.env.HILO_PROJECT_ARCHITECTURE ? { HILO_PROJECT_ARCHITECTURE: process.env.HILO_PROJECT_ARCHITECTURE } : {}),
     OV_DEV_HIDDEN_WINDOW: "1",
     OV_USER_DATA_DIR: `${ROOT}/ud`,
     HILO_DATA_DIR: `${ROOT}/data`,

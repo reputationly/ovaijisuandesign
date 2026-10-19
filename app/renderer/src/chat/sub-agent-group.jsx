@@ -101,6 +101,98 @@ import { SentAnnotationCards } from "./sent-annotation-cards.jsx";
 import { BillingInsufficientCard } from "../team/billing-insufficient-card.jsx";
 import { CreditThresholdReminderCard } from "../team/credit-threshold-reminder-card.jsx";
 import { ErrorMessage } from "../team/error-message.jsx";
+import { withToolPresentationFields } from "./with-tool-presentation-fields.jsx";
+import { TOOLS as TOOLS } from "./tools.jsx";
+import { TOOL_ABORTED_BY_USER_TEXT as TOOL_ABORTED_BY_USER_TEXT } from "../canvas/diagnostic-history-tools.js";
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function isDesignToolInterrupted(message2) {
+  return Boolean(
+    message2.interruption === "aborted" || message2.toolResult?.includes(TOOL_ABORTED_BY_USER_TEXT) || message2.toolResult?.includes("interrupted before completion")
+  );
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function hasDesignToolProblem(message2) {
+  if (isDesignToolInterrupted(message2)) return false;
+  if (message2.toolStatus === "error") return true;
+  const result = readDesignJson(message2.toolResult);
+  const task2 = record(result?.task);
+  const delivery = record(result?.delivery);
+  return Boolean(
+    result?.isError || result?.error || result?.placementProblem || records(result?.queries ?? result?.results ?? result?.items).some((item) => item.error) || ["failed", "blocked", "unknown", "waiting_user"].includes(
+      String(task2?.status ?? delivery?.status)
+    )
+  );
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function records(value) {
+  return Array.isArray(value) ? value.flatMap((item) => {
+    const parsed = record(item);
+    return parsed ? [parsed] : [];
+  }) : [];
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function readDesignJson(value, depth2 = 0) {
+  if (depth2 > 4) return void 0;
+  if (typeof value === "string") {
+    try {
+      return readDesignJson(JSON.parse(value), depth2 + 1);
+    } catch {
+      return void 0;
+    }
+  }
+  const object2 = record(value);
+  if (object2?.structuredContent) return readDesignJson(object2.structuredContent, depth2 + 1);
+  if (object2?.task || object2?.output || object2?.capabilityId) return object2;
+  const content2 = Array.isArray(value) ? value : object2?.content;
+  if (Array.isArray(content2)) {
+    for (const item of content2) {
+      const parsed = readDesignJson(record(item)?.text, depth2 + 1);
+      if (parsed) return parsed;
+    }
+  }
+  return object2;
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function designToolPresentation(name2, message2 = {}) {
+  if (!name2 || !Object.hasOwn(TOOLS, name2)) return void 0;
+  let presentation = TOOLS[name2];
+  const args = readDesignJson(message2.toolArgs);
+  if (name2 === "design_project_rules" && args?.action === "save") {
+    presentation = { visibility: "persistent", label: "rules" };
+  } else if (name2 === "design_document_write" && (args?.mode === "replace" || args?.mode === "patch")) {
+    presentation = {
+      visibility: "persistent",
+      label: args.disposition === "candidate" ? "documentCandidate" : "documentUpdate"
+    };
+  } else if (name2 === "design_deliver" && records(args?.sources).some((source) => typeof source.path === "string")) {
+    presentation = { visibility: "persistent", label: "import" };
+  } else if (name2 === "design_composition_edit") {
+    const commands = args?.action === "batch" ? records(args.commands) : args ? [args] : [];
+    if (commands.some((command2) => typeof command2.action === "string")) {
+      presentation = { visibility: "persistent", label: "organize" };
+    }
+  } else if (name2 === "design_resource_edit") {
+    const commands = args?.action === "batch" ? records(args.commands) : args ? [args] : [];
+    presentation = {
+      visibility: "persistent",
+      label: commands.some((command2) => command2.action === "adopt") ? "version" : "metadata"
+    };
+  }
+  if (hasDesignToolProblem(message2) && ![
+    "design_read",
+    "design_composition_type_list",
+    "design_capability_list",
+    "design_capability_get",
+    "design_select_image_recipe"
+  ].includes(name2))
+    return { ...presentation, visibility: "persistent" };
+  return presentation;
+}
+
 function useIsChildRecovering(childSessionId) {
   const recovering = reactExports.useContext(RecoveringChildrenContext);
   return childSessionId ? recovering.has(childSessionId) : false;
@@ -585,40 +677,33 @@ function FileAddedMessage({ msg: message }) {
   );
 }
 const LOCATE_CLICK_DELAY_MS = 180;
-function ImageMessage({ msg: message }) {
+function ImageMessage({ msg }) {
   const { t } = useTranslation();
   const [error, setError] = reactExports.useState(false);
   const [fullSize, setFullSize] = reactExports.useState(false);
   const resolveMediaUrl = useResolveMediaUrl();
-  const mediaUrl = resolveMediaUrl(message.url) ?? message.content;
-  const thumbSrc = withThumbnail(mediaUrl, 400);
-  useNativeViewOcclusion(fullSize && !error && Boolean(mediaUrl));
+  const src = resolveMediaUrl(msg.url) ?? msg.content;
+  const thumbSrc = withThumbnail(src, 400);
+  useNativeViewOcclusion(fullSize && !error && Boolean(src));
   const { copyImage, saveAs } = useMediaActions();
   const locateTimerRef = reactExports.useRef(null);
   const workspaceId = useCurrentWorkspace();
-  const relativePath = reactExports.useMemo(
-    () => toWorkspaceRelativePath(message.url, mediaUrl),
-    [message.url, mediaUrl],
-  );
+  const relativePath = reactExports.useMemo(() => toWorkspaceRelativePath(msg.url, src), [msg.url, src]);
   const { assets } = useAssets({
     enabled: Boolean(relativePath),
   });
-  const asset = reactExports.useMemo(
-    () => findAssetForPath(assets, relativePath),
-    [assets, relativePath],
-  );
+  const asset = reactExports.useMemo(() => findAssetForPath(assets, relativePath), [assets, relativePath]);
   reactExports.useEffect(() => {
     if (!fullSize) return;
-    const handleKey = (keyboardEvent) => {
-      if (keyboardEvent.key === "Escape") setFullSize(false);
+    const handleKey = (e2) => {
+      if (e2.key === "Escape") setFullSize(false);
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [fullSize]);
   reactExports.useEffect(() => {
     return () => {
-      if (locateTimerRef.current != null)
-        window.clearTimeout(locateTimerRef.current);
+      if (locateTimerRef.current != null) window.clearTimeout(locateTimerRef.current);
     };
   }, []);
   const locateOnCanvas = reactExports.useCallback(() => {
@@ -629,8 +714,7 @@ function ImageMessage({ msg: message }) {
     return true;
   }, [asset?.id, workspaceId]);
   const handleClick = reactExports.useCallback(() => {
-    if (locateTimerRef.current != null)
-      window.clearTimeout(locateTimerRef.current);
+    if (locateTimerRef.current != null) window.clearTimeout(locateTimerRef.current);
     locateTimerRef.current = window.setTimeout(() => {
       locateTimerRef.current = null;
       if (!locateOnCanvas()) setFullSize(true);
@@ -643,14 +727,12 @@ function ImageMessage({ msg: message }) {
     }
     setFullSize(true);
   }, []);
-  if (error || !mediaUrl) {
+  if (error || !src) {
     return (
-      <div className="rounded-lg bg-muted px-4 py-3 text-sm text-muted-foreground">
-        {t("chat.failedToLoadImage")}
-      </div>
+      <div className="rounded-lg bg-muted px-4 py-3 text-sm text-muted-foreground">{t("chat.failedToLoadImage")}</div>
     );
   }
-  const mime = inferArtifactMime(mediaUrl, "image");
+  const mime = inferArtifactMime(src, "image");
   return (
     <>
       <div>
@@ -665,10 +747,10 @@ function ImageMessage({ msg: message }) {
               <img
                 data-action-ui-id="chat-generated-image"
                 data-artifact-type="image"
-                data-artifact-path={mediaUrl}
+                data-artifact-path={src}
                 data-artifact-mime={mime}
                 src={thumbSrc}
-                alt={message.content || t("chat.generatedImage")}
+                alt={msg.content || t("chat.generatedImage")}
                 className="rounded-lg max-w-full h-auto hover:opacity-90 transition-opacity"
                 style={{
                   maxWidth: 400,
@@ -678,11 +760,11 @@ function ImageMessage({ msg: message }) {
             </button>
           </ContextMenuTrigger>
           <ContextMenuContent>
-            <ContextMenuItem onClick={() => copyImage(mediaUrl)}>
+            <ContextMenuItem onClick={() => copyImage(src)}>
               <Copy />
               {t("common.copy")}
             </ContextMenuItem>
-            <ContextMenuItem onClick={() => saveAs(mediaUrl)}>
+            <ContextMenuItem onClick={() => saveAs(src)}>
               <Save />
               {t("common.saveAs")}
             </ContextMenuItem>
@@ -692,12 +774,13 @@ function ImageMessage({ msg: message }) {
       {fullSize && (
         <>
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 cursor-pointer"
+            data-mask="immersive"
+            className="fixed inset-0 z-50 flex items-center justify-center modal-mask modal-mask-media cursor-pointer"
             onClick={() => setFullSize(false)}
           >
             <img
-              src={mediaUrl}
-              alt={message.content || t("chat.generatedImage")}
+              src={src}
+              alt={msg.content || t("chat.generatedImage")}
               className="max-w-[90vw] max-h-[90vh] object-contain"
             />
           </div>
@@ -1053,64 +1136,54 @@ function SubGroupedNode({
     return <NestedSubAgent sub={subMessage} onSend={onSend} />;
   return <SubTextBlock sub={subMessage} />;
 }
-function NestedSubAgent({ sub: subMessage, onSend }) {
+function NestedSubAgent({ sub, onSend }) {
   const { t } = useTranslation();
-  const pendingConfirmKey = JSON.stringify(
-    pendingToolConfirmIds(subMessage.subMessages ?? []),
-  );
+  const pendingConfirmKey = JSON.stringify(pendingToolConfirmIds(sub.subMessages ?? []));
   const [expanded, setExpanded] = reactExports.useState(
-    () =>
-      pendingConfirmKey !== "[]" ||
-      getInitialExpandedState(subMessage.collapsed, subMessage.resolved),
+    () => pendingConfirmKey !== "[]" || getInitialExpandedState(sub.collapsed, sub.resolved),
   );
-  const agentKey = subMessage.agent ?? "";
+  const agentKey = sub.agent ?? "";
   const agentLabel =
     t(`chat.agentLabel.${agentKey}`, {
       defaultValue: "",
     }) ||
     AGENT_LABELS[agentKey] ||
-    subMessage.agent ||
+    sub.agent ||
     t("chat.agentFallback");
-  const children = subMessage.subMessages ?? [];
+  const children = sub.subMessages ?? [];
   const showHiddenTools = useDebugFlag(DEBUG_FLAGS.rawToolView);
   const visibleChildren = reactExports.useMemo(() => {
+    const toolMessages = children.map(withToolPresentationFields);
     const productVisible = showHiddenTools
       ? dropResumePrompts(children)
       : filterSupersededTransientTools(
           dropResumePrompts(
-            filterSilentTools(children, (childMessage) =>
-              childMessage.type === "tool" ? parseToolResult(childMessage.content).name : void 0,
-            ),
+            filterSilentTools(toolMessages, (s) => (s.type === "tool" ? parseToolResult(s.content).name : void 0)),
           ),
-          (childMessage) =>
-            childMessage.type === "tool" ? parseToolResult(childMessage.content).name : void 0,
+          (s) => (s.type === "tool" ? parseToolResult(s.content).name : void 0),
+          !!sub.resolved,
         );
     const normalized = collapseReplayedSubMessageSequences(productVisible);
     const deduped =
-      !showHiddenTools && IN_PROGRESS_AGENT_KEYS.has(agentKey)
-        ? dedupeReplayedSubMessages(normalized)
-        : normalized;
+      !showHiddenTools && IN_PROGRESS_AGENT_KEYS.has(agentKey) ? dedupeReplayedSubMessages(normalized) : normalized;
     return keepLatestSubAgentThinking(deduped);
-  }, [agentKey, children, showHiddenTools]);
-  const asChatMessages = reactExports.useMemo(
-    () => visibleChildren.map(subMessageToChatMessage),
-    [visibleChildren],
-  );
+  }, [agentKey, children, showHiddenTools, sub.resolved]);
+  const asChatMessages = reactExports.useMemo(() => visibleChildren.map(subMessageToChatMessage), [visibleChildren]);
   const grouped = reactExports.useMemo(
     () => groupIntoActivityGroups(asChatMessages, showHiddenTools),
     [asChatMessages, showHiddenTools],
   );
   const subLookup = reactExports.useMemo(() => {
-    const childMessagesById = new Map();
-    for (const childMessage of visibleChildren) childMessagesById.set(childMessage.id, childMessage);
-    return childMessagesById;
+    const map = new Map();
+    for (const s of visibleChildren) map.set(s.id, s);
+    return map;
   }, [visibleChildren]);
-  const isStreaming = !subMessage.resolved;
-  const fallbackTask = subMessage.task?.trim();
+  const isStreaming = !sub.resolved;
+  const fallbackTask = sub.task?.trim();
   reactExports.useEffect(() => {
     if (pendingConfirmKey !== "[]") setExpanded(true);
-    else if (subMessage.collapsed || subMessage.resolved) setExpanded(false);
-  }, [subMessage.collapsed, subMessage.resolved, pendingConfirmKey]);
+    else if (sub.collapsed || sub.resolved) setExpanded(false);
+  }, [sub.collapsed, sub.resolved, pendingConfirmKey]);
   const streamingAction = reactExports.useMemo(
     () => (isStreaming ? getStreamingAction(asChatMessages) : void 0),
     [isStreaming, asChatMessages],
@@ -1118,17 +1191,15 @@ function NestedSubAgent({ sub: subMessage, onSend }) {
   const inlineStreamingTool =
     streamingAction?.type === "tool" &&
     (IN_PROGRESS_AGENT_KEYS.has(agentKey) ||
-      isTransientTool(streamingAction.content));
+      designToolPresentation(streamingAction.content, streamingAction) ||
+      isTransientTool(streamingAction.content, streamingAction));
   const pinnedStreamingAction =
     inlineStreamingTool ||
     (streamingAction?.type === "tool" &&
-      ["canvas", "connector"].includes(
-        categorizeToolAction(streamingAction.content),
-      ))
+      ["canvas", "connector"].includes(categorizeToolAction(streamingAction.content)))
       ? void 0
       : streamingAction;
-  const hasExpandedContent =
-    grouped.length > 0 || !!pinnedStreamingAction || !!fallbackTask;
+  const hasExpandedContent = grouped.length > 0 || !!pinnedStreamingAction || !!fallbackTask;
   return (
     <div className="min-w-0">
       <button
@@ -1168,7 +1239,7 @@ function NestedSubAgent({ sub: subMessage, onSend }) {
               <IndentL showCorner={true}>
                 <SubTextBlock
                   sub={{
-                    id: `${subMessage.id}__task`,
+                    id: `${sub.id}__task`,
                     type: "text",
                     content: fallbackTask,
                   }}
@@ -1176,10 +1247,7 @@ function NestedSubAgent({ sub: subMessage, onSend }) {
               </IndentL>
             )}
             {grouped.map((node, nIdx) => (
-              <IndentL
-                key={nodeKey(node, nIdx)}
-                showCorner={!pinnedStreamingAction && nIdx === 0}
-              >
+              <IndentL key={nodeKey(node, nIdx)} showCorner={!pinnedStreamingAction && nIdx === 0}>
                 <SubGroupedNode
                   node={node}
                   subLookup={subLookup}
@@ -1201,51 +1269,45 @@ function NestedSubAgent({ sub: subMessage, onSend }) {
     </div>
   );
 }
-function SubAgentGroup({ msg: message, onSend }) {
+function SubAgentGroup({ msg, onSend }) {
   const { t } = useTranslation();
-  const agentKey = message.agent ?? "";
+  const agentKey = msg.agent ?? "";
   const agentLabel =
     t(`chat.agentLabel.${agentKey}`, {
       defaultValue: "",
     }) ||
     AGENT_LABELS[agentKey] ||
-    message.agent ||
+    msg.agent ||
     t("chat.agentFallback");
-  const subs = message.subMessages ?? [];
+  const subs = msg.subMessages ?? [];
   const showHiddenTools = useDebugFlag(DEBUG_FLAGS.rawToolView);
   const visibleSubs = reactExports.useMemo(() => {
+    const toolMessages = subs.map(withToolPresentationFields);
     const productVisible = showHiddenTools
       ? dropResumePrompts(subs)
       : filterSupersededTransientTools(
           dropResumePrompts(
-            filterSilentTools(subs, (subMessage) =>
-              subMessage.type === "tool" ? parseToolResult(subMessage.content).name : void 0,
-            ),
+            filterSilentTools(toolMessages, (s) => (s.type === "tool" ? parseToolResult(s.content).name : void 0)),
           ),
-          (subMessage) =>
-            subMessage.type === "tool" ? parseToolResult(subMessage.content).name : void 0,
+          (s) => (s.type === "tool" ? parseToolResult(s.content).name : void 0),
+          !!msg.resolved || !!msg.cancelled,
         );
     const normalized = collapseReplayedSubMessageSequences(productVisible);
     const deduped =
-      !showHiddenTools && IN_PROGRESS_AGENT_KEYS.has(agentKey)
-        ? dedupeReplayedSubMessages(normalized)
-        : normalized;
+      !showHiddenTools && IN_PROGRESS_AGENT_KEYS.has(agentKey) ? dedupeReplayedSubMessages(normalized) : normalized;
     return keepLatestSubAgentThinking(deduped);
-  }, [agentKey, subs, showHiddenTools]);
-  const asChatMessages = reactExports.useMemo(
-    () => visibleSubs.map(subMessageToChatMessage),
-    [visibleSubs],
-  );
+  }, [agentKey, subs, showHiddenTools, msg.resolved, msg.cancelled]);
+  const asChatMessages = reactExports.useMemo(() => visibleSubs.map(subMessageToChatMessage), [visibleSubs]);
   const grouped = reactExports.useMemo(
     () => groupIntoActivityGroups(asChatMessages, showHiddenTools),
     [asChatMessages, showHiddenTools],
   );
   const subLookup = reactExports.useMemo(() => {
-    const subMessagesById = new Map();
-    for (const subMessage of visibleSubs) subMessagesById.set(subMessage.id, subMessage);
-    return subMessagesById;
+    const map = new Map();
+    for (const s of visibleSubs) map.set(s.id, s);
+    return map;
   }, [visibleSubs]);
-  const isStreaming = !message.resolved && !message.cancelled;
+  const isStreaming = !msg.resolved && !msg.cancelled;
   const streamingAction = reactExports.useMemo(
     () => (isStreaming ? getStreamingAction(asChatMessages) : void 0),
     [isStreaming, asChatMessages],
@@ -1253,18 +1315,17 @@ function SubAgentGroup({ msg: message, onSend }) {
   const inlineStreamingTool =
     streamingAction?.type === "tool" &&
     (IN_PROGRESS_AGENT_KEYS.has(agentKey) ||
-      isTransientTool(streamingAction.content));
+      designToolPresentation(streamingAction.content, streamingAction) ||
+      isTransientTool(streamingAction.content, streamingAction));
   const pinnedStreamingAction =
     inlineStreamingTool ||
     (streamingAction?.type === "tool" &&
-      ["canvas", "connector"].includes(
-        categorizeToolAction(streamingAction.content),
-      ))
+      ["canvas", "connector"].includes(categorizeToolAction(streamingAction.content)))
       ? void 0
       : streamingAction;
   const hasError = reactExports.useMemo(() => subAgentHasError(subs), [subs]);
-  const isRecovering = useIsChildRecovering(message.childSessionId);
-  const status = message.cancelled
+  const isRecovering = useIsChildRecovering(msg.childSessionId);
+  const status = msg.cancelled
     ? "cancelled"
     : isRecovering
       ? "recovering"
@@ -1286,25 +1347,20 @@ function SubAgentGroup({ msg: message, onSend }) {
   const pendingConfirmKey = JSON.stringify(pendingToolConfirmIds(subs));
   const hasPendingConfirm = pendingConfirmKey !== "[]";
   const [expanded, setExpanded] = reactExports.useState(
-    () =>
-      hasPendingConfirm || getInitialExpandedState(message.collapsed, message.resolved),
+    () => hasPendingConfirm || getInitialExpandedState(msg.collapsed, msg.resolved),
   );
   reactExports.useEffect(() => {
     if (pendingConfirmKey !== "[]") setExpanded(true);
-    else if (message.collapsed || message.resolved) setExpanded(false);
-  }, [message.collapsed, message.resolved, pendingConfirmKey]);
-  const fallbackTask = message.task?.trim();
-  const hasExpandedContent =
-    grouped.length > 0 || !!pinnedStreamingAction || !!fallbackTask;
+    else if (msg.collapsed || msg.resolved) setExpanded(false);
+  }, [msg.collapsed, msg.resolved, pendingConfirmKey]);
+  const fallbackTask = msg.task?.trim();
+  const hasExpandedContent = grouped.length > 0 || !!pinnedStreamingAction || !!fallbackTask;
   return (
-    <div
-      data-action-ui-id="chat-sub-agent-group"
-      className="min-w-0 flex flex-col"
-    >
+    <div data-action-ui-id="chat-sub-agent-group" className="min-w-0 flex flex-col">
       <button
         type="button"
         className="-mx-1 flex w-[calc(100%+0.5rem)] cursor-pointer items-center gap-1 rounded-md px-1 py-0.5 text-left text-muted-foreground transition-colors hover:bg-foreground/[0.03] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
-        onClick={() => setExpanded((isExpanded) => !isExpanded)}
+        onClick={() => setExpanded((v2) => !v2)}
         aria-expanded={expanded}
       >
         <span className="flex size-4 shrink-0 items-center justify-center">
@@ -1313,9 +1369,7 @@ function SubAgentGroup({ msg: message, onSend }) {
         <div className="min-w-0 text-body-14 flex items-center gap-1">
           <span className="truncate font-normal">{agentLabel}</span>
           <span
-            data-action-ui-id={
-              status === "done" ? "chat-sub-agent-done" : void 0
-            }
+            data-action-ui-id={status === "done" ? "chat-sub-agent-done" : void 0}
             className={`truncate ${statusClass}`}
           >
             {statusLabel}
@@ -1331,10 +1385,7 @@ function SubAgentGroup({ msg: message, onSend }) {
         className={`grid transition-[grid-template-rows] duration-200 ease-out ${expanded && hasExpandedContent ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
         <div className="overflow-hidden min-h-0">
-          <div
-            data-action-ui-id="chat-sub-agent-messages"
-            className="relative flex flex-col gap-2 pt-3"
-          >
+          <div data-action-ui-id="chat-sub-agent-messages" className="relative flex flex-col gap-2 pt-3">
             {expanded && hasExpandedContent && (
               <span
                 aria-hidden="true"
@@ -1356,7 +1407,7 @@ function SubAgentGroup({ msg: message, onSend }) {
               <IndentL showCorner={true}>
                 <SubTextBlock
                   sub={{
-                    id: `${message.id}__task`,
+                    id: `${msg.id}__task`,
                     type: "text",
                     content: fallbackTask,
                   }}
@@ -1364,10 +1415,7 @@ function SubAgentGroup({ msg: message, onSend }) {
               </IndentL>
             )}
             {grouped.map((node, nIdx) => (
-              <IndentL
-                key={nodeKey(node, nIdx)}
-                showCorner={!pinnedStreamingAction && nIdx === 0}
-              >
+              <IndentL key={nodeKey(node, nIdx)} showCorner={!pinnedStreamingAction && nIdx === 0}>
                 <SubGroupedNode
                   node={node}
                   subLookup={subLookup}

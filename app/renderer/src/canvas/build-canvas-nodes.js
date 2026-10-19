@@ -1,4 +1,5 @@
 // build-canvas-nodes.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import {
   computeNodeSize,
   defaultNodeSizeForType,

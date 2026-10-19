@@ -39,7 +39,17 @@ export interface RunningGateway {
 
 export type Logger = (line: string) => void;
 
-const HEALTH_TIMEOUT_MS = 15_000;
+// 15 秒对**冷缓存**的网关不够。
+//
+// 设了 `OV_UI`（界面走查/对比）时，网关会在**开始听端口之前**先把首页招牌的封面下载齐
+//（见 `gateway/src/cloud-config/showcase-warm.ts`：`await warmShowcaseCovers(...)`）。
+// 本机实测冷缓存要 **32 秒**才对外服务，而原来这里只等 15 秒 ——
+// 于是网关在预热途中被 SIGKILL，`.warm.lock` 还留在缓存目录里，
+// 下一次启动又要等 60 秒的锁，**永久起不来**：工作区会话建不起来，
+// 会话标签、画布那一整层都不渲染。
+//
+// 录基线那台机器上缓存是热的，所以从没暴露过。这里放宽到 90 秒（盖上实测 32 秒的三倍余量）。
+const HEALTH_TIMEOUT_MS = 90_000;
 const HEALTH_INTERVAL_MS = 300;
 const MAX_RESTARTS = 3;
 

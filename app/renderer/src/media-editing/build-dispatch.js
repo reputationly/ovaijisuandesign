@@ -1,4 +1,5 @@
 // build-dispatch.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import { isSubtitleFileName } from "../canvas/is-reexecutable-generation-node.js";
 import {
   configChangeListeners,

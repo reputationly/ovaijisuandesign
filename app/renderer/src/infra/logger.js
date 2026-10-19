@@ -12,7 +12,8 @@ function emit$6(category, level, action, meta2) {
   const consoleFn = level === "debug" ? console.log : console[level];
   consoleFn(msg);
   try {
-    void window.hilo?.logger?.[level]?.(msg, category);
+    const pending2 = window.hilo?.logger?.[level]?.(msg, category);
+    void Promise.resolve(pending2).catch(() => void 0);
   } catch {}
 }
 export function makeLogger(category) {

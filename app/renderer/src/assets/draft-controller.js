@@ -13,6 +13,7 @@ import {
 } from "./read-envelope.js";
 import { gatewayUrl } from "../infra/gateway-http-error.jsx";
 
+import { hasCompositionContext } from "./read-composition-context.jsx";
 function isRecoverableAttachment(attachment) {
   return (
     attachment.status === "done" &&
@@ -37,7 +38,7 @@ function saveDraft(workspace, sessionKey, draft, now = Date.now()) {
   const text = draft.text;
   const recoverable = draft.attachments.filter(isRecoverableAttachment);
   const dropped = draft.attachments.length - recoverable.length;
-  if (!text && recoverable.length === 0) {
+  if (!text && recoverable.length === 0&& !hasCompositionContext(draft.editorDoc)) {
     return removeKey(key);
   }
   const envelope = {
@@ -132,11 +133,11 @@ function cloneDraft(draft) {
 }
 
 function isEmptyDraft(draft) {
-  return !draft.text && draft.attachments.length === 0;
+  return !draft.text && draft.attachments.length === 0 && !hasCompositionContext(draft.editorDoc);
 }
 
 function isDurableEmpty(draft) {
-  return !draft.text && !draft.attachments.some(isRecoverableAttachment);
+  return !draft.text && !draft.attachments.some(isRecoverableAttachment) && !hasCompositionContext(draft.editorDoc);
 }
 
 export class DraftController {

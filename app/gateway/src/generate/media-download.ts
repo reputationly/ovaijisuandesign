@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { getStagedWatermark } from "./staged-watermark.js";
 import { link, mkdir, open, rename, rm, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -15,6 +16,8 @@ export async function downloadMediaToDir(source: string, dir: string, filename?:
   const base = (filename ? sanitizeFilename(stripKnownExt(filename)) : "") || randomUUID().slice(0, FILENAME_ID_LENGTH);
   const staged = path.join(dir, `.staged-${randomUUID()}${ext}`);
   await writeFile(staged, bytes);
+  const watermark = getStagedWatermark();
+  if (watermark) await watermark(staged).catch(() => undefined);
   try {
     return await publishUnique(staged, dir, base, ext);
   } finally {

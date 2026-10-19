@@ -138,6 +138,8 @@ describe("route", () => {
     const models = { ...defaultModels(), video: "minimax-h3-2k", video_ref: "minimax-h3-ref-2k", image: "img", image_edit: "img-edit", music: "m3" };
     expect(route(models, "MiniMax-H3", Modality.VideoRef)?.model).toBe("minimax-h3-ref-2k");
     expect(route(models, "MiniMax-H3", Modality.Video)?.model).toBe("minimax-h3-2k");
+    expect(route(models, "minimax-h3-2k", Modality.VideoRef)?.model).toBe("minimax-h3-ref-2k");
+    expect(route(models, "minimax-h3-2k", Modality.Video)?.model).toBe("minimax-h3-2k");
     expect(route(models, "nano-banana", Modality.ImageEdit)?.model).toBe("img-edit");
     // 跨族的名字照旧按名字的模态走
     expect(route(models, "music-3.0", Modality.Video)?.model).toBe("m3");

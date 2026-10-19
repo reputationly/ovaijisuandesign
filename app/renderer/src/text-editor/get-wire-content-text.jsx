@@ -1,4 +1,5 @@
 // get-wire-content-text.jsx
+import jsxRuntimeExports from "react/jsx-runtime";
 import { formatConnectorMention } from "../canvas/diagnostic-history-tools.js";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { Extension } from "@tiptap/core";

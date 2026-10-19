@@ -52,7 +52,7 @@ async function renderWatermarkedBlob(src, settings) {
     }, "image/png");
   });
 }
-const PANEL_MAX_HEIGHT = 480;
+export const PANEL_MAX_HEIGHT = 480;
 const PANEL_MIN_HEIGHT = 360;
 const VIEWPORT_MARGIN = 16;
 const FONT_OPTIONS = [
@@ -116,7 +116,7 @@ const WEIGHT_ITEMS = Object.fromEntries(
 const FONT_SIZE_OPTIONS = [
   10, 12, 14, 16, 18, 20, 24, 32, 36, 48, 64, 72, 96, 120,
 ];
-const POSITIONS = ["tl", "tc", "tr", "ml", "mc", "mr", "bl", "bc", "br"];
+export const POSITIONS = ["tl", "tc", "tr", "ml", "mc", "mr", "bl", "bc", "br"];
 function ColorOpacityControl({
   color,
   opacity,

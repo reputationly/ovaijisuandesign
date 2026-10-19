@@ -14,9 +14,9 @@ import {
 class SkillEvents {
   _onSkillsChanged = new Emitter();
   onSkillsChanged = this._onSkillsChanged.event;
-  fireSkillsChanged(skillName, kind) {
+  fireSkillsChanged(name, kind) {
     this._onSkillsChanged.fire({
-      name: skillName,
+      name,
       kind,
     });
   }

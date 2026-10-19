@@ -1,7 +1,9 @@
+import { CAPABILITY_SEARCH_TOOL_NAMES } from "../infra/parse-capability-search-result.js";
 // tool-name-to-label-id.js
 
 const TOOL_NAME_TO_LABEL_ID = {
   // Unified media generation and editing surface.
+  design_execute: "mediaGen",
   hub_generate_image: "mediaGen",
   hub_generate_video: "mediaGen",
   hub_generate_audio_speech: "mediaGen",
@@ -21,7 +23,7 @@ const TOOL_NAME_TO_LABEL_ID = {
   hub_audio_meta: "contentProcess",
   hub_ffmpeg: "contentProcess",
   // Orchestration and capability inspection.
-  hub_capability_search: "searchInfo",
+  ...Object.fromEntries(Object.values(CAPABILITY_SEARCH_TOOL_NAMES).map((name) => [name, "searchInfo"])),
   hub_list_capabilities: "transient",
   hub_search_knowledge: "transient",
   hub_select_image_recipe: "transient",

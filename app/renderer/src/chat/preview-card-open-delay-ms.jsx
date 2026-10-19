@@ -1,0 +1,5 @@
+export const PREVIEW_CARD_OPEN_DELAY_MS = 300;
+
+export const PREVIEW_CARD_CLOSE_DELAY_MS = 150;
+
+export const COMPOSER_PREVIEW_OPEN_DELAY_MS = 100;

@@ -1,4 +1,5 @@
 // generating-media-area.jsx
+const MEDIA_NODE_INNER_RADIUS = MEDIA_NODE_RADIUS - 2;
 import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MEDIA_NODE_RADIUS } from "../media-editing/package.jsx";
@@ -172,7 +173,6 @@ export function AudioPlaceholderIcon({
     </CompositedSvg>
   );
 }
-const MEDIA_NODE_INNER_RADIUS = MEDIA_NODE_RADIUS - 2;
 export function GeneratingMediaArea({
   width,
   height,

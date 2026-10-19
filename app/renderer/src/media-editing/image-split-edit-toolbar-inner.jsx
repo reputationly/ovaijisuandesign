@@ -122,33 +122,26 @@ function ImageSplitEditToolbarInner({
   onExit,
   processing,
   perCellCost,
+  toolbarContainer = (children2) => children2,
+  enhanceAvailable = true,
+  magnificationLocked = false,
 }) {
   const { t } = useTranslation();
-  const zoom = useStore(zoomSelector);
-  const offset = HEADER_FLOW_HEIGHT * zoom + TOOLBAR_GAP;
+  if (!visible) return null;
   const hasSelection = selectedCount > 0;
-  const totalCost =
-    perCellCost != null && hasSelection ? perCellCost * selectedCount : void 0;
-  return (
-    <NodeToolbar
-      isVisible={visible}
-      position={Position.Top}
-      offset={offset}
-      align="center"
-    >
+  const totalCost = perCellCost != null && hasSelection ? perCellCost * selectedCount : void 0;
+  return toolbarContainer(
+    <>
       <TooltipProvider delay={150} closeDelay={0}>
         <div
           className="canvas-toolbar-surface animate-[toolbar-fade-in_0.15s_ease-out]"
-          onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
-          onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
-          onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
+          onPointerDown={(e2) => e2.stopPropagation()}
+          onWheel={(e2) => e2.stopPropagation()}
+          onContextMenu={(e2) => e2.stopPropagation()}
           data-canvas-toolbar="true"
           data-density="compact"
         >
-          <ExitChip
-            onClick={onExit}
-            label={t("canvas.splitGrid.label", "宫格切分")}
-          />
+          <ExitChip onClick={onExit} label={t("canvas.splitGrid.label", "宫格切分")} />
           <span
             className="canvas-toolbar-label px-2.5 whitespace-nowrap"
             style={{
@@ -164,10 +157,7 @@ function ImageSplitEditToolbarInner({
           {onSplitLocal && (
             <>
               <Tooltip
-                content={t(
-                  "canvas.splitGrid.createGroupTooltip",
-                  "将选中的宫格拆分为图片并创建分镜组，不消耗积分。",
-                )}
+                content={t("canvas.splitGrid.createGroupTooltip", "将选中的宫格拆分为图片并创建分镜组，不消耗积分。")}
                 side="bottom"
               >
                 <button
@@ -178,9 +168,7 @@ function ImageSplitEditToolbarInner({
                   data-action-ui-id="canvas.split-grid.create-storyboard-group"
                 >
                   <GroupIcon size={18} />
-                  <span className="whitespace-nowrap">
-                    {t("canvas.splitGrid.createGroup", "创建分镜组")}
-                  </span>
+                  <span className="whitespace-nowrap">{t("canvas.splitGrid.createGroup", "创建分镜组")}</span>
                 </button>
               </Tooltip>
               <Divider />
@@ -191,12 +179,13 @@ function ImageSplitEditToolbarInner({
             onSelect={onSetMagnification}
             onGenerate={onGenerate}
             totalCost={totalCost}
-            disabled={!hasSelection || processing}
+            disabled={!hasSelection || processing || !enhanceAvailable}
             processing={processing}
+            magnificationLocked={magnificationLocked}
           />
         </div>
       </TooltipProvider>
-    </NodeToolbar>
+    </>,
   );
 }
 export const ImageSplitEditToolbar = reactExports.memo(

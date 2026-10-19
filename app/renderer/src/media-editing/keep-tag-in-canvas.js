@@ -158,17 +158,32 @@ export function keepTagInCanvas(data, canvasWidth, canvasHeight) {
   data.y = next.y;
   return changed;
 }
-function parseHex(hex) {
-  if (!hex) return null;
-  let colorHex = hex.trim();
-  if (colorHex.startsWith("#")) colorHex = colorHex.slice(1);
-  if (colorHex.length === 3) colorHex = colorHex.replace(/(.)/g, "$1$1");
-  if (colorHex.length !== 6) return null;
-  const redChannel = Number.parseInt(colorHex.slice(0, 2), 16);
-  const greenChannel = Number.parseInt(colorHex.slice(2, 4), 16);
-  const blueChannel = Number.parseInt(colorHex.slice(4, 6), 16);
-  if (Number.isNaN(redChannel) || Number.isNaN(greenChannel) || Number.isNaN(blueChannel)) return null;
-  return [redChannel, greenChannel, blueChannel];
+function parseHex(v2) {
+  let r2 = "";
+  let g = "";
+  let b3 = "";
+  let a2 = "";
+  if (v2.length > 5) {
+    r2 = v2.substring(1, 3);
+    g = v2.substring(3, 5);
+    b3 = v2.substring(5, 7);
+    a2 = v2.substring(7, 9);
+  } else {
+    r2 = v2.substring(1, 2);
+    g = v2.substring(2, 3);
+    b3 = v2.substring(3, 4);
+    a2 = v2.substring(4, 5);
+    r2 += r2;
+    g += g;
+    b3 += b3;
+    a2 += a2;
+  }
+  return {
+    red: parseInt(r2, 16),
+    green: parseInt(g, 16),
+    blue: parseInt(b3, 16),
+    alpha: a2 ? parseInt(a2, 16) / 255 : 1,
+  };
 }
 function isLightColor(hex) {
   const rgb = parseHex(hex);

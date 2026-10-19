@@ -23,7 +23,7 @@ import {
   homeShowcaseDir,
 } from "./home-showcase.js";
 import { loadShowcaseCloudConfig, showcaseMediaEntry } from "./home-quick-start-cloud.js";
-import { showcaseCacheDir } from "./showcase-warm.js";
+import { awaitShowcaseWarm, showcaseCacheDir } from "./showcase-warm.js";
 
 /**
  * 云端配置类路由的本地实现：客户端配置、Apollo 配置项、首页快速开始、全局弹窗、计费活动。
@@ -81,12 +81,19 @@ export class CloudConfigController {
    * 渲染层点示例时会把附件整个下载下来塞进输入框，所以这里要回真实的 Content-Type（sendFile 按扩展名给）。
    */
   @Get(`${HOME_SHOWCASE_ASSET_ROUTE}/:name`)
-  homeShowcaseAsset(@Param("name") name: string, @Res() res: Response) {
+  async homeShowcaseAsset(@Param("name") name: string, @Res() res: Response) {
     const dir = homeShowcaseDir();
     if (!dir) throw new NotFoundException();
     const media = showcaseMediaEntry(name);
     if (media) {
-      const cached = path.join(showcaseCacheDir(this.paths), name);
+      const cacheDir = showcaseCacheDir(this.paths);
+      let cached = path.join(cacheDir, name);
+      // 缓存里还没有时，先等正在进行的预热 —— 不再让网关「预热完才监听」。
+      // 对比进程挡掉了封面 CDN，这里若直接 302 过去就是一张空白卡片。
+      if (!existsSync(cached) && process.env.OV_UI) {
+        await awaitShowcaseWarm();
+        cached = path.join(cacheDir, name);
+      }
       if (existsSync(cached)) return res.sendFile(cached, { dotfiles: "allow" });
       // 对比会挡住封面 CDN，第一屏封面靠预热缓存和基线对齐。仓库里 gitignore 的整套
       // media/ 基线工作副本没有，读出来会多画出封面。对比进程带 OV_UI 时不读这一层。

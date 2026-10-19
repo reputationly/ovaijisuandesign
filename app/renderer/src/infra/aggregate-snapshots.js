@@ -87,9 +87,7 @@ function snapshotFromState(state) {
     updatedAtMs: state.updatedAtMs,
   };
 }
-function emptySnapshot() {
-  return snapshotFromState(createState());
-}
+const emptySnapshot = () => emptyImages;
 function aggregateSnapshots(snapshots) {
   if (snapshots.length === 0) {
     return {
@@ -159,3 +157,5 @@ export function getWorkspaceContentBudgetSnapshot(workspaceId) {
     return snapshotFromState(getOrCreateState(workspaceId));
   return aggregateSnapshots(getExistingStates().map(snapshotFromState));
 }
+
+const emptyImages = [];

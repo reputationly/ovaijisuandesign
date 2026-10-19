@@ -103,7 +103,7 @@ function hasUnknownKeys(value, allowed) {
 }
 
 function isRecord$e(value) {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+  return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
 function normalizeStringMap(value, caseInsensitive) {

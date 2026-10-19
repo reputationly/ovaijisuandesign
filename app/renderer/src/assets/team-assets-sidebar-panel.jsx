@@ -7,7 +7,7 @@ import { ChevronDown, ChevronRight$1 as ChevronRight, FolderInput, FolderPlus, L
 import { getVisibleCloudUploads } from "./visible-cloud-uploads.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
+import { Button, cn as cn$5, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import {
   AssetRowThumb,
   useAnchorProjectAssets,
@@ -85,6 +85,7 @@ import { useProjectActions } from "../settings/use-project-actions.js";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 import { MediaLightbox } from "./text-preview.jsx";
+import { ChevronRight as ChevronRight$3 } from "lucide-react";
 function flattenCloudTree(childrenByFolder, expanded) {
   const rows = [];
   const visit = (folderId, depth, segments, parentIds) => {
@@ -187,7 +188,7 @@ function CloudAssetGridCard({
   dndProps,
   dropActive,
 }) {
-  const { t: translate } = useTranslation();
+  const { t } = useTranslation();
   const node = row.node;
   const isFolder = node.kind === "folder";
   const typeBucket = resolveTypeBucket({
@@ -195,7 +196,6 @@ function CloudAssetGridCard({
     name: node.name,
     mime: node.mimeType,
   });
-  const Chevron = expanded ? ChevronDown : ChevronRight;
   const canFetch = node.review === "pass" && !!node.cdnUrl;
   const canDownload = isCloudFileDownloadEnabled(node, syncState);
   const canUse = downloaded || canFetch;
@@ -215,9 +215,7 @@ function CloudAssetGridCard({
               dropActive && "bg-foreground/[0.12]",
             )}
             data-action-ui-id={
-              isFolder
-                ? "project-assets-sidebar.cloud-folder-grid-card"
-                : "project-assets-sidebar.cloud-file-grid-card"
+              isFolder ? "project-assets-sidebar.cloud-folder-grid-card" : "project-assets-sidebar.cloud-file-grid-card"
             }
           >
             <ProjectAssetThumbnail
@@ -237,25 +235,13 @@ function CloudAssetGridCard({
             ) : null}
             <span className="flex min-w-0 items-center gap-1 px-1 py-1">
               {isFolder ? (
-                <Icon
-                  icon={Chevron}
-                  size="xs"
-                  strokeWidth={1.5}
-                  className="shrink-0 text-muted-foreground"
-                />
+                <DisclosureChevron expanded={expanded} size={12} strokeWidth={1.5} className="text-muted-foreground" />
               ) : null}
-              <span
-                className="min-w-0 flex-1 truncate text-[12px] text-foreground/70"
-                title={node.name}
-              >
+              <span className="min-w-0 flex-1 truncate text-[12px] text-foreground/70" title={node.name}>
                 {node.name}
               </span>
               {isFolder && loading ? (
-                <LoaderCircle
-                  size={12}
-                  strokeWidth={1.5}
-                  className="shrink-0 animate-spin text-muted-foreground"
-                />
+                <LoaderCircle size={12} strokeWidth={1.5} className="shrink-0 animate-spin text-muted-foreground" />
               ) : null}
             </span>
           </button>
@@ -266,63 +252,48 @@ function CloudAssetGridCard({
           <>
             <ContextMenuItem onClick={() => onDownloadFolder(row)}>
               <Icon icon={Download} size="sm" strokeWidth={1.5} />
-              {translate("cloudAssets.download")}
+              {t("cloudAssets.download")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => onRename(row)}>
               <PencilIcon size={14} strokeWidth={1.5} />
-              {translate("cloudAssets.rename")}
+              {t("cloudAssets.rename")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => onMove(row)}>
               <Icon icon={FolderInput} size="sm" strokeWidth={1.5} />
-              {translate("cloudAssets.moveTo")}
+              {t("cloudAssets.moveTo")}
             </ContextMenuItem>
           </>
         ) : (
           <>
-            <ContextMenuItem
-              disabled={!canUse}
-              onClick={() => void onAddToCanvas(row)}
-            >
+            <ContextMenuItem disabled={!canUse} onClick={() => void onAddToCanvas(row)}>
               <Icon icon={ImageOutlineIcon} size="sm" strokeWidth={1.5} />
-              {translate("localAssets.addToCanvas")}
+              {t("localAssets.addToCanvas")}
             </ContextMenuItem>
-            <ContextMenuItem
-              disabled={!canUse}
-              onClick={() => void onAddToAgent(row)}
-            >
+            <ContextMenuItem disabled={!canUse} onClick={() => void onAddToAgent(row)}>
               <AddToChatIcon size={14} />
-              {translate("localAssets.addToAgent")}
+              {t("localAssets.addToAgent")}
             </ContextMenuItem>
-            <ContextMenuItem
-              disabled={!canDownload}
-              onClick={() => void onDownload(row)}
-            >
+            <ContextMenuItem disabled={!canDownload} onClick={() => void onDownload(row)}>
               <Icon icon={Download} size="sm" strokeWidth={1.5} />
-              {translate("cloudAssets.download")}
+              {t("cloudAssets.download")}
             </ContextMenuItem>
-            <ContextMenuItem
-              disabled={!downloaded}
-              onClick={() => void onReveal(node)}
-            >
+            <ContextMenuItem disabled={!downloaded} onClick={() => void onReveal(node)}>
               <Icon icon={FolderOpen} size="sm" strokeWidth={1.5} />
               <PlatformFileManagerLabel />
             </ContextMenuItem>
-            <ContextMenuItem
-              disabled={node.review === "block"}
-              onClick={() => onRename(row)}
-            >
+            <ContextMenuItem disabled={node.review === "block"} onClick={() => onRename(row)}>
               <PencilIcon size={14} strokeWidth={1.5} />
-              {translate("cloudAssets.rename")}
+              {t("cloudAssets.rename")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => onMove(row)}>
               <Icon icon={FolderInput} size="sm" strokeWidth={1.5} />
-              {translate("cloudAssets.moveTo")}
+              {t("cloudAssets.moveTo")}
             </ContextMenuItem>
           </>
         )}
         <ContextMenuItem variant="destructive" onClick={() => onDelete(row)}>
           <Icon icon={Trash2} size="sm" strokeWidth={1.5} />
-          {translate("cloudAssets.delete")}
+          {t("cloudAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -341,8 +312,7 @@ function CloudFolderRow({
   dndProps,
   dropActive,
 }) {
-  const { t: translate } = useTranslation();
-  const Chevron = expanded ? ChevronDown : ChevronRight;
+  const { t } = useTranslation();
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -351,7 +321,7 @@ function CloudFolderRow({
             type="button"
             onClick={() => onToggle(row.node)}
             {...dndProps}
-            className={cn(
+            className={cn$5(
               "list-row-hit-area group flex h-7 w-full items-center gap-1.5 rounded-md px-2 text-left transition-colors hover:bg-foreground/5",
               dropActive && "bg-primary/10",
             )}
@@ -360,28 +330,18 @@ function CloudFolderRow({
             }}
             data-action-ui-id="project-assets-sidebar.cloud-folder-row"
           >
-            <Chevron
-              size={13}
-              strokeWidth={1.5}
-              className="shrink-0 text-muted-foreground/70"
-            />
+            <DisclosureChevron expanded={expanded} size={13} strokeWidth={1.5} className="text-muted-foreground/70" />
             <span className="inline-flex size-5 shrink-0 items-center justify-center">
               <FolderTileGlyph className="!h-8 !w-8 origin-center scale-[0.625]" />
             </span>
-            <span className="min-w-0 flex-1 truncate text-[13px] text-foreground">
-              {row.node.name}
-            </span>
+            <span className="min-w-0 flex-1 truncate text-[13px] text-foreground">{row.node.name}</span>
             <NodeUpdatedMeta
               node={row.node}
               memberNames={memberNames}
               className="hidden max-w-36 text-[11px] group-hover:block"
             />
             {loading ? (
-              <LoaderCircle
-                size={12}
-                strokeWidth={1.5}
-                className="shrink-0 animate-spin text-muted-foreground"
-              />
+              <LoaderCircle size={12} strokeWidth={1.5} className="shrink-0 animate-spin text-muted-foreground" />
             ) : null}
           </button>
         }
@@ -389,19 +349,19 @@ function CloudFolderRow({
       <ContextMenuContent>
         <ContextMenuItem onClick={() => onDownload(row)}>
           <Download size={14} strokeWidth={1.5} />
-          {translate("cloudAssets.download")}
+          {t("cloudAssets.download")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onRename(row)}>
           <PencilIcon size={14} strokeWidth={1.5} />
-          {translate("cloudAssets.rename")}
+          {t("cloudAssets.rename")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onMove(row)}>
           <FolderInput size={14} strokeWidth={1.5} />
-          {translate("cloudAssets.moveTo")}
+          {t("cloudAssets.moveTo")}
         </ContextMenuItem>
         <ContextMenuItem variant="destructive" onClick={() => onDelete(row)}>
           <Trash2 size={14} strokeWidth={1.5} />
-          {translate("cloudAssets.delete")}
+          {t("cloudAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -1468,5 +1428,20 @@ export function TeamAssetsSidebarPanel({
         />
       ) : null}
     </div>
+  );
+}
+
+function DisclosureChevron({ expanded, size: size2 = 14, strokeWidth = 1.5, className }) {
+  return (
+    <ChevronRight$3
+      size={size2}
+      strokeWidth={strokeWidth}
+      aria-hidden="true"
+      className={cn$5(
+        "shrink-0 origin-center transition-transform duration-150 ease-out motion-reduce:transition-none",
+        expanded && "rotate-90",
+        className,
+      )}
+    />
   );
 }

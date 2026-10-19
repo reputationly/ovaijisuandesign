@@ -24,6 +24,7 @@ export interface CatalogModel {
   mention_name: string;
   hideInModelPicker?: boolean;
   hiddenParamsByImageMode?: Record<string, string[]>;
+  paramConstraints?: { if: { param: string; eq: string }; disable: { param: string; options: string[] } }[];
   promptLabel?: "prompt" | "text" | "musicStyle";
 }
 
@@ -83,14 +84,31 @@ export function buildCatalog(cfg: MediaConfig): ModelCatalog {
   add(video, m.video, (id) =>
     media(id, "video", ["hub_generate_video"], {
       ...SLOT_ALIAS.video,
-      max_refs: 2,
-      imageMode: "first-last-frame",
+      max_refs: 9,
+      max_video_refs: 3,
+      max_audio_refs: 3,
       params: toParams(params.forModality("video", id)),
-      hiddenParamsByImageMode: { "first-last-frame": ["aspect_ratio"] },
+      // 首尾帧只留自适应。藏掉整项的话菜单里就没有「比例」。
+      paramConstraints: params.isAggregateVideoModel(id)
+        ? [
+            {
+              if: { param: "image_mode", eq: "first-last-frame" },
+              disable: { param: "aspect_ratio", options: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"] },
+            },
+          ]
+        : undefined,
     }),
   );
   add(video, m.video_ref, (id) =>
-    media(id, "video", ["hub_generate_video"], { ...SLOT_ALIAS.video_ref, max_refs: 4, max_video_refs: 3, max_audio_refs: 3, imageMode: "reference", params: toParams(params.forModality("video_ref", id)) }),
+    media(id, "video", ["hub_generate_video"], {
+      ...SLOT_ALIAS.video_ref,
+      max_refs: 9,
+      max_video_refs: 3,
+      max_audio_refs: 3,
+      params: toParams(params.forModality("video_ref", id)),
+      // 帧族模型已经带了「全能参考 / 首尾帧」，选择器里不再并列第二个视频模型。
+      hideInModelPicker: m.video !== null && params.isAggregateVideoModel(m.video),
+    }),
   );
   add(audio, m.speech, (id) => media(id, "audio", ["hub_generate_audio_speech"], { ...SLOT_ALIAS.speech, max_refs: 0, params: {}, promptLabel: "text" }));
   add(audio, m.music, (id) => media(id, "audio", ["hub_generate_audio_music"], { ...SLOT_ALIAS.music, max_refs: 0, params: {}, promptLabel: "musicStyle" }));

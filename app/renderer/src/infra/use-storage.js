@@ -7,7 +7,15 @@ import { usePlatform } from "./platform-context.js";
 import { useCurrentWorkspace } from "./shared-runtime.js";
 
 function isPlainObject$1(value) {
-  return value != null && typeof value === "object" && !Array.isArray(value);
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return (
+    (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) &&
+    !(Symbol.toStringTag in value) &&
+    !(Symbol.iterator in value)
+  );
 }
 function resolveUpdater(updater, prev) {
   const next2 = typeof updater === "function" ? updater(prev) : updater;

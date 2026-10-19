@@ -2,6 +2,8 @@
 import reactExports from "react";
 import { withIconCompositing } from "./icon-compositing.js";
 
+import { mergeClasses, toKebabCase, toPascalCase } from "./to-camel-case.jsx";
+import { Icon as Icon$1 } from "lucide-react";
 export const SIZE_STROKE_WIDTH_MAP = {
   12: 1.33,
   14: 1.33,
@@ -23,47 +25,16 @@ export const getDefaultStrokeWidth = size => {
 };
 
 
-const createLucideIcon$1 = (iconName, iconNode, viewBox = "0 0 24 24", isFillIcon = false) => {
-  const Component = reactExports.forwardRef(({
-    color: color2 = "currentColor",
-    size: size2 = 20,
-    strokeWidth,
-    className,
-    children: children2,
-    ...props
-  }, ref) => {
-    const strokeWidthValue = strokeWidth !== void 0 ? strokeWidth : getDefaultStrokeWidth(size2);
-    const svgProps = isFillIcon ? {
-      // Fill 图标：使用 fill 属性，不设置 stroke
+const createLucideIcon$1 = (iconName, iconNode) => {
+  const Component = reactExports.forwardRef(({ className, ...props }, ref) =>
+    reactExports.createElement(Icon$1, {
       ref,
-      xmlns: "http://www.w3.org/2000/svg",
-      width: size2,
-      height: size2,
-      viewBox,
-      fill: color2,
-      className,
-      ...props
-    } : {
-      // Stroke 图标（Lucide 风格）：使用 stroke 属性
-      ref,
-      xmlns: "http://www.w3.org/2000/svg",
-      width: size2,
-      height: size2,
-      viewBox,
-      fill: "none",
-      stroke: color2,
-      strokeWidth: strokeWidthValue,
-      strokeLinecap: "round",
-      strokeLinejoin: "round",
-      className,
-      ...props
-    };
-    return reactExports.createElement("svg", svgProps, [...iconNode.map(([tag, attrs], i2) => reactExports.createElement(tag, {
-      key: i2,
-      ...attrs
-    })), ...(Array.isArray(children2) ? children2 : children2 ? [children2] : [])]);
-  });
-  Component.displayName = iconName.split("-").map(part => part.charAt(0).toUpperCase() + part.slice(1)).join("");
+      iconNode,
+      className: mergeClasses(`lucide-${toKebabCase(toPascalCase(iconName))}`, `lucide-${iconName}`, className),
+      ...props,
+    }),
+  );
+  Component.displayName = toPascalCase(iconName);
   return Component;
 };
 const Brain$3 = createLucideIcon$1("brain", [["path", {

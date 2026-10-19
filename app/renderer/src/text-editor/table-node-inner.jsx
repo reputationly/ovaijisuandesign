@@ -75,6 +75,8 @@ import { NodeShell } from "../canvas/node-shell-inner.jsx";
 import { NodeBody } from "../canvas/node-body-inner.jsx";
 import { parseTableDocument } from "./parse-table-document.js";
 import { serializeTableDocument } from "./table-document-to-llm-content.js";
+import { withLegacyTableHost } from "./legacy-table-editor-host-provider.jsx";
+import { useTableEditorActive } from "./table-editor-host-context.jsx";
 function removeColumn(doc, columnId) {
   const columns = doc.columns.filter((column) => column.id !== columnId);
   const rows = doc.rows.map((row) => {
@@ -1009,16 +1011,14 @@ const TableToolbar = reactExports.memo(TableToolbarInner);
 const NOOP_TITLE_CHANGE = () => {};
 function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
   const { t } = useTranslation();
-  const active = useCanvasActive();
+  const active = useTableEditorActive();
   const startDoc = initialDoc ?? createEmptyDocument();
-  const tableHistory = useTableHistory(startDoc);
+  const history = useTableHistory(startDoc);
   const baselineDocRef = reactExports.useRef(startDoc);
-  const [selectedRowIds, setSelectedRowIds] = reactExports.useState(
-    () => new Set(),
-  );
+  const [selectedRowIds, setSelectedRowIds] = reactExports.useState(() => new Set());
   const validSelectedRowIds = reactExports.useMemo(() => {
     if (selectedRowIds.size === 0) return selectedRowIds;
-    const live = new Set(tableHistory.doc.rows.map((row) => row.id));
+    const live = new Set(history.doc.rows.map((r) => r.id));
     let drift = false;
     const next = new Set();
     for (const id of selectedRowIds) {
@@ -1026,10 +1026,10 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
       else drift = true;
     }
     return drift ? next : selectedRowIds;
-  }, [selectedRowIds, tableHistory.doc.rows]);
+  }, [selectedRowIds, history.doc.rows]);
   const handleDeleteSelected = reactExports.useCallback(() => {
     if (validSelectedRowIds.size === 0) return;
-    tableHistory.apply((prev) => {
+    history.apply((prev) => {
       let next = prev;
       for (const id of validSelectedRowIds) {
         next = removeRow(next, id);
@@ -1037,11 +1037,11 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
       return next;
     });
     setSelectedRowIds(new Set());
-  }, [validSelectedRowIds, tableHistory]);
+  }, [validSelectedRowIds, history]);
   const handleClose = reactExports.useCallback(() => {
-    const next = tableHistory.doc;
+    const next = history.doc;
     onClose(next === baselineDocRef.current ? void 0 : next);
-  }, [tableHistory.doc, onClose]);
+  }, [history.doc, onClose]);
   const panelRef = reactExports.useRef(null);
   const handlePanelDragLeave = reactExports.useCallback(
     (event) => {
@@ -1058,43 +1058,38 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
     if (!active) return;
     const isInEditor = (target) =>
       target instanceof HTMLElement &&
-      (target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable);
-    const captureHandler = (keyboardEvent) => {
-      if (keyboardEvent.key !== "Delete" && keyboardEvent.key !== "Backspace") return;
-      if (isInEditor(keyboardEvent.target)) return;
-      keyboardEvent.stopPropagation();
-      keyboardEvent.stopImmediatePropagation();
+      (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+    const captureHandler = (e2) => {
+      if (e2.key !== "Delete" && e2.key !== "Backspace") return;
+      if (isInEditor(e2.target)) return;
+      e2.stopPropagation();
+      e2.stopImmediatePropagation();
     };
-    const handler = (keyboardEvent) => {
-      if (keyboardEvent.key === "Escape") {
-        if (isInEditor(keyboardEvent.target)) return;
-        keyboardEvent.stopPropagation();
+    const handler = (e2) => {
+      if (e2.key === "Escape") {
+        if (isInEditor(e2.target)) return;
+        e2.stopPropagation();
         handleClose();
         return;
       }
-      const meta = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
-      if (meta && (keyboardEvent.key === "z" || keyboardEvent.key === "Z")) {
-        if (isInEditor(keyboardEvent.target)) return;
-        keyboardEvent.stopPropagation();
-        keyboardEvent.preventDefault();
-        if (keyboardEvent.shiftKey) tableHistory.redo();
-        else tableHistory.undo();
+      const meta = e2.metaKey || e2.ctrlKey;
+      if (meta && (e2.key === "z" || e2.key === "Z")) {
+        if (isInEditor(e2.target)) return;
+        e2.stopPropagation();
+        e2.preventDefault();
+        if (e2.shiftKey) history.redo();
+        else history.undo();
         return;
       }
-      if (meta && (keyboardEvent.key === "y" || keyboardEvent.key === "Y")) {
-        if (isInEditor(keyboardEvent.target)) return;
-        keyboardEvent.stopPropagation();
-        keyboardEvent.preventDefault();
-        tableHistory.redo();
+      if (meta && (e2.key === "y" || e2.key === "Y")) {
+        if (isInEditor(e2.target)) return;
+        e2.stopPropagation();
+        e2.preventDefault();
+        history.redo();
         return;
       }
-      if (
-        meta ||
-        (keyboardEvent.shiftKey && (keyboardEvent.code === "Digit1" || keyboardEvent.code === "Digit2"))
-      ) {
-        keyboardEvent.stopPropagation();
+      if (meta || (e2.shiftKey && (e2.code === "Digit1" || e2.code === "Digit2"))) {
+        e2.stopPropagation();
       }
     };
     document.addEventListener("keydown", captureHandler, true);
@@ -1103,7 +1098,7 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
       document.removeEventListener("keydown", captureHandler, true);
       document.removeEventListener("keydown", handler);
     };
-  }, [active, handleClose, tableHistory]);
+  }, [active, handleClose, history]);
   const backdrop = useBackdropDismiss(handleClose);
   const dpr = useDevicePixelRatio();
   const cap =
@@ -1121,7 +1116,8 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-[4px] animate-[lightbox-fade-in_0.15s_ease-out]"
+      data-mask="immersive"
+      className="fixed inset-0 z-[9999] flex items-center justify-center modal-mask animate-[lightbox-fade-in_0.15s_ease-out]"
       onMouseDown={backdrop.onMouseDown}
       onClick={backdrop.onClick}
     >
@@ -1134,32 +1130,29 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
           background: "var(--canvas-node-bg, #fff)",
           border: "1px solid var(--canvas-node-border, #e0e0e0)",
         }}
-        onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
-        onKeyUp={(keyboardEvent) => keyboardEvent.stopPropagation()}
-        onClick={(clickEvent) => clickEvent.stopPropagation()}
+        onKeyDown={(e2) => e2.stopPropagation()}
+        onKeyUp={(e2) => e2.stopPropagation()}
+        onClick={(e2) => e2.stopPropagation()}
         onDragLeave={handlePanelDragLeave}
       >
         <TableToolbar
           title={title || t("canvas.table.untitled", "Untitled table")}
           onTitleChange={onTitleChange ?? NOOP_TITLE_CHANGE}
-          history={tableHistory}
+          history={history}
           onClose={handleClose}
           selectedCount={validSelectedRowIds.size}
           onRemoveSelected={handleDeleteSelected}
         />
         <div className="flex-1 overflow-hidden">
-          <TableEditor
-            history={tableHistory}
-            selectedRowIds={validSelectedRowIds}
-            onSelectionChange={setSelectedRowIds}
-          />
+          <TableEditor history={history} selectedRowIds={validSelectedRowIds} onSelectionChange={setSelectedRowIds} />
         </div>
       </div>
     </div>,
     document.body,
   );
 }
-const TableFullscreen = reactExports.memo(TableFullscreenInner);
+const TableFullscreenMemo = reactExports.memo(TableFullscreenInner);
+const TableFullscreen = withLegacyTableHost(TableFullscreenMemo);
 const HEADER_HEIGHT = 32;
 const FALLBACK_ROW_HEIGHT = 32;
 const FALLBACK_COL_WIDTH = 200;
@@ -1529,7 +1522,7 @@ function TablePreviewInner({ doc, bodyHeight, bodyWidth }) {
     </div>
   );
 }
-const TablePreview = reactExports.memo(TablePreviewInner);
+export const TablePreview = reactExports.memo(TablePreviewInner);
 function TableNodeInner({
   id,
   selected,

@@ -345,51 +345,55 @@ function resolveWorkspaceActivationResult(result) {
   }
 }
 function WorkspaceRuntimeDegradedBanner({ status, retrying = false, onRetry }) {
-  const { i18n, t: translate } = useTranslation();
+  const { i18n, t } = useTranslation();
   const retryHintActive = useRetryHintActive(status.retryAfter?.blockedUntilMs);
-  const diagnosis = resolveWorkspaceFailureDiagnosis(
-    status.diagnosis?.code,
-    translate,
-    i18n.language,
-  );
+  const diagnosis = resolveWorkspaceFailureDiagnosis(status.diagnosis?.code, t, i18n.language);
   const errorMessage =
     diagnosis?.message ??
     status.error ??
-    translate("workspace.runtimeDegraded.description", {
+    t("workspace.runtimeDegraded.description", {
       defaultValue:
         "Workspace, canvas, chat history, and assets stay visible. Chat is paused until the local runtime reconnects.",
     });
+  const actionable = diagnosis?.severity === "needs_user_action";
+  const title =
+    actionable && diagnosis
+      ? diagnosis.title
+      : t("workspace.runtimeDegraded.title", {
+          defaultValue: "Local runtime is recovering",
+        });
   return (
     <div className="pointer-events-none absolute inset-x-3 top-3 z-30 flex justify-center">
-      <div className="elevated-surface-border pointer-events-auto max-w-2xl rounded-lg bg-popover/95 px-3 py-2 text-xs text-muted-foreground shadow-sm backdrop-blur">
-        <div className="font-medium text-foreground">
-          {translate("workspace.runtimeDegraded.title", {
-            defaultValue: "Local runtime is recovering",
-          })}
-        </div>
+      <div
+        className="elevated-surface-border pointer-events-auto max-w-2xl rounded-lg bg-popover/95 px-3 py-2 text-xs text-muted-foreground shadow-sm backdrop-blur"
+        data-action-ui-id="workspace.runtime-degraded-banner"
+        data-diagnosis-code={diagnosis?.code}
+      >
+        <div className="font-medium text-foreground">{title}</div>
         <div className="mt-0.5">{errorMessage}</div>
+        {actionable && diagnosis && diagnosis.suggestions.length > 0 ? (
+          <ul className="mt-1 list-disc space-y-0.5 pl-4">
+            {diagnosis.suggestions.map((suggestion) => (
+              <li key={suggestion}>{suggestion}</li>
+            ))}
+          </ul>
+        ) : null}
         {retryHintActive ? (
           <div className="mt-1">
-            {translate("workspace.runtimeDegraded.retryHint", {
+            {t("workspace.runtimeDegraded.retryHint", {
               defaultValue:
                 "The runtime protection circuit is cooling down. Retry remains available and will not clear the current workspace view.",
             })}
           </div>
         ) : null}
         {onRetry ? (
-          <Button
-            variant="outline"
-            size="xs"
-            className="mt-1.5"
-            loading={retrying}
-            onClick={onRetry}
-          >
+          <Button variant="outline" size="xs" className="mt-1.5" loading={retrying} onClick={onRetry}>
             <RetryIcon />
             {retrying
-              ? translate("workspace.runtimeDegraded.retrying", {
+              ? t("workspace.runtimeDegraded.retrying", {
                   defaultValue: "Retrying...",
                 })
-              : translate("common.retry")}
+              : t("common.retry")}
           </Button>
         ) : null}
       </div>
@@ -439,8 +443,12 @@ export function RetainedWorkspaceRuntimeHost({
     enabled: isActive || runtime !== void 0,
   });
   const latestStatusStateRef = reactExports.useRef(void 0);
+  // 产物里写的是 `status?.workspaceId === workspaceId ? status.state : void 0`，**少了 status 这一侧的判空**：
+  // 当 `status` 与 `workspaceId` 都是 undefined 时，`undefined === undefined` 成立，于是去读 `status.state` 直接抛。
+  // 这是上游的**潜在缺陷**（产物里一模一样），平时不触发；我们这边会走到，所以补上判空。
+  // 只影响「本来就会抛」那一条路径。
   latestStatusStateRef.current =
-    status?.workspaceId === workspaceId ? status.state : void 0;
+    status && status.workspaceId === workspaceId ? status.state : void 0;
   reactExports.useEffect(() => {
     const notice = status?.recoveryNotice;
     if (!shouldAnnounceRecoveryNotice(notice)) return;

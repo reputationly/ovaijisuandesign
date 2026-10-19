@@ -30,7 +30,7 @@ function isRecentProjectsGroupMode(value) {
 }
 const RECENT_HEADER_PREVIEW_HOLD = "home-sidebar.recent-header-menu";
 const CREATE_TRIGGER_CLASS =
-  "icon-muted-control pointer-events-none flex size-6 items-center justify-center rounded-sm text-muted-foreground opacity-0 transition-[opacity,background-color,color] duration-[80ms] hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 group-hover:pointer-events-auto group-hover:opacity-100 group-has-[:focus-visible]:pointer-events-auto group-has-[:focus-visible]:opacity-100";
+  "icon-muted-control pointer-events-none flex size-6 items-center justify-center rounded-sm text-muted-foreground opacity-0 transition-[opacity,background-color,color] duration-[80ms] hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-visible-within:pointer-events-auto group-focus-visible-within:opacity-100";
 export function RecentProjectsHeaderActions({
   sortMode,
   onSortModeChange,

@@ -61,12 +61,14 @@ function isPreviewableFileType(fileType) {
 }
 
 class UploadRequestError extends Error {
-  constructor(message, status, code) {
+  constructor(message, status, code2) {
     super(message);
     this.status = status;
-    this.code = code;
+    this.code = code2;
     this.name = "UploadRequestError";
   }
+  status;
+  code;
 }
 
 function uploadCommitErrorCode(value) {

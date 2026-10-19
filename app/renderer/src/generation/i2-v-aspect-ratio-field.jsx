@@ -30,6 +30,9 @@ import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AspectRatioGrid } from "./aspect-ratio-grid.jsx";
 import { MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO } from "./normalize-skill-detail-metadata.js";
+import { ASSET_PROJECTED_DATA_KEYS, TRANSIENT_DATA_KEYS } from "../canvas/find-free-position-from-anchor.js";
+import { POPOVER_DRAFT_DATA_KEY } from "../canvas/compute-group-bounds-from-children.js";
+import { REQUIRED_REFERENCE_IMAGE_MODEL_NAMES } from "./hailuo-23-model-names.jsx";
 const HAILUO_23_MODEL_NAMES = new Set([
   "MiniMax-Hailuo-2.3",
   "MiniMax-Hailuo-2.3-Fast",
@@ -38,9 +41,11 @@ const HAILUO_23_MODEL_NAMES = new Set([
 ]);
 const MINIMAX_H3_MODEL_ID = "minimax-h3";
 const MINIMAX_H3_BACKEND_ID = "minimax-v3";
-const REQUIRED_REFERENCE_IMAGE_MODEL_NAMES = new Set([
-  ...HAILUO_23_MODEL_NAMES,
-  ...KLING_AVATAR_MODEL_NAMES,
+const UNDO_TRANSPARENT_DATA_KEYS = [POPOVER_DRAFT_DATA_KEY];
+const INVISIBLE_DATA_KEYS = new Set([
+  ...UNDO_TRANSPARENT_DATA_KEYS,
+  ...ASSET_PROJECTED_DATA_KEYS,
+  ...TRANSIENT_DATA_KEYS,
 ]);
 function requiresReferenceImageForI2V(model) {
   if (!model) return false;
@@ -117,22 +122,13 @@ function shouldForceSeedance25AdaptiveRatio(model, imageMode, imagePaths) {
       SEEDANCE_25_INHERITED_VIDEO_MODES.has(imageMode))
   );
 }
-function resolveI2VAspectRatioOptions(
-  options,
-  constraintDisabledOptions,
-  disableAdaptive,
-  disableFixed = false,
-) {
+function resolveI2VAspectRatioOptions(options, constraintDisabledOptions, disableAdaptive, disableFixed = false) {
   const disabledOptions = new Set([
     ...constraintDisabledOptions,
     ...(disableAdaptive ? ADAPTIVE_RATIO_VALUES : []),
-    ...(disableFixed
-      ? options.filter((option) => !isAdaptiveRatio(option))
-      : []),
+    ...(disableFixed ? options.filter((option) => !isAdaptiveRatio(option)) : []),
   ]);
-  const visibleOptions = options.filter(
-    (option) => !constraintDisabledOptions.has(option),
-  );
+  const visibleOptions = options.filter((option) => !constraintDisabledOptions.has(option));
   return {
     options: visibleOptions.length > 0 ? visibleOptions : options,
     disabledOptions,
@@ -517,3 +513,4 @@ export const LEGACY_SEEDANCE_25_TASK_TYPE_PARAM = "omni_reference_task_type";
 export function devLogI2V(event, payload) {
   return;
 }
+

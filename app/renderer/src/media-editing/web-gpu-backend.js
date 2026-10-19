@@ -1,4 +1,5 @@
 // web-gpu-backend.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import {
   buildCurvePalette,
   clamp01,
@@ -83,7 +84,7 @@ const buildSaturationMatrix = (amount) => {
   ]);
 };
 
-const passFragment = `
+export const passFragment = `
 @group(0) @binding(0) var uTexture: texture_2d<f32>;
 @group(0) @binding(1) var uSampler: sampler;
 
@@ -93,7 +94,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const brightnessFragment = `
+export const brightnessFragment = `
 struct Params {
   amount: f32,
 }
@@ -102,7 +103,7 @@ struct Params {
 @group(0) @binding(1) var uSampler: sampler;
 @group(0) @binding(2) var<uniform> params: Params;
 
-const PI: f32 = 3.1415926535897932384626433832795;
+export const PI: f32 = 3.1415926535897932384626433832795;
 
 @fragment
 fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
@@ -120,9 +121,9 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const contrastFragment = saturationFragment;
+export const contrastFragment = saturationFragment;
 
-const blacksFragment = `
+export const blacksFragment = `
 @group(0) @binding(0) var uTexture: texture_2d<f32>;
 @group(0) @binding(1) var uSampler: sampler;
 @group(0) @binding(2) var uPaletteMap: texture_2d<f32>;
@@ -138,7 +139,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const dehazeFragment = `
+export const dehazeFragment = `
 struct Params {
   amount: f32,
   width: f32,
@@ -177,7 +178,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const bloomFragment = `
+export const bloomFragment = `
 struct Params {
   amount: f32,
   texelX: f32,
@@ -209,7 +210,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const glamourFragment = `
+export const glamourFragment = `
 struct Params {
   amount: f32,
   texelX: f32,
@@ -260,7 +261,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const clarityFragment = `
+export const clarityFragment = `
 struct Params {
   amount: f32,
   texelX: f32,
@@ -332,7 +333,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const kernelFragment = `
+export const kernelFragment = `
 struct Params {
   texelX: f32,
   texelY: f32,
@@ -368,7 +369,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const blurFragment = `
+export const blurFragment = `
 struct Params {
   sizeX: f32,
   sizeY: f32,
@@ -405,7 +406,7 @@ fn main(@location(0) uv: vec2<f32>, @builtin(position) fragCoord: vec4<f32>) -> 
 }
 `;
 
-const vignetteFragment = `
+export const vignetteFragment = `
 struct Params {
   amount: f32,
   size: f32,
@@ -436,7 +437,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const grainFragment = `
+export const grainFragment = `
 struct Params {
   width: f32,
   height: f32,
@@ -484,7 +485,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const lutFragment = `
+export const lutFragment = `
 struct Params {
   intensity: f32,
   _pad0: f32,
@@ -509,7 +510,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 }
 `;
 
-const SHARPEN_KERNEL = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+export const SHARPEN_KERNEL = [0, -1, 0, -1, 5, -1, 0, -1, 0];
 
 const SMOOTH_KERNEL = [
   1 / 9,

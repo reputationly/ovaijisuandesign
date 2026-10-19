@@ -27,10 +27,15 @@ const ChatHeader = reactExports.memo(function ChatHeaderView({
   nodeEditAgentName,
   textEditNav,
 }) {
+  const visibleOrder = reactExports.useMemo(
+    () => presentedTabOrder(openedTabOrder, focusedSessionId, pendingNewTab),
+    [openedTabOrder, focusedSessionId, pendingNewTab],
+  );
   return (
     <SessionTabStrip
       sessions={sessions}
       openedTabOrder={openedTabOrder}
+      visibleTabOrder={visibleOrder}
       openedTabIds={openedTabIds}
       focusedSessionId={focusedSessionId}
       pendingNewTab={pendingNewTab}
@@ -175,4 +180,15 @@ export function ChatHeaderContainer({
       textEditNav={textEditNav}
     />
   );
+}
+
+function presentedTabOrder(order2, focusedId, pendingNewTab) {
+  const limit = pendingNewTab ? 1 : 2;
+  if (order2.length <= limit) return order2;
+  const selected2 = new Set(order2.slice(-limit));
+  if (focusedId && order2.includes(focusedId) && !selected2.has(focusedId)) {
+    selected2.delete(order2[order2.length - limit]);
+    selected2.add(focusedId);
+  }
+  return order2.filter((id2) => selected2.has(id2));
 }

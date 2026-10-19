@@ -30,7 +30,7 @@ const CANVAS_TONE_BACKGROUNDS = {
   sand: "var(--canvas-bg-sand)",
 };
 
-function getCanvasToneBackground(tone) {
+export function getCanvasToneBackground(tone) {
   return CANVAS_TONE_BACKGROUNDS[tone];
 }
 
@@ -80,10 +80,13 @@ function isEditableElement(target) {
 }
 
 function isCanvasChromeElement(target) {
-  return (
-    target instanceof Element &&
-    target.closest('[data-canvas-chrome="true"]') !== null
-  );
+  let element2 = target instanceof Element ? target : null;
+  while (element2) {
+    if (element2.closest('[data-canvas-chrome="true"]')) return true;
+    const root = element2.getRootNode();
+    element2 = root instanceof ShadowRoot ? root.host : null;
+  }
+  return false;
 }
 
 export function CanvasShell(props) {

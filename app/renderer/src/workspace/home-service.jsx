@@ -50,6 +50,10 @@ services.set(
 );
 export const IBundleHandle = createDecorator("bundleHandle");
 export const IClipboardService = createDecorator("clipboardService");
+// v3 画布的原生能力走这三个服务（与产物里的装饰器名逐字一致）
+export const ICanvasClipboardMainService = createDecorator("canvasClipboardMainService");
+export const IResourceMediaMainService = createDecorator("resourceMediaMainService");
+export const IResourceImageMainService = createDecorator("resourceImageMainService");
 services.set(
   IClipboardService,
   ProxyChannel.toService(client.getChannel("clipboard")),
@@ -200,7 +204,7 @@ var __decorateParam = (index, decorator) => (target, key) =>
   decorator(target, key, index);
 let HomeService = class extends Disposable {
   constructor(
-    hiloApp,
+    hiloApp2,
     logService,
     projectArchive,
     comfyUiModelDownload,
@@ -211,7 +215,7 @@ let HomeService = class extends Disposable {
     quarkDriveAuth,
   ) {
     super();
-    this.hiloApp = hiloApp;
+    this.hiloApp = hiloApp2;
     this.logService = logService;
     this.projectArchive = projectArchive;
     this.comfyUiModelDownload = comfyUiModelDownload;
@@ -221,6 +225,15 @@ let HomeService = class extends Disposable {
     this.hcpCli = hcpCli;
     this.quarkDriveAuth = quarkDriveAuth;
   }
+  hiloApp;
+  logService;
+  projectArchive;
+  comfyUiModelDownload;
+  skillExport;
+  customMcp;
+  connector;
+  hcpCli;
+  quarkDriveAuth;
 };
 HomeService = __decorateClass(
   [

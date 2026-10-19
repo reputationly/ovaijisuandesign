@@ -1,7 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, ServiceUnavailableException } from "@nestjs/common";
 
 import { WorkspacePathService } from "../common/workspace-path.service.js";
 import { resolveInsideWorkspace } from "../edit/paths.js";
@@ -42,6 +42,12 @@ export class DocumentReadService {
   private readonly log = new Logger("DocumentRead");
 
   constructor(private readonly paths: WorkspacePathService) {}
+
+  /** 文档缓存按工作区根和版本号分目录。没绑工作区时没有可写的缓存根。 */
+  cacheContext() {
+    if (!this.paths.isWorkspaceLocked) throw new ServiceUnavailableException("Document cache requires a workspace-bound Gateway");
+    return { workspaceRoot: this.paths.root, version: "v2-p1" };
+  }
 
   async read(rawPath: string, rawOffset?: number, rawLimit?: number, rawImagePage?: number): Promise<DocumentReadResult> {
     if (!rawPath) return { ok: false, reason: "unsupported" };
@@ -110,10 +116,10 @@ export class DocumentReadService {
   }
 }
 
-class PdfImagePageOutOfRangeError extends Error {}
+export class PdfImagePageOutOfRangeError extends Error {}
 
 /** 只取指定页；非 PNG 或超限的图记进 omitted，不作为错误。 */
-async function extractPdfImages(abs: string, imagePage: number): Promise<{ images: PdfImage[]; imagesOmitted: number }> {
+export async function extractPdfImages(abs: string, imagePage: number): Promise<{ images: PdfImage[]; imagesOmitted: number }> {
   const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: await readFile(abs), maxImageSize: 8_000_000 });
   try {

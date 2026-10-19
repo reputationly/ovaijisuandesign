@@ -82,11 +82,11 @@ export function CountBadge({
   );
 }
 
-const WAIT_ESTIMATE_UPDATE_INTERVAL_MS = 5e3;
+export const WAIT_ESTIMATE_UPDATE_INTERVAL_MS = 5e3;
 
-const MIN_DISPLAY_SECONDS = 60;
+export const MIN_DISPLAY_SECONDS = 60;
 
-function normalizeSeconds(value) {
+export function normalizeSeconds(value) {
   return value != null && Number.isFinite(value) && value > 0
     ? Math.max(1, Math.ceil(value))
     : void 0;

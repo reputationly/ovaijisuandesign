@@ -17,7 +17,7 @@ import {
 import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { QuickZoomPresence } from "./canvas-high-blast-delete-dialog.jsx";
 import { ToolModeSplitButton } from "./tool-mode-split-button.jsx";
-const CANVAS_TOOL_DOCK_ICON_SIZE_PX = 18;
+export const CANVAS_TOOL_DOCK_ICON_SIZE_PX = 18;
 const StickerIcon = reactExports.forwardRef(function StickerIcon(
   { size = 22, ...props },
   ref,

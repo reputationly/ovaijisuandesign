@@ -110,14 +110,9 @@ function QuestionStatusCard({ statusSuffix, detail }) {
         aria-expanded={expanded}
         disabled={!hasDetail}
       >
-        <QuestionPromptIcon
-          actionId="chat-question-status-icon"
-          className="size-4 text-muted-foreground"
-        />
+        <QuestionPromptIcon actionId="chat-question-status-icon" className="size-4 text-muted-foreground" />
         <div className="flex min-w-0 items-center gap-1">
-          <span className="truncate font-normal text-muted-foreground">
-            {t("chat.question.card")}
-          </span>
+          <span className="truncate font-normal text-muted-foreground">{t("chat.question.card")}</span>
           <span className="truncate text-muted-foreground">{statusSuffix}</span>
           {hasDetail && (
             <ChevronDown
@@ -133,9 +128,7 @@ function QuestionStatusCard({ statusSuffix, detail }) {
           className={`grid transition-[grid-template-rows] duration-200 ease-out ${expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
         >
           <div className="min-h-0 overflow-hidden">
-            <p className="whitespace-pre-wrap break-words pt-2 pl-6 text-muted-foreground">
-              {detail}
-            </p>
+            <p className="whitespace-pre-wrap break-words pt-2 pl-6 text-muted-foreground">{detail}</p>
           </div>
         </div>
       )}

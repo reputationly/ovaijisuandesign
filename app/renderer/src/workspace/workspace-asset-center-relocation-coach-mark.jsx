@@ -1,4 +1,8 @@
 // workspace-asset-center-relocation-coach-mark.jsx
+const LIBRARY_ANCHOR_SELECTOR = [
+  '[data-action-ui-id="canvas-sidebar-assets.library-entry"]',
+  '[data-action-ui-id="canvas-sidebar-assets.library-heading"]',
+].join(",");
 import reactExports from "react";
 import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -43,11 +47,6 @@ export function resolveCanvasSidebarRightEdgeInset(presentation, width) {
   if (presentation === "drawer-overlay") return safeWidth + 8;
   return 0;
 }
-
-const LIBRARY_ANCHOR_SELECTOR = [
-  '[data-action-ui-id="canvas-sidebar-assets.library-entry"]',
-  '[data-action-ui-id="canvas-sidebar-assets.library-heading"]',
-].join(",");
 
 export function WorkspaceAssetCenterRelocationCoachMark({
   enabled,

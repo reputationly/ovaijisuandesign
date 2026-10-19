@@ -3,7 +3,7 @@ import reactExports from "react";
 import { Compartment, EditorState as EditorState2, StateEffect, StateField } from "@codemirror/state";
 import { Decoration, EditorView as EditorView2, drawSelection, keymap } from "@codemirror/view";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
-import { tags } from "@lezer/highlight";
+import { tags, tags as tags$1 } from "@lezer/highlight";
 import {
   defaultKeymap,
   history,
@@ -90,65 +90,60 @@ function createSourceSearchQuery(query, options, replacement = "") {
 const emptySourceSearchQuery = new SearchQuery({
   search: "",
 });
-const markdownHighlightStyle = HighlightStyle.define([
+const markdownHighlightRules = [
   {
-    tag: tags.heading1,
+    tag: tags$1.heading1,
     color: "var(--foreground)",
     fontSize: "1.5em",
     fontWeight: "700",
   },
   {
-    tag: tags.heading2,
+    tag: tags$1.heading2,
     color: "var(--foreground)",
     fontSize: "1.25em",
     fontWeight: "600",
   },
   {
-    tag: tags.heading3,
+    tag: tags$1.heading3,
     color: "var(--foreground)",
     fontSize: "1.1em",
     fontWeight: "600",
   },
   // h4-h6 fallback.
   {
-    tag: tags.heading,
+    tag: tags$1.heading,
     color: "var(--foreground)",
     fontWeight: "600",
   },
   {
-    tag: tags.strong,
+    tag: tags$1.strong,
     color: "var(--foreground)",
     fontWeight: "700",
   },
   {
-    tag: tags.emphasis,
+    tag: tags$1.emphasis,
     fontStyle: "italic",
   },
   {
-    tag: tags.strikethrough,
+    tag: tags$1.strikethrough,
     textDecoration: "line-through",
   },
   {
-    tag: [
-      tags.meta,
-      tags.processingInstruction,
-      tags.contentSeparator,
-      tags.quote,
-    ],
+    tag: [tags$1.meta, tags$1.processingInstruction, tags$1.contentSeparator, tags$1.quote],
     color: "var(--muted-foreground)",
   },
   {
-    tag: tags.link,
+    tag: tags$1.link,
     color: "var(--primary, #2563eb)",
     textDecoration: "underline",
     textUnderlineOffset: "2px",
   },
   {
-    tag: tags.url,
+    tag: tags$1.url,
     color: "var(--muted-foreground)",
   },
   {
-    tag: tags.monospace,
+    tag: tags$1.monospace,
     color: "var(--foreground)",
     fontFamily: "'SF Mono', 'Fira Code', Menlo, Consolas, monospace",
     fontSize: "0.9em",
@@ -156,7 +151,8 @@ const markdownHighlightStyle = HighlightStyle.define([
     borderRadius: "3px",
     padding: "0.1em 0.3em",
   },
-]);
+];
+const markdownHighlightStyle = HighlightStyle.define(markdownHighlightRules);
 const sourceEditorTheme = EditorView2.theme({
   "&": {
     height: "100%",
@@ -510,3 +506,4 @@ export const CodeMirrorSourceEditor = reactExports.forwardRef(
     );
   },
 );
+

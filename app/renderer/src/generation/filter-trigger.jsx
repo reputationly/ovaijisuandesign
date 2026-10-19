@@ -73,9 +73,8 @@ const TRIGGER_CLASS = cn(
   "text-muted-foreground",
 );
 const TRIGGER_PILL_CLASS =
-  "inline-flex h-full w-full min-w-0 items-center justify-center gap-0.5 rounded-md border border-foreground/12 bg-transparent transition-colors hover:border-foreground hover:text-foreground";
-const TRIGGER_BUTTON_CLASS =
-  "inline-flex h-full min-w-0 items-center justify-center gap-0.5 rounded-md outline-none focus-visible:ring-1 focus-visible:ring-ring/50";
+  "inline-flex h-full w-full min-w-0 items-center justify-center gap-0.5 rounded-md border border-foreground/12 bg-transparent transition-colors hover:border-foreground hover:text-foreground focus-within:border-foreground";
+const TRIGGER_BUTTON_CLASS = "inline-flex h-full min-w-0 items-center justify-center gap-0.5 rounded-md outline-none";
 const TRIGGER_BUTTON_DEFAULT_CLASS = "flex-1 pl-2.5 pr-1.5";
 const TRIGGER_BUTTON_ACTIVE_CLASS = "flex-1 pl-2.5 pr-0 min-w-0";
 const TRIGGER_CLEAR_CLASS =

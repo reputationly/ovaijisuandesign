@@ -297,9 +297,7 @@ export function isHtableFileName(fileName) {
 }
 function htableTitleFromFileName(fileName) {
   const base = fileName.split(/[\\/]/).pop() ?? fileName;
-  return isHtableFileName(base)
-    ? base.slice(0, base.length - HTABLE_SUFFIX.length)
-    : base;
+  return isHtableFileName(base) ? base.slice(0, -HTABLE_SUFFIX.length) : base;
 }
 export class HtableParseError extends Error {
   constructor(cause) {

@@ -47,7 +47,11 @@ function mapPricingResponse(raw) {
   return {
     enabled: raw.enabled,
     video: raw.video ?? [],
-    image: raw.image ?? [],
+    image: (raw.image ?? []).map((model) => ({
+      ...model,
+      // Fixed-price models may omit detailed costs in the cloud response.
+      imageCosts: Array.isArray(model.imageCosts) ? model.imageCosts : [],
+    })),
     tts: ttsRaw
       ? {
           hdCreditPerChar: ttsRaw.hd_credit_per_char ?? 1,
@@ -59,24 +63,16 @@ function mapPricingResponse(raw) {
     music: musicRaw
       ? {
           oncePrice: musicRaw.once_price ?? 0,
-          elevenLabsMusicV1PerMinute:
-            musicRaw["11labs_music_v1_per_minute"] ?? 0,
-          elevenLabsMusicV2PerMinute:
-            musicRaw["11labs_music_v2_per_minute"] ?? 0,
+          elevenLabsMusicV1PerMinute: musicRaw["11labs_music_v1_per_minute"] ?? 0,
+          elevenLabsMusicV2PerMinute: musicRaw["11labs_music_v2_per_minute"] ?? 0,
         }
       : void 0,
     text: raw.text ?? void 0,
     tool: raw.tool ?? [],
     h3ContextIr: mapH3ContextIrPricing(raw.h3_context_ir),
     storyboard: mapStoryboardPricing(raw.storyboard),
-    promotionEndUnix:
-      typeof raw.promotionEndUnix === "number"
-        ? raw.promotionEndUnix
-        : void 0,
-    sessionStatsSinceMs:
-      typeof raw.session_stats_since_ms === "number"
-        ? raw.session_stats_since_ms
-        : void 0,
+    promotionEndUnix: typeof raw.promotionEndUnix === "number" ? raw.promotionEndUnix : void 0,
+    sessionStatsSinceMs: typeof raw.session_stats_since_ms === "number" ? raw.session_stats_since_ms : void 0,
   };
 }
 

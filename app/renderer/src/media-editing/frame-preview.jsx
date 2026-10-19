@@ -96,7 +96,7 @@ async function extractFrameAtPlayhead(engine, videoName) {
   };
 }
 
-function VideoFramePanelInner({ videoUrl, videoName, onClose, onExport }) {
+function VideoFramePanelInner({ active: active2, videoUrl, videoName, onClose, onExport }) {
   const [previewSize, setPreviewSize] = reactExports.useState({
     w: 640,
     h: 360,
@@ -111,11 +111,12 @@ function VideoFramePanelInner({ videoUrl, videoName, onClose, onExport }) {
     }
   }, []);
   const renderPreview = reactExports.useCallback(
-    (previewProps) => <FramePreview {...previewProps} previewSize={previewSize} />,
+    (ctx) => <FramePreview {...ctx} previewSize={previewSize} />,
     [previewSize],
   );
   return (
     <MediaClipPanel
+      active={active2}
       mediaUrl={videoUrl}
       mediaName={videoName}
       defaultMime="video/mp4"

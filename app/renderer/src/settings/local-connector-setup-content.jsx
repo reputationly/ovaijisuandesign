@@ -319,7 +319,7 @@ function LocalConnectorStep({
   first = false,
   last = false,
   completed = false,
-  action,
+  action: action2,
   children,
 }) {
   const { t } = useTranslation();

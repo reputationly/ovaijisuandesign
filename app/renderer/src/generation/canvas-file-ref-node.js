@@ -1,4 +1,5 @@
 // canvas-file-ref-node.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { MentionChipNodeView } from "./mention-chip-node-view.jsx";

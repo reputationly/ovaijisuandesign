@@ -302,10 +302,12 @@ function notifyTaskNeedsUserAction(
       body,
     })
     .then((result) => {
-      if (result.success && result.id) onNotificationShown?.(result.id);
-    })
+      if (!result.success || ! result.id) onNotificationShownfalse;
+      onNotificationShown?.(result.id);
+    return true;})
     .catch((error) => {
       console.warn("[topbar] Failed to show user-action notification:", error);
+      return false;
     })
     .finally(() => onNotificationSettled?.());
 }
@@ -372,25 +374,19 @@ function notifyTaskCompletion(
     .finally(() => onNotificationSettled?.());
 }
 function useCompletedTasks(entries, options = {}) {
-  const { t: translate } = useTranslation();
+  const { t } = useTranslation();
   const [completedTasks, setCompletedTasks] = reactExports.useState([]);
-  const [unreadCompletedTaskIds, setUnreadCompletedTaskIds] =
-    reactExports.useState(() => new Set());
+  const [unreadCompletedTaskIds, setUnreadCompletedTaskIds] = reactExports.useState(() => new Set());
   const notificationTargetsRef = reactExports.useRef(new Map());
   const earlyClickedNotificationIdsRef = reactExports.useRef(new Set());
   const pendingNotificationsRef = reactExports.useRef(0);
-  const activeWorkspaceIdRef = reactExports.useRef(
-    options.activeWorkspaceId ?? null,
-  );
-  const onCompletionNotificationClickRef = reactExports.useRef(
-    options.onCompletionNotificationClick,
-  );
+  const activeWorkspaceIdRef = reactExports.useRef(options.activeWorkspaceId ?? null);
+  const onCompletionNotificationClickRef = reactExports.useRef(options.onCompletionNotificationClick);
   const recentCompletionKeysRef = reactExports.useRef(new Set());
-  const activeUserActionKeysRef = reactExports.useRef(new Set());
+  const userActionNotificationsRef = reactExports.useRef(new Map());
   reactExports.useEffect(() => {
     activeWorkspaceIdRef.current = options.activeWorkspaceId ?? null;
-    onCompletionNotificationClickRef.current =
-      options.onCompletionNotificationClick;
+    onCompletionNotificationClickRef.current = options.onCompletionNotificationClick;
   }, [options.activeWorkspaceId, options.onCompletionNotificationClick]);
   const markCompletedTasksRead = reactExports.useCallback(() => {
     setUnreadCompletedTaskIds((prev) => (prev.size === 0 ? prev : new Set()));
@@ -406,17 +402,12 @@ function useCompletedTasks(entries, options = {}) {
     (workspaceId) => {
       setUnreadCompletedTaskIds((prev) => {
         if (prev.size === 0) return prev;
-        const completedTaskById = new Map(
-          completedTasks.map((task) => [task.id, task]),
-        );
+        const completedTaskById = new Map(completedTasks.map((task) => [task.id, task]));
         const workspaceTaskIdPrefix = `${workspaceId}:`;
         const next = new Set(
           [...prev].filter((taskId) => {
             const task = completedTaskById.get(taskId);
-            return (
-              task?.workspaceId !== workspaceId &&
-              !taskId.startsWith(workspaceTaskIdPrefix)
-            );
+            return task?.workspaceId !== workspaceId && !taskId.startsWith(workspaceTaskIdPrefix);
           }),
         );
         return next.size === prev.size ? prev : next;
@@ -426,24 +417,20 @@ function useCompletedTasks(entries, options = {}) {
   );
   reactExports.useEffect(() => {
     const notificationService = getNotificationMainService();
-    const clickDisposable = notificationService.onDidClickNotification(
-      (notificationId) => {
-        const target = notificationTargetsRef.current.get(notificationId);
-        if (target) {
-          notificationTargetsRef.current.delete(notificationId);
-          handleNotificationTargetClick(target);
-          return;
-        }
-        if (pendingNotificationsRef.current <= 0) return;
-        earlyClickedNotificationIdsRef.current.add(notificationId);
-      },
-    );
-    const closeDisposable = notificationService.onDidCloseNotification(
-      (notificationId) => {
+    const clickDisposable = notificationService.onDidClickNotification((notificationId) => {
+      const target = notificationTargetsRef.current.get(notificationId);
+      if (target) {
         notificationTargetsRef.current.delete(notificationId);
-        earlyClickedNotificationIdsRef.current.delete(notificationId);
-      },
-    );
+        handleNotificationTargetClick(target);
+        return;
+      }
+      if (pendingNotificationsRef.current <= 0) return;
+      earlyClickedNotificationIdsRef.current.add(notificationId);
+    });
+    const closeDisposable = notificationService.onDidCloseNotification((notificationId) => {
+      notificationTargetsRef.current.delete(notificationId);
+      earlyClickedNotificationIdsRef.current.delete(notificationId);
+    });
     return () => {
       clickDisposable.dispose();
       closeDisposable.dispose();
@@ -451,45 +438,59 @@ function useCompletedTasks(entries, options = {}) {
   }, [handleNotificationTargetClick]);
   reactExports.useEffect(() => {
     const currentKeys = new Set();
-    const newlyActionable = [];
+    const notifications = userActionNotificationsRef.current;
     for (const task of options.activeTasks ?? []) {
-      if (
-        task.status !== "needs-answer" &&
-        task.status !== "needs-confirmation"
-      )
-        continue;
+      if (task.status !== "needs-answer" && task.status !== "needs-confirmation") continue;
       const key = `${task.id}:${task.status}:${task.userActionId ?? "current"}`;
       currentKeys.add(key);
-      if (activeUserActionKeysRef.current.has(key)) continue;
-      if (task.workspaceId === activeWorkspaceIdRef.current) continue;
-      newlyActionable.push(task);
+      const existing = notifications.get(key);
+      if (existing) existing.task = task;
+      else
+        notifications.set(key, {
+          task,
+          status: "pending",
+        });
     }
-    activeUserActionKeysRef.current = currentKeys;
-    for (const task of newlyActionable) {
-      const target = {
-        task,
-        kind: "user-action",
-      };
-      pendingNotificationsRef.current += 1;
-      notifyTaskNeedsUserAction(
-        task,
-        translate,
-        (notificationId) => {
-          if (earlyClickedNotificationIdsRef.current.delete(notificationId)) {
-            handleNotificationTargetClick(target);
-            return;
-          }
-          notificationTargetsRef.current.set(notificationId, target);
-        },
-        () => {
-          pendingNotificationsRef.current = Math.max(
-            0,
-            pendingNotificationsRef.current - 1,
-          );
-        },
-      );
+    for (const key of notifications.keys()) {
+      if (!currentKeys.has(key)) notifications.delete(key);
     }
-  }, [handleNotificationTargetClick, options.activeTasks, translate]);
+    const notifyPendingUserActions = () => {
+      if (document.hasFocus()) return;
+      for (const [key, entry] of notifications) {
+        if (entry.status !== "pending") continue;
+        entry.status = "sending";
+        const target = {
+          task: entry.task,
+          kind: "user-action",
+        };
+        pendingNotificationsRef.current += 1;
+        void notifyTaskNeedsUserAction(
+          entry.task,
+          t,
+          (notificationId) => {
+            if (earlyClickedNotificationIdsRef.current.delete(notificationId)) {
+              handleNotificationTargetClick(target);
+              return;
+            }
+            notificationTargetsRef.current.set(notificationId, target);
+          },
+          () => {
+            pendingNotificationsRef.current = Math.max(0, pendingNotificationsRef.current - 1);
+          },
+        ).then((shown) => {
+          if (notifications.get(key) !== entry) return;
+          entry.status = shown ? "notified" : "pending";
+        });
+      }
+    };
+    notifyPendingUserActions();
+    window.addEventListener("blur", notifyPendingUserActions);
+    document.addEventListener("visibilitychange", notifyPendingUserActions);
+    return () => {
+      window.removeEventListener("blur", notifyPendingUserActions);
+      document.removeEventListener("visibilitychange", notifyPendingUserActions);
+    };
+  }, [handleNotificationTargetClick, options.activeTasks, t]);
   const reportTaskCompleted = reactExports.useCallback(
     (task) => {
       if (task.source === "canvas") return;
@@ -503,22 +504,16 @@ function useCompletedTasks(entries, options = {}) {
       pendingNotificationsRef.current += 1;
       notifyTaskCompletion(
         [task],
-        translate,
+        t,
         (notificationId) => {
           if (earlyClickedNotificationIdsRef.current.delete(notificationId)) {
             handleNotificationTargetClick(notificationTarget);
             return;
           }
-          notificationTargetsRef.current.set(
-            notificationId,
-            notificationTarget,
-          );
+          notificationTargetsRef.current.set(notificationId, notificationTarget);
         },
         () => {
-          pendingNotificationsRef.current = Math.max(
-            0,
-            pendingNotificationsRef.current - 1,
-          );
+          pendingNotificationsRef.current = Math.max(0, pendingNotificationsRef.current - 1);
         },
       );
       setUnreadCompletedTaskIds((existing) => {
@@ -530,16 +525,16 @@ function useCompletedTasks(entries, options = {}) {
       setCompletedTasks((existing) => {
         const seen = new Set();
         const merged = [];
-        for (const completedTask of [task, ...existing]) {
-          if (seen.has(completedTask.id)) continue;
-          seen.add(completedTask.id);
-          merged.push(completedTask);
+        for (const t22 of [task, ...existing]) {
+          if (seen.has(t22.id)) continue;
+          seen.add(t22.id);
+          merged.push(t22);
           if (merged.length >= COMPLETED_TASK_LIMIT) break;
         }
         return merged;
       });
     },
-    [handleNotificationTargetClick, translate],
+    [handleNotificationTargetClick, t],
   );
   reactExports.useEffect(() => {
     const openIds = new Set(entries.map((entry) => entry.workspaceId));
@@ -555,9 +550,7 @@ function useCompletedTasks(entries, options = {}) {
   reactExports.useEffect(() => {
     const completedIds = new Set(completedTasks.map((task) => task.id));
     setUnreadCompletedTaskIds((prev) => {
-      const next = new Set(
-        [...prev].filter((taskId) => completedIds.has(taskId)),
-      );
+      const next = new Set([...prev].filter((taskId) => completedIds.has(taskId)));
       return next.size === prev.size ? prev : next;
     });
   }, [completedTasks]);
@@ -569,7 +562,7 @@ function useCompletedTasks(entries, options = {}) {
       return next;
     });
     setCompletedTasks((prev) => {
-      const next = prev.filter((task) => task.id !== taskId);
+      const next = prev.filter((t22) => t22.id !== taskId);
       return next.length === prev.length ? prev : next;
     });
   }, []);
@@ -587,6 +580,17 @@ function useCompletedTasks(entries, options = {}) {
     markWorkspaceCompletedTasksRead,
   };
 }
+/**
+ * 判断两批工作区条目是不是「同一份」。
+ *
+ * 先比引用（绝大多数情况下一眼就相等），再比长度，最后才 JSON 比较 ——
+ * 这个函数在每次快照推送时都会跑，而推送很频繁；直接 JSON.stringify 会比较浪费。
+ * 用 JSON 而不是逐字段比，是因为条目里嵌了网关信息，字段会随版本增减。
+ */
+function sameWorkspaceEntries(a, b) {
+  return a === b || (a.length === b.length && JSON.stringify(a) === JSON.stringify(b));
+}
+
 function useTopbarEntries() {
   const [entries, setEntries] = reactExports.useState([]);
   const [workspaceSnapshots, setWorkspaceSnapshots] = reactExports.useState(
@@ -601,7 +605,7 @@ function useTopbarEntries() {
   const applyEntries = reactExports.useCallback((rawList) => {
     const liveIds = new Set(rawList.map((entry) => entry.workspaceId));
     visiblePreviewTabsStore.initialize(rawList);
-    setEntries(rawList);
+    setEntries((prev) => (sameWorkspaceEntries(prev, rawList) ? prev : rawList));
     pruneTopbarSnapshots(liveIds);
     pruneWorkspaceBundleCache(liveIds);
   }, []);
@@ -802,8 +806,17 @@ function useTopbarNavigation(
         projectId: targetProjectId,
         parentFolderPath: options?.parentFolderPath,
         loadUserMemory: options?.loadUserMemory,
-        allowDataDirectoryFallback: options?.allowDataDirectoryFallback,
+        ...(!allowDataDirectoryFallback&& options2?.projectArchitecture
+          ? {
+              projectArchitecture: options.projectArchitecture,
+            }
+          : {}),
+        ...(options2?.allowDataDirectoryFallback? {
+              taskAcceptance: true,
+      }: {}),
+        allowDataDirectoryFallback: options2?.allowDataDirectoryFallback,
       });
+      persistNewWorkspaceResourceView(result, options2);
       if (pickedFolder) {
         workspaceLog.info("topbar: open-workspace-result", {
           kind: result.kind,

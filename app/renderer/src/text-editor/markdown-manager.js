@@ -1,4 +1,5 @@
 // markdown-manager.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import { STANDARD_HTML_TAGS } from "./standard-html-tags.js";
 import { marked as g } from "marked";
 import { attrsEqual, callOrReturn, decodeHtmlEntities, encodeHtmlEntities, flattenExtensions, generateJSON, getExtensionField, getSchema, marksEqual, sortExtensions } from "@tiptap/core";

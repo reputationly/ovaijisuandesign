@@ -1,4 +1,5 @@
 // history-manager2.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import { createEmptyGraph } from "./use-active-mode.js";
 import { Tt as createHistoryStore } from "../text-editor/is-diff-review-session-ready.js";
 export class CanvasHistoryManager {

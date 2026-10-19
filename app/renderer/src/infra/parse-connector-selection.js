@@ -109,7 +109,7 @@ export const CANVAS_TAG_REGISTRY_VERSION = 2;
 
 export const CANVAS_TAG_NAME_MAX_LENGTH = 12;
 
-const MAX_COLOR_TAGS_PER_ASSET = 1;
+export const MAX_COLOR_TAGS_PER_ASSET = 1;
 
 export const MAX_VISIBLE_CANVAS_TAG_COLORS = MAX_COLOR_TAGS_PER_ASSET;
 
@@ -143,6 +143,8 @@ export const PRESET_COLOR_NAME_KEYS = {
   [PRESET_COLOR_TAG_IDS.deepPurple]: "canvasTags.preset.deepPurple",
 };
 
+// 必须先于 PRESET_COLOR_TAGS 定义：下面那个 map 在**模块求值期**就读它，
+// 放到后面会撞上 TDZ（产物里的顺序也是如此）。
 const PRESET_COLOR_TAG_ID_BY_COLOR = {
   "#FF5F57": PRESET_COLOR_TAG_IDS.red,
   "#FF9F0A": PRESET_COLOR_TAG_IDS.orange,
@@ -173,7 +175,6 @@ export function seedTagRegistry() {
     })),
   };
 }
-
 const WIDE_CANVAS_TAG_GRAPHEME =
   /(?:[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Extended_Pictographic}\p{Regional_Indicator}\u{3000}-\u{303F}\u{FF01}-\u{FF60}\u{FFE0}-\u{FFE6}]|\u{20E3}|\u{FE0F})/u;
 

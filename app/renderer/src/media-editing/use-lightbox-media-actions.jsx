@@ -6,15 +6,18 @@ import { Archive, Copy } from "./lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Download, FolderOpen, useCanvasBridge } from "./package.jsx";
 import { getCanvasFileManagerLabelKey } from "./use-warn-missing-asset-meta.jsx";
+import { hasFileExtension } from "./file-extension-pattern.jsx";
 function getLightboxDownloadSource(item) {
   return item?.filePath || item?.url || void 0;
 }
 function getLightboxDownloadFileName(item) {
-  if (item?.fileName) return item.fileName;
-  const source = getLightboxDownloadSource(item);
-  if (!source) return void 0;
-  const clean = source.split(/[?#]/)[0] ?? source;
-  return clean.split("/").pop() || void 0;
+  if (!item) return void 0;
+  if (item.fileName && hasFileExtension(item.fileName)) return item.fileName;
+  const pathName = getSourceBaseName(item.filePath);
+  if (pathName && hasFileExtension(pathName)) return pathName;
+  const urlName = getSourceBaseName(item.url);
+  if (urlName && hasFileExtension(urlName)) return urlName;
+  return item.fileName || pathName || urlName;
 }
 function getLightboxCopySource(item) {
   if (item?.kind !== "image") return void 0;
@@ -314,4 +317,10 @@ export function useLightboxMediaActions({ item, items }) {
     handleContextMenu,
     contextMenu,
   };
+}
+
+function getSourceBaseName(source) {
+  if (!source) return void 0;
+  const clean2 = source.split(/[?#]/)[0] ?? source;
+  return clean2.split(/[/\\]/).pop() || void 0;
 }

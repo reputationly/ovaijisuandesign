@@ -10,8 +10,9 @@ const KIND_LABEL = {
   audio: "音频",
 };
 function basename$b(path) {
-  const idx = path.lastIndexOf("/");
-  return idx < 0 ? path : path.slice(idx + 1);
+  if (!path) return "";
+  const parts = path.split("/");
+  return parts[parts.length - 1] || path;
 }
 function findIndex(paths, ref) {
   if (paths.length === 0) return -1;

@@ -1,4 +1,5 @@
 // en.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import {
   canvas_lyrics as canvas_lyrics$1,
   error_auth_unauthorized as error_auth_unauthorized$1,

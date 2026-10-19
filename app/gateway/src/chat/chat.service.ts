@@ -22,6 +22,15 @@ const BUSY_STALE_MS = 30 * 60_000;
 /** 新会话默认交给哪个 agent。 */
 const DEFAULT_AGENT = "media-agent";
 
+const PLACEHOLDER_SESSION_TITLES = new Set(["New Chat", "New session", "Untitled"]);
+
+/** 空串和占位名不当成会话标题。界面会把缺省名显示成「新建对话」。 */
+function displaySessionTitle(raw: string | undefined): string | undefined {
+  const title = raw?.trim();
+  if (!title || PLACEHOLDER_SESSION_TITLES.has(title)) return;
+  return title;
+}
+
 /**
  * 每轮都带给 agent 的背景说明：工作区在哪、素材怎么引用。放在 `system` 而不是
  * 拼进用户消息 —— 拼进去的话它会出现在聊天记录里，而且每轮重复占上下文。
@@ -149,15 +158,31 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
     return this.sessions.get(uiId)?.runtimeId ?? (uiId.startsWith("ses") ? uiId : undefined);
   }
 
+  /** runtime session id → 给界面看的标题。空标题和占位名不记。 */
+  private titles = new Map<string, string>();
+
   private session(uiId: string): UiSession {
     let s = this.sessions.get(uiId);
     if (!s) {
       // 列表里点开的是 opencode 已有的会话：UI id 就用它的真 id。
-      s = { id: uiId, mode: "auto", ...(uiId.startsWith("ses") ? { runtimeId: uiId } : {}) };
+      const title = this.titles.get(uiId);
+      s = { id: uiId, mode: "auto", ...(uiId.startsWith("ses") ? { runtimeId: uiId } : {}), ...(title ? { title } : {}) };
       this.sessions.set(uiId, s);
       if (s.runtimeId) this.runtimeToUi.set(s.runtimeId, uiId);
     }
     return s;
+  }
+
+  /** 记下标题。变了才返回新标题，没变返回 undefined。 */
+  private noteTitle(runtimeId: string, raw: string | undefined): string | undefined {
+    const title = displaySessionTitle(raw);
+    if (!title) return;
+    if (this.titles.get(runtimeId) === title) return;
+    this.titles.set(runtimeId, title);
+    const uiId = this.runtimeToUi.get(runtimeId) ?? runtimeId;
+    const s = this.sessions.get(uiId);
+    if (s) s.title = title;
+    return title;
   }
 
   // -------------------------------------------------------------------------
@@ -188,7 +213,16 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
             request_id: msg.request_id,
             sessions: list
               .filter((x) => !x.parentID)
-              .map((x) => ({ id: this.runtimeToUi.get(x.id) ?? x.id, runtime_session_id: x.id, title: x.title, updated: x.time?.updated ?? x.time?.created })),
+              .map((x) => {
+                this.noteTitle(x.id, x.title);
+                const known = this.titles.get(x.id);
+                return {
+                  id: this.runtimeToUi.get(x.id) ?? x.id,
+                  runtime_session_id: x.id,
+                  ...(known ? { name: known, title: known } : {}),
+                  updated: x.time?.updated ?? x.time?.created,
+                };
+              }),
           });
         } catch (err) {
           reply({ type: "session_list_unavailable", request_id: msg.request_id, error: String(err) });
@@ -275,8 +309,10 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
         const created = await this.runtime.createSession({ title: s.title ?? content.slice(0, 40), agent: DEFAULT_AGENT });
         s.runtimeId = created.id;
         this.runtimeToUi.set(created.id, s.id);
+        const titled = this.noteTitle(created.id, created.title ?? s.title);
         this.confirm.setMode(created.id, s.mode);
         this.broadcast({ type: "session_bound", ui_session_id: s.id, runtime_session_id: created.id });
+        if (titled) this.broadcast(this.withSession(created.id, { type: "session_renamed", name: titled }));
       }
       // 界面会记住上次选的模型并一直带着；配置里换了对话模型以后，旧 id 在 opencode 里已经不存在，
       // 照传会让每条消息都报 Model not found。不在当前可用列表里的换成当前模型、显式带上：
@@ -430,8 +466,12 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
     switch (e.type) {
       case "session.created":
       case "session.updated": {
-        const info = p.info as { id: string; parentID?: string } | undefined;
-        if (info?.parentID) this.childToRoot.set(info.id, info.parentID);
+        const info = p.info as { id?: string; parentID?: string; title?: string } | undefined;
+        if (info?.id && info.parentID) this.childToRoot.set(info.id, info.parentID);
+        if (info?.id && !info.parentID) {
+          const title = this.noteTitle(info.id, info.title);
+          if (title) this.broadcast(this.withSession(info.id, { type: "session_renamed", name: title }));
+        }
         return;
       }
       case "message.updated": {

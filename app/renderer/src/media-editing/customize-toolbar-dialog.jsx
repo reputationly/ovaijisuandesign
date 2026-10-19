@@ -22,16 +22,17 @@ import {
   DialogDescription,
   DialogTitle,
 } from "./use-preview-text.jsx";
+import { isCanvasToolbarActionVisible } from "./show-asset-promotion.jsx";
 function SortablePreviewChip({ id: toolId, meta, showLabel, onUnpin }) {
   const { t } = useTranslation();
   const label = t(meta.labelKey, meta.defaultLabel);
   const {
-    attributes,
+    attributes: attributes2,
     listeners,
     setNodeRef,
     transform,
     transition,
-    isDragging,
+    isDragging:isDragging,
   } = useSortable({
     id: toolId,
     transition: {
@@ -201,13 +202,8 @@ function PreviewMoreChip() {
     </div>
   );
 }
-function PreviewBar({
-  pinned,
-  showLabels,
-  toolMeta,
-  fixedRightChips,
-  onUnpin,
-}) {
+function PreviewBar({ pinned, showLabels, toolMeta, fixedRightChips, onUnpin }) {
+  const visibleFixedRightChips = fixedRightChips.filter((chip) => isCanvasToolbarActionVisible(chip.id));
   return (
     <div
       className="flex items-center gap-0.5 rounded-lg border-[1.5px] border-[var(--canvas-controls-border)] p-1"
@@ -216,27 +212,22 @@ function PreviewBar({
       }}
     >
       <SortableContext items={pinned} strategy={horizontalListSortingStrategy}>
-        {pinned.map((toolId) => (
+        {pinned.map((id) => (
           <SortablePreviewChip
-            key={toolId}
-            id={toolId}
-            meta={toolMeta[toolId]}
+            key={id}
+            id={id}
+            meta={toolMeta[id]}
             showLabel={showLabels}
-            onUnpin={() => onUnpin(toolId)}
+            onUnpin={() => onUnpin(id)}
           />
         ))}
       </SortableContext>
       <PreviewMoreChip />
-      {fixedRightChips.length > 0 && (
+      {visibleFixedRightChips.length > 0 && (
         <>
           <FixedDivider />
-          {fixedRightChips.map((chip) => (
-            <FixedChip
-              key={chip.id}
-              icon={chip.icon}
-              label={chip.label}
-              showLabel={chip.showLabel}
-            />
+          {visibleFixedRightChips.map((chip) => (
+            <FixedChip key={chip.id} icon={chip.icon} label={chip.label} showLabel={chip.showLabel} />
           ))}
         </>
       )}

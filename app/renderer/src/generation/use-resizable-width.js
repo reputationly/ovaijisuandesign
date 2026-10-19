@@ -1,9 +1,7 @@
 // use-resizable-width.js
 import reactDomExports from "react-dom";
 import reactExports from "react";
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
-}
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 export function useResizableWidth({
   defaultWidth,
   minWidth,

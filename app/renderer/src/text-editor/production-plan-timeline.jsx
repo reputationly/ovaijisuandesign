@@ -12,6 +12,7 @@ import {
 } from "./skill-reload-dock.jsx";
 import { Circle, Clock3 } from "../media-editing/package.jsx";
 import { Button } from "../infra/dialog-content.jsx";
+import { displayOrder } from "./display-order.jsx";
 function getStageActionLabel(stage) {
   return stage.name;
 }
@@ -41,7 +42,7 @@ function statusLabel(status, t) {
   if (status === "pending") return t("productionPlan.status.todo", "待规划");
   return t("productionPlan.status.done", "已完成");
 }
-function PendingStageRow({ stage, current, displayOrder }) {
+function PendingStageRow({ stage, current, displayOrder : displayOrder2}) {
   const { t } = useTranslation();
   return (
     <div

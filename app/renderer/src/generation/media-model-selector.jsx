@@ -688,12 +688,7 @@ function buildModelSubtitle(model) {
       isMiniMaxH3RegistryEntry(entry) ||
       (entry.max_audio_refs ?? 0) > 0;
   }
-  if (
-    subtitle.resolutionOptions.length === 0 &&
-    !subtitle.duration &&
-    !subtitle.audio
-  )
-    return null;
+  if (subtitle.resolutionOptions.length === 0 && !subtitle.duration && !subtitle.audio) return null;
   return subtitle;
 }
 const HOME_POPOVER_GAP = 4;

@@ -43,6 +43,111 @@ import {
   CONTENT_PANEL_MIN_WIDTH,
 } from "./workspace-asset-center-relocation-coach-mark.jsx";
 import { ResizeColHandle } from "../assets/resize-col-handle.jsx";
+import jsxRuntimeExports from "react/jsx-runtime";
+import { WorkspaceLoadingDotField } from "./symbols.jsx";
+import { MascotLoadingAnimation } from "./mascot-loading-animation.jsx";
+// 产物里这一组声明在还原时整块丢了（构建不报错，运行时才炸）。来源：index-BBp4hclA.js
+function CanvasLoadingState({ label, className }) {
+  const reportPresence = reactExports.useContext(CanvasLoadingPresenceContext);
+  reactExports.useLayoutEffect(() => {
+    if (!reportPresence) return;
+    reportPresence(1);
+    return () => reportPresence(-1);
+  }, [reportPresence]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: cn$5(
+        "pointer-events-none flex size-full items-center justify-center overflow-hidden bg-background",
+        className
+      ),
+      "data-action-ui-id": "canvas.restoring",
+      role: "status",
+      "aria-label": label,
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative z-10 flex flex-col items-center gap-4 text-muted-foreground", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "workspace-loading-mascot-anchor", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(WorkspaceLoadingDotField, {}),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MascotLoadingAnimation, {})
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: label })
+      ] })
+    }
+  );
+}
+
+// 产物里这一组声明在还原时整块丢了（构建不报错，运行时才炸）。来源：index-BBp4hclA.js
+function PanelLoadingPlaceholder({ label }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-0 flex-1", role: "status", "aria-busy": "true", "aria-label": label, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: label }) });
+}
+
+// 产物里这一组声明在还原时整块丢了（构建不报错，运行时才炸）。来源：index-BBp4hclA.js
+function WorkspaceStructureView({
+  mode: mode2,
+  isActive: isActive2 = true
+}) {
+  const runtime = useOptionalWorkspaceStructure();
+  const { t: t2 } = useTranslation();
+  const retryInFlight = reactExports.useRef(false);
+  const [retrying, setRetrying] = reactExports.useState(false);
+  async function handleRetry() {
+    if (!runtime || retryInFlight.current) return;
+    retryInFlight.current = true;
+    setRetrying(true);
+    try {
+      await runtime.retry();
+    } finally {
+      retryInFlight.current = false;
+      setRetrying(false);
+    }
+  }
+  if (!runtime) return null;
+  if (!runtime.workbench && runtime.pending) {
+    return mode2 === "directory" ? /* @__PURE__ */ jsxRuntimeExports.jsx(PanelLoadingPlaceholder, { label: t2("common.loading") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasLoadingState, { label: t2("common.loading") });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    PageStateBoundary,
+    {
+      error: !runtime.workbench && Boolean(runtime.error),
+      errorOptions: { title: t2("workspace.structure.loadFailed"), retry: runtime.retry },
+      density: "panel",
+      children: runtime.workbench && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-h-0 flex-1 flex-col", children: [
+        (!runtime.ready || runtime.error || runtime.subscriptionUnavailable) && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Alert,
+          {
+            role: runtime.error ? "alert" : "status",
+            "aria-live": runtime.error ? "assertive" : "polite",
+            "aria-busy": retrying,
+            className: "shrink-0 rounded-none border-x-0 border-t-0",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(AlertDescription, { className: "min-w-0 flex-1", children: runtime.subscriptionUnavailable && runtime.ready ? t2("workspace.structure.autoRefreshUnavailable") : runtime.error ? t2("workspace.structure.refreshFailed") : t2("workspace.structure.connectionUnavailable") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button$3,
+                {
+                  variant: "outline",
+                  size: "sm",
+                  loading: retrying,
+                  "data-action-ui-id": `workspace.structure.${mode2}.retry`,
+                  onClick: () => void handleRetry(),
+                  children: retrying ? t2("common.loading") : t2("common.retry")
+                }
+              )
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(WorkbenchProvider, { workbench: runtime.workbench, queryClient: runtime.queryClient, children: /* @__PURE__ */ jsxRuntimeExports.jsx(WorkspaceCompositionActions, { active: runtime.isActive && isActive2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(WorkspaceStructurePresentation, { children: mode2 === "directory" ? /* @__PURE__ */ jsxRuntimeExports.jsx(StructureDirectory, { active: runtime.isActive && isActive2 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(StructureList, { active: runtime.isActive && isActive2 }) }) }) })
+      ] })
+    }
+  );
+}
+
+// 产物里这一组声明在还原时整块丢了（构建不报错，运行时才炸）。来源：index-BBp4hclA.js
+function useOptionalWorkspaceStructure() {
+  return reactExports.useContext(WorkspaceStructureContext);
+}
+
+// 产物里这一组声明在还原时整块丢了（构建不报错，运行时才炸）。来源：index-BBp4hclA.js
+const WorkspaceStructureContext = reactExports.createContext(null);
+
 function useProjectAssetsDir() {
   const platform = usePlatform();
   const workspacePath = useCurrentWorkspace();
@@ -80,7 +185,7 @@ const BUTTON_CLASS =
 function CanvasAssetsFinderMenu({
   projectFolderPath,
   outputFolderPath,
-  compact = false,
+  compact : compact2= false,
 }) {
   const { t: translate } = useTranslation();
   const platform = usePlatform();
@@ -543,7 +648,39 @@ function FilePanel({
   onClose,
   mode,
 }) {
-  return (
+  return structure = useOptionalWorkspaceStructure();
+  if (structure && structure.architecture !== "legacy") {
+    return (
+      <div className="h-full min-h-0 overflow-y-auto p-3" data-action-ui-id="workspace.structure-directory">
+        <WorkspaceStructureView mode="directory" isActive={isActive2} />
+      </div>
+    );
+  }
+  returnstructure = useOptionalWorkspaceStructure();
+  if (structure && structure.architecture !== "legacy") {
+    return (
+      <div className="h-full min-h-0 overflow-y-auto p-3" data-action-ui-id="workspace.structure-directory">
+        <WorkspaceStructureView mode="directory" isActive={isActive2} />
+      </div>
+    );
+  }
+  returnstructure = useOptionalWorkspaceStructure();
+  if (structure && structure.architecture !== "legacy") {
+    return (
+      <div className="h-full min-h-0 overflow-y-auto p-3" data-action-ui-id="workspace.structure-directory">
+        <WorkspaceStructureView mode="directory" isActive={isActive2} />
+      </div>
+    );
+  }
+  returnstructure = useOptionalWorkspaceStructure();
+  if (structure && structure.architecture !== "legacy") {
+    return (
+      <div className="h-full min-h-0 overflow-y-auto p-3" data-action-ui-id="workspace.structure-directory">
+        <WorkspaceStructureView mode="directory" isActive={isActive2} />
+      </div>
+    );
+  }
+  return(
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-1 min-h-0 overflow-hidden">
         <LeftSidebar

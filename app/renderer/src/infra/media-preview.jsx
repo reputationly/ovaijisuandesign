@@ -298,7 +298,7 @@ const GLYPHS = {
   stop: PlaybackStopIcon,
   next: PlaybackNextIcon,
 };
-function MediaGlyph({ action, size }) {
+function MediaGlyph({ action: action2, size }) {
   const Glyph = GLYPHS[action];
   return (
     <Glyph

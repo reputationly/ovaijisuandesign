@@ -2,7 +2,7 @@
 import { pickContrastColor } from "./keep-tag-in-canvas.js";
 import { pointInBounds, Shape } from "./free-path-shape.js";
 
-const baselineCache = new Map();
+export const baselineCache = new Map();
 
 function measureFirstLineBaseline(font, lineHeight) {
   const key = `${font}|${lineHeight}`;
@@ -35,7 +35,7 @@ function measureFirstLineBaseline(font, lineHeight) {
   return baselineY;
 }
 
-const LINE_HEIGHT_RATIO = 1.4;
+export const LINE_HEIGHT_RATIO = 1.4;
 
 const TEXT_VARIANT_METRICS = {
   /** filled：背景内边距系数（基于字号）。padX 0.45×、padY 0.18×，下限保证小字号也有手感。 */

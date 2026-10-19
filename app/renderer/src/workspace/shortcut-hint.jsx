@@ -324,11 +324,13 @@ export function ShortcutKeycap({ token, className, ...props }) {
     </Kbd>
   );
 }
-function tokenClassName(kind) {
+function tokenClassName(kind, size) {
+  if (size === "compact") {
+    return kind === "command" ? "text-[12px] leading-none font-normal" : "text-[10px] leading-none font-normal";
+  }
   if (kind === "command") return "text-[16px] leading-none font-normal";
   if (kind === "shift") return "text-[15px] leading-none font-medium";
-  if (kind === "control" || kind === "option")
-    return "text-[14px] leading-none font-normal";
+  if (kind === "control" || kind === "option") return "text-[14px] leading-none font-normal";
   return "text-[12px] leading-none font-medium";
 }
 export function ShortcutHint({

@@ -44,53 +44,104 @@ import {
 import { useEditorState } from "../media-editing/use-editor-state.js";
 import { ImageEditor } from "../media-editing/image-editor.jsx";
 import { DEFAULT_STYLE } from "../media-editing/history-manager.js";
-const TOOLS = [
-  {
-    tool: "select",
-    icon: MousePointer2,
-    labelKey: "imageEdit.toolSelect",
+const TOOLS = {
+  design_document_write: {
+    visibility: "persistent",
+    label: "document",
   },
-  {
-    tool: "rectangle",
-    icon: Square,
-    labelKey: "imageEdit.toolRectangle",
+  design_image_search: {
+    visibility: "persistent",
+    label: "imageSearch",
   },
-  {
-    tool: "ellipse",
-    icon: Circle,
-    labelKey: "imageEdit.toolEllipse",
+  design_plan_propose: {
+    visibility: "persistent",
+    label: "plan",
   },
-  {
-    tool: "arrow",
-    icon: ArrowUpRight,
-    labelKey: "imageEdit.toolArrow",
+  design_composition_search: {
+    visibility: "transient",
+    label: "search",
   },
-  {
-    tool: "line",
-    icon: Minus,
-    labelKey: "imageEdit.toolLine",
+  design_composition_get: {
+    visibility: "transient",
+    label: "inspect",
   },
-  {
-    tool: "brush",
-    icon: Brush,
-    labelKey: "imageEdit.toolBrush",
+  design_resource_get: {
+    visibility: "transient",
+    label: "inspect",
   },
-  {
-    tool: "text",
-    icon: Type,
-    labelKey: "imageEdit.toolText",
+  design_analyse_media: {
+    visibility: "transient",
+    label: "analyse",
   },
-  {
-    tool: "tag",
-    icon: Tag,
-    labelKey: "imageEdit.toolTag",
+  design_search_knowledge: {
+    visibility: "transient",
+    label: "knowledge",
   },
-  {
-    tool: "mosaic",
-    icon: Grid3X3,
-    labelKey: "imageEdit.toolMosaic",
+  design_plan_get: {
+    visibility: "transient",
+    label: "readPlan",
   },
-];
+  design_read: {
+    visibility: "hidden",
+    label: "read",
+  },
+  design_composition_type_list: {
+    visibility: "hidden",
+    label: "types",
+  },
+  design_capability_list: {
+    visibility: "hidden",
+    label: "capabilities",
+  },
+  design_capability_get: {
+    visibility: "hidden",
+    label: "capabilities",
+  },
+  design_select_image_recipe: {
+    visibility: "hidden",
+    label: "recipe",
+  },
+  design_task_query: {
+    visibility: "hidden",
+    label: "task",
+  },
+  design_task_wait: {
+    visibility: "hidden",
+    label: "task",
+  },
+  design_task_resolve: {
+    visibility: "hidden",
+    label: "task",
+  },
+  design_plan_update: {
+    visibility: "hidden",
+    label: "plan",
+  },
+  design_project_rules: {
+    visibility: "hidden",
+    label: "rules",
+  },
+  design_voice_search: {
+    visibility: "transient",
+    label: "voiceSearch",
+  },
+  design_deliver: {
+    visibility: "hidden",
+    label: "import",
+  },
+  design_composition_edit: {
+    visibility: "hidden",
+    label: "organize",
+  },
+  design_resource_edit: {
+    visibility: "persistent",
+    label: "metadata",
+  },
+  design_connector_call: {
+    visibility: "persistent",
+    label: "connectorCall",
+  },
+};
 const IMAGE_ANNOTATION_SAVE_TIMEOUT_MS = 12e4;
 const JPEG_SOURCE_EXTENSIONS = new Set(["jpg", "jpeg", "heic", "heif"]);
 function getImageAnnotationOutput(filename) {

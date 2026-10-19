@@ -20,7 +20,7 @@ import { NodeFrameStroke } from "../canvas/node-shell-inner.jsx";
 function useCanvasToolMode() {
   return reactExports.useContext(CanvasToolModeContext);
 }
-const COMPACT_STICKER_COUNT = 7;
+export const COMPACT_STICKER_COUNT = 7;
 const ALL_STICKER_CHOICES = [
   ...CANVAS_STICKER_PICKER_ASSETS.map((asset) => ({
     id: asset.id,
@@ -34,7 +34,7 @@ const ALL_STICKER_CHOICES = [
     index,
   })),
 ];
-function choiceActionUiId(choice, expanded) {
+export function choiceActionUiId(choice, expanded) {
   const prefix = expanded
     ? "canvas.sticker-selection-panel"
     : "canvas.sticker-selection";
@@ -70,7 +70,7 @@ function StickerToolbarButton({
   icon,
   dataActionUiId,
   onClick,
-  active: isActive = false,
+  active = false,
   toggle = false,
   destructive = false,
 }) {
@@ -79,13 +79,12 @@ function StickerToolbarButton({
       <button
         type="button"
         aria-label={label}
-        aria-pressed={toggle ? isActive : void 0}
+        aria-pressed={toggle ? active : void 0}
         className="canvas-toolbar-action"
+        data-variant={destructive ? "destructive" : void 0}
+        data-active={active || void 0}
         onClick={onClick}
         data-action-ui-id={dataActionUiId}
-        data-variant={destructive ? "destructive" : void 0}
-        data-active={isActive || void 0}
-        data-content={toggle ? "sticker" : void 0}
       >
         {icon}
       </button>
@@ -118,20 +117,11 @@ function StickerPickerControl({
           className="canvas-toolbar-action canvas-toolbar-disclosure"
           onClick={handleToggle}
           data-action-ui-id="canvas.sticker-selection-expand"
-          data-active={expanded || void 0}
         >
           {expanded ? (
-            <ChevronUp
-              className="size-4"
-              strokeWidth={1.5}
-              aria-hidden="true"
-            />
+            <ChevronUp className="size-4" strokeWidth={1.5} aria-hidden="true" />
           ) : (
-            <ChevronDown
-              className="size-4"
-              strokeWidth={1.5}
-              aria-hidden="true"
-            />
+            <ChevronDown className="size-4" strokeWidth={1.5} aria-hidden="true" />
           )}
         </button>
       </Tooltip>
@@ -143,18 +133,17 @@ function StickerPickerControl({
         >
           <div className="flex flex-nowrap gap-1">
             {choices.map((choice) => {
-              const isActive = choice.id === activeChoiceId;
+              const active = choice.id === activeChoiceId;
               return (
                 <button
                   key={choice.id}
                   type="button"
                   aria-label={getChoiceLabel(choice)}
-                  aria-pressed={isActive}
+                  aria-pressed={active}
                   title={getChoiceLabel(choice)}
                   className="canvas-toolbar-action"
                   onClick={(event) => onSelect(choice, event)}
                   data-action-ui-id={choiceActionUiId(choice, true)}
-                  data-content="sticker"
                 >
                   <StickerChoiceIcon choice={choice} />
                 </button>

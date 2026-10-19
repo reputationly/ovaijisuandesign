@@ -1,4 +1,5 @@
 // node-resize-frame-inner.jsx
+import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
 import { NodeResizer } from "../vendor-fork/xyflow/react/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -37,6 +38,7 @@ function NodeResizeFrameInner({
   maxWidth = Number.MAX_VALUE,
   maxHeight = Number.MAX_VALUE,
   keepAspectRatio = false,
+  resizeDirection = "both",
   onResize,
   onCommit,
 }) {
@@ -77,21 +79,47 @@ function NodeResizeFrameInner({
     },
     [nodeId, moveAndResizeNode, onCommit],
   );
+  const sharedProps = {
+    autoScale: false,
+    minWidth,
+    minHeight,
+    maxWidth,
+    maxHeight,
+    keepAspectRatio,
+    onResizeStart: handleResizeStart,
+    onResize: handleResize,
+    onResizeEnd: handleResizeEnd,
+  };
   return (
     <div ref={frameRef} className="canvas-node-resize-frame contents">
-      <NodeResizer
-        autoScale={false}
-        minWidth={minWidth}
-        minHeight={minHeight}
-        maxWidth={maxWidth}
-        maxHeight={maxHeight}
-        keepAspectRatio={keepAspectRatio}
-        onResizeStart={handleResizeStart}
-        onResize={handleResize}
-        onResizeEnd={handleResizeEnd}
-      />
+      {resizeDirection === "horizontal" ? (
+        <>
+          <NodeResizeControl
+            {...sharedProps}
+            className="canvas-horizontal-resize-control"
+            position="left"
+            variant={ResizeControlVariant.Line}
+            resizeDirection="horizontal"
+          />
+          <NodeResizeControl
+            {...sharedProps}
+            className="canvas-horizontal-resize-control"
+            position="right"
+            variant={ResizeControlVariant.Line}
+            resizeDirection="horizontal"
+          />
+        </>
+      ) : (
+        <NodeResizer {...sharedProps} />
+      )}
     </div>
   );
 }
 
 export const NodeResizeFrame = reactExports.memo(NodeResizeFrameInner);
+
+var ResizeControlVariant = ((ResizeControlVariant2) => {
+  ResizeControlVariant2["Line"] = "line";
+  ResizeControlVariant2["Handle"] = "handle";
+  return ResizeControlVariant2;
+})(ResizeControlVariant || {});

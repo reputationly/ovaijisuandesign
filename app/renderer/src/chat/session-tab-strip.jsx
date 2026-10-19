@@ -34,6 +34,7 @@ import { Clapperboard, MessageSquareQuote } from "../media-editing/package.jsx";
 import { CoachMark } from "../assets/use-materialized-entities.jsx";
 import { useWorkspacePaneReorder } from "./use-browser-chat-media.jsx";
 import { SessionHistory } from "./session-history.jsx";
+import { SessionExportMenuItem } from "./session-export-menu-item.jsx";
 function useSessionCostVisible(session) {
   const { data } = usePricingConfig();
   const statsSince = data?.sessionStatsSinceMs;
@@ -430,7 +431,9 @@ const SessionTab = reactExports.memo(function SessionTab({
   onActivate,
   onClose,
   onRename,
-}) {
+onExport,
+  showExport = false,
+  isExporting = false,}) {
   const { t: translate } = useTranslation();
   const title = sessionDisplayName(session, translate);
   const [renaming, setRenaming] = reactExports.useState(false);
@@ -557,6 +560,13 @@ const SessionTab = reactExports.memo(function SessionTab({
           <Pencil />
           {translate("common.rename")}
         </ContextMenuItem>
+        {showExport ? (
+          <SessionExportMenuItem
+            actionUiId={`session-tab-export-${session.id}`}
+            isExporting={isExporting}
+            onExport={() => onExport(session.id)}
+          />
+        ) : null}
       </ContextMenuContent>
     </ContextMenu>
   );

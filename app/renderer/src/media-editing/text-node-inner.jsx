@@ -20,18 +20,7 @@ import {
   getPopoverDraftMap,
   TEXT_CARD_MIN_SIZE,
 } from "../canvas/is-reexecutable-generation-node.js";
-import {
-  Clapperboard,
-  PenLine,
-  Sparkles,
-  useAssetMeta,
-  useCanvasBridge,
-  useCanvasIsBoxSelecting,
-  useCanvasIsDragging,
-  useCanvasIsMultiSelect,
-  useGenerating,
-  useGeneratingStateApi,
-} from "./package.jsx";
+import { Clapperboard, PenLine, Sparkles, useAssetMeta, useCanvasActive, useCanvasBridge, useCanvasIsBoxSelecting, useCanvasIsDragging, useCanvasIsMultiSelect, useGenerating, useGeneratingStateApi } from "./package.jsx";
 import {
   GeneratingMediaArea,
   PromoteToAssetIcon,
@@ -44,14 +33,14 @@ import {
 } from "../canvas/node-shell-inner.jsx";
 import { MarkdownFullscreen } from "../text-editor/markdown-fullscreen.jsx";
 import { SourceTextFullscreen } from "../text-editor/source-text-fullscreen.jsx";
-import { useFileVersion } from "../infra/use-plugin-metadata-store.js";
+import { bumpFileVersion, useFileVersion } from "../infra/use-plugin-metadata-store.js";
 import { NodeResizeFrame } from "../infra/node-resize-frame-inner.jsx";
 import { useNodeRename } from "../infra/use-node-rename.js";
 import {
   isGenerationErrorStatus,
   TEXT_CARD_DEFAULT_SIZE,
 } from "../canvas/compute-group-bounds-from-children.js";
-import { useCanvasActions } from "./use-canvas-actions.js";
+import { CanvasActionsContext, useCanvasActions } from "./use-canvas-actions.js";
 import { useDiffReviewStore } from "../text-editor/use-diff-review-store.js";
 import {
   AddToChatIcon,
@@ -81,9 +70,17 @@ import {
 import { restoreDirectReferencePaths } from "../generation/param-label-fallbacks.js";
 import { useAttachmentState } from "../assets/use-attachment-state.js";
 import { TxtPopover } from "./audio-full-body-popover-gap-offset.js";
+import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
+import { useCanvasRootElement } from "./director-stage-header-icon.jsx";
+import { readDiffPreference, writeDiffPreference } from "./diff-pref-key.jsx";
+import { TextEditorActionsProvider, TextEditorHostProvider } from "./text-editor-host-context.jsx";
 function TextFullscreenInner({
+  title,
+  awaitSaveOnClose,
+  annotationsEnabled = true,
   initialMarkdown,
   onClose,
+  onBeforeClose,
   onDraftChange,
   plain,
   externalRevision,
@@ -95,15 +92,16 @@ function TextFullscreenInner({
   onEditingSelectionChange,
   getCloseBlockReason,
 }) {
-  const editorModeRef = reactExports.useRef(
-    resolveTextEditorMode(initialMarkdown, plain),
-  );
+  const editorModeRef = reactExports.useRef(resolveTextEditorMode(initialMarkdown, plain));
   const editorMode = editorModeRef.current;
   if (editorMode !== "rich-markdown") {
     return (
       <SourceTextFullscreen
+        title={title}
+        awaitSaveOnClose={awaitSaveOnClose}
         initialMarkdown={initialMarkdown}
         onClose={onClose}
+        onBeforeClose={onBeforeClose}
         onDraftChange={onDraftChange}
         externalRevision={externalRevision}
         onEditingSelectionChange={onEditingSelectionChange}
@@ -111,16 +109,18 @@ function TextFullscreenInner({
         sourceNodeId={sourceNodeId}
         documentPath={documentPath}
         getCloseBlockReason={getCloseBlockReason}
-        editorKind={
-          editorMode === "source-markdown" ? "codemirror" : "textarea"
-        }
+        editorKind={editorMode === "source-markdown" ? "codemirror" : "textarea"}
       />
     );
   }
   return (
     <MarkdownFullscreen
+      title={title}
+      awaitSaveOnClose={awaitSaveOnClose}
+      annotationsEnabled={annotationsEnabled}
       initialMarkdown={initialMarkdown}
       onClose={onClose}
+      onBeforeClose={onBeforeClose}
       onDraftChange={onDraftChange}
       externalRevision={externalRevision}
       sourceNodeId={sourceNodeId}
@@ -133,7 +133,33 @@ function TextFullscreenInner({
     />
   );
 }
-const TextFullscreen = reactExports.memo(TextFullscreenInner);
+const TextFullscreen = reactExports.memo(function TextFullscreen2(props) {
+  const rootElement = useCanvasRootElement();
+  const active2 = useCanvasActive();
+  const { textVersions } = useCanvasBridge();
+  const actions = reactExports.useContext(CanvasActionsContext);
+  useSuspendCanvasInteractions(true);
+  const host = reactExports.useMemo(
+    () => ({
+      rootElement,
+      active: active2,
+      textVersions,
+      onDocumentRestored: bumpFileVersion,
+      readDiffPreference,
+      writeDiffPreference,
+    }),
+    [rootElement, active2, textVersions],
+  );
+  return (
+    <TextEditorHostProvider value={host}>
+      <TextEditorActionsProvider value={actions}>
+        {/* 产物里这里是 `TextFullscreen$1`（内层）；还原时后缀被剥掉、撞成了自己 ——
+            一点开文本全屏编辑器就无限自递归 OOM。 */}
+        <TextFullscreenInner {...props} />
+      </TextEditorActionsProvider>
+    </TextEditorHostProvider>
+  );
+});
 function pickTextGenerationDefaults(draft, asset) {
   const draftPrompt =
     typeof draft?.prompt === "string" ? draft.prompt.trim() : "";
@@ -183,7 +209,7 @@ const QUICK_PROMPTS = [
       "根据以下创意需求，生成一组适用于[目标工具]的高质量提示词。\n创意需求：[描述你想要的画面/音乐/视频]\n风格偏好：[写实/插画/3D/动漫/其他]",
   },
 ];
-function TextNodeQuickActions({ onQuickPrompt, onWriteOwn }) {
+function TextNodeQuickActions({ onQuickPrompt, onWriteOwn, agentDisabled = false, writeDisabled = false }) {
   const { t } = useTranslation();
   return (
     <NodeEmptyState
@@ -194,6 +220,7 @@ function TextNodeQuickActions({ onQuickPrompt, onWriteOwn }) {
       suggestions={[
         {
           id: "canvas.text-quick-write",
+          disabled: writeDisabled,
           icon: <PenLine size={16} strokeWidth={1.5} />,
           label: t("canvas.quickAction.write.label", {
             defaultValue: "自己编写内容",
@@ -203,17 +230,18 @@ function TextNodeQuickActions({ onQuickPrompt, onWriteOwn }) {
             onWriteOwn();
           },
         },
-        ...QUICK_PROMPTS.map((quickAction) => ({
-          id: `canvas.text-quick-${quickAction.key}`,
-          icon: <quickAction.icon size={16} strokeWidth={1.5} />,
-          label: t(quickAction.labelKey, {
-            defaultValue: quickAction.labelFallback,
+        ...QUICK_PROMPTS.map((qa) => ({
+          id: `canvas.text-quick-${qa.key}`,
+          disabled: agentDisabled || !onQuickPrompt,
+          icon: <qa.icon size={16} strokeWidth={1.5} />,
+          label: t(qa.labelKey, {
+            defaultValue: qa.labelFallback,
           }),
           onSelect: (event) => {
             event.stopPropagation();
-            onQuickPrompt(
-              t(quickAction.promptKey, {
-                defaultValue: quickAction.promptFallback,
+            onQuickPrompt?.(
+              t(qa.promptKey, {
+                defaultValue: qa.promptFallback,
               }),
             );
           },
@@ -405,7 +433,7 @@ function TextPreviewInner({
       <div
         className="ProseMirror cv-skip text-xs"
         style={{
-          color: "var(--fg-default, #141414)",
+          color: "var(--fg-default, var(--foreground))",
         }}
       >
         <Markdown
@@ -428,7 +456,7 @@ function TextPreviewInner({
           <p
             className="ProseMirror text-xs pointer-events-none select-none"
             style={{
-              color: "var(--fg-muted, #525252)",
+              color: "var(--fg-muted, var(--muted-foreground))",
             }}
           >
             {t("canvas.editorPlaceholder")}
@@ -439,7 +467,7 @@ function TextPreviewInner({
               <pre
                 className="cv-skip text-xs whitespace-pre-wrap break-words font-sans m-0"
                 style={{
-                  color: "var(--fg-default, #141414)",
+                  color: "var(--fg-default, var(--foreground))",
                 }}
               >
                 {previewText}
@@ -451,7 +479,7 @@ function TextPreviewInner({
               <div
                 className="mt-2 pt-2 text-center text-xs pointer-events-none select-none"
                 style={{
-                  color: "var(--fg-muted, #525252)",
+                  color: "var(--fg-muted, var(--muted-foreground))",
                   borderTop: "1px dashed var(--border-muted, #e5e5e5)",
                 }}
               >

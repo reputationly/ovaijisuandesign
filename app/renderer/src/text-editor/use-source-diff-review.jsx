@@ -128,7 +128,7 @@ function buildSourceDiffReviewEntries(hunks) {
             text,
           }
         : {
-            kind,
+            kind:kind,
             newLine: startLine + line.offset,
             text,
           };

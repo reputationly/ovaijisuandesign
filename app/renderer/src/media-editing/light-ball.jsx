@@ -174,15 +174,22 @@ function dragRotation(currentRotation, deltaX, deltaY, size) {
   const pitch = [Math.sin(deltaY * factor), 0, 0, Math.cos(deltaY * factor)];
   return multiply(pitch, multiply(yawRotation, currentRotation));
 }
-function rotate(point, rotation) {
-  const [quaternionX, quaternionY, quaternionZ, quaternionW] = rotation;
-  const rotationOffsetX = 2 * (quaternionY * point.z - quaternionZ * point.y);
-  const rotationOffsetY = 2 * (quaternionZ * point.x - quaternionX * point.z);
-  const rotationOffsetZ = 2 * (quaternionX * point.y - quaternionY * point.x);
+// 产物里这里是两个不同的函数：`rotate`（下面的角度助手）和 `rotate$1`（四元数旋转点）。
+// 还原时 `$1` 被剥掉、两个名字撞成一个，本文件三处需要**四元数**的地方
+// 全指向了角度助手 → `startPoint.x` 是 undefined → `.toFixed` 报错、relight 弹窗打不开。
+const rotateAngle = (v2) => {
+  const angle = radToDeg(Math.atan2(v2[1], v2[0]));
+  return rebaseAngle(angle);
+};
+function rotatePointByQuaternion(p, q) {
+  const [x, y, z, w] = q;
+  const tx = 2 * (y * p.z - z * p.y);
+  const ty = 2 * (z * p.x - x * p.z);
+  const tz = 2 * (x * p.y - y * p.x);
   return {
-    x: point.x + quaternionW * rotationOffsetX + quaternionY * rotationOffsetZ - quaternionZ * rotationOffsetY,
-    y: point.y + quaternionW * rotationOffsetY + quaternionZ * rotationOffsetX - quaternionX * rotationOffsetZ,
-    z: point.z + quaternionW * rotationOffsetZ + quaternionX * rotationOffsetY - quaternionY * rotationOffsetX,
+    x: p.x + w * tx + y * tz - z * ty,
+    y: p.y + w * ty + z * tx - x * tz,
+    z: p.z + w * tz + x * ty - y * tx,
   };
 }
 const LIGHT_DRAG_DEG_PER_PX = 180 / (Math.PI * RADIUS);
@@ -206,7 +213,7 @@ const bakeRotation = (items, rotation) =>
   items.map((light) => ({
     id: light.id,
     ...pointAngles(
-      rotate(sphericalPoint(light.horizontalAngle, light.verticalAngle), rotation),
+      rotatePointByQuaternion(sphericalPoint(light.horizontalAngle, light.verticalAngle), rotation),
     ),
   }));
 const GRID = [
@@ -247,7 +254,7 @@ function gridPaths(rotation, front, equator) {
   let path = "";
   for (const line of GRID) {
     if (line.equator !== equator) continue;
-    const points = line.points.map((point) => rotate(point, rotation));
+    const points = line.points.map((point) => rotatePointByQuaternion(point, rotation));
     for (let pointIndex = 1; pointIndex < points.length; pointIndex++) {
       const startPoint = points[pointIndex - 1];
       const endPoint = points[pointIndex];
@@ -723,7 +730,7 @@ export const LightBall = (props) => {
     .map((light) => {
       const angles =
         preview?.items.find((item) => item.id === light.id) ?? light;
-      const position = rotate(
+      const position = rotatePointByQuaternion(
         sphericalPoint(angles.horizontalAngle, angles.verticalAngle),
         preview?.rotation ?? IDENTITY,
       );
@@ -915,4 +922,12 @@ export const LightBall = (props) => {
       </svg>
     </svg>
   );
+};
+
+const radToDeg = (rad) => (rad * 180) / Math.PI;
+
+const rebaseAngle = (angle) => {
+  angle = angle % 360;
+  if (angle < 0) angle += 360;
+  return angle;
 };

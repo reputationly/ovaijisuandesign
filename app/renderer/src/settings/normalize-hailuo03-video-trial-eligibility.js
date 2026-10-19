@@ -5,9 +5,10 @@ import reactExports from "react";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { buildShownKey } from "./use-auto-announcement.js";
 import { useHubClientConfig } from "./parse-home-survey.js";
-const CDN_UPDATE_POSTER = cdnPublicAsset({
-  domestic: "home-widget/update/20260904/hilo-update-zh.jpg",
-  overseas: "home-widget/update/20260904/hilo-update-en.jpg",
+import { cdnRegionalFile } from "../workspace/topbar-state-context.jsx";
+const CDN_UPDATE_POSTER = cdnRegionalFile({
+  domestic: "b385e3f0-7c42-483a-8a51-b120dd89b3f9.jpeg",
+  overseas: "60c59af4-9624-41f2-8e7b-7eb994bd3e2b.jpeg",
 });
 export const H3_LAUNCH_POPUP_ID = "h3_playground_launch_2026";
 export const EMPTY_HAILUO03_VIDEO_TRIAL_STATUS = {

@@ -34,9 +34,7 @@ export function subMessageSemanticKey(message) {
   });
 }
 
-function isRecord$d(value) {
-  return !!value && typeof value === "object";
-}
+const isRecord$d = (value) => !!value && typeof value === "object" && !Array.isArray(value);
 
 export function extractTaskDisplayPrompt(input) {
   let parsed = input;

@@ -4,6 +4,7 @@ import { EditModule } from "../edit/edit.module.js";
 import { MediaThumbnailer } from "../static/media-thumbnailer.js";
 import { StaticController } from "../static/static.controller.js";
 import { ThumbnailController } from "../static/thumbnail.controller.js";
+import { DependenciesController, DependenciesService } from "./dependencies.service.js";
 import { DirWatcherService } from "./dir-watcher.service.js";
 import { FileOpsService } from "./file-ops.service.js";
 import { FilesController } from "./files.controller.js";
@@ -17,7 +18,7 @@ import { UploadCommitService } from "./upload-commit.service.js";
 
 @Module({
   imports: [EditModule],
-  controllers: [FilesController, LocalMediaController, StaticController, ThumbnailController, MediaPlaybackController],
+  controllers: [FilesController, LocalMediaController, StaticController, ThumbnailController, MediaPlaybackController, DependenciesController],
   providers: [
     FilesService,
     MediaThumbnailer,
@@ -27,7 +28,8 @@ import { UploadCommitService } from "./upload-commit.service.js";
     ProjectAssetAnchors,
     MediaPlaybackService,
     DirWatcherService,
+    DependenciesService,
   ],
-  exports: [FilesService],
+  exports: [FilesService, MediaThumbnailer, FileOpsService],
 })
 export class FilesModule {}

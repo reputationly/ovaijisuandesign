@@ -110,6 +110,7 @@ import {
   getVisiblePreviewTabIds,
 } from "../infra/error-boundary.jsx";
 import { Toaster2 as Toaster } from "../settings/attach-native-toast-surface.jsx";
+import { installOverlayStateFlags } from "../infra/overlay-state-flags.js";
 function recordNavigation(path, data) {
   actionTrailLog.info(`navigate: ${path}`, data);
 }
@@ -981,49 +982,25 @@ function useWorkspaceRouteState() {
       return {
         active: true,
         workspaceId: normalizeWorkspaceId(search.workspaceId),
-        initialPayloadId:
-          typeof search.initialPayloadId === "string"
-            ? search.initialPayloadId
-            : void 0,
-        initialMessage:
-          search.initialMessage != null
-            ? String(search.initialMessage)
-            : void 0,
-        initialAttachments: parseWorkspaceInitialAttachments(
-          search.initialAttachments,
-        ),
-        initialEntityRefs: parseWorkspaceInitialAttachments(search.initialEntityRefs),
-        initialModelId:
-          typeof search.initialModelId === "string"
-            ? search.initialModelId
-            : void 0,
-        initialSelectedMediaModels: parseWorkspaceInitialSelectedMediaModels(
-          search.initialSelectedMediaModels,
-        ),
+        initialPayloadId: typeof search.initialPayloadId === "string" ? search.initialPayloadId : void 0,
+        initialMessage: search.initialMessage != null ? String(search.initialMessage) : void 0,
+        initialAttachments: parseInitialAttachments(search.initialAttachments),
+        initialEntityRefs: parseInitialAttachments(search.initialEntityRefs),
+        initialModelId: typeof search.initialModelId === "string" ? search.initialModelId : void 0,
+        initialSelectedMediaModels: parseInitialSelectedMediaModels(search.initialSelectedMediaModels),
         initialComfyUiWorkflowId:
-          typeof search.initialComfyUiWorkflowId === "string" &&
-          search.initialComfyUiWorkflowId.trim()
+          typeof search.initialComfyUiWorkflowId === "string" && search.initialComfyUiWorkflowId.trim()
             ? search.initialComfyUiWorkflowId
             : void 0,
         initialComfyUiWorkflowTarget:
-          search.initialComfyUiWorkflowTarget === "current" ||
-          search.initialComfyUiWorkflowTarget === "new"
+          search.initialComfyUiWorkflowTarget === "current" || search.initialComfyUiWorkflowTarget === "new"
             ? search.initialComfyUiWorkflowTarget
             : void 0,
-        skillPrompt:
-          typeof search.skillPrompt === "string"
-            ? search.skillPrompt
-            : void 0,
-        skillName:
-          typeof search.skillName === "string" ? search.skillName : void 0,
-        pluginId:
-          typeof search.pluginId === "string" ? search.pluginId : void 0,
+        skillPrompt: typeof search.skillPrompt === "string" ? search.skillPrompt : void 0,
+        skillName: typeof search.skillName === "string" ? search.skillName : void 0,
+        pluginId: typeof search.pluginId === "string" ? search.pluginId : void 0,
         menuAction:
-          search.menuAction === "new-chat" ||
-          search.menuAction === "open-settings"
-            ? search.menuAction
-            : void 0,
-        assetCenterRelocation: search.assetCenterRelocation === true,
+          search.menuAction === "new-chat" || search.menuAction === "open-settings" ? search.menuAction : void 0,
       };
     },
   });
@@ -1031,7 +1008,7 @@ function useWorkspaceRouteState() {
 function RetainedWorkspaceRuntimeLayer() {
   const {
     active,
-    workspaceId: activeWorkspaceId,
+    workspaceId,
     initialPayloadId,
     initialMessage,
     initialAttachments,
@@ -1044,7 +1021,7 @@ function RetainedWorkspaceRuntimeLayer() {
     skillName,
     pluginId,
     menuAction,
-    assetCenterRelocation,
+    
   } = useWorkspaceRouteState();
   const { entries } = useTopbarState();
   const navigate = useNavigate();
@@ -1057,10 +1034,10 @@ function RetainedWorkspaceRuntimeLayer() {
     const ids = entries
       .filter((entry) => entry.gatewayUrl)
       .map((entry) => entry.workspaceId);
-    if (activeWorkspaceId && !ids.includes(activeWorkspaceId)) ids.push(activeWorkspaceId);
+    if (workspaceId && !ids.includes(workspaceId)) ids.push(workspaceId);
     return ids;
-  }, [entries, activeWorkspaceId]);
-  initialPayloadCacheRef.current.capture(activeWorkspaceId, {
+  }, [entries, workspaceId]);
+  initialPayloadCacheRef.current.capture(workspaceId, {
     initialPayloadId,
     initialMessage,
     initialAttachments,
@@ -1073,7 +1050,7 @@ function RetainedWorkspaceRuntimeLayer() {
     initialPayloadCacheRef.current.cleanupClosed(
       entryIds,
       seenEntryIdsRef.current,
-      activeWorkspaceId,
+      workspaceId,
     );
     const liveIds = new Set(
       entries
@@ -1086,7 +1063,7 @@ function RetainedWorkspaceRuntimeLayer() {
       workspaceEvents.clearSubscribersReady(seenId);
       seenLiveWorkspaceIdsRef.current.delete(seenId);
     }
-  }, [entries, activeWorkspaceId]);
+  }, [entries, workspaceId]);
   return (
     // WorkbenchShell provides the positioned right-content slot. Keep this
     // layer scoped to that slot so it never covers the full-height global sidebar.
@@ -1097,46 +1074,46 @@ function RetainedWorkspaceRuntimeLayer() {
           : "hidden"
       }
     >
-      {retainedWorkspaceIds.map((workspaceId) => (
+      {retainedWorkspaceIds.map((retainedWorkspaceId) => (
         <RetainedWorkspaceRuntimeHost
-          key={workspaceId}
-          workspaceId={workspaceId}
-          isActive={active && workspaceId === activeWorkspaceId}
+          key={retainedWorkspaceId}
+          workspaceId={retainedWorkspaceId}
+          isActive={active && retainedWorkspaceId === workspaceId}
           initialPayloadId={
-            initialPayloadCacheRef.current.get(workspaceId)?.initialPayloadId
+            initialPayloadCacheRef.current.get(retainedWorkspaceId)?.initialPayloadId
           }
           initialMessage={
-            initialPayloadCacheRef.current.get(workspaceId)?.initialMessage
+            initialPayloadCacheRef.current.get(retainedWorkspaceId)?.initialMessage
           }
           initialAttachments={
-            initialPayloadCacheRef.current.get(workspaceId)?.initialAttachments
+            initialPayloadCacheRef.current.get(retainedWorkspaceId)?.initialAttachments
           }
           initialEntityRefs={
-            initialPayloadCacheRef.current.get(workspaceId)?.initialEntityRefs
+            initialPayloadCacheRef.current.get(retainedWorkspaceId)?.initialEntityRefs
           }
           initialModelId={
-            initialPayloadCacheRef.current.get(workspaceId)?.initialModelId
+            initialPayloadCacheRef.current.get(retainedWorkspaceId)?.initialModelId
           }
           initialSelectedMediaModels={
-            initialPayloadCacheRef.current.get(workspaceId)?.initialSelectedMediaModels
+            initialPayloadCacheRef.current.get(retainedWorkspaceId)?.initialSelectedMediaModels
           }
           initialComfyUiWorkflowId={
-            active && workspaceId === activeWorkspaceId ? initialComfyUiWorkflowId : void 0
+            active && retainedWorkspaceId === workspaceId ? initialComfyUiWorkflowId : void 0
           }
           initialComfyUiWorkflowTarget={
-            active && workspaceId === activeWorkspaceId
+            active && retainedWorkspaceId === workspaceId
               ? initialComfyUiWorkflowTarget
               : void 0
           }
           onInitialMessageSent={() => {
-            const payload = initialPayloadCacheRef.current.get(workspaceId);
-            initialPayloadCacheRef.current.consume(workspaceId);
+            const payload = initialPayloadCacheRef.current.get(retainedWorkspaceId);
+            initialPayloadCacheRef.current.consume(retainedWorkspaceId);
             if (payload?.initialPayloadId) {
               acknowledgeHomeDraftHandoff(payload.initialPayloadId);
             }
             if (
               active &&
-              activeWorkspaceId === workspaceId &&
+              workspaceId === retainedWorkspaceId &&
               payload &&
               (!payload.initialPayloadId ||
                 payload.initialPayloadId === initialPayloadId)
@@ -1144,12 +1121,12 @@ function RetainedWorkspaceRuntimeLayer() {
               void navigate({
                 to: "/workspace",
                 replace: true,
-                search: buildWorkspaceSearch(workspaceId, {
+                search: buildWorkspaceSearch(retainedWorkspaceId, {
                   skillPrompt,
                   skillName,
                   pluginId,
                   menuAction,
-                  assetCenterRelocation,
+                  
                 }),
               });
             }
@@ -1158,9 +1135,7 @@ function RetainedWorkspaceRuntimeLayer() {
           skillName={skillName}
           pluginId={pluginId}
           menuAction={menuAction}
-          assetCenterRelocation={
-            active && workspaceId === activeWorkspaceId ? assetCenterRelocation : void 0
-          }
+          
         />
       ))}
     </div>
@@ -1695,6 +1670,7 @@ function AppRoot() {
 }
 function AppRootWithRendererReady() {
   reactExports.useEffect(() => installScrollbarVisibility(), []);
+  reactExports.useEffect(() => installOverlayStateFlags(), []);
   reactExports.useEffect(() => {
     void reportRendererReady(homeService.hiloApp).catch(() => {});
   }, []);

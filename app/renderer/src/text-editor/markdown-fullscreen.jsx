@@ -46,7 +46,7 @@ import { redo, undo, undoDepth } from "prosemirror-history";
 import { Placeholder as src_default$1 } from "@tiptap/extensions";
 import { useTranslation } from "react-i18next";
 import { ActionListPanel, ActionListSeparator } from "../media-editing/action-list.jsx";
-import { Grid2x2Plus } from "../media-editing/lucide-icon-wraps.js";
+import { Bold$1, Grid2x2Plus, Italic$1 } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
@@ -83,7 +83,7 @@ import {
   DIFF_CONTROLS_CLASS,
   diffReviewPluginKey,
 } from "./build-controls.js";
-import { useCanvasActive } from "../media-editing/package.jsx";
+import { List, Type, useCanvasActive } from "../media-editing/package.jsx";
 import { useDiffReviewStore } from "./use-diff-review-store.js";
 import {
   annotationPluginKey,
@@ -91,6 +91,7 @@ import {
   getAnnotationSelectionRanges,
 } from "./configuration2.js";
 import { MarkdownManager } from "./markdown-manager.js";
+import { Markdown } from "./tiptap-markdown-extension.js";
 import { buildPmSelectionState } from "../vendor-inline/codemirror/delete-markup-backward.js";
 import { DiffPendingDialog } from "./diff-pending-dialog.jsx";
 import { recordProvisionalDiffReviewHistory } from "./record-provisional-diff-review-history.js";
@@ -117,142 +118,25 @@ import { useFindController } from "./use-find-controller.js";
 import { useTextConflictResolver } from "./use-text-conflict-resolver.jsx";
 import { useTextDocumentDirty } from "./text-diff-hunk-view.jsx";
 import { useTextVersionPanel } from "./use-text-version-panel.jsx";
+import { unreachable as unreachable$1 } from "devlop";
+import { toJsxRuntime } from "hast-util-to-jsx-runtime";
+import { urlAttributes } from "html-url-attributes";
+import { Heading1, Heading2, Heading3, ListOrdered } from "lucide-react";
+import { defaultUrlTransform } from "react-markdown";
+import { default as remarkParse } from "remark-parse";
+import { default as remarkRehype } from "remark-rehype";
+import { unified } from "unified";
+import { visit } from "unist-util-visit";
+import { VFile } from "vfile";
 function assumeContentType(content, contentType) {
   if (typeof content !== "string") return "json";
   return contentType;
 }
-const Markdown = Extension.create({
-  name: "markdown",
-  addOptions() {
-    return {
-      indentation: {
-        style: "space",
-        size: 2,
-      },
-      marked: void 0,
-      markedOptions: {},
-    };
-  },
-  addCommands() {
-    return {
-      setContent: (content, options) => {
-        if (
-          !(options === null || options === void 0
-            ? void 0
-            : options.contentType)
-        )
-          return commands_exports.setContent(content, options);
-        if (
-          assumeContentType(
-            content,
-            options === null || options === void 0
-              ? void 0
-              : options.contentType,
-          ) !== "markdown" ||
-          !this.editor.markdown
-        )
-          return commands_exports.setContent(content, options);
-        const mdContent = this.editor.markdown.parse(content);
-        return commands_exports.setContent(mdContent, options);
-      },
-      insertContent: (value, options) => {
-        if (
-          !(options === null || options === void 0
-            ? void 0
-            : options.contentType)
-        )
-          return commands_exports.insertContent(value, options);
-        if (
-          assumeContentType(
-            value,
-            options === null || options === void 0
-              ? void 0
-              : options.contentType,
-          ) !== "markdown" ||
-          !this.editor.markdown
-        )
-          return commands_exports.insertContent(value, options);
-        const mdContent = this.editor.markdown.parse(value);
-        return commands_exports.insertContent(mdContent, options);
-      },
-      insertContentAt: (position, value, options) => {
-        if (
-          !(options === null || options === void 0
-            ? void 0
-            : options.contentType)
-        )
-          return commands_exports.insertContentAt(position, value, options);
-        if (
-          assumeContentType(
-            value,
-            options === null || options === void 0
-              ? void 0
-              : options.contentType,
-          ) !== "markdown" ||
-          !this.editor.markdown
-        )
-          return commands_exports.insertContentAt(position, value, options);
-        const mdContent = this.editor.markdown.parse(value);
-        return commands_exports.insertContentAt(position, mdContent, options);
-      },
-    };
-  },
-  addStorage() {
-    return {
-      manager: new MarkdownManager({
-        indentation: this.options.indentation,
-        marked: this.options.marked,
-        markedOptions: this.options.markedOptions,
-        extensions: [],
-      }),
-    };
-  },
-  onBeforeCreate() {
-    var _json$content;
-    if (this.editor.markdown) {
-      console.error(
-        "[tiptap][markdown]: There is already a `markdown` property on the editor instance. This might lead to unexpected behavior.",
-      );
-      return;
-    }
-    this.storage.manager = new MarkdownManager({
-      indentation: this.options.indentation,
-      marked: this.options.marked,
-      markedOptions: this.options.markedOptions,
-      extensions: this.editor.extensionManager.baseExtensions,
-    });
-    this.editor.markdown = this.storage.manager;
-    this.editor.getMarkdown = () => {
-      return this.storage.manager.serialize(this.editor.getJSON());
-    };
-    if (!this.editor.options.contentType) return;
-    if (
-      assumeContentType(
-        this.editor.options.content,
-        this.editor.options.contentType,
-      ) !== "markdown"
-    )
-      return;
-    if (!this.editor.markdown)
-      throw new Error(
-        '[tiptap][markdown]: The `contentType` option is set to "markdown", but the Markdown extension is not added to the editor. Please add the Markdown extension to use this feature.',
-      );
-    if (
-      this.editor.options.content === void 0 ||
-      typeof this.editor.options.content !== "string"
-    )
-      throw new Error(
-        '[tiptap][markdown]: The `contentType` option is set to "markdown", but the initial content is not a string. Please provide the initial content as a markdown string.',
-      );
-    const json = this.editor.markdown.parse(this.editor.options.content);
-    if (
-      (_json$content = json.content) === null || _json$content === void 0
-        ? void 0
-        : _json$content.length
-    )
-      this.editor.options.content = json;
-  },
-});
+function markdownToHtml(options) {
+  const processor = createProcessor(options);
+  const file = createFile(options);
+  return post(processor.runSync(processor.parse(file), file), options);
+}
 const ANNOTATION_CLASS = "canvas-annotation-mark";
 const ANNOTATION_ACTIVE_CLASS = "canvas-annotation-mark-active";
 const AnnotationHighlight = Extension.create({
@@ -412,11 +296,7 @@ function buildFormatItems(editor, t) {
     {
       id: "h1",
       label: t("canvas.heading1"),
-      icon: (
-        <span className="text-[13px] font-semibold leading-none">
-          H<sub className="text-[9px]">1</sub>
-        </span>
-      ),
+      icon: <Heading1 {...TEXT_TOOLBAR_ICON_PROPS} />,
       onClick: () =>
         editor
           .chain()
@@ -429,11 +309,7 @@ function buildFormatItems(editor, t) {
     {
       id: "h2",
       label: t("canvas.heading2"),
-      icon: (
-        <span className="text-[13px] font-semibold leading-none">
-          H<sub className="text-[9px]">2</sub>
-        </span>
-      ),
+      icon: <Heading2 {...TEXT_TOOLBAR_ICON_PROPS} />,
       onClick: () =>
         editor
           .chain()
@@ -446,11 +322,7 @@ function buildFormatItems(editor, t) {
     {
       id: "h3",
       label: t("canvas.heading3"),
-      icon: (
-        <span className="text-[13px] font-semibold leading-none">
-          H<sub className="text-[9px]">3</sub>
-        </span>
-      ),
+      icon: <Heading3 {...TEXT_TOOLBAR_ICON_PROPS} />,
       onClick: () =>
         editor
           .chain()
@@ -463,33 +335,37 @@ function buildFormatItems(editor, t) {
     {
       id: "paragraph",
       label: t("canvas.paragraph"),
-      icon: <ParagraphIcon />,
+      icon: (
+        <span className="inline-flex size-4 shrink-0 items-center justify-center" aria-hidden="true">
+          <Type {...TEXT_TOOLBAR_ICON_PROPS} size={12} />
+        </span>
+      ),
       onClick: () => editor.chain().focus().setParagraph().run(),
     },
     {
       id: "bold",
       label: t("canvas.bold"),
-      icon: <BoldIcon />,
+      icon: <Bold$1 {...TEXT_TOOLBAR_ICON_PROPS} />,
       separator: true,
       onClick: () => editor.chain().focus().toggleBold().run(),
     },
     {
       id: "italic",
       label: t("canvas.italic"),
-      icon: <ItalicIcon />,
+      icon: <Italic$1 {...TEXT_TOOLBAR_ICON_PROPS} />,
       onClick: () => editor.chain().focus().toggleItalic().run(),
     },
     {
       id: "bullet-list",
       label: t("canvas.bulletList"),
-      icon: <BulletListIcon />,
+      icon: <List {...TEXT_TOOLBAR_ICON_PROPS} />,
       separator: true,
       onClick: () => editor.chain().focus().toggleBulletList().run(),
     },
     {
       id: "ordered-list",
       label: t("canvas.orderedList"),
-      icon: <OrderedListIcon />,
+      icon: <ListOrdered {...TEXT_TOOLBAR_ICON_PROPS} />,
       onClick: () => editor.chain().focus().toggleOrderedList().run(),
     },
   ];
@@ -561,7 +437,7 @@ function tableDocumentFromGrid(grid, untitledColumn = "Untitled") {
   };
 }
 function TableContextMenu({
-  editor,
+  editor: editor2,
   position,
   onClose,
   onConvertToNode,
@@ -658,28 +534,26 @@ function useEditorHistoryShortcuts(editor, nodeId) {
   reactExports.useEffect(() => {
     if (!active) return;
     const isNativeTextInput = (target) =>
-      target instanceof HTMLElement &&
-      (target.tagName === "INPUT" || target.tagName === "TEXTAREA");
-    const run = (isRedo, event) => {
+      target instanceof HTMLElement && (target.tagName === "INPUT" || target.tagName === "TEXTAREA");
+    const run = (redo, event) => {
       if (isNativeTextInput(event.target)) return;
       const current = editorRef.current;
       if (!current) return;
       const reviewState = useDiffReviewStore.getState();
       const reviewSession = reviewState.session;
       const reviewUndoBlocked =
-        !isRedo &&
+        !redo &&
         reviewSession !== null &&
         reviewSession.nodeId === nodeId &&
         (reviewSession.baselineMarkdown === void 0 ||
-          undoDepth(current.state) <=
-            (reviewSession.historyDepthAtStart ?? 0) + 1);
-      if (reviewState.reverting || reviewUndoBlocked) {
+          undoDepth(current.state) <= (reviewSession.historyDepthAtStart ?? 0) + 1);
+      if ((reviewState.session?.nodeId === nodeId && reviewState.reverting) || reviewUndoBlocked) {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
         return;
       }
-      const handled = isRedo
+      const handled = redo
         ? redo(current.state, current.view.dispatch)
         : undo(current.state, current.view.dispatch);
       if (!handled) return;
@@ -1003,9 +877,7 @@ function searchPmDoc(doc, query, options, maxMatches) {
 }
 function resetProseMirrorHistory(editor) {
   const plugins = editor.state.plugins;
-  const withoutHistory = plugins.filter(
-    (plugin) => plugin.spec.key?.key !== "history$",
-  );
+  const withoutHistory = plugins.filter((plugin) => plugin.spec.key?.key !== "history$");
   if (withoutHistory.length === plugins.length) return;
   const stateWithoutHistory = editor.state.reconfigure({
     plugins: withoutHistory,
@@ -1808,3 +1680,18 @@ export function MarkdownFullscreen({
     </FullscreenShell>
   );
 }
+
+function createFile(options2) {
+  const children2 = options2.children || "";
+  const file = new VFile();
+  if (typeof children2 === "string") {
+    file.value = children2;
+  }
+  return file;
+}
+
+const TEXT_TOOLBAR_ICON_PROPS = {
+  size: 16,
+  absoluteStrokeWidth: true,
+  strokeWidth: 1.25,
+};

@@ -37,8 +37,7 @@ import {
 function isRecentProjectsSortMode(value) {
   return value === "manual" || value === "recent" || value === "priority";
 }
-const UNGROUPED_SORT_PREVIEW_HOLD =
-  "home-sidebar.recent-group-ungrouped-sort-menu";
+const UNGROUPED_SORT_PREVIEW_HOLD = "home-sidebar.recent-group-ungrouped-sort-menu";
 function UngroupedSortMenu({
   sortMode,
   onSortModeChange,

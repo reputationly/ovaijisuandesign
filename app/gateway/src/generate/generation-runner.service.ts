@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { rm } from "node:fs/promises";
 import path from "node:path";
 
-import { BadRequestException, Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, Logger, Optional, type OnApplicationBootstrap } from "@nestjs/common";
 import { toAssetInfo } from "@ov/assets";
 import { PlatformError, route, video } from "@ov/maas-media";
 
@@ -14,7 +14,10 @@ import { VoiceLibraryService } from "../speech/voice-library.service.js";
 import { type ActiveGenerationRecord, ActiveGenerationsStore } from "./active-generations.store.js";
 import { type GenerationRequest, type MediaType, displayModel, runOnPlatform, submittedImageInputs } from "./generation-request.js";
 import { downloadMediaToDir } from "./media-download.js";
+import { withStagedWatermark } from "./staged-watermark.js";
+import { WatermarkService, type WatermarkKind } from "../watermark/watermark.service.js";
 import { MediaConfigService } from "./media-config.service.js";
+import { ProjectTaskService } from "./tasks.js";
 
 /** 轮询方看到的终态。成功的结果留一段时间，调用方晚到的查询也能拿到同一份。 */
 type Settled =
@@ -53,6 +56,8 @@ export class GenerationRunner implements OnApplicationBootstrap {
     private readonly assets: AssetsService,
     private readonly canvas: CanvasService,
     private readonly voices: VoiceLibraryService,
+    private readonly watermark: WatermarkService,
+    @Optional() @Inject(ProjectTaskService) private readonly tasks?: ProjectTaskService,
   ) {}
 
   /** 启动时把账上的任务接回来。app-level gateway 没有工作区，没有账。 */
@@ -74,14 +79,14 @@ export class GenerationRunner implements OnApplicationBootstrap {
     }
   }
 
-  async submit(mediaType: MediaType, req: GenerationRequest, source: GenerationSource): Promise<Record<string, unknown>> {
+  async submit(mediaType: MediaType, req: GenerationRequest, source: GenerationSource, taskId = `gen_${randomUUID().replace(/-/g, "")}`): Promise<Record<string, unknown>> {
     const cfg = this.media.load();
     this.assertConfigured(mediaType, req, cfg);
     const generationAttemptId = randomUUID();
     const placeholderId = req.replace_node_id ? null : await this.createPlaceholder(mediaType, req, displayModel(cfg, mediaType, req), generationAttemptId);
     const record: ActiveGenerationRecord = {
       id: randomUUID(),
-      taskId: `gen_${randomUUID().replace(/-/g, "")}`,
+      taskId,
       mediaType,
       backend: req.backend ?? "maas",
       request: req,
@@ -96,6 +101,7 @@ export class GenerationRunner implements OnApplicationBootstrap {
       if (placeholderId) await this.canvas.failPlaceholder({ placeholderId, errorMessage: (err as Error).message });
       throw new BadRequestException({ ok: false, error: `local generation ledger is not ready: ${(err as Error).message}`, error_code: "RECORD_PREFLIGHT_FAILED", failure_presentation: "terminal" });
     }
+    this.remember(record.taskId, mediaType, req.prompt, "running");
     this.log.log(`[submit] ${mediaType} task=${record.taskId} placeholder=${placeholderId ?? "-"} model=${req.model_id ?? "<auto>"} source=${req.source_tool ?? source}`);
     this.start(record, source);
     return { ok: true, task_id: record.taskId, status: "processing", media_type: mediaType };
@@ -154,23 +160,33 @@ export class GenerationRunner implements OnApplicationBootstrap {
     };
   }
 
+  /** 停止一张生成任务。平台侧停不下来，只是不再把结果落到画布上。 */
+  async cancel(taskId: string): Promise<boolean> {
+    const job = this.running.get(taskId);
+    if (!job) return false;
+    await this.cancelJob(job);
+    return true;
+  }
+
   /** 取消画布上某个节点的生成。平台侧的任务停不下来，只是不再落地，占位卡直接撤掉。 */
   async cancelByNode(nodeId: string): Promise<{ cancelled: boolean; taskIds: string[] }> {
     const hit = [...this.running.values()].filter((j) => j.record.placeholderId === nodeId || j.record.request.replace_node_id === nodeId);
-    for (const j of hit) {
-      j.cancelled = true;
-      this.running.delete(j.record.taskId);
-      await this.store.remove(j.record.id);
-      this.settled.set(j.record.taskId, {
-        status: "failed",
-        error: "generation was cancelled by the user",
-        error_code: "GENERATION_CANCELLED",
-        user_message: "生成已取消",
-        at: Date.now(),
-      });
-      if (j.record.placeholderId) await this.canvas.cleanupPlaceholder(j.record.placeholderId);
-    }
+    for (const job of hit) await this.cancelJob(job);
     return { cancelled: hit.length > 0, taskIds: hit.map((j) => j.record.taskId) };
+  }
+
+  private async cancelJob(job: { record: ActiveGenerationRecord; cancelled: boolean }): Promise<void> {
+    job.cancelled = true;
+    this.running.delete(job.record.taskId);
+    await this.store.remove(job.record.id);
+    this.settled.set(job.record.taskId, {
+      status: "failed",
+      error: "generation was cancelled by the user",
+      error_code: "GENERATION_CANCELLED",
+      user_message: "生成已取消",
+      at: Date.now(),
+    });
+    if (job.record.placeholderId) await this.canvas.cleanupPlaceholder(job.record.placeholderId);
   }
 
   summary() {
@@ -316,7 +332,8 @@ export class GenerationRunner implements OnApplicationBootstrap {
 
   private async materialize(r: ActiveGenerationRecord, url: string, model: string): Promise<void> {
     const req = r.request;
-    const abs = await downloadMediaToDir(url, this.paths.root, req.filename);
+    const kind = watermarkKind(r.mediaType);
+    const abs = await withStagedWatermark((staged) => this.watermark.applyStaged(staged, kind), () => downloadMediaToDir(url, this.paths.root, req.filename));
     const rel = this.paths.relativize(abs)!;
     const params = stripPersisted(req.params);
     const assetMeta: Record<string, unknown> = {
@@ -374,6 +391,7 @@ export class GenerationRunner implements OnApplicationBootstrap {
     const asset = { assetId: row.id, name: row.name, path: rel, mediaType: r.mediaType === "speech" || r.mediaType === "music" ? "audio" : r.mediaType, model, width: info.width, height: info.height, duration: info.duration };
     // 先下账再对外报完成：轮询方看到 succeeded 时账上必须已经没有它，否则这时候重启会把落过地的任务再落一遍。
     await this.store.remove(r.id);
+    this.remember(r.taskId, r.mediaType, r.request.prompt, "completed", { path: rel, kind: asset.mediaType, name: asset.name });
     this.settled.set(r.taskId, { status: "succeeded", result, asset, at: Date.now() });
     this.log.log(`[task] ${r.mediaType} task=${r.taskId} succeeded path=${rel} node=${nodeId ?? "-"}`);
   }
@@ -386,8 +404,20 @@ export class GenerationRunner implements OnApplicationBootstrap {
         .catch((err) => this.log.warn(`[task] failPlaceholder(${target}) failed: ${(err as Error).message}`));
     }
     await this.store.remove(r.id).catch(() => undefined);
+    this.remember(r.taskId, r.mediaType, r.request.prompt, "failed", undefined, message);
     // 最后才报失败：轮询方拿到 failed 就会去看画布，占位卡得已经是错误态。
     this.settled.set(r.taskId, { status: "failed", error: message, error_code: code, user_message: message, at: Date.now() });
+  }
+
+  private remember(id: string, mediaType: MediaType, prompt: string | undefined, status: "running" | "completed" | "failed", output?: { path?: string; kind?: string; name?: string }, message?: string) {
+    const operation = mediaType === "speech" ? "generate_speech" : mediaType === "music" ? "generate_music" : mediaType === "video" ? "generate_video" : "generate_image";
+    try {
+      if (status === "running") this.tasks?.accept({ id, operation, prompt, mediaType });
+      else if (status === "completed" && output) this.tasks?.complete(id, output);
+      else if (status === "failed" && message) this.tasks?.fail(id, message);
+    } catch (error) {
+      this.log.warn(`[task] record ${id} failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   private prune(): void {
@@ -424,6 +454,10 @@ export function describeFailure(err: unknown): { message: string; code: string }
 function retryPayload(r: ActiveGenerationRecord): Record<string, unknown> {
   const { session_id: _s, replace_node_id: _r, ...rest } = r.request;
   return { mediaType: r.mediaType, request: rest };
+}
+
+function watermarkKind(media: MediaType): WatermarkKind {
+  return media === "speech" || media === "music" ? "audio" : media;
 }
 
 /** 参数原样记到资产和节点上（`order` 也要留：分组重排按它排序），空对象不记。 */

@@ -19,7 +19,7 @@ function reasonForDisabledBatch(items, constraints) {
       ...constraints.remainingByKind,
     },
   };
-  for (const { kind, meta } of items) {
+  for (const { kind: kind2, meta } of items) {
     const reason = reasonForDisabled(kind, meta, remaining);
     if (reason) return reason;
     const slots = remaining.remainingByKind[kind];
@@ -38,7 +38,7 @@ function reasonForDisabledBatch(items, constraints) {
       }
       const duration = Math.max(0, meta.durationSec ?? 0);
       if (kind === "video") remaining.remainingVideoTotalSec -= duration;
-      else remaining.remainingAudioTotalSec -= duration;
+      else if (remaining.remainingAudioTotalSec !== void 0)remaining.remainingAudioTotalSec -= duration;
     }
   }
   return void 0;

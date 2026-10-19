@@ -1,8 +1,16 @@
 // workspace-events.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import { Emitter } from "../vendor-inline/vscode-base/vs-buffer.js";
 
 export class WorkspaceEvents {
   _onAddToChat = new Emitter();
+  _onChatDraftText = new Emitter();
+  _onRevealChat = new Emitter();
+  _onHostChatSend = new Emitter();
+  _onAddCompositionToChat = new Emitter();
+  _onLocateCanvasCompositionRequest = new Emitter();
+  _onLocateCanvasComposition = new Emitter();
+  _onTextEditDocumentChanged = new Emitter();
   _onAddSkillToChat = new Emitter();
   _onAddConnectorToChat = new Emitter();
   _onAssetRenamed = new Emitter();
@@ -46,6 +54,13 @@ export class WorkspaceEvents {
   _pendingPluginDispatchByNode = new Map();
   /** Subscribe to add-to-chat requests (e.g. from canvas context menu) */
   onAddToChat = this._onAddToChat.event;
+  onChatDraftText = this._onChatDraftText.event;
+  onRevealChat = this._onRevealChat.event;
+  onHostChatSend = this._onHostChatSend.event;
+  onAddCompositionToChat = this._onAddCompositionToChat.event;
+  onLocateCanvasCompositionRequest = this._onLocateCanvasCompositionRequest.event;
+  onLocateCanvasComposition = this._onLocateCanvasComposition.event;
+  onTextEditDocumentChanged = this._onTextEditDocumentChanged.event;
   /**
    * Subscribe to add-skill-to-chat requests (e.g. from global Skills,
    * skill drag-drop). Carries the full SkillInfo so the chat panel can route
@@ -136,6 +151,59 @@ export class WorkspaceEvents {
       attachmentId,
     });
   }
+
+  /** 主对话输入框的草稿文本变化（会话切换时回填用）。 */
+  fireChatDraftText(text, workspaceId) {
+    this._onChatDraftText.fire({ text: text, workspaceId });
+  }
+
+  /** 让主对话显形；带 focus 时把光标放进输入框。 */
+  fireRevealChat(options) {
+    this._onRevealChat.fire(options);
+  }
+
+  /** Host SDK 解析出来的一轮对话，走活动会话正常的接收闸门。 */
+  async fireHostChatSend(input) {
+    let accepted;
+    this._onHostChatSend.fire({
+      ...input,
+      settle(accept) {
+        accepted ??= accept();
+      },
+    });
+    return (await accepted) ?? false;
+  }
+
+  /** 请求把一条 composition 引用插进对话输入框。 */
+  fireAddCompositionToChat(event) {
+    this._onAddCompositionToChat.fire(event);
+  }
+
+  /** 从「画布可能看不见」的界面请求定位到某个 composition：布局协调器先把画布露出来。 */
+  fireLocateCanvasCompositionRequest(workspaceId, compositionId, member, taskId) {
+    this._onLocateCanvasCompositionRequest.fire({
+      workspaceId,
+      compositionId,
+      ...(member ? { member } : {}),
+      ...(taskId ? { taskId } : {}),
+    });
+  }
+
+  /** 定位到某个 composition（画布已经可见时用）。 */
+  fireLocateCanvasComposition(workspaceId, compositionId, member, taskId) {
+    this._onLocateCanvasComposition.fire({
+      workspaceId,
+      compositionId,
+      ...(member ? { member } : {}),
+      ...(taskId ? { taskId } : {}),
+    });
+  }
+
+  /** 文本编辑文档变更。 */
+  fireTextEditDocumentChanged(workspaceId, session, document) {
+    this._onTextEditDocumentChanged.fire({ workspaceId, ...session, document });
+  }
+
   /** Request injecting a skill command into the chat input (with highlight + ghost text). */
   fireAddSkillToChat(skill) {
     this._onAddSkillToChat.fire({
@@ -502,6 +570,13 @@ export class WorkspaceEvents {
     this._pendingConnectorsByWorkspace.clear();
     this._deliveredConnectorWorkspaces.clear();
     this._onAddToChat.dispose();
+    this._onChatDraftText.dispose();
+    this._onRevealChat.dispose();
+    this._onHostChatSend.dispose();
+    this._onAddCompositionToChat.dispose();
+    this._onLocateCanvasCompositionRequest.dispose();
+    this._onLocateCanvasComposition.dispose();
+    this._onTextEditDocumentChanged.dispose();
     this._onAddSkillToChat.dispose();
     this._onAddConnectorToChat.dispose();
     this._onAssetRenamed.dispose();

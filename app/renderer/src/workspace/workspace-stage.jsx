@@ -30,9 +30,7 @@ const PANE_REORDER_EASING = "cubic-bezier(0.2, 0.9, 0.25, 1.02)";
 function clampChatRatio(value) {
   return Math.min(MAX_CHAT_RATIO, Math.max(MIN_CHAT_RATIO, value));
 }
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
-}
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 function resolvePaneReorderSwapDistance(stageWidth) {
   return clamp(
     stageWidth * PANE_REORDER_SWAP_DISTANCE_RATIO,

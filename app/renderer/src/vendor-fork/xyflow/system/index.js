@@ -1,3 +1,4 @@
+import { __jsx } from "../../../shared/jsx-runtime.js";
 import { drag } from 'd3-drag';
 import { select, pointer } from 'd3-selection';
 import { zoom, zoomIdentity, zoomTransform } from 'd3-zoom';

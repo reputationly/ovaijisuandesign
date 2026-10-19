@@ -167,8 +167,7 @@ function createUpdaterDevPreviewState(mode) {
     forced: mode === "forced",
     policyStatus: "ready",
     forceSource: mode === "forced" ? "cdn" : "none",
-    manualDownloadUrl:
-      mode === "forced" ? "https://example.com/download" : null,
+    manualDownloadUrl: mode === "forced" ? "https://example.com/download" : null,
     manualOnly: false,
     manualRecoveryReason: null,
     manualRecoverySource: null,
@@ -176,20 +175,13 @@ function createUpdaterDevPreviewState(mode) {
     policyCheckedAt: Date.now(),
     currentVersion: "0.1.20",
     targetVersion: "0.2.0",
-    subtitle:
-      mode === "forced"
-        ? "关键兼容性更新，需要升级后继续使用。"
-        : "修复稳定性问题并优化启动体验。",
+    subtitle: mode === "forced" ? "关键兼容性更新，需要升级后继续使用。" : "修复稳定性问题并优化启动体验。",
     requiredReason: mode === "forced" ? "关键服务协议升级" : null,
     changelog: {
       version: "0.2.0",
       date: "2026-05-21",
       subtitle: "本地预览更新",
-      changelog: [
-        "优化更新提示体验",
-        "修复若干稳定性问题",
-        "提升桌面端启动速度",
-      ],
+      changelog: ["优化更新提示体验", "修复若干稳定性问题", "提升桌面端启动速度"],
     },
     progress,
     error:

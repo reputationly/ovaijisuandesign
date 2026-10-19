@@ -11,23 +11,18 @@ class MessageWithdrawals {
   }
   rememberPart(sessionId, partId, runtimeMessageId) {
     if (!this.has(sessionId, runtimeMessageId)) return;
-    let partIds = this.partIds.get(sessionId);
-    if (!partIds) {
-      partIds = new Set();
-      this.partIds.set(sessionId, partIds);
+    let ids2 = this.partIds.get(sessionId);
+    if (!ids2) {
+      ids2 = new Set();
+      this.partIds.set(sessionId, ids2);
     }
-    partIds.add(partId);
+    ids2.add(partId);
   }
   hasPart(sessionId, partId) {
     return this.partIds.get(sessionId)?.has(partId) ?? false;
   }
   add({ sessionId, runtimeMessageId, reason }) {
-    if (
-      !sessionId ||
-      !runtimeMessageId ||
-      this.has(sessionId, runtimeMessageId)
-    )
-      return void 0;
+    if (!sessionId || !runtimeMessageId || this.has(sessionId, runtimeMessageId)) return void 0;
     let messages = this.sessions.get(sessionId);
     if (!messages) {
       messages = new Map();
@@ -60,38 +55,24 @@ class MessageWithdrawals {
     const result = [];
     for (const message of messages) {
       const target =
-        message.role === "agent" && message.runtimeMessageId
-          ? withdrawals.get(message.runtimeMessageId)
-          : void 0;
+        message.role === "agent" && message.runtimeMessageId ? withdrawals.get(message.runtimeMessageId) : void 0;
       if (!target) {
         result.push(message);
         continue;
       }
-      if (message.partId)
-        this.rememberPart(sessionId, message.partId, target.runtimeMessageId);
+      if (message.partId) this.rememberPart(sessionId, message.partId, target.runtimeMessageId);
       if (!seen.has(target.runtimeMessageId)) {
         result.push(target);
         seen.add(target.runtimeMessageId);
       }
     }
-    return result.length === messages.length &&
-      result.every((message, messageIndex) => message === messages[messageIndex])
-      ? messages
-      : result;
+    return result.length === messages.length && result.every((m2, i) => m2 === messages[i]) ? messages : result;
   }
   rekeySession(fromId, toId) {
     const source = this.sessions.get(fromId);
-    if (source)
-      this.sessions.set(
-        toId,
-        new Map([...(this.sessions.get(toId) ?? []), ...source]),
-      );
+    if (source) this.sessions.set(toId, new Map([...(this.sessions.get(toId) ?? []), ...source]));
     const parts = this.partIds.get(fromId);
-    if (parts)
-      this.partIds.set(
-        toId,
-        new Set([...(this.partIds.get(toId) ?? []), ...parts]),
-      );
+    if (parts) this.partIds.set(toId, new Set([...(this.partIds.get(toId) ?? []), ...parts]));
     this.removeSession(fromId);
   }
   removeSession(sessionId) {
@@ -118,11 +99,23 @@ function isDefaultSessionName(sessionName) {
   return sessionName === DEFAULT_SESSION_NAME;
 }
 
+function namedSessionTitle(value) {
+  if (typeof value !== "string") return "";
+  const title = value.trim();
+  if (!title || isDefaultSessionName(title)) return "";
+  return title;
+}
+
 function getIncomingSessionName(info) {
-  if (info.display_name && !isDefaultSessionName(info.display_name))
-    return info.display_name;
-  if (info.name && !isDefaultSessionName(info.name)) return info.name;
-  return info.display_name || info.name || DEFAULT_SESSION_NAME;
+  return (
+    namedSessionTitle(info.display_name) ||
+    namedSessionTitle(info.name) ||
+    namedSessionTitle(info.title) ||
+    (typeof info.display_name === "string" && info.display_name.trim()) ||
+    (typeof info.name === "string" && info.name.trim()) ||
+    (typeof info.title === "string" && info.title.trim()) ||
+    DEFAULT_SESSION_NAME
+  );
 }
 
 function resolveReconciledSessionName(info, existingName) {
@@ -282,7 +275,7 @@ export class SessionStore {
     const existing = next.get(sessionId);
     next.set(sessionId, {
       id: sessionId,
-      name: displayName || sessionName,
+      name: displayName || sessionName || DEFAULT_SESSION_NAME,
       messages: this.projectMessages(
         sessionId,
         initialMessages ? [...initialMessages] : [],

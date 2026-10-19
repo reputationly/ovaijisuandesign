@@ -2,9 +2,9 @@
 import reactExports from "react";
 import { useDevicePixelRatio } from "../shared/use-device-pixel-ratio.js";
 
-const ERASE_BRUSH_COLOR = "rgb(128, 84, 255)";
+export const ERASE_BRUSH_COLOR = "rgb(128, 84, 255)";
 
-const ERASE_MASK_OVERLAY_OPACITY = 0.4;
+export const ERASE_MASK_OVERLAY_OPACITY = 0.4;
 
 function paintStrokes(
   context,

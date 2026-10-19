@@ -8,6 +8,7 @@ import { json } from "express";
 
 import { AppModule } from "./app.module.js";
 import { rendererCommonParamsMiddleware } from "./common/renderer-common-params.js";
+import { requestContextMiddleware } from "./common/request-context.js";
 import { workspaceIdentityMiddleware } from "./common/workspace-identity.js";
 import { GatewayConfig } from "./config/gateway-config.js";
 
@@ -36,6 +37,7 @@ export async function createApp(): Promise<INestApplication> {
     credentials: true,
   });
   app.use(rendererCommonParamsMiddleware());
+  app.use(requestContextMiddleware());
   app.use(workspaceIdentityMiddleware(app.get(GatewayConfig).workspaceIdentity));
   // 画布整份保存动辄几百 KB，默认 100kb 的上限会让大画布存不上（413）。只放开这两段，别的路由保持默认。
   // 两个都要自己挂：Nest 看到路由上已经有 JSON 解析器就不再挂它的全局那个，只挂画布的话别的路由全收不到 body。
@@ -44,6 +46,8 @@ export async function createApp(): Promise<INestApplication> {
   app.use("/api/files/content", json({ limit: "256mb" }));
   // 生成请求会带长提示词和一串参考路径 / 参数。
   app.use("/api/generate", json({ limit: "16mb" }));
+  // 导演台保存会把整场场景放进一次 host 请求，默认 100kb 不够。
+  app.use("/api/v3/editors/host", json({ limit: 30 * 1024 * 1024 }));
   // 画布编辑把整张图（含高亮 / 扩图画布）以 data URI 发过来，几 MB 很常见。
   app.use("/api/edit", json({ limit: "64mb" }));
   // 项目导入把整个会话库的导出一次发过来，长期项目能到上百 MB。

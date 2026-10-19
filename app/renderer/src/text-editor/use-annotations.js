@@ -92,7 +92,7 @@ function nextAnnotationId() {
 
 const ANNOTATION_ANCHOR_CONTEXT_LENGTH = 32;
 
-function captureAnnotationState(editor, comments) {
+function captureAnnotationState(editor, comments, detached) {
   return {
     marks: getAnnotationMarks(editor).map((mark) => ({
       ...mark,
@@ -100,6 +100,7 @@ function captureAnnotationState(editor, comments) {
     comments: {
       ...comments,
     },
+    detached: structuredClone(detached),
   };
 }
 

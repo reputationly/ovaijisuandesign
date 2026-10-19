@@ -44,14 +44,7 @@ function SkillSecondaryTab({ actionId, active, label, onClick }) {
     </button>
   );
 }
-function SkillFilterDropdown({
-  label,
-  value,
-  valueLabel,
-  options,
-  actionId,
-  onValueChange,
-}) {
+function SkillFilterDropdown({ label, value, valueLabel, options, actionId, onValueChange }) {
   const [open, setOpen] = reactExports.useState(false);
   return (
     <FilterMenu open={open} onOpenChange={setOpen}>
@@ -66,12 +59,7 @@ function SkillFilterDropdown({
       >
         <span className="text-muted-foreground">{label}</span>
         <span>{valueLabel}</span>
-        <ChevronDown
-          aria-hidden="true"
-          size={14}
-          strokeWidth={1.5}
-          className="shrink-0"
-        />
+        <ChevronDown aria-hidden="true" size={14} strokeWidth={1.5} className="shrink-0" />
       </FilterMenuTrigger>
       <FilterMenuContent
         alignOffset={0}

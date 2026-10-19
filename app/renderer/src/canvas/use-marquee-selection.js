@@ -1,12 +1,12 @@
 // use-marquee-selection.js
 import reactExports from "react";
 
-function intersects(firstRect, secondRect) {
+function intersects(first2, second) {
   return (
-    firstRect.left < secondRect.right &&
-    firstRect.right > secondRect.left &&
-    firstRect.top < secondRect.bottom &&
-    firstRect.bottom > secondRect.top
+    first2.x < second.x + second.width &&
+    first2.x + first2.width > second.x &&
+    first2.y < second.y + second.height &&
+    first2.y + first2.height > second.y
   );
 }
 

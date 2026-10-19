@@ -2,12 +2,17 @@
 import { DEFAULT_STYLE } from "./history-manager.js";
 import reactExports from "react";
 const EMPTY_STATE = {
-  shapes: [],
-  selectedId: null,
-  tool: "rectangle",
-  style: DEFAULT_STYLE,
-  canUndo: false,
-  canRedo: false,
+  clips: [],
+  totalDuration: 0,
+  currentTime: 0,
+  isPlaying: false,
+  scale: 100,
+  scrollX: 0,
+  selectedClipIds: new Set(),
+  hoverClipId: null,
+  cropRange: null,
+  segmentRanges: [],
+  previewFrame: null,
 };
 export function useEditorState(handleRef) {
   const [state, setState] = reactExports.useState(EMPTY_STATE);

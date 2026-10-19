@@ -26,7 +26,7 @@ import {
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { buildRumInitStatusTrackProps } from "./init-rum.js";
-const CanvasReleaseRegionProvider = CanvasReleaseRegionContext.Provider;
+export const CanvasReleaseRegionProvider = CanvasReleaseRegionContext.Provider;
 const PAGE_MAP = {
   "/": "Home",
   "/projects": "Projects",

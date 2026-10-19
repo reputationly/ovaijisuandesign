@@ -216,10 +216,7 @@ function useConflictResolver() {
       setBatch((prev) => {
         if (!prev) return prev;
         if (applyToAll) {
-          const filled = [
-            ...prev.decisions,
-            ...new Array(prev.conflicts.length - prev.cursor).fill(decision),
-          ];
+          const filled = [...prev.decisions, ...new Array(prev.conflicts.length - prev.cursor).fill(decision)];
           queueMicrotask(() =>
             finishBatch({
               outcome: "completed",
@@ -257,9 +254,7 @@ function useConflictResolver() {
   );
   const dialogProps = reactExports.useMemo(() => {
     const conflict = batch ? (batch.conflicts[batch.cursor] ?? null) : null;
-    const remainingCount = batch
-      ? Math.max(0, batch.conflicts.length - batch.cursor - 1)
-      : 0;
+    const remainingCount = batch ? Math.max(0, batch.conflicts.length - batch.cursor - 1) : 0;
     return {
       open: !!batch,
       conflict,

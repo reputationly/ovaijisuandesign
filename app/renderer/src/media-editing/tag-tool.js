@@ -7,9 +7,9 @@ import {
 } from "./keep-tag-in-canvas.js";
 import { TagShape } from "./tag-shape.js";
 
-const MIN_DRAG_DISTANCE = 8;
+export const MIN_DRAG_DISTANCE = 8;
 
-const PLACEHOLDER_WIDTH = 44;
+export const PLACEHOLDER_WIDTH = 44;
 
 const PLACEHOLDER_HEIGHT = 26;
 

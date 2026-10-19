@@ -112,7 +112,8 @@ function NonImageLightbox({ kind, src, alt, onClose }) {
     <DialogPopup
       aria-label={alt}
       data-action-ui-id={`media-lightbox.${kind}`}
-      className="no-drag fixed inset-0 z-10002 flex flex-col items-center justify-center gap-4 overflow-hidden bg-black/85 p-10 outline-none backdrop-blur-sm"
+      data-mask={kind === "file" ? "dim" : "immersive"}
+      className="no-drag fixed inset-0 z-10002 flex flex-col items-center justify-center gap-4 overflow-hidden modal-mask modal-mask-media p-10 outline-none"
       onClick={(event) => {
         event.stopPropagation();
         if (event.target === event.currentTarget) onClose();

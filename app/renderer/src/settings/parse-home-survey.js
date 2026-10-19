@@ -205,9 +205,7 @@ const DEFAULT_HUB_CLIENT_CONFIG = {
   updateWidget: DEFAULT_UPDATE_WIDGET_CONFIG,
 };
 const HUB_CLIENT_CONFIG_REFRESH_INTERVAL_MS = 6e4;
-function isRecord$b(value) {
-  return typeof value === "object" && value !== null;
-}
+const isRecord$d = (value) => !!value && typeof value === "object" && !Array.isArray(value);
 function safeHttpsUrl(value) {
   if (typeof value !== "string" || value.trim().length === 0) return null;
   try {
@@ -233,8 +231,11 @@ function localizedText(value, locale) {
   }
   return "";
 }
-function plainText(value) {
-  return typeof value === "string" ? value.trim() : "";
+function plainText(node2) {
+  if (node2.type === "text") return node2.value;
+  if (!node2.children?.length) return void 0;
+  const parts = node2.children.map(plainText);
+  return parts.every((part) => part !== void 0) ? parts.join("") : void 0;
 }
 function parseHomeSurvey(value) {
   if (!isRecord$b(value) || value.enabled !== true) return null;
@@ -344,4 +345,8 @@ export function useHubClientConfig() {
   return !gatewayReady || error
     ? DEFAULT_HUB_CLIENT_CONFIG
     : (data ?? DEFAULT_HUB_CLIENT_CONFIG);
+}
+
+function isRecord$b(value) {
+  return !!value && typeof value === "object";
 }

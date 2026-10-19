@@ -49,6 +49,120 @@ import { MessageBubble } from "./sub-agent-group.jsx";
 import { collectFallbackTurnArtifacts } from "./collect-fallback-turn-artifacts.js";
 import { ActivityGroup } from "../team/activity-group.jsx";
 import { TurnArtifactStrip } from "../media-editing/turn-artifact-strip.jsx";
+import { TOOLS as TOOLS } from "./tools.jsx";
+import { record as record } from "../infra/parse-connector-selection.js";
+import { TOOL_ABORTED_BY_USER_TEXT as TOOL_ABORTED_BY_USER_TEXT } from "../canvas/diagnostic-history-tools.js";
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function isDesignToolInterrupted(message2) {
+  return Boolean(
+    message2.interruption === "aborted" || message2.toolResult?.includes(TOOL_ABORTED_BY_USER_TEXT) || message2.toolResult?.includes("interrupted before completion")
+  );
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function records(value) {
+  return Array.isArray(value) ? value.flatMap((item) => {
+    const parsed = record(item);
+    return parsed ? [parsed] : [];
+  }) : [];
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function readDesignJson(value, depth2 = 0) {
+  if (depth2 > 4) return void 0;
+  if (typeof value === "string") {
+    try {
+      return readDesignJson(JSON.parse(value), depth2 + 1);
+    } catch {
+      return void 0;
+    }
+  }
+  const object2 = record(value);
+  if (object2?.structuredContent) return readDesignJson(object2.structuredContent, depth2 + 1);
+  if (object2?.task || object2?.output || object2?.capabilityId) return object2;
+  const content2 = Array.isArray(value) ? value : object2?.content;
+  if (Array.isArray(content2)) {
+    for (const item of content2) {
+      const parsed = readDesignJson(record(item)?.text, depth2 + 1);
+      if (parsed) return parsed;
+    }
+  }
+  return object2;
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function hasDesignToolProblem(message2) {
+  if (isDesignToolInterrupted(message2)) return false;
+  if (message2.toolStatus === "error") return true;
+  const result = readDesignJson(message2.toolResult);
+  const task2 = record(result?.task);
+  const delivery = record(result?.delivery);
+  return Boolean(
+    result?.isError || result?.error || result?.placementProblem || records(result?.queries ?? result?.results ?? result?.items).some((item) => item.error) || ["failed", "blocked", "unknown", "waiting_user"].includes(
+      String(task2?.status ?? delivery?.status)
+    )
+  );
+}
+
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function filterDesignBookkeeping(messages2, getName) {
+  const resources = /* @__PURE__ */ new Set();
+  const compositions = /* @__PURE__ */ new Set();
+  const recovered = /* @__PURE__ */ new Set();
+  const succeeded = /* @__PURE__ */ new Set();
+  for (const message2 of [...messages2].reverse()) {
+    if (message2.type === "user" || message2.role === "user") succeeded.clear();
+    const name2 = getName(message2);
+    if (!name2 || !Object.hasOwn(TOOLS, name2)) continue;
+    const identity2 = JSON.stringify([name2, message2.toolArgs]);
+    if (hasDesignToolProblem(message2)) {
+      if (succeeded.has(identity2)) recovered.add(message2);
+    } else if (message2.toolStatus === "ok") succeeded.add(identity2);
+  }
+  return messages2.filter((message2) => {
+    if (recovered.has(message2)) return false;
+    if (message2.type === "user" || message2.role === "user") {
+      resources.clear();
+      compositions.clear();
+    }
+    const name2 = getName(message2);
+    const args = readDesignJson(message2.toolArgs);
+    const result = readDesignJson(message2.toolResult);
+    if (name2 && ["design_execute", "design_document_write", "design_image_search", "design_deliver"].includes(
+      name2
+    )) {
+      const delivery = record(result?.delivery);
+      const task2 = record(result?.task);
+      const outputs = [
+        result,
+        task2,
+        ...records(task2?.outputs),
+        ...records(delivery?.outputs),
+        ...records(delivery?.placements),
+        ...records(task2?.placements),
+        ...records(result?.queries).flatMap((item) => records(item.images))
+      ];
+      for (const output2 of outputs) {
+        if (typeof output2?.resourceId === "string") resources.add(output2.resourceId);
+        if (typeof output2?.compositionId === "string") compositions.add(output2.compositionId);
+      }
+    }
+    if (hasDesignToolProblem(message2)) return true;
+    if (name2 !== "design_resource_edit" && name2 !== "design_composition_edit") return true;
+    const commands = args?.action === "batch" ? records(args.commands) : args ? [args] : [];
+    return !commands.length || !commands.every((command2) => {
+      if (name2 === "design_resource_edit")
+        return typeof command2.resourceId === "string" && resources.has(command2.resourceId);
+      if (typeof command2.compositionId === "string" && compositions.has(command2.compositionId))
+        return true;
+      const operations = records(command2.operations);
+      return operations.length > 0 && operations.every(
+        (operation2) => operation2.action === "add_member" && Array.isArray(operation2.resourceIds) && operation2.resourceIds.length > 0 && operation2.resourceIds.every((id2) => typeof id2 === "string" && resources.has(id2))
+      );
+    });
+  });
+}
+
 const ATTACHMENT_COLLAPSE_THRESHOLD = 6;
 function attachToolConfirmsToSubAgents(messages) {
   const result = [];
@@ -103,31 +217,23 @@ function attachQuestionsToSubAgents(messages) {
   }
   return result;
 }
-function prepareMainAgentActivityMessages(messages, showHiddenTools) {
+function prepareMainAgentActivityMessages(messages, showHiddenTools, turnComplete = false) {
   if (showHiddenTools) return [...messages];
   const getMessageToolName = (message) => {
     if (message.type !== "tool") return void 0;
     return message.toolName?.trim() || parseToolResult(message.content).name;
   };
-  const retained = messages.filter((message) => {
-    if (
-      message.type === "text" &&
-      !message.content.trim() &&
-      !message.attachments?.length
-    ) {
+  const retained = filterDesignBookkeeping(messages, getMessageToolName).filter((message) => {
+    if (message.type === "text" && !message.content.trim() && !message.attachments?.length) {
       return false;
     }
     if (message.type !== "tool") return true;
     const toolName = getMessageToolName(message);
-    return (
-      isMainAgentThinkingTool(toolName) ||
-      getToolLabelId(toolName) !== "silent"
-    );
+    return isMainAgentThinkingTool(toolName) || getToolLabelId(toolName, message) !== "silent";
   });
   const normalized = retained.map((message) => {
     const toolName = getMessageToolName(message);
-    return message.type === "tool" &&
-      (toolName === "hub_read" || isMainAgentThinkingTool(toolName))
+    return message.type === "tool" && (toolName === "hub_read" || isMainAgentThinkingTool(toolName))
       ? {
           ...message,
           type: "thinking",
@@ -135,10 +241,7 @@ function prepareMainAgentActivityMessages(messages, showHiddenTools) {
         }
       : message;
   });
-  const visible = filterSupersededTransientTools(
-    normalized,
-    getMessageToolName,
-  );
+  const visible = filterSupersededTransientTools(normalized, getMessageToolName, turnComplete);
   const latest = visible[visible.length - 1];
   const latestToolName = latest ? getMessageToolName(latest) : void 0;
   if (
@@ -369,14 +472,12 @@ function AttachmentChip({ att: attachment }) {
     </div>
   );
 }
-function UserAttachmentStrip({ attachments }) {
-  const { t: translate } = useTranslation();
+function UserAttachmentStrip({ attachments, fileMentionDisplayNames }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = reactExports.useState(false);
   const shouldCollapse = attachments.length > ATTACHMENT_COLLAPSE_THRESHOLD;
   const visibleAttachments =
-    shouldCollapse && !expanded
-      ? attachments.slice(0, ATTACHMENT_COLLAPSE_THRESHOLD)
-      : attachments;
+    shouldCollapse && !expanded ? attachments.slice(0, ATTACHMENT_COLLAPSE_THRESHOLD) : attachments;
   const hiddenCount = attachments.length - visibleAttachments.length;
   return (
     <div className="mt-2 space-y-1.5">
@@ -387,14 +488,14 @@ function UserAttachmentStrip({ attachments }) {
             : "flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full"
         }
       >
-        {visibleAttachments.map((attachment) => (
-          <AttachmentChip key={attachment.path} att={attachment} />
+        {visibleAttachments.map((att) => (
+          <AttachmentChip key={att.path} att={att} fileMentionDisplayNames={fileMentionDisplayNames} />
         ))}
         {hiddenCount > 0 && (
           <button
             type="button"
             className="flex h-16 w-16 shrink-0 items-center justify-center rounded-sm border border-foreground/12 bg-muted/40 text-xs font-medium text-muted-foreground hover:border-foreground/25 hover:text-foreground"
-            aria-label={translate("chat.expand")}
+            aria-label={t("chat.expand")}
             onClick={() => setExpanded(true)}
           >
             +{hiddenCount}
@@ -407,7 +508,7 @@ function UserAttachmentStrip({ attachments }) {
           className="text-xs text-muted-foreground hover:text-foreground"
           onClick={() => setExpanded((value) => !value)}
         >
-          {expanded ? translate("chat.collapse") : translate("chat.expand")}
+          {expanded ? t("chat.collapse") : t("chat.expand")}
         </button>
       )}
     </div>
@@ -584,10 +685,10 @@ function turnMessagesRefEqual(leftTurn, rightTurn) {
 }
 function messageTurnPropsEqual(prev, next) {
   return (
+    prev.fileResourceReferences === next.fileResourceReferences &&
     prev.turnIndex === next.turnIndex &&
     prev.turnCount === next.turnCount &&
-    prev.latestAssistantActionTurnIndex ===
-      next.latestAssistantActionTurnIndex &&
+    prev.latestAssistantActionTurnIndex === next.latestAssistantActionTurnIndex &&
     prev.feedbackSessionId === next.feedbackSessionId &&
     prev.feedbackWorkspaceDir === next.feedbackWorkspaceDir &&
     prev.feedbackWorkspaceId === next.feedbackWorkspaceId &&

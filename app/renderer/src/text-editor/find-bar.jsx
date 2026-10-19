@@ -15,6 +15,7 @@ import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
 import { CloseIcon } from "../canvas/file-missing-icon.jsx";
 import { useCanvasRootElement } from "../media-editing/director-stage-header-icon.jsx";
 import { ToolbarBtn } from "./editor-history-controls.jsx";
+import { options } from "linkifyjs";
 function FindBtn({
   icon,
   title,
@@ -61,7 +62,7 @@ function FindBar({ controller }) {
   const { t } = useTranslation();
   const {
     query,
-    options,
+    options: options2,
     total,
     currentIndex,
     limited,

@@ -258,8 +258,8 @@ function RegionView({
       className={classNames(
         "absolute box-border cursor-move border-2 transition-colors",
         selected
-          ? "border-primary bg-primary/15 shadow-[0_0_0_1px_rgba(0,0,0,0.4)]"
-          : "border-white/80 bg-white/5 hover:border-white",
+          ? "border-primary bg-primary/15 ring-1 ring-background/40"
+          : "border-foreground/80 bg-background/10 hover:border-foreground",
       )}
       style={{
         left: pixelRect.x,

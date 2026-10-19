@@ -73,7 +73,16 @@ function VideoPreview({ engine, state, loading, previewSize }) {
     </div>
   );
 }
-function VideoClipPanelInner({ videoUrl, videoName, onClose, onExport }) {
+function VideoClipPanelInner({
+  active: active2,
+  videoUrl,
+  videoName,
+  onClose,
+  onExport,
+  cropConfig,
+  initialCropRange,
+  editor: editor2,
+}) {
   const [previewSize, setPreviewSize] = reactExports.useState({
     w: 640,
     h: 360,
@@ -87,12 +96,14 @@ function VideoClipPanelInner({ videoUrl, videoName, onClose, onExport }) {
       });
     }
   }, []);
+  const embedded = !!editor2;
   const renderPreview = reactExports.useCallback(
-    (ctx) => <VideoPreview {...ctx} previewSize={previewSize} />,
-    [previewSize],
+    (ctx) => <VideoPreview {...ctx} previewSize={previewSize} embedded={embedded} />,
+    [previewSize, embedded],
   );
   return (
     <MediaClipPanel
+      active={active2}
       mediaUrl={videoUrl}
       mediaName={videoName}
       defaultMime="video/mp4"
@@ -102,6 +113,9 @@ function VideoClipPanelInner({ videoUrl, videoName, onClose, onExport }) {
       onMediaLoaded={handleMediaLoaded}
       getExtFromMime={getVideoExt}
       splitEnabled={true}
+      cropConfig={cropConfig}
+      initialCropRange={initialCropRange}
+      editor={editor2}
     />
   );
 }

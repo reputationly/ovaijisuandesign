@@ -1,3 +1,4 @@
+import { __jsx } from "../shared/jsx-runtime.js";
 // 媒体血缘和扩展名判断是应用自己的请求约定。
 
 

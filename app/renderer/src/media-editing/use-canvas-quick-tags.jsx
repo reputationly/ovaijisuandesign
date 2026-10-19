@@ -31,6 +31,8 @@ import { CanvasGlobalTagManager } from "../canvas/canvas-global-tag-manager.jsx"
 import { CanvasTagPickerPanel } from "../canvas/canvas-tag-picker-panel.jsx";
 const TAG_FILTER_FOCUS_ZOOM = 0.8;
 const TAG_FILTER_MIN_READABLE_ZOOM = 0.25;
+const TAG_TRIGGER_SELECTOR =
+  '[data-action-ui-id="canvas.node-tag-switch"], [data-action-ui-id="canvas.node-tag-trigger"]';
 function isEditableTarget(target) {
   if (!(target instanceof HTMLElement)) return false;
   return (
@@ -324,7 +326,7 @@ const ACTIVITY_REQUEST_TIMEOUT_MS = 5e3;
 const RELEASE_RECOVERY_BASE_MS = 1e3;
 const RELEASE_RECOVERY_MAX_MS = 3e4;
 async function postActivity(gatewayFetch, path, body, options = {}) {
-  return gatewayFetch(path, {
+  const response = await gatewayFetch(path, {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -333,6 +335,8 @@ async function postActivity(gatewayFetch, path, body, options = {}) {
     timeoutMs: ACTIVITY_REQUEST_TIMEOUT_MS,
     ...options,
   });
+  if (!response.ok) throw new Error(`Workspace export activity HTTP ${response.status}`);
+  return response;
 }
 function mapHeartbeatResponse(responseBody) {
   if (!responseBody || typeof responseBody !== "object") {
@@ -643,8 +647,6 @@ function useCanvasTagDownload({
     downloadTag,
   };
 }
-const TAG_TRIGGER_SELECTOR =
-  '[data-action-ui-id="canvas.node-tag-switch"], [data-action-ui-id="canvas.node-tag-trigger"]';
 export function useCanvasQuickTags({
   canvasViewRef,
   closeNodeContextMenu,

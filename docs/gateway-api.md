@@ -1,6 +1,6 @@
 # gateway HTTP 接口面
 
-官方本地 gateway（MiniMax Design **3.0.21**）注册的全部路由。
+官方本地 gateway（MiniMax Design **4.0.0**）注册的全部路由。
 
 这是**要对齐的接口规格**：只要我们的 gateway 提供同样的路由和形状，
 官方的 mcp-tools 和渲染进程都能直接接上，反过来我们的前端也能接官方
@@ -9,44 +9,44 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 482 条，79 个控制器。**我们同名同方法实现了 258 条**
+共 557 条，105 个控制器。**我们同名同方法实现了 363 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
-## PluginSdkController（0/1）
+## PluginSdkController（1/1）
 
 ```
-  GET    /__hub-sdk__.js
+✓ GET    /__hub-sdk__.js
 ```
 
-## AssetCenterController（3/31）
+## AssetCenterController（15/31）
 
 ```
   GET    /api/asset-center/attachments/:aid
-  GET    /api/asset-center/attachments/:aid/blob
+✓ GET    /api/asset-center/attachments/:aid/blob
   GET    /api/asset-center/attachments/:aid/playback
   PATCH  /api/asset-center/attachments/:aid/prompt
   POST   /api/asset-center/blobs
   GET    /api/asset-center/blobs/playback
   GET    /api/asset-center/blobs/preview
 ✓ GET    /api/asset-center/entities
-  POST   /api/asset-center/entities
+✓ POST   /api/asset-center/entities
   GET    /api/asset-center/entities-export
-  POST   /api/asset-center/entities-from-paths
-  DELETE /api/asset-center/entities/:eid
-  GET    /api/asset-center/entities/:eid
-  PATCH  /api/asset-center/entities/:eid
-  POST   /api/asset-center/entities/:eid/attachments-from-workspace
-  GET    /api/asset-center/entities/:eid/cover
-  POST   /api/asset-center/entities/:eid/drop-to-canvas
+✓ POST   /api/asset-center/entities-from-paths
+✓ DELETE /api/asset-center/entities/:eid
+✓ GET    /api/asset-center/entities/:eid
+✓ PATCH  /api/asset-center/entities/:eid
+✓ POST   /api/asset-center/entities/:eid/attachments-from-workspace
+✓ GET    /api/asset-center/entities/:eid/cover
+✓ POST   /api/asset-center/entities/:eid/drop-to-canvas
   GET    /api/asset-center/entities/:eid/export
-  DELETE /api/asset-center/entities/:eid/materialize
-  POST   /api/asset-center/entities/:eid/materialize
+✓ DELETE /api/asset-center/entities/:eid/materialize
+✓ POST   /api/asset-center/entities/:eid/materialize
   POST   /api/asset-center/import
   POST   /api/asset-center/internal/reset
 ✓ GET    /api/asset-center/library-status
   GET    /api/asset-center/lookup-attachment
   POST   /api/asset-center/migrate
-  GET    /api/asset-center/search
+✓ GET    /api/asset-center/search
   GET    /api/asset-center/suggestions
   POST   /api/asset-center/suggestions
   POST   /api/asset-center/suggestions/:sid/approve
@@ -54,12 +54,12 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/asset-center/workspace-refs
 ```
 
-## AssetPreviewController（3/4）
+## AssetPreviewController（4/4）
 
 ```
 ✓ GET    /api/asset/:id/metadata
 ✓ GET    /api/asset/text-preview
-  GET    /api/internal/document/cache-context
+✓ GET    /api/internal/document/cache-context
 ✓ GET    /api/internal/document/read
 ```
 
@@ -201,11 +201,11 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/canvas/ungroup
 ```
 
-## ChatModelTraceController（0/2）
+## ChatModelTraceController（2/2）
 
 ```
-  GET    /api/chat/model-traces
-  POST   /api/chat/model-traces
+✓ GET    /api/chat/model-traces
+✓ POST   /api/chat/model-traces
 ```
 
 ## LaneController（0/4）
@@ -252,7 +252,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/connector-package/uninstall
 ```
 
-## ConnectorCapabilityController（0/5）
+## ConnectorCapabilityController（0/9）
 
 ```
   GET    /api/connectors/capability-access
@@ -260,6 +260,10 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/connectors/capability-resolve
   GET    /api/connectors/capability-selection
   POST   /api/connectors/capability-selection
+  GET    /api/connectors/proxy-status
+  POST   /api/connectors/proxy-sync
+  GET    /api/connectors/tools
+  POST   /api/connectors/tools/call
 ```
 
 ## ConnectorMarketController（0/3）
@@ -292,20 +296,43 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/dag/run/:runId
 ```
 
-## DependenciesController（0/5）
+## DependenciesController（5/5）
 
 ```
-  POST   /api/dependencies
-  GET    /api/dependencies/:assetId/downstream
-  GET    /api/dependencies/:assetId/inputs
-  GET    /api/dependencies/:assetId/upstream
-  DELETE /api/dependencies/:id
+✓ POST   /api/dependencies
+✓ GET    /api/dependencies/:assetId/downstream
+✓ GET    /api/dependencies/:assetId/inputs
+✓ GET    /api/dependencies/:assetId/upstream
+✓ DELETE /api/dependencies/:id
+```
+
+## TaskAcceptanceController（0/10）
+
+```
+  GET    /api/dev/task-acceptance
+  GET    /api/dev/task-acceptance/:id
+  POST   /api/dev/task-acceptance/:id/resolve
+  GET    /api/dev/task-acceptance/availability
+  GET    /api/dev/task-acceptance/faults
+  POST   /api/dev/task-acceptance/faults
+  GET    /api/dev/task-acceptance/lookup
+  GET    /api/dev/task-acceptance/overview
+  GET    /api/dev/task-acceptance/tables/:table
+  GET    /api/dev/task-acceptance/tables/:table/rows/:id
 ```
 
 ## NetworkDiagnosticsController（1/1）
 
 ```
 ✓ GET    /api/diagnostics/network
+```
+
+## DirectorVcamController（3/3）
+
+```
+✓ POST   /api/director-stage/vcam/start
+✓ GET    /api/director-stage/vcam/status
+✓ POST   /api/director-stage/vcam/stop
 ```
 
 ## EditController（23/23）
@@ -336,14 +363,14 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/edit/super-resolution
 ```
 
-## FeedbackController（0/5）
+## FeedbackController（5/5）
 
 ```
-  GET    /api/feedback
-  POST   /api/feedback
-  GET    /api/feedback/:ticketId
-  PUT    /api/feedback/:ticketId
-  POST   /api/feedback/upload-attachment
+✓ GET    /api/feedback
+✓ POST   /api/feedback
+✓ GET    /api/feedback/:ticketId
+✓ PUT    /api/feedback/:ticketId
+✓ POST   /api/feedback/upload-attachment
 ```
 
 ## FeedbackExtractorController（2/2）
@@ -561,40 +588,81 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ PATCH  /api/plan/stage-work-items
 ```
 
-## PluginsController（1/6）
+## PluginsController（6/6）
 
 ```
 ✓ GET    /api/plugins
-  GET    /api/plugins/:id/data/{*path}
-  PUT    /api/plugins/:id/data/{*path}
-  POST   /api/plugins/:id/instantiate
-  GET    /api/plugins/:id/static/{*path}
-  POST   /api/plugins/install-local
+✓ GET    /api/plugins/:id/data/{*path}
+✓ PUT    /api/plugins/:id/data/{*path}
+✓ POST   /api/plugins/:id/instantiate
+✓ GET    /api/plugins/:id/static/{*path}
+✓ POST   /api/plugins/install-local
 ```
 
-## PluginConfigController（0/4）
+## PluginConfigController（4/4）
 
 ```
-  GET    /api/plugins/:id/config
-  DELETE /api/plugins/:id/config/:key
-  GET    /api/plugins/:id/config/:key
-  PUT    /api/plugins/:id/config/:key
+✓ GET    /api/plugins/:id/config
+✓ DELETE /api/plugins/:id/config/:key
+✓ GET    /api/plugins/:id/config/:key
+✓ PUT    /api/plugins/:id/config/:key
 ```
 
-## PluginPythonController（0/2）
+## PluginPythonController（2/2）
 
 ```
-  POST   /api/plugins/:id/python/ensure-env
-  POST   /api/plugins/:id/python/run
+✓ POST   /api/plugins/:id/python/ensure-env
+✓ POST   /api/plugins/:id/python/run
 ```
 
-## PluginAgentController（0/4）
+## PluginAgentController（4/4）
 
 ```
-  POST   /api/plugins/agent/invoke
-  POST   /api/plugins/agent/open-editor
-  POST   /api/plugins/agent/result
-  GET    /api/plugins/agent/surface
+✓ POST   /api/plugins/agent/invoke
+✓ POST   /api/plugins/agent/open-editor
+✓ POST   /api/plugins/agent/result
+✓ GET    /api/plugins/agent/surface
+```
+
+## ProjectRulesController（2/2）
+
+```
+✓ GET    /api/project-rules
+✓ PUT    /api/project-rules
+```
+
+## CanvasV3Controller（5/5）
+
+```
+✓ GET    /api/project/architecture
+✓ GET    /api/v3/canvas
+✓ GET    /api/v3/canvas/agent-compositions
+✓ POST   /api/v3/canvas/commands
+✓ POST   /api/v3/canvas/content
+```
+
+## ProjectCompositionController（7/7）
+
+```
+✓ POST   /api/project/compositions/commands
+✓ POST   /api/project/compositions/get
+✓ POST   /api/project/compositions/list
+✓ POST   /api/project/compositions/list-all
+✓ POST   /api/project/compositions/list-by-resource
+✓ POST   /api/project/compositions/search
+✓ POST   /api/project/compositions/types/list
+```
+
+## ProjectResourceController（7/7）
+
+```
+✓ POST   /api/project/resources/commands
+✓ POST   /api/project/resources/commands/batch
+✓ POST   /api/project/resources/get
+✓ POST   /api/project/resources/search
+✓ POST   /api/project/resources/tags/commands
+✓ POST   /api/project/resources/tags/get
+✓ POST   /api/project/resources/versions/list
 ```
 
 ## ProjectArchiveActivityController（3/3）
@@ -670,7 +738,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/skills/upload-check
 ```
 
-## SkillMarketController（10/40）
+## SkillMarketController（11/40）
 
 ```
   POST   /api/skills/creator-plan/asset-presign
@@ -690,7 +758,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/skills/market/categories
 ✓ GET    /api/skills/market/check-operator
   GET    /api/skills/market/detail
-  POST   /api/skills/market/install
+✓ POST   /api/skills/market/install
   POST   /api/skills/market/install-remote-zip
   GET    /api/skills/market/operation
   POST   /api/skills/market/operation
@@ -861,16 +929,153 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/v1/user/equity
 ```
 
-## WatermarkController（0/1）
+## CanvasV3AudioController（1/1）
 
 ```
-  POST   /api/watermark/config
+✓ GET    /api/v3/canvas/audios/:resourceId/:versionId
 ```
 
-## WebMediaController（0/1）
+## CanvasV3DirectorAssetsController（2/2）
 
 ```
-  POST   /api/web-media/yt-dlp
+✓ POST   /api/v3/canvas/director-assets/:id
+✓ GET    /api/v3/canvas/director-assets/:id/files/*assetPath
+```
+
+## DocumentCheckpointsController（1/1）
+
+```
+✓ POST   /api/v3/canvas/document-checkpoints
+```
+
+## CanvasV3ImagesController（2/2）
+
+```
+✓ POST   /api/v3/canvas/images/:importId
+✓ GET    /api/v3/canvas/images/:resourceId/:versionId
+```
+
+## CanvasV3LocalFilesController（2/2）
+
+```
+✓ POST   /api/v3/canvas/local-files/:importId
+✓ GET    /api/v3/canvas/local-files/:resourceId/:versionId
+```
+
+## CanvasV3MediaController（2/2）
+
+```
+✓ GET    /api/v3/canvas/media/:importId
+✓ POST   /api/v3/canvas/media/:importId
+```
+
+## CanvasV3PluginStateController（2/2）
+
+```
+✓ GET    /api/v3/canvas/plugin-state/:nodeId
+✓ PUT    /api/v3/canvas/plugin-state/:nodeId
+```
+
+## CanvasV3PreviewsController（1/1）
+
+```
+✓ GET    /api/v3/canvas/previews/:resourceId/:versionId
+```
+
+## CanvasV3TextGenerationController（2/2）
+
+```
+✓ POST   /api/v3/canvas/text/generate
+✓ GET    /api/v3/canvas/text/models
+```
+
+## CanvasV3VideoAudioSplitsController（1/1）
+
+```
+✓ POST   /api/v3/canvas/video-audio-splits/:requestId
+```
+
+## CanvasV3VideosController（1/1）
+
+```
+✓ GET    /api/v3/canvas/videos/:resourceId/:versionId
+```
+
+## CanvasV3VideoThumbnailsController（1/1）
+
+```
+✓ GET    /api/v3/canvas/videos/:resourceId/:versionId/thumbnail
+```
+
+## ModelCatalogController（2/2）
+
+```
+✓ GET    /api/v3/capabilities
+✓ GET    /api/v3/capabilities/:id
+```
+
+## ProjectQueryController（2/2）
+
+```
+✓ POST   /api/v3/composition/commands
+✓ POST   /api/v3/query/:operation
+```
+
+## DeliveryController（1/1）
+
+```
+✓ POST   /api/v3/deliveries
+```
+
+## DocumentController（1/1）
+
+```
+✓ POST   /api/v3/document
+```
+
+## EditorController（4/4）
+
+```
+✓ GET    /api/v3/editors/capabilities
+✓ POST   /api/v3/editors/capabilities
+✓ POST   /api/v3/editors/host
+✓ POST   /api/v3/editors/video
+```
+
+## ExecuteController（1/1）
+
+```
+✓ POST   /api/v3/execute
+```
+
+## AcquisitionController（2/2）
+
+```
+✓ POST   /api/v3/search/images
+✓ POST   /api/v3/web-media
+```
+
+## TaskApiController（5/5）
+
+```
+✓ GET    /api/v3/tasks
+✓ GET    /api/v3/tasks/:id
+✓ POST   /api/v3/tasks/:id/resolve
+✓ GET    /api/v3/tasks/lookup
+✓ GET    /api/v3/tasks/queue
+```
+
+## WatermarkController（1/1）
+
+```
+✓ POST   /api/watermark/config
+```
+
+## WebMediaController（2/2）
+
+```
+✓ POST   /api/web-media/browser
+✓ POST   /api/web-media/yt-dlp
 ```
 
 ## HubGroupController（1/4）

@@ -142,3 +142,28 @@ export function onceEvent<T>(source: Event<T>): Event<T> {
     return sub;
   };
 }
+
+/**
+ * 带「登记即托管」的释放基类。
+ *
+ * 用法是 `this._register(resource)`：登记的对象会在 `dispose()` 时按**登记顺序的逆序**释放，
+ * 而且已释放之后再登记会当场释放（而不是静默泄漏）。
+ *
+ * `isDisposed` 之所以要暴露成受保护属性，是因为构造过程本身可能已经释放过（例如
+ * 登记时发现父对象已销毁），子类需要能查到这件事 —— 只看自己的状态是不够的。
+ */
+export abstract class Disposable implements IDisposable {
+  protected readonly _store = new DisposableStore();
+
+  get isDisposed(): boolean {
+    return this._store.isDisposed;
+  }
+
+  protected _register<T extends IDisposable>(resource: T): T {
+    return this._store.add(resource);
+  }
+
+  dispose(): void {
+    this._store.dispose();
+  }
+}

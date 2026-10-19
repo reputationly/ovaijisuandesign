@@ -40,9 +40,7 @@ import { getImageConstraintReason } from "../generation/attachment-bar.jsx";
 
 function useAssetsRefMetadata(paths, assets) {
   const { directReferences } = useCanvasBridge();
-  const pathKey = JSON.stringify(
-    [...new Set(paths.filter((path) => !!parseCanvasReference(path)))].sort(),
-  );
+  const pathKey = JSON.stringify([...new Set(paths.filter((path) => !!parseCanvasReference(path)))].sort());
   const [resolved, setResolved] = reactExports.useState({
     bridge: directReferences,
     rows: new Map(),
@@ -53,19 +51,13 @@ function useAssetsRefMetadata(paths, assets) {
   const updateReferenceMetadata = reactExports.useCallback(
     (results) => {
       revision.current++;
-      const byIdentity = new Map(
-        results.map((row) => [canvasReferenceIdentity(row.reference), row]),
-      );
-      const previous =
-        latest.current.bridge === directReferences
-          ? latest.current.rows
-          : new Map();
+      const byIdentity = new Map(results.map((row) => [canvasReferenceIdentity(row.reference), row]));
+      const previous = latest.current.bridge === directReferences ? latest.current.rows : new Map();
       const rows = new Map();
       const authoredPaths = JSON.parse(pathKey);
       for (const path of authoredPaths) {
         const reference = parseCanvasReference(path);
-        const row =
-          reference && byIdentity.get(canvasReferenceIdentity(reference));
+        const row = reference && byIdentity.get(canvasReferenceIdentity(reference));
         if (!row) {
           const prior = previous.get(path);
           if (prior) rows.set(path, prior);
@@ -102,8 +94,7 @@ function useAssetsRefMetadata(paths, assets) {
           if (cancelled || current !== revision.current) return;
           rows.push(...results);
         }
-        if (!cancelled && current === revision.current)
-          updateReferenceMetadata(rows);
+        if (!cancelled && current === revision.current) updateReferenceMetadata(rows);
       } catch {}
     };
     void refresh();
@@ -114,6 +105,10 @@ function useAssetsRefMetadata(paths, assets) {
       window.removeEventListener("focus", refresh);
     };
   }, [directReferences, pathKey, updateReferenceMetadata]);
+  const getReferenceResolutions = reactExports.useCallback(
+    () => (latest.current.bridge === directReferences ? latest.current.rows : new Map()),
+    [directReferences],
+  );
   const resolutions = reactExports.useMemo(() => {
     if (resolved.bridge !== directReferences) return new Map();
     const current = JSON.parse(pathKey);
@@ -125,12 +120,10 @@ function useAssetsRefMetadata(paths, assets) {
     );
   }, [directReferences, pathKey, resolved]);
   return {
+    getReferenceResolutions,
     updateReferenceMetadata,
     resolutions,
-    assets: reactExports.useMemo(
-      () => mergeDirectReferenceMetadata(assets, resolutions),
-      [assets, resolutions],
-    ),
+    assets: reactExports.useMemo(() => mergeDirectReferenceMetadata(assets, resolutions), [assets, resolutions]),
   };
 }
 

@@ -97,11 +97,12 @@ function typeBucketMeta(bucket) {
 }
 function ProjectAssetThumbnailGeneration({
   name: assetName,
-  kind,
+  kind: kind2,
   typeBucket,
   thumbnailSrc,
   variant,
-  muted = false,
+  muted:muted ,
+  muted: muted2= false,
   className,
 }) {
   const [failed, setFailed] = reactExports.useState(false);

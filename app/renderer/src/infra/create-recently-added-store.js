@@ -8,6 +8,8 @@ import { DEFAULT_WORKFLOW_NODE_SPACING } from "../canvas/ungroup-in-canvas.js";
 import { computeDerivedNodePosition } from "../canvas/resolve-derived-collision.js";
 import { normalizeLegacyModelId } from "../generation/normalize-skill-detail-metadata.js";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
+import { CANVAS_TAG_NAME_MAX_LENGTH, PRESET_COLOR_NAME_KEYS, countCanvasTagNameUnits } from "./parse-connector-selection.js";
+import { isCanvasTagColor } from "./normalize-v2-registry.js";
 export function createModelRegistryStore() {
   return createStore((set) => ({
     image: [],
@@ -137,19 +139,79 @@ export function stripErrorHtml(html) {
     return stripWhitelistedTags(html);
   }
 }
-const registry = new Set();
+function registry(value) {
+  const raw2 = object$1(value);
+  keys(raw2, ["version", "revision", "orderMode", "tags"]);
+  if (
+    raw2.version !== 2 ||
+    (raw2.orderMode !== "default" && raw2.orderMode !== "custom") ||
+    !Array.isArray(raw2.tags) ||
+    raw2.tags.length > 1e3
+  )
+    invalid$3();
+  const seen = new Set();
+  const names = new Set();
+  const tags2 = raw2.tags.map((candidate) => {
+    const tag = object$1(candidate);
+    keys(tag, ["id", "kind", "name", "color", "legacyNameKey"]);
+    const tagId = id$2(tag.id);
+    if (seen.has(tagId)) invalid$3();
+    seen.add(tagId);
+    const presetKey = Object.hasOwn(PRESET_COLOR_NAME_KEYS, tagId) ? PRESET_COLOR_NAME_KEYS[tagId] : void 0;
+    const kind = presetKey ? "color" : "keyword";
+    if (tag.kind !== kind) invalid$3();
+    const name2 = tag.name === void 0 ? void 0 : id$2(tag.name).trim();
+    if (name2 && (countCanvasTagNameUnits(name2) > CANVAS_TAG_NAME_MAX_LENGTH || names.has(name2))) invalid$3();
+    if (name2) names.add(name2);
+    if (!name2 && !presetKey) invalid$3();
+    if (tag.legacyNameKey !== void 0 && tag.legacyNameKey !== presetKey) invalid$3();
+    if (tag.kind === "color" && (typeof tag.color !== "string" || !isCanvasTagColor(tag.color))) invalid$3();
+    if (tag.kind === "keyword" && tag.color !== void 0) invalid$3();
+    return {
+      id: tagId,
+      kind,
+      ...(name2
+        ? {
+            name: name2,
+          }
+        : {}),
+      ...(tag.kind === "color"
+        ? {
+            color: tag.color,
+          }
+        : {}),
+      ...(presetKey && !name2
+        ? {
+            legacyNameKey: presetKey,
+          }
+        : {}),
+    };
+  });
+  if (Object.keys(PRESET_COLOR_NAME_KEYS).some((key2) => !seen.has(key2))) invalid$3();
+  return {
+    version: 2,
+    revision: revision$2(raw2.revision),
+    orderMode: raw2.orderMode,
+    tags: tags2,
+  };
+}
 let lastZoom = 1;
+// 产物里这个是 `registry$1 = new Set()`（同文件另有一个叫 `registry` 的校验函数）。
+// 还原时 `$1` 被剥掉、且 **Set 的声明整行丢了**，于是这三处都指向那个校验函数 ——
+// `registry.add is not a function`，工作区路由整屏挂掉。
+// 这里换个不会撞的名字，并把声明补回来。
+const zoomCounterRegistry = /* @__PURE__ */ new Set();
 export function broadcastZoom(zoom) {
   lastZoom = zoom;
-  for (const el of registry) {
+  for (const el of zoomCounterRegistry) {
     el.style.setProperty("--canvas-zoom", String(zoom));
   }
 }
 function registerZoomCounter(el) {
-  registry.add(el);
+  zoomCounterRegistry.add(el);
   el.style.setProperty("--canvas-zoom", String(lastZoom));
   return () => {
-    registry.delete(el);
+    zoomCounterRegistry.delete(el);
   };
 }
 export function useRegisterZoomCounter(ref, enabled = true) {

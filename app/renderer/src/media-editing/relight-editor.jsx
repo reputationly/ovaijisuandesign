@@ -910,7 +910,10 @@ const STUDIOS = {
     ground: colorRGB("#eceef3"),
   },
 };
-const finite = (value, fallback) => (Number.isFinite(value) ? value : fallback);
+function finite(value, field, min = 0) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < min) invalid$6(field);
+  return value;
+}
 function prepareLight(light) {
   const azimuthRadians = (finite(light.horizontalAngle, 0) * Math.PI) / 180;
   const elevationRadians = (finite(light.verticalAngle, 0) * Math.PI) / 180;

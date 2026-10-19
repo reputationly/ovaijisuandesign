@@ -115,6 +115,7 @@ import { CustomProviderForm } from "../settings/custom-provider-form.jsx";
 import { useSettingsDialog } from "../settings/persist-visible-workspace-manual-order.js";
 import { DataDirectorySettings } from "../settings/data-directory-settings.jsx";
 import { DialogPortal } from "../infra/gateway-http-error.jsx";
+import { ProjectSettingsGate } from "./load-workspace-project-architecture.jsx";
 function useSettingsPanelHeader() {
   return reactExports.useContext(SettingsPanelHeaderContext);
 }
@@ -679,56 +680,11 @@ function AdvancedSection() {
   );
 }
 function MemorySection() {
-  const routerSearch = useRouterState({
-    select: (routerState) => routerState.location.search,
-  });
   const { setHeaderOverride } = useSettingsPanelHeader();
-  const routeWorkspaceId =
-    normalizeWorkspaceId(routerSearch?.workspaceId) ?? null;
-  const activeWorkspaceSnapshot = useTopbarActiveWorkspaceSnapshot();
-  const currentWorkspaceId =
-    routeWorkspaceId ?? activeWorkspaceSnapshot.currentWorkspaceId;
-  const hiloApp = reactExports.useMemo(
-    () =>
-      instantiationService.invokeFunction((accessor) => accessor.get(IHiloApp)),
-    [],
-  );
-  const runtimeFromLookup = useActiveRuntime(currentWorkspaceId, hiloApp);
-  const runtimeFromTopbar =
-    activeWorkspaceSnapshot.activeRuntime?.workspaceId === currentWorkspaceId
-      ? activeWorkspaceSnapshot.activeRuntime
-      : null;
-  const activeRuntime = runtimeFromLookup ?? runtimeFromTopbar;
-  const [recovered, setRecovered] = reactExports.useState(null);
-  const effectiveRuntime =
-    recovered?.sourceRuntime === activeRuntime &&
-    recovered.runtime.workspaceId === currentWorkspaceId
-      ? recovered.runtime
-      : activeRuntime;
-  const recoverWorkspaceBinding = reactExports.useCallback(async () => {
-    if (!currentWorkspaceId) return void 0;
-    const next = await hiloApp.getWorkspaceRuntime(currentWorkspaceId);
-    if (!next?.gatewayBinding) return void 0;
-    setRecovered({
-      sourceRuntime: activeRuntime,
-      runtime: next,
-    });
-    return next.gatewayBinding;
-  }, [activeRuntime, currentWorkspaceId, hiloApp]);
   return (
-    <GatewayScopeProvider
-      gatewayUrl={effectiveRuntime?.gatewayUrl}
-      gatewayBinding={effectiveRuntime?.gatewayBinding}
-      scopeKey={currentWorkspaceId ?? void 0}
-      workspaceClaim={effectiveRuntime?.workspaceClaim}
-      recoverWorkspace={currentWorkspaceId ? recoverWorkspaceBinding : void 0}
-    >
-      <CurrentWorkspaceContext.Provider
-        value={effectiveRuntime?.folderPath ?? ""}
-      >
-        <MemoryManager onHeaderChange={setHeaderOverride} />
-      </CurrentWorkspaceContext.Provider>
-    </GatewayScopeProvider>
+    <ProjectSettingsGate>
+      <MemoryManager onHeaderChange={setHeaderOverride} />
+    </ProjectSettingsGate>
   );
 }
 function SoftwareUpdateUnavailableSection() {

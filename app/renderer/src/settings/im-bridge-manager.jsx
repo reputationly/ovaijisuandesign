@@ -325,7 +325,7 @@ function trackConnectionFailure(action, platform, layout, error) {
 function QrConnectView({
   platform,
   step = "scan",
-  layout = "dialog",
+  layout : layout2= "dialog",
   status,
   errorReason,
   qrNode,
@@ -403,7 +403,7 @@ function QrConnectView({
 }
 function QrSuccessView({
   platform,
-  layout = "dialog",
+  layout : layout2= "dialog",
   onDone,
   onDialogHeaderChange,
   agentName,
@@ -733,14 +733,7 @@ function FeishuUserAuthFlow({
     />
   );
 }
-function FeishuSection({
-  alias,
-  layout = "dialog",
-  onClose,
-  onConfirmed,
-  onDialogHeaderChange,
-  onConnected,
-}) {
+function FeishuSection({ alias, layout = "dialog", onClose, onConfirmed, onDialogHeaderChange, onConnected }) {
   return (
     <FeishuQrSection
       alias={alias}
@@ -838,7 +831,7 @@ function AddAccountForm({
   onAdded,
   onDialogHeaderChange,
   onConnected,
-  layout = "dialog",
+  layout : layout2= "dialog",
 }) {
   const { t } = useTranslation();
   const { addAccount } = useImAccounts();

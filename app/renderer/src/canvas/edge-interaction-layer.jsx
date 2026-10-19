@@ -15,6 +15,7 @@ import { EdgeLabelRenderer, useReactFlow, useStoreApi } from "../vendor-fork/xyf
 import { getInternalNodesBounds } from "../vendor-fork/xyflow/system/index.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
+import { isReadOnlyDerivedEdge } from "./is-read-only-derived-edge.jsx";
 const BEZIER_HIT_SAMPLES = 16;
 
 function cubicAt(progress, startValue, firstControlValue, secondControlValue, endValue) {
@@ -61,20 +62,12 @@ function distSqPointToBezier(px, py, cp, steps) {
   return minSq;
 }
 
-function hitTestEdges(
-  state,
-  flowX,
-  flowY,
-  radius,
-  steps = BEZIER_HIT_SAMPLES,
-) {
+function hitTestEdges(state, flowX, flowY, radius, steps = BEZIER_HIT_SAMPLES) {
   let best = null;
   let bestSq = radius * radius;
   for (const edge of state.edges) {
-    if (
-      !isEdgeVisible(edge, state.nodeLookup, state.onlySelectedNodes ?? false)
-    )
-      continue;
+    if (isReadOnlyDerivedEdge(edge)) continue;
+    if (!isEdgeVisible(edge, state.nodeLookup, state.onlySelectedNodes ?? false)) continue;
     const srcEntry = state.nodeLookup.get(edge.source);
     const src = readNodeBox(srcEntry);
     const tgt = readNodeBox(state.nodeLookup.get(edge.target));
@@ -97,6 +90,8 @@ function hitTestEdges(
 
 const EDGE_OCCLUDING_SELECTORS = [
   '[data-action-ui-id="canvas.node-handle-plus"]',
+  // Subject add tiles live in a viewport portal above edges, outside node DOM.
+  '[data-action-ui-id="canvas.subject-add-layer"]',
   ".react-flow__node",
   ".react-flow__node-toolbar",
 ];
@@ -104,6 +99,7 @@ const EDGE_OCCLUDING_SELECTORS = [
 const EDGE_OCCLUDING_SELECTOR = EDGE_OCCLUDING_SELECTORS.join(",");
 
 function isEdgeOccludingElement(element) {
+  if (element && element.closest("[data-canvas-edge-backdrop]") === element) return false;
   return element?.closest(EDGE_OCCLUDING_SELECTOR) != null;
 }
 

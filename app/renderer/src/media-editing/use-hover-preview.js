@@ -41,9 +41,7 @@ function isPointInPreviewBridge(x, y, anchor, preview) {
     x <= start.right + (end.right - start.right) * progress
   );
 }
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 function getMediaPreviewPosition(anchorRect, previewSize, viewport) {
   const preferredTop = anchorRect.top - previewSize.height - ANCHOR_GAP;
   const fallbackTop = anchorRect.bottom + ANCHOR_GAP;

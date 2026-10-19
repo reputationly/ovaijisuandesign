@@ -10,9 +10,9 @@ import { parseNodeId } from "../canvas/find-free-position-from-anchor.js";
 export function isCloneData(data) {
   return data?.cloneOf != null;
 }
-const PROGRESS_UPDATE_INTERVAL_MS = 500;
-const H3_MAX_PROGRESS_DURATION_MS = 4e4;
-const H3_MAX_PROGRESS_CAP = 95;
+export const PROGRESS_UPDATE_INTERVAL_MS = 500;
+export const H3_MAX_PROGRESS_DURATION_MS = 4e4;
+export const H3_MAX_PROGRESS_CAP = 95;
 const PROFILES = {
   // 2min→90%, 7min→99%；起步约 2%/s，尾段几十秒涨 1%
   image: {

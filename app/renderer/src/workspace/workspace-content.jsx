@@ -16,7 +16,7 @@ import { workspaceEvents } from "./topbar-state-context.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { RemoteToolDialog } from "../infra/remote-tool-dialog.jsx";
 import { CanvasArea } from "../canvas/canvas-area.jsx";
-import { useSessionStore } from "./resolve-retry-message-payload.jsx";
+import { CanvasLoadingState, useSessionStore } from "./resolve-retry-message-payload.jsx";
 import {
   dispatchBrowserVideoToChat,
   downloadBrowserVideo,
@@ -53,6 +53,9 @@ import { ChatPanel } from "../chat/chat-panel.jsx";
 import { WorkspaceBrowser } from "./workspace-browser.jsx";
 import { WorkspaceDisplayModeSwitcher } from "./workspace-display-mode-switcher.jsx";
 import { WorkspaceStage } from "./workspace-stage.jsx";
+import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
+import { subjectMaterialDrafts } from "./create-subject-material-draft-inbox.jsx";
+import { WorkspaceCanvasArea } from "./workspace-canvas-area.jsx";
 function useAccountSubmissionAllowed(kind) {
   return useAccountSubmissionDecision(kind).allowed;
 }
@@ -125,7 +128,7 @@ function useBrowserVideoDownload(isActive) {
             current.current.scopeKey === origin.scopeKey
           )
             dedupedToast.success(
-              current.current.t("workspace.browser.pluginAddedToCanvas"),
+              current.current.t(current2.current.t),
             );
           await browser.completeVideoDownload({
             requestId: request.requestId,
@@ -163,7 +166,7 @@ function useBrowserVideoDownload(isActive) {
 const WORKSPACE_VIEW_MODE_CONTROL_WIDTH = 104;
 const WORKSPACE_VIEW_MODE_CONTROL_SPLIT_WIDTH = 120;
 const WORKSPACE_VIEW_MODE_CONTROL_GAP = 6;
-const WORKSPACE_VIEW_MODE_CONTROL_COMPACT_WIDTH = 32;
+const THUMB_PX = 24;
 function isWorkspaceMode(value) {
   return value === "chatOnly" || value === "split" || value === "canvasOnly";
 }
@@ -450,15 +453,26 @@ function WorkspaceViewModeMenu({
   );
 }
 function useChatReferenceReveal(isActive, reveal) {
+  const workspaceId = useGatewayScopeKey();
   reactExports.useEffect(() => {
     if (isActive === false) return;
     const subscription = workspaceEvents.onAddPluginNodeToChat(reveal);
+    const revealRequest = workspaceEvents.onRevealChat((event) => {
+      if (event.workspaceId === void 0 || event.workspaceId === workspaceId) reveal();
+    });
+    const revealSubject = () => {
+      if (workspaceId && subjectMaterialDrafts.has(workspaceId)) reveal();
+    };
+    const releaseSubject = subjectMaterialDrafts.subscribe(revealSubject);
+    revealSubject();
     window.addEventListener(BROWSER_IMAGE_EDIT_EVENT, reveal);
     return () => {
       subscription.dispose();
+      revealRequest.dispose();
+      releaseSubject();
       window.removeEventListener(BROWSER_IMAGE_EDIT_EVENT, reveal);
     };
-  }, [isActive, reveal]);
+  }, [isActive, reveal, workspaceId]);
 }
 function toRevertEdit(hunk) {
   return {
@@ -617,7 +631,7 @@ function selectWorkspaceStageLayout(state) {
   };
 }
 const MemoizedCanvasArea = reactExports.memo(
-  CanvasArea,
+  WorkspaceCanvasArea,
   (prev, next) =>
     prev.onCanvasTasksChange === next.onCanvasTasksChange &&
     prev.onRenderableContentChange === next.onRenderableContentChange &&
@@ -631,6 +645,7 @@ const MemoizedCanvasArea = reactExports.memo(
     prev.workspaceId === next.workspaceId &&
     prev.workspaceName === next.workspaceName &&
     prev.getTextEditCloseBlockReason === next.getTextEditCloseBlockReason &&
+    prev.onTextEditorActiveChange === next.onTextEditorActiveChange &&
     prev.toolbarPlacement === next.toolbarPlacement &&
     prev.layoutRelocationKey === next.layoutRelocationKey,
 );
@@ -1226,3 +1241,5 @@ export function WorkspaceContent({
     </div>
   );
 }
+
+const WORKSPACE_VIEW_MODE_CONTROL_COMPACT_WIDTH = 24;

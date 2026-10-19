@@ -1,4 +1,5 @@
 // canvas-view-controls.jsx
+import jsxRuntimeExports from "react/jsx-runtime";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
 import reactExports from "react";
@@ -17,10 +18,7 @@ import {
   DropdownMenuSub,
   DropdownMenuTrigger,
 } from "../media-editing/use-warn-missing-asset-meta.jsx";
-import {
-  QuickZoomPresence,
-  TidyHint,
-} from "./canvas-high-blast-delete-dialog.jsx";
+import { QuickZoomPresence, TidyHint, TidySortContext } from "./canvas-high-blast-delete-dialog.jsx";
 import { TidyLayoutMenuItems } from "./tidy-layout-menu-items.jsx";
 import { ToolbarSeparator } from "./canvas-toolbar-extension-button.jsx";
 import { ZoomMenu } from "./zoom-menu.jsx";
@@ -28,6 +26,8 @@ import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT } from "./use-video-starter-preset-store.js";
 import { useAlignmentSnapPreferenceStore } from "./use-active-mode.js";
 import { CanvasToggleIcon } from "./canvas-toggle-icon.jsx";
+import { getAutoAlignSnapshot, setAutoAlignPreference, subscribeAutoAlign } from "./tidy-sort-context.jsx";
+import { TidyConfirmationPopover, canvasFinalFocus, useTidyConfirmation } from "./tidy-confirm-duration-ms.jsx";
 const APPEARANCE_PANEL_POSITION_CLASSES = {
   "bottom-left": "bottom-full left-0 mb-2",
   "top-left": "top-full left-0 mt-2",
@@ -80,44 +80,76 @@ function TidyLayoutIcon(props) {
 const MENU_CONTENT_CLASS =
   "min-w-[200px] border border-[var(--canvas-controls-border)] [border-width:var(--divider-width)]";
 function CanvasTidyControlInner({
+  layoutOnly = false,
   onSortByConnections,
   onSortByMediaType,
   onTidyLayout,
   placement,
+  onRevertLayout,
+  subscribeInvalidation,
+  disabledReasons,
+  ...preference2
 }) {
-  const { t: translate } = useTranslation();
-  const label = translate("canvas.tidy");
+  const { t } = useTranslation();
+  const label = t("canvas.tidy");
   const menuSide = placement === "bottom-left" ? "top" : "bottom";
   const menuAlign = "start";
+  const confirmation = useTidyConfirmation({
+    onRevertLayout: (checkpoint) => onRevertLayout?.(checkpoint),
+    subscribeInvalidation,
+  });
+  const runTidy = confirmation.runTidy;
+  const confirmPositionClass =
+    placement === "bottom-left"
+      ? "bottom-full left-0 mb-2"
+      : placement === "top-right"
+        ? "top-full right-0 mt-2"
+        : "top-full left-0 mt-2";
   const [menuOpen, setMenuOpen] = reactExports.useState(false);
+  const anchorRef = reactExports.useRef(null);
   const handleTidyLayout = reactExports.useCallback(
-    (layout, includeDeps) => {
+    (layout2, includeDeps) => {
       setMenuOpen(false);
-      return onTidyLayout(layout, includeDeps);
+      return onRevertLayout
+        ? runTidy(() => onTidyLayout?.(layout2, includeDeps))
+        : onTidyLayout?.(layout2, includeDeps);
     },
-    [onTidyLayout],
+    [onRevertLayout, runTidy, onTidyLayout],
   );
   const handleSortByConnections = reactExports.useCallback(() => {
     setMenuOpen(false);
-    return onSortByConnections();
-  }, [onSortByConnections]);
+    return onRevertLayout ? runTidy(() => onSortByConnections?.()) : onSortByConnections?.();
+  }, [onRevertLayout, runTidy, onSortByConnections]);
   const handleSortByMediaType = reactExports.useCallback(() => {
     setMenuOpen(false);
-    return onSortByMediaType();
-  }, [onSortByMediaType]);
+    return onRevertLayout ? runTidy(() => onSortByMediaType?.()) : onSortByMediaType?.();
+  }, [onRevertLayout, runTidy, onSortByMediaType]);
   const connectionsHintId = reactExports.useId();
   const mediaTypeHintId = reactExports.useId();
-  const connectionsHint = translate(
+  const connectionsHint = t(
     "canvas.tidy.sort.connections.hint",
     "有连线依赖的节点按上下游排在上方，离散节点收拢到下方",
   );
-  const mediaTypeHint = translate(
+  const mediaTypeHint = t(
     "canvas.tidy.sort.mediaType.hint",
     "按图片 / 视频 / 音频 / 文本 等素材类型分成多条泳道，不考虑连线",
   );
+  const layoutItems = (
+    <TidyLayoutMenuItems
+      {...preference2}
+      disabledReason={disabledReasons?.layout}
+      includeDepsDisabledReason={disabledReasons?.includeDeps}
+      onTidy={onTidyLayout ? handleTidyLayout : void 0}
+      showIncludeDeps={true}
+      uiIdPrefix="canvas.toolbar-tidy"
+    />
+  );
   return (
-    <div className="relative h-full">
-      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+    <div ref={anchorRef} className="relative h-full">
+      <DropdownMenu
+        open={onRevertLayout ? confirmation.menuOpen : menuOpen}
+        onOpenChange={onRevertLayout ? confirmation.handleMenuOpenChange : setMenuOpen}
+      >
         <Tooltip content={label} closeOnClick={true}>
           <DropdownMenuTrigger
             type="button"
@@ -131,113 +163,142 @@ function CanvasTidyControlInner({
         </Tooltip>
         <DropdownMenuContent
           data-action-ui-id="canvas.toolbar-tidy-menu"
+          finalFocus={canvasFinalFocus(anchorRef)}
           side={menuSide}
           sideOffset={8}
           align={menuAlign}
           className={MENU_CONTENT_CLASS}
         >
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger
-              data-action-ui-id="canvas.toolbar-tidy-sort"
-              className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
-            >
-              <TidyCategoryIcon
-                aria-hidden="true"
-                className="shrink-0 text-[var(--canvas-controls-text-muted)]"
-              />
-              <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
-                {translate("canvas.tidy.sort", "分类整理")}
-              </span>
-              <ChevronRight
-                className="ml-auto text-[var(--canvas-controls-text-muted)] opacity-60"
-                size={14}
-                strokeWidth={1.5}
-                aria-hidden="true"
-              />
-            </DropdownMenuSubTrigger>
-            <DropdownMenuContent
-              data-action-ui-id="canvas.toolbar-tidy-sort-menu"
-              side="right"
-              sideOffset={8}
-              align="start"
-              className={MENU_CONTENT_CLASS}
-            >
-              <DropdownMenuItem
-                data-action-ui-id="canvas.toolbar-tidy-sort-connections"
-                onClick={() => void handleSortByConnections()}
-                aria-describedby={connectionsHintId}
-                className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
-              >
-                <Workflow
-                  size={16}
-                  strokeWidth={1.5}
-                  aria-hidden="true"
-                  className="text-[var(--canvas-controls-text-muted)]"
-                />
-                <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
-                  {translate("canvas.tidy.sort.connections", "按连线关系")}
-                </span>
-                <TidyHint hint={connectionsHint} hintId={connectionsHintId} />
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                data-action-ui-id="canvas.toolbar-tidy-sort-media-type"
-                onClick={() => void handleSortByMediaType()}
-                aria-describedby={mediaTypeHintId}
-                className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
-              >
-                <Library
-                  size={16}
-                  strokeWidth={1.5}
-                  aria-hidden="true"
-                  className="text-[var(--canvas-controls-text-muted)]"
-                />
-                <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
-                  {translate("canvas.tidy.sort.mediaType", "按素材类型")}
-                </span>
-                <TidyHint hint={mediaTypeHint} hintId={mediaTypeHintId} />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenuSub>
-          <DropdownMenuSeparator />
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger
-              data-action-ui-id="canvas.toolbar-tidy-layouts"
-              className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
-            >
-              <TidyLayoutIcon
-                aria-hidden="true"
-                className="shrink-0 text-[var(--canvas-controls-text-muted)]"
-              />
-              <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
-                {translate("canvas.tidy.layouts", "布局整理")}
-              </span>
-              <ChevronRight
-                className="ml-auto text-[var(--canvas-controls-text-muted)] opacity-60"
-                size={14}
-                strokeWidth={1.5}
-                aria-hidden="true"
-              />
-            </DropdownMenuSubTrigger>
-            <DropdownMenuContent
-              data-action-ui-id="canvas.toolbar-tidy-layout-menu"
-              side="right"
-              sideOffset={8}
-              align="start"
-              className={MENU_CONTENT_CLASS}
-            >
-              <TidyLayoutMenuItems
-                onTidy={handleTidyLayout}
-                showIncludeDeps={true}
-                uiIdPrefix="canvas.toolbar-tidy"
-              />
-            </DropdownMenuContent>
-          </DropdownMenuSub>
+          {layoutOnly ? (
+            layoutItems
+          ) : (
+            <>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger
+                  data-action-ui-id="canvas.toolbar-tidy-sort"
+                  className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
+                >
+                  <TidyCategoryIcon aria-hidden="true" className="shrink-0 text-[var(--canvas-controls-text-muted)]" />
+                  <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
+                    {t("canvas.tidy.sort", "分类整理")}
+                  </span>
+                  <ChevronRight
+                    className="ml-auto text-[var(--canvas-controls-text-muted)] opacity-60"
+                    size={14}
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                  />
+                </DropdownMenuSubTrigger>
+                <DropdownMenuContent
+                  data-action-ui-id="canvas.toolbar-tidy-sort-menu"
+                  side="right"
+                  sideOffset={8}
+                  align="start"
+                  className={MENU_CONTENT_CLASS}
+                >
+                  <DropdownMenuItem
+                    data-action-ui-id="canvas.toolbar-tidy-sort-connections"
+                    disabled={!onSortByConnections || !!disabledReasons?.connections}
+                    title={disabledReasons?.connections}
+                    onClick={() => {
+                      if (!disabledReasons?.connections) void handleSortByConnections();
+                    }}
+                    aria-describedby={connectionsHintId}
+                    className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
+                  >
+                    <Workflow
+                      size={16}
+                      strokeWidth={1.5}
+                      aria-hidden="true"
+                      className="text-[var(--canvas-controls-text-muted)]"
+                    />
+                    <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
+                      {t("canvas.tidy.sort.connections", "按连线关系")}
+                    </span>
+                    <TidyHint hint={connectionsHint} hintId={connectionsHintId} />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    data-action-ui-id="canvas.toolbar-tidy-sort-media-type"
+                    disabled={!onSortByMediaType || !!disabledReasons?.mediaType}
+                    title={disabledReasons?.mediaType}
+                    onClick={() => {
+                      if (!disabledReasons?.mediaType) void handleSortByMediaType();
+                    }}
+                    aria-describedby={mediaTypeHintId}
+                    className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
+                  >
+                    <Library
+                      size={16}
+                      strokeWidth={1.5}
+                      aria-hidden="true"
+                      className="text-[var(--canvas-controls-text-muted)]"
+                    />
+                    <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
+                      {t("canvas.tidy.sort.mediaType", "按素材类型")}
+                    </span>
+                    <TidyHint hint={mediaTypeHint} hintId={mediaTypeHintId} />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenuSub>
+              <DropdownMenuSeparator />
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger
+                  data-action-ui-id="canvas.toolbar-tidy-layouts"
+                  className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
+                >
+                  <TidyLayoutIcon aria-hidden="true" className="shrink-0 text-[var(--canvas-controls-text-muted)]" />
+                  <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
+                    {t("canvas.tidy.layouts", "布局整理")}
+                  </span>
+                  <ChevronRight
+                    className="ml-auto text-[var(--canvas-controls-text-muted)] opacity-60"
+                    size={14}
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                  />
+                </DropdownMenuSubTrigger>
+                <DropdownMenuContent
+                  data-action-ui-id="canvas.toolbar-tidy-layout-menu"
+                  side="right"
+                  sideOffset={8}
+                  align="start"
+                  className={MENU_CONTENT_CLASS}
+                >
+                  {layoutItems}
+                </DropdownMenuContent>
+              </DropdownMenuSub>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
+      {onRevertLayout && (
+        <TidyConfirmationPopover
+          open={confirmation.confirmOpen}
+          positionClass={confirmPositionClass}
+          uiIdPrefix="canvas.toolbar-tidy"
+          onKeep={confirmation.keep}
+          onRevert={confirmation.revert}
+        />
+      )}
     </div>
   );
 }
-const CanvasTidyControl = reactExports.memo(CanvasTidyControlInner);
+const CanvasTidyControl = reactExports.memo(function CanvasTidyControl2(props) {
+  const { sortBy, setSortBy } = useTidySort();
+  const includeDeps = reactExports.useSyncExternalStore(subscribeAutoAlign, getAutoAlignSnapshot, () => false);
+  // 这里必须渲染内层组件 `CanvasTidyControlInner`（产物里叫 `CanvasTidyControl$1`）。
+  // 还原时把 `$1` 后缀剥掉了，两个名字撞成一个，于是 memo 包装**渲染自己** ——
+  // 无限自我递归，几秒内把渲染进程的堆撑到 4GB 并 OOM。
+  return (
+    <CanvasTidyControlInner
+      {...props}
+      sortBy={sortBy}
+      onSortByChange={setSortBy}
+      includeDeps={includeDeps}
+      onIncludeDepsChange={setAutoAlignPreference}
+    />
+  );
+});
 const zoomSelector = (state) => state.transform[2];
 function ToolbarButton({
   children,
@@ -520,3 +581,5 @@ export function CanvasViewControls({
     </TooltipProvider>
   );
 }
+
+export const useTidySort = () => reactExports.useContext(TidySortContext);

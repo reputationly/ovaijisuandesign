@@ -53,6 +53,7 @@ import {
 } from "../workspace/use-deep-link-router.js";
 import { Progress } from "../team/team-management-detail-loading.jsx";
 import { ToolConfirmCard } from "../generation/tool-confirm-card.jsx";
+import { formatJson } from "./format-json.jsx";
 function useProductionPlanDisclosure() {
   return reactExports.useContext(ProductionPlanDisclosureContext);
 }
@@ -352,8 +353,7 @@ function TimelineOperationTargetChip({ operation }) {
   const currentWorkspace = useCurrentWorkspace();
   const { activePlanId, openPlan } = useProductionPlanDisclosure();
   const canOpenPlan =
-    operation.kind === "production-plan" &&
-    Boolean(activePlanId && operation.targetPlanId === activePlanId);
+    operation.kind === "production-plan" && Boolean(activePlanId && operation.targetPlanId === activePlanId);
   const handleOpenTarget = reactExports.useCallback(() => {
     if (canOpenPlan) {
       openPlan(operation.targetPlanId);
@@ -372,9 +372,7 @@ function TimelineOperationTargetChip({ operation }) {
         variant="ghost"
         size="xs"
         data-action-ui-id={
-          operation.kind === "production-plan"
-            ? "chat-production-plan-operation-open"
-            : "chat-canvas-operation-locate"
+          operation.kind === "production-plan" ? "chat-production-plan-operation-open" : "chat-canvas-operation-locate"
         }
         className="h-auto min-w-0 max-w-[200px] rounded-sm bg-foreground/[0.06] px-1.5 py-0.5 font-normal text-caption-11 text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
         onClick={handleOpenTarget}
@@ -389,7 +387,7 @@ function TimelineOperationTargetChip({ operation }) {
     </span>
   );
 }
-function TimelineOperationRow({ operation, isActive }) {
+function TimelineOperationRow({ operation: operation2, isActive }) {
   const { t } = useTranslation();
   const labelKey = isActive
     ? (operation.activeLabelKey ?? operation.labelKey)
@@ -521,7 +519,8 @@ function ProcessStepsDetail({ steps, t }) {
     <div className="flex min-w-0 flex-col gap-2" data-process-steps={true}>
       {steps.map((step, index) => {
         const displayResult = sanitizeDisplayText(step.toolResult);
-        return (
+        return displayResult = sanitizedResult ? formatJson(sanitizedResult) : void 0;
+        return(
           <div
             key={step.id}
             className="min-w-0 rounded-md border border-border bg-foreground/[0.02] px-2.5 py-2"

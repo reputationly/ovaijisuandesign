@@ -1,0 +1,1 @@
+export const EXCLUDED_TAGS = new Set(["a", "code", "kbd", "pre", "samp", "script", "style"]);

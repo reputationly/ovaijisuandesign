@@ -15,11 +15,8 @@ import { showVisiblePreviewTab } from "../workspace/show-visible-preview-tab.js"
 import { __jsx } from "../shared/jsx-runtime.js";
 function resolveCanvasRenderPolicy(platform, override = {}) {
   const isMacX64Canary =
-    platform?.os === "darwin" &&
-    platform.arch === "x64" &&
-    platform.runningUnderARM64Translation === false;
-  const contentVisibility =
-    override.contentVisibility ?? (isMacX64Canary ? "visible" : "auto");
+    platform?.os === "darwin" && platform.arch === "x64" && platform.runningUnderARM64Translation === false;
+  const contentVisibility = override.contentVisibility ?? (isMacX64Canary ? "visible" : "auto");
   const recoverAfterResume = override.recoverAfterResume ?? isMacX64Canary;
   const reason =
     override.contentVisibility === "visible"

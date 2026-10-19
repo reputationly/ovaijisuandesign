@@ -57,12 +57,9 @@ function formatConsumerLabel(userName, memberUid) {
 function useTeamWalletCreditSummary(scope, enabled = true) {
   const queryScope = scope ? canonicalCreditScope(scope) : null;
   const query = useQuery({
-    queryKey: queryScope
-      ? creditQueryKeys.wallet(queryScope)
-      : creditQueryKeys.unavailable("team-wallet"),
+    queryKey: queryScope ? creditQueryKeys.wallet(queryScope) : creditQueryKeys.unavailable("team-wallet"),
     queryFn: ({ signal }) => {
-      if (!queryScope)
-        throw new Error("Team wallet queried without an account scope");
+      if (!queryScope) throw new Error("Team wallet queried without an account scope");
       return fetchWalletInfo(signal);
     },
     enabled: enabled && queryScope !== null,
@@ -70,12 +67,9 @@ function useTeamWalletCreditSummary(scope, enabled = true) {
     gcTime: CREDIT_CACHE_GC_MS,
     retry: false,
   });
-  const mpWallet = query.data?.wallets?.find(
-    (wallet) => wallet.source === WalletSource.WALLET_SOURCE_OP,
-  );
+  const mpWallet = query.data?.wallets?.find((w) => w.source === WalletSource.WALLET_SOURCE_OP);
   const summary = deriveMpCreditSummary(mpWallet);
-  const trusted =
-    !query.isError && !query.isRefetchError && summary.hasBreakdown;
+  const trusted = !query.isError && !query.isRefetchError && summary.hasBreakdown;
   return {
     ...query,
     summary,
@@ -133,9 +127,7 @@ function TeamCreditBreakdownRow({ teamRemaining, summary }) {
         <span key={part.key} className="contents">
           <BreakdownOperator symbol={index === 0 ? "=" : "+"} />
           <div className="min-w-0">
-            <div className="mb-1.5 truncate text-xs text-muted-foreground">
-              {part.label}
-            </div>
+            <div className="mb-1.5 truncate text-xs text-muted-foreground">{part.label}</div>
             <div
               className="truncate text-xl font-medium tabular-nums text-foreground"
               data-action-ui-id={`team.credit-breakdown-${part.key}`}

@@ -81,8 +81,7 @@ async function exportVideo(processor, source, opts = {}) {
   const videoTrack = await input.getPrimaryVideoTrack();
   if (!videoTrack) throw new Error("Input has no video track");
   const decodable = await videoTrack.canDecode();
-  if (!decodable)
-    throw new Error("Input video codec is not decodable in this browser");
+  if (!decodable) throw new Error("Input video codec is not decodable in this browser");
   const trackDuration = await videoTrack.computeDuration();
   const [packetStats, codedW, codedH, dispW, dispH] = await Promise.all([
     videoTrack.computePacketStats(60),
@@ -92,8 +91,7 @@ async function exportVideo(processor, source, opts = {}) {
     videoTrack.getDisplayHeight(),
   ]);
   const sourceFrameRate = packetStats.averagePacketRate || 30;
-  const frameRate =
-    opts.frameRate && opts.frameRate > 0 ? opts.frameRate : sourceFrameRate;
+  const frameRate = opts.frameRate && opts.frameRate > 0 ? opts.frameRate : sourceFrameRate;
   const startTime = opts.startTime ?? 0;
   const endTime = opts.endTime ?? trackDuration;
   const outW = makeEven(dispW || codedW);
@@ -134,17 +132,17 @@ async function exportVideo(processor, source, opts = {}) {
         },
       },
     });
-  } catch (error) {
+  } catch (e2) {
     input.dispose();
-    throw error;
+    throw e2;
   }
   if (opts.onProgress) {
     let lastProgress = -1;
-    conversion.onProgress = (progress) => {
-      const progressValue = Math.min(1, Math.max(0, progress));
-      if (progressValue - lastProgress >= 0.01 || progressValue >= 1) {
-        opts.onProgress(progressValue);
-        lastProgress = progressValue;
+    conversion.onProgress = (p) => {
+      const v2 = Math.min(1, Math.max(0, p));
+      if (v2 - lastProgress >= 0.01 || v2 >= 1) {
+        opts.onProgress(v2);
+        lastProgress = v2;
       }
     };
   }
@@ -160,74 +158,75 @@ async function exportVideo(processor, source, opts = {}) {
     type: mime,
   });
 }
-function useDelayedHover(delay = 100) {
+function useDelayedHover() {
   const [isOpen, setIsOpen] = reactExports.useState(false);
-  const timerRef = reactExports.useRef(null);
+  const timer2 = reactExports.useRef(null);
+  reactExports.useEffect(
+    () => () => {
+      if (timer2.current) clearTimeout(timer2.current);
+    },
+    [],
+  );
   const open = reactExports.useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
+    if (timer2.current) clearTimeout(timer2.current);
     setIsOpen(true);
   }, []);
-  const scheduleClose = reactExports.useCallback(() => {
-    timerRef.current = setTimeout(() => setIsOpen(false), delay);
-  }, [delay]);
-  const dismiss = reactExports.useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    setIsOpen(false);
+  const close = reactExports.useCallback(() => {
+    if (timer2.current) clearTimeout(timer2.current);
+    timer2.current = setTimeout(() => setIsOpen(false), 100);
   }, []);
   return {
     isOpen,
     open,
-    close: scheduleClose,
-    dismiss,
+    close,
   };
 }
 function VolumeControlInner({ videoRef, tone = "dark" }) {
+  const { t } = useTranslation();
   const trackRef = reactExports.useRef(null);
+  const dragCleanup = reactExports.useRef(null);
+  reactExports.useEffect(() => () => dragCleanup.current?.(), []);
   const [volume, setVolume] = reactExports.useState(100);
   const [muted, setMuted] = reactExports.useState(false);
-  const { isOpen, open, close: scheduleClose } = useDelayedHover();
+  const { isOpen, open, close } = useDelayedHover();
   reactExports.useEffect(() => {
-    const videoElement = videoRef.current;
-    if (!videoElement) return;
-    videoElement.muted = muted;
-    videoElement.volume = volume / 100;
+    const el = videoRef.current;
+    if (!el) return;
+    el.muted = muted;
+    el.volume = volume / 100;
   }, [muted, volume, videoRef]);
-  const handleToggleMute = reactExports.useCallback((clickEvent) => {
-    clickEvent.stopPropagation();
+  const handleToggleMute = reactExports.useCallback((e2) => {
+    e2.stopPropagation();
     setMuted((prev) => !prev);
   }, []);
   const seekVolume = reactExports.useCallback((clientY) => {
     const track = trackRef.current;
     if (!track) return;
     const rect = track.getBoundingClientRect();
-    const ratio =
-      1 - Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    const ratio = 1 - Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
     const newVol = Math.round(ratio * 100);
     setVolume(newVol);
     setMuted(newVol === 0);
   }, []);
   const handleClick = reactExports.useCallback(
-    (clickEvent) => {
-      clickEvent.stopPropagation();
-      seekVolume(clickEvent.clientY);
+    (e2) => {
+      e2.stopPropagation();
+      seekVolume(e2.clientY);
     },
     [seekVolume],
   );
   const handleDragStart = reactExports.useCallback(
-    (mouseEvent) => {
-      mouseEvent.stopPropagation();
-      mouseEvent.preventDefault();
-      seekVolume(mouseEvent.clientY);
-      const onMove = (mouseEvent) => seekVolume(mouseEvent.clientY);
-      const onUp = () => {
+    (e2) => {
+      e2.stopPropagation();
+      e2.preventDefault();
+      dragCleanup.current?.();
+      seekVolume(e2.clientY);
+      const onMove = (ev) => seekVolume(ev.clientY);
+      const onUp = () => dragCleanup.current?.();
+      dragCleanup.current = () => {
         document.removeEventListener("mousemove", onMove);
         document.removeEventListener("mouseup", onUp);
+        dragCleanup.current = null;
       };
       document.addEventListener("mousemove", onMove);
       document.addEventListener("mouseup", onUp);
@@ -237,26 +236,19 @@ function VolumeControlInner({ videoRef, tone = "dark" }) {
   const isLight = tone === "light";
   const btnCls = isLight
     ? "flex size-6 shrink-0 items-center justify-center rounded text-foreground/80 hover:bg-foreground/10"
-    : "flex size-6 shrink-0 items-center justify-center rounded text-white hover:bg-white/10";
-  const popoverBg = isLight ? "rgba(255,255,255,0.96)" : "rgba(40,40,40,0.92)";
-  const popoverShadow = isLight
-    ? "0 2px 8px rgba(0,0,0,0.18)"
-    : "0 2px 8px rgba(0,0,0,0.3)";
-  const popoverBorder = isLight ? "1px solid rgba(0,0,0,0.08)" : "none";
-  const valueCls = isLight ? "text-foreground/65" : "text-white/60";
-  const trackBg = isLight ? "rgba(0,0,0,0.18)" : "rgba(255,255,255,0.2)";
-  const fillBg = isLight ? "currentColor" : "#fff";
-  const thumbShadow = isLight
-    ? "0 0 2px rgba(0,0,0,0.25)"
-    : "0 0 2px rgba(0,0,0,0.3)";
-  const sliderColorCls = isLight ? "text-foreground" : "text-white";
+    : "flex size-6 shrink-0 items-center justify-center rounded text-[var(--canvas-video-control-fg)] hover:bg-[var(--canvas-video-control-hover)]";
+  const valueCls = isLight ? "text-foreground/65" : "text-[var(--canvas-video-control-label)]";
+  const trackBg = "color-mix(in srgb, currentColor 20%, transparent)";
+  const fillBg = "currentColor";
+  const sliderColorCls = isLight ? "text-foreground" : "text-[var(--canvas-video-control-fg)]";
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: hover menu container
-    <div className="relative" onMouseEnter={open} onMouseLeave={scheduleClose}>
+    <div className="relative" onMouseEnter={open} onMouseLeave={close}>
       <button
         type="button"
         onClick={handleToggleMute}
-        onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
+        aria-label={muted ? t("assetPreview.unmute", "Unmute") : t("assetPreview.mute", "Mute")}
+        onDoubleClick={(e2) => e2.stopPropagation()}
         className={btnCls}
         style={{
           background: "none",
@@ -269,71 +261,40 @@ function VolumeControlInner({ videoRef, tone = "dark" }) {
       {isOpen && (
         // biome-ignore lint/a11y/noStaticElementInteractions: hover menu popover
         <div
-          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1"
-          style={{
-            zIndex: 10,
-          }}
+          className="absolute left-1/2 -translate-x-1/2 bottom-full z-10 mb-1"
           onMouseEnter={open}
-          onMouseLeave={scheduleClose}
+          onMouseLeave={close}
         >
           <div
-            className={`flex flex-col items-center rounded-md px-1.5 py-2 ${sliderColorCls}`}
-            style={{
-              background: popoverBg,
-              boxShadow: popoverShadow,
-              border: popoverBorder,
-            }}
+            className={`flex flex-col items-center rounded-md border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] px-1.5 py-2 shadow-[var(--canvas-shadow-dropdown)] ${sliderColorCls}`}
           >
-            <span
-              className={`select-none text-[10px] tabular-nums mb-1 ${valueCls}`}
-              style={{
-                minWidth: 20,
-                textAlign: "center",
-              }}
-            >
+            <span className={`mb-1 min-w-5 select-none text-center text-[10px] tabular-nums ${valueCls}`}>
               {volume}
             </span>
             <div
               ref={trackRef}
-              className="relative cursor-pointer"
-              style={{
-                width: 20,
-                height: 64,
-                display: "flex",
-                justifyContent: "center",
-              }}
+              className="relative flex h-16 w-5 cursor-pointer justify-center"
               onClick={handleClick}
               onMouseDown={handleDragStart}
             >
               <div
-                className="relative"
+                className="relative h-full w-0.5 rounded-full"
                 style={{
-                  width: 2,
-                  height: "100%",
-                  borderRadius: 1,
                   background: trackBg,
                 }}
               >
                 <div
-                  className="absolute bottom-0 left-0 right-0"
+                  className="absolute bottom-0 left-0 right-0 rounded-full"
                   style={{
                     height: `${volume}%`,
-                    borderRadius: 1,
                     background: fillBg,
                   }}
                 />
               </div>
               <div
-                className="absolute"
+                className="absolute left-1/2 size-2 -translate-x-1/2 translate-y-1/2 rounded-full bg-current shadow-sm"
                 style={{
-                  left: "50%",
                   bottom: `${volume}%`,
-                  transform: "translate(-50%, 50%)",
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: fillBg,
-                  boxShadow: thumbShadow,
                 }}
               />
             </div>

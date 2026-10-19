@@ -72,19 +72,12 @@ const messages = {
     invalidLayout: "此比例下无法使用此布局",
   },
 };
-function sourceReference(imageUrl, imagePath) {
+function sourceReference(imageUrl, imageKey) {
   if (!imageUrl) return void 0;
-  const sourcePath =
-    imagePath ??
-    (/^https?:\/\/(?!localhost(?::|\/)|127\.0\.0\.1(?::|\/)|\[::1\](?::|\/))/i.test(
-      imageUrl,
-    )
-      ? imageUrl
-      : void 0);
-  return sourcePath
+  return imageKey
     ? {
         url: imageUrl,
-        path: sourcePath,
+        key: imageKey,
         locked: true,
       }
     : void 0;

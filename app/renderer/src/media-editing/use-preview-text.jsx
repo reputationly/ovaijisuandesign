@@ -9,6 +9,7 @@ import { cn as mergeClassNames } from "../infra/dialog-content.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";
 import { Dialog } from "../canvas/separator.jsx";
 import { useCanvasBridge } from "./package.jsx";
+import { usePortalContainer } from "./portal-container-context.jsx";
 export function TextPreviewContent({ state, summary = false }) {
   const { t } = useTranslation();
   if (state.status === "ready") {
@@ -113,8 +114,10 @@ export function usePreviewText(path, loader, active = true) {
         status: "loading",
       };
 }
-function DialogPortal({ ...props }) {
-  return <DialogPortalPrimitive data-slot="dialog-portal" {...props} />;
+function DialogPortal({ container, ...props }) {
+  const portalContainer = usePortalContainer();
+  // 产物里这里是 `DialogPortal$1`（base-ui 的那个），还原时后缀被剥掉、撞成了自己。
+  return <DialogPortalPrimitive container={container ?? portalContainer} {...props} />;
 }
 function DialogOverlay({ className, ...props }) {
   return (

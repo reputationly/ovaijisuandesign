@@ -1,3 +1,4 @@
+import { __jsx } from "../shared/jsx-runtime.js";
 // test-driver-bridge.js
 function findVisibleElement(selector) {
   const all = document.querySelectorAll(selector);

@@ -230,6 +230,9 @@ export function buildBody(cfg: MediaConfig, job: VideoJob): Record<string, unkno
   if (job.generateAudio !== null && job.generateAudio !== undefined) {
     metadata.generate_audio = job.generateAudio;
   }
+  if (job.resolution.trim() !== "") {
+    metadata.resolution = job.resolution.trim();
+  }
 
   const body: Record<string, unknown> = {};
   body.model = model;

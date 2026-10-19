@@ -1,4 +1,23 @@
 // parse-capability-search-result.js
+/**
+ * 能力检索工具（4.0.0 新增）。
+ *
+ * 键是**协议版本号**而不是名字：网关按版本号告诉界面「这个版本用哪个工具名」，
+ * 于是改名（`hub_*` / `design_*`）不需要两边同时发布。
+ * 所以这里取的是 `Object.values`，用不到键本身。
+ */
+export const CAPABILITY_SEARCH_TOOL_NAMES = {
+  2: "hub_capability_search",
+  3: "design_capability_search",
+};
+
+const CAPABILITY_SEARCH_TOOLS = new Set(Object.values(CAPABILITY_SEARCH_TOOL_NAMES));
+
+/** 判断某个工具名是不是能力检索。挂在工具名上的判断，所以用集合比数组快也可读。 */
+export function isCapabilitySearchTool(name) {
+  return typeof name === "string" && CAPABILITY_SEARCH_TOOLS.has(name);
+}
+
 import { parseConnectorCatalog } from "./parse-connector-catalog.js";
 
 export function parseCapabilitySearchResult(value) {

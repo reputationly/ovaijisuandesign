@@ -9,6 +9,11 @@ function cloneSnapshot(snapshot) {
     comments: {
       ...snapshot.comments,
     },
+    ...(snapshot.detached
+      ? {
+          detached: structuredClone(snapshot.detached),
+        }
+      : {}),
   };
 }
 export class AnnotationHistoryStep extends Step {

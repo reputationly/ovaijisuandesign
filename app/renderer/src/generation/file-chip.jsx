@@ -122,30 +122,32 @@ function getGradientIndex(filename) {
 }
 function FileMetadataHoverPreview({
   filename,
+  displayName: displayName2,
   anchorElement,
   anchorRect,
   action,
   onPreviewMouseEnter,
   onPreviewMouseLeave,
+  motion,
 }) {
-  const [previewHeight, setPreviewHeight] = reactExports.useState(
-    action ? 88 : 48,
-  );
+  const visibleName = displayName2 ?? filename;
+  const [previewHeight, setPreviewHeight] = reactExports.useState(action ? 88 : 48);
   const contentRef = reactExports.useRef(null);
   reactExports.useLayoutEffect(() => {
     const content = contentRef.current;
     if (!content) return;
-    const measure = () =>
-      setPreviewHeight(Math.ceil(content.getBoundingClientRect().height) + 2);
+    const measure = () => setPreviewHeight(Math.ceil(content.getBoundingClientRect().height) + 2);
     measure();
-    const observer =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(measure);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
     observer?.observe(content);
     return () => observer?.disconnect();
   }, []);
-  const { layout, previewRef, handlePreviewMouseLeave } = useHoverPreview({
+  const {
+    layout,
+    previewRef,
+    handlePreviewMouseLeave,
+    motionOrigin,
+  } = useHoverPreview({
     anchorElement,
     anchorRect,
     size: {
@@ -161,13 +163,19 @@ function FileMetadataHoverPreview({
     // biome-ignore lint/a11y/useSemanticElements: portal groups a file preview and its action.
     <div
       role="group"
-      className="fixed z-[10002] box-border overflow-y-auto rounded-xl border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] text-[var(--canvas-controls-text)] shadow-md"
-      ref={previewRef}
+      className="dp-motion-quick-zoom fixed z-[10002] box-border overflow-y-auto rounded-xl border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] text-[var(--canvas-controls-text)] shadow-md"
+      ref={(node2) => {
+        previewRef.current = node2;
+        if (motion) motion.ref.current = node2;
+      }}
+      data-ending-style={motion?.["data-ending-style"]}
+      inert={motion?.inert}
       style={{
         top: layout.top,
         left: layout.left,
         width: layout.width,
         maxHeight: layout.height,
+        transformOrigin: motionOrigin,
       }}
       data-testid="file-chip-hover-preview"
       onMouseEnter={onPreviewMouseEnter}
@@ -176,12 +184,12 @@ function FileMetadataHoverPreview({
       <div ref={contentRef}>
         <div className="px-3 py-3 text-xs">
           <section
-            aria-label={filename}
+            aria-label={visibleName}
             tabIndex={0}
             className="max-h-40 overflow-y-auto whitespace-pre-wrap [overflow-wrap:anywhere]"
             data-file-name-full={true}
           >
-            {filename}
+            {visibleName}
           </section>
         </div>
         {action && (

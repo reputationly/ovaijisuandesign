@@ -11,9 +11,9 @@ import {
 } from "./keep-tag-in-canvas.js";
 import { pointInBounds, Shape } from "./free-path-shape.js";
 
-const CORNER_RADIUS = 6;
+export const CORNER_RADIUS = 6;
 
-const POINTER_BASE = 8;
+export const POINTER_BASE = 8;
 
 function wrapTagLines(text, context, maxWidth) {
   if (!Number.isFinite(maxWidth)) return text.split("\n");

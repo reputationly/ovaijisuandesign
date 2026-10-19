@@ -112,22 +112,17 @@ function buildWaveformPath(barHeights, height) {
     })
     .join("");
 }
-const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformImplementation(
+const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformInner22(
   { fileName, progress, width, height, onClick },
   ref,
 ) {
   const { t } = useTranslation();
   const svgRef = reactExports.useRef(null);
   const isDraggingRef = reactExports.useRef(false);
+  const currentProgress = reactExports.useRef(progress);
   const barCount = Math.floor(width / (BAR_WIDTH + BAR_GAP));
-  const barHeights = reactExports.useMemo(
-    () => generateBarHeights(fileName, barCount),
-    [fileName, barCount],
-  );
-  const waveformPath = reactExports.useMemo(
-    () => buildWaveformPath(barHeights, height),
-    [barHeights, height],
-  );
+  const barHeights = reactExports.useMemo(() => generateBarHeights(fileName, barCount), [fileName, barCount]);
+  const waveformPath = reactExports.useMemo(() => buildWaveformPath(barHeights, height), [barHeights, height]);
   const clipId = `audio-waveform-${reactExports.useId().replace(/:/g, "")}`;
   const playheadX = progress * width;
   const playedClipRef = reactExports.useRef(null);
@@ -136,21 +131,21 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformImpleme
   reactExports.useImperativeHandle(
     ref,
     () => ({
-      setPlayheadProgress(progress) {
-        const clamped = progress < 0 ? 0 : progress > 1 ? 1 : progress;
-        const playheadX = clamped * width;
+      setPlayheadProgress(p3) {
+        const clamped = p3 < 0 ? 0 : p3 > 1 ? 1 : p3;
+        currentProgress.current = clamped;
+        const px = clamped * width;
         const lineEl = playheadLineRef.current;
         if (lineEl) {
-          lineEl.setAttribute("x", String(playheadX - 1));
-          lineEl.style.visibility =
-            clamped > 0 && clamped < 1 ? "visible" : "hidden";
+          lineEl.setAttribute("x", String(px - 1));
+          lineEl.style.visibility = clamped > 0 && clamped < 1 ? "visible" : "hidden";
         }
         const hitEl = playheadHitRef.current;
         if (hitEl) {
-          hitEl.setAttribute("x", String(playheadX - PLAYHEAD_HIT_WIDTH / 2));
+          hitEl.setAttribute("x", String(px - PLAYHEAD_HIT_WIDTH / 2));
           hitEl.style.visibility = clamped > 0 ? "visible" : "hidden";
         }
-        playedClipRef.current?.setAttribute("width", String(playheadX));
+        playedClipRef.current?.setAttribute("width", String(px));
       },
     }),
     [width],
@@ -159,39 +154,40 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformImpleme
     const svg = svgRef.current;
     if (!svg) return 0;
     const rect = svg.getBoundingClientRect();
+    if (rect.width <= 0) return 0;
     return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
   }, []);
   const handleClick = reactExports.useCallback(
-    (clickEvent) => {
+    (e2) => {
       if (!onClick || isDraggingRef.current) return;
-      onClick(getProgressFromClientX(clickEvent.clientX));
+      onClick(getProgressFromClientX(e2.clientX));
     },
     [onClick, getProgressFromClientX],
   );
   const handlePlayheadPointerDown = reactExports.useCallback(
-    (pointerEvent) => {
+    (e2) => {
       if (!onClick) return;
-      pointerEvent.stopPropagation();
-      pointerEvent.preventDefault();
-      pointerEvent.currentTarget.setPointerCapture(pointerEvent.pointerId);
+      e2.stopPropagation();
+      e2.preventDefault();
+      e2.currentTarget.setPointerCapture(e2.pointerId);
       isDraggingRef.current = true;
     },
     [onClick],
   );
   const handlePlayheadPointerMove = reactExports.useCallback(
-    (pointerEvent) => {
+    (e2) => {
       if (!isDraggingRef.current || !onClick) return;
-      onClick(getProgressFromClientX(pointerEvent.clientX));
+      onClick(getProgressFromClientX(e2.clientX));
     },
     [onClick, getProgressFromClientX],
   );
   const handlePlayheadPointerUp = reactExports.useCallback(
-    (pointerEvent) => {
+    (e2) => {
       if (!isDraggingRef.current) return;
-      pointerEvent.currentTarget.releasePointerCapture(pointerEvent.pointerId);
+      e2.currentTarget.releasePointerCapture(e2.pointerId);
       isDraggingRef.current = false;
       if (onClick) {
-        onClick(getProgressFromClientX(pointerEvent.clientX));
+        onClick(getProgressFromClientX(e2.clientX));
       }
     },
     [onClick, getProgressFromClientX],
@@ -203,28 +199,31 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformImpleme
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       role="img"
+      data-waveform-kind="decorative"
+      tabIndex={onClick ? 0 : void 0}
       aria-label={t("a11y.audioWaveform")}
       style={{
         display: "block",
         cursor: onClick ? "pointer" : "default",
       }}
       onClick={handleClick}
-      onKeyDown={(keyboardEvent) => {
-        if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
-          handleClick(keyboardEvent);
-        }
+      onKeyDown={(e2) => {
+        if (!onClick || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(e2.key)) return;
+        e2.preventDefault();
+        e2.stopPropagation();
+        const next =
+          e2.key === "Home"
+            ? 0
+            : e2.key === "End"
+              ? 1
+              : currentProgress.current + (e2.key === "ArrowRight" ? 0.05 : -0.05);
+        onClick(Math.max(0, Math.min(1, next)));
       }}
     >
       <title>{t("a11y.audioWaveform")}</title>
       <defs>
         <clipPath id={clipId}>
-          <rect
-            ref={playedClipRef}
-            x={0}
-            y={0}
-            width={playheadX}
-            height={height}
-          />
+          <rect ref={playedClipRef} x={0} y={0} width={playheadX} height={height} />
         </clipPath>
       </defs>
       <path d={waveformPath} fill="currentColor" fillOpacity={0.3} />
@@ -235,7 +234,7 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformImpleme
         y={0}
         width={2}
         height={height}
-        fill="var(--brand-accent, #6D6CFF)"
+        fill="var(--brand-accent)"
         style={{
           pointerEvents: "none",
           visibility: progress > 0 && progress < 1 ? "visible" : "hidden",
@@ -252,10 +251,16 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformImpleme
           cursor: "ew-resize",
           visibility: progress > 0 ? "visible" : "hidden",
         }}
-        onClick={(clickEvent) => clickEvent.stopPropagation()}
+        onClick={(e2) => e2.stopPropagation()}
         onPointerDown={handlePlayheadPointerDown}
         onPointerMove={handlePlayheadPointerMove}
         onPointerUp={handlePlayheadPointerUp}
+        onPointerCancel={() => {
+          isDraggingRef.current = false;
+        }}
+        onLostPointerCapture={() => {
+          isDraggingRef.current = false;
+        }}
       />
     </svg>
   );
@@ -281,7 +286,7 @@ function resolveCanvasAudioSource({
 }
 const WAVEFORM_H_PADDING = 16;
 const WAVEFORM_CONTAINER_HEIGHT = 64;
-const WAVEFORM_WIDTH = AUDIO_CARD_SIZE.width - WAVEFORM_H_PADDING * 2;
+const WAVEFORM_WIDTH = 318;
 export function AudioNodeInner({ id: nodeId, data, selected }) {
   const { t } = useTranslation();
   const generatingStateStore = useGeneratingStateApi();

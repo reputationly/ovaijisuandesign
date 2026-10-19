@@ -155,7 +155,7 @@ function buildCanvasVideoSubmitTracking(input) {
 }
 const GENERATE_ERROR_CODE_QUEUE_PAUSED = "queue_paused";
 const MODEL_LIST_TIMEOUT_MS = 1e4;
-const MAX_VIDEOS_PER_SUBMIT = 9;
+const CLOUD_ASSET_NAME_SAFETY_CONCURRENCY = 4;
 function formatGenerateError(message) {
   if (isEnoentErrorMessage(message)) {
     return instance.t("canvas.generateRefFileMissing", {
@@ -483,3 +483,5 @@ export function useImg2Video({
     listVideoModels,
   };
 }
+
+const MAX_VIDEOS_PER_SUBMIT = 4;

@@ -51,11 +51,12 @@ function getInteractiveMediaPreviewSize(size) {
 const AUDIO_PREVIEW_W = 320;
 const AUDIO_PREVIEW_H_FALLBACK = 108;
 const AUDIO_PREVIEW_ACTION_H = 32;
-function ReferenceAudioIcon() {
+function ReferenceAudioIcon({ className }) {
   return (
     <CompositedSvg
       width="16"
       height="16"
+      className={className}
       viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"

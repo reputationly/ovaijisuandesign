@@ -100,12 +100,12 @@ function placeWrappedItem(
   };
 }
 const ALIGN_TOLERANCE = 2;
-function buildLayerEntries(nodes, localPositions, layerAxis, mode) {
+function buildLayerEntries(nodes, localPositions, layerAxis) {
   return nodes
     .map((node) => {
       const pos = localPositions.get(node.id);
       if (!pos) return null;
-      const size = sizeOf(node, mode);
+      const size = sizeOf. mode;
       const extent = layerAxis === "x" ? size.width : size.height;
       return {
         id: node.id,
@@ -149,29 +149,18 @@ function clusterByLayerAlignment(entries) {
   });
   return [...groups.values()];
 }
-function normalizeLayerSpacing(
-  localPositions,
-  nodes,
-  options,
-  nodeSpacing,
-  mode,
-) {
+function normalizeLayerSpacing(localPositions, nodes, options, nodeSpacing) {
   const direction = options?.direction ?? "LR";
   const stackAxis = direction === "TB" || direction === "BT" ? "x" : "y";
   const layerAxis = stackAxis === "y" ? "x" : "y";
-  const entries = buildLayerEntries(nodes, localPositions, layerAxis, mode);
+  const entries = buildLayerEntries(nodes, localPositions, layerAxis);
   const clusters = clusterByLayerAlignment(entries);
   for (const bucket of clusters) {
     if (bucket.length < 2) continue;
-    const extentOf = (entry) =>
-      stackAxis === "y" ? entry.size.height : entry.size.width;
-    bucket.sort((previousEntry, nextEntry) => previousEntry.pos[stackAxis] - nextEntry.pos[stackAxis]);
-    const originalCenter =
-      bucket.reduce(
-        (sum, entry) => sum + entry.pos[stackAxis] + extentOf(entry) / 2,
-        0,
-      ) / bucket.length;
-    const totalExtent = bucket.reduce((sum, entry) => sum + extentOf(entry), 0);
+    const extentOf = (e2) => (stackAxis === "y" ? e2.size.height : e2.size.width);
+    bucket.sort((a2, b3) => a2.pos[stackAxis] - b3.pos[stackAxis]);
+    const originalCenter = bucket.reduce((sum, e2) => sum + e2.pos[stackAxis] + extentOf(e2) / 2, 0) / bucket.length;
+    const totalExtent = bucket.reduce((sum, e2) => sum + extentOf(e2), 0);
     const span = totalExtent + nodeSpacing * (bucket.length - 1);
     let cursor = originalCenter - span / 2;
     for (const entry of bucket) {

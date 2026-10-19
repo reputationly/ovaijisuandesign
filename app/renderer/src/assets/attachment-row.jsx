@@ -17,6 +17,7 @@ import { TooltipContent } from "../infra/dialog-content.jsx";
 import { AddToChatIcon } from "../canvas/fullscreen-icon.jsx";
 import { Badge } from "../infra/badge-variants.jsx";
 import { useEntityCanvas } from "./use-materialize-entity.js";
+import { AttachmentKindIcon as AttachmentKindIcon$1 } from "./attachment-kind-icon.jsx";
 function formatRelativeTime(timestamp, locale) {
   const diff = Date.now() - timestamp;
   if (Number.isNaN(diff) || diff < 0) {
@@ -54,16 +55,9 @@ function AttachmentPreviewThumb({ attachment }) {
   const gatewayUrl = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
   const blobSrc = gatewayUrl(
-    API_PATHS.assetCenterAttachmentBlob(
-      attachment.id,
-      attachment.kind === "video" ? 512 : void 0,
-    ),
+    API_PATHS.assetCenterAttachmentBlob(attachment.id, attachment.kind === "video" ? 512 : void 0),
   );
-  if (
-    (attachment.kind === "image" || attachment.kind === "video") &&
-    blobSrc &&
-    !errored
-  ) {
+  if ((attachment.kind === "image" || attachment.kind === "video") && blobSrc && !errored) {
     return (
       <span className="flex-shrink-0 w-10 h-10 bg-muted overflow-hidden rounded-[4px] flex items-center justify-center">
         <img
@@ -80,13 +74,7 @@ function AttachmentPreviewThumb({ attachment }) {
   }
   return (
     <span className="flex-shrink-0 w-10 h-10 bg-muted overflow-hidden rounded-[4px] flex items-center justify-center text-muted-foreground">
-      <FileTypeIcon
-        {...classifyFileType({
-          filename: attachment.originalFilename,
-        })}
-        size={28}
-        decorative={true}
-      />
+      <AttachmentKindIcon$1 kind={attachment.kind} />
     </span>
   );
 }

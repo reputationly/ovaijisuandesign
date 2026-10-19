@@ -1,4 +1,5 @@
 // angle-scrubber.jsx
+import jsxRuntimeExports from "react/jsx-runtime";
 import { __jsx } from "../shared/jsx-runtime.js";
 import reactExports from "react";
 import { useTranslation } from "react-i18next";
@@ -66,7 +67,7 @@ function IconButton({
 function Divider() {
   return <div className="canvas-toolbar-separator" aria-hidden="true" />;
 }
-const ROTATE_SNAP_DEG = 1;
+export const ROTATE_SNAP_DEG = 1;
 function maybeSnapAngle(degrees) {
   const normalizedAngle = normalizeAngle(degrees);
   for (const step of [-180, -90, 0, 90, 180]) {
@@ -261,22 +262,17 @@ function ImageRotateEditToolbarInner({
   saving,
   canSave,
   visible,
+  toolbarContainer = (children) => children,
 }) {
   const { t } = useTranslation();
-  const zoom = useStore(zoomSelector);
-  const offset = HEADER_FLOW_HEIGHT * zoom + TOOLBAR_GAP;
-  return (
-    <NodeToolbar
-      isVisible={visible}
-      position={Position.Top}
-      offset={offset}
-      align="center"
-    >
+  if (!visible) return null;
+  return toolbarContainer(
+    <>
       <div
         className="canvas-toolbar-surface animate-[toolbar-fade-in_0.15s_ease-out]"
-        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
-        onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
-        onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
+        onPointerDown={(e2) => e2.stopPropagation()}
+        onWheel={(e2) => e2.stopPropagation()}
+        onContextMenu={(e2) => e2.stopPropagation()}
         data-canvas-toolbar="true"
         data-density="compact"
       >
@@ -292,18 +288,10 @@ function ImageRotateEditToolbarInner({
         >
           <Rotate90Icon />
         </IconButton>
-        <IconButton
-          active={flipH}
-          onClick={onFlipHorizontal}
-          title={t("canvas.rotate.flipH")}
-        >
+        <IconButton active={flipH} onClick={onFlipHorizontal} title={t("canvas.rotate.flipH")}>
           <FlipHorizontalIcon />
         </IconButton>
-        <IconButton
-          active={flipV}
-          onClick={onFlipVertical}
-          title={t("canvas.rotate.flipV")}
-        >
+        <IconButton active={flipV} onClick={onFlipVertical} title={t("canvas.rotate.flipV")}>
           <FlipVerticalIcon />
         </IconButton>
         <Divider />
@@ -312,16 +300,14 @@ function ImageRotateEditToolbarInner({
           disabled={!canSave || saving}
           onClick={onSave}
           className="canvas-toolbar-action"
-          aria-label={
-            saving ? t("canvas.rotate.saving") : t("canvas.rotate.save")
-          }
+          aria-label={saving ? t("canvas.rotate.saving") : t("canvas.rotate.save")}
           title={saving ? t("canvas.rotate.saving") : t("canvas.rotate.save")}
           data-variant="primary"
         >
           <SendArrowIcon />
         </button>
       </div>
-    </NodeToolbar>
+    </>,
   );
 }
 export const ImageRotateEditToolbar = reactExports.memo(

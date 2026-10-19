@@ -291,6 +291,30 @@ export class FfmpegService implements OnModuleDestroy {
       await rm(dir, { recursive: true, force: true });
     }
   }
+
+  /**
+   * 右下角贴标记。宽度夹在画面的 25% 到 35% 之间，默认不超过 391，
+   * 这样小图不会被标记盖住，大图上的字也不会缩成一条线。
+   */
+  async overlayWatermark(inputPath: string, logoPath: string, outputPath: string, kind: "image" | "video", defaultWidth = 391): Promise<void> {
+    const probe = await this.probeMedia(inputPath);
+    let targetWidth = defaultWidth;
+    if (probe.width > 0) {
+      const minW = Math.round(probe.width * 0.25);
+      const maxW = Math.round(probe.width * 0.35);
+      targetWidth = Math.max(minW, Math.min(defaultWidth, maxW));
+    }
+    const scale = `[1:v]scale=${targetWidth}:-1:flags=lanczos[wm];[0:v][wm]overlay=W-w:H-h`;
+    const args = kind === "image"
+      ? ["-y", "-i", inputPath, "-i", logoPath, "-filter_complex", scale, "-q:v", "2", "-frames:v", "1", outputPath]
+      : ["-y", "-i", inputPath, "-i", logoPath, "-filter_complex", `${scale}[v]`, "-map", "[v]", "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", outputPath];
+    await this.exec(args);
+  }
+
+  /** 在音频末尾接上提示音。两边采样率可能不同，用滤镜拼接而不是直接拷流。 */
+  async appendAudioMarker(inputPath: string, markerPath: string, outputPath: string): Promise<void> {
+    await this.exec(["-y", "-i", inputPath, "-i", markerPath, "-filter_complex", "[0:a][1:a]concat=n=2:v=0:a=1[a]", "-map", "[a]", outputPath]);
+  }
 }
 
 export interface FfprobeStream {

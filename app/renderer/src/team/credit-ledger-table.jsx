@@ -2,10 +2,12 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
 import { Skeleton } from "./use-wallet-query.jsx";
-function formatTime(ms) {
-  const date = new Date(ms);
-  const pad = (value) => String(value).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+function formatTime(seconds2, roundUp = false) {
+  if (!Number.isFinite(seconds2) || seconds2 < 0) return "0:00";
+  const total = roundUp ? Math.ceil(seconds2) : Math.floor(seconds2);
+  const m2 = Math.floor(total / 60);
+  const s2 = total % 60;
+  return `${m2}:${s2.toString().padStart(2, "0")}`;
 }
 export function CreditLedgerTable({
   rows,

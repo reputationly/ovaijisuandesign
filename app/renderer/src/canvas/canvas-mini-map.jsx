@@ -61,6 +61,7 @@ function miniMapPointToFlow(point, layout) {
 }
 function parseMiniMapGenerationSequence(...timestamps) {
   for (const timestamp of timestamps) {
+    if (typeof timestamp === "number" && Number.isFinite(timestamp)) return timestamp;
     if (typeof timestamp !== "string" || timestamp.length === 0) continue;
     const parsed = Date.parse(timestamp);
     if (Number.isFinite(parsed)) return parsed;
@@ -128,20 +129,9 @@ function getClientPoint(event) {
     y: mouseEvent.clientY,
   };
 }
-function resolveCssColor(element, color) {
-  const computedStyle = getComputedStyle(element);
-  let resolved = color;
-  for (let depth = 0; depth < 8 && resolved.includes("var("); depth += 1) {
-    const next = resolved.replace(
-      /var\((--[^),\s]+)(?:,[^)]+)?\)/g,
-      (_match, token) => {
-        return computedStyle.getPropertyValue(token).trim() || "transparent";
-      },
-    );
-    if (next === resolved) break;
-    resolved = next;
-  }
-  return resolved;
+function resolveCssColor(value, fallback) {
+  if (typeof value !== "string" || value.length > 128) return fallback;
+  return /^(?:#[\da-f]{3,8}|(?:rgb|rgba|hsl|hsla|oklab|oklch)\([^;{}]*\))$/i.test(value) ? value : fallback;
 }
 function roundedRect(context, x, y, width, height, radius) {
   const safeRadius = Math.max(0, Math.min(radius, width / 2, height / 2));

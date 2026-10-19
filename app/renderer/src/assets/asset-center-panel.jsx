@@ -163,8 +163,8 @@ function EntityHoverPreviewPopup({
 }) {
   const [positioned, setPositioned] = reactExports.useState(false);
   reactExports.useLayoutEffect(() => {
-    const animationFrameId = requestAnimationFrame(() => setPositioned(true));
-    return () => cancelAnimationFrame(animationFrameId);
+    const id = requestAnimationFrame(() => setPositioned(true));
+    return () => cancelAnimationFrame(id);
   }, []);
   return (
     <PreviewCardRoot open={true}>
@@ -177,8 +177,7 @@ function EntityHoverPreviewPopup({
           alignOffset={0}
           className={cn(
             "isolate z-50",
-            positioned &&
-              "transition-transform duration-200 ease-out motion-reduce:transition-none",
+            positioned && "transition-transform duration-200 ease-out motion-reduce:transition-none",
           )}
         >
           <PreviewCardPopup
@@ -203,10 +202,7 @@ function EntityHoverPreviewPopup({
   );
 }
 const EntityHoverPreviewHost = reactExports.memo(
-  reactExports.forwardRef(function EntityHoverPreviewHost(
-    { onPreviewAttachment, onAddToCanvas, onAddToChat },
-    ref,
-  ) {
+  reactExports.forwardRef(function EntityHoverPreviewHost2({ onPreviewAttachment, onAddToCanvas, onAddToChat }, ref) {
     const host = useEntityHoverPreview();
     reactExports.useImperativeHandle(
       ref,
@@ -223,20 +219,20 @@ const EntityHoverPreviewHost = reactExports.memo(
       [host],
     );
     const handleBodyPreview = useStableCallback((att) => {
-      const hoverState = host.stateRef.current;
-      if (hoverState.kind !== "hover") return;
-      const { entityId } = hoverState.target;
+      const s2 = host.stateRef.current;
+      if (s2.kind !== "hover") return;
+      const { entityId } = s2.target;
       host.dismiss();
       onPreviewAttachment(entityId, att);
     });
     const handleAddToCanvas = useStableCallback((att) => {
-      const hoverState = host.stateRef.current;
-      if (hoverState.kind !== "hover") return;
+      const s2 = host.stateRef.current;
+      if (s2.kind !== "hover") return;
       onAddToCanvas(att);
     });
     const handleAddToChat = useStableCallback((att) => {
-      const hoverState = host.stateRef.current;
-      if (hoverState.kind !== "hover") return;
+      const s2 = host.stateRef.current;
+      if (s2.kind !== "hover") return;
       onAddToChat(att);
     });
     if (host.state.kind !== "hover") return null;
@@ -253,13 +249,7 @@ const EntityHoverPreviewHost = reactExports.memo(
     );
   }),
 );
-function ProjectSidebarCategoryChips({
-  options,
-  value,
-  onChange,
-  rowActionId,
-  className,
-}) {
+function ProjectSidebarCategoryChips({ options, value, onChange, rowActionId, className }) {
   return (
     <div className={cn("shrink-0 px-2 pb-1", className)}>
       <div
@@ -323,9 +313,10 @@ function AudioLightbox({ src, alt, onClose }) {
     <div
       role="dialog"
       aria-label={alt}
-      className="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 bg-black/85 p-10 backdrop-blur-sm"
-      onClick={(clickEvent) => {
-        if (clickEvent.target === clickEvent.currentTarget) onClose();
+      data-mask="immersive"
+      className="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 modal-mask modal-mask-media p-10"
+      onClick={(e2) => {
+        if (e2.target === e2.currentTarget) onClose();
       }}
     >
       <LightboxCloseButton onClose={onClose} />
@@ -367,9 +358,10 @@ function TextLightbox({ src, alt, onClose }) {
     <div
       role="dialog"
       aria-label={alt}
-      className="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 bg-black/85 p-10 backdrop-blur-sm"
-      onClick={(clickEvent) => {
-        if (clickEvent.target === clickEvent.currentTarget) onClose();
+      data-mask="immersive"
+      className="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 modal-mask modal-mask-media p-10"
+      onClick={(e2) => {
+        if (e2.target === e2.currentTarget) onClose();
       }}
     >
       <LightboxCloseButton onClose={onClose} />

@@ -171,6 +171,9 @@ importers:
       '@fontsource/pixelify-sans':
         specifier: 5.3.0
         version: 5.3.0
+      '@ov/host-contract':
+        specifier: workspace:*
+        version: link:../packages/host-contract
       '@ov/maas-media':
         specifier: workspace:^
         version: link:../packages/maas-media
@@ -313,6 +316,9 @@ importers:
       '@ov/maas-media':
         specifier: workspace:^
         version: link:../packages/maas-media
+      '@ov/mcp-tools':
+        specifier: workspace:^
+        version: link:../mcp-tools
       '@ov/protocol':
         specifier: workspace:^
         version: link:../packages/protocol
@@ -328,6 +334,9 @@ importers:
       express:
         specifier: 5.2.1
         version: 5.2.1
+      file-type:
+        specifier: 21.3.4
+        version: 21.3.4
       js-yaml:
         specifier: 4.3.2
         version: 4.3.2
@@ -435,6 +444,8 @@ importers:
         version: 9.6.0
 
   app/packages/config: {}
+
+  app/packages/host-contract: {}
 
   app/packages/maas-media: {}
 

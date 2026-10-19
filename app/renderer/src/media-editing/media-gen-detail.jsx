@@ -107,14 +107,11 @@ function mappedErrorCode({ errorCode, rawError }) {
 }
 function isBillingInsufficientFailure({ errorCode, rawError }) {
   const normalizedCode = errorCode?.trim().toLowerCase();
-  if (normalizedCode === GENERATE_ERROR_CODE_BILLING_INSUFFICIENT_BALANCE)
-    return true;
+  if (normalizedCode === "billing_insufficient_balance") return true;
   const raw = rawError?.trim();
   if (!raw) return false;
   return (
-    raw
-      .toLowerCase()
-      .includes(GENERATE_ERROR_CODE_BILLING_INSUFFICIENT_BALANCE) ||
+    raw.toLowerCase().includes("billing_insufficient_balance") ||
     INSUFFICIENT_BALANCE_TEXT_PATTERN.test(raw) ||
     CREDITS_INSUFFICIENT_TEXT_PATTERN.test(raw)
   );
@@ -124,7 +121,7 @@ function generationFailureDisplayText(input, translate) {
   if (userMessage) return userMessage;
   const errorCode = mappedErrorCode(input);
   if (errorCode)
-    return stripErrorHtml(translate(GENERATION_ERROR_CODE_I18N[errorCode])).trim();
+    return stripErrorHtml(translate(GENERATION_ERROR_CODE_I18N.errorCode)).trim();
   if (isBillingInsufficientFailure(input)) {
     return stripErrorHtml(translate("chat.billingInsufficient.title")).trim();
   }
@@ -136,9 +133,9 @@ function generationFailureDisplayText(input, translate) {
 function MediaGenCardLayout({
   prompt,
   tags,
-  media,
+  media: media2,
   footer,
-  header,
+  header:header,
   className,
 }) {
   return (
@@ -168,7 +165,7 @@ const TAG_I18N_KEYS = {
   emotion: "canvas.params.emotion",
   speed: "canvas.params.speed",
 };
-function TagsRow({ tags, tagIcons, categoryIcon }) {
+function TagsRow({ tags, tagIcons, categoryIcon , flushStart = false}) {
   const { t } = useTranslation();
   if (tags.length === 0) return null;
   return (
@@ -188,7 +185,7 @@ function TagsRow({ tags, tagIcons, categoryIcon }) {
             >
               <Tooltip>
                 <TooltipTrigger
-                  className="inline-flex items-center gap-0.5 shrink-0 px-2 rounded-sm"
+                  className={`inline-flex items-center gap-0.5 shrink-0 rounded-sm ${flushStart && i2 === 0 ? "pl-0 pr-2" : "px-2"}`}
                   style={{
                     cursor: "pointer",
                   }}
@@ -925,7 +922,7 @@ function RefPreviews({ paths, resolveFilePath }) {
 }
 function FailureBlock({
   label: labelOverride,
-  reason,
+  reason: reason2,
   pending = false,
 }) {
   const { t } = useTranslation();

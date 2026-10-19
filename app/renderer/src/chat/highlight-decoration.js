@@ -25,7 +25,7 @@ const HIGHLIGHT_CLASS = {
 function buildDecorations(doc, ranges) {
   if (ranges.length === 0) return DecorationSet.empty;
   const decorations = [];
-  for (const { start, end, kind, attrs } of ranges) {
+  for (const { start, end, kind: kind2, attrs } of ranges) {
     const from = textOffsetToPmPos(doc, start);
     const endPosition = textOffsetToPmPos(doc, end);
     if (from >= endPosition || endPosition > doc.content.size + 1) continue;
@@ -40,7 +40,7 @@ function buildDecorations(doc, ranges) {
             .join(" "),
         },
         {
-          kind,
+          kind:kind,
         },
       ),
     );

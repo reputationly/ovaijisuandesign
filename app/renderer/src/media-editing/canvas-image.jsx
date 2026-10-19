@@ -242,7 +242,7 @@ class DecodeWorkerPool {
   constructor(opts = {}) {
     const size = opts.size ?? recommendedPoolSize();
     const factory = opts.workerFactory ?? defaultWorkerFactory;
-    for (let workerIndex = 0; workerIndex < size; workerIndex++) {
+    for (let i2 = 0; i2 < size; i2++) {
       const worker = factory();
       const slot = {
         worker,
@@ -264,9 +264,9 @@ class DecodeWorkerPool {
   }
   /** Number of currently-busy workers. For tests / metrics. */
   busyCount() {
-    let busyWorkerCount = 0;
-    for (const slot of this.slots) if (slot.busyTask) busyWorkerCount++;
-    return busyWorkerCount;
+    let n2 = 0;
+    for (const slot of this.slots) if (slot.busyTask) n2++;
+    return n2;
   }
   /**
    * Submit a decode request. Returns a promise that resolves with the
@@ -296,14 +296,13 @@ class DecodeWorkerPool {
         workerSlot: null,
       };
       if (opts.signal?.aborted) {
-        reject(makeWorkerAbortError());
+        reject(makeAbortError());
         return;
       }
       if (opts.signal) {
         const onAbort = () => this.cancelTask(task);
         opts.signal.addEventListener("abort", onAbort);
-        task.signalCleanup = () =>
-          opts.signal?.removeEventListener("abort", onAbort);
+        task.signalCleanup = () => opts.signal?.removeEventListener("abort", onAbort);
       }
       this.tasks.set(taskId, task);
       this.queue.push(task);
@@ -318,7 +317,7 @@ class DecodeWorkerPool {
     for (const task of pending) {
       task.cancelled = true;
       task.signalCleanup?.();
-      task.reject(makeWorkerAbortError());
+      task.reject(makeAbortError());
     }
     this.tasks.clear();
     this.queue.length = 0;
@@ -334,7 +333,7 @@ class DecodeWorkerPool {
   dispatch() {
     if (this.disposed) return;
     if (this.queue.length === 0) return;
-    this.queue.sort((firstTask, secondTask) => firstTask.priority - secondTask.priority);
+    this.queue.sort((a, b3) => a.priority - b3.priority);
     while (this.queue.length > 0) {
       const slot = this.findIdleSlot();
       if (!slot) break;
@@ -352,38 +351,36 @@ class DecodeWorkerPool {
     }
     return null;
   }
-  handleWorkerMessage(slot, workerMessage) {
-    const task = this.tasks.get(workerMessage.taskId);
-    if (slot.busyTask?.taskId === workerMessage.taskId) {
+  handleWorkerMessage(slot, msg) {
+    const task = this.tasks.get(msg.taskId);
+    if (slot.busyTask?.taskId === msg.taskId) {
       slot.busyTask = null;
     }
     if (!task) {
-      if (workerMessage.type === "success") {
+      if (msg.type === "success") {
         try {
-          workerMessage.bitmap.close();
+          msg.bitmap.close();
         } catch {}
       }
       this.dispatch();
       return;
     }
     if (task.cancelled) {
-      if (workerMessage.type === "success") {
+      if (msg.type === "success") {
         try {
-          workerMessage.bitmap.close();
+          msg.bitmap.close();
         } catch {}
       }
-      this.tasks.delete(workerMessage.taskId);
+      this.tasks.delete(msg.taskId);
       this.dispatch();
       return;
     }
     task.signalCleanup?.();
-    this.tasks.delete(workerMessage.taskId);
-    if (workerMessage.type === "success") {
-      task.resolve(workerMessage);
+    this.tasks.delete(msg.taskId);
+    if (msg.type === "success") {
+      task.resolve(msg);
     } else {
-      task.reject(
-        new DecodeFailureError(workerMessage.message, workerMessage.kind ?? "decode", workerMessage.status),
-      );
+      task.reject(new DecodeFailureError(msg.message, msg.kind ?? "decode", msg.status));
     }
     this.dispatch();
   }
@@ -397,11 +394,11 @@ class DecodeWorkerPool {
         taskId: task.taskId,
       });
     } else {
-      const queuedTaskIndex = this.queue.indexOf(task);
-      if (queuedTaskIndex >= 0) this.queue.splice(queuedTaskIndex, 1);
+      const idx = this.queue.indexOf(task);
+      if (idx >= 0) this.queue.splice(idx, 1);
       this.tasks.delete(task.taskId);
     }
-    task.reject(makeWorkerAbortError());
+    task.reject(makeAbortError());
   }
 }
 const SIZE_TIERS = [64, 128, 256, 512, 1024, 2048];

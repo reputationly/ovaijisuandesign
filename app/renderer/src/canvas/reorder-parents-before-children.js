@@ -1,4 +1,5 @@
 // reorder-parents-before-children.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import { CanvasNodeType } from "./canvas-geometry.js";
 import {
   GROUP_DERIVED_CHILD_COUNT_KEY,

@@ -15,14 +15,7 @@ import {
   ReferenceThumbnailVideoInfo,
 } from "./reference-thumbnail-overlay.jsx";
 function formatReferenceVideoDuration(durationSec) {
-  if (
-    durationSec === void 0 ||
-    !Number.isFinite(durationSec) ||
-    durationSec <= 0
-  ) {
-    return void 0;
-  }
-  return `${durationSec.toFixed(2)}s`;
+  return formatReferenceMediaDuration(durationSec);
 }
 function ReferenceImagePlaceholderIcon() {
   return <ImageOutlineIcon size={16} strokeWidth={1.8} aria-hidden="true" />;
@@ -30,11 +23,12 @@ function ReferenceImagePlaceholderIcon() {
 function ReferenceTextIcon() {
   return <FileText size={16} aria-hidden={true} />;
 }
-function ReferenceAudioIcon() {
+function ReferenceAudioIcon({ className }) {
   return (
     <CompositedSvg
       width="16"
       height="16"
+      className={className}
       viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
@@ -439,4 +433,9 @@ export function ThumbChip({
       />
     </div>
   );
+}
+
+function formatReferenceMediaDuration(seconds2) {
+  if (seconds2 === void 0 || !Number.isFinite(seconds2) || seconds2 <= 0) return void 0;
+  return seconds2 < 0.1 ? "<0.1s" : `${seconds2.toFixed(1)}s`;
 }

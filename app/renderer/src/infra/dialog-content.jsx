@@ -10,10 +10,13 @@ import { Check, Loader2Icon, XIcon } from "../media-editing/lucide-icon-wraps.js
 import { getDefaultConfig } from "tailwind-merge";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DialogPortal, listeners$a } from "./gateway-http-error.jsx";
+import { listeners } from "../settings/use-active-runtime.js";
 export { Input } from "@base-ui/react/input";
 const subscribe = (listener) => {
-  listeners$a.add(listener);
-  return () => listeners$a.delete(listener);
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 };
 export const twMerge = createTailwindMerge(getDefaultConfig);
 export function cn(...inputs) {
@@ -232,9 +235,11 @@ export function Button({
     </Button$3>
   );
 }
-const notify = () => {
-  for (const listener of listeners$a) listener();
-};
+function notify(callback) {
+  try {
+    void Promise.resolve(callback?.()).catch(() => void 0);
+  } catch {}
+}
 let preparePreview = null;
 export function registerBrowserHoverPreview(prepare) {
   const lifetime = new AbortController();
@@ -342,18 +347,31 @@ export function Dialog({ browserPreviewManaged = false, ...props }) {
   );
   return <DialogRoot data-slot="dialog" {...dialogProps} />;
 }
-function DialogOverlay({ className, ...props }) {
-  return (
-    <DialogBackdrop
-      data-slot="dialog-overlay"
-      className={mergeTailwindClasses(
-        "modal-mask no-drag fixed inset-0 isolate z-50 duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+// 里层要的是 base-ui 的原语（产物里是 `DialogOverlay$1`，即被重命名过的那个导入），
+// 也就是我们这边的 `DialogBackdrop`。**之前这里写成了 `DialogOverlay` —— 也就是它自己**，
+// 于是每渲染一次就再渲染一次自己：无限递归。
+// 表现是「打开任何带遮罩的对话框，渲染进程几秒内堆爆（约 3.5 GB）后 OOM 被杀」，
+// 而因为递归发生在一次渲染内部，渲染计数器和导航计数都看不出异常。
+// 从产物 `use-window-chrome` 那个 chunk 逐字取回：真正的遮罩用的是 **`modal-mask`**
+//（`background: var(--modal-mask-bg)` + `backdrop-filter: blur(var(--modal-mask-blur))`，
+// 也就是 16px 的高斯模糊），并且带 `data-slot="dialog-overlay"` / `data-mask`。
+//
+// 我们之前写的是另一个弹窗里那条 `fixed inset-0 z-50 bg-black/80 …` —— 那条**没有 modal-mask**，
+// 于是遮罩只有 80% 黑、不模糊：首页那几屏看不出来，`global-search` 整屏压暗却不糊，
+// 逐像素差 57%，而 DOM（只记录 data-action-ui-id / role / aria-*）完全一致、看不出问题。
+const DialogOverlay = reactExports.forwardRef(({ className, mask = "dim", ...props }, ref) => (
+  <DialogBackdrop
+    ref={ref}
+    data-slot="dialog-overlay"
+    data-mask={mask}
+    className={mergeTailwindClasses(
+      "modal-mask no-drag fixed inset-0 isolate z-50 duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+      className,
+    )}
+    {...props}
+  />
+));
+DialogOverlay.displayName = DialogBackdrop.displayName;
 export function DialogContent({
   className,
   children,

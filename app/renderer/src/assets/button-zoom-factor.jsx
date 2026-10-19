@@ -1,0 +1,1 @@
+export const BUTTON_ZOOM_FACTOR = 1.3;

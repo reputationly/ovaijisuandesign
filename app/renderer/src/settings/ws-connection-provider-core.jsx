@@ -257,7 +257,7 @@ function recordResyncDiagnostics(
   });
 }
 
-function requestAssetWorkspaceResync({ qc, gatewayScopeKey, reason }) {
+function requestAssetWorkspaceResync({ qc, gatewayScopeKey, reason2 : reason2}) {
   void refreshAssetIndex({
     qc,
     gatewayScopeKey,
@@ -265,7 +265,7 @@ function requestAssetWorkspaceResync({ qc, gatewayScopeKey, reason }) {
   const now = Date.now();
   const last = fileContentResyncStateByScope.get(gatewayScopeKey) ?? 0;
   if (now - last < FILE_CONTENT_RESYNC_COOLDOWN_MS) {
-    recordResyncDiagnostics(gatewayScopeKey, reason, 0, 0, true);
+    recordResyncDiagnostics(gatewayScopeKey, reason2, 0, 0, true);
     return;
   }
   fileContentResyncStateByScope.set(gatewayScopeKey, now);
@@ -273,7 +273,7 @@ function requestAssetWorkspaceResync({ qc, gatewayScopeKey, reason }) {
   const paths = allPaths.slice(0, FILE_CONTENT_RESYNC_MAX_PATHS);
   recordResyncDiagnostics(
     gatewayScopeKey,
-    reason,
+    reason2,
     paths.length,
     Math.max(0, allPaths.length - paths.length),
     false,

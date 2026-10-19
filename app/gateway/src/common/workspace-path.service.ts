@@ -14,6 +14,11 @@ export class WorkspacePathService {
     return this.cfg.workspaceDir;
   }
 
+  /** 进程启动时就绑死了一个工作区。没设 WORKSPACE_DIR 的 app-level / dev 不算。 */
+  get isWorkspaceLocked(): boolean {
+    return Boolean(process.env.WORKSPACE_DIR?.trim());
+  }
+
   get hiloDir(): string {
     return path.join(this.root, ".hilo");
   }

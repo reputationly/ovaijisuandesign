@@ -4,11 +4,12 @@ import { DialogPopup } from "../infra/base-ui.js";
 import { Minus, Plus } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CloseButton } from "./close-button.jsx";
+import { DRAG_THRESHOLD } from "./drag-threshold.jsx";
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 10;
 const WHEEL_STEP = 2e-3;
 const BUTTON_ZOOM_FACTOR = 1.3;
-const DRAG_THRESHOLD = 3;
+const CLOUD_ASSET_NAME_SAFETY_CONCURRENCY = 4;
 export function ImageLightbox({ src, alt, onClose }) {
   const [scale, setScale] = reactExports.useState(1);
   const [translate, setTranslate] = reactExports.useState({
@@ -231,3 +232,5 @@ export function ImageLightbox({ src, alt, onClose }) {
     </DialogPopup>
   );
 }
+
+const DRAG_THRESHOLD$1 = 3;

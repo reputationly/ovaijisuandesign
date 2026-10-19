@@ -8,7 +8,7 @@ const HIDE_THRESHOLD_PX = 80;
 const NEAR_BOTTOM_PX = 80;
 
 function prefersReducedMotion() {
-  if (typeof window === "undefined" || !window.matchMedia) return false;
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return true;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 

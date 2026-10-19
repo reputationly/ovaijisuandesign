@@ -847,14 +847,14 @@ function CreditTypeSummary({ loading, error, creditTypes, wallet }) {
   const { t } = useTranslation();
   if (loading) {
     return (
-      <div className="rounded-lg border border-border bg-muted/40 px-5 py-4">
+      <div className="shrink-0 rounded-lg border border-border bg-muted/40 px-5 py-4">
         <Skeleton className="h-12 w-full" />
       </div>
     );
   }
   if (error) {
     return (
-      <div className="flex h-20 items-center justify-center rounded-lg border border-border bg-muted/40 text-xs text-muted-foreground">
+      <div className="flex h-20 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/40 text-xs text-muted-foreground">
         {t("credits.fetchErrorMP")}
       </div>
     );
@@ -864,12 +864,9 @@ function CreditTypeSummary({ loading, error, creditTypes, wallet }) {
   const bonus = findCreditInfo(wallet, CreditType.CREDIT_TYPE_BONUS);
   const transfer = findCreditInfo(wallet, CreditType.CREDIT_TYPE_TRANSFER);
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-muted/40">
+    <div className="shrink-0 overflow-hidden rounded-lg border border-border bg-muted/40">
       <div className="grid grid-cols-2 items-end gap-3 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-3">
-        <SummaryCard
-          label={t("credits.remaining")}
-          value={creditTypes.total}
-        />
+        <SummaryCard label={t("credits.remaining")} value={creditTypes.total} />
         <Operator symbol="=" />
         <SummaryCard
           label={t("credits.membership")}

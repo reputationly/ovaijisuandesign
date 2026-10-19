@@ -34,6 +34,7 @@ import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
 import { useImageEditCost } from "./image-edit-pricing.js";
 import { IMAGE_TOOL_META } from "./image-tool-meta.jsx";
 import { classifyToolInteraction } from "./node-tool-interaction.js";
+import { createLucideIcon as createLucideIcon$1 } from "lucide-react";
 const SPLIT_PRESETS = [
   {
     rows: 2,
@@ -66,13 +67,13 @@ function CustomGridPicker({ onPick }) {
     {
       length: SPLIT_MAX,
     },
-    (_unusedValue, index) => index + 1,
+    (_2, i2) => i2 + 1,
   );
   const colsIdx = Array.from(
     {
       length: SPLIT_MAX,
     },
-    (_unusedValue, index) => index + 1,
+    (_2, i2) => i2 + 1,
   );
   return (
     <div className="select-none">
@@ -81,9 +82,7 @@ function CustomGridPicker({ onPick }) {
           {t("canvas.splitGrid.customTitle", "自定义宫格")}
         </span>
         <span className="canvas-toolbar-label tabular-nums text-[var(--canvas-toolbar-muted-fg)]">
-          {hover.cols > 0
-            ? `${hover.cols} × ${hover.rows}`
-            : `${SPLIT_MAX} × ${SPLIT_MAX}`}
+          {hover.cols > 0 ? `${hover.cols} × ${hover.rows}` : `${SPLIT_MAX} × ${SPLIT_MAX}`}
         </span>
       </div>
       <div
@@ -95,23 +94,23 @@ function CustomGridPicker({ onPick }) {
           })
         }
       >
-        {rowsIdx.map((rowCount) => (
-          <div key={rowCount} className="flex gap-1">
-            {colsIdx.map((columnCount) => {
-              const selected = rowCount <= hover.rows && columnCount <= hover.cols;
+        {rowsIdx.map((r2) => (
+          <div key={r2} className="flex gap-1">
+            {colsIdx.map((c3) => {
+              const selected = r2 <= hover.rows && c3 <= hover.cols;
               return (
                 <button
-                  key={columnCount}
+                  key={c3}
                   type="button"
-                  aria-label={`${columnCount} × ${rowCount}`}
+                  aria-label={`${c3} × ${r2}`}
                   onMouseEnter={() =>
                     setHover({
-                      rows: rowCount,
-                      cols: columnCount,
+                      rows: r2,
+                      cols: c3,
                     })
                   }
-                  onClick={() => onPick(rowCount, columnCount)}
-                  className={`h-8 w-8 rounded-md border transition-colors ${selected ? "border-brand-accent/80 bg-brand-accent/80 hover:bg-brand-accent/90 dark:hover:bg-brand-accent/90" : "border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-hover)]"}`}
+                  onClick={() => onPick(r2, c3)}
+                  className={`h-8 w-8 rounded-md border transition-colors ${selected ? "border-brand-accent/80 bg-brand-accent/80 hover:bg-brand-accent/90" : "border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-hover)]"}`}
                 />
               );
             })}
@@ -121,25 +120,9 @@ function CustomGridPicker({ onPick }) {
     </div>
   );
 }
-function ChevronRight() {
-  return (
-    <CompositedSvg
-      width="8"
-      height="10"
-      viewBox="0 0 8 10"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M2 1L6 5L2 9"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </CompositedSvg>
-  );
-}
+// 图标数据原本写在这里（产物把它提到模块顶层的 `__iconNode$4` 复用，我们这份只用到一次，
+// 所以写回内联形式，和 custom-icons.js 里其它图标一致）。
+const ChevronRight = createLucideIcon$1("chevron-right", [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]]);
 function ImageSplitMenuItems({ onPick, sourceGrid }) {
   const { t } = useTranslation();
   const menuOptions = resolveSplitGridMenuOptions(sourceGrid);
@@ -292,7 +275,7 @@ function PinnedSplitGridToolbarItem({
     </>
   );
 }
-export const ImageNodeToolbarSection = reactExports.memo(
+const ImageNodeToolbarSectionImpl = reactExports.memo(
   function ImageNodeToolbarSectionImpl({
     hasDimensions,
     handleRedraw,
@@ -313,6 +296,9 @@ export const ImageNodeToolbarSection = reactExports.memo(
     handleRotate,
     handleSplitEnter,
     pinSplitGrid = false,
+    // 产物里这个开关决定「未实现的能力」是否也占位显示。
+    // 内层实现默认 true；对外导出的包装组件传 false（见文件末尾）。
+    showUnavailableTools = true,
     splitGrid,
     handleFullscreen,
     handlePromoteToAsset,
@@ -410,7 +396,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
         handleSplitEnter(rows, cols);
       };
       const pinnedSplitItems =
-        pinSplitGrid && handleSplitEnter
+        pinSplitGrid && (handleSplitEnter || showUnavailableTools)
           ? [
               {
                 id: "split-grid-pinned",
@@ -467,7 +453,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
             isImageToolbarNewFeatureId(toolId) && !seenNewFeatures.has(toolId),
         };
       });
-      if (handleSplitEnter && !pinSplitGrid) {
+      if ((handleSplitEnter || showUnavailableTools) && !pinSplitGrid) {
         overflowDropdown.push({
           id: "split-grid",
           label: t("canvas.splitGrid.label", "宫格切分"),
@@ -528,7 +514,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
         ...pinnedItems,
         moreItem,
         // Right-side fixed utility region mirrored by the customization-dialog preview.
-        ...(handlePromoteToAsset
+        ...(handlePromoteToAsset || showUnavailableTools
           ? [
               {
                 id: "promote-to-asset",
@@ -559,7 +545,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
             "Edit Image",
           ),
           icon: <AnnotationIcon size={20} />,
-          separator: !handlePromoteToAsset,
+          separator: !handlePromoteToAsset && !showUnavailableTools,
           onClick: wrap("image-inplace-edit", handleImageEdit, "primary_bar"),
         },
         {
@@ -612,3 +598,16 @@ export const ImageNodeToolbarSection = reactExports.memo(
     return <NodeToolbar items={toolbarItems} visible={true} />;
   },
 );
+
+/**
+ * 对外导出的工具栏。
+ *
+ * 产物里这里是**两层**：`ImageNodeToolbarSection$1`（实现，默认 `showUnavailableTools: true`）
+ * 和一层很薄的包装，固定传 `false` —— 所以画布上只显示**真正可用的**工具，
+ * 而不是把「未实现的能力」也占位画出来（视频/音频节点上多出的「剪辑」「音频分离」就是这么来的）。
+ */
+const ImageNodeToolbarSection = reactExports.memo(function ImageNodeToolbarSection(props) {
+  return <ImageNodeToolbarSectionImpl {...props} showUnavailableTools={false} />;
+});
+
+export { ImageNodeToolbarSection, ImageNodeToolbarSectionImpl };

@@ -11,11 +11,10 @@ import {
 } from "../assets/credit-query-keys.jsx";
 import { useOptionalUpdaterContext } from "./use-active-runtime.js";
 
+import { isRecord } from "../assets/wrap-as-asset-center-error.js";
 const POPUP_PATH = "/api/v1/popup";
 
-function isRecord$a(value) {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+const isRecord$d = (value) => !!value && typeof value === "object" && !Array.isArray(value);
 
 function readString(record, key) {
   const value = record[key];
@@ -47,7 +46,7 @@ function mapPopupType(value) {
 }
 
 function mapPopupResponse(value, includeAnnouncements = true) {
-  if (!isRecord$a(value)) {
+  if (!isRecord(value)) {
     return {
       popup_type: PopupType.POPUP_TYPE_NONE,
       id: "",
@@ -64,7 +63,7 @@ function mapPopupResponse(value, includeAnnouncements = true) {
       announcements: [],
     };
   }
-  const action = isRecord$a(value.action)
+  const action = isRecord(value.action)
     ? {
         type: readString(value.action, "type") || void 0,
         label: readString(value.action, "label"),
@@ -73,9 +72,12 @@ function mapPopupResponse(value, includeAnnouncements = true) {
         prompt: readString(value.action, "prompt") || void 0,
         model_id: readString(value.action, "model_id") || void 0,
         inspiration_query_ids: readQueryIds(value.action.inspiration_query_ids),
+        inspiration_collection: readString(value.action, "inspiration_collection").trim() || void 0,
+        agent_version:
+          value.action.agent_version === 2 || value.action.agent_version === 3 ? value.action.agent_version : void 0,
       }
     : void 0;
-  const actionClaimed = isRecord$a(value.action_claimed)
+  const actionClaimed = isRecord(value.action_claimed)
     ? {
         type: readString(value.action_claimed, "type") || void 0,
         label: readString(value.action_claimed, "label"),
@@ -83,9 +85,12 @@ function mapPopupResponse(value, includeAnnouncements = true) {
         hint: readString(value.action_claimed, "hint") || void 0,
         prompt: readString(value.action_claimed, "prompt") || void 0,
         model_id: readString(value.action_claimed, "model_id") || void 0,
-        inspiration_query_ids: readQueryIds(
-          value.action_claimed.inspiration_query_ids,
-        ),
+        inspiration_query_ids: readQueryIds(value.action_claimed.inspiration_query_ids),
+        inspiration_collection: readString(value.action_claimed, "inspiration_collection").trim() || void 0,
+        agent_version:
+          value.action_claimed.agent_version === 2 || value.action_claimed.agent_version === 3
+            ? value.action_claimed.agent_version
+            : void 0,
       }
     : void 0;
   return {
@@ -95,10 +100,7 @@ function mapPopupResponse(value, includeAnnouncements = true) {
         : [],
     subtitle: readString(value, "subtitle") || void 0,
     auto_show: typeof value.auto_show === "boolean" ? value.auto_show : void 0,
-    priority:
-      typeof value.priority === "number" && Number.isFinite(value.priority)
-        ? value.priority
-        : 0,
+    priority: typeof value.priority === "number" && Number.isFinite(value.priority) ? value.priority : 0,
     popup_type: mapPopupType(value.popup_type),
     id: readString(value, "id"),
     title: readString(value, "title"),
@@ -106,18 +108,14 @@ function mapPopupResponse(value, includeAnnouncements = true) {
     action,
     action_claimed: actionClaimed,
     can_close: typeof value.can_close === "boolean" ? value.can_close : void 0,
-    mute_range_time:
-      typeof value.mute_range_time === "number"
-        ? value.mute_range_time
-        : void 0,
+    mute_range_time: typeof value.mute_range_time === "number" ? value.mute_range_time : void 0,
     cover_url: readString(value, "cover_url"),
     video_url: readString(value, "video_url"),
     banner_text: readString(value, "banner_text"),
     // H3 免费试用活动窗口（服务端按 hailuo03_video_trial_config 的
     // start_time_ms / end_time_ms 算）。缺失 = 老服务端 / 非 FEATURE，保持
     // undefined 让前端走“不限制”分支，不能强转成 false。
-    trial_active:
-      typeof value.trial_active === "boolean" ? value.trial_active : void 0,
+    trial_active: typeof value.trial_active === "boolean" ? value.trial_active : void 0,
   };
 }
 

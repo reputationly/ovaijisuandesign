@@ -1,4 +1,6 @@
 // parse-custom-mcp-arguments.js
+const PATH_ACCESS_DENIED_PREFIX = "Access denied:";
+import jsxRuntimeExports from "react/jsx-runtime";
 import { isWorkspaceFolderMissingError } from "../workspace/workspace-folder-missing.js";
 import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
 export var _util;
@@ -210,7 +212,6 @@ export function getErrorMessage(error) {
   }
   return String(error);
 }
-const PATH_ACCESS_DENIED_PREFIX = "Access denied:";
 export function isPathAccessError(err) {
   return (
     err instanceof Error && err.message.startsWith(PATH_ACCESS_DENIED_PREFIX)

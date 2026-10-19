@@ -27,6 +27,11 @@ function formatModelMentionInsert(model) {
 }
 
 function formatMentionInsert(item) {
+  if (item.category === "draft-reference") {
+    const attrs = item.reference.attrs;
+    if (!attrs) return "";
+    return attrs.kind === "model" ? `@model:${attrs.mentionName ?? attrs.modelName ?? attrs.path} ` : `@${attrs.path} `;
+  }
   if (item.category === "model") return formatModelMentionInsert(item.model);
   if (item.category === "workflow") return `@workflow:${item.workflow.id} `;
   if (item.category === "connector")
@@ -95,35 +100,21 @@ function matchModels(models, query) {
   return scored.map((scoredResult) => scoredResult.item);
 }
 
-function matchWorkflows(
-  workflows,
-  currentCanvasWorkflows,
-  query,
-  currentCanvasWorkflowNodeIds,
-) {
+function matchWorkflows(workflows, currentCanvasWorkflows, query, currentCanvasWorkflowNodeIds) {
   const normalized = query.trim().toLocaleLowerCase();
   const matchesQuery = (workflow) =>
     !normalized ||
-    [
-      workflow.title,
-      workflow.name,
-      workflow.short_desc,
-      ...(workflow.tags ?? []),
-    ]
+    [workflow.title, workflow.name, workflow.short_desc, ...(workflow.tags ?? [])]
       .filter((value) => typeof value === "string")
-      .some((value) => value.toLocaleLowerCase().includes(normalized));
+      .some((value) => fuzzyScore(value, normalized) > 0);
   return [
     ...currentCanvasWorkflows.filter(matchesQuery).map((workflow) => ({
       category: "workflow",
       workflow,
       context: "current-canvas",
-      ...(currentCanvasWorkflowNodeIds.get(
-        currentCanvasWorkflowNodeKey(workflow),
-      )
+      ...(currentCanvasWorkflowNodeIds.get(currentCanvasWorkflowNodeKey(workflow))
         ? {
-            canvasNodeId: currentCanvasWorkflowNodeIds.get(
-              currentCanvasWorkflowNodeKey(workflow),
-            ),
+            canvasNodeId: currentCanvasWorkflowNodeIds.get(currentCanvasWorkflowNodeKey(workflow)),
           }
         : {}),
     })),
@@ -561,4 +552,21 @@ export function useMention(
     openPopover,
     close: closeMentionPopover,
   };
+}
+
+function fuzzyScore(target, query) {
+  if (!query) return 1;
+  const t2 = target.toLowerCase();
+  const q2 = query.toLowerCase();
+  let ti = 0;
+  let qi = 0;
+  let score = 0;
+  while (ti < t2.length && qi < q2.length) {
+    if (t2[ti] === q2[qi]) {
+      score += 10;
+      qi++;
+    }
+    ti++;
+  }
+  return qi === q2.length ? score : 0;
 }

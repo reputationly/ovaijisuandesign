@@ -3,7 +3,7 @@ import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
 import { useTranslation } from "react-i18next";
 import { classifyFileType } from "../infra/file-type.js";
-import { File$3 as File, FolderInput$2 as FolderInput, Music$2 as Music, Video$2 as Video } from "../media-editing/custom-icons.js";
+import { File$3, File$3 as File, FolderInput$2 as FolderInput, Music$2 as Music, Video$2, Video$2 as Video } from "../media-editing/custom-icons.js";
 import { Plus } from "../media-editing/lucide-icon-wraps.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -43,6 +43,8 @@ import { AddToChatIcon } from "../canvas/fullscreen-icon.jsx";
 import { writeEntityDragData } from "../infra/use-online.jsx";
 import { useMaterializeEntity } from "./use-materialize-entity.js";
 import { trackAssetUse } from "./use-materialized-entities.jsx";
+import { AudioFileIcon } from "./preview-media.jsx";
+import { AttachmentKindIcon } from "./attachment-kind-icon.jsx";
 const THUMB_PX = 32;
 const COMPACT_MENU_ITEM_CLASS =
   "gap-2 px-2.5 py-1.5 text-[11px] [&_svg:not([class*=size-])]:size-3.5";
@@ -63,30 +65,12 @@ function EntityThumb({ entity }) {
     height: THUMB_PX,
   };
   const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
-  const resolvedUrl = previewUrl
-    ? withThumbnail(gatewayUrl(previewUrl), THUMB_PX)
-    : void 0;
+  const resolvedUrl = previewUrl ? withThumbnail(gatewayUrl(previewUrl), THUMB_PX) : void 0;
   const fallbackKind = entity.primaryAttachmentKind;
   if (!resolvedUrl || errored) {
     return (
       <span className={wrapperCls} style={wrapperStyle}>
-        {fallbackKind ? (
-          <FileTypeIcon
-            {...(fallbackKind === "document"
-              ? {
-                  category: "document",
-                  recognition: "known",
-                  typeLabel: "FILE",
-                }
-              : classifyFileType({
-                  mediaKind: fallbackKind,
-                }))}
-            size={24}
-            decorative={true}
-          />
-        ) : (
-          <EntityTypeIcon type={entity.type} />
-        )}
+        {fallbackKind ? <AttachmentKindIcon kind={fallbackKind} /> : <EntityTypeIcon type={entity.type} />}
       </span>
     );
   }
@@ -108,30 +92,12 @@ function EntityGridCover({ entity }) {
   const gatewayUrl = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
   const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
-  const resolvedUrl = previewUrl
-    ? withThumbnail(gatewayUrl(previewUrl), 240)
-    : void 0;
+  const resolvedUrl = previewUrl ? withThumbnail(gatewayUrl(previewUrl), 240) : void 0;
   const fallbackKind = entity.primaryAttachmentKind;
   if (!resolvedUrl || errored) {
     return (
       <span className="flex h-full w-full items-center justify-center text-muted-foreground">
-        {fallbackKind ? (
-          <FileTypeIcon
-            {...(fallbackKind === "document"
-              ? {
-                  category: "document",
-                  recognition: "known",
-                  typeLabel: "FILE",
-                }
-              : classifyFileType({
-                  mediaKind: fallbackKind,
-                }))}
-            size={48}
-            decorative={true}
-          />
-        ) : (
-          <EntityTypeIcon type={entity.type} />
-        )}
+        {fallbackKind ? <AttachmentKindIcon kind={fallbackKind} /> : <EntityTypeIcon type={entity.type} />}
       </span>
     );
   }
@@ -478,3 +444,10 @@ export const EntityRow = reactExports.memo(function EntityRow({
     </ContextMenu>
   );
 });
+
+function AttachmentKindIcon$1({ kind: kind2 }) {
+  if (kind2 === "image") return <ImageOutlineIcon size={14} />;
+  if (kind2 === "video") return <Video$2 size={14} />;
+  if (kind2 === "audio") return <AudioFileIcon size={14} />;
+  return <File$3 size={14} />;
+}

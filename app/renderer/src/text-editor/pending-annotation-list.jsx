@@ -5,7 +5,7 @@ import { X$7 as X } from "../media-editing/lucide-icon-wraps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button } from "../infra/dialog-content.jsx";
 import { shouldIgnoreChatGlobalShortcut } from "../media-editing/message-list-props-equal.jsx";
-const MAX_VISIBLE_CARDS = 4;
+const UPLOAD_COMMIT_WORST_CASE_BYTE_PASSES = 3;
 export function PendingAnnotationList({
   annotations,
   activeId,
@@ -167,3 +167,5 @@ export function PendingAnnotationList({
     </div>
   );
 }
+
+const MAX_VISIBLE_CARDS = 3;

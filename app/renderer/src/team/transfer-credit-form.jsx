@@ -57,12 +57,14 @@ class TeamCreditTransferResultUnknownError extends Error {
     super("team_credit_transfer_result_unknown");
     this.intent = intent;
   }
+  intent;
 }
 class TeamCreditTransferRejectedError extends Error {
-  constructor(code) {
-    super(code);
-    this.code = code;
+  constructor(code2) {
+    super(code2);
+    this.code = code2;
   }
+  code;
 }
 export function TransferCreditForm({
   active,

@@ -29,6 +29,7 @@ import { clearTrackUser, setTrackUser } from "../infra/init-track.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { normalizeAdAttribution } from "../text-editor/normalize-ad-attribution-url.js";
 
+import { discardWorkspaceCanvasPersistence } from "./entries-by-workspace.jsx";
 const ATTEMPT_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -48,7 +49,9 @@ async function flushAllWorkspaceCanvasPersistence() {
 }
 
 function discardAllWorkspaceCanvasPersistence() {
-  entriesByWorkspace.clear();
+  for (const workspaceId of Array.from(entriesByWorkspace.keys())) {
+    discardWorkspaceCanvasPersistence(workspaceId);
+  }
 }
 
 function buildAuthLoginTrackingProps(attempt) {

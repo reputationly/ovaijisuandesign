@@ -281,8 +281,7 @@ function resolveAssetCenterRelocationState({
       !hidden &&
       libraryInitialized &&
       hasAssetData &&
-      resolveSeenRevision(dismissedCoachMarks, HOME_INPUT_COACH_MARK_ID) <
-        ASSET_CENTER_RELOCATION_REVISION,
+      resolveSeenRevision(dismissedCoachMarks, HOME_INPUT_COACH_MARK_ID) < ASSET_CENTER_RELOCATION_REVISION,
   };
 }
 export function useAssetCenterRelocation() {
@@ -311,8 +310,7 @@ export function useAssetCenterRelocation() {
   });
 }
 export const PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS = 4;
-const PROJECT_ASSET_MAX_FOLDER_DEPTH =
-  PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS - 1;
+const PROJECT_ASSET_MAX_FOLDER_DEPTH = PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS - 1;
 const PROJECT_ASSET_MAX_FILE_DEPTH = PROJECT_ASSET_MAX_FOLDER_DEPTH + 1;
 export function getProjectAssetWritePolicy(currentFolderDepth) {
   return {

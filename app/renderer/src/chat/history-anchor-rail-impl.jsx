@@ -22,7 +22,7 @@ const RailTick = reactExports.memo(function RailTick({
   isVisibleActive,
   hasHoveredMarker,
   pianoDistance,
-  compact,
+  compact: compact2,
   onJumpToTurn,
 }) {
   const { t: translate } = useTranslation();
@@ -157,13 +157,8 @@ function AgentSignalRow({ signal, t: translate }) {
   );
 }
 
-const PreviewCard = reactExports.memo(function PreviewCard({
-  userSignal,
-  agentSignal,
-  topStyle,
-  compact,
-}) {
-  const { t: translate } = useTranslation();
+const PreviewCard = reactExports.memo(function PreviewCard2({ userSignal, agentSignal, topStyle, compact }) {
+  const { t } = useTranslation();
   return (
     <div
       style={topStyle}
@@ -171,8 +166,8 @@ const PreviewCard = reactExports.memo(function PreviewCard({
       className={`elevated-surface-border pointer-events-none absolute right-full mr-2 rounded-lg bg-popover shadow-lg text-popover-foreground p-3 space-y-1.5 ${compact ? "w-56 -translate-y-1/2" : "w-64 max-w-[320px]"}`}
       role="tooltip"
     >
-      {userSignal && <UserSignalRow signal={userSignal} t={translate} />}
-      {agentSignal && <AgentSignalRow signal={agentSignal} t={translate} />}
+      {userSignal && <UserSignalRow signal={userSignal} t={t} />}
+      {agentSignal && <AgentSignalRow signal={agentSignal} t={t} />}
     </div>
   );
 });
@@ -184,7 +179,7 @@ const HistoryAnchorRailImpl = ({
   activeIndex,
   activeIndexes = [activeIndex],
   onJumpToTurn,
-  compact = false,
+  compact : compact2= false,
 }) => {
   const { t: translate } = useTranslation();
   const [hoveredIndex, setHoveredIndex] = reactExports.useState(null);

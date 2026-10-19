@@ -1,4 +1,5 @@
 // multi-angle-editor.jsx
+import jsxRuntimeExports from "react/jsx-runtime";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CANVAS_SIZE, ToolResetIcon } from "./plane-quad.jsx";
 import reactExports from "react";
@@ -440,195 +441,282 @@ function buildDefaultCamera() {
     presetId: preset.id,
   };
 }
-function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
+// 产物里这里是 `MultiAngleEditor$1`（真正的编辑器）与 `messages$2`（文案表）。
+// 还原时 `$1` 被剥掉、内层实现整块丢失，外层只好渲染自己 —— 一点开就无限自递归、
+// 渲染进程堆到 4GB OOM。下面按产物补回内层与文案。
+const MULTI_ANGLE_MESSAGES = {
+  en: {
+    title: "Adjust camera angle",
+    preset_section: "Angle presets",
+    adjust_section: "Fine-tune",
+    adjust_hint: "Drag the camera on the left for a quicker adjustment",
+    upload_prefix: "Upload or Choose from ",
+    upload_action: "Assets",
+    upload_suffix: "",
+    reset: "Reset",
+    horizontal_angle: "Horizontal Angle",
+    vertical_angle: "Vertical Angle",
+    zoom: "Zoom",
+    zoom_long_shot: "Long Shot",
+    zoom_medium_shot: "Medium Shot",
+    zoom_close_up: "Close-up",
+    preset_eye_level: "Eye Level",
+    preset_close_up: "Close-up",
+    preset_low_angle: "Low Angle",
+    preset_high_angle: "High Angle",
+    preset_birds_eye: "Bird's Eye",
+    preset_left_side: "Left Side",
+    preset_right_side: "Right Side",
+    preset_back: "Back View",
+    preset_dutch: "Dutch Angle",
+    generate: "Generate",
+    generating: "Generating...",
+    error_asset_missing: "The selected asset does not have an available workspace file.",
+    error_asset_picker: "Failed to open the asset picker",
+    error_generate: "Failed to generate the adjusted angle"
+  },
+  zh: {
+    title: "调整拍摄角度",
+    preset_section: "角度预设",
+    adjust_section: "精确调整",
+    adjust_hint: "也可以直接拖动左侧相机快速调整",
+    upload_prefix: "上传或从",
+    upload_action: "资产",
+    upload_suffix: "选择",
+    reset: "重置参数",
+    horizontal_angle: "水平角度",
+    vertical_angle: "垂直角度",
+    zoom: "景别",
+    zoom_long_shot: "远景",
+    zoom_medium_shot: "中景",
+    zoom_close_up: "特写",
+    preset_eye_level: "平视镜头",
+    preset_close_up: "特写",
+    preset_low_angle: "低角度",
+    preset_high_angle: "高角度",
+    preset_birds_eye: "鸟瞰",
+    preset_left_side: "左侧视角",
+    preset_right_side: "右侧视角",
+    preset_back: "背影",
+    preset_dutch: "荷兰角",
+    generate: "生成",
+    generating: "生成中...",
+    error_asset_missing: "所选资源缺少可用的工作区文件",
+    error_asset_picker: "打开资源选择面板失败",
+    error_generate: "调整角度生成失败"
+  }
+};
+
+function MultiAngleEditorInner({
+  onSubmit,
+  pickImage,
+  creditCost,
+  imageUrl,
+  imageKey,
+  onClose
+}) {
   const { i18n } = useTranslation();
-  const translations = reactExports.useMemo(
-    () => (i18n.resolvedLanguage?.startsWith("zh") ? messages.zh : messages.en),
-    [i18n.resolvedLanguage],
+  const t2 = reactExports.useMemo(
+    () => i18n.resolvedLanguage?.startsWith("zh") ? MULTI_ANGLE_MESSAGES.zh : MULTI_ANGLE_MESSAGES.en,
+    [i18n.resolvedLanguage]
   );
-  const { pickAsset, submitImg2Image } = useCanvasBridge();
-  const [source, setSource] = reactExports.useState({
-    url: imageUrl ?? null,
-    path: imagePath ?? null,
-  });
+  const [source, setSource] = reactExports.useState({ url: imageUrl ?? null, key: imageKey ?? null });
   const [camera, setCamera] = reactExports.useState(buildDefaultCamera);
   const [isSubmitting, setIsSubmitting] = reactExports.useState(false);
   const submitLockRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    setSource({
-      url: imageUrl ?? null,
-      path: imagePath ?? null,
-    });
-  }, [imagePath, imageUrl]);
+    setSource({ url: imageUrl ?? null, key: imageKey ?? null });
+  }, [imageKey, imageUrl]);
   const handleUpdateCamera = reactExports.useCallback((updates) => {
-    setCamera((previous) => {
-      const next = {
-        ...previous,
-        ...updates,
-        presetId: void 0,
-      };
+    setCamera((previous2) => {
+      const next2 = { ...previous2, ...updates, presetId: void 0 };
       if (updates.horizontalAngle !== void 0) {
-        next.horizontalAngle = clampHAngle(updates.horizontalAngle);
+        next2.horizontalAngle = clampHAngle(updates.horizontalAngle);
       }
-      next.verticalAngle = clampVAngle(next.verticalAngle);
-      return next;
+      next2.verticalAngle = clampVAngle(next2.verticalAngle);
+      return next2;
     });
   }, []);
-  const handleRotateCamera = reactExports.useCallback(
-    (horizontalDelta, verticalDelta) => {
-      setCamera((previous) => ({
-        ...previous,
-        horizontalAngle: wrapHAngle(
-          previous.horizontalAngle + horizontalDelta,
-        ),
-        verticalAngle: clampVAngle(previous.verticalAngle + verticalDelta),
-        presetId: void 0,
-      }));
-    },
-    [],
-  );
-  const handleSelectPreset = reactExports.useCallback((preset) => {
+  const handleRotateCamera = reactExports.useCallback((horizontalDelta, verticalDelta) => {
+    setCamera((previous2) => ({
+      ...previous2,
+      horizontalAngle: wrapHAngle(previous2.horizontalAngle + horizontalDelta),
+      verticalAngle: clampVAngle(previous2.verticalAngle + verticalDelta),
+      presetId: void 0
+    }));
+  }, []);
+  const handleSelectPreset = reactExports.useCallback((preset2) => {
     setCamera({
-      horizontalAngle: preset.horizontalAngle,
-      verticalAngle: preset.verticalAngle,
-      zoom: preset.zoom,
-      presetId: preset.id,
+      horizontalAngle: preset2.horizontalAngle,
+      verticalAngle: preset2.verticalAngle,
+      zoom: preset2.zoom,
+      presetId: preset2.id
     });
   }, []);
   const handleReset = reactExports.useCallback(() => {
     setCamera(buildDefaultCamera());
   }, []);
   const handlePickImage = reactExports.useCallback(async () => {
-    if (!pickAsset) return;
+    if (!pickImage) return;
     try {
-      const resources = await pickAsset({
-        type: "image",
-      });
-      const selected = resources?.[0];
-      if (!selected) return;
-      if (!selected.url || !selected.path) {
-        dedupedToast.error(translations.error_asset_missing);
+      const resources = await pickImage({});
+      const selected2 = resources?.[0];
+      if (!selected2) return;
+      if (!selected2.url || !selected2.key) {
+        dedupedToast.error(t2.error_asset_missing);
         return;
       }
-      setSource({
-        url: selected.url,
-        path: selected.path,
-      });
+      setSource({ url: selected2.url, key: selected2.key });
     } catch (error) {
-      dedupedToast.error(
-        `${translations.error_asset_picker}: ${readableGenerationError(error)}`,
-      );
+      dedupedToast.error(`${t2.error_asset_picker}: ${readableGenerationError(error)}`);
     }
-  }, [pickAsset, translations]);
-  const isButtonDisabled =
-    isSubmitting || !source.url || !source.path || !submitImg2Image;
+  }, [pickImage, t2]);
+  const isButtonDisabled = isSubmitting || !source.url || !source.key || !onSubmit;
   const handleSubmit = reactExports.useCallback(async () => {
-    const sourcePath = source.path;
-    if (!submitImg2Image || !sourcePath || submitLockRef.current) return;
+    const sourcePath = source.key;
+    if (!onSubmit || !sourcePath || submitLockRef.current) return;
     submitLockRef.current = true;
     setIsSubmitting(true);
     try {
-      const submission = submitImg2Image(
-        nodeId,
-        "Multi-Shot",
-        "multi-shot",
-        {
+      const submission = onSubmit({
+        prompt: "Multi-Shot",
+        params: {
           horizontal_angle: String(wrapHAngle(camera.horizontalAngle)),
           vertical_angle: String(camera.verticalAngle),
-          zoom: String(camera.zoom),
+          zoom: String(camera.zoom)
         },
-        [sourcePath],
-        void 0,
-        1,
-        void 0,
-        false,
-        BACKEND_VIBE_MULTI_SHOT,
-      );
+        referenceKeys: [sourcePath]
+      });
       onClose();
       const result = await submission;
       if (!result.success && result.error) throw new Error(result.error);
     } catch (error) {
-      dedupedToast.error(
-        `${translations.error_generate}: ${readableGenerationError(error)}`,
-      );
+      dedupedToast.error(`${t2.error_generate}: ${readableGenerationError(error)}`);
     } finally {
       submitLockRef.current = false;
       setIsSubmitting(false);
     }
-  }, [camera, nodeId, onClose, source.path, submitImg2Image, translations]);
+  }, [camera, onClose, source.key, onSubmit, t2]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "multi-angle-theme flex h-full min-h-0 flex-col bg-hl_bg_01", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("header", { className: "shrink-0 px-4 pb-1 pt-3 pr-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-hl_text_00 text-sm font-semibold leading-5", children: t2.title }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-0 flex-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      LeftPanel,
+      {
+        leftContent: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex min-h-full flex-col", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "relative mx-3 mt-2 rounded-xl bg-hl_bg_05 p-3",
+            "data-action-ui-id": "canvas.multi-angle.control-card",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  "data-action-ui-id": "canvas.multi-angle.reset",
+                  className: "text-hl_text_03 hover:bg-hl_bg_07 hover:text-hl_text_00 absolute right-2 top-2 z-10 flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+                  disabled: isSubmitting,
+                  onClick: handleReset,
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ToolResetIcon, {}),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t2.reset })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-[212px] shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(StudioPreview, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                CameraBall,
+                {
+                  camera,
+                  imageUrl: source.url,
+                  disabled: isSubmitting,
+                  onRotate: handleRotateCamera,
+                  onUpload: handlePickImage,
+                  t: t2
+                }
+              ) }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "pt-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                MultiAngleCustomPanel,
+                {
+                  camera,
+                  onUpdateCamera: handleUpdateCamera,
+                  t: t2
+                }
+              ) })
+            ]
+          }
+        ) }),
+        leftFooter: null,
+        rightContent: /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "flex flex-col gap-2 px-4 pb-3 pt-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-hl_text_01 text-[13px] font-medium", children: t2.preset_section }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            MultiAnglePresetsPanel,
+            {
+              presets: ANGLE_PRESETS,
+              selectedPresetId: camera.presetId,
+              onSelect: handleSelectPreset,
+              t: t2
+            }
+          )
+        ] }),
+        rightFooter: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          MultiAngleGenerateBar,
+          {
+            totalCreditCost: creditCost ?? PER_IMAGE_CREDIT,
+            isDisabled: isButtonDisabled,
+            isSubmitting,
+            onSubmit: () => void handleSubmit(),
+            t: t2
+          }
+        )
+      }
+    ) })
+  ] });
+}
+
+function MultiAngleEditor({ nodeId, imagePath, ...props }) {
+  const { pickAsset, submitImg2Image } = useCanvasBridge();
   return (
-    <div className="multi-angle-theme flex h-full min-h-0 flex-col bg-hl_bg_01">
-      <header className="shrink-0 px-4 pb-1 pt-3 pr-10">
-        <h2 className="text-hl_text_00 text-sm font-semibold leading-5">
-          {translations.title}
-        </h2>
-      </header>
-      <div className="min-h-0 flex-1">
-        <LeftPanel
-          leftContent={
-            <div className="flex min-h-full flex-col">
-              <div
-                className="relative mx-3 mt-2 rounded-xl bg-hl_bg_05 p-3"
-                data-action-ui-id="canvas.multi-angle.control-card"
-              >
-                <button
-                  type="button"
-                  data-action-ui-id="canvas.multi-angle.reset"
-                  className="text-hl_text_03 hover:bg-hl_bg_07 hover:text-hl_text_00 absolute right-2 top-2 z-10 flex h-7 items-center gap-1 rounded-md px-2 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                  disabled={isSubmitting}
-                  onClick={handleReset}
-                >
-                  <ToolResetIcon />
-                  <span>{translations.reset}</span>
-                </button>
-                <div className="h-[212px] shrink-0">
-                  <StudioPreview>
-                    <CameraBall
-                      camera={camera}
-                      imageUrl={source.url}
-                      disabled={isSubmitting}
-                      onRotate={handleRotateCamera}
-                      onUpload={handlePickImage}
-                      t={translations}
-                    />
-                  </StudioPreview>
-                </div>
-                <section className="pt-3">
-                  <MultiAngleCustomPanel
-                    camera={camera}
-                    onUpdateCamera={handleUpdateCamera}
-                    t={translations}
-                  />
-                </section>
-              </div>
-            </div>
-          }
-          leftFooter={null}
-          rightContent={
-            <section className="flex flex-col gap-2 px-4 pb-3 pt-2">
-              <h3 className="text-hl_text_01 text-[13px] font-medium">
-                {translations.preset_section}
-              </h3>
-              <MultiAnglePresetsPanel
-                presets={ANGLE_PRESETS}
-                selectedPresetId={camera.presetId}
-                onSelect={handleSelectPreset}
-                t={translations}
-              />
-            </section>
-          }
-          rightFooter={
-            <MultiAngleGenerateBar
-              totalCreditCost={PER_IMAGE_CREDIT}
-              isDisabled={isButtonDisabled}
-              isSubmitting={isSubmitting}
-              onSubmit={() => void handleSubmit()}
-              t={translations}
-            />
-          }
-        />
-      </div>
-    </div>
+    <MultiAngleEditorInner
+      {...props}
+      imageKey={imagePath}
+      pickImage={
+        pickAsset
+          ? async (options) => {
+              const items = await pickAsset({
+                type: "image",
+                ...options,
+              });
+              return items?.map((item) => ({
+                key: item.path ?? "",
+                url: item.url ?? "",
+                width: item.width,
+                height: item.height,
+              }));
+            }
+          : void 0
+      }
+      onSubmit={
+        submitImg2Image
+          ? async (submission) => {
+              const params = {
+                ...submission.params,
+              };
+              const result = submitImg2Image(
+                nodeId,
+                submission.prompt,
+                "multi-shot",
+                params,
+                submission.referenceKeys,
+                void 0,
+                1,
+                void 0,
+                false,
+                BACKEND_VIBE_MULTI_SHOT,
+              );
+              return result;
+            }
+          : void 0
+      }
+    />
   );
 }
 const MULTI_ANGLE_POPOVER_WIDTH = 658;

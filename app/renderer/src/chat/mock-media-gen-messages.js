@@ -1,3 +1,4 @@
+import { __jsx } from "../shared/jsx-runtime.js";
 // mock-media-gen-messages.js
 
 let _seq = 0;

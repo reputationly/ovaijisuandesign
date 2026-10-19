@@ -6,13 +6,14 @@ import { ChatAttachmentController } from "./chat-attachment.controller.js";
 import { ChatService } from "./chat.service.js";
 import { ConfirmService } from "./confirm.service.js";
 import { InternalSessionsController, InternalToolSchemaController } from "./internal-sessions.controller.js";
+import { ChatModelTraceController, ChatModelTraceService } from "./model-traces.js";
 import { SessionMetricsService } from "./session-metrics.service.js";
 
 @Global()
 @Module({
   imports: [HealthModule],
-  controllers: [InternalSessionsController, InternalToolSchemaController, ChatAttachmentController],
-  providers: [AppGateway, ChatService, ConfirmService, SessionMetricsService],
+  controllers: [InternalSessionsController, InternalToolSchemaController, ChatAttachmentController, ChatModelTraceController],
+  providers: [AppGateway, ChatService, ConfirmService, SessionMetricsService, ChatModelTraceService],
   exports: [ChatService, ConfirmService],
 })
 export class ChatModule {}

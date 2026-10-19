@@ -224,12 +224,13 @@ describe("聊天链路（假 opencode）", () => {
     ws.send(JSON.stringify({ type: "list_sessions", request_id: "l1" }));
     const list = await waitFor((f) => f.type === "session_list");
     expect(list.sessions.map((s: any) => s.id)).toContain(ui);
+    expect(list.sessions.find((s: any) => s.id === ui)).toMatchObject({ name: "画一只猫", runtime_session_id: rid });
     ws.send(JSON.stringify({ type: "switch_session", session_id: ui, request_id: "s1" }));
     const sw = await waitFor((f) => f.type === "session_switched");
     // 3.0.21 水合协议：历史必须是渲染器认识的扁平帧（backendMessagesToChat 只认这些
     // type），且带 request_id / activated / history_sync_id —— 渲染器据此才把快照替换
     // 进 store。合成的 part 不给界面。
-    expect(sw).toMatchObject({ session_id: ui, request_id: "s1", activated: true, runtime_session_id: rid });
+    expect(sw).toMatchObject({ session_id: ui, request_id: "s1", activated: true, runtime_session_id: rid, name: "画一只猫" });
     expect(typeof sw.history_sync_id).toBe("string");
     expect(sw.messages).toEqual([{ type: "text", role: "user", content: "你好", runtimeMessageId: "msg_1" }]);
     ws.send(JSON.stringify({ type: "cancel", session_id: ui }));

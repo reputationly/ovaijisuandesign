@@ -12,8 +12,8 @@ import { Button } from "../canvas/node-shell-inner.jsx";
 import { ViewerLoading } from "../media-editing/input.jsx";
 import { HtmlViewerInner } from "../media-editing/html-viewer-inner.jsx";
 import { useHtmlViewerHandleApi } from "./use-plugin-metadata-store.js";
-const DEFAULT_MAX_ACTIVE = 6;
-const DEFAULT_HOLDER = "__default__";
+export const DEFAULT_MAX_ACTIVE = 6;
+export const DEFAULT_HOLDER = "__default__";
 function withHolder(holders, holderId) {
   if (holders.has(holderId)) return holders;
   const next = new Set(holders);
@@ -142,7 +142,7 @@ function createHtmlIframePoolStore(opts = {}) {
   }));
 }
 const defaultHtmlIframePoolStore = createHtmlIframePoolStore();
-const HtmlIframePoolStoreContext = reactExports.createContext(null);
+export const HtmlIframePoolStoreContext = reactExports.createContext(null);
 function useHtmlIframePoolApi() {
   return (
     reactExports.useContext(HtmlIframePoolStoreContext) ??

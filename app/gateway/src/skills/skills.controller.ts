@@ -5,6 +5,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { memoryStorage } from "multer";
 
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
+import { PluginFilesService } from "../plugins/plugins.service.js";
 import { SkillImportService } from "./skill-import.service.js";
 import { isValidSkillName } from "./skill-meta.js";
 import { SkillsService } from "./skills.service.js";
@@ -33,6 +34,7 @@ export class SkillsController {
     private readonly skills: SkillsService,
     private readonly imports: SkillImportService,
     private readonly bus: GatewayEventBus,
+    private readonly plugins: PluginFilesService,
   ) {}
 
   @Get("api/skills")
@@ -140,6 +142,23 @@ export class SkillsController {
   uploadCheck(@Body() body: { name?: string }) {
     if (!body?.name || !isValidSkillName(body.name)) throw new BadRequestException("Invalid skill name");
     return { ok: true };
+  }
+
+  /**
+   * 市场下载要云端包。插件如果已经在数据根里，画布的「安装再放入」可以继续；
+   * 没有这份包时不能假装装好了。
+   */
+  @Post("api/skills/market/install")
+  @HttpCode(200)
+  async installMarketSkill(@Body() body: NameBody) {
+    if (!body?.name) return { ok: false, error: "name is required" };
+    if (body.skillType === "plugin") {
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(body.name) || body.name.length > 64) return { ok: false, id: body.name, error: "Invalid plugin id" };
+      if (await this.plugins.packageRoot(body.name)) return { ok: true, id: body.name };
+      return { ok: false, id: body.name, error: "Plugin market download is not available" };
+    }
+    if (!isValidSkillName(body.name)) return { ok: false, error: "Invalid skill name" };
+    return { ok: false, error: "Skill market download is not available" };
   }
 
   @Post("api/skills/user/trash")

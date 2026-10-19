@@ -28,8 +28,8 @@ export function isBillingPromotionActive(promotion, nowMs = Date.now()) {
   );
 }
 const EMPTY = {
-  promotion: null,
-  models: [],
+  messages: new Map(),
+  draft: [],
 };
 function normalize(raw) {
   if (!raw || typeof raw !== "object") return EMPTY;

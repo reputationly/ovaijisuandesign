@@ -64,18 +64,19 @@ describe("params", () => {
     expect(forModality("music_edit")).toEqual([]);
   });
 
-  /** 聚合视频模型照平台模型目录：分辨率只有 2K，时长 4～10，可选有声。 */
-  it("aggregate video models: 2K only, 4-10s, audio toggle", () => {
+  /** 聚合视频模型和 H3 菜单一致：两种生成方式、768P/2K、时长 4～15。 */
+  it("aggregate video models match the H3 menu", () => {
     expect(isAggregateVideoModel("minimax-h3-2k")).toBe(true);
     expect(isAggregateVideoModel("minimax-h3-ref-2k")).toBe(true);
     expect(isAggregateVideoModel("minimax-h3-fl2va")).toBe(false);
     for (const m of ["video", "video_ref"]) {
       const byName = Object.fromEntries(forModality(m, "minimax-h3-2k").map((p) => [p.name, p]));
-      expect(byName.resolution!.options).toEqual(["2K"]);
-      expect(byName.duration!.options).toEqual(["4", "5", "6", "7", "8", "9", "10"]);
+      expect(byName.image_mode!.options).toEqual(["reference", "first-last-frame"]);
+      expect(byName.resolution!.options).toEqual(["768P", "2K"]);
+      expect(byName.resolution!.default).toBe("2K");
+      expect(byName.duration!.options).toEqual(["4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"]);
       expect(byName.duration!.default).toBe("5");
       expect(byName.generate_audio!.options).toEqual(["true", "false"]);
-      // 原始模型的选项不变
       expect(forModality(m, "minimax-h3-fl2va").find((p) => p.name === "resolution")!.options).toEqual(["768P", "1080P"]);
     }
   });

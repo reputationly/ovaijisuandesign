@@ -22,6 +22,7 @@ import {
   PANORAMA_VIEWER_PLUGIN_ID,
 } from "../media-editing/resolve-panorama-generation-presentation.js";
 import { useClampedMenuPosition } from "../text-editor/table-ops.jsx";
+import { Tooltip } from "../generation/missing-asset-card.jsx";
 const CONNECT_NODE_MENU_WIDTH_PX = 240;
 function DirectorStageMenuIcon() {
   return (
@@ -131,8 +132,19 @@ function TextIcon() {
     </CompositedSvg>
   );
 }
-function ImageIcon() {
-  return <ImageOutlineIcon size={20} strokeWidth={1.8} aria-hidden="true" />;
+function ImageIcon({ size = 14 }) {
+  return (
+    <CompositedSvg
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      <path d="M17.4004 0C18.836 0.000211016 19.9998 1.16398 20 2.59961V17.4004C19.9998 18.836 18.836 19.9998 17.4004 20H2.59961C1.16398 19.9998 0.000211016 18.836 0 17.4004V2.59961C0.000211016 1.16398 1.16398 0.000211016 2.59961 0H17.4004ZM8.4248 7.70801C8.23163 7.38605 7.76543 7.38392 7.56934 7.7041L2.3418 16.2393C2.13811 16.5724 2.378 17 2.76855 17H17.3525C17.7602 17 17.996 16.5386 17.7578 16.208L14.4053 11.5625C14.2057 11.286 13.7943 11.286 13.5947 11.5625L12.0342 13.7236L8.4248 7.70801ZM14.5 4C13.6716 4 13 4.67157 13 5.5C13 6.32843 13.6716 7 14.5 7C15.3284 7 16 6.32843 16 5.5C16 4.67157 15.3284 4 14.5 4Z" />
+    </CompositedSvg>
+  );
 }
 function VideoIcon() {
   return (
@@ -201,8 +213,12 @@ function TableIcon() {
   );
 }
 function MenuItem({
+  buttonRef,
+  onFocus,
+  expanded,
   icon,
   label,
+  labelAdornment,
   description,
   onClick,
   dataActionUiId,
@@ -210,77 +226,47 @@ function MenuItem({
   badgeVariant = "default",
   onMouseEnter,
   trailingIcon,
+  disabledReason,
 }) {
-  return (
+  const button = (
     <button
+      ref={buttonRef}
       type="button"
+      onFocus={onFocus}
+      aria-expanded={expanded}
+      // 产物这里只在不禁用时**省略**这个属性；写成 `!!disabledReason` 会渲染成 `aria-disabled="false"`，
+      // 和基线逐元素比对时多出一项（ws-add-node 那 7 个菜单项就是这么来的）。
+      aria-disabled={disabledReason ? true : void 0}
       data-action-ui-id={dataActionUiId}
       className={`list-row-hit-area group flex ${description ? "h-[48px]" : "h-10"} shrink-0 w-full items-center gap-3 rounded-[8px] bg-transparent px-2 text-left transition-colors duration-200 cursor-pointer`}
       style={{
         color: "var(--canvas-controls-text)",
+        opacity: disabledReason ? 0.4 : void 0,
       }}
-      onMouseEnter={(mouseEvent) => {
-        mouseEvent.currentTarget.style.backgroundColor = "var(--canvas-controls-hover)";
-        onMouseEnter?.(mouseEvent);
+      onMouseEnter={(e2) => {
+        e2.currentTarget.style.backgroundColor = "var(--canvas-controls-hover)";
+        onMouseEnter?.(e2);
       }}
-      onMouseLeave={(mouseEvent) => {
-        mouseEvent.currentTarget.style.backgroundColor = "transparent";
+      onMouseLeave={(e2) => {
+        e2.currentTarget.style.backgroundColor = "transparent";
       }}
-      onClick={onClick}
+      onClick={disabledReason ? void 0 : onClick}
     >
-      {icon ? (
-        <span
-          aria-hidden="true"
-          className="flex size-8 shrink-0 items-center justify-center rounded-[8px]"
-          style={{
-            backgroundColor:
-              "color-mix(in srgb, var(--canvas-controls-hover) 50%, var(--canvas-controls-bg))",
-          }}
-        >
-          {icon}
-        </span>
-      ) : null}
-      <span
-        className={`${description ? "h-9" : "h-5"} min-w-0 flex-1 overflow-hidden text-[14px] font-normal leading-5`}
-      >
-        <span
-          className={`flex h-full flex-col justify-start ${description ? "translate-y-2 transition-transform duration-200 group-hover:translate-y-0" : ""}`}
-        >
-          <span className="flex min-w-0 items-center gap-1.5">
-            <span className="min-w-0 truncate">{label}</span>
-            {badge && (
-              <span
-                className="inline-flex h-3.5 shrink-0 items-center rounded-[4px] px-1 text-[10px] font-normal leading-none"
-                style={
-                  badgeVariant === "accent"
-                    ? {
-                        color: "var(--brand-accent)",
-                        background:
-                          "color-mix(in srgb, var(--brand-accent) 12%, transparent)",
-                      }
-                    : {
-                        color: "var(--canvas-controls-text-muted)",
-                        background: "var(--canvas-controls-hover)",
-                      }
-                }
-              >
-                {badge}
-              </span>
-            )}
-          </span>
-          {description && (
-            <span className="w-full truncate text-[12px] leading-4 text-[var(--canvas-controls-text-muted)] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-              {description}
-            </span>
-          )}
-        </span>
-      </span>
-      {trailingIcon ? (
-        <span className="flex size-4 shrink-0 items-center justify-center text-[var(--canvas-controls-text-muted)]">
-          {trailingIcon}
-        </span>
-      ) : null}
+      <CanvasAddNodeMenuItemContent
+        icon={icon}
+        label={label}
+        labelAdornment={labelAdornment}
+        description={description}
+        badge={badge}
+        badgeVariant={badgeVariant}
+        trailingIcon={trailingIcon}
+      />
     </button>
+  );
+  return (
+    <Tooltip content={disabledReason} side="right">
+      {button}
+    </Tooltip>
   );
 }
 function ConnectionLineOverlay({ source }) {
@@ -595,4 +581,70 @@ export function CanvasContextMenu({
   return typeof document === "undefined"
     ? menu
     : reactDomExports.createPortal(menu, document.body);
+}
+
+function CanvasAddNodeMenuItemContent({
+  icon,
+  label,
+  labelAdornment,
+  description,
+  badge,
+  badgeVariant = "default",
+  trailingIcon,
+}) {
+  return (
+    <>
+      {icon ? (
+        <span
+          aria-hidden="true"
+          className="flex size-8 shrink-0 items-center justify-center rounded-[8px]"
+          style={{
+            backgroundColor: "color-mix(in srgb, var(--canvas-controls-hover) 50%, var(--canvas-controls-bg))",
+          }}
+        >
+          {icon}
+        </span>
+      ) : null}
+      <span
+        className={`${description ? "h-9" : "h-5"} min-w-0 flex-1 overflow-hidden text-[14px] font-normal leading-5`}
+      >
+        <span
+          className={`flex h-full flex-col justify-start ${description ? "translate-y-2 transition-transform duration-200 group-hover:translate-y-0 group-focus-visible:translate-y-0 group-data-[highlighted]:translate-y-0" : ""}`}
+        >
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span className="min-w-0 truncate">{label}</span>
+            {labelAdornment}
+            {badge && (
+              <span
+                className="inline-flex h-3.5 shrink-0 items-center rounded-[4px] px-1 text-[10px] font-normal leading-none"
+                style={
+                  badgeVariant === "accent"
+                    ? {
+                        color: "var(--brand-accent)",
+                        background: "color-mix(in srgb, var(--brand-accent) 12%, transparent)",
+                      }
+                    : {
+                        color: "var(--canvas-controls-text-muted)",
+                        background: "var(--canvas-controls-hover)",
+                      }
+                }
+              >
+                {badge}
+              </span>
+            )}
+          </span>
+          {description && (
+            <span className="w-full truncate text-[12px] leading-4 text-[var(--canvas-controls-text-muted)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 group-data-[highlighted]:opacity-100">
+              {description}
+            </span>
+          )}
+        </span>
+      </span>
+      {trailingIcon ? (
+        <span className="flex size-4 shrink-0 items-center justify-center text-[var(--canvas-controls-text-muted)]">
+          {trailingIcon}
+        </span>
+      ) : null}
+    </>
+  );
 }

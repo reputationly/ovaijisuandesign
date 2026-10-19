@@ -135,7 +135,9 @@ describe("config", () => {
     });
     expect(cfg.model).toBe("maas/qwen3");
     expect(cfg.provider["maas"].npm).toBe("@ai-sdk/openai-compatible");
+    expect(cfg.provider["maas"].models.qwen3.variants.max).toEqual({ reasoningEffort: "max", enable_thinking: true });
     expect(cfg.agent["media-agent"].model).toBeUndefined();
+    expect(cfg.agent["media-agent"].variant).toBe("max");
     expect(cfg.small_model).toBeUndefined();
     // 知识库在工作区外，不能是 ask。
     expect(cfg.permission.external_directory).toBe("allow");

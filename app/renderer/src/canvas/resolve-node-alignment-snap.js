@@ -9,7 +9,7 @@ const EPSILON = 1e-6;
 
 const otherAxis = (axis) => (axis === "x" ? "y" : "x");
 
-const length = (rect, axis) => (axis === "x" ? rect.width : rect.height);
+const length = (value) => Math.hypot(value.x, value.y, value.z);
 
 const end = (rect, axis) => rect[axis] + length(rect, axis);
 

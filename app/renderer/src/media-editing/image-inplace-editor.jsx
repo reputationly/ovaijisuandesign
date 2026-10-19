@@ -13,17 +13,17 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageEditor } from "./image-editor.jsx";
 import { useCanvasActive } from "./package.jsx";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
-const ImageInplaceEditToolbar = reactExports.memo(ImageInplaceEditToolbarInner);
+export const ImageInplaceEditToolbar = reactExports.memo(ImageInplaceEditToolbarInner);
 DEFAULT_STYLE.stroke;
 const IMAGE_INPLACE_DEFAULT_STROKE_WIDTH = STROKE_WIDTHS[0]?.value ?? 2;
-const IMAGE_INPLACE_DEFAULT_TEXT_VARIANT = DEFAULT_STYLE.textVariant ?? "plain";
-const IMAGE_INPLACE_DEFAULT_FONT_SIZE = 12;
-const IMAGE_INPLACE_DEFAULT_MOSAIC_MODE = DEFAULT_STYLE.mosaicMode ?? "mosaic";
-const IMAGE_INPLACE_DEFAULT_MOSAIC_SHAPE =
+export const IMAGE_INPLACE_DEFAULT_TEXT_VARIANT = DEFAULT_STYLE.textVariant ?? "plain";
+export const IMAGE_INPLACE_DEFAULT_FONT_SIZE = 12;
+export const IMAGE_INPLACE_DEFAULT_MOSAIC_MODE = DEFAULT_STYLE.mosaicMode ?? "mosaic";
+export const IMAGE_INPLACE_DEFAULT_MOSAIC_SHAPE =
   DEFAULT_STYLE.mosaicShape ?? "rectangle";
-const IMAGE_INPLACE_DEFAULT_MOSAIC_BRUSH_SIZE =
+export const IMAGE_INPLACE_DEFAULT_MOSAIC_BRUSH_SIZE =
   MOSAIC_BRUSH_SIZES[0]?.value ?? DEFAULT_STYLE.mosaicBrushSize ?? 6;
-const IMAGE_INPLACE_DEFAULT_MOSAIC_STRENGTH = 45;
+export const IMAGE_INPLACE_DEFAULT_MOSAIC_STRENGTH = 45;
 function mosaicStrengthPercentToPx(percent, mode) {
   return strengthPercentToPx(percent, mode);
 }

@@ -89,11 +89,12 @@ function ReferenceVideoIcon() {
     </CompositedSvg>
   );
 }
-function ReferenceAudioIcon() {
+function ReferenceAudioIcon({ className }) {
   return (
     <CompositedSvg
       width="16"
       height="16"
+      className={className}
       viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"

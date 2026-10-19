@@ -253,7 +253,7 @@ function parseAttachment(value) {
   return {
     name: attachmentName,
     type,
-    ...(aliases.length > 0
+    ...(aliases > 0
       ? {
           displayNames: aliases,
         }

@@ -123,10 +123,8 @@ function artifactCanvasItem({ relativePath, absolutePath, filename, assetId }) {
 function ArtifactIcon({ filename, compact = false }) {
   const type = artifactAssetTypeFromPath(filename);
   const className = compact ? "size-3.5" : "size-4";
-  if (type === "image")
-    return <ImageOutlineIcon className={className} strokeWidth={1.5} />;
-  if (type === "video")
-    return <Video className={className} strokeWidth={1.5} />;
+  if (type === "image") return <ImageOutlineIcon className={className} strokeWidth={1.5} />;
+  if (type === "video") return <Video className={className} strokeWidth={1.5} />;
   if (type === "audio") return <AudioBarsIcon className={className} />;
   return (
     <FileTypeIcon
@@ -202,45 +200,31 @@ function ArtifactThumbnail({ type, src, filename, onFailure }) {
     </span>
   );
 }
-function ArtifactChipBody({
-  artifact,
-  filename,
-  previewSrc,
-  previewFailed,
-  onPreviewError,
-}) {
-  const { head: stem, tail: ext } = splitFilename(filename);
+function ArtifactChipBody({ artifact, filename, label, previewSrc, previewFailed, onPreviewError }) {
+  const { head: stem, tail: ext } = splitFilename(label ?? filename);
   const showThumbnail =
-    (artifact.type === "image" || artifact.type === "video") &&
-    Boolean(previewSrc) &&
-    !previewFailed;
+    (artifact.type === "image" || artifact.type === "video") && Boolean(previewSrc) && !previewFailed;
   return (
     <>
       <span
         className={cn(
           "shrink-0 relative h-7 w-7 overflow-hidden rounded-sm flex items-center justify-center",
-          artifact.type === "audio"
-            ? "bg-[var(--chat-audio-artifact-icon-bg)]"
-            : "bg-muted/40",
+          artifact.type === "audio" ? "bg-[var(--chat-audio-artifact-icon-bg)]" : "bg-muted/40",
         )}
       >
-        {showThumbnail &&
-          previewSrc &&
-          (artifact.type === "image" || artifact.type === "video") && (
-            <ArtifactThumbnail
-              key={previewSrc}
-              type={artifact.type}
-              src={previewSrc}
-              filename={filename}
-              onFailure={onPreviewError}
-            />
-          )}
+        {showThumbnail && previewSrc && (artifact.type === "image" || artifact.type === "video") && (
+          <ArtifactThumbnail
+            key={previewSrc}
+            type={artifact.type}
+            src={previewSrc}
+            filename={filename}
+            onFailure={onPreviewError}
+          />
+        )}
         {!showThumbnail && (
           <span
             className={
-              artifact.type === "audio"
-                ? "text-[var(--chat-audio-artifact-icon-fg)]"
-                : "text-muted-foreground"
+              artifact.type === "audio" ? "text-[var(--chat-audio-artifact-icon-fg)]" : "text-muted-foreground"
             }
           >
             <ArtifactIcon filename={filename} compact={true} />

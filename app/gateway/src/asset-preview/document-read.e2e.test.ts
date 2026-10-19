@@ -63,6 +63,10 @@ describe("GET /api/internal/document/read", () => {
     expect(page.body).toMatchObject({ ok: true, lines: ["Second line"], offset: 2, more: true, totalLines: r.body.totalLines });
   });
 
+  it("文档缓存上下文是当前工作区", async () => {
+    expect((await http.get("/api/internal/document/cache-context")).body).toEqual({ workspaceRoot: ws, version: "v2-p1" });
+  });
+
   it("各类失败的 reason", async () => {
     expect((await read("docs/brief.pdf", 999)).body).toMatchObject({ ok: false, reason: "invalid-offset", message: expect.stringMatching(/out of range/) });
     expect((await read("missing.pdf")).body).toEqual({ ok: false, reason: "not-found" });

@@ -221,6 +221,8 @@ self.onmessage = function (e) {
 `;
 class WaveformService {
   cache = new Map();
+  generation = 0;
+  assetGenerations = new Map();
   /**
    * 仅用于 decodeAudioData，使用低采样率减少 PCM 数据量。
    * 22050Hz 覆盖 11kHz 以下频率，波形包络视觉形态准确，内存约为 44100Hz 的一半。
@@ -255,17 +257,17 @@ class WaveformService {
       const url = URL.createObjectURL(blob);
       const worker = new Worker(url);
       URL.revokeObjectURL(url);
-      worker.onmessage = (messageEvent) => {
-        const { jobId, peaks } = messageEvent.data;
-        const workerJob = this.workerPending.get(jobId);
-        if (workerJob) {
+      worker.onmessage = (e) => {
+        const { jobId, peaks } = e.data;
+        const job = this.workerPending.get(jobId);
+        if (job) {
           this.workerPending.delete(jobId);
-          workerJob.resolve(peaks);
+          job.resolve(peaks);
         }
       };
-      worker.onerror = (errorEvent) => {
-        for (const [, workerJob] of this.workerPending) {
-          workerJob.reject(new Error(errorEvent.message ?? "Peak worker error"));
+      worker.onerror = (e) => {
+        for (const [, job] of this.workerPending) {
+          job.reject(new Error(e.message ?? "Peak worker error"));
         }
         this.workerPending.clear();
         this.worker?.terminate();
@@ -286,12 +288,21 @@ class WaveformService {
   async extractPeaks(assetId, file, samplesPerPixel = 256) {
     const cached = this.cache.get(assetId);
     if (cached) return cached;
-    const audioContext = this.getAudioContext();
+    const generation = this.generation;
+    const assetGeneration = this.assetGenerations.get(assetId);
+    const assertCurrent = () => {
+      if (generation !== this.generation || assetGeneration !== this.assetGenerations.get(assetId))
+        throw new DOMException("Waveform extraction cancelled", "AbortError");
+    };
+    const ctx = this.getAudioContext();
     const arrayBuffer = await file.arrayBuffer();
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    assertCurrent();
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+    assertCurrent();
     const { duration, sampleRate } = audioBuffer;
     const channelData = audioBuffer.getChannelData(0);
-    const peaks = await this.computePeaksInWorker(channelData, samplesPerPixel);
+    const peaks = await this.computePeaksInWorker(channelData, samplesPerPixel, assetId, assertCurrent);
+    assertCurrent();
     const result = {
       peaks,
       duration,
@@ -305,7 +316,7 @@ class WaveformService {
    * channelData 拷贝一份再 transfer 到 Worker（AudioBuffer 内部 buffer 不可直接 transfer）。
    * Worker 不可用或出错时，自动降级为同步计算。
    */
-  async computePeaksInWorker(channelData, samplesPerPixel) {
+  async computePeaksInWorker(channelData, samplesPerPixel, assetId, assertCurrent) {
     const worker = this.getWorker();
     if (!worker) {
       return this.computePeaksSync(channelData, samplesPerPixel);
@@ -314,6 +325,7 @@ class WaveformService {
     const channelDataCopy = new Float32Array(channelData);
     return new Promise((resolve, reject) => {
       this.workerPending.set(jobId, {
+        assetId,
         resolve,
         reject,
       });
@@ -325,7 +337,9 @@ class WaveformService {
         },
         [channelDataCopy.buffer],
       );
-    }).catch(() => {
+    }).catch((error) => {
+      assertCurrent();
+      if (error instanceof DOMException && error.name === "AbortError") throw error;
       return this.computePeaksSync(channelData, samplesPerPixel);
     });
   }
@@ -334,18 +348,18 @@ class WaveformService {
     const totalSamples = channelData.length;
     const peakCount = Math.ceil(totalSamples / samplesPerPixel);
     const peaks = new Float32Array(peakCount * 2);
-    for (let peakIndex = 0; peakIndex < peakCount; peakIndex++) {
-      const start = peakIndex * samplesPerPixel;
+    for (let i = 0; i < peakCount; i++) {
+      const start = i * samplesPerPixel;
       const end = Math.min(start + samplesPerPixel, totalSamples);
       let min = 1;
       let max = -1;
-      for (let sampleIndex = start; sampleIndex < end; sampleIndex++) {
-        const sampleValue = channelData[sampleIndex];
-        if (sampleValue < min) min = sampleValue;
-        if (sampleValue > max) max = sampleValue;
+      for (let j = start; j < end; j++) {
+        const val = channelData[j];
+        if (val < min) min = val;
+        if (val > max) max = val;
       }
-      peaks[peakIndex * 2] = min;
-      peaks[peakIndex * 2 + 1] = max;
+      peaks[i * 2] = min;
+      peaks[i * 2 + 1] = max;
     }
     return peaks;
   }
@@ -355,10 +369,18 @@ class WaveformService {
   }
   /** 清除指定素材的缓存 */
   clearAsset(assetId) {
+    this.assetGenerations.set(assetId, (this.assetGenerations.get(assetId) ?? 0) + 1);
     this.cache.delete(assetId);
+    for (const [jobId, job] of this.workerPending) {
+      if (job.assetId !== assetId) continue;
+      this.workerPending.delete(jobId);
+      job.reject(new DOMException("Waveform extraction cancelled", "AbortError"));
+    }
   }
   /** 清除所有缓存并释放资源 */
   clear() {
+    this.generation++;
+    this.assetGenerations.clear();
     this.cache.clear();
     if (this.audioContext) {
       void this.audioContext.close();
@@ -366,6 +388,8 @@ class WaveformService {
     }
     this.worker?.terminate();
     this.worker = null;
+    for (const job of this.workerPending.values())
+      job.reject(new DOMException("Waveform extraction cancelled", "AbortError"));
     this.workerPending.clear();
   }
 }

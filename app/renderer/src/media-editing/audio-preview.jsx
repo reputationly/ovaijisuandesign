@@ -3,6 +3,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { getExtFromMime } from "../canvas/separator.jsx";
 import reactExports from "react";
 import { MediaClipPanel } from "./media-clip-panel.js";
+import { CompositedSvg } from "./icon-compositing.js";
 const getAudioExt = (mime) => getExtFromMime(mime, "mp3");
 function AudioPreview({ loading, state }) {
   return (
@@ -101,14 +102,50 @@ function AudioPreview({ loading, state }) {
     </div>
   );
 }
-function AudioClipPanelInner({ audioUrl, audioName, onClose, onExport }) {
+function AudioClipPanelInner({
+  active: active2,
+  audioUrl,
+  audioName,
+  onClose,
+  onExport,
+  editor: editor2,
+  cropConfig,
+  initialCropRange,
+}) {
+  const embedded = !!editor2;
   const renderPreview = reactExports.useCallback(
-    (ctx) => <AudioPreview {...ctx} />,
-    [],
+    (ctx) =>
+      embedded ? (
+        <div
+          data-slot="audio-clip-preview"
+          className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-2 text-muted-foreground"
+          aria-hidden="true"
+        >
+          <CompositedSvg
+            viewBox="0 0 221 194"
+            fill="currentColor"
+            className="h-24 w-28 max-h-full max-w-full opacity-60"
+            aria-hidden="true"
+            data-slot="audio-clip-headphone-artwork"
+          >
+            <path d="M42.746 105.292C54.1012 105.292 63.3065 114.497 63.3065 125.852V173.398C63.3065 184.753 54.1012 193.959 42.746 193.959C31.3907 193.959 22.1854 184.753 22.1854 173.398V125.852C22.1854 114.497 31.3907 105.292 42.746 105.292ZM178.009 105.292C189.364 105.292 198.569 114.497 198.569 125.852V173.398C198.569 184.753 189.364 193.959 178.009 193.959C166.653 193.959 157.448 184.753 157.448 173.398V125.852C157.448 114.497 166.653 105.292 178.009 105.292Z" />
+            <rect x="0" y="120" width="16" height="54" rx="8" />
+            <rect x="205" y="120" width="16" height="54" rx="8" />
+            <path d="M104.618 0.151001C108.506 -0.0492084 112.404 -0.0504471 116.292 0.148071C144.802 1.62929 171.542 14.4142 190.598 35.6715C205.671 52.3208 215.129 73.2861 217.641 95.6041C218.211 100.601 221.059 114.888 211.83 114.268C204.971 113.807 206.144 103.345 205.696 98.2262C205.09 91.8651 203.818 85.5845 201.906 79.4879C198.247 67.9271 192.459 57.1518 184.841 47.7174C167.33 26.2736 144.368 14.9786 117.07 12.2633C107.572 11.9178 100.063 12.2076 90.702 14.1569C52.8641 22.1267 23.481 51.9854 16.12 89.9459C15.0314 95.4573 14.6439 100.331 14.5077 105.926C14.3352 109.975 13.573 113.635 8.82994 114.095C-0.117215 114.964 2.36039 101.294 2.90904 96.069C5.33694 73.9379 14.5627 53.1024 29.3172 36.4293C48.9463 14.2384 75.1822 1.96772 104.618 0.151001Z" />
+          </CompositedSvg>
+        </div>
+      ) : (
+        <AudioPreview {...ctx} />
+      ),
+    [embedded],
   );
   return (
     <MediaClipPanel
+      active={active2}
       mediaUrl={audioUrl}
+      editor={editor2}
+      cropConfig={cropConfig}
+      initialCropRange={initialCropRange}
       mediaName={audioName}
       defaultMime="audio/mpeg"
       onClose={onClose}

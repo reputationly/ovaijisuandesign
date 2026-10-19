@@ -3,7 +3,8 @@ import reactExports from "react";
 import reactDomExports from "react-dom";
 import { Virtualizer, observeElementRect, observeElementOffset, elementScroll } from "@tanstack/virtual-core";
 
-const useIsomorphicLayoutEffect = typeof document !== "undefined" ? reactExports.useLayoutEffect : reactExports.useEffect;
+const isBrowser$1 = typeof window !== "undefined";
+const useIsomorphicLayoutEffect = isBrowser$1 ? reactExports.useLayoutEffect : reactExports.useEffect;
 function useVirtualizerBase({
   useFlushSync = true,
   ...options

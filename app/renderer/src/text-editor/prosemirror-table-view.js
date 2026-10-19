@@ -1,3 +1,4 @@
+import { __jsx } from "../shared/jsx-runtime.js";
 // 表格节点、列宽和 markdown 渲染像编辑器私有实现，还没对上已经换过的包。
 export function normalizeTableCellAlign(value) {
   if (value === "left" || value === "right" || value === "center") return value;

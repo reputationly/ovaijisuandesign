@@ -1,0 +1,20 @@
+{
+  "name": "@ov/host-contract",
+  "version": "0.0.0",
+  "private": true,
+  "description": "宿主（主进程）与资源帧之间的约定：通道名与体积上限。放在单独包里，避免渲染层为了拿一个通道名而依赖整个协议包。",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  }
+}

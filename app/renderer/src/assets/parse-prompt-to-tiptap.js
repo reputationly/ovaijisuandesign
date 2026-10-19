@@ -1,4 +1,5 @@
 // parse-prompt-to-tiptap.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import reactExports from "react";
 import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";

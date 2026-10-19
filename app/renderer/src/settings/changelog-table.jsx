@@ -199,6 +199,7 @@ function SheetOverlay({ className, ...props }) {
   return (
     <DialogBackdrop
       data-slot="sheet-overlay"
+      data-mask="dim"
       className={cn(
         "modal-mask fixed inset-0 z-50 text-xs/relaxed transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0",
         className,

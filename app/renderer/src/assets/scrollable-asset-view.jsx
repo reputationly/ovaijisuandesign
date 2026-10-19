@@ -28,6 +28,7 @@ import {
 import { getCanvasTagPresentationColor } from "./inline-input.jsx";
 import { FileNameLabel } from "./audio-play-button.jsx";
 import { useMarqueeSelection } from "../canvas/use-marquee-selection.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 const ASSET_VIRTUALIZATION_MIN_ITEMS = 40;
 const GRID_OVERSCAN_ROWS = 3;
 const ASSET_VIEW_INITIAL_RECT = {
@@ -46,7 +47,7 @@ function AssetTypeBadge({ resource, compact = false, className }) {
     ) : resource.type === "video" ? (
       <Film className={iconClass} strokeWidth={2} />
     ) : resource.type === "audio" ? (
-      <AudioLines className={iconClass} strokeWidth={2} />
+      <AudioFileIcon className={iconClass} strokeWidth={2} />
     ) : resource.type === "text" || resource.type === "subtitle" ? (
       <FileText className={iconClass} strokeWidth={2} />
     ) : (
@@ -66,7 +67,7 @@ function AssetTypeBadge({ resource, compact = false, className }) {
     </span>
   );
 }
-function Thumbnail({ resource, size }) {
+function Thumbnail({ resource: resource2, size }) {
   const dim = size === "grid" ? "h-full w-full" : "h-10 w-10 shrink-0";
   const thumbnailDisplayWidth =
     size === "grid" ? GRID_THUMBNAIL_DISPLAY_PX : LIST_THUMBNAIL_DISPLAY_PX;
@@ -333,16 +334,15 @@ function SelectionOutline({ selected, className }) {
     />
   );
 }
-function VideoPlayIndicator() {
+function VideoPlayIndicator({ size = 14 }) {
   return (
-    <span
-      aria-hidden="true"
-      data-action-ui-id="asset-picker.video-play"
-      className="pointer-events-none absolute inset-0 flex items-center justify-center text-[var(--media-overlay-foreground)] drop-shadow-sm"
-    >
+    <span aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center">
       <PlaybackPlayIcon
-        size={14}
-        className="text-[var(--media-overlay-foreground)]"
+        size={size}
+        style={{
+          color: "var(--canvas-media-play-icon)",
+          filter: "drop-shadow(0 1px 2px rgb(0 0 0 / 0.65))",
+        }}
       />
     </span>
   );
@@ -1134,3 +1134,33 @@ export function ScrollableAssetView({
     </div>
   );
 }
+
+export const AudioFileIcon = reactExports.forwardRef(function AudioFileIcon2(
+  { size: size2 = 16, strokeWidth = 1.5, "aria-hidden": ariaHidden = true, ...props },
+  ref,
+) {
+  return (
+    <CompositedSvg
+      ref={ref}
+      width={size2}
+      height={size2}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden={ariaHidden}
+      {...props}
+      viewBox="0 0 16 16"
+      data-audio-file-icon="true"
+    >
+      <path d="M8 2v12" />
+      <path d="M4 5v6" />
+      <path d="M12 5v6" />
+      <path d="M2 7v2" />
+      <path d="M6 4v8" />
+      <path d="M10 4v8" />
+      <path d="M14 7v2" />
+    </CompositedSvg>
+  );
+});

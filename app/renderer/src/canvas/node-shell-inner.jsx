@@ -282,7 +282,7 @@ export function PlaceholderUploadButton({
 function stopEvent(event) {
   event.stopPropagation();
 }
-const QUEUE_ACTION_BUTTON_CLASS =
+export const QUEUE_ACTION_BUTTON_CLASS =
   "nodrag nopan inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-foreground/10 bg-foreground/[0.04] px-2.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/[0.08] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
 const QUEUE_ACTION_ICON_CLASS = "size-3.5 shrink-0";
 export function normalizeEstimatedWaitSeconds(seconds, legacyMinutes) {

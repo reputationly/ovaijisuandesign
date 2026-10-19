@@ -83,19 +83,9 @@ function getQuestionSubmitBlockReason(
   }
   return "unanswered";
 }
-function findFirstQuestionSubmitBlocker(
-  questionCount,
-  answers,
-  customTexts,
-  customAttachments,
-) {
+function findFirstQuestionSubmitBlocker(questionCount, answers, customTexts, customAttachments) {
   for (let questionIndex = 0; questionIndex < questionCount; questionIndex++) {
-    const reason = getQuestionSubmitBlockReason(
-      questionIndex,
-      answers,
-      customTexts,
-      customAttachments,
-    );
+    const reason = getQuestionSubmitBlockReason(questionIndex, answers, customTexts, customAttachments);
     if (reason)
       return {
         questionIndex,

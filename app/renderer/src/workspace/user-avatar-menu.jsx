@@ -94,6 +94,7 @@ import {
   UserMenuAccountSummary,
   UserMenuRootView,
 } from "../generation/user-menu-account-summary.jsx";
+import { ProjectSettingsGate } from "../assets/load-workspace-project-architecture.jsx";
 const AVATAR_DECODE_SIZE = 128;
 function useResizedAvatar(src) {
   const [resized, setResized] = reactExports.useState();
@@ -403,15 +404,17 @@ function MenuButton({
   );
 }
 function MemoryManagementMenuButton() {
-  const { t: translate } = useTranslation();
+  const { t } = useTranslation();
   const { openSettings } = useSettingsDialog();
   return (
-    <MenuButton
-      icon={Brain}
-      label={translate("userMenu.memoryManagement")}
-      dataActionUiId="user-menu.memory-management"
-      onClick={() => openSettings("memory")}
-    />
+    <ProjectSettingsGate>
+      <MenuButton
+        icon={Brain}
+        label={t("userMenu.memoryManagement")}
+        dataActionUiId="user-menu.memory-management"
+        onClick={() => openSettings("memory")}
+      />
+    </ProjectSettingsGate>
   );
 }
 const POSITION_CLASS = {

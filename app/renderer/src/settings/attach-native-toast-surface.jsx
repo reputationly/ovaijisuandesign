@@ -380,8 +380,10 @@ function NativeToastHost({ children, hotkey }) {
         );
     };
     void (async () => {
-      const { instantiationService } =
-        await Promise.resolve().then(() => instantiation);
+      // 这里必须**动态**导入：产物里就是按需拉这个 chunk 的（`await import("…").then(n => n.nv)`）。
+      // 之前还原时这句被写坏成了 `Promise("…")` —— `Promise` 不带 `new` 直接调用会抛
+      // 「Promise constructor cannot be invoked without 'new'」，于是原生弹层永远走不到、只剩 DOM 兜底。
+      const { instantiationService } = await import("../workspace/home-service.jsx");
       return {
         instantiationService,
       };

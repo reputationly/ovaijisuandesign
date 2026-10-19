@@ -23,12 +23,15 @@ import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
 import { useChatPresentation } from "./use-copy.jsx";
 
+import { splitMentionFilename } from "../infra/dialog-content.jsx";
+import { Layers } from "../media-editing/lucide-icon-wraps.js";
+import { AssetSegment } from "./asset-segment.jsx";
 const MENTION_THUMB_PX = 18;
 
 const TOKEN_CLASS =
   "relative inline-flex min-h-5 items-center align-baseline rounded-sm bg-muted py-px pr-1.5 pl-[26px] leading-4 text-foreground";
 
-const FILE_TOKEN_CLASS = `${TOKEN_CLASS} max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap [overflow-wrap:normal] [word-break:normal]`;
+const FILE_TOKEN_CLASS = `${TOKEN_CLASS} min-w-0 max-w-[min(220px,100%)] overflow-hidden whitespace-nowrap [overflow-wrap:normal] [word-break:normal]`;
 
 const TOKEN_ICON_CLASS =
   "absolute left-1 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center border border-border bg-background bg-center bg-cover text-muted-foreground";
@@ -214,21 +217,31 @@ function pushText(segments, content, start, end) {
   }
 }
 
-function parseRichUserPrompt(content, models) {
+function parseRichUserPrompt(content, models, displayNames = []) {
+  const occurrences = new Map();
   const fileMentions = findAllMentions(content);
   const fileMentionByStart = new Map();
-  for (const mention of fileMentions)
-    fileMentionByStart.set(mention.start, mention);
+  for (const mention of fileMentions) fileMentionByStart.set(mention.start, mention);
   const segments = [];
   let cursor = 0;
   while (cursor < content.length) {
     const atIndex = content.indexOf("@", cursor);
     const slashIndex = content.indexOf("/", cursor);
-    const tokenIndex = [atIndex, slashIndex]
-      .filter((index) => index >= 0)
-      .sort((leftIndex, rightIndex) => leftIndex - rightIndex)[0];
+    const assetIndex = content.indexOf("[asset_context", cursor);
+    const tokenIndex = [atIndex, slashIndex, assetIndex].filter((idx) => idx >= 0).sort((a2, b3) => a2 - b3)[0];
     if (tokenIndex === void 0) break;
     pushText(segments, content, cursor, tokenIndex);
+    if (tokenIndex === assetIndex) {
+      const asset = findAssetContextAt(content, tokenIndex);
+      if (asset) {
+        segments.push(asset.segment);
+        cursor = asset.end;
+      } else {
+        pushText(segments, content, tokenIndex, tokenIndex + 1);
+        cursor = tokenIndex + 1;
+      }
+      continue;
+    }
     if (tokenIndex === slashIndex) {
       const skill = findSkillAt(content, tokenIndex);
       if (skill) {
@@ -238,6 +251,17 @@ function parseRichUserPrompt(content, models) {
         pushText(segments, content, tokenIndex, tokenIndex + 1);
         cursor = tokenIndex + 1;
       }
+      continue;
+    }
+    const composition2 = parseCompositionMentionAt(content, tokenIndex);
+    if (composition2) {
+      segments.push({
+        type: "composition",
+        key: `composition-${tokenIndex}`,
+        id: composition2.compositionId,
+        name: composition2.name,
+      });
+      cursor = composition2.end;
       continue;
     }
     const connector = findConnectorAt(content, tokenIndex);
@@ -254,11 +278,17 @@ function parseRichUserPrompt(content, models) {
     }
     const fileMention = fileMentionByStart.get(tokenIndex);
     if (fileMention?.path) {
+      const occurrence = occurrences.get(fileMention.path) ?? 0;
+      occurrences.set(fileMention.path, occurrence + 1);
+      const displayName2 = displayNames.find(
+        (item) => item.path === fileMention.path && item.occurrence === occurrence,
+      )?.displayName;
       segments.push({
         type: "file",
         key: `file-${tokenIndex}-${fileMention.path}`,
         path: fileMention.path,
         name: basename(fileMention.path),
+        displayName: displayName2,
         kind: mentionKindFromPath(fileMention.path),
       });
       cursor = fileMention.end;
@@ -316,16 +346,16 @@ function TokenIcon({ thumbUrl, children }) {
 function FileSegment({ segment }) {
   const gatewayUrl = useGatewayUrl();
   const thumbUrl = buildMediaThumbUrl(gatewayUrl, segment.kind, segment.path);
+  const { stem, ext } = splitMentionFilename(segment.displayName ?? segment.name);
   return (
     <span
       className={`hl-mention-file ${FILE_TOKEN_CLASS}`}
       data-mention-kind={segment.kind}
       data-mention-name={segment.name}
+      data-mention-display-name={segment.displayName}
     >
       <TokenIcon thumbUrl={thumbUrl}>
-        {segment.kind === "image" ||
-        segment.kind === "video" ||
-        segment.kind === "audio" ? (
+        {segment.kind === "image" || segment.kind === "video" || segment.kind === "audio" ? (
           <FileKindIcon kind={segment.kind} />
         ) : (
           <FileTypeIcon
@@ -337,7 +367,8 @@ function FileSegment({ segment }) {
           />
         )}
       </TokenIcon>
-      @{segment.name}
+      <span className="hl-mention-name min-w-0 truncate">{stem}</span>
+      {ext && <span className="hl-mention-file-ext shrink-0 text-muted-foreground">{ext}</span>}
     </span>
   );
 }
@@ -372,8 +403,7 @@ function ConnectorSegment({ segment }) {
 
 function renderSegments(segments) {
   return segments.map((segment) => {
-    if (segment.type === "text")
-      return <span key={segment.key}>{segment.text}</span>;
+    if (segment.type === "text") return <span key={segment.key}>{segment.text}</span>;
     if (segment.type === "color") {
       return (
         <InlineColorValue key={segment.key} value={segment.value}>
@@ -389,16 +419,17 @@ function renderSegments(segments) {
           style={{
             // 深紫近黑文字: foreground 80% + brand-accent 20%。
             // light 下混出深紫近黑;dark 下混出浅紫近白,自动跟主题切换。
-            color:
-              "color-mix(in srgb, var(--foreground) 80%, var(--brand-accent) 20%)",
+            color: "color-mix(in srgb, var(--foreground) 80%, var(--brand-accent) 20%)",
           }}
         >
           /{segment.name}
         </span>
       );
     }
-    if (segment.type === "model")
-      return <ModelSegment key={segment.key} segment={segment} />;
+    if (segment.type === "composition")
+      return <CompositionMentionTag key={segment.key} compositionId={segment.id} name={segment.name} />;
+    if (segment.type === "model") return <ModelSegment key={segment.key} segment={segment} />;
+    if (segment.type === "asset") return <AssetSegment key={segment.key} segment={segment} />;
     if (segment.type === "connector") {
       return <ConnectorSegment key={segment.key} segment={segment} />;
     }
@@ -485,3 +516,22 @@ export const RichUserPromptContent = reactExports.memo(
 );
 
 RichUserPromptContent.displayName = "RichUserPromptContent";
+
+function findAssetContextAt(text2, atIndex) {
+  if (atIndex > 0 && text2[atIndex - 1] !== "\n") return null;
+  const marker = /^\[asset_context\s+([^\]\r\n]+)\]/.exec(text2.slice(atIndex));
+  if (!marker) return null;
+  const fields2 = marker[1];
+  const resourceId2 = /(?:^|\s)resourceId=([^\s\]]+)/.exec(fields2)?.[1];
+  const versionId = /(?:^|\s)versionId=([^\s\]]+)/.exec(fields2)?.[1];
+  if (!resourceId2 || !versionId) return null;
+  return {
+    end: atIndex + marker[0].length,
+    segment: {
+      type: "asset",
+      key: `asset-${atIndex}-${resourceId2}-${versionId}`,
+      resourceId: resourceId2,
+      versionId,
+    },
+  };
+}

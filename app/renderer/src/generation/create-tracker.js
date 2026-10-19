@@ -1,9 +1,9 @@
 // create-tracker.js
+const MENU_SELECTOR = '[data-action-ui-id="canvas.add-node-menu"]';
 import { trackers } from "./missing-asset-card.jsx";
 const ENTER_RADIUS = 32;
 const EXIT_RADIUS = 40;
 const CENTER_OFFSET = 14;
-const MENU_SELECTOR = '[data-action-ui-id="canvas.add-node-menu"]';
 export function createTracker(root) {
   const doc = root.ownerDocument;
   const view = doc.defaultView;

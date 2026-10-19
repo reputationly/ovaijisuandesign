@@ -204,15 +204,15 @@ function parseDisplayedReferences(stage, currentRefs, value) {
 }
 function editableItems(stage) {
   return stage.work_items.flatMap((item) => {
-    const itemId = item.id?.trim();
+    const id = item.id?.trim();
     const prompt = item.prompt?.trim() ?? "";
-    if (!itemId || !prompt) return [];
+    if (!id || !prompt) return [];
     const fields = itemGenerationFields(stage, item);
     const kind = generationKind(fields, prompt);
     return [
       {
-        id: itemId,
-        name: itemDisplayName(item) || itemId,
+        id,
+        name: itemDisplayName(item) || id,
         prompt,
         kind,
         parameters: generationParameters(fields, prompt, kind),

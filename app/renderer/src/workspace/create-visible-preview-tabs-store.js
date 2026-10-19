@@ -93,13 +93,7 @@ function readSnapshot(storage) {
     };
   }
 }
-function browserStorage() {
-  try {
-    return typeof window === "undefined" ? null : window.localStorage;
-  } catch {
-    return null;
-  }
-}
+const browserStorage = () => (typeof window === "undefined" ? void 0 : window.localStorage);
 let durablePreviewWriteQueue = Promise.resolve();
 function mainReadablePreviewTabsMirror() {
   return {

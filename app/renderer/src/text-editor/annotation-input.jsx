@@ -5,11 +5,11 @@ import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getAnnotationMarks } from "./configuration2.js";
 
-const POPOVER_WIDTH = 320;
+const POPOVER_WIDTH = 288;
 
 const GAP = 8;
 
-const FALLBACK_HEIGHT = 120;
+const MIN_CROP_SIZE = 48;
 
 export function AnnotationInput({
   editor,
@@ -170,3 +170,5 @@ export function AnnotationInput({
   );
   return reactDomExports.createPortal(node, document.body);
 }
+
+const FALLBACK_HEIGHT = 48;

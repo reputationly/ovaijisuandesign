@@ -9,10 +9,7 @@ const CANVAS_DIRECTIONAL_KEYS = new Set([
   "ArrowRight",
 ]);
 function decideCanvasShortcutGuardKeydown(event, targetEditable) {
-  if (
-    (event.key === "Delete" || event.key === "Backspace") &&
-    !targetEditable
-  ) {
+  if ((event.key === "Delete" || event.key === "Backspace") && !targetEditable) {
     return "stop-immediate";
   }
   if (event.key === "Escape") {
@@ -21,11 +18,8 @@ function decideCanvasShortcutGuardKeydown(event, targetEditable) {
   if (CANVAS_DIRECTIONAL_KEYS.has(event.key) && !targetEditable) {
     return "stop";
   }
-  const isModifierKeyPressed = event.metaKey === true || event.ctrlKey === true;
-  const viewportShortcut =
-    event.shiftKey === true &&
-    (event.code === "Digit1" || event.code === "Digit2");
-  if (isModifierKeyPressed || viewportShortcut) {
+  const meta2 = event.metaKey === true || event.ctrlKey === true;
+  if (meta2 || (event.shiftKey === true && (event.code === "Digit1" || event.code === "Digit2"))) {
     return "stop";
   }
   return "allow";

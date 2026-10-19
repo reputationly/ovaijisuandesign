@@ -28,12 +28,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../generation/select-content.jsx";
-const DEFAULT_ENHANCE_VIDEO_FPS = 60;
+export const DEFAULT_ENHANCE_VIDEO_FPS = 60;
 const RESOLUTION_LABELS = {
-  "720p": "720p",
-  "1080p": "1080p",
+  "1k": "1K",
   "2k": "2K",
   "4k": "4K",
+  "8k": "8K",
 };
 function formatEnhanceVideoResolution(value) {
   return RESOLUTION_LABELS[value];

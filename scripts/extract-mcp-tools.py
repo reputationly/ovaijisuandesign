@@ -163,11 +163,12 @@ def render(tools: list[dict]) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--app", type=Path, default=DEFAULT_APP)
+    ap.add_argument("--bundle", type=Path, help="直接指定打包产物，用来抽 mcp-tools-v3 或旧版本对照")
     ap.add_argument("--out", type=Path, default=Path("docs/mcp-tools.md"))
     ap.add_argument("--json", type=Path, help="同时导出结构化结果")
     args = ap.parse_args()
 
-    bundle = args.app / "Contents/Resources/mcp-tools/dist/main.js"
+    bundle = args.bundle or (args.app / "Contents/Resources/mcp-tools/dist/main.js")
     if not bundle.is_file():
         print(f"找不到 mcp-tools: {bundle}", file=sys.stderr)
         return 1

@@ -1,17 +1,16 @@
+import { __jsx } from "../shared/jsx-runtime.js";
+import { noop } from "../infra/shared-runtime.js";
+import { binarySubdivide, calcBezier } from "./calc-bezier.jsx";
 // exposure-fragment.js
 
 // exposure-fragment.js
 export const clamp01 = (value) => Math.min(1, Math.max(0, value));
 
-const cubicBezier = (progress, startValue, firstControlValue, secondControlValue, endValue) => {
-  const complementProgress = 1 - progress;
-  return (
-    complementProgress * complementProgress * complementProgress * startValue +
-    3 * complementProgress * complementProgress * progress * firstControlValue +
-    3 * complementProgress * progress * progress * secondControlValue +
-    progress * progress * progress * endValue
-  );
-};
+function cubicBezier(mX1, mY1, mX2, mY2) {
+  if (mX1 === mY1 && mX2 === mY2) return noop;
+  const getTForX = (aX) => binarySubdivide(aX, 0, 1, mX1, mX2);
+  return (t) => (t === 0 || t === 1 ? t : calcBezier(getTForX(t), mY1, mY2));
+}
 
 const PALETTE_SIZE = 256;
 
@@ -168,12 +167,12 @@ struct Params {
 @group(0) @binding(1) var uSampler: sampler;
 @group(0) @binding(2) var<uniform> params: Params;
 
-const epsilon: f32 = 0.000001;
-const mx: f32 = 1.0 - 0.000001;
+export const epsilon: f32 = 0.000001;
+export const mx: f32 = 1.0 - 0.000001;
 
 // GLSL mat3 列主序: mat3(col0_elem0, col0_elem1, col0_elem2, col1_elem0, ...)
 // WGSL mat3x3 也是列主序: mat3x3(vec3_col0, vec3_col1, vec3_col2)
-const matRGBtoROMM = mat3x3<f32>(
+export const matRGBtoROMM = mat3x3<f32>(
   vec3<f32>(0.5293459296226501, 0.3300727903842926, 0.14058130979537964),   // 第一列
   vec3<f32>(0.09837432950735092, 0.8734610080718994, 0.028164653107523918), // 第二列
   vec3<f32>(0.01688321679830551, 0.11767247319221497, 0.8654443025588989)   // 第三列

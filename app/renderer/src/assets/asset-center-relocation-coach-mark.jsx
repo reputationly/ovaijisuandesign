@@ -1,4 +1,5 @@
 // asset-center-relocation-coach-mark.jsx
+const ASSET_CENTER_NAV_SELECTOR = '[data-action-ui-id="home-sidebar-nav-asset-center-coachmark-anchor"]';
 import reactExports from "react";
 import { resolveNewProjectPreferences } from "../infra/shared-runtime.js";
 import { storageKeys } from "../infra/storage-cache.js";
@@ -37,16 +38,9 @@ import { CoachMarkPopup } from "../workspace/coach-mark-popup.jsx";
 function usePersistAssetCenterRelocation(relocation) {
   const queryClient = useQueryClient();
   const persistStartedRef = reactExports.useRef(false);
-  const { ready, libraryInitialized, hasAssetData, assetCenterHidden } =
-    relocation;
+  const { ready, libraryInitialized, hasAssetData, assetCenterHidden } = relocation;
   reactExports.useEffect(() => {
-    if (
-      !ready ||
-      !libraryInitialized ||
-      hasAssetData ||
-      assetCenterHidden ||
-      persistStartedRef.current
-    ) {
+    if (!ready || !libraryInitialized || hasAssetData || assetCenterHidden || persistStartedRef.current) {
       return;
     }
     persistStartedRef.current = true;
@@ -60,17 +54,8 @@ function usePersistAssetCenterRelocation(relocation) {
       .catch(() => {
         persistStartedRef.current = false;
       });
-  }, [
-    assetCenterHidden,
-    hasAssetData,
-    libraryInitialized,
-    queryClient,
-    ready,
-  ]);
+  }, [assetCenterHidden, hasAssetData, libraryInitialized, queryClient, ready]);
 }
-
-const ASSET_CENTER_NAV_SELECTOR =
-  '[data-action-ui-id="home-sidebar-nav-asset-center-coachmark-anchor"]';
 
 export function AssetCenterRelocationCoachMark() {
   const { t: translate } = useTranslation();

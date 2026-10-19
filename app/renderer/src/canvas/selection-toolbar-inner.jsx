@@ -40,20 +40,26 @@ import { GroupIcon, UngroupIcon } from "./file-missing-icon.jsx";
 import { PromoteToAssetIcon } from "./generating-media-area.jsx";
 import { AddToChatIcon, AddToClipNodeIcon } from "./fullscreen-icon.jsx";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
-function SelectionTidyControlInner({ onTidy, showIncludeDeps }) {
-  const { t: translate } = useTranslation();
-  const label = translate("canvas.tidy");
+import { getAutoAlignSnapshot, setAutoAlignPreference, subscribeAutoAlign, useTidySort } from "./tidy-sort-context.jsx";
+import { TidyConfirmationPopover, canvasFinalFocus } from "./tidy-confirm-duration-ms.jsx";
+function SelectionTidyControlInner({ onTidy, showIncludeDeps, confirmation, disabledReasons, ...preference2 }) {
+  const { t } = useTranslation();
+  const label = t("canvas.tidy");
   const [menuOpen, setMenuOpen] = reactExports.useState(false);
+  const anchorRef = reactExports.useRef(null);
   const handleTidy = reactExports.useCallback(
-    (layout, includeDeps) => {
+    (layout2, includeDeps) => {
       setMenuOpen(false);
-      return onTidy(layout, includeDeps);
+      return confirmation ? confirmation.runTidy(() => onTidy?.(layout2, includeDeps)) : onTidy?.(layout2, includeDeps);
     },
-    [onTidy],
+    [confirmation, onTidy],
   );
   return (
-    <div className="relative">
-      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+    <div ref={anchorRef} className="relative">
+      <DropdownMenu
+        open={confirmation?.menuOpen ?? menuOpen}
+        onOpenChange={confirmation?.handleMenuOpenChange ?? setMenuOpen}
+      >
         <DropdownMenuTrigger
           type="button"
           title={label}
@@ -62,12 +68,11 @@ function SelectionTidyControlInner({ onTidy, showIncludeDeps }) {
           className="canvas-toolbar-action"
         >
           <LayoutTemplate size={20} strokeWidth={1.5} aria-hidden="true" />
-          <span className="canvas-toolbar-label whitespace-nowrap">
-            {label}
-          </span>
+          <span className="canvas-toolbar-label whitespace-nowrap">{label}</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           data-action-ui-id="canvas.selection-tidy-menu"
+          finalFocus={canvasFinalFocus(anchorRef)}
           side="bottom"
           sideOffset={8}
           align="start"
@@ -75,18 +80,42 @@ function SelectionTidyControlInner({ onTidy, showIncludeDeps }) {
           variant="toolbar"
         >
           <TidyLayoutMenuItems
-            onTidy={handleTidy}
+            {...preference2}
+            disabledReason={disabledReasons?.layout}
+            includeDepsDisabledReason={disabledReasons?.includeDeps}
+            onTidy={onTidy ? handleTidy : void 0}
             showIncludeDeps={showIncludeDeps}
             uiIdPrefix="canvas.selection-tidy"
           />
         </DropdownMenuContent>
       </DropdownMenu>
+      {confirmation && (
+        <TidyConfirmationPopover
+          open={confirmation.confirmOpen}
+          positionClass="top-full left-0 mt-2"
+          uiIdPrefix="canvas.selection-tidy"
+          onKeep={confirmation.keep}
+          onRevert={confirmation.revert}
+        />
+      )}
     </div>
   );
 }
-const SelectionTidyControl = reactExports.memo(SelectionTidyControlInner);
-const SWATCH_SIZE = 20;
-const TRIGGER_SIZE = 18;
+const SelectionTidyControl = reactExports.memo(function CanvasTidyControl2(props) {
+  const { sortBy, setSortBy } = useTidySort();
+  const includeDeps = reactExports.useSyncExternalStore(subscribeAutoAlign, getAutoAlignSnapshot, () => false);
+  return (
+    <CanvasTidyControl$1
+      {...props}
+      sortBy={sortBy}
+      onSortByChange={setSortBy}
+      includeDeps={includeDeps}
+      onIncludeDepsChange={setAutoAlignPreference}
+    />
+  );
+});
+export const SWATCH_SIZE = 20;
+export const TRIGGER_SIZE = 18;
 function ResetSwatch({ size = SWATCH_SIZE }) {
   return (
     <span

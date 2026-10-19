@@ -1494,6 +1494,27 @@ export class CanvasService {
   // 聚焦 / 选中
   // -------------------------------------------------------------------------
 
+  /** 把已安装插件的入口文件放成画布上的文件节点，并记下插件 id。 */
+  async placePlugin(row: AssetRow, input: { pluginId: string; version: string; entry: string; position?: Point; sourceNodeIds?: string[]; initialData?: Record<string, unknown> }): Promise<string> {
+    const reserved = ["pluginId", "pluginVersion", "pluginEntry", "__proto__", "constructor", "prototype", "pluginStorage", "popoverDraft"];
+    for (const key of reserved) if (input.initialData && Object.hasOwn(input.initialData, key)) throw new BadRequestException(`Reserved plugin metadata: ${key}`);
+    if (input.position && (!Number.isFinite(input.position.x) || !Number.isFinite(input.position.y))) throw new BadRequestException("Invalid V3 plugin position");
+    return this.mutate((canvas) => {
+      const sources = input.sourceNodeIds ?? [];
+      if (sources.some((id) => !canvas.nodes.some((node) => node.id === id))) throw new BadRequestException("V3 plugin source node does not exist");
+      const data = {
+        ...(input.initialData ?? {}),
+        pluginId: input.pluginId,
+        pluginVersion: input.version,
+        pluginEntry: input.entry,
+        name: row.name,
+        path: row.path,
+      };
+      const { node, edges } = this.addAssetNode(canvas, row, { position: input.position, sourceNodeIds: sources, extraData: data });
+      return { canvas, result: node.id, event: { addedNodes: [node], addedEdges: edges, origin: "user-add" } };
+    });
+  }
+
   async focus(ids: string[], padding?: number, duration?: number) {
     const c = await this.getCanvas();
     const have = new Set(c.nodes.map((n) => n.id));

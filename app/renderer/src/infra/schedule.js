@@ -1,4 +1,5 @@
 // schedule.js
+import { __jsx } from "../shared/jsx-runtime.js";
 import {
   activeIds,
   listeners as modalPresenceListeners,

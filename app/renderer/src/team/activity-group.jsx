@@ -21,6 +21,11 @@ import { mergeIntoTimelineEntries } from "../media-editing/merge-into-timeline-e
 import { parseJsonRecord } from "../media-editing/unwrap-mcp-json-record.js";
 import { categorizeToolAction } from "../chat/has-structured-success-payload.js";
 import { TimelineItem } from "../media-editing/timeline-item.jsx";
+import { isDesignExecute } from "./is-design-execute.jsx";
+import { TOOLS as TOOLS } from "../chat/tools.jsx";
+import { record as record } from "../infra/parse-connector-selection.js";
+import { TOOL_ABORTED_BY_USER_TEXT as TOOL_ABORTED_BY_USER_TEXT } from "../canvas/diagnostic-history-tools.js";
+import { isCapabilitySearchTool } from "../infra/parse-capability-search-result.js";
 function BrowserOpenCard({ onContinue }) {
   const { t } = useTranslation();
   const [opening, setOpening] = reactExports.useState(false);
@@ -104,8 +109,10 @@ function groupTimelineEntries(entries) {
     if (
       entry.type === "tool" &&
       GROUPABLE_CATEGORIES.has(entry.category) &&
+      !isDesignExecute(entry.toolName) &&
+      !designToolPresentation(entry.toolName, entry) &&
       entry.toolName !== "hub_run_comfyui_workflow" &&
-      entry.toolName !== "hub_capability_search" &&
+      !isCapabilitySearchTool(entry.toolName) &&
       !isTransientTool(entry.toolName) &&
       entry.toolStatus !== "error" &&
       !entry.pendingConfirm &&
@@ -212,16 +219,11 @@ const CATEGORIES_WITH_INLINE_PROGRESS = new Set([
 ]);
 function isTimelineEntryActive(entry, latestEntry, isStreaming) {
   if (!isStreaming) return false;
-  if (
-    entry.type === "tool" &&
-    (entry.toolStatus === "running" || entry.toolStatus === "pending")
-  ) {
+  if (entry.type === "tool" && (entry.toolStatus === "running" || entry.toolStatus === "pending")) {
     return true;
   }
-  return (
-    entry === latestEntry &&
-    (entry.type === "thinking" || isTransientTool(entry.toolName))
-  );
+  if (designToolPresentation(entry.toolName, entry)) return false;
+  return entry === latestEntry && (entry.type === "thinking" || isTransientTool(entry.toolName, entry));
 }
 export function ActivityGroup({
   data,

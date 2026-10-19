@@ -31,6 +31,7 @@ import {
   useAssetInputs,
   useAssetLineage,
 } from "../settings/use-asset-lineage.js";
+import { VideoPlayer } from "../media-editing/video-player-inner.jsx";
 function formatModifiedAt(value) {
   if (value == null || value === "") return "";
   let date;
@@ -63,13 +64,16 @@ function pickNumber(meta, key) {
   const numberValue = meta?.[key];
   return typeof numberValue === "number" && Number.isFinite(numberValue) ? numberValue : void 0;
 }
-function extOf(asset) {
-  const base = asset.path.split(/[/\\]/).pop() ?? "";
+function extOf(detail2, media) {
+  const base = detail2.version?.relativePath.split(/[/\\]/).pop() ?? "";
   const dot = base.lastIndexOf(".");
-  return dot > 0 ? base.slice(dot + 1).toUpperCase() : "";
+  if (dot > 0) return base.slice(dot + 1).toUpperCase();
+  const mime = media?.mimeType ?? "";
+  const slash2 = mime.indexOf("/");
+  return slash2 > 0 ? mime.slice(slash2 + 1).toUpperCase() : "";
 }
-function dimensions(asset) {
-  if (asset.width && asset.height) return `${asset.width} × ${asset.height}`;
+function dimensions(media) {
+  if (media?.width && media?.height) return `${media.width} × ${media.height}`;
   return "";
 }
 function modifiedAt(asset) {
@@ -212,21 +216,17 @@ function Section({ title, loading, error, children }) {
   );
 }
 function RoleChip({ role }) {
-  const { t: translate } = useTranslation();
+  const { t } = useTranslation();
   const fallback = ROLE_DISPLAY_NAMES[role] ?? role;
-  const display = translate(`assetRole.${role.toLowerCase()}`, fallback);
-  return (
-    <span className="shrink-0 px-1 py-0 text-[10px] text-hl-text-03 bg-hl-alpha-04 rounded">
-      {display}
-    </span>
-  );
+  const display = t(`assetRole.${role.toLowerCase()}`, fallback);
+  return <span className="shrink-0 px-1 py-0 text-[10px] text-hl-text-03 bg-hl-alpha-04 rounded">{display}</span>;
 }
 function AssetRow({
   assetId,
   path,
   name: assetName,
   status,
-  role,
+  role: role2,
   depthHint,
   onSelectAsset,
 }) {
@@ -265,7 +265,7 @@ function EntityTypeChip({ type }) {
     </span>
   );
 }
-function AttachmentRow({ node, role }) {
+function AttachmentRow({ node, role : role2}) {
   const { t: translate } = useTranslation();
   if (node.parent_attachment_entity_name && node.parent_attachment_filename) {
     return (
@@ -592,14 +592,10 @@ function useAssetTextPreview(
     },
   });
 }
-function RowItem({ t: translate, row }) {
+function RowItem({ row }) {
   return (
     <>
-      <dt className="text-foreground/30 opacity-70">
-        {translate(`assetPreview.meta.${row.labelKey}`, {
-          defaultValue: row.labelFallback,
-        })}
-      </dt>
+      <dt className="text-foreground/30 opacity-70">{row.label}</dt>
       <dd className="text-foreground/70 truncate" title={row.value}>
         {row.value}
       </dd>
@@ -871,64 +867,22 @@ function AudioPreview({ asset }) {
   );
 }
 const PREVIEW_MAX_WIDTH = 480;
-function ImagePreview({ asset }) {
-  const { t: translate } = useTranslation();
-  const gatewayUrl = useGatewayUrl();
-  const [loaded, setLoaded] = reactExports.useState(false);
-  const [errored, setErrored] = reactExports.useState(false);
-  const src = reactExports.useMemo(() => {
-    return withThumbnail(
-      gatewayUrl(API_PATHS.serveFile(asset.path)),
-      PREVIEW_MAX_WIDTH,
-    );
-  }, [asset.path, gatewayUrl]);
-  const onLoad = reactExports.useCallback(() => setLoaded(true), []);
-  const onError = reactExports.useCallback(() => {
-    setErrored(true);
-    setLoaded(true);
-  }, []);
-  if (!src || errored) {
-    return (
-      <div
-        data-slot="image-preview-fallback"
-        className="flex w-full h-44 items-center justify-center bg-muted text-muted-foreground"
-      >
-        <FileTypeIcon
-          {...classifyFileType({
-            filename: asset.name || asset.path,
-            mediaKind: "image",
-          })}
-          size={64}
-          decorative={true}
-        />
-        <span className="sr-only">
-          {translate("assetPreview.imageUnavailable", {
-            defaultValue: "Preview unavailable",
-          })}
-        </span>
-      </div>
-    );
-  }
-  return (
-    <div
-      data-slot="image-preview"
-      className="relative flex items-center justify-center"
-    >
-      {!loaded && <Skeleton className="w-full h-44" />}
+function ImagePreview({ src, name, unavailableLabel }) {
+  const [failed, setFailed] = reactExports.useState(false);
+  return failed ? (
+    <p role="status" className="p-4 text-sm text-muted-foreground">
+      {unavailableLabel}
+    </p>
+  ) : (
+    <div className="relative size-full">
       <img
         src={src}
-        alt={asset.name ?? asset.path}
-        className="max-w-full max-h-80 object-contain"
-        onLoad={onLoad}
-        onError={onError}
-        style={
-          loaded
-            ? void 0
-            : {
-                display: "none",
-              }
-        }
+        alt={name}
+        draggable={false}
+        className="size-full object-contain"
+        onError={() => setFailed(true)}
       />
+      <ImageFullscreenButton src={src} name={name} />
     </div>
   );
 }
@@ -991,144 +945,44 @@ function claimInlineVideoSlot(video) {
   currentInlineVideo = video;
 }
 const PREVIEW_LOOP_LIMIT_S = 5;
-function VideoPreview({ asset }) {
-  const { t: translate } = useTranslation();
-  const gatewayUrl = useGatewayUrl();
+function VideoPreview({ src, unavailableLabel }) {
   const videoRef = reactExports.useRef(null);
-  const progressRef = reactExports.useRef(null);
-  const [muted, setMuted] = reactExports.useState(true);
-  const src = reactExports.useMemo(
-    () => gatewayUrl(API_PATHS.assetVideoStream(asset.path, 480)),
-    [asset.path, gatewayUrl],
-  );
-  reactExports.useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !src) return;
-    video.src = src;
-    video.muted = true;
-    video.play().catch(() => {});
-    return () => {
-      try {
-        video.pause();
-        video.removeAttribute("src");
-        video.load();
-      } catch {}
-    };
-  }, [src]);
-  const onTimeUpdate = reactExports.useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.currentTime >= PREVIEW_LOOP_LIMIT_S) {
-      video.currentTime = 0;
-    }
-    const duration = Math.max(video.duration || 0, PREVIEW_LOOP_LIMIT_S);
-    const ratio =
-      duration > 0
-        ? Math.min(
-            video.currentTime / Math.min(duration, PREVIEW_LOOP_LIMIT_S),
-            1,
-          )
-        : 0;
-    const bar = progressRef.current;
-    if (bar) bar.style.width = `${(ratio * 100).toFixed(1)}%`;
-  }, []);
-  const onLoadedMetadata = reactExports.useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.play().catch(() => {});
-  }, []);
-  const toggleMute = reactExports.useCallback(() => {
-    setMuted((prev) => {
-      const next = !prev;
-      const video = videoRef.current;
-      if (video) video.muted = next;
-      return next;
-    });
-  }, []);
-  if (!src) {
+  const [playing, setPlaying2] = reactExports.useState(false);
+  const [volume, setVolume] = reactExports.useState(1);
+  const { muted, toggle: toggleMuted } = useMediaMuted();
+  const [failed, setFailed] = reactExports.useState(false);
+  const handleStop = reactExports.useCallback(() => setPlaying2(false), []);
+  if (failed)
     return (
-      <div
-        data-slot="video-preview-fallback"
-        className="flex w-full h-44 items-center justify-center bg-muted text-muted-foreground text-xs"
-      >
-        {translate("assetPreview.videoUnavailable", {
-          defaultValue: "Preview unavailable",
-        })}
-      </div>
+      <p role="status" className="p-4 text-sm text-muted-foreground">
+        {unavailableLabel}
+      </p>
     );
-  }
   return (
-    // No fixed aspect ratio — the video element is constrained to the
-    // popup's available content width (after padding) and a 320 px height
-    // cap, so chromium picks whichever axis hits first and proportionally
-    // scales the other. Landscape clips end up ~content-width × auto;
-    // portrait clips ~auto × 320, both flush inside the card with no
-    // horizontal overflow.
-    <div
-      data-slot="video-preview"
-      className="relative flex items-center justify-center"
-    >
-      <video
-        ref={videoRef}
-        muted={muted}
-        loop={true}
-        playsInline={true}
-        onPlay={(playEvent) => claimInlineVideoSlot(playEvent.currentTarget)}
-        onLoadedMetadata={onLoadedMetadata}
-        onTimeUpdate={onTimeUpdate}
-        className="max-w-full max-h-80 block bg-black"
-      />
-      <button
-        type="button"
-        data-slot="video-preview-mute-toggle"
-        onClick={toggleMute}
-        title={
-          muted
-            ? translate("assetPreview.unmute", {
-                defaultValue: "Unmute",
-              })
-            : translate("assetPreview.mute", {
-                defaultValue: "Mute",
-              })
-        }
-        className={cn(
-          "absolute top-2 right-2 inline-flex items-center justify-center size-7 rounded-full",
-          "bg-foreground/60 text-background hover:bg-foreground/80 transition-colors",
-        )}
-      >
-        {muted ? (
-          <VolumeX size={14} strokeWidth={1.5} />
-        ) : (
-          <Volume size={14} strokeWidth={1.5} />
-        )}
-      </button>
-      <div
-        data-slot="video-preview-progress"
-        className="absolute bottom-0 left-0 right-0 h-1 bg-foreground/20 pointer-events-none"
-      >
-        <div
-          ref={progressRef}
-          className="h-full bg-primary transition-[width] duration-100"
-          style={{
-            width: "0%",
-          }}
-        />
-      </div>
-    </div>
+    <VideoPlayer
+      src={src}
+      width="100%"
+      height="100%"
+      videoRef={videoRef}
+      isPlaying={playing}
+      muted={muted}
+      volume={volume}
+      onVolumeChange={setVolume}
+      onTogglePlay={() => setPlaying2((value) => !value)}
+      onStop={handleStop}
+      onToggleMuted={toggleMuted}
+      onFullscreen={() => void videoRef.current?.requestFullscreen()}
+      onError={() => setFailed(true)}
+    />
   );
 }
-function AssetHoverPopupInner({
-  target,
-  onMouseEnter,
-  onMouseLeave,
-  onLocateOnCanvas,
-}) {
+function AssetHoverPopupInner({ target, onMouseEnter, onMouseLeave, onLocateOnCanvas }) {
   const { asset, anchor } = target;
-  const { t: translate } = useTranslation();
+  const { t } = useTranslation();
   const [positioned, setPositioned] = reactExports.useState(false);
   reactExports.useLayoutEffect(() => {
-    const positionFrameId = requestAnimationFrame(() => setPositioned(true));
-    return () => cancelAnimationFrame(positionFrameId);
+    const id = requestAnimationFrame(() => setPositioned(true));
+    return () => cancelAnimationFrame(id);
   }, []);
   const [lineageOpen, setLineageOpen] = reactExports.useState(false);
   const lineageCloseTimer = reactExports.useRef(null);
@@ -1191,9 +1045,7 @@ function AssetHoverPopupInner({
         const data = textPreview.data;
         const previewText = data?.ok ? data.text : null;
         const errorReason = data && !data.ok ? data.reason : null;
-        const errorMessage = textPreview.error
-          ? String(textPreview.error)
-          : errorReason;
+        const errorMessage = textPreview.error ? String(textPreview.error) : errorReason;
         return (
           <TextPreview
             asset={asset}
@@ -1206,13 +1058,7 @@ function AssetHoverPopupInner({
       default:
         return null;
     }
-  }, [
-    asset,
-    textPreview.data,
-    textPreview.error,
-    textPreview.isLoading,
-    textPreview.isFetching,
-  ]);
+  }, [asset, textPreview.data, textPreview.error, textPreview.isLoading, textPreview.isFetching]);
   const locateDisabled = !onLocateOnCanvas || !asset.id;
   const lineageAvailable = !!asset.id;
   return (
@@ -1235,8 +1081,7 @@ function AssetHoverPopupInner({
             // above. Relies on base-ui Positioner using transform for
             // placement (true as of @base-ui/react@1.3.0); revisit if it
             // ever moves to top/left.
-            positioned &&
-              "transition-transform duration-200 ease-out motion-reduce:transition-none",
+            positioned && "transition-transform duration-200 ease-out motion-reduce:transition-none",
           )}
         >
           <PreviewCardPopup
@@ -1250,10 +1095,7 @@ function AssetHoverPopupInner({
           >
             <div className="relative flex flex-col gap-3 p-3">
               <div className="flex items-center justify-between">
-                <span
-                  className="text-xs font-medium text-foreground/70 truncate"
-                  title={asset.name ?? asset.path}
-                >
+                <span className="text-xs font-medium text-foreground/70 truncate" title={asset.name ?? asset.path}>
                   {asset.name ?? asset.path.split(/[/\\]/).pop() ?? asset.path}
                 </span>
                 <button
@@ -1261,7 +1103,7 @@ function AssetHoverPopupInner({
                   data-slot="asset-hover-card-locate"
                   onClick={handleLocate}
                   disabled={locateDisabled}
-                  title={translate("assetPreview.locateOnCanvas")}
+                  title={t("assetPreview.locateOnCanvas")}
                   className={cn(
                     "inline-flex items-center justify-center size-6 rounded",
                     "text-foreground/50 hover:text-foreground/70 hover:bg-muted transition-colors",
@@ -1271,9 +1113,7 @@ function AssetHoverPopupInner({
                   <Crosshair size={14} strokeWidth={1.5} />
                 </button>
               </div>
-              {previewBody && (
-                <div data-slot="asset-hover-card-preview">{previewBody}</div>
-              )}
+              {previewBody && <div data-slot="asset-hover-card-preview">{previewBody}</div>}
               <MetadataTable asset={mergedAsset} />
               {lineageAvailable && (
                 <button
@@ -1290,7 +1130,7 @@ function AssetHoverPopupInner({
                 >
                   <span className="inline-flex items-center gap-1.5">
                     <Network size={12} strokeWidth={1.5} />
-                    {translate("assetPreview.viewLineage")}
+                    {t("assetPreview.viewLineage")}
                   </span>
                   <ChevronLeft size={12} strokeWidth={1.5} />
                 </button>
@@ -1307,9 +1147,7 @@ function AssetHoverPopupInner({
                     "p-3 flex flex-col gap-2",
                   )}
                 >
-                  <span className="text-xs font-medium text-foreground/70">
-                    {translate("assetPreview.lineageTitle")}
-                  </span>
+                  <span className="text-xs font-medium text-foreground/70">{t("assetPreview.lineageTitle")}</span>
                   <LineageTree assetId={asset.id} />
                 </div>
               )}

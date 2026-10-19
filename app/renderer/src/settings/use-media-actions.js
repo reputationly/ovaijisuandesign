@@ -1,4 +1,5 @@
 // use-media-actions.js
+import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
 import { usePlatform } from "../infra/platform-context.js";
 import { useTranslation } from "react-i18next";

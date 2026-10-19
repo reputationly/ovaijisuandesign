@@ -15,6 +15,11 @@ import { folderNameFromPath } from "../generation/use-model-catalog-scope-key.js
 import { SettingGroup, SettingRow } from "./settings-select.jsx";
 import { LocalFolderIcon } from "../workspace/home-service.jsx";
 import { useDataDirectory } from "./use-data-directory.js";
+// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
+function failure(id2, code2) {
+  return { type: "failure", id: id2, code: code2, message: "Scoped Resource connection unavailable" };
+}
+
 function formatBytes(bytes) {
   if (bytes === 0) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB"];
@@ -24,7 +29,7 @@ function formatBytes(bytes) {
 function DataDirectoryMigrateDialog({
   pending,
   busy,
-  failure,
+  failure: failure2,
   onConfirm,
   onCancel,
 }) {

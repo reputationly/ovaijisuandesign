@@ -160,8 +160,8 @@ const TOOLS = [
     Icon: MosaicIcon,
   },
 ];
-const TOOL_ICON_SIZE = 16;
-const ACTION_ICON_SIZE = 14;
+export const TOOL_ICON_SIZE = 16;
+export const ACTION_ICON_SIZE = 14;
 const TOOLS_WITH_STYLE = new Set([
   "rectangle",
   "ellipse",
@@ -182,7 +182,7 @@ const COLORS = [
   "#1C1C1E",
   "#FFFFFF",
 ];
-const FONT_SIZES = [12, 16, 24, 36, 48, 60, 72, 96];
+export const FONT_SIZES = [12, 16, 24, 36, 48, 60, 72, 96];
 function PlainTextIcon({ size = 16 }) {
   return (
     <CompositedSvg

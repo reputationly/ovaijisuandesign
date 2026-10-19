@@ -1,6 +1,6 @@
 // layer-decompose-prompt.jsx
 import reactExports from "react";
-import { useTranslation } from "react-i18next";
+import { number as number$2, useTranslation } from "react-i18next";
 import { Layers3 } from "./lucide-icon-wraps.js";
 import { usePromptFontSizeStore } from "../generation/prompt-font-size.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -154,6 +154,10 @@ export const add = (leftVector, rightVector) => ({
   y: leftVector.y + rightVector.y,
   z: leftVector.z + rightVector.z,
 });
+// 产物里这里有两个 `scale`：一个是 i18next 的 `number` 命名空间合并出来的对象（`scale`），
+// 另一个是向量缩放函数（`scale$1`）。还原时 `$1` 被剥掉、对象把函数顶掉了 ——
+// 于是 `normalize` / `getCameraModelView` 里 `scale(...)` 报 “scale is not a function”，
+// relight 的灯泡 3D 预览整块挂掉。向量缩放是本文件唯一真正的用途，按产物补回。
 const scale = (value, amount) => ({
   x: value.x * amount,
   y: value.y * amount,

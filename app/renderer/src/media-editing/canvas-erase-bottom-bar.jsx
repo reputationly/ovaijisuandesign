@@ -6,7 +6,7 @@ import { BananaResolutionPicker } from "./banana-resolution-picker.jsx";
 import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import { CreditCostBadge } from "../generation/missing-asset-card.jsx";
 import { useImageEditCost } from "./image-edit-pricing.js";
-const ERASE_RESOLUTIONS = ["1K", "2K"];
+export const ERASE_RESOLUTIONS = ["1K", "2K"];
 const ERASE_REF_COUNT = 1;
 export const CanvasEraseBottomBar = reactExports.memo(
   function CanvasEraseBottomBar({

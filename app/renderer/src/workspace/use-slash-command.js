@@ -13,7 +13,7 @@ function findSlashTrigger(textBeforeCaret) {
   return findTrailingTrigger(textBeforeCaret, "/", "\\s/");
 }
 
-const STORAGE_KEY = "messageInput.skillUsageCounts";
+const STORAGE_KEY = "canvasSidebar.recentPlugins";
 
 const MAX_USAGE_COUNT = Number.MAX_SAFE_INTEGER;
 

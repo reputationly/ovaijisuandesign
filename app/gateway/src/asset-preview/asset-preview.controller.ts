@@ -16,6 +16,11 @@ export class AssetPreviewController {
     return this.preview.textPreview(p ?? "", chars !== undefined ? Number(chars) : undefined);
   }
 
+  @Get("api/internal/document/cache-context")
+  documentCacheContext() {
+    return this.documents.cacheContext();
+  }
+
   /** query 按原始字符串收（不走 DTO）：非法值按默认值处理，而不是回 400 让 read 工具整个失败。 */
   @Get("api/internal/document/read")
   documentRead(

@@ -10,6 +10,7 @@ import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-ge
 import { PreviewCardContent } from "../text-editor/use-placeholder-asset-source.jsx";
 import { PRESET_COLOR_NAME_KEYS } from "../infra/parse-connector-selection.js";
 import { isSubtitleFileName } from "../canvas/is-reexecutable-generation-node.js";
+import { CompositedSvg } from "../media-editing/icon-compositing.js";
 const PREVIEW_IMAGE_DISPLAY_PX = 256;
 export const STRICT_THUMBNAIL_MAX_RETRIES = 2;
 export const STRICT_THUMBNAIL_RETRY_DELAY_MS = 2e3;
@@ -37,8 +38,7 @@ export function DurationBadge({ resource }) {
 function PreviewMedia({ resource }) {
   const [failedUrl, setFailedUrl] = reactExports.useState(null);
   const failed = failedUrl === resource.url;
-  const wrap =
-    "relative flex aspect-video w-full items-center justify-center overflow-hidden bg-muted";
+  const wrap = "relative flex aspect-video w-full items-center justify-center overflow-hidden bg-muted";
   if (resource.type === "image" && !failed) {
     return (
       <div className={wrap}>
@@ -65,6 +65,14 @@ function PreviewMedia({ resource }) {
           preload="metadata"
           className="max-h-full max-w-full object-contain"
         />
+        <DurationBadge resource={resource} />
+      </div>
+    );
+  }
+  if (resource.type === "audio") {
+    return (
+      <div className={wrap}>
+        <AudioFileIcon className="size-8 text-muted-foreground" strokeWidth={1.5} />
         <DurationBadge resource={resource} />
       </div>
     );
@@ -190,3 +198,33 @@ export const accountScopedMessage = {
   groupId,
   send,
 };
+
+export const AudioFileIcon = reactExports.forwardRef(function AudioFileIcon2(
+  { size: size2 = 16, strokeWidth = 1.5, "aria-hidden": ariaHidden = true, ...props },
+  ref,
+) {
+  return (
+    <CompositedSvg
+      ref={ref}
+      width={size2}
+      height={size2}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden={ariaHidden}
+      {...props}
+      viewBox="0 0 16 16"
+      data-audio-file-icon="true"
+    >
+      <path d="M8 2v12" />
+      <path d="M4 5v6" />
+      <path d="M12 5v6" />
+      <path d="M2 7v2" />
+      <path d="M6 4v8" />
+      <path d="M10 4v8" />
+      <path d="M14 7v2" />
+    </CompositedSvg>
+  );
+});

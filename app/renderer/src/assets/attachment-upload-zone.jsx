@@ -90,9 +90,7 @@ const DEFAULT_CROP_RECT = {
 const MIN_CROP_RATIO = 0.05;
 const MIN_CROP_SIZE = 48;
 const MAX_CROP_OUTPUT_DIMENSION = 2048;
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 function minCropFraction(containerSize) {
   return containerSize && containerSize > 0
     ? Math.max(MIN_CROP_RATIO, MIN_CROP_SIZE / containerSize)
@@ -130,7 +128,7 @@ function calculateCropRect({
   deltaX,
   deltaY,
   handle,
-  aspectRatio,
+  aspectRatio: aspectRatio2,
   containerWidth,
   containerHeight,
 }) {
@@ -416,9 +414,12 @@ function ImageCropper({
   confirmLabel,
   onCancel,
   onConfirm,
+  onConfirmRect,
+  initialCrop,
+  fixedAspectRatio,
   onError,
 }) {
-  const { t: translate } = useTranslation();
+  const { t } = useTranslation();
   const hostRef = reactExports.useRef(null);
   const [hostSize, setHostSize] = reactExports.useState({
     width: 0,
@@ -444,10 +445,7 @@ function ImageCropper({
   }, []);
   const imageSize = reactExports.useMemo(() => {
     if (naturalSize.width <= 0 || naturalSize.height <= 0) return hostSize;
-    const scale = Math.min(
-      hostSize.width / naturalSize.width,
-      hostSize.height / naturalSize.height,
-    );
+    const scale = Math.min(hostSize.width / naturalSize.width, hostSize.height / naturalSize.height);
     return {
       width: naturalSize.width * scale,
       height: naturalSize.height * scale,
@@ -466,7 +464,7 @@ function ImageCropper({
     isDragging,
     handlePointerDown,
     setAspectRatio,
-  } = useImageCrop(cropContainerSize.width, cropContainerSize.height);
+  } = useImageCrop(cropContainerSize.width, cropContainerSize.height, fixedAspectRatio, initialCrop);
   const cropPixels = {
     x: cropRect.x * imageSize.width,
     y: cropRect.y * imageSize.height,
@@ -474,43 +472,24 @@ function ImageCropper({
     height: cropRect.height * imageSize.height,
   };
   const handleConfirm = reactExports.useCallback(async () => {
-    if (
-      isEncoding ||
-      isSubmitting ||
-      naturalSize.width <= 0 ||
-      naturalSize.height <= 0
-    )
-      return;
+    if (isEncoding || isSubmitting || naturalSize.width <= 0 || naturalSize.height <= 0) return;
     setIsEncoding(true);
     try {
-      const blob = await cropImageToBlob(
-        src,
-        cropRect,
-        naturalSize.width,
-        naturalSize.height,
-      );
-      await onConfirm(blob);
+      if (onConfirmRect) await onConfirmRect(cropRect);
+      else if (onConfirm) {
+        const blob = await cropImageToBlob(src, cropRect, naturalSize.width, naturalSize.height);
+        await onConfirm(blob);
+      }
     } catch (error) {
       onError?.(error);
     } finally {
       setIsEncoding(false);
     }
-  }, [
-    cropRect,
-    isEncoding,
-    isSubmitting,
-    naturalSize,
-    onConfirm,
-    onError,
-    src,
-  ]);
+  }, [cropRect, isEncoding, isSubmitting, naturalSize, onConfirm, onConfirmRect, onError, src]);
   const busy = isEncoding || isSubmitting;
   return (
     <div className="grid gap-3" data-action-ui-id="image-cropper">
-      <div
-        ref={hostRef}
-        className="relative h-[min(55vh,420px)] overflow-hidden rounded-lg bg-muted"
-      >
+      <div ref={hostRef} className="relative h-[min(55vh,420px)] overflow-hidden rounded-lg bg-muted">
         <div
           className="absolute left-1/2 top-1/2 overflow-hidden -translate-x-1/2 -translate-y-1/2 select-none touch-none"
           style={{
@@ -568,73 +547,46 @@ function ImageCropper({
                 <div className="absolute inset-y-0 left-2/3 w-px bg-background/40" />
               </div>
               {["tl", "tr", "bl", "br"].map((position) => (
-                <CropHandleView
-                  key={position}
-                  position={position}
-                  onPointerDown={handlePointerDown}
-                />
+                <CropHandleView key={position} position={position} onPointerDown={handlePointerDown} />
               ))}
               {cropPixels.width > EDGE_HANDLE_THRESHOLD
                 ? ["t", "b"].map((position) => (
-                    <CropHandleView
-                      key={position}
-                      position={position}
-                      onPointerDown={handlePointerDown}
-                    />
+                    <CropHandleView key={position} position={position} onPointerDown={handlePointerDown} />
                   ))
                 : null}
               {cropPixels.height > EDGE_HANDLE_THRESHOLD
                 ? ["l", "r"].map((position) => (
-                    <CropHandleView
-                      key={position}
-                      position={position}
-                      onPointerDown={handlePointerDown}
-                    />
+                    <CropHandleView key={position} position={position} onPointerDown={handlePointerDown} />
                   ))
                 : null}
-              <div
-                className="absolute inset-0 cursor-move"
-                onPointerDown={(event) => handlePointerDown(event, null)}
-              />
+              <div className="absolute inset-0 cursor-move" onPointerDown={(event) => handlePointerDown(event, null)} />
             </div>
           ) : null}
         </div>
       </div>
       <div className="flex items-center justify-between gap-3">
         <Select
+          disabled={Boolean(fixedAspectRatio)}
           value={aspectRatio}
           onValueChange={(value) => setAspectRatio(value)}
         >
-          <SelectTrigger
-            size="sm"
-            data-action-ui-id="image-cropper-aspect-ratio"
-          >
-            <SelectValue>
-              {aspectRatio === "free"
-                ? translate("assetCenter.cover.freeAspect")
-                : aspectRatio}
-            </SelectValue>
+          <SelectTrigger size="sm" data-action-ui-id="image-cropper-aspect-ratio">
+            <SelectValue>{aspectRatio === "free" ? t("assetCenter.cover.freeAspect") : aspectRatio}</SelectValue>
           </SelectTrigger>
           <SelectContent align="start">
             {ASPECT_OPTIONS.map((option) => (
               <SelectItem key={option} value={option}>
-                {option === "free"
-                  ? translate("assetCenter.cover.freeAspect")
-                  : option}
+                {option === "free" ? t("assetCenter.cover.freeAspect") : option}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={onCancel} disabled={busy}>
-            {translate("common.cancel")}
+            {t("common.cancel")}
           </Button>
-          <Button
-            onClick={() => void handleConfirm()}
-            loading={busy}
-            data-action-ui-id="image-cropper-confirm"
-          >
-            {confirmLabel ?? translate("common.confirm")}
+          <Button onClick={() => void handleConfirm()} loading={busy} data-action-ui-id="image-cropper-confirm">
+            {confirmLabel ?? t("common.confirm")}
           </Button>
         </div>
       </div>
@@ -820,7 +772,7 @@ function CoverCropDialog({
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         size="md"
-        data-action-ui-id="asset-center-cover-crop-dialog"
+        size="md"data-action-ui-id="asset-center-cover-crop-dialog"
       >
         <DialogHeader>
           <DialogTitle>{translate("assetCenter.cover.cropTitle")}</DialogTitle>

@@ -788,7 +788,7 @@ function DropdownMenuSection() {
 }
 function FileTypeIconSection() {
   const { t } = useTranslation();
-  const fileType = classifyFileType({
+  const psd = classifyFileType({
     filename: "poster.psd",
   });
   return (
@@ -798,10 +798,7 @@ function FileTypeIconSection() {
       description={t("uiSpec.fileTypeIcon.description")}
     >
       <details className="text-xs text-muted-foreground">
-        <summary
-          className="w-fit cursor-pointer text-foreground"
-          data-action-ui-id="ui-spec-file-type-icon-usage"
-        >
+        <summary className="w-fit cursor-pointer text-foreground" data-action-ui-id="ui-spec-file-type-icon-usage">
           {t("uiSpec.fileTypeIcon.usage")}
         </summary>
         <div className="flex flex-col gap-2 py-2">
@@ -817,14 +814,12 @@ const type = classifyFileType({ filename });
           </pre>
         </div>
       </details>
-      <p className="text-xs text-muted-foreground">
-        {t("uiSpec.fileTypeIcon.colors")}
-      </p>
+      <p className="text-xs text-muted-foreground">{t("uiSpec.fileTypeIcon.colors")}</p>
       <VariantGrid label={t("uiSpec.fileTypeIcon.sizes")}>
         {[14, 16, 24, 28, 32, 48, 64, 80, 99].map((size) => (
           <div key={size} className="flex flex-col items-center gap-2">
             <FileTypeIcon
-              {...fileType}
+              {...psd}
               size={size}
               accessibleLabel={t("uiSpec.fileTypeIcon.accessible", {
                 type: "PSD",
@@ -835,19 +830,136 @@ const type = classifyFileType({ filename });
         ))}
       </VariantGrid>
       <VariantGrid label={t("uiSpec.fileTypeIcon.scenes")}>
+        <div className="inline-flex h-5.5 items-center gap-1 rounded-[6px] bg-muted px-1.5 text-xs">
+          <span
+            data-action-ui-id="ui-spec-file-type-icon-compact-frame"
+            className="flex size-4.5 shrink-0 items-center justify-center rounded-[2px] bg-foreground/4"
+          >
+            <FileTypeIcon
+              {...classifyFileType({
+                filename: "content.md",
+              })}
+              size={14}
+              decorative={true}
+            />
+          </span>
+          <span>content.md</span>
+        </div>
+        <div className="inline-flex h-5.5 items-center gap-1 rounded-[6px] bg-muted px-1.5 text-xs">
+          <span
+            data-action-ui-id="ui-spec-file-type-icon-compact-frame"
+            className="flex size-4.5 shrink-0 items-center justify-center rounded-[2px] bg-foreground/4"
+          >
+            <FileTypeIcon
+              {...classifyFileType({
+                filename: "content.md",
+              })}
+              size={14}
+              decorative={true}
+            />
+          </span>
+          <span>content.md</span>
+        </div>
+        <div className="inline-flex h-5.5 items-center gap-1 rounded-[6px] bg-muted px-1.5 text-xs">
+          <span
+            data-action-ui-id="ui-spec-file-type-icon-compact-frame"
+            className="flex size-4.5 shrink-0 items-center justify-center rounded-[2px] bg-foreground/4"
+          >
+            <FileTypeIcon
+              {...classifyFileType({
+                filename: "content.md",
+              })}
+              size={14}
+              decorative={true}
+            />
+          </span>
+          <span>content.md</span>
+        </div>
+        <div className="inline-flex h-5.5 items-center gap-1 rounded-[6px] bg-muted px-1.5 text-xs">
+          <span
+            data-action-ui-id="ui-spec-file-type-icon-compact-frame"
+            className="flex size-4.5 shrink-0 items-center justify-center rounded-[2px] bg-foreground/4"
+          >
+            <FileTypeIcon
+              {...classifyFileType({
+                filename: "content.md",
+              })}
+              size={14}
+              decorative={true}
+            />
+          </span>
+          <span>content.md</span>
+        </div>
+        <div className="inline-flex h-5.5 items-center gap-1 rounded-[6px] bg-muted px-1.5 text-xs">
+          <span
+            data-action-ui-id="ui-spec-file-type-icon-compact-frame"
+            className="flex size-4.5 shrink-0 items-center justify-center rounded-[2px] bg-foreground/4"
+          >
+            <FileTypeIcon
+              {...classifyFileType({
+                filename: "content.md",
+              })}
+              size={14}
+              decorative={true}
+            />
+          </span>
+          <span>content.md</span>
+        </div>
+        <div className="inline-flex h-5.5 items-center gap-1 rounded-[6px] bg-muted px-1.5 text-xs">
+          <span
+            data-action-ui-id="ui-spec-file-type-icon-compact-frame"
+            className="flex size-4.5 shrink-0 items-center justify-center rounded-[2px] bg-foreground/4"
+          >
+            <FileTypeIcon
+              {...classifyFileType({
+                filename: "content.md",
+              })}
+              size={14}
+              decorative={true}
+            />
+          </span>
+          <span>content.md</span>
+        </div>
+        <div className="inline-flex h-5.5 items-center gap-1 rounded-[6px] bg-muted px-1.5 text-xs">
+          <span
+            data-action-ui-id="ui-spec-file-type-icon-compact-frame"
+            className="flex size-4.5 shrink-0 items-center justify-center rounded-[2px] bg-foreground/4"
+          >
+            <FileTypeIcon
+              {...classifyFileType({
+                filename: "content.md",
+              })}
+              size={14}
+              decorative={true}
+            />
+          </span>
+          <span>content.md</span>
+        </div>
+        <div className="inline-flex h-5.5 items-center gap-1 rounded-[6px] bg-muted px-1.5 text-xs">
+          <span
+            data-action-ui-id="ui-spec-file-type-icon-compact-frame"
+            className="flex size-4.5 shrink-0 items-center justify-center rounded-[2px] bg-foreground/4"
+          >
+            <FileTypeIcon
+              {...classifyFileType({
+                filename: "content.md",
+              })}
+              size={14}
+              decorative={true}
+            />
+          </span>
+          <span>content.md</span>
+        </div>
         <div className="flex min-w-0 max-w-full items-center gap-2 rounded-md bg-secondary p-2">
           <FileTypeBadge fileName="poster.psd" variant="inline" />
           <span className="truncate">poster.psd</span>
         </div>
         <div className="flex flex-col items-center gap-3 rounded-lg bg-card p-3">
-          <FileTypeIcon {...fileType} size={48} decorative={true} />
+          <FileTypeIcon {...psd} size={48} decorative={true} />
           <span>poster.psd</span>
         </div>
         <div className="h-[250px] w-[350px] max-w-full overflow-hidden rounded-lg">
-          <MediaUnpreviewableFallback
-            displayName="poster.psd"
-            extension=".psd"
-          />
+          <MediaUnpreviewableFallback displayName="poster.psd" extension=".psd" />
         </div>
       </VariantGrid>
       <VariantGrid label={t("uiSpec.fileTypeIcon.states")}>
@@ -864,32 +976,23 @@ const type = classifyFileType({ filename });
           </div>
         ))}
         <div className="flex flex-col items-center gap-2">
-          <FileTypeIcon
-            {...fileType}
-            readFailure={true}
-            size={48}
-            decorative={true}
-          />
-          <span className="text-xs">
-            {t("uiSpec.fileTypeIcon.readFailure")}
-          </span>
+          <FileTypeIcon {...psd} readFailure={true} size={48} decorative={true} />
+          <span className="text-xs">{t("uiSpec.fileTypeIcon.readFailure")}</span>
         </div>
       </VariantGrid>
       <VariantGrid label={t("uiSpec.fileTypeIcon.coverage")}>
         {Object.values(FILE_TYPE_EXTENSIONS)
           .flat()
-          .map((extension) => (
-            <div key={extension} className="flex w-16 flex-col items-center gap-2">
+          .map((ext) => (
+            <div key={ext} className="flex w-16 flex-col items-center gap-2">
               <FileTypeIcon
                 {...classifyFileType({
-                  filename: `sample.${extension}`,
+                  filename: `sample.${ext}`,
                 })}
                 size={32}
                 decorative={true}
               />
-              <span className="text-xs text-muted-foreground">
-                {extension.toUpperCase()}
-              </span>
+              <span className="text-xs text-muted-foreground">{ext.toUpperCase()}</span>
             </div>
           ))}
       </VariantGrid>

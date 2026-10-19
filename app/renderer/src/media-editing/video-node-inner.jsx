@@ -97,7 +97,7 @@ import {
   VideoSplitAllButton,
   VideoSplitMainButton,
 } from "./canvas-sticker-assets.jsx";
-import { VideoPlayer } from "./video-player-inner.jsx";
+import { CanvasVideoPlayer } from "./video-player-inner.jsx";
 import { VideoMultiOverlay } from "./video-multi-overlay.jsx";
 import {
   isMissingAssetNodeData,
@@ -416,11 +416,12 @@ function estimateWatermarkVideoBitrate(width, height) {
   const bitsPerSecond = Math.round(width * height * 30 * 0.22);
   return Math.max(4e6, Math.min(6e7, bitsPerSecond));
 }
-function waitForMetadata(video) {
+function waitForMetadata(video, sourceUrl, signal) {
   return new Promise((resolve, reject) => {
     const cleanup = () => {
       video.removeEventListener("loadedmetadata", handleLoaded);
       video.removeEventListener("error", handleError);
+      signal?.removeEventListener("abort", handleAbort);
     };
     const handleLoaded = () => {
       cleanup();
@@ -430,116 +431,168 @@ function waitForMetadata(video) {
       cleanup();
       reject(new Error("video-watermark: source load failed"));
     };
+    const handleAbort = () => {
+      cleanup();
+      reject(aborted$1());
+    };
+    if (signal?.aborted) {
+      handleAbort();
+      return;
+    }
     video.addEventListener("loadedmetadata", handleLoaded);
     video.addEventListener("error", handleError);
+    signal?.addEventListener("abort", handleAbort, {
+      once: true,
+    });
+    video.src = sourceUrl;
   });
 }
-async function renderWatermarkedVideoSource(sourceUrl, settings) {
+async function renderWatermarkedVideoSource(sourceUrl, settings, { signal }) {
+  if (signal?.aborted) throw aborted$1();
   const mime = pickVideoMimeType();
-  if (
-    !mime ||
-    typeof HTMLCanvasElement.prototype.captureStream !== "function"
-  ) {
+  if (!mime || typeof HTMLCanvasElement.prototype.captureStream !== "function") {
     throw new Error("video-watermark: video encoding is unavailable");
   }
   const video = document.createElement("video");
-  video.src = sourceUrl;
   video.crossOrigin = "anonymous";
   video.playsInline = true;
   video.preload = "auto";
-  await waitForMetadata(video);
-  const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("video-watermark: 2d context unavailable");
-  context.imageSmoothingEnabled = true;
-  context.imageSmoothingQuality = "high";
-  const canvasStream = canvas.captureStream(30);
+  let canvasStream;
+  let outputStream;
   let audioContext = null;
   let audioSource = null;
   let audioDestination = null;
-  try {
-    audioContext = new AudioContext();
-    if (audioContext.state === "suspended") await audioContext.resume();
-    audioSource = audioContext.createMediaElementSource(video);
-    audioDestination = audioContext.createMediaStreamDestination();
-    audioSource.connect(audioDestination);
-  } catch {
-    audioContext = null;
-    audioSource = null;
-    audioDestination = null;
-  }
-  const tracks = [...canvasStream.getVideoTracks()];
-  if (audioDestination)
-    tracks.push(...audioDestination.stream.getAudioTracks());
-  const outputStream = new MediaStream(tracks);
-  const recorder = new MediaRecorder(outputStream, {
-    mimeType: mime.mimeType,
-    videoBitsPerSecond: estimateWatermarkVideoBitrate(
-      canvas.width,
-      canvas.height,
-    ),
-  });
-  const chunks = [];
-  recorder.addEventListener("dataavailable", (event) => {
-    if (event.data.size > 0) chunks.push(event.data);
-  });
-  const encoded = new Promise((resolve, reject) => {
-    recorder.addEventListener("stop", () =>
-      resolve(
-        new Blob(chunks, {
-          type: mime.containerType,
-        }),
-      ),
-    );
-    recorder.addEventListener("error", () =>
-      reject(new Error("video-watermark: encoding failed")),
-    );
-  });
-  let stopped = false;
+  let recorder;
   let animationFrame = 0;
-  const drawFrame = () => {
-    if (stopped) return;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    drawWatermark(context, canvas.width, canvas.height, settings);
-    animationFrame = requestAnimationFrame(drawFrame);
-  };
+  let finishTimer;
+  let cleanupEvents = () => {};
   try {
-    recorder.start();
-    animationFrame = requestAnimationFrame(drawFrame);
-    video.currentTime = 0;
+    await waitForMetadata(video, sourceUrl, signal);
+    if (!video.videoWidth || !video.videoHeight) throw new Error("video-watermark: invalid dimensions");
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("video-watermark: 2d context unavailable");
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    canvasStream = canvas.captureStream(30);
     try {
-      await video.play();
+      audioContext = new AudioContext();
+      if (audioContext.state === "suspended") await audioContext.resume();
+      audioSource = audioContext.createMediaElementSource(video);
+      audioDestination = audioContext.createMediaStreamDestination();
+      audioSource.connect(audioDestination);
     } catch {
-      video.muted = true;
-      await video.play();
+      audioSource?.disconnect();
+      await audioContext?.close().catch(() => {});
+      audioContext = null;
+      audioSource = null;
+      audioDestination = null;
     }
-    await new Promise((resolve, reject) => {
-      video.addEventListener("ended", () => resolve(), {
+    if (signal?.aborted) throw aborted$1();
+    outputStream = new MediaStream([
+      ...canvasStream.getVideoTracks(),
+      ...(audioDestination?.stream.getAudioTracks() ?? []),
+    ]);
+    const encoder = new MediaRecorder(outputStream, {
+      mimeType: mime.mimeType,
+      videoBitsPerSecond: estimateWatermarkVideoBitrate(canvas.width, canvas.height),
+    });
+    recorder = encoder;
+    return await new Promise((resolve, reject) => {
+      const chunks = [];
+      let settled = false;
+      const fail2 = (error) => {
+        if (settled) return;
+        settled = true;
+        reject(error);
+      };
+      const draw = () => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        drawWatermark(context, canvas.width, canvas.height, settings);
+      };
+      const tick = () => {
+        if (settled || video.ended) return;
+        try {
+          if (video.readyState >= 2) draw();
+          animationFrame = requestAnimationFrame(tick);
+        } catch (error) {
+          fail2(error);
+        }
+      };
+      const onData = (event) => {
+        if (event.data.size) chunks.push(event.data);
+      };
+      const onStop = () => {
+        if (settled) return;
+        settled = true;
+        const blob = new Blob(chunks, {
+          type: mime.containerType,
+        });
+        if (blob.size) resolve(blob);
+        else reject(new Error("video-watermark: empty output"));
+      };
+      const onError = () => fail2(new Error("video-watermark: encoding failed"));
+      const onPlaybackError = () => fail2(new Error("video-watermark: playback failed"));
+      const onAbort = () => fail2(aborted$1());
+      const onEnded = () => {
+        if (settled) return;
+        cancelAnimationFrame(animationFrame);
+        try {
+          draw();
+          finishTimer = setTimeout(() => {
+            if (encoder.state !== "inactive") encoder.stop();
+          }, 80);
+        } catch (error) {
+          fail2(error);
+        }
+      };
+      encoder.addEventListener("dataavailable", onData);
+      encoder.addEventListener("stop", onStop);
+      encoder.addEventListener("error", onError);
+      video.addEventListener("ended", onEnded);
+      video.addEventListener("error", onPlaybackError);
+      signal?.addEventListener("abort", onAbort, {
         once: true,
       });
-      video.addEventListener(
-        "error",
-        () => reject(new Error("video-watermark: playback failed")),
-        {
-          once: true,
-        },
-      );
+      cleanupEvents = () => {
+        settled = true;
+        encoder.removeEventListener("dataavailable", onData);
+        encoder.removeEventListener("stop", onStop);
+        encoder.removeEventListener("error", onError);
+        video.removeEventListener("ended", onEnded);
+        video.removeEventListener("error", onPlaybackError);
+        signal?.removeEventListener("abort", onAbort);
+      };
+      if (signal?.aborted) {
+        onAbort();
+        return;
+      }
+      encoder.start();
+      animationFrame = requestAnimationFrame(tick);
+      video.currentTime = 0;
+      void video
+        .play()
+        .catch(async () => {
+          if (settled) return;
+          video.muted = true;
+          await video.play();
+        })
+        .catch(fail2);
     });
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    drawWatermark(context, canvas.width, canvas.height, settings);
-    stopped = true;
-    cancelAnimationFrame(animationFrame);
-    await new Promise((resolve) => setTimeout(resolve, 80));
-    recorder.stop();
-    return await encoded;
   } finally {
-    stopped = true;
+    cleanupEvents();
     cancelAnimationFrame(animationFrame);
-    if (recorder.state !== "inactive") recorder.stop();
-    for (const track of outputStream.getTracks()) track.stop();
+    if (finishTimer) clearTimeout(finishTimer);
+    if (recorder && recorder.state !== "inactive") recorder.stop();
+    for (const track of new Set([
+      ...(outputStream?.getTracks() ?? []),
+      ...(canvasStream?.getTracks() ?? []),
+      ...(audioDestination?.stream.getTracks() ?? []),
+    ]))
+      track.stop();
     try {
       audioSource?.disconnect();
       audioDestination?.disconnect();
@@ -550,16 +603,14 @@ async function renderWatermarkedVideoSource(sourceUrl, settings) {
     video.load();
   }
 }
-async function renderWatermarkedVideoBlob(sourceUrl, settings) {
+async function renderWatermarkedVideoBlob(sourceUrl, settings, options = {}) {
   try {
-    return await renderWatermarkedVideoSource(sourceUrl, settings);
+    return await renderWatermarkedVideoSource(sourceUrl, settings, options);
   } catch (error) {
-    const isSourceDecodeFailure =
-      error instanceof Error &&
-      error.message === "video-watermark: source load failed";
+    const isSourceDecodeFailure = error instanceof Error && error.message === "video-watermark: source load failed";
     const fallbackUrl = resolveVideoPlaybackUrl(sourceUrl);
-    if (!isSourceDecodeFailure || fallbackUrl === sourceUrl) throw error;
-    return renderWatermarkedVideoSource(fallbackUrl, settings);
+    if (options.signal?.aborted || !isSourceDecodeFailure || fallbackUrl === sourceUrl) throw error;
+    return renderWatermarkedVideoSource(fallbackUrl, settings, options);
   }
 }
 const MEDIA_OVERLAY_EXIT_ANIMATION_MS = 160;
@@ -1403,7 +1454,7 @@ export function VideoNodeInner({
                     inset: 0,
                   }}
                 >
-                  <VideoPlayer
+                  <CanvasVideoPlayer
                     src={resolveVideoPlaybackUrl(versionedUrl ?? meta.url)}
                     nodeId={videoNodeId}
                     width={nodeWidth}

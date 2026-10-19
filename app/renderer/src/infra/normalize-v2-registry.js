@@ -7,7 +7,7 @@ import {
   seedTagRegistry,
 } from "./parse-connector-selection.js";
 
-function isCanvasTagColor(color) {
+export function isCanvasTagColor(color) {
   return CANVAS_TAG_COLOR_PALETTE.includes(color);
 }
 

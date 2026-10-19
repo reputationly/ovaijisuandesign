@@ -900,11 +900,11 @@ function locatableRenderedText(markdown) {
     normalized.replace(MARKDOWN_BLOCK_PREFIX, ""),
   ).trim();
 }
-function commonPrefixLength(left, right) {
-  const limit = Math.min(left.length, right.length);
-  let prefixLength = 0;
-  while (prefixLength < limit && left[prefixLength] === right[prefixLength]) prefixLength += 1;
-  return prefixLength;
+function commonPrefixLength(a2, b3) {
+  const max = Math.min(a2.length, b3.length);
+  let i = 0;
+  while (i < max && a2.charCodeAt(i) === b3.charCodeAt(i)) i++;
+  return i;
 }
 function commonSuffixLength(left, right, prefixLength) {
   let suffixLength = 0;

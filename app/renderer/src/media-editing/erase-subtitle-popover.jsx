@@ -12,7 +12,7 @@ import {
 import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import { NODE_POPOVER_SAFE_GAP } from "./use-warn-missing-asset-meta.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";
-const MODES = ["auto", "manual"];
+export const MODES = ["auto", "manual"];
 const MODE_LABEL_KEYS = {
   auto: "canvas.eraseSubtitle.mode.auto",
   manual: "canvas.eraseSubtitle.mode.manual",

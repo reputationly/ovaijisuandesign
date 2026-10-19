@@ -22,13 +22,8 @@ import { homeService } from "./home-service.jsx";
 import { getProjectExportFailureReason } from "../settings/parse-custom-mcp-arguments.js";
 import { toastWorkspaceOpenResult } from "./toast-workspace-open-result.js";
 
-function logProjectOperationCanceled(
-  action,
-  operationId,
-  startedAt,
-  reason,
-  meta,
-) {
+import { ERROR_CODES } from "./error-codes.jsx";
+function logProjectOperationCanceled(action, operationId, startedAt, reason, meta) {
   projectLog.info(`${action} canceled`, {
     operationId,
     reason,
@@ -78,10 +73,7 @@ function buildProjectExportFailureProps(reason, phase, durationMs, platform) {
     error_message: `project_export_${reason}`,
     duration_ms: Math.max(0, Math.round(durationMs)),
     phase,
-    platform:
-      platform === "win32" || platform === "darwin" || platform === "linux"
-        ? platform
-        : "other",
+    platform: platform === "win32" || platform === "darwin" || platform === "linux" ? platform : "other",
     reason,
   };
 }
@@ -123,29 +115,17 @@ function getProjectImportFailureMessageKey(failure) {
     : IMPORT_FAILURE_MESSAGE_KEYS.unexpected;
 }
 
-const ERROR_CODES = new Set([
-  "EPERM",
-  "EACCES",
-  "EBUSY",
-  "ENOSPC",
-  "ENOENT",
-  "ENOTDIR",
-  "EEXIST",
-  "ENOTEMPTY",
-  "EXDEV",
-  "ETIMEDOUT",
-  "ECONNRESET",
-  "ECONNREFUSED",
-  "ENETUNREACH",
-  "EHOSTUNREACH",
-  "ENOTFOUND",
-  "EAI_AGAIN",
-  "UND_ERR_CONNECT_TIMEOUT",
-  "UND_ERR_HEADERS_TIMEOUT",
-  "UND_ERR_BODY_TIMEOUT",
-  "UND_ERR_SOCKET",
-  "ERR_ARCHIVE_TOO_LARGE",
-  "ERR_INVALID_RESPONSE",
+const FORWARDED_MESSAGE_TYPES = new Set([
+  "text_chunk",
+  "thinking",
+  "text_end",
+  "image",
+  "video",
+  "audio",
+  "status",
+  "task_notification",
+  "interact_request",
+  "confirm_request",
 ]);
 
 const REASONS = {
@@ -692,3 +672,10 @@ export function useProjectArchiveActions() {
     runImportBundledProject,
   };
 }
+
+const ERROR_CODES$2 = new Set([
+  "SIDEBAR_ORDER_INVALID",
+  "SIDEBAR_ORDER_REJECTED",
+  "SIDEBAR_ORDER_UNAVAILABLE",
+  "SIDEBAR_ORDER_TIMEOUT",
+]);

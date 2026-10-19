@@ -42,6 +42,8 @@ import {
   PreviewCardContent,
   PreviewCardTrigger,
 } from "../text-editor/use-placeholder-asset-source.jsx";
+import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing.js";
+import { TagIcon } from "lucide-react";
 function summarizeCanvasTagDownloads(assets, canvasAssetIds, tags) {
   const knownTagIds = new Set(tags.map(({ id }) => id));
   const assetCountsByTag = new Map();
@@ -76,17 +78,29 @@ function AssetTypeThumbnail({ item }) {
       />
     );
   }
+  if (item.videoThumbnailUrl && !failed) {
+    return (
+      <video
+        src={item.videoThumbnailUrl}
+        muted={true}
+        playsInline={true}
+        preload="metadata"
+        className="size-7 shrink-0 rounded-md object-cover"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
   const fallbackIcon =
-    item.asset.type === "video"
+    item.mediaKind === "video"
       ? Video
-      : item.asset.type === "audio"
-        ? Music2
-        : item.asset.type === "image"
+      : item.mediaKind === "audio"
+        ? AudioFileIcon
+        : item.mediaKind === "image"
           ? ImageOutlineIcon
           : FileText;
   return (
     <span className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-muted-foreground">
-      <Icon icon={fallbackIcon} size="sm" aria-hidden={true} />
+      <TagIcon icon={fallbackIcon} size="sm" />
     </span>
   );
 }
@@ -690,3 +704,33 @@ export function CanvasGlobalTagManager({
     </div>
   );
 }
+
+export const AudioFileIcon = reactExports.forwardRef(function AudioFileIcon2(
+  { size: size2 = 16, strokeWidth = 1.5, "aria-hidden": ariaHidden = true, ...props },
+  ref,
+) {
+  return (
+    <CompositedSvg
+      ref={ref}
+      width={size2}
+      height={size2}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden={ariaHidden}
+      {...props}
+      viewBox="0 0 16 16"
+      data-audio-file-icon="true"
+    >
+      <path d="M8 2v12" />
+      <path d="M4 5v6" />
+      <path d="M12 5v6" />
+      <path d="M2 7v2" />
+      <path d="M6 4v8" />
+      <path d="M10 4v8" />
+      <path d="M14 7v2" />
+    </CompositedSvg>
+  );
+});

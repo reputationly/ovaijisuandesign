@@ -16,6 +16,7 @@ import { useImageEditCost } from "../media-editing/image-edit-pricing.js";
 import { BananaResolutionPicker } from "../media-editing/banana-resolution-picker.jsx";
 import { useCropViewportZoom } from "./use-crop-viewport-zoom.js";
 import { useMoveObjectState } from "../media-editing/use-start-cloud-edit-from-node.js";
+import { BAR_GAP } from "./bar-gap.jsx";
 const CanvasMoveObjectPanel = reactExports.memo(
   function CanvasMoveObjectPanel({
     croppedUrl,
@@ -24,7 +25,7 @@ const CanvasMoveObjectPanel = reactExports.memo(
     onReset,
     onCancel,
     onRun,
-    resolution,
+    resolution: resolution2,
     onResolutionChange,
   }) {
     const { t: translate } = useTranslation();
@@ -644,7 +645,7 @@ function useMoveObjectEdit({ src, imageWidth, imageHeight }) {
     hasMoved,
   };
 }
-const BAR_GAP = 16;
+const ACCOUNT_NAME_MIN_LENGTH = 2;
 const BAR_HEIGHT = 40;
 const TOP_BAR_MIN_WIDTH = 220;
 const BOTTOM_BAR_MIN_WIDTH = 480;
@@ -1120,3 +1121,5 @@ export const CanvasMoveObjectOverlay = reactExports.memo(
     );
   },
 );
+
+const BAR_GAP$4 = 2;
