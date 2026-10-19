@@ -6,6 +6,37 @@
  *
  * 参考产物：index-BBp4hclA.js，合计 821 行。
  */
+const createTaskModule = () => ({});
+const createWorkbenchEvents = () => ({ dispose() {} });
+const createWorkbenchPersistence = () => ({ dispose() {} });
+const decisionPayload = (v) => v;
+const entriesByWorkspace = new Map();
+const exact = (v) => v;
+const fail = (m) => { throw new Error(String(m)); };
+const getOrCreateWorkspaceEntries = (m, k) => { if (!m.has(k)) m.set(k, {}); return m.get(k); };
+const id$7 = () => crypto.randomUUID();
+const integer$4 = (v) => (Number.isInteger(v) ? v : 0);
+const isHostGenerationSubject = () => false;
+const isSafeName = (v) => typeof v === "string" && /^[\w .-]+$/.test(v);
+const lifetimeKey = (v) => String(v ?? "");
+const mapProjectTaskEvent = (v) => v;
+const parseCanvasV3ImageVersionTarget = (v) => v;
+
+// ---- 第 178 轮：把剩余未绑定名就地补全，使本模块可以被静态 import ----
+// 这些都是设施层的下层依赖，尚未逐个还原；标注清楚以免被当成真实现。
+const CANVAS_V3_IMAGE_MAX_BYTES = 32 * 1024 * 1024;
+const CANVAS_V3_LIMITS = new Proxy({}, { get: (_t, k) => (k === "maxBytes" ? CANVAS_V3_IMAGE_MAX_BYTES : 4096) });
+const HOST_PREFERENCE_KEYS = ["hilo.videoMuted"];
+class ProjectQueryError extends Error {}
+const UUID$1 = () => crypto.randomUUID();
+const aborted = (signal) => signal?.aborted === true;
+const createChatSessionState = () => ({});
+const createProjectQueryModule = () => ({});
+const createResourceCommands = () => ({});
+const createResourceDetailModule = () => ({});
+const createSidebarOrderController = () => ({ dispose() {} });
+const createStructureModule = () => ({});
+const createTaskInvalidationBridge = () => ({ dispose() {} });
 import {
   IResourceMediaMainService,
 } from "./home-service.jsx";
@@ -27,6 +58,19 @@ import {
 
 // 路由表在产物里是一张 { get: "/api/…", list: … } 的对象，用 Proxy 保证任何键都返回一个路径
 const routeTable = (base) => new Proxy({}, { get: (_t, k) => `${base}/${String(k)}` });
+const CANVAS_V3_ROUTES = routeTable("/api/v3/canvas");
+const parsePlacementTarget = (v) => v;
+const parseProjectQueryResponse = (v) => v;
+const pendingWrites = new Set();
+const preference = { get: () => undefined, set: () => void 0 };
+const publish = () => void 0;
+const publishPersistenceStatus = () => void 0;
+const refresh = () => void 0;
+const resolvePinnedResources = () => [];
+const splitName = (v) => String(v ?? "").split("/");
+const storage = { getItem: () => null, setItem: () => void 0, removeItem: () => void 0 };
+const workspaces = new Map();
+const writes = new Set();
 
 
 
@@ -58,6 +102,23 @@ const readResourceAudioWaveformBytes = async () => new Uint8Array();
 
 
 
+
+const PROJECT_RESOURCE_HTTP_ROUTES = {
+  get: "/api/project/resources/get",
+  search: "/api/project/resources/search",
+  listVersions: "/api/project/resources/versions/list",
+  commands: "/api/project/resources/commands"
+};
+
+const PROJECT_COMPOSITION_HTTP_ROUTES = {
+  get: "/api/project/compositions/get",
+  list: "/api/project/compositions/list",
+  listAll: "/api/project/compositions/list-all",
+  listByResource: "/api/project/compositions/list-by-resource",
+  search: "/api/project/compositions/search",
+  listTypes: "/api/project/compositions/types/list",
+  commands: "/api/project/compositions/commands"
+};
 
 const READ_ONLY_STRUCTURE_ROUTES = /* @__PURE__ */ new Set([
   PROJECT_COMPOSITION_HTTP_ROUTES.get,
@@ -908,23 +969,8 @@ const HOST_PREFERENCE_VALUE_LIMIT = 16 * 1024;
 const MAX_RECEIPT_BYTES = 64 * 1024;
 
 // ---- 第 167 轮：真实现（参考 319860）----
-const PROJECT_COMPOSITION_HTTP_ROUTES = {
-  get: "/api/project/compositions/get",
-  list: "/api/project/compositions/list",
-  listAll: "/api/project/compositions/list-all",
-  listByResource: "/api/project/compositions/list-by-resource",
-  search: "/api/project/compositions/search",
-  listTypes: "/api/project/compositions/types/list",
-  commands: "/api/project/compositions/commands"
-};
 
 // ---- 第 167 轮：真实现（参考 321091）----
-const PROJECT_RESOURCE_HTTP_ROUTES = {
-  get: "/api/project/resources/get",
-  search: "/api/project/resources/search",
-  listVersions: "/api/project/resources/versions/list",
-  commands: "/api/project/resources/commands"
-};
 
 // ---- 第 167 轮：真实现（参考 428707）----
 const STORE = "pending";

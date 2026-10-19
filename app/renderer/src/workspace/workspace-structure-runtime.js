@@ -17,6 +17,7 @@
 
 import { GatewayNotReadyError } from "../infra/gateway-http-error.jsx";
 import { API_PATHS } from "../infra/workspace-gateway.js";
+import { createTreeHostBindings, createElectronHost, createHostWorkbench, createTaskDecisionStore, createTaskIntentPersistence, createCanvasDuplication, createCanvasInsertion, createCanvasImageReader, createCanvasImageImporter, createResourceAudioWaveformReader, createNativeWorkbenchPreferences, guardAccountSubmission, taskQueryKeys, resourceQueryKeys, compositionQueryKeys, bindStructurePersistence, READ_ONLY_STRUCTURE_ROUTES, workspaceEvents } from "./workspace-facilities.js";
 
 function isReadOnlyStructureRequest(path2, init2) {
   return (init2?.method ?? "GET").toUpperCase() === "POST" && READ_ONLY_STRUCTURE_ROUTES.has(path2);

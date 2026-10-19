@@ -25,14 +25,36 @@ import { parseTaskServerMessage } from "../canvas-v3/canvas-v3-model.js";
 // 第 176 轮：静态 import workspace-structure-runtime.js 会让应用启动即超时
 // （该模块求值期就坏，连模块顶层 console.error 都不触发）。
 // 正确方向是懒加载 + 把 effect 改成异步，属结构性改动，留待专门一轮。
-const createWorkspaceStructureRuntime = () => undefined;
+// 第 178 轮（用户方案第 4 步）：运行时开关，同一份构建 A/B 对比。
+// ov.v3.structure=1 才用真实现；默认关闭，保证既有行为不变。
+const __structureSwitchOn = (() => {
+  try { return globalThis.localStorage?.getItem("ov.v3.structure") === "1"; } catch { return false; }
+})();
+// 开关关闭时**完全不加载** runtime 模块（动态 import 只在真需要时发生）。
+let __structureRuntimeModule = null;
+if (__structureSwitchOn) {
+  import("./workspace-structure-runtime.js")
+    .then((m) => { __structureRuntimeModule = m; console.error("[probe] runtime module loaded"); })
+    .catch((e) => console.error("[probe] runtime module failed", String(e).slice(0, 200)));
+}
+const createWorkspaceStructureRuntime = (...args) => {
+  if (!__structureSwitchOn || !__structureRuntimeModule) return undefined;
+  try { return __structureRuntimeModule.createWorkspaceStructureRuntime(...args); }
+  catch (e) { console.error("[probe] runtime threw", String(e).slice(0, 300)); return undefined; }
+};
 
-// 第 164 轮：以下 5 个在产物里属于另外几个未还原的模块，先给最小实现，
-// 让订阅链路能跑通；它们不影响订阅帧的发送。
-const useGatewayFetch = () => fetch;
-
-const ensurePersistenceOwner = (owner) => owner;
+// 第 178 轮：这两个占位暂时保留，但原因记录在这里：
+//  - useGatewayFetch 的真实现在 assets/listeners-a.jsx:107（main-exports 已导出），
+//    全局 fetch 不带 gateway 地址与身份头，结构请求会被拒；
+//  - taskQueryKeys 的真实现在 workspace-facilities.js:894，key 形状必须一致。
+// 之所以先不接：import 这两个模块会把整条设施图拉进启动路径，页面会白屏
+// （第 178 轮实测 bodyText 为空）。等第 2 步把它并成一份「干净」文件后再接。
+import { useGatewayFetch } from "../canvas-v3/main-exports.js";
 const taskQueryKeys = { all: (scope) => ["tasks", scope] };
+// ensurePersistenceOwner 的真实现（bundle 424276）依赖 __vitePreload +
+// IRendererPersistenceMainService + synchronizeWorkspacePersistenceReports，
+// 属未还原设施；此处保留最小实现并显式标注。
+const ensurePersistenceOwner = (owner) => owner;
 // 第 175 轮：这里原本是 `(scope) => scope?.workspaceId` 的占位，
 // 但调用方传的是**字符串**（scope.workspaceId），于是永远返回 undefined。
 // 真实现取的是值本身，见 workspace-facilities.js。
