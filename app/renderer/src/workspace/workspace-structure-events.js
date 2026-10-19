@@ -22,11 +22,16 @@ import {
 import { useWorkspaceProjectArchitecture } from "./use-workspace-project-architecture.jsx";
 import { WorkspaceStructureContext } from "../canvas-v3/contexts.js";
 import { parseTaskServerMessage } from "../canvas-v3/canvas-v3-model.js";
+// 第 165 轮：真实 runtime 已取回到 workspace-structure-runtime.js，
+// 但它还缺 16 个设施模块（createCanvasDuplication / createElectronHost /
+// createTreeHostBindings 等），暂不接线，先保留占位。
+// import { createWorkspaceStructureRuntime } from "./workspace-structure-runtime.js";
+const createWorkspaceStructureRuntime = () => undefined;
 
 // 第 164 轮：以下 5 个在产物里属于另外几个未还原的模块，先给最小实现，
 // 让订阅链路能跑通；它们不影响订阅帧的发送。
 const useGatewayFetch = () => fetch;
-const createWorkspaceStructureRuntime = () => undefined;
+
 const ensurePersistenceOwner = (owner) => owner;
 const taskQueryKeys = { all: (scope) => ["tasks", scope] };
 const taskRecoveryWorkspaceId = (scope) => scope?.workspaceId;
