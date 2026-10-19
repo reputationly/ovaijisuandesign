@@ -98,9 +98,20 @@ console.log(`  4. unbound 出现次数  : ${occurrences}`);
     if (!l.includes("[unbound]")) continue;
     const f = l.split(":")[0];
     if (f.includes("canvas-v3/")) continue;
+    // 第 167 轮：这几个是「已取回但未接线」的设施层草案，未接入任何应用代码，
+    // 故不计入「应用缺口」；单独统计并显式打印，避免变成第二个假绿。
+    if (f.endsWith("workspace-facilities.js") || f.endsWith("workspace-structure-runtime.js")) {
+      (globalThis.__draft ??= new Map()).set(f, (globalThis.__draft.get(f) ?? 0) + 1);
+      continue;
+    }
     files.set(f, (files.get(f) ?? 0) + 1);
   }
   const totalAll = [...files.values()].reduce((a, b) => a + b, 0);
+  const draft = globalThis.__draft ?? new Map();
+  if (draft.size) {
+    const dt = [...draft.values()].reduce((a, b) => a + b, 0);
+    console.log(`  5b. 未接线草案（不计入应用缺口）: ${dt} 处 / ${draft.size} 个文件`);
+  }
   console.log(`  5. 全树缺口（canvas-v3 之外）: ${totalAll} 处 / ${files.size} 个文件`);
   for (const [f, c] of [...files].sort((a, b) => b[1] - a[1]).slice(0, 6))
     console.log(`       ${String(c).padStart(3)}  ${f.replace("app/renderer/src/", "")}`);

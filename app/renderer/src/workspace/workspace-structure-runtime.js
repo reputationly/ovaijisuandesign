@@ -6,17 +6,15 @@
  * `task_subscribe(structure-0)` 永远发不出去。
  *
  * 参考产物：index-BBp4hclA.js 428926–429084。
+ *
+ * 注意：本文件当前**未接线**。它依赖的 18 个设施符号已取回到
+ * workspace-facilities.js，但那批符号自身还缺 41 个未还原的依赖，
+ * 用占位会让「链路是否接通」无法证伪（第 166 轮的教训）。
+ * 待设施层真还原后再接。
  */
 
 import { GatewayNotReadyError } from "../infra/gateway-http-error.jsx";
 import { API_PATHS } from "../infra/workspace-gateway.js";
-import {
-  READ_ONLY_STRUCTURE_ROUTES, bindStructurePersistence, compositionQueryKeys,
-  createCanvasDuplication, createCanvasImageImporter, createCanvasImageReader, createCanvasInsertion,
-  createElectronHost, createHostWorkbench, createNativeWorkbenchPreferences,
-  createResourceAudioWaveformReader, createTaskDecisionStore, createTaskIntentPersistence,
-  createTreeHostBindings, guardAccountSubmission, resourceQueryKeys, taskQueryKeys, workspaceEvents,
-} from "./workspace-facilities.js";
 
 function isReadOnlyStructureRequest(path2, init2) {
   return (init2?.method ?? "GET").toUpperCase() === "POST" && READ_ONLY_STRUCTURE_ROUTES.has(path2);

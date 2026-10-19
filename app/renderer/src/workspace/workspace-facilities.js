@@ -22,43 +22,42 @@ import {
 
 // 第 166 轮：以下 15 个仍属未还原模块，先给最小实现；
 // 它们是「设施层清单」的第二圈，下一轮按同样办法逐个取回。
-const DATABASE$1 = "hilo";
-const HOST_PREFERENCE_VALUE_LIMIT = 4096;
-const MAX_RECEIPT_BYTES = 1 << 20;
+
+
+
 // 路由表在产物里是一张 { get: "/api/…", list: … } 的对象，用 Proxy 保证任何键都返回一个路径
 const routeTable = (base) => new Proxy({}, { get: (_t, k) => `${base}/${String(k)}` });
-const PROJECT_COMPOSITION_HTTP_ROUTES = routeTable("/api/v3/compositions");
-const PROJECT_RESOURCE_HTTP_ROUTES = routeTable("/api/v3/project-resources");
-const STORE = "task-decisions";
-const TaskDecisionPendingError = class extends Error {};
-const TaskDecisionUnreadableError = class extends Error {};
-const canvasImageImportPath = (id) => `/api/v3/canvas/image-import/${id}`;
-const compositionKeyParts = (key) => String(key ?? "").split("/");
-const createProjectQueryClient = () => ({});
-const createSidebarOrderBinding = () => ({ dispose() {} });
-const createWorkbench = () => undefined;
-const identifier = (v) => String(v ?? "");
-const isCanvasImageImport = (v) => typeof v === "string" && v.includes("image-import");
+
+
+
+
+
+
+
+
+
+
+
+
 // 第二圈：以下 9 个仍属未还原模块
 const __vitePreload = (fn) => fn();
 const __vite__mapDeps = (deps) => deps;
-const isHostPreferenceKey = (k) => typeof k === "string" && k.startsWith("hilo.");
-const matchesCanvasImportReceiptName = () => true;
-const parseCanvasV3ImageImportResult = (v) => v;
-const parseStoredTaskDecision = (v) => v;
+
+
+
+
 const readBoundedBody = async (r) => r;
 const readCanvasImageBytes = async () => new Uint8Array();
 const readCompositionResources = async () => [];
 const readResourceAudioWaveformBytes = async () => new Uint8Array();
 // 第三圈
-const registerWorkspaceCanvasPersistence = () => ({ dispose() {} });
-const reportWorkspaceCanvasPersistence = () => void 0;
-const sameDecision = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const setMediaMuted = () => void 0;
-const snapshotHostCapabilities = () => ({});
-const taskRecoveryWorkspaceId = (s) => s?.workspaceId;
-const validateHostConnection = (c) => c;
-const workbenchQueryKeys = { all: (s) => ["workbench", s] };
+
+
+
+
+
+
+
 
 const READ_ONLY_STRUCTURE_ROUTES = /* @__PURE__ */ new Set([
   PROJECT_COMPOSITION_HTTP_ROUTES.get,
@@ -898,6 +897,611 @@ const taskQueryKeys = {
 };
 
 const workspaceEvents = new WorkspaceEvents();
+
+// ---- 第 167 轮：真实现（参考 428706）----
+const DATABASE$1 = "hilo-v3-task-decisions";
+
+// ---- 第 167 轮：真实现（参考 425161）----
+const HOST_PREFERENCE_VALUE_LIMIT = 16 * 1024;
+
+// ---- 第 167 轮：真实现（参考 424973）----
+const MAX_RECEIPT_BYTES = 64 * 1024;
+
+// ---- 第 167 轮：真实现（参考 319860）----
+const PROJECT_COMPOSITION_HTTP_ROUTES = {
+  get: "/api/project/compositions/get",
+  list: "/api/project/compositions/list",
+  listAll: "/api/project/compositions/list-all",
+  listByResource: "/api/project/compositions/list-by-resource",
+  search: "/api/project/compositions/search",
+  listTypes: "/api/project/compositions/types/list",
+  commands: "/api/project/compositions/commands"
+};
+
+// ---- 第 167 轮：真实现（参考 321091）----
+const PROJECT_RESOURCE_HTTP_ROUTES = {
+  get: "/api/project/resources/get",
+  search: "/api/project/resources/search",
+  listVersions: "/api/project/resources/versions/list",
+  commands: "/api/project/resources/commands"
+};
+
+// ---- 第 167 轮：真实现（参考 428707）----
+const STORE = "pending";
+
+// ---- 第 167 轮：真实现（参考 329838）----
+class TaskDecisionPendingError extends Error {
+  constructor() {
+    super("An earlier Task decision must be reconciled first");
+  }
+}
+
+// ---- 第 167 轮：真实现（参考 329719）----
+class TaskDecisionUnreadableError extends Error {
+  constructor(taskId) {
+    super("Task decision record cannot be read");
+    this.taskId = taskId;
+  }
+  taskId;
+}
+
+// ---- 第 167 轮：真实现（参考 424820）----
+function canvasImageImportPath(importId) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(importId))
+    throw new Error("Invalid Canvas image import identity");
+  return `${CANVAS_V3_ROUTES.images}/${importId.toLowerCase()}`;
+}
+
+// ---- 第 167 轮：真实现（参考 400340）----
+function compositionKeyParts(key2) {
+  if (!isDomain(key2, "compositions")) return void 0;
+  const [, , , protocol, operation2, value, mode2] = key2;
+  const input = value && typeof value === "object" && !Array.isArray(value) ? value : void 0;
+  return { protocol, operation: operation2, input, mode: mode2 };
+}
+
+// ---- 第 167 轮：真实现（参考 403912）----
+function createProjectQueryClient(request) {
+  async function query(operation2, input, options2) {
+    if (options2?.signal?.aborted) throw aborted();
+    if (!Object.hasOwn(PROJECT_QUERY_HTTP_ROUTES, operation2))
+      throw new ProjectQueryError(422, "UNSUPPORTED_QUERY", "Unsupported Project Query operation");
+    if (!input || typeof input !== "object" || Array.isArray(input))
+      throw new ProjectQueryError(400, "INVALID_ARGUMENT", "Project Query input must be an object");
+    let snapshot2;
+    let body2;
+    try {
+      snapshot2 = structuredClone(input);
+      body2 = JSON.stringify(snapshot2);
+    } catch {
+      throw new ProjectQueryError(400, "INVALID_ARGUMENT", "Project Query input must be JSON data");
+    }
+    if (operation2 === "resource_relations" && (!("relation" in snapshot2) || snapshot2.relation !== "compositions"))
+      throw new ProjectQueryError(
+        422,
+        "UNSUPPORTED_QUERY",
+        "Only Composition relations are supported"
+      );
+    if (operation2 === "composition_get") {
+      const read = snapshot2;
+      if (read.view !== void 0 && read.view !== "summary" && read.view !== "members")
+        throw new ProjectQueryError(400, "INVALID_ARGUMENT", "Invalid Composition query view");
+      if ((read.view ?? "summary") === "summary" && [read.memberId, read.role, read.resolveResources, read.limit, read.cursor].some(
+        (field) => field !== void 0
+      ))
+        throw new ProjectQueryError(400, "INVALID_ARGUMENT", "Member filters require view=members");
+    }
+    let response;
+    try {
+      response = await request(PROJECT_QUERY_HTTP_ROUTES[operation2], {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: body2,
+        ...options2?.signal ? { signal: options2.signal } : {}
+      });
+    } catch (error) {
+      if (options2?.signal?.aborted || error instanceof Error && error.name === "AbortError")
+        throw aborted();
+      if (error instanceof ProjectQueryError) throw error;
+      throw new ProjectQueryError(
+        0,
+        "NETWORK_ERROR",
+        error instanceof Error ? error.message : "Project Query transport failed",
+        true
+      );
+    }
+    if (options2?.signal?.aborted) throw aborted();
+    if (!response.ok) {
+      try {
+        throw await ProjectQueryError.fromResponse(response);
+      } catch (error) {
+        if (options2?.signal?.aborted || error instanceof Error && error.name === "AbortError")
+          throw aborted();
+        throw error;
+      }
+    }
+    try {
+      const value = await response.json();
+      if (options2?.signal?.aborted) throw aborted();
+      return parseProjectQueryResponse(operation2, value, snapshot2);
+    } catch (error) {
+      if (options2?.signal?.aborted || error instanceof Error && error.name === "AbortError")
+        throw aborted();
+      throw new ProjectQueryError(
+        response.status,
+        "INVALID_RESPONSE",
+        error instanceof Error ? error.message : "Invalid Project Query response"
+      );
+    }
+  }
+  return { query };
+}
+
+// ---- 第 167 轮：真实现（参考 428535）----
+function createSidebarOrderBinding(workspaceId, assertLive) {
+  let persistence = workspaces.get(workspaceId);
+  if (!persistence) {
+    persistence = {
+      read: () => storage().workspaceGet(workspaceId, "compositionSidebarOrder"),
+      write: (state2) => storage().workspaceSet(workspaceId, "compositionSidebarOrder", state2)
+    };
+    workspaces.set(workspaceId, persistence);
+  }
+  return createSidebarOrderController(persistence, assertLive);
+}
+
+// ---- 第 167 轮：真实现（参考 428366）----
+function createWorkbench({
+  host,
+  resources: supplied,
+  compositions,
+  queries: suppliedQueries,
+  tasks
+}) {
+  if (!host.scopeKey.trim()) throw new Error("Workbench requires an explicit workspace scope");
+  const scopeKey = host.scopeKey;
+  const service2 = supplied ?? createProjectResourceClient(host.resource.request);
+  const events2 = createWorkbenchEvents();
+  const persistence = createWorkbenchPersistence();
+  const detachPersistence = host.persistence?.connect(persistence);
+  let disposed = false;
+  const assertActive = () => {
+    if (disposed) throw new Error("Workbench is disposed");
+  };
+  const commands = createResourceCommands(service2, assertActive, (resourceId2, commandId) => {
+    if (!disposed) events2.emit({ type: "resource-committed", scopeKey, resourceId: resourceId2, commandId });
+  });
+  const resources = {
+    async search(query, options2) {
+      assertActive();
+      return service2.search(query, options2);
+    },
+    async getResources(selectors2, options2) {
+      assertActive();
+      return service2.getResources(selectors2, options2);
+    },
+    async listResourceVersions(query, options2) {
+      assertActive();
+      return service2.listResourceVersions(query, options2);
+    },
+    execute: commands.execute
+  };
+  const structure = createStructureModule(
+    compositions,
+    assertActive,
+    (commandId, compositionId) => {
+      if (!disposed)
+        events2.emit({ type: "composition-committed", scopeKey, commandId, compositionId });
+    },
+    { scopeKey }
+  );
+  const structurePersistence = persistence.createEntry({
+    async recover() {
+      for (const pending2 of structure.commands.getPending()) await pending2.recover();
+    }
+  });
+  const detachStructurePersistence = structure.commands.subscribe(() => {
+    const snapshot2 = structure.commands.getSnapshot();
+    if (snapshot2.disposed) return;
+    structurePersistence.update(
+      snapshot2.pending.some((entry) => entry.phase === "unknown") ? "failed" : snapshot2.pending.length ? "saving" : "clean"
+    );
+  });
+  const queries = createProjectQueryModule(suppliedQueries, assertActive);
+  const taskBridge = createTaskInvalidationBridge(scopeKey, (resourceIds, compositionIds) => {
+    if (disposed) return;
+    if (resourceIds.length) events2.emit({ type: "resources-invalidated", scopeKey, resourceIds });
+    if (compositionIds.length)
+      events2.emit({ type: "compositions-invalidated", scopeKey, compositionIds });
+  });
+  function acceptTaskSnapshot(snapshot2) {
+    const accepted2 = taskBridge.accept(snapshot2);
+    if (accepted2) events2.emit({ type: "tasks-invalidated", scopeKey });
+    return accepted2;
+  }
+  const execution = createTaskModule(tasks, scopeKey, assertActive, (task2) => {
+    acceptTaskSnapshot({ scopeKey, task: task2 });
+  });
+  const unsubscribeTasks = host.task?.subscribe?.((input) => {
+    const event = mapProjectTaskEvent(input);
+    if (disposed || !event || event.scopeKey !== scopeKey) return;
+    if (event.type === "task-changed") acceptTaskSnapshot(event);
+    else {
+      events2.emit({ type: "resources-invalidated", scopeKey });
+      events2.emit({ type: "compositions-invalidated", scopeKey });
+      events2.emit({ type: "tasks-invalidated", scopeKey });
+    }
+  });
+  function snapshotIds(ids2) {
+    if (ids2?.some((id2) => typeof id2 !== "string" || !id2.trim())) {
+      throw new Error("Invalidation identities must be nonempty strings");
+    }
+    return ids2 === void 0 ? void 0 : Object.freeze([...new Set(ids2)]);
+  }
+  const importer = host.media?.importImage;
+  const importCanvasImage = importer ? async (input, options2) => {
+    assertActive();
+    const image2 = await importer(input, options2);
+    assertActive();
+    events2.emit({ type: "resources-invalidated", scopeKey, resourceIds: [image2.resourceId] });
+    return image2;
+  } : void 0;
+  const chatSession = host.chatSession ? createChatSessionState(host.chatSession, persistence) : void 0;
+  return {
+    chatSession,
+    persistence,
+    scopeKey,
+    host,
+    ...importCanvasImage ? { importCanvasImage } : {},
+    resources,
+    structure,
+    queries,
+    context: {
+      resolve: (selectors2) => {
+        assertActive();
+        return resolvePinnedResources(resources, selectors2);
+      }
+    },
+    execution,
+    resourceDetail: createResourceDetailModule({ execution, resources, importCanvasImage }),
+    modules: Object.freeze([
+      { id: "assets", state: "available" },
+      // The shared view needs the scoped Canvas document transport; everything else degrades.
+      { id: "canvas", state: host.canvas?.request ? "available" : "adapter-required" },
+      { id: "structure", state: structure.available ? "available" : "adapter-required" },
+      execution.status,
+      { id: "chat", state: host.chatSession ? "available" : "adapter-required" }
+    ]),
+    events: events2.source,
+    invalidateResources(change) {
+      if (change && (disposed || change.scopeKey !== scopeKey)) return false;
+      assertActive();
+      const resourceIds = snapshotIds(change?.resourceIds);
+      if (resourceIds?.length === 0) return false;
+      events2.emit({ type: "resources-invalidated", scopeKey, resourceIds });
+      return true;
+    },
+    invalidateCompositions(change) {
+      if (change && (disposed || change.scopeKey !== scopeKey)) return false;
+      assertActive();
+      const compositionIds = snapshotIds(change?.compositionIds);
+      if (compositionIds?.length === 0) return false;
+      events2.emit({ type: "compositions-invalidated", scopeKey, compositionIds });
+      return true;
+    },
+    acceptTaskSnapshot,
+    dispose() {
+      if (disposed) return;
+      disposed = true;
+      detachPersistence?.();
+      detachStructurePersistence();
+      chatSession?.dispose();
+      persistence.dispose();
+      execution.dispose();
+      unsubscribeTasks?.();
+      taskBridge.dispose();
+      structure.dispose();
+      events2.emit({ type: "disposed", scopeKey });
+      events2.dispose();
+    }
+  };
+}
+
+// ---- 第 167 轮：真实现（参考 329726）----
+function identifier(value) {
+  if (typeof value !== "string" || !value.trim() || value.length > 512 || value.includes("\0"))
+    throw new Error("Invalid stored Task decision identity");
+  return value;
+}
+
+// ---- 第 167 轮：真实现（参考 424830）----
+function isCanvasImageImport(value) {
+  if (!value || typeof value !== "object") return false;
+  const input = value;
+  if (typeof input.importId !== "string" || typeof input.name !== "string" || input.name.length === 0 || input.name.length > 255)
+    return false;
+  try {
+    canvasImageImportPath(input.importId);
+    encodeURIComponent(input.name);
+    if (input.target !== void 0) parseCanvasV3ImageVersionTarget(input.target);
+  } catch {
+    return false;
+  }
+  return typeof input.name === "string" && input.name.length > 0 && ![".", ".."].includes(input.name) && new TextEncoder().encode(input.name).byteLength <= 255 && // biome-ignore lint/suspicious/noControlCharactersInRegex: same filename boundary as the image service.
+  !/[\x00-\x1f\x7f/\\:]/.test(input.name) && input.file instanceof Blob && input.file.size > 0 && input.file.size <= CANVAS_V3_IMAGE_MAX_BYTES && Object.keys(input).every((key2) => ["importId", "name", "file", "target"].includes(key2));
+}
+
+// ---- 第 167 轮：真实现（参考 425260）----
+function isHostPreferenceKey(value) {
+  return typeof value === "string" && HOST_PREFERENCE_KEYS.includes(value);
+}
+
+// ---- 第 167 轮：真实现（参考 424960）----
+function matchesCanvasImportReceiptName(originalName, receiptName, hasVersionTarget = false) {
+  if (!isSafeName(originalName) || !isSafeName(receiptName)) return false;
+  if (receiptName === originalName) return true;
+  if (hasVersionTarget) return false;
+  const original = splitName(originalName);
+  const receipt = splitName(receiptName);
+  if (original.extension !== receipt.extension) return false;
+  const prior = /\(([0-9]+)\)$/.exec(original.stem);
+  const next2 = /\(([1-9][0-9]*)\)$/.exec(receipt.stem);
+  if (!next2?.[1]) return false;
+  const base2 = prior ? original.stem.slice(0, prior.index) : original.stem;
+  return receipt.stem.slice(0, next2.index) === base2 && BigInt(next2[1]) > BigInt(prior?.[1] ?? "0");
+}
+
+// ---- 第 167 轮：真实现（参考 319487）----
+function parseCanvasV3ImageImportResult(value) {
+  const v2 = exact(value, [
+    "importId",
+    "resourceId",
+    "versionId",
+    "name",
+    "mimeType",
+    "width",
+    "height"
+  ]);
+  if (typeof v2.importId !== "string" || v2.importId.length !== 36 || !UUID$1.test(v2.importId))
+    fail("invalid importId UUID");
+  if (typeof v2.name !== "string" || !v2.name.trim() || v2.name.length > CANVAS_V3_LIMITS.titleLength)
+    fail("invalid image name");
+  if (!["image/png", "image/jpeg", "image/webp", "image/gif"].includes(v2.mimeType))
+    fail("invalid image mimeType");
+  const width = integer$4(v2.width), height = integer$4(v2.height);
+  if (width <= 0 || height <= 0 || width > 1e8 / height) fail("invalid image dimensions");
+  return {
+    importId: v2.importId,
+    resourceId: id$7(v2.resourceId),
+    versionId: id$7(v2.versionId),
+    name: v2.name,
+    mimeType: v2.mimeType,
+    width,
+    height
+  };
+}
+
+// ---- 第 167 轮：真实现（参考 329731）----
+function parseStoredTaskDecision(raw2) {
+  if (!raw2 || typeof raw2 !== "object" || !("version" in raw2) || raw2.version !== 1 || !("taskId" in raw2) || !("input" in raw2))
+    throw new Error("Invalid stored Task decision");
+  const value = raw2.input;
+  if (!value || typeof value !== "object" || !("requestId" in value) || !("expectedRevision" in value) || !("action" in value) || typeof value.expectedRevision !== "number" || !Number.isSafeInteger(value.expectedRevision) || value.expectedRevision < 1)
+    throw new Error("Invalid stored Task decision request");
+  const base2 = { requestId: identifier(value.requestId), expectedRevision: value.expectedRevision };
+  let input;
+  switch (value.action) {
+    case "pause":
+    case "resume":
+    case "stop":
+    case "retry":
+      if (Object.keys(value).some((key2) => !["requestId", "expectedRevision", "action"].includes(key2)))
+        throw new Error("Unexpected stored Task decision field");
+      input = { ...base2, action: value.action };
+      break;
+    case "confirm_cost":
+      if (!("quoteId" in value) || Object.keys(value).some(
+        (key2) => !["requestId", "expectedRevision", "action", "quoteId"].includes(key2)
+      ))
+        throw new Error("Invalid stored Task quote");
+      input = { ...base2, action: value.action, quoteId: identifier(value.quoteId) };
+      break;
+    case "finish_without_placement":
+      if (!("key" in value) || Object.keys(value).some(
+        (key2) => !["requestId", "expectedRevision", "action", "key"].includes(key2)
+      ))
+        throw new Error("Invalid stored Task placement key");
+      input = { ...base2, action: value.action, key: identifier(value.key) };
+      break;
+    case "update_placement":
+      if (!("composition" in value) || Object.keys(value).some(
+        (key2) => !["requestId", "expectedRevision", "action", "composition"].includes(key2)
+      ))
+        throw new Error("Invalid stored Task placement");
+      input = {
+        ...base2,
+        action: value.action,
+        composition: parsePlacementTarget(value.composition)
+      };
+      break;
+    default:
+      throw new Error("Unsupported stored Task decision");
+  }
+  return { version: 1, taskId: identifier(raw2.taskId), input };
+}
+
+// ---- 第 167 轮：真实现（参考 333014）----
+function registerWorkspaceCanvasPersistence(workspaceId, instanceId, controller, reportStatus, sourceId) {
+  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId);
+  const key2 = lifetimeKey(instanceId, sourceId);
+  const previous2 = workspaceEntries.get(key2);
+  const entry = {
+    controller,
+    instanceId,
+    reportPromise: previous2?.reportPromise,
+    reportStatus,
+    reportVersion: previous2?.reportVersion ?? 0,
+    // Never let a remount's initial clean state erase an unresolved failure
+    // from the same runtime lifetime. Only a durable flush may clear it.
+    status: previous2?.status === "clean" || !previous2 ? controller.getStatus() : previous2.status
+  };
+  workspaceEntries.set(key2, entry);
+  publishPersistenceStatus(entry);
+  return () => {
+    const current2 = workspaceEntries.get(key2);
+    if (current2?.controller !== controller) return;
+    current2.controller = void 0;
+    current2.reportStatus = void 0;
+    if (current2.status === "clean") workspaceEntries.delete(key2);
+    if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId);
+  };
+}
+
+// ---- 第 167 轮：真实现（参考 333039）----
+function reportWorkspaceCanvasPersistence(workspaceId, instanceId, status, sourceId) {
+  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId);
+  const key2 = lifetimeKey(instanceId, sourceId);
+  const entry = workspaceEntries.get(key2);
+  if (entry) {
+    entry.status = status;
+    publishPersistenceStatus(entry);
+  } else {
+    workspaceEntries.set(key2, { instanceId, reportVersion: 0, status });
+  }
+  if (status === "clean" && !workspaceEntries.get(key2)?.controller) {
+    workspaceEntries.delete(key2);
+  }
+  if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId);
+}
+
+// ---- 第 167 轮：真实现（参考 329843）----
+function sameDecision(left, right) {
+  return left.requestId === right.requestId && left.expectedRevision === right.expectedRevision && left.action === right.action && decisionPayload(left) === decisionPayload(right);
+}
+
+// ---- 第 167 轮：真实现（参考 329456）----
+function setMediaMuted(value) {
+  const current2 = preference;
+  revision += 1;
+  publish(value);
+  if (!current2) return Promise.resolve();
+  pendingWrites += 1;
+  const operation2 = writes.catch(() => {
+  }).then(() => current2.write(value));
+  writes = operation2;
+  return operation2.finally(() => {
+    pendingWrites -= 1;
+    if (pendingWrites === 0) refresh();
+  });
+}
+
+// ---- 第 167 轮：真实现（参考 425467）----
+function snapshotHostCapabilities(options2) {
+  return {
+    ...options2,
+    resource: Object.freeze({ ...options2.resource }),
+    ...options2.composition ? { composition: Object.freeze({ ...options2.composition }) } : {},
+    ...options2.query ? { query: Object.freeze({ ...options2.query }) } : {},
+    ...options2.task ? { task: Object.freeze({ ...options2.task }) } : {},
+    ...options2.canvas ? { canvas: Object.freeze({ ...options2.canvas }) } : {},
+    ...options2.media ? { media: Object.freeze({ ...options2.media }) } : {},
+    ...options2.billing ? { billing: Object.freeze({ ...options2.billing }) } : {}
+  };
+}
+
+// ---- 第 167 轮：真实现（参考 424314）----
+function taskRecoveryWorkspaceId(value) {
+  if (typeof value !== "string" || !value.trim() || value === "app" || /^https?:\/\//i.test(value))
+    return void 0;
+  return value;
+}
+
+// ---- 第 167 轮：真实现（参考 425388）----
+function validateHostConnection(options2) {
+  for (const [name2, action2] of [
+    ["resource.reveal", options2.resource?.reveal],
+    ["resource.copyToClipboard", options2.resource?.copyToClipboard],
+    ["composition.copyToClipboard", options2.composition?.copyToClipboard],
+    ["canvas.locateComposition", options2.canvas?.locateComposition],
+    ["canvas.insertComposition", options2.canvas?.insertComposition],
+    ["canvas.duplicateComposition", options2.canvas?.duplicateComposition],
+    ["canvas.duplicateMember", options2.canvas?.duplicateMember],
+    ["canvas.locateMember", options2.canvas?.locateMember]
+  ]) {
+    if (action2 !== void 0 && typeof action2 !== "function")
+      throw new Error(`Invalid host action: ${name2}`);
+  }
+  if (options2.grantMedia !== void 0 && typeof options2.grantMedia !== "function")
+    throw new Error("Media requires an explicit scoped granter");
+  if (options2.task?.subscribe !== void 0 && typeof options2.task?.subscribe !== "function")
+    throw new Error("Task events require an explicit workspace subscription");
+  if (!options2.scopeKey.trim() || typeof options2.resource?.request !== "function")
+    throw new Error("An explicit workspace scope and transport are required");
+  if (options2.composition !== void 0 && typeof options2.composition?.request !== "function")
+    throw new Error("Composition requires an explicit workspace transport");
+  if (options2.task?.request !== void 0 && typeof options2.task?.request !== "function")
+    throw new Error("Task requires an explicit workspace transport");
+  if (options2.query !== void 0 && typeof options2.query?.request !== "function")
+    throw new Error("Query requires an explicit workspace transport");
+  if (options2.editorEvents !== void 0 && typeof options2.editorEvents.subscribe !== "function")
+    throw new Error("Editor events require an explicit workspace subscription");
+  if (options2.director !== void 0 && typeof options2.director !== "function")
+    throw new Error("Director requires an explicit workspace capability");
+  if (options2.canvas?.request !== void 0 && typeof options2.canvas?.request !== "function")
+    throw new Error("Canvas requires an explicit workspace transport");
+  if (options2.media?.readImage !== void 0 && typeof options2.media?.readImage !== "function")
+    throw new Error("Canvas images require an explicit workspace reader");
+  if (options2.media?.importImage !== void 0 && typeof options2.media?.importImage !== "function")
+    throw new Error("Canvas image import requires an explicit workspace importer");
+  if (options2.revealResourceImage !== void 0 && typeof options2.revealResourceImage !== "function")
+    throw new Error("Resource image reveal requires an explicit workspace revealer");
+  if (options2.chat !== void 0 && (typeof options2.chat.draft !== "function" || typeof options2.chat.send !== "function"))
+    throw new Error("Chat requires an explicit workspace composer");
+  if (options2.chatSession !== void 0 && (!options2.chatSession || typeof options2.chatSession.snapshot !== "function" || typeof options2.chatSession.subscribe !== "function" || typeof options2.chatSession.execute !== "function"))
+    throw new Error("Chat session requires an explicit workspace projection and actions");
+  if (options2.textCompletion !== void 0 && typeof options2.textCompletion.complete !== "function")
+    throw new Error("Text completion requires an explicit workspace completion");
+  if (options2.pageStorage !== void 0 && (typeof options2.pageStorage.acquire !== "function" || typeof options2.pageStorage.read !== "function" || typeof options2.pageStorage.write !== "function"))
+    throw new Error("Page storage requires an explicit host-scoped store");
+  if (options2.sidebarOrder !== void 0 && (typeof options2.sidebarOrder?.reconcile !== "function" || typeof options2.sidebarOrder?.move !== "function"))
+    throw new Error("Sidebar order requires explicit workspace operations");
+  if (options2.generationSubject !== void 0 && !isHostGenerationSubject(options2.generationSubject))
+    throw new Error("Generation subject must be host-derived and bounded");
+  if (options2.billing?.guardSubmission !== void 0 && typeof options2.billing?.guardSubmission !== "function")
+    throw new Error("Submission guard requires an explicit host account check");
+  if (options2.billing?.readPricing !== void 0 && typeof options2.billing?.readPricing !== "function")
+    throw new Error("Billing pricing requires an explicit read-only host reader");
+  if (options2.documentRequest !== void 0 && typeof options2.documentRequest !== "function")
+    throw new Error("Documents require an explicit host-scoped transport");
+  if (options2.resourceTagRequest !== void 0 && typeof options2.resourceTagRequest !== "function")
+    throw new Error("Resource tags require an explicit host-scoped transport");
+  if (options2.readCanvasPoster !== void 0 && typeof options2.readCanvasPoster !== "function")
+    throw new Error("Canvas posters require an explicit host reader");
+  if (options2.media?.readAudioWaveform !== void 0 && typeof options2.media?.readAudioWaveform !== "function")
+    throw new Error("Audio waveforms require an explicit host reader");
+  if (options2.importCanvasMedia !== void 0 && typeof options2.importCanvasMedia !== "function")
+    throw new Error("Canvas media import requires an explicit host importer");
+  if (options2.textGeneration !== void 0 && (typeof options2.textGeneration?.models !== "function" || typeof options2.textGeneration.generate !== "function"))
+    throw new Error("Text generation requires explicit host operations");
+  if (options2.nativeFiles !== void 0 && ["saveFiles", "saveMedia", "revealImage", "writeImageData"].some(
+    (key2) => typeof options2.nativeFiles?.[key2] !== "function"
+  ))
+    throw new Error("Native files require explicit host operations");
+  if (options2.preferences !== void 0 && (typeof options2.preferences?.get !== "function" || typeof options2.preferences.set !== "function"))
+    throw new Error("Preferences require an explicit host store");
+  if (options2.importLut !== void 0 && typeof options2.importLut !== "function")
+    throw new Error("LUT import requires an explicit host importer");
+  if (options2.deleteLut !== void 0 && typeof options2.deleteLut !== "function")
+    throw new Error("LUT delete requires an explicit host operation");
+  if (options2.toolReadRequest !== void 0 && typeof options2.toolReadRequest !== "function")
+    throw new Error("Tool reads require an explicit host-scoped transport");
+}
+
+// ---- 第 167 轮：真实现（参考 400326）----
+const workbenchQueryKeys = {
+  all: (scopeKey) => ["project-v3", scopeKey],
+  matches: (key2, scopeKey) => key2[0] === "project-v3" && key2[1] === scopeKey
+};
 
 export {
   READ_ONLY_STRUCTURE_ROUTES,
