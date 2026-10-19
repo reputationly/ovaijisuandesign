@@ -5501,3 +5501,76 @@ function VideoBinding({ src, ...props }) {
     )
   ] });
 }
+
+// ---- 第 193 轮：ProjectQueryError 的 6 个依赖 ----
+function invalid$6(field) {
+  throw new Error(`Invalid Project Query response: ${field}`);
+}
+
+function object$4(value, field) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) invalid$6(field);
+  return value;
+}
+
+function string$2(value, field) {
+  if (typeof value !== "string") invalid$6(field);
+  return value;
+}
+
+function id$6(value, field) {
+  const result = string$2(value, field);
+  if (!result.trim() || result.includes("\0")) invalid$6(field);
+  return result;
+}
+
+function classify(status, code2) {
+  if (code2 === "CURSOR_STALE") return "cursor_stale";
+  if (code2 === "ABORTED") return "aborted";
+  if (status === 401 || status === 403) return "auth";
+  if (code2 === "INVALID_RESPONSE" || status === 400 || status === 422) return "invalid";
+  if (code2 === "DEPENDENCY_UNAVAILABLE" || code2 === "QUERY_UNAVAILABLE" || code2 === "HOST_DISCONNECTED" || status === 503)
+    return "unavailable";
+  if (code2 === "NETWORK_ERROR" || status === 408 || status === 429 || status >= 500)
+    return "transient";
+  return "unknown";
+}
+
+function parseProjectQueryErrorBody(value) {
+  const data2 = object$4(object$4(value, "body").error, "error");
+  if (typeof data2.retryable !== "boolean") invalid$6("error.retryable");
+  return {
+    error: {
+      code: id$6(data2.code, "error.code"),
+      message: string$2(data2.message, "error.message"),
+      retryable: data2.retryable,
+      ...data2.traceId === void 0 ? {} : { traceId: id$6(data2.traceId, "error.traceId") },
+      ...data2.details === void 0 ? {} : {
+        details: array$3(data2.details, "error.details").map((value2) => {
+          const item = object$4(value2, "error.detail");
+          return {
+            field: string$2(item.field, "error.detail.field"),
+            reason: string$2(item.reason, "error.detail.reason")
+          };
+        })
+      }
+    }
+  };
+}
+
+function array$3(value, field) {
+  if (!Array.isArray(value)) invalid$6(field);
+  return value;
+}
+
+
+function StructureList(props) {
+  return jsxRuntimeExports.jsx(StructureSurface, { ...props, mode: "list" });
+}
+
+export {
+  ModuleErrorBoundary,
+  StructureContents,
+  StructureSurface,
+  StructureDirectory,
+  StructureList,
+};
