@@ -22,25 +22,24 @@ import {
 import { useWorkspaceProjectArchitecture } from "./use-workspace-project-architecture.jsx";
 import { WorkspaceStructureContext } from "../canvas-v3/contexts.js";
 import { parseTaskServerMessage } from "../canvas-v3/canvas-v3-model.js";
-// 第 176 轮：静态 import workspace-structure-runtime.js 会让应用启动即超时
-// （该模块求值期就坏，连模块顶层 console.error 都不触发）。
-// 正确方向是懒加载 + 把 effect 改成异步，属结构性改动，留待专门一轮。
-// 第 178 轮（用户方案第 4 步）：运行时开关，同一份构建 A/B 对比。
-// ov.v3.structure=1 才用真实现；默认关闭，保证既有行为不变。
+// 第 188 轮（用户更正 2）：默认**开启**真实现，`ov.v3.structure=0` 作为关闭开关。
+// 之前是 `=== "1"` 才开，等于交付状态下仍在走占位路径 —— 那是错的。
+// runtime 仍然走动态 import（第 176 轮实测静态 import 会让页面白屏），
+// 但加载是**无条件**的，不再受开关门控。
 const __structureSwitchOn = (() => {
-  try { return globalThis.localStorage?.getItem("ov.v3.structure") === "1"; } catch { return false; }
+  try { return globalThis.localStorage?.getItem("ov.v3.structure") !== "0"; } catch { return true; }
 })();
 // 开关关闭时**完全不加载** runtime 模块（动态 import 只在真需要时发生）。
 let __structureRuntimeModule = null;
 if (__structureSwitchOn) {
   import("./workspace-structure-runtime.js")
-    .then((m) => { __structureRuntimeModule = m; console.error("[probe] runtime module loaded"); })
-    .catch((e) => console.error("[probe] runtime module failed", String(e).slice(0, 200)));
+    .then((m) => { __structureRuntimeModule = m; })
+    .catch((e) => console.error("v3 structure runtime failed to load: " + String(e).slice(0, 200)));
 }
 const createWorkspaceStructureRuntime = (...args) => {
   if (!__structureSwitchOn || !__structureRuntimeModule) return undefined;
   try { return __structureRuntimeModule.createWorkspaceStructureRuntime(...args); }
-  catch (e) { console.error("[probe] runtime threw", String(e).slice(0, 300)); return undefined; }
+  catch (e) { console.error("v3 structure runtime threw: " + String(e).slice(0, 300)); return undefined; }
 };
 
 // 第 178 轮：这两个占位暂时保留，但原因记录在这里：
