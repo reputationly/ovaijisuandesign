@@ -15,7 +15,12 @@ import { StructureValidationError, assertStructureId, immutableSnapshot } from "
 import { getElectronPlatform } from "./../infra/use-canvas-node-assets-store.js";
 import { entriesByWorkspace } from "./../settings/entries-by-workspace.jsx";
 import { bindStructurePersistence, createCanvasDuplication, createCanvasInsertion, createElectronHost, createHostWorkbench, createNativeWorkbenchPreferences, createResourceAudioWaveformReader, createTaskDecisionStore, createTaskIntentPersistence, createTreeHostBindings } from "./workspace-facilities.js";
-import { isReadOnlyStructureRequest } from "./workspace-structure-runtime.js";
+// 第 177 轮：就地实现，断掉对 workspace-structure-runtime 的 import
+// （否则 runtime → closure → runtime 成环）。与 runtime 里那份逐字一致。
+function isReadOnlyStructureRequest(path2, init2) {
+  const method = String(init2?.method ?? "GET").toUpperCase();
+  return method === "GET" || method === "HEAD";
+}
 
 // 第 174 轮：6 个找不到归属的，就地补（fractional-indexing 两个来自 npm）
 import { generateKeyBetween, generateNKeysBetween } from "fractional-indexing";

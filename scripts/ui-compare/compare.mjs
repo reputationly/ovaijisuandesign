@@ -729,11 +729,13 @@ async function cdp(port) {
               }
             }
           }
+          else if (m.method === "Debugger.paused") { for (const h of pausedListeners) { try { h(m.params); } catch {} } }
           else if (m.method === "Runtime.exceptionThrown") { const desc = m.params.exceptionDetails.exception?.description ?? m.params.exceptionDetails.text; errors.push("EXC " + desc.split("\n")[0]); if (process.env.STACK) console.log("STACK", desc.split("\n").slice(0, 8).join(" | ")); }
-          else if (process.env.STACK && m.method === "Runtime.consoleAPICalled" && ["warning", "error", "log"].includes(m.params.type) && /rror|fail|catch|boundary/i.test(m.params.args.map((a) => a.value ?? a.description ?? "").join(" "))) { console.log("CONSOLE", m.params.type, m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").slice(0, 700)); if (m.params.type === "error") errors.push("ERR " + m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").split("\n")[0].slice(0, 300)); }
+          else if (process.env.STACK && m.method === "Runtime.consoleAPICalled" && ["warning", "error", "log"].includes(m.params.type) && ((process.env.PROBE === "1" && m.params.args.some((a) => String(a.value ?? a.description ?? "").startsWith("[probe]"))) || /rror|fail|catch|boundary/i.test(m.params.args.map((a) => a.value ?? a.description ?? "").join(" ")))) { console.log("CONSOLE", m.params.type, m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").slice(0, 700)); if (m.params.type === "error") errors.push("ERR " + m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").split("\n")[0].slice(0, 300)); }
           else if (m.method === "Runtime.consoleAPICalled" && m.params.type === "error") errors.push("ERR " + m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").split("\n")[0].slice(0, 300));
         };
         // 页面卡死时不要无限等：每个调用 60 秒超时
+        const pausedListeners = [];
         const send = (method, params = {}) =>
           new Promise((resolve, reject) => {
             const id = ++seq;
@@ -755,6 +757,7 @@ async function cdp(port) {
         const visible = () => errors.filter((e) => !/cdn\.hailuoai\.(?:com|video)/.test(e)).map((e) => e.replace(UUID_PATTERN, "<uuid>").replace(/durationMs=\d+/g, "durationMs=<n>"));
         return {
           send,
+          onPaused: (cb) => { pausedListeners.push(cb); return () => { const i = pausedListeners.indexOf(cb); if (i >= 0) pausedListeners.splice(i, 1); }; },
           errors: visible,
           clearErrors: () => (errors.length = 0),
           beginNetworkCapture: (documentURL) => {
@@ -906,7 +909,45 @@ async function waitForValue(c, expression, label, timeout = 10000) {
     if (value) return value;
     await sleep(250);
   }
+  // 第 177 轮：超时时先分清「主线程卡死」还是「页面活着但元素没出现」。
+  // 这是 176 轮「打点一个都没触发」的根治手段：不再依赖 console 采集。
+  await diagnoseStall(c, label);
   throw new Error(`等待 ${label} 超时`);
+}
+/** 心跳 + Debugger.pause 定位；同时读页面内 __OV_PROBE__ 缓冲。 */
+async function diagnoseStall(c, label) {
+  if (process.env.DIAG === "0") return;
+  const alive = await Promise.race([
+    evalValue(c, "1").then(() => true).catch(() => false),
+    new Promise((r) => setTimeout(() => r(false), 3000)),
+  ]);
+  if (!alive) {
+    try {
+      await c.send("Debugger.enable");
+      const paused = new Promise((resolve) => {
+        const off = c.onPaused((params) => { off(); resolve(params); });
+        setTimeout(() => { off(); resolve(null); }, 5000);
+      });
+      await c.send("Debugger.pause");
+      const params = await paused;
+      const frames = (params?.callFrames ?? []).slice(0, 12)
+        .map((f) => `${f.functionName || "(anon)"}@${(f.url || "").split("/").pop()}:${(f.location?.lineNumber ?? 0) + 1}`);
+      console.log(`[diag] HUNG AT ${label}: ${frames.join(" <- ") || "(未取到暂停栈)"}`);
+    } catch (e) {
+      console.log(`[diag] HUNG AT ${label}: Debugger 不可用 ${String(e).slice(0, 120)}`);
+    }
+    return;
+  }
+  try {
+    const r = await evalValue(c, `JSON.stringify({
+      probe: (globalThis.__OV_PROBE__ ?? []).slice(-40),
+      bodyText: (document.body?.innerText ?? "").slice(0, 400),
+      hasFallback: !!document.querySelector("[data-page-state-fallback]"),
+    })`);
+    console.log(`[diag] ALIVE ${label}: ${String(r).slice(0, 1200)}`);
+  } catch (e) {
+    console.log(`[diag] ALIVE ${label}: 读取失败 ${String(e).slice(0, 120)}`);
+  }
 }
 async function refreshWorkspaceRecommendations(c) {
   await waitForValue(c, `(() => {
@@ -991,6 +1032,26 @@ async function waitForRetainedWorkspaceStage(c, pageId, timeout = 10000) {
   }
   throw new Error(`${pageId} 保留工作区 runtime 未就绪：${JSON.stringify(last)}`);
 }
+/** 第 177 轮：构建新鲜度检查 —— 防「旧构建冒充新构建」（第 111 轮的坑）。 */
+function assertBuildFresh(marker) {
+  if (!marker) return;
+  const dir = path.join("app/desktop/out/recovered-ui", "assets");
+  let hit = false;
+  try {
+    for (const f of readdirSync(dir)) {
+      if (!/^index-.*\.js$/.test(f)) continue;
+      if (readFileSync(path.join(dir, f), "utf8").includes(marker)) { hit = true; break; }
+    }
+  } catch { /* 目录不存在时跳过 */ }
+  if (!hit) {
+    console.error(`[fresh] 构建产物里找不到标记 "${marker}"，可能跑的是旧构建`);
+    if (process.env.REQUIRE_FRESH === "1") process.exit(1);
+  } else {
+    console.error(`[fresh] 构建包含标记 "${marker}" ✓`);
+  }
+}
+if (process.env.FRESH_MARKER) assertBuildFresh(process.env.FRESH_MARKER);
+
 async function waitForWorkspaceChatReady(c, pageId, timeout = 15000) {
   await waitForValue(c, `(() => {
     const input = document.querySelector('[data-action-ui-id="message-input"]');
