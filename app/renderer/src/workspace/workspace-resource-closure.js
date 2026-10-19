@@ -10,25 +10,55 @@
  */
 
 // 第 192 轮：@base-ui 公开组件 + tanstack + 补取的两个类
-import {
-  ContextMenuTrigger as ContextMenuTrigger$2,
-  Dialog as Dialog$4,
-  DialogContent as DialogContent$5,
-  DialogDescription as DialogDescription$3,
-  DialogPortal as DialogPortal$3,
-  DialogTitle as DialogTitle$3,
-  Input as Input$4,
-  MenuItem as MenuItem$4,
-  MenuPortal as MenuPortal$1,
-  PreviewCard as PreviewCard$2,
-  PreviewCardContent as PreviewCardContent$1,
-  empty,
-} from "@base-ui/react";
+import { ContextMenu as __ContextMenu } from "@base-ui/react/context-menu";
+import { Dialog as __Dialog } from "@base-ui/react/dialog";
+import { Input as __Input } from "@base-ui/react/input";
+import { Menu as __Menu } from "@base-ui/react/menu";
+import { PreviewCard as __PreviewCard } from "@base-ui/react/preview-card";
+
+// 第 194 轮：改用各组件命名空间，避免猜扁平导出名。
+const ContextMenuTrigger$2 = __ContextMenu.Trigger;
+const Dialog$4 = __Dialog.Root;
+const DialogContent$5 = __Dialog.Popup;
+const DialogDescription$3 = __Dialog.Description;
+const DialogPortal$3 = __Dialog.Portal;
+const DialogTitle$3 = __Dialog.Title;
+const DialogTitle$4 = __Dialog.Title;
+const DialogDescription$4 = __Dialog.Description;
+const Input$4 = __Input;
+const MenuItem$4 = __Menu.Item;
+const MenuPortal$1 = __Menu.Portal;
+const PreviewCard$2 = __PreviewCard.Root;
+const PreviewCardContent$1 = __PreviewCard.Popup;
+// empty 是 SharedState 的空实现（参考 bundle 内的 utils/empty.js）
+const empty = { get: () => undefined, set: () => void 0, has: () => false, delete: () => void 0 };
 import { infiniteQueryOptions } from "@tanstack/react-query";
 
 import reactExports from "react";
 import jsxRuntimeExports from "react/jsx-runtime";
 import { useTranslation } from "react-i18next";
+import { Button as Button$3 } from "@base-ui/react/button";
+
+// 第 194 轮：Composition 查询的默认选项（参考 400389）。
+const defaults = {
+  networkMode: "always",
+  retry: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+};
+
+// 第 194 轮：这两个是 @base-ui 的内部常量，行为在公开组件里已包含；
+// 取值与官方 `stateAttributesMapping` 一致。
+const transitionStatusMapping = {
+  startingStyle: "data-starting-style",
+  endingStyle: "data-ending-style",
+};
+const empty$1 = { get() {}, has() { return false; }, add() {}, delete() {} };
+import { Collapsible as __Collapsible } from "@base-ui/react/collapsible";
+
+// 第 194 轮：Collapsible 用公开组件，不再内联 Base UI 的实现。
+const CollapsibleRoot = __Collapsible.Root;
+const CollapsiblePanel = __Collapsible.Panel;
 import { Pause, Play } from "lucide-react";
 import { PageStateView } from "./../assets/page-state-view.jsx";
 import { useWorkbench } from "./../canvas-v3/canvas-v3-hooks.js";
@@ -45,13 +75,6 @@ import { MessageSquarePlus } from "./../media-editing/package.jsx";
 import { Field } from "./../skills/creator-plan/form-parts.jsx";
 import { ChevronRight as ChevronRight$2, Download as Download$3, Ellipsis as Ellipsis$1, FileText as FileText$1, Folder as Folder$1, Image as Image$2, Library as Library$1, Music as Music$3, RefreshCw as RefreshCw, Search as Search$3, Trash2 as Trash2$3, Video as Video$3, X as X$9 } from "lucide-react";
 import { keepPreviousData, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  AnimationFrame, Button as Button$3, DialogDescription as DialogDescription$4,
-  DialogTitle as DialogTitle$4, empty as empty$1, none as none$5,
-  TransitionStatusDataAttributes, defaults, transitionStatusMapping, triggerPress,
-  useAnimationFrame, useAnimationsFinished, useBaseUiId, useControlled, useMergedRefs,
-  useOnMount, useOpenChangeComplete, useStableCallback$1, useTransitionStatus,
-} from "@base-ui/utils";
 
 const ActionsContext = reactExports.createContext({});
 
@@ -2646,121 +2669,11 @@ function CompositionEditSummary({
   ] });
 }
 
-function useCollapsibleRoot(parameters) {
-  const {
-    open: openParam,
-    defaultOpen,
-    onOpenChange,
-    disabled
-  } = parameters;
-  const isControlled = openParam !== void 0;
-  const [open, setOpen] = useControlled({
-    controlled: openParam,
-    default: defaultOpen,
-    name: "Collapsible",
-    state: "open"
-  });
-  const {
-    mounted,
-    setMounted,
-    transitionStatus
-  } = useTransitionStatus(open, true, true);
-  const [visible2, setVisible] = reactExports.useState(open);
-  const [{
-    height,
-    width
-  }, setDimensions] = reactExports.useState({
-    height: void 0,
-    width: void 0
-  });
-  const defaultPanelId = useBaseUiId();
-  const [panelIdState, setPanelIdState] = reactExports.useState();
-  const panelId = panelIdState ?? defaultPanelId;
-  const [hiddenUntilFound, setHiddenUntilFound] = reactExports.useState(false);
-  const [keepMounted, setKeepMounted] = reactExports.useState(false);
-  const abortControllerRef = reactExports.useRef(null);
-  const animationTypeRef = reactExports.useRef(null);
-  const transitionDimensionRef = reactExports.useRef(null);
-  const panelRef = reactExports.useRef(null);
-  const runOnceAnimationsFinish = useAnimationsFinished(panelRef, false);
-  const handleTrigger = useStableCallback$1((event) => {
-    const nextOpen = !open;
-    const eventDetails = createChangeEventDetails(triggerPress, event.nativeEvent);
-    onOpenChange(nextOpen, eventDetails);
-    if (eventDetails.isCanceled) {
-      return;
-    }
-    const panel = panelRef.current;
-    if (animationTypeRef.current === "css-animation" && panel != null) {
-      panel.style.removeProperty("animation-name");
-    }
-    if (!hiddenUntilFound && !keepMounted) {
-      if (animationTypeRef.current != null && animationTypeRef.current !== "css-animation") {
-        if (!mounted && nextOpen) {
-          setMounted(true);
-        }
-      }
-      if (animationTypeRef.current === "css-animation") {
-        if (!visible2 && nextOpen) {
-          setVisible(true);
-        }
-        if (!mounted && nextOpen) {
-          setMounted(true);
-        }
-      }
-    }
-    setOpen(nextOpen);
-    if (animationTypeRef.current === "none" && mounted && !nextOpen) {
-      setMounted(false);
-    }
-  });
-  useIsoLayoutEffect(() => {
-    if (isControlled && animationTypeRef.current === "none" && !keepMounted && !open) {
-      setMounted(false);
-    }
-  }, [isControlled, keepMounted, open, openParam, setMounted]);
-  return reactExports.useMemo(() => ({
-    abortControllerRef,
-    animationTypeRef,
-    disabled,
-    handleTrigger,
-    height,
-    mounted,
-    open,
-    panelId,
-    panelRef,
-    runOnceAnimationsFinish,
-    setDimensions,
-    setHiddenUntilFound,
-    setKeepMounted,
-    setMounted,
-    setOpen,
-    setPanelIdState,
-    setVisible,
-    transitionDimensionRef,
-    transitionStatus,
-    visible: visible2,
-    width
-  }), [abortControllerRef, animationTypeRef, disabled, handleTrigger, height, mounted, open, panelId, panelRef, runOnceAnimationsFinish, setDimensions, setHiddenUntilFound, setKeepMounted, setMounted, setOpen, setVisible, transitionDimensionRef, transitionStatus, visible2, width]);
-}
 
-const CollapsibleRootContext = /* @__PURE__ */ reactExports.createContext(void 0);
 
-function useCollapsibleRootContext() {
-  const context = reactExports.useContext(CollapsibleRootContext);
-  if (context === void 0) {
-    throw new Error(formatErrorMessage(15));
-  }
-  return context;
-}
 
-let CollapsiblePanelDataAttributes = (function(CollapsiblePanelDataAttributes2) {
-  CollapsiblePanelDataAttributes2["open"] = "data-open";
-  CollapsiblePanelDataAttributes2["closed"] = "data-closed";
-  CollapsiblePanelDataAttributes2[CollapsiblePanelDataAttributes2["startingStyle"] = TransitionStatusDataAttributes.startingStyle] = "startingStyle";
-  CollapsiblePanelDataAttributes2[CollapsiblePanelDataAttributes2["endingStyle"] = TransitionStatusDataAttributes.endingStyle] = "endingStyle";
-  return CollapsiblePanelDataAttributes2;
-})({});
+// 第 194 轮：Collapsible 的 data 属性和公开组件一致，直接写字面量。
+const CollapsiblePanelDataAttributes = { open: "data-open", closed: "data-closed" };
 
 const PANEL_OPEN_HOOK = {
   [CollapsiblePanelDataAttributes.open]: ""
@@ -2784,44 +2697,6 @@ const collapsibleStateAttributesMapping = {
   ...transitionStatusMapping
 };
 
-const CollapsibleRoot = /* @__PURE__ */ reactExports.forwardRef(function CollapsibleRoot2(componentProps, forwardedRef) {
-  const {
-    render: render2,
-    className,
-    defaultOpen = false,
-    disabled = false,
-    onOpenChange: onOpenChangeProp,
-    open,
-    ...elementProps
-  } = componentProps;
-  const onOpenChange = useStableCallback$1(onOpenChangeProp);
-  const collapsible = useCollapsibleRoot({
-    open,
-    defaultOpen,
-    onOpenChange,
-    disabled
-  });
-  const state2 = reactExports.useMemo(() => ({
-    open: collapsible.open,
-    disabled: collapsible.disabled,
-    transitionStatus: collapsible.transitionStatus
-  }), [collapsible.open, collapsible.disabled, collapsible.transitionStatus]);
-  const contextValue = reactExports.useMemo(() => ({
-    ...collapsible,
-    onOpenChange,
-    state: state2
-  }), [collapsible, onOpenChange, state2]);
-  const element2 = useRenderElement("div", componentProps, {
-    state: state2,
-    ref: forwardedRef,
-    props: elementProps,
-    stateAttributesMapping: collapsibleStateAttributesMapping
-  });
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(CollapsibleRootContext.Provider, {
-    value: contextValue,
-    children: element2
-  });
-});
 
 let AccordionRootDataAttributes = /* @__PURE__ */ (function(AccordionRootDataAttributes2) {
   AccordionRootDataAttributes2["disabled"] = "data-disabled";
@@ -2829,277 +2704,6 @@ let AccordionRootDataAttributes = /* @__PURE__ */ (function(AccordionRootDataAtt
   return AccordionRootDataAttributes2;
 })({});
 
-function useCollapsiblePanel(parameters) {
-  const {
-    abortControllerRef,
-    animationTypeRef,
-    externalRef,
-    height,
-    hiddenUntilFound,
-    keepMounted,
-    id: idParam,
-    mounted,
-    onOpenChange,
-    open,
-    panelRef,
-    runOnceAnimationsFinish,
-    setDimensions,
-    setMounted,
-    setOpen,
-    setVisible,
-    transitionDimensionRef,
-    visible: visible2,
-    width
-  } = parameters;
-  const isBeforeMatchRef = reactExports.useRef(false);
-  const latestAnimationNameRef = reactExports.useRef(null);
-  const shouldCancelInitialOpenAnimationRef = reactExports.useRef(open);
-  const shouldCancelInitialOpenTransitionRef = reactExports.useRef(open);
-  const endingStyleFrame = useAnimationFrame();
-  const hidden = reactExports.useMemo(() => {
-    if (animationTypeRef.current === "css-animation") {
-      return !visible2;
-    }
-    return !open && !mounted;
-  }, [open, mounted, visible2, animationTypeRef]);
-  const handlePanelRef = useStableCallback$1((element2) => {
-    if (!element2) {
-      return void 0;
-    }
-    if (animationTypeRef.current == null || transitionDimensionRef.current == null) {
-      const panelStyles = getComputedStyle(element2);
-      const hasAnimation = panelStyles.animationName !== "none" && panelStyles.animationName !== "";
-      const hasTransition = panelStyles.transitionDuration !== "0s" && panelStyles.transitionDuration !== "";
-      if (hasAnimation && hasTransition) ;
-      else if (panelStyles.animationName === "none" && panelStyles.transitionDuration !== "0s") {
-        animationTypeRef.current = "css-transition";
-      } else if (panelStyles.animationName !== "none" && panelStyles.transitionDuration === "0s") {
-        animationTypeRef.current = "css-animation";
-      } else {
-        animationTypeRef.current = "none";
-      }
-      if (element2.getAttribute(AccordionRootDataAttributes.orientation) === "horizontal" || panelStyles.transitionProperty.indexOf("width") > -1) {
-        transitionDimensionRef.current = "width";
-      } else {
-        transitionDimensionRef.current = "height";
-      }
-    }
-    if (animationTypeRef.current !== "css-transition") {
-      return void 0;
-    }
-    if (height === void 0 || width === void 0) {
-      setDimensions({
-        height: element2.scrollHeight,
-        width: element2.scrollWidth
-      });
-      if (shouldCancelInitialOpenTransitionRef.current) {
-        element2.style.setProperty("transition-duration", "0s");
-      }
-    }
-    let frame2 = -1;
-    let nextFrame = -1;
-    frame2 = AnimationFrame.request(() => {
-      shouldCancelInitialOpenTransitionRef.current = false;
-      nextFrame = AnimationFrame.request(() => {
-        setTimeout(() => {
-          element2.style.removeProperty("transition-duration");
-        });
-      });
-    });
-    return () => {
-      AnimationFrame.cancel(frame2);
-      AnimationFrame.cancel(nextFrame);
-    };
-  });
-  const mergedPanelRef = useMergedRefs(externalRef, panelRef, handlePanelRef);
-  useIsoLayoutEffect(() => {
-    if (animationTypeRef.current !== "css-transition") {
-      return void 0;
-    }
-    const panel = panelRef.current;
-    if (!panel) {
-      return void 0;
-    }
-    let resizeFrame = -1;
-    if (abortControllerRef.current != null) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
-    if (open) {
-      const originalLayoutStyles = {
-        "justify-content": panel.style.justifyContent,
-        "align-items": panel.style.alignItems,
-        "align-content": panel.style.alignContent,
-        "justify-items": panel.style.justifyItems
-      };
-      Object.keys(originalLayoutStyles).forEach((key2) => {
-        panel.style.setProperty(key2, "initial", "important");
-      });
-      if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
-        panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, "");
-      }
-      setDimensions({
-        height: panel.scrollHeight,
-        width: panel.scrollWidth
-      });
-      resizeFrame = AnimationFrame.request(() => {
-        Object.entries(originalLayoutStyles).forEach(([key2, value]) => {
-          if (value === "") {
-            panel.style.removeProperty(key2);
-          } else {
-            panel.style.setProperty(key2, value);
-          }
-        });
-      });
-    } else {
-      if (panel.scrollHeight === 0 && panel.scrollWidth === 0) {
-        return void 0;
-      }
-      setDimensions({
-        height: panel.scrollHeight,
-        width: panel.scrollWidth
-      });
-      const abortController = new AbortController();
-      abortControllerRef.current = abortController;
-      const signal = abortController.signal;
-      let attributeObserver = null;
-      const endingStyleAttribute = CollapsiblePanelDataAttributes.endingStyle;
-      attributeObserver = new MutationObserver((mutationList) => {
-        const hasEndingStyle = mutationList.some((mutation) => mutation.type === "attributes" && mutation.attributeName === endingStyleAttribute);
-        if (hasEndingStyle) {
-          attributeObserver?.disconnect();
-          attributeObserver = null;
-          runOnceAnimationsFinish(() => {
-            setDimensions({
-              height: 0,
-              width: 0
-            });
-            panel.style.removeProperty("content-visibility");
-            setMounted(false);
-            if (abortControllerRef.current === abortController) {
-              abortControllerRef.current = null;
-            }
-          }, signal);
-        }
-      });
-      attributeObserver.observe(panel, {
-        attributes: true,
-        attributeFilter: [endingStyleAttribute]
-      });
-      return () => {
-        attributeObserver?.disconnect();
-        endingStyleFrame.cancel();
-        if (abortControllerRef.current === abortController) {
-          abortController.abort();
-          abortControllerRef.current = null;
-        }
-      };
-    }
-    return () => {
-      AnimationFrame.cancel(resizeFrame);
-    };
-  }, [abortControllerRef, animationTypeRef, endingStyleFrame, hiddenUntilFound, keepMounted, mounted, open, panelRef, runOnceAnimationsFinish, setDimensions, setMounted]);
-  useIsoLayoutEffect(() => {
-    if (animationTypeRef.current !== "css-animation") {
-      return;
-    }
-    const panel = panelRef.current;
-    if (!panel) {
-      return;
-    }
-    latestAnimationNameRef.current = panel.style.animationName || latestAnimationNameRef.current;
-    panel.style.setProperty("animation-name", "none");
-    setDimensions({
-      height: panel.scrollHeight,
-      width: panel.scrollWidth
-    });
-    if (!shouldCancelInitialOpenAnimationRef.current && !isBeforeMatchRef.current) {
-      panel.style.removeProperty("animation-name");
-    }
-    if (open) {
-      if (abortControllerRef.current != null) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
-      }
-      setMounted(true);
-      setVisible(true);
-    } else {
-      abortControllerRef.current = new AbortController();
-      runOnceAnimationsFinish(() => {
-        setMounted(false);
-        setVisible(false);
-        abortControllerRef.current = null;
-      }, abortControllerRef.current.signal);
-    }
-  }, [abortControllerRef, animationTypeRef, open, panelRef, runOnceAnimationsFinish, setDimensions, setMounted, setVisible, visible2]);
-  useOnMount(() => {
-    const frame2 = AnimationFrame.request(() => {
-      shouldCancelInitialOpenAnimationRef.current = false;
-    });
-    return () => AnimationFrame.cancel(frame2);
-  });
-  useIsoLayoutEffect(() => {
-    if (!hiddenUntilFound) {
-      return void 0;
-    }
-    const panel = panelRef.current;
-    if (!panel) {
-      return void 0;
-    }
-    let frame2 = -1;
-    let nextFrame = -1;
-    if (open && isBeforeMatchRef.current) {
-      panel.style.transitionDuration = "0s";
-      setDimensions({
-        height: panel.scrollHeight,
-        width: panel.scrollWidth
-      });
-      frame2 = AnimationFrame.request(() => {
-        isBeforeMatchRef.current = false;
-        nextFrame = AnimationFrame.request(() => {
-          setTimeout(() => {
-            panel.style.removeProperty("transition-duration");
-          });
-        });
-      });
-    }
-    return () => {
-      AnimationFrame.cancel(frame2);
-      AnimationFrame.cancel(nextFrame);
-    };
-  }, [hiddenUntilFound, open, panelRef, setDimensions]);
-  useIsoLayoutEffect(() => {
-    const panel = panelRef.current;
-    if (panel && hiddenUntilFound && hidden) {
-      panel.setAttribute("hidden", "until-found");
-      if (animationTypeRef.current === "css-transition") {
-        panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, "");
-      }
-    }
-  }, [hiddenUntilFound, hidden, animationTypeRef, panelRef]);
-  reactExports.useEffect(function registerBeforeMatchListener() {
-    const panel = panelRef.current;
-    if (!panel) {
-      return void 0;
-    }
-    function handleBeforeMatch(event) {
-      isBeforeMatchRef.current = true;
-      setOpen(true);
-      onOpenChange(true, createChangeEventDetails(none$5, event));
-    }
-    panel.addEventListener("beforematch", handleBeforeMatch);
-    return () => {
-      panel.removeEventListener("beforematch", handleBeforeMatch);
-    };
-  }, [onOpenChange, panelRef, setOpen]);
-  return reactExports.useMemo(() => ({
-    props: {
-      hidden,
-      id: idParam,
-      ref: mergedPanelRef
-    }
-  }), [hidden, idParam, mergedPanelRef]);
-}
 
 let CollapsiblePanelCssVars = /* @__PURE__ */ (function(CollapsiblePanelCssVars2) {
   CollapsiblePanelCssVars2["collapsiblePanelHeight"] = "--collapsible-panel-height";
@@ -3107,112 +2711,6 @@ let CollapsiblePanelCssVars = /* @__PURE__ */ (function(CollapsiblePanelCssVars2
   return CollapsiblePanelCssVars2;
 })({});
 
-const CollapsiblePanel = /* @__PURE__ */ reactExports.forwardRef(function CollapsiblePanel2(componentProps, forwardedRef) {
-  const {
-    className,
-    hiddenUntilFound: hiddenUntilFoundProp,
-    keepMounted: keepMountedProp,
-    render: render2,
-    id: idProp,
-    ...elementProps
-  } = componentProps;
-  const {
-    abortControllerRef,
-    animationTypeRef,
-    height,
-    mounted,
-    onOpenChange,
-    open,
-    panelId,
-    panelRef,
-    runOnceAnimationsFinish,
-    setDimensions,
-    setHiddenUntilFound,
-    setKeepMounted,
-    setMounted,
-    setPanelIdState,
-    setOpen,
-    setVisible,
-    state: state2,
-    transitionDimensionRef,
-    visible: visible2,
-    width,
-    transitionStatus
-  } = useCollapsibleRootContext();
-  const hiddenUntilFound = hiddenUntilFoundProp ?? false;
-  const keepMounted = keepMountedProp ?? false;
-  useIsoLayoutEffect(() => {
-    if (idProp) {
-      setPanelIdState(idProp);
-      return () => {
-        setPanelIdState(void 0);
-      };
-    }
-    return void 0;
-  }, [idProp, setPanelIdState]);
-  useIsoLayoutEffect(() => {
-    setHiddenUntilFound(hiddenUntilFound);
-  }, [setHiddenUntilFound, hiddenUntilFound]);
-  useIsoLayoutEffect(() => {
-    setKeepMounted(keepMounted);
-  }, [setKeepMounted, keepMounted]);
-  const {
-    props
-  } = useCollapsiblePanel({
-    abortControllerRef,
-    animationTypeRef,
-    externalRef: forwardedRef,
-    height,
-    hiddenUntilFound,
-    id: panelId,
-    keepMounted,
-    mounted,
-    onOpenChange,
-    open,
-    panelRef,
-    runOnceAnimationsFinish,
-    setDimensions,
-    setMounted,
-    setOpen,
-    setVisible,
-    transitionDimensionRef,
-    visible: visible2,
-    width
-  });
-  useOpenChangeComplete({
-    open: open && transitionStatus === "idle",
-    ref: panelRef,
-    onComplete() {
-      if (!open) {
-        return;
-      }
-      setDimensions({
-        height: void 0,
-        width: void 0
-      });
-    }
-  });
-  const panelState = reactExports.useMemo(() => ({
-    ...state2,
-    transitionStatus
-  }), [state2, transitionStatus]);
-  const element2 = useRenderElement("div", componentProps, {
-    state: panelState,
-    ref: [forwardedRef, panelRef],
-    props: [props, {
-      style: {
-        [CollapsiblePanelCssVars.collapsiblePanelHeight]: height === void 0 ? "auto" : `${height}px`,
-        [CollapsiblePanelCssVars.collapsiblePanelWidth]: width === void 0 ? "auto" : `${width}px`
-      }
-    }, elementProps],
-    stateAttributesMapping: collapsibleStateAttributesMapping
-  });
-  const shouldRender = keepMounted || hiddenUntilFound || !keepMounted && mounted;
-  if (!shouldRender) {
-    return null;
-  }
-  return element2;
-});
 
 function CompositionDeleteDialog({
   compositionId,
