@@ -15,6 +15,31 @@ import { CanvasLoadingState } from "./canvas-loading-state.jsx";
 import { NativeWorkbenchHost, useWorkbenchIdentity, usesWorkspaceResourceView } from "./native-workbench-host.jsx";
 import { useWorkspaceProjectArchitecture } from "./use-workspace-project-architecture.jsx";
 
+// v3 画布：只能懒加载（check-tdz 的 R1）
+const CanvasAreaV3 = reactExports.lazy(() =>
+  import("../canvas-v3/canvas-area-v3.js").then((m) => ({ default: m.CanvasAreaV3 })),
+);
+
+/** 只用于诊断：把渲染期异常显示出来，而不是让整棵工作区树崩掉。 */
+class V3Boundary extends reactExports.Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(error) { return { error }; }
+  componentDidCatch(error, info) {
+    this.setState({ stack: (info?.componentStack ?? "").replace(/\s+/g, " ").slice(0, 600) });
+    globalThis.__v3RenderError = `${String(error && error.stack || error)}\n---componentStack---\n${info?.componentStack ?? ""}`;
+    console.error("[v3-render]", error, info?.componentStack);
+  }
+  render() {
+    if (this.state.error) return reactExports.createElement("pre", {
+      "data-action-ui-id": "canvas.v3-render-error",
+      "data-v3-err": String(this.state.error?.message || this.state.error).slice(0, 300),
+      "data-v3-stack": String(this.state.stack || "").slice(0, 600),
+      style: { whiteSpace: "pre-wrap", fontSize: 11, padding: 8, overflow: "auto" },
+    }, String(this.state.error?.stack || this.state.error).slice(0, 2000));
+    return this.props.children;
+  }
+}
+
 const LegacyCanvasArea = reactExports.lazy(
   () => import("../canvas/canvas-area.jsx").then((module) => ({ default: module.CanvasArea })),
 );
@@ -44,7 +69,12 @@ function WorkspaceV3Workbench(props) {
                 children: t("projectV3.accountPending"),
               }),
         })
-      : jsxRuntimeExports.jsx(CanvasLoadingState, { label: t("common.loading") }),
+      : jsxRuntimeExports.jsx(V3Boundary, {
+          children: jsxRuntimeExports.jsx(reactExports.Suspense, {
+            fallback: jsxRuntimeExports.jsx(CanvasLoadingState, { label: t("common.loading") }),
+            children: jsxRuntimeExports.jsx(CanvasAreaV3, { workspaceId: props.workspaceId, visible }),
+          }),
+        }),
   });
 }
 
