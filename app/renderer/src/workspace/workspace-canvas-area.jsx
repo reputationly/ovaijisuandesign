@@ -72,7 +72,14 @@ function WorkspaceV3Workbench(props) {
       : jsxRuntimeExports.jsx(V3Boundary, {
           children: jsxRuntimeExports.jsx(reactExports.Suspense, {
             fallback: jsxRuntimeExports.jsx(CanvasLoadingState, { label: t("common.loading") }),
-            children: jsxRuntimeExports.jsx(CanvasAreaV3, { workspaceId: props.workspaceId, visible }),
+            children: jsxRuntimeExports.jsx(CanvasAreaV3, {
+              workspaceId: props.workspaceId,
+              visible,
+              // 必须传：CanvasV3SurfaceView 里是 `isActive = true` 的默认值，
+              // 不传的话每个 pane 都会渲染一份 chrome（工具栏/工具坞/帮助）
+              isActive: props.isActive,
+              isPresented: props.isPresented,
+            }),
           }),
         }),
   });
