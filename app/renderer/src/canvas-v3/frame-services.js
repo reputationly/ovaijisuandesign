@@ -1196,6 +1196,12 @@ const CANVAS_HOST_REQUEST_REJECTED = "CANVAS_HOST_REQUEST_REJECTED";
 
 const CANVAS_POSTER_MAX_BYTES = 8 * 1024 * 1024;
 
+// [tdz] CANVAS_V3_TEXT_GENERATION_ROUTES 上移（原第 1963 行，被第 1199 行引用）
+const CANVAS_V3_TEXT_GENERATION_ROUTES = {
+  models: "/api/v3/canvas/text/models",
+  generate: "/api/v3/canvas/text/generate"
+};
+
 const CANVAS_TEXT_ROUTES = CANVAS_V3_TEXT_GENERATION_ROUTES;
 
 const CANVAS_V3_ROUTES = {
@@ -1960,10 +1966,6 @@ const CANVAS_V3_AGENT_COMPOSITION_PAGE_LIMIT = 200;
 
 const CANVAS_V3_IMAGE_MAX_BYTES = 32 * 1024 * 1024;
 
-const CANVAS_V3_TEXT_GENERATION_ROUTES = {
-  models: "/api/v3/canvas/text/models",
-  generate: "/api/v3/canvas/text/generate"
-};
 
 const CHAT_FRAME_MESSAGE_ID_LIMIT = 256;
 

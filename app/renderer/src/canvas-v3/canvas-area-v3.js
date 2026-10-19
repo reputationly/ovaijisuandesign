@@ -18,6 +18,9 @@ import { MonitorUp } from "../media-editing/lucide-icon-wraps.js";
 import { MutationCache, QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { createLucideIcon } from "lucide-react";
+// [tdz] ChevronDown 上移（原第 17558 行，被第 21 行引用）
+const ChevronDown = withIconCompositing(ChevronDown$2);
+
 import { ChevronDown as ChevronDown$1, ChevronRight, Copy as Copy$1, Download as Download$1, Eye as Eye$1, Focus, FolderOpen as FolderOpen$1, Image as Image$1, ImageOff, Pencil as Pencil$1, Shapes, Shapes as Shapes$1, Smile, Table2, Table2 as Table2$1, Tag, Trash2 as Trash2$1, Upload as Upload$1, Video as Video$1, X, X as X$1 } from "lucide-react";
 import { Tooltip as Tooltip$1 } from "../generation/missing-asset-card.jsx";
 import { Dialog as Dialog$1 } from "../canvas/separator.jsx";
@@ -17555,7 +17558,6 @@ function CanvasV3CompositionTitle({
     }
   );
 }
-const ChevronDown = withIconCompositing(ChevronDown$2);
 const opaqueGroupFill = (fill) => `linear-gradient(${fill}, ${fill}), var(--xy-background-color, var(--canvas-bg))`;
 function CanvasV3Frame({
   id: id2,
@@ -19212,6 +19214,9 @@ function canvasV3SubjectFrame(node, view, appearance, layout) {
     size: layout.size
   };
 }
+// [tdz] Image$2 上移（原第 60982 行，被第 19218 行引用）
+const Image$2 = (props) => jsxRuntimeExports.jsx("img", props);
+
 const iconByKind = {
   image: Image$2,
   video: Video,
@@ -54851,6 +54856,9 @@ function requireCore() {
   return core;
 }
 var coreExports = /* @__PURE__ */ requireCore();
+// [tdz] getDefaultExportFromCjs 上移（原第 60982 行，被第 54859 行引用）
+const getDefaultExportFromCjs = (m) => (m && m.__esModule ? m.default : m);
+
 const HighlightJS = /* @__PURE__ */ getDefaultExportFromCjs(coreExports);
 const emptyOptions$1 = {};
 const defaultPrefix = "hljs-";
@@ -60974,10 +60982,8 @@ const resolveRetryAction = () => "retry";
 // 第 149 轮：这 9 个原来经 main-exports 取，现在本地补（main-exports 未覆盖）
 const __vitePreload = (fn) => fn();
 const __vite__mapDeps = (i) => i.map(String);
-const getDefaultExportFromCjs = (m) => (m && m.__esModule ? m.default : m);
 const clipMediaId = (id) => String(id ?? "");
 const parseClipMediaId = (value) => String(value ?? "");
-const Image$2 = (props) => jsxRuntimeExports.jsx("img", props);
 const ImageIcon$1 = Image$2;
 const empty$2 = { edges: [], nodes: [] };
 const freeze = (o) => Object.freeze(o);

@@ -2538,6 +2538,9 @@ function resolveCanvasV3DraftReferences(draft, upstream, available, video = fals
   };
 }
 
+// [tdz] Context$3 上移（原第 9089 行，被第 2541 行引用）
+const Context$3 = reactExports.createContext(null);
+
 const ImageModeHostProvider = Context$3.Provider;
 
 function rotatedAabb(w3, h2, angleDeg) {
@@ -5144,6 +5147,9 @@ function PickerListRow({
 }
 
 const LightboxMediaActionsProvider = LightboxMediaActionsContext.Provider;
+
+// [tdz] TableFullscreen$1 上移（原第 11165 行，被第 5151 行引用）
+const TableFullscreen$1 = reactExports.memo(TableFullscreenInner);
 
 const TableFullscreen = withLegacyTableHost(TableFullscreen$1);
 
@@ -9086,7 +9092,6 @@ function ComposerPanelLayout({
   ] });
 }
 
-const Context$3 = reactExports.createContext(null);
 
 function CornerHandle$1({
   position: position2,
@@ -9283,6 +9288,9 @@ const I2I_STANDARD_PARAMS = [
     aliases: ["resolution"]
   }
 ];
+
+// [tdz] Node$1 上移（原第 43035 行，被第 9292 行引用）
+const Node$1 = Node;
 
 const ImageReference = Node$1.create({
   name: "v3ImageReference",
@@ -11150,6 +11158,649 @@ function SwatchButton({
 
 const TEXT_VERSION_TIER_M_MAX_BYTES = 8 * 1024 * 1024;
 
+// [tdz] IMAGE_TOOLS 上移（原第 35719 行，被第 11162 行引用）
+// [tdz] redraw 上移（原第 37896 行，被第 11163 行引用）
+// [tdz] canvasTool 上移（原第 40134 行，被第 11164 行引用）
+const canvasTool = {
+  operation: "generate_image",
+  surfaces: ["canvas"]
+};
+
+// [tdz] objectParams 上移（原第 38130 行，被第 11174 行引用）
+const objectParams = (properties2, required2) => ({
+  type: "object",
+  properties: properties2,
+  ...required2?.length ? { required: required2 } : {}
+});
+
+// [tdz] resolution 上移（原第 40143 行，被第 11181 行引用）
+const resolution = {
+  type: "string",
+  enum: ["1k", "2k", "4k"],
+  description: "Output size tier."
+};
+
+// [tdz] aspectRatio 上移（原第 40151 行，被第 11188 行引用）
+const aspectRatio = {
+  type: "number",
+  exclusiveMinimum: 0,
+  maximum: 100,
+  description: "Width / height of the output canvas."
+};
+
+// [tdz] SEEDREAM_5 上移（原第 40160 行，被第 11199 行引用）
+const SEEDREAM_5 = {
+  backend: "seedream",
+  model: "doubao-seedream-5-0-pro-260628",
+  pricing: "doubao-seedream-5-0-pro-260628",
+  quote: (params2) => ({ resolution: params2.size === "1K" ? "1K" : "2K" })
+};
+
+const redraw = {
+  ...canvasTool,
+  id: "generate_image:redraw",
+  displayName: "Redraw",
+  description: "Canvas inpainting: repaint the <bbox> region marked in the prompt of one image and keep the rest (Seedream 5.0 Pro); an optional second image guides the new content.",
+  paramSchema: objectParams({ resolution, aspectRatio }),
+  prompt: { use: "required" },
+  references: { min: 1, max: 2, kinds: { image: 2 } },
+  execution: fixed(SEEDREAM_5, (request) => {
+    if (!BBOX.test(request.prompt)) reject("Redraw requires the original bbox prompt");
+    return seedreamEdit(request);
+  })
+};
+
+// [tdz] erase 上移（原第 37948 行，被第 11215 行引用）
+// [tdz] coordinate 上移（原第 40183 行，被第 11229 行引用）
+const coordinate = { type: "integer", minimum: 0, maximum: 1e3 };
+
+// [tdz] noPrompt 上移（原第 40187 行，被第 11240 行引用）
+const noPrompt = { use: "none" };
+
+// [tdz] oneImage 上移（原第 40191 行，被第 11244 行引用）
+const oneImage = { min: 1, max: 1, kinds: { image: 1 } };
+
+const erase = {
+  ...canvasTool,
+  id: "generate_image:erase",
+  displayName: "Erase",
+  description: "Canvas erase: remove the content inside one or more boxes of one image and fill it from the surroundings (Seedream 5.0 Pro); no prompt.",
+  paramSchema: objectParams(
+    {
+      resolution,
+      aspectRatio,
+      bboxes: {
+        type: "array",
+        minItems: 1,
+        maxItems: 100,
+        items: {
+          type: "object",
+          properties: { x1: coordinate, y1: coordinate, x2: coordinate, y2: coordinate },
+          required: ["x1", "y1", "x2", "y2"]
+        },
+        description: "Normalized 0..1000 boxes, x1 < x2 and y1 < y2."
+      }
+    },
+    ["bboxes"]
+  ),
+  prompt: noPrompt,
+  references: oneImage,
+  execution: fixed(SEEDREAM_5, (request) => {
+    const boxes = request.params.bboxes;
+    if (boxes.some((box2) => box2.x1 >= box2.x2 || box2.y1 >= box2.y2))
+      reject("Invalid normalized bbox (0–1000)");
+    return seedreamEdit(request, compileSeedreamErasePrompt(boxes));
+  })
+};
+
+// [tdz] outpaint 上移（原第 37992 行，被第 11259 行引用）
+const outpaint = {
+  ...canvasTool,
+  id: "generate_image:outpaint",
+  displayName: "Outpaint",
+  description: "Canvas outpaint: fill the empty margin of an image the canvas already expanded to aspectRatio (Nano Banana 2); an optional second image is the untouched source, kept as lineage only.",
+  paramSchema: objectParams({ resolution, aspectRatio }, ["aspectRatio"]),
+  prompt: noPrompt,
+  references: { min: 1, max: 2, kinds: { image: 2 } },
+  execution: fixed(
+    {
+      backend: "nano_banana",
+      model: "nano_banana_2",
+      pricing: "nano_banana_2"
+    },
+    ({ params: params2, media: media2 }) => ({
+      params: {
+        resolution: String(params2.resolution ?? "2k").toUpperCase(),
+        aspect_ratio: params2.aspectRatio
+      },
+      // The source image is lineage only; the provider fills the composite.
+      image_paths: media2.image.slice(0, 1)
+    })
+  )
+};
+
+// [tdz] superResolution 上移（原第 38019 行，被第 11286 行引用）
+// [tdz] sharedTool 上移（原第 40204 行，被第 11284 行引用）
+const sharedTool = {
+  operation: "generate_image",
+  surfaces: ["agent", "canvas"]
+};
+
+// [tdz] targetSide 上移（原第 40211 行，被第 11294 行引用）
+const targetSide = { type: "integer", minimum: 1, maximum: 8192 };
+
+const superResolution = {
+  ...sharedTool,
+  id: "generate_image:super_resolution",
+  displayName: "Super resolution",
+  description: "Upscale one image without repainting its content (MediaKit enhance), optionally to explicit target dimensions given together. Use it when only resolution or clarity should improve; a generation model would redraw the content.",
+  paramSchema: objectParams({ targetWidth: targetSide, targetHeight: targetSide }),
+  prompt: noPrompt,
+  references: oneImage,
+  execution: fixed(
+    {
+      backend: "mediakit_enhance",
+      model: "mediakit_enhance",
+      pricing: "mediakit_enhance",
+      // calculate-cost takes the base model plus this tier, not a composite ledger key.
+      quote: () => ({ resolution: "professional" })
+    },
+    ({ params: params2 }) => {
+      if (params2.targetWidth === void 0 !== (params2.targetHeight === void 0))
+        reject("Both target dimensions are required");
+      return {
+        params: params2.targetWidth === void 0 ? {} : { target_width: params2.targetWidth, target_height: params2.targetHeight }
+      };
+    }
+  )
+};
+
+// [tdz] removeBackground 上移（原第 38056 行，被第 11323 行引用）
+const removeBackground = {
+  ...sharedTool,
+  id: "generate_image:remove_background",
+  displayName: "Remove background",
+  description: "Cut out the salient subject of one image into a transparent-background PNG (Jimeng saliency segmentation): clean edges on hair and translucency, never repaints. Use it for stickers, logos, products and subject cutouts.",
+  prompt: noPrompt,
+  references: oneImage,
+  paramSchema: objectParams({}),
+  execution: fixed({
+    backend: "jimeng_remove_bg",
+    model: "jimeng_remove_background",
+    pricing: "jimeng_remove_background"
+  })
+};
+
+// [tdz] layerDecompose 上移（原第 38073 行，被第 11340 行引用）
+const layerDecompose = {
+  ...sharedTool,
+  id: "generate_image:layer_decompose",
+  displayName: "Layer decompose",
+  description: "Split one image into separate editable layers (Seedream layer decompose); an optional prompt steers the split. Every layer is a new Resource: the first under output key primary, the others under primary_2, primary_3, ... in the order returned, their count known only after the run. Declare primary with mode=create and a placement with a role; that placement also places every other layer with the same role. Billed per actual layer.",
+  paramSchema: objectParams({}),
+  prompt: { use: "optional" },
+  references: oneImage,
+  execution: fixed({
+    backend: "seedream",
+    model: "seedream-5-layer-decompose",
+    pricing: "seedream-layer-decompose-small",
+    variableOutputBilling: true,
+    // The layer count is unknown until it runs: precheck six small images, as the cloud does.
+    quote: () => ({ quantity: 6 })
+  })
+};
+
+const IMAGE_TOOLS = [
+  redraw,
+  erase,
+  outpaint,
+  superResolution,
+  removeBackground,
+  layerDecompose
+];
+
+// [tdz] VIDEO_TOOLS 上移（原第 35921 行，被第 11364 行引用）
+// [tdz] enhance 上移（原第 38095 行，被第 11363 行引用）
+// [tdz] videoTool 上移（原第 40223 行，被第 11365 行引用）
+const videoTool = {
+  operation: "generate_video",
+  prompt: { use: "none" },
+  references: { min: 1, max: 1, kinds: { video: 1 } },
+  surfaces: ["agent", "canvas"]
+};
+
+const enhance = {
+  ...videoTool,
+  id: "generate_video:enhance",
+  displayName: "Enhance",
+  description: "Upscale one video to a target resolution and interpolate it to a target frame rate (MediaKit); content is unchanged. Use it when only resolution or smoothness should improve; a generation model would re-create the content.",
+  paramSchema: {
+    type: "object",
+    properties: {
+      resolution: { type: "string", enum: PROJECT_VIDEO_ENHANCE_RESOLUTIONS },
+      fps: { type: "number", enum: PROJECT_VIDEO_ENHANCE_FPS }
+    },
+    required: ["resolution", "fps"]
+  },
+  execution: fixed(
+    {
+      backend: "mediakit_enhance_video",
+      model: "mediakit-enhance-video",
+      pricing: "mediakit-enhance-video",
+      quote: (params) => ({ resolution: params.resolution, fps: Number(params.fps) })
+    },
+    ({ params }) => ({
+      params: {
+        tool_version: "standard",
+        scene: "common",
+        resolution: params.resolution,
+        fps: params.fps
+      }
+    })
+  )
+};
+
+// [tdz] h3SuperResolution 上移（原第 38136 行，被第 11403 行引用）
+const h3SuperResolution = {
+  ...videoTool,
+  id: "generate_video:h3_super_resolution",
+  displayName: "H3 Super Resolution",
+  description: "Upscale one MiniMax-H3 768P generated video to native 2K using its original provider task. MiniMax-H3 generates 2K by default, so this serves its 768P results such as video-extension. Imported videos and other models are not supported.",
+  paramSchema: { type: "object", properties: {} },
+  execution: fixed(
+    {
+      backend: "minimax_v3",
+      model: "h3_video_super_resolution",
+      pricing: "h3_video_super_resolution",
+      quote: () => ({ resolution: "2K" })
+    },
+    () => ({ params: { resolution: "2K" } })
+  )
+};
+
+// [tdz] eraseSubtitle 上移（原第 38155 行，被第 11421 行引用）
+// [tdz] unit 上移（原第 40236 行，被第 11441 行引用）
+const unit = { type: "number", minimum: 0, maximum: 1 };
+
+const eraseSubtitle = {
+  ...videoTool,
+  id: "generate_video:erase_subtitle",
+  displayName: "Erase subtitles",
+  description: "Remove burned-in subtitles from one video automatically (mode Subtitle), or any text inside given regions (mode Text).",
+  paramSchema: {
+    type: "object",
+    properties: {
+      mode: {
+        type: "string",
+        enum: PROJECT_VIDEO_ERASE_SUBTITLE_MODES,
+        default: "Subtitle",
+        description: "Subtitle erases automatically and takes no regions; Text needs regions."
+      },
+      regions: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            top_left_x: unit,
+            top_left_y: unit,
+            bottom_right_x: unit,
+            bottom_right_y: unit
+          },
+          required: ["top_left_x", "top_left_y", "bottom_right_x", "bottom_right_y"]
+        },
+        description: "Normalized boxes, 0 <= top_left < bottom_right <= 1."
+      }
+    }
+  },
+  execution: fixed(
+    {
+      backend: "mediakit_erase_subtitle",
+      model: "mediakit-erase-subtitle",
+      pricing: "mediakit-erase-subtitle"
+    },
+    ({ params }) => {
+      try {
+        const { mode: mode2, regions } = normalizeVideoEraseSubtitleParams(params);
+        return { params: { mode: mode2, regions } };
+      } catch (error) {
+        reject(error.message);
+      }
+    }
+  )
+};
+
+const VIDEO_TOOLS = [enhance, h3SuperResolution, eraseSubtitle];
+
+// [tdz] AUDIO_TOOLS 上移（原第 36034 行，被第 11477 行引用）
+// [tdz] VOICE_CLONE_MODEL 上移（原第 38230 行，被第 11514 行引用）
+const VOICE_CLONE_MODEL = "voice-clone";
+
+// [tdz] VOICE_DESIGN_MODEL 上移（原第 38244 行，被第 11554 行引用）
+const VOICE_DESIGN_MODEL = "voice-design";
+
+const AUDIO_TOOLS = [
+  {
+    id: "generate_speech:voice_isolation",
+    operation: "generate_speech",
+    displayName: "Voice Isolator",
+    description: "Keep only the voice of one audio recording of at most 300 seconds, removing background noise and music; the speech itself is unchanged.",
+    prompt: { use: "none" },
+    references: { min: 1, max: 1, kinds: { audio: 1 } },
+    surfaces: ["agent", "canvas"],
+    paramSchema: objectParams({}),
+    execution: fixed({
+      backend: "minimax_tts",
+      model: "voice-isolation",
+      pricing: "voice-isolation"
+    })
+  },
+  {
+    id: "generate_speech:voice_clone",
+    operation: "generate_speech",
+    displayName: "Voice Clone",
+    description: `Create a reusable voice from a recording of the target speaker. prompt is the preview text the new voice speaks. Delivers that preview as audio; the output's voiceId is the new voice_id for speech generation (voice_id_source="tool"). Every call creates and charges a new voice, so reuse a returned voiceId.`,
+    prompt: { use: "required", maxLength: 1e3 },
+    references: {
+      min: 1,
+      max: 2,
+      kinds: { audio: 2 },
+      description: "First: the speaker sample, mp3/m4a/wav, 10s to 5min, at most 20MB. Optional second: a clip under 8s whose exact transcript is params.promptText, to improve similarity."
+    },
+    surfaces: ["agent"],
+    paramSchema: objectParams({
+      promptText: {
+        type: "string",
+        pattern: "\\S",
+        description: "Exact transcript of the second reference; required with it."
+      },
+      noiseReduction: { type: "boolean", description: "Reduce noise in the sample." },
+      volumeNormalization: { type: "boolean", description: "Normalize the sample volume." }
+    }),
+    execution: fixed(
+      { backend: "minimax_tts", model: VOICE_CLONE_MODEL, pricing: VOICE_CLONE_MODEL },
+      ({ params, references }) => {
+        const [sample, prompt] = references;
+        voiceClip(sample, "The speaker sample", (s2) => s2 >= 10 && s2 <= 300, "from 10s to 5min");
+        voiceClip(prompt, "The prompt clip", (s2) => s2 > 0 && s2 < 8, "under 8s");
+        if (Boolean(prompt) !== (params.promptText !== void 0))
+          reject("A prompt clip and promptText are given together");
+        return {
+          params: {
+            demo_model: VOICE_PREVIEW_MODEL,
+            prompt_text: params.promptText,
+            need_noise_reduction: params.noiseReduction || void 0,
+            need_volume_normalization: params.volumeNormalization || void 0
+          }
+        };
+      }
+    )
+  },
+  {
+    id: "generate_speech:voice_design",
+    operation: "generate_speech",
+    displayName: "Voice Design",
+    description: `Create a new reusable voice from a text description, only when the user asks for a custom voice. prompt is the preview text the new voice speaks. Delivers that preview as audio; the output's voiceId is the new voice_id for speech generation (voice_id_source="tool"). Every call creates and charges a new voice, so reuse a returned voiceId.`,
+    prompt: { use: "required", maxLength: 500 },
+    references: { min: 0, max: 0 },
+    surfaces: ["agent"],
+    paramSchema: objectParams(
+      {
+        voiceDescription: {
+          type: "string",
+          pattern: "\\S",
+          description: "The voice to create: timbre, age, gender, accent and speaking style."
+        }
+      },
+      ["voiceDescription"]
+    ),
+    execution: fixed(
+      { backend: "minimax_tts", model: VOICE_DESIGN_MODEL, pricing: VOICE_DESIGN_MODEL },
+      ({ params }) => ({ params: { voice_prompt: params.voiceDescription } })
+    )
+  }
+];
+
+// [tdz] IMAGE_DAGS 上移（原第 36124 行，被第 11567 行引用）
+// [tdz] dag 上移（原第 38250 行，被第 11565 行引用）
+const dag = (name2, model, backend, displayName2, description, keys2, references, options2 = {}) => ({
+  id: `generate_image:${name2}`,
+  operation: "generate_image",
+  displayName: displayName2,
+  description,
+  paramSchema: objectParams(Object.fromEntries(keys2.map((key2) => [key2, dagParam]))),
+  prompt: options2.prompt ?? { use: "optional" },
+  references: { ...references, kinds: { image: references.max } },
+  // Canvas migrates the legacy template tools; Agent exposure is unchanged.
+  surfaces: ["canvas"],
+  execution: fixed({ backend, model, pricing: model }, ({ params: params2, media: media2 }) => ({
+    params: params2,
+    ...options2.image_paths ? { image_paths: options2.image_paths(media2.image) } : {}
+  }))
+});
+
+const IMAGE_DAGS = [
+  dag(
+    "multi_shot",
+    "multi-shot",
+    BACKEND_VIBE_MULTI_SHOT,
+    "Multi-shot",
+    "Re-render one image from a new camera angle (horizontal_angle, vertical_angle, zoom) while keeping the subject and scene.",
+    ["horizontal_angle", "vertical_angle", "zoom"],
+    { min: 1, max: 1 }
+  ),
+  dag(
+    "storyboard",
+    "n-storyboard",
+    BACKEND_VIBE_STORYBOARD,
+    "Storyboard",
+    "Lay out a storyboard grid of shots (grid_setting, cell_ratio) from the prompt and up to four reference images.",
+    ["grid_setting", "cell_ratio"],
+    { min: 1, max: 4 },
+    { prompt: { use: "required" } }
+  ),
+  dag(
+    "relight",
+    "relight_image_v4",
+    BACKEND_VIBE_RELIGHT,
+    "Relight",
+    "Relight one image to match a lighting reference image (second reference), with light, background and effect settings.",
+    ["light1", "light2", "light3", "background", "effect", "user_intent"],
+    { min: 2, max: 2 },
+    // The second image is a lighting control image, not a source image.
+    { image_paths: (images) => images.slice(0, 1) }
+  )
+];
+
+// [tdz] MEDIA_EDITS 上移（原第 36176 行，被第 11619 行引用）
+// [tdz] ffmpeg 上移（原第 38270 行，被第 11615 行引用）
+// [tdz] mediaEdit 上移（原第 40265 行，被第 11617 行引用）
+const mediaEdit = {
+  operation: "edit_media",
+  prompt: { use: "none" },
+  surfaces: ["agent"],
+  execution: { mode: "sync" }
+};
+
+const ffmpeg = {
+  ...mediaEdit,
+  id: "edit_media:ffmpeg",
+  displayName: "FFmpeg",
+  description: "Transform Resource media with one output-producing ffmpeg command: trim, crop, scale, overlay, replace or mix audio, extract frames or audio, burn subtitles, and transcode. Produces one image, audio or video Resource version. Probe-only commands are outside this capability. To produce a concatenated video, use edit_media:merge_videos; never concatenate video with this capability. OUTPUT: a derivative of the same work (burned subtitles, watermark, background music or audio mux, color grade, trim, resize, format conversion) is output.resources[primary] mode=new_version of the first reference's Resource, baseVersionId its current version, disposition=adopted: the canvas node switches to the new version and the previous one stays recoverable. A different work (extracted audio, a grabbed frame, split clips, a first-time compose of several sources) or an output whose media kind differs from the source is mode=create with a placement that gives a role, so it appears as a new canvas node. Use disposition=candidate only when the user asks to keep the current version unchanged; a candidate is not shown on canvas.",
+  references: { min: 1, max: 100 },
+  paramSchema: {
+    type: "object",
+    properties: {
+      args: {
+        type: "array",
+        items: { type: "string" },
+        minItems: 1,
+        description: 'ffmpeg CLI arguments; the Gateway appends the output path. Option names and values are separate array entries. Every -i value is one "@reference[N]" placeholder, where N indexes the resolved reference list. Placeholders can also appear inside filter expressions; the Gateway substitutes frozen Resource version paths. Write a subtitle filter placeholder bare (for example "subtitles=@reference[1]"), never quoted; the Gateway escapes the path. Timed or multi-line subtitles use a subtitle filter; drawtext represents one static caption. Subtitle filters receive bundled CJK fonts when available. Chinese/Japanese/Korean or pure English drawtext without font or fontfile uses bundled Noto Sans CJK SC or an installed CJK font; if CJK text has neither, rendering is rejected with a font setup error. QUALITY: when a video filter forces re-encoding and args carry no rate control, the Gateway adds -c:v libx264 -crf 18 to preserve source quality; pass -crf / -b:v only when the user asks to compress.'
+      },
+      outputType: {
+        type: "string",
+        enum: ["video", "audio", "image"],
+        default: "video",
+        description: "Media category of the output. Sets the default container (.mp4 / .mp3 / .png). For audio, the container is auto-derived from the `-c:a` encoder in args when present (aac/alac -> .m4a, pcm_* -> .wav, flac -> .flac, opus -> .opus, vorbis -> .ogg, mp3 -> .mp3) -- pass the encoder you want and the extension follows."
+      }
+    },
+    required: ["args"]
+  }
+};
+
+// [tdz] mergeVideos 上移（原第 38306 行，被第 11650 行引用）
+const mergeVideos = {
+  ...mediaEdit,
+  id: "edit_media:merge_videos",
+  displayName: "Merge videos",
+  description: "Join 2-100 video segments end to end in the reference order, scaling them to one resolution. The only way to produce a concatenated video; clip audio is preserved. Produces one video Resource version.",
+  references: {
+    min: 1,
+    max: 100,
+    description: "References must resolve to 2-100 video segments. Composition member references expand in their stored Resource order."
+  },
+  paramSchema: {
+    type: "object",
+    properties: {
+      scaleMode: {
+        type: "string",
+        enum: ["first", "max", "min", "custom"],
+        default: "first",
+        description: "first=match the first listed video, max=largest width and height per axis, min=smallest per axis, custom=targetWidth+targetHeight. The API default is first; when source resolutions differ this choice must come from the user or an explicit orchestration instruction, never a silent guess."
+      },
+      targetWidth: {
+        type: "integer",
+        exclusiveMinimum: 0,
+        description: 'Target width in pixels. Required when scaleMode is "custom".'
+      },
+      targetHeight: {
+        type: "integer",
+        exclusiveMinimum: 0,
+        description: 'Target height in pixels. Required when scaleMode is "custom".'
+      }
+    },
+    // Every merge knob has a default, so an unqualified merge needs no params.
+    default: {}
+  }
+};
+
+// [tdz] transcribe 上移（原第 38343 行，被第 11686 行引用）
+const transcribe = {
+  ...mediaEdit,
+  // The canvas transcribes a video's subtitles in place.
+  surfaces: ["agent", "canvas"],
+  id: "edit_media:transcribe",
+  displayName: "Transcribe",
+  description: "Recognize spoken or sung content and its timing from one audio or video Resource through billable cloud ASR. Returns a plain SRT subtitle or timed lyric text Resource synchronously without a project Task, visual styling, or changes to the source media.",
+  references: { min: 1, max: 1, kinds: { audio: 1, video: 1 } },
+  paramSchema: {
+    type: "object",
+    properties: {
+      mode: {
+        type: "string",
+        enum: ["lyrics", "subtitle"],
+        description: "subtitle delivers a plain SRT text Resource; lyrics delivers a timed lyric text Resource."
+      },
+      language: {
+        type: "string",
+        enum: ["auto", "zh", "en", "other"],
+        default: "auto",
+        description: "ASR routing: auto/zh/en use MediaKit (auto lets MediaKit detect the language); other uses Whisper."
+      }
+    },
+    required: ["mode"]
+  }
+};
+
+// [tdz] subtitleFormat 上移（原第 38372 行，被第 11714 行引用）
+// [tdz] positiveInteger$1 上移（原第 40280 行，被第 11751 行引用）
+const positiveInteger$1 = (description) => ({ type: "integer", exclusiveMinimum: 0, description });
+
+// [tdz] margin 上移（原第 40284 行，被第 11762 行引用）
+const margin = (description) => ({ type: "integer", minimum: 0, description });
+
+const subtitleFormat = {
+  ...mediaEdit,
+  id: "edit_media:subtitle_format",
+  displayName: "Format subtitles",
+  description: "Format one SRT text Resource as styled ASS/SRT/VTT sized for a target video, with line breaks, margins and font size. Produces a text Resource without changing the video.",
+  references: { min: 1, max: 1, kinds: { text: 1 } },
+  paramSchema: {
+    type: "object",
+    properties: {
+      outputSize: {
+        type: "string",
+        pattern: "^\\d{2,5}x\\d{2,5}$",
+        description: 'Final target video dimensions as "WxH". Required for aspect classification, safe-area margins, and line budgets.'
+      },
+      format: {
+        type: "string",
+        enum: PROJECT_SUBTITLE_FORMATS,
+        default: "ass",
+        description: "Output subtitle format. ASS carries visual styling and is recommended for burn-in; SRT and VTT carry timed text. styleResolved and warnings report the effective layout."
+      },
+      stylePreset: {
+        type: "string",
+        enum: PROJECT_SUBTITLE_STYLE_PRESETS,
+        default: "social_safe",
+        description: "Default preset is social_safe. Use custom only when the user gives explicit style instructions."
+      },
+      position: {
+        type: "string",
+        enum: ["bottom", "top", "middle"],
+        default: "bottom",
+        description: "Subtitle placement. User-explicit top overrides preset placement."
+      },
+      fontName: {
+        type: "string",
+        description: "Optional ASS font family. Leave unset to auto-pick a CJK-capable font."
+      },
+      fontSize: positiveInteger$1(
+        'Explicit ASS font size in pixels. Prefer fontScale for relative user requests like "bigger".'
+      ),
+      fontScale: {
+        type: "number",
+        exclusiveMinimum: 0,
+        description: 'Relative font size multiplier, e.g. 1.2 for "larger".'
+      },
+      marginV: margin(
+        "Explicit vertical margin in pixels. Clamped by safeArea unless unsafeOverride=true."
+      ),
+      marginL: margin(
+        "Explicit left margin in pixels. Clamped to the 7% safe area unless unsafeOverride=true."
+      ),
+      marginR: margin(
+        "Explicit right margin in pixels. Clamped to the 7% safe area unless unsafeOverride=true."
+      ),
+      cjkCharsPerLine: positiveInteger$1(
+        "Override CJK chars per line. Default comes from the aspect bucket."
+      ),
+      englishWordsPerLine: positiveInteger$1(
+        "Override English words per line. Default comes from the aspect bucket."
+      ),
+      maxLines: {
+        type: "number",
+        enum: [1, 2],
+        default: 2,
+        description: "Maximum rendered lines per cue before splitting into the next cue. Default 2 preserves source timing better; set 1 only when the user explicitly wants single-line cues."
+      },
+      safeArea: {
+        type: "string",
+        enum: ["auto", "social", "none"],
+        default: "social",
+        description: "Keep auto/social unless the user explicitly asks to ignore safe areas."
+      },
+      unsafeOverride: {
+        type: "boolean",
+        default: false,
+        description: "Allow unsafe margins/placement only when the user explicitly asks for it."
+      }
+    },
+    required: ["outputSize"]
+  }
+};
+
+const MEDIA_EDITS = [ffmpeg, mergeVideos, transcribe, subtitleFormat];
+
 const TOOL_CAPABILITIES = [
   ...IMAGE_TOOLS,
   ...VIDEO_TOOLS,
@@ -11160,7 +11811,6 @@ const TOOL_CAPABILITIES = [
 
 const TRIGGER_SIZE = 18;
 
-const TableFullscreen$1 = reactExports.memo(TableFullscreenInner);
 
 function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
   const { t: t2 } = useTranslation();
@@ -12271,6 +12921,9 @@ function createNavigation(workbench) {
 
 const createStore$1 = ((createState2) => createState2 ? createStoreImpl(createState2) : createStoreImpl);
 
+// [tdz] COMPACT_GRID_MIN_COLUMNS_DEFAULT 上移（原第 37037 行，被第 12925 行引用）
+const COMPACT_GRID_MIN_COLUMNS_DEFAULT = 2;
+
 let current = {
   "grid-horizontal": COMPACT_GRID_MIN_COLUMNS_DEFAULT,
   "grid-vertical": COMPACT_GRID_MIN_COLUMNS_DEFAULT
@@ -12454,6 +13107,12 @@ function gfmToMarkdown(options2) {
     ]
   };
 }
+
+// [tdz] existing 上移（原第 37488 行，被第 13111 行引用）
+// [tdz] key 上移（原第 40026 行，被第 13112 行引用）
+const key = /* @__PURE__ */ Symbol.for("hilo.canvas-v3.plugin-insertion");
+
+const existing = Reflect.get(globalThis, key);
 
 const handlers = existing instanceof Map ? existing : /* @__PURE__ */ new Map();
 
@@ -12653,6 +13312,9 @@ function orderResolutionOptions(options2) {
     return kilo ? Number(kilo[1]) * 1e3 : void 0;
   });
 }
+// [tdz] VIDEO_MODE_PARAM_KEYS 上移（原第 37541 行，被第 13316 行引用）
+const VIDEO_MODE_PARAM_KEYS = ["mode", "image_mode"];
+
 const VIDEO_PARAM_GROUPS = [
   VIDEO_MODE_PARAM_KEYS,
   ASPECT_RATIO_PARAM_KEYS,
@@ -28557,6 +29219,12 @@ function checkTextSelection($pos) {
     console["warn"]("TextSelection endpoint not pointing into a node with inline content (" + $pos.parent.type.name + ")");
   }
 }
+// [tdz] Branch 上移（原第 43109 行，被第 29222 行引用）
+const Branch = class {};
+
+// [tdz] RopeSequence 上移（原第 43114 行，被第 29225 行引用）
+const RopeSequence = class {};
+
 Branch.empty = new Branch(RopeSequence.empty, 0);
 function cutOffEvents(items, n2) {
   let cutPoint;
@@ -30719,6 +31387,9 @@ const starInputRegex$1 = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))$/;
 const starPasteRegex$1 = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))/g;
 const underscoreInputRegex$1 = /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))$/;
 const underscorePasteRegex$1 = /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))/g;
+// [tdz] Mark2 上移（原第 43116 行，被第 31390 行引用）
+const Mark2 = class {};
+
 const Bold = Mark2.create({
   name: "bold",
   addOptions() {
@@ -35709,133 +36380,10 @@ function SelectionTidyControlInner({
 
 const PRESS_FEEDBACK_MS = 240;
 
-const IMAGE_TOOLS = [
-  redraw,
-  erase,
-  outpaint,
-  superResolution,
-  removeBackground,
-  layerDecompose
-];
 
-const VIDEO_TOOLS = [enhance, h3SuperResolution, eraseSubtitle];
 
-const AUDIO_TOOLS = [
-  {
-    id: "generate_speech:voice_isolation",
-    operation: "generate_speech",
-    displayName: "Voice Isolator",
-    description: "Keep only the voice of one audio recording of at most 300 seconds, removing background noise and music; the speech itself is unchanged.",
-    prompt: { use: "none" },
-    references: { min: 1, max: 1, kinds: { audio: 1 } },
-    surfaces: ["agent", "canvas"],
-    paramSchema: objectParams({}),
-    execution: fixed({
-      backend: "minimax_tts",
-      model: "voice-isolation",
-      pricing: "voice-isolation"
-    })
-  },
-  {
-    id: "generate_speech:voice_clone",
-    operation: "generate_speech",
-    displayName: "Voice Clone",
-    description: `Create a reusable voice from a recording of the target speaker. prompt is the preview text the new voice speaks. Delivers that preview as audio; the output's voiceId is the new voice_id for speech generation (voice_id_source="tool"). Every call creates and charges a new voice, so reuse a returned voiceId.`,
-    prompt: { use: "required", maxLength: 1e3 },
-    references: {
-      min: 1,
-      max: 2,
-      kinds: { audio: 2 },
-      description: "First: the speaker sample, mp3/m4a/wav, 10s to 5min, at most 20MB. Optional second: a clip under 8s whose exact transcript is params.promptText, to improve similarity."
-    },
-    surfaces: ["agent"],
-    paramSchema: objectParams({
-      promptText: {
-        type: "string",
-        pattern: "\\S",
-        description: "Exact transcript of the second reference; required with it."
-      },
-      noiseReduction: { type: "boolean", description: "Reduce noise in the sample." },
-      volumeNormalization: { type: "boolean", description: "Normalize the sample volume." }
-    }),
-    execution: fixed(
-      { backend: "minimax_tts", model: VOICE_CLONE_MODEL, pricing: VOICE_CLONE_MODEL },
-      ({ params, references }) => {
-        const [sample, prompt] = references;
-        voiceClip(sample, "The speaker sample", (s2) => s2 >= 10 && s2 <= 300, "from 10s to 5min");
-        voiceClip(prompt, "The prompt clip", (s2) => s2 > 0 && s2 < 8, "under 8s");
-        if (Boolean(prompt) !== (params.promptText !== void 0))
-          reject("A prompt clip and promptText are given together");
-        return {
-          params: {
-            demo_model: VOICE_PREVIEW_MODEL,
-            prompt_text: params.promptText,
-            need_noise_reduction: params.noiseReduction || void 0,
-            need_volume_normalization: params.volumeNormalization || void 0
-          }
-        };
-      }
-    )
-  },
-  {
-    id: "generate_speech:voice_design",
-    operation: "generate_speech",
-    displayName: "Voice Design",
-    description: `Create a new reusable voice from a text description, only when the user asks for a custom voice. prompt is the preview text the new voice speaks. Delivers that preview as audio; the output's voiceId is the new voice_id for speech generation (voice_id_source="tool"). Every call creates and charges a new voice, so reuse a returned voiceId.`,
-    prompt: { use: "required", maxLength: 500 },
-    references: { min: 0, max: 0 },
-    surfaces: ["agent"],
-    paramSchema: objectParams(
-      {
-        voiceDescription: {
-          type: "string",
-          pattern: "\\S",
-          description: "The voice to create: timbre, age, gender, accent and speaking style."
-        }
-      },
-      ["voiceDescription"]
-    ),
-    execution: fixed(
-      { backend: "minimax_tts", model: VOICE_DESIGN_MODEL, pricing: VOICE_DESIGN_MODEL },
-      ({ params }) => ({ params: { voice_prompt: params.voiceDescription } })
-    )
-  }
-];
 
-const IMAGE_DAGS = [
-  dag(
-    "multi_shot",
-    "multi-shot",
-    BACKEND_VIBE_MULTI_SHOT,
-    "Multi-shot",
-    "Re-render one image from a new camera angle (horizontal_angle, vertical_angle, zoom) while keeping the subject and scene.",
-    ["horizontal_angle", "vertical_angle", "zoom"],
-    { min: 1, max: 1 }
-  ),
-  dag(
-    "storyboard",
-    "n-storyboard",
-    BACKEND_VIBE_STORYBOARD,
-    "Storyboard",
-    "Lay out a storyboard grid of shots (grid_setting, cell_ratio) from the prompt and up to four reference images.",
-    ["grid_setting", "cell_ratio"],
-    { min: 1, max: 4 },
-    { prompt: { use: "required" } }
-  ),
-  dag(
-    "relight",
-    "relight_image_v4",
-    BACKEND_VIBE_RELIGHT,
-    "Relight",
-    "Relight one image to match a lighting reference image (second reference), with light, background and effect settings.",
-    ["light1", "light2", "light3", "background", "effect", "user_intent"],
-    { min: 2, max: 2 },
-    // The second image is a lighting control image, not a source image.
-    { image_paths: (images) => images.slice(0, 1) }
-  )
-];
 
-const MEDIA_EDITS = [ffmpeg, mergeVideos, transcribe, subtitleFormat];
 
 function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
   const { t: t2 } = useTranslation();
@@ -36507,7 +37055,6 @@ function looksLikeANode(value) {
   return value !== null && typeof value === "object" && "type" in value;
 }
 
-const COMPACT_GRID_MIN_COLUMNS_DEFAULT = 2;
 
 const COMPACT_GRID_MIN_COLUMNS_LIMIT = { min: 1, max: 10 };
 
@@ -36956,7 +37503,6 @@ function gfmTaskListItemToMarkdown() {
   };
 }
 
-const existing = Reflect.get(globalThis, key);
 
 function inspectSources(resources, constraints2, allowProcessing = false) {
   const policyIssue = inspectConstraints(constraints2);
@@ -37004,7 +37550,6 @@ const RESOLUTION_RANK = {
   "4k": 3
 };
 
-const VIDEO_MODE_PARAM_KEYS = ["mode", "image_mode"];
 
 const VIDEO_MODE_ORDER = [
   "reference",
@@ -37699,6 +38244,15 @@ let observer$2;
 
 const listeners$d = /* @__PURE__ */ new Map();
 
+// [tdz] NANO_BANANA_EDIT_PRICING_MODEL_ID 上移（原第 40131 行，被第 38248 行引用）
+const NANO_BANANA_EDIT_PRICING_MODEL_ID = "nano_banana_2";
+
+// [tdz] ENHANCE_IMAGE_PRICING_MODEL_ID 上移（原第 40135 行，被第 38256 行引用）
+const ENHANCE_IMAGE_PRICING_MODEL_ID = "mediakit_enhance";
+
+// [tdz] REMOVE_BG_PRICING_MODEL_ID 上移（原第 40139 行，被第 38262 行引用）
+const REMOVE_BG_PRICING_MODEL_ID = "jimeng_remove_background";
+
 const IMAGE_EDIT_PRICING = {
   redraw: { modelId: NANO_BANANA_EDIT_PRICING_MODEL_ID, resolution: { kind: "dynamic" } },
   outpaint: { modelId: NANO_BANANA_EDIT_PRICING_MODEL_ID, resolution: { kind: "dynamic" } },
@@ -37884,237 +38438,15 @@ function trackPointerSelection(view2, event, anchor2, chipPos) {
   doc2.addEventListener("mouseup", onUp, true);
 }
 
-const redraw = {
-  ...canvasTool,
-  id: "generate_image:redraw",
-  displayName: "Redraw",
-  description: "Canvas inpainting: repaint the <bbox> region marked in the prompt of one image and keep the rest (Seedream 5.0 Pro); an optional second image guides the new content.",
-  paramSchema: objectParams({ resolution, aspectRatio }),
-  prompt: { use: "required" },
-  references: { min: 1, max: 2, kinds: { image: 2 } },
-  execution: fixed(SEEDREAM_5, (request) => {
-    if (!BBOX.test(request.prompt)) reject("Redraw requires the original bbox prompt");
-    return seedreamEdit(request);
-  })
-};
 
-const erase = {
-  ...canvasTool,
-  id: "generate_image:erase",
-  displayName: "Erase",
-  description: "Canvas erase: remove the content inside one or more boxes of one image and fill it from the surroundings (Seedream 5.0 Pro); no prompt.",
-  paramSchema: objectParams(
-    {
-      resolution,
-      aspectRatio,
-      bboxes: {
-        type: "array",
-        minItems: 1,
-        maxItems: 100,
-        items: {
-          type: "object",
-          properties: { x1: coordinate, y1: coordinate, x2: coordinate, y2: coordinate },
-          required: ["x1", "y1", "x2", "y2"]
-        },
-        description: "Normalized 0..1000 boxes, x1 < x2 and y1 < y2."
-      }
-    },
-    ["bboxes"]
-  ),
-  prompt: noPrompt,
-  references: oneImage,
-  execution: fixed(SEEDREAM_5, (request) => {
-    const boxes = request.params.bboxes;
-    if (boxes.some((box2) => box2.x1 >= box2.x2 || box2.y1 >= box2.y2))
-      reject("Invalid normalized bbox (0–1000)");
-    return seedreamEdit(request, compileSeedreamErasePrompt(boxes));
-  })
-};
 
-const outpaint = {
-  ...canvasTool,
-  id: "generate_image:outpaint",
-  displayName: "Outpaint",
-  description: "Canvas outpaint: fill the empty margin of an image the canvas already expanded to aspectRatio (Nano Banana 2); an optional second image is the untouched source, kept as lineage only.",
-  paramSchema: objectParams({ resolution, aspectRatio }, ["aspectRatio"]),
-  prompt: noPrompt,
-  references: { min: 1, max: 2, kinds: { image: 2 } },
-  execution: fixed(
-    {
-      backend: "nano_banana",
-      model: "nano_banana_2",
-      pricing: "nano_banana_2"
-    },
-    ({ params: params2, media: media2 }) => ({
-      params: {
-        resolution: String(params2.resolution ?? "2k").toUpperCase(),
-        aspect_ratio: params2.aspectRatio
-      },
-      // The source image is lineage only; the provider fills the composite.
-      image_paths: media2.image.slice(0, 1)
-    })
-  )
-};
 
-const superResolution = {
-  ...sharedTool,
-  id: "generate_image:super_resolution",
-  displayName: "Super resolution",
-  description: "Upscale one image without repainting its content (MediaKit enhance), optionally to explicit target dimensions given together. Use it when only resolution or clarity should improve; a generation model would redraw the content.",
-  paramSchema: objectParams({ targetWidth: targetSide, targetHeight: targetSide }),
-  prompt: noPrompt,
-  references: oneImage,
-  execution: fixed(
-    {
-      backend: "mediakit_enhance",
-      model: "mediakit_enhance",
-      pricing: "mediakit_enhance",
-      // calculate-cost takes the base model plus this tier, not a composite ledger key.
-      quote: () => ({ resolution: "professional" })
-    },
-    ({ params: params2 }) => {
-      if (params2.targetWidth === void 0 !== (params2.targetHeight === void 0))
-        reject("Both target dimensions are required");
-      return {
-        params: params2.targetWidth === void 0 ? {} : { target_width: params2.targetWidth, target_height: params2.targetHeight }
-      };
-    }
-  )
-};
 
-const removeBackground = {
-  ...sharedTool,
-  id: "generate_image:remove_background",
-  displayName: "Remove background",
-  description: "Cut out the salient subject of one image into a transparent-background PNG (Jimeng saliency segmentation): clean edges on hair and translucency, never repaints. Use it for stickers, logos, products and subject cutouts.",
-  prompt: noPrompt,
-  references: oneImage,
-  paramSchema: objectParams({}),
-  execution: fixed({
-    backend: "jimeng_remove_bg",
-    model: "jimeng_remove_background",
-    pricing: "jimeng_remove_background"
-  })
-};
 
-const layerDecompose = {
-  ...sharedTool,
-  id: "generate_image:layer_decompose",
-  displayName: "Layer decompose",
-  description: "Split one image into separate editable layers (Seedream layer decompose); an optional prompt steers the split. Every layer is a new Resource: the first under output key primary, the others under primary_2, primary_3, ... in the order returned, their count known only after the run. Declare primary with mode=create and a placement with a role; that placement also places every other layer with the same role. Billed per actual layer.",
-  paramSchema: objectParams({}),
-  prompt: { use: "optional" },
-  references: oneImage,
-  execution: fixed({
-    backend: "seedream",
-    model: "seedream-5-layer-decompose",
-    pricing: "seedream-layer-decompose-small",
-    variableOutputBilling: true,
-    // The layer count is unknown until it runs: precheck six small images, as the cloud does.
-    quote: () => ({ quantity: 6 })
-  })
-};
 
-const enhance = {
-  ...videoTool,
-  id: "generate_video:enhance",
-  displayName: "Enhance",
-  description: "Upscale one video to a target resolution and interpolate it to a target frame rate (MediaKit); content is unchanged. Use it when only resolution or smoothness should improve; a generation model would re-create the content.",
-  paramSchema: {
-    type: "object",
-    properties: {
-      resolution: { type: "string", enum: PROJECT_VIDEO_ENHANCE_RESOLUTIONS },
-      fps: { type: "number", enum: PROJECT_VIDEO_ENHANCE_FPS }
-    },
-    required: ["resolution", "fps"]
-  },
-  execution: fixed(
-    {
-      backend: "mediakit_enhance_video",
-      model: "mediakit-enhance-video",
-      pricing: "mediakit-enhance-video",
-      quote: (params) => ({ resolution: params.resolution, fps: Number(params.fps) })
-    },
-    ({ params }) => ({
-      params: {
-        tool_version: "standard",
-        scene: "common",
-        resolution: params.resolution,
-        fps: params.fps
-      }
-    })
-  )
-};
 
-const h3SuperResolution = {
-  ...videoTool,
-  id: "generate_video:h3_super_resolution",
-  displayName: "H3 Super Resolution",
-  description: "Upscale one MiniMax-H3 768P generated video to native 2K using its original provider task. MiniMax-H3 generates 2K by default, so this serves its 768P results such as video-extension. Imported videos and other models are not supported.",
-  paramSchema: { type: "object", properties: {} },
-  execution: fixed(
-    {
-      backend: "minimax_v3",
-      model: "h3_video_super_resolution",
-      pricing: "h3_video_super_resolution",
-      quote: () => ({ resolution: "2K" })
-    },
-    () => ({ params: { resolution: "2K" } })
-  )
-};
 
-const eraseSubtitle = {
-  ...videoTool,
-  id: "generate_video:erase_subtitle",
-  displayName: "Erase subtitles",
-  description: "Remove burned-in subtitles from one video automatically (mode Subtitle), or any text inside given regions (mode Text).",
-  paramSchema: {
-    type: "object",
-    properties: {
-      mode: {
-        type: "string",
-        enum: PROJECT_VIDEO_ERASE_SUBTITLE_MODES,
-        default: "Subtitle",
-        description: "Subtitle erases automatically and takes no regions; Text needs regions."
-      },
-      regions: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            top_left_x: unit,
-            top_left_y: unit,
-            bottom_right_x: unit,
-            bottom_right_y: unit
-          },
-          required: ["top_left_x", "top_left_y", "bottom_right_x", "bottom_right_y"]
-        },
-        description: "Normalized boxes, 0 <= top_left < bottom_right <= 1."
-      }
-    }
-  },
-  execution: fixed(
-    {
-      backend: "mediakit_erase_subtitle",
-      model: "mediakit-erase-subtitle",
-      pricing: "mediakit-erase-subtitle"
-    },
-    ({ params }) => {
-      try {
-        const { mode: mode2, regions } = normalizeVideoEraseSubtitleParams(params);
-        return { params: { mode: mode2, regions } };
-      } catch (error) {
-        reject(error.message);
-      }
-    }
-  )
-};
 
-const objectParams = (properties2, required2) => ({
-  type: "object",
-  properties: properties2,
-  ...required2?.length ? { required: required2 } : {}
-});
 
 function fixed(provider, compile = () => ({})) {
   return {
@@ -38136,7 +38468,6 @@ function fixed(provider, compile = () => ({})) {
   };
 }
 
-const VOICE_CLONE_MODEL = "voice-clone";
 
 function voiceClip(reference, role2, fits, window2) {
   if (!reference) return;
@@ -38148,192 +38479,11 @@ function voiceClip(reference, role2, fits, window2) {
 
 const VOICE_PREVIEW_MODEL = "speech-2.8-hd";
 
-const VOICE_DESIGN_MODEL = "voice-design";
 
-const dag = (name2, model, backend, displayName2, description, keys2, references, options2 = {}) => ({
-  id: `generate_image:${name2}`,
-  operation: "generate_image",
-  displayName: displayName2,
-  description,
-  paramSchema: objectParams(Object.fromEntries(keys2.map((key2) => [key2, dagParam]))),
-  prompt: options2.prompt ?? { use: "optional" },
-  references: { ...references, kinds: { image: references.max } },
-  // Canvas migrates the legacy template tools; Agent exposure is unchanged.
-  surfaces: ["canvas"],
-  execution: fixed({ backend, model, pricing: model }, ({ params: params2, media: media2 }) => ({
-    params: params2,
-    ...options2.image_paths ? { image_paths: options2.image_paths(media2.image) } : {}
-  }))
-});
 
-const ffmpeg = {
-  ...mediaEdit,
-  id: "edit_media:ffmpeg",
-  displayName: "FFmpeg",
-  description: "Transform Resource media with one output-producing ffmpeg command: trim, crop, scale, overlay, replace or mix audio, extract frames or audio, burn subtitles, and transcode. Produces one image, audio or video Resource version. Probe-only commands are outside this capability. To produce a concatenated video, use edit_media:merge_videos; never concatenate video with this capability. OUTPUT: a derivative of the same work (burned subtitles, watermark, background music or audio mux, color grade, trim, resize, format conversion) is output.resources[primary] mode=new_version of the first reference's Resource, baseVersionId its current version, disposition=adopted: the canvas node switches to the new version and the previous one stays recoverable. A different work (extracted audio, a grabbed frame, split clips, a first-time compose of several sources) or an output whose media kind differs from the source is mode=create with a placement that gives a role, so it appears as a new canvas node. Use disposition=candidate only when the user asks to keep the current version unchanged; a candidate is not shown on canvas.",
-  references: { min: 1, max: 100 },
-  paramSchema: {
-    type: "object",
-    properties: {
-      args: {
-        type: "array",
-        items: { type: "string" },
-        minItems: 1,
-        description: 'ffmpeg CLI arguments; the Gateway appends the output path. Option names and values are separate array entries. Every -i value is one "@reference[N]" placeholder, where N indexes the resolved reference list. Placeholders can also appear inside filter expressions; the Gateway substitutes frozen Resource version paths. Write a subtitle filter placeholder bare (for example "subtitles=@reference[1]"), never quoted; the Gateway escapes the path. Timed or multi-line subtitles use a subtitle filter; drawtext represents one static caption. Subtitle filters receive bundled CJK fonts when available. Chinese/Japanese/Korean or pure English drawtext without font or fontfile uses bundled Noto Sans CJK SC or an installed CJK font; if CJK text has neither, rendering is rejected with a font setup error. QUALITY: when a video filter forces re-encoding and args carry no rate control, the Gateway adds -c:v libx264 -crf 18 to preserve source quality; pass -crf / -b:v only when the user asks to compress.'
-      },
-      outputType: {
-        type: "string",
-        enum: ["video", "audio", "image"],
-        default: "video",
-        description: "Media category of the output. Sets the default container (.mp4 / .mp3 / .png). For audio, the container is auto-derived from the `-c:a` encoder in args when present (aac/alac -> .m4a, pcm_* -> .wav, flac -> .flac, opus -> .opus, vorbis -> .ogg, mp3 -> .mp3) -- pass the encoder you want and the extension follows."
-      }
-    },
-    required: ["args"]
-  }
-};
 
-const mergeVideos = {
-  ...mediaEdit,
-  id: "edit_media:merge_videos",
-  displayName: "Merge videos",
-  description: "Join 2-100 video segments end to end in the reference order, scaling them to one resolution. The only way to produce a concatenated video; clip audio is preserved. Produces one video Resource version.",
-  references: {
-    min: 1,
-    max: 100,
-    description: "References must resolve to 2-100 video segments. Composition member references expand in their stored Resource order."
-  },
-  paramSchema: {
-    type: "object",
-    properties: {
-      scaleMode: {
-        type: "string",
-        enum: ["first", "max", "min", "custom"],
-        default: "first",
-        description: "first=match the first listed video, max=largest width and height per axis, min=smallest per axis, custom=targetWidth+targetHeight. The API default is first; when source resolutions differ this choice must come from the user or an explicit orchestration instruction, never a silent guess."
-      },
-      targetWidth: {
-        type: "integer",
-        exclusiveMinimum: 0,
-        description: 'Target width in pixels. Required when scaleMode is "custom".'
-      },
-      targetHeight: {
-        type: "integer",
-        exclusiveMinimum: 0,
-        description: 'Target height in pixels. Required when scaleMode is "custom".'
-      }
-    },
-    // Every merge knob has a default, so an unqualified merge needs no params.
-    default: {}
-  }
-};
 
-const transcribe = {
-  ...mediaEdit,
-  // The canvas transcribes a video's subtitles in place.
-  surfaces: ["agent", "canvas"],
-  id: "edit_media:transcribe",
-  displayName: "Transcribe",
-  description: "Recognize spoken or sung content and its timing from one audio or video Resource through billable cloud ASR. Returns a plain SRT subtitle or timed lyric text Resource synchronously without a project Task, visual styling, or changes to the source media.",
-  references: { min: 1, max: 1, kinds: { audio: 1, video: 1 } },
-  paramSchema: {
-    type: "object",
-    properties: {
-      mode: {
-        type: "string",
-        enum: ["lyrics", "subtitle"],
-        description: "subtitle delivers a plain SRT text Resource; lyrics delivers a timed lyric text Resource."
-      },
-      language: {
-        type: "string",
-        enum: ["auto", "zh", "en", "other"],
-        default: "auto",
-        description: "ASR routing: auto/zh/en use MediaKit (auto lets MediaKit detect the language); other uses Whisper."
-      }
-    },
-    required: ["mode"]
-  }
-};
 
-const subtitleFormat = {
-  ...mediaEdit,
-  id: "edit_media:subtitle_format",
-  displayName: "Format subtitles",
-  description: "Format one SRT text Resource as styled ASS/SRT/VTT sized for a target video, with line breaks, margins and font size. Produces a text Resource without changing the video.",
-  references: { min: 1, max: 1, kinds: { text: 1 } },
-  paramSchema: {
-    type: "object",
-    properties: {
-      outputSize: {
-        type: "string",
-        pattern: "^\\d{2,5}x\\d{2,5}$",
-        description: 'Final target video dimensions as "WxH". Required for aspect classification, safe-area margins, and line budgets.'
-      },
-      format: {
-        type: "string",
-        enum: PROJECT_SUBTITLE_FORMATS,
-        default: "ass",
-        description: "Output subtitle format. ASS carries visual styling and is recommended for burn-in; SRT and VTT carry timed text. styleResolved and warnings report the effective layout."
-      },
-      stylePreset: {
-        type: "string",
-        enum: PROJECT_SUBTITLE_STYLE_PRESETS,
-        default: "social_safe",
-        description: "Default preset is social_safe. Use custom only when the user gives explicit style instructions."
-      },
-      position: {
-        type: "string",
-        enum: ["bottom", "top", "middle"],
-        default: "bottom",
-        description: "Subtitle placement. User-explicit top overrides preset placement."
-      },
-      fontName: {
-        type: "string",
-        description: "Optional ASS font family. Leave unset to auto-pick a CJK-capable font."
-      },
-      fontSize: positiveInteger$1(
-        'Explicit ASS font size in pixels. Prefer fontScale for relative user requests like "bigger".'
-      ),
-      fontScale: {
-        type: "number",
-        exclusiveMinimum: 0,
-        description: 'Relative font size multiplier, e.g. 1.2 for "larger".'
-      },
-      marginV: margin(
-        "Explicit vertical margin in pixels. Clamped by safeArea unless unsafeOverride=true."
-      ),
-      marginL: margin(
-        "Explicit left margin in pixels. Clamped to the 7% safe area unless unsafeOverride=true."
-      ),
-      marginR: margin(
-        "Explicit right margin in pixels. Clamped to the 7% safe area unless unsafeOverride=true."
-      ),
-      cjkCharsPerLine: positiveInteger$1(
-        "Override CJK chars per line. Default comes from the aspect bucket."
-      ),
-      englishWordsPerLine: positiveInteger$1(
-        "Override English words per line. Default comes from the aspect bucket."
-      ),
-      maxLines: {
-        type: "number",
-        enum: [1, 2],
-        default: 2,
-        description: "Maximum rendered lines per cue before splitting into the next cue. Default 2 preserves source timing better; set 1 only when the user explicitly wants single-line cues."
-      },
-      safeArea: {
-        type: "string",
-        enum: ["auto", "social", "none"],
-        default: "social",
-        description: "Keep auto/social unless the user explicitly asks to ignore safe areas."
-      },
-      unsafeOverride: {
-        type: "boolean",
-        default: false,
-        description: "Allow unsafe margins/placement only when the user explicitly asks for it."
-      }
-    },
-    required: ["outputSize"]
-  }
-};
 
 function useTableHistory(initial) {
   const travelsRef = reactExports.useRef(null);
@@ -38516,6 +38666,12 @@ function useClosePartRegistration() {
 const HOVER_OPEN_DELAY_MS = 300;
 
 const HOVER_CLOSE_DELAY_MS = 150;
+
+// [tdz] Subscribable 上移（原第 43109 行，被第 38670 行引用）
+const Subscribable = class { subscribe() { return () => void 0; } };
+
+// [tdz] replaceEqualDeep$1 上移（原第 43112 行，被第 38802 行引用）
+const replaceEqualDeep$1 = (a, b) => (a === b ? a : b);
 
 var QueriesObserver = class extends Subscribable {
   #client;
@@ -39852,6 +40008,9 @@ function handleDelete$1(node2, _2, state2, info2) {
   return value;
 }
 
+// [tdz] listItem 上移（原第 43120 行，被第 40026 行引用）
+const listItem = (o) => o;
+
 const handle$1 = {
   blockquote,
   break: hardBreak,
@@ -39896,7 +40055,6 @@ function listItemWithTaskListItem(node2, parent, state2, info2) {
   }
 }
 
-const key = /* @__PURE__ */ Symbol.for("hilo.canvas-v3.plugin-insertion");
 
 function inspectConstraints(c3) {
   if (!Number.isSafeInteger(c3.remainingByKind.video) || c3.remainingByKind.video < 0 || c3.remainingVideoAudio !== void 0 && (!Number.isSafeInteger(c3.remainingVideoAudio) || c3.remainingVideoAudio < 0) || !Number.isFinite(c3.remainingVideoTotalSec))
@@ -39988,11 +40146,8 @@ function isScrollAffectingPreviewAnchor(event, anchorElement) {
 
 const THUMB_PX$7 = 18;
 
-const NANO_BANANA_EDIT_PRICING_MODEL_ID = "nano_banana_2";
 
-const ENHANCE_IMAGE_PRICING_MODEL_ID = "mediakit_enhance";
 
-const REMOVE_BG_PRICING_MODEL_ID = "jimeng_remove_background";
 
 function PresetMediaCover$1({
   coverUrl,
@@ -40120,30 +40275,9 @@ function isAtomBoundary(view2, pos) {
 
 const DRAG_THRESHOLD_PX$2 = 3;
 
-const canvasTool = {
-  operation: "generate_image",
-  surfaces: ["canvas"]
-};
 
-const resolution = {
-  type: "string",
-  enum: ["1k", "2k", "4k"],
-  description: "Output size tier."
-};
 
-const aspectRatio = {
-  type: "number",
-  exclusiveMinimum: 0,
-  maximum: 100,
-  description: "Width / height of the output canvas."
-};
 
-const SEEDREAM_5 = {
-  backend: "seedream",
-  model: "doubao-seedream-5-0-pro-260628",
-  pricing: "doubao-seedream-5-0-pro-260628",
-  quote: (params2) => ({ resolution: params2.size === "1K" ? "1K" : "2K" })
-};
 
 const BBOX = /<bbox>\s*\d+\s+\d+\s+\d+\s+\d+\s*<\/bbox>/;
 
@@ -40157,32 +40291,17 @@ function seedreamEdit({ params: params2 }, prompt) {
   };
 }
 
-const coordinate = { type: "integer", minimum: 0, maximum: 1e3 };
 
-const noPrompt = { use: "none" };
 
-const oneImage = { min: 1, max: 1, kinds: { image: 1 } };
 
 function compileSeedreamErasePrompt(boxes) {
   const serialized = boxes.map((b3) => `<bbox>${b3.x1} ${b3.y1} ${b3.x2} ${b3.y2}</bbox>`).join("、");
   return boxes.length === 1 ? `请编辑图1，仅擦除 ${serialized} 区域，并用周围环境自然补全。区域外内容保持不变。` : `请编辑图1，仅擦除以下 ${boxes.length} 个区域：${serialized}，并用周围环境自然补全。这些区域外的内容全部保持不变，包括区域之间的部分。`;
 }
 
-const sharedTool = {
-  operation: "generate_image",
-  surfaces: ["agent", "canvas"]
-};
 
-const targetSide = { type: "integer", minimum: 1, maximum: 8192 };
 
-const videoTool = {
-  operation: "generate_video",
-  prompt: { use: "none" },
-  references: { min: 1, max: 1, kinds: { video: 1 } },
-  surfaces: ["agent", "canvas"]
-};
 
-const unit = { type: "number", minimum: 0, maximum: 1 };
 
 function wire(params) {
   return Object.fromEntries(
@@ -40195,16 +40314,8 @@ function wire(params) {
 
 const dagParam = {};
 
-const mediaEdit = {
-  operation: "edit_media",
-  prompt: { use: "none" },
-  surfaces: ["agent"],
-  execution: { mode: "sync" }
-};
 
-const positiveInteger$1 = (description) => ({ type: "integer", exclusiveMinimum: 0, description });
 
-const margin = (description) => ({ type: "integer", minimum: 0, description });
 
 function createHistory$1(initial) {
   return Tt$2(initial, { maxHistory: MAX_HISTORY, autoArchive: false });
@@ -42654,6 +42765,9 @@ function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
   );
 }
 
+// [tdz] createLucideIcon$2 上移（原第 43120 行，被第 42768 行引用）
+const createLucideIcon$2 = (name) => { const C = (props) => React.createElement("svg", props); C.displayName = name; return C; };
+
 const Play = createLucideIcon$2("Play", [
   ["polygon", { points: "6 3 20 12 6 21 6 3", key: "1oa8hb" }]
 ]);
@@ -43004,14 +43118,10 @@ const useClearResetErrorBoundary = () => void 0;
 const useRenderElement = () => null;
 const withSelectorExports = (o) => o;
 const os = { platform: () => "browser" };
-const Subscribable = class { subscribe() { return () => void 0; } };
-const replaceEqualDeep$1 = (a, b) => (a === b ? a : b);
 const shallowEqualObjects = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const useIsoLayoutEffect = (fn, deps) => React.useLayoutEffect(fn, deps);
-const createLucideIcon$2 = (name) => { const C = (props) => React.createElement("svg", props); C.displayName = name; return C; };
 const computeDagreLayout = (n) => n;
 const formatErrorMessage = (e) => (e instanceof Error ? e.message : String(e));
-const listItem = (o) => o;
 const markdownTable = () => "";
 const snapAspectRatio = (w, h) => (h ? w / h : 1);
 const K2 = "k2";
@@ -43019,16 +43129,12 @@ const FixedMediaLightbox = (props) => React.createElement("div", { className: pr
 const ImageLightboxView = (props) => React.createElement("div", { className: props?.className, "data-lightbox": "image" });
 
 // 这些是产物内联的 ProseMirror 内部工具，保留本地占位
-const Branch = class {};
 const Editor2 = class {};
-const Mark2 = class {};
-const RopeSequence = class {};
 const getPreviousBlockSibling = () => void 0;
 const insertCanvasRedrawRegion = () => void 0;
 const renderNestedMarkdownContent = () => void 0;
 
 // $n 变体指向同一个 npm 导出（第 149 轮）
-const Node$1 = Node;
 const Decoration$1 = Decoration;
 const selectionToInsertionEnd$1 = selectionToInsertionEnd;
 
