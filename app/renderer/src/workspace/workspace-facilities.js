@@ -34,10 +34,87 @@ const createChatSessionState = () => ({});
 const createProjectQueryModule = () => ({});
 const createResourceCommands = () => ({});
 const createResourceDetailModule = () => ({});
-const createSidebarOrderController = () => ({
-  reconcile: () => void 0, move: () => void 0, snapshot: () => [], dispose() {},
-  bind: () => ({ dispose() {} }), subscribe: () => () => {},
-});
+// 第 180 轮：换回真实现（参考 415647）
+function createSidebarOrderController(persistence, assertLive = () => {
+}) {
+  function update2(transform2) {
+    const operation2 = (queues.get(persistence) ?? Promise.resolve()).then(async () => {
+      assertLive();
+      const previous2 = readState(await persistence.read());
+      assertLive();
+      const next2 = transform2(previous2);
+      if (next2 !== previous2) {
+        if (!isSidebarOrderState(next2)) throw new SidebarOrderError("SIDEBAR_ORDER_INVALID");
+        await persistence.write(next2);
+      }
+      assertLive();
+      return next2;
+    });
+    const tail = operation2.then(
+      () => {
+      },
+      () => {
+      }
+    );
+    queues.set(persistence, tail);
+    void tail.then(() => {
+      if (queues.get(persistence) === tail) queues.delete(persistence);
+    });
+    return operation2;
+  }
+  function replaceParent(state2, group, ranks) {
+    const key2 = sidebarOrderParentKey(group);
+    const bounded2 = boundedRanks(ranks);
+    if (sameRanks(state2.parents[key2], bounded2)) return state2;
+    return { parents: { ...state2.parents, [key2]: bounded2 } };
+  }
+  return {
+    reconcile(groups) {
+      if (!isSidebarOrderGroups(groups))
+        return Promise.reject(new SidebarOrderError("SIDEBAR_ORDER_INVALID"));
+      return update2((state2) => {
+        let next2 = migrateLegacyMemberRanks(state2, groups);
+        for (const group of groups) {
+          const saved = next2.parents[sidebarOrderParentKey(group)];
+          if (!saved) continue;
+          next2 = replaceParent(next2, group, reconcileParent(saved, group.nodeIds));
+        }
+        return next2;
+      });
+    },
+    forget(parents) {
+      if (!isSidebarOrderParents(parents))
+        return Promise.reject(new SidebarOrderError("SIDEBAR_ORDER_INVALID"));
+      return update2((state2) => {
+        const keys2 = parents.map(sidebarOrderParentKey).filter((key2) => key2 in state2.parents);
+        if (!keys2.length) return state2;
+        const next2 = { ...state2.parents };
+        for (const key2 of keys2) delete next2[key2];
+        return { parents: next2 };
+      });
+    },
+    move(input) {
+      if (!isSidebarOrderMove(input))
+        return Promise.reject(new SidebarOrderError("SIDEBAR_ORDER_INVALID"));
+      return update2((state2) => {
+        if (input.nodeId === input.targetId) return state2;
+        const current2 = migrateLegacyMemberRanks(state2, [input]);
+        const ranks = reconcileParent(current2.parents[sidebarOrderParentKey(input)], input.nodeIds);
+        const ids2 = Object.keys(ranks).sort((a2, b3) => compareRank$1(ranks[a2], ranks[b3]));
+        const previousIndex = ids2.indexOf(input.nodeId);
+        ids2.splice(previousIndex, 1);
+        const index2 = input.targetId === void 0 ? ids2.length : ids2.indexOf(input.targetId) + Number(input.after === true);
+        if (index2 !== previousIndex) {
+          ranks[input.nodeId] = generateKeyBetween(
+            index2 > 0 ? ranks[ids2[index2 - 1]] : null,
+            index2 < ids2.length ? ranks[ids2[index2]] : null
+          );
+        }
+        return replaceParent(current2, input, ranks);
+      });
+    }
+  };
+}
 const createStructureModule = () => ({});
 const createTaskInvalidationBridge = () => ({ dispose() {} });
 import {
@@ -71,7 +148,13 @@ const publishPersistenceStatus = () => void 0;
 const refresh = () => void 0;
 const resolvePinnedResources = () => [];
 const splitName = (v) => String(v ?? "").split("/");
-const storage = { getItem: () => null, setItem: () => void 0, removeItem: () => void 0 };
+// 第 180 轮：换回真实现（参考 428530）—— 之前是对象占位，
+// 缺 workspaceGet/workspaceSet/createEntry，导致 createTreeHostBindings 校验失败。
+function storage() {
+  const bridge = getElectronPlatform()?.storage;
+  if (!bridge) throw new Error("Workspace storage unavailable");
+  return bridge;
+}
 const workspaces = new Map();
 const writes = new Set();
 
