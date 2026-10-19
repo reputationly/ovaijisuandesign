@@ -52,6 +52,7 @@ import { RecentlyAddedStoreProvider } from "../canvas/use-inline-rename.jsx";
 import { useAdoptInitialAttachments } from "./use-adopt-initial-attachments.js";
 import { WorkspaceCanvasFocusCoordinator } from "./workspace-canvas-focus-coordinator.js";
 import { WorkspaceContent } from "./workspace-content.jsx";
+import { WorkspaceStructureProvider } from "./workspace-structure-events.js";
 function trackComfyUiWorkflowOpen(workflowSource, target, startedAt) {
   trackComfyUiEvent(TRACK_EVENTS.COMFYUI_WORKFLOW_OPEN, {
     entry_point: "workspace_pending",
@@ -739,6 +740,8 @@ export function WorkspaceRuntimeContent({
                       wsUrl={runtime.wsUrl}
                       syncCanvasAssetMetadata={isActive}
                     >
+                      {/* 第 164 轮：结构订阅必须包在 WS 连接里 */}
+                      <WorkspaceStructureProvider isActive={isActive}>
                       <AutoFeedbackToastListener
                         workspaceId={runtime.workspaceId}
                         isActive={isActive}
@@ -843,6 +846,7 @@ export function WorkspaceRuntimeContent({
                           />
                         </WorkspaceChatProvider>
                       </ChatReadinessProvider>
+                      </WorkspaceStructureProvider>
                     </WorkspaceWSConnectionProvider>
                   </RecentlyAddedStoreProvider>
                 </ModelRegistryStoreProvider>
