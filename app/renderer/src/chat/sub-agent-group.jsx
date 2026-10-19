@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { record } from "../infra/parse-connector-selection.js";
 // sub-agent-group.jsx
 import {
   filterSupersededTransientTools,

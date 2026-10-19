@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { action } from "../canvas-v3/canvas-v3-model.js";
 // local-connector-setup-content.jsx
 import { focusManager, isCancelledError } from "@tanstack/query-core";
 import jsxRuntimeExports from "react/jsx-runtime";

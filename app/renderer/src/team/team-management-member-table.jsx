@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+
 // team-management-member-table.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";

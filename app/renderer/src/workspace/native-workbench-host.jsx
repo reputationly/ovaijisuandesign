@@ -5,6 +5,15 @@
  * 这里负责：**告诉主进程该给哪块地方、什么时候可见**，并把这块位置让出来。
  * 页面本身不渲染 v3 界面 —— 所以这里没有 v3 的界面代码，只有挂载与摆放。
  */
+// ==== 逐文件收敛 ====
+
+// ==== 逐文件收敛 ====
+
+// ==== 逐文件收敛 ====
+import { instantiationService, usePlatform, useRequiredGatewayScope } from "../canvas-v3/main-exports.js";
+import { useGatewayFetch } from "../assets/listeners-a.jsx";
+import { openUrlInBuiltinBrowser } from "./resolve-retry-message-payload.jsx";
+import { registerBrowserHoverPreview } from "../infra/dialog-content.jsx";
 import reactExports from "react";
 import jsxRuntimeExports from "react/jsx-runtime";
 import { useTranslation } from "react-i18next";

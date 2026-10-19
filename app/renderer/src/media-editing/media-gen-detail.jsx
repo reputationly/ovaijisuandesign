@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { media, reason } from "../canvas-v3/canvas-v3-model.js";
 // media-gen-detail.jsx
 import { API_PATHS } from "../infra/workspace-gateway.js";
 import { GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT } from "../infra/generation-errors.js";

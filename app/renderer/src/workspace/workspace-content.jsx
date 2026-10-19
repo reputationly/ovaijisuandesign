@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+
 // workspace-content.jsx
 import { useAccountSubmissionDecision } from "../assets/gateway-scope-provider.jsx";
 import { useWorkspaceRemoteToolOptional } from "../canvas/resolve-workspace-failure-diagnosis.js";

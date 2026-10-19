@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { createJSXElement, flattenFragmentChildren, isJSXElement, jsxFragments } from "../canvas-v3/ui-components.js";
 // collect-video-rows.js
 
 const MINIMAX_H3_MODEL_ID = "MiniMax-H3";

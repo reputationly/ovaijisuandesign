@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { DropdownMenu as DropdownMenu$3, DropdownMenuContent as DropdownMenuContent$3, DropdownMenuItem as DropdownMenuItem$3, DropdownMenuTrigger as DropdownMenuTrigger$3 } from "../canvas-v3/main-exports.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import { MenuPopup, MenuPortal as MenuPortal$1, MenuPositioner, MenuRoot, MenuSubmenuRoot, MenuSubmenuTrigger, MenuTrigger } from "../infra/base-ui.js";
 import { cn as cn$5 } from "../infra/dialog-content.jsx";

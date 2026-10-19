@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { kind } from "../canvas-v3/canvas-v3-model.js";
 // use-direct-reference-picker.js
 import {
   reasonForDisabled,

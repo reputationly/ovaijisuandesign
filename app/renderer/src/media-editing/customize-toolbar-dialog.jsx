@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+
 // customize-toolbar-dialog.jsx
 import { useSensor, useSensors } from "../infra/pointer-sensors.js";
 import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor } from "@dnd-kit/core";

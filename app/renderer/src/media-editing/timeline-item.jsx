@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { operation } from "../canvas-v3/canvas-v3-model.js";
 // timeline-item.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

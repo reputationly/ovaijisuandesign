@@ -1,3 +1,9 @@
+// ==== 逐文件收敛 ====
+
+// ==== 逐文件收敛 ====
+
+// ==== 逐文件收敛 ====
+import { useMediaMuted } from "../canvas-v3/canvas-v3-hooks.js";
 // asset-panel-overlay-host.jsx
 import WaveSurfer from "wavesurfer.js";
 import { API_PATHS } from "../infra/workspace-gateway.js";

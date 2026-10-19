@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+
 // activity-group.jsx
 import reactExports from "react";
 import { useTranslation } from "react-i18next";

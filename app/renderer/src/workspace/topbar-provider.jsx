@@ -587,6 +587,12 @@ function useCompletedTasks(entries, options = {}) {
  * 这个函数在每次快照推送时都会跑，而推送很频繁；直接 JSON.stringify 会比较浪费。
  * 用 JSON 而不是逐字段比，是因为条目里嵌了网关信息，字段会随版本增减。
  */
+// ==== 逐文件收敛 ====
+
+// ==== 逐文件收敛 ====
+
+// ==== 逐文件收敛 ====
+
 function sameWorkspaceEntries(a, b) {
   return a === b || (a.length === b.length && JSON.stringify(a) === JSON.stringify(b));
 }

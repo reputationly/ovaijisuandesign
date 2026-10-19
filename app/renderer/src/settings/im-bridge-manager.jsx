@@ -1,3 +1,9 @@
+// ==== 逐文件收敛 ====
+
+// ==== 逐文件收敛 ====
+
+// ==== 逐文件收敛 ====
+
 // im-bridge-manager.jsx
 import QRCode from "react-qr-code";
 import { getRuntimeConfig } from "../infra/runtime-config.js";

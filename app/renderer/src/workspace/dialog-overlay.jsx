@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+
 import { DialogBackdrop, DialogClose$1, DialogPopup, DialogPortal$2 } from "../infra/base-ui.js";
 import { cn as cn$5 } from "../infra/dialog-content.jsx";
 import { Button as Button$2 } from "@base-ui/react";

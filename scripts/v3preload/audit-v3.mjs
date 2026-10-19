@@ -88,6 +88,23 @@ console.log(`  1. 不同名字缺口      : ${distinctNames.size}`);
 console.log(`  2. 解析失败文件      : ${parseFailures.length}`);
 console.log(`  3. 跨文件重复声明    : ${crossDup.length}  （同一实体 ${sameEntity.length} / 同名不同实现 ${sameNameDiffBody.length}）`);
 console.log(`  4. unbound 出现次数  : ${occurrences}`);
+// 第 160 轮：canvas-v3 之外的树也必须过同一把尺子
+{
+  let out = "";
+  try { out = execFileSync(process.execPath, ["scripts/desource/check-undef.mjs"], { stdio: "pipe", maxBuffer: 512 * 1024 * 1024 }).toString(); }
+  catch (e) { out = String(e.stderr ?? ""); }
+  const files = new Map();
+  for (const l of out.split("\n")) {
+    if (!l.includes("[unbound]")) continue;
+    const f = l.split(":")[0];
+    if (f.includes("canvas-v3/")) continue;
+    files.set(f, (files.get(f) ?? 0) + 1);
+  }
+  const totalAll = [...files.values()].reduce((a, b) => a + b, 0);
+  console.log(`  5. 全树缺口（canvas-v3 之外）: ${totalAll} 处 / ${files.size} 个文件`);
+  for (const [f, c] of [...files].sort((a, b) => b[1] - a[1]).slice(0, 6))
+    console.log(`       ${String(c).padStart(3)}  ${f.replace("app/renderer/src/", "")}`);
+}
 
 if (parseFailures.length) {
   console.log("\n解析失败：");

@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { resolution } from "../canvas-v3/ui-components.js";
 // canvas-outpaint-overlay.jsx
 import reactExports from "react";
 import { useTranslation } from "react-i18next";

@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { aspectRatio } from "../canvas-v3/ui-components.js";
 // attachment-upload-zone.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { API_PATHS } from "../infra/workspace-gateway.js";

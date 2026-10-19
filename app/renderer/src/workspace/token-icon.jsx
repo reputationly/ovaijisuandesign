@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { TokenIcon as TokenIcon$2 } from "../chat/token-icon.jsx";
 import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function TokenIcon({

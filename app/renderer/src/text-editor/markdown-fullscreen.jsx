@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { editor } from "../canvas-v3/frame-services.js";
 // markdown-fullscreen.jsx
 import {
   closeDiffReviewHistoryGroup,

@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+
 // rich-user-prompt-content.jsx
 import { findInlineVisualTokens } from "../text-editor/get-wire-content-text.jsx";
 import {

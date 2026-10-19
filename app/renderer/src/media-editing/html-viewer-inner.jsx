@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { detail } from "../canvas-v3/canvas-v3-model.js";
 // html-viewer-inner.jsx
 import reactExports from "react";
 import { useTranslation } from "react-i18next";

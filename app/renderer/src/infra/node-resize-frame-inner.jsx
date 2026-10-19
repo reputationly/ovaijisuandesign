@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { NodeResizeControl } from "../vendor-fork/xyflow/react/index.js";
 // node-resize-frame-inner.jsx
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";

@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { aborted$1 } from "../canvas-v3/ui-components.js";
 // video-node-inner.jsx
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";

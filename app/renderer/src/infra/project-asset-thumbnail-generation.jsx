@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { kind } from "../canvas-v3/canvas-v3-model.js";
 // project-asset-thumbnail-generation.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PlaybackPlayIcon } from "../workspace/home-service.jsx";

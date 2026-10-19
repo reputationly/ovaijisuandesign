@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { compact } from "../canvas-v3/ui-components.js";
 // history-anchor-rail-impl.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import reactExports from "react";

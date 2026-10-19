@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { kind } from "../canvas-v3/canvas-v3-model.js";
 // highlight-decoration.js
 import { mentionRefLeafText } from "../text-editor/get-wire-content-text.jsx";
 import { Decoration, DecorationSet } from "prosemirror-view";

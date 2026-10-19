@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { resolution } from "../canvas-v3/ui-components.js";
 // canvas-move-object-overlay.jsx
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";

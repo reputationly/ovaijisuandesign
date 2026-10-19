@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { CanvasTidyControl$1 } from "../canvas-v3/ui-components.js";
 // selection-toolbar-inner.jsx
 import { CanvasNodeType } from "./canvas-geometry.js";
 import jsxRuntimeExports from "react/jsx-runtime";

@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { id$2, invalid$3, keys, object$1, revision$2 } from "../canvas-v3/canvas-v3-model.js";
 // create-recently-added-store.js
 import { register } from "@base-ui/utils/fastHooks";
 import reactExports from "react";

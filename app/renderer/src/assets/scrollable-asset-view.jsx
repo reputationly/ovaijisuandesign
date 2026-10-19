@@ -1,3 +1,5 @@
+// ==== 逐文件收敛 ====
+import { resource } from "../canvas-v3/canvas-v3-model.js";
 // scrollable-asset-view.jsx
 import { useVirtualizer } from "../infra/use-virtualizer.js";
 import jsxRuntimeExports from "react/jsx-runtime";

@@ -1,3 +1,14 @@
+// ==== 逐文件收敛 ====
+
+// ==== 逐文件收敛 ====
+
+// ==== 逐文件收敛 ====
+import { CanvasLoadingPresenceContext } from "./canvas-loading-state.jsx";
+import { WorkbenchProvider, cn as cn$5 } from "../canvas-v3/main-exports.js";
+import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
+import { Alert, AlertDescription } from "../team/alert-variants.jsx";
+import { Button as Button$3 } from "../canvas/node-shell-inner.jsx";
+import { compact } from "../canvas-v3/ui-components.js";
 // canvas-sidebar-overlay.jsx
 import reactExports from "react";
 import { useCurrentWorkspace } from "../infra/shared-runtime.js";
