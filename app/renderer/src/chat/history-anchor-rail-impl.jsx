@@ -181,7 +181,7 @@ const HistoryAnchorRailImpl = ({
   activeIndex,
   activeIndexes = [activeIndex],
   onJumpToTurn,
-  compact : compact2= false,
+  compact = false,
 }) => {
   const { t: translate } = useTranslation();
   const [hoveredIndex, setHoveredIndex] = reactExports.useState(null);

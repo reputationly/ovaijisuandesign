@@ -49,6 +49,19 @@ import {
   TopbarStateContext,
 } from "./topbar-state-context.jsx";
 import { workspaceDisplayName } from "../generation/use-model-catalog-scope-key.js";
+
+// 第 170 轮：从产物取回（参考 366844）
+const RESOURCE_VIEW_PREFIX = "hilo:workspace-resource-view:";
+// 与 app/desktop/src/renderer/src/shell/workspace-open.ts:23 一致
+const workspaceRuntimeFromOpenResult = (result) =>
+  result.kind === "opened" || result.kind === "reused" ? result.runtime : void 0;
+function persistNewWorkspaceResourceView(result, options2) {
+  if (!options2?.resourceView || options2.folderPath || result.kind !== "opened") return;
+  const runtime = workspaceRuntimeFromOpenResult(result);
+  if (!runtime) return;
+  localStorage.setItem(`${RESOURCE_VIEW_PREFIX}${runtime.workspaceId}`, "true");
+}
+
 function useVisiblePreviewTabsSnapshot() {
   return reactExports.useSyncExternalStore(
     visiblePreviewTabsStore.subscribe,
@@ -302,7 +315,7 @@ function notifyTaskNeedsUserAction(
       body,
     })
     .then((result) => {
-      if (!result.success || ! result.id) onNotificationShownfalse;
+      if (!result.success || !result.id) onNotificationShown(false);
       onNotificationShown?.(result.id);
     return true;})
     .catch((error) => {
@@ -812,17 +825,13 @@ function useTopbarNavigation(
         projectId: targetProjectId,
         parentFolderPath: options?.parentFolderPath,
         loadUserMemory: options?.loadUserMemory,
-        ...(!allowDataDirectoryFallback&& options2?.projectArchitecture
-          ? {
-              projectArchitecture: options.projectArchitecture,
-            }
+        ...(options?.projectArchitecture
+          ? { projectArchitecture: options.projectArchitecture }
           : {}),
-        ...(options2?.allowDataDirectoryFallback? {
-              taskAcceptance: true,
-      }: {}),
-        allowDataDirectoryFallback: options2?.allowDataDirectoryFallback,
+        ...(options?.allowDataDirectoryFallback ? { taskAcceptance: true } : {}),
+        allowDataDirectoryFallback: options?.allowDataDirectoryFallback,
       });
-      persistNewWorkspaceResourceView(result, options2);
+      persistNewWorkspaceResourceView(result, options);
       if (pickedFolder) {
         workspaceLog.info("topbar: open-workspace-result", {
           kind: result.kind,

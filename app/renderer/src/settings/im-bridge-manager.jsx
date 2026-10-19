@@ -331,7 +331,7 @@ function trackConnectionFailure(action, platform, layout, error) {
 function QrConnectView({
   platform,
   step = "scan",
-  layout : layout2= "dialog",
+  layout = "dialog",
   status,
   errorReason,
   qrNode,
@@ -409,7 +409,7 @@ function QrConnectView({
 }
 function QrSuccessView({
   platform,
-  layout : layout2= "dialog",
+  layout = "dialog",
   onDone,
   onDialogHeaderChange,
   agentName,
@@ -837,7 +837,7 @@ function AddAccountForm({
   onAdded,
   onDialogHeaderChange,
   onConnected,
-  layout : layout2= "dialog",
+  layout = "dialog",
 }) {
   const { t } = useTranslation();
   const { addAccount } = useImAccounts();

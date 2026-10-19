@@ -196,7 +196,7 @@ const BUTTON_CLASS =
 function CanvasAssetsFinderMenu({
   projectFolderPath,
   outputFolderPath,
-  compact : compact2= false,
+  compact = false,
 }) {
   const { t: translate } = useTranslation();
   const platform = usePlatform();
