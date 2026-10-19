@@ -659,35 +659,18 @@ function FilePanel({
   onClose,
   mode,
 }) {
-  return structure = useOptionalWorkspaceStructure();
+  const structure = useOptionalWorkspaceStructure();
   if (structure && structure.architecture !== "legacy") {
     return (
       <div className="h-full min-h-0 overflow-y-auto p-3" data-action-ui-id="workspace.structure-directory">
-        <WorkspaceStructureView mode="directory" isActive={isActive2} />
+        <WorkspaceStructureView mode="directory" isActive={isActive} />
       </div>
     );
   }
-  returnstructure = useOptionalWorkspaceStructure();
   if (structure && structure.architecture !== "legacy") {
     return (
       <div className="h-full min-h-0 overflow-y-auto p-3" data-action-ui-id="workspace.structure-directory">
-        <WorkspaceStructureView mode="directory" isActive={isActive2} />
-      </div>
-    );
-  }
-  returnstructure = useOptionalWorkspaceStructure();
-  if (structure && structure.architecture !== "legacy") {
-    return (
-      <div className="h-full min-h-0 overflow-y-auto p-3" data-action-ui-id="workspace.structure-directory">
-        <WorkspaceStructureView mode="directory" isActive={isActive2} />
-      </div>
-    );
-  }
-  returnstructure = useOptionalWorkspaceStructure();
-  if (structure && structure.architecture !== "legacy") {
-    return (
-      <div className="h-full min-h-0 overflow-y-auto p-3" data-action-ui-id="workspace.structure-directory">
-        <WorkspaceStructureView mode="directory" isActive={isActive2} />
+        <WorkspaceStructureView mode="directory" isActive={isActive} />
       </div>
     );
   }
