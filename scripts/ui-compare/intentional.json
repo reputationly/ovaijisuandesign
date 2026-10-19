@@ -28,6 +28,12 @@
       "measured": true,
       "conclusion": "4.088% 的具体位置是项目卡片的缩略图：基线有图，我们是灰块。逐块统计显示差异集中在整块（2048,384）、(2048,512)、(64..384, 640..704），裁剪确认是卡片缩略图区域；卡片标题两边一致（珍珠白星轨 / 废墟花海）。",
       "implication": "我们的实现请求 4 个 /api/v1/home/showcase-assets/*.jpg（基线一次都不请求），且参考 bundle 里没有 'showcase-assets' 这个字符串。缩略图的数据来源走错了路径。"
+    },
+    {
+      "id": "thumbnail-source-unknown",
+      "measured": true,
+      "conclusion": "两边都只请求 /api/v3/canvas/agent-compositions，我们的 gateway 该接口只返回 {seq, compositionId, kind}，没有标题也没有预览字段。基线渲染出图但 <img> 数为 0、额外请求数为 0；DOM 快照不含 style 属性（两边都是 0 个带 style 的节点），所以无法从快照判断它用的是 background-image 还是 SVG/canvas。",
+      "implication": "缩略图的真实来源尚未确定。/api/v3/canvas/previews/{resourceId}/{versionId} 在我们的 gateway 里存在（previews.ts:16），但两边都没请求它。下一步要给 DOM 快照补上 style/background 采集，或直接在基线页面上查那个卡片节点的 computedStyle。"
     }
   ],
   "pendingAttribution": [
