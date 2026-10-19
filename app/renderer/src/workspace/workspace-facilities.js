@@ -8,12 +8,97 @@
  */
 const createTaskModule = () => ({});
 const createWorkbenchEvents = () => ({ dispose() {} });
-const createWorkbenchPersistence = () => ({ dispose() {} });
+// 第 181 轮：换回真实现（参考 428288）
+function createWorkbenchPersistence() {
+  const entries2 = /* @__PURE__ */ new Map();
+  const listeners2 = /* @__PURE__ */ new Set();
+  const actions = /* @__PURE__ */ new Map();
+  let recovering;
+  let snapshot2 = Object.freeze({ revision: 0, state: "clean" });
+  let disposed = false;
+  function publish2() {
+    if (disposed) return;
+    const states = [...entries2.values()];
+    const state2 = ["failed", "saving", "dirty"].find((value) => states.includes(value)) ?? "clean";
+    if (state2 === snapshot2.state) return;
+    snapshot2 = Object.freeze({ revision: snapshot2.revision + 1, state: state2 });
+    for (const listener of [...listeners2]) {
+      try {
+        listener();
+      } catch {
+      }
+    }
+  }
+  return {
+    getSnapshot: () => snapshot2,
+    subscribe(listener) {
+      if (disposed) return () => {
+      };
+      listeners2.add(listener);
+      return () => {
+        listeners2.delete(listener);
+      };
+    },
+    hasPendingRecovery: () => [...entries2].some(([key2, state2]) => state2 === "failed" && actions.get(key2)?.recover),
+    discardDrafts() {
+      if (disposed) return;
+      for (const action2 of [...actions.values()]) action2.discardDraft?.();
+    },
+    recover() {
+      if (disposed) return Promise.reject(new Error("Workbench disposed"));
+      if (recovering) return recovering;
+      const pending2 = [...entries2].filter(
+        ([key2, state2]) => state2 === "failed" && actions.get(key2)?.recover
+      );
+      recovering = (async () => {
+        for (const [key2] of pending2) {
+          if (disposed) throw new Error("Workbench disposed");
+          await actions.get(key2)?.recover?.();
+        }
+      })().finally(() => {
+        recovering = void 0;
+      });
+      return recovering;
+    },
+    createEntry(handlers2 = {}) {
+      const key2 = {};
+      let released = false;
+      actions.set(key2, handlers2);
+      return {
+        update(state2) {
+          if (disposed || released) return;
+          entries2.set(key2, state2);
+          publish2();
+        },
+        dispose() {
+          if (released) return;
+          released = true;
+          entries2.delete(key2);
+          actions.delete(key2);
+          publish2();
+        }
+      };
+    },
+    dispose() {
+      disposed = true;
+      listeners2.clear();
+      entries2.clear();
+      actions.clear();
+    }
+  };
+}
 const decisionPayload = (v) => v;
 const entriesByWorkspace = new Map();
 const exact = (v) => v;
 const fail = (m) => { throw new Error(String(m)); };
-const getOrCreateWorkspaceEntries = (m, k) => { if (!m.has(k)) m.set(k, {}); return m.get(k); };
+// 第 181 轮：换回真实现（参考 332987）—— 之前签名写成 (m, k)，调用方只传 workspaceId
+function getOrCreateWorkspaceEntries(workspaceId) {
+  const existing2 = entriesByWorkspace.get(workspaceId);
+  if (existing2) return existing2;
+  const created = /* @__PURE__ */ new Map();
+  entriesByWorkspace.set(workspaceId, created);
+  return created;
+}
 const id$7 = () => crypto.randomUUID();
 const integer$4 = (v) => (Number.isInteger(v) ? v : 0);
 const isHostGenerationSubject = () => false;
@@ -115,7 +200,222 @@ function createSidebarOrderController(persistence, assertLive = () => {
     }
   };
 }
-const createStructureModule = () => ({});
+// 第 181 轮：换回真实现（参考 399649）
+function createStructureCommandContext(options2) {
+  assertStructureId(options2.scopeKey, "scopeKey");
+  const records2 = /* @__PURE__ */ new Map();
+  const listeners2 = /* @__PURE__ */ new Set();
+  let snapshot2 = Object.freeze({
+    disposed: false,
+    pending: Object.freeze([])
+  });
+  let disposed = false;
+  function publish2() {
+    snapshot2 = Object.freeze({
+      disposed,
+      pending: Object.freeze(
+        disposed ? [] : [...records2.values()].flatMap((record2) => {
+          const phase2 = record2.inFlight ? "in-flight" : record2.result?.status === "unknown" ? "unknown" : void 0;
+          return phase2 ? [Object.freeze({ phase: phase2, recovery: record2.recovery })] : [];
+        })
+      )
+    });
+    for (const listener of [...listeners2])
+      notifyStructureObserver(listener, options2.onObserverError);
+  }
+  function assertActive() {
+    options2.assertActive();
+    if (disposed) throw new Error("Structure command context is disposed");
+  }
+  function run2(record2) {
+    if (record2.inFlight) return record2.inFlight;
+    const envelope = record2.recovery.envelope;
+    const recoveringUnknown = record2.result?.status === "unknown";
+    const inFlight = (async () => {
+      let result;
+      try {
+        const receipt = immutableSnapshot(
+          parseCompositionReceipt(await options2.execute(structuredClone(envelope)), envelope)
+        );
+        assertActive();
+        result = receipt.committed ? { status: "committed", receipt } : { status: "conflict", receipt };
+      } catch (error) {
+        result = isKnownRejection(error, recoveringUnknown) ? { status: "rejected", error } : { status: "unknown", error, recovery: record2.recovery };
+      }
+      const frozen2 = Object.freeze(result);
+      if (!disposed) {
+        record2.result = frozen2;
+        if (frozen2.status === "committed") {
+          try {
+            assertActive();
+          } catch {
+            return frozen2;
+          }
+          notifyStructureObserver(
+            () => options2.onCommitted(
+              envelope.commandId,
+              "compositionId" in frozen2.receipt ? frozen2.receipt.compositionId : void 0
+            ),
+            options2.onObserverError
+          );
+        }
+      }
+      return frozen2;
+    })();
+    record2.inFlight = inFlight;
+    publish2();
+    void inFlight.finally(() => {
+      record2.inFlight = void 0;
+      if (!disposed) publish2();
+    }).catch(() => {
+    });
+    return inFlight;
+  }
+  function recover(commandId) {
+    assertActive();
+    const record2 = records2.get(commandId);
+    if (!record2) throw new StructureValidationError("No original command exists in this runtime");
+    if (record2.inFlight) return record2.inFlight;
+    if (record2.result && record2.result.status !== "unknown") return Promise.resolve(record2.result);
+    return run2(record2);
+  }
+  return {
+    scopeKey: options2.scopeKey,
+    submit(envelope) {
+      assertActive();
+      assertStructureId(envelope.commandId, "commandId");
+      const snapshot22 = immutableSnapshot(envelope);
+      const signature = fingerprint$1(snapshot22);
+      const existing2 = records2.get(snapshot22.commandId);
+      if (existing2) {
+        if (existing2.fingerprint !== signature) {
+          throw new StructureValidationError("commandId is already bound to a different intent");
+        }
+        if (existing2.inFlight) return existing2.inFlight;
+        if (existing2.result && existing2.result.status !== "unknown")
+          return Promise.resolve(existing2.result);
+        return run2(existing2);
+      }
+      const recovery = Object.freeze({
+        scopeKey: options2.scopeKey,
+        commandId: snapshot22.commandId,
+        envelope: snapshot22,
+        recover: () => recover(snapshot22.commandId)
+      });
+      const record2 = { fingerprint: signature, recovery };
+      records2.set(snapshot22.commandId, record2);
+      return run2(record2);
+    },
+    recover,
+    getSnapshot: () => snapshot2,
+    subscribe(listener) {
+      if (disposed) return () => {
+      };
+      listeners2.add(listener);
+      return () => {
+        listeners2.delete(listener);
+      };
+    },
+    getPending() {
+      assertActive();
+      return Object.freeze(
+        [...records2.values()].filter((record2) => record2.inFlight || record2.result?.status === "unknown").map((record2) => record2.recovery)
+      );
+    },
+    dispose() {
+      if (disposed) return;
+      disposed = true;
+      records2.clear();
+      publish2();
+      listeners2.clear();
+    }
+  };
+}
+
+// 第 181 轮：换回真实现（参考 400177）
+function createStructureModule(service2, assertActive, onCommitted, options2) {
+  let disposed = false;
+  function assertModuleActive() {
+    assertActive();
+    if (disposed) throw new Error("Structure module is disposed");
+  }
+  function requireService() {
+    assertModuleActive();
+    if (!service2) throw new WorkbenchCapabilityUnavailableError("composition");
+    return service2;
+  }
+  const commands = options2 ? createStructureCommandContext({
+    scopeKey: options2.scopeKey,
+    assertActive: () => {
+      requireService();
+    },
+    execute: (envelope) => requireService().execute(envelope),
+    onCommitted,
+    onObserverError: options2.onObserverError
+  }) : void 0;
+  return {
+    available: service2 !== void 0,
+    get commands() {
+      if (!commands) throw new Error("Structure commands require an explicit workspace scope");
+      return commands;
+    },
+    async get(id2, readOptions) {
+      const result = await requireService().get(id2, readOptions);
+      assertModuleActive();
+      return result;
+    },
+    async list(query, readOptions) {
+      const result = await requireService().list(query, readOptions);
+      assertModuleActive();
+      return result;
+    },
+    async listAll(query, readOptions) {
+      const result = await requireService().listAll(query, readOptions);
+      assertModuleActive();
+      return result;
+    },
+    async listByResource(query, readOptions) {
+      const result = await requireService().listByResource(query, readOptions);
+      assertModuleActive();
+      return result;
+    },
+    async search(query, readOptions) {
+      const result = await requireService().search(query, readOptions);
+      assertModuleActive();
+      return result;
+    },
+    async listTypes(query, readOptions) {
+      const result = await requireService().listTypes(query, readOptions);
+      assertModuleActive();
+      return result;
+    },
+    async execute(envelope) {
+      requireService();
+      if (commands) {
+        const result = await commands.submit(envelope);
+        if (result.status === "committed" || result.status === "conflict") return result.receipt;
+        throw result.error;
+      }
+      const snapshot2 = structuredClone(envelope);
+      const receipt = await requireService().execute(snapshot2);
+      assertModuleActive();
+      if (receipt.committed)
+        notifyStructureObserver(
+          () => onCommitted(
+            snapshot2.commandId,
+            "compositionId" in receipt ? receipt.compositionId : void 0
+          ),
+          options2?.onObserverError
+        );
+      return receipt;
+    },
+    dispose() {
+      if (disposed) return;
+      disposed = true;
+      commands?.dispose();
+    }
+  };
+}
 const createTaskInvalidationBridge = () => ({ dispose() {} });
 import {
   IResourceMediaMainService,
@@ -124,6 +424,7 @@ import { WorkspaceEvents } from "./workspace-events.js";
 import { dispatchAccountSubmissionBlocked } from "../infra/account-submission.js";
 import { evaluateAccountSubmission } from "../infra/agent-http-client.js";
 import { getElectronPlatform } from "../infra/use-canvas-node-assets-store.js";
+import { StructureValidationError, assertStructureId, immutableSnapshot } from "../chat/display-order.jsx";
 import { isDomain } from "../canvas-v3/query-keys.js";
 import { refreshMediaMuted } from "../canvas-v3/media-mute.js";
 import {
