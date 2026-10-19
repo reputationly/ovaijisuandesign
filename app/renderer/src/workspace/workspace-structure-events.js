@@ -22,9 +22,9 @@ import {
 import { useWorkspaceProjectArchitecture } from "./use-workspace-project-architecture.jsx";
 import { WorkspaceStructureContext } from "../canvas-v3/contexts.js";
 import { parseTaskServerMessage } from "../canvas-v3/canvas-v3-model.js";
-// 第 175 轮：接真实现后守卫条件已全部满足（workspaceId 之前是占位函数导致的 undefined），
-// 但 createWorkspaceStructureRuntime 内部会阻塞，导致 ws-a-v3 等待工作区运行时超时。
-// 故仍用占位；断点已收敛到该函数内部。
+// 第 176 轮：静态 import workspace-structure-runtime.js 会让应用启动即超时
+// （该模块求值期就坏，连模块顶层 console.error 都不触发）。
+// 正确方向是懒加载 + 把 effect 改成异步，属结构性改动，留待专门一轮。
 const createWorkspaceStructureRuntime = () => undefined;
 
 // 第 164 轮：以下 5 个在产物里属于另外几个未还原的模块，先给最小实现，
