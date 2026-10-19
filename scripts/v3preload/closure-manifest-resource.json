@@ -1,0 +1,1573 @@
+{
+ "generatedFor": "4.0.0",
+ "seeds": [
+  "StructureDirectory",
+  "StructureContents",
+  "ModuleErrorBoundary"
+ ],
+ "total": 151,
+ "lines": 5639,
+ "perRing": [
+  3,
+  13,
+  31,
+  25,
+  22,
+  33,
+  19,
+  4,
+  1
+ ],
+ "byStatus": {
+  "todo": 151
+ },
+ "items": [
+  {
+   "i": 1504,
+   "names": [
+    "MenuPositionerContext"
+   ],
+   "start": 900900,
+   "end": 900981,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 1505,
+   "names": [
+    "useMenuPositionerContext"
+   ],
+   "start": 900982,
+   "end": 901205,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 1506,
+   "names": [
+    "MenuRootContext"
+   ],
+   "start": 901206,
+   "end": 901281,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 1507,
+   "names": [
+    "useMenuRootContext$1"
+   ],
+   "start": 901282,
+   "end": 901495,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 1508,
+   "names": [
+    "ContextMenuRootContext"
+   ],
+   "start": 901496,
+   "end": 901578,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 1509,
+   "names": [
+    "useContextMenuRootContext"
+   ],
+   "start": 901579,
+   "end": 901811,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 1510,
+   "names": [
+    "useMenuItemCommonProps"
+   ],
+   "start": 901812,
+   "end": 903637,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 1511,
+   "names": [
+    "REGULAR_ITEM"
+   ],
+   "start": 903638,
+   "end": 903686,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 1512,
+   "names": [
+    "useMenuItem"
+   ],
+   "start": 903687,
+   "end": 904802,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 1519,
+   "names": [
+    "MenuItem$4"
+   ],
+   "start": 907020,
+   "end": 908106,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 1524,
+   "names": [
+    "MenuPortalContext"
+   ],
+   "start": 911919,
+   "end": 911996,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 1526,
+   "names": [
+    "MenuPortal$1"
+   ],
+   "start": 912184,
+   "end": 912775,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 1546,
+   "names": [
+    "findRootOwnerId"
+   ],
+   "start": 946601,
+   "end": 946884,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 13101,
+   "names": [
+    "InfiniteQueryObserver"
+   ],
+   "start": 13208042,
+   "end": 13210054,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 13107,
+   "names": [
+    "infiniteQueryOptions"
+   ],
+   "start": 13219123,
+   "end": 13219185,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 13111,
+   "names": [
+    "useInfiniteQuery"
+   ],
+   "start": 13220475,
+   "end": 13220614,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 13881,
+   "names": [
+    "PreviewCard$2"
+   ],
+   "start": 13794929,
+   "end": 13795070,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 13883,
+   "names": [
+    "PreviewCardContent$1"
+   ],
+   "start": 13795352,
+   "end": 13796961,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 15255,
+   "names": [
+    "LONG_PRESS_DELAY"
+   ],
+   "start": 15310726,
+   "end": 15310755,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 15256,
+   "names": [
+    "ContextMenuTrigger$2"
+   ],
+   "start": 15310756,
+   "end": 15315400,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16437,
+   "names": [
+    "ActionsContext"
+   ],
+   "start": 16631858,
+   "end": 16631912,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16439,
+   "names": [
+    "CompositionContextMenu"
+   ],
+   "start": 16632105,
+   "end": 16634586,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16444,
+   "names": [
+    "resourceLocationKey"
+   ],
+   "start": 16636550,
+   "end": 16636800,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16453,
+   "names": [
+    "baselineBrand"
+   ],
+   "start": 16643907,
+   "end": 16643979,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16454,
+   "names": [
+    "createCompositionEditBaseline"
+   ],
+   "start": 16643980,
+   "end": 16644382,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16455,
+   "names": [
+    "validateContext"
+   ],
+   "start": 16644383,
+   "end": 16644524,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16456,
+   "names": [
+    "validateBaseline"
+   ],
+   "start": 16644525,
+   "end": 16644816,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16457,
+   "names": [
+    "text$5"
+   ],
+   "start": 16644817,
+   "end": 16644944,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16458,
+   "names": [
+    "uniqueIds"
+   ],
+   "start": 16644945,
+   "end": 16645168,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16459,
+   "names": [
+    "attributes"
+   ],
+   "start": 16645169,
+   "end": 16645350,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16460,
+   "names": [
+    "mutate"
+   ],
+   "start": 16645351,
+   "end": 16645626,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16461,
+   "names": [
+    "memberAt"
+   ],
+   "start": 16645627,
+   "end": 16646154,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16462,
+   "names": [
+    "referenceAt"
+   ],
+   "start": 16646155,
+   "end": 16646662,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16463,
+   "names": [
+    "apply"
+   ],
+   "start": 16646663,
+   "end": 16646865,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16464,
+   "names": [
+    "buildCompositionCreate"
+   ],
+   "start": 16646866,
+   "end": 16647360,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16465,
+   "names": [
+    "buildCompositionRename"
+   ],
+   "start": 16647361,
+   "end": 16647602,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16467,
+   "names": [
+    "buildCompositionSetType"
+   ],
+   "start": 16648275,
+   "end": 16648595,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16468,
+   "names": [
+    "buildCompositionSetAttributes"
+   ],
+   "start": 16648596,
+   "end": 16649474,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16469,
+   "names": [
+    "buildCompositionDelete"
+   ],
+   "start": 16649475,
+   "end": 16649719,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16470,
+   "names": [
+    "resourceRef"
+   ],
+   "start": 16649720,
+   "end": 16649833,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16471,
+   "names": [
+    "buildMemberAdd"
+   ],
+   "start": 16649834,
+   "end": 16650269,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16472,
+   "names": [
+    "buildMemberRemove"
+   ],
+   "start": 16650270,
+   "end": 16650505,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16473,
+   "names": [
+    "buildMemberUpdate"
+   ],
+   "start": 16650506,
+   "end": 16650992,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16476,
+   "names": [
+    "buildResourceReferenceAdd"
+   ],
+   "start": 16652726,
+   "end": 16653221,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16477,
+   "names": [
+    "buildResourceReferenceRemove"
+   ],
+   "start": 16653222,
+   "end": 16653487,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16478,
+   "names": [
+    "buildResourceReferenceMove"
+   ],
+   "start": 16653488,
+   "end": 16654222,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16479,
+   "names": [
+    "compositionEditInput"
+   ],
+   "start": 16654223,
+   "end": 16654428,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16480,
+   "names": [
+    "equal"
+   ],
+   "start": 16654429,
+   "end": 16654497,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16481,
+   "names": [
+    "compositionEditInputDiffers"
+   ],
+   "start": 16654498,
+   "end": 16654775,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16482,
+   "names": [
+    "buildCompositionEditCommands"
+   ],
+   "start": 16654776,
+   "end": 16657814,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16483,
+   "names": [
+    "applyCompositionEditReceipt"
+   ],
+   "start": 16657815,
+   "end": 16660635,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16484,
+   "names": [
+    "rebaseCompositionEdit"
+   ],
+   "start": 16660636,
+   "end": 16661053,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16486,
+   "names": [
+    "isCursorStaleError"
+   ],
+   "start": 16663746,
+   "end": 16663890,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16496,
+   "names": [
+    "CompositionCursorStaleError"
+   ],
+   "start": 16668763,
+   "end": 16669044,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16498,
+   "names": [
+    "assertScope"
+   ],
+   "start": 16669167,
+   "end": 16669295,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16499,
+   "names": [
+    "createCompositionQueryOptions"
+   ],
+   "start": 16669296,
+   "end": 16671074,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16500,
+   "names": [
+    "createProjectQueryOptions"
+   ],
+   "start": 16671075,
+   "end": 16674391,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16503,
+   "names": [
+    "ModuleErrorBoundaryView"
+   ],
+   "start": 16674630,
+   "end": 16675276,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16504,
+   "names": [
+    "ModuleErrorBoundary"
+   ],
+   "start": 16675277,
+   "end": 16675489,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16514,
+   "names": [
+    "restartCompositionMembers"
+   ],
+   "start": 16678124,
+   "end": 16678542,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16529,
+   "names": [
+    "referenceOrder"
+   ],
+   "start": 16693024,
+   "end": 16693171,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16530,
+   "names": [
+    "reviewRows"
+   ],
+   "start": 16693172,
+   "end": 16695250,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16531,
+   "names": [
+    "EditorConflictReview"
+   ],
+   "start": 16695251,
+   "end": 16697456,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16532,
+   "names": [
+    "referenceBaselinesMatch"
+   ],
+   "start": 16697457,
+   "end": 16697753,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16533,
+   "names": [
+    "validateEditorDraft"
+   ],
+   "start": 16697754,
+   "end": 16699536,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16535,
+   "names": [
+    "stores$5"
+   ],
+   "start": 16699570,
+   "end": 16699617,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16536,
+   "names": [
+    "StructureEditorStore"
+   ],
+   "start": 16699618,
+   "end": 16709073,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16537,
+   "names": [
+    "structureEditor"
+   ],
+   "start": 16709074,
+   "end": 16709273,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16538,
+   "names": [
+    "useStructureEditor"
+   ],
+   "start": 16709274,
+   "end": 16709523,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16539,
+   "names": [
+    "editDraft"
+   ],
+   "start": 16709524,
+   "end": 16709707,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16540,
+   "names": [
+    "selectClass"
+   ],
+   "start": 16709708,
+   "end": 16709870,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16542,
+   "names": [
+    "ResourceChoice"
+   ],
+   "start": 16710577,
+   "end": 16712957,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16543,
+   "names": [
+    "EditorPanel"
+   ],
+   "start": 16712958,
+   "end": 16725113,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16546,
+   "names": [
+    "StructureDocumentPreview"
+   ],
+   "start": 16725791,
+   "end": 16726151,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16547,
+   "names": [
+    "StructureAudio"
+   ],
+   "start": 16726152,
+   "end": 16726376,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 16548,
+   "names": [
+    "useStructureVideoUrl"
+   ],
+   "start": 16726377,
+   "end": 16726563,
+   "ring": 8,
+   "status": "todo"
+  },
+  {
+   "i": 16550,
+   "names": [
+    "StructureMediaDetail"
+   ],
+   "start": 16726692,
+   "end": 16726824,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16554,
+   "names": [
+    "memberProjection"
+   ],
+   "start": 16733600,
+   "end": 16734475,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16555,
+   "names": [
+    "resourceBatches"
+   ],
+   "start": 16734476,
+   "end": 16734821,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16557,
+   "names": [
+    "limiters"
+   ],
+   "start": 16735631,
+   "end": 16735678,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16558,
+   "names": [
+    "structureReadLimiter"
+   ],
+   "start": 16735679,
+   "end": 16735867,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16559,
+   "names": [
+    "useCompositionDetails"
+   ],
+   "start": 16735868,
+   "end": 16736296,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16560,
+   "names": [
+    "useMemberResources"
+   ],
+   "start": 16736297,
+   "end": 16737339,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16561,
+   "names": [
+    "historyOptions"
+   ],
+   "start": 16737340,
+   "end": 16737858,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16562,
+   "names": [
+    "useCompositionMembers"
+   ],
+   "start": 16737859,
+   "end": 16738326,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16563,
+   "names": [
+    "createViewStore"
+   ],
+   "start": 16738327,
+   "end": 16741169,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16564,
+   "names": [
+    "stores$4"
+   ],
+   "start": 16741170,
+   "end": 16741217,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16565,
+   "names": [
+    "structureView"
+   ],
+   "start": 16741218,
+   "end": 16741406,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16566,
+   "names": [
+    "useStructureView"
+   ],
+   "start": 16741407,
+   "end": 16741617,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16567,
+   "names": [
+    "CompositionEditFields"
+   ],
+   "start": 16741618,
+   "end": 16757074,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16569,
+   "names": [
+    "formInput"
+   ],
+   "start": 16757140,
+   "end": 16757276,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16570,
+   "names": [
+    "form"
+   ],
+   "start": 16757277,
+   "end": 16757438,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16571,
+   "names": [
+    "belongsTo"
+   ],
+   "start": 16757439,
+   "end": 16757564,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16572,
+   "names": [
+    "CompositionEditStore"
+   ],
+   "start": 16757565,
+   "end": 16766163,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16573,
+   "names": [
+    "stores$3"
+   ],
+   "start": 16766164,
+   "end": 16766211,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16574,
+   "names": [
+    "compositionEditor"
+   ],
+   "start": 16766212,
+   "end": 16766413,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16575,
+   "names": [
+    "useCompositionEditor"
+   ],
+   "start": 16766414,
+   "end": 16766667,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16582,
+   "names": [
+    "PageState"
+   ],
+   "start": 16767343,
+   "end": 16768157,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16583,
+   "names": [
+    "CompositionResourcePicker"
+   ],
+   "start": 16768158,
+   "end": 16774387,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16584,
+   "names": [
+    "CompositionEditDialog"
+   ],
+   "start": 16774388,
+   "end": 16786609,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16585,
+   "names": [
+    "CompositionEditSummary"
+   ],
+   "start": 16786610,
+   "end": 16787877,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16586,
+   "names": [
+    "useCollapsibleRoot"
+   ],
+   "start": 16787878,
+   "end": 16791017,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16587,
+   "names": [
+    "CollapsibleRootContext"
+   ],
+   "start": 16791018,
+   "end": 16791100,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16588,
+   "names": [
+    "useCollapsibleRootContext"
+   ],
+   "start": 16791101,
+   "end": 16791303,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16589,
+   "names": [
+    "CollapsiblePanelDataAttributes"
+   ],
+   "start": 16791304,
+   "end": 16791847,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16591,
+   "names": [
+    "PANEL_OPEN_HOOK"
+   ],
+   "start": 16792072,
+   "end": 16792144,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16592,
+   "names": [
+    "PANEL_CLOSED_HOOK"
+   ],
+   "start": 16792145,
+   "end": 16792221,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16594,
+   "names": [
+    "collapsibleOpenStateMapping"
+   ],
+   "start": 16792400,
+   "end": 16792543,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16595,
+   "names": [
+    "collapsibleStateAttributesMapping"
+   ],
+   "start": 16792544,
+   "end": 16792653,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16596,
+   "names": [
+    "CollapsibleRoot"
+   ],
+   "start": 16792654,
+   "end": 16793855,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16597,
+   "names": [
+    "AccordionRootDataAttributes"
+   ],
+   "start": 16793856,
+   "end": 16794124,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16598,
+   "names": [
+    "useCollapsiblePanel"
+   ],
+   "start": 16794125,
+   "end": 16803484,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16599,
+   "names": [
+    "CollapsiblePanelCssVars"
+   ],
+   "start": 16803485,
+   "end": 16803779,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16600,
+   "names": [
+    "CollapsiblePanel"
+   ],
+   "start": 16803780,
+   "end": 16806417,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16601,
+   "names": [
+    "CompositionDeleteDialog"
+   ],
+   "start": 16806418,
+   "end": 16812037,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16605,
+   "names": [
+    "CompositionAttributes"
+   ],
+   "start": 16815562,
+   "end": 16816639,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16606,
+   "names": [
+    "CompositionAttributeDetails"
+   ],
+   "start": 16816640,
+   "end": 16817735,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16607,
+   "names": [
+    "compositionContentGroups"
+   ],
+   "start": 16817736,
+   "end": 16817990,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16608,
+   "names": [
+    "CompositionVideoPreview"
+   ],
+   "start": 16817991,
+   "end": 16818312,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 16610,
+   "names": [
+    "ResourceHoverPreview"
+   ],
+   "start": 16821682,
+   "end": 16821900,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16611,
+   "names": [
+    "HoverBinding"
+   ],
+   "start": 16821901,
+   "end": 16823892,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16612,
+   "names": [
+    "CompositionContent"
+   ],
+   "start": 16823893,
+   "end": 16824642,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16613,
+   "names": [
+    "MemberContent"
+   ],
+   "start": 16824643,
+   "end": 16826322,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16614,
+   "names": [
+    "ResourceContent"
+   ],
+   "start": 16826323,
+   "end": 16829816,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16615,
+   "names": [
+    "DirectoryResourceVersions"
+   ],
+   "start": 16829817,
+   "end": 16835966,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16616,
+   "names": [
+    "referenceDropDraft"
+   ],
+   "start": 16835967,
+   "end": 16836991,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16617,
+   "names": [
+    "createPreviewOwner"
+   ],
+   "start": 16836992,
+   "end": 16837543,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16618,
+   "names": [
+    "previewOwners"
+   ],
+   "start": 16837544,
+   "end": 16837596,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16619,
+   "names": [
+    "usePreviewOwner"
+   ],
+   "start": 16837597,
+   "end": 16838060,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16624,
+   "names": [
+    "ResourceEditStore"
+   ],
+   "start": 16839817,
+   "end": 16841252,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16625,
+   "names": [
+    "stores$2"
+   ],
+   "start": 16841253,
+   "end": 16841300,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16626,
+   "names": [
+    "useResourceEdit"
+   ],
+   "start": 16841301,
+   "end": 16841870,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16627,
+   "names": [
+    "ResourceVersionPicker"
+   ],
+   "start": 16841871,
+   "end": 16844696,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16628,
+   "names": [
+    "VersionHistory"
+   ],
+   "start": 16844697,
+   "end": 16846882,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16629,
+   "names": [
+    "ResourcePreview$1"
+   ],
+   "start": 16846883,
+   "end": 16858893,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16630,
+   "names": [
+    "ActionMenu"
+   ],
+   "start": 16858894,
+   "end": 16861200,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16631,
+   "names": [
+    "CompositionTree$1"
+   ],
+   "start": 16861201,
+   "end": 16888041,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16632,
+   "names": [
+    "CompositionRow$1"
+   ],
+   "start": 16888042,
+   "end": 16895317,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16633,
+   "names": [
+    "CompositionList"
+   ],
+   "start": 16895318,
+   "end": 16897961,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16648,
+   "names": [
+    "ResourceDetailDialogContext"
+   ],
+   "start": 16931611,
+   "end": 16931680,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16649,
+   "names": [
+    "ResourceDetailContext"
+   ],
+   "start": 16931681,
+   "end": 16931744,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16651,
+   "names": [
+    "useResourceDetailRenderer"
+   ],
+   "start": 16932092,
+   "end": 16932189,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16652,
+   "names": [
+    "SelectedResourceDialog"
+   ],
+   "start": 16932190,
+   "end": 16932893,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16653,
+   "names": [
+    "HostSelectedResource"
+   ],
+   "start": 16932894,
+   "end": 16933455,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16654,
+   "names": [
+    "HostResourceDialog"
+   ],
+   "start": 16933456,
+   "end": 16935596,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16657,
+   "names": [
+    "compositionTypeFilterQuery"
+   ],
+   "start": 16937993,
+   "end": 16938076,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16658,
+   "names": [
+    "compositionTypeFilterOptions"
+   ],
+   "start": 16938077,
+   "end": 16938222,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16659,
+   "names": [
+    "DirectorySearchControls"
+   ],
+   "start": 16938223,
+   "end": 16941360,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16660,
+   "names": [
+    "StructureContents"
+   ],
+   "start": 16941361,
+   "end": 16952101,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16661,
+   "names": [
+    "StructureSurface"
+   ],
+   "start": 16952102,
+   "end": 16952739,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16662,
+   "names": [
+    "StructureDirectory"
+   ],
+   "start": 16952740,
+   "end": 16952877,
+   "ring": 0,
+   "status": "todo"
+  }
+ ],
+ "segments": [
+  {
+   "from": 1504,
+   "to": 1546,
+   "start": 900900,
+   "end": 946884,
+   "count": 13
+  },
+  {
+   "from": 13101,
+   "to": 13111,
+   "start": 13208042,
+   "end": 13220614,
+   "count": 3
+  },
+  {
+   "from": 13881,
+   "to": 13883,
+   "start": 13794929,
+   "end": 13796961,
+   "count": 2
+  },
+  {
+   "from": 15255,
+   "to": 15256,
+   "start": 15310726,
+   "end": 15315400,
+   "count": 2
+  },
+  {
+   "from": 16437,
+   "to": 16662,
+   "start": 16631858,
+   "end": 16952877,
+   "count": 131
+  }
+ ]
+}

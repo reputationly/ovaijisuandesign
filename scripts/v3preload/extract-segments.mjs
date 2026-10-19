@@ -9,9 +9,10 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
 const REPO = process.cwd();
-const MANIFEST = path.join(REPO, "scripts/v3preload/closure-manifest.json");
+const SET = process.argv.includes("--resource") ? "resource" : "structure";
+const MANIFEST = path.join(REPO, `scripts/v3preload/closure-manifest${SET === "resource" ? "-resource" : ""}.json`);
 const BUNDLE = path.join(REPO, ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js");
-const OUT = path.join(REPO, ".probe/facility-segments");
+const OUT = path.join(REPO, SET === "resource" ? ".probe/resource-segments" : ".probe/facility-segments");
 const APPLY = process.argv.includes("--apply");
 
 const man = JSON.parse(readFileSync(MANIFEST, "utf8"));
