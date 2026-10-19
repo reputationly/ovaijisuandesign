@@ -853,8 +853,46 @@ async function cdp(port) {
   throw new Error("等不到界面页面");
 }
 
+/** 第 198 轮：诊断用——列出所有带非 none background-image 的节点。
+ *  DOM 快照只记录白名单属性，看不到样式，所以这里单独探一次。 */
+const BG_PROBE = `(() => {
+  const out = [];
+  for (const el of document.querySelectorAll("*")) {
+    const bg = getComputedStyle(el).backgroundImage;
+    if (bg && bg !== "none") {
+      out.push({
+        tag: el.tagName.toLowerCase(),
+        id: el.getAttribute("data-composition-id") || el.getAttribute("data-action-ui-id") || null,
+        cls: (el.getAttribute("class") || "").slice(0, 60),
+        bg: bg.slice(0, 140),
+      });
+    }
+  }
+  const media = [];
+  for (const el of document.querySelectorAll("canvas,svg,video,picture,iframe")) {
+    const r = el.getBoundingClientRect();
+    media.push({
+      tag: el.tagName.toLowerCase(),
+      w: Math.round(r.width), h: Math.round(r.height),
+      x: Math.round(r.x), y: Math.round(r.y),
+      id: el.getAttribute("data-composition-id") || el.getAttribute("data-action-ui-id") || null,
+      children: el.childElementCount,
+    });
+  }
+  return { backgrounds: out.slice(0, 20), media: media.filter((m) => m.w > 8 && m.h > 8).slice(0, 30) };
+})()`;
+
 async function capturePageDom(c) {
   await waitForNoToasts(c);
+  if (process.env.BG_PROBE === "1") {
+    try {
+      const r = await c.send("Runtime.evaluate", { expression: BG_PROBE, returnByValue: true });
+      const v = r.result?.result?.value ?? {};
+      console.log(`[bg] 背景图 ${v.backgrounds?.length ?? 0} 个 / 媒体节点 ${v.media?.length ?? 0} 个`);
+      for (const x of (v.backgrounds ?? []).slice(0, 5)) console.log(`   <${x.tag}> id=${x.id} bg=${x.bg}`);
+      for (const m of (v.media ?? []).slice(0, 8)) console.log(`   MEDIA <${m.tag}> ${m.w}x${m.h} @${m.x},${m.y} id=${m.id} children=${m.children}`);
+    } catch (e) { console.log(`[bg] 探针失败 ${String(e).slice(0, 120)}`); }
+  }
   const result = await c.send("Runtime.evaluate", {
     expression: DOM_STATE_SCRIPT,
     returnByValue: true,

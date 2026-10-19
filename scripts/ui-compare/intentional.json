@@ -34,6 +34,12 @@
       "measured": true,
       "conclusion": "两边都只请求 /api/v3/canvas/agent-compositions，我们的 gateway 该接口只返回 {seq, compositionId, kind}，没有标题也没有预览字段。基线渲染出图但 <img> 数为 0、额外请求数为 0；DOM 快照不含 style 属性（两边都是 0 个带 style 的节点），所以无法从快照判断它用的是 background-image 还是 SVG/canvas。",
       "implication": "缩略图的真实来源尚未确定。/api/v3/canvas/previews/{resourceId}/{versionId} 在我们的 gateway 里存在（previews.ts:16），但两边都没请求它。下一步要给 DOM 快照补上 style/background 采集，或直接在基线页面上查那个卡片节点的 computedStyle。"
+    },
+    {
+      "id": "showcase-covers-cdn-blocked",
+      "measured": true,
+      "conclusion": "裁大图看清了：4.088% 是「精选 / Skill」卡片的封面图。我们的渲染层请求 /api/v1/home/showcase-assets/{key}；gateway 的 showcase-warm.ts 注释写明「本地没有就 302 回 CDN」，而门禁把封面 CDN 挡掉了（compare.mjs cdp() 里主动拦截），于是图永远加载不出来，渲染成灰块。",
+      "implication": "基线 0 个 showcase-assets 请求却出图，说明它的封面来源与我们不同（可能是 /api/asset-center/entities，两边都请求了它）。这一项还没有收敛到根因。另外 BG_PROBE=1 探针显示基线页面上 background-image 为 0、媒体节点 30 个全是小图标，所以封面既不是 <img> 也不是 CSS 背景图。"
     }
   ],
   "pendingAttribution": [
