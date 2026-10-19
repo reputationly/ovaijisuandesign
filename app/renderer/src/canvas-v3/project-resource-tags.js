@@ -128,8 +128,15 @@ function parseProjectResourceTagReceipt(value) {
 }
 
 export {
+  assignments,
   buildTagIndex,
-  validateAssetTagIds,
-  parseProjectResourceTagSnapshot,
+  id$2,
+  invalid$3,
+  keys,
+  object$1,
   parseProjectResourceTagReceipt,
+  parseProjectResourceTagSnapshot,
+  registry,
+  revision$2,
+  validateAssetTagIds,
 };

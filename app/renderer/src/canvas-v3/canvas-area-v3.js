@@ -35,6 +35,7 @@ import { id } from "../../../packages/protocol/src/project-v3/task-mappers.ts";
 // ==== P4：主包依赖统一从 main-exports 取 ====
 // ==== P4：主包依赖统一从 main-exports 取 ====
 // ==== P4：主包依赖统一从 main-exports 取 ====
+// ==== P4：主包依赖统一从 main-exports 取 ====
 // ==== P3 严格归并 ====
 // ==== 逐文件收敛 ====
 // ==== P4：主包依赖统一从 main-exports 取 ====
