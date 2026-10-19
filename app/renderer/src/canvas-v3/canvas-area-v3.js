@@ -12738,12 +12738,7 @@ const surface = "border border-[var(--canvas-controls-border)] [border-width:var
 const control = "shrink-0 gap-1 rounded-md p-0 text-foreground/70 hover:bg-foreground/5 hover:text-foreground disabled:opacity-30";
 const active = "bg-[var(--canvas-controls-active)] text-foreground hover:bg-[var(--canvas-controls-active)] hover:text-foreground";
 const additions = [
-  {
-    kind: "clip-studio",
-    icon: Scissors,
-    labelKey: "canvas.clipStudio",
-    descKey: "canvas.clipStudioDesc"
-  },
+  // clip-studio 菜单项暂时移除（引擎 chunk 未还原，见 ADD_KINDS 注释）
   {
     kind: "director-stage",
     icon: Video,
@@ -13126,8 +13121,9 @@ const ADD_KINDS = [
   "audio",
   "text",
   "table",
-  "director-stage",
-  "clip-studio"
+  "director-stage"
+  // "clip-studio" 暂时移除：Clip Studio 的两个 2.2MB 引擎 chunk（AudioEngine /
+  // ChromaKeyEngine）尚未还原，入口先隐藏，避免打开即卡死。见 docs P5。
 ];
 function NodeMenuItem({
   action,
@@ -20665,6 +20661,19 @@ const CanvasV3ContentNodeView = reactExports.memo(function CanvasV3ContentNodeVi
             }
           )
         ]
+      }
+    );
+  }
+  if (isClipStudio) {
+    // Clip Studio 的两个引擎 chunk（AudioEngine / ChromaKeyEngine，各 2.2MB）尚未还原。
+    // 这里给出明确状态，避免旧文档里的 clip 节点渲染成空白或卡死。见 docs P5。
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "flex h-full w-full items-center justify-center rounded-md border border-dashed border-[var(--canvas-controls-border)] text-xs text-muted-foreground",
+        "data-action-ui-id": "canvas.clip-studio-unavailable",
+        role: "status",
+        children: "Clip Studio 暂不支持（引擎组件未还原）",
       }
     );
   }
