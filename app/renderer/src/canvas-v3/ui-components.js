@@ -9,12 +9,19 @@
  *
  * 只搬实现，未改语义。
  */
+// ==== npm 导入：按真实导出映射生成（scripts/v3preload/map-npm-exports.mjs）====
+import { Extension, InputRule, NodeView, PasteRule, callOrReturn, canInsertNode, combineTransactionSteps, findChildrenInRange, getAttributes, getChangedRanges, getExtensionField, getMarksBetween, getNodeAtPosition, getNodeType, getRenderedAttributes, isAtEndOfNode, isAtStartOfNode, isNodeActive, isNodeEmpty, isNodeSelection, isTextSelection, markInputRule, markPasteRule, mergeAttributes, nodeInputRule, selectionToInsertionEnd, textblockTypeInputRule, wrappingInputRule } from "@tiptap/core";
+import { EditorContent, NodeViewWrapper, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
+import { gapCursor } from "prosemirror-gapcursor";
+import { Node } from "prosemirror-model";
+import { AllSelection, NodeSelection, Plugin, PluginKey, TextSelection } from "prosemirror-state";
+import { Decoration, DecorationSet } from "prosemirror-view";
+
+// 三个包里都确认不到，本地占位
+const dropCursor = () => void 0;
+const findSelectionIn = () => void 0;
 import { WorkspaceCanvasPersistenceChangedError } from "./shared/WorkspaceCanvasPersistenceChangedError.js";
 // ==== P2-1：tiptap 入口改 npm（3.31.3，与 package.json 一致）====
-import { useEditor, EditorContent, NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
-import { Extension, mergeAttributes } from "@tiptap/core";
-import { Plugin, PluginKey, TextSelection, NodeSelection } from "@tiptap/pm/state";
-import { DecorationSet } from "@tiptap/pm/view";
 import { MAX_RECEIPT_BYTES, canvasImageImportPath, createCanvasImageImporter, createCanvasMediaImporter, isCanvasImageImport, matchesCanvasImportReceiptName, readBoundedBody, readCanvasImageBytes } from "./frame-services.js";
 // ==== 逐文件收敛 ====
 
@@ -38,7 +45,8 @@ import { ConditionRow } from "../media-editing/condition-row.jsx";
 import { useMediaMuted, useVersionMediaSource } from "./canvas-v3-hooks.js";
 import { VideoPlayer as VideoPlayer$2 } from "./main-exports.js";
 // ==== 逐文件收敛 ====
-import { FileText as FileText$1, Image$2, Music as Music$3, Video as Video$3 } from "./main-exports.js";
+import { FileText as FileText$1, Music as Music$3, Video as Video$3 } from "./main-exports.js";
+const Image$2 = Image$1;
 // ==== 逐文件收敛 ====
 import { Tt as Tt$2 } from "../text-editor/is-diff-review-session-ready.js";
 import { TrashIcon, attachmentThumbnailUrl } from "../media-editing/canvas-sticker-assets.jsx";
@@ -170,8 +178,8 @@ import { CANVAS_EMOJI_STICKERS, CANVAS_STICKER_PICKER_ASSETS, getCanvasStickerAs
 import { CANVAS_MAX_ZOOM, CANVAS_MIN_ZOOM, bumpFileVersion } from "../infra/use-plugin-metadata-store.js";
 import { CANVAS_MORE_TONES, CANVAS_PRIMARY_TONES, CANVAS_TOOL_DOCK_CONTROL_SIZE_PX, CursorIcon, INITIAL_GUIDE_SLOTS, MouseIcon, createGuideSlot, setAttribute } from "../canvas/cursor-icon.jsx";
 import { CANVAS_V3_FRAME_PADDING, CANVAS_V3_IMAGE_MAX_BYTES, PROJECT_DOCUMENT_MAX_BYTES, PROJECT_GENERATION_OPERATIONS, PROJECT_TASK_HTTP_ROUTES } from "./canvas-v3-constants.js";
-import { CANVAS_V3_RESOURCE_DRAG_MIME, CanvasV3CommandRejectedError, TOKEN, canvasV3AudioModeOfModel, canvasV3ClipboardContent, canvasV3ContentItems, canvasV3ContentPath, canvasV3DerivedMembersCommand, canvasV3DerivedPosition, canvasV3DerivedPositions, canvasV3Equal, canvasV3FrameReferences, canvasV3GenerationOperations, canvasV3GridPositions, canvasV3ImportCommand, canvasV3ItemRefEqual, canvasV3MediaKind, canvasV3PlacementDocument, canvasV3PromptMentions, canvasV3ReadySource, canvasV3ReferenceToken, canvasV3ResolveNode, canvasV3ResolveSource, canvasV3SetHistorySelectionPatch, contentPresentationKind, createCanvasV3ResourcePicker, paramOptions, parseCanvasV3ClipboardSnapshot, parseCanvasV3Command, parseCanvasV3CommandReceipt, parseCanvasV3CommandRequest, parseCanvasV3Document, parseCanvasV3DocumentWriteResult, parseCanvasV3ImageImportResult, parseCanvasV3LocalFileImportResult, parseCanvasV3MediaImportResult, parseCanvasV3MediaReferenceOrigin, parseCanvasV3MediaVersionTarget, positive$3, required, resolveCanvasV3Node, resourceConnections, same, storageKey$1, subtitleFormatField } from "./canvas-v3-client.js";
-import { CANVAS_V3_ROUTES, PROJECT_COMPOSITION_HTTP_ROUTES, PROJECT_DOCUMENT_READ_DEFAULT_LINES, PROJECT_RESOURCE_HTTP_ROUTES, ProjectActor, ProjectResourceCommandType, ProjectResourceKind, ProjectResourceLifecycle, ProjectResourceUpdateKind, ProjectResourceVersionStatus, applyCanvasV3Patch, isCanvasV3Patch, parseComposition, parseCompositionListResult, parseCompositionReceipt, parseCompositionSearchResult, parseCompositionTypeDefs, parseListAllCompositionsResult, parseProjectResourceReceipt, parseTaskList, parseTaskQueue, parseTaskRead, parseTaskResolveResult, parseTaskSubmitResult, reconcileCanvasV3StickerPatch } from "./canvas-v3-document.js";
+import { CANVAS_V3_RESOURCE_DRAG_MIME, CanvasV3CommandRejectedError, TOKEN, canvasV3AudioModeOfModel, canvasV3ClipboardContent, canvasV3ContentItems, canvasV3ContentPath, canvasV3DerivedMembersCommand, canvasV3DerivedPosition, canvasV3DerivedPositions, canvasV3Equal, canvasV3FrameReferences, canvasV3GenerationOperations, canvasV3GridPositions, canvasV3ImportCommand, canvasV3ItemRefEqual, canvasV3MediaKind, canvasV3PlacementDocument, canvasV3PromptMentions, canvasV3ReadySource, canvasV3ReferenceToken, canvasV3ResolveNode, canvasV3ResolveSource, canvasV3SetHistorySelectionPatch, contentPresentationKind, createCanvasV3ResourcePicker, paramOptions, parseCanvasV3ClipboardSnapshot, parseCanvasV3Command, parseCanvasV3CommandReceipt, parseCanvasV3CommandRequest, parseCanvasV3Document, parseCanvasV3DocumentWriteResult, parseCanvasV3ImageImportResult, parseCanvasV3LocalFileImportResult, parseCanvasV3MediaImportResult, parseCanvasV3MediaReferenceOrigin, parseCanvasV3MediaVersionTarget, positive$3, required, resolveCanvasV3Node, resourceConnections, same, storageKey$1, subtitleFormatField } from "./canvas-v3-model.js";
+import { CANVAS_V3_ROUTES, PROJECT_COMPOSITION_HTTP_ROUTES, PROJECT_DOCUMENT_READ_DEFAULT_LINES, PROJECT_RESOURCE_HTTP_ROUTES, ProjectActor, ProjectResourceCommandType, ProjectResourceKind, ProjectResourceLifecycle, ProjectResourceUpdateKind, ProjectResourceVersionStatus, applyCanvasV3Patch, isCanvasV3Patch, parseComposition, parseCompositionListResult, parseCompositionReceipt, parseCompositionSearchResult, parseCompositionTypeDefs, parseListAllCompositionsResult, parseProjectResourceReceipt, parseTaskList, parseTaskQueue, parseTaskRead, parseTaskResolveResult, parseTaskSubmitResult, reconcileCanvasV3StickerPatch } from "./canvas-v3-model.js";
 import { Camera, CanvasActiveContext, CanvasActiveDeferredContext, INACTIVE_NODE_UNMOUNT_GRACE_MS, MousePointer2, Paperclip, PenLine, useDelayedFalse, useMediaPlayback } from "../media-editing/package.jsx";
 import { CanvasActionsContext } from "../media-editing/use-canvas-actions.js";
 import { CanvasReleaseRegionContext, getExtFromMime } from "../canvas/separator.jsx";
@@ -43009,10 +43017,6 @@ const snapAspectRatio = (w, h) => (h ? w / h : 1);
 const K2 = "k2";
 const FixedMediaLightbox = (props) => React.createElement("div", { className: props?.className, "data-lightbox": "media" });
 const ImageLightboxView = (props) => React.createElement("div", { className: props?.className, "data-lightbox": "image" });
-import { AllSelection, dropCursor, gapCursor } from "@tiptap/pm/state";
-import { Decoration as Decoration$1, NodeView } from "@tiptap/pm/view";
-import { Node as Node$1 } from "@tiptap/pm/model";
-import { InputRule, PasteRule, callOrReturn, canInsertNode, combineTransactionSteps, findChildrenInRange, findSelectionIn, getAttributes, getChangedRanges, getExtensionField, getMarksBetween, getNodeAtPosition, getNodeType, getRenderedAttributes, isAtEndOfNode, isAtStartOfNode, isNodeActive, isNodeEmpty, isNodeSelection, isTextSelection, markInputRule, markPasteRule, nodeInputRule, selectionToInsertionEnd as selectionToInsertionEnd$1, textblockTypeInputRule, wrappingInputRule } from "@tiptap/core";
 
 // 这些是产物内联的 ProseMirror 内部工具，保留本地占位
 const Branch = class {};
@@ -43022,6 +43026,12 @@ const RopeSequence = class {};
 const getPreviousBlockSibling = () => void 0;
 const insertCanvasRedrawRegion = () => void 0;
 const renderNestedMarkdownContent = () => void 0;
+
+// $n 变体指向同一个 npm 导出（第 149 轮）
+const Node$1 = Node;
+const Decoration$1 = Decoration;
+const selectionToInsertionEnd$1 = selectionToInsertionEnd;
+
 
 
 export {

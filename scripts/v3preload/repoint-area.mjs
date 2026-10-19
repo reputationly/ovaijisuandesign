@@ -12,7 +12,8 @@ let t = readFileSync(AREA, "utf8");
 const keep = [], take = [];
 for (const m of t.matchAll(/^import \{([\s\S]*?)\} from "([^"]+)";/gm)) {
   const names = m[1].split(",").map((x) => x.trim()).filter(Boolean);
-  const inME = names.filter((s) => available.has(s.split(" as ").pop().trim()));
+  // ui-components 是兄弟模块，直接引
+  const inME = src.includes("ui-components") ? [] : names.filter((s) => available.has(s.split(" as ").pop().trim()));
   const rest = names.filter((s) => !available.has(s.split(" as ").pop().trim()));
   take.push(...inME);
   if (rest.length) keep.push(`import { ${rest.join(", ")} } from "${m[2]}";`);
