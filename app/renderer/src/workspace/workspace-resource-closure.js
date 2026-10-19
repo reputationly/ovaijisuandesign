@@ -1,539 +1,58 @@
 /**
- * 资源视图闭包（第 190 轮，按 closure-manifest-resource.json 逐项取回）。
+ * 资源视图闭包（第 192 轮：只取应用代码，按「名字 + 行内 span」取回）。
  *
  * 种子：StructureDirectory / StructureContents / ModuleErrorBoundary
- * 总量：151 个声明 / 约 5639 行，每圈 [3, 13, 31, 25, 22, 33]… 收敛
- * 本文件只含**应用代码**部分（已排除 @base-ui Menu* 与 @tanstack InfiniteQuery，
- * 共 20 个 npm 声明）。
+ * 清单：scripts/v3preload/closure-manifest-resource.json（151 个，只减不增）
+ * 本文件：131 个应用声明 + 8 个补取。npm 的 20 个不再内联。
  *
- * 顺序 = bundle 求值顺序 → 不会产生 TDZ。
- * 边界：清单入库，只减不增。
+ * **不用 toplevel-4.0.0.json 的字节偏移**：那份偏移在本区间恒定偏 150 字节，
+ * 且 npm 区间又不偏，混用会把函数体切坏。
  */
 
-// ---- 第 191 轮：13 个 lucide 图标，从 lucide-react 按真实名导入 ----
-// 产物里的 `$n` 是 bundle 内部去重后缀，不是包导出名。
+// 第 192 轮：@base-ui 公开组件 + tanstack + 补取的两个类
 import {
-  ChevronRight as ChevronRight$2,
-  Download as Download$3,
-  Ellipsis as Ellipsis$1,
-  FileText as FileText$1,
-  Folder as Folder$1,
-  Image as Image$2,
-  Library as Library$1,
-  Music as Music$3,
-  RefreshCw as RefreshCw,
-  Search as Search$3,
-  Trash2 as Trash2$3,
-  Video as Video$3,
-  X as X$9
-} from "lucide-react";
+  ContextMenuTrigger as ContextMenuTrigger$2,
+  Dialog as Dialog$4,
+  DialogContent as DialogContent$5,
+  DialogDescription as DialogDescription$3,
+  DialogPortal as DialogPortal$3,
+  DialogTitle as DialogTitle$3,
+  Input as Input$4,
+  MenuItem as MenuItem$4,
+  MenuPortal as MenuPortal$1,
+  PreviewCard as PreviewCard$2,
+  PreviewCardContent as PreviewCardContent$1,
+  empty,
+} from "@base-ui/react";
+import { infiniteQueryOptions } from "@tanstack/react-query";
 
 import reactExports from "react";
 import jsxRuntimeExports from "react/jsx-runtime";
 import { useTranslation } from "react-i18next";
+import { Pause, Play } from "lucide-react";
+import { PageStateView } from "./../assets/page-state-view.jsx";
+import { useWorkbench } from "./../canvas-v3/canvas-v3-hooks.js";
+import { CompositionCommandType, CompositionLifecycle, CompositionOperationType, ProjectActor, ProjectResourceCommandType, ProjectResourceKind, ProjectResourceUpdateKind, mintProjectId, parseComposition } from "./../canvas-v3/canvas-v3-model.js";
+import { MenuPopup, MenuPositioner, Pencil, createResourceQueryOptions, resourceQueryKeys, useInfiniteQuery } from "./../canvas-v3/main-exports.js";
+import { acceptsNewIntent, toCommandFailureOutcome, toCommandOutcome } from "./../canvas-v3/project-command.js";
+import { workbenchQueryKeys } from "./../canvas-v3/query-keys.js";
+import { MediaUrlContext, ProjectCompositionHttpError, ScopedMedia, StructureMedia, compositionQueryKeys, createChangeEventDetails, createReadLimiter, formatErrorMessage, invalidate, queryOptions, useIsoLayoutEffect, useRenderElement } from "./../canvas-v3/ui-components.js";
+import { COMPOSITION_RESOURCE_KINDS, StructureValidationError, assertActionTarget, assertResourceLocation, assertStructureId, immutableSnapshot, toResourceSelector } from "./../chat/display-order.jsx";
+import { Textarea } from "./../infra/badge-variants.jsx";
+import { ContextMenuRoot, DialogBackdrop, DialogClose$1, DialogPopup, DialogRoot, PreviewCardTrigger$1 } from "./../infra/base-ui.js";
+import { GripVertical } from "./../media-editing/lucide-icon-wraps.js";
+import { MessageSquarePlus } from "./../media-editing/package.jsx";
+import { Field } from "./../skills/creator-plan/form-parts.jsx";
+import { ChevronRight as ChevronRight$2, Download as Download$3, Ellipsis as Ellipsis$1, FileText as FileText$1, Folder as Folder$1, Image as Image$2, Library as Library$1, Music as Music$3, RefreshCw as RefreshCw, Search as Search$3, Trash2 as Trash2$3, Video as Video$3, X as X$9 } from "lucide-react";
+import { keepPreviousData, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  AnimationFrame, Button as Button$3, DialogDescription as DialogDescription$4,
+  DialogTitle as DialogTitle$4, empty as empty$1, none as none$5,
+  TransitionStatusDataAttributes, defaults, transitionStatusMapping, triggerPress,
+  useAnimationFrame, useAnimationsFinished, useBaseUiId, useControlled, useMergedRefs,
+  useOnMount, useOpenChangeComplete, useStableCallback$1, useTransitionStatus,
+} from "@base-ui/utils";
 
-// ===== segment-001504-1546 =====
-const MenuPositionerContext = /* @__PURE__ */ reactExports.createContext(void 0);
-
-function useMenuPositionerContext(optional2) {
-  const context = reactExports.useContext(MenuPositionerContext);
-  if (context === void 0 && !optional2) {
-    throw new Error(formatErrorMessage(33));
-  }
-  return context;
-}
-
-const MenuRootContext = /* @__PURE__ */ reactExports.createContext(void 0);
-
-function useMenuRootContext$1(optional2) {
-  const context = reactExports.useContext(MenuRootContext);
-  if (context === void 0 && !optional2) {
-    throw new Error(formatErrorMessage(36));
-  }
-  return context;
-}
-
-const ContextMenuRootContext = /* @__PURE__ */ reactExports.createContext(void 0);
-
-function useContextMenuRootContext(optional2 = true) {
-  const context = reactExports.useContext(ContextMenuRootContext);
-  if (context === void 0 && !optional2) {
-    throw new Error(formatErrorMessage(25));
-  }
-  return context;
-}
-
-function useMenuItemCommonProps(params) {
-  const {
-    closeOnClick,
-    highlighted,
-    id: id2,
-    nodeId,
-    store,
-    typingRef,
-    itemRef,
-    itemMetadata
-  } = params;
-  const {
-    events: menuEvents
-  } = store.useState("floatingTreeRoot");
-  const contextMenuContext = useContextMenuRootContext(true);
-  const isContextMenu = contextMenuContext !== void 0;
-  return reactExports.useMemo(() => ({
-    id: id2,
-    role: "menuitem",
-    tabIndex: highlighted ? 0 : -1,
-    onKeyDown(event) {
-      if (event.key === " " && typingRef?.current) {
-        event.preventDefault();
-      }
-    },
-    onMouseMove(event) {
-      if (!nodeId) {
-        return;
-      }
-      menuEvents.emit("itemhover", {
-        nodeId,
-        target: event.currentTarget
-      });
-    },
-    onClick(event) {
-      if (closeOnClick) {
-        menuEvents.emit("close", {
-          domEvent: event,
-          reason: itemPress
-        });
-      }
-    },
-    onMouseUp(event) {
-      if (contextMenuContext) {
-        const initialCursorPoint = contextMenuContext.initialCursorPointRef.current;
-        contextMenuContext.initialCursorPointRef.current = null;
-        if (isContextMenu && initialCursorPoint && Math.abs(event.clientX - initialCursorPoint.x) <= 1 && Math.abs(event.clientY - initialCursorPoint.y) <= 1) {
-          return;
-        }
-        if (isContextMenu && !isMac$1 && event.button === 2) {
-          return;
-        }
-      }
-      if (itemRef.current && store.context.allowMouseUpTriggerRef.current && (!isContextMenu || event.button === 2)) {
-        if (!itemMetadata || itemMetadata.type === "regular-item") {
-          itemRef.current.click();
-        }
-      }
-    }
-  }), [closeOnClick, highlighted, id2, menuEvents, nodeId, store, typingRef, itemRef, contextMenuContext, isContextMenu, itemMetadata]);
-}
-
-const REGULAR_ITEM = {
-  type: "regular-item"
-};
-
-function useMenuItem(params) {
-  const {
-    closeOnClick,
-    disabled = false,
-    highlighted,
-    id: id2,
-    store,
-    typingRef = store.context.typingRef,
-    nativeButton,
-    itemMetadata,
-    nodeId
-  } = params;
-  const itemRef = reactExports.useRef(null);
-  const {
-    getButtonProps,
-    buttonRef
-  } = useButton({
-    disabled,
-    focusableWhenDisabled: true,
-    native: nativeButton,
-    composite: true
-  });
-  const commonProps = useMenuItemCommonProps({
-    closeOnClick,
-    highlighted,
-    id: id2,
-    nodeId,
-    store,
-    typingRef,
-    itemRef,
-    itemMetadata
-  });
-  const getItemProps = reactExports.useCallback((externalProps) => {
-    return mergeProps$2(commonProps, {
-      onMouseEnter() {
-        if (itemMetadata.type !== "submenu-trigger") {
-          return;
-        }
-        itemMetadata.setActive();
-      }
-    }, externalProps, getButtonProps);
-  }, [commonProps, getButtonProps, itemMetadata]);
-  const mergedRef = useMergedRefs(itemRef, buttonRef);
-  return reactExports.useMemo(() => ({
-    getItemProps,
-    itemRef: mergedRef
-  }), [getItemProps, mergedRef]);
-}
-
-const MenuItem$4 = /* @__PURE__ */ reactExports.forwardRef(function MenuItem2(componentProps, forwardedRef) {
-  const {
-    render: render2,
-    className,
-    id: idProp,
-    label,
-    nativeButton = false,
-    disabled = false,
-    closeOnClick = true,
-    ...elementProps
-  } = componentProps;
-  const listItem2 = useCompositeListItem({
-    label
-  });
-  const menuPositionerContext = useMenuPositionerContext(true);
-  const id2 = useBaseUiId(idProp);
-  const {
-    store
-  } = useMenuRootContext$1();
-  const highlighted = store.useState("isActive", listItem2.index);
-  const itemProps = store.useState("itemProps");
-  const {
-    getItemProps,
-    itemRef
-  } = useMenuItem({
-    closeOnClick,
-    disabled,
-    highlighted,
-    id: id2,
-    store,
-    nativeButton,
-    nodeId: menuPositionerContext?.nodeId,
-    itemMetadata: REGULAR_ITEM
-  });
-  const state2 = {
-    disabled,
-    highlighted
-  };
-  return useRenderElement("div", componentProps, {
-    state: state2,
-    props: [itemProps, elementProps, getItemProps],
-    ref: [itemRef, forwardedRef, listItem2.ref]
-  });
-});
-
-const MenuPortalContext = /* @__PURE__ */ reactExports.createContext(void 0);
-
-const MenuPortal$1 = /* @__PURE__ */ reactExports.forwardRef(function MenuPortal2(props, forwardedRef) {
-  const {
-    keepMounted = false,
-    ...portalProps
-  } = props;
-  const {
-    store
-  } = useMenuRootContext$1();
-  const mounted = store.useState("mounted");
-  const shouldRender = mounted || keepMounted;
-  if (!shouldRender) {
-    return null;
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(MenuPortalContext.Provider, {
-    value: keepMounted,
-    children: /* @__PURE__ */ jsxRuntimeExports.jsx(FloatingPortal, {
-      ref: forwardedRef,
-      ...portalProps
-    })
-  });
-});
-
-function findRootOwnerId(node2) {
-  if (isHTMLElement$2(node2) && node2.hasAttribute("data-rootownerid")) {
-    return node2.getAttribute("data-rootownerid") ?? void 0;
-  }
-  if (isLastTraversableNode(node2)) {
-    return void 0;
-  }
-  return findRootOwnerId(getParentNode(node2));
-}
-
-// ===== segment-013101-13111 =====
-var InfiniteQueryObserver = class extends QueryObserver {
-  constructor(client, options2) {
-    super(client, options2);
-  }
-  bindMethods() {
-    super.bindMethods();
-    this.fetchNextPage = this.fetchNextPage.bind(this);
-    this.fetchPreviousPage = this.fetchPreviousPage.bind(this);
-  }
-  setOptions(options2) {
-    super.setOptions({
-      ...options2,
-      behavior: infiniteQueryBehavior()
-    });
-  }
-  getOptimisticResult(options2) {
-    options2.behavior = infiniteQueryBehavior();
-    return super.getOptimisticResult(options2);
-  }
-  fetchNextPage(options2) {
-    return this.fetch({
-      ...options2,
-      meta: {
-        fetchMore: { direction: "forward" }
-      }
-    });
-  }
-  fetchPreviousPage(options2) {
-    return this.fetch({
-      ...options2,
-      meta: {
-        fetchMore: { direction: "backward" }
-      }
-    });
-  }
-  createResult(query, options2) {
-    const { state: state2 } = query;
-    const parentResult = super.createResult(query, options2);
-    const { isFetching, isRefetching, isError, isRefetchError } = parentResult;
-    const fetchDirection = state2.fetchMeta?.fetchMore?.direction;
-    const isFetchNextPageError = isError && fetchDirection === "forward";
-    const isFetchingNextPage = isFetching && fetchDirection === "forward";
-    const isFetchPreviousPageError = isError && fetchDirection === "backward";
-    const isFetchingPreviousPage = isFetching && fetchDirection === "backward";
-    const result = {
-      ...parentResult,
-      fetchNextPage: this.fetchNextPage,
-      fetchPreviousPage: this.fetchPreviousPage,
-      hasNextPage: hasNextPage(options2, state2.data),
-      hasPreviousPage: hasPreviousPage(options2, state2.data),
-      isFetchNextPageError,
-      isFetchingNextPage,
-      isFetchPreviousPageError,
-      isFetchingPreviousPage,
-      isRefetchError: isRefetchError && !isFetchNextPageError && !isFetchPreviousPageError,
-      isRefetching: isRefetching && !isFetchingNextPage && !isFetchingPreviousPage
-    };
-    return result;
-  }
-};
-
-function infiniteQueryOptions(options2) {
-  return options2;
-}
-
-function useInfiniteQuery(options2, queryClient2) {
-  return useBaseQuery(
-    options2,
-    InfiniteQueryObserver,
-    queryClient2
-  );
-}
-
-// ===== segment-013881-13883 =====
-function PreviewCard$2(props) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(PreviewCardRoot, { "data-slot": "preview-card", ...props });
-}
-
-function PreviewCardContent$1({
-  className,
-  side = "right",
-  sideOffset = 8,
-  align = "start",
-  alignOffset = 0,
-  collisionPadding,
-  anchor: anchor2,
-  positionerClassName,
-  portalContainer,
-  children: children2,
-  ...props
-}) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(PreviewCardPortal, { container: portalContainer ?? void 0, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-    PreviewCardPositioner,
-    {
-      side,
-      sideOffset,
-      align,
-      alignOffset,
-      collisionPadding,
-      anchor: anchor2,
-      className: cn$5("isolate z-50", positionerClassName),
-      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        PreviewCardPopup,
-        {
-          "data-slot": "preview-card-content",
-          className: cn$5(
-            // Layout: fixed-width card. Height is content-driven and
-            // uncapped — media previews constrain themselves and metadata
-            // tables are short, so a hard max-height + scroll just gets in
-            // the way. If a future preview type needs scrolling, gate it
-            // locally within that preview's body.
-            "z-50 w-[260px] origin-(--transform-origin) rounded-lg border border-border bg-card text-card-foreground shadow-lg outline-none",
-            // Animation: fade only — no zoom or slide so the card appears
-            // in place without flying in from the anchor side.
-            "data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
-            className
-          ),
-          ...props,
-          children: children2
-        }
-      )
-    }
-  ) });
-}
-
-// ===== segment-015255-15256 =====
-const LONG_PRESS_DELAY = 500;
-
-const ContextMenuTrigger$2 = /* @__PURE__ */ reactExports.forwardRef(function ContextMenuTrigger22(componentProps, forwardedRef) {
-  const {
-    render: render2,
-    className,
-    ...elementProps
-  } = componentProps;
-  const {
-    setAnchor,
-    actionsRef,
-    internalBackdropRef,
-    backdropRef,
-    positionerRef,
-    allowMouseUpTriggerRef,
-    initialCursorPointRef,
-    rootId
-  } = useContextMenuRootContext(false);
-  const {
-    store
-  } = useMenuRootContext$1(false);
-  const open = store.useState("open");
-  const disabled = store.useState("disabled");
-  const triggerRef = reactExports.useRef(null);
-  const touchPositionRef = reactExports.useRef(null);
-  const longPressTimeout = useTimeout();
-  const allowMouseUpTimeout = useTimeout();
-  const allowMouseUpRef = reactExports.useRef(false);
-  function handleLongPress(x2, y4, event) {
-    const isTouchEvent2 = event.type.startsWith("touch");
-    initialCursorPointRef.current = {
-      x: x2,
-      y: y4
-    };
-    setAnchor({
-      getBoundingClientRect() {
-        return DOMRect.fromRect({
-          width: isTouchEvent2 ? 10 : 0,
-          height: isTouchEvent2 ? 10 : 0,
-          x: x2,
-          y: y4
-        });
-      }
-    });
-    allowMouseUpRef.current = false;
-    actionsRef.current?.setOpen(true, createChangeEventDetails(triggerPress, event));
-    allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
-      allowMouseUpRef.current = true;
-    });
-  }
-  function handleContextMenu(event) {
-    if (disabled) {
-      return;
-    }
-    allowMouseUpTriggerRef.current = true;
-    stopEvent$2(event);
-    handleLongPress(event.clientX, event.clientY, event.nativeEvent);
-    const doc2 = ownerDocument(triggerRef.current);
-    doc2.addEventListener("mouseup", (mouseEvent) => {
-      allowMouseUpTriggerRef.current = false;
-      if (!allowMouseUpRef.current) {
-        return;
-      }
-      allowMouseUpTimeout.clear();
-      allowMouseUpRef.current = false;
-      const mouseUpTarget = getTarget(mouseEvent);
-      if (contains$1(positionerRef.current, mouseUpTarget)) {
-        return;
-      }
-      if (rootId && mouseUpTarget && findRootOwnerId(mouseUpTarget) === rootId) {
-        return;
-      }
-      actionsRef.current?.setOpen(false, createChangeEventDetails(cancelOpen, mouseEvent));
-    }, {
-      once: true
-    });
-  }
-  function handleTouchStart(event) {
-    if (disabled) {
-      return;
-    }
-    allowMouseUpTriggerRef.current = false;
-    if (event.touches.length === 1) {
-      event.stopPropagation();
-      const touch2 = event.touches[0];
-      touchPositionRef.current = {
-        x: touch2.clientX,
-        y: touch2.clientY
-      };
-      longPressTimeout.start(LONG_PRESS_DELAY, () => {
-        if (touchPositionRef.current) {
-          handleLongPress(touchPositionRef.current.x, touchPositionRef.current.y, event.nativeEvent);
-        }
-      });
-    }
-  }
-  function handleTouchMove(event) {
-    if (longPressTimeout.isStarted() && touchPositionRef.current && event.touches.length === 1) {
-      const touch2 = event.touches[0];
-      const moveThreshold = 10;
-      const deltaX = Math.abs(touch2.clientX - touchPositionRef.current.x);
-      const deltaY = Math.abs(touch2.clientY - touchPositionRef.current.y);
-      if (deltaX > moveThreshold || deltaY > moveThreshold) {
-        longPressTimeout.clear();
-      }
-    }
-  }
-  function handleTouchEnd() {
-    longPressTimeout.clear();
-    touchPositionRef.current = null;
-  }
-  reactExports.useEffect(() => {
-    function handleDocumentContextMenu(event) {
-      if (disabled) {
-        return;
-      }
-      const target = getTarget(event);
-      const targetElement = target;
-      if (contains$1(triggerRef.current, targetElement) || contains$1(internalBackdropRef.current, targetElement) || contains$1(backdropRef.current, targetElement)) {
-        event.preventDefault();
-      }
-    }
-    const doc2 = ownerDocument(triggerRef.current);
-    doc2.addEventListener("contextmenu", handleDocumentContextMenu);
-    return () => {
-      doc2.removeEventListener("contextmenu", handleDocumentContextMenu);
-    };
-  }, [backdropRef, disabled, internalBackdropRef]);
-  const state2 = {
-    open
-  };
-  const element2 = useRenderElement("div", componentProps, {
-    state: state2,
-    ref: [triggerRef, forwardedRef],
-    props: [{
-      onContextMenu: handleContextMenu,
-      onTouchStart: handleTouchStart,
-      onTouchMove: handleTouchMove,
-      onTouchEnd: handleTouchEnd,
-      onTouchCancel: handleTouchEnd,
-      style: {
-        WebkitTouchCallout: "none"
-      }
-    }, elementProps],
-    stateAttributesMapping: pressableTriggerOpenStateMapping
-  });
-  return element2;
-});
-
-// ===== segment-016437-16662 =====
 const ActionsContext = reactExports.createContext({});
 
 function CompositionContextMenu({
@@ -5825,4 +5344,160 @@ function StructureSurface(props) {
 
 function StructureDirectory(props) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(StructureSurface, { ...props, mode: "directory" });
+}
+// ---- 第 192 轮：补取的 6 个小工具 + 2 个类（参考 402799 / 327503 / 400274 / 404064）----
+function subscribeOnline(onChange) {
+  window.addEventListener("online", onChange);
+  window.addEventListener("offline", onChange);
+  return () => {
+    window.removeEventListener("online", onChange);
+    window.removeEventListener("offline", onChange);
+  };
+}
+const getDark = () => document.documentElement.classList.contains("dark");
+const getOnline = () => navigator.onLine;
+const getServerDark = () => false;
+const getServerOnline = () => true;
+function subscribeTheme(onChange) {
+  const observer2 = new MutationObserver(onChange);
+  observer2.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  return () => observer2.disconnect();
+}
+
+// PageStateIllustration / resolvePageState 在产物里是从别的模块 import 的，
+// 那两个模块还没还原；先给最小实现并显式标注，不要当成真实现。
+function PageStateIllustration(props) {
+  return jsxRuntimeExports.jsx("div", { "data-page-state-illustration": "true", ...props });
+}
+function resolvePageState(input, retryLabel, online) {
+  if (input?.type === "error") return { kind: "error", text: input.text, retryLabel, online };
+  return { kind: input?.type ?? "empty", text: input?.text, retryLabel, online };
+}
+
+class ProjectQueryError extends Error {
+  constructor(status, code2, message2, retryable = false, traceId, details) {
+    super(message2);
+    this.status = status;
+    this.code = code2;
+    this.traceId = traceId;
+    this.details = details;
+    this.name = code2 === "ABORTED" ? "AbortError" : "ProjectQueryError";
+    this.kind = classify(status, code2);
+    this.retryable = retryable && (this.kind === "transient" || this.kind === "unavailable");
+  }
+  status;
+  code;
+  traceId;
+  details;
+  kind;
+  retryable;
+  static async fromResponse(response) {
+    try {
+      const { error } = parseProjectQueryErrorBody(await response.json());
+      return new ProjectQueryError(
+        response.status,
+        error.code,
+        error.message,
+        error.retryable,
+        error.traceId,
+        error.details
+      );
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") throw error;
+      return new ProjectQueryError(
+        response.status,
+        "PROJECT_QUERY_HTTP_ERROR",
+        `Project Query request failed (${response.status})`,
+        response.status === 408 || response.status === 429 || response.status >= 500
+      );
+    }
+  }
+}
+
+function VideoBinding({ src, ...props }) {
+  const { t: t2 } = useTranslation();
+  const videoRef = reactExports.useRef(null);
+  const [playing, setPlaying2] = reactExports.useState(false);
+  const [ready2, setReady] = reactExports.useState(false);
+  const [failed, setFailed] = reactExports.useState(false);
+  const [lastGoodSrc, setLastGoodSrc] = reactExports.useState();
+  const source = src ?? lastGoodSrc;
+  reactExports.useEffect(() => {
+    const video = videoRef.current;
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") video?.pause();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      video?.pause();
+    };
+  }, []);
+  const handleTogglePlayback = () => {
+    const video = videoRef.current;
+    if (!video || !source) return;
+    if (!video.paused) {
+      video.pause();
+      return;
+    }
+    setFailed(false);
+    if (video.error) video.load();
+    void video.play().catch(() => {
+      if (videoRef.current !== video) return;
+      setFailed(true);
+      setPlaying2(false);
+    });
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative size-full", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(StructureMedia, { ...props, kind: 3, thumbnailWidth: 112, compact: true, className: "size-full" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "video",
+      {
+        ref: videoRef,
+        src: source,
+        "aria-label": props.name,
+        playsInline: true,
+        preload: "none",
+        className: `pointer-events-none absolute inset-0 size-full object-cover ${ready2 && !failed ? "" : "opacity-0"}`,
+        "data-action-ui-id": "composition-preview-video",
+        onLoadedData: () => {
+          setReady(true);
+          setLastGoodSrc(source);
+        },
+        onEmptied: () => setReady(false),
+        onPlay: () => setPlaying2(true),
+        onPause: () => setPlaying2(false),
+        onEnded: () => setPlaying2(false),
+        onError: () => {
+          setFailed(true);
+          setPlaying2(false);
+        }
+      }
+    ),
+    failed && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "p",
+      {
+        role: "alert",
+        className: "absolute inset-0 flex items-center justify-center bg-background/80 p-2 pb-9 text-center text-xs text-muted-foreground",
+        children: t2("structure.mediaFailed")
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Button$3,
+      {
+        type: "button",
+        variant: "ghost",
+        size: "icon",
+        "aria-label": failed ? t2("structure.retry") : t2(playing ? "structure.mediaPauseNamed" : "structure.mediaPlayNamed", {
+          name: props.name
+        }),
+        "aria-pressed": playing,
+        disabled: !source,
+        "data-action-ui-id": "composition-preview-video-toggle",
+        className: "absolute bottom-1.5 right-1.5 size-6 rounded-full bg-background/90 p-0 text-foreground hover:bg-background [&_svg]:size-3",
+        onClick: handleTogglePlayback,
+        children: playing ? /* @__PURE__ */ jsxRuntimeExports.jsx(Pause, { "aria-hidden": "true", strokeWidth: 1.5, fill: "currentColor" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { "aria-hidden": "true", strokeWidth: 1.5, fill: "currentColor" })
+      }
+    )
+  ] });
 }
