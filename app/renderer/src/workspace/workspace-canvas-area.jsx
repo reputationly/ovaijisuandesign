@@ -69,7 +69,12 @@ function WorkspaceV3Workbench(props) {
                 children: t("projectV3.accountPending"),
               }),
         })
-      : jsxRuntimeExports.jsx(V3Boundary, {
+      : jsxRuntimeExports.jsx("div", {
+          // 第 183 轮：产物 WorkspaceV3Workbench-CHvgSaSj.js:22 里画布分支外面
+          // 还有一层 `data-action-ui-id="v3-canvas-view"`，我们之前漏了。
+          className: "min-h-0 flex-1",
+          "data-action-ui-id": "v3-canvas-view",
+          children: jsxRuntimeExports.jsx(V3Boundary, {
           children: jsxRuntimeExports.jsx(reactExports.Suspense, {
             fallback: jsxRuntimeExports.jsx(CanvasLoadingState, { label: t("common.loading") }),
             children: jsxRuntimeExports.jsx(CanvasAreaV3, {
@@ -81,6 +86,7 @@ function WorkspaceV3Workbench(props) {
               isPresented: props.isPresented,
             }),
           }),
+        }),
         }),
   });
 }
