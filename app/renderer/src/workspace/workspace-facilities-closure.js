@@ -6,6 +6,33 @@
  * 切片按 AST 的 start/end 逐项拼接，不取「最小到最大」连续块，
  * 否则会把中间已还原项的函数体带进来（第 173 轮踩过一次）。
  */
+import { GatewayNotReadyError } from "./../assets/record-gateway-trace-id.jsx";
+import { parseCompositionReceipt, parseProjectQueryErrorBody, parseTaskServerMessage, projectGenerationKindOfResource, projectGenerationOperation } from "./../canvas-v3/canvas-v3-model.js";
+import { CHAT_SESSION_RESOURCE_LIMIT, MAX_IDENTITIES$1, REQUEST_LIMIT, SidebarOrderError, createCanvasImageImporter, isBounded, isChatSessionCommand, isChatSessionResource, isParent, isRecord$d, isSidebarOrderGroups, isSidebarOrderMove, isSidebarOrderState, only$1, parseEditorFocus, sidebarOrderParentKey } from "./../canvas-v3/frame-services.js";
+import { API_PATHS, WorkspaceCanvasPersistenceChangedError, createCanvasImageReader, guardAccountSubmission, modelCapabilityId, parseModelCapabilityId, resourceQueryKeys, toolCapability, workspaceEvents } from "./../canvas-v3/main-exports.js";
+import { ProjectCompositionHttpError, ProjectTaskError, compositionQueryKeys, taskQueryKeys } from "./../canvas-v3/ui-components.js";
+import { StructureValidationError, assertStructureId, immutableSnapshot } from "./../chat/display-order.jsx";
+import { getElectronPlatform } from "./../infra/use-canvas-node-assets-store.js";
+import { entriesByWorkspace } from "./../settings/entries-by-workspace.jsx";
+import { bindStructurePersistence, createCanvasDuplication, createCanvasInsertion, createElectronHost, createHostWorkbench, createNativeWorkbenchPreferences, createResourceAudioWaveformReader, createTaskDecisionStore, createTaskIntentPersistence, createTreeHostBindings } from "./workspace-facilities.js";
+import { isReadOnlyStructureRequest } from "./workspace-structure-runtime.js";
+
+// 第 174 轮：6 个找不到归属的，就地补（fractional-indexing 两个来自 npm）
+import { generateKeyBetween, generateNKeysBetween } from "fractional-indexing";
+
+class WorkspaceCanvasPersistenceUnavailableError extends Error {
+  constructor(message = "Canvas persistence is unavailable") {
+    super(message);
+    this.name = "WorkspaceCanvasPersistenceUnavailableError";
+  }
+}
+const classify = (v) => (v == null ? "unknown" : typeof v);
+const identifier = (v) => String(v ?? "");
+const publishPersistenceStatus = (entry) => {
+  if (!entry?.reportStatus) return;
+  entry.reportVersion = (entry.reportVersion ?? 0) + 1;
+  void entry.reportStatus(entry.status)?.catch?.(() => {});
+};
 
 import reactExports from "react";
 import jsxRuntimeExports from "react/jsx-runtime";
@@ -1566,3 +1593,59 @@ function createWorkspaceStructureRuntime(identity2, queryClient2, initialRequest
     }
   };
 }
+
+export {
+  ContextResolutionError,
+  MAX_RANK_LENGTH,
+  MAX_TRACKED_TASKS,
+  PRE_DISPATCH_REJECTIONS,
+  ProjectQueryError,
+  ResourceGenerationHistoryUnavailableError,
+  SUBJECT_LIMIT,
+  WorkbenchCapabilityUnavailableError,
+  WorkspaceCanvasPersistenceUnavailableError,
+  aborted,
+  boundedRanks,
+  classify,
+  compareRank$1,
+  createChatSessionState,
+  createIntentRunner,
+  createProjectQueryModule,
+  createResourceCommands,
+  createResourceDetailModule,
+  createSidebarOrderController,
+  createStructureCommandContext,
+  createStructureModule,
+  createTaskInvalidationBridge,
+  createTaskModule,
+  createTaskSubscription,
+  createWorkbenchEvents,
+  createWorkspaceStructureRuntime,
+  decisionPayload,
+  exactFields,
+  fingerprint$1,
+  hasBlankPromptHistory,
+  identifier,
+  initialInvalidationRevision,
+  isHostGenerationSubject,
+  isKnownRejection,
+  isSidebarOrderParents,
+  migrateLegacyMemberRanks,
+  notifyStructureObserver,
+  parsePlacementTarget,
+  publishPersistenceStatus,
+  queues,
+  readState,
+  ready,
+  receiptCheckedRejectionCodes,
+  reconcileParent,
+  rejectedCodes,
+  resolvePinnedResources,
+  role,
+  sameRanks,
+  storage,
+  synchronizeWorkspacePersistenceReports,
+  synchronizeWorkspacePersistenceReportsOnce,
+  versionOutput,
+  workspaces,
+};

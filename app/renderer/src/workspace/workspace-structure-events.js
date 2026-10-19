@@ -22,8 +22,8 @@ import {
 import { useWorkspaceProjectArchitecture } from "./use-workspace-project-architecture.jsx";
 import { WorkspaceStructureContext } from "../canvas-v3/contexts.js";
 import { parseTaskServerMessage } from "../canvas-v3/canvas-v3-model.js";
-// 第 167 轮：真实 runtime 与设施层已取回但未接线（见两文件顶部说明），
-// 仍用占位以保证应用行为不变、且链路状态可证伪。
+// 第 174 轮：真实 runtime 已就位，但接上后 ws-a-v3 会在
+// 「等待工作区聊天运行时恢复」处超时（运行期抛错/阻塞），故暂回占位。
 const createWorkspaceStructureRuntime = () => undefined;
 
 // 第 164 轮：以下 5 个在产物里属于另外几个未还原的模块，先给最小实现，

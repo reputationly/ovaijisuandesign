@@ -11,6 +11,8 @@
  * workspace-facilities.js，但那批符号自身还缺 41 个未还原的依赖，
  * 用占位会让「链路是否接通」无法证伪（第 166 轮的教训）。
  * 待设施层真还原后再接。
+ *
+ * 依赖来自 workspace-facilities-closure.js（第 173 轮按闭包清单取回）。
  */
 
 import { GatewayNotReadyError } from "../infra/gateway-http-error.jsx";

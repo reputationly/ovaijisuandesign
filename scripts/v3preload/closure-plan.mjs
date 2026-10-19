@@ -23,13 +23,26 @@ const SRC = path.join(REPO, "app/renderer/src");
 const BUNDLE = path.join(REPO, ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js");
 const ROWS = path.join(REPO, ".probe/refdiff/toplevel-4.0.0.json");
 const MANIFEST = path.join(REPO, "scripts/v3preload/closure-manifest.json");
+const OUT_MANIFEST = process.argv.includes("--extend")
+  ? path.join(REPO, "scripts/v3preload/closure-manifest-extended.json")
+  : MANIFEST;
 
-const SEEDS = [
+const BASE_SEEDS = [
   "createWorkspaceStructureRuntime",
   "useWorkspaceStructureEvents",
   "createTaskSubscriptionNegotiation",
   "WorkspaceStructureProvider",
 ];
+
+// 第 174 轮：第二遍把上一份清单里 status != restored 的名字也当种子，
+// 这样「已还原项的邻居」也会被追到，闭包才真正闭合。
+const EXTEND = process.argv.includes("--extend");
+const SEEDS = (() => {
+  if (!EXTEND) return BASE_SEEDS;
+  const prev = JSON.parse(readFileSync(MANIFEST, "utf8"));
+  const extra = prev.items.filter((x) => x.status !== "restored").flatMap((x) => x.names);
+  return [...new Set([...BASE_SEEDS, ...extra])];
+})();
 
 const bundle = readFileSync(BUNDLE, "utf8");
 const rows = JSON.parse(readFileSync(ROWS, "utf8")).rows;
@@ -141,7 +154,7 @@ for (const it of items) {
 const byStatus = {};
 for (const it of items) byStatus[it.status] = (byStatus[it.status] ?? 0) + 1;
 
-console.log(`闭包（严格口径）: ${items.length} 个声明，约 ${lines} 行`);
+console.log(`${EXTEND ? "[扩展]" : "[基础]"} 闭包（严格口径）: ${items.length} 个声明，约 ${lines} 行`);
 console.log(`每圈新增: ${strict.perRing.join(" → ")}`);
 console.log(`宽松口径: ${loose.reached.length}（两者接近说明停止边界稳定）`);
 console.log(`状态: ${Object.entries(byStatus).map(([k, v]) => `${k} ${v}`).join(" / ")}`);
@@ -152,6 +165,6 @@ for (const s of segments.slice(0, 6)) {
 }
 
 if (process.argv.includes("--write")) {
-  writeFileSync(MANIFEST, JSON.stringify({ generatedFor: "4.0.0", seeds: SEEDS, total: items.length, lines, perRing: strict.perRing, byStatus, items, segments: segments.map((s) => ({ from: s.items[0].i, to: s.items.at(-1).i, start: s.items[0].start, end: s.items.at(-1).end, count: s.items.length })) }, null, 1), "utf8");
-  console.log(`\n已写入 ${path.relative(REPO, MANIFEST)}`);
+  writeFileSync(OUT_MANIFEST, JSON.stringify({ generatedFor: "4.0.0", seeds: SEEDS, total: items.length, lines, perRing: strict.perRing, byStatus, items, segments: segments.map((s) => ({ from: s.items[0].i, to: s.items.at(-1).i, start: s.items[0].start, end: s.items.at(-1).end, count: s.items.length })) }, null, 1), "utf8");
+  console.log(`\n已写入 ${path.relative(REPO, OUT_MANIFEST)}`);
 }
