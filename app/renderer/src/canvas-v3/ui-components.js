@@ -13329,7 +13329,8 @@ const createStoreImpl = (createState2) => {
     return () => listeners2.delete(listener);
   };
   const api = { setState, getState: getState2, getInitialState: getInitialState2, subscribe: subscribe2 };
-  const initialState = state2 = createState2(setState, getState2, api);
+  state2 = createState2(setState, getState2, api);
+  const initialState = state2;
   return api;
 };
 

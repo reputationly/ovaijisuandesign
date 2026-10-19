@@ -521,7 +521,6 @@ function ProcessStepsDetail({ steps, t }) {
     <div className="flex min-w-0 flex-col gap-2" data-process-steps={true}>
       {steps.map((step, index) => {
         const displayResult = sanitizeDisplayText(step.toolResult);
-        return displayResult = sanitizedResult ? formatJson(sanitizedResult) : void 0;
         return(
           <div
             key={step.id}
