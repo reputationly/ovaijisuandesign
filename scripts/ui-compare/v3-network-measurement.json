@@ -253,5 +253,23 @@
     "honestConclusion": "这 3 项都**不足以判定为代码缺口**。上一轮的判断过急。真正能确定的有意差异仍是那 5 项；其余的受限于「基线录制状态不可知」，无法归因。"
    }
   }
+ },
+ "resourceViewStatus": {
+  "round": 279,
+  "preload": "已产物化（out/preload/v3-workbench.mjs，55 行）",
+  "ipc": "主进程 registerChannel('nativeWorkbench') + 渲染层惰性 DI 注册，两头都通",
+  "currentState": {
+   "screen": "ws-a-v3-resource",
+   "pixels": "7.771% / 6.793%",
+   "newErrors": 0,
+   "dom": "渲染到 projectV3.loadFailed 分支（素材页面暂时无法加载）",
+   "translationsFixed": "15 条 projectV3.* 之前整组缺失，界面直接显示 key；本轮已补中文+英文，DOM 里 projectV3. 出现 0 次"
+  },
+  "remainingBlocker": [
+   "mount() 现在能被调用了，但工作台仍然加载失败（走 loadFailed 分支）。",
+   "需要看主进程 mount 的实际失败原因：可能是 v3 bundle 没有 stage 到 src/renderer/public/v3，",
+   "或者 WebContentsView 的 session/preload 配置有问题。"
+  ],
+  "gateImpact": "0 —— v3 屏不在 40 屏门禁内；40 屏仍是 19 屏 0.000% / 最大 0.142% / 平均 0.0201%。"
  }
 }

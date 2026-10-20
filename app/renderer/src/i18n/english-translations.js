@@ -14,6 +14,23 @@ import {
   model_input_error_general as model_input_error_general$1,
 } from "./canvas-node-tools.jsx";
 export const en = {
+  // 第 279 轮：v3 原生工作台的状态文案（之前整组缺失，界面直接显示 key）
+  "projectV3.accountPending": "Confirming your account…",
+  "projectV3.canvas": "Canvas",
+  "projectV3.resourceView": "Resource Management View",
+  "projectV3.resourceViewDescription": "Create a V3 project that opens resource management instead of the canvas. Applies only to this new project; existing projects are unchanged.",
+  "projectV3.resources": "V3 resources",
+  "projectV3.loadingWorkbench": "Loading workbench…",
+  "projectV3.workbench": "Workbench",
+  "projectV3.views": "Project views",
+  "projectV3.waitingForWorkspace": "Connecting to the project…",
+  "projectV3.loading": "Loading resources…",
+  "projectV3.loadFailed": "Unable to load resources",
+  "projectV3.reopenHint": "Reopen this page to try again. Submitted operations will not be repeated automatically.",
+  "projectV3.reopen": "Reopen page",
+  "projectV3.discardWorkbenchHint": "The previous workbench has unsaved or unconfirmed operations. Discard local state to reopen. Submitted requests may still take effect; check their results before submitting again.",
+  "projectV3.discardAndReopen": "Discard local state and open",
+
   "assetPicker.source.local": "Local upload",
   "assetPicker.source.task": "Choose from current task files",
   "assetPicker.source.error": "Resources temporarily unavailable",

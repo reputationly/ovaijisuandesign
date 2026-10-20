@@ -18,6 +18,23 @@ import {
   model_input_error_general,
 } from "../infra/error-safety-image-output-blocked.js";
 const zh = {
+  // 第 279 轮：v3 原生工作台的状态文案（之前整组缺失，界面直接显示 key）
+  "projectV3.accountPending": "正在确认账号…",
+  "projectV3.canvas": "画布",
+  "projectV3.resourceView": "素材管理视图",
+  "projectV3.resourceViewDescription": "创建 V3 项目并打开素材管理页，而不是画布。仅对本次新建生效，不修改已有项目。",
+  "projectV3.resources": "V3 素材",
+  "projectV3.loadingWorkbench": "正在加载工作台…",
+  "projectV3.workbench": "工作台",
+  "projectV3.views": "项目视图",
+  "projectV3.waitingForWorkspace": "正在连接项目…",
+  "projectV3.loading": "正在加载素材…",
+  "projectV3.loadFailed": "素材页面暂时无法加载",
+  "projectV3.reopenHint": "请重新打开页面。已提交的操作不会自动重复执行。",
+  "projectV3.reopen": "重新打开",
+  "projectV3.discardWorkbenchHint": "之前的工作台有未保存或未确认的操作。放弃本地状态后可重新打开；已提交的请求仍可能生效，请先核对结果，避免重复提交。",
+  "projectV3.discardAndReopen": "放弃本地状态并打开",
+
   "assetPicker.source.local": "本地上传",
   "assetPicker.source.task": "当前任务文件中选择",
   "assetPicker.source.error": "资源暂不可用",
