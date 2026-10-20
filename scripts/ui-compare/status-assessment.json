@@ -96,6 +96,28 @@
     "this.owners.get(ownerId) !== owner（owner 记录被替换/移除）。",
     "下一步：把守卫四个条件的值打出来（注意别用 console.error 会拖慢启动，要写到文件或视图 title）。"
    ]
+  },
+  "round292": {
+   "method": "把诊断写进 /tmp/v3-*.json（不用 console.error —— 它会拖慢启动，导致 CDP 探针抓不到页面）",
+   "chainVerified": [
+    "mount-enter   主进程收到 mount（ownerId 是 uuid）",
+    "bundle-ok     loadBundle() 成功，**345 个文件**",
+    "startload     did-start-loading 在 mount 后 57ms 触发"
+   ],
+   "missing": [
+    "did-finish-load 始终不触发",
+    "did-fail-load 也不触发",
+    "因此 guard 与 port 日志都没有 —— 端口没发出去"
+   ],
+   "conclusion": [
+    "整条链路是通的：渲染层 mount → 主进程 mount → 会话配置 → bundle 加载(345) → 视图开始加载。",
+    "唯一断点是 **app:// 请求没有完成**：did-start-loading 之后既没有 finish 也没有 fail。",
+    "这说明请求被挂住了（protocol.handle 的响应没有回到加载器），而不是返回 404。"
+   ],
+   "nextProbe": [
+    "在 protocol.handle 里写文件日志，确认 index.html 这一请求有没有进来、返回了什么 status；",
+    "以及 isolated.webRequest.onBeforeRequest 是否把请求 cancel 掉了（它在 protocol.handle 之前）。"
+   ]
   }
  }
 }
