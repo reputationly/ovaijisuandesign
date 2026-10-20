@@ -141,6 +141,29 @@
     "查 ws-a-v3-resource 打开时 pane 的 isActive / isPresented 具体是哪个为 false；",
     "对照参照的 pane 呈现逻辑（我们在这一层可能与参照不同）。"
    ]
+  },
+  "round294": {
+   "measured": [
+    "workspace-canvas-area.jsx 里 visible = isActive !== false && isPresented !== false",
+    "实测 { a: true, p: true, v: true } —— **props 层是可见的**",
+    "但 owner.layout 最后一次调用收到 visible=false（bounds 正常 702×791）"
+   ],
+   "why": [
+    "native-workbench-closure.js:1590 —— attach() 返回的 cleanup 里写着 this.layout(this.bounds, false)。",
+    "StrictMode 下 attach → cleanup → attach，cleanup 把 this.visible 置成 false；",
+    "而第二次 attach 时 this.started 已为 true，start() 不会再 layout，",
+    "所以 visible 停在 false，视图 0×0。"
+   ],
+   "attempted": [
+    "在重新 attach 时补一次 this.layout(this.bounds, this.visible !== false) —— 无效，",
+    "因为 this.visible 本身已经是 false（读的是被污染的值，不是 prop）。"
+   ],
+   "nextProbe": [
+    "正确做法是让 cleanup **不要**把 visible 置 false（清理应该只撤销 attachment 相关的东西，",
+    "可见性由 host 的 layout 调用决定）；或在重新 attach 时用 prop 的可见性而不是 this.visible；",
+    "或让 host 在 attach 后主动调用一次 owner.layout(bounds, visible)。"
+   ],
+   "state": "已回滚试验性改动，工作树干净，home (0/0)，审计三项 0"
   }
  }
 }
