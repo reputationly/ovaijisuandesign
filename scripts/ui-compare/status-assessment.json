@@ -324,6 +324,37 @@
     "ws-a-v3": "仍缺 editor_subscribe —— 该屏 resourcesOpen=false 不渲染 NativeWorkbenchHost，符合预期",
     "ws-a-v3-resource": "类型集合完全一致（含 editor_subscribe）"
    }
+  },
+  "round302": {
+   "ws-a-v3_hasNoBaseline": "~/ov-golden 里 ws-a-v3 只有 dom.json / net.json，**没有 .png 也没有 .state.json** —— 该屏的像素数字没有基线，不可作为验收证据。",
+   "ws-a-v3-resource_diffBreakdown": {
+    "pixels": "4.605% / 4.097%",
+    "regions": [
+     "侧栏顶部品牌：MiniMax Design + 用户 → 蒜狸小助手（**有意差异**）",
+     "「ComfyUI 工作流 Beta」整行：参照有、我们已移除（**有意差异**），并导致下方项目列表整体上移一行",
+     "左下角：参照是用户头像「用户」，我们是「未连接」连接指示（**有意差异**，无账号体系）",
+     "中栏：参照显示「素材页面暂时无法加载」+ zzz 吉祥物；**我们渲染出真实的资源视图** —— 这是我们比参照多做的部分",
+     "推荐卡片缩略图：参照有图，我方是灰块（CDN 被策略屏蔽，两边都取不到图）",
+     "右下「技能 / 自动」轻微错位（上面两行移除带来的垂直位移）"
+    ],
+    "conclusion": "4.605% 里绝大部分是**有意差异**与**我们比参照多渲染的中栏**，不是缺陷。"
+   },
+   "stateDiff": {
+    "onlyOurs": [
+     "hilo:storage:global.hasSelectedInterests",
+     "hilo:storage:global.lastActiveWorkspacePath",
+     "hilo:storage:global.selectedInterests"
+    ],
+    "onlyReference": [
+     "ads_sensor_params",
+     "sawebjssdkchannel"
+    ],
+    "note": "参照那两个是网页埋点键（sawebjssdk / ads sensor），不是应用状态。"
+   },
+   "nextStep": [
+    "ws-a-v3 若要作为验收证据，必须先按当前 CDN 屏蔽策略重新录一份金标（含 png + state）。",
+    "在那之前，只有 ws-a-v3-resource 的像素数字是有效的。"
+   ]
   }
  }
 }
