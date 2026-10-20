@@ -46,5 +46,12 @@
   "result": "失败：ws-a-v3 直接超时（waitForWorkspaceChatReady 卡住），聊天输入没就绪；回滚后 4.088% / 0 报错恢复",
   "why": "未定位。可能 useModelCatalogSource 里再次调用 useGatewayScope 影响了聊天侧的 scope 订阅，或 queryKey 多一个元素导致 mention 查询重挂",
   "nextStep": "改成在 useMentionModels 的**调用方**传 source（避免在 hook 内部再取 scope），或先只加 queryKey 的 source 不加分支、观察是否仍超时"
+ },
+ "attemptedFix3": {
+  "what": "最小试验：只加 capabilities 分支（用 globalThis.__OV_MODEL_SOURCE 开关），不改 queryKey、不引入新 hook",
+  "result": "开关未设 → 分支不激活 → 4.088% / 0 新增报错，与改动前完全一致",
+  "conclusion": "分支代码本身无害；风险在于**激活它**（渲染层拿不到架构标志，硬编码激活会改变 mention 查询结果并拖垮聊天就绪判定）",
+  "action": "已回滚（不留死代码）",
+  "blocker": "渲染层判断 resource_v3 需要读 workspace-project-architecture 的 react-query 缓存，而任何在 useMentionModels 内部新增的 hook/queryKey 变化都会让 ws-a-v3 的waitForWorkspaceChatReady 超时。这是本轮未解的难题。"
  }
 }
