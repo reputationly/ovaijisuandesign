@@ -28,6 +28,27 @@ import { accountScopeKey } from "../assets/credit-query-keys.jsx";
 import { PageStateViewInner as PageStateView$1 } from "../canvas-v3/page-state-view-inner.jsx";
 import { useWorkbenchEditorEvents, useWorkbenchTaskEvents } from "./workbench-events.js";
 
+// ---- 第 202 轮：从产物取回（参考 bundle 514253）----
+import { useMediaActions } from "../settings/use-media-actions.js";
+
+
+function useNativeWorkbenchFileActions() {
+  const { saveManyAs } = useMediaActions();
+  const platform = usePlatform();
+  const latest = reactExports.useRef({ saveManyAs, platform });
+  latest.current = { saveManyAs, platform };
+  const [actions] = reactExports.useState(() => ({
+    saveFiles: (files, options) => latest.current.saveManyAs(files, options),
+    writeImageData: async (png) => {
+      const { clipboard } = latest.current.platform;
+      if (!clipboard.writeImageData) throw new Error("NATIVE_CLIPBOARD_UNAVAILABLE");
+      await clipboard.writeImageData.call(clipboard, png);
+    },
+  }));
+  return actions;
+}
+
+
 // ==== 产物里与本文件紧邻的四个零依赖小件（第 109 轮）====
 const PREFIX$1 = "hilo:workspace-resource-view:";
 const emptySubscribe = () => () => {};
