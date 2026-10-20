@@ -28,6 +28,7 @@ import { TOOLS as TOOLS } from "../chat/tools.jsx";
 import { record as record } from "../infra/parse-connector-selection.js";
 import { TOOL_ABORTED_BY_USER_TEXT as TOOL_ABORTED_BY_USER_TEXT } from "../canvas/diagnostic-history-tools.js";
 import { isCapabilitySearchTool } from "../infra/parse-capability-search-result.js";
+import { designToolPresentation } from "../chat/sub-agent-group.jsx";
 function BrowserOpenCard({ onContinue }) {
   const { t } = useTranslation();
   const [opening, setOpening] = reactExports.useState(false);

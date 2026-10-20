@@ -1657,6 +1657,8 @@ function VideoMessage({ msg: message }) {
     </div>
   );
 }
+export { designToolPresentation };
+
 export const MessageBubble = reactExports.memo(function MessageBubble({
   msg: message,
   isStreaming,

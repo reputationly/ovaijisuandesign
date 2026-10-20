@@ -187,7 +187,7 @@ function TagsRow({ tags, tagIcons, categoryIcon , flushStart = false}) {
             >
               <Tooltip>
                 <TooltipTrigger
-                  className={`inline-flex items-center gap-0.5 shrink-0 rounded-sm ${flushStart && i2 === 0 ? "pl-0 pr-2" : "px-2"}`}
+                  className={`inline-flex items-center gap-0.5 shrink-0 rounded-sm ${flushStart && tagIndex === 0 ? "pl-0 pr-2" : "px-2"}`}
                   style={{
                     cursor: "pointer",
                   }}

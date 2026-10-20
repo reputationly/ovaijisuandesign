@@ -13,6 +13,7 @@ import { Ban, useCanvasBridge } from "./package.jsx";
 import { presets } from "./presets.js";
 import { CreditCostBadge, Tooltip } from "../generation/missing-asset-card.jsx";
 import { BACKEND_VIBE_RELIGHT } from "../generation/to-workspace-browser-url.js";
+import { invalid$6 } from "../canvas-v3/canvas-v3-model.js";
 const DEFAULT_COLOR_TEMP = 6500;
 const MAX_LIGHTS = 1;
 const LIGHT_TYPE_OPTIONS = [
