@@ -204,6 +204,64 @@
     "或 frame 需要先 did-finish-load 之后才能收）；",
     "也可直接改用 webContents.send(channel, payload) + 独立 MessageChannel 传递的方式验证可达性。"
    ]
+  },
+  "round299": {
+   "resourceViewNowWorks": {
+    "evidence": "view.webContents.capturePage() 得到 1404×1582 真实界面",
+    "content": "合成面板/素材库 标签、搜索框、没有找到素材 空态、素材 按钮、画布|列表 + 任务",
+    "console": "[design-v3] startup failed 已消失"
+   },
+   "wsFramesOnResourceScreen": {
+    "types_ours": [
+     "editor_subscribe",
+     "list_sessions",
+     "task_subscribe",
+     "task_unsubscribe"
+    ],
+    "types_reference": [
+     "editor_subscribe",
+     "list_sessions",
+     "task_subscribe",
+     "task_unsubscribe"
+    ],
+    "verdict": "**类型集合完全一致，无单边独占类型**（这正是 editor_subscribe 补上的证明）",
+    "counts": {
+     "editor_subscribe": "2 vs 10",
+     "list_sessions": "18 vs 4",
+     "task_subscribe": "13 vs 11",
+     "task_unsubscribe": "5 vs 4"
+    },
+    "countsNote": "计数差异按用户既定口径不参与判定；list_sessions 18 vs 4 反映的是重连，不是缺失"
+   },
+   "wsFramesOnCanvasScreen": {
+    "types_ours": [
+     "list_sessions",
+     "task_subscribe",
+     "task_unsubscribe"
+    ],
+    "types_reference": [
+     "editor_subscribe",
+     "list_sessions",
+     "task_subscribe",
+     "task_unsubscribe"
+    ],
+    "why": "ws-a-v3 不渲染 NativeWorkbenchHost（resourcesOpen=false），editor_subscribe 本就不该在这里出现"
+   },
+   "httpOnCanvasScreen": {
+    "count": "我方 21 / 参照 23（两次复现稳定）",
+    "missing": [
+     "GET /api/skills/market",
+     "GET /api/v1/home/quick_start_config"
+    ],
+    "rootCause": [
+     "两者的唯一调用方是 chat/empty-chat-recommendations.jsx:278 的 useMarketSkills",
+     "与 home/index.jsx:371 的 useHomeQuickStartConfig（首页专用）。",
+     "而 ws-a-v3 的聊天面板一直停在「本地运行时正在恢复」骨架态 ——",
+     "gateway 没有连上 → 聊天到不了空态 → useMarketSkills 不触发。",
+     "同一现象也解释了 list_sessions 18 vs 4（在重连）。"
+    ],
+    "conclusion": "不是缺代码路径，是**gateway 连接状态**导致的下游差异。"
+   }
   }
  }
 }
