@@ -78,8 +78,22 @@ const SEEDS = (() => {
 
 const bundle = readFileSync(BUNDLE, "utf8");
 const rows = JSON.parse(readFileSync(ROWS, "utf8")).rows;
+// 第 247 轮（用户方案 A.1）：把第二个共享 chunk 的声明也合进来。
+// use-window-chrome 有 2,322 个顶层声明，闭包原本完全看不见它；
+// 合并后 `rows` 的顺序仍然是「主包在前、chunk 在后」，区间统计不受影响。
+const ROWS_UWC = path.join(REPO, ".probe/refdiff/toplevel-uwc-4.0.0.json");
+let uwcRows = [];
+try {
+  // i 必须加偏移，否则与主包的 0..20247 撞号（need 用 i 当 key）
+  const offset = rows.length;
+  uwcRows = JSON.parse(readFileSync(ROWS_UWC, "utf8")).rows.map((r, k) => ({
+    ...r, i: offset + k, chunk: "use-window-chrome",
+  }));
+} catch { /* 没建索引就只有主包 */ }
 const rowOf = new Map();
 for (const r of rows) for (const n of r.names ?? []) if (!rowOf.has(n)) rowOf.set(n, r);
+for (const r of uwcRows) for (const n of r.names ?? []) if (!rowOf.has(n)) rowOf.set(n, r);
+const allRows = [...rows, ...uwcRows];
 
 // ---- 第 228 轮：通用名守卫 ----
 // `failure` / `notify` / `storage` / `ready` / `workspaces` 这类名字在 bundle 里是**真实的顶层声明**，
@@ -114,6 +128,17 @@ const NPM_PROVIDED = {
     "digitIndexCache"],
 };
 for (const names of Object.values(NPM_PROVIDED)) for (const n of names) { tree.add(n); treeLoose.add(n); }
+
+// 第 247 轮（用户方案 A.2）：npm 停止集改成从 renderer 的全部依赖自动生成。
+// 否则闭包会钻进 react / floating-ui / lucide 的源码，把库代码当成要还原的应用代码。
+let npmExports = 0;
+try {
+  const generated = JSON.parse(readFileSync(path.join(REPO, "scripts/v3preload/npm-exports.json"), "utf8"));
+  for (const n of generated.all) { tree.add(n); treeLoose.add(n); npmExports += 1; }
+} catch { /* 没生成过就退回硬编码那一个包 */ }
+
+// react / jsx-runtime 的别名：它们在我们树里就是这两个名字
+for (const n of ["reactExports", "jsxRuntimeExports", "reactDomExports"]) { tree.add(n); treeLoose.add(n); }
 const DRAFT = /workspace-(facilities|structure-events|structure-runtime)\.js$/;
 for (const f of walk(SRC)) {
   if (/pdf\.worker|wasm-/.test(f)) continue;
@@ -163,7 +188,7 @@ function closure(mode) {
     if (next.length) perRing.push(next.length);
     frontier = next;
   }
-  const reached = [...need.entries()].map(([i, ring2]) => ({ ...rows[i], ring: ring2 })).sort((a, b) => a.i - b.i);
+  const reached = [...need.entries()].map(([i, ring2]) => ({ ...allRows[i], ring: ring2 })).sort((a, b) => a.i - b.i);
   return { reached, perRing };
 }
 

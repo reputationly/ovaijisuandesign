@@ -1,920 +1,923 @@
 {
  "generatedFor": "4.0.0",
  "seeds": [
-  "createWorkspaceStructureRuntime",
-  "useWorkspaceStructureEvents",
-  "createTaskSubscriptionNegotiation",
-  "WorkspaceStructureProvider",
-  "WorkbenchCapabilityUnavailableError",
-  "isSidebarOrderParents",
-  "ContextResolutionError",
-  "resolvePinnedResources",
-  "exactFields",
-  "role",
-  "parsePlacementTarget",
-  "decisionPayload",
-  "createTaskSubscription",
-  "createTaskModule",
-  "synchronizeWorkspacePersistenceReportsOnce",
-  "synchronizeWorkspacePersistenceReports",
-  "notifyStructureObserver",
-  "fingerprint$1",
-  "receiptCheckedRejectionCodes",
-  "rejectedCodes",
-  "isKnownRejection",
-  "createStructureCommandContext",
-  "createStructureModule",
-  "ProjectQueryError",
-  "aborted",
-  "createProjectQueryModule",
-  "createResourceCommands",
-  "ResourceGenerationHistoryUnavailableError",
-  "createIntentRunner",
-  "versionOutput",
-  "hasBlankPromptHistory",
-  "createResourceDetailModule",
-  "queues",
-  "MAX_RANK_LENGTH",
-  "migrateLegacyMemberRanks",
-  "compareRank$1",
-  "reconcileParent",
-  "boundedRanks",
-  "sameRanks",
-  "readState",
-  "createSidebarOrderController",
-  "ready",
-  "SUBJECT_LIMIT",
-  "isHostGenerationSubject",
-  "PRE_DISPATCH_REJECTIONS",
-  "createChatSessionState",
-  "MAX_TRACKED_TASKS",
-  "createTaskInvalidationBridge",
-  "initialInvalidationRevision",
-  "createWorkbenchEvents",
-  "workspaces",
-  "storage"
+  "WorkspaceCompositionActions",
+  "WorkspaceStructurePresentation",
+  "ADD_TO_CHAT_VIEW_BOX$1",
+  "ADD_TO_CHAT_PATHS$1",
+  "AddToChatIcon$1",
+  "cropImageToBlob$1",
+  "useImageCrop$1",
+  "normalizePromptFontSize$1",
+  "SegmentedSwitch$1",
+  "referenceResourceKind",
+  "readResourceVersionHistory",
+  "CompositionActionsProvider",
+  "toAsyncSectionState",
+  "frozen",
+  "createTaskQueryOptions",
+  "useTaskResolve",
+  "StructureMediaProvider",
+  "structureEditorEn",
+  "compositionEditEn",
+  "treeLabelsEn",
+  "en$2",
+  "structureTranslations",
+  "ResourceDetailProvider",
+  "useWorkspaceChatComposer",
+  "readCompositionFiles",
+  "createDetailReferenceImports$1",
+  "DocumentContent$1",
+  "DocumentFullscreenPreview",
+  "useDocumentContent",
+  "DocumentPreview",
+  "ResourcePreview",
+  "MediaPreview$1",
+  "useDetailPricing",
+  "useDetailFontSize",
+  "useStoredDetailFontSize",
+  "useDetailReferenceOptions",
+  "alwaysReady",
+  "noSubscription$1",
+  "useDetailReady",
+  "createDetailReferenceImports",
+  "useDetailCanvasImages",
+  "ResourceReferencePicker",
+  "ResourceReferencePreview",
+  "editorReference",
+  "ResourceAgentInput",
+  "ResourceAgentInputBody",
+  "ResourceChat",
+  "ResourceDetailChatBody",
+  "useResourceDetail",
+  "ResourceChatRendererContext",
+  "ResourceChatTargetContext",
+  "useResourceChatRenderer",
+  "ResourceChatTargetProvider",
+  "handles",
+  "ratios",
+  "ResourceCropControls",
+  "ResourceRedrawControls",
+  "ResourceToolbar",
+  "containedImageGeometry",
+  "ResourceImageStage",
+  "ResourceDetail",
+  "ResourceDetailContent",
+  "resourceKindIcon",
+  "ResourceDetailDialog",
+  "parseStructuredDocument",
+  "WorkspaceStructuredDocument",
+  "readDocument",
+  "WorkspaceCompositionDocuments",
+  "detailServices",
+  "renderDocuments",
+  "resourceDetailLabels",
+  "FileText$1",
+  "Image$1"
  ],
- "total": 77,
- "lines": 3001,
+ "total": 74,
+ "lines": 3161,
  "perRing": [
-  52,
-  12,
-  13
+  73,
+  1
  ],
  "byStatus": {
-  "todo": 48,
-  "restored": 28,
-  "stub": 1
+  "todo": 71,
+  "restored": 3
  },
  "items": [
   {
-   "i": 12188,
+   "i": 272,
    "names": [
-    "WorkbenchCapabilityUnavailableError"
+    "ADD_TO_CHAT_VIEW_BOX$1"
    ],
-   "start": 12532106,
-   "end": 12532415,
+   "start": 230192,
+   "end": 230235,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 12267,
+   "i": 273,
    "names": [
-    "isSidebarOrderParents"
+    "ADD_TO_CHAT_PATHS$1"
    ],
-   "start": 12556562,
-   "end": 12556820,
+   "start": 230236,
+   "end": 230669,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 13677,
+   "i": 274,
    "names": [
-    "ContextResolutionError"
+    "AddToChatIcon$1"
    ],
-   "start": 13595091,
-   "end": 13595382,
+   "start": 230670,
+   "end": 231195,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 13678,
+   "i": 2520,
    "names": [
-    "resolvePinnedResources"
+    "cropImageToBlob$1"
    ],
-   "start": 13595383,
-   "end": 13596275,
+   "start": 1962785,
+   "end": 1963860,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 13792,
+   "i": 2523,
    "names": [
-    "TaskDecisionUnreadableError"
+    "useImageCrop$1"
    ],
-   "start": 13713049,
-   "end": 13713214,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 13794,
-   "names": [
-    "parseStoredTaskDecision"
-   ],
-   "start": 13713420,
-   "end": 13715654,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 13795,
-   "names": [
-    "exactFields"
-   ],
-   "start": 13715655,
-   "end": 13715961,
+   "start": 1964716,
+   "end": 1968254,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 13796,
+   "i": 3833,
    "names": [
-    "role"
+    "normalizePromptFontSize$1"
    ],
-   "start": 13715962,
-   "end": 13716133,
+   "start": 3096221,
+   "end": 3096422,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 13797,
+   "i": 5078,
    "names": [
-    "parsePlacementTarget"
+    "SegmentedSwitch$1"
    ],
-   "start": 13716134,
-   "end": 13717248,
+   "start": 6145722,
+   "end": 6149772,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 13798,
+   "i": 12885,
    "names": [
-    "decisionPayload"
+    "referenceResourceKind"
    ],
-   "start": 13717249,
-   "end": 13717993,
+   "start": 13598902,
+   "end": 13599176,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 13799,
+   "i": 12886,
    "names": [
-    "TaskDecisionPendingError"
+    "readResourceVersionHistory"
    ],
-   "start": 13717994,
-   "end": 13718128,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 13800,
-   "names": [
-    "sameDecision"
-   ],
-   "start": 13718129,
-   "end": 13718348,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 13801,
-   "names": [
-    "createTaskDecisionStore"
-   ],
-   "start": 13718349,
-   "end": 13724017,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 13802,
-   "names": [
-    "createTaskSubscription"
-   ],
-   "start": 13724018,
-   "end": 13728784,
+   "start": 13599177,
+   "end": 13599576,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 13803,
+   "i": 15599,
    "names": [
-    "createTaskModule"
+    "CompositionActionsProvider"
    ],
-   "start": 13728785,
-   "end": 13731062,
+   "start": 16631913,
+   "end": 16632104,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 13916,
+   "i": 15650,
    "names": [
-    "synchronizeWorkspacePersistenceReportsOnce"
+    "toAsyncSectionState"
    ],
-   "start": 13852612,
-   "end": 13854062,
+   "start": 16665645,
+   "end": 16666063,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 13917,
+   "i": 15651,
    "names": [
-    "synchronizeWorkspacePersistenceReports"
+    "frozen"
    ],
-   "start": 13854063,
-   "end": 13854347,
+   "start": 16666064,
+   "end": 16666195,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16446,
+   "i": 15667,
    "names": [
-    "notifyStructureObserver"
+    "createTaskQueryOptions"
    ],
-   "start": 16637280,
-   "end": 16637639,
+   "start": 16675655,
+   "end": 16676631,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16448,
+   "i": 15670,
    "names": [
-    "fingerprint$1"
+    "useTaskResolve"
    ],
-   "start": 16637957,
-   "end": 16638220,
+   "start": 16676959,
+   "end": 16677180,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16449,
+   "i": 15706,
    "names": [
-    "receiptCheckedRejectionCodes"
+    "StructureMediaProvider"
    ],
-   "start": 16638221,
-   "end": 16638734,
+   "start": 16725170,
+   "end": 16725790,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16450,
+   "i": 15801,
    "names": [
-    "rejectedCodes"
+    "structureEditorEn"
    ],
-   "start": 16638735,
-   "end": 16638974,
+   "start": 16910666,
+   "end": 16912268,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16451,
+   "i": 15803,
    "names": [
-    "isKnownRejection"
+    "compositionEditEn"
    ],
-   "start": 16638975,
-   "end": 16639386,
+   "start": 16913969,
+   "end": 16916658,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16452,
+   "i": 15805,
    "names": [
-    "createStructureCommandContext"
+    "treeLabelsEn"
    ],
-   "start": 16639387,
-   "end": 16643906,
+   "start": 16916966,
+   "end": 16917542,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16485,
+   "i": 15807,
    "names": [
-    "createStructureModule"
+    "en$2"
    ],
-   "start": 16661054,
-   "end": 16663745,
+   "start": 16923030,
+   "end": 16931562,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16488,
+   "i": 15808,
    "names": [
-    "ProjectQueryError"
+    "structureTranslations"
    ],
-   "start": 16664455,
-   "end": 16665644,
+   "start": 16931563,
+   "end": 16931610,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16602,
+   "i": 15811,
    "names": [
-    "aborted"
+    "ResourceDetailProvider"
    ],
-   "start": 16812038,
-   "end": 16812139,
+   "start": 16931745,
+   "end": 16932091,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16603,
+   "i": 15847,
    "names": [
-    "createProjectQueryClient"
+    "useWorkspaceChatComposer"
    ],
-   "start": 16812140,
-   "end": 16815185,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 16604,
-   "names": [
-    "createProjectQueryModule"
-   ],
-   "start": 16815186,
-   "end": 16815561,
+   "start": 16978542,
+   "end": 16979475,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 16623,
-   "names": [
-    "createResourceCommands"
-   ],
-   "start": 16839335,
-   "end": 16839816,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16895,
+   "i": 16056,
    "names": [
     "readCompositionResources"
    ],
    "start": 17252856,
    "end": 17254193,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 16914,
-   "names": [
-    "ResourceGenerationHistoryUnavailableError"
-   ],
-   "start": 17273004,
-   "end": 17273217,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16915,
-   "names": [
-    "createIntentRunner"
-   ],
-   "start": 17273218,
-   "end": 17273720,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16916,
-   "names": [
-    "versionOutput"
-   ],
-   "start": 17273721,
-   "end": 17273976,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16917,
-   "names": [
-    "hasBlankPromptHistory"
-   ],
-   "start": 17273977,
-   "end": 17274130,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16918,
-   "names": [
-    "createResourceDetailModule"
-   ],
-   "start": 17274131,
-   "end": 17279332,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16948,
-   "names": [
-    "queues"
-   ],
-   "start": 17300364,
-   "end": 17300409,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16949,
-   "names": [
-    "MAX_RANK_LENGTH"
-   ],
-   "start": 17300410,
-   "end": 17300437,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16950,
-   "names": [
-    "migrateLegacyMemberRanks"
-   ],
-   "start": 17300438,
-   "end": 17301501,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16951,
-   "names": [
-    "compareRank$1"
-   ],
-   "start": 17301502,
-   "end": 17301577,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16952,
-   "names": [
-    "reconcileParent"
-   ],
-   "start": 17301578,
-   "end": 17301978,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16953,
-   "names": [
-    "boundedRanks"
-   ],
-   "start": 17301979,
-   "end": 17302331,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16954,
-   "names": [
-    "sameRanks"
-   ],
-   "start": 17302332,
-   "end": 17302493,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16955,
-   "names": [
-    "readState"
-   ],
-   "start": 17302494,
-   "end": 17302928,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 16956,
-   "names": [
-    "createSidebarOrderController"
-   ],
-   "start": 17302929,
-   "end": 17306049,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 17190,
-   "names": [
-    "ready"
-   ],
-   "start": 17658036,
-   "end": 17658046,
-   "ring": 0,
-   "status": "todo"
-  },
-  {
-   "i": 17191,
-   "names": [
-    "ensurePersistenceOwner"
-   ],
-   "start": 17658047,
-   "end": 17659613,
    "ring": 1,
    "status": "restored"
   },
   {
-   "i": 17195,
+   "i": 16057,
    "names": [
-    "createTaskSubscriptionNegotiation"
+    "readCompositionFiles"
    ],
-   "start": 17660178,
-   "end": 17661052,
-   "ring": 0,
-   "status": "restored"
-  },
-  {
-   "i": 17196,
-   "names": [
-    "useWorkspaceStructureEvents"
-   ],
-   "start": 17661053,
-   "end": 17666555,
-   "ring": 0,
-   "status": "restored"
-  },
-  {
-   "i": 17197,
-   "names": [
-    "createCanvasDuplication"
-   ],
-   "start": 17666556,
-   "end": 17669100,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 17198,
-   "names": [
-    "createCanvasInsertion"
-   ],
-   "start": 17669101,
-   "end": 17671808,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 17201,
-   "names": [
-    "SUBJECT_LIMIT"
-   ],
-   "start": 17671931,
-   "end": 17671957,
+   "start": 17254194,
+   "end": 17255427,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 17202,
+   "i": 16058,
    "names": [
-    "isHostGenerationSubject"
+    "WorkspaceCompositionActions"
    ],
-   "start": 17671958,
-   "end": 17672454,
+   "start": 17255428,
+   "end": 17258792,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 16087,
+   "names": [
+    "createDetailReferenceImports$1"
+   ],
+   "start": 17290670,
+   "end": 17291340,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 17281,
+   "i": 16221,
    "names": [
-    "createResourceAudioWaveformReader"
+    "DocumentContent$1"
    ],
-   "start": 17707165,
-   "end": 17707479,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 17282,
-   "names": [
-    "validateHostConnection"
-   ],
-   "start": 17707480,
-   "end": 17714022,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 17283,
-   "names": [
-    "snapshotHostCapabilities"
-   ],
-   "start": 17714023,
-   "end": 17714649,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 17367,
-   "names": [
-    "createElectronHost"
-   ],
-   "start": 17778647,
-   "end": 17779178,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 17368,
-   "names": [
-    "PRE_DISPATCH_REJECTIONS"
-   ],
-   "start": 17779179,
-   "end": 17779390,
+   "start": 17420385,
+   "end": 17421836,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 17369,
+   "i": 16222,
    "names": [
-    "createChatSessionState"
+    "DocumentFullscreenPreview"
    ],
-   "start": 17779391,
-   "end": 17788460,
+   "start": 17421837,
+   "end": 17424083,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 17378,
+   "i": 16223,
    "names": [
-    "MAX_TRACKED_TASKS"
+    "useDocumentContent"
    ],
-   "start": 17816979,
-   "end": 17817010,
+   "start": 17424084,
+   "end": 17425068,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 17379,
+   "i": 16224,
    "names": [
-    "createTaskInvalidationBridge"
+    "DocumentPreview"
    ],
-   "start": 17817011,
-   "end": 17818358,
+   "start": 17425069,
+   "end": 17428263,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 17380,
+   "i": 16229,
    "names": [
-    "initialInvalidationRevision"
+    "ResourcePreview"
    ],
-   "start": 17818359,
-   "end": 17818460,
+   "start": 17436167,
+   "end": 17436603,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 17381,
+   "i": 16230,
    "names": [
-    "createWorkbenchEvents"
+    "MediaPreview$1"
    ],
-   "start": 17818461,
-   "end": 17820259,
+   "start": 17436604,
+   "end": 17437948,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 17383,
+   "i": 16277,
    "names": [
-    "createWorkbench"
+    "useDetailPricing"
    ],
-   "start": 17822609,
-   "end": 17828600,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 17384,
-   "names": [
-    "createHostWorkbench"
-   ],
-   "start": 17828601,
-   "end": 17828981,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 17385,
-   "names": [
-    "workspaces"
-   ],
-   "start": 17828982,
-   "end": 17829027,
+   "start": 17531040,
+   "end": 17531619,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 17386,
+   "i": 16278,
    "names": [
-    "storage"
+    "useDetailFontSize"
    ],
-   "start": 17829028,
-   "end": 17829181,
+   "start": 17531620,
+   "end": 17531774,
    "ring": 0,
    "status": "todo"
   },
   {
-   "i": 17387,
+   "i": 16279,
    "names": [
-    "createSidebarOrderBinding"
+    "useStoredDetailFontSize"
    ],
-   "start": 17829182,
-   "end": 17829635,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 17388,
-   "names": [
-    "createTreeHostBindings"
-   ],
-   "start": 17829636,
-   "end": 17833236,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 17390,
-   "names": [
-    "createNativeWorkbenchPreferences"
-   ],
-   "start": 17835422,
-   "end": 17836274,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 17391,
-   "names": [
-    "DATABASE$1"
-   ],
-   "start": 17836275,
-   "end": 17836319,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 17392,
-   "names": [
-    "STORE"
-   ],
-   "start": 17836320,
-   "end": 17836344,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 17393,
-   "names": [
-    "createTaskIntentPersistence"
-   ],
-   "start": 17836345,
-   "end": 17842004,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 17394,
-   "names": [
-    "bindStructurePersistence"
-   ],
-   "start": 17842005,
-   "end": 17843208,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 17395,
-   "names": [
-    "READ_ONLY_STRUCTURE_ROUTES"
-   ],
-   "start": 17843209,
-   "end": 17843698,
-   "ring": 2,
-   "status": "restored"
-  },
-  {
-   "i": 17396,
-   "names": [
-    "isReadOnlyStructureRequest"
-   ],
-   "start": 17843699,
-   "end": 17843853,
-   "ring": 1,
-   "status": "restored"
-  },
-  {
-   "i": 17397,
-   "names": [
-    "createWorkspaceStructureRuntime"
-   ],
-   "start": 17843854,
-   "end": 17849762,
+   "start": 17531775,
+   "end": 17532634,
    "ring": 0,
-   "status": "stub"
+   "status": "todo"
   },
   {
-   "i": 17399,
+   "i": 16280,
    "names": [
-    "WorkspaceStructureProvider"
+    "useDetailReferenceOptions"
    ],
-   "start": 17849831,
-   "end": 17856505,
+   "start": 17532635,
+   "end": 17533577,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16281,
+   "names": [
+    "alwaysReady"
+   ],
+   "start": 17533578,
+   "end": 17533609,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16282,
+   "names": [
+    "noSubscription$1"
+   ],
+   "start": 17533610,
+   "end": 17533651,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16283,
+   "names": [
+    "useDetailReady"
+   ],
+   "start": 17533652,
+   "end": 17533880,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16309,
+   "names": [
+    "createDetailReferenceImports"
+   ],
+   "start": 17565203,
+   "end": 17565371,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16313,
+   "names": [
+    "useDetailCanvasImages"
+   ],
+   "start": 17565479,
+   "end": 17567817,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16315,
+   "names": [
+    "ResourceReferencePicker"
+   ],
+   "start": 17567846,
+   "end": 17570263,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16316,
+   "names": [
+    "ResourceReferencePreview"
+   ],
+   "start": 17570264,
+   "end": 17572184,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16317,
+   "names": [
+    "editorReference"
+   ],
+   "start": 17572185,
+   "end": 17572310,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16318,
+   "names": [
+    "ResourceAgentInput"
+   ],
+   "start": 17572311,
+   "end": 17572574,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16319,
+   "names": [
+    "ResourceAgentInputBody"
+   ],
+   "start": 17572575,
+   "end": 17580315,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16320,
+   "names": [
+    "ResourceChat"
+   ],
+   "start": 17580316,
+   "end": 17581009,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16321,
+   "names": [
+    "ResourceDetailChatBody"
+   ],
+   "start": 17581010,
+   "end": 17603343,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16322,
+   "names": [
+    "useResourceDetail"
+   ],
+   "start": 17603344,
+   "end": 17604647,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16324,
+   "names": [
+    "ResourceChatRendererContext"
+   ],
+   "start": 17606240,
+   "end": 17606309,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16325,
+   "names": [
+    "ResourceChatTargetContext"
+   ],
+   "start": 17606310,
+   "end": 17606377,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16326,
+   "names": [
+    "useResourceChatRenderer"
+   ],
+   "start": 17606378,
+   "end": 17606479,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16327,
+   "names": [
+    "ResourceChatTargetProvider"
+   ],
+   "start": 17606480,
+   "end": 17606680,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16328,
+   "names": [
+    "handles"
+   ],
+   "start": 17606681,
+   "end": 17607232,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16329,
+   "names": [
+    "ratios"
+   ],
+   "start": 17607233,
+   "end": 17607294,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16330,
+   "names": [
+    "ResourceCropControls"
+   ],
+   "start": 17607295,
+   "end": 17611863,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16331,
+   "names": [
+    "ResourceRedrawControls"
+   ],
+   "start": 17611864,
+   "end": 17617738,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16332,
+   "names": [
+    "ResourceToolbar"
+   ],
+   "start": 17617739,
+   "end": 17620286,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16333,
+   "names": [
+    "containedImageGeometry"
+   ],
+   "start": 17620287,
+   "end": 17620619,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16334,
+   "names": [
+    "ResourceImageStage"
+   ],
+   "start": 17620620,
+   "end": 17628923,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16335,
+   "names": [
+    "ResourceDetail"
+   ],
+   "start": 17628924,
+   "end": 17630444,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16336,
+   "names": [
+    "ResourceDetailContent"
+   ],
+   "start": 17630445,
+   "end": 17642186,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16337,
+   "names": [
+    "resourceKindIcon"
+   ],
+   "start": 17642187,
+   "end": 17642418,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16338,
+   "names": [
+    "ResourceDetailDialog"
+   ],
+   "start": 17642419,
+   "end": 17644621,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16348,
+   "names": [
+    "parseStructuredDocument"
+   ],
+   "start": 17656144,
+   "end": 17656799,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16564,
+   "names": [
+    "WorkspaceStructuredDocument"
+   ],
+   "start": 17863024,
+   "end": 17864214,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16568,
+   "names": [
+    "readDocument"
+   ],
+   "start": 17869053,
+   "end": 17869094,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16569,
+   "names": [
+    "WorkspaceCompositionDocuments"
+   ],
+   "start": 17869095,
+   "end": 17872109,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16575,
+   "names": [
+    "detailServices"
+   ],
+   "start": 17882394,
+   "end": 17882518,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16577,
+   "names": [
+    "renderDocuments"
+   ],
+   "start": 17882634,
+   "end": 17882752,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16578,
+   "names": [
+    "WorkspaceStructurePresentation"
+   ],
+   "start": 17882753,
+   "end": 17887434,
    "ring": 0,
    "status": "restored"
+  },
+  {
+   "i": 16579,
+   "names": [
+    "resourceDetailLabels"
+   ],
+   "start": 17887435,
+   "end": 17887912,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 20525,
+   "names": [
+    "FileText$1"
+   ],
+   "start": 90696,
+   "end": 91042,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 20565,
+   "names": [
+    "Image$1"
+   ],
+   "start": 103210,
+   "end": 103486,
+   "ring": 0,
+   "status": "todo"
   }
  ],
  "segments": [
   {
-   "from": 12188,
-   "to": 12188,
-   "start": 12532106,
-   "end": 12532415,
-   "count": 1
-  },
-  {
-   "from": 12267,
-   "to": 12267,
-   "start": 12556562,
-   "end": 12556820,
-   "count": 1
-  },
-  {
-   "from": 13677,
-   "to": 13678,
-   "start": 13595091,
-   "end": 13596275,
-   "count": 2
-  },
-  {
-   "from": 13792,
-   "to": 13803,
-   "start": 13713049,
-   "end": 13731062,
-   "count": 11
-  },
-  {
-   "from": 13916,
-   "to": 13917,
-   "start": 13852612,
-   "end": 13854347,
-   "count": 2
-  },
-  {
-   "from": 16446,
-   "to": 16488,
-   "start": 16637280,
-   "end": 16665644,
-   "count": 8
-  },
-  {
-   "from": 16602,
-   "to": 16623,
-   "start": 16812038,
-   "end": 16839816,
-   "count": 4
-  },
-  {
-   "from": 16895,
-   "to": 16956,
-   "start": 17252856,
-   "end": 17306049,
-   "count": 15
-  },
-  {
-   "from": 17190,
-   "to": 17202,
-   "start": 17658036,
-   "end": 17672454,
-   "count": 8
-  },
-  {
-   "from": 17281,
-   "to": 17283,
-   "start": 17707165,
-   "end": 17714649,
+   "from": 272,
+   "to": 274,
+   "start": 230192,
+   "end": 231195,
    "count": 3
   },
   {
-   "from": 17367,
-   "to": 17399,
-   "start": 17778647,
-   "end": 17856505,
-   "count": 22
+   "from": 2520,
+   "to": 2523,
+   "start": 1962785,
+   "end": 1968254,
+   "count": 2
+  },
+  {
+   "from": 3833,
+   "to": 3833,
+   "start": 3096221,
+   "end": 3096422,
+   "count": 1
+  },
+  {
+   "from": 5078,
+   "to": 5078,
+   "start": 6145722,
+   "end": 6149772,
+   "count": 1
+  },
+  {
+   "from": 12885,
+   "to": 12886,
+   "start": 13598902,
+   "end": 13599576,
+   "count": 2
+  },
+  {
+   "from": 15599,
+   "to": 15599,
+   "start": 16631913,
+   "end": 16632104,
+   "count": 1
+  },
+  {
+   "from": 15650,
+   "to": 15706,
+   "start": 16665645,
+   "end": 16725790,
+   "count": 5
+  },
+  {
+   "from": 15801,
+   "to": 15847,
+   "start": 16910666,
+   "end": 16979475,
+   "count": 7
+  },
+  {
+   "from": 16056,
+   "to": 16087,
+   "start": 17252856,
+   "end": 17291340,
+   "count": 4
+  },
+  {
+   "from": 16221,
+   "to": 16230,
+   "start": 17420385,
+   "end": 17437948,
+   "count": 6
+  },
+  {
+   "from": 16277,
+   "to": 16348,
+   "start": 17531040,
+   "end": 17656799,
+   "count": 33
+  },
+  {
+   "from": 16564,
+   "to": 16579,
+   "start": 17863024,
+   "end": 17887912,
+   "count": 7
+  },
+  {
+   "from": 20525,
+   "to": 20565,
+   "start": 90696,
+   "end": 103486,
+   "count": 2
   }
  ]
 }

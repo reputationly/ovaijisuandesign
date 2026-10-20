@@ -15,8 +15,15 @@ const REPO = process.cwd();
 const require = createRequire(path.join(REPO, "scripts/decompile/package.json"));
 const parser = require("@babel/parser");
 
-const BUNDLE = ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js";
-const OUT = ".probe/refdiff/toplevel-4.0.0.json";
+// 第 247 轮（用户方案 A.1）：支持为第二个共享 chunk 建索引。
+// use-window-chrome 是主界面的共享 chunk（index.html 有 modulepreload），
+// 它有 2,254 个顶层声明，闭包工具原本完全看不见它。
+const BUNDLE = process.argv.includes("--chunk")
+  ? ".probe/reference/4.0.0/asar/out/renderer/assets/use-window-chrome-DbNyfMCt.js"
+  : ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js";
+const OUT = process.argv.includes("--chunk")
+  ? ".probe/refdiff/toplevel-uwc-4.0.0.json"
+  : ".probe/refdiff/toplevel-4.0.0.json";
 const src = readFileSync(BUNDLE, "utf8");
 // **不要用 errorRecovery**：它在恢复区域会产生不可靠的 start/end，
 // 之前正是它让 toplevel 偏移整体错位。
