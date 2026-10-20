@@ -18,16 +18,11 @@ import {
 import { useCanvasBridge } from "../media-editing/package.jsx";
 import { AudioFileIcon } from "../assets/preview-media.jsx";
 import { NodeTypeImageIcon, NodeTypeTableIcon, NodeTypeTextIcon, NodeTypeVideoIcon } from "./rounded-square.jsx";
+import { NODE_TAG_SURFACE_COLOR, NODE_TAG_INK_COLOR, NODE_TAG_BORDER_COLOR } from "../canvas-v3/canvas-v3-constants.js";
 const NODE_TAG_MAX_VISIBLE_COLORS = MAX_VISIBLE_CANVAS_TAG_COLORS;
 const NODE_TAG_HEADER_HEIGHT = 24;
 const NODE_TAG_MIN_COUNTER_SCALE = 1;
 const NODE_TAG_MAX_COUNTER_SCALE = 4.35;
-const NODE_TAG_SURFACE_COLOR =
-  "color-mix(in srgb, var(--node-tag-color) var(--canvas-node-tag-surface-strength, 35%), var(--canvas-node-tag-surface-base, #ffffff))";
-const NODE_TAG_INK_COLOR =
-  "color-mix(in srgb, var(--node-tag-color) var(--canvas-node-tag-ink-strength, 30%), var(--canvas-node-tag-ink-base, #141414))";
-const NODE_TAG_BORDER_COLOR =
-  "color-mix(in srgb, var(--node-tag-color) var(--canvas-node-tag-border-strength, 100%), var(--node-tag-surface))";
 const NODE_TAG_THEME_TOKEN_BY_PRESET = {
   "#0A84FF": "--canvas-node-tag-blue",
   "#BF5AF2": "--canvas-node-tag-purple",

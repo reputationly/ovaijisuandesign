@@ -48,9 +48,21 @@ for (const line of undefOut.split("\n")) {
   perFile.get(file).add(name);
 }
 
-// ---- 3. 跨文件重复声明 ----
+// ---- 3. 跨文件重复声明（第 214 轮：范围扩到全树，不再只扫 canvas-v3/）----
+// 之前只扫 canvas-v3/，所以 workspace/ 下 3 份 ProjectQueryError 之类看不到。
+const TREE_ROOT = "app/renderer/src";
+const SKIP_TREE = /-closure\.js$|\.test\.|node_modules|\/vendor-fork\//;
+const treeFiles = [];
+(function walk(d) {
+  for (const e of readdirSync(d)) {
+    const p = path.join(d, e);
+    const st = statSync(p);
+    if (st.isDirectory()) { if (e !== "node_modules") walk(p); }
+    else if (/\.(js|jsx)$/.test(e) && !SKIP_TREE.test(p)) treeFiles.push(p);
+  }
+})(TREE_ROOT);
 const decls = new Map();
-for (const f of files) {
+for (const f of treeFiles) {
   const src = readFileSync(f, "utf8");
   for (const m of src.matchAll(/^(?:async )?(?:function|const|let|var|class)\s+([A-Za-z_$][\w$]*)/gm)) {
     const n = m[1];
@@ -74,9 +86,23 @@ const bodyHash = (file, name) => {
   return createHash("sha256").update(stripped.replace(/\s+/g, "")).digest("hex").slice(0, 12);
 };
 const sameEntity = [], sameNameDiffBody = [];
+// 第 214 轮：一行小常量（`const MIN_SCALE = 0.5;`）在两个文件里相同是巧合，不是重复。
+// 「同一实体」要求函数体有实质内容：去空白后 ≥ 120 字符，或跨 ≥ 3 行。
+const MIN_ENTITY_CHARS = 120;
+const isSubstantial = (hash) => hash !== null; // bodyHash 返回 null 表示找不到体
+const bodySize = (file, name) => {
+  const src = readFileSync(file, "utf8");
+  const re = new RegExp(`^(?:async )?(?:function|const|let|var|class)\\s+${name.replace(/[$]/g, "\\$")}[^\\n]*`, "m");
+  const m = re.exec(src);
+  return m ? m[0].replace(/\s+/g, "").length : 0;
+};
 for (const [n, s] of crossDup) {
-  const hashes = new Set([...s].map((f) => bodyHash(f, n)));
-  (hashes.size === 1 ? sameEntity : sameNameDiffBody).push(n);
+  const files2 = [...s];
+  const hashes = new Set(files2.map((f) => bodyHash(f, n)));
+  if (hashes.size !== 1) { sameNameDiffBody.push(n); continue; }
+  // 同一实体：再看体量，太小的是巧合
+  const trivial = files2.every((f) => bodySize(f, n) < MIN_ENTITY_CHARS);
+  (trivial ? sameNameDiffBody : sameEntity).push(n);
 }
 
 // ---- 汇总 ----
