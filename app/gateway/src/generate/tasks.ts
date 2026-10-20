@@ -66,7 +66,13 @@ export class ProjectTaskService {
     const rows = status
       ? this.database().prepare("SELECT id, operation, idempotency_key AS idempotencyKey, status, revision, input_json AS inputJson, state_json AS stateJson, created_at AS createdAt, updated_at AS updatedAt FROM tasks WHERE status=? ORDER BY created_at DESC, id DESC LIMIT 100").all(status) as TaskRow[]
       : this.database().prepare("SELECT id, operation, idempotency_key AS idempotencyKey, status, revision, input_json AS inputJson, state_json AS stateJson, created_at AS createdAt, updated_at AS updatedAt FROM tasks ORDER BY created_at DESC, id DESC LIMIT 100").all() as TaskRow[];
-    return { items: rows.map(present), nextCursor: null };
+    // 第 242 轮：参照 gateway 的列表响应带 coverage（分页覆盖度）。
+    // 实测 GET /api/v3/tasks → {"items":[],"nextCursor":null,"coverage":{"status":"complete","reasons":[]}}
+    return {
+      items: rows.map(present),
+      nextCursor: null,
+      coverage: { status: "complete", reasons: [] as string[] },
+    };
   }
 
   get(id: string) {
@@ -78,7 +84,8 @@ export class ProjectTaskService {
 
   lookup(operation: string, requestId: string) {
     this.ready();
-    if (!OPERATIONS.includes(operation as (typeof OPERATIONS)[number])) throw new ProjectQueryError("INVALID_ARGUMENT", "Unknown task operation");
+    // 第 242 轮：参照返回 UNSUPPORTED_OPERATION（实测 422），此前我们用 INVALID_ARGUMENT。
+    if (!OPERATIONS.includes(operation as (typeof OPERATIONS)[number])) throw new ProjectQueryError("UNSUPPORTED_OPERATION", "Unsupported task operation", 422);
     const row = this.database().prepare("SELECT id, operation, idempotency_key AS idempotencyKey, status, revision, input_json AS inputJson, state_json AS stateJson, created_at AS createdAt, updated_at AS updatedAt FROM tasks WHERE operation=? AND idempotency_key=?").get(operation, requestId) as TaskRow | undefined;
     if (!row) throw new ProjectQueryError("NOT_FOUND", "GenerationTask is not readable", 404);
     return present(row);
