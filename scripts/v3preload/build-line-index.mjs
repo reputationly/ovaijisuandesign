@@ -17,7 +17,7 @@ const BUNDLE = ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.j
 const ROOT = "app/renderer/src";
 const OUT = "scripts/v3preload/bundle-line-index.json";
 
-const DECL = /^(?:async\s+)?(?:function|const|let|var|class)\s+([A-Za-z_$][\w$]*)/;
+const DECL = /^(?:export\s+)?(?:async\s+)?(?:function|const|let|var|class)\s+([A-Za-z_$][\w$]*)/;
 const norm = (s) =>
   createHash("sha256")
     .update(s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/\/\/[^\n]*/g, " ").replace(/\s+/g, ""))

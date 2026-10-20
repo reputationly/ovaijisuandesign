@@ -1,10 +1,10 @@
 {
- "generatedAt": "2026-10-20T03:51:09.256Z",
+ "generatedAt": "2026-10-20T03:54:47.319Z",
  "bundle": ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js",
  "bundleDecls": 7850,
  "treeFiles": 1281,
- "matched": 1112,
- "unmatchedCount": 6758,
+ "matched": 1132,
+ "unmatchedCount": 6742,
  "entries": [
   {
    "startLine": 204,
@@ -71,6 +71,14 @@
    "hash": "820c8d17b67f55bc"
   },
   {
+   "startLine": 2541,
+   "endLine": 2552,
+   "bundleName": "TONES",
+   "file": "media-editing/icon-compositing.js",
+   "treeName": "TONES",
+   "hash": "8d024b2d23a08d3c"
+  },
+  {
    "startLine": 2675,
    "endLine": 2678,
    "bundleName": "pauseGeometry",
@@ -85,6 +93,22 @@
    "file": "media-editing/playback-icons.js",
    "treeName": "CircleMediaSvg",
    "hash": "5e1e113ff7668d59"
+  },
+  {
+   "startLine": 2772,
+   "endLine": 2775,
+   "bundleName": "nextGeometry",
+   "file": "media-editing/playback-icons.js",
+   "treeName": "nextGeometry",
+   "hash": "022e2996482988d6"
+  },
+  {
+   "startLine": 3620,
+   "endLine": 3654,
+   "bundleName": "useMediaElementPlayback$1",
+   "file": "media-editing/video-player-inner.jsx",
+   "treeName": "useMediaElementPlayback$1",
+   "hash": "ec551197cfdcc130"
   },
   {
    "startLine": 3681,
@@ -205,6 +229,22 @@
    "file": "canvas-v3/ui-components.js",
    "treeName": "CanvasActiveProvider",
    "hash": "a9378c50f26a2075"
+  },
+  {
+   "startLine": 25791,
+   "endLine": 25808,
+   "bundleName": "DialogOverlay$3",
+   "file": "workspace/dialog-overlay.jsx",
+   "treeName": "DialogOverlay$3",
+   "hash": "2de43425ce753994"
+  },
+  {
+   "startLine": 26281,
+   "endLine": 26281,
+   "bundleName": "inputBaseClass",
+   "file": "media-editing/input.jsx",
+   "treeName": "inputBaseClass",
+   "hash": "6d61a8f5b757fa1f"
   },
   {
    "startLine": 28914,
@@ -453,6 +493,14 @@
    "file": "canvas-v3/ui-components.js",
    "treeName": "ParamSwitch",
    "hash": "51aa296ac2763b35"
+  },
+  {
+   "startLine": 43816,
+   "endLine": 43828,
+   "bundleName": "inferMediaType",
+   "file": "generation/model-chip.jsx",
+   "treeName": "inferMediaType",
+   "hash": "dcb91e60fe84b8b7"
   },
   {
    "startLine": 44315,
@@ -919,10 +967,26 @@
    "hash": "beabfe9747e992e0"
   },
   {
+   "startLine": 47176,
+   "endLine": 47231,
+   "bundleName": "matROMMtoRGB",
+   "file": "media-editing/exposure-fragment.js",
+   "treeName": "matROMMtoRGB",
+   "hash": "beabfe9747e992e0"
+  },
+  {
    "startLine": 47242,
    "endLine": 47253,
    "bundleName": "RGB2Y",
    "file": "canvas-v3/ui-components.js",
+   "treeName": "RGB2Y",
+   "hash": "8ae8032f28cc9d3b"
+  },
+  {
+   "startLine": 47242,
+   "endLine": 47253,
+   "bundleName": "RGB2Y",
+   "file": "media-editing/exposure-fragment.js",
    "treeName": "RGB2Y",
    "hash": "8ae8032f28cc9d3b"
   },
@@ -933,6 +997,14 @@
    "file": "canvas-v3/ui-components.js",
    "treeName": "blacksFragment",
    "hash": "56e4124e3b029b7b"
+  },
+  {
+   "startLine": 47287,
+   "endLine": 47339,
+   "bundleName": "matROMMtoRGB",
+   "file": "media-editing/exposure-fragment.js",
+   "treeName": "matROMMtoRGB",
+   "hash": "ed47550d2f25bb3d"
   },
   {
    "startLine": 47358,
@@ -4095,6 +4167,14 @@
    "hash": "8049ca71abb215e9"
   },
   {
+   "startLine": 190917,
+   "endLine": 190917,
+   "bundleName": "ACTION_BUTTON_CLASS",
+   "file": "generation/missing-asset-card.jsx",
+   "treeName": "ACTION_BUTTON_CLASS",
+   "hash": "92dbcbe038e1c3ea"
+  },
+  {
    "startLine": 192953,
    "endLine": 193002,
    "bundleName": "exportVideoReferenceDraft",
@@ -4559,6 +4639,14 @@
    "hash": "3ed15bd8a51b1252"
   },
   {
+   "startLine": 270717,
+   "endLine": 270727,
+   "bundleName": "resolveSeedance25VideoInputTotalDuration",
+   "file": "generation/i2-v-aspect-ratio-field.jsx",
+   "treeName": "resolveSeedance25VideoInputTotalDuration",
+   "hash": "472321e17cf21bfd"
+  },
+  {
    "startLine": 270975,
    "endLine": 270984,
    "bundleName": "resolveI2VImageMode",
@@ -4877,6 +4965,14 @@
    "file": "canvas-v3/frame-services.js",
    "treeName": "mapProjectTaskEvent",
    "hash": "4edf1858c810f414"
+  },
+  {
+   "startLine": 306456,
+   "endLine": 306456,
+   "bundleName": "windowsLocalFolderIcon",
+   "file": "vendor-inline/vscode-base/graph.jsx",
+   "treeName": "windowsLocalFolderIcon",
+   "hash": "e24cf2721763d1ae"
   },
   {
    "startLine": 307443,
@@ -6839,6 +6935,14 @@
    "hash": "8f207e8f4a97988f"
   },
   {
+   "startLine": 331515,
+   "endLine": 331543,
+   "bundleName": "canvasV3ImageLuts",
+   "file": "canvas-v3/desktop-misc.jsx",
+   "treeName": "canvasV3ImageLuts",
+   "hash": "8f207e8f4a97988f"
+  },
+  {
    "startLine": 331544,
    "endLine": 331573,
    "bundleName": "CanvasV3MediaStatus",
@@ -6927,6 +7031,14 @@
    "hash": "1e83402093063bd9"
   },
   {
+   "startLine": 338760,
+   "endLine": 338776,
+   "bundleName": "normalizeMediaModelsResponse",
+   "file": "generation/normalize-model-info.js",
+   "treeName": "normalizeMediaModelsResponse",
+   "hash": "bc03753dfffc6487"
+  },
+  {
    "startLine": 348953,
    "endLine": 348962,
    "bundleName": "sumMemberCreditUsage",
@@ -6965,6 +7077,22 @@
    "file": "workspace/toast-workspace-open-result.js",
    "treeName": "storageCreateUnavailableFallback",
    "hash": "d135de330abbc38d"
+  },
+  {
+   "startLine": 376144,
+   "endLine": 376153,
+   "bundleName": "classifyInfraError",
+   "file": "assets/asset-center-error.js",
+   "treeName": "classifyInfraError",
+   "hash": "ebe7a44b2effaf59"
+  },
+  {
+   "startLine": 391648,
+   "endLine": 391664,
+   "bundleName": "findNextRowPath",
+   "file": "assets/use-file-explorer-keyboard.js",
+   "treeName": "findNextRowPath",
+   "hash": "86795d293d430691"
   },
   {
    "startLine": 395698,
@@ -7125,6 +7253,14 @@
    "file": "workspace/workspace-facilities.js",
    "treeName": "createStructureModule",
    "hash": "25a01447a6d39131"
+  },
+  {
+   "startLine": 400263,
+   "endLine": 400273,
+   "bundleName": "classify",
+   "file": "canvas/fullscreen-icon.jsx",
+   "treeName": "classify",
+   "hash": "dff7c83bf842f79d"
   },
   {
    "startLine": 400263,
@@ -8791,12 +8927,28 @@
    "hash": "823cf525edcc6047"
   },
   {
+   "startLine": 493292,
+   "endLine": 493307,
+   "bundleName": "toolConfirmSettlementRejectReason",
+   "file": "media-editing/turn-artifact-strip.jsx",
+   "treeName": "toolConfirmSettlementRejectReason",
+   "hash": "453e661803b8efa3"
+  },
+  {
    "startLine": 494109,
    "endLine": 494116,
    "bundleName": "resolveFileChipMediaUrl",
    "file": "media-editing/timeline-item.jsx",
    "treeName": "resolveFileChipMediaUrl",
    "hash": "8cf9c4b3546b6735"
+  },
+  {
+   "startLine": 494453,
+   "endLine": 494460,
+   "bundleName": "isTimelineEntryActive",
+   "file": "team/activity-group.jsx",
+   "treeName": "isTimelineEntryActive",
+   "hash": "036adeeaccb95402"
   },
   {
    "startLine": 494979,
@@ -8893,6 +9045,14 @@
    "file": "workspace/native-workbench-host.jsx",
    "treeName": "useWorkbenchIdentity",
    "hash": "7c9462f1c7e59767"
+  },
+  {
+   "startLine": 522377,
+   "endLine": 522377,
+   "bundleName": "CREATE_TRIGGER_CLASS",
+   "file": "workspace/recent-projects-header-actions.jsx",
+   "treeName": "CREATE_TRIGGER_CLASS",
+   "hash": "8da4b9a5d0fc0d20"
   },
   {
    "startLine": 524733,
@@ -9135,11 +9295,6 @@
    "name": "tableDocumentToLlmContent"
   },
   {
-   "startLine": 2541,
-   "endLine": 2552,
-   "name": "TONES"
-  },
-  {
    "startLine": 2553,
    "endLine": 2564,
    "name": "MonochromeIcon"
@@ -9173,11 +9328,6 @@
    "startLine": 2761,
    "endLine": 2767,
    "name": "PlaybackPauseIcon$1"
-  },
-  {
-   "startLine": 2772,
-   "endLine": 2775,
-   "name": "nextGeometry"
   },
   {
    "startLine": 2783,
@@ -9243,11 +9393,6 @@
    "startLine": 3442,
    "endLine": 3618,
    "name": "ProgressBarInner$1"
-  },
-  {
-   "startLine": 3620,
-   "endLine": 3654,
-   "name": "useMediaElementPlayback$1"
   },
   {
    "startLine": 3963,
@@ -11470,11 +11615,6 @@
    "name": "OverlayScrollbarInner"
   },
   {
-   "startLine": 25791,
-   "endLine": 25808,
-   "name": "DialogOverlay$3"
-  },
-  {
    "startLine": 25809,
    "endLine": 25846,
    "name": "DialogContent$3"
@@ -11498,11 +11638,6 @@
    "startLine": 26156,
    "endLine": 26272,
    "name": "FieldRootInner"
-  },
-  {
-   "startLine": 26281,
-   "endLine": 26281,
-   "name": "inputBaseClass"
   },
   {
    "startLine": 26282,
@@ -12820,11 +12955,6 @@
    "name": "pickModelIcon"
   },
   {
-   "startLine": 43816,
-   "endLine": 43828,
-   "name": "inferMediaType"
-  },
-  {
    "startLine": 43829,
    "endLine": 43837,
    "name": "formatDurationRange$1"
@@ -12863,11 +12993,6 @@
    "startLine": 44214,
    "endLine": 44305,
    "name": "ParamsPopup"
-  },
-  {
-   "startLine": 47287,
-   "endLine": 47339,
-   "name": "matROMMtoRGB"
   },
   {
    "startLine": 49801,
@@ -21110,11 +21235,6 @@
    "name": "MediaUnpreviewableFallback"
   },
   {
-   "startLine": 190917,
-   "endLine": 190917,
-   "name": "ACTION_BUTTON_CLASS"
-  },
-  {
    "startLine": 190918,
    "endLine": 190972,
    "name": "MissingAssetCard"
@@ -26150,11 +26270,6 @@
    "name": "resolveSeedance25VideoExtendDefaultDuration"
   },
   {
-   "startLine": 270717,
-   "endLine": 270727,
-   "name": "resolveSeedance25VideoInputTotalDuration"
-  },
-  {
    "startLine": 270728,
    "endLine": 270734,
    "name": "resolveSeedance25ImageModeChangeParams"
@@ -28280,11 +28395,6 @@
    "name": "FilledSkillIcon"
   },
   {
-   "startLine": 306456,
-   "endLine": 306456,
-   "name": "windowsLocalFolderIcon"
-  },
-  {
    "startLine": 306460,
    "endLine": 306479,
    "name": "LocalFolderIcon"
@@ -29993,11 +30103,6 @@
    "startLine": 338737,
    "endLine": 338759,
    "name": "normalizeModelInfo"
-  },
-  {
-   "startLine": 338760,
-   "endLine": 338776,
-   "name": "normalizeMediaModelsResponse"
   },
   {
    "startLine": 338777,
@@ -32715,11 +32820,6 @@
    "name": "KEY_ENTRIES"
   },
   {
-   "startLine": 376144,
-   "endLine": 376153,
-   "name": "classifyInfraError"
-  },
-  {
    "startLine": 376164,
    "endLine": 376182,
    "name": "MentionLoadingSkeleton"
@@ -33678,11 +33778,6 @@
    "startLine": 391617,
    "endLine": 391647,
    "name": "filterTreeByPredicate"
-  },
-  {
-   "startLine": 391648,
-   "endLine": 391664,
-   "name": "findNextRowPath"
   },
   {
    "startLine": 391665,
@@ -40195,11 +40290,6 @@
    "name": "extractUserMessage"
   },
   {
-   "startLine": 493292,
-   "endLine": 493307,
-   "name": "toolConfirmSettlementRejectReason"
-  },
-  {
    "startLine": 493325,
    "endLine": 493388,
    "name": "parseGenOutput"
@@ -40288,11 +40378,6 @@
    "startLine": 494393,
    "endLine": 494440,
    "name": "ToolActivityDisclosure"
-  },
-  {
-   "startLine": 494453,
-   "endLine": 494460,
-   "name": "isTimelineEntryActive"
   },
   {
    "startLine": 494461,
@@ -42363,11 +42448,6 @@
    "startLine": 522354,
    "endLine": 522369,
    "name": "reorderPinnedWorkspacePaths"
-  },
-  {
-   "startLine": 522377,
-   "endLine": 522377,
-   "name": "CREATE_TRIGGER_CLASS"
   },
   {
    "startLine": 522378,

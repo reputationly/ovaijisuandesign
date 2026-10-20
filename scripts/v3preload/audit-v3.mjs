@@ -64,7 +64,7 @@ const treeFiles = [];
 const decls = new Map();
 for (const f of treeFiles) {
   const src = readFileSync(f, "utf8");
-  for (const m of src.matchAll(/^(?:async )?(?:function|const|let|var|class)\s+([A-Za-z_$][\w$]*)/gm)) {
+  for (const m of src.matchAll(/^(?:export\s+)?(?:async\s+)?(?:function|const|let|var|class)\s+([A-Za-z_$][\w$]*)/gm)) {
     const n = m[1];
     if (!decls.has(n)) decls.set(n, new Set());
     decls.get(n).add(f);
@@ -76,9 +76,9 @@ const crossDup = [...decls.entries()].filter(([, s]) => s.size > 1);
 import { createHash } from "node:crypto";
 const bodyHash = (file, name) => {
   const src = readFileSync(file, "utf8");
-  const m = new RegExp(`^(?:async )?(?:function|const|let|var|class)\\s+${name.replace(/[$]/g, "\\$")}(?![\\w$])`, "m").exec(src);
+  const m = new RegExp(`^(?:export\\s+)?(?:async\\s+)?(?:function|const|let|var|class)\\s+${name.replace(/[$]/g, "\\$")}(?![\\w$])`, "m").exec(src);
   if (!m) return null;
-  const next = new RegExp("^(?:async )?(?:function|const|let|var|class)\\s+[A-Za-z_$][\\w$]*", "gm");
+  const next = new RegExp("^(?:export\\s+)?(?:async\\s+)?(?:function|const|let|var|class)\\s+[A-Za-z_$][\\w$]*", "gm");
   next.lastIndex = m.index + 1;
   const n2 = next.exec(src);
   const body = src.slice(m.index, n2 ? n2.index : src.length);
@@ -92,7 +92,7 @@ const MIN_ENTITY_CHARS = 120;
 const isSubstantial = (hash) => hash !== null; // bodyHash 返回 null 表示找不到体
 const bodySize = (file, name) => {
   const src = readFileSync(file, "utf8");
-  const re = new RegExp(`^(?:async )?(?:function|const|let|var|class)\\s+${name.replace(/[$]/g, "\\$")}[^\\n]*`, "m");
+  const re = new RegExp(`^(?:export\\s+)?(?:async\\s+)?(?:function|const|let|var|class)\\s+${name.replace(/[$]/g, "\\$")}[^\\n]*`, "m");
   const m = re.exec(src);
   return m ? m[0].replace(/\s+/g, "").length : 0;
 };

@@ -10,6 +10,7 @@ import { MenuItem as MenuItem$4 } from "../text-editor/table-ops.jsx";
 import { Archive, ChevronDown as ChevronDown$3, Download as Download$2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
+import { MENU_ITEM_CLASS } from "../text-editor/menu-item-class.jsx";
 export function DropdownMenu({
   ...props
 }) {
@@ -41,7 +42,6 @@ export function DropdownMenuContent({
       </MenuPositioner>
     </MenuPortal$1>;
 }
-export const MENU_ITEM_CLASS = "list-row-hit-area relative flex cursor-default items-center gap-2.5 rounded-sm px-3 py-2 text-[12px] outline-hidden select-none transition-colors duration-[80ms] hover:bg-[var(--canvas-controls-hover)] focus:bg-[var(--canvas-controls-hover)] data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
 export function DropdownMenuItem({
   className,
   ...props
