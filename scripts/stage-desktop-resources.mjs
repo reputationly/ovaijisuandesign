@@ -79,6 +79,8 @@ const DEPLOY = [
 const COPY = [
   { from: "app/packages/opencode-plugin-hilo/dist", to: "opencode-plugin-hilo/dist" },
   { from: "assets/agent-profiles/v2/config", to: "agent-profiles/v2/config" },
+  // 第 254 轮（M7）：v3 架构的 agent 配置。参照发行包同时带 v2 与 v3 两套。
+  { from: "assets/agent-profiles/v3/config", to: "agent-profiles/v3/config" },
   { from: "assets/skills", to: "skills" },
   // **不带 media/**。那 468MB 靠 `showcase-assets/:key` 的 302 回落 CDN，
   // 首启由 showcase-warm 预热前 24 张封面到 userData（包内是只读的，写不了）。

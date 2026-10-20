@@ -112,7 +112,9 @@ function required(resources) {
     ["gateway/dist/main.js", "index.ts:111（应用级 + 每个工作区的 gateway）"],
     ["mcp-tools/dist/main.js", "locateMcpEntry（agent 的 MCP server）"],
     ["opencode-plugin-hilo/dist/index.js", "locatePlugin（画布工具）"],
-    ["agent-profiles/v2/config/base.json", "locateProfile（agent 配置）"],
+    ["agent-profiles/v2/config/base.json", "locateProfile（agent 配置 v2）"],
+    // 第 254 轮（M7）：v3 架构要读这一份，漏了的话 v3 下会静默回落到 v2
+    ["agent-profiles/v3/config/base.json", "locateProfile（agent 配置 v3）"],
     ["skills", "locateBundledSkills（自带技能）"],
     ["home-showcase/quick-start-config-v2.json", "homeShowcaseDir()（首页创作灵感，缺了首页是空的）"],
     // 首启要导入的内置示例项目。**缺了它每次首启都弹「导入失败」**，

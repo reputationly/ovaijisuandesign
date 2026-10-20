@@ -53,7 +53,7 @@ asar: true
 #   gateway/dist/main.js           index.ts:111
 #   mcp-tools/dist/main.js         locateMcpEntry
 #   opencode-plugin-hilo/dist/     locatePlugin
-#   agent-profiles/v2/config       locateProfile
+#   agent-profiles/{v2,v3}/config  locateProfile（第 254 轮起按架构选）
 #   skills/                        locateBundledSkills
 #   home-showcase/                 homeShowcaseDir()（不含 media）
 extraResources:

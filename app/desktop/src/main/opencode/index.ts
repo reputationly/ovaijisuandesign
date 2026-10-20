@@ -100,12 +100,29 @@ export function locateOpencode(roots: ResourceRoots): string | undefined {
   return undefined;
 }
 
-/** agent 配置目录（里面直接是 base.json、agents/ …）。开发时是仓库的 assets/agent-profiles/v2/config。 */
+/**
+ * agent 配置目录（里面直接是 base.json、agents/ …）。
+ *
+ * 第 254 轮（M7）：按架构选版本。
+ * - `HILO_PROJECT_ARCHITECTURE=resource_v3` → `agent-profiles/v3/config`
+ * - 其它（默认 legacy）→ `agent-profiles/v2/config`
+ *
+ * 参照发行包同时带 v2 与 v3 两套（`Resources/agent-profiles/{v2,v3}`），
+ * 我们原来只找 v2，所以 v3 架构下拿到的仍是 v2 的 agent 配置。
+ */
+export function profileArchitecture(): "v2" | "v3" {
+  return process.env.HILO_PROJECT_ARCHITECTURE === "resource_v3" ? "v3" : "v2";
+}
+
 export function locateProfile(roots: ResourceRoots): string | undefined {
+  const version = profileArchitecture();
   return [
     process.env.OV_AGENT_PROFILE_DIR,
-    roots.resources && path.join(roots.resources, "agent-profiles/v2/config"),
-    roots.repoRoot && path.join(roots.repoRoot, "assets/agent-profiles/v2/config"),
+    roots.resources && path.join(roots.resources, `agent-profiles/${version}/config`),
+    roots.repoRoot && path.join(roots.repoRoot, `assets/agent-profiles/${version}/config`),
+    // v3 缺配置文件时回落到 v2，避免 v3 架构直接起不来（与参照同时带两套的意图一致）
+    version === "v3" && roots.resources && path.join(roots.resources, "agent-profiles/v2/config"),
+    version === "v3" && roots.repoRoot && path.join(roots.repoRoot, "assets/agent-profiles/v2/config"),
   ].find((d): d is string => !!d && existsSync(path.join(d, "base.json")));
 }
 

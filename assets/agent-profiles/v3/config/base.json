@@ -1,0 +1,104 @@
+{
+  "$schema": "https://opencode.ai/schema.json",
+  "experimental": {
+    "mcp_timeout": 3600000
+  },
+  "tools": {},
+  "default_agent": "media-agent",
+  "mcp": {
+    "design": {
+      "type": "local",
+      "command": [
+        "node",
+        "../mcp-tools-v3/dist/main.js"
+      ],
+      "environment": {
+        "GATEWAY_URL": "http://localhost:8001",
+        "HILO_PROJECT_ARCHITECTURE": "resource_v3"
+      }
+    }
+  },
+  "agent": {
+    "build": {
+      "disable": true
+    },
+    "plan": {
+      "disable": true
+    },
+    "explore": {
+      "disable": true
+    },
+    "general": {
+      "disable": true
+    },
+    "media-agent": {
+      "mode": "primary",
+      "description": "Creative partner for MiniMax Design. Understands user intent and project Compositions, makes creative decisions, creates and updates their content with available tools, and delivers usable work.",
+      "steps": 400,
+      "tools": {
+        "task": false,
+        "webfetch": false,
+        "codesearch": false,
+        "bash": true,
+        "apply_patch": false,
+        "plan-enter": false,
+        "plan-exit": false,
+        "read": false,
+        "write": false,
+        "edit": false,
+        "todowrite": false,
+        "hub_*": false,
+        "design_*": false,
+        "design_capability_list": true,
+        "design_capability_get": true,
+        "design_capability_search": true,
+        "design_connector_call": true,
+        "design_search_knowledge": false,
+        "design_read": true,
+        "design_analyse_media": true,
+        "design_resource_search": false,
+        "design_resource_get": true,
+        "design_resource_preview": false,
+        "design_document_write": true,
+        "design_project_rules": true,
+        "design_composition_search": true,
+        "design_composition_type_list": true,
+        "design_composition_get": true,
+        "design_task_query": true,
+        "design_task_wait": true,
+        "design_execute": true,
+        "design_deliver": true,
+        "design_task_resolve": true,
+        "design_composition_edit": true,
+        "design_resource_edit": true,
+        "design_voice_search": true,
+        "design_image_search": true
+      },
+      "permission": {
+        "question": "allow",
+        "skill": {
+          "*": "allow"
+        },
+        "task": "deny"
+      }
+    },
+    "writers-room": {
+      "disable": true
+    },
+    "art-dept": {
+      "disable": true
+    },
+    "shot-dept": {
+      "disable": true
+    },
+    "audio-dept": {
+      "disable": true
+    },
+    "edit-room": {
+      "disable": true
+    }
+  },
+  "plugin": [
+    ".opencode-v3/plugins/session-header.ts"
+  ]
+}
