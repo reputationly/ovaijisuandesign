@@ -40,6 +40,12 @@
       "measured": true,
       "conclusion": "裁大图看清了：4.088% 是「精选 / Skill」卡片的封面图。我们的渲染层请求 /api/v1/home/showcase-assets/{key}；gateway 的 showcase-warm.ts 注释写明「本地没有就 302 回 CDN」，而门禁把封面 CDN 挡掉了（compare.mjs cdp() 里主动拦截），于是图永远加载不出来，渲染成灰块。",
       "implication": "基线 0 个 showcase-assets 请求却出图，说明它的封面来源与我们不同（可能是 /api/asset-center/entities，两边都请求了它）。这一项还没有收敛到根因。另外 BG_PROBE=1 探针显示基线页面上 background-image 为 0、媒体节点 30 个全是小图标，所以封面既不是 <img> 也不是 CSS 背景图。"
+    },
+    {
+      "id": "cover-cache-miss",
+      "measured": true,
+      "conclusion": "门禁注释已写明策略：卡片封面是 CDN 上的 mp4/图，边下边播、两次跑能差 7.3%，所以「把 CDN 挡掉让两边都渲染成空白」。实测：ALLOW_CDN=1 放开 CDN 并重录基线后，预热缓存仍是 24 个文件、我们请求的那 4 个 key 一个都没进缓存，像素差仍为 4.088%。",
+      "implication": "这条路径无法让两边都拿到封面。基线里有图是因为它录于该策略生效之前（或走了不同的封面来源）。按用户给的第二个选项登记为夹具限制，不再追。"
     }
   ],
   "pendingAttribution": [
