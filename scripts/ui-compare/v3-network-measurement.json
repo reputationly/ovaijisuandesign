@@ -111,7 +111,12 @@
     "参照若也只有这一个发送者，那它的 host 必须渲染过；但它的 DOM 最终状态是画布且没有 editor_unsubscribe",
     "  → net 与 DOM 覆盖的时间窗口不同（net 覆盖整段，DOM 是末态）",
     "我方 app 与参照 app 都无法插桩，只能靠现有 bundle + 录制推断，证据到此为止"
-   ]
+   ],
+   "fixtureLeakHypothesisDisproved": {
+    "hypothesis": "参照录制时 ws-a-v3-resource 先跑、把 resource-view flag 留在 localStorage，导致 ws-a-v3 也渲染了 host",
+    "test": "runMode 每次开头都会 rmSync(/tmp/ov-cmp) 重置 profile；实测先跑资源视图再跑画布无法保留 flag",
+    "result": "假设不成立"
+   }
   },
   "perWorkspace": {
    "note": "每屏的 net 快照都包含**两个工作区**的帧（每个工作区一条 WS），所以按工作区拆更有意义。",
@@ -130,6 +135,13 @@
     "total": 5
    },
    "diff": "每工作区少 2 帧 editor_subscribe"
-  }
+  },
+  "finalConclusion": [
+   "HTTP 维度：路径集合 23 vs 23 完全一致（白名单：popup 有意关闭、showcase-assets 本地资源）。",
+   "WS 维度：每工作区少 2 帧 editor_subscribe。唯一发送者在 NativeWorkbenchHost 内，",
+   "  而该组件只在 resourcesOpen 为真时渲染；参照基线的 localStorage 无该 flag、DOM 末态也是画布。",
+   "  两者互斥。夹具泄漏假设已实测否证。",
+   "结论：这 2 帧/工作区**无法用现有证据解释**，登记为残余未知；不在 40 屏门禁上，不影响交付功能。"
+  ]
  }
 }
