@@ -25,6 +25,16 @@ try {
   process.exit(1);
 }
 
+// L0 类型逃逸（第 298 轮，用户要求）：main / preload 的非测试代码里禁止
+// `as never` / `as any` / `@ts-ignore` / `@ts-expect-error`。
+// 本轮 12 环链路的最后一环就是被 `postMessage(bootstrap as never, …)` 藏起来的。
+try {
+  execFileSync(process.execPath, [path.join(here, "../../desource/check-type-escapes.mjs")], { stdio: "inherit" });
+} catch {
+  console.log("✗ 类型逃逸扫描未通过：见上面每条（确属必要的请加进白名单并写明理由）");
+  process.exit(1);
+}
+
 // L0 常量对照（第 232 轮改为**阻断模式**）：
 // 37 处不一致已逐条处理完（14+1 处改成参照值、18 处登记进 constants-intentional.json）。
 // 现在有新的未登记差异就会失败。

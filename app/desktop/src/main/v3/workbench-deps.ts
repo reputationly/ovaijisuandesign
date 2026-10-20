@@ -94,7 +94,12 @@ export function workbenchMediaDeps(deps: WorkbenchHostDeps): MediaDeps {
 }
 
 /** `NativeWorkbenchService` 需要的 5 项（media 必须由调用方传入真实例）。 */
-export function workbenchServiceDeps(deps: WorkbenchHostDeps, media: unknown) {
+// 第 298 轮：这里原本是 ，配合调用处的  把类型不匹配藏了起来。
+// 现在按真实形状标注，让 tsc 能查到问题。
+export function workbenchServiceDeps(
+  deps: WorkbenchHostDeps,
+  media: import("./native-workbench-media.js").NativeWorkbenchMedia,
+) {
   return {
     homeWindow: () => deps.homeWindow(),
     options: deps.options,

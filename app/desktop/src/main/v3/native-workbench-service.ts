@@ -22,7 +22,7 @@
 import { randomUUID } from "node:crypto";
 import { MessageChannelMain, session, WebContentsView, type BrowserWindow } from "electron";
 import { Disposable, Emitter, type Event } from "../ipc/events.js";
-import { isProjectResourceFrameBootstrap } from "@ov/host-contract";
+import { isProjectResourceFrameBootstrap, PROJECT_RESOURCE_FRAME_BOOTSTRAP } from "@ov/host-contract";
 import {
   V3_CSP,
   V3_PARTITION,
@@ -260,8 +260,10 @@ export class NativeWorkbenchService extends Disposable {
     // 这扇窗口只消费 `app://` 上的产物，任何形式的导航都拒绝
     view.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
     view.webContents.on("will-navigate", (event) => event.preventDefault());
-    view.webContents.on("will-frame-navigate", ((event: Electron.Event) => event.preventDefault()) as never);
-    view.webContents.on("will-attach-webview", ((event: Electron.Event) => event.preventDefault()) as never);
+    // 第 298 轮（用户要求）：去掉 `as never`。这两个事件 Electron 的类型定义里都有，
+    // 之前加注解反而与重载签名对不上，改回让 TS 自己推断就干净了。
+    view.webContents.on("will-frame-navigate", (event) => event.preventDefault());
+    view.webContents.on("will-attach-webview", (event) => event.preventDefault());
     view.webContents.on("render-process-gone", fail);
     view.webContents.on("did-fail-load", fail);
     view.webContents.on("did-start-navigation", (event) => {
@@ -284,7 +286,15 @@ export class NativeWorkbenchService extends Disposable {
       try {
         // 端口分两半：主进程留一半，另一半随引导消息交给页面
         parent.mainFrame.postMessage(NATIVE_WORKBENCH_HOST_PORT, { ownerId, documentId }, [channel.port1]);
-        view.webContents.mainFrame.postMessage(bootstrap as never, structuredClone(bootstrap), [channel.port2]);
+        // 第 298 轮：参照是 postMessage(频道名, 消息, 端口)。
+        // 我们之前把 bootstrap 当成频道名、又把 structuredClone(bootstrap) 当消息传了一次，
+        // 于是视图 preload 的 ipcRenderer.on(PROJECT_RESOURCE_FRAME_BOOTSTRAP) 永远收不到 —— 握手超时。
+        //  让 tsc 没报，这是整条 12 环链路的最后一环。
+        view.webContents.mainFrame.postMessage(
+          PROJECT_RESOURCE_FRAME_BOOTSTRAP,
+          bootstrap,
+          [channel.port2],
+        );
       } catch {
         channel.port1.close();
         channel.port2.close();

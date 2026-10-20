@@ -220,8 +220,10 @@ async function boot(): Promise<Running | undefined> {
     log,
   };
   const workbenchMedia = new NativeWorkbenchMedia(workbenchMediaDeps(workbenchHostDeps), log);
+  // 第 298 轮（用户要求）：去掉 `as never`。它把依赖形状不匹配的问题整个藏起来了 ——
+  // 这次 12 环链路的最后一环（postMessage 参数传错）就是被同类的 `as never` 掩盖的。
   const nativeWorkbench = new NativeWorkbenchService(
-    workbenchServiceDeps(workbenchHostDeps, workbenchMedia) as never,
+    workbenchServiceDeps(workbenchHostDeps, workbenchMedia),
   );
   app.on("will-quit", () => {
     nativeWorkbench.dispose();

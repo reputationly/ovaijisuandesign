@@ -62,10 +62,13 @@ export function buildOpencodeConfig(i: BuildInputs): Record<string, any> {
     // 启用自定义模型时删掉各 agent 的 model 和 small_model —— 否则 agent 会去找
     // 一个平台上不存在的模型。思考档位留着：qwen 在 opencode 里没有内置档位，
     // 不写 variant 的话会话一直是 default，请求里不会带 reasoning_effort。
+    // 第 298 轮（用户要求）：不用 `as any`。这里是遍历一个未知形状的记录，
+    // 用窄化后的本地别名表达意图，类型仍然可见。
     for (const a of Object.values(config.agent ?? {})) {
       if (!a || typeof a !== "object") continue;
-      delete (a as any).model;
-      (a as any).variant = "max";
+      const entry: { model?: unknown; variant?: string } = a;
+      delete entry.model;
+      entry.variant = "max";
     }
     delete config.small_model;
     config.model = `${PROVIDER_ID}/${model}`;
