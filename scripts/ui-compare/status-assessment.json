@@ -186,6 +186,24 @@
     "可在 preload 里往 process.env 或一个临时文件写标记（preload 有 node 访问权，sandbox:true 时受限，需确认）。"
    ],
    "state": "已回滚全部日志，工作树干净，home (0/0)，审计三项 0"
+  },
+  "round297": {
+   "verified": [
+    "v3 视图侧 preload **确实在执行**：console 里有 [v3-preload] top-level executed（来源 out/preload/v3-workbench.cjs:4）",
+    "preload 加载不再报 ESM 错误、不再报 contextBridge undefined"
+   ],
+   "stopsAt": [
+    "preload 里的 receivePort（ipcRenderer.on(PROJECT_RESOURCE_FRAME_BOOTSTRAP, …)）**从不触发**。",
+    "主进程侧确实调用了 view.webContents.mainFrame.postMessage(bootstrap, …, [port2])，",
+    "但视图 preload 的 ipcRenderer 收不到。",
+    "→ 页面侧 __HILO_V3_PORT_HOST__ 的 connect() 永远等不到 bootstrap/port，",
+    "  最终抛 [design-v3] startup failed: Native host handshake timed out。"
+   ],
+   "nextProbe": [
+    "对比 reference 的 mount 里 postMessage 的调用形态（是否用 webContents.postMessage 而不是 mainFrame.postMessage，",
+    "或 frame 需要先 did-finish-load 之后才能收）；",
+    "也可直接改用 webContents.send(channel, payload) + 独立 MessageChannel 传递的方式验证可达性。"
+   ]
   }
  }
 }
