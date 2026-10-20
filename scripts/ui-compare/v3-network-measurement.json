@@ -290,6 +290,21 @@
     "在主窗口上收到了非预期消息）。需要用最小版本逐步加回，定位是哪一段导致崩溃。"
    ],
    "currentState": "ws-a-v3-resource 7.771%（projectV3.loadFailed 分支，中文文案已正确）、home (0/0)、审计三项 0"
+  },
+  "round281": {
+   "experiment": "在主 preload 里只暴露 subscribe 的空实现（不含任何 ipcRenderer 逻辑）",
+   "result": "整页仍然崩，且 CDP 里页面 URL 变成 data:…<script>…</script> —— 说明窗口根本没导航到应用，preload 在求值期就抛了",
+   "conclusion": [
+    "不是桥的逻辑有问题，而是**只要在主 preload 里新增这个 expose，preload 就求值失败**。",
+    "已核对 ipcRenderer / contextBridge 都已在文件第 13 行导入，所以不是未导入引用。",
+    "回滚后 home (0/0) 恢复。"
+   ],
+   "nextProbe": [
+    "把 expose 换成最极端的 `contextBridge.exposeInMainWorld('__X__', 1)` 做对照，",
+    "确认是「新增任意 expose」就会崩，还是「暴露带函数的对象」才崩。",
+    "若前者成立，说明主 preload 已接近某种限制（体积/解析），需要另找挂载点。"
+   ],
+   "state": "资源视图仍 7.771%（中文文案正确），主 preload 已回滚到无桥版本"
   }
  }
 }
