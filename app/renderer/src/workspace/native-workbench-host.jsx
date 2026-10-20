@@ -277,6 +277,15 @@ function NativeWorkbenchHost({
           PageStateView$1,
           {
             density: "panel",
+            // 第 240 轮：参照不传 labels（它永远走不到 failed 分支）。
+            // 我们把 getNativeWorkbenchOwner 改成显式不可用后，failed 分支是可达的，
+            // 所以必须补 labels，否则 PageStateView$1 读 labels.errorText 会崩。
+            // 属**有意差异**：我们的失败路径是真实的，失败 UI 必须能渲染。
+            labels: {
+              emptyText: t2("pageState.emptyText"),
+              errorText: t2("pageState.errorText", "Something went wrong. Please try again."),
+              networkErrorText: t2("pageState.networkErrorText", "Network problem. Please check your connection."),
+            },
             state: {
               type: "error",
               reason: "generic",

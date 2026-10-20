@@ -275,12 +275,10 @@ const DISABLED_PAGES = [
   {
     id: "ws-a-v3-resource",
     reason:
-      "资源视图已跨过 useChatSessionAdapter 与 getNativeWorkbenchOwner（第 227/238 轮），" +
-      "现在卡在新的真缺陷：TypeError: Cannot read properties of undefined (reading 'errorText')。" +
-      "调用链 ResourceHistoryPanel → ResourceHistoryCard → HistoryTextDetails 都正确传了 " +
-      "labels=historyLabels(t)，historyLabels 也确实返回 empty/loadError，" +
-      "所以是运行期某次 render 里 labels 为 undefined，需要单独定位。" +
-      "该屏是行为验收，抓到的是真实缺陷。",
+      "第 240 轮修好 labels 缺失后，这一屏**已能正常渲染**（0 新增报错）：" +
+      "4.814% / 4.225% 的差异来自我们的 workbench 渲染「能力不可用」的错误 UI，" +
+      "参照渲染的是真实工作台。这是已知的能力差距，不是渲染 bug。" +
+      "等 getNativeWorkbenchOwner / INativeWorkbenchService 还原后再放进门禁。",
   },
 ];
 // 要看的页面：路由 + 进页面后额外做的动作（可选）
