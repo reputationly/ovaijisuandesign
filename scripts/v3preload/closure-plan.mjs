@@ -22,9 +22,10 @@ const traverse = require("@babel/traverse").default;
 const SRC = path.join(REPO, "app/renderer/src");
 const BUNDLE = path.join(REPO, ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js");
 const ROWS = path.join(REPO, ".probe/refdiff/toplevel-4.0.0.json");
-const SET = process.argv.includes("--resource") ? "resource" : "structure";
+const SET = process.argv.includes("--resource") ? "resource" : process.argv.includes("--task") ? "task" : "structure";
 const MANIFEST = path.join(REPO, SET === "resource"
   ? "scripts/v3preload/closure-manifest-resource.json"
+  : SET === "task" ? "scripts/v3preload/closure-manifest-task.json"
   : "scripts/v3preload/closure-manifest.json");
 const OUT_MANIFEST = process.argv.includes("--extend")
   ? path.join(REPO, "scripts/v3preload/closure-manifest-extended.json")
@@ -32,6 +33,11 @@ const OUT_MANIFEST = process.argv.includes("--extend")
 
 // 第 4 项（资源视图）的种子。第一份清单（结构订阅）已入库，
 // 这里换一批种子重新算，输出到 closure-manifest-resource.json。
+const TASK_SEEDS = [
+  "parseTaskServerMessage",
+  "parseEditorServerMessage",
+  "mapProjectTaskSnapshot",
+];
 const RESOURCE_SEEDS = [
   "StructureDirectory",
   "StructureContents",
@@ -43,7 +49,7 @@ const STRUCTURE_SEEDS = [
   "createTaskSubscriptionNegotiation",
   "WorkspaceStructureProvider",
 ];
-const BASE_SEEDS = SET === "resource" ? RESOURCE_SEEDS : STRUCTURE_SEEDS;
+const BASE_SEEDS = SET === "resource" ? RESOURCE_SEEDS : SET === "task" ? TASK_SEEDS : STRUCTURE_SEEDS;
 
 // 第 174 轮：第二遍把上一份清单里 status != restored 的名字也当种子，
 // 这样「已还原项的邻居」也会被追到，闭包才真正闭合。

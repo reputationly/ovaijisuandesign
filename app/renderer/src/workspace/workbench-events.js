@@ -7,6 +7,7 @@
 
 import reactExports from "react";
 import { createTaskSubscriptionNegotiation } from "./workspace-structure-events.js";
+import { mapProjectTaskSnapshot, parseEditorServerMessage, parseTaskServerMessage } from "./task-protocol.js";
 import { useOptionalWSConnection } from "../settings/changelog-table.jsx";
 import { assetCenterLog } from "../vendor-inline/vscode-base/graph.jsx";
 function createWorkbenchEditorEvents(report) {
