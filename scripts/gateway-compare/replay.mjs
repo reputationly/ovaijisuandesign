@@ -72,6 +72,30 @@ try {
   child?.kill("SIGKILL");
 }
 
+if (args.includes("--check")) {
+  const refPath = "scripts/gateway-compare/replay-ref.json";
+  const refMap = new Map(JSON.parse(readFileSync(refPath, "utf8")).results.map((r) => [`${r.method} ${r.path}`, r]));
+  let intentional = [];
+  try { intentional = JSON.parse(readFileSync("scripts/gateway-compare/intentional.json", "utf8")).entries; } catch {}
+  const SANDBOX_NETWORK = new Set([0, 502, 503, 504]);
+  const isIntentional = (key) => intentional.some((e) => (e.kind === "exact" ? key === e.match : key.startsWith(e.match)));
+  const real = [];
+  for (const o of results) {
+    const key = `${o.method} ${o.path}`;
+    const r = refMap.get(key);
+    if (!r || o.status === r.status) continue;
+    if (SANDBOX_NETWORK.has(r.status) || isIntentional(key)) continue;
+    real.push({ key, ours: o.status, ref: r.status });
+  }
+  if (real.length) {
+    console.error(`✗ gateway 真差异 ${real.length} 处`);
+    for (const r of real) console.error(`  ${r.key}  我们 ${r.ours}  参照 ${r.ref}`);
+    process.exit(1);
+  }
+  console.log(`✓ gateway 重放 ${results.length} 条：真差异 0`);
+  process.exit(0);
+}
+
 writeFileSync(OUT, JSON.stringify({ generatedAt: new Date().toISOString(), target: targetArg, total: results.length,
   byStatus: results.reduce((a, r) => ((a[r.status] = (a[r.status] ?? 0) + 1), a), {}), results }, null, 1));
 console.log(`${results.length} 条 → ${OUT}`);

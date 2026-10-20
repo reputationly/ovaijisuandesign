@@ -1,0 +1,159 @@
+{
+ "target": "http://127.0.0.1:8001",
+ "wsUrl": "ws://127.0.0.1:8001/ws",
+ "results": [
+  {
+   "id": "missing-id",
+   "sent": "task_subscribe",
+   "replies": [
+    "task_subscription_error"
+   ],
+   "detail": [
+    {
+     "type": "task_subscription_error",
+     "subscriptionId": "",
+     "error": {
+      "code": "INVALID_ARGUMENT",
+      "message": "Invalid subscriptionId",
+      "retryable": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "empty-id",
+   "sent": "task_subscribe",
+   "replies": [
+    "task_subscription_error"
+   ],
+   "detail": [
+    {
+     "type": "task_subscription_error",
+     "subscriptionId": "",
+     "error": {
+      "code": "INVALID_ARGUMENT",
+      "message": "Invalid subscriptionId",
+      "retryable": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "too-long-id",
+   "sent": "task_subscribe",
+   "replies": [
+    "task_subscription_error"
+   ],
+   "detail": [
+    {
+     "type": "task_subscription_error",
+     "subscriptionId": "",
+     "error": {
+      "code": "INVALID_ARGUMENT",
+      "message": "Invalid subscriptionId",
+      "retryable": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "ok-minimal",
+   "sent": "task_subscribe",
+   "replies": [
+    "task_subscription_ready"
+   ],
+   "detail": [
+    {
+     "type": "task_subscription_ready",
+     "subscriptionId": "s1",
+     "capabilities": [
+      "project_changes"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ok-with-ids",
+   "sent": "task_subscribe",
+   "replies": [
+    "task_subscription_ready"
+   ],
+   "detail": [
+    {
+     "type": "task_subscription_ready",
+     "subscriptionId": "s2",
+     "capabilities": [
+      "project_changes"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bad-taskIds",
+   "sent": "task_subscribe",
+   "replies": [
+    "task_subscription_error"
+   ],
+   "detail": [
+    {
+     "type": "task_subscription_error",
+     "subscriptionId": "s3",
+     "error": {
+      "code": "INVALID_ARGUMENT",
+      "message": "taskIds must contain at most 100 identifiers",
+      "retryable": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "bad-project-chg",
+   "sent": "task_subscribe",
+   "replies": [
+    "task_subscription_error"
+   ],
+   "detail": [
+    {
+     "type": "task_subscription_error",
+     "subscriptionId": "s4",
+     "error": {
+      "code": "INVALID_ARGUMENT",
+      "message": "includeProjectChanges must be boolean",
+      "retryable": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "reused-id",
+   "sent": "task_subscribe",
+   "replies": [
+    "task_subscription_error"
+   ],
+   "detail": [
+    {
+     "type": "task_subscription_error",
+     "subscriptionId": "s1",
+     "error": {
+      "code": "SUBSCRIPTION_ID_REUSED",
+      "message": "Subscription parameters have changed",
+      "retryable": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "unsubscribe",
+   "sent": "task_unsubscribe",
+   "replies": [
+    "task_subscription_closed"
+   ],
+   "detail": [
+    {
+     "type": "task_subscription_closed",
+     "subscriptionId": "s1"
+    }
+   ]
+  }
+ ]
+}

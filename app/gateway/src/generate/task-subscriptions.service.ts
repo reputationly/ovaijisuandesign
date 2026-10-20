@@ -50,7 +50,7 @@ export interface TaskSubscription {
 
 export type TaskSubscriptionReply =
   | { type: "task_subscription_closed"; subscriptionId: string }
-  | { type: "task_subscription_ready"; subscriptionId: string }
+  | { type: "task_subscription_ready"; subscriptionId: string; capabilities: string[] }
   | { type: "error"; error: { code: string; message: string; retryable: boolean } };
 
 /** 每个客户端连接的订阅表 */
@@ -126,7 +126,8 @@ export class TaskSubscriptionsService {
 
     this.registry.put(client, { subscriptionId, subjectId, groupId, taskIds, includeProjectChanges, identity });
     this.logger.debug(`task_subscribe ${subscriptionId} subject=${subjectId} tasks=${taskIds?.size ?? "all"}`);
-    return { type: "task_subscription_ready", subscriptionId };
+    // 第 252 轮：参照的 ready 帧带 capabilities（实测 ["project_changes"]）
+    return { type: "task_subscription_ready", subscriptionId, capabilities: ["project_changes"] };
   }
 
   dropClient(client: object): void {

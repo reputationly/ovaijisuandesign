@@ -39,7 +39,12 @@ try {
 // 需要先构建 gateway；构建产物不在时跳过并提示（不静默通过）。
 try {
   const gw = execFileSync(process.execPath, [path.join(here, "../../gateway-compare/compare.mjs")], { encoding: "utf-8", stdio: "pipe" });
-  console.log("✓ gateway 协议与参照一致");
+  console.log("✓ gateway 协议与参照一致（7 条夹具）");
+  // 第 252 轮：再加 71 条真实路径的重放对比（真差异必须为 0）
+  const replay = execFileSync(process.execPath,
+    [path.join(here, "../../gateway-compare/replay.mjs"), "--target", "ours", "--check"],
+    { encoding: "utf-8", stdio: "pipe", timeout: 300000 });
+  console.log(replay.trim().split("\n").at(-1));
 } catch (e) {
   const out = String(e.stdout ?? "");
   if (out.includes("没起来")) {

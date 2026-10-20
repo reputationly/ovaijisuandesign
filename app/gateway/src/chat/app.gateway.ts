@@ -71,9 +71,17 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
           client.send(JSON.stringify(reply));
         } catch (error) {
           const queryError = error instanceof ProjectQueryError ? error : null;
+          // 第 252 轮：对齐参照的帧形状（实测 task_subscription_error，且带 subscriptionId）：
+          //   {"type":"task_subscription_error","subscriptionId":"…",
+          //    "error":{"code":"…","message":"…","retryable":false}}
           client.send(
             JSON.stringify({
-              type: "error",
+              type: "task_subscription_error",
+              // 实测：subscriptionId 非法（空/过长/非字符串）时参照回空串，不回显原值
+              subscriptionId: (() => {
+                const raw = (msg as { subscriptionId?: unknown }).subscriptionId;
+                return typeof raw === "string" && raw.trim() && raw.length <= 128 ? raw : "";
+              })(),
               error: {
                 code: queryError?.code ?? "GATEWAY_INTERNAL",
                 message: queryError?.message ?? "Task subscriptions are unavailable",
