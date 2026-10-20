@@ -1,0 +1,786 @@
+{
+ "generatedAt": "2026-10-20T10:20:11.187Z",
+ "golden": "/Users/reputationly/ov-golden/.probe/ui-golden",
+ "total": 71,
+ "byMethod": {
+  "GET": 63,
+  "POST": 7,
+  "PUT": 1
+ },
+ "items": [
+  {
+   "method": "GET",
+   "path": "/api/asset-center/entities",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/asset-center/library-status",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/canvas/nodes",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/comfyui/workflows",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/files/scan-media",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/local-file",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills/market",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/apollo/config",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/billing/pricing",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/billing/promotion",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/credit/wallet",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/quick_start_config",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/hub/client_config",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/models/config",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/team/contract",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/backend/group/list",
+   "screenCount": 42,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/assets",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/canvas",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "POST",
+   "path": "/api/canvas/selection",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/canvas/tag-registry",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/models",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/plugins",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/29099b6909fd63e1-9e7e7118090c8525edc70873fb85d941ac6b844cf0f93f902430d9ea9dcb2f33.jpg",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/a3496e26198018a7-da740f98b8094dfffa1c6d8132e1a848cce279b1a91705ca71e2715e12598ff5.jpg",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/bc69379873c78e65-8f97cfad91afd4714dad8f8fd0a6d4b3876106c6a1fa13d459f2832e92823433.jpeg",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/eaf5357a471f3101-1787058805263862486-<t>.jpg",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/promotions/hailuo03-video-trial/status",
+   "screenCount": 40,
+   "screens": [
+    "changelog",
+    "creations",
+    "global-search-query",
+    "global-search",
+    "home-skill-inspiration"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/files/content",
+   "screenCount": 20,
+   "screens": [
+    "ws-a",
+    "ws-add-node",
+    "ws-audio",
+    "ws-b",
+    "ws-canvas-ops"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/files/id/<uuid>",
+   "screenCount": 20,
+   "screens": [
+    "ws-a",
+    "ws-add-node",
+    "ws-audio",
+    "ws-b",
+    "ws-canvas-ops"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/files/viewer.pdf",
+   "screenCount": 11,
+   "screens": [
+    "ws-audio",
+    "ws-canvas-ops",
+    "ws-chat-input",
+    "ws-code-editor",
+    "ws-layout"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills",
+   "screenCount": 9,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "skill-community",
+    "skills-connectors"
+   ]
+  },
+  {
+   "method": "POST",
+   "path": "/api/canvas",
+   "screenCount": 6,
+   "screens": [
+    "ws-code-editor",
+    "ws-pdf",
+    "ws-table-edit",
+    "ws-table-node",
+    "ws-text-editor"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills/market/categories",
+   "screenCount": 5,
+   "screens": [
+    "skill-community",
+    "skills-connectors",
+    "skills-mine",
+    "skills",
+    "ws-chat-skill"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/78055abc2f026fe0-row-05.jpeg",
+   "screenCount": 5,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows",
+    "ws-b"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/c9ab97f939f9917f-industrial-dancer-tracker-ui-v2.jpg",
+   "screenCount": 5,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows",
+    "ws-b"
+   ]
+  },
+  {
+   "method": "PUT",
+   "path": "/api/files/content",
+   "screenCount": 4,
+   "screens": [
+    "ws-code-editor",
+    "ws-table-edit",
+    "ws-table-node",
+    "ws-text-editor"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills/creator-plan/submissions",
+   "screenCount": 4,
+   "screens": [
+    "skill-community",
+    "skills-connectors",
+    "skills-mine",
+    "skills"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills/market/check-operator",
+   "screenCount": 4,
+   "screens": [
+    "skill-community",
+    "skills-connectors",
+    "skills-mine",
+    "skills"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills/market/sync-status",
+   "screenCount": 4,
+   "screens": [
+    "skill-community",
+    "skills-connectors",
+    "skills-mine",
+    "skills"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/client_config",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/0b33bb03f9ea157e-row-20.png",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/0e8eed7e500d5e36-row-12.png",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/1f3a342bffcc683c-row-16.png",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/3c1399ecb225b9af-underground-dancer-tracker-ui-v2.jpg",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/3f1f795593b8d2d6-row-19.png",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/604c7bef1cd263d7-row-02.jpeg",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/ae8a8d0dbb8c4a28-row-10.jpg",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/b875ca302a6afb80-row-13.png",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/ca54702afac52e6b-row-11.png",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/d509c29dfc18ee7c-ebbb92c088c51b9d0a8e6e57666387bbae6d3978a671a3d0d842e31654f82859.jpeg",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/d6f7dab6b99e052b-0f1ea5fe7ce5a19f0ff6ab9c6fb3e9b9f1603ab11d8b4ff2e6c900080b0212bc.jpeg",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/fb7fa0695e81e880-row-04.png",
+   "screenCount": 4,
+   "screens": [
+    "home-skill-inspiration",
+    "home-skill",
+    "home",
+    "workflows"
+   ]
+  },
+  {
+   "method": "POST",
+   "path": "/api/canvas/add-node",
+   "screenCount": 3,
+   "screens": [
+    "ws-audio",
+    "ws-pdf",
+    "ws-video"
+   ]
+  },
+  {
+   "method": "POST",
+   "path": "/api/upload",
+   "screenCount": 3,
+   "screens": [
+    "ws-audio",
+    "ws-pdf",
+    "ws-video"
+   ]
+  },
+  {
+   "method": "POST",
+   "path": "/api/canvas/text-edit-state",
+   "screenCount": 2,
+   "screens": [
+    "ws-code-editor",
+    "ws-text-editor"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/files/versions",
+   "screenCount": 2,
+   "screens": [
+    "ws-code-editor",
+    "ws-text-editor"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/project/architecture",
+   "screenCount": 2,
+   "screens": [
+    "ws-a-v3-resource",
+    "ws-a-v3"
+   ]
+  },
+  {
+   "method": "POST",
+   "path": "/api/project/resources/tags/get",
+   "screenCount": 2,
+   "screens": [
+    "ws-a-v3-resource",
+    "ws-a-v3"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/runtime/models",
+   "screenCount": 2,
+   "screens": [
+    "ws-a-v3-resource",
+    "ws-a-v3"
+   ]
+  },
+  {
+   "method": "POST",
+   "path": "/api/safety/check-text",
+   "screenCount": 2,
+   "screens": [
+    "project-assets",
+    "project-created"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/popup",
+   "screenCount": 2,
+   "screens": [
+    "ws-a-v3-resource",
+    "ws-a-v3"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v3/canvas",
+   "screenCount": 2,
+   "screens": [
+    "ws-a-v3-resource",
+    "ws-a-v3"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v3/canvas/agent-compositions",
+   "screenCount": 2,
+   "screens": [
+    "ws-a-v3-resource",
+    "ws-a-v3"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v3/capabilities",
+   "screenCount": 2,
+   "screens": [
+    "ws-a-v3-resource",
+    "ws-a-v3"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v3/tasks",
+   "screenCount": 2,
+   "screens": [
+    "ws-a-v3-resource",
+    "ws-a-v3"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/asset/video-playback",
+   "screenCount": 1,
+   "screens": [
+    "ws-video"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/canvas/search",
+   "screenCount": 1,
+   "screens": [
+    "global-search-query"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/files/mention-search",
+   "screenCount": 1,
+   "screens": [
+    "global-search-query"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/72a557968ff1c77b-8f18f69f7d836c991af8ad7097a1eaeba74982f001b9ba3d7a8de224800196fb.jpg",
+   "screenCount": 1,
+   "screens": [
+    "ws-b"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/f112c1ee9a4ce437-7e857266d5b3f402e1a456b0fa44fed894b9b65d582f2e5bdd9980fe7f28d9ef.jpg",
+   "screenCount": 1,
+   "screens": [
+    "ws-b"
+   ]
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/projects",
+   "screenCount": 1,
+   "screens": [
+    "projects-team"
+   ]
+  }
+ ]
+}
