@@ -43,5 +43,37 @@
   "A. 继续取回 framer-motion 核心（预计 200-400 个声明，是库代码不是应用代码）",
   "B. 把 framer-motion 加成真依赖（npm 有 14.4.0，网络可用），镜像时 import 它 —— 我倾向 B"
  ],
- "blockerHit": "提取时踩了一次 UTF-16 偏移：Python 的 read_text 按码点索引，bundle 里有 284 个 emoji，9.5M 之后的偏移全部漂移。已改为 utf-16-le 字节切片，验证 PortalContainerProvider 取回正确。"
+ "blockerHit": "提取时踩了一次 UTF-16 偏移：Python 的 read_text 按码点索引，bundle 里有 284 个 emoji，9.5M 之后的偏移全部漂移。已改为 utf-16-le 字节切片，验证 PortalContainerProvider 取回正确。",
+ "decision": {
+  "chosen": "B —— 把 framer-motion 加成真依赖",
+  "version": "12.43.0",
+  "installedWith": "pnpm --filter @ov/renderer add framer-motion@12.43.0 --save-exact",
+  "verification": {
+   "singleCopy": true,
+   "peerReact": "19.2.4（与项目一致，没有拉进第二份 React）",
+   "exports": [
+    "motion",
+    "AnimatePresence",
+    "MotionGlobalConfig",
+    "LayoutGroup",
+    "usePresence"
+   ]
+  },
+  "versionIdentification": {
+   "method": "取 12.38.0 / 12.40.0 / 12.42.2 / 12.43.0 / 13.0.0 / 14.4.0 逐个比对 AnimatePresence 的签名特征",
+   "matched": [
+    "anchorX = \"left\"",
+    "anchorY = \"top\"",
+    "propagate",
+    "presenceAffectsLayout",
+    "onExitComplete"
+   ],
+   "notExact": "bundle 里 `mode` 的默认值写法与 12.43.0 的源码文本不完全一致（bundle 是压缩后的形态），无法证明是同一 commit。按「选最接近的版本 + 登记差异」处理。"
+  },
+  "whyNotA": [
+   "项目既定做法是第三方库走 npm（tiptap / ProseMirror / fractional-indexing 都是这么处理的）",
+   "A 会往树里塞 200-400 个第三方声明，污染占位扫描/重复审计/常量对照",
+   "framer-motion 有全局单例（MotionGlobalConfig / frameloop），两份会同时存在两套动画时钟"
+  ]
+ }
 }
