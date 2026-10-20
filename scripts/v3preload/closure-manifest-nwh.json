@@ -1,0 +1,791 @@
+{
+ "generatedFor": "4.0.0",
+ "seeds": [
+  "getNativeWorkbenchOwner",
+  "INativeWorkbenchService",
+  "useChatSessionAdapter"
+ ],
+ "total": 70,
+ "lines": 2277,
+ "perRing": [
+  2,
+  4,
+  15,
+  10,
+  15,
+  14,
+  7,
+  3
+ ],
+ "byStatus": {
+  "todo": 65,
+  "restored": 5
+ },
+ "items": [
+  {
+   "i": 596,
+   "names": [
+    "USER_ATTACHED_FILES_OPEN"
+   ],
+   "start": 408761,
+   "end": 408820,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 597,
+   "names": [
+    "USER_ATTACHED_FILES_CLOSE"
+   ],
+   "start": 408821,
+   "end": 408882,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 600,
+   "names": [
+    "LEADING_LEGACY_RE"
+   ],
+   "start": 409042,
+   "end": 409122,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 603,
+   "names": [
+    "parseHiddenContextEnvelope"
+   ],
+   "start": 409274,
+   "end": 410285,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 605,
+   "names": [
+    "stripHiddenContext"
+   ],
+   "start": 410575,
+   "end": 410675,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 610,
+   "names": [
+    "manifestFromContextBody"
+   ],
+   "start": 412007,
+   "end": 412315,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 12231,
+   "names": [
+    "parseChatSessionResourceUrl"
+   ],
+   "start": 12542968,
+   "end": 12543185,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 12233,
+   "names": [
+    "chatSessionSendIdentity"
+   ],
+   "start": 12543474,
+   "end": 12543698,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 13671,
+   "names": [
+    "isMediaEditCapabilityId"
+   ],
+   "start": 13592190,
+   "end": 13592321,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 13911,
+   "names": [
+    "getWorkspaceCanvasPersistenceStatus"
+   ],
+   "start": 13850142,
+   "end": 13850562,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 13918,
+   "names": [
+    "discardWorkspacePersistenceSource"
+   ],
+   "start": 13854348,
+   "end": 13854608,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16768,
+   "names": [
+    "hostAttachmentRef"
+   ],
+   "start": 17002648,
+   "end": 17002915,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16886,
+   "names": [
+    "useWorkspaceChatOptionalSelector"
+   ],
+   "start": 17250332,
+   "end": 17250532,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16895,
+   "names": [
+    "readCompositionResources"
+   ],
+   "start": 17252856,
+   "end": 17254193,
+   "ring": 5,
+   "status": "restored"
+  },
+  {
+   "i": 17191,
+   "names": [
+    "ensurePersistenceOwner"
+   ],
+   "start": 17658047,
+   "end": 17659613,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 17203,
+   "names": [
+    "GENERATION_FRAME_MESSAGE_TYPES"
+   ],
+   "start": 17672455,
+   "end": 17672580,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17206,
+   "names": [
+    "PROJECT_RESOURCE_FRAME_VERSION"
+   ],
+   "start": 17673217,
+   "end": 17673258,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17207,
+   "names": [
+    "PROJECT_RESOURCE_FRAME_BOOTSTRAP"
+   ],
+   "start": 17673259,
+   "end": 17673334,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17210,
+   "names": [
+    "TASK_TOKEN"
+   ],
+   "start": 17673457,
+   "end": 17673501,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17211,
+   "names": [
+    "MAX_CAPABILITY_OPERATIONS"
+   ],
+   "start": 17673502,
+   "end": 17673539,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17212,
+   "names": [
+    "isTaskIdentity"
+   ],
+   "start": 17673540,
+   "end": 17673831,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17213,
+   "names": [
+    "isTaskRequestId"
+   ],
+   "start": 17673832,
+   "end": 17673959,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17214,
+   "names": [
+    "isBoundedJson"
+   ],
+   "start": 17673960,
+   "end": 17674161,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 17215,
+   "names": [
+    "jsonObject$1"
+   ],
+   "start": 17674162,
+   "end": 17674368,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 17216,
+   "names": [
+    "isTaskSubmitBody"
+   ],
+   "start": 17674369,
+   "end": 17674653,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17217,
+   "names": [
+    "isTaskResolveBody"
+   ],
+   "start": 17674654,
+   "end": 17674909,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17218,
+   "names": [
+    "isProjectTaskFrameExecuteRequest"
+   ],
+   "start": 17674910,
+   "end": 17676255,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17219,
+   "names": [
+    "projectTaskFrameExecuteHttp"
+   ],
+   "start": 17676256,
+   "end": 17677259,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17220,
+   "names": [
+    "TASK_LIST_KEYS"
+   ],
+   "start": 17677260,
+   "end": 17677524,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17221,
+   "names": [
+    "isProjectTaskFrameReadRequest"
+   ],
+   "start": 17677525,
+   "end": 17678907,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17222,
+   "names": [
+    "isProjectResourceFrameRequest"
+   ],
+   "start": 17678908,
+   "end": 17679696,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17258,
+   "names": [
+    "CANVAS_HOST_MESSAGE_TYPES"
+   ],
+   "start": 17696788,
+   "end": 17696889,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17291,
+   "names": [
+    "DOCUMENT_FRAME_MESSAGE_TYPES"
+   ],
+   "start": 17715115,
+   "end": 17715240,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17363,
+   "names": [
+    "MAX_IN_FLIGHT"
+   ],
+   "start": 17770830,
+   "end": 17770855,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17366,
+   "names": [
+    "serveResourceFrame"
+   ],
+   "start": 17771106,
+   "end": 17778646,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17387,
+   "names": [
+    "createSidebarOrderBinding"
+   ],
+   "start": 17829182,
+   "end": 17829635,
+   "ring": 5,
+   "status": "restored"
+  },
+  {
+   "i": 17388,
+   "names": [
+    "createTreeHostBindings"
+   ],
+   "start": 17829636,
+   "end": 17833236,
+   "ring": 4,
+   "status": "restored"
+  },
+  {
+   "i": 17389,
+   "names": [
+    "createNativeWorkbenchFiles"
+   ],
+   "start": 17833237,
+   "end": 17835421,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17390,
+   "names": [
+    "createNativeWorkbenchPreferences"
+   ],
+   "start": 17835422,
+   "end": 17836274,
+   "ring": 4,
+   "status": "restored"
+  },
+  {
+   "i": 20668,
+   "names": [
+    "KIND"
+   ],
+   "start": 21231374,
+   "end": 21231595,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 20669,
+   "names": [
+    "resolveSessionResource"
+   ],
+   "start": 21231596,
+   "end": 21232397,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 20670,
+   "names": [
+    "attachmentRef"
+   ],
+   "start": 21232398,
+   "end": 21232848,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 20671,
+   "names": [
+    "uniqueRefs"
+   ],
+   "start": 21232849,
+   "end": 21233142,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 20672,
+   "names": [
+    "taskIdOf"
+   ],
+   "start": 21233143,
+   "end": 21233782,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 20674,
+   "names": [
+    "createChatResourceProjection"
+   ],
+   "start": 21233849,
+   "end": 21237149,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 20675,
+   "names": [
+    "ACCEPTED_REQUEST_LIMIT"
+   ],
+   "start": 21237150,
+   "end": 21237185,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 20676,
+   "names": [
+    "MAX_PROJECTION_DEPTH"
+   ],
+   "start": 21237186,
+   "end": 21237218,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 20677,
+   "names": [
+    "isPendingInteraction"
+   ],
+   "start": 21237219,
+   "end": 21237568,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 20678,
+   "names": [
+    "projectMessage"
+   ],
+   "start": 21237569,
+   "end": 21238390,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 20679,
+   "names": [
+    "newestMessages"
+   ],
+   "start": 21238391,
+   "end": 21238735,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 20680,
+   "names": [
+    "createChatSessionAdapter"
+   ],
+   "start": 21238736,
+   "end": 21252195,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 20681,
+   "names": [
+    "useChatSessionAdapter"
+   ],
+   "start": 21252196,
+   "end": 21253982,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 20683,
+   "names": [
+    "MAX_OWNERS"
+   ],
+   "start": 21254124,
+   "end": 21254146,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 20684,
+   "names": [
+    "NativeWorkbenchPool"
+   ],
+   "start": 21254147,
+   "end": 21257302,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 20686,
+   "names": [
+    "bindFramePersistence"
+   ],
+   "start": 21258465,
+   "end": 21260314,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 20687,
+   "names": [
+    "createNativeMediaGranter"
+   ],
+   "start": 21260315,
+   "end": 21261300,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 20688,
+   "names": [
+    "createScopedFrameRequest"
+   ],
+   "start": 21261301,
+   "end": 21261680,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 20689,
+   "names": [
+    "CAPABILITIES"
+   ],
+   "start": 21261681,
+   "end": 21262601,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 20690,
+   "names": [
+    "nativeWorkbenchBootstrap"
+   ],
+   "start": 21262602,
+   "end": 21264549,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 20691,
+   "names": [
+    "connectNativeWorkbenchHost"
+   ],
+   "start": 21264550,
+   "end": 21270052,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 20706,
+   "names": [
+    "SEND_CONTEXT_LIMIT"
+   ],
+   "start": 21280445,
+   "end": 21280476,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 20707,
+   "names": [
+    "sameEditor"
+   ],
+   "start": 21280477,
+   "end": 21280573,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 20708,
+   "names": [
+    "createTextEditBridge"
+   ],
+   "start": 21280574,
+   "end": 21293695,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 20709,
+   "names": [
+    "CHAT_ACCEPTED_REQUEST_LIMIT"
+   ],
+   "start": 21293696,
+   "end": 21293736,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 20710,
+   "names": [
+    "NativeWorkbenchOwner"
+   ],
+   "start": 21293737,
+   "end": 21304359,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 20713,
+   "names": [
+    "retireWorkbenchIdentity"
+   ],
+   "start": 21304571,
+   "end": 21304698,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 20714,
+   "names": [
+    "pool"
+   ],
+   "start": 21304699,
+   "end": 21305249,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 20715,
+   "names": [
+    "listening"
+   ],
+   "start": 21305250,
+   "end": 21305272,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 20716,
+   "names": [
+    "listen"
+   ],
+   "start": 21305273,
+   "end": 21306043,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 20717,
+   "names": [
+    "getNativeWorkbenchOwner"
+   ],
+   "start": 21306044,
+   "end": 21306207,
+   "ring": 0,
+   "status": "todo"
+  }
+ ],
+ "segments": [
+  {
+   "from": 596,
+   "to": 610,
+   "start": 408761,
+   "end": 412315,
+   "count": 6
+  },
+  {
+   "from": 12231,
+   "to": 12233,
+   "start": 12542968,
+   "end": 12543698,
+   "count": 2
+  },
+  {
+   "from": 13671,
+   "to": 13671,
+   "start": 13592190,
+   "end": 13592321,
+   "count": 1
+  },
+  {
+   "from": 13911,
+   "to": 13918,
+   "start": 13850142,
+   "end": 13854608,
+   "count": 2
+  },
+  {
+   "from": 16768,
+   "to": 16768,
+   "start": 17002648,
+   "end": 17002915,
+   "count": 1
+  },
+  {
+   "from": 16886,
+   "to": 16895,
+   "start": 17250332,
+   "end": 17254193,
+   "count": 2
+  },
+  {
+   "from": 17191,
+   "to": 17291,
+   "start": 17658047,
+   "end": 17715240,
+   "count": 19
+  },
+  {
+   "from": 17363,
+   "to": 17390,
+   "start": 17770830,
+   "end": 17836274,
+   "count": 6
+  },
+  {
+   "from": 20668,
+   "to": 20717,
+   "start": 21231374,
+   "end": 21306207,
+   "count": 31
+  }
+ ]
+}
