@@ -82,7 +82,11 @@ for (const f of files) {
     if (!m) continue;
     const name = m[1] || m[2];
     const body = bodyOf(lines, i).join("\n");
-    const compact = body.replace(/\s+/g, " ");
+    // 剥离注释再匹配：否则解释「这里以前是 stub」的注释会被自己判成 stub
+    const compact = body
+      .replace(/\/\*[\s\S]*?\*\//g, " ")
+      .replace(/^\s*\/\/.*$/gm, " ")
+      .replace(/\s+/g, " ");
     const near = (lines[i - 1] ?? "") + " " + lines[i];
     let why = null;
     if (/^\s*(?:export\s+)?(?:async\s+)?function\s+\w+\s*\([^)]*\)\s*\{\s*return\s*(\{\s*\}|false|true|v|undefined|null)\s*;?\s*\}/.test(compact)) why = "整个函数体就是 return 一个常量";
@@ -90,6 +94,11 @@ for (const f of files) {
     else if (/^\s*(?:export\s+)?const\s+\w+\s*=\s*\(\s*\)\s*=>\s*false\s*;?$/.test(compact.trim())) why = "const X = () => false";
     else if (/^\s*(?:export\s+)?const\s+\w+\s*=\s*new Proxy\(/.test(compact)) why = "Proxy 兜底掩盖错误";
     else if (/^\s*(?:export\s+)?const\s+\w+_BYTES\s*=\s*0\s*;?\s*$/.test(compact.trim())) why = "上限常量为 0";
+    // 第 274 轮：**静默 stub** —— 动态 import 的目标被换成「返回 undefined 的对象」。
+    // 这类写法让懒加载 chunk 永远拿不到实现，而所有静态检查都通过。
+    // 实例：`Promise.resolve().then(() => ({ ep: undefined })).then((n) => n.ep)`
+    //      `Promise.resolve().then(() => ({ i: undefined })).then((n) => n.i)`
+    else if (/Promise\.resolve\(\)\.then\(\(?\)?\s*=>\s*\(\{\s*[A-Za-z_$][\w$]*:\s*undefined\s*\}\)\)/.test(compact)) why = "动态 import 被换成返回 undefined 的静默 stub";
     else if (/^\s*(?:export\s+)?const\s+\w+_ROUTES\s*=\s*\{\s*\}\s*;?\s*$/.test(compact.trim())) why = "路由常量为空对象";
     else if (STUB_WORDS.test(near) && !/["'`]/.test(lines[i])) why = "声明旁的注释自述占位";
     const rel = f.replace(ROOT + "/", "");
