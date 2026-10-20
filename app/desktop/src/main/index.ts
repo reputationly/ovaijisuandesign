@@ -359,6 +359,11 @@ async function boot(): Promise<Running | undefined> {
   hilo.startIdleSweep();
 
   registerChannel("hilo", hilo);
+  // 第 278 轮：v3 原生工作台的 IPC 通道一直没注册。
+  // NativeWorkbenchService 从第 188 轮起就构造出来了，但只在测试里被调用；
+  // 渲染层的 mount() 走 INativeWorkbenchService → 这个通道，
+  // 通道不存在 → mount 永远不会发生 → 资源视图永远不可用。
+  registerChannel("nativeWorkbench", nativeWorkbench);
   registerChannel("project", projects);
   // 用户自建的技能优先于自带的
   registerChannel("skillExport", createSkillExportService(() => [dirs.userSkillsDir, path.join(dirs.hubRoot, "skills")]));

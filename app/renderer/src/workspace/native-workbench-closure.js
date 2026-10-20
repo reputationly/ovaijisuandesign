@@ -1,6 +1,7 @@
 /** 原生工作台宿主闭包（第 268 轮）。种子：getNativeWorkbenchOwner / INativeWorkbenchService。偏移是 UTF-16 码元。 */
 
 import reactExports from "react";
+import { ensureNativeWorkbenchServiceRegistered } from "./native-workbench-service-registration.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import { PROJECT_QUERY_HTTP_ROUTES, PROJECT_TASK_HTTP_ROUTES, ProjectResourceKind, ProjectResourceLifecycle, ProjectResourceVersionStatus } from "./../canvas-v3/canvas-v3-constants.js";
 import { useWorkspaceChatStoreOptional } from "./../canvas-v3/canvas-v3-hooks.js";
@@ -1737,6 +1738,9 @@ export function listen() {
 }
 
 export async function getNativeWorkbenchOwner(workspaceId, binding, identity2, options2) {
+  // 第 278 轮：首次真正 acquire 时才把 INativeWorkbenchService 注册进 DI。
+  // 放在模块顶层会拖累 home-skill-inspiration 屏（确定性 2654 像素差异）。
+  ensureNativeWorkbenchServiceRegistered(INativeWorkbenchService);
   listen();
   return pool.acquire(workspaceId, binding, identity2, options2);
 }
