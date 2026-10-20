@@ -23,7 +23,7 @@
  },
  "items": [
   {
-   "i": 205,
+   "i": 204,
    "names": [
     "I18nextProvider"
    ],
@@ -33,7 +33,7 @@
    "status": "todo"
   },
   {
-   "i": 273,
+   "i": 272,
    "names": [
     "ADD_TO_CHAT_VIEW_BOX$1"
    ],
@@ -43,7 +43,7 @@
    "status": "todo"
   },
   {
-   "i": 274,
+   "i": 273,
    "names": [
     "ADD_TO_CHAT_PATHS$1"
    ],
@@ -53,7 +53,7 @@
    "status": "todo"
   },
   {
-   "i": 275,
+   "i": 274,
    "names": [
     "AddToChatIcon$1"
    ],
@@ -63,7 +63,7 @@
    "status": "todo"
   },
   {
-   "i": 2570,
+   "i": 2520,
    "names": [
     "cropImageToBlob$1"
    ],
@@ -73,7 +73,7 @@
    "status": "todo"
   },
   {
-   "i": 2573,
+   "i": 2523,
    "names": [
     "useImageCrop$1"
    ],
@@ -83,7 +83,7 @@
    "status": "todo"
   },
   {
-   "i": 3983,
+   "i": 3833,
    "names": [
     "normalizePromptFontSize$1"
    ],
@@ -93,7 +93,7 @@
    "status": "todo"
   },
   {
-   "i": 5266,
+   "i": 5078,
    "names": [
     "SegmentedSwitch$1"
    ],
@@ -103,7 +103,7 @@
    "status": "todo"
   },
   {
-   "i": 13101,
+   "i": 12302,
    "names": [
     "InfiniteQueryObserver"
    ],
@@ -113,7 +113,7 @@
    "status": "todo"
   },
   {
-   "i": 13111,
+   "i": 12312,
    "names": [
     "useInfiniteQuery"
    ],
@@ -123,7 +123,7 @@
    "status": "todo"
   },
   {
-   "i": 13685,
+   "i": 12885,
    "names": [
     "referenceResourceKind"
    ],
@@ -133,7 +133,7 @@
    "status": "todo"
   },
   {
-   "i": 13686,
+   "i": 12886,
    "names": [
     "readResourceVersionHistory"
    ],
@@ -143,7 +143,7 @@
    "status": "todo"
   },
   {
-   "i": 16438,
+   "i": 15599,
    "names": [
     "CompositionActionsProvider"
    ],
@@ -153,7 +153,7 @@
    "status": "todo"
   },
   {
-   "i": 16489,
+   "i": 15650,
    "names": [
     "toAsyncSectionState"
    ],
@@ -163,7 +163,7 @@
    "status": "todo"
   },
   {
-   "i": 16490,
+   "i": 15651,
    "names": [
     "frozen"
    ],
@@ -173,7 +173,7 @@
    "status": "todo"
   },
   {
-   "i": 16506,
+   "i": 15667,
    "names": [
     "createTaskQueryOptions"
    ],
@@ -183,7 +183,7 @@
    "status": "todo"
   },
   {
-   "i": 16509,
+   "i": 15670,
    "names": [
     "useTaskResolve"
    ],
@@ -193,7 +193,7 @@
    "status": "todo"
   },
   {
-   "i": 16545,
+   "i": 15706,
    "names": [
     "StructureMediaProvider"
    ],
@@ -203,7 +203,7 @@
    "status": "todo"
   },
   {
-   "i": 16640,
+   "i": 15801,
    "names": [
     "structureEditorEn"
    ],
@@ -213,7 +213,7 @@
    "status": "todo"
   },
   {
-   "i": 16642,
+   "i": 15803,
    "names": [
     "compositionEditEn"
    ],
@@ -223,7 +223,7 @@
    "status": "todo"
   },
   {
-   "i": 16644,
+   "i": 15805,
    "names": [
     "treeLabelsEn"
    ],
@@ -233,7 +233,7 @@
    "status": "todo"
   },
   {
-   "i": 16646,
+   "i": 15807,
    "names": [
     "en$2"
    ],
@@ -243,7 +243,7 @@
    "status": "todo"
   },
   {
-   "i": 16647,
+   "i": 15808,
    "names": [
     "structureTranslations"
    ],
@@ -253,7 +253,7 @@
    "status": "todo"
   },
   {
-   "i": 16650,
+   "i": 15811,
    "names": [
     "ResourceDetailProvider"
    ],
@@ -263,7 +263,7 @@
    "status": "todo"
   },
   {
-   "i": 16686,
+   "i": 15847,
    "names": [
     "useWorkspaceChatComposer"
    ],
@@ -273,7 +273,7 @@
    "status": "todo"
   },
   {
-   "i": 16895,
+   "i": 16056,
    "names": [
     "readCompositionResources"
    ],
@@ -283,7 +283,7 @@
    "status": "restored"
   },
   {
-   "i": 16896,
+   "i": 16057,
    "names": [
     "readCompositionFiles"
    ],
@@ -293,7 +293,7 @@
    "status": "todo"
   },
   {
-   "i": 16897,
+   "i": 16058,
    "names": [
     "WorkspaceCompositionActions"
    ],
@@ -303,7 +303,7 @@
    "status": "todo"
   },
   {
-   "i": 16926,
+   "i": 16087,
    "names": [
     "createDetailReferenceImports$1"
    ],
@@ -313,7 +313,7 @@
    "status": "todo"
   },
   {
-   "i": 17060,
+   "i": 16221,
    "names": [
     "DocumentContent$1"
    ],
@@ -323,7 +323,7 @@
    "status": "todo"
   },
   {
-   "i": 17061,
+   "i": 16222,
    "names": [
     "DocumentFullscreenPreview"
    ],
@@ -333,7 +333,7 @@
    "status": "todo"
   },
   {
-   "i": 17062,
+   "i": 16223,
    "names": [
     "useDocumentContent"
    ],
@@ -343,7 +343,7 @@
    "status": "todo"
   },
   {
-   "i": 17063,
+   "i": 16224,
    "names": [
     "DocumentPreview"
    ],
@@ -353,7 +353,7 @@
    "status": "todo"
   },
   {
-   "i": 17068,
+   "i": 16229,
    "names": [
     "ResourcePreview"
    ],
@@ -363,7 +363,7 @@
    "status": "todo"
   },
   {
-   "i": 17069,
+   "i": 16230,
    "names": [
     "MediaPreview$1"
    ],
@@ -373,7 +373,7 @@
    "status": "todo"
   },
   {
-   "i": 17116,
+   "i": 16277,
    "names": [
     "useDetailPricing"
    ],
@@ -383,7 +383,7 @@
    "status": "todo"
   },
   {
-   "i": 17117,
+   "i": 16278,
    "names": [
     "useDetailFontSize"
    ],
@@ -393,7 +393,7 @@
    "status": "todo"
   },
   {
-   "i": 17118,
+   "i": 16279,
    "names": [
     "useStoredDetailFontSize"
    ],
@@ -403,7 +403,7 @@
    "status": "todo"
   },
   {
-   "i": 17119,
+   "i": 16280,
    "names": [
     "useDetailReferenceOptions"
    ],
@@ -413,7 +413,7 @@
    "status": "todo"
   },
   {
-   "i": 17120,
+   "i": 16281,
    "names": [
     "alwaysReady"
    ],
@@ -423,7 +423,7 @@
    "status": "todo"
   },
   {
-   "i": 17121,
+   "i": 16282,
    "names": [
     "noSubscription$1"
    ],
@@ -433,7 +433,7 @@
    "status": "todo"
   },
   {
-   "i": 17122,
+   "i": 16283,
    "names": [
     "useDetailReady"
    ],
@@ -443,7 +443,7 @@
    "status": "todo"
   },
   {
-   "i": 17148,
+   "i": 16309,
    "names": [
     "createDetailReferenceImports"
    ],
@@ -453,7 +453,7 @@
    "status": "todo"
   },
   {
-   "i": 17152,
+   "i": 16313,
    "names": [
     "useDetailCanvasImages"
    ],
@@ -463,7 +463,7 @@
    "status": "todo"
   },
   {
-   "i": 17154,
+   "i": 16315,
    "names": [
     "ResourceReferencePicker"
    ],
@@ -473,7 +473,7 @@
    "status": "todo"
   },
   {
-   "i": 17155,
+   "i": 16316,
    "names": [
     "ResourceReferencePreview"
    ],
@@ -483,7 +483,7 @@
    "status": "todo"
   },
   {
-   "i": 17156,
+   "i": 16317,
    "names": [
     "editorReference"
    ],
@@ -493,7 +493,7 @@
    "status": "todo"
   },
   {
-   "i": 17157,
+   "i": 16318,
    "names": [
     "ResourceAgentInput"
    ],
@@ -503,7 +503,7 @@
    "status": "todo"
   },
   {
-   "i": 17158,
+   "i": 16319,
    "names": [
     "ResourceAgentInputBody"
    ],
@@ -513,7 +513,7 @@
    "status": "todo"
   },
   {
-   "i": 17159,
+   "i": 16320,
    "names": [
     "ResourceChat"
    ],
@@ -523,7 +523,7 @@
    "status": "todo"
   },
   {
-   "i": 17160,
+   "i": 16321,
    "names": [
     "ResourceDetailChatBody"
    ],
@@ -533,7 +533,7 @@
    "status": "todo"
   },
   {
-   "i": 17161,
+   "i": 16322,
    "names": [
     "useResourceDetail"
    ],
@@ -543,7 +543,7 @@
    "status": "todo"
   },
   {
-   "i": 17163,
+   "i": 16324,
    "names": [
     "ResourceChatRendererContext"
    ],
@@ -553,7 +553,7 @@
    "status": "todo"
   },
   {
-   "i": 17164,
+   "i": 16325,
    "names": [
     "ResourceChatTargetContext"
    ],
@@ -563,7 +563,7 @@
    "status": "todo"
   },
   {
-   "i": 17165,
+   "i": 16326,
    "names": [
     "useResourceChatRenderer"
    ],
@@ -573,7 +573,7 @@
    "status": "todo"
   },
   {
-   "i": 17166,
+   "i": 16327,
    "names": [
     "ResourceChatTargetProvider"
    ],
@@ -583,7 +583,7 @@
    "status": "todo"
   },
   {
-   "i": 17167,
+   "i": 16328,
    "names": [
     "handles"
    ],
@@ -593,7 +593,7 @@
    "status": "todo"
   },
   {
-   "i": 17168,
+   "i": 16329,
    "names": [
     "ratios"
    ],
@@ -603,7 +603,7 @@
    "status": "todo"
   },
   {
-   "i": 17169,
+   "i": 16330,
    "names": [
     "ResourceCropControls"
    ],
@@ -613,7 +613,7 @@
    "status": "todo"
   },
   {
-   "i": 17170,
+   "i": 16331,
    "names": [
     "ResourceRedrawControls"
    ],
@@ -623,7 +623,7 @@
    "status": "todo"
   },
   {
-   "i": 17171,
+   "i": 16332,
    "names": [
     "ResourceToolbar"
    ],
@@ -633,7 +633,7 @@
    "status": "todo"
   },
   {
-   "i": 17172,
+   "i": 16333,
    "names": [
     "containedImageGeometry"
    ],
@@ -643,7 +643,7 @@
    "status": "todo"
   },
   {
-   "i": 17173,
+   "i": 16334,
    "names": [
     "ResourceImageStage"
    ],
@@ -653,7 +653,7 @@
    "status": "todo"
   },
   {
-   "i": 17174,
+   "i": 16335,
    "names": [
     "ResourceDetail"
    ],
@@ -663,7 +663,7 @@
    "status": "todo"
   },
   {
-   "i": 17175,
+   "i": 16336,
    "names": [
     "ResourceDetailContent"
    ],
@@ -673,7 +673,7 @@
    "status": "todo"
   },
   {
-   "i": 17176,
+   "i": 16337,
    "names": [
     "resourceKindIcon"
    ],
@@ -683,7 +683,7 @@
    "status": "todo"
   },
   {
-   "i": 17177,
+   "i": 16338,
    "names": [
     "ResourceDetailDialog"
    ],
@@ -693,7 +693,7 @@
    "status": "todo"
   },
   {
-   "i": 17187,
+   "i": 16348,
    "names": [
     "parseStructuredDocument"
    ],
@@ -703,7 +703,7 @@
    "status": "todo"
   },
   {
-   "i": 17404,
+   "i": 16564,
    "names": [
     "WorkspaceStructuredDocument"
    ],
@@ -713,7 +713,7 @@
    "status": "todo"
   },
   {
-   "i": 17408,
+   "i": 16568,
    "names": [
     "readDocument"
    ],
@@ -723,7 +723,7 @@
    "status": "todo"
   },
   {
-   "i": 17409,
+   "i": 16569,
    "names": [
     "WorkspaceCompositionDocuments"
    ],
@@ -733,7 +733,7 @@
    "status": "todo"
   },
   {
-   "i": 17410,
+   "i": 16570,
    "names": [
     "documentColumns"
    ],
@@ -743,7 +743,7 @@
    "status": "todo"
   },
   {
-   "i": 17411,
+   "i": 16571,
    "names": [
     "normalizeTitle"
    ],
@@ -753,7 +753,7 @@
    "status": "todo"
   },
   {
-   "i": 17413,
+   "i": 16573,
    "names": [
     "presentNode"
    ],
@@ -763,7 +763,7 @@
    "status": "todo"
   },
   {
-   "i": 17414,
+   "i": 16574,
    "names": [
     "WorkspaceStructureDocument"
    ],
@@ -773,7 +773,7 @@
    "status": "todo"
   },
   {
-   "i": 17415,
+   "i": 16575,
    "names": [
     "detailServices"
    ],
@@ -783,7 +783,7 @@
    "status": "todo"
   },
   {
-   "i": 17416,
+   "i": 16576,
    "names": [
     "renderDocument"
    ],
@@ -793,7 +793,7 @@
    "status": "todo"
   },
   {
-   "i": 17417,
+   "i": 16577,
    "names": [
     "renderDocuments"
    ],
@@ -803,7 +803,7 @@
    "status": "todo"
   },
   {
-   "i": 17418,
+   "i": 16578,
    "names": [
     "WorkspaceStructurePresentation"
    ],
@@ -813,7 +813,7 @@
    "status": "todo"
   },
   {
-   "i": 17419,
+   "i": 16579,
    "names": [
     "resourceDetailLabels"
    ],
@@ -825,99 +825,99 @@
  ],
  "segments": [
   {
-   "from": 205,
-   "to": 205,
+   "from": 204,
+   "to": 204,
    "start": 142174,
    "end": 142433,
    "count": 1
   },
   {
-   "from": 273,
-   "to": 275,
+   "from": 272,
+   "to": 274,
    "start": 230192,
    "end": 231195,
    "count": 3
   },
   {
-   "from": 2570,
-   "to": 2573,
+   "from": 2520,
+   "to": 2523,
    "start": 1962785,
    "end": 1968254,
    "count": 2
   },
   {
-   "from": 3983,
-   "to": 3983,
+   "from": 3833,
+   "to": 3833,
    "start": 3096221,
    "end": 3096422,
    "count": 1
   },
   {
-   "from": 5266,
-   "to": 5266,
+   "from": 5078,
+   "to": 5078,
    "start": 6145722,
    "end": 6149772,
    "count": 1
   },
   {
-   "from": 13101,
-   "to": 13111,
+   "from": 12302,
+   "to": 12312,
    "start": 13208042,
    "end": 13220614,
    "count": 2
   },
   {
-   "from": 13685,
-   "to": 13686,
+   "from": 12885,
+   "to": 12886,
    "start": 13598902,
    "end": 13599576,
    "count": 2
   },
   {
-   "from": 16438,
-   "to": 16438,
+   "from": 15599,
+   "to": 15599,
    "start": 16631913,
    "end": 16632104,
    "count": 1
   },
   {
-   "from": 16489,
-   "to": 16545,
+   "from": 15650,
+   "to": 15706,
    "start": 16665645,
    "end": 16725790,
    "count": 5
   },
   {
-   "from": 16640,
-   "to": 16686,
+   "from": 15801,
+   "to": 15847,
    "start": 16910666,
    "end": 16979475,
    "count": 7
   },
   {
-   "from": 16895,
-   "to": 16926,
+   "from": 16056,
+   "to": 16087,
    "start": 17252856,
    "end": 17291340,
    "count": 4
   },
   {
-   "from": 17060,
-   "to": 17069,
+   "from": 16221,
+   "to": 16230,
    "start": 17420385,
    "end": 17437948,
    "count": 6
   },
   {
-   "from": 17116,
-   "to": 17187,
+   "from": 16277,
+   "to": 16348,
    "start": 17531040,
    "end": 17656799,
    "count": 33
   },
   {
-   "from": 17404,
-   "to": 17419,
+   "from": 16564,
+   "to": 16579,
    "start": 17863024,
    "end": 17887912,
    "count": 12

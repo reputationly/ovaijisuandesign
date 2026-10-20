@@ -21,8 +21,11 @@ for (const f of files) {
     const [o, a] = r.split(/\s+as\s+/).map(s => s.trim()); if (!owner.has(a ?? o)) owner.set(a ?? o, f); }
 }
 const by = new Map(); const missing = [];
+// 第 229 轮：`$n` 后缀是 Rollup 给同名实体的重命名。树里通常只保留了基础名，
+// 所以精确名找不到时，回退到去掉 `$n` 的名字。
+const lookup = (n) => owner.get(n) ?? owner.get(n.replace(/\$\d+$/, "")) ?? null;
 for (const n of need) {
-  const f = owner.get(n);
+  const f = lookup(n);
   if (!f) { missing.push(n); continue; }
   const rel = "./" + path.relative(fromDir, f).replace(/\\/g, "/");
   (by.get(rel) ?? by.set(rel, []).get(rel)).push(n);

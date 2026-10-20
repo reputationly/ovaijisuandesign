@@ -153,8 +153,8 @@ export function getFileExtension(fileName) {
   if (idx <= 0 || idx === fileName.length - 1) return void 0;
   return fileName.slice(idx).toLowerCase();
 }
-const ADD_TO_CHAT_VIEW_BOX = "0 0 20 20";
-const ADD_TO_CHAT_PATHS = [
+export const ADD_TO_CHAT_VIEW_BOX = "0 0 20 20";
+export const ADD_TO_CHAT_PATHS = [
   "M12.1545 15.3767H18.6118",
   "M15.3896 12.1545L15.3896 18.6118",
   "M17.2956 9.34192C17.2956 4.94921 13.7346 1.38821 9.34191 1.38821C4.94919 1.38821 1.3882 4.94921 1.3882 9.34192C1.3882 10.9548 1.38819 14.4074 1.38819 16.186C1.38818 16.7996 1.88394 17.2956 2.49759 17.2956C4.28696 17.2956 7.76843 17.2956 9.34191 17.2956",

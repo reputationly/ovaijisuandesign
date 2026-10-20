@@ -10,7 +10,7 @@
  *   node scripts/v3preload/closure-plan.mjs           # 打印摘要
  *   node scripts/v3preload/closure-plan.mjs --write   # 同时写清单
  */
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 
@@ -172,9 +172,22 @@ const loose = closure("loose");
 const lines = strict.reached.reduce((a, r) => a + (bundle.slice(r.start, r.end).match(/\n/g)?.length ?? 0) + 1, 0);
 
 // 现有三个设施文件里已实现的
-const draftCode = ["workspace-facilities.js", "workspace-structure-events.js", "workspace-structure-runtime.js"]
-  .map((f) => { try { return readFileSync(path.join(SRC, "workspace", f), "utf8"); } catch { return ""; } })
-  .join("\n");
+// 第 229 轮：原来只查 3 个草案文件，于是已经落到 workspace-resource-closure.js /
+// chat-session-adapter.js 等文件里的实现仍被标成 todo。改成查**全树**。
+const draftCode = (() => {
+  const parts = [];
+  const walk2 = (d) => {
+    for (const e of readdirSync(d)) {
+      const f = path.join(d, e);
+      let st;
+      try { st = statSync(f); } catch { continue; }
+      if (st.isDirectory()) { if (e !== "node_modules") walk2(f); }
+      else if (/\.(js|jsx)$/.test(e) && !/\.test\./.test(f)) parts.push(readFileSync(f, "utf8"));
+    }
+  };
+  walk2(SRC);
+  return parts.join("\n");
+})();
 const isStub = (l) => /=>\s*(undefined|null|\{\s*\}|\(\{\}\))\s*;?$|占位|stub/i.test(l ?? "");
 const statusOf = (name) => {
   const esc = name.replace(/\$/g, "\\$");

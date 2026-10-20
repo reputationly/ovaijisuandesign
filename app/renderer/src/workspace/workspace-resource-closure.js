@@ -1111,7 +1111,7 @@ class StructureEditorStore {
   }
 }
 
-function structureEditor(workbench) {
+export function structureEditor(workbench) {
   let store = stores$5.get(workbench);
   if (!store) {
     store = new StructureEditorStore(workbench);
