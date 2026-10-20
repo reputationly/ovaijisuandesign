@@ -190,6 +190,47 @@
    "  · **画布两边都是空的** —— 没有渲染任何节点"
   ],
   "conclusion": "这是布局/尺寸漂移（侧边栏宽度 + 垂直节奏），不是我的改动引入的内容回归。",
-  "note": "画布空说明 v3 画布本身在那屏没有内容，与 list_sessions 重试（2→10）可能同源。"
+  "note": "画布空说明 v3 画布本身在那屏没有内容，与 list_sessions 重试（2→10）可能同源。",
+  "visualDiffBreakdown": {
+   "method": "把 ws-a-v3.recovered.png 与基线 ws-a-v3.png 并排看（不再靠数字推）",
+   "intentional": [
+    {
+     "what": "侧栏品牌 蒜狸小助手 vs MiniMax Design",
+     "why": "品牌改名（用户决定保留）"
+    },
+    {
+     "what": "「未连接」vs 用户头像+用户名",
+     "why": "connection-indicator.jsx 注释写明：没有账户体系，用连接状态替代用户头像"
+    },
+    {
+     "what": "缺 ComfyUI 工作流 Beta 入口",
+     "why": "ComfyUI 功能按要求移除"
+    },
+    {
+     "what": "右栏骨架 vs 真实展示内容",
+     "why": "showcase-assets 是本地资源，门禁的 NET_VOLATILE 已排除"
+    },
+    {
+     "what": "多出「本地运行时正在恢复」提示",
+     "why": "离线横幅，本地运行时未连时的正常提示"
+    }
+   ],
+   "realGaps": [
+    {
+     "what": "画布左上角缺「画布 / 浏览器」两个标签",
+     "where": "CanvasAreaV3 的 chrome"
+    },
+    {
+     "what": "底部缺「画布 | 列表」切换 pill",
+     "where": "CanvasAreaV3 的 chrome"
+    },
+    {
+     "what": "底部工具坞少一个文件夹图标（6 → 5）",
+     "where": "CanvasAreaV3 工具坞"
+    }
+   ],
+   "conclusion": "6.995% 里绝大部分是有意差异；真实缺口集中在 CanvasAreaV3 的 chrome（3 处）。",
+   "nextStep": "查 CanvasAreaV3 chrome 为何没渲染（isActive/isPresented 或某个 provider 未就位）。"
+  }
  }
 }
