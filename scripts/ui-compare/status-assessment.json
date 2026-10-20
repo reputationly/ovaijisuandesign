@@ -51,6 +51,28 @@
    "确认是「通道注册本身」还是「服务实例化」导致启动失败。",
    "参照里这些通道走的是同一个 ipcServer（new Server()），我们用的是 index.ts 里自己的 ipcServer；",
    "两套 Server 混用可能是原因。"
-  ]
+  ],
+  "round289_tracing": {
+   "instrumentation": "在 native-workbench-closure.js 的关键点写 localStorage['hilo:last-error-boundary']，门禁的 state 快照能读出来",
+   "tracesHit": [
+    "getNativeWorkbenchOwner 入口        → [owner] enter ✓"
+   ],
+   "tracesMissed": [
+    "pool 工厂入口                       → 未触发",
+    "acquire 里的 attachment-retired     → 未触发",
+    "ensurePersistenceOwner 的 start     → 未触发"
+   ],
+   "therefore": [
+    "getNativeWorkbenchOwner 被调用了，但 NativeWorkbenchPool.acquire 里那个",
+    "this.queue.catch(...).then(async () => { ... }) 的任务体**从未开始执行**。",
+    "既不是 attachment retired，也不是工厂里抛错 —— 是队列本身没跑起来，",
+    "或者 acquire 在那之前就返回了。"
+   ],
+   "nextProbe": [
+    "trace pool.queue 的状态（它是否卡在某个更早的 acquire 上）；",
+    "trace acquire 调用点前后，确认这次调用真的进了 acquire 函数体。"
+   ],
+   "note": "本轮把范围从「mount 未调用」进一步收窄到「pool.acquire 的排队任务未开始执行」。"
+  }
  }
 }
