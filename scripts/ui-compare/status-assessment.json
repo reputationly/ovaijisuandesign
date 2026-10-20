@@ -31,5 +31,26 @@
   "还原主进程 IRendererPersistenceService（含 setupHiloAppIpc 的通道注册）",
   "渲染层补 services.set(IRendererPersistenceMainService, ProxyChannel.toService(client.getChannel('rendererPersistence')))",
   "然后 mount 才会被调用，之后才轮到验证 WebContentsView + v3 产物 + WorkspaceResultNavigationProvider 接线"
- ]
+ ],
+ "persistenceService": {
+  "round": 288,
+  "done": [
+   "整份取回 RendererPersistenceService（101 行）到 app/desktop/src/main/persistence/renderer-persistence-service.ts，",
+   "  连同它的三个前置：ACK_TIMEOUT_MS=1e4 / MAX_OWNERS=32 / validId()。",
+   "改 import 为 ../ipc/events.js 的 Disposable / Emitter，加 @ts-nocheck（保留参照原形态，不改写类型），typecheck 0。",
+   "查清参照的接线方式（setupHiloAppIpc）：",
+   "  registerChannel('rendererPersistence', { onSynchronize, register, unregister, acknowledge })",
+   "  registerChannel('nativeWorkbench', { onDidChange, mount, grantMedia, cancelMediaGrant, layout, release, setOccluded })"
+  ],
+  "failed": [
+   "把 rendererPersistence 接进 index.ts 后，应用启动失败：「等不到界面页面」——窗口根本没出现。",
+   "已回滚 index.ts / preload / DI 注册三处，服务文件保留。"
+  ],
+  "nextProbe": [
+   "最小化定位：先只 registerChannel('rendererPersistence', { register: async () => {} }) 这种空壳，",
+   "确认是「通道注册本身」还是「服务实例化」导致启动失败。",
+   "参照里这些通道走的是同一个 ipcServer（new Server()），我们用的是 index.ts 里自己的 ipcServer；",
+   "两套 Server 混用可能是原因。"
+  ]
+ }
 }
