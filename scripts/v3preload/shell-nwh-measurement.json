@@ -1,0 +1,47 @@
+{
+ "generatedAt": "第266轮",
+ "method": "离线不动点（closure-plan 多 chunk 索引 + npm 停止集），已排除「显式不可用」文件",
+ "shell": {
+  "declarations": 74,
+  "lines": 3161,
+  "rings": [
+   2,
+   10,
+   4,
+   8,
+   10,
+   13,
+   20,
+   4,
+   3
+  ],
+  "loose": 54,
+  "convergent": true,
+  "note": "与你测的 79 同量级；差的 5 个是 use-window-chrome 里我们已能解析的名字"
+ },
+ "nwh": {
+  "declarations": 49,
+  "lines": 1709,
+  "rings": [
+   3,
+   2,
+   6,
+   5,
+   12,
+   11,
+   7,
+   3
+  ],
+  "loose": 47,
+  "convergent": true,
+  "note": "你指出 291 个名字无导出是工具没索引第二个 chunk；补上索引后收敛到 49"
+ },
+ "rootCauseOfEarlierWrongNumbers": [
+  "closure-plan 之前只读 index-BBp4hclA.js，看不见 use-window-chrome 的 2,322 个声明",
+  "npm 停止集只有 fractional-indexing 一个包，闭包会钻进 react / floating-ui / lucide",
+  "最关键的一条：workspace-shell-closure.js（148KB，第 253 轮提交）一直躺在树里且无人 import，",
+  "它导出的 CompositionActionsProvider 让闭包把树里已有的名字当停止点，",
+  "于是种子一进去就停，量出 2 个声明。删掉后立刻回到 74。"
+ ],
+ "newToolGuard": "closure-plan 现在把 unavailable-workbench.js 排除在 tree/status 之外 —— 「显式不可用」不是真还原。"
+}

@@ -119,6 +119,11 @@ const walk = (d) =>
     return /\.(m?js|jsx)$/.test(e.name) ? [f] : [];
   });
 
+// 第 266 轮：`unavailable-workbench.js` 里导出的是**显式不可用**的实现
+// （抛错/渲染提示），不是真还原。量闭包时要把它排除，否则种子一被判成
+// restored，闭包立刻停在 2 个声明，测不出真实规模。
+const IGNORE_FOR_STATUS = /unavailable-workbench\.js$/;
+
 const tree = new Set();
 const treeLoose = new Set();
 // 第 172 轮：npm 依赖的导出也算「树里已有」，否则闭包会把库代码当应用代码算进来
@@ -143,6 +148,7 @@ const DRAFT = /workspace-(facilities|structure-events|structure-runtime)\.js$/;
 for (const f of walk(SRC)) {
   if (/pdf\.worker|wasm-/.test(f)) continue;
   if (DRAFT.test(f)) continue;              // 本轮新加的三个设施文件不计入「树里已有」
+  if (IGNORE_FOR_STATUS.test(f)) continue;  // 「显式不可用」的导出不算树里已有（否则闭包停在种子上）
   let ast;
   try { ast = parser.parse(readFileSync(f, "utf8"), { sourceType: "module", plugins: ["jsx"], errorRecovery: true }); } catch { continue; }
   for (const n of ast.program.body) {
@@ -207,7 +213,7 @@ const draftCode = (() => {
       let st;
       try { st = statSync(f); } catch { continue; }
       if (st.isDirectory()) { if (e !== "node_modules") walk2(f); }
-      else if (/\.(js|jsx)$/.test(e) && !/\.test\./.test(f)) parts.push(readFileSync(f, "utf8"));
+      else if (/\.(js|jsx)$/.test(e) && !/\.test\./.test(f) && !IGNORE_FOR_STATUS.test(f)) parts.push(readFileSync(f, "utf8"));
     }
   };
   walk2(SRC);
