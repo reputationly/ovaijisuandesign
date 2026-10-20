@@ -86,6 +86,24 @@
    "两边 WS 连接数都是 2，所以不是连接数差异；是 host 是否渲染的差异"
   ],
   "conclusion": "WS 少的 4 帧是已知能力缺口的**后果**，不是独立缺陷。等 getNativeWorkbenchOwner 还原后才会有。",
-  "aside": "已核对 workspace-canvas-area.jsx 的 else 分支与参照逐字一致（CanvasAreaV3 + data-action-ui-id=v3-canvas-view），此前注释里「参照渲染状态提示」的判断是读截断看错了。"
+  "aside": "已核对 workspace-canvas-area.jsx 的 else 分支与参照逐字一致（CanvasAreaV3 + data-action-ui-id=v3-canvas-view），此前注释里「参照渲染状态提示」的判断是读截断看错了。",
+  "openQuestion": {
+   "status": "未解",
+   "evidence": [
+    "全 8 个 chunk 里只有 1 处发 editor_subscribe（index-BBp4hclA.js）",
+    "它由 createWorkbenchEditorEvents.connect() 发，调用方是 useWorkbenchEditorEvents",
+    "该 hook 只出现在 native-workbench-host.jsx:138",
+    "native-workbench-host 只在 resourcesOpen 为真时渲染（workspace-canvas-area.jsx:65）",
+    "参照基线 ws-a-v3.state.json 的 localStorage 里**没有** resource-view 键 → resourcesOpen 应为 false",
+    "参照基线 ws-a-v3.dom.json 里 v3-resource-view 出现 0 次、v3-canvas-view 出现 2 次 → 确实渲染的是画布",
+    "但参照基线 ws-a-v3.net.json 里 editor_subscribe 有 4 帧"
+   ],
+   "contradiction": "resourcesOpen=false 与「host 渲染并发起订阅」互斥，但两份基线数据同时成立。",
+   "possibleExplanations": [
+    "录制时 DOM 与 net 不是同一时刻的快照（DOM 抓晚、net 含早期帧）",
+    "ws-a-v3 与 ws-a-v3-resource 共用同一 profile，前者的 net 混入了后者的帧"
+   ],
+   "impact": "只影响验收第 2 条的 WS 维度；该路径不在 40 屏门禁上，也不影响交付的功能。"
+  }
  }
 }
