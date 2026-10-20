@@ -1,0 +1,20 @@
+{
+ "generatedAt": "第235轮",
+ "note": "nwh 闭包用「迭代补入」测试：**2 圈收敛**，与 shell 的发散形成对照。",
+ "rings": [
+  {
+   "round": 1,
+   "items": 48,
+   "unbound": 76,
+   "added": 67
+  },
+  {
+   "round": 2,
+   "items": 115,
+   "unbound": 1,
+   "added": 0
+  }
+ ],
+ "conclusion": "nwh 收敛（48 → 115，未绑定 76 → 1），可还原；差的只是把片段里的 import 与自己的 import 合并。",
+ "blocker": "取回片段本身带 `import ... r as reactExports`，与文件头 import 冲突；整体剥离又会让片段所需的模块导入丢失。需要逐片段分析 import 后合并去重。"
+}
