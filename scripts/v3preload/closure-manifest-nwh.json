@@ -6,24 +6,24 @@
   "useChatSessionAdapter"
  ],
  "total": 48,
- "lines": 1706,
+ "lines": 1683,
  "perRing": [
-  2,
+  3,
   2,
   6,
   5,
   12,
-  11,
+  10,
   7,
   3
  ],
  "byStatus": {
-  "todo": 43,
-  "restored": 5
+  "todo": 42,
+  "restored": 6
  },
  "items": [
   {
-   "i": 13671,
+   "i": 12871,
    "names": [
     "isMediaEditCapabilityId"
    ],
@@ -33,7 +33,7 @@
    "status": "todo"
   },
   {
-   "i": 13911,
+   "i": 13111,
    "names": [
     "getWorkspaceCanvasPersistenceStatus"
    ],
@@ -43,7 +43,7 @@
    "status": "todo"
   },
   {
-   "i": 13918,
+   "i": 13118,
    "names": [
     "discardWorkspacePersistenceSource"
    ],
@@ -53,17 +53,7 @@
    "status": "todo"
   },
   {
-   "i": 16895,
-   "names": [
-    "readCompositionResources"
-   ],
-   "start": 17252856,
-   "end": 17254193,
-   "ring": 5,
-   "status": "restored"
-  },
-  {
-   "i": 17191,
+   "i": 16352,
    "names": [
     "ensurePersistenceOwner"
    ],
@@ -73,7 +63,7 @@
    "status": "restored"
   },
   {
-   "i": 17203,
+   "i": 16364,
    "names": [
     "GENERATION_FRAME_MESSAGE_TYPES"
    ],
@@ -83,7 +73,7 @@
    "status": "todo"
   },
   {
-   "i": 17206,
+   "i": 16367,
    "names": [
     "PROJECT_RESOURCE_FRAME_VERSION"
    ],
@@ -93,7 +83,7 @@
    "status": "todo"
   },
   {
-   "i": 17207,
+   "i": 16368,
    "names": [
     "PROJECT_RESOURCE_FRAME_BOOTSTRAP"
    ],
@@ -103,7 +93,7 @@
    "status": "todo"
   },
   {
-   "i": 17210,
+   "i": 16371,
    "names": [
     "TASK_TOKEN"
    ],
@@ -113,7 +103,7 @@
    "status": "todo"
   },
   {
-   "i": 17211,
+   "i": 16372,
    "names": [
     "MAX_CAPABILITY_OPERATIONS"
    ],
@@ -123,7 +113,7 @@
    "status": "todo"
   },
   {
-   "i": 17212,
+   "i": 16373,
    "names": [
     "isTaskIdentity"
    ],
@@ -133,7 +123,7 @@
    "status": "todo"
   },
   {
-   "i": 17213,
+   "i": 16374,
    "names": [
     "isTaskRequestId"
    ],
@@ -143,7 +133,7 @@
    "status": "todo"
   },
   {
-   "i": 17214,
+   "i": 16375,
    "names": [
     "isBoundedJson"
    ],
@@ -153,7 +143,7 @@
    "status": "todo"
   },
   {
-   "i": 17215,
+   "i": 16376,
    "names": [
     "jsonObject$1"
    ],
@@ -163,7 +153,7 @@
    "status": "todo"
   },
   {
-   "i": 17216,
+   "i": 16377,
    "names": [
     "isTaskSubmitBody"
    ],
@@ -173,7 +163,7 @@
    "status": "todo"
   },
   {
-   "i": 17217,
+   "i": 16378,
    "names": [
     "isTaskResolveBody"
    ],
@@ -183,7 +173,7 @@
    "status": "todo"
   },
   {
-   "i": 17218,
+   "i": 16379,
    "names": [
     "isProjectTaskFrameExecuteRequest"
    ],
@@ -193,7 +183,7 @@
    "status": "todo"
   },
   {
-   "i": 17219,
+   "i": 16380,
    "names": [
     "projectTaskFrameExecuteHttp"
    ],
@@ -203,7 +193,7 @@
    "status": "todo"
   },
   {
-   "i": 17220,
+   "i": 16381,
    "names": [
     "TASK_LIST_KEYS"
    ],
@@ -213,7 +203,7 @@
    "status": "todo"
   },
   {
-   "i": 17221,
+   "i": 16382,
    "names": [
     "isProjectTaskFrameReadRequest"
    ],
@@ -223,7 +213,7 @@
    "status": "todo"
   },
   {
-   "i": 17222,
+   "i": 16383,
    "names": [
     "isProjectResourceFrameRequest"
    ],
@@ -233,7 +223,7 @@
    "status": "todo"
   },
   {
-   "i": 17258,
+   "i": 16419,
    "names": [
     "CANVAS_HOST_MESSAGE_TYPES"
    ],
@@ -243,7 +233,7 @@
    "status": "todo"
   },
   {
-   "i": 17291,
+   "i": 16452,
    "names": [
     "DOCUMENT_FRAME_MESSAGE_TYPES"
    ],
@@ -253,7 +243,7 @@
    "status": "todo"
   },
   {
-   "i": 17363,
+   "i": 16523,
    "names": [
     "MAX_IN_FLIGHT"
    ],
@@ -263,7 +253,7 @@
    "status": "todo"
   },
   {
-   "i": 17366,
+   "i": 16526,
    "names": [
     "serveResourceFrame"
    ],
@@ -273,7 +263,7 @@
    "status": "todo"
   },
   {
-   "i": 17387,
+   "i": 16547,
    "names": [
     "createSidebarOrderBinding"
    ],
@@ -283,7 +273,7 @@
    "status": "restored"
   },
   {
-   "i": 17388,
+   "i": 16548,
    "names": [
     "createTreeHostBindings"
    ],
@@ -293,7 +283,7 @@
    "status": "restored"
   },
   {
-   "i": 17389,
+   "i": 16549,
    "names": [
     "createNativeWorkbenchFiles"
    ],
@@ -303,7 +293,7 @@
    "status": "todo"
   },
   {
-   "i": 17390,
+   "i": 16550,
    "names": [
     "createNativeWorkbenchPreferences"
    ],
@@ -313,17 +303,17 @@
    "status": "restored"
   },
   {
-   "i": 20681,
+   "i": 19759,
    "names": [
     "useChatSessionAdapter"
    ],
    "start": 21252196,
    "end": 21253982,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
-   "i": 20683,
+   "i": 19761,
    "names": [
     "MAX_OWNERS"
    ],
@@ -333,7 +323,7 @@
    "status": "todo"
   },
   {
-   "i": 20684,
+   "i": 19762,
    "names": [
     "NativeWorkbenchPool"
    ],
@@ -343,7 +333,7 @@
    "status": "todo"
   },
   {
-   "i": 20686,
+   "i": 19764,
    "names": [
     "bindFramePersistence"
    ],
@@ -353,7 +343,7 @@
    "status": "todo"
   },
   {
-   "i": 20687,
+   "i": 19765,
    "names": [
     "createNativeMediaGranter"
    ],
@@ -363,7 +353,7 @@
    "status": "todo"
   },
   {
-   "i": 20688,
+   "i": 19766,
    "names": [
     "createScopedFrameRequest"
    ],
@@ -373,7 +363,7 @@
    "status": "todo"
   },
   {
-   "i": 20689,
+   "i": 19767,
    "names": [
     "CAPABILITIES"
    ],
@@ -383,7 +373,7 @@
    "status": "todo"
   },
   {
-   "i": 20690,
+   "i": 19768,
    "names": [
     "nativeWorkbenchBootstrap"
    ],
@@ -393,7 +383,7 @@
    "status": "todo"
   },
   {
-   "i": 20691,
+   "i": 19769,
    "names": [
     "connectNativeWorkbenchHost"
    ],
@@ -403,7 +393,7 @@
    "status": "todo"
   },
   {
-   "i": 20706,
+   "i": 19784,
    "names": [
     "SEND_CONTEXT_LIMIT"
    ],
@@ -413,7 +403,7 @@
    "status": "todo"
   },
   {
-   "i": 20707,
+   "i": 19785,
    "names": [
     "sameEditor"
    ],
@@ -423,7 +413,7 @@
    "status": "todo"
   },
   {
-   "i": 20708,
+   "i": 19786,
    "names": [
     "createTextEditBridge"
    ],
@@ -433,7 +423,7 @@
    "status": "todo"
   },
   {
-   "i": 20709,
+   "i": 19787,
    "names": [
     "CHAT_ACCEPTED_REQUEST_LIMIT"
    ],
@@ -443,7 +433,7 @@
    "status": "todo"
   },
   {
-   "i": 20710,
+   "i": 19788,
    "names": [
     "NativeWorkbenchOwner"
    ],
@@ -453,7 +443,7 @@
    "status": "todo"
   },
   {
-   "i": 20713,
+   "i": 19791,
    "names": [
     "retireWorkbenchIdentity"
    ],
@@ -463,7 +453,7 @@
    "status": "todo"
   },
   {
-   "i": 20714,
+   "i": 19792,
    "names": [
     "pool"
    ],
@@ -473,7 +463,7 @@
    "status": "todo"
   },
   {
-   "i": 20715,
+   "i": 19793,
    "names": [
     "listening"
    ],
@@ -483,7 +473,7 @@
    "status": "todo"
   },
   {
-   "i": 20716,
+   "i": 19794,
    "names": [
     "listen"
    ],
@@ -493,7 +483,7 @@
    "status": "todo"
   },
   {
-   "i": 20717,
+   "i": 19795,
    "names": [
     "getNativeWorkbenchOwner"
    ],
@@ -501,50 +491,390 @@
    "end": 21306207,
    "ring": 0,
    "status": "todo"
+  },
+  {
+   "i": 22238,
+   "names": [
+    "INativeWorkbenchService"
+   ],
+   "start": 2813473,
+   "end": 2813547,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 19760,
+   "names": [
+    "NativeWorkbenchDiscardRequiredError"
+   ],
+   "start": 21253983,
+   "end": 21254123,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 4,
+   "names": [
+    "__vitePreload"
+   ],
+   "start": 940,
+   "end": 3054,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 0,
+   "names": [
+    "__vite__mapDeps"
+   ],
+   "start": 0,
+   "end": 3468,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16117,
+   "names": [
+    "createSidebarOrderController"
+   ],
+   "start": 17302929,
+   "end": 17306049,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16525,
+   "names": [
+    "failure"
+   ],
+   "start": 17770970,
+   "end": 17771105,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 13104,
+   "names": [
+    "lifetimeKey"
+   ],
+   "start": 13847341,
+   "end": 13847522,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16524,
+   "names": [
+    "notify"
+   ],
+   "start": 17770856,
+   "end": 17770969,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 19783,
+   "names": [
+    "owners"
+   ],
+   "start": 21280403,
+   "end": 21280444,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16056,
+   "names": [
+    "readCompositionResources"
+   ],
+   "start": 17252856,
+   "end": 17254193,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16351,
+   "names": [
+    "ready"
+   ],
+   "start": 17658036,
+   "end": 17658046,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16546,
+   "names": [
+    "storage"
+   ],
+   "start": 17829028,
+   "end": 17829181,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 13117,
+   "names": [
+    "synchronizeWorkspacePersistenceReports"
+   ],
+   "start": 13854063,
+   "end": 13854347,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16545,
+   "names": [
+    "workspaces"
+   ],
+   "start": 17828982,
+   "end": 17829027,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 13102,
+   "names": [
+    "LEGACY_PERSISTENCE_LIFETIME"
+   ],
+   "start": 13847241,
+   "end": 13847286,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 2,
+   "names": [
+    "assetsURL"
+   ],
+   "start": 832,
+   "end": 922,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 16114,
+   "names": [
+    "boundedRanks"
+   ],
+   "start": 17301979,
+   "end": 17302331,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16112,
+   "names": [
+    "compareRank$1"
+   ],
+   "start": 17301502,
+   "end": 17301577,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 11484,
+   "names": [
+    "isSidebarOrderParents"
+   ],
+   "start": 12556562,
+   "end": 12556820,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16111,
+   "names": [
+    "migrateLegacyMemberRanks"
+   ],
+   "start": 17300438,
+   "end": 17301501,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16109,
+   "names": [
+    "queues"
+   ],
+   "start": 17300364,
+   "end": 17300409,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16116,
+   "names": [
+    "readState"
+   ],
+   "start": 17302494,
+   "end": 17302928,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16113,
+   "names": [
+    "reconcileParent"
+   ],
+   "start": 17301578,
+   "end": 17301978,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16115,
+   "names": [
+    "sameRanks"
+   ],
+   "start": 17302332,
+   "end": 17302493,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 1,
+   "names": [
+    "scriptRel"
+   ],
+   "start": 564,
+   "end": 831,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 3,
+   "names": [
+    "seen"
+   ],
+   "start": 923,
+   "end": 939,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 13116,
+   "names": [
+    "synchronizeWorkspacePersistenceReportsOnce"
+   ],
+   "start": 13852612,
+   "end": 13854062,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16110,
+   "names": [
+    "MAX_RANK_LENGTH"
+   ],
+   "start": 17300410,
+   "end": 17300437,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 13106,
+   "names": [
+    "WorkspaceCanvasPersistenceUnavailableError"
+   ],
+   "start": 13847780,
+   "end": 13847989,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 13108,
+   "names": [
+    "publishPersistenceStatus"
+   ],
+   "start": 13848203,
+   "end": 13848430,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16384,
+   "names": [
+    "CANVAS_FRAME_DETACHED"
+   ],
+   "start": 17679697,
+   "end": 17679751,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
   }
  ],
  "segments": [
   {
-   "from": 13671,
-   "to": 13671,
+   "from": 12871,
+   "to": 12871,
    "start": 13592190,
    "end": 13592321,
    "count": 1
   },
   {
-   "from": 13911,
-   "to": 13918,
+   "from": 13111,
+   "to": 13118,
    "start": 13850142,
    "end": 13854608,
    "count": 2
   },
   {
-   "from": 16895,
-   "to": 16895,
-   "start": 17252856,
-   "end": 17254193,
-   "count": 1
-  },
-  {
-   "from": 17191,
-   "to": 17291,
+   "from": 16352,
+   "to": 16452,
    "start": 17658047,
    "end": 17715240,
    "count": 19
   },
   {
-   "from": 17363,
-   "to": 17390,
+   "from": 16523,
+   "to": 16550,
    "start": 17770830,
    "end": 17836274,
    "count": 6
   },
   {
-   "from": 20681,
-   "to": 20717,
+   "from": 19759,
+   "to": 19795,
    "start": 21252196,
    "end": 21306207,
    "count": 19
+  },
+  {
+   "from": 22238,
+   "to": 22238,
+   "start": 2813473,
+   "end": 2813547,
+   "count": 1
   }
  ]
 }

@@ -1,33 +1,32 @@
 {
- "generatedAt": "第237轮",
- "note": "nwh 闭包本身收敛（115 个声明），但接不上：它引用 use-window-chrome 共享 chunk 的 291 个导出，我们树里没有。",
- "closureRings": [
-  {
-   "round": 1,
-   "items": 48,
-   "unbound": 76
-  },
-  {
-   "round": 2,
-   "items": 115,
-   "unbound": 1,
-   "note": "唯一的 1 是 reactExports 重复声明，不是真缺口"
-  }
- ],
- "importResolution": {
-  "totalFromChrome": 300,
-  "resolvedToTree": 9,
-  "unresolved": 291,
-  "samples": [
-   "createGroupNodeId",
-   "useTranslation",
-   "cn$1",
-   "Button$1",
-   "cva",
-   "I18nContext",
-   "getI18n"
-  ]
+ "generatedAt": "第268轮",
+ "closure": {
+  "declarations": 78,
+  "lines": 2097,
+  "rings": [
+   3,
+   2,
+   6,
+   5,
+   12,
+   10,
+   7,
+   3
+  ],
+  "convergent": true
  },
- "conclusion": "nwh 与导出引擎同性质：闭包内部收敛，但依赖共享 chunk use-window-chrome（28.4% 覆盖），实际不可还原。",
- "correction": "第 235 轮判断「nwh 可还原」过乐观；第 236 轮取回 11 个 DI 令牌只解决了 9 个 import，余 291 个仍需整个共享 chunk。"
+ "module": "app/renderer/src/workspace/native-workbench-closure.js",
+ "staticStatus": "0 未绑定 / 0 缺失导出 / 构建通过",
+ "wiring": "已尝试接线，**回滚**",
+ "reason": [
+  "接线后 ws-a-v3-resource 变白屏（diagnoseStall 报 ALIVE、bodyText 空、hasFallback=false）",
+  "更严重：home 页像素差从 0 变成 1,344,602（整页崩）",
+  "回滚接线后 home 立刻恢复 (0/0)"
+ ],
+ "conclusion": "nwh 闭包在**静态**层面完整且收敛，但**运行期**接不上。",
+ "nextStep": [
+  "该闭包里有 3 处原本是 `await import('./use-window-chrome-...')` 懒加载 instantiationService/disposables，",
+  "我改成了从 main-services.js 静态导入 —— 这会让整个 nwh 在模块加载期就初始化 instantiationService，",
+  "而 home 页也走同一条链，于是被拖崩。应改回**懒加载**（保留 await import 语义，指向 main-services）。"
+ ]
 }

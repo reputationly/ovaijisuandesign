@@ -275,10 +275,9 @@ const DISABLED_PAGES = [
   {
     id: "ws-a-v3-resource",
     reason:
-      "第 240 轮修好 labels 缺失后，这一屏**已能正常渲染**（0 新增报错）：" +
-      "4.814% / 4.225% 的差异来自我们的 workbench 渲染「能力不可用」的错误 UI，" +
-      "参照渲染的是真实工作台。这是已知的能力差距，不是渲染 bug。" +
-      "等 getNativeWorkbenchOwner / INativeWorkbenchService 还原后再放进门禁。",
+      "第 268 轮把 getNativeWorkbenchOwner / INativeWorkbenchService 换成真实实现后，" +
+      "该屏变成**白屏**（diagnoseStall 报 ALIVE、bodyText 为空、hasFallback=false）。" +
+      "代码侧完整（0 未绑定 / 0 缺失导出 / 构建通过），是运行期问题，需单独排查。",
   },
 ];
 // 要看的页面：路由 + 进页面后额外做的动作（可选）
