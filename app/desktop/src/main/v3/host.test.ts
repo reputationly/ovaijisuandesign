@@ -49,7 +49,7 @@ describe("v3BundleDirectory", () => {
 describe("nativeWorkbenchOptions", () => {
   it("preload 指向 v3 专用 preload", () => {
     appPath.value = "/opt/app";
-    expect(nativeWorkbenchOptions().preload).toBe(path.join("/opt/app", "out/preload/v3-workbench.cjs"));
+    expect(nativeWorkbenchOptions().preload).toBe(path.join("/opt/app", "out/preload/v3-workbench.mjs"));
   });
 
   it("读入全部产物并带上 Content-Type", () => {

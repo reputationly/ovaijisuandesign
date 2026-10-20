@@ -47,6 +47,11 @@ export default defineConfig({
         input: {
           index: resolve(__dirname, "src/preload/index.ts"),
           gate: resolve(__dirname, "src/preload/gate.ts"),
+          // 第 276 轮：v3 原生工作台的 preload 一直**没进构建输入**，
+          // 所以 out/preload/v3-workbench.* 从来没产出过，
+          // 渲染层拿不到 window.__HILO_V3_NATIVE_HOST__，
+          // getNativeWorkbenchOwner 直接抛 "Native workbench preload unavailable"。
+          "v3-workbench": resolve(__dirname, "src/preload/v3-workbench/index.ts"),
         },
         output: { format: "es", entryFileNames: "[name].mjs" },
       },

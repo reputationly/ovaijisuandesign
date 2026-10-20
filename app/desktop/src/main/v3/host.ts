@@ -57,7 +57,7 @@ export function v3BundleDirectory(): string {
 
 export function nativeWorkbenchOptions(): V3WorkbenchOptions {
   return {
-    preload: path.join(app.getAppPath(), "out/preload/v3-workbench.cjs"),
+    preload: path.join(app.getAppPath(), "out/preload/v3-workbench.mjs"),
     loadBundle(): Map<string, V3BundleEntry> {
       const directory = v3BundleDirectory();
       validateV3Bundle(directory, { required: true });
