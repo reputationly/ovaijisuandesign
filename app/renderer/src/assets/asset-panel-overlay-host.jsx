@@ -38,6 +38,258 @@ import {
   useAssetLineage,
 } from "../settings/use-asset-lineage.js";
 import { VideoPlayer } from "../media-editing/video-player-inner.jsx";
+
+
+const MIN_SCALE = 0.5;
+function wheelZoomScale(scale, event) {
+  const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 800 : 1;
+  const delta = Math.max(-120, Math.min(120, event.deltaY * unit));
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * Math.exp(-delta * 18e-4)));
+}
+
+import { Minus as Minus$1, Plus as Plus$3, X as X$8 } from "lucide-react";
+import { Button as Button$3 } from "../infra/dialog-content.jsx";
+import { DialogBackdrop, DialogPopup, DialogRoot } from "../infra/base-ui.js";
+import { DialogTitle as DialogTitle$3 } from "../infra/badge-variants.jsx";
+import { DialogClose as DialogClose$1, DialogPortal as DialogPortal$3 } from "../infra/gateway-http-error.jsx";
+import { Maximize } from "../canvas-v3/main-exports.js";
+
+// ---- 第 201 轮：从产物取回（参考 bundle 417429–417663，232 行）----
+const MAX_SCALE = 10;
+const BUTTON_ZOOM_FACTOR = 1.3;
+
+
+
+function ImageFullscreenPreview(props) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(ImageFullscreenContent, { ...props }, props.previewKey ?? props.src);
+}
+
+function ImageFullscreenContent({ src, name: name2, statusLabel: statusLabel2, onClose }) {
+  const { t: t2 } = useTranslation();
+  const [view2, setView] = reactExports.useState({ scale: 1, x: 0, y: 0 });
+  const [dragging, setDragging] = reactExports.useState(false);
+  const imageRef = reactExports.useRef(null);
+  const [frame2, setFrame2] = reactExports.useState(null);
+  const drag2 = reactExports.useRef(void 0);
+  reactExports.useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
+    };
+    window.addEventListener("keydown", handleEscape, true);
+    return () => window.removeEventListener("keydown", handleEscape, true);
+  }, [onClose]);
+  reactExports.useEffect(() => {
+    if (!frame2) return;
+    const handleWheel = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!src) return;
+      const rect = frame2.getBoundingClientRect();
+      const x2 = event.clientX - rect.left - rect.width / 2;
+      const y4 = event.clientY - rect.top - rect.height / 2;
+      setView((current2) => {
+        const scale2 = wheelZoomScale(current2.scale, event);
+        const ratio = 1 - scale2 / current2.scale;
+        return {
+          scale: scale2,
+          x: scale2 <= 1 ? 0 : current2.x + (x2 - current2.x) * ratio,
+          y: scale2 <= 1 ? 0 : current2.y + (y4 - current2.y) * ratio
+        };
+      });
+    };
+    frame2.addEventListener("wheel", handleWheel, { passive: false });
+    return () => frame2.removeEventListener("wheel", handleWheel);
+  }, [frame2, src]);
+  function handleZoomIn() {
+    setView((current2) => ({
+      ...current2,
+      scale: Math.min(MAX_SCALE, current2.scale * BUTTON_ZOOM_FACTOR)
+    }));
+  }
+  function handleZoomOut() {
+    setView((current2) => {
+      const scale2 = Math.max(1, current2.scale / BUTTON_ZOOM_FACTOR);
+      return scale2 <= 1 ? { scale: 1, x: 0, y: 0 } : { ...current2, scale: scale2 };
+    });
+  }
+  function handleReset() {
+    setView({ scale: 1, x: 0, y: 0 });
+  }
+  function handleDoubleClick2() {
+    const image2 = imageRef.current;
+    if (!image2?.naturalWidth || !image2.width) return;
+    setView((current2) => ({
+      scale: current2.scale === 1 ? image2.naturalWidth / image2.width : 1,
+      x: 0,
+      y: 0
+    }));
+  }
+  function handlePointerDown(event) {
+    if (!src || event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    drag2.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      imageX: view2.x,
+      imageY: view2.y
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDragging(true);
+  }
+  function handlePointerMove(event) {
+    const start2 = drag2.current;
+    if (!start2 || start2.pointerId !== event.pointerId) return;
+    setView((current2) => ({
+      ...current2,
+      x: start2.imageX + event.clientX - start2.x,
+      y: start2.imageY + event.clientY - start2.y
+    }));
+  }
+  function handlePointerUp(event) {
+    if (drag2.current?.pointerId !== event.pointerId) return;
+    drag2.current = void 0;
+    if (event.currentTarget.hasPointerCapture(event.pointerId))
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    setDragging(false);
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(DialogRoot, { open: true, onOpenChange: (open) => !open && onClose(), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogPortal$3, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      DialogBackdrop,
+      {
+        forceRender: true,
+        className: "fixed inset-0 z-[60] bg-background/85 backdrop-blur-sm",
+        "data-action-ui-id": "resource-image-fullscreen-backdrop"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      DialogPopup,
+      {
+        className: "no-drag fixed inset-0 z-[60] flex items-center justify-center overflow-hidden text-foreground outline-none",
+        "data-action-ui-id": "resource-image-fullscreen",
+        onClick: (event) => {
+          if (event.target === event.currentTarget) onClose();
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle$3, { className: "sr-only", children: name2 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            DialogClose$1,
+            {
+              render: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button$3,
+                {
+                  variant: "ghost",
+                  size: "icon-lg",
+                  className: "absolute right-8 top-8 z-20 rounded-full bg-background/70",
+                  "aria-label": t2("common.close"),
+                  "data-action-ui-id": "resource-image-fullscreen-close"
+                }
+              ),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X$8, { size: 16, absoluteStrokeWidth: true, strokeWidth: 1.25, className: "size-4" })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pointer-events-none relative flex max-h-full max-w-full flex-col items-center gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pointer-events-auto relative z-10 flex items-center gap-1 rounded-full bg-background/70 px-2 py-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button$3,
+                {
+                  variant: "ghost",
+                  size: "icon-sm",
+                  className: "rounded-full",
+                  "aria-label": t2("canvas.zoomOut"),
+                  "data-action-ui-id": "resource-image-fullscreen-zoom-out",
+                  disabled: !src,
+                  onClick: handleZoomOut,
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Minus$1, { size: 16, absoluteStrokeWidth: true, strokeWidth: 1.25, className: "size-4" })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                Button$3,
+                {
+                  variant: "ghost",
+                  className: "min-w-12 rounded-full px-1 tabular-nums active:translate-y-0",
+                  "aria-label": t2("canvas.fitToView"),
+                  "data-action-ui-id": "resource-image-fullscreen-zoom-reset",
+                  disabled: !src,
+                  onClick: handleReset,
+                  children: [
+                    Math.round(view2.scale * 100),
+                    "%"
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button$3,
+                {
+                  variant: "ghost",
+                  size: "icon-sm",
+                  className: "rounded-full",
+                  "aria-label": t2("canvas.zoomIn"),
+                  "data-action-ui-id": "resource-image-fullscreen-zoom-in",
+                  disabled: !src,
+                  onClick: handleZoomIn,
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus$3, { size: 16, absoluteStrokeWidth: true, strokeWidth: 1.25, className: "size-4" })
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                ref: setFrame2,
+                className: `pointer-events-auto relative touch-none ${!src ? "cursor-default" : dragging ? "cursor-grabbing" : "cursor-grab"}`,
+                "data-action-ui-id": "resource-image-fullscreen-frame",
+                onDoubleClick: handleDoubleClick2,
+                onPointerDown: handlePointerDown,
+                onPointerMove: handlePointerMove,
+                onPointerUp: handlePointerUp,
+                onPointerCancel: handlePointerUp,
+                children: src ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "img",
+                  {
+                    ref: imageRef,
+                    src,
+                    alt: name2,
+                    draggable: false,
+                    className: "block max-h-[calc(80vh-5.5rem)] max-w-[80vw] select-none rounded-lg object-contain shadow-lg",
+                    style: { transform: `translate(${view2.x}px, ${view2.y}px) scale(${view2.scale})` }
+                  }
+                ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { role: "status", className: "p-8 text-sm text-muted-foreground", children: statusLabel2 ?? t2("common.loading") })
+              }
+            )
+          ] })
+        ]
+      }
+    )
+  ] }) });
+}
+
+function ImageFullscreenButton({
+  src,
+  name: name2
+}) {
+  const { t: t2 } = useTranslation();
+  const [open, setOpen] = reactExports.useState(false);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Button$3,
+      {
+        variant: "ghost",
+        size: "icon",
+        className: "absolute right-2 top-2 z-20 rounded-lg bg-background/70",
+        "aria-label": t2("canvas.fullscreenPreview"),
+        title: t2("canvas.fullscreenPreview"),
+        "data-action-ui-id": "resource-image-expand",
+        onClick: () => setOpen(true),
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Maximize, { size: 16, absoluteStrokeWidth: true, strokeWidth: 1.25, className: "size-4" })
+      }
+    ),
+    open && /* @__PURE__ */ jsxRuntimeExports.jsx(ImageFullscreenPreview, { src, name: name2, onClose: () => setOpen(false) })
+  ] });
+}
 function formatModifiedAt(value) {
   if (value == null || value === "") return "";
   let date;
@@ -258,7 +510,7 @@ function AssetRow({
           +{depthHint - 1}
         </span>
       )}
-      <RoleChip role={role} />
+      <RoleChip role={role2} />
     </button>
   );
 }
@@ -290,7 +542,7 @@ function AttachmentRow({ node, role : role2}) {
         {node.parent_attachment_entity_type && (
           <EntityTypeChip type={node.parent_attachment_entity_type} />
         )}
-        <RoleChip role={role} />
+        <RoleChip role={role2} />
       </div>
     );
   }
@@ -301,7 +553,7 @@ function AttachmentRow({ node, role : role2}) {
     >
       <AlertTriangle size={11} className="shrink-0" />
       <span className="truncate">{translate("lineage.brokenAttachment")}</span>
-      <RoleChip role={role} />
+      <RoleChip role={role2} />
     </div>
   );
 }
