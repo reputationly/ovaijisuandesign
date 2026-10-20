@@ -6,7 +6,6 @@
  *
  * 参考产物：index-BBp4hclA.js，合计 821 行。
  */
-const createTaskModule = () => ({});
 const createWorkbenchEvents = () => ({ dispose() {} });
 // 第 181 轮：换回真实现（参考 428288）
 function createWorkbenchPersistence() {
@@ -101,7 +100,6 @@ function getOrCreateWorkspaceEntries(workspaceId) {
 }
 const id$7 = () => crypto.randomUUID();
 const integer$4 = (v) => (Number.isInteger(v) ? v : 0);
-const isHostGenerationSubject = () => false;
 const isSafeName = (v) => typeof v === "string" && /^[\w .-]+$/.test(v);
 const lifetimeKey = (v) => String(v ?? "");
 const mapProjectTaskEvent = (v) => v;
@@ -110,15 +108,9 @@ const parseCanvasV3ImageVersionTarget = (v) => v;
 // ---- 第 178 轮：把剩余未绑定名就地补全，使本模块可以被静态 import ----
 // 这些都是设施层的下层依赖，尚未逐个还原；标注清楚以免被当成真实现。
 const CANVAS_V3_IMAGE_MAX_BYTES = 32 * 1024 * 1024;
-const CANVAS_V3_LIMITS = new Proxy({}, { get: (_t, k) => (k === "maxBytes" ? CANVAS_V3_IMAGE_MAX_BYTES : 4096) });
 const HOST_PREFERENCE_KEYS = ["hilo.videoMuted"];
-class ProjectQueryError extends Error {}
 const UUID$1 = () => crypto.randomUUID();
 const aborted = (signal) => signal?.aborted === true;
-const createChatSessionState = () => ({});
-const createProjectQueryModule = () => ({});
-const createResourceCommands = () => ({});
-const createResourceDetailModule = () => ({});
 // 第 180 轮：换回真实现（参考 415647）
 function createSidebarOrderController(persistence, assertLive = () => {
 }) {
@@ -427,6 +419,11 @@ import { getElectronPlatform } from "../infra/use-canvas-node-assets-store.js";
 import { StructureValidationError, assertStructureId, immutableSnapshot } from "../chat/display-order.jsx";
 import { isDomain } from "../canvas-v3/query-keys.js";
 import { refreshMediaMuted } from "../canvas-v3/media-mute.js";
+import { createTaskModule, isHostGenerationSubject, createChatSessionState, createProjectQueryModule, createResourceCommands, createResourceDetailModule, ProjectQueryError, WorkbenchCapabilityUnavailableError, boundedRanks, compareRank$1, fingerprint$1, isKnownRejection, isSidebarOrderParents, migrateLegacyMemberRanks, notifyStructureObserver, queues, readState, reconcileParent, sameRanks } from "./workspace-facilities-closure.js";
+import { parseCompositionReceipt } from "../canvas-v3/canvas-v3-model.js";
+import { SidebarOrderError, isSidebarOrderGroups, isSidebarOrderMove, isSidebarOrderState, sidebarOrderParentKey } from "../canvas-v3/frame-services.js";
+import { generateKeyBetween } from "fractional-indexing";
+import { CANVAS_V3_LIMITS } from "../canvas-v3/canvas-v3-constants.js";
 import {
   PROJECT_QUERY_HTTP_ROUTES, createFrameChatComposer, createProjectCompositionClient,
   createProjectResourceClient, createProjectTaskClient,

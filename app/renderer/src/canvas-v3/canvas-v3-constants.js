@@ -227,10 +227,14 @@ const DEFAULT_SHOW_LABELS = true;
 const VIDEO_TOOLBAR_DEFAULT_PINNED = DEFAULT_PINNED;
 
 const VIDEO_TOOLBAR_DEFAULT_SHOW_LABELS = DEFAULT_SHOW_LABELS;
-// 这三个常量属于本文件（第 145 轮补回）
-export const CANVAS_V3_IMAGE_MAX_BYTES = 0;
-export const CANVAS_V3_TEXT_GENERATION_ROUTES = {};
-export const CLIP_STUDIO_CAPABILITY_ID = "clip-studio";
+// 第 213 轮：改为参照真值（此前是 0 / {} / 缺前缀，属于占位值，会让功能静默失效）
+// 参照：index-BBp4hclA.js 319453 / 319670 / 300272
+export const CANVAS_V3_IMAGE_MAX_BYTES = 32 * 1024 * 1024;
+export const CANVAS_V3_TEXT_GENERATION_ROUTES = {
+  models: "/api/v3/canvas/text/models",
+  generate: "/api/v3/canvas/text/generate",
+};
+export const CLIP_STUDIO_CAPABILITY_ID = "plugin:clip-studio";
 
 export {
   CANVAS_STICKER_NODE_SIZE,
@@ -344,3 +348,17 @@ var ProjectResourceReadErrorCode = /* @__PURE__ */ ((ProjectResourceReadErrorCod
 })(ProjectResourceReadErrorCode || {});
 
 export { CANVAS_V3_ROUTES, ProjectResourceKind, ProjectResourceLifecycle, ProjectResourceSource, ProjectResourceVersionStatus, ProjectResourceReadErrorCode };
+// 第 213 轮：参照真值（bundle 317977）。此前是 Proxy 桩，任何键都返回 4096，
+// 会把越界校验变成永远通过。
+export const CANVAS_V3_LIMITS = {
+  nodes: 1e4,
+  edges: 2e4,
+  changes: 3e4,
+  idLength: 256,
+  titleLength: 4096,
+  promptLength: 2e4,
+  draftReferences: 64,
+  batchCommands: 64,
+  importItems: 100,
+  contentBatch: 200,
+};

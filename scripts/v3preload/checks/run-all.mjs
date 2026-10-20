@@ -17,6 +17,14 @@ const root = path.resolve(here, "../../..");
 const esbuild = path.join(root, "node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/bin/esbuild");
 
 const checks = readdirSync(here).filter((f) => f.endsWith(".mjs") && f !== "run-all.mjs" && !f.startsWith("build-and-run"));
+// L0：占位扫描必须先过（第 213 轮）。占位一旦进入可达代码，四项指标照样全绿。
+try {
+  execFileSync(process.execPath, [path.join(here, "../check-placeholders.mjs")], { stdio: "inherit" });
+} catch {
+  console.log("✗ 占位扫描未通过");
+  process.exit(1);
+}
+
 let failed = 0;
 
 for (const file of checks.sort()) {
