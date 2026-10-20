@@ -50,7 +50,7 @@ export function createMainWindow(a: WindowArgs): BrowserWindow {
       ? { titleBarStyle: "hidden" as const, titleBarOverlay: { color: "#00000000", symbolColor: "#333333" } }
       : {}),
     webPreferences: {
-      preload: join(import.meta.dirname, "../preload/index.mjs"),
+      preload: join(import.meta.dirname, "../preload/index.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,

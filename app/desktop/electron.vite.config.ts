@@ -53,7 +53,17 @@ export default defineConfig({
           // getNativeWorkbenchOwner 直接抛 "Native workbench preload unavailable"。
           "v3-workbench": resolve(__dirname, "src/preload/v3-workbench/index.ts"),
         },
-        output: { format: "es", entryFileNames: "[name].mjs" },
+        // 视图（WebContentsView）是 sandbox:true，preload **不支持 ESM**
+        // （实测：SyntaxError: Cannot use import statement outside a module）。
+        // 所以 v3-workbench 单独输出 .cjs，其余仍是 .mjs。
+        output: {
+          // Electron 的 preload 走 sandbox 时必须能按脚本加载，ESM 会报
+          // "Cannot use import statement outside a module"。全部输出 CJS 最稳。
+          format: "cjs",
+          entryFileNames: "[name].cjs",
+          manualChunks: undefined,
+          chunkFileNames: "[name].cjs",
+        },
       },
     },
   },

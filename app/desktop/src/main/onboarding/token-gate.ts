@@ -14,7 +14,7 @@ import { saveToken, usedModelRows } from "./token-core.js";
 
 export interface TokenGateOptions {
   configPath: string;
-  /** gate preload 的产物路径（`out/preload/gate.mjs`）。 */
+  /** gate preload 的产物路径（`out/preload/gate.cjs`）。 */
   preloadPath: string;
   log: (line: string) => void;
 }

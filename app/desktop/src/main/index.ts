@@ -273,7 +273,7 @@ async function boot(): Promise<Running | undefined> {
     log("[main] 没有平台令牌，先显示令牌页");
     const saved = await requireTokenGate({
       configPath: dirs.configPath,
-      preloadPath: path.join(import.meta.dirname, "../preload/gate.mjs"),
+      preloadPath: path.join(import.meta.dirname, "../preload/gate.cjs"),
       log,
     });
     if (!saved) {
