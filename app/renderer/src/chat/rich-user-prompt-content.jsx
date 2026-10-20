@@ -28,6 +28,7 @@ import { useChatPresentation } from "./use-copy.jsx";
 import { splitMentionFilename } from "../infra/dialog-content.jsx";
 import { Layers } from "../media-editing/lucide-icon-wraps.js";
 import { AssetSegment } from "./asset-segment.jsx";
+import { CompositionMentionTag } from "../workspace/unavailable-workbench.js";
 
 // ---- 第 209 轮：从产物取回（参考 7496 / 7500）----
 const COMPOSITION_MENTION_TOKEN = /^@composition:([\w-]+)(?:\[("(?:[^"\\]|\\.)*")\])?/u;
