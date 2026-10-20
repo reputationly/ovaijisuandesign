@@ -1,0 +1,32 @@
+{
+ "generatedAt": "第260轮",
+ "screen": "ws-a-v3（v3 画布）",
+ "method": "对比门禁录的 *.net.json（已排除 NET_VOLATILE=/api/v1/home/showcase-assets/）",
+ "ours": {
+  "get": 32,
+  "wsSent": 10
+ },
+ "reference": {
+  "get": 35,
+  "wsSent": 14
+ },
+ "missingCalls": [
+  "/api/runtime/models",
+  "/api/v1/popup",
+  "/api/v3/capabilities"
+ ],
+ "countMismatch": {
+  "/api/v1/models/config": {
+   "ours": 3,
+   "reference": 1
+  }
+ },
+ "conclusion": [
+  "v3 屏的网络请求与参照**不一致**：少 3 类调用、多调 2 次 models/config、WS 少 4 帧。",
+  "这 3 个端点在树里都有实现（loadCanvasV3Models 调 /api/v3/capabilities；",
+  "workspace-gateway 调 /api/runtime/models；use-popup 调 /api/v1/popup），",
+  "所以在该屏上**没有被触发**，属触发时机差异，不是能力缺失。",
+  "但按用户的验收第 2 条（v3 关键操作网络请求与参照一致），当前**不达标**。"
+ ],
+ "note": "门禁已经把 showcase-assets 列进 NET_VOLATILE，所以 41/41 是真差异的计数。"
+}
