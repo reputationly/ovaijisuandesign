@@ -4,7 +4,7 @@ import reactExports from "react";
 import jsxRuntimeExports from "react/jsx-runtime";
 import { chatLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { hostAttachmentRef } from "./chat-session-adapter.js";
-import { DRAFT_NEW_TAB } from "./chat-drafts.js";
+import { DRAFT_NEW_TAB } from "../workspace/resolve-retry-message-payload.jsx";
 
 export function attachmentIdentity(attachment) {
   return JSON.stringify([

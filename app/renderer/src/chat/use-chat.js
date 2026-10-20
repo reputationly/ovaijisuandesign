@@ -1,5 +1,6 @@
 // use-chat.js
 import reactExports from "react";
+import { useHostComposerText } from "../workspace/host-composer-text.js";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
@@ -374,6 +375,27 @@ export function useChat(
   const [pendingEditorDoc, setPendingEditorDoc] = reactExports.useState(null);
   const [pendingAttachments, setPendingAttachments] =
     reactExports.useState(null);
+
+  // 第 285 轮：host composer 草稿 API。参照在 useChat 内部调 useHostComposerText，
+  // 把 getHostComposerDraft / setHostComposerDraft / setHostComposerText /
+  // clearSubmittedComposerDraft 挂到返回值上；我们这四个方法一个都没定义，
+  // 而 chat-session-adapter.js 里有 4 处调用，导致 WorkspaceChatProvider 渲染时抛
+  // "chat.getHostComposerDraft is not a function"。
+  // 参照：`getDraftText = () => currentInputTextRef.current`，就在 hostComposer 之前
+  const getDraftText = reactExports.useCallback(
+    () => currentInputTextRef.current,
+    [],
+  );
+  const hostComposer = useHostComposerText({
+    sessionStore,
+    drafts: draftController,
+    input: currentInputTextRef,
+    editorDoc: currentInputEditorDocRef,
+    attachments: currentAttachmentsRef,
+    setInput,
+    setPendingEditorDoc,
+    setPendingAttachments,
+  });
   const getTextEditSessionIds = reactExports.useCallback(
     () => textEditSessionIdsRef.current,
     [],
@@ -4553,6 +4575,9 @@ ${errorInfo.details}`
     [remoteTool.hasPendingRemoteToolForSession, sessionStore],
   );
   return {
+    // host composer 草稿 API（第 285 轮）
+    getDraftText,
+    ...hostComposer,
     connected,
     messages,
     // Processing includes pre-runtime stages. A preceding turn's idle frame
