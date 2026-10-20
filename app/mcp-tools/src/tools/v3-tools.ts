@@ -169,6 +169,80 @@ const voiceSearchSchema = z.object({
   })).min(1).max(20),
 });
 
+
+// ---- 执行 / 交付 / 检索 / 连接器（第 259 轮）----
+
+const executeSchema = z.object({
+  capabilityId: z.string().min(1).max(512),
+  prompt: z.string().max(64000).optional(),
+  arguments: z.record(z.string(), z.unknown()).optional(),
+  idempotencyKey: z.string().min(1).max(512).optional(),
+});
+
+const deliverSchema = z.object({
+  requestId: z.string().min(1).max(512),
+  sources: z.array(z.object({
+    resourceId: z.string().max(512).optional(),
+    versionId: z.string().max(512).optional(),
+    path: z.string().max(4096).optional(),
+  })).min(1).max(50),
+  placement: z.record(z.string(), z.unknown()).optional(),
+});
+
+const imageSearchSchema = z.object({
+  queries: z.array(z.object({
+    query: z.string().min(1).max(512),
+    count: z.number().int().min(1).max(20).optional(),
+  })).min(1).max(5),
+});
+
+const connectorCallSchema = z.object({
+  capabilityId: z.string().min(1).max(300),
+  arguments: z.record(z.string(), z.unknown()).optional(),
+});
+
+/** 尚未实现的 v3 工具：名字对齐、调用时明确失败（与 workspace/unavailable-workbench.js 同一原则） */
+const NOT_IMPLEMENTED = "NOT_IMPLEMENTED";
+function notImplemented(tool: string, because: string) {
+  const error = new Error(`${NOT_IMPLEMENTED}: ${tool} 尚未实现（${because}）`);
+  (error as { code?: string }).code = NOT_IMPLEMENTED;
+  return errorReply(error.message);
+}
+
+
+// ---- v3 的通用工具（第 259 轮，原本由 v2 模块提供，v3 面需自带）----
+
+const readSchema = z.object({
+  versionId: z.string().min(1).max(512).optional(),
+  file_path: z.string().min(1).max(4096).optional(),
+  offset: z.number().int().min(0).optional(),
+  limit: z.number().int().min(1).max(5000).optional(),
+  contentRevision: z.number().int().min(1).optional(),
+});
+
+const analyseMediaSchema = z.object({
+  references: z.array(z.object({
+    resourceId: z.string().max(512).optional(),
+    versionId: z.string().max(512).optional(),
+    question: z.string().max(2000).optional(),
+  })).min(1).max(20),
+  mode: z.enum(["metadata", "describe"]).optional(),
+});
+
+const searchKnowledgeSchema = z.object({
+  query: z.string().max(512).optional(),
+  topic: z.string().max(128).optional(),
+  category: z.string().max(64).optional(),
+});
+
+const reportOutcomeSchema = z.object({
+  outcomes: z.array(z.object({
+    phase: z.enum(["triage", "plan", "execute", "deliver"]),
+    status: z.string().max(32),
+    summary: z.string().max(4000).optional(),
+  })).min(1).max(20),
+});
+
 export const registerV3Tools: RegisterTools = (registrar, gw) => {
   registrar.registerTool(
     "task_query",
@@ -423,6 +497,114 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
         return structuredReply((await gw.get(`/api/v3/voices?${params}`, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
       } catch (error) {
         return errorReply(`voice_search 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+  registrar.registerTool(
+    "execute",
+    { description: "Execute a media capability or native editor operation after reading capability_get.", inputSchema: executeSchema.shape },
+    async (args: z.infer<typeof executeSchema>) => {
+      try {
+        // 把 capabilityId 的 operation 映射到已有的 submit 端点
+        const operation = args.capabilityId.includes("video") ? "video"
+          : args.capabilityId.includes("speech") ? "speech"
+          : args.capabilityId.includes("music") ? "music"
+          : "image";
+        const path = operation === "image" ? "/api/generate/image/submit"
+          : operation === "video" ? "/api/generate/video/submit"
+          : "/api/generate/speech/submit";
+        const body = {
+          capabilityId: args.capabilityId,
+          ...(args.prompt ? { prompt: args.prompt } : {}),
+          ...(args.arguments ?? {}),
+          ...(args.idempotencyKey ? { idempotencyKey: args.idempotencyKey } : {}),
+        };
+        const task = await gw.post(path, body, 600_000, z.unknown());
+        return structuredReply({ task });
+      } catch (error) {
+        return errorReply(`execute 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "deliver",
+    { description: "Synchronously deliver existing versions, archived task artifacts or workspace files.", inputSchema: deliverSchema.shape },
+    async (args: z.infer<typeof deliverSchema>) => {
+      try {
+        const result = await gw.post("/api/project/resources/deliver", args, 300_000, LOOSE);
+        return structuredReply(result as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`deliver 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "image_search",
+    { description: "Search the open web and download new images into the project.", inputSchema: imageSearchSchema.shape },
+    async () => notImplemented("image_search", "需要联网检索与下载，本项目自托管模式未接搜索供应商"),
+  );
+
+  registrar.registerTool(
+    "connector_call",
+    { description: "Run one tool of a connected external connector.", inputSchema: connectorCallSchema.shape },
+    async () => notImplemented("connector_call", "本网关未实现 /api/connectors 子系统"),
+  );
+  registrar.registerTool(
+    "read",
+    { description: "Read text as numbered lines with pagination. Pass exactly one of versionId or file_path.", inputSchema: readSchema.shape },
+    async (args: z.infer<typeof readSchema>) => {
+      try {
+        const params = new URLSearchParams();
+        if (args.versionId) params.set("versionId", args.versionId);
+        if (args.file_path) params.set("path", args.file_path);
+        if (args.offset !== undefined) params.set("offset", String(args.offset));
+        if (args.limit !== undefined) params.set("limit", String(args.limit));
+        if (args.contentRevision !== undefined) params.set("contentRevision", String(args.contentRevision));
+        return structuredReply((await gw.get(`/api/project/resources/read?${params}`, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`read 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "analyse_media",
+    { description: "Inspect image, video or audio Resources.", inputSchema: analyseMediaSchema.shape },
+    async (args: z.infer<typeof analyseMediaSchema>) => {
+      try {
+        return structuredReply((await gw.post("/api/project/resources/analyse", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`analyse_media 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "search_knowledge",
+    { description: "Search model guidance and historical production references.", inputSchema: searchKnowledgeSchema.shape },
+    async (args: z.infer<typeof searchKnowledgeSchema>) => {
+      try {
+        const params = new URLSearchParams();
+        if (args.query) params.set("query", args.query);
+        if (args.topic) params.set("topic", args.topic);
+        if (args.category) params.set("category", args.category);
+        return structuredReply((await gw.get(`/api/v3/knowledge?${params}`, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`search_knowledge 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "report_outcome",
+    { description: "Emit structured outcome records for one or more pipeline phase results.", inputSchema: reportOutcomeSchema.shape },
+    async (args: z.infer<typeof reportOutcomeSchema>) => {
+      try {
+        return structuredReply((await gw.post("/api/v3/outcomes", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`report_outcome 失败：${errorMessage(error)}`);
       }
     },
   );

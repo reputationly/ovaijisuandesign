@@ -49,6 +49,9 @@ export function v3ToolsEnabled(): boolean {
 }
 
 export function registerAllTools(registrar: ToolRegistrar, gateway: GatewayClient, region: ReleaseRegion): void {
-  for (const register of MODULES) register(registrar, gateway, region);
-  if (v3ToolsEnabled()) for (const register of V3_MODULES) register(registrar, gateway, region);
+  // 两套工具面**互斥**：参照在 resource_v3 下用另一个二进制（mcp-tools-v3），
+  // 只有 25 个工具；legacy 下才是 57 个。同时注册会让 agent 看到 55 个，
+  // 与参照的实际工具面对不上。
+  const modules = v3ToolsEnabled() ? V3_MODULES : MODULES;
+  for (const register of modules) register(registrar, gateway, region);
 }
