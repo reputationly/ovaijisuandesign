@@ -100,7 +100,12 @@ try {
     process.exit(1);
   }
   for (const c of cases) {
-    const res = await fetch(`${BASE}${c.path}`, { method: c.method, signal: AbortSignal.timeout(15000) }).catch(() => null);
+    const init = { method: c.method, signal: AbortSignal.timeout(15000) };
+    if (c.requestBody !== undefined) {
+      init.headers = { "content-type": "application/json" };
+      init.body = JSON.stringify(c.requestBody);
+    }
+    const res = await fetch(`${BASE}${c.path}`, init).catch(() => null);
     const status = res?.status ?? 0;
     const body = res ? await res.json().catch(() => null) : null;
     if (status !== c.status) problems.push(`${c.name}: 状态码 期望 ${c.status}，实际 ${status}`);

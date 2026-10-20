@@ -65,6 +65,53 @@
      ]
     }
    }
+  },
+  {
+   "name": "resolve-no-body",
+   "method": "POST",
+   "path": "/api/v3/tasks/abc/resolve",
+   "requestBody": {},
+   "status": 400,
+   "body": {
+    "error": {
+     "code": "INVALID_ARGUMENT",
+     "message": "Invalid control requestId",
+     "retryable": false
+    }
+   }
+  },
+  {
+   "name": "resolve-no-rev",
+   "method": "POST",
+   "path": "/api/v3/tasks/abc/resolve",
+   "requestBody": {
+    "requestId": "ctrl-1"
+   },
+   "status": 400,
+   "body": {
+    "error": {
+     "code": "INVALID_ARGUMENT",
+     "message": "Invalid expectedRevision",
+     "retryable": false
+    }
+   }
+  },
+  {
+   "name": "resolve-unknown",
+   "method": "POST",
+   "path": "/api/v3/tasks/abc/resolve",
+   "requestBody": {
+    "requestId": "ctrl-1",
+    "expectedRevision": 1
+   },
+   "status": 404,
+   "body": {
+    "error": {
+     "code": "NOT_FOUND",
+     "message": "GenerationTask is not readable",
+     "retryable": false
+    }
+   }
   }
  ]
 }

@@ -269,8 +269,17 @@ export class ProjectTaskController {
   resolve(@Param("id") id: string, @Body() body: unknown) {
     return this.respond(async () => {
       const raw = body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : {};
-      if (raw.action !== "stop") throw new ProjectQueryError("INVALID_ARGUMENT", "Only stop can be resolved locally");
-      if (typeof raw.expectedRevision !== "number") throw new ProjectQueryError("INVALID_ARGUMENT", "expectedRevision is required");
+      // 第 244 轮：对齐参照的控制契约（实测 POST /api/v3/tasks/abc/resolve）：
+      //   {}                            -> 400 INVALID_ARGUMENT "Invalid control requestId"
+      //   {requestId}                   -> 400 INVALID_ARGUMENT "Invalid expectedRevision"
+      //   {requestId,expectedRevision}  -> 404 NOT_FOUND "GenerationTask is not readable"
+      // requestId 先校验、expectedRevision 次之，action 可选（参照不看它）。
+      if (typeof raw.requestId !== "string" || !raw.requestId) {
+        throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid control requestId");
+      }
+      if (typeof raw.expectedRevision !== "number") {
+        throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid expectedRevision");
+      }
       const task = this.tasks.stop(id, raw.expectedRevision);
       const { GenerationRunner } = await import("./generation-runner.service.js");
       await this.modules.get(GenerationRunner, { strict: false }).cancel(id);
