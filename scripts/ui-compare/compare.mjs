@@ -1007,7 +1007,19 @@ async function diagnoseStall(c, label) {
       bodyText: (document.body?.innerText ?? "").slice(0, 400),
       hasFallback: !!document.querySelector("[data-page-state-fallback]"),
     })`);
-    console.log(`[diag] ALIVE ${label}: ${String(r).slice(0, 1200)}`);
+    // 第 284 轮：错误边界把诊断写进 localStorage，单独读一次（塞进上面那个对象字面量会炸）
+    let boundary = "";
+    try {
+      const raw = await evalValue(c, `localStorage.getItem("hilo:last-error-boundary")`);
+      if (raw) {
+        const d = JSON.parse(raw);
+        boundary =
+          `\n[diag] 错误边界 message=${String(d.message ?? "").slice(0, 300)}` +
+          `\n[diag] componentStack=${String(d.componentStack ?? "").split("\n").slice(0, 6).join(" | ").slice(0, 700)}` +
+          `\n[diag] stack=${String(d.stack ?? "").split("\n").slice(0, 5).join(" | ").slice(0, 700)}`;
+      }
+    } catch (e) { boundary = `\n[diag] 读错误边界失败 ${String(e).slice(0, 100)}`; }
+    console.log(`[diag] ALIVE ${label}: ${String(r).slice(0, 1200)}${boundary}`);
   } catch (e) {
     console.log(`[diag] ALIVE ${label}: 读取失败 ${String(e).slice(0, 120)}`);
   }

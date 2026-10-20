@@ -1,0 +1,84 @@
+{
+ "generatedFor": "4.0.0",
+ "seeds": [
+  "useHostComposerText"
+ ],
+ "total": 5,
+ "lines": 149,
+ "perRing": [
+  1,
+  3,
+  1
+ ],
+ "byStatus": {
+  "todo": 5
+ },
+ "items": [
+  {
+   "i": 15930,
+   "names": [
+    "attachmentIdentity"
+   ],
+   "start": 17002916,
+   "end": 17003096,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 15931,
+   "names": [
+    "sameHostComposerDraft"
+   ],
+   "start": 17003097,
+   "end": 17003375,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 15932,
+   "names": [
+    "mergeHostComposerAttachments"
+   ],
+   "start": 17003376,
+   "end": 17003959,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 15933,
+   "names": [
+    "consumeHostComposerDraft"
+   ],
+   "start": 17003960,
+   "end": 17004326,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 15979,
+   "names": [
+    "useHostComposerText"
+   ],
+   "start": 17040126,
+   "end": 17043864,
+   "ring": 0,
+   "status": "todo"
+  }
+ ],
+ "segments": [
+  {
+   "from": 15930,
+   "to": 15933,
+   "start": 17002916,
+   "end": 17004326,
+   "count": 4
+  },
+  {
+   "from": 15979,
+   "to": 15979,
+   "start": 17040126,
+   "end": 17043864,
+   "count": 1
+  }
+ ]
+}

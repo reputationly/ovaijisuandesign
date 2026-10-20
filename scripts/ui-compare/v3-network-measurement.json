@@ -343,6 +343,23 @@
    ],
    "falsePath": "第 280/281 轮那两次「主 preload 加桥会崩」的结论作废，原因是探针的 OV_CONFIG_PATH 指向了不存在的文件，",
    "          ": "应用走的是令牌门分支，和桥无关。"
+  },
+  "round284_rootCause": {
+   "error": "TypeError: chat.getHostComposerDraft is not a function",
+   "where": "WorkspaceChatProvider → WorkspaceStructureProvider → WSConnectionProviderCore",
+   "howFound": "让 diagnoseStall 额外读 localStorage['hilo:last-error-boundary']（错误边界本来就把诊断写在那）",
+   "why": [
+    "参照里 chat 上的 host composer API 由 useHostComposerText 提供：",
+    "  getHostComposerDraft / setHostComposerDraft / setHostComposerText / clearSubmittedComposerDraft",
+    "我们树里**这四个方法一个都没有定义**，只有 chat-session-adapter.js 里 4 处调用。",
+    "useHostComposerText 整个 hook 缺失。"
+   ],
+   "restored": "workspace/host-composer-text.js —— 离线闭包 5 个声明 / 149 行（1→3→1 收敛），0 未绑定",
+   "notYetWired": [
+    "useHostComposerText 需要 { sessionStore, drafts, input, ... }，其中 drafts/input 在消息输入框组件里，",
+    "provider 只有 sessionStore。所以还要把输入框的 draft/store 提到 provider 层，或改成从 context 取。"
+   ],
+   "toolImprovement": "diagnoseStall 现在会打印错误边界的 message / componentStack / stack —— 这是本轮能定位的前提。"
   }
  }
 }
