@@ -60,6 +60,7 @@ import { HiloApp } from "./workspace/hilo-app.js";
 import { NativeWorkbenchService } from "./v3/native-workbench-service.js";
 import { NativeWorkbenchMedia } from "./v3/native-workbench-media.js";
 import { nativeWorkbenchOptions } from "./v3/host.js";
+import { RendererPersistenceService } from "./persistence/renderer-persistence-service.js";
 import { workbenchMediaDeps, workbenchServiceDeps } from "./v3/workbench-deps.js";
 import { identityHeaders } from "./workspace/identity.js";
 
@@ -359,6 +360,16 @@ async function boot(): Promise<Running | undefined> {
   hilo.startIdleSweep();
 
   registerChannel("hilo", hilo);
+  // 第 289 轮：最小化定位。先只注册一个空壳，确认「通道注册本身」是否有问题。
+  const rendererPersistence = new RendererPersistenceService({
+    getHomeWindow: () => mainWindow(),
+  });
+  registerChannel("rendererPersistence", {
+    onSynchronize: rendererPersistence.onSynchronize,
+    register: rendererPersistence.register.bind(rendererPersistence),
+    unregister: rendererPersistence.unregister.bind(rendererPersistence),
+    acknowledge: rendererPersistence.acknowledge.bind(rendererPersistence),
+  });
   // 第 278 轮：v3 原生工作台的 IPC 通道一直没注册。
   // NativeWorkbenchService 从第 188 轮起就构造出来了，但只在测试里被调用；
   // 渲染层的 mount() 走 INativeWorkbenchService → 这个通道，

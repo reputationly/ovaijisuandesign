@@ -367,3 +367,62 @@ contextBridge.exposeInMainWorld("__HILO_PLATFORM__", platform);
 contextBridge.exposeInMainWorld("__HILO_UPDATER_BOOTSTRAP__", argJson("updater-bootstrap"));
 contextBridge.exposeInMainWorld("hilo", hilo);
 contextBridge.exposeInMainWorld("__HILO_AUTH__", auth);
+
+// 第 289 轮：v3 原生工作台的端口桥
+const NATIVE_WORKBENCH_HOST_PORT = "hilo:v3-workbench:host-port";
+
+const bridge = {
+  subscribe(ownerId: string, listener: (documentId: string, port: any) => void) {
+    const close = new Set<() => void>();
+    const receive = (event: IpcRendererEvent, raw: unknown) => {
+      if (!raw || typeof raw !== "object" || !("ownerId" in raw) || raw.ownerId !== ownerId) return;
+      if (!("documentId" in raw) || typeof raw.documentId !== "string" || event.ports.length !== 1) {
+        for (const port of event.ports) port.close();
+        return;
+      }
+      const port = event.ports[0]!;
+      let claimed = false;
+      let active = true;
+      let stop = () => {
+        active = false;
+        port.close();
+      };
+      close.add(() => stop());
+      listener(raw.documentId, {
+        version: 2,
+        async connect(onMessage: (message: unknown) => void) {
+          if (claimed || !active) throw new Error("Native workbench port retired or claimed");
+          claimed = true;
+          const receiveMessage = (message: MessageEvent) => {
+            if (active) onMessage(message.data);
+          };
+          port.addEventListener("message", receiveMessage);
+          stop = () => {
+            if (!active) return;
+            active = false;
+            port.removeEventListener("message", receiveMessage);
+            port.close();
+          };
+          return {
+            bootstrap: undefined,
+            postMessage: (message: unknown) => {
+              if (active) port.postMessage(message);
+            },
+            start: () => {
+              if (active) port.start();
+            },
+            close: stop,
+          };
+        },
+      });
+    };
+    ipcRenderer.on(NATIVE_WORKBENCH_HOST_PORT, receive);
+    return () => {
+      ipcRenderer.removeListener(NATIVE_WORKBENCH_HOST_PORT, receive);
+      for (const stop of close) stop();
+    };
+  },
+};
+
+
+contextBridge.exposeInMainWorld("__HILO_V3_NATIVE_HOST__", bridge);

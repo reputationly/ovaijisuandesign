@@ -23,5 +23,10 @@ export function ensureNativeWorkbenchServiceRegistered(INativeWorkbenchService) 
   if (registered) return registered;
   registered = ProxyChannel.toService(client.getChannel("nativeWorkbench"));
   services.set(INativeWorkbenchService, registered);
+  // 第 289 轮：ensurePersistenceOwner 需要它
+  services.set(
+    IRendererPersistenceMainService,
+    ProxyChannel.toService(client.getChannel("rendererPersistence")),
+  );
   return registered;
 }

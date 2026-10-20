@@ -113,7 +113,8 @@ export class RendererPersistenceService extends Disposable {
     this.owners.clear();
     super.dispose();
   }
-};
-RendererPersistenceService = __decorateClass$2([
-  __decorateParam$2(0, IWindowService)
-], RendererPersistenceService);
+}
+
+// 参照尾部原本是 __decorateClass([__decorateParam(0, IWindowService)], ...)，
+// 那两个助手没随类取回。这里由 index.ts 手动注入 windows（传 { getHomeWindow }），
+// 所以不需要装饰器。
