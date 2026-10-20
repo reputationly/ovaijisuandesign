@@ -86,6 +86,12 @@ const bodyHash = (file, name) => {
   return createHash("sha256").update(stripped.replace(/\s+/g, "")).digest("hex").slice(0, 12);
 };
 const sameEntity = [], sameNameDiffBody = [];
+// 第 273 轮：整份镜像的第三方 chunk 之间会有真正的同体重复。
+// 参照发行包本身就是**每个懒加载 chunk 各自内联一份 three.js**
+// （editor-interface / panorama-viewer 各带一份），这是打包产物的形态，不是我们抄两份。
+// 只在这两个镜像文件之间出现的重复，按「镜像保真」处理，不算违规。
+const MIRROR_FILES = /export-engine\/(editor-interface|panorama-viewer)\.js$/;
+const bothMirrored = (files) => files.length === 2 && files.every((f) => MIRROR_FILES.test(f));
 // 第 214 轮：一行小常量（`const MIN_SCALE = 0.5;`）在两个文件里相同是巧合，不是重复。
 // 「同一实体」要求函数体有实质内容：去空白后 ≥ 120 字符，或跨 ≥ 3 行。
 const MIN_ENTITY_CHARS = 120;
@@ -102,6 +108,7 @@ for (const [n, s] of crossDup) {
   if (hashes.size !== 1) { sameNameDiffBody.push(n); continue; }
   // 同一实体：再看体量，太小的是巧合
   const trivial = files2.every((f) => bodySize(f, n) < MIN_ENTITY_CHARS);
+  if (!trivial && bothMirrored(files2)) { sameNameDiffBody.push(n); continue; }
   (trivial ? sameNameDiffBody : sameEntity).push(n);
 }
 

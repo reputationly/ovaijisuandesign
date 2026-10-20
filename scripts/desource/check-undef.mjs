@@ -345,6 +345,9 @@ for (const file of files) {
       // context 上挂 `result`，库自己也是这么读的（`context.result ? context.result : ...`）。
       // 参照 bundle 里同样写法，不是缺陷。
       if (key === "result" && member.object.name === "context") return;
+      // three.js 的 GLTF 动画路径表：`PATH_PROPERTIES.position` 只用于值比较，
+      // 表里没有这个键 → 运行时 undefined，参照 bundle 里同样写法。
+      if (key === "position" && member.object.name === "PATH_PROPERTIES") return;
       const position = member.property.loc.start;
       findings.push(
         `${path.relative(repo, file)}:${position.line}:${position.column + 1} [missing object property] ${member.object.name}.${key}`,

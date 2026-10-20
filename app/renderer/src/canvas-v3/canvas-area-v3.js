@@ -56997,7 +56997,9 @@ function CanvasV3DesktopDirectorStageEditor(props) {
   reactExports.useEffect(() => {
     let alive = true;
     setError(null);
-    void __vitePreload(() => Promise.resolve().then(() => ({ i: undefined })).then((n) => n.i), true ? __vite__mapDeps([6,1,2,3,4,7]) : void 0, import.meta.url).then(
+    // 第 273 轮：这里也是 stub（）—— 全景/3D 查看器从没被加载过。
+    // 参照是 ，镜像后取 n.index。
+    void import("../export-engine/panorama-viewer.js").then((n) => n.index ?? n).then(
       (loaded) => {
         if (alive) setModule(loaded);
       },
