@@ -134,7 +134,20 @@
      "我们只还原了编辑订阅与导航上下文，运行期不完整，所以挂上去就抛错。"
     ],
     "files": "workspace/result-navigation-provider.js（11 个声明 / 943 行，0 未绑定、构建通过，但未接线）",
-    "nextStepToClose": "补 director/clip agent 传输层后即可接线，届时 2 帧/工作区会自动补齐。"
+    "nextStepToClose": "补 director/clip agent 传输层后即可接线，届时 2 帧/工作区会自动补齐。",
+    "blockedOn": {
+     "what": "主进程的 project-resource IPC",
+     "chain": [
+      "Provider 的 effect 里调用 createDirectorAgent / createClipAgent 并 start()",
+      "两者都用 createDirectorTransport(workbench.host.resource.request)",
+      "而 host.resource.request = nwh 的 createScopedFrameRequest → authority.request(...) → **主进程 IPC**",
+      "主进程那侧的资源 IPC 我们没有还原，request 拿不到有效 target",
+      "→ run2 里 target.resourceId/versionId 为空 → 抛 TaskResultNavigationError('stale')"
+     ],
+     "note": "参考里同样的代码不会抛，因为它的主进程 IPC 是完整的。所以这不是我们写错了 Provider，",
+     "     ": "而是被主进程 IPC 缺失挡住了 —— 与那三处注入 seam 同类。",
+     "therefore": "接线需先补主进程 project-resource IPC；在此之前该 Provider 只能保持未接线。"
+    }
    }
   },
   "perWorkspace": {
