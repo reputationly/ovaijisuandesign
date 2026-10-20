@@ -53,5 +53,39 @@
   "conclusion": "分支代码本身无害；风险在于**激活它**（渲染层拿不到架构标志，硬编码激活会改变 mention 查询结果并拖垮聊天就绪判定）",
   "action": "已回滚（不留死代码）",
   "blocker": "渲染层判断 resource_v3 需要读 workspace-project-architecture 的 react-query 缓存，而任何在 useMentionModels 内部新增的 hook/queryKey 变化都会让 ws-a-v3 的waitForWorkspaceChatReady 超时。这是本轮未解的难题。"
+ },
+ "httpHalf": {
+  "status": "已修",
+  "detail": "路径集合 23 vs 23 完全一致（白名单排除 popup 与 showcase-assets）"
+ },
+ "wsHalf": {
+  "status": "已定位，属已知能力缺口",
+  "breakdown": {
+   "editor_subscribe": {
+    "ours": 0,
+    "reference": 4
+   },
+   "list_sessions": {
+    "ours": 2,
+    "reference": 2
+   },
+   "task_subscribe": {
+    "ours": 6,
+    "reference": 6
+   },
+   "task_unsubscribe": {
+    "ours": 2,
+    "reference": 2
+   }
+  },
+  "rootCause": [
+   "全树只有一处发 editor_subscribe：workspace/workbench-events.js 的 createWorkbenchEditorEvents.connect()",
+   "它由 useWorkbenchEditorEvents 调用，而该 hook 只出现在 native-workbench-host.jsx:138",
+   "native-workbench-host 只在 resourcesOpen 为真时渲染（workspace-canvas-area.jsx:65）",
+   "也就是说这 4 帧来自 NativeWorkbenchHost —— 那个被我们标为「能力不可用」的组件",
+   "两边 WS 连接数都是 2，所以不是连接数差异；是 host 是否渲染的差异"
+  ],
+  "conclusion": "WS 少的 4 帧是已知能力缺口的**后果**，不是独立缺陷。等 getNativeWorkbenchOwner 还原后才会有。",
+  "aside": "已核对 workspace-canvas-area.jsx 的 else 分支与参照逐字一致（CanvasAreaV3 + data-action-ui-id=v3-canvas-view），此前注释里「参照渲染状态提示」的判断是读截断看错了。"
  }
 }
