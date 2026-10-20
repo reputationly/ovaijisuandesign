@@ -270,6 +270,26 @@
    "需要看主进程 mount 的实际失败原因：可能是 v3 bundle 没有 stage 到 src/renderer/public/v3，",
    "或者 WebContentsView 的 session/preload 配置有问题。"
   ],
-  "gateImpact": "0 —— v3 屏不在 40 屏门禁内；40 屏仍是 19 屏 0.000% / 最大 0.142% / 平均 0.0201%。"
+  "gateImpact": "0 —— v3 屏不在 40 屏门禁内；40 屏仍是 19 屏 0.000% / 最大 0.142% / 平均 0.0201%。",
+  "round280": {
+   "done": [
+    "v3 产物装配：新增 scripts/stage-v3-bundle.mjs，把 .probe 里的 22MB v3 产物 拷到 app/desktop/src/renderer/public/v3（gitignore，不进仓库）。 校验：用 tsx 直接跑 validateV3Bundle(..., {required:true}) → 通过（345 个文件、version 1、protocolVersion 1）。"
+   ],
+   "failed": [
+    "把 __HILO_V3_NATIVE_HOST__ 端口桥加到**主窗口** preload（src/preload/index.ts）后，",
+    "整页进入错误边界：「出现异常 / 应用遇到了一个未预期的错误」。已回滚。"
+   ],
+   "whyTheBridgeWasTried": [
+    "渲染层在 getNativeWorkbenchOwner 里读 window.__HILO_V3_NATIVE_HOST__，",
+    "那是主窗口的上下文；而第 93 轮我只把它放进了 v3 视图自己的 preload",
+    "（out/preload/v3-workbench.mjs），主窗口读不到 → 抛「Native workbench preload unavailable」。"
+   ],
+   "nextProbe": [
+    "桥加进主 preload 后整页崩，说明它在主窗口上下文里有副作用（最可能是：",
+    "桥体在模块顶层引用了只有 v3 视图 session 才有的东西，或 ipcRenderer.on 的监听器",
+    "在主窗口上收到了非预期消息）。需要用最小版本逐步加回，定位是哪一段导致崩溃。"
+   ],
+   "currentState": "ws-a-v3-resource 7.771%（projectV3.loadFailed 分支，中文文案已正确）、home (0/0)、审计三项 0"
+  }
  }
 }

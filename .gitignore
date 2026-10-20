@@ -72,3 +72,6 @@ dist-desktop/
 .claude/
 .opencode-v2/
 artifacts/
+
+# 第 280 轮：v3 产物从冻结参照装配，不进仓库
+app/desktop/src/renderer/public/v3/
