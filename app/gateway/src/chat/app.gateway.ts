@@ -6,6 +6,11 @@ import { WebSocketGateway } from "@nestjs/websockets";
 import type { WebSocket } from "ws";
 
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
+import { ProjectQueryError } from "../project-kernel/errors.js";
+import {
+  type TaskSubscriptionMessage,
+  TaskSubscriptionsService,
+} from "../generate/task-subscriptions.service.js";
 import { verifyWebSocketIdentity, WORKSPACE_IDENTITY_WS_CLOSE_CODE } from "../common/workspace-identity.js";
 import { type ChatFrame, ChatService } from "./chat.service.js";
 
@@ -24,6 +29,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly bus: GatewayEventBus,
     private readonly chat: ChatService,
+    private readonly taskSubscriptions: TaskSubscriptionsService,
   ) {}
 
   handleConnection(client: WebSocket, req?: IncomingMessage): void {
@@ -58,6 +64,26 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.send(JSON.stringify({ type: "pong" }));
         return;
       }
+      // 第 246 轮：任务订阅（参照 /ws 的 task_subscribe / task_unsubscribe）。
+      if (msg.type === "task_subscribe" || msg.type === "task_unsubscribe") {
+        try {
+          const reply = this.taskSubscriptions.handle(client, msg as TaskSubscriptionMessage);
+          client.send(JSON.stringify(reply));
+        } catch (error) {
+          const queryError = error instanceof ProjectQueryError ? error : null;
+          client.send(
+            JSON.stringify({
+              type: "error",
+              error: {
+                code: queryError?.code ?? "GATEWAY_INTERNAL",
+                message: queryError?.message ?? "Task subscriptions are unavailable",
+                retryable: !queryError,
+              },
+            }),
+          );
+        }
+        return;
+      }
       const reply = (f: ChatFrame) => {
         if (client.readyState === client.OPEN) client.send(JSON.stringify(f));
       };
@@ -68,6 +94,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: WebSocket): void {
+    this.taskSubscriptions.dropClient(client);
     this.subs.get(client)?.();
     this.subs.delete(client);
   }

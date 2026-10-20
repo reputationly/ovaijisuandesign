@@ -1,5 +1,7 @@
 import { Global, Module } from "@nestjs/common";
 
+import { LocalSubjectService } from "../common/local-subject.service.js";
+import { TaskSubscriptionsService } from "../generate/task-subscriptions.service.js";
 import { HealthModule } from "../health/health.module.js";
 import { AppGateway } from "./app.gateway.js";
 import { ChatAttachmentController } from "./chat-attachment.controller.js";
@@ -13,7 +15,16 @@ import { SessionMetricsService } from "./session-metrics.service.js";
 @Module({
   imports: [HealthModule],
   controllers: [InternalSessionsController, InternalToolSchemaController, ChatAttachmentController, ChatModelTraceController],
-  providers: [AppGateway, ChatService, ConfirmService, SessionMetricsService, ChatModelTraceService],
-  exports: [ChatService, ConfirmService],
+  providers: [
+    AppGateway,
+    ChatService,
+    ConfirmService,
+    SessionMetricsService,
+    ChatModelTraceService,
+    // 第 246 轮：/ws 的任务订阅
+    LocalSubjectService,
+    TaskSubscriptionsService,
+  ],
+  exports: [ChatService, ConfirmService, TaskSubscriptionsService],
 })
 export class ChatModule {}
