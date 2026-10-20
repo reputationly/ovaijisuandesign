@@ -103,7 +103,33 @@
     "录制时 DOM 与 net 不是同一时刻的快照（DOM 抓晚、net 含早期帧）",
     "ws-a-v3 与 ws-a-v3-resource 共用同一 profile，前者的 net 混入了后者的帧"
    ],
-   "impact": "只影响验收第 2 条的 WS 维度；该路径不在 40 屏门禁上，也不影响交付的功能。"
+   "impact": "只影响验收第 2 条的 WS 维度；该路径不在 40 屏门禁上，也不影响交付的功能。",
+   "whyNotResolved": [
+    "参照的 editor_subscribe 只有 1 个发送者（createWorkbenchEditorEvents.connect），代码与我们逐字一致",
+    "我方 3 个 task_subscribe 分别来自 canvas-area-v3 / workspace-facilities-closure / workspace-structure-events，",
+    "  都不在 workbench-events.js —— 说明 NativeWorkbenchHost 在我方**从未渲染**",
+    "参照若也只有这一个发送者，那它的 host 必须渲染过；但它的 DOM 最终状态是画布且没有 editor_unsubscribe",
+    "  → net 与 DOM 覆盖的时间窗口不同（net 覆盖整段，DOM 是末态）",
+    "我方 app 与参照 app 都无法插桩，只能靠现有 bundle + 录制推断，证据到此为止"
+   ]
+  },
+  "perWorkspace": {
+   "note": "每屏的 net 快照都包含**两个工作区**的帧（每个工作区一条 WS），所以按工作区拆更有意义。",
+   "reference": {
+    "list_sessions": 1,
+    "task_subscribe": 3,
+    "task_unsubscribe": 1,
+    "editor_subscribe": 2,
+    "total": 7
+   },
+   "ours": {
+    "list_sessions": 1,
+    "task_subscribe": 3,
+    "task_unsubscribe": 1,
+    "editor_subscribe": 0,
+    "total": 5
+   },
+   "diff": "每工作区少 2 帧 editor_subscribe"
   }
  }
 }
