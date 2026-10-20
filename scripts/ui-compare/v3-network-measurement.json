@@ -360,6 +360,34 @@
     "provider 只有 sessionStore。所以还要把输入框的 draft/store 提到 provider 层，或改成从 context 取。"
    ],
    "toolImprovement": "diagnoseStall 现在会打印错误边界的 message / componentStack / stack —— 这是本轮能定位的前提。"
+  },
+  "round286_finalBlocker": {
+   "chain": [
+    "真桥装上（typecheck 0 / 构建 0 / 无错误边界）",
+    "owner 被创建，但 ownerPhase 直接变 failed",
+    "在主进程 mount() 入口加 console.error 后实测：**mount 从未被调用**"
+   ],
+   "therefore": [
+    "卡点在 mount 之前：NativeWorkbenchOwner 的 try 块里",
+    "  await this.options.prepare();   // = ensurePersistenceOwner",
+    "  this.timer = setTimeout(this.fail, 1e4);",
+    "  await api.mount(...)",
+    "prepare() 抛错 → catch → this.fail() → ownerPhase = failed → 页面走 projectV3.loadFailed，",
+    "而 mount() 一次都没执行 —— 所以主进程那条链（WebContentsView / 端口 / bundle）根本没跑到。"
+   ],
+   "rootCause": [
+    "ensurePersistenceOwner 要 a2.get(IRendererPersistenceMainService)，",
+    "而这个 decorator 虽然定义在 workspace/main-services.js:30，",
+    "但**全树 0 处 services.set(IRendererPersistenceMainService, …)**；",
+    "主进程侧也没有 registerChannel(\"rendererPersistence\", …)。",
+    "参照的做法：services.set(IRendererPersistenceMainService,",
+    "  ProxyChannel.toService(client.getChannel(\"rendererPersistence\")))。"
+   ],
+   "nextStep": [
+    "1. 主进程补 registerChannel(\"rendererPersistence\", <持久化服务>)",
+    "2. 渲染层补 services.set(IRendererPersistenceMainService, ProxyChannel.toService(...))",
+    "两步齐了 mount 才会被调用，之后才轮到验证 WebContentsView 与 v3 产物。"
+   ]
   }
  }
 }
