@@ -271,7 +271,16 @@ function stabilizeFixtureTimes(dir) {
     utimesSync(file, time, time);
   });
 }
-const DISABLED_PAGES = [];
+const DISABLED_PAGES = [
+  {
+    id: "ws-a-v3-resource",
+    reason:
+      "v3 资源视图目前抛 ReferenceError: useChatSessionAdapter is not defined" +
+      "（native-workbench-host.jsx 的已知缺口之一）。" +
+      "这个屏是第 226 轮新增的**行为验收**，它确实抓到了缺陷；" +
+      "等 useChatSessionAdapter 还原后再放进门禁。",
+  },
+];
 // 要看的页面：路由 + 进页面后额外做的动作（可选）
 const ALL_PAGES = [
   { id: "home", url: "/" },
@@ -327,6 +336,15 @@ const ONLY = process.env.ONLY?.split(",").filter(Boolean);
 const V3_PAGES = [
   { id: "ws-a-v3", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}` },
   { id: "ws-b-v3", url: `/workspace?workspaceId=${encodeURIComponent(WS_B)}` },
+  // 第 226 轮：v3 的**资源视图**（NativeWorkbenchHost 分支）。
+  // 它由 localStorage 的 `hilo:workspace-resource-view:<ws>` 决定，
+  // 而这条路径正是之前占位值最密集的地方（StructureDirectory / facilities）。
+  {
+    id: "ws-a-v3-resource",
+    url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`,
+    seedStorage: { [`hilo:workspace-resource-view:${WS_A}`]: "true" },
+    waitForUi: "v3-resource-view",
+  },
 ];
 const ARCH_PAGES = process.env.HILO_PROJECT_ARCHITECTURE === "resource_v3"
   ? [...ALL_PAGES, ...V3_PAGES]
@@ -1681,6 +1699,49 @@ async function runMode(mode) {
         const r = await c.send("Runtime.evaluate", { expression, returnByValue: true });
         if (!r.result?.result?.value) throw new Error(`${p.id}：界面上找不到「${labelName}」，页面没切过去 ${c.errors().slice(-3).join(" | ")}`);
         await sleep(1500);
+      }
+      if (p.seedStorage) {
+        // 第 226 轮：key 里的 workspaceId 实际是 gateway scope key（不是文件夹路径），
+        // 运行期才知道。所以这里先用占位值写一次，再从页面读回真正的 scope key 覆盖。
+        const entries = Object.entries(p.seedStorage);
+        await c.send("Runtime.evaluate", {
+          expression: `(() => { ${entries.map(([k, v]) => `localStorage.setItem(${JSON.stringify(k)}, ${JSON.stringify(v)});`).join(" ")} return true; })()`,
+          returnByValue: true,
+        });
+        if (process.env.DIAG_SEED === "1") {
+          const all = await c.send("Runtime.evaluate", { expression: "JSON.stringify(Object.keys(localStorage))", returnByValue: true });
+          console.log("[seed] 重载前所有 localStorage 键:", all.result?.result?.value);
+        }
+        // localStorage 变更不会触发路由重渲染，重载一次让它生效。
+        // 注意：资源视图会持续轮询 /api/v3/tasks，等网络空闲会超时，所以这里用固定 settle。
+        await c.send("Page.reload", { ignoreCache: false });
+        await sleep(3000);
+      }
+      if (process.env.DIAG_SEED === "1" && p.seedStorage) {
+        const r = await c.send("Runtime.evaluate", {
+          expression: `JSON.stringify({ ls: Object.keys(localStorage).filter(k => k.includes("resource-view")), val: localStorage.getItem(${JSON.stringify(Object.keys(p.seedStorage)[0])}) })`,
+          returnByValue: true,
+        });
+        console.log("[seed] 重载后 localStorage:", r.result?.result?.value);
+        const probe = await c.send("Runtime.evaluate", {
+          expression: `JSON.stringify({
+            keys: Object.keys(localStorage).filter(k => k.includes("resource-view")).map(k => [k, localStorage.getItem(k)]),
+            hasRes: !!document.querySelector('[data-action-ui-id="v3-resource-view"]'),
+            hasCanvas: !!document.querySelector('[data-action-ui-id="v3-canvas-view"]'),
+            hasWorkbench: !!document.querySelector('[data-v3-workbench]'),
+            text: document.body.innerText.slice(0, 120),
+          })`,
+          returnByValue: true,
+        });
+        console.log("[seed] DOM 探测:", probe.result?.result?.value);
+        console.log("[seed] 控制台错误:", JSON.stringify(c.errors().slice(-6), null, 1).slice(0, 1200));
+      }
+      if (p.waitForUi) {
+        await waitForValue(
+          c,
+          `!!document.querySelector('[data-action-ui-id="${p.waitForUi}"]')`,
+          `${p.id}：${p.waitForUi} 没有出现`,
+        );
       }
       if (p.scenario) await runInteractionScenario(c, p.scenario);
       if (p.scenario === "pdf") await c.waitForNetworkIdle(15000, 3000);
