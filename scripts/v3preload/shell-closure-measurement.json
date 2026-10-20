@@ -1,0 +1,47 @@
+{
+ "generatedAt": "第230轮",
+ "note": "逐一迭代把未绑定名字补回清单时，shell 闭包不收敛：每圈新增都大于解决数。",
+ "rings": [
+  {
+   "round": 1,
+   "items": 80,
+   "unbound": 142
+  },
+  {
+   "round": 2,
+   "items": 197,
+   "unbound": 251
+  },
+  {
+   "round": 3,
+   "items": 396,
+   "unbound": 434
+  },
+  {
+   "round": 4,
+   "items": 741,
+   "unbound": 610
+  },
+  {
+   "round": 5,
+   "items": 1148,
+   "unbound": 601
+  },
+  {
+   "round": 6,
+   "items": 1499,
+   "unbound": 675
+  },
+  {
+   "round": 7,
+   "items": 1880,
+   "unbound": 708
+  },
+  {
+   "round": 8,
+   "items": 2292,
+   "unbound": 785
+  }
+ ],
+ "conclusion": "shell 闭包与导出引擎同性质：不可控。列为未还原。"
+}
