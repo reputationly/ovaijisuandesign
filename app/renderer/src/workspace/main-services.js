@@ -10,12 +10,16 @@
  */
 
 import reactExports from "react";
-import { services } from "../canvas-v3/desktop-host-services.js";
+// 第 269 轮：`services` 必须是真的 ServiceCollection。
+// 之前误引了 canvas-v3/desktop-host-services.js 的 `services`（那是个 async 函数），
+// 导致 `new InstantiationService(services)` 里 `_services.set` 直接抛
+// `TypeError: this._services.set is not a function`，把 home 整页拖崩。
+// 真的那份在 vendor-inline/vscode-base/graph.jsx:218，已经和 client 一起建好了。
+import { disposables, services } from "../vendor-inline/vscode-base/graph.jsx";
 import { DEFAULT_RUNTIME_CONFIG, RUNTIME_CONFIG_KEY, _cachedConfig } from "../infra/runtime-config.js";
 import { InstantiationService } from "../settings/instantiation-service.js";
 import { createDecorator } from "../settings/parse-custom-mcp-arguments.js";
 import { CurrentWorkspaceContext } from "../infra/shared-runtime.js";
-import { DisposableStore } from "../vendor-inline/vscode-base/linked-list.js";
 
 
 export const INativeWorkbenchService = createDecorator("nativeWorkbenchService");
@@ -40,7 +44,6 @@ export const IHiloApp = createDecorator("hiloApp");
 export const instantiationService = new InstantiationService(services);
 disposables.add(instantiationService);
 
-export const disposables = new DisposableStore();
 
 export function useCurrentWorkspace() {
   return reactExports.useContext(CurrentWorkspaceContext);

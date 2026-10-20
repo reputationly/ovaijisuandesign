@@ -271,15 +271,7 @@ function stabilizeFixtureTimes(dir) {
     utimesSync(file, time, time);
   });
 }
-const DISABLED_PAGES = [
-  {
-    id: "ws-a-v3-resource",
-    reason:
-      "第 268 轮把 getNativeWorkbenchOwner / INativeWorkbenchService 换成真实实现后，" +
-      "该屏变成**白屏**（diagnoseStall 报 ALIVE、bodyText 为空、hasFallback=false）。" +
-      "代码侧完整（0 未绑定 / 0 缺失导出 / 构建通过），是运行期问题，需单独排查。",
-  },
-];
+const DISABLED_PAGES = [];
 // 要看的页面：路由 + 进页面后额外做的动作（可选）
 const ALL_PAGES = [
   { id: "home", url: "/" },

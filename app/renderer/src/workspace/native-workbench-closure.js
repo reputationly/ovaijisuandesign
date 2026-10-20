@@ -45,7 +45,7 @@ export function discardWorkspacePersistenceSource(workspaceId, instanceId, sourc
 
 export function ensurePersistenceOwner() {
   ready ??= (async () => {
-    const { instantiationService: instantiationService2, disposables: disposables2 } = Promise.resolve({ instantiationService, disposables });
+    const { instantiationService: instantiationService2, disposables: disposables2 } = await import("./main-services.js");
     const service2 = instantiationService2.invokeFunction(
       (accessor) => accessor.get(IRendererPersistenceMainService)
     );
@@ -459,7 +459,7 @@ export function createTreeHostBindings(scope) {
   const mediaAction = async (operation2, resourceId2, versionId, options2) => {
     scope.assertLive();
     const identity2 = { ...scope.identity() };
-    const { instantiationService: instantiationService2 } = Promise.resolve({ instantiationService, disposables });
+    const { instantiationService: instantiationService2 } = await import("./main-services.js");
     scope.assertLive();
     options2?.signal?.throwIfAborted();
     const service2 = instantiationService2.invokeFunction(
@@ -494,7 +494,7 @@ export function createTreeHostBindings(scope) {
         );
         scope.assertLive();
         options2?.signal?.throwIfAborted();
-        const { instantiationService: instantiationService2 } = Promise.resolve({ instantiationService, disposables });
+        const { instantiationService: instantiationService2 } = await import("./main-services.js");
         scope.assertLive();
         options2?.signal?.throwIfAborted();
         const service2 = instantiationService2.invokeFunction(
