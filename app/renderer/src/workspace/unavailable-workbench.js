@@ -31,7 +31,6 @@ function unavailable(what, why) {
   return error;
 }
 
-const SHELL_WHY = "闭包发散，shell-closure-measurement.json";
 const NWH_WHY = "依赖 use-window-chrome 共享 chunk（291 个名字无导出），nwh-closure-measurement.json";
 
 /**
@@ -51,13 +50,7 @@ function UnavailableNotice({ what, why }) {
   });
 }
 
-export function WorkspaceCompositionActions({ children }) {
-  return jsxRuntimeExports.jsx(UnavailableNotice, { what: "WorkspaceCompositionActions", why: SHELL_WHY });
-}
 
-export function WorkspaceStructurePresentation({ children }) {
-  return jsxRuntimeExports.jsx(UnavailableNotice, { what: "WorkspaceStructurePresentation", why: SHELL_WHY });
-}
 
 export function getNativeWorkbenchOwner() {
   return Promise.reject(unavailable("getNativeWorkbenchOwner", NWH_WHY));

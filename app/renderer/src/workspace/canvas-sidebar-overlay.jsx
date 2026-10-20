@@ -58,7 +58,7 @@ import jsxRuntimeExports from "react/jsx-runtime";
 import { WorkspaceLoadingDotField } from "./symbols.jsx";
 import { MascotLoadingAnimation } from "./mascot-loading-animation.jsx";
 import { StructureDirectory, StructureList } from "./workspace-resource-closure.js";
-import { WorkspaceCompositionActions, WorkspaceStructurePresentation } from "./unavailable-workbench.js";
+import { WorkspaceCompositionActions, WorkspaceStructurePresentation } from "./workspace-shell-closure.js";
 // 产物里这一组声明在还原时整块丢了（构建不报错，运行时才炸）。来源：index-BBp4hclA.js
 function CanvasLoadingState({ label, className }) {
   const reportPresence = reactExports.useContext(CanvasLoadingPresenceContext);

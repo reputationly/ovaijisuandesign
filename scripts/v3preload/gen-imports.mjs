@@ -42,7 +42,9 @@ for (const n of need) {
     continue;
   }
   const rel = "./" + path.relative(fromDir, f).replace(/\\/g, "/");
-  (by.get(rel) ?? by.set(rel, []).get(rel)).push(n);
+  // 第 267 轮：`$n` 回退时，导出名与本地名不同，必须写成 `Real as Local`
+  const real = owner.has(n) ? n : n.replace(/\$\d+$/, "");
+  (by.get(rel) ?? by.set(rel, []).get(rel)).push(real === n ? real : `${real} as ${n}`);
 }
 for (const [k, ns] of [...by.entries()].sort()) console.log(`import { ${[...new Set(ns)].sort().join(", ")} } from "${k}";`);
 if (missing.length) { console.error("未找到: " + missing.join(", ")); process.exitCode = 1; }

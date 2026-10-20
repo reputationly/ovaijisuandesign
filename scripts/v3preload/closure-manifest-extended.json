@@ -73,17 +73,44 @@
   "renderDocuments",
   "resourceDetailLabels",
   "FileText$1",
-  "Image$1"
+  "Image$1",
+  "ActionsContext",
+  "AudioPreview",
+  "CanvasV3ResourcePickerDialog",
+  "ImageFullscreenButton",
+  "ImagePreview",
+  "PromoteToAssetDialog",
+  "ResourceDetailContext",
+  "ResourceDetailDialogContext",
+  "ResourceGenerationHistoryUnavailableError",
+  "VideoPreview",
+  "g",
+  "X",
+  "C2",
+  "h",
+  "In",
+  "m",
+  "z2",
+  "p2",
+  "createCompositionQueryOptions",
+  "emptySubscribe$1",
+  "noUrl",
+  "resolvePageState",
+  "resolveResourceAbsolutePath",
+  "resourceBatches",
+  "zh"
  ],
- "total": 74,
- "lines": 3161,
+ "total": 111,
+ "lines": 5278,
  "perRing": [
-  73,
-  1
+  98,
+  8,
+  8,
+  4
  ],
  "byStatus": {
-  "todo": 71,
-  "restored": 3
+  "restored": 90,
+  "todo": 21
  },
  "items": [
   {
@@ -94,7 +121,7 @@
    "start": 230192,
    "end": 230235,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 273,
@@ -104,7 +131,7 @@
    "start": 230236,
    "end": 230669,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 274,
@@ -114,7 +141,7 @@
    "start": 230670,
    "end": 231195,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 2520,
@@ -124,7 +151,7 @@
    "start": 1962785,
    "end": 1963860,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 2523,
@@ -134,6 +161,36 @@
    "start": 1964716,
    "end": 1968254,
    "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 3772,
+   "names": [
+    "inputRegex$1"
+   ],
+   "start": 3041261,
+   "end": 3041307,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 3773,
+   "names": [
+    "visuallyHiddenStyle"
+   ],
+   "start": 3041308,
+   "end": 3041462,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 3774,
+   "names": [
+    "getCheckboxLabel"
+   ],
+   "start": 3041463,
+   "end": 3041807,
+   "ring": 1,
    "status": "todo"
   },
   {
@@ -144,7 +201,7 @@
    "start": 3096221,
    "end": 3096422,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 5078,
@@ -154,7 +211,7 @@
    "start": 6145722,
    "end": 6149772,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 12885,
@@ -164,7 +221,7 @@
    "start": 13598902,
    "end": 13599176,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 12886,
@@ -174,7 +231,167 @@
    "start": 13599177,
    "end": 13599576,
    "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 12925,
+   "names": [
+    "PickerSidebarFilterButton"
+   ],
+   "start": 13613828,
+   "end": 13614640,
+   "ring": 2,
    "status": "todo"
+  },
+  {
+   "i": 12926,
+   "names": [
+    "subscribeTheme$1"
+   ],
+   "start": 13614641,
+   "end": 13614868,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 12927,
+   "names": [
+    "getDark$1"
+   ],
+   "start": 13614869,
+   "end": 13614945,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 12928,
+   "names": [
+    "getServerDark$1"
+   ],
+   "start": 13614946,
+   "end": 13614982,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 12929,
+   "names": [
+    "PickerEmptyState"
+   ],
+   "start": 13614983,
+   "end": 13616155,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 12935,
+   "names": [
+    "PickerProblemStatusTag"
+   ],
+   "start": 13624063,
+   "end": 13624807,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 12941,
+   "names": [
+    "PROJECT_ASSETS_TAB"
+   ],
+   "start": 13629918,
+   "end": 13629954,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 12942,
+   "names": [
+    "DEFAULT_PICKER_TABS"
+   ],
+   "start": 13629955,
+   "end": 13630004,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 12943,
+   "names": [
+    "DEFAULT_RESOURCE_KINDS"
+   ],
+   "start": 13630005,
+   "end": 13630046,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 12944,
+   "names": [
+    "CanvasV3ResourcePickerDialog"
+   ],
+   "start": 13630047,
+   "end": 13630669,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 12945,
+   "names": [
+    "PickerTagMark"
+   ],
+   "start": 13630670,
+   "end": 13631019,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 12946,
+   "names": [
+    "PickerMediaThumbnail"
+   ],
+   "start": 13631020,
+   "end": 13631783,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 12947,
+   "names": [
+    "PickerMediaDuration"
+   ],
+   "start": 13631784,
+   "end": 13632033,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 12949,
+   "names": [
+    "ResourcePickerSession"
+   ],
+   "start": 13632109,
+   "end": 13688912,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 15569,
+   "names": [
+    "PromoteToAssetDialog"
+   ],
+   "start": 16580129,
+   "end": 16581605,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 15598,
+   "names": [
+    "ActionsContext"
+   ],
+   "start": 16631858,
+   "end": 16631912,
+   "ring": 0,
+   "status": "restored"
   },
   {
    "i": 15599,
@@ -184,7 +401,7 @@
    "start": 16631913,
    "end": 16632104,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 15650,
@@ -194,7 +411,7 @@
    "start": 16665645,
    "end": 16666063,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 15651,
@@ -204,7 +421,17 @@
    "start": 16666064,
    "end": 16666195,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
+  },
+  {
+   "i": 15660,
+   "names": [
+    "createCompositionQueryOptions"
+   ],
+   "start": 16669296,
+   "end": 16671074,
+   "ring": 0,
+   "status": "restored"
   },
   {
    "i": 15667,
@@ -214,7 +441,7 @@
    "start": 16675655,
    "end": 16676631,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 15670,
@@ -224,7 +451,7 @@
    "start": 16676959,
    "end": 16677180,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 15706,
@@ -234,6 +461,26 @@
    "start": 16725170,
    "end": 16725790,
    "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 15716,
+   "names": [
+    "resourceBatches"
+   ],
+   "start": 16734476,
+   "end": 16734821,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 15800,
+   "names": [
+    "structureEditorZh"
+   ],
+   "start": 16909710,
+   "end": 16910665,
+   "ring": 1,
    "status": "todo"
   },
   {
@@ -244,6 +491,16 @@
    "start": 16910666,
    "end": 16912268,
    "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 15802,
+   "names": [
+    "compositionEditZh"
+   ],
+   "start": 16912269,
+   "end": 16913968,
+   "ring": 1,
    "status": "todo"
   },
   {
@@ -254,6 +511,16 @@
    "start": 16913969,
    "end": 16916658,
    "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 15804,
+   "names": [
+    "treeLabelsZh"
+   ],
+   "start": 16916659,
+   "end": 16916965,
+   "ring": 1,
    "status": "todo"
   },
   {
@@ -264,7 +531,17 @@
    "start": 16916966,
    "end": 16917542,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
+  },
+  {
+   "i": 15806,
+   "names": [
+    "zh"
+   ],
+   "start": 16917543,
+   "end": 16923029,
+   "ring": 0,
+   "status": "restored"
   },
   {
    "i": 15807,
@@ -274,7 +551,7 @@
    "start": 16923030,
    "end": 16931562,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 15808,
@@ -284,7 +561,27 @@
    "start": 16931563,
    "end": 16931610,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
+  },
+  {
+   "i": 15809,
+   "names": [
+    "ResourceDetailDialogContext"
+   ],
+   "start": 16931611,
+   "end": 16931680,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 15810,
+   "names": [
+    "ResourceDetailContext"
+   ],
+   "start": 16931681,
+   "end": 16931744,
+   "ring": 0,
+   "status": "restored"
   },
   {
    "i": 15811,
@@ -294,7 +591,7 @@
    "start": 16931745,
    "end": 16932091,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 15847,
@@ -304,16 +601,16 @@
    "start": 16978542,
    "end": 16979475,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
-   "i": 16056,
+   "i": 16053,
    "names": [
-    "readCompositionResources"
+    "resolveResourceAbsolutePath"
    ],
-   "start": 17252856,
-   "end": 17254193,
-   "ring": 1,
+   "start": 17251541,
+   "end": 17251797,
+   "ring": 0,
    "status": "restored"
   },
   {
@@ -324,7 +621,7 @@
    "start": 17254194,
    "end": 17255427,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16058,
@@ -337,6 +634,16 @@
    "status": "restored"
   },
   {
+   "i": 16075,
+   "names": [
+    "ResourceGenerationHistoryUnavailableError"
+   ],
+   "start": 17273004,
+   "end": 17273217,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
    "i": 16087,
    "names": [
     "createDetailReferenceImports$1"
@@ -344,7 +651,37 @@
    "start": 17290670,
    "end": 17291340,
    "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 16187,
+   "names": [
+    "ImageFullscreenButton"
+   ],
+   "start": 17386462,
+   "end": 17387389,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 16219,
+   "names": [
+    "AudioPlayer"
+   ],
+   "start": 17406071,
+   "end": 17419460,
+   "ring": 1,
    "status": "todo"
+  },
+  {
+   "i": 16220,
+   "names": [
+    "AudioPreview"
+   ],
+   "start": 17419461,
+   "end": 17420384,
+   "ring": 0,
+   "status": "restored"
   },
   {
    "i": 16221,
@@ -354,7 +691,7 @@
    "start": 17420385,
    "end": 17421836,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16222,
@@ -364,7 +701,7 @@
    "start": 17421837,
    "end": 17424083,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16223,
@@ -374,7 +711,7 @@
    "start": 17424084,
    "end": 17425068,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16224,
@@ -384,7 +721,27 @@
    "start": 17425069,
    "end": 17428263,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
+  },
+  {
+   "i": 16225,
+   "names": [
+    "ImagePreview"
+   ],
+   "start": 17428264,
+   "end": 17428966,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 16228,
+   "names": [
+    "VideoPreview"
+   ],
+   "start": 17435110,
+   "end": 17436166,
+   "ring": 0,
+   "status": "restored"
   },
   {
    "i": 16229,
@@ -394,7 +751,7 @@
    "start": 17436167,
    "end": 17436603,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16230,
@@ -404,7 +761,7 @@
    "start": 17436604,
    "end": 17437948,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16277,
@@ -414,7 +771,7 @@
    "start": 17531040,
    "end": 17531619,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16278,
@@ -424,7 +781,7 @@
    "start": 17531620,
    "end": 17531774,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16279,
@@ -434,7 +791,7 @@
    "start": 17531775,
    "end": 17532634,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16280,
@@ -444,7 +801,7 @@
    "start": 17532635,
    "end": 17533577,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16281,
@@ -454,7 +811,7 @@
    "start": 17533578,
    "end": 17533609,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16282,
@@ -464,7 +821,7 @@
    "start": 17533610,
    "end": 17533651,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16283,
@@ -474,7 +831,7 @@
    "start": 17533652,
    "end": 17533880,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16309,
@@ -484,7 +841,17 @@
    "start": 17565203,
    "end": 17565371,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
+  },
+  {
+   "i": 16312,
+   "names": [
+    "emptySubscribe$1"
+   ],
+   "start": 17565437,
+   "end": 17565478,
+   "ring": 0,
+   "status": "restored"
   },
   {
    "i": 16313,
@@ -494,7 +861,17 @@
    "start": 17565479,
    "end": 17567817,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
+  },
+  {
+   "i": 16314,
+   "names": [
+    "noUrl"
+   ],
+   "start": 17567818,
+   "end": 17567845,
+   "ring": 0,
+   "status": "restored"
   },
   {
    "i": 16315,
@@ -504,7 +881,7 @@
    "start": 17567846,
    "end": 17570263,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16316,
@@ -514,7 +891,7 @@
    "start": 17570264,
    "end": 17572184,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16317,
@@ -524,7 +901,7 @@
    "start": 17572185,
    "end": 17572310,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16318,
@@ -534,7 +911,7 @@
    "start": 17572311,
    "end": 17572574,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16319,
@@ -544,7 +921,7 @@
    "start": 17572575,
    "end": 17580315,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16320,
@@ -554,7 +931,7 @@
    "start": 17580316,
    "end": 17581009,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16321,
@@ -564,7 +941,7 @@
    "start": 17581010,
    "end": 17603343,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16322,
@@ -574,7 +951,7 @@
    "start": 17603344,
    "end": 17604647,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16324,
@@ -584,7 +961,7 @@
    "start": 17606240,
    "end": 17606309,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16325,
@@ -594,7 +971,7 @@
    "start": 17606310,
    "end": 17606377,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16326,
@@ -604,7 +981,7 @@
    "start": 17606378,
    "end": 17606479,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16327,
@@ -614,7 +991,7 @@
    "start": 17606480,
    "end": 17606680,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16328,
@@ -624,7 +1001,7 @@
    "start": 17606681,
    "end": 17607232,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16329,
@@ -634,7 +1011,7 @@
    "start": 17607233,
    "end": 17607294,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16330,
@@ -644,7 +1021,7 @@
    "start": 17607295,
    "end": 17611863,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16331,
@@ -654,7 +1031,7 @@
    "start": 17611864,
    "end": 17617738,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16332,
@@ -664,7 +1041,7 @@
    "start": 17617739,
    "end": 17620286,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16333,
@@ -674,7 +1051,7 @@
    "start": 17620287,
    "end": 17620619,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16334,
@@ -684,7 +1061,7 @@
    "start": 17620620,
    "end": 17628923,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16335,
@@ -694,7 +1071,7 @@
    "start": 17628924,
    "end": 17630444,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16336,
@@ -704,7 +1081,7 @@
    "start": 17630445,
    "end": 17642186,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16337,
@@ -714,7 +1091,7 @@
    "start": 17642187,
    "end": 17642418,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16338,
@@ -724,7 +1101,7 @@
    "start": 17642419,
    "end": 17644621,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16348,
@@ -734,7 +1111,7 @@
    "start": 17656144,
    "end": 17656799,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16564,
@@ -744,7 +1121,7 @@
    "start": 17863024,
    "end": 17864214,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16568,
@@ -754,7 +1131,7 @@
    "start": 17869053,
    "end": 17869094,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16569,
@@ -764,7 +1141,7 @@
    "start": 17869095,
    "end": 17872109,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16575,
@@ -774,7 +1151,7 @@
    "start": 17882394,
    "end": 17882518,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16577,
@@ -784,7 +1161,7 @@
    "start": 17882634,
    "end": 17882752,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 16578,
@@ -804,6 +1181,23 @@
    "start": 17887435,
    "end": 17887912,
    "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 18135,
+   "names": [
+    "g",
+    "X",
+    "C2",
+    "h",
+    "In",
+    "m",
+    "z2",
+    "p2"
+   ],
+   "start": 19394331,
+   "end": 19396376,
+   "ring": 0,
    "status": "todo"
   },
   {
@@ -814,7 +1208,7 @@
    "start": 90696,
    "end": 91042,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
   },
   {
    "i": 20565,
@@ -824,7 +1218,280 @@
    "start": 103210,
    "end": 103486,
    "ring": 0,
-   "status": "todo"
+   "status": "restored"
+  },
+  {
+   "i": 22543,
+   "names": [
+    "resolvePageState"
+   ],
+   "start": 3040958,
+   "end": 3041714,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 18132,
+   "names": [
+    "M",
+    "N",
+    "y$1",
+    "R$1",
+    "U",
+    "W$1",
+    "K$1",
+    "d",
+    "b2",
+    "H",
+    "D$1",
+    "w2"
+   ],
+   "start": 19393995,
+   "end": 19394269,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16185,
+   "names": [
+    "ImageFullscreenPreview"
+   ],
+   "start": 17377815,
+   "end": 17377974,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 2305,
+   "names": [
+    "PageStateIllustration"
+   ],
+   "start": 3046567,
+   "end": 3046747,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 16216,
+   "names": [
+    "WAVEFORM_CONTAINER_HEIGHT"
+   ],
+   "start": 17405061,
+   "end": 17405098,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16215,
+   "names": [
+    "WAVEFORM_WIDTH"
+   ],
+   "start": 17405033,
+   "end": 17405060,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 18135,
+   "names": [
+    "g",
+    "X",
+    "C2",
+    "h",
+    "In",
+    "m",
+    "z2",
+    "p2"
+   ],
+   "start": 19394331,
+   "end": 19396376,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15659,
+   "names": [
+    "assertScope"
+   ],
+   "start": 16669167,
+   "end": 16669295,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 12948,
+   "names": [
+    "identity"
+   ],
+   "start": 13632034,
+   "end": 13632108,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16056,
+   "names": [
+    "readCompositionResources"
+   ],
+   "start": 17252856,
+   "end": 17254193,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 2294,
+   "names": [
+    "resolveRetryAction"
+   ],
+   "start": 3040382,
+   "end": 3040957,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 2292,
+   "names": [
+    "DEFAULT_RETRY_ACTION_KEY"
+   ],
+   "start": 3040292,
+   "end": 3040333,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 2293,
+   "names": [
+    "DEFAULT_RETRY_ACTION_VARIANT"
+   ],
+   "start": 3040334,
+   "end": 3040381,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 16186,
+   "names": [
+    "ImageFullscreenContent"
+   ],
+   "start": 17377975,
+   "end": 17386461,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 2298,
+   "names": [
+    "PageStateIllustration$1"
+   ],
+   "start": 3044351,
+   "end": 3044965,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 18135,
+   "names": [
+    "g",
+    "X",
+    "C2",
+    "h",
+    "In",
+    "m",
+    "z2",
+    "p2"
+   ],
+   "start": 19394331,
+   "end": 19396376,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 13,
+   "names": [
+    "jsxRuntimeExports"
+   ],
+   "start": 4802,
+   "end": 4846,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 2297,
+   "names": [
+    "ILLUSTRATION_URLS"
+   ],
+   "start": 3043374,
+   "end": 3044350,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 16182,
+   "names": [
+    "MAX_SCALE"
+   ],
+   "start": 17377485,
+   "end": 17377506,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 18135,
+   "names": [
+    "g",
+    "X",
+    "C2",
+    "h",
+    "In",
+    "m",
+    "z2",
+    "p2"
+   ],
+   "start": 19394331,
+   "end": 19396376,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 12,
+   "names": [
+    "requireJsxRuntime"
+   ],
+   "start": 4585,
+   "end": 4801,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 16184,
+   "names": [
+    "wheelZoomScale"
+   ],
+   "start": 17377539,
+   "end": 17377814,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
   }
  ],
  "segments": [
@@ -843,6 +1510,13 @@
    "count": 2
   },
   {
+   "from": 3772,
+   "to": 3774,
+   "start": 3041261,
+   "end": 3041807,
+   "count": 3
+  },
+  {
    "from": 3833,
    "to": 3833,
    "start": 3096221,
@@ -858,52 +1532,52 @@
   },
   {
    "from": 12885,
-   "to": 12886,
+   "to": 12949,
    "start": 13598902,
-   "end": 13599576,
-   "count": 2
+   "end": 13688912,
+   "count": 16
   },
   {
-   "from": 15599,
+   "from": 15569,
    "to": 15599,
-   "start": 16631913,
+   "start": 16580129,
    "end": 16632104,
-   "count": 1
+   "count": 3
   },
   {
    "from": 15650,
-   "to": 15706,
+   "to": 15716,
    "start": 16665645,
-   "end": 16725790,
-   "count": 5
-  },
-  {
-   "from": 15801,
-   "to": 15847,
-   "start": 16910666,
-   "end": 16979475,
+   "end": 16734821,
    "count": 7
   },
   {
-   "from": 16056,
-   "to": 16087,
-   "start": 17252856,
-   "end": 17291340,
-   "count": 4
+   "from": 15800,
+   "to": 15847,
+   "start": 16909710,
+   "end": 16979475,
+   "count": 13
   },
   {
-   "from": 16221,
+   "from": 16053,
+   "to": 16087,
+   "start": 17251541,
+   "end": 17291340,
+   "count": 5
+  },
+  {
+   "from": 16187,
    "to": 16230,
-   "start": 17420385,
+   "start": 17386462,
    "end": 17437948,
-   "count": 6
+   "count": 11
   },
   {
    "from": 16277,
    "to": 16348,
    "start": 17531040,
    "end": 17656799,
-   "count": 33
+   "count": 35
   },
   {
    "from": 16564,
@@ -913,11 +1587,25 @@
    "count": 7
   },
   {
+   "from": 18135,
+   "to": 18135,
+   "start": 19394331,
+   "end": 19396376,
+   "count": 1
+  },
+  {
    "from": 20525,
    "to": 20565,
    "start": 90696,
    "end": 103486,
    "count": 2
+  },
+  {
+   "from": 22543,
+   "to": 22543,
+   "start": 3040958,
+   "end": 3041714,
+   "count": 1
   }
  ]
 }

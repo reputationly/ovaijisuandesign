@@ -4,34 +4,24 @@
   "WorkspaceCompositionActions",
   "WorkspaceStructurePresentation"
  ],
- "total": 80,
- "lines": 3451,
+ "total": 74,
+ "lines": 3161,
  "perRing": [
   2,
-  12,
-  5,
   10,
-  12,
-  12,
+  4,
+  8,
+  10,
+  13,
   20,
   4,
   3
  ],
  "byStatus": {
-  "todo": 79,
+  "todo": 73,
   "restored": 1
  },
  "items": [
-  {
-   "i": 204,
-   "names": [
-    "I18nextProvider"
-   ],
-   "start": 142174,
-   "end": 142433,
-   "ring": 1,
-   "status": "todo"
-  },
   {
    "i": 272,
    "names": [
@@ -100,26 +90,6 @@
    "start": 6145722,
    "end": 6149772,
    "ring": 6,
-   "status": "todo"
-  },
-  {
-   "i": 12302,
-   "names": [
-    "InfiniteQueryObserver"
-   ],
-   "start": 13208042,
-   "end": 13210054,
-   "ring": 4,
-   "status": "todo"
-  },
-  {
-   "i": 12312,
-   "names": [
-    "useInfiniteQuery"
-   ],
-   "start": 13220475,
-   "end": 13220614,
-   "ring": 3,
    "status": "todo"
   },
   {
@@ -733,62 +703,12 @@
    "status": "todo"
   },
   {
-   "i": 16570,
-   "names": [
-    "documentColumns"
-   ],
-   "start": 17872110,
-   "end": 17873384,
-   "ring": 3,
-   "status": "todo"
-  },
-  {
-   "i": 16571,
-   "names": [
-    "normalizeTitle"
-   ],
-   "start": 17873385,
-   "end": 17873486,
-   "ring": 4,
-   "status": "todo"
-  },
-  {
-   "i": 16573,
-   "names": [
-    "presentNode"
-   ],
-   "start": 17873734,
-   "end": 17876654,
-   "ring": 4,
-   "status": "todo"
-  },
-  {
-   "i": 16574,
-   "names": [
-    "WorkspaceStructureDocument"
-   ],
-   "start": 17876655,
-   "end": 17882393,
-   "ring": 2,
-   "status": "todo"
-  },
-  {
    "i": 16575,
    "names": [
     "detailServices"
    ],
    "start": 17882394,
    "end": 17882518,
-   "ring": 1,
-   "status": "todo"
-  },
-  {
-   "i": 16576,
-   "names": [
-    "renderDocument"
-   ],
-   "start": 17882519,
-   "end": 17882633,
    "ring": 1,
    "status": "todo"
   },
@@ -821,16 +741,252 @@
    "end": 17887912,
    "ring": 1,
    "status": "todo"
+  },
+  {
+   "i": 20525,
+   "names": [
+    "FileText$1"
+   ],
+   "start": 90696,
+   "end": 91042,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 20565,
+   "names": [
+    "Image$1"
+   ],
+   "start": 103210,
+   "end": 103486,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 15598,
+   "names": [
+    "ActionsContext"
+   ],
+   "start": 16631858,
+   "end": 16631912,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16220,
+   "names": [
+    "AudioPreview"
+   ],
+   "start": 17419461,
+   "end": 17420384,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 12944,
+   "names": [
+    "CanvasV3ResourcePickerDialog"
+   ],
+   "start": 13630047,
+   "end": 13630669,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16187,
+   "names": [
+    "ImageFullscreenButton"
+   ],
+   "start": 17386462,
+   "end": 17387389,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16225,
+   "names": [
+    "ImagePreview"
+   ],
+   "start": 17428264,
+   "end": 17428966,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15569,
+   "names": [
+    "PromoteToAssetDialog"
+   ],
+   "start": 16580129,
+   "end": 16581605,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15810,
+   "names": [
+    "ResourceDetailContext"
+   ],
+   "start": 16931681,
+   "end": 16931744,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15809,
+   "names": [
+    "ResourceDetailDialogContext"
+   ],
+   "start": 16931611,
+   "end": 16931680,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16075,
+   "names": [
+    "ResourceGenerationHistoryUnavailableError"
+   ],
+   "start": 17273004,
+   "end": 17273217,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16228,
+   "names": [
+    "VideoPreview"
+   ],
+   "start": 17435110,
+   "end": 17436166,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 18135,
+   "names": [
+    "g",
+    "X",
+    "C2",
+    "h",
+    "In",
+    "m",
+    "z2",
+    "p2"
+   ],
+   "start": 19394331,
+   "end": 19396376,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15660,
+   "names": [
+    "createCompositionQueryOptions"
+   ],
+   "start": 16669296,
+   "end": 16671074,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16312,
+   "names": [
+    "emptySubscribe$1"
+   ],
+   "start": 17565437,
+   "end": 17565478,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16314,
+   "names": [
+    "noUrl"
+   ],
+   "start": 17567818,
+   "end": 17567845,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 2295,
+   "names": [
+    "resolvePageState"
+   ],
+   "start": 3040958,
+   "end": 3041714,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 16053,
+   "names": [
+    "resolveResourceAbsolutePath"
+   ],
+   "start": 17251541,
+   "end": 17251797,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15716,
+   "names": [
+    "resourceBatches"
+   ],
+   "start": 16734476,
+   "end": 16734821,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15806,
+   "names": [
+    "zh"
+   ],
+   "start": 16917543,
+   "end": 16923029,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 18135,
+   "names": [
+    "g",
+    "X",
+    "C2",
+    "h",
+    "In",
+    "m",
+    "z2",
+    "p2"
+   ],
+   "start": 19394331,
+   "end": 19396376,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
   }
  ],
  "segments": [
-  {
-   "from": 204,
-   "to": 204,
-   "start": 142174,
-   "end": 142433,
-   "count": 1
-  },
   {
    "from": 272,
    "to": 274,
@@ -858,13 +1014,6 @@
    "start": 6145722,
    "end": 6149772,
    "count": 1
-  },
-  {
-   "from": 12302,
-   "to": 12312,
-   "start": 13208042,
-   "end": 13220614,
-   "count": 2
   },
   {
    "from": 12885,
@@ -920,7 +1069,14 @@
    "to": 16579,
    "start": 17863024,
    "end": 17887912,
-   "count": 12
+   "count": 7
+  },
+  {
+   "from": 20525,
+   "to": 20565,
+   "start": 90696,
+   "end": 103486,
+   "count": 2
   }
  ]
 }

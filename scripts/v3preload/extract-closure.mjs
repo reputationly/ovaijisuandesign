@@ -1,67 +1,58 @@
-// 从一个大 bundle 里按「名字闭包」抽取一组顶层声明及其依赖。
-// 用法: node extract-closure.mjs <bundle> <seedRegex> <out.js>
+/**
+ * 按清单把声明整段取回成模块（第 267 轮）。
+ *
+ * 关键：偏移是 **UTF-16 码元**（JS 语义）。Python 的字符索引会因 284 个 emoji 漂移，
+ * 所以这里在 Node 里做切片。
+ *
+ * 用法：node scripts/v3preload/extract-closure.mjs <manifest.json> <out.js> [--only=a,b]
+ */
 import { readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
 
-const [, , bundlePath, seedPattern, outPath] = process.argv;
-const src = readFileSync(bundlePath, "utf8");
-const lines = src.split("\n");
-
-// 1) 收集顶层声明及其行区间（用花括号配平近似到下一个顶层声明前）
-const decls = [];
-for (let i = 0; i < lines.length; i++) {
-  const m = lines[i].match(/^(?:async\s+)?(?:function|const|let|var|class)\s+([A-Za-z_$][\w$]*)/);
-  if (!m) continue;
-  decls.push({ name: m[1], start: i, end: i });
+const [manifestPath, outPath] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const onlyArg = process.argv.find((a) => a.startsWith("--only="));
+const only = onlyArg ? new Set(onlyArg.slice(7).split(",").filter(Boolean)) : undefined;
+if (!manifestPath || !outPath) {
+  console.error("用法: extract-closure.mjs <manifest.json> <out.js> [--only=a,b]");
+  process.exit(2);
 }
-for (let k = 0; k < decls.length; k++) decls[k].end = (k + 1 < decls.length ? decls[k + 1].start : lines.length) - 1;
 
-const byName = new Map(decls.map((d) => [d.name, d]));
-const text = (d) => lines.slice(d.start, d.end + 1).join("\n");
-// 去掉注释、字符串、模板串，再去掉 `.foo` 这样的属性访问 —— 否则 "fail"、".length"
-// 这类普通词会把整张图连成一片（实测种子一扩散就是 1.9 万个声明）。
-const clean = (s) =>
-  s
-    .replace(/\/\*[\s\S]*?\*\//g, " ")
-    .replace(/\/\/[^\n]*/g, " ")
-    .replace(/`(?:[^`\\]|\\.)*`/g, '""')
-    .replace(/"(?:[^"\\]|\\.)*"/g, '""')
-    .replace(/'(?:[^'\\]|\\.)*'/g, '""');
-const idents = (s) => {
-  const out = new Set();
-  for (const m of clean(s).matchAll(/(?<![.\w$])([A-Za-z_$][\w$]*)/g)) out.add(m[1]);
-  return out;
+const REPO = process.cwd();
+const A = path.join(REPO, ".probe/reference/4.0.0/asar/out/renderer/assets");
+const sources = {
+  main: readFileSync(path.join(A, "index-BBp4hclA.js"), "utf8"),
+  uwc: readFileSync(path.join(A, "use-window-chrome-DbNyfMCt.js"), "utf8"),
 };
-const seed = new RegExp(seedPattern);
-
-const chosen = new Set();
-const queue = decls.filter((d) => seed.test(d.name)).map((d) => d.name);
-for (const n of queue) chosen.add(n);
-
-// 2) 迭代补依赖
-while (queue.length) {
-  const name = queue.pop();
-  const d = byName.get(name);
-  if (!d) continue;
-  for (const id of idents(text(d))) {
-    if (chosen.has(id) || !byName.has(id)) continue;
-    chosen.add(id);
-    queue.push(id);
-  }
+const rowsOf = {
+  main: JSON.parse(readFileSync(path.join(REPO, ".probe/refdiff/toplevel-4.0.0.json"), "utf8")).rows,
+  uwc: JSON.parse(readFileSync(path.join(REPO, ".probe/refdiff/toplevel-uwc-4.0.0.json"), "utf8")).rows,
+};
+const index = new Map();
+for (const chunk of ["main", "uwc"]) {
+  for (const r of rowsOf[chunk]) for (const n of r.names ?? []) if (!index.has(n)) index.set(n, { r, chunk });
 }
 
-const picked = [...chosen].map((n) => byName.get(n)).filter(Boolean).sort((a, b) => a.start - b.start);
-// 3) 找出仍然未解析的名字（既不在选中集里，也不是 JS 关键字/内建）
-const JS = new Set(("var let const function return if else for while do break continue new delete typeof instanceof in of void this null true false undefined async await yield try catch finally throw switch case default class extends super import export from as static get set NaN Infinity parseInt parseFloat isNaN isFinite String Number Boolean Array Object JSON Math Date RegExp Error TypeError Map Set WeakMap WeakSet Promise Symbol BigInt Reflect Proxy globalThis window document console crypto TextEncoder TextDecoder Uint8Array Uint32Array Int32Array Float32Array DataView ArrayBuffer structuredClone queueMicrotask setTimeout clearTimeout setInterval clearInterval requestAnimationFrame cancelAnimationFrame performance navigator localStorage sessionStorage fetch URL URLSearchParams Headers Request Response AbortController AbortSignal Intl").split(" "));
-const unresolved = new Map();
-for (const d of picked) {
-  for (const id of idents(text(d))) {
-    if (chosen.has(id) || JS.has(id) || byName.has(id)) continue;
-    unresolved.set(id, (unresolved.get(id) ?? 0) + 1);
-  }
+const man = JSON.parse(readFileSync(manifestPath, "utf8"));
+const picked = [];
+const missing = [];
+for (const item of man.items) {
+  const name = item.names[0];
+  if (only && !only.has(name)) continue;
+  const hit = index.get(name) ?? index.get(name.replace(/\$\d+$/, ""));
+  if (!hit) { missing.push(name); continue; }
+  const src = sources[hit.chunk];
+  let body = src.slice(hit.r.start, hit.r.end).trimEnd();
+  body = body.replace(/^(export\s+)?(async\s+)?(function|const|let|class)\s/, "export $2$3 ");
+  picked.push({ name, body });
 }
-const header = `// 由 scripts/v3preload/extract-closure.mjs 从产物抽取（种子: ${seedPattern}）\n// 选中 ${picked.length} 个顶层声明；仍未解析的外部标识符 ${unresolved.size} 个（见文件末尾清单）\n\n`;
-const footer = `\n// ==== 仍未解析的外部标识符（需要从别处 import）====\n// ${[...unresolved.keys()].sort().join(", ")}\n`;
-writeFileSync(outPath, header + picked.map(text).join("\n\n") + footer, "utf8");
-console.log(`选中 ${picked.length} 个声明；未解析标识符 ${unresolved.size} 个`);
-console.log(`输出: ${outPath}`);
-console.log("未解析前 15:", [...unresolved.keys()].sort().slice(0, 15).join(", "));
+
+const seen = new Set();
+const kept = [];
+for (const p of picked) {
+  if (seen.has(p.name)) continue;   // 同名只保留第一份（顶层声明，不会跨作用域冲突）
+  seen.add(p.name);
+  kept.push(p.body);
+}
+
+writeFileSync(outPath, kept.join("\n\n") + "\n", "utf8");
+console.log(`取回 ${kept.length}/${man.items.length}，缺 ${missing.length}` + (missing.length ? `: ${missing.slice(0, 8).join(", ")}` : ""));
