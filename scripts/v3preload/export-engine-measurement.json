@@ -1,0 +1,47 @@
+{
+ "generatedAt": "第265轮",
+ "method": "按用户方案：整份镜像懒加载 chunk，而非算闭包",
+ "chunkDependencies": {
+  "index-Dr87oCf8.js": {
+   "lines": 60680,
+   "importSources": 3,
+   "names": 20,
+   "breakdown": {
+    "use-window-chrome": 5,
+    "index-BBp4hclA": 14,
+    "clip-media-id": 1
+   }
+  },
+  "EditorInterface-DwXc-S2S.js": {
+   "lines": 69012,
+   "importSources": 4,
+   "names": 242,
+   "breakdown": {
+    "index-Dr87oCf8": 175,
+    "index-BBp4hclA": 61,
+    "use-window-chrome": 5,
+    "clip-media-id": 1
+   }
+  },
+  "index-DB2y4MU-.js": {
+   "importSources": 1,
+   "names": 1
+  }
+ },
+ "externalNames": 75,
+ "resolvableToTreeOrNpm": 55,
+ "needsBundleExtraction": 6,
+ "needsSideChunk": 2,
+ "conclusion": [
+  "整份镜像是可行的：Dr87 只依赖 20 个外部名字，其中 55/75 能直接解析到树内或 npm。",
+  "真正的阻塞只有 6 个名字：AnimatePresence / motion / MediaImageIcon / MediaVideoIcon /",
+  "MediaAudioIcon / PortalContainerProvider —— 它们是参照 bundle **内联的 framer-motion**。",
+  "往这 6 个取回会继续拉出 LayoutGroupContext / PresenceContext / createDomVisualElement /",
+  "featureBundle 等（都是 framer-motion 核心），等于把整个动画库抄一遍。"
+ ],
+ "twoRoutes": [
+  "A. 继续取回 framer-motion 核心（预计 200-400 个声明，是库代码不是应用代码）",
+  "B. 把 framer-motion 加成真依赖（npm 有 14.4.0，网络可用），镜像时 import 它 —— 我倾向 B"
+ ],
+ "blockerHit": "提取时踩了一次 UTF-16 偏移：Python 的 read_text 按码点索引，bundle 里有 284 个 emoji，9.5M 之后的偏移全部漂移。已改为 utf-16-le 字节切片，验证 PortalContainerProvider 取回正确。"
+}
