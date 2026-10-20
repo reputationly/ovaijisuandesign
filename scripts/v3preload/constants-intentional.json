@@ -1,0 +1,15 @@
+{
+  "note": "常量对照的**有意差异登记表**。每一条都要写理由；不登记的不一致会被 check-constants 判为不合格。",
+  "entries": [
+    {
+      "name": "DEFAULT_SHOWCASE_ATTRIBUTION",
+      "file": "workspace/parse-project-archive-item.js",
+      "reason": "品牌替换：参照是 MiniMax 官方，本项目改为自有品牌（蒜狸小助手官方）"
+    },
+    {
+      "name": "DEFAULT_SHOWCASE_ATTRIBUTION_EN",
+      "file": "workspace/parse-project-archive-item.js",
+      "reason": "品牌替换：同上（英文版 Suanli Assistant Official）"
+    }
+  ]
+}
