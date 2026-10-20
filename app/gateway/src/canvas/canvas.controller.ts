@@ -1,9 +1,10 @@
-import { BadRequestException, Body, Controller, Get, Headers, HttpCode, HttpException, HttpStatus, Logger, NotFoundException, Post, Query } from "@nestjs/common";
+import { BadRequestException, UseGuards, Body, Controller, Get, Headers, HttpCode, HttpException, HttpStatus, Logger, NotFoundException, Post, Query } from "@nestjs/common";
 import type { CanvasFile } from "@ov/protocol";
 
 import { CanvasDestructiveSaveRejectedError, CanvasInvalidSaveRejectedError, type DeletionIntent } from "./canvas-persistence.js";
 import { AssetsService } from "../common/assets.service.js";
 import { CanvasService } from "./canvas.service.js";
+import { LegacyCanvasGuard } from "./legacy-canvas.guard.js";
 import {
   AddCanvasNodeDto,
   ApplyTextEditsDto,
@@ -83,6 +84,7 @@ function parseSaveRequest(body: Record<string, unknown>): { canvas: CanvasFile; 
 }
 
 @Controller("api/canvas")
+@UseGuards(LegacyCanvasGuard)
 export class CanvasController {
   private readonly log = new Logger("Canvas");
 

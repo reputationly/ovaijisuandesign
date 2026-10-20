@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
 import { Type } from "class-transformer";
 import { ArrayMaxSize, ArrayNotEmpty, IsArray, IsIn, IsInt, IsNotEmpty, IsString, Min, ValidateIf, ValidateNested } from "class-validator";
 
 import { MAX_CANVAS_TAG_ASSIGNMENTS_PER_BATCH } from "./canvas-tags.js";
 import { CanvasTagsService } from "./canvas-tags.service.js";
 import { CanvasService } from "./canvas.service.js";
+import { LegacyCanvasGuard } from "./legacy-canvas.guard.js";
 
 export class UpdateAssetTagsDto {
   @IsArray() @IsString({ each: true }) tagIds!: string[];
@@ -78,6 +79,7 @@ export class CanvasTagsController {
   }
 
   @Get("api/canvas/tag-registry")
+  @UseGuards(LegacyCanvasGuard)
   async getTagRegistry() {
     return { registry: await this.tags.getRegistry() };
   }

@@ -1,0 +1,25 @@
+{
+ "note": "gateway 协议对比的**有意差异**登记表。键是 `METHOD /path`，前缀匹配。",
+ "entries": [
+  {
+   "match": "GET /api/v1/home/showcase-assets/",
+   "kind": "prefix",
+   "reason": "本项目自带本地演示资源，参照发行包不含；参照对这 19 个 key 返回 404，我们返回 200。属交付内容差异，不是缺陷。"
+  },
+  {
+   "match": "GET /backend/group/list",
+   "kind": "exact",
+   "reason": "参照会把请求代理到云端团队服务（离线沙箱里因缺 biz_line 返回 400）；本项目离线返回本地数据 200。属「自托管 + 去云端」的直接结果。"
+  },
+  {
+   "match": "GET /api/models",
+   "kind": "exact",
+   "reason": "参照会去云端取模型列表（离线沙箱 500）；本项目返回本地模型配置 200。属「自托管」的直接结果。"
+  },
+  {
+   "match": "POST /api/upload",
+   "kind": "exact",
+   "reason": "空 multipart：参照 500（它自己的未捕获 TypeError），我们 400（正确）。我方行为更好，登记为有意优于参照。"
+  }
+ ]
+}
