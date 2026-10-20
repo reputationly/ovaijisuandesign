@@ -60761,6 +60761,7 @@ function CanvasAreaV3(props) {
   const workbenchBridge = useDesktopCanvasV3WorkbenchBridge();
   const fetch2 = useGatewayFetch();
   const currentWorkspace = useCurrentWorkspace();
+
   const hostServices = reactExports.useMemo(
     () => ({
       ...desktopServices,

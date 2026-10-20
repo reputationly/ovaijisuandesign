@@ -28,5 +28,11 @@
   "所以在该屏上**没有被触发**，属触发时机差异，不是能力缺失。",
   "但按用户的验收第 2 条（v3 关键操作网络请求与参照一致），当前**不达标**。"
  ],
- "note": "门禁已经把 showcase-assets 列进 NET_VOLATILE，所以 41/41 是真差异的计数。"
+ "note": "门禁已经把 showcase-assets 列进 NET_VOLATILE，所以 41/41 是真差异的计数。",
+ "attemptedFix": {
+  "what": "在 CanvasAreaV3 挂载时预取三个媒介的能力清单",
+  "result": "失败：catalogEntry 的 scope 参数要对象（WeakMap 键），我传了 currentWorkspace（字符串），抛 TypeError: Invalid value used as weak map key；像素 4.088% → 7.036%，新增报错 2",
+  "action": "已完整回滚，4.088% / 0 新增报错 恢复",
+  "nextStep": "预取要放在能拿到 `generations` scope 对象的位置（useCanvasV3GenerationCatalog 的调用点之上），不是画布根组件"
+ }
 }
