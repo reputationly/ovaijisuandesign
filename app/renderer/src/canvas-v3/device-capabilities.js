@@ -264,7 +264,7 @@ export function saveBenchmarkResult(result) {
 
 export let cachedProfile = null;
 
-async function getDeviceProfile(forceRefresh = false) {
+export async function getDeviceProfile(forceRefresh = false) {
   if (!forceRefresh && cachedProfile) {
     return cachedProfile;
   }
@@ -419,7 +419,7 @@ export function estimateExportTime(profile, settings) {
   };
 }
 
-async function runBenchmark(onProgress) {
+export async function runBenchmark(onProgress) {
   const BENCHMARK_FRAMES = 60;
   const WIDTH = 1920;
   const HEIGHT = 1080;
