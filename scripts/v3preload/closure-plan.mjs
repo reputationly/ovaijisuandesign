@@ -81,6 +81,23 @@ const rows = JSON.parse(readFileSync(ROWS, "utf8")).rows;
 const rowOf = new Map();
 for (const r of rows) for (const n of r.names ?? []) if (!rowOf.has(n)) rowOf.set(n, r);
 
+// ---- 第 228 轮：通用名守卫 ----
+// `failure` / `notify` / `storage` / `ready` / `workspaces` 这类名字在 bundle 里是**真实的顶层声明**，
+// 但它们被几十个模块引用。跟着它们走会把整个 bundle 拉进闭包（实测 1 个声明 / 529,911 行）。
+// 规则：一个名字如果在 bundle 全文里出现次数 > GENERIC_LIMIT，就不作为闭包根继续展开。
+const GENERIC_LIMIT = 40;
+const occurrences = new Map();
+for (const r of rows) {
+  for (const n of r.names ?? []) {
+    if (occurrences.has(n)) continue;
+    let c = 0, i = 0;
+    const re = new RegExp(`(?<![\\w$.])${n.replace(/[$]/g, "\\$")}(?![\\w$])`, "g");
+    while ((i = re.exec(bundle)) !== null) { c++; if (c > GENERIC_LIMIT) break; }
+    occurrences.set(n, c);
+  }
+}
+const isGeneric = (n) => (occurrences.get(n) ?? 0) > GENERIC_LIMIT;
+
 const walk = (d) =>
   readdirSync(d, { withFileTypes: true }).flatMap((e) => {
     const f = path.join(d, e.name);
@@ -137,6 +154,7 @@ function closure(mode) {
     const next = [];
     for (const r of frontier) for (const n of free(r)) {
       if (stop(n)) continue;
+      if (isGeneric(n)) continue;   // 通用名不展开，否则整包都会被拉进来
       const rr = rowOf.get(n);
       if (!rr || need.has(rr.i)) continue;
       need.set(rr.i, ring);
