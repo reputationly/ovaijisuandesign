@@ -90,6 +90,41 @@
    "name": "HOME_NAV_BUTTON_CLASS",
    "file": "debug-panel/icon-opacity-preview-section.jsx",
    "reason": "同名不同实体：文案类名 h-[34px] vs h-9，来自不同预览区"
+  },
+  {
+   "name": "DEFAULT_TRACK_DISPOSITION",
+   "file": "export-engine/mediabunny.js",
+   "reason": "第 271 轮整份镜像的第三方代码（MediaBunny / 导出引擎）内部的同名常量。与树里其他模块的同名常量语义无关，属正常的命名碰撞，不是缺陷。"
+  },
+  {
+   "name": "NON_PCM_AUDIO_CODECS",
+   "file": "export-engine/mediabunny.js",
+   "reason": "第 271 轮整份镜像的第三方代码（MediaBunny / 导出引擎）内部的同名常量。与树里其他模块的同名常量语义无关，属正常的命名碰撞，不是缺陷。"
+  },
+  {
+   "name": "VALID_AUDIO_CODEC_STRING_PREFIXES",
+   "file": "export-engine/mediabunny.js",
+   "reason": "第 271 轮整份镜像的第三方代码（MediaBunny / 导出引擎）内部的同名常量。与树里其他模块的同名常量语义无关，属正常的命名碰撞，不是缺陷。"
+  },
+  {
+   "name": "ALL_FORMATS",
+   "file": "export-engine/mediabunny.js",
+   "reason": "第 271 轮整份镜像的第三方代码（MediaBunny / 导出引擎）内部的同名常量。与树里其他模块的同名常量语义无关，属正常的命名碰撞，不是缺陷。"
+  },
+  {
+   "name": "GLOBAL_TIMESCALE",
+   "file": "export-engine/mediabunny.js",
+   "reason": "第 271 轮整份镜像的第三方代码（MediaBunny / 导出引擎）内部的同名常量。与树里其他模块的同名常量语义无关，属正常的命名碰撞，不是缺陷。"
+  },
+  {
+   "name": "DEFAULT_OPTIONS",
+   "file": "export-engine/export-engine.js",
+   "reason": "第 271 轮整份镜像的第三方代码（MediaBunny / 导出引擎）内部的同名常量。与树里其他模块的同名常量语义无关，属正常的命名碰撞，不是缺陷。"
+  },
+  {
+   "name": "DEFAULT_STATE",
+   "file": "export-engine/export-engine.js",
+   "reason": "第 271 轮整份镜像的第三方代码（MediaBunny / 导出引擎）内部的同名常量。与树里其他模块的同名常量语义无关，属正常的命名碰撞，不是缺陷。"
   }
  ]
 }
