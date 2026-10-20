@@ -34,5 +34,17 @@
   "result": "失败：catalogEntry 的 scope 参数要对象（WeakMap 键），我传了 currentWorkspace（字符串），抛 TypeError: Invalid value used as weak map key；像素 4.088% → 7.036%，新增报错 2",
   "action": "已完整回滚，4.088% / 0 新增报错 恢复",
   "nextStep": "预取要放在能拿到 `generations` scope 对象的位置（useCanvasV3GenerationCatalog 的调用点之上），不是画布根组件"
+ },
+ "rootCauseFound": {
+  "where": "app/renderer/src/generation/use-mention-models.jsx",
+  "reference": "queryFn 按 source 分支：source==='capabilities' → /api/v3/capabilities?source=model（全量），否则 → /api/v1/models/config；queryKey 里带 source",
+  "ours": "queryFn 只有 modelsConfig 一条路，queryKey 里没有 source",
+  "explains": "正好对上网差异：我们 3 次 models/config vs 参照 1 次 models/config + 2 次 capabilities"
+ },
+ "attemptedFix2": {
+  "what": "给 useMentionModels 加 capabilities 分支：用 useQueryClient 读 workspace-project-architecture 缓存决定 source，新增 normalizeCapabilityModelRows",
+  "result": "失败：ws-a-v3 直接超时（waitForWorkspaceChatReady 卡住），聊天输入没就绪；回滚后 4.088% / 0 报错恢复",
+  "why": "未定位。可能 useModelCatalogSource 里再次调用 useGatewayScope 影响了聊天侧的 scope 订阅，或 queryKey 多一个元素导致 mention 查询重挂",
+  "nextStep": "改成在 useMentionModels 的**调用方**传 source（避免在 hook 内部再取 scope），或先只加 queryKey 的 source 不加分支、观察是否仍超时"
  }
 }
