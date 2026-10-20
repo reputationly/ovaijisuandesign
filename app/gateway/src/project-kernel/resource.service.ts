@@ -304,11 +304,16 @@ export class ProjectResourceService implements OnModuleDestroy {
 
   getResourceTags() {
     this.ready();
+    // 第 250 轮：原来只调 ready()，而 ready() 不打开数据库，
+    // 于是 tagStore() 里的 `if (!tags)` 直接抛 PROJECT_STORE_CLOSED（503）。
+    // 对照实测：参照对同一请求返回 200 + 完整 tag registry。
+    this.database();
     return this.tagStore().read();
   }
 
   executeResourceTags(body: unknown) {
     this.ready();
+    this.database();
     return this.tagStore().execute(body);
   }
 

@@ -1,13 +1,11 @@
 {
- "generatedAt": "2026-10-20T10:20:30.267Z",
+ "generatedAt": "2026-10-20T10:30:15.233Z",
  "target": "ours",
  "total": 71,
  "byStatus": {
-  "200": 52,
-  "400": 12,
-  "404": 4,
-  "500": 2,
-  "503": 1
+  "200": 53,
+  "400": 14,
+  "404": 4
  },
  "results": [
   {
@@ -199,8 +197,8 @@
   {
    "method": "POST",
    "path": "/api/canvas",
-   "status": 500,
-   "shape": "{message:string,statusCode:number}"
+   "status": 400,
+   "shape": "{error:string,message:string,statusCode:number}"
   },
   {
    "method": "GET",
@@ -331,8 +329,8 @@
   {
    "method": "POST",
    "path": "/api/upload",
-   "status": 500,
-   "shape": "{message:string,statusCode:number}"
+   "status": 400,
+   "shape": "{error:string,message:string,statusCode:number}"
   },
   {
    "method": "POST",
@@ -355,8 +353,8 @@
   {
    "method": "POST",
    "path": "/api/project/resources/tags/get",
-   "status": 503,
-   "shape": "{code:string,message:string}"
+   "status": 200,
+   "shape": "{assignments:[],registry:{orderMode:string,revision:number,tags:[{color:string,id:string,kind:string,legacyNameKey:string}],version:number},revision:number}"
   },
   {
    "method": "GET",

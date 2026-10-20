@@ -151,6 +151,10 @@ export class FilesController {
   @Post("api/upload")
   @UseInterceptors(FileInterceptor("file", { storage: memoryStorage(), limits: UPLOAD_LIMITS }))
   upload(@UploadedFile() file: UploadedFileLike, @Req() req: Request) {
+    // 第 250 轮：没带文件时 files.upload 会读 file.originalname 抛 TypeError → 500。
+    if (!file || typeof (file as { originalname?: unknown }).originalname !== "string") {
+      throw new BadRequestException("file is required");
+    }
     const b = (req.body ?? {}) as Record<string, string>;
     return this.files.upload(file, {
       folder: b.folder || undefined,

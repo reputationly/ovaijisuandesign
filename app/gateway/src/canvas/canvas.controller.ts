@@ -100,6 +100,11 @@ export class CanvasController {
   @Post()
   save(@Body() body: Record<string, unknown>) {
     const { canvas, deletionIntent } = parseSaveRequest(body);
+    // 第 250 轮：body 没有 nodes/edges 数组时，replaceCanvas 会抛 TypeError 变成 500。
+    // 对照实测：参照对同样的空 body 返回 403（它要求身份）；本项目的正确形态是 400。
+    if (!Array.isArray((canvas as { nodes?: unknown }).nodes) || !Array.isArray((canvas as { edges?: unknown }).edges)) {
+      throw new BadRequestException("canvas must contain nodes and edges arrays");
+    }
     return guarded(() => this.canvas.replaceCanvas(canvas, deletionIntent), "renderer");
   }
 

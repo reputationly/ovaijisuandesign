@@ -1,0 +1,444 @@
+{
+ "generatedAt": "2026-10-20T10:24:25.914Z",
+ "target": "http://127.0.0.1:8001",
+ "total": 71,
+ "byStatus": {
+  "0": 10,
+  "200": 15,
+  "400": 9,
+  "403": 8,
+  "404": 22,
+  "500": 2,
+  "502": 1,
+  "503": 1,
+  "504": 3
+ },
+ "results": [
+  {
+   "method": "GET",
+   "path": "/api/asset-center/entities",
+   "status": 200,
+   "shape": "{entities:[]}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/asset-center/library-status",
+   "status": 200,
+   "shape": "{initialized:boolean}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/canvas/nodes",
+   "status": 403,
+   "shape": "{code:string,message:string}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/comfyui/workflows",
+   "status": 200,
+   "shape": "{workflows:[]}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/files/scan-media",
+   "status": 400,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/local-file",
+   "status": 400,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills/market",
+   "status": 0,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/apollo/config",
+   "status": 504,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/billing/pricing",
+   "status": 0,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/billing/promotion",
+   "status": 0,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/credit/wallet",
+   "status": 502,
+   "shape": "{message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/quick_start_config",
+   "status": 504,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/hub/client_config",
+   "status": 504,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/models/config",
+   "status": 0,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/team/contract",
+   "status": 200,
+   "shape": "{compatibility:string,contract_version:string,gates:{team_billing:boolean,team_invitation:boolean,team_mutation:boolean,team_read:boolean,team_switch:boolean},limits:{max_groups_including_personal:number,max_member_page_size:number,max_members_per_team:number},minimum_client_version:string}"
+  },
+  {
+   "method": "GET",
+   "path": "/backend/group/list",
+   "status": 400,
+   "shape": "{code:string,details:{field:string},error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/assets",
+   "status": 200,
+   "shape": "{assets:[]}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/canvas",
+   "status": 403,
+   "shape": "{code:string,message:string}"
+  },
+  {
+   "method": "POST",
+   "path": "/api/canvas/selection",
+   "status": 403,
+   "shape": "{code:string,message:string}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/canvas/tag-registry",
+   "status": 403,
+   "shape": "{code:string,message:string}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/models",
+   "status": 500,
+   "shape": "{message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/plugins",
+   "status": 200,
+   "shape": "{plugins:[{agent:{editorSurface:boolean,instructions:string,methods:[{description:string,name:string,timeoutMs:number}],sessionName:{en-US:string,zh-CN:string}},description:{en-US:string,zh-CN:string},details:{en-US:string,zh-CN:string},displayMode:string,entryPath:string,iconUrl:{en-US:string,zh-CN:string},id:string,name:{en-US:string,zh-CN:string},source:string,tags:{en-US:[string],zh-CN:[string]},updatedAt:number,version:string}]}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/29099b6909fd63e1-9e7e7118090c8525edc70873fb85d941ac6b844cf0f93f902430d9ea9dcb2f33.jpg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/a3496e26198018a7-da740f98b8094dfffa1c6d8132e1a848cce279b1a91705ca71e2715e12598ff5.jpg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/bc69379873c78e65-8f97cfad91afd4714dad8f8fd0a6d4b3876106c6a1fa13d459f2832e92823433.jpeg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/eaf5357a471f3101-1787058805263862486-<t>.jpg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/promotions/hailuo03-video-trial/status",
+   "status": 0,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/api/files/content",
+   "status": 400,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/files/id/<uuid>",
+   "status": 404,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/files/viewer.pdf",
+   "status": 404,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills",
+   "status": 200,
+   "shape": "[]"
+  },
+  {
+   "method": "POST",
+   "path": "/api/canvas",
+   "status": 403,
+   "shape": "{code:string,message:string}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills/market/categories",
+   "status": 0,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/78055abc2f026fe0-row-05.jpeg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/c9ab97f939f9917f-industrial-dancer-tracker-ui-v2.jpg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "PUT",
+   "path": "/api/files/content",
+   "status": 400,
+   "shape": "{error:string,message:[string],statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills/creator-plan/submissions",
+   "status": 0,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills/market/check-operator",
+   "status": 0,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/api/skills/market/sync-status",
+   "status": 200,
+   "shape": "{lastSyncAt:null,lastSyncResult:null,progress:null,syncing:boolean}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/client_config",
+   "status": 200,
+   "shape": "{}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/0b33bb03f9ea157e-row-20.png",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/0e8eed7e500d5e36-row-12.png",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/1f3a342bffcc683c-row-16.png",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/3c1399ecb225b9af-underground-dancer-tracker-ui-v2.jpg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/3f1f795593b8d2d6-row-19.png",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/604c7bef1cd263d7-row-02.jpeg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/ae8a8d0dbb8c4a28-row-10.jpg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/b875ca302a6afb80-row-13.png",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/ca54702afac52e6b-row-11.png",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/d509c29dfc18ee7c-ebbb92c088c51b9d0a8e6e57666387bbae6d3978a671a3d0d842e31654f82859.jpeg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/d6f7dab6b99e052b-0f1ea5fe7ce5a19f0ff6ab9c6fb3e9b9f1603ab11d8b4ff2e6c900080b0212bc.jpeg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/fb7fa0695e81e880-row-04.png",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "POST",
+   "path": "/api/canvas/add-node",
+   "status": 403,
+   "shape": "{code:string,message:string}"
+  },
+  {
+   "method": "POST",
+   "path": "/api/upload",
+   "status": 500,
+   "shape": "{message:string,statusCode:number}"
+  },
+  {
+   "method": "POST",
+   "path": "/api/canvas/text-edit-state",
+   "status": 403,
+   "shape": "{code:string,message:string}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/files/versions",
+   "status": 400,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/project/architecture",
+   "status": 200,
+   "shape": "{projectArchitecture:string}"
+  },
+  {
+   "method": "POST",
+   "path": "/api/project/resources/tags/get",
+   "status": 200,
+   "shape": "{assignments:[],registry:{orderMode:string,revision:number,tags:[{color:string,id:string,kind:string,legacyNameKey:string}],version:number},revision:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/runtime/models",
+   "status": 503,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "POST",
+   "path": "/api/safety/check-text",
+   "status": 400,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/popup",
+   "status": 200,
+   "shape": "{announcements:[],banner_text:string,can_close:boolean,cover_url:string,description:string,id:string,mute_range_time:number,popup_type:number,title:string,video_url:string}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v3/canvas",
+   "status": 200,
+   "shape": "{edges:{},nodes:{},revision:number,schemaVersion:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v3/canvas/agent-compositions",
+   "status": 200,
+   "shape": "{complete:boolean,items:[],nextSeq:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v3/capabilities",
+   "status": 0,
+   "shape": "null"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v3/tasks",
+   "status": 200,
+   "shape": "{coverage:{reasons:[],status:string},items:[],nextCursor:null}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/asset/video-playback",
+   "status": 400,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/canvas/search",
+   "status": 403,
+   "shape": "{code:string,message:string}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/files/mention-search",
+   "status": 400,
+   "shape": "{error:string,message:[string],statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/72a557968ff1c77b-8f18f69f7d836c991af8ad7097a1eaeba74982f001b9ba3d7a8de224800196fb.jpg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/home/showcase-assets/f112c1ee9a4ce437-7e857266d5b3f402e1a456b0fa44fed894b9b65d582f2e5bdd9980fe7f28d9ef.jpg",
+   "status": 404,
+   "shape": "{error:string,message:string,statusCode:number}"
+  },
+  {
+   "method": "GET",
+   "path": "/api/v1/projects",
+   "status": 0,
+   "shape": "null"
+  }
+ ]
+}
