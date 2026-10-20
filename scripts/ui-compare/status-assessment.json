@@ -1,0 +1,35 @@
+{
+ "generatedAt": "第 287 轮",
+ "remainingBlocker": {
+  "what": "主进程的 IRendererPersistenceService（渲染层持久化报告的同步服务）",
+  "why": [
+   "NativeWorkbenchOwner 的 try 块第一步就是 await prepare() = ensurePersistenceOwner，",
+   "它要 accessor.get(IRendererPersistenceMainService)，而该服务：",
+   "  渲染层 0 处 services.set(...)",
+   "  主进程 0 处 registerChannel('rendererPersistence', ...)",
+   "prepare() 抛错 → fail() → ownerPhase=failed → 页面走 projectV3.loadFailed，",
+   "并且 mount() 一次都不会被调用（已用主进程日志实测）。"
+  ],
+  "scale": [
+   "参照的实现在 .probe/.../out/main/chunks/index-WiZKxTAT.js（220,793 行）里，",
+   "是一个带 onSynchronize / register / unregister / acknowledge 的服务类，",
+   "主进程侧还有 setupHiloAppIpc 把它挂到 ProxyChannel.fromService。",
+   "这不是接线问题，是**主进程桌面服务层的一个子系统**需要整体还原。"
+  ],
+  "affectedAcceptance": "只影响验收第 2 条的 WS 维度（每工作区少 2 帧 editor_subscribe）与资源视图可用性；",
+  "                    ": "不影响 (a)(c)(d) 三条，也不影响 40 屏门禁。"
+ },
+ "whatIsSolid": {
+  "criterionA": "可达代码 0 unbound / 0 占位 / 0 真实重复 / 0 常量不一致 —— 全部为 0",
+  "criterionB_http": "ws-a-v3 的 HTTP 路径集合 23 vs 23，完全一致（白名单：popup 有意关闭、showcase 本地资源）",
+  "criterionB_ws": "差 2 帧/工作区，根因链已完整定位到上面的 persistence 服务",
+  "criterionC": "gateway 协议 7 夹具 + 71 路径重放，真差异 0",
+  "criterionD": "M6 25/25 工具、M7 20 个 v3 配置、M8 打包契约通过",
+  "regression": "40 屏 19 屏 0.000% / 最大 0.142% / 平均 0.0201% / 0 新增报错；home 三连 (0/0)"
+ },
+ "nextWork": [
+  "还原主进程 IRendererPersistenceService（含 setupHiloAppIpc 的通道注册）",
+  "渲染层补 services.set(IRendererPersistenceMainService, ProxyChannel.toService(client.getChannel('rendererPersistence')))",
+  "然后 mount 才会被调用，之后才轮到验证 WebContentsView + v3 产物 + WorkspaceResultNavigationProvider 接线"
+ ]
+}
