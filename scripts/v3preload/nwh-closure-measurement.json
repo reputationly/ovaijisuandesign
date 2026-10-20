@@ -1,20 +1,33 @@
 {
- "generatedAt": "第235轮",
- "note": "nwh 闭包用「迭代补入」测试：**2 圈收敛**，与 shell 的发散形成对照。",
- "rings": [
+ "generatedAt": "第237轮",
+ "note": "nwh 闭包本身收敛（115 个声明），但接不上：它引用 use-window-chrome 共享 chunk 的 291 个导出，我们树里没有。",
+ "closureRings": [
   {
    "round": 1,
    "items": 48,
-   "unbound": 76,
-   "added": 67
+   "unbound": 76
   },
   {
    "round": 2,
    "items": 115,
    "unbound": 1,
-   "added": 0
+   "note": "唯一的 1 是 reactExports 重复声明，不是真缺口"
   }
  ],
- "conclusion": "nwh 收敛（48 → 115，未绑定 76 → 1），可还原；差的只是把片段里的 import 与自己的 import 合并。",
- "blocker": "取回片段本身带 `import ... r as reactExports`，与文件头 import 冲突；整体剥离又会让片段所需的模块导入丢失。需要逐片段分析 import 后合并去重。"
+ "importResolution": {
+  "totalFromChrome": 300,
+  "resolvedToTree": 9,
+  "unresolved": 291,
+  "samples": [
+   "createGroupNodeId",
+   "useTranslation",
+   "cn$1",
+   "Button$1",
+   "cva",
+   "I18nContext",
+   "getI18n"
+  ]
+ },
+ "conclusion": "nwh 与导出引擎同性质：闭包内部收敛，但依赖共享 chunk use-window-chrome（28.4% 覆盖），实际不可还原。",
+ "correction": "第 235 轮判断「nwh 可还原」过乐观；第 236 轮取回 11 个 DI 令牌只解决了 9 个 import，余 291 个仍需整个共享 chunk。"
 }
