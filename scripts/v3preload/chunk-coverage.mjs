@@ -50,15 +50,22 @@ function decls(lines) {
 }
 
 // 树内索引
-const treeStrict = new Set(), treeLoose = new Set();
+const treeStrict = new Set(), treeLoose = new Set(), treeNames = new Set();
 (function walk(d) {
   for (const e of readdirSync(d)) {
     const p = path.join(d, e);
     const st = statSync(p);
     if (st.isDirectory()) { if (e !== "node_modules") walk(p); }
     else if (/\.(js|jsx)$/.test(e) && !/\.test\./.test(p)) {
-      for (const dd of decls(readFileSync(p, "utf8").split("\n"))) {
+      const ls = readFileSync(p, "utf8").split("\n");
+      for (const dd of decls(ls)) {
         treeStrict.add(dd.strict); treeLoose.add(dd.loose);
+      }
+      // 名字级匹配：我们把参照的 chunk 拆成了多文件、改了局部变量名，
+      // 哈希会失配，但顶层名字通常保留。
+      for (const l of ls) {
+        const m = DECL.exec(l);
+        if (m) treeNames.add(m[1]);
       }
     }
   }
@@ -70,13 +77,15 @@ for (const f of chunks) {
   const lines = readFileSync(path.join(ASSETS, f), "utf8").split("\n");
   const ds = decls(lines);
   if (!ds.length) continue;
-  let strict = 0, looseHit = 0, appTotal = 0, appHit = 0;
+  let strict = 0, looseHit = 0, byNameHit = 0, appTotal = 0, appHit = 0;
   for (const d of ds) {
-    const hit = treeStrict.has(d.strict) || treeLoose.has(d.loose);
+    const byName = treeNames.has(d.name);
+    const hit = treeStrict.has(d.strict) || treeLoose.has(d.loose) || byName;
     if (treeStrict.has(d.strict)) strict++; else if (treeLoose.has(d.loose)) looseHit++;
+    else if (byName) byNameHit++;
     if (!d.npmish) { appTotal++; if (hit) appHit++; }
   }
-  rows.push({ chunk: f, total: ds.length, strict, loose: looseHit,
+  rows.push({ chunk: f, total: ds.length, strict, loose: looseHit, byName: byNameHit,
     appTotal, appHit, pct: (strict + looseHit) / ds.length,
     appPct: appTotal ? appHit / appTotal : 0 });
 }
