@@ -275,10 +275,10 @@ const DISABLED_PAGES = [
   {
     id: "ws-a-v3-resource",
     reason:
-      "v3 资源视图目前抛 ReferenceError: useChatSessionAdapter is not defined" +
-      "（native-workbench-host.jsx 的已知缺口之一）。" +
-      "这个屏是第 226 轮新增的**行为验收**，它确实抓到了缺陷；" +
-      "等 useChatSessionAdapter 还原后再放进门禁。",
+      "资源视图已跨过 useChatSessionAdapter（第 227 轮还原），现在卡在 " +
+      "ReferenceError: getNativeWorkbenchOwner is not defined。" +
+      "它的真实现需要 NativeWorkbenchPool/Owner 与 IRendererPersistenceMainService（树里没有）。" +
+      "该屏是行为验收，抓到的是真实缺陷，等下一个缺口补齐后再放进门禁。",
   },
 ];
 // 要看的页面：路由 + 进页面后额外做的动作（可选）

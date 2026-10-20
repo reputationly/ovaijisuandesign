@@ -76,7 +76,7 @@ export function useWorkspaceChatStoreSelector(
   return selected;
 }
 
-function useWorkspaceChatStoreOptionalSelector(store, selector, isEqual) {
+export function useWorkspaceChatStoreOptionalSelector(store, selector, isEqual) {
   const effectiveStore = store ?? nullStore;
   return useWorkspaceChatStoreSelector(
     effectiveStore,

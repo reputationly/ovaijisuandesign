@@ -32,7 +32,7 @@ import { AssetSegment } from "./asset-segment.jsx";
 // ---- 第 209 轮：从产物取回（参考 7496 / 7500）----
 const COMPOSITION_MENTION_TOKEN = /^@composition:([\w-]+)(?:\[("(?:[^"\\]|\\.)*")\])?/u;
 
-function parseCompositionMentionAt(text, start) {
+export function parseCompositionMentionAt(text, start) {
   const match = COMPOSITION_MENTION_TOKEN.exec(text.slice(start));
   if (!match) return undefined;
   try {

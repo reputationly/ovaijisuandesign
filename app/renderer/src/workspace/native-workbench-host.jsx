@@ -30,6 +30,7 @@ import { useWorkbenchEditorEvents, useWorkbenchTaskEvents } from "./workbench-ev
 
 // ---- 第 202 轮：从产物取回（参考 bundle 514253）----
 import { useMediaActions } from "../settings/use-media-actions.js";
+import { useChatSessionAdapter } from "./chat-session-adapter.js";
 
 
 function useNativeWorkbenchFileActions() {

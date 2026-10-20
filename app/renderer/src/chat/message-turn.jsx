@@ -68,7 +68,7 @@ function records(value) {
 }
 
 // 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-function readDesignJson(value, depth2 = 0) {
+export function readDesignJson(value, depth2 = 0) {
   if (depth2 > 4) return void 0;
   if (typeof value === "string") {
     try {

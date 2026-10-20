@@ -27,7 +27,7 @@ export function isBillingPromotionActive(promotion, nowMs = Date.now()) {
     nowMs <= promotion.endTime
   );
 }
-const EMPTY = {
+export const EMPTY = {
   messages: new Map(),
   draft: [],
 };
