@@ -93,8 +93,26 @@ export class ProjectTaskService {
 
   queue() {
     this.ready();
-    const rows = this.database().prepare("SELECT id, operation, idempotency_key AS idempotencyKey, status, revision, input_json AS inputJson, state_json AS stateJson, created_at AS createdAt, updated_at AS updatedAt FROM tasks WHERE status NOT IN ('completed','failed','cancelled') ORDER BY created_at, id").all() as TaskRow[];
-    return { tasks: rows.map(present), coverage: { status: "complete", reasons: [] } };
+    // 第 243 轮：参照的形状是**计数对象**，不是任务数组。
+    // 实测 GET /api/v3/tasks/queue ->
+    //   { tasks:{pending,queued,active,paused,waitingUser,reconciling},
+    //     subtasks:[], concurrency:[], updatedAt:<epoch ms>,
+    //     coverage:{status:"partial",reasons:["dependency_unavailable"]} }
+    // 渲染层的 parseTaskQueue 也按这个形状校验（canvas-v3-model.js:3477），
+    // 我们原来返回 {tasks:[...]} 会被客户端直接拒掉。
+    const rows = this.database().prepare("SELECT status FROM tasks").all() as { status: string }[];
+    const counts = { pending: 0, queued: 0, active: 0, paused: 0, waitingUser: 0, reconciling: 0 };
+    for (const row of rows) {
+      const key = row.status as keyof typeof counts;
+      if (key in counts) counts[key] += 1;
+    }
+    return {
+      tasks: counts,
+      subtasks: [] as unknown[],
+      concurrency: [] as unknown[],
+      updatedAt: Date.now(),
+      coverage: { status: "partial", reasons: ["dependency_unavailable"] as string[] },
+    };
   }
 
   begin(task: { id: string; operation: string; idempotencyKey: string; capabilityId: string; prompt?: string; mediaType: string; output: unknown; requestId: string }) {

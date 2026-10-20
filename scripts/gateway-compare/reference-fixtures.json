@@ -1,0 +1,70 @@
+{
+ "source": "reference gateway 4.0.0 (sandbox, token=rec-token, user=rec-user)",
+ "cases": [
+  {
+   "name": "list",
+   "method": "GET",
+   "path": "/api/v3/tasks",
+   "status": 200,
+   "body": {
+    "items": [],
+    "nextCursor": null,
+    "coverage": {
+     "status": "complete",
+     "reasons": []
+    }
+   }
+  },
+  {
+   "name": "lookup-bad",
+   "method": "GET",
+   "path": "/api/v3/tasks/lookup?operation=x&requestId=y",
+   "status": 422,
+   "body": {
+    "error": {
+     "code": "UNSUPPORTED_OPERATION",
+     "message": "Unsupported task operation",
+     "retryable": false
+    }
+   }
+  },
+  {
+   "name": "get-missing",
+   "method": "GET",
+   "path": "/api/v3/tasks/does-not-exist",
+   "status": 404,
+   "body": {
+    "error": {
+     "code": "NOT_FOUND",
+     "message": "GenerationTask is not readable",
+     "retryable": false
+    }
+   }
+  },
+  {
+   "name": "queue",
+   "method": "GET",
+   "path": "/api/v3/tasks/queue",
+   "status": 200,
+   "body": {
+    "tasks": {
+     "pending": 0,
+     "queued": 0,
+     "active": 0,
+     "paused": 0,
+     "waitingUser": 0,
+     "reconciling": 0
+    },
+    "subtasks": [],
+    "concurrency": [],
+    "updatedAt": 1792487254126,
+    "coverage": {
+     "status": "partial",
+     "reasons": [
+      "dependency_unavailable"
+     ]
+    }
+   }
+  }
+ ]
+}

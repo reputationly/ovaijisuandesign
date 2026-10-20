@@ -35,6 +35,22 @@ try {
   process.exit(1);
 }
 
+// L0 gateway 协议对比（第 243 轮，用户方案硬规则 5）：拿录好的参照夹具比对我们的 gateway。
+// 需要先构建 gateway；构建产物不在时跳过并提示（不静默通过）。
+try {
+  const gw = execFileSync(process.execPath, [path.join(here, "../../gateway-compare/compare.mjs")], { encoding: "utf-8", stdio: "pipe" });
+  console.log("✓ gateway 协议与参照一致");
+} catch (e) {
+  const out = String(e.stdout ?? "");
+  if (out.includes("没起来")) {
+    console.log("⚠ gateway 协议对比跳过（gateway 未构建，先跑 cd app/gateway && pnpm run build）");
+  } else {
+    console.log("✗ gateway 协议不一致");
+    console.log(out.split("\n").filter((l) => l.startsWith("  ")).join("\n"));
+    process.exit(1);
+  }
+}
+
 let failed = 0;
 
 for (const file of checks.sort()) {
