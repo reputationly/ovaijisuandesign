@@ -1,11 +1,32 @@
 // ==== 逐文件收敛 ====
 
+import jsxRuntimeExports from "react/jsx-runtime";
 import { DialogBackdrop, DialogClose$1, DialogPopup, DialogPortal$2 } from "../infra/base-ui.js";
 import { cn as cn$5 } from "../infra/dialog-content.jsx";
 import { Button as Button$2 } from "@base-ui/react";
 import { XIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { __jsx } from "../shared/jsx-runtime.js";
+
+// ---- 第 208 轮：从产物取回（参考 25791，18 行）----
+function DialogOverlay$3({
+  className,
+  mask: mask2 = "dim",
+  ...props
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    DialogBackdrop,
+    {
+      "data-slot": "dialog-overlay",
+      "data-mask": mask2,
+      className: cn$5(
+        "modal-mask fixed inset-0 isolate z-[10000] duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        className
+      ),
+      ...props
+    }
+  );
+}
 export function DialogOverlay({
   className,
   mask: mask2 = "dim",

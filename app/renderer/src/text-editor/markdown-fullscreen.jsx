@@ -134,11 +134,6 @@ function assumeContentType(content, contentType) {
   if (typeof content !== "string") return "json";
   return contentType;
 }
-function markdownToHtml(options) {
-  const processor = createProcessor(options);
-  const file = createFile(options);
-  return post(processor.runSync(processor.parse(file), file), options);
-}
 const ANNOTATION_CLASS = "canvas-annotation-mark";
 const ANNOTATION_ACTIVE_CLASS = "canvas-annotation-mark-active";
 const AnnotationHighlight = Extension.create({
@@ -1681,15 +1676,6 @@ export function MarkdownFullscreen({
       )}
     </FullscreenShell>
   );
-}
-
-function createFile(options2) {
-  const children2 = options2.children || "";
-  const file = new VFile();
-  if (typeof children2 === "string") {
-    file.value = children2;
-  }
-  return file;
 }
 
 const TEXT_TOOLBAR_ICON_PROPS = {

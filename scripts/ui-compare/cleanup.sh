@@ -18,6 +18,6 @@ for pat in "${PATTERNS[@]}"; do
   [ -n "$pids" ] && echo "$pids" | xargs -r kill -9 2>/dev/null
 done
 sleep 2
-left=$(ps -Ao args | grep -cE "node_modules/\.pnpm/electron|app/gateway/dist/main\.js|opencode-v[0-9.]*/opencode")
+left=$(ps -Ao args | grep -E "node_modules/\.pnpm/electron|app/gateway/dist/main\.js|opencode-v[0-9.]*/opencode" | grep -vc "grep")
 echo "残留: $left"
 exit 0
