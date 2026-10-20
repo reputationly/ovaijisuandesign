@@ -143,6 +143,33 @@ export class GatewayClient {
    * 408 / 5xx / 网络错是 status_unknown（请求可能已生效），其余 terminal。
    * 响应 schema 接受这个形状就原样返回，让工具按业务语义回话；否则抛错。
    */
+  /**
+   * PUT（第 258 轮）。有些 gateway 端点只接受 PUT（例如 `/api/project-rules`），
+   * 用 POST 会 404 —— 所以单独开一个方法，而不是在调用方假装。
+   */
+  async put<S extends z.ZodTypeAny>(path: string, body: unknown, timeoutMs: number, schema: S): Promise<z.output<S>> {
+    const serialized = JSON.stringify(body);
+    log(`PUT ${this.url(path)} body=${serialized}`);
+    let resp: Response;
+    try {
+      resp = await fetch(this.url(path), {
+        method: "PUT",
+        headers: this.requestHeaders(),
+        body: serialized,
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+    } catch (err) {
+      const msg = errorMessage(err);
+      log(`PUT ${path} network error: ${msg}`);
+      throw err;
+    }
+    if (!resp.ok) {
+      const httpError = await parseHttpError(resp);
+      throw httpError;
+    }
+    return schema.parse(await resp.json());
+  }
+
   async post<S extends z.ZodTypeAny>(path: string, body: unknown, timeoutMs: number, schema: S): Promise<z.output<S>> {
     const serialized = JSON.stringify(body);
     log(`POST ${this.url(path)} body=${serialized}`);

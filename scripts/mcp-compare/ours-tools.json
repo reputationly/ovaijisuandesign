@@ -1,6 +1,6 @@
 {
  "source": "our mcp-tools（真跑 tools/list）",
- "count": 45,
+ "count": 51,
  "tools": [
   {
    "name": "get_model_concurrency",
@@ -6999,6 +6999,268 @@
     },
     "required": [
      "queries"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "project_rules",
+   "description": "Read or save the current project's persistent working rules.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "read",
+       "save"
+      ]
+     },
+     "content": {
+      "type": "string",
+      "maxLength": 16384,
+      "description": "action=save 时必填，完整 Markdown"
+     },
+     "expectedRevision": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "task_wait",
+   "description": "Wait for a task to reach a terminal state or require user input.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "taskId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     }
+    },
+    "required": [
+     "taskId"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "resource_edit",
+   "description": "Select a Resource's current version (adopt) or update its metadata.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "adopt",
+       "describe",
+       "batch"
+      ]
+     },
+     "resourceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "versionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 4096
+     },
+     "expectedRevision": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "composition_edit",
+   "description": "Edit Composition metadata, members or order without generating media.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "ensure",
+       "update",
+       "rename",
+       "set_attributes",
+       "move",
+       "duplicate",
+       "batch"
+      ]
+     },
+     "typeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+     },
+     "compositionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "expectedRevision": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "document_write",
+   "description": "Create, rewrite or patch a durable TEXT_DOCUMENT Resource.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "resourceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "create",
+       "rewrite",
+       "patch"
+      ]
+     },
+     "content": {
+      "type": "string",
+      "maxLength": 1048576
+     },
+     "expectedRevision": {
+      "type": "integer",
+      "minimum": 1
+     }
+    },
+    "required": [
+     "requestId"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "voice_search",
+   "description": "Search the preset voice catalog for speech generation.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "items": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "id": {
+         "type": "string",
+         "maxLength": 128
+        },
+        "language": {
+         "type": "string",
+         "maxLength": 32
+        },
+        "query": {
+         "type": "string",
+         "maxLength": 512
+        },
+        "tags": {
+         "type": "array",
+         "items": {
+          "type": "string",
+          "maxLength": 64
+         },
+         "maxItems": 10
+        }
+       },
+       "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 20
+     }
+    },
+    "required": [
+     "items"
     ],
     "additionalProperties": true,
     "$schema": "http://json-schema.org/draft-07/schema#"

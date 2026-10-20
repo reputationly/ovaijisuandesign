@@ -32,10 +32,23 @@ const MODULES: RegisterTools[] = [
   registerCanvasTools,
   registerPlanTools,
   registerMemoryTools,
-  // v3 工具（第 256 轮起）
-  registerV3Tools,
 ];
+
+/**
+ * v3 专属工具（第 256 轮起）。
+ *
+ * 参照只在 `HILO_PROJECT_ARCHITECTURE=resource_v3` 下注册这 25 个工具
+ * （实测：不设该变量时 mcp-tools-v3 直接抛
+ *  "V3 MCP requires HILO_PROJECT_ARCHITECTURE=resource_v3"）。
+ * 所以这里同样按架构开关，legacy 的工具面（57 个）保持不变。
+ */
+const V3_MODULES: RegisterTools[] = [registerV3Tools];
+
+export function v3ToolsEnabled(): boolean {
+  return process.env.HILO_PROJECT_ARCHITECTURE === "resource_v3";
+}
 
 export function registerAllTools(registrar: ToolRegistrar, gateway: GatewayClient, region: ReleaseRegion): void {
   for (const register of MODULES) register(registrar, gateway, region);
+  if (v3ToolsEnabled()) for (const register of V3_MODULES) register(registrar, gateway, region);
 }

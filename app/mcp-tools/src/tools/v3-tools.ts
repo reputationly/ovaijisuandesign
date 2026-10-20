@@ -120,6 +120,55 @@ const capabilitySearchSchema = z.object({
   queries: z.array(z.string().min(1).max(64)).min(1).max(5),
 });
 
+
+// ---- 规则 / 文档 / 编辑 / 检索（第 258 轮）----
+
+const projectRulesSchema = z.object({
+  action: z.enum(["read", "save"]),
+  content: z.string().max(16 * 1024).optional().describe("action=save 时必填，完整 Markdown"),
+  expectedRevision: z.number().int().min(0).optional(),
+  requestId: z.string().min(1).max(512).optional(),
+});
+
+const taskWaitSchema = z.object({ taskId: z.string().min(1).max(512) });
+
+const resourceEditSchema = z.object({
+  action: z.enum(["adopt", "describe", "batch"]),
+  resourceId: z.string().min(1).max(512).optional(),
+  versionId: z.string().min(1).max(512).optional(),
+  name: z.string().min(1).max(512).optional(),
+  description: z.string().max(4096).optional(),
+  expectedRevision: z.number().int().min(1).optional(),
+  requestId: z.string().min(1).max(512).optional(),
+});
+
+const compositionEditSchema = z.object({
+  action: z.enum(["ensure", "update", "rename", "set_attributes", "move", "duplicate", "batch"]),
+  typeId: z.string().min(1).max(128).optional(),
+  compositionId: z.string().min(1).max(512).optional(),
+  name: z.string().min(1).max(512).optional(),
+  expectedRevision: z.number().int().min(1).optional(),
+  requestId: z.string().min(1).max(512).optional(),
+});
+
+const documentWriteSchema = z.object({
+  requestId: z.string().min(1).max(512),
+  resourceId: z.string().min(1).max(512).optional(),
+  name: z.string().min(1).max(512).optional(),
+  mode: z.enum(["create", "rewrite", "patch"]).optional(),
+  content: z.string().max(1 << 20).optional(),
+  expectedRevision: z.number().int().min(1).optional(),
+});
+
+const voiceSearchSchema = z.object({
+  items: z.array(z.object({
+    id: z.string().max(128).optional(),
+    language: z.string().max(32).optional(),
+    query: z.string().max(512).optional(),
+    tags: z.array(z.string().max(64)).max(10).optional(),
+  })).min(1).max(20),
+});
+
 export const registerV3Tools: RegisterTools = (registrar, gw) => {
   registrar.registerTool(
     "task_query",
@@ -284,6 +333,96 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
         return structuredReply((await gw.get(`/api/connectors/search?${params}`, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
       } catch (error) {
         return errorReply(`capability_search 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+  registrar.registerTool(
+    "project_rules",
+    { description: "Read or save the current project's persistent working rules.", inputSchema: projectRulesSchema.shape },
+    async (args: z.infer<typeof projectRulesSchema>) => {
+      try {
+        if (args.action === "read") {
+          return structuredReply({ rules: await gw.get("/api/project-rules", TIMEOUT_MS, z.unknown()) });
+        }
+        if (!args.content) return errorReply("project_rules: action=save 需要 content");
+        const saved = await gw.put("/api/project-rules", {
+          content: args.content,
+          ...(args.expectedRevision === undefined ? {} : { expectedRevision: args.expectedRevision }),
+          ...(args.requestId ? { requestId: args.requestId } : {}),
+        }, TIMEOUT_MS, z.unknown());
+        return structuredReply({ rules: saved });
+      } catch (error) {
+        return errorReply(`project_rules 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "task_wait",
+    { description: "Wait for a task to reach a terminal state or require user input.", inputSchema: taskWaitSchema.shape },
+    async (args: z.infer<typeof taskWaitSchema>) => {
+      try {
+        // 我们还没有长轮询端点；先返回当前快照并标注未阻塞，避免假装等待。
+        const task = await gw.get(`/api/v3/tasks/${encodeURIComponent(args.taskId)}`, TIMEOUT_MS, z.unknown());
+        return structuredReply({ task, waited: false, reason: "long-poll endpoint not implemented" });
+      } catch (error) {
+        return errorReply(`task_wait 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "resource_edit",
+    { description: "Select a Resource's current version (adopt) or update its metadata.", inputSchema: resourceEditSchema.shape },
+    async (args: z.infer<typeof resourceEditSchema>) => {
+      try {
+        return structuredReply((await gw.post("/api/project/resources/commands", {
+          command: { ...args },
+        }, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`resource_edit 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "composition_edit",
+    { description: "Edit Composition metadata, members or order without generating media.", inputSchema: compositionEditSchema.shape },
+    async (args: z.infer<typeof compositionEditSchema>) => {
+      try {
+        return structuredReply((await gw.post("/api/project/compositions/commands", {
+          command: { ...args },
+        }, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`composition_edit 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "document_write",
+    { description: "Create, rewrite or patch a durable TEXT_DOCUMENT Resource.", inputSchema: documentWriteSchema.shape },
+    async (args: z.infer<typeof documentWriteSchema>) => {
+      try {
+        return structuredReply((await gw.post("/api/project/resources/commands", {
+          commandId: args.requestId,
+          command: { type: "write_document", ...args },
+        }, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`document_write 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "voice_search",
+    { description: "Search the preset voice catalog for speech generation.", inputSchema: voiceSearchSchema.shape },
+    async (args: z.infer<typeof voiceSearchSchema>) => {
+      try {
+        const params = new URLSearchParams({ q: args.items.map((i) => i.query ?? i.id ?? "").filter(Boolean).join(",") });
+        return structuredReply((await gw.get(`/api/v3/voices?${params}`, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`voice_search 失败：${errorMessage(error)}`);
       }
     },
   );
