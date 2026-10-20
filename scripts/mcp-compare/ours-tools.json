@@ -1,6 +1,6 @@
 {
  "source": "our mcp-tools（真跑 tools/list）",
- "count": 34,
+ "count": 45,
  "tools": [
   {
    "name": "get_model_concurrency",
@@ -6576,6 +6576,435 @@
     ],
     "additionalProperties": false,
     "$schema": "http://json-schema.org/draft-07/schema#"
+   }
+  },
+  {
+   "name": "task_query",
+   "description": "Read authorized project tasks: mode=get requires taskId and returns {task,input}; mode=list returns {items,nextCursor,coverage} filtered by query.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "mode": {
+      "type": "string",
+      "enum": [
+       "get",
+       "list"
+      ],
+      "description": "get 需要 taskId；list 走 query 过滤"
+     },
+     "taskId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "mode=get 时必填"
+     },
+     "query": {
+      "type": "object",
+      "properties": {
+       "status": {
+        "type": "array",
+        "items": {
+         "type": "string",
+         "enum": [
+          "accepted",
+          "running",
+          "waiting_user",
+          "unknown",
+          "completed",
+          "failed",
+          "cancelled"
+         ]
+        },
+        "minItems": 1,
+        "maxItems": 7
+       },
+       "operation": {
+        "type": "string"
+       }
+      },
+      "additionalProperties": false,
+      "description": "mode=list 时的过滤条件"
+     }
+    },
+    "required": [
+     "mode"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "task_resolve",
+   "description": "Apply task actions with the latest task.revision as expectedRevision; returns {task}. On revision conflict the call fails and the task must be re-read.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "taskId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "expectedRevision": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "action": {
+      "type": "string",
+      "enum": [
+       "pause",
+       "resume",
+       "stop",
+       "adopt_version",
+       "finish_as_candidate",
+       "update_placement",
+       "finish_without_placement",
+       "retry"
+      ]
+     },
+     "expectedCurrentVersionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     }
+    },
+    "required": [
+     "taskId",
+     "expectedRevision",
+     "action"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "capability_list",
+   "description": "List media production and native editor plugin capabilities.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "operation": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "generate_image",
+         "generate_video",
+         "generate_speech",
+         "generate_music",
+         "edit_media"
+        ]
+       },
+       {
+        "type": "array",
+        "items": {
+         "type": "string",
+         "enum": [
+          "generate_image",
+          "generate_video",
+          "generate_speech",
+          "generate_music",
+          "edit_media"
+         ]
+        },
+        "minItems": 1,
+        "maxItems": 5
+       }
+      ],
+      "description": "单个操作或数组；省略表示全部"
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "media",
+       "plugin"
+      ]
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "resource_search",
+   "description": "Search project resources by text, kind and lifecycle.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 200
+     },
+     "cursor": {
+      "type": "string",
+      "maxLength": 4096
+     },
+     "text": {
+      "type": "string",
+      "maxLength": 2000
+     },
+     "kinds": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "text",
+        "image",
+        "video",
+        "audio"
+       ]
+      },
+      "minItems": 1,
+      "maxItems": 4
+     },
+     "lifecycle": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "draft",
+        "active",
+        "archived",
+        "deleted"
+       ]
+      },
+      "minItems": 1,
+      "maxItems": 4
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "resource_get",
+   "description": "Read a resource's current version, versions or relations.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "view": {
+      "type": "string",
+      "enum": [
+       "current",
+       "versions",
+       "relations"
+      ]
+     },
+     "resourceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "versionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "resourceIds": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 512
+      },
+      "minItems": 1,
+      "maxItems": 20
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "composition_search",
+   "description": "Search compositions by name, attribute or member resource.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 200
+     },
+     "cursor": {
+      "type": "string",
+      "maxLength": 4096
+     },
+     "text": {
+      "type": "string",
+      "maxLength": 2000
+     },
+     "type": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "composition_type_list",
+   "description": "List composition type definitions.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "text": {
+      "type": "string",
+      "maxLength": 2000
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "composition_get",
+   "description": "Read one or many compositions.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "compositionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "compositionIds": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 512
+      },
+      "minItems": 1,
+      "maxItems": 20
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "resource_preview",
+   "description": "Inspect a fixed version as metadata or bounded model-readable content.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "versionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "metadata",
+       "content"
+      ]
+     },
+     "maxEdge": {
+      "type": "integer",
+      "minimum": 256,
+      "maximum": 2048
+     },
+     "fromMs": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "toMs": {
+      "type": "integer",
+      "minimum": 0
+     }
+    },
+    "required": [
+     "versionId"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "capability_get",
+   "description": "Read media, native editor or connector contracts in one batch.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "capabilityIds": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 512
+      },
+      "minItems": 1,
+      "maxItems": 50
+     },
+     "operation": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "capability_search",
+   "description": "Find an external connector by name, alias or task terms.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "queries": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 64
+      },
+      "minItems": 1,
+      "maxItems": 5
+     }
+    },
+    "required": [
+     "queries"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
    }
   }
  ]

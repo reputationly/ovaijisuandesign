@@ -14,6 +14,7 @@ import { registerPlanTools } from "./plan-tools.js";
 import { registerSubtitleTools } from "./subtitle-tools.js";
 import type { RegisterTools } from "./types.js";
 import { registerUtilityTools } from "./utility-tools.js";
+import { registerV3Tools } from "./v3-tools.js";
 
 export { UNSUPPORTED_TOOLS, UNSUPPORTED_TOOL_NAMES } from "./unsupported.js";
 
@@ -31,6 +32,8 @@ const MODULES: RegisterTools[] = [
   registerCanvasTools,
   registerPlanTools,
   registerMemoryTools,
+  // v3 工具（第 256 轮起）
+  registerV3Tools,
 ];
 
 export function registerAllTools(registrar: ToolRegistrar, gateway: GatewayClient, region: ReleaseRegion): void {
