@@ -28,6 +28,25 @@ import { useChatPresentation } from "./use-copy.jsx";
 import { splitMentionFilename } from "../infra/dialog-content.jsx";
 import { Layers } from "../media-editing/lucide-icon-wraps.js";
 import { AssetSegment } from "./asset-segment.jsx";
+
+// ---- 第 209 轮：从产物取回（参考 7496 / 7500）----
+const COMPOSITION_MENTION_TOKEN = /^@composition:([\w-]+)(?:\[("(?:[^"\\]|\\.)*")\])?/u;
+
+function parseCompositionMentionAt(text, start) {
+  const match = COMPOSITION_MENTION_TOKEN.exec(text.slice(start));
+  if (!match) return undefined;
+  try {
+    return {
+      compositionId: match[1],
+      name: match[2] ? JSON.parse(match[2]) : match[1],
+      start,
+      end: start + match[0].length,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 const MENTION_THUMB_PX = 18;
 
 const TOKEN_CLASS =
