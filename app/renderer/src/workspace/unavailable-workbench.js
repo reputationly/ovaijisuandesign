@@ -21,6 +21,8 @@
  *   详见 scripts/v3preload/{shell,nwh}-closure-measurement.json。
  */
 
+import jsxRuntimeExports from "react/jsx-runtime";
+
 export const WORKBENCH_UNAVAILABLE = "WORKBENCH_CAPABILITY_UNAVAILABLE";
 
 function unavailable(what, why) {
@@ -32,12 +34,29 @@ function unavailable(what, why) {
 const SHELL_WHY = "闭包发散，shell-closure-measurement.json";
 const NWH_WHY = "依赖 use-window-chrome 共享 chunk（291 个名字无导出），nwh-closure-measurement.json";
 
-export function WorkspaceCompositionActions() {
-  throw unavailable("WorkspaceCompositionActions", SHELL_WHY);
+/**
+ * 渲染型占位的统一实现：**渲染一段显式的「不可用」提示**，而不是抛错。
+ * 抛错会掀掉整棵 React 树（进错误边界），用户只看到白屏，反而更难诊断。
+ */
+function UnavailableNotice({ what, why }) {
+  const error = unavailable(what, why);
+  return jsxRuntimeExports.jsx("div", {
+    role: "alert",
+    "data-unavailable": what,
+    className: "flex flex-col gap-1 rounded-md border border-dashed p-3 text-xs text-muted-foreground",
+    children: [
+      jsxRuntimeExports.jsx("span", { className: "font-medium", children: `${what} 尚未还原` }),
+      jsxRuntimeExports.jsx("span", { children: error.message }),
+    ],
+  });
 }
 
-export function WorkspaceStructurePresentation() {
-  throw unavailable("WorkspaceStructurePresentation", SHELL_WHY);
+export function WorkspaceCompositionActions({ children }) {
+  return jsxRuntimeExports.jsx(UnavailableNotice, { what: "WorkspaceCompositionActions", why: SHELL_WHY });
+}
+
+export function WorkspaceStructurePresentation({ children }) {
+  return jsxRuntimeExports.jsx(UnavailableNotice, { what: "WorkspaceStructurePresentation", why: SHELL_WHY });
 }
 
 export function getNativeWorkbenchOwner() {
@@ -56,5 +75,5 @@ INativeWorkbenchService.toString = () => "INativeWorkbenchService(unavailable)";
 const MENTION_WHY = "闭包 96 声明 / 4102 行，且 CompositionThumbnail 切片落在包装层内";
 
 export function CompositionMentionTag() {
-  throw unavailable("CompositionMentionTag", MENTION_WHY);
+  return jsxRuntimeExports.jsx(UnavailableNotice, { what: "CompositionMentionTag", why: MENTION_WHY });
 }
