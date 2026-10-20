@@ -37369,7 +37369,9 @@ function EditorLoader(props) {
     let active2 = true;
     let retryTimer;
     setLoadError(null);
-    void __vitePreload(() => Promise.resolve().then(() => ({ ep: undefined })).then((n) => n.ep), true ? __vite__mapDeps([0,1,2,3,4,5]) : void 0, import.meta.url).then(
+    // 第 272 轮：这里原来是个 stub —— `Promise.resolve().then(() => ({ ep: undefined }))`，
+    // 也就是导出引擎从来没被真正加载过。现在镜像已完成，改为动态 import 真引擎。
+    void import("../export-engine/export-engine.js").then((n) => n.index ?? n).then(
       (value) => {
         if (active2) setModule(value);
       },

@@ -341,6 +341,10 @@ for (const file of files) {
         assignedProperties.get(binding)?.has(key) ||
         Object.prototype.hasOwnProperty.call(Object.prototype, key)
       ) return;
+      // 第 272 轮：highlight.js 的扩展点 —— `before:highlight` 的监听者可以往
+      // context 上挂 `result`，库自己也是这么读的（`context.result ? context.result : ...`）。
+      // 参照 bundle 里同样写法，不是缺陷。
+      if (key === "result" && member.object.name === "context") return;
       const position = member.property.loc.start;
       findings.push(
         `${path.relative(repo, file)}:${position.line}:${position.column + 1} [missing object property] ${member.object.name}.${key}`,
