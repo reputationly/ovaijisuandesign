@@ -164,6 +164,28 @@
     "或让 host 在 attach 后主动调用一次 owner.layout(bounds, visible)。"
    ],
    "state": "已回滚试验性改动，工作树干净，home (0/0)，审计三项 0"
+  },
+  "round295": {
+   "chainTo": [
+    "props 层 visible=true（实测 {a:true,p:true,v:true}）",
+    "mount 到达主进程 ✓  bundle 加载 345 文件 ✓",
+    "did-start-loading / dom-ready / did-finish-load 全部触发 ✓",
+    "端口发到渲染层：**[bridge] port received doc=<uuid>** ✓",
+    "bridge.connect 成功：**[conn] connect ok** ✓"
+   ],
+   "stopsAt": [
+    "serveResourceFrame(port, …) 的 onReady 从不触发（[ready] 无 trace）。",
+    "也就是说：MessagePort 建立之后，两端的握手协议没有走完。",
+    "而 host 的 layout 需要 phase==='ready' 才会把 visible 传 true，",
+    "所以视图一直是 0×0 —— 这是「visible=false」的真正上游原因；",
+    "round 294 发现的 attach cleanup 污染只是**次要**因素（顺序在后）。"
+   ],
+   "nextProbe": [
+    "查 v3 视图侧的 preload（out/preload/v3-workbench.mjs）是否在 WebContentsView 里真正执行：",
+    "它负责接住 bootstrap 消息并回握手；若它没跑，serveResourceFrame 永远等不到对端。",
+    "可在 preload 里往 process.env 或一个临时文件写标记（preload 有 node 访问权，sandbox:true 时受限，需确认）。"
+   ],
+   "state": "已回滚全部日志，工作树干净，home (0/0)，审计三项 0"
   }
  }
 }
