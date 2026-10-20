@@ -13,6 +13,29 @@ import { Plugin, Selection, SelectionRange as SelectionRange$1, TextSelection } 
 import { CellBookmark, CellSelection, ResizeState, TableMap, TableView as TableView$1, addColSpan, addColumn, addRow, columnResizing, columnResizingPluginKey, fixTables, goToNextCell, handlePaste, inSameTable, isInTable, mergeCells, moveCellForward, pointsAtCell, removeColSpan, removeColumn, removeRow, selectedRect, selectionCell, splitCellWithType, tableEditing, tableEditingKey, tableNodeTypes, toggleHeader } from "prosemirror-tables";
 import { createTable } from "@tanstack/table-core";
 import { mergeAttributes } from "@tiptap/core";
+
+// 第 200 轮：从产物取回（参考 bundle 162460）。
+// isCellSelection 来自 prosemirror-tables；findParentNodeClosestToPos 是
+// prosemirror-utils 的助手，本仓库没装，就地实现（逻辑等价：沿 $pos 逐层上溯）。
+// prosemirror-tables 不导出 isCellSelection，它是  的别名。
+const isCellSelection = (selection) => selection instanceof CellSelection;
+
+
+const deleteTableWhenAllCellsSelected = ({ editor }) => {
+  const { selection } = editor.state;
+  if (!isCellSelection(selection)) return false;
+  let cellCount = 0;
+  const table = findParentNodeClosestToPos(selection.ranges[0].$from, (node) => node.type.name === "table");
+  table?.node.descendants((node) => {
+    if (node.type.name === "table") return false;
+    if (["tableCell", "tableHeader"].includes(node.type.name)) cellCount += 1;
+    return true;
+  });
+  if (cellCount !== selection.ranges.length) return false;
+  editor.commands.deleteTable();
+  return true;
+};
+
 const Table = Node$1.create({
   name: "table",
   addOptions() {
