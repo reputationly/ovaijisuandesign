@@ -1,0 +1,926 @@
+{
+ "generatedFor": "4.0.0",
+ "seeds": [
+  "WorkspaceCompositionActions",
+  "WorkspaceStructurePresentation"
+ ],
+ "total": 80,
+ "lines": 3451,
+ "perRing": [
+  2,
+  12,
+  5,
+  10,
+  12,
+  12,
+  20,
+  4,
+  3
+ ],
+ "byStatus": {
+  "todo": 79,
+  "restored": 1
+ },
+ "items": [
+  {
+   "i": 205,
+   "names": [
+    "I18nextProvider"
+   ],
+   "start": 142174,
+   "end": 142433,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 273,
+   "names": [
+    "ADD_TO_CHAT_VIEW_BOX$1"
+   ],
+   "start": 230192,
+   "end": 230235,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 274,
+   "names": [
+    "ADD_TO_CHAT_PATHS$1"
+   ],
+   "start": 230236,
+   "end": 230669,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 275,
+   "names": [
+    "AddToChatIcon$1"
+   ],
+   "start": 230670,
+   "end": 231195,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 2570,
+   "names": [
+    "cropImageToBlob$1"
+   ],
+   "start": 1962785,
+   "end": 1963860,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 2573,
+   "names": [
+    "useImageCrop$1"
+   ],
+   "start": 1964716,
+   "end": 1968254,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 3983,
+   "names": [
+    "normalizePromptFontSize$1"
+   ],
+   "start": 3096221,
+   "end": 3096422,
+   "ring": 8,
+   "status": "todo"
+  },
+  {
+   "i": 5266,
+   "names": [
+    "SegmentedSwitch$1"
+   ],
+   "start": 6145722,
+   "end": 6149772,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 13101,
+   "names": [
+    "InfiniteQueryObserver"
+   ],
+   "start": 13208042,
+   "end": 13210054,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 13111,
+   "names": [
+    "useInfiniteQuery"
+   ],
+   "start": 13220475,
+   "end": 13220614,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 13685,
+   "names": [
+    "referenceResourceKind"
+   ],
+   "start": 13598902,
+   "end": 13599176,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 13686,
+   "names": [
+    "readResourceVersionHistory"
+   ],
+   "start": 13599177,
+   "end": 13599576,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16438,
+   "names": [
+    "CompositionActionsProvider"
+   ],
+   "start": 16631913,
+   "end": 16632104,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16489,
+   "names": [
+    "toAsyncSectionState"
+   ],
+   "start": 16665645,
+   "end": 16666063,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16490,
+   "names": [
+    "frozen"
+   ],
+   "start": 16666064,
+   "end": 16666195,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16506,
+   "names": [
+    "createTaskQueryOptions"
+   ],
+   "start": 16675655,
+   "end": 16676631,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16509,
+   "names": [
+    "useTaskResolve"
+   ],
+   "start": 16676959,
+   "end": 16677180,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16545,
+   "names": [
+    "StructureMediaProvider"
+   ],
+   "start": 16725170,
+   "end": 16725790,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16640,
+   "names": [
+    "structureEditorEn"
+   ],
+   "start": 16910666,
+   "end": 16912268,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16642,
+   "names": [
+    "compositionEditEn"
+   ],
+   "start": 16913969,
+   "end": 16916658,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16644,
+   "names": [
+    "treeLabelsEn"
+   ],
+   "start": 16916966,
+   "end": 16917542,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16646,
+   "names": [
+    "en$2"
+   ],
+   "start": 16923030,
+   "end": 16931562,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16647,
+   "names": [
+    "structureTranslations"
+   ],
+   "start": 16931563,
+   "end": 16931610,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16650,
+   "names": [
+    "ResourceDetailProvider"
+   ],
+   "start": 16931745,
+   "end": 16932091,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16686,
+   "names": [
+    "useWorkspaceChatComposer"
+   ],
+   "start": 16978542,
+   "end": 16979475,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16895,
+   "names": [
+    "readCompositionResources"
+   ],
+   "start": 17252856,
+   "end": 17254193,
+   "ring": 2,
+   "status": "restored"
+  },
+  {
+   "i": 16896,
+   "names": [
+    "readCompositionFiles"
+   ],
+   "start": 17254194,
+   "end": 17255427,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16897,
+   "names": [
+    "WorkspaceCompositionActions"
+   ],
+   "start": 17255428,
+   "end": 17258792,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16926,
+   "names": [
+    "createDetailReferenceImports$1"
+   ],
+   "start": 17290670,
+   "end": 17291340,
+   "ring": 8,
+   "status": "todo"
+  },
+  {
+   "i": 17060,
+   "names": [
+    "DocumentContent$1"
+   ],
+   "start": 17420385,
+   "end": 17421836,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17061,
+   "names": [
+    "DocumentFullscreenPreview"
+   ],
+   "start": 17421837,
+   "end": 17424083,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17062,
+   "names": [
+    "useDocumentContent"
+   ],
+   "start": 17424084,
+   "end": 17425068,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17063,
+   "names": [
+    "DocumentPreview"
+   ],
+   "start": 17425069,
+   "end": 17428263,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17068,
+   "names": [
+    "ResourcePreview"
+   ],
+   "start": 17436167,
+   "end": 17436603,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17069,
+   "names": [
+    "MediaPreview$1"
+   ],
+   "start": 17436604,
+   "end": 17437948,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17116,
+   "names": [
+    "useDetailPricing"
+   ],
+   "start": 17531040,
+   "end": 17531619,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17117,
+   "names": [
+    "useDetailFontSize"
+   ],
+   "start": 17531620,
+   "end": 17531774,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17118,
+   "names": [
+    "useStoredDetailFontSize"
+   ],
+   "start": 17531775,
+   "end": 17532634,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 17119,
+   "names": [
+    "useDetailReferenceOptions"
+   ],
+   "start": 17532635,
+   "end": 17533577,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17120,
+   "names": [
+    "alwaysReady"
+   ],
+   "start": 17533578,
+   "end": 17533609,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17121,
+   "names": [
+    "noSubscription$1"
+   ],
+   "start": 17533610,
+   "end": 17533651,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17122,
+   "names": [
+    "useDetailReady"
+   ],
+   "start": 17533652,
+   "end": 17533880,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17148,
+   "names": [
+    "createDetailReferenceImports"
+   ],
+   "start": 17565203,
+   "end": 17565371,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 17152,
+   "names": [
+    "useDetailCanvasImages"
+   ],
+   "start": 17565479,
+   "end": 17567817,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17154,
+   "names": [
+    "ResourceReferencePicker"
+   ],
+   "start": 17567846,
+   "end": 17570263,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17155,
+   "names": [
+    "ResourceReferencePreview"
+   ],
+   "start": 17570264,
+   "end": 17572184,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17156,
+   "names": [
+    "editorReference"
+   ],
+   "start": 17572185,
+   "end": 17572310,
+   "ring": 8,
+   "status": "todo"
+  },
+  {
+   "i": 17157,
+   "names": [
+    "ResourceAgentInput"
+   ],
+   "start": 17572311,
+   "end": 17572574,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17158,
+   "names": [
+    "ResourceAgentInputBody"
+   ],
+   "start": 17572575,
+   "end": 17580315,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 17159,
+   "names": [
+    "ResourceChat"
+   ],
+   "start": 17580316,
+   "end": 17581009,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17160,
+   "names": [
+    "ResourceDetailChatBody"
+   ],
+   "start": 17581010,
+   "end": 17603343,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17161,
+   "names": [
+    "useResourceDetail"
+   ],
+   "start": 17603344,
+   "end": 17604647,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17163,
+   "names": [
+    "ResourceChatRendererContext"
+   ],
+   "start": 17606240,
+   "end": 17606309,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17164,
+   "names": [
+    "ResourceChatTargetContext"
+   ],
+   "start": 17606310,
+   "end": 17606377,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17165,
+   "names": [
+    "useResourceChatRenderer"
+   ],
+   "start": 17606378,
+   "end": 17606479,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17166,
+   "names": [
+    "ResourceChatTargetProvider"
+   ],
+   "start": 17606480,
+   "end": 17606680,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17167,
+   "names": [
+    "handles"
+   ],
+   "start": 17606681,
+   "end": 17607232,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17168,
+   "names": [
+    "ratios"
+   ],
+   "start": 17607233,
+   "end": 17607294,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 17169,
+   "names": [
+    "ResourceCropControls"
+   ],
+   "start": 17607295,
+   "end": 17611863,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17170,
+   "names": [
+    "ResourceRedrawControls"
+   ],
+   "start": 17611864,
+   "end": 17617738,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17171,
+   "names": [
+    "ResourceToolbar"
+   ],
+   "start": 17617739,
+   "end": 17620286,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17172,
+   "names": [
+    "containedImageGeometry"
+   ],
+   "start": 17620287,
+   "end": 17620619,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 17173,
+   "names": [
+    "ResourceImageStage"
+   ],
+   "start": 17620620,
+   "end": 17628923,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17174,
+   "names": [
+    "ResourceDetail"
+   ],
+   "start": 17628924,
+   "end": 17630444,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 17175,
+   "names": [
+    "ResourceDetailContent"
+   ],
+   "start": 17630445,
+   "end": 17642186,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17176,
+   "names": [
+    "resourceKindIcon"
+   ],
+   "start": 17642187,
+   "end": 17642418,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17177,
+   "names": [
+    "ResourceDetailDialog"
+   ],
+   "start": 17642419,
+   "end": 17644621,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 17187,
+   "names": [
+    "parseStructuredDocument"
+   ],
+   "start": 17656144,
+   "end": 17656799,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17404,
+   "names": [
+    "WorkspaceStructuredDocument"
+   ],
+   "start": 17863024,
+   "end": 17864214,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17408,
+   "names": [
+    "readDocument"
+   ],
+   "start": 17869053,
+   "end": 17869094,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17409,
+   "names": [
+    "WorkspaceCompositionDocuments"
+   ],
+   "start": 17869095,
+   "end": 17872109,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 17410,
+   "names": [
+    "documentColumns"
+   ],
+   "start": 17872110,
+   "end": 17873384,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 17411,
+   "names": [
+    "normalizeTitle"
+   ],
+   "start": 17873385,
+   "end": 17873486,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17413,
+   "names": [
+    "presentNode"
+   ],
+   "start": 17873734,
+   "end": 17876654,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 17414,
+   "names": [
+    "WorkspaceStructureDocument"
+   ],
+   "start": 17876655,
+   "end": 17882393,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 17415,
+   "names": [
+    "detailServices"
+   ],
+   "start": 17882394,
+   "end": 17882518,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 17416,
+   "names": [
+    "renderDocument"
+   ],
+   "start": 17882519,
+   "end": 17882633,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 17417,
+   "names": [
+    "renderDocuments"
+   ],
+   "start": 17882634,
+   "end": 17882752,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 17418,
+   "names": [
+    "WorkspaceStructurePresentation"
+   ],
+   "start": 17882753,
+   "end": 17887434,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 17419,
+   "names": [
+    "resourceDetailLabels"
+   ],
+   "start": 17887435,
+   "end": 17887912,
+   "ring": 1,
+   "status": "todo"
+  }
+ ],
+ "segments": [
+  {
+   "from": 205,
+   "to": 205,
+   "start": 142174,
+   "end": 142433,
+   "count": 1
+  },
+  {
+   "from": 273,
+   "to": 275,
+   "start": 230192,
+   "end": 231195,
+   "count": 3
+  },
+  {
+   "from": 2570,
+   "to": 2573,
+   "start": 1962785,
+   "end": 1968254,
+   "count": 2
+  },
+  {
+   "from": 3983,
+   "to": 3983,
+   "start": 3096221,
+   "end": 3096422,
+   "count": 1
+  },
+  {
+   "from": 5266,
+   "to": 5266,
+   "start": 6145722,
+   "end": 6149772,
+   "count": 1
+  },
+  {
+   "from": 13101,
+   "to": 13111,
+   "start": 13208042,
+   "end": 13220614,
+   "count": 2
+  },
+  {
+   "from": 13685,
+   "to": 13686,
+   "start": 13598902,
+   "end": 13599576,
+   "count": 2
+  },
+  {
+   "from": 16438,
+   "to": 16438,
+   "start": 16631913,
+   "end": 16632104,
+   "count": 1
+  },
+  {
+   "from": 16489,
+   "to": 16545,
+   "start": 16665645,
+   "end": 16725790,
+   "count": 5
+  },
+  {
+   "from": 16640,
+   "to": 16686,
+   "start": 16910666,
+   "end": 16979475,
+   "count": 7
+  },
+  {
+   "from": 16895,
+   "to": 16926,
+   "start": 17252856,
+   "end": 17291340,
+   "count": 4
+  },
+  {
+   "from": 17060,
+   "to": 17069,
+   "start": 17420385,
+   "end": 17437948,
+   "count": 6
+  },
+  {
+   "from": 17116,
+   "to": 17187,
+   "start": 17531040,
+   "end": 17656799,
+   "count": 33
+  },
+  {
+   "from": 17404,
+   "to": 17419,
+   "start": 17863024,
+   "end": 17887912,
+   "count": 12
+  }
+ ]
+}
