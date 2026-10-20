@@ -25,7 +25,7 @@ for (const file of checks.sort()) {
   console.log(`\n──── ${file} ────`);
   try {
     execFileSync(esbuild, [entry, "--bundle", "--format=esm", `--outfile=${out}`, "--loader:.js=jsx", "--loader:.png=file", "--loader:.svg=file", "--loader:.jpg=file",
-      "--inject:/tmp/dom-stub.mjs",
+      `--inject:${path.join(here, "dom-stub.mjs")}`,
       "--external:pdfjs-dist", "--external:./use-window-chrome-*", "--external:./index-*",
       "--external:*.css", "--log-level=error"], { stdio: "inherit" });
     execFileSync(process.execPath, [out], { stdio: "inherit" });

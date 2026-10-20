@@ -58,6 +58,7 @@ import { WorkspaceStage } from "./workspace-stage.jsx";
 import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
 import { subjectMaterialDrafts } from "./create-subject-material-draft-inbox.jsx";
 import { WorkspaceCanvasArea } from "./workspace-canvas-area.jsx";
+import { notifyBrowserCanvasFileAdded } from "../text-editor/read-preview-text-response.jsx";
 function useAccountSubmissionAllowed(kind) {
   return useAccountSubmissionDecision(kind).allowed;
 }
@@ -129,9 +130,7 @@ function useBrowserVideoDownload(isActive) {
             current.current.isActive &&
             current.current.scopeKey === origin.scopeKey
           )
-            dedupedToast.success(
-              current.current.t(current2.current.t),
-            );
+            notifyBrowserCanvasFileAdded(origin.scopeKey, asset.path, current.current.t);
           await browser.completeVideoDownload({
             requestId: request.requestId,
             ok: true,

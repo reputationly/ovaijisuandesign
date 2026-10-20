@@ -121,6 +121,7 @@ export async function uploadCanvasFileToCdn(file, fetchImpl) {
 }
 const AssetSourcePickerContext = reactExports.createContext(null);
 const AttachmentLocatorContext = reactExports.createContext(null);
+export { notifyBrowserCanvasFileAdded };
 export function useAttachmentLocator() {
   return reactExports.useContext(AttachmentLocatorContext);
 }
@@ -200,6 +201,10 @@ export function isSameImageAnnotationTarget(current, snapshot) {
     current.previewUrl === snapshot.previewUrl &&
     current.relativePath === snapshot.relativePath
   );
+}
+
+function notifyBrowserCanvasFileAdded(workspaceId, filePath, t2) {
+  showBrowserCanvasToast(t2, () => workspaceEvents.fireLocateCanvasFile(workspaceId, filePath));
 }
 
 function showBrowserCanvasToast(t2, handleView) {

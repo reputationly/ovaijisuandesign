@@ -30,6 +30,7 @@ function SortablePreviewChip({ id: toolId, meta, showLabel, onUnpin }) {
   const label = t(meta.labelKey, meta.defaultLabel);
   const {
     attributes: attributes2,
+    attributes,
     listeners,
     setNodeRef,
     transform,
