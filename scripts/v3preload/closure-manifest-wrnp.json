@@ -1,0 +1,158 @@
+{
+ "generatedFor": "4.0.0",
+ "seeds": [
+  "WorkspaceResultNavigationProvider"
+ ],
+ "total": 11,
+ "lines": 943,
+ "perRing": [
+  1,
+  4,
+  6
+ ],
+ "byStatus": {
+  "todo": 11
+ },
+ "items": [
+  {
+   "i": 15816,
+   "names": [
+    "parseLocation"
+   ],
+   "start": 16935597,
+   "end": 16935940,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 15817,
+   "names": [
+    "createStructureResultNavigation"
+   ],
+   "start": 16935941,
+   "end": 16937992,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16530,
+   "names": [
+    "createEditorCommandDispatcher"
+   ],
+   "start": 17788461,
+   "end": 17789890,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16531,
+   "names": [
+    "fingerprint"
+   ],
+   "start": 17789891,
+   "end": 17789980,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16532,
+   "names": [
+    "WRITES"
+   ],
+   "start": 17789981,
+   "end": 17790057,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16533,
+   "names": [
+    "PREPARE_MS"
+   ],
+   "start": 17790058,
+   "end": 17790082,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16534,
+   "names": [
+    "record$2"
+   ],
+   "start": 17790083,
+   "end": 17790161,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16535,
+   "names": [
+    "createClipAgent"
+   ],
+   "start": 17790162,
+   "end": 17802368,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16537,
+   "names": [
+    "createDirectorAgent"
+   ],
+   "start": 17802448,
+   "end": 17816978,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 18321,
+   "names": [
+    "WorkspaceResourceSurfaceContext"
+   ],
+   "start": 19534539,
+   "end": 19534616,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 19814,
+   "names": [
+    "WorkspaceResultNavigationProvider"
+   ],
+   "start": 21333135,
+   "end": 21335700,
+   "ring": 0,
+   "status": "todo"
+  }
+ ],
+ "segments": [
+  {
+   "from": 15816,
+   "to": 15817,
+   "start": 16935597,
+   "end": 16937992,
+   "count": 2
+  },
+  {
+   "from": 16530,
+   "to": 16537,
+   "start": 17788461,
+   "end": 17816978,
+   "count": 7
+  },
+  {
+   "from": 18321,
+   "to": 18321,
+   "start": 19534539,
+   "end": 19534616,
+   "count": 1
+  },
+  {
+   "from": 19814,
+   "to": 19814,
+   "start": 21333135,
+   "end": 21335700,
+   "count": 1
+  }
+ ]
+}

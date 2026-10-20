@@ -116,6 +116,25 @@
     "hypothesis": "参照录制时 ws-a-v3-resource 先跑、把 resource-view flag 留在 localStorage，导致 ws-a-v3 也渲染了 host",
     "test": "runMode 每次开头都会 rmSync(/tmp/ov-cmp) 重置 profile；实测先跑资源视图再跑画布无法保留 flag",
     "result": "假设不成立"
+   },
+   "RESOLVED": {
+    "answer": "这 4 帧是**代码缺口**，不是夹具问题。上一轮的结论错了。",
+    "evidence": [
+     "全 bundle 里 useWorkbenchEditorEvents 有**两个**调用点：",
+     "  1) native-workbench-host.jsx（只在 resourcesOpen 为真时渲染）",
+     "  2) **WorkspaceResultNavigationProvider**（bundle 第 19814 行，包在画布外面）——它调",
+     "     useWorkbenchEditorEvents(workbench?.host.scopeKey)，在画布路径上也会订阅",
+     "实测：把该 Provider 包到 CanvasAreaV3 外面后，editor_subscribe 立刻出现 2 帧",
+     "  （同时出现 editor_unsubscribe 2 帧，因为它挂载后又卸载）"
+    ],
+    "whyWiringWasReverted": [
+     "接线后 ws-a-v3 像素 4.088% → 7.132%，新增 2 个报错：",
+     "  TaskResultNavigationError: Task result navigation: stale",
+     "该 Provider 还依赖 director/clip 的 agent 传输层（createDirectorTransport 等），",
+     "我们只还原了编辑订阅与导航上下文，运行期不完整，所以挂上去就抛错。"
+    ],
+    "files": "workspace/result-navigation-provider.js（11 个声明 / 943 行，0 未绑定、构建通过，但未接线）",
+    "nextStepToClose": "补 director/clip agent 传输层后即可接线，届时 2 帧/工作区会自动补齐。"
    }
   },
   "perWorkspace": {
@@ -137,11 +156,10 @@
    "diff": "每工作区少 2 帧 editor_subscribe"
   },
   "finalConclusion": [
-   "HTTP 维度：路径集合 23 vs 23 完全一致（白名单：popup 有意关闭、showcase-assets 本地资源）。",
-   "WS 维度：每工作区少 2 帧 editor_subscribe。唯一发送者在 NativeWorkbenchHost 内，",
-   "  而该组件只在 resourcesOpen 为真时渲染；参照基线的 localStorage 无该 flag、DOM 末态也是画布。",
-   "  两者互斥。夹具泄漏假设已实测否证。",
-   "结论：这 2 帧/工作区**无法用现有证据解释**，登记为残余未知；不在 40 屏门禁上，不影响交付功能。"
+   "HTTP 维度：路径集合 23 vs 23 完全一致。",
+   "WS 维度：每工作区少 2 帧 editor_subscribe —— 已定位为 WorkspaceResultNavigationProvider 未接线，",
+   "  属**代码缺口**（第 275 轮实测确认），不是夹具问题。",
+   "该 Provider 已取回（11 声明 / 943 行，静态完整），但运行期还缺 director/clip 传输层。"
   ]
  }
 }

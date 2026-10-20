@@ -344,6 +344,8 @@ for (const file of files) {
       // 第 272 轮：highlight.js 的扩展点 —— `before:highlight` 的监听者可以往
       // context 上挂 `result`，库自己也是这么读的（`context.result ? context.result : ...`）。
       // 参照 bundle 里同样写法，不是缺陷。
+      // 可选链（`session.onStatus?.(...)`）本身就是「可能没有」的显式写法，不是缺陷
+      if (member.optional || memberPath.parentPath.isOptionalCallExpression?.() || memberPath.parentPath.node?.optional) return;
       if (key === "result" && member.object.name === "context") return;
       // three.js 的 GLTF 动画路径表：`PATH_PROPERTIES.position` 只用于值比较，
       // 表里没有这个键 → 运行时 undefined，参照 bundle 里同样写法。

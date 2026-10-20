@@ -1653,7 +1653,7 @@ function createViewStore(workbench) {
 
 const stores$4 = /* @__PURE__ */ new WeakMap();
 
-function structureView(workbench) {
+export function structureView(workbench) {
   let store = stores$4.get(workbench);
   if (!store) {
     store = createViewStore(workbench);

@@ -73,3 +73,5 @@ export function getRuntimeConfig() {
   return _cachedConfig;
 }
 
+// 第 275 轮：nwh 闭包要从这里拿 disposables，graph.jsx 那份在此转出
+export { disposables };
