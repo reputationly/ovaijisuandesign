@@ -28,5 +28,30 @@
   "该闭包里有 3 处原本是 `await import('./use-window-chrome-...')` 懒加载 instantiationService/disposables，",
   "我改成了从 main-services.js 静态导入 —— 这会让整个 nwh 在模块加载期就初始化 instantiationService，",
   "而 home 页也走同一条链，于是被拖崩。应改回**懒加载**（保留 await import 语义，指向 main-services）。"
- ]
+ ],
+ "mentionTag": {
+  "offlineClosure": {
+   "declarations": 29,
+   "lines": 904,
+   "rings": [
+    2,
+    3,
+    5,
+    7,
+    3,
+    3,
+    5,
+    1
+   ],
+   "convergent": true
+  },
+  "status": "未还原，维持显式不可用（渲染提示，不抛错）",
+  "why": [
+   "29 声明的离线闭包会引用 42 个外部名，其中 WorkspaceStructurePresentation 指向已还原的",
+   "workspace-shell-closure.js（111 声明），其余是 UI 套件（PreviewCard*/StructureMedia/",
+   "useCompositionDetails 等）。按插入法迭代会扩到 143 声明 / 145 未绑定 —— 又是插代码测法的爆炸。"
+  ],
+  "reachability": "只在 prompt 含 composition 段时渲染（用户输入 @某个合成）。属窄路径，不在 40 屏门禁上。",
+  "recommendation": "优先级最低。若要做，应先把 workspace-shell-closure.js 作为依赖引入，再只补 UI 套件缺的那几个。"
+ }
 }

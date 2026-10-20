@@ -1,0 +1,975 @@
+{
+ "generatedFor": "4.0.0",
+ "seeds": [
+  "CompositionMentionTag",
+  "parseCompositionMentionAt"
+ ],
+ "total": 29,
+ "lines": 904,
+ "perRing": [
+  2,
+  3,
+  5,
+  7,
+  3,
+  3,
+  5,
+  1
+ ],
+ "byStatus": {
+  "restored": 1,
+  "todo": 28
+ },
+ "items": [
+  {
+   "i": 443,
+   "names": [
+    "parseCompositionMentionAt"
+   ],
+   "start": 331393,
+   "end": 331740,
+   "ring": 0,
+   "status": "restored"
+  },
+  {
+   "i": 15795,
+   "names": [
+    "useCompositionPreview"
+   ],
+   "start": 16897962,
+   "end": 16899708,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 15796,
+   "names": [
+    "previewResourceKey"
+   ],
+   "start": 16899709,
+   "end": 16899809,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 15797,
+   "names": [
+    "CompositionPreview"
+   ],
+   "start": 16899810,
+   "end": 16902194,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 15798,
+   "names": [
+    "CompositionMembers"
+   ],
+   "start": 16902195,
+   "end": 16908112,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 15799,
+   "names": [
+    "CompositionThumbnail"
+   ],
+   "start": 16908113,
+   "end": 16909709,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16645,
+   "names": [
+    "PreviewCard$1"
+   ],
+   "start": 17951874,
+   "end": 17952015,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16703,
+   "names": [
+    "scopes"
+   ],
+   "start": 18040924,
+   "end": 18040969,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 16704,
+   "names": [
+    "claimComposerPreview"
+   ],
+   "start": 18040970,
+   "end": 18041572,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16705,
+   "names": [
+    "TRIGGER_SELECTOR"
+   ],
+   "start": 18041573,
+   "end": 18041714,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16706,
+   "names": [
+    "useComposerPreviewOwner"
+   ],
+   "start": 18041715,
+   "end": 18043241,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16707,
+   "names": [
+    "useComposerPreview"
+   ],
+   "start": 18043242,
+   "end": 18045527,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16838,
+   "names": [
+    "MentionRemoveButton"
+   ],
+   "start": 18188967,
+   "end": 18189750,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16839,
+   "names": [
+    "CompositionMentionBody"
+   ],
+   "start": 18189751,
+   "end": 18190395,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16840,
+   "names": [
+    "CompositionComposerPreview"
+   ],
+   "start": 18190396,
+   "end": 18192263,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16841,
+   "names": [
+    "ComposerPreviewPanel"
+   ],
+   "start": 18192264,
+   "end": 18196948,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16842,
+   "names": [
+    "CompositionMentionPreview"
+   ],
+   "start": 18196949,
+   "end": 18198225,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16843,
+   "names": [
+    "CompositionSlotCover"
+   ],
+   "start": 18198226,
+   "end": 18201472,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16844,
+   "names": [
+    "CompositionMentionThumbnail"
+   ],
+   "start": 18201473,
+   "end": 18202343,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16845,
+   "names": [
+    "ThumbnailFrame"
+   ],
+   "start": 18202344,
+   "end": 18205445,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16846,
+   "names": [
+    "CompositionMentionTag"
+   ],
+   "start": 18205446,
+   "end": 18206996,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 18150,
+   "names": [
+    "he",
+    "Gn",
+    "Dt",
+    "W2"
+   ],
+   "start": 19415012,
+   "end": 19415658,
+   "ring": 7,
+   "status": "todo"
+  },
+  {
+   "i": 18151,
+   "names": [
+    "Ee",
+    "y3"
+   ],
+   "start": 19415659,
+   "end": 19415739,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 18152,
+   "names": [
+    "tr",
+    "or",
+    "At"
+   ],
+   "start": 19415740,
+   "end": 19418204,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 18154,
+   "names": [
+    "nt",
+    "He"
+   ],
+   "start": 19418628,
+   "end": 19418718,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 18155,
+   "names": [
+    "rt"
+   ],
+   "start": 19418719,
+   "end": 19419047,
+   "ring": 6,
+   "status": "todo"
+  },
+  {
+   "i": 18156,
+   "names": [
+    "lr",
+    "cr",
+    "st"
+   ],
+   "start": 19419048,
+   "end": 19420739,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 20563,
+   "names": [
+    "ImageOff$1"
+   ],
+   "start": 102288,
+   "end": 102827,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 20574,
+   "names": [
+    "Layers$1"
+   ],
+   "start": 106133,
+   "end": 106632,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 15766,
+   "names": [
+    "CompositionAttributes"
+   ],
+   "start": 16815562,
+   "end": 16816639,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15769,
+   "names": [
+    "CompositionVideoPreview"
+   ],
+   "start": 16817991,
+   "end": 16818312,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15708,
+   "names": [
+    "StructureAudio"
+   ],
+   "start": 16726152,
+   "end": 16726376,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16578,
+   "names": [
+    "WorkspaceStructurePresentation"
+   ],
+   "start": 17882753,
+   "end": 17887434,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 18135,
+   "names": [
+    "g",
+    "X",
+    "C2",
+    "h",
+    "In",
+    "m",
+    "z2",
+    "p2"
+   ],
+   "start": 19394331,
+   "end": 19396376,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 18153,
+   "names": [
+    "ot"
+   ],
+   "start": 19418205,
+   "end": 19418627,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 895,
+   "names": [
+    "reactDomExports"
+   ],
+   "start": 287189,
+   "end": 287229,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 15719,
+   "names": [
+    "structureReadLimiter"
+   ],
+   "start": 16735679,
+   "end": 16735867,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15720,
+   "names": [
+    "useCompositionDetails"
+   ],
+   "start": 16735868,
+   "end": 16736296,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 18132,
+   "names": [
+    "M",
+    "N",
+    "y$1",
+    "R$1",
+    "U",
+    "W$1",
+    "K$1",
+    "d",
+    "b2",
+    "H",
+    "D$1",
+    "w2"
+   ],
+   "start": 19393995,
+   "end": 19394269,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16338,
+   "names": [
+    "ResourceDetailDialog"
+   ],
+   "start": 17642419,
+   "end": 17644621,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15811,
+   "names": [
+    "ResourceDetailProvider"
+   ],
+   "start": 16931745,
+   "end": 16932091,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15706,
+   "names": [
+    "StructureMediaProvider"
+   ],
+   "start": 16725170,
+   "end": 16725790,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15770,
+   "names": [
+    "VideoBinding"
+   ],
+   "start": 16818313,
+   "end": 16821681,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 18135,
+   "names": [
+    "g",
+    "X",
+    "C2",
+    "h",
+    "In",
+    "m",
+    "z2",
+    "p2"
+   ],
+   "start": 19394331,
+   "end": 19396376,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 4,
+   "names": [
+    "__vitePreload"
+   ],
+   "start": 940,
+   "end": 3054,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 0,
+   "names": [
+    "__vite__mapDeps"
+   ],
+   "start": 0,
+   "end": 3468,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15660,
+   "names": [
+    "createCompositionQueryOptions"
+   ],
+   "start": 16669296,
+   "end": 16671074,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16575,
+   "names": [
+    "detailServices"
+   ],
+   "start": 17882394,
+   "end": 17882518,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15718,
+   "names": [
+    "limiters"
+   ],
+   "start": 16735631,
+   "end": 16735678,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16577,
+   "names": [
+    "renderDocuments"
+   ],
+   "start": 17882634,
+   "end": 17882752,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 894,
+   "names": [
+    "requireReactDom"
+   ],
+   "start": 286678,
+   "end": 287188,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 16579,
+   "names": [
+    "resourceDetailLabels"
+   ],
+   "start": 17887435,
+   "end": 17887912,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15808,
+   "names": [
+    "structureTranslations"
+   ],
+   "start": 16931563,
+   "end": 16931610,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15709,
+   "names": [
+    "useStructureVideoUrl"
+   ],
+   "start": 16726377,
+   "end": 16726563,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16335,
+   "names": [
+    "ResourceDetail"
+   ],
+   "start": 17628924,
+   "end": 17630444,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15810,
+   "names": [
+    "ResourceDetailContext"
+   ],
+   "start": 16931681,
+   "end": 16931744,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15809,
+   "names": [
+    "ResourceDetailDialogContext"
+   ],
+   "start": 16931611,
+   "end": 16931680,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16569,
+   "names": [
+    "WorkspaceCompositionDocuments"
+   ],
+   "start": 17869095,
+   "end": 17872109,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 18135,
+   "names": [
+    "g",
+    "X",
+    "C2",
+    "h",
+    "In",
+    "m",
+    "z2",
+    "p2"
+   ],
+   "start": 19394331,
+   "end": 19396376,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15659,
+   "names": [
+    "assertScope"
+   ],
+   "start": 16669167,
+   "end": 16669295,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 2,
+   "names": [
+    "assetsURL"
+   ],
+   "start": 832,
+   "end": 922,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 893,
+   "names": [
+    "hasRequiredReactDom"
+   ],
+   "start": 286653,
+   "end": 286677,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 889,
+   "names": [
+    "reactDom"
+   ],
+   "start": 280181,
+   "end": 280212,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 892,
+   "names": [
+    "requireReactDom_production"
+   ],
+   "start": 280279,
+   "end": 286652,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 1,
+   "names": [
+    "scriptRel"
+   ],
+   "start": 564,
+   "end": 831,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 3,
+   "names": [
+    "seen"
+   ],
+   "start": 923,
+   "end": 939,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 15806,
+   "names": [
+    "zh"
+   ],
+   "start": 16917543,
+   "end": 16923029,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16336,
+   "names": [
+    "ResourceDetailContent"
+   ],
+   "start": 17630445,
+   "end": 17642186,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16564,
+   "names": [
+    "WorkspaceStructuredDocument"
+   ],
+   "start": 17863024,
+   "end": 17864214,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 18135,
+   "names": [
+    "g",
+    "X",
+    "C2",
+    "h",
+    "In",
+    "m",
+    "z2",
+    "p2"
+   ],
+   "start": 19394331,
+   "end": 19396376,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15802,
+   "names": [
+    "compositionEditZh"
+   ],
+   "start": 16912269,
+   "end": 16913968,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 891,
+   "names": [
+    "hasRequiredReactDom_production"
+   ],
+   "start": 280243,
+   "end": 280278,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 16348,
+   "names": [
+    "parseStructuredDocument"
+   ],
+   "start": 17656144,
+   "end": 17656799,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 890,
+   "names": [
+    "reactDom_production"
+   ],
+   "start": 280213,
+   "end": 280242,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 16568,
+   "names": [
+    "readDocument"
+   ],
+   "start": 17869053,
+   "end": 17869094,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 80,
+   "names": [
+    "requireReact"
+   ],
+   "start": 33449,
+   "end": 33625,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 2295,
+   "names": [
+    "resolvePageState"
+   ],
+   "start": 3040958,
+   "end": 3041714,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "uwc"
+  },
+  {
+   "i": 15800,
+   "names": [
+    "structureEditorZh"
+   ],
+   "start": 16909710,
+   "end": 16910665,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 15804,
+   "names": [
+    "treeLabelsZh"
+   ],
+   "start": 16916659,
+   "end": 16916965,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  },
+  {
+   "i": 16322,
+   "names": [
+    "useResourceDetail"
+   ],
+   "start": 17603344,
+   "end": 17604647,
+   "ring": 99,
+   "status": "todo",
+   "chunk": "main"
+  }
+ ],
+ "segments": [
+  {
+   "from": 443,
+   "to": 443,
+   "start": 331393,
+   "end": 331740,
+   "count": 1
+  },
+  {
+   "from": 15795,
+   "to": 15799,
+   "start": 16897962,
+   "end": 16909709,
+   "count": 5
+  },
+  {
+   "from": 16645,
+   "to": 16645,
+   "start": 17951874,
+   "end": 17952015,
+   "count": 1
+  },
+  {
+   "from": 16703,
+   "to": 16707,
+   "start": 18040924,
+   "end": 18045527,
+   "count": 5
+  },
+  {
+   "from": 16838,
+   "to": 16846,
+   "start": 18188967,
+   "end": 18206996,
+   "count": 9
+  },
+  {
+   "from": 18150,
+   "to": 18156,
+   "start": 19415012,
+   "end": 19420739,
+   "count": 6
+  },
+  {
+   "from": 20563,
+   "to": 20574,
+   "start": 102288,
+   "end": 106632,
+   "count": 2
+  }
+ ]
+}
