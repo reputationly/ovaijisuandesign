@@ -2497,14 +2497,6 @@ async function loadCanvasV3Models(fetch2, mediaKind2, signal) {
   return capabilities.map((item) => canvasModel(item, operations));
 }
 
-async function canvasV3GuardGeneration(guard) {
-  if (!guard) return false;
-  try {
-    return await guard() === true;
-  } catch {
-    return false;
-  }
-}
 
 function subscribeCanvasV3SubjectConnections(listener) {
   resourceConnectionListeners.add(listener);
@@ -18371,11 +18363,6 @@ const ROTATE_STEP_DEG = 90;
 const ROTATE_ANGLE_MIN = -180;
 const ROTATE_ANGLE_MAX = 180;
 const ROTATE_SNAP_DEG = 1;
-const DEFAULT_ROTATE_STATE = {
-  angle: 0,
-  flipH: false,
-  flipV: false
-};
 function clamp$d(value, min2, max2) {
   return Math.max(min2, Math.min(max2, value));
 }
@@ -21446,7 +21433,6 @@ function useEditorState$1(handleRef) {
 }
 const TOOL_ICON_SIZE = 16;
 const ACTION_ICON_SIZE = 14;
-const INPLACE_EDIT_TOOLBAR_RESERVE_PX = 116;
 const TOOLS$2 = [
   { id: "select", i18nKey: "imageEdit.toolSelect", defaultLabel: "Select", Icon: MousePointer2 },
   { id: "rectangle", i18nKey: "imageEdit.toolRectangle", defaultLabel: "Rectangle", Icon: Square$2 },
@@ -43460,6 +43446,8 @@ import {
   QueryClient, QueryClientProvider, QueryObserver, notifyManager,
   useIsRestoring, useQuery, useQueryClient, useQueryErrorResetBoundary,
 } from "@tanstack/react-query";
+import { canvasV3GuardGeneration } from "./canvas-v3-hooks.js";
+export { canvasV3GuardGeneration };
 import {
   AudioWaveform as AudioWaveform$2, ChevronRight as ChevronRight$3,
   Grid2x2, Grid3x3, Image as Image$1, ImageOff, Smile, X as X$8, X as X$9,
@@ -43638,7 +43626,6 @@ export {
   DEFAULT_HOLDER,
   DEFAULT_MAX_ACTIVE,
   DEFAULT_OPTIONS$1,
-  DEFAULT_ROTATE_STATE,
   DEFAULT_STYLE,
   DEFAULT_TAB_SIZE,
   DEFAULT_THUMB_SIZE,
@@ -43764,7 +43751,6 @@ export {
   IMAGE_TOOLS,
   INDENTED_LINE_REGEX,
   INIT,
-  INPLACE_EDIT_TOOLBAR_RESERVE_PX,
   INTERACTIVE_TARGET,
   IconButton$3,
   IconButton$4,
@@ -44241,7 +44227,6 @@ export {
   canvasModel,
   canvasToPngBlob$1,
   canvasTool,
-  canvasV3GuardGeneration,
   capabilityOperation,
   captureDOMSelection,
   castFactory,

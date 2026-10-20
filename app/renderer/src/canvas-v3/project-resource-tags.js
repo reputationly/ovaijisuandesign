@@ -12,6 +12,7 @@ import {
   MAX_COLOR_TAGS_PER_ASSET,
 } from "../infra/parse-connector-selection.js";
 import { isCanvasTagColor } from "../infra/normalize-v2-registry.js";
+export { registry };
 
 export const PROJECT_RESOURCE_TAG_HTTP_ROUTES = {
   get: "/api/project/resources/tags/get",
@@ -57,6 +58,40 @@ function id$2(value) {
 function keys(value, allowed) {
   if (Object.keys(value).some((key2) => !allowed.includes(key2))) invalid$3();
 }
+function parseProjectResourceTagSnapshot(value) {
+  const raw2 = object$1(value);
+  const result = {
+    revision: revision$2(raw2.revision),
+    registry: registry(raw2.registry),
+    assignments: assignments(raw2.assignments)
+  };
+  if (result.registry.revision !== result.revision || result.assignments.some((item) => validateAssetTagIds(item.tagIds, result.registry)))
+    invalid$3();
+  return result;
+}
+function parseProjectResourceTagReceipt(value) {
+  const raw2 = object$1(value);
+  if (typeof raw2.committed !== "boolean") invalid$3();
+  return {
+    commandId: id$2(raw2.commandId),
+    committed: raw2.committed,
+    snapshot: parseProjectResourceTagSnapshot(raw2.snapshot)
+  };
+}
+
+export {
+  assignments,
+  buildTagIndex,
+  id$2,
+  invalid$3,
+  keys,
+  object$1,
+  parseProjectResourceTagReceipt,
+  parseProjectResourceTagSnapshot,
+  revision$2,
+  validateAssetTagIds,
+};
+
 function registry(value) {
   const raw2 = object$1(value);
   keys(raw2, ["version", "revision", "orderMode", "tags"]);
@@ -93,37 +128,3 @@ function registry(value) {
   if (Object.keys(PRESET_COLOR_NAME_KEYS).some((key2) => !seen.has(key2))) invalid$3();
   return { version: 2, revision: revision$2(raw2.revision), orderMode: raw2.orderMode, tags: tags2 };
 }
-function parseProjectResourceTagSnapshot(value) {
-  const raw2 = object$1(value);
-  const result = {
-    revision: revision$2(raw2.revision),
-    registry: registry(raw2.registry),
-    assignments: assignments(raw2.assignments)
-  };
-  if (result.registry.revision !== result.revision || result.assignments.some((item) => validateAssetTagIds(item.tagIds, result.registry)))
-    invalid$3();
-  return result;
-}
-function parseProjectResourceTagReceipt(value) {
-  const raw2 = object$1(value);
-  if (typeof raw2.committed !== "boolean") invalid$3();
-  return {
-    commandId: id$2(raw2.commandId),
-    committed: raw2.committed,
-    snapshot: parseProjectResourceTagSnapshot(raw2.snapshot)
-  };
-}
-
-export {
-  assignments,
-  buildTagIndex,
-  id$2,
-  invalid$3,
-  keys,
-  object$1,
-  parseProjectResourceTagReceipt,
-  parseProjectResourceTagSnapshot,
-  registry,
-  revision$2,
-  validateAssetTagIds,
-};

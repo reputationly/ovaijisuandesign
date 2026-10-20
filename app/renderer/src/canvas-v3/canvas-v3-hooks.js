@@ -44,6 +44,8 @@ import {
   reportWorkspaceCanvasPersistence,
 } from "./workspace-canvas-persistence.js";
 import { promptFontSizePreference } from "./prompt-font-size-preference.js";
+import { useMediaMuted } from "./media-mute.js";
+
 
 // ==== 仍缺、需要后续还原后补进来的名字 ====
 // CanvasImageWorkContext, CanvasV3HostServicesContext, CanvasV3WorkbenchBridgeContext,
@@ -210,7 +212,7 @@ function useCanvasV3PromptFontSize() {
   const usePreference = useCanvasV3HostServices().usePromptFontSize ?? useLocalPromptFontSize;
   return usePreference();
 }
-async function canvasV3GuardGeneration(guard) {
+export async function canvasV3GuardGeneration(guard) {
   if (!guard) return false;
   try {
     return await guard() === true;
@@ -337,12 +339,6 @@ function useGroupingIntroCandidate(scope) {
   );
 }
 
-function useMediaMuted() {
-  return {
-    muted: reactExports.useSyncExternalStore(subscribeMute, getMediaMuted, () => false),
-    toggle
-  };
-}
 
 function useNodeAlignmentSnap(enabled) {
   const flowStore = useStoreApi();

@@ -287,3 +287,60 @@ export {
   VIDEO_TOOLBAR_DEFAULT_PINNED,
   VIDEO_TOOLBAR_DEFAULT_SHOW_LABELS,
 };
+
+// ---- 第 212 轮：从 canvas-v3-model.js 移入（断环，叶子模块）----
+const CANVAS_V3_ROUTES = {
+  architecture: "/api/project/architecture",
+  document: "/api/v3/canvas",
+  commands: "/api/v3/canvas/commands",
+  /** Batch read of Composition content projected for the canvas (POST { compositionIds }). */
+  content: "/api/v3/canvas/content",
+  images: "/api/v3/canvas/images",
+  localFiles: "/api/v3/canvas/local-files",
+  previews: "/api/v3/canvas/previews",
+  videos: "/api/v3/canvas/videos",
+  audios: "/api/v3/canvas/audios",
+  media: "/api/v3/canvas/media",
+  videoAudioSplits: "/api/v3/canvas/video-audio-splits",
+  /** Agent-authored Compositions the canvas has not necessarily viewed yet (GET ?since=&limit=). */
+  agentCompositions: "/api/v3/canvas/agent-compositions"
+};
+
+var ProjectResourceKind = /* @__PURE__ */ ((ProjectResourceKind2) => {
+  ProjectResourceKind2[ProjectResourceKind2["TEXT_DOCUMENT"] = 1] = "TEXT_DOCUMENT";
+  ProjectResourceKind2[ProjectResourceKind2["IMAGE"] = 2] = "IMAGE";
+  ProjectResourceKind2[ProjectResourceKind2["VIDEO"] = 3] = "VIDEO";
+  ProjectResourceKind2[ProjectResourceKind2["AUDIO"] = 4] = "AUDIO";
+  ProjectResourceKind2[ProjectResourceKind2["FILE"] = 5] = "FILE";
+  return ProjectResourceKind2;
+})(ProjectResourceKind || {});
+
+var ProjectResourceLifecycle = /* @__PURE__ */ ((ProjectResourceLifecycle2) => {
+  ProjectResourceLifecycle2["ACTIVE"] = "active";
+  ProjectResourceLifecycle2["MISSING"] = "missing";
+  ProjectResourceLifecycle2["DELETED"] = "deleted";
+  return ProjectResourceLifecycle2;
+})(ProjectResourceLifecycle || {});
+
+var ProjectResourceSource = /* @__PURE__ */ ((ProjectResourceSource2) => {
+  ProjectResourceSource2["IMPORT"] = "import";
+  ProjectResourceSource2["GENERATE"] = "generate";
+  ProjectResourceSource2["COPY"] = "copy";
+  return ProjectResourceSource2;
+})(ProjectResourceSource || {});
+
+var ProjectResourceVersionStatus = /* @__PURE__ */ ((ProjectResourceVersionStatus2) => {
+  ProjectResourceVersionStatus2["READY"] = "ready";
+  ProjectResourceVersionStatus2["DELETED"] = "deleted";
+  return ProjectResourceVersionStatus2;
+})(ProjectResourceVersionStatus || {});
+
+var ProjectResourceReadErrorCode = /* @__PURE__ */ ((ProjectResourceReadErrorCode2) => {
+  ProjectResourceReadErrorCode2["RESOURCE_NOT_FOUND"] = "PROJECT_RESOURCE_NOT_FOUND";
+  ProjectResourceReadErrorCode2["VERSION_NOT_FOUND"] = "PROJECT_VERSION_NOT_FOUND";
+  ProjectResourceReadErrorCode2["VERSION_RESOURCE_MISMATCH"] = "PROJECT_VERSION_RESOURCE_MISMATCH";
+  ProjectResourceReadErrorCode2["CURRENT_VERSION_UNAVAILABLE"] = "PROJECT_CURRENT_VERSION_UNAVAILABLE";
+  return ProjectResourceReadErrorCode2;
+})(ProjectResourceReadErrorCode || {});
+
+export { CANVAS_V3_ROUTES, ProjectResourceKind, ProjectResourceLifecycle, ProjectResourceSource, ProjectResourceVersionStatus, ProjectResourceReadErrorCode };

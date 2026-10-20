@@ -32,7 +32,6 @@ import {
   countCanvasTagNameUnits,
 } from "../infra/parse-connector-selection.js";
 import { isCanvasTagColor } from "../infra/normalize-v2-registry.js";
-import { validateAssetTagIds } from "./project-resource-tags.js";
 
 // 块外两个常量：产物里就在本段紧邻处
 
@@ -111,22 +110,6 @@ const CANVAS_V3_FRAME_COLORS = [
   "blue",
   "purple"
 ];
-const CANVAS_V3_ROUTES = {
-  architecture: "/api/project/architecture",
-  document: "/api/v3/canvas",
-  commands: "/api/v3/canvas/commands",
-  /** Batch read of Composition content projected for the canvas (POST { compositionIds }). */
-  content: "/api/v3/canvas/content",
-  images: "/api/v3/canvas/images",
-  localFiles: "/api/v3/canvas/local-files",
-  previews: "/api/v3/canvas/previews",
-  videos: "/api/v3/canvas/videos",
-  audios: "/api/v3/canvas/audios",
-  media: "/api/v3/canvas/media",
-  videoAudioSplits: "/api/v3/canvas/video-audio-splits",
-  /** Agent-authored Compositions the canvas has not necessarily viewed yet (GET ?since=&limit=). */
-  agentCompositions: "/api/v3/canvas/agent-compositions"
-};
 
 
 function parseCanvasV3PendingGenerationSelection(value) {
@@ -586,38 +569,6 @@ var CompositionOrderDirection = /* @__PURE__ */ ((CompositionOrderDirection2) =>
   CompositionOrderDirection2["DESC"] = "desc";
   return CompositionOrderDirection2;
 })(CompositionOrderDirection || {});
-var ProjectResourceKind = /* @__PURE__ */ ((ProjectResourceKind2) => {
-  ProjectResourceKind2[ProjectResourceKind2["TEXT_DOCUMENT"] = 1] = "TEXT_DOCUMENT";
-  ProjectResourceKind2[ProjectResourceKind2["IMAGE"] = 2] = "IMAGE";
-  ProjectResourceKind2[ProjectResourceKind2["VIDEO"] = 3] = "VIDEO";
-  ProjectResourceKind2[ProjectResourceKind2["AUDIO"] = 4] = "AUDIO";
-  ProjectResourceKind2[ProjectResourceKind2["FILE"] = 5] = "FILE";
-  return ProjectResourceKind2;
-})(ProjectResourceKind || {});
-var ProjectResourceLifecycle = /* @__PURE__ */ ((ProjectResourceLifecycle2) => {
-  ProjectResourceLifecycle2["ACTIVE"] = "active";
-  ProjectResourceLifecycle2["MISSING"] = "missing";
-  ProjectResourceLifecycle2["DELETED"] = "deleted";
-  return ProjectResourceLifecycle2;
-})(ProjectResourceLifecycle || {});
-var ProjectResourceSource = /* @__PURE__ */ ((ProjectResourceSource2) => {
-  ProjectResourceSource2["IMPORT"] = "import";
-  ProjectResourceSource2["GENERATE"] = "generate";
-  ProjectResourceSource2["COPY"] = "copy";
-  return ProjectResourceSource2;
-})(ProjectResourceSource || {});
-var ProjectResourceVersionStatus = /* @__PURE__ */ ((ProjectResourceVersionStatus2) => {
-  ProjectResourceVersionStatus2["READY"] = "ready";
-  ProjectResourceVersionStatus2["DELETED"] = "deleted";
-  return ProjectResourceVersionStatus2;
-})(ProjectResourceVersionStatus || {});
-var ProjectResourceReadErrorCode = /* @__PURE__ */ ((ProjectResourceReadErrorCode2) => {
-  ProjectResourceReadErrorCode2["RESOURCE_NOT_FOUND"] = "PROJECT_RESOURCE_NOT_FOUND";
-  ProjectResourceReadErrorCode2["VERSION_NOT_FOUND"] = "PROJECT_VERSION_NOT_FOUND";
-  ProjectResourceReadErrorCode2["VERSION_RESOURCE_MISMATCH"] = "PROJECT_VERSION_RESOURCE_MISMATCH";
-  ProjectResourceReadErrorCode2["CURRENT_VERSION_UNAVAILABLE"] = "PROJECT_CURRENT_VERSION_UNAVAILABLE";
-  return ProjectResourceReadErrorCode2;
-})(ProjectResourceReadErrorCode || {});
 const PROJECT_RESOURCE_READ_BATCH_LIMIT = 100;
 function invalid$6(field) {
   throw new Error(`Invalid Project Query response: ${field}`);
@@ -3018,42 +2969,6 @@ function mintProjectId(kind2) {
   return `${PROJECT_ID_PREFIX[kind2]}_${suffix}`;
 }
 
-function registry(value) {
-  const raw2 = object$1(value);
-  keys(raw2, ["version", "revision", "orderMode", "tags"]);
-  if (raw2.version !== 2 || raw2.orderMode !== "default" && raw2.orderMode !== "custom" || !Array.isArray(raw2.tags) || raw2.tags.length > 1e3)
-    invalid$3();
-  const seen = /* @__PURE__ */ new Set();
-  const names = /* @__PURE__ */ new Set();
-  const tags2 = raw2.tags.map((candidate) => {
-    const tag = object$1(candidate);
-    keys(tag, ["id", "kind", "name", "color", "legacyNameKey"]);
-    const tagId = id$2(tag.id);
-    if (seen.has(tagId)) invalid$3();
-    seen.add(tagId);
-    const presetKey = Object.hasOwn(PRESET_COLOR_NAME_KEYS, tagId) ? PRESET_COLOR_NAME_KEYS[tagId] : void 0;
-    const kind2 = presetKey ? "color" : "keyword";
-    if (tag.kind !== kind2) invalid$3();
-    const name2 = tag.name === void 0 ? void 0 : id$2(tag.name).trim();
-    if (name2 && (countCanvasTagNameUnits(name2) > CANVAS_TAG_NAME_MAX_LENGTH || names.has(name2)))
-      invalid$3();
-    if (name2) names.add(name2);
-    if (!name2 && !presetKey) invalid$3();
-    if (tag.legacyNameKey !== void 0 && tag.legacyNameKey !== presetKey) invalid$3();
-    if (tag.kind === "color" && (typeof tag.color !== "string" || !isCanvasTagColor(tag.color)))
-      invalid$3();
-    if (tag.kind === "keyword" && tag.color !== void 0) invalid$3();
-    return {
-      id: tagId,
-      kind: kind2,
-      ...name2 ? { name: name2 } : {},
-      ...tag.kind === "color" ? { color: tag.color } : {},
-      ...presetKey && !name2 ? { legacyNameKey: presetKey } : {}
-    };
-  });
-  if (Object.keys(PRESET_COLOR_NAME_KEYS).some((key2) => !seen.has(key2))) invalid$3();
-  return { version: 2, revision: revision$2(raw2.revision), orderMode: raw2.orderMode, tags: tags2 };
-}
 const PROJECT_TASK_OPERATIONS = [...PROJECT_GENERATION_OPERATIONS];
 const PROJECT_SUBTITLE_FORMATS = ["ass", "srt", "vtt"];
 const PROJECT_SUBTITLE_STYLE_PRESETS = [
@@ -3669,6 +3584,10 @@ import { findFreePositionFromAnchor } from "../canvas/find-free-position-from-an
 import { formatSeconds } from "../assets/preview-media.jsx";
 import { isWorkspaceIdentityErrorCode } from "../infra/workspace-gateway.js";
 import { placeholderNodeSize } from "../canvas/placeholder-node-size.js";
+import { CANVAS_V3_ROUTES, ProjectResourceKind, ProjectResourceLifecycle, ProjectResourceSource, ProjectResourceVersionStatus, ProjectResourceReadErrorCode } from "./canvas-v3-constants.js";
+export { CANVAS_V3_ROUTES, ProjectResourceKind, ProjectResourceLifecycle, ProjectResourceSource, ProjectResourceVersionStatus, ProjectResourceReadErrorCode };
+
+export {  };
 
 function createCanvasV3SubjectLayout() {
   return {
@@ -5835,7 +5754,6 @@ export {
   CANVAS_V3_PICKER_METADATA_PENDING,
   CANVAS_V3_RESOURCE_DRAG_MIME,
   CANVAS_V3_RESOURCE_KINDS,
-  CANVAS_V3_ROUTES,
   CANVAS_V3_SUBJECT_PREVIEW_SIZE,
   CANVAS_V3_SUBJECT_TYPE_HEADER,
   CANVAS_V3_SUBJECT_TYPE_PADDING,
@@ -5888,12 +5806,7 @@ export {
   ProjectResourceConflictKind,
   ProjectResourceDeleteTarget,
   ProjectResourceHttpError,
-  ProjectResourceKind,
-  ProjectResourceLifecycle,
-  ProjectResourceReadErrorCode,
-  ProjectResourceSource,
   ProjectResourceUpdateKind,
-  ProjectResourceVersionStatus,
   REFERENCE_VIDEO_TAIL_TRIM_SECONDS,
   RUNTIME_MEDIA_FIELDS,
   SUBJECT_DEFAULT_SECTION,
@@ -6205,7 +6118,6 @@ export {
   record$9,
   referenceBudgetIssue,
   referenceExtension,
-  registry,
   reject,
   relative,
   requestedAspectRatio,

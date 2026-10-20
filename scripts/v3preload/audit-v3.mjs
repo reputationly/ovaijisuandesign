@@ -86,7 +86,15 @@ for (const s of perFile.values()) for (const n of s) distinctNames.add(n);
 console.log(`canvas-v3 审计（${files.length} 个文件）`);
 console.log(`  1. 不同名字缺口      : ${distinctNames.size}`);
 console.log(`  2. 解析失败文件      : ${parseFailures.length}`);
-console.log(`  3. 跨文件重复声明    : ${crossDup.length}  （同一实体 ${sameEntity.length} / 同名不同实现 ${sameNameDiffBody.length}）`);
+console.log(`  3. 跨文件重复声明    : ${sameEntity.length} 违规（同一实体被抄两份）`
+  + ` / ${sameNameDiffBody.length} 非违规（同名但实现不同，属巧合碰撞）`);
+if (sameEntity.length) {
+  console.log("     违规明细：");
+  for (const n of sameEntity) {
+    const s = new Map(crossDup).get(n);
+    console.log(`       ${n}: ${[...s].map((x) => path.basename(x)).join(", ")}`);
+  }
+}
 console.log(`  4. unbound 出现次数  : ${occurrences}`);
 // 第 160 轮：canvas-v3 之外的树也必须过同一把尺子
 {
