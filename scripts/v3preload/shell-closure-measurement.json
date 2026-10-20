@@ -1,47 +1,46 @@
 {
- "generatedAt": "第230轮",
- "note": "逐一迭代把未绑定名字补回清单时，shell 闭包不收敛：每圈新增都大于解决数。",
- "rings": [
+ "generatedAt": "第248轮",
+ "method": "离线不动点（只改 manifest，不插代码），多 chunk 索引 + npm 停止集",
+ "seedRing": {
+  "declarations": 74,
+  "lines": 3161,
+  "rings": [
+   2,
+   10,
+   4,
+   8,
+   10,
+   13,
+   20,
+   4,
+   3
+  ],
+  "duplicates": 0
+ },
+ "expansion": [
   {
    "round": 1,
-   "items": 80,
-   "unbound": 142
+   "manifest": 74,
+   "unbound": 137,
+   "resolvedImports": 27,
+   "unresolved": 18
   },
   {
    "round": 2,
-   "items": 197,
-   "unbound": 251
+   "manifest": 92,
+   "unbound": 139,
+   "resolvedImports": 31,
+   "unresolved": 10
   },
   {
    "round": 3,
-   "items": 396,
-   "unbound": 434
-  },
-  {
-   "round": 4,
-   "items": 741,
-   "unbound": 610
-  },
-  {
-   "round": 5,
-   "items": 1148,
-   "unbound": 601
-  },
-  {
-   "round": 6,
-   "items": 1499,
-   "unbound": 675
-  },
-  {
-   "round": 7,
-   "items": 1880,
-   "unbound": 708
-  },
-  {
-   "round": 8,
-   "items": 2292,
-   "unbound": 785
+   "manifest": 102,
+   "unbound": 189,
+   "resolvedImports": 0,
+   "unresolved": "持续增长"
   }
  ],
- "conclusion": "shell 闭包与导出引擎同性质：不可控。列为未还原。"
+ "finding": "74 声明那一圈是干净且收敛的（无重复），但它只包含外壳的两个 Provider；一旦补上被引用的 ActionsContext / ResourceDetailContext / Picker 组件，闭包会沿 picker+media 链继续扩张，未绑定数同步上升。",
+ "conclusion": "外壳可还原的最小单元比 79 更大——它把 v3 资源选择器（CanvasV3ResourcePickerDialog / PickerMedia* / ImageFullscreen*）一起拖进来。要么接受这个更大的范围，要么把两个 Provider 与 picker 解耦。",
+ "correctedJudgment": "撤回第 230 轮「闭包发散（80→2292）」的判断：那是插代码测法造成的。真实情况是收敛到 74，再沿 picker 链缓慢增长。"
 }
