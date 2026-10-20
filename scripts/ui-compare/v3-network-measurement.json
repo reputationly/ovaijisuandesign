@@ -305,6 +305,28 @@
     "若前者成立，说明主 preload 已接近某种限制（体积/解析），需要另找挂载点。"
    ],
    "state": "资源视图仍 7.771%（中文文案正确），主 preload 已回滚到无桥版本"
+  },
+  "round282": {
+   "controlExperiments": [
+    "exposeInMainWorld('__X_CONTROL__', 1)                        → home (0/0)，不崩",
+    "exposeInMainWorld('__X_FN__', { subscribe(){...} })          → home (0/0)，不崩",
+    "exposeInMainWorld('__HILO_V3_NATIVE_HOST__', { 空实现 })      → 崩",
+    "exposeInMainWorld('__HILO_V3_NATIVE_HOST__', 真桥)            → 崩"
+   ],
+   "conclusion": [
+    "**不是 preload 的问题**。任意新增 expose 都不崩，只有用了真名字才崩 ——",
+    "因为只有那个名字会被渲染层读到，渲染层随即走 mount 路径，而那一步抛了未捕获的错误，",
+    "直接把整页带进错误边界。",
+    "主进程侧确认会发端口（native-workbench-service.ts:286 parent.mainFrame.postMessage）。",
+    "v3 产物已装配且 validateV3Bundle 通过（345 文件）。",
+    "所以真正卡住的是**渲染层 mount 路径上的未捕获异常**，不是 preload、不是产物、不是通道。"
+   ],
+   "stateAtRoundEnd": "主 preload 已回滚到无桥版本，home (0/0)，资源视图 7.771%（中文文案正确）",
+   "nextProbe": [
+    "在 native-workbench-host.jsx 的 acquire 链路外面加一层 try/catch + 记录，",
+    "把未捕获的那个异常打印出来，而不是让错误边界吞掉。",
+    "这是定位剩余问题的唯一必要信息 —— 现在连异常是什么都不知道。"
+   ]
   }
  }
 }
