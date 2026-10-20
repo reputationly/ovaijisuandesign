@@ -118,6 +118,29 @@
     "在 protocol.handle 里写文件日志，确认 index.html 这一请求有没有进来、返回了什么 status；",
     "以及 isolated.webRequest.onBeforeRequest 是否把请求 cancel 掉了（它在 protocol.handle 之前）。"
    ]
+  },
+  "round293": {
+   "requestsWork": [
+    "protocol.handle 与 webRequest.onBeforeRequest 都实测收到请求并正常响应：",
+    "  url=app://<owner>/assets/index-*.css  hasOwner=true  inAssets=true  assetsSize=345  hasAsset=true",
+    "did-start-loading ✓ / dom-ready ✓ / did-finish-load ✓ 都触发了",
+    "did-finish-load 里的守卫**没拦**（/tmp/v3-guard.json 未生成）"
+   ],
+   "realFinding": {
+    "what": "v3 内容是一个**独立的原生 WebContentsView**，不是主窗口 DOM 的一部分",
+    "consequence1": "主窗口的 capturePage 拍不到它 → ws-a-v3-resource 的像素数（7.771%）只反映主窗口，资源视图区域在截图里是空的",
+    "consequence2": "这个屏的像素对比**没有意义**，无论 v3 视图工作与否数字都一样（实测多次 byte-identical）",
+    "evidence": "直接对 view.webContents.capturePage() 截图，得到 size={0,0} —— 视图本身是 0×0"
+   },
+   "lastLink": {
+    "symptom": "layout 被调用，bounds={w:702,h:791} 正常，但 visible=false → 视图不显示、尺寸为 0",
+    "source": "visible = props.isActive !== false && props.isPresented !== false（workspace-canvas-area.jsx:51）",
+    "meaning": "该屏的 pane 在门禁里 isActive/isPresented 有一个是 false，所以 host 传了 visible:false"
+   },
+   "nextProbe": [
+    "查 ws-a-v3-resource 打开时 pane 的 isActive / isPresented 具体是哪个为 false；",
+    "对照参照的 pane 呈现逻辑（我们在这一层可能与参照不同）。"
+   ]
   }
  }
 }
