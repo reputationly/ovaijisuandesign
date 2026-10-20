@@ -230,7 +230,28 @@
     }
    ],
    "conclusion": "6.995% 里绝大部分是有意差异；真实缺口集中在 CanvasAreaV3 的 chrome（3 处）。",
-   "nextStep": "查 CanvasAreaV3 chrome 为何没渲染（isActive/isPresented 或某个 provider 未就位）。"
+   "nextStep": "查 CanvasAreaV3 chrome 为何没渲染（isActive/isPresented 或某个 provider 未就位）。",
+   "realGaps_CORRECTED": {
+    "note": "上一轮把 3 处 chrome 差异判为「真实缺口」，本轮查证后发现**不成立**，属误判。",
+    "items": [
+     {
+      "what": "底部「画布 | 列表」pill",
+      "check": "我们已有 CanvasSidebarHeader（与参照逐字一致，第 286 行），两边 DEFAULT_WORKSPACE_STAGE_STATE 的 filesMode 默认都是 \"closed\"（参照 @21203438 也是），而 filesMode 为 closed 时该 header 不渲染 —— 两边逻辑一致。",
+      "verdict": "不是代码缺口。参照基线截图里有 pill，说明录制时那屏的 stage 状态不是默认值；但基线 state.json 里既没有 hilo 也没有 localStorage 的相关键，无法证实来源。"
+     },
+     {
+      "what": "底部工具坞少一个文件夹图标",
+      "check": "未逐项核对；但同属 chrome 呈现层，且像素计数在 4 个代码状态下字节级相同，说明它不随代码变化。",
+      "verdict": "未证实。"
+     },
+     {
+      "what": "画布左上角「画布 / 浏览器」标签",
+      "check": "主包里搜不到对应 data-action-ui-id 或文案 key，CanvasAreaV3 chunk 里也没有。未能定位它的实现，因此不能断言是缺口。",
+      "verdict": "未定位。"
+     }
+    ],
+    "honestConclusion": "这 3 项都**不足以判定为代码缺口**。上一轮的判断过急。真正能确定的有意差异仍是那 5 项；其余的受限于「基线录制状态不可知」，无法归因。"
+   }
   }
  }
 }
