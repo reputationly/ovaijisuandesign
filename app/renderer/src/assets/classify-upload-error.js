@@ -49,7 +49,7 @@ export async function createHeicPreviewObjectUrlFromUrl(
   }
 }
 
-export const MESSAGE_INPUT_POPOVER_Z_INDEX = 40;
+export const MESSAGE_INPUT_POPOVER_Z_INDEX = 51;
 
 export function isFileAttachment(attachment) {
   return (attachment.kind ?? "file") === "file";

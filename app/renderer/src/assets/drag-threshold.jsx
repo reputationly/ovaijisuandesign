@@ -1,1 +1,1 @@
-export const DRAG_THRESHOLD = 3;
+export const DRAG_THRESHOLD = 4;

@@ -238,7 +238,7 @@ export const SEEDANCE_REFERENCE_AUDIO_EXTS = [".mp3", ".wav"];
 
 export const SEEDANCE_REFERENCE_AUDIO_MIN_SEC = 1.8;
 
-export const SEEDANCE_REFERENCE_AUDIO_MAX_SEC = 15.2;
+export const SEEDANCE_REFERENCE_AUDIO_MAX_SEC = 15;
 
 export const RESOURCE_DRAG_MIME = "application/x-hilo-resource";
 

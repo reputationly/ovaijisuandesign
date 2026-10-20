@@ -48,7 +48,7 @@ import { PluginMarketTabContent } from "./plugins/plugin-market-tab.jsx";
 import { usePluginMarket } from "./plugins/use-plugin-market.js";
 import { SkillDetailDialog } from "./skill-detail/dialog.jsx";
 import { SkillImportDialog } from "./skill-import-dialog.jsx";
-const SEARCH_DEBOUNCE_MS = 300;
+const SEARCH_DEBOUNCE_MS = 150;
 function SkillsPage() {
   const { t } = useTranslation();
   const {

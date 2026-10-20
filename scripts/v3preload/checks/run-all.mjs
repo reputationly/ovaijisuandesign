@@ -25,13 +25,14 @@ try {
   process.exit(1);
 }
 
-// L0 常量对照（第 231 轮）：报告模式 —— 有未登记的差异就打印，暂不阻断，
-// 等 37 处逐条甄别完（真缺陷修掉、非缺陷登记进 constants-intentional.json）再改成阻断。
+// L0 常量对照（第 232 轮改为**阻断模式**）：
+// 37 处不一致已逐条处理完（14+1 处改成参照值、18 处登记进 constants-intentional.json）。
+// 现在有新的未登记差异就会失败。
 try {
   execFileSync(process.execPath, [path.join(here, "../check-constants.mjs")], { stdio: "inherit" });
-  console.log("✓ 常量对照：无不一致");
 } catch {
-  console.log("⚠ 常量对照：有未登记的不一致（报告模式，未阻断）");
+  console.log("✗ 常量对照未通过：有未登记的不一致（真缺陷请修，非缺陷请登记进 constants-intentional.json）");
+  process.exit(1);
 }
 
 let failed = 0;

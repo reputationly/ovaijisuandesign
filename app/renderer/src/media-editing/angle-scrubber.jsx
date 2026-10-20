@@ -76,7 +76,7 @@ function maybeSnapAngle(degrees) {
   return normalizedAngle;
 }
 const HEADER_FLOW_HEIGHT = 28;
-const TOOLBAR_GAP = 8;
+const TOOLBAR_GAP = 6;
 const zoomSelector = (storeState) => storeState.transform[2];
 function CancelChip({ onClick, label }) {
   return (

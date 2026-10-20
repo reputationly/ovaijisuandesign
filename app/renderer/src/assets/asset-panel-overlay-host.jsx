@@ -1124,7 +1124,7 @@ function AudioPreview({ asset }) {
     </div>
   );
 }
-const PREVIEW_MAX_WIDTH = 480;
+const PREVIEW_MAX_WIDTH = 280;
 function ImagePreview({ src, name, unavailableLabel }) {
   const [failed, setFailed] = reactExports.useState(false);
   return failed ? (

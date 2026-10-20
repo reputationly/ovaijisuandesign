@@ -16,7 +16,7 @@ import { CoachMarkPopup } from "./coach-mark-popup.jsx";
 
 export const CONTENT_PANEL_MIN_WIDTH = 240;
 
-export const CONTENT_PANEL_MAX_WIDTH = 480;
+export const CONTENT_PANEL_MAX_WIDTH = 720;
 
 export const SKILL_DRAG_MIME = "application/x-hilo-skill";
 

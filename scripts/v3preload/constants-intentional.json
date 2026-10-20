@@ -1,15 +1,95 @@
 {
-  "note": "常量对照的**有意差异登记表**。每一条都要写理由；不登记的不一致会被 check-constants 判为不合格。",
-  "entries": [
-    {
-      "name": "DEFAULT_SHOWCASE_ATTRIBUTION",
-      "file": "workspace/parse-project-archive-item.js",
-      "reason": "品牌替换：参照是 MiniMax 官方，本项目改为自有品牌（蒜狸小助手官方）"
-    },
-    {
-      "name": "DEFAULT_SHOWCASE_ATTRIBUTION_EN",
-      "file": "workspace/parse-project-archive-item.js",
-      "reason": "品牌替换：同上（英文版 Suanli Assistant Official）"
-    }
-  ]
+ "note": "常量对照的**有意差异登记表**。每一条都要写理由；不登记的不一致会被 check-constants 判为不合格。",
+ "entries": [
+  {
+   "name": "DEFAULT_SHOWCASE_ATTRIBUTION",
+   "file": "workspace/parse-project-archive-item.js",
+   "reason": "品牌替换：参照是 MiniMax 官方，本项目改为自有品牌（蒜狸小助手官方）"
+  },
+  {
+   "name": "DEFAULT_SHOWCASE_ATTRIBUTION_EN",
+   "file": "workspace/parse-project-archive-item.js",
+   "reason": "品牌替换：同上（英文版 Suanli Assistant Official）"
+  },
+  {
+   "name": "RESOLUTION_LABELS",
+   "file": "chat/resolution-labels.jsx",
+   "reason": "同名不同实体：参照是 1k/2k/4k 档位，我们是 720p/1080p 档位"
+  },
+  {
+   "name": "IMPORT_TOAST_ID",
+   "file": "canvas-v3/canvas-area-v3.js",
+   "reason": "同名不同实体：参照是工程归档导入 toast，我们是 canvas-v3 导入错误 toast"
+  },
+  {
+   "name": "POPUP_TYPE",
+   "file": "settings/feature-popup.jsx",
+   "reason": "同名不同实体：参照是迁移弹窗类型，我们是功能弹窗类型"
+  },
+  {
+   "name": "TYPE_CHIPS",
+   "file": "assets/asset-center-page.jsx",
+   "reason": "同名不同实体：参照是硬编码列表，我们由 ENTITY_TYPES 派生"
+  },
+  {
+   "name": "SPECIAL_PROPS",
+   "file": "assets/inline-input.jsx",
+   "reason": "同名不同实体：条目数不同（参照 3 项，我们 2 项）"
+  },
+  {
+   "name": "KEY_PREFIX",
+   "file": "assets/asset-center-error.js",
+   "reason": "同名不同实体：参照是聊天草稿前缀，我们是资产中心错误前缀"
+  },
+  {
+   "name": "STORAGE_KEY$1",
+   "file": "canvas-v3/motion-engine.js",
+   "reason": "同名不同实体：参照是 messageInput.skillUsageCounts，我们是 video_editor_device_profile"
+  },
+  {
+   "name": "COLORS",
+   "file": "media-editing/image-inplace-edit-toolbar.jsx",
+   "reason": "参照与我们的调色板顺序/条目不同，属不同实体的同名常量"
+  },
+  {
+   "name": "STROKE_WIDTHS",
+   "file": "media-editing/use-editor-state.js",
+   "reason": "同名不同实体：参照是纯数值数组，我们是带 dotPx/value 的对象数组"
+  },
+  {
+   "name": "MARK_ID",
+   "file": "canvas-v3/canvas-area-v3.js",
+   "reason": "同名不同实体：参照是 session-cost-intro，我们是 canvas-v3-add-subject-intro-v1"
+  },
+  {
+   "name": "PREFIX",
+   "file": "canvas-v3/canvas-area-v3.js",
+   "reason": "同名不同实体：参照是 hub_ 前缀，我们是 canvas-v3-resource: 前缀"
+  },
+  {
+   "name": "TAG_ICON",
+   "file": "generation/editable-param-chip.jsx",
+   "reason": "同名不同实体：参照 1 项，我们 2 项（多了 duration）"
+  },
+  {
+   "name": "STORAGE_KEY",
+   "file": "canvas/read-persisted.js",
+   "reason": "同名不同实体：参照是 canvasSidebar.recentPlugins，我们是 hilo:canvas:video-toolbar:customization"
+  },
+  {
+   "name": "DEFAULT_PINNED",
+   "file": "canvas/use-video-starter-preset-store.js",
+   "reason": "同名不同实体：条目集合不同"
+  },
+  {
+   "name": "TOOL_LABEL_DEFINITIONS",
+   "file": "generation/use-tool-confirm-edit-state.js",
+   "reason": "参照用 ...TOOL_LABEL_DEFINITIONS$1 展开，我们用 importedToolLabelDefinitions，属重命名"
+  },
+  {
+   "name": "HOME_NAV_BUTTON_CLASS",
+   "file": "debug-panel/icon-opacity-preview-section.jsx",
+   "reason": "同名不同实体：文案类名 h-[34px] vs h-9，来自不同预览区"
+  }
+ ]
 }

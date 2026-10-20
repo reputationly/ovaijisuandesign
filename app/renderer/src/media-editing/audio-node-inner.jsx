@@ -75,7 +75,7 @@ function seededRandom(seed) {
     return randomState / 2147483647;
   };
 }
-const WAVEFORM_HEIGHT = 64;
+const WAVEFORM_HEIGHT = 48;
 const BAR_WIDTH = 3;
 const BAR_GAP = 2;
 const BAR_RADIUS = BAR_WIDTH / 2;

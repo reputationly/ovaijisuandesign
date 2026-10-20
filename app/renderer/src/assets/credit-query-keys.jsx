@@ -61,7 +61,7 @@ export function resolveDesktopCanvasRenderPolicy(platform, runtimeConfig) {
     recoverAfterResume: runtimeConfig.canvasResumeRecoveryEnabled,
   });
 }
-const READY_TIMEOUT_MS = 5e3;
+const READY_TIMEOUT_MS = 2e3;
 const READY_POLL_MS = 50;
 function whenReactScanReady() {
   if (window.reactScan) return Promise.resolve(window.reactScan);

@@ -1,7 +1,7 @@
 // use-plugin-dag-bridge.js
 import reactExports from "react";
 import { guardAccountSubmission } from "../infra/agent-http-client.js";
-const POLL_INTERVAL_MS = 15e3;
+const POLL_INTERVAL_MS = 3e3;
 const WATCH_TIMEOUT_MS = 30 * 60 * 1e3;
 const ESTIMATED_SECONDS = 60;
 const MAX_CONSECUTIVE_FAILURES = 5;

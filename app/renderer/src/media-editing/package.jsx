@@ -487,4 +487,4 @@ export function FlipVerticalIcon(props) {
     </CompositedSvg>
   );
 }
-export const MEDIA_NODE_RADIUS = 10;
+export const MEDIA_NODE_RADIUS = 16;

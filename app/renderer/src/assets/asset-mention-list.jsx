@@ -13,7 +13,7 @@ import { Input3 as Input } from "../infra/select-content.jsx";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
 const DEFAULT_MAX_HEIGHT = 280;
 const SEARCH_LIMIT = 50;
-const THUMB_PX = 32;
+const THUMB_PX = 24;
 function TypeIcon({ type }) {
   if (type === "character")
     return <ImageOutlineIcon size={16} strokeWidth={1.67} />;

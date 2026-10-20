@@ -14,7 +14,7 @@
  *
  * 用法：node scripts/v3preload/check-constants.mjs [--verbose]
  */
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const REPO = process.cwd();
@@ -63,7 +63,15 @@ const numEq = (a, b) => {
   const x = Number(a), y = Number(b);
   return Number.isFinite(x) && Number.isFinite(y) && x === y;
 };
-const norm = (v) => v.replace(/\s+/g, "").replace(/"/g, "'").replace(/,(?=[}\]])/g, "");
+const norm = (v) =>
+  v
+    .replace(/\/\*[\s\S]*?\*\//g, "")   // 去掉 /* @__PURE__ */ 这类注释
+    .replace(/\/\/[^\n]*/g, "")          // 去掉行注释
+    .replace(/\$(?:\d+|[A-Za-z_]+)\b/g, "") // Rollup 的 $n 重命名
+    .replace(/\b([A-Za-z_$][\w$]*?)(?:\d+|\$\d+)\b/g, "$1")
+    .replace(/\s+/g, "")
+    .replace(/"/g, "'")
+    .replace(/,(?=[}\]])/g, "");
 const mismatches = [], ok = [];
 for (const [name, b] of bundleConsts) {
   const t = treeConsts.get(name);
@@ -92,4 +100,10 @@ for (const m of mismatches) {
   console.log(`      tree  : ${m.tree.slice(0, 90)}`);
 }
 if (VERBOSE) for (const n of ok) console.log(`  ✓ ${n}`);
+const JIDX = process.argv.indexOf("--json");
+if (JIDX >= 0) {
+  const out = process.argv[JIDX + 1] ?? "constants-mismatch.json";
+  writeFileSync(out, JSON.stringify(mismatches.map((m) => ({ name: m.name, file: m.file, bundle: m.bundle, tree: m.tree })), null, 1));
+  console.log(`  明细已写入 ${out}`);
+}
 process.exit(mismatches.length ? 1 : 0);

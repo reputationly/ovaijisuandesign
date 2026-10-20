@@ -1,7 +1,7 @@
 import { CompositedSvg } from "../media-editing/icon-compositing.js";
 import { default as reactExports } from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
-export const ANCHOR_GAP = 8;
+export const ANCHOR_GAP = 4;
 export const VIEWPORT_PADDING = 8;
 export function isPointInPreviewBridge(x2, y4, anchor2, preview) {
   const contains2 = rect => x2 >= rect.left && x2 <= rect.left + rect.width && y4 >= rect.top && y4 <= rect.bottom;
