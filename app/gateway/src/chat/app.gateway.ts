@@ -33,6 +33,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
 
   handleConnection(client: WebSocket, req?: IncomingMessage): void {
+    // 第 253 轮：把发送函数交给订阅服务，变更时由它推 task_changed
+    this.taskSubscriptions.attach(client, (frame) => {
+      if (client.readyState === client.OPEN) client.send(JSON.stringify(frame));
+    });
     // 事件流里有这个工作区的画布和聊天：没带身份或对不上（连错了工作区的旧标签页）都不给。
     const rejected = verifyWebSocketIdentity(process.env, req?.url);
     if (rejected) {

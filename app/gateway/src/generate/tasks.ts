@@ -152,6 +152,9 @@ export class ProjectTaskService {
     return this.get(id);
   }
 
+  /** 由 TaskSubscriptionsService 注入；写变更后回调（第 253 轮） */
+  onChange?: (task: { id: string; revision: number }) => void;
+
   private write(id: string, operation: string, status: string, input: Record<string, unknown>, state: Record<string, unknown>, createdAt: string, updatedAt: string, revision = 1) {
     this.ready();
     this.database().prepare(`INSERT INTO tasks(id, operation, idempotency_key, status, revision, input_json, state_json, created_at, updated_at)
@@ -159,6 +162,8 @@ export class ProjectTaskService {
       ON CONFLICT(id) DO UPDATE SET status=excluded.status, revision=excluded.revision, state_json=excluded.state_json, updated_at=excluded.updated_at`).run(
       id, operation, id, status, revision, JSON.stringify(input), JSON.stringify(state), createdAt, updatedAt,
     );
+    const written = this.getRow(id);
+    if (written) this.onChange?.(present(written));
   }
 
   private getRow(id: string): TaskRow | undefined {

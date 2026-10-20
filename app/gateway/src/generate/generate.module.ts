@@ -17,6 +17,6 @@ import { MediaConfigService } from "./media-config.service.js";
   imports: [ProjectKernelModule, EditModule, WatermarkModule],
   controllers: [GenerateAsyncController, GenerateController, CapabilitiesController, ProjectTaskController],
   providers: [ActiveGenerationsStore, GenerationRunner, MediaConfigService, ProjectTaskService, MediaEditService, CapabilityExecutionService],
-  exports: [GenerationRunner, MediaConfigService, CapabilityExecutionService],
+  exports: [GenerationRunner, MediaConfigService, CapabilityExecutionService, ProjectTaskService],
 })
 export class GenerateModule {}

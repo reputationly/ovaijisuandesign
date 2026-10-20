@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 
 import { LocalSubjectService } from "../common/local-subject.service.js";
 import { ProjectQueryError } from "../project-kernel/errors.js";
+import { ProjectTaskService } from "./tasks.js";
 
 /**
  * 任务订阅（第 246 轮，按参照的 `TaskSubscriptions` 逐条对齐）。
@@ -48,6 +49,13 @@ export interface TaskSubscription {
   identity: string;
 }
 
+export interface TaskChangedFrame {
+  type: "task_changed";
+  subscriptionId: string;
+  id: string;
+  task: unknown;
+}
+
 export type TaskSubscriptionReply =
   | { type: "task_subscription_closed"; subscriptionId: string }
   | { type: "task_subscription_ready"; subscriptionId: string; capabilities: string[] }
@@ -84,14 +92,26 @@ export class TaskSubscriptionRegistry {
   dropClient(client: object): void {
     this.byClient.delete(client);
   }
+
+  entries(): IterableIterator<[object, Map<string, TaskSubscription>]> {
+    return this.byClient.entries();
+  }
 }
 
 @Injectable()
 export class TaskSubscriptionsService {
   private readonly logger = new Logger(TaskSubscriptionsService.name);
   private readonly registry = new TaskSubscriptionRegistry();
+  /** client -> 发送函数；由 AppGateway 在连接时注入 */
+  private readonly senders = new Map<object, (frame: unknown) => void>();
 
-  constructor(private readonly subject: LocalSubjectService) {}
+  constructor(
+    private readonly subject: LocalSubjectService,
+    private readonly tasks: ProjectTaskService,
+  ) {
+    // 任务写入后广播 task_changed（参照用 store.onChanged，这里用同一个意图的回调）
+    this.tasks.onChange = (task) => this.notify(task as { id: string; revision: number });
+  }
 
   /**
    * 处理一条订阅/退订消息。
@@ -132,6 +152,40 @@ export class TaskSubscriptionsService {
 
   dropClient(client: object): void {
     this.registry.dropClient(client);
+    this.senders.delete(client);
+  }
+
+  /** 注册某个连接的发送函数（AppGateway 在 connection 时调用） */
+  attach(client: object, send: (frame: unknown) => void): void {
+    this.senders.set(client, send);
+  }
+
+  /**
+   * 任务变更通知（第 253 轮，按参照的 `changed(task)` 实现）。
+   *
+   * 参照的帧：
+   *   { type: "task_changed", subscriptionId, id: `${task.id}:${task.revision}`, task: taskView(task) }
+   *
+   * 过滤规则：
+   *   - 只推给 `taskIds` 匹配（或未指定）的订阅；
+   *   - 主体必须一致（我们登录已移除，subjectId 恒为 local，所以这条自然成立）。
+   */
+  notify(task: { id: string; revision: number; input?: { subjectId?: string } }): void {
+    const subjectId = task.input?.subjectId ?? this.subject.getUserID();
+    for (const [client, subscriptions] of this.registry.entries()) {
+      const send = this.senders.get(client);
+      if (!send) continue;
+      for (const sub of subscriptions.values()) {
+        if (sub.subjectId !== subjectId) continue;
+        if (sub.taskIds && !sub.taskIds.has(task.id)) continue;
+        send({
+          type: "task_changed",
+          subscriptionId: sub.subscriptionId,
+          id: `${task.id}:${task.revision}`,
+          task,
+        } satisfies TaskChangedFrame);
+      }
+    }
   }
 
   private parseSubscriptionId(value: unknown): string {

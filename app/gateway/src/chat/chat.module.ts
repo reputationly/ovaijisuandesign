@@ -1,6 +1,7 @@
 import { Global, Module } from "@nestjs/common";
 
 import { LocalSubjectService } from "../common/local-subject.service.js";
+import { GenerateModule } from "../generate/generate.module.js";
 import { TaskSubscriptionsService } from "../generate/task-subscriptions.service.js";
 import { HealthModule } from "../health/health.module.js";
 import { AppGateway } from "./app.gateway.js";
@@ -13,7 +14,7 @@ import { SessionMetricsService } from "./session-metrics.service.js";
 
 @Global()
 @Module({
-  imports: [HealthModule],
+  imports: [HealthModule, GenerateModule],
   controllers: [InternalSessionsController, InternalToolSchemaController, ChatAttachmentController, ChatModelTraceController],
   providers: [
     AppGateway,
