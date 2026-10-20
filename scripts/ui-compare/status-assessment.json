@@ -73,6 +73,29 @@
     "trace acquire 调用点前后，确认这次调用真的进了 acquire 函数体。"
    ],
    "note": "本轮把范围从「mount 未调用」进一步收窄到「pool.acquire 的排队任务未开始执行」。"
+  },
+  "round291_chain": {
+   "tracedChain": [
+    "[own] enter → [own] listen ok",
+    "[reg] threw: IRendererPersistenceMainService is not defined   ← 已修（漏 import）",
+    "[acq] enter → [pool] factory（owner 构造成功）",
+    "[start] enter → before onDidChange → before subscribe → before prepare",
+    "prepare ok → before mount → **mount returned**",
+    "主进程： [v3-mount] enter <ownerId>",
+    "主进程： [v3-mount] did-finish-load url=app://<ownerId>/index.html#/assets"
+   ],
+   "verifiedWorking": [
+    "渲染层到主进程的整条 mount 链路已通（这是本轮最大的实质进展）",
+    "v3 视图能创建、能加载 index.html 到 /assets 路由"
+   ],
+   "remainingBlocker": [
+    "did-finish-load 里的守卫在发端口之前 return 了：",
+    "  if (this.owners.get(ownerId) !== owner || owner.failed || owner.connected ||",
+    "      view.webContents.mainFrame.url.split('#')[0] !== entry.split('#')[0]) return;",
+    "实测 URL 分隔后两侧都是 app://<ownerId>/index.html，所以最可能是",
+    "this.owners.get(ownerId) !== owner（owner 记录被替换/移除）。",
+    "下一步：把守卫四个条件的值打出来（注意别用 console.error 会拖慢启动，要写到文件或视图 title）。"
+   ]
   }
  }
 }
