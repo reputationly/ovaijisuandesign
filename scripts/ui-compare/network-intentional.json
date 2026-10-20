@@ -1,0 +1,15 @@
+{
+ "note": "v3 屏网络对比的**有意差异**白名单。按路径集合比较，不比次数（useAgentModelCatalog 每 30 秒刷新，次数会随停留时长变化）。",
+ "entries": [
+  {
+   "path": "/api/v1/popup",
+   "kind": "exact",
+   "reason": "本项目有意关闭营销弹窗查询：settings/use-popup.js:159 `const enabled = false`，来自提交 b7e1d018（official-ui 的去登录营销弹窗补丁）。参照的 enabled 是 !forcedUpdate && !isLoading && isLoggedIn && !!userID。不去修。"
+  },
+  {
+   "path": "/api/v1/home/showcase-assets/",
+   "kind": "prefix",
+   "reason": "本地演示资源，参照发行包不含（门禁的 NET_VOLATILE 已排除）。"
+  }
+ ]
+}

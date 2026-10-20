@@ -12,7 +12,7 @@ export function agentModelMatchesSelection(model, selectedId) {
   );
 }
 
-function normalizeAgentModelAccess(value) {
+export function normalizeAgentModelAccess(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     return void 0;
   const requirement = value.requirement;

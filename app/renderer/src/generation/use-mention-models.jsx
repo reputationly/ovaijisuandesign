@@ -6,6 +6,7 @@ import { useGatewayScope } from "../infra/runtime-config.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
 import { useQuery } from "@tanstack/react-query";
+import { fetchCapabilityModelRows, useChatModelSource } from "./chat-model-source.js";
 import { getSkillCoverUrl } from "../skills/skill-cover-url.js";
 import { useStorage } from "../infra/use-storage.js";
 import {
@@ -254,9 +255,26 @@ export function connectorReferenceFromServerName(serverName) {
     iconUrl: catalog?.iconUrl ?? null,
   };
 }
+
+/** 参照的 modelsConfigRows（bundle 第 436741 行） */
+async function modelsConfigRows(gatewayFetch, signal) {
+  const resp = await gatewayFetch(API_PATHS.modelsConfig, { signal });
+  if (!resp.ok) throw new Error(`model registry failed with HTTP ${resp.status}`);
+  const payload = await resp.json();
+  return payload && typeof payload === "object" && !Array.isArray(payload)
+    ? ["imageModels", "videoModels", "audioModels"].flatMap((key) => {
+        const value = payload[key];
+        return Array.isArray(value) ? value : [];
+      })
+    : Array.isArray(payload)
+      ? payload
+      : undefined;
+}
+
 const STALE_24H = 24 * 60 * 60 * 1e3;
 export function useMentionModels() {
   const gatewayFetch = useGatewayFetch();
+  const source = useChatModelSource();
   const catalogScopeKey = useModelCatalogScopeKey();
   const { baseUrl, gatewayBinding, scopeKey } = useGatewayScope();
   const runtimeKey = gatewayBinding
@@ -269,23 +287,13 @@ export function useMentionModels() {
     // (the global QueryClient disables focus/reconnect refetches and the
     // MessageInput consumer never remounts).
     staleTime: (query) => ((query.state.data?.length ?? 0) > 0 ? STALE_24H : 0),
-    queryKey: ["mention-models", catalogScopeKey, scopeKey, runtimeKey],
+    queryKey: ["mention-models", catalogScopeKey, scopeKey, runtimeKey, source],
     queryFn: async ({ signal }) => {
-      const resp = await gatewayFetch(API_PATHS.modelsConfig, {
-        signal,
-      });
-      if (!resp.ok)
-        throw new Error(`model registry failed with HTTP ${resp.status}`);
-      const payload = await resp.json();
+      // 参照写法：source === "capabilities" 走全量能力清单，否则走 models/config
       const models =
-        payload && typeof payload === "object" && !Array.isArray(payload)
-          ? ["imageModels", "videoModels", "audioModels"].flatMap((key) => {
-              const value = payload[key];
-              return Array.isArray(value) ? value : [];
-            })
-          : Array.isArray(payload)
-            ? payload
-            : void 0;
+        source === "capabilities"
+          ? await fetchCapabilityModelRows(gatewayFetch, signal)
+          : await modelsConfigRows(gatewayFetch, signal);
       if (!Array.isArray(models)) return [];
       return models.flatMap((raw) => {
         if (!raw || typeof raw !== "object" || Array.isArray(raw)) return [];
@@ -324,7 +332,7 @@ export function useMentionModels() {
         ];
       });
     },
-    enabled: Boolean(baseUrl),
+    enabled: Boolean(baseUrl) && source !== void 0,
     retry: 1,
   });
 }

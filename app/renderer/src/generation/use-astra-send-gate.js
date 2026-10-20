@@ -15,8 +15,10 @@ import {
   useMpSubscriptionWalletQuery,
 } from "../team/hailuo-credit-row.jsx";
 import { resolveActiveModelId } from "./use-model-catalog-scope-key.js";
+import { useAgentModels } from "./media-model-selector.jsx";
 import {
   agentModelMatchesSelection,
+  normalizeAgentModelAccess,
   resolveAgentModelAccess,
 } from "../infra/parse-connector-selection.js";
 import { useActiveCustomModel } from "../team/copy-icon-button.jsx";
@@ -90,9 +92,18 @@ export function useAgentModelMembershipAccess() {
 export function useAstraSendGate(modelId) {
   const { t: translate } = useTranslation();
   const activeCustomModel = useActiveCustomModel();
-  const access = resolveAgentModelAccess(
-    resolveActiveModelId(modelId, activeCustomModel.data),
+  const selectedId = resolveActiveModelId(modelId, activeCustomModel.data);
+  // 第 264 轮：参照 4.0.0 在这里也调 useAgentModelCatalog（bundle 第 433497 行）——
+  // 它是 GET /api/runtime/models 在该屏的第二个调用点。
+  // 只有非自定义模型才需要内置目录。
+  const catalog = useAgentModels(!isCustomModelId(selectedId));
+  const selectedModel = catalog.data?.models.find((model) =>
+    agentModelMatchesSelection(model, selectedId ?? catalog.data?.default),
   );
+  // 参照：normalizeAgentModelAccess(selectedModel?.access)，取不到时回落到内置表
+  const access =
+    normalizeAgentModelAccess(selectedModel?.access) ??
+    resolveAgentModelAccess(selectedId);
   const { isSuccess, isError, isFetching, refetch } = activeCustomModel;
   const { membershipState, guardAccess } = useAgentModelMembershipAccess();
   const requiresMembership =

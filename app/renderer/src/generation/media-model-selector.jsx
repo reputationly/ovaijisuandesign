@@ -357,7 +357,7 @@ function normalizeAgentModels(value, custom) {
       : {}),
   };
 }
-function useAgentModels(enabled = true) {
+export function useAgentModels(enabled = true) {
   const activeCustomModel = useActiveCustomModel();
   const queryClient = useQueryClient();
   const gatewayFetch = useGatewayFetch();
@@ -410,6 +410,9 @@ function useAgentModels(enabled = true) {
         (activeCustomModel.isSuccess &&
           (Boolean(activeCustomModel.data) || gatewayReady))),
     staleTime: 3e4,
+    // 第 264 轮：参照 4.0.0 的 useAgentModelCatalog 有这一条（bundle 第 433528 行），
+    // 我们沿用 3.0.21 的写法没有 —— 它是 GET /api/runtime/models 在该屏被拉的原因。
+    refetchInterval: enabled ? 3e4 : false,
     retry: activeCustomModel.isError ? false : 2,
     retryDelay: 300,
   });
