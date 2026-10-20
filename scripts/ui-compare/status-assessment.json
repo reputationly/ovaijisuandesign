@@ -296,6 +296,34 @@
     "  是 gateway 未启动、还是 bind 流程没走完；",
     "门禁其它 40 屏能过，说明主路径可用，差异可能只在 workspace 的 bind 时机。"
    ]
+  },
+  "round301": {
+   "rootCause": [
+    "v3 的 agent profile 是 v2 的子集：参照 sidecar/agent-profiles/v3/config 只有",
+    "agents/media-agent.md、base*.json、knowledge/、plugins/；**没有 contracts/ 与 workflows/**。",
+    "而我们 profile.ts 里 REQUIRED 用的是 v2 的完整清单（还包含已移除的 comfyui-agent.md），",
+    "stageProfile -> loadContracts 也硬要求 contracts 目录存在。",
+    "于是 v3 架构下 opencode 永远启动失败：",
+    "  readiness.chat = runtime_unavailable → 聊天停在「本地运行时正在恢复」",
+    "  → useMarketSkills 不触发 → 少两条 HTTP"
+   ],
+   "fix": [
+    "profile.ts: REQUIRED 拆成 REQUIRED_V2 / REQUIRED_V3，assertProfileComplete(dir, version) 显式传版本",
+    "          （同步目标固定是 .config-v2，从路径判断架构是错的）",
+    "profile.ts: loadContracts 缺目录时返回 []（v3 没有 contracts），不再抛错",
+    "opencode/index.ts: assertProfileComplete(synced, profileArchitecture())"
+   ],
+   "results": {
+    "ws-a-v3": "6.995% → **4.088%**（22 个月来最大单轮降幅）",
+    "ws-a-v3-resource": "7.470% → **4.605%**",
+    "httpPaths_ws-a-v3": "**23 vs 23 完全一致**",
+    "readiness": "ready（error undefined）",
+    "40屏": "19 屏 0.000% / 最大 0.142% / 平均 0.0201% / 0 新增报错（无回归）"
+   },
+   "remainingWsGap": {
+    "ws-a-v3": "仍缺 editor_subscribe —— 该屏 resourcesOpen=false 不渲染 NativeWorkbenchHost，符合预期",
+    "ws-a-v3-resource": "类型集合完全一致（含 editor_subscribe）"
+   }
   }
  }
 }

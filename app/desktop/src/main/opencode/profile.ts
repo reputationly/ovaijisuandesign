@@ -16,11 +16,19 @@
 import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-/** 缺一个就不启动 —— 缺了 opencode 照样能跑，但 agent 会一本正经地引用不存在的合同或工作流。 */
-const REQUIRED: readonly [string, "file" | "dir"][] = [
+/**
+ * 缺一个就不启动 —— 缺了 opencode 照样能跑，但 agent 会一本正经地引用不存在的合同或工作流。
+ *
+ * **v3 的 profile 是 v2 的子集**：参照的 `sidecar/agent-profiles/v3/config` 只有
+ * `agents/` `base*.json` `knowledge/` `plugins/`，没有 `contracts/` 与 `workflows/`，
+ * agents 下也只有 `media-agent.md`。第 301 轮之前这里套用的是 v2 的完整清单，
+ * 于是 v3 永远判为「配置不完整」→ opencode 起不来 → `readiness.chat` 被打成
+ * `runtime_unavailable` → 聊天停在「本地运行时正在恢复」→ 少发两条 HTTP。
+ * ComfyUI 已被本项目移除，`comfyui-agent.md` 本来也不该再进必需清单。
+ */
+const REQUIRED_V2: readonly [string, "file" | "dir"][] = [
   ["base.json", "file"],
   ["agents/media-agent.md", "file"],
-  ["agents/comfyui-agent.md", "file"],
   ["agents/planner.md", "file"],
   ["agents/router.md", "file"],
   ["agents/executor.md", "file"],
@@ -28,6 +36,13 @@ const REQUIRED: readonly [string, "file" | "dir"][] = [
   ["knowledge/vendors", "dir"],
   ["plugins/session-header.ts", "file"],
   ["workflows/workflow.md", "file"],
+];
+
+const REQUIRED_V3: readonly [string, "file" | "dir"][] = [
+  ["base.json", "file"],
+  ["agents/media-agent.md", "file"],
+  ["knowledge/vendors", "dir"],
+  ["plugins/session-header.ts", "file"],
 ];
 
 /** staging 时复制而不是 symlink：opencode 会就地改写它们（依赖安装），symlink 会写穿到源目录。 */
@@ -48,7 +63,9 @@ export function syncProfile(srcDir: string, dest: string, version: string): void
   writeFileSync(path.join(dest, ".version"), version);
 }
 
-export function assertProfileComplete(dir: string): void {
+export function assertProfileComplete(dir: string, version: "v2" | "v3" = "v2"): void {
+  // 版本必须显式传入：同步目标是固定的 `.config-v2`，从路径看不出架构。
+  const REQUIRED = version === "v3" ? REQUIRED_V3 : REQUIRED_V2;
   const missing = REQUIRED.filter(([rel, kind]) => {
     const p = path.join(dir, rel);
     if (!existsSync(p)) return true;
@@ -173,7 +190,9 @@ export function splice(
 }
 
 function loadContracts(dir: string): Contract[] {
-  if (!existsSync(dir)) throw new Error(`没有 contracts 目录: ${dir}`);
+  // v3 的 profile 没有 contracts/ 目录（参照同样没有）。缺它就当成「没有合同」，
+  // 而不是报错 —— 否则 v3 架构下 opencode 永远起不来。
+  if (!existsSync(dir)) return [];
   const out: Contract[] = [];
   for (const file of readdirSync(dir).sort()) {
     const abs = path.join(dir, file);

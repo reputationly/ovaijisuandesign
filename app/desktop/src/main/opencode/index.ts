@@ -177,7 +177,7 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
   // 删掉重建，会让已经在跑的 opencode 读到半截配置。
   if (!stagedDirs.has(staging)) {
     syncProfile(src, synced, i.version);
-    assertProfileComplete(synced);
+    assertProfileComplete(synced, profileArchitecture());
     stageProfile(synced, staging);
     stagedDirs.add(staging);
   }
