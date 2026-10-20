@@ -18,7 +18,17 @@ const parser = require("@babel/parser");
 const BUNDLE = ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js";
 const OUT = ".probe/refdiff/toplevel-4.0.0.json";
 const src = readFileSync(BUNDLE, "utf8");
-const ast = parser.parse(src, { sourceType: "module", plugins: ["jsx"], errorRecovery: true, allowUndeclaredExports: true });
+// **不要用 errorRecovery**：它在恢复区域会产生不可靠的 start/end，
+// 之前正是它让 toplevel 偏移整体错位。
+let ast;
+try {
+  ast = parser.parse(src, { sourceType: "module", plugins: ["jsx"], allowUndeclaredExports: true });
+} catch (e) {
+  console.error("✗ 严格解析失败：", e.message);
+  console.error("  错误发生在 offset", e.pos, "，附近文本：");
+  console.error("  " + JSON.stringify(src.slice(Math.max(0, e.pos - 80), e.pos + 80)));
+  process.exit(1);
+}
 
 const rows = [];
 for (const n of ast.program.body) {
