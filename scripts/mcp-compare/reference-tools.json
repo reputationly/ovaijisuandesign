@@ -1,0 +1,3127 @@
+{
+ "source": "reference mcp-tools-v3 4.0.0（真跑 tools/list）",
+ "count": 25,
+ "tools": [
+  {
+   "name": "project_rules",
+   "description": "Read or save the current project’s persistent working rules. Use save only when the user explicitly asks to remember, change, or remove a lasting project rule. First read, then merge into the complete Markdown document and save with the returned revision. Preserve unrelated rules. Confirm the change to the user only after save succeeds. Rules are loaded automatically for every model request. Temporary instructions and ordinary feedback do not change this document.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "read",
+       "save"
+      ]
+     },
+     "content": {
+      "type": "string",
+      "description": "Required for save: complete Markdown rules (max 16 KiB UTF-8). Empty text clears all rules."
+     },
+     "expectedRevision": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "Required for save: exact revision returned by read, including null for a missing document. On conflict, read again and merge; never blindly retry."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "execute",
+   "description": "Execute a media capability or native editor operation after reading capability_get. Editors: pass only capabilityId and plugin (method, contractVersion, explicit target, args, write preconditions); the first renderer operation prepares the editor and executes without another model turn. Recover unknown outcomes with command.get, never repeat writes blindly. Media: declared params and ordered references only; output is required before submission. Durable generation returns {task}; create targets get compositionId on submission. Synchronous edit_media returns {delivery}; transcription uses billable cloud ASR, file transforms are local. Results are in envelope.outputs. Adoption/placement problems reuse delivered content for recovery. Completed results are final. Cost confirmation belongs to the user in the app; execute waits, and cancelled means declined or unconfirmed. The host assigns task.id; no caller requestId. After interrupted waits use design_task_wait with that taskId; resubmission starts new work.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "capabilityId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "prompt": {
+      "type": "string",
+      "maxLength": 64000,
+      "description": "Required non-empty text for model generation: image/video prompt, speech script or music brief. Describe ONE finished result; use count for variations. For images, \"two images\" or \"the first ... the second ...\" can pack scenes into one image, repeated for each paid variation. Fixed tools without authored text may omit it."
+     },
+     "params": {
+      "type": "object",
+      "additionalProperties": {},
+      "description": "Flat parameters for the selected capability, exactly as design_capability_get declares them in paramSchema. Never nest them or pass media paths; references carry media."
+     },
+     "references": {
+      "type": "array",
+      "items": {
+       "anyOf": [
+        {
+         "anyOf": [
+          {
+           "type": "object",
+           "properties": {
+            "versionId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            }
+           },
+           "required": [
+            "versionId"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "type": "object",
+           "properties": {
+            "resourceId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            }
+           },
+           "required": [
+            "resourceId"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "type": "object",
+           "properties": {
+            "compositionId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            },
+            "resourceId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            }
+           },
+           "required": [
+            "compositionId",
+            "resourceId"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "type": "object",
+           "properties": {
+            "compositionId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            },
+            "memberId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            }
+           },
+           "required": [
+            "compositionId",
+            "memberId"
+           ],
+           "additionalProperties": false
+          }
+         ]
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "minItems": 0,
+      "maxItems": 100,
+      "description": "Ordered input content for the selected capability. Each entry is exactly one of: {resourceId} to follow that Resource's current ready version (default choice); {versionId} to pin an intentionally selected exact version whose identity is established by context, a tool result, a user attachment or a plan file. An earlier versionId does not establish the current selection; {compositionId, resourceId} to freeze that member resource's current ready version; {compositionId, memberId} to expand every resource of that member in stored order. How many entries a capability takes, and of which media kind, is in design_capability_get. Resolving these inputs does not write Composition memberships. In a frame mode whose references declare lastFrameOnly, pass [null, <last frame>] to give only the closing frame; null is accepted nowhere else."
+     },
+     "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9,
+      "description": "Variations of this same request, 1-9 (default 1). Same prompt and params, billed separately; different content needs separate calls. \"Two candidate images of the same dancing cat\": count=2; \"one street image and one stage image\": two calls; \"one image with two cats\": count=1. Declare one Resource target without a key: outputs primary, primary_2, ... are versions of ONE Resource. After all settle, the lowest preallocated-ordinal successful version becomes current for a new Resource; for new_version, adopted also requires current=baseVersionId. Conflicts and other variations remain candidates; candidate preserves current. Failed variations are absent from task.outputs and not retried; one success suffices for completion. edit_media ignores count and produces one result."
+     },
+     "plugin": {
+      "type": "object",
+      "properties": {
+       "method": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+       },
+       "contractVersion": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+       },
+       "target": {
+        "type": "object",
+        "properties": {
+         "sourceResourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+         },
+         "compositionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+         },
+         "nodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+         },
+         "canvasId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+         }
+        },
+        "additionalProperties": false
+       },
+       "args": {
+        "type": "object",
+        "additionalProperties": {}
+       },
+       "expectedDraftRevision": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "baseVersionId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+       }
+      },
+      "required": [
+       "method",
+       "contractVersion",
+       "target",
+       "args"
+      ],
+      "additionalProperties": false
+     },
+     "output": {
+      "type": "object",
+      "properties": {
+       "resources": {
+        "type": "array",
+        "items": {
+         "anyOf": [
+          {
+           "type": "object",
+           "properties": {
+            "key": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+            },
+            "mode": {
+             "type": "string",
+             "const": "create",
+             "description": "Create an independently maintained Resource."
+            },
+            "name": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            },
+            "description": {
+             "type": "string",
+             "maxLength": 2000
+            }
+           },
+           "required": [
+            "mode",
+            "name"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "type": "object",
+           "properties": {
+            "key": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+            },
+            "mode": {
+             "type": "string",
+             "const": "new_version",
+             "description": "Revise the same Resource or save a replacement candidate, preserving its identity."
+            },
+            "resourceId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            },
+            "baseVersionId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Exact parent version belonging to resourceId. Required with disposition=adopted, where it is also the expected current version."
+            },
+            "disposition": {
+             "type": "string",
+             "enum": [
+              "adopted",
+              "candidate"
+             ],
+             "description": "adopted selects the result as current only if the current version still equals baseVersionId; a conflict retains a candidate for resolution. candidate (the default) saves the result without changing current and cannot be placed in a Composition."
+            }
+           },
+           "required": [
+            "mode",
+            "resourceId"
+           ],
+           "additionalProperties": false
+          }
+         ]
+        },
+        "minItems": 1,
+        "maxItems": 100,
+        "description": "Where the result is saved: mode=create with a name, or mode=new_version with resourceId. Subtitle, lyric and layer outputs receive their own Resources automatically."
+       },
+       "composition": {
+        "type": "object",
+        "properties": {
+         "compositionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Existing Composition ID from a query or creation result. Exclusive with type/name."
+         },
+         "type": {
+          "anyOf": [
+           {
+            "type": "object",
+            "properties": {
+             "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "description": "Registered type ID from context or design_composition_type_list."
+             },
+             "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+             },
+             "description": {
+              "type": "string",
+              "maxLength": 2000
+             }
+            },
+            "required": [
+             "id"
+            ],
+            "additionalProperties": false
+           },
+           {
+            "type": "object",
+            "properties": {
+             "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "description": "Find a registered type by label, or create it with a gateway-generated ID."
+             },
+             "description": {
+              "type": "string",
+              "maxLength": 2000
+             }
+            },
+            "required": [
+             "label"
+            ],
+            "additionalProperties": false
+           }
+          ],
+          "description": "With name: finds the active Composition with this resolved type and trimmed name, or creates it. Exclusive with compositionId."
+         },
+         "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Name of the new Composition."
+         },
+         "attributes": {
+          "type": "object",
+          "additionalProperties": {
+           "type": "string",
+           "maxLength": 2000
+          },
+          "description": "New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes."
+         },
+         "position": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000,
+          "description": "New Composition only. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement. Creation only; existing matches keep position. Parallel same-position calls use the next free value in call order (original in requestedPosition)."
+         },
+         "placement": {
+          "anyOf": [
+           {
+            "type": "object",
+            "properties": {
+             "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+             }
+            },
+            "required": [
+             "after"
+            ],
+            "additionalProperties": false
+           },
+           {
+            "type": "object",
+            "properties": {
+             "before": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+             }
+            },
+            "required": [
+             "before"
+            ],
+            "additionalProperties": false
+           }
+          ],
+          "description": "New Composition only. Place before/after a same-type Composition. The gateway assigns position; never compute one yourself. Neighbours may change position, reported as renumbered. Exclusive with position."
+         },
+         "placements": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "properties": {
+            "key": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+            },
+            "role": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Adds the output as a new member with this role: a user-visible label for its purpose within the Composition, in working_language (e.g. \"正面全身\"). Reuse existing wording for the same purpose; roles may repeat; no code identifiers. Every further independent Resource the call creates under that output (key_2, key_3, ...; e.g. the layers of a layer decomposition) gets a member with the same role. Give role or memberId, not both."
+            },
+            "memberId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Writes the output into this existing member instead of adding one. A member holds one Resource: it is filled when empty or still holding replaceResourceId; otherwise the placement is reported unavailable and the member keeps its Resource."
+            },
+            "replaceResourceId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "With memberId: the Resource the member holds now and this output replaces. Omit to fill an empty member only."
+            }
+           },
+           "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 50,
+          "description": "Required, one entry per output: role adds a member, memberId fills an existing one. key may be omitted for the primary output."
+         }
+        },
+        "required": [
+         "placements"
+        ],
+        "additionalProperties": false,
+        "description": "Canvas-visible placement required for every create target; omit only when every target is a new_version already in a Composition. compositionId targets an existing object; type + name finds/creates an active one by exact type ID + trimmed name. Both require placements. Parallel outputs for one new object use the same type ID/name; call in the same step without waiting for its compositionId."
+       }
+      },
+      "required": [
+       "resources"
+      ],
+      "additionalProperties": false,
+      "description": "Required for media: declare resources and their Composition placements. Media edits declare exactly one primary Resource. Example: {\"resources\":[{\"mode\":\"create\",\"name\":\"视频\"}],\"composition\":{\"type\":{\"label\":\"视频\"},\"name\":\"作品\",\"placements\":[{\"role\":\"主视频\"}]}}"
+     }
+    },
+    "required": [
+     "capabilityId"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "deliver",
+   "description": "Synchronously deliver existing versions, archived task artifacts or workspace files into Resources and Compositions; no generation, billing or Task. Imported files have no lineage. Word/PDF remain binary Resources: read with design_read(versionId), not execute media references. reuse places an existing Resource without copying and requires a versionId source. Returns {delivery}: completed is final; unknown requires the same requestId and exact input, never regeneration; blocked requires corrected input with a new requestId, reusing delivered versionIds. No background delivery or wait tool. Targets and placements live inside output, never beside sources. Example: {\"requestId\":\"deliver-promo-1\",\"sources\":[{\"key\":\"video\",\"path\":\"out/promo_cut.mp4\"},{\"key\":\"cover\",\"path\":\"out/promo_cover.png\"}],\"output\":{\"resources\":[{\"key\":\"video\",\"mode\":\"create\",\"name\":\"宣传片成片\"},{\"key\":\"cover\",\"mode\":\"create\",\"name\":\"宣传片封面\"}],\"composition\":{\"type\":{\"id\":\"video\",\"label\":\"视频\"},\"name\":\"新品宣传片\",\"placements\":[{\"key\":\"video\",\"role\":\"主视频\"},{\"key\":\"cover\",\"role\":\"封面\"}]}}}",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Stable caller-generated idempotency identity; retain before dispatch and reuse unchanged on retry."
+     },
+     "sources": {
+      "type": "array",
+      "items": {
+       "anyOf": [
+        {
+         "type": "object",
+         "properties": {
+          "key": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512,
+           "description": "Omit for a sole source; with several, a distinct key per source."
+          },
+          "versionId": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512
+          }
+         },
+         "required": [
+          "versionId"
+         ],
+         "additionalProperties": false
+        },
+        {
+         "type": "object",
+         "properties": {
+          "key": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512,
+           "description": "Omit for a sole source; with several, a distinct key per source."
+          },
+          "artifactId": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512
+          }
+         },
+         "required": [
+          "artifactId"
+         ],
+         "additionalProperties": false
+        },
+        {
+         "type": "object",
+         "properties": {
+          "key": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512,
+           "description": "Omit for a sole source; with several, a distinct key per source."
+          },
+          "path": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 4096,
+           "description": "Workspace file path for content that is not a Resource yet. Must be a regular file inside the workspace, outside `.hilo/`, not a symlink, and an image/video/audio/text file or Word/PDF document (.doc/.docx/.pdf, at most 50 MiB). Never a URL or a path outside the workspace."
+          }
+         },
+         "required": [
+          "path"
+         ],
+         "additionalProperties": false
+        }
+       ]
+      },
+      "minItems": 1,
+      "maxItems": 100,
+      "description": "Supply exactly one source per item: versionId for an existing version, artifactId for an archived task artifact, or path for an unregistered workspace file. A sole source needs no key; several sources each take a distinct key that output.resources and placements use."
+     },
+     "output": {
+      "type": "object",
+      "properties": {
+       "resources": {
+        "type": "array",
+        "items": {
+         "anyOf": [
+          {
+           "anyOf": [
+            {
+             "type": "object",
+             "properties": {
+              "key": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 512,
+               "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+              },
+              "mode": {
+               "type": "string",
+               "const": "create",
+               "description": "Create an independently maintained Resource."
+              },
+              "name": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 512
+              },
+              "description": {
+               "type": "string",
+               "maxLength": 2000
+              }
+             },
+             "required": [
+              "mode",
+              "name"
+             ],
+             "additionalProperties": false
+            },
+            {
+             "type": "object",
+             "properties": {
+              "key": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 512,
+               "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+              },
+              "mode": {
+               "type": "string",
+               "const": "new_version",
+               "description": "Revise the same Resource or save a replacement candidate, preserving its identity."
+              },
+              "resourceId": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 512
+              },
+              "baseVersionId": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 512,
+               "description": "Exact parent version belonging to resourceId. Required with disposition=adopted, where it is also the expected current version."
+              },
+              "disposition": {
+               "type": "string",
+               "enum": [
+                "adopted",
+                "candidate"
+               ],
+               "description": "adopted selects the result as current only if the current version still equals baseVersionId; a conflict retains a candidate for resolution. candidate (the default) saves the result without changing current and cannot be placed in a Composition."
+              }
+             },
+             "required": [
+              "mode",
+              "resourceId"
+             ],
+             "additionalProperties": false
+            }
+           ]
+          },
+          {
+           "type": "object",
+           "properties": {
+            "key": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+            },
+            "mode": {
+             "type": "string",
+             "const": "reuse"
+            }
+           },
+           "required": [
+            "mode"
+           ],
+           "additionalProperties": false
+          }
+         ]
+        },
+        "minItems": 1,
+        "maxItems": 100,
+        "description": "One target per source: create a named Resource, write a new version of an existing Resource, or reuse (place a versionId source as is). With several sources, each target names its source key."
+       },
+       "composition": {
+        "type": "object",
+        "properties": {
+         "compositionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Existing Composition ID from a query or creation result. Exclusive with type/name."
+         },
+         "type": {
+          "anyOf": [
+           {
+            "type": "object",
+            "properties": {
+             "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "description": "Registered type ID from context or design_composition_type_list."
+             },
+             "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+             },
+             "description": {
+              "type": "string",
+              "maxLength": 2000
+             }
+            },
+            "required": [
+             "id"
+            ],
+            "additionalProperties": false
+           },
+           {
+            "type": "object",
+            "properties": {
+             "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "description": "Find a registered type by label, or create it with a gateway-generated ID."
+             },
+             "description": {
+              "type": "string",
+              "maxLength": 2000
+             }
+            },
+            "required": [
+             "label"
+            ],
+            "additionalProperties": false
+           }
+          ],
+          "description": "With name: finds the active Composition with this resolved type and trimmed name, or creates it. Exclusive with compositionId."
+         },
+         "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Name of the new Composition."
+         },
+         "attributes": {
+          "type": "object",
+          "additionalProperties": {
+           "type": "string",
+           "maxLength": 2000
+          },
+          "description": "New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes."
+         },
+         "position": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000,
+          "description": "New Composition only. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement. Creation only; existing matches keep position. Parallel same-position calls use the next free value in call order (original in requestedPosition)."
+         },
+         "placement": {
+          "anyOf": [
+           {
+            "type": "object",
+            "properties": {
+             "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+             }
+            },
+            "required": [
+             "after"
+            ],
+            "additionalProperties": false
+           },
+           {
+            "type": "object",
+            "properties": {
+             "before": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+             }
+            },
+            "required": [
+             "before"
+            ],
+            "additionalProperties": false
+           }
+          ],
+          "description": "New Composition only. Place before/after a same-type Composition. The gateway assigns position; never compute one yourself. Neighbours may change position, reported as renumbered. Exclusive with position."
+         },
+         "placements": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "properties": {
+            "key": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+            },
+            "role": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Adds the output as a new member with this role: a user-visible label for its purpose within the Composition, in working_language (e.g. \"正面全身\"). Reuse existing wording for the same purpose; roles may repeat; no code identifiers. Every further independent Resource the call creates under that output (key_2, key_3, ...; e.g. the layers of a layer decomposition) gets a member with the same role. Give role or memberId, not both."
+            },
+            "memberId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Writes the output into this existing member instead of adding one. A member holds one Resource: it is filled when empty or still holding replaceResourceId; otherwise the placement is reported unavailable and the member keeps its Resource."
+            },
+            "replaceResourceId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "With memberId: the Resource the member holds now and this output replaces. Omit to fill an empty member only."
+            }
+           },
+           "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 50,
+          "description": "Required, one entry per output: role adds a member, memberId fills an existing one. key may be omitted for the primary output."
+         }
+        },
+        "required": [
+         "placements"
+        ],
+        "additionalProperties": false,
+        "description": "Canvas-visible placement required for every create/reuse target; omit only when every target is a new_version already in a Composition. compositionId targets an existing object; type + name finds/creates an active one by exact type ID + trimmed name. Both require placements. Parallel outputs for one new object use the same type ID/name; call in the same step without waiting for its compositionId."
+       }
+      },
+      "required": [
+       "resources"
+      ],
+      "additionalProperties": false
+     }
+    },
+    "required": [
+     "requestId",
+     "sources",
+     "output"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "task_query",
+   "description": "Read authorized project tasks: get requires taskId and returns {task,input}, the task in the same form execute returns and input the frozen request; list accepts query filters and returns {items,nextCursor}, each item carrying id, capabilityId, status, createdAt, a prompt excerpt, outputs and compositionId so this conversation's results (query.sessionId) can be matched to what the user means. task.problem.source identifies input, provider, billing, delivery or system problems; problem.upstream carries provider diagnostics, and task.actions advertises available recovery decisions. Never resubmit a failed task on your own; when the user asks to retry it, use design_task_resolve action=retry. When the user asks for a new generation, use design_execute. This tool never generates or retries work.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "mode": {
+      "type": "string",
+      "enum": [
+       "get",
+       "list"
+      ]
+     },
+     "taskId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "query": {
+      "type": "object",
+      "properties": {
+       "status": {
+        "type": "array",
+        "items": {
+         "type": "string",
+         "enum": [
+          "accepted",
+          "running",
+          "waiting_user",
+          "unknown",
+          "completed",
+          "failed",
+          "cancelled"
+         ]
+        },
+        "minItems": 1,
+        "maxItems": 7
+       },
+       "operation": {
+        "type": "array",
+        "items": {
+         "type": "string",
+         "enum": [
+          "generate_image",
+          "generate_video",
+          "generate_speech",
+          "generate_music"
+         ]
+        },
+        "minItems": 1,
+        "maxItems": 5
+       },
+       "source": {
+        "type": "string",
+        "enum": [
+         "agent",
+         "frontend"
+        ]
+       },
+       "sessionId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+       },
+       "userMessageId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+       },
+       "toolUseId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+       },
+       "resourceId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+       },
+       "versionId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+       },
+       "compositionId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+       },
+       "createdFrom": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "createdTo": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50
+       },
+       "cursor": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+       }
+      },
+      "additionalProperties": false
+     }
+    },
+    "required": [
+     "mode"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "task_wait",
+   "description": "Continue an interrupted wait or wait after resuming the SAME taskId until completed, failed, cancelled, waiting_user or unknown; the user decides a cost confirmation in the app, so the wait continues through it. Returns {task} in the same compact form as execute, including any problem and available actions. Not needed after execute completes. Wait errors do not mean generation failed; do not resubmit on your own. Disconnecting does not cancel the task. cancelled means the user stopped it, or never confirmed its cost, before anything was submitted; do not resubmit unless the user asks again.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "taskId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     }
+    },
+    "required": [
+     "taskId"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "task_resolve",
+   "description": "Apply task.actions with the latest task.revision as expectedRevision; returns {task}. On revision conflict, reread before deciding. Never confirm cost for the user. stop abandons only unsubmitted subtasks; submitted work still finishes and delivers. Delivery recovery reuses generated content. retry requires a user request and an offered action (up to 3 retries): resumes the same Task, keeps completed results, fetches lost results without new charges, and resubmits/bills only failed generations. Tell the user any cost shown in task.billing first. Waits like execute. For new generation, read input with design_task_query and use design_execute.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "taskId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "expectedRevision": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "action": {
+      "type": "string",
+      "enum": [
+       "pause",
+       "resume",
+       "stop",
+       "adopt_version",
+       "finish_as_candidate",
+       "update_placement",
+       "finish_without_placement",
+       "retry"
+      ]
+     },
+     "expectedCurrentVersionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Output the decision is for (adopt_version, finish_as_candidate, finish_without_placement). Omit for a single-output Task."
+     },
+     "composition": {
+      "type": "object",
+      "properties": {
+       "compositionId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512,
+        "description": "Existing Composition ID from a query or creation result. Exclusive with type/name."
+       },
+       "type": {
+        "anyOf": [
+         {
+          "type": "object",
+          "properties": {
+           "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "description": "Registered type ID from context or design_composition_type_list."
+           },
+           "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+           },
+           "description": {
+            "type": "string",
+            "maxLength": 2000
+           }
+          },
+          "required": [
+           "id"
+          ],
+          "additionalProperties": false
+         },
+         {
+          "type": "object",
+          "properties": {
+           "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Find a registered type by label, or create it with a gateway-generated ID."
+           },
+           "description": {
+            "type": "string",
+            "maxLength": 2000
+           }
+          },
+          "required": [
+           "label"
+          ],
+          "additionalProperties": false
+         }
+        ],
+        "description": "With name: finds the active Composition with this resolved type and trimmed name, or creates it. Exclusive with compositionId."
+       },
+       "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512,
+        "description": "Name of the new Composition."
+       },
+       "attributes": {
+        "type": "object",
+        "additionalProperties": {
+         "type": "string",
+         "maxLength": 2000
+        },
+        "description": "New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes."
+       },
+       "position": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1000000000,
+        "description": "New Composition only. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement. Creation only; existing matches keep position. Parallel same-position calls use the next free value in call order (original in requestedPosition)."
+       },
+       "placement": {
+        "anyOf": [
+         {
+          "type": "object",
+          "properties": {
+           "after": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+           }
+          },
+          "required": [
+           "after"
+          ],
+          "additionalProperties": false
+         },
+         {
+          "type": "object",
+          "properties": {
+           "before": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+           }
+          },
+          "required": [
+           "before"
+          ],
+          "additionalProperties": false
+         }
+        ],
+        "description": "New Composition only. Place before/after a same-type Composition. The gateway assigns position; never compute one yourself. Neighbours may change position, reported as renumbered. Exclusive with position."
+       },
+       "placements": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "key": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512,
+           "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+          },
+          "role": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512,
+           "description": "Adds the output as a new member with this role: a user-visible label for its purpose within the Composition, in working_language (e.g. \"正面全身\"). Reuse existing wording for the same purpose; roles may repeat; no code identifiers. Every further independent Resource the call creates under that output (key_2, key_3, ...; e.g. the layers of a layer decomposition) gets a member with the same role. Give role or memberId, not both."
+          },
+          "memberId": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512,
+           "description": "Writes the output into this existing member instead of adding one. A member holds one Resource: it is filled when empty or still holding replaceResourceId; otherwise the placement is reported unavailable and the member keeps its Resource."
+          },
+          "replaceResourceId": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512,
+           "description": "With memberId: the Resource the member holds now and this output replaces. Omit to fill an empty member only."
+          }
+         },
+         "additionalProperties": false
+        },
+        "minItems": 1,
+        "maxItems": 50,
+        "description": "Required, one entry per output: role adds a member, memberId fills an existing one. key may be omitted for the primary output."
+       }
+      },
+      "required": [
+       "placements"
+      ],
+      "additionalProperties": false,
+      "description": "update_placement only: the existing Composition (compositionId) plus placements, one per output still awaiting placement, each with role or memberId."
+     }
+    },
+    "required": [
+     "taskId",
+     "expectedRevision",
+     "action"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "resource_search",
+   "description": "Find project resources by name, description, type or creation time. Returns summaries, not file content. Omit text to browse. resource_get provides an individual Resource snapshot or its version history.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "text": {
+      "type": "string",
+      "maxLength": 2000
+     },
+     "kinds": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "text",
+        "image",
+        "video",
+        "audio"
+       ]
+      },
+      "minItems": 1,
+      "maxItems": 4
+     },
+     "lifecycle": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "active",
+        "missing",
+        "archived",
+        "deleted"
+       ]
+      },
+      "minItems": 1,
+      "maxItems": 4
+     },
+     "createdFrom": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "createdTo": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "order": {
+      "type": "object",
+      "properties": {
+       "by": {
+        "type": "string",
+        "enum": [
+         "createdAt",
+         "updatedAt"
+        ]
+       },
+       "direction": {
+        "type": "string",
+        "enum": [
+         "asc",
+         "desc"
+        ]
+       }
+      },
+      "required": [
+       "by",
+       "direction"
+      ],
+      "additionalProperties": false
+     },
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+     },
+     "cursor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "resource_get",
+   "description": "Read a known Resource or Version independently of Composition membership. view=current (default) returns Resource metadata and one content version: resourceId selects current, versionId selects that exact version. Resource metadata includes currentVersionId and metadataRevision for version selection and metadata edits. Missing historical content stays unavailable. view=current also reads up to 20 at once through resourceIds or versionIds (one of them, never mixed, never with resourceId/versionId): items answer in request order, and an unreadable id is an item-level error carrying that id instead of failing the batch. view=versions lists paginated versions of resourceId, newest first, with isCurrent. view=relations returns one-hop inputs or derivatives of versionId, or Composition memberships of resourceId, chosen by relation.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "view": {
+      "type": "string",
+      "enum": [
+       "current",
+       "versions",
+       "relations"
+      ]
+     },
+     "resourceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "versionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "resourceIds": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 512
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "description": "view=current batch: current versions of these Resources."
+     },
+     "versionIds": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 512
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "description": "view=current batch: these exact versions."
+     },
+     "relation": {
+      "type": "string",
+      "enum": [
+       "inputs",
+       "derivatives",
+       "compositions"
+      ]
+     },
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+     },
+     "cursor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "resource_preview",
+   "description": "Inspect a fixed version as metadata or bounded model-readable content. Image edge 256–2048; video/audio at most 60 seconds; video at most 8 frames; text at most 200 lines / 16000 characters. Preview is not the complete source.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "versionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "metadata",
+       "content"
+      ]
+     },
+     "maxEdge": {
+      "type": "integer",
+      "minimum": 256,
+      "maximum": 2048
+     },
+     "frames": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8
+     },
+     "range": {
+      "type": "object",
+      "properties": {
+       "startSeconds": {
+        "type": "number",
+        "minimum": 0
+       },
+       "endSeconds": {
+        "type": "number",
+        "minimum": 0
+       },
+       "startLine": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "lineCount": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 200
+       }
+      },
+      "additionalProperties": false
+     }
+    },
+    "required": [
+     "versionId"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "composition_search",
+   "description": "Find anything already in the project: uploaded, generated or previously searched images, videos, audio and documents, and the characters, products, scenes or other objects they belong to. Search here first whenever the user refers to existing material or names something, before any web search. text matches the Composition name, its attribute values and the names and descriptions of its member Resources; type narrows to a registered type ID; attributes are exact key/value conditions combined with AND. Omit every filter to browse. Each hit carries its attributes and revision, which can serve as the basis for an edit without another read, and position when its type is ordered. Hits default to updatedAt descending; use order to sort by creation time, update time or ascending position. Member details are available through composition_get when needed. Returns paginated hits; lifecycle appears only on a hit that is not active.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "text": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Substring of a Composition name, attribute value, or member Resource name or description, such as a character name or an earlier output title."
+     },
+     "type": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Registered type ID; composition_type_list lists available IDs."
+     },
+     "attributes": {
+      "type": "object",
+      "additionalProperties": {
+       "type": "string",
+       "maxLength": 2000
+      }
+     },
+     "lifecycle": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "active",
+        "archived",
+        "deleted"
+       ]
+      },
+      "minItems": 1,
+      "maxItems": 3
+     },
+     "order": {
+      "anyOf": [
+       {
+        "type": "object",
+        "properties": {
+         "by": {
+          "type": "string",
+          "enum": [
+           "createdAt",
+           "updatedAt"
+          ]
+         },
+         "direction": {
+          "type": "string",
+          "enum": [
+           "asc",
+           "desc"
+          ]
+         }
+        },
+        "required": [
+         "by",
+         "direction"
+        ],
+        "additionalProperties": false
+       },
+       {
+        "type": "object",
+        "properties": {
+         "by": {
+          "type": "string",
+          "const": "position"
+         },
+         "direction": {
+          "type": "string",
+          "const": "asc"
+         }
+        },
+        "required": [
+         "by",
+         "direction"
+        ],
+        "additionalProperties": false
+       }
+      ],
+      "description": "Defaults to updatedAt desc. position supports asc only: ordered hits first by position, then unordered hits oldest first. Keep order unchanged when following nextCursor."
+     },
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "description": "Maximum number of Composition hits to return: 1–50. Use nextCursor for additional pages."
+     },
+     "cursor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "description": "Opaque nextCursor returned by the previous page; pass it unchanged."
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "composition_type_list",
+   "description": "List registered Composition types, including types with no Compositions. Use when choosing a type for a Composition if the current context does not already establish a suitable registered type. text matches type labels or descriptions; omit it to list all types. Returns type definitions with id, label and optional description. Reuse an existing type with matching meaning; create a new type only when no existing type fits, not merely because its name or wording differs.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "text": {
+      "type": "string",
+      "maxLength": 2000
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "composition_get",
+   "description": "Read one Composition (compositionId) or up to 20 at once (compositionIds), each with attributes, revision and members; every member holds at most one Resource and embeds its snapshot under resource, which is absent for an empty slot. A single read paginates members (limit 1–50, then nextCursor) and accepts memberId/role filters; a batch answers every id in request order under items, holds up to 100 members per Composition (membersTruncated points back to a single read) and reports a missing id as an item-level error instead of failing the batch. One call embeds at most 100 Resources in total; beyond that the read fails with INVALID_ARGUMENT, so narrow memberId/role, reduce limit or split the batch. Members follow each Resource's current version; revision is not a historical content snapshot. CURSOR_STALE requires restarting pagination.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "compositionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "compositionIds": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 512
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "description": "Batch read; mutually exclusive with compositionId and member filters."
+     },
+     "memberId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "role": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Exact member role label as stored on the Composition."
+     },
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "description": "Single read: maximum number of members to return: 1–50. Use nextCursor for additional pages."
+     },
+     "cursor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "description": "Opaque nextCursor returned by the previous page; pass it unchanged."
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "resource_edit",
+   "description": "Select a Resource's current version (adopt), or update its version-independent name and purpose description (describe), independently of Composition membership. Adoption changes the content shown by its Composition members, without changing Composition attributes. Send only changed fields. Use a valid Resource snapshot to establish expectedCurrentVersionId for adopt or expectedMetadataRevision for describe. On mismatch, refresh the snapshot and reassess the edit rather than blindly retrying. Success returns currentVersionId and metadataRevision for subsequent edits. Creates no content and never deletes or uploads. action=batch accepts 1-20 adopt/describe commands executed in order within one transaction and returns results in the same order, each with its resourceId; a mismatch in any command rolls back the entire batch and reports that command's index and conflict. Batch takes only action and commands; nested batches are unsupported. Successive edits to the same Resource must account for earlier changes in the batch: adopting a Resource that had no content also increments its metadataRevision.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "adopt",
+       "describe",
+       "batch"
+      ]
+     },
+     "resourceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Required unless action=batch."
+     },
+     "versionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "action=adopt: the version to make current."
+     },
+     "expectedCurrentVersionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "action=adopt: current version from the Resource snapshot this edit is based on."
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "action=describe: the new user-facing name."
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "action=describe: the new description."
+     },
+     "expectedMetadataRevision": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "action=describe: revision of the Resource metadata snapshot being edited."
+     },
+     "commands": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "action": {
+         "type": "string",
+         "enum": [
+          "adopt",
+          "describe"
+         ]
+        },
+        "resourceId": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 512
+        },
+        "versionId": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 512,
+         "description": "action=adopt: the version to make current."
+        },
+        "expectedCurrentVersionId": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 512,
+         "description": "action=adopt: current version from the Resource snapshot this edit is based on."
+        },
+        "name": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 512,
+         "description": "action=describe: the new user-facing name."
+        },
+        "description": {
+         "type": "string",
+         "maxLength": 2000,
+         "description": "action=describe: the new description."
+        },
+        "expectedMetadataRevision": {
+         "type": "integer",
+         "minimum": 0,
+         "description": "action=describe: revision of the Resource metadata snapshot being edited."
+        }
+       },
+       "required": [
+        "action",
+        "resourceId"
+       ],
+       "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "description": "batch only: adopt/describe commands executed atomically in order."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "composition_edit",
+   "description": "Edit Composition metadata, members or order without generation. ensure resolves a registered typeId or finds/creates a type by label, then finds/creates an active object by type + name, returning typeId, compositionId, revision, created; existing metadata stays unchanged. Optional operations apply atomically. For a new Composition receiving execute/deliver outputs, use output.composition with type and name: creation waits until submission, avoiding empty objects on cancellation. Use ensure with operations for document_write results or directly requested structure. update atomically edits members; rename preserves identity; set_attributes patches attributes. These require compositionId and expectedRevision from a valid snapshot; on conflict reread and reassess. Added members need unique clientMemberKey, mapped to memberId in results. Removing/emptying a member preserves its Resource. move reorders an existing one using compositionId and position/placement; needs no expectedRevision and leaves revision unchanged. Never reorder by deleting, recreating or renaming. Taken positions return COMPOSITION_POSITION_CONFLICT with the holder; missing/wrong-type anchors return COMPOSITION_PLACEMENT_INVALID. Results include position and renumbered; reread positions after change notices. duplicate copies an active object on user request; do not rebuild via ensure/update. compositionId is the source; results return the new compositionId and source-to-copy memberIds. Copies type, attributes and ordered roles; each current member version becomes an independent Resource, unresolved Resources become empty slots. Names append the first free _N to the source name; ordered copies follow the source unless position/placement is set. Optional expectedRevision checks the source (COMPOSITION_REVISION_CONFLICT); duplicate is not accepted inside batch. batch takes only action and commands: 1-20 commands in order in one transaction; any failure rolls back the entire batch. No nested batches or references to earlier results. Account for revision increments when editing the same object repeatedly.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "ensure",
+       "update",
+       "rename",
+       "set_attributes",
+       "move",
+       "duplicate",
+       "batch"
+      ]
+     },
+     "typeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "action=ensure: registered type ID; omit to find/create by label. Never invent an ID."
+     },
+     "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "action=ensure: required without typeId; find by label or create with a gateway-generated ID."
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "ensure: initial object name; rename: new name of the SAME object."
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "ensure only: description of the registered type."
+     },
+     "attributes": {
+      "type": "object",
+      "additionalProperties": {
+       "type": "string",
+       "maxLength": 2000
+      },
+      "description": "Object attributes. ensure initializes new objects only; set_attributes merges supplied keys and preserves omitted keys."
+     },
+     "unset": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 512
+      },
+      "maxItems": 50,
+      "description": "set_attributes only: attribute keys to remove; must not overlap attributes."
+     },
+     "compositionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "The object to edit; for duplicate, the source to copy."
+     },
+     "expectedRevision": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "operations": {
+      "type": "array",
+      "items": {
+       "anyOf": [
+        {
+         "type": "object",
+         "properties": {
+          "action": {
+           "type": "string",
+           "const": "add_member"
+          },
+          "clientMemberKey": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512
+          },
+          "role": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512,
+           "description": "Member purpose in working_language, e.g. \"正面全身\"."
+          },
+          "resourceId": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512,
+           "description": "The one Resource this member holds; omit for an empty slot."
+          }
+         },
+         "required": [
+          "action",
+          "clientMemberKey",
+          "role"
+         ],
+         "additionalProperties": false
+        },
+        {
+         "type": "object",
+         "properties": {
+          "action": {
+           "type": "string",
+           "const": "remove_member"
+          },
+          "memberId": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512
+          }
+         },
+         "required": [
+          "action",
+          "memberId"
+         ],
+         "additionalProperties": false
+        },
+        {
+         "type": "object",
+         "properties": {
+          "action": {
+           "type": "string",
+           "const": "update_member"
+          },
+          "memberId": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512
+          },
+          "role": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512,
+           "description": "Member purpose in working_language, e.g. \"正面全身\"."
+          },
+          "resourceId": {
+           "anyOf": [
+            {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            },
+            {
+             "type": "null"
+            }
+           ],
+           "description": "Replaces the member's Resource; null empties the slot; omit to keep it."
+          }
+         },
+         "required": [
+          "action",
+          "memberId"
+         ],
+         "additionalProperties": false
+        }
+       ]
+      },
+      "minItems": 1,
+      "maxItems": 50,
+      "description": "update: the member edits; ensure: member edits applied right after find-or-create."
+     },
+     "position": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000000,
+      "description": "ensure (creation only; an existing match keeps its position), duplicate or move. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement."
+     },
+     "placement": {
+      "anyOf": [
+       {
+        "type": "object",
+        "properties": {
+         "after": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+         }
+        },
+        "required": [
+         "after"
+        ],
+        "additionalProperties": false
+       },
+       {
+        "type": "object",
+        "properties": {
+         "before": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+         }
+        },
+        "required": [
+         "before"
+        ],
+        "additionalProperties": false
+       }
+      ],
+      "description": "ensure (creation only), duplicate or move. Place before/after a same-type Composition. The gateway assigns position; never compute one yourself. Neighbours may change position, reported as renumbered. Exclusive with position."
+     },
+     "commands": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "action": {
+         "type": "string",
+         "enum": [
+          "ensure",
+          "update",
+          "rename",
+          "set_attributes",
+          "move"
+         ]
+        },
+        "typeId": {
+         "$ref": "#/properties/typeId"
+        },
+        "label": {
+         "$ref": "#/properties/label"
+        },
+        "name": {
+         "$ref": "#/properties/name"
+        },
+        "description": {
+         "$ref": "#/properties/description"
+        },
+        "attributes": {
+         "$ref": "#/properties/attributes"
+        },
+        "unset": {
+         "$ref": "#/properties/unset"
+        },
+        "compositionId": {
+         "$ref": "#/properties/compositionId"
+        },
+        "expectedRevision": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "operations": {
+         "$ref": "#/properties/operations"
+        },
+        "position": {
+         "$ref": "#/properties/position"
+        },
+        "placement": {
+         "$ref": "#/properties/placement"
+        }
+       },
+       "required": [
+        "action"
+       ],
+       "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "description": "batch only: commands executed atomically in order; no nested batch."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "document_write",
+   "description": "Create, rewrite or patch a durable TEXT_DOCUMENT Resource such as a script, brief or shot list. Existing SRT/ASS subtitle FILE Resources can also be edited while preserving their identity and kind. For localized changes prefer mode=patch: send anchored edits only, and the gateway applies them to the complete source of baseVersionId itself — no prior read of the document is needed when the anchors are already known (for example from a document-edit task or an earlier read), and unchanged text is never resent. create and replace write the complete content, never appending; replacing requires the complete source of the exact baseVersionId, including all pages, which may be reused from context or obtained through design_read when missing. On DOCUMENT_PATCH_CONFLICT nothing is written; the error lists each failed edit with nearest candidate locations — fix those edits and send the patch again. On a version conflict, refresh the document version, re-anchor if needed, then write again with the new baseVersionId. During one active chat turn, consecutive document edits (including Canvas user edits) can update the same versionId. Always pass the last read/write contentRevision as baseRevision. On DOCUMENT_REVISION_CONFLICT or DOCUMENT_REVISION_REQUIRED, read the latest document, preserve user changes and re-anchor; never just retry old content with a newer revision. Runs synchronously without a Task or billing. Replaying the same requestId with identical arguments returns the original receipt; never change arguments under an ID that already succeeded. On PROJECT_COMMAND_ID_REUSED, use a new requestId for the intended new write instead of repeating the conflicting request. This tool leaves Composition membership unchanged; design_composition_edit manages membership separately.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Unique caller-generated ID for each distinct write in this workspace (prefer a UUID). Keep it for identical retries only; new edits or changed arguments need a new ID, including across conversations."
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "create",
+       "replace",
+       "patch"
+      ],
+      "description": "create: a new document. replace: complete content. patch: anchored edits to baseVersionId. The server reuses the current editable version within an active turn and creates a new version across turns or for fixed inputs."
+     },
+     "content": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2097152,
+      "description": "create/replace only, required there: complete document source, at most 2097152 UTF-8 bytes. Write real content; placeholders and \"to be filled later\" are not documents."
+     },
+     "edits": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "exact": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 100000,
+         "description": "Exact source substring to replace, copied VERBATIM from the base version source (e.g. a resolved annotation sourceExact or a design_read window). Rendered-editor text may drop markdown markers and will not match."
+        },
+        "occurrence": {
+         "type": "integer",
+         "minimum": 0,
+         "description": "Zero-based occurrence of exact in the source; required when it appears more than once."
+        },
+        "replacement": {
+         "type": "string",
+         "description": "Replacement source text; an empty string deletes the anchored text."
+        }
+       },
+       "required": [
+        "exact",
+        "replacement"
+       ],
+       "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 100,
+      "description": "mode=patch only, required there: anchored edits applied atomically (all or nothing) in source order. Edits must not overlap."
+     },
+     "format": {
+      "type": "string",
+      "enum": [
+       "md",
+       "txt",
+       "srt",
+       "ass"
+      ],
+      "description": "create/replace only: stored file format. Defaults to md; use txt for plain notes or srt/ass for subtitles. Existing subtitles and patched versions keep the format of their base."
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Required for create; optional for replace/patch to rename the document atomically with its content. Omit to preserve the name. The name belongs to the Resource, so it also changes when disposition=candidate."
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "mode=create only: short description of what this document is."
+     },
+     "resourceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "mode=replace/patch only: required ID of the document being rewritten."
+     },
+     "baseVersionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "mode=replace/patch only, required: the exact version this write is based on. replace: its complete source is the rewrite basis. patch: edits anchor into its source."
+     },
+     "baseRevision": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "replace/patch: contentRevision of the document source you read or last wrote. Required when the read/write returned it; protects concurrent Canvas edits even when versionId is unchanged."
+     },
+     "disposition": {
+      "type": "string",
+      "enum": [
+       "adopted",
+       "candidate"
+      ],
+      "description": "mode=replace/patch only, required: adopted makes this the current version; candidate stores it unadopted and cannot be placed in a Composition."
+     }
+    },
+    "required": [
+     "requestId",
+     "mode"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "image_search",
+   "description": "Search the open web and download new images into the project. Use it only for outside material: the user asks for web or online references, or the task needs images the project does not have. Each kept image becomes a durable project Resource. The batch is organized into one Composition of the auto-registered `search` type, named by composition_name; each kept image becomes its own member with role `search_result`, and the per-image memberId identifies it. Reference results by resourceId/versionId or {compositionId, memberId}. Reusing composition_name appends to the existing Composition. Once a web search is warranted, queries and volume must follow the rules in `<knowledgeDir>/vendors/image-search.md`; reuse complete, applicable rules already in context, or retrieve missing guidance with design_read.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "queries": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "query": {
+         "type": "string",
+         "description": "Descriptive English search keywords (2-6 words). Multi-word descriptive phrases work better than terse keyword strings. Use multiple queries for multi-angle coverage."
+        },
+        "num": {
+         "type": "number",
+         "default": 10,
+         "description": "Number of search results to fetch (default 10)"
+        }
+       },
+       "required": [
+        "query"
+       ],
+       "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 4,
+      "description": "Search queries (1-4). Cover the requested subjects or meaningful angles while retaining every required trait."
+     },
+     "max_images_per_query": {
+      "type": "number",
+      "default": 5,
+      "description": "Maximum images to download per query (default 5)."
+     },
+     "max_total_images": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Global maximum across all queries. Use this for the user-requested total count."
+     },
+     "min_dimension": {
+      "type": "number",
+      "default": 500,
+      "description": "Minimum short-side pixel dimension to keep (default 500)"
+     },
+     "composition_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Name of the delivered `search` Composition. Name it after the search task, e.g. \"Cyberpunk street reference\". Reusing an existing name appends to that Composition."
+     },
+     "composition_description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Optional description stored on the Composition."
+     }
+    },
+    "required": [
+     "queries",
+     "composition_name"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   },
+   "outputSchema": {
+    "type": "object",
+    "properties": {
+     "compositionId": {
+      "type": "string",
+      "description": "The `search` Composition holding all delivered Resources. Absent when no images were delivered or placement failed; placementProblem reports a placement failure."
+     },
+     "queries": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "query": {
+         "type": "string",
+         "description": "Search query used"
+        },
+        "images": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "properties": {
+           "resourceId": {
+            "type": "string"
+           },
+           "versionId": {
+            "type": "string"
+           },
+           "name": {
+            "type": "string"
+           },
+           "memberId": {
+            "type": "string",
+            "description": "Composition member holding this image, one member per Resource. Absent when placement failed."
+           },
+           "width": {
+            "type": "number"
+           },
+           "height": {
+            "type": "number"
+           },
+           "source_url": {
+            "type": "string"
+           }
+          },
+          "required": [
+           "resourceId",
+           "versionId",
+           "name",
+           "width",
+           "height",
+           "source_url"
+          ],
+          "additionalProperties": false
+         },
+         "description": "Delivered image Resources. An empty array means no usable images were delivered for this query; an error may explain why. Further search depends on relevance, failure cause and remaining requirements."
+        },
+        "error": {
+         "type": "string",
+         "description": "Error message if query failed"
+        }
+       },
+       "required": [
+        "query",
+        "images"
+       ],
+       "additionalProperties": false
+      },
+      "description": "Per-query results"
+     },
+     "placementProblem": {
+      "type": "object",
+      "properties": {
+       "code": {
+        "type": "string"
+       },
+       "message": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "code",
+       "message"
+      ],
+      "additionalProperties": false,
+      "description": "The Resources are saved, but Composition placement failed. Returned Resource IDs remain valid for placement repair, for example with design_composition_edit; repeating the search would create another acquisition rather than repair placement."
+     }
+    },
+    "required": [
+     "queries"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   }
+  },
+  {
+   "name": "analyse_media",
+   "description": "Inspect image, video or audio Resources. metadata reads measured file facts without AI inference; semantic answers a concrete question about visible or audible content; both returns both.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "references": {
+      "type": "array",
+      "items": {
+       "anyOf": [
+        {
+         "type": "object",
+         "properties": {
+          "resourceId": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512
+          },
+          "question": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 8000,
+           "description": "Question for this media item. Required for semantic or both."
+          }
+         },
+         "required": [
+          "resourceId"
+         ],
+         "additionalProperties": false
+        },
+        {
+         "type": "object",
+         "properties": {
+          "versionId": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 512
+          },
+          "question": {
+           "$ref": "#/properties/references/items/anyOf/0/properties/question",
+           "description": "Question for this media item. Required for semantic or both."
+          }
+         },
+         "required": [
+          "versionId"
+         ],
+         "additionalProperties": false
+        }
+       ]
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "description": "Media to inspect, in order, each with its own question. Use resourceId for its current version or versionId for an exact version from context or a tool result. Composition members must be addressed by their Resource IDs; design_composition_get can supply missing member details. File paths are not accepted."
+     },
+     "type": {
+      "type": "string",
+      "enum": [
+       "metadata",
+       "semantic",
+       "both"
+      ],
+      "description": "metadata: measured file facts only; semantic: question-focused observations; both: both kinds of evidence."
+     }
+    },
+    "required": [
+     "references",
+     "type"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   },
+   "outputSchema": {
+    "type": "object",
+    "properties": {
+     "type": {
+      "type": "string",
+      "enum": [
+       "metadata",
+       "semantic",
+       "both"
+      ]
+     },
+     "results": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "reference": {
+         "anyOf": [
+          {
+           "type": "object",
+           "properties": {
+            "resourceId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            }
+           },
+           "required": [
+            "resourceId"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "type": "object",
+           "properties": {
+            "versionId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512
+            }
+           },
+           "required": [
+            "versionId"
+           ],
+           "additionalProperties": false
+          }
+         ]
+        },
+        "question": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 8000,
+         "description": "Question for this media item. Required for semantic or both."
+        },
+        "resourceId": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 512
+        },
+        "versionId": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 512
+        },
+        "name": {
+         "type": "string"
+        },
+        "kind": {
+         "type": "string",
+         "enum": [
+          "image",
+          "video",
+          "audio"
+         ]
+        },
+        "metadata": {
+         "type": "object",
+         "properties": {
+          "mimeType": {
+           "type": "string"
+          },
+          "sizeBytes": {
+           "type": "number"
+          },
+          "width": {
+           "type": "number"
+          },
+          "height": {
+           "type": "number"
+          },
+          "durationSeconds": {
+           "type": "number"
+          }
+         },
+         "required": [
+          "mimeType",
+          "sizeBytes"
+         ],
+         "additionalProperties": false
+        },
+        "semantic": {
+         "type": "object",
+         "properties": {
+          "text": {
+           "type": "string"
+          }
+         },
+         "required": [
+          "text"
+         ],
+         "additionalProperties": false
+        },
+        "error": {
+         "type": "object",
+         "properties": {
+          "code": {
+           "type": "string"
+          },
+          "message": {
+           "type": "string"
+          },
+          "retryable": {
+           "type": "boolean"
+          },
+          "conflict": {
+           "type": "object",
+           "additionalProperties": {}
+          }
+         },
+         "required": [
+          "message"
+         ],
+         "additionalProperties": false
+        }
+       },
+       "required": [
+        "reference"
+       ],
+       "additionalProperties": false
+      }
+     }
+    },
+    "required": [
+     "type",
+     "results"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   }
+  },
+  {
+   "name": "capability_list",
+   "description": "List media production and native editor plugin capabilities. kind=plugin reads the fixed editor catalog independently of cloud models; kind=media retains production discovery. kind=plugin cannot combine with operation. When editor context already names a capability, go directly to capability_get. List production capabilities available to this account and session: models, fixed tools and media edits. Filter by one or several operations, or omit the filter for all. Returns selection facts and capability IDs in <operation>:<name> form. description explains what each model or tool can do, when to choose it and video output duration ranges or choices; read capability_get for accepted params and conditional limits. Model entries without displayName are internal/Auto-only. Full parameter contracts are omitted; inapplicable fields are absent. kind=connector lists the tools of connected external connectors (connectorId narrows to one connector).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "operation": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "generate_image",
+         "generate_video",
+         "generate_speech",
+         "generate_music",
+         "edit_media"
+        ]
+       },
+       {
+        "type": "array",
+        "items": {
+         "$ref": "#/properties/operation/anyOf/0"
+        },
+        "minItems": 1,
+        "maxItems": 5
+       }
+      ],
+      "description": "One operation or an array of them; entries of any listed operation are returned. Omit to list everything."
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "media",
+       "plugin",
+       "connector"
+      ]
+     },
+     "connectorId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "List only the tools of this connector; implies kind=connector."
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "capability_get",
+   "description": "Read media, native editor or connector contracts in one batch. plugin:* IDs are independent of cloud models and model selection. Plugin default details contain instructions and group summaries; use plugin.methodGroups OR plugin.methods for exact schemas, or plugin.guides for one on-demand Director guide (motion-dsl, staging, delivery). Reuse contractVersion while valid; CONTRACT_CHANGED requires rereading. Get does not open an editor. connector:<connectorId>/<tool> IDs return the connector tool MCP inputSchema and annotations unchanged. Media contracts: paramSchema defines the flat params keys, allowed values and defaults; undeclared keys are rejected. Pass mode only when declared, using its enum. paramRules defines conditional parameter restrictions: when a parameter matches one of when.values, disable.param rejects disable.values, or the whole parameter when values is absent. prompt carries only the model-specific maxLength when present. references groups totalCount, byKind count (minCount/maxCount), duration limits and, for images, imageSize (width/height/ratio bounds), combinedCountLimits, imagesWithVideoMax, exclusiveKinds (kinds that cannot appear together), audioRequiresImageOrVideo and lastFrameOnly (references[0] may be null to give only the closing frame). Apply the selected mode entry in references.modeOverrides over the base: each listed top-level section replaces that whole section; null removes an inherited section. knowledgeCard locates the vendor card: how this model reads prompts and references, and its known behavior. Before composing or changing a prompt for this model, design_read the card unless its current content is already in context. Available contracts are returned in capabilities; unavailable IDs carry reasons. Inapplicable fields are absent.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "plugin": {
+      "type": "object",
+      "properties": {
+       "methodGroups": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "minItems": 1,
+        "maxItems": 10
+       },
+       "methods": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "minItems": 1,
+        "maxItems": 10
+       },
+       "knownContractVersion": {
+        "type": "string"
+       },
+       "cursor": {
+        "type": "string"
+       },
+       "guides": {
+        "type": "array",
+        "items": {
+         "type": "string",
+         "enum": [
+          "motion-dsl",
+          "staging",
+          "delivery"
+         ]
+        },
+        "minItems": 1,
+        "maxItems": 1,
+        "description": "Read one native Director guide, exclusive with methods/methodGroups/cursor. Read motion-dsl before custom actions, staging for coordinates/track examples, delivery before claiming task completion."
+       }
+      },
+      "additionalProperties": false
+     },
+     "ids": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 512
+      },
+      "minItems": 1,
+      "maxItems": 20,
+      "description": "Capability IDs from the current context or capability discovery, each carrying its own operation."
+     }
+    },
+    "required": [
+     "ids"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "capability_search",
+   "description": "Find an external connector (a desktop app or service such as Blender, Figma or Photoshop) when the user names one, asks what can be connected, or the task needs tools not currently available. Searches market connectors and configured MCP servers, including failed or disabled ones. Search never installs, connects or executes; the returned card lets the user set up and connect the connector.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "queries": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 64
+      },
+      "minItems": 1,
+      "maxItems": 5,
+      "description": "1–5 concise names, aliases or task terms. Chinese and English are supported."
+     },
+     "targetConnectorId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "For an explicit @connector reference, use its catalog ID or configured runtime name. Otherwise omit; do not invent an ID from the query."
+     }
+    },
+    "required": [
+     "queries"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "connector_call",
+   "description": "Run one tool of a connected external connector. capabilityId is a connector:<connectorId>/<tool> ID from design_capability_list kind=connector connectorId=<id>; arguments must match the inputSchema returned by design_capability_get (read it before the first call of each tool). The local Gateway re-checks the connection and the schema, asks the user first when the connector marks the tool destructive, and returns the connector result unchanged (text, JSON, images). Connectors that are not connected are refused: use design_capability_search. Not for models or media edits (use design_execute). Results do not become project Resources by themselves; import files with design_deliver.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "capabilityId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "connector:<connectorId>/<tool> ID of a connected connector tool."
+     },
+     "arguments": {
+      "type": "object",
+      "additionalProperties": {},
+      "default": {},
+      "description": "Tool arguments object matching the inputSchema from design_capability_get."
+     }
+    },
+    "required": [
+     "capabilityId"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "openWorldHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "search_knowledge",
+   "description": "Search model guidance and historical production references by recall terms + category.\n\nUse this when:\n  - find a card for a known vendor (pass `category: \"vendors\", topic: \"<vendor>\"`)\n  - consult historical production references for creative methods (explicitly pass `category: \"workflows\", query: \"narrative video\"`)\n\nReturns ranked logical file paths + short excerpts. Paths start with `<knowledgeDir>` or `<workflowsDir>` and can be passed directly to `design_read`; that tool resolves the active profile root.\nOmitting category or using \"all\" searches current knowledge. Historical workflow results carry their reference-only context; media-agent owns current execution through the available tools.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "query": {
+      "type": "string",
+      "description": "Space-separated recall terms. Case-insensitive substring match against file bodies. Ignored when `topic` is supplied."
+     },
+     "topic": {
+      "type": "string",
+      "description": "Exact category-relative card path, with optional `.md` (e.g. \"seedance\", \"character-refs\"). For workflows, accepts a project type such as \"mv\" or a reference path such as \"mv/reference/music\"."
+     },
+     "category": {
+      "type": "string",
+      "enum": [
+       "vendors",
+       "workflows",
+       "all"
+      ],
+      "description": "Current knowledge: vendors. Omit or \"all\" to search model guidance. Explicit \"workflows\" searches historical production references."
+     },
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20,
+      "description": "Cap on returned hits. Default 5."
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   },
+   "outputSchema": {
+    "type": "object",
+    "properties": {
+     "results": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "path": {
+         "type": "string"
+        },
+        "excerpt": {
+         "type": "string"
+        },
+        "lines_total": {
+         "type": "number"
+        }
+       },
+       "required": [
+        "path",
+        "excerpt",
+        "lines_total"
+       ],
+       "additionalProperties": false
+      }
+     }
+    },
+    "required": [
+     "results"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   }
+  },
+  {
+   "name": "report_outcome",
+   "description": "Emit structured outcome records for one or more pipeline phase results.\n\nPass outcomes[]; use a single-element array for one outcome. Output is logged to stderr as one `[hub-outcome] {json}` line per item so opencode-trace and downstream log harvesters can aggregate per-session success classes. Returns \"logged\" only — does not affect generation.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "outcomes": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "phase": {
+         "type": "string",
+         "enum": [
+          "triage",
+          "plan",
+          "execute",
+          "deliver"
+         ],
+         "description": "Phase being reported. `execute` is per-asset; `deliver` is per-batch."
+        },
+        "outcome": {
+         "type": "string",
+         "enum": [
+          "success",
+          "failed",
+          "partial"
+         ],
+         "description": "Coarse verdict. `partial` only for batches where some assets passed and others failed."
+        },
+        "asset_id": {
+         "type": "string",
+         "description": "Identifier of the output being reported. Required for `execute` phase."
+        },
+        "modality": {
+         "type": "string",
+         "enum": [
+          "image",
+          "video",
+          "audio.tts",
+          "audio.music",
+          "postprocess"
+         ],
+         "description": "Modality of the asset, if applicable."
+        },
+        "vendor": {
+         "type": "string",
+         "description": "Picked vendor (e.g. `seedance`). Required for `execute` phase outcomes."
+        },
+        "error_class": {
+         "type": "string",
+         "enum": [
+          "tool_unavailable",
+          "model_unavailable",
+          "refs_missing",
+          "constraint_conflict",
+          "vendor_error",
+          "medium_drift_detected",
+          "user_blocked",
+          "unknown"
+         ],
+         "description": "Failure category. Required when outcome=failed."
+        },
+        "details": {
+         "type": "string",
+         "maxLength": 500,
+         "description": "One-line specifics, e.g. \"veo3 returned 429 rate-limit\"."
+        },
+        "retries": {
+         "type": "integer",
+         "minimum": 0,
+         "maximum": 10,
+         "description": "Retry index for this asset."
+        }
+       },
+       "required": [
+        "phase",
+        "outcome"
+       ],
+       "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 100,
+      "description": "Batch of outcome records. Single outcome calls must still use outcomes[]."
+     }
+    },
+    "required": [
+     "outcomes"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "voice_search",
+   "description": "Search the preset voice catalog for speech generation by spoken language and optional gender. Each query returns every matching voice, so send one query per distinct language and gender, never repeats. When recommending voices to the user, embed each non-empty sample_audio as Markdown media using the exact syntax `![voice name](sample_audio URL)` so Chat renders an inline audio player; do not use a normal Markdown link `[label](URL)`. Pass a chosen voice_id with voice_id_source=\"catalog\". To create a custom voice, run the generate_speech:voice_clone or generate_speech:voice_design capability instead. Returns results in input order; a failed query carries error.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "items": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "id": {
+         "type": "string",
+         "description": "Optional caller id, e.g. role id."
+        },
+        "language": {
+         "type": "string",
+         "enum": [
+          "中文",
+          "英语",
+          "葡萄牙语",
+          "日语",
+          "韩语",
+          "法语",
+          "德语",
+          "西班牙语",
+          "意大利语",
+          "俄语",
+          "阿拉伯语",
+          "印尼语",
+          "荷兰语",
+          "泰语",
+          "越南语",
+          "印地语",
+          "波兰语",
+          "罗马尼亚语",
+          "捷克语",
+          "芬兰语",
+          "马来语",
+          "土耳其语",
+          "乌克兰语",
+          "保加利亚语",
+          "丹麦语",
+          "希伯来语",
+          "波斯语",
+          "斯洛伐克语",
+          "瑞典语",
+          "克罗地亚语",
+          "菲律宾语",
+          "匈牙利语",
+          "挪威语",
+          "斯洛文尼亚语",
+          "加泰罗尼亚语",
+          "希腊语",
+          "泰米尔",
+          "阿非利卡语",
+          "尼诺斯克"
+         ],
+         "description": "Spoken language required by the intended speech."
+        },
+        "gender": {
+         "type": "string",
+         "enum": [
+          "女",
+          "男"
+         ],
+         "description": "Pass only when the user explicitly mentioned gender."
+        }
+       },
+       "required": [
+        "language"
+       ],
+       "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 30,
+      "description": "Catalog queries, one per distinct language and gender."
+     }
+    },
+    "required": [
+     "items"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   },
+   "outputSchema": {
+    "type": "object",
+    "properties": {
+     "results": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "id": {
+         "type": "string"
+        },
+        "voices": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "properties": {
+           "voice_id": {
+            "type": "string"
+           },
+           "name": {
+            "type": "string"
+           },
+           "language": {
+            "type": "string"
+           },
+           "gender": {
+            "type": "string"
+           },
+           "age": {
+            "type": "string"
+           },
+           "accent": {
+            "type": "string"
+           },
+           "sample_audio": {
+            "type": "string",
+            "description": "Preview audio URL the user can play."
+           }
+          },
+          "required": [
+           "voice_id",
+           "name",
+           "language",
+           "gender",
+           "age",
+           "accent",
+           "sample_audio"
+          ],
+          "additionalProperties": false
+         },
+         "description": "Matching voices."
+        },
+        "error": {
+         "type": "string",
+         "description": "Why this query failed."
+        }
+       },
+       "additionalProperties": false
+      }
+     }
+    },
+    "required": [
+     "results"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   }
+  },
+  {
+   "name": "read",
+   "description": "Read text as numbered lines with pagination. Pass exactly one of versionId or file_path. versionId reads text or extracts the body of a Word (.doc/.docx) or PDF Resource version and returns its identity. Only a complete text Resource source and its versionId can serve as the mode=\"replace\" rewrite baseline for design_document_write; a bounded window is enough to anchor mode=\"patch\" edits. Extracted Word/PDF text and partial reads cannot be a replace baseline. When contentRevision is returned, pass it on subsequent pages and as baseRevision when editing. A revision conflict means restart the read to avoid mixing old and new content. file_path reads a model knowledge card, a workflow file or any project file on disk, and also lists a directory; it accepts the <knowledgeDir> and <workflowsDir> logical roots. Paging is the same on both: offset is the 1-indexed first line and limit the maximum number of lines, at most 2000 per call (a Resource version defaults to 500 lines). When more is available, the tail gives the offset for the next page. Lines longer than 2000 characters are cut and end with \"... (line truncated to 2000 chars)\"; that suffix is not source text, so a patch anchor must come from the shown part of such a line, never include the suffix. Set pdf_page on a PDF (by versionId or file_path) to also return the embedded PNG images of that 1-based page as image content, alongside the text window; at most 2 MiB per image and 4 MiB in total, so large or decorative images may be omitted. Text is extracted without page layout or OCR; image, video or audio Resource inspection is available through design_analyse_media.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "contentRevision": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "description": "versionId only: revision returned by the first page; pins further pages to that content."
+     },
+     "versionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Exact text, Word or PDF Resource versionId from project context or a tool result. Mutually exclusive with file_path."
+     },
+     "file_path": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Absolute path, or a path under the <knowledgeDir> / <workflowsDir> logical roots. Mutually exclusive with versionId."
+     },
+     "offset": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "1-indexed line to start from (default 1)."
+     },
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2000,
+      "description": "Maximum lines to return in this call."
+     },
+     "pdf_page": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "PDF only: 1-based page whose embedded images are returned with the text window. Text paging still follows offset/limit."
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  }
+ ]
+}
