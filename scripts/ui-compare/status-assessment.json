@@ -372,6 +372,28 @@
     "参照走 loadFailed、我们渲染真实视图 —— 所以它的 diff 是有意义的）。"
    ],
    "40screen": "19 屏 0.000% / 最大 0.142% / 平均 0.0201% / 0 新增报错（删除基线后无回归）"
+  },
+  "round313": {
+   "result": "v3 两屏用真参照基线后，HTTP 路径集合完全一致（23/23、26/26）",
+   "wsGap": {
+    "ws-a-v3": "只参照有 editor_subscribe",
+    "ws-a-v3-resource": "完全一致"
+   },
+   "why": [
+    "useWorkbenchEditorEvents 在全库有两个调用点：",
+    "  1. native-workbench-host.jsx（仅 resourcesOpen 为真时）→ 解释 ws-a-v3-resource 有",
+    "  2. WorkspaceResultNavigationProvider → 解释画布路径也有",
+    "参照里 Provider 由 WorkspaceResultNavigationLayout 包出来，",
+    "而 **WorkspaceResultNavigationLayout 在我们树里完全缺失**。",
+    "我们已经还原了 result-navigation-provider.js（11 声明 / 943 行，未接线），",
+    "但缺它上面那层 Layout 组件。"
+   ],
+   "nextStep": [
+    "还原 WorkspaceResultNavigationLayout，并在 workspace stage shell 里接上，",
+    "画布屏才会发出 editor_subscribe（每工作区 +2 帧）。",
+    "注意：第 294 轮曾尝试直接接 Provider，报 TaskResultNavigationError: stale ——",
+    "那是因为当时缺它依赖的服务；现在 persistence / nativeWorkbench 都通了，可以重试。"
+   ]
   }
  }
 }
