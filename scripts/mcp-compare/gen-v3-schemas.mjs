@@ -75,7 +75,17 @@ function toZod(schema, ctx) {
       unhandled.add(`$ref(unresolved:${schema.$ref})`);
       return "z.unknown()";
     }
-    return toZod(target, ctx);
+    // $ref 同级可能还带 description/默认值（参照里就有），必须合并，否则这些描述会丢
+    const { $ref: _drop, ...siblings } = schema;
+    const merged = { ...target, ...siblings };
+    const inner = toZod(merged, ctx);
+    // $ref 展开后，描述来自被引用的目标；属性循环那边看不到（sub 只有 $ref），
+    // 所以必须在这里补上 .describe()。
+    // 同样不要用 includes 守卫：数组元素里有 describe 不代表外层有
+    if (typeof merged.description === "string") {
+      return `${inner}.describe(${lit(merged.description)})`;
+    }
+    return inner;
   }
 
   if (Array.isArray(schema.anyOf)) {
@@ -84,6 +94,13 @@ function toZod(schema, ctx) {
     const inner =
       unique.length === 1 ? unique[0] : `z.union([${unique.join(", ")}])`;
     return inner;
+  }
+
+  // 可空/多类型：type: ["string","null"] -> z.union([z.string(), z.null()])
+  if (Array.isArray(schema.type)) {
+    const parts = schema.type.map((ty) => toZod({ ...schema, type: ty }, ctx));
+    const uniq = [...new Set(parts)];
+    return uniq.length === 1 ? uniq[0] : `z.union([${uniq.join(", ")}])`;
   }
 
   if (Array.isArray(schema.enum)) {
@@ -121,7 +138,7 @@ function toZod(schema, ctx) {
     case "array": {
       const inner = toZod(schema.items ?? {}, ctx);
       let s = `z.array(${inner})`;
-      if (typeof schema.minItems === "number" && schema.minItems > 0)
+      if (typeof schema.minItems === "number")
         s += `.min(${schema.minItems})`;
       if (typeof schema.maxItems === "number") s += `.max(${schema.maxItems})`;
       return s;
@@ -133,14 +150,29 @@ function toZod(schema, ctx) {
         const total = required.size;
         const lines = Object.entries(props).map(([name, sub]) => {
           let z = toZod(sub, ctx);
-          if (sub && typeof sub === "object" && typeof sub.description === "string" && !z.includes(".describe("))
+          // 不要用 `!z.includes(".describe(")` 去重：内层只要有 describe，外层就被误跳过，
+          // 于是 deliver.properties.sources.description 这类全丢。重复 describe 无害（后者覆盖前者）。
+          if (sub && typeof sub === "object" && typeof sub.description === "string")
             z += `.describe(${lit(sub.description)})`;
+          if (sub && typeof sub === "object" && sub.default !== undefined) {
+            z += `.default(${lit(sub.default)})`;
+          }
+          // 有 default 的字段在 JSON Schema 里也常出现在 required 之外，保持一致
           if (!required.has(name)) z += ".optional()";
           return `      ${lit(name)}: ${z},`;
         });
         // 参照里 properties 为空但 required 非空的工具（如只带枚举）走不到这里
         void total;
-        return `z.object({\n${lines.join("\n")}\n    })`;
+        // 参照里两种都有：顶层多为 true，嵌套多为 false。
+        // 按实际值决定：true/缺省 -> .passthrough()；false -> 保持 strict（z.object 默认）。
+        const ap = schema.additionalProperties;
+        const tail = ap === false ? "" : ".passthrough()";
+        return `z.object({\n${lines.join("\n")}\n    })${tail}`;
+      }
+      // additionalProperties 可能是一个带约束的 schema（例如 {maxLength: 2000}）
+      const ap = schema.additionalProperties;
+      if (ap && typeof ap === "object") {
+        return `z.record(z.string(), ${toZod(ap, ctx)})`;
       }
       return "z.record(z.string(), z.unknown())";
     }
@@ -166,7 +198,10 @@ const entries = [];
  */
 function toZodShape(schema, ctx) {
   if (schema && typeof schema === "object" && schema.type === "object" && schema.properties) {
-    const full = toZod(schema, ctx);
+    let full = toZod(schema, ctx);
+    // 顶层要把 z.object({...}).passthrough() 拆回 raw shape（registrar 自己包 z.object）
+    full = full.replace(/\.passthrough\(\)$/, "");
+    // 顶层 strict（additionalProperties:false）时结尾仍是 "})"，下面会正常剥掉
     return full.replace(/^z\.object\(\{/, "{").replace(/\}\)$/, "}");
   }
   return "{}";

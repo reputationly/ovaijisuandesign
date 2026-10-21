@@ -22,6 +22,26 @@ const ref = new Map(
     (t) => [t.name, t.inputSchema],
   ),
 );
+/** 解析参照里的同文档 $ref（#/a/b/c），把它展开成实际节点再比。 */
+function deref(node, root) {
+  if (Array.isArray(node)) return node.map((v) => deref(v, root));
+  if (node && typeof node === "object") {
+    if (typeof node.$ref === "string" && node.$ref.startsWith("#/")) {
+      let cur = root;
+      for (const k of node.$ref.slice(2).split("/")) cur = cur?.[k];
+      if (cur !== undefined) {
+        // $ref 同级可能还有 description，展开后合并
+        const { $ref, ...rest } = node;
+        return deref({ ...JSON.parse(JSON.stringify(cur)), ...rest }, root);
+      }
+    }
+    const out = {};
+    for (const [k, v] of Object.entries(node)) out[k] = deref(v, root);
+    return out;
+  }
+  return node;
+}
+
 function cmp(a, b, p, out) {
   if (a === null || b === null || typeof a !== "object" || typeof b !== "object") {
     if (JSON.stringify(a) !== JSON.stringify(b)) out.push(`${p}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`);
@@ -38,9 +58,10 @@ let ok = 0;
 const bad = [];
 for (const [name, spec] of Object.entries(V3_TOOL_SPECS)) {
   let mine;
-  try { mine = toJsonSchemaCompat(z.object(spec.shape)); } catch (e) { bad.push([name, -1, [String(e).slice(0, 80)]]); continue; }
+  try { mine = toJsonSchemaCompat(z.object(spec.shape).passthrough()); } catch (e) { bad.push([name, -1, [String(e).slice(0, 80)]]); continue; }
   const d = [];
-  cmp(mine, ref.get(name) ?? {}, name, d);
+  const refResolved = deref(JSON.parse(JSON.stringify(ref.get(name) ?? {})), ref.get(name) ?? {});
+  cmp(mine, refResolved, name, d);
   if (d.length) bad.push([name, d.length, d.slice(0, 3)]); else ok++;
 }
 const total = Object.keys(V3_TOOL_SPECS).length;

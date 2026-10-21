@@ -24,7 +24,7 @@ export const V3_TOOL_SPECS = {
     shape: {
       "action": z.enum(["read", "save"]),
       "content": z.string().describe("Required for save: complete Markdown rules (max 16 KiB UTF-8). Empty text clears all rules.").optional(),
-      "expectedRevision": z.unknown().describe("Required for save: exact revision returned by read, including null for a missing document. On conflict, read again and merge; never blindly retry.").optional(),
+      "expectedRevision": z.union([z.string(), z.null()]).describe("Required for save: exact revision returned by read, including null for a missing document. On conflict, read again and merge; never blindly retry.").optional(),
     },
   },
   "execute": {
@@ -43,7 +43,7 @@ export const V3_TOOL_SPECS = {
     }), z.object({
       "compositionId": z.string().min(1).max(512),
       "memberId": z.string().min(1).max(512),
-    })]), z.null()])).max(100).describe("Ordered input content for the selected capability. Each entry is exactly one of: {resourceId} to follow that Resource's current ready version (default choice); {versionId} to pin an intentionally selected exact version whose identity is established by context, a tool result, a user attachment or a plan file. An earlier versionId does not establish the current selection; {compositionId, resourceId} to freeze that member resource's current ready version; {compositionId, memberId} to expand every resource of that member in stored order. How many entries a capability takes, and of which media kind, is in design_capability_get. Resolving these inputs does not write Composition memberships. In a frame mode whose references declare lastFrameOnly, pass [null, <last frame>] to give only the closing frame; null is accepted nowhere else.").optional(),
+    })]), z.null()])).min(0).max(100).describe("Ordered input content for the selected capability. Each entry is exactly one of: {resourceId} to follow that Resource's current ready version (default choice); {versionId} to pin an intentionally selected exact version whose identity is established by context, a tool result, a user attachment or a plan file. An earlier versionId does not establish the current selection; {compositionId, resourceId} to freeze that member resource's current ready version; {compositionId, memberId} to expand every resource of that member in stored order. How many entries a capability takes, and of which media kind, is in design_capability_get. Resolving these inputs does not write Composition memberships. In a frame mode whose references declare lastFrameOnly, pass [null, <last frame>] to give only the closing frame; null is accepted nowhere else.").optional(),
       "count": z.number().int().min(1).max(9).describe("Variations of this same request, 1-9 (default 1). Same prompt and params, billed separately; different content needs separate calls. \"Two candidate images of the same dancing cat\": count=2; \"one street image and one stage image\": two calls; \"one image with two cats\": count=1. Declare one Resource target without a key: outputs primary, primary_2, ... are versions of ONE Resource. After all settle, the lowest preallocated-ordinal successful version becomes current for a new Resource; for new_version, adopted also requires current=baseVersionId. Conflicts and other variations remain candidates; candidate preserves current. Failed variations are absent from task.outputs and not retried; one success suffices for completion. edit_media ignores count and produces one result.").optional(),
       "plugin": z.object({
       "method": z.string().min(1).max(512),
@@ -70,7 +70,7 @@ export const V3_TOOL_SPECS = {
       "resourceId": z.string().min(1).max(512),
       "baseVersionId": z.string().min(1).max(512).describe("Exact parent version belonging to resourceId. Required with disposition=adopted, where it is also the expected current version.").optional(),
       "disposition": z.enum(["adopted", "candidate"]).describe("adopted selects the result as current only if the current version still equals baseVersionId; a conflict retains a candidate for resolution. candidate (the default) saves the result without changing current and cannot be placed in a Composition.").optional(),
-    })])).min(1).max(100),
+    })])).min(1).max(100).describe("Where the result is saved: mode=create with a name, or mode=new_version with resourceId. Subtitle, lyric and layer outputs receive their own Resources automatically."),
       "composition": z.object({
       "compositionId": z.string().min(1).max(512).describe("Existing Composition ID from a query or creation result. Exclusive with type/name.").optional(),
       "type": z.union([z.object({
@@ -80,9 +80,9 @@ export const V3_TOOL_SPECS = {
     }), z.object({
       "label": z.string().min(1).max(256).describe("Find a registered type by label, or create it with a gateway-generated ID."),
       "description": z.string().max(2000).optional(),
-    })]).optional(),
+    })]).describe("With name: finds the active Composition with this resolved type and trimmed name, or creates it. Exclusive with compositionId.").optional(),
       "name": z.string().min(1).max(512).describe("Name of the new Composition.").optional(),
-      "attributes": z.record(z.string(), z.unknown()).describe("New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes.").optional(),
+      "attributes": z.record(z.string(), z.string().max(2000)).describe("New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes.").optional(),
       "position": z.number().int().min(0).max(1000000000).describe("New Composition only. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement. Creation only; existing matches keep position. Parallel same-position calls use the next free value in call order (original in requestedPosition).").optional(),
       "placement": z.union([z.object({
       "after": z.string().min(1).max(512),
@@ -94,9 +94,9 @@ export const V3_TOOL_SPECS = {
       "role": z.string().min(1).max(512).describe("Adds the output as a new member with this role: a user-visible label for its purpose within the Composition, in working_language (e.g. \"正面全身\"). Reuse existing wording for the same purpose; roles may repeat; no code identifiers. Every further independent Resource the call creates under that output (key_2, key_3, ...; e.g. the layers of a layer decomposition) gets a member with the same role. Give role or memberId, not both.").optional(),
       "memberId": z.string().min(1).max(512).describe("Writes the output into this existing member instead of adding one. A member holds one Resource: it is filled when empty or still holding replaceResourceId; otherwise the placement is reported unavailable and the member keeps its Resource.").optional(),
       "replaceResourceId": z.string().min(1).max(512).describe("With memberId: the Resource the member holds now and this output replaces. Omit to fill an empty member only.").optional(),
-    })).min(1).max(50),
-    }).optional(),
-    }).optional(),
+    })).min(1).max(50).describe("Required, one entry per output: role adds a member, memberId fills an existing one. key may be omitted for the primary output."),
+    }).describe("Canvas-visible placement required for every create target; omit only when every target is a new_version already in a Composition. compositionId targets an existing object; type + name finds/creates an active one by exact type ID + trimmed name. Both require placements. Parallel outputs for one new object use the same type ID/name; call in the same step without waiting for its compositionId.").optional(),
+    }).describe("Required for media: declare resources and their Composition placements. Media edits declare exactly one primary Resource. Example: {\"resources\":[{\"mode\":\"create\",\"name\":\"视频\"}],\"composition\":{\"type\":{\"label\":\"视频\"},\"name\":\"作品\",\"placements\":[{\"role\":\"主视频\"}]}}").optional(),
     },
   },
   "deliver": {
@@ -112,7 +112,7 @@ export const V3_TOOL_SPECS = {
     }), z.object({
       "key": z.string().min(1).max(512).describe("Omit for a sole source; with several, a distinct key per source.").optional(),
       "path": z.string().min(1).max(4096).describe("Workspace file path for content that is not a Resource yet. Must be a regular file inside the workspace, outside `.hilo/`, not a symlink, and an image/video/audio/text file or Word/PDF document (.doc/.docx/.pdf, at most 50 MiB). Never a URL or a path outside the workspace."),
-    })])).min(1).max(100),
+    })])).min(1).max(100).describe("Supply exactly one source per item: versionId for an existing version, artifactId for an archived task artifact, or path for an unregistered workspace file. A sole source needs no key; several sources each take a distinct key that output.resources and placements use."),
       "output": z.object({
       "resources": z.array(z.union([z.union([z.object({
       "key": z.string().min(1).max(512).describe("Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs.").optional(),
@@ -128,7 +128,7 @@ export const V3_TOOL_SPECS = {
     })]), z.object({
       "key": z.string().min(1).max(512).describe("Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs.").optional(),
       "mode": z.literal("reuse"),
-    })])).min(1).max(100),
+    })])).min(1).max(100).describe("One target per source: create a named Resource, write a new version of an existing Resource, or reuse (place a versionId source as is). With several sources, each target names its source key."),
       "composition": z.object({
       "compositionId": z.string().min(1).max(512).describe("Existing Composition ID from a query or creation result. Exclusive with type/name.").optional(),
       "type": z.union([z.object({
@@ -138,9 +138,9 @@ export const V3_TOOL_SPECS = {
     }), z.object({
       "label": z.string().min(1).max(256).describe("Find a registered type by label, or create it with a gateway-generated ID."),
       "description": z.string().max(2000).optional(),
-    })]).optional(),
+    })]).describe("With name: finds the active Composition with this resolved type and trimmed name, or creates it. Exclusive with compositionId.").optional(),
       "name": z.string().min(1).max(512).describe("Name of the new Composition.").optional(),
-      "attributes": z.record(z.string(), z.unknown()).describe("New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes.").optional(),
+      "attributes": z.record(z.string(), z.string().max(2000)).describe("New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes.").optional(),
       "position": z.number().int().min(0).max(1000000000).describe("New Composition only. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement. Creation only; existing matches keep position. Parallel same-position calls use the next free value in call order (original in requestedPosition).").optional(),
       "placement": z.union([z.object({
       "after": z.string().min(1).max(512),
@@ -152,8 +152,8 @@ export const V3_TOOL_SPECS = {
       "role": z.string().min(1).max(512).describe("Adds the output as a new member with this role: a user-visible label for its purpose within the Composition, in working_language (e.g. \"正面全身\"). Reuse existing wording for the same purpose; roles may repeat; no code identifiers. Every further independent Resource the call creates under that output (key_2, key_3, ...; e.g. the layers of a layer decomposition) gets a member with the same role. Give role or memberId, not both.").optional(),
       "memberId": z.string().min(1).max(512).describe("Writes the output into this existing member instead of adding one. A member holds one Resource: it is filled when empty or still holding replaceResourceId; otherwise the placement is reported unavailable and the member keeps its Resource.").optional(),
       "replaceResourceId": z.string().min(1).max(512).describe("With memberId: the Resource the member holds now and this output replaces. Omit to fill an empty member only.").optional(),
-    })).min(1).max(50),
-    }).optional(),
+    })).min(1).max(50).describe("Required, one entry per output: role adds a member, memberId fills an existing one. key may be omitted for the primary output."),
+    }).describe("Canvas-visible placement required for every create/reuse target; omit only when every target is a new_version already in a Composition. compositionId targets an existing object; type + name finds/creates an active one by exact type ID + trimmed name. Both require placements. Parallel outputs for one new object use the same type ID/name; call in the same step without waiting for its compositionId.").optional(),
     }),
     },
   },
@@ -202,9 +202,9 @@ export const V3_TOOL_SPECS = {
     }), z.object({
       "label": z.string().min(1).max(256).describe("Find a registered type by label, or create it with a gateway-generated ID."),
       "description": z.string().max(2000).optional(),
-    })]).optional(),
+    })]).describe("With name: finds the active Composition with this resolved type and trimmed name, or creates it. Exclusive with compositionId.").optional(),
       "name": z.string().min(1).max(512).describe("Name of the new Composition.").optional(),
-      "attributes": z.record(z.string(), z.unknown()).describe("New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes.").optional(),
+      "attributes": z.record(z.string(), z.string().max(2000)).describe("New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes.").optional(),
       "position": z.number().int().min(0).max(1000000000).describe("New Composition only. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement. Creation only; existing matches keep position. Parallel same-position calls use the next free value in call order (original in requestedPosition).").optional(),
       "placement": z.union([z.object({
       "after": z.string().min(1).max(512),
@@ -216,8 +216,8 @@ export const V3_TOOL_SPECS = {
       "role": z.string().min(1).max(512).describe("Adds the output as a new member with this role: a user-visible label for its purpose within the Composition, in working_language (e.g. \"正面全身\"). Reuse existing wording for the same purpose; roles may repeat; no code identifiers. Every further independent Resource the call creates under that output (key_2, key_3, ...; e.g. the layers of a layer decomposition) gets a member with the same role. Give role or memberId, not both.").optional(),
       "memberId": z.string().min(1).max(512).describe("Writes the output into this existing member instead of adding one. A member holds one Resource: it is filled when empty or still holding replaceResourceId; otherwise the placement is reported unavailable and the member keeps its Resource.").optional(),
       "replaceResourceId": z.string().min(1).max(512).describe("With memberId: the Resource the member holds now and this output replaces. Omit to fill an empty member only.").optional(),
-    })).min(1).max(50),
-    }).optional(),
+    })).min(1).max(50).describe("Required, one entry per output: role adds a member, memberId fills an existing one. key may be omitted for the primary output."),
+    }).describe("update_placement only: the existing Composition (compositionId) plus placements, one per output still awaiting placement, each with role or memberId.").optional(),
     },
   },
   "resource_search": {
@@ -269,7 +269,7 @@ export const V3_TOOL_SPECS = {
     shape: {
       "text": z.string().max(2000).describe("Substring of a Composition name, attribute value, or member Resource name or description, such as a character name or an earlier output title.").optional(),
       "type": z.string().min(1).max(512).describe("Registered type ID; composition_type_list lists available IDs.").optional(),
-      "attributes": z.record(z.string(), z.unknown()).optional(),
+      "attributes": z.record(z.string(), z.string().max(2000)).optional(),
       "lifecycle": z.array(z.enum(["active", "archived", "deleted"])).min(1).max(3).optional(),
       "order": z.union([z.object({
       "by": z.enum(["createdAt", "updatedAt"]),
@@ -317,7 +317,7 @@ export const V3_TOOL_SPECS = {
       "name": z.string().min(1).max(512).describe("action=describe: the new user-facing name.").optional(),
       "description": z.string().max(2000).describe("action=describe: the new description.").optional(),
       "expectedMetadataRevision": z.number().int().min(0).describe("action=describe: revision of the Resource metadata snapshot being edited.").optional(),
-    })).min(1).max(20).optional(),
+    })).min(1).max(20).describe("batch only: adopt/describe commands executed atomically in order.").optional(),
     },
   },
   "composition_edit": {
@@ -328,7 +328,7 @@ export const V3_TOOL_SPECS = {
       "label": z.string().min(1).max(512).describe("action=ensure: required without typeId; find by label or create with a gateway-generated ID.").optional(),
       "name": z.string().min(1).max(512).describe("ensure: initial object name; rename: new name of the SAME object.").optional(),
       "description": z.string().max(2000).describe("ensure only: description of the registered type.").optional(),
-      "attributes": z.record(z.string(), z.unknown()).describe("Object attributes. ensure initializes new objects only; set_attributes merges supplied keys and preserves omitted keys.").optional(),
+      "attributes": z.record(z.string(), z.string().max(2000)).describe("Object attributes. ensure initializes new objects only; set_attributes merges supplied keys and preserves omitted keys.").optional(),
       "unset": z.array(z.string().min(1).max(512)).max(50).describe("set_attributes only: attribute keys to remove; must not overlap attributes.").optional(),
       "compositionId": z.string().min(1).max(512).describe("The object to edit; for duplicate, the source to copy.").optional(),
       "expectedRevision": z.number().int().min(0).optional(),
@@ -345,7 +345,7 @@ export const V3_TOOL_SPECS = {
       "memberId": z.string().min(1).max(512),
       "role": z.string().min(1).max(512).describe("Member purpose in working_language, e.g. \"正面全身\".").optional(),
       "resourceId": z.union([z.string().min(1).max(512), z.null()]).describe("Replaces the member's Resource; null empties the slot; omit to keep it.").optional(),
-    })])).min(1).max(50).optional(),
+    })])).min(1).max(50).describe("update: the member edits; ensure: member edits applied right after find-or-create.").optional(),
       "position": z.number().int().min(0).max(1000000000).describe("ensure (creation only; an existing match keeps its position), duplicate or move. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement.").optional(),
       "placement": z.union([z.object({
       "after": z.string().min(1).max(512),
@@ -354,13 +354,13 @@ export const V3_TOOL_SPECS = {
     })]).describe("ensure (creation only), duplicate or move. Place before/after a same-type Composition. The gateway assigns position; never compute one yourself. Neighbours may change position, reported as renumbered. Exclusive with position.").optional(),
       "commands": z.array(z.object({
       "action": z.enum(["ensure", "update", "rename", "set_attributes", "move"]),
-      "typeId": z.string().min(1).max(512).optional(),
-      "label": z.string().min(1).max(512).optional(),
-      "name": z.string().min(1).max(512).optional(),
-      "description": z.string().max(2000).optional(),
-      "attributes": z.record(z.string(), z.unknown()).optional(),
-      "unset": z.array(z.string().min(1).max(512)).max(50).optional(),
-      "compositionId": z.string().min(1).max(512).optional(),
+      "typeId": z.string().min(1).max(512).describe("action=ensure: registered type ID; omit to find/create by label. Never invent an ID.").optional(),
+      "label": z.string().min(1).max(512).describe("action=ensure: required without typeId; find by label or create with a gateway-generated ID.").optional(),
+      "name": z.string().min(1).max(512).describe("ensure: initial object name; rename: new name of the SAME object.").optional(),
+      "description": z.string().max(2000).describe("ensure only: description of the registered type.").optional(),
+      "attributes": z.record(z.string(), z.string().max(2000)).describe("Object attributes. ensure initializes new objects only; set_attributes merges supplied keys and preserves omitted keys.").optional(),
+      "unset": z.array(z.string().min(1).max(512)).max(50).describe("set_attributes only: attribute keys to remove; must not overlap attributes.").optional(),
+      "compositionId": z.string().min(1).max(512).describe("The object to edit; for duplicate, the source to copy.").optional(),
       "expectedRevision": z.number().int().min(0).optional(),
       "operations": z.array(z.union([z.object({
       "action": z.literal("add_member"),
@@ -375,14 +375,14 @@ export const V3_TOOL_SPECS = {
       "memberId": z.string().min(1).max(512),
       "role": z.string().min(1).max(512).describe("Member purpose in working_language, e.g. \"正面全身\".").optional(),
       "resourceId": z.union([z.string().min(1).max(512), z.null()]).describe("Replaces the member's Resource; null empties the slot; omit to keep it.").optional(),
-    })])).min(1).max(50).optional(),
-      "position": z.number().int().min(0).max(1000000000).optional(),
+    })])).min(1).max(50).describe("update: the member edits; ensure: member edits applied right after find-or-create.").optional(),
+      "position": z.number().int().min(0).max(1000000000).describe("ensure (creation only; an existing match keeps its position), duplicate or move. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement.").optional(),
       "placement": z.union([z.object({
       "after": z.string().min(1).max(512),
     }), z.object({
       "before": z.string().min(1).max(512),
-    })]).optional(),
-    })).min(1).max(20).optional(),
+    })]).describe("ensure (creation only), duplicate or move. Place before/after a same-type Composition. The gateway assigns position; never compute one yourself. Neighbours may change position, reported as renumbered. Exclusive with position.").optional(),
+    })).min(1).max(20).describe("batch only: commands executed atomically in order; no nested batch.").optional(),
     },
   },
   "document_write": {
@@ -395,7 +395,7 @@ export const V3_TOOL_SPECS = {
       "exact": z.string().min(1).max(100000).describe("Exact source substring to replace, copied VERBATIM from the base version source (e.g. a resolved annotation sourceExact or a design_read window). Rendered-editor text may drop markdown markers and will not match."),
       "occurrence": z.number().int().min(0).describe("Zero-based occurrence of exact in the source; required when it appears more than once.").optional(),
       "replacement": z.string().describe("Replacement source text; an empty string deletes the anchored text."),
-    })).min(1).max(100).optional(),
+    })).min(1).max(100).describe("mode=patch only, required there: anchored edits applied atomically (all or nothing) in source order. Edits must not overlap.").optional(),
       "format": z.enum(["md", "txt", "srt", "ass"]).describe("create/replace only: stored file format. Defaults to md; use txt for plain notes or srt/ass for subtitles. Existing subtitles and patched versions keep the format of their base.").optional(),
       "name": z.string().min(1).max(512).describe("Required for create; optional for replace/patch to rename the document atomically with its content. Omit to preserve the name. The name belongs to the Resource, so it also changes when disposition=candidate.").optional(),
       "description": z.string().max(2000).describe("mode=create only: short description of what this document is.").optional(),
@@ -410,11 +410,11 @@ export const V3_TOOL_SPECS = {
     shape: {
       "queries": z.array(z.object({
       "query": z.string().describe("Descriptive English search keywords (2-6 words). Multi-word descriptive phrases work better than terse keyword strings. Use multiple queries for multi-angle coverage."),
-      "num": z.number().describe("Number of search results to fetch (default 10)").optional(),
-    })).min(1).max(4),
-      "max_images_per_query": z.number().describe("Maximum images to download per query (default 5).").optional(),
+      "num": z.number().describe("Number of search results to fetch (default 10)").default(10).optional(),
+    })).min(1).max(4).describe("Search queries (1-4). Cover the requested subjects or meaningful angles while retaining every required trait."),
+      "max_images_per_query": z.number().describe("Maximum images to download per query (default 5).").default(5).optional(),
       "max_total_images": z.number().int().min(1).describe("Global maximum across all queries. Use this for the user-requested total count.").optional(),
-      "min_dimension": z.number().describe("Minimum short-side pixel dimension to keep (default 500)").optional(),
+      "min_dimension": z.number().describe("Minimum short-side pixel dimension to keep (default 500)").default(500).optional(),
       "composition_name": z.string().min(1).max(512).describe("Name of the delivered `search` Composition. Name it after the search task, e.g. \"Cyberpunk street reference\". Reusing an existing name appends to that Composition."),
       "composition_description": z.string().max(2000).describe("Optional description stored on the Composition.").optional(),
     },
@@ -427,8 +427,8 @@ export const V3_TOOL_SPECS = {
       "question": z.string().min(1).max(8000).describe("Question for this media item. Required for semantic or both.").optional(),
     }), z.object({
       "versionId": z.string().min(1).max(512),
-      "question": z.string().min(1).max(8000).describe("Question for this media item. Required for semantic or both.").optional(),
-    })])).min(1).max(20),
+      "question": z.string().min(1).max(8000).describe("Question for this media item. Required for semantic or both.").describe("Question for this media item. Required for semantic or both.").optional(),
+    })])).min(1).max(20).describe("Media to inspect, in order, each with its own question. Use resourceId for its current version or versionId for an exact version from context or a tool result. Composition members must be addressed by their Resource IDs; design_composition_get can supply missing member details. File paths are not accepted."),
       "type": z.enum(["metadata", "semantic", "both"]).describe("metadata: measured file facts only; semantic: question-focused observations; both: both kinds of evidence."),
     },
   },
@@ -464,7 +464,7 @@ export const V3_TOOL_SPECS = {
     description: "Run one tool of a connected external connector. capabilityId is a connector:<connectorId>/<tool> ID from design_capability_list kind=connector connectorId=<id>; arguments must match the inputSchema returned by design_capability_get (read it before the first call of each tool). The local Gateway re-checks the connection and the schema, asks the user first when the connector marks the tool destructive, and returns the connector result unchanged (text, JSON, images). Connectors that are not connected are refused: use design_capability_search. Not for models or media edits (use design_execute). Results do not become project Resources by themselves; import files with design_deliver.",
     shape: {
       "capabilityId": z.string().min(1).max(300).describe("connector:<connectorId>/<tool> ID of a connected connector tool."),
-      "arguments": z.record(z.string(), z.unknown()).describe("Tool arguments object matching the inputSchema from design_capability_get.").optional(),
+      "arguments": z.record(z.string(), z.unknown()).describe("Tool arguments object matching the inputSchema from design_capability_get.").default({}).optional(),
     },
   },
   "search_knowledge": {
@@ -488,7 +488,7 @@ export const V3_TOOL_SPECS = {
       "error_class": z.enum(["tool_unavailable", "model_unavailable", "refs_missing", "constraint_conflict", "vendor_error", "medium_drift_detected", "user_blocked", "unknown"]).describe("Failure category. Required when outcome=failed.").optional(),
       "details": z.string().max(500).describe("One-line specifics, e.g. \"veo3 returned 429 rate-limit\".").optional(),
       "retries": z.number().int().min(0).max(10).describe("Retry index for this asset.").optional(),
-    })).min(1).max(100),
+    })).min(1).max(100).describe("Batch of outcome records. Single outcome calls must still use outcomes[]."),
     },
   },
   "voice_search": {
@@ -498,7 +498,7 @@ export const V3_TOOL_SPECS = {
       "id": z.string().describe("Optional caller id, e.g. role id.").optional(),
       "language": z.enum(["中文", "英语", "葡萄牙语", "日语", "韩语", "法语", "德语", "西班牙语", "意大利语", "俄语", "阿拉伯语", "印尼语", "荷兰语", "泰语", "越南语", "印地语", "波兰语", "罗马尼亚语", "捷克语", "芬兰语", "马来语", "土耳其语", "乌克兰语", "保加利亚语", "丹麦语", "希伯来语", "波斯语", "斯洛伐克语", "瑞典语", "克罗地亚语", "菲律宾语", "匈牙利语", "挪威语", "斯洛文尼亚语", "加泰罗尼亚语", "希腊语", "泰米尔", "阿非利卡语", "尼诺斯克"]).describe("Spoken language required by the intended speech."),
       "gender": z.enum(["女", "男"]).describe("Pass only when the user explicitly mentioned gender.").optional(),
-    })).min(1).max(30),
+    })).min(1).max(30).describe("Catalog queries, one per distinct language and gender."),
     },
   },
   "read": {
