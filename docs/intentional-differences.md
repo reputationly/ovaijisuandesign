@@ -114,6 +114,44 @@
 
 ---
 
+## 四·补：已知功能差距（不是有意差异，但已确认不做）
+
+### 画布屏缺 2 帧 `editor_subscribe`
+
+| 屏 | 我方帧类型集合 | 参照帧类型集合 |
+|---|---|---|
+| `ws-a-v3-resource` | `editor_subscribe` / `list_sessions` / `task_subscribe` / `task_unsubscribe` | 同一集合，**完全一致** |
+| `ws-a-v3` | 缺 `editor_subscribe` | 有 `editor_subscribe` |
+
+**原因**：`useWorkbenchEditorEvents` 有两个调用点。
+资源视图走 `native-workbench-host.jsx`（我们已还原，正常发帧）；
+画布路径走 `WorkspaceResultNavigationProvider`，而把它接上会崩：
+
+```
+Task result navigation: stale
+  at canvas-v3/ui-components.js:13232  (run2 的第一行)
+  条件：target.scopeKey !== workbench.scopeKey
+        || !target.resourceId.trim()
+        || !target.versionId.trim()
+```
+
+`WorkspaceResultNavigationLayout`（21 行）与 `WorkspaceResultNavigationProvider`
+（11 声明 / 943 行）都已还原在树里，**缺的是任务结果导航的数据链路**
+（资源 id + 版本 id 的真实来源）。
+
+**为什么不做**：补这条链路的成本远大于这 2 帧的价值，
+而 `ws-a-v3-resource` 的类型集合已经完全一致。
+
+**试过并且不采用的捷径**：
+- 只渲染 `useWorkbenchEditorEvents`、不启动那两个 agent —— 能拿到帧，
+  但绕开了参照里真实存在的行为，属行为差异，会误导后续判断；
+- 给 `agent.start()` 加 `try/catch` —— 掩盖失败，与本项目「不静默桩」原则冲突。
+
+**判定影响**：不影响第 2 条的 HTTP 部分（23/23 完全一致），
+也不影响第 1、3、4 条。属于**已登记的已知差距**。
+
+---
+
 ## 五、门禁例外
 
 ### 无基线 / 基线不可用的屏

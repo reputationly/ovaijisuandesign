@@ -71,7 +71,7 @@ node scripts/ui-compare/compare-v3-network.mjs <recovered.net.json> "<baseline>.
 | 屏 | 我方类型集合 | 参照类型集合 | 结论 |
 |---|---|---|---|
 | `ws-a-v3-resource` | `editor_subscribe` / `list_sessions` / `task_subscribe` / `task_unsubscribe` | 同一集合 | **完全一致，无单边独占类型** |
-| `ws-a-v3` | 缺 `editor_subscribe` | 有 `editor_subscribe` | **符合预期**：该屏 `resourcesOpen=false`，不渲染 `NativeWorkbenchHost` |
+| `ws-a-v3` | 缺 `editor_subscribe` | 有 `editor_subscribe` | **已登记的已知差距**，见 `docs/intentional-differences.md` 四·补 |
 
 ### 像素（参考值，不作为平价证据）
 
