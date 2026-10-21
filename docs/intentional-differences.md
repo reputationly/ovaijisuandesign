@@ -181,6 +181,37 @@ Task result navigation: stale
 
 ---
 
+## 四·补三：音频节点仍是 v2 组件（18 屏受影响）
+
+**现象**：参照的画布音频节点 id 是 `canvas.audio-node.toggle-play`（v3 组件），
+我们渲染的是 `canvas.audio.toggle-play`（v2 组件）。
+
+**已确认的事实**（`ONLY=ws-canvas-ops` 实测）：
+
+```
+canvas.audio.toggle-play         有    ← 我们的
+canvas.audio-node.toggle-play    无    ← 参照的
+canvas-resource-detail-panel     无    ← v3 独有 id，我们也没有
+canvas.tool-dock / canvas.pane   有    ← 两边都有（共享）
+```
+
+**能排除的**：
+- `canvas-v3/canvas-area-v3.js` 里 **0 处**引用 `hilo-media-plugin`（v2 的插件注册）
+- 所以不是 v3 画布直接挂载了 v2 插件
+
+**还没查清的**：v3 画布是通过哪条路径解析到 v2 的 `AudioNode` 组件的。
+v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation-presentation.js`
+的 `AudioNode` → `canvas/hilo-media-plugin.js:135` 注册 → `canvas/canvas-area.jsx` 使用。
+这条链在 v3 上不该成立，但 id 确实出现在 v3 屏的 DOM 里，**中间那一环还没找到**。
+
+**为什么没有直接改**：换组件要同时对齐 props、事件与控制契约；
+在没查清 v3 的节点解析路径之前换，等于把 18 屏一起赌上去。
+
+**下一步**：在 v3 画布侧找节点渲染器映射（`nodeTypes` / 组件注册表），
+确认 `audio` 类型解析到哪个组件，再决定是替换还是登记。
+
+---
+
 ## 五、门禁例外
 
 ### 无基线 / 基线不可用的屏
