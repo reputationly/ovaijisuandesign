@@ -199,7 +199,22 @@ canvas.tool-dock / canvas.pane   有    ← 两边都有（共享）
 - `canvas-v3/canvas-area-v3.js` 里 **0 处**引用 `hilo-media-plugin`（v2 的插件注册）
 - 所以不是 v3 画布直接挂载了 v2 插件
 
-**还没查清的**：v3 画布是通过哪条路径解析到 v2 的 `AudioNode` 组件的。
+**还没查清的**（本轮证据互相矛盾，如实记录）：
+
+| 证据 | 指向 |
+|---|---|
+| `canvas.tool-dock` 在 DOM 里，而该 id **只在 `canvas-v3/canvas-area-v3.js` 出现**（v2 的 canvas-area.jsx 里 0 处） | **v3 画布在渲染** |
+| `canvas-resource-detail-panel`（也只在 v3）不在 DOM 里 | 该面板只是没打开，不矛盾 |
+| `canvas.audio.toggle-play` 在 DOM 里，而该 id **只在 `media-editing/audio-node-inner.jsx` 出现** | **v2 音频组件在渲染** |
+| `canvas-area-v3.js` 不 import `audio-node-inner` / `resolve-panorama` / `hilo-media-plugin`（均 0 处） | v3 画布不该产出这个 id |
+| `canvasV3NodeTypes` 只有 placeholder/frame/subject/sticker/composition/director-stage/clip-studio，**没有 audio** | v3 的节点映射里没有音频 |
+
+**结论：v3 画布在渲染，但音频节点的 id 来自 v2 组件，而 v3 侧既不 import 它、
+节点映射里也没有 audio —— 这三件事凑不到一起。当前模型解释不了。**
+
+**下一步不是改代码，而是先把这条打通**：可以在 `audio-node-inner.jsx` 的
+`canvas.audio.toggle-play` 处临时加一条 `console.trace`（或用 DOM 断点），
+看它到底是谁渲染的。拿到调用栈再决定。
 v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation-presentation.js`
 的 `AudioNode` → `canvas/hilo-media-plugin.js:135` 注册 → `canvas/canvas-area.jsx` 使用。
 这条链在 v3 上不该成立，但 id 确实出现在 v3 屏的 DOM 里，**中间那一环还没找到**。
