@@ -25,7 +25,17 @@ import { generateFixtures } from "./generate-fixtures.mjs";
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const sharp = createRequire(path.join(repo, "app/gateway/package.json"))("sharp");
 const RECORD = process.argv[2] === "--record";
-const [baseMode = "golden", testMode = "recovered"] = RECORD ? ["golden", process.argv[3] ?? "recovered"] : process.argv.slice(2);
+// 第 307 轮（用户要求）：录基线时必须**显式**指定模式。
+// 之前的默认值是 recovered —— 也就是拿我们自己的界面当基线，
+// 录出来的 png 与 recovered 产物 md5 完全相同，对比得到虚假的 0.000%。
+// 现在不写模式直接报错退出，避免再产生自比基线。
+const RECORD_MODE = RECORD ? process.argv[3] : undefined;
+if (RECORD && RECORD_MODE !== "reference" && RECORD_MODE !== "recovered") {
+  console.error("✗ --record 必须显式指定模式：--record reference（原版界面基线）或 --record recovered");
+  console.error("  不指定会静默使用 recovered，录出的基线是与自己比较，毫无意义。");
+  process.exit(2);
+}
+const [baseMode = "golden", testMode = "recovered"] = RECORD ? ["golden", RECORD_MODE] : process.argv.slice(2);
 const GOLDEN = process.env.GOLDEN ? path.resolve(process.env.GOLDEN) : path.join(repo, ".probe/ui-golden");
 const GLOBAL_SEARCH_CAPTURE_AGE_MS = 4 * 60_000 + 30_000;
 
@@ -1591,10 +1601,18 @@ async function runMode(mode) {
     "--disable-background-timer-throttling",
   ], { env, stdio: "ignore", detached: true });
   const results = {};
+  RECORDED_SCRIPTS.length = 0;
   try {
     const c = await cdp(PORT);
     await sleep(15000); // 工作区 gateway / opencode 起来、首启示例项目导入
     await waitForSkillProfile();
+    try {
+      const srcs = await evalValue(
+        c,
+        `JSON.stringify([...document.scripts].map((s) => s.src).filter(Boolean))`,
+      );
+      RECORDED_SCRIPTS.push(...JSON.parse(srcs ?? "[]"));
+    } catch { /* 取不到就不记，来源字段会是 null */ }
     for (let i = 0; i < 3; i++) {
       await c.send("Runtime.evaluate", { expression: DISMISS_STARTUP });
       await sleep(800);
@@ -1916,8 +1934,34 @@ function readGolden() {
     state: JSON.parse(readFileSync(path.join(GOLDEN, `${p.id}.state.json`), "utf8")),
   }]));
 }
+const RECORDED_SCRIPTS = [];
+
 function writeGolden(results) {
   mkdirSync(GOLDEN, { recursive: true });
+  // 第 307 轮（用户要求）：记录基线来源，比较时据此拒绝非参照来源的基线。
+  // 只写模式还不够 —— 还得记下当时页面真正加载的主脚本，
+  // 才能证明这份基线是原版界面（index-BBp4hclA.js）而不是我们的产物。
+  const scripts = RECORDED_SCRIPTS.slice();
+  writeFileSync(
+    path.join(GOLDEN, "baseline-source.json"),
+    JSON.stringify(
+      {
+        mode: testMode,
+        recordedAt: new Date().toISOString(),
+        referenceVersion: (() => {
+          try {
+            return readFileSync(path.join(repo, "out/reference-ui/.reference"), "utf8").trim();
+          } catch {
+            return null;
+          }
+        })(),
+        mainScript: scripts.find((s) => /assets\/index-[\w-]+\.js$/.test(s)) ?? null,
+        allScripts: scripts.slice(0, 12),
+      },
+      null,
+      2,
+    ),
+  );
   const errorsFile = path.join(GOLDEN, "errors.json");
   const errors = existsSync(errorsFile) ? JSON.parse(readFileSync(errorsFile, "utf8")) : {};
   for (const { id } of DISABLED_PAGES) {
@@ -1940,6 +1984,30 @@ if (RECORD) {
   writeGolden(await runMode(testMode));
   console.log(`已录 ${PAGES.length} 屏`);
   process.exit(0);
+}
+// 第 307 轮（用户要求）：基线来源不是「原版 4.0.0 界面」就拒绝比较。
+// 没有 baseline-source.json 的老基线只警告一次（历史基线），
+// 但显式标成 recovered 的一律拒绝 —— 那是自比。
+{
+  const srcFile = path.join(GOLDEN, "baseline-source.json");
+  let src = null;
+  try {
+    src = JSON.parse(readFileSync(srcFile, "utf8"));
+  } catch { /* 老基线没有 */ }
+  if (src) {
+    const ok =
+      src.mode === "reference" &&
+      (src.mainScript === null || /assets\/index-[\w-]+\.js$/.test(src.mainScript));
+    if (!ok) {
+      console.error(`✗ 基线来源不是原版界面：mode=${src.mode} mainScript=${src.mainScript}`);
+      console.error(`  文件：${path.relative(repo, srcFile)}`);
+      console.error("  用 --record reference 重新录制，或换一个 GOLDEN 目录。");
+      process.exit(3);
+    }
+    console.log(`基线来源：mode=${src.mode} reference=${src.referenceVersion} script=${path.basename(src.mainScript ?? "")}`);
+  } else {
+    console.log("⚠ 基线没有 baseline-source.json（历史基线），无法核验来源");
+  }
 }
 console.log(`对比 ${baseMode} ↔ ${testMode}，结果在 ${path.relative(repo, outDir)}`);
 const base = baseMode === "golden" ? readGolden() : await runMode(baseMode);
