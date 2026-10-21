@@ -114,7 +114,32 @@ node scripts/gateway-compare/compare.mjs
 |---|---|---|
 | M6 | v3 工具清单 | **25/25** |
 | M7 | v3 agent 配置 | **20 个文件** |
-| M8 | 打包契约 | `node scripts/verify-desktop-package.mjs` → **✓ 产物布局符合契约** |
+| M8 | 打包契约 | `node scripts/verify-desktop-package.mjs` → **✓ 产物布局符合契约**（用 HEAD 重新打包后验证，见下） |
+
+### M8 的重新打包验证（第 330 轮）
+
+验收指出两处问题：产物里**没有 `out/renderer/v3`**、**把 `out/reference-ui` 打进去了**。
+已修 `electron-builder.yml` 与 `build` 脚本，并用 HEAD 真实打包复验：
+
+```
+node scripts/stage-desktop-resources.mjs      # 装配运行时（503 MB）
+npx electron-builder@26 --mac --arm64 --dir  # 打未签名 .app（退出码 0）
+node scripts/verify-desktop-package.mjs
+```
+
+结果：
+
+```
+✅ asar:out/renderer/v3/bundle-manifest.json   （打包态 v3 运行时，v3/host.ts:55 要读）
+✅ asar:out/renderer/v3/index.html
+✅ asar:out/recovered-ui/index.html            （主界面，protocol.ts rendererRoot()）
+✅ asar:out/main/index.js
+✅ asar:out/reference-ui 已排除                 （原版 4.0.0 界面不再随包发出）
+✓ 产物布局符合契约
+```
+
+产物：`.app` 920 MB，其中 `app.asar` 120 MB。
+说明：这是 `--dir` 未签名产物，仅用于验证布局契约；正式分发仍需签名与公证。
 
 ---
 
