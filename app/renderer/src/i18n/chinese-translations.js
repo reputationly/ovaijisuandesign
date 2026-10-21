@@ -18,6 +18,10 @@ import {
   model_input_error_general,
 } from "../infra/error-safety-image-output-blocked.js";
 const zh = {
+  "workspace.newProject.version.selectTitle": "选择 Agent 版本",
+  "workspace.newProject.version.v3": "V3 新版",
+  "workspace.newProject.version.v2": "V2 经典版",
+  "workspace.newProject.version.useV3": "使用 Agent V3版本",
   // 第 279 轮：v3 原生工作台的状态文案（之前整组缺失，界面直接显示 key）
   "projectV3.accountPending": "正在确认账号…",
   "projectV3.canvas": "画布",

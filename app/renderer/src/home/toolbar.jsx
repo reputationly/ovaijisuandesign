@@ -9,6 +9,7 @@ import { TRACK_EVENTS } from "../infra/track-events.js";
 import { useAttachmentFaceNoticeGate } from "../chat/use-attachment-face-notice-gate.jsx";
 import "../media-editing/media-model-selection.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
+import { ChevronDown } from "lucide-react";
 import { MediaModelSelector } from "../generation/media-model-selector.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -42,6 +43,14 @@ export function HomeToolbar({
   const modelButtonRef = reactExports.useRef(null);
   const workspaceButtonRef = reactExports.useRef(null);
   const [modelPickerOpen, setModelPickerOpen] = reactExports.useState(false);
+  // 第 328 轮：新建创作走哪套 Agent 架构（参照 home-version-trigger）
+  const [versionMenuOpen, setVersionMenuOpen] = reactExports.useState(false);
+  const [projectArchitecture, setProjectArchitecture] = reactExports.useState(
+    () => (typeof localStorage !== "undefined" && localStorage.getItem("hilo:new-project-architecture")) || "resource_v3",
+  );
+  reactExports.useEffect(() => {
+    try { localStorage.setItem("hilo:new-project-architecture", projectArchitecture); } catch { /* 忽略 */ }
+  }, [projectArchitecture]);
   const handleFileChange = reactExports.useCallback(changeEvent => {
     const selected = changeEvent.target.files;
     if (selected && selected.length > 0) {
@@ -70,7 +79,34 @@ export function HomeToolbar({
     requestAttachmentPicker,
     attachmentFaceNoticeDialog
   } = useAttachmentFaceNoticeGate(handleOpenFilePicker);
-  return <div className="flex min-w-0 flex-1 items-center"><button type="button" data-action-ui-id="home-attachment-add" aria-label={t("chat.addFile")} title={t("chat.addFile")} disabled={uploading} onClick={requestAttachmentPicker} className="mr-1 flex size-[var(--btn-height-sm)] cursor-pointer items-center justify-center rounded-full bg-[var(--message-input-attachment-bg)] text-foreground/70 transition-colors duration-75 hover:bg-[var(--message-input-attachment-bg-hover)] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"><Plus size={16} strokeWidth={1.5} /></button><input ref={fileInputRef} type="file" multiple={true} className="hidden" onChange={handleFileChange} data-action-ui-id="home-attachment-local" />{attachmentFaceNoticeDialog}<MediaModelSelector open={modelPickerOpen} placement="below" anchorRef={modelButtonRef} currentModelId={selectedModelId} current={selectedMediaModels} onCommit={onModelSelectionChange} onClose={handleModelClose} /><ToolbarDivider /><button type="button" ref={modelButtonRef} data-action-ui-id="home-model-btn" aria-label={t("chat.mediaModels.label")} title={t("chat.mediaModels.label")} aria-expanded={modelPickerOpen} onClick={handleModelToggle} className="inline-flex h-7 shrink-0 items-center rounded-full px-[var(--space-2)] text-sm text-muted-foreground hover:bg-accent hover:text-foreground">{t("chat.mediaModels.label")}</button><button type="button" ref={skillTriggerRef} data-action-ui-id="home-skill-btn" onClick={handleSkillsPopover} className="flex items-center gap-[var(--home-input-control-content-gap)] px-[var(--home-input-toolbar-padding-x)] h-[var(--btn-height-sm)] rounded-full text-[length:var(--home-input-toolbar-font-size)] font-normal leading-5 tracking-[var(--home-input-toolbar-letter-spacing)] text-foreground/70 hover:text-foreground hover:bg-[var(--message-input-control-hover)] transition-colors duration-75 cursor-pointer"><SkillIcon size={16} strokeWidth={1.5} />{t("skills.popover.buttonLabel")}</button>{null}{activeSceneLabel && <button type="button" data-action-ui-id="home-active-scene-tag" aria-label={t("home.scene.clearActive", {
+  return <div className="flex min-w-0 flex-1 items-center"><button type="button" data-action-ui-id="home-attachment-add" aria-label={t("chat.addFile")} title={t("chat.addFile")} disabled={uploading} onClick={requestAttachmentPicker} className="mr-1 flex size-[var(--btn-height-sm)] cursor-pointer items-center justify-center rounded-full bg-[var(--message-input-attachment-bg)] text-foreground/70 transition-colors duration-75 hover:bg-[var(--message-input-attachment-bg-hover)] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"><Plus size={16} strokeWidth={1.5} /></button><input ref={fileInputRef} type="file" multiple={true} className="hidden" onChange={handleFileChange} data-action-ui-id="home-attachment-local" />{attachmentFaceNoticeDialog}<MediaModelSelector open={modelPickerOpen} placement="below" anchorRef={modelButtonRef} currentModelId={selectedModelId} current={selectedMediaModels} onCommit={onModelSelectionChange} onClose={handleModelClose} /><ToolbarDivider /><button type="button" ref={modelButtonRef} data-action-ui-id="home-model-btn" aria-label={t("chat.mediaModels.label")} title={t("chat.mediaModels.label")} aria-expanded={modelPickerOpen} onClick={handleModelToggle} className="inline-flex h-7 shrink-0 items-center rounded-full px-[var(--space-2)] text-sm text-muted-foreground hover:bg-accent hover:text-foreground">{t("chat.mediaModels.label")}</button><button type="button" ref={skillTriggerRef} data-action-ui-id="home-skill-btn" onClick={handleSkillsPopover} className="flex items-center gap-[var(--home-input-control-content-gap)] px-[var(--home-input-toolbar-padding-x)] h-[var(--btn-height-sm)] rounded-full text-[length:var(--home-input-toolbar-font-size)] font-normal leading-5 tracking-[var(--home-input-toolbar-letter-spacing)] text-foreground/70 hover:text-foreground hover:bg-[var(--message-input-control-hover)] transition-colors duration-75 cursor-pointer"><SkillIcon size={16} strokeWidth={1.5} />{t("skills.popover.buttonLabel")}</button>{null}{/* 第 328 轮（验收）：4.0.0 首页输入框有「V3 新版」菜单（home-version-trigger），
+    用来选新建创作用哪套 Agent 架构（workspace.newProject.version.* 三键来自参照 i18n）。
+    参照 DOM：button[aria-expanded][aria-haspopup=menu][data-action-ui-id=home-version-trigger]，文本「V3 新版」。 */}
+<button type="button" aria-expanded={versionMenuOpen} aria-haspopup="menu"
+  data-action-ui-id="home-version-trigger"
+  onClick={() => setVersionMenuOpen((v) => !v)}
+  className="inline-flex h-7 shrink-0 items-center gap-[var(--space-1)] rounded-full px-[var(--space-2)] text-sm text-muted-foreground hover:bg-accent hover:text-foreground">
+  {projectArchitecture === "resource_v3"
+    ? t("workspace.newProject.version.v3")
+    : t("workspace.newProject.version.v2")}
+  <Icon icon={ChevronDown} size="md" strokeWidth={1.5} />
+</button>
+{versionMenuOpen && (
+  <div role="menu" className="absolute bottom-full right-0 z-50 mb-1 w-56 rounded-lg border border-border bg-popover p-1.5 shadow-lg">
+    <div className="px-2.5 py-2 font-heading text-sm font-medium text-foreground">
+      {t("workspace.newProject.version.selectTitle")}
+    </div>
+    <div className="my-1 h-px bg-border" />
+    {[{ v: "resource_v3", k: "workspace.newProject.version.v3" }, { v: "classic", k: "workspace.newProject.version.v2" }].map((o) => (
+      <button key={o.v} type="button" role="menuitemradio" aria-checked={projectArchitecture === o.v}
+        onClick={() => { setProjectArchitecture(o.v); setVersionMenuOpen(false); }}
+        className="flex w-full items-center rounded-sm px-2.5 py-1.5 text-left text-sm hover:bg-accent">
+        {t(o.k)}
+      </button>
+    ))}
+  </div>
+)}
+{activeSceneLabel && <button type="button" data-action-ui-id="home-active-scene-tag" aria-label={t("home.scene.clearActive", {
       defaultValue: "清除场景 {{scene}}",
       scene: activeSceneLabel
     })} onClick={onClearActiveScene} className="home-active-scene-tag ml-2 inline-flex h-7 max-w-36 shrink-0 cursor-pointer items-center gap-1 rounded-full px-[var(--home-input-toolbar-padding-x)] text-xs font-normal transition-colors focus-visible:outline-none focus-visible:ring-[0.5px] focus-visible:ring-ring"><span className="truncate">{activeSceneLabel}</span><X size={14} strokeWidth={1.5} className="shrink-0" /></button>}{showResetInput ? <div className="ml-auto mr-2 flex shrink-0 items-center gap-0.5"><button type="button" data-action-ui-id="home-reset-btn" aria-label={t("home.input.reset", "重置输入")} title={t("home.input.reset", "重置输入")} onClick={onResetInput} className="flex size-[var(--btn-height-sm)] cursor-pointer items-center justify-center rounded-full text-foreground/50 transition-colors duration-75 hover:bg-[var(--message-input-control-hover)] hover:text-foreground"><Icon icon={RotateCcw} size="md" strokeWidth={1.5} /></button></div> : null}<HomeInputCoachMarks modelButtonRef={modelButtonRef} skillButtonRef={skillTriggerRef} workspaceButtonRef={workspaceButtonRef} /></div>;

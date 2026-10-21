@@ -14,6 +14,10 @@ import {
   model_input_error_general as model_input_error_general$1,
 } from "./canvas-node-tools.jsx";
 export const en = {
+  "workspace.newProject.version.selectTitle": "Choose Agent version",
+  "workspace.newProject.version.v3": "V3 (new)",
+  "workspace.newProject.version.v2": "V2 (classic)",
+  "workspace.newProject.version.useV3": "Use Agent V3",
   // 第 279 轮：v3 原生工作台的状态文案（之前整组缺失，界面直接显示 key）
   "projectV3.accountPending": "Confirming your account…",
   "projectV3.canvas": "Canvas",
