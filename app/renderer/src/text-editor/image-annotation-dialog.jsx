@@ -44,6 +44,29 @@ import {
 import { useEditorState } from "../media-editing/use-editor-state.js";
 import { ImageEditor } from "../media-editing/image-editor.jsx";
 import { DEFAULT_STYLE } from "../media-editing/history-manager.js";
+/**
+ * 标注工具表（第 306 轮修复）。
+ *
+ * 这里原先用的是本文件第 47 行的 `TOOLS` —— 那是一个**对象**（聊天面板的工具标签表，
+ * 对应参照 bundle 第 479612 行的 `TOOLS`）。而这个对话框需要的是参照第 439813 行的
+ * `TOOLS$1`：一个**数组**。还原时把 `$1` 后缀去掉，两个不同实体撞成了同一个名字，
+ * 于是 `TOOLS.map(...)` 抛 `TOOLS.map is not a function` ——
+ * 用户在聊天里点「标注图片」就会崩。
+ *
+ * 改名 ANNOTATION_TOOLS 避免再与那个对象撞名。
+ */
+const ANNOTATION_TOOLS = [
+  { tool: "select", icon: MousePointer2, labelKey: "imageEdit.toolSelect" },
+  { tool: "rectangle", icon: Square, labelKey: "imageEdit.toolRectangle" },
+  { tool: "ellipse", icon: Circle, labelKey: "imageEdit.toolEllipse" },
+  { tool: "arrow", icon: ArrowUpRight, labelKey: "imageEdit.toolArrow" },
+  { tool: "line", icon: Minus, labelKey: "imageEdit.toolLine" },
+  { tool: "brush", icon: Brush, labelKey: "imageEdit.toolBrush" },
+  { tool: "text", icon: Type, labelKey: "imageEdit.toolText" },
+  { tool: "tag", icon: Tag, labelKey: "imageEdit.toolTag" },
+  { tool: "mosaic", icon: Grid3X3, labelKey: "imageEdit.toolMosaic" },
+];
+
 const TOOLS = {
   design_document_write: {
     visibility: "persistent",
@@ -639,7 +662,7 @@ export function ImageAnnotationDialog({
             inert={Boolean(working) || !editorReady}
             className="flex min-h-10 flex-wrap items-center gap-1 border-y border-border px-3 py-2"
           >
-            {TOOLS.map((option) => (
+            {ANNOTATION_TOOLS.map((option) => (
               <Button
                 key={option.tool}
                 type="button"

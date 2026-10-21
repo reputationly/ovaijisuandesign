@@ -1,0 +1,11 @@
+{
+  "note": "check-undef 的例外登记（第 306 轮）。进 L0 阻断：命中必须为 0 或在此白名单里，且每条都要写理由。",
+  "entries": [
+    {
+      "file": "app/renderer/src/vendor.js",
+      "kind": "missing prototype mutation",
+      "count": 14,
+      "reason": "three.js r1xx 的 GLTF/extras 模块在运行时往内建原型上挂属性（Info.prototype.spaceSeparated 等）。这是上游库的写法，不是我们的缺陷；静态检查看不到运行时挂载。逐个列举见 check-undef 输出。"
+    }
+  ]
+}
