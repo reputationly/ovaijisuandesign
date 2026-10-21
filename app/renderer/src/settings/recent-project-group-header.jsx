@@ -63,7 +63,9 @@ function UngroupedSortMenu({
                 ref={triggerRef}
                 type="button"
                 aria-label={moreLabel}
-                data-action-ui-id="home-sidebar.recent-group-ungrouped-sort-trigger"
+                // 第 331 轮（验收）：参照里这个排序触发器叫 home-sidebar.recent-sort-trigger（扁平），
+                // 我们多带了 -group-ungrouped- 前缀，于是 DOM 对比里被当成「我方多出来的元素」。
+                data-action-ui-id="home-sidebar.recent-sort-trigger"
                 onClick={(event) => event.stopPropagation()}
                 className="pointer-events-none relative z-10 flex size-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground opacity-0 transition-opacity duration-150 hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:outline-none group-hover:pointer-events-auto group-hover:opacity-100 group-has-[:focus-visible]:pointer-events-auto group-has-[:focus-visible]:opacity-100 data-[popup-open]:pointer-events-auto data-[popup-open]:bg-[var(--home-sidebar-nav-active)] data-[popup-open]:text-foreground data-[popup-open]:opacity-100"
               >
