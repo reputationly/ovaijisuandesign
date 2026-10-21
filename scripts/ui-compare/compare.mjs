@@ -1602,6 +1602,11 @@ async function runMode(mode) {
   ], { env, stdio: "ignore", detached: true });
   const results = {};
   RECORDED_SCRIPTS.length = 0;
+  const pagesToRun = PAGES.filter((p) => {
+    if (mode !== "reference" || !REFERENCE_EXCLUDED.has(p.id)) return true;
+    console.log(`  （跳过 ${p.id}：${REFERENCE_EXCLUDED.get(p.id)}）`);
+    return false;
+  });
   try {
     const c = await cdp(PORT);
     await sleep(15000); // 工作区 gateway / opencode 起来、首启示例项目导入
@@ -1617,7 +1622,7 @@ async function runMode(mode) {
       await c.send("Runtime.evaluate", { expression: DISMISS_STARTUP });
       await sleep(800);
     }
-    for (const p of PAGES) {
+    for (const p of pagesToRun) {
       console.log(`  ${mode} ${p.id}`);
       c.clearErrors();
       let randomTraceScriptIdentifier;
@@ -1934,6 +1939,21 @@ function readGolden() {
     state: JSON.parse(readFileSync(path.join(GOLDEN, `${p.id}.state.json`), "utf8")),
   }]));
 }
+/**
+ * 只存在于本项目、参照界面里没有对应物的屏（第 308 轮）。
+ *
+ * 录 `reference` 基线时必须跳过，否则会因「找不到界面元素」直接中断录制。
+ * 每一条都要写明理由 —— 这是「有意差异登记表」的一部分。
+ */
+const REFERENCE_EXCLUDED = new Map([
+  [
+    "settings-platform",
+    "「平台接入」是本项目新增（i18n 键 ov.platform.title / ov.settings.platform，前缀 ov. 为本项目命名空间）；" +
+      "参照的设置页全是 settings.account.*（账号体系），没有自托管地址/令牌这一区。" +
+      "参照 bundle 里「平台接入」出现 0 次。",
+  ],
+]);
+
 const RECORDED_SCRIPTS = [];
 
 function writeGolden(results) {

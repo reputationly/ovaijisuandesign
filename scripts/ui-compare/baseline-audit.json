@@ -1,0 +1,37 @@
+{
+ "round": 308,
+ "question": "现有 40 屏基线是不是用原版界面录的？",
+ "answer": "不是。它们是拿我们用 recovered 模式录的，属于自比。",
+ "evidence": [
+  "1. --record 不带模式时默认 recovered（旧代码），录出的 png 与产物 md5 相同。",
+  "2. 用 --record reference 重录到 /tmp/golden-verify，第一处就卡在 settings-platform：",
+  "   「平台接入」是本项目新增（i18n 键 ov.platform.title），参照 bundle 出现 0 次；",
+  "   而现有基线里 settings-platform.png **是存在的** —— 只可能是在 recovered 模式录的。",
+  "3. 把 settings-platform 加进 REFERENCE_EXCLUDED 后重录，下一处又卡在",
+  "   canvas.audio.toggle-play 超时（画布音频节点在 reference 模式下渲染不出来）。",
+  "   说明 reference 模式跑不完当前这 40 屏交互集。"
+ ],
+ "conclusion": [
+  "40 屏的像素数字（19 屏 0.000% / 最大 0.142% / 平均 0.0201%）**不能作为平价证据**。",
+  "它们证明的是「我们的界面在两次运行之间稳定」，不是「我们的界面与参照一致」。",
+  "能作为平价证据的只有：",
+  "  · 验收第 1 条（可达代码四项为 0）—— 静态指标，不依赖截图；",
+  "  · 验收第 2 条 HTTP/WS 路径与帧类型集合 —— 网络对比，不依赖截图；",
+  "  · 验收第 3 条 gateway 协议 —— 夹具重放，不依赖截图；",
+  "  · 验收第 4 条 M6-M8 —— 契约检查。",
+  "  · 以及 ws-a-v3-resource 的像素（那一屏 reference 与 recovered 明显不同，diff 有意义）。"
+ ],
+ "toolChanges": [
+  "--record 必须显式指定 reference 或 recovered，否则退出码 2",
+  "录制时写 GOLDEN/baseline-source.json（mode / referenceVersion / mainScript）",
+  "比较时校验来源，非 reference 一律拒绝（退出码 3）；老基线只警告",
+  "新增 REFERENCE_EXCLUDED：只存在于本项目的屏在 reference 录制时跳过并说明理由"
+ ],
+ "nextStep": [
+  "要让 40 屏成为有效的平价证据，需要：",
+  "  a) 让 reference 模式能跑完交互集（canvas.audio.toggle-play 等），",
+  "  b) 或者把像素对比从「平价证据」降级为「稳定性回归」，并在文档里明确这个定位。",
+  "建议采用 b + 保留网络/协议/静态三类作为平价证据 —— 因为 a 依赖参照界面在夹具下的完整可运行性，",
+  "而当前证据表明它跑不完。"
+ ]
+}
