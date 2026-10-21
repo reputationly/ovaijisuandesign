@@ -465,6 +465,10 @@ const MASK_TARGETS = [
   // 一.3 移除 ComfyUI：整行导航
   { selector: '[data-action-ui-id="home-sidebar-nav-workflows"]', why: "intentional-differences 一.3 移除 ComfyUI" },
   { selector: '[data-action-ui-id="home-sidebar.workflows-release-badge"]', why: "intentional-differences 一.3 移除 ComfyUI" },
+  // 六、范围排除：内置浏览器。参照有「画布 / 浏览器」切换（19 屏），我们不做浏览器，
+  // 这两个 id 只存在于参照侧 —— 遮罩取并集，所以能遮掉。
+  { selector: '[data-action-ui-id="workspace.switch-to-browser"]', why: "intentional-differences 六 内置浏览器（范围排除）" },
+  { selector: '[data-action-ui-id="workspace.switch-to-canvas"]', why: "intentional-differences 六 内置浏览器（范围排除）" },
   // 一.2 无账号体系：参照左下角是用户头像，我们用连接状态替代。
   // 只登记参照侧的 id —— 两边取并集，位置相同会把我们的 pill 一起盖掉。
   { selector: '[data-action-ui-id="sidebar.user-avatar"]', why: "intentional-differences 一.2 无账号体系" },
@@ -2086,11 +2090,15 @@ function readGolden() {
   // 说明这份基线是遮罩功能之前录的。此时「两边取并集」会退化成只用我方位置，
   // 而只存在于参照里的元素（ComfyUI 行、用户头像）永远遮不到。**直接报错，不静默当空数组。**
   if (MASK_TARGETS.length > 0) {
-    const anyMask = PAGES.some((p) => existsSync(path.join(GOLDEN, `${p.id}.mask.json`)));
-    if (!anyMask) {
+    // 逐屏检查，不是「至少有一个」：某屏缺 mask.json 就意味着那一屏的参照侧遮罩位置是空的，
+    // 「两边取并集」会退化成只用我方位置 —— 只在参照里有的元素（ComfyUI 行、浏览器切换）遮不到。
+    const noMask = PAGES.filter(
+      (p) => !REFERENCE_MISSING.has(p.id) && !existsSync(path.join(GOLDEN, `${p.id}.mask.json`)),
+    ).map((p) => p.id);
+    if (noMask.length) {
       throw new Error(
-        `基线目录没有任何 *.mask.json（${GOLDEN}）：这份基线是遮罩功能之前录的，` +
-          `参照侧遮罩位置缺失会让「两边取并集」失效。请先 --record reference 重录。`,
+        `这些屏的基线缺 *.mask.json：${noMask.join(", ")}（${GOLDEN}）。` +
+          `参照侧遮罩位置缺失会让「两边取并集」失效，请先 --record reference 重录。`,
       );
     }
   }
