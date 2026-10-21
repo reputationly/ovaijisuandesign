@@ -1957,8 +1957,14 @@ async function runMode(mode) {
                  // **必须乘 devicePixelRatio**：getBoundingClientRect 是 CSS 像素，
                  // 截图是物理像素（视口 1280x800 -> 图 2560x1600）。不乘的话遮罩会落在
                  // 左上角一半大小的区域里，看起来「遮了但差异没降」。
-                 ? { x: Math.round(r.x * dpr), y: Math.round(r.y * dpr),
-                     w: Math.round(r.width * dpr), h: Math.round(r.height * dpr) }
+                 // 左上向下取整、右下向上取整，避免边缘残留一圈抗锯齿像素
+                 ? (() => {
+                     const x0 = Math.floor(r.x * dpr);
+                     const y0 = Math.floor(r.y * dpr);
+                     const x1 = Math.ceil((r.x + r.width) * dpr);
+                     const y1 = Math.ceil((r.y + r.height) * dpr);
+                     return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+                   })()
                  : null;
              });
            }).filter(Boolean)); })()`,
@@ -2058,6 +2064,18 @@ function readGolden() {
   const errors = existsSync(errorsFile) ? JSON.parse(readFileSync(errorsFile, "utf8")) : {};
   const channels = ["net", "dom", "state"];
   // REFERENCE_MISSING 里的屏没有基线，不算「基线不全」（理由在表里）。
+  // 第 326 轮防护：遮罩清单非空，但基线目录里一个 mask.json 都没有 ——
+  // 说明这份基线是遮罩功能之前录的。此时「两边取并集」会退化成只用我方位置，
+  // 而只存在于参照里的元素（ComfyUI 行、用户头像）永远遮不到。**直接报错，不静默当空数组。**
+  if (MASK_TARGETS.length > 0) {
+    const anyMask = PAGES.some((p) => existsSync(path.join(GOLDEN, `${p.id}.mask.json`)));
+    if (!anyMask) {
+      throw new Error(
+        `基线目录没有任何 *.mask.json（${GOLDEN}）：这份基线是遮罩功能之前录的，` +
+          `参照侧遮罩位置缺失会让「两边取并集」失效。请先 --record reference 重录。`,
+      );
+    }
+  }
   const missing = PAGES.filter(
     (p) =>
       !REFERENCE_MISSING.has(p.id) &&
@@ -2153,6 +2171,9 @@ function writeGolden(results) {
   }
   for (const [id, r] of Object.entries(results)) {
     copyFileSync(r.file, path.join(GOLDEN, `${id}.png`));
+    // 第 326 轮（验收发现）：**这里之前没写 mask.json**，于是比较时参照侧的遮罩位置永远是空的，
+    // 「两边取并集」实际只用了我方一侧 —— 只在参照里有的元素（ComfyUI 行、用户头像）一直没被遮住。
+    writeFileSync(path.join(GOLDEN, `${id}.mask.json`), JSON.stringify(r.masks ?? [], null, 1));
     errors[id] = r.errors;
     for (const channel of ["net", "dom", "state"]) {
       writeFileSync(path.join(GOLDEN, `${id}.${channel}.json`), JSON.stringify(r[channel], null, 2));
@@ -2238,7 +2259,7 @@ for (const p of PAGES) {
   for (const channel of ["net", "dom", "state"]) {
     writeFileSync(path.join(outDir, `${p.id}.${testMode}.${channel}.json`), JSON.stringify(test[p.id][channel], null, 2));
   }
-  console.log(`${p.id.padEnd(18)} 像素原始/非AA ${(d.ratio * 100).toFixed(3).padStart(7)}%/${(d.nonAARatio * 100).toFixed(6)}% (${d.changed ?? "?"}/${d.nonAAChanged ?? "?"})  遮罩 ${((d.maskedRatio ?? 0) * 100).toFixed(2)}%  新增报错 ${newErrors.length}  网络/DOM/状态 ${channelDiffs.netDiff.length}/${channelDiffs.domDiff.length}/${channelDiffs.stateDiff.length}${d.note ? "  " + d.note : ""}`);
+  console.log(`${p.id.padEnd(18)} 像素原始/非AA ${(d.ratio * 100).toFixed(3).padStart(7)}%/${(d.nonAARatio * 100).toFixed(6)}% (${d.changed ?? "?"}/${d.nonAAChanged ?? "?"})  遮罩 ${((d.maskedRatio ?? 0) * 100).toFixed(2)}%(参照${(base[p.id].masks ?? []).length}/我方${(test[p.id].masks ?? []).length}块)  新增报错 ${newErrors.length}  网络/DOM/状态 ${channelDiffs.netDiff.length}/${channelDiffs.domDiff.length}/${channelDiffs.stateDiff.length}${d.note ? "  " + d.note : ""}`);
   for (const e of newErrors.slice(0, 3)) console.log("    " + e);
 }
 const report = { netVolatile: NET_VOLATILE, pages };
