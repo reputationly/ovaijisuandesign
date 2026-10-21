@@ -2264,7 +2264,13 @@ for (const p of PAGES) {
   };
   const pixelDiff = d.ratio !== 0;
   // 预算判定：像素差异率（非 AA）用预算而不是「是否为 0」来判。
-  const budgeted = RESIDUAL_BUDGET.screens?.[p.id]?.budget;
+  // 第 341 轮（验收）：三种状态分开处理
+  //   ok      -> budget 是预算，超了就算失败
+  //   pending -> guard 只是回归护栏（不许再涨），未解释的差距不算「通过」
+  //   invalid -> 该屏标准对照无效，不判通过/失败
+  const budgetEntry = RESIDUAL_BUDGET.screens?.[p.id];
+  const budgetStatus = budgetEntry?.status ?? (typeof budgetEntry?.budget === "number" ? "ok" : null);
+  const budgeted = budgetStatus === "ok" ? budgetEntry.budget : budgetStatus === "pending" ? budgetEntry.guard : null;
   const nonAAPct = d.nonAARatio * 100;
   let budgetVerdict = null;
   if (typeof budgeted === "number") {
@@ -2272,7 +2278,12 @@ for (const p of PAGES) {
     else if (nonAAPct < budgeted - BUDGET_TOLERANCE) budgetVerdict = "under";
     else budgetVerdict = "ok";
   }
-  const pixelDiffNonAA = typeof budgeted === "number" ? budgetVerdict === "over" : d.nonAARatio !== 0;
+  const pixelDiffNonAA =
+    budgetStatus === "invalid"
+      ? false // 标准对照无效的屏不参与判定
+      : typeof budgeted === "number"
+        ? budgetVerdict === "over"
+        : d.nonAARatio !== 0;
   const pageFailed = pixelDiffNonAA || newErrors.length > 0 || Object.values(channelDiffs).some((items) => items.length > 0);
   failed ||= pageFailed;
   pages.push({
@@ -2285,6 +2296,7 @@ for (const p of PAGES) {
     pixelDiff,
     pixelDiffNonAA,
     budget: budgeted ?? null,
+    budgetStatus: budgetStatus ?? null,
     budgetVerdict,
     note: d.note,
     newErrors,
@@ -2295,7 +2307,9 @@ for (const p of PAGES) {
     writeFileSync(path.join(outDir, `${p.id}.${testMode}.${channel}.json`), JSON.stringify(test[p.id][channel], null, 2));
   }
   console.log(`${p.id.padEnd(18)} 像素原始/非AA ${(d.ratio * 100).toFixed(3).padStart(7)}%/${(d.nonAARatio * 100).toFixed(6)}% (${d.changed ?? "?"}/${d.nonAAChanged ?? "?"})  遮罩 ${((d.maskedRatio ?? 0) * 100).toFixed(2)}%(参照${(base[p.id].masks ?? []).length}/我方${(test[p.id].masks ?? []).length}块)  新增报错 ${newErrors.length}  网络/DOM/状态 ${channelDiffs.netDiff.length}/${channelDiffs.domDiff.length}/${channelDiffs.stateDiff.length}${d.note ? "  " + d.note : ""}`);
-  if (budgetVerdict === "under") {
+  if (budgetStatus === "invalid") console.log("    · 标准对照无效，不判通过/失败（见 residual-budget.json）");
+  else if (budgetStatus === "pending") console.log(`    · 回归护栏 ${budgeted}%（**不是预算**：差异组成尚未逐项解释）`);
+  if (budgetVerdict === "under" && budgetStatus === "ok") {
     console.log(`    ↓ 低于预算 ${budgeted}%，可以把 residual-budget.json 里这一屏调到 ${nonAAPct.toFixed(4)}（只降不升）`);
   }
   if (budgetVerdict === "over") {
