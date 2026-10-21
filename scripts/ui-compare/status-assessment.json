@@ -394,6 +394,30 @@
     "注意：第 294 轮曾尝试直接接 Provider，报 TaskResultNavigationError: stale ——",
     "那是因为当时缺它依赖的服务；现在 persistence / nativeWorkbench 都通了，可以重试。"
    ]
+  },
+  "round315": {
+   "wall": "Task result navigation: stale",
+   "exactThrowSite": "canvas-v3/ui-components.js:13232（run2 的第一行）",
+   "condition": "disposed || target.scopeKey !== workbench.scopeKey || !target.resourceId.trim() || !target.versionId.trim()",
+   "whereItIsTriggeredFrom": [
+    "WorkspaceResultNavigationProvider 的 useLayoutEffect：",
+    "  const agent2 = createDirectorAgent(transport, reveal, editorEvents);",
+    "  agent2.start();   // → dispatcher.start() → 队列里若有命令，会带着空 target 进 run2",
+    "  clip2.start();"
+   ],
+   "importantObservation": [
+    "**editor_subscribe 并不依赖这条链路**。",
+    "Provider 顶部第一行就是 useWorkbenchEditorEvents(workbench?.host.scopeKey)，",
+    "它在 render 阶段就订阅了，早于 useLayoutEffect 里的 agent.start()。",
+    "所以「订阅能发出去」和「agent 不崩」是两件事。"
+   ],
+   "options": [
+    "A. 补任务结果导航链路（资源 + 版本 id 的真实数据源）—— 正解，但工作量大于这 2 帧的价值。",
+    "B. 只接 useWorkbenchEditorEvents（用一个最小 Provider 渲染它），不启动那两个 agent ——",
+    "   能拿到 2 帧，但等于绕开了参照里真实存在的行为，属于**行为差异**，必须登记。",
+    "C. 给 agent.start() 加 try/catch —— 掩盖失败，不符合本项目「不静默桩」的原则。"
+   ],
+   "recommendation": "倾向 A 或「登记为已知差距」。B 需要在有意差异表里明确写出来；C 不建议。"
   }
  }
 }
