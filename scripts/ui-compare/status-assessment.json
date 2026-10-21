@@ -355,6 +355,23 @@
     "ws-a-v3 若要作为验收证据，必须先按当前 CDN 屏蔽策略重新录一份金标（含 png + state）。",
     "在那之前，只有 ws-a-v3-resource 的像素数字是有效的。"
    ]
+  },
+  "round303": {
+   "attempt": "用 `--record golden` 给 ws-a-v3 录金标",
+   "result": "录出来的 PNG 与我们 recovered 的 PNG **字节完全相同**（md5 96fa1dc9…），对比得 0.000%",
+   "why": [
+    "门禁的「golden」并不是跑真正的 MiniMax Design.app，而是跑**我们自己的构建**，",
+    "只是把 OV_UI 设成 reference（走还原出来的参照界面分支）。",
+    "而 ws-a-v3 这一屏在 reference 与 recovered 两条分支下渲染完全一致 ——",
+    "所以这个「金标」是自比，0.000% 不构成任何平价证据。"
+   ],
+   "action": "已删除刚录的 ws-a-v3.png / ws-a-v3.state.json，恢复「无基线」的诚实状态",
+   "conclusion": [
+    "ws-a-v3 无法用现有门禁做像素平价验证；",
+    "能作为证据的是 ws-a-v3-resource（金标来自同一机制，但那一屏 reference 与 recovered 明显不同 ——",
+    "参照走 loadFailed、我们渲染真实视图 —— 所以它的 diff 是有意义的）。"
+   ],
+   "40screen": "19 屏 0.000% / 最大 0.142% / 平均 0.0201% / 0 新增报错（删除基线后无回归）"
   }
  }
 }
