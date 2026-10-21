@@ -174,33 +174,30 @@ export function SkillFilterBar({
                   )
                 }
               />
-              <SkillFilterDropdown
-                value={mineSourceFilter}
-                label={translate("skills.mine.filterSourceLabel", "来源")}
-                valueLabel={
-                  mineSourceFilter === "community"
-                    ? translate("skills.mine.filterSourceCommunity", "来自社区")
-                    : mineSourceFilter === "local"
-                      ? translate("skills.mine.filterSourceLocal", "本地创建")
-                      : translate("skills.mine.filterSourceAll", "全部")
-                }
-                options={[
-                  {
-                    value: "all",
-                    label: translate("skills.mine.filterSourceAll", "全部"),
-                  },
-                  {
-                    value: "community",
-                    label: translate("skills.mine.filterSourceCommunity", "来自社区"),
-                  },
-                  {
-                    value: "local",
-                    label: translate("skills.mine.filterSourceLocal", "本地创建"),
-                  },
-                ]}
-                actionId="skills-mine-source-dropdown"
-                onValueChange={(value) => onMineSourceFilterChange?.(value)}
-              />
+              {/* 第 336 轮（验收）：参照把「来源」做成 chip（skills-mine-source-community / -local），
+                我们原来是一个下拉（skills-mine-source-dropdown）。按 connectors 那边的写法改成 chip。 */}
+              <div className="scrollbar-none flex min-w-0 items-center gap-1 overflow-x-auto">
+                {[
+                  { value: "all", key: "skills.mine.filterSourceAll", def: "全部" },
+                  { value: "community", key: "skills.mine.filterSourceCommunity", def: "来自社区" },
+                  { value: "local", key: "skills.mine.filterSourceLocal", def: "本地创建" },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => onMineSourceFilterChange?.(opt.value)}
+                    data-action-ui-id={`skills-mine-source-${opt.value}`}
+                    className={
+                      (mineSourceFilter === opt.value
+                        ? "bg-secondary font-medium text-foreground"
+                        : "bg-transparent text-foreground/50 hover:text-foreground") +
+                      " inline-flex h-8 shrink-0 cursor-pointer items-center whitespace-nowrap rounded-md border border-transparent px-2.5 text-xs"
+                    }
+                  >
+                    {translate(opt.key, opt.def)}
+                  </button>
+                ))}
+              </div>
             </div>
             {onAutoUpdateChange && (
               <label
