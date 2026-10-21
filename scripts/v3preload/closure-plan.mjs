@@ -126,7 +126,9 @@ const walk = (d) =>
 // 第 266 轮：`unavailable-workbench.js` 里导出的是**显式不可用**的实现
 // （抛错/渲染提示），不是真还原。量闭包时要把它排除，否则种子一被判成
 // restored，闭包立刻停在 2 个声明，测不出真实规模。
-const IGNORE_FOR_STATUS = /unavailable-workbench\.js$/;
+// 第 310 轮：unavailable-workbench.js 已整个删除（4 个占位全部被真实实现取代），
+// 这条豁免不再需要，保留常量以免其它引用点报未定义。
+const IGNORE_FOR_STATUS = /__never_matches__$/;
 
 const tree = new Set();
 const treeLoose = new Set();
