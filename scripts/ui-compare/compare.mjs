@@ -330,7 +330,7 @@ const ALL_PAGES = [
   // 第 337 轮：参照 4.0.0 的这个菜单里**没有 workspace.view-mode.chat-only**
     // （该 id 在 bundle 里存在，但菜单里点不到；延长等待、换点击方式都试过）。
     // 所以这一屏改成「打开菜单就截图」—— 直接对比菜单内容，正是「布局菜单变了」要查的东西。
-  { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 1400 }] },
+  { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.view-mode-menu.stage", press: "Enter" }, { wait: 1400 }] },
   // 会真的创建一个项目（数据目录每种模式都会重建），所以放最后，免得影响别的屏
   { id: "project-created", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用项目" }, "创建项目", { wait: 4000 }] },
   { id: "project-assets", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用资产项目" }, "创建项目", { wait: 4000 }, "项目资产", { untilSelector: '[data-action-ui-id="local-assets.panel"]' }, { wait: 2000 }], persistWaitMs: 3000 },
@@ -1805,6 +1805,29 @@ async function runMode(mode) {
           continue;
         }
         const labelName = typeof label !== "object" ? label : label.ui ?? label.event ?? label.type ?? "输入框";
+        // 第 342 轮（验收建议）：有些菜单在合成鼠标事件下打不开，改用「聚焦 + 键盘」。
+        if (typeof label === "object" && label.press && label.ui) {
+          const deadline = Date.now() + (label.timeout ?? 4000);
+          let ok = false;
+          while (Date.now() < deadline) {
+            ok = await evalValue(c, `(() => {
+              const el = document.querySelector('[data-action-ui-id="${label.ui}"]');
+              if (!el) return false;
+              el.focus();
+              return document.activeElement === el;
+            })()`) === true;
+            if (ok) break;
+            await sleep(250);
+          }
+          if (!ok) throw new Error(`${p.id}：找不到或聚焦不了「${labelName}」`);
+          for (const type of ["keyDown", "keyUp"]) {
+            await c.send("Input.dispatchKeyEvent", {
+              type, key: label.press, code: label.press, windowsVirtualKeyCode: label.press === "Enter" ? 13 : 40,
+            });
+          }
+          await sleep(1500);
+          continue;
+        }
         if (typeof label === "object" && label.mouse && label.ui) {
           const deadline = Date.now() + (label.timeout ?? 4000);
           let point = null;
