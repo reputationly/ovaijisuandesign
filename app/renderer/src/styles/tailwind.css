@@ -832,6 +832,9 @@ code.hljs {
   --project-assets-row-checkbox-bg: color-mix(in oklab, var(--background) 90%, transparent);
   --project-assets-row-checkbox-border: color-mix(in oklab, var(--foreground) 40%, transparent);
   --modal-mask-bg: #0000009e;
+  /* 参照 index-DPWLhoL9.css 实测值：默认 dim 模式、媒体用更深的 0.85 */
+  --modal-mask-dim-bg: rgba(0, 0, 0, 0.5);
+  --modal-mask-media-bg: rgba(0, 0, 0, 0.85);
   --modal-mask-blur: 16px;
   --modal-mask-foreground: #fff;
   --workspace-display-mode-mask-bg: #ffffffb8;
@@ -1518,10 +1521,35 @@ html[data-hilo-gpu="disabled"] .transparent-window-floating-sidebar {
   background: var(--window-shell-fallback-bg) !important;
 }
 
+/* 第 320 轮（验收发现）：遮罩有 **两种模式**，我们只实现了 immersive 那一种。
+ * 参照（index-DPWLhoL9.css / CanvasArea-CXL-eww_.css 里逐字可见）：
+ *   .modal-mask                        -> --modal-mask-dim-bg，**不模糊**
+ *   .modal-mask[data-mask=immersive]   -> --modal-mask-bg + blur(--modal-mask-blur)
+ *   .modal-mask.modal-mask-media       -> --modal-mask-media-bg
+ *   html[data-hilo-gpu=disabled] .modal-mask -> 不模糊
+ * 我们之前把「深色 + 16px 模糊」直接挂在 .modal-mask 上，于是所有默认弹窗
+ * （全局搜索、新建项目等）都比参照暗且糊：global-search 差 56.7%、新建项目差 83%。
+ * DialogOverlay 的 mask 默认值本来就是 "dim"，data-mask 属性一直都在，只是没被 CSS 用上。 */
 .modal-mask {
+  background: var(--modal-mask-dim-bg);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.modal-mask[data-mask='immersive'] {
   background: var(--modal-mask-bg);
   -webkit-backdrop-filter: blur(var(--modal-mask-blur));
   backdrop-filter: blur(var(--modal-mask-blur));
+}
+
+/* 暗色媒体 chrome 在两种模式下都要保持同样的对比度 */
+.modal-mask.modal-mask-media {
+  background: var(--modal-mask-media-bg);
+}
+
+html[data-hilo-gpu='disabled'] .modal-mask {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .modal-mask.asset-picker-overlay {

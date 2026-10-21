@@ -1,10 +1,9 @@
-.creation-dialog-overlay {
-  /* Creation dialogs keep the underlying page visible with the same weak mask.
-   * Derive it from the shared token instead of introducing another raw color. */
-  background: color-mix(in srgb, var(--modal-mask-bg) 48%, transparent) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
+/* 第 320 轮（验收发现）：这里原本有一条 `.creation-dialog-overlay` 覆盖，
+ * 把遮罩调成 color-mix(--modal-mask-bg 48%) ≈ 18.6% 黑 —— 是我们自己加的。
+ * 参照的 CSS 里**只有** `.creation-dialog`，没有 `.creation-dialog-overlay`，
+ * 也就是说创建类弹窗走的是默认 `.modal-mask`（--modal-mask-dim-bg，50% 黑、不模糊）。
+ * 我们调浅之后，projects-new-local 整体比参照亮很多（均值 182.6 vs 141.1），逐像素差 83%。
+ * 删掉这条覆盖，让它回到共享的默认遮罩。 */
 
 .creation-dialog {
   border: var(--elevated-border-width) solid var(--elevated-border-color);
