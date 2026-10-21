@@ -327,7 +327,10 @@ const ALL_PAGES = [
   { id: "ws-table-edit", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "table-edit", persistWaitMs: 1200 },
   { id: "ws-canvas-ops", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "canvas-ops", persistWaitMs: 1200 },
   // 切到仅对话会记在工作区里，后面的画布屏就找不到节点。所以放在最后。
-  { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 500 }, { ui: "workspace.view-mode.chat-only", mouse: true }, { wait: 1200 }] },
+  // 第 337 轮：参照 4.0.0 的这个菜单里**没有 workspace.view-mode.chat-only**
+    // （该 id 在 bundle 里存在，但菜单里点不到；延长等待、换点击方式都试过）。
+    // 所以这一屏改成「打开菜单就截图」—— 直接对比菜单内容，正是「布局菜单变了」要查的东西。
+  { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 1400 }] },
   // 会真的创建一个项目（数据目录每种模式都会重建），所以放最后，免得影响别的屏
   { id: "project-created", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用项目" }, "创建项目", { wait: 4000 }] },
   { id: "project-assets", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用资产项目" }, "创建项目", { wait: 4000 }, "项目资产", { untilSelector: '[data-action-ui-id="local-assets.panel"]' }, { wait: 2000 }], persistWaitMs: 3000 },
@@ -2140,7 +2143,6 @@ const REFERENCE_MISSING = new Map([
   ["ws-a-v3", "v3 屏：基线在 ~/ov-golden-v3，用 --record reference 单独录"],
   ["ws-b-v3", "同上"],
   ["ws-a-v3-resource", "同上"],
-  ["ws-layout", "录制仍失败：点开 workspace.view-mode-menu.stage 之后菜单里没有 workspace.view-mode.chat-only（该 id 在参照 bundle 里存在，但不在这个菜单里）。属 4.0.0 的菜单结构变化，需要先查清新位置"],
   ["project-created", "录制失败：步骤依赖前一屏留下的会话焦点状态，逐屏单独录时等不到，属测试工具限制"],
   ["project-assets", "同上"],
 ]);
