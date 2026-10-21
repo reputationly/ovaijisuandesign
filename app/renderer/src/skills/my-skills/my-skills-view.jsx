@@ -164,7 +164,8 @@ function MySkillItem({
                 variant="outline"
                 size="sm"
                 onClick={() => onTryItOut(skill)}
-                data-action-ui-id={`skills-mine-use-${skill.name}`}
+                // 第 335 轮（验收）：参照这个按钮的 id 是 skills-mine-compact-try-<名字>
+                data-action-ui-id={`skills-mine-compact-try-${skill.name}`}
               >
                 {t("skills.mine.use", "Use")}
               </Button>
