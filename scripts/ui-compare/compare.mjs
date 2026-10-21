@@ -413,6 +413,16 @@ const DISMISS_STARTUP = `(()=>{
 // 卡片带（实测同模式两次差 7.3%，比两种构建之间的差还大）。这些封面不属于本仓库的代码，把 CDN 挡掉
 // 让两边都渲染成空白，剩下的差异才反映我们自己的改动。本地图片不受影响（走 127.0.0.1 的 local-file）。
 // 打光预设缩略图来自远端展示 CDN、并非本地逻辑；屏蔽后两构建都会渲染相同回退。
+// 第 323 轮（验收区域拆分）：首页卡片的封面两边条件不对等 ——
+// 参照从 CDN 取（被上面两条挡掉，四张卡片都显示占位图，实测 0 次请求），
+// 我们自带走本地演示封面（实测 18 次 /api/v1/home/showcase-assets/*）。
+// 这一项已登记为有意差异，但它在 home 屏占了 8.39 个百分点、约该屏全部差异的 90%。
+//
+// **试过用 Network.setBlockedURLs 挡掉，不生效**：三种模式都试了
+//   "*/api/v1/home/showcase-assets/*" / "*showcase-assets*" / "*127.0.0.1*/api/v1/home/showcase-assets/*"
+// 请求数和像素都没变。CDN 那两条能挡住是因为跨源 https；同源（127.0.0.1）请求不受这个机制影响。
+// 要对齐只能从「让两边都取不到封面」入手（例如不给门禁夹具提供这些资源），
+// 或者接受这个差异并登记。当前保持原状，不做无效改动。
 const BLOCKED_URLS = ["*cdn.hailuoai.com*", "*cdn.hailuoai.video*"];
 const SEEDED_DATE = `(() => {
   const NativeDate = Date;
