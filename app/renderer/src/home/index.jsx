@@ -539,12 +539,23 @@ function HomeContent() {
         resultKind = retryHandoff.resultKind;
       } else {
         let createError;
+        // 第 338 轮：把「V3 新版 / V2 经典版」的选择接到实际创建上。
+        // 选择存在 localStorage（home/toolbar.jsx 写入），这里读出来传给主进程；
+        // 没选过就不传，让主进程用默认值。
+        const chosenArchitecture = (() => {
+          try {
+            return localStorage.getItem("hilo:new-project-architecture") || void 0;
+          } catch {
+            return void 0;
+          }
+        })();
         const result = await homeService.hiloApp.createWorkspaceWithResult({
           name: homeSceneDisplayText(text),
           projectId: submissionProjectId,
           parentFolderPath: submissionProjectId ? void 0 : submissionWorkspaceFolder,
           loadUserMemory: rememberedMemory,
-          allowDataDirectoryFallback
+          allowDataDirectoryFallback,
+          ...(chosenArchitecture ? { projectArchitecture: chosenArchitecture } : {})
         }).catch(err => {
           createError = err;
           workspaceLog.error("home: create-workspace-error", {
