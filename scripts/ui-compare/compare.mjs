@@ -446,6 +446,18 @@ const MASK_TARGETS = [
 // 说明：品牌 logo／标题在参照 DOM 里**没有稳定的 data-action-ui-id**（只有内联文本），
 // 按验收约束「不许手写坐标」，这里不遮，作为已登记残差在 docs 里说明。
 
+/**
+ * Fetch 域拦截的路径（第 325 轮）。
+ *
+ * 为什么不用 Network.setBlockedURLs：实测三种模式都拦不住首页封面
+ * （路径模式试过 3 种：带 /api/v1 前缀的、只含 showcase-assets 的、带 127.0.0.1 的），
+ * 请求数始终 18。原因未查明 —— 页面跑在 app:// 下，http://127.0.0.1 对它属于跨源，
+ * 但这不足以解释 setBlockedURLs 失效。先用 Fetch 域在请求阶段拦，它比 setBlockedURLs 更底层。
+ *
+ * 注意：注释里不要写带星号的 URL 模式，`*斜杠` 会提前闭合块注释（这个坑踩过一次）。
+ */
+const BLOCKED_URL_PATTERNS = [/\/api\/v1\/home\/showcase-assets\//];
+
 const BLOCKED_URLS = ["*cdn.hailuoai.com*", "*cdn.hailuoai.video*"];
 const SEEDED_DATE = `(() => {
   const NativeDate = Date;
@@ -712,6 +724,20 @@ async function cdp(port) {
         let captureDocumentURL = null;
         ws.onmessage = (ev) => {
           const m = JSON.parse(ev.data);
+          // 第 325 轮：用 Fetch 域在**请求发出阶段**拦掉首页封面。
+          // Network.setBlockedURLs 试了三种模式都拦不住（原因未查明），Fetch 更底层。
+          // 只在 recovered/ours 侧启用 —— 参照本来就不请求这个路径，两边条件因此对齐。
+          if (m.method === "Fetch.requestPaused") {
+            const u = m.params?.request?.url ?? "";
+            const hit = BLOCKED_URL_PATTERNS.some((re) => re.test(u));
+            void send(
+              hit ? "Fetch.failRequest" : "Fetch.continueRequest",
+              hit
+                ? { requestId: m.params.requestId, errorReason: "BlockedByClient" }
+                : { requestId: m.params.requestId },
+            ).catch(() => {});
+            return;
+          }
           if (m.id) pending.get(m.id)?.(m);
           else if (m.method === "Page.frameNavigated" && !m.params.frame.parentId) {
             mainFrameId = m.params.frame.id;
@@ -820,6 +846,15 @@ async function cdp(port) {
         // 挡掉封面 CDN 后会抛网络错误，这是预期内的，不算界面报错
         await send("Network.enable");
         await send("Network.setBlockedURLs", { urls: BLOCKED_URLS });
+        // 首页封面拦截（第 325 轮）：**实测两种机制都拦不住**，见 BLOCKED_URL_PATTERNS 注释。
+        // 代码保留但默认关闭，只有显式设 OV_BLOCK_SHOWCASE=1 才启用 —— 免得悄悄改变门禁行为。
+        // 下一步应按验收要求：列出所有调试目标，查清这 18 个请求到底从哪个目标发出。
+        if (process.env.OV_BLOCK_SHOWCASE === "1" && (process.env.OV_UI ?? "recovered") !== "reference") {
+          await send("Network.setCacheDisabled", { cacheDisabled: true });
+          await send("Fetch.enable", {
+            patterns: [{ urlPattern: "*", requestStage: "Request" }],
+          });
+        }
         await send("Page.addScriptToEvaluateOnNewDocument", { source: `${SEEDED_DATE}\n${SEEDED_RANDOM}` });
         // 日志里的随机 ID（UUID）和耗时每次不同，规整掉再比，否则同一条报错两边永远对不上
         const visible = () => errors.filter((e) => !/cdn\.hailuoai\.(?:com|video)/.test(e)).map((e) => e.replace(UUID_PATTERN, "<uuid>").replace(/durationMs=\d+/g, "durationMs=<n>"));
