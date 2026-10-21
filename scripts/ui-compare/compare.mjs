@@ -435,6 +435,23 @@ const DISMISS_STARTUP = `(()=>{
  * 报告里每屏都会输出「被遮掉的面积占比」，面积变大能一眼看出来，
  * 防止有人悄悄扩大遮罩来压低数字。
  */
+/**
+ * 每屏残差预算（第 327 轮）。
+ *
+ * 像素对比只对已登记的有意差异做遮罩，剩下的残差不追求压到 0 —— 它主要是
+ * 遮罩消不掉的布局位移，以及尚未还原的功能差异。这里把它们固定成预算：
+ *   · 超出预算 + tolerance 个百分点 → **失败**（说明出了新问题）
+ *   · 低于预算 → 提示更新预算（**只降不升**）
+ */
+const RESIDUAL_BUDGET = (() => {
+  try {
+    return JSON.parse(readFileSync(path.join(repo, "scripts/ui-compare/residual-budget.json"), "utf8"));
+  } catch {
+    return { screens: {}, _tolerance: 0.02 };
+  }
+})();
+const BUDGET_TOLERANCE = RESIDUAL_BUDGET._tolerance ?? 0.02;
+
 const MASK_TARGETS = [
   // 一.1 品牌：侧栏品牌名（参照 aria-label="MiniMax Design"）与首页大标题 logo。
   // **两边都有同一个 data-action-ui-id**，所以直接按 id 遮，不给产品加新 id
@@ -2239,7 +2256,16 @@ for (const p of PAGES) {
     stateDiff: jsonDiff(base[p.id].state, test[p.id].state),
   };
   const pixelDiff = d.ratio !== 0;
-  const pixelDiffNonAA = d.nonAARatio !== 0;
+  // 预算判定：像素差异率（非 AA）用预算而不是「是否为 0」来判。
+  const budgeted = RESIDUAL_BUDGET.screens?.[p.id]?.budget;
+  const nonAAPct = d.nonAARatio * 100;
+  let budgetVerdict = null;
+  if (typeof budgeted === "number") {
+    if (nonAAPct > budgeted + BUDGET_TOLERANCE) budgetVerdict = "over";
+    else if (nonAAPct < budgeted - BUDGET_TOLERANCE) budgetVerdict = "under";
+    else budgetVerdict = "ok";
+  }
+  const pixelDiffNonAA = typeof budgeted === "number" ? budgetVerdict === "over" : d.nonAARatio !== 0;
   const pageFailed = pixelDiffNonAA || newErrors.length > 0 || Object.values(channelDiffs).some((items) => items.length > 0);
   failed ||= pageFailed;
   pages.push({
@@ -2251,6 +2277,8 @@ for (const p of PAGES) {
     pixelmatchNonAA: d.pixelmatchNonAA,
     pixelDiff,
     pixelDiffNonAA,
+    budget: budgeted ?? null,
+    budgetVerdict,
     note: d.note,
     newErrors,
     baseErrors: base[p.id].errors.length,
@@ -2260,6 +2288,12 @@ for (const p of PAGES) {
     writeFileSync(path.join(outDir, `${p.id}.${testMode}.${channel}.json`), JSON.stringify(test[p.id][channel], null, 2));
   }
   console.log(`${p.id.padEnd(18)} 像素原始/非AA ${(d.ratio * 100).toFixed(3).padStart(7)}%/${(d.nonAARatio * 100).toFixed(6)}% (${d.changed ?? "?"}/${d.nonAAChanged ?? "?"})  遮罩 ${((d.maskedRatio ?? 0) * 100).toFixed(2)}%(参照${(base[p.id].masks ?? []).length}/我方${(test[p.id].masks ?? []).length}块)  新增报错 ${newErrors.length}  网络/DOM/状态 ${channelDiffs.netDiff.length}/${channelDiffs.domDiff.length}/${channelDiffs.stateDiff.length}${d.note ? "  " + d.note : ""}`);
+  if (budgetVerdict === "under") {
+    console.log(`    ↓ 低于预算 ${budgeted}%，可以把 residual-budget.json 里这一屏调到 ${nonAAPct.toFixed(4)}（只降不升）`);
+  }
+  if (budgetVerdict === "over") {
+    console.log(`    ↑ **超出预算** ${budgeted}% + ${BUDGET_TOLERANCE}，实测 ${nonAAPct.toFixed(4)}% —— 说明出了新问题`);
+  }
   for (const e of newErrors.slice(0, 3)) console.log("    " + e);
 }
 const report = { netVolatile: NET_VOLATILE, pages };

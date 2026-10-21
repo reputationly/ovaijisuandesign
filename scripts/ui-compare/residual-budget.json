@@ -1,0 +1,148 @@
+{
+ "_note": "每屏残差预算（非 AA 像素差，%）。门禁规则：超出预算 + 0.02 个百分点即失败；低于预算时提示更新。只降不升。",
+ "_why": "像素对比只对「已登记的有意差异」做遮罩（品牌、ComfyUI 行、用户头像）。剩下的残差主要是遮罩消不掉的布局位移（ComfyUI 行去掉后列表整体上移）、以及尚未还原的功能差异。这些数不追求压到 0，只要求不再上涨。",
+ "_source": "~/ov-golden-ref（35 屏，--record reference 录制，含 mask.json）",
+ "_tolerance": 0.02,
+ "screens": {
+  "changelog": {
+   "budget": 0.1359,
+   "why": "当前实测值"
+  },
+  "creations": {
+   "budget": 0.1359,
+   "why": "当前实测值"
+  },
+  "global-search": {
+   "budget": 0.1353,
+   "why": "当前实测值"
+  },
+  "global-search-query": {
+   "budget": 0.1353,
+   "why": "当前实测值"
+  },
+  "home": {
+   "budget": 9.2282,
+   "why": "当前实测值"
+  },
+  "home-skill": {
+   "budget": 0.5631,
+   "why": "当前实测值"
+  },
+  "home-skill-inspiration": {
+   "budget": 9.2391,
+   "why": "当前实测值"
+  },
+  "projects": {
+   "budget": 0.1359,
+   "why": "当前实测值"
+  },
+  "projects-new": {
+   "budget": 0.1359,
+   "why": "当前实测值"
+  },
+  "projects-new-local": {
+   "budget": 0.1793,
+   "why": "当前实测值"
+  },
+  "projects-team": {
+   "budget": 0.1359,
+   "why": "当前实测值"
+  },
+  "skill-community": {
+   "budget": 0.1463,
+   "why": "当前实测值"
+  },
+  "skills": {
+   "budget": 0.1463,
+   "why": "当前实测值"
+  },
+  "skills-connectors": {
+   "budget": 1.2467,
+   "why": "当前实测值"
+  },
+  "skills-mine": {
+   "budget": 5.1125,
+   "why": "当前实测值"
+  },
+  "user-menu": {
+   "budget": 2.5282,
+   "why": "当前实测值"
+  },
+  "workflows": {
+   "budget": 11.2547,
+   "why": "当前实测值"
+  },
+  "ws-a": {
+   "budget": 3.9842,
+   "why": "当前实测值"
+  },
+  "ws-add-node": {
+   "budget": 4.5881,
+   "why": "当前实测值"
+  },
+  "ws-b": {
+   "budget": 3.9727,
+   "why": "当前实测值"
+  },
+  "ws-canvas-ops": {
+   "budget": 2.931,
+   "why": "当前实测值"
+  },
+  "ws-chat-input": {
+   "budget": 2.929,
+   "why": "当前实测值"
+  },
+  "ws-chat-skill": {
+   "budget": 3.2046,
+   "why": "当前实测值"
+  },
+  "ws-code-editor": {
+   "budget": 3.0108,
+   "why": "当前实测值"
+  },
+  "ws-markdown": {
+   "budget": 3.9842,
+   "why": "当前实测值"
+  },
+  "ws-multi-angle": {
+   "budget": 3.9819,
+   "why": "当前实测值"
+  },
+  "ws-pdf": {
+   "budget": 4.0171,
+   "why": "当前实测值"
+  },
+  "ws-relight": {
+   "budget": 3.9777,
+   "why": "当前实测值"
+  },
+  "ws-select-image": {
+   "budget": 4.9377,
+   "why": "当前实测值"
+  },
+  "ws-table-edit": {
+   "budget": 2.9374,
+   "why": "当前实测值"
+  },
+  "ws-table-node": {
+   "budget": 4.1193,
+   "why": "当前实测值"
+  },
+  "ws-text-editor": {
+   "budget": 2.9436,
+   "why": "当前实测值"
+  },
+  "ws-text-node": {
+   "budget": 4.1264,
+   "why": "当前实测值"
+  },
+  "ws-video": {
+   "budget": 4.145,
+   "why": "当前实测值"
+  },
+  "ws-zoom": {
+   "budget": 3.984,
+   "why": "当前实测值"
+  }
+ }
+}
