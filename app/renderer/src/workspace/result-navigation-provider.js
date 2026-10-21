@@ -968,3 +968,30 @@ export function WorkspaceResultNavigationProvider({
   }, [enabled, value]);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(WorkspaceResultNavigationContext.Provider, { value, children: /* @__PURE__ */ jsxRuntimeExports.jsx(WorkspaceResourceSurfaceContext.Provider, { value: surface, children: children2 }) });
 }
+
+/**
+ * 结果导航的布局层（第 314 轮，整份取回自参照 index-BBp4hclA.js:21335701，21 行）。
+ *
+ * 参照把它包在画布视口外面，`enabled` 在画布屏为真，于是画布路径也会订阅
+ * editor 事件 —— 这就是 ws-a-v3 那 2 帧 editor_subscribe 的来源。
+ * 我们之前缺这层，所以只有资源视图会发。
+ */
+export function WorkspaceResultNavigationLayout({
+  enabled,
+  listActive,
+  setBrowserOpen,
+  dispatchStage,
+  onModeChange,
+  children: children2,
+}) {
+  return jsxRuntimeExports.jsx(WorkspaceResultNavigationProvider, {
+    enabled,
+    surface: listActive ? "structure" : "canvas",
+    onReveal: (surface) => {
+      setBrowserOpen(false);
+      dispatchStage({ type: "canvas/open" });
+      onModeChange(surface === "canvas" ? "canvas" : "list");
+    },
+    children: children2,
+  });
+}
