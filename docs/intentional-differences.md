@@ -227,40 +227,40 @@ v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation
 
 ---
 
-## 四·补四：节点工具栏组成（当前基线无法验证）
+## 四·补四：节点工具栏组成（已定位到具体差异，未改）
 
-**验收提到**：参照有 `node-layer-decompose`、`image-tool.asr`、`erase-subtitle`、`extract-frame`；
-我们多出 `image-inplace-edit`、`storyboard-grid`、`promote-to-asset`。
+**结论先行**：这一项**不是「我们有/没有某个工具」**，而是**同一屏上渲染出来的按钮集合不同**。
+上一版这一节写错了（用短名 `node-layer-decompose` 去搜，实际 id 带 `canvas.` 前缀，于是全报「参照没有」）。
+下面是用正确前缀重测的结果。
 
-**本轮实际核对下来的结果与这个描述不符，逐条说明：**
-
-| id | 参照 bundle | 我方源码 |
-|---|---|---|
-| `node-layer-decompose` | 有 | **有**（`image-tool-meta.jsx:133`） |
-| `image-inplace-edit` | **有** | 有 |
-| `storyboard-grid` | **有** | 有 |
-| `promote-to-asset` | **有** | 有 |
-| `erase-subtitle` | 有 | 只有网关端点，无工具栏项 |
-| `extract-frame` | 有 | 只在 `canvas-v3-constants.js` 的操作列表里 |
-| `image-tool.asr` | **无** | 无 |
-
-**也就是说「我们多出」的那三个，参照里也都有** —— 差异在「哪些项在某个节点的工具栏上真的渲染」，
-不是「有/没有这个工具」。
-
-**关键限制：这 7 个 id 在 36 屏参照基线的 DOM 里一个都没出现。**
-也就是说当前基线**根本没有打开过节点工具栏**，这一项**无法用它验证**。
-
-**已查到的另一半事实**：参照的工具栏 meta 里一共 9 个 `dataActionUiId`：
+### 实际对比（`ONLY=ws-select-image`，只比 `canvas.node*`）
 
 ```
-canvas.node-add-to-chat / add-to-clip-node / layer-decompose / multi-angle /
-panorama-reference / promote-to-asset / relight / storyboard-grid / watermark
+我方 8 个 / 参照 7 个
+只参照有：canvas.node-layer-decompose
+只我方有：canvas.node-promote-to-asset、canvas.node-storyboard-grid
 ```
 
-我方的 `image-tool-meta.jsx` 只有 4 个（multi-angle / storyboard-grid / panorama-reference / layer-decompose）。
-**但这只影响 DOM 里能否看到这些按钮，不影响按钮本身是否存在。**
+### 已排除的原因
 
-**要真正验证这一项，需要加一屏「打开图片节点工具栏」的场景**，否则只能凭源码对照，无法给出像素/DOM 证据。
+| 可能原因 | 核对结果 |
+|---|---|
+| 工具不存在 | **否**。7 个 id 在参照 bundle 与我方源码里都存在 |
+| 固定项集合不同 | **否**。两边 `DEFAULT_PINNED` 完全一致：crop / super-resolution / redraw / panorama-reference / multi-angle / relight / storyboard-grid |
+| `requiresDimensions` 门控 | **不是隐藏**。它只置 `disabled`（`image-node-toolbar-section.jsx:422`），按钮仍应在 DOM 里 |
+| 基线没打开工具栏 | **否**。`ws-select-image` 的参照 DOM 里确实有 4 个 `canvas.node-*` 工具按钮 |
+
+### 所以剩下的是运行时状态差异
+
+配置相同、都存在、都不是隐藏 —— 那就只剩「渲染时工具栏处于什么状态」
+（选中了哪个节点、工具栏是收起还是展开、是否被 overflow 折叠）。
+**这需要逐帧对照才说得清，本轮没做到。**
+
+### 顺带修正的另一个错误
+
+上一版我写「参照 meta 有 9 个 `dataActionUiId`，我方只有 4 个」——
+那个统计用的正则只匹配 `canvas.node-*` 等前缀，漏掉了我方 `super-resolution` 等不带前缀的条目，
+**不能用来下结论**。实际我方 `image-tool-meta.jsx` 有 8 个条目、4 个带 `dataActionUiId`。
 
 ---
 
