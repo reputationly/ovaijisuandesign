@@ -1355,6 +1355,10 @@ async function runInteractionScenario(c, scenario) {
       throw new Error(`${scenario} metadata failed: ${JSON.stringify(details)}`);
     }
     const playing = await evalValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); return !!m&&!m.paused; })()`);
+    // 第 322 轮：参照的画布音频节点是 canvas.audio-node.toggle-play（v3 节点），
+    // 但我们自己的画布渲染出来的仍是 v2 的 canvas.audio.toggle-play —— 实测点 v3 id 会超时。
+    // 所以这一屏的差异**不是门禁脚本点错 id**，是画布节点版本没跟上。
+    // 先用回旧 id 让门禁能跑（对比时两边都用各自能点到的那个），节点版本问题单独记。
     const playAction = tag === "video" ? "canvas.video-player.toggle-play" : "canvas.audio.toggle-play";
     if (!playing) {
       if (tag === "video") {
@@ -1975,8 +1979,8 @@ const REFERENCE_MISSING = new Map([
   ["ws-a-v3", "v3 屏：基线在 ~/ov-golden-v3，用 --record reference 单独录"],
   ["ws-b-v3", "同上"],
   ["ws-a-v3-resource", "同上"],
-  ["ws-audio", "录制失败：脚本点的还是旧 id（canvas.audio.toggle-play，参照是 canvas.audio-node.toggle-play），待修"],
-  ["ws-layout", "录制失败：参照 4.0.0 已没有 workspace.view-mode.chat-only，脚本走不下去，待修"],
+  ["ws-audio", "我方画布渲染的还是 v2 音频节点（canvas.audio.toggle-play）；参照是 canvas.audio-node.toggle-play。点 v3 id 在我们这边会超时 —— 属「画布节点版本没跟上」，不是门禁脚本点错 id。基线已录好放在 ~/ov-golden-ref"],
+  ["ws-layout", "录制仍失败：点开 workspace.view-mode-menu.stage 之后菜单里没有 workspace.view-mode.chat-only（该 id 在参照 bundle 里存在，但不在这个菜单里）。属 4.0.0 的菜单结构变化，需要先查清新位置"],
   ["project-created", "录制失败：步骤依赖前一屏留下的会话焦点状态，逐屏单独录时等不到，属测试工具限制"],
   ["project-assets", "同上"],
 ]);
