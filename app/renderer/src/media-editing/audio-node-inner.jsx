@@ -800,7 +800,10 @@ export function AudioNodeInner({ id: nodeId, data, selected }) {
                   aria-label={
                     isPlaying ? t("canvas.pause") : t("canvas.play")
                   }
-                  data-action-ui-id="canvas.audio.toggle-play"
+                  // 第 333 轮（验收）：v3 画布已经包住这个内层组件（同级还有 canvas.audio-node.download），
+                  // 只有播放按钮还留着 v2 的 id。祖先链实测：
+                  // canvas-node-frame > canvas.audio-node > react-flow__node > canvas.pane
+                  data-action-ui-id="canvas.audio-node.toggle-play"
                   style={{
                     position: "absolute",
                     left: "50%",
