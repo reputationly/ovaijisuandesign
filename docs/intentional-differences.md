@@ -227,40 +227,46 @@ v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation
 
 ---
 
-## 四·补四：节点工具栏组成（已定位到具体差异，未改）
+## 四·补四：节点工具栏组成 —— **已修**（第 339 轮）
 
-**结论先行**：这一项**不是「我们有/没有某个工具」**，而是**同一屏上渲染出来的按钮集合不同**。
-上一版这一节写错了（用短名 `node-layer-decompose` 去搜，实际 id 带 `canvas.` 前缀，于是全报「参照没有」）。
-下面是用正确前缀重测的结果。
+### 真实原因：图片工具栏的常量没跟上 4.0.0
 
-### 实际对比（`ONLY=ws-select-image`，只比 `canvas.node*`）
+**不是运行时状态差异**。我上一版查错了实体：`DEFAULT_PINNED` 在我们树里有 3 个同名常量
+（`canvas-v3/canvas-v3-constants.js`、`media-editing/use-start-cloud-edit-from-node.js`、
+`canvas/use-video-starter-preset-store.js`），而**图片工具栏用的是第二个**。
+我比对时拿错了，才得出「两边一致」的错误结论。
 
-```
-我方 8 个 / 参照 7 个
-只参照有：canvas.node-layer-decompose
-只我方有：canvas.node-promote-to-asset、canvas.node-storyboard-grid
-```
+按参照 `index-BBp4hclA.js:88865–88910`（锚点是紧邻的
+`STORAGE_KEY$a = "hilo:canvas:image-toolbar:customization"`）逐项对照：
 
-### 已排除的原因
+| | 参照 4.0.0 | 我们（修前） |
+|---|---|---|
+| `IMAGE_TOOLBAR_TOOLS` 第 7 项 | `layer-decompose` | `storyboard-grid` |
+| `IMAGE_TOOLBAR_TOOLS` 最后一项 | `storyboard-grid` | `layer-decompose` |
+| `DEFAULT_PINNED` 最后一项 | `layer-decompose` | `storyboard-grid` |
+| 旧版置顶迁移常量 | `PRE_LAYER_DECOMPOSE_DEFAULT_PINNED`（:88904） | **没有** |
 
-| 可能原因 | 核对结果 |
-|---|---|
-| 工具不存在 | **否**。7 个 id 在参照 bundle 与我方源码里都存在 |
-| 固定项集合不同 | **否**。两边 `DEFAULT_PINNED` 完全一致：crop / super-resolution / redraw / panorama-reference / multi-angle / relight / storyboard-grid |
-| `requiresDimensions` 门控 | **不是隐藏**。它只置 `disabled`（`image-node-toolbar-section.jsx:422`），按钮仍应在 DOM 里 |
-| 基线没打开工具栏 | **否**。`ws-select-image` 的参照 DOM 里确实有 4 个 `canvas.node-*` 工具按钮 |
+这正好解释验收看到的现象：参照多 `node-layer-decompose`、我们多 `node-storyboard-grid`。
 
-### 所以剩下的是运行时状态差异
+### 已改
 
-配置相同、都存在、都不是隐藏 —— 那就只剩「渲染时工具栏处于什么状态」
-（选中了哪个节点、工具栏是收起还是展开、是否被 overflow 折叠）。
-**这需要逐帧对照才说得清，本轮没做到。**
+- `media-editing/use-start-cloud-edit-from-node.js`：`IMAGE_TOOLBAR_TOOLS` 与 `DEFAULT_PINNED` 按参照顺序改
+- `media-editing/read-persisted.js`：补 `PRE_LAYER_DECOMPOSE_DEFAULT_PINNED`，并加进迁移数组
+  （原本迁移逻辑就在，只是缺这一个常量，所以升级前的出厂配置识别不出来）
 
-### 顺带修正的另一个错误
+### 验证
 
-上一版我写「参照 meta 有 9 个 `dataActionUiId`，我方只有 4 个」——
-那个统计用的正则只匹配 `canvas.node-*` 等前缀，漏掉了我方 `super-resolution` 等不带前缀的条目，
-**不能用来下结论**。实际我方 `image-tool-meta.jsx` 有 8 个条目、4 个带 `dataActionUiId`。
+`ONLY=ws-select-image`：**「只参照有」为空** —— `canvas.node-layer-decompose` 已出现。
+「只我方有」只剩 `canvas.node-promote-to-asset`（待单独查，见下）。
+
+### 为什么常量对照没抓到（三次了）
+
+`TOOLS`、`THUMB_PX`、`DEFAULT_PINNED` —— **同名常量带 `$n` 变体时，`check-constants.mjs` 会直接跳过**。
+已列入待办：改成「用相邻独特常量做锚点定位实体再比」，匹配不上就列清单人工判断。
+
+### 仍未解决
+
+`canvas.node-promote-to-asset` 仍只在我们这边出现，需要单独查它在参照里的触发条件。
 
 ---
 

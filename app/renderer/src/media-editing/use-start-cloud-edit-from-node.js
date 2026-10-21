@@ -169,6 +169,8 @@ export const LEGACY_IMAGE_TOOLBAR_TOOLS = [
   "relight",
   "layer-decompose",
 ];
+// 第 339 轮（验收）：顺序要跟 4.0.0 一致 —— layer-decompose 在第 7 位、storyboard-grid 在最后。
+// 参照：index-BBp4hclA.js:88878（IMAGE_TOOLBAR_TOOLS）、:88895（DEFAULT_PINNED$1）、:88904（PRE_LAYER_DECOMPOSE）
 export const IMAGE_TOOLBAR_TOOLS = [
   "crop",
   "super-resolution",
@@ -176,14 +178,14 @@ export const IMAGE_TOOLBAR_TOOLS = [
   "panorama-reference",
   "multi-angle",
   "relight",
-  "storyboard-grid",
+  "layer-decompose",
   "watermark",
   "erase",
   "outpaint",
   "remove-bg",
   "color-adjust",
   "rotate",
-  "layer-decompose",
+  "storyboard-grid",
 ];
 export const DEFAULT_PINNED = [
   "crop",
@@ -192,7 +194,7 @@ export const DEFAULT_PINNED = [
   "panorama-reference",
   "multi-angle",
   "relight",
-  "storyboard-grid",
+  "layer-decompose",
 ];
 export const DEFAULT_SHOW_LABELS = true;
 export function useSubImages(mainId) {

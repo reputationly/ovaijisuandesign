@@ -7,6 +7,17 @@ import {
 } from "./use-start-cloud-edit-from-node.js";
 import { create } from "zustand";
 const STORAGE_KEY = "hilo:canvas:image-toolbar:customization";
+// 旧版默认（storyboard-grid 置顶）—— 用来识别用户存过的是「升级前出厂配置」，
+// 命中就替换成新默认。参照 index-BBp4hclA.js:88904。
+const PRE_LAYER_DECOMPOSE_DEFAULT_PINNED = [
+  "crop",
+  "super-resolution",
+  "redraw",
+  "panorama-reference",
+  "multi-angle",
+  "relight",
+  "storyboard-grid",
+];
 const PRE_RELIGHT_WORKFLOW_DEFAULT_PINNED = [
   "crop",
   "super-resolution",
@@ -80,6 +91,7 @@ function readPersisted() {
     const isKnownPreviousFactoryLayout =
       persistedSettings.layoutVersion === LATEST_LAYOUT_VERSION &&
       [
+        PRE_LAYER_DECOMPOSE_DEFAULT_PINNED,
         PRE_RELIGHT_WORKFLOW_DEFAULT_PINNED,
         PRE_WATERMARK_DEFAULT_PINNED,
         PRE_PANORAMA_DEFAULT_PINNED,
