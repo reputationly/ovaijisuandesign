@@ -738,6 +738,10 @@ export function ChatPanel({
     onModelSelectionChange: handleComposerModelSelectionChange,
     skillLabel: nodeSkillLabel,
     hideMediaModelSelector: isSpecialNodeSession,
+    // 第 319 轮（验收发现）：参照的聊天输入框有「模型」按钮（chat-model-btn），
+    // 我们的 ChatToolbar 里也有这个组件，但 showModelSelector 默认 false、
+    // 这里又没传，于是按钮从来没渲染过 —— 35 屏都缺。
+    showModelSelector: true,
   });
   const modeSelectorSlot = reactExports.useMemo(
     () =>

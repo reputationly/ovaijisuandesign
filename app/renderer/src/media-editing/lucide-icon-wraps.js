@@ -2,23 +2,16 @@
 import { Activity, AppWindow as AppWindow$1, Archive as Archive$1, ArrowDown as ArrowDown$1, ArrowDownToLine as ArrowDownToLine$1, ArrowLeft as ArrowLeft$1, ArrowLeftRight as ArrowLeftRight$1, ArrowLeftToLine as ArrowLeftToLine$1, ArrowRight as ArrowRight$1, ArrowRightToLine as ArrowRightToLine$1, ArrowUp as ArrowUp$1, ArrowUpDown as ArrowUpDown$1, ArrowUpFromLine as ArrowUpFromLine$1, ArrowUpRight as ArrowUpRight$1, ArrowUpToLine as ArrowUpToLine$1, AtSign as AtSign$1, AudioLines as AudioLines$1, AudioWaveform as AudioWaveform$2, BadgeCheck as BadgeCheck$1, BadgeInfo as BadgeInfo$1, Bell as Bell$1, BellRing as BellRing$1, Bold as Bold$2, BookUser as BookUser$1, Bot as Bot$1, Box as Box$1, Boxes as Boxes$1, Bug as Bug$1, Calculator as Calculator$1, ChartNoAxesCombined as ChartNoAxesCombined$1, Check as Check$1, CheckCheck as CheckCheck$1, ChevronDown as ChevronDown$1, ChevronLeft as ChevronLeft$1, ChevronRight as ChevronRight$2, ChevronUp as ChevronUp$1, Circle as Circle$1, CircleAlert as CircleAlert$1, CircleArrowUp as CircleArrowUp$1, CircleCheck, CircleMinus as CircleMinus$1, CirclePlus, CircleX as CircleX$1, Clipboard, ClipboardList as ClipboardList$1, Cloud as Cloud$1, CloudDownload as CloudDownload$1, CloudUpload as CloudUpload$1, Code as Code$2, Cog as Cog$1, Command as Command$1, Compass as Compass$1, Copy as Copy$1, CopyPlus as CopyPlus$1, CreditCard as CreditCard$1, Crosshair as Crosshair$1, Crown as Crown$1, Download as Download$1, Earth, Ellipsis as Ellipsis$1, ExternalLink as ExternalLink$1, Eye as Eye$1, EyeOff as EyeOff$1, FileImage as FileImage$1, FilePlus2 as FilePlus2$1, Film as Film$1, FolderClock as FolderClock$1, FolderClosed as FolderClosed$1, FolderInput as FolderInput$1, FolderMinus as FolderMinus$1, FolderOpen as FolderOpen$1, FolderPlus as FolderPlus$1, FolderUp as FolderUp$1, FolderX as FolderX$1, Gauge as Gauge$1, Gift, GitCompare as GitCompare$1, Globe as Globe$1, GraduationCap as GraduationCap$1, Grid2x2, Grid2x2Plus as Grid2x2Plus$1, Grid3x3, GripHorizontal, GripVertical as GripVertical$1, Hand as Hand$1, Headphones as Headphones$1, History as History$1, House, ImagePlus as ImagePlus$1, Import as Import$1, Inbox as Inbox$1, Info as Info$2, Italic as Italic$2, KeyRound as KeyRound$1, Keyboard as Keyboard$1, Languages as Languages$1, Layers as Layers$1, Layers2 as Layers2$1, LayoutGrid as LayoutGrid$1, LayoutList as LayoutList$1, LayoutTemplate as LayoutTemplate$1, Library as Library$1, Lightbulb as Lightbulb$1, Link2 as Link2$1, ListChecks as ListChecks$1, LoaderCircle as LoaderCircle$1, Lock as Lock$1, LockKeyhole as LockKeyhole$1, Mail as Mail$1, Map as Map$2, MapPin as MapPin$1, Maximize as Maximize$1, MessageCircle as MessageCircle$1, MessageCircleMore as MessageCircleMore$1, MessageSquareMore as MessageSquareMore$1, Minus as Minus$1, Monitor as Monitor$1, MonitorUp as MonitorUp$1, Music as Music$1, Music2 as Music2$1, Network as Network$1, Newspaper as Newspaper$1, NotebookPen as NotebookPen$1, OctagonX, PackageSearch as PackageSearch$1, Palette as Palette$1, PanelBottomClose as PanelBottomClose$1, PanelLeftClose as PanelLeftClose$1, PanelLeftOpen as PanelLeftOpen$1, PanelRightClose as PanelRightClose$1, PanelRightOpen as PanelRightOpen$1, PanelsTopLeft as PanelsTopLeft$1, Pencil as Pencil$1, PencilRuler as PencilRuler$1, Phone as Phone$1, Pin as Pin$1, PinOff as PinOff$1, Podcast as Podcast$1, Power as Power$1, Redo2 as Redo2$1, Regex as Regex$1, Repeat2 as Repeat2$1, RotateCcw as RotateCcw$1, RotateCw as RotateCw$1, Save as Save$1, Scan as Scan$1, Scissors as Scissors$1, ScrollText as ScrollText$1, Search as Search$1, Send as Send$1, Server, ServerOff as ServerOff$1, Share2 as Share2$1, ShieldAlert as ShieldAlert$1, ShieldCheck as ShieldCheck$1, ShieldOff as ShieldOff$1, Shuffle as Shuffle$1, Slash as Slash$1, Smartphone as Smartphone$1, Speech as Speech$1, Split as Split$1, SquareDashed as SquareDashed$1, SquareMousePointer as SquareMousePointer$1, StickyNote as StickyNote$1, Sun as Sun$1, SwatchBook as SwatchBook$1, Tag as Tag$2, ThumbsDown as ThumbsDown$1, ThumbsUp as ThumbsUp$1, Trash2 as Trash2$1, TrendingUp as TrendingUp$1, TriangleAlert as TriangleAlert$1, Tv as Tv$1, Underline as Underline$2, Undo2 as Undo2$1, Upload as Upload$1, User as User$1, UserRound as UserRound$1, UserRoundPlus as UserRoundPlus$1, Users as Users$1, Video as Video$1, VideoOff as VideoOff$1, Volume2 as Volume2$1, VolumeX as VolumeX$1, WandSparkles as WandSparkles$1, WholeWord as WholeWord$1, Wifi, WifiOff as WifiOff$1, Workflow as Workflow$1, Wrench as Wrench$1, X as X$8, Zap as Zap$1, ZoomIn as ZoomIn$1, ZoomOut as ZoomOut$1, createLucideIcon } from "lucide-react";
 import { withIconCompositing } from "./icon-compositing.js";
 
-export const Plus$1 = createLucideIcon("Plus", [["path", {
-  d: "M12 5.5v13",
-  key: "ov-plus-v"
-}], ["path", {
-  d: "M5.5 12h13",
-  key: "ov-plus-h"
-}], ["circle", {
-  cx: "12",
-  cy: "5.5",
-  r: "1.7",
-  key: "ov-plus-top"
-}], ["circle", {
-  cx: "12",
-  cy: "18.5",
-  r: "1.7",
-  key: "ov-plus-bottom"
-}]]);
+// 第 319 轮（验收发现）：这里原本是一个**自定义**的 Plus（两条轴线 + 上下两个圆点，
+// key 用 ov-plus-* 前缀，来自提交 b7e1d018）。参照用的是 lucide 原版 Plus。
+// 这个图标在聊天输入框、画布等多个位置出现，所以「加号被换掉」是全站可见的差异。
+// 改回原版（路径与 lucide-react 的 Plus 一致：M5 12h14 / M12 5v14）。
+// 注意：不能写 `= Plus` —— 本文件只把 Plus 别名导入成 CopyPlus$1 / FolderPlus$1，
+// 没有裸 Plus 绑定，那样会撞 TDZ。
+export const Plus$1 = createLucideIcon("Plus", [
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "M12 5v14", key: "s699le" }],
+]);
 export const ActivityIcon = /* @__PURE__ */withIconCompositing(Activity);
 export const AlertCircle = /* @__PURE__ */withIconCompositing(CircleAlert$1);
 export const AlertTriangle = /* @__PURE__ */withIconCompositing(TriangleAlert$1);

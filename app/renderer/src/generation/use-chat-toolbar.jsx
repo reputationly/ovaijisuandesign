@@ -11,6 +11,7 @@ export function useChatToolbar({
   onModelSelectionChange,
   skillLabel,
   hideMediaModelSelector,
+  showModelSelector = false,
 }) {
   return reactExports.useCallback(
     (context) => (
@@ -23,6 +24,7 @@ export function useChatToolbar({
         onModelSelectionChange={onModelSelectionChange}
         skillLabel={skillLabel}
         hideMediaModelSelector={hideMediaModelSelector}
+        showModelSelector={showModelSelector}
       />
     ),
     [
@@ -33,6 +35,7 @@ export function useChatToolbar({
       onModelSelectionChange,
       skillLabel,
       hideMediaModelSelector,
+      showModelSelector,
     ],
   );
 }
