@@ -5071,4 +5071,13 @@ export {
   StructureSurface,
   StructureDirectory,
   StructureList,
+  // 第 309 轮：CompositionMentionTag 的依赖。这些**本来就在本文件里**，
+  // 只是没导出，闭包工具因此当成「已满足」而停下，gen-imports 又报「闭包外」。
+  // 正确做法是补 export（而不是复制一份 —— 复制会生成第二个限流表，
+  // 同一个 workbench 的读取不再被 structureReadLimiter 统一限流）。
+  StructureAudio,
+  structureReadLimiter,
+  useCompositionDetails,
+  CompositionVideoPreview,
+  CompositionAttributes,
 };

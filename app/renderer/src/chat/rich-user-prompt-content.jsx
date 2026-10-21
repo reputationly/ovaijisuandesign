@@ -28,7 +28,14 @@ import { useChatPresentation } from "./use-copy.jsx";
 import { splitMentionFilename } from "../infra/dialog-content.jsx";
 import { Layers } from "../media-editing/lucide-icon-wraps.js";
 import { AssetSegment } from "./asset-segment.jsx";
-import { CompositionMentionTag } from "../workspace/unavailable-workbench.js";
+// 第 309 轮：composition 提及标签**懒加载**。
+// 静态导入会把 workspace-resource-closure / export-engine 这些重模块拖进 home，
+// 实测 home 从 (0/0) 变成 1,344,602 像素 —— 与第 278 轮 nativeWorkbenchService 同样的坑。
+const CompositionMentionTag = reactExports.lazy(() =>
+  import("../workspace/composition-mention-tag.js").then((m) => ({
+    default: m.CompositionMentionTag,
+  })),
+);
 
 // ---- 第 209 轮：从产物取回（参考 7496 / 7500）----
 const COMPOSITION_MENTION_TOKEN = /^@composition:([\w-]+)(?:\[("(?:[^"\\]|\\.)*")\])?/u;
@@ -449,7 +456,11 @@ function renderSegments(segments) {
       );
     }
     if (segment.type === "composition")
-      return <CompositionMentionTag key={segment.key} compositionId={segment.id} name={segment.name} />;
+      return (
+        <reactExports.Suspense fallback={null} key={segment.key}>
+          <CompositionMentionTag compositionId={segment.id} name={segment.name} />
+        </reactExports.Suspense>
+      );
     if (segment.type === "model") return <ModelSegment key={segment.key} segment={segment} />;
     if (segment.type === "asset") return <AssetSegment key={segment.key} segment={segment} />;
     if (segment.type === "connector") {

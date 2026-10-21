@@ -118,7 +118,8 @@ export function useComposerPlaceholderActions({
   };
 }
 
-const AudioFileIcon = reactExports.forwardRef(function AudioFileIcon2(
+// 第 309 轮：CompositionMentionTag 需要它，补 export（不是复制）
+export const AudioFileIcon = reactExports.forwardRef(function AudioFileIcon2(
   { size: size2 = 16, strokeWidth = 1.5, "aria-hidden": ariaHidden = true, ...props },
   ref,
 ) {
