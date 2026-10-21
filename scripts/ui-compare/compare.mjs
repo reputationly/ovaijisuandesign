@@ -436,13 +436,21 @@ const DISMISS_STARTUP = `(()=>{
  * 防止有人悄悄扩大遮罩来压低数字。
  */
 const MASK_TARGETS = [
-  // 一.3 移除 ComfyUI：整行导航（这是唯一两个有稳定 data-action-ui-id 的 ComfyUI 元素）
+  // 一.1 品牌：侧栏品牌名（参照 aria-label="MiniMax Design"）与首页大标题 logo。
+  // **两边都有同一个 data-action-ui-id**，所以直接按 id 遮，不给产品加新 id
+  //（参照里没有的 id 加到我方，本身就会制造一处新的 DOM 差异）。
+  // 用**行容器**而不是里面的 span：品牌差异体现在整行（图标+文字+间距），只遮 span 盖不住。
+  { selector: '[data-action-ui-id="home-sidebar.brand-row"]', why: "intentional-differences 一.1 品牌" },
+  { selector: '[data-action-ui-id="home.wink-logo"]', why: "intentional-differences 一.1 品牌标题" },
+  // 一.3 移除 ComfyUI：整行导航
   { selector: '[data-action-ui-id="home-sidebar-nav-workflows"]', why: "intentional-differences 一.3 移除 ComfyUI" },
   { selector: '[data-action-ui-id="home-sidebar.workflows-release-badge"]', why: "intentional-differences 一.3 移除 ComfyUI" },
   // 一.2 无账号体系：参照左下角是用户头像，我们用连接状态替代。
   // 只登记参照侧的 id —— 两边取并集，位置相同会把我们的 pill 一起盖掉。
   { selector: '[data-action-ui-id="sidebar.user-avatar"]', why: "intentional-differences 一.2 无账号体系" },
 ];
+// 注：`home-composer-guide-design`（Design 使用指南）是否作为品牌类差异遮掉，等定。
+// 那一条我方没有对应元素，遮它是「承认我们不做这个链接」，属于决策而非修 bug。
 // 说明：品牌 logo／标题在参照 DOM 里**没有稳定的 data-action-ui-id**（只有内联文本），
 // 按验收约束「不许手写坐标」，这里不遮，作为已登记残差在 docs 里说明。
 
@@ -1942,14 +1950,18 @@ async function runMode(mode) {
       try {
         const raw2 = await evalValue(
           c,
-          `JSON.stringify(${JSON.stringify(MASK_TARGETS.map((m) => m.selector))}.flatMap((sel) => {
+          `(() => { const dpr = window.devicePixelRatio || 1; return JSON.stringify(${JSON.stringify(MASK_TARGETS.map((m) => m.selector))}.flatMap((sel) => {
              return [...document.querySelectorAll(sel)].map((el) => {
                const r = el.getBoundingClientRect();
                return r.width > 0 && r.height > 0
-                 ? { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }
+                 // **必须乘 devicePixelRatio**：getBoundingClientRect 是 CSS 像素，
+                 // 截图是物理像素（视口 1280x800 -> 图 2560x1600）。不乘的话遮罩会落在
+                 // 左上角一半大小的区域里，看起来「遮了但差异没降」。
+                 ? { x: Math.round(r.x * dpr), y: Math.round(r.y * dpr),
+                     w: Math.round(r.width * dpr), h: Math.round(r.height * dpr) }
                  : null;
              });
-           }).filter(Boolean))`,
+           }).filter(Boolean)); })()`,
         );
         masks = JSON.parse(raw2 ?? "[]");
       } catch { /* 取不到就不遮这一屏 */ }
@@ -2015,6 +2027,8 @@ async function diff(a, b, out, nonAAOut, masks = []) {
   const nonAAMask = Buffer.alloc(px * 4);
   let nonAAChanged = 0;
   for (let i = 0; i < px; i++) {
+    // 遮罩区不参与非 AA 计数（与上面 changed 的处理保持一致）
+    if (maskedBits[i]) continue;
     const o = i * 4;
     const delta = Math.abs(ia.data[o] - ib.data[o]) + Math.abs(ia.data[o + 1] - ib.data[o + 1]) + Math.abs(ia.data[o + 2] - ib.data[o + 2]);
     const isPixelmatchNonAA = pixelmatchMask[o] === 255 && pixelmatchMask[o + 1] === 0 && pixelmatchMask[o + 2] === 0;
