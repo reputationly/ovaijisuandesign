@@ -152,6 +152,35 @@ Task result navigation: stale
 
 ---
 
+## 四·补二：`ws-code-editor` 的已知功能差距
+
+**现象**：该屏在参照侧有 2 帧 `focus_session` + 3 帧 `set_mode`，我们一帧都没有。
+
+**追因**：不是发送路径的问题。DOM 对比给出更完整的图景 —— 参照这一屏比我们多一整块聊天面板：
+
+```
+只参照有：chat-message-list / chat-message-turn / chat-…  （聊天面板）
+          canvas.text-quick-plan / -quick-prompt / -quick-script / -quick-write（4 个快捷动作）
+          canvas.table-node / canvas.file-node.rename-from-preview / -view-card-from-preview
+          canvas.audio-node.toggle-play
+只我方有：canvas.audio.toggle-play（旧音频节点）、canvas.node-promote-to-asset、
+          home-sidebar.connectors-release-badge、workspace-stage.controls
+```
+
+也就是说：**参照的「大 markdown 编辑器」是会话驱动的** —— 打开它会绑定一个 text-edit 会话，
+所以有 `focus_session` / `set_mode`，也有聊天面板与 4 个快捷动作。
+我们的大编辑器（`text-editor/source-text-fullscreen.jsx`）里**没有任何会话逻辑**。
+
+**对照证据**：`ws-text-node` 在参照侧这两个帧都是 **0**。
+所以不能把「所有文本编辑路径都加 focus_session」当成修法 —— 那会把 text-node 改坏。
+
+**为什么不做**：把大编辑器改成会话驱动是一项功能开发，不是补两帧；
+而且它牵涉会话绑定、聊天面板复用、快捷动作四件事。**登记为已知差距。**
+
+**验证方式**：`ONLY=ws-code-editor` 跑门禁，看 `只参照有` 里是否还有 `chat-*` 与 `canvas.text-quick-*`。
+
+---
+
 ## 五、门禁例外
 
 ### 无基线 / 基线不可用的屏
