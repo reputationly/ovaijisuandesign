@@ -49,5 +49,39 @@
  "remaining": [
   "23 条声明分 6 圈，需要一次完整的 extract + gen-imports + 接线，属于多轮工作量",
   "CompositionMentionTag 是 rich-user-prompt-content.jsx:452 的 @composition 提及标签，用户确认这是 v3 核心交互"
- ]
+ ],
+ "round305": {
+  "slotIsFalsePositive": "前面报的未解析 `Slot` 是误报：它只出现在 `CompositionSlotCover` 与一条注释里，不是独立依赖。",
+  "ring2": {
+   "seeds": [
+    "CompositionAttributes",
+    "CompositionVideoPreview",
+    "StructureAudio",
+    "useCompositionDetails",
+    "structureReadLimiter"
+   ],
+   "closure": "22 个声明 / 约 1456 行（4 → 8 → 10）",
+   "extracted": "只取回 1/5"
+  },
+  "afterBothRings": {
+   "stillUnresolved": [
+    "CompositionVideoPreview",
+    "StructureAudio",
+    "structureReadLimiter",
+    "useCompositionDetails",
+    "X$8"
+   ],
+   "note": "这 5 个在参照 bundle 里确实存在（function CompositionVideoPreview / function StructureAudio 等都验证过），但两轮闭包都没把它们带出来 —— 说明它们不在该 seed 的严格闭包里，需要单独按名字定位。"
+  },
+  "decision": [
+   "**没有把半成品提交进树**：部分抽取的文件里还有 5 个未绑定名字，",
+   "留着会让 check-undef 的 L0 从 15 处涨到 20 处，违反「可达代码 0 unbound」。",
+   "已删除临时文件，只保留测量结论。"
+  ],
+  "nextStep": [
+   "这 5 个名字需要按**名字直接定位**（它们不在 CompositionMentionTag 的严格闭包里，",
+   "可能是通过别处 re-export 或动态引用进入的）；",
+   "或者换 seed：直接从 StructureAudio / CompositionVideoPreview 反查谁引用它们。"
+  ]
+ }
 }
