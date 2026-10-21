@@ -1,0 +1,290 @@
+{
+ "generatedFor": "4.0.0",
+ "seeds": [
+  "CompositionMentionTag",
+  "CompositionMentionPreview",
+  "CompositionMentionThumbnail",
+  "MentionRemoveButton"
+ ],
+ "total": 22,
+ "lines": 844,
+ "perRing": [
+  4,
+  5,
+  7,
+  3,
+  2,
+  1
+ ],
+ "byStatus": {
+  "todo": 22
+ },
+ "items": [
+  {
+   "i": 15795,
+   "names": [
+    "useCompositionPreview"
+   ],
+   "start": 16897962,
+   "end": 16899708,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 15796,
+   "names": [
+    "previewResourceKey"
+   ],
+   "start": 16899709,
+   "end": 16899809,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 15797,
+   "names": [
+    "CompositionPreview"
+   ],
+   "start": 16899810,
+   "end": 16902194,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 15798,
+   "names": [
+    "CompositionMembers"
+   ],
+   "start": 16902195,
+   "end": 16908112,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 15799,
+   "names": [
+    "CompositionThumbnail"
+   ],
+   "start": 16908113,
+   "end": 16909709,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16645,
+   "names": [
+    "PreviewCard$1"
+   ],
+   "start": 17951874,
+   "end": 17952015,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16703,
+   "names": [
+    "scopes"
+   ],
+   "start": 18040924,
+   "end": 18040969,
+   "ring": 5,
+   "status": "todo"
+  },
+  {
+   "i": 16704,
+   "names": [
+    "claimComposerPreview"
+   ],
+   "start": 18040970,
+   "end": 18041572,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16705,
+   "names": [
+    "TRIGGER_SELECTOR"
+   ],
+   "start": 18041573,
+   "end": 18041714,
+   "ring": 4,
+   "status": "todo"
+  },
+  {
+   "i": 16706,
+   "names": [
+    "useComposerPreviewOwner"
+   ],
+   "start": 18041715,
+   "end": 18043241,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 16707,
+   "names": [
+    "useComposerPreview"
+   ],
+   "start": 18043242,
+   "end": 18045527,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16838,
+   "names": [
+    "MentionRemoveButton"
+   ],
+   "start": 18188967,
+   "end": 18189750,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16839,
+   "names": [
+    "CompositionMentionBody"
+   ],
+   "start": 18189751,
+   "end": 18190395,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16840,
+   "names": [
+    "CompositionComposerPreview"
+   ],
+   "start": 18190396,
+   "end": 18192263,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16841,
+   "names": [
+    "ComposerPreviewPanel"
+   ],
+   "start": 18192264,
+   "end": 18196948,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16842,
+   "names": [
+    "CompositionMentionPreview"
+   ],
+   "start": 18196949,
+   "end": 18198225,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16843,
+   "names": [
+    "CompositionSlotCover"
+   ],
+   "start": 18198226,
+   "end": 18201472,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "i": 16844,
+   "names": [
+    "CompositionMentionThumbnail"
+   ],
+   "start": 18201473,
+   "end": 18202343,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 16845,
+   "names": [
+    "ThumbnailFrame"
+   ],
+   "start": 18202344,
+   "end": 18205445,
+   "ring": 1,
+   "status": "todo"
+  },
+  {
+   "i": 16846,
+   "names": [
+    "CompositionMentionTag"
+   ],
+   "start": 18205446,
+   "end": 18206996,
+   "ring": 0,
+   "status": "todo"
+  },
+  {
+   "i": 20563,
+   "names": [
+    "ImageOff$1"
+   ],
+   "start": 102288,
+   "end": 102827,
+   "ring": 3,
+   "status": "todo"
+  },
+  {
+   "i": 20574,
+   "names": [
+    "Layers$1"
+   ],
+   "start": 106133,
+   "end": 106632,
+   "ring": 2,
+   "status": "todo"
+  },
+  {
+   "names": [
+    "CompositionAttributes",
+    "CompositionVideoPreview",
+    "StructureAudio"
+   ],
+   "ring": 1,
+   "status": "todo"
+  }
+ ],
+ "segments": [
+  {
+   "from": 15795,
+   "to": 15799,
+   "start": 16897962,
+   "end": 16909709,
+   "count": 5
+  },
+  {
+   "from": 16645,
+   "to": 16645,
+   "start": 17951874,
+   "end": 17952015,
+   "count": 1
+  },
+  {
+   "from": 16703,
+   "to": 16707,
+   "start": 18040924,
+   "end": 18045527,
+   "count": 5
+  },
+  {
+   "from": 16838,
+   "to": 16846,
+   "start": 18188967,
+   "end": 18206996,
+   "count": 9
+  },
+  {
+   "from": 20563,
+   "to": 20574,
+   "start": 102288,
+   "end": 106632,
+   "count": 2
+  }
+ ]
+}

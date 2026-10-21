@@ -1,0 +1,53 @@
+{
+ "seed": [
+  "CompositionMentionTag",
+  "CompositionMentionPreview",
+  "CompositionMentionThumbnail",
+  "MentionRemoveButton"
+ ],
+ "round": 304,
+ "strictClosure": {
+  "declarations": 22,
+  "lines": 844,
+  "ringGrowth": [
+   4,
+   5,
+   7,
+   3,
+   2,
+   1
+  ]
+ },
+ "looseClosure": 19,
+ "verdict": "收敛（每圈新增最终降到 1），但规模比预期大：23 条声明分 6 圈",
+ "externalDeps": {
+  "resolvedInTree": [
+   "ProjectResourceKind ← canvas-v3/canvas-v3-constants.js",
+   "useOptionalWorkspaceStructure / useWorkbench ← canvas-v3/canvas-v3-hooks.js",
+   "StructureMedia / useQueries ← canvas-v3/ui-components.js",
+   "QuickZoomPresence ← canvas/canvas-high-blast-delete-dialog.jsx",
+   "Button$3 ← canvas/node-shell-inner.jsx",
+   "useHoverPreview ← chat/anchor-gap.jsx",
+   "COMPOSITION_RESOURCE_KINDS / sortCompositionMediaForDisplay ← chat/display-order.jsx",
+   "PreviewCardContent ← chat/preview-card-content.jsx",
+   "Skeleton ← chat/skeleton.jsx",
+   "VideoPlayIndicator ← chat/video-play-indicator.jsx",
+   "Layers ← export-engine/export-engine.js",
+   "PreviewCardRoot ← infra/base-ui.js",
+   "PreviewCardTrigger ← text-editor/use-placeholder-asset-source.jsx",
+   "WorkspaceStructurePresentation ← workspace/workspace-shell-closure.js"
+  ],
+  "npm": [
+   "ImageOff / createLucideIcon ← lucide-react",
+   "useTranslation ← react-i18next"
+  ],
+  "unresolved": [
+   "Slot"
+  ],
+  "unresolvedNote": "Slot 是 Radix 的 Slot；树里没有同名导出，需要确认 base-ui 或 @radix-ui/react-slot 里的对应物"
+ },
+ "remaining": [
+  "23 条声明分 6 圈，需要一次完整的 extract + gen-imports + 接线，属于多轮工作量",
+  "CompositionMentionTag 是 rich-user-prompt-content.jsx:452 的 @composition 提及标签，用户确认这是 v3 核心交互"
+ ]
+}
