@@ -227,6 +227,43 @@ v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation
 
 ---
 
+## 四·补四：节点工具栏组成（当前基线无法验证）
+
+**验收提到**：参照有 `node-layer-decompose`、`image-tool.asr`、`erase-subtitle`、`extract-frame`；
+我们多出 `image-inplace-edit`、`storyboard-grid`、`promote-to-asset`。
+
+**本轮实际核对下来的结果与这个描述不符，逐条说明：**
+
+| id | 参照 bundle | 我方源码 |
+|---|---|---|
+| `node-layer-decompose` | 有 | **有**（`image-tool-meta.jsx:133`） |
+| `image-inplace-edit` | **有** | 有 |
+| `storyboard-grid` | **有** | 有 |
+| `promote-to-asset` | **有** | 有 |
+| `erase-subtitle` | 有 | 只有网关端点，无工具栏项 |
+| `extract-frame` | 有 | 只在 `canvas-v3-constants.js` 的操作列表里 |
+| `image-tool.asr` | **无** | 无 |
+
+**也就是说「我们多出」的那三个，参照里也都有** —— 差异在「哪些项在某个节点的工具栏上真的渲染」，
+不是「有/没有这个工具」。
+
+**关键限制：这 7 个 id 在 36 屏参照基线的 DOM 里一个都没出现。**
+也就是说当前基线**根本没有打开过节点工具栏**，这一项**无法用它验证**。
+
+**已查到的另一半事实**：参照的工具栏 meta 里一共 9 个 `dataActionUiId`：
+
+```
+canvas.node-add-to-chat / add-to-clip-node / layer-decompose / multi-angle /
+panorama-reference / promote-to-asset / relight / storyboard-grid / watermark
+```
+
+我方的 `image-tool-meta.jsx` 只有 4 个（multi-angle / storyboard-grid / panorama-reference / layer-decompose）。
+**但这只影响 DOM 里能否看到这些按钮，不影响按钮本身是否存在。**
+
+**要真正验证这一项，需要加一屏「打开图片节点工具栏」的场景**，否则只能凭源码对照，无法给出像素/DOM 证据。
+
+---
+
 ## 五、门禁例外
 
 ### 无基线 / 基线不可用的屏
