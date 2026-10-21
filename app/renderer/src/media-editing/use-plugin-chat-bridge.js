@@ -12,6 +12,7 @@ import {
   getPluginAgentEditSession,
 } from "./input.jsx";
 import { accountScopedMessage } from "../assets/preview-media.jsx";
+import { useAgentModePreference } from "../workspace/resolve-retry-message-payload.jsx";
 const SESSION_CREATE_TIMEOUT_MS = 1e4;
 const MAX_PENDING_SESSION_CREATE_REQUESTS = 5;
 const MESSAGE_DELIVERY_TIMEOUT_MS = 1e4;
@@ -140,6 +141,9 @@ export function usePluginChatBridge(gatewayFetch, webSocket, sessionStore) {
   const gatewayFetchRef = reactExports.useRef(gatewayFetch);
   gatewayFetchRef.current = gatewayFetch;
   const messageSubscribersRef = reactExports.useRef(new Set());
+  // 第 332 轮：每个 session 已同步给服务端的 agent mode（参照的 sessionModes 对应物）
+  const syncedSessionModes = reactExports.useRef(new Map());
+  const [agentMode] = useAgentModePreference();
   const doneSubscribersRef = reactExports.useRef(new Set());
   const pendingSessionCreatesRef = reactExports.useRef(new Map());
   const pluginOwnedSessionsRef = reactExports.useRef(new Set());
@@ -662,6 +666,17 @@ export function usePluginChatBridge(gatewayFetch, webSocket, sessionStore) {
         : void 0;
       const clientMessageId = crypto.randomUUID();
       const sender = (message) => wsRef.current.send(message);
+      // 第 332 轮（验收）：参照在发每条 message 前，会先给该 session 同步一次 agent mode
+      //   （index-BBp4hclA.js 的 send2：message.session_id 存在时先 syncSessionMode）。
+      // 我们这里直接发 message，编辑器两屏就少了 set_mode 这一帧。
+      if (sessionId && syncedSessionModes.current.get(sessionId) !== agentMode) {
+        const synced = wsRef.current.send({
+          type: "set_mode",
+          session_id: sessionId,
+          mode: agentMode,
+        });
+        if (synced) syncedSessionModes.current.set(sessionId, agentMode);
+      }
       const isChatMessageSent = accountScopedMessage.send("chat", sender, {
         type: "message",
         content,
@@ -697,7 +712,7 @@ export function usePluginChatBridge(gatewayFetch, webSocket, sessionStore) {
         createdSession,
       };
     },
-    [markPluginMessageDeliverySent, requestNewSession],
+    [markPluginMessageDeliverySent, requestNewSession, agentMode],
   );
   const cancelChat = reactExports.useCallback(
     async (sessionId) => {
