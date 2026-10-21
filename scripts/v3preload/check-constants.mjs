@@ -28,6 +28,13 @@ const rows = JSON.parse(readFileSync(ROWS, "utf8")).rows;
 
 // 从 bundle 抽 `const NAME = literal`
 const LIT = /^(?:export\s+)?const\s+([A-Z][A-Z0-9_$]*)\s*=\s*([^;]{1,200}?);\s*$/;
+// 第 340 轮（验收）：同名常量带 $n 变体时（Rollup 重命名），旧实现按原名建 Map，
+// 于是 DEFAULT_PINNED$1 对不上树里的 DEFAULT_PINNED —— 直接 continue 跳过。
+// TOOLS / THUMB_PX / DEFAULT_PINNED 三次漏检都是这个原因。
+// 改成：按**基名**（去掉 $n 与尾随数字）聚合全部候选，集合内任一配对算一致；
+// 都对不上就报出来人工判断，不再静默跳过。
+const baseName = (n) => n.replace(/\$\w+$/, "").replace(/\d+$/, "");
+const bundleByBase = new Map();
 const bundleConsts = new Map();
 for (const r of rows) {
   const text = src.slice(r.start, r.end);
@@ -37,10 +44,14 @@ for (const r of rows) {
   // 只比「可以稳定比较」的字面量：数字、字符串、布尔、简单对象/数组
   if (!/^(?:-?\d+(?:\.\d+)?(?:e-?\d+)?|"[^"]*"|'[^']*'|true|false|\{[\s\S]*\}|\[[\s\S]*\])$/.test(val)) continue;
   if (!bundleConsts.has(m[1])) bundleConsts.set(m[1], { val, start: r.start });
+  const b = baseName(m[1]);
+  if (!bundleByBase.has(b)) bundleByBase.set(b, []);
+  if (!bundleByBase.get(b).some((x) => x.val === val)) bundleByBase.get(b).push({ name: m[1], val });
 }
 
 // 树里的同名常量
 const treeConsts = new Map();
+const treeByBase = new Map();
 (function walk(d) {
   for (const e of readdirSync(d)) {
     const f = path.join(d, e);
@@ -54,6 +65,9 @@ const treeConsts = new Map();
         const val = m[2].trim();
         if (!/^(?:-?\d+(?:\.\d+)?(?:e-?\d+)?|"[^"]*"|'[^']*'|true|false|\{[\s\S]*\}|\[[\s\S]*\])$/.test(val)) continue;
         if (!treeConsts.has(m[1])) treeConsts.set(m[1], { val, file: f.replace(SRC + "/", "") });
+        const tb = baseName(m[1]);
+        if (!treeByBase.has(tb)) treeByBase.set(tb, []);
+        treeByBase.get(tb).push({ val, file: f.replace(SRC + "/", ""), name: m[1] });
       }
     }
   }
@@ -72,12 +86,22 @@ const norm = (v) =>
     .replace(/\s+/g, "")
     .replace(/"/g, "'")
     .replace(/,(?=[}\]])/g, "");
-const mismatches = [], ok = [];
-for (const [name, b] of bundleConsts) {
-  const t = treeConsts.get(name);
-  if (!t) continue;                       // 树里没有就不算（那不是「值错了」）
-  if (norm(b.val) === norm(t.val) || numEq(b.val, t.val)) ok.push(name);
-  else mismatches.push({ name, bundle: b.val, tree: t.val, file: t.file });
+const mismatches = [], ok = [], unmatchedVariants = [];
+for (const [base, bVals] of bundleByBase) {
+  const tVals = treeByBase.get(base);
+  if (!tVals || tVals.length === 0) continue;   // 树里没有这个基名就不算「值错了」
+  const hitB = bVals.find((b) => tVals.some((t) => norm(b.val) === norm(t.val) || numEq(b.val, t.val)));
+  if (hitB) { ok.push(base); continue; }
+  // 变体名全部对不上：报出来，附上所有候选，交给人判断（不静默跳过）
+  const onlyVariant = bVals.every((b) => b.name !== base);
+  const rec = {
+    name: onlyVariant ? `${base}（只有 $n 变体：${bVals.map((b) => b.name).join(", ")}）` : base,
+    bundle: bVals.map((b) => b.val).join("  |  "),
+    tree: tVals.map((t) => t.val).join("  |  "),
+    file: tVals.map((t) => t.file).join(", "),
+  };
+  if (onlyVariant) unmatchedVariants.push({ ...rec, base });
+  mismatches.push(rec);
 }
 
 // 有意差异登记表
@@ -91,9 +115,14 @@ const registered = mismatches.filter((m) => intentional.has(m.name));
 mismatches.length = 0;
 mismatches.push(...kept);
 
-console.log(`常量对照：bundle 里 ${bundleConsts.size} 个，树里同名 ${[...bundleConsts.keys()].filter((n) => treeConsts.has(n)).length} 个`);
+console.log(`常量对照：bundle 里 ${bundleByBase.size} 个基名（原始 ${bundleConsts.size} 个常量），树里同名 ${[...bundleByBase.keys()].filter((n) => treeByBase.has(n)).length} 个（按基名聚合）`);
 console.log(`  已登记的有意差异 ${registered.length} 个`);
 console.log(`  一致 ${ok.length} / 不一致 ${mismatches.length}`);
+const unmatchedKept = unmatchedVariants.filter((u) => !intentional.has(u.name));
+if (unmatchedKept.length) {
+  console.log(`  其中「只在 bundle 侧有 $n 变体、且全部对不上」的 ${unmatchedKept.length} 个（需人工判断）：`);
+  for (const u of unmatchedKept) console.log(`    · ${u.base}  bundle: ${u.bundle.slice(0, 80)}`);
+}
 for (const m of mismatches) {
   console.log(`  ✗ ${m.name}  (${m.file})`);
   console.log(`      bundle: ${m.bundle.slice(0, 90)}`);

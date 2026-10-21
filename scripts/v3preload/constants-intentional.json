@@ -125,6 +125,11 @@
    "name": "DEFAULT_STATE",
    "file": "export-engine/export-engine.js",
    "reason": "第 271 轮整份镜像的第三方代码（MediaBunny / 导出引擎）内部的同名常量。与树里其他模块的同名常量语义无关，属正常的命名碰撞，不是缺陷。"
+  },
+  {
+   "name": "INITIAL_STATE（只有 $n 变体：INITIAL_STATE$1）",
+   "file": "projects/cloud-debug.jsx",
+   "reason": "同名不同实体：我们的是云调试页的 {loading,projects,errorMessage,fetchedAt}；参照 INITIAL_STATE$1 是查找替换控制器的 {isOpen,query,options,...}。按基名聚合后才会撞在一起，属正常同名，值不同不构成缺陷。（第 340 轮加 $n 变体比对时首次报出，已人工确认）"
   }
  ]
 }
