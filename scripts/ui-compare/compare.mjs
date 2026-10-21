@@ -420,9 +420,32 @@ const DISMISS_STARTUP = `(()=>{
 //
 // **试过用 Network.setBlockedURLs 挡掉，不生效**：三种模式都试了
 //   "*/api/v1/home/showcase-assets/*" / "*showcase-assets*" / "*127.0.0.1*/api/v1/home/showcase-assets/*"
-// 请求数和像素都没变。CDN 那两条能挡住是因为跨源 https；同源（127.0.0.1）请求不受这个机制影响。
+// 请求数和像素都没变。**原因未查明** —— 不能断言「同源不受影响」：
+// 页面跑在 app:// 下，对它来说 http://127.0.0.1 本来就是跨源。下一步应改用 CDP Fetch 拦截
+//（Fetch.enable + Fetch.failRequest），或在拦截不住时先列出所有调试目标，查清请求是从哪个目标发出的。
 // 要对齐只能从「让两边都取不到封面」入手（例如不给门禁夹具提供这些资源），
 // 或者接受这个差异并登记。当前保持原状，不做无效改动。
+/**
+ * 有意差异遮罩（第 324 轮，验收要求 B）。
+ *
+ * 每个条目都对应 docs/intentional-differences.md 里登记过的一条差异。
+ * **只遮登记过的元素**，位置从 DOM 的 data-action-ui-id 取，不写死坐标。
+ * 两边各自取位置、取**并集**一起遮 —— 只按一边遮，另一边会露出残留。
+ *
+ * 报告里每屏都会输出「被遮掉的面积占比」，面积变大能一眼看出来，
+ * 防止有人悄悄扩大遮罩来压低数字。
+ */
+const MASK_TARGETS = [
+  // 一.3 移除 ComfyUI：整行导航（这是唯一两个有稳定 data-action-ui-id 的 ComfyUI 元素）
+  { selector: '[data-action-ui-id="home-sidebar-nav-workflows"]', why: "intentional-differences 一.3 移除 ComfyUI" },
+  { selector: '[data-action-ui-id="home-sidebar.workflows-release-badge"]', why: "intentional-differences 一.3 移除 ComfyUI" },
+  // 一.2 无账号体系：参照左下角是用户头像，我们用连接状态替代。
+  // 只登记参照侧的 id —— 两边取并集，位置相同会把我们的 pill 一起盖掉。
+  { selector: '[data-action-ui-id="sidebar.user-avatar"]', why: "intentional-differences 一.2 无账号体系" },
+];
+// 说明：品牌 logo／标题在参照 DOM 里**没有稳定的 data-action-ui-id**（只有内联文本），
+// 按验收约束「不许手写坐标」，这里不遮，作为已登记残差在 docs 里说明。
+
 const BLOCKED_URLS = ["*cdn.hailuoai.com*", "*cdn.hailuoai.video*"];
 const SEEDED_DATE = `(() => {
   const NativeDate = Date;
@@ -1879,7 +1902,23 @@ async function runMode(mode) {
       }
       const file = path.join(outDir, `${p.id}.${mode}.png`);
       writeFileSync(file, buf);
-      results[p.id] = { file, errors: [...new Set(c.errors())], net, dom, state };
+      // 取遮罩目标的矩形（两边各取一次，比较时取并集）
+      let masks = [];
+      try {
+        const raw2 = await evalValue(
+          c,
+          `JSON.stringify(${JSON.stringify(MASK_TARGETS.map((m) => m.selector))}.flatMap((sel) => {
+             return [...document.querySelectorAll(sel)].map((el) => {
+               const r = el.getBoundingClientRect();
+               return r.width > 0 && r.height > 0
+                 ? { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }
+                 : null;
+             });
+           }).filter(Boolean))`,
+        );
+        masks = JSON.parse(raw2 ?? "[]");
+      } catch { /* 取不到就不遮这一屏 */ }
+      results[p.id] = { file, errors: [...new Set(c.errors())], net, dom, state, masks };
     }
     c.close();
   } finally {
@@ -1888,15 +1927,35 @@ async function runMode(mode) {
   return results;
 }
 
-async function diff(a, b, out, nonAAOut) {
+async function diff(a, b, out, nonAAOut, masks = []) {
   const [ia, ib] = await Promise.all([rawOf(a), rawOf(b)]);
   if (ia.info.width !== ib.info.width || ia.info.height !== ib.info.height) {
     return { ratio: 1, changed: null, nonAARatio: 1, nonAAChanged: null, pixelmatchNonAA: null, note: "尺寸不同" };
   }
-  const px = ia.info.width * ia.info.height;
+  const W = ia.info.width;
+  const H = ia.info.height;
+  // 遮罩像素：这些位置是**已登记的有意差异**，既不进分子也不进分母，
+  // 否则「把遮罩开大点」就能刷低数字。遮掉的面积单独回报。
+  const maskedBits = new Uint8Array(W * H);
+  for (const r of masks) {
+    const x0 = Math.max(0, Math.floor(r.x));
+    const y0 = Math.max(0, Math.floor(r.y));
+    const x1 = Math.min(W, Math.ceil(r.x + r.w));
+    const y1 = Math.min(H, Math.ceil(r.y + r.h));
+    for (let y = y0; y < y1; y++) maskedBits.fill(1, y * W + x0, y * W + x1);
+  }
+  const maskedCount = maskedBits.reduce((n, v) => n + v, 0);
+  const px = W * H;
   const mask = Buffer.alloc(px * 4);
   let changed = 0;
   for (let i = 0; i < px; i++) {
+    if (maskedBits[i]) {
+      // 遮罩区画成中性灰，与差异红区分开
+      const o0 = i * 4;
+      mask[o0] = mask[o0 + 1] = mask[o0 + 2] = 200;
+      mask[o0 + 3] = 255;
+      continue;
+    }
     const o = i * 4;
     const d = Math.abs(ia.data[o] - ib.data[o]) + Math.abs(ia.data[o + 1] - ib.data[o + 1]) + Math.abs(ia.data[o + 2] - ib.data[o + 2]);
     // 小于 24 的差当作抗锯齿抖动
@@ -1931,7 +1990,16 @@ async function diff(a, b, out, nonAAOut) {
     }
   }
   await sharp(nonAAMask, { raw: { width: ia.info.width, height: ia.info.height, channels: 4 } }).png().toFile(nonAAOut);
-  return { ratio: changed / px, changed, nonAARatio: nonAAChanged / px, nonAAChanged, pixelmatchNonAA };
+  // 分母扣掉遮罩面积：遮罩区是已登记的有意差异，不该算进「差异率」。
+  const effective = Math.max(1, px - maskedCount);
+  return {
+    ratio: changed / effective,
+    changed,
+    nonAARatio: nonAAChanged / effective,
+    nonAAChanged,
+    pixelmatchNonAA,
+    maskedRatio: maskedCount / px,
+  };
 }
 
 if (!existsSync(FIXTURE)) throw new Error(`缺少测试数据 ${FIXTURE}`);
@@ -1953,13 +2021,14 @@ function readGolden() {
     p.id,
     // 参照基线里没有的屏：给 null，不要让 readFileSync 把整轮跑挂掉
     REFERENCE_MISSING.has(p.id)
-      ? { file: null, errors: [], net: null, dom: null, state: null }
+      ? { file: null, errors: [], net: null, dom: null, state: null, masks: [] }
       : {
           file: path.join(GOLDEN, `${p.id}.png`),
           errors: errors[p.id] ?? [],
           net: readIf(path.join(GOLDEN, `${p.id}.net.json`)),
           dom: readIf(path.join(GOLDEN, `${p.id}.dom.json`)),
           state: readIf(path.join(GOLDEN, `${p.id}.state.json`)),
+          masks: readIf(path.join(GOLDEN, `${p.id}.mask.json`)) ?? [],
         },
   ]));
 }
@@ -2084,11 +2153,14 @@ let failed = false;
 for (const p of PAGES) {
   // 参照基线里没有的屏跳过（理由在 REFERENCE_MISSING，已在上面打印）
   if (baseMode === "golden" && REFERENCE_MISSING.has(p.id)) continue;
+  // 两边各取一次遮罩，取并集：只按一边遮，另一边会露出残留
+  const unionMasks = [...(base[p.id].masks ?? []), ...(test[p.id].masks ?? [])];
   const d = await diff(
     base[p.id].file,
     test[p.id].file,
     path.join(outDir, `${p.id}.diff.png`),
     path.join(outDir, `${p.id}.non-aa.diff.png`),
+    unionMasks,
   );
   const newErrors = test[p.id].errors.filter((e) => !base[p.id].errors.includes(e));
   const channelDiffs = {
@@ -2117,7 +2189,7 @@ for (const p of PAGES) {
   for (const channel of ["net", "dom", "state"]) {
     writeFileSync(path.join(outDir, `${p.id}.${testMode}.${channel}.json`), JSON.stringify(test[p.id][channel], null, 2));
   }
-  console.log(`${p.id.padEnd(18)} 像素原始/非AA ${(d.ratio * 100).toFixed(3).padStart(7)}%/${(d.nonAARatio * 100).toFixed(6)}% (${d.changed ?? "?"}/${d.nonAAChanged ?? "?"})  新增报错 ${newErrors.length}  网络/DOM/状态 ${channelDiffs.netDiff.length}/${channelDiffs.domDiff.length}/${channelDiffs.stateDiff.length}${d.note ? "  " + d.note : ""}`);
+  console.log(`${p.id.padEnd(18)} 像素原始/非AA ${(d.ratio * 100).toFixed(3).padStart(7)}%/${(d.nonAARatio * 100).toFixed(6)}% (${d.changed ?? "?"}/${d.nonAAChanged ?? "?"})  遮罩 ${((d.maskedRatio ?? 0) * 100).toFixed(2)}%  新增报错 ${newErrors.length}  网络/DOM/状态 ${channelDiffs.netDiff.length}/${channelDiffs.domDiff.length}/${channelDiffs.stateDiff.length}${d.note ? "  " + d.note : ""}`);
   for (const e of newErrors.slice(0, 3)) console.log("    " + e);
 }
 const report = { netVolatile: NET_VOLATILE, pages };
