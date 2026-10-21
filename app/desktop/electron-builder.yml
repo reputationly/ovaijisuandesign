@@ -45,6 +45,16 @@ files:
   - out/**/*
   - package.json
   - "!**/*.map"
+  # 第 317 轮（验收发现）：
+  #   out/reference-ui 是**原版 4.0.0 界面**（录基线用的对照物），
+  #   不该进发行包 —— 体积大，而且等于把别人的界面一起发出去。
+  - "!out/reference-ui/**"
+  # out/renderer 是 `OV_UI=ours` 的开发态界面，发行版不读它；
+  # **但 out/renderer/v3 必须留** —— 打包后主进程从
+  # `app.getAppPath()/out/renderer/v3` 加载 v3 运行时（v3/host.ts:55）。
+  - "!out/renderer/index.html"
+  - "!out/renderer/assets/**"
+  - "!out/renderer/fonts/**"
 
 asar: true
 

@@ -102,9 +102,23 @@ export class ProjectTaskService {
     // 我们原来返回 {tasks:[...]} 会被客户端直接拒掉。
     const rows = this.database().prepare("SELECT status FROM tasks").all() as { status: string }[];
     const counts = { pending: 0, queued: 0, active: 0, paused: 0, waitingUser: 0, reconciling: 0 };
+    // 第 318 轮（验收发现）：库里存的状态名与计数对象的键**不是一一对应**。
+    // `accept()` 写的是 "running"，而计数对象里没有 running 这个键（参照的形状里没有），
+    // 于是进行中的任务被算到 0 个格子里 —— 队列看起来永远是空的。
+    // 这里显式做一次映射，别靠同名巧合。
+    const STATUS_TO_COUNT: Record<string, keyof typeof counts> = {
+      running: "active",
+      active: "active",
+      pending: "pending",
+      queued: "queued",
+      paused: "paused",
+      waiting_user: "waitingUser",
+      waitingUser: "waitingUser",
+      reconciling: "reconciling",
+    };
     for (const row of rows) {
-      const key = row.status as keyof typeof counts;
-      if (key in counts) counts[key] += 1;
+      const key = STATUS_TO_COUNT[row.status];
+      if (key) counts[key] += 1;
     }
     return {
       tasks: counts,

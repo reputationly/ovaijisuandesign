@@ -1970,7 +1970,9 @@ function writeGolden(results) {
         recordedAt: new Date().toISOString(),
         referenceVersion: (() => {
           try {
-            return readFileSync(path.join(repo, "out/reference-ui/.reference"), "utf8").trim();
+            // 第 318 轮（验收发现）：.reference 实际在 app/desktop/out/ 下面，不是仓库根的 out/。
+            // 之前这里路径写错，导致 baseline-source.json 里 referenceVersion 一直是 null。
+            return readFileSync(path.join(repo, "app/desktop/out/reference-ui/.reference"), "utf8").trim();
           } catch {
             return null;
           }

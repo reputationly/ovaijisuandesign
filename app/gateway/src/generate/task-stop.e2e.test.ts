@@ -70,7 +70,9 @@ describe("停止生成任务", () => {
       output: { resources: [{ mode: "create", name: "停" }], composition: { name: "停组", type: { label: "Generated" }, placements: [{ role: "image" }] } },
     });
     expect(created.status).toBe(202);
-    const stopped = await http.post(`/api/v3/tasks/${created.body.task.id}/resolve`).send({ action: "stop", expectedRevision: created.body.task.revision });
+    // 第 318 轮（验收发现）：resolve 现在要求 requestId（对齐参照控制契约），
+    // 之前这里没带，请求 400，「停止后晚到结果不回写」这个行为其实一直没被测到。
+    const stopped = await http.post(`/api/v3/tasks/${created.body.task.id}/resolve`).send({ action: "stop", expectedRevision: created.body.task.revision, requestId: "stop-1" });
     expect(stopped.body.status).toBe("cancelled");
     release();
     await new Promise((resolve) => setTimeout(resolve, 300));

@@ -1,11 +1,12 @@
 {
-  "note": "check-undef 的例外登记（第 306 轮）。进 L0 阻断：命中必须为 0 或在此白名单里，且每条都要写理由。",
+  "note": "check-undef 的例外登记（第 306 轮引入、318 轮修正理由）。进 L0 阻断：命中必须为 0 或在此白名单里，且每条都要写准确理由。",
   "entries": [
     {
       "file": "app/renderer/src/vendor.js",
       "kind": "missing prototype mutation",
       "count": 14,
-      "reason": "three.js r1xx 的 GLTF/extras 模块在运行时往内建原型上挂属性（Info.prototype.spaceSeparated 等）。这是上游库的写法，不是我们的缺陷；静态检查看不到运行时挂载。逐个列举见 check-undef 输出。"
+      "reason": "整份 vendor 打包里两个上游库在模块初始化时往别人/自己的原型上挂方法，静态检查看不到：1) property-information@7.1.0 的 lib/util/info.js:31 往 Info.prototype 上挂 spaceSeparated/space 等（12 处）；2) @upsetjs/venn.js 与 d3-brush 里往 selection.prototype 挂 interrupt/transition（2 处）。都是上游库写法，不是我们的缺陷，运行时正常。",
+      "correctedAt": "第 318 轮：原先写的是 three.js，实际不是 —— 换到 npm 包后检查器拿旧基线比出来的误报，理由写错了。"
     }
   ]
 }

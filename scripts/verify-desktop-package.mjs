@@ -123,6 +123,55 @@ function required(resources) {
   ];
 }
 
+/**
+ * asar 里必须存在的路径（第 317 轮，验收发现）。
+ *
+ * `v3/host.ts:55` 在打包态从 `app.getAppPath()/out/renderer/v3` 加载 v3 运行时。
+ * 之前没有任何检查盯着它，于是「装好的应用里 v3 资源视图打不开」这种问题
+ * 在打包全绿的情况下漏了出去。
+ */
+const ASAR_REQUIRED = [
+  ["out/renderer/v3/bundle-manifest.json", "v3/host.ts:55（打包态 v3 运行时目录）"],
+  ["out/renderer/v3/index.html", "v3 运行时入口页"],
+  ["out/recovered-ui/index.html", "protocol.ts rendererRoot()（主界面）"],
+  ["out/main/index.js", "主进程入口"],
+];
+
+/** 把 app.asar 的文件树解析出来（只解析 header，不读内容）。 */
+function readAsarTree(resources) {
+  const asar = path.join(resources, "app.asar");
+  if (!existsSync(asar)) return { error: "产物里没有 app.asar" };
+  const fd = openSync(asar, "r");
+  try {
+    const head = Buffer.alloc(16);
+    readSync(fd, head, 0, 16, 0);
+    const jsonLen = head.readUInt32LE(12);
+    const json = Buffer.alloc(jsonLen);
+    readSync(fd, json, 0, jsonLen, 16);
+    return { files: JSON.parse(json.toString("utf8")).files ?? {} };
+  } catch (err) {
+    return { error: `读 app.asar 失败：${err.message}` };
+  } finally {
+    closeSync(fd);
+  }
+}
+
+/** 在 asar 树里按路径取节点（中间层都是 { files: {...} }）。 */
+function asarNode(tree, relPath) {
+  let node = tree;
+  for (const part of relPath.split("/")) {
+    node = node?.[part];
+    if (!node) return undefined;
+    if (node.files) node = node.files;
+  }
+  return node;
+}
+
+/** asar 里**不该**有的。 */
+const ASAR_FORBIDDEN = [
+  ["out/reference-ui", "原版 4.0.0 界面（录基线用的对照物），不该随发行包发出去"],
+];
+
 /** 明确**不该**在包里的。带了就等于白打包。 */
 const FORBIDDEN = [
   ["home-showcase/media", "468MB 示例图。走 302 回落 CDN + 首启预热前 24 张到 userData（包内只读）"],
@@ -484,6 +533,32 @@ function main() {
   console.log(`产物 resources：${path.relative(REPO, resources)}`);
 
   let bad = 0;
+  // asar 内容检查（第 317 轮）：v3 运行时在不在、原版界面有没有混进去。
+  {
+    const tree = readAsarTree(resources);
+    if (tree.error) {
+      bad++;
+      console.log(`  ❌ ${tree.error}`);
+    } else {
+      for (const [rel, why] of ASAR_REQUIRED) {
+        if (asarNode(tree.files, rel)) {
+          console.log(`  ✅ asar:${rel}`);
+        } else {
+          bad++;
+          console.log(`  ❌ asar:${rel} —— ${why}`);
+        }
+      }
+      for (const [rel, why] of ASAR_FORBIDDEN) {
+        if (asarNode(tree.files, rel)) {
+          bad++;
+          console.log(`  ❌ asar:${rel} 不该在包里 —— ${why}`);
+        } else {
+          console.log(`  ✅ asar:${rel} 已排除`);
+        }
+      }
+    }
+  }
+
   for (const [rel, why] of required(resources)) {
     const p = path.join(resources, rel);
     if (existsSync(p)) {
