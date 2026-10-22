@@ -1,6 +1,8 @@
 // entity-row.jsx
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
+import { MediaReveal } from "../media-editing/media-reveal-generation.js";
+import { entityPreviewLqip } from "../media-editing/lqip-url.js";
 import { useTranslation } from "react-i18next";
 import { classifyFileType } from "../infra/file-type.js";
 import { File$3, File$3 as File, FolderInput$2 as FolderInput, Music$2 as Music, Video$2, Video$2 as Video } from "../media-editing/custom-icons.js";
@@ -76,14 +78,15 @@ function EntityThumb({ entity }) {
   }
   return (
     <span className={wrapperCls} style={wrapperStyle}>
-      <img
+      {/* 4.0.3：换成 MediaReveal；fit="contain" 与原 object-contain 一致 */}
+      <MediaReveal
         src={resolvedUrl}
         alt=""
+        fit="contain"
+        lqip={entityPreviewLqip(entity, previewUrl)}
         loading="lazy"
-        decoding="async"
-        draggable={false}
-        className="w-full h-full object-contain"
-        onError={() => setErrored(true)}
+        className="h-full w-full"
+        onFailure={() => setErrored(true)}
       />
     </span>
   );

@@ -38,3 +38,16 @@ export function safeDecode(value) {
     return value;
   }
 }
+
+/**
+ * 4.0.3 新增：这个实体要不要出 LQIP 占位图。
+ *   有封面且用的就是封面 -> "auto"
+ *   主附件是图片         -> "auto"
+ *   其它                 -> false
+ * 有多处调用（资产行、实体行、实体网格封面），所以放在这里统一提供。
+ */
+export function entityPreviewLqip(entity, previewUrl) {
+  if (!previewUrl) return false;
+  if (entity.coverUrl && previewUrl === entity.coverUrl) return "auto";
+  return entity.primaryAttachmentKind === "image" ? "auto" : false;
+}
