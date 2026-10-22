@@ -176,9 +176,11 @@ const Route$b = createFileRoute("/_home/")({
 const loadHomeWorkflowsRoute = () =>
   (() => import("../workflows/index.jsx"))();
 const Route$a = createFileRoute("/_home/workflows/")({
-  beforeLoad: () => {
-    throw redirect({ to: "/" });
-  },
+  // 4.0.3：/workflows 是一个**工作流列表页**（精选 / 我的 两个页签）。
+  // 我们这里原来无条件重定向回首页，导致这一路由永远只显示首页 hero
+  // —— 门禁上表现为 workflows 屏 11.4% 差异且未登记差异为 0
+  // （元素 id 都来自同一个壳，但内容区完全不同）。已按 4.0.3 去掉重定向。
+  beforeLoad: () => {},
   component: lazyRouteComponent(loadHomeWorkflowsRoute, "component"),
   validateSearch: (search) => ({
     tab:
