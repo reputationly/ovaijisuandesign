@@ -110,6 +110,9 @@ export function AttachmentPreview({
   return (
     <div
       data-message-input-attachment-preview="true"
+      // 4.0.3：无附件时容器仍在 DOM 里（参照如此），但不占布局 ——
+      // 否则空容器会把下方内容整体推低（实测 home +0.40pp）。
+      hidden={visibleAttachments.length === 0 && failedAttachments.length === 0 ? true : undefined}
       className="flex flex-col gap-1 pt-0 pb-0"
     >
       {/* 4.0.3：这个横向轨**总是渲染**（参照在没有附件时也有它），
