@@ -1,4 +1,9 @@
 // attachment-preview.jsx
+import {
+  attachmentMotionStyle,
+  createRailScrollBy,
+  useAttachmentRailOverflow,
+} from "../media-editing/attachment-presence.js";
 import reactExports from "react";
 import { useTranslation } from "react-i18next";
 import { AlertCircle, AtSign, Loader2, X$7 as X } from "../media-editing/lucide-icon-wraps.js";
@@ -99,13 +104,15 @@ export function AttachmentPreview({
     failedAttachments.length === 1 && failedAttachments[0]?.error
       ? failedAttachments[0].error
       : t("chat.uploadFailedHint");
+  const rail = useAttachmentRailOverflow(visibleAttachments, true);
+  const railScrollBy = createRailScrollBy(rail.scrollRef);
   return (
     <div
       data-message-input-attachment-preview="true"
       className="flex flex-col gap-1 pt-0 pb-0"
     >
       {visibleAttachments.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full pb-1">
+        <div ref={rail.scrollRef} data-action-ui-id="composer-reference-rail" data-fade-left={rail.overflow.left || undefined} data-fade-right={rail.overflow.right || undefined} onScroll={rail.syncOverflow} style={attachmentMotionStyle} className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full pb-1">
           {visibleAttachments.map((att) => {
             const isPluginNode = att.kind === "plugin-node";
             const isImage = att.fileType === "image" && att.previewUrl;
