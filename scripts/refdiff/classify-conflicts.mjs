@@ -50,16 +50,36 @@ function grab(ver, n) {
 }
 
 const report = JSON.parse(readFileSync(".probe/refdiff/merge-report.json", "utf8"));
-const out = { applicable: [], needsNew: [], unknown: [] };
+/** 在我们源码的某个文件里按名字取出语句（与 bundle 侧同样的抓取方式）。 */
+function grabOurs(file, n) {
+  let s;
+  try { s = readFileSync(path.join(SRC, file), "utf8"); } catch { return ""; }
+  for (const pat of [`function ${n}(`, `const ${n} =`, `class ${n} `]) {
+    const i = s.indexOf(pat);
+    if (i > 0) {
+      const j = s.indexOf("\nfunction ", i + 10);
+      return s.slice(i, j > 0 ? j : i + 2500);
+    }
+  }
+  return "";
+}
+
+const out = { applied: [], applicable: [], needsNew: [], unknown: [] };
 for (const c of report.conflicts) {
   const n = c.name;
   const a = grab("4.0.0", n), b = grab("4.0.3", n);
   if (!a || !b) { out.unknown.push({ file: c.file, name: n }); continue; }
   const added = [...ids(b)].filter((x) => !ids(a).has(x));
   const missing = added.filter((x) => !tree.has(x));
-  (missing.length ? out.needsNew : out.applicable).push({ file: c.file, name: n, missing });
+  if (missing.length) { out.needsNew.push({ file: c.file, name: n, missing }); continue; }
+  // 第 32 轮：先判「是不是已经应用了」——把我们源码里的同名语句取出来，
+  // 与 4.0.3 版本做归一化比较，相同就不用再列进待办（上一轮就因此白核对了 1/3 的时间）。
+  const ours = grabOurs(c.file, n);
+  const norm = (x) => x.replace(/\$(?:\d+|\w+)\b/g, "").replace(/\b([A-Za-z_$][\w$]*?)(\d+)\b/g, "$1").replace(/\s+/g, "");
+  if (ours && norm(ours) === norm(b)) { out.applied.push({ file: c.file, name: n }); continue; }
+  out.applicable.push({ file: c.file, name: n, missing });
 }
 writeFileSync("/tmp/conflict-classes.json", JSON.stringify(out, null, 1));
-console.log(`可直接应用 ${out.applicable.length} · 需要新符号 ${out.needsNew.length} · 定位不到 ${out.unknown.length}`);
+console.log(`已应用 ${out.applied.length} · 可直接应用 ${out.applicable.length} · 需要新符号 ${out.needsNew.length} · 定位不到 ${out.unknown.length}`);
 console.log("\n可直接应用的前 15 条：");
 for (const x of out.applicable.slice(0, 15)) console.log(`  ${x.file}  ::  ${x.name}`);
