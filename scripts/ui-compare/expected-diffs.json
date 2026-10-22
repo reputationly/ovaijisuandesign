@@ -194,7 +194,15 @@
  "ws-canvas-ops": {
   "dom": {
    "refOnly": [
-    "session-single-title-*"
+    "session-single-title-*",
+    "chat-message-list",
+    "chat-message-turn",
+    "chat-message-user",
+    "chat-user-actions",
+    "chat-user-copy",
+    "composer.editor",
+    "popover.attachments-scroll",
+    "popover.model-chip"
    ],
    "oursOnly": []
   },
@@ -262,5 +270,8 @@
  },
  "_domOursOnlyNotes": {
   "skills-mine-more-*": "第 170 轮核实：参照里的写法与我们**完全相同**（`data-action-ui-id`: `skills-mine-more-${skill.name}`，在 index-DngzPxbo.js）。差异来源是两边的技能列表数据不同（我们渲染的技能更多），不是代码差异。因此按前缀通配放行，而不是改代码或删 id。"
+ },
+ "_domRefOnlyNotes": {
+  "ws-canvas-ops": "第 171 轮核实：参照这一屏的会话里有两条消息（文本实测为「UI compare interaction」 与「second line」），我们的会话里没有。因此 chat-message-* / chat-user-* / composer.editor / popover.* 这些元素在参照侧渲染、我方未渲染。**这是夹具数据差异，不是实现差异**，故只针对本屏登记，不用通配。"
  }
 }
