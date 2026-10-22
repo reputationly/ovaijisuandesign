@@ -239,9 +239,20 @@ if (isMain) {
           }
         }
         const mapping = new Map();
+        // 方向一：自由名带后缀、去后缀是已声明的 -> 把自由名改回基名（`pump2 -> pump`）
         for (const n of after) {
           const m2 = /^([A-Za-z_$][\w$]*?)(\$\d+|\d+)$/.exec(n);
           if (m2 && declared.has(m2[1])) mapping.set(n, m2[1]);
+        }
+        // 方向二（第 361 轮，修掉 717 条的主因）：自由名本身是基名、而合并文本声明了它的
+        // 带后缀版本 -> 把**声明的那个**改回基名。
+        // 实例：4.0.3 把 `rowKey,` 改成了 `rowKey: rowKey2,`（rollup 避让重名），
+        // 我们源码里没有重名，本地名就该保持 `rowKey`。这是纯改名，不是结构冲突。
+        for (const n of after) {
+          const m3 = new RegExp(`\\b${n.replace(/\$/g, "\\$")}(\\$\\d+|\\d+)\\b`, "g");
+          for (const hit of mergedText.matchAll(m3)) {
+            mapping.set(hit[0], n);
+          }
         }
         if (mapping.size) {
           let fixed = mergedText;
