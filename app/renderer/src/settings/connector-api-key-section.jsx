@@ -19,7 +19,7 @@ import { Button } from "../infra/dialog-content.jsx";
 // 4.0.3：user_config 支持多字段替换（不再只认一个 API key）
 // 4.0.3：user_config 多字段替换。apiKeyExtraFields 需要界面配合才用得上，
 // 所以这里先只引 substituteUserConfig（见文件末尾的剩余工作说明）。
-import { substituteUserConfig } from "./user-config-substitution.js";
+import { apiKeyExtraFields, substituteUserConfig } from "./user-config-substitution.js";
 import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 const API_KEY_MAX_LENGTH = 2048;
@@ -95,6 +95,12 @@ export function ConnectorApiKeySection({
   );
   const platform = usePlatform();
   const [apiKey, setApiKey] = reactExports.useState("");
+  // 4.0.3：模板里除 configKey 之外还引用的字段，也要让用户填。
+  const extraFields = reactExports.useMemo(
+    () => (manifest ? apiKeyExtraFields(manifest) : []),
+    [manifest],
+  );
+  const [extraValues, setExtraValues] = reactExports.useState({});
   const [submitting, setSubmitting] = reactExports.useState(false);
   const [openingLogin, setOpeningLogin] = reactExports.useState(false);
   const [error, setError] = reactExports.useState();
@@ -144,6 +150,7 @@ export function ConnectorApiKeySection({
             connectorId,
             manifest.description,
           ),
+          extraValues,
         ),
       );
       if (!mounted.current) return;
@@ -292,6 +299,29 @@ export function ConnectorApiKeySection({
                       {copy("invalidKey")}
                     </p>
                   ) : null}
+                  {extraFields.map((field) => (
+                    <div key={field.key} className="mt-3">
+                      <label className="text-[13px] text-muted-foreground" htmlFor={`extra-${field.key}`}>
+                        {field.label ?? field.key}
+                      </label>
+                      <Input3
+                        id={`extra-${field.key}`}
+                        value={extraValues[field.key] ?? field.default ?? ""}
+                        onChange={(e) => {
+                          setExtraValues((prev) => ({ ...prev, [field.key]: e.target.value }));
+                          setError(undefined);
+                        }}
+                        disabled={submitting}
+                        autoComplete="off"
+                        spellCheck={false}
+                        maxLength={API_KEY_MAX_LENGTH}
+                        aria-required={field.required === true ? "true" : undefined}
+                        placeholder={field.placeholder ?? ""}
+                        className="mt-1 h-10 rounded-lg bg-card"
+                        data-action-ui-id={`connectors-${connectorId}-extra-${field.key}`}
+                      />
+                    </div>
+                  ))}
                 </div>
               </ConnectorDialogStep>
             </div>
