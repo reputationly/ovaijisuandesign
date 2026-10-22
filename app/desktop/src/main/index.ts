@@ -12,6 +12,7 @@ import path from "node:path";
 import { app, BrowserWindow, dialog, ipcMain, Notification, session, shell } from "electron";
 
 import { AppGateway, GatewayReadinessService, readinessView } from "./app-gateway.js";
+import { ExternalAgentService } from "./external-agent/external-agent-service.js";
 import { GatewayManager } from "./gateway/gateway-manager.js";
 import { APP_LEVEL_GATEWAY_KEY, GatewayRegistry } from "./gateway/gateway-registry.js";
 import { IPC } from "./ipc/channels.js";
@@ -226,6 +227,7 @@ async function boot(): Promise<Running | undefined> {
     workbenchServiceDeps(workbenchHostDeps, workbenchMedia),
   );
   app.on("will-quit", () => {
+    void externalAgent.stop();
     nativeWorkbench.dispose();
     workbenchMedia.dispose();
   });
@@ -243,6 +245,26 @@ async function boot(): Promise<Running | undefined> {
   const appGateway = new AppGateway(appGatewayProc, readiness, log);
   gateways.register(APP_LEVEL_GATEWAY_KEY, { url: () => appGatewayProc.running?.url });
   const appUrl = await appGateway.allocate();
+
+  // 外部 Agent（4.0.3）：按设置决定起不起；gateway 没就绪就不起（每一轮都要打回 gateway）
+  const externalAgent = new ExternalAgentService({
+    exec: nodeExec,
+    entry: roots.resources
+      ? path.join(roots.resources, "mcp-tools/dist/external-main.js")
+      : path.join(roots.repoRoot!, "app/mcp-tools/dist/external-main.js"),
+    readSettings: () => {
+      const v = store.get("externalAgent") as
+        | { enabled?: boolean; port?: number; allowedProjectPaths?: string[] }
+        | undefined;
+      return {
+        enabled: v?.enabled === true,
+        port: typeof v?.port === "number" ? v.port : 18810,
+        allowedProjectPaths: Array.isArray(v?.allowedProjectPaths) ? v.allowedProjectPaths : [],
+      };
+    },
+    gatewayUrl: () => appGatewayProc.running?.url,
+    log,
+  });
 
   // 项目
   const projects = new ProjectService({
@@ -492,6 +514,13 @@ async function boot(): Promise<Running | undefined> {
   // 窗口不等 gateway
   const win = showMainWindow(appUrl);
   void appGateway.startInBackground();
+  // 外部 Agent 等 gateway 拿到地址再起；起不来只记日志，不影响应用
+  void (async () => {
+    for (let i = 0; i < 40 && !appGatewayProc.running?.url; i += 1) {
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    await externalAgent.start();
+  })();
 
   // 恢复上次的标签；给渲染层的通知等页面加载完再发（preload 还会替它攒着）
   const pageLoaded = new Promise<void>((resolve) => win.webContents.once("did-finish-load", () => resolve()));
