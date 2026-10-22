@@ -1823,6 +1823,39 @@ async function stopComparisonProcesses(child, userDataDir) {
   signal("SIGKILL");
 }
 
+/**
+ * 夹具状态指纹（第 2030 轮）。
+ *
+ * 为什么需要：走查在同一个应用实例里连跑 37 屏，工作区的 `.hilo/index.sqlite`
+ * 会随每屏的操作变化（会话、消息、标签页都写在这里）。同一份代码
+ * 「单屏跑」与「全量跑」结果不同，根因就在这个文件的漂移上。
+ *
+ * 每屏开始前算一次，写进 report.json(fixtureHashes)，就能看出状态是从哪一屏开始偏的。
+ * 注意：只读，不修改夹具。
+ */
+function fixtureHash() {
+  const targets = [];
+  for (const workspace of [WS_A, WS_B]) {
+    for (const relative of [".hilo/index.sqlite", ".hilo/index.sqlite-wal", ".hilo/canvas.json", ".hilo/storage.json"]) {
+      const file = path.join(workspace, relative);
+      if (existsSync(file)) targets.push(file);
+    }
+  }
+  const hash = createHash("sha256");
+  for (const file of targets.sort()) {
+    hash.update(path.basename(path.dirname(file)));
+    hash.update(path.basename(file));
+    try {
+      hash.update(readFileSync(file));
+    } catch {
+      hash.update("<unreadable>");
+    }
+  }
+  return { digest: hash.digest("hex").slice(0, 16), files: targets.length };
+}
+
+const fixtureHashes = new Map();
+
 async function runMode(mode) {
   // 上一次异常退出留下的实例会占着调试端口，连上去就是旧页面
   if (await fetch(`http://127.0.0.1:${PORT}/json`).then(() => true, () => false)) throw new Error(`调试端口 ${PORT} 已被占用，先关掉残留的 Electron`);
@@ -1840,6 +1873,14 @@ async function runMode(mode) {
   generateFixtures(WS_B);
   stabilizeFixtureTimes(WS_A);
   stabilizeFixtureTimes(WS_B);
+  // 第 2030 轮：把两份工作区的 .hilo 各存一份"干净快照"。
+  // 为什么需要：全量跑时第 28 屏（ws-video）之后 index.sqlite 会被写入，
+  // 后续屏读到的是被别人改动过的状态（实测指纹从 1dd2b334 变成 9 种）。
+  // 每屏导航前从快照还原，两侧才都从同一状态出发。
+  const pristineRoot = path.join(ROOT, "_pristine");
+  for (const [name, dir] of [["ws-a", WS_A], ["ws-b", WS_B]]) {
+    cpSync(path.join(dir, ".hilo"), path.join(pristineRoot, name), { recursive: true });
+  }
   const env = {
     ...process.env,
     OV_UI: mode,
@@ -1929,6 +1970,21 @@ async function runMode(mode) {
       // （侧栏渲染 connectors 入口时会标记已读），全量跑下 19 屏仍缺
       // home-sidebar.connectors-release-badge。种子脚本在应用任何代码之前执行，
       // 每次新文档都生效，应用读到的必然是空值。
+      // 第 2030 轮：还原 .hilo 到干净快照（在算指纹之前，让指纹能验证还原是否成功）
+      if (process.env.NO_FIXTURE_RESET !== "1") {
+        for (const [name, dir] of [["ws-a", WS_A], ["ws-b", WS_B]]) {
+          const pristine = path.join(ROOT, "_pristine", name);
+          if (!existsSync(pristine)) continue;
+          rmSync(path.join(dir, ".hilo"), { recursive: true, force: true });
+          cpSync(pristine, path.join(dir, ".hilo"), { recursive: true });
+        }
+      }
+      // 第 2030 轮：记录进入本屏之前的夹具状态指纹
+      const fixtureState = fixtureHash();
+      fixtureHashes.set(`${mode}:${p.id}`, fixtureState);
+      if (process.env.DIAG_FIXTURE === "1") {
+        console.log(`  [fx] ${p.id}: ${fixtureState.digest}`);
+      }
       const coachMarkSeed = await c.send("Page.addScriptToEvaluateOnNewDocument", {
         source: `(() => { try { for (const k of Object.keys(localStorage)) if (k.includes("dismissedCoachMarks")) localStorage.removeItem(k); } catch {} })()`,
       });
@@ -2623,6 +2679,11 @@ for (const p of PAGES) {
   }
   for (const e of newErrors.slice(0, 3)) console.log("    " + e);
 }
-const report = { netVolatile: NET_VOLATILE, pages };
+const report = {
+  netVolatile: NET_VOLATILE,
+  // 第 2030 轮：每屏进入前的夹具状态指纹（诊断用；用于定位状态从哪屏开始漂移）
+  fixtureHashes: Object.fromEntries(fixtureHashes),
+  pages,
+};
 writeFileSync(path.join(outDir, "report.json"), JSON.stringify(report, null, 2));
 process.exit(failed ? 1 : 0);
