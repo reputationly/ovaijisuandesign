@@ -24,6 +24,7 @@ import { API_PATHS } from "../infra/workspace-gateway.js";
 import { useCurrentWorkspace } from "../infra/shared-runtime.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
+import { connectorSkillLoadFailed } from "./connector-skill-label.js";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, ClipboardList, SquareMousePointer } from "./lucide-icon-wraps.js";
 import { useResolveMediaUrl } from "../workspace/tool-label-definitions.js";
@@ -280,6 +281,16 @@ function renderToolLabel(entry, t) {
   }
   if (entry.category === "skillOp") {
     const skillName = extractSkillName(entry.toolArgs);
+    // 4.0.3：design_capability_get 跑完但没加载到 skill 时，提示"加载失败"而不是"已加载"。
+    if (
+      skillName &&
+      entry.toolName === "design_capability_get" &&
+      entry.toolStatus !== "running" &&
+      entry.toolStatus !== "pending" &&
+      connectorSkillLoadFailed(entry.toolResult)
+    ) {
+      return t("chat.activity.skillLoadFailed", { name: skillName });
+    }
     if (!skillName) return t("chat.activity.skillLoadedFallback");
     return (
       <>

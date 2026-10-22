@@ -2280,6 +2280,8 @@ const zh = {
   "chat.activity.search.running": "搜索中…",
   "chat.activity.skillLoaded": "加载Skill：{{name}}",
   "chat.activity.skillLoadedFallback": "加载Skill",
+  // 4.0.3：design_capability_get 跑完但没拿到 skill 时的提示
+  "chat.activity.skillLoadFailed": "加载Skill失败：{{name}}",
   "chat.activity.skillLoadedPrefix": "加载Skill",
   "chat.activity.thinking": "思考 {{count}} 次",
   "chat.activity.thought": "思考",
