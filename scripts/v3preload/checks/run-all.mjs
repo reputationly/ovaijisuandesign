@@ -104,7 +104,9 @@ for (const file of checks.sort()) {
   const out = `/tmp/v3-check-${file.replace(/\.mjs$/, "")}.mjs`;
   console.log(`\n──── ${file} ────`);
   try {
-    execFileSync(esbuild, [entry, "--bundle", "--format=esm", `--outfile=${out}`, "--loader:.js=jsx", "--loader:.png=file", "--loader:.svg=file", "--loader:.jpg=file",
+    execFileSync(esbuild, [entry, "--bundle", "--format=esm",
+      // 第 42 轮：要加 --platform=node，否则检查脚本里的 `node:fs` / `node:path` 解析不了
+      "--platform=node", `--outfile=${out}`, "--loader:.js=jsx", "--loader:.png=file", "--loader:.svg=file", "--loader:.jpg=file",
       `--inject:${path.join(here, "dom-stub.mjs")}`,
       "--external:pdfjs-dist", "--external:./use-window-chrome-*", "--external:./index-*",
       "--external:*.css", "--log-level=error"], { stdio: "inherit" });

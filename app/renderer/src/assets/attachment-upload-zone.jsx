@@ -772,9 +772,12 @@ function CoverCropDialog({
   const { t: translate } = useTranslation();
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+      {/* 4.0.3 这里是 mask="immersive" + size="md" + data-action-ui-id。
+          原来这一处被 token 合并弄成了重复 size 且与 data 属性粘连，已按参照补全。 */}
       <DialogContent
+        mask="immersive"
         size="md"
-        size="md"data-action-ui-id="asset-center-cover-crop-dialog"
+        data-action-ui-id="asset-center-cover-crop-dialog"
       >
         <DialogHeader>
           <DialogTitle>{translate("assetCenter.cover.cropTitle")}</DialogTitle>
