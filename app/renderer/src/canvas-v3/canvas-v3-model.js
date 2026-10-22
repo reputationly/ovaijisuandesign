@@ -5370,12 +5370,31 @@ function getDerivedNodePositionFromCanvasMulti(canvas, sourceNodeIds, mode2, opt
   );
 }
 
+/**
+ * 4.0.3 新增：把一张图缩到模型可接受范围内所需的缩放系数（不超过 1，即只缩不放）。
+ * 同时受 maxWidth / maxHeight / maxPixels 三个上限约束。
+ */
+function downscaleFactor(size2, width, height) {
+  return Math.min(
+    1,
+    (size2.maxWidth ?? Infinity) / width,
+    (size2.maxHeight ?? Infinity) / height,
+    Math.sqrt((size2.maxPixels ?? Infinity) / (width * height)),
+  );
+}
+
 function imageSizeError(size2, references) {
   if (!size2) return void 0;
   for (const { kind: kind2, width, height } of references) {
     if (kind2 !== "image" || !width || !height) continue;
     const ratio = width / height;
-    const fits = width >= (size2.minWidth ?? 0) && width <= (size2.maxWidth ?? Infinity) && height >= (size2.minHeight ?? 0) && height <= (size2.maxHeight ?? Infinity) && width * height <= (size2.maxPixels ?? Infinity) && ratio >= (size2.minRatio ?? 0) && ratio <= (size2.maxRatio ?? Infinity);
+    // 4.0.3：不再按绝对尺寸判，而是先算缩放到上限以内的系数，再按缩放后的尺寸判下限。
+    const scale2 = downscaleFactor(size2, width, height);
+    const fits =
+      Math.floor(width * scale2) >= (size2.minWidth ?? 0) &&
+      Math.floor(height * scale2) >= (size2.minHeight ?? 0) &&
+      ratio >= (size2.minRatio ?? 0) &&
+      ratio <= (size2.maxRatio ?? Infinity);
     if (fits) continue;
     const bounds = [
       ...bound("width (px)", size2.minWidth, size2.maxWidth),
