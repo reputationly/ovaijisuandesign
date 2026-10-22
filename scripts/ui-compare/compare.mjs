@@ -2277,6 +2277,27 @@ function readGolden() {
       );
     }
   }
+  // 批次一致性检查（第 348 轮）：正式基线必须是一次会话里整批录的。
+  {
+    const batches = new Map();
+    for (const p of PAGES) {
+      if (REFERENCE_MISSING.has(p.id)) continue;
+      const f = path.join(GOLDEN, `${p.id}.batch.json`);
+      if (!existsSync(f)) continue;
+      try {
+        const b = JSON.parse(readFileSync(f, "utf8")).batchId;
+        batches.set(b, (batches.get(b) ?? 0) + 1);
+      } catch { /* 读不了就当没记 */ }
+    }
+    if (batches.size > 1) {
+      const list = [...batches.entries()].map(([b, n]) => `${b}(${n} 屏)`).join(", ");
+      console.warn(`⚠ 基线混了多个录制批次：${list}`);
+      console.warn("  正式基线应在一次会话里整批录制；单屏录制只用于排查，结果不能进正式目录。");
+    } else if (batches.size === 1) {
+      const [[b, n]] = [...batches.entries()];
+      console.log(`基线批次：${b}（${n} 屏）`);
+    }
+  }
   const missing = PAGES.filter(
     (p) =>
       !REFERENCE_MISSING.has(p.id) &&
@@ -2330,6 +2351,14 @@ const REFERENCE_MISSING = new Map([
   ["project-assets", "同上"],
 ]);
 
+/**
+ * 基线批次 id（第 348 轮，验收建议）。
+ *
+ * **正式基线只能在一次会话里整批录制** —— 单独重录个别屏，会和全量运行时
+ * 的状态不一致（本轮踩过：单独重录 4 屏后那 4 屏反而变差）。
+ * 这里给每次录制进程一个批次 id，逐屏写盘；比较时若发现各屏批次不一致就告警。
+ */
+const RECORD_BATCH_ID = `${new Date().toISOString()}-${Math.random().toString(36).slice(2, 8)}`;
 const RECORDED_SCRIPTS = [];
 
 function writeGolden(results) {
@@ -2353,6 +2382,7 @@ function writeGolden(results) {
             return null;
           }
         })(),
+        batchId: RECORD_BATCH_ID,
         mainScript: scripts.find((s) => /assets\/index-[\w-]+\.js$/.test(s)) ?? null,
         allScripts: scripts.slice(0, 12),
       },
@@ -2373,6 +2403,7 @@ function writeGolden(results) {
     // 第 326 轮（验收发现）：**这里之前没写 mask.json**，于是比较时参照侧的遮罩位置永远是空的，
     // 「两边取并集」实际只用了我方一侧 —— 只在参照里有的元素（ComfyUI 行、用户头像）一直没被遮住。
     writeFileSync(path.join(GOLDEN, `${id}.mask.json`), JSON.stringify(r.masks ?? [], null, 1));
+    writeFileSync(path.join(GOLDEN, `${id}.batch.json`), JSON.stringify({ batchId: RECORD_BATCH_ID }, null, 1));
     errors[id] = r.errors;
     for (const channel of ["net", "dom", "state"]) {
       writeFileSync(path.join(GOLDEN, `${id}.${channel}.json`), JSON.stringify(r[channel], null, 2));

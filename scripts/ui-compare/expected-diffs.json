@@ -38,6 +38,7 @@
     "canvas.text-quick-write",
     "chat-message-list",
     "chat-message-turn",
+    "popover.model-chip",
     "session-single-title-*"
    ],
    "oursOnly": []
@@ -54,7 +55,8 @@
    "oursOnly": []
   },
   "_why": [
-   "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异"
+   "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异",
+   "**待做功能**：聊天模型按钮已有（chat-model-btn），弹层内容（popover.model-chip）尚未复刻"
   ]
  },
  "ws-layout": {
@@ -176,10 +178,13 @@
   },
   "_why": [
    "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异",
-   "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）"
+   "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）",
+   "**待做功能**：编辑器类屏的会话 mode 同步未接上。注：单屏录制时参照不发这一帧，只有全量连续录制才发，因此必须按全量基线判断"
   ],
   "ws": {
-   "refOnly": [],
+   "refOnly": [
+    "set_mode"
+   ],
    "oursOnly": []
   }
  },
@@ -192,32 +197,45 @@
   },
   "_why": [
    "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异",
-   "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）"
+   "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）",
+   "**待做功能**：编辑器类屏的会话 mode 同步未接上。注：单屏录制时参照不发这一帧，只有全量连续录制才发，因此必须按全量基线判断"
   ],
   "ws": {
-   "refOnly": [],
+   "refOnly": [
+    "set_mode"
+   ],
    "oursOnly": []
   }
  },
  "ws-text-editor": {
   "ws": {
-   "refOnly": [],
+   "refOnly": [
+    "set_mode"
+   ],
    "oursOnly": []
   },
   "_why": [
-   "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）"
+   "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）",
+   "**待做功能**：聊天模型按钮已有（chat-model-btn），弹层内容（popover.model-chip）尚未复刻",
+   "**待做功能**：编辑器类屏的会话 mode 同步未接上。注：单屏录制时参照不发这一帧，只有全量连续录制才发，因此必须按全量基线判断"
   ],
   "dom": {
-   "refOnly": [],
+   "refOnly": [
+    "popover.model-chip"
+   ],
    "oursOnly": []
   }
  },
  "ws-select-image": {
   "dom": {
-   "refOnly": [],
+   "refOnly": [
+    "popover.model-chip"
+   ],
    "oursOnly": []
   },
-  "_why": []
+  "_why": [
+   "**待做功能**：聊天模型按钮已有（chat-model-btn），弹层内容（popover.model-chip）尚未复刻"
+  ]
  },
  "ws-video": {
   "dom": {
