@@ -5,6 +5,32 @@ import { isSkillsOnly, resolveConnectorIcon } from "../skills/connectors/hcp-cat
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button } from "../infra/dialog-content.jsx";
 import { homeService } from "../workspace/home-service.jsx";
+
+/**
+ * 订阅某个连接器的安装阶段（4.0.3 新增）。
+ *
+ * 参照的实现直接调 `homeService.connector.onDidChangeConnectorState(...)`。
+ * **本仓库的 GenericConnectorService 目前没有暴露这个事件**（只有服务标识符与注入点），
+ * 所以这里做了显式保护：事件不存在时返回 undefined（即"没有进行中的阶段"），
+ * 一旦连接器服务补上这个事件，本 hook 无需修改即可生效。
+ *
+ * 阶段值语义（照参照）：done / failed 视为**已结束**（返回 undefined），
+ * 其它值（如 downloading / installing）原样透出，供界面显示进度。
+ */
+function useConnectorInstallPhase(connectorId) {
+  const [phase, setPhase] = reactExports.useState();
+  reactExports.useEffect(() => {
+    const connector = homeService?.connector;
+    const subscribe = connector?.onDidChangeConnectorState;
+    if (typeof subscribe !== "function") return undefined;
+    const subscription = subscribe.call(connector, (event) => {
+      if (event.connectorId !== connectorId || !event.phase) return;
+      setPhase(event.phase === "done" || event.phase === "failed" ? undefined : event.phase);
+    });
+    return () => subscription.dispose();
+  }, [connectorId]);
+  return phase;
+}
 import {
   ConnectorConsentNote,
   ConnectorDialogActions,
