@@ -71,6 +71,7 @@ import {
   useOptionalUpdaterContext,
 } from "../settings/use-active-runtime.js";
 import { FolderWhitelistSection } from "../settings/folder-whitelist-section.jsx";
+import { ExternalAgentSection } from "../settings/external-agent-section.jsx";
 import { DiagnosticsGroup } from "../settings/diagnostics-group.jsx";
 import { ImBridgeManager } from "../settings/im-bridge-manager.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
@@ -676,6 +677,7 @@ function AdvancedSection() {
       </SettingGroup>
       <DiagnosticsGroup />
       <FolderWhitelistSection />
+      <ExternalAgentSection />
     </div>
   );
 }
