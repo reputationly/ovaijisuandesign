@@ -522,6 +522,13 @@ async function boot(): Promise<Running | undefined> {
     await externalAgent.start();
   })();
 
+  // 设置页改了 externalAgent（开关 / 端口 / 允许路径）就重启服务。
+  // 用 GlobalStore 的 onDidChange，不额外加 IPC 通道。
+  const sub = store.onDidChange((e) => {
+    if (e.key === "externalAgent") void externalAgent.restart();
+  });
+  app.on("will-quit", () => sub.dispose());
+
   // 恢复上次的标签；给渲染层的通知等页面加载完再发（preload 还会替它攒着）
   const pageLoaded = new Promise<void>((resolve) => win.webContents.once("did-finish-load", () => resolve()));
   void runStartupRestore({
