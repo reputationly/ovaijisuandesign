@@ -89,6 +89,7 @@ import {
 import { UpdaterErrorBoundary } from "./minimal-forced-fallback.jsx";
 import { LibTvConnectorDialog } from "./lib-tv-connector-dialog.jsx";
 import { reportRumAction } from "../i18n/init-rum.js";
+import { ExternalAgentSection } from "./external-agent-section.jsx";
 import {
   actionTrailLog,
   PlatformProvider,
@@ -1577,8 +1578,30 @@ function CanvasRenderRuntimeProvider({
     </CanvasRenderPolicyProvider>
   );
 }
-function ImBridgeDialog({ open, onOpenChange }) {
+/**
+ * 连接对话框（4.0.3 起是双标签页）。
+ *
+ * 参照 4.0.3：`initialTab` 默认 "im"，但**海外区没有 IM 接入**，
+ * 这时要落到 "agent"（外部 Agent）那一页，否则用户打开就看到一个不可用的页签。
+ * 这正是 isImConnectAvailable 存在的意义。
+ *
+ * 与参照的差别：参照把外部 Agent 面板实现在这个文件里（ExternalAgentManager），
+ * 我们复用的是已做好的 ExternalAgentSection（走 store + 主进程自动重启），
+ * 功能一致、挂载点也一致了。
+ */
+/** 4.0.3：页签按钮样式（参照同名常量，逐字照搬）。 */
+const connectTabTriggerClassName =
+  "h-8 min-w-28 font-normal text-muted-foreground transition-colors duration-200 focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:ring-offset-0 data-[active]:font-medium data-[active]:text-foreground";
+
+function ImBridgeDialog({ open, onOpenChange, initialTab = "im" }) {
   const { t } = useTranslation();
+  const imAvailable = getRuntimeConfig().region !== "overseas";
+  const resolvedInitialTab = imAvailable ? initialTab : "agent";
+  const [tab, setTab] = reactExports.useState(resolvedInitialTab);
+  reactExports.useEffect(() => {
+    // 每次打开都回到该区可用的那一页（参照同样这么做）
+    if (open) setTab(resolvedInitialTab);
+  }, [open, resolvedInitialTab]);
   const regionSuffix =
     getRuntimeConfig().region === "overseas" ? "overseas" : "domestic";
   const defaultTitle = t(`imBridge.title.${regionSuffix}`);
@@ -1637,8 +1660,40 @@ function ImBridgeDialog({ open, onOpenChange }) {
           </div>
           <DialogDescription$2 className="sr-only">{title}</DialogDescription$2>
           <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [&::-webkit-scrollbar]:w-1! [&::-webkit-scrollbar-track]:bg-transparent! [&::-webkit-scrollbar-thumb]:rounded-full! [&::-webkit-scrollbar-thumb]:bg-foreground/20! [&::-webkit-scrollbar-thumb:hover]:bg-foreground/35!">
-            <div className="flex min-h-full px-6 pt-5 pb-6 [&>*]:min-h-full [&>*]:flex-1">
-              <ImBridgeManager onDialogHeaderChange={handleHeaderChange} />
+            <div className="flex min-h-full flex-col px-6 pt-5 pb-6">
+              <div className="mb-4 flex gap-1" role="tablist">
+                {imAvailable ? (
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={tab === "im"}
+                    data-action-ui-id="im-bridge-dialog.tab.im"
+                    data-active={tab === "im" ? "true" : undefined}
+                    onClick={() => setTab("im")}
+                    className={connectTabTriggerClassName}
+                  >
+                    {t("imBridge.tab.im", "IM 接入")}
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === "agent"}
+                  data-action-ui-id="im-bridge-dialog.tab.agent"
+                  data-active={tab === "agent" ? "true" : undefined}
+                  onClick={() => setTab("agent")}
+                  className={connectTabTriggerClassName}
+                >
+                  {t("imBridge.tab.agent", "外部 Agent")}
+                </button>
+              </div>
+              <div className="min-h-0 flex-1 [&>*]:min-h-full [&>*]:flex-1">
+                {tab === "im" ? (
+                  <ImBridgeManager onDialogHeaderChange={handleHeaderChange} />
+                ) : (
+                  <ExternalAgentSection />
+                )}
+              </div>
             </div>
           </div>
         </DialogPopup>
