@@ -118,6 +118,12 @@ export function AttachmentPreview({
       {/* 4.0.3：这个横向轨**总是渲染**（参照在没有附件时也有它），
           里面的内容才按有没有附件决定。第 185 轮用扁平序列对齐确认过：
           参照在 ws-a 上有 composer-reference-rail，我们因为 length>0 守卫没有。 */}
+      {/* 4.0.3：滚动控制条也总是存在于 DOM（无溢出时用 hidden 不占位） */}
+      <div
+        data-action-ui-id="attachment-scroll-controls"
+        hidden={!(rail.overflow.left || rail.overflow.right) || undefined}
+        className="pointer-events-none absolute inset-x-0 top-0 z-20 h-16"
+      />
       {(
         <div ref={rail.scrollRef} data-action-ui-id="composer-reference-rail" data-fade-left={rail.overflow.left || undefined} data-fade-right={rail.overflow.right || undefined} onScroll={rail.syncOverflow} style={attachmentMotionStyle} className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full pb-1">
           {visibleAttachments.map((att) => {
