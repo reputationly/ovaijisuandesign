@@ -1,4 +1,5 @@
 // attachment-bar.jsx
+import { AttachmentPresence, attachmentMotionStyle } from "../media-editing/attachment-presence.js";
 import reactExports from "react";
 import { StarterKit } from "@tiptap/starter-kit";
 import { useTranslation } from "react-i18next";
@@ -47,8 +48,10 @@ export function AttachmentBar({
     audioDurationLimitSec,
   );
   return (
-    <div className="flex flex-wrap items-center gap-1">
-      {items.map((item) => (
+    <div className="flex flex-wrap items-center gap-1" style={attachmentMotionStyle}>
+      {/* 4.0.3：用 AttachmentPresence 包住，附件增删才有进出场动画（否则是瞬间跳动） */}
+      <AttachmentPresence>
+        {items.map((item) => (
         <ThumbChip
           key={item.path}
           item={item}
@@ -65,6 +68,7 @@ export function AttachmentBar({
           onLocate={getLocateAction?.(item)}
         />
       ))}
+      </AttachmentPresence>
       {showAddButton && !disabled && (
         <button
           type="button"
