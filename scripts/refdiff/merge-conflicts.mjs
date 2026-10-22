@@ -25,6 +25,7 @@ import { restoreStatementText } from "./restore-statement.mjs";
 import { assemble, atomsOf, lcsPairs, mergeStreams } from "./token-merge.mjs";
 import { freeIdentifiers } from "./free-identifiers.mjs";
 
+
 /**
  * 自由标识符防护（第 355 轮）。
  *
@@ -224,7 +225,34 @@ if (isMain) {
     }
     {
       const before = new Set(freeIdentifiers(fileText));
-      const after = freeIdentifiers(mergedText).filter((n) => !before.has(n));
+      let after = freeIdentifiers(mergedText).filter((n) => !before.has(n));
+      // rollup 后缀回退：**只对「自由的」名字做**，且去掉后缀后必须是本文件已声明的名字。
+      // 早先我按「base 已声明就改」无条件替换，把已声明的 integer2 也改成 integer，
+      // 造成 Duplicate declaration "integer"。判据必须落在「自由」上。
+      if (after.length) {
+        const declared = new Set();
+        for (const m of fileText.matchAll(/\b(?:const|let|var|function|class)\s+([A-Za-z_$][\w$]*)/g)) declared.add(m[1]);
+        for (const m of fileText.matchAll(/import\s+\{([^}]*)\}/g)) {
+          for (const part of m[1].split(",")) {
+            const nm = part.trim().split(/\s+as\s+/).pop()?.trim();
+            if (nm) declared.add(nm);
+          }
+        }
+        const mapping = new Map();
+        for (const n of after) {
+          const m2 = /^([A-Za-z_$][\w$]*?)(\$\d+|\d+)$/.exec(n);
+          if (m2 && declared.has(m2[1])) mapping.set(n, m2[1]);
+        }
+        if (mapping.size) {
+          let fixed = mergedText;
+          for (const [from, to] of mapping) {
+            fixed = fixed.replace(new RegExp(`\\b${from.replace(/\$/g, "\\$")}\\b`, "g"), to);
+          }
+          mergedText = fixed;
+          stats.renamed = (stats.renamed ?? 0) + mapping.size;
+          after = freeIdentifiers(mergedText).filter((n) => !before.has(n));
+        }
+      }
       if (after.length) {
         stats.conflict += local.length;
         for (const e of local) {
