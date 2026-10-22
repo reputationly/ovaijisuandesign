@@ -5377,6 +5377,15 @@ const MAX_PREVIEW_CHIPS = 2;
 
 const TablePreview = reactExports.memo(TablePreviewInner);
 
+/**
+ * 空文本节点的快捷操作（编写内容 / 三个快搭提示）。
+ *
+ * **注意：本仓库有两份等价实现**（另一份在 media-editing/text-node-inner.jsx:212）。
+ * 两者语义相同、只差写法（本文件用 jsxRuntimeExports，那边用 JSX 语法）。
+ * 之所以没有合并：text-node-inner.jsx 目前不从 canvas-v3 导入任何东西，
+ * 加一条导入可能引出循环依赖，收益不抵风险。
+ * **改动时必须两处同步**，否则会出现"改了没生效"。
+ */
 function TextNodeQuickActions({
   onQuickPrompt,
   onWriteOwn,

@@ -209,6 +209,14 @@ const QUICK_PROMPTS = [
       "根据以下创意需求，生成一组适用于[目标工具]的高质量提示词。\n创意需求：[描述你想要的画面/音乐/视频]\n风格偏好：[写实/插画/3D/动漫/其他]",
   },
 ];
+/**
+ * 空文本节点的快捷操作。
+ *
+ * **注意：本仓库有两份等价实现**（另一份在 canvas-v3/ui-components.js:5380，对外导出）。
+ * 本文件这份是本地副本，实际渲染用的是它。
+ * 没有合并的原因：本文件目前不从 canvas-v3 导入任何东西，加导入可能引出循环依赖。
+ * **改动时必须两处同步**。若要合并，先把 ui-components 的依赖关系摸清再动。
+ */
 function TextNodeQuickActions({ onQuickPrompt, onWriteOwn, agentDisabled = false, writeDisabled = false }) {
   const { t } = useTranslation();
   return (
