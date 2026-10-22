@@ -16,7 +16,8 @@
     }
   },
   "bin": {
-    "ov-mcp-tools": "./dist/main.js"
+    "ov-mcp-tools": "./dist/main.js",
+    "ov-mcp-tools-external": "./dist/external-main.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
