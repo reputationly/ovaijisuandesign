@@ -1868,14 +1868,19 @@ async function runMode(mode) {
         randomTraceScriptIdentifier = script.result?.identifier;
       }
       const documentURL = `app://.${p.url}`;
-      // 第 176 轮：每屏开始前清掉会话相关状态。
-      // 为什么需要：走查在同一个应用实例里连续访问 37 屏，前面用 chat 场景打的消息、
-      // 打开过的面板会残留到后续屏，导致同一屏"单独跑"与"全量跑"的元素集合不同
-      // （实测 ws-canvas-ops 4 条 vs 29 条）。不清就无法跨屏比较。
-      // 只清会话键，不碰 seedStorage 预置的资源视图键。
-      await c.send("Runtime.evaluate", {
-        expression: `(() => { try { for (const k of Object.keys(localStorage)) { if (k.includes("workspaceSessionTabs") || k.includes("focusedSessionId")) localStorage.removeItem(k); } } catch {} })()`,
-      });
+      // 第 178 轮：这里原本有一段"每屏清 localStorage 会话键"的清理，
+      // 但实测证明它**不影响全量结果**（3 屏跑改善、37 屏跑数字一模一样）。
+      // 进一步用 DIAG_STORAGE 打印三个屏的 localStorage 发现完全相同，
+      // 说明跨屏残留**在网关侧（服务端会话状态），不在客户端**。已移除该清理。
+      // 第 178 轮：诊断用 —— 打印进入本屏前的 localStorage 键与大小，
+      // 用来找出「随屏序增长」的键（第 177 轮证明残留不在会话键里）。
+      if (process.env.DIAG_STORAGE === "1") {
+        const r = await c.send("Runtime.evaluate", {
+          expression: `JSON.stringify(Object.keys(localStorage).map(k => [k, (localStorage.getItem(k)||"").length]).sort((a,b)=>b[1]-a[1]).slice(0,8))`,
+          returnByValue: true,
+        });
+        console.log(`  [ls] ${p.id}: ${r.result?.result?.value}`);
+      }
       c.beginNetworkCapture(documentURL);
       await c.send("Runtime.evaluate", { expression: `location.assign(${JSON.stringify(documentURL)})` });
       await sleep(6000);
