@@ -386,7 +386,9 @@ function isCanvasV3SourceCurrent(editor2, content2, source) {
   return !!now2 && now2.id === source.id && now2.resourceId === source.resourceId && now2.versionId === source.versionId;
 }
 
-async function adoptCanvasV3MediaVersion(fetch2, commandId, source, result, signal) {
+// 4.0.3（验收增量）：加了第 6 个参数 expectedCurrentVersionId，默认取 source.versionId。
+// 调用方仍然传 5 个，走默认值。参照 index-B3Ss5vz1.js 的 adoptCanvasV3MediaVersion。
+async function adoptCanvasV3MediaVersion(fetch2, commandId, source, result, signal, expectedCurrentVersionId = source.versionId) {
   if (result.resourceId !== source.resourceId) throw new Error("CANVAS_V3_IMPORT_RECEIPT_MISMATCH");
   const request = {
     commandId,
@@ -397,7 +399,7 @@ async function adoptCanvasV3MediaVersion(fetch2, commandId, source, result, sign
       payload: {
         kind: ProjectResourceUpdateKind.CURRENT_VERSION,
         versionId: result.versionId,
-        expectedCurrentVersionId: source.versionId
+        expectedCurrentVersionId
       }
     }
   };
@@ -468,7 +470,8 @@ class CanvasV3MediaImports {
       const path2 = paths[index2];
       return path2 || isHtableFileName(file.name) ? [{ file, path: path2 ?? "" }] : [];
     });
-    if (!admitted.length) return Promise.resolve();
+    // 4.0.3：空结果返回空数组（4.0.0 是 Promise.resolve()，调用方拿不到数组）。
+    if (!admitted.length) return Promise.resolve([]);
     return this.start(
       admitted.map((item) => item.file),
       point2,
