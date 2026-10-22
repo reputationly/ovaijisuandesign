@@ -2,7 +2,8 @@
 import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 
-const THUMBNAIL_LOAD_TIMEOUT_MS = 3e4;
+// 4.0.3：RemoteVideoThumbnail 也要用这两个，所以导出。
+export const THUMBNAIL_LOAD_TIMEOUT_MS = 3e4;
 
 const INTERACTIVE_BURST_LIMIT = 3;
 
@@ -96,7 +97,7 @@ class ThumbnailLoadScheduler {
   }
 }
 
-const thumbnailLoadScheduler = new ThumbnailLoadScheduler(4);
+export const thumbnailLoadScheduler = new ThumbnailLoadScheduler(4);
 
 const STABLE_INTERSECTION_DELAY_MS = 150;
 
