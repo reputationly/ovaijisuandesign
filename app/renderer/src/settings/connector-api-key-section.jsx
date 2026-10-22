@@ -16,6 +16,10 @@ import {
   useConnectorCopy,
 } from "./make-async-image-task.jsx";
 import { Button } from "../infra/dialog-content.jsx";
+// 4.0.3：user_config 支持多字段替换（不再只认一个 API key）
+// 4.0.3：user_config 多字段替换。apiKeyExtraFields 需要界面配合才用得上，
+// 所以这里先只引 substituteUserConfig（见文件末尾的剩余工作说明）。
+import { substituteUserConfig } from "./user-config-substitution.js";
 import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 const API_KEY_MAX_LENGTH = 2048;
@@ -29,15 +33,26 @@ function isValidApiKey(value) {
     !/^(?:Authorization|secret-key):/iu.test(key)
   );
 }
-function buildApiKeyConnectorInput(manifest, key, description) {
+/**
+ * 组装连接器的 MCP 配置。
+ *
+ * **4.0.3 起支持多个 userConfig 字段**：除了 auth.configKey（这里作为 key 传入），
+ * 模板里若还引用了别的字段，由 `extraValues` 提供（键为字段名）。
+ * 替换统一走 substituteUserConfig —— 它会校验字段是否在 manifest 里声明过、
+ * 有没有值，出错时抛 UserConfigSubstitutionError（带具体 key，界面能精确提示）。
+ *
+ * 兼容：不传 extraValues 时行为与 4.0.0 相同（只替换 configKey）。
+ */
+function buildApiKeyConnectorInput(manifest, key, description, extraValues = {}) {
   const mcp = manifest.capabilities.mcp;
   if (mcp?.kind !== "remote" || manifest.auth.kind !== "apiKey") {
     throw new Error("Invalid connector configuration");
   }
   if (!isValidApiKey(key)) throw new Error("Invalid connector configuration");
   const value = key.trim();
-  const placeholder = `\${user_config.${manifest.auth.configKey}}`;
-  const substitute = (template) => template.split(placeholder).join(value);
+  const fields = manifest.userConfig ?? [];
+  const values = { [manifest.auth.configKey]: value, ...extraValues };
+  const substitute = (template) => substituteUserConfig(template, values, fields);
   const url = new URL(mcp.endpoint);
   for (const [param, template] of Object.entries(mcp.queryParams ?? {})) {
     url.searchParams.set(param, substitute(template));
