@@ -1,5 +1,6 @@
 // 各端（gateway、renderer、mcp-tools）共用的类型和常量。
 export * from "./api-paths.generated.js";
+export * from "./external-agent.js";
 export * from "./backend-ids.js";
 export * from "./asset.js";
 export * from "./asset-role.js";
