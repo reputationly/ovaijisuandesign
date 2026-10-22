@@ -1,6 +1,7 @@
 // artifact-asset-card.jsx
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
+import { MediaReveal } from "../media-editing/media-reveal-generation.js";
 import { useCurrentWorkspace } from "../infra/shared-runtime.js";
 import { useTranslation } from "react-i18next";
 import { classifyFileType } from "../infra/file-type.js";
@@ -171,33 +172,30 @@ function ArtifactPreviewFailed({ type, filename, compact }) {
   );
 }
 function ArtifactThumbnail({ type, src, filename, onFailure }) {
-  const [loaded, setLoaded] = reactExports.useState(false);
+  // 4.0.3：整体交给 MediaReveal —— 占位图走 placeholder 插槽，
+  // 视频角标走 children，外层不再自己管 loaded 状态与绝对定位。
   return (
-    <span className="relative flex h-full w-full items-center justify-center bg-muted/40">
-      {!loaded && (
+    <MediaReveal
+      src={src}
+      alt={filename}
+      lqip={type === "image" ? "auto" : false}
+      placeholder={
         <span
           data-action-ui-id="chat-turn-artifact-thumbnail-placeholder"
           className="text-muted-foreground"
         >
           <ArtifactIcon filename={filename} compact={true} />
         </span>
-      )}
-      <DeferredThumbnailImage
-        src={src}
-        alt={filename}
-        className={cn(
-          "absolute inset-0 h-full w-full object-cover",
-          loaded ? "opacity-100" : "opacity-0",
-        )}
-        onLoad={() => setLoaded(true)}
-        onFailure={onFailure}
-      />
-      {type === "video" && loaded && (
+      }
+      className="h-full w-full bg-muted/40"
+      onFailure={onFailure}
+    >
+      {type === "video" && (
         <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white pointer-events-none">
           <PlaybackPlayIcon size={12} strokeWidth={2} fill="currentColor" />
         </span>
       )}
-    </span>
+    </MediaReveal>
   );
 }
 function ArtifactChipBody({ artifact, filename, label, previewSrc, previewFailed, onPreviewError }) {

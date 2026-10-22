@@ -13,6 +13,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { ConnectorIcon } from "../settings/connector-relationship-graphic.jsx";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
+import { MediaReveal } from "../media-editing/media-reveal-generation.js";
 import { useTranslation } from "react-i18next";
 import { classifyFileType } from "../infra/file-type.js";
 import {
@@ -359,11 +360,14 @@ function TokenIcon({ thumbUrl, children }) {
   return (
     <span className={TOKEN_ICON_CLASS} aria-hidden="true">
       {thumbUrl && failedUrl !== thumbUrl ? (
-        <img
+        // 4.0.3：换成 MediaReveal，加载前先显示 children 作为占位
+        <MediaReveal
           src={thumbUrl}
           alt=""
-          className="h-full w-full object-cover"
-          onError={() => setFailedUrl(thumbUrl)}
+          loading="eager"
+          placeholder={children}
+          className="h-full w-full"
+          onFailure={() => setFailedUrl(thumbUrl)}
         />
       ) : (
         children
