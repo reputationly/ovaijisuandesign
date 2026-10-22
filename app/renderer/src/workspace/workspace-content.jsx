@@ -15,6 +15,8 @@ import {
   useGatewayScopeKey,
 } from "../generation/use-model-catalog-scope-key.js";
 import { workspaceEvents } from "./topbar-state-context.jsx";
+import { useOptionalWorkspaceStructure } from "../canvas-v3/main-exports.js";
+import { BrowserVideoDownloadError, RESOURCE_ARCHITECTURE_V3 } from "./browser-video-download-error.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { RemoteToolDialog } from "../infra/remote-tool-dialog.jsx";
 import { CanvasArea } from "../canvas/canvas-area.jsx";
@@ -71,6 +73,8 @@ function useWorkspaceRemoteTool() {
   return ctx;
 }
 function useBrowserVideoDownload(isActive) {
+  // 4.0.3：用来区分「保存失败」与「下载失败」——只有 v3 架构才可能"保存失败"。
+  const architecture = useOptionalWorkspaceStructure()?.architecture;
   const gatewayFetch = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
   const sessionStore = useSessionStore();
@@ -88,6 +92,7 @@ function useBrowserVideoDownload(isActive) {
     sessionStore,
     t: translate,
     isActive,
+    architecture,
   };
   const browser = window.hilo?.browser;
   reactExports.useEffect(() => {
@@ -150,10 +155,14 @@ function useBrowserVideoDownload(isActive) {
                   "workspace.browser.videoAttachmentFailed",
                   "视频已保存到项目，但未能添加到对话。请从项目素材中重新添加。",
                 )
-              : current.current.t(
-                  "workspace.browser.videoDownloadFailed",
-                  "无法下载此视频，请确认视频可以公开访问后重试。",
-                ),
+              : // 4.0.3：v3 架构下、且不是下载环节的错误，说明是"保存到项目"这一步失败
+                current.current.architecture === RESOURCE_ARCHITECTURE_V3 &&
+                  !(error instanceof BrowserVideoDownloadError)
+                ? current.current.t("workspace.browser.videoSaveFailed", "视频未能保存到项目，请重试。")
+                : current.current.t(
+                    "workspace.browser.videoDownloadFailed",
+                    "无法下载此视频，请确认视频可以公开访问后重试。",
+                  ),
           });
         }
       })().catch(() => {});
