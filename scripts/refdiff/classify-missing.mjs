@@ -93,3 +93,28 @@ for (const r of rows) {
 const counts = {};
 for (const r of rows) counts[r.kind] = (counts[r.kind] ?? 0) + 1;
 console.log("\n合计：" + Object.entries(counts).map(([k, v]) => `${label[k] ?? k} ${v}`).join(" · "));
+
+
+// ── 按组件聚合的工作项视图（第 83 轮）─────────────────────────────────────────
+// 上一版的输出是「按符号散列」：同一个对话框改造的四个碎片会被算成四条独立工作项，
+// 看起来像四件小事，实际是一件较大的事。
+// 这里改成按「冲突所在文件」聚合：同一个文件里缺的所有符号合起来算一项。
+if (process.argv.includes("--by-component")) {
+  const byFile = new Map();
+  for (const c of classes.needsNew) {
+    if (!byFile.has(c.file)) byFile.set(c.file, { file: c.file, symbols: new Set(), statements: [] });
+    const item = byFile.get(c.file);
+    for (const m of c.missing ?? []) item.symbols.add(m);
+    item.statements.push(c.name);
+  }
+  const items = [...byFile.values()].sort((a, b) => a.symbols.size - b.symbols.size);
+  console.log(`按组件聚合：${items.length} 项工作（原来按符号算是 ${classes.needsNew.length} 条）\n`);
+  for (const it of items) {
+    const kinds = [...it.symbols].map((s) => kindOf(s).kind);
+    const size = [...it.symbols].reduce((n, s) => n + kindOf(s).size, 0);
+    console.log(`${it.file}`);
+    console.log(`   涉及语句 ${it.statements.length} 条 · 缺 ${it.symbols.size} 个符号 · 约 ${size}B`);
+    console.log(`   性质 ${[...new Set(kinds)].join("/")} · 符号 ${[...it.symbols].join(", ")}`);
+    console.log();
+  }
+}
