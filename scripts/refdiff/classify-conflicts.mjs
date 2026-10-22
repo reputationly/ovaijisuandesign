@@ -16,6 +16,32 @@ function stripModulePaths(code) {
     .replace(/["']\.\/[^"']*["']/g, '""');
 }
 
+/**
+ * 参照 bundle 里的**顶层声明名集合**（第 77 轮）。
+ *
+ * 为什么用「行首第 0 列」而不是 AST：这份 bundle 是未压缩的，
+ * 顶层声明一律顶格写、组件内部的 const/let 都有缩进。
+ * 实测：顶层 19,958 个名字；suggestionMarkId / promptSuggestion / setProbeFailed
+ * 这些组件内局部变量都不在集合里，而 MediaReveal / CollapsiblePresence 在。
+ * 比 grab() 可靠得多（grab 只证明「这个名字在文件里出现过」）。
+ */
+const topNamesCache = {};
+function topNames(ver) {
+  if (!topNamesCache[ver]) {
+    const dir = `\.probe/reference/${ver}/asar/out/renderer/assets`;
+    const set = new Set();
+    for (const f of readdirSync(dir)) {
+      if (!f.endsWith(".js")) continue;
+      for (const line of readFileSync(path.join(dir, f), "utf8").split("\n")) {
+        const m = /^(?:function|const|var|class|let)\s+([A-Za-z_$][\w$]*)/.exec(line);
+        if (m) set.add(m[1]);
+      }
+    }
+    topNamesCache[ver] = set;
+  }
+  return topNamesCache[ver];
+}
+
 function ids(code) {
   const s = new Set();
   for (const m of stripModulePaths(code).matchAll(ID)) {
@@ -88,7 +114,7 @@ for (const c of report.conflicts) {
     // 第 76 轮：必须能在参照里找到**模块级声明**才算"缺的符号"。
     // 4.0.3 那段代码新引入的局部变量（useState / 参数，如 setProbeFailed、promptSuggestion）
     // 在模块级找不到定义，它们不是我们要新建的东西 —— 这一类占了上一轮 35 条里的大多数。
-    if (!grab("4.0.3", x)) return false;
+    if (!topNames("4.0.3").has(x)) return false;
     // rollup 避让改名：stopWatching2 / rowKey2 / initialText2 之类，
     // 若去掉尾随数字的基名在树里，就不是新符号（第 72 轮加）。
     const base = x.replace(/\d+$/, "");
