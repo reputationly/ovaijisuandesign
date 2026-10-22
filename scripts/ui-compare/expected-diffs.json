@@ -11,7 +11,9 @@
    "oursOnly": [
     "sidebar.connection-pill",
     "home-sidebar.connectors-release-badge",
-    "workspace-stage.controls"
+    "workspace-stage.controls",
+    "home-sidebar-nav-projects-coachmark-anchor",
+    "home-sidebar.recent-trailing-slot"
    ]
   },
   "net": {
