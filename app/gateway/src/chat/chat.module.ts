@@ -10,18 +10,22 @@ import { ChatService } from "./chat.service.js";
 import { ConfirmService } from "./confirm.service.js";
 import { InternalSessionsController, InternalToolSchemaController } from "./internal-sessions.controller.js";
 import { ChatModelTraceController, ChatModelTraceService } from "./model-traces.js";
+import { NextPromptSuggestionController } from "./next-prompt-suggestion.controller.js";
+import { NextPromptSuggestionService } from "./next-prompt-suggestion/next-prompt-suggestion.service.js";
 import { SessionMetricsService } from "./session-metrics.service.js";
 
 @Global()
 @Module({
   imports: [HealthModule, GenerateModule],
-  controllers: [InternalSessionsController, InternalToolSchemaController, ChatAttachmentController, ChatModelTraceController],
+  controllers: [InternalSessionsController, InternalToolSchemaController, ChatAttachmentController, ChatModelTraceController, NextPromptSuggestionController],
   providers: [
     AppGateway,
     ChatService,
     ConfirmService,
     SessionMetricsService,
     ChatModelTraceService,
+    // 第 26 轮：「下一步提示建议」（4.0.3 新增）
+    NextPromptSuggestionService,
     // 第 246 轮：/ws 的任务订阅
     LocalSubjectService,
     TaskSubscriptionsService,

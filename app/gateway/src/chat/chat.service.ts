@@ -355,6 +355,14 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
   }
 
   /** 会话历史：子会话展开，去掉合成的 / 被忽略的 part。 */
+  /**
+   * 会话 id -> 运行时会话 id（第 26 轮：给「下一步提示建议」用）。
+   * 返回 undefined 表示这个会话还没绑定运行时（渲染器还没创建/切换过）。
+   */
+  runtimeIdForSession(sessionId: string): string | undefined {
+    return this.sessions.get(sessionId)?.runtimeId ?? undefined;
+  }
+
   async history(runtimeId: string) {
     const msgs = await this.historyWithRetry(runtimeId);
     return msgs.map((m) => ({ info: m.info, parts: m.parts.filter((p) => !p.synthetic && !p.ignored && p.type !== "compaction") }));
