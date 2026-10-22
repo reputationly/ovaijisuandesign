@@ -140,6 +140,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
     showCompactPromptPreview = false,
     pendingAttachments,
     onPendingAttachmentsConsumed,
+    footerSlot,
     onAttachmentsChange,
     rightSlot,
     hideAttachmentSources,
@@ -2364,6 +2365,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
           </div>
         </ComposerActionsCompactProvider>
       </div>
+      {footerSlot}
     </div>
   );
 });
