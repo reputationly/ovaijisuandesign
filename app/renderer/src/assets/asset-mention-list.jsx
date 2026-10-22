@@ -1,5 +1,6 @@
 // asset-mention-list.jsx
 import reactExports from "react";
+import { MediaReveal } from "../media-editing/media-reveal-generation.js";
 import { useTranslation } from "react-i18next";
 import { Check$2 as Check, File$3 as File, Music$2 as Music, Package$2 as Package, Search$2 as Search, Square$2 as Square, Video$2 as Video } from "../media-editing/custom-icons.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -22,6 +23,18 @@ function TypeIcon({ type }) {
   if (type === "prop") return <Package size={16} />;
   return <File size={16} />;
 }
+/**
+ * 4.0.3 新增：这个实体要不要出 LQIP 占位图。
+ *   有封面且用的就是封面 -> auto
+ *   主附件是图片       -> auto
+ *   其它               -> false
+ */
+function entityPreviewLqip(entity, previewUrl) {
+  if (!previewUrl) return false;
+  if (entity.coverUrl && previewUrl === entity.coverUrl) return "auto";
+  return entity.primaryAttachmentKind === "image" ? "auto" : false;
+}
+
 function AssetThumb({ entity }) {
   const gatewayUrl = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
@@ -44,14 +57,14 @@ function AssetThumb({ entity }) {
   }
   return (
     <span className={wrapperCls} style={wrapperStyle}>
-      <img
+      {/* 4.0.3：换成 MediaReveal（LQIP 占位 + 懒加载），lqip 由 entityPreviewLqip 决定 */}
+      <MediaReveal
         src={resolvedUrl}
         alt=""
+        lqip={entityPreviewLqip(entity, previewUrl)}
         loading="lazy"
-        decoding="async"
-        draggable={false}
-        className="w-full h-full object-cover"
-        onError={() => setErrored(true)}
+        className="h-full w-full"
+        onFailure={() => setErrored(true)}
       />
     </span>
   );
