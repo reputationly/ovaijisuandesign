@@ -247,7 +247,7 @@ function ImBridgeShortcutWithTooltip({
             >
               {showUnreadDot && (
                 <span
-                  data-action-ui-id="user-menu.im-bridge-shortcut-unread"
+                  data-action-ui-id="user-menu.im-bridge-shortcut-new"
                   className="absolute top-0 right-0 size-2 rounded-full border border-card bg-brand-accent"
                 />
               )}
