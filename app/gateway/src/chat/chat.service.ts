@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import path from "node:path";
 
-import { Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common";
+import { Optional, Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common";
 
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
 import { GatewayConfig } from "../config/gateway-config.js";
@@ -12,6 +12,7 @@ import { chatModelIds } from "../runtime/chat-models.js";
 import { RuntimeClient, RuntimeUnavailableError } from "../runtime/runtime-client.js";
 import { collectTaskChildSessionIds, convertOpenCodeMessages, type RawMessage } from "./history-normalize.js";
 import { type AgentMode, ConfirmService } from "./confirm.service.js";
+import type { RequestGroupRegistry } from "./request-group.registry.js";
 
 /**
  * 忙碌标记多久没有任何事件就当作过期。opencode 崩了或事件流断了收不到 idle，不设过期的话这个 gateway
@@ -109,6 +110,8 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
     private readonly paths: WorkspacePathService,
     private readonly activity: ActivityService,
     private readonly cfg: GatewayConfig,
+    // 4.0.3：回合范围登记表。可选注入，缺了只是不开 scope（测试里常常不提供）。
+    @Optional() private readonly requestGroups?: RequestGroupRegistry,
   ) {}
 
   onModuleInit(): void {
@@ -320,6 +323,21 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
       const available = chatModelIds(this.cfg);
       const modelId = s.modelId && available.includes(s.modelId) ? s.modelId : (available[0] ?? s.modelId);
       const [providerID, ...rest] = (modelId ?? "").split("/");
+      // 4.0.3：接受这条消息时快照一个回合范围（分组 / 来源 / 模式 / 选型）。
+      // 之后工具调用回来时按 chatTurnId 查这些值，而不是读当时的 socket 状态。
+      if (this.requestGroups) {
+        this.requestGroups.openTurnForSession(
+          {
+            uiSessionId: s.id,
+            ...(s.runtimeId ? { runtimeSessionId: s.runtimeId } : {}),
+            ...(s.mode ? { mode: s.mode } : {}),
+            ...(s.selectedMediaModels ? { selectedMediaModels: s.selectedMediaModels } : {}),
+          },
+          undefined,
+          typeof clientMessageId === "string" ? clientMessageId : undefined,
+          "Hub",
+        );
+      }
       // 提交到第一个 status 事件之间也算忙，否则这一小段里探测会说空闲。
       this.busy.set(s.runtimeId, Date.now());
       await this.runtime.promptAsync(s.runtimeId, {
