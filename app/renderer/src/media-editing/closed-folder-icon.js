@@ -13,6 +13,7 @@
 
 import { createLucideIcon } from "lucide-react";
 
+import { __jsx } from "../shared/jsx-runtime.js";
 import { withIconCompositing } from "../canvas-v3/main-exports.js";
 
 export const ClosedFolderIcon = withIconCompositing(
@@ -43,3 +44,17 @@ export const OpenFolderIcon = withIconCompositing(
     ],
   ]),
 );
+
+
+/**
+ * 首页项目选择器里的文件夹图标（4.0.3）。
+ * 就是 ClosedFolderIcon 加了固定尺寸与更细的描边 —— 参照里也是这么封装的。
+ */
+export function HomeProjectFolderIcon() {
+  return __jsx(ClosedFolderIcon, {
+    size: 16,
+    strokeWidth: 1.44,
+    className: "size-4 shrink-0",
+    "aria-hidden": true,
+  });
+}
