@@ -1659,7 +1659,8 @@ const zh = {
   "canvas.quickAction.script.prompt":
     "请创作一个[时长]的[类型]剧本。\n主题：[一句话描述]\n情绪基调：[温暖/悬疑/搞笑/热血]\n特殊要求：[如有]",
   "canvas.quickAction.try": "试试：",
-  "canvas.quickAction.write.label": "自己编写内容",
+  // 4.0.3（验收增量）：文案从「自己编写内容」改成「编写内容」
+  "canvas.quickAction.write.label": "编写内容",
   "canvas.redo": "重做",
   "canvas.redraw.addAttachment": "添加参考图",
   "canvas.redraw.attachment.noAssets": "画布暂时还没有图片",
