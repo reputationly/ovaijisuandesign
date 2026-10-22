@@ -10,7 +10,7 @@
 import { Emitter, type Event } from "../ipc/events.js";
 import { cloneJson, isPlainObject, readJsonFile, writeJsonAtomic } from "./json-file.js";
 
-export const GLOBAL_STORAGE_VERSION = 30;
+export const GLOBAL_STORAGE_VERSION = 31;
 export const MAX_OPEN_WORKSPACES = 5;
 
 export interface RecentWorkspace {
@@ -52,6 +52,8 @@ export interface GlobalState {
   hiddenProjectIds: string[];
   openWorkspacePaths: string[];
   lastActiveWorkspacePath: string;
+  /** 外部 Agent 接入（4.0.3 新增）。默认关闭，只监听回环。 */
+  externalAgent: { enabled: boolean; port: number; allowedProjectPaths: string[] };
   workspaceRestoreHealth: Record<string, number>;
   visiblePreviewTabs: VisiblePreviewTabs;
   workspaceSessionTabs: Record<string, unknown>;
@@ -127,6 +129,9 @@ export function globalDefaults(workingDirectory = ""): GlobalState {
     selectedInterests: [],
     hasEverLoggedIn: true,
     selectedGroupIds: {},
+    // 4.0.3：外部 Agent。只保留本机需要的三项；
+    // 参照里的 creditReminder（积分提醒）按项目范围不实现，所以这里没有这个字段。
+    externalAgent: { enabled: false, port: 18810, allowedProjectPaths: [] },
     creditReminderConfigs: {},
     teamCreditTransferIntents: {},
     teamExitProgress: {},
