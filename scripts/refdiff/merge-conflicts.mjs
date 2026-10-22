@@ -23,6 +23,7 @@ import path from "node:path";
 import { parse } from "@babel/parser";
 import { restoreStatementText } from "./restore-statement.mjs";
 import { assemble, atomsOf, lcsPairs, mergeStreams } from "./token-merge.mjs";
+import { freeIdentifiers } from "./free-identifiers.mjs";
 
 /**
  * 自由标识符防护（第 355 轮）。
@@ -209,44 +210,31 @@ if (isMain) {
     if (!local.length) continue;
     const fileText = readFileSync(path.join(root, SRC_ROOT, file), "utf8");
 
-    // 自由标识符防护 —— **默认关闭**（OV_MERGE_GUARD=1 才启用）。
-    // 现状：这一版实现用的是正则拼的 known 集合，太粗，会把几乎每个文件都判成
-    // 「引入未声明标识符」（实测 3142 条合并、0 个文件通过）。要真正可用，
-    // 应复用 apply-delta.mjs 里那套 AST 口径（freeIdentifiers + 全树导出索引）。
-    if (process.env.OV_MERGE_GUARD === "1") {
-    // 自由标识符防护：整段合并结果里凡是「文件没声明、也没 import」的名字，
-    // 说明上游这条改动依赖了我们没有的东西 —— 不写回，转成冲突等人工处理。
+    // 自由标识符防护（第 356 轮，**比较式**，默认启用）。
+    //
+    // 为什么要有：apply-delta 一直有这道检查，merge-conflicts 没有 —— 结果 4.0.3 的
+    // token 级合并把 3142 条写回后界面直接崩（home 9.24% -> 33.7%、我方遮罩块 3 -> 0），
+    // 因为新语句引用了我们文件里没声明、也没 import 的名字，运行期 ReferenceError。
+    //
+    // 判据是「**多出来的**自由标识符」而不是「有没有自由标识符」：文件本来就有的历史问题
+    // 不该挡住这次合并。口径与 apply-delta 共用 free-identifiers.mjs。
+    let mergedText = fileText;
+    for (const e of [...local].sort((a, b) => b.start - a.start)) {
+      mergedText = mergedText.slice(0, e.start) + e.replacement + mergedText.slice(e.end);
+    }
     {
-      let cur = fileText;
-      for (const e of [...local].sort((a, b) => b.start - a.start)) {
-        cur = cur.slice(0, e.start) + e.replacement + cur.slice(e.end);
-      }
-      const known = new Set();
-      for (const m of fileText.matchAll(/\b(?:const|let|var|function|class)\s+([A-Za-z_$][\w$]*)/g)) known.add(m[1]);
-      for (const m of fileText.matchAll(/import\s+\{([^}]*)\}/g)) {
-        for (const part of m[1].split(",")) {
-          const nm = part.trim().split(/\s+as\s+/).pop()?.trim();
-          if (nm) known.add(nm);
-        }
-      }
-      for (const m of fileText.matchAll(/import\s+([A-Za-z_$][\w$]*)\s+from/g)) known.add(m[1]);
-      const free = freeNamesIn(cur, known);
-      if (free.size) {
+      const before = new Set(freeIdentifiers(fileText));
+      const after = freeIdentifiers(mergedText).filter((n) => !before.has(n));
+      if (after.length) {
         stats.conflict += local.length;
         for (const e of local) {
-          conflicts.push({
-            file,
-            name: e.name,
-            note: `引入未声明的标识符：${[...free].slice(0, 5).join(", ")}`,
-          });
+          conflicts.push({ file, name: e.name, note: `引入未声明的标识符：${after.slice(0, 5).join(", ")}` });
         }
         continue;
       }
     }
-    }
     stats.files += 1;
-    let next = fileText;
-    for (const e of [...local].sort((a, b) => b.start - a.start)) next = next.slice(0, e.start) + e.replacement + next.slice(e.end);
+    const next = mergedText;
     writeFileSync(path.join(proposalDir, file.replace(/\//g, "__")), next);
     if (args.apply) writeFileSync(path.join(root, SRC_ROOT, file), next);
   }

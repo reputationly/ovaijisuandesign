@@ -63,7 +63,7 @@ export function pickLocale(lang) {
 export const HOME_SIDEBAR_MIN_WIDTH = 220;
 export const HOME_SIDEBAR_MAX_WIDTH = 360;
 export const HOME_SIDEBAR_ICON_AXIS = 32;
-export const HOME_NAV_ICON_SIZE = 18;
+export const HOME_NAV_ICON_SIZE = 16; // 4.0.3: 18 -> 16（验收增量）
 export const PROJECT_PREVIEW_ITEM_LIMIT = 6;
 export const HOME_NEW_TASK_PLUS_SIZE = 16;
 export const HOME_RECENT_SCROLL_BOTTOM_SAFE_AREA_CLASS = "pb-[54px]";

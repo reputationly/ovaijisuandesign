@@ -130,6 +130,11 @@
    "name": "INITIAL_STATE（只有 $n 变体：INITIAL_STATE$1）",
    "file": "projects/cloud-debug.jsx",
    "reason": "同名不同实体：我们的是云调试页的 {loading,projects,errorMessage,fetchedAt}；参照 INITIAL_STATE$1 是查找替换控制器的 {isOpen,query,options,...}。按基名聚合后才会撞在一起，属正常同名，值不同不构成缺陷。（第 340 轮加 $n 变体比对时首次报出，已人工确认）"
+  },
+  {
+   "name": "SIDEBAR_BADGE_TARGET_BY_ROUTE",
+   "file": "settings/search-button.jsx",
+   "reason": "我们是本产品自己的路由表：比参照多一个 \"/projects\": \"projects\" 映射（参照没有这个路由，它用的是 launchpad）。这是产品差异，不是缺陷。（第 356 轮常量对照切到 4.0.3 后首次报出）"
   }
  ]
 }

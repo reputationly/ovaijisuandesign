@@ -717,12 +717,12 @@ function LegacyFlipVerticalIcon() {
 const HOME_NAV_BUTTON_CLASS =
   "group flex h-9 w-full items-center text-[14px] leading-[14px] transition-colors duration-100 cursor-pointer";
 const HOME_NAV_PILL_CLASS =
-  "home-sidebar-nav-pill relative isolate flex h-8 w-full items-center gap-2 rounded-md pr-1 after:pointer-events-none after:absolute after:inset-y-0 after:-z-10 after:rounded-md";
+  "home-sidebar-nav-pill relative isolate flex h-8 w-full items-center gap-1 rounded-md pr-1 after:pointer-events-none after:absolute after:inset-y-0 after:-z-10 after:rounded-md";
 const HOME_NAV_INACTIVE_TEXT_CLASS =
   "text-[var(--home-sidebar-primary-text)] hover:text-foreground";
 const HOME_RECENT_GROUP_ACTION_CLASS =
   "flex size-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground focus-visible:outline-none";
-const HOME_NAV_ICON_SIZE = 18;
+const HOME_NAV_ICON_SIZE = 16; // 4.0.3: 18 -> 16（验收增量）
 const HOME_NAV_ICON_SLOT_CLASS =
   "flex size-6 shrink-0 items-center justify-center";
 const HOME_RAIL_PILL_CLASS = "home-sidebar-rail-pill";

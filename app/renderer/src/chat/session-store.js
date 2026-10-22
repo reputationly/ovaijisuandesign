@@ -134,7 +134,7 @@ function hasSelectedMediaModelsSnapshot(info) {
   return Object.hasOwn(info, "selected_media_models");
 }
 
-const NEEDS_USER_ACTION_KINDS = new Set(["tool_confirm_ask", "loop_guard_ask"]);
+const NEEDS_USER_ACTION_KINDS = new Set(["tool_confirm_ask"]);
 
 export class SessionStore {
   withdrawals = new MessageWithdrawals();

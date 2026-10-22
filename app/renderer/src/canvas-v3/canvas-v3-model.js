@@ -916,7 +916,7 @@ function parseCanvasV3CompositionContent(value) {
     const r2 = shape$1(
       entry,
       ["resourceId", "name", "kind", "currentVersionId", "availability", "versions"],
-      ["originalFile", "subtitleFormat"]
+      ["originalFile", "subtitleFormat", "initialText"]
     );
     if (r2.subtitleFormat !== void 0 && !CANVAS_V3_SUBTITLE_FORMATS.includes(r2.subtitleFormat))
       fail("invalid subtitle format");
@@ -951,6 +951,11 @@ function parseCanvasV3CompositionContent(value) {
       kind: r2.kind,
       currentVersionId: r2.currentVersionId === null ? null : id$7(r2.currentVersionId),
       availability: r2.availability,
+      ...(r2.originalFile === void 0
+        ? {}
+        : {
+            originalFile: boolean(r2.originalFile),
+          }),
       ...r2.originalFile === void 0 ? {} : { originalFile: boolean(r2.originalFile) },
       ...r2.subtitleFormat === void 0 ? {} : { subtitleFormat: r2.subtitleFormat }
     };
@@ -1007,7 +1012,11 @@ function canvasV3ContentItems(content2) {
         name: resource2.name,
         originalFile: resource2.originalFile,
         ...version2.historyHidden ? { historyHidden: true } : {},
-        task: null
+        ...(version2.historyHidden
+          ? {
+              historyHidden: true,
+            }
+          : {}),task: null
       });
   }
   for (const output2 of content2.taskOutputs) {

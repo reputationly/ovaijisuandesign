@@ -85,7 +85,7 @@ function mapCloudSkillToMarketSkillInfo(raw) {
     toolsByAgent: normalizeToolsByAgent(
       raw.toolsByAgent ?? raw.tools_by_agent ?? raw["tools-by-agent"],
     ),
-    skillType: raw.skillType || raw.skill_type || void 0,
+    skillType: raw( raw.skill_type || void .0),
     badges: Array.isArray(raw.badges)
       ? raw.badges
       : typeof raw.badges === "string"

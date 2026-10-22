@@ -140,7 +140,7 @@ function UngroupedSortMenu({
   );
 }
 const HOME_RECENT_GROUP_ACTION_CLASS =
-  "icon-sidebar-action-control flex size-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none";
+  "home-sidebar-row-action icon-sidebar-action-control flex size-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none";
 export function RecentProjectGroupHeader({
   project,
   expanded,

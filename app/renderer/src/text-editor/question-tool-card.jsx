@@ -118,17 +118,17 @@ function QuestionStatusCard({ statusSuffix, detail }) {
             <ChevronDown
               size={16}
               strokeWidth={1.5}
-              className={`shrink-0 text-muted-foreground transition-transform duration-200 ${expanded ? "" : "-rotate-90"}`}
+              className={`shrink-0 text-muted-foreground chat-disclosure-chevron ${expanded ? "" : "-rotate-90"}`}
             />
           )}
         </div>
       </button>
       {hasDetail && (
         <div
-          className={`grid transition-[grid-template-rows] duration-200 ease-out ${expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-        >
-          <div className="min-h-0 overflow-hidden">
-            <p className="whitespace-pre-wrap break-words pt-2 pl-6 text-muted-foreground">{detail}</p>
+          className={expanded ()}
+        >={true}>
+          <div className="pt-2 pl-6">
+            <p className="whitespace-pre-wrap break-words text-muted-foreground">{detail}</p>
           </div>
         </div>
       )}
@@ -162,62 +162,60 @@ function QuestionCardCollapsible({ questions, answers, defaultExpanded }) {
           <ChevronDown
             size={16}
             strokeWidth={1.5}
-            className={`shrink-0 text-muted-foreground transition-transform duration-200 ${expanded ? "" : "-rotate-90"}`}
+            className={`shrink-0 text-muted-foreground chat-disclosure-chevron ${expanded ? "" : "-rotate-90"}`}
           />
         </div>
       </button>
       <div
-        className={`grid transition-[grid-template-rows] duration-200 ease-out ${expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-      >
-        <div className="overflow-hidden min-h-0">
-          <div
+        className={expanded ()}
+      >={true}>
+        <div
             data-action-ui-id="chat-question-history-content"
             className="mt-2 overflow-hidden rounded-md border border-border bg-card"
           >
-            {questions.map((questionItem, i) => (
+          {questions.map((questionItem, i) => (
               <div
                 key={questionItem.header}
                 className={`flex flex-col px-3 py-2.5 ${i > 0 ? "border-t border-border/70" : ""}`}
               >
-                <p className="whitespace-pre-wrap break-words text-body-12 leading-[18px] text-muted-foreground">
-                  {redactForCurrentRegion(questionItem.question)}
-                </p>
-                {answers?.[i] && answers[i].attachments.length > 0 && (
+              <p className="whitespace-pre-wrap break-words text-body-12 leading-[18px] text-muted-foreground">
+                {redactForCurrentRegion(questionItem.question)}
+              </p>
+              {answers?.[i] && answers[i].attachments.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1.5">
-                    {answers[i].attachments.map((attachment) => (
+                  {answers[i].attachments.map((attachment) => (
                       <QuestionHistoryAttachmentChip
                         key={attachment.path}
                         attachment={attachment}
                       />
                     ))}
-                  </div>
+                </div>
                 )}
-                {answers?.[i] && answers[i].labels.length > 0 && (
+              {answers?.[i] && answers[i].labels.length > 0 && (
                   <div className="mt-1 flex flex-col gap-1">
-                    {answers[i].labels.map((label) => (
+                  {answers[i].labels.map((label) => (
                       <p
                         key={label}
                         className="flex items-start gap-1.5 whitespace-pre-wrap break-words text-body-13 font-medium leading-5 text-foreground"
                       >
-                        <Icon
+                      <Icon
                           icon={Check}
                           size="xs"
                           strokeWidth={1.5}
                           className="mt-1 shrink-0 text-muted-foreground"
                         />
-                        <span>
+                      <span>
                           {localizeRecommendedQuestionOptionLabel(
                             redactForCurrentRegion(label),
                             t,
                           )}
                         </span>
-                      </p>
+                    </p>
                     ))}
-                  </div>
+                </div>
                 )}
-              </div>
+            </div>
             ))}
-          </div>
         </div>
       </div>
     </div>

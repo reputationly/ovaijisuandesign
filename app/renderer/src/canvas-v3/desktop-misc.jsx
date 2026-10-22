@@ -67,7 +67,7 @@ async function resolveAttachment(resources, ref, signal) {
   const basename2 = version2.relativePath.split("/").pop() ?? "";
   return {
     relativePath: version2.relativePath,
-    filename: attachmentFilename(resource2.name, basename2),
+    filename: attachmentFilename(resource2.name?.trim() || resource2.name, basename2),
     kind: resource2.kind,
     mimeType: result.detail.metadata?.media?.mimeType ?? "application/octet-stream"
   };

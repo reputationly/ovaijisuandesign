@@ -272,17 +272,10 @@ function AssetPinPreview({ scope, name: memoryName }) {
     );
   }
   if (modality === "video") {
-    return (
+    return 
       <video
         src={src}
-        className="h-16 w-16 bg-muted object-cover"
-        muted={true}
-        playsInline={true}
-        preload="metadata"
-      >
-        <track kind="captions" />
-      </video>
-    );
+         />;
   }
   if (modality === "audio") {
     return (
@@ -296,17 +289,13 @@ function AssetPinPreview({ scope, name: memoryName }) {
       </audio>
     );
   }
-  return (
+  return 
     <img
       src={src}
       alt={fm?.description ?? memoryName}
-      className="h-16 w-16 bg-muted object-cover"
-      onError={(errorEvent) => {
-        const target = errorEvent.currentTarget;
-        target.style.display = "none";
-      }}
+      
     />
-  );
+  ;
 }
 const TYPE_VARIANT = {
   user: "secondary",

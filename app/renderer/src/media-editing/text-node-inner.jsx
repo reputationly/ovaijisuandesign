@@ -223,7 +223,7 @@ function TextNodeQuickActions({ onQuickPrompt, onWriteOwn, agentDisabled = false
           disabled: writeDisabled,
           icon: <PenLine size={16} strokeWidth={1.5} />,
           label: t("canvas.quickAction.write.label", {
-            defaultValue: "自己编写内容",
+            defaultValue: "编写内容",
           }),
           onSelect: (event) => {
             event.stopPropagation();

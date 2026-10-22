@@ -178,13 +178,7 @@ const badges = [
       afterComplete: null,
     },
   },
-  {
-    target: "workflows",
-    display: {
-      label: "Beta",
-      tone: "muted",
-    },
-  },
+  
 ];
 
 const badgeConfig = {

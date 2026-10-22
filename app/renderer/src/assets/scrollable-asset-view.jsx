@@ -83,7 +83,7 @@ function Thumbnail({ resource: resource2, size }) {
       <DeferredThumbnailImage
         src={withStrictThumbnail(resource.url, thumbnailDisplayWidth)}
         alt=""
-        className={cn(dim, "object-cover")}
+        className={dim}
         onFailure={() => setThumbFailed(true)}
         priority="interactive"
         maxRetries={STRICT_THUMBNAIL_MAX_RETRIES}
@@ -105,7 +105,7 @@ function Thumbnail({ resource: resource2, size }) {
         <DeferredThumbnailImage
           src={thumbUrl}
           alt=""
-          className={cn(dim, "object-cover")}
+          className={false}dim={dim}
           onFailure={() => setThumbFailed(true)}
           priority="interactive"
         />

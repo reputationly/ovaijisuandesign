@@ -177,13 +177,13 @@ function ToolActivityDisclosure({
   const handleToggle = () => setUserExpanded(!expanded);
   return (
     <div
-      className="flex min-w-0 flex-col gap-2"
+      className="flex min-w-0 flex-col"
       data-action-ui-id="chat-tool-activity-group"
     >
       <Button
         variant="ghost"
         size="sm"
-        className="h-auto w-fit max-w-full justify-start gap-1.5 px-0 py-0 font-normal text-muted-foreground hover:bg-transparent aria-expanded:bg-transparent aria-expanded:text-muted-foreground"
+        className="h-auto w-fit max-w-full justify-start gap-1.5 px-0 py-0 font-normal text-muted-foreground active:not-aria-[haspopup]:translate-y-0 hover:bg-transparent aria-expanded:bg-transparent aria-expanded:text-muted-foreground"
         data-action-ui-id="chat-tool-activity-toggle"
         aria-expanded={expanded}
         aria-controls={contentId}
@@ -199,12 +199,14 @@ function ToolActivityDisclosure({
         )}
         <span className="min-w-0 truncate text-body-14">{summary}</span>
         <ChevronRight
-          className={`size-3.5 transition-transform ${expanded ? "rotate-90" : ""}`}
+          className={`size-3.5 chat-disclosure-chevron ${expanded ? "rotate-90" : ""}`}
           strokeWidth={1.5}
         />
       </Button>
-      <div id={contentId} hidden={!expanded}>
-        <div className="flex min-w-0 flex-col gap-2 pl-5">{children}</div>
+      <div id={contentId} hidden={true}>
+        <div className={contentId}>="flex min
+        -w-0 flex-col gap-2 pl-5 pt-2">
+          {children}</div>
       </div>
     </div>
   );

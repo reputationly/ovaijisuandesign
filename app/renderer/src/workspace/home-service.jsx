@@ -211,8 +211,7 @@ let HomeService = class extends Disposable {
     skillExport,
     customMcp,
     connector,
-    hcpCli,
-    quarkDriveAuth,
+    hcpCli
   ) {
     super();
     this.hiloApp = hiloApp2;
@@ -223,9 +222,9 @@ let HomeService = class extends Disposable {
     this.customMcp = customMcp;
     this.connector = connector;
     this.hcpCli = hcpCli;
-    this.quarkDriveAuth = quarkDriveAuth;
+    
   }
-  hiloApp;
+  
   logService;
   projectArchive;
   comfyUiModelDownload;

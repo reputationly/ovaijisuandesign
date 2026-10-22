@@ -1563,24 +1563,22 @@ function ThinkingBlock({ msg: message, isStreaming }) {
             icon={ChevronDown}
             size="md"
             strokeWidth={1.5}
-            className={`shrink-0 text-muted-foreground transition-transform duration-200 ${expanded ? "" : "-rotate-90"}`}
+            className={`shrink-0 text-muted-foreground chat-disclosure-chevron ${expanded ? "" : "-rotate-90"}`}
           />
         </div>
       </button>
       <div
-        className={`grid transition-[grid-template-rows] duration-200 ease-out ${expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-      >
-        <div className="overflow-hidden min-h-0">
-          <div className="ml-[9px] border-l-2 border-border-soft pl-3 pt-2 min-w-0">
-            <div className="text-body-14 text-muted-foreground">
-              {hasContent ? (
+        className={expanded ()}
+      >={true}>
+        <div className="ml-[9px] border-l-2 border-border-soft pl-3 pt-2 min-w-0">
+          <div className="text-body-14 text-muted-foreground">
+            {hasContent ? (
                 <ExpandableText lineClamp={8}>{content}</ExpandableText>
               ) : (
                 <p className="whitespace-pre-wrap break-words">
                   {t("chat.noReasoningContent")}
                 </p>
               )}
-            </div>
           </div>
         </div>
       </div>

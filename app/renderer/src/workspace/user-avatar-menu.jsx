@@ -193,7 +193,7 @@ function useUserMenuController() {
     handleTriggerClick,
   };
 }
-const IM_BRIDGE_SHORTCUT_SEEN_KEY = "hilo:im-bridge-shortcut-seen";
+const IM_BRIDGE_SHORTCUT_SEEN_KEY = "hilo:connect-shortcut-seen-v2";
 function hasSeenImBridgeShortcut() {
   try {
     return localStorage.getItem(IM_BRIDGE_SHORTCUT_SEEN_KEY) === "1";

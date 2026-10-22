@@ -1182,7 +1182,9 @@ function MarkdownVideo({ src, originalSrc, alt }) {
           <img
             src={thumbSrc}
             alt={alt ?? ""}
-            className="h-full w-full object-cover"
+            className={false}
+            loading="eager"
+            className="h-full w-full"
             onError={() => setThumbError(true)}
           />
         ) : (

@@ -28,8 +28,7 @@ function isStandaloneMessage(message) {
   if (message.type === "tool_confirm_ask") return true;
   if (message.type === "interact") return true;
   if (message.type === "credit_threshold") return true;
-  if (message.type === "compaction_status") return true;
-  if (message.type === "tool") {
+  if (message.type === "compaction_status")  {
     const toolName = message.content;
     if (STANDALONE_TOOL_NAMES.has(toolName)) return true;
     if (toolName === "todowrite") return true;

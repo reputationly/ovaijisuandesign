@@ -168,7 +168,10 @@ const Route$c = createFileRoute("/_app")({
 });
 const $$splitComponentImporter$a = () => (() => import("../home/index.jsx"))();
 const Route$b = createFileRoute("/_home/")({
-  component: lazyRouteComponent($$splitComponentImporter$a, "component"),
+  component: (search2) => ({
+    projectId: typeof search2.projectId === "string" && search2.projectId ? search2.projectId : void 0,
+  }),
+  component:lazyRouteComponent($$splitComponentImporter$a, "component"),
 });
 const loadHomeWorkflowsRoute = () =>
   (() => import("../workflows/index.jsx"))();

@@ -18,8 +18,15 @@ import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const REPO = process.cwd();
-const BUNDLE = path.join(REPO, ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js");
-const ROWS = path.join(REPO, ".probe/refdiff/toplevel-4.0.0.json");
+// 第 356 轮：参照版本可切换（4.0.0 -> 4.0.3 增量），默认跟 OV_REFERENCE_VERSION。
+// 切到 4.0.3 后，合并进来的新值（例如 IM_BRIDGE_SHORTCUT_SEEN_KEY）才不会被判成缺陷。
+const REF_VER = process.env.OV_REFERENCE_VERSION ?? "4.0.3";
+const REF_BUNDLES = {
+  "4.0.0": "index-BBp4hclA.js",
+  "4.0.3": "index-B3Ss5vz1.js",
+};
+const BUNDLE = path.join(REPO, `.probe/reference/${REF_VER}/asar/out/renderer/assets/${REF_BUNDLES[REF_VER]}`);
+const ROWS = path.join(REPO, `.probe/refdiff/toplevel-${REF_VER}.json`);
 const SRC = path.join(REPO, "app/renderer/src");
 const VERBOSE = process.argv.includes("--verbose");
 
