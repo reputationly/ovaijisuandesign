@@ -104,9 +104,22 @@ export class InternalSessionsController {
     return { chat_turn_id: resolved.scope.chatTurnId };
   }
 
+  /**
+   * 会话当前回合的分组（4.0.3 起按回合走）。
+   *
+   * **查不到 scope 时仍然回 LEGACY_GROUP** —— 这一步是刻意的：
+   * 界面自己的发消息路径还没接 openTurn（那是下一步），所以绝大多数会话此刻没有 scope。
+   * 回退到原常量可以保证这一改动**零回归**，而外部 Agent 建过 scope 的会话则能拿到真实值。
+   */
   @Get(":id/request-group")
-  requestGroup() {
-    return LEGACY_GROUP;
+  requestGroup(@Param("id") id: string) {
+    const resolved = this.requestGroups.resolveConversation({ runtimeSessionId: id, uiSessionId: id });
+    if (resolved.mode === "unknown") return LEGACY_GROUP;
+    return {
+      group_id: resolved.mode === "canonical" ? resolved.groupId : null,
+      mode: resolved.mode,
+      source: "no_selection",
+    };
   }
 
   /** 根会话：内存里没有父子关系时问一次 opencode，沿 parentID 上溯（最多 10 跳）。 */
