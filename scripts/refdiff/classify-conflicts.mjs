@@ -74,7 +74,15 @@ function allsrc(ver) {
 }
 function grab(ver, n) {
   for (const s of allsrc(ver)) {
-    for (const pat of [`function ${n}(`, `const ${n} =`, `class ${n} `]) {
+    // 第 121 轮补两种写法：`let X = class` / `const X = class`（装饰器类常见）。
+    // 之前只有 `class ${n} `，于是 HomeService 这类被判成"定位不到"。
+    for (const pat of [
+      `function ${n}(`,
+      `const ${n} =`,
+      `let ${n} =`,
+      `class ${n} `,
+      ` ${n} = class`,
+    ]) {
       const i = s.indexOf(pat);
       if (i > 0) {
         const j = s.indexOf("\nfunction ", i + 10);
@@ -110,6 +118,7 @@ for (const c of report.conflicts) {
   if (a === b) { out.sameUpstream.push({ file: c.file, name: n }); continue; }
   const added = [...ids(b)].filter((x) => !ids(a).has(x));
   const missing = added.filter((x) => {
+    // 注意：这里只管"缺的符号"，定位不到的另算（见下方 unknown 统计）。
     if (tree.has(x)) return false;
     // 第 76 轮：必须能在参照里找到**模块级声明**才算"缺的符号"。
     // 4.0.3 那段代码新引入的局部变量（useState / 参数，如 setProbeFailed、promptSuggestion）
