@@ -113,3 +113,69 @@ export function AttachmentPresence({ children }) {
     ),
   );
 }
+
+/**
+ * 附件横向滚动轨的溢出状态（4.0.3）：供左右渐隐与滚动控制条使用。
+ *
+ * 返回 { overflow, syncOverflow, scrollRef }：
+ *   overflow.left/right  当前是否需要在该侧显示渐隐
+ *   syncOverflow         手动同步（滚动时调用）
+ *   scrollRef            挂到轨道元素上
+ *
+ * 两个细节值得注意（都照参照）：
+ *   · 用 +1 / -1 的容差，避免亚像素误差导致渐隐闪烁
+ *   · ResizeObserver 除了容器还观察每个子元素 —— 附件宽度会变（图片加载完才定宽），
+ *     只观察容器会漏掉这种情况
+ */
+export function useAttachmentRailOverflow(items, enabled) {
+  const scrollRef = reactExports.useRef(null);
+  const [overflow, setOverflow] = reactExports.useState({ left: false, right: false });
+
+  const syncOverflow = reactExports.useCallback(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+    const scrollable = element.scrollWidth > element.clientWidth + 1;
+    const left = scrollable && element.scrollLeft > 1;
+    const right =
+      scrollable && element.scrollLeft + element.clientWidth < element.scrollWidth - 1;
+    setOverflow((previous) =>
+      previous.left === left && previous.right === right ? previous : { left, right },
+    );
+  }, []);
+
+  reactExports.useLayoutEffect(() => {
+    if (!enabled) return;
+    const element = scrollRef.current;
+    if (!element) return;
+    syncOverflow();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(syncOverflow);
+    observer?.observe(element);
+    for (const child of element.children) observer?.observe(child);
+    return () => observer?.disconnect();
+  }, [items, enabled, syncOverflow]);
+
+  // 纵向滚轮横向滚 —— 触控板与鼠标都能把这一条横排滚起来
+  reactExports.useEffect(() => {
+    const element = scrollRef.current;
+    if (!element || !enabled) return;
+    const handleWheel = (event) => {
+      if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? element.clientWidth : 1;
+      const next = Math.max(
+        0,
+        Math.min(
+          element.scrollWidth - element.clientWidth,
+          element.scrollLeft + event.deltaY * unit,
+        ),
+      );
+      if (next === element.scrollLeft) return;
+      event.preventDefault();
+      element.scrollLeft = next;
+      syncOverflow();
+    };
+    element.addEventListener("wheel", handleWheel, { passive: false });
+    return () => element.removeEventListener("wheel", handleWheel);
+  }, [enabled, syncOverflow]);
+
+  return { overflow, syncOverflow, scrollRef };
+}
