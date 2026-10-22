@@ -110,8 +110,8 @@ function isUnresolvedAnswerRequest(message) {
 }
 
 function isUnresolvedConfirmation(message) {
-  if (message.type === "confirm" || message.type === "loop_guard_ask")
-    return !message.resolved;
+  // 4.0.3：loop_guard_ask 这类消息被移除了（防死循环确认整块下线），这里不再判它。
+  if (message.type === "confirm") return !message.resolved;
   if (message.type === "tool_confirm_ask")
     return !message.resolved && message.expired !== true;
   return false;
