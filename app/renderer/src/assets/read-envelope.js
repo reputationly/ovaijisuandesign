@@ -105,6 +105,17 @@ export function clearDraft(workspace, sessionKey) {
 
 export const PENDING_HOME_HANDOFF_KEY = "hilo.home.pending-handoff";
 
+/**
+ * 4.0.3：待处理交接可以**按会话**分开存。
+ * 首页草稿会话沿用原 key（兼容已经存下的旧值），其它会话加后缀。
+ * 这样「从 A 会话发起、切到 B 会话」时不会互相覆盖。
+ */
+export function pendingHandoffKey(sessionKey) {
+  return sessionKey === HOME_DRAFT_SESSION_KEY
+    ? PENDING_HOME_HANDOFF_KEY
+    : `${PENDING_HOME_HANDOFF_KEY}:${sessionKey}`;
+}
+
 export function canApplyHomeComposerMutation(
   mounted,
   pendingHandoffOperationId,
@@ -112,19 +123,20 @@ export function canApplyHomeComposerMutation(
   return mounted && pendingHandoffOperationId === null;
 }
 
-export function markHomeDraftPendingHandoff(operationId) {
+export function markHomeDraftPendingHandoff(operationId, sessionKey = HOME_DRAFT_SESSION_KEY) {
   try {
     localStorage.setItem(
-      PENDING_HOME_HANDOFF_KEY,
+      pendingHandoffKey(sessionKey),
       JSON.stringify({
         operationId,
+        sessionKey,
       }),
     );
   } catch {}
 }
 
-export function invalidatePendingHomeHandoff() {
+export function invalidatePendingHomeHandoff(sessionKey = HOME_DRAFT_SESSION_KEY) {
   try {
-    localStorage.removeItem(PENDING_HOME_HANDOFF_KEY);
+    localStorage.removeItem(pendingHandoffKey(sessionKey));
   } catch {}
 }

@@ -6,7 +6,7 @@ import {
   HOME_DRAFT_WORKSPACE,
   invalidatePendingHomeHandoff,
   KEY_PREFIX,
-  PENDING_HOME_HANDOFF_KEY,
+  pendingHandoffKey,
   readEnvelope,
   removeKey,
 } from "../assets/read-envelope.js";
@@ -73,26 +73,26 @@ export function pruneExpiredDrafts(now = Date.now()) {
   }
 }
 
-function readPendingHomeHandoff() {
+/** 4.0.3：读取时按 key 反查会话，并校验存下来的 sessionKey 与该 key 一致。 */
+function readPendingHomeHandoff(key) {
   try {
-    const raw = localStorage.getItem(PENDING_HOME_HANDOFF_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return void 0;
     const value = JSON.parse(raw);
     if (!value || typeof value !== "object" || Array.isArray(value))
       return void 0;
-    const operationId = value.operationId;
-    return typeof operationId === "string" && operationId.length > 0
-      ? {
-          operationId,
-        }
-      : void 0;
+    if (typeof value.operationId !== "string" || !value.operationId) return void 0;
+    const sessionKey = value.sessionKey ?? HOME_DRAFT_SESSION_KEY;
+    if (typeof sessionKey !== "string" || pendingHandoffKey(sessionKey) !== key) return void 0;
+    return { operationId: value.operationId, sessionKey };
   } catch {
     return void 0;
   }
 }
 
 export function acknowledgeHomeDraftHandoff(operationId) {
-  if (readPendingHomeHandoff()?.operationId !== operationId) return false;
+  if (readPendingHomeHandoff(pendingHandoffKey(HOME_DRAFT_SESSION_KEY))?.operationId !== operationId)
+    return false;
   clearDraft(HOME_DRAFT_WORKSPACE, HOME_DRAFT_SESSION_KEY);
   invalidatePendingHomeHandoff();
   return true;
