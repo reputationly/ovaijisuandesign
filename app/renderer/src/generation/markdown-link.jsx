@@ -4,6 +4,7 @@ import { useCurrentWorkspace } from "../infra/shared-runtime.js";
 import { usePlatform } from "../infra/platform-context.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
+import { MediaReveal } from "../media-editing/media-reveal-generation.js";
 import { useTranslation } from "react-i18next";
 import { ArrowUpRight, Copy, Crosshair, ExternalLink, Globe, Video, VideoOff } from "../media-editing/lucide-icon-wraps.js";
 import { classifyFileType } from "../infra/file-type.js";
@@ -741,7 +742,6 @@ function FileReferenceVisual({ filename, workspacePath }) {
         )
       : void 0;
   const [failedUrl, setFailedUrl] = reactExports.useState();
-  const [loadedUrl, setLoadedUrl] = reactExports.useState();
   if (type !== "image" && type !== "video" && type !== "audio") {
     return (
       <FileTypeIcon
@@ -766,19 +766,19 @@ function FileReferenceVisual({ filename, workspacePath }) {
       data-media-kind={type}
       aria-hidden="true"
     >
-      {(!showThumbnail || loadedUrl !== previewUrl) && (
-        <MediaIcon className="size-3.5" strokeWidth={1.5} />
-      )}
-      {showThumbnail && (
-        <DeferredThumbnailImage
+      {/* 4.0.3：不再自己维护 loadedUrl —— 图标作为 placeholder，缩略图由 MediaReveal 叠加 */}
+      {showThumbnail ? (
+        <MediaReveal
           src={previewUrl}
           alt=""
-          draggable={false}
           maxRetries={2}
-          className={`absolute inset-0 size-full rounded-[2px] object-cover ${loadedUrl === previewUrl ? "opacity-100" : "opacity-0"}`}
-          onLoad={() => setLoadedUrl(previewUrl)}
+          lqip={type === "image" ? "auto" : false}
+          placeholder={<MediaIcon className="size-3.5" strokeWidth={1.5} />}
+          className="absolute inset-0 size-full rounded-[2px]"
           onFailure={() => setFailedUrl(previewUrl)}
         />
+      ) : (
+        <MediaIcon className="size-3.5" strokeWidth={1.5} />
       )}
     </span>
   );

@@ -105,14 +105,13 @@ function EntityGridCover({ entity }) {
     );
   }
   return (
-    <img
+    <MediaReveal
       src={resolvedUrl}
       alt=""
+      lqip={entityPreviewLqip(entity, previewUrl)}
       loading="lazy"
-      decoding="async"
-      draggable={false}
-      className="h-full w-full object-cover"
-      onError={() => setErrored(true)}
+      className="h-full w-full"
+      onFailure={() => setErrored(true)}
     />
   );
 }
