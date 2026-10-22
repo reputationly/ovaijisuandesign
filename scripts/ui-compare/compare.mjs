@@ -155,16 +155,36 @@ function localEndpoint(value) {
     return null;
   }
 }
+/**
+ * 传输层字段（状态码/失败原因）只用于诊断，**不参与比较**。
+ * 已有基线（4.0.3）是在没有这些字段时录的，若纳入比较会整片失配。
+ */
+const TRANSPORT_FIELDS = ["status", "failure"];
+function withoutTransport(request) {
+  const copy = { ...request };
+  for (const field of TRANSPORT_FIELDS) delete copy[field];
+  return copy;
+}
+
 function snapshotNetwork(requests, frames) {
   const normalizedRequests = requests.map((request) => normalizeValue(request));
   const getRequests = [...new Set(
     normalizedRequests
       .filter((request) => request.method === "GET")
-      .map((request) => JSON.stringify(request)),
+      .map((request) => JSON.stringify(withoutTransport(request))),
   )].sort().map((request) => JSON.parse(request));
   return {
     getRequests,
     nonGetRequests: normalizedRequests.filter((request) => request.method !== "GET"),
+    // 诊断用：所有拿到状态码/失败的请求（不参与比较）
+    transport: normalizedRequests
+      .filter((request) => request.status !== undefined || request.failure !== undefined)
+      .map((request) => ({
+        method: request.method,
+        path: request.path,
+        ...(request.status !== undefined ? { status: request.status } : {}),
+        ...(request.failure !== undefined ? { failure: request.failure } : {}),
+      })),
     wsSent: frames
       .filter((frame) => frame.direction === "sent")
       .map(({ direction, ...frame }) => normalizeValue(frame)),
@@ -183,10 +203,13 @@ function comparableNetwork(network) {
     nonGetGroups.set(key, group);
   }
   return {
-    getRequests: network.getRequests.filter((request) =>
-      !NET_VOLATILE.some((prefix) => request.path.startsWith(prefix)),
-    ),
-    nonGetRequests: [...nonGetGroups.keys()].sort().flatMap((key) => nonGetGroups.get(key)),
+    getRequests: network.getRequests
+      .map(withoutTransport)
+      .filter((request) => !NET_VOLATILE.some((prefix) => request.path.startsWith(prefix))),
+    nonGetRequests: [...nonGetGroups.keys()]
+      .sort()
+      .flatMap((key) => nonGetGroups.get(key))
+      .map(withoutTransport),
     wsSent: network.wsSent,
   };
 }
@@ -866,6 +889,8 @@ async function cdp(port) {
         const pending = new Map();
         const errors = [];
         const requests = [];
+        // 第 2030 轮：requestId -> 请求对象，用于回填状态码/失败原因
+        const requestRecords = new Map();
         const frames = [];
         const requestTrace = [];
         const websocketTraceMetadata = new Map();
@@ -924,19 +949,32 @@ async function cdp(port) {
             if (inNavigationScope) {
               const endpoint = localEndpoint(request.url);
               if (endpoint) {
-                requests.push({
+                const record = {
                   method: String(request.method ?? "GET").toUpperCase(),
                   ...endpoint,
                   postData: normalizePayload(request.postData),
-                });
+                };
+                requests.push(record);
+                // 第 2030 轮：留着引用，等 responseReceived / loadingFailed 回填
+                requestRecords.set(params.requestId, record);
                 if (params.type !== "WebSocket") pendingLocalRequests.set(params.requestId, new URL(request.url).pathname);
                 if (/^wss?:/i.test(request.url)) websocketUrls.set(params.requestId, endpoint);
               }
+            }
+          } else if (m.method === "Network.responseReceived" && capturingNetwork) {
+            // 第 2030 轮：记录 HTTP 状态码（诊断用，不参与比较）
+            const record = requestRecords.get(m.params.requestId);
+            if (record && typeof m.params.response?.status === "number") {
+              record.status = m.params.response.status;
             }
           } else if (
             capturingNetwork &&
             (m.method === "Network.loadingFinished" || m.method === "Network.loadingFailed")
           ) {
+            if (m.method === "Network.loadingFailed") {
+              const record = requestRecords.get(m.params.requestId);
+              if (record) record.failure = String(m.params.errorText ?? "unknown");
+            }
             const requestPath = pendingLocalRequests.get(m.params.requestId);
             if (requestPath) {
               pendingLocalRequests.delete(m.params.requestId);
