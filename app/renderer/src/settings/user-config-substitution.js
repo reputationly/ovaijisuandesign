@@ -56,3 +56,26 @@ export function isValidUserConfigValue(value) {
     !/[\r\n\0]/u.test(trimmed)
   );
 }
+
+/**
+ * 除了 auth.configKey 之外，这个连接器还引用了哪些 userConfig 字段（4.0.3）。
+ *
+ * 用途：安装连接器时，光让用户填 API key 不够 ——
+ * mcp.headers / queryParams 里可能还引用了别的字段（如自定义 host、租户 id），
+ * 这些也要让用户填。这里把它们找出来（排除 configKey 自己）。
+ *
+ * 只对 remote + apiKey 类型的连接器有意义；其它返回空数组。
+ */
+export function apiKeyExtraFields(manifest) {
+  const mcp = manifest.capabilities.mcp;
+  if (mcp?.kind !== "remote" || manifest.auth.kind !== "apiKey") return [];
+  const { configKey } = manifest.auth;
+  const referenced = new Set(
+    [...Object.values(mcp.headers ?? {}), ...Object.values(mcp.queryParams ?? {})].flatMap(
+      referencedUserConfigKeys,
+    ),
+  );
+  return (manifest.userConfig ?? []).filter(
+    (field) => field.key !== configKey && referenced.has(field.key),
+  );
+}
