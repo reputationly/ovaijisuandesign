@@ -2058,7 +2058,7 @@ async function runMode(mode) {
           } catch {
             return false;
           }
-        })()`, "ws-a 会话焦点持久化");
+        })()`, "ws-a 会话焦点持久化", 30000);
       }
       if (p.url.startsWith("/workspace?") || p.id === "project-assets") {
         await waitForWorkspaceChatReady(c, p.id);
