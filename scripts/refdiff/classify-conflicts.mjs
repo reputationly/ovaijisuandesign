@@ -117,7 +117,9 @@ for (const c of report.conflicts) {
     if (!topNames("4.0.3").has(x)) return false;
     // rollup 避让改名：stopWatching2 / rowKey2 / initialText2 之类，
     // 若去掉尾随数字的基名在树里，就不是新符号（第 72 轮加）。
-    const base = x.replace(/\d+$/, "");
+    // 注意要同时处理两种后缀：`stopWatching2`（数字）与 `runtimeRegion$1`（$ + 数字）。
+    // 第 87 轮补上后者 —— 之前只去尾随数字，于是 runtimeRegion$1 被当成新符号。
+    const base = x.replace(/\$?\d+$/, "");
     return base === x || !tree.has(base);
   });
   if (missing.length) { out.needsNew.push({ file: c.file, name: n, missing }); continue; }
