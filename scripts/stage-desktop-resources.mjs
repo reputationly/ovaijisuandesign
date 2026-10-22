@@ -215,7 +215,20 @@ function main() {
   // rg 要和 opencode 放在同一目录：启动时 PATH 只追加 opencode 所在目录。
   // ffmpeg / ffprobe 给剪辑和缩略图。开发机上参照应用里有这两份静态二进制；CI 没有时跳过，
   // 不能因此让整次装配失败（干净机器上的包仍应尽量带上，见下面的警告）。
-  const refResources = process.platform === "darwin" ? "/Applications/MiniMax Design.app/Contents/Resources" : "";
+  // 第 347 轮（验收）：**不要直接读 /Applications 里已安装的应用**。
+  // 官方应用会自动升级（本机已升到 4.0.3），而我们的还原以冻结的 4.0.0 为准；
+  // 直接读装在本机的那份，会在打包时悄悄带上新版本的二进制。
+  // 优先级：仓库内 app/packages/service/bin > 整包备份 > 已安装应用（仅最后兜底并告警）。
+  const APP_BACKUP = path.join(REPO, "../minimax-design-4.0.0-backup/MiniMax Design.app/Contents/Resources");
+  const installedResources =
+    process.platform === "darwin" ? "/Applications/MiniMax Design.app/Contents/Resources" : "";
+  const refResources = [APP_BACKUP, installedResources].find((d) => d && existsSync(d)) ?? "";
+  if (refResources === installedResources && installedResources) {
+    console.warn(
+      "⚠ 用的是 /Applications 里已安装的应用（可能已升级，不是冻结的 4.0.0）。" +
+        "建议把二进制放进 app/packages/service/bin，或保留整包备份。",
+    );
+  }
   const binDir = path.join(REPO, "app/packages/service/bin");
   const rgName = process.platform === "win32" ? "rg.exe" : "rg";
   const rgSrc = [path.join(binDir, rgName), refResources && path.join(refResources, "opencode", rgName)].find((p) => p && existsSync(p));

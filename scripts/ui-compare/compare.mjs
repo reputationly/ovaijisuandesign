@@ -668,6 +668,41 @@ const SEEDED_RANDOM = `(() => {
     }
   }).observe(document, { childList: true, subtree: true });
 })();`;
+/**
+ * 发送探针（第 346 轮，验收建议）。
+ *
+ * 「缺一帧 / 缺一个请求」类问题，与其猜是哪条代码路径，不如在**录参照基线时**直接记下调用栈。
+ * 参照的 bundle 没有压缩，栈里的 `index-BBp4hclA.js:<行号>` 能定位到具体调用点。
+ * 开 OV_PROBE=1 时注入；录完从页面里读 `__OV_PROBE__`。
+ */
+const SEND_PROBE = `(() => {
+  if (globalThis.__OV_PROBE_INSTALLED__) return;
+  globalThis.__OV_PROBE_INSTALLED__ = true;
+  globalThis.__OV_PROBE__ = [];
+  const orig = WebSocket.prototype.send;
+  WebSocket.prototype.send = function (data) {
+    try {
+      const t = JSON.parse(data)?.type;
+      if (t === "set_mode" || t === "focus_session" || t === "switch_session") {
+        globalThis.__OV_PROBE__.push([t, String(new Error().stack).split("\\n").slice(1, 9).join(" | ")]);
+      }
+    } catch {}
+    return orig.call(this, data);
+  };
+  if (typeof globalThis.fetch === "function") {
+    const of = globalThis.fetch;
+    globalThis.fetch = function (...args) {
+      try {
+        const u = String(args[0]?.url ?? args[0] ?? "");
+        if (/promote|asset-center|showcase/.test(u)) {
+          globalThis.__OV_PROBE__.push(["fetch:" + u.split("?")[0], String(new Error().stack).split("\\n").slice(1, 7).join(" | ")]);
+        }
+      } catch {}
+      return of.apply(this, args);
+    };
+  }
+})();`;
+
 const RANDOM_TRACE = (expectedUrl) => `(() => {
   if (location.pathname + location.search !== ${JSON.stringify(expectedUrl)}) return;
   if (window.__ovRandomTrace) return;
@@ -975,6 +1010,9 @@ async function cdp(port) {
           });
         }
         await send("Page.addScriptToEvaluateOnNewDocument", { source: `${SEEDED_DATE}\n${SEEDED_RANDOM}` });
+        if (process.env.OV_PROBE === "1") {
+          await send("Page.addScriptToEvaluateOnNewDocument", { source: SEND_PROBE });
+        }
         // 日志里的随机 ID（UUID）和耗时每次不同，规整掉再比，否则同一条报错两边永远对不上
         const visible = () => errors.filter((e) => !/cdn\.hailuoai\.(?:com|video)/.test(e)).map((e) => e.replace(UUID_PATTERN, "<uuid>").replace(/durationMs=\d+/g, "durationMs=<n>"));
         return {
@@ -1778,7 +1816,17 @@ async function runMode(mode) {
     OV_SKIP_LEGACY_MIGRATION: "1",
     OV_CONFIG_PATH: path.join(FIXTURE, "ui-compare-config.json"),
     OV_DEV_OPEN_WORKSPACES: `${WS_A}${path.delimiter}${WS_B}`,
-    ...(process.env.OPENCODE_BIN ? {} : { OPENCODE_BIN: "/Applications/MiniMax Design.app/Contents/Resources/opencode/opencode" }),
+        // 第 347 轮：不要默认读 /Applications（会自动升级）。优先整包备份，再退回已安装应用。
+    ...(process.env.OPENCODE_BIN
+      ? {}
+      : {
+          OPENCODE_BIN: (() => {
+            const backup = path.join(repo, "../minimax-design-4.0.0-backup/MiniMax Design.app/Contents/Resources/opencode/opencode");
+            if (existsSync(backup)) return backup;
+            console.warn("⚠ OPENCODE_BIN 回退到 /Applications 里已安装的应用（可能已升级）");
+            return "/Applications/MiniMax Design.app/Contents/Resources/opencode/opencode";
+          })(),
+        }),
   };
   const electron = createRequire(path.join(repo, "app/desktop/package.json"))("electron");
   const child = spawn(electron, [
@@ -2074,6 +2122,23 @@ async function runMode(mode) {
       }
       if (restoreDateNow) {
         await c.send("Runtime.evaluate", { expression: "if (window.__ovCompareOriginalDateNow) Date.now = window.__ovCompareOriginalDateNow; delete window.__ovCompareOriginalDateNow;" });
+      }
+      // 探针结果：录完从页面读出来，直接打印（只记录，不参与判定）
+      if (process.env.OV_PROBE === "1") {
+        try {
+          const raw2 = await evalValue(c, "JSON.stringify(globalThis.__OV_PROBE__ ?? [])");
+          const items = JSON.parse(raw2 ?? "[]");
+          if (items.length) {
+            console.log(`  [probe] ${p.id} 共 ${items.length} 条：`);
+            for (const [kind, stack] of items.slice(0, 8)) {
+              console.log(`    ${kind}\n      ${String(stack).slice(0, 400)}`);
+            }
+          } else {
+            console.log(`  [probe] ${p.id} 无命中`);
+          }
+        } catch (e) {
+          console.log(`  [probe] 读取失败 ${String(e).slice(0, 80)}`);
+        }
       }
       const file = path.join(outDir, `${p.id}.${mode}.png`);
       writeFileSync(file, buf);

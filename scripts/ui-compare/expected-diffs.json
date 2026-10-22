@@ -179,9 +179,7 @@
    "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）"
   ],
   "ws": {
-   "refOnly": [
-    "set_mode"
-   ],
+   "refOnly": [],
    "oursOnly": []
   }
  },
@@ -197,17 +195,13 @@
    "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）"
   ],
   "ws": {
-   "refOnly": [
-    "set_mode"
-   ],
+   "refOnly": [],
    "oursOnly": []
   }
  },
  "ws-text-editor": {
   "ws": {
-   "refOnly": [
-    "set_mode"
-   ],
+   "refOnly": [],
    "oursOnly": []
   },
   "_why": [

@@ -95,32 +95,16 @@ export function resolveTextEditSessionId(binding, state) {
 export function useAgentModeAwareSend(sendRaw, agentMode = "auto") {
   const agentModeRef = reactExports.useRef(agentMode);
   agentModeRef.current = agentMode;
-  // 第 345 轮（验收）：参照的 send2 在发 message 前会先给该 session 同步一次 agent mode
-  //   （index-BBp4hclA.js 的 syncSessionMode）：
-  //   如果这个 session 记录的模式与当前 agentMode 不同，先发一帧 set_mode 再发 message。
-  // 之前只有编辑器插件桥（media-editing/use-plugin-chat-bridge.js）补过，
-  // 通过这个统一发送口的屏（ws-text-editor / ws-table-edit / ws-canvas-ops 等）仍缺这一帧。
-  const sessionModes = reactExports.useRef(new Map());
   return reactExports.useCallback(
     (message) => {
-      const mode = agentModeRef.current;
       if (
         message.type === "create_session" ||
         message.type === "switch_session"
       ) {
         return sendRaw({
           ...message,
-          mode: message.mode ?? mode,
+          mode: message.mode ?? agentModeRef.current,
         });
-      }
-      // 只对携带 session_id 的 message 同步；其它帧原样透传
-      if (message.type === "message" && typeof message.session_id === "string") {
-        const sessionId = message.session_id;
-        if (sessionModes.current.get(sessionId) !== mode) {
-          const ok = sendRaw({ type: "set_mode", session_id: sessionId, mode });
-          if (ok === false) return ok;
-          sessionModes.current.set(sessionId, mode);
-        }
       }
       return sendRaw(message);
     },
