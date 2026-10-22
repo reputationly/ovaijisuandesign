@@ -113,12 +113,11 @@ function parsePlacementTarget(raw2) {
       exactFields(placement2, ["key", "role"]);
       return { key: key2, role: role(placement2.role) };
     }
+    // 4.0.3（验收增量）：**仍然接受** replaceResourceId（兼容旧数据）但不再返回它，
+    // 只做一次格式校验。参照 index-B3Ss5vz1.js 的 parsePlacementTarget。
+    if (placement2.replaceResourceId !== void 0) identifier(placement2.replaceResourceId);
     exactFields(placement2, ["key", "memberId", "replaceResourceId"]);
-    return {
-      key: key2,
-      memberId: identifier(placement2.memberId),
-      ...placement2.replaceResourceId === void 0 ? {} : { replaceResourceId: identifier(placement2.replaceResourceId) }
-    };
+    return { key: key2, memberId: identifier(placement2.memberId) };
   });
   if (new Set(parsed.map((item) => item.key)).size !== parsed.length)
     throw new Error("Duplicate stored Task placement key");
@@ -141,8 +140,8 @@ function decisionPayload(input) {
         composition2.placements.map((item) => [
           item.key,
           item.role ?? null,
-          item.memberId ?? null,
-          item.replaceResourceId ?? null
+          // 4.0.3：decisionPayload 的 placements 只保留 key/role/memberId，不再带 replaceResourceId
+          item.memberId ?? null
         ])
       ]);
     }
