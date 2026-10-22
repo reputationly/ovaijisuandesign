@@ -4129,17 +4129,25 @@ function canvasV3ClipboardContent(view2) {
     )
   )))
     throw new Error("CANVAS_V3_CLIPBOARD_SUBJECT_INCOMPLETE");
-  const items = view2.containerKind === "subject" ? [
-    ...new Map(
-      view2.items.filter((item) => item.state === "ready").map((item) => [item.resourceId, item])
-    ).values()
-  ].map(
-    (fallback) => view2.items.find(
-      (item) => item.resourceId === fallback.resourceId && canvasV3ItemRefEqual(item.ref, view2.item?.ref ?? null)
-    ) ?? view2.items.find(
-      (item) => item.resourceId === fallback.resourceId && item.state === "ready" && item.isCurrent
-    ) ?? fallback
-  ) : [required(view2.item)];
+  // 4.0.3（验收增量）：选条目的规则换了 ——
+  // 先按「主体态的成员资源 / 单件态的自身资源」算出资源集合，
+  // 再只取 state=ready 且 ref.type=version 且属于该集合的条目；最后补一条自身条目。
+  const resources = new Set(
+    view2.containerKind === "subject"
+      ? view2.members?.flatMap((member2) => (member2.resource ? [member2.resource] : []))
+      : [required(view2.item).resourceId],
+  );
+  const items = view2.items.filter(
+    (item) => item.state === "ready" && item.ref.type === "version" && resources.has(item.resourceId),
+  );
+  if (
+    view2.item?.state === "ready" &&
+    !items.some(
+      (item) => item.resourceId === view2.item?.resourceId && item.versionId === view2.item?.versionId,
+    )
+  ) {
+    items.push(view2.item);
+  }
   return {
     // Raw Composition name: an unnamed source must paste as unnamed, not as its file name.
     title: view2.compositionTitle ?? view2.title,
@@ -4153,11 +4161,16 @@ function canvasV3ClipboardContent(view2) {
     items: items.flatMap(
       (item) => item.state === "ready" && item.resourceId && item.versionId && item.kind ? [
         {
-          ref: item.ref,
+          ref: {
+            type: "version",
+            resourceId: item.resourceId,
+            versionId: item.versionId
+          },
           resourceId: item.resourceId,
           versionId: item.versionId,
           name: item.name ?? view2.title ?? item.kind,
-          kind: item.kind
+          kind: item.kind,
+          isCurrent: item.isCurrent
         }
       ] : []
     )
