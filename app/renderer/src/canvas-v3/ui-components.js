@@ -38742,8 +38742,35 @@ function isPlainPrimaryDown(view2, event) {
   return event.button === 0 && event.detail <= 1 && !event.shiftKey && !event.metaKey && !event.ctrlKey && !event.altKey && view2.editable && !view2.isDestroyed;
 }
 
+/** 4.0.3 新增：判断元素是不是滚动容器（决定"可见区域"要在哪里截断）。 */
+function isScrollContainer(el) {
+  const { overflowY } = getComputedStyle(el);
+  return overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay";
+}
+
+/**
+ * 4.0.3 新增：编辑器内容的**可见**区域。
+ *
+ * 为什么不直接用 getBoundingClientRect：那个给的是元素自身的框，
+ * 元素可能被外层滚动容器裁掉一截，于是点在"看不见的地方"也能命中。
+ * 这里沿父链找第一个滚动容器，把上下边界收进它的框内。
+ */
+function visibleContentBounds(view2) {
+  const rect = view2.dom.getBoundingClientRect();
+  let top2 = rect.top;
+  let bottom = rect.top + Math.max(rect.height, view2.dom.scrollHeight);
+  for (let el = view2.dom.parentElement; el; el = el.parentElement) {
+    if (!isScrollContainer(el)) continue;
+    const box2 = el.getBoundingClientRect();
+    top2 = Math.max(top2, box2.top);
+    bottom = Math.min(bottom, box2.bottom);
+    break;
+  }
+  return { left: rect.left, right: rect.right, top: top2, bottom: Math.max(top2, bottom) };
+}
+
 function resolvePointerPos(view2, clientX, clientY) {
-  const rect = view2(view2);
+  const rect = visibleContentBounds(view2);
   const left = Math.min(Math.max(clientX, rect.left + 1), rect.right - 1);
   const top2 = Math.min(Math.max(clientY, rect.top + 1), rect.bottom - 1);
   const hit = view2.posAtCoords({ left, top: top2 });
