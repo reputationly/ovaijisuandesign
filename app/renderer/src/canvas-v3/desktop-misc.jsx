@@ -67,7 +67,8 @@ async function resolveAttachment(resources, ref, signal) {
   const basename2 = version2.relativePath.split("/").pop() ?? "";
   return {
     relativePath: version2.relativePath,
-    filename: attachmentFilename(resource2.name?.trim() || resource2.name, basename2),
+    // 4.0.3（验收增量）：优先用 ref 上的名字（调用方传进来的），没有再回退到资源名。
+    filename: attachmentFilename(ref.name?.trim() || resource2.name, basename2),
     kind: resource2.kind,
     mimeType: result.detail.metadata?.media?.mimeType ?? "application/octet-stream"
   };

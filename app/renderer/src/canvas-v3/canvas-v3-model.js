@@ -1011,6 +1011,8 @@ function canvasV3ContentItems(content2) {
         kind: resource2.kind,
         name: resource2.name,
         originalFile: resource2.originalFile,
+        // 4.0.3（验收增量）：带初始文本的版本要标出来。参照 index-B3Ss5vz1.js。
+        ...resource2.initialText ? { initialText: true } : {},
         ...version2.historyHidden ? { historyHidden: true } : {},
         ...(version2.historyHidden
           ? {
