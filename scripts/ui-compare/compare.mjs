@@ -1868,6 +1868,14 @@ async function runMode(mode) {
         randomTraceScriptIdentifier = script.result?.identifier;
       }
       const documentURL = `app://.${p.url}`;
+      // 第 176 轮：每屏开始前清掉会话相关状态。
+      // 为什么需要：走查在同一个应用实例里连续访问 37 屏，前面用 chat 场景打的消息、
+      // 打开过的面板会残留到后续屏，导致同一屏"单独跑"与"全量跑"的元素集合不同
+      // （实测 ws-canvas-ops 4 条 vs 29 条）。不清就无法跨屏比较。
+      // 只清会话键，不碰 seedStorage 预置的资源视图键。
+      await c.send("Runtime.evaluate", {
+        expression: `(() => { try { for (const k of Object.keys(localStorage)) { if (k.includes("workspaceSessionTabs") || k.includes("focusedSessionId")) localStorage.removeItem(k); } } catch {} })()`,
+      });
       c.beginNetworkCapture(documentURL);
       await c.send("Runtime.evaluate", { expression: `location.assign(${JSON.stringify(documentURL)})` });
       await sleep(6000);
