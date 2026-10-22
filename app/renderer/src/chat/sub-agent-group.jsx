@@ -7,6 +7,7 @@ import {
 } from "./use-tool-confirm-settlement.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
+import { MediaReveal } from "../media-editing/media-reveal-generation.js";
 import { useCurrentWorkspace } from "../infra/shared-runtime.js";
 import { useTranslation } from "react-i18next";
 import { Bot, Check, ChevronDown, Copy, LoaderCircle, NotebookPen, RotateCcw, Save, Scissors, ShieldOff } from "../media-editing/lucide-icon-wraps.js";
@@ -282,19 +283,25 @@ function SubImage({ sub: subMessage }) {
       </div>
     );
   const mime = inferArtifactMime(mediaUrl, "image");
+  // 4.0.3：改用 MediaReveal（LQIP 占位 + 原图淡入），布局 intrinsic、先取 300 宽的缩略图。
+  // 参照 index-B3Ss5vz1.js 的 SubImage。
   return (
-    <img
-      data-action-ui-id="chat-generated-image"
-      data-artifact-type="image"
-      data-artifact-path={mediaUrl}
-      data-artifact-mime={mime}
+    <MediaReveal
       src={thumbSrc}
       alt={t("chat.generatedContent")}
-      className="rounded-lg max-w-full h-auto"
-      style={{
-        maxWidth: 300,
+      layout="intrinsic"
+      intrinsicSize={{ width: 300 }}
+      loading="eager"
+      className="rounded-lg"
+      mediaClassName="max-w-full h-auto"
+      mediaProps={{
+        "data-action-ui-id": "chat-generated-image",
+        "data-artifact-type": "image",
+        "data-artifact-path": mediaUrl,
+        "data-artifact-mime": mime,
+        style: { maxWidth: 300 },
       }}
-      onError={() => setError(true)}
+      onFailure={() => setError(true)}
     />
   );
 }
