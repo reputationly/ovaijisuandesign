@@ -79,7 +79,8 @@ export function buildSuggestionRequestBody(options: {
 /** 把模型输出清洗成一句草稿；纯工具记录（没有文字）时判为无建议。 */
 export function parseSuggestionAnswer(text: string): string | null {
   const suggestion = text
-    .replace(/<think>[\s\S]*?<\/think>/g, "")
+    // 尖括号用 \u003c 写：直接写会被上层工具当成 HTML 标签过滤掉（第 27 轮踩过）
+    .replace(/\u003cthink\u003e[\s\S]*?\u003c\/think\u003e/g, "")
     .replace(/\s+/g, " ")
     .trim();
   const withoutToolRecords = suggestion.replace(

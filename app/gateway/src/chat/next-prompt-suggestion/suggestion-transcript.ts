@@ -90,7 +90,7 @@ function mapMessage(value: unknown): SuggestionMessage | null {
 }
 
 function cleanText(text: string, stripThinking = false): string {
-  const visible = stripThinking ? text.replace(/ thinking[\s\S]*?(?:<\/think>|$)/gi, "") : text;
+  const visible = stripThinking ? text.replace(/\u003cthink\u003e[\s\S]*?(?:\u003c\/think\u003e|$)/gi, "") : text;
   return visible.replace(CONTEXT_WRAPPER_RE, "").replace(/\n{3,}/g, "\n\n").trim();
 }
 
