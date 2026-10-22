@@ -376,6 +376,8 @@ export function FullscreenShell({
             <button
               type="button"
               title={t("canvas.close")}
+              // 4.0.3：这个按钮原本就存在，只是没有登记 id（第 195 轮对照补上）
+              data-action-ui-id="canvas-text-close"
               onClick={onClose}
               className="flex h-7 w-7 items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-subtle,#f5f5f5)]"
               style={{
