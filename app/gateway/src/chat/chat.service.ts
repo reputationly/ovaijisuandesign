@@ -55,6 +55,10 @@ interface UiSession {
   mode: AgentMode;
   /** 用户在选择器里勾的媒体模型（按类别）。没有 = Auto，生成工具不做过滤。 */
   selectedMediaModels?: SelectedMediaModels;
+  /** 当前回合的栅栏值（4.0.3）：idle 时用它去 closeTurn，防迟到帧误删下一轮。 */
+  currentTurnSequence?: number;
+  /** 当前回合的分组 id（没有计费体系时为空，仅作镜像）。 */
+  currentTurnGroupId?: string;
 }
 
 export type SelectedMediaModels = Partial<Record<"image" | "video" | "audio", string[]>>;
@@ -556,7 +560,18 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
   private trackBusy(type: string, p: Record<string, any>): void {
     const sid: string | undefined = p.sessionID ?? p.part?.sessionID ?? p.info?.sessionID;
     if (!sid) return;
-    if (type === "session.idle" || (type === "session.status" && p.status?.type === "idle")) this.busy.delete(sid);
+    if (type === "session.idle" || (type === "session.status" && p.status?.type === "idle")) {
+      this.busy.delete(sid);
+      // 4.0.3：回合结束就把 scope 关掉，别等到容量淘汰。
+      // 只在栅栏匹配时删 —— 迟到的 idle 不会误删下一轮的 scope。
+      const uiId = this.runtimeToUi.get(sid);
+      const turnSeq = uiId ? this.sessions.get(uiId)?.currentTurnSequence : undefined;
+      if (uiId && typeof turnSeq === "number") {
+        this.requestGroups?.closeTurn(uiId, turnSeq);
+        const s = this.sessions.get(uiId);
+        if (s) delete s.currentTurnSequence;
+      }
+    }
     else if (type === "session.status" || this.busy.has(sid)) this.busy.set(sid, Date.now());
   }
 
