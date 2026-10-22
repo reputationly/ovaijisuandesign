@@ -4,6 +4,7 @@ import { resource } from "../canvas-v3/canvas-v3-model.js";
 import { useVirtualizer } from "../infra/use-virtualizer.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
+import { MediaReveal } from "../media-editing/media-reveal-generation.js";
 import { useTranslation } from "react-i18next";
 import { AudioLines, FileImage, Film, Tag$1 as Tag } from "../media-editing/lucide-icon-wraps.js";
 import { classifyFileType } from "../infra/file-type.js";
@@ -80,7 +81,9 @@ function Thumbnail({ resource: resource2, size }) {
   const [thumbFailed, setThumbFailed] = reactExports.useState(false);
   if (resource.type === "image" && !thumbFailed) {
     return (
-      <DeferredThumbnailImage
+      // 4.0.3：图片缩略图换成 MediaReveal（LQIP 占位 + 原图淡入）。
+      // 延迟加载仍由它内部的 DeferredThumbnailImage 负责，不会叠两层。
+      <MediaReveal
         src={withStrictThumbnail(resource.url, thumbnailDisplayWidth)}
         alt=""
         className={dim}
@@ -102,10 +105,14 @@ function Thumbnail({ resource: resource2, size }) {
         : void 0;
     if (thumbUrl) {
       return (
-        <DeferredThumbnailImage
+        // 4.0.3：视频/音频缩略图也走 MediaReveal，但**不生成 LQIP**（lqip: false）——
+        // 缩略图本身已是转码产物，再要 64 宽占位没有意义。
+        // 顺手修掉一处被 token 合并改坏的行：原来是 `className={false}dim={dim}`。
+        <MediaReveal
           src={thumbUrl}
           alt=""
-          className={false}dim={dim}
+          lqip={false}
+          className={dim}
           onFailure={() => setThumbFailed(true)}
           priority="interactive"
         />
