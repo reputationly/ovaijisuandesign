@@ -81,7 +81,14 @@ function rejectRelativePath(relativePath) {
   }) || relativePath.split("/").some((part) => !part || part === "." || part === "..") || relativePath.split("/")[0].toLowerCase() === ".hilo" || /%[0-9a-f]{2}/i.test(relativePath);
 }
 function attachmentFilename(resourceName, basename2) {
-  const name2 = resourceName.trim();
+  // 4.0.3：逐字符清洗文件名——斜杠、反斜杠、冒号、控制字符（<32）与 DEL(127) 一律换成下划线。
+  // 参照 index-B3Ss5vz1.js 的 attachmentFilename。4.0.0 只做 trim。
+  const name2 = [...resourceName.trim()]
+    .map((character) => {
+      const code = character.charCodeAt(0);
+      return /[/\\:]/.test(character) || code < 32 || code === 127 ? "_" : character;
+    })
+    .join("");
   if (!name2) return basename2;
   if (/\.[^./]+$/.test(name2)) return name2;
   const extension2 = /\.[^./]+$/.exec(basename2)?.[0];

@@ -64,11 +64,14 @@ function grabOurs(file, n) {
   return "";
 }
 
-const out = { applied: [], applicable: [], needsNew: [], unknown: [] };
+const out = { applied: [], sameUpstream: [], applicable: [], needsNew: [], unknown: [] };
 for (const c of report.conflicts) {
   const n = c.name;
   const a = grab("4.0.0", n), b = grab("4.0.3", n);
   if (!a || !b) { out.unknown.push({ file: c.file, name: n }); continue; }
+  // 第 33 轮：4.0.0 与 4.0.3 逐字相同 -> 上游没改这一条，冲突是「同名配对」噪声，直接跳过。
+  // 实测 isRecord$d/$e/$f、parseHomeSurvey、attachHandoffTargets 都是这一类。
+  if (a === b) { out.sameUpstream.push({ file: c.file, name: n }); continue; }
   const added = [...ids(b)].filter((x) => !ids(a).has(x));
   const missing = added.filter((x) => !tree.has(x));
   if (missing.length) { out.needsNew.push({ file: c.file, name: n, missing }); continue; }
@@ -80,6 +83,6 @@ for (const c of report.conflicts) {
   out.applicable.push({ file: c.file, name: n, missing });
 }
 writeFileSync("/tmp/conflict-classes.json", JSON.stringify(out, null, 1));
-console.log(`已应用 ${out.applied.length} · 可直接应用 ${out.applicable.length} · 需要新符号 ${out.needsNew.length} · 定位不到 ${out.unknown.length}`);
+console.log(`已应用 ${out.applied.length} · 上游未改(噪声) ${out.sameUpstream.length} · 可直接应用 ${out.applicable.length} · 需要新符号 ${out.needsNew.length} · 定位不到 ${out.unknown.length}`);
 console.log("\n可直接应用的前 15 条：");
 for (const x of out.applicable.slice(0, 15)) console.log(`  ${x.file}  ::  ${x.name}`);
