@@ -198,6 +198,12 @@ if (isMain) {
         stats.unchanged = (stats.unchanged ?? 0) + 1;
         continue;
       }
+      // 第 363 轮：我们已经改成新版了就别再报 —— 否则「手工改过的地方」会永远留在冲突列表里。
+      // 实例：adoptCanvasV3MediaVersion / placementTarget 都已手工应用，仍被报成冲突。
+      if (mine.text.trim() === newCode.code.trim()) {
+        stats.alreadyNew = (stats.alreadyNew ?? 0) + 1;
+        continue;
+      }
       const { segments, conflict } = mergeStreams(oldCode.code, mine.text, newCode.code);
       if (conflict || !segments) {
         stats.conflict += 1;
