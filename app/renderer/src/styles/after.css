@@ -1459,3 +1459,32 @@ html[data-hilo-gpu='disabled'] .skill-popover-skeleton {
   .sidebar-move-completed { animation: none; }
 }
 
+/* ── MediaReveal / LQIP（4.0.3 新增）─────────────────────────────────────────
+   来自参照 use-window-chrome-JDsOJ8pm.css 里 25 条 .media-reveal* 规则，逐条照搬。
+   没有这些规则时图片仍能显示，但占位图淡入、视频首帧揭示都不会生效
+   （readCssMs 读不到 --media-reveal-* 变量就退回默认时长）。 */
+.media-reveal { isolation: isolate; display: block; position: relative; overflow: hidden; }
+.media-reveal[data-layout="intrinsic"] { vertical-align: top; max-width: 100%; display: inline-block; }
+.media-reveal-video-frame { vertical-align: top; isolation: isolate; max-width: 100%; display: inline-block; position: relative; overflow: hidden; }
+.media-reveal-video-frame > video { position: relative; }
+.media-reveal > .media-reveal-placeholder, .media-reveal > .media-reveal-placeholder-slot, .media-reveal > .media-reveal-lqip, .media-reveal > .media-reveal-media, .media-reveal-video-frame > .media-reveal-placeholder { width: 100%; height: 100%; position: absolute; inset: 0; }
+.media-reveal > .media-reveal-placeholder-slot { justify-content: center; align-items: center; display: flex; }
+.media-reveal > .media-reveal-placeholder, .media-reveal-video-frame > .media-reveal-placeholder { background-color: var(--foreground); }
+.media-reveal > .media-reveal-placeholder, .media-reveal-video-frame > .media-reveal-placeholder { background-color: color-mix(in oklab, var(--foreground) 5%, transparent); }
+.media-reveal > .media-reveal-placeholder, .media-reveal-video-frame > .media-reveal-placeholder { background-image: radial-gradient(circle at 28% 30%, var(--foreground), transparent 62%), radial-gradient(circle at 78% 74%, var(--foreground), transparent 58%); }
+.media-reveal > .media-reveal-placeholder, .media-reveal-video-frame > .media-reveal-placeholder { background-image: radial-gradient(circle at 28% 30%, color-mix(in oklab, var(--foreground) 12%, transparent), transparent 62%), radial-gradient(circle at 78% 74%, color-mix(in oklab, var(--foreground) 9%, transparent), transparent 58%); }
+.media-reveal > .media-reveal-placeholder, .media-reveal-video-frame > .media-reveal-placeholder { filter: blur(3px); scale: 1.1; }
+.media-reveal > .media-reveal-lqip { object-fit: cover; filter: blur(var(--media-reveal-lqip-blur)); scale: var(--media-reveal-lqip-scale); transition: opacity var(--media-reveal-lqip-fade) var(--media-reveal-ease); }
+.media-reveal:not([data-lqip-ready]) > .media-reveal-lqip { opacity: 0; }
+.media-reveal > .media-reveal-media { opacity: 0; scale: var(--media-reveal-focus-scale); transition: opacity var(--media-reveal-duration) var(--media-reveal-ease), scale var(--media-reveal-duration) var(--media-reveal-ease); }
+.media-reveal[data-phase="loaded"] > .media-reveal-media { opacity: 1; scale: 1; }
+.media-reveal[data-cached] > .media-reveal-media, .media-reveal[data-cached] > .media-reveal-lqip { transition: none; }
+.media-reveal[data-layout="intrinsic"]:not([data-phase="loaded"]) > .media-reveal-placeholder, .media-reveal[data-layout="intrinsic"]:not([data-phase="loaded"]) > .media-reveal-placeholder-slot { max-width: 100%; height: auto; display: block; position: static; }
+.media-reveal[data-layout="intrinsic"]:not([data-phase="loaded"]) > .media-reveal-placeholder-slot { width: 100%; }
+.media-reveal[data-layout="intrinsic"]:not([data-phase="loaded"])[data-lqip-ready] > .media-reveal-lqip { display: block; position: static; }
+.media-reveal[data-layout="intrinsic"][data-phase="loaded"] > .media-reveal-media { width: auto; height: auto; position: static; }
+.media-reveal-video-frame > .media-reveal-video-poster { object-fit: cover; width: 100%; height: 100%; filter: blur(var(--media-reveal-poster-blur)); pointer-events: none; transition: opacity var(--media-reveal-lqip-fade) var(--media-reveal-ease); position: absolute; inset: 0; scale: 1.12; }
+.media-reveal > .media-reveal-lqip, .media-reveal-video-frame > .media-reveal-video-poster { opacity: 0; }
+.media-reveal-video-frame > video { opacity: 0; transition: opacity var(--media-reveal-video-fade) var(--media-reveal-ease); }
+.media-reveal-video-frame[data-ready] > video { opacity: 1; }
+.media-reveal > .media-reveal-lqip, .media-reveal > .media-reveal-media, .media-reveal-video-frame > .media-reveal-video-poster, .media-reveal-video-frame > video { transition: none !important; scale: 1 !important; }
