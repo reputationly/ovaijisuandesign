@@ -6,9 +6,19 @@ const SRC = "app/renderer/src";
 const ID = /[A-Za-z_$][\w$]*/g;
 const KEYWORDS = new Set(("break case catch class const continue debugger default delete do else export extends false finally for function if import in instanceof new null return super switch this throw true try typeof var void while with yield let await async of static get set from as").split(" "));
 
+/**
+ * 抹掉模块路径字符串。`"./use-window-chrome-CUz-LN6G.js"` 里的 CUz / LN6G
+ * 会被标识符正则抓成"新符号"，实际是 chunk 内容哈希的片段（第 72 轮修）。
+ */
+function stripModulePaths(code) {
+  return code
+    .replace(/["'][^"']*\.(?:js|mjs|cjs|css|json|woff2?|png|svg)["']/g, '""')
+    .replace(/["']\.\/[^"']*["']/g, '""');
+}
+
 function ids(code) {
   const s = new Set();
-  for (const m of code.matchAll(ID)) {
+  for (const m of stripModulePaths(code).matchAll(ID)) {
     const w = m[0];
     if (!KEYWORDS.has(w) && w.length > 1) s.add(w);
   }
@@ -73,7 +83,13 @@ for (const c of report.conflicts) {
   // 实测 isRecord$d/$e/$f、parseHomeSurvey、attachHandoffTargets 都是这一类。
   if (a === b) { out.sameUpstream.push({ file: c.file, name: n }); continue; }
   const added = [...ids(b)].filter((x) => !ids(a).has(x));
-  const missing = added.filter((x) => !tree.has(x));
+  const missing = added.filter((x) => {
+    if (tree.has(x)) return false;
+    // rollup 避让改名：stopWatching2 / rowKey2 / initialText2 之类，
+    // 若去掉尾随数字的基名在树里，就不是新符号（第 72 轮加）。
+    const base = x.replace(/\d+$/, "");
+    return base === x || !tree.has(base);
+  });
   if (missing.length) { out.needsNew.push({ file: c.file, name: n, missing }); continue; }
   // 第 32 轮：先判「是不是已经应用了」——把我们源码里的同名语句取出来，
   // 与 4.0.3 版本做归一化比较，相同就不用再列进待办（上一轮就因此白核对了 1/3 的时间）。
