@@ -1,6 +1,7 @@
 // attachment-row.jsx
 import { API_PATHS } from "../infra/workspace-gateway.js";
 import reactExports from "react";
+import { MediaReveal } from "../media-editing/media-reveal-generation.js";
 import { useTranslation } from "react-i18next";
 import { classifyFileType } from "../infra/file-type.js";
 import { Loader2, Plus } from "../media-editing/lucide-icon-wraps.js";
@@ -60,14 +61,14 @@ function AttachmentPreviewThumb({ attachment }) {
   if ((attachment.kind === "image" || attachment.kind === "video") && blobSrc && !errored) {
     return (
       <span className="flex-shrink-0 w-10 h-10 bg-muted overflow-hidden rounded-[4px] flex items-center justify-center">
-        <img
+        {/* 4.0.3：换成 MediaReveal；只有图片出 LQIP 占位（视频不出，避免多打缩略图） */}
+        <MediaReveal
           src={blobSrc}
           alt=""
+          lqip={attachment.kind === "image" ? "auto" : false}
           loading="lazy"
-          decoding="async"
-          draggable={false}
-          className="w-full h-full object-cover"
-          onError={() => setErrored(true)}
+          className="h-full w-full"
+          onFailure={() => setErrored(true)}
         />
       </span>
     );
