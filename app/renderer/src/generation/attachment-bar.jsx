@@ -2,6 +2,7 @@
 import {
   AttachmentPresence,
   attachmentMotionStyle,
+  createRailScrollBy,
   useAttachmentRailOverflow,
 } from "../media-editing/attachment-presence.js";
 import reactExports from "react";
@@ -53,6 +54,7 @@ export function AttachmentBar({
   );
   // 4.0.3：横向溢出状态（左右渐隐用）。hooks 必须在 return 之前调用。
   const rail = useAttachmentRailOverflow(items, true);
+  const railScrollBy = createRailScrollBy(rail.scrollRef);
   return (
     <div
       ref={rail.scrollRef}
@@ -83,6 +85,29 @@ export function AttachmentBar({
         />
       ))}
       </AttachmentPresence>
+      {/* 4.0.3：附件区溢出时，两侧各出一个滚动圆钮 */}
+      <div
+        data-action-ui-id="attachment-scroll-controls"
+        className="pointer-events-none absolute inset-x-0 top-0 z-20 h-16 transition-[height] duration-[var(--attachment-layout-duration)] ease-[var(--attachment-motion-easing)] motion-reduce:transition-none"
+      >
+        {["left", "right"].map((side) => {
+          if (!rail.overflow[side]) return null;
+          return (
+            <button
+              key={side}
+              type="button"
+              data-action-ui-id={`attachment-scroll-${side}`}
+              onClick={() => railScrollBy(side === "left" ? -1 : 1)}
+              className={`pointer-events-auto absolute top-1/2 size-6 -translate-y-1/2 rounded-full border border-border bg-popover text-foreground hover:bg-muted ${
+                side === "left" ? "left-0" : "right-0"
+              }`}
+              aria-label={side === "left" ? "向左滚动" : "向右滚动"}
+            >
+              {side === "left" ? "‹" : "›"}
+            </button>
+          );
+        })}
+      </div>
       {showAddButton && !disabled && (
         <button
           type="button"

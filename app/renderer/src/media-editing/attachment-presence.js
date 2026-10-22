@@ -179,3 +179,23 @@ export function useAttachmentRailOverflow(items, enabled) {
 
   return { overflow, syncOverflow, scrollRef };
 }
+
+/** 点击左右小圆钮时滚动的距离（参照值 160px）。 */
+const RAIL_SCROLL_STEP_PX = 160;
+
+/**
+ * 生成「左右滚动钮」的点击处理（4.0.3）：按方向滚一屏的零头。
+ * 尊重 prefers-reduced-motion：减少动效时瞬时跳过去，不做平滑滚动。
+ */
+export function createRailScrollBy(scrollRef) {
+  return (direction) => {
+    const element = scrollRef.current;
+    if (!element) return;
+    element.scrollBy({
+      left: direction * RAIL_SCROLL_STEP_PX,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  };
+}
