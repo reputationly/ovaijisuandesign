@@ -573,6 +573,18 @@ const PROJECT_RESOURCE_READ_BATCH_LIMIT = 100;
 function invalid$6(field) {
   throw new Error(`Invalid Project Query response: ${field}`);
 }
+/**
+ * 4.0.3 的 shape$1：required 必填，optional 里的键**存在才校验**（不会被判成多余字段）。
+ * 参照 index-B3Ss5vz1.js 的 shape$1(value, required, optional)。
+ */
+function shapeWithOptional(value, required, optional) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("CANVAS_V3_INVALID_SHAPE");
+  }
+  const raw = value;
+  return exact(raw, [...required, ...optional.filter((key) => Object.hasOwn(raw, key))]);
+}
+
 function object$4(value, field) {
   if (!value || typeof value !== "object" || Array.isArray(value)) invalid$6(field);
   return value;
@@ -1098,7 +1110,8 @@ function parseCanvasV3ClipboardSnapshot(value) {
       ["members", "type", "attributes", "compositionRevision"]
     );
     const items = array$4(c3.items, 1e3).map((item) => {
-      const i2 = exact(item, ["ref", "resourceId", "versionId", "name", "kind"]);
+      // 4.0.3：isCurrent 变成「可选但存在才校验」的字段，用 shapeWithOptional
+      const i2 = shapeWithOptional(item, ["ref", "resourceId", "versionId", "name", "kind"], ["isCurrent"]);
       if (!CANVAS_V3_RESOURCE_KINDS.includes(i2.kind))
         fail("invalid clipboard item kind");
       return {
@@ -4172,6 +4185,15 @@ function canvasV3FrameReferences(upstream, explicit, excluded = []) {
     seen.add(ref.versionId);
     return true;
   });
+  // 4.0.3：显式引用的顺序优先——只要显式集合覆盖了所有连通引用，就直接用显式的顺序。
+  // 参照 index-B3Ss5vz1.js 的 canvasV3FrameReferences。
+  if (
+    connected.length > 0 &&
+    explicit.length >= connected.length &&
+    connected.every((ref) => explicit.some((item) => item.versionId === ref.versionId))
+  ) {
+    return [...explicit];
+  }
   return [
     ...connected,
     ...explicit.filter((ref) => {
