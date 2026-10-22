@@ -46,6 +46,14 @@ function reconcileTag(tagRaw, completeRaw) {
     list,
   };
 }
+/**
+ * 4.0.3 新增：技能类型只认 skill / plugin，其它一律视为未指定。
+ * 注意大小写敏感 —— 上游给的是这两个小写字面量。
+ */
+function normalizeSkillType(value) {
+  return value === "skill" || value === "plugin" ? value : undefined;
+}
+
 function mapCloudSkillToMarketSkillInfo(raw) {
   const englishTagData = reconcileTag(
     raw.tagEn ?? raw.tag_en ?? raw["tag-en"],
@@ -85,7 +93,7 @@ function mapCloudSkillToMarketSkillInfo(raw) {
     toolsByAgent: normalizeToolsByAgent(
       raw.toolsByAgent ?? raw.tools_by_agent ?? raw["tools-by-agent"],
     ),
-    skillType: raw( raw.skill_type || void .0),
+    skillType: normalizeSkillType(raw.skillType || raw.skill_type),
     badges: Array.isArray(raw.badges)
       ? raw.badges
       : typeof raw.badges === "string"
