@@ -7,7 +7,7 @@ import { TextPreviewContent, usePreviewText } from "./use-preview-text.jsx";
 import { useCanvasBridge } from "./package.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";
 import { useHoverPreview } from "./use-hover-preview.js";
-const PREVIEW_W = 320;
+const PREVIEW_W = 300;  // 4.0.3：参照 REFERENCE_PREVIEW_CARD_WIDTH = 300（原 320）
 const PREVIEW_MAX_H = 240;
 export function TextHoverPreview({
   path,

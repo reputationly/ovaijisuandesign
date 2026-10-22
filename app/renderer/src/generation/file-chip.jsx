@@ -25,7 +25,7 @@ import { MediaLightbox } from "../assets/text-preview.jsx";
 import { VideoPlayIndicator } from "./attachment-bar.jsx";
 import { FileNameLabel } from "../assets/audio-play-button.jsx";
 const VIDEO_GRADIENT_ID = "file-chip-video-gradient";
-const PREVIEW_W = 320;
+const PREVIEW_W = 300;  // 4.0.3：参照 REFERENCE_PREVIEW_CARD_WIDTH = 300（原 320）
 const INTERACTIVE_PREVIEW_CLOSE_DELAY_MS = 120;
 const mediaDurationCache = new Map();
 const mediaDimensionsCache = new Map();

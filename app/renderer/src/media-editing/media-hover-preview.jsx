@@ -48,7 +48,7 @@ function getInteractiveMediaPreviewSize(size) {
     height: Math.max(72, size.height),
   };
 }
-const AUDIO_PREVIEW_W = 320;
+const AUDIO_PREVIEW_W = 300;  // 4.0.3：参照 REFERENCE_PREVIEW_CARD_WIDTH = 300（原 320）
 const AUDIO_PREVIEW_H_FALLBACK = 108;
 const AUDIO_PREVIEW_ACTION_H = 32;
 function ReferenceAudioIcon({ className }) {
