@@ -1,9 +1,10 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, HttpCode, Param, Post } from "@nestjs/common";
 
 import { ActivityService } from "../health/activity.service.js";
 import { RuntimeClient } from "../runtime/runtime-client.js";
 import { ChatService } from "./chat.service.js";
 import { ConfirmService } from "./confirm.service.js";
+import { RequestGroupRegistry } from "./request-group.registry.js";
 import { SessionMetricsService } from "./session-metrics.service.js";
 
 /**
@@ -11,6 +12,24 @@ import { SessionMetricsService } from "./session-metrics.service.js";
  * source 必须是 MCP 认的 no_selection，别的值会被当成非法回复、拒绝提交。
  */
 const LEGACY_GROUP = { group_id: null, mode: "legacy", source: "no_selection" };
+
+const SESSION_ID_RE = /^[A-Za-z0-9_-]+$/;
+
+/** 外部 Agent 的回合注入请求（4.0.3 的形状，逐字段对应）。 */
+function parseExternalAgentTurnRequest(
+  body: unknown,
+): { sessionId: string; groupId?: string; selectedMediaModels?: unknown } | null {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return null;
+  const b = body as Record<string, unknown>;
+  const sessionId = typeof b.session_id === "string" ? b.session_id.trim() : "";
+  if (!SESSION_ID_RE.test(sessionId)) return null;
+  const groupId = typeof b.group_id === "string" ? b.group_id.trim() || undefined : undefined;
+  const selected =
+    b.selected_media_models && typeof b.selected_media_models === "object"
+      ? b.selected_media_models
+      : undefined;
+  return { sessionId, ...(groupId ? { groupId } : {}), ...(selected ? { selectedMediaModels: selected } : {}) };
+}
 
 /**
  * 给 opencode 插件和 MCP server 用的内部接口（按 opencode 会话 id 寻址）。
@@ -24,6 +43,7 @@ export class InternalSessionsController {
     private readonly runtime: RuntimeClient,
     private readonly metrics: SessionMetricsService,
     private readonly activity: ActivityService,
+    private readonly requestGroups: RequestGroupRegistry,
   ) {}
 
   @Get("billing-current-scope")
@@ -56,6 +76,32 @@ export class InternalSessionsController {
   @Get("metrics")
   listMetrics() {
     return this.metrics.list();
+  }
+
+  /**
+   * 外部 Agent 的一轮输入（4.0.3 新增，= EXTERNAL_AGENT_TURN_PATH）。
+   *
+   * 参照的实现只做三件事：开一个 turn scope、解析出 chatTurnId、回给调用方。
+   * **参照里还有一段写 creditReminder（云端积分提醒）的逻辑，按项目范围没有实现。**
+   *
+   * 与参照一致的两个约束：
+   *   · body 必须是 { session_id, group_id?, selected_media_models? }
+   *   · 解析不出 scope 就抛错（不能静默返回空 id，否则外部 Agent 会以为注入成功）
+   */
+  @Post("external-turn")
+  @HttpCode(200)
+  openExternalAgentTurn(@Body() body: unknown): { chat_turn_id: string } {
+    const parsed = parseExternalAgentTurnRequest(body);
+    if (!parsed) throw new BadRequestException("external_turn_invalid");
+    this.requestGroups.openTurn({
+      uiSessionId: parsed.sessionId,
+      runtimeSessionId: parsed.sessionId,
+      ...(parsed.groupId ? { groupId: parsed.groupId } : {}),
+      ...(parsed.selectedMediaModels ? { selectedMediaModels: parsed.selectedMediaModels } : {}),
+    });
+    const resolved = this.requestGroups.resolveConversation({ runtimeSessionId: parsed.sessionId });
+    if (resolved.mode === "unknown") throw new Error("external turn scope was not retained");
+    return { chat_turn_id: resolved.scope.chatTurnId };
   }
 
   @Get(":id/request-group")

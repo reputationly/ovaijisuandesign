@@ -9,7 +9,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { RequestGroupRegistry, chatTurnId } from "./request-group.registry.js";
+import { RequestGroupRegistry, chatTurnId, type SessionLike } from "./request-group.registry.js";
 
 describe("chatTurnId", () => {
   it("同一个 clientMessageId 返回同一个 id", () => {
@@ -86,7 +86,7 @@ describe("RequestGroupRegistry", () => {
 
   it("openTurnForSession 会写回会话上的镜像字段", () => {
     const r = new RequestGroupRegistry();
-    const session = { uiSessionId: "u1", mode: "auto" };
+    const session: SessionLike = { uiSessionId: "u1", mode: "auto" };
     r.openTurnForSession(session, "g1", "m3", "Hub");
     expect(session.currentTurnGroupId).toBe("g1");
     expect(session.currentTurnSequence).toBeGreaterThan(0);
