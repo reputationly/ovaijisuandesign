@@ -37,11 +37,17 @@ export function reportRumError(error) {
   };
 }
 
-export function reportRumAction(name2) {
+/**
+ * 记一次关键动作。**第二个参数 payload 是 4.0.3 加的**：
+ * 工作区首屏耗时那条埋点要带上 outcome / total_ms / 各里程碑，
+ * 原来只记 name 不够用。老调用方不传 payload 时行为不变。
+ */
+export function reportRumAction(name2, payload) {
   rumStatus = {
     ...rumStatus,
     lastAction: {
       name: name2,
+      ...(payload === undefined ? {} : { payload }),
       at: new Date().toISOString(),
     },
   };
