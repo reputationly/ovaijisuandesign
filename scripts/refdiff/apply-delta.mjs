@@ -348,10 +348,20 @@ function insertImports(text, needed) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const root = path.resolve(".");
-  const oldRows = JSON.parse(readFileSync(".probe/refdiff/toplevel-3.0.21.json", "utf8")).rows;
-  const newRows = JSON.parse(readFileSync(".probe/refdiff/toplevel-4.0.0.json", "utf8")).rows;
-  const oldSrc = readFileSync(".probe/reference/3.0.21/asar/out/renderer/assets/index-ZNI5SgRm.js", "utf8");
-  const newSrc = readFileSync(".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js", "utf8");
+  // 第 353 轮（4.0.3 增量）：旧/新两侧可指定，默认仍是 3.0.21 -> 4.0.0。
+  // 做 4.0.0 -> 4.0.3 时传：
+  //   --old .probe/refdiff/toplevel-4.0.0.json
+  //   --new .probe/refdiff/toplevel-4.0.3.json
+  //   --old-src .probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js
+  //   --new-src .probe/reference/4.0.3/asar/out/renderer/assets/index-B3Ss5vz1.js
+  const OLD_LEDGER = args.old ?? ".probe/refdiff/toplevel-3.0.21.json";
+  const NEW_LEDGER = args.new ?? ".probe/refdiff/toplevel-4.0.0.json";
+  const OLD_BUNDLE = args["old-src"] ?? ".probe/reference/3.0.21/asar/out/renderer/assets/index-ZNI5SgRm.js";
+  const NEW_BUNDLE = args["new-src"] ?? ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js";
+  const oldRows = JSON.parse(readFileSync(OLD_LEDGER, "utf8")).rows;
+  const newRows = JSON.parse(readFileSync(NEW_LEDGER, "utf8")).rows;
+  const oldSrc = readFileSync(OLD_BUNDLE, "utf8");
+  const newSrc = readFileSync(NEW_BUNDLE, "utf8");
   const OLD = bundleIndex(oldRows);
   const NEW = bundleIndex(newRows);
 
