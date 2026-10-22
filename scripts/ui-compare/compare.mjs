@@ -2137,6 +2137,10 @@ async function runMode(mode) {
         const trace = captured.result?.result?.value;
         if (!trace) throw new Error(`OV_RANDOM_TRACE 已启用，但 ${p.id} 页面没有 RNG trace`);
         writeFileSync(path.join(outDir, `${p.id}.${mode}.random-trace.json`), JSON.stringify(trace, null, 2));
+        if (coachMarkSeed?.result?.identifier)
+          await c.send("Page.removeScriptToEvaluateOnNewDocument", {
+            identifier: coachMarkSeed.result.identifier,
+          });
         await c.send("Page.removeScriptToEvaluateOnNewDocument", { identifier: randomTraceScriptIdentifier });
       }
       const net = c.endNetworkCapture();
