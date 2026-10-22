@@ -1886,6 +1886,14 @@ async function runMode(mode) {
         });
         console.log(`  [ls] ${p.id}: ${r.result?.result?.value}`);
       }
+      // 第 198 轮：用**document 级种子脚本**把 dismissedCoachMarks 清空。
+      // 为什么不用导航前清理：那样清完，应用加载过程中又会把它写回去
+      // （侧栏渲染 connectors 入口时会标记已读），全量跑下 19 屏仍缺
+      // home-sidebar.connectors-release-badge。种子脚本在应用任何代码之前执行，
+      // 每次新文档都生效，应用读到的必然是空值。
+      const coachMarkSeed = await c.send("Page.addScriptToEvaluateOnNewDocument", {
+        source: `(() => { try { for (const k of Object.keys(localStorage)) if (k.includes("dismissedCoachMarks")) localStorage.removeItem(k); } catch {} })()`,
+      });
       c.beginNetworkCapture(documentURL);
       await c.send("Runtime.evaluate", { expression: `location.assign(${JSON.stringify(documentURL)})` });
       await sleep(6000);
