@@ -89,8 +89,9 @@ export function AttachmentPreview({
   const removableFailedAttachments = failedAttachments.filter(
     (attachment) => !isReadOnly(attachment),
   );
-  if (visibleAttachments.length === 0 && failedAttachments.length === 0)
-    return null;
+  // 4.0.3：这里原本"无附件就 return null"，但参照的容器是**总是渲染**的
+  // （第 185 轮用扁平序列对齐确认：参照 ws-a 上有 composer-reference-rail，
+  //  我们因为没有附件而整个组件不渲染）。保留空容器即可，内容仍按有无附件决定。
   const uploadFailedShort = t("chat.uploadFailedShort");
   const failedSummary =
     failedAttachments.length === 1
@@ -111,7 +112,10 @@ export function AttachmentPreview({
       data-message-input-attachment-preview="true"
       className="flex flex-col gap-1 pt-0 pb-0"
     >
-      {visibleAttachments.length > 0 && (
+      {/* 4.0.3：这个横向轨**总是渲染**（参照在没有附件时也有它），
+          里面的内容才按有没有附件决定。第 185 轮用扁平序列对齐确认过：
+          参照在 ws-a 上有 composer-reference-rail，我们因为 length>0 守卫没有。 */}
+      {(
         <div ref={rail.scrollRef} data-action-ui-id="composer-reference-rail" data-fade-left={rail.overflow.left || undefined} data-fade-right={rail.overflow.right || undefined} onScroll={rail.syncOverflow} style={attachmentMotionStyle} className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full pb-1">
           {visibleAttachments.map((att) => {
             const isPluginNode = att.kind === "plugin-node";
