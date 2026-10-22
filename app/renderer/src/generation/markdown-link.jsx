@@ -701,13 +701,16 @@ function MarkdownImage({ src, alt, ...rest }) {
         {error || !resolvedSrc ? (
           <MediaUnavailable kind="image" />
         ) : (
-          <img
-            {...rest}
+          // 4.0.3：换成 MediaReveal。原本 {...rest} 是透传到 <img> 上的，
+          // 现在改走 mediaProps（MediaReveal 会把它挂到内部那张 img 上）。
+          <MediaReveal
             src={thumbSrc}
-            alt={alt}
-            className="h-full w-full object-cover transition-opacity group-hover/markdown-media:opacity-90"
+            alt={alt ?? ""}
+            loading="eager"
+            className="h-full w-full transition-opacity group-hover/markdown-media:opacity-90"
+            mediaProps={rest}
             onLoad={handleLoad}
-            onError={handleError}
+            onFailure={handleError}
           />
         )}
       </MarkdownMediaCard>
