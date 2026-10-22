@@ -24,9 +24,73 @@ import { parse } from "@babel/parser";
 import { restoreStatementText } from "./restore-statement.mjs";
 import { assemble, atomsOf, lcsPairs, mergeStreams } from "./token-merge.mjs";
 
+/**
+ * 自由标识符防护（第 355 轮）。
+ *
+ * 为什么必须有：`apply-delta` 有这道检查，`merge-conflicts` 原来没有。
+ * 结果是我直接把 3142 条合并写回，界面被打崩（home 9.24% -> 33.7%、
+ * 我方遮罩块从 3 变 0、新增报错 1）—— 因为 4.0.3 的新语句里引用了
+ * 我们文件里没有声明、也没有 import 的名字，运行期直接 ReferenceError。
+ *
+ * 这里做的检查：把要写入的**整段新文本**解析一遍，收集「用了但文件里没有」的名字；
+ * 只要有一个，这条就不合并，记进报告等人工处理。
+ */
+function freeNamesIn(code, knownNames) {
+  const out = new Set();
+  let ast;
+  try {
+    ast = parse(code, { sourceType: "module", plugins: ["jsx"], errorRecovery: true });
+  } catch {
+    return out;
+  }
+  const declared = new Set();
+  const collect = (id) => {
+    if (!id) return;
+    if (id.type === "Identifier") declared.add(id.name);
+    else if (id.type === "ObjectPattern") for (const pr of id.properties) collect(pr.value ?? pr.argument);
+    else if (id.type === "ArrayPattern") for (const el of id.elements) collect(el);
+    else if (id.type === "RestElement") collect(id.argument);
+    else if (id.type === "AssignmentPattern") collect(id.left);
+  };
+  const walk = (n) => {
+    if (!n || typeof n !== "object") return;
+    if (Array.isArray(n)) return n.forEach(walk);
+    switch (n.type) {
+      case "FunctionDeclaration": collect(n.id); n.params?.forEach((p2) => collect(p2)); break;
+      case "FunctionExpression": case "ArrowFunctionExpression": n.params?.forEach((p2) => collect(p2)); break;
+      case "ClassDeclaration": case "ClassExpression": collect(n.id); break;
+      case "VariableDeclarator": collect(n.id); break;
+      case "ImportSpecifier": case "ImportDefaultSpecifier": case "ImportNamespaceSpecifier": collect(n.local); break;
+      case "CatchClause": collect(n.param); break;
+      default: break;
+    }
+    for (const k of Object.keys(n)) {
+      if (k === "loc" || k === "start" || k === "end" || k === "leadingComments" || k === "trailingComments") continue;
+      const v = n[k];
+      if (v && typeof v === "object") walk(v);
+    }
+  };
+  walk(ast);
+  const walkUse = (n) => {
+    if (!n || typeof n !== "object") return;
+    if (Array.isArray(n)) return n.forEach(walkUse);
+    if (n.type === "Identifier" && !declared.has(n.name) && !knownNames.has(n.name)) out.add(n.name);
+    for (const k of Object.keys(n)) {
+      if (k === "loc" || k === "start" || k === "end") continue;
+      const v = n[k];
+      if (v && typeof v === "object") walkUse(v);
+    }
+  };
+  walkUse(ast);
+  return out;
+}
+
 const SRC_ROOT = "app/renderer/src";
-const OLD_BUNDLE = ".probe/reference/3.0.21/asar/out/renderer/assets/index-ZNI5SgRm.js";
-const NEW_BUNDLE = ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js";
+// 第 355 轮（4.0.3 增量）：端点与台账可指定，默认仍是 3.0.21 -> 4.0.0。
+const OLD_BUNDLE =
+  process.env.OV_OLD_BUNDLE ?? ".probe/reference/3.0.21/asar/out/renderer/assets/index-ZNI5SgRm.js";
+const NEW_BUNDLE =
+  process.env.OV_NEW_BUNDLE ?? ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js";
 
 function parseArgs(argv) {
   const a = { apply: false };
@@ -42,8 +106,8 @@ if (isMain) {
   const args = parseArgs(process.argv.slice(2));
   const root = process.cwd();
   const report = JSON.parse(readFileSync(".probe/refdiff/apply-delta-report.json", "utf8"));
-  const oldRows = JSON.parse(readFileSync(".probe/refdiff/toplevel-3.0.21.json", "utf8")).rows;
-  const newRows = JSON.parse(readFileSync(".probe/refdiff/toplevel-4.0.0.json", "utf8")).rows;
+  const oldRows = JSON.parse(readFileSync(process.env.OV_OLD_LEDGER ?? ".probe/refdiff/toplevel-3.0.21.json", "utf8")).rows;
+  const newRows = JSON.parse(readFileSync(process.env.OV_NEW_LEDGER ?? ".probe/refdiff/toplevel-4.0.0.json", "utf8")).rows;
   const oldSrc = readFileSync(OLD_BUNDLE, "utf8");
   const newSrc = readFileSync(NEW_BUNDLE, "utf8");
 
@@ -143,8 +207,44 @@ if (isMain) {
       local.push({ name, start: mine.start, end: mine.end, replacement: assembled });
     }
     if (!local.length) continue;
-    stats.files += 1;
     const fileText = readFileSync(path.join(root, SRC_ROOT, file), "utf8");
+
+    // 自由标识符防护 —— **默认关闭**（OV_MERGE_GUARD=1 才启用）。
+    // 现状：这一版实现用的是正则拼的 known 集合，太粗，会把几乎每个文件都判成
+    // 「引入未声明标识符」（实测 3142 条合并、0 个文件通过）。要真正可用，
+    // 应复用 apply-delta.mjs 里那套 AST 口径（freeIdentifiers + 全树导出索引）。
+    if (process.env.OV_MERGE_GUARD === "1") {
+    // 自由标识符防护：整段合并结果里凡是「文件没声明、也没 import」的名字，
+    // 说明上游这条改动依赖了我们没有的东西 —— 不写回，转成冲突等人工处理。
+    {
+      let cur = fileText;
+      for (const e of [...local].sort((a, b) => b.start - a.start)) {
+        cur = cur.slice(0, e.start) + e.replacement + cur.slice(e.end);
+      }
+      const known = new Set();
+      for (const m of fileText.matchAll(/\b(?:const|let|var|function|class)\s+([A-Za-z_$][\w$]*)/g)) known.add(m[1]);
+      for (const m of fileText.matchAll(/import\s+\{([^}]*)\}/g)) {
+        for (const part of m[1].split(",")) {
+          const nm = part.trim().split(/\s+as\s+/).pop()?.trim();
+          if (nm) known.add(nm);
+        }
+      }
+      for (const m of fileText.matchAll(/import\s+([A-Za-z_$][\w$]*)\s+from/g)) known.add(m[1]);
+      const free = freeNamesIn(cur, known);
+      if (free.size) {
+        stats.conflict += local.length;
+        for (const e of local) {
+          conflicts.push({
+            file,
+            name: e.name,
+            note: `引入未声明的标识符：${[...free].slice(0, 5).join(", ")}`,
+          });
+        }
+        continue;
+      }
+    }
+    }
+    stats.files += 1;
     let next = fileText;
     for (const e of [...local].sort((a, b) => b.start - a.start)) next = next.slice(0, e.start) + e.replacement + next.slice(e.end);
     writeFileSync(path.join(proposalDir, file.replace(/\//g, "__")), next);
