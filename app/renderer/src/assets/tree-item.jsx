@@ -13,7 +13,8 @@ import {
 } from "./inline-input.jsx";
 import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
 import { MissingCandidateActions } from "./missing-candidate-actions.jsx";
-import { Folder, FolderOpen } from "../media-editing/package.jsx";
+// 4.0.3：改用带透视的开/合文件夹图标（与 ClosedFolderIcon 配对），
+import { ClosedFolderIcon, OpenFolderIcon } from "../media-editing/closed-folder-icon.js";
 import { ContextMenu } from "../workspace/topbar-state-context.jsx";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { mergeTailwindClasses as cn } from "../infra/dialog-content.jsx";
@@ -302,7 +303,7 @@ export const TreeItem = reactExports.memo(function TreeItem({
         >
           <span className="w-3 shrink-0" aria-hidden={true} />
           {entry.isDirectory ? (
-            <Folder size={20} className="shrink-0 text-foreground/30" />
+            <ClosedFolderIcon size={20} className="shrink-0 text-foreground/30" />
           ) : (
             <FileTypeBadge fileName="" variant="inline" />
           )}
@@ -384,7 +385,7 @@ export const TreeItem = reactExports.memo(function TreeItem({
     if (!open) setOpenWithSubOpen(false);
   };
   if (entry.isDirectory) {
-    const FolderIcon = isExpanded ? FolderOpen : Folder;
+    const FolderIcon = isExpanded ? OpenFolderIcon : ClosedFolderIcon;
     const Arrow = isExpanded ? ChevronDown : ChevronRight;
     return (
       <ContextMenu onOpenChange={onMenuOpenChange}>
