@@ -1,5 +1,5 @@
 {
- "source": "reference mcp-tools-v3 4.0.0（真跑 tools/list）",
+ "source": "reference mcp-tools-v3 4.0.3（真跑 tools/list）",
  "count": 25,
  "tools": [
   {
@@ -239,7 +239,8 @@
             "name": {
              "type": "string",
              "minLength": 1,
-             "maxLength": 512
+             "maxLength": 512,
+             "description": "User-visible Resource name in working_language describing its content (e.g. \"红龙苏醒片段\", \"宣传片成片\"); shown in the asset library and used as the exported file name. Not a file name or slug: no extension, hyphenated sequence numbers, durations or code identifiers."
             },
             "description": {
              "type": "string",
@@ -264,7 +265,7 @@
             "mode": {
              "type": "string",
              "const": "new_version",
-             "description": "Revise the same Resource or save a replacement candidate, preserving its identity."
+             "description": "Revise or replace the content of an existing Resource from any source, preserving its identity and history."
             },
             "resourceId": {
              "type": "string",
@@ -429,13 +430,7 @@
              "type": "string",
              "minLength": 1,
              "maxLength": 512,
-             "description": "Writes the output into this existing member instead of adding one. A member holds one Resource: it is filled when empty or still holding replaceResourceId; otherwise the placement is reported unavailable and the member keeps its Resource."
-            },
-            "replaceResourceId": {
-             "type": "string",
-             "minLength": 1,
-             "maxLength": 512,
-             "description": "With memberId: the Resource the member holds now and this output replaces. Omit to fill an empty member only."
+             "description": "Fills this existing empty member instead of adding one; a member already holding a Resource is reported unavailable. To change what a held member shows, use new_version on its Resource."
             }
            },
            "additionalProperties": false
@@ -476,7 +471,7 @@
   },
   {
    "name": "deliver",
-   "description": "Synchronously deliver existing versions, archived task artifacts or workspace files into Resources and Compositions; no generation, billing or Task. Imported files have no lineage. Word/PDF remain binary Resources: read with design_read(versionId), not execute media references. reuse places an existing Resource without copying and requires a versionId source. Returns {delivery}: completed is final; unknown requires the same requestId and exact input, never regeneration; blocked requires corrected input with a new requestId, reusing delivered versionIds. No background delivery or wait tool. Targets and placements live inside output, never beside sources. Example: {\"requestId\":\"deliver-promo-1\",\"sources\":[{\"key\":\"video\",\"path\":\"out/promo_cut.mp4\"},{\"key\":\"cover\",\"path\":\"out/promo_cover.png\"}],\"output\":{\"resources\":[{\"key\":\"video\",\"mode\":\"create\",\"name\":\"宣传片成片\"},{\"key\":\"cover\",\"mode\":\"create\",\"name\":\"宣传片封面\"}],\"composition\":{\"type\":{\"id\":\"video\",\"label\":\"视频\"},\"name\":\"新品宣传片\",\"placements\":[{\"key\":\"video\",\"role\":\"主视频\"},{\"key\":\"cover\",\"role\":\"封面\"}]}}}",
+   "description": "Synchronously deliver existing versions, archived task artifacts or workspace files into Resources and Compositions; no generation, billing or Task. Imported files have no lineage. Files that are not image/video/audio/text (Word/PDF, HTML, code, archives) become FILE Resources; read Word/PDF and text-based FILEs with design_read(versionId), not execute media references. reuse places an existing Resource without copying and requires a versionId source. To swap what a member shows, even with another Resource version, use new_version on the Resource it holds. Returns {delivery}: completed is final; unknown requires the same requestId and exact input, never regeneration; blocked requires corrected input with a new requestId, reusing delivered versionIds. No background delivery or wait tool. Targets and placements live inside output, never beside sources. Example: {\"requestId\":\"deliver-promo-1\",\"sources\":[{\"key\":\"video\",\"path\":\"out/promo_cut.mp4\"},{\"key\":\"cover\",\"path\":\"out/promo_cover.png\"}],\"output\":{\"resources\":[{\"key\":\"video\",\"mode\":\"create\",\"name\":\"宣传片成片\"},{\"key\":\"cover\",\"mode\":\"create\",\"name\":\"宣传片封面\"}],\"composition\":{\"type\":{\"id\":\"video\",\"label\":\"视频\"},\"name\":\"新品宣传片\",\"placements\":[{\"key\":\"video\",\"role\":\"主视频\"},{\"key\":\"cover\",\"role\":\"封面\"}]}}}",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -543,7 +538,7 @@
            "type": "string",
            "minLength": 1,
            "maxLength": 4096,
-           "description": "Workspace file path for content that is not a Resource yet. Must be a regular file inside the workspace, outside `.hilo/`, not a symlink, and an image/video/audio/text file or Word/PDF document (.doc/.docx/.pdf, at most 50 MiB). Never a URL or a path outside the workspace."
+           "description": "Workspace file path for content that is not a Resource yet. Must be a non-empty regular file of at most 50 MiB inside the workspace, outside `.hilo/`, and not a symlink; any file type is accepted (e.g. index.html becomes a FILE the canvas previews). Never a URL or a path outside the workspace."
           }
          },
          "required": [
@@ -583,7 +578,8 @@
               "name": {
                "type": "string",
                "minLength": 1,
-               "maxLength": 512
+               "maxLength": 512,
+               "description": "User-visible Resource name in working_language describing its content (e.g. \"红龙苏醒片段\", \"宣传片成片\"); shown in the asset library and used as the exported file name. Not a file name or slug: no extension, hyphenated sequence numbers, durations or code identifiers."
               },
               "description": {
                "type": "string",
@@ -608,7 +604,7 @@
               "mode": {
                "type": "string",
                "const": "new_version",
-               "description": "Revise the same Resource or save a replacement candidate, preserving its identity."
+               "description": "Revise or replace the content of an existing Resource from any source, preserving its identity and history."
               },
               "resourceId": {
                "type": "string",
@@ -794,13 +790,7 @@
              "type": "string",
              "minLength": 1,
              "maxLength": 512,
-             "description": "Writes the output into this existing member instead of adding one. A member holds one Resource: it is filled when empty or still holding replaceResourceId; otherwise the placement is reported unavailable and the member keeps its Resource."
-            },
-            "replaceResourceId": {
-             "type": "string",
-             "minLength": 1,
-             "maxLength": 512,
-             "description": "With memberId: the Resource the member holds now and this output replaces. Omit to fill an empty member only."
+             "description": "Fills this existing empty member instead of adding one; a member already holding a Resource is reported unavailable. To change what a held member shows, use new_version on its Resource."
             }
            },
            "additionalProperties": false
@@ -1163,13 +1153,7 @@
            "type": "string",
            "minLength": 1,
            "maxLength": 512,
-           "description": "Writes the output into this existing member instead of adding one. A member holds one Resource: it is filled when empty or still holding replaceResourceId; otherwise the placement is reported unavailable and the member keeps its Resource."
-          },
-          "replaceResourceId": {
-           "type": "string",
-           "minLength": 1,
-           "maxLength": 512,
-           "description": "With memberId: the Resource the member holds now and this output replaces. Omit to fill an empty member only."
+           "description": "Fills this existing empty member instead of adding one; a member already holding a Resource is reported unavailable. To change what a held member shows, use new_version on its Resource."
           }
          },
          "additionalProperties": false
@@ -1574,7 +1558,7 @@
   },
   {
    "name": "composition_get",
-   "description": "Read one Composition (compositionId) or up to 20 at once (compositionIds), each with attributes, revision and members; every member holds at most one Resource and embeds its snapshot under resource, which is absent for an empty slot. A single read paginates members (limit 1–50, then nextCursor) and accepts memberId/role filters; a batch answers every id in request order under items, holds up to 100 members per Composition (membersTruncated points back to a single read) and reports a missing id as an item-level error instead of failing the batch. One call embeds at most 100 Resources in total; beyond that the read fails with INVALID_ARGUMENT, so narrow memberId/role, reduce limit or split the batch. Members follow each Resource's current version; revision is not a historical content snapshot. CURSOR_STALE requires restarting pagination.",
+   "description": "Read one Composition (compositionId) or up to 20 at once (compositionIds), each with attributes, revision and members; every member holds at most one Resource and embeds its snapshot under resource, which is absent for an empty slot. A single read paginates members (limit 1–50, then nextCursor) and accepts memberId/role filters. A batch answers every id in request order under items and reports a missing id as an item-level error. It returns whole member lists while they fit within 100 Resources total and 100 members per Composition. At the first list that cannot fit, that Composition and all later ones retain their other information but omit members entirely, with membersOmitted=true and a result notice. Omitted members are unknown, not empty; if needed, read those Composition IDs again in a smaller batch or use a single paginated read. Members follow each Resource's current version; revision is not a historical content snapshot. CURSOR_STALE requires restarting pagination.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -1752,7 +1736,7 @@
   },
   {
    "name": "composition_edit",
-   "description": "Edit Composition metadata, members or order without generation. ensure resolves a registered typeId or finds/creates a type by label, then finds/creates an active object by type + name, returning typeId, compositionId, revision, created; existing metadata stays unchanged. Optional operations apply atomically. For a new Composition receiving execute/deliver outputs, use output.composition with type and name: creation waits until submission, avoiding empty objects on cancellation. Use ensure with operations for document_write results or directly requested structure. update atomically edits members; rename preserves identity; set_attributes patches attributes. These require compositionId and expectedRevision from a valid snapshot; on conflict reread and reassess. Added members need unique clientMemberKey, mapped to memberId in results. Removing/emptying a member preserves its Resource. move reorders an existing one using compositionId and position/placement; needs no expectedRevision and leaves revision unchanged. Never reorder by deleting, recreating or renaming. Taken positions return COMPOSITION_POSITION_CONFLICT with the holder; missing/wrong-type anchors return COMPOSITION_PLACEMENT_INVALID. Results include position and renumbered; reread positions after change notices. duplicate copies an active object on user request; do not rebuild via ensure/update. compositionId is the source; results return the new compositionId and source-to-copy memberIds. Copies type, attributes and ordered roles; each current member version becomes an independent Resource, unresolved Resources become empty slots. Names append the first free _N to the source name; ordered copies follow the source unless position/placement is set. Optional expectedRevision checks the source (COMPOSITION_REVISION_CONFLICT); duplicate is not accepted inside batch. batch takes only action and commands: 1-20 commands in order in one transaction; any failure rolls back the entire batch. No nested batches or references to earlier results. Account for revision increments when editing the same object repeatedly.",
+   "description": "Edit Composition metadata, members or order without generation. ensure resolves a registered typeId or finds/creates a type by label, then finds/creates an active object by type + name, returning typeId, compositionId, revision, created; existing metadata stays unchanged. Optional operations apply atomically. For a new Composition receiving execute/deliver outputs, use output.composition with type and name: creation waits until submission, avoiding empty objects on cancellation. Use ensure with operations for document_write results or directly requested structure. update atomically edits members; rename preserves identity; set_attributes patches attributes. These require compositionId and expectedRevision from a valid snapshot; on conflict reread and reassess. Added members need unique clientMemberKey, mapped to memberId in results. update_member only renames a role; to change what a member shows, deliver new_version to the Resource it holds. Removing a member keeps its Resource but hides it and its history from the canvas. move reorders an existing one using compositionId and position/placement; needs no expectedRevision and leaves revision unchanged. Never reorder by deleting, recreating or renaming. Taken positions return COMPOSITION_POSITION_CONFLICT with the holder; missing/wrong-type anchors return COMPOSITION_PLACEMENT_INVALID. Results include position and renumbered; reread positions after change notices. duplicate copies an active object on user request; do not rebuild via ensure/update. compositionId is the source; results return the new compositionId and source-to-copy memberIds. Copies type, attributes and ordered roles; each current member version becomes an independent Resource, unresolved Resources become empty slots. Names append the first free _N to the source name; ordered copies follow the source unless position/placement is set. Optional expectedRevision checks the source (COMPOSITION_REVISION_CONFLICT); duplicate is not accepted inside batch. batch takes only action and commands: 1-20 commands in order in one transaction; any failure rolls back the entire batch. No nested batches or references to earlier results. Account for revision increments when editing the same object repeatedly.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -1891,24 +1875,12 @@
            "minLength": 1,
            "maxLength": 512,
            "description": "Member purpose in working_language, e.g. \"正面全身\"."
-          },
-          "resourceId": {
-           "anyOf": [
-            {
-             "type": "string",
-             "minLength": 1,
-             "maxLength": 512
-            },
-            {
-             "type": "null"
-            }
-           ],
-           "description": "Replaces the member's Resource; null empties the slot; omit to keep it."
           }
          },
          "required": [
           "action",
-          "memberId"
+          "memberId",
+          "role"
          ],
          "additionalProperties": false
         }
@@ -2034,7 +2006,7 @@
   },
   {
    "name": "document_write",
-   "description": "Create, rewrite or patch a durable TEXT_DOCUMENT Resource such as a script, brief or shot list. Existing SRT/ASS subtitle FILE Resources can also be edited while preserving their identity and kind. For localized changes prefer mode=patch: send anchored edits only, and the gateway applies them to the complete source of baseVersionId itself — no prior read of the document is needed when the anchors are already known (for example from a document-edit task or an earlier read), and unchanged text is never resent. create and replace write the complete content, never appending; replacing requires the complete source of the exact baseVersionId, including all pages, which may be reused from context or obtained through design_read when missing. On DOCUMENT_PATCH_CONFLICT nothing is written; the error lists each failed edit with nearest candidate locations — fix those edits and send the patch again. On a version conflict, refresh the document version, re-anchor if needed, then write again with the new baseVersionId. During one active chat turn, consecutive document edits (including Canvas user edits) can update the same versionId. Always pass the last read/write contentRevision as baseRevision. On DOCUMENT_REVISION_CONFLICT or DOCUMENT_REVISION_REQUIRED, read the latest document, preserve user changes and re-anchor; never just retry old content with a newer revision. Runs synchronously without a Task or billing. Replaying the same requestId with identical arguments returns the original receipt; never change arguments under an ID that already succeeded. On PROJECT_COMMAND_ID_REUSED, use a new requestId for the intended new write instead of repeating the conflicting request. This tool leaves Composition membership unchanged; design_composition_edit manages membership separately.",
+   "description": "Create, rewrite or patch a durable text Resource: a script, brief or shot list (md/txt TEXT_DOCUMENT), or any other text file such as an HTML page, CSS/JS/JSON or code (stored as a FILE Resource that the canvas previews, e.g. HTML renders as a web page). Existing text FILE Resources (subtitles, HTML, code) can also be edited while preserving their identity and kind. For localized changes prefer mode=patch: send anchored edits only, and the gateway applies them to the complete source of baseVersionId itself — no prior read of the document is needed when the anchors are already known (for example from a document-edit task or an earlier read), and unchanged text is never resent. create and replace write the complete content, never appending; replacing requires the complete source of the exact baseVersionId, including all pages, which may be reused from context or obtained through design_read when missing. On DOCUMENT_PATCH_CONFLICT nothing is written; the error lists each failed edit with nearest candidate locations — fix those edits and send the patch again. On a version conflict, refresh the document version, re-anchor if needed, then write again with the new baseVersionId. During one active chat turn, consecutive document edits (including Canvas user edits) can update the same versionId. Always pass the last read/write contentRevision as baseRevision. On DOCUMENT_REVISION_CONFLICT or DOCUMENT_REVISION_REQUIRED, read the latest document, preserve user changes and re-anchor; never just retry old content with a newer revision. Runs synchronously without a Task or billing. Replaying the same requestId with identical arguments returns the original receipt; never change arguments under an ID that already succeeded. On PROJECT_COMMAND_ID_REUSED, use a new requestId for the intended new write instead of repeating the conflicting request. This tool leaves Composition membership unchanged; design_composition_edit manages membership separately.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -2092,13 +2064,8 @@
      },
      "format": {
       "type": "string",
-      "enum": [
-       "md",
-       "txt",
-       "srt",
-       "ass"
-      ],
-      "description": "create/replace only: stored file format. Defaults to md; use txt for plain notes or srt/ass for subtitles. Existing subtitles and patched versions keep the format of their base."
+      "pattern": "^\\.?[A-Za-z0-9]{1,10}$",
+      "description": "create/replace only: file extension of the stored content, any text format (e.g. md, txt, html, css, js, json, csv, svg, srt, ass). Defaults to md. md/txt/srt/ass create a TEXT_DOCUMENT; any other format creates a FILE Resource. Binary formats (images, video, audio, Word/PDF) cannot be written as text. replace without format keeps a FILE base format; replace cannot switch between TEXT_DOCUMENT and FILE formats. Subtitles and patched versions keep the format of their base."
      },
      "name": {
       "type": "string",
@@ -2490,6 +2457,9 @@
            "type": "number"
           },
           "durationSeconds": {
+           "type": "number"
+          },
+          "fps": {
            "type": "number"
           }
          },
@@ -3074,7 +3044,7 @@
   },
   {
    "name": "read",
-   "description": "Read text as numbered lines with pagination. Pass exactly one of versionId or file_path. versionId reads text or extracts the body of a Word (.doc/.docx) or PDF Resource version and returns its identity. Only a complete text Resource source and its versionId can serve as the mode=\"replace\" rewrite baseline for design_document_write; a bounded window is enough to anchor mode=\"patch\" edits. Extracted Word/PDF text and partial reads cannot be a replace baseline. When contentRevision is returned, pass it on subsequent pages and as baseRevision when editing. A revision conflict means restart the read to avoid mixing old and new content. file_path reads a model knowledge card, a workflow file or any project file on disk, and also lists a directory; it accepts the <knowledgeDir> and <workflowsDir> logical roots. Paging is the same on both: offset is the 1-indexed first line and limit the maximum number of lines, at most 2000 per call (a Resource version defaults to 500 lines). When more is available, the tail gives the offset for the next page. Lines longer than 2000 characters are cut and end with \"... (line truncated to 2000 chars)\"; that suffix is not source text, so a patch anchor must come from the shown part of such a line, never include the suffix. Set pdf_page on a PDF (by versionId or file_path) to also return the embedded PNG images of that 1-based page as image content, alongside the text window; at most 2 MiB per image and 4 MiB in total, so large or decorative images may be omitted. Text is extracted without page layout or OCR; image, video or audio Resource inspection is available through design_analyse_media.",
+   "description": "Read text as numbered lines with pagination. Pass exactly one of versionId or file_path. versionId reads text (including text-based FILE Resources such as HTML or code) or extracts the body of a Word (.doc/.docx) or PDF Resource version and returns its identity. Only a complete text Resource source and its versionId can serve as the mode=\"replace\" rewrite baseline for design_document_write; a bounded window is enough to anchor mode=\"patch\" edits. Extracted Word/PDF text and partial reads cannot be a replace baseline. When contentRevision is returned, pass it on subsequent pages and as baseRevision when editing. A revision conflict means restart the read to avoid mixing old and new content. file_path reads a model knowledge card, a workflow file or any project file on disk, and also lists a directory; it accepts the <knowledgeDir> and <workflowsDir> logical roots. Paging is the same on both: offset is the 1-indexed first line and limit the maximum number of lines, at most 2000 per call (a Resource version defaults to 500 lines). When more is available, the tail gives the offset for the next page. Lines longer than 2000 characters are cut and end with \"... (line truncated to 2000 chars)\"; that suffix is not source text, so a patch anchor must come from the shown part of such a line, never include the suffix. Set pdf_page on a PDF (by versionId or file_path) to also return the embedded PNG images of that 1-based page as image content, alongside the text window; at most 2 MiB per image and 4 MiB in total, so large or decorative images may be omitted. Text is extracted without page layout or OCR; image, video or audio Resource inspection is available through design_analyse_media.",
    "inputSchema": {
     "type": "object",
     "properties": {

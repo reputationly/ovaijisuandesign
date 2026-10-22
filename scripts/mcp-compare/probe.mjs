@@ -10,14 +10,18 @@ import path from "node:path";
 
 const REPO = process.cwd();
 const ENTRY = process.env.OVMCP_ENTRY ?? path.join(REPO, "app/mcp-tools/dist/main.js");
-const OUT = "scripts/mcp-compare/ours-tools.json";
+// 第 349 轮：支持生成**参照**快照。OVMCP_ENTRY 指向冻结的 sidecar，
+// OVMCP_OUT 指定输出、OVMCP_SOURCE 写来源标签，OVMCP_SKIP_COMPARE=1 只生成不比对。
+const OUT = process.env.OVMCP_OUT ?? "scripts/mcp-compare/ours-tools.json";
+const SOURCE = process.env.OVMCP_SOURCE ?? "our mcp-tools（真跑 tools/list）";
+const SKIP_COMPARE = process.env.OVMCP_SKIP_COMPARE === "1";
 
 const child = spawn(process.execPath, [ENTRY], {
   cwd: REPO,
   env: { ...process.env, ELECTRON_RUN_AS_NODE: undefined,
     HILO_PROJECT_ARCHITECTURE: "resource_v3",
     HILO_AGENT_CALLER_KEY: process.env.HILO_AGENT_CALLER_KEY ?? "probe",
-    GATEWAY_URL: process.env.GATEWAY_URL ?? "http://127.0.0.1:39751" },
+    ...(process.env.GATEWAY_URL ? { GATEWAY_URL: process.env.GATEWAY_URL } : {}) },
   stdio: ["pipe", "pipe", "pipe"],
 });
 let buf = "";
@@ -45,8 +49,12 @@ child.kill("SIGKILL");
 const result = frames.find((f) => f.id === 2);
 if (!result?.result?.tools) { console.error("✗ 没拿到 tools/list"); process.exit(1); }
 const tools = result.result.tools;
-writeFileSync(OUT, JSON.stringify({ source: "our mcp-tools（真跑 tools/list）", count: tools.length, tools }, null, 1));
+writeFileSync(OUT, JSON.stringify({ source: SOURCE, count: tools.length, tools }, null, 1));
 
+if (SKIP_COMPARE) {
+  console.log(`✓ 已写 ${OUT}（${tools.length} 个工具，来源：${SOURCE}）`);
+  process.exit(0);
+}
 const ref = JSON.parse(readFileSync("scripts/mcp-compare/reference-tools.json", "utf8"));
 const ours = new Set(tools.map((t) => t.name));
 const refs = new Set(ref.tools.map((t) => t.name));

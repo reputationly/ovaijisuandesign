@@ -41,6 +41,7 @@ const HANDLED = new Set([
   "title",
   "examples",
   "format",
+  "pattern",
   "exclusiveMinimum",
   "exclusiveMaximum",
   "$ref",
@@ -120,6 +121,9 @@ function toZod(schema, ctx) {
       if (typeof schema.minLength === "number" && schema.minLength > 0)
         s += `.min(${schema.minLength})`;
       if (typeof schema.maxLength === "number") s += `.max(${schema.maxLength})`;
+      // 第 350 轮：4.0.3 的 document_write.format 带了 pattern（正则约束），
+      // 不处理就会在深比较里报 "pattern: 缺"。
+      if (typeof schema.pattern === "string") s += `.regex(new RegExp(${lit(schema.pattern)}))`;
       return s;
     }
     case "number":
