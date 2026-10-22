@@ -120,6 +120,14 @@ function getGradientIndex(filename) {
   }
   return Math.abs(hash) % MEDIA_GRADIENTS.length;
 }
+/** 预览卡片的表面样式（4.0.3 的 REFERENCE_PREVIEW_CARD_SURFACE，逐字照搬）。 */
+const REFERENCE_PREVIEW_CARD_SURFACE =
+  "box-border elevated-surface-border rounded-lg bg-popover text-popover-foreground shadow-lg";
+
+/** 预览卡片上动作按钮的样式（4.0.3 的 REFERENCE_PREVIEW_ACTION_STYLE，逐字照搬）。 */
+const REFERENCE_PREVIEW_ACTION_STYLE =
+  "h-6 min-w-0 max-w-20 flex-1 rounded-full bg-[var(--canvas-media-control-bg)] px-2 text-[10px] text-[var(--canvas-media-control-fg)] hover:bg-[var(--canvas-media-control-bg-hover)] hover:text-[var(--canvas-media-control-fg)] active:not-aria-[haspopup]:translate-y-0";
+
 function FileMetadataHoverPreview({
   filename,
   displayName: displayName2,
@@ -163,7 +171,7 @@ function FileMetadataHoverPreview({
     // biome-ignore lint/a11y/useSemanticElements: portal groups a file preview and its action.
     <div
       role="group"
-      className="dp-motion-quick-zoom fixed z-[10002] box-border overflow-y-auto rounded-xl border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] text-[var(--canvas-controls-text)] shadow-md"
+      className={`dp-motion-quick-zoom fixed z-[10002] overflow-y-auto ${REFERENCE_PREVIEW_CARD_SURFACE}`}
       ref={(node2) => {
         previewRef.current = node2;
         if (motion) motion.ref.current = node2;
@@ -195,7 +203,7 @@ function FileMetadataHoverPreview({
         {action && (
           <button
             type="button"
-            className="mx-3 mb-3 rounded-md bg-muted px-3 py-1 text-xs hover:bg-accent"
+            className={`mx-3 mb-3 ${REFERENCE_PREVIEW_ACTION_STYLE}`}
             data-action-ui-id={action.actionUiId}
             onClick={(event) => {
               event.stopPropagation();
