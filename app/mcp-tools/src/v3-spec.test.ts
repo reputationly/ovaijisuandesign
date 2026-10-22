@@ -30,6 +30,12 @@ interface ReferenceTool {
   name: string;
   description?: string;
   inputSchema?: { properties?: Record<string, unknown>; required?: string[] };
+  // 第 354 轮：M6 的一致标准改成**整个工具对象逐字段比**。
+  // 只比 description + inputSchema 会漏掉 outputSchema / annotations / execution
+  // （analyse_media 的差异就是这么漏掉的）。
+  outputSchema?: unknown;
+  annotations?: unknown;
+  execution?: unknown;
 }
 
 const reference: ReferenceTool[] = (() => {
@@ -125,6 +131,30 @@ describe("v3 tool surface", () => {
       const diffs: string[] = [];
       cmpDeep(mine, expected, name, diffs);
       expect(diffs, `${name} 的 schema 差异：${diffs.slice(0, 4).join(" | ")}`).toEqual([]);
+    }
+  });
+
+  it("annotations 与参照完全一致（readOnlyHint 会影响客户端是否要求确认）", () => {
+    for (const [name, collected] of h.registrar.collected()) {
+      expect(collected.annotations ?? null, name).toEqual(byName.get(name)?.annotations ?? null);
+    }
+  });
+
+  it("execution 与参照完全一致（taskSupport 决定客户端怎么排队）", () => {
+    for (const [name, collected] of h.registrar.collected()) {
+      expect(collected.execution ?? null, name).toEqual(byName.get(name)?.execution ?? null);
+    }
+  });
+
+  it("outputSchema 与参照完全一致", () => {
+    for (const [name, collected] of h.registrar.collected()) {
+      // 注意：输出 schema 不加 .passthrough()。参照的 outputSchema 是
+      // additionalProperties: false（严格），入参那边才是 true。
+      const mine = collected.outputSchema
+        ? (toJsonSchemaCompat(z.object(collected.outputSchema)) as Record<string, unknown>)
+        : null;
+      const ref = (byName.get(name)?.outputSchema as Record<string, unknown> | undefined) ?? null;
+      expect(mine, name).toEqual(ref);
     }
   });
 

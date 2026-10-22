@@ -218,6 +218,12 @@ for (const tool of tools) {
     `  ${lit(tool.name)}: {\n` +
       `    description: ${lit(tool.description ?? "")},\n` +
       `    shape: ${shape},\n` +
+      // 3 个工具参照里没有 annotations，但键必须存在，否则 satisfies 会把
+      // 字面量类型收窄成「没有该字段」，注册处访问 .annotations 会报 TS2339。
+      `    annotations: ${tool.annotations ? JSON.stringify(tool.annotations) : "undefined"},\n` +
+      (tool.outputSchema
+        ? `    outputShape: ${toZodShape(tool.outputSchema, { unhandled, root: tool.outputSchema })},\n`
+        : "") +
       `  },`,
   );
 }
@@ -238,6 +244,13 @@ import { z } from "zod";
 
 export interface V3ToolSpec {
   description: string;
+  /** 参照的 annotations（readOnlyHint / destructiveHint / idempotentHint 等），逐字照搬。
+   *  第 354 轮：M6 的一致标准改成**整个工具对象逐字段比**，annotations 也算在内
+   *  —— 有些客户端按 readOnlyHint 决定要不要弹确认，它会影响 agent 行为。 */
+  annotations?: Record<string, unknown>;
+  /** 参照的 outputSchema（4 个工具有：image_search / analyse_media / search_knowledge / voice_search）。
+   *  声明了它，成功返回就必须带符合它的 structuredContent，否则 MCP SDK 会报错。 */
+  outputShape?: Record<string, z.ZodTypeAny>;
   /** 顶层是 raw shape（ZodRawShape）；registrar 会包成 z.object(shape).passthrough()。 */
   shape: Record<string, z.ZodTypeAny>;
 }

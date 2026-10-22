@@ -31,6 +31,10 @@ export interface ToolConfig<S extends z.ZodRawShape> {
   inputSchema: S;
   outputSchema?: z.ZodRawShape;
   annotations?: ToolAnnotations;
+  /** 任务支持声明。参照 25 个工具都是 { taskSupport: "forbidden" }。
+   *  第 354 轮：原来靠 SDK 默认值，collected() 看不到、测试无从比对；
+   *  改成显式声明，行为由我们控制。 */
+  execution?: Record<string, unknown>;
   // ── 私有字段：不进 SDK，推给 gateway ──
   /** 调用前需要用户确认（gateway / 插件的 tool-confirm 读它）。 */
   confirmable?: boolean;
@@ -45,6 +49,11 @@ export interface ToolConfig<S extends z.ZodRawShape> {
 export interface CollectedTool {
   inputSchema: z.ZodRawShape;
   description: string;
+  // 第 354 轮：这三个字段也收进来，好让测试按**整个工具对象**比对
+  // （只比 description + inputSchema 会漏掉 analyse_media 那种只在 outputSchema 上的差异）。
+  outputSchema?: z.ZodRawShape;
+  annotations?: Record<string, unknown>;
+  execution?: Record<string, unknown>;
   confirmable: boolean;
   confirmationMode?: string;
   paramHints?: Record<string, unknown>;
@@ -120,6 +129,9 @@ export function createToolRegistrar(server: RegisterToolTarget): ToolRegistrar {
       collected.set(name, {
         inputSchema,
         description: config.description,
+        ...(config.outputSchema ? { outputSchema: config.outputSchema } : {}),
+        ...(config.annotations ? { annotations: config.annotations } : {}),
+        execution: config.execution ?? { taskSupport: "forbidden" },
         confirmable: confirmable === true,
         ...(confirmationMode ? { confirmationMode } : {}),
         ...(paramHints ? { paramHints } : {}),
@@ -169,7 +181,16 @@ export function createToolRegistrar(server: RegisterToolTarget): ToolRegistrar {
         return result;
       };
 
-      server.registerTool(name, { ...sdkConfig, inputSchema: z.object(inputSchema).passthrough() }, wrapped);
+      server.registerTool(
+        name,
+        {
+          ...sdkConfig,
+          // 第 354 轮：显式声明，不再依赖 SDK 默认值（参照 25 个工具都是 forbidden）。
+          execution: config.execution ?? { taskSupport: "forbidden" },
+          inputSchema: z.object(inputSchema).passthrough(),
+        },
+        wrapped,
+      );
     },
     collected: () => collected,
   };

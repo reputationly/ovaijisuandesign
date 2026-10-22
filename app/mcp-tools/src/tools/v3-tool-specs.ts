@@ -14,6 +14,13 @@ import { z } from "zod";
 
 export interface V3ToolSpec {
   description: string;
+  /** 参照的 annotations（readOnlyHint / destructiveHint / idempotentHint 等），逐字照搬。
+   *  第 354 轮：M6 的一致标准改成**整个工具对象逐字段比**，annotations 也算在内
+   *  —— 有些客户端按 readOnlyHint 决定要不要弹确认，它会影响 agent 行为。 */
+  annotations?: Record<string, unknown>;
+  /** 参照的 outputSchema（4 个工具有：image_search / analyse_media / search_knowledge / voice_search）。
+   *  声明了它，成功返回就必须带符合它的 structuredContent，否则 MCP SDK 会报错。 */
+  outputShape?: Record<string, z.ZodTypeAny>;
   /** 顶层是 raw shape（ZodRawShape）；registrar 会包成 z.object(shape).passthrough()。 */
   shape: Record<string, z.ZodTypeAny>;
 }
@@ -26,6 +33,7 @@ export const V3_TOOL_SPECS = {
       "content": z.string().describe("Required for save: complete Markdown rules (max 16 KiB UTF-8). Empty text clears all rules.").optional(),
       "expectedRevision": z.union([z.string(), z.null()]).describe("Required for save: exact revision returned by read, including null for a missing document. On conflict, read again and merge; never blindly retry.").optional(),
     },
+    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":false},
   },
   "execute": {
     description: "Execute a media capability or native editor operation after reading capability_get. Editors: pass only capabilityId and plugin (method, contractVersion, explicit target, args, write preconditions); the first renderer operation prepares the editor and executes without another model turn. Recover unknown outcomes with command.get, never repeat writes blindly. Media: declared params and ordered references only; output is required before submission. Durable generation returns {task}; create targets get compositionId on submission. Synchronous edit_media returns {delivery}; transcription uses billable cloud ASR, file transforms are local. Results are in envelope.outputs. Adoption/placement problems reuse delivered content for recovery. Completed results are final. Cost confirmation belongs to the user in the app; execute waits, and cancelled means declined or unconfirmed. The host assigns task.id; no caller requestId. After interrupted waits use design_task_wait with that taskId; resubmission starts new work.",
@@ -97,6 +105,7 @@ export const V3_TOOL_SPECS = {
     }).describe("Canvas-visible placement required for every create target; omit only when every target is a new_version already in a Composition. compositionId targets an existing object; type + name finds/creates an active one by exact type ID + trimmed name. Both require placements. Parallel outputs for one new object use the same type ID/name; call in the same step without waiting for its compositionId.").optional(),
     }).describe("Required for media: declare resources and their Composition placements. Media edits declare exactly one primary Resource. Example: {\"resources\":[{\"mode\":\"create\",\"name\":\"视频\"}],\"composition\":{\"type\":{\"label\":\"视频\"},\"name\":\"作品\",\"placements\":[{\"role\":\"主视频\"}]}}").optional(),
     },
+    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":false},
   },
   "deliver": {
     description: "Synchronously deliver existing versions, archived task artifacts or workspace files into Resources and Compositions; no generation, billing or Task. Imported files have no lineage. Files that are not image/video/audio/text (Word/PDF, HTML, code, archives) become FILE Resources; read Word/PDF and text-based FILEs with design_read(versionId), not execute media references. reuse places an existing Resource without copying and requires a versionId source. To swap what a member shows, even with another Resource version, use new_version on the Resource it holds. Returns {delivery}: completed is final; unknown requires the same requestId and exact input, never regeneration; blocked requires corrected input with a new requestId, reusing delivered versionIds. No background delivery or wait tool. Targets and placements live inside output, never beside sources. Example: {\"requestId\":\"deliver-promo-1\",\"sources\":[{\"key\":\"video\",\"path\":\"out/promo_cut.mp4\"},{\"key\":\"cover\",\"path\":\"out/promo_cover.png\"}],\"output\":{\"resources\":[{\"key\":\"video\",\"mode\":\"create\",\"name\":\"宣传片成片\"},{\"key\":\"cover\",\"mode\":\"create\",\"name\":\"宣传片封面\"}],\"composition\":{\"type\":{\"id\":\"video\",\"label\":\"视频\"},\"name\":\"新品宣传片\",\"placements\":[{\"key\":\"video\",\"role\":\"主视频\"},{\"key\":\"cover\",\"role\":\"封面\"}]}}}",
@@ -154,6 +163,7 @@ export const V3_TOOL_SPECS = {
     }).describe("Canvas-visible placement required for every create/reuse target; omit only when every target is a new_version already in a Composition. compositionId targets an existing object; type + name finds/creates an active one by exact type ID + trimmed name. Both require placements. Parallel outputs for one new object use the same type ID/name; call in the same step without waiting for its compositionId.").optional(),
     }),
     },
+    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true},
   },
   "task_query": {
     description: "Read authorized project tasks: get requires taskId and returns {task,input}, the task in the same form execute returns and input the frozen request; list accepts query filters and returns {items,nextCursor}, each item carrying id, capabilityId, status, createdAt, a prompt excerpt, outputs and compositionId so this conversation's results (query.sessionId) can be matched to what the user means. task.problem.source identifies input, provider, billing, delivery or system problems; problem.upstream carries provider diagnostics, and task.actions advertises available recovery decisions. Never resubmit a failed task on your own; when the user asks to retry it, use design_task_resolve action=retry. When the user asks for a new generation, use design_execute. This tool never generates or retries work.",
@@ -176,12 +186,14 @@ export const V3_TOOL_SPECS = {
       "cursor": z.string().min(1).max(4096).optional(),
     }).optional(),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
   },
   "task_wait": {
     description: "Continue an interrupted wait or wait after resuming the SAME taskId until completed, failed, cancelled, waiting_user or unknown; the user decides a cost confirmation in the app, so the wait continues through it. Returns {task} in the same compact form as execute, including any problem and available actions. Not needed after execute completes. Wait errors do not mean generation failed; do not resubmit on your own. Disconnecting does not cancel the task. cancelled means the user stopped it, or never confirmed its cost, before anything was submitted; do not resubmit unless the user asks again.",
     shape: {
       "taskId": z.string().min(1).max(512),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
   },
   "task_resolve": {
     description: "Apply task.actions with the latest task.revision as expectedRevision; returns {task}. On revision conflict, reread before deciding. Never confirm cost for the user. stop abandons only unsubmitted subtasks; submitted work still finishes and delivers. Delivery recovery reuses generated content. retry requires a user request and an offered action (up to 3 retries): resumes the same Task, keeps completed results, fetches lost results without new charges, and resubmits/bills only failed generations. Tell the user any cost shown in task.billing first. Waits like execute. For new generation, read input with design_task_query and use design_execute.",
@@ -216,6 +228,7 @@ export const V3_TOOL_SPECS = {
     })).min(1).max(50).describe("Required, one entry per output: role adds a member, memberId fills an existing one. key may be omitted for the primary output."),
     }).describe("update_placement only: the existing Composition (compositionId) plus placements, one per output still awaiting placement, each with role or memberId.").optional(),
     },
+    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true},
   },
   "resource_search": {
     description: "Find project resources by name, description, type or creation time. Returns summaries, not file content. Omit text to browse. resource_get provides an individual Resource snapshot or its version history.",
@@ -232,6 +245,7 @@ export const V3_TOOL_SPECS = {
       "limit": z.number().int().min(1).max(50).optional(),
       "cursor": z.string().min(1).max(4096).optional(),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
   },
   "resource_get": {
     description: "Read a known Resource or Version independently of Composition membership. view=current (default) returns Resource metadata and one content version: resourceId selects current, versionId selects that exact version. Resource metadata includes currentVersionId and metadataRevision for version selection and metadata edits. Missing historical content stays unavailable. view=current also reads up to 20 at once through resourceIds or versionIds (one of them, never mixed, never with resourceId/versionId): items answer in request order, and an unreadable id is an item-level error carrying that id instead of failing the batch. view=versions lists paginated versions of resourceId, newest first, with isCurrent. view=relations returns one-hop inputs or derivatives of versionId, or Composition memberships of resourceId, chosen by relation.",
@@ -245,6 +259,7 @@ export const V3_TOOL_SPECS = {
       "limit": z.number().int().min(1).max(50).optional(),
       "cursor": z.string().min(1).max(4096).optional(),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
   },
   "resource_preview": {
     description: "Inspect a fixed version as metadata or bounded model-readable content. Image edge 256–2048; video/audio at most 60 seconds; video at most 8 frames; text at most 200 lines / 16000 characters. Preview is not the complete source.",
@@ -260,6 +275,7 @@ export const V3_TOOL_SPECS = {
       "lineCount": z.number().int().min(1).max(200).optional(),
     }).optional(),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
   },
   "composition_search": {
     description: "Find anything already in the project: uploaded, generated or previously searched images, videos, audio and documents, and the characters, products, scenes or other objects they belong to. Search here first whenever the user refers to existing material or names something, before any web search. text matches the Composition name, its attribute values and the names and descriptions of its member Resources; type narrows to a registered type ID; attributes are exact key/value conditions combined with AND. Omit every filter to browse. Each hit carries its attributes and revision, which can serve as the basis for an edit without another read, and position when its type is ordered. Hits default to updatedAt descending; use order to sort by creation time, update time or ascending position. Member details are available through composition_get when needed. Returns paginated hits; lifecycle appears only on a hit that is not active.",
@@ -278,12 +294,14 @@ export const V3_TOOL_SPECS = {
       "limit": z.number().int().min(1).max(50).describe("Maximum number of Composition hits to return: 1–50. Use nextCursor for additional pages.").optional(),
       "cursor": z.string().min(1).max(4096).describe("Opaque nextCursor returned by the previous page; pass it unchanged.").optional(),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
   },
   "composition_type_list": {
     description: "List registered Composition types, including types with no Compositions. Use when choosing a type for a Composition if the current context does not already establish a suitable registered type. text matches type labels or descriptions; omit it to list all types. Returns type definitions with id, label and optional description. Reuse an existing type with matching meaning; create a new type only when no existing type fits, not merely because its name or wording differs.",
     shape: {
       "text": z.string().max(2000).optional(),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
   },
   "composition_get": {
     description: "Read one Composition (compositionId) or up to 20 at once (compositionIds), each with attributes, revision and members; every member holds at most one Resource and embeds its snapshot under resource, which is absent for an empty slot. A single read paginates members (limit 1–50, then nextCursor) and accepts memberId/role filters. A batch answers every id in request order under items and reports a missing id as an item-level error. It returns whole member lists while they fit within 100 Resources total and 100 members per Composition. At the first list that cannot fit, that Composition and all later ones retain their other information but omit members entirely, with membersOmitted=true and a result notice. Omitted members are unknown, not empty; if needed, read those Composition IDs again in a smaller batch or use a single paginated read. Members follow each Resource's current version; revision is not a historical content snapshot. CURSOR_STALE requires restarting pagination.",
@@ -295,6 +313,7 @@ export const V3_TOOL_SPECS = {
       "limit": z.number().int().min(1).max(50).describe("Single read: maximum number of members to return: 1–50. Use nextCursor for additional pages.").optional(),
       "cursor": z.string().min(1).max(4096).describe("Opaque nextCursor returned by the previous page; pass it unchanged.").optional(),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
   },
   "resource_edit": {
     description: "Select a Resource's current version (adopt), or update its version-independent name and purpose description (describe), independently of Composition membership. Adoption changes the content shown by its Composition members, without changing Composition attributes. Send only changed fields. Use a valid Resource snapshot to establish expectedCurrentVersionId for adopt or expectedMetadataRevision for describe. On mismatch, refresh the snapshot and reassess the edit rather than blindly retrying. Success returns currentVersionId and metadataRevision for subsequent edits. Creates no content and never deletes or uploads. action=batch accepts 1-20 adopt/describe commands executed in order within one transaction and returns results in the same order, each with its resourceId; a mismatch in any command rolls back the entire batch and reports that command's index and conflict. Batch takes only action and commands; nested batches are unsupported. Successive edits to the same Resource must account for earlier changes in the batch: adopting a Resource that had no content also increments its metadataRevision.",
@@ -316,6 +335,7 @@ export const V3_TOOL_SPECS = {
       "expectedMetadataRevision": z.number().int().min(0).describe("action=describe: revision of the Resource metadata snapshot being edited.").optional(),
     })).min(1).max(20).describe("batch only: adopt/describe commands executed atomically in order.").optional(),
     },
+    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true},
   },
   "composition_edit": {
     description: "Edit Composition metadata, members or order without generation. ensure resolves a registered typeId or finds/creates a type by label, then finds/creates an active object by type + name, returning typeId, compositionId, revision, created; existing metadata stays unchanged. Optional operations apply atomically. For a new Composition receiving execute/deliver outputs, use output.composition with type and name: creation waits until submission, avoiding empty objects on cancellation. Use ensure with operations for document_write results or directly requested structure. update atomically edits members; rename preserves identity; set_attributes patches attributes. These require compositionId and expectedRevision from a valid snapshot; on conflict reread and reassess. Added members need unique clientMemberKey, mapped to memberId in results. update_member only renames a role; to change what a member shows, deliver new_version to the Resource it holds. Removing a member keeps its Resource but hides it and its history from the canvas. move reorders an existing one using compositionId and position/placement; needs no expectedRevision and leaves revision unchanged. Never reorder by deleting, recreating or renaming. Taken positions return COMPOSITION_POSITION_CONFLICT with the holder; missing/wrong-type anchors return COMPOSITION_PLACEMENT_INVALID. Results include position and renumbered; reread positions after change notices. duplicate copies an active object on user request; do not rebuild via ensure/update. compositionId is the source; results return the new compositionId and source-to-copy memberIds. Copies type, attributes and ordered roles; each current member version becomes an independent Resource, unresolved Resources become empty slots. Names append the first free _N to the source name; ordered copies follow the source unless position/placement is set. Optional expectedRevision checks the source (COMPOSITION_REVISION_CONFLICT); duplicate is not accepted inside batch. batch takes only action and commands: 1-20 commands in order in one transaction; any failure rolls back the entire batch. No nested batches or references to earlier results. Account for revision increments when editing the same object repeatedly.",
@@ -379,6 +399,7 @@ export const V3_TOOL_SPECS = {
     })]).describe("ensure (creation only), duplicate or move. Place before/after a same-type Composition. The gateway assigns position; never compute one yourself. Neighbours may change position, reported as renumbered. Exclusive with position.").optional(),
     })).min(1).max(20).describe("batch only: commands executed atomically in order; no nested batch.").optional(),
     },
+    annotations: {"readOnlyHint":false,"destructiveHint":true,"idempotentHint":true},
   },
   "document_write": {
     description: "Create, rewrite or patch a durable text Resource: a script, brief or shot list (md/txt TEXT_DOCUMENT), or any other text file such as an HTML page, CSS/JS/JSON or code (stored as a FILE Resource that the canvas previews, e.g. HTML renders as a web page). Existing text FILE Resources (subtitles, HTML, code) can also be edited while preserving their identity and kind. For localized changes prefer mode=patch: send anchored edits only, and the gateway applies them to the complete source of baseVersionId itself — no prior read of the document is needed when the anchors are already known (for example from a document-edit task or an earlier read), and unchanged text is never resent. create and replace write the complete content, never appending; replacing requires the complete source of the exact baseVersionId, including all pages, which may be reused from context or obtained through design_read when missing. On DOCUMENT_PATCH_CONFLICT nothing is written; the error lists each failed edit with nearest candidate locations — fix those edits and send the patch again. On a version conflict, refresh the document version, re-anchor if needed, then write again with the new baseVersionId. During one active chat turn, consecutive document edits (including Canvas user edits) can update the same versionId. Always pass the last read/write contentRevision as baseRevision. On DOCUMENT_REVISION_CONFLICT or DOCUMENT_REVISION_REQUIRED, read the latest document, preserve user changes and re-anchor; never just retry old content with a newer revision. Runs synchronously without a Task or billing. Replaying the same requestId with identical arguments returns the original receipt; never change arguments under an ID that already succeeded. On PROJECT_COMMAND_ID_REUSED, use a new requestId for the intended new write instead of repeating the conflicting request. This tool leaves Composition membership unchanged; design_composition_edit manages membership separately.",
@@ -399,6 +420,7 @@ export const V3_TOOL_SPECS = {
       "baseRevision": z.number().int().min(1).describe("replace/patch: contentRevision of the document source you read or last wrote. Required when the read/write returned it; protects concurrent Canvas edits even when versionId is unchanged.").optional(),
       "disposition": z.enum(["adopted", "candidate"]).describe("mode=replace/patch only, required: adopted makes this the current version; candidate stores it unadopted and cannot be placed in a Composition.").optional(),
     },
+    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true},
   },
   "image_search": {
     description: "Search the open web and download new images into the project. Use it only for outside material: the user asks for web or online references, or the task needs images the project does not have. Each kept image becomes a durable project Resource. The batch is organized into one Composition of the auto-registered `search` type, named by composition_name; each kept image becomes its own member with role `search_result`, and the per-image memberId identifies it. Reference results by resourceId/versionId or {compositionId, memberId}. Reusing composition_name appends to the existing Composition. Once a web search is warranted, queries and volume must follow the rules in `<knowledgeDir>/vendors/image-search.md`; reuse complete, applicable rules already in context, or retrieve missing guidance with design_read.",
@@ -413,6 +435,27 @@ export const V3_TOOL_SPECS = {
       "composition_name": z.string().min(1).max(512).describe("Name of the delivered `search` Composition. Name it after the search task, e.g. \"Cyberpunk street reference\". Reusing an existing name appends to that Composition."),
       "composition_description": z.string().max(2000).describe("Optional description stored on the Composition.").optional(),
     },
+    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":false,"openWorldHint":true},
+    outputShape: {
+      "compositionId": z.string().describe("The `search` Composition holding all delivered Resources. Absent when no images were delivered or placement failed; placementProblem reports a placement failure.").optional(),
+      "queries": z.array(z.object({
+      "query": z.string().describe("Search query used"),
+      "images": z.array(z.object({
+      "resourceId": z.string(),
+      "versionId": z.string(),
+      "name": z.string(),
+      "memberId": z.string().describe("Composition member holding this image, one member per Resource. Absent when placement failed.").optional(),
+      "width": z.number(),
+      "height": z.number(),
+      "source_url": z.string(),
+    })).describe("Delivered image Resources. An empty array means no usable images were delivered for this query; an error may explain why. Further search depends on relevance, failure cause and remaining requirements."),
+      "error": z.string().describe("Error message if query failed").optional(),
+    })).describe("Per-query results"),
+      "placementProblem": z.object({
+      "code": z.string(),
+      "message": z.string(),
+    }).describe("The Resources are saved, but Composition placement failed. Returned Resource IDs remain valid for placement repair, for example with design_composition_edit; repeating the search would create another acquisition rather than repair placement.").optional(),
+    },
   },
   "analyse_media": {
     description: "Inspect image, video or audio Resources. metadata reads measured file facts without AI inference; semantic answers a concrete question about visible or audible content; both returns both.",
@@ -426,6 +469,39 @@ export const V3_TOOL_SPECS = {
     })])).min(1).max(20).describe("Media to inspect, in order, each with its own question. Use resourceId for its current version or versionId for an exact version from context or a tool result. Composition members must be addressed by their Resource IDs; design_composition_get can supply missing member details. File paths are not accepted."),
       "type": z.enum(["metadata", "semantic", "both"]).describe("metadata: measured file facts only; semantic: question-focused observations; both: both kinds of evidence."),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":false},
+    outputShape: {
+      "type": z.enum(["metadata", "semantic", "both"]),
+      "results": z.array(z.object({
+      "reference": z.union([z.object({
+      "resourceId": z.string().min(1).max(512),
+    }), z.object({
+      "versionId": z.string().min(1).max(512),
+    })]),
+      "question": z.string().min(1).max(8000).describe("Question for this media item. Required for semantic or both.").optional(),
+      "resourceId": z.string().min(1).max(512).optional(),
+      "versionId": z.string().min(1).max(512).optional(),
+      "name": z.string().optional(),
+      "kind": z.enum(["image", "video", "audio"]).optional(),
+      "metadata": z.object({
+      "mimeType": z.string(),
+      "sizeBytes": z.number(),
+      "width": z.number().optional(),
+      "height": z.number().optional(),
+      "durationSeconds": z.number().optional(),
+      "fps": z.number().optional(),
+    }).optional(),
+      "semantic": z.object({
+      "text": z.string(),
+    }).optional(),
+      "error": z.object({
+      "code": z.string().optional(),
+      "message": z.string(),
+      "retryable": z.boolean().optional(),
+      "conflict": z.record(z.string(), z.unknown()).optional(),
+    }).optional(),
+    })),
+    },
   },
   "capability_list": {
     description: "List media production and native editor plugin capabilities. kind=plugin reads the fixed editor catalog independently of cloud models; kind=media retains production discovery. kind=plugin cannot combine with operation. When editor context already names a capability, go directly to capability_get. List production capabilities available to this account and session: models, fixed tools and media edits. Filter by one or several operations, or omit the filter for all. Returns selection facts and capability IDs in <operation>:<name> form. description explains what each model or tool can do, when to choose it and video output duration ranges or choices; read capability_get for accepted params and conditional limits. Model entries without displayName are internal/Auto-only. Full parameter contracts are omitted; inapplicable fields are absent. kind=connector lists the tools of connected external connectors (connectorId narrows to one connector).",
@@ -434,6 +510,7 @@ export const V3_TOOL_SPECS = {
       "kind": z.enum(["media", "plugin", "connector"]).optional(),
       "connectorId": z.string().min(1).max(100).describe("List only the tools of this connector; implies kind=connector.").optional(),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false},
   },
   "capability_get": {
     description: "Read media, native editor or connector contracts in one batch. plugin:* IDs are independent of cloud models and model selection. Plugin default details contain instructions and group summaries; use plugin.methodGroups OR plugin.methods for exact schemas, or plugin.guides for one on-demand Director guide (motion-dsl, staging, delivery). Reuse contractVersion while valid; CONTRACT_CHANGED requires rereading. Get does not open an editor. connector:<connectorId>/<tool> IDs return the connector tool MCP inputSchema and annotations unchanged. Media contracts: paramSchema defines the flat params keys, allowed values and defaults; undeclared keys are rejected. Pass mode only when declared, using its enum. paramRules defines conditional parameter restrictions: when a parameter matches one of when.values, disable.param rejects disable.values, or the whole parameter when values is absent. prompt carries only the model-specific maxLength when present. references groups totalCount, byKind count (minCount/maxCount), duration limits and, for images, imageSize (width/height/ratio bounds), combinedCountLimits, imagesWithVideoMax, exclusiveKinds (kinds that cannot appear together), audioRequiresImageOrVideo and lastFrameOnly (references[0] may be null to give only the closing frame). Apply the selected mode entry in references.modeOverrides over the base: each listed top-level section replaces that whole section; null removes an inherited section. knowledgeCard locates the vendor card: how this model reads prompts and references, and its known behavior. Before composing or changing a prompt for this model, design_read the card unless its current content is already in context. Available contracts are returned in capabilities; unavailable IDs carry reasons. Inapplicable fields are absent.",
@@ -447,6 +524,7 @@ export const V3_TOOL_SPECS = {
     }).optional(),
       "ids": z.array(z.string().min(1).max(512)).min(1).max(20).describe("Capability IDs from the current context or capability discovery, each carrying its own operation."),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false},
   },
   "capability_search": {
     description: "Find an external connector (a desktop app or service such as Blender, Figma or Photoshop) when the user names one, asks what can be connected, or the task needs tools not currently available. Searches market connectors and configured MCP servers, including failed or disabled ones. Search never installs, connects or executes; the returned card lets the user set up and connect the connector.",
@@ -454,6 +532,7 @@ export const V3_TOOL_SPECS = {
       "queries": z.array(z.string().min(1).max(64)).min(1).max(5).describe("1–5 concise names, aliases or task terms. Chinese and English are supported."),
       "targetConnectorId": z.string().min(1).max(100).describe("For an explicit @connector reference, use its catalog ID or configured runtime name. Otherwise omit; do not invent an ID from the query.").optional(),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false},
   },
   "connector_call": {
     description: "Run one tool of a connected external connector. capabilityId is a connector:<connectorId>/<tool> ID from design_capability_list kind=connector connectorId=<id>; arguments must match the inputSchema returned by design_capability_get (read it before the first call of each tool). The local Gateway re-checks the connection and the schema, asks the user first when the connector marks the tool destructive, and returns the connector result unchanged (text, JSON, images). Connectors that are not connected are refused: use design_capability_search. Not for models or media edits (use design_execute). Results do not become project Resources by themselves; import files with design_deliver.",
@@ -461,6 +540,7 @@ export const V3_TOOL_SPECS = {
       "capabilityId": z.string().min(1).max(300).describe("connector:<connectorId>/<tool> ID of a connected connector tool."),
       "arguments": z.record(z.string(), z.unknown()).describe("Tool arguments object matching the inputSchema from design_capability_get.").default({}).optional(),
     },
+    annotations: {"readOnlyHint":false,"destructiveHint":true,"openWorldHint":true},
   },
   "search_knowledge": {
     description: "Search model guidance and historical production references by recall terms + category.\n\nUse this when:\n  - find a card for a known vendor (pass `category: \"vendors\", topic: \"<vendor>\"`)\n  - consult historical production references for creative methods (explicitly pass `category: \"workflows\", query: \"narrative video\"`)\n\nReturns ranked logical file paths + short excerpts. Paths start with `<knowledgeDir>` or `<workflowsDir>` and can be passed directly to `design_read`; that tool resolves the active profile root.\nOmitting category or using \"all\" searches current knowledge. Historical workflow results carry their reference-only context; media-agent owns current execution through the available tools.",
@@ -469,6 +549,14 @@ export const V3_TOOL_SPECS = {
       "topic": z.string().describe("Exact category-relative card path, with optional `.md` (e.g. \"seedance\", \"character-refs\"). For workflows, accepts a project type such as \"mv\" or a reference path such as \"mv/reference/music\".").optional(),
       "category": z.enum(["vendors", "workflows", "all"]).describe("Current knowledge: vendors. Omit or \"all\" to search model guidance. Explicit \"workflows\" searches historical production references.").optional(),
       "limit": z.number().int().min(1).max(20).describe("Cap on returned hits. Default 5.").optional(),
+    },
+    annotations: undefined,
+    outputShape: {
+      "results": z.array(z.object({
+      "path": z.string(),
+      "excerpt": z.string(),
+      "lines_total": z.number(),
+    })),
     },
   },
   "report_outcome": {
@@ -485,6 +573,7 @@ export const V3_TOOL_SPECS = {
       "retries": z.number().int().min(0).max(10).describe("Retry index for this asset.").optional(),
     })).min(1).max(100).describe("Batch of outcome records. Single outcome calls must still use outcomes[]."),
     },
+    annotations: undefined,
   },
   "voice_search": {
     description: "Search the preset voice catalog for speech generation by spoken language and optional gender. Each query returns every matching voice, so send one query per distinct language and gender, never repeats. When recommending voices to the user, embed each non-empty sample_audio as Markdown media using the exact syntax `![voice name](sample_audio URL)` so Chat renders an inline audio player; do not use a normal Markdown link `[label](URL)`. Pass a chosen voice_id with voice_id_source=\"catalog\". To create a custom voice, run the generate_speech:voice_clone or generate_speech:voice_design capability instead. Returns results in input order; a failed query carries error.",
@@ -494,6 +583,22 @@ export const V3_TOOL_SPECS = {
       "language": z.enum(["中文", "英语", "葡萄牙语", "日语", "韩语", "法语", "德语", "西班牙语", "意大利语", "俄语", "阿拉伯语", "印尼语", "荷兰语", "泰语", "越南语", "印地语", "波兰语", "罗马尼亚语", "捷克语", "芬兰语", "马来语", "土耳其语", "乌克兰语", "保加利亚语", "丹麦语", "希伯来语", "波斯语", "斯洛伐克语", "瑞典语", "克罗地亚语", "菲律宾语", "匈牙利语", "挪威语", "斯洛文尼亚语", "加泰罗尼亚语", "希腊语", "泰米尔", "阿非利卡语", "尼诺斯克"]).describe("Spoken language required by the intended speech."),
       "gender": z.enum(["女", "男"]).describe("Pass only when the user explicitly mentioned gender.").optional(),
     })).min(1).max(30).describe("Catalog queries, one per distinct language and gender."),
+    },
+    annotations: undefined,
+    outputShape: {
+      "results": z.array(z.object({
+      "id": z.string().optional(),
+      "voices": z.array(z.object({
+      "voice_id": z.string(),
+      "name": z.string(),
+      "language": z.string(),
+      "gender": z.string(),
+      "age": z.string(),
+      "accent": z.string(),
+      "sample_audio": z.string().describe("Preview audio URL the user can play."),
+    })).describe("Matching voices.").optional(),
+      "error": z.string().describe("Why this query failed.").optional(),
+    })),
     },
   },
   "read": {
@@ -506,6 +611,7 @@ export const V3_TOOL_SPECS = {
       "limit": z.number().int().min(1).max(2000).describe("Maximum lines to return in this call.").optional(),
       "pdf_page": z.number().int().min(1).describe("PDF only: 1-based page whose embedded images are returned with the text window. Text paging still follows offset/limit.").optional(),
     },
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
   },
 } satisfies Record<string, V3ToolSpec>;
 

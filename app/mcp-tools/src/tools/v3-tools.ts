@@ -247,7 +247,7 @@ const reportOutcomeSchema = z.object({
 export const registerV3Tools: RegisterTools = (registrar, gw) => {
   registrar.registerTool(
     "task_query",
-    { description: V3_TOOL_SPECS["task_query"].description, inputSchema: V3_TOOL_SPECS["task_query"].shape },
+    { description: V3_TOOL_SPECS["task_query"].description, inputSchema: V3_TOOL_SPECS["task_query"].shape, annotations: V3_TOOL_SPECS["task_query"].annotations },
     async (args: V3Args<"task_query">) => {
       try {
         if (args.mode === "get") {
@@ -273,7 +273,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "task_resolve",
-    { description: V3_TOOL_SPECS["task_resolve"].description, inputSchema: V3_TOOL_SPECS["task_resolve"].shape },
+    { description: V3_TOOL_SPECS["task_resolve"].description, inputSchema: V3_TOOL_SPECS["task_resolve"].shape, annotations: V3_TOOL_SPECS["task_resolve"].annotations },
     async (args: V3Args<"task_resolve">) => {
       try {
         const task = await gw.post(
@@ -296,7 +296,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "capability_list",
-    { description: V3_TOOL_SPECS["capability_list"].description, inputSchema: V3_TOOL_SPECS["capability_list"].shape },
+    { description: V3_TOOL_SPECS["capability_list"].description, inputSchema: V3_TOOL_SPECS["capability_list"].shape, annotations: V3_TOOL_SPECS["capability_list"].annotations },
     async (args: V3Args<"capability_list">) => {
       try {
         const params = new URLSearchParams();
@@ -313,7 +313,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
   );
   registrar.registerTool(
     "resource_search",
-    { description: V3_TOOL_SPECS["resource_search"].description, inputSchema: V3_TOOL_SPECS["resource_search"].shape },
+    { description: V3_TOOL_SPECS["resource_search"].description, inputSchema: V3_TOOL_SPECS["resource_search"].shape, annotations: V3_TOOL_SPECS["resource_search"].annotations },
     async (args: V3Args<"resource_search">) => {
       try {
         return structuredReply((await gw.post("/api/project/resources/search", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
@@ -325,7 +325,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "resource_get",
-    { description: V3_TOOL_SPECS["resource_get"].description, inputSchema: V3_TOOL_SPECS["resource_get"].shape },
+    { description: V3_TOOL_SPECS["resource_get"].description, inputSchema: V3_TOOL_SPECS["resource_get"].shape, annotations: V3_TOOL_SPECS["resource_get"].annotations },
     async (args: V3Args<"resource_get">) => {
       try {
         return structuredReply((await gw.post("/api/project/resources/get", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
@@ -337,7 +337,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "composition_search",
-    { description: V3_TOOL_SPECS["composition_search"].description, inputSchema: V3_TOOL_SPECS["composition_search"].shape },
+    { description: V3_TOOL_SPECS["composition_search"].description, inputSchema: V3_TOOL_SPECS["composition_search"].shape, annotations: V3_TOOL_SPECS["composition_search"].annotations },
     async (args: V3Args<"composition_search">) => {
       try {
         return structuredReply((await gw.post("/api/project/compositions/search", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
@@ -349,7 +349,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "composition_type_list",
-    { description: V3_TOOL_SPECS["composition_type_list"].description, inputSchema: V3_TOOL_SPECS["composition_type_list"].shape },
+    { description: V3_TOOL_SPECS["composition_type_list"].description, inputSchema: V3_TOOL_SPECS["composition_type_list"].shape, annotations: V3_TOOL_SPECS["composition_type_list"].annotations },
     async (args: V3Args<"composition_type_list">) => {
       try {
         return structuredReply((await gw.post("/api/project/compositions/types/list", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
@@ -361,7 +361,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "composition_get",
-    { description: V3_TOOL_SPECS["composition_get"].description, inputSchema: V3_TOOL_SPECS["composition_get"].shape },
+    { description: V3_TOOL_SPECS["composition_get"].description, inputSchema: V3_TOOL_SPECS["composition_get"].shape, annotations: V3_TOOL_SPECS["composition_get"].annotations },
     async (args: V3Args<"composition_get">) => {
       try {
         return structuredReply((await gw.post("/api/project/compositions/get", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
@@ -372,7 +372,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
   );
   registrar.registerTool(
     "resource_preview",
-    { description: V3_TOOL_SPECS["resource_preview"].description, inputSchema: V3_TOOL_SPECS["resource_preview"].shape },
+    { description: V3_TOOL_SPECS["resource_preview"].description, inputSchema: V3_TOOL_SPECS["resource_preview"].shape, annotations: V3_TOOL_SPECS["resource_preview"].annotations },
     async (args: V3Args<"resource_preview">) => {
       try {
         return structuredReply((await gw.post("/api/project/resources/preview", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
@@ -384,7 +384,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "capability_get",
-    { description: V3_TOOL_SPECS["capability_get"].description, inputSchema: V3_TOOL_SPECS["capability_get"].shape },
+    { description: V3_TOOL_SPECS["capability_get"].description, inputSchema: V3_TOOL_SPECS["capability_get"].shape, annotations: V3_TOOL_SPECS["capability_get"].annotations },
     async (args: V3Args<"capability_get">) => {
       try {
         if (args.ids?.length) {
@@ -402,7 +402,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "capability_search",
-    { description: V3_TOOL_SPECS["capability_search"].description, inputSchema: V3_TOOL_SPECS["capability_search"].shape },
+    { description: V3_TOOL_SPECS["capability_search"].description, inputSchema: V3_TOOL_SPECS["capability_search"].shape, annotations: V3_TOOL_SPECS["capability_search"].annotations },
     async (args: V3Args<"capability_search">) => {
       try {
         const params = new URLSearchParams({ q: args.queries.join(",") });
@@ -414,7 +414,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
   );
   registrar.registerTool(
     "project_rules",
-    { description: V3_TOOL_SPECS["project_rules"].description, inputSchema: V3_TOOL_SPECS["project_rules"].shape },
+    { description: V3_TOOL_SPECS["project_rules"].description, inputSchema: V3_TOOL_SPECS["project_rules"].shape, annotations: V3_TOOL_SPECS["project_rules"].annotations },
     async (args: V3Args<"project_rules">) => {
       try {
         if (args.action === "read") {
@@ -434,7 +434,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "task_wait",
-    { description: V3_TOOL_SPECS["task_wait"].description, inputSchema: V3_TOOL_SPECS["task_wait"].shape },
+    { description: V3_TOOL_SPECS["task_wait"].description, inputSchema: V3_TOOL_SPECS["task_wait"].shape, annotations: V3_TOOL_SPECS["task_wait"].annotations },
     async (args: V3Args<"task_wait">) => {
       try {
         // 我们还没有长轮询端点；先返回当前快照并标注未阻塞，避免假装等待。
@@ -448,7 +448,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "resource_edit",
-    { description: V3_TOOL_SPECS["resource_edit"].description, inputSchema: V3_TOOL_SPECS["resource_edit"].shape },
+    { description: V3_TOOL_SPECS["resource_edit"].description, inputSchema: V3_TOOL_SPECS["resource_edit"].shape, annotations: V3_TOOL_SPECS["resource_edit"].annotations },
     async (args: V3Args<"resource_edit">) => {
       try {
         return structuredReply((await gw.post("/api/project/resources/commands", {
@@ -462,7 +462,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "composition_edit",
-    { description: V3_TOOL_SPECS["composition_edit"].description, inputSchema: V3_TOOL_SPECS["composition_edit"].shape },
+    { description: V3_TOOL_SPECS["composition_edit"].description, inputSchema: V3_TOOL_SPECS["composition_edit"].shape, annotations: V3_TOOL_SPECS["composition_edit"].annotations },
     async (args: V3Args<"composition_edit">) => {
       try {
         return structuredReply((await gw.post("/api/project/compositions/commands", {
@@ -476,7 +476,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "document_write",
-    { description: V3_TOOL_SPECS["document_write"].description, inputSchema: V3_TOOL_SPECS["document_write"].shape },
+    { description: V3_TOOL_SPECS["document_write"].description, inputSchema: V3_TOOL_SPECS["document_write"].shape, annotations: V3_TOOL_SPECS["document_write"].annotations },
     async (args: V3Args<"document_write">) => {
       try {
         return structuredReply((await gw.post("/api/project/resources/commands", {
@@ -491,7 +491,8 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "voice_search",
-    { description: V3_TOOL_SPECS["voice_search"].description, inputSchema: V3_TOOL_SPECS["voice_search"].shape },
+    { description: V3_TOOL_SPECS["voice_search"].description, inputSchema: V3_TOOL_SPECS["voice_search"].shape, annotations: V3_TOOL_SPECS["voice_search"].annotations,
+      outputSchema: V3_TOOL_SPECS["voice_search"].outputShape },
     async (args: V3Args<"voice_search">) => {
       try {
         const params = new URLSearchParams({ q: args.items.map((i) => i.id ?? "").filter(Boolean).join(",") });
@@ -503,7 +504,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
   );
   registrar.registerTool(
     "execute",
-    { description: V3_TOOL_SPECS["execute"].description, inputSchema: V3_TOOL_SPECS["execute"].shape },
+    { description: V3_TOOL_SPECS["execute"].description, inputSchema: V3_TOOL_SPECS["execute"].shape, annotations: V3_TOOL_SPECS["execute"].annotations },
     async (args: V3Args<"execute">) => {
       try {
         // 把 capabilityId 的 operation 映射到已有的 submit 端点
@@ -528,7 +529,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "deliver",
-    { description: V3_TOOL_SPECS["deliver"].description, inputSchema: V3_TOOL_SPECS["deliver"].shape },
+    { description: V3_TOOL_SPECS["deliver"].description, inputSchema: V3_TOOL_SPECS["deliver"].shape, annotations: V3_TOOL_SPECS["deliver"].annotations },
     async (args: V3Args<"deliver">) => {
       try {
         const result = await gw.post("/api/project/resources/deliver", args, 300_000, LOOSE);
@@ -541,18 +542,19 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "image_search",
-    { description: V3_TOOL_SPECS["image_search"].description, inputSchema: V3_TOOL_SPECS["image_search"].shape },
+    { description: V3_TOOL_SPECS["image_search"].description, inputSchema: V3_TOOL_SPECS["image_search"].shape, annotations: V3_TOOL_SPECS["image_search"].annotations,
+      outputSchema: V3_TOOL_SPECS["image_search"].outputShape },
     async () => notImplemented("image_search", "需要联网检索与下载，本项目自托管模式未接搜索供应商"),
   );
 
   registrar.registerTool(
     "connector_call",
-    { description: V3_TOOL_SPECS["connector_call"].description, inputSchema: V3_TOOL_SPECS["connector_call"].shape },
+    { description: V3_TOOL_SPECS["connector_call"].description, inputSchema: V3_TOOL_SPECS["connector_call"].shape, annotations: V3_TOOL_SPECS["connector_call"].annotations },
     async () => notImplemented("connector_call", "本网关未实现 /api/connectors 子系统"),
   );
   registrar.registerTool(
     "read",
-    { description: V3_TOOL_SPECS["read"].description, inputSchema: V3_TOOL_SPECS["read"].shape },
+    { description: V3_TOOL_SPECS["read"].description, inputSchema: V3_TOOL_SPECS["read"].shape, annotations: V3_TOOL_SPECS["read"].annotations },
     async (args: V3Args<"read">) => {
       try {
         const params = new URLSearchParams();
@@ -570,7 +572,8 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "analyse_media",
-    { description: V3_TOOL_SPECS["analyse_media"].description, inputSchema: V3_TOOL_SPECS["analyse_media"].shape },
+    { description: V3_TOOL_SPECS["analyse_media"].description, inputSchema: V3_TOOL_SPECS["analyse_media"].shape, annotations: V3_TOOL_SPECS["analyse_media"].annotations,
+      outputSchema: V3_TOOL_SPECS["analyse_media"].outputShape },
     async (args: V3Args<"analyse_media">) => {
       try {
         return structuredReply((await gw.post("/api/project/resources/analyse", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
@@ -582,7 +585,8 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "search_knowledge",
-    { description: V3_TOOL_SPECS["search_knowledge"].description, inputSchema: V3_TOOL_SPECS["search_knowledge"].shape },
+    { description: V3_TOOL_SPECS["search_knowledge"].description, inputSchema: V3_TOOL_SPECS["search_knowledge"].shape, annotations: V3_TOOL_SPECS["search_knowledge"].annotations,
+      outputSchema: V3_TOOL_SPECS["search_knowledge"].outputShape },
     async (args: V3Args<"search_knowledge">) => {
       try {
         const params = new URLSearchParams();
@@ -598,7 +602,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
 
   registrar.registerTool(
     "report_outcome",
-    { description: V3_TOOL_SPECS["report_outcome"].description, inputSchema: V3_TOOL_SPECS["report_outcome"].shape },
+    { description: V3_TOOL_SPECS["report_outcome"].description, inputSchema: V3_TOOL_SPECS["report_outcome"].shape, annotations: V3_TOOL_SPECS["report_outcome"].annotations },
     async (args: V3Args<"report_outcome">) => {
       try {
         return structuredReply((await gw.post("/api/v3/outcomes", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
