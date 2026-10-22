@@ -12,39 +12,19 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
 // 参照里类名合并工具被 rollup 改名成 cn，这里换回仓库里的 cn。
 import { cn } from "../infra/dialog-content.jsx";
+// 纯推导部分单独成模块（可单测），这里引用回来。
+import {
+  LQIP_MAX_BYTES,
+  LQIP_MAX_CONCURRENCY,
+  LQIP_PIXEL_WIDTH,
+  LOOPBACK_HOSTS,
+  MEDIA_REVEAL_CACHE_LIMIT,
+  NON_IMAGE_MEDIA_EXTENSION,
+  deriveLqipUrl,
+  safeDecode,
+} from "./lqip-url.js";
+export { deriveLqipUrl };
 
-export const LQIP_PIXEL_WIDTH = 64;
-export const LQIP_MAX_BYTES = 48 * 1024;
-export const LQIP_MAX_CONCURRENCY = 6;
-export const MEDIA_REVEAL_CACHE_LIMIT = 300;
-export const LOOPBACK_HOSTS = /* @__PURE__ */ new Set(["127.0.0.1", "localhost", "[::1]", "::1"]);
-export const NON_IMAGE_MEDIA_EXTENSION = /\.(mp4|m4v|mov|webm|mkv|avi|flv|wmv|mpg|mpeg|3gp|ts|mp3|wav|m4a|aac|flac|ogg|oga|opus|wma|aiff?)$/i;
-export function deriveLqipUrl(src) {
-  if (!src) return void 0;
-  let url2;
-  try {
-    url2 = new URL(src);
-  } catch {
-    return void 0;
-  }
-  if (url2.protocol !== "http:" && url2.protocol !== "https:") return void 0;
-  if (!LOOPBACK_HOSTS.has(url2.hostname)) return void 0;
-  const width = Number.parseInt(url2.searchParams.get("w") ?? "", 10);
-  if (!Number.isFinite(width) || width <= LQIP_PIXEL_WIDTH) return void 0;
-  if (url2.pathname.startsWith("/api/thumbnail/")) return void 0;
-  const filePath = safeDecode$1(url2.searchParams.get("path") ?? url2.pathname);
-  if (NON_IMAGE_MEDIA_EXTENSION.test(filePath)) return void 0;
-  url2.searchParams.set("w", String(LQIP_PIXEL_WIDTH));
-  url2.searchParams.set("thumbnail_fallback", "error");
-  return url2.toString();
-}
-function safeDecode$1(value) {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
-}
 export class BoundedLru {
   constructor(limit, onEvict) {
     this.limit = limit;
