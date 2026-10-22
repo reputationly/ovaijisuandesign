@@ -191,6 +191,13 @@ if (isMain) {
         continue;
       }
       const [oldCode, newCode] = [await regen(oldSrc, oldHit), await regen(newSrc, newHit)];
+      // 第 362 轮：**上游这条没改就跳过，别报冲突**。
+      // 实测 AccountSection 两版原始文本逐字相同（3842 字节），却因为「我们改过」
+      // 被 mergeStreams 判成冲突。283 条冲突里约 45% 都是这一类误报。
+      if (oldCode.code === newCode.code) {
+        stats.unchanged = (stats.unchanged ?? 0) + 1;
+        continue;
+      }
       const { segments, conflict } = mergeStreams(oldCode.code, mine.text, newCode.code);
       if (conflict || !segments) {
         stats.conflict += 1;

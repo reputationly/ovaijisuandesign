@@ -141,7 +141,7 @@ function formatWorkspaceOpenedAt(timestamp, locale, now = Date.now()) {
 const HOME_RECENT_DETAILS_SIDE_OFFSET = 0;
 const HOME_RECENT_CLICK_RESOLUTION_DELAY = 240;
 const HOME_NAV_PILL_CLASS =
-  "home-sidebar-nav-pill relative isolate flex h-8 w-full items-center gap-2 rounded-md pr-1 after:pointer-events-none after:absolute after:inset-y-0 after:-z-10 after:rounded-md";
+  "home-sidebar-nav-pill relative isolate flex h-8 w-full items-center gap-1 rounded-md pr-1 after:pointer-events-none after:absolute after:inset-y-0 after:-z-10 after:rounded-md";
 const HOME_NAV_ACTIVE_CLASS = "after:bg-[var(--home-sidebar-nav-active)]";
 function RecentProjectStatusContent({
   variant,
@@ -162,10 +162,10 @@ function RecentProjectStatusContent({
     return (
       <span className="flex min-w-0 flex-1 items-center gap-1.5">
         <span
-          className="min-w-0 flex-1 truncate"
+          className="flex-1"
           data-recent-project-name="true"
-        >
-          {displayName}
+        >={8}>
+          {displayName ?? ""}
         </span>
         {userAction ? (
           <Badge

@@ -5058,7 +5058,7 @@ function PickerGridTile({
   mediaSrc,
   durationSeconds,
   selectionOrder,
-  rowKey,
+  rowKey: rowKey,
   selected: selected2,
   focused,
   className,
@@ -5191,7 +5191,7 @@ function PickerListRow({
   selected: selected2,
   focused,
   className,
-  rowKey,
+  rowKey: rowKey,
   ...props
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -5394,7 +5394,7 @@ function TextNodeQuickActions({
           id: "canvas.text-quick-write",
           disabled: writeDisabled,
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { size: 16, strokeWidth: 1.5 }),
-          label: t2("canvas.quickAction.write.label", { defaultValue: "自己编写内容" }),
+          label: t2("canvas.quickAction.write.label", { defaultValue: "编写内容" }),
           onSelect: (event) => {
             event.stopPropagation();
             onWriteOwn();
@@ -7087,7 +7087,7 @@ function createNativeClipStudioOwnerQueue(isExpanded) {
   return {
     store,
     activate,
-    pump,
+    pump: pump,
     select(nodeId, value) {
       if (value) {
         selected2.add(nodeId);
@@ -38743,7 +38743,7 @@ function isPlainPrimaryDown(view2, event) {
 }
 
 function resolvePointerPos(view2, clientX, clientY) {
-  const rect = view2.dom.getBoundingClientRect();
+  const rect = view2(view2);
   const left = Math.min(Math.max(clientX, rect.left + 1), rect.right - 1);
   const top2 = Math.min(Math.max(clientY, rect.top + 1), rect.bottom - 1);
   const hit = view2.posAtCoords({ left, top: top2 });
@@ -40645,7 +40645,7 @@ function PresetMediaCover$1({
 
 
 function isChipNode(node2) {
-  return !!node2 && node2.isInline && node2.isAtom && node2.type.spec.selectable !== false;
+  return !!node2 && !node2.isText &&node2.isInline && node2.isAtom && node2.type.spec.selectable !== false;
 }
 
 

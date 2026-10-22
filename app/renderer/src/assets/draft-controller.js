@@ -64,6 +64,10 @@ function saveDraft(workspace, sessionKey, draft, now = Date.now()) {
       ? {
           homeFillSource: draft.homeFillSource,
         }
+      : {}),...(draft.homeFillSource
+      ? {
+          homeFillSource: draft.homeFillSource,
+        }
       : {}),};
   try {
     localStorage.setItem(key, JSON.stringify(envelope));
@@ -111,6 +115,10 @@ function loadDraft(
         ? {
             homeFillSource: envelope.homeFillSource,
           }
+        : {}),...(envelope.homeFillSource
+        ? {
+            homeFillSource: envelope.homeFillSource,
+          }
         : {}),},
     droppedCount: envelope.dropped,
   };
@@ -138,6 +146,10 @@ function cloneDraft(draft) {
         }
       : {}),
   ...(draft.homeFillSource
+      ? {
+          homeFillSource: draft.homeFillSource,
+        }
+      : {}),...(draft.homeFillSource
       ? {
           homeFillSource: draft.homeFillSource,
         }

@@ -1016,6 +1016,10 @@ function canvasV3ContentItems(content2) {
           ? {
               historyHidden: true,
             }
+          : {}),...(version2.historyHidden
+          ? {
+              historyHidden: true,
+            }
           : {}),task: null
       });
   }
