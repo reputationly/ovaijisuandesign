@@ -3419,7 +3419,7 @@ const resourceTarget = (v2) => record$4(v2).mode === "create" ? shape({
   baseVersionId: optional(id$1),
   disposition: optional(disposition)
 })(v2);
-const placementTarget = (v2) => record$4(v2).memberId === void 0 ? shape({ key: id$1, role: text$7 })(v2) : shape({ key: id$1, memberId: id$1, replaceResourceId: optional(id$1) })(v2);
+const placementTarget = (v2) => record$4(v2).memberId === void 0 ? shape({ key: id$1, role: text$7 })(v2) : shape({ key: id$1, memberId: id$1 })(v2); // 4.0.3: 去掉 replaceResourceId
 const compositionPlacement = (v2) => {
   const value = record$4(v2);
   const keys2 = Object.keys(value);

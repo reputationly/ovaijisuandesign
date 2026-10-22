@@ -6,7 +6,7 @@
  * 而这个目录**从来没被装配过** → `loadBundle()` 拿到空表 →
  * 原生工作台 `mount()` 失败 → 资源视图永远停在 projectV3.loadFailed。
  *
- * 来源：`.probe/reference/4.0.0/asar/out/renderer/v3`（22 MB，冻结的参照产物）。
+ * 来源：`.probe/reference/<版本>/asar/out/renderer/v3`（冻结的参照产物），版本由 OV_REFERENCE_VERSION 决定，默认 4.0.3。
  * 这个目录**不进仓库**（见 .gitignore），只在构建前装配。
  */
 import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
@@ -16,7 +16,10 @@ import { fileURLToPath } from "node:url";
 // 从脚本自身位置推仓库根：`pnpm run build` 的 cwd 是 app/desktop，
 // 用 process.cwd() 会找不到 .probe/reference。
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const SRC = path.join(REPO, ".probe/reference/4.0.0/asar/out/renderer/v3");
+// 第 351 轮：参照版本可切换（4.0.0 -> 4.0.3 增量）。
+// 默认跟 REFERENCE_VERSION，便于以后升级时只改一处。
+const REFERENCE_VERSION = process.env.OV_REFERENCE_VERSION ?? "4.0.3";
+const SRC = path.join(REPO, `.probe/reference/${REFERENCE_VERSION}/asar/out/renderer/v3`);
 const DEST = path.join(REPO, "app/desktop/src/renderer/public/v3");
 
 // 只做界面开发时可以不装配 v3（明确开关，不静默跳过）。
@@ -29,7 +32,7 @@ if (process.env.SKIP_V3_STAGE === "1") {
 
 if (!existsSync(SRC)) {
   console.error(`✗ 找不到参照的 v3 产物：${path.relative(REPO, SRC)}`);
-  console.error("  需要 .probe/reference/4.0.0（未入库的参照快照）。");
+  console.error(`  需要 .probe/reference/${REFERENCE_VERSION}（未入库的参照快照）。`);
   console.error("  只做界面开发可设 SKIP_V3_STAGE=1；打包发行版必须装配。");
   process.exit(1);
 }

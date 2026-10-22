@@ -302,7 +302,9 @@ const resourceTarget = (v: unknown): unknown =>
 const placementTarget = (v: unknown): unknown =>
   record(v).memberId === undefined
     ? shape({ key: id, role: text })(v)
-    : shape({ key: id, memberId: id, replaceResourceId: optional(id) })(v);
+    // 第 352 轮（4.0.3 增量）：参照 4.0.3 去掉了 replaceResourceId
+    // （4.0.0 是 shape({ key, memberId, replaceResourceId: optional(id) })）。
+    : shape({ key: id, memberId: id })(v);
 
 /** 位置只能是「在谁之后/之前」二选一，多给一个键就是错的。 */
 const compositionPlacement = (v: unknown): unknown => {

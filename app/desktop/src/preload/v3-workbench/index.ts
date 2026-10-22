@@ -2539,7 +2539,7 @@ var resourceTarget = (v) => record(v).mode === "create" ? shape({
   baseVersionId: optional(id),
   disposition: optional(disposition)
 })(v);
-var placementTarget = (v) => record(v).memberId === void 0 ? shape({ key: id, role: text })(v) : shape({ key: id, memberId: id, replaceResourceId: optional(id) })(v);
+var placementTarget = (v) => record(v).memberId === void 0 ? shape({ key: id, role: text })(v) : shape({ key: id, memberId: id })(v); // 4.0.3: 去掉 replaceResourceId
 var compositionPlacement = (v) => {
   const value = record(v);
   const keys = Object.keys(value);

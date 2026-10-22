@@ -19,6 +19,9 @@ const ADAPTIVE = "adaptive";
 function prepareSeedance({ modelId, prompt, params, media: media2, mode }: VendorPrepareRequest) {
   const is25 = modelId === "seedance2.5";
   const { image, video, audio } = media2;
+  // 第 352 轮（4.0.3 增量）：参照 4.0.3 的 v3-workbench.cjs 给 omni_reference_task_type
+  // 加了「必须有参考素材」这一条 —— 没有参考素材时不带这个字段。
+  const hasReferenceMedia = image.length > 0 || video.length > 0 || audio.length > 0;
   const frames = mode === "first-last-frame";
   const edits = mode === "video-edit" || mode === "video-extend";
   const inherits = is25 && (edits || frames && image.length > 0);
@@ -31,7 +34,7 @@ function prepareSeedance({ modelId, prompt, params, media: media2, mode }: Vendo
       aspect_ratio: inherits ? ADAPTIVE : params.aspect_ratio,
       mode,
       model_name: modelId,
-      omni_reference_task_type: is25 && mode === "reference" ? "reference" : undefined,
+      omni_reference_task_type: is25 && mode === "reference" && hasReferenceMedia ? "reference" : undefined,
       ...frames ? {} : {
         reference_images: jsonList(image),
         reference_videos: jsonList(video),
