@@ -455,6 +455,93 @@ const RESIDUAL_BUDGET = (() => {
 })();
 const BUDGET_TOLERANCE = RESIDUAL_BUDGET._tolerance ?? 0.02;
 
+/**
+ * 「允许的差异」登记表（第 344 轮，验收方案 B 加强版）。
+ *
+ * 拿参照基线比时，按位置逐项的 JSON diff 必然有差异（请求顺序、query、品牌文案），
+ * 用它判失败等于永远红；但整体降级成「只出报告」又会丢掉真信号。
+ * 所以判失败改成**按集合比**，本表登记过的差异放行，没登记的一律失败。
+ */
+const EXPECTED_DIFFS = (() => {
+  try {
+    return JSON.parse(readFileSync(path.join(repo, "scripts/ui-compare/expected-diffs.json"), "utf8"));
+  } catch {
+    return {};
+  }
+})();
+
+/** 某屏允许的差异 = 全局 "*" + 该屏自己的条目（数组取并集）。 */
+function allowedFor(pageId, kind, side) {
+  const out = new Set();
+  for (const key of ["*", pageId]) {
+    const e = EXPECTED_DIFFS[key];
+    if (e?.wildcard) return { wildcard: true, set: out };
+    for (const v of e?.[kind]?.[side] ?? []) out.add(v);
+  }
+  return { wildcard: false, set: out };
+}
+
+/** 归一化路径里的 uuid / 任务 id / 端口，避免每次不同。 */
+const normPath = (p) =>
+  String(p)
+    .split("?")[0]
+    .replace(/\/[0-9a-f]{32}(?=\/|$)/gi, "/<id>")
+    .replace(/\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=\/|$)/gi, "/<id>")
+    .replace(/\/gen_task_\d+/g, "/<task>");
+
+/** data-action-ui-id 集合。 */
+function domIdSet(dom) {
+  const s = new Set();
+  const walk = (n) => {
+    if (!n || typeof n !== "object") return;
+    if (Array.isArray(n)) { for (const x of n) walk(x); return; }
+    const attrs = n.attributes;
+    if (attrs && typeof attrs === "object" && typeof attrs["data-action-ui-id"] === "string") {
+      s.add(attrs["data-action-ui-id"]);
+    }
+    for (const v of Object.values(n)) if (v && typeof v === "object") walk(v);
+  };
+  walk(dom);
+  return s;
+}
+
+/** `METHOD /path`（query 去掉、id 归一化）集合。 */
+function netPathSet(net) {
+  const s = new Set();
+  for (const key of ["getRequests", "nonGetRequests"]) {
+    for (const r of net?.[key] ?? []) {
+      if (r.method === "OPTIONS") continue;
+      s.add(`${r.method} ${normPath(r.path)}`);
+    }
+  }
+  return s;
+}
+
+/** wsSent 里 payload.type 的集合。 */
+function wsTypeSet(net) {
+  const s = new Set();
+  for (const f of net?.wsSent ?? []) {
+    try {
+      const o = JSON.parse(f.payload ?? "{}");
+      if (typeof o?.type === "string") s.add(o.type);
+    } catch { /* 非 JSON 帧忽略 */ }
+  }
+  return s;
+}
+
+/** 集合差里**没被登记**的那部分。 */
+function unallowed(diffSet, pageId, kind, side) {
+  const { wildcard, set } = allowedFor(pageId, kind, side);
+  if (wildcard) return [];
+  // 支持右端通配：条目以 * 结尾时按前缀匹配（路径里带内容哈希的情况）
+  const hit = (x) => {
+    if (set.has(x)) return true;
+    for (const pat of set) if (pat.endsWith("*") && x.startsWith(pat.slice(0, -1))) return true;
+    return false;
+  };
+  return [...diffSet].filter((x) => !hit(x)).sort();
+}
+
 const MASK_TARGETS = [
   // 一.1 品牌：侧栏品牌名（参照 aria-label="MiniMax Design"）与首页大标题 logo。
   // **两边都有同一个 data-action-ui-id**，所以直接按 id 遮，不给产品加新 id
@@ -2285,6 +2372,36 @@ for (const p of PAGES) {
     domDiff: jsonDiff(base[p.id].dom, test[p.id].dom),
     stateDiff: jsonDiff(base[p.id].state, test[p.id].state),
   };
+
+  // 第 344 轮（验收方案 B 加强版）：判失败改按**集合**比，逐项 JSON diff 只留作报告。
+  //   DOM   data-action-ui-id 集合差
+  //   网络   方法 + 去 query 的路径集合差（不比次数）
+  //   WS     wsSent.payload.type 集合差
+  // 没在 expected-diffs.json 里登记的差异才算失败。
+  const domA = domIdSet(base[p.id].dom);
+  const domB = domIdSet(test[p.id].dom);
+  const netA = netPathSet(base[p.id].net);
+  const netB = netPathSet(test[p.id].net);
+  const wsA = wsTypeSet(base[p.id].net);
+  const wsB = wsTypeSet(test[p.id].net);
+  const setDiffs = {
+    dom: {
+      refOnly: unallowed(new Set([...domA].filter((x) => !domB.has(x))), p.id, "dom", "refOnly"),
+      oursOnly: unallowed(new Set([...domB].filter((x) => !domA.has(x))), p.id, "dom", "oursOnly"),
+    },
+    net: {
+      refOnly: unallowed(new Set([...netA].filter((x) => !netB.has(x))), p.id, "net", "refOnly"),
+      oursOnly: unallowed(new Set([...netB].filter((x) => !netA.has(x))), p.id, "net", "oursOnly"),
+    },
+    ws: {
+      refOnly: unallowed(new Set([...wsA].filter((x) => !wsB.has(x))), p.id, "ws", "refOnly"),
+      oursOnly: unallowed(new Set([...wsB].filter((x) => !wsA.has(x))), p.id, "ws", "oursOnly"),
+    },
+  };
+  const unregisteredDiffCount =
+    setDiffs.dom.refOnly.length + setDiffs.dom.oursOnly.length +
+    setDiffs.net.refOnly.length + setDiffs.net.oursOnly.length +
+    setDiffs.ws.refOnly.length + setDiffs.ws.oursOnly.length;
   const pixelDiff = d.ratio !== 0;
   // 预算判定：像素差异率（非 AA）用预算而不是「是否为 0」来判。
   // 第 341 轮（验收）：三种状态分开处理
@@ -2307,7 +2424,7 @@ for (const p of PAGES) {
       : typeof budgeted === "number"
         ? budgetVerdict === "over"
         : d.nonAARatio !== 0;
-  const pageFailed = pixelDiffNonAA || newErrors.length > 0 || Object.values(channelDiffs).some((items) => items.length > 0);
+  const pageFailed = pixelDiffNonAA || newErrors.length > 0 || unregisteredDiffCount > 0;
   failed ||= pageFailed;
   pages.push({
     page: p.id,
@@ -2325,11 +2442,13 @@ for (const p of PAGES) {
     newErrors,
     baseErrors: base[p.id].errors.length,
     ...channelDiffs,
+    setDiffs,
+    unregisteredDiffCount,
   });
   for (const channel of ["net", "dom", "state"]) {
     writeFileSync(path.join(outDir, `${p.id}.${testMode}.${channel}.json`), JSON.stringify(test[p.id][channel], null, 2));
   }
-  console.log(`${p.id.padEnd(18)} 像素原始/非AA ${(d.ratio * 100).toFixed(3).padStart(7)}%/${(d.nonAARatio * 100).toFixed(6)}% (${d.changed ?? "?"}/${d.nonAAChanged ?? "?"})  遮罩 ${((d.maskedRatio ?? 0) * 100).toFixed(2)}%(参照${(base[p.id].masks ?? []).length}/我方${(test[p.id].masks ?? []).length}块)  新增报错 ${newErrors.length}  网络/DOM/状态 ${channelDiffs.netDiff.length}/${channelDiffs.domDiff.length}/${channelDiffs.stateDiff.length}${d.note ? "  " + d.note : ""}`);
+  console.log(`${p.id.padEnd(18)} 像素原始/非AA ${(d.ratio * 100).toFixed(3).padStart(7)}%/${(d.nonAARatio * 100).toFixed(6)}% (${d.changed ?? "?"}/${d.nonAAChanged ?? "?"})  遮罩 ${((d.maskedRatio ?? 0) * 100).toFixed(2)}%(参照${(base[p.id].masks ?? []).length}/我方${(test[p.id].masks ?? []).length}块)  新增报错 ${newErrors.length}  未登记差异 ${unregisteredDiffCount}${d.note ? "  " + d.note : ""}`);  if (unregisteredDiffCount) {    for (const [kind, v] of Object.entries(setDiffs)) {      for (const side of ["refOnly", "oursOnly"]) {        if (v[side].length) console.log(`    · ${kind}.${side}: ${v[side].slice(0, 8).join(", ")}`);      }    }  }
   if (budgetStatus === "invalid") console.log("    · 标准对照无效，不判通过/失败（见 residual-budget.json）");
   else if (budgetStatus === "pending") console.log(`    · 回归护栏 ${budgeted}%（**不是预算**：差异组成尚未逐项解释）`);
   if (budgetVerdict === "under" && budgetStatus === "ok") {

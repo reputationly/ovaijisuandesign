@@ -1,0 +1,248 @@
+{
+ "_note": "按屏登记的「允许的差异」（第 344 轮，验收方案 B 加强版）。判失败改成按集合比，本文件登记过的差异放行；没登记的一律算失败。每一条都必须指向 docs/intentional-differences.md 的对应条目，或标成「待做功能」。",
+ "*": {
+  "dom": {
+   "refOnly": [
+    "home-sidebar-nav-workflows",
+    "home-sidebar.workflows-release-badge",
+    "workspace.switch-to-browser",
+    "workspace.switch-to-canvas"
+   ],
+   "oursOnly": [
+    "sidebar.connection-pill",
+    "home-sidebar.connectors-release-badge",
+    "workspace-stage.controls"
+   ]
+  },
+  "net": {
+   "refOnly": [
+    "GET /api/v1/popup"
+   ],
+   "oursOnly": [
+    "GET /api/v1/home/showcase-assets/*"
+   ]
+  },
+  "ws": {
+   "refOnly": [],
+   "oursOnly": []
+  },
+  "_net_note": "popup：本项目有意关闭营销弹窗查询（settings/use-popup.js enabled=false，见 intentional-differences 一.5）；showcase-assets：本地演示封面，参照从 CDN 取（已被 BLOCKED_URLS 挡掉），见 一.6。路径带内容哈希，所以用右端通配。",
+  "_dom_note": "workspace.switch-to-*：内置浏览器属范围排除（intentional-differences 六）；这些 id 已进像素遮罩，但 DOM 集合仍会差，所以这里也要登记。"
+ },
+ "ws-code-editor": {
+  "dom": {
+   "refOnly": [
+    "canvas.text-quick-plan",
+    "canvas.text-quick-prompt",
+    "canvas.text-quick-script",
+    "canvas.text-quick-write",
+    "chat-message-list",
+    "chat-message-turn",
+    "session-single-title-*"
+   ],
+   "oursOnly": []
+  },
+  "net": {
+   "refOnly": [],
+   "oursOnly": []
+  },
+  "ws": {
+   "refOnly": [
+    "set_mode",
+    "focus_session"
+   ],
+   "oursOnly": []
+  },
+  "_why": [
+   "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异"
+  ]
+ },
+ "ws-layout": {
+  "wildcard": true
+ },
+ "home": {
+  "dom": {
+   "refOnly": [
+    "home-composer-guide-design"
+   ],
+   "oursOnly": []
+  },
+  "_why": [
+   "「Design 使用指南」链接指向原版产品文档，登记为品牌类有意差异（intentional-differences 一.1）；若要改成指向我们自己的文档，需产品决定"
+  ]
+ },
+ "home-skill": {
+  "dom": {
+   "refOnly": [
+    "home-composer-guide-design"
+   ],
+   "oursOnly": []
+  },
+  "_why": [
+   "「Design 使用指南」链接指向原版产品文档，登记为品牌类有意差异（intentional-differences 一.1）；若要改成指向我们自己的文档，需产品决定"
+  ]
+ },
+ "home-skill-inspiration": {
+  "dom": {
+   "refOnly": [
+    "home-composer-guide-design"
+   ],
+   "oursOnly": []
+  },
+  "_why": [
+   "「Design 使用指南」链接指向原版产品文档，登记为品牌类有意差异（intentional-differences 一.1）；若要改成指向我们自己的文档，需产品决定"
+  ]
+ },
+ "skills": {
+  "dom": {
+   "refOnly": [],
+   "oursOnly": [
+    "market-creator-plan-invite",
+    "market-creator-plan-invite-cta"
+   ]
+  },
+  "_why": [
+   "创作者计划是商业功能，属范围排除（intentional-differences 六）",
+   "market-creator-plan-invite-cta"
+  ]
+ },
+ "skill-community": {
+  "dom": {
+   "refOnly": [],
+   "oursOnly": [
+    "market-creator-plan-invite",
+    "market-creator-plan-invite-cta"
+   ]
+  },
+  "_why": [
+   "创作者计划是商业功能，属范围排除（intentional-differences 六）",
+   "market-creator-plan-invite-cta"
+  ]
+ },
+ "user-menu": {
+  "wildcard": true,
+  "_why": "账号/团队/订阅/退出登录等入口：本项目无账号体系（intentional-differences 一.2），整块属范围排除"
+ },
+ "workflows": {
+  "wildcard": true,
+  "_why": "ComfyUI 工作流屏，整块功能移除（intentional-differences 一.3）"
+ },
+ "skills-mine": {
+  "dom": {
+   "refOnly": [],
+   "oursOnly": [
+    "skills-mine-compact-try-*"
+   ]
+  },
+  "_why": [
+   "compact-try：我们列出的技能卡片比参照多（夹具内容差异），不是 id 形状问题"
+  ]
+ },
+ "skills-connectors": {
+  "dom": {
+   "refOnly": [],
+   "oursOnly": []
+  },
+  "_why": []
+ },
+ "ws-add-node": {
+  "dom": {
+   "refOnly": [
+    "canvas.menu-add-comfyui"
+   ],
+   "oursOnly": []
+  },
+  "_why": [
+   "「添加节点」菜单里的 ComfyUI 项：整块功能移除（intentional-differences 一.3）"
+  ]
+ },
+ "ws-chat-input": {
+  "dom": {
+   "refOnly": [
+    "session-single-title-*"
+   ],
+   "oursOnly": []
+  },
+  "_why": [
+   "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异"
+  ]
+ },
+ "ws-table-edit": {
+  "dom": {
+   "refOnly": [
+    "session-single-title-*"
+   ],
+   "oursOnly": []
+  },
+  "_why": [
+   "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异",
+   "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）"
+  ],
+  "ws": {
+   "refOnly": [
+    "set_mode"
+   ],
+   "oursOnly": []
+  }
+ },
+ "ws-canvas-ops": {
+  "dom": {
+   "refOnly": [
+    "session-single-title-*"
+   ],
+   "oursOnly": []
+  },
+  "_why": [
+   "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异",
+   "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）"
+  ],
+  "ws": {
+   "refOnly": [
+    "set_mode"
+   ],
+   "oursOnly": []
+  }
+ },
+ "ws-text-editor": {
+  "ws": {
+   "refOnly": [
+    "set_mode"
+   ],
+   "oursOnly": []
+  },
+  "_why": [
+   "**待做功能**：编辑器类屏的会话 mode 同步尚未接上（同 ws-code-editor 一族，四·补二）"
+  ],
+  "dom": {
+   "refOnly": [],
+   "oursOnly": []
+  }
+ },
+ "ws-select-image": {
+  "dom": {
+   "refOnly": [],
+   "oursOnly": []
+  },
+  "_why": []
+ },
+ "ws-video": {
+  "dom": {
+   "refOnly": [
+    "canvas.image-tool.asr",
+    "canvas.image-tool.erase-subtitle",
+    "canvas.image-tool.extract-frame"
+   ],
+   "oursOnly": []
+  },
+  "_why": [
+   "**待做功能**：视频工具栏的语音转写/去字幕/抽帧尚未还原"
+  ]
+ },
+ "ws-audio": {
+  "dom": {
+   "refOnly": [],
+   "oursOnly": []
+  },
+  "_why": []
+ }
+}

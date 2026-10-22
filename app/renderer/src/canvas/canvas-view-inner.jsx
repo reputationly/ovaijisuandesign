@@ -188,11 +188,15 @@ export function CanvasViewInner({
   const { t: translate } = useTranslation();
   const assetMetadataStore = useAssetMetadataApi();
   const [mode, setMode] = reactExports.useState(initialMode);
+  // 第 343 轮（验收）：4.0.0 改了默认值 —— 没存过记录时**默认展开**。
+  // 参照 index-BBp4hclA.js:297739 的读法是 `!== "0"`、异常时 true；
+  // 我们这里还是 3.0.21 的 `=== "1"`（缺省收起）。写入侧本来就是存 "1"/"0"（见本文件 1862 行），
+  // 所以只改读法即可，不会影响已存在的偏好。
   const [minimapVisible, setMinimapVisible] = reactExports.useState(() => {
     try {
-      return localStorage.getItem("hilo:canvas:minimap") === "1";
+      return localStorage.getItem("hilo:canvas:minimap") !== "0";
     } catch {
-      return false;
+      return true;
     }
   });
   const minimapVisibleRef = reactExports.useRef(minimapVisible);
