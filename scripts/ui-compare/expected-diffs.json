@@ -13,7 +13,8 @@
     "home-sidebar.connectors-release-badge",
     "workspace-stage.controls",
     "home-sidebar-nav-projects-coachmark-anchor",
-    "home-sidebar.recent-trailing-slot"
+    "home-sidebar.recent-trailing-slot",
+    "skills-mine-more-*"
    ]
   },
   "net": {
@@ -258,5 +259,8 @@
    "oursOnly": []
   },
   "_why": []
+ },
+ "_domOursOnlyNotes": {
+  "skills-mine-more-*": "第 170 轮核实：参照里的写法与我们**完全相同**（`data-action-ui-id`: `skills-mine-more-${skill.name}`，在 index-DngzPxbo.js）。差异来源是两边的技能列表数据不同（我们渲染的技能更多），不是代码差异。因此按前缀通配放行，而不是改代码或删 id。"
  }
 }
