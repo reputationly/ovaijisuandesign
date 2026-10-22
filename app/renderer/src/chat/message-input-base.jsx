@@ -2298,6 +2298,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
             testId="mention-hover-preview"
           />
         )}
+        {footerSlot}
         <ComposerActionsCompactProvider compact={actionsCompact}>
           <div
             ref={actionRowRef}
@@ -2365,7 +2366,6 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
           </div>
         </ComposerActionsCompactProvider>
       </div>
-      {footerSlot}
     </div>
   );
 });
