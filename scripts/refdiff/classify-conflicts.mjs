@@ -85,6 +85,10 @@ for (const c of report.conflicts) {
   const added = [...ids(b)].filter((x) => !ids(a).has(x));
   const missing = added.filter((x) => {
     if (tree.has(x)) return false;
+    // 第 76 轮：必须能在参照里找到**模块级声明**才算"缺的符号"。
+    // 4.0.3 那段代码新引入的局部变量（useState / 参数，如 setProbeFailed、promptSuggestion）
+    // 在模块级找不到定义，它们不是我们要新建的东西 —— 这一类占了上一轮 35 条里的大多数。
+    if (!grab("4.0.3", x)) return false;
     // rollup 避让改名：stopWatching2 / rowKey2 / initialText2 之类，
     // 若去掉尾随数字的基名在树里，就不是新符号（第 72 轮加）。
     const base = x.replace(/\d+$/, "");
