@@ -1868,10 +1868,15 @@ async function runMode(mode) {
         randomTraceScriptIdentifier = script.result?.identifier;
       }
       const documentURL = `app://.${p.url}`;
-      // 第 178 轮：这里原本有一段"每屏清 localStorage 会话键"的清理，
-      // 但实测证明它**不影响全量结果**（3 屏跑改善、37 屏跑数字一模一样）。
-      // 进一步用 DIAG_STORAGE 打印三个屏的 localStorage 发现完全相同，
-      // 说明跨屏残留**在网关侧（服务端会话状态），不在客户端**。已移除该清理。
+      // 第 196 轮：每屏开始前清 `global.dismissedCoachMarks`。
+      // 为什么：侧栏的「new」徽标由 useReleaseBadges 决定 ——
+      //   读 useStorage("global.dismissedCoachMarks")，访问过就写进去、徽标消失。
+      // 走查连跑 37 屏时，前几屏把徽标"读掉"了，后面 19 屏就都没有
+      // home-sidebar.connectors-release-badge（实测它是 19 屏共有的 refOnly）。
+      // 参照基线是首次访问录的，徽标在；我们这边必须也回到同一状态才可比。
+      await c.send("Runtime.evaluate", {
+        expression: `(() => { try { for (const k of Object.keys(localStorage)) if (k.includes("dismissedCoachMarks")) localStorage.removeItem(k); } catch {} })()`,
+      });
       // 第 178 轮：诊断用 —— 打印进入本屏前的 localStorage 键与大小，
       // 用来找出「随屏序增长」的键（第 177 轮证明残留不在会话键里）。
       if (process.env.DIAG_STORAGE === "1") {
