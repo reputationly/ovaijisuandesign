@@ -39,12 +39,31 @@ if (!existsSync(LOCK_PATH)) {
   process.exit(1);
 }
 const lock = JSON.parse(readFileSync(LOCK_PATH, "utf8"));
-const version = process.env.OV_REFERENCE_VERSION ?? lock.version;
-if (version !== lock.version) {
-  // 允许显式切版本，但必须同时有对应压缩包与锁条目，避免「拿旧产物当新版本」。
-  console.error(`✗ OV_REFERENCE_VERSION=${version} 与锁文件 ${lock.version} 不一致；先补 scripts/v3-runtime/v3-${version}.tgz 与锁条目`);
+
+// ── 版本一致性（第 2041 轮加）─────────────────────────────────────────────
+// 为什么必须挡：v3 运行时通过 v3-workbench preload 与宿主通信。
+// preload / protocol / gateway / MCP 在 4.0.4 里都改过，如果只把 v3 运行时切到 4.0.4
+// 而其余仍是 4.0.3，就成了一个**没有任何一方测过**的组合：打包能过、清单也一致，
+// 但只能说明文件没坏，不能说明它们能配合工作。
+const PRODUCT_VERSION_PATH = path.join(REPO, "scripts/reference-version.json");
+if (!existsSync(PRODUCT_VERSION_PATH)) {
+  console.error(`✗ 缺产品参照版本文件：${path.relative(REPO, PRODUCT_VERSION_PATH)}`);
   process.exit(1);
 }
+const productVersion =
+  process.env.OV_REFERENCE_VERSION ??
+  JSON.parse(readFileSync(PRODUCT_VERSION_PATH, "utf8")).version;
+
+if (lock.version !== productVersion) {
+  console.error("✗ v3 运行时与产品其余部分版本不一致（半升级状态）");
+  console.error(`  v3 运行时锁文件：${lock.version}（${lock.archive.path}）`);
+  console.error(`  产品参照版本：  ${productVersion}（scripts/reference-version.json` +
+    (process.env.OV_REFERENCE_VERSION ? " 被 OV_REFERENCE_VERSION 覆盖）" : "）"));
+  console.error("  切版本时必须同时改：reference-version.json、v3-runtime.lock.json、对应的 v3 压缩包，");
+  console.error("  以及 preload / protocol / gateway / MCP / 门禁基线。");
+  process.exit(1);
+}
+const version = lock.version;
 
 const sha256 = (p) => createHash("sha256").update(readFileSync(p)).digest("hex");
 let source = null;

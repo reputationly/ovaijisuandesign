@@ -10,7 +10,7 @@
  *
  * 加补丁之前先问：能不能在层 0（数据/开关/gateway/主进程）解决？能就别加到这里。
  */
-export const VERSION = "4.0.4";
+export const VERSION = "4.0.3";
 
 /**
  * @typedef {Object} Patch

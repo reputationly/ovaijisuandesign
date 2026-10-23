@@ -1,14 +1,14 @@
 {
-  "version": "4.0.4",
-  "build": "4.0.4.114",
-  "sourceAppAsarSha256": "9c4a7325c5ac2c4ede50428db189ea07e86992aa1a62af97e3aa1e2f67ae8167",
+  "version": "4.0.3",
+  "build": "4.0.3.105",
+  "sourceAppAsarSha256": "3078b082790d81dbde98fd528496cb48af03e2b3adbe3b392e3f62c3b6d673c3",
   "archive": {
-    "path": "scripts/v3-runtime/v3-4.0.4.tgz",
-    "sha256": "88076404d0d979ae568a9aa862ee81dfb02b6afd8347e698256f4b541c5b4e59",
-    "bytes": 5470206,
+    "path": "scripts/v3-runtime/v3-4.0.3.tgz",
+    "sha256": "ff66ca2ed2a87e833f1129dd6d6acb1ebb6287007629271aa620f2de044b6535",
+    "bytes": 5466048,
     "files": 346,
     "note": "可复现打包：文件按路径排序、mtime=0、uid/gid=0、mode=0644、gzip -9"
   },
-  "bundleManifestSha256": "3ba336662f4285631744e1bc1454f1d7d05f4802b73f8a532f1154b53cdaa2c1",
-  "_why": "stage-v3-bundle.mjs 优先解开仓库里的压缩包并按本文件校验；找不到才回退 .probe/reference 并告警。补丁在解包之后施加，施加完必须重生成 bundle-manifest.json（index.html 也在清单里）。"
+  "bundleManifestSha256": "bd2e541c59bd71303dba37abee47159c30148b444a810d14866e2897e45f03ef",
+  "_why": "本文件必须与 scripts/reference-version.json 一致（stage-v3-bundle.mjs 会强制检查）。3.0.16 的教训同样适用：只放当前跟的版本，旧版本留在 git 历史里。"
 }

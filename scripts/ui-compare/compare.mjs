@@ -2505,7 +2505,12 @@ function readGolden() {
   const errorsFile = path.join(GOLDEN, "errors.json");
   const errors = existsSync(errorsFile) ? JSON.parse(readFileSync(errorsFile, "utf8")) : {};
   const channels = ["net", "dom", "state"];
-  // REFERENCE_MISSING 里的屏没有基线，不算「基线不全」（理由在表里）。
+  // 第 2041 轮：REFERENCE_MISSING 只表示「设计上参照没有这一屏」，
+  // **不代表当前这份基线目录里一定没有**。例如 ws-a-v3 的基线单独录在
+  // ~/ov-golden-v3-4.0.3 里，只要目录里真有这屏就该比，不能无条件跳过
+  // （否则拿 v3 基线跑会「跳过两屏 + 退出码 0」，是个空跑）。
+  // 用模块级判据（第 2041 轮）：确实缺基线才当成没有。
+  const isAbsent = refBaselineAbsent;
   // 第 326 轮防护：遮罩清单非空，但基线目录里一个 mask.json 都没有 ——
   // 说明这份基线是遮罩功能之前录的。此时「两边取并集」会退化成只用我方位置，
   // 而只存在于参照里的元素（ComfyUI 行、用户头像）永远遮不到。**直接报错，不静默当空数组。**
@@ -2526,7 +2531,7 @@ function readGolden() {
   {
     const batches = new Map();
     for (const p of PAGES) {
-      if (REFERENCE_MISSING.has(p.id)) continue;
+      if (isAbsent(p)) continue;
       const f = path.join(GOLDEN, `${p.id}.batch.json`);
       if (!existsSync(f)) continue;
       try {
@@ -2545,7 +2550,7 @@ function readGolden() {
   }
   const missing = PAGES.filter(
     (p) =>
-      !REFERENCE_MISSING.has(p.id) &&
+      !isAbsent(p) &&
       (!existsSync(path.join(GOLDEN, `${p.id}.png`)) ||
         channels.some((channel) => !existsSync(path.join(GOLDEN, `${p.id}.${channel}.json`)))),
   ).map((p) => p.id);
@@ -2554,7 +2559,7 @@ function readGolden() {
   return Object.fromEntries(PAGES.map((p) => [
     p.id,
     // 参照基线里没有的屏：给 null，不要让 readFileSync 把整轮跑挂掉
-    REFERENCE_MISSING.has(p.id)
+    isAbsent(p)
       ? { file: null, errors: [], net: null, dom: null, state: null, masks: [] }
       : {
           file: path.join(GOLDEN, `${p.id}.png`),
@@ -2602,6 +2607,20 @@ const REFERENCE_MISSING = new Map([
     "或预置一份已带会话的夹具 + 对应 localStorage（成对写入）。详见 docs/4.0.3-baseline-gaps.md"],
   ["project-assets", "同上"],
 ]);
+
+/**
+ * 第 2041 轮：**真的缺基线**才跳过。
+ *
+ * `REFERENCE_MISSING` 表达的是「设计上参照没有这一屏」，但有些屏的基线是单独录在
+ * 另一个目录里的（例如 `ws-a-v3*` 录在 `~/ov-golden-v3-4.0.3`）。只要当前 GOLDEN 里
+ * 确实有这张截图与三个通道的 json，就应该参与比较 —— 否则拿 v3 基线跑会得到
+ * 「跳过两屏 + 退出码 0」，那是空跑，不是通过。
+ */
+const refBaselineAbsent = (p) =>
+  REFERENCE_MISSING.has(p.id) &&
+  (!existsSync(path.join(GOLDEN, `${p.id}.png`)) ||
+    ["net", "dom", "state"].some((channel) => !existsSync(path.join(GOLDEN, `${p.id}.${channel}.json`))));
+
 
 /**
  * 基线批次 id（第 348 轮，验收建议）。
@@ -2693,9 +2712,12 @@ if (RECORD) {
     console.log("⚠ 基线没有 baseline-source.json（历史基线），无法核验来源");
   }
 }
-if (REFERENCE_MISSING.size && baseMode === "golden") {
-  console.log(`跳过 ${REFERENCE_MISSING.size} 屏（参照基线里没有，理由见 REFERENCE_MISSING）：`);
-  for (const [id, why] of REFERENCE_MISSING) console.log(`  · ${id} —— ${why}`);
+const absentHere = baseMode === "golden"
+  ? PAGES.filter((p) => refBaselineAbsent(p))
+  : [];
+if (absentHere.length) {
+  console.log(`跳过 ${absentHere.length} 屏（这份基线里确实没有，理由见 REFERENCE_MISSING）：`);
+  for (const p of absentHere) console.log(`  · ${p.id} —— ${REFERENCE_MISSING.get(p.id) ?? "无理由"}`);
 }
 console.log(`对比 ${baseMode} ↔ ${testMode}，结果在 ${path.relative(repo, outDir)}`);
 const base = baseMode === "golden" ? readGolden() : await runMode(baseMode);
@@ -2704,7 +2726,7 @@ const pages = [];
 let failed = false;
 for (const p of PAGES) {
   // 参照基线里没有的屏跳过（理由在 REFERENCE_MISSING，已在上面打印）
-  if (baseMode === "golden" && REFERENCE_MISSING.has(p.id)) continue;
+  if (baseMode === "golden" && refBaselineAbsent(p)) continue;
   // 两边各取一次遮罩，取并集：只按一边遮，另一边会露出残留
   const unionMasks = [...(base[p.id].masks ?? []), ...(test[p.id].masks ?? [])];
   const d = await diff(
