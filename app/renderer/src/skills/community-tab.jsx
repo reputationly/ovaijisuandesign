@@ -185,9 +185,10 @@ export function CommunityTabContent({
             onInstall={onInstall}
             onTryItOut={onTryItOut}
             onDetail={onDetail}
-            footerCard={
-              activeTag ? void 0 : <CreatorPlanInviteCard onOpen={() => onOpenCreatorPlan?.()} />
-            }
+            // 4.0.3 没有这张"创作者计划邀请"footer 卡：
+            // 全仓 720 个文件搜 market-creator-plan-invite 为 0 命中，
+            // 参照里的 creator-plan 只是 showcase 媒体的 URL 校验正则。
+            // 创作者计划的入口仍在 titleAccessory 的 info 弹层里，功能未丢失。
             titleAccessory={
               // ⓘ next to the title is the single entry into the creator-plan
               // popover (which itself contains the "Request to Review" CTA).
