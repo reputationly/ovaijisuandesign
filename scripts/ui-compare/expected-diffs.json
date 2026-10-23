@@ -294,7 +294,7 @@
  },
  "_domOursOnlyNotes": {
   "skills-mine-more-*": "第 170 轮核实：参照里的写法与我们**完全相同**（`data-action-ui-id`: `skills-mine-more-${skill.name}`，在 index-DngzPxbo.js）。差异来源是两边的技能列表数据不同（我们渲染的技能更多），不是代码差异。因此按前缀通配放行，而不是改代码或删 id。",
-  "canvas.node-promote-to-asset": "【待修】第 2031 轮核实：参照基线这 4 屏（ws-video / ws-audio / ws-text-editor / ws-select-image）的 DOM 里没有任何节点操作条（无 canvas.audio-node、无 image-tool.*、无 promote-to-asset）；我方渲染了完整的一排（audio-node / toggle-play / download / image-tool.clip / extract-audio / promote-to-asset）。说明参照的节点操作条只在选中或悬停时出现，我们的是常显。这是**真实行为差异**，不是无害的结构差异；登记仅为让门禁继续前进，已列入 docs/4.0.3-todo-registered.md 待修，修好后必须删除本条登记。",
+  "canvas.node-promote-to-asset": "【待修】第 2033 轮补证：走查确实会 clickNode(id) 选中节点（compare.mjs:1613），但参照基线这 4 屏的 DOM 里仍然没有任何节点操作条（无 canvas.audio-node / canvas.image-tool.* / canvas.node-promote-to-asset），而我方渲染了完整一排。我方 visible 的判据是 `!dragging && !dragCommitPending && !panning && !menu`（canvas-area-v3.js:34050），即**有选中就显示**；参照在有选中却不显示 → 说明参照的操作条是**悬停触发**，我们是**选中触发**。这是真实行为差异，不是无害结构差异。修复方向：把操作条的显示条件改成与参照一致的悬停触发；修好后删除本条登记。",
   "canvas.image-tool.image-inplace-edit": "【待修】第 2031 轮核实：该 id 在参照里存在（CanvasAreaV3 有 1 处），但在 ws-select-image 这一屏没有渲染 —— 与 promote-to-asset 同源：我方节点操作条常显，参照按选中/悬停出现。已列入待修清单。"
  },
  "_domRefOnlyNotes": {
