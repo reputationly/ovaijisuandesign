@@ -301,7 +301,7 @@
  "_domRefOnlyNotes": {
   "ws-canvas-ops": "第 171 轮核实：参照这一屏的会话里有两条消息（文本实测为「UI compare interaction」 与「second line」），我们的会话里没有。因此 chat-message-* / chat-user-* / composer.editor / popover.* 这些元素在参照侧渲染、我方未渲染。**这是夹具数据差异，不是实现差异**，故只针对本屏登记，不用通配。",
   "ws-select-image": "【待修】第 2031 轮核实：composer.editor 与 popover.attachments-scroll 在参照里都存在（各命中 4 个文件），ws-select-image 这屏参照渲染了、我方没有。疑似我方该屏的输入框/附件浮层未挂载到同一容器，需按条件追查。已列入待修清单。",
-  "ws-code-editor-canvas.text-quick-*": "【条件已定位】canvas.text-quick-write 与 canvas.text-quick-{plan,prompt,script} 是 canvas-v3/ui-components.js:5398 起那个组件的 `suggestions` 数组项，该组件传给 `NodeEmptyState` —— 也就是说它们**只在文本节点处于「空状态」时渲染**。我方 ws-code-editor 这屏没有它们，说明该屏的文本节点不处于空状态（有内容，或编辑器已展开），而参照那屏是空节点。属**状态差异**，不是缺实现。下一步：查这屏走查创建节点后我方是否立即进入编辑态（从而不再是空状态）。",
+  "ws-code-editor-canvas.text-quick-*": "【条件已定位，但存在一处未解矛盾】canvas.text-quick-write 与 canvas.text-quick-{plan,prompt,script} 是 ui-components.js:5398 那个组件传给 NodeEmptyState 的 suggestions —— **只在文本节点处于「空状态」时渲染**。矛盾：ws-code-editor 的走查（compare.mjs:1719 code-editor）会对javascript 与 sourceMarkdown 两个节点**都写入内容**（Input.insertText），按此两侧都不该是空状态；但参照那屏确实渲染了这 4 个 id。可能原因：参照在那次运行里另有一个空文本节点（走查顺序/时序不同），或参照的空状态判据与我方不同（例如按选区而非内容）。**未解，需下一轮在参照侧确认那个 suggestions 容器属于哪个节点。**",
   "ws-code-editor-chat": "【条件渲染】chat-message-list / chat-message-turn：这两个 id 我方源码里有确切形态，ws-code-editor 这屏参照渲染了会话历史、我方没有。与 ws-canvas-ops 同类：走查在同一实例里连跑，前面 scenario:\"chat\" 的会话残留到了本屏。属夹具跨屏残留，不是实现缺陷。",
   "ws-code-editor-popover.model-chip": "【条件渲染，待定位】第 2034 轮更正：popover.model-chip 的前缀在本仓库存在（模板拼出），不是缺实现；该屏未渲染属条件差异。",
   "session-single-title-*": "【数据差异】会话标签标题元素的通配登记。标题文本随会话内容变化，两侧会话数据不同时该 id 的可见性会不同；不属实现缺陷。",
