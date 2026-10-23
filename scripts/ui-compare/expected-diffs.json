@@ -301,7 +301,7 @@
  "_domRefOnlyNotes": {
   "ws-canvas-ops": "第 171 轮核实：参照这一屏的会话里有两条消息（文本实测为「UI compare interaction」 与「second line」），我们的会话里没有。因此 chat-message-* / chat-user-* / composer.editor / popover.* 这些元素在参照侧渲染、我方未渲染。**这是夹具数据差异，不是实现差异**，故只针对本屏登记，不用通配。",
   "ws-select-image": "【待修】第 2031 轮核实：composer.editor 与 popover.attachments-scroll 在参照里都存在（各命中 4 个文件），ws-select-image 这屏参照渲染了、我方没有。疑似我方该屏的输入框/附件浮层未挂载到同一容器，需按条件追查。已列入待修清单。",
-  "ws-code-editor-canvas.text-quick-*": "【条件渲染，待定位触发条件】第 2034 轮更正：这 4 个 id **并非缺失** —— canvas-v3/ui-components.js:5403 有字面量 canvas.text-quick-write，:5413 有模板 id: `canvas.text-quick-${qa.key}`，plan / prompt / script 由该模板生成。我方 ws-code-editor 这屏没有渲染它们 → 是条件/数据未满足，不是缺实现。（此前记为「缺功能」是错的：当时只按 data-action-ui-id 精确形态搜索，漏了这些用 `id:` 属性声明的写法。）",
+  "ws-code-editor-canvas.text-quick-*": "【条件已定位】canvas.text-quick-write 与 canvas.text-quick-{plan,prompt,script} 是 canvas-v3/ui-components.js:5398 起那个组件的 `suggestions` 数组项，该组件传给 `NodeEmptyState` —— 也就是说它们**只在文本节点处于「空状态」时渲染**。我方 ws-code-editor 这屏没有它们，说明该屏的文本节点不处于空状态（有内容，或编辑器已展开），而参照那屏是空节点。属**状态差异**，不是缺实现。下一步：查这屏走查创建节点后我方是否立即进入编辑态（从而不再是空状态）。",
   "ws-code-editor-chat": "【条件渲染】chat-message-list / chat-message-turn：这两个 id 我方源码里有确切形态，ws-code-editor 这屏参照渲染了会话历史、我方没有。与 ws-canvas-ops 同类：走查在同一实例里连跑，前面 scenario:\"chat\" 的会话残留到了本屏。属夹具跨屏残留，不是实现缺陷。",
   "ws-code-editor-popover.model-chip": "【条件渲染，待定位】第 2034 轮更正：popover.model-chip 的前缀在本仓库存在（模板拼出），不是缺实现；该屏未渲染属条件差异。",
   "session-single-title-*": "【数据差异】会话标签标题元素的通配登记。标题文本随会话内容变化，两侧会话数据不同时该 id 的可见性会不同；不属实现缺陷。",
