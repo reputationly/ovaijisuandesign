@@ -98,11 +98,6 @@ export function acknowledgeHomeDraftHandoff(operationId) {
   return true;
 }
 
-const CONFIRMATION_REASON_KINDS = new Set([
-  "loop_guard_ask",
-  "tool_confirm_ask",
-]);
-
 function isUnresolvedAnswerRequest(message) {
   if (message.type === "question" || message.type === "interact")
     return !message.resolved;
@@ -139,7 +134,7 @@ function deriveSessionTaskSnapshot(input) {
   }
   for (let index = input.pendingReasons.length - 1; index >= 0; index -= 1) {
     const reason = input.pendingReasons[index];
-    if (CONFIRMATION_REASON_KINDS.has(reason.kind)) {
+    if (reason.kind === "tool_confirm_ask") {
       return {
         status: "needs-confirmation",
         userActionId: `${reason.kind}:${reason.id}`,

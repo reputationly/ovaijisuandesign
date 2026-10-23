@@ -1,4 +1,5 @@
 // get-wire-content-text.jsx
+import instance from "i18next";
 import jsxRuntimeExports from "react/jsx-runtime";
 import { formatConnectorMention } from "../canvas/diagnostic-history-tools.js";
 import { Decoration, DecorationSet } from "prosemirror-view";
@@ -210,10 +211,18 @@ function createGhostWidget(text) {
   ghost.className = "ghost-text";
   ghost.textContent = text;
   wrapper.appendChild(ghost);
+  const hint = document.createElement("span");
+  hint.className = "ghost-text-hint";
+  const [beforeKey = "", afterKey = ""] = instance
+    .t("chat.ghostText.acceptHint", {
+      key: "Tab",
+    })
+    .split("Tab");
   const badge = document.createElement("span");
-  badge.className = "ghost-tab-badge";
+  badge.className = "ghost-tab-badge rounded-full px-1.25";
   badge.textContent = "Tab";
-  wrapper.appendChild(badge);
+  hint.append(document.createTextNode(beforeKey), badge, document.createTextNode(afterKey));
+  wrapper.appendChild(hint);
   return wrapper;
 }
 export const GhostTextDecoration = Extension.create({

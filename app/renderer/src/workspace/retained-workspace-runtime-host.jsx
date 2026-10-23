@@ -33,6 +33,7 @@ import { useBundleStatus } from "../media-editing/use-bundle-status.js";
 import { IHiloApp } from "../settings/parse-custom-mcp-arguments.js";
 import { replaceVisiblePreviewTab } from "../infra/error-boundary.jsx";
 import { WorkspaceStage } from "./workspace-stage.jsx";
+import { useWorkspaceFirstLoadRum } from "./use-workspace-first-load-rum.js";
 function reportWorkspaceRetentionDiagnostics(workspaceId, entry) {
   entries.set(workspaceId, entry);
   return () => {
@@ -272,6 +273,12 @@ function formatDiagnosticSnapshot(instanceId, input) {
   ].join(" ");
 }
 function useWorkspaceRuntimeViewDiagnostics(input) {
+  useWorkspaceFirstLoadRum({
+    isActive: input.isActive,
+    runtimeKnown: input.activeRuntime !== void 0,
+    statusState: input.activeStatus?.state,
+    viewKind: input.viewKind,
+  });
   const reactId = reactExports.useId();
   const instanceId = `workspace-runtime-${reactId.replace(/:/g, "")}`;
   const latestInputRef = reactExports.useRef(input);

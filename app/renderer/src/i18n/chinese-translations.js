@@ -2526,6 +2526,7 @@ const zh = {
     "生成服务正在关闭。重试前请先检查画布中是否已有结果。",
   "chat.generationFailure.serviceUnavailable":
     "生成服务暂时不可用，请稍后重试。",
+  "chat.ghostText.acceptHint": "按{{key}}键入",
   "chat.historyLoadFailed.description":
     "当前内容已保留，但完整历史暂时无法确认。点击重试重新加载。",
   "chat.historyLoadFailed.title": "聊天历史暂时无法加载",

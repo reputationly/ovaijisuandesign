@@ -330,7 +330,6 @@ function isCompletedRetryOutput(message) {
     case "interact":
     case "confirm":
     case "question":
-    case "loop_guard_ask":
     case "tool_confirm_ask":
     case "credit_threshold":
       return message.resolved !== true;

@@ -1296,18 +1296,23 @@ html[data-hilo-gpu='disabled'] .skill-popover-skeleton {
   opacity: 0.4;
 }
 
-.message-input-editor .ghost-tab-badge {
+.message-input-editor .ghost-text-hint {
   display: inline-flex;
-  align-items: center;
-  margin-left: 4px;
-  padding: 1px 4px;
-  font-size: 10px;
+  align-items: baseline;
+  gap: 0.25em;
+  margin-left: 0.5em;
+  font-size: inherit;
   color: var(--color-muted-foreground);
-  opacity: 0.3;
-  border: 1px solid currentColor;
-  border-radius: 2px;
-  line-height: 1;
-  vertical-align: middle;
+  opacity: 0.46;
+  white-space: nowrap;
+}
+
+.message-input-editor .ghost-tab-badge {
+  font: inherit;
+  font-size: calc(1em - 1px);
+  line-height: calc(1em + 1px);
+  background: transparent;
+  border: 0.5px solid currentColor;
 }
 
 .mention-scrollbar {
@@ -1542,7 +1547,6 @@ html[data-hilo-gpu='disabled'] .skill-popover-skeleton {
 .max-w-\[280px\] { max-width: 280px; }
 .max-w-\[calc\(100\%-48px\)\] { max-width: calc(100% - 48px); }
 .max-w-\[min\(180px\,100\%\)\] { max-width: min(180px, 100%); }
-.message-input-editor .ghost-tab-badge { font: inherit; font-size: calc(1em - 1px); line-height: calc(1em + 1px); background: transparent; border: 0.5px solid currentColor; }
 .message-input-surface [data-message-input-attachment-preview="true"] [data-file-chip-layout] { border-radius: var(--message-input-attachment-radius); }
 .min-h-10\.5 { min-height: calc(var(--spacing) * 10.5); }
 .min-h-\[calc\(var\(--message-input-surface-radius\)\+42px\)\] { min-height: calc(var(--message-input-surface-radius) + 42px); }

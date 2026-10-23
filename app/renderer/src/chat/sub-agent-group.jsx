@@ -107,6 +107,7 @@ import { ErrorMessage } from "../team/error-message.jsx";
 import { withToolPresentationFields } from "./with-tool-presentation-fields.jsx";
 import { TOOLS as TOOLS } from "./tools.jsx";
 import { TOOL_ABORTED_BY_USER_TEXT as TOOL_ABORTED_BY_USER_TEXT } from "../canvas/diagnostic-history-tools.js";
+import { CollapsiblePresence } from "../media-editing/collapsible-presence.js";
 // 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
 function isDesignToolInterrupted(message2) {
   return Boolean(
@@ -753,18 +754,26 @@ function ImageMessage({ msg }) {
               onClick={handleClick}
               onDoubleClick={handleDoubleClick}
             >
-              <img
-                data-action-ui-id="chat-generated-image"
-                data-artifact-type="image"
-                data-artifact-path={src}
-                data-artifact-mime={mime}
+              <MediaReveal
                 src={thumbSrc}
                 alt={msg.content || t("chat.generatedImage")}
-                className="rounded-lg max-w-full h-auto hover:opacity-90 transition-opacity"
-                style={{
-                  maxWidth: 400,
+                layout="intrinsic"
+                intrinsicSize={{
+                  width: 400,
                 }}
-                onError={() => setError(true)}
+                loading="eager"
+                className="rounded-lg transition-opacity hover:opacity-90"
+                mediaClassName="max-w-full h-auto"
+                mediaProps={{
+                  "data-action-ui-id": "chat-generated-image",
+                  "data-artifact-type": "image",
+                  "data-artifact-path": src,
+                  "data-artifact-mime": mime,
+                  style: {
+                    maxWidth: 400,
+                  },
+                }}
+                onFailure={() => setError(true)}
               />
             </button>
           </ContextMenuTrigger>
@@ -1226,55 +1235,45 @@ function NestedSubAgent({ sub, onSend }) {
         <ChevronDown
           size={16}
           strokeWidth={SUB_AGENT_TIMELINE_ICON_STROKE_WIDTH}
-          className={`shrink-0 transition-transform duration-200 ${expanded ? "" : "-rotate-90"}`}
+          className={`shrink-0 chat-disclosure-chevron ${expanded ? "" : "-rotate-90"}`}
         />
       </button>
-      <div
-        className={`grid transition-[grid-template-rows] duration-200 ease-out ${expanded && hasExpandedContent ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-      >
-        <div className="overflow-hidden min-h-0">
-          <div className="flex flex-col gap-2 pt-2">
-            {pinnedStreamingAction && (
-              <IndentL showCorner={true}>
-                <div
-                  data-sub-agent-pinned-streaming={true}
-                  className="flex items-center gap-2 text-body-14 text-muted-foreground"
-                >
-                  <StreamingLabel msg={pinnedStreamingAction} />
-                </div>
-              </IndentL>
-            )}
-            {!pinnedStreamingAction && grouped.length === 0 && fallbackTask && (
-              <IndentL showCorner={true}>
-                <SubTextBlock
-                  sub={{
-                    id: `${sub.id}__task`,
-                    type: "text",
-                    content: fallbackTask,
-                  }}
-                />
-              </IndentL>
-            )}
-            {grouped.map((node, nIdx) => (
-              <IndentL key={nodeKey(node, nIdx)} showCorner={!pinnedStreamingAction && nIdx === 0}>
-                <SubGroupedNode
-                  node={node}
-                  subLookup={subLookup}
-                  isStreaming={isGroupedNodeStreaming(
-                    node,
-                    nIdx,
-                    grouped.length,
-                    isStreaming,
-                    pinnedStreamingAction?.id,
-                  )}
-                  onSend={onSend}
-                  showStreamingLabel={!IN_PROGRESS_AGENT_KEYS.has(agentKey)}
-                />
-              </IndentL>
-            ))}
-          </div>
+      <CollapsiblePresence open={Boolean(expanded && hasExpandedContent)} keepMounted={true}>
+        <div className="flex flex-col gap-2 pt-2">
+          {pinnedStreamingAction && (
+            <IndentL showCorner={true}>
+              <div
+                data-sub-agent-pinned-streaming={true}
+                className="flex items-center gap-2 text-body-14 text-muted-foreground"
+              >
+                <StreamingLabel msg={pinnedStreamingAction} />
+              </div>
+            </IndentL>
+          )}
+          {!pinnedStreamingAction && grouped.length === 0 && fallbackTask && (
+            <IndentL showCorner={true}>
+              <SubTextBlock
+                sub={{
+                  id: `${sub.id}__task`,
+                  type: "text",
+                  content: fallbackTask,
+                }}
+              />
+            </IndentL>
+          )}
+          {grouped.map((node, nIdx) => (
+            <IndentL key={nodeKey(node, nIdx)} showCorner={!pinnedStreamingAction && nIdx === 0}>
+              <SubGroupedNode
+                node={node}
+                subLookup={subLookup}
+                isStreaming={isGroupedNodeStreaming(node, nIdx, grouped.length, isStreaming, pinnedStreamingAction?.id)}
+                onSend={onSend}
+                showStreamingLabel={!IN_PROGRESS_AGENT_KEYS.has(agentKey)}
+              />
+            </IndentL>
+          ))}
         </div>
-      </div>
+      </CollapsiblePresence>
     </div>
   );
 }
@@ -1387,62 +1386,52 @@ function SubAgentGroup({ msg, onSend }) {
         <ChevronDown
           size={16}
           strokeWidth={SUB_AGENT_TIMELINE_ICON_STROKE_WIDTH}
-          className={`shrink-0 transition-transform duration-200 ${expanded ? "" : "-rotate-90"}`}
+          className={`shrink-0 chat-disclosure-chevron ${expanded ? "" : "-rotate-90"}`}
         />
       </button>
-      <div
-        className={`grid transition-[grid-template-rows] duration-200 ease-out ${expanded && hasExpandedContent ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-      >
-        <div className="overflow-hidden min-h-0">
-          <div data-action-ui-id="chat-sub-agent-messages" className="relative flex flex-col gap-2 pt-3">
-            {expanded && hasExpandedContent && (
-              <span
-                aria-hidden="true"
-                data-action-ui-id="chat-timeline-detail-rail"
-                className="absolute left-[7px] top-3 bottom-0 w-[var(--brutalist-border-width)] bg-tertiary/25 pointer-events-none"
+      <CollapsiblePresence open={Boolean(expanded && hasExpandedContent)} keepMounted={true}>
+        <div data-action-ui-id="chat-sub-agent-messages" className="relative flex flex-col gap-2 pt-3">
+          {hasExpandedContent && (
+            <span
+              aria-hidden="true"
+              data-action-ui-id="chat-timeline-detail-rail"
+              className="opacity-100! filter-none! translate-none! transition-none! absolute left-[7px] top-3 bottom-0 w-[var(--brutalist-border-width)] bg-tertiary/25 pointer-events-none"
+            />
+          )}
+          {pinnedStreamingAction && (
+            <IndentL showCorner={true}>
+              <div
+                data-sub-agent-pinned-streaming={true}
+                className="flex items-center gap-2 text-body-14 text-muted-foreground"
+              >
+                <StreamingLabel msg={pinnedStreamingAction} />
+              </div>
+            </IndentL>
+          )}
+          {!pinnedStreamingAction && grouped.length === 0 && fallbackTask && (
+            <IndentL showCorner={true}>
+              <SubTextBlock
+                sub={{
+                  id: `${msg.id}__task`,
+                  type: "text",
+                  content: fallbackTask,
+                }}
               />
-            )}
-            {pinnedStreamingAction && (
-              <IndentL showCorner={true}>
-                <div
-                  data-sub-agent-pinned-streaming={true}
-                  className="flex items-center gap-2 text-body-14 text-muted-foreground"
-                >
-                  <StreamingLabel msg={pinnedStreamingAction} />
-                </div>
-              </IndentL>
-            )}
-            {!pinnedStreamingAction && grouped.length === 0 && fallbackTask && (
-              <IndentL showCorner={true}>
-                <SubTextBlock
-                  sub={{
-                    id: `${msg.id}__task`,
-                    type: "text",
-                    content: fallbackTask,
-                  }}
-                />
-              </IndentL>
-            )}
-            {grouped.map((node, nIdx) => (
-              <IndentL key={nodeKey(node, nIdx)} showCorner={!pinnedStreamingAction && nIdx === 0}>
-                <SubGroupedNode
-                  node={node}
-                  subLookup={subLookup}
-                  isStreaming={isGroupedNodeStreaming(
-                    node,
-                    nIdx,
-                    grouped.length,
-                    isStreaming,
-                    pinnedStreamingAction?.id,
-                  )}
-                  onSend={onSend}
-                  showStreamingLabel={!IN_PROGRESS_AGENT_KEYS.has(agentKey)}
-                />
-              </IndentL>
-            ))}
-          </div>
+            </IndentL>
+          )}
+          {grouped.map((node, nIdx) => (
+            <IndentL key={nodeKey(node, nIdx)} showCorner={!pinnedStreamingAction && nIdx === 0}>
+              <SubGroupedNode
+                node={node}
+                subLookup={subLookup}
+                isStreaming={isGroupedNodeStreaming(node, nIdx, grouped.length, isStreaming, pinnedStreamingAction?.id)}
+                onSend={onSend}
+                showStreamingLabel={!IN_PROGRESS_AGENT_KEYS.has(agentKey)}
+              />
+            </IndentL>
+          ))}
         </div>
-      </div>
+      </CollapsiblePresence>
     </div>
   );
 }

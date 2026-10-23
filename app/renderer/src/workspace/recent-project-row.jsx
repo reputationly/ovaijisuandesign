@@ -9,7 +9,6 @@ import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { DeferredThumbnailImage } from "./deferred-thumbnail-image-generation.jsx";
 import {
   LocalFolderIcon,
   PencilIcon,
@@ -45,6 +44,7 @@ import { InlineRenameInput } from "../infra/inline-rename-input.jsx";
 import { useWorkspaceDisplayNameRename } from "./use-new-workspace-dialog.jsx";
 import { DeleteConfirmDialog } from "./move-workspace-dialog.jsx";
 import { TEXT_EDIT_SELECTION_MAX_LENGTH as TEXT_EDIT_SELECTION_MAX_LENGTH } from "../text-editor/build-asr-gateway-request.js";
+import { MediaReveal } from "../media-editing/media-reveal-generation.js";
 // 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
 function text$a(value, limit) {
   return typeof value === "string" && value.length <= limit;
@@ -315,10 +315,6 @@ function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
   const thumbnail = thumbnails?.[0];
   const thumbnailFailed = thumbnail ? failedSource === thumbnail.src : false;
   const thumbnailPending = scanAllowed && thumbnails === void 0;
-  const [loadedSource, setLoadedSource] = reactExports.useState(null);
-  const [cachedSources] = reactExports.useState(() => new Set(loadedThumbnailSources));
-  const thumbnailCached = thumbnail ? cachedSources.has(thumbnail.src) : false;
-  const thumbnailLoaded = thumbnail ? loadedSource === thumbnail.src || thumbnailCached : false;
   reactExports.useEffect(() => {
     if (!scanAllowed || loadEnabled || typeof IntersectionObserver === "undefined") return;
     const host = hostRef.current;
@@ -355,26 +351,15 @@ function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
     <span
       ref={hostRef}
       data-action-ui-id="home-sidebar.recent-thumbnail"
-      className="relative flex size-6 shrink-0 overflow-hidden rounded-sm"
+      className="relative mx-px flex size-5.5 shrink-0 overflow-hidden rounded-[calc(var(--radius-sm)*11/12)]"
     >
       {thumbnail && !thumbnailFailed ? (
-        <span className="relative size-6 shrink-0 overflow-hidden rounded-sm">
-          {!thumbnailLoaded && <RecentThumbnailPlaceholder />}
-          <DeferredThumbnailImage
+        <span className="relative size-full shrink-0 overflow-hidden rounded-[inherit]">
+          <MediaReveal
             src={thumbnail.src}
             alt=""
-            draggable={false}
-            eager={thumbnailCached}
-            className={cn(
-              "relative h-full w-full object-cover",
-              !thumbnailCached &&
-                "transition-[opacity,filter,transform] duration-300 ease-out motion-reduce:transition-none",
-              thumbnailLoaded ? "scale-100 blur-0" : "scale-110 blur-[4px]",
-            )}
-            onLoad={() => {
-              loadedThumbnailSources.add(thumbnail.src);
-              setLoadedSource(thumbnail.src);
-            }}
+            lqip={thumbnail.mediaType === "image" ? "auto" : false}
+            className="size-full rounded-[inherit]"
             onFailure={() => {
               setFailedSource(thumbnail.src);
             }}
@@ -384,12 +369,13 @@ function RecentWorkspaceThumbnail({ workspacePath, scanAllowed }) {
               className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[var(--media-overlay-surface)] text-[var(--media-overlay-foreground)]"
               data-home-video-play="true"
             >
-              <PlaybackPlayIcon size={9} className="text-[var(--media-overlay-foreground)]" />
+              <PlaybackPlayIcon size={8.25} className="text-[var(--media-overlay-foreground)]" />
             </span>
           )}
         </span>
       ) : thumbnailPending ? (
-        <RecentThumbnailPlaceholder />
+        // Workspace scan still resolving the cover: shared placeholder only.
+        <MediaReveal src={void 0} alt="" className="absolute inset-0 rounded-[inherit]" />
       ) : (
         <WorkspaceThumbnailFallback />
       )}

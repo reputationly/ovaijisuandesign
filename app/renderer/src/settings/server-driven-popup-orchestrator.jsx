@@ -1703,7 +1703,11 @@ function ImBridgeDialog({ open, onOpenChange, initialTab = "im" }) {
 }
 function ImBridgeDialogProvider({ children }) {
   const [open, setOpen] = reactExports.useState(false);
-  const openImBridge = reactExports.useCallback(() => setOpen(true), []);
+  const [initialTab, setInitialTab] = reactExports.useState("im");
+  const openImBridge = reactExports.useCallback((tab = "im") => {
+    setInitialTab(tab);
+    setOpen(true);
+  }, []);
   const closeImBridge = reactExports.useCallback(() => setOpen(false), []);
   const value = reactExports.useMemo(
     () => ({
@@ -1716,7 +1720,7 @@ function ImBridgeDialogProvider({ children }) {
   return (
     <ImBridgeDialogCtx value={value}>
       {children}
-      <ImBridgeDialog open={open} onOpenChange={setOpen} />
+      <ImBridgeDialog open={open} onOpenChange={setOpen} initialTab={initialTab} />
     </ImBridgeDialogCtx>
   );
 }

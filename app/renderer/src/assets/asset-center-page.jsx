@@ -66,6 +66,7 @@ import { EntityDeleteConfirm } from "./entity-delete-confirm.jsx";
 import { EntityEditDialog } from "./entity-edit-dialog.jsx";
 import { ImportEntityConflictError } from "./import-entity-conflict-error.js";
 import { useDeleteEntity } from "./use-materialize-entity.js";
+import { CollapsiblePresence } from "../media-editing/collapsible-presence.js";
 function exportEntitiesBatchUrl(buildUrl, entityIds) {
   if (entityIds.length === 0) return void 0;
   const ids = entityIds.map((entityId) => encodeURIComponent(entityId)).join(",");
@@ -732,7 +733,7 @@ function SuggestionCard({ suggestion }) {
   );
 }
 function SuggestionPanel() {
-  const { t: translate } = useTranslation();
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
   const suggestions = usePendingSuggestions(20);
   const list = suggestions.data ?? [];
@@ -742,7 +743,7 @@ function SuggestionPanel() {
         className="border-b border-border bg-destructive/5 px-16 py-2 text-xs text-destructive"
         data-action-ui-id="asset-center-suggestion-error"
       >
-        {translate("assetCenter.suggestions.loadError", {
+        {t("assetCenter.suggestions.loadError", {
           message: suggestions.error.message,
         })}
       </section>
@@ -759,7 +760,7 @@ function SuggestionPanel() {
         <div className="flex items-center gap-2">
           <Sparkles size={14} className="text-foreground/60" />
           <h2 className="text-xs font-medium">
-            {translate("assetCenter.suggestions.title", {
+            {t("assetCenter.suggestions.title", {
               count: list.length,
             })}
           </h2>
@@ -767,17 +768,16 @@ function SuggestionPanel() {
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 gap-1.5 text-xs text-muted-foreground"
-          onClick={() => setCollapsed((isCollapsed) => !isCollapsed)}
+          className="h-7 gap-1.5 text-xs text-muted-foreground active:not-aria-[haspopup]:translate-y-0"
+          aria-expanded={!collapsed}
+          onClick={() => setCollapsed((c3) => !c3)}
           data-action-ui-id="asset-center-suggestion-panel-toggle"
         >
           {collapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-          {collapsed
-            ? translate("assetCenter.suggestions.expand")
-            : translate("assetCenter.suggestions.collapse")}
+          {collapsed ? t("assetCenter.suggestions.expand") : t("assetCenter.suggestions.collapse")}
         </Button>
       </div>
-      {!collapsed && (
+      <CollapsiblePresence open={!collapsed}>
         <div
           className="grid gap-2"
           style={{
@@ -788,7 +788,7 @@ function SuggestionPanel() {
             <SuggestionCard key={sug.id} suggestion={sug} />
           ))}
         </div>
-      )}
+      </CollapsiblePresence>
     </section>
   );
 }

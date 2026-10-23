@@ -86,6 +86,7 @@ function TextFullscreenInner({
   externalRevision,
   sourceNodeId,
   documentPath,
+  initialPreviewVersion,
   onAnnotationsChange,
   onAnnotationActivate,
   subscribeAnnotationCommand,
@@ -108,6 +109,7 @@ function TextFullscreenInner({
         subscribeAnnotationCommand={subscribeAnnotationCommand}
         sourceNodeId={sourceNodeId}
         documentPath={documentPath}
+        initialPreviewVersion={initialPreviewVersion}
         getCloseBlockReason={getCloseBlockReason}
         editorKind={editorMode === "source-markdown" ? "codemirror" : "textarea"}
       />
@@ -125,6 +127,7 @@ function TextFullscreenInner({
       externalRevision={externalRevision}
       sourceNodeId={sourceNodeId}
       documentPath={documentPath}
+      initialPreviewVersion={initialPreviewVersion}
       onAnnotationsChange={onAnnotationsChange}
       onAnnotationActivate={onAnnotationActivate}
       subscribeAnnotationCommand={subscribeAnnotationCommand}

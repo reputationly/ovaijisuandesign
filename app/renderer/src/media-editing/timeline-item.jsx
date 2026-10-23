@@ -24,7 +24,7 @@ import { API_PATHS } from "../infra/workspace-gateway.js";
 import { useCurrentWorkspace } from "../infra/shared-runtime.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
-import { connectorSkillLoadFailed } from "./connector-skill-label.js";
+import { connectorSkillLoadFailed, connectorSkillLoadName } from "./connector-skill-label.js";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, ClipboardList, SquareMousePointer } from "./lucide-icon-wraps.js";
 import { useResolveMediaUrl } from "../workspace/tool-label-definitions.js";
@@ -168,17 +168,14 @@ function extractKnowledgePaths(toolName, toolArgs) {
   } catch {}
   return void 0;
 }
-function extractSkillName(toolArgs) {
+function extractSkillName(toolArgs, toolName) {
   if (!toolArgs) return void 0;
   try {
     const parsed = JSON.parse(toolArgs);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
-      return void 0;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return void 0;
     const record = parsed;
-    const skillName = record.name ?? record.skill ?? record.skill_name;
-    return typeof skillName === "string" && skillName.trim().length > 0
-      ? skillName.trim()
-      : void 0;
+    const name = record.name ?? record.skill ?? record.skill_name ?? connectorSkillLoadName(toolName, toolArgs);
+    return typeof name === "string" && name.trim().length > 0 ? name.trim() : void 0;
   } catch {}
   return void 0;
 }
@@ -280,7 +277,7 @@ function renderToolLabel(entry, t) {
     });
   }
   if (entry.category === "skillOp") {
-    const skillName = extractSkillName(entry.toolArgs);
+    const skillName = extractSkillName(entry.toolArgs, entry.toolName);
     // 4.0.3：design_capability_get 跑完但没加载到 skill 时，提示"加载失败"而不是"已加载"。
     if (
       skillName &&

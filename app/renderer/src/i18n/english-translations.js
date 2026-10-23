@@ -2732,6 +2732,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "The generation service is shutting down. Check the canvas for an existing result before retrying.",
   "chat.generationFailure.serviceUnavailable":
     "The generation service is temporarily unavailable. Please try again later.",
+  "chat.ghostText.acceptHint": "Press {{key}} to insert",
   "chat.historyLoadFailed.description":
     "The current view was preserved, but the complete history could not be verified. Retry to reload it.",
   "chat.historyLoadFailed.title": "Chat history is temporarily unavailable",

@@ -6,11 +6,12 @@ import reactExports from "react";
 import { classifyFileType } from "../infra/file-type.js";
 import { guardAccountSubmission } from "../infra/agent-http-client.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
-import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
 import { PreviewCardContent } from "../text-editor/use-placeholder-asset-source.jsx";
 import { PRESET_COLOR_NAME_KEYS } from "../infra/parse-connector-selection.js";
 import { isSubtitleFileName } from "../canvas/is-reexecutable-generation-node.js";
 import { CompositedSvg } from "../media-editing/icon-compositing.js";
+import { MediaReveal } from "../media-editing/media-reveal-generation.js";
+import { PreviewVideo } from "../media-editing/preview-media-parts.js";
 const PREVIEW_IMAGE_DISPLAY_PX = 256;
 export const STRICT_THUMBNAIL_MAX_RETRIES = 2;
 export const STRICT_THUMBNAIL_RETRY_DELAY_MS = 2e3;
@@ -42,11 +43,12 @@ function PreviewMedia({ resource }) {
   if (resource.type === "image" && !failed) {
     return (
       <div className={wrap}>
-        <DeferredThumbnailImage
+        <MediaReveal
           src={withStrictThumbnail(resource.url, PREVIEW_IMAGE_DISPLAY_PX)}
           onFailure={() => setFailedUrl(resource.url)}
           alt=""
-          className="max-h-full max-w-full object-contain"
+          fit="contain"
+          className="absolute inset-0"
           priority="interactive"
           maxRetries={STRICT_THUMBNAIL_MAX_RETRIES}
           retryDelayMs={STRICT_THUMBNAIL_RETRY_DELAY_MS}
@@ -57,14 +59,7 @@ function PreviewMedia({ resource }) {
   if (resource.type === "video" && !failed) {
     return (
       <div className={wrap}>
-        <video
-          src={resource.url}
-          onError={() => setFailedUrl(resource.url)}
-          muted={true}
-          playsInline={true}
-          preload="metadata"
-          className="max-h-full max-w-full object-contain"
-        />
+        <PreviewVideo url={resource.url} onError={() => setFailedUrl(resource.url)} />
         <DurationBadge resource={resource} />
       </div>
     );
