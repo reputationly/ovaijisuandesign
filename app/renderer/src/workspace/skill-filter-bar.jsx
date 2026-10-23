@@ -177,15 +177,21 @@ export function SkillFilterBar({
               {/* 第 336 轮（验收）：参照把「来源」做成 chip（skills-mine-source-community / -local），
                 我们原来是一个下拉（skills-mine-source-dropdown）。按 connectors 那边的写法改成 chip。 */}
               <div className="scrollbar-none flex min-w-0 items-center gap-1 overflow-x-auto">
+                {/* 第 2033 轮：参照只有 community / local 两个来源 chip，
+                    没有 "all"（全仓 720 个文件搜 skills-mine-source-all 未命中）。
+                    默认状态即"全部"，点已选中的 chip 取消筛选。 */}
                 {[
-                  { value: "all", key: "skills.mine.filterSourceAll", def: "全部" },
                   { value: "community", key: "skills.mine.filterSourceCommunity", def: "来自社区" },
                   { value: "local", key: "skills.mine.filterSourceLocal", def: "本地创建" },
                 ].map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
-                    onClick={() => onMineSourceFilterChange?.(opt.value)}
+                    onClick={() =>
+                      onMineSourceFilterChange?.(
+                        mineSourceFilter === opt.value ? null : opt.value,
+                      )
+                    }
                     data-action-ui-id={`skills-mine-source-${opt.value}`}
                     className={
                       (mineSourceFilter === opt.value
