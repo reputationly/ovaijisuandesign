@@ -184,6 +184,7 @@ function snapshotNetwork(requests, frames) {
         path: request.path,
         ...(request.status !== undefined ? { status: request.status } : {}),
         ...(request.failure !== undefined ? { failure: request.failure } : {}),
+        ...(request.bodyHead !== undefined ? { bodyHead: request.bodyHead } : {}),
       })),
     wsSent: frames
       .filter((frame) => frame.direction === "sent")
@@ -974,6 +975,20 @@ async function cdp(port) {
             if (m.method === "Network.loadingFailed") {
               const record = requestRecords.get(m.params.requestId);
               if (record) record.failure = String(m.params.errorText ?? "unknown");
+            } else {
+              // 第 2038 轮：4xx/5xx 时把响应体头部记下来（截断）。
+              // 为什么：之前只记状态码，遇到"200 但内容为空"或"4xx 但不知道原因"就没法判断。
+              // 只在 loadingFinished 时抓 —— 太早拿不到 body。
+              const record = requestRecords.get(m.params.requestId);
+              if (record && typeof record.status === "number" && record.status >= 400) {
+                // 非阻塞：抓不到就跳过，不影响判据
+                c.send("Network.getResponseBody", { requestId: m.params.requestId })
+                  .then((body) => {
+                    const text = body?.result?.body ?? "";
+                    if (text) record.bodyHead = String(text).slice(0, 300);
+                  })
+                  .catch(() => {});
+              }
             }
             const requestPath = pendingLocalRequests.get(m.params.requestId);
             if (requestPath) {
