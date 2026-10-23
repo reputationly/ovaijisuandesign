@@ -1,0 +1,14 @@
+{
+  "version": "4.0.4",
+  "build": "4.0.4.114",
+  "sourceAppAsarSha256": "9c4a7325c5ac2c4ede50428db189ea07e86992aa1a62af97e3aa1e2f67ae8167",
+  "archive": {
+    "path": "scripts/v3-runtime/v3-4.0.4.tgz",
+    "sha256": "88076404d0d979ae568a9aa862ee81dfb02b6afd8347e698256f4b541c5b4e59",
+    "bytes": 5470206,
+    "files": 346,
+    "note": "可复现打包：文件按路径排序、mtime=0、uid/gid=0、mode=0644、gzip -9"
+  },
+  "bundleManifestSha256": "3ba336662f4285631744e1bc1454f1d7d05f4802b73f8a532f1154b53cdaa2c1",
+  "_why": "stage-v3-bundle.mjs 优先解开仓库里的压缩包并按本文件校验；找不到才回退 .probe/reference 并告警。补丁在解包之后施加，施加完必须重生成 bundle-manifest.json（index.html 也在清单里）。"
+}

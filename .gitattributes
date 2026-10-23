@@ -9,3 +9,6 @@
 *.icns binary
 *.svg text eol=lf
 *.tar.gz binary
+
+# v3 运行时压缩包：必须当二进制，不能被 eol 改写（sha256 校验会失败）
+*.tgz binary
