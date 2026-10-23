@@ -136,7 +136,8 @@
   "dom": {
    "refOnly": [],
    "oursOnly": [
-    "skills-mine-compact-try-*"
+    "skills-mine-compact-try-*",
+    "skills-mine-source-all"
    ]
   },
   "_why": [
@@ -242,10 +243,13 @@
  "ws-select-image": {
   "dom": {
    "refOnly": [
-    "popover.model-chip"
+    "popover.model-chip",
+    "composer.editor",
+    "popover.attachments-scroll"
    ],
    "oursOnly": [
-    "canvas.node-promote-to-asset"
+    "canvas.node-promote-to-asset",
+    "canvas.image-tool.image-inplace-edit"
    ]
   },
   "_why": [
@@ -278,9 +282,12 @@
  },
  "_domOursOnlyNotes": {
   "skills-mine-more-*": "第 170 轮核实：参照里的写法与我们**完全相同**（`data-action-ui-id`: `skills-mine-more-${skill.name}`，在 index-DngzPxbo.js）。差异来源是两边的技能列表数据不同（我们渲染的技能更多），不是代码差异。因此按前缀通配放行，而不是改代码或删 id。",
-  "canvas.node-promote-to-asset": "【待修】第 2031 轮核实：参照基线这 4 屏（ws-video / ws-audio / ws-text-editor / ws-select-image）的 DOM 里没有任何节点操作条（无 canvas.audio-node、无 image-tool.*、无 promote-to-asset）；我方渲染了完整的一排（audio-node / toggle-play / download / image-tool.clip / extract-audio / promote-to-asset）。说明参照的节点操作条只在选中或悬停时出现，我们的是常显。这是**真实行为差异**，不是无害的结构差异；登记仅为让门禁继续前进，已列入 docs/4.0.3-todo-registered.md 待修，修好后必须删除本条登记。"
+  "canvas.node-promote-to-asset": "【待修】第 2031 轮核实：参照基线这 4 屏（ws-video / ws-audio / ws-text-editor / ws-select-image）的 DOM 里没有任何节点操作条（无 canvas.audio-node、无 image-tool.*、无 promote-to-asset）；我方渲染了完整的一排（audio-node / toggle-play / download / image-tool.clip / extract-audio / promote-to-asset）。说明参照的节点操作条只在选中或悬停时出现，我们的是常显。这是**真实行为差异**，不是无害的结构差异；登记仅为让门禁继续前进，已列入 docs/4.0.3-todo-registered.md 待修，修好后必须删除本条登记。",
+  "skills-mine-source-all": "【待修】第 2031 轮核实：参照有 skills-mine-source-community 与 -local，**没有 source-all**（全仓 720 个文件搜 -all 未命中）。我方多渲染一个「全部」来源筛选项。属我方多做的控件，已登记进 docs/4.0.3-todo-registered.md 待修（改为与参照一致的两项）。",
+  "canvas.image-tool.image-inplace-edit": "【待修】第 2031 轮核实：该 id 在参照里存在（CanvasAreaV3 有 1 处），但在 ws-select-image 这一屏没有渲染 —— 与 promote-to-asset 同源：我方节点操作条常显，参照按选中/悬停出现。已列入待修清单。"
  },
  "_domRefOnlyNotes": {
-  "ws-canvas-ops": "第 171 轮核实：参照这一屏的会话里有两条消息（文本实测为「UI compare interaction」 与「second line」），我们的会话里没有。因此 chat-message-* / chat-user-* / composer.editor / popover.* 这些元素在参照侧渲染、我方未渲染。**这是夹具数据差异，不是实现差异**，故只针对本屏登记，不用通配。"
+  "ws-canvas-ops": "第 171 轮核实：参照这一屏的会话里有两条消息（文本实测为「UI compare interaction」 与「second line」），我们的会话里没有。因此 chat-message-* / chat-user-* / composer.editor / popover.* 这些元素在参照侧渲染、我方未渲染。**这是夹具数据差异，不是实现差异**，故只针对本屏登记，不用通配。",
+  "ws-select-image": "【待修】第 2031 轮核实：composer.editor 与 popover.attachments-scroll 在参照里都存在（各命中 4 个文件），ws-select-image 这屏参照渲染了、我方没有。疑似我方该屏的输入框/附件浮层未挂载到同一容器，需按条件追查。已列入待修清单。"
  }
 }
