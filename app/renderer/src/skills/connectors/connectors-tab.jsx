@@ -450,20 +450,26 @@ export function ConnectorsTab({
     [activeCategory, sortedVisibleConnectorCards],
   );
   const grouped = activeCategory === null && sortMode === "default";
+  // 4.0.3：插件子标签「我的插件」只看已安装/自定义的连接器（card.kind === "saved"），
+  // 「插件」看全部。参照把这条子标签放在能力标签之下、分类 chips 之上。
+  const tabCards = reactExports.useMemo(
+    () => (pluginTab === "mine" ? categoryCards.filter((card) => card.kind === "saved") : categoryCards),
+    [pluginTab, categoryCards],
+  );
   const categorySections = reactExports.useMemo(() => {
     if (!grouped)
       return [
         {
           category: activeCategory ?? "all",
-          cards: categoryCards,
+          cards: tabCards,
         },
       ];
     return HCP_CATEGORIES.map((category) => ({
       category,
-      cards: categoryCards.filter((card) => cardCategory(card) === category),
+      cards: tabCards.filter((card) => cardCategory(card) === category),
     })).filter((section) => section.cards.length > 0);
-  }, [grouped, activeCategory, categoryCards]);
-  const resultCount = categoryCards.length;
+  }, [grouped, activeCategory, tabCards]);
+  const resultCount = tabCards.length;
   const handleCreated = (result) => {
     invalidateLoad();
     setCustomConnectors((current) =>
