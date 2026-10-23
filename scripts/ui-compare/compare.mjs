@@ -429,6 +429,21 @@ const SETTLE = `(async()=>{
   // 为什么必须做：渲染进程被隐藏时节流会让动画**冻在中途**，
   // 此时 stableShot 的"连续两张一致"会成立 —— 但一致的是被冻住的中间帧。
   // changelog / workflows 那次整片主内容区的差异（DOM 相同、像素整块不同）正是这个形态。
+  // 第 2039 轮：等首页卡片里的 <video> 达到 HAVE_CURRENT_DATA。
+  // 为什么：卡片先挂海报 <img>（showcase-assets），视频 readyState 够了就把海报换掉；
+  // 采集时还剩几张海报完全取决于视频就绪时序 → 实测 0.035~0.054pp 的像素抖动。
+  // 等全部视频 readyState>=2 再暂停在 0 秒，采集状态才确定。
+  try {
+    const vids = Array.from(document.querySelectorAll("article.home-media-showcase-card video"));
+    if (vids.length) {
+      const deadline = performance.now() + 8000;
+      while (vids.some((v) => v.readyState < 2) && performance.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      for (const v of vids) { try { v.pause(); if (v.readyState >= 2) v.currentTime = 0; } catch {} }
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    }
+  } catch {}
   try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch {}
   for (let round = 0; round < 3; round += 1) {
     const running = (document.getAnimations ? document.getAnimations() : [])
@@ -867,6 +882,67 @@ async function ratio(a, b, tolerance = TOL) {
 // 卡片网格的位置、每行每列都靠封面视频撑开：等一两秒抓一次，抓到的时机随采集轮次漂移，
 // 于是同一份界面两次采集能差出一整条卡片带。改成反复重拍，直到连续两张像素一致为止。
 // 封面 CDN 已在 cdp() 里挡掉，这里的重拍只需兜住字体、光标这类残留抖动。
+// 第 2039 轮：首页卡片「挂载后又被卸载」诊断探针（PROBE_HOME=1 时注入）。
+// 纯 DOM 观测，不碰产品代码、不改变任何渲染行为。
+// 能区分三种成因：
+//   A. loading 状态来回切换 → section 的 aria-busy 会先翻 true
+//   B. selectedPrimaryId 变化导致整块重挂 → 卡片容器的祖先元素身份会变
+//   C. 卡片 key 变化 → 容器身份不变，但卡片集合整体替换
+const HOME_PROBE = `(() => {
+  if (window.__OV_HOME_PROBE__) return;
+  const log = [];
+  const t0 = performance.now();
+  const at = () => Math.round(performance.now() - t0);
+  let seq = 0;
+  const cards = () => Array.from(document.querySelectorAll("article.home-media-showcase-card"));
+  const section = () => document.querySelector("section.home-media-showcase-block");
+  const srcsOf = (el) => Array.from(el.querySelectorAll("img")).map((i) => (i.getAttribute("src") || "").slice(-28));
+  const snapshot = (why) => {
+    const s = section();
+    const cs = cards();
+    log.push({
+      seq: seq++, ms: at(), why,
+      busy: s ? s.getAttribute("aria-busy") : null,
+      cards: cs.length,
+      // 卡片容器的身份：给每个 grid 打一个稳定标记，用来判断整块是否被换掉
+      grid: (() => {
+        const g = cs[0] && cs[0].parentElement;
+        if (!g) return null;
+        if (!g.dataset.ovProbeGrid) g.dataset.ovProbeGrid = "g" + (++window.__OV_GRID_N__ || (window.__OV_GRID_N__ = 1));
+        return g.dataset.ovProbeGrid;
+      })(),
+      sample: cs.slice(0, 2).map(srcsOf),
+      // 懒加载诊断：卡片内全部 img 的加载状态
+      img: (() => {
+        const all = Array.from(document.querySelectorAll("article.home-media-showcase-card img"));
+        return {
+          n: all.length,
+          ok: all.filter((i) => i.complete && i.naturalWidth > 0).length,
+          lazy: all.filter((i) => i.getAttribute("loading") === "lazy").length,
+          pending: all.filter((i) => !i.complete || i.naturalWidth <= 0).length,
+          vids: document.querySelectorAll("article.home-media-showcase-card video").length,
+        };
+      })()
+    });
+    if (log.length > 400) log.splice(0, 200);
+  };
+  window.__OV_GRID_N__ = 0;
+  window.__OV_HOME_PROBE__ = { log, snapshot };
+  let lastBusy = null;
+  new MutationObserver((recs) => {
+    let touched = false, busyChanged = false;
+    for (const r of recs) {
+      if (r.type === "attributes" && r.attributeName === "aria-busy") busyChanged = true;
+      if (r.type === "childList") touched = true;
+    }
+    if (!touched && !busyChanged) return;
+    const s = section();
+    const busy = s ? s.getAttribute("aria-busy") : null;
+    if (busyChanged || busy !== lastBusy) { lastBusy = busy; snapshot("aria-busy"); return; }
+    snapshot(touched ? "dom" : "busy");
+  }).observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-busy"] });
+  setInterval(() => snapshot("tick"), 100);
+})();`;
 const STABLE_TOL = 0;
 async function stableShot(c) {
   let prev = null;
@@ -2017,6 +2093,9 @@ async function runMode(mode) {
       if (process.env.DIAG_FIXTURE === "1") {
         console.log(`  [fx] ${p.id}: ${fixtureState.digest}`);
       }
+      if (process.env.PROBE_HOME === "1" && p.id === "home") {
+        await c.send("Page.addScriptToEvaluateOnNewDocument", { source: HOME_PROBE });
+      }
       const coachMarkSeed = await c.send("Page.addScriptToEvaluateOnNewDocument", {
         source: `(() => { try { for (const k of Object.keys(localStorage)) if (k.includes("dismissedCoachMarks")) localStorage.removeItem(k); } catch {} })()`,
       });
@@ -2268,6 +2347,16 @@ async function runMode(mode) {
             identifier: coachMarkSeed.result.identifier,
           });
         await c.send("Page.removeScriptToEvaluateOnNewDocument", { identifier: randomTraceScriptIdentifier });
+      }
+      if (process.env.PROBE_HOME === "1" && p.id === "home") {
+        const probed = await c.send("Runtime.evaluate", {
+          expression: "JSON.stringify(window.__OV_HOME_PROBE__ || null)",
+          returnByValue: true,
+        });
+        writeFileSync(
+          path.join(outDir, `home.${mode}.home-probe.json`),
+          probed.result?.result?.value ?? "null",
+        );
       }
       const net = c.endNetworkCapture();
       if (process.env.CAPTURE_TRACE === "1" && ["project-created", "ws-canvas-ops", "ws-pdf"].includes(p.id)) {
