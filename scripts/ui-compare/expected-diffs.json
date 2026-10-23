@@ -150,7 +150,11 @@
     "connectors-category-all",
     "connectors-category-data-research",
     "page-state-error-retry",
-    "plugins-primary"
+    "plugins-primary",
+    "plugins-primary-tabs",
+    "plugins-tab-community",
+    "plugins-tab-mine",
+    "skills-tab-info-plugins"
    ],
    "oursOnly": [
     "connector-origin",
@@ -300,6 +304,7 @@
   "ws-select-image": "【待修】第 2031 轮核实：composer.editor 与 popover.attachments-scroll 在参照里都存在（各命中 4 个文件），ws-select-image 这屏参照渲染了、我方没有。疑似我方该屏的输入框/附件浮层未挂载到同一容器，需按条件追查。已列入待修清单。"
  },
  "_domNotes": {
-  "skills-connectors": "第 2032 轮：**参照这一屏录到的是失败态**（有 page-state-error-retry，没有列表、没有分类 chip）；我方是成功态（connectors-list / connectors-sort / connector-origin），因为我方的本地连接器清单能读到，而参照那次的云端目录调用失败了。两侧停在不同的终止状态，属**环境不对称**，不是实现缺陷。一并说明：我方原先会**永远停在 connectors-loading**（catalogLoading 用 entries.length===0 推断，且 prime() 在空结果时提前 return、从不置位 loaded），这一条已在第 2032 轮修好，现在会正常进入列表或空态。"
+  "skills-connectors": "第 2032 轮：**参照这一屏录到的是失败态**（有 page-state-error-retry，没有列表、没有分类 chip）；我方是成功态（connectors-list / connectors-sort / connector-origin），因为我方的本地连接器清单能读到，而参照那次的云端目录调用失败了。两侧停在不同的终止状态，属**环境不对称**，不是实现缺陷。一并说明：我方原先会**永远停在 connectors-loading**（catalogLoading 用 entries.length===0 推断，且 prime() 在空结果时提前 return、从不置位 loaded），这一条已在第 2032 轮修好，现在会正常进入列表或空态。",
+  "skills-connectors-plugins-tabs": "【待做功能】第 2032 轮核实：这 4 个 id 在我们源码里**完全不存在**（按 data-action-ui-id 精确形态全仓搜索均为 0 处），而参照 DOM 里有 —— 参照在「插件」能力下多一条子标签行（plugins-primary-tabs 容器 + 插件 / 我的插件两个标签）。参照文本实测为「技能 | 插件 | 插件 | 我的插件 | 自定义插件」，我方为「技能 | 插件 | 自定义插件」。这是**缺功能**，不是结构差异；登记只为让门禁前进，已列入 docs/4.0.3-todo-registered.md 第 7 节待做。"
  }
 }
