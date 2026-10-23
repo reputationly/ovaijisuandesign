@@ -1068,7 +1068,12 @@ async function cdp(port) {
               // 为什么：之前只记状态码，遇到"200 但内容为空"或"4xx 但不知道原因"就没法判断。
               // 只在 loadingFinished 时抓 —— 太早拿不到 body。
               const record = requestRecords.get(m.params.requestId);
-              if (record && typeof record.status === "number" && record.status >= 400) {
+              // 第 2042 轮诊断：DIAG_BODIES=1 时，把 /api/project/architecture 这类
+              // 「决定走哪条渲染路径」的 2xx 响应体也记下来（默认只记 4xx/5xx）。
+              const diagPath = record && typeof record.path === "string" &&
+                process.env.DIAG_BODIES === "1" &&
+                /\/api\/project\/architecture|\/api\/v3\/canvas/.test(record.path);
+              if (record && typeof record.status === "number" && (record.status >= 400 || diagPath)) {
                 // 非阻塞：抓不到就跳过，不影响判据
                 send("Network.getResponseBody", { requestId: m.params.requestId })
                   .then((body) => {
