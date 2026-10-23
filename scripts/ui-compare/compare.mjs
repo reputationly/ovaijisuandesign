@@ -982,7 +982,7 @@ async function cdp(port) {
               const record = requestRecords.get(m.params.requestId);
               if (record && typeof record.status === "number" && record.status >= 400) {
                 // 非阻塞：抓不到就跳过，不影响判据
-                c.send("Network.getResponseBody", { requestId: m.params.requestId })
+                send("Network.getResponseBody", { requestId: m.params.requestId })
                   .then((body) => {
                     const text = body?.result?.body ?? "";
                     if (text) record.bodyHead = String(text).slice(0, 300);
