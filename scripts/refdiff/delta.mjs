@@ -11,6 +11,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { resolvePair } from "./lib/refs.mjs";
 import { diffSets, extractIpcSurfaceFromTree, extractSignalsFromTree, intersect } from "./signals.mjs";
 
 function parseArgs(argv) {
@@ -245,8 +246,10 @@ function toolDiff(oldTools, newTools) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const oldDir = path.resolve(args.old ?? ".probe/reference/3.0.21");
-  const newDir = path.resolve(args.new ?? ".probe/reference/4.0.0");
+  // 第 2040 轮：默认版本不再写死，交给 refs.mjs（--from/--to > OV_REF_* > 最新两版）
+  const pair = resolvePair({ from: args.from ?? args.old, to: args.to ?? args.new });
+  const oldDir = pair.fromDir;
+  const newDir = pair.toDir;
   const oursRenderer = path.resolve(args["ours-renderer"] ?? "app/renderer/src");
   const gatewayDoc = path.resolve(args["gateway-doc"] ?? "docs/gateway-api.md");
   const tag = args.tag ?? `${path.basename(oldDir)}-to-${path.basename(newDir)}`;

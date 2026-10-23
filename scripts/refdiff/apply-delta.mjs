@@ -23,6 +23,7 @@
 import { createRequire } from "node:module";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { resolvePair, mainBundleOf } from "./lib/refs.mjs";
 import { fileURLToPath } from "node:url";
 import { parse } from "@babel/parser";
 import { atomsOf } from "./token-merge.mjs";
@@ -354,10 +355,12 @@ async function main() {
   //   --new .probe/refdiff/toplevel-4.0.3.json
   //   --old-src .probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js
   //   --new-src .probe/reference/4.0.3/asar/out/renderer/assets/index-B3Ss5vz1.js
-  const OLD_LEDGER = args.old ?? ".probe/refdiff/toplevel-3.0.21.json";
-  const NEW_LEDGER = args.new ?? ".probe/refdiff/toplevel-4.0.0.json";
-  const OLD_BUNDLE = args["old-src"] ?? ".probe/reference/3.0.21/asar/out/renderer/assets/index-ZNI5SgRm.js";
-  const NEW_BUNDLE = args["new-src"] ?? ".probe/reference/4.0.0/asar/out/renderer/assets/index-BBp4hclA.js";
+  // 第 2040 轮：默认 ledger 与 bundle 都从版本推导，不写死哈希
+  const pair = resolvePair({ from: args.from, to: args.to });
+  const OLD_LEDGER = args.old ?? `.probe/refdiff/toplevel-${pair.from}.json`;
+  const NEW_LEDGER = args.new ?? `.probe/refdiff/toplevel-${pair.to}.json`;
+  const OLD_BUNDLE = args["old-src"] ?? mainBundleOf(pair.fromDir);
+  const NEW_BUNDLE = args["new-src"] ?? mainBundleOf(pair.toDir);
   const oldRows = JSON.parse(readFileSync(OLD_LEDGER, "utf8")).rows;
   const newRows = JSON.parse(readFileSync(NEW_LEDGER, "utf8")).rows;
   const oldSrc = readFileSync(OLD_BUNDLE, "utf8");
