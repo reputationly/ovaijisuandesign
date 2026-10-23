@@ -305,7 +305,7 @@
   "ws-code-editor-chat": "【条件渲染】chat-message-list / chat-message-turn：这两个 id 我方源码里有确切形态，ws-code-editor 这屏参照渲染了会话历史、我方没有。与 ws-canvas-ops 同类：走查在同一实例里连跑，前面 scenario:\"chat\" 的会话残留到了本屏。属夹具跨屏残留，不是实现缺陷。",
   "ws-code-editor-popover.model-chip": "【待做功能】popover.model-chip 在我方源码里无确切形态；参照的模型选择浮层有这一项。",
   "session-single-title-*": "【数据差异】会话标签标题元素的通配登记。标题文本随会话内容变化，两侧会话数据不同时该 id 的可见性会不同；不属实现缺陷。",
-  "home-composer-guide-design": "【待做功能】home-composer-guide-design 在我方源码里无确切形态；参照首页输入框旁有一个创作指引入口，我们未实现。注册在 home / home-skill / home-skill-inspiration 三屏。",
+  "home-composer-guide-design": "【待确认】第 2034 轮更正：这个 id 我方源码里**是有的** —— text-editor/creation-guide-placeholder.jsx:87 用模板拼出 `${source}-composer-guide-${guide}`，source=\"home\" + guide=\"design\" 即等于它。所以不是「缺实现」。差异有两点：① 该状态下我方没有渲染（CreationGuidePlaceholder 是占位态组件，只在输入框为空等条件下出现）；② 形态不同：参照是**纯图标按钮**（无文本，只有一个 svg），我方是**文字链接 + ArrowUpRight 图标**（如「Design 使用指南」）。修法需要先确认参照那个图标按钮的语义（是否就是同一个指引入口），再决定是改形态还是补渲染条件。覆盖 home / home-skill / home-skill-inspiration 三屏。",
   "canvas.menu-add-comfyui": "【待做功能】canvas.menu-add-comfyui 在我方源码里无确切形态；参照的添加节点菜单里有「添加 ComfyUI」一项，我们未实现。",
   "ws-video-image-tools": "【待做功能】canvas.image-tool.asr / -erase-subtitle / -extract-frame 三个 id 在我方源码里均无确切形态；参照视频节点的图像工具菜单有这三项（语音识别 / 去字幕 / 抽帧），我们未实现。"
  },
