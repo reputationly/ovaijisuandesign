@@ -1985,8 +1985,13 @@ async function runMode(mode) {
       // （侧栏渲染 connectors 入口时会标记已读），全量跑下 19 屏仍缺
       // home-sidebar.connectors-release-badge。种子脚本在应用任何代码之前执行，
       // 每次新文档都生效，应用读到的必然是空值。
-      // 第 2030 轮：还原 .hilo 到干净快照（在算指纹之前，让指纹能验证还原是否成功）
-      if (process.env.NO_FIXTURE_RESET !== "1") {
+      // 第 2030 轮：还原 .hilo 到干净快照（在算指纹之前，让指纹能验证还原是否成功）。
+      // 第 2043 轮：project-assets / project-created 需要 workspace 里**已有会话**
+      // （它们的等待条件读 localStorage 的 workspaceSessionTabs 并要求会话存在），
+      // 而复位会把前序屏创建的会话抹掉 —— 于是这两屏永久「无创作页」。
+      // 因此按屏豁免复位；代价是这两屏不与其他屏同基线条件，已在文档里注明。
+      const keepSessionPages = new Set(["project-assets", "project-created"]);
+      if (process.env.NO_FIXTURE_RESET !== "1" && !keepSessionPages.has(p.id)) {
         for (const [name, dir] of [["ws-a", WS_A], ["ws-b", WS_B]]) {
           const pristine = path.join(ROOT, "_pristine", name);
           if (!existsSync(pristine)) continue;
