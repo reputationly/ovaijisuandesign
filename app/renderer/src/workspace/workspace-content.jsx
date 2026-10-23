@@ -61,6 +61,11 @@ import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
 import { subjectMaterialDrafts } from "./create-subject-material-draft-inbox.jsx";
 import { WorkspaceCanvasArea } from "./workspace-canvas-area.jsx";
 import { notifyBrowserCanvasFileAdded } from "../text-editor/read-preview-text-response.jsx";
+import { WorkspaceStructureSurface, useWorkspaceStructureSurface, WorkspaceTaskAcceptance } from "./workspace-structure-surface.jsx";
+import { WorkspaceResultNavigationLayout } from "./result-navigation-provider.js";
+import { CanvasLoadingPresenceContext } from "./canvas-loading-state.jsx";
+import { usesWorkspaceResourceView } from "./native-workbench-host.jsx";
+import { useWorkspaceProjectArchitecture } from "./use-workspace-project-architecture.jsx";
 function useAccountSubmissionAllowed(kind) {
   return useAccountSubmissionDecision(kind).allowed;
 }
@@ -743,7 +748,17 @@ export function WorkspaceContent({
     reactExports.useState(void 0);
   const pluginEditSessionRef = reactExports.useRef(null);
   const pluginEditActive = pluginEditSession !== null;
-  const editSurfaceActive = textEditActive || pluginEditActive;
+  // 4.0.3：v3 画布的文本编辑表面也算「编辑中」，走 onTextEditorActiveChange 回传；
+  // 会话/文档那半套（v3TextEditSession/v3TextEditDocumentRef）尚未还原。
+  const [v3TextEditActive, setV3TextEditActive] = reactExports.useState(false);
+  const editSurfaceActive =
+    textEditActive || pluginEditActive || v3TextEditActive;
+  const isolatedEditActive = textEditActive || pluginEditActive;
+  const [canvasLoadingCount, setCanvasLoadingCount] = reactExports.useState(0);
+  const reportCanvasLoading = reactExports.useCallback((delta) => {
+    setCanvasLoadingCount((count) => Math.max(0, count + delta));
+  }, []);
+  const canvasLoading = canvasLoadingCount > 0;
   const enterTextEditAgent = useWorkspaceChatSelector(
     (chat) => chat.enterTextEditAgent,
   );
@@ -774,7 +789,11 @@ export function WorkspaceContent({
   const textEditSelectionRef = reactExports.useRef(null);
   const [hasTextEditSelection, setHasTextEditSelection] =
     reactExports.useState(false);
-  useDocumentEditReviewHost(isActive !== false);
+  // 4.0.3：旧的文本审阅宿主只属于 legacy 架构，v3 画布自己的文本编辑走 onTextEditActive 的 document 分支。
+  const projectArchitecture = useWorkspaceProjectArchitecture();
+  useDocumentEditReviewHost(
+    isActive !== false && projectArchitecture.data === "legacy",
+  );
   reactExports.useEffect(() => {
     if (isActive === false) return;
     const textEditSubscription = workspaceEvents.onTextEditActive((textEditEvent) => {
@@ -931,6 +950,10 @@ export function WorkspaceContent({
     editSurfaceActive || stageState.workspaceMode !== "canvasOnly";
   const canvasOpen =
     editSurfaceActive || stageState.workspaceMode !== "chatOnly";
+  const structureSurface = useWorkspaceStructureSurface(
+    { workspaceId, isActive, canvasOpen, editSurfaceActive, browserOpen },
+    { setBrowserOpen },
+  );
   const filesPresentationRef = reactExports.useRef("peek");
   if (stageState.filesMode !== "closed")
     filesPresentationRef.current = stageState.filesMode;
@@ -1147,6 +1170,12 @@ export function WorkspaceContent({
       key={"project-files"}
       id={assetPanelId}
       controller={assetPanel}
+      // 4.0.3 的覆盖层签名多了 isPresented / body；我们的组件还没消费这两个
+      // prop（列表/工作台模式下折叠面板、v3 合成面面板体都还没还原），先按
+      // 参照的调用点传齐。
+      isPresented={
+        !structureSurface.listActive && !structureSurface.workbenchActive
+      }
       initialFolderPath={folderPath}
       mode={filesPresentationRef.current}
       seamSide="right"
@@ -1182,22 +1211,26 @@ export function WorkspaceContent({
         "--canvas-minimap-top-right-panel-inset": filesOverlayInset,
       }}
     >
-      <MemoizedCanvasArea
-        onCanvasTasksChange={onCanvasTasksChange}
-        onRenderableContentChange={onRenderableContentChange}
-        assetPanelOpen={stageState.filesMode !== "closed"}
-        assetPanelControlsId={assetPanelId}
-        onToggleAssetPanel={handleToggleFiles}
-        browserOpen={browserOpen}
-        onToggleBrowser={handleToggleBrowser}
-        isActive={isActive}
-        isPresented={isActive && canvasOpen && !browserOpen}
-        workspaceId={workspaceId}
-        workspaceName={workspaceName}
-        getTextEditCloseBlockReason={getTextEditCloseBlockReason}
-        toolbarPlacement={stageLayout.toolbarCorner}
-        layoutRelocationKey={stageState.paneOrder}
-      />
+      <CanvasLoadingPresenceContext.Provider value={reportCanvasLoading}>
+        <MemoizedCanvasArea
+          onCanvasTasksChange={onCanvasTasksChange}
+          onRenderableContentChange={onRenderableContentChange}
+          assetPanelOpen={stageState.filesMode !== "closed"}
+          assetPanelControlsId={assetPanelId}
+          onToggleAssetPanel={handleToggleFiles}
+          browserOpen={browserOpen}
+          onToggleBrowser={handleToggleBrowser}
+          isActive={isActive}
+          isPresented={structureSurface.canvasPresented}
+          workspaceId={workspaceId}
+          workspaceName={workspaceName}
+          getTextEditCloseBlockReason={getTextEditCloseBlockReason}
+          onTextEditorActiveChange={setV3TextEditActive}
+          toolbarPlacement={stageLayout.toolbarCorner}
+          layoutRelocationKey={stageState.paneOrder}
+        />
+      </CanvasLoadingPresenceContext.Provider>
+      <WorkspaceTaskAcceptance isActive={isActive} />
       {isActive && browserOpen && canvasOpen ? (
         <div className="absolute inset-0 z-10">
           <WorkspaceBrowser
@@ -1210,20 +1243,30 @@ export function WorkspaceContent({
     </div>
   );
   const canvasSurface = (
-    <div
-      data-workspace-canvas-surface="base"
-      className="relative flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-background"
+    <WorkspaceStructureSurface
+      {...structureSurface}
+      // 任务面板簇（WorkspaceTasks/TaskPanel/TaskDetail/…）尚未还原；参照在
+      // 非 v3 合成面时挂 <WorkspaceTasks/>，本地工作区 workbench 恒空、
+      // 它恒返回 null，先保持 null。
+      bottomActions={null}
     >
-      <div className="flex-1 flex flex-col min-w-0 min-h-0">
-        <div className="relative flex-1 min-h-0 flex">
-          {filesSurface}
-          {canvasViewport}
-        </div>
-      </div>
-    </div>
+      {canvasLoading ? null : filesSurface}
+      {canvasViewport}
+    </WorkspaceStructureSurface>
   );
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden">
+    <WorkspaceResultNavigationLayout
+      listActive={structureSurface.listActive}
+      enabled={
+        isActive !== false &&
+        !editSurfaceActive &&
+        !usesWorkspaceResourceView(workspaceId)
+      }
+      setBrowserOpen={setBrowserOpen}
+      dispatchStage={dispatchStage}
+      onModeChange={structureSurface.onModeChange}
+    >
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
       <div
         className="relative flex min-h-0 flex-1 overflow-hidden"
         data-canvas-sidebar-root="true"
@@ -1237,7 +1280,7 @@ export function WorkspaceContent({
           canvasVisible={canvasOpen}
           chatRatio={chatRatio}
           onChatRatioChange={onChatRatioChange}
-          onPaneOrderChange={editSurfaceActive ? void 0 : onPaneOrderChange}
+          onPaneOrderChange={isolatedEditActive ? void 0 : onPaneOrderChange}
           onCanvasPaneChange={onCanvasPaneChange}
           controls={editSurfaceActive ? void 0 : stageViewModeMenu}
           controlsRightInset={stageControlsRightInset}
@@ -1248,7 +1291,8 @@ export function WorkspaceContent({
         />
       </div>
       <RemoteToolHost />
-    </div>
+      </div>
+    </WorkspaceResultNavigationLayout>
   );
 }
 

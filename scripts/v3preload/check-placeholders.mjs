@@ -69,6 +69,7 @@ const ALLOW = new Map([
   ["canvas-v3/ui-components.js:createChangeEventDetails", "@base-ui 内部占位，本体在外层"],
   ["canvas-v3/ui-components.js:insertCanvasRedrawRegion", "tiptap 插件名，不是函数体"],
   ["workspace/retained-workspace-runtime-host.jsx:useRetainInactiveWorkspaceContent", "保留内容策略为真的实现，非占位"],
+  ["workspace/workspace-structure-surface.jsx:WorkspaceTaskAcceptance", "参照 4.0.3 本体就是 return null 的占位组件（index-B3Ss5vz1.js:513573），逐字还原"],
   // 登记为「未还原」而不是隐藏：真实现需要 IRendererPersistenceMainService（参照 424276，约 40 行，
   // 依赖一个我们树里完全没有的 DI 服务）。这里保留桩并显式登记，等第 2 批一起做。
   ["workspace/workspace-structure-events.js:ensurePersistenceOwner", "未还原：需要 IRendererPersistenceMainService"],

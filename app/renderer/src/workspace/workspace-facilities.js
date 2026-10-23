@@ -6,7 +6,9 @@
  *
  * 参考产物：index-BBp4hclA.js，合计 821 行。
  */
-const createWorkbenchEvents = () => ({ dispose() {} });
+// createWorkbenchEvents 用下方从 workspace-facilities-closure.js 导入的真实现
+// （第 167 轮取回）：桩版本没有 .source，workbench.events 会是 undefined，
+// 结果导航 taskResultNavigation 一注册就抛 stale。
 // 第 181 轮：换回真实现（参考 428288）
 function createWorkbenchPersistence() {
   const entries2 = /* @__PURE__ */ new Map();
@@ -419,7 +421,7 @@ import { getElectronPlatform } from "../infra/use-canvas-node-assets-store.js";
 import { StructureValidationError, assertStructureId, immutableSnapshot } from "../chat/display-order.jsx";
 import { isDomain } from "../canvas-v3/query-keys.js";
 import { refreshMediaMuted } from "../canvas-v3/media-mute.js";
-import { createTaskModule, isHostGenerationSubject, createChatSessionState, createProjectQueryModule, createResourceCommands, createResourceDetailModule, ProjectQueryError, WorkbenchCapabilityUnavailableError, boundedRanks, compareRank$1, fingerprint$1, isKnownRejection, isSidebarOrderParents, migrateLegacyMemberRanks, notifyStructureObserver, queues, readState, reconcileParent, sameRanks } from "./workspace-facilities-closure.js";
+import { createTaskModule, isHostGenerationSubject, createChatSessionState, createProjectQueryModule, createResourceCommands, createResourceDetailModule, createWorkbenchEvents, ProjectQueryError, WorkbenchCapabilityUnavailableError, boundedRanks, compareRank$1, fingerprint$1, isKnownRejection, isSidebarOrderParents, migrateLegacyMemberRanks, notifyStructureObserver, queues, readState, reconcileParent, sameRanks } from "./workspace-facilities-closure.js";
 import { parseCompositionReceipt } from "../canvas-v3/canvas-v3-model.js";
 import { SidebarOrderError, isSidebarOrderGroups, isSidebarOrderMove, isSidebarOrderState, sidebarOrderParentKey } from "../canvas-v3/frame-services.js";
 import { generateKeyBetween } from "fractional-indexing";

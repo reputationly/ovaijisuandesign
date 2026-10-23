@@ -94,7 +94,7 @@ function PanelLoadingPlaceholder({ label }) {
 }
 
 // 产物里这一组声明在还原时整块丢了（构建不报错，运行时才炸）。来源：index-BBp4hclA.js
-function WorkspaceStructureView({
+export function WorkspaceStructureView({
   mode: mode2,
   isActive: isActive2 = true
 }) {

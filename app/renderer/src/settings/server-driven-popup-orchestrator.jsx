@@ -1884,4 +1884,4 @@ export function AppProviders({ children }) {
 
 const DebugPanelWorkspaceToolsContext = reactExports.createContext(null);
 
-const DebugPanelWorkspaceViewsContext = reactExports.createContext(null);
+export const DebugPanelWorkspaceViewsContext = reactExports.createContext(null);
