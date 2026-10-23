@@ -971,6 +971,63 @@ async function stableShot(c) {
   console.log(`    （重拍 8 次仍未完全稳定，用最后一张）`);
   return last;
 }
+
+// v3 工作台是同一窗口里的独立 WebContentsView（native-workbench-service.ts），
+// 主页面的 Page.captureScreenshot 拍不到它，DOM 也不在主页面里。
+// 所以把它当成另一个调试目标单独采：界面 id 集合 + 稳定截图。
+// 入口形如 app://<ownerId>/index.html#/assets（session.ts 的 nativeWorkbenchEntry）；主页面是 app://./…
+const WORKBENCH_URL = /^app:\/\/[^./][^/]*\/index\.html/;
+const WORKBENCH_SETTLE = `(async () => {
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch {}
+  for (const a of document.getAnimations ? document.getAnimations() : []) { try { a.finish(); } catch {} }
+})()`;
+async function captureWorkbenchView(pageId, mode) {
+  const list = await (await fetch(`http://127.0.0.1:${PORT}/json`)).json();
+  const targets = list.filter((t) => t.type === "page" && WORKBENCH_URL.test(t.url));
+  if (targets.length === 0) return null;
+  // 同时挂着多个工作台视图时不知道该比哪一个，宁可报错也不随便挑
+  if (targets.length > 1) throw new Error(`${pageId}：同时有 ${targets.length} 个工作台视图（${targets.map((t) => t.url).join(", ")}）`);
+  const ws = new WebSocket(targets[0].webSocketDebuggerUrl);
+  await new Promise((r, j) => ((ws.onopen = r), (ws.onerror = j)));
+  let seq = 0;
+  const pending = new Map();
+  ws.onmessage = (ev) => {
+    const m = JSON.parse(ev.data);
+    if (m.id) pending.get(m.id)?.(m);
+  };
+  const send = (method, params = {}) =>
+    new Promise((resolve) => {
+      const id = ++seq;
+      pending.set(id, resolve);
+      ws.send(JSON.stringify({ id, method, params }));
+    });
+  const evaluate = async (expression) =>
+    (await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true })).result?.result?.value;
+  try {
+    let prev = null;
+    let buf = null;
+    let stable = false;
+    for (let i = 0; i < 8 && !stable; i++) {
+      await evaluate(WORKBENCH_SETTLE);
+      await sleep(300);
+      const shot = await send("Page.captureScreenshot", { format: "png" });
+      buf = Buffer.from(shot.result.data, "base64");
+      stable = Boolean(prev) && (await ratio(prev, buf, 0)) <= STABLE_TOL;
+      prev = buf;
+    }
+    if (!stable) console.log(`    （工作台视图重拍 8 次仍未完全稳定，用最后一张）`);
+    const ids = JSON.parse(
+      await evaluate(
+        `JSON.stringify([...new Set([...document.querySelectorAll("[data-action-ui-id]")].map((e) => e.getAttribute("data-action-ui-id")))].sort())`,
+      ),
+    );
+    const file = path.join(outDir, `${pageId}.${mode}.workbench.png`);
+    writeFileSync(file, buf);
+    return { file, ids };
+  } finally {
+    ws.close();
+  }
+}
 const outDir = path.join(repo, ".probe/ui-compare", new Date().toISOString().replace(/[:.]/g, "-"));
 mkdirSync(outDir, { recursive: true });
 
@@ -2332,6 +2389,7 @@ async function runMode(mode) {
       }
       const { dom, state } = await captureStablePageState(c);
       const buf = await stableShot(c);
+      const workbench = await captureWorkbenchView(p.id, mode);
       await c.waitForNetworkIdle();
       if (randomTraceScriptIdentifier) {
         const captured = await c.send("Runtime.evaluate", {
@@ -2426,7 +2484,7 @@ async function runMode(mode) {
         );
         masks = JSON.parse(raw2 ?? "[]");
       } catch { /* 取不到就不遮这一屏 */ }
-      results[p.id] = { file, errors: [...new Set(c.errors())], net, dom, state, masks };
+      results[p.id] = { file, errors: [...new Set(c.errors())], net, dom, state, masks, workbench };
     }
     c.close();
   } finally {
@@ -2581,6 +2639,12 @@ function readGolden() {
           dom: readIf(path.join(GOLDEN, `${p.id}.dom.json`)),
           state: readIf(path.join(GOLDEN, `${p.id}.state.json`)),
           masks: readIf(path.join(GOLDEN, `${p.id}.mask.json`)) ?? [],
+          workbench: existsSync(path.join(GOLDEN, `${p.id}.workbench.png`))
+            ? {
+                file: path.join(GOLDEN, `${p.id}.workbench.png`),
+                ids: readIf(path.join(GOLDEN, `${p.id}.workbench.json`))?.ids ?? [],
+              }
+            : null,
         },
   ]));
 }
@@ -2609,7 +2673,7 @@ const REFERENCE_EXCLUDED = new Map([
  */
 const REFERENCE_MISSING = new Map([
   ["settings-platform", "本项目新增（「平台接入」），参照没有这一屏"],
-  ["ws-a-v3", "v3 屏：基线在 ~/ov-golden-v3，用 --record reference 单独录"],
+  ["ws-a-v3", "v3 屏：基线单独录在 ~/ov-golden-v3-4.0.3-wb（含工作台视图），用 --record reference、HILO_PROJECT_ARCHITECTURE=resource_v3 单独录"],
   ["ws-b-v3", "同上"],
   ["ws-a-v3-resource", "同上"],
   ["project-created",
@@ -2691,6 +2755,14 @@ function writeGolden(results) {
     errors[id] = r.errors;
     for (const channel of ["net", "dom", "state"]) {
       writeFileSync(path.join(GOLDEN, `${id}.${channel}.json`), JSON.stringify(r[channel], null, 2));
+    }
+    // 工作台视图：这次没挂就删掉旧文件，免得比较时读到上一批的残留
+    if (r.workbench) {
+      copyFileSync(r.workbench.file, path.join(GOLDEN, `${id}.workbench.png`));
+      writeFileSync(path.join(GOLDEN, `${id}.workbench.json`), JSON.stringify({ ids: r.workbench.ids }, null, 1));
+    } else {
+      rmSync(path.join(GOLDEN, `${id}.workbench.png`), { force: true });
+      rmSync(path.join(GOLDEN, `${id}.workbench.json`), { force: true });
     }
   }
   writeFileSync(errorsFile, JSON.stringify(errors, null, 2));
@@ -2781,10 +2853,42 @@ for (const p of PAGES) {
       oursOnly: unallowed(new Set([...wsB].filter((x) => !wsA.has(x))), p.id, "ws", "oursOnly"),
     },
   };
-  const unregisteredDiffCount =
-    setDiffs.dom.refOnly.length + setDiffs.dom.oursOnly.length +
-    setDiffs.net.refOnly.length + setDiffs.net.oursOnly.length +
-    setDiffs.ws.refOnly.length + setDiffs.ws.oursOnly.length;
+  // v3 工作台视图（只有挂了 NativeWorkbenchHost 的屏才有）：一边有一边没有也算差异，
+  // 用 "<workbench-view>" 这个占位项表示，和界面 id 一样走登记表。
+  const wbBase = base[p.id].workbench ?? null;
+  const wbTest = test[p.id].workbench ?? null;
+  let workbench = null;
+  if (wbBase || wbTest) {
+    const idsA = new Set(wbBase ? ["<workbench-view>", ...wbBase.ids] : []);
+    const idsB = new Set(wbTest ? ["<workbench-view>", ...wbTest.ids] : []);
+    setDiffs.workbench = {
+      refOnly: unallowed(new Set([...idsA].filter((x) => !idsB.has(x))), p.id, "workbench", "refOnly"),
+      oursOnly: unallowed(new Set([...idsB].filter((x) => !idsA.has(x))), p.id, "workbench", "oursOnly"),
+    };
+    if (wbBase && wbTest) {
+      const wd = await diff(
+        wbBase.file,
+        wbTest.file,
+        path.join(outDir, `${p.id}.workbench.diff.png`),
+        path.join(outDir, `${p.id}.workbench.non-aa.diff.png`),
+      );
+      // 工作台视图单独一个护栏 workbenchGuard；没登记就要求非 AA 像素完全一致
+      const guard = RESIDUAL_BUDGET.screens?.[p.id]?.workbenchGuard;
+      const pct = wd.nonAARatio * 100;
+      workbench = {
+        diffPct: +(wd.ratio * 100).toFixed(3),
+        diffPctNonAA: +pct.toFixed(8),
+        diffPixelsNonAA: wd.nonAAChanged,
+        guard: typeof guard === "number" ? guard : null,
+        note: wd.note,
+        failed: typeof guard === "number" ? pct > guard + BUDGET_TOLERANCE : wd.nonAARatio !== 0,
+      };
+    }
+  }
+  const unregisteredDiffCount = Object.values(setDiffs).reduce(
+    (n, v) => n + v.refOnly.length + v.oursOnly.length,
+    0,
+  );
   const pixelDiff = d.ratio !== 0;
   // 预算判定：像素差异率（非 AA）用预算而不是「是否为 0」来判。
   // 第 341 轮（验收）：三种状态分开处理
@@ -2807,7 +2911,7 @@ for (const p of PAGES) {
       : typeof budgeted === "number"
         ? budgetVerdict === "over"
         : d.nonAARatio !== 0;
-  const pageFailed = pixelDiffNonAA || newErrors.length > 0 || unregisteredDiffCount > 0;
+  const pageFailed = pixelDiffNonAA || newErrors.length > 0 || unregisteredDiffCount > 0 || Boolean(workbench?.failed);
   failed ||= pageFailed;
   pages.push({
     page: p.id,
@@ -2827,11 +2931,19 @@ for (const p of PAGES) {
     ...channelDiffs,
     setDiffs,
     unregisteredDiffCount,
+    workbench,
   });
   for (const channel of ["net", "dom", "state"]) {
     writeFileSync(path.join(outDir, `${p.id}.${testMode}.${channel}.json`), JSON.stringify(test[p.id][channel], null, 2));
   }
   console.log(`${p.id.padEnd(18)} 像素原始/非AA ${(d.ratio * 100).toFixed(3).padStart(7)}%/${(d.nonAARatio * 100).toFixed(6)}% (${d.changed ?? "?"}/${d.nonAAChanged ?? "?"})  遮罩 ${((d.maskedRatio ?? 0) * 100).toFixed(2)}%(参照${(base[p.id].masks ?? []).length}/我方${(test[p.id].masks ?? []).length}块)  新增报错 ${newErrors.length}  未登记差异 ${unregisteredDiffCount}${d.note ? "  " + d.note : ""}`);  if (unregisteredDiffCount) {    for (const [kind, v] of Object.entries(setDiffs)) {      for (const side of ["refOnly", "oursOnly"]) {        if (v[side].length) console.log(`    · ${kind}.${side}: ${v[side].slice(0, 8).join(", ")}`);      }    }  }
+  if (workbench) {
+    console.log(
+      `    · 工作台视图 像素原始/非AA ${workbench.diffPct}%/${workbench.diffPctNonAA.toFixed(6)}%` +
+        `${workbench.guard === null ? "（无护栏，须为 0）" : `（护栏 ${workbench.guard}%）`}` +
+        `${workbench.note ? "  " + workbench.note : ""}${workbench.failed ? "  ✗" : ""}`,
+    );
+  }
   if (budgetStatus === "invalid") console.log("    · 标准对照无效，不判通过/失败（见 residual-budget.json）");
   else if (budgetStatus === "pending") console.log(`    · 回归护栏 ${budgeted}%（**不是预算**：差异组成尚未逐项解释）`);
   if (budgetVerdict === "under" && budgetStatus === "ok") {
