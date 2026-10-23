@@ -257,7 +257,9 @@ export function ConnectorsTab({
   const region = reactExports.useMemo(runtimeRegion, []);
   const market = useConnectorCatalog();
   const catalogEntries = market.entries;
-  const catalogLoading = catalogEntries.length === 0 && !loadFailed;
+  // 第 2032 轮：加上 market.loaded —— 只有"还没加载完"才算 loading。
+  // 否则目录为空时会永远停在 connectors-loading，走不到 connectors-empty 空态。
+  const catalogLoading = !market.loaded && catalogEntries.length === 0 && !loadFailed;
   const isOperator = market.permission.isOperator;
   const visibleIds = reactExports.useMemo(
     () => new Set(market.visibility.visibleConnectorIds),

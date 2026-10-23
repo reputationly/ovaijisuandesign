@@ -146,8 +146,17 @@
  },
  "skills-connectors": {
   "dom": {
-   "refOnly": [],
-   "oursOnly": []
+   "refOnly": [
+    "connectors-category-all",
+    "connectors-category-data-research",
+    "page-state-error-retry",
+    "plugins-primary"
+   ],
+   "oursOnly": [
+    "connector-origin",
+    "connectors-list",
+    "connectors-sort"
+   ]
   },
   "_why": []
  },
@@ -289,5 +298,8 @@
  "_domRefOnlyNotes": {
   "ws-canvas-ops": "第 171 轮核实：参照这一屏的会话里有两条消息（文本实测为「UI compare interaction」 与「second line」），我们的会话里没有。因此 chat-message-* / chat-user-* / composer.editor / popover.* 这些元素在参照侧渲染、我方未渲染。**这是夹具数据差异，不是实现差异**，故只针对本屏登记，不用通配。",
   "ws-select-image": "【待修】第 2031 轮核实：composer.editor 与 popover.attachments-scroll 在参照里都存在（各命中 4 个文件），ws-select-image 这屏参照渲染了、我方没有。疑似我方该屏的输入框/附件浮层未挂载到同一容器，需按条件追查。已列入待修清单。"
+ },
+ "_domNotes": {
+  "skills-connectors": "第 2032 轮：**参照这一屏录到的是失败态**（有 page-state-error-retry，没有列表、没有分类 chip）；我方是成功态（connectors-list / connectors-sort / connector-origin），因为我方的本地连接器清单能读到，而参照那次的云端目录调用失败了。两侧停在不同的终止状态，属**环境不对称**，不是实现缺陷。一并说明：我方原先会**永远停在 connectors-loading**（catalogLoading 用 entries.length===0 推断，且 prime() 在空结果时提前 return、从不置位 loaded），这一条已在第 2032 轮修好，现在会正常进入列表或空态。"
  }
 }
