@@ -425,6 +425,18 @@ const SETTLE = `(async()=>{
         .map((image) => image.decode().catch(() => {})));
     };
   await Promise.race([imagesReady(), new Promise((resolve) => setTimeout(resolve, 5000))]);
+  // 第 2037 轮：字体就绪 + 把仍在运行的 CSS 动画/过渡推到终态。
+  // 为什么必须做：渲染进程被隐藏时节流会让动画**冻在中途**，
+  // 此时 stableShot 的"连续两张一致"会成立 —— 但一致的是被冻住的中间帧。
+  // changelog / workflows 那次整片主内容区的差异（DOM 相同、像素整块不同）正是这个形态。
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch {}
+  for (let round = 0; round < 3; round += 1) {
+    const running = (document.getAnimations ? document.getAnimations() : [])
+      .filter((a) => a.playState === "running");
+    if (running.length === 0) break;
+    for (const a of running) { try { a.finish(); } catch { try { a.cancel(); } catch {} } }
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  }
   await new Promise((r) => { requestAnimationFrame(() => requestAnimationFrame(r)); setTimeout(r, 500); });
 })()`;
 // 首次启动的弹窗（AI 水印设置等）会挡住页面：两边都点掉。
