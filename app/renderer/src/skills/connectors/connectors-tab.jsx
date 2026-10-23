@@ -191,6 +191,8 @@ export function ConnectorHeaderContent({
   );
 }
 export function ConnectorsTab({
+  pluginTab = "community",
+  onPluginTabChange,
   query: controlledQuery,
   onQueryChange,
   customConnectorOpen: controlledCustomConnectorOpen,

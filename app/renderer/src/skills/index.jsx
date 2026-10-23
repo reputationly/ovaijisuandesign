@@ -18,6 +18,7 @@ import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { useSkillCategories } from "../generation/use-skill-categories.js";
 import { Upload, Settings2 } from "../media-editing/package.jsx";
 import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
+import { BadgeInfo } from "../media-editing/lucide-icon-wraps.js";
 import { pluginEvents } from "../canvas/resolve-workspace-failure-diagnosis.js";
 import { pickLocalized } from "../generation/normalize-skill-detail-metadata.js";
 import { Tooltip, TooltipTrigger, getSkillShareUrl } from "../vendor-inline/vscode-base/graph.jsx";
@@ -68,6 +69,8 @@ function SkillsPage() {
     requestedCapability === "connectors" ? "connectors" : "skills",
   );
   const { markSidebarBadgeVisited } = useSidebarBadges();
+  // 4.0.3：插件能力下的两个子标签（插件 / 我的插件）
+  const [pluginTab, setPluginTab] = reactExports.useState("community");
   const [connectorSearchQuery, setConnectorSearchQuery] = reactExports.useState("");
   const [connectorSortMode, setConnectorSortMode] = reactExports.useState("default");
   const [customConnectorOpen, setCustomConnectorOpen] = reactExports.useState(false);
@@ -1197,7 +1200,46 @@ function SkillsPage() {
           </>
         )}
         {capabilityTab === "connectors" ? (
-          <ConnectorsTab
+          <>
+            {/* 4.0.3：插件能力下多一条子标签行。参照 DOM 顺序为
+                能力标签 -> plugins-primary-tabs（含 plugins-tab-community / skills-tab-info-plugins /
+                plugins-tab-mine）-> connectors-category-all -> connectors-tab。 */}
+            <Tabs
+              value={pluginTab}
+              onValueChange={(value) => {
+                if (value === "community" || value === "mine") setPluginTab(value);
+              }}
+            >
+            <div className="mb-2 flex min-w-0 items-center">
+              <TabsList
+                variant="underline"
+                aria-label={t("skills.pluginTabsAria", "插件分区")}
+                className="ml-0"
+                data-action-ui-id="plugins-primary-tabs"
+              >
+                <TabsTrigger
+                  value="community"
+                  variant="underline"
+                  className="h-8 px-3 text-sm"
+                  data-action-ui-id="plugins-tab-community"
+                >
+                  {t("skills.pluginTab.community", "插件")}
+                </TabsTrigger>
+                <span className="mx-1 inline-flex items-center" data-action-ui-id="skills-tab-info-plugins">
+                  <BadgeInfo size={14} strokeWidth={1.8} aria-hidden="true" />
+                </span>
+                <TabsTrigger
+                  value="mine"
+                  variant="underline"
+                  className="h-8 px-3 text-sm"
+                  data-action-ui-id="plugins-tab-mine"
+                >
+                  {t("skills.pluginTab.mine", "我的插件")}
+                </TabsTrigger>
+              </TabsList>
+            </div>
+            </Tabs>
+            <ConnectorsTab
             query={connectorSearchQuery}
             onQueryChange={setConnectorSearchQuery}
             sortMode={connectorSortMode}
@@ -1205,7 +1247,10 @@ function SkillsPage() {
             customConnectorOpen={customConnectorOpen}
             onCustomConnectorOpenChange={setCustomConnectorOpen}
             showHeader={false}
+            pluginTab={pluginTab}
+            onPluginTabChange={setPluginTab}
           />
+          </>
         ) : null}
       </div>
       {detailSkill && (

@@ -144,11 +144,7 @@
    "refOnly": [
     "connectors-category-all",
     "connectors-category-data-research",
-    "page-state-error-retry",
-    "plugins-primary-tabs",
-    "plugins-tab-community",
-    "plugins-tab-mine",
-    "skills-tab-info-plugins"
+    "page-state-error-retry"
    ],
    "oursOnly": [
     "connector-origin",
