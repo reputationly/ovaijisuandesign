@@ -434,7 +434,15 @@ const SETTLE = `(async()=>{
   // 采集时还剩几张海报完全取决于视频就绪时序 → 实测 0.035~0.054pp 的像素抖动。
   // 等全部视频 readyState>=2 再暂停在 0 秒，采集状态才确定。
   try {
-    const vids = Array.from(document.querySelectorAll("article.home-media-showcase-card video"));
+    const vids = Array.from(document.querySelectorAll("article.home-media-showcase-card video"))
+      // 只等真能就绪的：未激活卡片不带 src（preload=none，readyState 永远是 0），
+      // 后台保活页里的视频也不在视口中 —— 等它们只会烧满 8 秒上限。
+      .filter((v) =>
+        v.isConnected &&
+        (v.checkVisibility ? v.checkVisibility() : v.getClientRects().length > 0) &&
+        (v.currentSrc || v.getAttribute("src")) &&
+        v.networkState !== HTMLMediaElement.NETWORK_NO_SOURCE &&
+        v.networkState !== HTMLMediaElement.NETWORK_EMPTY);
     if (vids.length) {
       const deadline = performance.now() + 8000;
       while (vids.some((v) => v.readyState < 2) && performance.now() < deadline) {
