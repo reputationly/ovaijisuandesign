@@ -119,7 +119,7 @@ function createHtmlViewerHandleStore() {
   }));
 }
 const defaultHtmlViewerHandleStore = createHtmlViewerHandleStore();
-const HtmlViewerHandleStoreContext = reactExports.createContext(null);
+export const HtmlViewerHandleStoreContext = reactExports.createContext(null);
 export function useHtmlViewerHandleApi() {
   return (
     reactExports.useContext(HtmlViewerHandleStoreContext) ??
@@ -211,7 +211,7 @@ function createPluginRunStateStore() {
   }));
 }
 const defaultPluginRunStateStore = createPluginRunStateStore();
-const PluginRunStateStoreContext = reactExports.createContext(null);
+export const PluginRunStateStoreContext = reactExports.createContext(null);
 export function usePluginRunStateApi() {
   return (
     reactExports.useContext(PluginRunStateStoreContext) ??

@@ -8,10 +8,8 @@
 import reactExports from "react";
 import jsxRuntimeExports from "react/jsx-runtime";
 import { mergeTailwindClasses as cn$5 } from "../infra/dialog-content.jsx";
-import { WorkspaceLoadingDotField } from "./symbols.jsx";
+import { CanvasLoadingPresenceContext, WorkspaceLoadingDotField } from "./symbols.jsx";
 import { MascotLoadingAnimation } from "./mascot-loading-animation.jsx";
-
-const CanvasLoadingPresenceContext = reactExports.createContext(null);
 
 function CanvasLoadingState({ label, className }) {
   const reportPresence = reactExports.useContext(CanvasLoadingPresenceContext);

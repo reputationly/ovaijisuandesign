@@ -4,7 +4,7 @@
 
 // ==== 逐文件收敛 ====
 import { CanvasLoadingPresenceContext } from "./canvas-loading-state.jsx";
-import { WorkbenchProvider, cn as cn$5 } from "../canvas-v3/main-exports.js";
+import { WorkbenchProvider, cn as cn$5, useOptionalWorkspaceStructure } from "../canvas-v3/main-exports.js";
 import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
 import { Alert, AlertDescription } from "../team/alert-variants.jsx";
 import { Button as Button$3 } from "../canvas/node-shell-inner.jsx";
@@ -152,14 +152,6 @@ function WorkspaceStructureView({
     }
   );
 }
-
-// 产物里这一组声明在还原时整块丢了（构建不报错，运行时才炸）。来源：index-BBp4hclA.js
-function useOptionalWorkspaceStructure() {
-  return reactExports.useContext(WorkspaceStructureContext);
-}
-
-// 产物里这一组声明在还原时整块丢了（构建不报错，运行时才炸）。来源：index-BBp4hclA.js
-const WorkspaceStructureContext = reactExports.createContext(null);
 
 function useProjectAssetsDir() {
   const platform = usePlatform();

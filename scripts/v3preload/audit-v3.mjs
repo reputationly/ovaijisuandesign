@@ -173,7 +173,71 @@ if (crossDup.length) {
   for (const [n, s] of crossDup.slice(0, 10)) console.log(`  ${n}: ${[...s].map((x) => path.basename(x)).join(", ")}`);
 }
 
+// ---- 6. Context 声明数对账 ----
+// 为什么查这个：还原时曾出现同一 Context 在两个文件里各声明一份 —— Provider 挂在
+// 一份上、消费者读另一份，运行时永远拿到默认值（WorkspaceStructureContext、
+// ActionsContext、ResourceDetailContext 等 11 处）。上面的「跨文件重复声明」
+// 看语句体，一行 `createContext(null)` 太短被当成巧合漏掉；这里改看计数。
+//
+// 口径：名字剥掉 rollup 的 $N 后缀；参照侧把 assets/ 全部 chunk 一起数
+// （懒加载 chunk 会各自内联同一份声明，两边镜像结构相同所以按总数对齐）。
+// 我们的声明数不得超过参照数；确需多声明的写进 context-dup-allowlist.json（必须带原因）。
+// 调试用 OV_AUDIT_SRC 可以换源码根（比如对 git archive 出的旧树跑这项）。
+import { resolveRefDir, assetsDirOf } from "../refdiff/lib/refs.mjs";
+const CTX_ALLOWLIST_FILE = "scripts/v3preload/context-dup-allowlist.json";
+const contextDupes = [];
+{
+  const stripSuffix = (n) => n.replace(/\$\d+$/, "");
+  const countContexts = (dir, pattern) => {
+    const counts = new Map();
+    const stack = [dir];
+    while (stack.length) {
+      const d = stack.pop();
+      for (const e of readdirSync(d)) {
+        const p = path.join(d, e);
+        const st = statSync(p);
+        if (st.isDirectory()) { if (e !== "node_modules") stack.push(p); continue; }
+        if (!pattern.test(e)) continue;
+        const src = readFileSync(p, "utf8");
+        for (const m of src.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:reactExports\.)?createContext\s*\(/g)) {
+          const n = stripSuffix(m[1]);
+          counts.set(n, (counts.get(n) ?? 0) + 1);
+        }
+      }
+    }
+    return counts;
+  };
+  const srcRoot = process.env.OV_AUDIT_SRC ?? TREE_ROOT;
+  const ourCounts = countContexts(srcRoot, /\.(js|jsx)$/);
+  const refVersion = JSON.parse(readFileSync("scripts/reference-version.json", "utf8")).version;
+  const refCounts = countContexts(assetsDirOf(resolveRefDir(refVersion)), /\.js$/);
+  const allowlist = new Map();
+  for (const entry of JSON.parse(readFileSync(CTX_ALLOWLIST_FILE, "utf8"))) {
+    allowlist.set(entry.name, entry.reason ?? null);
+  }
+  const allowlisted = [];
+  const stale = [];
+  for (const [name, ours] of [...ourCounts].sort()) {
+    const ref = refCounts.get(name) ?? 0;
+    if (ours <= ref) continue;
+    if (allowlist.has(name)) {
+      if (!allowlist.get(name)) contextDupes.push({ name, ours, ref, note: "allowlist 条目缺原因" });
+      else allowlisted.push(name);
+      continue;
+    }
+    contextDupes.push({ name, ours, ref });
+  }
+  for (const name of allowlist.keys()) {
+    const ours = ourCounts.get(name) ?? 0;
+    const ref = refCounts.get(name) ?? 0;
+    if (ours <= ref) stale.push(name);
+  }
+  console.log(`  6. Context 声明对账     : ${contextDupes.length} 处超过参照（allowlist ${allowlisted.length} 项）`);
+  for (const d of contextDupes) console.log(`       ${d.name}: 我们 ${d.ours} / 参照 ${d.ref}${d.note ? ` — ${d.note}` : ""}`);
+  if (stale.length) console.log(`     （allowlist 里已不超额的条目，可清理：${stale.join(", ")}）`);
+}
+
 // 验收口径：只把「同一实体被抄两份」算违规；同名不同实现是不同实体，不算。
-const ok = distinctNames.size === 0 && parseFailures.length === 0 && sameEntity.length === 0;
-console.log(`\n${ok ? "✓ 三项均为 0" : "✗ 未达标（前三项必须全为 0）"}`);
+const ok = distinctNames.size === 0 && parseFailures.length === 0 && sameEntity.length === 0 && contextDupes.length === 0;
+console.log(`\n${ok ? "✓ 全部通过" : "✗ 未达标（缺口/解析失败/重复声明/Context 超额必须全为 0）"}`);
 process.exit(ok ? 0 : 1);

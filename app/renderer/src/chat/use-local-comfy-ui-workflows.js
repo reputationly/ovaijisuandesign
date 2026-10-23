@@ -1,5 +1,6 @@
 // use-local-comfy-ui-workflows.js
 import { API_PATHS } from "../infra/workspace-gateway.js";
+import { useOptionalWorkspaceStructure } from "../canvas-v3/canvas-v3-hooks.js";
 import reactExports from "react";
 import { currentCanvasWorkflowNodeKey } from "./find-trailing-trigger.js";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
@@ -90,6 +91,8 @@ function mapComfyUiWorkflowGraph(value) {
 }
 export function useLocalComfyUiWorkflows() {
   const gatewayFetch = useGatewayFetch();
+  const structure = useOptionalWorkspaceStructure();
+  const legacyCanvas = structure?.architecture === "legacy";
   const [workflows, setWorkflows] = reactExports.useState([]);
   const [currentCanvasWorkflows, setCurrentCanvasWorkflows] =
     reactExports.useState([]);
@@ -111,7 +114,7 @@ export function useLocalComfyUiWorkflows() {
     };
     await Promise.allSettled([
       loadJson(API_PATHS.comfyUiWorkflows),
-      loadJson(`${API_PATHS.canvas}/nodes?type=file&limit=100`),
+      legacyCanvas ? loadJson(`${API_PATHS.canvas}/nodes?type=file&limit=100`) : Promise.resolve({ nodes: [] }),
     ]).then(([workflowResult, canvasResult]) => {
       if (controller.signal.aborted) return;
       const localWorkflows =
@@ -137,7 +140,7 @@ export function useLocalComfyUiWorkflows() {
       );
     });
     if (!controller.signal.aborted) setLoading(false);
-  }, [gatewayFetch]);
+  }, [gatewayFetch, legacyCanvas]);
   reactExports.useEffect(() => {
     void refresh();
     return () => refreshAbortRef.current?.abort();

@@ -175,7 +175,8 @@ import { AudioFileIcon } from "../assets/audio-file-icon.jsx";
 import { BACKEND_VIBE_MULTI_SHOT, TEXT_VERSION_TIER_S_MAX_BYTES, resolveVideoPlaybackUrl } from "../generation/to-workspace-browser-url.js";
 import { CANVAS_BACKGROUND_PATTERNS } from "../canvas/create-canvas-resize-actions.js";
 import { CANVAS_EMOJI_STICKERS, CANVAS_STICKER_PICKER_ASSETS, getCanvasStickerAsset } from "../media-editing/canvas-sticker-assets.jsx";
-import { CANVAS_MAX_ZOOM, CANVAS_MIN_ZOOM, bumpFileVersion } from "../infra/use-plugin-metadata-store.js";
+import { CANVAS_MAX_ZOOM, CANVAS_MIN_ZOOM, HtmlViewerHandleStoreContext, PluginRunStateStoreContext, bumpFileVersion } from "../infra/use-plugin-metadata-store.js";
+import { HtmlIframePoolStoreContext } from "../infra/create-html-iframe-pool-store.jsx";
 import { CANVAS_MORE_TONES, CANVAS_PRIMARY_TONES, CANVAS_TOOL_DOCK_CONTROL_SIZE_PX, CursorIcon, INITIAL_GUIDE_SLOTS, MouseIcon, createGuideSlot, setAttribute } from "../canvas/cursor-icon.jsx";
 import { CANVAS_V3_FRAME_PADDING, CANVAS_V3_IMAGE_MAX_BYTES, PROJECT_DOCUMENT_MAX_BYTES, PROJECT_GENERATION_OPERATIONS, PROJECT_TASK_HTTP_ROUTES } from "./canvas-v3-constants.js";
 import { CANVAS_V3_RESOURCE_DRAG_MIME, CanvasV3CommandRejectedError, TOKEN, canvasV3AudioModeOfModel, canvasV3ClipboardContent, canvasV3ContentItems, canvasV3ContentPath, canvasV3DerivedMembersCommand, canvasV3DerivedPosition, canvasV3DerivedPositions, canvasV3Equal, canvasV3FrameReferences, canvasV3GenerationOperations, canvasV3GridPositions, canvasV3ImportCommand, canvasV3ItemRefEqual, canvasV3MediaKind, canvasV3PlacementDocument, canvasV3PromptMentions, canvasV3ReadySource, canvasV3ReferenceToken, canvasV3ResolveNode, canvasV3ResolveSource, canvasV3SetHistorySelectionPatch, contentPresentationKind, createCanvasV3ResourcePicker, paramOptions, parseCanvasV3ClipboardSnapshot, parseCanvasV3Command, parseCanvasV3CommandReceipt, parseCanvasV3CommandRequest, parseCanvasV3Document, parseCanvasV3DocumentWriteResult, parseCanvasV3ImageImportResult, parseCanvasV3LocalFileImportResult, parseCanvasV3MediaImportResult, parseCanvasV3MediaReferenceOrigin, parseCanvasV3MediaVersionTarget, positive$3, required, resolveCanvasV3Node, resourceConnections, same, storageKey$1, subtitleFormatField } from "./canvas-v3-model.js";
@@ -9656,10 +9657,6 @@ const GENERATION_ERROR_MAPPINGS = Object.freeze([
   }
 ]);
 
-const HtmlIframePoolStoreContext = reactExports.createContext(null);
-
-const HtmlViewerHandleStoreContext = reactExports.createContext(null);
-
 const I2I_STANDARD_PARAMS = [
   {
     id: "aspect_ratio",
@@ -10624,8 +10621,6 @@ function ParamSwitch({
     )
   ] });
 }
-
-const PluginRunStateStoreContext = reactExports.createContext(null);
 
 function PreviewImage({
   imageProps,

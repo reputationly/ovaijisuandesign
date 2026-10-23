@@ -1,0 +1,6 @@
+[
+  {
+    "name": "InterestSelectionContext",
+    "reason": "3.0.21 遗留：3.0.21 参照里有（3 处引用），4.0.0 起参照已删除，我们还留着（settings/request-prompt-prefill.jsx、server-driven-popup-orchestrator.jsx、debug-panel-dialog.jsx）。只有一份声明，Provider 与消费者同源，不是分挂两份的重复；属于「上游删了、我们没跟」的还原缺口，随 4.0.0 删除项一起处理，处理完从这里移除。"
+  }
+]

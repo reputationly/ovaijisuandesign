@@ -168,10 +168,7 @@ export function QuickZoomPresence({ value, elementRef, children }) {
       });
 }
 const SORT_OPTIONS = ["name", "addedAt"];
-export const TidySortContext = reactExports.createContext({
-  sortBy: "name",
-  setSortBy: () => {},
-});
+export { TidySortContext } from "./tidy-sort-context.jsx";
 export function useTidySortPreference(scope) {
   const key = `hilo:canvas:tidy:sortBy:${scope}`;
   const [choice, setChoice] = reactExports.useState(() => ({

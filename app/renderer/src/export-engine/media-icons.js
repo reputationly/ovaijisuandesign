@@ -8,8 +8,7 @@
 
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
-
-const PortalContainerContext = reactExports.createContext(null);
+import { PortalContainerContext } from "../media-editing/portal-container-context.jsx";
 
 export const PortalContainerProvider = PortalContainerContext.Provider;
 

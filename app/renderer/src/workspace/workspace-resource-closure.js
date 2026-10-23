@@ -75,8 +75,7 @@ import { MessageSquarePlus } from "./../media-editing/package.jsx";
 import { Field } from "./../skills/creator-plan/form-parts.jsx";
 import { ChevronRight as ChevronRight$2, Download as Download$3, Ellipsis as Ellipsis$1, FileText as FileText$1, Folder as Folder$1, Image as Image$2, Library as Library$1, Music as Music$3, RefreshCw as RefreshCw, Search as Search$3, Trash2 as Trash2$3, Video as Video$3, X as X$9 } from "lucide-react";
 import { keepPreviousData, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
-
-const ActionsContext = reactExports.createContext({});
+import { ActionsContext, ResourceDetailContext, ResourceDetailDialogContext } from "./workspace-shell-closure.js";
 
 function CompositionContextMenu({
   id: id2,
@@ -4430,10 +4429,6 @@ function CompositionList({
     );
   }) });
 }
-
-const ResourceDetailDialogContext = reactExports.createContext(null);
-
-const ResourceDetailContext = reactExports.createContext(null);
 
 function useResourceDetailRenderer() {
   return reactExports.useContext(ResourceDetailContext);
