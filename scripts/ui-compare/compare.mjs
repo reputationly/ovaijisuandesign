@@ -2483,7 +2483,9 @@ const REFERENCE_EXCLUDED = new Map([
 /**
  * 参照基线里**没有**、但不算缺陷的屏（第 321 轮，验收后补）。
  *
- * 用 `~/ov-golden-ref`（原版界面录的 35 屏）做正式基线时，这 8 屏没有对应基线。
+ * 现行基线是 `~/ov-golden-4.0.3-clean`（4.0.3 参照界面，37 屏，用修好的门禁重录）。
+ * 下面这些屏在该基线里没有对应项 —— **旧基线 `~/ov-golden-ref`（4.0.0，35 屏）
+ * 是漂移态录的，已废弃，不要再引用它做对比**。
  * 每条都写清楚为什么 —— 不给理由的排除等于掩盖差距。
  */
 const REFERENCE_MISSING = new Map([
@@ -2491,7 +2493,12 @@ const REFERENCE_MISSING = new Map([
   ["ws-a-v3", "v3 屏：基线在 ~/ov-golden-v3，用 --record reference 单独录"],
   ["ws-b-v3", "同上"],
   ["ws-a-v3-resource", "同上"],
-  ["project-created", "录制失败：步骤依赖前一屏留下的会话焦点状态，逐屏单独录时等不到，属测试工具限制"],
+  ["project-created",
+    "录制失败：等待条件要求 localStorage 的 workspaceSessionTabs 里有已聚焦的「创作页」。" +
+    "已实测：.hilo/index.sqlite 只有资产类表（assets / workspace_meta / project_asset_anchors 等），" +
+    "**没有会话表**，所以会话不在工作区夹具里、由网关侧维护；" +
+    "而每屏的 .hilo 复位也不会影响它。要录这两屏得先弄清「创作页」的创建/持久化路径，" +
+    "或预置一份已带会话的夹具 + 对应 localStorage（成对写入）。详见 docs/4.0.3-baseline-gaps.md"],
   ["project-assets", "同上"],
 ]);
 
