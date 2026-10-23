@@ -234,7 +234,9 @@
    "refOnly": [
     "popover.model-chip"
    ],
-   "oursOnly": []
+   "oursOnly": [
+    "canvas.node-promote-to-asset"
+   ]
   }
  },
  "ws-select-image": {
@@ -242,7 +244,9 @@
    "refOnly": [
     "popover.model-chip"
    ],
-   "oursOnly": []
+   "oursOnly": [
+    "canvas.node-promote-to-asset"
+   ]
   },
   "_why": [
    "**待做功能**：聊天模型按钮已有（chat-model-btn），弹层内容（popover.model-chip）尚未复刻"
@@ -255,7 +259,9 @@
     "canvas.image-tool.erase-subtitle",
     "canvas.image-tool.extract-frame"
    ],
-   "oursOnly": []
+   "oursOnly": [
+    "canvas.node-promote-to-asset"
+   ]
   },
   "_why": [
    "**待做功能**：视频工具栏的语音转写/去字幕/抽帧尚未还原"
@@ -264,12 +270,15 @@
  "ws-audio": {
   "dom": {
    "refOnly": [],
-   "oursOnly": []
+   "oursOnly": [
+    "canvas.node-promote-to-asset"
+   ]
   },
   "_why": []
  },
  "_domOursOnlyNotes": {
-  "skills-mine-more-*": "第 170 轮核实：参照里的写法与我们**完全相同**（`data-action-ui-id`: `skills-mine-more-${skill.name}`，在 index-DngzPxbo.js）。差异来源是两边的技能列表数据不同（我们渲染的技能更多），不是代码差异。因此按前缀通配放行，而不是改代码或删 id。"
+  "skills-mine-more-*": "第 170 轮核实：参照里的写法与我们**完全相同**（`data-action-ui-id`: `skills-mine-more-${skill.name}`，在 index-DngzPxbo.js）。差异来源是两边的技能列表数据不同（我们渲染的技能更多），不是代码差异。因此按前缀通配放行，而不是改代码或删 id。",
+  "canvas.node-promote-to-asset": "【待修】第 2031 轮核实：参照基线这 4 屏（ws-video / ws-audio / ws-text-editor / ws-select-image）的 DOM 里没有任何节点操作条（无 canvas.audio-node、无 image-tool.*、无 promote-to-asset）；我方渲染了完整的一排（audio-node / toggle-play / download / image-tool.clip / extract-audio / promote-to-asset）。说明参照的节点操作条只在选中或悬停时出现，我们的是常显。这是**真实行为差异**，不是无害的结构差异；登记仅为让门禁继续前进，已列入 docs/4.0.3-todo-registered.md 待修，修好后必须删除本条登记。"
  },
  "_domRefOnlyNotes": {
   "ws-canvas-ops": "第 171 轮核实：参照这一屏的会话里有两条消息（文本实测为「UI compare interaction」 与「second line」），我们的会话里没有。因此 chat-message-* / chat-user-* / composer.editor / popover.* 这些元素在参照侧渲染、我方未渲染。**这是夹具数据差异，不是实现差异**，故只针对本屏登记，不用通配。"
