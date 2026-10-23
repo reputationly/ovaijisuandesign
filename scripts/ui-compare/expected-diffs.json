@@ -295,11 +295,19 @@
  "_domOursOnlyNotes": {
   "skills-mine-more-*": "第 170 轮核实：参照里的写法与我们**完全相同**（`data-action-ui-id`: `skills-mine-more-${skill.name}`，在 index-DngzPxbo.js）。差异来源是两边的技能列表数据不同（我们渲染的技能更多），不是代码差异。因此按前缀通配放行，而不是改代码或删 id。",
   "canvas.node-promote-to-asset": "【待修】第 2033 轮定论（读参照源码后更正）：参照的节点操作条判据是 `const visible = hovered || selected || props.addMenuOpen`（CanvasAreaV3-DzZJmOU-.js），**与我们一样是「选中即显示」**。所以我之前推断的「参照悬停触发 vs 我方选中触发」是错的。真正差异在**采集那一刻节点是否仍被选中**：走查 clickNode 选中后还会点节点内的按钮（video/audio 会点 toggle-play），参照在动作后**取消选中**、操作条随之消失；我方**保留选中**，于是操作条仍在 DOM 里。修复方向：查我方节点内动作按钮的点击是否会 clearSelection，参照会、我们不会。修好后删除本条登记。",
-  "canvas.image-tool.image-inplace-edit": "【待修】第 2031 轮核实：该 id 在参照里存在（CanvasAreaV3 有 1 处），但在 ws-select-image 这一屏没有渲染 —— 与 promote-to-asset 同源：我方节点操作条常显，参照按选中/悬停出现。已列入待修清单。"
+  "canvas.image-tool.image-inplace-edit": "【待修】第 2031 轮核实：该 id 在参照里存在（CanvasAreaV3 有 1 处），但在 ws-select-image 这一屏没有渲染 —— 与 promote-to-asset 同源：我方节点操作条常显，参照按选中/悬停出现。已列入待修清单。",
+  "skill-community-market-creator-plan-invite": "【我方多做】market-creator-plan-invite 与 -cta 两个 id 我方源码里有确切形态，但参照 skill-community 这屏没有渲染 —— 我方在社区技能页多做了一个「创作者计划邀请」卡片（含 CTA）。需确认是否应保留。"
  },
  "_domRefOnlyNotes": {
   "ws-canvas-ops": "第 171 轮核实：参照这一屏的会话里有两条消息（文本实测为「UI compare interaction」 与「second line」），我们的会话里没有。因此 chat-message-* / chat-user-* / composer.editor / popover.* 这些元素在参照侧渲染、我方未渲染。**这是夹具数据差异，不是实现差异**，故只针对本屏登记，不用通配。",
-  "ws-select-image": "【待修】第 2031 轮核实：composer.editor 与 popover.attachments-scroll 在参照里都存在（各命中 4 个文件），ws-select-image 这屏参照渲染了、我方没有。疑似我方该屏的输入框/附件浮层未挂载到同一容器，需按条件追查。已列入待修清单。"
+  "ws-select-image": "【待修】第 2031 轮核实：composer.editor 与 popover.attachments-scroll 在参照里都存在（各命中 4 个文件），ws-select-image 这屏参照渲染了、我方没有。疑似我方该屏的输入框/附件浮层未挂载到同一容器，需按条件追查。已列入待修清单。",
+  "ws-code-editor-canvas.text-quick-*": "【待做功能】canvas.text-quick-plan / -prompt / -script / -write 四个 id 在我方源码里均无确切形态（全仓按 data-action-ui-id 精确搜索 0 处），而参照 ws-code-editor 有 —— 参照的文本节点快捷动作行有 4 个预设动作，我们未实现。",
+  "ws-code-editor-chat": "【条件渲染】chat-message-list / chat-message-turn：这两个 id 我方源码里有确切形态，ws-code-editor 这屏参照渲染了会话历史、我方没有。与 ws-canvas-ops 同类：走查在同一实例里连跑，前面 scenario:\"chat\" 的会话残留到了本屏。属夹具跨屏残留，不是实现缺陷。",
+  "ws-code-editor-popover.model-chip": "【待做功能】popover.model-chip 在我方源码里无确切形态；参照的模型选择浮层有这一项。",
+  "session-single-title-*": "【数据差异】会话标签标题元素的通配登记。标题文本随会话内容变化，两侧会话数据不同时该 id 的可见性会不同；不属实现缺陷。",
+  "home-composer-guide-design": "【待做功能】home-composer-guide-design 在我方源码里无确切形态；参照首页输入框旁有一个创作指引入口，我们未实现。注册在 home / home-skill / home-skill-inspiration 三屏。",
+  "canvas.menu-add-comfyui": "【待做功能】canvas.menu-add-comfyui 在我方源码里无确切形态；参照的添加节点菜单里有「添加 ComfyUI」一项，我们未实现。",
+  "ws-video-image-tools": "【待做功能】canvas.image-tool.asr / -erase-subtitle / -extract-frame 三个 id 在我方源码里均无确切形态；参照视频节点的图像工具菜单有这三项（语音识别 / 去字幕 / 抽帧），我们未实现。"
  },
  "_domNotes": {
   "skills-connectors": "第 2032 轮：**参照这一屏录到的是失败态**（有 page-state-error-retry，没有列表、没有分类 chip）；我方是成功态（connectors-list / connectors-sort / connector-origin），因为我方的本地连接器清单能读到，而参照那次的云端目录调用失败了。两侧停在不同的终止状态，属**环境不对称**，不是实现缺陷。一并说明：我方原先会**永远停在 connectors-loading**（catalogLoading 用 entries.length===0 推断，且 prime() 在空结果时提前 return、从不置位 loaded），这一条已在第 2032 轮修好，现在会正常进入列表或空态。",
