@@ -35,10 +35,6 @@
  "ws-code-editor": {
   "dom": {
    "refOnly": [
-    "canvas.text-quick-plan",
-    "canvas.text-quick-prompt",
-    "canvas.text-quick-script",
-    "canvas.text-quick-write",
     "chat-message-list",
     "chat-message-turn",
     "popover.model-chip",
@@ -149,7 +145,6 @@
     "connectors-category-all",
     "connectors-category-data-research",
     "page-state-error-retry",
-    "plugins-primary",
     "plugins-primary-tabs",
     "plugins-tab-community",
     "plugins-tab-mine",
@@ -212,10 +207,7 @@
     "chat-message-turn",
     "chat-message-user",
     "chat-user-actions",
-    "chat-user-copy",
-    "composer.editor",
-    "popover.attachments-scroll",
-    "popover.model-chip"
+    "chat-user-copy"
    ],
    "oursOnly": []
   },
