@@ -26,7 +26,10 @@
    ]
   },
   "ws": {
-   "refOnly": [],
+   "refOnly": [
+    "task_subscribe",
+    "task_unsubscribe"
+   ],
    "oursOnly": []
   },
   "_net_note": "popup：本项目有意关闭营销弹窗查询（settings/use-popup.js enabled=false，见 intentional-differences 一.5）；showcase-assets：本地演示封面，参照从 CDN 取（已被 BLOCKED_URLS 挡掉），见 一.6。路径带内容哈希，所以用右端通配。",
