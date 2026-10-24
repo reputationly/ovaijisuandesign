@@ -12,7 +12,7 @@ describe("design_execute 的任务契约", () => {
     };
     const task = { id: "tsk_1", revision: 1, status: "running" };
     const gw = { post: vi.fn().mockResolvedValue({ task }) };
-    registerV3Tools(registrar as never, gw as never);
+    registerV3Tools(registrar as never, gw as never, "cn" as never);
     const args = {
       capabilityId: "generate_image:qwen-image",
       prompt: "一盏灯",
