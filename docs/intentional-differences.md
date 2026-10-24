@@ -354,4 +354,5 @@ v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation
 
 | 差异 | 位置 | 理由 | 登记 |
 |---|---|---|---|
-| `home-sidebar.connectors-release-badge` 在我方出现、参照基线没有 | 侧栏 | **门禁状态不对称**：徽标配置三处一致，是否显示只取决于 `global.dismissedCoachMarks`；4.0.4 基线在首页之后不再有该标记，我方逐屏清标记后又出现。已按实际出现差异的屏登记，不再放 `*`。`task_subscribe`/`task_unsubscribe` 已按 4.0.4 实现，不再是例外。 | `scripts/ui-compare/expected-diffs.json` 各屏 `dom.oursOnly` |
+| `home-sidebar.connectors-release-badge` 在我方出现、参照基线没有 | 侧栏 | **门禁状态不对称**：徽标配置三处一致，是否显示只取决于 `global.dismissedCoachMarks`；4.0.4 基线在首页之后不再有该标记，我方逐屏清标记后又出现。已按实际出现差异的屏登记，不再放 `*`。 | `scripts/ui-compare/expected-diffs.json` 各屏 `dom.oursOnly` |
+| `task_subscribe` / `task_unsubscribe` 只在参照侧出现 | ws-canvas-ops / ws-chat-input / ws-code-editor / ws-layout / ws-table-edit | **4.0.3 起就缺 `DesignExecuteCard` 实时任务卡片**：`design_execute` 工具调用在参照里渲染任务卡片（`ScopedCard` → `useDesignTask` → `design-execute-task` 查询），我们只按普通工具行显示，没有卡片、没有轮询、也没有 4.0.4 的 `useDesignTaskPush` 快照更新。先登记为待做，避免用空壳订阅掩盖功能缺失。 | `expected-diffs.json` 上述 5 屏 `ws.refOnly` |

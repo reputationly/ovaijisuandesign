@@ -8,7 +8,6 @@ import { useVirtualizer } from "../infra/use-virtualizer.js";
 import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MessageTurn } from "./message-turn.jsx";
-import { DesignTaskPush } from "./use-design-task-push.js";
 import { BusyTipIndicator } from "./busy-tip-indicator.jsx";
 import { useIsScrolling } from "../assets/credit-query-keys.jsx";
 import {
@@ -549,7 +548,6 @@ export function MessageListImpl({
   );
   return (
     <ChatPresentationProvider isPresented={isPresented}>
-      <DesignTaskPush />
       <div className="relative flex-1 min-h-0 flex flex-col">
         <main
           ref={setScrollRef}
