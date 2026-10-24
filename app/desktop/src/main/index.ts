@@ -32,6 +32,8 @@ import { ProjectArchiveService } from "./project/project-archive-service.js";
 import { ProjectAssetsService } from "./project/project-assets.js";
 import { ProjectService } from "./project/project-service.js";
 import { handleAppScheme, registerAppScheme } from "./protocol.js";
+import { LogLevelController } from "./log-level.js";
+import { MainHeartbeat } from "./heartbeat.js";
 import { readSettings, writeSettings } from "./settings.js";
 import { exportLogs, registerRawIpc, wireFullscreenEvents, wireNetworkStatusEvents } from "./raw-ipc.js";
 import { RestoreHealth, runStartupRestore } from "./restore.js";
@@ -73,6 +75,8 @@ registerAppScheme();
 interface Running {
   hilo: HiloApp;
   appGateway: AppGateway;
+  heartbeat: MainHeartbeat;
+  logLevel: LogLevelController;
   store: GlobalStore;
   health: RestoreHealth;
   appUrl: string;
@@ -245,6 +249,9 @@ async function boot(): Promise<Running | undefined> {
   const appGateway = new AppGateway(appGatewayProc, readiness, log);
   gateways.register(APP_LEVEL_GATEWAY_KEY, { url: () => appGatewayProc.running?.url });
   const appUrl = await appGateway.allocate();
+  const logLevel = new LogLevelController(log);
+  const heartbeat = new MainHeartbeat(() => appGatewayProc.running?.url, logLevel, log);
+  heartbeat.start();
 
   // 外部 Agent（4.0.3）：按设置决定起不起；gateway 没就绪就不起（每一轮都要打回 gateway）
   const externalAgent = new ExternalAgentService({
@@ -569,7 +576,7 @@ async function boot(): Promise<Running | undefined> {
   const quitAfter = Number(process.env.OV_DEV_QUIT_AFTER_MS);
   if (!app.isPackaged && quitAfter > 0) setTimeout(() => app.quit(), quitAfter).unref();
 
-  return { hilo, appGateway, store, health, appUrl, logStream: stream };
+  return { hilo, appGateway, heartbeat, logLevel, store, health, appUrl, logStream: stream };
 }
 
 if (!app.requestSingleInstanceLock()) {
@@ -626,6 +633,8 @@ if (!app.requestSingleInstanceLock()) {
           return;
         }
       }
+      r.heartbeat.stop();
+      r.logLevel.dispose();
       await r.hilo.shutdown();
       await r.appGateway.stop();
       // 正常退出：恢复熔断计数清零
@@ -636,6 +645,8 @@ if (!app.requestSingleInstanceLock()) {
       .finally(() => app.exit(0));
   });
   const stopAllSync = () => {
+    running?.heartbeat.stop();
+    running?.logLevel.dispose();
     running?.hilo.shutdownSync();
     running?.appGateway.stopSync();
   };
