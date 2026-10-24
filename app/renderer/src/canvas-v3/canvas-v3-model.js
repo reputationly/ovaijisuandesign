@@ -4,6 +4,7 @@
  * 合并原因：这两个文件来自 4.0.0 主包同一区域，彼此有 50 个同名重复声明，
  * 逐名字归并会形成 import 环；合并后重复变成文件内重复，可直接清理。
  */
+import { PERF_CANVAS_V3_DOC_FETCH, PERF_CANVAS_V3_DOC_LOAD, PERF_CANVAS_V3_DOC_PARSE, recordPerfSpan } from "../infra/perf-spans.js";
 import { assignments } from "./shared/assignments.js";
 import { forbidden } from "./shared/forbidden.js";
 import { ProjectResourceHttpError } from "./shared/ProjectResourceHttpError.js";
