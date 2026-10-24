@@ -49,6 +49,9 @@ import instance from "i18next";
 import reactExports from "react";
 import reactDomExports from "react-dom";
 import jsxRuntimeExports from "react/jsx-runtime";
+import { Camera } from "../media-editing/package.jsx";
+import { TooltipProvider$2 as TooltipProvider } from "../infra/base-ui.js";
+import { ADTS, ALL_FORMATS, AdtsOutputFormat, AudioSample, AudioSampleSink, AudioSampleSource, BlobSource, BufferTarget, CanvasSink, Conversion, EncodedPacketSink, FLAC, FlacOutputFormat, IsobmffInputFormat, MP3, MP4, MatroskaInputFormat, MkvOutputFormat, MovOutputFormat, Mp3OutputFormat, Mp4OutputFormat, OGG, OggOutputFormat, Output, QUALITY_HIGH, QuickTimeInputFormat, WAVE, WEBM, WavOutputFormat, WebMInputFormat, WebMOutputFormat, canEncodeAudio, canEncodeVideo } from "../export-engine/mediabunny.js";
 
 const Group = createLucideIcon("Group", [
   ["path", { d: "M3 7V5c0-1.1.9-2 2-2h2", key: "adw53z" }],
@@ -30910,6 +30913,7 @@ function CanvasV3SurfaceView({
   });
   const [clipSource, setClipSource] = reactExports.useState(null);
   const [clipMode, setClipMode] = reactExports.useState("clip");
+  const [frameMode, setFrameMode] = reactExports.useState("custom");
   const [enhanceSource, setEnhanceSource] = reactExports.useState(null);
   const [enhanceMode, setEnhanceMode] = reactExports.useState("enhance");
   const enhanceEditor = reactExports.useRef(editor);
@@ -33046,6 +33050,19 @@ function CanvasV3SurfaceView({
     };
   };
   const containsSubjectResources = (ids) => ids.some((id2) => Boolean(canvasV3SubjectResourceBinding$1(id2)));
+  const extractFrameAction = (nodeId, mode) => makeAction(
+    () => {
+      const source = sourceOf2(nodeId);
+      if (source?.mediaKind === "video" && imageUrl(source)) {
+        closeMenus();
+        clipEditor.current = editor;
+        setClipMode("frame");
+        setFrameMode(mode);
+        setClipSource({ ...source, toolbarNodeId: toolbarNodeId ?? nodeId });
+      }
+    },
+    !blocked && Boolean(imageUrl(sourceOf2(nodeId)))
+  );
   const selectionActions = (ids, point) => ({
     ...(ClipStudioNode || ClipStudioEditor) && clipSources(ids).ids.length > 0 ? { addToClipNode: makeAction(() => addSelectionToClip(ids)) } : {},
     ...groupSelection.actions(ids),
@@ -33174,18 +33191,9 @@ function CanvasV3SurfaceView({
     } : {},
     ...editingAvailable && isSingleMediaResource(ids) && media ? {
       ...isSingleVideoResource(ids) ? {
-        extractFrame: makeAction(
-          () => {
-            const source2 = sourceOf2(ids[0]);
-            if (source2?.mediaKind === "video" && imageUrl(source2)) {
-              closeMenus();
-              clipEditor.current = editor;
-              setClipMode("frame");
-              setClipSource(source2);
-            }
-          },
-          !blocked && Boolean(imageUrl(sourceOf2(ids[0])))
-        )
+        extractFrame: extractFrameAction(ids[0], "custom"),
+        extractFirstFrame: extractFrameAction(ids[0], "first"),
+        extractLastFrame: extractFrameAction(ids[0], "last")
       } : {},
       clip: makeAction(
         () => {
@@ -33962,6 +33970,7 @@ function CanvasV3SurfaceView({
             dropOwner,
             clipSource,
             clipMode,
+            frameMode,
             imageUrl,
             clipEditor,
             setClipSource,
@@ -39627,6 +39636,7 @@ function CanvasV3CreationLayer(props) {
 function CanvasV3MediaClip({
   source: source2,
   mode = "clip",
+  frameMode = "custom",
   url,
   editor,
   content,
@@ -39687,18 +39697,35 @@ function CanvasV3MediaClip({
       throw error;
     }
   };
+  const onExportFrames = async (frames) => {
+    if (!intent.current()) throw new Error("CANVAS_V3_IMPORT_CANCELLED");
+    try {
+      await media.deriveFrames(
+        frames.map(({ blob, filename }) => new File([blob], filename, { type: blob.type })),
+        source2,
+        intent.current
+      );
+      if (!intent.current()) throw new Error("CANVAS_V3_IMPORT_CANCELLED");
+    } catch (error) {
+      if (intent.current()) dedupedToast.error(t("canvasV3.mediaImport.failed"));
+      throw error;
+    }
+  };
   return mode === "frame" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-    VideoFramePanel,
+    CanvasV3VideoFrameCapture,
     {
+      nodeId: source2.toolbarNodeId ?? source2.id,
+      frameMode,
       active: active2,
       videoUrl: url,
       videoName: source2.title ?? "video.mp4",
-      onExport,
+      onExport: onExportFrames,
       onClose: cancel
     }
   ) : source2.mediaKind === "video" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-    VideoClipPanel,
+    CanvasV3VideoTrim,
     {
+      nodeId: source2.toolbarNodeId ?? source2.id,
       active: active2,
       videoUrl: url,
       videoName: source2.title ?? "video.mp4",
@@ -39706,8 +39733,9 @@ function CanvasV3MediaClip({
       onClose: cancel
     }
   ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-    AudioClipPanel,
+    CanvasV3AudioTrim,
     {
+      nodeId: source2.toolbarNodeId ?? source2.id,
       active: active2,
       audioUrl: url,
       audioName: source2.title ?? "audio.wav",
@@ -56458,6 +56486,7 @@ function CanvasV3EditingLayer({
   dropOwner,
   clipSource,
   clipMode,
+  frameMode = "custom",
   imageUrl,
   clipEditor,
   setClipSource,
@@ -56468,6 +56497,7 @@ function CanvasV3EditingLayer({
   setEnhanceSource
 }) {
   const { t } = useTranslation();
+  const clipUrl = clipSource ? imageUrl(clipSource, clipMode === "clip") : void 0;
   const videoLuts = reactExports.useMemo(
     () => canvasV3ImageLuts(generationFetch ?? unavailableFetch),
     [generationFetch]
@@ -56533,12 +56563,13 @@ function CanvasV3EditingLayer({
       },
       `${subtitlePreview.resourceId}:${subtitlePreview.versionId}`
     ),
-    clipSource && clipEditor.current === editor && media && imageUrl(clipSource) && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    clipSource && clipEditor.current === editor && media && clipUrl && /* @__PURE__ */ jsxRuntimeExports.jsx(
       CanvasV3MediaClip,
       {
         mode: clipMode,
+        frameMode,
         source: clipSource,
-        url: imageUrl(clipSource),
+        url: clipUrl,
         editor,
         content,
         media,
@@ -56548,7 +56579,7 @@ function CanvasV3EditingLayer({
           focusCanvas();
         }
       },
-      `${clipSource.id}:${clipSource.resourceId}:${clipSource.versionId}`
+      `${clipSource.id}:${clipSource.resourceId}:${clipSource.versionId}:${clipMode}:${frameMode}`
     ),
     enhanceSource && enhanceEditor.current === editor && generationFetch && /* @__PURE__ */ jsxRuntimeExports.jsx(
       CanvasV3VideoEnhance,
@@ -61169,6 +61200,2820 @@ function AssetSourceMenu({
           )
         }
       ) })
+    }
+  );
+}
+
+
+// ==== 4.0.4：音频/视频裁剪、抽帧 ====
+
+class UnsupportedInputFormatError extends Error {}
+const MP3_DECODER_DELAY = 529;
+
+const LAME_ENCODER_DELAY = 576;
+
+function xingOffset(header) {
+  const mpeg1 = (header[1] >> 3 & 3) === 3;
+  const mono = header[3] >> 6 === 3;
+  return { offset: mpeg1 ? mono ? 21 : 36 : mono ? 13 : 21, samples: mpeg1 ? 1152 : 576 };
+}
+
+async function readMp3Gapless(source2) {
+  const prefix = new Uint8Array(await source2.slice(0, 10).arrayBuffer());
+  let start = 0;
+  if (new TextDecoder().decode(prefix.subarray(0, 3)) === "ID3") {
+    if (prefix.length < 10) return null;
+    start = 10 + ((prefix[6] & 127) * 2 ** 21 + (prefix[7] & 127) * 2 ** 14 + (prefix[8] & 127) * 128 + (prefix[9] & 127));
+    if (prefix[5] & 16) start += 10;
+  }
+  const bytes = new Uint8Array(await source2.slice(start, start + 4096).arrayBuffer());
+  if (bytes.length < 4 || bytes[0] !== 255 || (bytes[1] & 230) !== 226) return null;
+  const { offset, samples } = xingOffset(bytes);
+  if (bytes.length < offset + 16) return null;
+  const marker = new TextDecoder().decode(bytes.subarray(offset, offset + 4));
+  if (marker !== "Xing" && marker !== "Info") return null;
+  const view = new DataView(bytes.buffer);
+  const flags = view.getUint32(offset + 4);
+  if (!(flags & 1)) return null;
+  const frames = view.getUint32(offset + 8);
+  const tag = offset + 8 + 4 + (flags & 2 ? 4 : 0) + (flags & 4 ? 100 : 0) + (flags & 8 ? 4 : 0);
+  if (bytes.length < tag + 24) return null;
+  const encoder = new TextDecoder().decode(bytes.subarray(tag, tag + 4));
+  if (!["LAME", "Lavc", "Lavf"].includes(encoder)) return null;
+  const delay2 = bytes[tag + 21] << 4 | bytes[tag + 22] >> 4;
+  const padding = (bytes[tag + 22] & 15) << 8 | bytes[tag + 23];
+  const audibleFrames = frames * samples - delay2 - padding;
+  if (audibleFrames <= 0 || padding < MP3_DECODER_DELAY) return null;
+  return { skip: delay2 + MP3_DECODER_DELAY, frames: audibleFrames };
+}
+
+function finalizeMp3Gapless(buffer, position, pcmFrames) {
+  const bytes = new Uint8Array(buffer);
+  const { offset, samples } = xingOffset(bytes.subarray(position));
+  const xing = position + offset;
+  const view = new DataView(buffer);
+  const audioFrames = view.getUint32(xing + 8) - 1;
+  const padding = audioFrames * samples - pcmFrames - LAME_ENCODER_DELAY;
+  if (padding < MP3_DECODER_DELAY || padding > 4095)
+    throw new Error("Invalid MP3 encoder delay/padding");
+  view.setUint32(xing + 4, 3);
+  view.setUint32(xing + 8, audioFrames);
+  const tag = xing + 16;
+  bytes.fill(0, tag, tag + 36);
+  bytes.set(new TextEncoder().encode("LAME3.100"), tag);
+  bytes[tag + 9] = 1;
+  bytes[tag + 21] = LAME_ENCODER_DELAY >> 4;
+  bytes[tag + 22] = (LAME_ENCODER_DELAY & 15) << 4 | padding >> 8;
+  bytes[tag + 23] = padding & 255;
+}
+
+async function openAudioTrimInput(source2, signal) {
+  signal?.throwIfAborted();
+  const reference = new BlobSource(source2).ref();
+  const input = new Input({ source: reference, formats: ALL_FORMATS });
+  try {
+    await input.getFormat();
+  } catch (error) {
+    reference.free();
+    throw error;
+  }
+  if (signal?.aborted) {
+    input.dispose();
+    signal.throwIfAborted();
+  }
+  return input;
+}
+
+async function readAudioTrimSource(source2, signal, columns = 230) {
+  signal.throwIfAborted();
+  if (!Number.isInteger(columns) || columns <= 0) throw new Error("Invalid waveform size");
+  const input = await openAudioTrimInput(source2, signal);
+  const dispose = () => input.dispose();
+  signal.addEventListener("abort", dispose, { once: true });
+  try {
+    const track = await input.getPrimaryAudioTrack();
+    if (!track || !await track.canDecode()) throw new Error("Audio cannot be decoded");
+    const duration2 = await track.computeDuration();
+    if (!Number.isFinite(duration2) || duration2 <= 0) throw new Error("Invalid audio duration");
+    signal.throwIfAborted();
+    const energy = new Float64Array(columns);
+    const counts = new Float64Array(columns);
+    const pcm = new Float32Array(4096);
+    let windows = 0;
+    for await (const sample of new AudioSampleSink(track).samples()) {
+      try {
+        signal.throwIfAborted();
+        for (let offset = 0; offset < sample.numberOfFrames; offset += pcm.length) {
+          const length = Math.min(pcm.length, sample.numberOfFrames - offset);
+          for (let channel = 0; channel < sample.numberOfChannels; channel++) {
+            sample.copyTo(pcm, {
+              format: "f32-planar",
+              planeIndex: channel,
+              frameOffset: offset,
+              frameCount: length
+            });
+            for (let frame = 0; frame < length; frame++) {
+              const time2 = sample.timestamp + (offset + frame) / sample.sampleRate;
+              if (time2 < 0 || time2 >= duration2) continue;
+              const bin = Math.min(columns - 1, Math.floor(time2 / duration2 * columns));
+              const value = Number.isFinite(pcm[frame]) ? pcm[frame] : 0;
+              energy[bin] += value * value;
+              counts[bin]++;
+            }
+          }
+          if (++windows % 64 === 0) await new Promise((resolve) => setTimeout(resolve, 0));
+          signal.throwIfAborted();
+        }
+      } finally {
+        sample.close();
+      }
+    }
+    signal.throwIfAborted();
+    if (!counts.some((count) => count > 0)) throw new Error("No decoded audio samples");
+    const magnitudes = Float32Array.from(
+      energy,
+      (sum, index) => counts[index] ? Math.sqrt(sum / counts[index]) : 0
+    );
+    const peak = magnitudes.reduce((max, value) => Math.max(max, value), 0);
+    if (peak > 0) for (let i = 0; i < columns; i++) magnitudes[i] /= peak;
+    return { duration: duration2, magnitudes };
+  } finally {
+    signal.removeEventListener("abort", dispose);
+    input.dispose();
+  }
+}
+
+const audioExtensions = {
+  "audio/mpeg": "mp3",
+  "audio/wav": "wav",
+  "audio/mp4": "m4a",
+  "audio/aac": "aac",
+  "audio/ogg": "ogg",
+  "audio/webm": "webm",
+  "audio/flac": "flac"
+};
+
+function audioTrimFilename(name, output) {
+  let extension = audioExtensions[output.type];
+  if (!extension) throw new Error(`Unsupported audio output type: ${output.type}`);
+  if (output.type === "audio/mp4" && /\.mp4$/i.test(name)) extension = "mp4";
+  return `${name.replace(/\.[^.]+$/, "")}-trim.${extension}`;
+}
+
+class UnsupportedAudioTrimFormatError extends Error {
+}
+
+let mp3EncoderRegistered = false;
+
+async function selectAudioOutput(input, sourceCodec, onXingFrame) {
+  const container = await input.getFormat();
+  let format;
+  let mime;
+  let codecs;
+  if (container === WAVE) {
+    format = new WavOutputFormat();
+    mime = "audio/wav";
+    codecs = ["pcm-s16"];
+  } else if (container === MP3) {
+    if (!mp3EncoderRegistered) {
+      // 4.0.4 的 chunk 用动态 import 从主 bundle 取编码器；源码树里是独立副作用模块。
+      await import("../media-editing/register-mediabunny-encoders.js");
+      mp3EncoderRegistered = true;
+    }
+    format = new Mp3OutputFormat({ onXingFrame });
+    mime = "audio/mpeg";
+    codecs = ["mp3"];
+  } else if (container === MP4 || container === ADTS) {
+    if (!await canEncodeAudio("aac")) {
+      await import("../media-editing/register-mediabunny-encoders.js");
+    }
+    format = container === MP4 ? new Mp4OutputFormat() : new AdtsOutputFormat();
+    mime = container === MP4 ? "audio/mp4" : "audio/aac";
+    codecs = ["aac"];
+  } else if (container === OGG || container === WEBM) {
+    format = container === OGG ? new OggOutputFormat() : new WebMOutputFormat();
+    mime = container === OGG ? "audio/ogg" : "audio/webm";
+    codecs = sourceCodec === "vorbis" ? ["vorbis", "opus"] : ["opus"];
+  } else if (container === FLAC) {
+    format = new FlacOutputFormat();
+    mime = "audio/flac";
+    codecs = ["flac"];
+  } else {
+    throw new UnsupportedAudioTrimFormatError(`Cannot preserve audio container: ${container.name}`);
+  }
+  return { format, mime, codecs };
+}
+
+async function exportTrimmedAudio({
+  source: source2,
+  start,
+  end,
+  signal,
+  onProgress
+}) {
+  signal?.throwIfAborted();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || Math.round((end - start) * 1e3) < 1e3)
+    throw new Error("Invalid audio trim range");
+  const input = await openAudioTrimInput(source2, signal);
+  const target = new BufferTarget();
+  let output;
+  let cancellation;
+  const cancel = () => {
+    input.dispose();
+    if (output && output.state !== "finalized" && !cancellation)
+      cancellation = output.cancel().catch(() => {
+      });
+  };
+  signal?.addEventListener("abort", cancel, { once: true });
+  try {
+    const track = await input.getPrimaryAudioTrack();
+    if (!track || !await track.canDecode()) throw new Error("Source audio cannot be exported");
+    const sampleRate = await track.getSampleRate();
+    const mp3 = await input.getFormat() === MP3;
+    const gapless = mp3 ? await readMp3Gapless(source2) : null;
+    const duration2 = gapless ? gapless.frames / sampleRate : await track.computeDuration();
+    const trimEnd = Math.min(end, duration2);
+    if (!Number.isFinite(duration2) || Math.round((trimEnd - start) * 1e3) < 1e3)
+      throw new Error("Trim range must contain at least one second of audio");
+    const channels = await track.getNumberOfChannels();
+    const firstFrame = Math.round(start * sampleRate) + (gapless?.skip ?? 0);
+    const endFrame = Math.round(trimEnd * sampleRate) + (gapless?.skip ?? 0);
+    let xingPosition;
+    const { format, mime, codecs } = await selectAudioOutput(
+      input,
+      await track.getCodec(),
+      (_data, position) => {
+        xingPosition = position;
+      }
+    );
+    const encoding = { numberOfChannels: channels, sampleRate, bitrate: 192e3 };
+    let codec;
+    for (const candidate of codecs) {
+      if (await canEncodeAudio(candidate, encoding)) {
+        codec = candidate;
+        break;
+      }
+    }
+    if (!codec)
+      throw new UnsupportedAudioTrimFormatError(
+        `Cannot encode ${mime} at ${sampleRate} Hz / ${channels} channels in this runtime`
+      );
+    output = new Output({ target, format });
+    const audio = new AudioSampleSource({ codec, bitrate: encoding.bitrate });
+    output.addAudioTrack(audio);
+    signal?.throwIfAborted();
+    await output.start();
+    let framesWritten = 0;
+    let packets = 0;
+    for await (const sample of new AudioSampleSink(track).samples(
+      // MP3's bit reservoir and synthesis filter need preroll when seeking.
+      // These extra decoded samples are still excluded by the frame intersection below.
+      Math.max(0, firstFrame / sampleRate - (mp3 ? 1 : 0)),
+      endFrame / sampleRate
+    )) {
+      try {
+        signal?.throwIfAborted();
+        if (sample.sampleRate !== sampleRate || sample.numberOfChannels !== channels)
+          throw new Error("Source audio format changed during export");
+        const packetFrame = Math.round(sample.timestamp * sampleRate);
+        const from = Math.max(0, firstFrame - packetFrame);
+        const to = Math.min(sample.numberOfFrames, endFrame - packetFrame);
+        if (to <= from) continue;
+        const frameCount = to - from;
+        const pcm = new Float32Array(frameCount * channels);
+        for (let channel = 0; channel < channels; channel++) {
+          sample.copyTo(pcm.subarray(channel * frameCount, (channel + 1) * frameCount), {
+            format: "f32-planar",
+            planeIndex: channel,
+            frameOffset: from,
+            frameCount
+          });
+        }
+        const clipped = new AudioSample({
+          data: pcm,
+          format: "f32-planar",
+          numberOfChannels: channels,
+          sampleRate,
+          timestamp: framesWritten / sampleRate
+        });
+        try {
+          await audio.add(clipped);
+        } finally {
+          clipped.close();
+        }
+        framesWritten += frameCount;
+        signal?.throwIfAborted();
+        onProgress?.(Math.min(1, framesWritten / (endFrame - firstFrame)));
+        if (++packets % 32 === 0) await new Promise((resolve) => setTimeout(resolve, 0));
+      } finally {
+        sample.close();
+      }
+    }
+    signal?.throwIfAborted();
+    if (framesWritten !== endFrame - firstFrame)
+      throw new Error("Source audio does not cover the selected frame range");
+    audio.close();
+    await output.finalize();
+    signal?.throwIfAborted();
+    if (!target.buffer?.byteLength) throw new Error("Audio export produced no data");
+    if (mp3) {
+      if (xingPosition === void 0) throw new Error("Missing MP3 gapless header");
+      finalizeMp3Gapless(target.buffer, xingPosition, framesWritten);
+    }
+    return new Blob([target.buffer], { type: mime });
+  } finally {
+    signal?.removeEventListener("abort", cancel);
+    cancel();
+    await cancellation;
+  }
+}
+
+function buildAudioTrimWaveform(magnitudes) {
+  if (!magnitudes.length) return "";
+  const middle = 20;
+  const step = 460 / magnitudes.length;
+  const points = Array.from(magnitudes, (value, index) => ({
+    x: (index + 0.5) * step,
+    amplitude: Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0)) * 18
+  }));
+  const upper = points.map(({ x, amplitude }) => `L${x},${middle - amplitude}`).join("");
+  const lower = points.reverse().map(({ x, amplitude }) => `L${x},${middle + amplitude}`).join("");
+  return `M0,${middle}${upper}L460,${middle}${lower}Z`;
+}
+
+const mediaPlayheadColorClass = "bg-brand-accent text-brand-accent";
+
+function MediaPlayheadHead() {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "span",
+    {
+      "aria-hidden": "true",
+      "data-slot": "media-playhead-head",
+      className: "absolute -top-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-current"
+    }
+  );
+}
+
+function useTrimDurationTooltip(label, selectionWidth, playheadInRange) {
+  const labelRef = reactExports.useRef(null);
+  const [truncated, setTruncated] = reactExports.useState(false);
+  const [targets, setTargets] = reactExports.useState(() => /* @__PURE__ */ new Set());
+  reactExports.useLayoutEffect(() => {
+    const element2 = labelRef.current;
+    if (!element2) return;
+    const measure = () => setTruncated(element2.scrollWidth > element2.clientWidth);
+    measure();
+    const observer = typeof ResizeObserver === "undefined" ? void 0 : new ResizeObserver(measure);
+    observer?.observe(element2);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [label, selectionWidth]);
+  const update = (key2, active2) => setTargets((previous) => {
+    if (previous.has(key2) === active2) return previous;
+    const next = new Set(previous);
+    if (active2) next.add(key2);
+    else next.delete(key2);
+    return next;
+  });
+  return {
+    labelRef,
+    open: truncated && [...targets].some((key2) => !key2.endsWith(":playhead") || playheadInRange),
+    bind: (target) => ({
+      onMouseEnter: () => update(`mouse:${target}`, true),
+      onMouseLeave: () => update(`mouse:${target}`, false),
+      onFocus: () => update(`focus:${target}`, true),
+      onBlur: () => update(`focus:${target}`, false)
+    })
+  };
+}
+
+function useTrimPlayback({
+  media,
+  panel,
+  range,
+  ready,
+  active: active2,
+  busy,
+  onError
+}) {
+  const [playing, setPlaying] = reactExports.useState(false);
+  const [current, setCurrent] = reactExports.useState(0);
+  const wanted = reactExports.useRef(false);
+  const mounted = reactExports.useRef(true);
+  const request = reactExports.useRef(0);
+  const pending = reactExports.useRef(false);
+  const started = reactExports.useRef(false);
+  const latest = reactExports.useRef({ ready, active: active2, busy, onError });
+  latest.current = { ready, active: active2, busy, onError };
+  const available = () => mounted.current && latest.current.ready && latest.current.active && !latest.current.busy;
+  const pause = () => {
+    wanted.current = false;
+    pending.current = false;
+    request.current++;
+    media.current?.pause();
+    setPlaying(false);
+  };
+  const seek = (value) => {
+    const { start, end } = range.current;
+    const bounded = Math.max(start, Math.min(end, value));
+    const next = wanted.current && bounded >= end ? start : bounded;
+    if (media.current && media.current.currentTime !== next) media.current.currentTime = next;
+    setCurrent(next);
+  };
+  const play = async () => {
+    const element2 = media.current;
+    if (!element2 || !available() || pending.current) return;
+    wanted.current = true;
+    if (element2.currentTime < range.current.start || element2.currentTime >= range.current.end)
+      seek(range.current.start);
+    const id2 = ++request.current;
+    pending.current = true;
+    latest.current.onError(false);
+    try {
+      await element2.play();
+    } catch {
+      if (id2 === request.current && available()) {
+        wanted.current = false;
+        setPlaying(false);
+        latest.current.onError(true);
+      }
+    } finally {
+      if (id2 === request.current) pending.current = false;
+      if (!mounted.current || !wanted.current) element2.pause();
+    }
+  };
+  const togglePlay = () => {
+    if (!available()) return;
+    if (wanted.current) pause();
+    else void play();
+  };
+  const syncPlayback = () => {
+    const element2 = media.current;
+    if (!element2) return;
+    if (wanted.current && available()) {
+      if (element2.currentTime < range.current.start || element2.currentTime >= range.current.end)
+        element2.currentTime = range.current.start;
+    }
+    setCurrent(element2.currentTime);
+  };
+  const onEnded = () => {
+    if (!wanted.current || !available()) return;
+    seek(range.current.start);
+    void play();
+  };
+  const onPlay = () => {
+    if (!wanted.current || !available()) media.current?.pause();
+    else setPlaying(true);
+  };
+  const onPause = () => {
+    if (!media.current?.ended) {
+      wanted.current = false;
+      setPlaying(false);
+    }
+  };
+  const actions2 = reactExports.useRef({ play, pause, togglePlay, syncPlayback });
+  actions2.current = { play, pause, togglePlay, syncPlayback };
+  reactExports.useEffect(() => {
+    mounted.current = true;
+    const element2 = media.current;
+    return () => {
+      mounted.current = false;
+      wanted.current = false;
+      request.current++;
+      element2?.pause();
+    };
+  }, [media]);
+  reactExports.useEffect(() => {
+    if (!ready) started.current = false;
+    if (!active2 || busy || !ready) actions2.current.pause();
+    else if (!started.current) {
+      started.current = true;
+      void actions2.current.play();
+    }
+  }, [active2, busy, ready]);
+  reactExports.useEffect(() => {
+    if (!playing) return;
+    let frame = 0;
+    const tick = () => {
+      actions2.current.syncPlayback();
+      if (wanted.current) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [playing]);
+  reactExports.useEffect(() => {
+    const key2 = (event) => {
+      if (!active2 || event.key !== " " || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (event.isComposing || target?.closest(
+        'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]'
+      ))
+        return;
+      const surface2 = panel.current;
+      const canvas = surface2?.closest("[data-canvas-version]");
+      if (target && target !== document.body && !surface2?.contains(target) && (!canvas?.contains(target) || target.closest('button, [role="dialog"], [role="menu"]')))
+        return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (!event.repeat) actions2.current.togglePlay();
+    };
+    document.addEventListener("keydown", key2, true);
+    return () => document.removeEventListener("keydown", key2, true);
+  }, [active2, panel]);
+  return {
+    playing,
+    current,
+    setCurrent,
+    pause,
+    seek,
+    togglePlay,
+    syncPlayback,
+    onEnded,
+    onPlay,
+    onPause
+  };
+}
+
+const MIN_VIDEO_TRIM_SECONDS = 1;
+
+const VIDEO_TRIM_DRAG_THRESHOLD = 3;
+
+const milliseconds = (seconds) => Math.round(seconds * 1e3);
+
+const bound = (value, low, high) => Math.max(low, Math.min(high, value));
+
+function adjustVideoTrimRange(range, control2, value, duration2) {
+  const total = milliseconds(duration2);
+  if (total < 1e3) return { start: 0, end: total / 1e3 };
+  let start = milliseconds(range.start);
+  let end = milliseconds(range.end);
+  const requested = milliseconds(value);
+  const snap = (n, low, high) => n <= low ? low : n >= high ? high : bound(Math.round(n / 10) * 10, low, high);
+  if (control2 === "start") start = snap(requested, 0, end - 1e3);
+  else if (control2 === "end") end = snap(requested, start + 1e3, total);
+  else {
+    const length = end - start;
+    const delta = Math.round((requested - start) / 10) * 10;
+    start = bound(start + delta, 0, total - length);
+    end = start + length;
+  }
+  return { start: start / 1e3, end: end / 1e3 };
+}
+
+const clamp$3 = (value, low, high) => Math.max(low, Math.min(high, value));
+
+const time$1 = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
+
+function AudioTrimPanel(props) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(AudioTrimSession, { ...props }, `${props.audioUrl}:${props.audioName}`);
+}
+
+function AudioTrimSession({
+  audioUrl,
+  audioName,
+  active: active2 = true,
+  onClose,
+  onExport
+}) {
+  const { t } = useTranslation();
+  const clipId = reactExports.useId();
+  const audio = reactExports.useRef(null);
+  const panel = reactExports.useRef(null);
+  const track = reactExports.useRef(null);
+  const source2 = reactExports.useRef(null);
+  const lifetime = reactExports.useRef(null);
+  const exporting = reactExports.useRef(null);
+  const closed = reactExports.useRef(false);
+  const drag = reactExports.useRef(null);
+  const callbacks = reactExports.useRef({ onClose, onExport, active: active2 });
+  callbacks.current = { onClose, onExport, active: active2 };
+  const [url, setUrl] = reactExports.useState("");
+  const [retry, setRetry] = reactExports.useState(0);
+  const [status, setStatus] = reactExports.useState("loading");
+  const [magnitudes, setMagnitudes] = reactExports.useState(new Float32Array());
+  const [duration2, setDuration] = reactExports.useState(0);
+  const [range, setRange] = reactExports.useState({ start: 0, end: 0 });
+  const rangeRef = reactExports.useRef(range);
+  const [busy, setBusy] = reactExports.useState(false);
+  const [progress, setProgress] = reactExports.useState(0);
+  const [error, setError] = reactExports.useState(null);
+  const {
+    current,
+    setCurrent,
+    playing,
+    pause,
+    seek,
+    togglePlay,
+    syncPlayback,
+    onPlay,
+    onPause,
+    onEnded
+  } = useTrimPlayback({
+    media: audio,
+    panel,
+    range: rangeRef,
+    ready: status === "ready" && duration2 >= MIN_VIDEO_TRIM_SECONDS,
+    active: active2,
+    busy,
+    onError: (failed) => setError(failed ? "playFailed" : null)
+  });
+  const durationLabel = `${(range.end - range.start).toFixed(2)}s`;
+  const durationTooltip = useTrimDurationTooltip(
+    durationLabel,
+    range.end - range.start,
+    current >= range.start && current <= range.end
+  );
+  const [exportError, setExportError] = reactExports.useState("");
+  const cancel = () => {
+    if (closed.current) return;
+    closed.current = true;
+    pause();
+    lifetime.current?.abort();
+    exporting.current?.abort();
+    callbacks.current.onClose();
+  };
+  const cancelRef = reactExports.useRef(cancel);
+  cancelRef.current = cancel;
+  reactExports.useEffect(() => {
+    const controller = new AbortController();
+    lifetime.current = controller;
+    closed.current = false;
+    let objectUrl = "";
+    const releaseUrl = () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      objectUrl = "";
+    };
+    controller.signal.addEventListener("abort", releaseUrl, { once: true });
+    setStatus("loading");
+    setError(null);
+    setUrl("");
+    setMagnitudes(new Float32Array());
+    (async () => {
+      try {
+        if (!source2.current) {
+          const response = await fetch(audioUrl, { signal: controller.signal });
+          if (!response.ok) throw new Error("Audio source unreadable");
+          const blob = await response.blob();
+          controller.signal.throwIfAborted();
+          source2.current = blob;
+        }
+        objectUrl = URL.createObjectURL(source2.current);
+        setUrl(objectUrl);
+        const decoded = await readAudioTrimSource(source2.current, controller.signal);
+        controller.signal.throwIfAborted();
+        setDuration(decoded.duration);
+        rangeRef.current = { start: 0, end: decoded.duration };
+        setRange(rangeRef.current);
+        setCurrent(0);
+        setMagnitudes(decoded.magnitudes);
+        setStatus((previous) => previous === "error" ? previous : "ready");
+      } catch {
+        if (!controller.signal.aborted) {
+          releaseUrl();
+          setStatus("error");
+          setError("loadFailed");
+        }
+      }
+    })();
+    return () => {
+      closed.current = true;
+      controller.abort();
+      exporting.current?.abort();
+    };
+  }, [audioUrl, retry]);
+  reactExports.useEffect(() => {
+    const previousFocus = document.activeElement;
+    const surface2 = panel.current;
+    if (active2) surface2?.focus({ preventScroll: true });
+    if (!active2) {
+      drag.current = null;
+      exporting.current?.abort();
+    }
+    const key2 = (event) => {
+      if (active2 && event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        cancelRef.current();
+      }
+    };
+    document.addEventListener("keydown", key2, true);
+    return () => {
+      document.removeEventListener("keydown", key2, true);
+      if (surface2?.contains(document.activeElement) && previousFocus instanceof HTMLElement && previousFocus.isConnected)
+        previousFocus.focus({ preventScroll: true });
+    };
+  }, [active2]);
+  const tooShort = duration2 > 0 && duration2 < MIN_VIDEO_TRIM_SECONDS;
+  const disabled = !active2 || busy || status !== "ready" || duration2 < MIN_VIDEO_TRIM_SECONDS;
+  const update = (kind, value, initial = rangeRef.current) => {
+    if (kind === "seek") {
+      seek(Math.round(value * 1e3) / 1e3);
+      return;
+    }
+    const next = adjustVideoTrimRange(initial, kind, value, duration2);
+    rangeRef.current = next;
+    setRange(next);
+    seek(audio.current?.currentTime ?? current);
+  };
+  const pointerDown = (event, kind) => {
+    if (disabled || closed.current || event.button !== 0 || !event.isPrimary || drag.current || !track.current)
+      return;
+    const bounds = track.current.getBoundingClientRect();
+    if (bounds.width <= 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.focus({ preventScroll: true });
+    event.currentTarget.setPointerCapture(event.pointerId);
+    drag.current = {
+      kind,
+      x: event.clientX,
+      width: bounds.width,
+      left: bounds.left,
+      time: audio.current?.currentTime ?? current,
+      moved: false,
+      ...rangeRef.current,
+      pointer: event.pointerId
+    };
+  };
+  const pointerMove = (event) => {
+    const initial = drag.current;
+    if (!initial || initial.pointer !== event.pointerId || disabled) return;
+    const movement = event.clientX - initial.x;
+    if (initial.kind === "move" && !initial.moved && Math.abs(movement) < VIDEO_TRIM_DRAG_THRESHOLD)
+      return;
+    initial.moved = true;
+    const origin = initial.kind === "seek" ? initial.time : initial.kind === "end" ? initial.end : initial.start;
+    update(initial.kind, origin + movement / initial.width * duration2, initial);
+  };
+  const endDrag = (event, commit) => {
+    const initial = drag.current;
+    if (!initial || initial.pointer !== event.pointerId) return;
+    if (commit) pointerMove(event);
+    drag.current = null;
+    if (initial.kind === "move" && !initial.moved) {
+      if (commit) update("seek", (event.clientX - initial.left) / initial.width * duration2);
+    }
+    if (event.currentTarget.hasPointerCapture(event.pointerId))
+      event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+  const slider = (kind, value) => ({
+    role: "slider",
+    tabIndex: disabled ? -1 : 0,
+    "aria-label": t(
+      `canvas.audioTrim.${kind === "move" ? "selection" : kind === "seek" ? "playhead" : kind}`
+    ),
+    "aria-valuemin": kind === "end" ? range.start + MIN_VIDEO_TRIM_SECONDS : 0,
+    "aria-valuemax": kind === "start" ? Math.max(0, range.end - MIN_VIDEO_TRIM_SECONDS) : kind === "move" ? duration2 - range.end + range.start : duration2,
+    "aria-valuenow": value,
+    "aria-valuetext": `${value.toFixed(2)}s`,
+    "aria-orientation": "horizontal",
+    "aria-disabled": disabled,
+    onPointerDown: (event) => pointerDown(event, kind),
+    onPointerMove: pointerMove,
+    onPointerUp: (event) => endDrag(event, true),
+    onPointerCancel: (event) => endDrag(event, false),
+    onLostPointerCapture: (event) => endDrag(event, false),
+    onKeyDown: (event) => {
+      if (disabled || ![
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowUp",
+        "ArrowDown",
+        "PageUp",
+        "PageDown",
+        "Home",
+        "End"
+      ].includes(event.key))
+        return;
+      event.preventDefault();
+      event.stopPropagation();
+      update(
+        kind,
+        event.key === "Home" ? 0 : event.key === "End" ? duration2 : value + (["ArrowLeft", "ArrowDown", "PageDown"].includes(event.key) ? -1 : 1) * (event.key.startsWith("Page") || kind === "seek" && event.shiftKey ? 1 : 0.01)
+      );
+    }
+  });
+  const confirm = async () => {
+    if (disabled || closed.current || exporting.current || !source2.current) return;
+    const controller = new AbortController();
+    exporting.current = controller;
+    setBusy(true);
+    setError(null);
+    setProgress(0);
+    setExportError("");
+    pause();
+    try {
+      const blob = await exportTrimmedAudio({
+        source: source2.current,
+        ...rangeRef.current,
+        signal: controller.signal,
+        onProgress: (value) => {
+          if (!controller.signal.aborted) setProgress(clamp$3(value, 0, 1));
+        }
+      });
+      if (controller.signal.aborted || closed.current) return;
+      await callbacks.current.onExport(blob, audioTrimFilename(audioName, blob));
+      if (!controller.signal.aborted && !closed.current) cancelRef.current();
+    } catch (cause) {
+      if (!controller.signal.aborted && !closed.current) {
+        setError("exportFailed");
+        if (cause instanceof UnsupportedAudioTrimFormatError)
+          setExportError(t("canvas.audioTrim.unsupportedFormat"));
+      }
+    } finally {
+      if (exporting.current === controller) exporting.current = null;
+      if (!closed.current && !lifetime.current?.signal.aborted) setBusy(false);
+    }
+  };
+  const percent = (value) => `${duration2 ? value / duration2 * 100 : 0}%`;
+  const waveform = reactExports.useMemo(() => buildAudioTrimWaveform(magnitudes), [magnitudes]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "section",
+    {
+      ref: panel,
+      tabIndex: -1,
+      "aria-label": t("canvas.audioTrim.controls"),
+      "aria-busy": busy || status === "loading",
+      "data-slot": "audio-trim-controls",
+      className: "nodrag nopan nowheel relative flex w-[560px] max-w-[calc(100vw-32px)] flex-col gap-3 rounded-[20px] bg-popover p-4 text-popover-foreground shadow-lg ring-1 ring-inset ring-border",
+      onPointerDown: (event) => event.stopPropagation(),
+      onWheel: (event) => event.stopPropagation(),
+      onKeyDown: (event) => event.stopPropagation(),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "audio",
+          {
+            ref: audio,
+            src: url || void 0,
+            preload: "auto",
+            onPlay,
+            onPause,
+            onEnded,
+            onTimeUpdate: syncPlayback,
+            onError: () => {
+              if (url && !closed.current) {
+                pause();
+                setStatus("error");
+                setError("loadFailed");
+              }
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            ref: track,
+            "data-slot": "audio-trim-track",
+            className: "relative isolate h-16 shrink-0 touch-none rounded-[10px] bg-[color-mix(in_srgb,rgb(from_var(--media-overlay-surface-strong)_r_g_b_/_1)_80%,var(--media-overlay-foreground))]",
+            onPointerDown: (event) => {
+              if (!disabled && event.button === 0 && event.target === event.currentTarget) {
+                const bounds = event.currentTarget.getBoundingClientRect();
+                update("seek", (event.clientX - bounds.left) / bounds.width * duration2);
+              }
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "svg",
+                {
+                  "aria-hidden": "true",
+                  viewBox: "0 0 460 40",
+                  preserveAspectRatio: "none",
+                  className: "pointer-events-none absolute inset-0 h-full w-full overflow-hidden rounded-[10px]",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("defs", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("clipPath", { id: clipId, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "rect",
+                      {
+                        x: duration2 ? range.start / duration2 * 460 : 0,
+                        y: 0,
+                        width: duration2 ? (range.end - range.start) / duration2 * 460 : 0,
+                        height: 40
+                      }
+                    ) }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("g", { fill: "currentColor", className: "text-brand-accent/30", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: waveform }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("g", { clipPath: `url(#${clipId})`, children: /* @__PURE__ */ jsxRuntimeExports.jsx("g", { fill: "currentColor", className: "text-brand-accent", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: waveform }) }) })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { content: durationLabel, open: durationTooltip.open, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  ...slider("move", range.start),
+                  ...durationTooltip.bind("selection"),
+                  "data-action-ui-id": "audio-trim-selection",
+                  className: "absolute inset-y-0 z-20 cursor-grab rounded-[10px] border border-foreground ring-1 ring-inset ring-foreground active:cursor-grabbing focus-visible:outline focus-visible:outline-ring",
+                  style: { left: percent(range.start), width: percent(range.end - range.start) },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pointer-events-none absolute inset-0 flex min-w-0 items-center justify-end overflow-hidden px-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "span",
+                    {
+                      ref: durationTooltip.labelRef,
+                      className: "truncate text-xs font-medium tabular-nums text-[var(--media-overlay-foreground)]",
+                      children: durationLabel
+                    }
+                  ) })
+                }
+              ) }),
+              ["start", "end"].map((kind) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  ...slider(kind, range[kind]),
+                  ...durationTooltip.bind(kind),
+                  "data-action-ui-id": `audio-trim-${kind}`,
+                  className: `group/trim-handle absolute inset-y-0 z-40 w-[22px] cursor-ew-resize focus-visible:outline focus-visible:outline-ring ${kind === "start" ? "-translate-x-full" : ""}`,
+                  style: { left: percent(range[kind]) },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "span",
+                    {
+                      "data-slot": "audio-trim-handle-grip",
+                      className: `pointer-events-none absolute top-1/2 flex h-6 w-1 -translate-y-1/2 items-center justify-center rounded-full bg-primary transition-[width,height] duration-150 ease-[ease-out] group-hover/trim-handle:h-7 group-hover/trim-handle:w-1.5 group-focus-visible/trim-handle:h-7 group-focus-visible/trim-handle:w-1.5 motion-reduce:transition-none ${kind === "start" ? "right-px" : "left-px"}`,
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          "data-slot": "audio-trim-handle-dots",
+                          "aria-hidden": "true",
+                          className: "flex flex-col gap-0.5 opacity-0 transition-opacity duration-150 ease-[ease-out] group-hover/trim-handle:opacity-100 group-focus-visible/trim-handle:opacity-100 motion-reduce:transition-none",
+                          children: [0, 1, 2].map((dot) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "span",
+                            {
+                              className: "size-0.5 shrink-0 rounded-full bg-primary-foreground"
+                            },
+                            dot
+                          ))
+                        }
+                      )
+                    }
+                  )
+                },
+                kind
+              )),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  ...slider("seek", current),
+                  ...durationTooltip.bind("playhead"),
+                  "data-action-ui-id": "audio-trim-playhead",
+                  className: `absolute -bottom-0.5 -top-1 z-30 w-[1.5px] -translate-x-1/2 cursor-grab rounded-full ${mediaPlayheadColorClass} before:absolute before:inset-y-0 before:-inset-x-[22px] before:content-[''] active:cursor-grabbing focus-visible:outline focus-visible:outline-ring`,
+                  style: { left: percent(current) },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(MediaPlayheadHead, {})
+                }
+              ),
+              status === "loading" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  role: "status",
+                  className: "absolute inset-0 z-50 flex items-center justify-center rounded-[10px] bg-popover/80 text-xs text-muted-foreground",
+                  children: t("common.loading")
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex h-9 shrink-0 items-center gap-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              variant: "secondary",
+              size: "icon",
+              className: "size-8 cursor-pointer rounded-full bg-[var(--button-subtle-bg)] text-foreground hover:bg-[var(--button-subtle-bg-hover)]",
+              disabled,
+              "data-action-ui-id": "audio-trim-play",
+              "aria-label": t(playing ? "canvas.pause" : "canvas.play"),
+              onClick: () => void togglePlay(),
+              children: playing ? /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPauseIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-flex translate-y-[0.5px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPlayIcon, {}) })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs tabular-nums text-muted-foreground", children: [
+            time$1(current),
+            " / ",
+            time$1(duration2)
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex-1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Button,
+            {
+              variant: "link",
+              className: "h-[34px] cursor-pointer gap-1.5 px-2 text-muted-foreground hover:text-[color-mix(in_srgb,var(--muted-foreground)_80%,var(--foreground))] hover:no-underline",
+              disabled: !active2,
+              onClick: () => cancelRef.current(),
+              "aria-keyshortcuts": "Escape",
+              "data-action-ui-id": "audio-trim-cancel",
+              children: [
+                t("common.cancel"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { className: "font-sans text-[10px]", children: "Esc" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              className: "h-[34px] w-[88px] cursor-pointer",
+              disabled,
+              onClick: () => void confirm(),
+              "data-action-ui-id": "audio-trim-confirm",
+              children: busy ? `${Math.round(progress * 100)}%` : t("common.confirm")
+            }
+          )
+        ] }),
+        (error || tooShort) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            role: "alert",
+            className: "absolute inset-x-0 top-full mt-2 flex items-center justify-between gap-2 rounded-lg border border-border bg-popover px-3 py-2 text-xs text-destructive",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                t(`canvas.audioTrim.${tooShort ? "tooShort" : error}`),
+                !tooShort && error === "exportFailed" && exportError ? ` (${exportError})` : ""
+              ] }),
+              !tooShort && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "ghost",
+                  size: "sm",
+                  disabled: busy || !active2,
+                  onClick: () => {
+                    if (error === "loadFailed") setRetry((value) => value + 1);
+                    else if (error === "exportFailed") void confirm();
+                    else void togglePlay();
+                  },
+                  children: t("canvas.audioTrim.retry")
+                }
+              )
+            ]
+          }
+        )
+      ]
+    }
+  );
+}
+
+async function indexFrames(track, check) {
+  const timestamps = [];
+  const packets = new EncodedPacketSink(track);
+  for await (const packet of packets.packets(void 0, void 0, { metadataOnly: true })) {
+    check();
+    if (!Number.isFinite(packet.timestamp) || !Number.isFinite(packet.duration) || packet.duration < 0)
+      throw new Error("invalid_video");
+    if (packet.timestamp + packet.duration <= 0) continue;
+    timestamps.push(Math.max(0, packet.timestamp));
+  }
+  check();
+  if (!timestamps.length) throw new Error("frame_unavailable");
+  return timestamps.sort((a, b) => a - b);
+}
+
+function frameAtTime(timestamps, time2) {
+  let low = 0;
+  let high = timestamps.length;
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    const timestamp2 = timestamps[middle];
+    if (timestamp2 === void 0) throw new Error("frame_unavailable");
+    if (timestamp2 <= time2) low = middle + 1;
+    else high = middle;
+  }
+  const timestamp = timestamps[Math.max(0, low - 1)];
+  if (timestamp === void 0) throw new Error("frame_unavailable");
+  return timestamp;
+}
+
+async function encodePng(canvas) {
+  if ("convertToBlob" in canvas) return canvas.convertToBlob({ type: "image/png" });
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => blob ? resolve(blob) : reject(new Error("frame_encode_failed")),
+      "image/png"
+    );
+  });
+}
+
+async function createVideoFrameCaptureSource(blob, signal) {
+  signal.throwIfAborted();
+  const input = new Input({ source: new BlobSource(blob), formats: ALL_FORMATS });
+  let disposed = false;
+  const dispose = () => {
+    if (disposed) return;
+    disposed = true;
+    signal.removeEventListener("abort", dispose);
+    input.dispose();
+  };
+  const check = () => {
+    signal.throwIfAborted();
+    if (disposed) throw new DOMException("Disposed", "AbortError");
+  };
+  signal.addEventListener("abort", dispose, { once: true });
+  try {
+    const track = await input.getPrimaryVideoTrack();
+    check();
+    if (!track || !await track.canDecode()) throw new Error("video_decode_unavailable");
+    const [duration2, timestamps, width, height] = await Promise.all([
+      track.computeDuration(),
+      indexFrames(track, check),
+      track.getDisplayWidth(),
+      track.getDisplayHeight()
+    ]);
+    check();
+    if (!Number.isFinite(duration2) || duration2 <= 0 || width <= 0 || height <= 0)
+      throw new Error("invalid_video");
+    const sink = new CanvasSink(track, { poolSize: 1 });
+    let previewSink;
+    let previewEdge;
+    let queue = Promise.resolve();
+    return {
+      duration: duration2,
+      width,
+      height,
+      dispose,
+      capture(time2, maxEdge = Infinity) {
+        const result = queue.then(async () => {
+          check();
+          if (Number.isNaN(time2)) throw new Error("invalid_frame_time");
+          if (Number.isNaN(maxEdge) || maxEdge <= 0) throw new Error("invalid_frame_size");
+          const requested = frameAtTime(timestamps, time2);
+          let selectedSink = sink;
+          if (maxEdge < Math.max(width, height)) {
+            const edge = Math.max(1, Math.floor(maxEdge));
+            if (!previewSink || previewEdge !== edge) {
+              previewSink = new CanvasSink(track, {
+                [width >= height ? "width" : "height"]: edge,
+                poolSize: 1
+              });
+              previewEdge = edge;
+            }
+            selectedSink = previewSink;
+          }
+          const frame = await selectedSink.getCanvas(requested);
+          check();
+          if (!frame) throw new Error("frame_unavailable");
+          const png = await encodePng(frame.canvas);
+          check();
+          return { blob: png, time: Math.max(0, frame.timestamp) };
+        });
+        queue = result.catch(() => void 0);
+        return result;
+      }
+    };
+  } catch (error) {
+    dispose();
+    throw error;
+  }
+}
+
+async function drawVideoFrameCaptureThumbnails(blob, canvas, signal) {
+  signal.throwIfAborted();
+  const input = new Input({ source: new BlobSource(blob), formats: ALL_FORMATS });
+  let disposed = false;
+  const dispose = () => {
+    if (!disposed) {
+      disposed = true;
+      input.dispose();
+    }
+  };
+  signal.addEventListener("abort", dispose, { once: true });
+  try {
+    const track = await input.getPrimaryVideoTrack();
+    signal.throwIfAborted();
+    if (!track) throw new Error("missing_video_track");
+    const [timestamps, displayWidth, displayHeight] = await Promise.all([
+      indexFrames(track, () => signal.throwIfAborted()),
+      track.getDisplayWidth(),
+      track.getDisplayHeight()
+    ]);
+    signal.throwIfAborted();
+    const cssWidth = canvas.getBoundingClientRect().width || canvas.width / 2;
+    const dpr = canvas.width / cssWidth;
+    const idealWidth = canvas.height / dpr * (displayWidth / displayHeight);
+    if (!Number.isFinite(idealWidth) || idealWidth <= 0 || cssWidth <= 0)
+      throw new Error("invalid_video");
+    const count = Math.min(
+      32,
+      timestamps.length,
+      Math.max(1, Math.ceil((cssWidth - 0.5) / idealWidth))
+    );
+    const tileWidth = idealWidth * dpr;
+    const tileHeight = canvas.height;
+    const sink = new CanvasSink(track, {
+      height: Math.max(1, Math.round(tileHeight)),
+      poolSize: 1
+    });
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("canvas_unavailable");
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    for (let index = 0; index < count; index++) {
+      signal.throwIfAborted();
+      const timestamp = timestamps[Math.floor(index * timestamps.length / count)];
+      if (timestamp === void 0) throw new Error("frame_unavailable");
+      const frame = await sink.getCanvas(timestamp);
+      signal.throwIfAborted();
+      if (frame) context.drawImage(frame.canvas, index * tileWidth, 0, tileWidth, tileHeight);
+    }
+  } finally {
+    signal.removeEventListener("abort", dispose);
+    dispose();
+  }
+}
+
+const MAX_CAPTURES = 20;
+
+const clamp$2 = (value, max) => Math.max(0, Math.min(max, value));
+
+const formatTrimTime = (value) => `${Math.floor(value / 60).toString().padStart(2, "0")}:${Math.floor(value % 60).toString().padStart(2, "0")}`;
+
+const iconProps = {
+  size: 16,
+  strokeWidth: 1.25,
+  absoluteStrokeWidth: true,
+  "aria-hidden": true
+};
+
+const buttonMotion = "motion-reduce:transition-none active:not-aria-[haspopup]:translate-y-0";
+
+function VideoFrameCapturePanel(props) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(CaptureSession, { ...props }, `${props.videoUrl}:${props.videoName}`);
+}
+
+function CaptureSession({
+  active: active2 = true,
+  videoUrl,
+  videoName,
+  onExport,
+  onClose,
+  renderPreview
+}) {
+  const { t } = useTranslation();
+  const video = reactExports.useRef(null);
+  const preview = reactExports.useRef(null);
+  const panel = reactExports.useRef(null);
+  const strip = reactExports.useRef(null);
+  const rail = reactExports.useRef(null);
+  const source2 = reactExports.useRef(null);
+  const cachedBlob = reactExports.useRef(null);
+  const lifetime = reactExports.useRef(null);
+  const closed = reactExports.useRef(false);
+  const busyRef = reactExports.useRef(false);
+  const activeRef = reactExports.useRef(active2);
+  activeRef.current = active2;
+  const generation = reactExports.useRef(0);
+  const capturesRef = reactExports.useRef([]);
+  const nextId = reactExports.useRef(1);
+  const callbacks = reactExports.useRef({ onClose, onExport });
+  callbacks.current = { onClose, onExport };
+  const drag = reactExports.useRef(null);
+  const exportFrames = reactExports.useRef([]);
+  const [submissionLocked, setSubmissionLocked] = reactExports.useState(false);
+  const [url, setUrl] = reactExports.useState("");
+  const [retry, setRetry] = reactExports.useState(0);
+  const [ready, setReady] = reactExports.useState(false);
+  const [stripFailed, setStripFailed] = reactExports.useState(false);
+  const [duration2, setDuration] = reactExports.useState(0);
+  const [current, setCurrent] = reactExports.useState(0);
+  const [playing, setPlaying] = reactExports.useState(false);
+  const [muted, setMuted] = reactExports.useState(true);
+  const [busy, setBusy] = reactExports.useState(null);
+  const [error, setError] = reactExports.useState(null);
+  const [captures, setCaptures] = reactExports.useState([]);
+  const disabled = !active2 || !ready || busy !== null || submissionLocked;
+  const cancel = () => {
+    if (closed.current) return;
+    closed.current = true;
+    generation.current++;
+    lifetime.current?.abort();
+    video.current?.pause();
+    callbacks.current.onClose();
+  };
+  const cancelRef = reactExports.useRef(cancel);
+  cancelRef.current = cancel;
+  reactExports.useEffect(() => {
+    const controller = new AbortController();
+    lifetime.current = controller;
+    closed.current = false;
+    let objectUrl = "";
+    let observer;
+    let thumbnailJob;
+    setReady(false);
+    setStripFailed(false);
+    setError(null);
+    setUrl("");
+    void (async () => {
+      try {
+        let blob = cachedBlob.current;
+        if (!blob) {
+          const response = await fetch(videoUrl, { signal: controller.signal });
+          if (!response.ok) throw new Error("source_unreadable");
+          blob = await response.blob();
+          controller.signal.throwIfAborted();
+          cachedBlob.current = blob;
+        }
+        const decoder = await createVideoFrameCaptureSource(blob, controller.signal);
+        controller.signal.throwIfAborted();
+        source2.current = decoder;
+        setDuration(decoder.duration);
+        objectUrl = URL.createObjectURL(blob);
+        setUrl(objectUrl);
+        const canvas = strip.current;
+        if (canvas) {
+          const sourceBlob = blob;
+          const redraw = () => {
+            thumbnailJob?.abort();
+            const job = new AbortController();
+            thumbnailJob = job;
+            const width = canvas.getBoundingClientRect().width || 538;
+            const scale = window.devicePixelRatio || 1;
+            canvas.width = Math.round(width * scale);
+            canvas.height = Math.round((canvas.getBoundingClientRect().height || 64) * scale);
+            void drawVideoFrameCaptureThumbnails(sourceBlob, canvas, job.signal).then(() => {
+              if (!job.signal.aborted) setStripFailed(false);
+            }).catch(() => {
+              if (!job.signal.aborted) setStripFailed(true);
+            });
+          };
+          redraw();
+          if (typeof ResizeObserver !== "undefined") {
+            observer = new ResizeObserver(redraw);
+            observer.observe(canvas);
+          }
+        }
+      } catch {
+        if (!controller.signal.aborted) setError("loadFailed");
+      }
+    })();
+    return () => {
+      controller.abort();
+      thumbnailJob?.abort();
+      observer?.disconnect();
+      source2.current = null;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [videoUrl, retry]);
+  reactExports.useEffect(() => {
+    const element2 = video.current;
+    return () => {
+      closed.current = true;
+      generation.current++;
+      element2?.pause();
+      for (const capture2 of capturesRef.current) URL.revokeObjectURL(capture2.url);
+      capturesRef.current = [];
+    };
+  }, []);
+  reactExports.useEffect(() => {
+    if (!active2) {
+      generation.current++;
+      video.current?.pause();
+      drag.current = null;
+      return;
+    }
+    const previous = document.activeElement;
+    panel.current?.focus({ preventScroll: true });
+    const key2 = (event) => {
+      if (event.key === "Escape" && !document.fullscreenElement) {
+        event.preventDefault();
+        event.stopPropagation();
+        cancelRef.current();
+      }
+    };
+    document.addEventListener("keydown", key2, true);
+    return () => {
+      document.removeEventListener("keydown", key2, true);
+      if (panel.current?.contains(document.activeElement) && previous instanceof HTMLElement && previous.isConnected)
+        previous.focus({ preventScroll: true });
+    };
+  }, [active2]);
+  reactExports.useEffect(() => {
+    if (!playing) return;
+    let frame = 0;
+    const tick = () => {
+      const element2 = video.current;
+      if (!element2 || element2.paused) return;
+      setCurrent(element2.currentTime);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [playing]);
+  const lastCaptureId = captures.at(-1)?.id;
+  reactExports.useEffect(() => {
+    if (lastCaptureId && rail.current) rail.current.scrollLeft = rail.current.scrollWidth;
+  }, [lastCaptureId]);
+  const scrollable = captures.length > 4;
+  reactExports.useEffect(() => {
+    const element2 = rail.current;
+    if (!element2 || !scrollable) return;
+    const wheel = (event) => {
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+      const before = element2.scrollLeft;
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? element2.clientWidth : 1;
+      element2.scrollLeft += event.deltaY * unit;
+      if (element2.scrollLeft !== before) event.preventDefault();
+    };
+    element2.addEventListener("wheel", wheel, { passive: false });
+    return () => element2.removeEventListener("wheel", wheel);
+  }, [scrollable]);
+  const seek = (value) => {
+    video.current?.pause();
+    const time2 = clamp$2(Math.round(value * 1e3) / 1e3, duration2);
+    if (video.current) video.current.currentTime = time2;
+    setCurrent(time2);
+  };
+  const togglePlay = async () => {
+    if (disabled || busyRef.current || !video.current) return;
+    const element2 = video.current;
+    if (!element2.paused) {
+      element2.pause();
+      return;
+    }
+    if (element2.ended || element2.currentTime >= duration2) element2.currentTime = 0;
+    try {
+      await element2.play();
+    } catch (error2) {
+      if (error2 instanceof DOMException && error2.name === "AbortError") return;
+      if (!closed.current && activeRef.current && !busyRef.current) setError("playFailed");
+    }
+  };
+  const capture = async () => {
+    if (disabled || busyRef.current || capturesRef.current.length >= MAX_CAPTURES || !source2.current)
+      return;
+    const time2 = video.current?.currentTime ?? current;
+    video.current?.pause();
+    const epoch = generation.current;
+    busyRef.current = true;
+    setBusy("capture");
+    setError(null);
+    try {
+      const frame = await source2.current.capture(time2, 360);
+      if (closed.current || !activeRef.current || epoch !== generation.current) return;
+      const next = [
+        ...capturesRef.current,
+        { ...frame, id: nextId.current++, url: URL.createObjectURL(frame.blob) }
+      ];
+      capturesRef.current = next;
+      setCaptures(next);
+    } catch {
+      if (!closed.current && activeRef.current && epoch === generation.current)
+        setError("captureFailed");
+    } finally {
+      busyRef.current = false;
+      if (!closed.current) setBusy(null);
+    }
+  };
+  const confirm = async () => {
+    if (!active2 || !ready || busyRef.current || !capturesRef.current.length || !source2.current)
+      return;
+    video.current?.pause();
+    const epoch = generation.current;
+    busyRef.current = true;
+    setBusy("export");
+    setSubmissionLocked(true);
+    setError(null);
+    const base = videoName.replace(/\.[^.]+$/, "").replace(/[\\/:*?"<>|]/g, "_") || "video";
+    try {
+      for (let index = exportFrames.current.length; index < capturesRef.current.length; index++) {
+        const draft = capturesRef.current[index];
+        const frame = await source2.current.capture(draft.time);
+        if (closed.current || !activeRef.current || epoch !== generation.current) return;
+        exportFrames.current.push({
+          blob: frame.blob,
+          filename: `${base}_frame_${index + 1}_${Math.round(frame.time * 1e3)}ms.png`
+        });
+      }
+      await callbacks.current.onExport(exportFrames.current);
+      if (!closed.current && activeRef.current && epoch === generation.current) cancelRef.current();
+    } catch {
+      if (!closed.current && activeRef.current && epoch === generation.current)
+        setError("exportFailed");
+    } finally {
+      busyRef.current = false;
+      if (!closed.current) setBusy(null);
+    }
+  };
+  const remove = (id2) => {
+    if (disabled || busyRef.current) return;
+    const removed = capturesRef.current.find((item) => item.id === id2);
+    const next = capturesRef.current.filter((item) => item.id !== id2);
+    capturesRef.current = next;
+    setCaptures(next);
+    if (removed) URL.revokeObjectURL(removed.url);
+  };
+  const space = (event) => {
+    event.stopPropagation();
+    if (event.key === " " && !event.target.closest("button")) {
+      event.preventDefault();
+      void togglePlay();
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(TooltipProvider, { delay: 0, children: [
+    renderPreview(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "section",
+        {
+          ref: preview,
+          tabIndex: -1,
+          "aria-label": t("canvas.frameCapture.preview"),
+          className: "nodrag nopan relative h-full w-full overflow-hidden rounded-[inherit]",
+          onPointerDown: (event) => event.stopPropagation(),
+          onKeyDown: space,
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "video",
+              {
+                ref: video,
+                src: url || void 0,
+                muted,
+                playsInline: true,
+                preload: "auto",
+                className: "h-full w-full object-contain",
+                onLoadedData: () => {
+                  if (!closed.current) {
+                    setReady(true);
+                    setError(null);
+                  }
+                },
+                onPlay: () => {
+                  if (busyRef.current || !activeRef.current || closed.current) video.current?.pause();
+                  else setPlaying(true);
+                },
+                onPause: () => setPlaying(false),
+                onTimeUpdate: (event) => setCurrent(event.currentTarget.currentTime),
+                onError: () => {
+                  if (url && !closed.current) {
+                    setReady(false);
+                    setError("loadFailed");
+                  }
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute bottom-3 right-3 flex gap-2 text-[var(--media-overlay-foreground)]", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "ghost",
+                  size: "icon",
+                  className: `rounded-full bg-[var(--media-overlay-surface-strong)] text-inherit hover:bg-[var(--media-overlay-surface)] ${buttonMotion}`,
+                  disabled,
+                  "aria-label": t(`canvas.frameCapture.${muted ? "unmute" : "mute"}`),
+                  onClick: () => setMuted(!muted),
+                  children: muted ? /* @__PURE__ */ jsxRuntimeExports.jsx(VolumeX, { ...iconProps }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Volume2, { ...iconProps })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "ghost",
+                  size: "icon",
+                  className: `rounded-full bg-[var(--media-overlay-surface-strong)] text-inherit hover:bg-[var(--media-overlay-surface)] ${buttonMotion}`,
+                  disabled,
+                  "aria-label": t("canvas.frameCapture.fullscreen"),
+                  onClick: () => {
+                    const action = document.fullscreenElement ? document.exitFullscreen() : preview.current?.requestFullscreen();
+                    action?.catch(() => {
+                      if (!closed.current) setError("fullscreenFailed");
+                    });
+                  },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Maximize, { ...iconProps })
+                }
+              )
+            ] })
+          ]
+        }
+      )
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "section",
+      {
+        ref: panel,
+        tabIndex: -1,
+        "aria-label": t("canvas.frameCapture.controls"),
+        "data-slot": "video-frame-capture-controls",
+        className: "nodrag nopan nowheel relative flex w-[640px] max-w-[calc(100vw-32px)] flex-col gap-3 rounded-[20px] border border-border bg-popover p-4 text-popover-foreground shadow-lg outline-none",
+        onPointerDown: (event) => event.stopPropagation(),
+        onWheel: (event) => event.stopPropagation(),
+        onKeyDown: space,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              role: "slider",
+              tabIndex: disabled || stripFailed ? -1 : 0,
+              "aria-disabled": disabled || stripFailed,
+              "aria-label": t("canvas.frameCapture.playhead"),
+              "aria-valuemin": 0,
+              "aria-valuemax": duration2,
+              "aria-valuenow": current,
+              "aria-valuetext": `${current.toFixed(3)} / ${duration2.toFixed(3)}`,
+              "data-action-ui-id": "video-frame-capture-track",
+              className: "relative h-16 shrink-0 touch-none cursor-pointer rounded-[10px] focus-visible:outline focus-visible:outline-ring",
+              onPointerDown: (event) => {
+                if (disabled || stripFailed || event.button !== 0 || !event.isPrimary) return;
+                event.preventDefault();
+                event.currentTarget.focus();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                const bounds = event.currentTarget.getBoundingClientRect();
+                if (!bounds.width) return;
+                const relative2 = event.target.closest(
+                  '[data-slot="video-frame-capture-playhead"]'
+                ) !== null;
+                drag.current = {
+                  pointer: event.pointerId,
+                  x: event.clientX,
+                  time: current,
+                  width: bounds.width,
+                  relative: relative2
+                };
+                video.current?.pause();
+                if (!relative2) seek((event.clientX - bounds.left) / bounds.width * duration2);
+              },
+              onPointerMove: (event) => {
+                const initial = drag.current;
+                if (disabled || initial?.pointer !== event.pointerId) return;
+                const bounds = event.currentTarget.getBoundingClientRect();
+                seek(
+                  initial.relative ? initial.time + (event.clientX - initial.x) / initial.width * duration2 : (event.clientX - bounds.left) / initial.width * duration2
+                );
+              },
+              onPointerUp: (event) => {
+                const initial = drag.current;
+                if (initial?.pointer === event.pointerId) {
+                  if (!disabled) {
+                    const bounds = event.currentTarget.getBoundingClientRect();
+                    seek(
+                      initial.relative ? initial.time + (event.clientX - initial.x) / initial.width * duration2 : (event.clientX - bounds.left) / initial.width * duration2
+                    );
+                  }
+                  drag.current = null;
+                  event.currentTarget.releasePointerCapture(event.pointerId);
+                }
+              },
+              onPointerCancel: () => {
+                drag.current = null;
+              },
+              onLostPointerCapture: () => {
+                drag.current = null;
+              },
+              onKeyDown: (event) => {
+                if (disabled || stripFailed) return;
+                const step = event.shiftKey || event.key.startsWith("Page") ? 1 : 1e-3;
+                let next;
+                if (event.key === "Home") next = 0;
+                else if (event.key === "End") next = duration2;
+                else if (["ArrowRight", "ArrowUp", "PageUp"].includes(event.key)) next = current + step;
+                else if (["ArrowLeft", "ArrowDown", "PageDown"].includes(event.key))
+                  next = current - step;
+                else return;
+                event.preventDefault();
+                event.stopPropagation();
+                seek(next);
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "canvas",
+                  {
+                    ref: strip,
+                    width: 1076,
+                    height: 128,
+                    className: "pointer-events-none absolute inset-0 h-full w-full rounded-[10px] bg-muted"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    "data-slot": "video-frame-capture-playhead",
+                    className: `absolute -bottom-0.5 -top-1 z-10 w-[1.5px] -translate-x-1/2 cursor-grab rounded-full ${mediaPlayheadColorClass} before:absolute before:-inset-y-[5px] before:-inset-x-[22px] before:content-[''] active:cursor-grabbing`,
+                    style: { left: `${duration2 ? clamp$2(current / duration2 * 100, 100) : 0}%` },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(MediaPlayheadHead, {})
+                  }
+                ),
+                stripFailed && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute inset-0 z-20 flex items-center justify-center gap-2 bg-popover text-xs text-muted-foreground", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { role: "alert", children: t("canvas.frameCapture.previewFailed") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "ghost", onClick: () => setRetry((value) => value + 1), children: t("canvas.frameCapture.retry") })
+                ] }),
+                !ready && !error && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    role: "status",
+                    className: "absolute inset-0 flex items-center justify-center text-xs text-muted-foreground",
+                    children: t("canvas.frameCapture.loading")
+                  }
+                )
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid h-9 shrink-0 grid-cols-[minmax(0,180px)_minmax(0,1fr)_minmax(0,180px)] items-center", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-center gap-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "secondary",
+                  size: "icon",
+                  className: `size-8 cursor-pointer rounded-full bg-[var(--button-subtle-bg)] text-foreground hover:bg-[var(--button-subtle-bg-hover)] ${buttonMotion}`,
+                  disabled,
+                  "aria-label": t(`canvas.frameCapture.${playing ? "pause" : "play"}`),
+                  onClick: () => void togglePlay(),
+                  "data-action-ui-id": "video-frame-capture-play",
+                  children: playing ? /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPauseIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-flex translate-y-[0.5px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPlayIcon, {}) })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "whitespace-nowrap text-xs tabular-nums text-muted-foreground", children: [
+                formatTrimTime(current),
+                " / ",
+                formatTrimTime(duration2)
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-w-0 items-center justify-center gap-1", children: [
+              !!captures.length && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "fieldset",
+                {
+                  ref: rail,
+                  "aria-label": t("canvas.frameCapture.captures"),
+                  className: `m-0 flex h-[46px] min-w-0 max-w-[156px] items-center gap-1 border-0 px-0 py-[5px] [scrollbar-width:none] ${captures.length > 4 ? "overflow-x-auto overflow-y-hidden" : "overflow-visible"}`,
+                  children: captures.map((frame, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "group/frame relative size-9 shrink-0", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      Tooltip,
+                      {
+                        content: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-[180px] overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-lg", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "img",
+                            {
+                              src: frame.url,
+                              alt: "",
+                              className: "max-h-[320px] w-full object-contain"
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "absolute inset-x-0 top-0 bg-[var(--media-overlay-surface)] px-3 py-2 text-xs text-[var(--media-overlay-foreground)]", children: [
+                            formatTrimTime(frame.time),
+                            " ",
+                            t("canvas.frameCapture.capturedFrame")
+                          ] })
+                        ] }),
+                        className: "border-0 bg-transparent p-0 shadow-none",
+                        sideOffset: 8,
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "button",
+                          {
+                            type: "button",
+                            disabled,
+                            "aria-label": t("canvas.frameCapture.frameLabel", {
+                              index: index + 1,
+                              time: formatTrimTime(frame.time)
+                            }),
+                            className: "relative size-9 overflow-hidden rounded-[8px] border border-border focus-visible:outline focus-visible:outline-ring disabled:opacity-50",
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: frame.url, alt: "", className: "size-full object-cover" }),
+                              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "absolute inset-x-0 bottom-0 bg-[var(--media-overlay-surface)] px-1 text-left text-[10px] text-[var(--media-overlay-foreground)]", children: [
+                                "#",
+                                index + 1
+                              ] })
+                            ]
+                          }
+                        )
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      Button,
+                      {
+                        variant: "secondary",
+                        size: "icon-xs",
+                        disabled,
+                        "aria-label": t("canvas.frameCapture.removeFrame", { index: index + 1 }),
+                        onClick: () => remove(frame.id),
+                        className: `absolute -right-[3px] -top-[3px] z-10 size-4 rounded-full opacity-0 after:absolute after:-inset-1 after:content-[''] group-hover/frame:opacity-100 group-focus-within/frame:opacity-100 ${buttonMotion}`,
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 8, strokeWidth: 1, absoluteStrokeWidth: true, "aria-hidden": true })
+                      }
+                    )
+                  ] }, frame.id))
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Tooltip,
+                {
+                  content: t(
+                    captures.length >= MAX_CAPTURES ? "canvas.frameCapture.limitReached" : "canvas.frameCapture.capture"
+                  ),
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "span",
+                    {
+                      className: "inline-flex",
+                      tabIndex: captures.length >= MAX_CAPTURES ? 0 : void 0,
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        Button,
+                        {
+                          variant: "secondary",
+                          size: "lg",
+                          className: `${buttonMotion} h-9 min-w-9 cursor-pointer overflow-hidden transition-[padding,gap] duration-200 ${captures.length ? "gap-0 px-0" : "gap-1 pl-4 pr-3.5"}`,
+                          disabled: disabled || captures.length >= MAX_CAPTURES,
+                          onClick: () => void capture(),
+                          "aria-label": t("canvas.frameCapture.capture"),
+                          "data-action-ui-id": "video-frame-capture-capture",
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Camera, { ...iconProps }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "span",
+                              {
+                                className: `grid transition-[grid-template-columns,opacity] duration-200 motion-reduce:transition-none ${captures.length ? "grid-cols-[0fr] opacity-0" : "grid-cols-[1fr] opacity-100"}`,
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "overflow-hidden whitespace-nowrap", children: t("canvas.frameCapture.capture") })
+                              }
+                            )
+                          ]
+                        }
+                      )
+                    }
+                  )
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                Button,
+                {
+                  variant: "link",
+                  className: "h-[34px] cursor-pointer gap-1.5 px-2 text-muted-foreground hover:text-[color-mix(in_srgb,var(--muted-foreground)_80%,var(--foreground))] hover:no-underline",
+                  disabled: !active2,
+                  onClick: () => cancelRef.current(),
+                  "aria-keyshortcuts": "Escape",
+                  "data-action-ui-id": "video-frame-capture-cancel",
+                  children: [
+                    t("common.cancel"),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { className: "font-sans text-[10px]", children: "Esc" })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Tooltip,
+                {
+                  content: !captures.length ? t("canvas.frameCapture.captureRequired") : void 0,
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "span",
+                    {
+                      className: "inline-flex justify-self-end",
+                      tabIndex: !captures.length ? 0 : void 0,
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        Button,
+                        {
+                          className: `h-[34px] w-[88px] cursor-pointer max-w-full ${buttonMotion}`,
+                          disabled: !active2 || !ready || busy !== null || !captures.length,
+                          onClick: () => void confirm(),
+                          "data-action-ui-id": "video-frame-capture-confirm",
+                          children: t(
+                            busy === "export" ? "canvas.frameCapture.exporting" : "canvas.frameCapture.confirm"
+                          )
+                        }
+                      )
+                    }
+                  )
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { role: "status", "aria-live": "polite", className: "sr-only", children: busy === "capture" ? t("canvas.frameCapture.capturing") : t("canvas.frameCapture.captureCount", { count: captures.length }) }),
+          error && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              role: "alert",
+              className: "absolute inset-x-0 top-full mt-2 flex items-center justify-between gap-2 rounded-lg border border-border bg-popover px-3 py-2 text-xs text-destructive",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t(`canvas.frameCapture.${error}`) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Button,
+                  {
+                    variant: "ghost",
+                    size: "sm",
+                    className: buttonMotion,
+                    disabled: busy !== null,
+                    onClick: () => {
+                      if (error === "loadFailed") setRetry((value) => value + 1);
+                      else if (error === "exportFailed") void confirm();
+                      else if (error === "captureFailed") void capture();
+                      else if (error === "playFailed") void togglePlay();
+                      else setError(null);
+                    },
+                    children: t("canvas.frameCapture.retry")
+                  }
+                )
+              ]
+            }
+          )
+        ]
+      }
+    )
+  ] });
+}
+
+class VideoTrimFormatError extends Error {
+  constructor(code, message2) {
+    super(message2);
+    this.code = code;
+    this.name = "VideoTrimFormatError";
+  }
+  code;
+}
+
+function videoTrimOutputFormat(input) {
+  if (input instanceof QuickTimeInputFormat) return new MovOutputFormat({ fastStart: "in-memory" });
+  if (input instanceof IsobmffInputFormat) return new Mp4OutputFormat({ fastStart: "in-memory" });
+  if (input instanceof WebMInputFormat) return new WebMOutputFormat();
+  if (input instanceof MatroskaInputFormat) return new MkvOutputFormat();
+  throw new VideoTrimFormatError("unsupportedFormat", "Unsupported video trim container");
+}
+
+const extensions = {
+  "video/mp4": "mp4",
+  "video/quicktime": "mov",
+  "video/webm": "webm",
+  "video/x-matroska": "mkv"
+};
+
+function videoTrimFilename(name, output) {
+  const extension = extensions[output.type.split(";")[0].trim().toLowerCase()];
+  if (!extension)
+    throw new VideoTrimFormatError("unsupportedFormat", "Unsupported video trim output MIME");
+  return `${name.replace(/\.[^.]+$/, "") || "video"}-trim.${extension}`;
+}
+
+async function selectCodec(source2, supported, canEncode, signal) {
+  const candidates = [
+    ...new Set(source2 && supported.includes(source2) ? [source2, ...supported] : supported)
+  ];
+  for (const codec of candidates) {
+    signal?.throwIfAborted();
+    const encodable = await canEncode(codec);
+    signal?.throwIfAborted();
+    if (encodable) return codec;
+  }
+  throw new VideoTrimFormatError("unsupportedCodec", "No compatible video trim encoder available");
+}
+
+async function videoTrimVideoOptions(track, format, signal) {
+  const dimensions = {
+    width: await track.getDisplayWidth(),
+    height: await track.getDisplayHeight(),
+    bitrate: QUALITY_HIGH
+  };
+  const codec = await selectCodec(
+    await track.getCodec(),
+    format.getSupportedVideoCodecs(),
+    (candidate) => canEncodeVideo(candidate, dimensions),
+    signal
+  );
+  return { codec, bitrate: QUALITY_HIGH, forceTranscode: true };
+}
+
+async function videoTrimAudioOptions(track, format, signal) {
+  const parameters = {
+    numberOfChannels: await track.getNumberOfChannels(),
+    sampleRate: await track.getSampleRate(),
+    bitrate: 192e3
+  };
+  const codec = await selectCodec(
+    await track.getCodec(),
+    format.getSupportedAudioCodecs(),
+    (candidate) => canEncodeAudio(candidate, parameters),
+    signal
+  );
+  return { codec, ...parameters, forceTranscode: true };
+}
+
+async function exportTrimmedVideo({
+  source: source2,
+  start,
+  end,
+  signal,
+  onProgress
+}) {
+  signal?.throwIfAborted();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || Math.round((end - start) * 1e3) < 1e3) {
+    throw new Error("Invalid video trim range");
+  }
+  const input = new Input({ source: new BlobSource(source2), formats: ALL_FORMATS });
+  const target = new BufferTarget();
+  let output;
+  let conversion;
+  let cancellation;
+  let rejectExecution;
+  const cancel = () => {
+    if (conversion && !cancellation) cancellation = conversion.cancel().catch(() => {
+    });
+    if (signal?.aborted) rejectExecution?.(signal.reason);
+  };
+  signal?.addEventListener("abort", cancel, { once: true });
+  try {
+    const format = videoTrimOutputFormat(await input.getFormat());
+    const track = await input.getPrimaryVideoTrack();
+    if (!track) throw new Error("Source contains no video track");
+    const duration2 = await track.computeDuration();
+    const trimEnd = Math.min(end, duration2);
+    if (Math.round((trimEnd - start) * 1e3) < 1e3)
+      throw new Error("Trim range must contain at least one second of video");
+    const videos = /* @__PURE__ */ new Map();
+    for (const video of await input.getVideoTracks())
+      videos.set(video.id, await videoTrimVideoOptions(video, format, signal));
+    const audios = /* @__PURE__ */ new Map();
+    for (const audio of await input.getAudioTracks())
+      audios.set(audio.id, await videoTrimAudioOptions(audio, format, signal));
+    signal?.throwIfAborted();
+    output = new Output({ target, format });
+    conversion = await Conversion.init({
+      input,
+      output,
+      tracks: "all",
+      trim: { start, end: trimEnd },
+      // Always encode the video: copying packets can retain a preceding keyframe.
+      video: (video) => videos.get(video.id),
+      audio: (audio) => audios.get(audio.id),
+      showWarnings: false
+    });
+    if (signal?.aborted) {
+      cancel();
+      signal.throwIfAborted();
+    }
+    if (!conversion.isValid || conversion.discardedTracks.length > 0) {
+      throw new Error("Source tracks cannot be encoded without losing media");
+    }
+    conversion.onProgress = (progress) => {
+      if (!signal?.aborted) onProgress?.(Math.max(0, Math.min(1, progress)));
+    };
+    const aborted = new Promise((_, reject) => {
+      rejectExecution = reject;
+    });
+    await Promise.race([conversion.execute(), aborted]);
+    signal?.throwIfAborted();
+    if (!target.buffer?.byteLength) throw new Error("Video export produced no data");
+    return new Blob([target.buffer], { type: format.mimeType });
+  } catch (error) {
+    if (error instanceof UnsupportedInputFormatError)
+      throw new VideoTrimFormatError("unsupportedFormat", "Unsupported video trim container");
+    throw error;
+  } finally {
+    signal?.removeEventListener("abort", cancel);
+    cancel();
+    await cancellation;
+    if (!conversion && output) await output.cancel().catch(() => {
+    });
+    input.dispose();
+  }
+}
+
+async function drawTrimThumbnails(url, canvas, signal) {
+  const video = document.createElement("video");
+  video.muted = true;
+  video.preload = "auto";
+  const wait = (event, action) => new Promise((resolve, reject) => {
+    const cleanup = () => {
+      clearTimeout(timer);
+      video.removeEventListener(event, done);
+      video.removeEventListener("error", fail2);
+      signal.removeEventListener("abort", abort);
+    };
+    const done = () => {
+      cleanup();
+      resolve();
+    };
+    const fail2 = () => {
+      cleanup();
+      reject(new Error("thumbnail_decode_failed"));
+    };
+    const abort = () => {
+      cleanup();
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+    const timer = setTimeout(fail2, 15e3);
+    video.addEventListener(event, done, { once: true });
+    video.addEventListener("error", fail2, { once: true });
+    signal.addEventListener("abort", abort, { once: true });
+    if (signal.aborted) abort();
+    else {
+      try {
+        action();
+      } catch {
+        fail2();
+      }
+    }
+  });
+  try {
+    await wait("loadeddata", () => {
+      video.src = url;
+      video.load();
+    });
+    if (!Number.isFinite(video.duration) || video.duration <= 0)
+      throw new Error("invalid_duration");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("canvas_unavailable");
+    const width = canvas.width / 8;
+    const scale = Math.max(width / video.videoWidth, canvas.height / video.videoHeight);
+    const sw = width / scale;
+    const sh = canvas.height / scale;
+    for (let i = 0; i < 8; i++) {
+      await wait("seeked", () => {
+        video.currentTime = video.duration * (i + 0.5) / 8;
+      });
+      signal.throwIfAborted();
+      ctx.drawImage(
+        video,
+        (video.videoWidth - sw) / 2,
+        (video.videoHeight - sh) / 2,
+        sw,
+        sh,
+        i * width,
+        0,
+        width,
+        canvas.height
+      );
+    }
+  } finally {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+  }
+}
+
+const clamp$1 = (n, low, high) => Math.max(low, Math.min(high, n));
+
+const time = (n) => `${Math.floor(n / 60).toString().padStart(2, "0")}:${Math.floor(n % 60).toString().padStart(2, "0")}`;
+
+function VideoTrimPanel(props) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(TrimSession, { ...props }, `${props.videoUrl}:${props.videoName}`);
+}
+
+function TrimSession({
+  videoUrl,
+  videoName,
+  active: active2 = true,
+  onClose,
+  onExport,
+  renderPreview
+}) {
+  const { t } = useTranslation();
+  const video = reactExports.useRef(null);
+  const preview = reactExports.useRef(null);
+  const panel = reactExports.useRef(null);
+  const track = reactExports.useRef(null);
+  const strip = reactExports.useRef(null);
+  const source2 = reactExports.useRef(null);
+  const lifetime = reactExports.useRef(null);
+  const exporting = reactExports.useRef(null);
+  const closed = reactExports.useRef(false);
+  const [url, setUrl] = reactExports.useState("");
+  const [retry, setRetry] = reactExports.useState(0);
+  const [status, setStatus] = reactExports.useState("loading");
+  const [duration2, setDuration] = reactExports.useState(0);
+  const [range, setRange] = reactExports.useState({ start: 0, end: 0 });
+  const rangeRef = reactExports.useRef(range);
+  const [muted, setMuted] = reactExports.useState(true);
+  const [busy, setBusy] = reactExports.useState(false);
+  const [progress, setProgress] = reactExports.useState(0);
+  const [error, setError] = reactExports.useState(null);
+  const {
+    current,
+    setCurrent,
+    playing,
+    pause,
+    seek,
+    togglePlay,
+    syncPlayback,
+    onPlay,
+    onPause,
+    onEnded
+  } = useTrimPlayback({
+    media: video,
+    panel,
+    range: rangeRef,
+    ready: status === "ready" && duration2 >= MIN_VIDEO_TRIM_SECONDS,
+    active: active2,
+    busy,
+    onError: (failed) => setError(failed ? "playFailed" : null)
+  });
+  const durationLabel = `${(range.end - range.start).toFixed(1)}s`;
+  const durationTooltip = useTrimDurationTooltip(
+    durationLabel,
+    range.end - range.start,
+    current >= range.start && current <= range.end
+  );
+  const drag = reactExports.useRef(null);
+  const callbacks = reactExports.useRef({ onClose, onExport });
+  callbacks.current = { onClose, onExport };
+  const cancel = () => {
+    if (closed.current) return;
+    closed.current = true;
+    lifetime.current?.abort();
+    exporting.current?.abort();
+    pause();
+    callbacks.current.onClose();
+  };
+  const cancelRef = reactExports.useRef(cancel);
+  cancelRef.current = cancel;
+  reactExports.useEffect(() => {
+    const controller = new AbortController();
+    lifetime.current = controller;
+    closed.current = false;
+    let objectUrl = "";
+    setStatus("loading");
+    setError(null);
+    setUrl("");
+    (async () => {
+      try {
+        if (!source2.current) {
+          const response = await fetch(videoUrl, { signal: controller.signal });
+          if (!response.ok) throw new Error("source_unreadable");
+          const blob = await response.blob();
+          controller.signal.throwIfAborted();
+          source2.current = blob;
+        }
+        objectUrl = URL.createObjectURL(source2.current);
+        setUrl(objectUrl);
+        if (!strip.current) throw new Error("missing_strip");
+        await drawTrimThumbnails(objectUrl, strip.current, controller.signal);
+        if (!controller.signal.aborted)
+          setStatus((previous) => previous === "error" ? "error" : "ready");
+      } catch {
+        if (!controller.signal.aborted) {
+          setStatus("error");
+          setError("loadFailed");
+        }
+      }
+    })();
+    return () => {
+      controller.abort();
+      exporting.current?.abort();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [videoUrl, retry]);
+  reactExports.useEffect(() => {
+    if (!active2) {
+      drag.current = null;
+      exporting.current?.abort();
+    }
+    const key2 = (event) => {
+      if (active2 && event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        cancelRef.current();
+      }
+    };
+    document.addEventListener("keydown", key2, true);
+    return () => {
+      document.removeEventListener("keydown", key2, true);
+    };
+  }, [active2]);
+  const tooShort = duration2 > 0 && duration2 < MIN_VIDEO_TRIM_SECONDS;
+  const disabled = !active2 || busy || status !== "ready" || duration2 < MIN_VIDEO_TRIM_SECONDS;
+  const update = (kind, value, initial = rangeRef.current) => {
+    if (kind === "seek") {
+      seek(Math.round(value * 1e3) / 1e3);
+      return;
+    }
+    const next = adjustVideoTrimRange(initial, kind, value, duration2);
+    rangeRef.current = next;
+    setRange(next);
+    seek(video.current?.currentTime ?? current);
+  };
+  const pointerDown = (event, kind) => {
+    if (disabled || event.button !== 0 || !event.isPrimary || drag.current || !track.current)
+      return;
+    const bounds = track.current.getBoundingClientRect();
+    if (bounds.width <= 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    drag.current = {
+      kind,
+      x: event.clientX,
+      width: bounds.width,
+      left: bounds.left,
+      time: video.current?.currentTime ?? current,
+      moved: false,
+      ...rangeRef.current,
+      pointer: event.pointerId
+    };
+  };
+  const pointerMove = (event) => {
+    const initial = drag.current;
+    if (!initial || initial.pointer !== event.pointerId || disabled || !track.current) return;
+    const movement = event.clientX - initial.x;
+    if (initial.kind === "move" && !initial.moved && Math.abs(movement) < VIDEO_TRIM_DRAG_THRESHOLD)
+      return;
+    initial.moved = true;
+    const delta = movement / initial.width * duration2;
+    update(
+      initial.kind,
+      (initial.kind === "seek" ? initial.time : initial.kind === "end" ? initial.end : initial.start) + delta,
+      initial
+    );
+  };
+  const endDrag = (event, commit) => {
+    const initial = drag.current;
+    if (!initial || initial.pointer !== event.pointerId) return;
+    if (commit && (initial.kind !== "move" || initial.moved)) pointerMove(event);
+    drag.current = null;
+    if (initial.kind === "move" && !initial.moved) {
+      if (commit) update("seek", (event.clientX - initial.left) / initial.width * duration2);
+    }
+    if (event.currentTarget.hasPointerCapture(event.pointerId))
+      event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+  const slider = (kind, value, label) => ({
+    role: "slider",
+    tabIndex: disabled ? -1 : 0,
+    "aria-label": label,
+    "aria-valuemin": kind === "end" ? range.start + MIN_VIDEO_TRIM_SECONDS : 0,
+    "aria-valuemax": kind === "start" ? Math.max(0, range.end - MIN_VIDEO_TRIM_SECONDS) : kind === "move" ? duration2 - range.end + range.start : duration2,
+    "aria-valuenow": value,
+    "aria-orientation": "horizontal",
+    "aria-valuetext": `${value.toFixed(2)}s`,
+    "aria-disabled": disabled,
+    onPointerDown: (event) => pointerDown(event, kind),
+    onPointerMove: pointerMove,
+    onPointerUp: (event) => endDrag(event, true),
+    onPointerCancel: (event) => endDrag(event, false),
+    onLostPointerCapture: (event) => endDrag(event, false),
+    onKeyDown: (event) => {
+      if (disabled || ![
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowUp",
+        "ArrowDown",
+        "PageUp",
+        "PageDown",
+        "Home",
+        "End"
+      ].includes(event.key))
+        return;
+      event.preventDefault();
+      event.stopPropagation();
+      update(
+        kind,
+        event.key === "Home" ? 0 : event.key === "End" ? duration2 : value + (["ArrowLeft", "ArrowDown", "PageDown"].includes(event.key) ? -1 : 1) * (event.key.startsWith("Page") || kind === "seek" && event.shiftKey ? 1 : 0.01)
+      );
+    }
+  });
+  const confirm = async () => {
+    if (disabled || exporting.current || !source2.current) return;
+    const controller = new AbortController();
+    exporting.current = controller;
+    setBusy(true);
+    setError(null);
+    setProgress(0);
+    pause();
+    try {
+      const blob = await exportTrimmedVideo({
+        source: source2.current,
+        ...rangeRef.current,
+        signal: controller.signal,
+        onProgress: (value) => {
+          if (!controller.signal.aborted) setProgress(clamp$1(value, 0, 1));
+        }
+      });
+      if (controller.signal.aborted || closed.current) return;
+      await callbacks.current.onExport(blob, videoTrimFilename(videoName, blob));
+      if (!controller.signal.aborted && !closed.current) cancelRef.current();
+    } catch (cause) {
+      if (!controller.signal.aborted && !closed.current)
+        setError(cause instanceof VideoTrimFormatError ? cause.code : "exportFailed");
+    } finally {
+      if (exporting.current === controller) exporting.current = null;
+      if (!closed.current && !lifetime.current?.signal.aborted) setBusy(false);
+    }
+  };
+  const percent = (n) => `${duration2 ? n / duration2 * 100 : 0}%`;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    renderPreview(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          ref: preview,
+          className: "nodrag nopan relative h-full w-full overflow-hidden rounded-[inherit]",
+          onPointerDown: (event) => event.stopPropagation(),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "video",
+              {
+                ref: video,
+                src: url || void 0,
+                muted,
+                playsInline: true,
+                preload: "auto",
+                className: "h-full w-full object-contain",
+                onLoadedMetadata: (event) => {
+                  const d = Math.round(event.currentTarget.duration * 1e3) / 1e3;
+                  if (!Number.isFinite(d) || d <= 0) {
+                    setStatus("error");
+                    setError("loadFailed");
+                    return;
+                  }
+                  setDuration(d);
+                  rangeRef.current = { start: 0, end: d };
+                  setRange(rangeRef.current);
+                  setCurrent(0);
+                },
+                onPlay,
+                onPause,
+                onEnded,
+                onTimeUpdate: syncPlayback,
+                onError: () => {
+                  if (url && !closed.current) {
+                    setStatus("error");
+                    setError("loadFailed");
+                  }
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute bottom-3 right-3 flex gap-2 text-[var(--media-overlay-foreground)]", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "ghost",
+                  size: "icon",
+                  className: "rounded-full bg-[var(--media-overlay-surface-strong)] text-inherit hover:bg-[var(--media-overlay-surface)]",
+                  disabled,
+                  "aria-label": t(muted ? "canvas.videoTrim.unmute" : "canvas.videoTrim.mute"),
+                  onClick: () => setMuted(!muted),
+                  children: muted ? /* @__PURE__ */ jsxRuntimeExports.jsx(VolumeX, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(Volume2, {})
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Button,
+                {
+                  variant: "ghost",
+                  size: "icon",
+                  className: "rounded-full bg-[var(--media-overlay-surface-strong)] text-inherit hover:bg-[var(--media-overlay-surface)]",
+                  disabled,
+                  "aria-label": t("canvas.videoTrim.fullscreen"),
+                  onClick: () => {
+                    const action = document.fullscreenElement ? document.exitFullscreen() : preview.current?.requestFullscreen();
+                    action?.catch(() => {
+                      if (!closed.current) setError("fullscreenFailed");
+                    });
+                  },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(FullscreenIcon, {})
+                }
+              )
+            ] })
+          ]
+        }
+      )
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "section",
+      {
+        ref: panel,
+        "aria-label": t("canvas.videoTrim.controls"),
+        "data-slot": "video-trim-controls",
+        className: "nodrag nopan nowheel relative flex w-[640px] max-w-[calc(100vw-32px)] flex-col gap-3 rounded-[20px] border border-border bg-popover p-4 text-popover-foreground shadow-lg",
+        onPointerDown: (event) => event.stopPropagation(),
+        onWheel: (event) => event.stopPropagation(),
+        onKeyDown: (event) => event.stopPropagation(),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              ref: track,
+              "data-slot": "video-trim-track",
+              className: "relative isolate h-16 shrink-0 touch-none rounded-[10px] bg-muted",
+              onPointerDown: (event) => {
+                if (disabled || event.button !== 0 || event.target !== event.currentTarget) return;
+                const bounds = event.currentTarget.getBoundingClientRect();
+                update("seek", (event.clientX - bounds.left) / bounds.width * duration2);
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "canvas",
+                  {
+                    ref: strip,
+                    width: 1088,
+                    height: 128,
+                    className: "pointer-events-none h-full w-full rounded-[10px]"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    className: "pointer-events-none absolute inset-y-0 left-0 rounded-l-[8px] bg-background/70",
+                    style: { width: percent(range.start) }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    className: "pointer-events-none absolute inset-y-0 right-0 rounded-r-[8px] bg-background/70",
+                    style: { width: percent(duration2 - range.end) }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { content: durationLabel, open: durationTooltip.open, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
+                  {
+                    ...slider("move", range.start, t("canvas.videoTrim.selection")),
+                    ...durationTooltip.bind("selection"),
+                    "data-action-ui-id": "video-trim-selection",
+                    className: "absolute inset-y-0 z-20 cursor-grab active:cursor-grabbing focus-visible:outline focus-visible:outline-ring",
+                    style: { left: percent(range.start), width: percent(range.end - range.start) },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pointer-events-none absolute inset-y-px right-0 w-12 max-w-full rounded-r-[4px] bg-gradient-to-r from-transparent to-[var(--media-overlay-surface)]" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pointer-events-none absolute inset-0 flex min-w-0 items-center justify-end overflow-hidden px-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          ref: durationTooltip.labelRef,
+                          className: "truncate text-xs font-medium tabular-nums text-[var(--media-overlay-foreground)]",
+                          children: durationLabel
+                        }
+                      ) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          "data-slot": "video-trim-selection-border",
+                          className: "pointer-events-none absolute inset-x-0 inset-y-px rounded-[10px] border-2 border-[var(--media-overlay-foreground)] ring-2 ring-foreground"
+                        }
+                      )
+                    ]
+                  }
+                ) }),
+                ["start", "end"].map((kind) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    ...slider(kind, range[kind], t(`canvas.videoTrim.${kind}`)),
+                    ...durationTooltip.bind(kind),
+                    "data-action-ui-id": `video-trim-${kind}`,
+                    className: `group/trim-handle absolute inset-y-0 z-40 w-[22px] cursor-ew-resize focus-visible:outline focus-visible:outline-ring ${kind === "start" ? "-translate-x-full" : ""}`,
+                    style: { left: percent(range[kind]) },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "span",
+                      {
+                        "data-slot": "video-trim-handle-grip",
+                        className: `pointer-events-none absolute top-1/2 flex h-6 w-1 -translate-y-1/2 items-center justify-center rounded-full bg-primary transition-[width,height] duration-150 ease-[ease-out] group-hover/trim-handle:h-7 group-hover/trim-handle:w-1.5 group-focus-visible/trim-handle:h-7 group-focus-visible/trim-handle:w-1.5 motion-reduce:transition-none ${kind === "start" ? "right-[3px]" : "left-[3px]"}`,
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "span",
+                          {
+                            "data-slot": "video-trim-handle-dots",
+                            "aria-hidden": "true",
+                            className: "flex flex-col gap-0.5 opacity-0 transition-opacity duration-150 ease-[ease-out] group-hover/trim-handle:opacity-100 group-focus-visible/trim-handle:opacity-100 motion-reduce:transition-none",
+                            children: [0, 1, 2].map((dot) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "span",
+                              {
+                                className: "size-0.5 shrink-0 rounded-full bg-primary-foreground"
+                              },
+                              dot
+                            ))
+                          }
+                        )
+                      }
+                    )
+                  },
+                  kind
+                )),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    ...slider("seek", current, t("canvas.videoTrim.playhead")),
+                    ...durationTooltip.bind("playhead"),
+                    "data-action-ui-id": "video-trim-playhead",
+                    className: `absolute -bottom-0.5 -top-1 z-30 w-[1.5px] -translate-x-1/2 cursor-grab rounded-full ${mediaPlayheadColorClass} before:absolute before:inset-y-0 before:-inset-x-[22px] before:content-[''] active:cursor-grabbing focus-visible:outline focus-visible:outline-ring`,
+                    style: { left: percent(current) },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(MediaPlayheadHead, {})
+                  }
+                ),
+                status === "loading" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    role: "status",
+                    className: "absolute inset-0 flex items-center justify-center rounded-sm bg-popover/80 text-xs text-muted-foreground",
+                    children: t("common.loading")
+                  }
+                )
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex h-9 shrink-0 items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
+              {
+                variant: "secondary",
+                size: "icon",
+                className: "size-8 cursor-pointer rounded-full bg-[var(--button-subtle-bg)] text-foreground hover:bg-[var(--button-subtle-bg-hover)]",
+                disabled,
+                "data-action-ui-id": "video-trim-play",
+                "aria-label": playing ? t("canvas.pause") : t("canvas.play"),
+                onClick: () => void togglePlay(),
+                children: playing ? /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPauseIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-flex translate-y-[0.5px]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(PlaybackPlayIcon, {}) })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs tabular-nums text-muted-foreground", children: [
+              time(current),
+              " / ",
+              time(duration2)
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "flex-1" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Button,
+              {
+                variant: "link",
+                className: "h-[34px] cursor-pointer gap-1.5 px-2 text-muted-foreground hover:text-[color-mix(in_srgb,var(--muted-foreground)_80%,var(--foreground))] hover:no-underline",
+                disabled: !active2,
+                onClick: () => cancelRef.current(),
+                "aria-keyshortcuts": "Escape",
+                "data-action-ui-id": "video-trim-cancel",
+                children: [
+                  t("common.cancel"),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { className: "font-sans text-[10px]", children: "Esc" })
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
+              {
+                className: "h-[34px] w-[88px] cursor-pointer",
+                disabled,
+                onClick: () => void confirm(),
+                "data-action-ui-id": "video-trim-confirm",
+                children: busy ? `${Math.round(progress * 100)}%` : t("common.confirm")
+              }
+            )
+          ] }),
+          (error || tooShort) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              role: "alert",
+              className: "absolute inset-x-0 top-full mt-2 flex items-center justify-between gap-2 rounded-lg border border-border bg-popover px-3 py-2 text-xs text-destructive",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t(`canvas.videoTrim.${tooShort ? "tooShort" : error}`) }),
+                !tooShort && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Button,
+                  {
+                    variant: "ghost",
+                    size: "sm",
+                    onClick: () => {
+                      if (error === "loadFailed") setRetry((value) => value + 1);
+                      else if (error === "exportFailed") void confirm();
+                      else if (error === "playFailed") void togglePlay();
+                      else setError(null);
+                    },
+                    children: t(
+                      error === "fullscreenFailed" || error === "unsupportedFormat" || error === "unsupportedCodec" ? "common.confirm" : "canvas.videoTrim.retry"
+                    )
+                  }
+                )
+              ]
+            }
+          )
+        ]
+      }
+    )
+  ] });
+}
+
+function CanvasV3AudioTrim({ nodeId, ...props }) {
+  const exists = useStore((state) => state.nodeLookup.has(nodeId));
+  if (!exists) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    NodeToolbar,
+    {
+      nodeId,
+      isVisible: true,
+      position: Position.Bottom,
+      offset: 19,
+      style: { zIndex: 1100 },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(AudioTrimPanel, { ...props })
+    }
+  );
+}
+
+function CanvasV3VideoFrameCapture({ nodeId, frameMode = "custom", ...props }) {
+  const node = useStore((state) => state.nodeLookup.get(nodeId));
+  if (!node) return null;
+  const position = node.internals.positionAbsolute;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    NodeToolbar,
+    {
+      nodeId,
+      isVisible: true,
+      position: Position.Bottom,
+      offset: 19,
+      style: { zIndex: 1100 },
+      children: frameMode !== "custom" ? /* @__PURE__ */ jsxRuntimeExports.jsx(QuickFrameCapture, { ...props, frameMode }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+        VideoFrameCapturePanel,
+        {
+          ...props,
+          renderPreview: (preview) => /* @__PURE__ */ jsxRuntimeExports.jsx(ViewportPortal, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "pointer-events-auto absolute z-[1001] nodrag nopan",
+              "data-canvas-v3-local-edit": "video-frame-capture",
+              style: {
+                left: position.x,
+                top: position.y,
+                width: node.width ?? node.measured.width,
+                height: node.height ?? node.measured.height
+              },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(MediaNodeBody, { selected: true, children: preview })
+            }
+          ) })
+        }
+      )
+    }
+  );
+}
+
+function QuickFrameCapture({
+  active: active2,
+  videoUrl,
+  videoName,
+  onExport,
+  onClose,
+  frameMode
+}) {
+  const { t } = useTranslation();
+  const latest = reactExports.useRef({ onExport, onClose });
+  latest.current = { onExport, onClose };
+  const [retry, setRetry] = reactExports.useState(0);
+  const [failed, setFailed] = reactExports.useState(false);
+  const output = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    if (!active2) return;
+    const controller = new AbortController();
+    const { signal } = controller;
+    const handleEscape = (event) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      controller.abort();
+      latest.current.onClose();
+    };
+    document.addEventListener("keydown", handleEscape, true);
+    setFailed(false);
+    void (async () => {
+      let source2;
+      try {
+        if (!output.current) {
+          const response = await fetch(videoUrl, { signal });
+          if (!response.ok) throw new Error("FRAME_SOURCE_UNAVAILABLE");
+          source2 = await createVideoFrameCaptureSource(await response.blob(), signal);
+          const frame = await source2.capture(frameMode === "first" ? 0 : source2.duration);
+          signal.throwIfAborted();
+          output.current = {
+            blob: frame.blob,
+            filename: `${videoName.replace(/\.[^.]+$/, "")}-${frameMode}-frame.png`
+          };
+        }
+        signal.throwIfAborted();
+        await latest.current.onExport([output.current]);
+        signal.throwIfAborted();
+        latest.current.onClose();
+      } catch {
+        if (!signal.aborted) setFailed(true);
+      } finally {
+        source2?.dispose();
+      }
+    })();
+    return () => {
+      controller.abort();
+      document.removeEventListener("keydown", handleEscape, true);
+    };
+  }, [active2, videoUrl, videoName, frameMode, retry]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "nodrag nopan nowheel flex items-center gap-2 rounded-lg border border-border bg-popover p-2 text-xs text-popover-foreground shadow-lg",
+      "data-slot": "video-frame-quick-status",
+      onPointerDown: (event) => event.stopPropagation(),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { role: failed ? "alert" : "status", children: t(failed ? "canvas.frameCapture.quickFailed" : "canvas.frameCapture.capturing") }),
+        failed && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", onClick: () => setRetry((value) => value + 1), children: t("canvas.videoTrim.retry") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "ghost", onClick: onClose, children: t("common.cancel") })
+      ]
+    }
+  );
+}
+
+function CanvasV3VideoTrim({
+  nodeId,
+  ...props
+}) {
+  const node = useStore((state) => state.nodeLookup.get(nodeId));
+  if (!node) return null;
+  const position = node.internals.positionAbsolute;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    NodeToolbar,
+    {
+      nodeId,
+      isVisible: true,
+      position: Position.Bottom,
+      offset: 19,
+      style: { zIndex: 1100 },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        VideoTrimPanel,
+        {
+          ...props,
+          renderPreview: (preview) => /* @__PURE__ */ jsxRuntimeExports.jsx(ViewportPortal, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "pointer-events-auto absolute z-[1001] nodrag nopan",
+              "data-canvas-v3-local-edit": "video-trim",
+              style: {
+                left: position.x,
+                top: position.y,
+                width: node.width ?? node.measured.width,
+                height: node.height ?? node.measured.height
+              },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(MediaNodeBody, { selected: true, children: preview })
+            }
+          ) })
+        }
+      )
     }
   );
 }
