@@ -34,6 +34,7 @@ import { ProjectService } from "./project/project-service.js";
 import { handleAppScheme, registerAppScheme } from "./protocol.js";
 import { LogLevelController } from "./log-level.js";
 import { MainHeartbeat } from "./heartbeat.js";
+import { SitePreviewService } from "./site-preview.js";
 import { readSettings, writeSettings } from "./settings.js";
 import { exportLogs, registerRawIpc, wireFullscreenEvents, wireNetworkStatusEvents } from "./raw-ipc.js";
 import { RestoreHealth, runStartupRestore } from "./restore.js";
@@ -77,6 +78,7 @@ interface Running {
   appGateway: AppGateway;
   heartbeat: MainHeartbeat;
   logLevel: LogLevelController;
+  sitePreview: SitePreviewService;
   store: GlobalStore;
   health: RestoreHealth;
   appUrl: string;
@@ -252,6 +254,7 @@ async function boot(): Promise<Running | undefined> {
   const logLevel = new LogLevelController(log);
   const heartbeat = new MainHeartbeat(() => appGatewayProc.running?.url, logLevel, log);
   heartbeat.start();
+  const sitePreview = new SitePreviewService(gateways, log);
 
   // 外部 Agent（4.0.3）：按设置决定起不起；gateway 没就绪就不起（每一轮都要打回 gateway）
   const externalAgent = new ExternalAgentService({
@@ -406,6 +409,7 @@ async function boot(): Promise<Running | undefined> {
   // 渲染层的 mount() 走 INativeWorkbenchService → 这个通道，
   // 通道不存在 → mount 永远不会发生 → 资源视图永远不可用。
   registerChannel("nativeWorkbench", nativeWorkbench);
+  registerChannel("sitePreview", { resolve: sitePreview.resolve.bind(sitePreview) });
   registerChannel("project", projects);
   // 用户自建的技能优先于自带的
   registerChannel("skillExport", createSkillExportService(() => [dirs.userSkillsDir, path.join(dirs.hubRoot, "skills")]));
@@ -576,7 +580,7 @@ async function boot(): Promise<Running | undefined> {
   const quitAfter = Number(process.env.OV_DEV_QUIT_AFTER_MS);
   if (!app.isPackaged && quitAfter > 0) setTimeout(() => app.quit(), quitAfter).unref();
 
-  return { hilo, appGateway, heartbeat, logLevel, store, health, appUrl, logStream: stream };
+  return { hilo, appGateway, heartbeat, logLevel, sitePreview, store, health, appUrl, logStream: stream };
 }
 
 if (!app.requestSingleInstanceLock()) {
@@ -635,6 +639,7 @@ if (!app.requestSingleInstanceLock()) {
       }
       r.heartbeat.stop();
       r.logLevel.dispose();
+      r.sitePreview.dispose();
       await r.hilo.shutdown();
       await r.appGateway.stop();
       // 正常退出：恢复熔断计数清零
@@ -647,6 +652,7 @@ if (!app.requestSingleInstanceLock()) {
   const stopAllSync = () => {
     running?.heartbeat.stop();
     running?.logLevel.dispose();
+    running?.sitePreview.dispose();
     running?.hilo.shutdownSync();
     running?.appGateway.stopSync();
   };

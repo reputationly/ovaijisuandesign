@@ -19,6 +19,7 @@ const MIME: Record<string, string> = {
 export function registerAppScheme() {
   protocol.registerSchemesAsPrivileged([
     { scheme: "app", privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } },
+    { scheme: "hub-site", privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } },
   ]);
 }
 

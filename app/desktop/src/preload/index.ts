@@ -314,6 +314,7 @@ const hilo = {
     addBreadcrumb: (category: string, message: string, data?: unknown) => invoke("app:add-breadcrumb", category, message, data),
   },
   screenshot: { start: (params?: unknown) => invoke("screenshot:start", params) },
+  sitePreview: { resolve: (request: unknown) => invoke("sitePreview.resolve", request) },
   // 不暴露 browser：内置浏览器不在范围内。渲染层对 `hilo.browser` 全程可选链，缺席时
   // 网页链接走系统浏览器、项目预览走 DOM 版本；给一组空桩反而会让它以为能开内置浏览器。
   perf: {
