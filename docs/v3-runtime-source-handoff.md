@@ -133,7 +133,7 @@ TanStack Router，hash 路由。模块表在入口 chunk 里（`F4 = [assets, ca
 
 - **shell 里设了 `ELECTRON_RUN_AS_NODE=1`**，它会让门禁的 Electron 起不来（表现：「等不到界面页面」）。
   所有门禁命令前面加 `env -u ELECTRON_RUN_AS_NODE ELECTRON_DISABLE_SANDBOX=1`。
-- 主进程有 **10 分钟闲置挂起**（`DEFAULT_IDLE_SUSPEND_MS`）。门禁全量要保持在约 16 分钟、单屏间隔约 25 秒；
+- 主进程有 **10 分钟闲置挂起**（`DEFAULT_IDLE_SUSPEND_MS`）。门禁全量实测约 18~19 分钟（2026-10-24）、单屏间隔约 25 秒；
   如果全量明显变慢，后面的屏会因为工作区被挂起而失败。先查门禁为什么变慢，不要绕开。
 - 门禁运行时机器上不要跑别的 Electron / 构建，端口 9360 必须空闲。
 
