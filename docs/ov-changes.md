@@ -174,3 +174,15 @@
 1. #2 / #5 的现状确认（本轮没查到落点，未臆造）
 2. ~~v3 那两屏的 7 条真实缺口~~ —— 已清零（67e9fc82、a0c199ce）；属于还原缺口，不是产品改动
 3. ~~门禁采集 v3 工作台的 webContents~~ —— 已做；只有 `ws-a-v3-resource` 挂工作台视图
+
+
+---
+
+## #12 v3 运行时切 4.0.4（阶段 3）
+
+- `scripts/v3-runtime/v3-4.0.4.tgz`：从历史 `50abf9ff` 恢复，sha256 `88076404d0d979ae568a9aa862ee81dfb02b6afd8347e698256f4b541c5b4e59`；
+- `scripts/v3-runtime.lock.json`、`scripts/reference-version.json`、`patches-v3.mjs VERSION` 全部切到 4.0.4；
+- `node scripts/stage-v3-bundle.mjs` 走仓库压缩包装配，标题补丁命中 1 次，清单 345 文件；
+- 桌面构建 `pnpm --filter @ov/desktop build` exit 0；
+- 新基线：`~/ov-golden-4.0.4-clean`（37 屏同批）、`~/ov-golden-v3-4.0.4`（7 屏）；
+- 37 屏 / v3 七屏门禁均 exit 0；任务订阅 `task_subscribe`/`task_unsubscribe` 在 `expected-diffs.json` 登记为 refOnly（任务面板待做）。
