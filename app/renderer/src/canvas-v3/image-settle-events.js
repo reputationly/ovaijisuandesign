@@ -1,6 +1,6 @@
 import reactExports from "react";
 
-import { PERF_CANVAS_V3_FIRST_IMAGE_READY, PERF_CANVAS_V3_IMAGES_SETTLED, recordPerfSpan } from "../infra/perf-spans.js";
+import { PERF_CANVAS_V3_FIRST_IMAGE_READY, PERF_CANVAS_V3_FIRST_NODE_COMMIT, PERF_CANVAS_V3_FIRST_NODE_PAINT, PERF_CANVAS_V3_IMAGES_SETTLED, recordPerfSpan } from "../infra/perf-spans.js";
 
 const SETTLE_MS = 500;
 
@@ -17,6 +17,7 @@ export function useCanvasV3ImageSettleEvents(workspaceId, active = true) {
     let stopped = false;
     let timer = 0;
     let firstReported = false;
+    let firstNodeReported = false;
     const pending = new Set();
     const watched = new WeakSet();
     let root = document.querySelector(".react-flow");
@@ -57,6 +58,13 @@ export function useCanvasV3ImageSettleEvents(workspaceId, active = true) {
     const scan = () => {
       if (!root) root = document.querySelector(".react-flow");
       if (!root) return;
+      if (!firstNodeReported && root.querySelector(".react-flow__node")) {
+        firstNodeReported = true;
+        recordPerfSpan(PERF_CANVAS_V3_FIRST_NODE_COMMIT, performance.now(), { workspaceId });
+        requestAnimationFrame(() => {
+          if (!stopped) recordPerfSpan(PERF_CANVAS_V3_FIRST_NODE_PAINT, performance.now(), { workspaceId });
+        });
+      }
       for (const img of root.querySelectorAll("img")) watch(img);
       settle();
     };
