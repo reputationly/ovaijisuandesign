@@ -299,6 +299,14 @@ export class ProjectTaskController {
       if (typeof raw.expectedRevision !== "number") {
         throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid expectedRevision");
       }
+      // 4.0.4 起 action 是必填且在校验顺序里排在任务查找之前：
+      // 缺 action 的旧请求现在返回 400 "Invalid action"，不再落到 404。
+      if (
+        typeof raw.action !== "string" ||
+        !["pause", "resume", "stop", "adopt_version", "finish_as_candidate", "update_placement", "finish_without_placement", "retry"].includes(raw.action)
+      ) {
+        throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid action");
+      }
       const task = this.tasks.stop(id, raw.expectedRevision);
       const { GenerationRunner } = await import("./generation-runner.service.js");
       await this.modules.get(GenerationRunner, { strict: false }).cancel(id);

@@ -1,5 +1,5 @@
 {
- "source": "reference gateway 4.0.0 (sandbox, token=rec-token, user=rec-user)",
+ "source": "reference gateway 4.0.4 (sidecar, token=rec-token, user=rec-user)",
  "cases": [
   {
    "name": "list",
@@ -57,7 +57,7 @@
     },
     "subtasks": [],
     "concurrency": [],
-    "updatedAt": 1792487254126,
+    "updatedAt": 1792817024166,
     "coverage": {
      "status": "partial",
      "reasons": [
@@ -104,11 +104,11 @@
     "requestId": "ctrl-1",
     "expectedRevision": 1
    },
-   "status": 404,
+   "status": 400,
    "body": {
     "error": {
-     "code": "NOT_FOUND",
-     "message": "GenerationTask is not readable",
+     "code": "INVALID_ARGUMENT",
+     "message": "Invalid action",
      "retryable": false
     }
    }
