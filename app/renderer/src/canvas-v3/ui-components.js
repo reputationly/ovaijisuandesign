@@ -10,6 +10,7 @@
  * 只搬实现，未改语义。
  */
 // ==== npm 导入：按真实导出映射生成（scripts/v3preload/map-npm-exports.mjs）====
+import { PERF_CANVAS_V3_CONTENT_BATCH, PERF_CANVAS_V3_CONTENT_FIRST_PUBLISH, PERF_CANVAS_V3_CONTENT_INITIAL, recordPerfSpan } from "../infra/perf-spans.js";
 import { Extension, InputRule, Mark as TiptapMark, Node as TiptapNode, NodeView, PasteRule, callOrReturn, canInsertNode, combineTransactionSteps, findChildrenInRange, getAttributes, getChangedRanges, getExtensionField, getMarksBetween, getNodeAtPosition, getNodeType, getRenderedAttributes, isAtEndOfNode, isAtStartOfNode, isNodeActive, isNodeEmpty, isNodeSelection, isTextSelection, markInputRule, markPasteRule, mergeAttributes, nodeInputRule, selectionToInsertionEnd, textblockTypeInputRule, wrappingInputRule } from "@tiptap/core";
 import { EditorContent, NodeViewWrapper, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import { gapCursor } from "prosemirror-gapcursor";
@@ -3521,10 +3522,15 @@ class CanvasV3Editor {
 }
 
 class CanvasV3ContentStore {
-  constructor(transport) {
+  constructor(transport, options = {}) {
     this.transport = transport;
+    this.perfScope = options.perfScope;
   }
   transport;
+  perfScope;
+  perfStarted = false;
+  initialPerf;
+  firstPublished = false;
   entries = /* @__PURE__ */ new Map();
   listeners = /* @__PURE__ */ new Set();
   snapshot = /* @__PURE__ */ new Map();
@@ -3543,6 +3549,16 @@ class CanvasV3ContentStore {
   };
   publish() {
     this.snapshot = new Map(this.entries);
+    if (!this.firstPublished) {
+      for (const entry of this.entries.values()) {
+        if (entry.state !== "ready") continue;
+        this.firstPublished = true;
+        recordPerfSpan(PERF_CANVAS_V3_CONTENT_FIRST_PUBLISH, this.initialPerf?.start ?? performance.now(), {
+          workspaceId: this.perfScope,
+        });
+        break;
+      }
+    }
     for (const listener of [...this.listeners]) listener();
   }
   /** Declare the Compositions a document needs; unknown ones load, dropped ones are forgotten. */
@@ -3552,6 +3568,12 @@ class CanvasV3ContentStore {
     for (const node2 of Object.values(document2.nodes))
       if (node2.kind === "composition") wanted.add(node2.compositionId);
     this.wanted = wanted;
+    if (!this.perfStarted) {
+      this.perfStarted = true;
+      const start = typeof performance === "undefined" ? 0 : performance.now();
+      if (wanted.size) this.initialPerf = { start, pending: new Set(wanted), total: wanted.size, batches: 0, failed: 0 };
+      else recordPerfSpan(PERF_CANVAS_V3_CONTENT_INITIAL, start, { workspaceId: this.perfScope, compositions: 0 });
+    }
     let changed = false;
     for (const id2 of [...this.entries.keys()])
       if (!wanted.has(id2)) {
@@ -3610,15 +3632,19 @@ class CanvasV3ContentStore {
     for (const id2 of ids2) this.pending.add(id2);
     for (let i2 = 0; i2 < ids2.length; i2 += 100) {
       const batch2 = ids2.slice(i2, i2 + 100);
+      const batchStart = typeof performance === "undefined" ? 0 : performance.now();
       const results = await this.readIsolated(batch2);
       if (this.disposed) return;
+      let failed = 0;
       for (const id2 of batch2) {
         this.pending.delete(id2);
         if (!this.wanted.has(id2)) continue;
         const result = results.get(id2);
         if (!result || "error" in result) {
+          failed++;
           if (this.entries.get(id2)?.state !== "ready")
             this.entries.set(id2, { state: "error", error: result?.error });
+          this.settleInitial(id2);
           continue;
         }
         const raw2 = result.content ?? { compositionId: id2, state: "missing" };
@@ -3629,10 +3655,29 @@ class CanvasV3ContentStore {
           items: content2.state === "ready" ? canvasV3ContentItems(content2) : [],
           editorSourceOnly: raw2 !== content2 && content2.state === "ready" && !content2.members.length && !content2.taskOutputs.length
         });
+        this.settleInitial(id2);
       }
+      if (this.initialPerf) this.initialPerf.batches++;
+      recordPerfSpan(PERF_CANVAS_V3_CONTENT_BATCH, batchStart, {
+        workspaceId: this.perfScope,
+        batch: batch2.length,
+        failed,
+      });
     }
     this.publish();
     if (this.queued.size) this.queue([...this.queued][0]);
+  }
+  settleInitial(id2) {
+    const initial = this.initialPerf;
+    if (!initial) return;
+    initial.pending.delete(id2);
+    if (initial.pending.size) return;
+    this.initialPerf = undefined;
+    recordPerfSpan(PERF_CANVAS_V3_CONTENT_INITIAL, initial.start, {
+      workspaceId: this.perfScope,
+      compositions: initial.total,
+      batches: initial.batches,
+    });
   }
   /**
    * The server fails a whole batch when one Composition cannot be projected. Bisect a failed
