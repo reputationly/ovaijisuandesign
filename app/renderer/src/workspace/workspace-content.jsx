@@ -61,6 +61,7 @@ import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
 import { subjectMaterialDrafts } from "./create-subject-material-draft-inbox.jsx";
 import { WorkspaceCanvasArea } from "./workspace-canvas-area.jsx";
 import { notifyBrowserCanvasFileAdded } from "../text-editor/read-preview-text-response.jsx";
+import { PERF_CANVAS_V3_WORKSPACE_ACTIVATE, recordPerfSpan } from "../infra/perf-spans.js";
 import { WorkspaceStructureSurface, useWorkspaceStructureSurface, WorkspaceTaskAcceptance } from "./workspace-structure-surface.jsx";
 import { WorkspaceResultNavigationLayout } from "./result-navigation-provider.js";
 import { CanvasLoadingPresenceContext } from "./canvas-loading-state.jsx";
@@ -735,6 +736,11 @@ export function WorkspaceContent({
   stageLayoutReady,
 }) {
   useBrowserVideoDownload(isActive !== false);
+  const activatedAt = reactExports.useRef(performance.now());
+  reactExports.useEffect(() => {
+    if (isActive === false) return;
+    recordPerfSpan(PERF_CANVAS_V3_WORKSPACE_ACTIVATE, activatedAt.current, { workspaceId });
+  }, [isActive, workspaceId]);
   const assetPanelIdSuffix = reactExports.useId();
   const assetPanelId = `workspace-project-assets-panel-${assetPanelIdSuffix}`;
   const stageLayout = selectWorkspaceStageLayout(stageState);
