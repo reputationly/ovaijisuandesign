@@ -5764,11 +5764,12 @@ function CanvasV3Image(props) {
               title: entry.title,
               onPreview: current2 ? props.onPreview : void 0,
               hideLoading: props.hideLoading || retaining,
-              onLoad: (image2) => {
+              onReady: () => {
                 if (!current2) return;
                 if (props.src) setPainted({ src: props.src, title: props.title, attempt });
-                props.onLoad?.(image2);
+                props.onReady?.();
               },
+              onLoad: current2 ? props.onLoad : void 0,
               onError: () => {
                 if (current2) {
                   setFailedSource(props.src);
@@ -5785,7 +5786,7 @@ function CanvasV3Image(props) {
         `${entry.src}:${entry.attempt}`
       );
     }),
-    retaining && failedSource !== props.src && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    retaining && !props.retainQuietly && failedSource !== props.src && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "span",
       {
         role: "status",

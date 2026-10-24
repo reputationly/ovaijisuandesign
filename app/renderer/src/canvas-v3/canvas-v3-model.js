@@ -928,10 +928,12 @@ function parseCanvasV3CompositionContent(value) {
     const r2 = shape$1(
       entry,
       ["resourceId", "name", "kind", "currentVersionId", "availability", "versions"],
-      ["originalFile", "subtitleFormat", "initialText"]
+      ["originalFile", "subtitleFormat", "fileExtension", "sitePackage", "initialText"]
     );
     if (r2.subtitleFormat !== void 0 && !CANVAS_V3_SUBTITLE_FORMATS.includes(r2.subtitleFormat))
       fail("invalid subtitle format");
+    if (r2.fileExtension !== void 0 && (typeof r2.fileExtension !== "string" || !/^[a-z0-9]{1,10}$/.test(r2.fileExtension)))
+      fail("invalid file extension");
     if (!CANVAS_V3_RESOURCE_KINDS.includes(r2.kind))
       fail("invalid resource kind");
     if (!["available", "unavailable", "missing"].includes(r2.availability))
@@ -963,13 +965,11 @@ function parseCanvasV3CompositionContent(value) {
       kind: r2.kind,
       currentVersionId: r2.currentVersionId === null ? null : id$7(r2.currentVersionId),
       availability: r2.availability,
-      ...(r2.originalFile === void 0
-        ? {}
-        : {
-            originalFile: boolean(r2.originalFile),
-          }),
       ...r2.originalFile === void 0 ? {} : { originalFile: boolean(r2.originalFile) },
-      ...r2.subtitleFormat === void 0 ? {} : { subtitleFormat: r2.subtitleFormat }
+      ...r2.initialText === void 0 ? {} : { initialText: boolean(r2.initialText) },
+      ...r2.subtitleFormat === void 0 ? {} : { subtitleFormat: r2.subtitleFormat },
+      ...r2.fileExtension === void 0 ? {} : { fileExtension: r2.fileExtension },
+      ...r2.sitePackage === void 0 ? {} : { sitePackage: boolean(r2.sitePackage) }
     };
   }
   return {
@@ -5144,6 +5144,7 @@ function resolveCanvasV3Node(node2, entry) {
     ...subtitleFormatField(
       item.resourceId ? entry.content.resources[item.resourceId]?.subtitleFormat : void 0
     ),
+    ...fileFields(item.resourceId ? entry.content.resources[item.resourceId] : void 0),
     ...item.originalFile ? { originalFile: true } : {},
     title
   };
@@ -5499,6 +5500,13 @@ const resourceConnections = /* @__PURE__ */ new Map();
 const same = (option2, value) => String(option2).toLowerCase() === value.toLowerCase();
 
 const storageKey$1 = (edgeId) => `canvas-v3:subject-reference:${edgeId}`;
+
+function fileFields(resource) {
+  return {
+    ...(resource?.fileExtension ? { fileExtension: resource.fileExtension } : {}),
+    ...(resource?.sitePackage ? { sitePackage: true } : {}),
+  };
+}
 
 function subtitleFormatField(format2) {
   return format2 ? { subtitleFormat: format2 } : {};
