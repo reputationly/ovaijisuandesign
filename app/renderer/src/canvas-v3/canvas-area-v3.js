@@ -27261,7 +27261,7 @@ function useCanvasV3SubjectPresentation(options2) {
     for (const slot of slots)
       for (const ref of slot.referenceVersions ?? [])
         if (!savedResourceSizes.has(pickerMediaKey(ref))) references.push(ref);
-  const resourceMedia = useCanvasV3PickerMedia(options2.fetch, editor, references);
+  const resourceMedia = useCanvasV3PickerMedia(options2.fetch, editor, references, options2.paused);
   const [gridDragMeasurements, setGridDragMeasurements] = reactExports.useState(null);
   const compactGridMinColumns = useCanvasV3CompactGridMinColumns();
   const layouts = reactExports.useMemo(

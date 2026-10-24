@@ -109,7 +109,7 @@ function useCanvasV3ModalGate(requested) {
   return useGate(requested);
 }
 
-function useCanvasV3PickerMedia(fetch2, scope, references) {
+function useCanvasV3PickerMedia(fetch2, scope, references, paused = false) {
   const client = reactExports.useMemo(() => fetch2 ? createProjectResourceClient(fetch2) : void 0, [fetch2]);
   const keys2 = reactExports.useMemo(
     () => JSON.stringify(
@@ -134,7 +134,7 @@ function useCanvasV3PickerMedia(fetch2, scope, references) {
   reactExports.useEffect(() => {
     const client2 = owner.client;
     const request = owner.fetch;
-    if (!client2 || !request) return;
+    if (!client2 || !request || paused) return;
     const abort = new AbortController();
     const selectors2 = JSON.parse(owner.keys).filter((key2) => !owner.cache.has(key2)).map((key2) => {
       const [resourceId2, versionId] = JSON.parse(key2);
@@ -180,7 +180,7 @@ function useCanvasV3PickerMedia(fetch2, scope, references) {
       }
     })();
     return () => abort.abort();
-  }, [owner]);
+  }, [owner, paused]);
   return snapshot2?.owner === owner ? snapshot2.values : cache2;
 }
 
