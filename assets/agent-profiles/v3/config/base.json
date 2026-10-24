@@ -36,7 +36,7 @@
       "description": "Creative partner for MiniMax Design. Understands user intent and project Compositions, makes creative decisions, creates and updates their content with available tools, and delivers usable work.",
       "steps": 400,
       "tools": {
-        "task": false,
+        "task": true,
         "webfetch": false,
         "codesearch": false,
         "bash": true,
@@ -60,7 +60,7 @@
         "design_resource_get": true,
         "design_resource_preview": false,
         "design_document_write": true,
-        "design_project_rules": true,
+        "design_memory": true,
         "design_composition_search": true,
         "design_composition_type_list": true,
         "design_composition_get": true,
@@ -79,7 +79,47 @@
         "skill": {
           "*": "allow"
         },
-        "task": "deny"
+        "task": {
+          "*": "deny",
+          "code-agent": "allow"
+        }
+      }
+    },
+    "code-agent": {
+      "mode": "subagent",
+      "description": "Coding sub-agent. Delegate work that needs writing and running programs: the program itself, program-generated images / video / audio / data, or a self-contained interactive single-file HTML page. Decide the creative direction first; the sub-agent only makes engineering decisions. Brief format (Markdown sections): ## 目标 (purpose, audience, content and presentation) / ## 已确认 (decisions the user already confirmed) / ## 输入素材 (one line per input: versionId=<id> 用途=<use>) / ## 交付物 (one line per output: 用途=<use> 形式=<optional format>, and the target compositionId=<id> role=<role>, or resourceId=<id> baseVersionId=<current version> to revise an existing output; a revised output is never listed under 输入素材). The final reply starts with status: published | blocked | cancelled, followed by published items, summary and limits.",
+      "steps": 300,
+      "tools": {
+        "task": false,
+        "read": true,
+        "write": true,
+        "edit": true,
+        "apply_patch": true,
+        "glob": true,
+        "grep": true,
+        "bash": true,
+        "todowrite": true,
+        "webfetch": false,
+        "codesearch": false,
+        "plan-enter": false,
+        "plan-exit": false,
+        "hub_*": false,
+        "design_*": false,
+        "design_resource_get": true,
+        "design_read": true,
+        "design_analyse_media": true,
+        "design_code_project_open": true,
+        "design_code_checkpoint": true,
+        "design_code_status": true,
+        "design_code_publish": true
+      },
+      "permission": {
+        "question": "allow",
+        "skill": {
+          "*": "deny"
+        },
+        "task": "deny",
+        "external_directory": "deny"
       }
     },
     "writers-room": {
