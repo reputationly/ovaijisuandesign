@@ -6468,6 +6468,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "settings.externalAgent.intro.title": "Let your agent create with MiniMax Design",
   "settings.externalAgent.loadFailed": "Could not load External Agent settings.",
   "settings.externalAgent.models": "Models",
+  "settings.externalAgent.modelsEmpty": "No models available yet.",
   "settings.externalAgent.modelsAllDesc": "The agent can use every model on your account.",
   "settings.externalAgent.modelsChooseDesc": "Choose which models the agent can use.",
   "settings.externalAgent.modelsScopeAll": "All Models",

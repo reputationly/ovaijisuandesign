@@ -264,12 +264,14 @@ async function boot(): Promise<Running | undefined> {
       : path.join(roots.repoRoot!, "app/mcp-tools/dist/external-main.js"),
     readSettings: () => {
       const v = store.get("externalAgent") as
-        | { enabled?: boolean; port?: number; allowedProjectPaths?: string[] }
+        | { enabled?: boolean; port?: number; allowedProjectPaths?: string[]; selectedMediaModels?: Record<string, string[]> }
         | undefined;
       return {
         enabled: v?.enabled === true,
         port: typeof v?.port === "number" ? v.port : 18810,
         allowedProjectPaths: Array.isArray(v?.allowedProjectPaths) ? v.allowedProjectPaths : [],
+        selectedMediaModels:
+          v?.selectedMediaModels && typeof v.selectedMediaModels === "object" ? v.selectedMediaModels : undefined,
       };
     },
     gatewayUrl: () => appGatewayProc.running?.url,

@@ -7,14 +7,31 @@ import type { GatewayClient, SelectedMediaModels } from "../gateway-client.js";
  * gateway 抖一下或目录升级不该挡住生成。
  */
 
+/** 外部 Agent 没有会话，模型范围由主进程通过环境变量下发。 */
+export function selectedModelsFromEnv(raw = process.env.EXTERNAL_AGENT_SELECTED_MEDIA_MODELS): SelectedMediaModels | null {
+  if (!raw) return null;
+  try {
+    const value = JSON.parse(raw) as Record<string, unknown>;
+    const out: SelectedMediaModels = {};
+    for (const category of ["image", "video", "audio"] as const) {
+      const ids = value[category];
+      if (Array.isArray(ids)) out[category] = ids.filter((id): id is string => typeof id === "string");
+    }
+    return Object.keys(out).length ? out : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function selectedModelsForSession(gw: GatewayClient, context: string): Promise<SelectedMediaModels | null> {
   const sessionId = currentSessionId();
-  if (!sessionId) return null;
+  const fallback = selectedModelsFromEnv();
+  if (!sessionId) return fallback;
   try {
-    return await gw.getSelectedMediaModels(sessionId);
+    return (await gw.getSelectedMediaModels(sessionId)) ?? fallback;
   } catch (err) {
     process.stderr.write(`[hilo-tools] model picker guard skipped (${context}): ${err instanceof Error ? err.message : String(err)}\n`);
-    return null;
+    return fallback;
   }
 }
 

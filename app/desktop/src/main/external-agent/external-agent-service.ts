@@ -18,10 +18,18 @@ import {
   EXTERNAL_AGENT_MCP_PATH,
 } from "@ov/protocol";
 
+export interface SelectedMediaModels {
+  image?: string[];
+  video?: string[];
+  audio?: string[];
+}
+
 export interface ExternalAgentSettings {
   enabled: boolean;
   port: number;
   allowedProjectPaths: string[];
+  /** 4.0.4：外部 Agent 可用的媒体模型；空/缺省 = 全部。 */
+  selectedMediaModels?: SelectedMediaModels;
 }
 
 export interface ExternalAgentStatus {
@@ -97,6 +105,7 @@ export class ExternalAgentService {
           EXTERNAL_AGENT_PORT: String(this.currentPort),
           EXTERNAL_AGENT_HOST: "127.0.0.1",
           EXTERNAL_AGENT_ALLOWED_PATHS: settings.allowedProjectPaths.join("\n"),
+          ...(settings.selectedMediaModels ? { EXTERNAL_AGENT_SELECTED_MEDIA_MODELS: JSON.stringify(settings.selectedMediaModels) } : {}),
         },
       });
       child.stdout?.on("data", (b: Buffer) => this.log(`[external-agent] ${b.toString().trimEnd()}`));

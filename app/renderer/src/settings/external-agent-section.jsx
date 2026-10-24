@@ -14,6 +14,7 @@ import reactExports from "react";
 import { useTranslation } from "react-i18next";
 
 import { useStorage } from "../infra/use-storage.js";
+import { useMediaModels } from "../generation/normalize-model-info.js";
 import { useProjects } from "../workspace/normalize-project-entries.js";
 
 const DEFAULTS = { enabled: false, port: 18810, allowedProjectPaths: [] };
@@ -24,6 +25,15 @@ export function ExternalAgentSection() {
   const current = { ...DEFAULTS, ...(value ?? {}) };
   const [portText, setPortText] = reactExports.useState(String(current.port));
   const projects = useProjects({});
+  const { data: mediaModels } = useMediaModels();
+  const visibleModels = (mediaModels ?? []).filter((model) => model.visibility !== "hidden");
+  const selectedModels = current.selectedMediaModels ?? {};
+  const categories = ["image", "video", "audio"];
+  const modelRestricted = categories.some((category) => Array.isArray(selectedModels[category]));
+  const selectedModelCount = visibleModels.filter((model) => {
+    const ids = selectedModels[model.type];
+    return !Array.isArray(ids) || ids.includes(model.id);
+  }).length;
   const visiblePaths = projects.map((project) => project.folderPath);
   const restricted = current.allowedProjectPaths.length > 0;
   const selectedCount = visiblePaths.filter((path) => current.allowedProjectPaths.includes(path)).length;
@@ -55,6 +65,24 @@ export function ExternalAgentSection() {
 
   const toggleAll = (checked) => {
     if (checked) setField({ allowedProjectPaths: [] });
+  };
+
+  const setCategorySelection = (category, ids) => {
+    const next = { ...selectedModels };
+    const allIds = visibleModels.filter((model) => model.type === category).map((model) => model.id);
+    if (!ids.length) return;
+    if (ids.length === allIds.length) delete next[category];
+    else next[category] = ids;
+    setField({ selectedMediaModels: Object.keys(next).length ? next : undefined });
+  };
+
+  const toggleModel = (model) => {
+    const allIds = visibleModels.filter((item) => item.type === model.type).map((item) => item.id);
+    const currentIds = Array.isArray(selectedModels[model.type]) ? selectedModels[model.type] : allIds;
+    const ids = currentIds.includes(model.id)
+      ? currentIds.filter((id) => id !== model.id)
+      : [...currentIds, model.id];
+    setCategorySelection(model.type, ids);
   };
 
   return (
@@ -128,6 +156,61 @@ export function ExternalAgentSection() {
                 </span>
               </label>
             ))
+          )}
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-2" data-action-ui-id="external-agent.models">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-medium">
+            {t("settings.externalAgent.models", "模型范围")}
+          </h3>
+          <span className="text-xs text-muted-foreground">
+            {modelRestricted
+              ? t("settings.externalAgent.selectedCount", "已选 {{count}} 个", { count: selectedModelCount })
+              : t("settings.externalAgent.modelsScopeAll", "全部模型")}
+          </span>
+        </div>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={!modelRestricted && visibleModels.length > 0}
+            disabled={visibleModels.length === 0}
+            data-action-ui-id="external-agent.models-select-all"
+            onChange={(event) => {
+              if (event.target.checked) setField({ selectedMediaModels: undefined });
+            }}
+          />
+          <span>{t("settings.externalAgent.selectAll", "全选")}</span>
+        </label>
+        <div className="flex max-h-56 flex-col gap-1 overflow-auto" data-action-ui-id="external-agent.models-list">
+          {visibleModels.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              {t("settings.externalAgent.modelsEmpty", "还没有可用模型")}
+            </p>
+          ) : (
+            categories.map((category) => {
+              const models = visibleModels.filter((model) => model.type === category);
+              if (!models.length) return null;
+              return (
+                <div key={category} className="flex flex-col">
+                  <p className="flex h-7 items-center pl-1.5 text-xs text-muted-foreground">
+                    {t(`chat.mediaModels.tabs.${category}`, category)}
+                  </p>
+                  {models.map((model) => (
+                    <label key={model.id} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={!Array.isArray(selectedModels[category]) || selectedModels[category].includes(model.id)}
+                        data-action-ui-id={`external-agent.model-${model.id}`}
+                        onChange={() => toggleModel(model)}
+                      />
+                      <span className="min-w-0 truncate">{model.display_name ?? model.id}</span>
+                    </label>
+                  ))}
+                </div>
+              );
+            })
           )}
         </div>
       </section>
