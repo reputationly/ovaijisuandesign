@@ -1,6 +1,7 @@
 /** 原生工作台宿主闭包（第 268 轮）。种子：getNativeWorkbenchOwner / INativeWorkbenchService。偏移是 UTF-16 码元。 */
 
 import reactExports from "react";
+import { PERF_CANVAS_V3_SESSION_ACQUIRE, recordPerfSpan } from "../infra/perf-spans.js";
 import { ensureNativeWorkbenchServiceRegistered } from "./native-workbench-service-registration.js";
 import jsxRuntimeExports from "react/jsx-runtime";
 import { PROJECT_QUERY_HTTP_ROUTES, PROJECT_TASK_HTTP_ROUTES, ProjectResourceKind, ProjectResourceLifecycle, ProjectResourceVersionStatus } from "./../canvas-v3/canvas-v3-constants.js";
@@ -1742,7 +1743,15 @@ export async function getNativeWorkbenchOwner(workspaceId, binding, identity2, o
   // 放在模块顶层会拖累 home-skill-inspiration 屏（确定性 2654 像素差异）。
   ensureNativeWorkbenchServiceRegistered(INativeWorkbenchService);
   listen();
-  return pool.acquire(workspaceId, binding, identity2, options2);
+  const startedAt = typeof performance === "undefined" ? 0 : performance.now();
+  try {
+    const owner = await pool.acquire(workspaceId, binding, identity2, options2);
+    recordPerfSpan(PERF_CANVAS_V3_SESSION_ACQUIRE, startedAt, { workspaceId, ok: true });
+    return owner;
+  } catch (error) {
+    recordPerfSpan(PERF_CANVAS_V3_SESSION_ACQUIRE, startedAt, { workspaceId, ok: false });
+    throw error;
+  }
 }
 
 export const INativeWorkbenchService = createDecorator("nativeWorkbenchService");
