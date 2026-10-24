@@ -293,6 +293,11 @@ const hilo = {
     check: (options?: unknown) => invoke("updater:check", options),
     getVersion: () => invoke("updater:get-version"),
   },
+  logLevel: {
+    getState: () => invoke("logLevel.getState"),
+    setLevel: (level: string) => invoke("logLevel.setLevel", level),
+    reset: () => invoke("logLevel.reset"),
+  },
   logger: {
     debug: (message: string, category?: string) => invoke("log:write", "debug", message, category),
     info: (message: string, category?: string) => invoke("log:write", "info", message, category),

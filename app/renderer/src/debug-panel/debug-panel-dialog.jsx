@@ -7046,6 +7046,120 @@ function HomeWidgetPreviewSection({ onPreview }) {
     </section>
   );
 }
+const RUNTIME_LOG_LEVELS = ["error", "warn", "info", "debug"];
+
+const LOG_LEVEL_REFRESH_MS = 5_000;
+
+function LogLevelCard() {
+  const { t, i18n } = useTranslation();
+  const [state, setState] = reactExports.useState(null);
+  const [saving, setSaving] = reactExports.useState(false);
+  const savingRef = reactExports.useRef(false);
+  reactExports.useEffect(() => {
+    let cancelled = false;
+    const load = (reportFailure) => {
+      if (savingRef.current) return;
+      Promise.resolve(window.hilo?.logLevel?.getState?.())
+        .then((next) => {
+          if (!cancelled && !savingRef.current && next) setState(next);
+        })
+        .catch(() => {
+          if (!cancelled && reportFailure) {
+            dedupedToast.error(t("debugPanel.logLevel.loadFailed"));
+          }
+        });
+    };
+    load(true);
+    const timer = window.setInterval(() => load(false), LOG_LEVEL_REFRESH_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [t]);
+  const labels = {
+    error: t("debugPanel.logLevel.levels.error"),
+    warn: t("debugPanel.logLevel.levels.warn"),
+    info: t("debugPanel.logLevel.levels.info"),
+    debug: t("debugPanel.logLevel.levels.debug"),
+  };
+  const run = async (action) => {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    try {
+      const next = await action();
+      if (next?.state) setState(next.state);
+      else dedupedToast.error(t("debugPanel.logLevel.saveFailed"));
+    } catch {
+      dedupedToast.error(t("debugPanel.logLevel.saveFailed"));
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
+  };
+  const change = (next) => {
+    if (!next || !RUNTIME_LOG_LEVELS.includes(next)) return;
+    if (next === state?.level) return;
+    void run(() => window.hilo?.logLevel?.setLevel?.(next));
+  };
+  const override = state?.override ?? null;
+  const expiresAt = override
+    ? new Date(override.expiresAt).toLocaleString(i18n.language)
+    : undefined;
+  return (
+    <section
+      className="rounded-lg border border-border/70 bg-background"
+      data-action-ui-id="debug.log-level.section"
+    >
+      <div className="border-b border-border/70 px-4 py-3">
+        <div className="text-sm font-medium">
+          {t("debugPanel.logLevel.title")}
+        </div>
+        <div className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          {t("debugPanel.logLevel.description")}
+        </div>
+      </div>
+      <div className="flex items-center gap-2 px-4 py-3">
+        <Select
+          value={state?.level ?? ""}
+          disabled={saving || !state}
+          onValueChange={change}
+        >
+          <SelectTrigger
+            className="min-w-0 flex-1"
+            aria-label={t("debugPanel.logLevel.label")}
+            aria-busy={saving}
+            data-action-ui-id="debug.log-level.select"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent align="start">
+            {RUNTIME_LOG_LEVELS.map((level) => (
+              <SelectItem key={level} value={level}>
+                {labels[level]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          variant="outline"
+          size="xs"
+          disabled={saving || !override}
+          onClick={() => void run(() => window.hilo?.logLevel?.reset?.())}
+          data-action-ui-id="debug.log-level.reset"
+        >
+          {t("debugPanel.logLevel.reset")}
+        </Button>
+      </div>
+      <div className="border-t border-border/70 px-4 py-2 text-xs leading-relaxed text-muted-foreground">
+        {override
+          ? t("debugPanel.logLevel.expiresAt", { time: expiresAt })
+          : t("debugPanel.logLevel.noOverride")}
+      </div>
+    </section>
+  );
+}
+
 function DebugPanelDialog({ open, onOpenChange }) {
   const { t: translate } = useTranslation();
   const { user } = useAuth();
@@ -7241,6 +7355,7 @@ function DebugPanelDialog({ open, onOpenChange }) {
                   <div className="columns-2 gap-3 [&>section]:mb-3 [&>section]:break-inside-avoid">
                     {showLaneCard && <LaneCard />}
                     <DevAuthBrowserCard />
+                    <LogLevelCard />
                     <ReliabilityDiagnosticsSection />
                   </div>
                 </DebugTabContent>

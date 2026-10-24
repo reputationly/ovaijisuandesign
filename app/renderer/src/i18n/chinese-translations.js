@@ -3998,6 +3998,18 @@ const zh = {
   "debug.generationFailureReplay.summary":
     "{{count}} 个 Case · 当前语言 {{language}}",
   "debug.generationFailureReplay.title": "生成失败真实回放",
+  "debugPanel.logLevel.title": "主进程日志级别",
+  "debugPanel.logLevel.description": "临时调整桌面端主进程日志级别，24 小时后自动恢复默认。",
+  "debugPanel.logLevel.label": "日志级别",
+  "debugPanel.logLevel.levels.error": "错误",
+  "debugPanel.logLevel.levels.warn": "警告",
+  "debugPanel.logLevel.levels.info": "信息（默认）",
+  "debugPanel.logLevel.levels.debug": "调试",
+  "debugPanel.logLevel.reset": "恢复默认",
+  "debugPanel.logLevel.expiresAt": "临时级别生效至 {{time}}。",
+  "debugPanel.logLevel.noOverride": "当前使用默认级别。",
+  "debugPanel.logLevel.saveFailed": "日志级别修改失败，请重试",
+  "debugPanel.logLevel.loadFailed": "无法读取当前日志级别",
   "debugPanel.action": "操作",
   "debugPanel.authBrowser.default": "默认（内置浏览器）",
   "debugPanel.authBrowser.description":

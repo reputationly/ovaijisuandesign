@@ -461,6 +461,7 @@ async function boot(): Promise<Running | undefined> {
     projectsRoot: dirs.projectsRoot,
     dataRoot: dirs.dataRoot,
     outputDir: dirs.outputDir,
+    logLevel,
     log: (l, m) => log(`[renderer ${l}] ${m}`),
     applyProxyMode: (mode) => {
       void applyProxyMode(mode);

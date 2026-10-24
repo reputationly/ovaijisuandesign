@@ -80,6 +80,7 @@ export function updaterIdleState(lastCheckAt = 0): Record<string, unknown> {
 const reject = (what: string) => () => Promise.reject(new Error(`${what} is not available in this build`));
 
 export interface StubDeps {
+  logLevel?: import("./log-level.js").LogLevelController;
   store: GlobalStore;
   projectsRoot: string;
   dataRoot: string;
@@ -206,6 +207,17 @@ export function stubChannels(deps: StubDeps): Record<string, object> {
   const stub = (name: string, methods: Methods, events: string[] = []) =>
     stubService(methods, events, (m) => deps.log("warn", `[stub] ${name}.${m} 没有实现，回 undefined`));
   return {
+    logLevel: {
+      getState: () => deps.logLevel?.getState() ?? { level: "info", override: null },
+      setLevel: (level: unknown) => {
+        const ok = typeof level === "string" ? deps.logLevel?.setLevel(level) ?? false : false;
+        return { ok, state: deps.logLevel?.getState() ?? { level: "info", override: null } };
+      },
+      reset: () => {
+        deps.logLevel?.reset();
+        return { ok: true, state: deps.logLevel?.getState() ?? { level: "info", override: null } };
+      },
+    },
     log: {
       getLevel: () => logLevel,
       setLevel: (level: unknown) => {

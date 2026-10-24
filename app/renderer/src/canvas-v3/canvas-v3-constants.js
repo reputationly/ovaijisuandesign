@@ -49,7 +49,7 @@ const CANVAS_V3_IMAGE_ACCEPT = ".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,
 
 const CANVAS_V3_IMAGE_DOWNLOAD_MAX_BYTES = 256 * 1024 * 1024;
 
-const CANVAS_V3_VIDEO_ACCEPT = ".mp4,.mov,.webm,.m4v,video/mp4,video/quicktime,video/webm";
+const CANVAS_V3_VIDEO_ACCEPT = ".mp4,.mov,.webm,.m4v,.mkv,video/mp4,video/quicktime,video/webm,video/x-matroska";
 
 const CANVAS_V3_MEDIA_ACCEPT = `${CANVAS_V3_VIDEO_ACCEPT},${CANVAS_V3_AUDIO_ACCEPT}`;
 

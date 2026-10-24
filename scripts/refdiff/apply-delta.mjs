@@ -495,7 +495,15 @@ async function main() {
         next = next.slice(0, e.from) + e.replacement + next.slice(e.to);
       }
       // 自由标识符按**整个新文件**算：单看一条语句的话，文件内其它函数和 import 也会被算成自由变量。
-      const introduced = freeIdentifiers(next).filter((n) => !freeIdentifiers(text).includes(n));
+      let introduced;
+      try {
+        introduced = freeIdentifiers(next).filter((n) => !freeIdentifiers(text).includes(n));
+      } catch (error) {
+        const dump = `/tmp/apply-delta-dup-${rel.replace(/[\\/]/g, "_")}`;
+        writeFileSync(dump, next);
+        console.error(`✗ ${rel}: 生成结果含重复声明，已写 ${dump}：${error instanceof Error ? error.message : String(error)}`);
+        continue;
+      }
       // 把新冒出来的符号接回 import：`X$2` 先去后缀查，查到就把生成文本里的名字改成导出名，
       // 并在 import 区补一行。查不到的不猜，如实留在 unresolved 里。
       const imports = existingImports(next);

@@ -4319,6 +4319,18 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "debug.generationFailureReplay.summary":
     "{{count}} cases · current language {{language}}",
   "debug.generationFailureReplay.title": "Generation failure replay",
+  "debugPanel.logLevel.title": "Main Process Log Level",
+  "debugPanel.logLevel.description": "Temporarily changes desktop main-process logging. Reverts to the default automatically after 24 hours.",
+  "debugPanel.logLevel.label": "Log level",
+  "debugPanel.logLevel.levels.error": "Error",
+  "debugPanel.logLevel.levels.warn": "Warning",
+  "debugPanel.logLevel.levels.info": "Info (default)",
+  "debugPanel.logLevel.levels.debug": "Debug",
+  "debugPanel.logLevel.reset": "Restore default",
+  "debugPanel.logLevel.expiresAt": "Temporary level active until {{time}}.",
+  "debugPanel.logLevel.noOverride": "Using the default level.",
+  "debugPanel.logLevel.saveFailed": "Could not change the log level. Please try again.",
+  "debugPanel.logLevel.loadFailed": "Could not read the current log level.",
   "debugPanel.action": "Actions",
   "debugPanel.authBrowser.default": "Default (In-App Browser)",
   "debugPanel.authBrowser.description":

@@ -21,7 +21,16 @@ describe("LogLevelController", () => {
     const ctl = new LogLevelController();
     ctl.setLevel("warn", 1);
     expect(ctl.getLevel()).toBe("warn");
+    expect(ctl.getState().override?.level).toBe("warn");
     vi.advanceTimersByTime(1001);
     expect(ctl.getLevel()).toBe("info");
+    expect(ctl.getState().override).toBeNull();
+  });
+
+  it("reset 立即清除临时级别", () => {
+    const ctl = new LogLevelController();
+    ctl.setLevel("debug", 3600);
+    ctl.reset();
+    expect(ctl.getState()).toEqual({ level: "info", override: null });
   });
 });
