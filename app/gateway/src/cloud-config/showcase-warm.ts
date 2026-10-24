@@ -22,11 +22,12 @@
  */
 
 import { Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
-import { mkdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { WorkspacePathService } from "../common/workspace-path.service.js";
 
+import { homeShowcaseDir } from "./home-showcase.js";
 import { showcaseCovers } from "./home-quick-start-cloud.js";
 
 /** 预热多少张封面。24 张 ≈ 25MB（平均 1.04MB/张），够铺满第一屏又不至于占满磁盘。 */
@@ -159,6 +160,18 @@ export async function warmShowcaseCovers(
         if (await cachedShowcaseMedia(dir, next.key)) {
           skipped++;
           continue;
+        }
+        // 界面对比只求确定性：仓库里自带的全套 media 直接复制，别去 CDN 拿。
+        // 否则 CDN 抖动会把「预热 → 路由等待 → 截图」的窗口拖到 40 秒，门禁直接超时。
+        if (process.env.OV_UI) {
+          const bundled = homeShowcaseDir();
+          const source = bundled ? path.join(bundled, "media", next.key) : undefined;
+          const exists = source ? await stat(source).then((s2) => s2.isFile(), () => false) : false;
+          if (source && exists) {
+            await copyFile(source, path.join(dir, next.key));
+            warmed++;
+            continue;
+          }
         }
         try {
           await fetchOne(dir, next.key, next.cdnUrl, doFetch);
