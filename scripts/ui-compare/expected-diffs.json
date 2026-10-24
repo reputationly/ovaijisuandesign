@@ -6,8 +6,7 @@
     "home-sidebar-nav-workflows",
     "home-sidebar.workflows-release-badge",
     "workspace.switch-to-browser",
-    "workspace.switch-to-canvas",
-    "home-sidebar.connectors-release-badge"
+    "workspace.switch-to-canvas"
    ],
    "oursOnly": [
     "sidebar.connection-pill",
@@ -26,10 +25,7 @@
    ]
   },
   "ws": {
-   "refOnly": [
-    "task_subscribe",
-    "task_unsubscribe"
-   ],
+   "refOnly": [],
    "oursOnly": []
   },
   "_net_note": "popup：本项目有意关闭营销弹窗查询（settings/use-popup.js enabled=false，见 intentional-differences 一.5）；showcase-assets：本地演示封面，参照从 CDN 取（已被 BLOCKED_URLS 挡掉），见 一.6。路径带内容哈希，所以用右端通配。",
@@ -43,7 +39,9 @@
     "popover.model-chip",
     "session-single-title-*"
    ],
-   "oursOnly": []
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
   },
   "net": {
    "refOnly": [],
@@ -110,7 +108,9 @@
  "skill-community": {
   "dom": {
    "refOnly": [],
-   "oursOnly": []
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
   },
   "_why": [
    "创作者计划是商业功能，属范围排除（intentional-differences 六）",
@@ -129,7 +129,8 @@
   "dom": {
    "refOnly": [],
    "oursOnly": [
-    "skills-mine-compact-try-*"
+    "skills-mine-compact-try-*",
+    "home-sidebar.connectors-release-badge"
    ]
   },
   "_why": [
@@ -146,7 +147,8 @@
    "oursOnly": [
     "connector-origin",
     "connectors-list",
-    "connectors-sort"
+    "connectors-sort",
+    "home-sidebar.connectors-release-badge"
    ]
   },
   "_why": []
@@ -156,7 +158,9 @@
    "refOnly": [
     "canvas.menu-add-comfyui"
    ],
-   "oursOnly": []
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
   },
   "_why": [
    "「添加节点」菜单里的 ComfyUI 项：整块功能移除（intentional-differences 一.3）"
@@ -167,7 +171,9 @@
    "refOnly": [
     "session-single-title-*"
    ],
-   "oursOnly": []
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
   },
   "_why": [
    "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异"
@@ -178,7 +184,9 @@
    "refOnly": [
     "session-single-title-*"
    ],
-   "oursOnly": []
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
   },
   "_why": [
    "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异",
@@ -202,7 +210,9 @@
     "chat-user-actions",
     "chat-user-copy"
    ],
-   "oursOnly": []
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
   },
   "_why": [
    "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异",
@@ -233,7 +243,8 @@
     "popover.model-chip"
    ],
    "oursOnly": [
-    "canvas.node-promote-to-asset"
+    "canvas.node-promote-to-asset",
+    "home-sidebar.connectors-release-badge"
    ]
   }
  },
@@ -246,7 +257,8 @@
    ],
    "oursOnly": [
     "canvas.node-promote-to-asset",
-    "canvas.image-tool.image-inplace-edit"
+    "canvas.image-tool.image-inplace-edit",
+    "home-sidebar.connectors-release-badge"
    ]
   },
   "_why": [
@@ -261,7 +273,8 @@
     "canvas.image-tool.extract-frame"
    ],
    "oursOnly": [
-    "canvas.node-promote-to-asset"
+    "canvas.node-promote-to-asset",
+    "home-sidebar.connectors-release-badge"
    ]
   },
   "_why": [
@@ -272,7 +285,8 @@
   "dom": {
    "refOnly": [],
    "oursOnly": [
-    "canvas.node-promote-to-asset"
+    "canvas.node-promote-to-asset",
+    "home-sidebar.connectors-release-badge"
    ]
   },
   "_why": []
@@ -297,5 +311,96 @@
  "_domNotes": {
   "skills-connectors": "第 2032 轮：**参照这一屏录到的是失败态**（有 page-state-error-retry，没有列表、没有分类 chip）；我方是成功态（connectors-list / connectors-sort / connector-origin），因为我方的本地连接器清单能读到，而参照那次的云端目录调用失败了。两侧停在不同的终止状态，属**环境不对称**，不是实现缺陷。一并说明：我方原先会**永远停在 connectors-loading**（catalogLoading 用 entries.length===0 推断，且 prime() 在空结果时提前 return、从不置位 loaded），这一条已在第 2032 轮修好，现在会正常进入列表或空态。",
   "skills-connectors-plugins-tabs": "【待做功能】第 2032 轮核实：这 4 个 id 在我们源码里**完全不存在**（按 data-action-ui-id 精确形态全仓搜索均为 0 处），而参照 DOM 里有 —— 参照在「插件」能力下多一条子标签行（plugins-primary-tabs 容器 + 插件 / 我的插件两个标签）。参照文本实测为「技能 | 插件 | 插件 | 我的插件 | 自定义插件」，我方为「技能 | 插件 | 自定义插件」。这是**缺功能**，不是结构差异；登记只为让门禁前进，已列入 docs/4.0.3-todo-registered.md 第 7 节待做。"
+ },
+ "global-search": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "ws-text-node": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "ws-chat-skill": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "ws-pdf": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "ws-b": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "changelog": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "ws-zoom": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "ws-table-node": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "ws-multi-angle": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "ws-relight": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "global-search-query": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "ws-a": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
+ },
+ "ws-markdown": {
+  "dom": {
+   "oursOnly": [
+    "home-sidebar.connectors-release-badge"
+   ]
+  }
  }
 }
