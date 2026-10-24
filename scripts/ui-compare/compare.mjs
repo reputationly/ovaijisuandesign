@@ -373,6 +373,23 @@ const V3_PAGES = [
     seedStorage: { [`hilo:workspace-resource-view:${WS_A}`]: "true" },
     waitForUi: "v3-resource-view",
   },
+  // 工作台视图里的另外几个模块：同一个资源视图入口，进去后点视图内自己的导航。
+  // workbenchSteps 在工作台那个调试目标里执行（captureWorkbenchView），主页面不动。
+  ...[
+    ["ws-a-v3-wb-canvas", [{ click: "workspace.structure-canvas-tab", hash: "#/canvas" }]],
+    ["ws-a-v3-wb-structure", [{ click: "workspace.structure-list-tab", hash: "#/structure" }]],
+    ["ws-a-v3-wb-execution", [{ click: "workspace.tasks", hash: "#/execution" }]],
+    ["ws-a-v3-wb-hierarchy", [{ click: "composition-tree-hierarchy-menu", ui: "composition-tree-hierarchy-menu-content" }]],
+    // /chat 在产品里没有入口（视图内没有任何控件跳过去），只能直接改 hash；
+    // 两边用的是同一套操作，结果仍可比，但它不代表一条用户能走到的路径
+    ["ws-a-v3-wb-chat", [{ setHash: "#/chat", hash: "#/chat" }]],
+  ].map(([id, workbenchSteps]) => ({
+    id,
+    url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`,
+    seedStorage: { [`hilo:workspace-resource-view:${WS_A}`]: "true" },
+    waitForUi: "v3-resource-view",
+    workbenchSteps,
+  })),
 ];
 const ARCH_PAGES = process.env.HILO_PROJECT_ARCHITECTURE === "resource_v3"
   ? [...ALL_PAGES, ...V3_PAGES]
@@ -981,10 +998,13 @@ const WORKBENCH_SETTLE = `(async () => {
   try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch {}
   for (const a of document.getAnimations ? document.getAnimations() : []) { try { a.finish(); } catch {} }
 })()`;
-async function captureWorkbenchView(pageId, mode) {
+async function captureWorkbenchView(pageId, mode, steps = []) {
   const list = await (await fetch(`http://127.0.0.1:${PORT}/json`)).json();
   const targets = list.filter((t) => t.type === "page" && WORKBENCH_URL.test(t.url));
-  if (targets.length === 0) return null;
+  if (targets.length === 0) {
+    if (steps.length) throw new Error(`${pageId}：要在工作台视图里操作，但视图没有挂载`);
+    return null;
+  }
   // 同时挂着多个工作台视图时不知道该比哪一个，宁可报错也不随便挑
   if (targets.length > 1) throw new Error(`${pageId}：同时有 ${targets.length} 个工作台视图（${targets.map((t) => t.url).join(", ")}）`);
   const ws = new WebSocket(targets[0].webSocketDebuggerUrl);
@@ -1004,6 +1024,23 @@ async function captureWorkbenchView(pageId, mode) {
   const evaluate = async (expression) =>
     (await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true })).result?.result?.value;
   try {
+    for (const step of steps) {
+      if (step.click) {
+        const ok = await evaluate(`(() => { const el = document.querySelector(${JSON.stringify(`[data-action-ui-id="${step.click}"]`)}); if (!el) return false; el.click(); return true; })()`);
+        if (!ok) throw new Error(`${pageId}：工作台视图里找不到 ${step.click}`);
+      }
+      if (step.setHash) await evaluate(`location.hash = ${JSON.stringify(step.setHash)}`);
+      const want = step.hash
+        ? `location.hash === ${JSON.stringify(step.hash)}`
+        : `!!document.querySelector(${JSON.stringify(`[data-action-ui-id="${step.ui}"]`)})`;
+      const deadline = Date.now() + 10000;
+      while (!(await evaluate(want))) {
+        if (Date.now() > deadline) throw new Error(`${pageId}：工作台视图等不到 ${step.hash ?? step.ui}`);
+        await sleep(100);
+      }
+      // 懒加载的模块（CanvasPage / ChatPage）要等 chunk 和首轮请求落定
+      await sleep(step.settleMs ?? 1500);
+    }
     let prev = null;
     let buf = null;
     let stable = false;
@@ -2389,7 +2426,7 @@ async function runMode(mode) {
       }
       const { dom, state } = await captureStablePageState(c);
       const buf = await stableShot(c);
-      const workbench = await captureWorkbenchView(p.id, mode);
+      const workbench = await captureWorkbenchView(p.id, mode, p.workbenchSteps);
       await c.waitForNetworkIdle();
       if (randomTraceScriptIdentifier) {
         const captured = await c.send("Runtime.evaluate", {
@@ -2673,9 +2710,14 @@ const REFERENCE_EXCLUDED = new Map([
  */
 const REFERENCE_MISSING = new Map([
   ["settings-platform", "本项目新增（「平台接入」），参照没有这一屏"],
-  ["ws-a-v3", "v3 屏：基线单独录在 ~/ov-golden-v3-4.0.3-wb（含工作台视图），用 --record reference、HILO_PROJECT_ARCHITECTURE=resource_v3 单独录"],
+  ["ws-a-v3", "v3 屏：基线单独录在 ~/ov-golden-v3-4.0.3-wb2（7 屏同批，含工作台视图），用 --record reference、HILO_PROJECT_ARCHITECTURE=resource_v3 单独录"],
   ["ws-b-v3", "同上"],
   ["ws-a-v3-resource", "同上"],
+  ["ws-a-v3-wb-canvas", "同上（工作台视图内的画布模块）"],
+  ["ws-a-v3-wb-structure", "同上（工作台视图内的结构模块）"],
+  ["ws-a-v3-wb-execution", "同上（工作台视图内的任务模块）"],
+  ["ws-a-v3-wb-hierarchy", "同上（素材页的层级菜单展开）"],
+  ["ws-a-v3-wb-chat", "同上（聊天模块，产品里无入口，直接改 hash）"],
   ["project-created",
     "录制失败：等待条件要求 localStorage 的 workspaceSessionTabs 里有已聚焦的「创作页」。" +
     "已实测：.hilo/index.sqlite 只有资产类表（assets / workspace_meta / project_asset_anchors 等），" +
