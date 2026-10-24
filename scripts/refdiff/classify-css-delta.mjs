@@ -48,8 +48,10 @@ function sourceText() {
   return all;
 }
 
-const a = rules("4.0.0");
-const b = rules("4.0.3");
+const OLD = process.env.OV_OLD_CSS ?? "4.0.0";
+const NEW = process.env.OV_NEW_CSS ?? "4.0.3";
+const a = rules(OLD);
+const b = rules(NEW);
 const added = [...b].filter((r) => !a.has(r)).sort();
 const src = sourceText();
 
@@ -84,7 +86,7 @@ if (process.argv.includes("--emit")) {
   writeFileSync(out, need.join("\n") + "\n", "utf8");
   console.log(`已写出 ${need.length} 条到 .probe/refdiff/css-need.css`);
 } else {
-  console.log(`4.0.3 新增规则 ${added.length} 条`);
+  console.log(`${NEW} 新增规则 ${added.length} 条`);
   console.log(`  **需要搬（类名在我们源码里出现）${need.length} 条**，${sum(need)} 字节`);
   console.log(`  工具类（tailwind 按需生成，不用搬）${skipUtility.length} 条`);
   console.log(`  未被引用（大概率范围外）${skipUnused.length} 条`);
