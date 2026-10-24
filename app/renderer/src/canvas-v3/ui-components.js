@@ -527,12 +527,25 @@ class CanvasV3MediaImports {
   }
   /** One callback = one output/undo entry, including segment-by-segment exports. */
   derive(file, source, isCurrent, mode2 = "clip") {
+    return this.deriveFiles([file], source, isCurrent, mode2);
+  }
+  /** 4.0.4 抽帧：一组草稿一次提交，最多 20 张 PNG。 */
+  deriveFrames(files, source, isCurrent) {
+    return this.deriveFiles(files, source, isCurrent, "frame");
+  }
+  deriveFiles(files, source, isCurrent, mode2) {
     if (this.derivation?.isCurrent === isCurrent && this.pending) return this.flush();
     if (!isCurrent() || !isCanvasV3SourceCurrent(this.editor, this.content, source))
       return Promise.reject(new Error("CANVAS_V3_IMPORT_TARGET_CHANGED"));
-    if (source.mediaKind !== "audio" && source.mediaKind !== "video" || (mode2 === "frame" ? source.mediaKind !== "video" || file.type !== "image/png" : canvasV3MediaKind(file) !== source.mediaKind))
+    if (
+      !files.length ||
+      (source.mediaKind !== "audio" && source.mediaKind !== "video") ||
+      (mode2 === "frame"
+        ? source.mediaKind !== "video" || files.length > 20 || files.some((file) => file.type !== "image/png")
+        : files.length !== 1 || canvasV3MediaKind(files[0]) !== source.mediaKind)
+    )
       return Promise.reject(new Error("CANVAS_V3_MEDIA_INVALID"));
-    const operation2 = this.start([file], source.position);
+    const operation2 = this.start([...files], source.position);
     if (this.pending && this.operation === operation2)
       this.derivation = {
         source,
