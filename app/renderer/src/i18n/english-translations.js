@@ -855,17 +855,17 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "bundleError.diagnosis.windowsVersionUnverified.suggestion1":
     "Wait a few seconds and retry. There is no need to change system settings or reinstall.",
   "bundleError.diagnosis.windowsVersionUnverified.suggestion2":
-    "If the check keeps failing, upload diagnostics and contact support to check whether system policy restricts version detection.",
+    "If the check keeps failing, export diagnostics and contact support to check whether system policy restricts version detection.",
   "bundleError.diagnosis.windowsVersionUnverified.title":
     "Unable to verify the Windows version",
   "bundleError.diagnosis.workspaceDataMigrationConflict.message":
     "The local project data version cannot be handled safely and automatically. The app will not delete or rewrite the original project data.",
   "bundleError.diagnosis.workspaceDataMigrationConflict.primaryAction":
-    "Upload logs and contact support",
+    "Export logs and contact support",
   "bundleError.diagnosis.workspaceDataMigrationConflict.suggestion1":
     "Do not delete, replace, or manually modify the project database.",
   "bundleError.diagnosis.workspaceDataMigrationConflict.suggestion2":
-    "Upload logs and send the user ID and feedback code to support.",
+    "Export logs and send the user ID and feedback code to support.",
   "bundleError.diagnosis.workspaceDataMigrationConflict.title":
     "Project data version is incompatible",
   "bundleError.diagnosis.workspaceDataMigrationFailed.message":
@@ -891,11 +891,11 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "bundleError.diagnosis.workspaceIndexRecovery.message":
     "The project asset links could not be safely recovered. Automatic rebuilding has stopped to protect existing content; this does not mean the media files were deleted.",
   "bundleError.diagnosis.workspaceIndexRecovery.primaryAction":
-    "Upload logs and contact support",
+    "Export logs and contact support",
   "bundleError.diagnosis.workspaceIndexRecovery.suggestion1":
     "Keep the complete project folder. Do not delete media, overwrite the project, or clear app data.",
   "bundleError.diagnosis.workspaceIndexRecovery.suggestion2":
-    "Upload logs and contact support to verify and recover asset links in a project copy.",
+    "Export logs and contact support to verify and recover asset links in a project copy.",
   "bundleError.diagnosis.workspaceIndexRecovery.title":
     "Project asset information needs recovery",
   "bundleError.diagnosticsDetails": "Diagnostic Details",
@@ -965,11 +965,9 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "bundleError.fallbackMessage":
     "Unknown error. Try again. If the problem continues, export logs and contact support.",
   "bundleError.feedbackCode": "Feedback Code",
-  "bundleError.feedbackCopy.guide": "Location Guide",
-  "bundleError.feedbackCopy.guideText":
-    "Logs uploaded. Support can locate this failure by user ID + feedback code or log path.",
+  "bundleError.supportHint.exportLogs":
+    "Keep the user ID and feedback code in screenshots. If logs are needed, export them from Help → Export Logs.",
   "bundleError.feedbackCopy.label": "Copy Feedback Info",
-  "bundleError.feedbackUpload.label": "Upload logs & copy feedback",
   "bundleError.impactMessage":
     "The current workspace content is preserved. Only the local AI service is temporarily unavailable.",
   "bundleError.networkRecovery.checkFailed":
@@ -997,21 +995,12 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "Click the button below. The system will try restarting on another port automatically.",
   "bundleError.solutionFallback": "Try restarting once first.",
   "bundleError.solutionGenericSuggestion":
-    "If retry still fails, upload logs and send the feedback info to support.",
+    "If retry still fails, export logs and send the feedback info to support.",
   "bundleError.solutionTitle": "How to fix it",
   "bundleError.suggestionsTitle": "Try this first",
   "bundleError.supportCardDescription":
     "Send the user ID and feedback code to support. Technical details are hidden by default.",
   "bundleError.supportCardTitle": "Feedback and logs",
-  "bundleError.supportHint.beforeUpload":
-    "Preparing diagnostics; keep user ID and feedback code visible in screenshots so support can locate it.",
-  "bundleError.supportHint.locator": "Log Location",
-  "bundleError.supportHint.uploadFailed":
-    'Auto-upload failed. Click "Upload Logs & Copy Feedback Info" to retry; keep user ID + feedback code in screenshots.',
-  "bundleError.supportHint.uploaded":
-    "Logs were uploaded automatically. Support can locate this failure by user ID + feedback code or log path.",
-  "bundleError.supportHint.uploading":
-    "Uploading diagnostic logs automatically; keep user ID and feedback code visible in screenshots.",
   "bundleError.technicalDetails.hide": "Hide diagnostics",
   "bundleError.technicalDetails.region": "Support diagnostics",
   "bundleError.technicalDetails.show": "Diagnostics for support",
@@ -4508,10 +4497,6 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "debugPanel.reliability.runtime": "Runtime",
   "debugPanel.reliability.title": "Reliability diagnostics",
   "debugPanel.reliability.unavailable": "Unavailable",
-  "debugPanel.reliability.upload": "Upload logs",
-  "debugPanel.reliability.uploadFailed": "Log upload failed",
-  "debugPanel.reliability.uploaded": "Log upload triggered",
-  "debugPanel.reliability.uploading": "Uploading…",
   "debugPanel.serverPopup.description":
     "Simulate a fresh user entering Suanli Assistant. The window refreshes once and the popup is re-evaluated against the marketing config, current account identity and frequency rules. If marketing has nothing live or the account does not match a trigger, nothing pops — same as another user seeing Suanli Assistant for the first time.",
   "debugPanel.serverPopup.notLoggedIn": "Please sign in first",
@@ -6184,7 +6169,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "projectArchive.import.failure.archiveInvalid":
     "This project archive could not be read. Check that the file is complete and was exported from Suanli Assistant, then try again.",
   "projectArchive.import.failure.archiveTooLarge":
-    "This project template is unavailable because its file is too large. Upload logs for troubleshooting.",
+    "This project template is unavailable because its file is too large. Export logs for troubleshooting.",
   "projectArchive.import.failure.destinationConflict":
     "The project destination is already in use. Existing projects have not been overwritten. Please try importing again.",
   "projectArchive.import.failure.diskFull":
@@ -6192,7 +6177,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "projectArchive.import.failure.downloadDiskFull":
     "There is not enough space on the drive used for temporary downloads. Free up space on that drive and try again.",
   "projectArchive.import.failure.downloadFailed":
-    "The project template could not be downloaded. Check your connection or try again later; if it still fails, upload logs for troubleshooting.",
+    "The project template could not be downloaded. Check your connection or try again later; if it still fails, export logs for troubleshooting.",
   "projectArchive.import.failure.fileAccessBlocked":
     "The archive or project location could not be accessed. It may be in use or access may be restricted. Close programs using it, check folder permissions, and try again.",
   "projectArchive.import.failure.importInProgress":
@@ -6200,15 +6185,15 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "projectArchive.import.failure.pathUnavailable":
     "The archive or project location is no longer available. Check that the file and drive are accessible, then try again.",
   "projectArchive.import.failure.templateUnavailable":
-    "This project template is temporarily unavailable. Try again later; if it still fails, upload logs for troubleshooting.",
+    "This project template is temporarily unavailable. Try again later; if it still fails, export logs for troubleshooting.",
   "projectArchive.import.failure.unexpected":
-    "The project import did not complete. Existing projects were not changed. Try again; if it still fails, upload logs for troubleshooting.",
+    "The project import did not complete. Existing projects were not changed. Try again; if it still fails, export logs for troubleshooting.",
   "projectArchive.import.inProgress": "Importing project",
   "projectArchive.import.openFailed": "Failed to open imported project",
   "projectArchive.import.partial":
     "Project imported; conversations may not be fully restored",
   "projectArchive.import.partialDetail":
-    "Your project files have been preserved and can be used. Full conversation restoration could not be confirmed. Check again shortly; if conversations are still missing, upload logs for troubleshooting.",
+    "Your project files have been preserved and can be used. Full conversation restoration could not be confirmed. Check again shortly; if conversations are still missing, export logs for troubleshooting.",
   "projectArchive.import.success": "Project imported",
   "projectAssets.batchDelete": "Delete selected",
   "projectAssets.batchDeleteCloudBody":
@@ -7174,12 +7159,6 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "windowClose.failed": "Could Not Complete The Window Close Action",
   "windowClose.failedDetail":
     "The window has been kept open. Please try again. Minimizing to the tray requires an available tray icon and automatically enables it.",
-  "settings.uploadLogs": "Upload Logs",
-  "settings.uploadLogsDesc":
-    "Upload recent logs to help the team diagnose issues",
-  "settings.uploadLogsFailed": "Failed to upload logs",
-  "settings.uploadLogsSuccess": "Logs uploaded successfully",
-  "settings.uploadLogsUploading": "Uploading...",
   "settings.watermarkStatusCurrent": "Current: {{status}}",
   "settings.watermarkStatusOff": "No watermark",
   "settings.watermarkStatusOn": "With watermark",
@@ -8843,7 +8822,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "topbar.diagnostics.domain.observability.ok": "Issue reporting is reachable.",
   "topbar.diagnostics.domain.observability.title": "Issue reporting",
   "topbar.diagnostics.domain.observability.warning":
-    "Issue reporting may be blocked. Upload logs when asking for support.",
+    "Issue reporting may be blocked. Export logs when asking for support.",
   "topbar.diagnostics.domain.proxy.detected":
     "System proxy detected. Switch mode only if requests fail.",
   "topbar.diagnostics.domain.proxy.ok": "No proxy or VPN detected.",
@@ -8918,7 +8897,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "topbar.diagnostics.recommendation.action.direct": "Use Direct mode",
   "topbar.diagnostics.recommendation.action.system": "Use System proxy",
   "topbar.diagnostics.recommendation.export_diagnostics":
-    "Export or upload diagnostics when asking support for help.",
+    "Export diagnostics when asking support for help.",
   "topbar.diagnostics.recommendation.local_gateway_unhealthy":
     "Retry the current workspace or restart the app if the local service stays unhealthy.",
   "topbar.diagnostics.recommendation.network_offline":
@@ -9014,20 +8993,17 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "topbar.diagnostics.summary.windowsVersionUnsupportedTitle":
     "This Windows version is not supported",
   "topbar.diagnostics.summary.windowsVersionUnverifiedDetail":
-    "The Windows version check could not finish. Recheck shortly; if it keeps failing, upload diagnostics and contact support. You do not need to reinstall Windows.",
+    "The Windows version check could not finish. Recheck shortly; if it keeps failing, export diagnostics and contact support. You do not need to reinstall Windows.",
   "topbar.diagnostics.summary.windowsVersionUnverifiedTitle":
     "Unable to verify the Windows version",
   "topbar.diagnostics.recommendation.windows_version_unverified":
-    "Recheck shortly. If the Windows version still cannot be verified, upload diagnostics and contact support.",
+    "Recheck shortly. If the Windows version still cannot be verified, export diagnostics and contact support.",
   "topbar.diagnostics.title": "Status diagnostics",
   "topbar.diagnostics.trigger.error": "Issue",
   "topbar.diagnostics.trigger.ok": "OK",
   "topbar.diagnostics.trigger.pending": "Check",
   "topbar.diagnostics.trigger.warning": "Check",
   "topbar.diagnostics.tunDetected": "VPN/TUN likely active",
-  "topbar.diagnostics.upload": "Upload diagnostics",
-  "topbar.diagnostics.uploadFailed": "Failed to upload diagnostics",
-  "topbar.diagnostics.uploadSuccess": "Diagnostics uploaded",
   "topbar.generationQueueEmpty": "No queued generations",
   "topbar.generationQueueMedia.audio": "Audio",
   "topbar.generationQueueMedia.image": "Image",
@@ -9147,7 +9123,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "update.downloading": "Downloading update... {{percent}}%",
   "update.error": "Update check failed",
   "update.errorAdvice":
-    "Retry checking for updates, or upload logs and install the latest version manually.",
+    "Retry checking for updates, or export logs and install the latest version manually.",
   "update.failureCode.CHILD_PID_QUERY_UNAVAILABLE":
     "Windows process queries are restricted, so automatic installation cannot continue safely. Download the full installer, exit Suanli Assistant, then install it over the current app.",
   "update.failureCode.CHILD_PID_SNAPSHOT_UNAVAILABLE":
@@ -9846,7 +9822,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "workspace.close.blockedGeneric":
     "This project could not be closed. Its tab has been restored — please try again shortly.",
   "workspace.close.blockedStorage":
-    "Project protection is incomplete. Closing was cancelled and the tab restored. Check disk space and permissions, or upload logs and contact support.",
+    "Project protection is incomplete. Closing was cancelled and the tab restored. Check disk space and permissions, or export logs and contact support.",
   "workspace.close.blockedUnsaved":
     "This project still has unsaved changes and cannot be closed yet. Its tab has been restored.",
   "workspace.closeCanvas": "Collapse Canvas",

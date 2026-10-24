@@ -5,9 +5,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import reactExports from "react";
 import { useTranslation } from "react-i18next";
-import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { Upload } from "../media-editing/package.jsx";
 import { Button } from "../infra/dialog-content.jsx";
 import { SettingGroup, SettingRow } from "./settings-select.jsx";
 import { LocalFolderIcon } from "../workspace/home-service.jsx";
@@ -80,26 +78,9 @@ export function isPathInWhitelist(target, whitelist, caseInsensitive) {
 }
 export function DiagnosticsGroup() {
   const { t } = useTranslation();
-  const [uploading, setUploading] = reactExports.useState(false);
   const openLogDir = reactExports.useCallback(async () => {
     await window.hilo?.diagnostics?.openLogDir();
   }, []);
-  const uploadLogs = reactExports.useCallback(async () => {
-    if (!window.hilo?.diagnostics?.uploadLogs) return;
-    setUploading(true);
-    try {
-      const result = await window.hilo.diagnostics.uploadLogs("manual");
-      if (result.success) {
-        dedupedToast.success(t("settings.uploadLogsSuccess"));
-      } else {
-        dedupedToast.error(result.error ?? t("settings.uploadLogsFailed"));
-      }
-    } catch {
-      dedupedToast.error(t("settings.uploadLogsFailed"));
-    } finally {
-      setUploading(false);
-    }
-  }, [t]);
   return (
     <SettingGroup title={t("settings.groupDiagnostics")}>
       <SettingRow
@@ -114,27 +95,6 @@ export function DiagnosticsGroup() {
         >
           <LocalFolderIcon />
           {t("settings.openLogDir")}
-        </Button>
-      </SettingRow>
-      <SettingRow
-        label={t("settings.uploadLogs")}
-        description={t("settings.uploadLogsDesc")}
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 gap-1.5 text-xs font-normal"
-          disabled={uploading}
-          onClick={() => void uploadLogs()}
-        >
-          <Upload
-            size={14}
-            strokeWidth={1.5}
-            className={uploading ? "animate-pulse" : ""}
-          />
-          {uploading
-            ? t("settings.uploadLogsUploading")
-            : t("settings.uploadLogs")}
         </Button>
       </SettingRow>
     </SettingGroup>

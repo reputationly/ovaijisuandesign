@@ -8,7 +8,6 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { submitFeedback } from "../infra/submit-feedback.js";
 import { ImagePlusOutlineIcon } from "../media-editing/package.jsx";
 import { FEEDBACK_CONSTRAINTS } from "../generation/normalize-skill-detail-metadata.js";
-import { getActiveChatSnapshot } from "../chat/attach-handoff-targets-to-sub-messages.js";
 import {
   Button,
   Dialog,
@@ -141,10 +140,6 @@ export function FeedbackDialog({ open, options, onClose }) {
     if (isFeatureRequest && !selectedModule) return;
     setSubmitting(true);
     try {
-      const chat = isFeatureRequest ? null : getActiveChatSnapshot();
-      const runtimeSessionId = chat?.focusedSessionId
-        ? chat.controller.getRuntimeSessionId(chat.focusedSessionId)
-        : void 0;
       const res = await submitFeedback({
         source: options.source,
         category: options.category,
@@ -152,11 +147,8 @@ export function FeedbackDialog({ open, options, onClose }) {
         description: trimmed,
         contextType: isFeatureRequest ? void 0 : options.contextType,
         context: isFeatureRequest ? void 0 : options.context,
-        logUploadReason: options.logUploadReason,
         currentRoute: routerState,
         files: attachments.map((attachment) => attachment.file),
-        runtimeSessionId,
-        workspaceDir: chat?.workspaceDir,
       });
       dedupedToast.success(
         t("feedback.toast.successWithId", {

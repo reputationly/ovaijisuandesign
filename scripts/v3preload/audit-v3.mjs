@@ -237,7 +237,33 @@ const contextDupes = [];
   if (stale.length) console.log(`     （allowlist 里已不超额的条目，可清理：${stale.join(", ")}）`);
 }
 
+// 7. 日志上传防回流：产品没有日志上传服务、不向对方云端发送（docs/ov-changes.md #11）。
+//    「上传日志」的界面入口和桥接已整体移除，这些标识符一旦出现就是回流。
+const UPLOAD_BAN_PATTERNS = ["uploadLogs", "log:upload", '"upload-logs"'];
+const uploadHits = [];
+const uploadScanFiles = [];
+function scanUpload(dir) {
+  for (const e of readdirSync(dir)) {
+    const p = path.join(dir, e);
+    const st = statSync(p);
+    if (st.isDirectory()) { if (e !== "node_modules") scanUpload(p); }
+    else if (/\.(js|jsx|ts|tsx|json)$/.test(e) && !e.endsWith(".d.ts")) uploadScanFiles.push(p);
+  }
+}
+for (const root of ["app/renderer/src", "app/desktop/src"]) {
+  uploadScanFiles.length = 0;
+  scanUpload(root);
+  for (const file of uploadScanFiles) {
+    const text = readFileSync(file, "utf8");
+    for (const pat of UPLOAD_BAN_PATTERNS) {
+      if (text.includes(pat)) uploadHits.push(`${file}: ${pat}`);
+    }
+  }
+}
+console.log(`  7. 日志上传防回流       : ${uploadHits.length} 处违规（日志上传已有意移除，见 ov-changes #11）`);
+for (const h of uploadHits) console.log(`       ${h}`);
+
 // 验收口径：只把「同一实体被抄两份」算违规；同名不同实现是不同实体，不算。
-const ok = distinctNames.size === 0 && parseFailures.length === 0 && sameEntity.length === 0 && contextDupes.length === 0;
+const ok = distinctNames.size === 0 && parseFailures.length === 0 && sameEntity.length === 0 && contextDupes.length === 0 && uploadHits.length === 0;
 console.log(`\n${ok ? "✓ 全部通过" : "✗ 未达标（缺口/解析失败/重复声明/Context 超额必须全为 0）"}`);
 process.exit(ok ? 0 : 1);

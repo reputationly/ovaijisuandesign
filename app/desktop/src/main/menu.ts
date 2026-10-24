@@ -65,10 +65,6 @@ export async function triggerMenuAction(actionId: string, deps: MenuDeps, sender
     case "export-logs":
       await deps.exportLogs?.(win);
       return;
-    case "upload-logs":
-      // 没有日志上传服务，告诉用户换成导出
-      dialog.showErrorBox("上传日志失败", "这个版本不能上传日志，请用「导出日志」保存后手动发送。");
-      return;
     case "check-for-updates": {
       const opts = { type: "info" as const, message: "已是最新版本", detail: `当前版本 ${app.getVersion()}`, buttons: ["好"] };
       if (win) await dialog.showMessageBox(win, opts);

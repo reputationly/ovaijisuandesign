@@ -2,12 +2,6 @@
 import { reportRumError } from "../i18n/init-rum.js";
 import { loggedErrorBoundaryDiagnostics } from "./logged-error-boundary-diagnostics.js";
 
-const ERROR_BOUNDARY_AUTO_UPLOAD_REASON = "error_boundary";
-
-const ERROR_BOUNDARY_AUTO_UPLOAD_COOLDOWN_MS = 15 * 60 * 1e3;
-
-const ERROR_BOUNDARY_UPLOAD_STORAGE_KEY = "hilo:last-error-boundary-upload";
-
 const MAX_ERROR_BOUNDARY_DIAGNOSTIC_LENGTH = 4e3;
 
 const MAX_ERROR_BOUNDARY_BREADCRUMB_MESSAGE_LENGTH = 300;
@@ -63,60 +57,6 @@ function buildErrorBoundaryDiagnostic(error, componentStack) {
   return diagnostic;
 }
 
-function getErrorBoundaryUploadKey(diagnostic) {
-  return `${diagnostic.message}:${diagnostic.componentStack ?? ""}`.slice(
-    0,
-    1e3,
-  );
-}
-
-function readErrorBoundaryUploadMarker() {
-  try {
-    const raw = localStorage.getItem(ERROR_BOUNDARY_UPLOAD_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (typeof parsed.at !== "number" || typeof parsed.key !== "string")
-      return null;
-    return {
-      at: parsed.at,
-      key: parsed.key,
-    };
-  } catch {
-    return null;
-  }
-}
-
-function writeErrorBoundaryUploadMarker(marker) {
-  try {
-    localStorage.setItem(
-      ERROR_BOUNDARY_UPLOAD_STORAGE_KEY,
-      JSON.stringify(marker),
-    );
-  } catch {}
-}
-
-let lastErrorBoundaryAutoUploadAt = 0;
-
-function shouldAutoUploadErrorBoundaryLogs(diagnostic) {
-  const now = Date.now();
-  if (
-    now - lastErrorBoundaryAutoUploadAt <
-    ERROR_BOUNDARY_AUTO_UPLOAD_COOLDOWN_MS
-  ) {
-    return false;
-  }
-  const marker = readErrorBoundaryUploadMarker();
-  if (marker && now - marker.at < ERROR_BOUNDARY_AUTO_UPLOAD_COOLDOWN_MS) {
-    return false;
-  }
-  lastErrorBoundaryAutoUploadAt = now;
-  writeErrorBoundaryUploadMarker({
-    at: now,
-    key: getErrorBoundaryUploadKey(diagnostic),
-  });
-  return true;
-}
-
 function recordErrorBoundaryBreadcrumb(diagnostic) {
   try {
     void window.hilo?.diagnostics
@@ -132,25 +72,6 @@ function recordErrorBoundaryBreadcrumb(diagnostic) {
         online: diagnostic.online,
       })
       ?.catch(() => {});
-  } catch {}
-}
-
-function autoUploadErrorBoundaryLogs(diagnostic) {
-  const uploadLogs = window.hilo?.diagnostics?.uploadLogs;
-  if (!uploadLogs || !shouldAutoUploadErrorBoundaryLogs(diagnostic)) return;
-  try {
-    void uploadLogs(ERROR_BOUNDARY_AUTO_UPLOAD_REASON, {
-      context_json: JSON.stringify({
-        type: "error_boundary",
-        failure_id: diagnostic.failureId,
-        message: diagnostic.message,
-        stack: diagnostic.stack,
-        component_stack: diagnostic.componentStack,
-        visibility_state: diagnostic.visibilityState,
-        online: diagnostic.online,
-        timestamp: diagnostic.timestamp,
-      }),
-    }).catch(() => {});
   } catch {}
 }
 
@@ -187,7 +108,6 @@ ${diagnostic.componentStack ?? "(unavailable)"}`;
   } catch {}
   recordErrorBoundaryBreadcrumb(diagnostic);
   reportErrorBoundaryRum(error, diagnostic);
-  autoUploadErrorBoundaryLogs(diagnostic);
   loggedErrorBoundaryDiagnostics.set(error, loggedDiagnostic);
   return loggedDiagnostic;
 }

@@ -95,7 +95,6 @@ export function AssistantMessageActions({
             message_id: requestId,
           }
         : void 0,
-      logUploadReason: "chat_message_feedback",
     });
   }, [handleMenuOpenChange, openFeedback, requestId]);
   const copyLabel = translate(messageCopied ? "chat.copied" : "chat.copyMessage");

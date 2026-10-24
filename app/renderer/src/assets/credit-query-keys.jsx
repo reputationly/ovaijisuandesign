@@ -194,8 +194,8 @@ function blockedGenericFallback() {
 }
 function blockedStorageFallback() {
   return isChineseLocale()
-    ? "项目保存保护未完成，已取消关闭并恢复标签页。请检查磁盘空间和权限，或上传日志联系支持。"
-    : "Project protection is incomplete. Closing was cancelled and the tab restored. Check disk space and permissions, or upload logs and contact support.";
+    ? "项目保存保护未完成，已取消关闭并恢复标签页。请检查磁盘空间和权限，或导出日志联系支持。"
+    : "Project protection is incomplete. Closing was cancelled and the tab restored. Check disk space and permissions, or export logs and contact support.";
 }
 export function toastWorkspaceCloseBlocked(workspaceId, result) {
   const key =

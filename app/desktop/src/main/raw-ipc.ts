@@ -265,8 +265,6 @@ export function registerRawIpc(deps: RawIpcDeps): void {
   // 日志
   handle("log:write", (_e, level, message, category) => deps.log(String(level), `${category ? `[${String(category)}] ` : ""}${String(message)}`));
   handle("log:export", (e) => exportLogs(windowOf(e), deps.logDir));
-  // 没有日志上传服务
-  handle("log:upload", () => ({ success: false, error: "日志上传不可用，请用「导出日志」", retriable: false }));
   handle("memory:get-stats", () => memoryStats());
   for (const ch of ["perf:capture-cpu", "perf:capture-heap", "perf:capture-trace", "perf:capture-netlog"]) {
     handle(ch, () => ({ success: false, error: "unsupported" }));

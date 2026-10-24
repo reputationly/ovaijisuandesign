@@ -11,7 +11,6 @@ import {
   useRetryHintActive,
 } from "./use-retry-hint-active.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";
-import { Upload } from "../media-editing/package.jsx";
 import { resolveWorkspaceFailureDiagnosis } from "../canvas/resolve-workspace-failure-diagnosis.js";
 import { Button } from "./dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
@@ -223,17 +222,6 @@ const INTERNAL_ERROR_MARKERS = [
   "https://",
   "error:",
 ];
-const MAX_UPLOAD_CACHE = 50;
-const AUTO_UPLOAD_PROMISES = new Map();
-function setUploadPromise(failureId, promise) {
-  AUTO_UPLOAD_PROMISES.set(failureId, promise);
-  if (AUTO_UPLOAD_PROMISES.size > MAX_UPLOAD_CACHE) {
-    const oldest = AUTO_UPLOAD_PROMISES.keys().next().value;
-    if (oldest) {
-      AUTO_UPLOAD_PROMISES.delete(oldest);
-    }
-  }
-}
 function isUserFacingStatusError(error) {
   const message = error?.trim();
   if (!message) return false;
@@ -248,7 +236,6 @@ function normalizeDisplayMessage(message) {
 export function BundleErrorScreen({
   status,
   retrying = false,
-  autoUploadDiagnostics = true,
   diagnosticsActionsEnabled = true,
   retryCount = 0,
   maxRetries: maxRetriesProp = Number.POSITIVE_INFINITY,
@@ -259,8 +246,6 @@ export function BundleErrorScreen({
   const [feedbackState, setFeedbackState] = reactExports.useState("idle");
   const [networkRecoveryState, setNetworkRecoveryState] =
     reactExports.useState("idle");
-  const [autoUploadState, setAutoUploadState] = reactExports.useState("idle");
-  const [feedbackUpload, setFeedbackUpload] = reactExports.useState();
   const [showTechnicalDetails, setShowTechnicalDetails] =
     reactExports.useState(false);
   const diagnosis = resolveWorkspaceFailureDiagnosis(
@@ -269,10 +254,6 @@ export function BundleErrorScreen({
     i18n.language,
   );
   const failureId = status.diagnosis?.failureId;
-  const uploadDedupKey = (
-    failureId ??
-    `${status.workspaceId}:${status.revision}:${status.diagnosis?.code ?? status.error ?? "unknown"}`
-  ).slice(0, 500);
   const evidence = status.diagnosis?.evidence;
   const retryHintActive = useRetryHintActive(status.retryAfter?.blockedUntilMs);
   const errorTitle = diagnosis?.title ?? t("bundleError.title");
@@ -306,14 +287,9 @@ export function BundleErrorScreen({
   const diagnosisCodeLabel = t("bundleError.copy.diagnosisCode", {
     defaultValue: "诊断类型",
   });
-  const feedbackUploadLabel = t("bundleError.feedbackUpload.label", {
-    defaultValue: "上传日志并复制反馈信息",
+  const feedbackButtonLabel = t("bundleError.feedbackCopy.label", {
+    defaultValue: "复制反馈信息",
   });
-  const feedbackButtonLabel = feedbackUpload?.success
-    ? t("bundleError.feedbackCopy.label", {
-        defaultValue: "复制反馈信息",
-      })
-    : feedbackUploadLabel;
   const sceneTitle = t("bundleError.title", {
     defaultValue: "Workspace 启动失败",
   });
@@ -321,25 +297,12 @@ export function BundleErrorScreen({
   const shouldShowErrorMessage =
     normalizeDisplayMessage(errorMessage) !==
     normalizeDisplayMessage(mainTitle);
-  const supportStatusText =
-    autoUploadState === "uploading"
-      ? t("bundleError.supportHint.uploading", {
-          defaultValue: "正在自动上传诊断日志；截图里请保留用户 ID 和反馈码。",
-        })
-      : feedbackUpload?.success
-        ? t("bundleError.supportHint.uploaded", {
-            defaultValue:
-              "日志已自动上传，支持可通过用户 ID + 反馈码或日志定位路径定位本次失败。",
-          })
-        : autoUploadState === "error"
-          ? t("bundleError.supportHint.uploadFailed", {
-              defaultValue:
-                "自动上传失败，可点击上传日志并复制反馈信息重试；截图请保留用户 ID + 反馈码。",
-            })
-          : t("bundleError.supportHint.beforeUpload", {
-              defaultValue:
-                "正在准备诊断信息；截图里请保留用户 ID 和反馈码，便于支持定位。",
-            });
+  // 产品没有日志上传服务（ov-changes #11）：固定引导导出日志，
+  // 截图定位只需要用户 ID 与反馈码。
+  const supportStatusText = t("bundleError.supportHint.exportLogs", {
+    defaultValue:
+      "截图里请保留用户 ID 和反馈码；需要日志时，可在「帮助 → 导出日志」中导出。",
+  });
   const retryButtonLabel =
     retryCount >= maxRetries
       ? diagnosis && SYSTEM_UPGRADE_REQUIRED_CODES.has(diagnosis.code)
@@ -371,26 +334,6 @@ export function BundleErrorScreen({
   );
   const reportedStartupFailureRef = reactExports.useRef(null);
   const showsNetworkRecovery = diagnosis?.category === "network";
-  const recordUploadComplete = reactExports.useCallback(
-    (uploadContext, source) => {
-      setFeedbackUpload(uploadContext);
-      reportRumAction(
-        source === "auto"
-          ? "Workspace 启动失败-自动上传日志完成"
-          : "Workspace 启动失败-反馈上传完成",
-        {
-          ...diagnosticContext,
-          log_upload_source: source,
-          log_upload_success: uploadContext.success,
-          log_upload_path: uploadContext.uploadPath,
-          log_upload_locator: uploadContext.locator,
-          log_upload_retriable: uploadContext.retriable,
-          log_upload_error: uploadContext.error,
-        },
-      );
-    },
-    [diagnosticContext],
-  );
   reactExports.useEffect(() => {
     if (status.state !== "failed") return;
     const reportKey = `${status.diagnosis?.failureId ?? "unknown"}:${status.diagnosis?.code ?? "unknown"}`;
@@ -407,136 +350,16 @@ export function BundleErrorScreen({
     status.diagnosis?.failureId,
     status.state,
   ]);
-  reactExports.useEffect(() => {
-    if (!autoUploadDiagnostics || status.state !== "failed") return;
-    const existing = AUTO_UPLOAD_PROMISES.get(uploadDedupKey);
-    if (existing) {
-      let cancelled = false;
-      setAutoUploadState("uploading");
-      void existing.then((ctx) => {
-        if (cancelled) return;
-        setAutoUploadState(ctx.success ? "done" : "error");
-        setFeedbackUpload(ctx);
-      });
-      return () => {
-        cancelled = true;
-      };
-    }
-    let cancelled = false;
-    setAutoUploadState("uploading");
-    reportRumAction("Workspace 启动失败-自动上传日志开始", diagnosticContext);
-    const uploadPromise = (async () => {
-      try {
-        await window.hilo?.diagnostics?.addBreadcrumb?.(
-          "lifecycle",
-          "workspace-startup: auto upload diagnostics package",
-          diagnosticContext,
-        );
-        const result = await window.hilo?.diagnostics?.uploadLogs?.(
-          "workspace_startup_failure",
-          diagnosticContext,
-        );
-        const uploadContext = result
-          ? {
-              success: result.success,
-              retriable: result.retriable,
-              uploadPath: result.uploadPath,
-              locator: result.locator,
-              error: result.error,
-            }
-          : {
-              success: false,
-              error: "diagnostics upload bridge unavailable",
-            };
-        if (!uploadContext.success) {
-          AUTO_UPLOAD_PROMISES.delete(uploadDedupKey);
-        }
-        if (!cancelled) {
-          setAutoUploadState(uploadContext.success ? "done" : "error");
-          recordUploadComplete(uploadContext, "auto");
-        }
-        return uploadContext;
-      } catch (err) {
-        const uploadContext = {
-          success: false,
-          error: err instanceof Error ? err.message : String(err),
-        };
-        AUTO_UPLOAD_PROMISES.delete(uploadDedupKey);
-        if (!cancelled) {
-          setAutoUploadState("error");
-          recordUploadComplete(uploadContext, "auto");
-        }
-        return uploadContext;
-      }
-    })();
-    setUploadPromise(uploadDedupKey, uploadPromise);
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    autoUploadDiagnostics,
-    diagnosticContext,
-    recordUploadComplete,
-    status.state,
-    uploadDedupKey,
-  ]);
   const handleFeedbackCopy = async () => {
     if (!diagnosticsActionsEnabled) return;
     if (feedbackState === "loading") return;
     setFeedbackState("loading");
     try {
-      let upload = feedbackUpload;
-      if (!upload?.success) {
-        const inflight = AUTO_UPLOAD_PROMISES.get(uploadDedupKey);
-        if (inflight) {
-          upload = await inflight;
-        } else {
-          reportRumAction("Workspace 启动失败-反馈上传开始", diagnosticContext);
-          const result = await window.hilo?.diagnostics?.uploadLogs?.(
-            "workspace_startup_failure",
-            diagnosticContext,
-          );
-          upload = result
-            ? {
-                success: result.success,
-                retriable: result.retriable,
-                uploadPath: result.uploadPath,
-                locator: result.locator,
-                error: result.error,
-              }
-            : {
-                success: false,
-                error: "diagnostics upload bridge unavailable",
-              };
-          recordUploadComplete(upload, "feedback");
-          setAutoUploadState(upload.success ? "done" : "error");
-          if (upload.success) {
-            setUploadPromise(uploadDedupKey, Promise.resolve(upload));
-          }
-        }
-      }
-      const locatorLine = upload.locator
-        ? `${t("bundleError.supportHint.locator", {
-            defaultValue: "日志定位",
-          })}: ${upload.locator}`
-        : void 0;
-      const guideLine = upload.success
-        ? `${t("bundleError.feedbackCopy.guide", {
-            defaultValue: "定位说明",
-          })}: ${t("bundleError.feedbackCopy.guideText", {
-            defaultValue:
-              "日志已上传，可按用户 ID + 反馈码或日志定位路径查找。",
-          })}`
-        : void 0;
       const text = [
         `${userIdLabel}: ${userIdDisplayValue}`,
         `${feedbackCodeLabel}: ${failureId ?? "N/A"}`,
         `${diagnosisCodeLabel}: ${status.diagnosis?.code ?? "unknown"}`,
-        locatorLine,
-        guideLine,
-      ]
-        .filter(Boolean)
-        .join("\n");
+      ].join("\n");
       await navigator.clipboard.writeText(text);
       dedupedToast.success(t("common.copied"));
     } catch {
@@ -649,7 +472,7 @@ export function BundleErrorScreen({
             <p className="mt-3 text-sm leading-5 text-muted-foreground">
               {t("bundleError.solutionGenericSuggestion", {
                 defaultValue:
-                  "如果重试后仍失败，请上传日志并把反馈信息发给支持团队。",
+                  "如果重试后仍失败，请导出日志并把反馈信息发给支持团队。",
               })}
             </p>
           )}
@@ -674,7 +497,6 @@ export function BundleErrorScreen({
               onClick={() => void handleFeedbackCopy()}
               data-action-ui-id="feedback-button"
             >
-              <Upload />
               {feedbackButtonLabel}
             </Button>
           </div>
@@ -856,18 +678,6 @@ export function BundleErrorScreen({
                 <dd className="min-w-0 break-all font-mono text-foreground">
                   {failureId ?? "N/A"}
                 </dd>
-                {feedbackUpload?.locator ? (
-                  <>
-                    <dt className="text-muted-foreground">
-                      {t("bundleError.supportHint.locator", {
-                        defaultValue: "日志定位",
-                      })}
-                    </dt>
-                    <dd className="min-w-0 break-all font-mono text-foreground">
-                      {feedbackUpload.locator}
-                    </dd>
-                  </>
-                ) : null}
                 {evidenceItems.map((item) => (
                   <div key={item.key} className="contents">
                     <dt className="text-muted-foreground">

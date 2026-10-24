@@ -1,7 +1,7 @@
 // diagnostics-status-button.jsx
 import reactExports from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIcon, AlertTriangleIcon, CheckCircle2Icon, ClipboardIcon, CloudIcon, DownloadIcon, FolderOpenIcon, ServerIcon, ShieldCheckIcon, UploadIcon$1 as UploadIcon, UsersIcon, WifiIcon, WifiOffIcon } from "../media-editing/lucide-icon-wraps.js";
+import { ActivityIcon, AlertTriangleIcon, CheckCircle2Icon, ClipboardIcon, CloudIcon, DownloadIcon, FolderOpenIcon, ServerIcon, ShieldCheckIcon, UsersIcon, WifiIcon, WifiOffIcon } from "../media-editing/lucide-icon-wraps.js";
 import { MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -646,18 +646,6 @@ export function DiagnosticsStatusButton({
         result?.error ?? t("topbar.diagnostics.exportFailed"),
       );
   };
-  const handleUpload = async () => {
-    const result = await window.hilo?.diagnostics?.uploadLogs?.("manual", {
-      source: "topbar_status_diagnostics",
-      snapshot,
-    });
-    if (result?.success)
-      dedupedToast.success(t("topbar.diagnostics.uploadSuccess"));
-    else
-      dedupedToast.error(
-        result?.error ?? t("topbar.diagnostics.uploadFailed"),
-      );
-  };
   const handleOpenLogs = async () => {
     try {
       await window.hilo?.diagnostics?.openLogDir?.();
@@ -769,7 +757,7 @@ export function DiagnosticsStatusButton({
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 border-b border-border/70 px-4 py-3">
+        <div className="grid grid-cols-3 gap-2 border-b border-border/70 px-4 py-3">
           <Button
             variant="default"
             size="xs"
@@ -782,16 +770,6 @@ export function DiagnosticsStatusButton({
               className={loading ? "animate-spin" : void 0}
             />
             {t("topbar.diagnostics.refresh")}
-          </Button>
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={() => void handleUpload()}
-            disabled={!window.hilo?.diagnostics?.uploadLogs}
-            data-action-ui-id="topbar.diagnostics.upload"
-          >
-            <UploadIcon className="size-3.5" />
-            {t("topbar.diagnostics.upload")}
           </Button>
           <Button
             variant="outline"

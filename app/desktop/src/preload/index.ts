@@ -305,7 +305,6 @@ const hilo = {
     getLogPath: () => invoke("app:get-log-path"),
     openLogDir: () => invoke("app:open-log-dir"),
     exportLogs: () => invoke("log:export"),
-    uploadLogs: (reason: string, feedbackContext?: unknown) => invoke("log:upload", reason, feedbackContext),
     getMemoryStats: () => invoke("memory:get-stats"),
     getProxyStatus: () => invoke("app:get-proxy-status"),
     onProxyDetected: (cb: (p: unknown) => void) => subscribe("proxy:detected-toast", (_e, p) => cb(p)),

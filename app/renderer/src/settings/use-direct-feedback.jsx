@@ -118,7 +118,6 @@ export function useDirectFeedback() {
             options.defaultDescription?.trim() || "Auto-reported error",
           contextType: options.contextType,
           context: options.context,
-          logUploadReason: options.logUploadReason,
           currentRoute: routerState,
           traceId: options.traceId,
         });
@@ -170,7 +169,6 @@ export function FeedbackButton({
       contextType: resolvedContextType,
       context,
       defaultDescription: errorContext ?? "",
-      logUploadReason: reason,
     };
     if (directSubmit) {
       void submitDirect(options);

@@ -176,14 +176,9 @@ async function saveChatRating(
       idempotencyKey: request.event.event_id,
       locale: request.locale,
       workspaceId: capturedTarget.workspaceId,
-      workspaceDir: capturedTarget.workspaceDir,
-      runtimeSessionId:
-        request.event.rating === "none" ? void 0 : capturedTarget.sessionId,
     },
-    // The snapshot needs the workspace; logs run in main and the final save
-    // uses the app gateway, so closing that workspace cannot abort the rating.
+    // 最终保存走应用 gateway；关掉那个工作区不会中断这次评分保存。
     {
-      exportFetch: fetchFeedback,
       isCurrentIdentity,
     },
   );

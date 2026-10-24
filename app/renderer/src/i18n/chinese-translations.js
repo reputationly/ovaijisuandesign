@@ -761,17 +761,17 @@ const zh = {
   "bundleError.diagnosis.windowsVersionUnverified.suggestion1":
     "等待几秒后重试，无需修改系统设置或重新安装。",
   "bundleError.diagnosis.windowsVersionUnverified.suggestion2":
-    "如果仍然失败，请上传诊断并联系支持，确认版本检测是否被系统策略限制。",
+    "如果仍然失败，请导出诊断并联系支持，确认版本检测是否被系统策略限制。",
   "bundleError.diagnosis.windowsVersionUnverified.title":
     "暂时无法确认 Windows 版本",
   "bundleError.diagnosis.workspaceDataMigrationConflict.message":
     "检测到无法安全自动处理的本地项目数据版本。应用不会删除或改写原项目数据。",
   "bundleError.diagnosis.workspaceDataMigrationConflict.primaryAction":
-    "上传日志并联系支持",
+    "导出日志并联系支持",
   "bundleError.diagnosis.workspaceDataMigrationConflict.suggestion1":
     "请勿删除、替换或手动修改项目数据库。",
   "bundleError.diagnosis.workspaceDataMigrationConflict.suggestion2":
-    "上传日志，并将用户 ID 和反馈码发给支持团队。",
+    "导出日志，并将用户 ID 和反馈码发给支持团队。",
   "bundleError.diagnosis.workspaceDataMigrationConflict.title":
     "项目数据版本不兼容",
   "bundleError.diagnosis.workspaceDataMigrationFailed.message":
@@ -797,11 +797,11 @@ const zh = {
   "bundleError.diagnosis.workspaceIndexRecovery.message":
     "无法安全恢复项目的素材关联。为保护原有内容，已停止自动重建；这不代表素材文件已被删除。",
   "bundleError.diagnosis.workspaceIndexRecovery.primaryAction":
-    "上传日志并联系支持",
+    "导出日志并联系支持",
   "bundleError.diagnosis.workspaceIndexRecovery.suggestion1":
     "保留完整项目文件夹，不要删除素材、覆盖项目或清理应用数据。",
   "bundleError.diagnosis.workspaceIndexRecovery.suggestion2":
-    "上传日志并联系支持，在项目副本中核对和恢复素材关联。",
+    "导出日志并联系支持，在项目副本中核对和恢复素材关联。",
   "bundleError.diagnosis.workspaceIndexRecovery.title": "项目素材信息需要恢复",
   "bundleError.diagnosticsDetails": "诊断详情",
   "bundleError.diagnosticsSummaryTitle": "检测到的问题",
@@ -863,11 +863,9 @@ const zh = {
   "bundleError.fallbackMessage":
     "未知错误，请重试。若问题持续，请导出日志并联系支持。",
   "bundleError.feedbackCode": "反馈码",
-  "bundleError.feedbackCopy.guide": "定位说明",
-  "bundleError.feedbackCopy.guideText":
-    "日志已上传，可按用户 ID + 反馈码或日志定位路径查找。",
+  "bundleError.supportHint.exportLogs":
+    "截图里请保留用户 ID 和反馈码；需要日志时，可在「帮助 → 导出日志」中导出。",
   "bundleError.feedbackCopy.label": "复制反馈信息",
-  "bundleError.feedbackUpload.label": "上传日志并复制反馈",
   "bundleError.impactMessage":
     "当前 workspace 内容已保留，只是本地 AI 服务暂时不可用。",
   "bundleError.networkRecovery.checkFailed":
@@ -895,21 +893,12 @@ const zh = {
     "点击下方按钮，系统会自动尝试换端口重新启动。",
   "bundleError.solutionFallback": "请先重试一次。",
   "bundleError.solutionGenericSuggestion":
-    "如果重试后仍失败，请上传日志并把反馈信息发给支持团队。",
+    "如果重试后仍失败，请导出日志并把反馈信息发给支持团队。",
   "bundleError.solutionTitle": "怎么解决",
   "bundleError.suggestionsTitle": "可以先尝试",
   "bundleError.supportCardDescription":
     "把用户 ID 和反馈码发给支持即可，技术细节默认收起。",
   "bundleError.supportCardTitle": "反馈与日志",
-  "bundleError.supportHint.beforeUpload":
-    "正在准备诊断信息；截图里请保留用户 ID 和反馈码，便于支持定位。",
-  "bundleError.supportHint.locator": "日志定位",
-  "bundleError.supportHint.uploadFailed":
-    "自动上传失败，可点击上传日志并复制反馈信息重试；截图请保留用户 ID + 反馈码。",
-  "bundleError.supportHint.uploaded":
-    "日志已自动上传，支持可通过用户 ID + 反馈码或日志定位路径定位本次失败。",
-  "bundleError.supportHint.uploading":
-    "正在自动上传诊断日志；截图里请保留用户 ID 和反馈码。",
   "bundleError.technicalDetails.hide": "收起诊断信息",
   "bundleError.technicalDetails.region": "支持团队诊断信息",
   "bundleError.technicalDetails.show": "给支持团队的诊断信息",
@@ -4175,10 +4164,6 @@ const zh = {
   "debugPanel.reliability.runtime": "运行环境",
   "debugPanel.reliability.title": "可靠性诊断",
   "debugPanel.reliability.unavailable": "不可用",
-  "debugPanel.reliability.upload": "上传日志",
-  "debugPanel.reliability.uploadFailed": "日志上传失败",
-  "debugPanel.reliability.uploaded": "日志上传已触发",
-  "debugPanel.reliability.uploading": "上传中…",
   "debugPanel.serverPopup.description":
     "模拟新用户首次进入蒜狸小助手的状态。点击后窗口会刷新一次,弹窗按运营配置、当前账号身份、频率规则重新判断是否出现。如果运营还没上架弹窗,或者当前账号不符合触发条件,刷新后不会弹任何东西,跟其他用户首次进入蒜狸小助手时看到的一致。",
   "debugPanel.serverPopup.notLoggedIn": "请先登录",
@@ -5741,7 +5726,7 @@ const zh = {
   "projectArchive.import.failure.archiveInvalid":
     "无法读取此项目压缩包。请确认文件完整，并由蒜狸小助手导出后重新导入。",
   "projectArchive.import.failure.archiveTooLarge":
-    "项目模板因文件过大暂不可用，请上传日志以便排查。",
+    "项目模板因文件过大暂不可用，请导出日志以便排查。",
   "projectArchive.import.failure.destinationConflict":
     "项目保存位置发生冲突，已有项目未被覆盖。请稍后重新导入。",
   "projectArchive.import.failure.diskFull":
@@ -5749,7 +5734,7 @@ const zh = {
   "projectArchive.import.failure.downloadDiskFull":
     "下载临时文件所在磁盘的可用空间不足。请释放该磁盘空间后重试。",
   "projectArchive.import.failure.downloadFailed":
-    "无法下载项目模板。请检查网络连接或稍后重试；若仍失败，请上传日志以便排查。",
+    "无法下载项目模板。请检查网络连接或稍后重试；若仍失败，请导出日志以便排查。",
   "projectArchive.import.failure.fileAccessBlocked":
     "无法访问导入文件或项目保存位置，可能被占用或受到访问限制。请关闭占用程序、检查目录权限后重试。",
   "projectArchive.import.failure.importInProgress":
@@ -5757,14 +5742,14 @@ const zh = {
   "projectArchive.import.failure.pathUnavailable":
     "导入文件或项目保存位置已不可用。请确认文件和磁盘仍可访问后重试。",
   "projectArchive.import.failure.templateUnavailable":
-    "项目模板暂不可用，请稍后重试；若仍失败，请上传日志以便排查。",
+    "项目模板暂不可用，请稍后重试；若仍失败，请导出日志以便排查。",
   "projectArchive.import.failure.unexpected":
-    "项目导入未完成，已有项目未被修改。请重试；如果仍然失败，请上传日志以便排查。",
+    "项目导入未完成，已有项目未被修改。请重试；如果仍然失败，请导出日志以便排查。",
   "projectArchive.import.inProgress": "正在导入项目",
   "projectArchive.import.openFailed": "打开导入的项目失败",
   "projectArchive.import.partial": "项目已导入，对话记录可能未完整恢复",
   "projectArchive.import.partialDetail":
-    "项目文件已保留，可以继续使用。对话记录尚未确认完整恢复，请稍后查看；若仍缺失，请上传日志以便排查。",
+    "项目文件已保留，可以继续使用。对话记录尚未确认完整恢复，请稍后查看；若仍缺失，请导出日志以便排查。",
   "projectArchive.import.success": "项目已导入",
   "projectAssets.batchDelete": "批量删除",
   "projectAssets.batchDeleteCloudBody":
@@ -6664,11 +6649,6 @@ const zh = {
   "windowClose.failed": "无法完成关闭窗口操作",
   "windowClose.failedDetail":
     "窗口已保留，请重试。最小化到托盘需要可用的托盘图标，并会自动开启托盘图标显示。",
-  "settings.uploadLogs": "上传日志",
-  "settings.uploadLogsDesc": "将最近的日志上传至服务器，帮助开发团队排查问题",
-  "settings.uploadLogsFailed": "日志上传失败",
-  "settings.uploadLogsSuccess": "日志上传成功",
-  "settings.uploadLogsUploading": "上传中...",
   "settings.watermarkStatusCurrent": "当前：{{status}}",
   "settings.watermarkStatusOff": "无水印",
   "settings.watermarkStatusOn": "有水印",
@@ -8184,7 +8164,7 @@ const zh = {
   "topbar.diagnostics.domain.observability.ok": "问题上报链路可达。",
   "topbar.diagnostics.domain.observability.title": "问题上报",
   "topbar.diagnostics.domain.observability.warning":
-    "问题上报可能被阻断；联系支持时请上传日志。",
+    "问题上报可能被阻断；联系支持时请导出日志。",
   "topbar.diagnostics.domain.proxy.detected":
     "检测到系统代理；仅在请求失败时切换代理模式。",
   "topbar.diagnostics.domain.proxy.ok": "未检测到代理或 VPN。",
@@ -8259,7 +8239,7 @@ const zh = {
   "topbar.diagnostics.recommendation.action.direct": "切到直连",
   "topbar.diagnostics.recommendation.action.system": "切到系统代理",
   "topbar.diagnostics.recommendation.export_diagnostics":
-    "联系支持时导出或上传诊断信息。",
+    "联系支持时导出诊断信息。",
   "topbar.diagnostics.recommendation.local_gateway_unhealthy":
     "本地服务持续异常时，先重试当前 workspace 或重启应用。",
   "topbar.diagnostics.recommendation.network_offline": "先检查系统网络连接。",
@@ -8343,20 +8323,17 @@ const zh = {
   "topbar.diagnostics.summary.windowsVersionUnsupportedTitle":
     "Windows 版本不受支持",
   "topbar.diagnostics.summary.windowsVersionUnverifiedDetail":
-    "Windows 版本核验未完成，请稍后重新检测；若持续失败，请上传诊断并联系支持，无需重装系统。",
+    "Windows 版本核验未完成，请稍后重新检测；若持续失败，请导出诊断并联系支持，无需重装系统。",
   "topbar.diagnostics.summary.windowsVersionUnverifiedTitle":
     "暂时无法确认 Windows 版本",
   "topbar.diagnostics.recommendation.windows_version_unverified":
-    "请稍后重新检测；若仍无法确认 Windows 版本，请上传诊断并联系支持。",
+    "请稍后重新检测；若仍无法确认 Windows 版本，请导出诊断并联系支持。",
   "topbar.diagnostics.title": "状态诊断",
   "topbar.diagnostics.trigger.error": "连接异常",
   "topbar.diagnostics.trigger.ok": "连接正常",
   "topbar.diagnostics.trigger.pending": "诊断",
   "topbar.diagnostics.trigger.warning": "需检查",
   "topbar.diagnostics.tunDetected": "疑似 VPN/TUN 已启用",
-  "topbar.diagnostics.upload": "上传诊断",
-  "topbar.diagnostics.uploadFailed": "上传诊断失败",
-  "topbar.diagnostics.uploadSuccess": "已上传诊断",
   "topbar.generationQueueEmpty": "暂无生成排队",
   "topbar.generationQueueMedia.audio": "音频",
   "topbar.generationQueueMedia.image": "图片",
@@ -8472,7 +8449,7 @@ const zh = {
   "update.downloaded": "更新已下载，准备安装",
   "update.downloading": "正在下载更新... {{percent}}%",
   "update.error": "检查更新失败",
-  "update.errorAdvice": "请重试检查更新，或上传日志后下载最新版覆盖安装。",
+  "update.errorAdvice": "请重试检查更新，或导出日志后下载最新版覆盖安装。",
   "update.failureCode.CHILD_PID_QUERY_UNAVAILABLE":
     "系统限制了 Windows 进程查询，自动安装无法安全继续。请下载完整安装包，退出蒜狸小助手后覆盖安装",
   "update.failureCode.CHILD_PID_SNAPSHOT_UNAVAILABLE":
@@ -9135,7 +9112,7 @@ const zh = {
   "workspace.close.blockedGeneric":
     "项目暂时无法关闭，已恢复标签页，请稍后重试。",
   "workspace.close.blockedStorage":
-    "项目保存保护未完成，已取消关闭并恢复标签页。请检查磁盘空间和权限，或上传日志联系支持。",
+    "项目保存保护未完成，已取消关闭并恢复标签页。请检查磁盘空间和权限，或导出日志联系支持。",
   "workspace.close.blockedUnsaved":
     "项目还有内容未保存完成，暂时无法关闭，已恢复标签页。",
   "workspace.closeCanvas": "收起画布",

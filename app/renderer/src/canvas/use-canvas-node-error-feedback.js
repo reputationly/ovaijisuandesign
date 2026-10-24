@@ -19,7 +19,6 @@ export function useCanvasNodeErrorFeedback() {
             error_code: info.errorMessage,
             trace_id: info.traceId,
           },
-          logUploadReason: `canvas_node_error:${info.nodeType}`,
           defaultDescription: info.errorMessage ?? "",
         },
         info.nodeId,

@@ -26,62 +26,6 @@ function readWorkspaceId() {
   }
 }
 
-async function tryUploadLogs(reason, feedbackContext) {
-  try {
-    const result = await window.hilo?.diagnostics?.uploadLogs?.(
-      reason,
-      feedbackContext,
-    );
-    return {
-      uploaded: Boolean(result?.success),
-      url: result?.url,
-    };
-  } catch {
-    return {
-      uploaded: false,
-    };
-  }
-}
-
-async function tryFetchOpenCodeSessionExport(
-  workspaceDir,
-  runtimeSessionId,
-  fetchFeedback,
-) {
-  try {
-    const res = await fetchFeedback("/api/projects/archive/export", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        dir: workspaceDir,
-        sessionId: runtimeSessionId,
-      }),
-      // The export reads SQLite directly and serialises in-process; even a
-      // session with deep tool-call history finishes in well under a second.
-      // Cap generously so a momentarily-slow gateway doesn't stall ticket
-      // submission, but keep tighter than the 30 s feedback budget.
-      timeoutMs: 1e4,
-    });
-    if (!res.ok) {
-      if (false);
-      return void 0;
-    }
-    const body = await res.json();
-    if (
-      typeof body !== "object" ||
-      body === null ||
-      !("payload" in body) ||
-      body.payload == null
-    )
-      return void 0;
-    return JSON.stringify(body.payload);
-  } catch (err) {
-    return void 0;
-  }
-}
-
 async function uploadFileToGateway(file, fetchFeedback) {
   if (file.size > FEEDBACK_CONSTRAINTS.ATTACHMENT_MAX_BYTES) {
     throw new Error(
@@ -109,16 +53,12 @@ export async function submitFeedback(input, options = {}) {
     return baseFetch(path, init);
   };
   const fetchFeedback = withIdentity(options.fetch ?? gatewayFetch);
-  const fetchSession = options.exportFetch
-    ? withIdentity(options.exportFetch)
-    : fetchFeedback;
   await assertIdentity();
   recordAction("feedback:submit", {
     source: input.source,
   });
   const platform = getPlatform();
   const config = getRuntimeConfig();
-  const reason = input.logUploadReason ?? `user_feedback:${input.source}`;
   const isFeatureRequest = input.category === "feature_request";
   await readUserId();
   const workspaceId = input.workspaceId ?? readWorkspaceId();
@@ -129,40 +69,8 @@ export async function submitFeedback(input, options = {}) {
           .map((file) => uploadFileToGateway(file, fetchFeedback)),
       )
     : [];
-  let logResult = {
-    uploaded: false,
-  };
-  if (!isFeatureRequest) {
-    const feedbackContext = {};
-    if (attachmentUrls.length > 0) {
-      feedbackContext.attachments_json = JSON.stringify(attachmentUrls);
-    }
-    if (input.runtimeSessionId && input.workspaceDir) {
-      const sessionJson = await tryFetchOpenCodeSessionExport(
-        input.workspaceDir,
-        input.runtimeSessionId,
-        fetchSession,
-      );
-      if (sessionJson) {
-        feedbackContext.opencode_session_json = sessionJson;
-      }
-    }
-    if (input.context) {
-      feedbackContext.context_json = JSON.stringify(
-        input.contextType === "chat_feedback"
-          ? {
-              ...input.context,
-              session_archive_entry: feedbackContext.opencode_session_json
-                ? "opencode-session.json"
-                : null,
-            }
-          : input.context,
-      );
-    }
-    await assertIdentity();
-    logResult = await tryUploadLogs(reason, feedbackContext);
-  }
-  const auto_log_uploaded = logResult.uploaded;
+  // 没有日志上传服务（ov-changes #11）：固定按"未附带日志"上报，gateway 契约不变。
+  const auto_log_uploaded = false;
   const clientRequestId = getLastGatewayTraceId() ?? void 0;
   const isCanvasNodeError =
     input.source === "context" && input.contextType === "canvas_node_error";
@@ -218,7 +126,7 @@ export async function submitFeedback(input, options = {}) {
     context_type: payload.context_type ?? "",
     locale: payload.metadata.locale,
     auto_log_uploaded: payload.metadata.auto_log_uploaded ?? false,
-    detail_url: logResult.url ?? "",
+    detail_url: "",
   };
   if (payload.type) {
     requestBody.type = payload.type;

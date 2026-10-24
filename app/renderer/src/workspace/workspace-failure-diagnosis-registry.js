@@ -237,7 +237,7 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       {
         key: "bundleError.diagnosis.windowsVersionUnverified.suggestion2",
         zh: "如果仍然失败，请上传诊断并联系支持，确认版本检测是否被系统策略限制。",
-        en: "If the check keeps failing, upload diagnostics and contact support to check whether system policy restricts version detection.",
+        en: "If the check keeps failing, export diagnostics and contact support to check whether system policy restricts version detection.",
       },
     ],
     runbook: "windows_version_unverified",
@@ -654,8 +654,8 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
     },
     primaryAction: {
       key: "bundleError.diagnosis.workspaceDataMigrationConflict.primaryAction",
-      zh: "上传日志并联系支持",
-      en: "Upload logs and contact support",
+      zh: "导出日志并联系支持",
+      en: "Export logs and contact support",
     },
     suggestions: [
       {
@@ -665,8 +665,8 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.workspaceDataMigrationConflict.suggestion2",
-        zh: "上传日志，并将用户 ID 和反馈码发给支持团队。",
-        en: "Upload logs and send the user ID and feedback code to support.",
+        zh: "导出日志，并将用户 ID 和反馈码发给支持团队。",
+        en: "Export logs and send the user ID and feedback code to support.",
       },
     ],
     runbook: "workspace_data_migration_conflict",
@@ -720,8 +720,8 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
     },
     primaryAction: {
       key: "bundleError.diagnosis.workspaceIndexRecovery.primaryAction",
-      zh: "上传日志并联系支持",
-      en: "Upload logs and contact support",
+      zh: "导出日志并联系支持",
+      en: "Export logs and contact support",
     },
     suggestions: [
       {
@@ -731,8 +731,8 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.workspaceIndexRecovery.suggestion2",
-        zh: "上传日志并联系支持，在项目副本中核对和恢复素材关联。",
-        en: "Upload logs and contact support to verify and recover asset links in a project copy.",
+        zh: "导出日志并联系支持，在项目副本中核对和恢复素材关联。",
+        en: "Export logs and contact support to verify and recover asset links in a project copy.",
       },
     ],
     runbook: "workspace_index_recovery_required",

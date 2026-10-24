@@ -124,6 +124,43 @@
 
 ---
 
+## #11 去掉「上传日志」功能
+
+- **原因**：产品没有日志上传服务，也不向对方云端发送任何东西；主进程 `log:upload`
+  固定返回失败，所有上传入口只会给用户一个必然报错的入口。
+- **层**：3（源码）
+- **落点**（全部删除，不只隐藏）：
+  - 设置页两处「上传日志」行：`app/renderer/src/settings/diagnostics-group.jsx`、
+    `app/desktop/src/renderer/src/settings/sections.tsx`
+  - 帮助菜单 `upload-logs` 项（`workspace/groups.js`、`app-root.jsx` 两版标签、
+    `app/desktop/src/main/menu.ts` 的 case）
+  - 顶栏诊断弹层「上传」按钮（`settings/diagnostics-status-button.jsx`，grid 改 3 列）
+  - debug 面板「上传日志」按钮及上传上下文（`debug-panel/debug-panel-dialog.jsx`）
+  - workspace 启动失败页：自动上传 useEffect、上传 promise 缓存、定位/说明行、
+    「上传日志并复制反馈」按钮 —— 改为固定「复制反馈信息」，只复制用户 ID +
+    反馈码 + 诊断类型三行；支持提示固定指向「帮助 → 导出日志」
+    （`infra/bundle-error-screen.jsx`）
+  - 错误边界自动上传（`settings/log-error-boundary.js`，breadcrumb 与 RUM 上报保留）
+  - 反馈附带日志上传（`infra/submit-feedback.js` 及 4 处调用方的死参数；
+    gateway 契约不变：`auto_log_uploaded: false`、`detail_url: ""` 照发）
+  - 桥接：`preload/index.ts` 的 `diagnostics.uploadLogs`、`raw-ipc.ts` 的
+    `log:upload` handler
+  - 文案：所有引导「上传日志 / Upload logs」的提示统一改为「导出日志 / Export logs」；
+    删除无引用的 i18n key，新增 `bundleError.supportHint.exportLogs`
+- **保留**：「打开日志目录」「导出日志」、本地诊断、breadcrumb、本地 RUM 桩；
+  gateway 反馈服务（本地存储）不受影响。
+- **验证方式（已跑）**：
+  - `pnpm --filter @ov/desktop build` 退出码 0；
+  - `pnpm --filter @ov/desktop test`：575 passed / 1 skipped（跳过的是需要 `OV_SMOKE` 的
+    opencode 冒烟，不是失败）；
+  - `node scripts/v3preload/audit-v3.mjs` 退出码 0，第 7 项 0 处违规；
+  - 全量 37 屏：`.probe/ui-compare/2026-10-24T03-09-56-148Z` 退出码 0，
+    超护栏 0、未登记 0、新报错 0。
+- **合并注意**：以后从参照合并（含 4.0.4）时，这些入口一个都不要带回来；
+  参照里相关的按钮文案只当参考，不要照抄上传链路。
+
+---
+
 ## 维护规则
 
 1. **加改动前先问能不能放层 0**（数据 / 开关 / gateway / 主进程）—— 那一层不需要条目。

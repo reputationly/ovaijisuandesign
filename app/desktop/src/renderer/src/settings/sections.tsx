@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { Bell, CircleCheck, FileText, Folder, FolderOpen, Monitor, Moon, Sun, Upload } from "lucide-react"
+import { Bell, CircleCheck, FileText, Folder, FolderOpen, Monitor, Moon, Sun } from "lucide-react"
 import { useEffect, useState, type ComponentType, type ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -379,12 +379,6 @@ function AdvancedSection() {
           <Button variant="outline" className="h-8 gap-1.5 text-xs font-normal" disabled={!diagnostics} onClick={() => void openLogs()}>
             <FolderOpen />
             {t("fileExplorer.open")}
-          </Button>
-        </SettingRow>
-        <SettingRow label={t("settings.uploadLogs")} description={t("settings.uploadLogsDesc")}>
-          <Button variant="outline" className="h-8 gap-1.5 text-xs font-normal" disabled>
-            <Upload />
-            {t("settings.uploadLogs")}
           </Button>
         </SettingRow>
       </SettingGroup>

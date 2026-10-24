@@ -101,11 +101,6 @@ export const GROUPS = [
         key: "exportLogs",
       },
       {
-        kind: "item",
-        action: "upload-logs",
-        key: "uploadLogs",
-      },
-      {
         kind: "separator",
       },
       {

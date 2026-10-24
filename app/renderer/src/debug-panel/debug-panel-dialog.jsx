@@ -44,7 +44,6 @@ import {
   Megaphone,
   ShieldAlert,
   Clipboard,
-  Upload,
   Network,
   WifiOff,
   Bug,
@@ -6479,29 +6478,6 @@ function buildReliabilitySummary(snapshot) {
 … truncated`
     : serializedSnapshot;
 }
-function buildReliabilityUploadContext(snapshot) {
-  return {
-    source: "debug_panel_reliability",
-    generated_at: snapshot.generatedAt,
-    gateway_url: snapshot.gatewayUrl,
-    network_online: snapshot.networkStatus?.online,
-    proxy: snapshot.proxyStatus
-      ? {
-          has_proxy: snapshot.proxyStatus.hasProxy,
-          error: snapshot.proxyStatus.error,
-        }
-      : void 0,
-    local_gateway: snapshot.localGateway,
-    memory: snapshot.memoryStats
-      ? {
-          main_rss_mb: snapshot.memoryStats.main?.rssMB,
-          available_mem_mb: snapshot.memoryStats.availableMemMB,
-          renderer_count: snapshot.memoryStats.renderers?.length ?? 0,
-          source: snapshot.memoryStats.memorySource,
-        }
-      : void 0,
-  };
-}
 function buildPreviewEvidence(code) {
   const common = {
     retryCount: 1,
@@ -6746,7 +6722,6 @@ function ReliabilityDiagnosticsSection() {
   const forceOfflineBanner = useDebugFlag(DEBUG_FLAGS.forceOfflineBanner);
   const [snapshot, setSnapshot] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(false);
-  const [uploading, setUploading] = reactExports.useState(false);
   const refreshAbortRef = reactExports.useRef(null);
   const mountedRef = reactExports.useRef(false);
   const refresh = reactExports.useCallback(async () => {
@@ -6821,27 +6796,6 @@ function ReliabilityDiagnosticsSection() {
       dedupedToast.error(translate("debugPanel.reliability.copyFailed"));
     }
   };
-  const uploadLogs = async () => {
-    if (!snapshot || !window.hilo?.diagnostics?.uploadLogs) return;
-    setUploading(true);
-    try {
-      await window.hilo.diagnostics.uploadLogs(
-        "manual",
-        buildReliabilityUploadContext(snapshot),
-      );
-      if (mountedRef.current) {
-        dedupedToast.success(translate("debugPanel.reliability.uploaded"));
-      }
-    } catch {
-      if (mountedRef.current) {
-        dedupedToast.error(translate("debugPanel.reliability.uploadFailed"));
-      }
-    } finally {
-      if (mountedRef.current) {
-        setUploading(false);
-      }
-    }
-  };
   const openLogDir = async () => {
     try {
       await window.hilo?.diagnostics?.openLogDir?.();
@@ -6879,7 +6833,7 @@ function ReliabilityDiagnosticsSection() {
           {translate("debugPanel.reliability.description")}
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 border-b border-border/70 px-4 py-2.5">
+      <div className="grid grid-cols-3 gap-2 border-b border-border/70 px-4 py-2.5">
         <Button
           variant="outline"
           size="xs"
@@ -6899,20 +6853,6 @@ function ReliabilityDiagnosticsSection() {
         >
           <Clipboard className="size-3.5" />
           {translate("debugPanel.reliability.copy")}
-        </Button>
-        <Button
-          variant="outline"
-          size="xs"
-          onClick={() => void uploadLogs()}
-          disabled={
-            !snapshot || uploading || !window.hilo?.diagnostics?.uploadLogs
-          }
-          data-action-ui-id="debug.reliability.upload-logs"
-        >
-          <Upload className="size-3.5" />
-          {uploading
-            ? translate("debugPanel.reliability.uploading")
-            : translate("debugPanel.reliability.upload")}
         </Button>
         <Button
           variant="outline"
@@ -7952,7 +7892,6 @@ function FailurePreviewOverlay({
         ) : (
           <BundleErrorScreen
             status={buildPreviewBundleStatus(workspaceCode)}
-            autoUploadDiagnostics={false}
             diagnosticsActionsEnabled={false}
             onRetry={() => void 0}
           />
