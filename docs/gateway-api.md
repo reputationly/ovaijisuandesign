@@ -1,6 +1,6 @@
 # gateway HTTP 接口面
 
-官方本地 gateway（MiniMax Design **4.0.0**）注册的全部路由。
+官方本地 gateway（MiniMax Design **4.0.4**）注册的全部路由。
 
 这是**要对齐的接口规格**：只要我们的 gateway 提供同样的路由和形状，
 官方的 mcp-tools 和渲染进程都能直接接上，反过来我们的前端也能接官方
@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 557 条，105 个控制器。**我们同名同方法实现了 363 条**
+共 567 条，109 个控制器。**我们同名同方法实现了 361 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（1/1）
@@ -249,7 +249,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 
 ```
   POST   /api/connector-package/install
-  POST   /api/connector-package/uninstall
+  GET    /api/connectors/skills
 ```
 
 ## ConnectorCapabilityController（0/9）
@@ -478,21 +478,19 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/internal/sessions/:opencodeSessionId/attachment-outputs
 ```
 
-## InternalSessionController（15/15）
+## InternalSessionController（13/13）
 
 ```
-✓ POST   /api/internal/sessions/:opencodeSessionId/loop-guard/ask
-✓ GET    /api/internal/sessions/:opencodeSessionId/loop-guard/settlements/:requestId
 ✓ POST   /api/internal/sessions/:opencodeSessionId/mcp-tool-call
 ✓ POST   /api/internal/sessions/:opencodeSessionId/open-comfyui
 ✓ GET    /api/internal/sessions/:opencodeSessionId/request-group
 ✓ GET    /api/internal/sessions/:opencodeSessionId/root
 ✓ GET    /api/internal/sessions/:opencodeSessionId/selected-models
 ✓ POST   /api/internal/sessions/:opencodeSessionId/tool-confirm/ask
-✓ POST   /api/internal/sessions/:uiSessionId/loop-guard-trip
 ✓ GET    /api/internal/sessions/:uiSessionId/metrics
 ✓ GET    /api/internal/sessions/any-busy
 ✓ GET    /api/internal/sessions/billing-current-scope
+✓ POST   /api/internal/sessions/external-turn
 ✓ GET    /api/internal/sessions/metrics
 ✓ GET    /api/internal/sessions/opencode-busy
 ✓ POST   /api/internal/sessions/request-group-diagnostic
@@ -514,9 +512,10 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/internal/tool-metas
 ```
 
-## LogUploadController（0/1）
+## LogUploadController（0/2）
 
 ```
+  POST   /api/logs/request-level
   POST   /api/logs/request-upload
 ```
 
@@ -564,7 +563,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/memory/recent-auto
 ```
 
-## NodePackagesController（0/5）
+## NodePackagesController（0/6）
 
 ```
   GET    /api/node-packages
@@ -572,6 +571,7 @@ gateway —— 每一块都能单独和官方那块对跑。
   GET    /api/node-packages/:name
   POST   /api/node-packages/ensure
   POST   /api/node-packages/ensure-npm
+  POST   /api/node-packages/ensure-runtime
 ```
 
 ## UndoController（1/1）
@@ -723,6 +723,12 @@ gateway —— 每一块都能单独和官方那块对跑。
 
 ```
 ✓ GET    /api/sessions/:id/export
+```
+
+## NextPromptSuggestionController（0/1）
+
+```
+  POST   /api/sessions/:id/next-prompt-suggestion
 ```
 
 ## SkillsController（8/8）
@@ -1014,6 +1020,16 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/v3/capabilities/:id
 ```
 
+## CodeProjectController（0/5）
+
+```
+  GET    /api/v3/code-projects/binding
+  POST   /api/v3/code-projects/checkpoint
+  POST   /api/v3/code-projects/open
+  POST   /api/v3/code-projects/publish
+  POST   /api/v3/code-projects/status
+```
+
 ## ProjectQueryController（2/2）
 
 ```
@@ -1048,11 +1064,25 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/v3/execute
 ```
 
-## AcquisitionController（2/2）
+## ExternalAgentOutputController（0/1）
+
+```
+  POST   /api/v3/external-agent/output-file
+```
+
+## AcquisitionController（2/3）
 
 ```
 ✓ POST   /api/v3/search/images
 ✓ POST   /api/v3/web-media
+  POST   /api/v3/web-media/browser
+```
+
+## SitePreviewController（0/2）
+
+```
+  GET    /api/v3/sites/:versionId/files{/*path}
+  GET    /api/v3/sites/:versionId/manifest
 ```
 
 ## TaskApiController（5/5）
@@ -1093,3 +1123,8 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /files/id/:assetId
 ✓ GET    /files/{*path}
 ```
+
+## 未解析
+
+- `CanvasV3ImageThumbnailsController.thumbnail: Get(`:resourceId/:versionId/${CANVAS_V3_IMAGE_DERIVATIVES.thumbnail}`)`
+- `CanvasV3ImageThumbnailsController.info: Get(`:resourceId/:versionId/${CANVAS_V3_IMAGE_DERIVATIVES.info}`)`

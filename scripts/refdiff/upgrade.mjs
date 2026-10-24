@@ -86,13 +86,23 @@ step("toplevel:extract:new", run("scripts/refdiff/toplevel.mjs", ["extract", mai
 const topDiff = path.join(OUT, "toplevel-diff.json");
 step("toplevel:diff", run("scripts/refdiff/toplevel.mjs", ["diff", topOld, topNew, "--json", topDiff]));
 
+// ── 3.5 主体之外的面：v3 运行时 / preload / 主进程 / gateway / MCP / agent 配置
+// 以前这些靠人记着逐个跑，漏一面就得出「没变」的假结论；现在统一进 faces.mjs。
+const facesJson = path.join(OUT, "faces.json");
+const facesRun = run("scripts/refdiff/faces.mjs", ["--from", from, "--to", to, "--out", OUT]);
+step("faces", { ok: facesRun.ok, out: facesRun.out.slice(0, 400), err: facesRun.err });
+if (existsSync(facesJson)) report.facets = JSON.parse(readFileSync(facesJson, "utf8"));
+
 // ── 4. 汇总数字
 if (existsSync(deltaJson)) {
   const d = JSON.parse(readFileSync(deltaJson, "utf8"));
   report.delta = {
     changedChunks: d.chunks?.changed?.length ?? d.changedChunks ?? null,
-    addedChunks: d.chunks?.added?.length ?? d.addedChunks ?? null,
-    removedChunks: d.chunks?.removed?.length ?? d.removedChunks ?? null,
+    // delta.mjs 的字段名是 onlyOld / onlyNew，不是 removed / added
+    addedChunks: d.chunks?.onlyNew?.length ?? d.addedChunks ?? null,
+    removedChunks: d.chunks?.onlyOld?.length ?? d.removedChunks ?? null,
+    chunkTotals: d.chunks?.totals ?? null,
+    asar: d.asar?.counts ?? null,
     keys: Object.keys(d).slice(0, 20),
   };
 }
@@ -133,7 +143,21 @@ lines.push("", "## 差异",
   `- 主 bundle 顶层语句：${report.toplevel ? `相同 ${report.toplevel.same} / 仅旧有 ${report.toplevel.onlyOld} / 仅新有 ${report.toplevel.onlyNew}` : "**失败**"}`,
   "");
 if (report.delta) {
-  lines.push(`- delta 关键字段：${JSON.stringify(report.delta)}`, "");
+  lines.push(`- 整包条目：${JSON.stringify(report.delta.asar)}`, "");
+  lines.push(`- 渲染层 chunk：${JSON.stringify(report.delta.chunkTotals)}（改 ${report.delta.changedChunks}，增 ${report.delta.addedChunks}，删 ${report.delta.removedChunks}）`, "");
+  lines.push("> `delta.json` 的 gateway 段仍按 `docs/gateway-api.md`（4.0.0 口径），本报告的 gateway 数字以「主体之外的面」为准。", "");
+}
+if (report.facets) {
+  const f = report.facets;
+  lines.push("## 主体之外的面", "");
+  lines.push(`- v3 运行时：${f.v3.files.before} → ${f.v3.files.after} 个文件；改名 chunk ${f.v3.renamedChunks.length} 对（内容有变 ${f.v3.renamedChunks.filter((p) => p.kind === "content").length} 对）；界面 id ${f.v3.uiIds.before} → ${f.v3.uiIds.after}（+${f.v3.uiIds.added.length}/-${f.v3.uiIds.removed.length}）`);
+  const changedPreload = Object.entries(f.preload.preload).filter(([, x]) => x.changed).map(([n]) => n);
+  lines.push(`- preload：有变化 ${changedPreload.length ? changedPreload.join("、") : "无"}；主进程${f.preload.main.changed ? "有变化" : "未变"}`);
+  lines.push(`- gateway：路由 ${f.gateway.before.routes} → ${f.gateway.after.routes}，新增 ${f.gateway.added.count}，消失 ${f.gateway.removed.count}`);
+  lines.push(f.mcp.ok
+    ? `- MCP：${f.mcp.from.count} → ${f.mcp.to.count} 个工具，新增 ${f.mcp.added.length}，消失 ${f.mcp.removed.length}，schema 变化 ${f.mcp.schemaChanged.length}`
+    : `- MCP：**失败**（${f.mcp.error}）`);
+  lines.push(`- agent 配置：新增 ${f.agents.added.length}，改动 ${f.agents.changed.length}`, "");
 }
 const failed = report.steps.filter((s) => s.ok === false);
 lines.push("## 步骤状态", "", "| 步骤 | 结果 |", "|---|---|");

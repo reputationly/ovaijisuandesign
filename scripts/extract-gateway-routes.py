@@ -20,6 +20,7 @@
 """
 
 import argparse
+import json
 import re
 import sys
 from collections import defaultdict
@@ -68,10 +69,36 @@ def load_consts(src: str) -> dict[str, str]:
 
 def resolve(arg: str, consts: dict[str, str]) -> list[str] | None:
     """装饰器参数 → 路径列表。解析不了返回 None（如实报出来，而不是猜）。"""
+    arg = arg.strip()
+    # 4.0.4 的 CodeProjectController 用 `route(CODE_PROJECT_HTTP_PATHS.x)` 包了一层；
+    # 这个局部 helper 会把 `/api/v3/code-projects/` 前缀去掉（控制器上已经挂了同一前缀）。
+    prefix = None
+    if (m := re.fullmatch(r"route\((.*)\)", arg, re.S)):
+        arg = m.group(1).strip()
+        prefix = "/api/v3/code-projects/"
+    out = _resolve(arg, consts)
+    if out is not None and prefix:
+        out = [p.removeprefix(prefix) for p in out]
+    return out
+
+
+def _resolve(arg: str, consts: dict[str, str]) -> list[str] | None:
     # 前导斜杠无所谓（join 会统一），去掉这两种写法再解析
     arg = re.sub(r"\.replace\(/\^\\//,\s*\"\"\)$|\.slice\(1\)$", "", arg.strip())
     if not arg:
         return [""]
+    # 模板字面量：`...${CONST_NAME}...`，常量能查到就代入，查不到如实返回 None
+    if arg.startswith("`") and arg.endswith("`"):
+        body = arg[1:-1]
+        def repl(mo):
+            ref = mo.group(1)
+            if ref in consts:
+                return consts[ref]
+            raise KeyError(ref)
+        try:
+            return [re.sub(r"\$\{([^}]+)\}", repl, body)]
+        except KeyError:
+            return None
     if m := re.fullmatch(r"\"([^\"]*)\"|'([^']*)'", arg):
         return [m.group(1) if m.group(1) is not None else m.group(2)]
     if arg in consts:
@@ -158,8 +185,8 @@ def join(prefix: str, path: str) -> str:
     return "/" + p
 
 
-def routes_from_app(app: Path) -> tuple[set[tuple[str, str, str]], list[str]]:
-    src = (app / "Contents/Resources/gateway/dist/main.js").read_text(encoding="utf-8")
+def routes_from_file(gateway: Path) -> tuple[set[tuple[str, str, str]], list[str]]:
+    src = gateway.read_text(encoding="utf-8")
     consts = load_consts(src)
 
     prefixes: dict[str, list[str]] = {}
@@ -189,6 +216,10 @@ def routes_from_app(app: Path) -> tuple[set[tuple[str, str, str]], list[str]]:
     return routes, unresolved
 
 
+def routes_from_app(app: Path) -> tuple[set[tuple[str, str, str]], list[str]]:
+    return routes_from_file(app / "Contents/Resources/gateway/dist/main.js")
+
+
 DOC_VERSION = re.compile(r"MiniMax Design \*\*([^*]+)\*\*")
 DOC_CLASS = re.compile(r"^## (\w+)（\d+/\d+）$")
 DOC_ROUTE = re.compile(r"^[✓ ] (GET|POST|PUT|PATCH|DELETE|ALL)\s+(\S+)$")
@@ -215,14 +246,21 @@ def main() -> int:
                     help="我们的 gateway 源码（NestJS 的 app/gateway/src，或旧的 Rust crates/gateway/src），用来标出哪些路由已经同名实现")
     ap.add_argument("--from-doc", type=Path,
                     help="不读应用，改从已有的 gateway-api.md 取路由清单，只重标 ✓（没装应用的环境用）")
+    ap.add_argument("--gateway", type=Path,
+                    help="直接指定 gateway/dist/main.js（冻结参照没有 .app 结构时用）")
+    ap.add_argument("--version", help="配合 --gateway 标注版本；不给就写 unknown")
+    ap.add_argument("--json", type=Path, help="把路由清单写成 JSON，供版本间比对")
     args = ap.parse_args()
 
     if args.from_doc:
         routes, version = routes_from_doc(args.from_doc)
         unresolved: list[str] = []
+    elif args.gateway:
+        routes, unresolved = routes_from_file(args.gateway)
+        version = args.version or "unknown"
     else:
         routes, unresolved = routes_from_app(args.app)
-        version = app_version(args.app)
+        version = args.version or app_version(args.app)
 
     ours = load_ours(args.ours) if args.ours.exists() else set()
     done = {(m, p) for m, p, _ in routes if (m, norm(p)) in ours}
@@ -255,6 +293,19 @@ def main() -> int:
         lines += ["```", ""]
     if unresolved:
         lines += ["## 未解析", "", *[f"- `{u}`" for u in unresolved], ""]
+
+    if args.json:
+        payload = {
+            "version": version,
+            "gateway": str(args.gateway or args.app),
+            "routes": [
+                {"method": m, "path": p, "controller": c}
+                for m, p, c in sorted(routes, key=lambda r: (r[2], r[0], r[1]))
+            ],
+            "unresolved": sorted(unresolved),
+        }
+        args.json.write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        print(f"{len(routes)} 条路由 → {args.json}", file=sys.stderr)
 
     text = "\n".join(lines)
     if args.out:
