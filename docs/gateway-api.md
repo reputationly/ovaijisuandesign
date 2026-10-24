@@ -9,7 +9,7 @@ gateway —— 每一块都能单独和官方那块对跑。
 > 只记接口事实。响应形状去 `gateway/dist/main.js` 里核对，它没有混淆。
 > 由 `scripts/extract-gateway-routes.py` 从 NestJS 装饰器静态提取，应用升级后重跑。
 
-共 567 条，109 个控制器。**我们同名同方法实现了 361 条**
+共 567 条，109 个控制器。**我们同名同方法实现了 369 条**
 （行首 `✓`；按 `app/gateway/src` 的 NestJS 装饰器比对，路径参数名不计）。
 
 ## PluginSdkController（1/1）
@@ -512,10 +512,10 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ POST   /api/internal/tool-metas
 ```
 
-## LogUploadController（0/2）
+## LogUploadController（1/2）
 
 ```
-  POST   /api/logs/request-level
+✓ POST   /api/logs/request-level
   POST   /api/logs/request-upload
 ```
 
@@ -1020,14 +1020,14 @@ gateway —— 每一块都能单独和官方那块对跑。
 ✓ GET    /api/v3/capabilities/:id
 ```
 
-## CodeProjectController（0/5）
+## CodeProjectController（5/5）
 
 ```
-  GET    /api/v3/code-projects/binding
-  POST   /api/v3/code-projects/checkpoint
-  POST   /api/v3/code-projects/open
-  POST   /api/v3/code-projects/publish
-  POST   /api/v3/code-projects/status
+✓ GET    /api/v3/code-projects/binding
+✓ POST   /api/v3/code-projects/checkpoint
+✓ POST   /api/v3/code-projects/open
+✓ POST   /api/v3/code-projects/publish
+✓ POST   /api/v3/code-projects/status
 ```
 
 ## ProjectQueryController（2/2）
@@ -1078,11 +1078,11 @@ gateway —— 每一块都能单独和官方那块对跑。
   POST   /api/v3/web-media/browser
 ```
 
-## SitePreviewController（0/2）
+## SitePreviewController（2/2）
 
 ```
-  GET    /api/v3/sites/:versionId/files{/*path}
-  GET    /api/v3/sites/:versionId/manifest
+✓ GET    /api/v3/sites/:versionId/files{/*path}
+✓ GET    /api/v3/sites/:versionId/manifest
 ```
 
 ## TaskApiController（5/5）
