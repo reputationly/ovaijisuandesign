@@ -362,6 +362,7 @@ function resolveCanvasV3SubjectFrameResources(node2, entry, options2 = {}) {
         resource2?.subtitleFormat
       ),
       ...subtitleFormatField(resource2?.subtitleFormat),
+      ...fileFields(resource2),
       title: member2.role.trim() || resource2?.name || "",
       ...item?.originalFile ? { originalFile: true } : {}
     });
@@ -6732,10 +6733,19 @@ function assertResourceHistoryCursor(page2, current2, consumed) {
     throw new Error("RESOURCE_HISTORY_CURSOR_CYCLE");
 }
 
+function resourceVersionDownloadName(resource, version) {
+  const storedName = version.relativePath.split("/").at(-1) || resource.name;
+  if (resource.kind !== ProjectResourceKind.AUDIO) return storedName;
+  const extension = storedName.match(/\.(mp3|wav|m4a|aac|ogg|flac|opus|webm)$/i)?.[0] ?? "";
+  const name = resource.name.replace(/[/\\:*?"<>|\x00-\x1f\x7f]/g, "_").trim();
+  const stem = (extension ? name.replace(/\.(mp3|wav|m4a|aac|ogg|flac|opus|webm)$/i, "") : name).slice(0, 80).replace(/[. ]+$/, "");
+  return stem ? `${stem}${extension}` : storedName;
+}
+
 async function prepareResourceVersionDownload(services2, resource2, version2) {
   if (!services2.canvas?.request) throw new Error("DOWNLOAD_UNAVAILABLE");
   let file;
-  let fileName = version2.relativePath.split("/").at(-1) || resource2.name;
+  let fileName = resourceVersionDownloadName(resource2, version2);
   if (resource2.kind === ProjectResourceKind.TEXT_DOCUMENT) {
     if (/\.htable$/i.test(version2.relativePath)) throw new Error("INTERNAL_TABLE_NOT_EXPORTABLE");
     file = new Blob([await readHistoryDocument(services2, version2)], {
@@ -6748,7 +6758,7 @@ async function prepareResourceVersionDownload(services2, resource2, version2) {
     if (!response.ok) throw new Error(`DOWNLOAD_FAILED:${response.status}`);
     file = await response.blob();
     const encoded = response.headers.get("content-disposition")?.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
-    if (encoded) {
+    if (encoded && resource2.kind !== ProjectResourceKind.AUDIO) {
       try {
         fileName = decodeURIComponent(encoded).replace(/[\\/]/g, "_");
       } catch {
