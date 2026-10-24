@@ -95,17 +95,17 @@ function SubmenuChevron() {
   );
 }
 function DropdownEntry({ child, isActive }) {
-  if (child.renderSubmenu) {
+  if (child.renderSubmenu || child.dropdownItems) {
     return (
       <DropdownMenuSub>
         <ActionListItem
           render={<DropdownMenuSubTrigger />}
+          data-action-ui-id={`canvas.image-tool.${child.id}`}
           disabled={child.disabled}
           onClick={() => {
-            if (!child.disabled) child.onSelect();
+            if (!child.disabled) child.onSelect?.();
           }}
           className="canvas-toolbar-menu-item"
-          data-action-ui-id={`canvas.toolbar-menu-${child.id}`}
         >
           {child.icon && (
             <span className="canvas-toolbar-action-list-icon">
@@ -130,7 +130,16 @@ function DropdownEntry({ child, isActive }) {
             />
           }
         >
-          {child.renderSubmenu()}
+          {child.renderSubmenu
+            ? child.renderSubmenu()
+            : child.dropdownItems?.map((entry, index) => (
+                <DropdownChildSlot
+                  key={entry.id}
+                  child={entry}
+                  isActive={false}
+                  showSeparator={Boolean(entry.separator) && index > 0}
+                />
+              ))}
         </ActionListPanel>
       </DropdownMenuSub>
     );
@@ -139,13 +148,13 @@ function DropdownEntry({ child, isActive }) {
     <Tooltip content={child.tooltipLabel} side="right" sideOffset={8}>
       <ActionListItem
         render={<DropdownMenuItem />}
+        data-action-ui-id={`canvas.image-tool.${child.id}`}
         disabled={child.disabled}
         onClick={() => {
-          if (!child.disabled) child.onSelect();
+          if (!child.disabled) child.onSelect?.();
         }}
         className="canvas-toolbar-menu-item"
-        data-action-ui-id={`canvas.toolbar-menu-${child.id}`}
-        data-active={isActive || void 0}
+        data-active={isActive || undefined}
       >
         {child.icon && (
           <span className="canvas-toolbar-action-list-icon">
@@ -163,6 +172,7 @@ function DropdownEntry({ child, isActive }) {
     </Tooltip>
   );
 }
+
 function DropdownChildSlot({ child, isActive, showSeparator }) {
   return (
     <>
