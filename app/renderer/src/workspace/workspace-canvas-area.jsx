@@ -14,7 +14,7 @@ import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
 import { CanvasLoadingState } from "./canvas-loading-state.jsx";
 import { NativeWorkbenchHost, useWorkbenchIdentity, usesWorkspaceResourceView } from "./native-workbench-host.jsx";
 import { useWorkspaceProjectArchitecture } from "./use-workspace-project-architecture.jsx";
-import { PERF_CANVAS_V3_ARCHITECTURE, PERF_CANVAS_V3_CHUNK_CANVAS_AREA, recordPerfSpan } from "../infra/perf-spans.js";
+import { PERF_CANVAS_V3_ARCHITECTURE, PERF_CANVAS_V3_CHUNK_CANVAS_AREA, PERF_CANVAS_V3_RESOURCE_VIEW, recordPerfSpan } from "../infra/perf-spans.js";
 
 // v3 画布：只能懒加载（check-tdz 的 R1）
 const CanvasAreaV3 = reactExports.lazy(() => {
@@ -54,6 +54,13 @@ function WorkspaceV3Workbench(props) {
   const identityScope = useWorkbenchIdentity(props.workspaceId);
   const resourcesOpen = usesWorkspaceResourceView(props.workspaceId);
   const visible = props.isActive !== false && props.isPresented !== false;
+  const resourceViewAt = reactExports.useRef(performance.now());
+  reactExports.useEffect(() => {
+    if (!resourcesOpen || !visible) return;
+    recordPerfSpan(PERF_CANVAS_V3_RESOURCE_VIEW, resourceViewAt.current, {
+      workspaceId: props.workspaceId,
+    });
+  }, [props.workspaceId, resourcesOpen, visible]);
   // 按产物补齐三处结构：
   //   1. 资源视图外面那层 `data-action-ui-id="v3-resource-view"` 容器；
   //   2. 身份还没就绪时的 `projectV3.accountPending` 占位；
