@@ -1,5 +1,5 @@
-import { Body, Controller, HttpCode, Injectable, Logger, Module, Post } from "@nestjs/common";
-import { IsIn, IsNotEmpty, IsNumber, IsString, MaxLength } from "class-validator";
+import { BadRequestException, Body, Controller, ForbiddenException, HttpCode, Injectable, Logger, Module, Post, Req } from "@nestjs/common";
+import { IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
 
 export class HeartbeatDto {
   @IsString() @IsNotEmpty() appVersion!: string;
@@ -19,6 +19,20 @@ export interface HeartbeatCommand {
 }
 
 const MAX_PENDING_COMMANDS = 10;
+
+const LOG_LEVELS = ["error", "warn", "info", "debug"] as const;
+const DEFAULT_LOG_LEVEL_TTL_SEC = 86_400;
+const MIN_LOG_LEVEL_TTL_SEC = 60;
+const MAX_LOG_LEVEL_TTL_SEC = 259_200;
+
+export class RequestLogLevelDto {
+  @IsString() @IsIn(LOG_LEVELS as unknown as string[]) level!: string;
+  @IsOptional() @IsInt() @Min(MIN_LOG_LEVEL_TTL_SEC) @Max(MAX_LOG_LEVEL_TTL_SEC) ttl?: number;
+}
+
+function isLoopback(address: string | undefined): boolean {
+  return /^(127\.|::1$|::ffff:127\.)/.test(address ?? "");
+}
 
 /**
  * 主进程的心跳：每次心跳顺带取走排队给主进程的指令（比如"上传日志"）。心跳本身只记一条调试日志，
@@ -66,5 +80,32 @@ export class HeartbeatController {
   }
 }
 
-@Module({ controllers: [HeartbeatController], providers: [HeartbeatService], exports: [HeartbeatService] })
+/**
+ * 只给本机用的运维入口：请求主进程在下次心跳时临时切换日志级别。
+ *
+ * 不收集、不上传任何日志；非本机来源一律 403。指令走现有的心跳队列。
+ */
+@Controller("api/logs")
+export class LogUploadController {
+  constructor(private readonly heartbeat: HeartbeatService) {}
+
+  @Post("request-level")
+  @HttpCode(200)
+  requestLevel(@Req() req: { socket?: { remoteAddress?: string }; ip?: string }, @Body() body: RequestLogLevelDto) {
+    if (!isLoopback(req.socket?.remoteAddress ?? req.ip)) {
+      throw new ForbiddenException("Only loopback requests are allowed");
+    }
+    if (!LOG_LEVELS.includes(body.level as (typeof LOG_LEVELS)[number])) {
+      throw new BadRequestException("invalid_level");
+    }
+    const ttl = body.ttl ?? DEFAULT_LOG_LEVEL_TTL_SEC;
+    if (!Number.isInteger(ttl) || ttl < MIN_LOG_LEVEL_TTL_SEC || ttl > MAX_LOG_LEVEL_TTL_SEC) {
+      throw new BadRequestException("invalid_ttl");
+    }
+    this.heartbeat.enqueueCommand({ type: "set_log_level", args: { level: body.level, ttl } });
+    return { ok: true, message: "Log level request queued, will execute on next heartbeat" };
+  }
+}
+
+@Module({ controllers: [HeartbeatController, LogUploadController], providers: [HeartbeatService], exports: [HeartbeatService] })
 export class HeartbeatModule {}
