@@ -372,7 +372,11 @@ function MemoryList({ scopeLabel, entries, onEdit, onDelete }) {
                     variant="ghost"
                     size="icon-xs"
                     onClick={() => onEdit(entry)}
-                    aria-label={t("common.edit", "Edit")}
+                    aria-label={
+                      entry.scope === "project"
+                        ? t("memory.autoToast.view", "View")
+                        : t("common.edit", "Edit")
+                    }
                     data-action-ui-id={`settings.memory.edit.${entry.scope}.${entry.name}`}
                   >
                     <PencilIcon size={12} strokeWidth={1.5} />

@@ -8,6 +8,7 @@ import {
 import jsxRuntimeExports from "react/jsx-runtime";
 import reactExports from "react";
 import { MediaReveal } from "../media-editing/media-reveal-generation.js";
+import { connectorSkillLoadName } from "../media-editing/connector-skill-label.js";
 import { useCurrentWorkspace } from "../infra/shared-runtime.js";
 import { useTranslation } from "react-i18next";
 import { Bot, Check, ChevronDown, Copy, LoaderCircle, NotebookPen, RotateCcw, Save, Scissors, ShieldOff } from "../media-editing/lucide-icon-wraps.js";
@@ -163,10 +164,18 @@ function readDesignJson(value, depth2 = 0) {
 // 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
 function designToolPresentation(name2, message2 = {}) {
   if (!name2 || !Object.hasOwn(TOOLS, name2)) return void 0;
+  if (connectorSkillLoadName(name2, message2.toolArgs)) return void 0;
   let presentation = TOOLS[name2];
   const args = readDesignJson(message2.toolArgs);
-  if (name2 === "design_project_rules" && args?.action === "save") {
-    presentation = { visibility: "persistent", label: "rules" };
+  if (name2 === "design_memory") {
+    // 4.0.4：memory 合并了 project_rules；只有写操作值得在会话里留一条
+    presentation = {
+      visibility:
+        args?.action === "save" || args?.action === "write" || args?.action === "delete"
+          ? "persistent"
+          : "hidden",
+      label: args?.target === "project_rules" ? "rules" : "memory",
+    };
   } else if (name2 === "design_document_write" && (args?.mode === "replace" || args?.mode === "patch")) {
     presentation = {
       visibility: "persistent",
