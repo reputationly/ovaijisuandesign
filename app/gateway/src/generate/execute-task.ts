@@ -62,11 +62,6 @@ export class CapabilityExecutionService {
       const operation = parsed.operation;
       const key = createHash("sha256").update(JSON.stringify(["workspace", caller === "agent" ? "agent" : "frontend", operation, requestId])).digest("hex");
       const id = `tsk_${key.slice(0, 32)}`;
-      const begun = this.tasks.begin({ id, operation, idempotencyKey: key, capabilityId, prompt, mediaType: MEDIA[operation], output, requestId });
-      if (begun.reused) {
-        response.status(200);
-        return { task: begun.task, reused: true };
-      }
       const request: GenerationRequest = {
         model_id: parsed.modelId,
         ...(prompt ? { prompt } : {}),
@@ -75,6 +70,12 @@ export class CapabilityExecutionService {
         filename: resourceName(output),
         ...referencePaths(operation, paths),
       };
+      const origin = { source: caller === "agent" ? "agent" : "frontend", ...(caller === "agent" && getToolUseId() ? { toolUseId: getToolUseId() } : {}) };
+      const begun = this.tasks.begin({ id, operation, idempotencyKey: key, capabilityId, prompt, mediaType: MEDIA[operation], output, requestId, origin, generation: request });
+      if (begun.reused) {
+        response.status(200);
+        return { task: begun.task, reused: true };
+      }
       try {
         await this.runner.submit(MEDIA[operation], request, caller === "agent" ? "agent" : "canvas", id);
       } catch (error) {
@@ -82,7 +83,7 @@ export class CapabilityExecutionService {
         throw error;
       }
       response.status(202);
-      return { task: this.tasks.begin({ id, operation, idempotencyKey: key, capabilityId, prompt, mediaType: MEDIA[operation], output, requestId }).task, reused: false };
+      return { task: this.tasks.begin({ id, operation, idempotencyKey: key, capabilityId, prompt, mediaType: MEDIA[operation], output, requestId, origin, generation: request }).task, reused: false };
     } catch (error) {
       if (error instanceof ProjectKernelError && error.code === "PROJECT_V3_DISABLED") {
         throw new HttpException({ error: { code: error.code, message: "Project v3 is not enabled", retryable: false } }, 403);

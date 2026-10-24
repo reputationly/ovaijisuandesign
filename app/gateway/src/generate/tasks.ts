@@ -61,11 +61,18 @@ export class ProjectTaskService {
     this.write(id, current.operation, "failed", JSON.parse(current.inputJson) as Record<string, unknown>, { stage: "compute", error: message }, current.createdAt, new Date().toISOString(), current.revision + 1);
   }
 
-  list(status?: string) {
+  list(query: { status?: string; operation?: string | string[]; source?: string; toolUseId?: string; limit?: string | number } = {}) {
     this.ready();
-    const rows = status
-      ? this.database().prepare("SELECT id, operation, idempotency_key AS idempotencyKey, status, revision, input_json AS inputJson, state_json AS stateJson, created_at AS createdAt, updated_at AS updatedAt FROM tasks WHERE status=? ORDER BY created_at DESC, id DESC LIMIT 100").all(status) as TaskRow[]
-      : this.database().prepare("SELECT id, operation, idempotency_key AS idempotencyKey, status, revision, input_json AS inputJson, state_json AS stateJson, created_at AS createdAt, updated_at AS updatedAt FROM tasks ORDER BY created_at DESC, id DESC LIMIT 100").all() as TaskRow[];
+    const operations = query.operation === undefined ? [] : (Array.isArray(query.operation) ? query.operation : [query.operation]).flatMap((item) => item.split(",")).filter(Boolean);
+    const conditions: string[] = [];
+    const params: unknown[] = [];
+    if (query.status) { conditions.push("status=?"); params.push(query.status); }
+    if (operations.length) { conditions.push(`operation IN (${operations.map(() => "?").join(",")})`); params.push(...operations); }
+    if (query.source) { conditions.push("json_extract(input_json, '$.origin.source')=?"); params.push(query.source); }
+    if (query.toolUseId) { conditions.push("json_extract(input_json, '$.origin.toolUseId')=?"); params.push(query.toolUseId); }
+    const limit = Math.min(50, Math.max(1, Number(query.limit ?? 100) || 100));
+    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : "";
+    const rows = this.database().prepare(`SELECT id, operation, idempotency_key AS idempotencyKey, status, revision, input_json AS inputJson, state_json AS stateJson, created_at AS createdAt, updated_at AS updatedAt FROM tasks${where} ORDER BY created_at DESC, id DESC LIMIT ${limit}`).all(...params) as TaskRow[];
     // 第 242 轮：参照 gateway 的列表响应带 coverage（分页覆盖度）。
     // 实测 GET /api/v3/tasks → {"items":[],"nextCursor":null,"coverage":{"status":"complete","reasons":[]}}
     return {
@@ -129,14 +136,14 @@ export class ProjectTaskService {
     };
   }
 
-  begin(task: { id: string; operation: string; idempotencyKey: string; capabilityId: string; prompt?: string; mediaType: string; output: unknown; requestId: string }) {
+  begin(task: { id: string; operation: string; idempotencyKey: string; capabilityId: string; prompt?: string; mediaType: string; output: unknown; requestId: string; origin?: { source?: string; toolUseId?: string }; generation?: unknown }) {
     this.ready();
     const existing = this.database().prepare("SELECT id, operation, idempotency_key AS idempotencyKey, status, revision, input_json AS inputJson, state_json AS stateJson, created_at AS createdAt, updated_at AS updatedAt FROM tasks WHERE operation=? AND idempotency_key=?").get(task.operation, task.idempotencyKey) as TaskRow | undefined;
     if (existing) return { reused: true, task: executionView(existing) };
     const now = new Date().toISOString();
     try {
       this.database().prepare(`INSERT INTO tasks(id, operation, idempotency_key, status, revision, input_json, state_json, created_at, updated_at)
-        VALUES(?,?,?,?,?,?,?,?,?)`).run(task.id, task.operation, task.idempotencyKey, "running", 1, JSON.stringify({ prompt: task.prompt, mediaType: task.mediaType, capabilityId: task.capabilityId, output: task.output, requestId: task.requestId }), JSON.stringify({ stage: "compute" }), now, now);
+        VALUES(?,?,?,?,?,?,?,?,?)`).run(task.id, task.operation, task.idempotencyKey, "running", 1, JSON.stringify({ prompt: task.prompt, mediaType: task.mediaType, capabilityId: task.capabilityId, output: task.output, requestId: task.requestId, ...(task.origin ? { origin: task.origin } : {}), ...(task.generation ? { generation: task.generation } : {}) }), JSON.stringify({ stage: "compute" }), now, now);
     } catch (error) {
       if ((error as { code?: string }).code === "SQLITE_CONSTRAINT_UNIQUE" || (error as { code?: string }).code === "SQLITE_CONSTRAINT_PRIMARYKEY") {
         const row = this.database().prepare("SELECT id, operation, idempotency_key AS idempotencyKey, status, revision, input_json AS inputJson, state_json AS stateJson, created_at AS createdAt, updated_at AS updatedAt FROM tasks WHERE operation=? AND idempotency_key=?").get(task.operation, task.idempotencyKey) as TaskRow | undefined;
@@ -154,6 +161,19 @@ export class ProjectTaskService {
       return;
     }
     this.database().prepare("DELETE FROM tasks WHERE id=? AND status='running'").run(id);
+  }
+
+  retry(id: string, expectedRevision: number) {
+    this.ready();
+    const row = this.getRow(id);
+    if (!row) throw new ProjectQueryError("NOT_FOUND", "GenerationTask is not readable", 404);
+    if (row.revision !== expectedRevision) throw new ProjectQueryError("REVISION_CONFLICT", "The task changed. Read it again before resolving.", 409);
+    if (row.status !== "failed") throw new ProjectQueryError("INVALID_ARGUMENT", "Only a failed Task can be retried");
+    const input = JSON.parse(row.inputJson) as { generation?: unknown; mediaType?: string; origin?: { source?: string; toolUseId?: string } };
+    if (!input.generation) throw new ProjectQueryError("UNSUPPORTED_OPERATION", "This Task has no resumable generation request", 422);
+    const now = new Date().toISOString();
+    this.write(id, row.operation, "running", JSON.parse(row.inputJson) as Record<string, unknown>, { stage: "compute" }, row.createdAt, now, row.revision + 1);
+    return { task: this.get(id), generation: input.generation, mediaType: input.mediaType, origin: input.origin };
   }
 
   stop(id: string, expectedRevision: number) {
@@ -261,8 +281,14 @@ export class ProjectTaskController {
   ) {}
 
   @Get()
-  list(@Query("status") status?: string) {
-    return this.respond(() => this.tasks.list(status));
+  list(
+    @Query("status") status?: string,
+    @Query("operation") operation?: string | string[],
+    @Query("source") source?: string,
+    @Query("toolUseId") toolUseId?: string,
+    @Query("limit") limit?: string,
+  ) {
+    return this.respond(() => this.tasks.list({ status, operation, source, toolUseId, limit }));
   }
 
   @Get("lookup")
@@ -307,10 +333,20 @@ export class ProjectTaskController {
       ) {
         throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid action");
       }
-      const task = this.tasks.stop(id, raw.expectedRevision);
       const { GenerationRunner } = await import("./generation-runner.service.js");
-      await this.modules.get(GenerationRunner, { strict: false }).cancel(id);
-      return task;
+      const runner = this.modules.get(GenerationRunner, { strict: false });
+      if (raw.action === "stop") {
+        const task = this.tasks.stop(id, raw.expectedRevision);
+        await runner.cancel(id);
+        return task;
+      }
+      if (raw.action === "retry") {
+        const { task, generation, mediaType, origin } = this.tasks.retry(id, raw.expectedRevision);
+        await runner.submit(mediaType as never, generation as never, origin?.source === "agent" ? "agent" : "canvas", id);
+        return task;
+      }
+      // 本地任务模型只实现了 stop/retry；其余动作不能悄悄落到 stop。
+      throw new ProjectQueryError("UNSUPPORTED_OPERATION", `Action ${raw.action} is not supported by this gateway`, 422);
     });
   }
 

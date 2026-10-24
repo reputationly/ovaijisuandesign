@@ -5,11 +5,15 @@
  * 的端口 → **立即**开窗口（不等任何 gateway）→ 应用级 gateway 后台启动 → 恢复上次的标签。
  * 工作区的 gateway + opencode 由 HiloApp 按需起，最多同时 5 套。
  */
+import { randomUUID } from "node:crypto";
 import { createWriteStream, existsSync, mkdirSync, readFileSync, type WriteStream } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 
 import { app, BrowserWindow, dialog, ipcMain, Notification, session, shell } from "electron";
+
+// MCP 子进程与 gateway 共用一个本地调用方密钥；两边都从环境变量取，避免 MCP 被当成前端。
+process.env.HILO_AGENT_CALLER_KEY ||= randomUUID();
 
 import { AppGateway, GatewayReadinessService, readinessView } from "./app-gateway.js";
 import { ExternalAgentService } from "./external-agent/external-agent-service.js";

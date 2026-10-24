@@ -102,6 +102,7 @@ export class ExternalAgentService {
         env: {
           ...process.env,
           GATEWAY_URL: gateway,
+          ...(process.env.HILO_AGENT_CALLER_KEY ? { HILO_AGENT_CALLER_KEY: process.env.HILO_AGENT_CALLER_KEY } : {}),
           EXTERNAL_AGENT_PORT: String(this.currentPort),
           EXTERNAL_AGENT_HOST: "127.0.0.1",
           EXTERNAL_AGENT_ALLOWED_PATHS: settings.allowedProjectPaths.join("\n"),

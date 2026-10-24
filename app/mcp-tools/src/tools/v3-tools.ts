@@ -614,20 +614,10 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
     { description: V3_TOOL_SPECS["execute"].description, inputSchema: V3_TOOL_SPECS["execute"].shape, annotations: V3_TOOL_SPECS["execute"].annotations },
     async (args: V3Args<"execute">) => {
       try {
-        // 把 capabilityId 的 operation 映射到已有的 submit 端点
-        const operation = args.capabilityId.includes("video") ? "video"
-          : args.capabilityId.includes("speech") ? "speech"
-          : args.capabilityId.includes("music") ? "music"
-          : "image";
-        const path = operation === "image" ? "/api/generate/image/submit"
-          : operation === "video" ? "/api/generate/video/submit"
-          : "/api/generate/speech/submit";
-        const body = {
-          capabilityId: args.capabilityId,
-          ...(args.prompt ? { prompt: args.prompt } : {}),
-        };
-        const task = await gw.post(path, body, 600_000, z.unknown());
-        return structuredReply({ task });
+        // 4.0.4 的任务契约：/api/v3/execute 接收完整能力入参并返回 {task}。
+        // 旧实现按 capabilityId 猜 operation、只传 prompt，既丢参数也拿不到任务快照。
+        const result = await gw.post("/api/v3/execute", args, 600_000, z.unknown());
+        return structuredReply(result as Record<string, unknown>);
       } catch (error) {
         return errorReply(`execute 失败：${errorMessage(error)}`);
       }

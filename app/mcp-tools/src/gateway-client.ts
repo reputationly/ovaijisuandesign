@@ -100,6 +100,8 @@ export class GatewayClient {
     const agentRunId = currentAgentRunId();
     const chatTurnId = currentChatTurnId();
     const groupId = currentGroupId();
+    const callerKey = process.env.HILO_AGENT_CALLER_KEY;
+    if (callerKey) out["x-hilo-agent-caller"] = callerKey;
     if (sessionId) out[SESSION_ID_HEADER] = sessionId;
     if (toolUseId) out[TOOL_USE_ID_HEADER] = toolUseId;
     if (agentRunId) out[AGENT_RUN_ID_HEADER] = agentRunId;

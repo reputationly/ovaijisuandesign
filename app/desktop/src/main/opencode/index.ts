@@ -205,6 +205,7 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
       environment: {
         ELECTRON_RUN_AS_NODE: "1",
         GATEWAY_URL: i.gatewayUrl,
+        ...(process.env.HILO_AGENT_CALLER_KEY ? { HILO_AGENT_CALLER_KEY: process.env.HILO_AGENT_CALLER_KEY } : {}),
         SKILLS_DIR: i.skillsDir,
         HILO_KNOWLEDGE_DIR: path.join(synced, "knowledge"),
         HILO_WORKFLOWS_DIR: path.join(synced, "workflows"),
