@@ -122,7 +122,19 @@ function CustomGridPicker({ onPick }) {
 }
 // 图标数据原本写在这里（产物把它提到模块顶层的 `__iconNode$4` 复用，我们这份只用到一次，
 // 所以写回内联形式，和 custom-icons.js 里其它图标一致）。
-const ChevronRight = createLucideIcon$1("chevron-right", [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]]);
+function ChevronRight() {
+  return (
+    <CompositedSvg width="8" height="10" viewBox="0 0 8 10" fill="none" aria-hidden="true">
+      <path
+        d="M2 1L6 5L2 9"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </CompositedSvg>
+  );
+}
 function ImageSplitMenuItems({ onPick, sourceGrid }) {
   const { t } = useTranslation();
   const menuOptions = resolveSplitGridMenuOptions(sourceGrid);
