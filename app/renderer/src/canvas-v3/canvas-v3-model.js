@@ -4650,7 +4650,14 @@ function canvasV3ImageLuts(fetch2) {
 function createCanvasV3Client(request) {
   return {
     async load() {
+      const loadStart = performance.now();
+      const requestedAt = performance.now();
       const response = await request(CANVAS_V3_ROUTES.document);
+      const length = Number(response.headers?.get("content-length") ?? Number.NaN);
+      recordPerfSpan(PERF_CANVAS_V3_DOC_FETCH, requestedAt, {
+        status: response.status,
+        ...(Number.isFinite(length) ? { bytes: length } : {}),
+      });
       if (!response.ok) {
         let code2 = "";
         try {
@@ -4660,7 +4667,11 @@ function createCanvasV3Client(request) {
         }
         throw new Error(`CANVAS_V3_LOAD_FAILED: ${response.status}${code2 ? ` ${code2}` : ""}`);
       }
-      return parseCanvasV3Document(await response.json());
+      const parseStart = performance.now();
+      const document = parseCanvasV3Document(await response.json());
+      recordPerfSpan(PERF_CANVAS_V3_DOC_PARSE, parseStart, undefined);
+      recordPerfSpan(PERF_CANVAS_V3_DOC_LOAD, loadStart, undefined);
+      return document;
     },
     async execute(command2) {
       const commandId = command2.commandId;
