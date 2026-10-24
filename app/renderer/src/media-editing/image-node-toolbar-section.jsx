@@ -558,6 +558,7 @@ const ImageNodeToolbarSectionImpl = reactExports.memo(
           ),
           icon: <AnnotationIcon size={20} />,
           separator: !handlePromoteToAsset && !showUnavailableTools,
+          dataActionUiId: "canvas.image-tool.image-inplace-edit",
           onClick: wrap("image-inplace-edit", handleImageEdit, "primary_bar"),
         },
         {
@@ -565,12 +566,14 @@ const ImageNodeToolbarSectionImpl = reactExports.memo(
           label: t("canvas.addToChat"),
           icon: <AddToChatIcon />,
           separator: false,
+          dataActionUiId: "canvas.image-tool.add-to-chat",
           onClick: wrap("add-to-chat", handleAddToChat, "primary_bar"),
         },
         {
           id: "fullscreen",
           label: t("canvas.fullscreen"),
           icon: <FullscreenIcon />,
+          dataActionUiId: "canvas.image-tool.fullscreen",
           onClick: wrap("fullscreen", handleFullscreen, "primary_bar"),
         },
       ];

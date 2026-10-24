@@ -26,6 +26,7 @@ export const IMAGE_TOOL_META = {
     defaultLabel: "Erase",
     icon: <EraseIcon />,
     requiresDimensions: true,
+    dataActionUiId: "canvas.image-tool.erase",
   },
   redraw: {
     id: "redraw",
@@ -33,6 +34,7 @@ export const IMAGE_TOOL_META = {
     defaultLabel: "Redraw",
     icon: <RedrawIcon />,
     requiresDimensions: true,
+    dataActionUiId: "canvas.image-tool.redraw",
   },
   crop: {
     id: "crop",
@@ -40,6 +42,7 @@ export const IMAGE_TOOL_META = {
     defaultLabel: "Crop",
     icon: <CropIcon />,
     requiresDimensions: false,
+    dataActionUiId: "canvas.image-tool.crop",
   },
   outpaint: {
     id: "outpaint",
@@ -47,6 +50,7 @@ export const IMAGE_TOOL_META = {
     defaultLabel: "Outpaint",
     icon: <OutpaintIcon />,
     requiresDimensions: true,
+    dataActionUiId: "canvas.image-tool.outpaint",
   },
   "super-resolution": {
     id: "super-resolution",
@@ -54,6 +58,7 @@ export const IMAGE_TOOL_META = {
     defaultLabel: "HD",
     icon: <SuperResolutionIcon />,
     requiresDimensions: true,
+    dataActionUiId: "canvas.image-tool.super-resolution",
   },
   "remove-bg": {
     id: "remove-bg",
@@ -62,6 +67,7 @@ export const IMAGE_TOOL_META = {
     icon: <RemoveBgIcon />,
     requiresDimensions: true,
     costToolId: "remove-bg",
+    dataActionUiId: "canvas.image-tool.remove-bg",
   },
   "color-adjust": {
     id: "color-adjust",
@@ -69,6 +75,7 @@ export const IMAGE_TOOL_META = {
     defaultLabel: "Color Adjust",
     icon: <ColorAdjustIcon />,
     requiresDimensions: false,
+    dataActionUiId: "canvas.image-tool.color-adjust",
   },
   "image-inplace-edit": {
     id: "image-inplace-edit",
@@ -76,6 +83,7 @@ export const IMAGE_TOOL_META = {
     defaultLabel: "Edit Image",
     icon: <AnnotationIcon size={20} />,
     requiresDimensions: false,
+    dataActionUiId: "canvas.image-tool.image-inplace-edit",
   },
   rotate: {
     id: "rotate",
@@ -83,6 +91,7 @@ export const IMAGE_TOOL_META = {
     defaultLabel: "Rotate",
     icon: <RotateIcon />,
     requiresDimensions: true,
+    dataActionUiId: "canvas.image-tool.rotate",
   },
   "multi-angle": {
     id: "multi-angle",
