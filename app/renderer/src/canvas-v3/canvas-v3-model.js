@@ -5501,7 +5501,7 @@ const same = (option2, value) => String(option2).toLowerCase() === value.toLower
 
 const storageKey$1 = (edgeId) => `canvas-v3:subject-reference:${edgeId}`;
 
-function fileFields(resource) {
+export function fileFields(resource) {
   return {
     ...(resource?.fileExtension ? { fileExtension: resource.fileExtension } : {}),
     ...(resource?.sitePackage ? { sitePackage: true } : {}),
