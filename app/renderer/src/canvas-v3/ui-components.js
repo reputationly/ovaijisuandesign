@@ -489,7 +489,13 @@ class CanvasV3MediaImports {
       return canvasV3ResolveNode(this.editor, this.content, target.id)?.mediaKind ?? null;
     return null;
   }
+  /** 4.0.4：返回本次导入会显示的节点 id。 */
   start(files, anchor2, targetId, localPaths, options2) {
+    const operation2 = this.admit(files, anchor2, targetId, localPaths, options2);
+    const nodeIds = this.pending?.map((item) => item.nodeId) ?? [];
+    return operation2.then(() => nodeIds);
+  }
+  admit(files, anchor2, targetId, localPaths, options2) {
     const point2 = anchor2 ?? { x: 0, y: 0 };
     const kind2 = (file) => {
       if (isHtableFileName(file.name)) return "table";
@@ -546,7 +552,7 @@ class CanvasV3MediaImports {
         : files.length !== 1 || canvasV3MediaKind(files[0]) !== source.mediaKind)
     )
       return Promise.reject(new Error("CANVAS_V3_MEDIA_INVALID"));
-    const operation2 = this.start([...files], source.position);
+    const operation2 = this.admit([...files], source.position);
     if (this.pending && this.operation === operation2)
       this.derivation = {
         source,
