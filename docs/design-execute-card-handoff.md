@@ -3,6 +3,53 @@
 写给接手的 agent。产品已在 4.0.4（`scripts/reference-version.json`），本任务做完再开始 `docs/v3-runtime-source-handoff.md`。
 环境、门禁命令、静态检查、汇报格式与 `v3-runtime-source-handoff.md` 第 3、6 节相同。
 
+## ★ 闭包核对后的决定（2026-10-24，优先于下文）
+
+接手 agent 做完第 3 节第 1 步的闭包核对，负责人复核后定如下；与下文冲突时以本节为准。
+
+**A. gateway / MCP 从"核对"升级为必做的契约修复**（已复核属实）：
+
+1. **MCP `execute` 重写**：`app/mcp-tools/src/tools/v3-tools.ts` 的 `execute` 现在按 capabilityId 猜 operation，打到旧的
+   `/api/generate/{image,video,speech}/submit`，只传 `capabilityId` / `prompt`，丢掉 `params` / `references` / `count` / `output`，
+   返回的不是任务快照。改为照参照 `mcp-tools-v3` 调 `POST /api/v3/execute`（`editor-v3/editor.controller.ts`，已有 e2e，返回 `{task}`），
+   原样透传全部入参，并带 `x-hilo-agent-caller` / `x-session-id` / `x-tool-use-id`（工具调用 id）。
+   **这会改变 agent 生成的主路径**：现有 gateway e2e（`execute-task`、`media-edit`、`task-stop`、`editor-v3/execute`）必须全过，
+   另加 MCP 行为测试，断言 `execute` 的结果里有 `task.id` / `task.revision` / `task.status`。
+   顺带记一条教训：此前「MCP 29/29、schema 0 差异」只比 schema，不比行为，没能发现这个问题。
+2. **`GET /api/v3/tasks` 过滤**：现在只接 `status`。照参照 `project-kernel/tasks/task-api.controller.js`（参照 gateway
+   `main.js` 约 @18,592,000 起）补齐 `findDesignTask` 需要的 `operation` / `source` / `toolUseId` / `limit`；
+   任务没有存 `source` / `toolUseId` 的，在创建任务时（`/api/v3/execute` 收到的请求头）写进任务元数据，必要时加迁移。
+3. **`POST /api/v3/tasks/:id/resolve` 按 action 分派**：现在 `tasks.ts:310` 不管 action 是什么都执行 `stop` + `runner.cancel`，
+   `retry`、`pause`、`adopt_version` 等全都会把任务停掉。照参照逐个 action 实现；本地任务模型确实不支持的 action，返回明确的错误，
+   **不要落到 stop**。在报告里列出 8 个 action 各自的结论。
+4. WS 的 `task_subscription_ready` / `task_changed` 已满足，客户端按 `message.task` 读取。
+
+**B. 闭包范围**：第 1 节改按「主区间 + 外围清单」理解。外围必做：`DesignResult`、`DesignRawDetails`、`DesignReferenceResult`、
+`designExecutionInput`、`designReferences`、`designTags`、`designTaskDetails`、`isDesignDeliveryComplete`、`isSidecarOutputKey`、
+`isMediaEditCapabilityId`、`missingBatchMembers`、`outputsKey`、`primaryResourceName`、`taskStatusText`、`noOutputs`、`noReports`、
+`noTasks`、`noneUnavailable`、`noSubscription`，以及用到的图标。搬之前对每个符号先查我们源码里有没有同一实体，有就复用。
+`TERMINAL_TASK_STATUSES` 从 `canvas-v3-model.js` 导出即可。
+
+**C. 计费边界**：`ScopedCard` 直接调用 `billingRechecking`、`costConfirmationKind`。这两个函数**照参照原样移植**（任务快照里没有
+`billing` 时，它们自然返回 false / null），不要手写桩函数，免得和参照的判定条件不一致。费用确认 UI 组（`ThresholdRound` /
+`InsufficientRound` / `DesignTurnCostConfirmations` / 决策轮次）照旧不做。`DESIGN_BATCH_MEMBER_QUERY` 保留常量和失效调用，不为它造 UI。
+
+**D. 屏数**：只有 4 屏（`ws-canvas-ops` / `ws-chat-input` / `ws-code-editor` / `ws-table-edit`）。`ws-layout` 的标准对照无效，
+门禁不判它，也没有登记，不纳入。
+
+**E. 挂载点**：卡片必须出现在参照 `renderEntry` 渲染它的位置，也就是时间线条目渲染、落到普通工具行之前；
+`DesignTaskTurnProvider` 挂在消息列表根部，`DesignTaskPush` 也在消息列表根部。动手前先把三处在我们源码里的对应位置
+（`activity-group.jsx` 的 standalone 分支 / `message-turn.jsx` / `message-list-impl.jsx` 中的具体函数）写进报告。
+
+**F. Playwright 夹具**：用 gateway 已有的假 provider。脚本直接调 `POST /api/v3/execute`（带 agent caller 头和固定的
+`x-tool-use-id`），拿到 `{task}`；再往会话里写一条 `design_execute` 工具消息，`callID` 等于这个 tool-use-id，`toolResult` 是这次的返回值。
+参照和我方两边连同一个 gateway、读同一个会话。任务状态由假 provider 驱动。
+
+**G. 合并重复实现**：`readDesignJson` 三份语义相同，合并成一份，注意别造成 import 环。`useGatewayFetch` 两份本轮不合并，
+在报告里注明。
+
+**H. 顺序**：先做 A（带测试），然后做卡片，再做 Playwright 场景，最后删登记、跑门禁。A 完成后单独提交并汇报一次。
+
 ## 0. 问题与目标
 
 **现状**（HEAD `aeae81af` 时核实）：对话里 agent 调用 `design_execute`（图片/视频/音频生成与编辑）时，我们只渲染一条普通工具行
