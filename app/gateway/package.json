@@ -18,8 +18,8 @@
     "@nestjs/platform-ws": "11.2.3",
     "@nestjs/websockets": "11.2.4",
     "@ov/assets": "workspace:^",
-    "@ov/mcp-tools": "workspace:^",
     "@ov/maas-media": "workspace:^",
+    "@ov/mcp-tools": "workspace:^",
     "@ov/protocol": "workspace:^",
     "better-sqlite3": "12.11.1",
     "class-transformer": "0.5.1",
@@ -28,12 +28,14 @@
     "file-type": "21.3.4",
     "js-yaml": "4.3.2",
     "mammoth": "1.12.0",
+    "mime-types": "3.0.2",
     "multer": "2.4.0",
     "pdf-parse": "2.4.5",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "sharp": "0.35.4",
-    "undici": "7.29.1"
+    "undici": "7.29.1",
+    "yauzl": "3.4.0"
   },
   "devDependencies": {
     "@nestjs/testing": "11.2.4",
@@ -41,9 +43,11 @@
     "@types/better-sqlite3": "^9.6.0",
     "@types/express": "^5.0.0",
     "@types/js-yaml": "4.0.9",
+    "@types/mime-types": "3.0.1",
     "@types/multer": "^2.2.0",
     "@types/supertest": "^6.0.0",
     "@types/ws": "^8.18.0",
+    "@types/yauzl": "3.4.0",
     "supertest": "^7.1.0",
     "unplugin-swc": "^1.5.0",
     "ws": "8.21.3"

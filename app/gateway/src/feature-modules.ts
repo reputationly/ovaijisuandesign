@@ -16,6 +16,7 @@ import { MemoryModule } from "./memory/memory.module.js";
 import { SearchModule } from "./search/search.module.js";
 import { TextVersionModule } from "./text-version/text-version.module.js";
 import { WebMediaModule } from "./web-media/web-media.module.js";
+import { SitePreviewModule } from "./site-preview/site-preview.module.js";
 
 /**
  * 版本历史、记忆、会话导出、诊断等独立功能模块的汇总。单独成一个模块，根模块只多一行 import，
@@ -39,6 +40,7 @@ import { WebMediaModule } from "./web-media/web-media.module.js";
     DirectorVcamModule,
     ProjectKernelModule,
     WebMediaModule,
+    SitePreviewModule,
   ],
 })
 export class FeatureModules {}
