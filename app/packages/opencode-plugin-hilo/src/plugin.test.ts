@@ -66,6 +66,7 @@ describe("opencode 插件", () => {
         "chat.headers",
         "chat.message",
         "chat.params",
+        "dispose",
         "experimental.chat.messages.transform",
         "experimental.chat.system.transform",
         "shell.env",
