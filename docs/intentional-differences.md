@@ -354,5 +354,4 @@ v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation
 
 | 差异 | 位置 | 理由 | 登记 |
 |---|---|---|---|
-| `task_subscribe` / `task_unsubscribe` 只在参照侧出现 | workspace 各屏 WS 事件 | 4.0.4 的任务结果面板/订阅尚未还原（4.0.3 遗留缺口），不是产品选择 | `scripts/ui-compare/expected-diffs.json` → `* .ws.refOnly` |
-| `home-sidebar.connectors-release-badge` 只在参照侧出现 | 侧栏 | 4.0.4 的 connectors 发布徽标尚未接入 | 同上 → `* .dom.refOnly` |
+| `home-sidebar.connectors-release-badge` 在我方出现、参照基线没有 | 侧栏 | **门禁状态不对称**：徽标配置三处一致，是否显示只取决于 `global.dismissedCoachMarks`；4.0.4 基线在首页之后不再有该标记，我方逐屏清标记后又出现。已按实际出现差异的屏登记，不再放 `*`。`task_subscribe`/`task_unsubscribe` 已按 4.0.4 实现，不再是例外。 | `scripts/ui-compare/expected-diffs.json` 各屏 `dom.oursOnly` |

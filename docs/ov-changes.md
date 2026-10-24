@@ -185,4 +185,4 @@
 - `node scripts/stage-v3-bundle.mjs` 走仓库压缩包装配，标题补丁命中 1 次，清单 345 文件；
 - 桌面构建 `pnpm --filter @ov/desktop build` exit 0；
 - 新基线：`~/ov-golden-4.0.4-clean`（37 屏同批）、`~/ov-golden-v3-4.0.4`（7 屏）；
-- 37 屏 / v3 七屏门禁均 exit 0；任务订阅 `task_subscribe`/`task_unsubscribe` 在 `expected-diffs.json` 登记为 refOnly（任务面板待做）。
+- 37 屏 / v3 七屏门禁均 exit 0；4.0.4 新增的 `useDesignTaskPush`（`design-chat-` 前缀任务订阅）已实现，`task_subscribe`/`task_unsubscribe` 不再是例外；connectors 徽标按门禁状态不对称逐屏登记。
