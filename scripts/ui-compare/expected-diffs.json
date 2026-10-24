@@ -6,11 +6,11 @@
     "home-sidebar-nav-workflows",
     "home-sidebar.workflows-release-badge",
     "workspace.switch-to-browser",
-    "workspace.switch-to-canvas"
+    "workspace.switch-to-canvas",
+    "home-sidebar.connectors-release-badge"
    ],
    "oursOnly": [
     "sidebar.connection-pill",
-    "home-sidebar.connectors-release-badge",
     "workspace-stage.controls",
     "home-sidebar-nav-projects-coachmark-anchor",
     "home-sidebar.recent-trailing-slot",
