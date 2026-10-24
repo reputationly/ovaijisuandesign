@@ -4,6 +4,7 @@ import { errorMessage } from "../gateway-client.js";
 import { errorReply, structuredReply } from "../replies.js";
 import type { RegisterTools } from "./types.js";
 import { V3_TOOL_SPECS, type V3Args } from "./v3-tool-specs.js";
+import { currentCodeEnvironment } from "./code-environment.js";
 
 /**
  * v3 工具（第 256 轮起）。
@@ -413,21 +414,127 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
     },
   );
   registrar.registerTool(
-    "project_rules",
-    { description: V3_TOOL_SPECS["project_rules"].description, inputSchema: V3_TOOL_SPECS["project_rules"].shape, annotations: V3_TOOL_SPECS["project_rules"].annotations },
-    async (args: V3Args<"project_rules">) => {
+    "memory",
+    { description: V3_TOOL_SPECS["memory"].description, inputSchema: V3_TOOL_SPECS["memory"].shape, annotations: V3_TOOL_SPECS["memory"].annotations },
+    async (args: V3Args<"memory">) => {
       try {
-        if (args.action === "read") {
-          return structuredReply({ rules: await gw.get("/api/project-rules", TIMEOUT_MS, z.unknown()) });
+        if (args.target === "project_rules") {
+          if (args.action === "read") {
+            return structuredReply((await gw.get("/api/project-rules", TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+          }
+          if (args.action !== "save") return errorReply("memory: target=project_rules 只支持 read / save");
+          if (typeof args.content !== "string") return errorReply("memory: project_rules 的 save 需要 content");
+          if (args.expectedRevision === undefined) {
+            return errorReply("memory: project_rules 的 save 需要 expectedRevision（首次保存传 null）");
+          }
+          const saved = await gw.put("/api/project-rules", {
+            content: args.content,
+            expectedRevision: args.expectedRevision,
+          }, TIMEOUT_MS, LOOSE);
+          return structuredReply(saved as Record<string, unknown>);
         }
-        if (!args.content) return errorReply("project_rules: action=save 需要 content");
-        const saved = await gw.put("/api/project-rules", {
-          content: args.content,
-          ...(args.expectedRevision === undefined ? {} : { expectedRevision: args.expectedRevision }),
-        }, TIMEOUT_MS, z.unknown());
-        return structuredReply({ rules: saved });
+
+        const name = args.name;
+        switch (args.action) {
+          case "list":
+            return structuredReply((await gw.get("/api/memory?scope=user", TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+          case "read": {
+            if (!name) return errorReply("memory: global 的 read 需要 name");
+            return structuredReply((await gw.get(
+              `/api/memory/user/${encodeURIComponent(name)}`,
+              TIMEOUT_MS,
+              LOOSE,
+            )) as Record<string, unknown>);
+          }
+          case "search": {
+            if (!args.query) return errorReply("memory: global 的 search 需要 query");
+            const params = new URLSearchParams({ q: args.query, scope: "user" });
+            if (args.type) params.set("type", args.type);
+            return structuredReply((await gw.get(`/api/memory/search?${params}`, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+          }
+          case "write": {
+            if (!name || !args.type || !args.description || typeof args.body !== "string") {
+              return errorReply("memory: global 的 write 需要 name / type / description / body");
+            }
+            const written = await gw.post("/api/memory", {
+              scope: "user",
+              name,
+              type: args.type,
+              description: args.description,
+              body: args.body,
+            }, TIMEOUT_MS, LOOSE);
+            return structuredReply(written as Record<string, unknown>);
+          }
+          case "delete": {
+            if (!name) return errorReply("memory: global 的 delete 需要 name");
+            return structuredReply((await gw.delete(
+              `/api/memory/user/${encodeURIComponent(name)}`,
+              TIMEOUT_MS,
+              LOOSE,
+            )) as Record<string, unknown>);
+          }
+          default:
+            return errorReply(`memory: global 不支持 action=${args.action}`);
+        }
       } catch (error) {
-        return errorReply(`project_rules 失败：${errorMessage(error)}`);
+        return errorReply(`memory 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "code_project_open",
+    { description: V3_TOOL_SPECS["code_project_open"].description, inputSchema: V3_TOOL_SPECS["code_project_open"].shape, annotations: V3_TOOL_SPECS["code_project_open"].annotations },
+    async (args: V3Args<"code_project_open">) => {
+      try {
+        const [opened, environment] = await Promise.all([
+          gw.post("/api/v3/code-projects/open", { inputs: args.inputs }, TIMEOUT_MS, LOOSE),
+          currentCodeEnvironment(),
+        ]);
+        return structuredReply({ ...opened, environment });
+      } catch (error) {
+        return errorReply(`code_project_open 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "code_checkpoint",
+    { description: V3_TOOL_SPECS["code_checkpoint"].description, inputSchema: V3_TOOL_SPECS["code_checkpoint"].shape, annotations: V3_TOOL_SPECS["code_checkpoint"].annotations },
+    async (args: V3Args<"code_checkpoint">) => {
+      try {
+        return structuredReply((await gw.post(
+          "/api/v3/code-projects/checkpoint",
+          { message: args.message },
+          TIMEOUT_MS,
+          LOOSE,
+        )) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`code_checkpoint 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "code_status",
+    { description: V3_TOOL_SPECS["code_status"].description, inputSchema: V3_TOOL_SPECS["code_status"].shape, annotations: V3_TOOL_SPECS["code_status"].annotations },
+    async () => {
+      try {
+        return structuredReply((await gw.post("/api/v3/code-projects/status", {}, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`code_status 失败：${errorMessage(error)}`);
+      }
+    },
+  );
+
+  registrar.registerTool(
+    "code_publish",
+    { description: V3_TOOL_SPECS["code_publish"].description, inputSchema: V3_TOOL_SPECS["code_publish"].shape, annotations: V3_TOOL_SPECS["code_publish"].annotations },
+    async (args: V3Args<"code_publish">) => {
+      try {
+        return structuredReply((await gw.post("/api/v3/code-projects/publish", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+      } catch (error) {
+        return errorReply(`code_publish 失败：${errorMessage(error)}`);
       }
     },
   );

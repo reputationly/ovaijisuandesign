@@ -1,33 +1,70 @@
 {
- "source": "reference mcp-tools-v3 4.0.3（真跑 tools/list）",
- "count": 25,
+ "source": "reference mcp-tools-v3 4.0.4",
+ "count": 29,
  "tools": [
   {
-   "name": "project_rules",
-   "description": "Read or save the current project’s persistent working rules. Use save only when the user explicitly asks to remember, change, or remove a lasting project rule. First read, then merge into the complete Markdown document and save with the returned revision. Preserve unrelated rules. Confirm the change to the user only after save succeeds. Rules are loaded automatically for every model request. Temporary instructions and ordinary feedback do not change this document.",
+   "name": "memory",
+   "description": "Manage lasting memory with two independent targets. global: list/read/write/delete/search user memories shared across all projects; write types user, feedback, reference, media-style (project is only for editing an existing historical global project entry). Never store project-only rules as global memory. project_rules: read/save the current project’s working rules only. Save rules only on the user’s explicit request: first read, merge the complete Markdown while preserving unrelated rules, then save with expectedRevision. On conflict read again and merge; never blindly retry. Confirm writes only after success. Global reads/search/list/delete respect the user-memory loading preference; explicit writes remain available. No scope or projectRoot override is accepted.",
    "inputSchema": {
     "type": "object",
     "properties": {
+     "target": {
+      "type": "string",
+      "enum": [
+       "global",
+       "project_rules"
+      ]
+     },
      "action": {
       "type": "string",
       "enum": [
+       "list",
        "read",
+       "write",
+       "delete",
+       "search",
        "save"
       ]
      },
+     "name": {
+      "type": "string",
+      "description": "Global memory identifier: kebab-case, 1–64 characters."
+     },
+     "type": {
+      "type": "string",
+      "enum": [
+       "user",
+       "feedback",
+       "reference",
+       "media-style",
+       "project"
+      ]
+     },
+     "description": {
+      "type": "string",
+      "description": "Single-line description of the global memory."
+     },
+     "body": {
+      "type": "string",
+      "description": "Complete Markdown body of the global memory."
+     },
+     "query": {
+      "type": "string"
+     },
      "content": {
       "type": "string",
-      "description": "Required for save: complete Markdown rules (max 16 KiB UTF-8). Empty text clears all rules."
+      "description": "Complete project rules Markdown (max 16 KiB UTF-8). Empty text clears all rules."
      },
      "expectedRevision": {
       "type": [
        "string",
        "null"
       ],
-      "description": "Required for save: exact revision returned by read, including null for a missing document. On conflict, read again and merge; never blindly retry."
+      "description": "Exact revision from read, including null for a missing document. Required for save."
      }
     },
     "required": [
+     "target",
      "action"
     ],
     "additionalProperties": true,
@@ -35,7 +72,7 @@
    },
    "annotations": {
     "readOnlyHint": false,
-    "destructiveHint": false,
+    "destructiveHint": true,
     "idempotentHint": false
    },
    "execution": {
@@ -3086,6 +3123,430 @@
    },
    "annotations": {
     "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "code_project_open",
+   "description": "Open the Code Project of this session: call first, and again to add inputs. Creates the working tree on first use, binds it to this session and copies each input Resource Version read-only into inputs/. Returns workDir (absolute; keep every file operation and command inside it), the input paths and environment: shell (write commands for it), node/npm, python (command, pip), ffmpeg (Hub bundled, path) and package managers. Tools missing from environment are not installed by the platform.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "inputs": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "versionId": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 512
+        }
+       },
+       "required": [
+        "versionId"
+       ],
+       "additionalProperties": false
+      },
+      "maxItems": 50,
+      "description": "Resource Versions from the brief that the code reads."
+     }
+    },
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "code_checkpoint",
+   "description": "Record the working tree as a platform checkpoint after each runnable milestone; it is the progress record used to continue after an interruption. Dependencies (node_modules, .venv), caches and out/ are never recorded. An unchanged tree returns the current checkpoint. Never use git for this.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "What this milestone does and how it was verified."
+     }
+    },
+    "required": [
+     "message"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "code_status",
+   "description": "Read the Code Project state: head and recent checkpoints, files changed since head, and every published Resource Version with its checkpoint. Call it first after a system recovery notice and never republish what is listed.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "code_publish",
+   "description": "Publish run results as Resources: the only way code output leaves the working tree. Checkpoints changed source first, then delivers each output: a file path (kind from its extension: image/video/audio/text, otherwise file), a directory (zipped) or snapshot=\"source\" (zip of the checkpointed source, for delivering the program itself). Up to 500 MiB per file. output uses the design_deliver vocabulary: one resources target per output key (create with name, or new_version with resourceId) and a composition with placements from the brief. Returns {checkpointId, delivery}: completed is final; unknown requires the same requestId and identical input; blocked needs corrected input with a new requestId.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "requestId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,128}$",
+      "description": "Stable identity of this publish; reuse unchanged on retry."
+     },
+     "outputs": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "key": {
+         "type": "string",
+         "pattern": "^[A-Za-z0-9_-]{1,64}$"
+        },
+        "source": {
+         "anyOf": [
+          {
+           "type": "object",
+           "properties": {
+            "path": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 4096,
+             "description": "File or directory inside workDir, e.g. out/chart.png."
+            }
+           },
+           "required": [
+            "path"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "type": "object",
+           "properties": {
+            "snapshot": {
+             "type": "string",
+             "const": "source"
+            }
+           },
+           "required": [
+            "snapshot"
+           ],
+           "additionalProperties": false
+          }
+         ]
+        }
+       },
+       "required": [
+        "key",
+        "source"
+       ],
+       "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 20
+     },
+     "output": {
+      "type": "object",
+      "properties": {
+       "resources": {
+        "type": "array",
+        "items": {
+         "anyOf": [
+          {
+           "anyOf": [
+            {
+             "type": "object",
+             "properties": {
+              "key": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 512,
+               "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+              },
+              "mode": {
+               "type": "string",
+               "const": "create",
+               "description": "Create an independently maintained Resource."
+              },
+              "name": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 512,
+               "description": "User-visible Resource name in working_language describing its content (e.g. \"红龙苏醒片段\", \"宣传片成片\"); shown in the asset library and used as the exported file name. Not a file name or slug: no extension, hyphenated sequence numbers, durations or code identifiers."
+              },
+              "description": {
+               "type": "string",
+               "maxLength": 2000
+              }
+             },
+             "required": [
+              "mode",
+              "name"
+             ],
+             "additionalProperties": false
+            },
+            {
+             "type": "object",
+             "properties": {
+              "key": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 512,
+               "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+              },
+              "mode": {
+               "type": "string",
+               "const": "new_version",
+               "description": "Revise or replace the content of an existing Resource from any source, preserving its identity and history."
+              },
+              "resourceId": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 512
+              },
+              "baseVersionId": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 512,
+               "description": "Exact parent version belonging to resourceId. Required with disposition=adopted, where it is also the expected current version."
+              },
+              "disposition": {
+               "type": "string",
+               "enum": [
+                "adopted",
+                "candidate"
+               ],
+               "description": "adopted selects the result as current only if the current version still equals baseVersionId; a conflict retains a candidate for resolution. candidate (the default) saves the result without changing current and cannot be placed in a Composition."
+              }
+             },
+             "required": [
+              "mode",
+              "resourceId"
+             ],
+             "additionalProperties": false
+            }
+           ]
+          },
+          {
+           "type": "object",
+           "properties": {
+            "key": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+            },
+            "mode": {
+             "type": "string",
+             "const": "reuse"
+            }
+           },
+           "required": [
+            "mode"
+           ],
+           "additionalProperties": false
+          }
+         ]
+        },
+        "minItems": 1,
+        "maxItems": 100,
+        "description": "One target per source: create a named Resource, write a new version of an existing Resource, or reuse (place a versionId source as is). With several sources, each target names its source key."
+       },
+       "composition": {
+        "type": "object",
+        "properties": {
+         "compositionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Existing Composition ID from a query or creation result. Exclusive with type/name."
+         },
+         "type": {
+          "anyOf": [
+           {
+            "type": "object",
+            "properties": {
+             "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "description": "Registered type ID from context or design_composition_type_list."
+             },
+             "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+             },
+             "description": {
+              "type": "string",
+              "maxLength": 2000
+             }
+            },
+            "required": [
+             "id"
+            ],
+            "additionalProperties": false
+           },
+           {
+            "type": "object",
+            "properties": {
+             "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "description": "Find a registered type by label, or create it with a gateway-generated ID."
+             },
+             "description": {
+              "type": "string",
+              "maxLength": 2000
+             }
+            },
+            "required": [
+             "label"
+            ],
+            "additionalProperties": false
+           }
+          ],
+          "description": "With name: finds the active Composition with this resolved type and trimmed name, or creates it. Exclusive with compositionId."
+         },
+         "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Name of the new Composition."
+         },
+         "attributes": {
+          "type": "object",
+          "additionalProperties": {
+           "type": "string",
+           "maxLength": 2000
+          },
+          "description": "New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes."
+         },
+         "position": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000,
+          "description": "New Composition only. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement. Creation only; existing matches keep position. Parallel same-position calls use the next free value in call order (original in requestedPosition)."
+         },
+         "placement": {
+          "anyOf": [
+           {
+            "type": "object",
+            "properties": {
+             "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+             }
+            },
+            "required": [
+             "after"
+            ],
+            "additionalProperties": false
+           },
+           {
+            "type": "object",
+            "properties": {
+             "before": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+             }
+            },
+            "required": [
+             "before"
+            ],
+            "additionalProperties": false
+           }
+          ],
+          "description": "New Composition only. Place before/after a same-type Composition. The gateway assigns position; never compute one yourself. Neighbours may change position, reported as renumbered. Exclusive with position."
+         },
+         "placements": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "properties": {
+            "key": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs."
+            },
+            "role": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Adds the output as a new member with this role: a user-visible label for its purpose within the Composition, in working_language (e.g. \"正面全身\"). Reuse existing wording for the same purpose; roles may repeat; no code identifiers. Every further independent Resource the call creates under that output (key_2, key_3, ...; e.g. the layers of a layer decomposition) gets a member with the same role. Give role or memberId, not both."
+            },
+            "memberId": {
+             "type": "string",
+             "minLength": 1,
+             "maxLength": 512,
+             "description": "Fills this existing empty member instead of adding one; a member already holding a Resource is reported unavailable. To change what a held member shows, use new_version on its Resource."
+            }
+           },
+           "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 50,
+          "description": "Required, one entry per output: role adds a member, memberId fills an existing one. key may be omitted for the primary output."
+         }
+        },
+        "required": [
+         "placements"
+        ],
+        "additionalProperties": false,
+        "description": "Canvas-visible placement required for every create/reuse target; omit only when every target is a new_version already in a Composition. compositionId targets an existing object; type + name finds/creates an active one by exact type ID + trimmed name. Both require placements. Parallel outputs for one new object use the same type ID/name; call in the same step without waiting for its compositionId."
+       }
+      },
+      "required": [
+       "resources"
+      ],
+      "additionalProperties": false
+     }
+    },
+    "required": [
+     "requestId",
+     "outputs",
+     "output"
+    ],
+    "additionalProperties": true,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": false,
     "destructiveHint": false,
     "idempotentHint": true
    },

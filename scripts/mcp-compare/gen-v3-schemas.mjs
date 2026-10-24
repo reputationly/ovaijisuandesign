@@ -202,6 +202,8 @@ const entries = [];
  */
 function toZodShape(schema, ctx) {
   if (schema && typeof schema === "object" && schema.type === "object" && schema.properties) {
+    // 空对象（例如 code_status）要输出 raw shape `{}`，不是 z.record(...)
+    if (Object.keys(schema.properties).length === 0) return "{}";
     let full = toZod(schema, ctx);
     // 顶层要把 z.object({...}).passthrough() 拆回 raw shape（registrar 自己包 z.object）
     full = full.replace(/\.passthrough\(\)$/, "");

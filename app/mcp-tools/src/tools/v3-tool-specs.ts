@@ -26,14 +26,20 @@ export interface V3ToolSpec {
 }
 
 export const V3_TOOL_SPECS = {
-  "project_rules": {
-    description: "Read or save the current project’s persistent working rules. Use save only when the user explicitly asks to remember, change, or remove a lasting project rule. First read, then merge into the complete Markdown document and save with the returned revision. Preserve unrelated rules. Confirm the change to the user only after save succeeds. Rules are loaded automatically for every model request. Temporary instructions and ordinary feedback do not change this document.",
+  "memory": {
+    description: "Manage lasting memory with two independent targets. global: list/read/write/delete/search user memories shared across all projects; write types user, feedback, reference, media-style (project is only for editing an existing historical global project entry). Never store project-only rules as global memory. project_rules: read/save the current project’s working rules only. Save rules only on the user’s explicit request: first read, merge the complete Markdown while preserving unrelated rules, then save with expectedRevision. On conflict read again and merge; never blindly retry. Confirm writes only after success. Global reads/search/list/delete respect the user-memory loading preference; explicit writes remain available. No scope or projectRoot override is accepted.",
     shape: {
-      "action": z.enum(["read", "save"]),
-      "content": z.string().describe("Required for save: complete Markdown rules (max 16 KiB UTF-8). Empty text clears all rules.").optional(),
-      "expectedRevision": z.union([z.string(), z.null()]).describe("Required for save: exact revision returned by read, including null for a missing document. On conflict, read again and merge; never blindly retry.").optional(),
+      "target": z.enum(["global", "project_rules"]),
+      "action": z.enum(["list", "read", "write", "delete", "search", "save"]),
+      "name": z.string().describe("Global memory identifier: kebab-case, 1–64 characters.").optional(),
+      "type": z.enum(["user", "feedback", "reference", "media-style", "project"]).optional(),
+      "description": z.string().describe("Single-line description of the global memory.").optional(),
+      "body": z.string().describe("Complete Markdown body of the global memory.").optional(),
+      "query": z.string().optional(),
+      "content": z.string().describe("Complete project rules Markdown (max 16 KiB UTF-8). Empty text clears all rules.").optional(),
+      "expectedRevision": z.union([z.string(), z.null()]).describe("Exact revision from read, including null for a missing document. Required for save.").optional(),
     },
-    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":false},
+    annotations: {"readOnlyHint":false,"destructiveHint":true,"idempotentHint":false},
   },
   "execute": {
     description: "Execute a media capability or native editor operation after reading capability_get. Editors: pass only capabilityId and plugin (method, contractVersion, explicit target, args, write preconditions); the first renderer operation prepares the editor and executes without another model turn. Recover unknown outcomes with command.get, never repeat writes blindly. Media: declared params and ordered references only; output is required before submission. Durable generation returns {task}; create targets get compositionId on submission. Synchronous edit_media returns {delivery}; transcription uses billable cloud ASR, file transforms are local. Results are in envelope.outputs. Adoption/placement problems reuse delivered content for recovery. Completed results are final. Cost confirmation belongs to the user in the app; execute waits, and cancelled means declined or unconfirmed. The host assigns task.id; no caller requestId. After interrupted waits use design_task_wait with that taskId; resubmission starts new work.",
@@ -612,6 +618,83 @@ export const V3_TOOL_SPECS = {
       "pdf_page": z.number().int().min(1).describe("PDF only: 1-based page whose embedded images are returned with the text window. Text paging still follows offset/limit.").optional(),
     },
     annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
+  },
+  "code_project_open": {
+    description: "Open the Code Project of this session: call first, and again to add inputs. Creates the working tree on first use, binds it to this session and copies each input Resource Version read-only into inputs/. Returns workDir (absolute; keep every file operation and command inside it), the input paths and environment: shell (write commands for it), node/npm, python (command, pip), ffmpeg (Hub bundled, path) and package managers. Tools missing from environment are not installed by the platform.",
+    shape: {
+      "inputs": z.array(z.object({
+      "versionId": z.string().min(1).max(512),
+    })).max(50).describe("Resource Versions from the brief that the code reads.").optional(),
+    },
+    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true},
+  },
+  "code_checkpoint": {
+    description: "Record the working tree as a platform checkpoint after each runnable milestone; it is the progress record used to continue after an interruption. Dependencies (node_modules, .venv), caches and out/ are never recorded. An unchanged tree returns the current checkpoint. Never use git for this.",
+    shape: {
+      "message": z.string().min(1).max(2000).describe("What this milestone does and how it was verified."),
+    },
+    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true},
+  },
+  "code_status": {
+    description: "Read the Code Project state: head and recent checkpoints, files changed since head, and every published Resource Version with its checkpoint. Call it first after a system recovery notice and never republish what is listed.",
+    shape: {},
+    annotations: {"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true},
+  },
+  "code_publish": {
+    description: "Publish run results as Resources: the only way code output leaves the working tree. Checkpoints changed source first, then delivers each output: a file path (kind from its extension: image/video/audio/text, otherwise file), a directory (zipped) or snapshot=\"source\" (zip of the checkpointed source, for delivering the program itself). Up to 500 MiB per file. output uses the design_deliver vocabulary: one resources target per output key (create with name, or new_version with resourceId) and a composition with placements from the brief. Returns {checkpointId, delivery}: completed is final; unknown requires the same requestId and identical input; blocked needs corrected input with a new requestId.",
+    shape: {
+      "requestId": z.string().regex(new RegExp("^[A-Za-z0-9._-]{1,128}$")).describe("Stable identity of this publish; reuse unchanged on retry."),
+      "outputs": z.array(z.object({
+      "key": z.string().regex(new RegExp("^[A-Za-z0-9_-]{1,64}$")),
+      "source": z.union([z.object({
+      "path": z.string().min(1).max(4096).describe("File or directory inside workDir, e.g. out/chart.png."),
+    }), z.object({
+      "snapshot": z.literal("source"),
+    })]),
+    })).min(1).max(20),
+      "output": z.object({
+      "resources": z.array(z.union([z.union([z.object({
+      "key": z.string().min(1).max(512).describe("Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs.").optional(),
+      "mode": z.literal("create").describe("Create an independently maintained Resource."),
+      "name": z.string().min(1).max(512).describe("User-visible Resource name in working_language describing its content (e.g. \"红龙苏醒片段\", \"宣传片成片\"); shown in the asset library and used as the exported file name. Not a file name or slug: no extension, hyphenated sequence numbers, durations or code identifiers."),
+      "description": z.string().max(2000).optional(),
+    }), z.object({
+      "key": z.string().min(1).max(512).describe("Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs.").optional(),
+      "mode": z.literal("new_version").describe("Revise or replace the content of an existing Resource from any source, preserving its identity and history."),
+      "resourceId": z.string().min(1).max(512),
+      "baseVersionId": z.string().min(1).max(512).describe("Exact parent version belonging to resourceId. Required with disposition=adopted, where it is also the expected current version.").optional(),
+      "disposition": z.enum(["adopted", "candidate"]).describe("adopted selects the result as current only if the current version still equals baseVersionId; a conflict retains a candidate for resolution. candidate (the default) saves the result without changing current and cannot be placed in a Composition.").optional(),
+    })]), z.object({
+      "key": z.string().min(1).max(512).describe("Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs.").optional(),
+      "mode": z.literal("reuse"),
+    })])).min(1).max(100).describe("One target per source: create a named Resource, write a new version of an existing Resource, or reuse (place a versionId source as is). With several sources, each target names its source key."),
+      "composition": z.object({
+      "compositionId": z.string().min(1).max(512).describe("Existing Composition ID from a query or creation result. Exclusive with type/name.").optional(),
+      "type": z.union([z.object({
+      "id": z.string().min(1).max(512).describe("Registered type ID from context or design_composition_type_list."),
+      "label": z.string().min(1).max(256).optional(),
+      "description": z.string().max(2000).optional(),
+    }), z.object({
+      "label": z.string().min(1).max(256).describe("Find a registered type by label, or create it with a gateway-generated ID."),
+      "description": z.string().max(2000).optional(),
+    })]).describe("With name: finds the active Composition with this resolved type and trimmed name, or creates it. Exclusive with compositionId.").optional(),
+      "name": z.string().min(1).max(512).describe("Name of the new Composition.").optional(),
+      "attributes": z.record(z.string(), z.string().max(2000)).describe("New Composition only. Initial object attributes in working_language; existing attributes are preserved. Later edits use composition_edit action=set_attributes.").optional(),
+      "position": z.number().int().min(0).max(1000000000).describe("New Composition only. Set only for ordered content (episodes, shots, chapters); omitted items sort last. Unique integer within the type, ascending; leave gaps for inserts. Keep series in non-overlapping ordered ranges, or use placement to preserve group order. Taken values fail: reread or use placement. Exclusive with placement. Creation only; existing matches keep position. Parallel same-position calls use the next free value in call order (original in requestedPosition).").optional(),
+      "placement": z.union([z.object({
+      "after": z.string().min(1).max(512),
+    }), z.object({
+      "before": z.string().min(1).max(512),
+    })]).describe("New Composition only. Place before/after a same-type Composition. The gateway assigns position; never compute one yourself. Neighbours may change position, reported as renumbered. Exclusive with position.").optional(),
+      "placements": z.array(z.object({
+      "key": z.string().min(1).max(512).describe("Output this entry is for. Omit it when the call has one output (primary); name it only to address one of several outputs.").optional(),
+      "role": z.string().min(1).max(512).describe("Adds the output as a new member with this role: a user-visible label for its purpose within the Composition, in working_language (e.g. \"正面全身\"). Reuse existing wording for the same purpose; roles may repeat; no code identifiers. Every further independent Resource the call creates under that output (key_2, key_3, ...; e.g. the layers of a layer decomposition) gets a member with the same role. Give role or memberId, not both.").optional(),
+      "memberId": z.string().min(1).max(512).describe("Fills this existing empty member instead of adding one; a member already holding a Resource is reported unavailable. To change what a held member shows, use new_version on its Resource.").optional(),
+    })).min(1).max(50).describe("Required, one entry per output: role adds a member, memberId fills an existing one. key may be omitted for the primary output."),
+    }).describe("Canvas-visible placement required for every create/reuse target; omit only when every target is a new_version already in a Composition. compositionId targets an existing object; type + name finds/creates an active one by exact type ID + trimmed name. Both require placements. Parallel outputs for one new object use the same type ID/name; call in the same step without waiting for its compositionId.").optional(),
+    }),
+    },
+    annotations: {"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true},
   },
 } satisfies Record<string, V3ToolSpec>;
 

@@ -170,6 +170,25 @@ export class GatewayClient {
     return schema.parse(await resp.json());
   }
 
+  /** DELETE：记忆删除等无 body 的端点。 */
+  async delete<S extends z.ZodTypeAny>(path: string, timeoutMs: number, schema: S): Promise<z.output<S>> {
+    log(`DELETE ${this.url(path)}`);
+    let resp: Response;
+    try {
+      resp = await fetch(this.url(path), {
+        method: "DELETE",
+        headers: this.requestHeaders(),
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+    } catch (err) {
+      const msg = errorMessage(err);
+      log(`DELETE ${path} network error: ${msg}`);
+      throw err;
+    }
+    if (!resp.ok) throw await parseHttpError(resp);
+    return schema.parse(await resp.json());
+  }
+
   async post<S extends z.ZodTypeAny>(path: string, body: unknown, timeoutMs: number, schema: S): Promise<z.output<S>> {
     const serialized = JSON.stringify(body);
     log(`POST ${this.url(path)} body=${serialized}`);
