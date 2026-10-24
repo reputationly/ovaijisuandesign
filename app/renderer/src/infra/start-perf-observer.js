@@ -36,7 +36,8 @@ const FLUSH_INTERVAL_MS = 5e3;
 function safeStringifyDetail(detail) {
   if (detail === void 0) return void 0;
   try {
-    return JSON.stringify(detail, (_key, value) => {
+    return JSON.stringify(detail, (key2, value) => {
+      if (key2 === "workspaceId") return void 0;
       if (typeof value === "bigint") return value.toString();
       return value;
     });

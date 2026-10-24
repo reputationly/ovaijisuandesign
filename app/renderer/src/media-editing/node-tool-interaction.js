@@ -33,6 +33,9 @@ const NODE_TOOL_INTERACTION = {
   asr: "opens_mode",
   clip: "opens_mode",
   "extract-frame": "opens_mode",
+  "extract-frame-custom": "opens_mode",
+  "extract-first-frame": "instant",
+  "extract-last-frame": "instant",
   "extract-audio": "instant",
   "capture-frame": "instant",
 };

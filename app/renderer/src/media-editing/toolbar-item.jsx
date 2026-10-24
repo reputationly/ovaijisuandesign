@@ -227,6 +227,8 @@ function ToolbarItem({ item, showSeparator }) {
             <DropdownMenuTrigger
               disabled={item.disabled}
               className="canvas-toolbar-action canvas-toolbar-disclosure"
+              aria-label={typeof item.label === "string" ? item.label : void 0}
+              aria-expanded={open}
               openOnHover={true}
               delay={100}
               closeDelay={150}
@@ -268,7 +270,12 @@ function ToolbarItem({ item, showSeparator }) {
             <DropdownMenuTrigger
               disabled={item.disabled}
               className="canvas-toolbar-action"
-              data-action-ui-id={`canvas.toolbar-dropdown-${item.id}`}
+              data-action-ui-id={item.dataActionUiId ?? `canvas.toolbar-dropdown-${item.id}`}
+              aria-label={!showLabel && typeof item.label === "string" ? item.label : void 0}
+              aria-expanded={open}
+              openOnHover={item.dropdownOpenOnHover}
+              delay={100}
+              closeDelay={150}
               data-content={!showLabel ? "icon" : void 0}
               data-active={item.active || void 0}
             >
