@@ -109,6 +109,21 @@
 
 ---
 
+## #10 停用观测云前端监控（RUM）与神策统计
+
+- **原因**：不向参照方的云端上报（产品范围：不接对方云端）
+- **层**：3（源码）
+- **落点**：`app/renderer/src/i18n/init-rum.js`（提交 24b8d1ee）：不加载 SDK、不上报，
+  `initRum` / `reportRumAction` 只在本地记状态供诊断面板显示
+- **验证方式**：Playwright 诊断（`.probe/pw/worker-probe.mjs`，不进门禁）：
+  - 参照启动 361ms 时由 `initRum` → `datafluxRum.init({ compressIntakeRequests: true })`
+    在 `index-YnY-ya8p.js` 的 `createDeflateWorker` 里建一个 blob 压缩 worker（每一屏都有）
+  - 我们这边没有任何 worker
+  - v3 运行时产物里没有 RUM SDK（`datafluxRum` / `DATAFLUX` / `clientToken` 均 0 处）
+- **门禁登记**：不需要。门禁不比较 worker；参照多出的这个 worker 已解释为本条
+
+---
+
 ## 维护规则
 
 1. **加改动前先问能不能放层 0**（数据 / 开关 / gateway / 主进程）—— 那一层不需要条目。
