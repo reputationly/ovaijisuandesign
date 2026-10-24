@@ -120,6 +120,7 @@ var banana = {
 
 // ../packages/protocol/dist/capabilities/models/vendors/elevenlabs.js
 var MUSIC_MIN_SECONDS = 3;
+var MUSIC_MAX_SECONDS = 600;
 function musicLengthSeconds(value) {
   const match = /^(?:(\d+)s|(\d+)m|(\d{1,2}):(\d{1,2}))$/.exec(value.trim());
   if (!match)
@@ -135,27 +136,27 @@ var elevenlabsMusic = {
   vendor: "elevenlabs",
   modality: "audio.music",
   backend: BACKEND_ELEVENLABS_MUSIC,
-  surfaces: ["canvas"],
+  surfaces: ["agent", "canvas"],
   models: {
     "elevenlabs-music-v2": {
       pricing: "music_v2",
-      description: "For songs and background music from a style description, at a chosen length. Does not take lyrics or references."
+      description: "For instrumental background music from a style description, at a chosen length. Does not take vocals, lyrics or references."
     }
   },
   params: {
-    mode: enumParam(["song", "instrumental"], "song = the model decides whether to add vocals; instrumental = no vocals."),
+    mode: enumParam(["instrumental"], "Instrumental music only, without vocals."),
     length: {
       type: "string",
       pattern: "^(auto|[1-9]\\d*[sm]|\\d{1,2}:[0-5]?\\d)$",
       default: "auto",
-      description: `Output length: auto (the model decides), Ns, Nm or m:ss; at least ${MUSIC_MIN_SECONDS}s.`
+      description: `Output length: auto (the model decides), Ns, Nm or m:ss; ${MUSIC_MIN_SECONDS}\u2013${MUSIC_MAX_SECONDS}s.`
     }
   },
   native: {
     mode: {
       kind: "enum",
       name: "is_instrumental",
-      values: { song: "auto", instrumental: "instrumental" }
+      values: { instrumental: "instrumental" }
     },
     length: { kind: "enum", name: "music_length_ms" }
   },
@@ -166,13 +167,15 @@ var elevenlabsMusic = {
     const seconds = musicLengthSeconds(length);
     if (length !== "auto" && (seconds === void 0 || seconds < MUSIC_MIN_SECONDS))
       reject(`Music length must be at least ${MUSIC_MIN_SECONDS} seconds.`);
+    if (seconds !== void 0 && seconds > MUSIC_MAX_SECONDS)
+      reject(`Music length must be at most ${MUSIC_MAX_SECONDS} seconds.`);
     return {
       backend: BACKEND_ELEVENLABS_MUSIC,
       model_id: modelId,
       prompt,
       params: wire({
         music_length_ms: length,
-        ...params.mode === "instrumental" ? { is_instrumental: "instrumental" } : {}
+        is_instrumental: "instrumental"
       })
     };
   }
@@ -596,7 +599,7 @@ var minimaxAudio = {
   vendor: "minimax-audio",
   modality: "audio.tts",
   backend: BACKEND_MINIMAX_V3,
-  surfaces: ["canvas"],
+  surfaces: ["agent", "canvas"],
   models: {
     "MiniMax-H3 Audio": {
       pricing: "MiniMax-H3-audio-continuation",
@@ -1488,7 +1491,7 @@ var dag = (name, model, backend, displayName, description, keys, references, opt
   prompt: options.prompt ?? { use: "optional" },
   references: { ...references, kinds: { image: references.max } },
   // Canvas migrates the legacy template tools; Agent exposure is unchanged.
-  surfaces: ["canvas"],
+  surfaces: ["agent", "canvas"],
   execution: fixed({ backend, model, pricing: model }, ({ params, media: media2 }) => ({
     params,
     ...options.image_paths ? { image_paths: options.image_paths(media2.image) } : {}
@@ -1942,6 +1945,26 @@ var PRESET_COLOR_TAG_ID_SET = new Set(Object.values(PRESET_COLOR_TAG_IDS));
 
 // ../packages/protocol/dist/project-v3/clip-document.js
 var CLIP_DOCUMENT_MAX_BYTES = 4 * 1024 * 1024;
+
+// ../packages/protocol/dist/project-v3/code-project.js
+var CODE_PUBLISH_MAX_FILE_BYTES = 500 * 1024 * 1024;
+
+// ../packages/protocol/dist/project-v3/site-preview.js
+var SITE_PREVIEW_CSP = [
+  "default-src 'self' data: blob:",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
+  "style-src 'self' 'unsafe-inline' data: blob:",
+  "img-src 'self' data: blob:",
+  "media-src 'self' data: blob:",
+  "font-src 'self' data: blob:",
+  "connect-src 'self' data: blob:",
+  "worker-src 'self' blob:",
+  "frame-src 'self' blob: data:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self' app: http://localhost:*"
+].join("; ");
 
 // ../packages/protocol/dist/project-v3/command.js
 var ProjectActor;

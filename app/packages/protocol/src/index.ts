@@ -9,3 +9,5 @@ export * from "./canvas.js";
 export * from "./events.js";
 export * from "./media.js";
 export * from "./platform-preset.js";
+export * from "./project-v3/code-project.js";
+export * from "./project-v3/site-preview.js";

@@ -200,7 +200,7 @@ export const AUDIO_MODELS = [
       },
     },
   },
-  // ElevenLabs Music v2 — prompt-only song generation.
+  // ElevenLabs Music v2 — prompt-only instrumental generation.
   {
     id: "elevenlabs-music-v2",
     name: "ElevenLabs Music v2",
@@ -220,8 +220,8 @@ export const AUDIO_MODELS = [
       is_instrumental: {
         type: "select",
         label: "canvas.params.musicMode",
-        options: ["auto", "instrumental"],
-        default: "auto",
+        options: ["instrumental"],
+        default: "instrumental",
       },
     },
   },

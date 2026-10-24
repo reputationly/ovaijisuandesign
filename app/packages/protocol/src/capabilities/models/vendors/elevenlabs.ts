@@ -13,6 +13,7 @@ import { reject, wire } from "../../request.js";
 import { kind } from "../../../project-v3/task-mappers.js";
 
 const MUSIC_MIN_SECONDS = 3;
+const MUSIC_MAX_SECONDS = 600;
 function musicLengthSeconds(value: string) {
   const match = /^(?:(\d+)s|(\d+)m|(\d{1,2}):(\d{1,2}))$/.exec(value.trim());
   if (!match)
@@ -30,27 +31,27 @@ export const elevenlabsMusic: VendorEntry = {
   vendor: "elevenlabs",
   modality: "audio.music",
   backend: BACKEND_ELEVENLABS_MUSIC,
-  surfaces: ["canvas"],
+  surfaces: ["agent", "canvas"],
   models: {
     "elevenlabs-music-v2": {
       pricing: "music_v2",
-      description: "For songs and background music from a style description, at a chosen length. Does not take lyrics or references."
+      description: "For instrumental background music from a style description, at a chosen length. Does not take vocals, lyrics or references."
     }
   },
   params: {
-    mode: enumParam(["song", "instrumental"], "song = the model decides whether to add vocals; instrumental = no vocals."),
+    mode: enumParam(["instrumental"], "Instrumental music only, without vocals."),
     length: {
       type: "string",
       pattern: "^(auto|[1-9]\\d*[sm]|\\d{1,2}:[0-5]?\\d)$",
       default: "auto",
-      description: `Output length: auto (the model decides), Ns, Nm or m:ss; at least ${MUSIC_MIN_SECONDS}s.`
+      description: `Output length: auto (the model decides), Ns, Nm or m:ss; ${MUSIC_MIN_SECONDS}\u2013${MUSIC_MAX_SECONDS}s.`
     }
   },
   native: {
     mode: {
       kind: "enum",
       name: "is_instrumental",
-      values: { song: "auto", instrumental: "instrumental" }
+      values: { instrumental: "instrumental" }
     },
     length: { kind: "enum", name: "music_length_ms" }
   },
@@ -61,13 +62,15 @@ export const elevenlabsMusic: VendorEntry = {
     const seconds = musicLengthSeconds(length);
     if (length !== "auto" && (seconds === undefined || seconds < MUSIC_MIN_SECONDS))
       reject(`Music length must be at least ${MUSIC_MIN_SECONDS} seconds.`);
+    if (seconds !== undefined && seconds > MUSIC_MAX_SECONDS)
+      reject(`Music length must be at most ${MUSIC_MAX_SECONDS} seconds.`);
     return {
       backend: BACKEND_ELEVENLABS_MUSIC,
       model_id: modelId,
       prompt,
       params: wire({
         music_length_ms: length,
-        ...params.mode === "instrumental" ? { is_instrumental: "instrumental" } : {}
+        is_instrumental: "instrumental"
       })
     };
   }
