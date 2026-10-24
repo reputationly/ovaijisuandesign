@@ -3796,6 +3796,11 @@ const VideoNodeToolbarView = reactExports.memo(function VideoNodeToolbarViewImpl
         original();
       };
     };
+    const wrapDropdown = (entries2, source) => entries2?.map((entry) => ({
+      ...entry,
+      onSelect: entry.onSelect ? wrap2(entry.id, entry.onSelect, source) : void 0,
+      dropdownItems: wrapDropdown(entry.dropdownItems, source)
+    }));
     function trailingFor(id2) {
       if (id2 === "enhance-video") {
         return /* @__PURE__ */ jsxRuntimeExports.jsx(CreditCostBadge, { cost: enhanceVideoCost });
@@ -3840,25 +3845,16 @@ const VideoNodeToolbarView = reactExports.memo(function VideoNodeToolbarViewImpl
           return { onClick: onAsr, disabled: !hasVideo || asrDisabled };
         case "watermark":
           return onWatermark ? { onClick: onWatermark, disabled: !hasVideo || watermarkDisabled } : null;
-        case "clip": {
-          const c3 = contentById.get("clip");
-          if (!c3?.onClick) return null;
-          return { onClick: () => c3.onClick?.({}), disabled: c3.disabled };
-        }
-        case "extract-frame": {
-          const c3 = contentById.get("extract-frame");
-          if (!c3?.onClick) return null;
-          return { onClick: () => c3.onClick?.({}), disabled: c3.disabled };
-        }
-        case "color-adjust": {
-          const c3 = contentById.get("color-adjust");
-          if (!c3?.onClick) return null;
-          return { onClick: () => c3.onClick?.({}), disabled: c3.disabled };
-        }
+        case "clip":
+        case "extract-frame":
+        case "color-adjust":
         case "extract-audio": {
-          const c3 = contentById.get("extract-audio");
-          if (!c3?.onClick) return null;
-          return { onClick: () => c3.onClick?.({}), disabled: c3.disabled };
+          const c3 = contentById.get(id2);
+          if (!c3?.onClick && !c3?.dropdownItems) return null;
+          return {
+            ...c3,
+            onClick: c3.onClick ? () => c3.onClick?.({}) : void 0
+          };
         }
       }
     };
@@ -3874,8 +3870,13 @@ const VideoNodeToolbarView = reactExports.memo(function VideoNodeToolbarViewImpl
         icon: meta2.icon,
         forceLabel: showLabels,
         disabled: wiring.disabled,
-        dataActionUiId: id2 === "watermark" ? "canvas.video-node-watermark" : void 0,
+        dataActionUiId: wiring.dataActionUiId ?? (id2 === "watermark" ? "canvas.video-node-watermark" : void 0),
         onClick: wiring.onClick ? wrap2(id2, wiring.onClick, "primary_bar") : void 0,
+        dropdownItems: wrapDropdown(wiring.dropdownItems, "primary_bar"),
+        dropdownOpenOnHover: wiring.dropdownOpenOnHover,
+        onDropdownOpen: wiring.onDropdownOpen,
+        activeChildId: wiring.activeChildId,
+        hideDropdownArrow: wiring.hideDropdownArrow,
         trailing: trailingFor(id2)
       });
     }
@@ -3892,8 +3893,9 @@ const VideoNodeToolbarView = reactExports.memo(function VideoNodeToolbarViewImpl
         icon: meta2.icon,
         disabled: wiring.disabled,
         trailing: trailingFor(id2),
-        onSelect: wiring.onClick ? wrap2(id2, wiring.onClick, "more_menu") : () => {
-        }
+        // A submenu trigger must only open its children, not run the main action.
+        onSelect: !wiring.dropdownItems && wiring.onClick ? wrap2(id2, wiring.onClick, "more_menu") : void 0,
+        dropdownItems: wrapDropdown(wiring.dropdownItems, "more_menu")
       });
     }
     overflowDropdown.push({
