@@ -14,11 +14,16 @@ import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
 import { CanvasLoadingState } from "./canvas-loading-state.jsx";
 import { NativeWorkbenchHost, useWorkbenchIdentity, usesWorkspaceResourceView } from "./native-workbench-host.jsx";
 import { useWorkspaceProjectArchitecture } from "./use-workspace-project-architecture.jsx";
+import { PERF_CANVAS_V3_ARCHITECTURE, PERF_CANVAS_V3_CHUNK_CANVAS_AREA, recordPerfSpan } from "../infra/perf-spans.js";
 
 // v3 画布：只能懒加载（check-tdz 的 R1）
-const CanvasAreaV3 = reactExports.lazy(() =>
-  import("../canvas-v3/canvas-area-v3.js").then((m) => ({ default: m.CanvasAreaV3 })),
-);
+const CanvasAreaV3 = reactExports.lazy(() => {
+  const start = performance.now();
+  return import("../canvas-v3/canvas-area-v3.js").then((m) => {
+    recordPerfSpan(PERF_CANVAS_V3_CHUNK_CANVAS_AREA, start);
+    return { default: m.CanvasAreaV3 };
+  });
+});
 
 /** 只用于诊断：把渲染期异常显示出来，而不是让整棵工作区树崩掉。 */
 class V3Boundary extends reactExports.Component {
@@ -90,6 +95,14 @@ function WorkspaceV3Workbench(props) {
 function WorkspaceCanvasArea(props) {
   const architecture = useWorkspaceProjectArchitecture();
   const { t: t2 } = useTranslation();
+  const architectureMountedAt = reactExports.useRef(performance.now());
+  reactExports.useEffect(() => {
+    if (architecture.isPending) return;
+    recordPerfSpan(PERF_CANVAS_V3_ARCHITECTURE, architectureMountedAt.current, {
+      workspaceId: props.workspaceId,
+      architecture: architecture.isError ? "error" : architecture.data,
+    });
+  }, [architecture.data, architecture.isError, architecture.isPending, props.workspaceId]);
   if (architecture.isPending) return /* @__PURE__ */ jsxRuntimeExports.jsx(CanvasLoadingState, { label: t2("common.loading") });
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     PageStateBoundary,
