@@ -21,6 +21,7 @@
     "@ov/maas-media": "workspace:^",
     "@ov/mcp-tools": "workspace:^",
     "@ov/protocol": "workspace:^",
+    "archiver": "7.0.1",
     "better-sqlite3": "12.11.1",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.4",
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@nestjs/testing": "11.2.4",
     "@swc/core": "^1.13.0",
+    "@types/archiver": "6.0.3",
     "@types/better-sqlite3": "^9.6.0",
     "@types/express": "^5.0.0",
     "@types/js-yaml": "4.0.9",
