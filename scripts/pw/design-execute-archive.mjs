@@ -86,6 +86,9 @@ for (const [index, state] of states.entries()) {
   const toggle = app.page.locator('[data-action-ui-id="chat-design-execute-toggle"]');
   if (await toggle.count()) { await toggle.first().click(); await app.page.waitForTimeout(500); }
   const text = (await app.page.locator('[data-action-ui-id="chat-design-execute"]').innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 200);
+  await app.page.mouse.move(2, 2);
+  await app.page.evaluate(() => document.activeElement?.blur?.());
+  await app.page.waitForTimeout(200);
   const screenshot = path.join(outDir, `${state}.png`);
   await app.page.screenshot({ path: screenshot, fullPage: true });
   results.push({ state, card, text, screenshot });

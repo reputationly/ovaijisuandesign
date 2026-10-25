@@ -22,10 +22,9 @@
 
 产物：
 
-- 我方：`.probe/pw/design-execute/2026-10-25T07-38-50-107Z-recovered/seeded-card.png`、
-  `seeded-card-expanded.png`
-- 参照：`.probe/pw/design-execute/2026-10-25T07-02-09-842Z-reference/seeded-card.png`、
-  `seeded-card-expanded.png`
+- 我方：`.probe/pw/design-execute/2026-10-25T09-10-16-515Z-recovered/`（四状态）
+- 参照：`.probe/pw/design-execute/2026-10-25T09-13-06-925Z-reference/`（四状态）
+- 会话标题灰色胶囊：我方有、参照无；截图前已移开鼠标并 blur，仍存在，判断是聊天面板标题既有样式，待确认是否 4.0.3 就有。
 
 展开卡片两边都显示 `PW 任务卡片` + `qwen-image` + “连接暂时中断…” + 刷新；我方的 model 标签是纯文本，参照带图标。
 
