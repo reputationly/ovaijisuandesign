@@ -159,7 +159,7 @@ export function ScopedCard({ entry, scopeKey, ready }) {
             </div>
           }
           footer={
-            <div className="space-y-2 empty:hidden pt-2">
+            <div className="space-y-2 empty:hidden">
               {errorMessage && <p role={cancelled ? "status" : "alert"} className={`break-words ${cancelled ? "text-muted-foreground" : "text-destructive"}`}>{errorMessage}</p>}
               {billingRetrying && <p role="status" className="break-words text-muted-foreground">{t("canvasV3.generation.billingUnavailableNotice")}</p>}
               {offline && <p className="text-xs text-muted-foreground">{t("workspaceTasks.offline")}</p>}

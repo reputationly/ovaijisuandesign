@@ -137,7 +137,7 @@ function MediaGenCardLayout({
   tags,
   media: media2,
   footer,
-  header:header,
+  header,
   className,
 }) {
   return (
@@ -145,7 +145,7 @@ function MediaGenCardLayout({
       {header}
       {prompt}
       {tags}
-      {media}
+      {media2}
       {footer}
     </div>
   );
@@ -162,8 +162,8 @@ const TAG_I18N_KEYS = {
   version: "canvas.params.version",
   style: "canvas.params.style",
   quality: "canvas.params.quality",
-  size: "canvas.params.imageQuality",
-  size:"canvas.params.resolution",
+  image_quality: "canvas.params.imageQuality",
+  size: "canvas.params.resolution",
   voice_id: "canvas.params.voiceId",
   emotion: "canvas.params.emotion",
   speed: "canvas.params.speed",

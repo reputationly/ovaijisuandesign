@@ -65,3 +65,12 @@
 - footer 前补 8px 间距：我方 failed 的错误文案/离线提示 y 从 156.5/186.5 对齐到参照的 164.5/194.5。
 - 删除 `main.jsx` 的 `globalThis.__jsx` 兜底；`execute-card.jsx`、`external-agent-section.jsx`、`desktop-misc.jsx` 补 `__jsx` import；`audit-v3.mjs` 新增第 8 项检查。
 - 标题灰底不是本轮引入（dd13f2af 以来没有标题组件改动）；侧栏 `=8>ws-a`/灰色头像是 launch-app 夹具环境造成，不影响验收。
+
+
+## MediaGenCardLayout media 区修复
+
+`d11aba99` 起 `MediaGenCardLayout` 参数被改名为 `media2`，JSX 仍渲染 `{media}`，命中的是
+`canvas-v3-model.js` 导入的 `media` 函数，导致所有生成详情卡片和任务卡片的 media 区一直为空。
+已改为 `{media2}`，并移除任务卡片 footer 的 `pt-2` 临时补丁；失败状态 DOM 坐标仍为
+`errorY=164.5`、`offlineY=194.5`，与参照一致。`TAG_I18N_KEYS` 的重复 `size` 改为
+`image_quality` + `size`。
