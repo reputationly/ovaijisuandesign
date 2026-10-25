@@ -314,13 +314,16 @@ Authorization: Bearer <key>
 | L-1 | **完成（口径有收窄）** | `app/gateway/src/generate/platform-catalog.ts`（拉取 + 落盘 + 回退）、`media-config.service.ts`（目录补空槽位）、`capabilities.controller.ts`（目录优先）、`maas-media/route.ts`（目录里的名字原样放行）、`PLATFORM_PRESET.models` 清空。**收窄的部分**：`/api/v1/models/config`（模型选择器的数据源）仍是"每个模态一个模型"，因为 MCP 的 `hub_list_capabilities` 要拿它和**静态 vendor 表**取交集，目录里的任意模型没有对应的 vendor 条目。多模型可选这件事落在 `/api/v3/capabilities`（agent/卡片那条路）与 L-3 的对话模型上 |
 | L-2 | **完成** | `app/gateway/src/generate/media-inputs.ts` + `maas-media/upload.ts`（阈值 8MB，失败退回内联） |
 | L-3 | **完成** | `gateway/src/runtime/chat-models.ts` + `chat.service.ts` + `runtime.controller.ts`；主进程 `opencode/config.ts` 的 `platform.chat_models` 多模型 provider。token 预算那半本来就在位（caption 6000 / lyrics 4000，且截断有明确报错），本轮只做了核对 |
-| L-4 | **完成** | `generation-runner.service.ts` 的 `describeFailure` 映射表 + `tasks.ts` 的 `problem` 落库与透出；9 个用例钉住"必须是参照枚举里的码" |
+| L-4 | **完成** | `generation-runner.service.ts` 的 `describeFailure` 映射表 + `tasks.ts` 的 `problem` 落库与透出；9 个单元用例钉住"必须是参照枚举里的码"，另有 **e2e**：假平台回 403 `insufficient_user_quota` → 任务 `problem.code = BILLING_INSUFFICIENT` / `source = billing` / 提示含"额度"、`error` 保留技术原文（`execute-task.e2e.test.ts`） |
 | L-6 | **完成** | `FEEDBACK_ENTRY_ENABLED = false`；三处入口（画布帮助菜单两项、对话消息菜单、`FeedbackButton`）；登记在 `docs/ov-changes.md` #14 与 `docs/intentional-differences.md` 一.7 |
 
 **P0 验收里没做到的两项**（详见第 6 节）：
 
 1. "用真实 key 分别跑通一次生图、视频、语音合成、音乐、对话" —— 本会话环境没有
    `OV_PLATFORM_KEY`，一次真实调用都没发。（语音识别已按负责人决定移出 P0，见 N-3。）
+   能离线证的部分已经证到数据层：目录拉取/回退、上传阈值与回退、错误码映射（含
+   "平台额度不足 → 卡片显示可读提示"这条 e2e）、`/v1/ov/capabilities` 的整条链
+   （真库 + 真中间件 + 令牌白名单）。**缺的是"真平台真的这么回"这一环**。
 2. 37 屏 / v3 七屏门禁 —— **两处都已 exit 0**（2026-10-26 00:4x）：37 屏 37/37
    「超护栏 0 / 未登记差异 0 / 新增报错 0」；v3 七屏 7/7 同上、工作台视图非 AA 像素 0%。
    为了让 37 屏回到全绿，`ws-chat-input` 记了一处 DOM 差异（`feedback-button`）并把该屏

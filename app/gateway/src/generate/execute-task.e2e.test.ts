@@ -23,8 +23,21 @@ describe("v3 执行生成", () => {
   beforeAll(async () => {
     const platform = createServer((req, res) => {
       if (req.url === "/v1/images/generations") {
-        res.setHeader("content-type", "application/json");
-        res.end(JSON.stringify({ data: [{ url: `http://127.0.0.1:${(server.address() as AddressInfo).port}/files/out.png` }] }));
+        // 读一下请求体：下面那条用例要模拟"平台回 403 额度不足"，
+        // 用提示词当开关比再起一个假平台省事。
+        let body = "";
+        req.on("data", (chunk) => { body += String(chunk); });
+        req.on("end", () => {
+          if (body.includes("额度不足")) {
+            // 形状与 new-api 的错误信封一致（`abortWithOpenAiMessage`）。
+            res.statusCode = 403;
+            res.setHeader("content-type", "application/json");
+            res.end(JSON.stringify({ error: { code: "insufficient_user_quota", message: "quota exceeded", type: "new_api_error" } }));
+            return;
+          }
+          res.setHeader("content-type", "application/json");
+          res.end(JSON.stringify({ data: [{ url: `http://127.0.0.1:${(server.address() as AddressInfo).port}/files/out.png` }] }));
+        });
         return;
       }
       if (req.url === "/files/out.png") {
@@ -102,6 +115,30 @@ describe("v3 执行生成", () => {
     const resource = await http.post("/api/project/resources/get").send({ selectors: [{ resourceId: done.outputs[0].resourceId, versionId: done.outputs[0].versionId }] });
     expect(resource.body[0]).toMatchObject({ ok: true, detail: { version: { status: "ready", versionId: done.outputs[0].versionId } } });
     expect(resource.body[0].detail.version.relativePath).toMatch(/\.png$/);
+  });
+
+  it("平台回「额度不足」时，任务的 problem 是参照枚举里的码 + 中文提示", async () => {
+    // L-4 的验收在这里落地：卡片读的是 `problem`（不是 `error`），而 `problem.code`
+    // 必须落在参照那份枚举里，否则渲染层会拒掉整条任务、卡片直接空掉。
+    // 对应的平台错误码是 new-api 的 `insufficient_user_quota`。
+    const body = {
+      capabilityId: "generate_image:qwen-image",
+      prompt: "额度不足时会失败",
+      output: {
+        resources: [{ mode: "create", name: "额度" }],
+        composition: { name: "额度组", type: { label: "Generated" }, placements: [{ role: "image" }] },
+      },
+    };
+    const created = await http.post("/api/v3/execute").set("x-hilo-agent-caller", CALLER_KEY).set("x-session-id", "sess-quota").set("x-tool-use-id", "tool-quota").send(body);
+    expect(created.status).toBe(202);
+    const done = await until(async () => {
+      const current = await http.get(`/api/v3/tasks/${created.body.task.id}`);
+      return current.body.status === "failed" ? current.body : undefined;
+    });
+    expect(done.problem).toMatchObject({ code: "BILLING_INSUFFICIENT", source: "billing" });
+    expect(done.problem.message).toMatch(/额度/);
+    // 技术原文仍然留着，排障要看它。
+    expect(done.error).toContain("quota exceeded");
   });
 
   it("失败任务刚用 retry 恢复，未支持的动作不会落到 stop", async () => {

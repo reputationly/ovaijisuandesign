@@ -110,7 +110,8 @@ index-CBQqfCOX.js`）：`workspace.structure.list` = 列表 / List，
 
 ### T-6 turbo 全量的 2 个 e2e 失败
 
-**没能复现**。试过的组合（都在本机、同一份依赖）：
+**没能复现**（累计：turbo 全量 8 次、gateway 全量 6 次、两个文件单跑 4 次、强制并行 1 次、
+旧树 6 次 —— 一次都没红）。试过的组合（都在本机、同一份依赖）：
 
 | 做法 | 结果 |
 |---|---|
@@ -119,6 +120,7 @@ index-CBQqfCOX.js`）：`workspace.structure.list` = 列表 / List，
 | 强制 `--fileParallelism=true` 跑 4 个会改 `WORKSPACE_DIR` 的 e2e | 38/38 通过 |
 | `41bc74f1^` 的 worktree：两个文件连续 6 次 | 12/12 通过 |
 | `41bc74f1^` 的 worktree：gateway 全量 ×2 | 各 1 个失败，但**不是这两个文件**（是 `generate.e2e` 的"模型目录来自本机配置" —— 那是本轮改了产品预设、而 worktree 借用了主仓 `node_modules` 里新构建的包导致的），与 T-6 无关 |
+| 收口后又跑：gateway 全量连续 **6 次**（每次 94 文件 / 519~520 用例） | 6/6 全过 |
 
 **没有测试名可写**：交接文档只给了"2 个 e2e 失败"，runbook 8.1 记的是
 `canvas-more.e2e` / `composition.e2e`（"偶尔"）。**按现状无法完成 T-6 的验收**，需要一次
