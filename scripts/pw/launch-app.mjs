@@ -3,15 +3,15 @@
  * 但只用于 scripts/pw，不改门禁本身。fixture 放在 /tmp/ov-pw，避免污染 /tmp/ov-cmp。
  */
 import { spawn } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright-core";
 
 const repo = path.resolve(import.meta.dirname, "../..");
 const fixture = path.join(repo, "scripts/ui-compare/fixture");
 
-export async function launchApp({ mode = "recovered", port = 9361, root = "/tmp/ov-pw", xdg = path.join(root, "xdg") } = {}) {
-  rmSync(root, { recursive: true, force: true });
+export async function launchApp({ mode = "recovered", port = 9361, root = "/tmp/ov-pw", xdg = path.join(root, "xdg"), reset = true, dbSource } = {}) {
+  if (reset) rmSync(root, { recursive: true, force: true });
   mkdirSync(path.join(root, "ud"), { recursive: true });
   mkdirSync(xdg, { recursive: true });
   mkdirSync(path.join(root, "home"), { recursive: true });
@@ -23,6 +23,7 @@ export async function launchApp({ mode = "recovered", port = 9361, root = "/tmp/
   // 每屏前的 .hilo 复位由门禁负责；这里只固定一份干净快照，便于复现。
   cpSync(path.join(wsA, ".hilo"), path.join(root, "_pristine", "ws-a"), { recursive: true });
   cpSync(path.join(wsB, ".hilo"), path.join(root, "_pristine", "ws-b"), { recursive: true });
+  if (dbSource && existsSync(dbSource)) copyFileSync(dbSource, path.join(root, "opencode.db"));
 
   const env = {
     ...process.env,
@@ -37,6 +38,8 @@ export async function launchApp({ mode = "recovered", port = 9361, root = "/tmp/
     OV_DEV_OPEN_WORKSPACES: `${wsA}${path.delimiter}${wsB}`,
     XDG_DATA_HOME: xdg,
     HOME: path.join(root, "home"),
+    OPENCODE_DB: path.join(root, "opencode.db"),
+    HILO_OPENCODE_DB: path.join(root, "opencode.db"),
     ...(process.env.OPENCODE_BIN ? {} : { OPENCODE_BIN: findOpenCode() }),
   };
   delete env.ELECTRON_RUN_AS_NODE;

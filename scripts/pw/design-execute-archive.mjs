@@ -22,6 +22,7 @@ const gateway = spawn(process.execPath, [path.join(repo, "app/gateway/dist/main.
     HILO_PROJECT_ARCHITECTURE: "resource_v3",
     XDG_DATA_HOME: xdg,
     HOME: path.join(xdg, "..", "home"),
+    HILO_OPENCODE_DB: path.join(xdg, "..", "opencode.db"),
     WORKSPACE_DIR: ws,
     OV_CONFIG_PATH: path.join(repo, "scripts/ui-compare/fixture/ui-compare-config.json"),
   },
@@ -40,15 +41,18 @@ const payload = {
   sourceDirectory: oldDir,
   sessionCount: 1,
   sessions: [{ id: "ses_seed", parent_id: null, directory: oldDir, title: "PW design execute", time_created: now, time_updated: now, slug: "pw", version: "1.0" }],
-  messages: [{ id: "msg_seed", session_id: "ses_seed", time_created: now, time_updated: now, data: JSON.stringify({ role: "assistant", sessionID: "ses_seed", path: { cwd: oldDir } }) }],
-  parts: [{ id: "prt_seed", message_id: "msg_seed", session_id: "ses_seed", time_created: now, time_updated: now, data: JSON.stringify({ type: "tool", tool: "design_execute", callID: "tool-pw", messageID: "msg_seed", state: { status: "completed", input: { capabilityId: "generate_image:qwen-image", prompt: "PW 任务卡片", output: { resources: [{ key: "primary", mode: "create", name: "PW 图" }] } }, output: { task: { id: "tsk_pw", revision: 2, status: "completed", operation: "generate_image", capabilityId: "generate_image:qwen-image", outputs: [], origin: { source: "agent", toolUseId: "tool-pw" } } }, time: { start: now, end: now } } }) }],
+  messages: [
+    { id: "msg_user", session_id: "ses_seed", time_created: now, time_updated: now, data: JSON.stringify({ role: "user", sessionID: "ses_seed", time: { created: now }, agent: "general", model: { providerID: "custom", modelID: "qwen" }, modelID: "qwen", providerID: "custom", mode: "general", cost: 0, tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } }, path: { cwd: oldDir, root: oldDir } }) },
+    { id: "msg_seed", session_id: "ses_seed", time_created: now + 1, time_updated: now + 1, data: JSON.stringify({ role: "assistant", sessionID: "ses_seed", time: { created: now + 1, completed: now + 2 }, parentID: "msg_user", agent: "general", model: { providerID: "custom", modelID: "qwen" }, modelID: "qwen", providerID: "custom", mode: "general", cost: 0, tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } }, path: { cwd: oldDir, root: oldDir } }) },
+  ],
+  parts: [{ id: "prt_seed", message_id: "msg_seed", session_id: "ses_seed", time_created: now, time_updated: now, data: JSON.stringify({ type: "tool", tool: "design_execute", callID: "tool-pw", messageID: "msg_seed", state: { status: "completed", title: "design_execute", metadata: {}, input: { capabilityId: "generate_image:qwen-image", prompt: "PW 任务卡片", output: { resources: [{ key: "primary", mode: "create", name: "PW 图" }] } }, output: JSON.stringify({ task: { id: "tsk_pw", revision: 2, status: "completed", operation: "generate_image", capabilityId: "generate_image:qwen-image", outputs: [], origin: { source: "agent", toolUseId: "tool-pw" } } }), time: { start: now, end: now } } }) }],
   todos: [],
 };
 const imported = await fetch(`${base}/api/projects/archive/import`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ payload, oldDir, newDir: ws }) });
 const importedBody = await imported.text();
 console.log("import", imported.status, importedBody);
 gateway.kill("SIGTERM");
-const second = await launchApp({ mode, xdg });
+const second = await launchApp({ mode, xdg, reset: false });
 const api = `http://127.0.0.1:39737`;
 await second.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
 await second.page.waitForTimeout(8000);
