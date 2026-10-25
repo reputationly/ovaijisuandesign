@@ -39,52 +39,65 @@ for (let i = 0; i < 60; i++) {
 }
 const now = Date.now();
 const oldDir = "/tmp/old-ws";
-const payload = {
-  format: "opencode-sessions-v1",
-  exportedAt: new Date(now).toISOString(),
-  sourceDirectory: oldDir,
-  sessionCount: 1,
-  sessions: [{ id: "ses_seed", parent_id: null, directory: oldDir, title: "PW design execute", time_created: now, time_updated: now, slug: "pw", version: "1.0" }],
-  messages: [
-    { id: "msg_user", session_id: "ses_seed", time_created: now, time_updated: now, data: JSON.stringify({ role: "user", sessionID: "ses_seed", time: { created: now }, agent: "general", model: { providerID: "custom", modelID: "qwen" }, modelID: "qwen", providerID: "custom", mode: "general", cost: 0, tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } }, path: { cwd: oldDir, root: oldDir } }) },
-    { id: "msg_seed", session_id: "ses_seed", time_created: now + 1, time_updated: now + 1, data: JSON.stringify({ role: "assistant", sessionID: "ses_seed", time: { created: now + 1, completed: now + 2 }, parentID: "msg_user", agent: "general", model: { providerID: "custom", modelID: "qwen" }, modelID: "qwen", providerID: "custom", mode: "general", cost: 0, tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } }, path: { cwd: oldDir, root: oldDir } }) },
-  ],
-  parts: [{ id: "prt_seed", message_id: "msg_seed", session_id: "ses_seed", time_created: now, time_updated: now, data: JSON.stringify({ type: "tool", tool: "design_execute", callID: "tool-pw", messageID: "msg_seed", state: { status: "completed", title: "design_execute", metadata: {}, input: { capabilityId: "generate_image:qwen-image", prompt: "PW 任务卡片", output: { resources: [{ key: "primary", mode: "create", name: "PW 图" }] } }, output: JSON.stringify({ task: { id: "tsk_pw", revision: 2, status: "completed", operation: "generate_image", capabilityId: "generate_image:qwen-image", outputs: [], origin: { source: "agent", toolUseId: "tool-pw" } } }), time: { start: now, end: now } } }) }],
-  todos: [],
-};
+const states = ["queued", "running", "completed", "failed"];
+const sessions = [];
+const messages = [];
+const parts = [];
+for (const [index, state] of states.entries()) {
+  const sid = `ses_${state}`;
+  const uid = `msg_${state}_user`;
+  const aid = `msg_${state}_assistant`;
+  const pid = `prt_${state}`;
+  const baseTask = { id: `tsk_${state}`, revision: 2, operation: "generate_image", capabilityId: "generate_image:qwen-image", outputs: [], origin: { source: "agent", toolUseId: `tool-${state}` } };
+  const task = state === "queued" ? { ...baseTask, status: "accepted", progress: { phase: "queued", subtasks: [{ phase: "queued" }] } }
+    : state === "running" ? { ...baseTask, status: "running", progress: { phase: "running", subtasks: [{ phase: "running" }] } }
+    : state === "failed" ? { ...baseTask, status: "failed", actions: ["retry", "stop"], problem: { message: "provider exploded" } }
+    : { ...baseTask, status: "completed" };
+  sessions.push({ id: sid, parent_id: null, directory: oldDir, title: `PW ${state}`, time_created: now + index, time_updated: now + index, slug: state, version: "1.0" });
+  messages.push(
+    { id: uid, session_id: sid, time_created: now + index, time_updated: now + index, data: JSON.stringify({ role: "user", sessionID: sid, time: { created: now + index }, agent: "general", model: { providerID: "custom", modelID: "qwen" }, modelID: "qwen", providerID: "custom", mode: "general", cost: 0, tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } }, path: { cwd: oldDir, root: oldDir } }) },
+    { id: aid, session_id: sid, time_created: now + index + 1, time_updated: now + index + 1, data: JSON.stringify({ role: "assistant", sessionID: sid, time: { created: now + index + 1, completed: now + index + 2 }, parentID: uid, agent: "general", model: { providerID: "custom", modelID: "qwen" }, modelID: "qwen", providerID: "custom", mode: "general", cost: 0, tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } }, path: { cwd: oldDir, root: oldDir } }) },
+  );
+  parts.push({ id: pid, message_id: aid, session_id: sid, time_created: now + index + 1, time_updated: now + index + 1, data: JSON.stringify({ type: "tool", tool: "design_execute", callID: `tool-${state}`, messageID: aid, state: { status: "completed", title: "design_execute", metadata: {}, input: { capabilityId: "generate_image:qwen-image", prompt: "PW 任务卡片", output: { resources: [{ key: "primary", mode: "create", name: "PW 图" }] } }, output: JSON.stringify({ task }), time: { start: now, end: now } } }) });
+}
+const payload = { format: "opencode-sessions-v1", exportedAt: new Date(now).toISOString(), sourceDirectory: oldDir, sessionCount: sessions.length, sessions, messages, parts, todos: [] };
 const imported = await fetch(`${base}/api/projects/archive/import`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ payload, oldDir, newDir: ws }) });
 const importedBody = await imported.text();
 console.log("import", imported.status, importedBody);
 gateway.kill("SIGTERM");
 const db2 = new Database(path.join(xdg, "..", "opencode.db"), { readonly: true });
-const seeded = db2.prepare("SELECT id, title FROM session WHERE title = ?").get("PW design execute");
+const seededRows = db2.prepare("SELECT id, title FROM session WHERE title LIKE 'PW %'").all();
 db2.close();
-if (!seeded) throw new Error("seeded session not found");
+if (seededRows.length !== 4) throw new Error(`seeded sessions ${seededRows.length}`);
 const second = await launchApp({ mode, port: 9362, xdg, reset: false });
 const sentFrames = [];
 second.page.on("websocket", (ws) => ws.on("framesent", (event) => sentFrames.push(String(event.payload))));
 const outDir = path.resolve(repo, `.probe/pw/design-execute/${new Date().toISOString().replace(/[:.]/g, "-")}-${mode}`);
 const api = `http://127.0.0.1:39737`;
-await second.page.evaluate(({ ws, sid }) => {
-  localStorage.setItem("hilo:storage:global.workspaceSessionTabs", JSON.stringify({ [ws]: { focusedSessionId: sid, openedTabIds: [sid] } }));
-}, { ws, sid: seeded.id });
 await second.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
-await second.page.waitForTimeout(15_000);
-await second.page.waitForTimeout(8000);
-const card = await second.page.locator('[data-action-ui-id="chat-design-execute"]').count();
-const bodyText = (await second.page.locator("body").innerText()).slice(0, 400);
+await second.page.waitForTimeout(10_000);
 const { mkdirSync } = await import("node:fs");
 mkdirSync(outDir, { recursive: true });
-const ids = await second.page.$$eval('[data-action-ui-id]', (nodes) => [...new Set(nodes.map((node) => node.getAttribute("data-action-ui-id")))].sort());
-const screenshot = path.join(outDir, "seeded-card.png");
-await second.page.screenshot({ path: screenshot, fullPage: true });
-const toggle = second.page.locator('[data-action-ui-id="chat-design-execute-toggle"]');
-if (await toggle.count()) {
-  await toggle.click();
-  await second.page.waitForTimeout(800);
-  await second.page.screenshot({ path: path.join(outDir, "seeded-card-expanded.png"), fullPage: true });
+const results = [];
+for (const state of states) {
+  const row = seededRows.find((item) => item.title === `PW ${state}`);
+  if (!row) continue;
+  await second.page.evaluate(({ ws, sid }) => {
+    localStorage.setItem("hilo:storage:global.workspaceSessionTabs", JSON.stringify({ [ws]: { focusedSessionId: sid, openedTabIds: [sid] } }));
+  }, { ws, sid: row.id });
+  await second.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
+  await second.page.waitForTimeout(6_000);
+  await second.page.waitForTimeout(4_000);
+  const card = await second.page.locator('[data-action-ui-id="chat-design-execute"]').count();
+  const toggle = second.page.locator('[data-action-ui-id="chat-design-execute-toggle"]');
+  if (await toggle.count()) { await toggle.first().click(); await second.page.waitForTimeout(500); }
+  const text = (await second.page.locator('[data-action-ui-id="chat-design-execute"]').innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 200);
+  const screenshot = path.join(outDir, `${state}.png`);
+  await second.page.screenshot({ path: screenshot, fullPage: true });
+  results.push({ state, card, text, screenshot });
 }
 const subscribe = sentFrames.filter((frame) => frame.includes("task_subscribe") && frame.includes("design-chat"));
-console.log(JSON.stringify({ mode, card, session: seeded.id, ids, ws: { taskSubscribe: subscribe.length }, body: bodyText, screenshot }, null, 2));
+const bodyText = (await second.page.locator("body").innerText()).slice(0, 300);
+console.log(JSON.stringify({ mode, results, ws: { taskSubscribe: subscribe.length }, body: bodyText }, null, 2));
 await second.close();
 process.exit(0);
