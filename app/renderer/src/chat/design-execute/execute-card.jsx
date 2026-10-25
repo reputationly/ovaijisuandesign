@@ -176,7 +176,7 @@ export function ScopedCard({ entry, scopeKey, ready }) {
               {billingRetrying && <p role="status" className="break-words text-muted-foreground" data-testid="design-execute-billing-retrying">{t("canvasV3.generation.billingUnavailableNotice")}</p>}
               {offline && <p className="text-xs text-muted-foreground">{t("workspaceTasks.offline")}</p>}
               {queryFailedCode && <p className="break-words text-xs text-muted-foreground">{t("chat.designExecute.statusQueryFailed", { code: queryFailedCode })}</p>}
-              {observed.isError && <button type="button" className="rounded border border-border px-2 py-1 text-xs" disabled={!ready} onClick={() => void observed.refetch()} data-action-ui-id="chat-design-execute-refresh">{t("common.refresh")}</button>}
+              {observed.isError && <button type="button" className="rounded border border-border px-2 py-1 text-xs" disabled={!ready} onClick={() => void observed.refetch()}>{t("common.refresh")}</button>}
               {(canRetry || canStop) && (
                 <div className="flex gap-2">
                   {canRetry && <button type="button" className="rounded border border-border px-2 py-1 text-xs" disabled={resolving} onClick={() => void resolveAction("retry")} data-action-ui-id="chat-design-execute-retry">{t("common.retry")}</button>}
