@@ -219,3 +219,9 @@
   `expected-diffs.json` 的 `ws-chat-input.dom.refOnly` 记 `feedback-button`；
   `compare.mjs` 的 `MASK_TARGETS` 按该 id 遮掉那块。理由见
   `docs/intentional-differences.md` 一.7。
+- **基线怎么更新的（方法留痕）**：参照侧的遮罩位在**录基线**时才算得出来，所以新加的
+  selector 不会自动出现在已有基线里。做法是单屏录一次参照（`ONLY=ws-chat-input … --record
+  reference`）拿到那两个矩形，**只把新增的两个矩形并进原来的 `ws-chat-input.mask.json`**，
+  像素 / DOM / state / 批次信息全部保留原值 —— 单屏录制的界面状态和整批不同（实测：
+  整批录的 `ws-chat-input` 没有 connectors 徽标、且有 `task_subscribe`），拿它当基线
+  会凭空多出两处差异。老基线备份在 `~/ov-golden-4.0.4-clean.bak-2344/`。

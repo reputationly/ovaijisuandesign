@@ -143,10 +143,33 @@ index-CBQqfCOX.js`）：`workspace.structure.list` = 列表 / List，
 
 ### T-8 收尾
 
-- 37 屏、v3 七屏各跑一次，结果见本节末尾的"门禁"；
-- `node scripts/v3preload/audit-v3.mjs`：第 1～5、7～10 项全 0；第 6 项 9 处（已知遗留，
-  T-7 已对照），因此脚本仍以 exit 1 结束 —— 这是既有口径（第 8.2 节：不要用 exit 0 当全绿，
-  看每项数字）。
+**门禁（本轮最后一次）**
+
+| 门禁 | 命令 | 结果 |
+|---|---|---|
+| 37 屏 | `GOLDEN=$HOME/ov-golden-4.0.4-clean node scripts/ui-compare/compare.mjs` | **exit 0**；37/37 屏「超护栏 0 / 未登记差异 0 / 新增报错 0」；基线批次 `2026-10-24T11:38:44.667Z-rd8xdc（37 屏）` 单一 |
+| v3 七屏 | `HILO_PROJECT_ARCHITECTURE=resource_v3 GOLDEN=$HOME/ov-golden-v3-4.0.4 ONLY=ws-a-v3,… node scripts/ui-compare/compare.mjs` | **exit 0**；7 屏均为「新增报错 0 / 未登记差异 0」，工作台视图非 AA 像素 0% |
+
+`node scripts/v3preload/audit-v3.mjs`：第 1～5、7～10 项全 0；第 6 项 9 处（已知遗留，T-7
+已对照），因此脚本仍以 exit 1 结束 —— 这是既有口径（第 8.2 节：不要用 exit 0 当全绿，
+看每项数字）。
+
+**为了让 37 屏回到全绿，本轮动了两处门禁登记**（都写进了 `intentional-differences.md`
+与 `ov-changes.md`，没有靠改 `expected-diffs.json` 掩盖真实差异）：
+
+1. `ws-chat-input` 的 `dom.refOnly` 加 `feedback-button`（参照有「反馈问题」按钮，L-6 隐藏了）；
+   同时 `MASK_TARGETS` 按该 id 遮掉参照侧那两个按钮的矩形。
+2. 该屏的**残差护栏从 1.95249 上调到 2.25**。原因写在 `residual-budget.json` 的条目里：
+   去掉两个 104×35 的按钮后，同一行变窄、其后内容整体位移，差异不再局限在按钮矩形内，
+   只遮按钮只能收回 0.04pp（遮前 2.2449% → 遮后 2.2027%）。这是**唯一一处上调护栏**，
+   属于"已知原因 + 明写数值 + 明写为什么收不回来"。
+
+参照侧那份基线**没有重录**：单屏重录出来的状态和整批不同（实测少了 connectors 徽标、
+多了 `task_subscribe` 帧），拿它当基线会凭空多出两处差异。做法是只把新算出来的两个
+按钮矩形并进原来的 `ws-chat-input.mask.json`，像素 / DOM / state / 批次全部保留。
+老基线备份在 `~/ov-golden-4.0.4-clean.bak-2344/`。
+
+**工作区**：本轮全部改动已提交（`git status` 干净）。
 
 ## 参照 vs 我方（归档种子，已跑通）
 
