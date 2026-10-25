@@ -26,7 +26,12 @@
 ## 1. 优先：任务卡片（`design_execute`）收口
 
 背景：卡片链路已经还原，离线状态下和参照的对比已经对齐，在线路径也跑通了一次真实任务。
-当前提交 `578a68df`，实现与证据见 `docs/design-execute-card-status.md`。**以下各项全部完成，这条线才算完成。**
+
+**收口状态（逐条证据见 `docs/design-execute-card-status.md`）**：T-1～T-5、T-7、T-8 已完成；
+**T-6 未完**（两轮 turbo 全量 + gateway 全量 6 次 + 文件顺序打乱 2 次都没复现，需要一次
+真实失败现场）。T-1 修完 `outputs=0` 之后又暴露两个更深缺陷（fragment 缺 `jsx-runtime`
+导致白屏、资源 `version` 少 `createdAt/updatedAt` 导致"预览加载失败"），也已修并加了防回流。
+**以下各项全部完成，这条线才算完成。**
 
 | # | 事项 | 完成标准 |
 |---|---|---|
