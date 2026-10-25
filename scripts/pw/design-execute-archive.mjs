@@ -4,10 +4,12 @@
  * 随后重新启动并打开该会话。参照/我方走同一份 opencode 数据。
  */
 import { spawn } from "node:child_process";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { launchApp } from "./launch-app.mjs";
 
 const repo = path.resolve(import.meta.dirname, "../..");
+const Database = createRequire(path.join(repo, "app/gateway/package.json"))("better-sqlite3");
 const mode = process.argv.includes("--reference") ? "reference" : "recovered";
 const first = await launchApp({ mode: process.env.PW_REFERENCE === "1" ? "recovered" : "recovered" });
 await first.close();
@@ -52,10 +54,23 @@ const imported = await fetch(`${base}/api/projects/archive/import`, { method: "P
 const importedBody = await imported.text();
 console.log("import", imported.status, importedBody);
 gateway.kill("SIGTERM");
+const db2 = new Database(path.join(xdg, "..", "opencode.db"), { readonly: true });
+const seeded = db2.prepare("SELECT id, title FROM session WHERE title = ?").get("PW design execute");
+db2.close();
+if (!seeded) throw new Error("seeded session not found");
 const second = await launchApp({ mode, xdg, reset: false });
 const api = `http://127.0.0.1:39737`;
+await second.page.evaluate(({ ws, sid }) => {
+  localStorage.setItem("hilo:storage:global.workspaceSessionTabs", JSON.stringify({ [ws]: { focusedSessionId: sid, openedTabIds: [sid] } }));
+}, { ws, sid: seeded.id });
 await second.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
-await second.page.waitForTimeout(8000);
-const card = await second.page.locator('[data-action-ui-id="chat-design-execute"]').count();
-console.log("card", card, (await second.page.locator("body").innerText()).slice(0, 300));
+await second.page.waitForTimeout(10_000);
+let card = await second.page.locator('[data-action-ui-id="chat-design-execute"]').count();
+if (!card) {
+  const title = second.page.getByText("PW design execute", { exact: false });
+  if (await title.count()) { await title.first().click(); await second.page.waitForTimeout(6000); card = await second.page.locator('[data-action-ui-id="chat-design-execute"]').count(); }
+}
+const bodyText = (await second.page.locator("body").innerText()).slice(0, 400);
+await second.page.screenshot({ path: path.join(xdg, "..", "seeded-card.png"), fullPage: true });
+console.log(JSON.stringify({ card, session: seeded.id, body: bodyText, screenshot: path.join(xdg, "..", "seeded-card.png") }, null, 2));
 await second.close();
