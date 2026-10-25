@@ -83,7 +83,6 @@ import {
   useReconnectingStuck,
 } from "./use-browser-chat-media.jsx";
 import { ChatHeaderContainer } from "./chat-header-container.jsx";
-const DesignExecuteFixtureLazy = reactExports.lazy(() => import("./design-execute/fixture.jsx"));
 import { ChatHistoryLoadingState } from "./chat-history-loading-state.jsx";
 import { DocumentEditReviewBar } from "./document-edit-review-bar.jsx";
 import {
@@ -1827,9 +1826,6 @@ export function ChatPanel({
       onDrop={handleChatPanelDrop}
     >
       {fileDragOver && <FileDropFeedback label={translate("chat.dropFilesHere")} />}
-      {window.location.hash.startsWith("#__ov-test-design-execute") && (
-        <reactExports.Suspense fallback={null}><DesignExecuteFixtureLazy /></reactExports.Suspense>
-      )}
       {LoginDialog}
       <ChatHeaderContainer
         rightActions={headerActions}
