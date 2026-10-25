@@ -12,7 +12,6 @@ const repo = path.resolve(import.meta.dirname, "../..");
 const Database = createRequire(path.join(repo, "app/gateway/package.json"))("better-sqlite3");
 const mode = process.argv.includes("--reference") ? "reference" : "recovered";
 const first = await launchApp({ mode: process.env.PW_REFERENCE === "1" ? "recovered" : "recovered" });
-await first.close();
 const xdg = first.xdg;
 const ws = first.workspace;
 
@@ -58,7 +57,7 @@ const db2 = new Database(path.join(xdg, "..", "opencode.db"), { readonly: true }
 const seeded = db2.prepare("SELECT id, title FROM session WHERE title = ?").get("PW design execute");
 db2.close();
 if (!seeded) throw new Error("seeded session not found");
-const second = await launchApp({ mode, xdg, reset: false });
+const second = first;
 const api = `http://127.0.0.1:39737`;
 await second.page.evaluate(({ ws, sid }) => {
   localStorage.setItem("hilo:storage:global.workspaceSessionTabs", JSON.stringify({ [ws]: { focusedSessionId: sid, openedTabIds: [sid] } }));
