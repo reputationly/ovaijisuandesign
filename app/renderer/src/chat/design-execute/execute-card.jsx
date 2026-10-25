@@ -15,6 +15,10 @@ import { billingRechecking } from "../../canvas-v3/canvas-v3-model.js";
 import { parseToolConfirmRejectReason } from "../../canvas/fullscreen-icon.jsx";
 import { DEBUG_FLAGS, useDebugFlag } from "../../workspace/use-deep-link-router.js";
 import { Loader2, ChevronDown } from "../../media-editing/lucide-icon-wraps.js";
+import { Button } from "../../canvas-v3/main-exports.js";
+import { CollapsiblePresence } from "../../media-editing/collapsible-presence.js";
+import { MediaGenCardLayout, PromptBlock, TagsRow } from "../../media-editing/media-gen-detail.jsx";
+import { ArtifactAssetCard } from "../../generation/artifact-asset-card.jsx";
 import { useDesignResourceScope } from "../../canvas-v3/canvas-v3-hooks.js";
 import { designInput, designOutputs, designTags, designTaskDetails, isDesignDeliveryComplete } from "./design-input.js";
 import { useDesignTask, useDesignTaskParams } from "./task-query.js";
@@ -119,25 +123,10 @@ export function ScopedCard({ entry, scopeKey, ready }) {
     if (settled && !wasSettled.current) setExpanded(false);
     wasSettled.current = settled;
   }, [settled]);
-  const errorMessage = typeof problem?.message === "string" && problem.code !== "PAUSED" && !billingRetrying ? problem.message : !task && inputRejected ? entry.toolResult : undefined;
+  const awaitingCost = !!observed.data && costConfirmationKind(observed.data) !== null;
+  const errorMessage = typeof problem?.message === "string" && problem.code !== "PAUSED" && !billingRetrying && !awaitingCost ? problem.message : !task && inputRejected ? entry.toolResult : undefined;
   const offline = !ready || (observed.isError && observed.error?.code === "NETWORK_ERROR");
   const queryFailedCode = observed.isError && !offline ? (observed.error?.code || observed.error?.message || "UNKNOWN") : undefined;
-  const canRetry = failed && Array.isArray(task?.actions) && task.actions.includes("retry") && task?.revision;
-  const canStop = (status === "running" || status === "accepted" || status === "waiting_user") && Array.isArray(task?.actions) && task.actions.includes("stop") && task?.revision;
-  const [resolving, setResolving] = reactExports.useState(false);
-  const resolveAction = async (action) => {
-    if (!task || resolving) return;
-    setResolving(true);
-    try {
-      const response = await fetch(`${API_PATHS.tasksResolve?.(task.id) ?? `/api/v3/tasks/${encodeURIComponent(task.id)}/resolve`}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, expectedRevision: task.revision, requestId: `ui-${action}-${Date.now()}` }) });
-      if (!response.ok) throw new Error(`resolve ${action} failed`);
-      await observed.refetch();
-    } catch {
-      // 失败保持卡片现状，下一次轮询会刷新
-    } finally {
-      setResolving(false);
-    }
-  };
   const tags = [...(input.operation ? [{ key: "model", value: modelLabel }] : []), ...designTags(params)];
   return (
     <div className="min-w-0 text-body-14" data-action-ui-id="chat-design-execute" data-task-id={taskId ?? observed.data?.id}>
@@ -150,18 +139,18 @@ export function ScopedCard({ entry, scopeKey, ready }) {
         {rawToolView && <span className="truncate font-mono text-xs">design_execute</span>}
         <ChevronDown className={`size-3 shrink-0 chat-disclosure-chevron ${expanded ? "" : "-rotate-90"}`} />
       </button>
-      <div hidden={!expanded} className="pl-2">
-        <div className="relative flex flex-col gap-2 pl-4 pt-2 before:absolute before:left-0 before:top-2 before:bottom-0 before:border-l before:border-border">
-          {input.prompt && <p className="line-clamp-2 text-body-14 text-muted-foreground">{input.prompt}</p>}
-          {tags.length > 0 && <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">{tags.map((tag) => <span key={tag.key} className="rounded bg-muted/30 px-1.5 py-0.5">{tag.key === "model" ? tag.value : `${tag.key}: ${tag.value}`}</span>)}</div>}
-          <div className="flex flex-col gap-2">
+      <CollapsiblePresence open={expanded} className="pl-2">
+        <MediaGenCardLayout
+          className="relative pl-4 pt-2 before:absolute before:left-0 before:top-2 before:bottom-0 before:border-l before:border-border"
+          prompt={input.prompt ? <PromptBlock text={input.prompt} lineClamp={2} /> : undefined}
+          tags={<TagsRow tags={tags} categoryIcon={Icon} flushStart={true} />}
+          media={
+            <div className="flex flex-col gap-2">
               {input.references.length > 0 && (
                 <div data-testid="design-execute-references" className="flex flex-col gap-1">
                   <p className="text-xs text-muted-foreground">{input.lastFrameOnly ? t("canvas.imageSlot.lastFrame") : t("chat.designExecute.references")}</p>
                   <div className="flex min-w-0 items-center gap-1 overflow-x-auto">
-                    {input.references.map((reference) => (
-                      <ReferenceChip key={reference.versionId ?? reference.resourceId} reference={reference} />
-                    ))}
+                    {input.references.map((reference) => <ReferenceChip key={reference.versionId ?? reference.resourceId} reference={reference} scopeKey={scopeKey} ready={ready} />)}
                   </div>
                 </div>
               )}
@@ -171,26 +160,30 @@ export function ScopedCard({ entry, scopeKey, ready }) {
                 </div>
               )}
             </div>
-          <div className="space-y-2 empty:hidden">
+          }
+          footer={
+            <div className="space-y-2 empty:hidden">
               {errorMessage && <p role={cancelled ? "status" : "alert"} className={`break-words ${cancelled ? "text-muted-foreground" : "text-destructive"}`}>{errorMessage}</p>}
-              {billingRetrying && <p role="status" className="break-words text-muted-foreground" data-testid="design-execute-billing-retrying">{t("canvasV3.generation.billingUnavailableNotice")}</p>}
+              {billingRetrying && <p role="status" className="break-words text-muted-foreground">{t("canvasV3.generation.billingUnavailableNotice")}</p>}
               {offline && <p className="text-xs text-muted-foreground">{t("workspaceTasks.offline")}</p>}
               {queryFailedCode && <p className="break-words text-xs text-muted-foreground">{t("chat.designExecute.statusQueryFailed", { code: queryFailedCode })}</p>}
-              {observed.isError && <button type="button" className="rounded border border-border px-2 py-1 text-xs" disabled={!ready} onClick={() => void observed.refetch()}>{t("common.refresh")}</button>}
-              {(canRetry || canStop) && (
-                <div className="flex gap-2">
-                  {canRetry && <button type="button" className="rounded border border-border px-2 py-1 text-xs" disabled={resolving} onClick={() => void resolveAction("retry")} data-action-ui-id="chat-design-execute-retry">{t("common.retry")}</button>}
-                  {canStop && <button type="button" className="rounded border border-border px-2 py-1 text-xs" disabled={resolving} onClick={() => void resolveAction("stop")} data-action-ui-id="chat-design-execute-stop">{t("workspaceTasks.actions.stop")}</button>}
-                </div>
-              )}
+              {observed.isError && <Button size="sm" variant="outline" disabled={!ready} onClick={() => void observed.refetch()}>{t("common.refresh")}</Button>}
+              {rawToolView && <DesignRawDetails entry={entry} input={input} outputs={outputs} />}
             </div>
-        </div>
-      </div>
+          }
+        />
+      </CollapsiblePresence>
     </div>
   );
 }
 
-function ReferenceChip({ reference }) {
+function ReferenceChip({ reference, scopeKey, ready }) {
+  const url = useGatewayUrl();
+  const detail = useDesignResourcePath({ resourceId: reference.resourceId, versionId: reference.versionId }, scopeKey, ready && !!reference.resourceId);
+  if (detail.data) {
+    const src = url(API_PATHS.serveFile(detail.data));
+    return <ArtifactAssetCard artifact={{ type: "image", path: detail.data, url: src }} resourceReference={{ resourceId: reference.resourceId, versionId: reference.versionId }} src={src} size="sm" showLabel={false} />;
+  }
   return <span className="flex h-8 min-w-8 max-w-48 shrink-0 items-center overflow-hidden rounded-sm bg-muted/30 px-1 text-xs text-muted-foreground"><span className="truncate">{reference.name ?? reference.versionId ?? reference.resourceId}</span></span>;
 }
 
@@ -198,11 +191,27 @@ function OutputResult({ output, scopeKey, ready }) {
   const { t } = useTranslation();
   const url = useGatewayUrl();
   const detail = useDesignResourcePath(output, scopeKey, ready);
-  if (detail.data) {
-    const src = url(API_PATHS.serveFile(detail.data));
-    if (output.kind === "image") return <img src={src} alt={output.name} className="h-16 w-16 rounded-sm object-cover" data-testid="design-execute-output" />;
-    if (output.kind === "video") return <video src={src} className="h-16 w-16 rounded-sm object-cover" data-testid="design-execute-output" />;
-    return <a href={src} target="_blank" rel="noreferrer" className="flex h-16 items-center gap-2 rounded-sm bg-muted/30 px-2 text-xs">{output.name}</a>;
+  const readable = !output.availability || output.availability === "available";
+  const src = detail.data ? url(API_PATHS.serveFile(detail.data)) : undefined;
+  if (src && detail.data) {
+    return <ArtifactAssetCard artifact={{ type: output.kind === "text" ? "file" : output.kind, path: detail.data, url: src }} resourceReference={{ resourceId: output.resourceId, versionId: output.versionId }} src={src} size="md" showLabel={output.kind === "text"} />;
   }
-  return <span className="flex h-16 min-w-16 items-center gap-2 rounded-sm bg-muted/30 px-2 text-xs text-muted-foreground">{detail.isFetching && <Loader2 className="size-4 animate-spin" />}{output.name || t("common.loading")}</span>;
+  return (
+    <div className="flex h-16 min-w-16 max-w-full items-center gap-2 overflow-hidden rounded-sm bg-muted/30 px-2 text-xs text-muted-foreground">
+      {detail.isFetching && <Loader2 className="size-4 animate-spin" />}
+      <span className="max-w-48 truncate">{output.name}</span>
+      {(!readable || detail.isError) && <><span>{t("canvas.file.viewer.loadFailed")}</span>{readable && <Button size="sm" variant="outline" disabled={!ready} onClick={() => void detail.refetch()}>{t("common.retry")}</Button>}</>}
+    </div>
+  );
+}
+
+function DesignRawDetails({ entry, input, outputs }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = reactExports.useState(false);
+  return (
+    <div className="text-xs text-muted-foreground">
+      <button type="button" className="underline" onClick={() => setOpen((value) => !value)}>{t("chat.designExecute.rawDetails")}</button>
+      {open && <pre className="mt-1 max-h-64 overflow-auto whitespace-pre-wrap break-all">{JSON.stringify({ args: input, result: entry.toolResult, outputs }, null, 2)}</pre>}
+    </div>
+  );
 }

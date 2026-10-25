@@ -9,14 +9,6 @@
 | C. 卡片 | `design-input.js`、`resources.js`、`execute-card.jsx`；时间线 `renderEntry` 渲染，消息列表根部挂 Provider/Push |
 | 门禁登记 | 已删除 4 屏 `task_subscribe`/`task_unsubscribe` 登记；37 屏连续 2 次 exit 0，v3 七屏 exit 0 |
 
-## 简化分支（与参照的已知差异）
-
-- `DesignResult` 使用 `<img>/<video>`，未接 `ArtifactAssetCard` 的拖拽、定位、资源引用菜单；
-- `DesignReferenceResult` 只有名称 chip，未做 256px 预览查询与音频 chip；
-- `taskStatusText` 只覆盖基础状态，未做 `partialStopped` 子任务统计；
-- 计费确认组（`ThresholdRound` / `InsufficientRound` / `DesignTurnCostConfirmations`）按范围排除；
-- `useBatchMembers` / `BATCH_MEMBER_QUERY` 保留常量与失效调用，未接批量成本卡片。
-
 ## 参照 vs 我方（归档种子，已跑通）
 
 用 `scripts/pw/design-execute-archive.mjs`：先启动一次应用建 opencode 库，归档导入一条
@@ -61,7 +53,9 @@
 | queued | 生成 1 张图片（排队中） | 同左 |
 | running | 生成 1 张图片（正在确认任务状态） | 同左 |
 | completed | 已完成 + PW 任务卡片 + qwen-image + 连接中断 + 刷新 | 同左 |
-| failed | 失败 + provider exploded + 刷新 + **重试** | 失败 + provider exploded + 刷新（**无重试**） |
+| failed | 失败 + provider exploded + 刷新 | 同左 |
 
-差异：我方的 failed 卡片显示重试按钮；参照不显示。参照的 retry 可用性判断需要继续对齐。
+卡片布局已改用 `CollapsiblePresence` / `MediaGenCardLayout` / `PromptBlock` / `TagsRow`，
+产出接 `ArtifactAssetCard`，参考素材有资源时接小尺寸缩略图；卡片不再有重试/停止按钮
+（参照 `ScopedCard` 本来就没有）。
 我方截图目录 `.probe/pw/design-execute/2026-10-25T08-...-recovered/`，参照 `...-reference/`。
