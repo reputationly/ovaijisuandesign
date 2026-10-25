@@ -8,8 +8,8 @@ import { launchApp } from "./launch-app.mjs";
 
 const repo = path.resolve(import.meta.dirname, "../..");
 const Database = createRequire(path.join(repo, "app/gateway/package.json"))("better-sqlite3");
-const key = process.env.MAAS_API_KEY;
-if (!key) throw new Error("MAAS_API_KEY is required");
+const key = process.env.OV_PLATFORM_KEY;
+if (!key) throw new Error("OV_PLATFORM_KEY is required");
 const config = {
   platform: { base_url: "https://maas.ovaijisuan.com/v1", api_key: key, chat_model: "deepseek-v4-1-flash" },
   models: { image: "qwen-image-pro-enhanced", image_edit: null, video: null, video_ref: null, video_upscale: null, music: null, music_edit: null, speech: null, music_engine: null, enhance_music_caption: false, voice_map: {}, image_upscale: null },

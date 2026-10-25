@@ -251,3 +251,139 @@ Authorization: Bearer <key>
   参照升级后重跑一遍，和第 2、4 节逐条核对。静态抽取会漏掉运行时拼接出来的路径。
 - 对方域名残留：在 `app/{renderer,gateway,desktop,mcp-tools,packages}/src` 里扫 `minimax|minimaxi|xaminim|hailuoai|hailuo|guance|sensorsdata`，
   P2 完成时要求为 0；品牌说明这类文案除外，逐条登记。
+
+---
+
+## 8. 验证与门禁 runbook（接手必读）
+
+这一节记录已经跑通、踩过坑的做法。**命令都在客户端仓库根目录执行**；涉及 key 的一律只读
+`OV_PLATFORM_KEY`，不要把 key 写进命令、脚本、日志或文档。
+
+### 8.1 全仓验证
+
+```bash
+env -u ELECTRON_RUN_AS_NODE pnpm turbo run build typecheck test --concurrency=1 --force
+```
+
+- `ELECTRON_RUN_AS_NODE=1` 会让 Electron 变成 Node，启动/测试会诡异失败，先 `env -u`。
+- 当前是 34 个 turbo task；gateway 单包 `pnpm --filter @ov/gateway test` 是 494 个测试。
+- **只跑单个 e2e 文件会 401**：这些 e2e 依赖同一进程里前面用例留下的工作区身份/配置，单独跑
+  `vitest run src/...e2e.test.ts` 不可信；要跑就跑整个 `@ov/gateway` 包。
+- turbo 全量偶尔在 `canvas-more.e2e` / `composition.e2e` 上失败，单独重跑 gateway 通过；
+  T-6 要求把两个测试名和 `41bc74f1` 之前的复现结果写进报告，**在完成 T-6 前不要口头说“与本次无关”**。
+
+### 8.2 静态审计
+
+```bash
+node scripts/v3preload/audit-v3.mjs
+```
+
+- 第 8 项是新增的 JSX import 检查：`.jsx` 里出现 JSX 却没有
+  `import { __jsx } from ".../shared/jsx-runtime.js"` 直接失败。不要再给 `main.jsx` 加全局 `__jsx` 兜底。
+- 第 6 项 Context 超参照 9 处是已知遗留；T-7 要求在 `dd13f2af` 上跑一次对照，报告两次数字。
+- `audit-v3.mjs` 的返回码还受第 6 项影响，**不要用 exit 0 当作全绿**；看每项数字。
+
+### 8.3 37 屏门禁
+
+```bash
+# 先清掉可能残留的 Electron（调试端口 9360 独占）
+lsof -nP -i :9360
+kill -9 <pid>
+
+env -u ELECTRON_RUN_AS_NODE ELECTRON_DISABLE_SANDBOX=1 \
+  GOLDEN="$HOME/ov-golden-4.0.4-clean" \
+  node scripts/ui-compare/compare.mjs
+```
+
+- 一次约 20 分钟，必须一个批次录基线；混批次会报“基线混了多个录制批次”。
+- 基线目录 `~/ov-golden-4.0.4-clean`；baseline 的 `*.mask.json` 缺失会导致 `ws-canvas-ops` / `ws-layout` 失败。
+- `project-created` / `project-assets` 是已知基线缺口（`docs/4.0.3-baseline-gaps.md`），门禁通过
+  `REFERENCE_MISSING` 跳过，不是新问题。
+- 判断只看三项：**超护栏 0、未登记差异 0、新增报错 0**，最后 exit 0。
+- 不能改 `expected-diffs.json` 来掩盖真实差异；只有确认是参照侧缺失/登记过的差异才加。
+  每次加登记都要在 `intentional-differences.md` 写原因。
+- 失败时先用 `ONLY=<screen>` 单屏复现；单屏的像素/护栏数字不能当全量结论，单屏截图状态和全量不同。
+
+### 8.4 v3 七屏门禁
+
+```bash
+env -u ELECTRON_RUN_AS_NODE ELECTRON_DISABLE_SANDBOX=1 \
+  HILO_PROJECT_ARCHITECTURE=resource_v3 \
+  GOLDEN="$HOME/ov-golden-v3-4.0.4" \
+  ONLY=ws-a-v3,ws-a-v3-resource,ws-a-v3-wb-canvas,ws-a-v3-wb-structure,ws-a-v3-wb-execution,ws-a-v3-wb-hierarchy,ws-a-v3-wb-chat \
+  node scripts/ui-compare/compare.mjs
+```
+
+- 约 4 分钟；工作台视图要求非 AA 像素为 0。
+- 37 屏和 v3 各跑一次，都 exit 0 才算 T-8 通过。
+
+### 8.5 归档会话 + 卡片 Playwright（离线对比）
+
+脚本：
+
+- `scripts/pw/launch-app.mjs`：复制 `compare.mjs` 的 env/spawn 参数，**不要修改 `compare.mjs` 本身**。
+  用 `/tmp/ov-pw`，设置 `OPENCODE_DB`/`HILO_OPENCODE_DB` 到临时库，避免污染真实 opencode。
+- `scripts/pw/design-execute-archive.mjs`：先起一次应用建库，再用产品
+  `POST /api/projects/archive/import` 种会话，第二次启动后按 `workspaceSessionTabs` 聚焦，截图四状态。
+- 支持 `--reference`，参照/我方读同一份会话；参照没有本地 `auth.userID`，**在线路径只能我方单侧**。
+
+关键坑：
+
+1. **不要直写 opencode schema**：opencode 的库在 `OPENCODE_DB`（或默认 `~/.local/share/opencode`），
+   归档代码看 `HILO_OPENCODE_DB`；两边必须指向同一个文件。`XDG_DATA_HOME` 对 opencode 不生效。
+2. 归档消息/part 有严格 shape 校验，缺字段会 400：
+   - message：`time`、`parentID`、`agent`、`model{providerID,modelID}`、`modelID`、`providerID`、
+     `mode`、`cost`、`tokens`、`path{cwd,root}`；
+   - tool part state：`status`、`title`、`metadata`、`input`、`output`（**必须是字符串**）、`time`；
+   - assistant 需要一条 user message 做 `parentID`。
+3. 切换会话不要只写 localStorage：`SessionTabsPersister.load` 会先用
+   `storage.globalGet("workspaceSessionTabs")` 覆盖。要通过
+   `window.hilo.ipcRenderer.invoke("storage:global-set", "workspaceSessionTabs", record)` 写。
+4. 每个状态用独立启动（端口 9370+i），避免旧 Electron/CDP 端口残留。
+5. 截图前 `mouse.move(2,2)` + `document.activeElement.blur()`，否则标题可能带悬停/焦点底色。
+6. 参考/我方的 `=8>ws-a`、灰色头像来自 `launch-app.mjs` 夹具环境，不是产品 bug；
+   标题灰底在 `dd13f2af` 之前就有，也不阻塞。
+
+### 8.6 在线真实任务（我方单侧）
+
+```bash
+OV_PLATFORM_KEY=... HILO_PROJECT_ARCHITECTURE=resource_v3 \
+  env -u ELECTRON_RUN_AS_NODE \
+  node scripts/pw/design-execute-online.mjs
+```
+
+- 脚本只用 `OV_PLATFORM_KEY`，不落盘 key；结果目录 `.probe/pw/design-execute/<ts>-online/`。
+- 必须 `HILO_PROJECT_ARCHITECTURE=resource_v3`，否则 `/api/v3/execute` 返回
+  `PROJECT_V3_DISABLED`。
+- 需要通过工作区身份：从 `ud/logs/main.log` 的
+  `ws://127.0.0.1:<port>/ws?hilo_workspace=<claim>&hilo_workspace_instance=<uuid>&hilo_workspace_generation=<n>`
+  取四个值，请求带 `x-hilo-workspace`、`x-hilo-workspace-instance`、`x-hilo-workspace-generation`，
+  否则 428 `WORKSPACE_IDENTITY_REQUIRED`。
+- 任务请求体：`capabilityId: "generate_image:qwen-image-pro-enhanced"`，headers
+  `x-hilo-agent-caller`、`x-session-id`、`x-tool-use-id`（与 part 的 `callID` 一致）。
+- 202 表示新建，200 表示同一工具调用复用。任务 JSON 的 `status` 到 `completed` 后，
+  **先看 `outputs` 和 `delivery`**，T-1 就是这里 `outputs=0`。
+- 轮询统计只算卡片自己的请求（`/api/v3/tasks/<taskId>` 或带 `toolUseId` 的列表），
+  不要把任务面板/队列的 `/api/v3/tasks` 混进去。T-2 要求按推送 ready 前后分段。
+- 真实调用一次就够；不要循环压测。产物中的 `sk-` 串必须脱敏。
+
+### 8.7 已确认的历史 bug（不要重犯）
+
+1. **`MediaGenCardLayout` 从不渲染 media 区**：参数 `media: media2`，JSX 却写 `{media}`，
+   命中模块顶部从 `canvas-v3-model.js` 导入的 `media` 函数；React 对函数子节点静默不渲染。
+   修复：`{media2}`。`pt-2` 不是修复，只是补空容器的 8px gap。
+2. **全局 `__jsx` 兜底**：`main.jsx` 里 `globalThis.__jsx ??= ...` 已删除；每个 JSX 文件自己
+   import。`audit-v3` 第 8 项会抓。
+3. **`SitePreviewService.dispose`** 对未 handle 的 `hub-site` 调 `protocol.unhandle` 会让主进程
+   退出时弹异常；已加 `isProtocolHandled` + try/catch。
+4. **CDP 端口挂起**：脚本超时后 Electron 主进程可能残留，9360/9361/9362 LISTEN 但
+   `/json/version` 无响应；先 `pkill -9 -f app/desktop`，等端口释放再跑。
+
+### 8.8 证据与汇报
+
+- 卡片状态/历史证据：`docs/design-execute-card-status.md`；
+- 最新离线四状态：`.probe/pw/design-execute/2026-10-25T10-35-47-519Z-recovered/`（我方）
+  和 `2026-10-25T09-39-16-573Z-reference/`（参照）；
+- 在线真实任务：`.probe/pw/design-execute/2026-10-25T11-34-35-145Z-online/`；
+- 37 屏/v3 的 `.probe/ui-compare/<批次>/` 保留原始截图与报告；
+- 汇报要写两个仓库提交号、真实 key 跑过的场景（脱敏）、和本文不一致的接口/命名/分期。
