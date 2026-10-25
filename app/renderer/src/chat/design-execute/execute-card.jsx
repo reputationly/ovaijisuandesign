@@ -15,6 +15,7 @@ import { billingRechecking } from "../../canvas-v3/canvas-v3-model.js";
 import { parseToolConfirmRejectReason } from "../../canvas/fullscreen-icon.jsx";
 import { DEBUG_FLAGS, useDebugFlag } from "../../workspace/use-deep-link-router.js";
 import { Loader2, ChevronDown } from "../../media-editing/lucide-icon-wraps.js";
+import { AudioLines, FileText, Image as ImageIcon, Video } from "lucide-react";
 import { Button } from "../../canvas-v3/main-exports.js";
 import { CollapsiblePresence } from "../../media-editing/collapsible-presence.js";
 import { MediaGenCardLayout, PromptBlock, TagsRow } from "../../media-editing/media-gen-detail.jsx";
@@ -26,12 +27,7 @@ import { designTaskFinal } from "./task-push.js";
 import { useReportDesignTask } from "./turn-registry.jsx";
 import { useDesignResourcePath } from "./resources.js";
 
-const MEDIA_ICONS = {
-  image: (props) => <span aria-hidden {...props}>▧</span>,
-  video: (props) => <span aria-hidden {...props}>▶</span>,
-  audio: (props) => <span aria-hidden {...props}>♪</span>,
-  text: (props) => <span aria-hidden {...props}>≡</span>,
-};
+const MEDIA_ICONS = { image: ImageIcon, video: Video, audio: AudioLines, text: FileText };
 const DESIGN_KINDS = {
   generate_image: { label: "generate_image", media: "image" },
   generate_video: { label: "generate_video", media: "video" },
