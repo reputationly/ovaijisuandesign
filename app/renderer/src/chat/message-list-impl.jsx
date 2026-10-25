@@ -10,7 +10,6 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { MessageTurn } from "./message-turn.jsx";
 import { DesignTaskPush } from "./design-execute/task-push.js";
 import { DesignTaskTurnProvider } from "./design-execute/turn-registry.jsx";
-import { DesignExecuteCard } from "./design-execute/execute-card.jsx";
 import { BusyTipIndicator } from "./busy-tip-indicator.jsx";
 import { useIsScrolling } from "../assets/credit-query-keys.jsx";
 import {
@@ -549,35 +548,10 @@ export function MessageListImpl({
     },
     [turnVirtualizer, turns.length, clearHighlightSchedules],
   );
-  const testFixture = typeof window !== "undefined" && window.location.hash === "#__ov-test-design-execute";
-  const fixtureEntry = testFixture ? {
-    id: "design-execute-fixture",
-    type: "tool",
-    toolName: "design_execute",
-    toolStatus: "ok",
-    callID: "fixture-call",
-    toolArgs: JSON.stringify({
-      capabilityId: "generate_image:qwen-image",
-      prompt: "测试任务卡片",
-      output: { resources: [{ key: "primary", mode: "create", name: "测试图" }] },
-    }),
-    toolResult: JSON.stringify({
-      task: {
-        id: "tsk_fixture",
-        revision: 3,
-        status: "completed",
-        capabilityId: "generate_image:qwen-image",
-        operation: "generate_image",
-        outputs: [],
-        origin: { source: "agent", toolUseId: "fixture-call" },
-      },
-    }),
-  } : null;
   return (
     <DesignTaskTurnProvider>
       <ChatPresentationProvider isPresented={isPresented}>
       <DesignTaskPush />
-      {fixtureEntry && <div data-testid="design-execute-fixture"><DesignExecuteCard entry={fixtureEntry} /></div>}
       <div className="relative flex-1 min-h-0 flex flex-col">
         <main
           ref={setScrollRef}

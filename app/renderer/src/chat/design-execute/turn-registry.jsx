@@ -5,7 +5,6 @@
  * 这样卡片单独渲染也不会崩。
  */
 import reactExports from "react";
-import { __jsx } from "../../shared/jsx-runtime.js";
 
 const PRESENTATION_KEYS = ["model", "title", "prompt", "resolution", "aspectRatio", "duration"];
 export function samePresentation(left, right) {
@@ -66,7 +65,7 @@ const noOutputs = [];
 const noSubscription = () => () => {};
 export function DesignTaskTurnProvider({ children }) {
   const [registry] = reactExports.useState(createDesignTaskRegistry);
-  return __jsx(DesignTaskRegistryContext.Provider, { value: registry, children });
+  return reactExports.createElement(DesignTaskRegistryContext.Provider, { value: registry }, children);
 }
 export function useReportDesignTask(entryId, value, outputs, deliveryComplete = false) {
   const registry = reactExports.useContext(DesignTaskRegistryContext);

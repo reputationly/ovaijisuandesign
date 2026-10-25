@@ -8,17 +8,15 @@ import reactExports from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 
-import { Button } from "../../canvas-v3/main-exports.js";
-import { useGatewayFetch, useGatewayUrl } from "../../canvas-v3/main-exports.js";
+import { useGatewayFetch } from "../../assets/listeners-a.jsx";
+import { useGatewayUrl } from "../../workspace/use-required-gateway-scope.jsx";
 import { API_PATHS } from "../../infra/workspace-gateway.js";
 import { billingRechecking } from "../../canvas-v3/canvas-v3-model.js";
 import { parseToolConfirmRejectReason } from "../../canvas/fullscreen-icon.jsx";
 import { DEBUG_FLAGS, useDebugFlag } from "../../workspace/use-deep-link-router.js";
-import { MediaGenCardLayout, PromptBlock, TagsRow } from "../../media-editing/media-gen-detail.jsx";
-import { CollapsiblePresence } from "../../media-editing/collapsible-presence.js";
 import { Loader2, ChevronDown } from "../../media-editing/lucide-icon-wraps.js";
 import { readDesignJson } from "../message-turn.jsx";
-import { useDesignResourceScope } from "../../canvas-v3/main-exports.js";
+import { useDesignResourceScope } from "../../canvas-v3/canvas-v3-hooks.js";
 import { designInput, designOutputs, designTags, designTaskDetails, isDesignDeliveryComplete } from "./design-input.js";
 import { useDesignTask, useDesignTaskParams } from "./task-query.js";
 import { designTaskFinal } from "./task-push.js";
@@ -147,13 +145,11 @@ export function ScopedCard({ entry, scopeKey, ready }) {
         {rawToolView && <span className="truncate font-mono text-xs">design_execute</span>}
         <ChevronDown className={`size-3 shrink-0 chat-disclosure-chevron ${expanded ? "" : "-rotate-90"}`} />
       </button>
-      <CollapsiblePresence open={expanded} className="pl-2">
-        <MediaGenCardLayout
-          className="relative pl-4 pt-2 before:absolute before:left-0 before:top-2 before:bottom-0 before:border-l before:border-border"
-          prompt={input.prompt ? <PromptBlock text={input.prompt} lineClamp={2} /> : undefined}
-          tags={<TagsRow tags={tags} categoryIcon={Icon} flushStart={true} />}
-          media={
-            <div className="flex flex-col gap-2">
+      <div hidden={!expanded} className="pl-2">
+        <div className="relative flex flex-col gap-2 pl-4 pt-2 before:absolute before:left-0 before:top-2 before:bottom-0 before:border-l before:border-border">
+          {input.prompt && <p className="line-clamp-2 text-body-14 text-muted-foreground">{input.prompt}</p>}
+          {tags.length > 0 && <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">{tags.map((tag) => <span key={tag.key} className="rounded bg-muted/30 px-1.5 py-0.5">{tag.key}: {tag.value}</span>)}</div>}
+          <div className="flex flex-col gap-2">
               {input.references.length > 0 && (
                 <div data-testid="design-execute-references" className="flex flex-col gap-1">
                   <p className="text-xs text-muted-foreground">{input.lastFrameOnly ? t("canvas.imageSlot.lastFrame") : t("chat.designExecute.references")}</p>
@@ -170,24 +166,21 @@ export function ScopedCard({ entry, scopeKey, ready }) {
                 </div>
               )}
             </div>
-          }
-          footer={
-            <div className="space-y-2 empty:hidden">
+          <div className="space-y-2 empty:hidden">
               {errorMessage && <p role={cancelled ? "status" : "alert"} className={`break-words ${cancelled ? "text-muted-foreground" : "text-destructive"}`}>{errorMessage}</p>}
               {billingRetrying && <p role="status" className="break-words text-muted-foreground" data-testid="design-execute-billing-retrying">{t("canvasV3.generation.billingUnavailableNotice")}</p>}
               {offline && <p className="text-xs text-muted-foreground">{t("workspaceTasks.offline")}</p>}
               {queryFailedCode && <p className="break-words text-xs text-muted-foreground">{t("chat.designExecute.statusQueryFailed", { code: queryFailedCode })}</p>}
-              {observed.isError && <Button size="sm" variant="outline" disabled={!ready} onClick={() => void observed.refetch()} data-action-ui-id="chat-design-execute-refresh">{t("common.refresh")}</Button>}
+              {observed.isError && <button type="button" className="rounded border border-border px-2 py-1 text-xs" disabled={!ready} onClick={() => void observed.refetch()} data-action-ui-id="chat-design-execute-refresh">{t("common.refresh")}</button>}
               {(canRetry || canStop) && (
                 <div className="flex gap-2">
-                  {canRetry && <Button size="sm" variant="outline" disabled={resolving} onClick={() => void resolveAction("retry")} data-action-ui-id="chat-design-execute-retry">{t("common.retry")}</Button>}
-                  {canStop && <Button size="sm" variant="outline" disabled={resolving} onClick={() => void resolveAction("stop")} data-action-ui-id="chat-design-execute-stop">{t("workspaceTasks.actions.stop")}</Button>}
+                  {canRetry && <button type="button" className="rounded border border-border px-2 py-1 text-xs" disabled={resolving} onClick={() => void resolveAction("retry")} data-action-ui-id="chat-design-execute-retry">{t("common.retry")}</button>}
+                  {canStop && <button type="button" className="rounded border border-border px-2 py-1 text-xs" disabled={resolving} onClick={() => void resolveAction("stop")} data-action-ui-id="chat-design-execute-stop">{t("workspaceTasks.actions.stop")}</button>}
                 </div>
               )}
             </div>
-          }
-        />
-      </CollapsiblePresence>
+        </div>
+      </div>
     </div>
   );
 }

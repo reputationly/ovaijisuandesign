@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { useOptionalWSConnection } from "../../settings/changelog-table.jsx";
 import { createTaskSubscriptionNegotiation } from "../../workspace/workspace-structure-events.js";
-import { useDesignResourceScope } from "../../canvas-v3/main-exports.js";
+import { useDesignResourceScope } from "../../canvas-v3/canvas-v3-hooks.js";
 
 export const LIVE_POLL_MS = 3_000;
 export const RETRYABLE_POLL_MS = 15_000;
