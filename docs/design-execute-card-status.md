@@ -17,7 +17,27 @@
 - 计费确认组（`ThresholdRound` / `InsufficientRound` / `DesignTurnCostConfirmations`）按范围排除；
 - `useBatchMembers` / `BATCH_MEMBER_QUERY` 保留常量与失效调用，未接批量成本卡片。
 
-## Playwright 冒烟（已跑通）
+## 参照 vs 我方（归档种子，已跑通）
+
+用 `scripts/pw/design-execute-archive.mjs`：先启动一次应用建 opencode 库，归档导入一条
+`design_execute` 会话，再用第二次启动打开同一会话；参照与走同一条 gateway/opencode 历史。
+
+| 项 | 我方 | 参照 |
+|---|---|---|
+| `card` | 1 | 1 |
+| 卡片 id | `chat-design-execute`, `chat-design-execute-toggle` | 同左，完全一致 |
+| `task_subscribe` 帧 | 1 | 0（参照侧未抓到；待查） |
+
+产物：
+
+- 我方：`.probe/pw/design-execute/2026-10-25T07-38-50-107Z-recovered/seeded-card.png`、
+  `seeded-card-expanded.png`
+- 参照：`.probe/pw/design-execute/2026-10-25T07-02-09-842Z-reference/seeded-card.png`、
+  `seeded-card-expanded.png`
+
+展开卡片两边都显示 `PW 任务卡片` + `qwen-image` + “连接暂时中断…” + 刷新；我方的 model 标签是纯文本，参照带图标。
+
+## 四状态夹具（我方）
 
 `node scripts/pw/design-execute-card.mjs` 会启动真实 Electron（`/tmp/ov-cmp/ws-a` 夹具），打开 workspace + hash 夹具，等待并断言：
 
