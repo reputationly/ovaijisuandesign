@@ -31,7 +31,7 @@ const CanvasMoveObjectPanel = reactExports.memo(
     onResolutionChange,
   }) {
     const { t: translate } = useTranslation();
-    const creditCost = useImageEditCost("move-object", resolution);
+    const creditCost = useImageEditCost("move-object", resolution2);
     return (
       // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so panel events don't reach the canvas pan/zoom handlers
       <div
@@ -154,7 +154,7 @@ const CanvasMoveObjectPanel = reactExports.memo(
         </div>
         <div className="flex items-center justify-between gap-2">
           <BananaResolutionPicker
-            value={resolution}
+            value={resolution2}
             onChange={onResolutionChange}
             disabled={running}
           />

@@ -7,6 +7,9 @@
  *   2. 解析失败文件数（每个文件单独过 esbuild）
  *   3. 跨文件重复声明的名字数
  *   4. unbound 出现次数（仅作参考）
+ *
+ * 第 7～10 项是后来按实撞过的 bug 加的防回流检查：日志上传、JSX `__jsx` import、
+ * 参数改名遮蔽、重复键覆盖。任何一项非 0 都不算通过。
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -281,7 +284,32 @@ scanJsxImports("app/renderer/src");
 console.log(`  8. JSX __jsx import     : ${missingJsx.length} 个文件缺 import`);
 for (const h of missingJsx) console.log(`       ${h}`);
 
+// 9 & 10. T-5 的同类扫描（`docs/cloud-platform-plan.md` 第 1 节 T-5、第 8.7 节 1 条）：
+//   - 参数改名成 `xxx2`，函数体仍引用 `xxx`，而 `xxx` 在模块里另有绑定
+//     （`MediaGenCardLayout` 的 `{media}` 就是这一类：React 对函数子节点静默不渲染）；
+//   - 对象字面量 / 解构里的重复键（`validateSearch` 被写成第二个 `component` 那一类）。
+// 两者都查不出未绑定名，所以 `check-undef` 抓不到；这里各自独立成项。
+const shadowScan = (script) => {
+  try {
+    const out = execFileSync(process.execPath, [script, process.env.OV_AUDIT_SRC ?? TREE_ROOT, "--json"], { stdio: "pipe", maxBuffer: 64 * 1024 * 1024 }).toString();
+    return JSON.parse(out);
+  } catch (e) {
+    // 解析失败时脚本返回 2，但 JSON 仍然有效。
+    try { return JSON.parse(String(e.stdout ?? "")); } catch { return { findings: [{ file: script, line: 0, error: String(e.stderr ?? e) }], parseFailures: [{ file: script, error: String(e.stderr ?? e).slice(0, 120) }] }; }
+  }
+};
+const paramShadow = shadowScan("scripts/v3preload/scan-param-shadow.mjs");
+const shadowHits = (paramShadow.findings ?? []).filter((f) => !f.error);
+console.log(`  9. 参数改名遮蔽         : ${shadowHits.length} 处（参数名带数字后缀，函数体仍用原名并绑到函数外）`);
+for (const f of shadowHits) console.log(`       ${f.file}:${f.line}  参数 ${f.parameter} / 引用 ${f.referenced}`);
+const dupKeys = shadowScan("scripts/v3preload/scan-dup-keys.mjs");
+const dupHits = (dupKeys.findings ?? []).filter((f) => !f.error);
+console.log(` 10. 重复键覆盖           : ${dupHits.length} 处（对象字面量/解构同名键后者覆盖前者）`);
+for (const f of dupHits) console.log(`       ${f.file}:${f.line}  ${f.name} ×${f.count}`);
+
 // 验收口径：只把「同一实体被抄两份」算违规；同名不同实现是不同实体，不算。
-const ok = distinctNames.size === 0 && parseFailures.length === 0 && sameEntity.length === 0 && contextDupes.length === 0 && uploadHits.length === 0 && missingJsx.length === 0;
-console.log(`\n${ok ? "✓ 全部通过" : "✗ 未达标（缺口/解析失败/重复声明/Context 超额必须全为 0）"}`);
+const ok = distinctNames.size === 0 && parseFailures.length === 0 && sameEntity.length === 0 && contextDupes.length === 0 && uploadHits.length === 0 && missingJsx.length === 0
+  && shadowHits.length === 0 && dupHits.length === 0
+  && (paramShadow.parseFailures ?? []).length === 0 && (dupKeys.parseFailures ?? []).length === 0;
+console.log(`\n${ok ? "✓ 全部通过" : "✗ 未达标（缺口/解析失败/重复声明/Context 超额/改名遮蔽/重复键必须全为 0）"}`);
 process.exit(ok ? 0 : 1);

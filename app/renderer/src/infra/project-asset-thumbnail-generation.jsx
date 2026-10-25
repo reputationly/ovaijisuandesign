@@ -103,20 +103,19 @@ function ProjectAssetThumbnailGeneration({
   typeBucket,
   thumbnailSrc,
   variant,
-  muted:muted ,
-  muted: muted2= false,
+  muted: muted2 = false,
   className,
 }) {
   const [failed, setFailed] = reactExports.useState(false);
   const isGrid = variant === "grid";
   const canRenderThumbnail =
-    kind === "file" &&
+    kind2 === "file" &&
     Boolean(thumbnailSrc) &&
     (typeBucket === "image" ||
       typeBucket === "video" ||
       typeBucket === "audio");
-  if (!isGrid && kind === "folder") {
-    return <FolderTileGlyph className={cn(muted && "opacity-50", className)} />;
+  if (!isGrid && kind2 === "folder") {
+    return <FolderTileGlyph className={cn(muted2 && "opacity-50", className)} />;
   }
   const containerClassName = cn(
     "relative flex shrink-0 items-center justify-center overflow-hidden bg-muted",
@@ -127,7 +126,7 @@ function ProjectAssetThumbnailGeneration({
     const FallbackIcon = typeBucketMeta(typeBucket).Icon;
     return (
       <span className={containerClassName} aria-hidden="true">
-        {kind === "file" ? (
+        {kind2 === "file" ? (
           <FileTypeIcon
             {...classifyFileType({
               filename: assetName,
@@ -140,7 +139,7 @@ function ProjectAssetThumbnailGeneration({
             })}
             size={isGrid ? 48 : 24}
             decorative={true}
-            className={muted ? "opacity-50" : void 0}
+            className={muted2 ? "opacity-50" : void 0}
           />
         ) : (
           <Icon
@@ -150,8 +149,8 @@ function ProjectAssetThumbnailGeneration({
             className={cn(
               "text-foreground opacity-50",
               isGrid && "size-8",
-              kind === "folder" && "opacity-70",
-              muted && "opacity-30",
+              kind2 === "folder" && "opacity-70",
+              muted2 && "opacity-30",
             )}
             aria-hidden={true}
           />

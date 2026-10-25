@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
-import { useFeedback } from "../settings/use-direct-feedback.jsx";
+import { FEEDBACK_ENTRY_ENABLED, useFeedback } from "../settings/use-direct-feedback.jsx";
 
 const HOVER_MENU_CLOSE_DELAY_MS = 150;
 
@@ -170,13 +170,15 @@ export function AssistantMessageActions({
             >
               {translate("chat.copyMessage")}
             </DropdownMenuItem>
-            <DropdownMenuItem
-              data-action-ui-id="chat-assistant-menu-feedback"
-              className="px-3 py-2 text-body-14 font-normal"
-              onClick={handleFeedback}
-            >
-              {translate("chat.submitFeedback")}
-            </DropdownMenuItem>
+            {FEEDBACK_ENTRY_ENABLED && (
+              <DropdownMenuItem
+                data-action-ui-id="chat-assistant-menu-feedback"
+                className="px-3 py-2 text-body-14 font-normal"
+                onClick={handleFeedback}
+              >
+                {translate("chat.submitFeedback")}
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               data-action-ui-id="chat-assistant-menu-copy-request-id"
               className="px-3 py-2 text-body-14 font-normal"

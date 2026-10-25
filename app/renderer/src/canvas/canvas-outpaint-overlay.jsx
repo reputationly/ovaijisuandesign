@@ -663,7 +663,7 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel({
   confirming,
 }) {
   const { t: translate } = useTranslation();
-  const creditCost = useImageEditCost().resolveCost?.("outpaint", resolution);
+  const creditCost = useImageEditCost().resolveCost?.("outpaint", resolution2);
   const items = OUTPAINT_PRESET_ITEMS[preset];
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: stops propagation so panel events don't reach the canvas pan/zoom handlers
@@ -718,7 +718,7 @@ const CanvasOutpaintPanel = reactExports.memo(function CanvasOutpaintPanel({
         </span>
         <div className="w-[120px]">
           <Dropdown
-            value={resolution}
+            value={resolution2}
             options={RESOLUTION_OPTIONS.map((resolution) => ({
               label: resolution,
               value: resolution,

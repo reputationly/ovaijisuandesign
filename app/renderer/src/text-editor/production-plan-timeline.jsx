@@ -52,7 +52,7 @@ function PendingStageRow({ stage, current, displayOrder : displayOrder2}) {
       <span
         className={`z-1 flex size-4.5 shrink-0 items-center justify-center rounded-full border text-[10px] ${current ? "border-foreground bg-foreground text-background" : "border-foreground/15 bg-card text-muted-foreground"}`}
       >
-        {displayOrder}
+        {displayOrder2}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">

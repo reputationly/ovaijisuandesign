@@ -39,6 +39,30 @@ const zh = {
   "projectV3.discardWorkbenchHint": "之前的工作台有未保存或未确认的操作。放弃本地状态后可重新打开；已提交的请求仍可能生效，请先核对结果，避免重复提交。",
   "projectV3.discardAndReopen": "放弃本地状态并打开",
 
+  // T-4：底部「画布 / 列表」切换栏和结构面板的版本历史整组缺 key，界面直接显示
+  // workspace.structure…。译文取自参照 4.0.4 的字典（index-CBQqfCOX.js）。
+
+  "workspace.structure.list": "列表",
+  "workspace.structure.views": "工作区视图",
+  "workspace.structure.detail.currentCover": "当前封面",
+  "workspace.structure.detail.empty": "暂无版本",
+  "workspace.structure.detail.mediaUnavailable": "暂无内容预览",
+  "workspace.structure.history.actionFailed": "操作失败，请重试",
+  "workspace.structure.history.currentBadge": "当前",
+  "workspace.structure.history.currentVersion": "当前版本",
+  "workspace.structure.history.deleteCurrentVersion": "当前使用的版本不能删除，请先切换版本",
+  "workspace.structure.history.deleteLastVersion": "至少需要保留一个版本",
+  "workspace.structure.history.deleteReferencedVersion": "此版本正在被画布节点或任务使用，暂时不能删除",
+  "workspace.structure.history.deleteVersion": "删除此版本",
+  "workspace.structure.history.extractVersion": "提取为独立素材",
+  "workspace.structure.history.moreActions": "更多操作",
+  "workspace.structure.history.next": "下一页",
+  "workspace.structure.history.previous": "上一页",
+  "workspace.structure.history.subtitle": "点击版本，切换封面或当前版本",
+  "workspace.structure.history.switchVersion": "换为此版本",
+  "workspace.structure.history.title": "历史版本",
+  "workspace.structure.history.useVersion": "使用此版本",
+
   "assetPicker.source.local": "本地上传",
   "assetPicker.source.task": "当前任务文件中选择",
   "assetPicker.source.error": "资源暂不可用",

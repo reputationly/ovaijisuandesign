@@ -287,7 +287,8 @@ async function performGatewayFetch(
       code: metadata.code,
       details: metadata.details,
       userMessage: metadata.userMessage,
-    serverMessage: metadata.serverMessage,serverMessage: metadata.serverMessage,});
+      serverMessage: metadata.serverMessage,
+    });
   }
   return res;
 }

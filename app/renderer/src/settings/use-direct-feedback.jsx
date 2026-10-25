@@ -148,6 +148,14 @@ export function useDirectFeedback() {
   };
 }
 
+// L-6：反馈没有服务端接收方 —— 提交后只落在本机（`infra/submit-feedback.js` 写本地
+// 目录），而界面文案是"提交成功"。留着入口等于对用户撒谎，所以入口整体隐藏，
+// 见 `docs/ov-changes.md` 与 `docs/intentional-differences.md`。
+//
+// **只关入口，不删管线**：`FeedbackDialog` / `submitFeedback` 仍然在，等真的有接收方
+// （P2 的市场/运营接口）时把这里翻成 true 就能恢复。菜单项是各自按这个开关判断的。
+export const FEEDBACK_ENTRY_ENABLED = false;
+
 export function FeedbackButton({
   errorContext,
   reason = "user_feedback",
@@ -161,6 +169,7 @@ export function FeedbackButton({
   const { t } = useTranslation();
   const { openFeedback } = useFeedback();
   const { submitting, submitted, submitDirect } = useDirectFeedback();
+  if (!FEEDBACK_ENTRY_ENABLED) return null;
   const resolvedContextType =
     contextType ?? (errorContext ? "chat_error" : void 0);
   const handleClick = () => {

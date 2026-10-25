@@ -497,7 +497,7 @@ function TableContextMenu({
                 icon={<op.Icon size={16} strokeWidth={1.5} />}
                 label={t(op.labelKey)}
                 onClick={() => {
-                  op.run(editor);
+                  op.run(editor2);
                   onClose();
                 }}
               />,

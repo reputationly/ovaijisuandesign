@@ -930,7 +930,7 @@ function FailureBlock({
 }) {
   const { t } = useTranslation();
   const label = labelOverride ?? t("chat.activity.mediaGenFailed");
-  const trimmedReason = redactForCurrentRegion(reason).trim();
+  const trimmedReason = redactForCurrentRegion(reason2).trim();
   const showReason = trimmedReason.length > 0 && trimmedReason !== label;
   return (
     <div className="flex gap-1.5 items-start text-body-14 text-foreground min-w-0">

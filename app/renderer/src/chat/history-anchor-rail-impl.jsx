@@ -36,7 +36,7 @@ const RailTick = reactExports.memo(function RailTick({
     n: index + 1,
   });
   let widthClass;
-  if (compact) {
+  if (compact2) {
     if (pianoDistance === 0) {
       widthClass = "w-[18px]";
     } else if (pianoDistance === 1) {

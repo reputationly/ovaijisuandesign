@@ -126,7 +126,7 @@ function DataDirectoryMigrateDialog({
             {t("settings.storage.migrateInProgress")}
           </div>
         )}
-        {failure && !busy && (
+        {failure2 && !busy && (
           <div className="space-y-1 rounded-sm border border-destructive/50 bg-destructive/10 px-3 py-2">
             <div className="flex items-start gap-2">
               <ShieldAlert
@@ -134,14 +134,14 @@ function DataDirectoryMigrateDialog({
                 className="mt-0.5 shrink-0 text-destructive"
               />
               <p className="text-xs text-destructive">
-                {t(`settings.storage.migrationErrors.${failure.code}`)}
+                {t(`settings.storage.migrationErrors.${failure2.code}`)}
               </p>
             </div>
             <p className="pl-5 text-xs text-muted-foreground">
               {t("settings.storage.migrationErrors.sourcePreserved")}
-              {failure.diagnosticId
+              {failure2.diagnosticId
                 ? ` ${t("settings.storage.migrationErrors.diagnosticId", {
-                    id: failure.diagnosticId,
+                    id: failure2.diagnosticId,
                   })}`
                 : ""}
             </p>
@@ -159,7 +159,7 @@ function DataDirectoryMigrateDialog({
             ) : (
               <FolderInput size={16} strokeWidth={1.5} />
             )}
-            {failure ? t("settings.storage.confirm.retry") : action}
+            {failure2 ? t("settings.storage.confirm.retry") : action}
           </Button>
           <Button
             variant="ghost"

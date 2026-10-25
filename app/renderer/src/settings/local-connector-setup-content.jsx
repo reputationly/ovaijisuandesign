@@ -369,7 +369,7 @@ function LocalConnectorStep({
                 aria-hidden={true}
               />
             ) : null}
-            {action}
+            {action2}
           </div>
         </div>
         {children ? (

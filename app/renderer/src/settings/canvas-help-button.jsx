@@ -11,7 +11,7 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { useFeedback } from "./use-direct-feedback.jsx";
+import { FEEDBACK_ENTRY_ENABLED, useFeedback } from "./use-direct-feedback.jsx";
 import { CircleHelp, MessageSquarePlus } from "../media-editing/package.jsx";
 import { ShortcutsPanel } from "../workspace/shortcut-categories.jsx";
 import {
@@ -111,36 +111,40 @@ export function CanvasHelpButton({
               className="text-muted-foreground"
             />
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={handleFeedback}
-            data-action-ui-id="canvas.help.feedback"
-            className="justify-between gap-2.5 py-2 pr-2 text-[13px] font-normal rounded-md hover:bg-foreground/[0.03] focus:bg-foreground/[0.03]"
-          >
-            <span className="flex items-center gap-2">
-              <FeedbackIcon size={16} />
-              {t("canvas.help.feedback")}
-            </span>
-            <ChevronRight
-              size={14}
-              strokeWidth={1.5}
-              className="text-muted-foreground"
-            />
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={handleFeatureRequest}
-            data-action-ui-id="canvas.help.featureRequest"
-            className="justify-between gap-2.5 py-2 pr-2 text-[13px] font-normal rounded-md hover:bg-foreground/[0.03] focus:bg-foreground/[0.03]"
-          >
-            <span className="flex items-center gap-2">
-              <MessageSquarePlus size={16} strokeWidth={1.5} />
-              {t("canvas.help.featureRequest")}
-            </span>
-            <ChevronRight
-              size={14}
-              strokeWidth={1.5}
-              className="text-muted-foreground"
-            />
-          </DropdownMenuItem>
+          {FEEDBACK_ENTRY_ENABLED && (
+            <DropdownMenuItem
+              onClick={handleFeedback}
+              data-action-ui-id="canvas.help.feedback"
+              className="justify-between gap-2.5 py-2 pr-2 text-[13px] font-normal rounded-md hover:bg-foreground/[0.03] focus:bg-foreground/[0.03]"
+            >
+              <span className="flex items-center gap-2">
+                <FeedbackIcon size={16} />
+                {t("canvas.help.feedback")}
+              </span>
+              <ChevronRight
+                size={14}
+                strokeWidth={1.5}
+                className="text-muted-foreground"
+              />
+            </DropdownMenuItem>
+          )}
+          {FEEDBACK_ENTRY_ENABLED && (
+            <DropdownMenuItem
+              onClick={handleFeatureRequest}
+              data-action-ui-id="canvas.help.featureRequest"
+              className="justify-between gap-2.5 py-2 pr-2 text-[13px] font-normal rounded-md hover:bg-foreground/[0.03] focus:bg-foreground/[0.03]"
+            >
+              <span className="flex items-center gap-2">
+                <MessageSquarePlus size={16} strokeWidth={1.5} />
+                {t("canvas.help.featureRequest")}
+              </span>
+              <ChevronRight
+                size={14}
+                strokeWidth={1.5}
+                className="text-muted-foreground"
+              />
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem
             onClick={() => setShortcutsOpen(true)}
             data-action-ui-id="canvas.help.shortcuts"

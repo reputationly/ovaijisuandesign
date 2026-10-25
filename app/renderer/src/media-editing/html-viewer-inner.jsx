@@ -35,9 +35,9 @@ function ViewerNotFound({ messageKey, detail: detail2 }) {
           "找不到文件，可能已被删除或对应插件已卸载",
         )}
       </div>
-      {detail ? (
+      {detail2 ? (
         <div className="max-w-full truncate text-xs text-muted-foreground">
-          {detail}
+          {detail2}
         </div>
       ) : null}
     </div>

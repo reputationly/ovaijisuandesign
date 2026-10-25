@@ -163,8 +163,8 @@ function calculateCropRect({
   nextBottom = clamp(nextBottom, cropTop + minHeight, 1);
   let width = nextRight - left;
   let height = nextBottom - cropTop;
-  if (aspectRatio !== null) {
-    const normalizedRatio = aspectRatio / (containerWidth / containerHeight);
+  if (aspectRatio2 !== null) {
+    const normalizedRatio = aspectRatio2 / (containerWidth / containerHeight);
     const anchorRight = handle.includes("l") ? nextRight : left;
     const anchorBottom = handle.includes("t") ? nextBottom : cropTop;
     if (handle === "t" || handle === "b") width = height * normalizedRatio;

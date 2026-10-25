@@ -79,12 +79,12 @@ function Thumbnail({ resource: resource2, size }) {
       ? GRID_MEDIA_THUMBNAIL_WIDTH_PX
       : LIST_MEDIA_THUMBNAIL_WIDTH_PX;
   const [thumbFailed, setThumbFailed] = reactExports.useState(false);
-  if (resource.type === "image" && !thumbFailed) {
+  if (resource2.type === "image" && !thumbFailed) {
     return (
       // 4.0.3：图片缩略图换成 MediaReveal（LQIP 占位 + 原图淡入）。
       // 延迟加载仍由它内部的 DeferredThumbnailImage 负责，不会叠两层。
       <MediaReveal
-        src={withStrictThumbnail(resource.url, thumbnailDisplayWidth)}
+        src={withStrictThumbnail(resource2.url, thumbnailDisplayWidth)}
         alt=""
         className={dim}
         onFailure={() => setThumbFailed(true)}
@@ -94,12 +94,12 @@ function Thumbnail({ resource: resource2, size }) {
       />
     );
   }
-  if (resource.type === "video" || resource.type === "audio") {
+  if (resource2.type === "video" || resource2.type === "audio") {
     const thumbUrl =
-      !thumbFailed && resource.path
+      !thumbFailed && resource2.path
         ? buildVideoThumbnailUrl(
-            resource.url,
-            resource.path,
+            resource2.url,
+            resource2.path,
             mediaThumbnailWidth,
           )
         : void 0;
@@ -128,7 +128,7 @@ function Thumbnail({ resource: resource2, size }) {
     >
       <FileTypeIcon
         {...classifyFileType({
-          filename: resource.name,
+          filename: resource2.name,
         })}
         size={size === "grid" ? 48 : 24}
         decorative={true}

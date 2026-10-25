@@ -400,10 +400,10 @@ function TimelineOperationTargetChip({ operation }) {
 function TimelineOperationRow({ operation: operation2, isActive }) {
   const { t } = useTranslation();
   const labelKey = isActive
-    ? (operation.activeLabelKey ?? operation.labelKey)
-    : operation.labelKey;
+    ? (operation2.activeLabelKey ?? operation2.labelKey)
+    : operation2.labelKey;
   const OperationIcon =
-    operation.kind === "production-plan" ? ClipboardList : SquareMousePointer;
+    operation2.kind === "production-plan" ? ClipboardList : SquareMousePointer;
   return (
     <div className="flex min-w-0 items-center gap-1.5 text-body-14">
       <span className="flex size-4 shrink-0 items-center justify-center text-foreground">
@@ -422,7 +422,7 @@ function TimelineOperationRow({ operation: operation2, isActive }) {
         <span className="shrink-0 font-normal text-muted-foreground">
           {t(labelKey)}
         </span>
-        <TimelineOperationTargetChip operation={operation} />
+        <TimelineOperationTargetChip operation={operation2} />
       </div>
     </div>
   );
