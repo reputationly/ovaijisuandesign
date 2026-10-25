@@ -88,10 +88,20 @@ describe("v3 执行生成", () => {
     const listed = await http.get("/api/v3/tasks").query({ operation: "generate_image", source: "agent", toolUseId: "tool-gen", limit: 1 });
     expect(listed.status).toBe(200);
     expect(listed.body.items.map((item: { id: string }) => item.id)).toContain(created.body.task.id);
+    // T-1：任务的产出必须带资源身份，卡片才能把图显示出来。
+    // 只回 `{key,path}` 时渲染层的 designOutputs 会把每一项都过滤掉（卡上 outputs=0）。
+    expect(done.outputs).toHaveLength(1);
+    expect(done.outputs[0]).toMatchObject({ key: "primary", kind: "image", name: "灯", availability: "available" });
+    expect(done.outputs[0].resourceId).toMatch(/^res_/);
+    expect(done.outputs[0].versionId).toMatch(/^ver_/);
     expect(done.outputs[0].path).toMatch(/\.png$/);
     expect(done.placements[0]).toMatchObject({ role: "image" });
     const composition = await http.post("/api/project/compositions/get").send({ compositionId: done.placements[0].compositionId });
     expect(composition.body.members).toHaveLength(1);
+    // 资源能查：卡片就是用这对 id 去换 relativePath 的，查不到就显示"读取失败"。
+    const resource = await http.post("/api/project/resources/get").send({ selectors: [{ resourceId: done.outputs[0].resourceId, versionId: done.outputs[0].versionId }] });
+    expect(resource.body[0]).toMatchObject({ ok: true, detail: { version: { status: "ready", versionId: done.outputs[0].versionId } } });
+    expect(resource.body[0].detail.version.relativePath).toMatch(/\.png$/);
   });
 
   it("失败任务刚用 retry 恢复，未支持的动作不会落到 stop", async () => {

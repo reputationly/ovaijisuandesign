@@ -113,6 +113,17 @@ export interface Models {
    */
   enhance_music_caption: boolean;
   /**
+   * 平台能力目录里出现过的模型名（由 gateway 从 `/v1/ov/capabilities` 填，不来自配置文件）。
+   *
+   * 存在的理由是**别再按名字猜**：目录驱动之后，调用方点名的模型名不再是
+   * `models.image` 这类槽位值，但 `route()` 原来会把"不认识的模型名"换成槽位默认 ——
+   * 用户在目录里选了 `qwen-image`，实际跑的是 `qwen-image-pro-enhanced`，而且不报错。
+   * 目录说认识的名字就原样放行。
+   *
+   * 空数组 = 没有目录（离线 / 没配 key），行为与改造前完全一致。
+   */
+  known?: readonly string[];
+  /**
    * `voice_id` → 参考音频（http URL / data URI / 本地绝对路径）。
    *
    * **平台上没有任何模型吃预设音色名**：`indextts-2.5` 的音色是一段参考
@@ -146,6 +157,7 @@ export function defaultModels(): Models {
     music_engine: null,
     enhance_music_caption: true,
     voice_map: {},
+    known: [],
   };
 }
 

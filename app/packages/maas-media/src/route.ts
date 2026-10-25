@@ -178,9 +178,21 @@ export function route(
   want: string | null | undefined,
   modality: Modality,
 ): Routed | null {
+  const known = models.known;
+  const w = want?.trim() ?? "";
+
+  // 目录里出现过的模型名 —— 原样放行，**而且必须在"这个模态有没有配默认"之前判**：
+  // 目录驱动之后槽位可以是空的（产品不再硬编码模型名），这时"没配默认"只说明
+  // 没有兜底，不说明调用方点的那个模型不能用。
+  //
+  // 这一条也要排在下面"认不出 → 退回默认"之前：`modalityOf` 是按名字猜的规则，
+  // 认不全平台模型名。认不出就换成槽位默认的后果是**用户选了 A、跑的是 B**，不报错。
+  if (w !== "" && known && known.some((m) => eqIgnoreAsciiCase(m, w))) {
+    return exact(w);
+  }
+
   const fallback = defaultFor(models, modality) ?? null;
   if (fallback === null) return null;
-  const w = want?.trim() ?? "";
   if (w === "") {
     return exact(fallback);
   }
@@ -207,6 +219,7 @@ export function route(
     }
     return exact(w);
   }
+
 
   // 外部名 → 按它的模态找我们的默认。认不出模态时也退回本次调用的模态，
   // 而不是失败：外部随时会冒出新模型名。

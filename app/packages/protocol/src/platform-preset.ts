@@ -9,15 +9,21 @@
 export const PLATFORM_PRESET = {
   base_url: "https://maas.ovaijisuan.com/v1",
   chat_model: "qwen3.8-flash-fp8",
+  // **模型名不在这里写死（L-1）。** 平台上有哪些模型、每个模态默认用哪个，由
+  // `GET /v1/ov/capabilities` 说了算（见 `app/gateway/src/generate/platform-catalog.ts`）。
+  // 产品里再存一份的后果是两边会漂移：平台上换了默认模型，客户端还在用旧名字，
+  // 而报错是"模型不存在"，看不出是客户端没跟上。
+  //
+  // 空表示"由目录决定"；配置文件里显式写了模型名仍然优先（老配置继续有效）。
   models: {
-    image: "qwen-image-pro-enhanced",
+    image: null,
     image_edit: null,
-    video: "minimax-h3-2k",
-    video_ref: "minimax-h3-ref-2k",
-    video_upscale: "swiftvr",
-    image_upscale: "swiftvr",
-    music: "minimax-music3",
-    music_edit: "ace-step",
+    video: null,
+    video_ref: null,
+    video_upscale: null,
+    image_upscale: null,
+    music: null,
+    music_edit: null,
     speech: null,
   },
 } as const;

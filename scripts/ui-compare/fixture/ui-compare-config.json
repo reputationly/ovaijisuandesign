@@ -3,5 +3,17 @@
     "base_url": "http://127.0.0.1:9/v1",
     "api_key": "ui-compare-placeholder",
     "chat_model": "flash"
-  }
+  },
+  "models": {
+    "image": "qwen-image-pro-enhanced",
+    "image_edit": null,
+    "video": "minimax-h3-2k",
+    "video_ref": "minimax-h3-ref-2k",
+    "video_upscale": "swiftvr",
+    "image_upscale": "swiftvr",
+    "music": "minimax-music3",
+    "music_edit": "ace-step",
+    "speech": null
+  },
+  "_note": "门禁夹具。模型名显式写在这里而不是产品预设里：产品不再硬编码模型（L-1），而门禁要固定渲染状态。"
 }

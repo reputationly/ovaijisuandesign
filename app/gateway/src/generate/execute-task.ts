@@ -7,7 +7,7 @@ import type { Response } from "express";
 import { getCaller, getToolUseId } from "../common/request-context.js";
 import { ProjectKernelError, ProjectQueryError } from "../project-kernel/errors.js";
 import { ProjectResourceService } from "../project-kernel/resource.service.js";
-import { catalogEntries } from "./capabilities.controller.js";
+import { capabilityEntries } from "./capabilities.controller.js";
 import { type GenerationRequest, type MediaType } from "./generation-request.js";
 import { GenerationRunner } from "./generation-runner.service.js";
 import { MediaConfigService } from "./media-config.service.js";
@@ -48,7 +48,9 @@ export class CapabilityExecutionService {
       const body = object(value, caller === "agent" ? ["capabilityId", "prompt", "params", "references", "count", "output"] : ["requestId", "capabilityId", "prompt", "params", "references", "count", "output", "origin"], "submit");
       const capabilityId = identifier(body.capabilityId, "capabilityId");
       const parsed = parseModelCapability(capabilityId);
-      const offered = catalogEntries(this.media.load()).some((entry) => entry.id === capabilityId);
+      // 校验与下发用**同一个来源**：平台目录优先。用槽位目录校验的话，目录里
+      // 多出来的模型（哪怕它就在 /v1/ov/capabilities 里）会被这里判成不认识。
+      const offered = capabilityEntries(this.media).some((entry) => entry.id === capabilityId);
       if (!offered) throw new ProjectQueryError("UNSUPPORTED_OPERATION", "This capability is not offered here; pick one from the capability list", 422);
       const prompt = optionalText(body.prompt, "prompt", 64_000);
       if (body.count !== undefined) {

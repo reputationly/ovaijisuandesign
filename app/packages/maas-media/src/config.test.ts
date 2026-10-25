@@ -98,6 +98,10 @@ describe("config（TS 移植新增）", () => {
       "music_engine",
       "enhance_music_caption",
       "voice_map",
+      // `known` 不是用户配置项，是 gateway 从平台目录注入的（L-1）。它跟着 Models
+      // 走完序列化，是因为 `route()` 要在**用它的地方**拿到它 —— 单独再开一个参数
+      // 会把这条信息穿过七处调用点，而每处都只是原样传下去。
+      "known",
     ]);
     expect(json.image).toBeNull();
   });

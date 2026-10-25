@@ -46,7 +46,26 @@ export class ProjectTaskService {
     const state: Record<string, unknown> = { stage: "resource", outputs: [{ key: "primary", ...output }] };
     if (input.output && output.path) {
       try {
-        const delivered = this.delivery.deliver({ requestId: input.requestId ?? id, sources: [{ key: "primary", path: output.path }], output: input.output }) as { placements?: unknown };
+        const delivered = this.delivery.deliver({ requestId: input.requestId ?? id, sources: [{ key: "primary", path: output.path }], output: input.output }) as {
+          resources?: DeliveryOutput[];
+          placements?: unknown;
+        };
+        // T-1：任务的 `outputs` 必须是**交付收据里的资源**，不是落地的文件。
+        // 只回 `{key,path,kind,name}` 时渲染层的 `designOutputs` 会因为缺 resourceId/versionId
+        // 把每一项都丢掉（`app/renderer/src/chat/design-execute/design-input.js` 第 63 行），
+        // 表现就是任务已完成、卡片和画布都没有产出。`path` 仍带上，供日志和资产核对。
+        if (Array.isArray(delivered.resources) && delivered.resources.length) {
+          state.outputs = delivered.resources.map((item) => ({
+            key: item.key,
+            name: item.name,
+            kind: item.kind,
+            resourceId: item.resourceId,
+            versionId: item.versionId,
+            availability: item.availability ?? "available",
+            ...(item.disposition ? { disposition: item.disposition } : {}),
+            ...(item.key === "primary" && output.path ? { path: output.path } : {}),
+          }));
+        }
         if (delivered.placements) state.placements = delivered.placements;
       } catch (error) {
         state.error = error instanceof Error ? error.message : String(error);
@@ -239,9 +258,38 @@ export class ProjectTaskService {
   }
 }
 
+/**
+ * 任务产出的对外形状。交付收据里给的是**资源身份**（`resourceId` + `versionId`），
+ * 渲染层拿这两个去 `/api/project/resources/get` 换 `relativePath` 才能显示出图；
+ * `path` 是落地的资产文件，只用于日志与核对（见 T-1）。
+ */
+type DeliveryOutput = {
+  key: string;
+  name?: string;
+  kind?: string;
+  resourceId?: string;
+  versionId?: string;
+  availability?: string;
+  disposition?: string;
+  path?: string;
+};
+
+function outputView(item: DeliveryOutput) {
+  return {
+    key: item.key,
+    ...(item.name ? { name: item.name } : {}),
+    ...(item.kind ? { kind: item.kind } : {}),
+    ...(item.resourceId ? { resourceId: item.resourceId } : {}),
+    ...(item.versionId ? { versionId: item.versionId } : {}),
+    ...(item.availability ? { availability: item.availability } : {}),
+    ...(item.disposition ? { disposition: item.disposition } : {}),
+    ...(item.path ? { path: item.path } : {}),
+  };
+}
+
 export function executionView(row: TaskRow) {
   const input = JSON.parse(row.inputJson) as { prompt?: string; capabilityId?: string; origin?: { source?: string; toolUseId?: string } };
-  const state = JSON.parse(row.stateJson) as { error?: string; stage?: string; outputs?: { key: string; path?: string; kind?: string; name?: string }[]; placements?: unknown };
+  const state = JSON.parse(row.stateJson) as { error?: string; stage?: string; outputs?: DeliveryOutput[]; placements?: unknown };
   const terminal = TERMINAL.has(row.status);
   return {
     id: row.id,
@@ -250,7 +298,7 @@ export function executionView(row: TaskRow) {
     revision: row.revision,
     ...(input.prompt ? { prompt: input.prompt.slice(0, 280) } : {}),
     ...(input.origin ? { origin: input.origin } : {}),
-    outputs: (state.outputs ?? []).map((item) => ({ key: item.key, ...(item.name ? { name: item.name } : {}), ...(item.kind ? { kind: item.kind } : {}), ...(item.path ? { path: item.path } : {}) })),
+    outputs: (state.outputs ?? []).map(outputView),
     ...(state.placements ? { placements: state.placements } : {}),
     ...(state.error ? { problem: { message: state.error } } : {}),
     ...(terminal ? {} : { stage: state.stage ?? "compute", progress: { phase: state.stage ?? "compute", reason: row.status, since: row.updatedAt, nextRetryAt: null } }),
@@ -259,7 +307,7 @@ export function executionView(row: TaskRow) {
 
 function present(row: TaskRow) {
   const input = JSON.parse(row.inputJson) as { prompt?: string; mediaType?: string; capabilityId?: string; origin?: { source?: string; toolUseId?: string } };
-  const state = JSON.parse(row.stateJson) as { error?: string; outputs?: { key: string; path?: string; kind?: string; name?: string }[]; placements?: unknown };
+  const state = JSON.parse(row.stateJson) as { error?: string; outputs?: DeliveryOutput[]; placements?: unknown };
   return {
     id: row.id,
     capabilityId: input.capabilityId ?? row.operation,
@@ -269,7 +317,7 @@ function present(row: TaskRow) {
     updatedAt: row.updatedAt,
     ...(input.prompt ? { prompt: input.prompt.slice(0, 280) } : {}),
     ...(input.origin ? { origin: input.origin } : {}),
-    ...(state.outputs ? { outputs: state.outputs } : {}),
+    ...(state.outputs ? { outputs: state.outputs.map(outputView) } : {}),
     ...(state.placements ? { placements: state.placements } : {}),
     ...(state.error ? { error: state.error } : {}),
   };
