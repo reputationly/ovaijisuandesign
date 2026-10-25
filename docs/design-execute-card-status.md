@@ -17,8 +17,18 @@
 - 计费确认组（`ThresholdRound` / `InsufficientRound` / `DesignTurnCostConfirmations`）按范围排除；
 - `useBatchMembers` / `BATCH_MEMBER_QUERY` 保留常量与失效调用，未接批量成本卡片。
 
+## Playwright 冒烟（已跑通）
+
+`node scripts/pw/design-execute-card.mjs` 会启动真实 Electron（`/tmp/ov-cmp/ws-a` 夹具），打开 workspace + hash 夹具，等待并断言：
+
+- `[data-testid="design-execute-fixture"] [data-action-ui-id="chat-design-execute"]`
+- `data-action-ui-id` 集合：`chat-design-execute`、`chat-design-execute-toggle`
+- 截图：`.probe/pw/design-execute/2026-10-25T02-13-50-687Z/design-execute-card.png`
+
+限制：这是**我方单侧**冒烟，不是交接文档要求的「参照 vs 我方 + 假 provider 四状态 + WS/轮询/retry 对比」。参照侧没有 fixture 钩子，无法用同一 hash 夹具渲染。
+
 ## 还没做
 
-1. **Playwright 场景**：门禁会话里没有 `design_execute` 工具消息，卡片没有被真正渲染；需要按交接文档第 4 节用假 provider + 工具消息种入，验证各状态、WS 帧、轮询间隔和重试请求。
+1. **完整 Playwright 场景**：需要参照侧可注入的会话消息（假 opencode/WS 或测试专用会话种子），再验证排队/进行中/成功/失败重试、WS 帧、轮询间隔和 retry 请求。
 2. 把 `readDesignJson` 三份合并成一份（G 项）。
 3. 文档 `ov-changes` / `intentional-differences` 的最终口径更新。
