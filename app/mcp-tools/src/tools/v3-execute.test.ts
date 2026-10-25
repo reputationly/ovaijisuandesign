@@ -21,7 +21,8 @@ describe("design_execute 的任务契约", () => {
       count: 2,
       output: { resources: [{ mode: "create", name: "灯" }] },
     };
-    await tools.get("execute")!(args);
+    const reply = (await tools.get("execute")!(args)) as { structuredContent?: { task?: typeof task } };
     expect(gw.post).toHaveBeenCalledWith("/api/v3/execute", args, 600_000, expect.anything());
+    expect(reply.structuredContent?.task).toMatchObject({ id: "tsk_1", revision: 1, status: "running" });
   });
 });
