@@ -66,8 +66,15 @@ export async function launchApp({ mode = "recovered", port = 9361, root = "/tmp/
     workspace: wsA,
     xdg,
     async close() {
-      await browser.close().catch(() => {});
-      child.kill("SIGTERM");
+      try { process.kill(-child.pid, "SIGTERM"); } catch { child.kill("SIGTERM"); }
+      browser.close().catch(() => {});
+      for (let i = 0; i < 40; i++) {
+        try { await fetch(`http://127.0.0.1:${port}/json/version`); } catch { break; }
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+      for (const name of ["SingletonLock", "SingletonCookie", "SingletonSocket"]) {
+        try { rmSync(path.join(root, "ud", name), { force: true }); } catch {}
+      }
     },
   };
 }
