@@ -50,9 +50,7 @@
   "ws": {
    "refOnly": [
     "set_mode",
-    "focus_session",
-    "task_subscribe",
-    "task_unsubscribe"
+    "focus_session"
    ],
    "oursOnly": []
   },
@@ -181,10 +179,7 @@
    "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异"
   ],
   "ws": {
-   "refOnly": [
-    "task_subscribe",
-    "task_unsubscribe"
-   ]
+   "refOnly": []
   }
  },
  "ws-table-edit": {
@@ -203,9 +198,7 @@
   ],
   "ws": {
    "refOnly": [
-    "set_mode",
-    "task_subscribe",
-    "task_unsubscribe"
+    "set_mode"
    ],
    "oursOnly": []
   }
@@ -231,9 +224,7 @@
   ],
   "ws": {
    "refOnly": [
-    "set_mode",
-    "task_subscribe",
-    "task_unsubscribe"
+    "set_mode"
    ],
    "oursOnly": []
   }

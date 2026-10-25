@@ -240,7 +240,7 @@ export class ProjectTaskService {
 }
 
 export function executionView(row: TaskRow) {
-  const input = JSON.parse(row.inputJson) as { prompt?: string; capabilityId?: string };
+  const input = JSON.parse(row.inputJson) as { prompt?: string; capabilityId?: string; origin?: { source?: string; toolUseId?: string } };
   const state = JSON.parse(row.stateJson) as { error?: string; stage?: string; outputs?: { key: string; path?: string; kind?: string; name?: string }[]; placements?: unknown };
   const terminal = TERMINAL.has(row.status);
   return {
@@ -249,6 +249,7 @@ export function executionView(row: TaskRow) {
     status: row.status,
     revision: row.revision,
     ...(input.prompt ? { prompt: input.prompt.slice(0, 280) } : {}),
+    ...(input.origin ? { origin: input.origin } : {}),
     outputs: (state.outputs ?? []).map((item) => ({ key: item.key, ...(item.name ? { name: item.name } : {}), ...(item.kind ? { kind: item.kind } : {}), ...(item.path ? { path: item.path } : {}) })),
     ...(state.placements ? { placements: state.placements } : {}),
     ...(state.error ? { problem: { message: state.error } } : {}),
@@ -257,7 +258,7 @@ export function executionView(row: TaskRow) {
 }
 
 function present(row: TaskRow) {
-  const input = JSON.parse(row.inputJson) as { prompt?: string; mediaType?: string; capabilityId?: string };
+  const input = JSON.parse(row.inputJson) as { prompt?: string; mediaType?: string; capabilityId?: string; origin?: { source?: string; toolUseId?: string } };
   const state = JSON.parse(row.stateJson) as { error?: string; outputs?: { key: string; path?: string; kind?: string; name?: string }[]; placements?: unknown };
   return {
     id: row.id,
@@ -267,6 +268,7 @@ function present(row: TaskRow) {
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     ...(input.prompt ? { prompt: input.prompt.slice(0, 280) } : {}),
+    ...(input.origin ? { origin: input.origin } : {}),
     ...(state.outputs ? { outputs: state.outputs } : {}),
     ...(state.placements ? { placements: state.placements } : {}),
     ...(state.error ? { error: state.error } : {}),

@@ -24,6 +24,7 @@ import { parseJsonRecord } from "../media-editing/unwrap-mcp-json-record.js";
 import { categorizeToolAction } from "../chat/has-structured-success-payload.js";
 import { TimelineItem } from "../media-editing/timeline-item.jsx";
 import { isDesignExecute } from "./is-design-execute.jsx";
+import { DesignExecuteCard } from "../chat/design-execute/execute-card.jsx";
 import { TOOLS as TOOLS } from "../chat/tools.jsx";
 import { record as record } from "../infra/parse-connector-selection.js";
 import { TOOL_ABORTED_BY_USER_TEXT as TOOL_ABORTED_BY_USER_TEXT } from "../canvas/diagnostic-history-tools.js";
@@ -304,6 +305,9 @@ export function ActivityGroup({
         entry,
       }));
   const renderEntry = (entry) => {
+    if (entry.type === "tool" && isDesignExecute(entry.toolName) && !entry.pendingConfirm && !entry.rejectedConfirm) {
+      return <DesignExecuteCard key={entry.id} entry={entry} />;
+    }
     let requiresBrowser = false;
     if (
       entry.type === "tool" &&

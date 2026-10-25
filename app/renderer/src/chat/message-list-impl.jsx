@@ -8,6 +8,8 @@ import { useVirtualizer } from "../infra/use-virtualizer.js";
 import reactExports from "react";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MessageTurn } from "./message-turn.jsx";
+import { DesignTaskPush } from "./design-execute/task-push.js";
+import { DesignTaskTurnProvider } from "./design-execute/turn-registry.jsx";
 import { BusyTipIndicator } from "./busy-tip-indicator.jsx";
 import { useIsScrolling } from "../assets/credit-query-keys.jsx";
 import {
@@ -547,7 +549,9 @@ export function MessageListImpl({
     [turnVirtualizer, turns.length, clearHighlightSchedules],
   );
   return (
-    <ChatPresentationProvider isPresented={isPresented}>
+    <DesignTaskTurnProvider>
+      <ChatPresentationProvider isPresented={isPresented}>
+      <DesignTaskPush />
       <div className="relative flex-1 min-h-0 flex flex-col">
         <main
           ref={setScrollRef}
@@ -659,5 +663,6 @@ export function MessageListImpl({
         )}
       </div>
     </ChatPresentationProvider>
+    </DesignTaskTurnProvider>
   );
 }
