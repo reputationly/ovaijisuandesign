@@ -1,5 +1,7 @@
 # 对话区 `design_execute` 任务卡片还原：工作指导（交接）
 
+> **已被取代**：剩余工作见 `docs/cloud-platform-plan.md` 第 1 节（当前唯一的交接文档）。本文只作历史背景保留。
+
 写给接手的 agent。产品已在 4.0.4（`scripts/reference-version.json`），本任务做完再开始 `docs/v3-runtime-source-handoff.md`。
 环境、门禁命令、静态检查、汇报格式与 `v3-runtime-source-handoff.md` 第 3、6 节相同。
 
