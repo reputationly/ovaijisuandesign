@@ -75,8 +75,10 @@ for (const [index, state] of states.entries()) {
   const row = seededRows.find((item) => item.title === `PW ${state}`);
   if (!row) continue;
   const app = await launchApp({ mode, port: 9370 + index, xdg, reset: false });
-  await app.page.evaluate(({ ws, sid }) => {
-    localStorage.setItem("hilo:storage:global.workspaceSessionTabs", JSON.stringify({ [ws]: { focusedSessionId: sid, openedTabIds: [sid] } }));
+  await app.page.evaluate(async ({ ws, sid }) => {
+    const record = { [ws]: { focusedSessionId: sid, openedTabIds: [sid], updatedAt: Date.now() } };
+    localStorage.setItem("hilo:storage:global.workspaceSessionTabs", JSON.stringify(record));
+    await window.hilo.ipcRenderer.invoke("storage:global-set", "workspaceSessionTabs", record);
   }, { ws, sid: row.id });
   await app.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
   await app.page.waitForTimeout(10_000);

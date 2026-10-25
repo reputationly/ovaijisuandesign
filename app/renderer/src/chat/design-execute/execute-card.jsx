@@ -153,7 +153,7 @@ export function ScopedCard({ entry, scopeKey, ready }) {
       <div hidden={!expanded} className="pl-2">
         <div className="relative flex flex-col gap-2 pl-4 pt-2 before:absolute before:left-0 before:top-2 before:bottom-0 before:border-l before:border-border">
           {input.prompt && <p className="line-clamp-2 text-body-14 text-muted-foreground">{input.prompt}</p>}
-          {tags.length > 0 && <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">{tags.map((tag) => <span key={tag.key} className="rounded bg-muted/30 px-1.5 py-0.5">{tag.key}: {tag.value}</span>)}</div>}
+          {tags.length > 0 && <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">{tags.map((tag) => <span key={tag.key} className="rounded bg-muted/30 px-1.5 py-0.5">{tag.key === "model" ? tag.value : `${tag.key}: ${tag.value}`}</span>)}</div>}
           <div className="flex flex-col gap-2">
               {input.references.length > 0 && (
                 <div data-testid="design-execute-references" className="flex flex-col gap-1">

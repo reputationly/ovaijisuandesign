@@ -52,3 +52,16 @@
 1. **完整 Playwright 场景**：需要参照侧可注入的会话消息（假 opencode/WS 或测试专用会话种子），再验证排队/进行中/成功/失败重试、WS 帧、轮询间隔和 retry 请求。
 2. 把 `readDesignJson` 三份合并成一份（G 项）。
 3. 文档 `ov-changes` / `intentional-differences` 的最终口径更新。
+
+
+## 四状态（归档会话，参照 vs 我方）
+
+| 状态 | 我方 | 参照 |
+|---|---|---|
+| queued | 生成 1 张图片（排队中） | 同左 |
+| running | 生成 1 张图片（正在确认任务状态） | 同左 |
+| completed | 已完成 + PW 任务卡片 + qwen-image + 连接中断 + 刷新 | 同左 |
+| failed | 失败 + provider exploded + 刷新 + **重试** | 失败 + provider exploded + 刷新（**无重试**） |
+
+差异：我方的 failed 卡片显示重试按钮；参照不显示。参照的 retry 可用性判断需要继续对齐。
+我方截图目录 `.probe/pw/design-execute/2026-10-25T08-...-recovered/`，参照 `...-reference/`。
