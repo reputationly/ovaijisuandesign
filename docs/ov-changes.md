@@ -186,3 +186,13 @@
 - 桌面构建 `pnpm --filter @ov/desktop build` exit 0；
 - 新基线：`~/ov-golden-4.0.4-clean`（37 屏同批）、`~/ov-golden-v3-4.0.4`（7 屏）；
 - 37 屏 / v3 七屏门禁均 exit 0；connectors 徽标按门禁状态不对称逐屏登记；`task_subscribe`/`task_unsubscribe` 仍登记为待做（4.0.3 起缺 `DesignExecuteCard` 实时任务卡片，4.0.4 的推送依附于它）。
+
+
+---
+
+## #13 design_execute 任务卡片（4.0.3 起缺失）
+
+- MCP `execute` 改走 `/api/v3/execute`，返回 `{task}`；gateway `/api/v3/tasks` 支持 `operation`/`source`/`toolUseId`/`limit`；
+- `retry` 真正重提，其余未实现 action 返回 422，不再静默 stop；
+- 渲染层补 `DesignExecuteCard`/`ScopedCard`、任务查询、WS 推送、回合注册表；
+- 已知简化：产出/参考图使用基础媒体标签，计费确认组不做，Playwright 实时场景未补。
