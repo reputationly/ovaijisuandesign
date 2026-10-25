@@ -1827,7 +1827,7 @@ export function ChatPanel({
       onDrop={handleChatPanelDrop}
     >
       {fileDragOver && <FileDropFeedback label={translate("chat.dropFilesHere")} />}
-      {window.location.hash === "#__ov-test-design-execute" && (
+      {window.location.hash.startsWith("#__ov-test-design-execute") && (
         <reactExports.Suspense fallback={null}><DesignExecuteFixtureLazy /></reactExports.Suspense>
       )}
       {LoginDialog}

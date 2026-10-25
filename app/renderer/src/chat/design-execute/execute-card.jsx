@@ -15,7 +15,6 @@ import { billingRechecking } from "../../canvas-v3/canvas-v3-model.js";
 import { parseToolConfirmRejectReason } from "../../canvas/fullscreen-icon.jsx";
 import { DEBUG_FLAGS, useDebugFlag } from "../../workspace/use-deep-link-router.js";
 import { Loader2, ChevronDown } from "../../media-editing/lucide-icon-wraps.js";
-import { readDesignJson } from "../message-turn.jsx";
 import { useDesignResourceScope } from "../../canvas-v3/canvas-v3-hooks.js";
 import { designInput, designOutputs, designTags, designTaskDetails, isDesignDeliveryComplete } from "./design-input.js";
 import { useDesignTask, useDesignTaskParams } from "./task-query.js";
@@ -58,7 +57,13 @@ export function ScopedCard({ entry, scopeKey, ready }) {
   const rawToolView = useDebugFlag(DEBUG_FLAGS.rawToolView);
   const fetch = useGatewayFetch();
   const input = designInput(entry.toolArgs);
-  const result = reactExports.useMemo(() => readDesignJson(entry.toolResult), [entry.toolResult]);
+  const result = reactExports.useMemo(() => {
+    if (entry.toolResult && typeof entry.toolResult === "object") return entry.toolResult;
+    if (typeof entry.toolResult === "string") {
+      try { return JSON.parse(entry.toolResult); } catch { return undefined; }
+    }
+    return undefined;
+  }, [entry.toolResult]);
   const snapshot = record(result?.task);
   const taskId = typeof snapshot?.id === "string" ? snapshot.id : undefined;
   const inputRejected = entry.toolStatus === "error" && !entry.interruption && /^MCP error -32602: Input validation error:/.test(entry.toolResult ?? "");
