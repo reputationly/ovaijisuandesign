@@ -1,3 +1,4 @@
+import { readDesignJson } from "../chat/read-design-json.js";
 /**
  * Skill 加载文案的支撑函数（4.0.3 新增）：readDesignJson / 能力 id 解析 / 名字与失败判定。
  *
@@ -25,28 +26,6 @@ const isRecord = (v) => typeof v === "object" && v !== null && !Array.isArray(v)
  * 字符串先 JSON.parse；structuredContent 再剥一层；认 task/output/capabilityId；
  * content 数组里找 text。深度上限 4 防死循环。
  */
-export function readDesignJson(value, depth = 0) {
-  if (depth > 4) return undefined;
-  if (typeof value === "string") {
-    try {
-      return readDesignJson(JSON.parse(value), depth + 1);
-    } catch {
-      return undefined;
-    }
-  }
-  const object = isRecord(value) ? value : undefined;
-  if (object?.structuredContent) return readDesignJson(object.structuredContent, depth + 1);
-  if (object?.task || object?.output || object?.capabilityId) return object;
-  const content = Array.isArray(value) ? value : object?.content;
-  if (Array.isArray(content)) {
-    for (const item of content) {
-      const parsed = readDesignJson(isRecord(item) ? item.text : undefined, depth + 1);
-      if (parsed) return parsed;
-    }
-  }
-  return object;
-}
-
 /** 解析 "connector-skill:<connectorId>/<name>"；形状不对返回 undefined。 */
 export function parseConnectorSkillCapabilityId(id) {
   if (typeof id !== "string" || !id.startsWith(CONNECTOR_SKILL_CAPABILITY_PREFIX)) return undefined;

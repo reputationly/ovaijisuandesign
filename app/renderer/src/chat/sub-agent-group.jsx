@@ -1,4 +1,5 @@
 // ==== 逐文件收敛 ====
+import { readDesignJson } from "./read-design-json.js";
 import { record } from "../infra/parse-connector-selection.js";
 // sub-agent-group.jsx
 import {
@@ -139,27 +140,6 @@ function records(value) {
 }
 
 // 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-function readDesignJson(value, depth2 = 0) {
-  if (depth2 > 4) return void 0;
-  if (typeof value === "string") {
-    try {
-      return readDesignJson(JSON.parse(value), depth2 + 1);
-    } catch {
-      return void 0;
-    }
-  }
-  const object2 = record(value);
-  if (object2?.structuredContent) return readDesignJson(object2.structuredContent, depth2 + 1);
-  if (object2?.task || object2?.output || object2?.capabilityId) return object2;
-  const content2 = Array.isArray(value) ? value : object2?.content;
-  if (Array.isArray(content2)) {
-    for (const item of content2) {
-      const parsed = readDesignJson(record(item)?.text, depth2 + 1);
-      if (parsed) return parsed;
-    }
-  }
-  return object2;
-}
 
 // 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
 function designToolPresentation(name2, message2 = {}) {
