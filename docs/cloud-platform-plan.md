@@ -159,6 +159,21 @@ Authorization: Bearer <key>
 
 ---
 
+### 3.3.1 T-1 的最后两个坑（`outputs=0` 修完之后才暴露）
+
+`outputs` 回填资源身份之后，产出这条路第一次真的被渲染，于是碰到两个更深的缺陷，
+都会让"产出显示不出来"，且都只在**真有产出**时发作：
+
+1. `app/renderer/src/chat/design-execute/execute-card.jsx` 用了 fragment（`<>…</>`），
+   但只引了 `__jsx`、没引 `react/jsx-runtime` —— 编译产物里 fragment 是
+   `jsxRuntimeExports.Fragment`，运行期 `ReferenceError`，整个应用掉进「出现异常」页；
+2. `/api/project/resources/get` 的 `version` 少了 `createdAt`/`updatedAt`，而渲染层的资源
+   校验把它们当必需字符串 —— 整条响应判非法，卡片显示「预览加载失败」，而 HTTP 是 200。
+
+两处都已修，并各加一道防回流（`audit-v3` 第 11 项；`execute-task.e2e.test.ts` 断言时间字段）。
+取证用 `scripts/pw/design-execute-online.mjs --self-test`（本地假平台，链路与真实跑法一致），
+实测截图里 media 区显示的就是产出图，页面异常 0 条。
+
 ### 3.4 本轮代码核对与 `/v1/ov/*` 落地情况
 
 核对方式：逐文件读 `/Users/reputationly/Desktop/code/api/new-api`（不是只看文档），

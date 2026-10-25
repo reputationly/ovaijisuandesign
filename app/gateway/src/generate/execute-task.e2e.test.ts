@@ -115,6 +115,12 @@ describe("v3 执行生成", () => {
     const resource = await http.post("/api/project/resources/get").send({ selectors: [{ resourceId: done.outputs[0].resourceId, versionId: done.outputs[0].versionId }] });
     expect(resource.body[0]).toMatchObject({ ok: true, detail: { version: { status: "ready", versionId: done.outputs[0].versionId } } });
     expect(resource.body[0].detail.version.relativePath).toMatch(/\.png$/);
+    // `createdAt` / `updatedAt` 是**渲染层资源校验的必需字段**（`canvas-v3-model` 的
+    // `version()` 用 `string()` 卡它们）。少了这两个，整条响应被判非法、卡片显示
+    // "预览加载失败"，而 HTTP 是 200 —— 只在界面上看得出来。
+    expect(resource.body[0].detail.version.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(resource.body[0].detail.version.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(resource.body[0].detail.resource.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
   it("平台回「额度不足」时，任务的 problem 是参照枚举里的码 + 中文提示", async () => {

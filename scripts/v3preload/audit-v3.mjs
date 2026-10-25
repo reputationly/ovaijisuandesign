@@ -8,8 +8,8 @@
  *   3. 跨文件重复声明的名字数
  *   4. unbound 出现次数（仅作参考）
  *
- * 第 7～10 项是后来按实撞过的 bug 加的防回流检查：日志上传、JSX `__jsx` import、
- * 参数改名遮蔽、重复键覆盖。任何一项非 0 都不算通过。
+ * 第 7～11 项是后来按实撞过的 bug 加的防回流检查：日志上传、JSX `__jsx` import、
+ * 参数改名遮蔽、重复键覆盖、fragment 的 `jsx-runtime` 绑定。任何一项非 0 都不算通过。
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -307,9 +307,33 @@ const dupHits = (dupKeys.findings ?? []).filter((f) => !f.error);
 console.log(` 10. 重复键覆盖           : ${dupHits.length} 处（对象字面量/解构同名键后者覆盖前者）`);
 for (const f of dupHits) console.log(`       ${f.file}:${f.line}  ${f.name} ×${f.count}`);
 
+// 11. JSX fragment 的绑定：`<>…</>` 编译成 `jsxRuntimeExports.Fragment`，而 `{…}` 走
+//     `__jsx(...)`。一个文件如果只 import 了 `__jsx`、却用了 fragment，运行期就是
+//     `ReferenceError: jsxRuntimeExports is not defined` —— 而且**只在用到 fragment 的
+//     那条分支上**炸。实测栽过：`chat/design-execute/execute-card.jsx` 的产出分支，
+//     空产出时完全看不出来（T-1 修好 `outputs=0` 之后它才第一次被走到，卡片直接白屏）。
+const fragmentFiles = [];
+function scanFragments(dir) {
+  for (const e of readdirSync(dir)) {
+    const p = path.join(dir, e);
+    const st = statSync(p);
+    if (st.isDirectory()) { if (e !== "node_modules") scanFragments(p); }
+    else if (/\.(js|jsx)$/.test(e)) {
+      const text = readFileSync(p, "utf8");
+      if (!/<>(\s|$)|<\/\s*>/.test(text)) continue;
+      if (/import\s+\w+\s+from\s+["']react\/jsx-runtime["']/.test(text)) continue;
+      if (/jsxRuntimeExports\s*=/.test(text)) continue;
+      fragmentFiles.push(p);
+    }
+  }
+}
+scanFragments("app/renderer/src");
+console.log(` 11. JSX fragment 绑定    : ${fragmentFiles.length} 个文件用了 fragment 但没引 jsx-runtime`);
+for (const f of fragmentFiles) console.log(`       ${f}`);
+
 // 验收口径：只把「同一实体被抄两份」算违规；同名不同实现是不同实体，不算。
 const ok = distinctNames.size === 0 && parseFailures.length === 0 && sameEntity.length === 0 && contextDupes.length === 0 && uploadHits.length === 0 && missingJsx.length === 0
-  && shadowHits.length === 0 && dupHits.length === 0
+  && shadowHits.length === 0 && dupHits.length === 0 && fragmentFiles.length === 0
   && (paramShadow.parseFailures ?? []).length === 0 && (dupKeys.parseFailures ?? []).length === 0;
-console.log(`\n${ok ? "✓ 全部通过" : "✗ 未达标（缺口/解析失败/重复声明/Context 超额/改名遮蔽/重复键必须全为 0）"}`);
+console.log(`\n${ok ? "✓ 全部通过" : "✗ 未达标（缺口/解析失败/重复声明/Context 超额/改名遮蔽/重复键/fragment 绑定必须全为 0）"}`);
 process.exit(ok ? 0 : 1);

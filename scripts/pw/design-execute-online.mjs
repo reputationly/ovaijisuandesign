@@ -6,22 +6,84 @@
  *      （帧、请求、任务 JSON、资源查询、卡片文案；`sk-` 串一律脱敏）。
  * T-2：轮询间隔只统计**卡片自己的**请求，并按推送就绪前/后分段；其他来源
  *      （任务面板、队列）单独列出来，不再混进同一个平均间隔。
+ *
+ * # 两种跑法
+ *
+ *   OV_PLATFORM_KEY=… node scripts/pw/design-execute-online.mjs
+ *       真实平台。花钱，一个场景跑一次就够。
+ *
+ *   node scripts/pw/design-execute-online.mjs --self-test
+ *       本地假平台，**零成本**。链路（归档种子 → /api/v3/execute → 卡片 → media 区）
+ *       与真实跑法完全一样，只有平台那一侧的响应是假的 —— 所以 T-1 要的
+ *       "截图里 media 区有产出"可以先用它取证，不必等 key。
  */
 import { execFileSync, spawn } from "node:child_process";
+import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { launchApp } from "./launch-app.mjs";
 
 const repo = path.resolve(import.meta.dirname, "../..");
-const Database = createRequire(path.join(repo, "app/gateway/package.json"))("better-sqlite3");
-const key = process.env.OV_PLATFORM_KEY;
-if (!key) throw new Error("OV_PLATFORM_KEY is required");
+const req = createRequire(path.join(repo, "app/gateway/package.json"));
+const Database = req("better-sqlite3");
+const args = process.argv.slice(2);
+const selfTest = args.includes("--self-test");
+const key = selfTest ? "sk-selftest" : process.env.OV_PLATFORM_KEY;
+if (!key) throw new Error("OV_PLATFORM_KEY is required（想先验证链路，用 --self-test）");
+
+const IMAGE_MODEL = "qwen-image-pro-enhanced";
+
+/**
+ * 假平台：目录 + 同步出图 + 产物下载。**目录是真的目录形状** —— 客户端会拿它当
+ * 能力来源（L-1），少了 `generate_image:qwen-image-pro-enhanced` 这条，`/api/v3/execute`
+ * 会在校验那一步就 422，截图里当然也没有产出。
+ */
+async function startFakePlatform() {
+  const png = await req("sharp")({ create: { width: 64, height: 64, channels: 4, background: { r: 200, g: 40, b: 40, alpha: 1 } } }).png().toBuffer();
+  const server = createServer((request, res) => {
+    const base = `http://127.0.0.1:${server.address().port}`;
+    const json = (payload) => {
+      res.setHeader("content-type", "application/json");
+      res.end(JSON.stringify(payload));
+    };
+    if (request.url === "/v1/ov/capabilities") {
+      return json({
+        version: "pw-selftest-v1",
+        capabilities: [
+          {
+            id: `generate_image:${IMAGE_MODEL}`,
+            operation: "generate_image",
+            model: IMAGE_MODEL,
+            displayName: { zh: "Qwen 增强", en: "Qwen Enhanced" },
+            transport: { kind: "images" },
+            paramSchema: { type: "object", properties: { aspect_ratio: { type: "string", enum: ["adaptive", "1:1"], default: "adaptive", title: "宽高比" } } },
+            limits: { maxReferenceImages: 0, maxDurationSeconds: 0, maxInputBytes: 0 },
+            default: true,
+          },
+          { id: "chat:deepseek-v4-1-flash", operation: "chat", model: "deepseek-v4-1-flash", transport: { kind: "chat" } },
+        ],
+      });
+    }
+    if (request.url === "/v1/images/generations") return json({ data: [{ url: `${base}/files/out.png` }] });
+    if (request.url === "/files/out.png") {
+      res.setHeader("content-type", "image/png");
+      return res.end(png);
+    }
+    res.statusCode = 404;
+    res.end();
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  return server;
+}
+
+const fakePlatform = selfTest ? await startFakePlatform() : null;
+const baseUrl = fakePlatform ? `http://127.0.0.1:${fakePlatform.address().port}/v1` : "https://maas.ovaijisuan.com/v1";
 const config = {
-  platform: { base_url: "https://maas.ovaijisuan.com/v1", api_key: key, chat_model: "deepseek-v4-1-flash" },
-  models: { image: "qwen-image-pro-enhanced", image_edit: null, video: null, video_ref: null, video_upscale: null, music: null, music_edit: null, speech: null, music_engine: null, enhance_music_caption: false, voice_map: {}, image_upscale: null },
+  platform: { base_url: baseUrl, api_key: key, chat_model: "deepseek-v4-1-flash" },
+  models: { image: IMAGE_MODEL, image_edit: null, video: null, video_ref: null, video_upscale: null, music: null, music_edit: null, speech: null, music_engine: null, enhance_music_caption: false, voice_map: {}, image_upscale: null },
 };
-const out = path.resolve(repo, `.probe/pw/design-execute/${new Date().toISOString().replace(/[:.]/g, "-")}-online`);
+const out = path.resolve(repo, `.probe/pw/design-execute/${new Date().toISOString().replace(/[:.]/g, "-")}-${selfTest ? "selftest" : "online"}`);
 mkdirSync(out, { recursive: true });
 
 /** 落盘前先脱敏：`sk-` 开头的串只留前 3 位。 */
@@ -70,6 +132,24 @@ app.page.on("websocket", (ws2) => {
 });
 // T-2：记完整 URL + 时间戳，事后按来源分类，不再一锅算。
 app.page.on("request", (request) => requests.push({ at: Date.now(), method: request.method(), url: request.url() }));
+// 页面异常必须进证据：卡片没渲染出来是"跑失败"，但**为什么**没渲染只在 pageerror / console
+// 里。少了这一项，异常兜底页（"出现异常"）会被误读成"卡片没出现"。
+// 卡片显示产出要两步：查资源 → 拉文件。这两步失败时界面只写"预览加载失败"，
+// 不带原因，所以把它们的响应体也记下来（只记这两类路径，避免噪音）。
+const probes = [];
+app.page.on("response", (response) => {
+  const url = response.url();
+  if (!/\/api\/project\/resources\/get|\/files\//.test(url)) return;
+  const entry = { at: Date.now(), url: url.split("?")[0], status: response.status(), body: "" };
+  probes.push(entry);
+  response.text().then((text) => { entry.body = text.slice(0, 900); }).catch(() => {});
+});
+const pageErrors = [];
+app.page.on("pageerror", (error) => pageErrors.push({ kind: "pageerror", at: Date.now(), message: String(error?.message ?? error), stack: String(error?.stack ?? "").slice(0, 4000) }));
+app.page.on("console", (message) => {
+  if (message.type() !== "error" && message.type() !== "warning") return;
+  pageErrors.push({ kind: `console.${message.type()}`, at: Date.now(), message: message.text().slice(0, 2000) });
+});
 const db = new Database(dbPath, { readonly: true });
 const row = db.prepare("SELECT id FROM session WHERE title = 'PW online'").get();
 db.close();
@@ -83,7 +163,7 @@ const wsUrls = [...log.matchAll(/ws:\/\/127\.0\.0\.1:(\d+)\/ws\?hilo_workspace=(
 const ports = wsUrls.slice(-2);
 const headersOf = ({ claim, instance, generation }) => ({ "x-hilo-workspace": claim, "x-hilo-workspace-instance": instance, "x-hilo-workspace-generation": generation });
 const bodies = ports.map(async (item) => {
-  const response = await fetch(`http://127.0.0.1:${item.port}/api/v3/execute`, { method: "POST", headers: { "Content-Type": "application/json", "x-hilo-agent-caller": "pw-caller", "x-session-id": row.id, "x-tool-use-id": "tool-online", ...headersOf(item) }, body: JSON.stringify({ capabilityId: "generate_image:qwen-image-pro-enhanced", prompt: "真实任务：红色苹果", output: { resources: [{ mode: "create", name: "苹果" }], composition: { name: "苹果组", type: { label: "Generated" }, placements: [{ role: "image" }] } } }) });
+  const response = await fetch(`http://127.0.0.1:${item.port}/api/v3/execute`, { method: "POST", headers: { "Content-Type": "application/json", "x-hilo-agent-caller": "pw-caller", "x-session-id": row.id, "x-tool-use-id": "tool-online", ...headersOf(item) }, body: JSON.stringify({ capabilityId: `generate_image:${IMAGE_MODEL}`, prompt: "真实任务：红色苹果", output: { resources: [{ mode: "create", name: "苹果" }], composition: { name: "苹果组", type: { label: "Generated" }, placements: [{ role: "image" }] } } }) });
   const caps = await fetch(`http://127.0.0.1:${item.port}/api/v3/capabilities`, { headers: headersOf(item) }).then(async (r) => ({ status: r.status, body: (await r.text()).slice(0, 500) })).catch((error) => ({ status: 0, body: String(error) }));
   return { ...item, status: response.status, body: await response.text(), caps };
 });
@@ -109,8 +189,20 @@ if (await toggle.count()) {
     await app.page.waitForTimeout(800);
   }
 }
-const outputs = await app.page.locator('[data-testid="design-execute-outputs"]').count();
-const outputCards = await app.page.locator('[data-testid="design-execute-outputs"] [data-testid], [data-testid="design-execute-outputs"] img').count();
+// 产出区要多等一会儿：卡片先出现，资源路径查询与缩略图是随后两次请求。
+// 只等卡片文案就截图，会拍到"预览加载失败"的中间态（看起来像 bug，其实是在加载）。
+let outputs = 0;
+let outputCards = 0;
+let outputHtml = "";
+for (let i = 0; i < 20; i++) {
+  outputs = await app.page.locator('[data-testid="design-execute-outputs"]').count();
+  if (outputs > 0) {
+    outputCards = await app.page.locator('[data-testid="design-execute-outputs"] img, [data-testid="design-execute-outputs"] video, [data-testid="design-execute-outputs"] [data-action-ui-id]').count();
+    if (outputCards > 0) break;
+  }
+  await app.page.waitForTimeout(1000);
+}
+outputHtml = await app.page.locator('[data-testid="design-execute-outputs"]').first().innerHTML().catch(() => "");
 const frames = frameLog.map((item) => ({ dir: item.dir, at: item.at, type: (() => { try { return JSON.parse(item.payload).type; } catch { return undefined; } })(), subscriptionId: (() => { try { return JSON.parse(item.payload).subscriptionId; } catch { return undefined; } })() })).filter((item) => item.type);
 
 // T-2：卡片自己的请求 = `GET /api/v3/tasks/<id>`，或带 toolUseId 的列表请求。
@@ -167,11 +259,14 @@ const result = {
   out,
   screenshot: path.join(out, "online.png"),
   ports: ports.map((item) => item.port),
+  selfTest,
+  baseUrl,
   execute: redact(created),
   cardText,
   offline,
   outputs,
   outputCards,
+  outputHtml: redact(outputHtml).slice(0, 1500),
   taskJson: redact(taskJson),
   resourceLookup: redact(resourceLookup),
   polling: {
@@ -181,10 +276,14 @@ const result = {
     other: otherPolling,
   },
   frames,
+  pageErrors: redact(pageErrors),
+  probes: redact(probes),
   requests: redact(requests),
 };
 await app.page.screenshot({ path: path.join(out, "online.png"), fullPage: true });
 writeFileSync(path.join(out, "result.json"), JSON.stringify(result, null, 2));
-console.log(JSON.stringify(redact({ out, outputs, outputCards, cardText, polling: result.polling, taskOutputs: taskJson.map((t) => ({ id: t.taskId, status: t.task?.status, outputs: t.task?.outputs })), resourceLookup: resourceLookup.map((r) => ({ ok: r.result?.[0]?.ok, version: r.result?.[0]?.detail?.version?.versionId })) }), null, 2));
+if (pageErrors.length) console.log("页面异常：", JSON.stringify(redact(pageErrors).slice(0, 5), null, 2));
+console.log(JSON.stringify(redact({ out, outputs, outputCards, cardText, pageErrors: pageErrors.slice(0, 3), polling: result.polling, taskOutputs: taskJson.map((t) => ({ id: t.taskId, status: t.task?.status, outputs: t.task?.outputs })), resourceLookup: resourceLookup.map((r) => ({ ok: r.result?.[0]?.ok, version: r.result?.[0]?.detail?.version?.versionId })) }), null, 2));
 await app.close();
+fakePlatform?.close();
 process.exit(0);

@@ -5,6 +5,11 @@
  * 渲染状态、进度、产出、参考素材与 retry。计费确认组按范围排除。
  */
 import reactExports from "react";
+// **fragment（`<>…</>`）走的是 `jsxRuntimeExports.Fragment`，不是 `__jsx`。**
+// 少了这一行的后果是运行期 `ReferenceError: jsxRuntimeExports is not defined`，
+// 而且只在"有产出"或"资源读取失败"那两条分支上炸 —— 也就是产出那条路一直是坏的，
+// 空产出的时候看不出来（T-1 修的 `outputs=0` 让这条路第一次真的被走到）。
+import jsxRuntimeExports from "react/jsx-runtime";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";

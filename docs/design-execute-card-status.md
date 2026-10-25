@@ -41,11 +41,37 @@ versionId,availability,disposition}`，`path` 保留给日志），`present()` /
 `POST /api/project/resources/get` 查得到 `status=ready` 的版本（卡片换 `relativePath`
 走的就是这一步）。
 
-**在线复跑**：见 `docs/cloud-platform-plan.md` 第 6 节的产物清单。注意本轮**没有**跑真实
-在线场景（`OV_PLATFORM_KEY` 未在本会话环境里提供），因此"截图显示
-`ArtifactAssetCard`"这一条仍未取证 —— 记录的产物目录是同一次改造前的
-`.probe/pw/design-execute/2026-10-25T11-34-35-145Z-online/`（只有 png，没有任务 JSON，
-正是 T-3 要补的东西）。
+**在线复跑**：`outputs=0` 修好之后，这条路第一次真的被走到 —— 于是又暴露了**两个更深的
+缺陷**，都会让"产出显示不出来"，而且都只在真正有产出时才发作：
+
+1. **渲染层崩溃**：`chat/design-execute/execute-card.jsx` 用了 fragment（`<>…</>`），
+   但只 import 了 `__jsx`、没 import `react/jsx-runtime`。编译产物里 fragment 变成
+   `jsxRuntimeExports.Fragment` → 运行期 `ReferenceError`，整个应用掉进
+   「出现异常」兜底页（错误码 `EB-0573D98D`）。
+2. **资源读取被判非法**：`/api/project/resources/get` 的 `version` 少了
+   `createdAt` / `updatedAt`，而渲染层的资源校验把它们当必需字符串 → 整条响应判非法、
+   `useDesignResourcePath` 抛 `Resource unavailable`，卡片显示「预览加载失败」，**HTTP 却是
+   200**。
+
+两处都修了，并各加了一道防回流：
+
+- `audit-v3` 第 11 项：用 fragment 但没引 `jsx-runtime` 的文件（现 0）；
+- `execute-task.e2e.test.ts`：资源响应里 `version.createdAt/updatedAt`、
+  `resource.createdAt` 必须是时间字符串。
+
+**取证方式**：`scripts/pw/design-execute-online.mjs` 新增 `--self-test` —— 起本地假平台，
+**链路与真实跑法完全一致**（归档种子 → `/api/v3/execute` → 卡片 → media 区 → 拉文件），
+只有平台那一侧的字节是假的。实测（`.probe/pw/design-execute/2026-10-25T17-45-14-105Z-selftest/`）：
+
+- 任务 `completed`，`outputs` 1 项、带 `res_`/`ver_`/`availability=available`；
+- 卡片文案「生成 1 张图片（已完成）」，产出区 4 个元素，
+  `data-action-ui-id="chat-generated-image"`、`data-artifact-type="image"`；
+- `/files/store/ver_….png` 请求两次均 200，截图里 media 区显示的就是那张图
+  （`online.png`）；
+- 页面异常 0 条。
+
+**仍然缺的**：真实平台那一次（`OV_PLATFORM_KEY` 至今不在环境里）。假平台能证明的是
+"产品这一侧从任务到画面的整条链"，证明不了"平台真的按这个形状回"。
 
 ### T-2 轮询间隔的测量
 

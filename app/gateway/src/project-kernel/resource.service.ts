@@ -685,7 +685,11 @@ export class ProjectResourceService implements OnModuleDestroy {
     const resource = resourceFromRow(row);
     const versionId = typeof raw.versionId === "string" ? raw.versionId : resource.currentVersionId;
     if (!versionId) return { ok: true, detail: { resource, version: null, dependencies: [] } };
-    const version = this.database().prepare(`SELECT version_id AS versionId, resource_id AS resourceId, parent_version_id AS parentVersionId, relative_path AS relativePath, source, status
+    // `createdAt` / `updatedAt` **不能省**：渲染层的资源读取校验（`canvas-v3-model` 的
+    // `version()`）把这两个字段当必需字符串，缺一个就把整条响应判成非法、抛
+    // `Resource unavailable` —— 表现是卡片上"预览加载失败"，而请求其实是 200。
+    const version = this.database().prepare(`SELECT version_id AS versionId, resource_id AS resourceId, parent_version_id AS parentVersionId, relative_path AS relativePath, source, status,
+      created_at AS createdAt, updated_at AS updatedAt
       FROM resource_versions WHERE version_id=? AND resource_id=?`).get(versionId, resource.resourceId);
     if (!version) return { ok: false, error: { code: "VERSION_NOT_FOUND", message: "VERSION_NOT_FOUND" } };
     const stored = version as { versionId: string; source: string };
