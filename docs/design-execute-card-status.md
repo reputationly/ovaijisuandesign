@@ -106,10 +106,13 @@ index-CBQqfCOX.js`）：`workspace.structure.list` = 列表 / List，
 `workspace.structure.views` = 工作区视图 / Workspace views，其余 18 条同源。已按参照译文
 补进 `app/renderer/src/i18n/{chinese,english}-translations.js`。
 
-**门禁 37 屏有没有拍到**：这是**底部工具条**，属于 `ws-a` 系列屏的可视区域，正常情况下
-应该被拍到。但 37 屏在本轮是 exit 0（见 T-8），说明要么基线里这个标签当时也不显示
-（`showListSwitch` 依赖项目类型），要么差异落在像素护栏以内。判断依据不足，**不下结论**；
-下一轮录基线时用 `ONLY=ws-a` 单屏截图确认这个标签是否在画面里。
+**门禁 37 屏有没有拍到 —— 有，本轮取到证了**：`scripts/pw/design-execute-online.mjs
+--self-test` 的整页截图（`.probe/pw/design-execute/2026-10-25T17-45-14-105Z-selftest/
+online.png`）左下角就是这条工具条，文字是「画布 / 列表」——补 key 之前是
+`workspace.struct…`。同一张截图也顺带证明 37 屏的 `ws-a` 系列确实覆盖这个区域。
+
+（37 屏门禁本身一直是 exit 0，是因为**参照基线里这两个标签也是中文**，补齐后反而回到了
+与基线一致的状态 —— 差异本来就在像素护栏以内，所以从来没有报红。）
 
 ### T-5 同类扫描
 
@@ -178,8 +181,8 @@ index-CBQqfCOX.js`）：`workspace.structure.list` = 列表 / List，
 
 | 门禁 | 命令 | 结果 |
 |---|---|---|
-| 37 屏 | `GOLDEN=$HOME/ov-golden-4.0.4-clean node scripts/ui-compare/compare.mjs` | **exit 0**；37/37 屏「超护栏 0 / 未登记差异 0 / 新增报错 0」；基线批次 `2026-10-24T11:38:44.667Z-rd8xdc（37 屏）` 单一 |
-| v3 七屏 | `HILO_PROJECT_ARCHITECTURE=resource_v3 GOLDEN=$HOME/ov-golden-v3-4.0.4 ONLY=ws-a-v3,… node scripts/ui-compare/compare.mjs` | **exit 0**；7 屏均为「新增报错 0 / 未登记差异 0」，工作台视图非 AA 像素 0% |
+| 37 屏 | `GOLDEN=$HOME/ov-golden-4.0.4-clean node scripts/ui-compare/compare.mjs` | **exit 0**；37/37 屏「超护栏 0 / 未登记差异 0 / 新增报错 0」；基线批次 `2026-10-24T11:38:44.667Z-rd8xdc（37 屏）` 单一。**修完 T-1 那两个更深缺陷（fragment / 资源时间戳）之后又整跑过一次，仍是 exit 0** |
+| v3 七屏 | `HILO_PROJECT_ARCHITECTURE=resource_v3 GOLDEN=$HOME/ov-golden-v3-4.0.4 ONLY=ws-a-v3,… node scripts/ui-compare/compare.mjs` | **exit 0**；7 屏均为「新增报错 0 / 未登记差异 0」，工作台视图非 AA 像素 0%（同上，T-1 修复后复跑仍 exit 0） |
 
 `node scripts/v3preload/audit-v3.mjs`：第 1～5、7～10 项全 0；第 6 项 9 处（已知遗留，T-7
 已对照），因此脚本仍以 exit 1 结束 —— 这是既有口径（第 8.2 节：不要用 exit 0 当全绿，
