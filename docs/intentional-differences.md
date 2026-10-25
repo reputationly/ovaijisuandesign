@@ -60,6 +60,31 @@
 
 ---
 
+### 7. 隐藏反馈入口（L-6）
+
+**原版**：画布帮助菜单有「反馈」「功能建议」两项，对话消息菜单有「提交反馈」，错误页有「反馈」按钮。
+
+**本项目**：这些入口全部隐藏（`settings/use-direct-feedback.jsx` 的
+`FEEDBACK_ENTRY_ENABLED = false`）。
+
+**理由**：没有服务端接收方。`infra/submit-feedback.js` 把内容写到本机目录，而界面文案是
+「提交成功（单号 xxx）」—— 用户会以为已经送达，实际上只有他自己能看到。
+这比"没有反馈入口"更糟，所以先隐藏入口，管线保留。
+
+**恢复条件**：接上真的接收方（P2 的市场/运营接口）后把开关翻回 true 即可，不用改其他文件。
+
+**影响面**：三个菜单项（`canvas.help.feedback`、`canvas.help.featureRequest`、
+`chat-assistant-menu-feedback`）与 `FeedbackButton` 本身。
+
+**门禁**：`ws-chat-input` 这一屏的对话消息行里，参照有「反馈问题」按钮而我们没有 ——
+实测（`2026-10-25T15-01-55-239Z` 那一批次）DOM 差一项 `feedback-button`，像素也因此
+超出该屏残差预算。所以两处都要处理：
+- `scripts/ui-compare/expected-diffs.json` 的 `ws-chat-input.dom.refOnly` 登记 `feedback-button`；
+- `scripts/ui-compare/compare.mjs` 的 `MASK_TARGETS` 按该 id 遮掉那块（与 ComfyUI 整行、
+  用户头像同一套做法：参照有、我们没有）。
+
+---
+
 ## 二、网关协议差异
 
 | 端点 | 参照行为 | 本项目行為 | 理由 |

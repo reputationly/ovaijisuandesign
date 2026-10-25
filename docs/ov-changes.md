@@ -196,3 +196,26 @@
 - `retry` 真正重提，其余未实现 action 返回 422，不再静默 stop；
 - 渲染层补 `DesignExecuteCard`/`ScopedCard`、任务查询、WS 推送、回合注册表；
 - 已知简化：产出/参考图使用基础媒体标签，计费确认组不做，Playwright 实时场景未补。
+
+---
+
+## #14 隐藏反馈入口（L-6）
+
+- **原因**：产品要求 —— 反馈没有服务端接收方。提交后只写在本机
+  （`infra/submit-feedback.js`），而界面提示「提交成功（单号 …）」，用户会以为已经送达。
+- **层**：3（局部改成源码）—— 只改开关与三处菜单渲染，管线保留。
+- **落点**：
+  - `app/renderer/src/settings/use-direct-feedback.jsx`：`FEEDBACK_ENTRY_ENABLED = false`，
+    `FeedbackButton` 直接 `return null`；
+  - `app/renderer/src/settings/canvas-help-button.jsx`：`canvas.help.feedback`、
+    `canvas.help.featureRequest` 两项按开关隐藏；
+  - `app/renderer/src/chat/assistant-message-actions.jsx`：`chat-assistant-menu-feedback`
+    按开关隐藏。
+- **保留**：`FeedbackDialog`、`submitFeedback`、`bundle-error-screen` 的「复制反馈信息」
+  （那是本地复制，不发网络）。接上真的接收方后把开关翻成 `true` 即可恢复。
+- **验证方式**：`node scripts/v3preload/audit-v3.mjs`（无新增缺口）；37 屏 / v3 七屏门禁。
+- **门禁登记**：`ws-chat-input` 屏的参照侧有「反馈问题」按钮（DOM 实测 2 个
+  `feedback-button`），我们隐藏后该屏 DOM 差一项、像素也超出该屏残差预算。处理：
+  `expected-diffs.json` 的 `ws-chat-input.dom.refOnly` 记 `feedback-button`；
+  `compare.mjs` 的 `MASK_TARGETS` 按该 id 遮掉那块。理由见
+  `docs/intentional-differences.md` 一.7。

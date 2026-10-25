@@ -1,14 +1,12 @@
-// 平台能力目录的**共享形状与缓存文件格式**。
+// 平台能力目录的**共享形状**。
 //
-// 三个进程都要读它：gateway（拉取 + 用它补槽位）、主进程（拼 opencode 的 provider
-// 配置）、渲染层（间接）。所以"文件长什么样、怎么算令牌指纹"放在这里只写一份 ——
-// 各写一份的下场是两边的指纹算法差一点，谁也读不到谁写的缓存，而且不报错。
+// 三个进程都要用它：gateway 拉取、主进程拼 opencode 配置、渲染层间接。所以类型放在
+// 这里只写一份 —— 各写一份的下场是字段名漂移，而漂移的症状是"某个模型的参数不见了"。
 //
-// 拉取（HTTP）不在这里：那是 gateway 的事，主进程不该为了读缓存去连平台。
-
-import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import path from "node:path";
+// **这里只能放类型和纯字符串**：`@ov/protocol` 也会被渲染层打进浏览器包，
+// 引 `node:fs` / `node:crypto` 会让 vite 构建直接失败（实测：
+// `"createHash" is not exported by "__vite-browser-external"`）。
+// 缓存文件怎么读写在 `@ov/maas-media` 的 `catalog-cache.ts` 里（那边是 Node 环境）。
 
 /** 平台报的一条能力。字段与 new-api 的 `GET /v1/ov/capabilities` 一致。 */
 export interface PlatformCapability {
@@ -41,33 +39,5 @@ export interface PlatformCatalog {
   source: "live" | "cache";
 }
 
-/** 缓存文件名。放在数据根下，gateway 写、主进程读。 */
+/** 缓存文件名。放在应用数据根下，gateway 写、主进程读。 */
 export const PLATFORM_CATALOG_FILE = "ov-catalog.json";
-
-export function platformCatalogPath(dataDir: string): string {
-  return path.join(dataDir, PLATFORM_CATALOG_FILE);
-}
-
-/** 令牌指纹：只进哈希，用来给缓存分组，不落明文。 */
-export function platformKeyDigest(apiKey: string): string {
-  return createHash("sha256").update(apiKey).digest("hex").slice(0, 16);
-}
-
-interface CacheFile {
-  keys?: Record<string, PlatformCatalog>;
-}
-
-/**
- * 读某个令牌那份缓存。读不到 / 形状不对都返回 `null` —— 第一次启动本来就没有，
- * 缓存坏了也不该让调用方崩。
- */
-export function readPlatformCatalogCache(dataDir: string, apiKey: string): PlatformCatalog | null {
-  try {
-    const raw = JSON.parse(readFileSync(platformCatalogPath(dataDir), "utf8")) as CacheFile;
-    const entry = raw?.keys?.[platformKeyDigest(apiKey)];
-    if (!entry || typeof entry.version !== "string" || !Array.isArray(entry.capabilities)) return null;
-    return { ...entry, source: "cache" };
-  } catch {
-    return null;
-  }
-}

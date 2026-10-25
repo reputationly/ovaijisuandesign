@@ -158,6 +158,70 @@ Authorization: Bearer <key>
 
 ---
 
+### 3.4 本轮代码核对与 `/v1/ov/*` 落地情况
+
+核对方式：逐文件读 `/Users/reputationly/Desktop/code/api/new-api`（不是只看文档），
+凡是下面写"实测/读代码确认"的都指那里。
+
+**核对结论（与第 3.2 节的出入）**
+
+| 项 | 核对结果 |
+|---|---|
+| 挂载顺序 | 确认 `router/main.go`：health → wellknown → api → dashboard → relay → video → hilo → **ov** → mobile → share → web。新的 `/v1/ov` 组必须在这条链里早于 web，否则落 `NoRoute` 回 `Invalid URL` |
+| relay 中间件 | 确认 `/v1` 组是 `RouteTag("relay")` + `SystemPerformanceCheck()` + `TokenAuth()` + `KYCRequired()` + `ModelRequestRateLimit()`，模型调用再加 `Distribute()` |
+| hilo 兼容层 | 确认三个文件（`router/hilo-router.go`、`controller/hilo.go`、`setting/hilo_catalog.go`），且**目录可用性判据可以复用**：原来 `unavailable()` / `pipelineCannotDeliver()` 是 `controller` 的私有函数，本轮抽到 `service/hilo_availability.go`，两个出口共用 |
+| 聚合模型 | 确认 `common/aggregate_model_default.go` 里的三条：`minimax-h3-2k`（帧族，生成段 `minimax-h3-fl2va` + `swiftvr` 超分）、`minimax-h3-ref-2k`（参考族）、`qwen-image-pro-enhanced`（图片，PE 增强 + `qwen-image-pro`）。**聚合模型没有渠道 ability**，所以它们不在 `abilities` 表里 —— 这是能力目录里最容易漏的一条 |
+| 模型过滤 | 确认 `model.GetGroupEnabledModels(group)` / `model.FilterModelsByVisibility(models, userGroup)` / `model.GetModelSupportEndpointTypes(name)`；令牌白名单在鉴权时以 `token_model_limit_enabled` + `token_model_limit` 两个 context key 存在 |
+| 端点类型 | 确认 `constant.EndpointType` 只有 `openai` / `openai-response` / `openai-response-compact` / `anthropic` / `gemini` / `jina-rerank` / `image-generation` / `embeddings` / `openai-video` / `audio-speech`，**没有 `audio-transcriptions`** —— 所以"哪些模型能做转写"不能靠端点类型判，见 N-3 |
+| 错误码 | 确认 `types.ErrorCode*` 里有 `insufficient_user_quota` / `model_not_found` / `access_denied` / `kyc_required` / `sensitive_words_detected` / `prompt_blocked` / `moderation_unavailable`，**没有限流码**；限流的三条中间件都用 `c.Status(429)` 回**空体** |
+
+**`/v1/ov/*` 实现（N-0～N-4）**
+
+- `router/ov-router.go`：`SetOvRouter`，挂在 `SetHiloRouter` 之后、web 之前。
+  中间件 `RouteTag("ov")` → `OvRateLimit()` → `TokenAuth()` → `KYCRequired()`。
+  **不挂 `Distribute()`**（没有渠道可选）。
+- `GET /v1/ov/capabilities`（`controller/ov.go` + `service/ovcaps/`）：返回
+  `{version, capabilities[]}`。`version` 是目录内容的 sha256，客户端按它判断要不要重新拉。
+  条目字段：
+  ```json
+  {"id":"generate_image:qwen-image-pro-enhanced","operation":"generate_image",
+   "model":"qwen-image-pro-enhanced",
+   "displayName":{"zh":"…","en":"…"},"description":{"zh":"…","en":"…"},
+   "transport":{"kind":"images"},
+   "taskTypes":["t2v","i2v","flf2v","l2va"],
+   "paramSchema":{"type":"object","properties":{"aspect_ratio":{"type":"string","enum":[…],"default":"adaptive","title":"宽高比"}}},
+   "limits":{"maxReferenceImages":9,"maxDurationSeconds":15,"maxInputBytes":0},
+   "default":true}
+  ```
+  **与草案的三处修正**：
+  1. `transport.kind` 增加 `audio_transcriptions`；并且**语音/音乐的 transport 是
+     `videos_task` 而不是 `audio_speech`** —— 这套部署上 TTS 与音乐也走
+     `POST /v1/videos` + `metadata.task_type`（`tts` / `t2m` / `cover` / `repaint`，实测
+     客户端 `maas-media/audio.ts` 就是这么发的）。报成 `audio_speech` 会让客户端拿同步
+     接口去打只认任务的模型，回 404。
+  2. `paramSchema` 用**客户端已在消费的那个最小 JSON Schema 子集**（`type/properties/
+     enum/default/title`），不是完整 Schema —— 两边各写一套必然漂移。
+  3. 目录里**列出对话模型**（`operation: "chat"`），因为 L-3 的模型选择器要用它；
+     但 `/api/v3/capabilities`（媒体能力）会把它过滤掉。
+- `POST /v1/ov/files`（同文件）：multipart → 对象存储 → `{url, key, bytes,
+  content_type, expires_at}`。没配对象存储时回 **503 + `capability_unavailable`**
+  （不是 500：客户端该退回内联，而不是当成故障重试）。任务侧不用改 —— 输入物化本来就
+  接受 http(s) URL，且自家 OBS host 在授信名单里。
+- 错误码（N-4）：新增 `rate_limited` 与 `capability_unavailable`；`OvRateLimit` 在拒绝时
+  **给带码的 JSON 体**（其余三条限流仍是空体 429，未动，避免影响 dashboard）。
+- 聚合模型"每一段都可用"：`service/ovcaps` 里 `Scope.callable()` 对聚合模型递归查
+  `Generate.Model` 与（启用时的）`Upscale.Model`；**提示词增强段不参与判定**（它失败会回落）。
+- 分组白名单与调用侧同口径：把 `middleware/aggregate_expand.go` 的判定抽成
+  `common.AggregateModel.AllowsGroups` + `service.AggregateUsingGroups`，两处共用。
+
+**N-3（语音识别）现状**：平台侧**能表达**、但**没有模型**。
+- 目录里给一条 `transport: "audio_transcriptions"` 的条目就会报成 `operation:
+  "transcribe"`（有测试）；
+- 但 `GET /v1/models` 里没有任何转写模型，`constant.EndpointType` 也没有转写类型，
+  `/v1/audio/transcriptions` 目前没有可路由的渠道。
+- 结论：**卡在部署**（需要一个能转写的上游），客户端 M5 的桩保持"能力不可用" ——
+  目录里没有 transcribe 条目时它就该这么显示。
+
 ## 4. 能力清单与工作项
 
 "本地现状"一列：**有**＝已接通平台；**桩**＝本地接口在，但固定返回"能力不可用"；**缺**＝还没有。
@@ -229,6 +293,27 @@ Authorization: Bearer <key>
 
 ---
 
+### 4.4 本轮完成情况（P0）
+
+| # | 状态 | 落点 / 证据 |
+|---|---|---|
+| N-0 | **完成** | `router/ov-router.go` + `router/main.go`；`router/ov_router_test.go`（注册、401、限流体三条） |
+| N-1 | **完成** | `service/ovcaps/`（7 个用例）+ `controller/ov.go`；聚合模型分段可用、分组白名单、令牌白名单、可见性都覆盖 |
+| N-2 | **完成** | `controller/ov.go` 的 `PostOvFiles` + `service/mediastore.MaxUploadBytes()`；没配存储 → 503 + `capability_unavailable`（有测试） |
+| N-3 | **做不到（卡部署）** | 目录能表达转写（`audio_transcriptions` → `transcribe`，有测试），但平台上没有转写模型，见 3.4 |
+| N-4 | **完成** | `types.ErrorCodeRateLimited` / `ErrorCodeCapabilityUnavailable`；`middleware/rate-limit.go` 的 `OvRateLimit`；`middleware/model-rate-limit.go` 两处 429 补码 |
+| L-1 | **完成（口径有收窄）** | `app/gateway/src/generate/platform-catalog.ts`（拉取 + 落盘 + 回退）、`media-config.service.ts`（目录补空槽位）、`capabilities.controller.ts`（目录优先）、`maas-media/route.ts`（目录里的名字原样放行）、`PLATFORM_PRESET.models` 清空。**收窄的部分**：`/api/v1/models/config`（模型选择器的数据源）仍是"每个模态一个模型"，因为 MCP 的 `hub_list_capabilities` 要拿它和**静态 vendor 表**取交集，目录里的任意模型没有对应的 vendor 条目。多模型可选这件事落在 `/api/v3/capabilities`（agent/卡片那条路）与 L-3 的对话模型上 |
+| L-2 | **完成** | `app/gateway/src/generate/media-inputs.ts` + `maas-media/upload.ts`（阈值 8MB，失败退回内联） |
+| L-3 | **完成** | `gateway/src/runtime/chat-models.ts` + `chat.service.ts` + `runtime.controller.ts`；主进程 `opencode/config.ts` 的 `platform.chat_models` 多模型 provider。token 预算那半本来就在位（caption 6000 / lyrics 4000，且截断有明确报错），本轮只做了核对 |
+| L-4 | **完成** | `generation-runner.service.ts` 的 `describeFailure` 映射表 + `tasks.ts` 的 `problem` 落库与透出；9 个用例钉住"必须是参照枚举里的码" |
+| L-6 | **完成** | `FEEDBACK_ENTRY_ENABLED = false`；三处入口（画布帮助菜单两项、对话消息菜单、`FeedbackButton`）；登记在 `docs/ov-changes.md` #14 与 `docs/intentional-differences.md` 一.7 |
+
+**P0 验收里没做到的两项**（详见第 6 节）：
+
+1. "用真实 key 分别跑通一次生图、视频、语音合成、音乐、对话、语音识别" ——
+   本会话环境没有 `OV_PLATFORM_KEY`，一次真实调用都没发；语音识别也没有模型（N-3）。
+2. 37 屏 / v3 七屏门禁 —— 见第 6 节的最后一次运行结果。
+
 ## 5. 分期与验收
 
 | 期 | 内容 | 验收 |
@@ -243,6 +328,54 @@ Authorization: Bearer <key>
 - 两个仓库各自的提交号；
 - 用真实 key 跑过哪些场景、产物目录在哪（已脱敏）；
 - 和本文不一致的地方（接口字段、命名、分期）逐条列出。**不要悄悄改范围。**
+
+### 6.1 本轮汇报
+
+**提交号**
+
+| 仓库 | 提交 | 内容 |
+|---|---|---|
+| 客户端 `ovaijisuandesign` | `89371aa4` | T-1 任务产出带资源身份；T-4 补 20 个 i18n key；T-5 两个扫描 + 修 17 处；L-1 目录驱动模型（核心） |
+| 客户端 | `ac7c2777` | L-2 大素材先上传；L-4 平台错误语义化 |
+| 客户端 | `20dffafe` | L-3 对话模型多选；目录形状/缓存格式移到 `@ov/protocol` |
+| 客户端 | 本轮最后一笔 | T-3/T-2 脚本、L-6 隐藏反馈入口、`audit-v3` 第 9/10 项、文档 |
+| 云平台 `new-api` | `ac3cc7fed` | `/v1/ov` 命名空间、能力目录、文件上传、稳定错误码、可用性判据抽取 |
+
+**用真实 key 跑过的场景**：**一次都没有。** 本会话环境里没有 `OV_PLATFORM_KEY`，
+按约定（key 只从该环境变量读、不落盘）没有发起任何真实调用。因此：
+
+- T-1 的"在线场景截图显示 `ArtifactAssetCard`"没有取证；
+- P0 验收里"生图 / 视频 / 语音合成 / 音乐 / 对话 / 语音识别各跑一次"没有完成；
+- 离线证据：`execute-task.e2e` 的假平台用例（`outputs` 1 项 + 资源可查）、
+  `platform-catalog.test.ts`（目录拉取/回退）、`media-inputs.test.ts`（阈值与回退）、
+  `failure-description.test.ts`（错误码映射）。
+
+**和本文不一致的地方（逐条，没有悄悄改范围）**
+
+1. **T-2 的常量名**：文档写"就绪后约 15 秒（`RETRYABLE_POLL_MS`）"，实际生效的是
+   `PUSHED_POLL_MS = 15000`；`RETRYABLE_POLL_MS` 同为 15000 但是给"失败且可 retry"用的。
+   数值相同、用途不同，统计上看不出来，已在卡片状态文档里记明。
+2. **T-6 未完成**：两轮 turbo 全量 + 多次重复都没复现，`41bc74f1^` 的 worktree 上也不复现。
+   没有测试名可写，需要一次真实失败现场。已排除的两个环境机制见卡片状态文档 T-6 节。
+3. **N-3 做不到**：目录侧能表达转写能力（`audio_transcriptions` → `transcribe`，有测试），
+   但平台上没有转写模型、`constant.EndpointType` 也没有转写类型。**卡在部署**。
+4. **L-1 收窄了"模型选择器显示全部目录模型"**：`/api/v1/models/config` 仍是一个模态一条，
+   因为 MCP 的 `hub_list_capabilities` 要拿它和静态 vendor 表取交集，而目录里的任意模型
+   没有 vendor 条目；硬塞进去会让 agent 的"可用模型"变成空。多模型可选的落点是
+   `/api/v3/capabilities` 和 L-3 的对话模型。要真正在媒体选择器里多选，得先扩 MCP 的
+   vendor 表（未做，属新的工作项）。
+5. **transport 取值**：语音合成与音乐的 `transport.kind` 是 `videos_task`，不是草案里的
+   `audio_speech` —— 这套部署上它们也走 `POST /v1/videos` + `metadata.task_type`。
+   报错协议会让客户端拿同步接口去打任务模型（404）。
+6. **N-4 只给新命名空间的限流补了响应体**：`/v1/ov` 的 429 带 `rate_limited` 码；
+   另外三条限流（GlobalWeb / GlobalAPI / Hilo）仍是空体 429，未动 —— 它们被 dashboard
+   共用，改响应体属于另一件事。模型调用那条（`ModelRequestRateLimit`）只补了错误码，
+   响应体形状不变。
+7. **目录缓存位置**：`<userData>/ov-catalog.json`（gateway 写、主进程读）。生产里
+   `HILO_DATA_DIR` 没有传给 gateway，所以 gateway 落到 `dirname(OV_CONFIG_PATH)`
+   = userData，和主进程给的 `dirs.userData` 是同一个目录。
+8. **`Tag` T-4 的门禁取证不足**：底部工具条理应在 `ws-a` 屏内，但 37 屏本轮 exit 0，
+   无法据此断定"门禁拍到了这一栏"。下一轮用 `ONLY=ws-a` 单屏确认（已写进卡片状态文档）。
 
 ## 7. 复核方法
 

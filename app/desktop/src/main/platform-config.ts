@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 
-import { parseMediaConfig } from "@ov/maas-media";
-import { readPlatformCatalogCache, withPlatformPreset } from "@ov/protocol";
+import { catalogCache, parseMediaConfig } from "@ov/maas-media";
+import { type PlatformCatalog, withPlatformPreset } from "@ov/protocol";
 
 import type { Platform } from "./opencode/index.js";
 
@@ -42,7 +42,7 @@ export function readPlatform(configPath: string, dataDir?: string): Platform {
 /** 目录里的对话模型（配置那个排第一）。读不到就是空数组。 */
 function readChatModels(configured: string, apiKey: string, dataDir?: string): string[] {
   if (!dataDir || !apiKey.trim()) return [];
-  const catalog = readPlatformCatalogCache(dataDir, apiKey);
+  const catalog = catalogCache.readPlatformCatalogCache<PlatformCatalog>(dataDir, apiKey);
   const names: string[] = [];
   const push = (name: string) => {
     const trimmed = name.trim();

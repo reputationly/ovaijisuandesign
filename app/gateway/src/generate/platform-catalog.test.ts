@@ -2,17 +2,15 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { defaultMediaConfig, parseMediaConfig } from "@ov/maas-media";
+import { catalogCache, defaultMediaConfig, parseMediaConfig } from "@ov/maas-media";
 import { describe, expect, it } from "vitest";
 
 import { capabilityEntries, platformEntries } from "./capabilities.controller.js";
 import {
-  cachePath,
   catalogModelNames,
   catalogUrl,
   defaultCapability,
   fetchPlatformCatalog,
-  keyDigest,
   readCachedCatalog,
 } from "./platform-catalog.js";
 
@@ -90,18 +88,18 @@ describe("平台能力目录", () => {
       "qwen-image-pro-enhanced", "minimax-h3-ref-2k", "minimax-h3-2k", "qwen3.8-flash-fp8", "thing",
     ]);
 
-    const cached = readCachedCatalog(dataDir, keyDigest("sk-test"));
+    const cached = readCachedCatalog(dataDir, "sk-test");
     expect(cached?.version).toBe("v1");
     expect(cached?.source).toBe("cache");
     // **令牌不进缓存文件**：只存指纹。
-    expect(readFileSync(cachePath(dataDir), "utf8")).not.toContain("sk-test");
+    expect(readFileSync(catalogCache.platformCatalogPath(dataDir), "utf8")).not.toContain("sk-test");
   });
 
   it("换一个令牌读不到别人的缓存", async () => {
     const dataDir = mkdtempSync(path.join(tmpdir(), "ov-catalog-"));
     const { impl } = stubFetch(fakeCatalog());
     await fetchPlatformCatalog(configWith("https://maas.example.com/v1", "sk-a"), { dataDir, fetchImpl: impl });
-    expect(readCachedCatalog(dataDir, keyDigest("sk-b"))).toBeNull();
+    expect(readCachedCatalog(dataDir, "sk-b")).toBeNull();
   });
 
   it("平台不可达时返回原因，不抛错", async () => {

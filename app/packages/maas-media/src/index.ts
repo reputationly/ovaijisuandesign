@@ -29,6 +29,7 @@
 // `Client` / `createClient` 是 `reqwest::Client` 的替身，见 `client.ts`。
 
 export * as audio from "./audio.js";
+export * as catalogCache from "./catalog-cache.js";
 export * as caption from "./caption.js";
 export * as chat from "./chat.js";
 export * as config from "./config.js";

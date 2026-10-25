@@ -169,14 +169,16 @@
  "ws-chat-input": {
   "dom": {
    "refOnly": [
-    "session-single-title-*"
+    "session-single-title-*",
+    "feedback-button"
    ],
    "oursOnly": [
     "home-sidebar.connectors-release-badge"
    ]
   },
   "_why": [
-   "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异"
+   "会话标题 id 带内容哈希（session-single-title-<hash>），两边会话内容不同所以哈希不同 —— 内容差异",
+   "feedback-button：L-6 隐藏反馈入口（提交后只存在本机，界面却提示已送达）。参照侧有「反馈问题」按钮，我们不做；像素按 MASK_TARGETS 遮掉。见 intentional-differences 一.7"
   ],
   "ws": {
    "refOnly": []

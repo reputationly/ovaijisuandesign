@@ -12,7 +12,6 @@ import {
   catalogModelNames,
   defaultCapability,
   fetchPlatformCatalog,
-  keyDigest,
   readCachedCatalog,
 } from "./platform-catalog.js";
 
@@ -100,7 +99,7 @@ export class MediaConfigService {
   currentCatalog(): PlatformCatalog | null {
     if (!this.catalog) {
       try {
-        this.catalog = readCachedCatalog(this.dataDir(), keyDigest(this.base().platform.api_key)) ?? undefined;
+        this.catalog = readCachedCatalog(this.dataDir(), this.base().platform.api_key) ?? undefined;
       } catch {
         // 配置文件坏了：这时连平台地址都没有，读缓存也没有意义。
       }
@@ -126,10 +125,9 @@ export class MediaConfigService {
   private refresh(config: MediaConfig): Promise<PlatformCatalog | null> {
     if (this.catalogInFlight) return this.catalogInFlight;
     const dataDir = this.dataDir();
-    const digest = keyDigest(config.platform.api_key);
     if (!this.catalog) {
       // 先把盘上的那份用起来：本次请求不等网络。
-      this.catalog = readCachedCatalog(dataDir, digest) ?? undefined;
+      this.catalog = readCachedCatalog(dataDir, config.platform.api_key) ?? undefined;
     }
     this.catalogInFlight = fetchPlatformCatalog(config, { dataDir })
       .then(({ catalog, error }) => {

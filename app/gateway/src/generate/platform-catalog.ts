@@ -17,10 +17,8 @@
  *
  * `version` 是平台算的内容哈希：它没变就不用重新渲染，变了才更新选择器。
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-
-import type { MediaConfig } from "@ov/maas-media";
-import { type PlatformCatalog, type PlatformCapability, platformCatalogPath, platformKeyDigest, readPlatformCatalogCache } from "@ov/protocol";
+import { type MediaConfig, catalogCache } from "@ov/maas-media";
+import type { PlatformCatalog, PlatformCapability } from "@ov/protocol";
 
 export type { PlatformCapability, PlatformCatalog, PlatformParam } from "@ov/protocol";
 
@@ -35,9 +33,9 @@ export function catalogUrl(baseUrl: string): string {
 }
 
 /** 令牌指纹（实现见 `@ov/protocol`，主进程读缓存时用的是同一个）。 */
-export const keyDigest = platformKeyDigest;
+export const keyDigest = catalogCache.platformKeyDigest;
 
-export const cachePath = platformCatalogPath;
+export const cachePath = catalogCache.platformCatalogPath;
 
 /** 这个平台的目录值不值得请求：没有地址或没有 key 时请求一定失败，别每 60 秒打一次。 */
 function fetchable(cfg: MediaConfig): boolean {
@@ -45,31 +43,12 @@ function fetchable(cfg: MediaConfig): boolean {
 }
 
 /** 读上次落盘的目录。**读不到就是 null**，不抛错 —— 第一次启动本来就没有。 */
-export function readCachedCatalog(dataDir: string, digest: string): PlatformCatalog | null {
-  try {
-    const raw = JSON.parse(readFileSync(cachePath(dataDir), "utf8")) as { keys?: Record<string, PlatformCatalog> };
-    const entry = raw?.keys?.[digest];
-    if (!entry || typeof entry.version !== "string" || !Array.isArray(entry.capabilities)) return null;
-    return { ...entry, source: "cache" };
-  } catch {
-    return null;
-  }
+export function readCachedCatalog(dataDir: string, apiKey: string): PlatformCatalog | null {
+  return catalogCache.readPlatformCatalogCache<PlatformCatalog>(dataDir, apiKey);
 }
 
-function writeCachedCatalog(dataDir: string, digest: string, catalog: PlatformCatalog): void {
-  try {
-    mkdirSync(dataDir, { recursive: true });
-    let existing: { keys?: Record<string, PlatformCatalog> } = {};
-    try {
-      existing = JSON.parse(readFileSync(cachePath(dataDir), "utf8")) as { keys?: Record<string, PlatformCatalog> };
-    } catch {
-      existing = {};
-    }
-    const keys = { ...(existing.keys ?? {}), [digest]: { ...catalog, source: "live" as const } };
-    writeFileSync(cachePath(dataDir), JSON.stringify({ keys }));
-  } catch {
-    // 落盘失败不影响本次使用：目录已经在内存里了。
-  }
+function writeCachedCatalog(dataDir: string, apiKey: string, catalog: PlatformCatalog): void {
+  catalogCache.writePlatformCatalogCache(dataDir, apiKey, catalog);
 }
 
 export interface CatalogOptions {
@@ -106,7 +85,7 @@ export async function fetchPlatformCatalog(cfg: MediaConfig, options: CatalogOpt
       fetchedAt: new Date().toISOString(),
       source: "live",
     };
-    writeCachedCatalog(options.dataDir, keyDigest(cfg.platform.api_key), catalog);
+    writeCachedCatalog(options.dataDir, cfg.platform.api_key, catalog);
     return { catalog };
   } catch (error) {
     return { catalog: null, error: error instanceof Error ? error.message : String(error) };

@@ -2,7 +2,8 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { PLATFORM_PRESET, platformCatalogPath, platformKeyDigest } from "@ov/protocol";
+import { catalogCache } from "@ov/maas-media";
+import { PLATFORM_PRESET } from "@ov/protocol";
 import { describe, expect, it } from "vitest";
 
 import type { GatewayConfig } from "../config/gateway-config.js";
@@ -18,8 +19,8 @@ function dirWith(config: unknown): string {
 /** 伪造一份"上次拉到的目录"：gateway 与主进程共用这个缓存文件格式。 */
 function seedCatalog(dir: string, apiKey: string, catalog: { version: string; capabilities: unknown[] }): void {
   writeFileSync(
-    platformCatalogPath(dir),
-    JSON.stringify({ keys: { [platformKeyDigest(apiKey)]: { ...catalog, fetchedAt: new Date().toISOString(), source: "live" } } }),
+    catalogCache.platformCatalogPath(dir),
+    JSON.stringify({ keys: { [catalogCache.platformKeyDigest(apiKey)]: { ...catalog, fetchedAt: new Date().toISOString(), source: "live" } } }),
   );
 }
 

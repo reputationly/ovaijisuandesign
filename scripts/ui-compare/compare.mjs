@@ -632,6 +632,10 @@ const MASK_TARGETS = [
   // 这两个 id 只存在于参照侧 —— 遮罩取并集，所以能遮掉。
   { selector: '[data-action-ui-id="workspace.switch-to-browser"]', why: "intentional-differences 六 内置浏览器（范围排除）" },
   { selector: '[data-action-ui-id="workspace.switch-to-canvas"]', why: "intentional-differences 六 内置浏览器（范围排除）" },
+  // 一.7 隐藏反馈入口（L-6）：参照在对话消息行里有「反馈问题」按钮，我们不做
+  //（提交后只存在本机，留着入口等于骗用户）。**只登记参照侧的 id**——两边取并集，
+  // 位置相同，遮掉的是"那个按钮本来占的地方"。
+  { selector: '[data-action-ui-id="feedback-button"]', why: "intentional-differences 一.7 隐藏反馈入口" },
   // 一.2 无账号体系：参照左下角是用户头像，我们用连接状态替代。
   // 只登记参照侧的 id —— 两边取并集，位置相同会把我们的 pill 一起盖掉。
   { selector: '[data-action-ui-id="sidebar.user-avatar"]', why: "intentional-differences 一.2 无账号体系" },
