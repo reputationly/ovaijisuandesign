@@ -90,7 +90,8 @@
   我们的客户端预设用的正是这几个聚合名，所以能力目录**必须把聚合模型也列出来**。
 - 对话调用正常（`qwen3.8-flash-fp8`）。**注意**：这是一个思考模型，`max_tokens=16` 时 token 全被推理用掉，
   返回的 `content` 是 `null`。客户端里写图片说明、写歌词这类短调用，要么预留足够的 token 预算，要么换成非思考模型。这是 L-3 的验收项之一。
-- **语音识别（ASR）**：模型列表里没有转写模型。
+- **语音识别（ASR）**：模型列表里没有转写模型。**负责人已确认：这个模型暂时没有，功能不做**
+  （见 N-3、4.1 的 M5）。
 - `POST /v1/files` 返回 400：路由存在，但是 `RelayNotImplemented`。
 - `GET /v1/ov/capabilities` 返回 404：命名空间还没建。
 
@@ -132,7 +133,7 @@ Authorization: Bearer <key>
       "model": "qwen-image-pro-enhanced", // 调用时用的 model 字段；聚合模型也要列出
       "displayName": { "zh": "...", "en": "..." },
       "description": { "zh": "...", "en": "..." },
-      "transport": { "kind": "images" },  // images | videos_task | chat | audio_speech | audio_transcriptions
+      "transport": { "kind": "images" },  // images | videos_task | chat | audio_speech（audio_transcriptions 已随 N-3 删除，见 3.4）
       "taskTypes": ["t2v", "i2v", "flf2v"],// 只有 videos_task 有：这个模型支持的 task_type
       "paramSchema": { ...JSON Schema... },// 尺寸、时长、比例等的枚举和默认值，用平台实测值
       "limits": { "maxReferenceImages": 4, "maxDurationSeconds": 10, "maxInputBytes": 0 },
@@ -194,7 +195,7 @@ Authorization: Bearer <key>
    "default":true}
   ```
   **与草案的三处修正**：
-  1. `transport.kind` 增加 `audio_transcriptions`；并且**语音/音乐的 transport 是
+  1. `transport.kind` **不再增加** `audio_transcriptions`（N-3 不做，该值已删除）；并且**语音/音乐的 transport 是
      `videos_task` 而不是 `audio_speech`** —— 这套部署上 TTS 与音乐也走
      `POST /v1/videos` + `metadata.task_type`（`tts` / `t2m` / `cover` / `repaint`，实测
      客户端 `maas-media/audio.ts` 就是这么发的）。报成 `audio_speech` 会让客户端拿同步
@@ -214,13 +215,21 @@ Authorization: Bearer <key>
 - 分组白名单与调用侧同口径：把 `middleware/aggregate_expand.go` 的判定抽成
   `common.AggregateModel.AllowsGroups` + `service.AggregateUsingGroups`，两处共用。
 
-**N-3（语音识别）现状**：平台侧**能表达**、但**没有模型**。
-- 目录里给一条 `transport: "audio_transcriptions"` 的条目就会报成 `operation:
-  "transcribe"`（有测试）；
-- 但 `GET /v1/models` 里没有任何转写模型，`constant.EndpointType` 也没有转写类型，
-  `/v1/audio/transcriptions` 目前没有可路由的渠道。
-- 结论：**卡在部署**（需要一个能转写的上游），客户端 M5 的桩保持"能力不可用" ——
-  目录里没有 transcribe 条目时它就该这么显示。
+**N-3（语音识别）：不做。** 负责人确认平台上暂时没有转写模型。
+
+- 平台侧没有转写模型（`GET /v1/models` 里没有），`constant.EndpointType` 也没有转写类型，
+  `/v1/audio/transcriptions` 没有可路由的渠道；
+- **没有部署任何转写模型，因此现状下不会有任何部署报出 `transcribe` 能力** —— 目录只报
+  "这个 key 能调的"，没有模型就等于没有这条能力；
+- 客户端 M5 保持桩：`edit_media:transcribe` → 503 `DEPENDENCY_UNAVAILABLE`
+  （`generate/media-edit.e2e.test.ts` 钉着），`image-edit.controller.ts` 的 `noAsr`
+  回"当前平台不支持语音识别（字幕生成）"。这条降级是**正确行为**，不是待修的 bug；
+- 我**上一轮为 N-3 预留的那层配置驱动接口已经删掉**（`transport: "audio_transcriptions"`
+  与 `operation: "transcribe"` 的映射）：没有模型时它唯一的实际效果，是让管理员能把一条
+  语音模型配成"转写"，然后在目录里报出一条调不通的能力。留着是负债，删掉是 ~20 行。
+  模型到位后要恢复，改动点就是这三处：`setting.ValidTransports` 加一个值、
+  `service/ovcaps.fromCatalogEntry` 加一条 `transport → operation` 覆盖、补一个用例。
+- 结论：**P0 不含语音识别**，客户端与平台两侧现在都如实报"这项能力不存在"。
 
 ## 4. 能力清单与工作项
 
@@ -234,7 +243,7 @@ Authorization: Bearer <key>
 | M2 | 图片生成、编辑 | 6 家厂商的接口 | 有，模型写死在预设里 | 有（`qwen-image-pro`，以及聚合的 `-enhanced`） | P0（改读能力目录） |
 | M3 | 视频生成：文生、图生、首尾帧、参考 | 7 家厂商的接口 | 有，模型写死在预设里 | 有（H3 帧族、参考族，以及 2K 聚合） | P0（改读能力目录） |
 | M4 | 语音合成、音色 | `audio/tts`、`voices` | **没配模型**（`PLATFORM_PRESET.models.speech = null`） | **有**：`breeze-tts-2`、`indextts-2.5` | P0（只需客户端改读目录） |
-| M5 | 语音识别、字幕生成 | `mediakit/asr` | 桩（`edit/image-edit.controller.ts` 的 `noAsr`、`generate/media-edit.ts`） | 路由有（`/audio/transcriptions`），**缺模型** | P0 |
+| M5 | 语音识别、字幕生成 | `mediakit/asr` | 桩（`edit/image-edit.controller.ts` 的 `noAsr`、`generate/media-edit.ts`） | 路由有（`/audio/transcriptions`），**缺模型** | **不做**（负责人 2026-10-26 确认：模型暂时没有） |
 | M6 | 图片、视频超分 | `super-resolution` | 有 | 有（`swiftvr`、`seedvr2`） | — |
 | M7 | 音乐生成、翻唱、重绘、歌词 | `music/*`、`cover`、`lyrics` | 有 | 有 | — |
 | M8 | 媒体理解、看图写文 | `tool/analyze_media`、`tool/generate_text` | 有，走多模态 `/chat/completions`（`edit/edit.service.ts`）；不支持音频 | 有 | — |
@@ -271,7 +280,7 @@ Authorization: Bearer <key>
 | N-0 | 新建 `/v1/ov` 路由组（第 3.3 节）：中间件和挂载顺序，带路由测试 | P0 |
 | N-1 | `GET /v1/ov/capabilities`：复用 hilo 目录、聚合配置、abilities，按 key 的可用范围过滤，聚合模型也要列出 | P0 |
 | N-2 | `POST /v1/ov/files`，同时让任务的 metadata 接受上传后的 URL | P0 |
-| N-3 | 接入语音识别模型（M5），并列进能力目录 | P0 |
+| N-3 | ~~接入语音识别模型（M5），并列进能力目录~~ **不做**：模型暂时没有 | — |
 | N-4 | 统一错误体：额度不足、限流、审核未通过、模型不可用，各给一个稳定的错误码（沿用 `types.ErrorCode*`） | P0 |
 | N-5 | 新增 task_type：M9–M17，按渠道能力逐个上线 | P1 |
 | N-6 | `/v1/ov/search/images` | P1 |
@@ -300,7 +309,7 @@ Authorization: Bearer <key>
 | N-0 | **完成** | `router/ov-router.go` + `router/main.go`；`router/ov_router_test.go`（注册、401、限流体三条） |
 | N-1 | **完成** | `service/ovcaps/`（7 个用例）+ `controller/ov.go`；聚合模型分段可用、分组白名单、令牌白名单、可见性都覆盖 |
 | N-2 | **完成** | `controller/ov.go` 的 `PostOvFiles` + `service/mediastore.MaxUploadBytes()`；没配存储 → 503 + `capability_unavailable`（有测试） |
-| N-3 | **做不到（卡部署）** | 目录能表达转写（`audio_transcriptions` → `transcribe`，有测试），但平台上没有转写模型，见 3.4 |
+| N-3 | **不做（负责人确认模型暂时没有）** | 客户端降级已钉住：`edit_media:transcribe` → 503 `DEPENDENCY_UNAVAILABLE`；上一轮为它预留的 `audio_transcriptions`/`transcribe` 映射**已删除**（见 3.4） |
 | N-4 | **完成** | `types.ErrorCodeRateLimited` / `ErrorCodeCapabilityUnavailable`；`middleware/rate-limit.go` 的 `OvRateLimit`；`middleware/model-rate-limit.go` 两处 429 补码 |
 | L-1 | **完成（口径有收窄）** | `app/gateway/src/generate/platform-catalog.ts`（拉取 + 落盘 + 回退）、`media-config.service.ts`（目录补空槽位）、`capabilities.controller.ts`（目录优先）、`maas-media/route.ts`（目录里的名字原样放行）、`PLATFORM_PRESET.models` 清空。**收窄的部分**：`/api/v1/models/config`（模型选择器的数据源）仍是"每个模态一个模型"，因为 MCP 的 `hub_list_capabilities` 要拿它和**静态 vendor 表**取交集，目录里的任意模型没有对应的 vendor 条目。多模型可选这件事落在 `/api/v3/capabilities`（agent/卡片那条路）与 L-3 的对话模型上 |
 | L-2 | **完成** | `app/gateway/src/generate/media-inputs.ts` + `maas-media/upload.ts`（阈值 8MB，失败退回内联） |
@@ -310,8 +319,8 @@ Authorization: Bearer <key>
 
 **P0 验收里没做到的两项**（详见第 6 节）：
 
-1. "用真实 key 分别跑通一次生图、视频、语音合成、音乐、对话、语音识别" ——
-   本会话环境没有 `OV_PLATFORM_KEY`，一次真实调用都没发；语音识别也没有模型（N-3）。
+1. "用真实 key 分别跑通一次生图、视频、语音合成、音乐、对话" —— 本会话环境没有
+   `OV_PLATFORM_KEY`，一次真实调用都没发。（语音识别已按负责人决定移出 P0，见 N-3。）
 2. 37 屏 / v3 七屏门禁 —— **两处都已 exit 0**（2026-10-26 00:4x）：37 屏 37/37
    「超护栏 0 / 未登记差异 0 / 新增报错 0」；v3 七屏 7/7 同上、工作台视图非 AA 像素 0%。
    为了让 37 屏回到全绿，`ws-chat-input` 记了一处 DOM 差异（`feedback-button`）并把该屏
@@ -321,7 +330,7 @@ Authorization: Bearer <key>
 
 | 期 | 内容 | 验收 |
 |---|---|---|
-| **P0 联调底座** | N-0～N-4，L-1～L-4，L-6 | new-api：`go test ./...` 全过，新路由有测试，三种数据库都兼容。客户端：设置页和模型选择器显示的模型来自平台目录；用真实 key 分别跑通一次生图、视频、语音合成、音乐、对话、语音识别；100MB 以上的参考视频走上传；额度不足、审核未通过时界面提示正确；37 屏、v3 七屏门禁 exit 0 |
+| **P0 联调底座** | N-0～N-4，L-1～L-4，L-6 | new-api：`go test ./...` 全过，新路由有测试，三种数据库都兼容。客户端：设置页和模型选择器显示的模型来自平台目录；用真实 key 分别跑通一次生图、视频、语音合成、音乐、对话（**语音识别不在 P0 内**：模型暂时没有）100MB 以上的参考视频走上传；额度不足、审核未通过时界面提示正确；37 屏、v3 七屏门禁 exit 0 |
 | **P1 媒体工具** | N-5、N-6、L-5 | 每上线一个 task_type，本地对应的桩就不再返回"能力不可用"，有 e2e，并用真实 key 跑通一次 |
 | **P2 内容与分发** | N-7、N-8、L-7、L-8 | 扫描对方域名，结果为 0（扫描方法见第 7 节）；市场能列出、能安装；旧版本会被强制升级 |
 
@@ -360,8 +369,10 @@ Authorization: Bearer <key>
    数值相同、用途不同，统计上看不出来，已在卡片状态文档里记明。
 2. **T-6 未完成**：两轮 turbo 全量 + 多次重复都没复现，`41bc74f1^` 的 worktree 上也不复现。
    没有测试名可写，需要一次真实失败现场。已排除的两个环境机制见卡片状态文档 T-6 节。
-3. **N-3 做不到**：目录侧能表达转写能力（`audio_transcriptions` → `transcribe`，有测试），
-   但平台上没有转写模型、`constant.EndpointType` 也没有转写类型。**卡在部署**。
+3. **N-3 不做**：负责人 2026-10-26 确认转写模型暂时没有，功能不做。已从 P0 范围与验收项里
+   移出；客户端降级（503 `DEPENDENCY_UNAVAILABLE`）保持不变并有用例；我上一轮为它预留的
+   `audio_transcriptions` → `transcribe` 映射已删除（没有模型时它只会让管理员配出一条
+   调不通的目录项）。
 4. **L-1 收窄了"模型选择器显示全部目录模型"**：`/api/v1/models/config` 仍是一个模态一条，
    因为 MCP 的 `hub_list_capabilities` 要拿它和静态 vendor 表取交集，而目录里的任意模型
    没有 vendor 条目；硬塞进去会让 agent 的"可用模型"变成空。多模型可选的落点是

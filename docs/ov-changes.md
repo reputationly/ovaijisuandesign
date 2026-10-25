@@ -225,3 +225,18 @@
   像素 / DOM / state / 批次信息全部保留原值 —— 单屏录制的界面状态和整批不同（实测：
   整批录的 `ws-chat-input` 没有 connectors 徽标、且有 `task_subscribe`），拿它当基线
   会凭空多出两处差异。老基线备份在 `~/ov-golden-4.0.4-clean.bak-2344/`。
+
+---
+
+## #15 语音识别（ASR）不做
+
+- **原因**：平台上没有转写模型（`GET /v1/models` 无转写模型，`constant.EndpointType`
+  也无对应类型）。负责人 2026-10-26 确认：模型暂时没有，功能不做。
+- **层**：不涉及界面改动 —— 相关入口都在展开态菜单/错误提示里，门禁无需登记。
+- **落点**：`app/gateway/src/generate/media-edit.ts`（`edit_media:transcribe` →
+  503 `DEPENDENCY_UNAVAILABLE`）、`app/gateway/src/edit/image-edit.controller.ts`
+  的 `noAsr`（回"当前平台不支持语音识别（字幕生成）"）。
+- **平台侧**：为它预留的 `audio_transcriptions` 传输与 `transcribe` 操作**已删除**
+  （new-api `15c44089f`），因为没有模型时那层预留只会让管理员配出一条调不通的目录项。
+- **验证方式**：`app/gateway/src/generate/media-edit.e2e.test.ts` 钉住 503 + 错误码。
+- **登记**：`docs/intentional-differences.md` 四·补六。

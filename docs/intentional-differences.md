@@ -375,6 +375,25 @@ v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation
 
 ---
 
+## 四·补六：语音识别（ASR）**不做**
+
+**原版**：字幕生成走 `mediakit/asr`（`/api/v1/audio/transcriptions` 一类）。
+
+**本项目**：`edit_media:transcribe` 返回 503 `DEPENDENCY_UNAVAILABLE`；
+`edit/image-edit.controller.ts` 的 `noAsr` 回「当前平台不支持语音识别（字幕生成）」。
+
+**理由**：平台上没有转写模型（`GET /v1/models` 里没有，`constant.EndpointType` 也没有
+转写类型）。负责人 2026-10-26 确认：**这个模型暂时没有，功能不做** —— 因此这不是"待还原
+的缺口"，而是范围外；不用为它登记像素遮罩或 DOM 差异（相关入口都在展开态菜单/错误提示里）。
+
+**证据**：`app/gateway/src/generate/media-edit.e2e.test.ts` 钉住 503 + 错误码。
+
+**恢复条件**：平台上部署转写模型后，(1) 平台侧恢复 `audio_transcriptions` 传输与
+`transcribe` 操作（本轮已删除，见 `cloud-platform-plan.md` 3.4）；(2) 客户端把
+`noAsr` / `media-edit.ts` 的桩换成 `POST /v1/audio/transcriptions`。
+
+---
+
 ## 四、4.0.4 基线里登记的待做差异
 
 | 差异 | 位置 | 理由 | 登记 |
