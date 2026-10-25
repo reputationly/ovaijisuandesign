@@ -11,6 +11,7 @@
  * 模型范围（selectedMediaModels）需要 MCP 侧过滤，当前后端未接，故不展示假开关。
  */
 import reactExports from "react";
+import { __jsx } from "../shared/jsx-runtime.js";
 import { useTranslation } from "react-i18next";
 
 import { useStorage } from "../infra/use-storage.js";

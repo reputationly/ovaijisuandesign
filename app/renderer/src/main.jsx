@@ -1,14 +1,6 @@
 // 下面这些 import 的先后就是模块初始化顺序。只为副作用引入的文件不要调换位置，后加载的模块会读到先加载模块留下的状态。
 import jsxRuntimeExports from "react/jsx-runtime";
 
-// 4.0.4 拆 chunk 后，部分旧模块仍按全局 `__jsx` 编译；主入口补一份转发，避免懒加载 chunk 里出现未定义。
-globalThis.__jsx ??= (type, props, ...children) => {
-  const { key, ...rest } = props ?? {};
-  if (children.length === 1) rest.children = children[0];
-  else if (children.length > 1) rest.children = children;
-  return children.length > 1 ? jsxRuntimeExports.jsxs(type, rest, key) : jsxRuntimeExports.jsx(type, rest, key);
-};
-
 import "./infra/agent-http-client.js";
 import "@lezer/lr";
 import "@lezer/common";

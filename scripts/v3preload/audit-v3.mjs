@@ -263,7 +263,25 @@ for (const root of ["app/renderer/src", "app/desktop/src"]) {
 console.log(`  7. 日志上传防回流       : ${uploadHits.length} 处违规（日志上传已有意移除，见 ov-changes #11）`);
 for (const h of uploadHits) console.log(`       ${h}`);
 
+
+// 8. JSX 文件的 __jsx import：vite 把 JSX 编译成 __jsx(...)，文件必须自己引入，禁止全局兜底。
+const missingJsx = [];
+function scanJsxImports(dir) {
+  for (const e of readdirSync(dir)) {
+    const p = path.join(dir, e);
+    const st = statSync(p);
+    if (st.isDirectory()) { if (e !== "node_modules") scanJsxImports(p); }
+    else if (e.endsWith(".jsx") && p !== path.join("app/renderer/src", "main.jsx")) {
+      const text = readFileSync(p, "utf8");
+      if (/<[A-Za-z][\w.:-]*(\s|>|\/)/.test(text) && !/import\s*\{[^}]*__jsx[^}]*\}\s*from\s*["'][^"']*jsx-runtime\.js["']/.test(text)) missingJsx.push(p);
+    }
+  }
+}
+scanJsxImports("app/renderer/src");
+console.log(`  8. JSX __jsx import     : ${missingJsx.length} 个文件缺 import`);
+for (const h of missingJsx) console.log(`       ${h}`);
+
 // 验收口径：只把「同一实体被抄两份」算违规；同名不同实现是不同实体，不算。
-const ok = distinctNames.size === 0 && parseFailures.length === 0 && sameEntity.length === 0 && contextDupes.length === 0 && uploadHits.length === 0;
+const ok = distinctNames.size === 0 && parseFailures.length === 0 && sameEntity.length === 0 && contextDupes.length === 0 && uploadHits.length === 0 && missingJsx.length === 0;
 console.log(`\n${ok ? "✓ 全部通过" : "✗ 未达标（缺口/解析失败/重复声明/Context 超额必须全为 0）"}`);
 process.exit(ok ? 0 : 1);

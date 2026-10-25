@@ -5,6 +5,7 @@
  * 渲染状态、进度、产出、参考素材与 retry。计费确认组按范围排除。
  */
 import reactExports from "react";
+import { __jsx } from "../../shared/jsx-runtime.js";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 
@@ -158,7 +159,7 @@ export function ScopedCard({ entry, scopeKey, ready }) {
             </div>
           }
           footer={
-            <div className="space-y-2 empty:hidden">
+            <div className="space-y-2 empty:hidden pt-2">
               {errorMessage && <p role={cancelled ? "status" : "alert"} className={`break-words ${cancelled ? "text-muted-foreground" : "text-destructive"}`}>{errorMessage}</p>}
               {billingRetrying && <p role="status" className="break-words text-muted-foreground">{t("canvasV3.generation.billingUnavailableNotice")}</p>}
               {offline && <p className="text-xs text-muted-foreground">{t("workspaceTasks.offline")}</p>}

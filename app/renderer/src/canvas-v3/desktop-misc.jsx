@@ -5,6 +5,7 @@
  * - `CanvasTagAssetPreview`：标签资源预览，实为 `AssetPreviewPopup` 的薄包装（`side="left"`）
  */
 import instance from "i18next";
+import { __jsx } from "../shared/jsx-runtime.js";
 import { AssetPreviewPopup } from "../assets/preview-media.jsx";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { checkTextSafety } from "../workspace/asset-lineage-query-key.js";

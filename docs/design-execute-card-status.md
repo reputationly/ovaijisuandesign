@@ -58,3 +58,10 @@
 产出接 `ArtifactAssetCard`，参考素材有资源时接小尺寸缩略图；卡片不再有重试/停止按钮
 （参照 `ScopedCard` 本来就没有）。
 我方截图目录 `.probe/pw/design-execute/2026-10-25T08-...-recovered/`，参照 `...-reference/`。
+
+
+## 收尾修复
+
+- footer 前补 8px 间距：我方 failed 的错误文案/离线提示 y 从 156.5/186.5 对齐到参照的 164.5/194.5。
+- 删除 `main.jsx` 的 `globalThis.__jsx` 兜底；`execute-card.jsx`、`external-agent-section.jsx`、`desktop-misc.jsx` 补 `__jsx` import；`audit-v3.mjs` 新增第 8 项检查。
+- 标题灰底不是本轮引入（dd13f2af 以来没有标题组件改动）；侧栏 `=8>ws-a`/灰色头像是 launch-app 夹具环境造成，不影响验收。
