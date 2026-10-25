@@ -63,13 +63,11 @@ await second.page.evaluate(({ ws, sid }) => {
   localStorage.setItem("hilo:storage:global.workspaceSessionTabs", JSON.stringify({ [ws]: { focusedSessionId: sid, openedTabIds: [sid] } }));
 }, { ws, sid: seeded.id });
 await second.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
-await second.page.waitForTimeout(10_000);
-let card = await second.page.locator('[data-action-ui-id="chat-design-execute"]').count();
-if (!card) {
-  const title = second.page.getByText("PW design execute", { exact: false });
-  if (await title.count()) { await title.first().click(); await second.page.waitForTimeout(6000); card = await second.page.locator('[data-action-ui-id="chat-design-execute"]').count(); }
-}
+await second.page.waitForTimeout(12_000);
+await second.page.waitForTimeout(8000);
+const card = await second.page.locator('[data-action-ui-id="chat-design-execute"]').count();
 const bodyText = (await second.page.locator("body").innerText()).slice(0, 400);
 await second.page.screenshot({ path: path.join(xdg, "..", "seeded-card.png"), fullPage: true });
 console.log(JSON.stringify({ card, session: seeded.id, body: bodyText, screenshot: path.join(xdg, "..", "seeded-card.png") }, null, 2));
 await second.close();
+process.exit(0);
