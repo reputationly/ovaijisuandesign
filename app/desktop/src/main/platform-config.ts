@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 
 import { parseMediaConfig } from "@ov/maas-media";
-import { withPlatformPreset } from "@ov/protocol";
+import { readPlatformCatalogCache, withPlatformPreset } from "@ov/protocol";
 
 import type { Platform } from "./opencode/index.js";
 
@@ -13,7 +13,16 @@ import type { Platform } from "./opencode/index.js";
  * 输出上限。opencode 拿 context 当自动压缩水位线 —— 平台模型多为 1M 级，不配会按
  * 128K 的保守值过早压缩，长流程（编译成片 prompt 这类）压缩后 agent 会退化。
  */
-export function readPlatform(configPath: string): Platform {
+/**
+ * 平台配置 + **目录里的对话模型列表**（L-3）。
+ *
+ * 列表来自 gateway 写的目录缓存（格式见 `@ov/protocol` 的 `platform-catalog.ts`），
+ * 这里只读、不发请求：主进程不该为了拼一份 opencode 配置去连平台，而目录是
+ * gateway 每次拉到的，读同一份文件就够。
+ *
+ * 读不到（还没拉过 / 换了令牌）时只有配置里那一个模型 —— 和改造前一致。
+ */
+export function readPlatform(configPath: string, dataDir?: string): Platform {
   const raw: unknown = existsSync(configPath) ? JSON.parse(readFileSync(configPath, "utf8")) : {};
   const cfg = parseMediaConfig(withPlatformPreset(raw));
   const platformSection = (isRecord(raw) && isRecord(raw.platform) ? raw.platform : {}) as Record<string, unknown>;
@@ -21,11 +30,29 @@ export function readPlatform(configPath: string): Platform {
     const n = typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN;
     return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined;
   };
+  const chatModels = readChatModels(cfg.platform.chat_model, cfg.platform.api_key, dataDir);
   return {
     ...cfg.platform,
     chat_context_limit: int(platformSection.chat_context_limit),
     chat_output_limit: int(platformSection.chat_output_limit),
+    ...(chatModels.length > 1 ? { chat_models: chatModels } : {}),
   };
+}
+
+/** 目录里的对话模型（配置那个排第一）。读不到就是空数组。 */
+function readChatModels(configured: string, apiKey: string, dataDir?: string): string[] {
+  if (!dataDir || !apiKey.trim()) return [];
+  const catalog = readPlatformCatalogCache(dataDir, apiKey);
+  const names: string[] = [];
+  const push = (name: string) => {
+    const trimmed = name.trim();
+    if (trimmed && !names.includes(trimmed)) names.push(trimmed);
+  };
+  push(configured);
+  for (const capability of catalog?.capabilities ?? []) {
+    if (capability.operation === "chat") push(capability.model ?? "");
+  }
+  return names;
 }
 
 /**

@@ -28,6 +28,13 @@ export interface Platform {
   chat_context_limit?: number;
   /** 对话模型单次输出上限（tokens），不配落 32K。 */
   chat_output_limit?: number;
+  /**
+   * 目录里的全部对话模型（L-3，配置那个排第一）。
+   *
+   * 给 opencode 的 provider 配多个模型条目，用户才能在界面上换模型。缺省时只有
+   * `chat_model` 一个 —— 与改造前一致。
+   */
+  chat_models?: string[];
 }
 
 export interface McpLaunch {
@@ -119,23 +126,28 @@ function customProvider(p: Platform) {
   // platform.chat_context_limit / chat_output_limit 里按模型设置。
   const context = clampPositive(p.chat_context_limit, 128_000);
   const output = clampPositive(p.chat_output_limit, 32_000);
+  // 每个模型条目都一样，只有 id/name 不同。**顺序**按调用方给的（配置那个第一），
+  // opencode 的模型列表就按这个顺序显示。
+  const names = [model, ...(p.chat_models ?? [])].map((item) => item.trim()).filter((item, index, all) => item !== "" && all.indexOf(item) === index);
+  const models: Record<string, unknown> = {};
+  for (const name of names) {
+    models[name] = {
+      id: name,
+      name,
+      tool_call: true,
+      limit: { context, output },
+      // opencode 看到模型 id 里有 qwen 就不上思考档。这里显式给 max，
+      // 请求体会带 reasoning_effort=max，并打开 enable_thinking。
+      variants: {
+        max: { reasoningEffort: "max", enable_thinking: true },
+      },
+    };
+  }
   return {
     name: "maas",
     npm: "@ai-sdk/openai-compatible",
     options: { baseURL: p.base_url, apiKey: p.api_key, headers: {} },
-    models: {
-      [model]: {
-        id: model,
-        name: model,
-        tool_call: true,
-        limit: { context, output },
-        // opencode 看到模型 id 里有 qwen 就不上思考档。这里显式给 max，
-        // 请求体会带 reasoning_effort=max，并打开 enable_thinking。
-        variants: {
-          max: { reasoningEffort: "max", enable_thinking: true },
-        },
-      },
-    },
+    models,
   };
 }
 

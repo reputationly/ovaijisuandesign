@@ -1,5 +1,8 @@
 /**
- * 平台能力目录（`GET /v1/ov/capabilities`）的客户端缓存。
+ * 平台能力目录（`GET /v1/ov/capabilities`）的拉取与缓存。
+ *
+ * 形状与缓存文件格式在 `@ov/protocol` 的 `platform-catalog.ts` 里 —— 主进程拼
+ * opencode 配置时读的是同一份缓存，格式只写一份。
  *
  * # 为什么要缓存到盘上
  *
@@ -14,43 +17,12 @@
  *
  * `version` 是平台算的内容哈希：它没变就不用重新渲染，变了才更新选择器。
  */
-import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
 
 import type { MediaConfig } from "@ov/maas-media";
+import { type PlatformCatalog, type PlatformCapability, platformCatalogPath, platformKeyDigest, readPlatformCatalogCache } from "@ov/protocol";
 
-/** 平台报的一条能力。字段与 `GET /v1/ov/capabilities` 一致（见 new-api 的 service/ovcaps）。 */
-export interface PlatformCapability {
-  id: string;
-  operation: "generate_image" | "generate_video" | "generate_speech" | "generate_music" | "transcribe" | "chat" | "upscale" | "edit_media";
-  model: string;
-  displayName?: { zh?: string; en?: string };
-  description?: { zh?: string; en?: string };
-  transport?: { kind?: string };
-  taskTypes?: string[];
-  paramSchema?: { type?: string; properties?: Record<string, PlatformParam> };
-  limits?: { maxReferenceImages?: number; maxDurationSeconds?: number; maxInputBytes?: number };
-  default?: boolean;
-}
-
-export interface PlatformParam {
-  type?: string;
-  enum?: string[];
-  default?: string | number;
-  title?: string;
-  minimum?: number;
-  maximum?: number;
-}
-
-export interface PlatformCatalog {
-  version: string;
-  capabilities: PlatformCapability[];
-  /** 什么时候拿到的。用于判断要不要刷新，以及界面上"目录来自缓存"的说明。 */
-  fetchedAt: string;
-  /** `live` = 这次真的请求到了；`cache` = 平台不可达，用的是上次的。 */
-  source: "live" | "cache";
-}
+export type { PlatformCapability, PlatformCatalog, PlatformParam } from "@ov/protocol";
 
 const CACHE_TTL_MS = 60_000;
 const CACHE_FILE = "ov-catalog.json";
@@ -62,31 +34,20 @@ export function catalogUrl(baseUrl: string): string {
   return `${root}/v1/ov/capabilities`;
 }
 
-/** 令牌指纹：只进去哈希，用来给缓存文件分目录，不落明文。 */
-export function keyDigest(apiKey: string): string {
-  return createHash("sha256").update(apiKey).digest("hex").slice(0, 16);
-}
+/** 令牌指纹（实现见 `@ov/protocol`，主进程读缓存时用的是同一个）。 */
+export const keyDigest = platformKeyDigest;
 
-export function cachePath(dataDir: string): string {
-  return path.join(dataDir, CACHE_FILE);
-}
+export const cachePath = platformCatalogPath;
 
 /** 这个平台的目录值不值得请求：没有地址或没有 key 时请求一定失败，别每 60 秒打一次。 */
 function fetchable(cfg: MediaConfig): boolean {
   return Boolean(cfg.platform.base_url.trim()) && Boolean(cfg.platform.api_key.trim());
 }
 
-interface CacheFile {
-  /** 按令牌指纹分组：同一个目录文件里存多个 key 的结果。 */
-  keys?: Record<string, PlatformCatalog>;
-}
-
-/**
- * 读上次落盘的目录。**读不到就是 null**，不抛错 —— 第一次启动本来就没有。
- */
+/** 读上次落盘的目录。**读不到就是 null**，不抛错 —— 第一次启动本来就没有。 */
 export function readCachedCatalog(dataDir: string, digest: string): PlatformCatalog | null {
   try {
-    const raw = JSON.parse(readFileSync(cachePath(dataDir), "utf8")) as CacheFile;
+    const raw = JSON.parse(readFileSync(cachePath(dataDir), "utf8")) as { keys?: Record<string, PlatformCatalog> };
     const entry = raw?.keys?.[digest];
     if (!entry || typeof entry.version !== "string" || !Array.isArray(entry.capabilities)) return null;
     return { ...entry, source: "cache" };
@@ -98,9 +59,9 @@ export function readCachedCatalog(dataDir: string, digest: string): PlatformCata
 function writeCachedCatalog(dataDir: string, digest: string, catalog: PlatformCatalog): void {
   try {
     mkdirSync(dataDir, { recursive: true });
-    let existing: CacheFile = {};
+    let existing: { keys?: Record<string, PlatformCatalog> } = {};
     try {
-      existing = JSON.parse(readFileSync(cachePath(dataDir), "utf8")) as CacheFile;
+      existing = JSON.parse(readFileSync(cachePath(dataDir), "utf8")) as { keys?: Record<string, PlatformCatalog> };
     } catch {
       existing = {};
     }

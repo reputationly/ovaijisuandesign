@@ -350,7 +350,8 @@ async function boot(): Promise<Running | undefined> {
             version: app.getVersion(),
             workspace: dir,
             // 每次起都重读：设置页改了模型后新开的工作区就用上
-            platform: readPlatform(dirs.configPath),
+            // 目录缓存落在 userData（gateway 写的同一个文件）：对话模型多选靠它。
+            platform: readPlatform(dirs.configPath, dirs.userData),
             gatewayUrl,
             identity,
             hubRoot: dirs.hubRoot,

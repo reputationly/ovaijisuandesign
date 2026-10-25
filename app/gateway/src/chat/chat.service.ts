@@ -5,10 +5,11 @@ import { Optional, Injectable, Logger, type OnModuleDestroy, type OnModuleInit }
 
 import { GatewayEventBus } from "../common/gateway-event-bus.js";
 import { GatewayConfig } from "../config/gateway-config.js";
+import { MediaConfigService } from "../generate/media-config.service.js";
 import { WorkspacePathService } from "../common/workspace-path.service.js";
 import { ActivityService } from "../health/activity.service.js";
 import { EventPump, type OcEvent } from "../runtime/event-pump.js";
-import { chatModelIds } from "../runtime/chat-models.js";
+import { chatModelIds, configuredChatModel, splitChatModelId } from "../runtime/chat-models.js";
 import { RuntimeClient, RuntimeUnavailableError } from "../runtime/runtime-client.js";
 import { collectTaskChildSessionIds, convertOpenCodeMessages, type RawMessage } from "./history-normalize.js";
 import { type AgentMode, ConfirmService } from "./confirm.service.js";
@@ -114,6 +115,8 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
     private readonly paths: WorkspacePathService,
     private readonly activity: ActivityService,
     private readonly cfg: GatewayConfig,
+    // L-3：对话模型列表要跟着平台目录走（用户可多选），见 `runtime/chat-models.ts`。
+    private readonly media: MediaConfigService,
     // 4.0.3：回合范围登记表。可选注入，缺了只是不开 scope（测试里常常不提供）。
     @Optional() private readonly requestGroups?: RequestGroupRegistry,
   ) {}
@@ -324,9 +327,10 @@ export class ChatService implements OnModuleInit, OnModuleDestroy {
       // 界面会记住上次选的模型并一直带着；配置里换了对话模型以后，旧 id 在 opencode 里已经不存在，
       // 照传会让每条消息都报 Model not found。不在当前可用列表里的换成当前模型、显式带上：
       // 不带的话 opencode 沿用这个会话上一条消息的模型，老会话照样是那个不存在的旧模型。
-      const available = chatModelIds(this.cfg);
+      const available = chatModelIds(configuredChatModel(this.cfg), this.media.currentCatalog());
       const modelId = s.modelId && available.includes(s.modelId) ? s.modelId : (available[0] ?? s.modelId);
-      const [providerID, ...rest] = (modelId ?? "").split("/");
+      const { providerID, modelID: restModelID } = splitChatModelId(modelId ?? "");
+      const rest = restModelID ? [restModelID] : [];
       // 4.0.3：接受这条消息时快照一个回合范围（分组 / 来源 / 模式 / 选型）。
       // 之后工具调用回来时按 chatTurnId 查这些值，而不是读当时的 socket 状态。
       if (this.requestGroups) {

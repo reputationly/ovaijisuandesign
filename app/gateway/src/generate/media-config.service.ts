@@ -91,8 +91,20 @@ export class MediaConfigService {
     return { ...config, models };
   }
 
-  /** 当前生效的目录（可能来自缓存）。`null` = 还没拿到过。 */
+  /**
+   * 当前生效的目录（可能来自缓存）。`null` = 还没拿到过。
+   *
+   * 第一次调用时先从盘上读一次：有些调用方（运行时模型列表）只读目录、不会先
+   * 走一遍 `load()`，而"读不到目录"和"还没人拉过"对它们是两种不同的处境。
+   */
   currentCatalog(): PlatformCatalog | null {
+    if (!this.catalog) {
+      try {
+        this.catalog = readCachedCatalog(this.dataDir(), keyDigest(this.base().platform.api_key)) ?? undefined;
+      } catch {
+        // 配置文件坏了：这时连平台地址都没有，读缓存也没有意义。
+      }
+    }
     return this.catalog ?? null;
   }
 

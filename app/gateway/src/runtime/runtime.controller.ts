@@ -3,8 +3,9 @@ import { Body, Controller, Get, HttpCode, Post } from "@nestjs/common";
 import { GatewayConfig } from "../config/gateway-config.js";
 import { IsOptional, IsString, IsUrl } from "class-validator";
 
-import { CHAT_PROVIDER_ID, chatModelIds } from "./chat-models.js";
+import { CHAT_PROVIDER_ID, chatModelIds, configuredChatModel } from "./chat-models.js";
 import { RuntimeConnection } from "./runtime-connection.js";
+import { MediaConfigService } from "../generate/media-config.service.js";
 
 class OpencodeUrlDto {
   @IsUrl({ require_tld: false, protocols: ["http", "https"] })
@@ -24,6 +25,7 @@ export class RuntimeController {
   constructor(
     private readonly conn: RuntimeConnection,
     private readonly cfg: GatewayConfig,
+    private readonly media: MediaConfigService,
   ) {}
 
   /**
@@ -32,7 +34,9 @@ export class RuntimeController {
    */
   @Get("models")
   models() {
-    const models = chatModelIds(this.cfg).map((id) => {
+    // L-3：目录里所有对话模型都列出来。平台上有二十多个语言模型，只列配置那一个的话
+    // 用户想换模型只能去改配置文件，而设置页没有这个入口。
+    const models = chatModelIds(configuredChatModel(this.cfg), this.media.currentCatalog()).map((id) => {
       const modelID = id.slice(CHAT_PROVIDER_ID.length + 1);
       // 界面按 `provider` 校验每一行，少了整份目录作废；providerID / modelID 给 opencode 那边的调用方用。
       return { id, name: modelID, provider: CHAT_PROVIDER_ID, providerID: CHAT_PROVIDER_ID, modelID };

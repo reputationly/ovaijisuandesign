@@ -148,4 +148,29 @@ describe("config", () => {
     expect(cfg.plugin[0]).toMatch(/^file:\/\/.*\/plugins\/session-header\.ts$/);
     expect(cfg.plugin[1]).toMatch(/^file:\/\/\/(?:[A-Z]:\/)?opt\/ov\/hilo\.js$/);
   });
+
+
+  it("对话模型多选：目录里的模型都进 provider，配置那个仍是默认", () => {
+    const d = mkdtempSync(path.join(tmpdir(), "ov-opencode-"));
+    const cfg = buildOpencodeConfig({
+      profileDir: d,
+      region: "domestic",
+      platform: {
+        base_url: "https://maas.example/v1",
+        api_key: "sk-x",
+        chat_model: "qwen3",
+        chat_models: ["qwen3", "GLM-5", "deepseek-v4-1-flash"],
+      },
+      mcp: { command: ["node", "/opt/mcp/main.js"], environment: { GATEWAY_URL: "http://127.0.0.1:8100" } },
+      extraPlugins: [],
+      skillsPaths: [],
+    });
+    // 默认仍是配置里那个；其余按给的顺序列出来，用户才能在界面上换。
+    expect(cfg.model).toBe("maas/qwen3");
+    expect(Object.keys(cfg.provider["maas"].models)).toEqual(["qwen3", "GLM-5", "deepseek-v4-1-flash"]);
+    // 每个条目都得是完整形状：opencode 缺 tool_call / limit 会按不可用处理。
+    for (const name of Object.keys(cfg.provider["maas"].models)) {
+      expect(cfg.provider["maas"].models[name]).toMatchObject({ id: name, name, tool_call: true });
+    }
+  });
 });
