@@ -322,9 +322,11 @@ export class GenerationRunner implements OnApplicationBootstrap {
       await this.materialize(r, url, displayModel(cfg, r.mediaType, r.request));
     } catch (err) {
       if (job.cancelled) return;
-      const { message, code } = describeFailure(err);
-      this.log.warn(`[task] ${r.mediaType} task=${r.taskId} failed: ${message}`);
-      await this.settleFailure(r, message, code);
+      const failure = describeFailure(err);
+      this.log.warn(`[task] ${r.mediaType} task=${r.taskId} failed: ${failure.message}`);
+      await this.settleFailure(r, failure.message, failure.code, {
+        problem: { code: failure.problemCode, source: failure.source, message: failure.userMessage },
+      });
     } finally {
       this.running.delete(r.taskId);
     }
@@ -396,7 +398,7 @@ export class GenerationRunner implements OnApplicationBootstrap {
     this.log.log(`[task] ${r.mediaType} task=${r.taskId} succeeded path=${rel} node=${nodeId ?? "-"}`);
   }
 
-  private async settleFailure(r: ActiveGenerationRecord, message: string, code: string, opts: { recoverable?: boolean } = {}): Promise<void> {
+  private async settleFailure(r: ActiveGenerationRecord, message: string, code: string, opts: { recoverable?: boolean; problem?: { code: string; source: string; message: string } } = {}): Promise<void> {
     const target = r.placeholderId ?? r.request.replace_node_id;
     if (target) {
       await this.canvas
@@ -404,17 +406,25 @@ export class GenerationRunner implements OnApplicationBootstrap {
         .catch((err) => this.log.warn(`[task] failPlaceholder(${target}) failed: ${(err as Error).message}`));
     }
     await this.store.remove(r.id).catch(() => undefined);
-    this.remember(r.taskId, r.mediaType, r.request.prompt, "failed", undefined, message);
+    this.remember(r.taskId, r.mediaType, r.request.prompt, "failed", undefined, message, opts.problem);
     // 最后才报失败：轮询方拿到 failed 就会去看画布，占位卡得已经是错误态。
-    this.settled.set(r.taskId, { status: "failed", error: message, error_code: code, user_message: message, at: Date.now() });
+    // `user_message` 是同步接口（`/api/generate/video` 这类）回给调用方的那句话：
+    // 有语义化的提示就用它，别把平台的英文原文丢给用户。
+    this.settled.set(r.taskId, {
+      status: "failed",
+      error: message,
+      error_code: code,
+      user_message: opts.problem?.message ?? message,
+      at: Date.now(),
+    });
   }
 
-  private remember(id: string, mediaType: MediaType, prompt: string | undefined, status: "running" | "completed" | "failed", output?: { path?: string; kind?: string; name?: string }, message?: string) {
+  private remember(id: string, mediaType: MediaType, prompt: string | undefined, status: "running" | "completed" | "failed", output?: { path?: string; kind?: string; name?: string }, message?: string, problem?: { code: string; source: string; message: string }) {
     const operation = mediaType === "speech" ? "generate_speech" : mediaType === "music" ? "generate_music" : mediaType === "video" ? "generate_video" : "generate_image";
     try {
       if (status === "running") this.tasks?.accept({ id, operation, prompt, mediaType });
       else if (status === "completed" && output) this.tasks?.complete(id, output);
-      else if (status === "failed" && message) this.tasks?.fail(id, message);
+      else if (status === "failed" && message) this.tasks?.fail(id, message, problem);
     } catch (error) {
       this.log.warn(`[task] record ${id} failed: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -436,18 +446,112 @@ const MODALITY_LABEL: Record<string, string> = {
   speech: "语音",
 };
 
+export interface FailureDescription {
+  /** 技术原文：进日志、进 `error` 字段。 */
+  message: string;
+  /** 兼容字段（历史调用方读它）。 */
+  code: string;
+  /** 任务卡片的 `problem.code`。**必须是参照那份枚举里的值**，否则渲染层的解析器会拒掉整条任务。 */
+  problemCode: string;
+  /** `problem.source`：billing / provider / input / delivery / system。 */
+  source: string;
+  /** 给用户看的一句话。缺省时 UI 显示 `message`。 */
+  userMessage: string;
+}
+
 /**
- * 失败 → 调用方看得懂的码。配置 / 参数问题重试也没用（`client_error`），传输问题是
- * `network_error`，其余都是平台侧的 `backend_error`。原因原文放进 message，画布上直接显示它。
+ * 平台错误码 → （参照枚举里的 problem.code, source, 中文提示）。
+ *
+ * # 为什么要这张表
+ *
+ * 平台回的错误码（`insufficient_user_quota` / `rate_limited` / `sensitive_words_detected`
+ * / `model_not_found`）此前一律被压成 `backend_error`，界面上只剩一句平台的英文原文。
+ * 用户看不出"是被限流，还是内容没过审，还是额度没了" —— 而这三种的处置完全不同：
+ * 等一会儿、改内容、充值。
+ *
+ * 卡片只能接受参照那份 `problem.code` 枚举，所以这里做**语义最近**的映射，
+ * 中文提示放在 `message` 里（界面显示的是它，不是枚举的英文原文）。
  */
-export function describeFailure(err: unknown): { message: string; code: string } {
+const PLATFORM_FAILURES: Record<string, { problemCode: string; source: string; userMessage: string }> = {
+  insufficient_user_quota: {
+    problemCode: "BILLING_INSUFFICIENT",
+    source: "billing",
+    userMessage: "平台额度不足，请充值后再试",
+  },
+  pre_consume_token_quota_failed: {
+    problemCode: "BILLING_INSUFFICIENT",
+    source: "billing",
+    userMessage: "平台额度不足，请充值后再试",
+  },
+  rate_limited: {
+    problemCode: "PROVIDER_CONCURRENCY",
+    source: "provider",
+    userMessage: "平台请求过于频繁，请稍后重试",
+  },
+  sensitive_words_detected: {
+    problemCode: "PROVIDER_REJECTED",
+    source: "provider",
+    userMessage: "内容未通过平台审核，请修改后重试",
+  },
+  prompt_blocked: {
+    problemCode: "PROVIDER_REJECTED",
+    source: "provider",
+    userMessage: "内容未通过平台审核，请修改后重试",
+  },
+  moderation_unavailable: {
+    problemCode: "PROVIDER_REJECTED",
+    source: "provider",
+    userMessage: "平台审核服务暂时不可用，请稍后重试",
+  },
+  model_not_found: {
+    problemCode: "PROVIDER_REJECTED",
+    source: "provider",
+    userMessage: "平台上没有这个模型，请检查设置里的模型名",
+  },
+  endpoint_not_supported: {
+    problemCode: "PROVIDER_REJECTED",
+    source: "provider",
+    userMessage: "这个模型不支持该接口，请换一个模型",
+  },
+  capability_unavailable: {
+    problemCode: "PROVIDER_REJECTED",
+    source: "provider",
+    userMessage: "这个部署没有该项能力，请检查平台配置",
+  },
+};
+
+/**
+ * 失败 → 调用方看得懂的码。
+ *
+ * 平台错误码能认出语义的按 {@link PLATFORM_FAILURES} 映射；传输层失败按
+ * "提交结果未知"报（`PROVIDER_UNAVAILABLE`）；配置 / 参数问题重试也没用
+ * （`client_error`），其余仍是平台侧的 `backend_error`。
+ */
+export function describeFailure(err: unknown): FailureDescription {
   if (err instanceof PlatformError) {
-    const code = err.code === "dpp.config" ? "client_error" : err.code === "dpp.transport" ? "network_error" : "backend_error";
-    return { message: err.message, code };
+    if (err.code.startsWith("platform.")) {
+      const mapped = PLATFORM_FAILURES[err.code.slice("platform.".length)];
+      if (mapped) return { message: err.message, code: "backend_error", ...mapped };
+    }
+    if (err.code === "dpp.transport") {
+      return {
+        message: err.message,
+        code: "network_error",
+        problemCode: "PROVIDER_UNAVAILABLE",
+        source: "provider",
+        userMessage: "与平台的连接中断，任务结果未确认；重试不会重复计费",
+      };
+    }
+    if (err.code === "dpp.config") {
+      return { message: err.message, code: "client_error", problemCode: "INTERNAL_ERROR", source: "system", userMessage: err.message };
+    }
+    return { message: err.message, code: "backend_error", problemCode: "PROVIDER_REJECTED", source: "provider", userMessage: err.message };
   }
   const message = err instanceof Error ? err.message : String(err);
-  if (/ENOSPC|no space left/i.test(message)) return { message, code: "storage_full" };
-  return { message, code: "backend_error" };
+  if (/ENOSPC|no space left/i.test(message)) {
+    return { message, code: "storage_full", problemCode: "INTERNAL_ERROR", source: "system", userMessage: "磁盘空间不足，无法保存生成结果" };
+  }
+  return { message, code: "backend_error", problemCode: "PROVIDER_REJECTED", source: "provider", userMessage: message };
 }
 
 /** 节点上的"重试"要能原样再发一次：留下请求体里决定结果的那些字段。 */

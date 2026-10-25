@@ -74,10 +74,21 @@ export class ProjectTaskService {
     this.write(id, current.operation, "completed", input, state, current.createdAt, new Date().toISOString(), current.revision + 1);
   }
 
-  fail(id: string, message: string) {
+  /**
+   * 任务失败。
+   *
+   * `problem` 是给卡片看的（`{code, source, message}`）：`code` 必须落在参照那份枚举里，
+   * 否则渲染层的任务解析器会拒掉整条任务（`Invalid Task response`），卡片直接空掉。
+   * 不传时只写技术原文，卡片显示"失败"但不带原因 —— 这是改造前的行为。
+   */
+  fail(id: string, message: string, problem?: { code: string; source: string; message: string }) {
     const current = this.getRow(id);
     if (!current || TERMINAL.has(current.status)) return;
-    this.write(id, current.operation, "failed", JSON.parse(current.inputJson) as Record<string, unknown>, { stage: "compute", error: message }, current.createdAt, new Date().toISOString(), current.revision + 1);
+    this.write(id, current.operation, "failed", JSON.parse(current.inputJson) as Record<string, unknown>, {
+      stage: "compute",
+      error: message,
+      ...(problem ? { problem } : {}),
+    }, current.createdAt, new Date().toISOString(), current.revision + 1);
   }
 
   list(query: { status?: string; operation?: string | string[]; source?: string; toolUseId?: string; limit?: string | number } = {}) {
@@ -263,6 +274,9 @@ export class ProjectTaskService {
  * 渲染层拿这两个去 `/api/project/resources/get` 换 `relativePath` 才能显示出图；
  * `path` 是落地的资产文件，只用于日志与核对（见 T-1）。
  */
+/** 任务失败的原因，形状与参照的 `problem` 一致（`code` 必须在其枚举内）。 */
+type TaskProblem = { code: string; source: string; message: string };
+
 type DeliveryOutput = {
   key: string;
   name?: string;
@@ -289,7 +303,7 @@ function outputView(item: DeliveryOutput) {
 
 export function executionView(row: TaskRow) {
   const input = JSON.parse(row.inputJson) as { prompt?: string; capabilityId?: string; origin?: { source?: string; toolUseId?: string } };
-  const state = JSON.parse(row.stateJson) as { error?: string; stage?: string; outputs?: DeliveryOutput[]; placements?: unknown };
+  const state = JSON.parse(row.stateJson) as { error?: string; stage?: string; outputs?: DeliveryOutput[]; placements?: unknown; problem?: TaskProblem };
   const terminal = TERMINAL.has(row.status);
   return {
     id: row.id,
@@ -300,14 +314,15 @@ export function executionView(row: TaskRow) {
     ...(input.origin ? { origin: input.origin } : {}),
     outputs: (state.outputs ?? []).map(outputView),
     ...(state.placements ? { placements: state.placements } : {}),
-    ...(state.error ? { problem: { message: state.error } } : {}),
+    // 有语义化的 problem 就报它（卡片按 code/message 显示可读的原因），否则退回技术原文。
+    ...(state.problem ? { problem: state.problem } : state.error ? { problem: { message: state.error } } : {}),
     ...(terminal ? {} : { stage: state.stage ?? "compute", progress: { phase: state.stage ?? "compute", reason: row.status, since: row.updatedAt, nextRetryAt: null } }),
   };
 }
 
 function present(row: TaskRow) {
   const input = JSON.parse(row.inputJson) as { prompt?: string; mediaType?: string; capabilityId?: string; origin?: { source?: string; toolUseId?: string } };
-  const state = JSON.parse(row.stateJson) as { error?: string; outputs?: DeliveryOutput[]; placements?: unknown };
+  const state = JSON.parse(row.stateJson) as { error?: string; outputs?: DeliveryOutput[]; placements?: unknown; problem?: TaskProblem };
   return {
     id: row.id,
     capabilityId: input.capabilityId ?? row.operation,
@@ -320,6 +335,9 @@ function present(row: TaskRow) {
     ...(state.outputs ? { outputs: state.outputs.map(outputView) } : {}),
     ...(state.placements ? { placements: state.placements } : {}),
     ...(state.error ? { error: state.error } : {}),
+    // 卡片读的是 `problem`（`error` 是技术原文）。两者都给：日志/排障要原文，
+    // 界面要能读懂的那一句。
+    ...(state.problem ? { problem: state.problem } : state.error ? { problem: { message: state.error } } : {}),
   };
 }
 

@@ -1,6 +1,7 @@
 import { type Client, type MediaConfig, PlatformError, audio, image, route, video } from "@ov/maas-media";
 
 import { loadCoverFeature } from "../music/cover-features.js";
+import { prepareInputs } from "./media-inputs.js";
 
 export type MediaType = "image" | "video" | "speech" | "music";
 
@@ -76,7 +77,9 @@ export async function runOnPlatform(client: Client, cfg: MediaConfig, root: stri
 }
 
 async function runImage(client: Client, cfg: MediaConfig, root: string, req: GenerationRequest): Promise<string> {
-  const images = await image.loadImageInputs(root, (req.image_paths ?? []).filter(nonEmpty));
+  // L-2：大的参考图先上传换 URL，小的继续内联（阈值见 media-inputs.ts）。
+  const preparedImages = await prepareInputs(client, cfg, root, (req.image_paths ?? []).filter(nonEmpty));
+  const images = await image.loadImageInputs(root, preparedImages);
   const p = req.params ?? {};
   return image.generate(client, cfg, req.prompt ?? "", images, str(p.aspect_ratio) ?? str(p.ratio) ?? "", str(p.resolution) ?? "", str(req.model_id) ?? str(p.model_name));
 }
@@ -212,13 +215,20 @@ async function runVideo(client: Client, cfg: MediaConfig, root: string, req: Gen
   const p = req.params ?? {};
   const duration = Number(req.duration ?? p.duration);
   const generateAudio = p.generate_audio === undefined ? null : p.generate_audio === true || p.generate_audio === "true";
+  // L-2：参考视频动辄上百 MB，必须先在平台落一份再传 URL；参考图小，继续内联。
+  const [preparedFrames, preparedRefImages, preparedRefVideos, preparedRefAudios] = await Promise.all([
+    prepareInputs(client, cfg, root, framesFor(plan, f.first, f.last)),
+    prepareInputs(client, cfg, root, refs.images),
+    prepareInputs(client, cfg, root, refs.videos),
+    prepareInputs(client, cfg, root, refs.audios),
+  ]);
   const job: video.VideoJob = {
     plan,
     prompt: req.prompt ?? "",
-    frames: await image.loadImageInputs(root, framesFor(plan, f.first, f.last)),
-    refImages: await image.loadImageInputs(root, refs.images),
-    refVideos: await image.loadMediaInputs(root, refs.videos),
-    refAudios: await image.loadMediaInputs(root, refs.audios),
+    frames: await image.loadImageInputs(root, preparedFrames),
+    refImages: await image.loadImageInputs(root, preparedRefImages),
+    refVideos: await image.loadMediaInputs(root, preparedRefVideos),
+    refAudios: await image.loadMediaInputs(root, preparedRefAudios),
     duration: Number.isFinite(duration) && duration > 0 ? Math.round(duration) : null,
     aspectRatio: str(p.aspect_ratio) ?? str(p.ratio) ?? "",
     resolution: str(p.resolution) ?? "",

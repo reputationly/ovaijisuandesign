@@ -34,6 +34,19 @@ export function platformBase(p: Platform): string {
 }
 
 /**
+ * `/v1/ov/*` 的绝对地址。
+ *
+ * 这个命名空间**不在 relay 那层 `/v1` 下面**：`base_url` 形如
+ * `https://host/v1`，而 `/v1/ov/files` 要从 host 根拼。少剥这一层的后果是
+ * 请求打到 `/v1/v1/ov/files`，返回 404 —— 而那看起来像"平台没这个接口"。
+ */
+export function ovUrl(base: string, suffix: string): string {
+  const trimmed = base.replace(/\/+$/, "");
+  const root = trimmed.endsWith("/v1") ? trimmed.slice(0, -3) : trimmed;
+  return `${root}/v1/ov${suffix.startsWith("/") ? suffix : `/${suffix}`}`;
+}
+
+/**
  * 音乐引擎族。决定 caption 和歌词各自落在哪个键上。
  *
  * **两个引擎的映射正好相反**：

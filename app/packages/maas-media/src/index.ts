@@ -37,6 +37,7 @@ export * as image from "./image.js";
 export * as lyrics from "./lyrics.js";
 export * as params from "./params.js";
 export * as route from "./route.js";
+export * as upload from "./upload.js";
 export * as video from "./video.js";
 
 export {
@@ -49,6 +50,7 @@ export {
   parseMediaConfig,
   parseModels,
   parsePlatform,
+  ovUrl,
   platformBase,
   resolveMusicEngine,
 } from "./config.js";
