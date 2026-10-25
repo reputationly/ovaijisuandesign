@@ -24,6 +24,8 @@ try {
   }
   const browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
   const page = browser.contexts()[0].pages().find((item) => item.url().startsWith("app://"));
+  const sentFrames = [];
+  page.on("websocket", (ws) => ws.on("framesent", (event) => sentFrames.push(String(event.payload))));
   await page.waitForTimeout(12_000);
   const results = [];
   for (const state of ["queued", "running", "completed", "failed"]) {
@@ -36,7 +38,9 @@ try {
     await page.screenshot({ path: path.join(out, `design-execute-card-${state}.png`), fullPage: true });
     results.push({ state, ids, retry, taskAttr, text });
   }
-  console.log(JSON.stringify({ out, results }, null, 2));
+  const subscribe = sentFrames.filter((frame) => frame.includes("task_subscribe") && frame.includes("design-chat"));
+  if (subscribe.length !== 1) throw new Error(`expected 1 design-chat task_subscribe, got ${subscribe.length}`);
+  console.log(JSON.stringify({ out, results, ws: { taskSubscribeFrames: subscribe.length, taskUnsubscribeFrames: sentFrames.filter((frame) => frame.includes("task_unsubscribe")).length } }, null, 2));
   await browser.close();
 } finally {
   child.kill("SIGTERM");
