@@ -70,8 +70,22 @@ versionId,availability,disposition}`，`path` 保留给日志），`present()` /
   （`online.png`）；
 - 页面异常 0 条。
 
-**仍然缺的**：真实平台那一次（`OV_PLATFORM_KEY` 至今不在环境里）。假平台能证明的是
-"产品这一侧从任务到画面的整条链"，证明不了"平台真的按这个形状回"。
+**真实平台那一次也跑了**（`.probe/pw/design-execute/2026-10-25T23-05-06-173Z-online/`，
+baseUrl `https://maas.ovaijisuan.com/v1`）：
+
+- 任务 `completed`，`outputs` 1 项带 `res_`/`ver_`/`availability=available`；
+- 卡片文案「生成 1 张图片（已完成）」、模型标签 `qwen-image-pro-enhanced`；
+- 产出区 4 个元素，`data-action-ui-id="chat-generated-image"`、
+  `data-artifact-path=…/files/store/ver_a7ab26df0858.png`；
+- `/files/store/….png` 两次 **200**；页面错误 **0**；
+- 交付文件本体是 **2048×2048** 的图（白底红苹果），已拷成同目录的 `output.png`。
+  截图里 media 区那一块是 `background-image` + `cover` 裁切，所以看到的是苹果的中段，
+  不是整张图 —— 这是卡片布局（宽而扁的条）决定的，不是没加载出来。
+
+**这一轮还顺手加固了一个崩溃点**：真实出图后 `Tooltip`（`generation/missing-asset-card.jsx`）
+对 `children.props.id` 直接解引用，而某个调用点传进来的 children 是 `undefined` ——
+报 `Cannot read properties of undefined (reading 'id')`，被 `v3-render` 兜住后只是刷屏
+（子树会被卸载）。改成"不是元素就原样返回"。修完同一场景页面错误 0。
 
 ### T-2 轮询间隔的测量
 
@@ -83,10 +97,29 @@ versionId,availability,disposition}`，`path` 保留给日志），`present()` /
 - 按 WS `task_subscription_ready` 的到达时间切"就绪前 / 就绪后"两段，按规范化 URL 分组算
   间隔（同一个 URL 的两个轮询器不会混在一起）。
 
-**与交接文档不一致**：文档预期"就绪后约 15 秒（`RETRYABLE_POLL_MS`）"，我方实际生效的
-常量是 `PUSHED_POLL_MS = 15000`（`task-push.js:18`）；`RETRYABLE_POLL_MS` 也恰好是 15000，
-但它是给"失败且可 retry"用的。两者数值相同、用途不同，统计结果看不出来，这里记一笔
-以免以后改其中一个时误判。
+**真实平台上的实测（145 秒窗口，窗口置前、`visibilityState=visible`、`hasFocus=true`）**：
+
+| 轮询源 | 间隔 | 次数 |
+|---|---|---|
+| 任务列表（`status=accepted,running,waiting_user,unknown`，面板用） | **5.0 s**，非常稳 | 30 |
+| 任务列表（按四个 operation 的历史列表，`limit=50`） | **15.0 s** | 20 |
+| 卡片自己（`GET /api/v3/tasks/<id>`） | 只有 1 次，之后不再轮询 | 1 |
+| 卡片按 `toolUseId` 反查 | 0 次 | 0 |
+
+**结论与交接文档的预期不一致，按实测记**：文档预期"就绪前约 3 秒（`LIVE_POLL_MS`）、
+就绪后约 15 秒（`RETRYABLE_POLL_MS`/`PUSHED_POLL_MS`）"。实测下来，这条链上跑的不是
+卡片自己那套 3 s/15 s，而是**两个列表轮询器（5 s 与 15 s）**；卡片本身是**推送驱动**
+（`task_subscription_ready` 之后靠 `task_changed` 覆盖查询缓存），所以它只发一次按 id
+的查询。`designTaskPollInterval` 的 3 s/15 s 分支只有在"卡片拿不到 taskId 且不在推送
+作用域"时才会生效，本轮没走到。
+
+**另外两个容易误读的点，已经在脚本里处理**：
+- `refetchIntervalInBackground` 默认 false：窗口在后台时 React Query 会暂停轮询。
+  实测后台状态下 145 秒只发出 1 次卡片查询，看着像"轮询坏了"。脚本现在先
+  `bringToFront()`，并把当时的 `visibilityState` / `hasFocus` 记进证据。
+- 想量"就绪前 3 s / 就绪后 15 s"必须有一个跑得比间隔久的任务：图片 10 秒就完了，
+  轮询还没来得及发生。脚本给了 `--fake-delay <ms>`（只在 `--self-test` 下）
+  造一个慢任务来量，零成本。
 
 ### T-3 证据落盘
 

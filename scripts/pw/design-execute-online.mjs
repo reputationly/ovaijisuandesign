@@ -29,10 +29,35 @@ const req = createRequire(path.join(repo, "app/gateway/package.json"));
 const Database = req("better-sqlite3");
 const args = process.argv.slice(2);
 const selfTest = args.includes("--self-test");
+/** `--fake-delay <ms>`：假平台把"出图"拖慢，用来量轮询间隔（只在 --self-test 下有意义）。 */
+const fakeDelayMs = (() => {
+  const at = args.indexOf("--fake-delay");
+  return at >= 0 ? Number(args[at + 1]) || 0 : 0;
+})();
 const key = selfTest ? "sk-selftest" : process.env.OV_PLATFORM_KEY;
 if (!key) throw new Error("OV_PLATFORM_KEY is required（想先验证链路，用 --self-test）");
 
 const IMAGE_MODEL = "qwen-image-pro-enhanced";
+const VIDEO_MODEL = "minimax-h3-2k";
+// 默认跑图片；`--capability generate_video:<model>` 可以换成视频（T-2 要测的就绪前后两段
+// 间隔，得有一个跑得比轮询间隔久一点的任务才测得出来）。
+const capabilityId = (() => {
+  const at = args.indexOf("--capability");
+  return at >= 0 && args[at + 1] ? args[at + 1] : `generate_image:${IMAGE_MODEL}`;
+})();
+const isVideo = capabilityId.startsWith("generate_video:");
+const placementRole = isVideo ? "video" : "image";
+const outputName = isVideo ? "视频" : "苹果";
+const prompt = isVideo ? "一只橘猫在窗台上打哈欠" : "真实任务：红色苹果";
+/** 归档种子 part 与真正那次 `/api/v3/execute` 共用同一份入参，避免两处漂移。 */
+const inputPayload = {
+  capabilityId,
+  prompt,
+  output: {
+    resources: [{ key: "primary", mode: "create", name: outputName }],
+    composition: { name: `${outputName}组`, type: { label: "Generated" }, placements: [{ role: placementRole }] },
+  },
+};
 
 /**
  * 假平台：目录 + 同步出图 + 产物下载。**目录是真的目录形状** —— 客户端会拿它当
@@ -61,11 +86,23 @@ async function startFakePlatform() {
             limits: { maxReferenceImages: 0, maxDurationSeconds: 0, maxInputBytes: 0 },
             default: true,
           },
+          {
+            id: `generate_video:${VIDEO_MODEL}`,
+            operation: "generate_video",
+            model: VIDEO_MODEL,
+            transport: { kind: "videos_task" },
+            taskTypes: ["t2v"],
+            default: true,
+          },
           { id: "chat:deepseek-v4-1-flash", operation: "chat", model: "deepseek-v4-1-flash", transport: { kind: "chat" } },
         ],
       });
     }
-    if (request.url === "/v1/images/generations") return json({ data: [{ url: `${base}/files/out.png` }] });
+    if (request.url === "/v1/images/generations") {
+      // `--fake-delay` 让"任务"慢一点：轮询间隔要有一个跑得比间隔久的任务才测得出来。
+      if (fakeDelayMs > 0) return setTimeout(() => json({ data: [{ url: `${base}/files/out.png` }] }), fakeDelayMs);
+      return json({ data: [{ url: `${base}/files/out.png` }] });
+    }
     if (request.url === "/files/out.png") {
       res.setHeader("content-type", "image/png");
       return res.end(png);
@@ -81,7 +118,7 @@ const fakePlatform = selfTest ? await startFakePlatform() : null;
 const baseUrl = fakePlatform ? `http://127.0.0.1:${fakePlatform.address().port}/v1` : "https://maas.ovaijisuan.com/v1";
 const config = {
   platform: { base_url: baseUrl, api_key: key, chat_model: "deepseek-v4-1-flash" },
-  models: { image: IMAGE_MODEL, image_edit: null, video: null, video_ref: null, video_upscale: null, music: null, music_edit: null, speech: null, music_engine: null, enhance_music_caption: false, voice_map: {}, image_upscale: null },
+  models: { image: IMAGE_MODEL, image_edit: null, video: VIDEO_MODEL, video_ref: null, video_upscale: null, music: null, music_edit: null, speech: null, music_engine: null, enhance_music_caption: false, voice_map: {}, image_upscale: null },
 };
 const out = path.resolve(repo, `.probe/pw/design-execute/${new Date().toISOString().replace(/[:.]/g, "-")}-${selfTest ? "selftest" : "online"}`);
 mkdirSync(out, { recursive: true });
@@ -110,7 +147,7 @@ const payload = {
     { id: "msg_online_user", session_id: "ses_online", time_created: now, time_updated: now, data: JSON.stringify({ role: "user", sessionID: "ses_online", time: { created: now }, agent: "general", model: { providerID: "custom", modelID: "deepseek-v4-1-flash" }, modelID: "deepseek-v4-1-flash", providerID: "custom", mode: "general", cost: 0, tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } }, path: { cwd: oldDir, root: oldDir } }) },
     { id: "msg_online_assistant", session_id: "ses_online", time_created: now + 1, time_updated: now + 1, data: JSON.stringify({ role: "assistant", sessionID: "ses_online", time: { created: now + 1, completed: now + 2 }, parentID: "msg_online_user", agent: "general", model: { providerID: "custom", modelID: "deepseek-v4-1-flash" }, modelID: "deepseek-v4-1-flash", providerID: "custom", mode: "general", cost: 0, tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } }, path: { cwd: oldDir, root: oldDir } }) },
   ],
-  parts: [{ id: "prt_online", message_id: "msg_online_assistant", session_id: "ses_online", time_created: now + 1, time_updated: now + 1, data: JSON.stringify({ type: "tool", tool: "design_execute", callID: "tool-online", messageID: "msg_online_assistant", state: { status: "running", title: "design_execute", metadata: {}, input: { capabilityId: "generate_image:qwen-image-pro-enhanced", prompt: "真实任务：红色苹果", output: { resources: [{ key: "primary", mode: "create", name: "苹果" }], composition: { name: "苹果组", type: { label: "Generated" }, placements: [{ role: "image" }] } } }, output: "{}", time: { start: now } } }) }],
+  parts: [{ id: "prt_online", message_id: "msg_online_assistant", session_id: "ses_online", time_created: now + 1, time_updated: now + 1, data: JSON.stringify({ type: "tool", tool: "design_execute", callID: "tool-online", messageID: "msg_online_assistant", state: { status: "running", title: "design_execute", metadata: {}, input: inputPayload, output: "{}", time: { start: now } } }) }],
   todos: [],
 };
 const gw = spawn(process.execPath, [path.join(repo, "app/gateway/dist/main.js")], {
@@ -156,6 +193,9 @@ db.close();
 await app.page.evaluate(({ ws, sid }) => window.hilo.ipcRenderer.invoke("storage:global-set", "workspaceSessionTabs", { [ws]: { focusedSessionId: sid, openedTabIds: [sid], updatedAt: Date.now() } }), { ws, sid: row.id });
 await app.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
 await app.page.waitForTimeout(8000);
+// **窗口要置前**：`refetchIntervalInBackground` 默认 false，窗口在后台时 React Query 会暂停
+// 轮询 —— 实测后台状态下 145 秒只发出 1 次卡片查询，看着像"轮询坏了"，其实是被节流掉。
+await app.page.bringToFront().catch(() => {});
 
 // 从主日志解析工作区 gateway 端口；对每个端口建任务，卡片所在端口会命中。
 const log = readFileSync(path.join(xdg, "..", "ud", "logs", "main.log"), "utf8");
@@ -163,7 +203,7 @@ const wsUrls = [...log.matchAll(/ws:\/\/127\.0\.0\.1:(\d+)\/ws\?hilo_workspace=(
 const ports = wsUrls.slice(-2);
 const headersOf = ({ claim, instance, generation }) => ({ "x-hilo-workspace": claim, "x-hilo-workspace-instance": instance, "x-hilo-workspace-generation": generation });
 const bodies = ports.map(async (item) => {
-  const response = await fetch(`http://127.0.0.1:${item.port}/api/v3/execute`, { method: "POST", headers: { "Content-Type": "application/json", "x-hilo-agent-caller": "pw-caller", "x-session-id": row.id, "x-tool-use-id": "tool-online", ...headersOf(item) }, body: JSON.stringify({ capabilityId: `generate_image:${IMAGE_MODEL}`, prompt: "真实任务：红色苹果", output: { resources: [{ mode: "create", name: "苹果" }], composition: { name: "苹果组", type: { label: "Generated" }, placements: [{ role: "image" }] } } }) });
+  const response = await fetch(`http://127.0.0.1:${item.port}/api/v3/execute`, { method: "POST", headers: { "Content-Type": "application/json", "x-hilo-agent-caller": "pw-caller", "x-session-id": row.id, "x-tool-use-id": "tool-online", ...headersOf(item) }, body: JSON.stringify(inputPayload) });
   const caps = await fetch(`http://127.0.0.1:${item.port}/api/v3/capabilities`, { headers: headersOf(item) }).then(async (r) => ({ status: r.status, body: (await r.text()).slice(0, 500) })).catch((error) => ({ status: 0, body: String(error) }));
   return { ...item, status: response.status, body: await response.text(), caps };
 });
@@ -198,7 +238,19 @@ for (let i = 0; i < 20; i++) {
   outputs = await app.page.locator('[data-testid="design-execute-outputs"]').count();
   if (outputs > 0) {
     outputCards = await app.page.locator('[data-testid="design-execute-outputs"] img, [data-testid="design-execute-outputs"] video, [data-testid="design-execute-outputs"] [data-action-ui-id]').count();
-    if (outputCards > 0) break;
+    if (outputCards > 0) {
+      // 元素在 ≠ 画出来了。缩略图要等 `complete && naturalWidth>0`（video 同理），
+      // 否则截图里是一个空框，看起来像"图没出来"。
+      const painted = await app.page
+        .evaluate(() => {
+          const root = document.querySelector('[data-testid="design-execute-outputs"]');
+          if (!root) return false;
+          const media = [...root.querySelectorAll("img, video")];
+          return media.length > 0 && media.every((el) => (el.tagName === "IMG" ? el.complete && el.naturalWidth > 0 : el.readyState >= 2 || el.videoWidth > 0));
+        })
+        .catch(() => false);
+      if (painted) break;
+    }
   }
   await app.page.waitForTimeout(1000);
 }
@@ -276,6 +328,8 @@ const result = {
     other: otherPolling,
   },
   frames,
+  // 轮询测量只在"窗口在前台"时有效；把当时的可见性/焦点记下来，免得误读。
+  visibility: await app.page.evaluate(() => ({ state: document.visibilityState, hasFocus: document.hasFocus() })).catch(() => null),
   pageErrors: redact(pageErrors),
   probes: redact(probes),
   requests: redact(requests),

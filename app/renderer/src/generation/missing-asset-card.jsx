@@ -84,6 +84,11 @@ export function Tooltip({
   open,
 }) {
   const generatedId = reactExports.useId();
+  // 这里假设 `children` 是一个元素 —— 但调用方可能在条件分支里传 `undefined` / 数组
+  // （实测：真实平台出图后，产出卡上某个 Tooltip 的 children 是 undefined，
+  // `children.props.id` 直接抛 `Cannot read properties of undefined`，被 v3-render 兜住
+  // 后只是刷屏报错，但子树会被卸载）。包不住就原样返回，别为了一个提示把界面搞坏。
+  if (!reactExports.isValidElement(children)) return children;
   const triggerId = children.props.id ?? generatedId;
   if (!content) return children;
   return (
