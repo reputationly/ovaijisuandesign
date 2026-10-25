@@ -69,35 +69,27 @@ const db2 = new Database(path.join(xdg, "..", "opencode.db"), { readonly: true }
 const seededRows = db2.prepare("SELECT id, title FROM session WHERE title LIKE 'PW %'").all();
 db2.close();
 if (seededRows.length !== 4) throw new Error(`seeded sessions ${seededRows.length}`);
-const second = await launchApp({ mode, port: 9362, xdg, reset: false });
-const sentFrames = [];
-second.page.on("websocket", (ws) => ws.on("framesent", (event) => sentFrames.push(String(event.payload))));
 const outDir = path.resolve(repo, `.probe/pw/design-execute/${new Date().toISOString().replace(/[:.]/g, "-")}-${mode}`);
-const api = `http://127.0.0.1:39737`;
-await second.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
-await second.page.waitForTimeout(10_000);
-const { mkdirSync } = await import("node:fs");
-mkdirSync(outDir, { recursive: true });
 const results = [];
-for (const state of states) {
+for (const [index, state] of states.entries()) {
   const row = seededRows.find((item) => item.title === `PW ${state}`);
   if (!row) continue;
-  await second.page.evaluate(({ ws, sid }) => {
+  const app = await launchApp({ mode, port: 9370 + index, xdg, reset: false });
+  await app.page.evaluate(({ ws, sid }) => {
     localStorage.setItem("hilo:storage:global.workspaceSessionTabs", JSON.stringify({ [ws]: { focusedSessionId: sid, openedTabIds: [sid] } }));
   }, { ws, sid: row.id });
-  await second.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
-  await second.page.waitForTimeout(6_000);
-  await second.page.waitForTimeout(4_000);
-  const card = await second.page.locator('[data-action-ui-id="chat-design-execute"]').count();
-  const toggle = second.page.locator('[data-action-ui-id="chat-design-execute-toggle"]');
-  if (await toggle.count()) { await toggle.first().click(); await second.page.waitForTimeout(500); }
-  const text = (await second.page.locator('[data-action-ui-id="chat-design-execute"]').innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 200);
+  await app.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
+  await app.page.waitForTimeout(10_000);
+  const card = await app.page.locator('[data-action-ui-id="chat-design-execute"]').count();
+  const toggle = app.page.locator('[data-action-ui-id="chat-design-execute-toggle"]');
+  if (await toggle.count()) { await toggle.first().click(); await app.page.waitForTimeout(500); }
+  const text = (await app.page.locator('[data-action-ui-id="chat-design-execute"]').innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 200);
   const screenshot = path.join(outDir, `${state}.png`);
-  await second.page.screenshot({ path: screenshot, fullPage: true });
+  await app.page.screenshot({ path: screenshot, fullPage: true });
   results.push({ state, card, text, screenshot });
+  await app.close();
+  try { execFileSync("pkill", ["-9", "-f", "app/desktop"]); } catch {}
+  await new Promise((resolve) => setTimeout(resolve, 1200));
 }
-const subscribe = sentFrames.filter((frame) => frame.includes("task_subscribe") && frame.includes("design-chat"));
-const bodyText = (await second.page.locator("body").innerText()).slice(0, 300);
-console.log(JSON.stringify({ mode, results, ws: { taskSubscribe: subscribe.length }, body: bodyText }, null, 2));
-await second.close();
+console.log(JSON.stringify({ mode, results }, null, 2));
 process.exit(0);
