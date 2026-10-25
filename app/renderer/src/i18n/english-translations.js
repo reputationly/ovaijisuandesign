@@ -112,6 +112,7 @@ export const en = {
   "canvas.referenceNavigation.locate": "Focus reference node",
   "canvas.referenceNavigation.return": "Return to node",
   "canvas.zoom.adjust": "Adjust zoom level",
+  "workspaceTasks.offline": "Connection interrupted. Existing tasks are retained; reconnecting will refresh their status.",
   "workspaceTasks.status.accepted": "Accepted",
   "workspaceTasks.status.cancelled": "Stopped",
   "workspaceTasks.status.completed": "Completed",

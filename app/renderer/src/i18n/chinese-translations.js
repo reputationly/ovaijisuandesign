@@ -106,6 +106,7 @@ const zh = {
   "canvas.referenceNavigation.locate": "聚焦至参考节点",
   "canvas.referenceNavigation.return": "返回节点",
   "canvas.zoom.adjust": "调整缩放比例",
+  "workspaceTasks.offline": "连接暂时中断，已显示的任务会保留，重连后更新状态。",
   "workspaceTasks.status.accepted": "已接受",
   "workspaceTasks.status.cancelled": "已停止",
   "workspaceTasks.status.completed": "已完成",

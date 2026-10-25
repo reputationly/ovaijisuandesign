@@ -3,7 +3,7 @@
  * 方案 3：先启动一次应用让 opencode 建库，再用产品归档导入接口种一条会话，
  * 随后重新启动并打开该会话。参照/我方走同一份 opencode 数据。
  */
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { launchApp } from "./launch-app.mjs";
@@ -11,7 +11,10 @@ import { launchApp } from "./launch-app.mjs";
 const repo = path.resolve(import.meta.dirname, "../..");
 const Database = createRequire(path.join(repo, "app/gateway/package.json"))("better-sqlite3");
 const mode = process.argv.includes("--reference") ? "reference" : "recovered";
-const first = await launchApp({ mode: process.env.PW_REFERENCE === "1" ? "recovered" : "recovered" });
+const first = await launchApp({ port: 9361 });
+await first.close();
+try { execFileSync("pkill", ["-9", "-f", "app/desktop"]); } catch {}
+await new Promise((resolve) => setTimeout(resolve, 1500));
 const xdg = first.xdg;
 const ws = first.workspace;
 
@@ -57,17 +60,31 @@ const db2 = new Database(path.join(xdg, "..", "opencode.db"), { readonly: true }
 const seeded = db2.prepare("SELECT id, title FROM session WHERE title = ?").get("PW design execute");
 db2.close();
 if (!seeded) throw new Error("seeded session not found");
-const second = first;
+const second = await launchApp({ mode, port: 9362, xdg, reset: false });
+const sentFrames = [];
+second.page.on("websocket", (ws) => ws.on("framesent", (event) => sentFrames.push(String(event.payload))));
+const outDir = path.resolve(repo, `.probe/pw/design-execute/${new Date().toISOString().replace(/[:.]/g, "-")}-${mode}`);
 const api = `http://127.0.0.1:39737`;
 await second.page.evaluate(({ ws, sid }) => {
   localStorage.setItem("hilo:storage:global.workspaceSessionTabs", JSON.stringify({ [ws]: { focusedSessionId: sid, openedTabIds: [sid] } }));
 }, { ws, sid: seeded.id });
 await second.page.goto(`app://./workspace?workspaceId=${encodeURIComponent(ws)}`, { waitUntil: "domcontentloaded" });
-await second.page.waitForTimeout(12_000);
+await second.page.waitForTimeout(15_000);
 await second.page.waitForTimeout(8000);
 const card = await second.page.locator('[data-action-ui-id="chat-design-execute"]').count();
 const bodyText = (await second.page.locator("body").innerText()).slice(0, 400);
-await second.page.screenshot({ path: path.join(xdg, "..", "seeded-card.png"), fullPage: true });
-console.log(JSON.stringify({ card, session: seeded.id, body: bodyText, screenshot: path.join(xdg, "..", "seeded-card.png") }, null, 2));
+const { mkdirSync } = await import("node:fs");
+mkdirSync(outDir, { recursive: true });
+const ids = await second.page.$$eval('[data-action-ui-id]', (nodes) => [...new Set(nodes.map((node) => node.getAttribute("data-action-ui-id")))].sort());
+const screenshot = path.join(outDir, "seeded-card.png");
+await second.page.screenshot({ path: screenshot, fullPage: true });
+const toggle = second.page.locator('[data-action-ui-id="chat-design-execute-toggle"]');
+if (await toggle.count()) {
+  await toggle.click();
+  await second.page.waitForTimeout(800);
+  await second.page.screenshot({ path: path.join(outDir, "seeded-card-expanded.png"), fullPage: true });
+}
+const subscribe = sentFrames.filter((frame) => frame.includes("task_subscribe") && frame.includes("design-chat"));
+console.log(JSON.stringify({ mode, card, session: seeded.id, ids, ws: { taskSubscribe: subscribe.length }, body: bodyText, screenshot }, null, 2));
 await second.close();
 process.exit(0);

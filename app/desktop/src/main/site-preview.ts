@@ -37,7 +37,12 @@ export class SitePreviewService {
   }
 
   dispose(): void {
-    protocol.unhandle(SITE_PREVIEW_SCHEME);
+    // 可能已被另一处/重复 dispose 取消；unhandle 不存在的协议会抛，退出时会弹主进程异常。
+    try {
+      if (protocol.isProtocolHandled(SITE_PREVIEW_SCHEME)) protocol.unhandle(SITE_PREVIEW_SCHEME);
+    } catch {
+      // 关停阶段的清理失败不应再抛到 process 层
+    }
   }
 
   async resolve(request: SitePreviewRequest): Promise<SitePreviewResolution> {
