@@ -323,7 +323,9 @@ Authorization: Bearer <key>
    `OV_PLATFORM_KEY`，一次真实调用都没发。（语音识别已按负责人决定移出 P0，见 N-3。）
    能离线证的部分已经证到数据层：目录拉取/回退、上传阈值与回退、错误码映射（含
    "平台额度不足 → 卡片显示可读提示"这条 e2e）、`/v1/ov/capabilities` 的整条链
-   （真库 + 真中间件 + 令牌白名单）。**缺的是"真平台真的这么回"这一环**。
+   （真库 + 真中间件 + 令牌白名单）。**缺的是"真平台真的这么回"这一环**，而这一环现在
+   是一条命令：`OV_PLATFORM_KEY=… node scripts/smoke/platform-online.mjs`
+   （见 8.6.1；`--self-test` 已验证脚本本身 6/6 通过，零成本）。
 2. 37 屏 / v3 七屏门禁 —— **两处都已 exit 0**（2026-10-26 00:4x）：37 屏 37/37
    「超护栏 0 / 未登记差异 0 / 新增报错 0」；v3 七屏 7/7 同上、工作台视图非 AA 像素 0%。
    为了让 37 屏回到全绿，`ws-chat-input` 记了一处 DOM 差异（`feedback-button`）并把该屏
@@ -516,6 +518,22 @@ OV_PLATFORM_KEY=... HILO_PROJECT_ARCHITECTURE=resource_v3 \
 - 轮询统计只算卡片自己的请求（`/api/v3/tasks/<taskId>` 或带 `toolUseId` 的列表），
   不要把任务面板/队列的 `/api/v3/tasks` 混进去。T-2 要求按推送 ready 前后分段。
 - 真实调用一次就够；不要循环压测。产物中的 `sk-` 串必须脱敏。
+
+### 8.6.1 真实平台联调：一条命令跑完六个场景
+
+```bash
+OV_PLATFORM_KEY=… node scripts/smoke/platform-online.mjs
+```
+
+- 走的是**产品自己的代码**（`@ov/maas-media`，gateway 调平台用的就是它），不手写请求体 ——
+  手写一份会漂移，而漂移出来的"通过"证明的是脚本而不是产品；
+- 顺序：`/v1/ov/capabilities` → 生图（同步）→ 视频（异步+轮询）→ 语音合成 → 音乐 → 对话。
+  模型名**全部从目录里取**，所以这一步同时验证 N-1 的下发；
+- 证据落 `.probe/platform/<ts>-online/result.json`（`sk-` 脱敏，含每个场景的 URL、字节数、耗时）；
+- **一次一个场景，不循环压测**。改脚本先跑 `--self-test`（本地假平台，零成本，6/6 通过）；
+- 语音需要一段参考音频（平台没有预设音色）：`--voice-ref ./ref.wav`，不给就跳过并说明原因；
+- 模型名判不出音乐引擎族时给 `--music-engine music3|ace_step`；
+- 只跑其中几项：`--only image,speech`。
 
 ### 8.7 已确认的历史 bug（不要重犯）
 
