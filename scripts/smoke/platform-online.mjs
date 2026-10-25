@@ -7,6 +7,14 @@
  *   … --only image,speech                                     # 只跑几项
  *   … --voice-ref ./ref.wav                                    # 语音要一段参考音频（平台没有预设音色）
  *   … --music-engine music3                                    # 模型名判不出音乐引擎族时显式指定
+ *   … --check                                                  # 只验 key 与平台部署状态，不生成任何东西
+ *
+ * # 平台还没部署 `/v1/ov/*` 的时候
+ *
+ * 那一步会 404（实测 `https://maas.ovaijisuan.com` 现在就是）。脚本**不会因此整跑失败**：
+ * 目录拿不到就退回一份写死的模型名（`FALLBACK_MODELS`，与本轮联调用的那套一致），并在
+ * 结论里明确写"目录未部署、模型名是兜底值" —— 否则会让人以为"目录里就该有这些"。
+ * 代价是：这条路上验证不到"目录下发的模型名"，等 new-api 的 `/v1/ov` 上线后再跑一次才算完整。
  *
  * # 为什么要有这个脚本
  *
@@ -52,6 +60,7 @@ const only = new Set((value("only", "") || "").split(",").map((s) => s.trim()).f
 const shouldRun = (name) => only.size === 0 || only.has(name);
 const voiceRef = value("voice-ref", process.env.OV_SMOKE_VOICE_REF || "");
 const musicEngine = value("music-engine", process.env.OV_SMOKE_MUSIC_ENGINE || "");
+const checkOnly = flag("check");
 const key = process.env.OV_PLATFORM_KEY ?? "";
 const baseUrl = value("base-url", process.env.OV_PLATFORM_BASE_URL || "https://maas.ovaijisuan.com/v1");
 const runAt = new Date().toISOString().replace(/[:.]/g, "-");
@@ -70,6 +79,23 @@ const redact = (v) =>
       : v && typeof v === "object"
         ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, redact(x)]))
         : v;
+
+/**
+ * `/v1/ov/capabilities` 还没部署时的兜底模型名（等于本轮联调手工确认过的那套）。
+ *
+ * 为什么要有它：云平台的 `/v1/ov` 是这次新加的路由，**线上还没发布**（实测 404）。
+ * 没有兜底的话，"取到 key 之后跑一次"这件事会被一个与产品无关的部署时点挡住。
+ * 但兜底值**不能冒充目录**：结论里会写清楚，接口一上线就该复跑。
+ */
+const FALLBACK_MODELS = [
+  { operation: "generate_image", model: "qwen-image-pro-enhanced" },
+  { operation: "generate_image", model: "qwen-image-edit", limits: { maxReferenceImages: 4 } },
+  { operation: "generate_video", model: "minimax-h3-2k", taskTypes: ["t2v", "i2v"] },
+  { operation: "generate_video", model: "minimax-h3-ref-2k", taskTypes: ["r2va"] },
+  { operation: "generate_music", model: "minimax-music3" },
+  { operation: "generate_speech", model: "indextts-2.5" },
+  { operation: "chat", model: "deepseek-v4-1-flash" },
+];
 
 const results = [];
 const record = (scenario, status, detail) => {
@@ -225,7 +251,37 @@ async function main() {
     for (const capability of body.capabilities) (byOperation[capability.operation] ??= []).push(capability.model);
     record("capabilities", "pass", { version: body.version, elapsedMs: Date.now() - startedCatalog, byOperation });
   } catch (error) {
-    record("capabilities", "fail", { note: error instanceof Error ? error.message : String(error) });
+    const note = error instanceof Error ? error.message : String(error);
+    // 404 = 这个部署还没有 `/v1/ov`。那不是"产品坏了"，是"云平台还没发版"，
+    // 所以不判失败，改成退回兜底模型名并把话说清楚。
+    if (/HTTP 404/.test(note) && !selfTest) {
+      catalog = { version: "fallback", capabilities: FALLBACK_MODELS, fetchedAt: new Date().toISOString(), source: "cache" };
+      record("capabilities", "skip", {
+        note: "平台上没有 /v1/ov/capabilities（HTTP 404）—— 云平台还没发这个版；下面用兜底模型名跑，模型名不是目录下发的",
+        elapsedMs: Date.now() - startedCatalog,
+      });
+    } else {
+      record("capabilities", "fail", { note });
+    }
+  }
+
+  // --check：只回答"这个 key 能不能用、平台发了哪些接口"，不生成任何东西（不花钱）。
+  if (checkOnly) {
+    try {
+      const response = await fetch(`${platform.base_url}/models`, { headers: { Authorization: `Bearer ${platform.api_key}` } });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const models = Array.isArray(body.data) ? body.data.map((m) => m.id) : [];
+      record("key", "pass", { models: models.length, sample: models.slice(0, 8) });
+    } catch (error) {
+      record("key", "fail", { note: error instanceof Error ? error.message : String(error) });
+    }
+    evidence.results = results;
+    writeFileSync(path.join(outDir, "result.json"), JSON.stringify(evidence, null, 2));
+    const failedCheck = results.some((r) => r.status === "fail");
+    console.log(`\ncheck：${failedCheck ? "key 或平台不可用" : "key 可用"} → ${path.relative(repo, outDir)}/result.json`);
+    if (fake) fake.server.close();
+    process.exit(failedCheck ? 1 : 0);
   }
 
   if (catalog) {
