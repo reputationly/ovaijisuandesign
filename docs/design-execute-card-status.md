@@ -26,7 +26,7 @@
 |---|---|---|
 | `card` | 1 | 1 |
 | 卡片 id | `chat-design-execute`, `chat-design-execute-toggle` | 同左，完全一致 |
-| `task_subscribe` 帧 | 1 | 0（参照侧未抓到；待查） |
+| `task_subscribe` 帧 | 1 | 0（参照 `useDesignResourceScope` 的 `ready` 依赖 `auth.userID`；参照渲染层没有本地登录态，因此不发送。我方有本地固定用户，所以发送） |
 
 产物：
 
