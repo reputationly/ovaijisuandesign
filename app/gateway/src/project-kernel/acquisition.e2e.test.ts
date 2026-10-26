@@ -94,6 +94,7 @@ writeFileSync(path.join(dir, "灯 [clip].srt"), "1\\n00:00:00,000 --> 00:00:01,0
     process.env.YTDLP_PATH = path.join(dir, "yt-dlp.cmd");
     app = await createApp();
     await app.init();
+    app.get(ProjectAcquisitionService).lookup = async () => ({ address: "1.1.1.1" });
     try {
       const res = await request(app.getHttpServer()).post("/api/v3/web-media").send({ type: "inspect", url: "https://images.example/watch" });
       expect(res.status).toBe(422);
