@@ -476,6 +476,10 @@ importers:
   app/packages/memory-store: {}
 
   app/packages/opencode-plugin-hilo:
+    dependencies:
+      '@ov/protocol':
+        specifier: workspace:^
+        version: link:../protocol
     devDependencies:
       '@opencode-ai/plugin':
         specifier: 1.18.18
