@@ -684,3 +684,33 @@ OV_PLATFORM_KEY=… node scripts/smoke/platform-online.mjs
 `scripts/pw/launch-app.mjs` 现在会检查 dist 与源码的 mtime，陈旧时打印警告并回传
 `plugin: { sha256, mtimeMs, stale }`；`design-execute-online.mjs --real-session` 遇到陈旧
 直接退出（exit 2），并把 `sha256` / `mtimeMs` 写进 `result.json` 作为证据。
+
+### 6.5 返工第四轮（2026-10-26）：插件 v3 五项、图片超分入口、门禁结论
+
+**完成**
+
+| 项 | 结论 |
+|---|---|
+| ① 任务卡轮询 | `parseTaskList` 的拒绝点定位到 **`progress.phase`/`reason` 用了内部词**（渲染层只认 `pending|queued|active|…` 与 `scheduler|…|provider_running|…`），加上任务视图缺 9 个必需字段、缺数据时 `refetchInterval` 直接 false。三处都修了，实测请求间隔 `3047, 3007, 2032, 15022, 15005, 15005…` —— 前三次 3 s、之后 15 s |
+| ② 插件 v3 五项 | 全部补齐（逐项对照与偏移见 `docs/plugin-v3-parity.md`）：`_tool_call_index`、`CAPABILITY_SEARCH_TOOL_NAMES`/`AGENT_PROFILE_VERSION_ENV`（`@ov/protocol`）、v3 全局记忆、`<design_context>` 信封、`v3ToolMaterials`（含 gateway `materials`）、`design_code_project_open` 路径守卫。每项带用例 |
+| ③ 图片超分入口 | gateway `GET /api/v1/models/config` 新增 `imageUpscaleAvailable`（`models.image_upscale` 非空即 true）；渲染层 `useImageUpscaleAvailable()` 拦住图片节点工具栏（固定项/溢出/handlers，v1+v3 共用）、v1 两个 handler、v3 `CanvasV3ImageToolsSession` |
+
+**门禁**
+
+- v3 七屏：**exit 0**，7/7 干净；最紧 `ws-a-v3-resource` **3.089854% / 护栏 3.090308%（余量 0.000454pp）**，`ws-a-v3` 3.241285% / 3.310254%。
+- 37 屏：36/37 干净，**`ws-select-image` 有 1 处未登记 DOM 差异**：
+  `dom.refOnly: canvas.image-tool.super-resolution` —— 参照有、我们没有，因为门禁夹具里
+  `image_upscale: null`，本轮改成"没有模型就不渲染这个入口"。像素仍**在护栏内**
+  （4.048845% < 4.077526%），门禁因"未登记差异"判 exit 1。
+  **没有自行登记**（不能改登记表）。两条出路需要负责人定：
+  (a) 把这一条登记成预期的 DOM 差异；
+  (b) 把门禁夹具的 `image_upscale` 填成真实模型名（门禁反映"平台配了超分模型"的常态，
+  入口正常渲染，不再有差异）——但那样门禁就不覆盖"没模型时隐藏"这条行为。
+
+**门禁前必须清 `/tmp/ov-cmp`（血的教训）**
+
+这一轮中途出现过一次假的"回归"：`ws-chat-input` 连跑四次都是 5.080540%（**逐像素相同**），
+还把整轮拖到 `Runtime.evaluate 60 秒无响应`。根因是 `/tmp/ov-cmp` 这个夹具根被上一轮
+（尤其是和 gateway 测试并发跑的那次）弄脏了。`rm -rf /tmp/ov-cmp` 之后同一屏回到
+**2.198680%**，与上一轮绿的那次完全一致。所以：**跑门禁前先 `rm -rf /tmp/ov-cmp`，
+且不要同时跑 gateway 测试套件**（它会占端口、写临时目录）。
