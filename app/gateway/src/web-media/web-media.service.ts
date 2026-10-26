@@ -1,4 +1,3 @@
-import { spawn } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { link, mkdir, readdir, rm } from "node:fs/promises";
 import { lookup as dnsLookup } from "node:dns/promises";
@@ -11,6 +10,7 @@ import { Body, Controller, Inject, Injectable, Logger, Post, Req } from "@nestjs
 import type { Request } from "express";
 
 import { AssetsService } from "../common/assets.service.js";
+import { spawnTool } from "../common/spawn-tool.js";
 import { WorkspacePathService } from "../common/workspace-path.service.js";
 import { CanvasService } from "../canvas/canvas.service.js";
 import { FfmpegService } from "../edit/ffmpeg.service.js";
@@ -244,7 +244,8 @@ function classify(filename: string): string | undefined {
 
 function runProcess(executable: string, args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn(executable, args, { stdio: ["ignore", "pipe", "pipe"] });
+    // `.cmd`/`.bat` 在 Windows 上要经 cmd.exe（用户装的 yt-dlp 常见是包装脚本）。
+    const child = spawnTool(executable, args);
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", (chunk: Buffer) => {

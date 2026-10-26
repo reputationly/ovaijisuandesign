@@ -1,4 +1,4 @@
-import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -7,13 +7,13 @@ import request from "supertest";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { createApp } from "../bootstrap.js";
+import { writeFakeTool } from "../common/__fixtures__/fake-tool.js";
 import { ProjectAcquisitionService } from "./acquisition.js";
 
 // 夹具是一个 `#!/bin/sh` 的假 yt-dlp（再加 chmod 0755）——**Windows 上没有 sh，
 // 它永远跑不起来**，于是下载/字幕整条链会回 400/422/false。这不是产品问题，
 // 是"用 shell 脚本当替身"这个测试手法只在 POSIX 上成立，所以整条在 Windows 跳过。
-const POSIX_ONLY = process.platform !== "win32";
-describe.skipIf(!POSIX_ONLY)("v3 搜图", () => {
+describe("v3 搜图", () => {
   let app: INestApplication | undefined;
 
   afterEach(async () => {
@@ -59,23 +59,19 @@ describe.skipIf(!POSIX_ONLY)("v3 搜图", () => {
     const composition = await http.post("/api/project/compositions/get").send({ compositionId: saved.body.compositionId });
     expect(composition.body.members.map((member: { resource: string }) => member.resource)).toContain(saved.body.members[0].resource.resourceId);
 
-    const tool = path.join(process.env.WORKSPACE_DIR ?? "", "yt-dlp");
-    writeFileSync(tool, `#!/bin/sh
-for arg in "$@"; do
-  if [ "$arg" = "--dump-single-json" ]; then
-    printf '%s\\n' '{"id":"clip-1","title":"灯","webpage_url":"https://images.example/watch","duration":3,"formats":[{"format_id":"18","ext":"mp4","height":360}]}'
-    exit 0
-  fi
-done
-prev=""
-dir=""
-for arg in "$@"; do
-  if [ "$prev" = "--paths" ]; then dir="$arg"; fi
-  prev="$arg"
-done
-printf '1\\n00:00:00,000 --> 00:00:01,000\\n灯\\n' > "$dir/灯 [clip].srt"
+    // 跨平台的假 yt-dlp（node 脚本 + Windows 的 .cmd 包装），见 fake-tool.ts 的注释。
+    const tool = writeFakeTool(process.env.WORKSPACE_DIR ?? "", "yt-dlp", `
+import { writeFileSync } from "node:fs";
+import path from "node:path";
+const args = process.argv.slice(2);
+if (args.includes("--dump-single-json")) {
+  process.stdout.write(JSON.stringify({ id: "clip-1", title: "灯", webpage_url: "https://images.example/watch", duration: 3, formats: [{ format_id: "18", ext: "mp4", height: 360 }] }) + "\\n");
+  process.exit(0);
+}
+const index = args.indexOf("--paths");
+const dir = index >= 0 ? args[index + 1] : ".";
+writeFileSync(path.join(dir, "灯 [clip].srt"), "1\\n00:00:00,000 --> 00:00:01,000\\n灯\\n");
 `);
-    chmodSync(tool, 0o755);
     process.env.YTDLP_PATH = tool;
     const inspected = await http.post("/api/v3/web-media").send({ type: "inspect", url: "https://images.example/watch" });
     expect(inspected.status).toBe(200);

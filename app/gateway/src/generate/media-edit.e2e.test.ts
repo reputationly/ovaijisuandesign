@@ -63,10 +63,11 @@ describe("v3 媒体编辑", () => {
     expect(missing.body.error.code).toBe("DEPENDENCY_UNAVAILABLE");
   });
 
-  // **Windows 上这条会 400**（macOS/Linux 绿）。疑似中文文件名 `灯.srt` 在
-  // `POST /api/v3/deliveries` 的路径处理上被拒，还没定位到是网关还是 multer 的
-  // 编码问题 —— 先按平台跳过，别让它把 CI 拖红；定位清楚了再放开。
-  it.skipIf(process.platform === "win32")("把 SRT 排成竖屏字幕并收成文本资源", async () => {
+  // **Windows 上这条曾经 400**（macOS/Linux 绿）。失败点是下面这个
+  // `/api/v3/execute` 的 `edit_media:subtitle_format`，**不是** deliveries、也不是 multer：
+  // 这条用例全程发 JSON，`delivered.body` 那一步已经拿到了 versionId。
+  // 断言里带上响应体，红的时候能直接看到 code / message。
+  it("把 SRT 排成竖屏字幕并收成文本资源", async () => {
     writeFileSync(path.join(workspace, "灯.srt"), "1\n00:00:00,000 --> 00:00:01,000\n灯\n");
     const delivered = await http.post("/api/v3/deliveries").send({
       requestId: "src-srt",
@@ -79,7 +80,7 @@ describe("v3 媒体编辑", () => {
       input: { params: { outputSize: "1080x1920", format: "ass" }, references: [{ versionId }] },
       output: { resources: [{ mode: "create", name: "竖屏字幕" }], composition: { name: "字幕", type: { label: "Edit" }, placements: [{ role: "text" }] } },
     });
-    expect(formatted.status).toBe(200);
+    expect(formatted.status, JSON.stringify(formatted.body)).toBe(200);
     expect(formatted.body.output.kind).toBe("text");
     expect(formatted.body.detail).toMatchObject({ format: "ass", cueCount: 1, playRes: "1080x1920" });
     expect(readFileSync(path.join(workspace, "store", `${formatted.body.output.versionId}.ass`), "utf8")).toContain("PlayResX: 1080");

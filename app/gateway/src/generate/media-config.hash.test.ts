@@ -25,7 +25,7 @@ describe("MediaConfigService 的缓存判据", () => {
     writeFileSync(file, JSON.stringify({ platform: { api_key: "sk-A" } }));
     utimesSync(file, frozen, frozen);
     const svc = service(dir);
-    expect(svc.currentConfig?.().platform.api_key ?? svc.load().platform.api_key).toBe("sk-A");
+    expect(svc.load().platform.api_key).toBe("sk-A");
 
     // 换 key：内容长度相同，并把 mtime **强制写回**第一次的值 ——
     // 这就是 Windows 粗粒度时间戳下"同一毫秒内保存两次"的真实效果。

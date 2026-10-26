@@ -1,4 +1,3 @@
-import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { lookup as dnsLookup } from "node:dns/promises";
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
@@ -9,6 +8,7 @@ import path from "node:path";
 import { Body, Controller, HttpCode, HttpException, Inject, Injectable, Post } from "@nestjs/common";
 import { fileTypeFromBuffer } from "file-type";
 
+import { spawnTool } from "../common/spawn-tool.js";
 import { WorkspaceProjectArchitectureService } from "../canvas-v3/workspace-project-architecture.service.js";
 import { projectId, ProjectCompositionService } from "./composition.service.js";
 import { ProjectKernelError, ProjectQueryError } from "./errors.js";
@@ -412,7 +412,8 @@ async function inspectMedia(url: string): Promise<Record<string, unknown>> {
 
 function runProcess(executable: string, args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
-    const child = spawn(executable, args, { stdio: ["ignore", "pipe", "pipe"] });
+    // `.cmd`/`.bat` 在 Windows 上要经 cmd.exe（用户装的 yt-dlp 常见是包装脚本）。
+    const child = spawnTool(executable, args);
     let stdout = "";
     let stderr = "";
     const limit = 8 * 1024 * 1024;

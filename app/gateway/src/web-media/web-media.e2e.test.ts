@@ -1,5 +1,5 @@
 import { createServer, type Server } from "node:http";
-import { chmodSync, existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -9,13 +9,13 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createApp } from "../bootstrap.js";
+import { writeFakeTool } from "../common/__fixtures__/fake-tool.js";
 import { WebMediaService } from "./web-media.service.js";
 
 // 夹具是一个 `#!/bin/sh` 的假 yt-dlp（再加 chmod 0755）——**Windows 上没有 sh，
 // 它永远跑不起来**，于是下载/字幕整条链会回 400/422/false。这不是产品问题，
 // 是"用 shell 脚本当替身"这个测试手法只在 POSIX 上成立，所以整条在 Windows 跳过。
-const POSIX_ONLY = process.platform !== "win32";
-describe.skipIf(!POSIX_ONLY)("网页媒体下载", () => {
+describe("网页媒体下载", () => {
   let app: INestApplication;
   let ws: string;
   let http: ReturnType<typeof request>;
@@ -25,23 +25,20 @@ describe.skipIf(!POSIX_ONLY)("网页媒体下载", () => {
   beforeAll(async () => {
     ws = mkdtempSync(path.join(tmpdir(), "ov-web-media-"));
     process.env.WORKSPACE_DIR = ws;
-    const tool = path.join(ws, "yt-dlp");
-    writeFileSync(tool, `#!/bin/sh
-for arg in "$@"; do
-  if [ "$arg" = "--dump-single-json" ]; then
-    printf '%s\\n' '{"id":"clip-1","title":"灯","webpage_url":"https://videos.example/watch","duration":3}'
-    exit 0
-  fi
-done
-prev=""
-dir=""
-for arg in "$@"; do
-  if [ "$prev" = "--paths" ]; then dir="$arg"; fi
-  prev="$arg"
-done
-printf 'mp4' > "$dir/灯 [clip].mp4"
+    // 跨平台的假 yt-dlp：node 脚本 +（Windows 上）.cmd 包装。下面这组用例在 Windows
+    // 上也真的执行 —— "Windows 上怎么找 yt-dlp、参数怎么传"正是最容易坏的地方。
+    const tool = writeFakeTool(ws, "yt-dlp", `
+import { writeFileSync } from "node:fs";
+import path from "node:path";
+const args = process.argv.slice(2);
+if (args.includes("--dump-single-json")) {
+  process.stdout.write(JSON.stringify({ id: "clip-1", title: "灯", webpage_url: "https://videos.example/watch", duration: 3 }) + "\\n");
+  process.exit(0);
+}
+const index = args.indexOf("--paths");
+const dir = index >= 0 ? args[index + 1] : ".";
+writeFileSync(path.join(dir, "灯 [clip].mp4"), "mp4");
 `);
-    chmodSync(tool, 0o755);
     process.env.YTDLP_PATH = tool;
     bridge = createServer((req, res) => {
       if (req.url !== "/__main/browser/media") {

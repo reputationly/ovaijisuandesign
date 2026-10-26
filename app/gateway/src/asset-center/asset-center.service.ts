@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import type { OnModuleDestroy } from "@nestjs/common";
 import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { copyFile, link, lstat, mkdir, mkdtemp, readdir, rm, symlink, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
