@@ -24,8 +24,9 @@ function launch(architecture: "v3" | "v2") {
   process.env.HILO_PROJECT_ARCHITECTURE = architecture === "v3" ? "resource_v3" : "";
   process.env.OV_AGENT_PROFILE_DIR = path.join(repoRoot, `assets/agent-profiles/${architecture}/config`);
   process.env.OVMCP_ENTRY = path.join(repoRoot, "app/mcp-tools/dist/main.js");
-  // 只关心 env 的形状，不真起 opencode。
-  process.env.OPENCODE_BIN = "/bin/echo";
+  // 只关心 env 的形状，不真起 opencode。**用当前 node 可执行文件当替身**：
+  // 写死 `/bin/echo` 在 Windows runner 上不存在，这个用例会把 CI 判红。
+  process.env.OPENCODE_BIN = process.execPath;
   return prepareLaunch({
     roots: { repoRoot: path.join(repoRoot, "app/desktop") },
     version: "0.0.0-test",

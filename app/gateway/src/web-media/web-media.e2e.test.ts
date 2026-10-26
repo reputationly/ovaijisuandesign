@@ -11,7 +11,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApp } from "../bootstrap.js";
 import { WebMediaService } from "./web-media.service.js";
 
-describe("网页媒体下载", () => {
+// 夹具是一个 `#!/bin/sh` 的假 yt-dlp（再加 chmod 0755）——**Windows 上没有 sh，
+// 它永远跑不起来**，于是下载/字幕整条链会回 400/422/false。这不是产品问题，
+// 是"用 shell 脚本当替身"这个测试手法只在 POSIX 上成立，所以整条在 Windows 跳过。
+const POSIX_ONLY = process.platform !== "win32";
+describe.skipIf(!POSIX_ONLY)("网页媒体下载", () => {
   let app: INestApplication;
   let ws: string;
   let http: ReturnType<typeof request>;

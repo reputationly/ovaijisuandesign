@@ -9,7 +9,11 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createApp } from "../bootstrap.js";
 import { ProjectAcquisitionService } from "./acquisition.js";
 
-describe("v3 搜图", () => {
+// 夹具是一个 `#!/bin/sh` 的假 yt-dlp（再加 chmod 0755）——**Windows 上没有 sh，
+// 它永远跑不起来**，于是下载/字幕整条链会回 400/422/false。这不是产品问题，
+// 是"用 shell 脚本当替身"这个测试手法只在 POSIX 上成立，所以整条在 Windows 跳过。
+const POSIX_ONLY = process.platform !== "win32";
+describe.skipIf(!POSIX_ONLY)("v3 搜图", () => {
   let app: INestApplication | undefined;
 
   afterEach(async () => {
