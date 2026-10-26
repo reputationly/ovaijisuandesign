@@ -28,6 +28,7 @@ import { notifySkillUploadCheck, reportLoopGuardTrip, reportMcpToolCallObserved 
 import { HILO_PROJECT_ARCHITECTURE_ENV, parseAgentProfileVersion } from "@ov/protocol";
 
 import { loadMemoryContext, shouldIncludeUserMemory } from "./load-memory-context.js";
+import { CODE_AGENT_NAME, createCodeAgentBindings, guardCodeAgentTool, isCodeAgentGuardedTool } from "./code-agent-guard.js";
 import { nextToolCallIndex, TOOL_CALL_INDEX_ARG } from "./tool-call-order.js";
 import { v3ToolMaterials } from "./v3-tool-materials.js";
 import { askUserViaGateway } from "./loop-guard/ask-client.js";
@@ -110,6 +111,7 @@ const plugin: Plugin = async (input) => {
   console.log(`[hilo-plugin] initialized; gatewayUrl=${gatewayUrl}`);
   const modelTraceCapture = createModelTraceCapture(gatewayUrl);
   const projectRoot = () => input?.directory || process.cwd();
+  const codeAgentBindings = createCodeAgentBindings(gatewayUrl);
 
   const loopGuardMode = process.env.LOOP_GUARD_MODE === "block" ? "block" : "ask";
   console.log(`[hilo-plugin] [loop-guard] mode=${loopGuardMode}`);
@@ -302,6 +304,18 @@ const plugin: Plugin = async (input) => {
           const snapshot = await fetchMediaModels(gatewayUrl);
           assertQuestionModelOptionsMatchCatalog(out.args, snapshot.models);
         }
+      }
+
+      // code-agent 的文件/命令只能在自己的工作树里（参照同位置）：没开 Code Project 就报
+      // "先 open"，越界直接拒绝。普通媒体会话不受影响（按 agent 名判断）。
+      if (inp.sessionID && isCodeAgentGuardedTool(inp.tool) && sessionAgentCache.get(inp.sessionID) === CODE_AGENT_NAME) {
+        const guard = guardCodeAgentTool({
+          tool: inp.tool,
+          args: (out.args ?? {}) as Record<string, unknown>,
+          workDir: await codeAgentBindings.get(inp.sessionID),
+          directory: projectRoot(),
+        });
+        if (!guard.allowed) throw new Error(guard.message);
       }
 
       await loopGuard.check({ sessionID: inp.sessionID, tool: inp.tool, args: out.args });

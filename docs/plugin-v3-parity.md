@@ -14,7 +14,7 @@
 | `guardConnectorTool` / `connectorAccess`（连接器准入、`pendingTarget` 强制先搜） | ~470,k 起（`src/connector-access.ts`） | 无 | ⏳ 未补：我们还没有连接器会话级准入（`/api/connectors/capability-access`）这条链；`CAPABILITY_SEARCH_TOOL_NAMES` 已就位，接的时候直接用 |
 | `parseHiddenContextEnvelope` / `findEmbeddedAttachmentManifests` / `parseAttachmentManifest`（`<design_context>` 信封） | 201,116（`../protocol/dist/hidden-context.js`） | `@ov/protocol` 的 `hidden-context.ts`；`attachment-inputs.ts` 的 `userAttachmentPaths` 改用它 | ✅ 本轮（未移植 `[asset_context …]` 与 composition mention 两个分支，见下） |
 | `v3ToolMaterials`（从 design_* 的输入/输出收集素材） | 476,314 起（`src/v3-attachment-fields.ts`） | `src/v3-tool-materials.ts` + `observeAttachmentInputs(materials, direction)` + `before`/`after` 两处接线；gateway 的 `attachment-observations` 接受 `materials`（带路径/URL 的并入解析，纯 id 只计数） | ✅ 本轮 |
-| `design_code_project_open` 的路径守卫（`src/code-agent-guard.ts`） | 328,569 起 | 无 | ⏳ 未补 |
+| `design_code_project_open` 的路径守卫（`src/code-agent-guard.ts`） | 328,569 起 | `src/code-agent-guard.ts`（`PATH_ARGUMENT` / `apply_patch` / `inside`）+ `before` 里按 `sessionAgentCache === "code-agent"` 生效 | ✅ 本轮 |
 | `design_memory` 的 `target`/`project_rules` | 346,281 / 349,427 | `access:"global"` 的说明已覆盖 `target:'global'` 与 `project_rules` | ✅ 说明层面；工具参数由 MCP 侧 schema 决定 |
 
 ## 刻意不补（排除范围）

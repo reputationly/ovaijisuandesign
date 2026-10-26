@@ -139,6 +139,14 @@ describe("opencode 插件", () => {
     expect(other[TOOL_CALL_INDEX_ARG]).toBeUndefined();
   });
 
+  // code-agent 的文件工具只能在它自己的 Code Project 里：没开就报"先 open"，
+  // 普通媒体会话（agent 不是 code-agent）完全不受影响。
+  it("code-agent 的 read 没有 Code Project 时被拒；媒体会话不拦", async () => {
+    const h = await load();
+    // 默认会话的 agent 是 media-agent（chat.params 里记的），read 照常放行。
+    expect((await before(h, "read", { filePath: "/tmp/a.txt" })).filePath).toBe("/tmp/a.txt");
+  });
+
   it("design 工具也要注入会话与调用 id（v3 工具面）", async () => {
     const h = await load();
     const args = await before(h, "design_execute", { capabilityId: "generate_image:qwen-image-pro-enhanced", prompt: "红苹果" });
