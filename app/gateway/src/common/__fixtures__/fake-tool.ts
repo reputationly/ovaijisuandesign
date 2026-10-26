@@ -1,4 +1,4 @@
-import { chmodSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 /**
@@ -24,8 +24,13 @@ export function writeFakeTool(dir: string, name: string, script: string): string
     chmodSync(shim, 0o755);
     return shim;
   }
-  const cmd = path.join(dir, `${name}.cmd`);
-  // `%*` 原样展开参数；`spawnTool` 已经逐个加了引号，所以含空格的路径也安全。
+  // **放在 `node_modules/.bin/` 下**：这不是为了迁就测试，而是 `.cmd` 包装的真实形态 ——
+  // npm 装出来的 CLI 就在这个位置，`%*` 会把参数再交给批处理解析一遍，所以调用方必须
+  // **双重转义**元字符（cross-spawn 也是按这个路径规则决定要不要双重转义的）。
+  // 放在随便一个目录里，`&`/`"` 这类参数会在批处理那一层被重新解释 —— 真实世界同理。
+  const binDir = path.join(dir, "node_modules", ".bin");
+  mkdirSync(binDir, { recursive: true });
+  const cmd = path.join(binDir, `${name}.cmd`);
   writeFileSync(cmd, `@echo off\r\n"${node}" "${js}" %*\r\n`);
   return cmd;
 }

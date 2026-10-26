@@ -27,11 +27,13 @@ const ARGS = [
   'a" & echo PWNED> pwned.txt & "',
 ];
 
-function run(executable: string, args: string[], cwd: string): Promise<{ stdout: string; code: number | null }> {
+function run(executable: string, args: string[], cwd: string): Promise<{ stdout: string; stderr: string; code: number | null }> {
   const child = spawnTool(executable, args, { cwd });
   let stdout = "";
+  let stderr = "";
   child.stdout.on("data", (chunk: Buffer) => (stdout += chunk.toString("utf8")));
-  return new Promise((resolve) => child.on("close", (code) => resolve({ stdout, code })));
+  child.stderr.on("data", (chunk: Buffer) => (stderr += chunk.toString("utf8")));
+  return new Promise((resolve) => child.on("close", (code) => resolve({ stdout, stderr, code })));
 }
 
 describe("spawnTool", () => {
@@ -46,8 +48,9 @@ describe("spawnTool", () => {
     const tool = writeFakeTool(dir, "echo-args", `
 process.stdout.write(JSON.stringify(process.argv.slice(2)));
 `);
-    const { stdout, code } = await run(tool, ARGS, dir);
-    expect(code).toBe(0);
+    const { stdout, code, stderr } = await run(tool, ARGS, dir);
+    // 失败时把 stdout/stderr 一起带出来：Windows runner 上的 batch 转义问题只能靠这段定位。
+    expect(code, `stdout=${stdout.slice(0, 800)} stderr=${stderr.slice(0, 800)}`).toBe(0);
     expect(JSON.parse(stdout)).toEqual(ARGS);
     // 注入没发生：`a" & echo PWNED> pwned.txt & "` 只是被当成一个普通参数。
     expect(existsSync(path.join(dir, "pwned.txt"))).toBe(false);
