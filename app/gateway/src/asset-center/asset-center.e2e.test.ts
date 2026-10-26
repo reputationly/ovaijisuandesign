@@ -28,17 +28,19 @@ describe("资产中心", () => {
     await app.close();
     delete process.env.HILO_ASSET_CENTER_DIR;
     // **Windows 上 sqlite 的句柄不是 close() 一返回就放掉的**：直接 rm 会 EBUSY
-    //（`resource busy or locked ... asset-center.sqlite`），CI 的 windows runner 就红在这。
-    // `force: true` 只兜 ENOENT，兜不住 EBUSY，所以退避重试几次。
-    for (let attempt = 0; ; attempt++) {
+    //（`resource busy or locked ... asset-center.sqlite`）。`force: true` 只兜 ENOENT。
+    // 退避重试最多 5 秒；还是被占用就**只告警、不让整个 suite 红** —— 这是
+    // %TEMP% 里的临时目录，runner 本来就是一次性的，清理失败不该等于测试失败。
+    for (let attempt = 0; attempt < 25; attempt++) {
       try {
         await rm(dir, { recursive: true, force: true });
-        break;
+        return;
       } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== "EBUSY" || attempt >= 9) throw error;
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        if ((error as NodeJS.ErrnoException).code !== "EBUSY") throw error;
+        await new Promise((resolve) => setTimeout(resolve, 200));
       }
     }
+    console.warn(`[asset-center] 临时目录仍被占用，跳过清理：${dir}`);
   });
 
   it("从本地文件建实体，列表能看到缩略图，删掉后不再出现", async () => {
