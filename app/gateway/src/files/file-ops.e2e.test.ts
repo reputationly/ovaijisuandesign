@@ -143,6 +143,9 @@ describe("文件面板操作（真实工作区）", () => {
 
   it("duplicate：_copy、_copy_2，登记进库；撤销删掉复制出来的那份", async () => {
     const a = await http.post("/api/files/duplicate").send({ paths: ["素材/kitty.png"] });
+    // 先断言状态码：非 2xx 时直接看响应体，比 `duplicated[0]` 的 TypeError 好定位
+    //（T-6 里这条就是偶发拿不到 `duplicated`，却只报 "Cannot read properties of undefined"）。
+    expect(a.status, JSON.stringify(a.body)).toBe(201);
     expect(a.body.duplicated[0]).toMatchObject({ src: "素材/kitty.png", dst: "素材/kitty_copy.png" });
     expect(a.body.duplicated[0].id).toBeTruthy();
     const b = await http.post("/api/files/duplicate").send({ paths: ["素材/kitty.png"] });

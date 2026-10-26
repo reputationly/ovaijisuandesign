@@ -301,23 +301,15 @@ function outputView(item: DeliveryOutput) {
   };
 }
 
+/**
+ * `/api/v3/execute` 的返回形状（含 `reused` 分支）。
+ *
+ * **和 `present()` 同一份视图**：tool part 里存的任务快照就是它，渲染层的 `parseTaskView`
+ * 拿它当任务解析。以前这里另写了一份只有 9 个字段的旧形状（`progress.phase` 还写内部词），
+ * 于是同一个任务"列表能解析、execute 返回的解析不了"。
+ */
 export function executionView(row: TaskRow) {
-  const input = JSON.parse(row.inputJson) as { prompt?: string; capabilityId?: string; origin?: { source?: string; toolUseId?: string } };
-  const state = JSON.parse(row.stateJson) as { error?: string; stage?: string; outputs?: DeliveryOutput[]; placements?: unknown; problem?: TaskProblem };
-  const terminal = TERMINAL.has(row.status);
-  return {
-    id: row.id,
-    capabilityId: input.capabilityId ?? row.operation,
-    status: row.status,
-    revision: row.revision,
-    ...(input.prompt ? { prompt: input.prompt.slice(0, 280) } : {}),
-    ...(input.origin ? { origin: input.origin } : {}),
-    outputs: (state.outputs ?? []).map(outputView),
-    ...(state.placements ? { placements: state.placements } : {}),
-    // 有语义化的 problem 就报它（卡片按 code/message 显示可读的原因），否则退回技术原文。
-    ...(state.problem ? { problem: state.problem } : state.error ? { problem: { message: state.error } } : {}),
-    ...(terminal ? {} : { stage: state.stage ?? "compute", progress: { phase: state.stage ?? "compute", reason: row.status, since: row.updatedAt, nextRetryAt: null } }),
-  };
+  return present(row);
 }
 
 /**
@@ -360,8 +352,10 @@ function present(row: TaskRow) {
     // `error` 是技术原文：排障与既有用例都读它。渲染层的解析器忽略未知键，保留无害。
     ...(state.error ? { error: state.error } : {}),
     problem: problemView(state),
-    // 终态之后可执行的动作只有 retry；非终态这里不表态，交给 resolve 的入参。
-    actions: [],
+    // **只列 gateway 真支持的动作**（resolve 里实现了 stop / retry，其余返回 422）：
+    //   非终态 → stop；failed 且存有可重新提交的请求 → retry；其余 []。
+    // 空数组会让任务面板的停止/重试按钮不出现，`designTaskRetryable` 也永远是 false。
+    actions: taskActions(row.status, input as { generation?: unknown }),
     handoff: null,
     progress: {
       // `phase` / `reason` 都是**渲染层的枚举**，不是我们的内部词：
@@ -370,7 +364,7 @@ function present(row: TaskRow) {
       // `TASK_PROGRESS_PHASES` / `progress.reason`）。写内部词（"compute"/"running"）
       // 会让整条任务被判 `Invalid Task response`，卡片拿不到任何数据。
       phase: progressPhase(row.status),
-      reason: progressReason(row.status),
+      reason: progressReason(row.status, problemCodeSource(state)),
       since,
       queuedAt: null,
       submittedAt: null,
@@ -404,8 +398,14 @@ function progressPhase(status: string): string {
   }
 }
 
-/** 我们的任务状态 → 渲染层的 progress.reason（null 表示不表态）。 */
-function progressReason(status: string): string | null {
+/**
+ * 我们的任务状态 → 渲染层的 progress.reason（null = 不表态，渲染层允许）。
+ *
+ * 失败任务以前一律写 `provider_unavailable`，不管真实原因是额度不足、被拒还是存储满了 ——
+ * 那是编的，用户看到的解释会和 `problem` 对不上。失败时按 `problem.code` 映射到语义
+ * 对得上的那一项，对不上就 null（交给 `problem` 说话）。
+ */
+function progressReason(status: string, problem: { code?: string; source?: string } | null): string | null {
   switch (status) {
     case "accepted":
       return "scheduler";
@@ -413,13 +413,40 @@ function progressReason(status: string): string | null {
       return "provider_running";
     case "waiting_user":
       return "user_action";
-    case "failed":
-      return "provider_unavailable";
     case "cancelled":
       return "user_stopped";
+    case "failed":
+      return reasonForProblem(problem);
     default:
       return null;
   }
+}
+
+/** `problem` → reason 枚举里语义对得上的那一项；对不上就 null。 */
+function reasonForProblem(problem: { code?: string; source?: string } | null): string | null {
+  if (!problem) return null;
+  const code = problem.code ?? "";
+  // 按 code 先判（比 source 细），再退回 source。
+  if (code.startsWith("BILLING_") || code === "QUOTE_EXPIRED") return "billing";
+  if (code === "PAUSED") return "user_paused";
+  if (code.startsWith("RESOURCE_") || code.startsWith("COMPOSITION_") || code.startsWith("DELIVERY_")) return "delivery";
+  if (code === "PROVIDER_FAILED" || code === "PROVIDER_OUTPUT_UNAVAILABLE") return "provider_unavailable";
+  if (code === "DEPENDENCY_UNAVAILABLE") return "dependency_unavailable";
+  if (problem.source === "billing") return "billing";
+  if (problem.source === "delivery") return "delivery";
+  return null;
+}
+
+/** 渲染层只认这些动作；`pause`/`resume`/`confirm_cost` 我们没实现，不列。 */
+function taskActions(status: string, input: { generation?: unknown }): string[] {
+  if (!TERMINAL.has(status)) return ["stop"];
+  if (status === "failed" && input.generation) return ["retry"];
+  return [];
+}
+
+function problemCodeSource(state: { problem?: TaskProblem }): { code?: string; source?: string } | null {
+  const problem = state.problem;
+  return problem && typeof problem.code === "string" ? { code: problem.code, source: problem.source } : null;
 }
 
 function epochMs(value: unknown): number {

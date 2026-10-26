@@ -258,7 +258,8 @@
    "refOnly": [
     "popover.model-chip",
     "composer.editor",
-    "popover.attachments-scroll"
+    "popover.attachments-scroll",
+    "canvas.image-tool.super-resolution"
    ],
    "oursOnly": [
     "canvas.node-promote-to-asset",
@@ -267,7 +268,8 @@
    ]
   },
   "_why": [
-   "**待做功能**：聊天模型按钮已有（chat-model-btn），弹层内容（popover.model-chip）尚未复刻"
+   "**待做功能**：聊天模型按钮已有（chat-model-btn），弹层内容（popover.model-chip）尚未复刻",
+   "canvas.image-tool.super-resolution：按 models.image_upscale 隐藏（见 docs/intentional-differences.md）"
   ]
  },
  "ws-video": {

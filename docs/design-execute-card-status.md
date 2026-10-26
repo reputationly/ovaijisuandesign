@@ -459,3 +459,51 @@ SIGKILL。`design-execute-online.mjs` 的收尾另外加了 15 秒超时兜底�
 不会重建它。已加检查：`launchApp` 比对 dist 与源码 mtime，陈旧时告警并回传
 `plugin:{sha256,mtimeMs,stale}`；`--real-session` 遇到陈旧直接 exit 2，并把 hash 写进
 `result.json`。
+
+#### T-6 第六轮：拿到失败现场了
+
+这一轮 **turbo 全量**里又红了一次，这次有完整的测试名和输出：
+
+```
+@ov/gateway:test:    × 文件面板操作（真实工作区） > duplicate：_copy、_copy_2，登记进库；撤销删掉复制出来的那份 5ms
+@ov/gateway:test:      → Cannot read properties of undefined (reading '0')
+```
+
+位置：`app/gateway/src/files/file-ops.e2e.test.ts:145` 的
+`expect(a.body.duplicated[0]).toMatchObject(…)` —— 拿不到 `duplicated`，说明
+`POST /api/files/duplicate` 这一发**不是 2xx**（`duplicate()` 在 404/400/500 三条路上都会抛，
+正常路径一定返回 `{duplicated:[…]}`）。
+
+前两轮还抓到过两次，同属"真实工作区"这一族：
+
+```
+r18  × 项目组合 > 换类型时避开目标类型里已经占用的位置，取消分类则清空位置
+     → Parse Error: Expected HTTP/, RTSP/ or ICE/
+r18  × 项目组合 > 恢复时如果原位置已被占用，就改到后面的空位
+     → socket hang up
+r19  × 零散功能模块 > asset text-preview / metadata：文本开头一段、词数和修改时间
+     → expected {} to match object { ok: true, metadata: { …(2) } }
+```
+
+**它们共用的是什么**：不是临时目录 —— 三个文件都是
+`ws = mkdtempSync(path.join(tmpdir(), "ov-…-"))`，目录彼此独立；也不是 `process.env`
+（`src/test-setup.ts` 每个文件 beforeAll 快照、afterAll 还原）。共用的是
+**同一个 vitest worker 进程 + 每个文件各自 `createApp()`**：Nest 的模块单例
+（`AssetStore`/`GatewayConfig`/事件总线）在同一 worker 里跨文件存活，上一个 app 的句柄
+可能还在被回调引用。`socket hang up` / `Parse Error: Expected HTTP/` 这种"连接在测试中途断了"
+的形状，也指向同一个机制。
+
+**复现统计（本轮）**：
+
+| 做法 | 结果 |
+|---|---|
+| turbo 全量 `--concurrency=1 --force` | **红 1 次**：上面那条 `duplicate` |
+| gateway 全量（普通顺序） | 2/2 全过（528/528） |
+| `file-ops.e2e` 单文件连跑 5 次 | 5/5 通过 |
+| `--sequence.shuffle`（文件 + 用例一起打乱） | 56~78 条失败（seed 11/23/37）—— 这是**文件内顺序依赖**，`fileParallelism:false` 早就接受了这一点，与这三条偶发无关 |
+
+**已做的加固**：给那条断言加了状态码前置断言
+（`expect(a.status, JSON.stringify(a.body)).toBe(201)`），下次再红会直接打印响应体，
+不再是 `Cannot read properties of undefined`。根因（worker 内跨 app 的模块单例）要动
+测试基建（每文件独立进程 / 彻底去掉模块级缓存），本轮没做 —— 那是独立于本轮的改动，
+写在这里留档。

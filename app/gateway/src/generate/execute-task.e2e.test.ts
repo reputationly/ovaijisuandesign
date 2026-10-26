@@ -13,6 +13,23 @@ import { MediaConfigService } from "./media-config.service.js";
 import { ProjectTaskService } from "./tasks.js";
 
 const CALLER_KEY = "execute-secret";
+
+/** 渲染层 `parseTaskView` 的等价校验（字段、类型、枚举）。 */
+const TASK_PROGRESS_PHASES = ["pending", "queued", "active", "paused", "retrying", "stopped", "done"];
+function expectTaskView(view: Record<string, unknown>, id: string) {
+  expect(view).toMatchObject({
+    id,
+    operation: expect.any(String),
+    terminal: expect.any(Boolean),
+    stage: expect.any(String),
+    revision: expect.any(Number),
+    actions: expect.any(Array),
+    data: expect.any(Object),
+  });
+  expect(TASK_PROGRESS_PHASES).toContain((view.progress as { phase?: string })?.phase);
+  expect(Number.isInteger(view.createdAt)).toBe(true);
+  expect(Number.isInteger(view.updatedAt)).toBe(true);
+}
 const PNG = Buffer.from("89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000a49444154789c63000100000500010d0a2db40000000049454e44ae426082", "hex");
 
 describe("v3 执行生成", () => {
@@ -89,16 +106,26 @@ describe("v3 执行生成", () => {
     const created = await http.post("/api/v3/execute").set("x-hilo-agent-caller", CALLER_KEY).set("x-session-id", "sess-1").set("x-tool-use-id", "tool-gen").send(body);
     if (created.status !== 202) console.error("execute 400 body:", JSON.stringify(created.body).slice(0, 400));
     expect(created.status).toBe(202);
+    // execute 的返回也是渲染层解析的那份任务（tool part 里的快照就是它）：
+    // 形状和 `GET /api/v3/tasks/:id` 一致，`progress.phase` 必须是渲染层的枚举。
+    expectTaskView(created.body.task, created.body.task.id);
     expect(created.body.reused).toBe(false);
     expect(created.body.task).toMatchObject({ capabilityId: "generate_image:qwen-image", status: "running", prompt: "一盏灯" });
+    // 非终态只有 stop（pause/resume/confirm_cost 我们没实现，不许列出来）。
+    expect(created.body.task.actions).toEqual(["stop"]);
     const again = await http.post("/api/v3/execute").set("x-hilo-agent-caller", CALLER_KEY).set("x-session-id", "sess-1").set("x-tool-use-id", "tool-gen").send(body);
     expect(again.status).toBe(200);
     expect(again.body).toMatchObject({ reused: true, task: { id: created.body.task.id } });
+    // `reused` 分支同样要过这套校验。
+    expectTaskView(again.body.task, created.body.task.id);
 
     const done = await until(async () => {
       const current = await http.get(`/api/v3/tasks/${created.body.task.id}`);
       return current.body.status === "completed" ? current.body : undefined;
     });
+    // 完成的任务没有任何可执行动作（`designTaskRetryable` 也就为 false）。
+    expect(done.actions).toEqual([]);
+    expect(done.progress.phase).toBe("done");
     const listed = await http.get("/api/v3/tasks").query({ operation: "generate_image", source: "agent", toolUseId: "tool-gen", limit: 1 });
     expect(listed.status).toBe(200);
     expect(listed.body.items.map((item: { id: string }) => item.id)).toContain(created.body.task.id);
@@ -169,6 +196,23 @@ describe("v3 执行生成", () => {
     }
   });
 
+  // 任务面板的停止/重试按钮读的就是 `actions`；空数组 = 按钮不出现。
+  it("actions 只列 gateway 真支持的动作：非终态 stop、failed retry、completed 空", async () => {
+    const body = {
+      capabilityId: "generate_image:qwen-image",
+      prompt: "动作",
+      output: { resources: [{ mode: "create", name: "a" }], composition: { name: "g", type: { label: "Generated" }, placements: [{ role: "image" }] } },
+    };
+    const created = await http.post("/api/v3/execute").set("x-hilo-agent-caller", CALLER_KEY).set("x-session-id", "sess-actions").set("x-tool-use-id", "tool-actions").send(body);
+    expect(created.status).toBe(202);
+    expect(created.body.task.actions).toEqual(["stop"]);
+    const done = await until(async () => {
+      const current = await http.get(`/api/v3/tasks/${created.body.task.id}`);
+      return current.body.status === "completed" ? current.body : undefined;
+    });
+    expect(done.actions).toEqual([]);
+  });
+
   it("平台回「额度不足」时，任务的 problem 是参照枚举里的码 + 中文提示", async () => {
     // L-4 的验收在这里落地：卡片读的是 `problem`（不是 `error`），而 `problem.code`
     // 必须落在参照那份枚举里，否则渲染层会拒掉整条任务、卡片直接空掉。
@@ -191,6 +235,10 @@ describe("v3 执行生成", () => {
     expect(done.problem.message).toMatch(/额度/);
     // 技术原文仍然留着，排障要看它。
     expect(done.error).toContain("quota exceeded");
+    // `progress.reason` 不能一律写成 provider_unavailable：额度不足要报 billing。
+    expect(done.progress.reason).toBe("billing");
+    // 失败且存有可重新提交的请求 → 面板上要有"重试"。
+    expect(done.actions).toEqual(["retry"]);
   });
 
   it("失败任务刚用 retry 恢复，未支持的动作不会落到 stop", async () => {

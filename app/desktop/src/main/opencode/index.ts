@@ -114,6 +114,18 @@ export function profileArchitecture(): "v2" | "v3" {
   return process.env.HILO_PROJECT_ARCHITECTURE === "resource_v3" ? "v3" : "v2";
 }
 
+/**
+ * agent profile 的版本号（`"2"` / `"3"`），给 opencode 与 MCP 的 `HILO_AGENT_PROFILE_VERSION`。
+ *
+ * 参照 4.0.4 主进程在两处都设了它：profile 的 env（`index-bxhsQNU0.js` 约 2,294,175 字节）
+ * 与 MCP 的 env 覆盖（约 9,557,328 字节）。**不设的后果**：插件按它决定工具面
+ * （记忆用 `design_memory` 还是 `hub_memory`、素材按 Resource/Version 还是按路径报），
+ * 缺了这个变量插件永远走 v2 分支 —— v3 会话里那些 v3 逻辑一条都不会生效。
+ */
+export function agentProfileVersion(): "2" | "3" {
+  return profileArchitecture() === "v3" ? "3" : "2";
+}
+
 export function locateProfile(roots: ResourceRoots): string | undefined {
   const version = profileArchitecture();
   return [
@@ -176,6 +188,8 @@ export function buildMcpEnvironment(
 ): Record<string, string> {
   return {
     ELECTRON_RUN_AS_NODE: "1",
+    // MCP 侧也要：参照的 MCP env 覆盖里有这一项。
+    HILO_AGENT_PROFILE_VERSION: agentProfileVersion(),
     GATEWAY_URL: i.gatewayUrl,
     ...(process.env.HILO_AGENT_CALLER_KEY ? { HILO_AGENT_CALLER_KEY: process.env.HILO_AGENT_CALLER_KEY } : {}),
     SKILLS_DIR: paths.skillsDir ?? i.skillsDir,
@@ -242,6 +256,8 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
     GATEWAY_URL: i.gatewayUrl,
     ...i.identity,
     HILO_MANAGED_RUNTIME: "1",
+    // 插件按它选 v2/v3 工具面；缺了会一直当 v2（参照主进程两处都设）。
+    HILO_AGENT_PROFILE_VERSION: agentProfileVersion(),
     // 插件按 NODE_ENV 选数据根：非 production 会去读 *-dev 目录。
     NODE_ENV: "production",
     HILO_LOAD_USER_MEMORY: "1",
