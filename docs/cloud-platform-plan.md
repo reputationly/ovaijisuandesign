@@ -610,3 +610,38 @@ OV_PLATFORM_KEY=… node scripts/smoke/platform-online.mjs
 - 在线真实任务：`.probe/pw/design-execute/2026-10-25T11-34-35-145Z-online/`；
 - 37 屏/v3 的 `.probe/ui-compare/<批次>/` 保留原始截图与报告；
 - 汇报要写两个仓库提交号、真实 key 跑过的场景（脱敏）、和本文不一致的接口/命名/分期。
+
+### 6.3 返工第二轮（2026-10-26）
+
+**已完成**
+
+| 项 | 结论 |
+|---|---|
+| V-2 ① callID | **产品 bug，已修**：入口对象的字段叫 `toolCallId`（时间线归并时从 part 的 `callID` 换名），卡片读的是 `entry.callID`。新增 `designTaskCallId()` 统一取值，卡片改用它；4 条用例 |
+| V-2 ② 轮询测量 | **仍未测到 3 s/15 s**。根因一：夹具一直以隐藏窗口运行（`OV_DEV_HIDDEN_WINDOW=1`），隐藏窗口下 React Query 的 `refetchInterval` 不触发（实测 `polled:15000` 但 90 秒 0 次请求）。已给 `launch-app.mjs` 加 `showWindow`；打开窗口的那次运行超时，没拿到结论 |
+| V-2 ③ 真实会话 | **两次都没调起 `design_execute`**。根因一：桌面端拼 MCP 环境时没转发 `HILO_PROJECT_ARCHITECTURE`，v3 工具面根本没注册（已修 + 用例）。根因二（待定）：v3 工具注册的是裸名（`execute`），而 agent profile 与部分描述用带前缀的 `design_execute` |
+| F-3 | **已修**：刷新收尾时比对代际，换 key 时同时在飞的旧请求不再阻塞新 key。用例在 `media-config.service.test.ts`（换 key 后 10 ms 内必须发出 B 的请求）；回退修复后该用例失败，输出 `expected [ 'sk-A' ] to deeply equal [ 'sk-A', 'sk-B' ]` |
+
+**未完成 / 需要决定**
+
+1. **视频超分档位（清单第 2 项）：前提不成立。** 我们的客户端里**没有**"视频超分档位选择器"：
+   - `canvas-area-v3.js` 第 60048 行那个 `multiple: 2|4` 是**图片**高清（`enhanceImageMediaKit`）；
+   - `canvas-v3/ui-components.js` 的 `superResolution` 工具（`generate_image:super_resolution`）
+     也是**图片**（`mediakit_enhance`，参数是 targetWidth/Height）；
+   - `preload/v3-workbench` 里的 `superResolution` 同上；
+   - 视频侧只有两处：`VideoNodeToolbarView` 的 "enhance-video"（无档位）与
+     "hailuo03-super-resolution"（H3 原生 2K 超分，只显示"超分至2K"，也不让选档）；
+   - i18n 里的 `canvas.superResolution.tier.{2k,4k,8k}` 是参照留下的字符串，**当前没有任何
+     代码引用**。
+   所以"去掉 2K/4K 两个选项"没有可改的对象。真正需要决定的是：**"H3 2K 超分"这个入口怎么办**
+   —— 它走 `models.video_upscale`（现在是 seedvr2，只交付约 1080P），名字却承诺 2K。
+   改它要动视频工具栏（门禁 `ws-video` 会拍），按约束先停下来问。
+
+2. **图片超分隐藏入口（清单第 3 项）：需要先定数据源。** 画布"高清"走的是
+   `mediakit_enhance`（网关自己的图片增强），**与 `models.image_upscale` 不是同一条路**；
+   后者只被 `edit/edit.service.ts` 的 `/api/edit/super-resolution`（平台 `/images/edits`）用。
+   要让"没有模型就隐藏"成立，得先决定：是给 `mediakit_enhance` 也加一个"有没有可用引擎"的
+   判断（它现在不看 `models.image_upscale`），还是把画布入口改成依赖平台槽位。
+   两种都会改到工具栏（门禁会拍），未动。
+
+3. **V-1（seedvr2 实际交付分辨率）**：按负责人决定暂不跑。

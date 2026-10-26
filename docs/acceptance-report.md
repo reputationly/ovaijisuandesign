@@ -281,6 +281,9 @@ node scripts/v3preload/audit-v3.mjs
 （按 operation）；卡片自己只发了 1 次按 id 查询。
 
 **但"卡片是推送驱动、3 s/15 s 分支只在拿不到 taskId 时才生效"这个解释是错的。**
+（2026-10-26 更正：真正的条件是 `taskId || callID`。实测 callID 在"
+`media-editing/merge-into-timeline-entries.js` 把 part 的 `callID` 改名为 `toolCallId`
+时被卡片的 `entry.callID` 读错，已修；详见 `docs/design-execute-card-status.md` 的 T-2 一节。）
 `task-query.js` 的 `enabled` 要求 `taskId || callID`；查询一旦开着，`refetchInterval`
 就会按 3 s/15 s 跑。真实顺序是**查询根本没开**（`taskId`/`callID` 为 null），所以只剩推送。
 补测（假平台 60 秒任务、窗口前台）拿到的诊断日志：

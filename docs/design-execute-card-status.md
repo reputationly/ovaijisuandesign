@@ -97,8 +97,36 @@ baseUrl `https://maas.ovaijisuan.com/v1`）：
 - 按 WS `task_subscription_ready` 的到达时间切"就绪前 / 就绪后"两段，按规范化 URL 分组算
   间隔（同一个 URL 的两个轮询器不会混在一起）。
 
-**补测（2026-10-26，假平台 60 秒任务、窗口置前 `visible`/`hasFocus=true`）：仍然只测到
-1 次查询，**原因是夹具给不出 `taskId`/`callID`**，不是"产品不轮询"。
+**补测结论（2026-10-26，两轮）**：
+
+**① callID 确实在链路上丢了 —— 产品 bug，已修。** 入口对象上的字段名是
+`toolCallId`（`media-editing/merge-into-timeline-entries.js` 的 `toolCallId: toolMsg.callID`），
+而卡片读的是 `entry.callID`。修法：新增 `designTaskCallId(entry)`（`design-input.js`，
+优先 `toolCallId`、兼容 `callID`），卡片改用它；用例在
+`design-input.test.ts`（4 条）。修完诊断日志里 `callID` 从 `null` 变成 `"tool-online"`。
+
+**② 仍然没测到 3 s / 15 s，但原因换成了"窗口不可见"。** 夹具一直带
+`OV_DEV_HIDDEN_WINDOW=1`（逐屏截图用），隐藏窗口在 Chromium 里等于页面被遮挡，React Query
+的 `refetchInterval` 不会触发。诊断日志：窗口隐藏时 `polled: 15000` 但 90 秒里一次请求都没发。
+`launch-app.mjs` 新增 `showWindow` 选项；打开后单次运行超时（未拿到结论），**因此 3 s/15 s
+至今没有在"运行中 + 窗口可见"下拿到实测值**。
+
+**③ 真实会话没跑成，卡在工具面。** 两次尝试（`--real-session`：对话真、生成假 60 s）：
+- 第一次没设 `HILO_PROJECT_ARCHITECTURE`，agent 的推理里写"没有 design_execute 这个工具"，
+  走了 `hub_*` 老路径并弹了画幅问题；
+- 第二次设了，但 agent 说 design 系列工具不可用、改用 `bash` 找 CLI。
+
+查代码：v3 工具面按 `HILO_PROJECT_ARCHITECTURE=resource_v3` 注册（`mcp-tools/src/tools/index.ts`），
+而桌面端拼 MCP 环境时**没转发这个变量**（`opencode/index.ts`）—— 已修并加用例
+（`buildMcpEnvironment`）。修完仍有第二层问题：**v3 工具注册的是裸名**（`execute`、
+`task_query`，与参照 `tools/list` 逐字一致、`v3-spec.test.ts` 钉着），而 v3 的 agent profile
+（`base.json` 的 media-agent）和部分工具描述用的是 `design_execute` 这类**带前缀**的名字。
+两层对不上 → 模型会被告知一个不存在的工具名。这一层是**待定项**（改注册名会破坏与参照的逐字
+一致；改 profile 要动 agent 配置），没有在这轮擅自改。
+
+**旧结论（保留一句）**：在这之前的一版里我写过"卡片靠推送驱动、3 s/15 s 只在拿不到 taskId
+时才生效"—— 那句是错的：`useDesignTask` 的 `enabled` 要求 `taskId || callID`，两者都有时
+查询是开着的，会按 3 s/15 s 轮询。真实情况是 callID 丢了导致查询没开。
 
 诊断日志（临时给 `task-query.js` 的 `refetchInterval` 加了一行，测完已删）：
 
