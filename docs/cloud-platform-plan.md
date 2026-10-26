@@ -714,3 +714,24 @@ OV_PLATFORM_KEY=… node scripts/smoke/platform-online.mjs
 （尤其是和 gateway 测试并发跑的那次）弄脏了。`rm -rf /tmp/ov-cmp` 之后同一屏回到
 **2.198680%**，与上一轮绿的那次完全一致。所以：**跑门禁前先 `rm -rf /tmp/ov-cmp`，
 且不要同时跑 gateway 测试套件**（它会占端口、写临时目录）。
+
+**门禁 A/B 证据（给"登记 vs 改夹具"用）**
+
+同一屏 `ws-select-image`，只改门禁夹具里的 `models.image_upscale`：
+
+| 夹具 | 结果 |
+|---|---|
+| `image_upscale: null`（当前提交的夹具） | 未登记差异 **1**：`dom.refOnly: canvas.image-tool.super-resolution`，exit 1（像素 4.051064%，护栏 4.077526%） |
+| `image_upscale: "seedvr2"`（临时改） | 未登记差异 **0**，**37 屏全绿、exit 0**（像素 4.071346%） |
+
+也就是说：**本轮改动对门禁的影响只有这一个 DOM 节点**，验证了两次（单屏 + 全量 37 屏）。
+夹具已还原成 `null`（产品真实形态：平台没有图片超分模型）。
+
+要一条粘贴即用的登记（放在 `expected-diffs.json` 的 `ws-select-image.dom.refOnly` 里）：
+
+```json
+"canvas.image-tool.super-resolution"
+```
+
+外加 `_why` 里补一句"按 `models.image_upscale` 隐藏（见 intentional-differences.md）"。
+这段必须由负责人加 —— 登记表不在我能改的范围内。
