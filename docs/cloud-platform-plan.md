@@ -670,3 +670,17 @@ OV_PLATFORM_KEY=… node scripts/smoke/platform-online.mjs
   能看到，画布拿不到。要落这个改动需要先定：给画布加一个基于同一 IPC 的 hook（工具栏会变，
   门禁会拍），还是在现有模型配置接口里加一个布尔字段。
 - **V-2 的 3 s/15 s**：仍未实测（见 `docs/design-execute-card-status.md` 的 T-2 第四轮）。
+
+### 8.1 runbook：改完插件必须重建它的 dist
+
+`pnpm --filter @ov/desktop build` **不会**重建 `opencode-plugin-hilo` 的 `dist/index.js`
+（那是它自己的 `build`：tsc 声明 + esbuild 单文件）。开发态 `locatePlugin` 走的是包内
+`app/packages/opencode-plugin-hilo/dist/index.js`；`build-resources/` 里那份由
+`scripts/stage-desktop-resources.mjs` 生成，只在打包产物里生效。
+
+所以：**改 `app/packages/opencode-plugin-hilo/src/**` 之后，先
+`pnpm --filter @ov/opencode-plugin-hilo build`，再跑桌面端/真实会话。**
+
+`scripts/pw/launch-app.mjs` 现在会检查 dist 与源码的 mtime，陈旧时打印警告并回传
+`plugin: { sha256, mtimeMs, stale }`；`design-execute-online.mjs --real-session` 遇到陈旧
+直接退出（exit 2），并把 `sha256` / `mtimeMs` 写进 `result.json` 作为证据。

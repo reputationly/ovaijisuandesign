@@ -32,6 +32,7 @@ export function useDesignTask(scopeKey, ready, operation, callID, taskId, final,
       return task;
     },
     refetchInterval: (query) => (final || designTaskFinal(query.state.data) || !ready || (executionRejected && !taskId && !query.state.data?.id) ? false : designTaskRetryable(query.state.data) ? RETRYABLE_POLL_MS : designTaskPollInterval(cache, scopeKey, query.state.data)),
+
     structuralSharing: (previous, next) => (previous && (!next || (previous.id === next.id && previous.revision > next.revision)) ? previous : next),
     retry: false,
   });

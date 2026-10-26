@@ -414,7 +414,10 @@ await app.page.screenshot({ path: path.join(out, "online.png"), fullPage: true }
 writeFileSync(path.join(out, "result.json"), JSON.stringify(result, null, 2));
 if (pageErrors.length) console.log("页面异常：", JSON.stringify(redact(pageErrors).slice(0, 5), null, 2));
 console.log(JSON.stringify(redact({ out, outputs, outputCards, cardText, pageErrors: pageErrors.slice(0, 3), polling: result.polling, taskOutputs: taskJson.map((t) => ({ id: t.taskId, status: t.task?.status, outputs: t.task?.outputs })), resourceLookup: resourceLookup.map((r) => ({ ok: r.result?.[0]?.ok, version: r.result?.[0]?.detail?.version?.versionId })) }), null, 2));
-await app.close();
+// **关闭必须带超时。** 窗口可见时 Electron 会拦 SIGTERM（macOS 的退出确认），
+// `app.close()` 里的 `/json/version` 轮询虽然会自己结束，但 browser.close() 可能一直挂着 ——
+// 结果就是"活干完了（result.json 已写）却永远不退"，看起来像整轮卡死。
+await Promise.race([app.close(), new Promise((resolve) => setTimeout(resolve, 15_000))]).catch(() => {});
 fakePlatform?.close();
 process.exit(0);
 
@@ -426,6 +429,14 @@ process.exit(0);
  */
 async function runRealSession() {
   const app = await launchApp({ port: 9362, config, showWindow: true });
+  // 插件是打包产物：源码改了没重建 → 跑的是旧插件。上次真会话就白跑一次，这里卡死。
+  if (app.plugin?.stale) {
+    console.error(`✗ 插件包比源码旧（${app.plugin.reason}）：先 pnpm --filter @ov/opencode-plugin-hilo build`);
+    console.error(JSON.stringify(app.plugin, null, 2));
+    await app.close();
+    process.exit(2);
+  }
+  console.log("插件包：", app.plugin?.sha256?.slice(0, 12), new Date(app.plugin?.mtimeMs ?? 0).toISOString());
   const requests = [];
   const frameLog = [];
   const pageErrors = [];
@@ -506,7 +517,7 @@ async function runRealSession() {
     }
     await app.page.waitForTimeout(2000);
   }
-  const result = { out, realSession: true, prompt, visibility: null, partCallID: null, executeToolUseId: executed?.toolUseId ?? null, executed: Boolean(executed), frames: [], polling: null, cardText: "", outputHtml: "", pageErrors: [] };
+  const result = { out, realSession: true, plugin: app.plugin, prompt, visibility: null, partCallID: null, executeToolUseId: executed?.toolUseId ?? null, executed: Boolean(executed), frames: [], polling: null, cardText: "", outputHtml: "", pageErrors: [] };
   if (!executed) {
     result.pageErrors = redact(pageErrors).slice(0, 5);
     writeFileSync(path.join(out, "result.json"), JSON.stringify(redact(result), null, 2));
@@ -563,7 +574,7 @@ async function runRealSession() {
   await app.page.screenshot({ path: path.join(out, "real-session.png") }).catch(() => {});
   writeFileSync(path.join(out, "result.json"), JSON.stringify(redact(result), null, 2));
   console.log(JSON.stringify(redact({ partCallID: result.partCallID, executeToolUseId: result.executeToolUseId, ready: result.polling.readyAt !== null, before: result.polling.card[0].beforeReady, after: result.polling.card[0].afterReady, cardText: result.cardText.slice(0, 40) }), null, 2));
-  await app.close();
+  await Promise.race([app.close(), new Promise((resolve) => setTimeout(resolve, 15_000))]).catch(() => {});
 }
 
 function valueOf(name) {

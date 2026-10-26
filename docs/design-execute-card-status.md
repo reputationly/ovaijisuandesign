@@ -396,3 +396,32 @@ v3 的工具叫 `design_*`，直接 return。于是 `/api/v3/execute` 一律 400
 
 **⑤ 隐藏窗口不轮询**仍然是事实，但那是测试环境限制：参照同样用
 `refetchIntervalInBackground: false`，后台不轮询。
+
+### T-2 第五轮（2026-10-26）：可见窗口"跑不完"的根因找到了
+
+**根因：不是脚本等条件，是应用自己的退出确认框。** 窗口可见时关闭应用，会弹一个原生对话框
+（"画布可能还没保存 / 可以留在应用里再试一次，或仍然退出"，按钮「取消」「仍然退出」），
+进程一直等用户点。`launchApp.close()` 只发 SIGTERM，于是脚本跑到最后一步永远不返回 ——
+而 `result.json` 其实**早就写完了**（所以"跑了 400～700 秒"那两次的产物是有效的）。
+隐藏窗口时不弹这个框，所以看不出问题。
+
+修法：这是**产品该有的行为**，不改；夹具改成"先礼后兵"——SIGTERM，宽限 3 秒，再对进程组
+SIGKILL。`design-execute-online.mjs` 的收尾另外加了 15 秒超时兜底。
+
+**3 s / 15 s 仍没测到，而且原因换了。** 修好退出后，150 秒任务的种子夹具给出：
+
+```
+[interval] value=15000 ready=true final=false taskId=null callID=tool-online status=running obs=1
+```
+
+也就是：查询**开着**、拿到的是 running、间隔算出来是 15 秒 —— 但 96 秒里一次请求都没再发，
+`queryFn` 一次都没被重新调用。这是 React Query 的 interval 在当前宿主窗口状态下没有触发
+（`refetchIntervalInBackground` 默认 false；参照同样如此，后台窗口不轮询）。也就是说，
+**自动化夹具拿不到"前台焦点"这个条件**，3 s/15 s 只能在真人前台会话里量。
+
+**插件构建顺序**：`build-resources/` 里那份插件 dist 由 `scripts/stage-desktop-resources.mjs`
+生成（只进打包产物）；开发态加载的是 `app/packages/opencode-plugin-hilo/dist/index.js`，
+它由 `pnpm --filter @ov/opencode-plugin-hilo build` 生成 —— `--filter @ov/desktop build`
+不会重建它。已加检查：`launchApp` 比对 dist 与源码 mtime，陈旧时告警并回传
+`plugin:{sha256,mtimeMs,stale}`；`--real-session` 遇到陈旧直接 exit 2，并把 hash 写进
+`result.json`。
