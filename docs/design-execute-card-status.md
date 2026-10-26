@@ -433,12 +433,25 @@ SIGKILL。`design-execute-online.mjs` 的收尾另外加了 15 秒超时兜底�
 每隔 **约 3000 ms** 发一次（1792998628702 → 631746 → 634753 → 636784 → 639820 → 642828 →
 645833 → 648839 → 651847 → 654852），也就是**就绪前 3.0 s 的活跃间隔**对上了。
 
-**仍没解释的一半**：`items: []` 的列表响应仍会被 `client.list` 判 `Invalid Task response`
-（探针里 `error` 一直是它，尽管 HTTP 200、body 是
-`{"items":[],"nextCursor":null,"coverage":{"status":"complete","reasons":[]}}`）。
-所以 15 s（就绪后）这一段还没量到，3 s 那段能对上。下一步要么在渲染层把
-`parseTaskList` 的失败点定位出来（它只依赖三个字段，按理不该拒），要么把这条响应固化成一个
-单测喂给解析器。
+3. **`progress.phase` / `progress.reason` 用的是我们的内部词，不是渲染层的枚举。**
+   渲染层 `phase` 只认 `pending|queued|active|paused|retrying|stopped|done`，
+   `reason` 只认 `scheduler|…|provider_running|…`；我们发的是 `phase:"compute"`、
+   `reason:"running"` —— 整条任务仍然被判 `Invalid Task response`。
+   这才是"空列表也报错"之外的最后一块拼图：列表本身没问题，**是列表里的那条任务非法**。
+   修法：按状态映射（accepted→queued/scheduler、running→active/provider_running、
+   waiting_user→paused/user_action、completed→done、failed→stopped+provider_unavailable、
+   cancelled→stopped+user_stopped），并把枚举钉进契约用例。
+
+**修完后的实测（种子夹具，150 秒任务，窗口可见、`visible`/`hasFocus=true`）**：
+卡片按 `toolUseId` 反查的列表请求共 13 次，间隔序列
+
+```
+3047, 3007, 2032, 15022, 15005, 15005, 15005, 15004 …
+```
+
+前三次 ≈ **3 s**（`LIVE_POLL_MS`，还没进推送作用域），之后稳定在 **≈15 s**
+（`PUSHED_POLL_MS`，`task_subscription_ready` 之后）—— **和代码预期一致**。
+（`task_subscription_ready` 比第一次请求还早，所以"就绪前"那一段在请求日志里是前三次。）
 
 **插件构建顺序**：`build-resources/` 里那份插件 dist 由 `scripts/stage-desktop-resources.mjs`
 生成（只进打包产物）；开发态加载的是 `app/packages/opencode-plugin-hilo/dist/index.js`，

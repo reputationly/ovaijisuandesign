@@ -151,7 +151,11 @@ describe("v3 执行生成", () => {
         revision: expect.any(Number),
         actions: expect.any(Array),
         data: expect.any(Object),
-        progress: expect.objectContaining({ phase: expect.any(String), subtasks: expect.any(Array) }),
+        // phase/reason 是渲染层的枚举，写内部词（compute/running）会被判非法。
+        progress: expect.objectContaining({
+          phase: expect.stringMatching(/^(pending|queued|active|paused|retrying|stopped|done)$/),
+          subtasks: expect.any(Array),
+        }),
       });
       expect(Number.isInteger(view.createdAt)).toBe(true);
       expect(Number.isInteger(view.updatedAt)).toBe(true);

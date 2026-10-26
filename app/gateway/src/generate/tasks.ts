@@ -364,8 +364,13 @@ function present(row: TaskRow) {
     actions: [],
     handoff: null,
     progress: {
-      phase: state.stage ?? "compute",
-      reason: row.status,
+      // `phase` / `reason` 都是**渲染层的枚举**，不是我们的内部词：
+      // phase ∈ pending|queued|active|paused|retrying|stopped|done，
+      // reason ∈ scheduler|…|provider_running|…（见 `canvas-v3-model.js` 的
+      // `TASK_PROGRESS_PHASES` / `progress.reason`）。写内部词（"compute"/"running"）
+      // 会让整条任务被判 `Invalid Task response`，卡片拿不到任何数据。
+      phase: progressPhase(row.status),
+      reason: progressReason(row.status),
       since,
       queuedAt: null,
       submittedAt: null,
@@ -378,6 +383,43 @@ function present(row: TaskRow) {
     },
     billing: null,
   };
+}
+
+/** 我们的任务状态 → 渲染层的 progress.phase（两个枚举不是同一套词）。 */
+function progressPhase(status: string): string {
+  switch (status) {
+    case "accepted":
+      return "queued";
+    case "running":
+      return "active";
+    case "waiting_user":
+      return "paused";
+    case "completed":
+      return "done";
+    case "failed":
+    case "cancelled":
+      return "stopped";
+    default:
+      return "queued";
+  }
+}
+
+/** 我们的任务状态 → 渲染层的 progress.reason（null 表示不表态）。 */
+function progressReason(status: string): string | null {
+  switch (status) {
+    case "accepted":
+      return "scheduler";
+    case "running":
+      return "provider_running";
+    case "waiting_user":
+      return "user_action";
+    case "failed":
+      return "provider_unavailable";
+    case "cancelled":
+      return "user_stopped";
+    default:
+      return null;
+  }
 }
 
 function epochMs(value: unknown): number {
