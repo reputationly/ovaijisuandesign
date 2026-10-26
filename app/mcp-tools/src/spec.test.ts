@@ -103,3 +103,44 @@ describe("tool surface", () => {
     }
   });
 });
+
+// v3 架构下的工具面：设了 `HILO_PROJECT_ARCHITECTURE=resource_v3` 才有 `execute` 这 29 个。
+//
+// 这一条是给桌面端那条链兜底的：桌面端把架构开关转发进 MCP server 的环境，agent 才看得到
+// v3 工具。真会话里 agent 说"没有 design_execute 这个工具"，一半原因是没转发、工具面整个
+// 是 v2 的 —— 这里钉住"设了变量就是 v3 工具面"。
+//
+// ⚠️ 注意名字：**注册的是裸名**（`execute` / `task_query`），与
+// `scripts/mcp-compare/reference-tools.json` 的参照 tools/list 逐字一致（`v3-spec.test.ts`
+// 钉着）。而 v3 的 agent profile（`base.json` 的 media-agent）与部分工具描述里写的是
+// `design_execute` 这种带前缀的名字 —— 这两层目前对不上，属于待定项，不在这条用例里改。
+describe("v3 工具面", () => {
+  it("设了 HILO_PROJECT_ARCHITECTURE=resource_v3 才注册 v3 的那 29 个工具", () => {
+    const previous = process.env.HILO_PROJECT_ARCHITECTURE;
+    process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
+    try {
+      const h = createHarness();
+      registerAllTools(h.registrar, gatewayFor("http://127.0.0.1:1"), "domestic");
+      const names = [...h.tools.keys()];
+      expect(names).toContain("execute");
+      expect(names).toContain("task_query");
+      // 两套工具面互斥：v3 下不该再出现 v2 的 hub_* 生成工具。
+      expect(names).not.toContain("hub_generate_image");
+    } finally {
+      if (previous === undefined) delete process.env.HILO_PROJECT_ARCHITECTURE;
+      else process.env.HILO_PROJECT_ARCHITECTURE = previous;
+    }
+  });
+
+  it("不设变量时是 v2 工具面（没有 execute）", () => {
+    const previous = process.env.HILO_PROJECT_ARCHITECTURE;
+    delete process.env.HILO_PROJECT_ARCHITECTURE;
+    try {
+      const h = createHarness();
+      registerAllTools(h.registrar, gatewayFor("http://127.0.0.1:1"), "domestic");
+      expect([...h.tools.keys()]).not.toContain("execute");
+    } finally {
+      if (previous !== undefined) process.env.HILO_PROJECT_ARCHITECTURE = previous;
+    }
+  });
+});

@@ -10,7 +10,15 @@ import { chromium } from "playwright-core";
 const repo = path.resolve(import.meta.dirname, "../..");
 const fixture = path.join(repo, "scripts/ui-compare/fixture");
 
-export async function launchApp({ mode = "recovered", port = 9361, root = "/tmp/ov-pw", xdg = path.join(root, "xdg"), reset = true, dbSource, config, callerKey = "pw-caller" } = {}) {
+/**
+ * `showWindow`：把窗口真的显示出来。
+ *
+ * **默认隐藏**（`OV_DEV_HIDDEN_WINDOW=1`）是为了逐屏截图不抢焦点；但隐藏窗口在 Chromium
+ * 里等于"页面被遮挡"，React Query 的 `refetchInterval` 在没有
+ * `refetchIntervalInBackground` 时**不会触发** —— 实测 120 秒的任务一次轮询都没发生，
+ * 看起来像"轮询坏了"，其实是窗口没显示。要量轮询/要真实会话时必须打开。
+ */
+export async function launchApp({ mode = "recovered", port = 9361, root = "/tmp/ov-pw", xdg = path.join(root, "xdg"), reset = true, dbSource, config, callerKey = "pw-caller", showWindow = false } = {}) {
   if (reset) rmSync(root, { recursive: true, force: true });
   mkdirSync(path.join(root, "ud"), { recursive: true });
   mkdirSync(xdg, { recursive: true });
@@ -32,7 +40,7 @@ export async function launchApp({ mode = "recovered", port = 9361, root = "/tmp/
     OV_UI: mode,
     ...(mode === "reference" ? { OV_REFERENCE: "1" } : {}),
     ...(process.env.HILO_PROJECT_ARCHITECTURE ? { HILO_PROJECT_ARCHITECTURE: process.env.HILO_PROJECT_ARCHITECTURE } : {}),
-    OV_DEV_HIDDEN_WINDOW: "1",
+    ...(showWindow ? {} : { OV_DEV_HIDDEN_WINDOW: "1" }),
     OV_USER_DATA_DIR: path.join(root, "ud"),
     HILO_DATA_DIR: path.join(root, "data"),
     OV_SKIP_LEGACY_MIGRATION: "1",

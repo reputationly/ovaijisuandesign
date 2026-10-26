@@ -29,6 +29,12 @@ const req = createRequire(path.join(repo, "app/gateway/package.json"));
 const Database = req("better-sqlite3");
 const args = process.argv.slice(2);
 const selfTest = args.includes("--self-test");
+/**
+ * `--real-session`：**真实会话**。对话类接口原样转发到真实平台（这里才花钱），
+ * 生图/视频仍然由假平台返回（加 `--fake-delay` 让任务跑够久，才量得到轮询）。
+ * 这样整轮只有对话产生费用。
+ */
+const realSession = args.includes("--real-session");
 /** `--fake-delay <ms>`：假平台把"出图"拖慢，用来量轮询间隔（只在 --self-test 下有意义）。 */
 const fakeDelayMs = (() => {
   const at = args.indexOf("--fake-delay");
@@ -98,6 +104,38 @@ async function startFakePlatform() {
         ],
       });
     }
+    // 对话类接口：原样转发到真实平台。只有这一类会花钱。
+    // 流式响应要边读边写 —— 一次性 `await upstream.text()` 会把 SSE 变成一坨，
+    // 客户端的流式解析直接罢工。
+    const passthrough = new Set(["/v1/chat/completions", "/v1/responses", "/v1/messages", "/v1/models"]);
+    if (realSession && passthrough.has(request.url.split("?")[0])) {
+      const upstreamUrl = `https://maas.ovaijisuan.com${request.url}`;
+      const forward = async () => {
+        const init = {
+          method: request.method,
+          headers: {
+            "content-type": request.headers["content-type"] ?? "application/json",
+            accept: request.headers.accept ?? "*/*",
+            authorization: `Bearer ${key}`,
+          },
+          ...(request.method === "GET" ? {} : { body: request, duplex: "half" }),
+        };
+        const upstream = await fetch(upstreamUrl, init);
+        res.writeHead(upstream.status, {
+          "content-type": upstream.headers.get("content-type") ?? "application/json",
+          ...(upstream.headers.get("cache-control") ? { "cache-control": upstream.headers.get("cache-control") } : {}),
+        });
+        if (!upstream.body) return res.end();
+        for await (const chunk of upstream.body) res.write(chunk);
+        res.end();
+      };
+      forward().catch((error) => {
+        res.statusCode = 502;
+        res.setHeader("content-type", "application/json");
+        res.end(JSON.stringify({ error: { message: `upstream failed: ${String(error).slice(0, 200)}`, type: "upstream_error", code: "upstream_failed" } }));
+      });
+      return;
+    }
     if (request.url === "/v1/images/generations") {
       // `--fake-delay` 让"任务"慢一点：轮询间隔要有一个跑得比间隔久的任务才测得出来。
       if (fakeDelayMs > 0) return setTimeout(() => json({ data: [{ url: `${base}/files/out.png` }] }), fakeDelayMs);
@@ -114,13 +152,14 @@ async function startFakePlatform() {
   return server;
 }
 
-const fakePlatform = selfTest ? await startFakePlatform() : null;
+const fakePlatform = selfTest || realSession ? await startFakePlatform() : null;
 const baseUrl = fakePlatform ? `http://127.0.0.1:${fakePlatform.address().port}/v1` : "https://maas.ovaijisuan.com/v1";
 const config = {
-  platform: { base_url: baseUrl, api_key: key, chat_model: "deepseek-v4-1-flash" },
+  platform: { base_url: baseUrl, api_key: realSession ? "sk-proxy-local" : key, chat_model: "deepseek-v4-1-flash" },
   models: { image: IMAGE_MODEL, image_edit: null, video: VIDEO_MODEL, video_ref: null, video_upscale: null, music: null, music_edit: null, speech: null, music_engine: null, enhance_music_caption: false, voice_map: {}, image_upscale: null },
 };
-const out = path.resolve(repo, `.probe/pw/design-execute/${new Date().toISOString().replace(/[:.]/g, "-")}-${selfTest ? "selftest" : "online"}`);
+const mode = realSession ? "real-session" : selfTest ? "selftest" : "online";
+const out = path.resolve(repo, `.probe/pw/design-execute/${new Date().toISOString().replace(/[:.]/g, "-")}-${mode}`);
 mkdirSync(out, { recursive: true });
 
 /** 落盘前先脱敏：`sk-` 开头的串只留前 3 位。 */
@@ -131,7 +170,13 @@ const redact = (value) => {
   return value;
 };
 
-const first = await launchApp({ port: 9361, config });
+if (realSession) {
+  await runRealSession();
+  fakePlatform?.close();
+  process.exit(0);
+}
+
+const first = await launchApp({ port: 9361, config, showWindow: true });
 await first.close();
 try { execFileSync("pkill", ["-9", "-f", "app/desktop"]); } catch {}
 await new Promise((resolve) => setTimeout(resolve, 1200));
@@ -160,7 +205,7 @@ const imp = await fetch(`${base}/api/projects/archive/import`, { method: "POST",
 console.log("import", imp.status, await imp.text());
 gw.kill("SIGTERM");
 
-const app = await launchApp({ port: 9362, xdg, reset: false, config, callerKey: "pw-caller" });
+const app = await launchApp({ port: 9362, xdg, reset: false, config, callerKey: "pw-caller", showWindow: true });
 const frameLog = [];
 const requests = [];
 app.page.on("websocket", (ws2) => {
@@ -372,3 +417,133 @@ console.log(JSON.stringify(redact({ out, outputs, outputCards, cardText, pageErr
 await app.close();
 fakePlatform?.close();
 process.exit(0);
+
+/**
+ * 真实会话：从对话框发一句话，让 **agent 自己** 调 `design_execute`。
+ *
+ * 只有对话打真实平台（假平台转发 + 注入真 key），生图/视频仍由假平台返回并延迟
+ * `--fake-delay` —— 这样整轮只有对话产生费用，而任务又跑得够久，才量得到轮询。
+ */
+async function runRealSession() {
+  const app = await launchApp({ port: 9362, config, showWindow: true });
+  const requests = [];
+  const frameLog = [];
+  const pageErrors = [];
+  const probes = [];
+  app.page.on("websocket", (ws) => {
+    ws.on("framesent", (event) => frameLog.push({ dir: "sent", at: Date.now(), payload: String(event.payload) }));
+    ws.on("framereceived", (event) => frameLog.push({ dir: "recv", at: Date.now(), payload: String(event.payload) }));
+  });
+  app.page.on("request", (request) => {
+    const headers = request.headers();
+    requests.push({ at: Date.now(), method: request.method(), url: request.url(), toolUseId: headers["x-tool-use-id"] ?? null, caller: headers["x-hilo-agent-caller"] ?? null });
+  });
+  app.page.on("pageerror", (error) => pageErrors.push({ kind: "pageerror", message: String(error?.message ?? error) }));
+  app.page.on("console", (message) => {
+    if (message.type() !== "error") return;
+    pageErrors.push({ kind: "console.error", message: message.text().slice(0, 800) });
+  });
+  app.page.on("response", (response) => {
+    const url = response.url();
+    if (!/\/api\/v3\/tasks|\/api\/v3\/execute/.test(url)) return;
+    const entry = { at: Date.now(), url: url.split("?")[0], status: response.status(), body: "" };
+    probes.push(entry);
+    response.text().then((text) => { entry.body = text.slice(0, 900); }).catch(() => {});
+  });
+
+  await app.page.bringToFront().catch(() => {});
+  const prompt = valueOf("prompt") ?? "直接调用 design_execute 工具生成一张红苹果图片，画幅 1:1，不要再问我，直接执行";
+  console.log("发送提示词：", prompt);
+
+  // v3 工具面（`design_execute` 等 25 个）只在 `HILO_PROJECT_ARCHITECTURE=resource_v3`
+  // 下注册；不设的话 agent 看到的是 hub_* 那一套，它会说"没有 design_execute 这个工具"
+  // 然后走生成卡的旧路径 —— 第一次真会话就是这么跑偏的。
+  if (process.env.HILO_PROJECT_ARCHITECTURE !== "resource_v3") {
+    console.log("⚠ 未设置 HILO_PROJECT_ARCHITECTURE=resource_v3：agent 看不到 design_execute");
+  }
+
+  // 从首页的输入框发出去：这一步会建立会话、拉起 agent。
+  await app.page.click('[data-action-ui-id="message-input"] textarea, [data-action-ui-id="message-input"] [contenteditable="true"]').catch(async () => {
+    await app.page.click('[data-action-ui-id="message-input"]');
+  });
+  await app.page.keyboard.type(prompt);
+  await app.page.click('[data-action-ui-id="message-send-btn"]');
+
+  // 等 agent 真的调了 design_execute：以 `/api/v3/execute` 请求为信号。
+  // 期间如果弹出"确认消耗"之类的按钮，替用户点掉 —— 真会话里这是人会做的事。
+  const started = Date.now();
+  let executed = null;
+  const allowButtons = ['[data-action-ui-id*="tool-confirm"] button', '[data-action-ui-id*="confirm"] button', 'button:has-text("允许")', 'button:has-text("确认")', 'button:has-text("继续")'];
+  while (Date.now() - started < 240_000) {
+    executed = requests.find((item) => item.url.includes("/api/v3/execute"));
+    if (executed) break;
+    for (const selector of allowButtons) {
+      const button = app.page.locator(selector).first();
+      if (await button.count().catch(() => 0)) {
+        await button.click({ timeout: 2000 }).catch(() => {});
+        console.log("点了确认按钮：", selector);
+        break;
+      }
+    }
+    await app.page.waitForTimeout(2000);
+  }
+  const result = { out, realSession: true, prompt, visibility: null, partCallID: null, executeToolUseId: executed?.toolUseId ?? null, executed: Boolean(executed), frames: [], polling: null, cardText: "", outputHtml: "", pageErrors: [] };
+  if (!executed) {
+    result.pageErrors = redact(pageErrors).slice(0, 5);
+    writeFileSync(path.join(out, "result.json"), JSON.stringify(redact(result), null, 2));
+    console.log("agent 没有调用 design_execute（240s 内）");
+    await app.close();
+    return;
+  }
+
+  // part 上的 callID：直接读 opencode 库，和上面请求头里的 x-tool-use-id 对账。
+  await app.page.waitForTimeout(4000);
+  try {
+    const db = new Database(path.join(app.xdg, "..", "opencode.db"), { readonly: true });
+    const row = db.prepare("SELECT callID AS callID, data FROM part WHERE data LIKE '%\"tool\":\"design_execute\"%' ORDER BY rowid DESC LIMIT 1").get();
+    db.close();
+    if (row) result.partCallID = row.callID ?? JSON.parse(row.data).callID ?? null;
+  } catch (error) {
+    result.partReadError = String(error).slice(0, 200);
+  }
+
+  // 等卡片把任务跑完（假平台延迟 60s）。
+  const waitStart = Date.now();
+  while (Date.now() - waitStart < 300_000) {
+    const text = await app.page.locator('[data-action-ui-id="chat-design-execute"]').innerText().catch(() => "");
+    if (/已完成|失败/.test(text) && !/执行中/.test(text)) break;
+    await app.page.waitForTimeout(2000);
+  }
+  result.visibility = await app.page.evaluate(() => ({ state: document.visibilityState, hasFocus: document.hasFocus() })).catch(() => null);
+  result.cardText = await app.page.locator('[data-action-ui-id="chat-design-execute"]').innerText().catch(() => "");
+  result.outputHtml = (await app.page.locator('[data-testid="design-execute-outputs"]').first().innerHTML().catch(() => "")).slice(0, 1200);
+  result.frames = frameLog
+    .map((item) => ({ dir: item.dir, at: item.at, type: (() => { try { return JSON.parse(item.payload).type; } catch { return undefined; } })() }))
+    .filter((item) => item.type);
+  result.pageErrors = redact(pageErrors).slice(0, 5);
+
+  // 卡片自己的轮询：`GET /api/v3/tasks/<id>` 或带 toolUseId 的列表，按 ready 切两段。
+  const path2 = (url) => new URL(url).pathname;
+  const isCardGet = (url) => /^\/api\/v3\/tasks\/[^/]+$/.test(path2(url));
+  const isCardList = (url) => path2(url) === "/api/v3/tasks" && new URL(url).searchParams.has("toolUseId");
+  const readyAt = result.frames.find((frame2) => frame2.dir === "recv" && frame2.type === "task_subscription_ready")?.at;
+  const card = requests.filter((item) => isCardGet(item.url) || isCardList(item.url));
+  const gaps = (list) => list.slice(1).map((item, index) => item.at - list[index].at);
+  const before = card.filter((item) => readyAt === undefined || item.at < readyAt);
+  const after = card.filter((item) => readyAt !== undefined && item.at >= readyAt);
+  result.polling = {
+    readyAt: readyAt ?? null,
+    card: [{ scope: executed.toolUseId ?? "tool", beforeReady: { count: before.length, intervalsMs: gaps(before) }, afterReady: { count: after.length, intervalsMs: gaps(after) } }],
+    other: [],
+  };
+
+  await app.page.screenshot({ path: path.join(out, "real-session.png") }).catch(() => {});
+  writeFileSync(path.join(out, "result.json"), JSON.stringify(redact(result), null, 2));
+  console.log(JSON.stringify(redact({ partCallID: result.partCallID, executeToolUseId: result.executeToolUseId, ready: result.polling.readyAt !== null, before: result.polling.card[0].beforeReady, after: result.polling.card[0].afterReady, cardText: result.cardText.slice(0, 40) }), null, 2));
+  await app.close();
+}
+
+function valueOf(name) {
+  const at = args.indexOf(`--${name}`);
+  return at >= 0 && args[at + 1] && !args[at + 1].startsWith("--") ? args[at + 1] : undefined;
+}

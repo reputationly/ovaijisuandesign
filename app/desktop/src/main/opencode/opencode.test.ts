@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.setConfig({ testTimeout: 60_000 });
 
 import { buildOpencodeConfig, fileUrl } from "./config.js";
-import { locateProfile, mergeSkillDirs } from "./index.js";
+import { buildMcpEnvironment, locateProfile, mergeSkillDirs } from "./index.js";
 import { assertProfileComplete, deepMerge, parseFrontmatter, STAGING_MARKER, stageProfile, syncProfile } from "./profile.js";
 
 function write(p: string, s: string) {
@@ -172,5 +172,46 @@ describe("config", () => {
     for (const name of Object.keys(cfg.provider["maas"].models)) {
       expect(cfg.provider["maas"].models[name]).toMatchObject({ id: name, name, tool_call: true });
     }
+  });
+});
+
+// v3 架构下 agent 必须能看到 v3 那套工具（`design_execute` 等）。MCP server 是靠环境变量
+// 决定注册哪套工具的，桌面端不转发的话会"选了 v3 profile、发的是 v2 工具"，真会话里
+// agent 只会说"没有 design_execute 这个工具"。
+describe("MCP server 的环境", () => {
+  const base = { gatewayUrl: "http://127.0.0.1:1", skillsDir: "/skills", identity: { HILO_WORKSPACE_CLAIM: "c" } };
+
+  it("v3 架构要转发 HILO_PROJECT_ARCHITECTURE", () => {
+    const previous = process.env.HILO_PROJECT_ARCHITECTURE;
+    process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
+    try {
+      const env = buildMcpEnvironment(base, { synced: "/synced" });
+      expect(env.HILO_PROJECT_ARCHITECTURE).toBe("resource_v3");
+    } finally {
+      if (previous === undefined) delete process.env.HILO_PROJECT_ARCHITECTURE;
+      else process.env.HILO_PROJECT_ARCHITECTURE = previous;
+    }
+  });
+
+  it("没设就不塞空值（v2 是默认，不需要这个键）", () => {
+    const previous = process.env.HILO_PROJECT_ARCHITECTURE;
+    delete process.env.HILO_PROJECT_ARCHITECTURE;
+    try {
+      expect(buildMcpEnvironment(base, { synced: "/synced" })).not.toHaveProperty("HILO_PROJECT_ARCHITECTURE");
+    } finally {
+      if (previous !== undefined) process.env.HILO_PROJECT_ARCHITECTURE = previous;
+    }
+  });
+
+  it("其余环境照旧：网关地址、知识库/工作流目录、工作区身份", () => {
+    const env = buildMcpEnvironment(base, { synced: "/synced" });
+    expect(env).toMatchObject({
+      ELECTRON_RUN_AS_NODE: "1",
+      GATEWAY_URL: "http://127.0.0.1:1",
+      SKILLS_DIR: "/skills",
+      HILO_KNOWLEDGE_DIR: "/synced/knowledge",
+      HILO_WORKFLOWS_DIR: "/synced/workflows",
+      HILO_WORKSPACE_CLAIM: "c",
+    });
   });
 });

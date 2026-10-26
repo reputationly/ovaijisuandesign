@@ -147,6 +147,10 @@ export class MediaConfigService {
     if (!this.catalogOwner || this.catalogOwner.digest !== digest || this.catalogOwner.baseUrl !== baseUrl) {
       this.catalogOwner = { digest, baseUrl };
       this.catalogGeneration += 1;
+      // 旧 key 的刷新还在飞：它的结果会被 .then 里的代际判断丢掉，但 `catalogInFlight`
+      // 仍然占着位置，新 key 的 `refresh()` 会直接返回那个旧 promise。这里一并清掉，
+      // 让新 key 立即发起自己的那次。
+      this.catalogInFlight = undefined;
       this.catalog = readCachedCatalog(this.dataDir(), config.platform.api_key) ?? undefined;
       this.catalogFetchedAt = 0;
       this.lastCatalogError = undefined;
@@ -186,6 +190,10 @@ export class MediaConfigService {
         return this.catalog ?? null;
       })
       .finally(() => {
+        // **只在同一代里收尾。** 换 key 之后，旧 key 这次刷新的 finally 不能把
+        // `catalogFetchedAt` 写成"刚刚拉过"：那会让新 key 白等 60 秒才去拉目录
+        // （`maybeRefreshCatalog` 就是拿这个时间判 TTL 的）。
+        if (generation !== this.catalogGeneration) return;
         this.catalogFetchedAt = Date.now();
         this.catalogInFlight = undefined;
       });

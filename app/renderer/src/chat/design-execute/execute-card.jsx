@@ -27,7 +27,7 @@ import { CollapsiblePresence } from "../../media-editing/collapsible-presence.js
 import { MediaGenCardLayout, PromptBlock, TagsRow } from "../../media-editing/media-gen-detail.jsx";
 import { ArtifactAssetCard } from "../../generation/artifact-asset-card.jsx";
 import { useDesignResourceScope } from "../../canvas-v3/canvas-v3-hooks.js";
-import { designInput, designOutputs, designTags, designTaskDetails, isDesignDeliveryComplete } from "./design-input.js";
+import { designInput, designOutputs, designTags, designTaskCallId, designTaskDetails, isDesignDeliveryComplete } from "./design-input.js";
 import { useDesignTask, useDesignTaskParams } from "./task-query.js";
 import { designTaskFinal } from "./task-push.js";
 import { useReportDesignTask } from "./turn-registry.jsx";
@@ -76,7 +76,10 @@ export function ScopedCard({ entry, scopeKey, ready }) {
   const confirmRejectReason = entry.toolStatus === "error" ? parseToolConfirmRejectReason(entry.toolResult) : undefined;
   const executionRejected = inputRejected || !!confirmRejectReason;
   const snapshotFinal = designTaskFinal(snapshot);
-  const observed = useDesignTask(scopeKey, ready, input.operation, entry.callID, taskId, snapshotFinal, executionRejected);
+  // 入口上的字段是 `toolCallId`（时间线归并时从 part 的 `callID` 换名而来）。
+  // 读错字段的后果不是"少一次请求"，是**查询整个不打开**：`useDesignTask` 的 enabled
+  // 要求 `taskId || callID`，两者都拿不到时卡片只能靠推送更新，轮询一次都不发。
+  const observed = useDesignTask(scopeKey, ready, input.operation, designTaskCallId(entry), taskId, snapshotFinal, executionRejected);
   const observedRevision = observed.data?.revision ?? -1;
   const snapshotRevision = typeof snapshot?.revision === "number" ? snapshot.revision : -1;
   const task = observed.data && (snapshotFinal ? observedRevision > snapshotRevision : observedRevision >= snapshotRevision) ? observed.data : snapshot;

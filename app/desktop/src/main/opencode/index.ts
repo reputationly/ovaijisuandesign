@@ -163,6 +163,30 @@ export function mergeSkillDirs(...groups: string[][]): string[] {
 
 const stagedDirs = new Set<string>();
 
+/**
+ * MCP server 的环境。
+ *
+ * **`HILO_PROJECT_ARCHITECTURE` 必须转发。** MCP server 按它决定注册哪套工具
+ * （`mcp-tools/src/tools/index.ts` 的 `isV3ToolMode`）：不转发的话，桌面端选了 v3 的
+ * agent profile、工具面却还是 v2 的 —— agent 拿不到 `design_execute`，真会话里它会直接说
+ * "没有这个工具"，然后走旧的 hub_* 生成卡。
+ */
+export function buildMcpEnvironment(
+  i: Pick<PrepareInputs, "gatewayUrl" | "skillsDir" | "identity">,
+  paths: { synced: string; skillsDir?: string },
+): Record<string, string> {
+  return {
+    ELECTRON_RUN_AS_NODE: "1",
+    GATEWAY_URL: i.gatewayUrl,
+    ...(process.env.HILO_PROJECT_ARCHITECTURE ? { HILO_PROJECT_ARCHITECTURE: process.env.HILO_PROJECT_ARCHITECTURE } : {}),
+    ...(process.env.HILO_AGENT_CALLER_KEY ? { HILO_AGENT_CALLER_KEY: process.env.HILO_AGENT_CALLER_KEY } : {}),
+    SKILLS_DIR: paths.skillsDir ?? i.skillsDir,
+    HILO_KNOWLEDGE_DIR: path.join(paths.synced, "knowledge"),
+    HILO_WORKFLOWS_DIR: path.join(paths.synced, "workflows"),
+    ...i.identity,
+  };
+}
+
 export function prepareLaunch(i: PrepareInputs): LaunchSpec {
   const binary = locateOpencode(i.roots);
   if (!binary) throw new Error("找不到 opencode。发布包里应当自带（resources/opencode/）；开发时用 OPENCODE_BIN 指定");
@@ -202,15 +226,7 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
     platform: i.platform,
     mcp: {
       command: [i.nodeExec, mcpEntry],
-      environment: {
-        ELECTRON_RUN_AS_NODE: "1",
-        GATEWAY_URL: i.gatewayUrl,
-        ...(process.env.HILO_AGENT_CALLER_KEY ? { HILO_AGENT_CALLER_KEY: process.env.HILO_AGENT_CALLER_KEY } : {}),
-        SKILLS_DIR: i.skillsDir,
-        HILO_KNOWLEDGE_DIR: path.join(synced, "knowledge"),
-        HILO_WORKFLOWS_DIR: path.join(synced, "workflows"),
-        ...i.identity,
-      },
+      environment: buildMcpEnvironment(i, { synced, skillsDir: i.skillsDir }),
     },
     extraPlugins: plugin ? [plugin] : [],
     skillsPaths: mergeSkillDirs(i.userSkillsDir ? skillDirs(i.userSkillsDir) : [], skillDirs(i.skillsDir)),

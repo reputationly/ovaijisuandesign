@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { catalogCache } from "@ov/maas-media";
 import { FALLBACK_MODELS, PLATFORM_PRESET } from "@ov/protocol";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { GatewayConfig } from "../config/gateway-config.js";
 import { chatModelIds, configuredChatModel } from "../runtime/chat-models.js";
@@ -130,6 +130,38 @@ describe("网关读平台配置", () => {
 
     writeFileSync(path.join(dir, "config.json"), JSON.stringify({ platform: { api_key: "sk-A" } }));
     expect(service.currentCatalog()?.version).toBe("a-v1");
+  });
+
+  it("换 key 时，旧 key 那次刷新结束不能把新 key 的刷新推迟 60 秒", async () => {
+    const dir = dirWith({ platform: { api_key: "sk-A" } });
+    const service = serviceFor(dir);
+    const calls: string[] = [];
+    let releaseA = () => {};
+    const holdA = new Promise<void>((resolve) => {
+      releaseA = resolve;
+    });
+    const respond = (version: string) => new Response(JSON.stringify({ version, capabilities: [] }), { status: 200, headers: { "content-type": "application/json" } });
+    vi.stubGlobal("fetch", (url: string, init?: { headers?: Record<string, string> }) => {
+      const key = String(init?.headers?.Authorization ?? "").replace("Bearer ", "");
+      calls.push(key);
+      // A 的那次故意挂住：模拟"换 key 时旧请求还在飞"。
+      return key === "sk-A" ? holdA.then(() => respond("a-v1")) : Promise.resolve(respond("b-v1"));
+    });
+    try {
+      void service.refreshCatalogNow(); // A 起飞并挂住
+      await Promise.resolve();
+
+      // 换 key，并让新的配置生效。
+      writeFileSync(path.join(dir, "config.json"), JSON.stringify({ platform: { api_key: "sk-B" } }));
+      service.load(); // catalogFor 换代 + maybeRefreshCatalog
+
+      // B 的刷新必须**在 A 结束之前**就发出去：被 A 的 promise 挡住或等 TTL 都会失败。
+      for (let i = 0; i < 50 && calls.length < 2; i++) await new Promise((resolve) => setTimeout(resolve, 5));
+      expect(calls).toEqual(["sk-A", "sk-B"]);
+    } finally {
+      releaseA();
+      vi.unstubAllGlobals();
+    }
   });
 
   it("配置里写死的值优先于目录", () => {
