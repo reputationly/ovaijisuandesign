@@ -176,9 +176,19 @@ jobs:
       #
       # 踩过一次：只加在 electron-builder 步上，CI 上构建出来的主进程 bundle 里
       # 根本没有那个 URL —— 而新加的核对断言当场报红（这正是它存在的意义）。
-      - run: pnpm turbo run build
+      # **macOS runner 的内存是硬约束（7 GB），这个构建必须省着用。**
+      #
+      # 渲染层那一个大 bundle 单次 Vite 构建的峰值 RSS 实测 4.2 GB；turbo 默认
+      # 并发 10 会把 desktop/gateway/mcp-tools 一起拉起来，7 GB 的 runner 直接被
+      # 内核 OOM 掉（症状是 `Process completed with exit code 137`，日志里只有
+      # `Failed: @ov/renderer#build`，看不出是内存）。两个 mac job 都栽在这里。
+      #
+      #   --concurrency=1  一次只跑一个任务（渲染层自己就要 4.2 GB，第二个任务挤上来就没了）
+      #   6 GB 堆上限     给 V8 明确的天花板，让它自己 GC 而不是涨到被内核 kill
+      - run: pnpm turbo run build --concurrency=1
         env:
           OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/${{ needs.prepare.outputs.product }}
+          NODE_OPTIONS: --max-old-space-size=6144
 
       # 两个离线自检（不联网，几秒钟）。平台分支和取件逻辑里有 mac 跑不到的分支，
       # 没有它们就只能靠一整轮试错去撞。

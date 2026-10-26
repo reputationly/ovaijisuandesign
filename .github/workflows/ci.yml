@@ -28,7 +28,12 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # --continue：一个包失败不要停，其余平台相关的失败一次看全。
-      - run: pnpm turbo run build typecheck test --continue
+      #
+      # `--concurrency=2` + 4 GB 堆：macOS runner 只有 7 GB，顺手把并发拉满会被内核
+      # OOM（退出码 137，日志只写 `Failed: @ov/renderer#build`）。见 release.yml 同处注释。
+      - run: pnpm turbo run build typecheck test --continue --concurrency=2
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
   # ==================== 新栈出包 ====================
   #
@@ -71,7 +76,12 @@ jobs:
       # 更新源变量必须给到**这一步**：`electron-vite build` 在这里跑，
       # electron.vite.config.ts 的 main.define 也在这里求值。
       # electron-builder 那一步再带也没用 —— 它只打包已经生成好的 out/。
-      - run: pnpm turbo run build
+      #
+      # 串行 + 6 GB 堆：macOS runner 7 GB，渲染层的单次 Vite 构建实测 4.2 GB，
+      # 和别的任务并发就是 exit 137（内核 OOM）。见 release.yml 同处注释。
+      - run: pnpm turbo run build --concurrency=1
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
         env:
           OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/ovaijisuandesign
 
