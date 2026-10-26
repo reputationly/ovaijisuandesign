@@ -25,7 +25,10 @@ import {
 import { BrowserSkillRequiredError, CONTROL_IN_APP_BROWSER_SKILL, isBrowserSkillInstalled, isBrowserSkillLoadResult } from "./browser-skill-gate.js";
 import { hasPendingCompactionContinuePrompt, rewriteCompactionContinueLanguage } from "./compaction-continue-rewrite.js";
 import { notifySkillUploadCheck, reportLoopGuardTrip, reportMcpToolCallObserved } from "./gateway-reports.js";
+import { parseAgentProfileVersion } from "@ov/protocol";
+
 import { loadMemoryContext, shouldIncludeUserMemory } from "./load-memory-context.js";
+import { nextToolCallIndex, TOOL_CALL_INDEX_ARG } from "./tool-call-order.js";
 import { askUserViaGateway } from "./loop-guard/ask-client.js";
 import { createLoopGuard, LoopGuardError } from "./loop-guard/index.js";
 import { fetchMediaModels } from "./media-models-cache.js";
@@ -56,6 +59,16 @@ const HUB_TOOL_PREFIX = "hub_";
  */
 const DESIGN_TOOL_PREFIX = "design_";
 const HUB_MEMORY_TOOL = "hub_memory";
+
+/** agent 工具面的版本（2 或 3）。非法值不让整轮挂掉：告警并按 2 处理。 */
+function agentProfileVersion(): 2 | 3 {
+  try {
+    return parseAgentProfileVersion(process.env.HILO_AGENT_PROFILE_VERSION);
+  } catch (error) {
+    console.warn(`[hilo-plugin] ${(error as Error).message}；按 v2 处理`);
+    return 2;
+  }
+}
 const HUB_BROWSER_TOOL = "hub_browser";
 const HUB_PLAN_TOOL_PREFIX = "hub_plan_";
 const CHAT_TURN_ID_HEADER = "X-Chat-Turn-Id";
@@ -194,7 +207,12 @@ const plugin: Plugin = async (input) => {
       let memoryTruncated = 0;
       try {
         const root = projectRoot();
-        const memory = await loadMemoryContext({ projectRoot: root, includeUserMemory: shouldIncludeUserMemory(root) });
+        // v3 的记忆只有全局一份（`design_memory`），v2 才是"项目 + 用户"两段。
+      const memory = await loadMemoryContext({
+        projectRoot: root,
+        includeUserMemory: shouldIncludeUserMemory(root),
+        access: agentProfileVersion() === 3 ? "global" : "managed",
+      });
         if (memory.prompt) appendSystemBlock(out.system, memory.prompt);
         memoryEntries = memory.totalEntries;
         memoryTruncated = memory.truncated;
@@ -338,6 +356,11 @@ const plugin: Plugin = async (input) => {
       if (resolution.ok) args._group_id = resolution.groupId;
       else args._group_scope = groupScopeMarker(resolution);
       if (inp.callID) args._tool_use_id = inp.callID;
+      // 调用序号只能由插件给：模型自己编的一律清掉再按会话递增。
+      // 目前只有 `design_execute` 需要（同一轮里多次提交时保留模型的本意顺序）。
+      delete args[TOOL_CALL_INDEX_ARG];
+      const toolCallIndex = nextToolCallIndex(inp.sessionID, inp.tool);
+      if (toolCallIndex !== undefined) args[TOOL_CALL_INDEX_ARG] = toolCallIndex;
       if (inp.callID && resolution.chatTurnId) {
         try {
           const refs = await observeAttachmentInputs(gatewayUrl, inp.sessionID, toolAttachmentPaths(args), {

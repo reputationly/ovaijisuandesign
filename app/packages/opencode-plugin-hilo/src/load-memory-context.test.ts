@@ -27,6 +27,26 @@ afterEach(() => {
 });
 
 describe("记忆上下文", () => {
+  // v3 的记忆只有全局一份（`design_memory`），项目规则是另一份文档。
+  // 参照 4.0.4 的 `loadMemoryContext({access:"global"})`：即使一条记忆都没有，也要把
+  // "怎么用记忆/项目规则"的说明给出去 —— 否则 agent 在 v3 里根本不知道有这么个工具。
+  it("v3（access=global）：只列全局记忆、说明换成 design_memory，空列表也给说明", async () => {
+    const empty = await loadMemoryContext({ projectRoot: root, access: "global" });
+    expect(empty.totalEntries).toBe(0);
+    expect(empty.prompt).toContain("design_memory({target:'global', action:'read', name})");
+    expect(empty.prompt).toContain("Project-specific rules are a separate document");
+    expect(empty.prompt).not.toContain("hub_memory");
+
+    const proj = path.join(root, ".hilo", "memory");
+    memo(proj, "p.md", { name: "proj-style", description: "项目风格", type: "media-style" }, 100);
+    memo(userDir, "u.md", { name: "user-style", description: "我的偏好", type: "user" }, 200);
+    const one = await loadMemoryContext({ projectRoot: root, access: "global" });
+    expect(one.prompt).toContain("user-style");
+    // v3 不扫项目记忆（项目规则走另一条路），所以项目那条不该出现。
+    expect(one.prompt).not.toContain("proj-style");
+    expect(one.prompt).not.toContain("## Project memory");
+  });
+
   it("没有记忆就不注入", async () => {
     expect(await loadMemoryContext({ projectRoot: root })).toEqual({ prompt: "", truncated: 0, totalEntries: 0 });
   });

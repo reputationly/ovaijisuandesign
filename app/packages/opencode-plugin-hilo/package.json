@@ -22,5 +22,8 @@
     "@types/js-yaml": "4.0.9",
     "esbuild": "^0.28.2",
     "js-yaml": "4.3.2"
+  },
+  "dependencies": {
+    "@ov/protocol": "workspace:^"
   }
 }

@@ -122,6 +122,18 @@ const TOOL_LEXICON = {
   hint: "You can call the `hub_memory` tool with an `action` arg (`list` / `read` / `write` / `delete` / `search`) to manage memory entries. Refer to memory only when relevant; do not dump all entries.",
 };
 
+/**
+ * v3（`design_memory`）的记忆说明。**记忆在 v3 里只有全局一份**：没有"项目记忆"这个概念，
+ * 项目规则是另一份文档（`target:'project_rules'`）。照参照 4.0.4 逐字抄。
+ */
+const GLOBAL_MEMORY_GUIDANCE = `## Global memory and project rules
+
+Memory contains durable preferences shared across projects, including entries saved before V3. Use relevant summaries; read the full entry with design_memory({target:'global', action:'read', name}) when needed. The name is the frontmatter name shown above, not the filename.
+
+Use design_memory with target='global' to list, search, read, write or delete memory. All new memory is global: save only explicitly stated durable cross-project preferences, identity, feedback or references. List/search before creating and read before updating. Do not save temporary requests, inferred preferences, project constraints or project asset identities as global memory.
+
+Project-specific rules are a separate document: design_memory({target:'project_rules', action:'read'}) then action='save' with the complete merged content and expectedRevision. Save rules only when the user explicitly requests a lasting project change; preserve unrelated rules and confirm only after success. Current project rules and the user's current request take precedence over global memory. Deleted or changed entries replace earlier snapshots; do not retain removed preferences.`;
+
 function buildMemoryUsageRules(lex: typeof TOOL_LEXICON): string {
   return `## Memory usage rules
 
@@ -195,6 +207,11 @@ export interface LoadMemoryContextOptions {
   projectRoot?: string;
   includeUserMemory?: boolean;
   budgetBytes?: number;
+  /**
+   * 记忆的归属模型。`managed`（v2）= 项目记忆 + 用户记忆两段；`global`（v3）=
+   * 只有全局一份，项目规则另有文档。默认 `managed`，保持 v2 行为。
+   */
+  access?: "managed" | "global";
 }
 
 export interface MemoryContextResult {
@@ -206,10 +223,11 @@ export interface MemoryContextResult {
 export async function loadMemoryContext(opts: LoadMemoryContextOptions = {}): Promise<MemoryContextResult> {
   const budgetBytes = opts.budgetBytes ?? DEFAULT_BUDGET_BYTES;
   const includeUserMemory = opts.includeUserMemory ?? true;
-  const usageRules = buildMemoryUsageRules(TOOL_LEXICON);
-  const listToolRef = TOOL_LEXICON.ref("list");
+  const access = opts.access ?? "managed";
+  const usageRules = access === "global" ? GLOBAL_MEMORY_GUIDANCE : buildMemoryUsageRules(TOOL_LEXICON);
+  const listToolRef = access === "global" ? "design_memory({target:'global', action:'list'})" : TOOL_LEXICON.ref("list");
 
-  const projectEntries = opts.projectRoot ? scanScope(projectMemoryDir(opts.projectRoot), "project") : [];
+  const projectEntries = access !== "global" && opts.projectRoot ? scanScope(projectMemoryDir(opts.projectRoot), "project") : [];
   const rawUserEntries = includeUserMemory ? scanScope(userMemoryDir(), "user") : [];
   // 同名时项目记忆覆盖用户记忆。
   const projectNames = new Set(projectEntries.map((e) => e.name));
@@ -218,7 +236,10 @@ export async function loadMemoryContext(opts: LoadMemoryContextOptions = {}): Pr
   userEntries.sort((a, b) => b.mtimeMs - a.mtimeMs);
 
   const totalEntries = projectEntries.length + userEntries.length;
-  if (totalEntries === 0) return { prompt: "", truncated: 0, totalEntries: 0 };
+  // v3：即使一条记忆都没有，也要把"怎么用记忆/项目规则"的说明给出去（参照如此）。
+  if (totalEntries === 0) {
+    return access === "global" ? { prompt: GLOBAL_MEMORY_GUIDANCE, truncated: 0, totalEntries: 0 } : { prompt: "", truncated: 0, totalEntries: 0 };
+  }
 
   const header = "# Memory Context";
   const sections = [header];
@@ -249,7 +270,8 @@ export async function loadMemoryContext(opts: LoadMemoryContextOptions = {}): Pr
   appendSection("## User memory (cross-project)", userEntries);
   if (truncated > 0) sections.push(`[... ${truncated} more entries truncated, use ${listToolRef} to see all]`);
   sections.push(usageRules);
-  sections.push(TOOL_LEXICON.hint);
+  // v2 的 hint 讲的是 `hub_memory` 的 action；v3 的说明已经写在 GLOBAL_MEMORY_GUIDANCE 里。
+  if (access !== "global") sections.push(TOOL_LEXICON.hint);
   return { prompt: collapseBlocks(sections), truncated, totalEntries };
 }
 

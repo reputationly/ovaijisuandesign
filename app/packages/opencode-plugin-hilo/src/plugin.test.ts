@@ -4,6 +4,8 @@ import path from "node:path";
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
+import { TOOL_CALL_INDEX_ARG } from "./tool-call-order.js";
+
 import { type FakeGateway, startFakeGateway, status } from "./__fixtures__/fake-gateway.js";
 import { _resetSkillMetaCacheForTests } from "./skill-meta-reader.js";
 import plugin from "./index.js";
@@ -125,6 +127,18 @@ describe("opencode 插件", () => {
   // v3 的工具叫 `design_*`（opencode 用 MCP 服务名做命名空间）。`_tool_use_id` 不注入的话，
   // MCP 调到网关没有 `x-tool-use-id` 头，`/api/v3/execute` 会 400「Invalid requestId」——
   // 真会话里 agent 连调 5 次全被拒，就是这个。
+  // 参照 4.0.4（`src/tool-call-order.ts`）：design_execute 要带 `_tool_call_index`，
+  // 同一会话里单调递增；模型自己编的值先清掉。
+  it("design_execute 带调用序号：模型编的清掉、按会话递增；别的工具没有这个参数", async () => {
+    const h = await load();
+    const first = await before(h, "design_execute", { capabilityId: "generate_image:x", prompt: "a", _tool_call_index: 99 });
+    expect(first[TOOL_CALL_INDEX_ARG]).toBe(1);
+    const second = await before(h, "design_execute", { capabilityId: "generate_image:x", prompt: "b" });
+    expect(second[TOOL_CALL_INDEX_ARG]).toBe(2);
+    const other = await before(h, "design_task_query", { mode: "list" });
+    expect(other[TOOL_CALL_INDEX_ARG]).toBeUndefined();
+  });
+
   it("design 工具也要注入会话与调用 id（v3 工具面）", async () => {
     const h = await load();
     const args = await before(h, "design_execute", { capabilityId: "generate_image:qwen-image-pro-enhanced", prompt: "红苹果" });
