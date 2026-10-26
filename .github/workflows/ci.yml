@@ -82,7 +82,6 @@ jobs:
       - run: pnpm turbo run build --concurrency=1
         env:
           NODE_OPTIONS: --max-old-space-size=6144
-        env:
           OV_UPDATE_FEED_BASE: ${{ vars.R2_PUBLIC_BASE }}/ovaijisuandesign
 
       # 平台相关分支的离线自检：hostTarget / extractCommand / pmCli 三个纯函数，
