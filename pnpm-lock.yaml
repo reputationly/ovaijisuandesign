@@ -340,6 +340,9 @@ importers:
       class-validator:
         specifier: 0.14.4
         version: 0.14.4
+      cross-spawn:
+        specifier: 7.0.6
+        version: 7.0.6
       express:
         specifier: 5.2.1
         version: 5.2.1

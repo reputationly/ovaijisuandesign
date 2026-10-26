@@ -1,31 +1,58 @@
+import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
-import { spawnTool, windowsCommandLine } from "./spawn-tool.js";
+import { writeFakeTool } from "./__fixtures__/fake-tool.js";
+import { spawnTool } from "./spawn-tool.js";
 
 /**
- * Windows 上 `yt-dlp` 经常是 `.cmd` 包装（pip / 包管理器装出来的），
- * `spawn(file, args)` 直接起会 ENOENT —— 这正是"网页媒体下载在 mac 上好好的、
- * Windows 上一律不可用"的成因。这条用例钉住两件事：
- *   1. 普通可执行文件仍然是直接 spawn（不经过 shell）；
- *   2. `.cmd`/`.bat` 走 `cmd.exe /d /s /c`，并且参数被逐条加引号、`%` 被转义。
+ * 参数必须**逐字节**到达外部工具。
+ *
+ * 这些参数都来自外部输入（网页 URL、agent 生成的查询词）。Windows 上 yt-dlp 常常是
+ * `.cmd` 包装，参数要过 cmd.exe 的转义规则，那里有两个真踩过的坑：
+ *   - `%` 被改成 `%%`：`cmd /c` 的命令行上不会还原，带 `%20` 的 URL 全被弄坏；
+ *   - `"` 用 `\"` 转义：cmd.exe 不认，`a" & calc & "` 能把后半截当命令执行。
+ * 所以这条用例既断言"原样到达"，也断言"没有被注入执行"。
  */
+const ARGS = [
+  "https://x/a?b=1&c=2%20d%3F",
+  "100%",
+  "%PATH%",
+  "^caret^",
+  "!bang!",
+  "(paren)",
+  "中文 空格",
+  'a" & echo PWNED> pwned.txt & "',
+];
+
+function run(executable: string, args: string[], cwd: string): Promise<{ stdout: string; code: number | null }> {
+  const child = spawnTool(executable, args, { cwd });
+  let stdout = "";
+  child.stdout.on("data", (chunk: Buffer) => (stdout += chunk.toString("utf8")));
+  return new Promise((resolve) => child.on("close", (code) => resolve({ stdout, code })));
+}
+
 describe("spawnTool", () => {
   it("普通可执行文件：直接 spawn，参数原样（不经过 shell）", async () => {
-    const child = spawnTool(process.execPath, ["-e", "process.stdout.write(JSON.stringify(process.argv.slice(1)))", "a b", "100%"]);
-    let out = "";
-    child.stdout.on("data", (chunk: Buffer) => (out += chunk.toString("utf8")));
-    await new Promise((resolve) => child.on("close", resolve));
-    // 空格和 % 都原样到达（Unix 上没有 shell 介入；Windows 上不是 .cmd 也一样）。
-    expect(JSON.parse(out)).toEqual(["a b", "100%"]);
+    const dir = mkdtempSync(path.join(tmpdir(), "ov-spawn-"));
+    const { stdout } = await run(process.execPath, ["-e", "process.stdout.write(JSON.stringify(process.argv.slice(1)))", "a b", "100%"], dir);
+    expect(JSON.parse(stdout)).toEqual(["a b", "100%"]);
   });
 
-  it("Windows 的 .cmd/.bat：外层的 `/s` 引号 + 参数内 `\"` 转义 + `%` 变 `%%`", () => {
-    // `cmd /d /s /c` 剥掉最外层那一对引号，所以命令整体要再包一层（`""file" args"`）。
-    // 这样带空格的路径、含 `&` 和 `%20` 的 URL 才能原样到达 `.cmd`。
-    const line = windowsCommandLine("C:\\tools\\yt-dlp.cmd", ["https://x/watch?a=1&b=2%20c", 'say "hi"']);
-    expect(line.startsWith('""C:\\tools\\yt-dlp.cmd" ')).toBe(true);
-    expect(line).toContain('"https://x/watch?a=1&b=2%%20c"');
-    expect(line).toContain('"say \\"hi\\""');
-    expect(line.endsWith('"')).toBe(true);
+  it("假工具（Windows 上是 .cmd 包装）：8 个刁钻参数逐字节到达，且没有命令注入", async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "ov-spawn-argv-"));
+    const tool = writeFakeTool(dir, "echo-args", `
+process.stdout.write(JSON.stringify(process.argv.slice(2)));
+`);
+    const { stdout, code } = await run(tool, ARGS, dir);
+    expect(code).toBe(0);
+    expect(JSON.parse(stdout)).toEqual(ARGS);
+    // 注入没发生：`a" & echo PWNED> pwned.txt & "` 只是被当成一个普通参数。
+    expect(existsSync(path.join(dir, "pwned.txt"))).toBe(false);
   });
 });
+
+// 让 lint 认为 readFileSync 被用过（下面这行不断言任何东西，只是防止误删 import）。
+void readFileSync;
