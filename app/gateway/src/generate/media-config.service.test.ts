@@ -1,4 +1,4 @@
-import { mkdtempSync, utimesSync, writeFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -11,18 +11,6 @@ import { chatModelIds, configuredChatModel } from "../runtime/chat-models.js";
 import { capabilityEntries } from "./capabilities.controller.js";
 import { MediaConfigService } from "./media-config.service.js";
 
-/**
- * 把文件 mtime 往前推 1 秒。
- *
- * `MediaConfigService` 按 mtime 判断配置有没有变；Windows 的 NTFS 时间粒度比 Linux 粗，
- * 同一毫秒内重写 config.json 会被判成"没变"，于是继续用上一个 key 的目录 ——
- * windows runner 上的 "换 key" 两条用例就是这么红的。测试里显式推进 mtime，
- * 不依赖文件系统的时钟精度。
- */
-function bumpMtime(file: string): void {
-  const next = new Date(Date.now() + 1000);
-  utimesSync(file, next, next);
-}
 
 function dirWith(config: unknown): string {
   const dir = mkdtempSync(path.join(tmpdir(), "ov-media-cfg-"));
@@ -124,10 +112,7 @@ describe("网关读平台配置", () => {
     expect(service.currentCatalog()?.version).toBe("a-v1");
 
     // 换成 B：B 没有缓存，磁盘上只有 A 的。
-    // **必须把 mtime 往前推**：服务按 mtime 判配置有没有变，而 Windows 的 NTFS
-    // 时间粒度比 Linux 粗，同一毫秒内重写 config.json 会被当成"没变"，
-    // 于是拿到 A 的旧目录（CI 的 windows runner 就栽在这）。
-    bumpMtime(path.join(dir, "config.json"));
+    // 服务按**文件内容摘要**判配置有没有变（不是 mtime），所以这里不需要再动时间戳。
     writeFileSync(path.join(dir, "config.json"), JSON.stringify({ platform: { api_key: "sk-B" } }));
     expect(service.currentCatalog()).toBeNull();
     const media = service.load();
@@ -168,9 +153,8 @@ describe("网关读平台配置", () => {
       void service.refreshCatalogNow(); // A 起飞并挂住
       await Promise.resolve();
 
-      // 换 key，并让新的配置生效（同样要把 mtime 推一下，Windows 的粒度到不了毫秒）。
+      // 换 key，并让新的配置生效。
       writeFileSync(path.join(dir, "config.json"), JSON.stringify({ platform: { api_key: "sk-B" } }));
-      bumpMtime(path.join(dir, "config.json"));
       service.load(); // catalogFor 换代 + maybeRefreshCatalog
 
       // B 的刷新必须**在 A 结束之前**就发出去：被 A 的 promise 挡住或等 TTL 都会失败。

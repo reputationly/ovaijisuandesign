@@ -1,4 +1,5 @@
-import { readFileSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { Injectable } from "@nestjs/common";
@@ -30,7 +31,15 @@ import {
  */
 @Injectable()
 export class MediaConfigService {
-  private cached?: { mtimeMs: number; value: MediaConfig };
+  /**
+   * 缓存依据是**文件内容摘要**，不是 mtime。
+   *
+   * 只看 mtime 有真问题：NTFS 的时间粒度比 Linux 粗，用户在设置里极短时间连续保存两次
+   * （典型就是换 key —— 两次内容长度一模一样）时，第二次写可能落回同一个 mtime，
+   * gateway 就继续用旧配置。文件只有几百字节，每次 `load()` 读一遍走页缓存，
+   * 代价可忽略，但"同毫秒、同大小、不同内容"能立刻认出来。
+   */
+  private cached?: { digest: string; value: MediaConfig };
   private catalog?: PlatformCatalog;
   /**
    * 这份目录属于谁。**换 key 必须认出旧目录**：目录是按令牌过滤过的，拿 A 的目录去
@@ -52,16 +61,17 @@ export class MediaConfigService {
   private base(): MediaConfig {
     const file = this.cfg.mediaConfigPath;
     if (!file) return defaultMediaConfig();
-    let mtimeMs: number;
+    let raw: string;
     try {
-      mtimeMs = statSync(file).mtimeMs;
+      raw = readFileSync(file, "utf8");
     } catch {
       return defaultMediaConfig();
     }
-    if (this.cached?.mtimeMs === mtimeMs) return this.cached.value;
+    const digest = createHash("sha256").update(raw).digest("hex");
+    if (this.cached?.digest === digest) return this.cached.value;
     // 解析失败要抛出来：拿默认配置顶上会让每次生成都报"未配置"，真正的原因（JSON 写坏了）被藏住。
-    const value = parseMediaConfig(withPlatformPreset(JSON.parse(readFileSync(file, "utf8"))));
-    this.cached = { mtimeMs, value };
+    const value = parseMediaConfig(withPlatformPreset(JSON.parse(raw)));
+    this.cached = { digest, value };
     return value;
   }
 

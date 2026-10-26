@@ -77,8 +77,19 @@ type Bundle = { root: string; db: Database.Database };
  * 这样「从没建过」和「建过但是空的」还能靠 library-status 分开。
  */
 @Injectable()
-export class AssetCenterService {
+export class AssetCenterService implements OnModuleDestroy {
   private bundle: Bundle | null = null;
+
+  /**
+   * **必须显式关库。** better-sqlite3 的句柄不会随进程/模块销毁自动释放：
+   * Windows 上不关就删不掉数据目录（`EBUSY: resource busy or locked … asset-center.sqlite`），
+   * 用户迁移工作区、删项目、卸装都会撞上。POSIX 上删得掉（unlink 打开的文件是合法的），
+   * 所以这个 bug 只在 Windows 显形 —— 测试里的 EBUSY 就是它的影子。
+   */
+  onModuleDestroy(): void {
+    this.bundle?.db.close();
+    this.bundle = null;
+  }
 
   constructor(
     private readonly config: GatewayConfig,
