@@ -408,16 +408,37 @@ v3 的工具叫 `design_*`，直接 return。于是 `/api/v3/execute` 一律 400
 修法：这是**产品该有的行为**，不改；夹具改成"先礼后兵"——SIGTERM，宽限 3 秒，再对进程组
 SIGKILL。`design-execute-online.mjs` 的收尾另外加了 15 秒超时兜底。
 
-**3 s / 15 s 仍没测到，而且原因换了。** 修好退出后，150 秒任务的种子夹具给出：
+**（已撤回）"拿不到前台焦点所以不轮询"这个说法不成立。** 当时只看到"间隔算出来 15 秒、
+但没再发请求"，就猜是焦点问题。用探针采到的事实是：`focusManager.isFocused()` 一直是 true、
+`visibilityState=visible`、`online=true`、`observer=1` —— 真正的状态是
+`status: error`、`fetchStatus: idle`、`fetchFailureCount: 1`、错误 `Invalid Task response`，
+调用栈落在 `findDesignTask → client.list`。
 
-```
-[interval] value=15000 ready=true final=false taskId=null callID=tool-online status=running obs=1
-```
+两个真问题（都修了）：
 
-也就是：查询**开着**、拿到的是 running、间隔算出来是 15 秒 —— 但 96 秒里一次请求都没再发，
-`queryFn` 一次都没被重新调用。这是 React Query 的 interval 在当前宿主窗口状态下没有触发
-（`refetchIntervalInBackground` 默认 false；参照同样如此，后台窗口不轮询）。也就是说，
-**自动化夹具拿不到"前台焦点"这个条件**，3 s/15 s 只能在真人前台会话里量。
+1. **gateway 的任务视图形状和渲染层解析器对不上。** 渲染层 `parseTaskView` 要
+   `operation` / `terminal` / `stage` / `data` / `problem` / `actions` / `progress` / `billing`，
+   时间要**整数毫秒**；gateway 的 `present()` 只给了 9 个字段、时间是 ISO 字符串。
+   于是每一次任务查询都被判 `Invalid Task response`（HTTP 200，解析失败）。
+   修法：`present()` 按渲染层契约输出，产物/落位补齐必填项，`problem` 归一成
+   `{code, source, message}`。用例：`execute-task.e2e.test.ts` 的
+   "任务视图满足渲染层契约"（回退修复后该用例失败）。
+
+2. **第一次查询失败之后再也不轮询。** `designTaskPollInterval` 把"还没有数据"和"已结束"
+   一起返回 `false`，于是 `refetchInterval` 永远是 false —— 卡片从此只靠推送更新，
+   界面上还看不出异常。修法：没有数据时继续按 `LIVE_POLL_MS` 轮询。
+   用例：`task-push.test.ts`（回退后 `expected false to be 3000`）。
+
+修完后种子夹具（150 秒任务、窗口可见）的请求记录：卡片那张"按 toolUseId 反查"的列表请求
+每隔 **约 3000 ms** 发一次（1792998628702 → 631746 → 634753 → 636784 → 639820 → 642828 →
+645833 → 648839 → 651847 → 654852），也就是**就绪前 3.0 s 的活跃间隔**对上了。
+
+**仍没解释的一半**：`items: []` 的列表响应仍会被 `client.list` 判 `Invalid Task response`
+（探针里 `error` 一直是它，尽管 HTTP 200、body 是
+`{"items":[],"nextCursor":null,"coverage":{"status":"complete","reasons":[]}}`）。
+所以 15 s（就绪后）这一段还没量到，3 s 那段能对上。下一步要么在渲染层把
+`parseTaskList` 的失败点定位出来（它只依赖三个字段，按理不该拒），要么把这条响应固化成一个
+单测喂给解析器。
 
 **插件构建顺序**：`build-resources/` 里那份插件 dist 由 `scripts/stage-desktop-resources.mjs`
 生成（只进打包产物）；开发态加载的是 `app/packages/opencode-plugin-hilo/dist/index.js`，

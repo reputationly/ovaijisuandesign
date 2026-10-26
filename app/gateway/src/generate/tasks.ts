@@ -320,25 +320,105 @@ export function executionView(row: TaskRow) {
   };
 }
 
+/**
+ * 列表/单条的任务视图。
+ *
+ * **形状必须和渲染层的 `parseTaskView` 对齐**（`canvas-v3/canvas-v3-model.js`）：
+ * `operation` / `terminal` / `stage` / `data` / `problem`（可空）/ `actions` /
+ * `progress` / `billing`（可空）缺一个，整条任务就被判 `Invalid Task response`，
+ * 卡片永远拿不到数据 —— 现象是"卡片只显示推送来的状态，从不轮询"。
+ * `createdAt` / `updatedAt` 必须是**整数毫秒**，库里存的是 ISO 字符串。
+ */
 function present(row: TaskRow) {
   const input = JSON.parse(row.inputJson) as { prompt?: string; mediaType?: string; capabilityId?: string; origin?: { source?: string; toolUseId?: string } };
-  const state = JSON.parse(row.stateJson) as { error?: string; outputs?: DeliveryOutput[]; placements?: unknown; problem?: TaskProblem };
+  const state = JSON.parse(row.stateJson) as {
+    error?: string;
+    stage?: string;
+    outputs?: DeliveryOutput[];
+    placements?: unknown;
+    problem?: TaskProblem & { code?: string; source?: string; recovery?: string };
+  };
+  const terminal = TERMINAL.has(row.status);
+  const since = epochMs(row.updatedAt);
   return {
     id: row.id,
     capabilityId: input.capabilityId ?? row.operation,
+    operation: row.operation,
     status: row.status,
+    terminal,
+    stage: state.stage ?? (terminal ? "resource" : "compute"),
     revision: row.revision,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    createdAt: epochMs(row.createdAt),
+    updatedAt: since,
     ...(input.prompt ? { prompt: input.prompt.slice(0, 280) } : {}),
     ...(input.origin ? { origin: input.origin } : {}),
-    ...(state.outputs ? { outputs: state.outputs.map(outputView) } : {}),
-    ...(state.placements ? { placements: state.placements } : {}),
+    // 没有 resourceId/versionId 的产物（还没交付完）在渲染层本来就被丢弃，
+    // 这里先滤掉，免得整条任务被判非法。
+    outputs: (state.outputs ?? []).map(outputView).filter((item) => item.resourceId && item.versionId),
+    placements: placementViews(state.placements, (state.outputs ?? []).map(outputView)),
+    data: {},
+    // `error` 是技术原文：排障与既有用例都读它。渲染层的解析器忽略未知键，保留无害。
     ...(state.error ? { error: state.error } : {}),
-    // 卡片读的是 `problem`（`error` 是技术原文）。两者都给：日志/排障要原文，
-    // 界面要能读懂的那一句。
-    ...(state.problem ? { problem: state.problem } : state.error ? { problem: { message: state.error } } : {}),
+    problem: problemView(state),
+    // 终态之后可执行的动作只有 retry；非终态这里不表态，交给 resolve 的入参。
+    actions: [],
+    handoff: null,
+    progress: {
+      phase: state.stage ?? "compute",
+      reason: row.status,
+      since,
+      queuedAt: null,
+      submittedAt: null,
+      startedAt: null,
+      percent: null,
+      position: null,
+      etaSeconds: null,
+      nextRetryAt: null,
+      subtasks: [],
+    },
+    billing: null,
   };
+}
+
+function epochMs(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const parsed = typeof value === "string" ? Date.parse(value) : NaN;
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+/**
+ * 渲染层的 placement 要求 key/compositionId/memberId/resourceId/status 齐全。
+ * 我们库里存的是 `{key, compositionId, memberId, role}` —— `resourceId` 用同名产物的补，
+ * `status` 缺省 applied。**不能整条丢掉**：丢了组合里就没有这次交付的落位了。
+ */
+function placementViews(raw: unknown, outputs: { key?: string; resourceId?: string }[]): Record<string, unknown>[] {
+  if (!Array.isArray(raw)) return [];
+  const out: Record<string, unknown>[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+    const row = item as Record<string, unknown>;
+    const match = outputs.find((output) => output.key === row.key);
+    const resourceId = typeof row.resourceId === "string" ? row.resourceId : match?.resourceId;
+    const view: Record<string, unknown> = { ...row, ...(resourceId ? { resourceId } : {}), status: typeof row.status === "string" ? row.status : "applied" };
+    if (typeof view.key === "string" && typeof view.compositionId === "string" && typeof view.memberId === "string" && typeof view.resourceId === "string") out.push(view);
+  }
+  return out;
+}
+
+/**
+ * `problem` 的形状也是契约：`{code, message}`，且 `source` 必须与渲染层那张表里
+ * 同 code 的 source 一致，否则整条任务判非法。库里存的可能只有 message，兜到 INTERNAL_ERROR。
+ */
+function problemView(state: { error?: string; problem?: TaskProblem & { recovery?: string } }): unknown {
+  const source = state.problem;
+  // 库里存的就是 `{code, source, message}`（generation-runner 落的），原样透出即可。
+  // 只有缺 code/source 的老数据才兜到 INTERNAL_ERROR —— 渲染层会校验 code 与 source 是否配套。
+  if (source && typeof source.code === "string" && typeof source.source === "string") {
+    return { code: source.code, source: source.source, message: source.message, ...(source.recovery ? { recovery: source.recovery } : {}) };
+  }
+  if (source?.message) return { code: "INTERNAL_ERROR", source: "system", recovery: "retry", message: source.message };
+  if (state.error) return { code: "INTERNAL_ERROR", source: "system", recovery: "retry", message: state.error };
+  return null;
 }
 
 @Controller("api/v3/tasks")

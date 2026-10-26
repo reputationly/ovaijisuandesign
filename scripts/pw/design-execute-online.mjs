@@ -177,6 +177,8 @@ if (realSession) {
 }
 
 const first = await launchApp({ port: 9361, config, showWindow: true });
+// 探针开关要在**页面加载前**就位：卡片挂载时就决定要不要把查询挂到 window 上。
+await first.page.addInitScript(() => { window.__OV_POLL_DEBUG = true; }).catch(() => {});
 await first.close();
 try { execFileSync("pkill", ["-9", "-f", "app/desktop"]); } catch {}
 await new Promise((resolve) => setTimeout(resolve, 1200));
@@ -206,6 +208,7 @@ console.log("import", imp.status, await imp.text());
 gw.kill("SIGTERM");
 
 const app = await launchApp({ port: 9362, xdg, reset: false, config, callerKey: "pw-caller", showWindow: true });
+await app.page.addInitScript(() => { window.__OV_POLL_DEBUG = true; }).catch(() => {});
 const frameLog = [];
 const requests = [];
 app.page.on("websocket", (ws2) => {
@@ -214,6 +217,21 @@ app.page.on("websocket", (ws2) => {
 });
 // T-2：记完整 URL + 时间戳，事后按来源分类，不再一锅算。
 app.page.on("request", (request) => requests.push({ at: Date.now(), method: request.method(), url: request.url() }));
+// 卡片自己那次 `GET /api/v3/tasks/<id>`：开始/结束/状态码。挂住的请求常常"看起来发了、
+// 其实永远没结束"，所以结束时间必须单独记。
+const taskFetches = [];
+app.page.on("request", (request) => {
+  try {
+    if (!/\/api\/v3\/tasks\/[^/?]+$/.test(new URL(request.url()).pathname)) return;
+    taskFetches.push({ startAt: Date.now(), endAt: null, status: null, url: request.url().split("?")[0], response: null });
+  } catch {}
+});
+app.page.on("response", (response) => {
+  const url = response.url();
+  if (!/\/api\/v3\/tasks\/[^/?]+$/.test(new URL(url).pathname)) return;
+  const existing = taskFetches.find((item) => item.response === response);
+  if (existing) Object.assign(existing, { endAt: Date.now(), status: response.status() });
+});
 // 页面异常必须进证据：卡片没渲染出来是"跑失败"，但**为什么**没渲染只在 pageerror / console
 // 里。少了这一项，异常兜底页（"出现异常"）会被误读成"卡片没出现"。
 // 卡片显示产出要两步：查资源 → 拉文件。这两步失败时界面只写"预览加载失败"，
@@ -222,7 +240,7 @@ const probes = [];
 app.page.on("response", (response) => {
   const url = response.url();
   if (!/\/api\/project\/resources\/get|\/files\/|\/api\/v3\/tasks/.test(url)) return;
-  const entry = { at: Date.now(), url: url.split("?")[0], status: response.status(), body: "" };
+  const entry = { at: Date.now(), url: url.split("?")[0], query: url.includes("?") ? url.slice(url.indexOf("?") + 1).slice(0, 160) : "", status: response.status(), body: "" };
   probes.push(entry);
   response.text().then((text) => { entry.body = text.slice(0, 900); }).catch(() => {});
 });
@@ -285,14 +303,48 @@ console.log("execute", JSON.stringify(redact(created), null, 2));
     await app.page.evaluate(() => { window.__OV_POLL_DEBUG = true; }).catch(() => {});
   }
 }
+// **轮询根因探针**：卡片进 running 之后每 5 秒采一次 React Query 的这条查询。
+// 只在 `window.__OV_POLL_DEBUG` 下生效（渲染层会把这个对象挂到 window 上）。
+const querySamples = [];
+const sampleQuery = async () => {
+  const sample = await app.page.evaluate(() => {
+    const handle = window.__OV_TASK_QUERY;
+    if (!handle) return { reason: "no-handle" };
+    const query = handle.cache.getQueryCache().find({ queryKey: handle.queryKey, exact: true });
+    if (!query) return { reason: "no-query" };
+    const state = query.state;
+    return {
+      at: Date.now(),
+      fetchStatus: state.fetchStatus,
+      status: state.status,
+      dataUpdatedAt: state.dataUpdatedAt,
+      fetchFailureCount: state.fetchFailureCount,
+      observers: query.getObserversCount?.() ?? null,
+      focused: handle.focusManager.isFocused(),
+      online: handle.onlineManager.isOnline(),
+      visibility: document.visibilityState,
+      hasFocus: document.hasFocus(),
+      taskStatus: state.data?.status ?? null,
+      error: state.error ? String(state.error.message ?? state.error).slice(0, 200) : null,
+      errorStack: state.error?.stack ? String(state.error.stack).slice(0, 600) : null,
+    };
+  }).catch((error) => ({ reason: String(error).slice(0, 120) }));
+  querySamples.push(sample);
+  return sample;
+};
 // 等卡片从查询拿到任务（最多 90s），记录离线文案是否还在。
 const started = Date.now();
 let cardText = "";
 let offline = false;
+let nextSampleAt = 0;
 while (Date.now() - started < 90_000) {
   await app.page.waitForTimeout(3000);
   cardText = await app.page.locator('[data-action-ui-id="chat-design-execute"]').innerText().catch(() => "");
   offline = cardText.includes("连接暂时中断");
+  if (Date.now() >= nextSampleAt) {
+    nextSampleAt = Date.now() + 5000;
+    await sampleQuery();
+  }
   if (/已完成|失败/.test(cardText) && !offline) break;
 }
 await app.page.mouse.move(2, 2);
@@ -404,6 +456,9 @@ const result = {
     other: otherPolling,
   },
   frames,
+  // 轮询根因探针：React Query 这条查询每 5 秒一次的状态快照 + 卡片那次 GET 的起止/状态码。
+  querySamples,
+  taskFetches: taskFetches.map((item) => ({ url: item.url, startAt: item.startAt, endAt: item.endAt, status: item.status })),
   // 轮询测量只在"窗口在前台"时有效；把当时的可见性/焦点记下来，免得误读。
   visibility: await app.page.evaluate(() => ({ state: document.visibilityState, hasFocus: document.hasFocus() })).catch(() => null),
   pageErrors: redact(pageErrors),

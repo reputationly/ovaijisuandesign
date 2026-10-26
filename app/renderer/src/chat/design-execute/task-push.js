@@ -36,7 +36,12 @@ export function designTaskRetryable(task) {
 }
 
 export function designTaskPollInterval(cache, scopeKey, task) {
-  if (!task || designTaskFinal(task)) return false;
+  // **还没有数据 ≠ 已经结束。** 这里原来把 `!task` 和 `designTaskFinal(task)` 一起返回
+  // false，于是第一次查询失败（哪怕只是"任务还没写进列表"这种瞬时原因）之后，
+  // `refetchInterval` 永远是 false —— 卡片从此只靠推送更新，一次轮询都不发，
+  // 而且界面看起来正常。没有数据时继续按活跃间隔轮询，等任务落库。
+  if (!task) return LIVE_POLL_MS;
+  if (designTaskFinal(task)) return false;
   if (designTaskRetryable(task)) return RETRYABLE_POLL_MS;
   return pushedScopes(cache).has(scopeKey) ? PUSHED_POLL_MS : LIVE_POLL_MS;
 }

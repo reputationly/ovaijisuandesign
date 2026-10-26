@@ -87,6 +87,7 @@ describe("v3 执行生成", () => {
       },
     };
     const created = await http.post("/api/v3/execute").set("x-hilo-agent-caller", CALLER_KEY).set("x-session-id", "sess-1").set("x-tool-use-id", "tool-gen").send(body);
+    if (created.status !== 202) console.error("execute 400 body:", JSON.stringify(created.body).slice(0, 400));
     expect(created.status).toBe(202);
     expect(created.body.reused).toBe(false);
     expect(created.body.task).toMatchObject({ capabilityId: "generate_image:qwen-image", status: "running", prompt: "一盏灯" });
@@ -121,6 +122,47 @@ describe("v3 执行生成", () => {
     expect(resource.body[0].detail.version.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     expect(resource.body[0].detail.version.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     expect(resource.body[0].detail.resource.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  // 任务视图的形状是**和渲染层写死的契约**（`canvas-v3/canvas-v3-model.js` 的
+  // `parseTaskView`）：少一个必需字段、时间不是整数毫秒、`problem` 只有 message，
+  // 渲染层都会判 `Invalid Task response`，整条任务被丢掉 —— 卡片从此只显示推送来的状态、
+  // 一次轮询都不发，界面上还看不出异常。
+  it("任务视图满足渲染层契约：必需字段齐全、时间是整数毫秒", async () => {
+    const body = {
+      capabilityId: "generate_image:qwen-image",
+      prompt: "形状契约",
+      output: {
+        resources: [{ mode: "create", name: "形状" }],
+        composition: { name: "形状组", type: { label: "Generated" }, placements: [{ role: "image" }] },
+      },
+    };
+    const created = await http.post("/api/v3/execute").set("x-hilo-agent-caller", CALLER_KEY).set("x-session-id", "sess-shape").set("x-tool-use-id", "tool-shape").send(body);
+    expect(created.status).toBe(202);
+    const id = created.body.task.id;
+    const single = (await http.get(`/api/v3/tasks/${id}`)).body;
+    const listed = (await http.get("/api/v3/tasks?limit=10")).body.items.find((item: { id: string }) => item.id === id);
+    for (const view of [single, listed]) {
+      expect(view).toMatchObject({
+        id,
+        operation: "generate_image",
+        terminal: expect.any(Boolean),
+        stage: expect.any(String),
+        revision: expect.any(Number),
+        actions: expect.any(Array),
+        data: expect.any(Object),
+        progress: expect.objectContaining({ phase: expect.any(String), subtasks: expect.any(Array) }),
+      });
+      expect(Number.isInteger(view.createdAt)).toBe(true);
+      expect(Number.isInteger(view.updatedAt)).toBe(true);
+      if (view.problem !== null) expect(view.problem).toMatchObject({ code: expect.any(String), source: expect.any(String), message: expect.any(String) });
+      for (const output of view.outputs) {
+        expect(output).toMatchObject({ key: expect.any(String), name: expect.any(String), kind: expect.any(String), resourceId: expect.any(String), versionId: expect.any(String), disposition: expect.any(String), availability: expect.any(String) });
+      }
+      for (const placement of view.placements) {
+        expect(placement).toMatchObject({ key: expect.any(String), compositionId: expect.any(String), memberId: expect.any(String), resourceId: expect.any(String), status: expect.any(String) });
+      }
+    }
   });
 
   it("平台回「额度不足」时，任务的 problem 是参照枚举里的码 + 中文提示", async () => {
