@@ -69,7 +69,11 @@ export class MediaEditService {
     }
     const sources = versionIds.map((versionId) => this.resources.relativePathOfVersion(versionId));
     const requestId = createHash("sha256").update(JSON.stringify([capabilityId, versionIds, input.params, output])).digest("hex");
-    const scratch = path.join(".hilo", "tmp", `${requestId.slice(0, 24)}.${extension}`);
+    // **必须是 POSIX 分隔符**：这个路径要交给 `delivery.deliver()` 当 workspace 相对路径，
+    // 而它的校验明确拒绝带 `\` 的路径（`source.path must be a workspace file path`）。
+    // 用 `path.join` 在 Windows 上会得到 `.hilo\tmp\x.ass` —— 每一个 edit_media 产物
+    // 都会 400，mac/Linux 看不出来。
+    const scratch = path.posix.join(".hilo", "tmp", `${requestId.slice(0, 24)}.${extension}`);
     const absolute = path.join(this.paths.root, scratch);
     await mkdir(path.dirname(absolute), { recursive: true });
     const temporary = path.join(path.dirname(absolute), `.partial-${path.basename(absolute)}`);
@@ -113,7 +117,8 @@ export class MediaEditService {
     }
     if (formatted.cueCount < 1) throw new ProjectQueryError("MEDIA_EDIT_FAILED", "Source content contains no SRT cues");
     const requestId = createHash("sha256").update(JSON.stringify(["edit_media:subtitle_format", versionIds, style, output])).digest("hex");
-    const scratch = path.join(".hilo", "tmp", `${requestId.slice(0, 24)}.${formatted.format}`);
+    // 同上：交给 delivery 的必须是 POSIX 相对路径。
+    const scratch = path.posix.join(".hilo", "tmp", `${requestId.slice(0, 24)}.${formatted.format}`);
     await mkdir(path.dirname(path.join(this.paths.root, scratch)), { recursive: true });
     await writeFile(path.join(this.paths.root, scratch), formatted.content, "utf8");
     return {

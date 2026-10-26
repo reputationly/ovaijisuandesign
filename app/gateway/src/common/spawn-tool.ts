@@ -21,8 +21,11 @@ export function spawnTool(executable: string, args: string[]): ChildProcessByStd
     return spawn(executable, args, { stdio: "pipe" });
   }
   const comspec = process.env.ComSpec?.trim() || "cmd.exe";
-  const quoted = args.map((arg) => `"${arg.replace(/"/g, '""').replace(/%/g, "%%")}"`);
-  return spawn(comspec, ["/d", "/s", "/c", `"${executable}" ${quoted.join(" ")}`], {
+  // 追的是 cross-spawn 的做法：整条命令再包一层引号（`cmd /s` 会剥掉最外层那一对），
+  // 参数内部用 `\"` 转义。只加 `""` 会在 /s 下被吃掉引号，路径带空格就散架。
+  const quoted = args.map((arg) => `"${arg.replace(/"/g, '\\"').replace(/%/g, "%%")}"`);
+  const command = `"${executable}" ${quoted.join(" ")}`;
+  return spawn(comspec, ["/d", "/s", "/c", `"${command}"`], {
     stdio: "pipe",
     windowsVerbatimArguments: true,
   });
