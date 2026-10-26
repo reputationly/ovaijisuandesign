@@ -12,9 +12,9 @@ import { createApp } from "../bootstrap.js";
 import { writeFakeTool } from "../common/__fixtures__/fake-tool.js";
 import { WebMediaService } from "./web-media.service.js";
 
-// 夹具是一个 `#!/bin/sh` 的假 yt-dlp（再加 chmod 0755）——**Windows 上没有 sh，
-// 它永远跑不起来**，于是下载/字幕整条链会回 400/422/false。这不是产品问题，
-// 是"用 shell 脚本当替身"这个测试手法只在 POSIX 上成立，所以整条在 Windows 跳过。
+// 假 yt-dlp 是跨平台的（node 脚本 + Windows 上的 .cmd 包装，见 fake-tool.ts）。
+// 完整下载链只在 POSIX 跑：产品现在**拒绝** Windows 上的批处理包装（spawn-tool.ts），
+// Windows 走下面独立的"拒绝"用例。
 describe("网页媒体下载", () => {
   let app: INestApplication;
   let ws: string;
@@ -69,7 +69,7 @@ writeFileSync(path.join(dir, "灯 [clip].mp4"), "mp4");
     delete process.env.HILO_MAIN_BRIDGE_TOKEN;
   });
 
-  it("把视频下载进工作区，聊天用的是相对路径", async () => {
+  it.skipIf(process.platform === "win32")("把视频下载进工作区，聊天用的是相对路径", async () => {
     const saved = await http.post("/api/web-media/yt-dlp").send({ type: "download_video", url: "https://videos.example/watch", playlist_mode: "single", container: "mp4", add_to_canvas: true });
     expect(saved.body.ok).toBe(true);
     expect(saved.body.assets).toEqual([expect.objectContaining({ kind: "video" })]);
@@ -89,6 +89,22 @@ writeFileSync(path.join(dir, "灯 [clip].mp4"), "mp4");
     const blocked = await http.post("/api/web-media/yt-dlp").send({ type: "download_video", url: "http://127.0.0.1/secret.mp4" });
     expect(blocked.body.ok).toBe(false);
     expect(blocked.body.error).toContain("private-address");
+  });
+
+  it.runIf(process.platform === "win32")("Windows：YTDLP_PATH 指向 .cmd 时清楚报错且不执行", async () => {
+    // 自己造一个"一运行就留痕"的批处理，直接指向它——不借 fake-tool 的 .mjs。
+    const dir = mkdtempSync(path.join(tmpdir(), "ov-wm-batch-"));
+    const marker = path.join(dir, "ran.txt");
+    writeFileSync(path.join(dir, "yt-dlp.cmd"), `@echo off\r\necho ran> "${marker}"\r\n`);
+    process.env.YTDLP_PATH = path.join(dir, "yt-dlp.cmd");
+    try {
+      const res = await http.post("/api/web-media/yt-dlp").send({ type: "inspect", url: "https://videos.example/watch" });
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error).toContain("批处理");
+      expect(existsSync(marker)).toBe(false);
+    } finally {
+      delete process.env.YTDLP_PATH;
+    }
   });
 
   it("浏览器下载没有本机桥接时直接失败，桥接返回的内容必须是可播放视频", async () => {

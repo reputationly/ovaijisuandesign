@@ -429,3 +429,12 @@ v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation
 - **没动**：MCP 的 `hub_image_enhance`（agent 侧仍可调，网关会回明确的
   `capability_unavailable`），以及 canvas-v3 插件宿主里的 `superResolution` 动作 —— 那一层是
   插件自己的界面，判据在插件里，留待和插件一起改。
+
+## Windows 上不以批处理启动外部工具（2026-10-27）
+
+- **参照**：Windows 上 `YTDLP_PATH` 指向 `.cmd`/`.bat` 包装（pip/npm 装的 yt-dlp 常见形态）
+  时会经 cmd.exe 把它跑起来。
+- **我们**：`spawn-tool.ts` 在 win32 下对 `.cmd`/`.bat` 直接抛 `BatchLaunchUnsupportedError`，
+  提示把 `YTDLP_PATH` 指向 `yt-dlp.exe`；不再走任何 cmd.exe 路径（cross-spawn 已撤）。
+- **原因**：批处理 `%*` 二次解析参数，转义无安全写法（CVE-2024-27980 / BatBadBut）；
+  参数属外部输入，宁可拒绝。详见 `docs/ov-changes.md` 同日条目。

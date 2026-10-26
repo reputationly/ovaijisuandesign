@@ -1,33 +1,39 @@
 import { spawn } from "node:child_process";
 
-import crossSpawn from "cross-spawn";
+/**
+ * YTDLP_PATH 指到批处理包装（.cmd/.bat）时抛出——这种文件在 Windows 上无法安全启动。
+ *
+ * 为什么是硬错误而不是尽力跑：批处理自己会用 `%*` 把整串参数交给 cmd.exe 重新解析，
+ * 参数转义（`^`、`%`、`"`、换行）没有任何写法能同时覆盖所有情况——Node 也因此在
+ * CVE-2024-27980 之后干脆拒绝不经 shell 直接起 .bat/.cmd（BatBadBut）。
+ * 这些参数来自网页 URL 和 agent 生成的查询词，属于外部输入，宁可拒绝也不能漏。
+ */
+export class BatchLaunchUnsupportedError extends Error {
+  readonly executable: string;
+  constructor(executable: string) {
+    super(`Windows 上不支持以批处理（.cmd/.bat）启动外部工具，请把 YTDLP_PATH 指向 yt-dlp.exe（收到：${executable}）`);
+    this.name = "BatchLaunchUnsupportedError";
+    this.executable = executable;
+  }
+}
+
+const BATCH_RE = /\.(cmd|bat)$/i;
 
 /**
- * 启动一个外部工具（yt-dlp 之类），并且**在 Windows 上也能跑 `.cmd` / `.bat` 包装**。
- *
- * 为什么需要这层：`spawn(file, args)` 在 Windows 上只能直接起 PE 可执行文件。
- * 用户用 pip / 包管理器装出来的 `yt-dlp` 经常是一个 `.cmd` 包装（真实可执行文件在别处），
- * 这时 `spawn` 会以 `ENOENT` 失败——表现成「网页媒体下载在 mac 上好好的，Windows 上
- * 一律不可用」。
- *
- * **Windows 上交给 cross-spawn，不要自己拼命令行。** 手工拼踩过两条坑：
- *   1. `%` 不能改成 `%%` —— 那只在 .bat 文件内部还原；在 `cmd /c` 的命令行上会原样留下，
- *      于是 URL 里的 `%20`、`%3F` 全被弄坏（带百分号编码的 URL 极其常见）。
- *   2. `"` 不能用 `\"` 转义 —— cmd.exe 不认这种转义，参数里的一个 `"` 就能提前关掉
- *      引号区间，后面的 `&`、`|` 变成真正的命令分隔符（`a" & calc & "` 会执行 calc）。
- *      这些参数来自网页 URL 和 agent 生成的查询词，属于外部输入。
- * cross-spawn 自己做 `.cmd`/`.bat`/`PATHEXT` 识别与元字符转义（`^`），这条路是验证过的。
- *
- * 非 Windows 平台保持直接 `spawn`：没有 cmd.exe，也就没有这些转义规则。
+ * 启动一个外部工具（yt-dlp 之类）。所有平台都直接 `spawn`、不经 shell：
+ * shell 转义踩过两条坑——`%` 不能改 `%%`（cmd 命令行上不还原）、`"` 不能用 `\"`（cmd 不认，
+ * `a" & calc & "` 会变成真命令）；不经 shell 就没有这些规则。
+ * Windows 上批处理（.cmd/.bat）走不到这条安全路径，直接拒绝。
  */
 export function spawnTool(
   executable: string,
   args: string[],
   options: { cwd?: string } = {},
 ): ChildProcessByStdio {
-  const stdio = { stdio: "pipe" as const, ...(options.cwd ? { cwd: options.cwd } : {}) };
-  if (process.platform !== "win32") return spawn(executable, args, stdio);
-  return crossSpawn(executable, args, stdio) as unknown as ChildProcessByStdio;
+  if (process.platform === "win32" && BATCH_RE.test(executable)) {
+    throw new BatchLaunchUnsupportedError(executable);
+  }
+  return spawn(executable, args, { stdio: "pipe", ...(options.cwd ? { cwd: options.cwd } : {}) });
 }
 
 /** 三个流都是 pipe 的形态（调用方直接挂 `stdout.on`，不用再判空）。 */

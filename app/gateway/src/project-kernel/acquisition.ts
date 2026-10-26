@@ -412,7 +412,7 @@ async function inspectMedia(url: string): Promise<Record<string, unknown>> {
 
 function runProcess(executable: string, args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
-    // `.cmd`/`.bat` 在 Windows 上要经 cmd.exe（用户装的 yt-dlp 常见是包装脚本）。
+    // 批处理（.cmd/.bat）在 Windows 上会被 spawnTool 直接拒绝——同步 throw 会转成 promise 拒绝，走下面统一的失败映射。
     const child = spawnTool(executable, args);
     let stdout = "";
     let stderr = "";

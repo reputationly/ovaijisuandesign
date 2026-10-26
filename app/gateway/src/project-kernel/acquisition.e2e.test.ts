@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -10,9 +10,9 @@ import { createApp } from "../bootstrap.js";
 import { writeFakeTool } from "../common/__fixtures__/fake-tool.js";
 import { ProjectAcquisitionService } from "./acquisition.js";
 
-// 夹具是一个 `#!/bin/sh` 的假 yt-dlp（再加 chmod 0755）——**Windows 上没有 sh，
-// 它永远跑不起来**，于是下载/字幕整条链会回 400/422/false。这不是产品问题，
-// 是"用 shell 脚本当替身"这个测试手法只在 POSIX 上成立，所以整条在 Windows 跳过。
+// 假 yt-dlp 是跨平台的（node 脚本 + Windows 上的 .cmd 包装，见 fake-tool.ts）。
+// 完整链路只在 POSIX 跑：产品现在**拒绝** Windows 上的批处理包装（spawn-tool.ts），
+// Windows 走下面独立的"拒绝"用例。
 describe("v3 搜图", () => {
   let app: INestApplication | undefined;
 
@@ -24,7 +24,7 @@ describe("v3 搜图", () => {
     delete process.env.HILO_PROJECT_ARCHITECTURE;
   });
 
-  it("校验查询和组合名，搜不到图时回空结果", async () => {
+  it.skipIf(process.platform === "win32")("校验查询和组合名，搜不到图时回空结果", async () => {
     app = await createApp();
     await app.init();
     const denied = await request(app.getHttpServer()).post("/api/v3/search/images").send({ queries: [{ query: "灯" }], composition: { name: "参考" } });
@@ -82,5 +82,25 @@ writeFileSync(path.join(dir, "灯 [clip].srt"), "1\\n00:00:00,000 --> 00:00:01,0
     const text = readFileSync(path.join(process.env.WORKSPACE_DIR ?? "", "store", `${subtitles.body.members[0].resource.versionId}.srt`), "utf8");
     expect(text).toContain("灯");
     delete process.env.YTDLP_PATH;
+  });
+
+  it.runIf(process.platform === "win32")("Windows：YTDLP_PATH 指向 .cmd 时 422 清楚报错且不执行", async () => {
+    process.env.WORKSPACE_DIR = mkdtempSync(path.join(tmpdir(), "ov-acq-batch-"));
+    process.env.HILO_GATEWAY_ROLE = "workspace";
+    process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
+    const dir = process.env.WORKSPACE_DIR;
+    const marker = path.join(dir, "ran.txt");
+    writeFileSync(path.join(dir, "yt-dlp.cmd"), `@echo off\r\necho ran> "${marker}"\r\n`);
+    process.env.YTDLP_PATH = path.join(dir, "yt-dlp.cmd");
+    app = await createApp();
+    await app.init();
+    try {
+      const res = await request(app.getHttpServer()).post("/api/v3/web-media").send({ type: "inspect", url: "https://images.example/watch" });
+      expect(res.status).toBe(422);
+      expect(res.body.error.message).toContain("批处理");
+      expect(existsSync(marker)).toBe(false);
+    } finally {
+      delete process.env.YTDLP_PATH;
+    }
   });
 });

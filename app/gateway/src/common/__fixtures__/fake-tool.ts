@@ -1,4 +1,4 @@
-import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
+import { chmodSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 /**
@@ -12,7 +12,7 @@ import path from "node:path";
  * - 真正的逻辑写成 **node 脚本**（`.mjs`），两边都能跑；
  * - POSIX 上再放一个可执行的 `name` 包装（`#!/bin/sh` + exec node）；
  * - Windows 上放 `name.cmd`（`@echo off` + 当前 node + `%*`）。
- *   `spawnTool` 会把 `.cmd` 交给 `cmd.exe /d /s /c`，这正是产品要走的路径。
+ *   现在产品**拒绝**批处理（spawn-tool.ts 直接抛错），这个包装只用于验证拒绝生效。
  */
 export function writeFakeTool(dir: string, name: string, script: string): string {
   const js = path.join(dir, `${name}.mjs`);
@@ -24,13 +24,8 @@ export function writeFakeTool(dir: string, name: string, script: string): string
     chmodSync(shim, 0o755);
     return shim;
   }
-  // **放在 `node_modules/.bin/` 下**：这不是为了迁就测试，而是 `.cmd` 包装的真实形态 ——
-  // npm 装出来的 CLI 就在这个位置，`%*` 会把参数再交给批处理解析一遍，所以调用方必须
-  // **双重转义**元字符（cross-spawn 也是按这个路径规则决定要不要双重转义的）。
-  // 放在随便一个目录里，`&`/`"` 这类参数会在批处理那一层被重新解释 —— 真实世界同理。
-  const binDir = path.join(dir, "node_modules", ".bin");
-  mkdirSync(binDir, { recursive: true });
-  const cmd = path.join(binDir, `${name}.cmd`);
+  // 普通目录下的 `.cmd`（不在 node_modules/.bin）：被 spawnTool 拒绝的那个形态。
+  const cmd = path.join(dir, `${name}.cmd`);
   writeFileSync(cmd, `@echo off\r\n"${node}" "${js}" %*\r\n`);
   return cmd;
 }

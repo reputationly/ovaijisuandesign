@@ -253,3 +253,22 @@
 `models.image_upscale` 为空时，画布上的"高清"入口（图片节点工具栏的固定项、溢出菜单、
 两个画布的 handler）都不出现；填了模型名就自动回来。判据来自 `GET /api/v1/models/config`
 的新字段 `imageUpscaleAvailable`。详见 `docs/intentional-differences.md`。
+
+## Windows 拒绝以批处理（.cmd/.bat）启动外部工具（2026-10-27）
+
+- **原因**（安全）：批处理的 `%*` 会把整串参数交回 cmd.exe 重新解析，参数转义
+  （`^`/`%`/`"`/换行）没有任何写法能覆盖所有情况——Node 在 CVE-2024-27980 之后也干脆
+  拒绝不经 shell 起 .bat/.cmd（BatBadBut）。yt-dlp 的参数来自网页 URL 与 agent 查询词，
+  属于外部输入；`a" & cmd & "` 这种参数在 .cmd 路径下能注入真命令。cross-spawn 只对
+  `node_modules/.bin/*.cmd` 做双重转义，别处的 .cmd 照样不安全，所以整个撤掉 cross-spawn。
+- **落点**：`app/gateway/src/common/spawn-tool.ts`——win32 上可执行文件匹配
+  `/\.(cmd|bat)$/i` 即抛 `BatchLaunchUnsupportedError`（提示把 `YTDLP_PATH` 指向
+  `yt-dlp.exe`），其余平台/其余可执行文件统一 `spawn(executable, args)`、不经 shell。
+  两个调用方（`web-media.service.ts`、`project-kernel/acquisition.ts`）经各自既有映射
+  透出清楚报错：v1 端点 `{ok:false,error:消息}`，v3 端点 `WEB_MEDIA_FAILED` 422。
+  `cross-spawn` 依赖与 `src/cross-spawn.d.ts` 一并删除（lockfile 里只剩传递依赖）。
+- **有意差异**：参照（4.0.4）可能仍会起 .cmd 包装；我们按安全决定整体拒绝——
+  登记在 `docs/intentional-differences.md`。以后从参照合并时不要把这个入口带回来。
+- **验证方式**：`spawn-tool.test.ts` 9 个刁钻参数逐字节断言 + `pwned.txt` 不存在；
+  win32 两条用例断言 .cmd/.BAT 抛 `BatchLaunchUnsupportedError` 且 marker 不生成；
+  两组 e2e 各加一条 `it.runIf(win32)`：YTDLP_PATH 指到留痕 .cmd，断言清楚报错且不执行。
