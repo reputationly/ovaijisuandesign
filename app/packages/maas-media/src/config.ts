@@ -88,10 +88,11 @@ export interface Models {
   video: string | null;
   /** 参考生视频，例如 `minimax-h3-ref2va`。参考图 / 参考视频走这个。 */
   video_ref: string | null;
-  /** 视频超分，例如 `swiftvr` / `seedvr2`。 */
+  /** 视频超分，例如 `seedvr2`（`swiftvr` 已下线）。 */
   video_upscale: string | null;
   /**
-   * 图片超分，例如 `swiftvr`。
+   * 图片超分。**当前平台没有可用的图片超分模型**（`seedvr2` 只在视频任务通道上），
+   * 置空即按"这项能力不可用"降级。
    *
    * **和 `video_upscale` 分开配，哪怕填的是同一个 checkpoint** ——
    * 两条路走的接口根本不是一回事：视频超分走异步任务

@@ -87,7 +87,7 @@
   - 语言模型：多款 GLM、Kimi、Qwen3.7/3.8、DeepSeek-V4、MiniMax-M2.7/M3、GPT-5.6 等，还有 `qwen3guard`（审核）；
   - 图片：`qwen-image-pro`；
   - 视频：`minimax-h3-fl2va`（帧族）、`minimax-h3-ref2va`（参考族）；
-  - 超分：`swiftvr`、`seedvr2`；
+  - 超分：`seedvr2`（视频）。`swiftvr` 已下线；**图片超分目前没有可用模型**；
   - 音乐：`minimax-music3`、`ace-step`；
   - 语音：`breeze-tts-2`、`indextts-2.5`。
 - **聚合模型不出现在 `/v1/models` 里**：`qwen-image-pro-enhanced`、`minimax-h3-2k`、`minimax-h3-ref-2k`
@@ -191,7 +191,7 @@ Authorization: Bearer <key>
 | 挂载顺序 | 确认 `router/main.go`：health → wellknown → api → dashboard → relay → video → hilo → **ov** → mobile → share → web。新的 `/v1/ov` 组必须在这条链里早于 web，否则落 `NoRoute` 回 `Invalid URL` |
 | relay 中间件 | 确认 `/v1` 组是 `RouteTag("relay")` + `SystemPerformanceCheck()` + `TokenAuth()` + `KYCRequired()` + `ModelRequestRateLimit()`，模型调用再加 `Distribute()` |
 | hilo 兼容层 | 确认三个文件（`router/hilo-router.go`、`controller/hilo.go`、`setting/hilo_catalog.go`），且**目录可用性判据可以复用**：原来 `unavailable()` / `pipelineCannotDeliver()` 是 `controller` 的私有函数，本轮抽到 `service/hilo_availability.go`，两个出口共用 |
-| 聚合模型 | 确认 `common/aggregate_model_default.go` 里的三条：`minimax-h3-2k`（帧族，生成段 `minimax-h3-fl2va` + `swiftvr` 超分）、`minimax-h3-ref-2k`（参考族）、`qwen-image-pro-enhanced`（图片，PE 增强 + `qwen-image-pro`）。**聚合模型没有渠道 ability**，所以它们不在 `abilities` 表里 —— 这是能力目录里最容易漏的一条 |
+| 聚合模型 | 确认 `common/aggregate_model_default.go` 里的三条：`minimax-h3-2k`（帧族，生成段 `minimax-h3-fl2va` + `seedvr2` 超分，交付约 1080P）、`minimax-h3-ref-2k`（参考族）、`qwen-image-pro-enhanced`（图片，PE 增强 + `qwen-image-pro`）。**聚合模型没有渠道 ability**，所以它们不在 `abilities` 表里 —— 这是能力目录里最容易漏的一条 |
 | 模型过滤 | 确认 `model.GetGroupEnabledModels(group)` / `model.FilterModelsByVisibility(models, userGroup)` / `model.GetModelSupportEndpointTypes(name)`；令牌白名单在鉴权时以 `token_model_limit_enabled` + `token_model_limit` 两个 context key 存在 |
 | 端点类型 | 确认 `constant.EndpointType` 只有 `openai` / `openai-response` / `openai-response-compact` / `anthropic` / `gemini` / `jina-rerank` / `image-generation` / `embeddings` / `openai-video` / `audio-speech`，**没有 `audio-transcriptions`** —— 所以"哪些模型能做转写"不能靠端点类型判，见 N-3 |
 | 错误码 | 确认 `types.ErrorCode*` 里有 `insufficient_user_quota` / `model_not_found` / `access_denied` / `kyc_required` / `sensitive_words_detected` / `prompt_blocked` / `moderation_unavailable`，**没有限流码**；限流的三条中间件都用 `c.Status(429)` 回**空体** |
@@ -264,7 +264,7 @@ Authorization: Bearer <key>
 | M3 | 视频生成：文生、图生、首尾帧、参考 | 7 家厂商的接口 | 有，模型写死在预设里 | 有（H3 帧族、参考族，以及 2K 聚合） | P0（改读能力目录） |
 | M4 | 语音合成、音色 | `audio/tts`、`voices` | **没配模型**（`PLATFORM_PRESET.models.speech = null`） | **有**：`breeze-tts-2`、`indextts-2.5` | P0（只需客户端改读目录） |
 | M5 | 语音识别、字幕生成 | `mediakit/asr` | 桩（`edit/image-edit.controller.ts` 的 `noAsr`、`generate/media-edit.ts`） | 路由有（`/audio/transcriptions`），**缺模型** | **不做**（负责人 2026-10-26 确认：模型暂时没有） |
-| M6 | 图片、视频超分 | `super-resolution` | 有 | 有（`swiftvr`、`seedvr2`） | — |
+| M6 | 视频超分 | `super-resolution` | 有 | 有（`seedvr2`，约 1080P）。`swiftvr` 已下线；图片超分无可用模型 | — |
 | M7 | 音乐生成、翻唱、重绘、歌词 | `music/*`、`cover`、`lyrics` | 有 | 有 | — |
 | M8 | 媒体理解、看图写文 | `tool/analyze_media`、`tool/generate_text` | 有，走多模态 `/chat/completions`（`edit/edit.service.ts`）；不支持音频 | 有 | — |
 | M9 | 抠图 | `image/remove-background` | 桩 | 缺 | P1 |

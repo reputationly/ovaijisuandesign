@@ -1,6 +1,6 @@
-// 产品内置的平台地址与模型。
+// 产品内置的平台地址，以及**拿不到平台目录时的兜底模型表**。
 //
-// 用户只填令牌（API Key）；地址和各模态用的模型由产品固定，界面只展示、不让选。
+// 用户只填令牌（API Key）；地址由产品固定，界面只展示、不让选。
 // 配置文件（config.json）里**非空**的值照常优先，缺了或是空（含 null）的都用这里的默认值。
 // 没有"在配置里关掉某个模型"这个用法：老版本设置页会把没填的模型写成 null，
 // 如果把 null 当成"关掉"，这些用户会看到一屏"未启用"，而界面又不让改。
@@ -9,12 +9,15 @@
 export const PLATFORM_PRESET = {
   base_url: "https://maas.ovaijisuan.com/v1",
   chat_model: "qwen3.8-flash-fp8",
-  // **模型名不在这里写死（L-1）。** 平台上有哪些模型、每个模态默认用哪个，由
+  // **默认值不在这里（L-1）。** 平台上有哪些模型、每个模态默认用哪个，由
   // `GET /v1/ov/capabilities` 说了算（见 `app/gateway/src/generate/platform-catalog.ts`）。
   // 产品里再存一份的后果是两边会漂移：平台上换了默认模型，客户端还在用旧名字，
   // 而报错是"模型不存在"，看不出是客户端没跟上。
   //
-  // 空表示"由目录决定"；配置文件里显式写了模型名仍然优先（老配置继续有效）。
+  // 这里保持全 null：`withPlatformPreset` **只补地址和对话模型**，模型槽位留给目录。
+  // 万一目录拿不到（新装、离线、平台还没发 `/v1/ov`），由 `FALLBACK_MODELS` 在
+  // `MediaConfigService.load()` 里补 —— 那里能分清"目录没给"和"目录说没有"。
+  // 若在这一层就把槽位填满，目录补位将永远不会生效（槽位非空就跳过）。
   models: {
     image: null,
     image_edit: null,
@@ -27,6 +30,37 @@ export const PLATFORM_PRESET = {
     speech: null,
   },
 } as const;
+
+/**
+ * 拿不到平台目录时的兜底模型名。
+ *
+ * **只在 `MediaConfigService.load()` 里用，不要塞进 `withPlatformPreset`** ——
+ * 槽位一旦非空，目录补位就永远不会生效（那里的规则是"空才补"）。
+ *
+ * 生效范围（写死，不是"能补就补"）：
+ * - 一份目录都没有（内存和磁盘缓存都没有）→ 补**全部**空槽位，界面至少能用；
+ * - 有目录 → 只补目录**表达不了**的三个槽位（两个超分、音乐编辑）。其余槽位以目录为准，
+ *   目录里没有就留空 —— 不能让"目录没给"变成"照样调用"。
+ *
+ * 取值是改造前产品里那组；`swiftvr` 已下线，超分统一用 `seedvr2`。
+ */
+export const FALLBACK_MODELS = {
+  image: "qwen-image-pro-enhanced",
+  image_edit: null,
+  video: "minimax-h3-2k",
+  video_ref: "minimax-h3-ref-2k",
+  video_upscale: "seedvr2",
+  // 图片超分没有可用模型：`seedvr2` 注册在视频任务通道（task_type=sr），而客户端的
+  // 图片超分走同步 `/images/edits`，平台没有对应的适配器。置空 → 入口按"无模型"降级。
+  // 平台若把某个图片超分引擎接到 `/images/edits`，把名字填回来即可（只改这一处）。
+  image_upscale: null,
+  music: "minimax-music3",
+  music_edit: "ace-step",
+  speech: null,
+} as const satisfies Record<string, string | null>;
+
+/** 有目录时也允许兜底表补的槽位：目录里根本没有这些操作（`upscale` 只报一次、`music_edit` 不报）。 */
+export const FALLBACK_ONLY_SLOTS = ["image_upscale", "video_upscale", "music_edit"] as const;
 
 type Json = Record<string, unknown>;
 

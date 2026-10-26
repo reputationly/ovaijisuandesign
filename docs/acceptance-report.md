@@ -275,13 +275,23 @@ node scripts/v3preload/audit-v3.mjs
 **结论**：拿不到失败现场，所以写不出测试名，也无法做"原来就会失败"的证明。
 **需要一次真实失败输出或 CI 日志**才能收口。
 
-### 5.2 T-2 的实测与文档预期不一致
+### 5.2 T-2 的实测与文档预期不一致（**上一版解释有误，已更正**）
 
-文档预期「就绪前约 3 s（`LIVE_POLL_MS`）、就绪后约 15 s」。真实平台 145 秒窗口实测：
-两个**列表**轮询是 5.0 s（活动任务，30 次）与 15.0 s（按 operation，20 次）；卡片自己只发了
-1 次按 id 查询、0 次 `toolUseId` 反查 —— 卡片是**推送驱动**（`task_subscription_ready` 之后
-靠 `task_changed` 覆盖缓存）。`designTaskPollInterval` 的 3 s/15 s 分支只在"卡片拿不到
-taskId 且不在推送作用域"时生效，本轮没走到。按实测记录，没有改产品行为。
+实测事实不变：真实平台 145 秒窗口里，两个**列表**轮询是 5.0 s（活动任务）与 15.0 s
+（按 operation）；卡片自己只发了 1 次按 id 查询。
+
+**但"卡片是推送驱动、3 s/15 s 分支只在拿不到 taskId 时才生效"这个解释是错的。**
+`task-query.js` 的 `enabled` 要求 `taskId || callID`；查询一旦开着，`refetchInterval`
+就会按 3 s/15 s 跑。真实顺序是**查询根本没开**（`taskId`/`callID` 为 null），所以只剩推送。
+补测（假平台 60 秒任务、窗口前台）拿到的诊断日志：
+
+```
+[poll-debug] {"final":false,"ready":true,"taskId":null,"callID":null,"status":"running","hasData":true,"polled":15000}
+```
+
+夹具里造不出"卡片拿到 taskId"的条件（卡片读的是工具 part 的 `content`，脚本只能往
+`state.output` 写），所以 **3 s/15 s 至今没有在"运行中 + 有 taskId"下测到** —— 要么跑一次
+真实会话，要么接受这一条继续挂着。
 
 ### 5.3 `/v1/ov` 线上未发布
 

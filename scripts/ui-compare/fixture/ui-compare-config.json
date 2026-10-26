@@ -9,8 +9,8 @@
     "image_edit": null,
     "video": "minimax-h3-2k",
     "video_ref": "minimax-h3-ref-2k",
-    "video_upscale": "swiftvr",
-    "image_upscale": "swiftvr",
+    "video_upscale": "seedvr2",
+    "image_upscale": null,
     "music": "minimax-music3",
     "music_edit": "ace-step",
     "speech": null

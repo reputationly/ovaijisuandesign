@@ -97,6 +97,24 @@ baseUrl `https://maas.ovaijisuan.com/v1`）：
 - 按 WS `task_subscription_ready` 的到达时间切"就绪前 / 就绪后"两段，按规范化 URL 分组算
   间隔（同一个 URL 的两个轮询器不会混在一起）。
 
+**补测（2026-10-26，假平台 60 秒任务、窗口置前 `visible`/`hasFocus=true`）：仍然只测到
+1 次查询，**原因是夹具给不出 `taskId`/`callID`**，不是"产品不轮询"。
+
+诊断日志（临时给 `task-query.js` 的 `refetchInterval` 加了一行，测完已删）：
+
+```
+[poll-debug] {"final":false,"ready":true,"taskId":null,"callID":null,"status":"running","hasData":true,"polled":15000}
+```
+
+- `useDesignTask` 的 `enabled` 要求 `taskId || callID`（`task-query.js:25`）。夹具里两者都是
+  null，查询是**关着**的，界面状态全部来自推送（`task_changed` 覆盖缓存）——
+  所以我测到的是"推送"，不是"轮询"。
+- 为什么夹具拿不到：卡片的数据来自工具 part 的 `content`（`with-tool-presentation-fields`
+  的 `parseToolResult(sub.content)`），而脚本只能往 part 的 `state.output` 里写任务；
+  我试过写回真实任务并 reload，`taskId` 仍为 null。**这条夹具链路是模拟不出来的**。
+- 所以：T-2 的 3 s/15 s **至今没有在"任务运行中 + 卡片拿到 taskId"的条件下测到**。
+  要测只能跑一次真实会话（真实的 MCP 工具返回 `{task:{…}}`），那要花一次真实生成。
+
 **真实平台上的实测（145 秒窗口，窗口置前、`visibilityState=visible`、`hasFocus=true`）**：
 
 | 轮询源 | 间隔 | 次数 |
@@ -106,12 +124,17 @@ baseUrl `https://maas.ovaijisuan.com/v1`）：
 | 卡片自己（`GET /api/v3/tasks/<id>`） | 只有 1 次，之后不再轮询 | 1 |
 | 卡片按 `toolUseId` 反查 | 0 次 | 0 |
 
-**结论与交接文档的预期不一致，按实测记**：文档预期"就绪前约 3 秒（`LIVE_POLL_MS`）、
-就绪后约 15 秒（`RETRYABLE_POLL_MS`/`PUSHED_POLL_MS`）"。实测下来，这条链上跑的不是
-卡片自己那套 3 s/15 s，而是**两个列表轮询器（5 s 与 15 s）**；卡片本身是**推送驱动**
-（`task_subscription_ready` 之后靠 `task_changed` 覆盖查询缓存），所以它只发一次按 id
-的查询。`designTaskPollInterval` 的 3 s/15 s 分支只有在"卡片拿不到 taskId 且不在推送
-作用域"时才会生效，本轮没走到。
+**结论（更正版）**：文档预期"就绪前约 3 秒、就绪后约 15 秒"。实测到的是**两个列表
+轮询器（5 s 与 15 s）**；卡片自己只发了 1 次按 id 的查询。
+
+前一版把"只查 1 次"解释成"卡片是推送驱动、3 s/15 s 只在拿不到 taskId 时才生效" ——
+**这个解释是错的**：`task-query.js` 的 `enabled` 要求 `taskId || callID`，而只要查询是
+开着的，`refetchInterval` 就会按 3 s/15 s 跑（推送就绪后降到 15 s）。实际发生的顺序是
+**查询压根没开**（夹具里 `taskId`/`callID` 都是 null），所以只剩推送更新。
+"有没有 taskId 都一样轮询"不成立 —— 没有 taskId 时查询是关的，不会轮询。
+
+**补充事实**：任务 id 是由 `requestId` 算出来的（`execute-task.ts`），所以多次运行拿到
+**同一个 task id** 属于正常现象，不是复用了旧任务。
 
 **另外两个容易误读的点，已经在脚本里处理**：
 - `refetchIntervalInBackground` 默认 false：窗口在后台时 React Query 会暂停轮询。

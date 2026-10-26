@@ -176,7 +176,7 @@ app.page.on("request", (request) => requests.push({ at: Date.now(), method: requ
 const probes = [];
 app.page.on("response", (response) => {
   const url = response.url();
-  if (!/\/api\/project\/resources\/get|\/files\//.test(url)) return;
+  if (!/\/api\/project\/resources\/get|\/files\/|\/api\/v3\/tasks/.test(url)) return;
   const entry = { at: Date.now(), url: url.split("?")[0], status: response.status(), body: "" };
   probes.push(entry);
   response.text().then((text) => { entry.body = text.slice(0, 900); }).catch(() => {});
@@ -184,7 +184,7 @@ app.page.on("response", (response) => {
 const pageErrors = [];
 app.page.on("pageerror", (error) => pageErrors.push({ kind: "pageerror", at: Date.now(), message: String(error?.message ?? error), stack: String(error?.stack ?? "").slice(0, 4000) }));
 app.page.on("console", (message) => {
-  if (message.type() !== "error" && message.type() !== "warning") return;
+  if (!["error", "warning", "log"].includes(message.type())) return;
   pageErrors.push({ kind: `console.${message.type()}`, at: Date.now(), message: message.text().slice(0, 2000) });
 });
 const db = new Database(dbPath, { readonly: true });
@@ -196,6 +196,8 @@ await app.page.waitForTimeout(8000);
 // **窗口要置前**：`refetchIntervalInBackground` 默认 false，窗口在后台时 React Query 会暂停
 // 轮询 —— 实测后台状态下 145 秒只发出 1 次卡片查询，看着像"轮询坏了"，其实是被节流掉。
 await app.page.bringToFront().catch(() => {});
+// 轮询诊断开关：task-query.js 看到它才打 [poll-debug]。
+await app.page.evaluate(() => { window.__OV_POLL_DEBUG = true; }).catch(() => {});
 
 // 从主日志解析工作区 gateway 端口；对每个端口建任务，卡片所在端口会命中。
 const log = readFileSync(path.join(xdg, "..", "ud", "logs", "main.log"), "utf8");
@@ -209,6 +211,35 @@ const bodies = ports.map(async (item) => {
 });
 const created = await Promise.all(bodies);
 console.log("execute", JSON.stringify(redact(created), null, 2));
+
+// **把真实任务写回工具 part 的输出。** 真实链路里 MCP 工具返回的就是 `{task:{…}}`，
+// 卡片靠它拿到 `taskId` 才会开始轮询（`useDesignTask` 的 `enabled` 要求
+// `taskId || callID`）。只种一个 `output:"{}"` 的话查询会被关掉，界面上的状态更新
+// 全部来自推送 —— 那测到的是"推送"，不是"轮询"，间隔永远是 0 次。
+{
+  const taskBody = (() => {
+    try { return JSON.parse(created[0]?.body ?? "").task ?? null; } catch { return null; }
+  })();
+  if (taskBody) {
+    const rw = new Database(dbPath);
+    // 导入会重写 id（`prt_online` 变成 `prt_<…>`），所以按"这条 part 是 design_execute
+    // 工具调用"来找，不要按种子里的 id 找 —— 按 id 找会静默命中 0 行。
+    const part = rw
+      .prepare("SELECT id, data FROM part WHERE data LIKE '%\"tool\":\"design_execute\"%' ORDER BY rowid DESC LIMIT 1")
+      .get();
+    if (part) {
+      const data = JSON.parse(part.data);
+      data.state.output = JSON.stringify({ task: taskBody });
+      data.state.time = { ...(data.state.time ?? {}), end: Date.now() };
+      rw.prepare("UPDATE part SET data = ? WHERE id = ?").run(JSON.stringify(data), part.id);
+    }
+    rw.close();
+    await app.page.reload({ waitUntil: "domcontentloaded" });
+    await app.page.waitForTimeout(6000);
+    await app.page.bringToFront().catch(() => {});
+    await app.page.evaluate(() => { window.__OV_POLL_DEBUG = true; }).catch(() => {});
+  }
+}
 // 等卡片从查询拿到任务（最多 90s），记录离线文案是否还在。
 const started = Date.now();
 let cardText = "";

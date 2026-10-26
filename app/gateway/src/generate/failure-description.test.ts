@@ -40,6 +40,9 @@ describe("平台失败的语义化", () => {
     expect(failure.problemCode).toBe("PROVIDER_UNAVAILABLE");
     expect(failure.code).toBe("network_error");
     expect(failure.userMessage).toMatch(/未确认/);
+    // 断在提交之后时，请求可能已经到平台；重试就是再提交一次。客户端不能承诺不重复计费。
+    expect(failure.userMessage).toMatch(/查看结果/);
+    expect(failure.userMessage).not.toMatch(/不会重复计费/);
   });
 
   it("认不出的平台码保留技术原文，仍给一个合法的问题码", () => {

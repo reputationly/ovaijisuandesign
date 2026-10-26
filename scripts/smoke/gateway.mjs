@@ -46,7 +46,7 @@ const pbase = `http://127.0.0.1:${platform.address().port}`;
 
 const ws = mkdtempSync(path.join(tmpdir(), "ov-smoke-ws-"));
 const cfg = path.join(mkdtempSync(path.join(tmpdir(), "ov-smoke-cfg-")), "config.json");
-writeFileSync(cfg, JSON.stringify({ platform: { base_url: `${pbase}/v1`, api_key: "k", chat_model: "chat" }, models: { image: "qwen-image-pro", image_upscale: "swiftvr" } }));
+writeFileSync(cfg, JSON.stringify({ platform: { base_url: `${pbase}/v1`, api_key: "k", chat_model: "chat" }, models: { image: "qwen-image-pro", image_upscale: "seedvr2" } }));
 const ID = { claim: "a".repeat(64), instance: "inst-smoke", generation: "2" };
 const H = { "x-hilo-workspace": ID.claim, "x-hilo-workspace-instance": ID.instance, "x-hilo-workspace-generation": ID.generation };
 const port = 18000 + Math.floor(Math.random() * 1000);

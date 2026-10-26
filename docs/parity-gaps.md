@@ -230,7 +230,7 @@
 用的是参照原文：开发时直接加载 `assets/agent-profiles/v2/config`，发布包里是 `agent-profiles/v2/config`；自带技能是 `assets/skills` 的 36 个原文。`wip/m8-agent-profiles` 上自己写的那套作废。
 
 **C 做了但行为不同**：
-- 多一张 `knowledge/vendors/platform-routing.md`：工具入参里的 vendor / model 只是接口词汇，各模态实际落到平台上配好的那个模型（qwen-image-pro、minimax-h3、minimax-music3、ace-step、indextts-2.5、swiftvr）。其余 vendor 卡是参照原文，描述的是参照的云端后端。
+- 多一张 `knowledge/vendors/platform-routing.md`：工具入参里的 vendor / model 只是接口词汇，各模态实际落到平台上配好的那个模型（qwen-image-pro、minimax-h3、minimax-music3、ace-step、indextts-2.5、seedvr2）。其余 vendor 卡是参照原文，描述的是参照的云端后端。
 - `comfyui-agent` 原样保留（配置完整性检查要求它），但它的工具一个都没注册，派给它的活做不了。
 - 技能：参照是登录后从云端技能市场同步到 `~/.hub/skills`；我们随包自带，主进程启动时铺到 `~/.ovhub/skills`（按 `meta.yaml` 的 `version` 整目录更新，不碰用户自己的技能）。没有技能市场、自动更新和白名单。
 - 首页「创作灵感」**2026-10-02 起换成云端原文**（`quick_start_config` v2，8 分区 165 条示例，

@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { Injectable } from "@nestjs/common";
 import { type Client, type MediaConfig, createClient, defaultMediaConfig, parseMediaConfig } from "@ov/maas-media";
-import { withPlatformPreset } from "@ov/protocol";
+import { FALLBACK_MODELS, FALLBACK_ONLY_SLOTS, withPlatformPreset } from "@ov/protocol";
 
 import { GatewayConfig } from "../config/gateway-config.js";
 import {
@@ -13,6 +13,7 @@ import {
   defaultCapability,
   fetchPlatformCatalog,
   readCachedCatalog,
+  keyDigest,
 } from "./platform-catalog.js";
 
 /**
@@ -31,6 +32,14 @@ import {
 export class MediaConfigService {
   private cached?: { mtimeMs: number; value: MediaConfig };
   private catalog?: PlatformCatalog;
+  /**
+   * 这份目录属于谁。**换 key 必须认出旧目录**：目录是按令牌过滤过的，拿 A 的目录去
+   * 校验 B 的调用，会让 B 看到它其实没有的模型（然后被平台拒）。磁盘缓存本来就按
+   * 指纹分开存，内存这份没道理混用。
+   */
+  private catalogOwner?: { digest: string; baseUrl: string };
+  /** 每次换归属就 +1；在飞的刷新回来时对不上就丢弃，别把旧 key 的目录写回来。 */
+  private catalogGeneration = 0;
   private catalogFetchedAt = 0;
   private catalogInFlight?: Promise<PlatformCatalog | null>;
   private lastCatalogError?: string;
@@ -58,9 +67,17 @@ export class MediaConfigService {
 
   load(): MediaConfig {
     const config = this.base();
+    const catalog = this.catalogFor(config);
     this.maybeRefreshCatalog(config);
-    const catalog = this.catalog;
-    if (!catalog) return config;
+    if (!catalog) {
+      // 一份目录都没有（新装 / 离线 / 平台还没发 `/v1/ov`）：兜底表补全部空槽位，
+      // 否则新用户的能力列表是空的、`/api/v3/execute` 直接 422。
+      const models = { ...config.models };
+      for (const [slot, model] of Object.entries(FALLBACK_MODELS)) {
+        if (model && !models[slot as keyof typeof models]) models[slot as keyof typeof models] = model as never;
+      }
+      return { ...config, models };
+    }
     // 空着的槽位用目录的默认项补上：产品预设不再写死模型名，而这些槽位还有别的
     // 读处（超分、写说明/歌词、对话模型），它们不该因为"没配"而失效。
     const models = { ...config.models };
@@ -86,6 +103,13 @@ export class MediaConfigService {
       const edit = catalog.capabilities.find((item) => item.operation === "generate_image" && (item.limits?.maxReferenceImages ?? 0) > 0);
       if (edit) models.image_edit = edit.model;
     }
+    // 目录里没有"超分"和"音乐编辑"这两个操作（`upscale` 只作为聚合流水线的一段存在，
+    // `music_edit` 干脆不报），所以这三个槽位只能由兜底表补。**其余槽位一律以目录为准**：
+    // 目录没给的（比如这个 key 没有 generate_image）就保持空，不能"目录没给却照样调用"。
+    for (const slot of FALLBACK_ONLY_SLOTS) {
+      const model = FALLBACK_MODELS[slot];
+      if (model && !models[slot]) models[slot] = model as never;
+    }
     models.known = catalogModelNames(catalog);
     return { ...config, models };
   }
@@ -97,12 +121,35 @@ export class MediaConfigService {
    * 走一遍 `load()`，而"读不到目录"和"还没人拉过"对它们是两种不同的处境。
    */
   currentCatalog(): PlatformCatalog | null {
-    if (!this.catalog) {
-      try {
-        this.catalog = readCachedCatalog(this.dataDir(), this.base().platform.api_key) ?? undefined;
-      } catch {
-        // 配置文件坏了：这时连平台地址都没有，读缓存也没有意义。
-      }
+    let config: MediaConfig;
+    try {
+      config = this.base();
+    } catch {
+      // 配置文件坏了：这时连平台地址都没有，读缓存也没有意义。
+      return this.catalog ?? null;
+    }
+    const catalog = this.catalogFor(config);
+    if (!catalog) {
+      // 归属刚变过（`catalogFetchedAt` 被重置）：立刻去拉，别等 60 秒。
+      this.maybeRefreshCatalog(config);
+    }
+    return catalog;
+  }
+
+  /**
+   * 把内存里的目录对齐到"当前配置对应的那个账号"。
+   *
+   * 换 key / 换地址时：丢掉旧目录、读新 key 的磁盘缓存、把下一个刷新窗口提前到现在。
+   */
+  private catalogFor(config: MediaConfig): PlatformCatalog | null {
+    const digest = keyDigest(config.platform.api_key);
+    const baseUrl = config.platform.base_url;
+    if (!this.catalogOwner || this.catalogOwner.digest !== digest || this.catalogOwner.baseUrl !== baseUrl) {
+      this.catalogOwner = { digest, baseUrl };
+      this.catalogGeneration += 1;
+      this.catalog = readCachedCatalog(this.dataDir(), config.platform.api_key) ?? undefined;
+      this.catalogFetchedAt = 0;
+      this.lastCatalogError = undefined;
     }
     return this.catalog ?? null;
   }
@@ -129,8 +176,11 @@ export class MediaConfigService {
       // 先把盘上的那份用起来：本次请求不等网络。
       this.catalog = readCachedCatalog(dataDir, config.platform.api_key) ?? undefined;
     }
+    const generation = this.catalogGeneration;
     this.catalogInFlight = fetchPlatformCatalog(config, { dataDir })
       .then(({ catalog, error }) => {
+        // 在飞期间换了 key：这份结果属于上一个账号，丢掉。
+        if (generation !== this.catalogGeneration) return this.catalog ?? null;
         this.lastCatalogError = error;
         if (catalog) this.catalog = catalog;
         return this.catalog ?? null;

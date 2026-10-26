@@ -539,7 +539,10 @@ export function describeFailure(err: unknown): FailureDescription {
         code: "network_error",
         problemCode: "PROVIDER_UNAVAILABLE",
         source: "provider",
-        userMessage: "与平台的连接中断，任务结果未确认；重试不会重复计费",
+        // **不要承诺"重试不会重复计费"**：连接断在提交之后，请求可能已经到了平台，
+        // 重试就是再提交一次；计费在平台侧，客户端无从保证。说错话比不说更糟 ——
+        // 用户会照着这句话重试，然后收到两份账单。
+        userMessage: "与平台的连接中断，任务结果未确认，请稍后查看结果再决定是否重试",
       };
     }
     if (err.code === "dpp.config") {

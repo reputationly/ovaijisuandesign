@@ -133,13 +133,10 @@ describe("生成（假平台）", () => {
     const c = (await http.get("/api/models?agent_version=2")).body;
     expect(c.imageModels.map((m: any) => m.id)).toEqual(["qwen-image"]);
     expect(c.videoModels[0]).toMatchObject({ id: "minimax-h3-fl2va", backend: "minimax_v3", model_name: "MiniMax-H3", display_name: "minimax-h3-fl2va", type: "video", tool_names: ["hub_generate_video"] });
-    // 只有配置里写了的那个。
-    //
-    // 这里原来还期待 `minimax-music3` / `ace-step` —— 那是产品预设里写死的模型名。
-    // L-1 之后产品不再硬编码模型：没写的槽位由平台目录（`GET /v1/ov/capabilities`）
-    // 决定，而这个用例里的平台是个不提供目录的假服务，所以只剩配置里那一个。
-    // 目录可用时的行为见 `capabilities.controller` 的 platformEntries 与其用例。
-    expect(c.audioModels.map((m: any) => m.id)).toEqual(["indextts-2.5"]);
+    // 配置里写了语音，音乐两个槽位没写 —— 而这个用例的平台**不提供目录**
+    // （`GET /v1/ov/capabilities` 404），所以走 `FALLBACK_MODELS`：音乐和音乐编辑
+    // 用兜底表补上。目录可用时以目录为准，见 `media-config.service.test.ts`。
+    expect(c.audioModels.map((m: any) => m.id)).toEqual(["indextts-2.5", "minimax-music3", "ace-step"]);
     expect(c.defaultTextModelId).toBe("chat");
     expect((await http.get("/api/speech/voices?page_size=1000")).body).toEqual([
       expect.objectContaining({ voice_id: "narrator", sample_audio: "https://x/ref.wav" }),
