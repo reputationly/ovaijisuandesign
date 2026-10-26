@@ -7,6 +7,12 @@
  */
 export const AGENT_PROFILE_VERSION_ENV = "HILO_AGENT_PROFILE_VERSION";
 
+/**
+ * 项目内核的架构开关（`resource_v3` 与否）。插件用它决定"素材按路径报还是按
+ * Resource/Version 报"——v3 的 `design_*` 产出没有路径。
+ */
+export const HILO_PROJECT_ARCHITECTURE_ENV = "HILO_PROJECT_ARCHITECTURE";
+
 export type AgentProfileVersion = 2 | 3;
 
 /** 缺省是 2（老会话不设这个变量）；非法值直接抛，别猜。 */

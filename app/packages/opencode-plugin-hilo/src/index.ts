@@ -25,10 +25,11 @@ import {
 import { BrowserSkillRequiredError, CONTROL_IN_APP_BROWSER_SKILL, isBrowserSkillInstalled, isBrowserSkillLoadResult } from "./browser-skill-gate.js";
 import { hasPendingCompactionContinuePrompt, rewriteCompactionContinueLanguage } from "./compaction-continue-rewrite.js";
 import { notifySkillUploadCheck, reportLoopGuardTrip, reportMcpToolCallObserved } from "./gateway-reports.js";
-import { parseAgentProfileVersion } from "@ov/protocol";
+import { HILO_PROJECT_ARCHITECTURE_ENV, parseAgentProfileVersion } from "@ov/protocol";
 
 import { loadMemoryContext, shouldIncludeUserMemory } from "./load-memory-context.js";
 import { nextToolCallIndex, TOOL_CALL_INDEX_ARG } from "./tool-call-order.js";
+import { v3ToolMaterials } from "./v3-tool-materials.js";
 import { askUserViaGateway } from "./loop-guard/ask-client.js";
 import { createLoopGuard, LoopGuardError } from "./loop-guard/index.js";
 import { fetchMediaModels } from "./media-models-cache.js";
@@ -59,6 +60,11 @@ const HUB_TOOL_PREFIX = "hub_";
  */
 const DESIGN_TOOL_PREFIX = "design_";
 const HUB_MEMORY_TOOL = "hub_memory";
+/** 工具调用 id 的参数名（与 mcp-tools 的 `registrar.ts` 一致）。 */
+const TOOL_USE_ID_KEY = "_tool_use_id";
+/** 小工具：只认普通对象。 */
+const record = (value: unknown): Record<string, unknown> | undefined =>
+  value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined;
 
 /** agent 工具面的版本（2 或 3）。非法值不让整轮挂掉：告警并按 2 处理。 */
 function agentProfileVersion(): 2 | 3 {
@@ -363,10 +369,17 @@ const plugin: Plugin = async (input) => {
       if (toolCallIndex !== undefined) args[TOOL_CALL_INDEX_ARG] = toolCallIndex;
       if (inp.callID && resolution.chatTurnId) {
         try {
-          const refs = await observeAttachmentInputs(gatewayUrl, inp.sessionID, toolAttachmentPaths(args), {
-            callId: inp.callID,
-            chatTurnId: resolution.chatTurnId,
-          });
+          // v3：`design_*` 的入参往往没有路径（给的是 resourceId/versionId），所以按素材报；
+          // v2：还是按命名的路径参数报。参照 4.0.4 同一个分支就是这么分的。
+          const v3 = process.env[HILO_PROJECT_ARCHITECTURE_ENV] === "resource_v3";
+          const refs = await observeAttachmentInputs(
+            gatewayUrl,
+            inp.sessionID,
+            v3 ? [] : toolAttachmentPaths(args),
+            { callId: inp.callID, chatTurnId: resolution.chatTurnId },
+            v3 ? v3ToolMaterials(inp.tool, "input", args) : [],
+            "input",
+          );
           rememberToolAttachmentRefs(inp.sessionID, {
             _meta: {
               chat_turn_id: resolution.chatTurnId,
@@ -401,6 +414,21 @@ const plugin: Plugin = async (input) => {
           }
         } catch {
           // 登记失败不影响 question 的结果
+        }
+      }
+      // v3 的产出：`design_execute` 之类返回 Resource/Version，按素材报（没有路径）。
+      // 只在这个工具调用真的带了本次 `_tool_use_id` 与 `_chat_turn_id` 时才报。
+      if (process.env[HILO_PROJECT_ARCHITECTURE_ENV] === "resource_v3" && inp.sessionID && inp.callID) {
+        const args = record(inp.args);
+        if (args?.[TOOL_USE_ID_KEY] === inp.callID && typeof args._chat_turn_id === "string") {
+          void observeAttachmentInputs(
+            gatewayUrl,
+            inp.sessionID,
+            [],
+            { callId: inp.callID, chatTurnId: args._chat_turn_id },
+            v3ToolMaterials(inp.tool, "output", out),
+            "output",
+          ).catch(() => {});
         }
       }
       rememberToolAttachmentRefs(inp.sessionID, out);

@@ -85,4 +85,27 @@ describe("会话统计、忙碌探测、附件归属", () => {
     expect(msg.body.attachment_refs).toHaveLength(1);
     expect((await http.post("/api/internal/sessions/ses_1/attachment-observations").send({ paths: ["out.md"] })).body).toEqual({ attachment_refs: [] });
   });
+
+  // v3 的素材：`design_*` 的产出是 Resource/Version，往往没有路径，所以素材单独上报。
+  // 带路径/URL 的项要并入同一条解析链；只有 resourceId/versionId 的项目前只计数、不报引用
+  // （资源 id → 资产 id 的映射还没有），但**不能因此 400**。
+  it("v3 素材：带路径的项照样解析成资产引用；纯 resourceId 的项不报错也不报引用", async () => {
+    const withPath = await http.post("/api/internal/sessions/ses_1/attachment-observations").send({
+      paths: [],
+      materials: [{ resourceId: "res_1" }, { path: "out.md" }, { versionId: "ver_1" }],
+      direction: "input",
+      tool_call_id: "call_v3",
+    });
+    expect(withPath.status).toBe(200);
+    expect(withPath.body.attachment_refs).toEqual([{ attachment_source: "asset_vault", attachment_id: assetId }]);
+
+    const onlyIds = await http.post("/api/internal/sessions/ses_1/attachment-observations").send({
+      paths: [],
+      materials: [{ resourceId: "res_1" }, { compositionId: "cmp_1", memberId: "mem_1" }],
+      direction: "output",
+      tool_call_id: "call_v3b",
+    });
+    expect(onlyIds.status).toBe(200);
+    expect(onlyIds.body).toEqual({ attachment_refs: [] });
+  });
 });

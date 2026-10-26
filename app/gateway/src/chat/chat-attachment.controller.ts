@@ -8,6 +8,13 @@ const MAX_PATHS = 32;
 
 interface AttachmentObservationBody {
   paths?: unknown;
+  /**
+   * v3 的素材：`[{versionId}|{artifactId}|{path}|{url}|{compositionId,memberId}|{resourceId}]`。
+   * `design_*` 的产出是 Resource/Version，往往没有路径 —— 只报路径的话 v3 会话的附件归属是空的。
+   * 目前只把里面**带路径/URL** 的项送去解析（资源 id 到资产 id 的映射还没有那条链），
+   * 其余原样忽略并计数，行为与参照 gateway 一致（它也只消费 paths）。
+   */
+  materials?: unknown;
   tool_call_id?: unknown;
   chat_turn_id?: unknown;
   direction?: unknown;
@@ -33,7 +40,20 @@ export class ChatAttachmentController {
   @Post(":id/attachment-observations")
   @HttpCode(200)
   observe(@Param("id") sessionId: string, @Body() body: AttachmentObservationBody) {
-    const paths = Array.isArray(body?.paths) ? body.paths.filter((v): v is string => typeof v === "string").slice(0, MAX_PATHS) : [];
+    const rawPaths = Array.isArray(body?.paths) ? body.paths.filter((v): v is string => typeof v === "string") : [];
+    // v3 素材里带路径/URL 的项并入同一条解析链；只有 resourceId/versionId 的项暂时只计数。
+    const materials = Array.isArray(body?.materials) ? body.materials.slice(0, MAX_PATHS) : [];
+    let materialPaths = 0;
+    for (const item of materials) {
+      if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+      const row = item as Record<string, unknown>;
+      const location = typeof row.path === "string" ? row.path : typeof row.url === "string" ? row.url : "";
+      if (location) {
+        rawPaths.push(location);
+        materialPaths += 1;
+      }
+    }
+    const paths = rawPaths.slice(0, MAX_PATHS);
     const toolCallId = typeof body?.tool_call_id === "string" ? body.tool_call_id.trim() : "";
     const direction = body?.direction === "input" || body?.direction === "output" ? body.direction : undefined;
     if (!sessionId || paths.length === 0 || !direction) return { attachment_refs: [] };
@@ -41,7 +61,10 @@ export class ChatAttachmentController {
     if (body.scope === "message") return { attachment_refs: direction === "input" && !toolCallId ? this.resolveRefs(paths) : [] };
     if (!toolCallId) return { attachment_refs: [] };
     const turn = typeof body.chat_turn_id === "string" && CHAT_TURN_ID_RE.test(body.chat_turn_id) ? body.chat_turn_id.toLowerCase() : undefined;
-    this.log.debug(`observe session=${sessionId} tool_call=${toolCallId} direction=${direction}${turn ? ` turn=${turn}` : ""} paths=${paths.length}`);
+    this.log.debug(
+      `observe session=${sessionId} tool_call=${toolCallId} direction=${direction}${turn ? ` turn=${turn}` : ""} paths=${paths.length}` +
+        (materials.length > 0 ? ` materials=${materials.length} (paths ${materialPaths})` : ""),
+    );
     return { attachment_refs: this.resolveRefs(paths) };
   }
 

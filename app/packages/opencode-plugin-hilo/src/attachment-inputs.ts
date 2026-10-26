@@ -11,6 +11,9 @@ import { sessionEndpoint, withGatewayIdentity } from "./gateway-identity.js";
  * 只收本地路径（`file:` URL 转成路径；http 之类的 URL 跳过，Windows 盘符路径保留），最多 32 个。
  * 任何失败都只记一行日志、回空列表：归属登记不能挡住对话。
  */
+/** 一次工具调用最多报多少个附件（参照同值）。 */
+export const ATTACHMENT_OBSERVATION_MAX_FILES = 32;
+
 export interface AssetVaultRef {
   attachment_source: "asset_vault";
   attachment_id: string;
@@ -37,7 +40,7 @@ function localPaths(values: readonly unknown[]): string[] {
         return [p];
       }),
     ),
-  ].slice(0, 32);
+  ].slice(0, ATTACHMENT_OBSERVATION_MAX_FILES);
 }
 
 /**
@@ -85,8 +88,14 @@ export async function observeAttachmentInputs(
   sessionId: string,
   paths: readonly string[],
   tool?: { callId: string; chatTurnId: string },
+  /**
+   * v3 的素材（`v3ToolMaterials`）。和 paths 并列上报：`design_*` 的产出是
+   * Resource/Version，往往没有路径可报。**空数组就不发这个键**，与参照一致。
+   */
+  materials: readonly unknown[] = [],
+  direction: "input" | "output" = "input",
 ): Promise<AssetVaultRef[]> {
-  if (!sessionId || paths.length === 0) return [];
+  if (!sessionId || (paths.length === 0 && materials.length === 0)) return [];
   try {
     const response = await fetch(
       sessionEndpoint(gatewayUrl, sessionId, "attachment-observations"),
@@ -95,7 +104,8 @@ export async function observeAttachmentInputs(
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           paths,
-          direction: "input",
+          ...(materials.length ? { materials } : {}),
+          direction,
           ...(tool ? { tool_call_id: tool.callId, chat_turn_id: tool.chatTurnId } : { scope: "message" }),
         }),
         signal: AbortSignal.timeout(2000),
