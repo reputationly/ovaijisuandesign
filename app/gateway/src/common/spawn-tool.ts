@@ -21,14 +21,23 @@ export function spawnTool(executable: string, args: string[]): ChildProcessByStd
     return spawn(executable, args, { stdio: "pipe" });
   }
   const comspec = process.env.ComSpec?.trim() || "cmd.exe";
-  // 追的是 cross-spawn 的做法：整条命令再包一层引号（`cmd /s` 会剥掉最外层那一对），
-  // 参数内部用 `\"` 转义。只加 `""` 会在 /s 下被吃掉引号，路径带空格就散架。
-  const quoted = args.map((arg) => `"${arg.replace(/"/g, '\\"').replace(/%/g, "%%")}"`);
-  const command = `"${executable}" ${quoted.join(" ")}`;
-  return spawn(comspec, ["/d", "/s", "/c", `"${command}"`], {
+  return spawn(comspec, ["/d", "/s", "/c", windowsCommandLine(executable, args)], {
     stdio: "pipe",
     windowsVerbatimArguments: true,
   });
+}
+
+/**
+ * `.cmd` / `.bat` 在 `cmd.exe /d /s /c` 下的命令行。
+ *
+ * 追 cross-spawn 的规则：**整条命令再包一层引号**（`/s` 会剥掉最外层那一对），
+ * 参数内部用 `\"` 转义。只给参数加 `""` 不够 —— `/s` 下最外层引号会被吃掉，
+ * 带空格的路径就散架了。`%` 在 cmd 里即使加引号也会展开，所以换成 `%%`
+ * （否则 URL 里的 `%20` 会被吃掉）。
+ */
+export function windowsCommandLine(executable: string, args: string[]): string {
+  const quoted = args.map((arg) => `"${arg.replace(/"/g, '\\"').replace(/%/g, "%%")}"`);
+  return `"\"${executable}\" ${quoted.join(" ")}"`;
 }
 
 /** 三个流都是 pipe 的形态（调用方直接挂 `stdout.on`，不用再判空）。 */

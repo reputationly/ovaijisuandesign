@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { spawnTool } from "./spawn-tool.js";
+import { spawnTool, windowsCommandLine } from "./spawn-tool.js";
 
 /**
  * Windows 上 `yt-dlp` 经常是 `.cmd` 包装（pip / 包管理器装出来的），
@@ -19,17 +19,13 @@ describe("spawnTool", () => {
     expect(JSON.parse(out)).toEqual(["a b", "100%"]);
   });
 
-  it("Windows 的 .cmd/.bat：命令组装成 cmd.exe /d /s /c，参数加引号且 % 转义", () => {
-    // 这条只验证拼装规则，不真的起进程：在 mac 上跑不了 cmd.exe。
-    const build = (executable: string, args: string[]) => {
-      const quoted = args.map((arg) => `"${arg.replace(/"/g, '""').replace(/%/g, "%%")}"`);
-      return ["/d", "/s", "/c", `"${executable}" ${quoted.join(" ")}`];
-    };
-    expect(build("C:\\tools\\yt-dlp.cmd", ["https://x/watch?a=1&b=2%20c", 'say "hi"'])).toEqual([
-      "/d",
-      "/s",
-      "/c",
-      '"C:\\tools\\yt-dlp.cmd" "https://x/watch?a=1&b=2%%20c" "say ""hi"""',
-    ]);
+  it("Windows 的 .cmd/.bat：外层的 `/s` 引号 + 参数内 `\"` 转义 + `%` 变 `%%`", () => {
+    // `cmd /d /s /c` 剥掉最外层那一对引号，所以命令整体要再包一层（`""file" args"`）。
+    // 这样带空格的路径、含 `&` 和 `%20` 的 URL 才能原样到达 `.cmd`。
+    const line = windowsCommandLine("C:\\tools\\yt-dlp.cmd", ["https://x/watch?a=1&b=2%20c", 'say "hi"']);
+    expect(line.startsWith('""C:\\tools\\yt-dlp.cmd" ')).toBe(true);
+    expect(line).toContain('"https://x/watch?a=1&b=2%%20c"');
+    expect(line).toContain('"say \\"hi\\""');
+    expect(line.endsWith('"')).toBe(true);
   });
 });
