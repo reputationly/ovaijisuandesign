@@ -1,5 +1,7 @@
 import { fileURLToPath } from "node:url";
 
+import { parseAttachmentManifest, parseHiddenContextEnvelope } from "@ov/protocol";
+
 import { sessionEndpoint, withGatewayIdentity } from "./gateway-identity.js";
 
 /**
@@ -49,18 +51,10 @@ export function userAttachmentPaths(parts: readonly unknown[]): string[] {
     if (!part) continue;
     if (part.type === "file" && typeof part.url === "string" && part.url.startsWith("file:")) paths.push(part.url);
     if (part.type !== "text" || typeof part.text !== "string") continue;
-    const manifest = /^\[User attached files:\n([\s\S]*?)\]\n\n/.exec(part.text);
-    if (!manifest) continue;
-    for (const line of manifest[1]!.split("\n")) {
-      if (!line.trim()) break;
-      if (!line.startsWith("- ")) continue;
-      paths.push(
-        line
-          .slice(2)
-          .replace(/^\[\d+\]\s*/, "")
-          .replace(/^(?:image|video|audio|text|file):\s*/, ""),
-      );
-    }
+    // 4.0.4 起界面把清单包进 `<design_context>`；老格式也还得认（存量会话）。
+    const envelope = parseHiddenContextEnvelope(part.text);
+    const manifest = envelope?.manifest ?? "";
+    if (manifest) paths.push(...parseAttachmentManifest(manifest));
   }
   return localPaths(paths);
 }

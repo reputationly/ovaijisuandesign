@@ -27,6 +27,19 @@ beforeEach(() => {
 });
 
 describe("附件路径", () => {
+  // 4.0.4 起界面用 `<design_context>` 信封（里面再套 `<user_attached_files>`）。
+  // 只认老格式的话，v3 会话里用户附的文件一个都识别不到。
+  it("用户消息：4.0.4 的 <design_context> 信封里的清单也要认", () => {
+    const file = process.platform === "win32" ? "C:\\tmp\\e.png" : "/tmp/e.png";
+    const parts = [
+      {
+        type: "text",
+        text: `<design_context>\n<user_attached_files>\n- [1] image: ${file}\n</user_attached_files>\n\n项目说明\n</design_context>\n\n做张图`,
+      },
+    ];
+    expect(userAttachmentPaths(parts)).toEqual([file]);
+  });
+
   it("用户消息：file part 的 file: URL + 正文开头的附件清单；远程 URL 跳过，Windows 盘符保留", () => {
     // file: URL 按本机规则转路径：Windows 上要带盘符，否则不是本地文件、会被跳过。
     const win = process.platform === "win32";

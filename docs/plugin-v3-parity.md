@@ -12,7 +12,7 @@
 | `AGENT_PROFILE_VERSION_ENV` / `parseAgentProfileVersion` | 176,676（`../protocol/dist/agent-profile-env.js`） | `@ov/protocol` 的 `agent-profile-env.ts` | ✅ 本轮 |
 | `GLOBAL_MEMORY_GUIDANCE` + `access:"global"`（v3 记忆只有全局一份） | 346,281 起（`src/load-memory-context.ts`） | `src/load-memory-context.ts` 的 `access` 选项 + `src/index.ts` 按 profile 版本选 | ✅ 本轮 |
 | `guardConnectorTool` / `connectorAccess`（连接器准入、`pendingTarget` 强制先搜） | ~470,k 起（`src/connector-access.ts`） | 无 | ⏳ 未补：我们还没有连接器会话级准入（`/api/connectors/capability-access`）这条链；`CAPABILITY_SEARCH_TOOL_NAMES` 已就位，接的时候直接用 |
-| `parseHiddenContextEnvelope`（`<design_context>` 信封） | 201,116（`../protocol/dist/hidden-context.js`） | 无（我们只认老的 `[User attached files: …]`） | ⏳ 未补 |
+| `parseHiddenContextEnvelope` / `findEmbeddedAttachmentManifests` / `parseAttachmentManifest`（`<design_context>` 信封） | 201,116（`../protocol/dist/hidden-context.js`） | `@ov/protocol` 的 `hidden-context.ts`；`attachment-inputs.ts` 的 `userAttachmentPaths` 改用它 | ✅ 本轮（未移植 `[asset_context …]` 与 composition mention 两个分支，见下） |
 | `v3ToolMaterials`（从 design_* 的输入/输出收集素材） | 476,314 起（`src/v3-attachment-fields.ts`） | 无 | ⏳ 未补：还要 gateway 的 `attachment-observations` 支持 `materials`（参照侧在同一提交里改了 gateway） |
 | `design_code_project_open` 的路径守卫（`src/code-agent-guard.ts`） | 328,569 起 | 无 | ⏳ 未补 |
 | `design_memory` 的 `target`/`project_rules` | 346,281 / 349,427 | `access:"global"` 的说明已覆盖 `target:'global'` 与 `project_rules` | ✅ 说明层面；工具参数由 MCP 侧 schema 决定 |
@@ -22,3 +22,10 @@
 - 账号 / 计费 / 上报统计：`ad-attribution`、`model-trace-capture` 的 v3 分支等。
 - ComfyUI 相关（`comfyUiProgress`、`hub_run_comfyui_workflow`）。
 - 参照 `src/connector-access.ts` 里"连接器会话准入"整条链（上表已注明原因）。
+
+## 未移植的分支（有依据的裁剪）
+
+- `hidden-context` 里的 `[asset_context resourceId=…]` 与 composition mention 前缀：依赖
+  `parseCompositionMentionAt`（参照 protocol 的 mention 解析），我们没有那套东西；
+  这两种信封我们目前不会产生，等做 mention 时一起接。
+- `connector-access`（连接器会话准入）：见上表，`CAPABILITY_SEARCH_TOOL_NAMES` 已就位。

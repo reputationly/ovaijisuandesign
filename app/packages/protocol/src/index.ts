@@ -9,6 +9,7 @@ export * from "./asset-role.js";
 export * from "./canvas-tags.js";
 export * from "./canvas.js";
 export * from "./events.js";
+export * from "./hidden-context.js";
 export * from "./media.js";
 export * from "./platform-catalog.js";
 export * from "./platform-preset.js";
