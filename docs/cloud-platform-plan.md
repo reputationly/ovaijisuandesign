@@ -735,3 +735,25 @@ OV_PLATFORM_KEY=… node scripts/smoke/platform-online.mjs
 
 外加 `_why` 里补一句"按 `models.image_upscale` 隐藏（见 intentional-differences.md）"。
 这段必须由负责人加 —— 登记表不在我能改的范围内。
+
+### 6.6 返工第六轮（2026-10-26）：profile 版本、超分开关、任务视图/actions/reason
+
+| # | 改了什么 | 证据 |
+|---|---|---|
+| 1 | 桌面端给 opencode 进程 env 与 MCP environment 都设 `HILO_AGENT_PROFILE_VERSION`（v3→"3"、v2→"2"） | `launch-env.test.ts`（2 条，断言写进配置文件的 MCP environment）+ `profile-version.test.ts`（3 条）；回退修复后报 `expected undefined to be '3'/'2'` |
+| 2 | 图片超分开关改成独立 `useQuery(["image-upscale-available", catalogScopeKey])`，不再挂在模型数组上（结构共享会让它丢/过期） | `normalize-model-info.test.ts`：模型列表两次完全相同、false→true→false 跟着变 |
+| 3 | `executionView` 复用 `present()`，execute 与 reused 两个分支返回同一份任务视图 | `execute-task.e2e`：两个分支都过等价校验；回退后 `expected {…} to match object {…7}` |
+| 4 | `actions` 只列真支持的动作（非终态 `stop`、failed+可重提 `retry`、其余 `[]`） | running/completed/failed 三条断言；回退后 `expected undefined to deeply equal ['stop']` |
+| 5 | `progress.reason` 不再一律 `provider_unavailable`：failed 按 `problem.code`/`source` 映射，对不上 null | 额度不足 → `"billing"`；回退后 `expected 'provider_unavailable' to be 'billing'` |
+| 6 | T-6：记下真实失败现场（`file-ops.e2e` duplicate），并给该断言补状态码前置断言 | 见 `docs/design-execute-card-status.md` 的 T-6 第六轮 |
+
+**门禁（本轮）**：37 屏 **exit 0**（37/37，全部 `未登记差异 0`，`ws-select-image` 4.048845%）；
+v3 七屏 **exit 0**（最紧 `ws-a-v3-resource` 3.089854% / 3.090308%）。`actions` 变活之后
+门禁夹具里没有在跑的任务，所以没有出现"停止/重试按钮"的新差异。
+
+**全量**：`pnpm turbo run build typecheck test --concurrency=1 --force` → **35/35 全绿**
+（gateway 528、desktop 586+1 skip、renderer 19、plugin 104、protocol 53、mcp-tools 212、
+maas-media 136、assets 39）。
+
+**一个必须记住的前提**：跑门禁前 `rm -rf /tmp/ov-cmp`，且不要和 gateway 测试并发 ——
+否则会出现逐像素相同的假回归（第五轮踩过：`ws-chat-input` 5.08%、整轮 `Runtime.evaluate` 挂死）。
