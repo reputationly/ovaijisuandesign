@@ -91,7 +91,11 @@ export class EnhanceImageDto {
 export class Hailuo03VideoSuperResolutionDto {
   @IsString() @IsNotEmpty() video_path!: string;
   @IsString() @IsNotEmpty() provider_task_id!: string;
-  @IsOptional() @IsIn(["2K"]) resolution?: "2K";
+  /**
+   * 交付档位。平台只有 seedvr2，按部署配置出片（约 1920×1104），**兑现不了 2K** ——
+   * `swiftvr` 已下线，所以要 2K 也没有引擎了。只留这一档，参数与实际交付一致。
+   */
+  @IsOptional() @IsIn(["1080P"]) resolution?: "1080P";
   @IsString() @IsNotEmpty() filename!: string;
   @IsOptional() @IsString() source_node_id?: string;
 }

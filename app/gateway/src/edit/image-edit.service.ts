@@ -367,7 +367,8 @@ export class ImageEditService {
     const abs = await resolveInsideWorkspace(this.root, req.video_path);
     if (!abs) throw new HttpException({ ok: false, error: `Path traversal detected: ${req.video_path}` }, 400);
     const rel = toWorkspaceRel(this.root, abs) ?? req.video_path;
-    const tier = req.resolution ?? "2K";
+    // 只有一档：平台的实际交付就是这一档（见 DTO 注释），默认值不再写 2K。
+    const tier = req.resolution ?? "1080P";
     return this.run({
       label: "Video super resolution",
       displayName: "Super Resolution",

@@ -452,6 +452,14 @@ async function runRealSession() {
   });
 
   await app.page.bringToFront().catch(() => {});
+
+  // 工作区 gateway 的端口与身份头：从主日志里读（和种子流程同一套）。
+  const log = readFileSync(path.join(app.xdg, "..", "ud", "logs", "main.log"), "utf8");
+  const ports = [...log.matchAll(/ws:\/\/127\.0\.0\.1:(\d+)\/ws\?hilo_workspace=([0-9a-f]+)&hilo_workspace_instance=([0-9a-f-]+)&hilo_workspace_generation=(\d+)/g)]
+    .slice(-2)
+    .map((m) => ({ port: m[1], claim: m[2], instance: m[3], generation: m[4] }));
+  const headersOf = ({ claim, instance, generation }) => ({ "x-hilo-workspace": claim, "x-hilo-workspace-instance": instance, "x-hilo-workspace-generation": generation });
+
   const prompt = valueOf("prompt") ?? "直接调用 design_execute 工具生成一张红苹果图片，画幅 1:1，不要再问我，直接执行";
   console.log("发送提示词：", prompt);
 
@@ -469,14 +477,25 @@ async function runRealSession() {
   await app.page.keyboard.type(prompt);
   await app.page.click('[data-action-ui-id="message-send-btn"]');
 
-  // 等 agent 真的调了 design_execute：以 `/api/v3/execute` 请求为信号。
-  // 期间如果弹出"确认消耗"之类的按钮，替用户点掉 —— 真会话里这是人会做的事。
+  // 等 agent 真的调了 design_execute。
+  //
+  // ⚠️ **不能靠 `page.on("request")`**：MCP server 是独立进程，它调 `/api/v3/execute`
+  // 在渲染层看不见（上一轮就是这么误判成"没有调用"的）。改用 opencode 库里的 part：
+  // 有 `design_execute` 的 part 就说明 agent 调了，顺便拿到它的 callID。
   const started = Date.now();
   let executed = null;
   const allowButtons = ['[data-action-ui-id*="tool-confirm"] button', '[data-action-ui-id*="confirm"] button', 'button:has-text("允许")', 'button:has-text("确认")', 'button:has-text("继续")'];
+  let partRow = null;
   while (Date.now() - started < 240_000) {
-    executed = requests.find((item) => item.url.includes("/api/v3/execute"));
-    if (executed) break;
+    try {
+      const poll = new Database(path.join(app.xdg, "..", "opencode.db"), { readonly: true });
+      partRow = poll.prepare("SELECT callID AS callID, data FROM part WHERE data LIKE '%\"tool\":\"design_execute\"%' ORDER BY rowid DESC LIMIT 1").get() ?? null;
+      poll.close();
+    } catch {}
+    if (partRow) {
+      executed = { at: Date.now(), toolUseId: partRow.callID ?? null };
+      break;
+    }
     for (const selector of allowButtons) {
       const button = app.page.locator(selector).first();
       if (await button.count().catch(() => 0)) {
@@ -496,15 +515,19 @@ async function runRealSession() {
     return;
   }
 
-  // part 上的 callID：直接读 opencode 库，和上面请求头里的 x-tool-use-id 对账。
+  // part 上的 callID，和网关任务里的 `origin.toolUseId`（就是 `x-tool-use-id` 头落下来的）
+  // 对账 —— 两者必须相等，否则网关那头会当成"没有调用 id"。
   await app.page.waitForTimeout(4000);
+  result.partCallID = partRow?.callID ?? null;
   try {
-    const db = new Database(path.join(app.xdg, "..", "opencode.db"), { readonly: true });
-    const row = db.prepare("SELECT callID AS callID, data FROM part WHERE data LIKE '%\"tool\":\"design_execute\"%' ORDER BY rowid DESC LIMIT 1").get();
-    db.close();
-    if (row) result.partCallID = row.callID ?? JSON.parse(row.data).callID ?? null;
+    const port = ports[0];
+    const listed = await fetch(`http://127.0.0.1:${port.port}/api/v3/tasks?limit=5`, { headers: headersOf(port) }).then((response) => response.json());
+    const task = (listed.items ?? []).find((item) => item.id && item.status) ?? null;
+    result.taskOriginToolUseId = task?.origin?.toolUseId ?? null;
+    result.taskId = task?.id ?? null;
+    result.taskStatus = task?.status ?? null;
   } catch (error) {
-    result.partReadError = String(error).slice(0, 200);
+    result.taskReadError = String(error).slice(0, 200);
   }
 
   // 等卡片把任务跑完（假平台延迟 60s）。

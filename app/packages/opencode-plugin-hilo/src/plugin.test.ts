@@ -122,6 +122,16 @@ describe("opencode 插件", () => {
     expect(confirm.body).toEqual({ tool: "hub_generate_image", args: { prompt: "猫", _group_id: "999", _chat_turn_id: "x" }, timeout_ms: 300_000 });
   });
 
+  // v3 的工具叫 `design_*`（opencode 用 MCP 服务名做命名空间）。`_tool_use_id` 不注入的话，
+  // MCP 调到网关没有 `x-tool-use-id` 头，`/api/v3/execute` 会 400「Invalid requestId」——
+  // 真会话里 agent 连调 5 次全被拒，就是这个。
+  it("design 工具也要注入会话与调用 id（v3 工具面）", async () => {
+    const h = await load();
+    const args = await before(h, "design_execute", { capabilityId: "generate_image:qwen-image-pro-enhanced", prompt: "红苹果" });
+    expect(args._session_id).toBe("ses_a");
+    expect(args._tool_use_id).toBe("call_1");
+  });
+
   it("hub 工具：取不到分组标 unresolved；有分组和 turn 时带上并登记输入附件", async () => {
     const h = await load();
     gw.routes.set("/request-group", status(500));

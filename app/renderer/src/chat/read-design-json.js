@@ -6,6 +6,16 @@ export function record(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : undefined;
 }
 
+/** 数组里能解析成对象的那些项（消息里的 outputs / placements / queries 都是这种形状）。 */
+export function records(value) {
+  return Array.isArray(value)
+    ? value.flatMap((item) => {
+        const parsed = record(item);
+        return parsed ? [parsed] : [];
+      })
+    : [];
+}
+
 export function readDesignJson(value, depth = 0) {
   if (depth > 4) return undefined;
   if (typeof value === "string") {

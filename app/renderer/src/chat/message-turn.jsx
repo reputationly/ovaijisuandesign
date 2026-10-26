@@ -1,5 +1,6 @@
 // message-turn.jsx
-import { readDesignJson } from "./read-design-json.js";
+import { hasDesignToolProblem } from "./design-tool-state.js";
+import { readDesignJson, records } from "./read-design-json.js";
 export { readDesignJson };
 import {
   categorizeToolAction,
@@ -55,36 +56,6 @@ import { TOOLS as TOOLS } from "./tools.jsx";
 import { record as record } from "../infra/parse-connector-selection.js";
 import { TOOL_ABORTED_BY_USER_TEXT as TOOL_ABORTED_BY_USER_TEXT } from "../canvas/diagnostic-history-tools.js";
 // 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-function isDesignToolInterrupted(message2) {
-  return Boolean(
-    message2.interruption === "aborted" || message2.toolResult?.includes(TOOL_ABORTED_BY_USER_TEXT) || message2.toolResult?.includes("interrupted before completion")
-  );
-}
-
-// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-function records(value) {
-  return Array.isArray(value) ? value.flatMap((item) => {
-    const parsed = record(item);
-    return parsed ? [parsed] : [];
-  }) : [];
-}
-
-// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-
-// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-function hasDesignToolProblem(message2) {
-  if (isDesignToolInterrupted(message2)) return false;
-  if (message2.toolStatus === "error") return true;
-  const result = readDesignJson(message2.toolResult);
-  const task2 = record(result?.task);
-  const delivery = record(result?.delivery);
-  return Boolean(
-    result?.isError || result?.error || result?.placementProblem || records(result?.queries ?? result?.results ?? result?.items).some((item) => item.error) || ["failed", "blocked", "unknown", "waiting_user"].includes(
-      String(task2?.status ?? delivery?.status)
-    )
-  );
-}
-
 // 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
 function filterDesignBookkeeping(messages2, getName) {
   const resources = /* @__PURE__ */ new Set();

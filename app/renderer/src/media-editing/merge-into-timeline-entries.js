@@ -11,6 +11,7 @@ import {
   hasSuccessfulMediaOutput,
   isToolRecoveredInterrupted,
 } from "../chat/has-structured-success-payload.js";
+import { designToolPresentation, hasDesignToolProblem } from "../chat/design-tool-state.js";
 import { hasMediaAnalysisFailure } from "../chat/media-tool-result.js";
 import { aggregateTimelineRuns } from "./aggregate-timeline-runs.js";
 function mergeAdjacentThinkingEntries(entries) {
@@ -149,21 +150,29 @@ export function mergeIntoTimelineEntries(items, options = {}) {
     if (message.type === "tool") {
       const toolMsg = message;
       const toolName = toolMsg.content;
-      if (!raw && getToolLabelId(toolName) === "silent") continue;
-      const category = categorizeToolAction(toolName);
+      // 4.0.4：这两个判断都要带上整条消息 —— `designToolPresentation` 要看 toolArgs/output
+      // 才能判断"这条工具该不该出现"，只看名字会漏掉 skill 加载与 design 工具的特殊呈现。
+      if (!raw && getToolLabelId(toolName, toolMsg) === "silent") continue;
+      const category = categorizeToolAction(toolName, toolMsg.toolArgs);
       entries.push({
         id: message.id,
         type: "tool",
         category,
         label: toolName,
         toolName,
+        // 4.0.4 两个字段都写：卡片读 `callID`（参照的写法），别处读 `toolCallId`。
+        // 我们原来只写了 `toolCallId`，卡片读 `entry.callID` 永远 undefined ——
+        // `useDesignTask` 的 enabled 要求 `taskId || callID`，于是查询根本没打开。
+        callID: toolMsg.callID,
         toolCallId: toolMsg.callID,
         toolStatus:
-          category === "analyseMedia" &&
-          toolMsg.toolStatus === "ok" &&
-          hasMediaAnalysisFailure(toolMsg.toolResult)
+          designToolPresentation(toolName, toolMsg) && hasDesignToolProblem(toolMsg)
             ? "error"
-            : toolMsg.toolStatus,
+            : category === "analyseMedia" &&
+                toolMsg.toolStatus === "ok" &&
+                hasMediaAnalysisFailure(toolMsg.toolResult)
+              ? "error"
+              : toolMsg.toolStatus,
         toolArgs: toolMsg.toolArgs,
         toolResult: toolMsg.toolResult,
         interruption: toolMsg.interruption,

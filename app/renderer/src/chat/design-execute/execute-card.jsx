@@ -27,23 +27,14 @@ import { CollapsiblePresence } from "../../media-editing/collapsible-presence.js
 import { MediaGenCardLayout, PromptBlock, TagsRow } from "../../media-editing/media-gen-detail.jsx";
 import { ArtifactAssetCard } from "../../generation/artifact-asset-card.jsx";
 import { useDesignResourceScope } from "../../canvas-v3/canvas-v3-hooks.js";
-import { designInput, designOutputs, designTags, designTaskCallId, designTaskDetails, isDesignDeliveryComplete } from "./design-input.js";
+import { DESIGN_KINDS } from "./design-kinds.js";
+import { designInput, designOutputs, designTags, designTaskDetails, isDesignDeliveryComplete } from "./design-input.js";
 import { useDesignTask, useDesignTaskParams } from "./task-query.js";
 import { designTaskFinal } from "./task-push.js";
 import { useReportDesignTask } from "./turn-registry.jsx";
 import { useDesignResourcePath } from "./resources.js";
 
 const MEDIA_ICONS = { image: ImageIcon, video: Video, audio: AudioLines, text: FileText };
-const DESIGN_KINDS = {
-  generate_image: { label: "generate_image", media: "image" },
-  generate_video: { label: "generate_video", media: "video" },
-  generate_speech: { label: "generate_speech", media: "audio" },
-  generate_music: { label: "generate_music", media: "audio" },
-  "edit_media:ffmpeg": { label: "ffmpeg", media: "video" },
-  "edit_media:merge_videos": { label: "merge_videos", media: "video" },
-  "edit_media:transcribe": { label: "transcribe", media: "text" },
-  "edit_media:subtitle_format": { label: "subtitle_format", media: "text" },
-};
 const record = (value) => (value && typeof value === "object" && !Array.isArray(value) ? value : undefined);
 // 本地 gateway 没有 billing/confirm_cost，参照在无计费时也返回 null。
 function costConfirmationKind() {
@@ -76,10 +67,10 @@ export function ScopedCard({ entry, scopeKey, ready }) {
   const confirmRejectReason = entry.toolStatus === "error" ? parseToolConfirmRejectReason(entry.toolResult) : undefined;
   const executionRejected = inputRejected || !!confirmRejectReason;
   const snapshotFinal = designTaskFinal(snapshot);
-  // 入口上的字段是 `toolCallId`（时间线归并时从 part 的 `callID` 换名而来）。
-  // 读错字段的后果不是"少一次请求"，是**查询整个不打开**：`useDesignTask` 的 enabled
-  // 要求 `taskId || callID`，两者都拿不到时卡片只能靠推送更新，轮询一次都不发。
-  const observed = useDesignTask(scopeKey, ready, input.operation, designTaskCallId(entry), taskId, snapshotFinal, executionRejected);
+  // 入口上的 `callID` 由时间线归并写入（4.0.4 同时写 `callID` 与 `toolCallId`，见
+  // `media-editing/merge-into-timeline-entries.js`）。它是 `useDesignTask` 打开查询的必要
+  // 条件之一（`taskId || callID`）；拿不到就只剩推送更新，轮询一次都不发。
+  const observed = useDesignTask(scopeKey, ready, input.operation, entry.callID, taskId, snapshotFinal, executionRejected);
   const observedRevision = observed.data?.revision ?? -1;
   const snapshotRevision = typeof snapshot?.revision === "number" ? snapshot.revision : -1;
   const task = observed.data && (snapshotFinal ? observedRevision > snapshotRevision : observedRevision >= snapshotRevision) ? observed.data : snapshot;

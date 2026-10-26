@@ -95,17 +95,3 @@ export function isDesignDeliveryComplete(value, task = false) {
   return !Array.isArray(delivery.placements) || delivery.placements.every((item) => record(item)?.status === "applied");
 }
 
-/**
- * 卡片要用的**工具调用 id**。
- *
- * 入口对象上的字段名是 `toolCallId`（见 `media-editing/merge-into-timeline-entries.js`
- * 的 `toolCallId: toolMsg.callID`），不是 `callID`。这里原来直接读 `entry.callID`，
- * 而入口上根本没有这个字段 —— 于是 `useDesignTask` 的 `enabled`（要求 `taskId || callID`）
- * 永远为假，查询**从来没被打开**：卡片上的状态更新全部来自推送，3 s/15 s 轮询一次都不发。
- *
- * 保留 `callID` 兜底是为了兼容直接构造入口的调用方（测试、外部渲染）。
- */
-export function designTaskCallId(entry) {
-  const id = entry?.toolCallId ?? entry?.callID;
-  return typeof id === "string" && id.trim() !== "" ? id : undefined;
-}

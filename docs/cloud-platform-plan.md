@@ -645,3 +645,28 @@ OV_PLATFORM_KEY=… node scripts/smoke/platform-online.mjs
    两种都会改到工具栏（门禁会拍），未动。
 
 3. **V-1（seedvr2 实际交付分辨率）**：按负责人决定暂不跑。
+
+### 6.4 返工第三轮（2026-10-26）
+
+**已完成**
+
+| 项 | 结论 |
+|---|---|
+| 时间线归并升到 4.0.4 | 补 `callID`（与 `toolCallId` 并存）、design 工具失败态、`getToolLabelId`/`categorizeToolAction` 的第二参数；`designToolPresentation` / `hasDesignToolProblem` / `isDesignToolInterrupted` 抽到 `chat/design-tool-state.js`（原来 message-turn 与 sub-agent-group 各一份）；删掉 `designTaskCallId`，卡片回到参照写法读 `entry.callID` |
+| MCP 服务名 | `config.ts` 改为把命令注入 profile 声明的那个 local 服务（v3=`design`、v2=`hub`，未声明退回 `hub`）；`HILO_PROJECT_ARCHITECTURE` 由 profile 自带，删掉从进程环境转发 |
+| `design_*` 的调用 id | 插件原来只给 `hub_` 注入 `_session_id`/`_tool_use_id`，v3 工具名是 `design_*` → 网关缺 `x-tool-use-id` → `Invalid requestId`。已改为两族都注入 |
+| 视频超分 2K → 1080P | 名称/按钮/提示（中英 i18n）、弹层目标档位、计价档位、gateway 的 DTO 与默认值、e2e 断言全部改为 1080P；写进 `intentional-differences.md` 与 `ov-changes.md` |
+
+**未完成**
+
+- **图片超分"没模型就隐藏入口"**：没做。链路已核实（画布"高清"→ `/api/edit/enhance-image`
+  → `image-edit.service.ts` 的 `enhanceImage` → `models.image_upscale`，`mediakit_enhance`
+  只是计价 id）。入口清单：`media-editing/image-node-toolbar-section.jsx` 的
+  `IMAGE_TOOLBAR_TOOLS` / 固定项 / 溢出菜单（`"super-resolution"`，`handlers` 里
+  `handleSuperResolution`），画布 v1 的 `canvas/canvas-area.jsx`（1583 起的
+  `handleSuperResolution`、3316 起的 `handlePluginSuperResolution`），以及 canvas-v3 的
+  `superResolution` 工具（`generate_image:super_resolution`）。
+  **缺的是数据源**：`models.image_upscale` 目前只有设置页通过 `platformService.get()`（IPC）
+  能看到，画布拿不到。要落这个改动需要先定：给画布加一个基于同一 IPC 的 hook（工具栏会变，
+  门禁会拍），还是在现有模型配置接口里加一个布尔字段。
+- **V-2 的 3 s/15 s**：仍未实测（见 `docs/design-execute-card-status.md` 的 T-2 第四轮）。

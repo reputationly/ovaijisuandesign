@@ -99,11 +99,22 @@ baseUrl `https://maas.ovaijisuan.com/v1`）：
 
 **补测结论（2026-10-26，两轮）**：
 
-**① callID 确实在链路上丢了 —— 产品 bug，已修。** 入口对象上的字段名是
-`toolCallId`（`media-editing/merge-into-timeline-entries.js` 的 `toolCallId: toolMsg.callID`），
-而卡片读的是 `entry.callID`。修法：新增 `designTaskCallId(entry)`（`design-input.js`，
-优先 `toolCallId`、兼容 `callID`），卡片改用它；用例在
-`design-input.test.ts`（4 条）。修完诊断日志里 `callID` 从 `null` 变成 `"tool-online"`。
+**① callID 丢了 —— 产品 bug，根因是归并函数落后 4.0.4。** 参照 4.0.4
+（主包 `mermaid-GHXKKRXX-DuPXfUYG.js`，`toolCallId: toolMsg.callID` 附近）在时间线归并时
+**同时写 `callID` 和 `toolCallId`**，还会把 design 工具的失败态标成 `error`；我们的
+`media-editing/merge-into-timeline-entries.js` 停在 4.0.3 的写法：只写 `toolCallId`，
+也没有 design 失败判断。卡片照参照读 `entry.callID` → 永远 undefined → `useDesignTask`
+的 `enabled`（`taskId || callID`）为假 → 查询根本没打开。
+
+修法：把归并那段升到 4.0.4（补 `callID`、补 design 失败态、`getToolLabelId` /
+`categorizeToolAction` 补上第二个参数），删掉上一轮临时加的 `designTaskCallId`。
+用例：`chat/design-tool-state.test.ts`（7 条，判定逻辑）+ `media-editing/merge-tool-entry.test.ts`
+（4 条，字段与失败态）。
+
+> **更正上一轮的说法**：写过"参照 4.0.4 里没有这张卡片、是自研的"——**错**。那次的搜索只看
+> 了文件名带 `index` 的包；相关代码在主包 `mermaid-GHXKKRXX-DuPXfUYG.js` 里
+> （`design-execute-task` 出现 11 次，`LIVE_POLL_MS = 3e3` 约在第 20607556 字节）。
+> 以后搜参照要搜整个 `assets` 目录。
 
 **② 仍然没测到 3 s / 15 s，但原因换成了"窗口不可见"。** 夹具一直带
 `OV_DEV_HIDDEN_WINDOW=1`（逐屏截图用），隐藏窗口在 Chromium 里等于页面被遮挡，React Query
@@ -111,18 +122,18 @@ baseUrl `https://maas.ovaijisuan.com/v1`）：
 `launch-app.mjs` 新增 `showWindow` 选项；打开后单次运行超时（未拿到结论），**因此 3 s/15 s
 至今没有在"运行中 + 窗口可见"下拿到实测值**。
 
-**③ 真实会话没跑成，卡在工具面。** 两次尝试（`--real-session`：对话真、生成假 60 s）：
+**③ 真实会话没跑成，卡在工具面（原因已查清并修）。** 两次尝试（`--real-session`：对话真、生成假 60 s）：
 - 第一次没设 `HILO_PROJECT_ARCHITECTURE`，agent 的推理里写"没有 design_execute 这个工具"，
   走了 `hub_*` 老路径并弹了画幅问题；
 - 第二次设了，但 agent 说 design 系列工具不可用、改用 `bash` 找 CLI。
 
-查代码：v3 工具面按 `HILO_PROJECT_ARCHITECTURE=resource_v3` 注册（`mcp-tools/src/tools/index.ts`），
-而桌面端拼 MCP 环境时**没转发这个变量**（`opencode/index.ts`）—— 已修并加用例
-（`buildMcpEnvironment`）。修完仍有第二层问题：**v3 工具注册的是裸名**（`execute`、
-`task_query`，与参照 `tools/list` 逐字一致、`v3-spec.test.ts` 钉着），而 v3 的 agent profile
-（`base.json` 的 media-agent）和部分工具描述用的是 `design_execute` 这类**带前缀**的名字。
-两层对不上 → 模型会被告知一个不存在的工具名。这一层是**待定项**（改注册名会破坏与参照的逐字
-一致；改 profile 要动 agent 配置），没有在这轮擅自改。
+真正的原因在 **MCP 服务名**：`desktop/src/main/opencode/config.ts` 把启动命令和环境变量
+**永远写进 `config.mcp.hub`**，而 v3 的 profile 声明的服务叫 `design`。于是在 v3 下：
+`design` 只剩 profile 里那条相对路径命令（起不来，`design_*` 一个都没有），真正的命令挂进一个
+多出来的 `hub` 服务（注册成 `hub_*`）。修法：注入到 profile 声明的那个 local 服务上
+（v3=`design`、v2=`hub`，没声明时退回 `hub`），profile 自带的 environment 在前、我们的在后。
+`HILO_PROJECT_ARCHITECTURE` 由 profile 自带（`mcp.design.environment`），不需要从进程环境转发。
+用例：`opencode.test.ts` 的"MCP 服务的注入位置"（v3 只有 `mcp.design`、v2 只有 `mcp.hub`）。
 
 **旧结论（保留一句）**：在这之前的一版里我写过"卡片靠推送驱动、3 s/15 s 只在拿不到 taskId
 时才生效"—— 那句是错的：`useDesignTask` 的 `enabled` 要求 `taskId || callID`，两者都有时
@@ -354,3 +365,34 @@ online.png`）左下角就是这条工具条，文字是「画布 / 列表」—
 已改为 `{media2}`，并移除任务卡片 footer 的 `pt-2` 临时补丁；失败状态 DOM 坐标仍为
 `errorY=164.5`、`offlineY=194.5`，与参照一致。`TAG_I18N_KEYS` 的重复 `size` 改为
 `image_quality` + `size`。
+
+### T-2 第四轮（2026-10-26）：工具链打通，但 3 s/15 s 仍未实测
+
+**① callID 的根因改判（上一轮的解释不完整）**：不是"我们自研、参照没有"，而是归并函数
+停在 4.0.3。参照 4.0.4 同时写 `callID` 与 `toolCallId`，还会把 design 工具的失败态标成
+`error`。已按参照补齐（含 `getToolLabelId` / `categorizeToolAction` 的第二个参数），
+删掉临时方案 `designTaskCallId`。证据：`chat/design-tool-state.test.ts` 7 条、
+`media-editing/merge-tool-entry.test.ts` 4 条。
+
+**② 真会话：agent 终于能调 `design_execute` 了，但被网关拒了。**
+`desktop/src/main/opencode/config.ts` 原来**永远把 MCP 命令写进 `config.mcp.hub`**，而 v3 的
+profile 声明的是 `design` —— v3 下 `design_*` 工具一个都不存在。改成"注入到 profile 声明的
+那个 local 服务"（v3=`design`、v2=`hub`，没声明退回 `hub`）后，真会话里 agent **确实调用了**
+`design_execute`（opencode 库里有 `"tool":"design_execute"`、`callID` 形如
+`chatcmpl-tool-9261f96d632cdf9f`）。
+
+**③ 新的拦路虎：`x-tool-use-id` 没注入。** 网关对 agent 调用要求 `x-tool-use-id` 头，
+它由插件从 `_tool_use_id` 参数注入；而插件的注入条件是 `tool.startsWith("hub_")` ——
+v3 的工具叫 `design_*`，直接 return。于是 `/api/v3/execute` 一律 400
+`INVALID_ARGUMENT — Invalid requestId`（真会话里 agent 连试 5 次全被拒）。已修
+（`opencode-plugin-hilo` 同时认 `hub_` / `design_` 前缀），用例
+`plugin.test.ts` 的"design 工具也要注入会话与调用 id"。
+
+**④ 3 s/15 s 仍未实测。** 两次真会话预算都花在 ②③ 的排查上（第二次跑的还是**旧插件包**：
+`build-resources` 里那份重打包的 dist 没跟着源码更新，是我漏了构建顺序）。种子夹具这边：
+窗口可见时（`showWindow`、`visibilityState=visible`、`hasFocus=true`）卡片仍然只发 1 次
+查询；给卡片加临时探针（已删）想看 interval 求值与挂载/卸载时，可见窗口的两次运行都在
+400～700 秒内没跑完（隐藏窗口时正常结束），怀疑可见窗口下有别的东西在挡，尚未定位。
+
+**⑤ 隐藏窗口不轮询**仍然是事实，但那是测试环境限制：参照同样用
+`refetchIntervalInBackground: false`，后台不轮询。

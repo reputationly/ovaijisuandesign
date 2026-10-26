@@ -46,6 +46,15 @@ import {
 } from "./working-language.js";
 
 const HUB_TOOL_PREFIX = "hub_";
+/**
+ * v3 工具面的前缀。opencode 把 MCP 工具注册成 `<服务名>_<工具名>`，v3 profile 声明的服务是
+ * `design`，于是工具叫 `design_execute` / `design_task_query` ……
+ *
+ * 这里原来只认 `hub_`，v3 会话下 `_session_id` / `_tool_use_id` / `_group_id` 一个都注入不进去，
+ * MCP 调到网关时缺 `x-tool-use-id`，`/api/v3/execute` 直接 400「Invalid requestId」——
+ * 界面上表现为"agent 调了 design_execute、每次都被拒"。
+ */
+const DESIGN_TOOL_PREFIX = "design_";
 const HUB_MEMORY_TOOL = "hub_memory";
 const HUB_BROWSER_TOOL = "hub_browser";
 const HUB_PLAN_TOOL_PREFIX = "hub_plan_";
@@ -309,7 +318,7 @@ const plugin: Plugin = async (input) => {
         }
       }
 
-      if (!inp.tool.startsWith(HUB_TOOL_PREFIX)) return;
+      if (!inp.tool.startsWith(HUB_TOOL_PREFIX) && !inp.tool.startsWith(DESIGN_TOOL_PREFIX)) return;
       if (!out.args || typeof out.args !== "object") out.args = {};
       const args = out.args as Record<string, unknown>;
       // 计划永远写在当前工作区；记忆允许模型显式指到别的项目。

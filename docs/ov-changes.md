@@ -240,3 +240,10 @@
   （new-api `15c44089f`），因为没有模型时那层预留只会让管理员配出一条调不通的目录项。
 - **验证方式**：`app/gateway/src/generate/media-edit.e2e.test.ts` 钉住 503 + 错误码。
 - **登记**：`docs/intentional-differences.md` 四·补六。
+
+## 视频超分：2K → 1080P（2026-10-26）
+
+平台超分只剩 seedvr2（swiftvr 已下线），而 seedvr2 按部署档位出片（约 1920×1104），
+2K/4K 兑现不了。所以把"H3 2K 超分"这一档的名称、按钮文案、提示文案、计价档位，
+以及发给平台的 `resolution` 全部改成 `1080P`。参照可以选 2K/4K，我们只有一档 ——
+详见 `docs/intentional-differences.md`。**分辨率按 new-api 的代码注释推断，未实测。**

@@ -3,6 +3,10 @@ import { configuredLabelIds } from "../settings/request-prompt-prefill.jsx";
 import { getBuiltInToolLabelId } from "../media-editing/tool-name-to-label-id.js";
 import { GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT } from "../infra/generation-errors.js";
 import { getFileActivityKind } from "./media-tool-result.js";
+import { connectorSkillLoadName } from "../media-editing/connector-skill-label.js";
+import { DESIGN_KINDS, isDesignExecute } from "./design-execute/design-kinds.js";
+import { designInput } from "./design-execute/design-input.js";
+import { designToolPresentation } from "./design-tool-state.js";
 import { TOOL_ABORTED_BY_USER_TEXT } from "../canvas/diagnostic-history-tools.js";
 import {
   ErrorCodes,
@@ -21,7 +25,19 @@ function getConfiguredToolLabelId(toolName) {
     patterns.some((pattern) => pattern.test(toolName)),
   )?.label;
 }
-export function getToolLabelId(toolName) {
+/**
+ * 工具在活动流里该归到哪个 label（4.0.4）。
+ *
+ * **第二个参数不是可选的装饰**：`design_*` 工具的呈现由 `designToolPresentation` 决定
+ * （它要看 toolArgs 才能判 hidden/transient/fileOp），skill 加载还要单独识别。我们原来
+ * 只看名字，design 工具全落到 `"silent"` —— 归并时被整条丢掉，卡片根本不出现。
+ */
+export function getToolLabelId(toolName, message = {}) {
+  if (connectorSkillLoadName(toolName, message.toolArgs)) return "skillOp";
+  const design = designToolPresentation(toolName, message);
+  if (design) {
+    return design.visibility === "hidden" ? "silent" : design.visibility === "transient" ? "transient" : "fileOp";
+  }
   if (!toolName) return "silent";
   const builtIn = getBuiltInToolLabelId(toolName);
   if (builtIn) return builtIn;
@@ -285,7 +301,14 @@ function refineCategory(toolName, base) {
   if (toolName === "bash") return "execute";
   return getFileActivityKind(toolName) ?? "read";
 }
-export function categorizeToolAction(toolName) {
+/** 活动流里的分类。design_execute 按**入参的能力**分（一张图/一段视频不该同类）。 */
+export function categorizeToolAction(toolName, toolArgs) {
+  if (isDesignExecute(toolName)) {
+    const { kind } = designInput(toolArgs);
+    return kind ? DESIGN_KINDS[kind].category : "other";
+  }
+  if (connectorSkillLoadName(toolName, toolArgs)) return "skillOp";
+  if (designToolPresentation(toolName, { toolArgs })) return "other";
   const labelId = getToolLabelId(toolName);
   return refineCategory(toolName, LABEL_TO_CATEGORY[labelId]);
 }

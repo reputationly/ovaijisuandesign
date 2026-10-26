@@ -89,11 +89,28 @@ export function buildOpencodeConfig(i: BuildInputs): Record<string, any> {
   config.compaction ??= { auto: true, prune: true, reserved: 40_000 };
   config.skills = { ...(config.skills ?? {}), paths: i.skillsPaths };
 
-  const hub = { ...(config.mcp?.hub ?? {}) };
-  hub.type = "local";
-  hub.command = i.mcp.command;
-  hub.environment = { ...(hub.environment ?? {}), ...i.mcp.environment };
-  config.mcp = { ...(config.mcp ?? {}), hub };
+  // **把启动命令注入到 profile 声明的那个 MCP 服务上。**
+  //
+  // v3 的 profile 声明的是 `design`（`agent-profiles/v3/config/base.json`），v2 是 `hub`。
+  // 原来无条件写 `config.mcp.hub`，v3 下就变成：`design` 只剩 profile 里那条
+  // `../mcp-tools-v3/dist/main.js` 相对路径（根本起不来，`design_*` 一个都没有），
+  // 真正的命令进了一个多出来的 `hub` 服务（注册成 `hub_*`）。agent 因此永远看不到
+  // `design_execute`。
+  //
+  // profile 里只有一个 local 服务时就用它；没声明时退回 `hub`（保持老行为）。
+  const declared = Object.entries(config.mcp ?? {}).filter(
+    ([, entry]) => (entry as { type?: string } | undefined)?.type === "local",
+  );
+  const name = declared.length === 1 ? (declared[0]?.[0] ?? "hub") : "hub";
+  const service = { ...((config.mcp?.[name] as Record<string, unknown>) ?? {}) };
+  service.type = "local";
+  service.command = i.mcp.command;
+  // profile 自带的 environment 在前，我们的在后（要覆盖 GATEWAY_URL 等）。
+  service.environment = {
+    ...((service.environment as Record<string, string> | undefined) ?? {}),
+    ...i.mcp.environment,
+  };
+  config.mcp = { ...(config.mcp ?? {}), [name]: service };
 
   const plugins: string[] = (Array.isArray(config.plugin) ? config.plugin : [])
     .filter((p: unknown): p is string => typeof p === "string")

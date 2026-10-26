@@ -400,3 +400,17 @@ v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation
 |---|---|---|---|
 | `home-sidebar.connectors-release-badge` 在我方出现、参照基线没有 | 侧栏 | **门禁状态不对称**：徽标配置三处一致，是否显示只取决于 `global.dismissedCoachMarks`；4.0.4 基线在首页之后不再有该标记，我方逐屏清标记后又出现。已按实际出现差异的屏登记，不再放 `*`。 | `scripts/ui-compare/expected-diffs.json` 各屏 `dom.oursOnly` |
 | `task_subscribe` / `task_unsubscribe` | — | 已实现 `DesignExecuteCard` + `useDesignTaskPush`，不再登记。卡片产出/参考图有简化分支，见 `docs/design-execute-card-status.md`。 | — |
+
+## 视频超分只有一档，标 1080P（2026-10-26）
+
+- **参照**：视频节点工具栏的"H3 2K 超分"，弹层里可以选 2K/4K，文案写"超分至2K"。
+- **我们**：只有一档，标 1080P；发给平台的 `resolution` 也是 `1080P`。
+- **原因**：平台的超分只有 `seedvr2`（`swiftvr` 已下线）。`seedvr2` 不读请求里的尺寸，
+  按部署配置出片，**现网部署各档都是 1920×1080、缺 resize_mode 时实际出 1920×1104**
+  （依据 `new-api` 的 `service/aggregate_pipeline.go` 第 283～291 行注释）。所以要 2K/4K
+  也没有引擎能兑现，保留档位就是在界面上承诺交付不了的东西。
+- **未实测**：上面的分辨率是**按代码注释推断**的，本轮没有跑 V-1（负责人决定暂不跑）。
+- 涉及：`i18n` 的中英文文案（`canvas.hailuo03SuperResolution.*`）、
+  `media-editing/hailuo03-super-resolution-popover.jsx` 的目标档位、
+  `media-editing/video-tool-meta.jsx` 的计价档位、gateway 的
+  `Hailuo03VideoSuperResolutionDto.resolution` 与默认值。

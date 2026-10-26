@@ -256,7 +256,8 @@ export const VIDEO_TOOL_PRICING = {
   "hailuo03-super-resolution": {
     kind: "tool",
     modelId: "h3_video_super_resolution",
-    resolution: "2K",
+    // 只交付 1080P（seedvr2 按部署档位出片），计价也按这一档取，不要报 2K 的价。
+    resolution: "1080P",
   },
 };
 function resolveVideoEditCost(pricingConfig, tool, sourceDurationSec) {

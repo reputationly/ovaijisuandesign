@@ -1504,15 +1504,15 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "canvas.groupColor.yellow": "Yellow",
   "canvas.groupCount": "Group of {{count}} items",
   "canvas.hailuo03SuperResolution.cancel": "Cancel",
-  "canvas.hailuo03SuperResolution.label": "H3 2K Upscale",
+  "canvas.hailuo03SuperResolution.label": "H3 1080P Upscale",
   "canvas.hailuo03SuperResolution.nativeBadge": "H3 native upscale",
   "canvas.hailuo03SuperResolution.resolutionLabel": "Resolution",
   "canvas.hailuo03SuperResolution.submit": "Run",
-  "canvas.hailuo03SuperResolution.title": "H3 2K Upscale",
+  "canvas.hailuo03SuperResolution.title": "H3 1080P Upscale",
   "canvas.hailuo03SuperResolution.tooltip":
-    "Upscale to 2K for higher resolution plus better image quality and detail. {{rate}} credits/sec",
+    "Upscale to 1080P for higher resolution plus better image quality and detail. {{rate}} credits/sec",
   "canvas.hailuo03SuperResolution.tooltipEligibility":
-    "Upscale to 2K for higher resolution plus better image quality and detail.",
+    "Upscale to 1080P for higher resolution plus better image quality and detail.",
   "canvas.hailuo03Trial.claim": "Claim free chances",
   "canvas.hailuo03Trial.claimFailed":
     "Unable to claim free chances. Please try again later.",

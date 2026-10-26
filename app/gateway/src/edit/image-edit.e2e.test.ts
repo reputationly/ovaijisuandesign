@@ -182,13 +182,13 @@ describe("画布图片编辑（假平台）", () => {
     expect(app.get(AssetsService).byPath("sr-x.png")).toBeUndefined();
   });
 
-  it.skipIf(!HAS_FFMPEG)("视频高清：走视频超分模型（task_type=sr, 2K）", async () => {
+  it.skipIf(!HAS_FFMPEG)("视频高清：走视频超分模型（task_type=sr, 1080P）", async () => {
     const mp4 = path.join(ws, "clip.mp4");
     spawnSync(process.env.FFMPEG_PATH || "ffmpeg", ["-y", "-v", "error", "-f", "lavfi", "-i", "testsrc=size=160x120:rate=10:duration=1", "-pix_fmt", "yuv420p", mp4]);
     platform.setVideo(readFileSync(mp4));
-    const r = await http.post("/api/edit/hailuo03-video-super-resolution").send({ video_path: "clip.mp4", provider_task_id: "t-1", resolution: "2K", filename: "vsr-x" });
+    const r = await http.post("/api/edit/hailuo03-video-super-resolution").send({ video_path: "clip.mp4", provider_task_id: "t-1", resolution: "1080P", filename: "vsr-x" });
     expect(r.body).toMatchObject({ ok: true, path: "vsr-x.mp4", width: 160, height: 120 });
-    expect(platform.videoJobs.at(-1)).toMatchObject({ model: "swiftvr", metadata: { task_type: "sr", resolution: "2K" } });
+    expect(platform.videoJobs.at(-1)).toMatchObject({ model: "swiftvr", metadata: { task_type: "sr", resolution: "1080P" } });
     expect((await http.post("/api/edit/hailuo03-video-super-resolution").send({ video_path: "clip.mp4", filename: "x" })).status).toBe(400);
   });
 

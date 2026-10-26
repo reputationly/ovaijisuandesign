@@ -1,4 +1,5 @@
 // ==== 逐文件收敛 ====
+import { designToolPresentation, hasDesignToolProblem } from "./design-tool-state.js";
 import { readDesignJson } from "./read-design-json.js";
 import { record } from "../infra/parse-connector-selection.js";
 // sub-agent-group.jsx
@@ -111,81 +112,6 @@ import { TOOLS as TOOLS } from "./tools.jsx";
 import { TOOL_ABORTED_BY_USER_TEXT as TOOL_ABORTED_BY_USER_TEXT } from "../canvas/diagnostic-history-tools.js";
 import { CollapsiblePresence } from "../media-editing/collapsible-presence.js";
 // 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-function isDesignToolInterrupted(message2) {
-  return Boolean(
-    message2.interruption === "aborted" || message2.toolResult?.includes(TOOL_ABORTED_BY_USER_TEXT) || message2.toolResult?.includes("interrupted before completion")
-  );
-}
-
-// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-function hasDesignToolProblem(message2) {
-  if (isDesignToolInterrupted(message2)) return false;
-  if (message2.toolStatus === "error") return true;
-  const result = readDesignJson(message2.toolResult);
-  const task2 = record(result?.task);
-  const delivery = record(result?.delivery);
-  return Boolean(
-    result?.isError || result?.error || result?.placementProblem || records(result?.queries ?? result?.results ?? result?.items).some((item) => item.error) || ["failed", "blocked", "unknown", "waiting_user"].includes(
-      String(task2?.status ?? delivery?.status)
-    )
-  );
-}
-
-// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-function records(value) {
-  return Array.isArray(value) ? value.flatMap((item) => {
-    const parsed = record(item);
-    return parsed ? [parsed] : [];
-  }) : [];
-}
-
-// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-
-// 产物里这组声明在还原时丢了（构建不报错、运行时才炸）。来源：index-BBp4hclA.js
-function designToolPresentation(name2, message2 = {}) {
-  if (!name2 || !Object.hasOwn(TOOLS, name2)) return void 0;
-  if (connectorSkillLoadName(name2, message2.toolArgs)) return void 0;
-  let presentation = TOOLS[name2];
-  const args = readDesignJson(message2.toolArgs);
-  if (name2 === "design_memory") {
-    // 4.0.4：memory 合并了 project_rules；只有写操作值得在会话里留一条
-    presentation = {
-      visibility:
-        args?.action === "save" || args?.action === "write" || args?.action === "delete"
-          ? "persistent"
-          : "hidden",
-      label: args?.target === "project_rules" ? "rules" : "memory",
-    };
-  } else if (name2 === "design_document_write" && (args?.mode === "replace" || args?.mode === "patch")) {
-    presentation = {
-      visibility: "persistent",
-      label: args.disposition === "candidate" ? "documentCandidate" : "documentUpdate"
-    };
-  } else if (name2 === "design_deliver" && records(args?.sources).some((source) => typeof source.path === "string")) {
-    presentation = { visibility: "persistent", label: "import" };
-  } else if (name2 === "design_composition_edit") {
-    const commands = args?.action === "batch" ? records(args.commands) : args ? [args] : [];
-    if (commands.some((command2) => typeof command2.action === "string")) {
-      presentation = { visibility: "persistent", label: "organize" };
-    }
-  } else if (name2 === "design_resource_edit") {
-    const commands = args?.action === "batch" ? records(args.commands) : args ? [args] : [];
-    presentation = {
-      visibility: "persistent",
-      label: commands.some((command2) => command2.action === "adopt") ? "version" : "metadata"
-    };
-  }
-  if (hasDesignToolProblem(message2) && ![
-    "design_read",
-    "design_composition_type_list",
-    "design_capability_list",
-    "design_capability_get",
-    "design_select_image_recipe"
-  ].includes(name2))
-    return { ...presentation, visibility: "persistent" };
-  return presentation;
-}
-
 function useIsChildRecovering(childSessionId) {
   const recovering = reactExports.useContext(RecoveringChildrenContext);
   return childSessionId ? recovering.has(childSessionId) : false;

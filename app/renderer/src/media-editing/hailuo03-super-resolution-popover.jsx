@@ -21,7 +21,9 @@ import {
   SelectItem,
   SelectTrigger,
 } from "../generation/select-content.jsx";
-const H3_TARGET_RESOLUTION = "2K";
+// 平台只有 seedvr2，它按部署档位出片（约 1920×1104）——要 2K 得换 SwiftVR，而 SwiftVR 已下线。
+// 所以这里只保留一档，并且如实标 1080P。
+const H3_TARGET_RESOLUTION = "1080P";
 export const Hailuo03SuperResolutionPopover = reactExports.memo(
   function Hailuo03SuperResolutionPopover({
     onSubmit,

@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -8,7 +9,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.setConfig({ testTimeout: 60_000 });
 
 import { buildOpencodeConfig, fileUrl } from "./config.js";
-import { buildMcpEnvironment, locateProfile, mergeSkillDirs } from "./index.js";
+import { locateProfile, mergeSkillDirs } from "./index.js";
 import { assertProfileComplete, deepMerge, parseFrontmatter, STAGING_MARKER, stageProfile, syncProfile } from "./profile.js";
 
 function write(p: string, s: string) {
@@ -175,43 +176,37 @@ describe("config", () => {
   });
 });
 
-// v3 架构下 agent 必须能看到 v3 那套工具（`design_execute` 等）。MCP server 是靠环境变量
-// 决定注册哪套工具的，桌面端不转发的话会"选了 v3 profile、发的是 v2 工具"，真会话里
-// agent 只会说"没有 design_execute 这个工具"。
-describe("MCP server 的环境", () => {
-  const base = { gatewayUrl: "http://127.0.0.1:1", skillsDir: "/skills", identity: { HILO_WORKSPACE_CLAIM: "c" } };
-
-  it("v3 架构要转发 HILO_PROJECT_ARCHITECTURE", () => {
-    const previous = process.env.HILO_PROJECT_ARCHITECTURE;
-    process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
-    try {
-      const env = buildMcpEnvironment(base, { synced: "/synced" });
-      expect(env.HILO_PROJECT_ARCHITECTURE).toBe("resource_v3");
-    } finally {
-      if (previous === undefined) delete process.env.HILO_PROJECT_ARCHITECTURE;
-      else process.env.HILO_PROJECT_ARCHITECTURE = previous;
-    }
+// MCP 启动命令要注入到 **profile 声明的那个服务** 上。
+//
+// v3 的 profile 声明 `mcp.design`（命令是相对路径 `../mcp-tools-v3/dist/main.js`，起不来），
+// v2 声明 `mcp.hub`。原来无条件写 `config.mcp.hub`：v3 下 `design` 起不来、`design_*` 工具
+// 一个都没有，真正的命令却挂在一个多出来的 `hub` 服务上 —— agent 永远看不到
+// `design_execute`（真会话里就是这么卡住的）。
+describe("MCP 服务的注入位置", () => {
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
+  const inputs = (profileDir: string) => ({
+    profileDir,
+    region: "domestic" as const,
+    platform: { base_url: "http://127.0.0.1:9/v1", api_key: "k", chat_model: "" } as never,
+    mcp: { command: ["node", "/opt/mcp/main.js"], environment: { GATEWAY_URL: "http://127.0.0.1:8100" } },
+    extraPlugins: [] as string[],
+    skillsPaths: [] as string[],
   });
 
-  it("没设就不塞空值（v2 是默认，不需要这个键）", () => {
-    const previous = process.env.HILO_PROJECT_ARCHITECTURE;
-    delete process.env.HILO_PROJECT_ARCHITECTURE;
-    try {
-      expect(buildMcpEnvironment(base, { synced: "/synced" })).not.toHaveProperty("HILO_PROJECT_ARCHITECTURE");
-    } finally {
-      if (previous !== undefined) process.env.HILO_PROJECT_ARCHITECTURE = previous;
-    }
-  });
-
-  it("其余环境照旧：网关地址、知识库/工作流目录、工作区身份", () => {
-    const env = buildMcpEnvironment(base, { synced: "/synced" });
-    expect(env).toMatchObject({
-      ELECTRON_RUN_AS_NODE: "1",
-      GATEWAY_URL: "http://127.0.0.1:1",
-      SKILLS_DIR: "/skills",
-      HILO_KNOWLEDGE_DIR: "/synced/knowledge",
-      HILO_WORKFLOWS_DIR: "/synced/workflows",
-      HILO_WORKSPACE_CLAIM: "c",
+  it("v3 profile：命令进 mcp.design，架构开关来自 profile，不再多出一个 hub", () => {
+    const cfg = buildOpencodeConfig(inputs(path.join(repoRoot, "assets/agent-profiles/v3/config")) as never);
+    expect(cfg.mcp.design.command).toEqual(["node", "/opt/mcp/main.js"]);
+    expect(cfg.mcp.design.environment).toMatchObject({
+      GATEWAY_URL: "http://127.0.0.1:8100",
+      HILO_PROJECT_ARCHITECTURE: "resource_v3",
     });
+    expect(cfg.mcp.hub).toBeUndefined();
+  });
+
+  it("v2 profile：命令进 mcp.hub，没有 design 服务", () => {
+    const cfg = buildOpencodeConfig(inputs(path.join(repoRoot, "assets/agent-profiles/v2/config")) as never);
+    expect(cfg.mcp.hub.command).toEqual(["node", "/opt/mcp/main.js"]);
+    expect(cfg.mcp.hub.environment.GATEWAY_URL).toBe("http://127.0.0.1:8100");
+    expect(cfg.mcp.design).toBeUndefined();
   });
 });

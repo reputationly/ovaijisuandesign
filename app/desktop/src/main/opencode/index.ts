@@ -166,10 +166,9 @@ const stagedDirs = new Set<string>();
 /**
  * MCP server 的环境。
  *
- * **`HILO_PROJECT_ARCHITECTURE` 必须转发。** MCP server 按它决定注册哪套工具
- * （`mcp-tools/src/tools/index.ts` 的 `isV3ToolMode`）：不转发的话，桌面端选了 v3 的
- * agent profile、工具面却还是 v2 的 —— agent 拿不到 `design_execute`，真会话里它会直接说
- * "没有这个工具"，然后走旧的 hub_* 生成卡。
+ * 架构开关（`HILO_PROJECT_ARCHITECTURE`）**不在这里给**：它由 profile 自带
+ * （`agent-profiles/v3/config/base.json` 的 `mcp.design.environment`），profile 是唯一来源。
+ * 这里只负责网关地址、目录和工作区身份。
  */
 export function buildMcpEnvironment(
   i: Pick<PrepareInputs, "gatewayUrl" | "skillsDir" | "identity">,
@@ -178,7 +177,6 @@ export function buildMcpEnvironment(
   return {
     ELECTRON_RUN_AS_NODE: "1",
     GATEWAY_URL: i.gatewayUrl,
-    ...(process.env.HILO_PROJECT_ARCHITECTURE ? { HILO_PROJECT_ARCHITECTURE: process.env.HILO_PROJECT_ARCHITECTURE } : {}),
     ...(process.env.HILO_AGENT_CALLER_KEY ? { HILO_AGENT_CALLER_KEY: process.env.HILO_AGENT_CALLER_KEY } : {}),
     SKILLS_DIR: paths.skillsDir ?? i.skillsDir,
     HILO_KNOWLEDGE_DIR: path.join(paths.synced, "knowledge"),
