@@ -138,10 +138,27 @@ describe("生成（假平台）", () => {
     // 用兜底表补上。目录可用时以目录为准，见 `media-config.service.test.ts`。
     expect(c.audioModels.map((m: any) => m.id)).toEqual(["indextts-2.5", "minimax-music3", "ace-step"]);
     expect(c.defaultTextModelId).toBe("chat");
+    // 图片超分的开关跟着 `models.image_upscale`：这个配置里没写，兜底表（B-1）也把它置空，
+    // 所以是 false —— 画布据此隐藏"高清"入口。
+    expect(c.imageUpscaleAvailable).toBe(false);
     expect((await http.get("/api/speech/voices?page_size=1000")).body).toEqual([
       expect.objectContaining({ voice_id: "narrator", sample_audio: "https://x/ref.wav" }),
     ]);
     expect((await http.get("/api/v1/models/concurrency/limits")).body).toEqual({ items: [] });
+  });
+
+  // 图片超分的入口可见性只有这一个判据：`models.image_upscale` 是否非空。
+  // 槽位填了模型名就必须变 true —— 否则平台接上引擎之后用户还是看不到入口。
+  it("图片超分可用性跟着 models.image_upscale 走", async () => {
+    expect((await http.get("/api/v1/models/config")).body.imageUpscaleAvailable).toBe(false);
+    const path = process.env.OV_CONFIG_PATH!;
+    const cfg = JSON.parse(readFileSync(path, "utf8"));
+    const original = cfg.models?.image_upscale;
+    cfg.models = { ...(cfg.models ?? {}), image_upscale: "seedvr2" };
+    writeFileSync(path, JSON.stringify(cfg));
+    expect((await http.get("/api/v1/models/config")).body.imageUpscaleAvailable).toBe(true);
+    cfg.models.image_upscale = original;
+    writeFileSync(path, JSON.stringify(cfg));
   });
 
   let imageNode = "";

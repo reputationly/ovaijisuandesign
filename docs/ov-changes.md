@@ -247,3 +247,9 @@
 2K/4K 兑现不了。所以把"H3 2K 超分"这一档的名称、按钮文案、提示文案、计价档位，
 以及发给平台的 `resolution` 全部改成 `1080P`。参照可以选 2K/4K，我们只有一档 ——
 详见 `docs/intentional-differences.md`。**分辨率按 new-api 的代码注释推断，未实测。**
+
+## 图片超分入口按槽位隐藏（2026-10-26）
+
+`models.image_upscale` 为空时，画布上的"高清"入口（图片节点工具栏的固定项、溢出菜单、
+两个画布的 handler）都不出现；填了模型名就自动回来。判据来自 `GET /api/v1/models/config`
+的新字段 `imageUpscaleAvailable`。详见 `docs/intentional-differences.md`。

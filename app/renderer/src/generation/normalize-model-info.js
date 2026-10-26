@@ -124,6 +124,29 @@ function normalizeMediaModelsResponse(value) {
   }
   return normalized;
 }
+/**
+ * 把"图片超分能不能用"挂在模型数组上（**非枚举**，不影响 map/spread/序列化）。
+ *
+ * 为什么不另开一个接口/查询：这个标志本来就来自同一份 `/api/v1/models/config`，
+ * 多一次请求只会多一个不一致的来源。判据只有 gateway 那份生效配置
+ * （含兜底表与平台目录），不能用主进程的 `platformService.get()`。
+ */
+function withImageUpscale(models, value) {
+  Object.defineProperty(models, "imageUpscaleAvailable", {
+    value: value === true,
+    enumerable: false,
+    configurable: true,
+  });
+  return models;
+}
+
+/** 画布的"高清"入口据此显示/隐藏。模型还没加载完时按"不可用"处理（不闪一下入口）。 */
+export function useImageUpscaleAvailable() {
+  const query = useMediaModels();
+  const models = query.data;
+  return Boolean(models && models.imageUpscaleAvailable === true);
+}
+
 export function useMediaModels() {
   const gatewayFetch2 = useGatewayFetch();
   const catalogScopeKey = useModelCatalogScopeKey();
@@ -148,10 +171,12 @@ export function useMediaModels() {
           (key2) => (Array.isArray(typed[key2]) ? typed[key2] : []),
         );
         if (grouped.length > 0) {
-          return normalizeMediaModelsResponse({
-            models: grouped,
-          });
+          return withImageUpscale(
+            normalizeMediaModelsResponse({ models: grouped }),
+            typed.imageUpscaleAvailable,
+          );
         }
+        return withImageUpscale(normalizeMediaModelsResponse(payload), typed.imageUpscaleAvailable);
       }
       return normalizeMediaModelsResponse(payload);
     },

@@ -3,6 +3,7 @@ import { API_PATHS } from "../infra/workspace-gateway.js";
 import { browserAssetSourceMetadata, useCurrentWorkspace } from "../infra/shared-runtime.js";
 import { CanvasNodeType } from "./canvas-geometry.js";
 import { getRuntimeConfig, useGatewayScope } from "../infra/runtime-config.js";
+import { useImageUpscaleAvailable } from "../generation/normalize-model-info.js";
 import { inferMediaKind } from "../infra/media-lineage.js";
 import { usePlatform } from "../infra/platform-context.js";
 import reactExports from "react";
@@ -1580,8 +1581,14 @@ export function CanvasArea({
     },
     [canvasGenerationErrorToastId, httpClient, translate],
   );
+  // 图片超分没有可用模型时两个入口都不干活（工具栏已经隐藏，这里是第二道）。
+  const imageUpscaleAvailable = useImageUpscaleAvailable();
   const handleSuperResolution = reactExports.useCallback(
     async (nodeId, sourceImagePath, params) => {
+      if (!imageUpscaleAvailable) {
+        dedupedToast.error(translate("canvas.superResolution.unavailable", "当前平台没有配置图片超分模型"));
+        return;
+      }
       try {
         await httpClient.enhanceImageMediaKit({
           image_path: sourceImagePath,
@@ -1612,7 +1619,7 @@ export function CanvasArea({
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, translate],
+    [canvasGenerationErrorToastId, httpClient, imageUpscaleAvailable, translate],
   );
   const handleEnhanceVideo = reactExports.useCallback(
     async (nodeId, sourceVideoPath, params) => {
@@ -3311,6 +3318,7 @@ export function CanvasArea({
   );
   const handlePluginSuperResolution = reactExports.useCallback(
     async (args) => {
+      if (!imageUpscaleAvailable) throw new Error("image upscale model is not configured");
       const imagePath = resolvePluginSourcePath(args.source);
       const multiple = (args.resolution ?? "2K") === "4K" ? 4 : 2;
       const res = await httpClient.enhanceImageMediaKit({
@@ -3367,7 +3375,7 @@ export function CanvasArea({
           : {}),
       };
     },
-    [httpClient, handleResolveFileUrl],
+    [imageUpscaleAvailable, httpClient, handleResolveFileUrl],
   );
   const handlePluginAddPlaceholderGroup = reactExports.useCallback(
     async (args) => {

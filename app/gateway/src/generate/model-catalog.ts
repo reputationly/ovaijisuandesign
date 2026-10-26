@@ -36,6 +36,14 @@ export interface ModelCatalog {
   audioModels: CatalogModel[];
   textModels: { id: string; name: string; provider: string }[];
   defaultTextModelId: string;
+  /**
+   * 图片超分能不能用：`models.image_upscale` 非空即可。
+   *
+   * 画布的"高清"入口按它显示/隐藏 —— **判据只能是 gateway 这份生效配置**
+   * （含兜底表与平台目录），不能用主进程那份（`platformService.get()`），
+   * 否则会多出一个判断来源、和实际调用不一致。
+   */
+  imageUpscaleAvailable: boolean;
 }
 
 /** 生成记录里的 backend 标记：实际都走同一个自建平台。目录里的 backend 另见 SLOT_ALIAS。 */
@@ -116,7 +124,14 @@ export function buildCatalog(cfg: MediaConfig): ModelCatalog {
 
   const chat = cfg.platform.chat_model.trim();
   const textModels = chat ? [{ id: chat, name: chat, provider: CHAT_PROVIDER_ID }] : [];
-  return { imageModels: image, videoModels: video, audioModels: audio, textModels, defaultTextModelId: textModels[0]?.id ?? "" };
+  return {
+    imageModels: image,
+    videoModels: video,
+    audioModels: audio,
+    textModels,
+    defaultTextModelId: textModels[0]?.id ?? "",
+    imageUpscaleAvailable: (m.image_upscale ?? "").trim() !== "",
+  };
 }
 
 function media(

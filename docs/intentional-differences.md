@@ -414,3 +414,18 @@ v2 的音频组件链是 `audio-node-inner.jsx` → `resolve-panorama-generation
   `media-editing/hailuo03-super-resolution-popover.jsx` 的目标档位、
   `media-editing/video-tool-meta.jsx` 的计价档位、gateway 的
   `Hailuo03VideoSuperResolutionDto.resolution` 与默认值。
+
+## 图片超分：没有模型时整条入口不出现（2026-10-26）
+
+- **判据**：gateway 生效配置里的 `models.image_upscale` 是否非空（`MediaConfigService.load()`
+  的结果，含兜底表与平台目录）。由 `GET /api/v1/models/config` 新增的布尔字段
+  `imageUpscaleAvailable` 下发；渲染层 `useImageUpscaleAvailable()` 读它。
+- **为什么不用主进程的 `platformService.get()`**：那份不含 gateway 的兜底表和平台目录，
+  多一个判断来源就会"设置页说有、画布上却点不动"。
+- **拦住的入口**：图片节点工具栏（`image-node-toolbar-section.jsx` 的固定项 / 溢出菜单 /
+  handlers，两个画布共用同一组件）、v1 画布的两个 handler（`canvas-area.jsx` 的
+  `handleSuperResolution` / `handlePluginSuperResolution`）、v3 画布的
+  `CanvasV3ImageToolsSession`（不给 handler、同时传 `imageUpscaleAvailable`）。
+- **没动**：MCP 的 `hub_image_enhance`（agent 侧仍可调，网关会回明确的
+  `capability_unavailable`），以及 canvas-v3 插件宿主里的 `superResolution` 动作 —— 那一层是
+  插件自己的界面，判据在插件里，留待和插件一起改。

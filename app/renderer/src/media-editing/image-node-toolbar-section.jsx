@@ -294,6 +294,8 @@ const ImageNodeToolbarSectionImpl = reactExports.memo(
     handleOutpaint,
     handleErase,
     handleSuperResolution,
+    /** 图片超分有没有可用模型；false 时这个入口不渲染（默认 true，兼容其它调用方）。 */
+    imageUpscaleAvailable = true,
     handleRemoveBg,
     handleLayerDecompose,
     handleAddToChat,
@@ -371,7 +373,7 @@ const ImageNodeToolbarSectionImpl = reactExports.memo(
         redraw: handleRedraw,
         crop: handleCrop,
         outpaint: handleOutpaint,
-        "super-resolution": handleSuperResolution,
+        ...(imageUpscaleAvailable ? { "super-resolution": handleSuperResolution } : {}),
         "remove-bg": handleRemoveBg,
         "layer-decompose": handleLayerDecompose,
         "color-adjust": handleColorAdjust,
@@ -423,7 +425,8 @@ const ImageNodeToolbarSectionImpl = reactExports.memo(
               },
             ]
           : [];
-      const pinnedItems = pinned.map((toolId) => {
+      const visiblePinned = pinned.filter((toolId) => toolId !== "super-resolution" || imageUpscaleAvailable);
+      const pinnedItems = visiblePinned.map((toolId) => {
         const meta = IMAGE_TOOL_META[toolId];
         return {
           id: toolId,
@@ -441,8 +444,8 @@ const ImageNodeToolbarSectionImpl = reactExports.memo(
             isImageToolbarNewFeatureId(toolId) && !seenNewFeatures.has(toolId),
         };
       });
-      const availableTools =
-        layoutVersion === 1 ? LEGACY_IMAGE_TOOLBAR_TOOLS : IMAGE_TOOLBAR_TOOLS;
+      const baseTools = layoutVersion === 1 ? LEGACY_IMAGE_TOOLBAR_TOOLS : IMAGE_TOOLBAR_TOOLS;
+      const availableTools = imageUpscaleAvailable ? baseTools : baseTools.filter((toolId) => toolId !== "super-resolution");
       const overflowToolIds = availableTools.filter(
         (toolId) =>
           toolId !== "image-inplace-edit" &&

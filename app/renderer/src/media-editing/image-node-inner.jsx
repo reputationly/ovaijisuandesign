@@ -4,6 +4,7 @@ import reactExports from "react";
 import { useTranslation } from "react-i18next";
 import { useReactFlow, useUpdateNodeInternals } from "../vendor-fork/xyflow/react/index.js";
 import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
+import { useImageUpscaleAvailable } from "../generation/normalize-model-info.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   MEDIA_OVERLAY_EXIT_ANIMATION_MS,
@@ -705,7 +706,13 @@ export function ImageNodeInner({
       closeLayerDecomposePrompt();
     }
   }, [closeLayerDecomposePrompt, selected, showLayerDecomposePrompt]);
+  // 图片超分没有可用模型时入口整个不显示（`models.image_upscale` 为空，见 B-1 的兜底边界）。
+  const imageUpscaleAvailable = useImageUpscaleAvailable();
   const handleSuperResolution = reactExports.useCallback(() => {
+    if (!imageUpscaleAvailable) {
+      dedupedToast.error(t("canvas.superResolution.unavailable", "当前平台没有配置图片超分模型"));
+      return;
+    }
     if (!submitSuperResolution || !meta?.path) return;
     const imageWidth = view.primary?.width ?? meta?.width ?? naturalSize?.width;
     const imageHeight = view.primary?.height ?? meta?.height ?? naturalSize?.height;
@@ -723,6 +730,7 @@ export function ImageNodeInner({
     }
     setShowEnhancePopover(true);
   }, [
+    imageUpscaleAvailable,
     submitSuperResolution,
     meta?.path,
     meta?.width,
@@ -1568,6 +1576,7 @@ export function ImageNodeInner({
       {showStandardToolbar && (
         <ImageNodeToolbarSection
           hasDimensions={hasDimensions}
+          imageUpscaleAvailable={imageUpscaleAvailable}
           handleRedraw={handleRedraw}
           handleOutpaint={handleOutpaint}
           handleErase={handleErase}
