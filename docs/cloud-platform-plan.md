@@ -399,6 +399,21 @@ Authorization: Bearer <key>
 版本时间戳）、`platform-catalog.test.ts`（目录拉取/回退）、`media-inputs.test.ts`
 （阈值与回退）、`failure-description.test.ts` + 额度不足的那条 e2e（错误码映射）。
 
+### 6.2 验收返工（2026-10-26 第二轮）
+
+验收方给出的阻塞项与功能问题已按清单处理，逐条见 `docs/acceptance-report.md` 第 8 节。
+这里只记**需要产品/平台决定的几处**与它们的依据：
+
+| 项 | 结论 | 依据 |
+|---|---|---|
+| 兜底模型表（B-1） | 恢复，但**不**进 `withPlatformPreset`，只在 `MediaConfigService.load()` 的目录补位之后应用；优先级 配置 > 目录 > 兜底表 | 槽位一旦非空，目录补位就永远不生效 |
+| `video_upscale` | `seedvr2` | `swiftvr` 已下线；线上库早改成 seedvr2，只有代码出厂值没跟上（B-4 已改） |
+| `image_upscale` | **null（不做）** | `seedvr2` 注册在视频任务通道（`task_type=sr`），而图片超分走同步 `/images/edits`，平台没有对应适配器。置空 → 入口按"无模型"降级；平台若接上图片超分引擎，改这一处即可 |
+| 视频超分档位（F-7） | **选 A**：保留 2K/4K 选项，但要如实反映实际交付约 1080P | 选 B（只留一档）会改动超分菜单本体、要重录基线；选 C 依赖平台补部署。A 的落地前提是先测出实际交付尺寸（V-1），**本轮未测**，所以只把 `delivered_size: 1080P` 写进出厂聚合配置（计费按交付档位走），UI 未动 |
+| `minimax-h3-2k` 这个名字 | **不改** | 它是对外模型名，改名等于破坏已发布的接口；名字与实际交付的差距记在这里和 `setting/hilo_catalog.go` 的注释里 |
+| V-1（seedvr2 实际交付分辨率） | **未测** | 需要一次真实视频调用（会产生费用），本轮按约束只跑 `--check` |
+| V-2（轮询间隔） | **仍未测到 3 s/15 s** | 夹具造不出"卡片拿到 taskId"的条件；诊断日志 `taskId:null, callID:null`，查询被 `enabled` 关掉，只剩推送。要测得跑一次真实会话 |
+
 **和本文不一致的地方（逐条，没有悄悄改范围）**
 
 1. **T-2 的常量名**：文档写"就绪后约 15 秒（`RETRYABLE_POLL_MS`）"，实际生效的是

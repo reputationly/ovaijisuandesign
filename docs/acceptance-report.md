@@ -351,3 +351,74 @@ node scripts/v3preload/audit-v3.mjs
 | `docs/design-execute-card-status.md` | T-1～T-8 的逐条证据（含 T-6 的负结果表、T-2 的实测间隔、T-7 的两次数字） |
 | `docs/intentional-differences.md` | 一.7（隐藏反馈入口）、四·补六（ASR 不做） |
 | `docs/ov-changes.md` | #14（反馈入口）、#15（ASR） |
+
+---
+
+## 八、验收返工（2026-10-26 第二轮）
+
+提交：客户端 `e01ff22c`，new-api `dfe3dbac9`。
+
+### 8.1 阻塞项
+
+| # | 改了什么 | 用例 | 修复前/后 |
+|---|---|---|---|
+| B-1 | 恢复 `FALLBACK_MODELS`（不放 `withPlatformPreset`），在 `MediaConfigService.load()` 的目录补位之后应用；无目录补全部空槽位，有目录只补 `image_upscale`/`video_upscale`/`music_edit` | `media-config.service.test.ts` 4 条（无目录兜底、有目录边界、目录缺 `generate_image`、null 当"没写"） | 修复前：只配 key 时 9 个槽位全 null、能力列表空。修复后：image/video/music/超分/音乐编辑都有值，能力列表非空 |
+| B-2 | 目录里指向聚合模型的条目改走 `aggregateAllows`（分组 + 令牌 + 各段） | `TestBuildHonoursGroupsForCatalogAggregates` | 修复前：`default` 分组能看到 `groups:["vip"]` 的聚合条目。修复后：看不到，`vip` 能看到 |
+| B-3 | 限流挪到 `FormFile` 之前（Content-Length + `MaxBytesReader`，上限 +1MB）；`limit==0` 不再套 `LimitReader`；读逻辑抽成 `readOvUpload` | `TestReadOvUploadUnlimitedReadsEverything` / `TestReadOvUploadDetectsOversize` / `TestPostOvFilesRejectsOversizeBeforeReadingBody` | 修复前：`limit=0` 只存 1 字节还回 200；超大请求体先被完整收下再判。修复后：完整读、413 在写存储之前短路（对照组证明超出限额才会走到存储） |
+| B-4 | 出厂聚合配置 `upscale.model` `swiftvr` → `seedvr2`，补 `delivered_size:"1080P"`，改 `hilo_catalog.go` 注释 | `TestDefaultAggregateConfigUsesLiveUpscaler` | 修复前：出厂配置引用已下线模型，新部署超分段必失败。修复后：引用 seedvr2 且交付档位显式 |
+
+### 8.2 其他功能问题
+
+| # | 改了什么 | 用例 |
+|---|---|---|
+| F-1 | 目录条目的 `taskTypes`/`limits` 按 `agg.Generate.Model` 取 | `TestBuildReadsTaskTypesThroughGenerateSegment`（单元）+ `TestOvCapabilitiesReadsTaskTypesThroughGenerateSegment`（真库）：参考族含 `r2va`、帧族不含 |
+| F-2 | `OvRateLimit` 跟随 `GlobalApiRateLimitEnable` | `TestOvRateLimitFollowsGlobalSwitch`（关掉后连续 3 次 200）；原 429 用例保留 |
+| F-3 | 内存目录记 key 指纹 + base_url，换 key 丢旧目录、读新缓存、立即刷新；在飞刷新按代际丢弃 | `media-config.service.test.ts` 2 条（换 B 后为 null 且走兜底、换回 A 读到 A 的缓存） |
+| F-4 | 提示改为"请稍后查看结果再决定是否重试"，不再承诺不重复计费 | `failure-description.test.ts`（断言含"查看结果"、不含"不会重复计费"） |
+| F-5 | 默认项在排序前按出现顺序定；聚合模型按名字排序遍历；删掉"名字最短"规则 | `TestBuildDefaultsFollowCatalogOrder`（先 `b-model` 后 `a`，默认是 `b-model`） |
+| F-6 | 门禁夹具 / `smoke/gateway.mjs` / 注释 / 三份文档里的 `swiftvr` 现状描述 | 无代码用例；夹具改完门禁见 8.4 |
+| F-7 | **未改代码**，只把决定与现状写进 `cloud-platform-plan.md` 6.2 | — |
+
+### 8.3 需要实测的两项
+
+- **V-1 未做**：seedvr2 实际交付分辨率需要一次真实视频调用（付费），本轮约束只允许
+  `--check`。`delivered_size` 先按验收方给的 `1080P` 写入出厂配置。
+- **V-2 仍未测到 3 s/15 s**：假平台 + 60 秒任务 + 窗口前台，卡片仍只查 1 次。加了临时
+  诊断日志（已删）拿到根因：
+
+  ```
+  [poll-debug] {"final":false,"ready":true,"taskId":null,"callID":null,"status":"running","hasData":true,"polled":15000}
+  ```
+
+  `useDesignTask` 的 `enabled` 要求 `taskId || callID`，夹具里两者都是 null → 查询关着，
+  界面状态全靠推送。**这说明验收方的代码阅读是对的，我上一版的解释错了**（"有没有
+  taskId 都一样轮询"不成立）。夹具造不出这个条件（卡片读的是工具 part 的 `content`，
+  脚本只能往 `state.output` 写，reload 后 `taskId` 仍为 null），要测只能跑一次真实会话。
+
+### 8.4 验证结果
+
+| 项 | 结果 |
+|---|---|
+| `pnpm turbo run build typecheck test --concurrency=1 --force` | **34/34**；gateway **523**、desktop 579（1 skipped）、mcp-tools 210、maas-media 136、protocol 42、assets 39、plugin 82 |
+| `go build ./... && go test ./...` | 全过 |
+| `go vet`（ov 相关包） | 仅既有的 `controller/hilo.go:79: append with no values` |
+| `audit-v3` | 第 1～5、7～11 项 **0**；第 6 项 **9**（既存） |
+| `platform-online.mjs --check` | `PASS key`；`/v1/ov/capabilities` 仍 **404**（未发版） |
+| 37 屏门禁 | **exit 0**，37/37「超护栏 0 / 未登记差异 0 / 新增报错 0」，基线批次单一 |
+| v3 七屏门禁 | **exit 0**，7/7 同上；**最紧的一屏实测 3.089854% / 护栏 3.090308%，余量 0.000454pp**；`ws-a-v3` 3.241285% / 3.310254%；工作台视图非 AA 像素 0% |
+
+### 8.5 与清单不一致 / 需要说明的
+
+1. **B-1 的 `image_upscale` 定为 null**（清单标"待负责人确认"）。依据：`seedvr2` 在
+   `relay/channel/task/gpustackplus/constants.go` 里是**视频任务**模型（`task_type=sr`），
+   而客户端图片超分走同步 `/images/edits`；平台没有对应的图片适配器。要恢复只需把
+   `FALLBACK_MODELS.image_upscale` 填上名字（一处）。
+2. **F-7 选 A，但 UI 未动**：A 的兑现方式是"如实显示实际交付分辨率"，而这依赖 V-1 的
+   实测值。本轮先把 `delivered_size` 写进聚合配置（计费按交付档位），UI 档位没改 ——
+   因为改它要重录基线，而清单要求"确认之前不要改这部分代码"。
+3. **new-api 工作区多了 4 个不是本轮的改动**（`controller/moderation_log.go`、
+   `relay/task_moderation.go`、`service/moderation/output.go`、`service/moderation/output_test.go`），
+   和 `.gitignore` 一样没有提交。清单只提到 `.gitignore`/`dist/`/`scripts/upstream-probe/`，
+   这 4 个是会话期间出现的，我没有动它们。
+4. **`swiftvr` 仍会出现在 `/v1/models`**：那是平台后台的模型能力登记，代码改不了，需要
+   平台侧下线（清单最后一条已列）。
