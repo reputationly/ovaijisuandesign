@@ -133,7 +133,16 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ matrix.label }}
-          path: app/desktop/dist-electron/*
+          path: |
+            app/desktop/dist-electron/*
+            # 解包目录（~1GB 中间产物）不上传 —— Release 复用这份产物时也只取
+            # latest-*.yml + 安装包 + blockmap（见 release.yml 的 reuse-ci 校验）。
+            !app/desktop/dist-electron/mac/
+            !app/desktop/dist-electron/mac-arm64/
+            !app/desktop/dist-electron/mac-x64/
+            !app/desktop/dist-electron/win-unpacked/
+            !app/desktop/dist-electron/linux-unpacked/
+            !app/desktop/dist-electron/builder-debug.yml
           retention-days: 7
           if-no-files-found: error
 
@@ -154,6 +163,9 @@ jobs:
       # 所以这个夹具必须能在 CI 上离线跑。
       - name: 发布布局离线自检
         run: python3 scripts/verify-release-layout.py
+      # 产物摆放脚本的两套命名（electron-* / desktop-*）+ 不认名报错。
+      - name: 产物摆放离线自检
+        run: python3 scripts/place-release-artifacts.py --self-test
       - name: 规格文档没被手改坏
         run: |
           test "$(grep -cE '^\| `[a-z0-9_]+` \|' docs/mcp-tools.md)" = 57

@@ -118,6 +118,130 @@ jobs:
             echo "prefix="
           } >> "$GITHUB_OUTPUT"
 
+  # ==================== 复用 CI 产物 ====================
+  # CI 的 `package` job 和下面 `desktop-electron` 跑的是同一套 build/stage/出包步骤；
+  # 唯一差别是打包时写进去的版本号。版本号在**打 tag 之前**就提交进仓库了，所以
+  # 同一个 commit 的 CI 产物清单里写的本来就是这次要发的版本 —— 直接拿来用，
+  # 省掉三个平台各十几分钟的重打包。
+  #
+  # 复用是**尽力而为**：CI 没跑过 / 没跑成功 / 产物被清了 / 校验对不上，
+  # 都退回自己打包（`desktop-electron` 只在本 job 说没得用时才跑），
+  # 绝不让「想省时间」把发布弄红。
+  reuse-ci:
+    needs: prepare
+    outputs:
+      # 最终结果在「校验」那一步才定下来（找到候选不代表产物对得上）。
+      # 没有候选时该校验步被跳过，输出自然为空 → 退回自己打包。
+      run_id: ${{ steps.valid.outputs.run_id }}
+    permissions:
+      actions: read   # 读别的 run 的 artifacts 列表、下载别的 run 的产物都要它
+      contents: read
+    runs-on: ubuntu-latest
+    name: 找同 commit 的 CI 产物
+    steps:
+      - uses: actions/checkout@v4
+
+      # 先找到本 commit 的 CI run（ci.yml, event=push），在跑就等它完（最长 45 分钟）。
+      - id: found
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+          DRY: ${{ inputs.dry_run == true }}
+        run: |
+          set -euo pipefail
+          say() { echo "run_id=$1" >> "$GITHUB_OUTPUT"; }
+          if [ "${{ github.ref_type }}" != "tag" ] && [ "$DRY" != "true" ]; then
+            echo "::notice::非 tag 也非空跑，不复用（本流水线本来也只出不发布的包）"
+            say ""; exit 0
+          fi
+
+          DEADLINE=$((SECONDS + 45*60))
+          RUN_ID=""; CONCLUSION=""
+          while :; do
+            resp=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?head_sha=$SHA&event=push&per_page=1")
+            id=$(jq -r '.workflow_runs[0].id // empty' <<<"$resp")
+            if [ -z "$id" ]; then
+              echo "::notice::没找到 head_sha=$SHA 的 ci.yml push 运行，退回自己打包"
+              say ""; exit 0
+            fi
+            st=$(jq -r '.workflow_runs[0].status' <<<"$resp")
+            echo "CI run $id 状态：$st"
+            if [ "$st" = "completed" ]; then
+              RUN_ID=$id; CONCLUSION=$(jq -r '.workflow_runs[0].conclusion' <<<"$resp"); break
+            fi
+            if [ $SECONDS -ge $DEADLINE ]; then
+              echo "::notice::CI run $id 等满 45 分钟仍未完成，退回自己打包"
+              say ""; exit 0
+            fi
+            sleep 30
+          done
+          if [ "$CONCLUSION" != "success" ]; then
+            echo "::notice::CI run $RUN_ID 结论是 $CONCLUSION（不是 success），退回自己打包"
+            say ""; exit 0
+          fi
+
+          # 三个产物都得在、没过期。
+          art=$(gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts?per_page=100")
+          for name in desktop-mac-arm64 desktop-mac-x64 desktop-win-x64; do
+            ok=$(jq -r --arg n "$name" '.artifacts[] | select(.name==$n) | select(.expired==false) | .name' <<<"$art")
+            if [ -z "$ok" ]; then
+              echo "::notice::CI run $RUN_ID 缺产物 $name（或已过期），退回自己打包"
+              say ""; exit 0
+            fi
+          done
+          echo "candidate_run=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "找到可复用候选：run $RUN_ID"
+
+      - name: 下载 CI 产物（校验用）
+        if: steps.found.outputs.candidate != ''
+        uses: actions/download-artifact@v4
+        with:
+          path: ci-artifacts
+          pattern: desktop-*
+          run-id: ${{ steps.found.outputs.candidate }}
+          github-token: ${{ github.token }}
+
+      - name: 校验产物版本与文件名
+        id: valid
+        if: steps.found.outputs.candidate != ''
+        env:
+          RUN_ID: ${{ steps.found.outputs.candidate }}
+          SEMVER: ${{ needs.prepare.outputs.semver }}
+          DRY: ${{ inputs.dry_run == true }}
+        run: |
+          set -euo pipefail
+          # 空跑没有发布号：校验用仓库里提交的 package.json 版本 —— CI 产物就是它打的。
+          if [ "$DRY" = "true" ]; then
+            SEMVER=$(jq -r .version app/desktop/package.json)
+          fi
+          echo "校验版本：$SEMVER"
+          python3 - "$SEMVER" <<'PY' || { echo "run_id=" >> "$GITHUB_OUTPUT"; exit 0; }
+          import pathlib, sys
+          want = sys.argv[1]
+          bad = []
+          for d in sorted(pathlib.Path("ci-artifacts").iterdir()):
+              manifest = d / ("latest.yml" if "win" in d.name else "latest-mac.yml")
+              if not manifest.exists():
+                  bad.append(f"{d.name}: 缺 {manifest.name}"); continue
+              ver = next((l.split(":",1)[1].strip() for l in manifest.read_text().splitlines() if l.startswith("version:")), "")
+              if ver != want:
+                  bad.append(f"{d.name}: 清单版本 {ver} ≠ {want}"); continue
+              names = [f.name for f in d.iterdir() if f.suffix in (".dmg", ".zip", ".exe")]
+              if not names or not all(want in n for n in names):
+                  bad.append(f"{d.name}: 包文件名不带版本 {want}（{names}）")
+          if bad:
+              print("::notice::CI 产物校验未过：" + "；".join(bad))
+              sys.exit(1)
+          print("校验通过")
+          PY
+          if [ "$DRY" = "true" ]; then
+            echo "::notice::空跑：would reuse run $RUN_ID（dry_run 永远自己打包，只练查找）"
+            echo "run_id=" >> "$GITHUB_OUTPUT"
+          else
+            echo "复用 CI run $RUN_ID 的产物"
+            echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          fi
+
   # ==================== 各平台打包 ====================
   # **一台 macOS runner 出两个架构**：arm64 ⇄ x86_64 能交叉（Xcode 自带两个
   # SDK，连 ring 的 C 代码都能过，本地实测 15 秒）。私仓的 Actions 配额里
@@ -127,7 +251,9 @@ jobs:
   # 在 Mac 上试过给 Windows 交叉，卡在 assert.h 找不到。所以 Windows 和
   # Linux 各用自己的 runner。
   desktop-electron:
-    needs: prepare
+    needs: [prepare, reuse-ci]
+    # 同 commit 的 CI 产物能用就不重打 —— 三个平台十几分钟×3 省下来。
+    if: ${{ needs.reuse-ci.outputs.run_id == '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -222,7 +348,16 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: electron-${{ matrix.name }}
-          path: app/desktop/dist-electron/*
+          path: |
+            app/desktop/dist-electron/*
+            # 解包目录是中间产物（mac*/win-unpacked 加起来 ~1GB），发布只要
+            # latest-*.yml + 安装包 + blockmap。builder-debug.yml 是构建日志不是发布物。
+            !app/desktop/dist-electron/mac/
+            !app/desktop/dist-electron/mac-arm64/
+            !app/desktop/dist-electron/mac-x64/
+            !app/desktop/dist-electron/win-unpacked/
+            !app/desktop/dist-electron/linux-unpacked/
+            !app/desktop/dist-electron/builder-debug.yml
           retention-days: 7
           if-no-files-found: error
 
@@ -237,7 +372,7 @@ jobs:
   # 现在仓库里 OBS 凭据一个都没有（只有 R2 那组），所以实际只发 R2；将来补上凭据
   # 不用改任何代码，取消下面那几行注释即可。
   publish-electron:
-    needs: [prepare, desktop-electron]
+    needs: [prepare, desktop-electron, reuse-ci]
     # **这里用 `always()`，但发布本身仍然被卡住。** 两个性质要同时成立：
     #
     #   1. 某个平台打包失败时，**不能**发部分平台 —— 否则 latest 指针照翻，
@@ -252,9 +387,22 @@ jobs:
     if: ${{ always() && needs.prepare.outputs.cdn == 'true' && (startsWith(github.ref, 'refs/tags/') || inputs.dry_run) }}
     runs-on: ubuntu-latest
     name: 发布新栈
+    permissions:
+      actions: read   # run_id 非空时要从 CI run 下载产物
+      contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      # 复用路径：产物在 CI run 名下；自建路径：本流水线 desktop-electron 传的 electron-*。
+      # 只能两选一 —— `reuse-ci` 说有的用时 `desktop-electron` 是跳过的，没有 electron-* 产物。
+      - if: ${{ needs.reuse-ci.outputs.run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: desktop-*
+          run-id: ${{ needs.reuse-ci.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - if: ${{ needs.reuse-ci.outputs.run_id == '' }}
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
           pattern: electron-*
@@ -290,25 +438,9 @@ jobs:
       # 前者是我们对外发布用的名字，`release-desktop.py` 和清理脚本都认它。
       - name: 摆放各平台产物（按 target 分目录）
         run: |
-          mkdir -p app/desktop/dist-electron
-          python3 - <<'PY'
-          import pathlib, shutil
-          out = pathlib.Path("app/desktop/dist-electron")
-          for d in sorted(pathlib.Path("artifacts").iterdir()):
-              # artifact 名是 `electron-<target>`，由出包矩阵的 name 决定。
-              target = d.name[len("electron-"):]
-              dst = out / target
-              dst.mkdir(parents=True, exist_ok=True)
-              for item in d.iterdir():
-                  if item.name == "builder-debug.yml":
-                      continue
-                  to = dst / item.name
-                  if item.is_dir():
-                      shutil.copytree(item, to, dirs_exist_ok=True)
-                  else:
-                      shutil.copy2(item, to)
-              print(f"  {d.name} → {dst}")
-          PY
+          # 两套命名都认：electron-<target>（本流水线自建）和 desktop-*（CI 复用）。
+          # 脚本里有离线自检（ci.yml 的 spec job 会跑）。
+          python3 scripts/place-release-artifacts.py artifacts
           find app/desktop/dist-electron -maxdepth 2 -name 'latest*.yml' | sort
 
       - name: 发布并回读校验
