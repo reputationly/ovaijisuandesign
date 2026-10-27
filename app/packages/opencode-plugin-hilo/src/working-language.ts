@@ -1,3 +1,5 @@
+import { HILO_PROJECT_ARCHITECTURE_ENV } from "@ov/protocol";
+
 import { resolveRootSession } from "./_session-skill-grants.js";
 import {
   getWorkingLanguage,
@@ -28,11 +30,23 @@ export function workingLanguageFromParts(parts: readonly unknown[]): WorkingLang
   return undefined;
 }
 
+/** v3 的项目内核走 `resource_v3`；这一档的语言块比 v2 短（参照 4.0.4 就这么分的）。 */
+function projectArchitectureIsV3(): boolean {
+  return process.env[HILO_PROJECT_ARCHITECTURE_ENV] === "resource_v3";
+}
+
 /**
- * 注入 system 的 `<working-language>` 块。逐字保持：agent 合同和技能里的 question 模板都按这里的
- * 措辞理解"逐字"只约束语义、不约束模板的书写语言。
+ * 注入 system 的 `<working-language>` 块。
+ *
+ * **v3 只要三行**（参照 4.0.4 的 `formatWorkingLanguage` 在 `resource_v3` 下就返回这么点）：
+ * v3 的语言规则已经写进 agent 合同与 project rules，这里再堆一屏反而互相干扰。
+ * v2 仍是长版：agent 合同和技能里的 question 模板按那些措辞理解"逐字"只约束语义、
+ * 不约束模板的书写语言。
  */
 export function formatWorkingLanguage(context: WorkingLanguageContext): string {
+  if (projectArchitectureIsV3()) {
+    return ["<working-language>", `working_language: ${context.locale}`, "</working-language>"].join("\n");
+  }
   return [
     "<working-language>",
     `working_language: ${context.locale}`,

@@ -103,6 +103,58 @@ describe("opencode 插件", () => {
     }
   });
 
+  // v3 的 system 末尾：项目规则说明 → 记忆 → 「引用按 versionId」→ 短语言块。
+  // 参照 4.0.4 在 v3 下**不**注入 user_visible_model_safety。
+  it("system（v3）：拼项目规则说明与引用规则，不拼模型名安全块", async () => {
+    process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
+    const dir = tmp();
+    process.env.HUB_MEMORY_DIR = path.join(dir, "no-user-memory");
+    try {
+      const h = await load(dir);
+      await h["chat.message"]({ sessionID: "ses_v3" }, { parts: [{ type: "text", metadata: { hilo_working_language: { locale: "zh-CN", source: "ui-preference" } } }] });
+      const out = { system: ["你是助手"] };
+      await h["experimental.chat.system.transform"]({ sessionID: "ses_v3" }, out);
+      const tail = out.system.at(-1)!;
+      expect(tail).toContain("## Project rules");
+      expect(tail).toContain("Project references: [N] is the source order within that user message");
+      expect(tail).not.toContain("<user_visible_model_safety>");
+      // v3 的语言块只要三行。
+      expect(tail).toContain("<working-language>\nworking_language: zh-CN\n</working-language>");
+    } finally {
+      delete process.env.HILO_PROJECT_ARCHITECTURE;
+      delete process.env.HUB_MEMORY_DIR;
+    }
+  });
+
+  it("chat.message（v3）：项目规则以 <project_rules> 挂到消息上，规则没变就不再投", async () => {
+    process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
+    const dir = tmp();
+    mkdirSync(path.join(dir, ".hilo"), { recursive: true });
+    writeFileSync(path.join(dir, ".hilo", "project-rules.md"), "- 竖屏 9:16");
+    try {
+      const h = await load(dir);
+      const first = { message: { id: "msg_1" }, parts: [{ type: "text", text: "做一张图" }] };
+      await h["chat.message"]({ sessionID: "ses_rules" }, first);
+      const rulesPart = (first.parts as any[]).find((p) => p.metadata?.hilo_project_rules);
+      expect(rulesPart?.text).toContain("- 竖屏 9:16");
+      expect(rulesPart?.synthetic).toBe(true);
+
+      // 同一份规则：不再重复投递。
+      const second = { message: { id: "msg_2" }, parts: [{ type: "text", text: "再来一张" }] };
+      await h["chat.message"]({ sessionID: "ses_rules" }, second);
+      expect((second.parts as any[]).some((p) => p.metadata?.hilo_project_rules)).toBe(false);
+
+      // 规则改了：重投，并且带新的 revision。
+      writeFileSync(path.join(dir, ".hilo", "project-rules.md"), "- 竖屏 9:16\n- 字幕放底部");
+      const third = { message: { id: "msg_3" }, parts: [{ type: "text", text: "再改改" }] };
+      await h["chat.message"]({ sessionID: "ses_rules" }, third);
+      const updated = (third.parts as any[]).find((p) => p.metadata?.hilo_project_rules);
+      expect(updated?.text).toContain("字幕放底部");
+    } finally {
+      delete process.env.HILO_PROJECT_ARCHITECTURE;
+    }
+  });
+
   it("system：没有记忆、没有工作语言时只拼模型名规则；空 system 新加一条", async () => {
     const h = await load();
     const out = { system: [] as string[] };

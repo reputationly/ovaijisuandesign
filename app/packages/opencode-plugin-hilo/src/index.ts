@@ -30,6 +30,15 @@ import { HILO_PROJECT_ARCHITECTURE_ENV, parseAgentProfileVersion } from "@ov/pro
 import { loadMemoryContext, shouldIncludeUserMemory } from "./load-memory-context.js";
 import { CODE_AGENT_NAME, createCodeAgentBindings, guardCodeAgentTool, isCodeAgentGuardedTool } from "./code-agent-guard.js";
 import { nextToolCallIndex, TOOL_CALL_INDEX_ARG } from "./tool-call-order.js";
+import { PROJECT_REFERENCE_RULES } from "./project-references.js";
+import {
+  latestDeliveredProjectRules,
+  needsProjectRulesDelivery,
+  PROJECT_RULES_SYSTEM_NOTE,
+  projectRulesPart,
+  readProjectRules,
+  type ProjectRulesMarker,
+} from "./project-rules-context.js";
 import { v3ToolMaterials } from "./v3-tool-materials.js";
 import { askUserViaGateway } from "./loop-guard/ask-client.js";
 import { createLoopGuard, LoopGuardError } from "./loop-guard/index.js";
@@ -66,6 +75,14 @@ const TOOL_USE_ID_KEY = "_tool_use_id";
 /** 小工具：只认普通对象。 */
 const record = (value: unknown): Record<string, unknown> | undefined =>
   value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined;
+
+/** 项目内核是不是 v3（`resource_v3`）。项目规则、引用规则、短语言块都只在这一档生效。 */
+function projectArchitectureIsV3(): boolean {
+  return process.env[HILO_PROJECT_ARCHITECTURE_ENV] === "resource_v3";
+}
+
+/** 会话 → 最近一次投递到消息里的项目规则版本（跨轮判断"要不要重投"）。 */
+const projectRulesDelivered = new Map<string, ProjectRulesMarker | "absent">();
 
 /** agent 工具面的版本（2 或 3）。非法值不让整轮挂掉：告警并按 2 处理。 */
 function agentProfileVersion(): 2 | 3 {
@@ -216,6 +233,8 @@ const plugin: Plugin = async (input) => {
       try {
         const root = projectRoot();
         // v3 的记忆只有全局一份（`design_memory`），v2 才是"项目 + 用户"两段。
+      // v3：先把"规则会以 <project_rules> 块出现"的说明挂上（参照排在记忆之前）。
+      if (projectArchitectureIsV3()) appendSystemBlock(out.system, PROJECT_RULES_SYSTEM_NOTE);
       const memory = await loadMemoryContext({
         projectRoot: root,
         includeUserMemory: shouldIncludeUserMemory(root),
@@ -227,7 +246,13 @@ const plugin: Plugin = async (input) => {
       } catch (err) {
         console.warn(`[hilo-plugin] memory injection failed session=${inp.sessionID}: ${(err as Error).message}`);
       }
-      appendSystemBlock(out.system, formatUserVisibleModelSafetyBlock());
+      if (projectArchitectureIsV3()) {
+        // 规则本身挂在用户消息上（见 `chat.message`），这里只加"引用按 versionId"这条硬规则。
+        // 参照 4.0.4 在 v3 下**不**注入 user_visible_model_safety。
+        appendSystemBlock(out.system, PROJECT_REFERENCE_RULES);
+      } else {
+        appendSystemBlock(out.system, formatUserVisibleModelSafetyBlock());
+      }
       if (isDev && memoryEntries > 0) {
         console.log(`[hilo-plugin] system.transform session=${inp.sessionID} memory_entries=${memoryEntries} memory_truncated=${memoryTruncated}`);
       }
@@ -250,6 +275,28 @@ const plugin: Plugin = async (input) => {
      */
     "chat.message": async (inp, out) => {
       loopGuard.resetSession(inp.sessionID);
+      // v3：把"当前完整项目规则"以 <project_rules> 块挂到这条用户消息上。
+      // 只在第一次、或 revision 变了的时候投递 —— 每次都说一遍既浪费缓存也干扰模型。
+      if (projectArchitectureIsV3() && out.parts) {
+        try {
+          const root = projectRoot();
+          const rules = await readProjectRules(root);
+          const delivered = projectRulesDelivered.get(inp.sessionID) ?? latestDeliveredProjectRules([{ parts: out.parts }]);
+          if (needsProjectRulesDelivery(delivered, rules)) {
+            const parts = out.parts as Array<Record<string, unknown>>;
+            parts.push(
+              projectRulesPart(rules, {
+                sessionID: inp.sessionID,
+                messageID: (out as { message?: { id?: string } }).message?.id ?? inp.sessionID,
+                previousPartId: typeof parts[parts.length - 1]?.id === "string" ? (parts[parts.length - 1]!.id as string) : undefined,
+              }),
+            );
+            projectRulesDelivered.set(inp.sessionID, { revision: rules.revision });
+          }
+        } catch (error) {
+          console.warn(`[hilo-plugin] project rules delivery skipped session=${inp.sessionID}: ${(error as Error).message}`);
+        }
+      }
       const parts = (out.parts ?? []) as unknown[];
       const workingLanguage = workingLanguageFromParts(parts);
       if (workingLanguage) rememberWorkingLanguage(inp.sessionID, workingLanguage);
