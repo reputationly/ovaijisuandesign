@@ -91,6 +91,21 @@ describe("GET /api/internal/document/read", () => {
     }
   });
 
+  it("逻辑根 <knowledgeDir> 会被换成本地真实路径（模型经常原样传进来）", async () => {
+    const dataDir = mkdtempSync(path.join(tmpdir(), "ov-docread-data2-"));
+    mkdirSync(path.join(dataDir, ".config-v2", "knowledge", "vendors"), { recursive: true });
+    writeFileSync(path.join(dataDir, ".config-v2", "knowledge", "vendors", "x.md"), "卡片正文\n");
+    process.env.HILO_DATA_DIR = dataDir;
+    try {
+      const r = await read("<knowledgeDir>/vendors/x.md");
+      expect(r.status).toBe(200);
+      expect(r.body).toMatchObject({ ok: true, kind: "text" });
+      expect(r.body.lines[0]).toBe("卡片正文");
+    } finally {
+      delete process.env.HILO_DATA_DIR;
+    }
+  });
+
   it("各类失败的 reason", async () => {
     expect((await read("docs/brief.pdf", 999)).body).toMatchObject({ ok: false, reason: "invalid-offset", message: expect.stringMatching(/out of range/) });
     expect((await read("missing.pdf")).body).toEqual({ ok: false, reason: "not-found" });

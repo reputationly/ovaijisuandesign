@@ -78,9 +78,28 @@ export class DocumentReadService {
     return roots.filter((root): root is string => typeof root === "string" && root.trim() !== "").map((root) => path.resolve(root));
   }
 
+  /**
+   * 把 `<knowledgeDir>` / `<workflowsDir>` 这两个**逻辑根**换成绝对路径。
+   *
+   * `design_read` 的工具描述写着接受它们，但模型经常原样传进来（真会话里就撞过
+   * `<knowledgeDir>/vendors/minimax.md`）。换掉比让它自己展开可靠 —— 展开规则
+   * 只有我们知道。
+   */
+  private expandLogicalRoot(raw: string): string {
+    const dataDir = process.env.HILO_DATA_DIR?.trim();
+    const roots: Array<[string, string | undefined]> = [
+      ["<knowledgeDir>", process.env.HILO_KNOWLEDGE_DIR?.trim() || (dataDir ? path.join(dataDir, ".config-v2", "knowledge") : undefined)],
+      ["<workflowsDir>", process.env.HILO_WORKFLOWS_DIR?.trim() || (dataDir ? path.join(dataDir, ".config-v2", "workflows") : undefined)],
+    ];
+    for (const [prefix, root] of roots) {
+      if (root && raw.startsWith(prefix)) return path.join(root, raw.slice(prefix.length).replace(/^[\\/]+/, ""));
+    }
+    return raw;
+  }
+
   /** 绝对/相对路径 → 允许范围内的真实路径；越界或不存在都返回 null。 */
   private async resolveReadable(rawPath: string): Promise<string | null> {
-    const trimmed = rawPath.trim();
+    const trimmed = this.expandLogicalRoot(rawPath).trim();
     if (!trimmed || trimmed.includes("\0")) return null;
     const configured = this.allowedRoots();
     if (configured.length === 0) return null;

@@ -41,6 +41,48 @@ describe("仓库自带的 agent 配置", () => {
   });
 });
 
+describe("v3 不注入 v2 的路径头", () => {
+  it("v3：media-agent 里没有 <knowledge-base>/<workflows-base>（那两块写的是 v2 的 hub_read）", () => {
+    const saved = process.env.HILO_PROJECT_ARCHITECTURE;
+    process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
+    try {
+      const s = tmp();
+      write(path.join(s, "base.json"), "{}");
+      write(path.join(s, "agents/media-agent.md"), "---\nmode: primary\n---\n\n主 agent\n");
+      write(path.join(s, "knowledge/vendors/x.md"), "x");
+      write(path.join(s, "workflows/workflow.md"), "索引");
+      const staging = path.join(tmp(), "s");
+      stageProfile(s, staging);
+      const media = readFileSync(path.join(staging, "agents/media-agent.md"), "utf8");
+      expect(media).not.toContain("<knowledge-base>");
+      expect(media).not.toContain("<workflows-base>");
+      expect(media).not.toContain("hub_read");
+    } finally {
+      if (saved === undefined) delete process.env.HILO_PROJECT_ARCHITECTURE;
+      else process.env.HILO_PROJECT_ARCHITECTURE = saved;
+    }
+  });
+
+  it("v2（默认）：两块照旧注入，且用的是 v2 的 hub_read", () => {
+    const saved = process.env.HILO_PROJECT_ARCHITECTURE;
+    delete process.env.HILO_PROJECT_ARCHITECTURE;
+    try {
+      const s = tmp();
+      write(path.join(s, "base.json"), "{}");
+      write(path.join(s, "agents/media-agent.md"), "---\nmode: primary\n---\n\n主 agent\n");
+      write(path.join(s, "knowledge/vendors/x.md"), "x");
+      write(path.join(s, "workflows/workflow.md"), "索引");
+      const staging = path.join(tmp(), "s");
+      stageProfile(s, staging);
+      const media = readFileSync(path.join(staging, "agents/media-agent.md"), "utf8");
+      expect(media).toContain("<knowledge-base>");
+      expect(media).toContain("hub_read");
+    } finally {
+      if (saved !== undefined) process.env.HILO_PROJECT_ARCHITECTURE = saved;
+    }
+  });
+});
+
 describe("profile", () => {
   it("frontmatter 的 agents 认三种写法", () => {
     expect(parseFrontmatter("---\nname: a\nagents: [media-agent, 'executor']\n---\n").agents).toEqual(["media-agent", "executor"]);

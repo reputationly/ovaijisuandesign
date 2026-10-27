@@ -140,10 +140,18 @@ export function stageProfile(source: string, staging: string, now: () => number 
   }
 
   const knowledge = path.join(source, "knowledge");
-  const knowledgePrimary = existsSync(path.join(knowledge, "vendors")) ? knowledgeBlockForPrimary(knowledge) : null;
+  // **这两块是 v2 的路径头，v3 不注入。**
+  // 参照 4.0.4 的判断是 `injectLegacyPathHeaders = version === 2`，里面写死的是 v2 的
+  // 读工具名 `hub_read`；而 v3 的工具面里 `hub_read` 是关掉的（`design_*` 才可用）。
+  // 以前我们无条件注入，等于在 system 里让模型去调一个不存在的工具 —— 它只能退回
+  // `bash` 摸文件（首步 bash、一条流程 4 次 bash、甚至把字面 `<knowledgeDir>` 传给
+  // `design_read`，都是这条引起的）。
+  // 直接读环境变量（不 import index.ts，避免 profile ↔ index 循环依赖）。
+  const legacyPathHeaders = process.env.HILO_PROJECT_ARCHITECTURE !== "resource_v3";
+  const knowledgePrimary = legacyPathHeaders && existsSync(path.join(knowledge, "vendors")) ? knowledgeBlockForPrimary(knowledge) : null;
   const knowledgeSub = knowledgeBlockForSubagent(knowledge);
   const workflows = path.join(source, "workflows");
-  const workflowsBlk = existsSync(path.join(workflows, "workflow.md")) ? workflowsBlock(workflows) : null;
+  const workflowsBlk = legacyPathHeaders && existsSync(path.join(workflows, "workflow.md")) ? workflowsBlock(workflows) : null;
 
   const stagedAgents = path.join(staging, "agents");
   mkdirSync(stagedAgents, { recursive: true });
