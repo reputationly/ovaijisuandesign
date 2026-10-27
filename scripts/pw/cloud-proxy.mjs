@@ -40,14 +40,17 @@ const server = createServer(async (request, response) => {
   const url = `${target}${request.url}`;
   const started = Date.now();
   try {
+    // **原样转发所有请求头**（去掉只对这一段连接有意义的几个）。
+    // 之前只白名单了几个头，结果 `/api/v1/config` 401 —— 它的鉴权走的是别的头/凭据
+    // （cookie 或自定义 token 头），少一个就整条链路断掉，表现成"服务响应中断"。
+    const forwardHeaders = {};
+    for (const [name, value] of Object.entries(request.headers)) {
+      if (!value || ["host", "content-length", "connection", "accept-encoding"].includes(name.toLowerCase())) continue;
+      forwardHeaders[name] = Array.isArray(value) ? value.join(", ") : String(value);
+    }
     const upstream = await fetch(url, {
       method: request.method,
-      headers: {
-        ...(request.headers["content-type"] ? { "content-type": String(request.headers["content-type"]) } : {}),
-        ...(request.headers.accept ? { accept: String(request.headers.accept) } : {}),
-        ...(request.headers.authorization ? { authorization: String(request.headers.authorization) } : {}),
-        ...(request.headers["x-user-token"] ? { "x-user-token": String(request.headers["x-user-token"]) } : {}),
-      },
+      headers: forwardHeaders,
       ...(request.method === "GET" || request.method === "HEAD" ? {} : { body: raw }),
     });
     response.writeHead(upstream.status, {
@@ -61,7 +64,8 @@ const server = createServer(async (request, response) => {
       response.end();
     }
     const body = raw.toString("utf8");
-    const summary = { n, at: new Date().toISOString(), method: request.method, path: request.url, status: upstream.status, ms: Date.now() - started, requestBytes: raw.length };
+    const headerNames = Object.keys(forwardHeaders).sort();
+    const summary = { n, at: new Date().toISOString(), method: request.method, path: request.url, status: upstream.status, ms: Date.now() - started, requestBytes: raw.length, headerNames };
     writeFileSync(path.join(dir, `${String(n).padStart(3, "0")}.json`), redact(JSON.stringify({ ...summary, body: body ? tryJson(body) : null }, null, 2)));
     console.log(`${summary.status} ${summary.method} ${summary.path} (${summary.requestBytes}B)`);
   } catch (error) {
