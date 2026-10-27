@@ -139,13 +139,79 @@ function moveUnderscoreAliases(shape: z.ZodRawShape, args: Record<string, unknow
   }
 }
 
+/**
+ * 把模型写成字符串的结构化成真正的 JSON。
+ *
+ * 真会话里 qwen3.8 会稳定地把数组/对象参数序列化成一个字符串：
+ *   `{"sources":"[{\"key\":\"plan\"}]"}`、`{"ids":"[\"a\",\"b\"]"}`、
+ *   `{"output":"{…}"}`、`{"limit":"20"}`、`{"baseRevision":"1"}`
+ * —— 于是 SDK 报 `Expected array, received string`。这里按"能解析就解析"修，
+ * **不安全不生效**：修完会用 schema 试解析，成功了才用它。
+ */
+function parseJsonLike(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  const text = value.trim();
+  if (!(text.startsWith("[") || text.startsWith("{"))) return value;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return value;
+  }
+}
+
+function numericLike(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  const text = value.trim();
+  if (text === "" || !/^-?\d+(\.\d+)?$/.test(text)) return value;
+  return Number(text);
+}
+
+/** 只按 schema 里声明的键去修（不认识的键保持原样，`_session_id` 等私有键也不动）。 */
+function repairValues(shape: z.ZodRawShape, args: Record<string, unknown>, mode: "json" | "json+number"): Record<string, unknown> {
+  const out = { ...args };
+  for (const key of Object.keys(shape)) {
+    if (out[key] === undefined) continue;
+    const parsed = parseJsonLike(out[key]);
+    out[key] = parsed;
+    if (mode === "json+number" && parsed === out[key]) {
+      const numeric = numericLike(out[key]);
+      if (numeric !== out[key]) out[key] = numeric;
+    }
+  }
+  return out;
+}
+
+/** `document_write` / `task_query` 这类工具有"必须显式给 mode"的必填项，模型会漏。 */
+function inferMissingFields(name: string, args: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...args };
+  if (name === "document_write" && out.mode === undefined) {
+    // 有 edits → patch；带 baseVersionId 的整篇重写 → replace；否则新建。
+    if (Array.isArray(out.edits)) out.mode = "patch";
+    else if (typeof out.baseVersionId === "string" && out.baseVersionId !== "") out.mode = "replace";
+    else if (typeof out.content === "string") out.mode = "create";
+  }
+  if (name === "task_query" && out.mode === undefined && typeof out.action === "string") {
+    // 模型把 mode 写成 action（`{"action":"list"}`）；值不在枚举里就让校验照常报错。
+    const candidate = out.action;
+    if (["get", "list", "wait", "resolve"].includes(candidate)) out.mode = candidate;
+  }
+  return out;
+}
+
 function withAutoRequestId(shape: z.ZodRawShape, name: string) {
   const needsRequestId = Object.prototype.hasOwnProperty.call(shape, "requestId");
   const object = z.object(shape).passthrough();
   return z.preprocess((value) => {
     if (!value || typeof value !== "object" || Array.isArray(value)) return value;
-    const args = { ...(value as Record<string, unknown>) };
+    let args = { ...(value as Record<string, unknown>) };
     moveUnderscoreAliases(shape, args);
+    args = inferMissingFields(name, args);
+
+    // 依次尝试：原样 → 解析 JSON 字符串 → 再把数字字符串转成数字。
+    // 第一个能被 schema 接受的就用；都不行就交回原样，让 SDK 如实报错。
+    const candidates = [args, repairValues(shape, args, "json"), repairValues(shape, args, "json+number")];
+    args = candidates.find((candidate) => object.safeParse(candidate).success) ?? args;
+
     if (!needsRequestId) return args;
     if (typeof args.requestId === "string" && args.requestId.trim() !== "") return args;
     const { _session_id, _chat_turn_id, _tool_use_id, ...rest } = args;

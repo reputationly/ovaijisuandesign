@@ -151,3 +151,45 @@ describe("下划线别名字段", () => {
     expect(cmd).toMatchObject({ action: "ensure", typeId: "cty_1", name: "视频" });
   });
 });
+
+/** 模型把数组/对象/数字写成字符串（qwen3.8 的稳定习惯），要能修回来。 */
+describe("字符串化的参数", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => { await gw.close(); });
+
+  it("capability_get：ids 是 JSON 字符串 → 变成数组", async () => {
+    gw.on("GET", "/api/v3/capabilities", { json: { capabilities: [] } });
+    const r = await h.call("capability_get", { ids: '["generate_video:minimax-h3-2k"]' });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/v3/capabilities");
+    expect(sent?.query.get("ids")).toBe("generate_video:minimax-h3-2k");
+  });
+
+  it("document_write：content 有、mode 漏传 → 推断成 create", async () => {
+    gw.on("POST", "/api/v3/document", { json: { ok: true } });
+    const r = await h.call("document_write", { name: "方案", content: "# 方案" });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/v3/document");
+    expect((sent?.body as { mode?: string })?.mode).toBe("create");
+  });
+
+  it("deliver：sources/output 是 JSON 字符串 → 解析成数组和对象", async () => {
+    gw.on("POST", "/api/project/resources/deliver", { json: { ok: true } });
+    const r = await h.call("deliver", {
+      requestId: "d-1",
+      sources: '[{"key":"plan","path":"files/x.md"}]',
+      output: '{"resources":[{"key":"plan","mode":"create","name":"方案"}]}',
+    });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/project/resources/deliver");
+    const body = sent?.body as { sources?: unknown; output?: unknown };
+    expect(Array.isArray(body?.sources)).toBe(true);
+    expect(typeof body?.output).toBe("object");
+  });
+});
