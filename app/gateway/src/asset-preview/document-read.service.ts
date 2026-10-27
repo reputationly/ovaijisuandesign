@@ -1,10 +1,10 @@
-import { readFile, stat } from "node:fs/promises";
+import { readFile, readdir, realpath, stat } from "node:fs/promises";
 import path from "node:path";
 
 import { Injectable, Logger, ServiceUnavailableException } from "@nestjs/common";
 
 import { WorkspacePathService } from "../common/workspace-path.service.js";
-import { resolveInsideWorkspace } from "../edit/paths.js";
+
 
 const MAX_DOCUMENT_BYTES = 50 * 1024 * 1024;
 const DEFAULT_LIMIT = 2000;
@@ -26,8 +26,25 @@ export interface PdfImage {
   height: number;
 }
 
+/** 纯文本按扩展名判断；不认识的再嗅 NUL 字节，避免把二进制当文本读回来。 */
+const TEXT_EXTENSIONS = new Set([
+  ".md", ".markdown", ".txt", ".json", ".json5", ".jsonc", ".yaml", ".yml", ".toml", ".ini", ".csv", ".tsv",
+  ".html", ".htm", ".xml", ".svg", ".css", ".scss", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".py",
+  ".sh", ".bash", ".zsh", ".sql", ".log", ".srt", ".vtt", ".ass", ".ssa", ".sub", ".env", ".gitignore",
+]);
+
 export type DocumentReadResult =
-  | { ok: true; lines: string[]; offset: number; totalLines: number; more: boolean; images?: PdfImage[]; imagesOmitted?: number }
+  | {
+      ok: true;
+      /** text: 普通文本；document: Word/PDF 抽取；directory: 目录列举。 */
+      kind: "text" | "document" | "directory";
+      lines: string[];
+      offset: number;
+      totalLines: number;
+      more: boolean;
+      images?: PdfImage[];
+      imagesOmitted?: number;
+    }
   | { ok: false; reason: "unsupported" | "too-large" | "parse-error" | "not-found" | "invalid-offset"; message?: string };
 
 /**
@@ -43,22 +60,99 @@ export class DocumentReadService {
 
   constructor(private readonly paths: WorkspacePathService) {}
 
+  /**
+   * 可以读哪些地方。
+   *
+   * 工作区之外还要允许**模型自己的知识卡/技能引用**：那些文件在 `HILO_DATA_DIR`
+   * （`…/data/.config-v2/knowledge/…`、`…/data/skills/<skill>/references/…`）和
+   * `HILO_KNOWLEDGE_DIR` / `HILO_WORKFLOWS_DIR` 下。以前这里只认工作区，
+   * agent 读知识卡一律 404/403 —— 只能退回 `bash` 去 `cat`。
+   */
+  private allowedRoots(): string[] {
+    const roots = [
+      this.paths.isWorkspaceLocked ? this.paths.root : undefined,
+      process.env.HILO_DATA_DIR,
+      process.env.HILO_KNOWLEDGE_DIR,
+      process.env.HILO_WORKFLOWS_DIR,
+    ];
+    return roots.filter((root): root is string => typeof root === "string" && root.trim() !== "").map((root) => path.resolve(root));
+  }
+
+  /** 绝对/相对路径 → 允许范围内的真实路径；越界或不存在都返回 null。 */
+  private async resolveReadable(rawPath: string): Promise<string | null> {
+    const trimmed = rawPath.trim();
+    if (!trimmed || trimmed.includes("\0")) return null;
+    const configured = this.allowedRoots();
+    if (configured.length === 0) return null;
+    // macOS 上 /var 是指向 /private/var 的符号链接：根目录和 realpath 后的路径必须
+    // 统一成同一形态再比，否则工作区内的文件会被判成"越界"。
+    const roots = await Promise.all(configured.map(async (root) => (await realpath(root).catch(() => root)) ?? root));
+    const abs = path.isAbsolute(trimmed) ? path.resolve(trimmed) : path.resolve(roots[0]!, trimmed);
+    const candidates = [abs];
+    if (!path.isAbsolute(trimmed)) for (const root of roots) candidates.push(path.resolve(root, trimmed));
+    for (const candidate of candidates) {
+      if (!configured.some((root) => isWithinRoot(root, candidate)) && !roots.some((root) => isWithinRoot(root, candidate))) continue;
+      const real = await realpath(candidate).catch(() => null);
+      // 在允许范围内但不存在：把路径交给调用方的 stat 报 `not-found`，
+      // 不要笼统报 `unsupported`（那样 agent 会以为路径写错了位置）。
+      if (real === null) return candidate;
+      // 存在但真身跑出了允许范围（符号链接逃逸）：拒绝。
+      if (!roots.some((root) => isWithinRoot(root, real))) continue;
+      return real;
+    }
+    return null;
+  }
+
   /** 文档缓存按工作区根和版本号分目录。没绑工作区时没有可写的缓存根。 */
   cacheContext() {
     if (!this.paths.isWorkspaceLocked) throw new ServiceUnavailableException("Document cache requires a workspace-bound Gateway");
     return { workspaceRoot: this.paths.root, version: "v2-p1" };
   }
 
+  /** 纯文本：整体读入再按行分页（和文档同一套 offset/limit/超长行截断规则）。 */
+  private async readTextFile(abs: string, ext: string, size: number, rawOffset?: number, rawLimit?: number): Promise<DocumentReadResult> {
+    let text: string;
+    try {
+      const buffer = await readFile(abs);
+      if (!TEXT_EXTENSIONS.has(ext) && buffer.subarray(0, 8192).includes(0)) {
+        return { ok: false, reason: "unsupported", message: "read returns text only; inspect this file with design_analyse_media or design_resource_preview" };
+      }
+      text = buffer.toString("utf8");
+    } catch (error) {
+      this.log.debug(`文本读取失败 ${abs}: ${(error as Error).message}`);
+      return { ok: false, reason: "parse-error" };
+    }
+    const lines = text.length === 0 ? [] : text.split(/\r?\n/);
+    return paginate(lines, rawOffset, rawLimit, "text", this.log, abs, size);
+  }
+
+  /** 目录：列一级条目，目录名带 `/` 后缀。 */
+  private async readDirectory(abs: string, rawOffset?: number, rawLimit?: number): Promise<DocumentReadResult> {
+    let entries;
+    try {
+      entries = await readdir(abs, { withFileTypes: true });
+    } catch (error) {
+      this.log.debug(`目录列举失败 ${abs}: ${(error as Error).message}`);
+      return { ok: false, reason: "parse-error" };
+    }
+    const names = entries
+      .filter((entry) => !entry.name.startsWith(".DS_Store"))
+      .map((entry) => (entry.isDirectory() ? `${entry.name}/` : entry.name))
+      .sort((a, b) => a.localeCompare(b));
+    return paginate(names, rawOffset, rawLimit, "directory", this.log, abs, 0);
+  }
+
   async read(rawPath: string, rawOffset?: number, rawLimit?: number, rawImagePage?: number): Promise<DocumentReadResult> {
     if (!rawPath) return { ok: false, reason: "unsupported" };
-    const abs = await resolveInsideWorkspace(this.paths.root, rawPath);
+    const abs = await this.resolveReadable(rawPath);
     if (!abs) return { ok: false, reason: "unsupported" };
     const st = await stat(abs).catch(() => null);
     if (!st) return { ok: false, reason: "not-found" };
+    if (st.isDirectory()) return this.readDirectory(abs, rawOffset, rawLimit);
     if (!st.isFile()) return { ok: false, reason: "unsupported" };
     if (st.size > MAX_DOCUMENT_BYTES) return { ok: false, reason: "too-large" };
     const ext = path.extname(abs).toLowerCase();
-    if (ext !== ".pdf" && ext !== ".docx") return { ok: false, reason: "unsupported" };
+    if (ext !== ".pdf" && ext !== ".docx") return this.readTextFile(abs, ext, st.size, rawOffset, rawLimit);
     if (rawImagePage !== undefined) {
       // 只有 PDF 有内嵌图这一说；给了页号就必须是真 PDF。
       if (ext !== ".pdf") return { ok: false, reason: "unsupported" };
@@ -107,6 +201,7 @@ export class DocumentReadService {
     }
     return {
       ok: true,
+      kind: "document",
       lines: page,
       offset,
       totalLines: lines.length,
@@ -114,6 +209,48 @@ export class DocumentReadService {
       ...(extracted ? { images: extracted.images, imagesOmitted: extracted.imagesOmitted } : {}),
     };
   }
+}
+
+/**
+ * 按行分页：offset 1 起、limit 最多 2000 行、单页 50KB 上限、超长行截断。
+ * 文本、目录、文档三条路径共用同一套规则，调用方看到的形状才一致。
+ */
+function paginate(
+  lines: string[],
+  rawOffset: number | undefined,
+  rawLimit: number | undefined,
+  kind: "text" | "directory" | "document",
+  log: Logger,
+  abs: string,
+  size: number,
+): DocumentReadResult {
+  const offset = positive(rawOffset, 1);
+  const limit = Math.min(positive(rawLimit, DEFAULT_LIMIT), MAX_LIMIT);
+  const lastReadable = Math.max(lines.length, 1);
+  if (offset > lastReadable) {
+    return { ok: false, reason: "invalid-offset", message: `Offset ${offset} is out of range for ${abs} (${lines.length} lines)` };
+  }
+  const start = offset - 1;
+  const end = Math.min(lines.length, start + limit);
+  const page: string[] = [];
+  let bytes = 0;
+  for (let i = start; i < end; i++) {
+    const raw = lines[i] ?? "";
+    const line = raw.length > MAX_LINE_CHARS ? `${raw.slice(0, MAX_LINE_CHARS)}${LINE_SUFFIX}` : raw;
+    const n = Buffer.byteLength(line, "utf8") + (page.length ? 1 : 0);
+    // 至少给一行，否则一行就超过 50KB 的文档永远翻不动。
+    if (page.length && bytes + n > MAX_PAGE_BYTES) break;
+    page.push(line);
+    bytes += n;
+  }
+  void size;
+  void log;
+  return { ok: true, kind, lines: page, offset, totalLines: lines.length, more: start + page.length < lines.length };
+}
+
+function isWithinRoot(root: string, abs: string): boolean {
+  const rel = path.relative(root, abs);
+  return rel === "" ? false : !rel.startsWith("..") && !path.isAbsolute(rel);
 }
 
 export class PdfImagePageOutOfRangeError extends Error {}

@@ -67,10 +67,35 @@ describe("GET /api/internal/document/read", () => {
     expect((await http.get("/api/internal/document/cache-context")).body).toEqual({ workspaceRoot: ws, version: "v2-p1" });
   });
 
+  it("目录：列一级条目，目录名带斜杠", async () => {
+    const r = await read("docs");
+    expect(r.status).toBe(200);
+    expect(r.body).toMatchObject({ ok: true, kind: "directory" });
+    expect(r.body.lines).toContain("brief.pdf");
+  });
+
+  it("工作区外的知识卡（HILO_DATA_DIR 下）也能读——agent 读的就是这些", async () => {
+    const dataDir = mkdtempSync(path.join(tmpdir(), "ov-docread-data-"));
+    mkdirSync(path.join(dataDir, "knowledge"), { recursive: true });
+    writeFileSync(path.join(dataDir, "knowledge", "minimax.md"), "# 模型卡\n第一行\n");
+    process.env.HILO_DATA_DIR = dataDir;
+    try {
+      const card = path.join(dataDir, "knowledge", "minimax.md");
+      const r = await read(card);
+      expect(r.status).toBe(200);
+      // 末尾换行会多出一行空行，和文档读取的口径一致。
+      expect(r.body).toMatchObject({ ok: true, kind: "text", totalLines: 3 });
+      expect(r.body.lines[0]).toBe("# 模型卡");
+    } finally {
+      delete process.env.HILO_DATA_DIR;
+    }
+  });
+
   it("各类失败的 reason", async () => {
     expect((await read("docs/brief.pdf", 999)).body).toMatchObject({ ok: false, reason: "invalid-offset", message: expect.stringMatching(/out of range/) });
     expect((await read("missing.pdf")).body).toEqual({ ok: false, reason: "not-found" });
-    expect((await read("notes.txt")).body).toEqual({ ok: false, reason: "unsupported" });
+    // 纯文本现在也能读（agent 的知识卡/技能引用都是 .md）。
+    expect((await read("notes.txt")).body).toMatchObject({ ok: true, kind: "text", lines: ["plain"], totalLines: 1, more: false });
     expect((await read("../outside.pdf")).body).toEqual({ ok: false, reason: "unsupported" });
     expect((await read("/etc/hosts")).body).toEqual({ ok: false, reason: "unsupported" });
     expect((await read("")).body).toEqual({ ok: false, reason: "unsupported" });

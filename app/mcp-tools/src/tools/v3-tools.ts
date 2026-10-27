@@ -18,6 +18,46 @@ import { currentCodeEnvironment } from "./code-environment.js";
 
 /** v3 接口的响应先按宽松 schema 收，字段校验留到使用时（与参照的渐进式校验一致） */
 const LOOSE = z.record(z.string(), z.unknown());
+
+/** 把两套后端的返回统一成工具输出：行号、页码、修订、PDF 图。 */
+function documentReadView(result: Record<string, unknown>): Record<string, unknown> {
+  const lines = Array.isArray(result.lines) ? (result.lines as string[]) : String(result.text ?? "").split("\n");
+  const startLine = typeof result.startLine === "number" ? result.startLine : typeof result.offset === "number" ? result.offset : 1;
+  const lineCount = typeof result.lineCount === "number" ? result.lineCount : lines.length;
+  const totalLines = typeof result.totalLines === "number" ? result.totalLines : startLine + lines.length - 1;
+  const more = result.more === true;
+  return {
+    ...(typeof result.kind === "string" ? { kind: result.kind } : {}),
+    ...(typeof result.versionId === "string" ? { versionId: result.versionId } : {}),
+    ...(typeof result.contentRevision === "number" ? { contentRevision: result.contentRevision } : {}),
+    text: lines.join("\n"),
+    startLine,
+    lineCount,
+    totalLines,
+    more,
+    ...(more ? { nextOffset: startLine + lineCount } : {}),
+    ...(result.truncated === true ? { truncated: true } : {}),
+    ...(Array.isArray(result.images) && result.images.length > 0 ? { images: result.images } : {}),
+    ...(typeof result.imagesOmitted === "number" && result.imagesOmitted > 0 ? { imagesOmitted: result.imagesOmitted } : {}),
+  };
+}
+
+/** 后端把失败原因放在 `reason` 里，这里翻译成 agent 能照着改的句子。 */
+function readFailure(target: string, result: Record<string, unknown>): string {
+  const reason = typeof result.reason === "string" ? result.reason : "unsupported";
+  const detail = typeof result.message === "string" ? ` ${result.message}` : "";
+  const message =
+    reason === "not-found"
+      ? "file not found; check the path (expand <knowledgeDir>/<workflowsDir> to absolute paths)."
+      : reason === "too-large"
+        ? "file is too large to read."
+        : reason === "invalid-offset"
+          ? "offset is out of range; start from 1 or use the returned nextOffset."
+          : reason === "parse-error"
+            ? "file could not be parsed as text."
+            : "read returns text files and directories only; inspect media with design_analyse_media or design_resource_preview.";
+  return `${target}: ${message}${detail}`;
+}
 const TIMEOUT_MS = 30_000;
 
 const TASK_STATUS = z.enum(["accepted", "running", "waiting_user", "unknown", "completed", "failed", "cancelled"]);
@@ -653,14 +693,37 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
     "read",
     { description: V3_TOOL_SPECS["read"].description, inputSchema: V3_TOOL_SPECS["read"].shape, annotations: V3_TOOL_SPECS["read"].annotations },
     async (args: V3Args<"read">) => {
+      // 两种来源二选一：项目里的 Resource 版本，或磁盘文件/目录。走的是两套既有接口 ——
+      // 以前这里把两者都写成 `GET /api/project/resources/read`，那条路由从来没存在过，
+      // 于是每一次 read 都 404，agent 只能退回 bash 去 cat/ls。
+      const hasVersion = typeof args.versionId === "string" && args.versionId !== "";
+      const hasPath = typeof args.file_path === "string" && args.file_path !== "";
+      if (hasVersion === hasPath) return errorReply("Pass exactly one of versionId or file_path.");
       try {
-        const params = new URLSearchParams();
-        if (args.versionId) params.set("versionId", args.versionId);
-        if (args.file_path) params.set("path", args.file_path);
+        if (hasVersion) {
+          // Resource 版本正文：POST /api/v3/query/document_read（分页 + contentRevision + PDF 页图）。
+          const result = (await gw.post(
+            "/api/v3/query/document_read",
+            {
+              versionId: args.versionId,
+              ...(args.offset !== undefined ? { startLine: args.offset } : {}),
+              ...(args.limit !== undefined ? { lineCount: args.limit } : {}),
+              ...(args.contentRevision !== undefined ? { contentRevision: args.contentRevision } : {}),
+              ...(args.pdf_page !== undefined ? { imagePage: args.pdf_page } : {}),
+            },
+            TIMEOUT_MS,
+            LOOSE,
+          )) as Record<string, unknown>;
+          return structuredReply(documentReadView(result));
+        }
+        // 磁盘文件 / 目录：GET /api/internal/document/read（同一套分页规则，另外支持目录与 PDF 页图）。
+        const params = new URLSearchParams({ path: args.file_path as string });
         if (args.offset !== undefined) params.set("offset", String(args.offset));
         if (args.limit !== undefined) params.set("limit", String(args.limit));
-        if (args.contentRevision !== undefined) params.set("contentRevision", String(args.contentRevision));
-        return structuredReply((await gw.get(`/api/project/resources/read?${params}`, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+        if (args.pdf_page !== undefined) params.set("image_page", String(args.pdf_page));
+        const result = (await gw.get(`/api/internal/document/read?${params.toString()}`, TIMEOUT_MS, LOOSE)) as Record<string, unknown>;
+        if (result.ok === false) return errorReply(readFailure(args.file_path as string, result));
+        return structuredReply(documentReadView(result));
       } catch (error) {
         return errorReply(`read 失败：${errorMessage(error)}`);
       }
