@@ -711,7 +711,27 @@ async function checkRuntime(resources) {
     }
   } finally {
     child.kill("SIGTERM");
-    rmSync(ws, { recursive: true, force: true });
+    // **等它真的退出再删临时目录。**
+    // 只 kill 就删会撞 `ENOTEMPTY, Directory not empty`：gateway 正在收尾时还会写
+    // sqlite 的 -wal/-shm 或日志，把刚删空的目录又填上（`force: true` 只兜 ENOENT）。
+    // CI 的 mac-x64 打包 job 连续两次红在这。
+    await new Promise((resolve) => {
+      if (child.exitCode !== null || child.signalCode !== null) return resolve();
+      const timer = setTimeout(resolve, 5000);
+      child.once("exit", () => {
+        clearTimeout(timer);
+        resolve();
+      });
+    });
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        rmSync(ws, { recursive: true, force: true });
+        break;
+      } catch (error) {
+        if (error?.code !== "ENOTEMPTY" || attempt === 4) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+    }
   }
   return bad;
 }

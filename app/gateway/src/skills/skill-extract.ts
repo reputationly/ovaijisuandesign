@@ -141,6 +141,20 @@ export async function extractZipToDir(zip: Buffer, targetDir: string, label: str
     await unlink(tmpZip).catch(() => {});
   }
   validateExtractedFiles(targetDir);
+  // **解出来是空的也算失败。**
+  // Windows 的 `Expand-Archive` 遇到坏包会"成功退出但不产出任何文件"，
+  // 于是上层拿到的是一份空目录 —— 错误被报成 `no_skill_md`（"zip 里没有 SKILL.md"），
+  // 而不是真正的原因（这个包根本解不开）。POSIX 的 unzip 会直接失败，所以只有 Windows 显形。
+  if (!hasAnyFile(targetDir)) throw new Error("Failed to extract zip: the archive produced no files");
+}
+
+/** 目标目录里有没有至少一个文件（忽略空目录）。 */
+function hasAnyFile(dir: string): boolean {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isFile()) return true;
+    if (entry.isDirectory() && hasAnyFile(path.join(dir, entry.name))) return true;
+  }
+  return false;
 }
 
 const IGNORED_ENTRIES = new Set(["__MACOSX", ".DS_Store"]);
