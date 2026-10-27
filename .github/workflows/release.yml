@@ -189,7 +189,7 @@ jobs:
               say ""; exit 0
             fi
           done
-          echo "candidate_run=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "candidate=$RUN_ID" >> "$GITHUB_OUTPUT"
           echo "找到可复用候选：run $RUN_ID"
 
       - name: 下载 CI 产物（校验用）
@@ -253,7 +253,9 @@ jobs:
   desktop-electron:
     needs: [prepare, reuse-ci]
     # 同 commit 的 CI 产物能用就不重打 —— 三个平台十几分钟×3 省下来。
-    if: ${{ needs.reuse-ci.outputs.run_id == '' }}
+    # reuse-ci 自己挂了（API 抖动、下载失败）时 run_id 为空，照样退回自己打包；
+    # 只写 run_id 判断的话，隐含的 success() 会因为 reuse-ci 失败而把这里跳过，发布就没有产物。
+    if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.reuse-ci.outputs.run_id == '' }}
     strategy:
       fail-fast: false
       matrix:
