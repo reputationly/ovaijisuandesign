@@ -93,3 +93,40 @@ describe("capability_list / composition_type_list 的接线", () => {
     expect(resultJson(r)).toEqual({ types: [{ typeId: "cty_1", label: "视频" }] });
   });
 });
+
+/** `document_write` 走的是 `/api/v3/document`，不是 resource commands。 */
+describe("document_write 的接线", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => {
+    await gw.close();
+  });
+
+  it("打到 /api/v3/document，并带上模型给的 requestId", async () => {
+    gw.on("POST", "/api/v3/document", { json: { ok: true, versionId: "ver_1" } });
+    const r = await h.call("document_write", { requestId: "req-1", mode: "create", name: "方案", content: "# 方案" });
+    expect(resultJson(r)).toMatchObject({ ok: true, versionId: "ver_1" });
+    const sent = gw.requests.find((req) => req.path === "/api/v3/document");
+    expect(sent?.body).toMatchObject({ requestId: "req-1", mode: "create", content: "# 方案" });
+  });
+
+  it("模型漏传 requestId 时自动补一个稳定的 id（不再被 zod 挡下）", async () => {
+    gw.on("POST", "/api/v3/document", { json: { ok: true, versionId: "ver_2" } });
+    const r = await h.call("document_write", { mode: "create", name: "方案", content: "# 方案" });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/v3/document");
+    expect(String((sent?.body as { requestId?: string })?.requestId)).toMatch(/^[a-z-]+[0-9a-f]{8,}$/);
+
+    // 同样的参数再来一次 → 同一个 id（重试仍然幂等）。
+    const again = await h.call("document_write", { mode: "create", name: "方案", content: "# 方案" });
+    const second = gw.requests.filter((req) => req.path === "/api/v3/document").at(-1);
+    expect((second?.body as { requestId?: string })?.requestId).toBe((sent?.body as { requestId?: string })?.requestId);
+    expect(again.isError).toBeUndefined();
+  });
+});

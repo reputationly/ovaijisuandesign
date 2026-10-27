@@ -632,10 +632,12 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
     { description: V3_TOOL_SPECS["document_write"].description, inputSchema: V3_TOOL_SPECS["document_write"].shape, annotations: V3_TOOL_SPECS["document_write"].annotations },
     async (args: V3Args<"document_write">) => {
       try {
-        return structuredReply((await gw.post("/api/project/resources/commands", {
-          commandId: args.requestId,
-          command: { type: "write_document", ...args },
-        }, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+        // **`POST /api/v3/document`**，不是 resource commands 那一套：
+        // 参照的 `documentWrite` 走的就是这条（同步落库、requestId 幂等）。
+        // 以前我们发 `{commandId, command:{type:"write_document"}}`，网关只认
+        // `resource.create|delete|update`，于是每次都被当成非法命令 —— 它和
+        // `design_read` 是同一类接线错误。
+        return structuredReply((await gw.post("/api/v3/document", { ...args }, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
       } catch (error) {
         return errorReply(`document_write 失败：${errorMessage(error)}`);
       }

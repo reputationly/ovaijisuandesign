@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import type { CallToolResult, ToolAnnotations } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
@@ -111,6 +113,29 @@ function takeTurnId(args: Record<string, unknown>): string | undefined {
   return v && /^[0-9a-f]{32}$/i.test(v) ? v.toLowerCase() : undefined;
 }
 
+/**
+ * 模型漏传 `requestId` 时补一个**确定性**的。
+ *
+ * `requestId` 是这些写工具的幂等键，schema 里是必填（与参照逐字一致，不能改）。
+ * 但真会话里模型会漏（`document_write` 就因此被 SDK 的 zod 挡下：`Required at requestId`）。
+ * 这一步在**校验之前**补上，schema 不用动：
+ * 同会话、同轮、同参数 → 同一个 id（重试仍幂等）；换参数/换轮次 → 新 id。
+ */
+function withAutoRequestId(shape: z.ZodRawShape, name: string) {
+  const needsRequestId = Object.prototype.hasOwnProperty.call(shape, "requestId");
+  const object = z.object(shape).passthrough();
+  if (!needsRequestId) return object;
+  return z.preprocess((value) => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+    const args = { ...(value as Record<string, unknown>) };
+    if (typeof args.requestId === "string" && args.requestId.trim() !== "") return args;
+    const { _session_id, _chat_turn_id, _tool_use_id, ...rest } = args;
+    const seed = JSON.stringify([name, _session_id ?? "", _chat_turn_id ?? "", _tool_use_id ?? "", rest]);
+    args.requestId = `auto-${createHash("sha256").update(seed).digest("hex").slice(0, 32)}`;
+    return args;
+  }, object);
+}
+
 export function createToolRegistrar(server: RegisterToolTarget): ToolRegistrar {
   const collected = new Map<string, CollectedTool>();
 
@@ -187,7 +212,7 @@ export function createToolRegistrar(server: RegisterToolTarget): ToolRegistrar {
           ...sdkConfig,
           // 第 354 轮：显式声明，不再依赖 SDK 默认值（参照 25 个工具都是 forbidden）。
           execution: config.execution ?? { taskSupport: "forbidden" },
-          inputSchema: z.object(inputSchema).passthrough(),
+          inputSchema: withAutoRequestId(inputSchema, name),
         },
         wrapped,
       );
