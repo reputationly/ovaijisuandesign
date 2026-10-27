@@ -85,6 +85,22 @@ export function buildOpencodeConfig(i: BuildInputs): Record<string, any> {
   // `external_directory: ask` / `doom_loop: ask`。知识库和工作流都在工作区外，
   // agent 一读就发 permission.asked —— 整条链都不处理那个事件，这一轮就永远
   // 卡住，界面上只是"还在想"。
+  // **没有搜索源就不要把 `design_image_search` 交给 agent。**
+  //
+  // 这个工具在自托管版本里没有实现（网关的 `/api/v3/search/images` 只是占位，
+  // 永远回"没搜到"）。但它仍然出现在工具面上，技能就会引导 agent 去问
+  // "要不要先搜一轮参考图" —— 问了也搜不到，白花一轮对话。
+  // 参照的产品是云服务、搜索在服务端，所以它那边这个工具是可用的。
+  //
+  // 等真的接了搜索源（SearXNG 或厂商 key），设 `OV_IMAGE_SEARCH=1` 再放出来。
+  if (process.env.OV_IMAGE_SEARCH !== "1") {
+    const agents: Record<string, unknown> = config.agent ?? {};
+    const mediaAgent = agents["media-agent"];
+    if (mediaAgent && typeof mediaAgent === "object") {
+      const entry = mediaAgent as { tools?: Record<string, unknown> };
+      entry.tools = { ...(entry.tools ?? {}), design_image_search: false };
+    }
+  }
   config.permission ??= defaultPermission();
   config.compaction ??= { auto: true, prune: true, reserved: 40_000 };
   config.skills = { ...(config.skills ?? {}), paths: i.skillsPaths };

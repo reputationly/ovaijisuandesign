@@ -252,3 +252,39 @@ describe("MCP 服务的注入位置", () => {
     expect(cfg.mcp.design).toBeUndefined();
   });
 });
+
+describe("没有搜索源时不暴露 design_image_search", () => {
+  const build = (): Record<string, any> => {
+    const dir = path.join(repoRoot, "assets/agent-profiles/v3/config");
+    return buildOpencodeConfig({
+      profileDir: dir,
+      region: "domestic",
+      platform: { base_url: "http://127.0.0.1:1/v1", api_key: "sk-test", chat_model: "qwen3.8-flash-fp8" } as never,
+      mcp: { command: ["node", "x.js"], environment: {} },
+      extraPlugins: [],
+      skillsPaths: [],
+    });
+  };
+
+  it("默认关掉（本机没有搜索供应商）", () => {
+    const saved = process.env.OV_IMAGE_SEARCH;
+    delete process.env.OV_IMAGE_SEARCH;
+    try {
+      expect(build().agent["media-agent"].tools.design_image_search).toBe(false);
+    } finally {
+      if (saved !== undefined) process.env.OV_IMAGE_SEARCH = saved;
+    }
+  });
+
+  it("接了搜索源（OV_IMAGE_SEARCH=1）就放出来，交给 profile 的默认值", () => {
+    const saved = process.env.OV_IMAGE_SEARCH;
+    process.env.OV_IMAGE_SEARCH = "1";
+    try {
+      // profile 里本来就显式开着它；这里只验"我们不覆盖成 false"。
+      expect(build().agent["media-agent"].tools.design_image_search).toBe(true);
+    } finally {
+      if (saved === undefined) delete process.env.OV_IMAGE_SEARCH;
+      else process.env.OV_IMAGE_SEARCH = saved;
+    }
+  });
+});
