@@ -221,7 +221,10 @@ async function forwardModel(upstreamUrl, request, raw, res) {
 const fakePlatform = selfTest || realSession ? await startFakePlatform() : null;
 const baseUrl = fakePlatform ? `http://127.0.0.1:${fakePlatform.address().port}/v1` : "https://maas.ovaijisuan.com/v1";
 const config = {
-  platform: { base_url: baseUrl, api_key: realSession ? "sk-proxy-local" : key, chat_model: "deepseek-v4-1-flash" },
+  // **默认用产品自己配的模型**（真实 App 的 config.json 是 qwen3.8-flash-fp8）。
+  // 以前这里写死 deepseek-v4-1-flash，于是"我们这边"的每一次对照都跑在不同模型上 ——
+  // 首步是用 bash 还是 skill、要不要先问，本来就和模型强相关，拿它比等于比错了对象。
+  platform: { base_url: baseUrl, api_key: realSession ? "sk-proxy-local" : key, chat_model: valueOf("model", "qwen3.8-flash-fp8") },
   models: { image: IMAGE_MODEL, image_edit: null, video: VIDEO_MODEL, video_ref: null, video_upscale: null, music: null, music_edit: null, speech: null, music_engine: null, enhance_music_caption: false, voice_map: {}, image_upscale: null },
 };
 const mode = realSession ? "real-session" : selfTest ? "selftest" : "online";
