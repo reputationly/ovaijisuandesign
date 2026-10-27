@@ -625,11 +625,14 @@ async function runRealSession() {
   // ⚠️ **不能靠 `page.on("request")`**：MCP server 是独立进程，它调 `/api/v3/execute`
   // 在渲染层看不见（上一轮就是这么误判成"没有调用"的）。改用 opencode 库里的 part：
   // 有 `design_execute` 的 part 就说明 agent 调了，顺便拿到它的 callID。
+  // `--timeout 秒`：等多久算"这一轮没调用 design_execute"。默认 240 秒，
+  // 但完整创意流程（问答 → 能力查询 → 生图）经常超过 4 分钟，对比过程时要放宽到 15 分钟。
+  const waitSeconds = Math.max(30, Number(valueOf("timeout", "240")) || 240);
   const started = Date.now();
   let executed = null;
   const allowButtons = ['[data-action-ui-id*="tool-confirm"] button', '[data-action-ui-id*="confirm"] button', 'button:has-text("允许")', 'button:has-text("确认")', 'button:has-text("继续")'];
   let partRow = null;
-  while (Date.now() - started < 240_000) {
+  while (Date.now() - started < waitSeconds * 1000) {
     try {
       const poll = new Database(path.join(app.xdg, "..", "opencode.db"), { readonly: true });
       partRow = poll.prepare("SELECT callID AS callID, data FROM part WHERE data LIKE '%\"tool\":\"design_execute\"%' ORDER BY rowid DESC LIMIT 1").get() ?? null;
