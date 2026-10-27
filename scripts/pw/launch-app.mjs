@@ -140,3 +140,68 @@ function findOpenCode() {
   if (existsSync(backup)) return backup;
   return "/Applications/MiniMax Design.app/Contents/Resources/opencode/opencode";
 }
+
+/**
+ * 把"卡在等人操作"的界面往前推：回答问题卡片、点掉确认/恢复对话框。
+ *
+ * 为什么需要：真会话里 agent 会先用 `question` 工具问 2~3 个问题（做选择），
+ * 中断恢复时还会弹"继续/恢复"确认。以前 harness 只点"确认/允许"按钮，
+ * 于是我们的 run 永远停在问题卡片上，到不了 `design_execute` —— 也就没法跟参照对比全过程。
+ *
+ * 策略（保守，不做语义判断）：
+ * - 选项里带「推荐」/「recommended」的那一项优先，否则选第一个；
+ * - 每题点完就点「提交」，多题时点「下一步」；一屏答完再回到调用方继续轮询。
+ *
+ * 返回本次推进了多少步，方便调用方判断界面是否真的在动。
+ */
+export async function autoAdvanceChat(page) {
+  let steps = 0;
+  const questionDock = page.locator('[data-action-ui-id="chat-question-dock"]');
+  // 一张卡片最多答 6 题，防止死循环。
+  for (let guard = 0; guard < 6; guard++) {
+    if (!(await questionDock.count().catch(() => 0))) break;
+    const options = page.locator('[data-action-ui-id^="chat-question-option-"]:visible');
+    const count = await options.count().catch(() => 0);
+    if (count === 0) break;
+    let chosen = 0;
+    for (let i = 0; i < count; i++) {
+      const text = (await options.nth(i).innerText().catch(() => "")) ?? "";
+      if (/推荐|recommended|建议/i.test(text)) {
+        chosen = i;
+        break;
+      }
+    }
+    await options.nth(chosen).click({ timeout: 2000 }).catch(() => {});
+    const submit = page.locator('[data-action-ui-id="chat-question-submit"]:visible');
+    const next = page.locator('[data-action-ui-id="chat-question-next"]:visible');
+    if (await submit.count().catch(() => 0)) {
+      await submit.first().click({ timeout: 2000 }).catch(() => {});
+      steps++;
+    } else if (await next.count().catch(() => 0)) {
+      await next.first().click({ timeout: 2000 }).catch(() => {});
+      steps++;
+    } else {
+      break;
+    }
+    await page.waitForTimeout(400);
+  }
+  // 确认 / 允许 / 继续 / 恢复 / 重试：这些是"继续跑"的按钮，点了不会改语义。
+  const resumeButtons = [
+    '[data-action-ui-id*="tool-confirm"] button',
+    '[data-action-ui-id*="confirm"] button',
+    'button:has-text("允许")',
+    'button:has-text("确认")',
+    'button:has-text("继续")',
+    'button:has-text("恢复")',
+    'button:has-text("重试")',
+  ];
+  for (const selector of resumeButtons) {
+    const button = page.locator(selector).first();
+    if (await button.count().catch(() => 0)) {
+      await button.click({ timeout: 2000 }).catch(() => {});
+      steps++;
+      await page.waitForTimeout(300);
+    }
+  }
+  return steps;
+}

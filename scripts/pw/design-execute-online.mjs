@@ -22,7 +22,7 @@ import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { launchApp } from "./launch-app.mjs";
+import { autoAdvanceChat, launchApp } from "./launch-app.mjs";
 
 const repo = path.resolve(import.meta.dirname, "../..");
 const req = createRequire(path.join(repo, "app/gateway/package.json"));
@@ -639,6 +639,9 @@ async function runRealSession() {
       executed = { at: Date.now(), toolUseId: partRow.callID ?? null };
       break;
     }
+    // 问题卡片（做选择）+ 确认/恢复对话框：不推进的话这一轮永远到不了 design_execute。
+    const advanced = await autoAdvanceChat(app.page).catch(() => 0);
+    if (advanced > 0) console.log(`界面推进 ${advanced} 步（问题/确认）`);
     for (const selector of allowButtons) {
       const button = app.page.locator(selector).first();
       if (await button.count().catch(() => 0)) {
