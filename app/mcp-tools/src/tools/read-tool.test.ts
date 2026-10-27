@@ -130,3 +130,24 @@ describe("document_write 的接线", () => {
     expect(again.isError).toBeUndefined();
   });
 });
+
+/** 模型会给必填字段加下划线前缀（把 `_session_id` 当命名规范），要能兜住。 */
+describe("下划线别名字段", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => { await gw.close(); });
+
+  it("composition_edit：模型传 _action/_name 时按正式字段处理", async () => {
+    gw.on("POST", "/api/project/compositions/commands", { json: { ok: true } });
+    const r = await h.call("composition_edit", { _action: "ensure", _typeId: "cty_1", _name: "视频" });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/project/compositions/commands");
+    const cmd = (sent?.body as { command?: Record<string, unknown> })?.command ?? {};
+    expect(cmd).toMatchObject({ action: "ensure", typeId: "cty_1", name: "视频" });
+  });
+});

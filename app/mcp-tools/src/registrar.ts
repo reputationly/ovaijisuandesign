@@ -121,13 +121,32 @@ function takeTurnId(args: Record<string, unknown>): string | undefined {
  * 这一步在**校验之前**补上，schema 不用动：
  * 同会话、同轮、同参数 → 同一个 id（重试仍幂等）；换参数/换轮次 → 新 id。
  */
+/**
+ * 模型有时会给必填字段加下划线前缀（`_action`、`_operations`）。
+ *
+ * 真会话里见过：它把私有的 `_session_id` 当成了"参数命名规范"，于是
+ * `composition_edit` 连发三次 `{"_action": "ensure", …}` → SDK 报
+ * `Required at action`。这里做**防御性别名**：正式字段缺了、`_字段` 在，就用它，
+ * 并把带下划线的旧键删掉。
+ */
+function moveUnderscoreAliases(shape: z.ZodRawShape, args: Record<string, unknown>): void {
+  for (const key of Object.keys(shape)) {
+    if (args[key] !== undefined) continue;
+    const aliased = `_${key}`;
+    if (args[aliased] === undefined) continue;
+    args[key] = args[aliased];
+    delete args[aliased];
+  }
+}
+
 function withAutoRequestId(shape: z.ZodRawShape, name: string) {
   const needsRequestId = Object.prototype.hasOwnProperty.call(shape, "requestId");
   const object = z.object(shape).passthrough();
-  if (!needsRequestId) return object;
   return z.preprocess((value) => {
     if (!value || typeof value !== "object" || Array.isArray(value)) return value;
     const args = { ...(value as Record<string, unknown>) };
+    moveUnderscoreAliases(shape, args);
+    if (!needsRequestId) return args;
     if (typeof args.requestId === "string" && args.requestId.trim() !== "") return args;
     const { _session_id, _chat_turn_id, _tool_use_id, ...rest } = args;
     const seed = JSON.stringify([name, _session_id ?? "", _chat_turn_id ?? "", _tool_use_id ?? "", rest]);
