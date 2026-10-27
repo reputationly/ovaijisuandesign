@@ -35,8 +35,8 @@ import {
   latestDeliveredProjectRules,
   needsProjectRulesDelivery,
   PROJECT_RULES_SYSTEM_NOTE,
+  fetchProjectRules,
   projectRulesPart,
-  readProjectRules,
   type ProjectRulesMarker,
 } from "./project-rules-context.js";
 import { v3ToolMaterials } from "./v3-tool-materials.js";
@@ -279,9 +279,10 @@ const plugin: Plugin = async (input) => {
       // 只在第一次、或 revision 变了的时候投递 —— 每次都说一遍既浪费缓存也干扰模型。
       if (projectArchitectureIsV3() && out.parts) {
         try {
-          const root = projectRoot();
-          const rules = await readProjectRules(root);
+          // 规则属于"绑定的工作区"，只有 gateway 知道它在哪（见 fetchProjectRules 的注释）。
+          const rules = await fetchProjectRules(gatewayUrl);
           const delivered = projectRulesDelivered.get(inp.sessionID) ?? latestDeliveredProjectRules([{ parts: out.parts }]);
+
           if (needsProjectRulesDelivery(delivered, rules)) {
             const parts = out.parts as Array<Record<string, unknown>>;
             parts.push(

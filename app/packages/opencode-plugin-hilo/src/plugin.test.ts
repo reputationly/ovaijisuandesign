@@ -19,6 +19,7 @@ const DEFAULTS = {
   "/loop-guard-trip": { ok: true },
   "/mcp-tool-call": { ok: true },
   "/attachment-observations": { attachment_refs: [] },
+  "/api/project-rules": { content: "- 竖屏 9:16", revision: "a".repeat(64) },
   "/api/models": {
     imageModels: [{ id: "seedream-4.0", type: "image", display_name: "seedream-4.0", tool_names: ["hub_generate_image"], series_id: "seedream-4.0" }],
     videoModels: [{ id: "wan2.2-t2v", type: "video", display_name: "wan2.2-t2v", tool_names: ["hub_generate_video"], series_id: "wan2.2-t2v" }],
@@ -129,8 +130,6 @@ describe("opencode 插件", () => {
   it("chat.message（v3）：项目规则以 <project_rules> 挂到消息上，规则没变就不再投", async () => {
     process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
     const dir = tmp();
-    mkdirSync(path.join(dir, ".hilo"), { recursive: true });
-    writeFileSync(path.join(dir, ".hilo", "project-rules.md"), "- 竖屏 9:16");
     try {
       const h = await load(dir);
       const first = { message: { id: "msg_1" }, parts: [{ type: "text", text: "做一张图" }] };
@@ -145,7 +144,7 @@ describe("opencode 插件", () => {
       expect((second.parts as any[]).some((p) => p.metadata?.hilo_project_rules)).toBe(false);
 
       // 规则改了：重投，并且带新的 revision。
-      writeFileSync(path.join(dir, ".hilo", "project-rules.md"), "- 竖屏 9:16\n- 字幕放底部");
+      gw.routes.set("/api/project-rules", { content: "- 竖屏 9:16\n- 字幕放底部", revision: "b".repeat(64) });
       const third = { message: { id: "msg_3" }, parts: [{ type: "text", text: "再改改" }] };
       await h["chat.message"]({ sessionID: "ses_rules" }, third);
       const updated = (third.parts as any[]).find((p) => p.metadata?.hilo_project_rules);

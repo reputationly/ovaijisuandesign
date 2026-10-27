@@ -1,7 +1,3 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
-
 import { describe, expect, it } from "vitest";
 
 import {
@@ -13,28 +9,29 @@ import {
   projectRulesMarkerOf,
   projectRulesPart,
   projectRulesRevision,
-  readProjectRules,
+  projectRulesFromResponse,
+  fetchProjectRules,
 } from "./project-rules-context.js";
 
-function project(rules?: string): string {
-  const dir = mkdtempSync(path.join(tmpdir(), "ov-rules-"));
-  if (rules !== undefined) {
-    mkdirSync(path.join(dir, ".hilo"), { recursive: true });
-    writeFileSync(path.join(dir, ".hilo", "project-rules.md"), rules);
-  }
-  return dir;
-}
-
 describe("项目规则（v3）", () => {
-  it("没有文件 = 没有规则（不是错误）", async () => {
-    expect(await readProjectRules(project())).toEqual({ content: "", revision: null });
+  it("gateway 响应 → 规则；形状不对就当没有规则（不抛）", () => {
+    expect(projectRulesFromResponse({ content: "- 9:16", revision: "abc" })).toEqual({ content: "- 9:16", revision: "abc" });
+    for (const bad of [null, [], "x", { content: 1, revision: 2 }]) {
+      expect(projectRulesFromResponse(bad)).toEqual({ content: "", revision: null });
+    }
   });
 
-  it("有文件时读出内容并算 sha256 revision（与 gateway 的口径一致）", async () => {
-    const rules = await readProjectRules(project("# 规则\n- 竖向 9:16\n"));
-    expect(rules.content).toBe("# 规则\n- 竖向 9:16\n");
-    expect(rules.revision).toBe(projectRulesRevision(rules.content));
-    expect(rules.revision).toMatch(/^[a-f0-9]{64}$/);
+  it("读规则走 gateway（HTTP 非 2xx 就抛，由调用方降级）", async () => {
+    const seen: string[] = [];
+    const ok = (async (url: string) => {
+      seen.push(url);
+      return { ok: true, status: 200, json: async () => ({ content: "- 竖屏", revision: "r1" }) } as unknown as Response;
+    }) as unknown as typeof fetch;
+    expect(await fetchProjectRules("http://127.0.0.1:1/", ok)).toEqual({ content: "- 竖屏", revision: "r1" });
+    expect(seen[0]).toBe("http://127.0.0.1:1/api/project-rules");
+
+    const bad = (async () => ({ ok: false, status: 403, json: async () => ({}) }) as unknown as Response) as unknown as typeof fetch;
+    await expect(fetchProjectRules("http://127.0.0.1:1", bad)).rejects.toThrow(/HTTP 403/);
   });
 
   it("块：带 revision 前缀，正文说明「这一份替换之前所有版本」；空规则也有明确说法", async () => {

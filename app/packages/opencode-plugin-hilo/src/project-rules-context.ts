@@ -1,6 +1,6 @@
-import { createHash, randomBytes } from "node:crypto";
-import { open } from "node:fs/promises";
-import path from "node:path";
+import { createHash } from "node:crypto";
+
+import { withGatewayIdentity } from "./gateway-identity.js";
 
 /**
  * 项目规则：`.hilo/project-rules.md` 里的持久工作规则，**按 `<project_rules>` 块挂到用户消息上**。
@@ -14,10 +14,10 @@ import path from "node:path";
  */
 export const PROJECT_RULES_METADATA_KEY = "hilo_project_rules";
 
-/** 和 gateway 的 `PROJECT_RULES_MAX_BYTES` 同一个上限，两边必须一致。 */
-export const PROJECT_RULES_MAX_BYTES = 16 * 1024;
-
-export const PROJECT_RULES_FILE = path.join(".hilo", "project-rules.md");
+/** gateway 的 `GET /api/project-rules`。 */
+export const PROJECT_RULES_HTTP_PATH = "/api/project-rules";
+/** 读规则不能拖慢一轮对话：超时就当没有规则。 */
+export const PROJECT_RULES_TIMEOUT_MS = 2_000;
 
 /** system 里那句"规则会以 `<project_rules>` 块出现在用户消息上"。逐字照参照。 */
 export const PROJECT_RULES_SYSTEM_NOTE = [
@@ -35,36 +35,33 @@ export function projectRulesRevision(content: string): string {
 }
 
 /**
- * 读项目规则。文件不存在 = 没有规则（`{content:"", revision:null}`），**不是错误**；
- * 超上限或不是合法 UTF-8 才算错误 —— 静默截断会让 agent 按半份规则干活。
+ * 从 gateway 读项目规则（`GET /api/project-rules`）。
+ *
+ * **不要自己拼路径去读文件。** 规则属于"绑定的工作区"，而插件进程的 `cwd` 与
+ * `input.directory` 都可能是别的东西（实测是 `data/Projects/<对话标题>`），
+ * 只有 gateway 知道工作区在哪 —— 它的 `WorkspacePathService.root` 就是那份规则所在。
+ * 顺带也不必重复实现 revision 与 16 KB 上限。
  */
-export async function readProjectRules(projectRoot: string): Promise<ProjectRules> {
-  const filePath = path.join(projectRoot, PROJECT_RULES_FILE);
-  let handle;
-  try {
-    handle = await open(filePath, "r");
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return { content: "", revision: null };
-    throw new Error(`Cannot load project rules from ${filePath}: ${(error as Error).message}`);
-  }
-  try {
-    const bytes = Buffer.alloc(PROJECT_RULES_MAX_BYTES + 1);
-    let length = 0;
-    while (length < bytes.length) {
-      const { bytesRead } = await handle.read(bytes, length, bytes.length - length, length);
-      if (bytesRead === 0) break;
-      length += bytesRead;
-    }
-    if (length > PROJECT_RULES_MAX_BYTES) {
-      throw new Error(`Project rules exceed ${PROJECT_RULES_MAX_BYTES} UTF-8 bytes. Shorten ${filePath} before continuing.`);
-    }
-    const content = new TextDecoder("utf-8", { fatal: true }).decode(bytes.subarray(0, length));
-    return { content, revision: projectRulesRevision(content) };
-  } catch (error) {
-    throw new Error(`Cannot load project rules from ${filePath}: ${(error as Error).message}`);
-  } finally {
-    await handle.close();
-  }
+export async function fetchProjectRules(
+  gatewayUrl: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<ProjectRules> {
+  const response = await fetchImpl(
+    `${gatewayUrl.replace(/\/+$/, "")}${PROJECT_RULES_HTTP_PATH}`,
+    withGatewayIdentity({ signal: AbortSignal.timeout(PROJECT_RULES_TIMEOUT_MS) }),
+  );
+  const body = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(`project rules unavailable (HTTP ${response.status})`);
+  return projectRulesFromResponse(body);
+}
+
+/** 解析 gateway 的响应；形状不对就当"没有规则"，不抛（不能因此挡住对话）。 */
+export function projectRulesFromResponse(value: unknown): ProjectRules {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return { content: "", revision: null };
+  const record = value as { content?: unknown; revision?: unknown };
+  const content = typeof record.content === "string" ? record.content : "";
+  const revision = typeof record.revision === "string" ? record.revision : null;
+  return { content, revision };
 }
 
 /** `<project_rules revision="xxxx">…</project_rules>`。revision 只取前 12 位，够区分。 */
@@ -150,6 +147,3 @@ export function projectRulesPart(rules: ProjectRules, ids: ProjectRulesPartIds):
     metadata: { [PROJECT_RULES_METADATA_KEY]: { revision: rules.revision } },
   };
 }
-
-/** 测试用：随机字节的兜底分支不参与断言，这里只保证导出形状稳定。 */
-export const _randomTailForTests = (): number => randomBytes(1)[0]!;

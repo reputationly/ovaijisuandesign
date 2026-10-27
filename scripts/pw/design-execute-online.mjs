@@ -20,7 +20,7 @@
 import { execFileSync, spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { createRequire } from "node:module";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { launchApp } from "./launch-app.mjs";
 
@@ -72,7 +72,7 @@ const inputPayload = {
  */
 async function startFakePlatform() {
   const png = await req("sharp")({ create: { width: 64, height: 64, channels: 4, background: { r: 200, g: 40, b: 40, alpha: 1 } } }).png().toBuffer();
-  const server = createServer((request, res) => {
+  const server = createServer(async (request, res) => {
     const base = `http://127.0.0.1:${server.address().port}`;
     const json = (payload) => {
       res.setHeader("content-type", "application/json");
@@ -109,6 +109,16 @@ async function startFakePlatform() {
     // 客户端的流式解析直接罢工。
     const passthrough = new Set(["/v1/chat/completions", "/v1/responses", "/v1/messages", "/v1/models"]);
     if (realSession && passthrough.has(request.url.split("?")[0])) {
+      // **把模型调用原样留下来**（脱敏后写盘）。要看的是 system 与 messages：
+      // 三段提示词块（项目规则说明、引用规则、工作语言）到底进没进去、长什么样。
+      if (request.method === "POST") {
+        const chunks = [];
+        for await (const chunk of request) chunks.push(chunk);
+        const raw = Buffer.concat(chunks);
+        captureModelRequest(request.url, raw);
+        const upstreamUrl = `https://maas.ovaijisuan.com${request.url}`;
+        return forwardModel(upstreamUrl, request, raw, res);
+      }
       const upstreamUrl = `https://maas.ovaijisuan.com${request.url}`;
       const forward = async () => {
         const init = {
@@ -150,6 +160,62 @@ async function startFakePlatform() {
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   return server;
+}
+
+/** 落盘的模型请求（脱敏后）：给"提示词到底发了什么"留证据。 */
+const capturedModelRequests = [];
+function captureModelRequest(url, raw) {
+  let body;
+  try {
+    body = JSON.parse(raw.toString("utf8"));
+  } catch {
+    return;
+  }
+  const messages = Array.isArray(body?.messages) ? body.messages : [];
+  const textOf = (content) =>
+    typeof content === "string"
+      ? content
+      : Array.isArray(content)
+        ? content
+            .filter((part) => part?.type === "text" && typeof part.text === "string")
+            .map((part) => part.text)
+            .join("\n")
+        : "";
+  capturedModelRequests.push({
+    url,
+    model: body?.model,
+    stream: body?.stream === true,
+    // 参照发出的形状：opencode 把 system 放在 `body.system`（字符串数组）或
+    // `messages[role=system]` 里，两种都留。
+    system: Array.isArray(body?.system) ? body.system : typeof body?.system === "string" ? [body.system] : [],
+    messages: messages.map((message) => ({
+      role: message?.role,
+      chars: textOf(message?.content).length,
+      text: textOf(message?.content).slice(0, 8000),
+    })),
+    // 原始请求体（写盘时脱敏）：离线分析用，别再被截断坑一次。
+    raw: body,
+  });
+}
+
+async function forwardModel(upstreamUrl, request, raw, res) {
+  const init = {
+    method: request.method,
+    headers: {
+      "content-type": request.headers["content-type"] ?? "application/json",
+      accept: request.headers.accept ?? "*/*",
+      authorization: `Bearer ${key}`,
+    },
+    body: raw,
+  };
+  const upstream = await fetch(upstreamUrl, init);
+  res.writeHead(upstream.status, {
+    "content-type": upstream.headers.get("content-type") ?? "application/json",
+    ...(upstream.headers.get("cache-control") ? { "cache-control": upstream.headers.get("cache-control") } : {}),
+  });
+  if (!upstream.body) return res.end();
+  for await (const chunk of upstream.body) res.write(chunk);
+  res.end();
 }
 
 const fakePlatform = selfTest || realSession ? await startFakePlatform() : null;
@@ -543,6 +609,17 @@ async function runRealSession() {
   await app.page.keyboard.type(prompt);
   await app.page.click('[data-action-ui-id="message-send-btn"]');
 
+  // `--project-rules "…"`：在**第一条消息之前**就把规则写进这个会话会用到的项目工作区。
+  // 标题就是提示词（desktop 的 sanitizeDirName 基本原样保留），先建好目录，
+  // 应用会复用它 —— 这样第一轮 chat.message 就能读到规则。
+  const projectRules = valueOf("project-rules");
+  if (projectRules) {
+    const projectDir = path.join(path.dirname(app.xdg), "data", "Projects", prompt.replace(/[\\/:*?"<>|]/g, "_").slice(0, 20));
+    mkdirSync(path.join(projectDir, ".hilo"), { recursive: true });
+    writeFileSync(path.join(projectDir, ".hilo", "project-rules.md"), `${projectRules}\n`);
+    console.log("项目规则预置到", path.join(projectDir, ".hilo", "project-rules.md"));
+  }
+
   // 等 agent 真的调了 design_execute。
   //
   // ⚠️ **不能靠 `page.on("request")`**：MCP server 是独立进程，它调 `/api/v3/execute`
@@ -573,6 +650,19 @@ async function runRealSession() {
     await app.page.waitForTimeout(2000);
   }
   const result = { out, realSession: true, plugin: app.plugin, prompt, visibility: null, partCallID: null, executeToolUseId: executed?.toolUseId ?? null, executed: Boolean(executed), frames: [], polling: null, cardText: "", outputHtml: "", pageErrors: [] };
+  // 模型调用的原始形态（脱敏后）：提示词对齐的取证。
+  if (capturedModelRequests.length > 0) {
+    const promptsDir = path.join(out, "prompts");
+    mkdirSync(promptsDir, { recursive: true });
+    capturedModelRequests.forEach((item, index) => {
+      const name = String(index + 1).padStart(2, "0");
+      const { raw, ...summary } = item;
+      writeFileSync(path.join(promptsDir, `${name}.json`), JSON.stringify(redact(summary), null, 2));
+      writeFileSync(path.join(promptsDir, `${name}.raw.json`), JSON.stringify(redact(raw), null, 2));
+    });
+    result.modelRequests = capturedModelRequests.length;
+    result.promptsDir = promptsDir;
+  }
   if (!executed) {
     result.pageErrors = redact(pageErrors).slice(0, 5);
     writeFileSync(path.join(out, "result.json"), JSON.stringify(redact(result), null, 2));
