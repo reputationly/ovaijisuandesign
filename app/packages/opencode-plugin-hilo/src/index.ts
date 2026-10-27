@@ -30,6 +30,8 @@ import { HILO_PROJECT_ARCHITECTURE_ENV, parseAgentProfileVersion } from "@ov/pro
 import { loadMemoryContext, shouldIncludeUserMemory } from "./load-memory-context.js";
 import { CODE_AGENT_NAME, createCodeAgentBindings, guardCodeAgentTool, isCodeAgentGuardedTool } from "./code-agent-guard.js";
 import { nextToolCallIndex, TOOL_CALL_INDEX_ARG } from "./tool-call-order.js";
+import { traceMessages, traceSystem, traceTool } from "./agent-trace.js";
+import { fetchProjectCompositions, formatProjectOverview, withProjectOverview } from "./project-overview.js";
 import { PROJECT_REFERENCE_RULES } from "./project-references.js";
 import {
   latestDeliveredProjectRules,
@@ -253,6 +255,8 @@ const plugin: Plugin = async (input) => {
       } else {
         appendSystemBlock(out.system, formatUserVisibleModelSafetyBlock());
       }
+      // `OV_AGENT_TRACE=1` 时记指纹与长度（不落正文）：排查提示词差异用。
+      traceSystem(inp.sessionID ?? "?", out.system);
       if (isDev && memoryEntries > 0) {
         console.log(`[hilo-plugin] system.transform session=${inp.sessionID} memory_entries=${memoryEntries} memory_truncated=${memoryTruncated}`);
       }
@@ -263,6 +267,7 @@ const plugin: Plugin = async (input) => {
     /** 压缩后的合成"继续"消息补一句语言要求。只有真有待补的消息才去查工作语言。 */
     "experimental.chat.messages.transform": async (_inp, out) => {
       const sessionIDs = collectMessageSessionIds(out.messages);
+      for (const sessionID of sessionIDs) traceMessages(sessionID, out.messages as never);
       const workingLanguage = hasPendingCompactionContinuePrompt(out.messages)
         ? await getEffectiveWorkingLanguageForSessions(sessionIDs, gatewayUrl)
         : undefined;
@@ -278,6 +283,18 @@ const plugin: Plugin = async (input) => {
       // v3：把"当前完整项目规则"以 <project_rules> 块挂到这条用户消息上。
       // 只在第一次、或 revision 变了的时候投递 —— 每次都说一遍既浪费缓存也干扰模型。
       if (projectArchitectureIsV3() && out.parts) {
+        // 项目概览：把"当前项目有哪些 Composition"塞进 `<design_context>`。
+        // 参照 4.0.4 每轮都做；没有它，agent 第一件事只能自己去 bash/搜索（实测多 2 次往返）。
+        try {
+          const parts = out.parts as Array<{ type?: string; text?: string }>;
+          const target = parts.find((part) => part?.type === "text" && typeof part.text === "string");
+          if (target && typeof target.text === "string" && !target.text.includes("<project_overview>")) {
+            const overview = formatProjectOverview(await fetchProjectCompositions(gatewayUrl));
+            target.text = withProjectOverview(target.text, overview);
+          }
+        } catch (error) {
+          console.warn(`[hilo-plugin] project overview skipped session=${inp.sessionID}: ${(error as Error).message}`);
+        }
         try {
           // 规则属于"绑定的工作区"，只有 gateway 知道它在哪（见 fetchProjectRules 的注释）。
           const rules = await fetchProjectRules(gatewayUrl);
@@ -330,6 +347,10 @@ const plugin: Plugin = async (input) => {
      */
     "tool.execute.before": async (inp, out) => {
       if (!inp.sessionID) console.warn(`[hilo-plugin] tool.execute.before: sessionID is undefined for tool=${inp.tool}`);
+      traceTool("before", inp.sessionID ?? "?", inp.tool, {
+        argsChars: JSON.stringify(out.args ?? {}).length,
+        argsKeys: out.args && typeof out.args === "object" ? Object.keys(out.args as Record<string, unknown>) : [],
+      });
 
       // `/xxx` 是斜杠命令，不是子 agent 的任务 —— 交给通用 agent 只会让它一本正经地瞎做。
       if (inp.tool === "task") {
@@ -459,6 +480,10 @@ const plugin: Plugin = async (input) => {
      * 模型换了模型想脱困也会被一直拦。
      */
     "tool.execute.after": async (inp, out) => {
+      traceTool("after", inp.sessionID ?? "?", inp.tool, {
+        resultChars: typeof out.output === "string" ? out.output.length : JSON.stringify(out.output ?? "").length,
+        status: typeof out.metadata?.status === "string" ? out.metadata.status : undefined,
+      });
       if (inp.tool === "skill" && inp.sessionID && isBrowserSkillLoadResult(inp.args, out.output)) {
         const rootId = await resolveRootSession(inp.sessionID, gatewayUrl);
         recordSkillLoaded(rootId, CONTROL_IN_APP_BROWSER_SKILL);
