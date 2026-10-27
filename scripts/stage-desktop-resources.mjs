@@ -49,7 +49,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -272,7 +272,80 @@ function main() {
 
   if (flag("--rebuild")) rebuild();
 
+  prune();
+
   console.log(`\n✓ 装配完成，合计 ${dirSizeMb(OUT).toFixed(0)} MB`);
+}
+
+/**
+ * 清掉发布包里用不到的文件。都是「装完用户用不上、纯属白占体积」的东西：
+ *
+ * 1. **better-sqlite3 的构建残留**：`deps/`（sqlite 源码）、`src/`（C++ 源码）、
+ *    `binding.gyp`，以及 `build/` 里除 `Release/better_sqlite3.node` 之外的一切
+ *    （Makefile / obj / sqlite3.a / test_extension.node —— 加起来 ~17MB）。
+ *    运行时由 `bindings` 包按 tries 列表找 `.node` 文件（build/Release 是第一候选），
+ *    它**不读 binding.gyp** —— gyp 文件只对 node-gyp 编译有意义。
+ * 2. **gateway / mcp-tools 的源码与工程文件**：src/、tsconfig*.json、vitest.config.*。
+ *    例外：gateway 有两个 src 资源运行时要读 —— `asset-center/0001_initial.sql`
+ *    （建库 SQL）和 `director-vcam/phone/`（手机配对页）。dist 里的代码本来就先查
+ *    `./` 旁边的副本、查不到才回落 `../../src/`（为打包特意做的双查），
+ *    所以把这两处铺进 dist/ 对应位置后，src/ 可以整树删。
+ */
+function prune() {
+  const before = dirSizeMb(OUT);
+
+  // 1) better-sqlite3
+  for (const dir of DEPLOY.map((d) => d.dir)) {
+    const pnpmDir = path.join(OUT, dir, "node_modules", ".pnpm");
+    if (!existsSync(pnpmDir)) continue;
+    for (const e of readdirSync(pnpmDir)) {
+      if (!e.startsWith("better-sqlite3@")) continue;
+      const pkg = path.join(pnpmDir, e, "node_modules", "better-sqlite3");
+      if (!existsSync(pkg)) continue;
+      for (const junk of ["deps", "src", "binding.gyp"]) {
+        rmSync(path.join(pkg, junk), { recursive: true, force: true });
+      }
+      const buildDir = path.join(pkg, "build");
+      if (existsSync(buildDir)) {
+        for (const f of readdirSync(buildDir)) {
+          if (f !== "Release") rmSync(path.join(buildDir, f), { recursive: true, force: true });
+        }
+        const rel = path.join(buildDir, "Release");
+        if (existsSync(rel)) {
+          for (const f of readdirSync(rel)) {
+            if (f !== "better_sqlite3.node") rmSync(path.join(rel, f), { recursive: true, force: true });
+          }
+        }
+      }
+      console.log(`  清理 ${dir} 的 better-sqlite3 构建残留`);
+    }
+  }
+
+  // 2) src/ 与工程文件。gateway 先把运行时还要用的两个资源铺进 dist/。
+  const SRC_ASSETS = {
+    gateway: [
+      ["src/asset-center/0001_initial.sql", "dist/asset-center/0001_initial.sql"],
+      ["src/director-vcam/phone", "dist/director-vcam/phone"],
+    ],
+  };
+  for (const dir of DEPLOY.map((d) => d.dir)) {
+    const root = path.join(OUT, dir);
+    for (const [from, to] of SRC_ASSETS[dir] ?? []) {
+      const src = path.join(root, from);
+      const dst = path.join(root, to);
+      if (!existsSync(src)) throw new Error(`${dir} 缺运行时要用的 ${from} —— dist 代码会回落读它，不能删`);
+      cpSync(src, dst, { recursive: true });
+    }
+    for (const junk of ["src", "vitest.config.ts", "vitest.config.mts", "vitest.config.js"]) {
+      rmSync(path.join(root, junk), { recursive: true, force: true });
+    }
+    for (const f of readdirSync(root)) {
+      if (/^tsconfig.*\.json$/.test(f)) rmSync(path.join(root, f), { force: true });
+    }
+    console.log(`  清理 ${dir} 的 src/ 与工程文件`);
+  }
+
+  console.log(`  清理后合计 ${dirSizeMb(OUT).toFixed(0)} MB（清掉 ${(before - dirSizeMb(OUT)).toFixed(0)} MB）`);
 }
 
 /**

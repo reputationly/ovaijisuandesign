@@ -36,6 +36,7 @@
     "rxjs": "7.8.2",
     "sharp": "0.35.4",
     "undici": "7.29.1",
+    "ws": "8.21.3",
     "yauzl": "3.4.0"
   },
   "devDependencies": {
@@ -51,7 +52,6 @@
     "@types/ws": "^8.18.0",
     "@types/yauzl": "3.4.0",
     "supertest": "^7.1.0",
-    "unplugin-swc": "^1.5.0",
-    "ws": "8.21.3"
+    "unplugin-swc": "^1.5.0"
   }
 }

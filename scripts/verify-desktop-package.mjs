@@ -20,8 +20,10 @@
  *   node scripts/verify-desktop-package.mjs <产物目录>
  */
 
+import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
-import { closeSync, existsSync, openSync, readFileSync, readSync, readdirSync, statSync } from "node:fs";
+import { closeSync, existsSync, mkdtempSync, openSync, readFileSync, readSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -116,6 +118,9 @@ function required(resources) {
     // 第 254 轮（M7）：v3 架构要读这一份，漏了的话 v3 下会静默回落到 v2
     ["agent-profiles/v3/config/base.json", "locateProfile（agent 配置 v3）"],
     ["skills", "locateBundledSkills（自带技能）"],
+    // stage 清理 src/ 时把这两处运行时要读的资源铺进 dist/（代码本来就先查 ./ 旁置副本）。
+    ["gateway/dist/asset-center/0001_initial.sql", "asset-center 建库 SQL（src/ 已整树删）"],
+    ["gateway/dist/director-vcam/phone", "vcam 手机配对页（src/ 已整树删）"],
     ["home-showcase/quick-start-config-v2.json", "homeShowcaseDir()（首页创作灵感，缺了首页是空的）"],
     // 首启要导入的内置示例项目。**缺了它每次首启都弹「导入失败」**，
     // 而发布日志全绿 —— 这个目录曾经不在 required 里，于是没人发现。
@@ -176,6 +181,14 @@ const ASAR_FORBIDDEN = [
 const FORBIDDEN = [
   ["home-showcase/media", "468MB 示例图。走 302 回落 CDN + 首启预热前 24 张到 userData（包内只读）"],
   [".staged.json", "装配过程的记账文件"],
+  // stage 的 prune() 清掉的东西 —— 漏了说明清理没生效，包里白占几 MB。
+  ["gateway/src", "gateway 源码不进包（运行时资源已铺进 dist/）"],
+  ["mcp-tools/src", "mcp-tools 源码不进包"],
+  ["gateway/tsconfig.json", "工程文件不进包"],
+  ["gateway/tsconfig.build.json", "工程文件不进包"],
+  ["gateway/vitest.config.ts", "测试配置不进包"],
+  ["mcp-tools/tsconfig.json", "工程文件不进包"],
+  ["mcp-tools/tsconfig.build.json", "工程文件不进包"],
 ];
 
 /**
@@ -515,7 +528,195 @@ function checkIcon(resources) {
   return 0;
 }
 
-function main() {
+/**
+ * 产物自己的可执行文件路径 —— 运行时证明要用**包里的那个 Electron**（ABI 一致），
+ * 不能拿系统 node：那样 better-sqlite3 按 Electron ABI 编的 .node 根本加载不了。
+ */
+function productBinary(resources) {
+  const mac = path.resolve(resources, "..", "MacOS");
+  if (existsSync(mac)) {
+    for (const f of readdirSync(mac)) {
+      const p = path.join(mac, f);
+      if (statSync(p).isFile()) return p;
+    }
+  }
+  const dir = path.resolve(resources, "..");
+  for (const f of readdirSync(dir)) {
+    if (f.toLowerCase().endsWith(".exe")) return path.join(dir, f);
+  }
+  return null;
+}
+
+/**
+ * prune() 的产物核对。better-sqlite3 在 pnpm 虚存里（`.pnpm/better-sqlite3@x.y.z/…`），
+ * 只剩 `build/Release/better_sqlite3.node` 一个二进制 + lib/ + package.json。
+ */
+function checkPruned(resources) {
+  let bad = 0;
+  console.log("\n瘦身核对");
+  for (const dir of ["gateway", "mcp-tools"]) {
+    const pnpmDir = path.join(resources, dir, "node_modules", ".pnpm");
+    if (!existsSync(pnpmDir)) continue;
+    for (const e of readdirSync(pnpmDir)) {
+      if (!e.startsWith("better-sqlite3@")) continue;
+      const pkg = path.join(pnpmDir, e, "node_modules", "better-sqlite3");
+      if (!existsSync(pkg)) continue;
+      for (const junk of ["deps", "src", "binding.gyp"]) {
+        if (existsSync(path.join(pkg, junk))) {
+          bad++;
+          console.log(`  ❌ ${dir} better-sqlite3/${junk} 还在 —— stage 的 prune() 没跑到？`);
+        }
+      }
+      const rel = path.join(pkg, "build", "Release");
+      const binding = path.join(rel, "better_sqlite3.node");
+      if (!existsSync(binding)) {
+        bad++;
+        console.log(`  ❌ ${dir} better-sqlite3 的原生库没了（${e}）`);
+      } else {
+        const left = readdirSync(rel);
+        if (left.length !== 1 || left[0] !== "better_sqlite3.node") {
+          bad++;
+          console.log(`  ❌ ${dir} better-sqlite3/build/Release 里还有别的东西：${left.join(" ")}`);
+        } else {
+          console.log(`  ✅ ${dir} better-sqlite3 只剩运行时那份 .node`);
+        }
+      }
+    }
+  }
+  return bad;
+}
+
+/**
+ * asar 里 node_modules 的顶层清单。**devDependencies 一个都不该在** ——
+ * 它们进 asar 的唯一通道是 package.json dependencies（electron-builder 自动收），
+ * 移走之后还被收进去就说明移动失效或某个包又被引回 dependencies。
+ */
+function checkAsarModules(resources) {
+  let bad = 0;
+  const tree = readAsarTree(resources);
+  if (tree.error) {
+    console.log(`  ❌ ${tree.error}`);
+    return 1;
+  }
+  const mods = asarNode(tree.files, "node_modules") ?? {};
+  const names = Object.keys(mods).filter((n) => n !== ".bin").sort();
+  const pkgJson = JSON.parse(readFileSync(path.join(REPO, "app/desktop/package.json"), "utf8"));
+  const devDeps = new Set(Object.keys(pkgJson.devDependencies ?? {}));
+  const leaked = names.filter((n) => devDeps.has(n));
+  const total = (function sum(node) {
+    let t = 0;
+    for (const v of Object.values(node)) {
+      if (v.size != null) t += v.size;
+      else if (v.files) t += sum(v.files);
+    }
+    return t;
+  })(mods);
+  console.log(`\nasar node_modules 顶层（${names.length} 项，共 ${(total / 1048576).toFixed(1)} MB）：${names.join(", ")}`);
+  if (leaked.length) {
+    bad++;
+    console.log(`  ❌ devDependencies 被收进 asar：${leaked.join(", ")}`);
+  } else {
+    console.log("  ✅ devDependencies 无一被收进 asar");
+  }
+  return bad;
+}
+
+/**
+ * 运行时证明（不只是「文件在」）：
+ *   1. 用包里的 Electron 把 packaged gateway 的 better-sqlite3 加载起来查一行；
+ *   2. 真把 packaged gateway/dist/main.js 起起来（ELECTRON_RUN_AS_NODE），
+ *      打 /api/health 和 sqlite 背书的 /api/asset-center/library-status。
+ */
+function runNode(binary, args, opts = {}) {
+  return new Promise((resolve) => {
+    const child = spawn(binary, args, { env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" }, stdio: ["ignore", "pipe", "pipe"], ...opts });
+    let out = "";
+    let err = "";
+    child.stdout.on("data", (c) => (out += c));
+    child.stderr.on("data", (c) => (err += c));
+    child.on("close", (code) => resolve({ code, out, err }));
+  });
+}
+
+async function checkRuntime(resources) {
+  let bad = 0;
+  console.log("\n运行时证明");
+  const binary = productBinary(resources);
+  if (!binary) {
+    console.log("  ❌ 找不到产物主二进制，跳过运行时核对");
+    return 1;
+  }
+  const gwModules = path.join(resources, "gateway/node_modules");
+  // (a) sqlite 能在包里的 Electron 下加载并真的查一行
+  const sql = await runNode(binary, [
+    "-e",
+    `const D=require(${JSON.stringify(path.join(gwModules, "better-sqlite3"))});const r=new D(":memory:").prepare("select 1 as x").get();process.stdout.write(JSON.stringify(r));`,
+  ]);
+  if (sql.code === 0 && sql.out.trim() === '{"x":1}') {
+    console.log("  ✅ better-sqlite3 在产物 Electron 下 :memory: 查询正常");
+  } else {
+    bad++;
+    console.log(`  ❌ better-sqlite3 加载/查询失败（exit ${sql.code}）：${sql.err.slice(0, 300)}${sql.out.slice(0, 200)}`);
+  }
+
+  // (b) 真起 gateway。环境和主进程 GatewayManager 给的那套一致。
+  const ws = mkdtempSync(path.join(tmpdir(), "ov-verify-gw-"));
+  const port = 40000 + Math.floor(Math.random() * 20000);
+  const child = spawn(binary, [path.join(resources, "gateway/dist/main.js")], {
+    env: {
+      ...process.env,
+      ELECTRON_RUN_AS_NODE: "1",
+      PORT: String(port),
+      WORKSPACE_DIR: ws,
+      OUTPUT_DIR: ws,
+      OV_CONFIG_PATH: path.join(ws, "config.json"),
+      HILO_OPENCODE_DB: path.join(ws, "opencode.db"),
+      HILO_PROJECTS_ROOT: ws,
+      HILO_HOMESHOWCASE_CACHE: path.join(ws, "showcase"),
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let boot = "";
+  child.stdout.on("data", (c) => (boot += c));
+  child.stderr.on("data", (c) => (boot += c));
+  try {
+    const base = `http://127.0.0.1:${port}`;
+    const wait = async (ms) => new Promise((r) => setTimeout(r, ms));
+    let up = false;
+    for (let i = 0; i < 60 && !up; i++) {
+      try {
+        const res = await fetch(`${base}/api/health`, { signal: AbortSignal.timeout(1000) });
+        if (res.ok) up = true;
+      } catch { /* 还在起 */ }
+      if (!up) await wait(500);
+    }
+    if (!up) {
+      bad++;
+      console.log(`  ❌ gateway 30 秒没起来：${boot.slice(-400)}`);
+    } else {
+      console.log("  ✅ gateway 在产物 Electron 下启动并响应 /api/health");
+      try {
+        const res = await fetch(`${base}/api/asset-center/library-status`, { signal: AbortSignal.timeout(5000) });
+        const body = await res.text();
+        if (res.ok) {
+          console.log(`  ✅ /api/asset-center/library-status（sqlite 背书）：${body.slice(0, 120)}`);
+        } else {
+          bad++;
+          console.log(`  ❌ library-status 回了 ${res.status}：${body.slice(0, 200)}`);
+        }
+      } catch (err) {
+        bad++;
+        console.log(`  ❌ library-status 请求失败：${err.message}`);
+      }
+    }
+  } finally {
+    child.kill("SIGTERM");
+    rmSync(ws, { recursive: true, force: true });
+  }
+  return bad;
+}
+
+async function main() {
   const argv = process.argv.slice(2);
   // `--expect-version <编码后的三段>`：发版流水线传，用来断言包和清单带的是
   // **这一次发布**的版本号。CI 的出包验证不传 —— 它没有 tag，也没有「预期版本」。
@@ -673,8 +874,14 @@ function main() {
 
   bad += checkIcon(resources);
 
+  // 瘦身核对：prune 后的树长什么样、asar 里 node_modules 还剩谁、
+  // 以及最重要的 —— 装在包里的 sqlite 和 gateway 真的能跑。
+  bad += checkPruned(resources);
+  bad += checkAsarModules(resources);
+  bad += await checkRuntime(resources);
+
   console.log(bad === 0 ? "\n✓ 产物布局符合契约" : `\n✗ ${bad} 项不符`);
   process.exitCode = bad === 0 ? 0 : 1;
 }
 
-main();
+await main();
