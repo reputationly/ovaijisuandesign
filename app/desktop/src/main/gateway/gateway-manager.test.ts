@@ -27,8 +27,35 @@ describe("GatewayManager", () => {
     const m = new GatewayManager({ entry, role: "workspace", workspaceDir: ws, exec: process.execPath, env }, () => {});
     const gw = await m.start();
     try {
-      expect((await fetch(`${gw.url}/api/canvas`)).status).toBe(428);
-      expect((await fetch(`${gw.url}/api/canvas`, { headers: { "x-hilo-workspace": env.HILO_WORKSPACE_CLAIM } })).status).toBe(200);
+      expect((await fetch(`${gw.url}/api/v3/capabilities`)).status).toBe(428);
+      // v3 产品只跑 resource_v3：v2 的 `/api/canvas` 在这里是 403，所以用 v3 路由验身份。
+      expect((await fetch(`${gw.url}/api/v3/capabilities`, { headers: { "x-hilo-workspace": env.HILO_WORKSPACE_CLAIM } })).status).toBe(200);
+    } finally {
+      await m.stop();
+    }
+  }, 30_000);
+
+  it("网关进程拿到 resource_v3：v3 专属路由不再 403 PROJECT_V3_DISABLED", async () => {
+    const ws = mkdtempSync(path.join(tmpdir(), "ov-gw-"));
+    const env = { HILO_WORKSPACE_CLAIM: "e".repeat(64), HILO_WORKSPACE_INSTANCE_ID: "11111111-2222-4333-8444-555555555555", HILO_WORKSPACE_GENERATION: "1" };
+    const m = new GatewayManager({ entry, role: "workspace", workspaceDir: ws, exec: process.execPath, env }, () => {});
+    const gw = await m.start();
+    try {
+      // `/api/v3/search/images` 在网关里第一件事就是 `architecture.assertV3()`：
+      // 没拿到 HILO_PROJECT_ARCHITECTURE=resource_v3 时会 403，拿到才走到占位实现。
+      const r = await fetch(`${gw.url}/api/v3/search/images`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-hilo-workspace": env.HILO_WORKSPACE_CLAIM,
+          "x-hilo-workspace-instance": env.HILO_WORKSPACE_INSTANCE_ID,
+          "x-hilo-workspace-generation": env.HILO_WORKSPACE_GENERATION,
+        },
+        body: JSON.stringify({ queries: [{ query: "tiananmen flag" }], composition: { name: "搜索" } }),
+      });
+      expect(r.status).toBe(200);
+      const body = await r.json();
+      expect(Array.isArray(body.queries)).toBe(true);
     } finally {
       await m.stop();
     }

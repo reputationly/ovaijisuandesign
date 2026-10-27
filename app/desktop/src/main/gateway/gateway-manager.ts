@@ -112,6 +112,11 @@ export class GatewayManager extends EventEmitter {
       PORT: String(port),
       HILO_GATEWAY_HOST: "127.0.0.1",
       HILO_GATEWAY_ROLE: this.spec.role,
+      // **项目内核固定 resource_v3**：网关侧的 `architecture.assertV3()` 与
+      // `/api/v3/search/images`、`/api/v3/document` 这些路由都靠它放行。
+      // 不设的话，工具会拿到 403 `PROJECT_V3_DISABLED`（真机验证时就撞上了
+      // `design_task_query`）。和 opencode 进程用的同一个值，见 opencode/index.ts。
+      HILO_PROJECT_ARCHITECTURE: "resource_v3",
       GATEWAY_NONCE: nonce,
       // OUTPUT_DIR 是应用级的输出暂存区（首页附件先落在那里，进工作区时再搬过去），调用方给了就用它；
       // 没给才退回工作区本身。
