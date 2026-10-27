@@ -3,7 +3,8 @@
  *
  * 目录结构：`base.json` / `base.<region>.json` / `agents/` / `contracts/` /
  * `knowledge/` / `workflows/` / `plugins/`，都在一个目录里：开发时是仓库的
- * `assets/agent-profiles/v2/config`，发布包里是 `agent-profiles/v2/config`。
+ * `assets/agent-profiles/v3/config`，发布包里是 `agent-profiles/v3/config`。
+ * **产品只跑 v3**：v2 那套不再参与任何启动路径（详见 `profileArchitecture`）。
  *
  * ## 为什么要 staging，而不是把目录直接交给 opencode
  *
@@ -63,7 +64,7 @@ export function syncProfile(srcDir: string, dest: string, version: string): void
   writeFileSync(path.join(dest, ".version"), version);
 }
 
-export function assertProfileComplete(dir: string, version: "v2" | "v3" = "v2"): void {
+export function assertProfileComplete(dir: string, version: "v2" | "v3" = "v3"): void {
   // 版本必须显式传入：同步目标是固定的 `.config-v2`，从路径看不出架构。
   const REQUIRED = version === "v3" ? REQUIRED_V3 : REQUIRED_V2;
   const missing = REQUIRED.filter(([rel, kind]) => {
@@ -146,8 +147,9 @@ export function stageProfile(source: string, staging: string, now: () => number 
   // 以前我们无条件注入，等于在 system 里让模型去调一个不存在的工具 —— 它只能退回
   // `bash` 摸文件（首步 bash、一条流程 4 次 bash、甚至把字面 `<knowledgeDir>` 传给
   // `design_read`，都是这条引起的）。
-  // 直接读环境变量（不 import index.ts，避免 profile ↔ index 循环依赖）。
-  const legacyPathHeaders = process.env.HILO_PROJECT_ARCHITECTURE !== "resource_v3";
+  // **产品只跑 v3**：v2 的路径头（`<knowledge-base>`/`<workflows-base>`，写死 `hub_read`）
+  // 不再注入任何 agent。它们只对 v2 工具面成立，而 v3 里没有 `hub_read` 这个工具。
+  const legacyPathHeaders = false;
   const knowledgePrimary = legacyPathHeaders && existsSync(path.join(knowledge, "vendors")) ? knowledgeBlockForPrimary(knowledge) : null;
   const knowledgeSub = knowledgeBlockForSubagent(knowledge);
   const workflows = path.join(source, "workflows");

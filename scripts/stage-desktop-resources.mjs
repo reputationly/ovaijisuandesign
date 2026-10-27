@@ -14,7 +14,6 @@
  * | `gateway/dist/main.js` | `index.ts:111` |
  * | `mcp-tools/dist/main.js` | `locateMcpEntry`（opencode/index.ts:98） |
  * | `opencode-plugin-hilo/dist/index.js` | `locatePlugin`（opencode/index.ts:109） |
- * | `agent-profiles/v2/config` | `locateProfile`（opencode/index.ts:89） |
  * | `skills/` | `locateBundledSkills`（skills/seed.ts:9） |
  * | `home-showcase/` | `homeShowcaseDir()`（home-showcase.ts:250） |
  *
@@ -78,7 +77,6 @@ const DEPLOY = [
 /** 纯拷贝的资源。`to` 是相对 OUT 的目标路径。 */
 const COPY = [
   { from: "app/packages/opencode-plugin-hilo/dist", to: "opencode-plugin-hilo/dist" },
-  { from: "assets/agent-profiles/v2/config", to: "agent-profiles/v2/config" },
   // 第 254 轮（M7）：v3 架构的 agent 配置。参照发行包同时带 v2 与 v3 两套。
   { from: "assets/agent-profiles/v3/config", to: "agent-profiles/v3/config" },
   { from: "assets/skills", to: "skills" },

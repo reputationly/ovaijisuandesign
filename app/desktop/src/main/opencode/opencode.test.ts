@@ -25,15 +25,16 @@ describe("仓库自带的 agent 配置", () => {
     delete process.env.OV_AGENT_PROFILE_DIR;
     try {
       const dir = locateProfile({ repoRoot });
-      expect(dir).toBe(path.join(repoRoot, "assets/agent-profiles/v2/config"));
-      assertProfileComplete(dir!);
+      expect(dir).toBe(path.join(repoRoot, "assets/agent-profiles/v3/config"));
+      assertProfileComplete(dir!, "v3");
       const synced = path.join(tmp(), "synced");
       syncProfile(dir!, synced, "0.0.0-test");
-      assertProfileComplete(synced);
+      assertProfileComplete(synced, "v3");
       const staging = path.join(tmp(), "staging");
       stageProfile(synced, staging);
       const media = readFileSync(path.join(staging, "agents/media-agent.md"), "utf8");
-      expect(media).toContain("<knowledge-base>");
+      // v3 不注入 v2 的路径头（它们写死 `hub_read`）。
+      expect(media).not.toContain("<knowledge-base>");
       expect(readFileSync(path.join(staging, "plugins/session-header.ts"), "utf8")).toContain("x-hilo-workspace");
     } finally {
       if (saved !== undefined) process.env.OV_AGENT_PROFILE_DIR = saved;
@@ -63,24 +64,6 @@ describe("v3 不注入 v2 的路径头", () => {
     }
   });
 
-  it("v2（默认）：两块照旧注入，且用的是 v2 的 hub_read", () => {
-    const saved = process.env.HILO_PROJECT_ARCHITECTURE;
-    delete process.env.HILO_PROJECT_ARCHITECTURE;
-    try {
-      const s = tmp();
-      write(path.join(s, "base.json"), "{}");
-      write(path.join(s, "agents/media-agent.md"), "---\nmode: primary\n---\n\n主 agent\n");
-      write(path.join(s, "knowledge/vendors/x.md"), "x");
-      write(path.join(s, "workflows/workflow.md"), "索引");
-      const staging = path.join(tmp(), "s");
-      stageProfile(s, staging);
-      const media = readFileSync(path.join(staging, "agents/media-agent.md"), "utf8");
-      expect(media).toContain("<knowledge-base>");
-      expect(media).toContain("hub_read");
-    } finally {
-      if (saved !== undefined) process.env.HILO_PROJECT_ARCHITECTURE = saved;
-    }
-  });
 });
 
 describe("profile", () => {
@@ -113,13 +96,16 @@ describe("profile", () => {
     expect(media.startsWith("---\nmode: primary\n---\n\n主 agent\n\n<!-- Contracts:")).toBe(true);
     expect(media).toContain('<contract name="baseline">\n基线规则\n</contract>');
     // 主 agent 拿轻量版知识库头（没有"禁止主动浏览"那句）+ 工作流头。
-    expect(media).toContain("When this SP cites a relative knowledge path");
-    expect(media).not.toContain("MUST NOT proactively browse");
-    expect(media.trimEnd().endsWith("</workflows-base>")).toBe(true);
+    // v3 里主 agent 不再拼 v2 的"相对路径"版；有合同时拿到的是 `<knowledgeDir>` 版
+    // （和参照的 knowledgeHeaderForSubAgent 一致）。
+    expect(media).not.toContain("When this SP cites a relative knowledge path");
+    expect(media).toContain("<knowledgeDir>");
+    // v3 不注入 <workflows-base>（那是 v2 的路径头）。
+    expect(media).not.toContain("<workflows-base>");
 
     const exec = readFileSync(path.join(staging, "agents/executor.md"), "utf8");
     expect(exec).toContain("MUST NOT proactively browse");
-    expect(exec).toContain("<workflows-base>");
+    expect(exec).not.toContain("<workflows-base>");
 
     // 没匹配到合同的子 agent 原样输出，一个字不加。
     expect(readFileSync(path.join(staging, "agents/router.md"), "utf8")).toBe("路由\n");

@@ -114,8 +114,7 @@ function required(resources) {
     ["gateway/dist/main.js", "index.ts:111（应用级 + 每个工作区的 gateway）"],
     ["mcp-tools/dist/main.js", "locateMcpEntry（agent 的 MCP server）"],
     ["opencode-plugin-hilo/dist/index.js", "locatePlugin（画布工具）"],
-    ["agent-profiles/v2/config/base.json", "locateProfile（agent 配置 v2）"],
-    // 第 254 轮（M7）：v3 架构要读这一份，漏了的话 v3 下会静默回落到 v2
+    // 产品只跑 v3：v2 已不进包，缺了这一份 agent 直接起不来。
     ["agent-profiles/v3/config/base.json", "locateProfile（agent 配置 v3）"],
     ["skills", "locateBundledSkills（自带技能）"],
     // stage 清理 src/ 时把这两处运行时要读的资源铺进 dist/（代码本来就先查 ./ 旁置副本）。

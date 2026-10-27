@@ -55,9 +55,10 @@ describe("opencode 启动 env", () => {
     expect(mcpEnvironment(spec.configFile).HILO_AGENT_PROFILE_VERSION).toBe("3");
   });
 
-  it("v2 架构（默认）：两处都是 2", () => {
+  it("产品只跑 v3：即便环境里写着 legacy，两处也都是 3", () => {
     const spec = launch("v2");
-    expect(spec.env.HILO_AGENT_PROFILE_VERSION).toBe("2");
-    expect(mcpEnvironment(spec.configFile).HILO_AGENT_PROFILE_VERSION).toBe("2");
+    expect(spec.env.HILO_AGENT_PROFILE_VERSION).toBe("3");
+    expect(mcpEnvironment(spec.configFile).HILO_AGENT_PROFILE_VERSION).toBe("3");
+    expect(spec.env.HILO_PROJECT_ARCHITECTURE).toBe("resource_v3");
   });
 });

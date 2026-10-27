@@ -103,15 +103,12 @@ export function locateOpencode(roots: ResourceRoots): string | undefined {
 /**
  * agent 配置目录（里面直接是 base.json、agents/ …）。
  *
- * 第 254 轮（M7）：按架构选版本。
- * - `HILO_PROJECT_ARCHITECTURE=resource_v3` → `agent-profiles/v3/config`
- * - 其它（默认 legacy）→ `agent-profiles/v2/config`
- *
- * 参照发行包同时带 v2 与 v3 两套（`Resources/agent-profiles/{v2,v3}`），
- * 我们原来只找 v2，所以 v3 架构下拿到的仍是 v2 的 agent 配置。
+ * **产品只跑 v3。** 参照发行包同时带 v2/v3 两套，是为了兼容它的老画布项目；
+ * 我们不对用户提供架构选择，内部流程也不该再走 v2 —— 所以这里固定 v3，
+ * 只有 v3 的 agent 配置会被加载（v2 那套不再参与任何启动路径）。
  */
-export function profileArchitecture(): "v2" | "v3" {
-  return process.env.HILO_PROJECT_ARCHITECTURE === "resource_v3" ? "v3" : "v2";
+export function profileArchitecture(): "v3" {
+  return "v3";
 }
 
 /**
@@ -132,9 +129,6 @@ export function locateProfile(roots: ResourceRoots): string | undefined {
     process.env.OV_AGENT_PROFILE_DIR,
     roots.resources && path.join(roots.resources, `agent-profiles/${version}/config`),
     roots.repoRoot && path.join(roots.repoRoot, `assets/agent-profiles/${version}/config`),
-    // v3 缺配置文件时回落到 v2，避免 v3 架构直接起不来（与参照同时带两套的意图一致）
-    version === "v3" && roots.resources && path.join(roots.resources, "agent-profiles/v2/config"),
-    version === "v3" && roots.repoRoot && path.join(roots.repoRoot, "assets/agent-profiles/v2/config"),
   ].find((d): d is string => !!d && existsSync(path.join(d, "base.json")));
 }
 
@@ -203,7 +197,7 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
   const binary = locateOpencode(i.roots);
   if (!binary) throw new Error("找不到 opencode。发布包里应当自带（resources/opencode/）；开发时用 OPENCODE_BIN 指定");
   const src = locateProfile(i.roots);
-  if (!src) throw new Error("找不到 agent 配置（发布包的 agent-profiles/v2/config，或仓库的 assets/agent-profiles/v2/config）");
+  if (!src) throw new Error("找不到 agent 配置（发布包的 agent-profiles/v3/config，或仓库的 assets/agent-profiles/v3/config）");
   const mcpEntry = locateMcpEntry(i.roots);
   if (!mcpEntry) throw new Error("找不到 MCP server（mcp-tools/dist/main.js）");
 
@@ -258,6 +252,9 @@ export function prepareLaunch(i: PrepareInputs): LaunchSpec {
     HILO_MANAGED_RUNTIME: "1",
     // 插件按它选 v2/v3 工具面；缺了会一直当 v2（参照主进程两处都设）。
     HILO_AGENT_PROFILE_VERSION: agentProfileVersion(),
+    // **项目内核固定 resource_v3**：插件据此决定项目规则注入、`<working-language>` 短版、
+    // 引用规则（`<knowledgeDir>` 那套路径头只属于 v2）。MCP 侧由 v3 profile 自带同名变量。
+    HILO_PROJECT_ARCHITECTURE: "resource_v3",
     // 插件按 NODE_ENV 选数据根：非 production 会去读 *-dev 目录。
     NODE_ENV: "production",
     HILO_LOAD_USER_MEMORY: "1",

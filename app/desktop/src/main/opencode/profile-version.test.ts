@@ -22,26 +22,22 @@ function mcpEnv() {
   );
 }
 
-describe("agent profile 版本开关", () => {
-  it("默认（legacy）是 v2：版本号给 '2'", () => {
+describe("agent profile 版本（产品只跑 v3）", () => {
+  it("无论环境变量怎么设，架构恒为 v3、版本号恒为 '3'", () => {
     delete process.env.HILO_PROJECT_ARCHITECTURE;
-    expect(profileArchitecture()).toBe("v2");
-    expect(agentProfileVersion()).toBe("2");
-    expect(mcpEnv().HILO_AGENT_PROFILE_VERSION).toBe("2");
-  });
-
-  it("v3 架构：版本号给 '3'，MCP 的 environment 里也有", () => {
-    process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
     expect(profileArchitecture()).toBe("v3");
     expect(agentProfileVersion()).toBe("3");
     expect(mcpEnv().HILO_AGENT_PROFILE_VERSION).toBe("3");
+
+    // 有人（或旧脚本）把开关设成 legacy 也不影响：v2 不在任何启动路径上。
+    process.env.HILO_PROJECT_ARCHITECTURE = "legacy";
+    expect(profileArchitecture()).toBe("v3");
+    expect(agentProfileVersion()).toBe("3");
+    delete process.env.HILO_PROJECT_ARCHITECTURE;
   });
 
-  it("和插件侧的解析规则对得上（parseAgentProfileVersion 认这两个值）", async () => {
+  it("和插件侧的解析规则对得上（parseAgentProfileVersion 认 '3'）", async () => {
     const { parseAgentProfileVersion } = await import("@ov/protocol");
-    process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
     expect(parseAgentProfileVersion(mcpEnv().HILO_AGENT_PROFILE_VERSION)).toBe(3);
-    process.env.HILO_PROJECT_ARCHITECTURE = "";
-    expect(parseAgentProfileVersion(mcpEnv().HILO_AGENT_PROFILE_VERSION)).toBe(2);
   });
 });
