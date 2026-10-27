@@ -342,7 +342,9 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
       try {
         const params = new URLSearchParams();
         const operations = args.operation === undefined ? [] : Array.isArray(args.operation) ? args.operation : [args.operation];
-        if (operations.length) params.set("operation", operations.join(","));
+        // **必须用重复参数**（`?operation=a&operation=b`）：网关按数组逐项校验，
+        // 逗号拼成一个值会被判 `Invalid operation`（400）。这条以前让 agent 每次多失败两次。
+        for (const operation of operations) params.append("operation", operation);
         if (args.kind) params.set("kind", args.kind);
         const suffix = params.size ? `?${params.toString()}` : "";
         const result = await gw.get(`/api/v3/capabilities${suffix}`, TIMEOUT_MS, LOOSE);
@@ -393,7 +395,11 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
     { description: V3_TOOL_SPECS["composition_type_list"].description, inputSchema: V3_TOOL_SPECS["composition_type_list"].shape, annotations: V3_TOOL_SPECS["composition_type_list"].annotations },
     async (args: V3Args<"composition_type_list">) => {
       try {
-        return structuredReply((await gw.post("/api/project/compositions/types/list", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+        // 网关这条返回的是**裸数组**；`structuredReply` 要求对象，直接透传会被
+        // zod 拒掉（`Expected object, received array`）。这里统一包一层 `types`。
+        // 注意用 `z.unknown()`：LOOSE 是 record，裸数组会被它拒掉。
+        const result = await gw.post("/api/project/compositions/types/list", args, TIMEOUT_MS, z.unknown());
+        return structuredReply(Array.isArray(result) ? { types: result } : (result as Record<string, unknown>));
       } catch (error) {
         return errorReply(`composition_type_list 失败：${errorMessage(error)}`);
       }

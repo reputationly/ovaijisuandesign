@@ -65,3 +65,31 @@ describe("design_read 的接线", () => {
     expect(gw.requests).toHaveLength(0);
   });
 });
+
+/** 另外两条同类接线问题：capability_list 的逗号拼接、composition_type_list 的裸数组。 */
+describe("capability_list / composition_type_list 的接线", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => {
+    await gw.close();
+  });
+
+  it("capability_list：多个 operation 用重复参数（不要逗号拼）", async () => {
+    gw.on("GET", "/api/v3/capabilities", { json: { capabilities: [] } });
+    await h.call("capability_list", { operation: ["generate_image", "generate_video"] });
+    const sent = gw.requests.find((req) => req.path === "/api/v3/capabilities");
+    expect(sent?.query.getAll("operation")).toEqual(["generate_image", "generate_video"]);
+  });
+
+  it("composition_type_list：网关返回裸数组时包成对象", async () => {
+    gw.on("POST", "/api/project/compositions/types/list", { json: [{ typeId: "cty_1", label: "视频" }] });
+    const r = await h.call("composition_type_list", {});
+    expect(resultJson(r)).toEqual({ types: [{ typeId: "cty_1", label: "视频" }] });
+  });
+});
