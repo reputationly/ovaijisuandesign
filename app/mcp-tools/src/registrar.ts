@@ -198,6 +198,25 @@ function inferMissingFields(name: string, args: Record<string, unknown>): Record
   return out;
 }
 
+/**
+ * 同义键：模型会用错名字（`capabilityIds` 而不是 schema 里的 `ids`）。
+ * 只映射**明知会用到**的少数几个，且仅在正式键缺失时生效；值不对照样由 schema 报错。
+ */
+const KEY_ALIASES: Record<string, readonly string[]> = {
+  ids: ["capabilityIds", "capability_ids"],
+};
+
+function moveKeyAliases(shape: z.ZodRawShape, args: Record<string, unknown>): void {
+  for (const [canonical, aliases] of Object.entries(KEY_ALIASES)) {
+    if (!Object.prototype.hasOwnProperty.call(shape, canonical)) continue;
+    if (args[canonical] !== undefined) continue;
+    const hit = aliases.find((alias) => args[alias] !== undefined);
+    if (!hit) continue;
+    args[canonical] = args[hit];
+    delete args[hit];
+  }
+}
+
 function withAutoRequestId(shape: z.ZodRawShape, name: string) {
   const needsRequestId = Object.prototype.hasOwnProperty.call(shape, "requestId");
   const object = z.object(shape).passthrough();
@@ -205,6 +224,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     if (!value || typeof value !== "object" || Array.isArray(value)) return value;
     let args = { ...(value as Record<string, unknown>) };
     moveUnderscoreAliases(shape, args);
+    moveKeyAliases(shape, args);
     args = inferMissingFields(name, args);
 
     // 依次尝试：原样 → 解析 JSON 字符串 → 再把数字字符串转成数字。

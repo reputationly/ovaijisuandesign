@@ -171,6 +171,14 @@ describe("字符串化的参数", () => {
     expect(sent?.query.get("ids")).toBe("generate_video:minimax-h3-2k");
   });
 
+  it("capability_get：模型用了 capabilityIds 这个错名字 → 当 ids", async () => {
+    gw.on("GET", "/api/v3/capabilities", { json: { capabilities: [] } });
+    const r = await h.call("capability_get", { capabilityIds: '["generate_video:minimax-h3-2k"]' });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/v3/capabilities");
+    expect(sent?.query.get("ids")).toBe("generate_video:minimax-h3-2k");
+  });
+
   it("document_write：content 有、mode 漏传 → 推断成 create", async () => {
     gw.on("POST", "/api/v3/document", { json: { ok: true } });
     const r = await h.call("document_write", { name: "方案", content: "# 方案" });
