@@ -677,8 +677,12 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
     { description: V3_TOOL_SPECS["deliver"].description, inputSchema: V3_TOOL_SPECS["deliver"].shape, annotations: V3_TOOL_SPECS["deliver"].annotations },
     async (args: V3Args<"deliver">) => {
       try {
-        const result = await gw.post("/api/project/resources/deliver", args, 300_000, LOOSE);
-        return structuredReply(result as Record<string, unknown>);
+        // **`POST /api/v3/deliveries`**：网关只暴露这一条（`ProjectDeliveryController`）。
+        // 以前这里写的是 `/api/project/resources/deliver` —— 那条路由不存在，于是
+        // agent 交付成片永远 404（真机上"成片只落到工作区、进不了画布"就是这个）。
+        const result = await gw.post("/api/v3/deliveries", args, 300_000, LOOSE);
+        const delivery = (result as { delivery?: unknown })?.delivery ?? result;
+        return structuredReply(delivery as Record<string, unknown>);
       } catch (error) {
         return errorReply(`deliver 失败：${errorMessage(error)}`);
       }

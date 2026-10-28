@@ -203,15 +203,27 @@ describe("字符串化的参数", () => {
     expect((sent?.body as { mode?: string })?.mode).toBe("create");
   });
 
+  it("deliver：打到 /api/v3/deliveries 并解包 delivery", async () => {
+    gw.on("POST", "/api/v3/deliveries", { json: { delivery: { committed: true, resourceIds: ["res_1"], compositionId: "cmp_1" } } });
+    const r = await h.call("deliver", {
+      requestId: "dl-1",
+      sources: [{ key: "film", path: "out/film.mp4" }],
+      output: { resources: [{ key: "film", mode: "create", name: "成片" }] },
+    });
+    expect(r.isError).toBeUndefined();
+    expect(resultJson(r)).toMatchObject({ committed: true, compositionId: "cmp_1" });
+    expect(gw.requests.some((req) => req.path === "/api/v3/deliveries")).toBe(true);
+  });
+
   it("deliver：sources/output 是 JSON 字符串 → 解析成数组和对象", async () => {
-    gw.on("POST", "/api/project/resources/deliver", { json: { ok: true } });
+    gw.on("POST", "/api/v3/deliveries", { json: { ok: true } });
     const r = await h.call("deliver", {
       requestId: "d-1",
       sources: '[{"key":"plan","path":"files/x.md"}]',
       output: '{"resources":[{"key":"plan","mode":"create","name":"方案"}]}',
     });
     expect(r.isError).toBeUndefined();
-    const sent = gw.requests.find((req) => req.path === "/api/project/resources/deliver");
+    const sent = gw.requests.find((req) => req.path === "/api/v3/deliveries");
     const body = sent?.body as { sources?: unknown; output?: unknown };
     expect(Array.isArray(body?.sources)).toBe(true);
     expect(typeof body?.output).toBe("object");
