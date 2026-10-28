@@ -25,7 +25,12 @@ import { createLucideIcon } from "lucide-react";
 const ChevronDown = withIconCompositing(ChevronDown$2);
 
 import { ChevronDown as ChevronDown$1, ChevronRight, Copy as Copy$1, Download as Download$1, Eye as Eye$1, Focus, FolderOpen as FolderOpen$1, Image as Image$1, ImageOff, Pencil as Pencil$1, Shapes, Shapes as Shapes$1, Smile, Table2, Table2 as Table2$1, Tag, Trash2 as Trash2$1, Upload as Upload$1, Video as Video$1, X, X as X$1 } from "lucide-react";
-import { Tooltip as Tooltip$1 } from "../generation/missing-asset-card.jsx";
+// **这里必须是「根」Tooltip，不是 missing-asset-card 里那个便捷包装。**
+// 画布的用法是 <Tooltip><TooltipTrigger/><TooltipContent/></Tooltip>，
+// 而便捷包装会自己再包一层 trigger（把 children 当 trigger 的 render），
+// 于是 Base UI 报 #82（TooltipTrigger 位置非法），整个画布子树被卸载 ——
+// 真机上交付成功后画布只剩一屏红字，用户自然"看不到片子"。
+import { Tooltip as Tooltip$1 } from "../vendor-inline/vscode-base/graph.jsx";
 import { Dialog as Dialog$1 } from "../canvas/separator.jsx";
 import { DialogContent as DialogContent$1, DropdownMenuContent as DropdownMenuContent$1 } from "../infra/dialog-content.jsx";
 import { CustomizeToolbarDialog as CustomizeToolbarDialog$1 } from "../media-editing/customize-toolbar-dialog-2.jsx";

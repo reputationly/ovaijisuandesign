@@ -192,17 +192,10 @@ useGeneratingStateStore.subscribe = defaultGeneratingStateStore.subscribe;
 export function useGenerating(nodeId) {
   return useGeneratingStateStore((state) => state.byNode.get(nodeId));
 }
-export const useMediaPlayback = create((set) => ({
-  playingId: null,
-  play: (mediaId) =>
-    set({
-      playingId: mediaId,
-    }),
-  stop: () =>
-    set({
-      playingId: null,
-    }),
-}));
+// **`useMediaPlayback(active, src)` 是个钩子（参照实现），不是 zustand store。**
+// 之前还原成 store 后，画布 `VideoBinding` 传的第二个参数 src 被当成 selector，
+// 抛 `selector is not a function`，视频节点连带画布整片崩掉。
+export { useMediaPlayback } from "../workspace/use-media-playback.jsx";
 export function formatTime(seconds, roundUp = false) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
   const total = roundUp ? Math.ceil(seconds) : Math.floor(seconds);
