@@ -32,7 +32,9 @@ export function readPlatform(configPath: string, dataDir?: string): Platform {
   };
   const chatModels = readChatModels(cfg.platform.chat_model, cfg.platform.api_key, dataDir);
   // 配置里那个模型可能已经被运营从目录里下架：改成目录里的第一个。
-  const chatModel = pickChatModel(cfg.platform.chat_model, chatModels);
+  // `OV_CHAT_MODEL_PIN` 是联调/压测用的显式钉住（A/B 时要跑目录外的模型）。
+  const pinned = process.env.OV_CHAT_MODEL_PIN?.trim();
+  const chatModel = pinned ? pinned : pickChatModel(cfg.platform.chat_model, chatModels);
   return {
     ...cfg.platform,
     chat_model: chatModel,

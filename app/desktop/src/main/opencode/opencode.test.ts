@@ -274,3 +274,17 @@ describe("没有搜索源时不暴露 design_image_search", () => {
     }
   });
 });
+
+describe("思考档位", () => {
+  it("默认 high：请求体带 reasoning_effort=high、enable_thinking=true", async () => {
+    const { reasoningOptions } = await import("./config.js");
+    expect(reasoningOptions(undefined)).toEqual({ reasoningEffort: "high", enable_thinking: true });
+  });
+
+  it("none：关掉推理与开关；非法值回落到 high", async () => {
+    const { reasoningOptions } = await import("./config.js");
+    expect(reasoningOptions("none")).toEqual({ reasoningEffort: "none", enable_thinking: false });
+    expect(reasoningOptions("bogus")).toEqual({ reasoningEffort: "high", enable_thinking: true });
+    expect(reasoningOptions("low")).toEqual({ reasoningEffort: "low", enable_thinking: true });
+  });
+});

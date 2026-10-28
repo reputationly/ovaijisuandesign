@@ -276,6 +276,13 @@ const imp = await fetch(`${base}/api/projects/archive/import`, { method: "POST",
 console.log("import", imp.status, await imp.text());
 gw.kill("SIGTERM");
 
+// `--model` / `--effort` 通过环境变量传给**主进程**：opencode 的配置由主进程生成，
+// 目录里没有的模型（比如已下架的 qwen）必须靠 `OV_CHAT_MODEL_PIN` 钉住才不会被替换。
+const pinnedModel = valueOf("model");
+if (pinnedModel) process.env.OV_CHAT_MODEL_PIN = pinnedModel;
+const effort = valueOf("effort");
+if (effort) process.env.OV_REASONING_EFFORT = effort;
+
 const app = await launchApp({ port: 9362, xdg, reset: false, config, callerKey: "pw-caller", showWindow: true });
 await app.page.addInitScript(() => { window.__OV_POLL_DEBUG = true; }).catch(() => {});
 const frameLog = [];

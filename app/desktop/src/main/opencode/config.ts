@@ -151,6 +151,12 @@ function defaultPermission(): Record<string, string> {
   };
 }
 
+/** 思考档位 → 请求体参数。`none` 时把开关也关掉，避免平台仍按默认档推理。 */
+export function reasoningOptions(effort = process.env.OV_REASONING_EFFORT?.trim().toLowerCase() || "high"): Record<string, unknown> {
+  const level = ["none", "minimal", "low", "medium", "high", "xhigh"].includes(effort) ? effort : "high";
+  return { reasoningEffort: level, enable_thinking: level !== "none" };
+}
+
 function customProvider(p: Platform) {
   const model = p.chat_model.trim();
   // opencode 拿 limit.context 做自动压缩的水位线：报小了会过早压缩（长流程压缩后
@@ -169,7 +175,7 @@ function customProvider(p: Platform) {
       name,
       tool_call: true,
       limit: { context, output },
-      options: { reasoningEffort: "high", enable_thinking: true },
+      options: reasoningOptions(),
       variants: {
         max: { reasoningEffort: "max", enable_thinking: true },
       },
@@ -178,9 +184,11 @@ function customProvider(p: Platform) {
   return {
     name: "maas",
     npm: "@ai-sdk/openai-compatible",
-    // 思考档位：平台认 `reasoning_effort`。opencode 的 variant 推断对自定义 provider +
-    // qwen 模型名返回空表，所以**同时**在 provider 和 model 两层给，尽量让 SDK 带进请求体。
-    options: { baseURL: p.base_url, apiKey: p.api_key, headers: {}, reasoningEffort: "high", enable_thinking: true },
+    // 思考档位：平台认 `reasoning_effort`（none/low/medium/high 实测都能改变推理量）。
+    // opencode 的 variant 推断对"自定义 provider + qwen 这类模型名"返回空表，
+    // 所以**同时**在 provider 和 model 两层显式给，才能进请求体（抓包已验证）。
+    // 档位可用 `OV_REASONING_EFFORT` 覆盖，方便 A/B 与后续按模型调优。
+    options: { baseURL: p.base_url, apiKey: p.api_key, headers: {}, ...reasoningOptions() },
     models,
   };
 }
