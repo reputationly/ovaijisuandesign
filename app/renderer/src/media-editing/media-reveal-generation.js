@@ -161,7 +161,12 @@ const SETTLE_BUFFER_MS$1 = 50;
 const LQIP_ROOT_MARGIN = "200px 0px";
 const INTRINSIC_PLACEHOLDER_RATIO = 4 / 3;
 export function MediaReveal(props) {
-  return /* @__PURE__ */ __jsx(MediaRevealGeneration, { ...props }, props.src ?? "empty");
+  // **第三个参数是 key，不是 children。** 参照的原码是 React 自动运行时
+  // （`jsx(type, props, key)`），那里的 `props.src` 只用来「换图时强制重挂载」。
+  // 我们的 `__jsx` 是 classic 运行时（多余的位参数当 children），照抄就把图片 URL
+  // 当文本渲染到了缩略图后面 —— 侧栏项目行里会多出一长串 `http://127.0.0.1:…`，
+  // 把标题挤到换行、溢出。这里改成显式 `key`。
+  return /* @__PURE__ */ __jsx(MediaRevealGeneration, { ...props, key: props.src ?? "empty" });
 }
 export function readCssMs(element2, name2, fallback) {
   const raw2 = window.getComputedStyle(element2).getPropertyValue(name2).trim();

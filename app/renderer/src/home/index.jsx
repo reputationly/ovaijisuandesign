@@ -539,16 +539,9 @@ function HomeContent() {
         resultKind = retryHandoff.resultKind;
       } else {
         let createError;
-        // 第 338 轮：把「V3 新版 / V2 经典版」的选择接到实际创建上。
-        // 选择存在 localStorage（home/toolbar.jsx 写入），这里读出来传给主进程；
-        // 没选过就不传，让主进程用默认值。
-        const chosenArchitecture = (() => {
-          try {
-            return localStorage.getItem("hilo:new-project-architecture") || void 0;
-          } catch {
-            return void 0;
-          }
-        })();
+        // 产品只发 v3：不再读取「V3 新版 / V2 经典版」的本地选择，
+        // 新项目一律按资源内核 v3 创建（界面上也不再提供该选择）。
+        const chosenArchitecture = "resource_v3";
         const result = await homeService.hiloApp.createWorkspaceWithResult({
           name: homeSceneDisplayText(text),
           projectId: submissionProjectId,

@@ -164,7 +164,7 @@ function RecentProjectStatusContent({
         <span
           className="flex-1"
           data-recent-project-name="true"
-        >={8}>
+        >
           {displayName ?? ""}
         </span>
         {userAction ? (
