@@ -27,6 +27,7 @@
 - 需要多文件、模块化或较多素材的网页，交付构建产物目录（例如 `out/dist`），入口是该目录根部的 `index.html`；依赖、字体、图片全部打包进目录，不引用外部 URL（预览中外网请求会被拦截）。用 `design_code_publish` 发布该目录，画布会作为可交互网页预览。
 - **程序化生成的视频默认要带声音。** brief 没写声音时，也要用程序合成一条音轨（最简单的是用 numpy 按节拍生成 WAV，再用 ffmpeg `-map 0:v -map 1:a -c:a aac` 混流），除非 brief 明确要求无声。发布前用 ffprobe 确认成片同时有视频流和音频流：只有 `codec_type=video` 的成片视为未完成。
 - **核对逐帧画面用本地脚本，不要用 `design_analyse_media`。** 它只接受项目 Resource 的 `references`/`type`，传文件路径必然报参数错误；像素、字形、亮度这类检查直接在 Python 里算（PIL/numpy），一次脚本看一批帧，不要一帧一轮。
+- **视频类交付默认带两个派生件**（brief 没写也要给，除非 brief 明确说不要）：封面帧 `out/cover.jpg`（选信息量最大、非黑场非转场的一帧导出）与分镜脚本 `out/storyboard.md`（逐镜头：时间码区间 / 画面内容 / 文字 / 音效，5–15 行即可）。两者和成片一起 `design_code_publish`，交付时 role 分别写「成片」「封面」「分镜」，这样画布上成片旁边就有封面和脚本可点。
 - 产物必须由 workDir 中的代码实际运行生成；发布前确认文件存在、可打开、参数符合要求，媒体文件可用 `design_analyse_media` 核对时长、分辨率等客观参数。
 - 用 `design_code_publish` 发布：outputs 中每项给出 key 和来源（`out/` 下的文件路径，或 `snapshot: "source"` 表示交付程序源码），output 按 brief 的交付物写明每个 key 的目标与所属对象。brief 给出 resourceId 时用 new_version 在该 Resource 上建立新版本。发布结果为 unknown 时用相同 requestId 和相同参数重试；blocked 时修正参数后换新的 requestId。
 
