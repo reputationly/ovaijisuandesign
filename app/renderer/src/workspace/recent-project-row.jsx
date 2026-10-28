@@ -5,6 +5,7 @@ import reactExports from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Check, CircleAlert, CircleX, Copy, FolderX, Pin } from "../media-editing/lucide-icon-wraps.js";
+import { OverflowMarqueeText } from "../media-editing/overflow-marquee-text.js";
 import { CompositedSvg, MonochromeIcon } from "../media-editing/icon-compositing.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
@@ -161,12 +162,16 @@ function RecentProjectStatusContent({
   if (variant === "row") {
     return (
       <span className="flex min-w-0 flex-1 items-center gap-1.5">
-        <span
-          className="flex-1"
+        {/* 参照这里用的是 OverflowMarqueeText（溢出时横向滚动），不是普通 span。
+            换成 span 后长标题会**换行并撑出条目**（真机上"制作一个炫酷的快闪mg动画…"
+            直接糊出 3 行）。 */}
+        <OverflowMarqueeText
+          className="min-w-0 flex-1"
           data-recent-project-name="true"
+          leadingFadeSpace={8}
         >
           {displayName ?? ""}
-        </span>
+        </OverflowMarqueeText>
         {userAction ? (
           <Badge
             role="status"

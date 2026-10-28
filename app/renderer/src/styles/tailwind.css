@@ -6363,3 +6363,60 @@ html[data-hilo-gpu="disabled"] .home-media-tag {
   inherits: false;
   initial-value: "";
 }
+
+/* ---- OverflowMarqueeText（参照 4.0.4 的 .overflow-marquee-text）----
+   组件只负责测量；**单行 + 溢出裁切 + hover 横向滚动**全靠这几条规则。
+   缺了它们，长标题会换行并撑出列表条目（真机上见过 3 行糊出去）。 */
+.overflow-marquee-text {
+  display: block;
+  min-width: 0;
+  max-width: calc(100% + var(--overflow-marquee-leading-space));
+  margin-left: calc(-1 * var(--overflow-marquee-leading-space));
+  padding-left: var(--overflow-marquee-leading-space);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
+}
+
+.overflow-marquee-text-content {
+  display: inline-flex;
+  gap: var(--overflow-marquee-gap);
+  width: max-content;
+  vertical-align: top;
+  transform: translateX(0);
+}
+
+.overflow-marquee-text-content > span {
+  flex-shrink: 0;
+}
+
+.overflow-marquee-text[data-overflow='true'] {
+  mask-image: linear-gradient(to right, black calc(100% - 16px), transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :where([data-overflow-marquee-row]:not(.sidebar-drag-source):is(:hover, :focus-within))
+    .overflow-marquee-text[data-overflow='true'] {
+    mask-image: linear-gradient(
+      to right,
+      transparent max(0px, calc(var(--overflow-marquee-leading-space) - 4px)),
+      black var(--overflow-marquee-leading-fade),
+      black calc(100% - 16px),
+      transparent
+    );
+  }
+
+  :where([data-overflow-marquee-row]:not(.sidebar-drag-source):is(:hover, :focus-within))
+    .overflow-marquee-text[data-overflow='true'] > .overflow-marquee-text-content {
+    animation: overflow-marquee var(--overflow-marquee-duration) linear 500ms infinite;
+  }
+}
+
+[data-sidebar-density='rail'] .overflow-marquee-text[data-overflow='true'] > .overflow-marquee-text-content {
+  animation: none;
+}
+
+@keyframes overflow-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(var(--overflow-marquee-distance)); }
+}
