@@ -34,6 +34,10 @@ jobs:
       - run: pnpm turbo run build typecheck test --continue --concurrency=2
         env:
           NODE_OPTIONS: --max-old-space-size=4096
+      # 界面 CSS 类门禁：JSX 里用到的类，构建产物里必须有定义。
+      # 我们是「还原」参照界面的，最容易出的错就是组件搬来、配套 CSS 没搬
+      # （真机上踩过：侧栏长标题糊成 3 行、首页问候语字号不对）。
+      - run: node scripts/check-css-classes.mjs
 
   # ==================== 新栈出包 ====================
   #

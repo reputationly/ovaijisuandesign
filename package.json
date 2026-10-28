@@ -11,7 +11,8 @@
     "test": "turbo run test --concurrency=1",
     "test:desource-rename": "vitest run --config scripts/desource/rename/vitest.config.mjs",
     "typecheck": "turbo run typecheck",
-    "dev": "turbo run dev --filter=@ov/desktop"
+    "dev": "turbo run dev --filter=@ov/desktop",
+    "check:css-classes": "node scripts/check-css-classes.mjs"
   },
   "devDependencies": {
     "@babel/parser": "7.29.9",

@@ -1,0 +1,42 @@
+{
+  "_comment": [
+    "「JSX 用到但构建产物 CSS 里没定义」的允许列表。只放确认无害的：",
+    "  a) react-flow 的交互标记（nodrag/nowheel/nopan/nokey）——库读它们，不需要样式；",
+    "  b) 参照 asar 里**也不存在**定义的死类（功能还没实现，将来做的时候补 CSS）；",
+    "  c) 三方组件自带的类（toaster / not-prose），样式由库或 tailwind 插件注入。",
+    "新增条目请写清原因，别整批丢进来。"
+  ],
+  "allow": [
+    "nodrag",
+    "nowheel",
+    "nopan",
+    "nokey",
+    "toaster",
+    "not-prose",
+    "text-hl-text-01",
+    "text-hl-text-02",
+    "text-hl-text-03",
+    "bg-hl-alpha-04",
+    "text-hl-error",
+    "home-media-showcase-footer",
+    "canvas-global-tag-manager",
+    "canvas-node-empty-state",
+    "canvas-node-suggestion",
+    "canvas-node-suggestion-icon",
+    "canvas-group-collapsed-drag-handle",
+    "hilo-node-tag-rings-canvas",
+    "hilo-edges-canvas",
+    "hilo-edges-flow-canvas",
+    "hilo-docx-body",
+    "hilo-overlay-scrollbar-track",
+    "hl-asset-context",
+    "hl-mention-connector",
+    "chat-markdown-streaming-text",
+    "file-type-icon__archive-zipper",
+    "image-edit-mosaic-slider",
+    "update-sidebar-slot",
+    "update-sidebar-poster-slot",
+    "browser-annotation-canvas-wrap",
+    "transparent-window-workbench-inset"
+  ]
+}

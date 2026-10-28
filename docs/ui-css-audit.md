@@ -63,6 +63,23 @@
 - `not-prose` — 参照也没有
 - `chat-markdown-streaming-text` — 参照也没有
 
+## 门禁（已落地）
+
+`scripts/check-css-classes.mjs` + `scripts/ui-css-allowlist.json`：
+
+```bash
+node scripts/check-css-classes.mjs      # 或 pnpm check:css-classes
+```
+
+- 基准是**构建产物** `app/desktop/out/recovered-ui/assets/*.css`（含 Tailwind 生成的工具类），
+  所以要先 build；
+- 差额里凡是不在允许列表的类 → 退出码 1；
+- 允许列表只放确认无害的：react-flow 标记（`nodrag` 等）、三方库自带类（`toaster`/`not-prose`）、
+  参照里也不存在的死类；
+- CI 的 `node` job 在 `turbo run build typecheck test` 之后跑这一步。
+
+自测：临时在任意 JSX 里加一个 `className="css-gate-selftest"`，脚本会以 1 退出并点名该类。
+
 ## 结论
 
 - 首页/侧栏那种「文字糊出来、底色缺失、层级不对」的问题，多半就是这一类：组件搬过来了、配套 CSS 没搬。
