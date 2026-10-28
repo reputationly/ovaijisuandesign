@@ -101,6 +101,19 @@ export function buildOpencodeConfig(i: BuildInputs): Record<string, any> {
       entry.tools = { ...(entry.tools ?? {}), design_image_search: false };
     }
   }
+  // **每个 agent 的 `external_directory` 也要放开成 allow。**
+  //
+  // v3 profile 里 code-agent 写的是 `external_directory: "deny"`，opencode 会把它
+  // 当成"ask"，而非交互会话里 ask 等于直接拒绝 —— 真机上 code-agent 因此连
+  // `ls /System/Library/Fonts`（找字体）和 heredoc 里的外部路径都被挡下，
+  // 报 "The user has specified a rule which prevents you from using this specific tool call"。
+  // 路径安全由网关（workspace 根、allowed roots）保证，这里放开不额外增加风险。
+  for (const entry of Object.values(config.agent ?? {})) {
+    if (!entry || typeof entry !== "object") continue;
+    const agent = entry as { permission?: Record<string, unknown> };
+    if (!agent.permission || typeof agent.permission !== "object") continue;
+    agent.permission.external_directory = "allow";
+  }
   config.permission ??= defaultPermission();
   config.compaction ??= { auto: true, prune: true, reserved: 40_000 };
   config.skills = { ...(config.skills ?? {}), paths: i.skillsPaths };

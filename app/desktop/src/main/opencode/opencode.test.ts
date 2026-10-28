@@ -291,3 +291,19 @@ describe("思考档位", () => {
     expect(reasoningOptions("xhigh")).toEqual({ reasoningEffort: "xhigh", enable_thinking: true });
   });
 });
+
+describe("agent 的 external_directory 放开", () => {
+  it("code-agent 的 deny 会被改成 allow（否则非交互会话里等于直接拒绝）", () => {
+    const dir = path.join(repoRoot, "assets/agent-profiles/v3/config");
+    const config = buildOpencodeConfig({
+      profileDir: dir,
+      region: "domestic",
+      platform: { base_url: "http://127.0.0.1:1/v1", api_key: "sk-test", chat_model: "qwen3.8-flash-fp8" } as never,
+      mcp: { command: ["node", "x.js"], environment: {} },
+      extraPlugins: [],
+      skillsPaths: [],
+    });
+    expect(config.agent["code-agent"].permission.external_directory).toBe("allow");
+    expect(config.permission.external_directory).toBe("allow");
+  });
+});
