@@ -19,5 +19,11 @@ import { configDefaults, defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     exclude: [...configDefaults.exclude, "build-resources/**", "dist-electron/**", "out/**"],
+    // 迁移/资源装配类用例要真的读写临时目录、跑 unzip，Windows runner 上偶发超过默认
+    // 5s（CI 上见过 `legacy.test.ts > 旧版迁移` 直接 `Test timed out in 5000ms`）。
+    // 放宽超时 + 允许重试一次：真坏了第二次仍然失败。
+    testTimeout: 20_000,
+    hookTimeout: 30_000,
+    retry: 1,
   },
 });
