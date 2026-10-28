@@ -237,6 +237,24 @@ describe("code_* 工具的参数兜底", () => {
     expect((sent?.body as { message?: string })?.message).toContain("渲染管线跑通");
   });
 
+  it("code_publish：数组里 {key, path} 与 {key, source:\"path\"} 都归一成 source.path", async () => {
+    gw.on("POST", "/api/v3/code-projects/publish", { json: { ok: true } });
+    const r = await h.call("code_publish", {
+      requestId: "pub-2",
+      outputs: [
+        { key: "a", path: "out/a.png" },
+        { key: "b", source: "out/b.png" },
+      ],
+      output: { resources: [{ key: "a", mode: "create", name: "预览图" }] },
+    });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/v3/code-projects/publish");
+    expect((sent?.body as { outputs?: unknown })?.outputs).toEqual([
+      { key: "a", source: { path: "out/a.png" } },
+      { key: "b", source: { path: "out/b.png" } },
+    ]);
+  });
+
   it("code_publish：outputs 写成 {key:{path}} 对象 → 展开成数组", async () => {
     gw.on("POST", "/api/v3/code-projects/publish", { json: { ok: true } });
     const r = await h.call("code_publish", {

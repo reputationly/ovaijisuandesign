@@ -174,17 +174,28 @@ function coercePublishOutputs(args: Record<string, unknown>): Record<string, unk
   const raw = args.outputs;
   if (raw === undefined) return args;
   const parsed = typeof raw === "string" ? parseJsonLike(raw) : raw;
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return { ...args, outputs: parsed };
-  const entries = Object.entries(parsed as Record<string, unknown>).map(([key, value]) => {
+  if (!parsed || typeof parsed !== "object") return { ...args, outputs: parsed };
+  // 对象表单 `{key: {...}}` → 数组；数组表单里每一项的 `source` 也要归一：
+  // 模型会写 `{key, path}` 或者 `{key, source: "out/x.png"}`，schema 要
+  // `{key, source: {path}}`。
+  const sourceOf = (value: unknown): unknown => {
     if (value && typeof value === "object" && !Array.isArray(value)) {
       const record = value as Record<string, unknown>;
-      if (record.source !== undefined) return { key, ...record };
-      if (typeof record.path === "string") return { key, source: { path: record.path } };
-      return { key, source: record };
+      if (typeof record.source === "string") return { path: record.source };
+      if (record.source !== undefined) return record.source;
+      if (typeof record.path === "string") return { path: record.path };
+      return value;
     }
-    if (typeof value === "string") return { key, source: { path: value } };
-    return { key, source: value };
-  });
+    if (typeof value === "string") return { path: value };
+    return value;
+  };
+  const entries = Array.isArray(parsed)
+    ? parsed.map((item) => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return item;
+        const record = item as Record<string, unknown>;
+        return { key: record.key, source: sourceOf(record) };
+      })
+    : Object.entries(parsed as Record<string, unknown>).map(([key, value]) => ({ key, source: sourceOf(value) }));
   return { ...args, outputs: entries };
 }
 
