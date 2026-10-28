@@ -217,3 +217,35 @@ describe("字符串化的参数", () => {
     expect(typeof body?.output).toBe("object");
   });
 });
+
+/** code_checkpoint / code_publish 的真实失败形状（来自 MG 动画那次真机运行）。 */
+describe("code_* 工具的参数兜底", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => { await gw.close(); });
+
+  it("code_checkpoint：模型写 note，schema 要 message", async () => {
+    gw.on("POST", "/api/v3/code-projects/checkpoint", { json: { ok: true } });
+    const r = await h.call("code_checkpoint", { note: "渲染管线跑通，抽帧亮度验证通过" });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/v3/code-projects/checkpoint");
+    expect((sent?.body as { message?: string })?.message).toContain("渲染管线跑通");
+  });
+
+  it("code_publish：outputs 写成 {key:{path}} 对象 → 展开成数组", async () => {
+    gw.on("POST", "/api/v3/code-projects/publish", { json: { ok: true } });
+    const r = await h.call("code_publish", {
+      requestId: "pub-1",
+      outputs: '{"film":{"path":"out/final.mp4"}}',
+      output: { resources: [{ key: "film", mode: "create", name: "快闪MG动画成片" }] },
+    });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/v3/code-projects/publish");
+    expect((sent?.body as { outputs?: unknown })?.outputs).toEqual([{ key: "film", source: { path: "out/final.mp4" } }]);
+  });
+});

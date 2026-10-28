@@ -166,6 +166,28 @@ function numericLike(value: unknown): unknown {
   return Number(text);
 }
 
+/**
+ * `code_publish` 的 `outputs`：模型会写成"键 → {path}"的对象，schema 要的是
+ * `[{key, source:{path}}]`。对象表单在这里展开成数组。
+ */
+function coercePublishOutputs(args: Record<string, unknown>): Record<string, unknown> {
+  const raw = args.outputs;
+  if (raw === undefined) return args;
+  const parsed = typeof raw === "string" ? parseJsonLike(raw) : raw;
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return { ...args, outputs: parsed };
+  const entries = Object.entries(parsed as Record<string, unknown>).map(([key, value]) => {
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      const record = value as Record<string, unknown>;
+      if (record.source !== undefined) return { key, ...record };
+      if (typeof record.path === "string") return { key, source: { path: record.path } };
+      return { key, source: record };
+    }
+    if (typeof value === "string") return { key, source: { path: value } };
+    return { key, source: value };
+  });
+  return { ...args, outputs: entries };
+}
+
 /** 只按 schema 里声明的键去修（不认识的键保持原样，`_session_id` 等私有键也不动）。 */
 function repairValues(shape: z.ZodRawShape, args: Record<string, unknown>, mode: "json" | "json+number"): Record<string, unknown> {
   const out = { ...args };
@@ -189,6 +211,14 @@ function inferMissingFields(name: string, args: Record<string, unknown>): Record
     if (Array.isArray(out.edits)) out.mode = "patch";
     else if (typeof out.baseVersionId === "string" && out.baseVersionId !== "") out.mode = "replace";
     else if (typeof out.content === "string") out.mode = "create";
+  }
+  if (name === "code_checkpoint" && out.message === undefined) {
+    // 模型习惯写 `note`（我们自己的 note 字段名），schema 里叫 message。
+    const note = out.note ?? out.description ?? out.summary;
+    if (typeof note === "string" && note.trim() !== "") {
+      out.message = note;
+      delete out.note;
+    }
   }
   if (name === "task_query" && out.mode === undefined && typeof out.action === "string") {
     // 模型把 mode 写成 action（`{"action":"list"}`）；值不在枚举里就让校验照常报错。
@@ -258,6 +288,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
 
     // 依次尝试：原样 → 解析 JSON 字符串 → 再把数字字符串转成数字。
     // 第一个能被 schema 接受的就用；都不行就交回原样，让 SDK 如实报错。
+    if (name === "code_publish") args = coercePublishOutputs(args);
     const unpacked = unpackActionObject(shape, args);
     const candidates = [
       args,
