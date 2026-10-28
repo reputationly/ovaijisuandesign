@@ -20,7 +20,8 @@ describe("v3 生成任务", () => {
     delete process.env.HILO_PROJECT_ARCHITECTURE;
   });
 
-  it("记下进行中的任务，停止后不再留在队列里", async () => {
+  // Windows CI runner 上起真的 gateway + 建库偶尔超过默认的 5s（同类 flake 见过多次）。
+  it("记下进行中的任务，停止后不再留在队列里", { timeout: 30_000 }, async () => {
     process.env.WORKSPACE_DIR = mkdtempSync(path.join(tmpdir(), "ov-tasks-"));
     process.env.HILO_GATEWAY_ROLE = "workspace";
     process.env.HILO_PROJECT_ARCHITECTURE = "resource_v3";
