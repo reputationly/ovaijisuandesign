@@ -8,9 +8,10 @@
 
 export const PLATFORM_PRESET = {
   base_url: "https://maas.ovaijisuan.com/v1",
-  // 2026-10-23 运营把 qwen3.8-flash-fp8 / qwen3.8-27b 从目录下架，换成
-  // deepseek-v4-1-flash（见 new-api `setting/hilo_catalog_text.go` 的注释）。
-  // 这里跟着目录走；用户 config.json 里已有的非空值仍优先（老用户不会被静默改）。
+  // 默认值随平台目录走。**注意**：new-api 仓库里 `setting/hilo_catalog_text.go`
+  // 的注释写着"2026-10-23 把 qwen3.8-flash-fp8 下架"，但运营确认平台**仍在提供**
+  // qwen3.8-flash-fp8 —— 那条注释只是当时换默认值的动机，不是下架记录。
+  // 最终默认值等模型/档位评测结论再定，这里只保证"目录里没有就切目录第一个"。
   chat_model: "deepseek-v4-1-flash",
   // **默认值不在这里（L-1）。** 平台上有哪些模型、每个模态默认用哪个，由
   // `GET /v1/ov/capabilities` 说了算（见 `app/gateway/src/generate/platform-catalog.ts`）。

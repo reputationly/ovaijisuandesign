@@ -153,7 +153,7 @@ function defaultPermission(): Record<string, string> {
 
 /** 思考档位 → 请求体参数。`none` 时把开关也关掉，避免平台仍按默认档推理。 */
 export function reasoningOptions(effort = process.env.OV_REASONING_EFFORT?.trim().toLowerCase() || "high"): Record<string, unknown> {
-  const level = ["none", "minimal", "low", "medium", "high", "xhigh"].includes(effort) ? effort : "high";
+  const level = ["none", "minimal", "low", "medium", "high", "xhigh", "max"].includes(effort) ? effort : "high";
   return { reasoningEffort: level, enable_thinking: level !== "none" };
 }
 

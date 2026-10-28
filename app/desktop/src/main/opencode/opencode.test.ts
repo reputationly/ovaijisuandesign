@@ -286,5 +286,8 @@ describe("思考档位", () => {
     expect(reasoningOptions("none")).toEqual({ reasoningEffort: "none", enable_thinking: false });
     expect(reasoningOptions("bogus")).toEqual({ reasoningEffort: "high", enable_thinking: true });
     expect(reasoningOptions("low")).toEqual({ reasoningEffort: "low", enable_thinking: true });
+    // 平台实测接受 max / xhigh（max 的 reasoning_tokens 最多），别把它们当非法值回落。
+    expect(reasoningOptions("max")).toEqual({ reasoningEffort: "max", enable_thinking: true });
+    expect(reasoningOptions("xhigh")).toEqual({ reasoningEffort: "xhigh", enable_thinking: true });
   });
 });
