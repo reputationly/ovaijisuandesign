@@ -25,6 +25,7 @@
 - brief 没有要求格式时，选择画布能直接预览、后续创作能直接使用的格式，例如视频交付 mp4，而不是逐帧图片。
 - 简单的交互网页交付为自包含的单个 HTML 文件，脚本、样式和小型素材内联。
 - 需要多文件、模块化或较多素材的网页，交付构建产物目录（例如 `out/dist`），入口是该目录根部的 `index.html`；依赖、字体、图片全部打包进目录，不引用外部 URL（预览中外网请求会被拦截）。用 `design_code_publish` 发布该目录，画布会作为可交互网页预览。
+- **程序化生成的视频默认要带声音。** brief 没写声音时，也要用程序合成一条音轨（最简单的是用 numpy 按节拍生成 WAV，再用 ffmpeg `-map 0:v -map 1:a -c:a aac` 混流），除非 brief 明确要求无声。发布前用 ffprobe 确认成片同时有视频流和音频流：只有 `codec_type=video` 的成片视为未完成。
 - 产物必须由 workDir 中的代码实际运行生成；发布前确认文件存在、可打开、参数符合要求，媒体文件可用 `design_analyse_media` 核对时长、分辨率等客观参数。
 - 用 `design_code_publish` 发布：outputs 中每项给出 key 和来源（`out/` 下的文件路径，或 `snapshot: "source"` 表示交付程序源码），output 按 brief 的交付物写明每个 key 的目标与所属对象。brief 给出 resourceId 时用 new_version 在该 Resource 上建立新版本。发布结果为 unknown 时用相同 requestId 和相同参数重试；blocked 时修正参数后换新的 requestId。
 
