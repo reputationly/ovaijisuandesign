@@ -169,8 +169,7 @@ function customProvider(p: Platform) {
       name,
       tool_call: true,
       limit: { context, output },
-      // opencode 看到模型 id 里有 qwen 就不上思考档。这里显式给 max，
-      // 请求体会带 reasoning_effort=max，并打开 enable_thinking。
+      options: { reasoningEffort: "high", enable_thinking: true },
       variants: {
         max: { reasoningEffort: "max", enable_thinking: true },
       },
@@ -179,7 +178,9 @@ function customProvider(p: Platform) {
   return {
     name: "maas",
     npm: "@ai-sdk/openai-compatible",
-    options: { baseURL: p.base_url, apiKey: p.api_key, headers: {} },
+    // 思考档位：平台认 `reasoning_effort`。opencode 的 variant 推断对自定义 provider +
+    // qwen 模型名返回空表，所以**同时**在 provider 和 model 两层给，尽量让 SDK 带进请求体。
+    options: { baseURL: p.base_url, apiKey: p.api_key, headers: {}, reasoningEffort: "high", enable_thinking: true },
     models,
   };
 }
