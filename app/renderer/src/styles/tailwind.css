@@ -6420,3 +6420,40 @@ html[data-hilo-gpu="disabled"] .home-media-tag {
   from { transform: translateX(0); }
   to { transform: translateX(var(--overflow-marquee-distance)); }
 }
+
+/* ---- 首页 / 画布里几条「用了但没定义」的类（参照 4.0.4 同名规则原样搬）----
+   扫描方式：把构建产物 CSS 里定义的类集合，与我们 JSX 里 className 用到的类集合做差，
+   再在参照 asar 里找对应规则。这五条是差额里确实有样式的（其余是 react-flow 的
+   `nodrag`/`nowheel` 之类交互标记，或参照里也不存在的死类）。 */
+.home-project-greeting {
+  font-variation-settings: "wght" 500;
+  letter-spacing: .5px;
+  min-height: 44px;
+  font-size: 26px;
+  line-height: 36px;
+}
+
+.home-whats-new__ticker {
+  width: max(var(--home-whats-new-min-text-width), var(--home-whats-new-text-width, 0px));
+  transition: width var(--home-whats-new-roll-transition-duration) cubic-bezier(.4, 0, .2, 1);
+}
+
+.home-sidebar-recent-thumbnail-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--home-sidebar-thumbnail-fallback-background);
+  color: var(--media-overlay-foreground);
+}
+
+.canvas-horizontal-resize-control {
+  z-index: 30;
+}
+
+.canvas-lightbox-action-menu {
+  --action-list-background: var(--canvas-lightbox-surface);
+  --action-list-foreground: color-mix(in srgb, var(--canvas-lightbox-foreground) 85%, transparent);
+  --action-list-hover: color-mix(in srgb, var(--canvas-lightbox-foreground) 10%, transparent);
+  --action-list-border-color: color-mix(in srgb, var(--canvas-lightbox-foreground) 10%, transparent);
+  --action-list-divider: color-mix(in srgb, var(--canvas-lightbox-foreground) 10%, transparent);
+}
