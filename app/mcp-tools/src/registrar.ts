@@ -189,14 +189,37 @@ function coercePublishOutputs(args: Record<string, unknown>): Record<string, unk
     if (typeof value === "string") return { path: value };
     return value;
   };
+  const names = new Map<string, string>();
   const entries = Array.isArray(parsed)
     ? parsed.map((item) => {
         if (!item || typeof item !== "object" || Array.isArray(item)) return item;
         const record = item as Record<string, unknown>;
-        return { key: record.key, source: sourceOf(record) };
+        const key = typeof record.key === "string" ? record.key : "";
+        const name = [record.name, record.goal, record.title, record.description].find((v): v is string => typeof v === "string" && v.trim() !== "");
+        if (key && name) names.set(key, name.trim());
+        return { key, source: sourceOf(record) };
       })
-    : Object.entries(parsed as Record<string, unknown>).map(([key, value]) => ({ key, source: sourceOf(value) }));
-  return { ...args, outputs: entries };
+    : Object.entries(parsed as Record<string, unknown>).map(([key, value]) => {
+        if (value && typeof value === "object" && !Array.isArray(value)) {
+          const name = [(value as Record<string, unknown>).name, (value as Record<string, unknown>).goal].find((v): v is string => typeof v === "string" && v.trim() !== "");
+          if (name) names.set(key, name.trim());
+        }
+        return { key, source: sourceOf(value) };
+      });
+
+  // **`output` 是必填，模型经常漏**（真机上同一个调用连试 38 次都是 `Required at output`）。
+  // 按 outputs 推断：每个 key 建一个 Resource，名字优先用模型给的 name/goal。
+  let output = args.output;
+  if (output === undefined && entries.length > 0) {
+    output = {
+      resources: entries.map((entry) => ({
+        key: entry.key,
+        mode: "create",
+        name: names.get(entry.key) ?? entry.key,
+      })),
+    };
+  }
+  return { ...args, outputs: entries, ...(output === undefined ? {} : { output }) };
 }
 
 /** 只按 schema 里声明的键去修（不认识的键保持原样，`_session_id` 等私有键也不动）。 */
@@ -223,12 +246,15 @@ function inferMissingFields(name: string, args: Record<string, unknown>): Record
     else if (typeof out.baseVersionId === "string" && out.baseVersionId !== "") out.mode = "replace";
     else if (typeof out.content === "string") out.mode = "create";
   }
-  if (name === "code_checkpoint" && out.message === undefined) {
-    // 模型习惯写 `note`（我们自己的 note 字段名），schema 里叫 message。
-    const note = out.note ?? out.description ?? out.summary;
+  if (name === "code_checkpoint" && (out.message === undefined || out.message === "")) {
+    // 模型习惯写 `note`（我们自己的 note 字段名），schema 里叫 message；
+    // 有时干脆什么都不给 —— 补一句默认描述，别让整轮因为一个备注字段失败。
+    const note = out.note ?? out.description ?? out.summary ?? out.text;
     if (typeof note === "string" && note.trim() !== "") {
       out.message = note;
       delete out.note;
+    } else {
+      out.message = "自动记录：完成一个里程碑";
     }
   }
   if (name === "task_query" && out.mode === undefined && typeof out.action === "string") {

@@ -255,6 +255,26 @@ describe("code_* 工具的参数兜底", () => {
     ]);
   });
 
+  it("code_publish：模型只给 outputs（含 kind/goal），缺 output 时按 outputs 推断", async () => {
+    gw.on("POST", "/api/v3/code-projects/publish", { json: { ok: true } });
+    const r = await h.call("code_publish", {
+      requestId: "pub-3",
+      message: "交付成片",
+      outputs: [{ key: "film", path: "out/film.mp4", kind: "video", goal: "MiniMax Design 15s 快闪MG成片" }],
+    });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/v3/code-projects/publish");
+    const body = sent?.body as { outputs?: unknown; output?: unknown };
+    expect(body.outputs).toEqual([{ key: "film", source: { path: "out/film.mp4" } }]);
+    expect(body.output).toEqual({ resources: [{ key: "film", mode: "create", name: "MiniMax Design 15s 快闪MG成片" }] });
+  });
+
+  it("code_checkpoint：什么都没给时也补一句，不让整轮失败", async () => {
+    gw.on("POST", "/api/v3/code-projects/checkpoint", { json: { ok: true } });
+    const r = await h.call("code_checkpoint", {});
+    expect(r.isError).toBeUndefined();
+  });
+
   it("code_publish：outputs 写成 {key:{path}} 对象 → 展开成数组", async () => {
     gw.on("POST", "/api/v3/code-projects/publish", { json: { ok: true } });
     const r = await h.call("code_publish", {
