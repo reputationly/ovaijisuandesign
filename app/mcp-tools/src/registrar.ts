@@ -217,6 +217,35 @@ function moveKeyAliases(shape: z.ZodRawShape, args: Record<string, unknown>): vo
   }
 }
 
+/**
+ * 模型会把整份参数塞进一个以动作名命名的键里：
+ *
+ *   {"ensure":"{\"composition\":{…},\"operations\":[…]}", "_session_id":"…"}
+ *
+ * 也就是把 `action` 当成了函数名。这里识别"只有一个键、键名是 action/mode 的合法值、
+ * 值是个 JSON 对象"的形状，把它拆成 `action: <键名>` + 对象里的字段。
+ */
+function unpackActionObject(shape: z.ZodRawShape, args: Record<string, unknown>): Record<string, unknown> | null {
+  const field = Object.prototype.hasOwnProperty.call(shape, "action")
+    ? "action"
+    : Object.prototype.hasOwnProperty.call(shape, "mode")
+      ? "mode"
+      : null;
+  if (!field) return null;
+  if (args[field] !== undefined) return null;
+  const keys = Object.keys(args).filter((key) => !key.startsWith("_"));
+  if (keys.length !== 1) return null;
+  const key = keys[0];
+  if (key === undefined) return null;
+  if (["create", "replace", "patch", "ensure", "update", "rename", "set_attributes", "move", "duplicate", "batch", "get", "list", "wait", "resolve", "adopt", "describe"].indexOf(key) < 0) return null;
+  const raw = args[key];
+  const payload = typeof raw === "string" ? parseJsonLike(raw) : raw;
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+  const rest = { ...(payload as Record<string, unknown>) };
+  delete args[key];
+  return { ...rest, ...args, [field]: key };
+}
+
 function withAutoRequestId(shape: z.ZodRawShape, name: string) {
   const needsRequestId = Object.prototype.hasOwnProperty.call(shape, "requestId");
   const object = z.object(shape).passthrough();
@@ -229,7 +258,13 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
 
     // 依次尝试：原样 → 解析 JSON 字符串 → 再把数字字符串转成数字。
     // 第一个能被 schema 接受的就用；都不行就交回原样，让 SDK 如实报错。
-    const candidates = [args, repairValues(shape, args, "json"), repairValues(shape, args, "json+number")];
+    const unpacked = unpackActionObject(shape, args);
+    const candidates = [
+      args,
+      ...(unpacked ? [unpacked, repairValues(shape, unpacked, "json"), repairValues(shape, unpacked, "json+number")] : []),
+      repairValues(shape, args, "json"),
+      repairValues(shape, args, "json+number"),
+    ];
     args = candidates.find((candidate) => object.safeParse(candidate).success) ?? args;
 
     if (!needsRequestId) return args;

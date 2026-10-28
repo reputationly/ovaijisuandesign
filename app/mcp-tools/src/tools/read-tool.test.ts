@@ -179,6 +179,22 @@ describe("字符串化的参数", () => {
     expect(sent?.query.get("ids")).toBe("generate_video:minimax-h3-2k");
   });
 
+  it("composition_edit：整份参数塞在 ensure 这个键里 → 拆成 action + 字段", async () => {
+    gw.on("POST", "/api/project/compositions/commands", { json: { ok: true } });
+    const r = await h.call("composition_edit", {
+      ensure: JSON.stringify({
+        composition: { name: "香水" },
+        operations: [{ action: "add_member", clientMemberKey: "plan", role: "方案", versionId: "ver_1" }],
+      }),
+    });
+    expect(r.isError).toBeUndefined();
+    const sent = gw.requests.find((req) => req.path === "/api/project/compositions/commands");
+    const cmd = (sent?.body as { command?: Record<string, unknown> })?.command ?? {};
+    expect(cmd).toMatchObject({ action: "ensure" });
+    // 只断言"整份参数被拆开并原样转发了"，具体变体字段由 schema 归一。
+    expect((cmd.operations as unknown[])[0]).toMatchObject({ action: "add_member", clientMemberKey: "plan", role: "方案" });
+  });
+
   it("document_write：content 有、mode 漏传 → 推断成 create", async () => {
     gw.on("POST", "/api/v3/document", { json: { ok: true } });
     const r = await h.call("document_write", { name: "方案", content: "# 方案" });
