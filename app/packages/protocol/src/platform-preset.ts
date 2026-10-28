@@ -8,7 +8,10 @@
 
 export const PLATFORM_PRESET = {
   base_url: "https://maas.ovaijisuan.com/v1",
-  chat_model: "qwen3.8-flash-fp8",
+  // 2026-10-23 运营把 qwen3.8-flash-fp8 / qwen3.8-27b 从目录下架，换成
+  // deepseek-v4-1-flash（见 new-api `setting/hilo_catalog_text.go` 的注释）。
+  // 这里跟着目录走；用户 config.json 里已有的非空值仍优先（老用户不会被静默改）。
+  chat_model: "deepseek-v4-1-flash",
   // **默认值不在这里（L-1）。** 平台上有哪些模型、每个模态默认用哪个，由
   // `GET /v1/ov/capabilities` 说了算（见 `app/gateway/src/generate/platform-catalog.ts`）。
   // 产品里再存一份的后果是两边会漂移：平台上换了默认模型，客户端还在用旧名字，
@@ -77,6 +80,21 @@ const text = (v: unknown): string | null => {
  * 把读出来的配置 JSON 补全成"实际生效的配置"。不改入参，返回新对象；
  * 未知字段原样保留。`api_key` 缺了补成空串，免得 `parseMediaConfig` 因为缺字段直接抛错。
  */
+/**
+ * 配置里的对话模型**已经不在平台目录里**时，改用目录里的第一个。
+ *
+ * 运营换模型（下架旧名）后，老用户 config.json 里的旧名字仍然非空 —— 按
+ * "非空优先"的规则会一直用下去，请求带着一个目录里已经没有的模型名。
+ * 目录拿不到（新装/离线）时不做任何替换，保持原值。
+ */
+export function pickChatModel(configured: string, available: readonly string[]): string {
+  const value = configured.trim();
+  const list = available.map((item) => item.trim()).filter((item) => item !== "");
+  if (list.length === 0) return value;
+  if (list.includes(value)) return value;
+  return list[0] ?? value;
+}
+
 export function withPlatformPreset(raw: unknown): Json {
   const root: Json = isObject(raw) ? raw : {};
   const platform: Json = isObject(root.platform) ? root.platform : {};

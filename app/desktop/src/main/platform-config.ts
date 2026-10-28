@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 
 import { catalogCache, parseMediaConfig } from "@ov/maas-media";
-import { type PlatformCatalog, withPlatformPreset } from "@ov/protocol";
+import { pickChatModel, type PlatformCatalog, withPlatformPreset } from "@ov/protocol";
 
 import type { Platform } from "./opencode/index.js";
 
@@ -31,8 +31,11 @@ export function readPlatform(configPath: string, dataDir?: string): Platform {
     return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined;
   };
   const chatModels = readChatModels(cfg.platform.chat_model, cfg.platform.api_key, dataDir);
+  // 配置里那个模型可能已经被运营从目录里下架：改成目录里的第一个。
+  const chatModel = pickChatModel(cfg.platform.chat_model, chatModels);
   return {
     ...cfg.platform,
+    chat_model: chatModel,
     chat_context_limit: int(platformSection.chat_context_limit),
     chat_output_limit: int(platformSection.chat_output_limit),
     ...(chatModels.length > 1 ? { chat_models: chatModels } : {}),
@@ -48,10 +51,12 @@ function readChatModels(configured: string, apiKey: string, dataDir?: string): s
     const trimmed = name.trim();
     if (trimmed && !names.includes(trimmed)) names.push(trimmed);
   };
-  push(configured);
   for (const capability of catalog?.capabilities ?? []) {
     if (capability.operation === "chat") push(capability.model ?? "");
   }
+  // 目录里没有配置那个（已下架）→ 以目录第一个为准，别再把它排到最前面。
+  if (names.length > 0) return names;
+  push(configured);
   return names;
 }
 

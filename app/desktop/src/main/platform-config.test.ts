@@ -53,4 +53,26 @@ describe("是否已有令牌（决定要不要拦住启动）", () => {
   it("配置文件坏了（读不出 JSON）→ 当没有，让人重新填；不抛错", () => {
     expect(hasPlatformToken(cfgFile("{ not json"))).toBe(false);
   });
+
+
+});
+
+describe("对话模型与平台目录对齐", () => {
+  it("配置里的模型已被下架（目录里没有）：改用目录里的第一个", async () => {
+    const { catalogCache } = await import("@ov/maas-media");
+    const dir = mkdtempSync(path.join(tmpdir(), "ov-platform-"));
+    const file = path.join(dir, "config.json");
+    writeFileSync(file, JSON.stringify({ platform: { api_key: "sk-test", chat_model: "qwen3.8-flash-fp8" } }));
+    catalogCache.writePlatformCatalogCache(dir, "sk-test", {
+      version: "test",
+      capabilities: [
+        { operation: "chat", model: "deepseek-v4-1-flash" },
+        { operation: "chat", model: "GPT-5.4" },
+      ],
+    } as never);
+    const platform = readPlatform(file, dir);
+    // 下架的那个不再排第一，目录里的第一个成为默认。
+    expect(platform.chat_model).toBe("deepseek-v4-1-flash");
+    expect(platform.chat_models?.[0]).toBe("deepseek-v4-1-flash");
+  });
 });

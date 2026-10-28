@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { PLATFORM_PRESET, withPlatformPreset } from "./platform-preset.js";
+import { pickChatModel, PLATFORM_PRESET, withPlatformPreset } from "./platform-preset.js";
 
 describe("withPlatformPreset", () => {
   it("新装用户（配置文件里只有令牌）：地址、对话模型、各模态模型都用产品预设", () => {
@@ -67,5 +67,19 @@ describe("withPlatformPreset", () => {
     expect(cfg.models.voice_map).toEqual({ a: "x" });
     expect(cfg.models.enhance_music_caption).toBe(false);
     expect(JSON.stringify(raw)).toBe(snapshot);
+  });
+});
+
+describe("pickChatModel", () => {
+  it("配置里的模型在目录里：原样保留", () => {
+    expect(pickChatModel("deepseek-v4-1-flash", ["deepseek-v4-1-flash", "GPT-5.4"])).toBe("deepseek-v4-1-flash");
+  });
+
+  it("配置里的模型已被下架：改用目录里的第一个", () => {
+    expect(pickChatModel("qwen3.8-flash-fp8", ["deepseek-v4-1-flash"])).toBe("deepseek-v4-1-flash");
+  });
+
+  it("目录拿不到（空列表）：保持原值，不猜", () => {
+    expect(pickChatModel("qwen3.8-flash-fp8", [])).toBe("qwen3.8-flash-fp8");
   });
 });
