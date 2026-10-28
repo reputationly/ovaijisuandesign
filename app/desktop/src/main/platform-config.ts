@@ -35,9 +35,11 @@ export function readPlatform(configPath: string, dataDir?: string): Platform {
   // `OV_CHAT_MODEL_PIN` 是联调/压测用的显式钉住（A/B 时要跑目录外的模型）。
   const pinned = process.env.OV_CHAT_MODEL_PIN?.trim();
   const chatModel = pinned ? pinned : pickChatModel(cfg.platform.chat_model, chatModels);
+  const codeModel = process.env.OV_CODE_AGENT_MODEL?.trim() || (cfg.platform.code_model ?? "").trim() || chatModel;
   return {
     ...cfg.platform,
     chat_model: chatModel,
+    code_model: codeModel,
     chat_context_limit: int(platformSection.chat_context_limit),
     chat_output_limit: int(platformSection.chat_output_limit),
     ...(chatModels.length > 1 ? { chat_models: chatModels } : {}),

@@ -307,3 +307,30 @@ describe("agent 的 external_directory 放开", () => {
     expect(config.permission.external_directory).toBe("allow");
   });
 });
+
+describe("code-agent 用独立模型", () => {
+  const build = (platform: Record<string, unknown>): Record<string, any> =>
+    buildOpencodeConfig({
+      profileDir: path.join(repoRoot, "assets/agent-profiles/v3/config"),
+      region: "domestic",
+      platform: { base_url: "http://127.0.0.1:1/v1", api_key: "sk-test", ...platform } as never,
+      mcp: { command: ["node", "x.js"], environment: {} },
+      extraPlugins: [],
+      skillsPaths: [],
+    });
+
+  it("配了 code_model：code-agent 用它，主 agent 仍用 chat_model，provider 两个都注册", () => {
+    const config = build({ chat_model: "qwen3.8-flash-fp8", code_model: "deepseek-v4-1-flash" });
+    // 主 agent 不单独指定（沿用全局 config.model），code-agent 单独落到 deepseek。
+    expect(config.agent["media-agent"].model).toBeUndefined();
+    expect(config.model).toBe("maas/qwen3.8-flash-fp8");
+    expect(config.agent["code-agent"].model).toBe("maas/deepseek-v4-1-flash");
+    expect(Object.keys(config.provider.maas.models).sort()).toEqual(["deepseek-v4-1-flash", "qwen3.8-flash-fp8"]);
+  });
+
+  it("没配 code_model：所有 agent 都用 chat_model", () => {
+    const config = build({ chat_model: "qwen3.8-flash-fp8" });
+    expect(config.agent["code-agent"].model).toBeUndefined();
+    expect(config.model).toBe("maas/qwen3.8-flash-fp8");
+  });
+});

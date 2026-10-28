@@ -26,6 +26,8 @@ export interface Platform {
    * `/chat/completions`，跟出图出曲不是一类能力。
    */
   chat_model: string;
+  /** code-agent（派发子任务）用的模型；不填就跟 `chat_model` 一致。 */
+  code_model?: string;
 }
 
 /** 去掉尾斜杠的 base，拼路径时用。 */
@@ -272,6 +274,7 @@ export function parsePlatform(value: unknown): Platform {
     base_url: reqString(value, "base_url", "platform"),
     api_key: reqString(value, "api_key", "platform"),
     chat_model: reqString(value, "chat_model", "platform"),
+    ...(typeof value.code_model === "string" && value.code_model.trim() !== "" ? { code_model: value.code_model.trim() } : {}),
   };
 }
 

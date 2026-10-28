@@ -12,6 +12,7 @@ describe("withPlatformPreset", () => {
       base_url: PLATFORM_PRESET.base_url,
       api_key: "sk-test",
       chat_model: PLATFORM_PRESET.chat_model,
+      code_model: PLATFORM_PRESET.code_model,
     });
     expect(cfg.models).toEqual({ ...PLATFORM_PRESET.models });
   });

@@ -35,6 +35,13 @@ export interface Platform {
    * `chat_model` 一个 —— 与改造前一致。
    */
   chat_models?: string[];
+  /**
+   * **code-agent 专用模型**（派发子任务时用）。缺省时跟 `chat_model` 一致。
+   *
+   * 现实理由：code-agent 要写文件、跑 bash、FFmpeg，工具调用密集；普通对话要的是
+   * 语言与创意。两者用同一个模型总有一头吃亏，所以允许分开配。
+   */
+  code_model?: string;
 }
 
 export interface McpLaunch {
@@ -71,10 +78,14 @@ export function buildOpencodeConfig(i: BuildInputs): Record<string, any> {
     // 不写 variant 的话会话一直是 default，请求里不会带 reasoning_effort。
     // 第 298 轮（用户要求）：不用 `as any`。这里是遍历一个未知形状的记录，
     // 用窄化后的本地别名表达意图，类型仍然可见。
-    for (const a of Object.values(config.agent ?? {})) {
+    const codeModel = (i.platform.code_model ?? "").trim();
+    for (const [agentName, a] of Object.entries(config.agent ?? {})) {
       if (!a || typeof a !== "object") continue;
       const entry: { model?: unknown; variant?: string } = a;
-      delete entry.model;
+      // 只有 code-agent 需要单独指定；其余沿用全局 `config.model`（原来就是删掉
+      // agent 自带的 model，靠全局那个）。
+      if (agentName === "code-agent" && codeModel) entry.model = `${PROVIDER_ID}/${codeModel}`;
+      else delete entry.model;
       entry.variant = "max";
     }
     delete config.small_model;
@@ -180,7 +191,9 @@ function customProvider(p: Platform) {
   const output = clampPositive(p.chat_output_limit, 32_000);
   // 每个模型条目都一样，只有 id/name 不同。**顺序**按调用方给的（配置那个第一），
   // opencode 的模型列表就按这个顺序显示。
-  const names = [model, ...(p.chat_models ?? [])].map((item) => item.trim()).filter((item, index, all) => item !== "" && all.indexOf(item) === index);
+  const names = [model, p.code_model ?? "", ...(p.chat_models ?? [])]
+    .map((item) => item.trim())
+    .filter((item, index, all) => item !== "" && all.indexOf(item) === index);
   const models: Record<string, unknown> = {};
   for (const name of names) {
     models[name] = {

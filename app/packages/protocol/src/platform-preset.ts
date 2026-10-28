@@ -13,6 +13,10 @@ export const PLATFORM_PRESET = {
   // qwen3.8-flash-fp8 —— 那条注释只是当时换默认值的动机，不是下架记录。
   // 最终默认值等模型/档位评测结论再定，这里只保证"目录里没有就切目录第一个"。
   chat_model: "deepseek-v4-1-flash",
+  // **code-agent 走 deepseek**：它要写文件、跑 bash、FFmpeg，工具调用密集，deepseek
+  // 在 MG 动画那种长流程里明显更稳（实测 2 次失败 vs qwen 14 次）。普通对话保持
+  // chat_model（默认 qwen3.8-flash-fp8）—— 评测里它的调用最干净。
+  code_model: "deepseek-v4-1-flash",
   // **默认值不在这里（L-1）。** 平台上有哪些模型、每个模态默认用哪个，由
   // `GET /v1/ov/capabilities` 说了算（见 `app/gateway/src/generate/platform-catalog.ts`）。
   // 产品里再存一份的后果是两边会漂移：平台上换了默认模型，客户端还在用旧名字，
@@ -114,6 +118,7 @@ export function withPlatformPreset(raw: unknown): Json {
       base_url: text(platform.base_url) ?? PLATFORM_PRESET.base_url,
       api_key: typeof platform.api_key === "string" ? platform.api_key : "",
       chat_model: text(platform.chat_model) ?? PLATFORM_PRESET.chat_model,
+      code_model: text(platform.code_model) ?? PLATFORM_PRESET.code_model,
     },
     models: nextModels,
   };
