@@ -12,7 +12,8 @@
     "test:desource-rename": "vitest run --config scripts/desource/rename/vitest.config.mjs",
     "typecheck": "turbo run typecheck",
     "dev": "turbo run dev --filter=@ov/desktop",
-    "check:css-classes": "node scripts/check-css-classes.mjs"
+    "check:css-classes": "node scripts/check-css-classes.mjs",
+    "smoke:canvas": "node scripts/pw/canvas-smoke.mjs"
   },
   "devDependencies": {
     "@babel/parser": "7.29.9",

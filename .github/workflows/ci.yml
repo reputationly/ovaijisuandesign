@@ -38,6 +38,12 @@ jobs:
       # 我们是「还原」参照界面的，最容易出的错就是组件搬来、配套 CSS 没搬
       # （真机上踩过：侧栏长标题糊成 3 行、首页问候语字号不对）。
       - run: node scripts/check-css-classes.mjs
+      # 画布冒烟：起真 App → 真网关交付一个资源 → 断言画布上真的有节点、没有未捕获错误。
+      # **暂时 continue-on-error**：它现在就会红，因为"交付出来的 composition 在新工作区里
+      # 画布不显示"这个真问题还没修（见 turn 85 记录）。修好后把这行去掉，让它成为硬门禁。
+      - run: node scripts/pw/canvas-smoke.mjs
+        if: runner.os == 'macOS'
+        continue-on-error: true
 
   # ==================== 新栈出包 ====================
   #
