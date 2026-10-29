@@ -48,11 +48,12 @@ function workspaceGateway(root) {
     const claim = pick("HILO_WORKSPACE_CLAIM");
     const instance = pick("HILO_WORKSPACE_INSTANCE_ID");
     const generation = pick("HILO_WORKSPACE_GENERATION") ?? "1";
+    const agentKey = pick("HILO_AGENT_CALLER_KEY");
     const dir = env.match(/WORKSPACE_DIR=(\S+)/)?.[1];
     // 只认**本次 fixture 根目录**下的那个工作区：用户自己开着的 App 用的是同一份二进制，
     // 不按目录过滤就会把真实项目当成冒烟目标（第一版就点错了工作区）。
     if (!dir || !decodeURIComponent(dir).startsWith(root)) continue;
-    if (port && claim && instance) return { port, claim, instance, generation, dir: decodeURIComponent(dir) };
+    if (port && claim && instance) return { port, claim, instance, generation, agentKey, dir: decodeURIComponent(dir) };
   }
   return null;
 }
@@ -83,6 +84,10 @@ try {
       "x-hilo-workspace": gw.claim,
       "x-hilo-workspace-instance": gw.instance,
       "x-hilo-workspace-generation": gw.generation,
+      // **必须带上 agent 身份**：网关按这个头把 actor 记成 agent，而画布只展示
+      // `project_changelog` 里 actor=agent 的 composition（`listAgentPlacements`）。
+      // 不带这个头 → 交付被记成 human → 画布永远看不到，这是第一版冒烟"0 节点"的真因。
+      ...(gw.agentKey ? { "x-hilo-agent-caller": gw.agentKey } : {}),
     },
     body: JSON.stringify({
       requestId: `smoke-${Date.now()}`,
