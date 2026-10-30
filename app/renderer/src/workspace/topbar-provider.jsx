@@ -309,15 +309,23 @@ function notifyTaskNeedsUserAction(
           "topbar.notification.taskNeedsConfirmationFallbackBody",
           "The Agent is waiting for your confirmation. Click to continue.",
         );
-  void getNotificationMainService()
+  // **必须把 promise 返回出去**：调用方写的是 `notifyTaskNeedsUserAction(...).then(...)`。
+  // 之前这里把链路 `void` 掉了（没有 return），函数返回 undefined，
+  // 于是 `undefined.then` 直接抛错 —— 触发条件正是"agent 在等你回答、而且窗口没有焦点"，
+  // 应用级 ErrorBoundary 会把整个窗口换成「出现异常」页（真机 15:39 那次就是这么挂的）。
+  return getNotificationMainService()
     .show({
       title,
       body,
     })
     .then((result) => {
-      if (!result.success || !result.id) onNotificationShown(false);
+      if (!result.success || !result.id) {
+        onNotificationShown(false);
+        return false;
+      }
       onNotificationShown?.(result.id);
-    return true;})
+      return true;
+    })
     .catch((error) => {
       console.warn("[topbar] Failed to show user-action notification:", error);
       return false;
@@ -477,7 +485,7 @@ function useCompletedTasks(entries, options = {}) {
           kind: "user-action",
         };
         pendingNotificationsRef.current += 1;
-        void notifyTaskNeedsUserAction(
+        void Promise.resolve(notifyTaskNeedsUserAction(
           entry.task,
           t,
           (notificationId) => {
@@ -490,7 +498,7 @@ function useCompletedTasks(entries, options = {}) {
           () => {
             pendingNotificationsRef.current = Math.max(0, pendingNotificationsRef.current - 1);
           },
-        ).then((shown) => {
+        )).then((shown) => {
           if (notifications.get(key) !== entry) return;
           entry.status = shown ? "notified" : "pending";
         });
