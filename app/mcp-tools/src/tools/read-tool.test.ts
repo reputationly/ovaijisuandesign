@@ -148,7 +148,8 @@ describe("下划线别名字段", () => {
     expect(r.isError).toBeUndefined();
     const sent = gw.requests.find((req) => req.path === "/api/project/compositions/commands");
     const cmd = (sent?.body as { command?: Record<string, unknown> })?.command ?? {};
-    expect(cmd).toMatchObject({ action: "ensure", typeId: "cty_1", name: "视频" });
+    // 下划线别名仍然要归一到正式字段，再被信封映射成网关认识的 `composition.create`。
+    expect(cmd).toMatchObject({ type: "composition.create", compositionType: "cty_1", name: "视频" });
   });
 });
 
@@ -179,7 +180,7 @@ describe("字符串化的参数", () => {
     expect(sent?.query.get("ids")).toBe("generate_video:minimax-h3-2k");
   });
 
-  it("composition_edit：整份参数塞在 ensure 这个键里 → 拆成 action + 字段", async () => {
+  it("composition_edit：整份参数塞在 ensure 这个键里 → 拆成 action + 字段（再映射成网关命令）", async () => {
     gw.on("POST", "/api/project/compositions/commands", { json: { ok: true } });
     const r = await h.call("composition_edit", {
       ensure: JSON.stringify({
@@ -189,10 +190,10 @@ describe("字符串化的参数", () => {
     });
     expect(r.isError).toBeUndefined();
     const sent = gw.requests.find((req) => req.path === "/api/project/compositions/commands");
-    const cmd = (sent?.body as { command?: Record<string, unknown> })?.command ?? {};
-    expect(cmd).toMatchObject({ action: "ensure" });
-    // 只断言"整份参数被拆开并原样转发了"，具体变体字段由 schema 归一。
-    expect((cmd.operations as unknown[])[0]).toMatchObject({ action: "add_member", clientMemberKey: "plan", role: "方案" });
+    const body = (sent?.body ?? {}) as { actor?: string; command?: Record<string, unknown> };
+    // 关键点：`ensure` 这个"整份参数"被拆开，并且外层补上了网关要求的 commandId + actor。
+    expect(body.actor).toBe("agent");
+    expect(body.command).toMatchObject({ type: "composition.create" });
   });
 
   it("document_write：content 有、mode 漏传 → 推断成 create", async () => {
@@ -355,5 +356,52 @@ describe("模型坏形状兜底（第二轮真机）", () => {
     expect(body.name).toBe("春日咖啡方案");
     expect(body.title).toBeUndefined();
     expect(body.docType).toBeUndefined();
+  });
+});
+
+/** 10-30 真机：execute / composition_edit / resource_edit 三条命令的形状都不对。 */
+describe("命令类工具的信封与白名单", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => { await gw.close(); });
+
+  it("execute：丢掉 _tool_call_index / description，解析字符串化的 params", async () => {
+    gw.on("POST", "/api/v3/execute", { json: { task: { id: "t1" } } });
+    const r = await h.call("execute", {
+      capabilityId: "c1",
+      prompt: "画一只猫",
+      params: '{"aspect_ratio":"1:1"}',
+      _tool_call_index: 3,
+      description: "多出来的说明",
+    });
+    expect(r.isError).toBeUndefined();
+    const body = gw.requests.find((req) => req.path === "/api/v3/execute")?.body as Record<string, unknown>;
+    expect(body._tool_call_index).toBeUndefined();
+    expect(body.description).toBeUndefined();
+    expect(body.params).toEqual({ aspect_ratio: "1:1" });
+  });
+
+  it("composition_edit：ensure 变成 composition.create 的网关信封", async () => {
+    gw.on("POST", "/api/project/compositions/commands", { json: { committed: true, compositionId: "cmp_1", revision: 1 } });
+    const r = await h.call("composition_edit", { action: "ensure", name: "春日咖啡", typeId: "video", attributes: { a: "b" } });
+    expect(r.isError).toBeUndefined();
+    const body = gw.requests.find((req) => req.path === "/api/project/compositions/commands")?.body as Record<string, any>;
+    expect(body.actor).toBe("agent");
+    expect(typeof body.commandId).toBe("string");
+    expect(body.command).toMatchObject({ type: "composition.create", compositionType: "video", name: "春日咖啡" });
+    expect(body.command.attributes).toEqual([{ name: "a", value: "b" }]);
+  });
+
+  it("resource_edit：describe 变成 resource.update（metadata）", async () => {
+    gw.on("POST", "/api/project/resources/commands", { json: { committed: true } });
+    const r = await h.call("resource_edit", { action: "describe", resourceId: "res_1", name: "新名字", expectedMetadataRevision: 3 });
+    expect(r.isError).toBeUndefined();
+    const body = gw.requests.find((req) => req.path === "/api/project/resources/commands")?.body as Record<string, any>;
+    expect(body.command).toMatchObject({ type: "resource.update", resourceId: "res_1", payload: { kind: "metadata", expectedMetadataRevision: 3, changes: { name: "新名字" } } });
   });
 });

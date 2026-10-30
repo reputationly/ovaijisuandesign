@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { z } from "zod";
 
 import { errorMessage } from "../gateway-client.js";
@@ -284,6 +286,103 @@ const reportOutcomeSchema = z.object({
     summary: z.string().max(4000).optional(),
   })).min(1).max(20),
 });
+
+/**
+ * `composition_edit` 的 MCP 参数 → 网关命令信封。
+ *
+ * 网关只认 `composition.create` / `.rename` / `.set_lifecycle` / `.restore` / `.move` /
+ * `.duplicate` / `.apply` 这几种命令，且外层必须有 `commandId` + `actor`。
+ * 工具参数是 `action` 风格，这里做映射；映射不了的动作直接给出可执行的话。
+ */
+function compositionCommandEnvelope(args: Record<string, unknown>):
+  | { ok: true; body: Record<string, unknown> }
+  | { ok: false; error: string } {
+  // 工具 schema 里没有 requestId（与参照一致），所以这里用参数摘要造一个**稳定**的命令 id：
+  // 同样的参数重试会命中网关的幂等记录，改参数就换新 id。
+  const requestId = typeof args.requestId === "string" && args.requestId.trim() !== ""
+    ? args.requestId
+    : `auto-${createHash("sha256").update(JSON.stringify(args)).digest("hex").slice(0, 32)}`;
+  const action = String(args.action ?? "");
+  const envelope = (command: Record<string, unknown>) => ({
+    ok: true as const,
+    body: {
+      commandId: requestId,
+      actor: "agent",
+      ...(typeof args.expectedRevision === "number" ? { expectedRevision: args.expectedRevision } : {}),
+      command,
+    },
+  });
+  if (action === "ensure") {
+    const attributes = args.attributes && typeof args.attributes === "object"
+      ? Object.entries(args.attributes as Record<string, string>).map(([name, value]) => ({ name, value }))
+      : undefined;
+    return envelope({
+      type: "composition.create",
+      compositionType: typeof args.typeId === "string" ? args.typeId : null,
+      name: args.name,
+      ...(attributes === undefined ? {} : { attributes }),
+    });
+  }
+  if (action === "rename") {
+    return envelope({ type: "composition.rename", compositionId: args.compositionId, name: args.name });
+  }
+  return {
+    ok: false,
+    error: `composition_edit 的 action=${action} 在当前网关还没有对应命令；目前支持 ensure（新建对象）与 rename。`,
+  };
+}
+
+/** `resource_edit` 的 MCP 参数 → 网关资源命令信封。 */
+function resourceCommandEnvelope(args: Record<string, unknown>):
+  | { ok: true; body: Record<string, unknown> }
+  | { ok: false; error: string } {
+  const requestId = typeof args.requestId === "string" && args.requestId.trim() !== ""
+    ? args.requestId
+    : `auto-${createHash("sha256").update(JSON.stringify(args)).digest("hex").slice(0, 32)}`;
+  const action = String(args.action ?? "");
+  const resourceId = typeof args.resourceId === "string" ? args.resourceId : undefined;
+  if (!resourceId) return { ok: false, error: "resource_edit 需要 resourceId" };
+  if (action === "describe") {
+    const changes: Record<string, unknown> = {};
+    if (typeof args.name === "string") changes.name = args.name;
+    if (typeof args.description === "string") changes.description = args.description;
+    return {
+      ok: true,
+      body: {
+        commandId: requestId,
+        actor: "agent",
+        command: {
+          type: "resource.update",
+          resourceId,
+          payload: {
+            kind: "metadata",
+            expectedMetadataRevision: typeof args.expectedMetadataRevision === "number" ? args.expectedMetadataRevision : 0,
+            changes,
+          },
+        },
+      },
+    };
+  }
+  if (action === "adopt") {
+    return {
+      ok: true,
+      body: {
+        commandId: requestId,
+        actor: "agent",
+        command: {
+          type: "resource.update",
+          resourceId,
+          payload: {
+            kind: "current_version",
+            versionId: args.versionId,
+            expectedCurrentVersionId: args.expectedCurrentVersionId,
+          },
+        },
+      },
+    };
+  }
+  return { ok: false, error: `resource_edit 的 action=${action} 在当前网关还没有对应命令；目前支持 describe（改名/描述）与 adopt（切当前版本）。` };
+}
 
 export const registerV3Tools: RegisterTools = (registrar, gw) => {
   registrar.registerTool(
@@ -604,9 +703,11 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
     { description: V3_TOOL_SPECS["resource_edit"].description, inputSchema: V3_TOOL_SPECS["resource_edit"].shape, annotations: V3_TOOL_SPECS["resource_edit"].annotations },
     async (args: V3Args<"resource_edit">) => {
       try {
-        return structuredReply((await gw.post("/api/project/resources/commands", {
-          command: { ...args },
-        }, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+        // 同 composition_edit：网关要 `{commandId, actor, command:{type, resourceId, payload}}`，
+        // 以前只发了 `{command:{...args}}`，每条都 `PROJECT_INVALID_COMMAND`。
+        const envelope = resourceCommandEnvelope(args as Record<string, unknown>);
+        if (!envelope.ok) return errorReply(envelope.error);
+        return structuredReply((await gw.post("/api/project/resources/commands", envelope.body, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
       } catch (error) {
         return errorReply(`resource_edit 失败：${errorMessage(error)}`);
       }
@@ -618,9 +719,12 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
     { description: V3_TOOL_SPECS["composition_edit"].description, inputSchema: V3_TOOL_SPECS["composition_edit"].shape, annotations: V3_TOOL_SPECS["composition_edit"].annotations },
     async (args: V3Args<"composition_edit">) => {
       try {
-        return structuredReply((await gw.post("/api/project/compositions/commands", {
-          command: { ...args },
-        }, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+        // 网关要的是 `{commandId, actor, command:{type, ...}}`（`CompositionService.envelope`）。
+        // 以前只发 `{command:{...args}}`，于是每条都 400 `PROJECT_INVALID_COMMAND`
+        // —— 真机上对象一直建不出来，画布自然空着。
+        const envelope = compositionCommandEnvelope(args as Record<string, unknown>);
+        if (!envelope.ok) return errorReply(envelope.error);
+        return structuredReply((await gw.post("/api/project/compositions/commands", envelope.body, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
       } catch (error) {
         return errorReply(`composition_edit 失败：${errorMessage(error)}`);
       }
@@ -664,7 +768,24 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
       try {
         // 4.0.4 的任务契约：/api/v3/execute 接收完整能力入参并返回 {task}。
         // 旧实现按 capabilityId 猜 operation、只传 prompt，既丢参数也拿不到任务快照。
-        const result = await gw.post("/api/v3/execute", args, 600_000, z.unknown());
+        // 网关对 submit 体做**白名单**校验（agent 只允许 capabilityId/prompt/params/references/
+        // count/output）。模型会顺手带 `_tool_call_index` / `description`，于是 422
+        // `UNSUPPORTED_FIELD` —— 界面上就是"生成图片失败"。这里只放行白名单字段，
+        // 并把字符串化的 params/output 解析开。
+        const submit: Record<string, unknown> = {};
+        for (const key of ["capabilityId", "prompt", "params", "references", "count", "output"]) {
+          if ((args as Record<string, unknown>)[key] !== undefined) submit[key] = (args as Record<string, unknown>)[key];
+        }
+        for (const key of ["params", "output"]) {
+          if (typeof submit[key] === "string") {
+            try {
+              submit[key] = JSON.parse(submit[key] as string);
+            } catch {
+              // 解析不了就原样交给网关，让它给出准确报错。
+            }
+          }
+        }
+        const result = await gw.post("/api/v3/execute", submit, 600_000, z.unknown());
         return structuredReply(result as Record<string, unknown>);
       } catch (error) {
         return errorReply(`execute 失败：${errorMessage(error)}`);
