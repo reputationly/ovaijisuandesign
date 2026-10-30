@@ -349,7 +349,7 @@ function NodeToolbarPalette({
   state = "entering",
   density = "standard",
 }) {
-  if (list.length === 0) return null;
+  if (items.length === 0) return null;
   const animation =
     state === "entering"
       ? `toolbar-fade-in ${TOOLBAR_ANIM_MS}ms ease-out`
@@ -378,7 +378,7 @@ function NodeToolbarPalette({
 }
 function NodeToolbarInner({ items, visible: visible2, renderShell, density }) {
   // `items` 偶尔会是 undefined（某个调用点算了条件列表但返回空/未返回），
-  // 直接 `items.length` 会让整个画布子树崩掉 —— 一个工具栏不值得炸掉整块画布。
+  // 直接读它的 length 会让整个画布子树崩掉 —— 一个工具栏不值得炸掉整块画布。
   const list = Array.isArray(items) ? items : [];
   const zoom = useStore(zoomSelector);
   const isDragging = useCanvasIsDragging();
@@ -386,7 +386,7 @@ function NodeToolbarInner({ items, visible: visible2, renderShell, density }) {
   const isBoxSelecting = useCanvasIsBoxSelecting();
   const hidden = isDragging || isMultiSelect || isBoxSelecting;
   const { shouldRender, state } = useDelayedUnmount(visible2, hidden);
-  if (items.length === 0) return null;
+  if (list.length === 0) return null;
   if (hidden) return null;
   if (!shouldRender) return null;
   const palette = (

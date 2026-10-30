@@ -28,13 +28,13 @@ const PNG = Buffer.from(
   "base64",
 );
 
-function workspaceGateway(root) {
-  const ps = execFileSync("ps", ["-Ao", "pid=,command="], { encoding: "utf8" });
+function gatewayProcesses(root) {
+  const ps = execFileSync("ps", ["-Ao", "pid=,ppid=,command="], { encoding: "utf8" });
+  const rows = [];
   for (const line of ps.split("\n")) {
     if (!line.includes("gateway/dist/main.js")) continue;
-    // 同一台机器上 MiniMax Design 也可能开着，它有同名的 gateway 进程 —— 只认我们自己的。
     if (!line.includes("蒜狸小助手.app") && !line.includes("ovaijisuandesign")) continue;
-    const pid = line.trim().split(/\s+/)[0];
+    const [pid, ppid] = line.trim().split(/\s+/);
     if (!pid) continue;
     let env = "";
     try {
@@ -44,25 +44,46 @@ function workspaceGateway(root) {
     }
     if (!env.includes("HILO_GATEWAY_ROLE=workspace")) continue;
     const pick = (key) => env.match(new RegExp(`${key}=(\\S+)`))?.[1];
-    const port = pick("PORT");
-    const claim = pick("HILO_WORKSPACE_CLAIM");
-    const instance = pick("HILO_WORKSPACE_INSTANCE_ID");
-    const generation = pick("HILO_WORKSPACE_GENERATION") ?? "1";
-    const agentKey = pick("HILO_AGENT_CALLER_KEY");
     const dir = env.match(/WORKSPACE_DIR=(\S+)/)?.[1];
-    // 只认**本次 fixture 根目录**下的那个工作区：用户自己开着的 App 用的是同一份二进制，
-    // 不按目录过滤就会把真实项目当成冒烟目标（第一版就点错了工作区）。
     if (!dir || !decodeURIComponent(dir).startsWith(root)) continue;
-    if (port && claim && instance) return { port, claim, instance, generation, agentKey, dir: decodeURIComponent(dir) };
+    rows.push({ pid: Number(pid), ppid: Number(ppid), port: pick("PORT"), claim: pick("HILO_WORKSPACE_CLAIM"), instance: pick("HILO_WORKSPACE_INSTANCE_ID"), generation: pick("HILO_WORKSPACE_GENERATION") ?? "1", agentKey: pick("HILO_AGENT_CALLER_KEY"), dir: decodeURIComponent(dir) });
   }
-  return null;
+  return rows;
 }
 
+/** 上一次冒烟没退干净的 App 会一直占着同一批 fixture 目录 —— 交付会落到那些僵尸实例上。 */
+function killStaleApps(root) {
+  for (const row of gatewayProcesses(root)) {
+    try {
+      process.kill(row.ppid, "SIGKILL");
+    } catch {}
+    try {
+      process.kill(row.pid, "SIGKILL");
+    } catch {}
+  }
+}
+
+function workspaceGateway(root, preferName) {
+  const found = gatewayProcesses(root).sort((a, b) => b.pid - a.pid);
+  // fixture 里 ws-a / ws-b 各有一个 workspace 网关 —— 必须挑**我们要打开的那个**，
+  // 且优先用最新的那个（旧的可能是上一轮没退干净的实例）。
+  return found.find((item) => path.basename(item.dir) === preferName) ?? found[0] ?? null;
+}
+
+killStaleApps(ROOT);
+killStaleApps(ROOT);
 const app = await launchApp({ mode: "recovered", port: PORT, root: ROOT, reset: true });
+// 把渲染进程的报错收集起来写进 artifact —— 只截图看不出"哪个节点为什么崩"。
+const consoleErrors = [];
+app.page.on("pageerror", (error) => consoleErrors.push(`[pageerror] ${String(error).slice(0, 400)}`));
+app.page.on("console", (message) => {
+  if (message.type() === "error") consoleErrors.push(`[console] ${message.text().slice(0, 400)}`);
+});
 const failures = [];
 try {
   await app.page.waitForTimeout(4000);
-  const gw = workspaceGateway(ROOT);
+  const target = process.env.OV_SMOKE_WORKSPACE ?? "ws-a";
+  const gw = workspaceGateway(ROOT, target);
   if (!gw) throw new Error("没找到 workspace 角色的网关进程");
   if (!gw.dir) throw new Error("网关进程没有 WORKSPACE_DIR");
 
@@ -77,6 +98,9 @@ try {
   } catch {
     writeFileSync(path.join(gw.dir, "smoke.png"), PNG);
   }
+  // 封面和分镜跟着成片一起交付（对应「视频交付必带封面与脚本」的规则）。
+  writeFileSync(path.join(gw.dir, "smoke-cover.png"), PNG);
+  writeFileSync(path.join(gw.dir, "storyboard.md"), "# 冒烟分镜\n00:00-00:01 测试画面\n");
   const res = await fetch(`http://127.0.0.1:${gw.port}/api/v3/deliveries`, {
     method: "POST",
     headers: {
@@ -91,15 +115,38 @@ try {
     },
     body: JSON.stringify({
       requestId: `smoke-${Date.now()}`,
-      sources: [{ key: "shot", path: sourceName }],
+      // 三个产物一起交付：成片 + 封面 + 分镜，验收「视频交付必带封面与脚本」这条规则，
+      // 同时验证一次交付多个 resource / 多个 placement 不会互相挤掉。
+      sources: [
+        { key: "film", path: sourceName },
+        { key: "cover", path: "smoke-cover.png" },
+        { key: "storyboard", path: "storyboard.md" },
+      ],
       output: {
-        resources: [{ key: "shot", mode: "create", name: "冒烟图" }],
-        composition: { name: "冒烟组合", type: { label: kindLabel }, placements: [{ key: "shot", role: "成片" }] },
+        resources: [
+          { key: "film", mode: "create", name: "冒烟成片" },
+          { key: "cover", mode: "create", name: "冒烟封面" },
+          { key: "storyboard", mode: "create", name: "冒烟分镜" },
+        ],
+        composition: {
+          name: "冒烟组合",
+          type: { label: kindLabel },
+          placements: [
+            { key: "film", role: "成片" },
+            { key: "cover", role: "封面" },
+            { key: "storyboard", role: "分镜" },
+          ],
+        },
       },
     }),
   });
   const body = await res.json().catch(() => ({}));
   if (res.status !== 200) throw new Error(`交付失败 HTTP ${res.status}: ${JSON.stringify(body).slice(0, 200)}`);
+  const placements = body?.delivery?.placements ?? [];
+  const roles = placements.map((item) => item.role).sort();
+  if (roles.join(",") !== ["分镜", "封面", "成片"].sort().join(",")) {
+    failures.push(`交付的 placement 角色不对：${JSON.stringify(roles)}（期望 成片/封面/分镜）`);
+  }
 
   // 打开这个工作区，等画布把节点渲染出来。
   // 一定要点**交付到的那个**工作区（fixture 里 ws-a / ws-b 同时存在，点错了就是空画布）。
@@ -110,22 +157,38 @@ try {
   await app.page.waitForTimeout(3000);
   // 交付发生在打开工作区之前；刷新一次让画布重新拉取 composition 列表。
   await app.page.reload().catch(() => {});
-  await app.page.waitForTimeout(7000);
+  // 等画布真的连上并渲染出节点：左下角"已连接" + 节点出现（最多 30s）。
+  // 直接 sleep 固定秒数会因为"工作区网关还在启动/WS 未连上"而随机读到 0 节点。
+  await app.page
+    .waitForFunction(
+      () => document.querySelectorAll(".react-flow__node").length > 0,
+      undefined,
+      { timeout: 30000 },
+    )
+    .catch(() => {});
 
   const seen = await app.page.evaluate(() => ({
     nodes: document.querySelectorAll(".react-flow__node").length,
     nodeErrors: document.querySelectorAll("[data-canvas-node-render-error]").length,
+    nodeErrorTexts: [...document.querySelectorAll("[data-canvas-node-render-error]")].map((el) => el.innerText.replace(/\n/g, " | ").slice(0, 300)),
+    members: document.body.innerText.split("\n").filter((line) => ["成片", "封面", "分镜"].includes(line.trim())).length,
     uncaught: /Cannot read properties|is not a function|Base UI error|TypeError/.test(document.body.innerText)
       ? document.body.innerText.slice(0, 200)
       : "",
   }));
 
   if (seen.nodes < 1) failures.push(`画布上没有节点（nodes=${seen.nodes}）`);
+  if (seen.members < 3) failures.push(`画布上只看到 ${seen.members} 个成员标签（期望 成片/封面/分镜 三个）`);
   if (seen.uncaught) failures.push(`页面出现未捕获错误：${seen.uncaught}`);
 
   mkdirSync(ARTIFACT_DIR, { recursive: true });
   await app.page.screenshot({ path: path.join(ARTIFACT_DIR, "canvas-smoke.png") });
-  console.log(JSON.stringify({ delivery: "ok", ...seen, artifact: path.join(ARTIFACT_DIR, "canvas-smoke.png") }, null, 1));
+  writeFileSync(
+    path.join(ARTIFACT_DIR, "canvas-smoke.json"),
+    JSON.stringify({ delivery: "ok", ...seen, consoleErrors: consoleErrors.slice(0, 20) }, null, 1),
+  );
+  console.log(JSON.stringify({ delivery: "ok", ...seen, consoleErrors: consoleErrors.slice(0, 6), artifact: path.join(ARTIFACT_DIR, "canvas-smoke.png") }, null, 1));
+  if (seen.nodeErrorTexts.length) failures.push(`有 ${seen.nodeErrorTexts.length} 个节点渲染失败：${seen.nodeErrorTexts[0]}`);
 } catch (error) {
   failures.push(error instanceof Error ? error.message : String(error));
 } finally {
