@@ -222,6 +222,77 @@ function coercePublishOutputs(args: Record<string, unknown>): Record<string, unk
   return { ...args, outputs: entries, ...(output === undefined ? {} : { output }) };
 }
 
+
+/**
+ * `deliver` 的参数清洗。
+ *
+ * 真机上模型给出的形状五花八门（都是同一个原因：它按语义拼，不管网关的白名单）：
+ *   - 整个 `output` 是一段 JSON **字符串**；
+ *   - 忘了 `sources`，把 `versionId` 塞进 `output.resources[i]`；
+ *   - `output.composition.type` 带 `id`，`resources` 里带 `title`/`kind` 之类网关不认的键。
+ *
+ * 网关对未知字段是**硬拒绝**（422 UNSUPPORTED_FIELD），所以这里按网关的白名单清洗，
+ * 并把 `resources[i].versionId` 提升成 `sources[j].versionId`（`reuse` / `new_version` 的真身份）。
+ */
+function sanitizeDeliver(args: Record<string, unknown>): Record<string, unknown> {
+  const parsedOutput = typeof args.output === "string" ? parseJsonLike(args.output) : args.output;
+  const output = parsedOutput && typeof parsedOutput === "object" && !Array.isArray(parsedOutput) ? (parsedOutput as Record<string, unknown>) : parsedOutput;
+
+  const sourcesIn = Array.isArray(args.sources) ? args.sources : [];
+  const sources: Record<string, unknown>[] = [];
+  for (const item of sourcesIn) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+    const raw = item as Record<string, unknown>;
+    const next: Record<string, unknown> = {};
+    for (const key of ["key", "versionId", "artifactId", "path"]) if (raw[key] !== undefined) next[key] = raw[key];
+    sources.push(next);
+  }
+
+  const derived: Record<string, unknown>[] = [];
+  if (output && typeof output === "object" && !Array.isArray(output)) {
+    const out = output as Record<string, unknown>;
+    if (Array.isArray(out.resources)) {
+      out.resources = out.resources.map((entry) => {
+        if (!entry || typeof entry !== "object" || Array.isArray(entry)) return entry;
+        const raw = entry as Record<string, unknown>;
+        const next: Record<string, unknown> = {};
+        for (const key of ["key", "mode", "name", "description", "resourceId", "baseVersionId", "disposition"]) {
+          if (raw[key] !== undefined) next[key] = raw[key];
+        }
+        // 身份被写在了 target 上：提升成 source，并从 target 里删掉（网关不认）。
+        if (typeof raw.versionId === "string" && !sources.some((source) => source.versionId === raw.versionId)) {
+          derived.push({ key: raw.key ?? next.key, versionId: raw.versionId });
+        }
+        return next;
+      });
+    }
+    if (out.composition && typeof out.composition === "object" && !Array.isArray(out.composition)) {
+      const composition = out.composition as Record<string, unknown>;
+      const nextComposition: Record<string, unknown> = {};
+      for (const key of ["compositionId", "name", "attributes", "placements"]) if (composition[key] !== undefined) nextComposition[key] = composition[key];
+      if (composition.type && typeof composition.type === "object") {
+        const type = composition.type as Record<string, unknown>;
+        const nextType: Record<string, unknown> = {};
+        for (const key of ["id", "label", "description"]) if (type[key] !== undefined) nextType[key] = type[key];
+        nextComposition.type = nextType;
+      }
+      if (Array.isArray(composition.placements)) {
+        nextComposition.placements = composition.placements.map((placement) => {
+          if (!placement || typeof placement !== "object" || Array.isArray(placement)) return placement;
+          const raw = placement as Record<string, unknown>;
+          const next: Record<string, unknown> = {};
+          for (const key of ["key", "role", "memberId", "replaceResourceId"]) if (raw[key] !== undefined) next[key] = raw[key];
+          return next;
+        });
+      }
+      out.composition = nextComposition;
+    }
+  }
+
+  const merged = [...sources, ...derived];
+  return { ...args, ...(output === undefined ? {} : { output }), ...(merged.length ? { sources: merged } : {}) };
+}
+
 /** 只按 schema 里声明的键去修（不认识的键保持原样，`_session_id` 等私有键也不动）。 */
 function repairValues(shape: z.ZodRawShape, args: Record<string, unknown>, mode: "json" | "json+number"): Record<string, unknown> {
   const out = { ...args };
@@ -336,6 +407,28 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
       );
     }
     if (name === "code_publish") args = coercePublishOutputs(args);
+    if (name === "deliver") args = sanitizeDeliver(args);
+    if (name === "code_project_open" && Array.isArray(args.inputs)) {
+      // 模型会把 inputs 写成 ["ver_xxx"]；schema 要的是对象数组。
+      args = {
+        ...args,
+        inputs: (args.inputs as unknown[]).map((item) => {
+          if (typeof item !== "string") return item;
+          if (item.startsWith("ver_")) return { versionId: item };
+          if (item.startsWith("res_")) return { resourceId: item };
+          return { path: item };
+        }),
+      };
+    }
+    if (name === "document_write") {
+      // 模型会按语义补 `title` / `docType`（网关只认 name/format，未知字段是硬 422）。
+      const next = { ...args };
+      if (next.name === undefined && typeof next.title === "string") next.name = next.title;
+      delete next.title;
+      delete next.docType;
+      delete next.documentType;
+      args = next;
+    }
     const unpacked = unpackActionObject(shape, args);
     const candidates = [
       args,

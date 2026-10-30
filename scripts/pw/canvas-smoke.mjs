@@ -23,6 +23,28 @@ const PORT = Number(process.env.OV_SMOKE_PORT ?? 9388);
 const ROOT = process.env.OV_SMOKE_ROOT ?? "/tmp/ov-pw";
 const ARTIFACT_DIR = process.env.OV_SMOKE_ARTIFACTS ?? path.join(process.cwd(), "artifacts");
 /** 1×1 透明 PNG：够小、不需要任何外部工具。 */
+/** 0.5 秒 8kHz 单声道正弦 WAV：验证音频成员也能上画布，且不用外部工具。 */
+function wav(seconds) {
+  const rate = 8000;
+  const samples = Math.floor(rate * seconds);
+  const data = Buffer.alloc(samples * 2);
+  for (let i = 0; i < samples; i += 1) data.writeInt16LE(Math.round(Math.sin((i / rate) * 2 * Math.PI * 440) * 12000), i * 2);
+  const header = Buffer.alloc(44);
+  header.write("RIFF", 0);
+  header.writeUInt32LE(36 + data.length, 4);
+  header.write("WAVEfmt ", 8);
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20);
+  header.writeUInt16LE(1, 22);
+  header.writeUInt32LE(rate, 24);
+  header.writeUInt32LE(rate * 2, 28);
+  header.writeUInt16LE(2, 32);
+  header.writeUInt16LE(16, 34);
+  header.write("data", 36);
+  header.writeUInt32LE(data.length, 40);
+  return Buffer.concat([header, data]);
+}
+
 const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
   "base64",
@@ -100,6 +122,7 @@ try {
   }
   // 封面和分镜跟着成片一起交付（对应「视频交付必带封面与脚本」的规则）。
   writeFileSync(path.join(gw.dir, "smoke-cover.png"), PNG);
+  writeFileSync(path.join(gw.dir, "smoke-tone.wav"), wav(0.5));
   writeFileSync(path.join(gw.dir, "storyboard.md"), "# 冒烟分镜\n00:00-00:01 测试画面\n");
   const res = await fetch(`http://127.0.0.1:${gw.port}/api/v3/deliveries`, {
     method: "POST",
@@ -121,12 +144,14 @@ try {
         { key: "film", path: sourceName },
         { key: "cover", path: "smoke-cover.png" },
         { key: "storyboard", path: "storyboard.md" },
+        { key: "tone", path: "smoke-tone.wav" },
       ],
       output: {
         resources: [
           { key: "film", mode: "create", name: "冒烟成片" },
           { key: "cover", mode: "create", name: "冒烟封面" },
           { key: "storyboard", mode: "create", name: "冒烟分镜" },
+          { key: "tone", mode: "create", name: "冒烟音频" },
         ],
         composition: {
           name: "冒烟组合",
@@ -135,6 +160,7 @@ try {
             { key: "film", role: "成片" },
             { key: "cover", role: "封面" },
             { key: "storyboard", role: "分镜" },
+            { key: "tone", role: "音频" },
           ],
         },
       },
@@ -144,7 +170,7 @@ try {
   if (res.status !== 200) throw new Error(`交付失败 HTTP ${res.status}: ${JSON.stringify(body).slice(0, 200)}`);
   const placements = body?.delivery?.placements ?? [];
   const roles = placements.map((item) => item.role).sort();
-  if (roles.join(",") !== ["分镜", "封面", "成片"].sort().join(",")) {
+  if (roles.join(",") !== ["分镜", "封面", "成片", "音频"].sort().join(",")) {
     failures.push(`交付的 placement 角色不对：${JSON.stringify(roles)}（期望 成片/封面/分镜）`);
   }
 
@@ -171,14 +197,14 @@ try {
     nodes: document.querySelectorAll(".react-flow__node").length,
     nodeErrors: document.querySelectorAll("[data-canvas-node-render-error]").length,
     nodeErrorTexts: [...document.querySelectorAll("[data-canvas-node-render-error]")].map((el) => el.innerText.replace(/\n/g, " | ").slice(0, 300)),
-    members: document.body.innerText.split("\n").filter((line) => ["成片", "封面", "分镜"].includes(line.trim())).length,
+    members: document.body.innerText.split("\n").filter((line) => ["成片", "封面", "分镜", "音频"].includes(line.trim())).length,
     uncaught: /Cannot read properties|is not a function|Base UI error|TypeError/.test(document.body.innerText)
       ? document.body.innerText.slice(0, 200)
       : "",
   }));
 
   if (seen.nodes < 1) failures.push(`画布上没有节点（nodes=${seen.nodes}）`);
-  if (seen.members < 3) failures.push(`画布上只看到 ${seen.members} 个成员标签（期望 成片/封面/分镜 三个）`);
+  if (seen.members < 4) failures.push(`画布上只看到 ${seen.members} 个成员标签（期望 成片/封面/分镜/音频 四个）`);
   if (seen.uncaught) failures.push(`页面出现未捕获错误：${seen.uncaught}`);
 
   mkdirSync(ARTIFACT_DIR, { recursive: true });

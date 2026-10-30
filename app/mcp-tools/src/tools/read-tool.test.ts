@@ -311,3 +311,49 @@ describe("code_* 工具的参数兜底", () => {
     expect((sent?.body as { outputs?: unknown })?.outputs).toEqual([{ key: "film", source: { path: "out/final.mp4" } }]);
   });
 });
+
+/** 真机上（10-30 春日咖啡那次）模型给出的三种坏形状，逐一钉住。 */
+describe("模型坏形状兜底（第二轮真机）", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => { await gw.close(); });
+
+  it("deliver：output 是 JSON 字符串、缺 sources、versionId 塞在 resources 里 → 清洗成网关能收的形状", async () => {
+    gw.on("POST", "/api/v3/deliveries", { json: { delivery: { requestId: "dl-9", status: "completed" } } });
+    const r = await h.call("deliver", {
+      requestId: "dl-9",
+      output: JSON.stringify({
+        resources: [{ key: "plan", mode: "reuse", versionId: "ver_a2fc", title: "制作方案" }],
+        composition: { type: { id: "video", label: "视频" }, name: "春日咖啡", placements: [{ key: "plan", role: "制作方案" }] },
+      }),
+    });
+    expect(r.isError).toBeUndefined();
+    const body = gw.requests.find((req) => req.path === "/api/v3/deliveries")?.body as Record<string, any>;
+    expect(body.sources).toEqual([{ key: "plan", versionId: "ver_a2fc" }]);
+    expect(body.output.resources).toEqual([{ key: "plan", mode: "reuse" }]);
+    expect(body.output.composition.type).toEqual({ id: "video", label: "视频" });
+  });
+
+  it("code_project_open：inputs 是版本号字符串数组 → 转成对象", async () => {
+    gw.on("POST", "/api/v3/code-projects/open", { json: { codeProjectId: "cpj_1", workDir: "/tmp/w" } });
+    const r = await h.call("code_project_open", { inputs: ["ver_a2fc23fd6eae"] });
+    expect(r.isError).toBeUndefined();
+    const body = gw.requests.find((req) => req.path === "/api/v3/code-projects/open")?.body as Record<string, any>;
+    expect(body.inputs).toEqual([{ versionId: "ver_a2fc23fd6eae" }]);
+  });
+
+  it("document_write：title 映射成 name，docType 被丢掉（网关不认这两个键）", async () => {
+    gw.on("POST", "/api/v3/document", { json: { ok: true } });
+    const r = await h.call("document_write", { mode: "create", title: "春日咖啡方案", docType: "markdown", content: "# 标题" });
+    expect(r.isError).toBeUndefined();
+    const body = gw.requests.find((req) => req.path === "/api/v3/document")?.body as Record<string, any>;
+    expect(body.name).toBe("春日咖啡方案");
+    expect(body.title).toBeUndefined();
+    expect(body.docType).toBeUndefined();
+  });
+});
