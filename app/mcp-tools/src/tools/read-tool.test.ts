@@ -405,3 +405,44 @@ describe("命令类工具的信封与白名单", () => {
     expect(body.command).toMatchObject({ type: "resource.update", resourceId: "res_1", payload: { kind: "metadata", expectedMetadataRevision: 3, changes: { name: "新名字" } } });
   });
 });
+
+/** 10-30 真机：design_execute 的 output 三条硬规则。 */
+describe("design_execute 的 output 归一", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => { await gw.close(); });
+
+  it("所有目标都带 key → 第一个当 primary（去掉 key）", async () => {
+    gw.on("POST", "/api/v3/execute", { json: { task: { id: "t" } } });
+    await h.call("execute", {
+      capabilityId: "generate_image:x",
+      prompt: "海报",
+      output: { resources: [{ key: "poster", mode: "create", name: "主图" }], compositionId: "cmp_1", placements: [{ key: "poster", role: "主图" }] },
+    });
+    const body = gw.requests.find((req) => req.path === "/api/v3/execute")?.body as Record<string, any>;
+    expect(body.output.resources[0].key).toBeUndefined();
+    // 顶层散落的 compositionId/placements 被搬进 output.composition
+    expect(body.output.compositionId).toBeUndefined();
+    expect(body.output.composition).toMatchObject({ compositionId: "cmp_1" });
+    // primary 没有 key，placements 里那个对不上任何具名目标 → 去掉 key
+    expect(body.output.composition.placements[0].key).toBeUndefined();
+  });
+
+  it("output 是 JSON 字符串时也要归一", async () => {
+    gw.on("POST", "/api/v3/execute", { json: { task: { id: "t" } } });
+    await h.call("execute", {
+      capabilityId: "generate_image:x",
+      prompt: "海报",
+      output: '{"resources":[{"key":"a","mode":"create","name":"A"},{"key":"b","mode":"create","name":"B"}],"composition":{"compositionId":"cmp_1","placements":[{"key":"a","role":"A"},{"key":"b","role":"B"}]}}',
+    });
+    const body = gw.requests.find((req) => req.path === "/api/v3/execute")?.body as Record<string, any>;
+    expect(body.output.resources[0].key).toBeUndefined();
+    expect(body.output.resources[1].key).toBe("b");
+    expect(body.output.composition.placements).toEqual([{ role: "A" }, { key: "b", role: "B" }]);
+  });
+});

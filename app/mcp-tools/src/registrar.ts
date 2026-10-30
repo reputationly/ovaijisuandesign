@@ -293,6 +293,69 @@ function sanitizeDeliver(args: Record<string, unknown>): Record<string, unknown>
   return { ...args, ...(output === undefined ? {} : { output }), ...(merged.length ? { sources: merged } : {}) };
 }
 
+/**
+ * `design_execute` 的 `output` 归一。
+ *
+ * 网关的三条硬规则（真机上都撞过）：
+ *  1. **恰好一个目标是 primary** —— primary 不带 `key`；所有目标都带 key 会被拒：
+ *     "The result is saved under the primary output, and no target is primary."
+ *  2. 画布只展示 Composition 成员，所以新建的资源必须**放进 Composition**：
+ *     `output.composition` 里要有 `compositionId`（既有）或 `type`+`name`（新建），
+ *     外加每个 key 的 `placements`。
+ *  3. 模型经常把 `compositionId` / `placements` 写在 `output` **顶层**而不是
+ *     `output.composition` 里 —— 这里顺手搬到正确位置。
+ */
+function normalizeExecuteOutput(value: unknown): unknown {
+  const parsed = typeof value === "string" ? (() => {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  })() : value;
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return parsed;
+  const output = { ...(parsed as Record<string, unknown>) };
+
+  // 顶层散落的 composition 字段 → 搬进 output.composition
+  const loose = ["compositionId", "placements"].some((key) => output[key] !== undefined);
+  if (output.composition === undefined && loose) {
+    const composition: Record<string, unknown> = {};
+    for (const key of ["compositionId", "name", "type", "attributes", "placements"]) {
+      if (output[key] !== undefined) {
+        composition[key] = output[key];
+        delete output[key];
+      }
+    }
+    output.composition = composition;
+  }
+
+  const resources = Array.isArray(output.resources) ? output.resources : undefined;
+  if (resources && resources.length > 0) {
+    const hasPrimary = resources.some((entry) => entry && typeof entry === "object" && (entry as Record<string, unknown>).key === undefined);
+    if (!hasPrimary) {
+      // 第一个当 primary：删掉 key，其它保持具名附加输出。
+      const first = { ...(resources[0] as Record<string, unknown>) };
+      delete first.key;
+      output.resources = [first, ...resources.slice(1)];
+    }
+    const keys = (output.resources as Record<string, unknown>[])
+      .map((entry) => (typeof entry.key === "string" ? entry.key : undefined))
+      .filter((key): key is string => Boolean(key));
+    const composition = output.composition as Record<string, unknown> | undefined;
+    if (composition && Array.isArray(composition.placements)) {
+      composition.placements = composition.placements.map((placement) => {
+        if (!placement || typeof placement !== "object" || Array.isArray(placement)) return placement;
+        const next = { ...(placement as Record<string, unknown>) };
+        // 具名目标要有对应 key；primary（无 key）就不带 key。
+        if (typeof next.key === "string" && !keys.includes(next.key)) delete next.key;
+        return next;
+      });
+    }
+  }
+  return output;
+}
+
+
 /** 只按 schema 里声明的键去修（不认识的键保持原样，`_session_id` 等私有键也不动）。 */
 function repairValues(shape: z.ZodRawShape, args: Record<string, unknown>, mode: "json" | "json+number"): Record<string, unknown> {
   const out = { ...args };
@@ -408,6 +471,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     }
     if (name === "code_publish") args = coercePublishOutputs(args);
     if (name === "deliver") args = sanitizeDeliver(args);
+    if (name === "execute" && args.output !== undefined) args = { ...args, output: normalizeExecuteOutput(args.output) };
     if (name === "code_project_open" && Array.isArray(args.inputs)) {
       // 模型会把 inputs 写成 ["ver_xxx"]；schema 要的是对象数组。
       args = {
@@ -419,6 +483,12 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
           return { path: item };
         }),
       };
+    }
+    if (name === "capability_get" && args.ids === undefined) {
+      // 模型会把 ids 写成 capabilityId / id 单个字符串。
+      const single = args.capabilityId ?? args.id ?? args.capability_id;
+      if (typeof single === "string" && single.trim() !== "") args = { ...args, ids: [single] };
+      else if (Array.isArray(single)) args = { ...args, ids: single };
     }
     if (name === "document_write") {
       // 模型会按语义补 `title` / `docType`（网关只认 name/format，未知字段是硬 422）。

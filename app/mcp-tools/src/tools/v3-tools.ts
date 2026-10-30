@@ -776,6 +776,8 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
         for (const key of ["capabilityId", "prompt", "params", "references", "count", "output"]) {
           if ((args as Record<string, unknown>)[key] !== undefined) submit[key] = (args as Record<string, unknown>)[key];
         }
+        // `output` 的归一在 registrar 的预处理里做（schema 会把顶层散落的
+        // compositionId/placements 当未知字段丢掉，晚了就来不及）。
         for (const key of ["params", "output"]) {
           if (typeof submit[key] === "string") {
             try {
