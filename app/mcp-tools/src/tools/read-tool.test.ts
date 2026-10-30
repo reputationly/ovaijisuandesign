@@ -249,6 +249,18 @@ describe("code_* 工具的参数兜底", () => {
     expect((sent?.body as { message?: string })?.message).toContain("渲染管线跑通");
   });
 
+  it("analyse_media：打到 /api/v3/analyse", async () => {
+    gw.on("POST", "/api/v3/analyse", { json: { type: "semantic", results: [{ reference: { versionId: "ver_1" }, semantic: { text: "一只猫" } }] } });
+    const r = await h.call("analyse_media", { references: [{ versionId: "ver_1", question: "画面里有什么" }], type: "semantic" });
+    expect(r.isError).toBeUndefined();
+    expect(gw.requests.some((req) => req.path === "/api/v3/analyse")).toBe(true);
+  });
+
+  it("analyse_media：传本地路径时给出可执行的报错（而不是 Required at references）", async () => {
+    // 参数预检发生在 schema 解析之前，所以这里表现为抛错；关键是**消息可执行**。
+    await expect(h.call("analyse_media", { file_path: "/tmp/frame.png", question: "看看字" })).rejects.toThrow(/只接受项目 Resource/);
+  });
+
   it("code_publish：数组里 {key, path} 与 {key, source:\"path\"} 都归一成 source.path", async () => {
     gw.on("POST", "/api/v3/code-projects/publish", { json: { ok: true } });
     const r = await h.call("code_publish", {

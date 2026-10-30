@@ -1,3 +1,4 @@
+import { ProjectAnalyseController } from "./analyse.controller.js";
 import { forwardRef, Module } from "@nestjs/common";
 
 import { CanvasV3Module } from "../canvas-v3/canvas-v3.module.js";
@@ -15,7 +16,7 @@ import { ProjectResourceService } from "./resource.service.js";
 
 @Module({
   imports: [forwardRef(() => CanvasV3Module), EditModule],
-  controllers: [ProjectCompositionController, ProjectResourceController, ProjectQueryController, ProjectDocumentController, ProjectAcquisitionController, ProjectDeliveryController],
+  controllers: [ProjectCompositionController, ProjectResourceController, ProjectQueryController, ProjectDocumentController, ProjectAcquisitionController, ProjectDeliveryController, ProjectAnalyseController],
   providers: [ProjectCompositionService, ProjectResourceService, ProjectQueryService, ProjectDocumentService, ProjectAcquisitionService, ProjectDeliveryService],
   exports: [ProjectCompositionService, ProjectResourceService, ProjectDeliveryService],
 })

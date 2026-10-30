@@ -325,6 +325,16 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
 
     // 依次尝试：原样 → 解析 JSON 字符串 → 再把数字字符串转成数字。
     // 第一个能被 schema 接受的就用；都不行就交回原样，让 SDK 如实报错。
+    // 只对 **v3** 的 analyse_media 生效：它的 schema 才有 `references`。
+    // v2 的 hub_analyse_media 走 `file_path`，不能一起拦。
+    if (name === "analyse_media" && Object.prototype.hasOwnProperty.call(shape, "references") && !Array.isArray(args.references) && (typeof args.file_path === "string" || typeof args.media === "string")) {
+      // 模型习惯把本地路径直接塞进来。schema 只接受项目 Resource 的 references，
+      // 与其让它收到一句看不懂的 "Required at references"，不如直接告诉它怎么改。
+      throw new Error(
+        "design_analyse_media 只接受项目 Resource 的 references（resourceId 或 versionId）。" +
+          "要检查本地渲染帧，用 python/PIL/numpy 在本机统计；要检查已发布的媒体，先 design_deliver 再用它的 resourceId。",
+      );
+    }
     if (name === "code_publish") args = coercePublishOutputs(args);
     const unpacked = unpackActionObject(shape, args);
     const candidates = [

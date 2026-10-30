@@ -748,7 +748,10 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
       outputSchema: V3_TOOL_SPECS["analyse_media"].outputShape },
     async (args: V3Args<"analyse_media">) => {
       try {
-        return structuredReply((await gw.post("/api/project/resources/analyse", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+        // **`POST /api/v3/analyse`**（`ProjectAnalyseController`）：网关按 references 里
+        // 的 versionId / resourceId 查出工作区路径，再走对话模型看盘。
+        // 以前打的是 `/api/project/resources/analyse` —— 那条路由不存在。
+        return structuredReply((await gw.post("/api/v3/analyse", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
       } catch (error) {
         return errorReply(`analyse_media 失败：${errorMessage(error)}`);
       }
