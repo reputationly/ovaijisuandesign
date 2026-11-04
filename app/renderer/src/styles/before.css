@@ -2789,49 +2789,93 @@ svg.react-flow__edges {
   z-index: 10100 !important;
 }
 
-/* ---- Node connection entry: persistent 18px plus, in screen pixels ---- */
+/* ---- Node connection entry: magnetic "+" (restored Aug 2026 behaviour) ----
+ *
+ * Shared by the legacy canvas and V3. `.node-handle-plus` is the 84px hover
+ * zone sitting just outside the node edge (inside the zero-sized ReactFlow
+ * source handle); `.node-handle-motion` carries the 30px "+" icon, slides in on
+ * node hover / selection, and follows the pointer while it is in the zone
+ * (inline transform driven by NodeHandleEntry). Scales with the canvas zoom. */
 .node-handle-plus {
   position: absolute;
   top: 0;
-  width: 28px;
-  height: 28px;
   display: flex;
+  width: 84px;
+  height: 84px;
   align-items: center;
   justify-content: center;
-  transform: scale(calc(1 / var(--canvas-zoom, 1))) translateY(-50%);
-  transform-origin: 0 0;
-  opacity: 0;
-  pointer-events: none;
-  color: var(--fg-muted);
+  border-radius: 9999px;
+  transform: translateY(-50%);
   cursor: pointer;
-  transition: opacity 140ms ease-out;
 }
 
 .node-handle-plus[data-side="right"] {
   left: 0;
-  transform: scale(calc(1 / var(--canvas-zoom, 1))) translate(0, -50%);
 }
 
 .node-handle-plus[data-side="left"] {
-  left: 0;
-  transform: scale(calc(1 / var(--canvas-zoom, 1))) translate(-28px, -50%);
+  right: 0;
 }
 
-.node-handle-icon {
+.node-handle-motion {
+  display: flex;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.node-handle-plus[data-side="right"] .node-handle-motion {
+  transform: translate(-15px);
+}
+
+.node-handle-plus[data-side="left"] .node-handle-motion {
+  transform: translate(15px);
+}
+
+/* Show on node hover, selection, or as the in-flight connection target. */
+.node-handle-plus[data-selected] .node-handle-motion,
+.react-flow__node:hover .node-handle-plus .node-handle-motion,
+.node-handle-plus[data-connection-target] .node-handle-motion {
   opacity: 1;
-  transform: scale(1);
+  transform: translate(0);
+  pointer-events: auto;
+}
+
+/* Force hidden (dragging / multi-select / box selection). */
+.node-handle-plus[data-hidden] {
+  pointer-events: none !important;
+}
+
+.node-handle-plus[data-hidden] .node-handle-motion {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.node-handle-plus[data-side="right"][data-hidden] .node-handle-motion {
+  transform: translate(-15px) !important;
+}
+
+.node-handle-plus[data-side="left"][data-hidden] .node-handle-motion {
+  transform: translate(15px) !important;
+}
+
+/* ---- 旧版 proximity handle（media-editing 的 NodeHandles）----
+ *
+ * v3 画布用的是 `NodeHandleEntry`（上面那套 `.node-handle-motion`），而
+ * `canvas/proximity-handle-inner.jsx` 里还有一版旧的 handle 用 `.node-handle-icon`
+ * + `.node-handle-hit-area`。v3 不挂载它，但类名还在 JSX 里（CSS 门禁会报），
+ * 所以保留最小定义。**不要**把它的 28px 盒子规则加回 `.node-handle-plus`：
+ * v3 的 + 号热区就是 84px，改小之后连线拖不出来。
+ */
+.node-handle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
 }
 
-.node-handle-plus[data-selected],
-.react-flow__node:hover .node-handle-plus,
-.node-handle-plus[data-connection-target],
-.node-handle-plus[data-near] {
-  opacity: 1;
-}
-
-/* The 40px operation surface extends outwards, never into the node content
-   or edge resize strip. The 28px visual box keeps its center 14px out. */
 .node-handle-hit-area {
   position: absolute;
   top: -6px;
@@ -2849,15 +2893,10 @@ svg.react-flow__edges {
 .node-handle-plus[data-selected] .node-handle-hit-area,
 .react-flow__node:hover .node-handle-hit-area,
 .node-handle-plus[data-connection-target] .node-handle-hit-area,
-.node-handle-plus[data-near] .node-handle-hit-area {
+.node-handle-plus[data-near] .node-handle-hit-area,
+.node-handle-plus[data-hidden] .node-handle-hit-area {
   pointer-events: auto;
 }
-
-.node-handle-plus[data-connection-target],
-.node-handle-plus[data-near] {
-  color: var(--fg-default);
-}
-
 .node-handle-plus[data-hidden] {
   opacity: 0 !important;
   pointer-events: none !important;

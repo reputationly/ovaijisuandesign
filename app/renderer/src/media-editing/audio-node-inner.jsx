@@ -265,7 +265,7 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformInner22
     </svg>
   );
 });
-const AudioWaveform = reactExports.memo(AudioWaveformInner, (prev, next) => {
+export const AudioWaveform = reactExports.memo(AudioWaveformInner, (prev, next) => {
   return (
     prev.fileName === next.fileName &&
     prev.progress === next.progress &&

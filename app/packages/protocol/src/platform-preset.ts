@@ -12,11 +12,15 @@ export const PLATFORM_PRESET = {
   // 的注释写着"2026-10-23 把 qwen3.8-flash-fp8 下架"，但运营确认平台**仍在提供**
   // qwen3.8-flash-fp8 —— 那条注释只是当时换默认值的动机，不是下架记录。
   // 最终默认值等模型/档位评测结论再定，这里只保证"目录里没有就切目录第一个"。
-  chat_model: "deepseek-v4-1-flash",
+  // 默认对话模型对齐参照同类（MiniMax-M3.1-Flash）：它才会主动先 `skill` 再规划。
+  // qwen3.8-flash-fp8 / deepseek-v4-1-flash 实测都不调 skill（见 docs/agent-handover.md）。
+  chat_model: "minimax-m3.1-flash",
   // **code-agent 走 deepseek**：它要写文件、跑 bash、FFmpeg，工具调用密集，deepseek
   // 在 MG 动画那种长流程里明显更稳（实测 2 次失败 vs qwen 14 次）。普通对话保持
   // chat_model（默认 qwen3.8-flash-fp8）—— 评测里它的调用最干净。
-  code_model: "deepseek-v4-1-flash",
+  // code-agent 也切到 M3.1：实测同一任务下 M3.1 工具失败 0 次、步骤数是 deepseek 的 1/4
+  //（512 海报：58 parts/15 工具/0 失败 vs 248/63/36 失败），见 docs/agent-handover.md。
+  code_model: "minimax-m3.1-flash",
   // **默认值不在这里（L-1）。** 平台上有哪些模型、每个模态默认用哪个，由
   // `GET /v1/ov/capabilities` 说了算（见 `app/gateway/src/generate/platform-catalog.ts`）。
   // 产品里再存一份的后果是两边会漂移：平台上换了默认模型，客户端还在用旧名字，

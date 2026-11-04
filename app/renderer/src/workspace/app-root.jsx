@@ -1498,6 +1498,15 @@ function isStartupSessionRestorePayload(value) {
 }
 const router = createRouter({
   routeTree,
+  // **未匹配路由不要白屏。** 之前 `app://./index.html`、旧深链这类路径会落到
+  // 默认的 "Not Found" 整页（右侧内容区只剩一行 Not Found，连上传入口都没有），
+  // 用户看到的就是"界面挂了"。这里统一送回首页。
+  defaultNotFoundComponent: () => {
+    reactExports.useEffect(() => {
+      void router.navigate({ to: "/", replace: true });
+    }, []);
+    return null;
+  },
 });
 const TrackingRecorder = null;
 function AppRoot() {

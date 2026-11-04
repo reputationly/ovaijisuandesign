@@ -24,6 +24,20 @@ import { type ChatFrame, ChatService } from "./chat.service.js";
 @WebSocketGateway({ path: "/ws" })
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly subs = new WeakMap<WebSocket, () => void>();
+  /**
+   * 编辑器事件订阅：client → subscriptionId。渲染层只关心"有没有 ready"，
+   * 我们按连接记录一份，断开时随连接一起清掉；`epoch` 变了就让客户端重新拉一次。
+   */
+  private readonly editorSubscriptions = {
+    epoch: 1,
+    map: new Map<WebSocket, string>(),
+    add(client: WebSocket, subscriptionId: string) {
+      this.map.set(client, subscriptionId);
+    },
+    drop(client: WebSocket) {
+      this.map.delete(client);
+    },
+  };
   private readonly log = new Logger("WorkspaceWebSocketGuard");
 
   constructor(
@@ -68,6 +82,24 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.send(JSON.stringify({ type: "pong" }));
         return;
       }
+      // **编辑器事件订阅**：渲染层的资产中心会发 `editor_subscribe`，等
+      // `editor_subscription_ready`；之前网关完全没这条分支，于是每 10 秒超时一次
+      // （`v3_editor_events_unavailable code=EDITOR_SUBSCRIPTION_TIMEOUT` 刷屏），
+      // 素材面板也就永远拿不到"画布变了"的通知。
+      if (msg.type === "editor_subscribe" || msg.type === "editor_unsubscribe") {
+        const subscriptionId = (() => {
+          const raw = (msg as { subscriptionId?: unknown }).subscriptionId;
+          return typeof raw === "string" && raw.trim() && raw.length <= 128 ? raw : "";
+        })();
+        if (!subscriptionId) {
+          client.send(JSON.stringify({ type: "editor_subscription_error", subscriptionId: "", error: { code: "INVALID_ARGUMENT", message: "Invalid subscriptionId", retryable: false } }));
+          return;
+        }
+        if (msg.type === "editor_unsubscribe") return;
+        this.editorSubscriptions.add(client, subscriptionId);
+        client.send(JSON.stringify({ type: "editor_subscription_ready", subscriptionId, serverEpoch: this.editorSubscriptions.epoch }));
+        return;
+      }
       // 第 246 轮：任务订阅（参照 /ws 的 task_subscribe / task_unsubscribe）。
       if (msg.type === "task_subscribe" || msg.type === "task_unsubscribe") {
         try {
@@ -106,6 +138,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: WebSocket): void {
+    this.editorSubscriptions.drop(client);
     this.taskSubscriptions.dropClient(client);
     this.subs.get(client)?.();
     this.subs.delete(client);

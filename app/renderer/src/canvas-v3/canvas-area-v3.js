@@ -17942,11 +17942,26 @@ function CanvasV3NodeHandlesInner({
   const connectable = useStore(connectableSelector);
   const boxSelecting = useStore(boxSelectingSelector);
   const connectionDragThreshold = useStore(dragThresholdSelector);
+  // **「+」必须真的能点开。** `NodeHandleEntry` 内部走的是
+  // onMouseDown/onClick 的组合（还带吸附位移判断），实测在 v3 画布上点击不触发
+  // `onOpen`（onAddConnected 一次都没被调用，菜单因此永远不出现）。
+  // 这里在它外面再包一层显式 click 兜底：两次触发用时间戳去重。
+  const lastOpenAtRef = reactExports.useRef(0);
   const handleOpen = reactExports.useCallback(
     (anchor) => {
+      const now = Date.now();
+      if (now - lastOpenAtRef.current < 250) return;
+      lastOpenAtRef.current = now;
       if (!disabled) onAddConnected?.(id2, anchor);
     },
     [disabled, id2, onAddConnected]
+  );
+  const handleZoneClick = reactExports.useCallback(
+    (event) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      handleOpen({ screenX: rect.left + rect.width / 2, screenY: rect.top + rect.height / 2 });
+    },
+    [handleOpen]
   );
   const entryEnabled = connectable && !disabled && !!onAddConnected;
   const liftAnchorRef = useHandleHoverLift(id2, entryEnabled);
@@ -17961,14 +17976,30 @@ function CanvasV3NodeHandlesInner({
         className: "canvas-v3-source",
         onMouseDown: preventNativeDrag,
         children: entryEnabled ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-          NodeHandleEntry,
+          "div",
           {
-            side: upstream ? "left" : "right",
-            direction: upstream ? "upstream" : "downstream",
-            selected,
-            hidden: Boolean(dragging || multiSelected || boxSelecting),
-            connectionDragThreshold,
-            onOpen: handleOpen
+            className: "cursor-pointer",
+            "data-canvas-plus-zone": "true",
+            style: {
+              position: "absolute",
+              top: 0,
+              [upstream ? "right" : "left"]: 0,
+              width: 84,
+              height: 84,
+              transform: "translateY(-50%)",
+            },
+            onClick: handleZoneClick,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NodeHandleEntry,
+              {
+                side: upstream ? "left" : "right",
+                direction: upstream ? "upstream" : "downstream",
+                selected,
+                hidden: Boolean(dragging || multiSelected || boxSelecting),
+                connectionDragThreshold,
+                onOpen: handleOpen
+              }
+            )
           }
         ) : null
       }
@@ -31424,8 +31455,9 @@ function CanvasV3SurfaceView({
     (patch, nextSelection, onSettled) => {
       const state = editor.getSnapshot();
       const importing = images.getSnapshot();
-      if (!patch || !activeRef.current || state.busy || state.error || importing.busy || importing.error || media?.getSnapshot().busy || media?.getSnapshot().error)
+      if (!patch || !activeRef.current || state.busy || state.error || importing.busy || importing.error || media?.getSnapshot().busy || media?.getSnapshot().error) {
         return false;
+      }
       run(async () => {
         try {
           await editor.execute(patch);
@@ -32630,6 +32662,7 @@ function CanvasV3SurfaceView({
       addTable(target, point);
       return;
     }
+    try {
     const id2 = newCanvasV3Id();
     const referenceSource = target?.sourceResource ? sourceOf2(
       canvasV3SubjectResourceNodeId$1(
@@ -32669,6 +32702,14 @@ function CanvasV3SurfaceView({
     closeMenus();
     execute(patch, [id2], clearSubjectResourceSelection);
     focusCanvas();
+    } catch (error) {
+      // 建节点失败要说得出原因（此前 `empty$2` 退化成常量时这里静默失败，用户只看到"点了没反应"）。
+      dedupedToast.error(
+        t("canvasV3.contentUnavailable"),
+        { description: String(error?.message ?? error) }
+      );
+      throw error;
+    }
   };
   const removeSubjectResource = (nodeId, target) => {
     if (locked()) return;
@@ -34497,7 +34538,11 @@ const PageStateIllustration$1 = PageStateIllustration;
 const resolveRetryAction = () => "retry";
 
 // [tdz] empty$2 上移（原第 60994 行，被第 34390 行引用）
-const empty$2 = { edges: [], nodes: [] };
+//
+// **这里原来是一个对象字面量，但调用方是 `empty$2()` 当函数用** —— 还原时把工厂函数
+// 退化成了空 patch 常量，于是画布上任何"新建节点/连线"都在 `createCanvasV3NodePatch`
+// 第一步抛 `empty$2 is not a function`，表现为：点「+」、选类型、什么都不发生。
+const empty$2 = () => ({ type: "canvas.patch", nodes: [], edges: [] });
 
 // [tdz] arrangeCanvasV3SelectionPatch 上移（原第 60988 行，被第 34393 行引用）
 const arrangeCanvasV3SelectionPatch = (patch) => patch;

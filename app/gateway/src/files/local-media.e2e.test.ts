@@ -67,7 +67,12 @@ describe("本机文件：scan-media / workspace-summary / local-file", () => {
   it("scan-media / workspace-summary 的参数错误都是 400", async () => {
     expect((await http.get("/api/files/scan-media")).status).toBe(400);
     expect((await http.get("/api/files/scan-media?dir=relative/dir")).status).toBe(400);
-    expect((await http.get(`/api/files/scan-media?dir=${encodeURIComponent(path.join(root, "nope"))}`)).status).toBe(400);
+    // 目录**不存在**（项目被删/临时目录清理）时给空列表而不是 400：
+    // 这是"取封面拼图"的展示型查询，项目历史必然会扫到已删除目录，
+    // 400 会让卡片显示成错误态、控制台刷红。其它非法参数仍是 400。
+    const missing = await http.get(`/api/files/scan-media?dir=${encodeURIComponent(path.join(root, "nope"))}`);
+    expect(missing.status).toBe(200);
+    expect(missing.body).toEqual({ files: [] });
     expect((await http.get(`/api/files/scan-media?dir=${encodeURIComponent(path.join(other, "notes.md"))}`)).status).toBe(400);
     expect((await http.get(`/api/files/workspace-summary?dir=${encodeURIComponent(path.join(other, "notes.md"))}`)).status).toBe(400);
   });

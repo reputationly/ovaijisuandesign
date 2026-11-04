@@ -247,6 +247,7 @@ export function useAdoptInitialAttachments(
         );
         const projectionResults = await Promise.allSettled(
           pendingProjectionPaths.map(async (assetPath) => {
+            try {
             const canvasResponse = await scopedGatewayFetch(
               API_PATHS.canvasMediaNode,
               {
@@ -259,6 +260,15 @@ export function useAdoptInitialAttachments(
                 }),
               },
             );
+            // **v3 项目没有 legacy 画布，这条投影本来就不适用。**
+            // 以前 403 会让整条"附件迁移"失败，界面弹
+            // 「附件未能载入当前项目，消息尚未发送」—— 而文件其实已经拷进工作区了。
+            // 注意：`useGatewayFetch` 在非 2xx 时**直接抛错**（Gateway POST … failed: 403 - …），
+            // 所以这段判断要放在 try/catch 里，光看 canvasResponse.ok 走不到。
+            if (canvasResponse.status === 403) {
+              const body = await canvasResponse.text().catch(() => "");
+              if (/architecture/i.test(body)) return;
+            }
             if (!canvasResponse.ok) {
               throw new AdoptionFailure(
                 "http_response",
@@ -267,6 +277,12 @@ export function useAdoptInitialAttachments(
               );
             }
             projectedPaths2.add(assetPath);
+            } catch (error) {
+              // 架构不支持 → 跳过投影；其它错误照旧抛。
+              const message = error instanceof Error ? error.message : String(error);
+              if (/\b403\b/.test(message) && /architecture/i.test(message)) return;
+              throw error;
+            }
           }),
         );
         const projectionFailure = projectionResults.find(

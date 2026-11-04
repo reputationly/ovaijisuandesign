@@ -73,7 +73,10 @@ import { Music$2 } from "../media-editing/custom-icons.js";
 import { PlaybackCircleToggleIcon, PlaybackPauseIcon$1 } from "../media-editing/playback-icons.js";
 import { VolumeOffTablerIcon as VolumeOffTablerIcon$1, VolumeOnTablerIcon as VolumeOnTablerIcon$1, buildVideoThumbnailUrl } from "../media-editing/build-video-thumb-base.jsx";
 import { ImageOutlineIcon, MEDIA_NODE_RADIUS as MEDIA_NODE_RADIUS$2 } from "../media-editing/package.jsx";
-import { AudioWaveform$1, LayoutTemplate, Workflow } from "../media-editing/lucide-icon-wraps.js";
+import { LayoutTemplate, Workflow } from "../media-editing/lucide-icon-wraps.js";
+// **不要把图标当波形用。** lucide 里也有个 `AudioWaveform` 图标，之前这里导入的正是那个，
+// 于是音频节点渲染成一个静止的音波图标（真机截图就是这个），而不是参照里带播放头的波形。
+import { AudioWaveform as AudioWaveformComponent } from "../media-editing/audio-node-inner.jsx";
 import { TidyConfirmationPopover, canvasFinalFocus, useTidyConfirmation } from "../canvas/tidy-confirm-duration-ms.jsx";
 import { TidyLayoutMenuItems } from "../canvas/tidy-layout-menu-items.jsx";
 import { DropdownMenuSub as DropdownMenuSub$1 } from "../media-editing/use-warn-missing-asset-meta.jsx";
@@ -6202,6 +6205,29 @@ function CanvasStickerPanel({
   ] });
 }
 
+/**
+ * 网关读接口可能返回**扁平 task**（历史版本就是），而这里按参照契约解析
+ * `{task, input, output}`。直接判死会让画布一直显示"任务状态查询失败
+ * （INVALID_RESPONSE）"，节点永远不落到 completed —— 所以先兜一层：
+ * 缺 `task` 时把响应本身当 task，input/output 用响应里的字段补。
+ */
+function coerceTaskRead(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+  if (value.task && typeof value.task === "object") return value;
+  if (typeof value.id !== "string") return value;
+  const outputs = Array.isArray(value.outputs) ? value.outputs : [];
+  return {
+    task: value,
+    serverTaskIds: [value.id],
+    input: value.prompt ? { prompt: value.prompt } : {},
+    output: {
+      resources: outputs
+        .filter((item) => item && typeof item.resourceId === "string")
+        .map((item) => ({ key: item.key ?? "primary", mode: "create", name: item.name ?? item.key ?? "output", resourceId: item.resourceId })),
+    },
+  };
+}
+
 function createProjectTaskClient(transport) {
   async function request(path2, parse2, options2, body2) {
     const write = body2 !== void 0;
@@ -6260,13 +6286,13 @@ function createProjectTaskClient(transport) {
       return request(PROJECT_TASK_HTTP_ROUTES.execute, parseTaskSubmitResult, options2, input);
     },
     async get(id2, options2) {
-      return request(PROJECT_TASK_HTTP_ROUTES.detail(identifier$1(id2)), forTask(id2, parseTaskRead), options2);
+      return request(PROJECT_TASK_HTTP_ROUTES.detail(identifier$1(id2)), forTask(id2, (value) => parseTaskRead(coerceTaskRead(value))), options2);
     },
     async lookup(operation2, requestId, options2) {
       return request(
         PROJECT_TASK_HTTP_ROUTES.lookup + queryString({ operation: operation2, requestId: identifier$1(requestId) }),
         (value) => {
-          const result = parseTaskRead(value);
+          const result = parseTaskRead(coerceTaskRead(value));
           if (result.task.operation !== operation2) throw new Error("Task operation mismatch");
           return result;
         },
@@ -35795,7 +35821,7 @@ const AudioPlayer$1 = reactExports.memo(function AudioPlayer2({
                 borderRadius: 10
               },
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                AudioWaveform$1,
+                AudioWaveformComponent,
                 {
                   ref: waveformRef,
                   fileName,

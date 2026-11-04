@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -36,6 +37,11 @@ export class LocalMediaController {
    */
   @Get("api/files/scan-media")
   async scanMedia(@Query("dir") dir?: string, @Query("limit") limitStr?: string) {
+    // 目录不存在（项目被删 / 临时目录清理）时返回空列表，而不是 400：
+    // 这是"取封面拼图"的展示型查询，项目历史列表里必然会扫到已删除的目录，
+    // 400 会在控制台刷红并让卡片显示成错误态。
+    // 只对**绝对路径且确实不存在**的目录兜底；相对路径/非法参数仍然 400。
+    if (dir && path.isAbsolute(dir) && !existsSync(dir)) return { files: [] };
     await assertDirectory(dir);
     const parsed = limitStr ? Number.parseInt(limitStr, 10) : 3;
     const limit = Number.isNaN(parsed) ? 3 : parsed;
