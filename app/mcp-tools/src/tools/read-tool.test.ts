@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { startFakeGateway, type FakeGateway } from "../testing/fake-gateway.js";
 import { createHarness, gatewayFor, resultJson, resultText } from "../testing/harness.js";
 import { registerV3Tools } from "./v3-tools.js";
+import { normalizeExecuteReferencesForTest } from "../registrar.js";
 
 /**
  * `design_read` 的两条来源各走各的接口：
@@ -501,5 +502,18 @@ describe("deliver 自动补 placements", () => {
       { key: "a", role: "character" },
       { key: "b", role: "style" },
     ]);
+  });
+});
+
+/** 真机：references 被写成单字符串 / JSON 字符串 / 单对象时，schema 全判 "Expected array"。 */
+describe("execute.references 归一", () => {
+  it("单字符串 / JSON 字符串 / 单对象 / 数组合并", () => {
+    expect(normalizeExecuteReferencesForTest({ references: "ver_a" })).toEqual({ references: [{ versionId: "ver_a" }] });
+    expect(normalizeExecuteReferencesForTest({ references: '{"versionId":"ver_b"}' })).toEqual({ references: [{ versionId: "ver_b" }] });
+    expect(normalizeExecuteReferencesForTest({ references: { versionId: "ver_c" } })).toEqual({ references: [{ versionId: "ver_c" }] });
+    expect(normalizeExecuteReferencesForTest({ references: ["ver_d", { resourceId: "res_e" }] })).toEqual({
+      references: [{ versionId: "ver_d" }, { resourceId: "res_e" }],
+    });
+    expect(normalizeExecuteReferencesForTest({})).toEqual({});
   });
 });
