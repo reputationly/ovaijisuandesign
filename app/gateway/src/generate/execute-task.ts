@@ -52,11 +52,25 @@ export class CapabilityExecutionService {
       // 多出来的模型（哪怕它就在 /v1/ov/capabilities 里）会被这里判成不认识。
       const offered = capabilityEntries(this.media).some((entry) => entry.id === capabilityId);
       if (!offered) throw new ProjectQueryError("UNSUPPORTED_OPERATION", "This capability is not offered here; pick one from the capability list", 422);
-      const prompt = optionalText(body.prompt, "prompt", 64_000);
+      // `params` 允许写成 JSON 字符串（模型经常这么干）；解析不了才判非法。
+      let rawParams = body.params;
+      if (typeof rawParams === "string") {
+        try {
+          rawParams = JSON.parse(rawParams);
+        } catch {
+          throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid params");
+        }
+      }
+      if (rawParams !== undefined && (!rawParams || typeof rawParams !== "object" || Array.isArray(rawParams))) throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid params");
+      // 音乐（尤其 `*-enhanced` 聚合模型）要求**风格描述**。模型有时把风格写进
+      // `params.prompt` 而顶层 `prompt` 留空，平台就报
+      // 「音乐生成缺少风格描述：需要给出流派 / 配器 / 速度 / 情绪」。
+      // 这里把它提升到顶层，并从 params 里去掉，避免下游两处都发。
+      const paramBag = (rawParams ?? {}) as Record<string, unknown>;
+      const { prompt } = promoteMusicStylePrompt(parsed.operation, optionalText(body.prompt, "prompt", 64_000), paramBag);
       if (body.count !== undefined) {
         if (!Number.isSafeInteger(body.count) || (body.count as number) < 1 || (body.count as number) > 9) throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid count");
       }
-      if (body.params !== undefined && (!body.params || typeof body.params !== "object" || Array.isArray(body.params))) throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid params");
       const output = parseOutput(body.output, caller);
       const requestId = identifier(caller === "agent" ? getToolUseId() : body.requestId, "requestId");
       const references = parseReferences(body.references);
@@ -67,7 +81,7 @@ export class CapabilityExecutionService {
       const request: GenerationRequest = {
         model_id: parsed.modelId,
         ...(prompt ? { prompt } : {}),
-        ...(body.params ? { params: body.params as Record<string, unknown> } : {}),
+        ...(Object.keys(paramBag).length ? { params: paramBag } : {}),
         source_tool: capabilityId,
         filename: resourceName(output),
         ...referencePaths(operation, paths),
@@ -231,3 +245,21 @@ function optionalText(value: unknown, field: string, maximum: number): string | 
 
 // 测试用：暴露槽位分类函数（生产代码只在本文件内调用）。
 export const referencePathsForTest = referencePaths;
+
+/**
+ * 音乐风格描述提升（抽成函数便于用例覆盖）：顶层 prompt 为空且是音乐操作时，
+ * 用 `params.prompt` 顶上，并把该键从 params 里删掉（避免下游两处都发）。
+ */
+export function promoteMusicStylePrompt(
+  operation: string,
+  topPrompt: string | undefined,
+  params: Record<string, unknown>,
+): { prompt: string | undefined } {
+  const style = typeof params.prompt === "string" ? params.prompt : "";
+  if (topPrompt !== undefined) return { prompt: topPrompt };
+  if (operation !== "generate_music" || !style.trim()) return { prompt: undefined };
+  delete params.prompt;
+  return { prompt: style };
+}
+
+export const promoteMusicStylePromptForTest = promoteMusicStylePrompt;

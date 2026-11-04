@@ -29,3 +29,33 @@ describe("参考素材落槽位", () => {
     expect(referencePathsForTest("generate_image", ["x.webp"])).toEqual({ reference_image_paths: ["x.webp"] });
   });
 });
+
+/**
+ * 音乐的「风格描述」提升：模型常把风格写进 `params.prompt`、顶层 prompt 留空，
+ * 平台就报「音乐生成缺少风格描述：需要给出流派 / 配器 / 速度 / 情绪」。
+ */
+import { promoteMusicStylePromptForTest } from "./execute-task.js";
+
+describe("音乐风格描述提升", () => {
+  it("顶层 prompt 为空时，用 params.prompt 顶上并从 params 删除", () => {
+    const bag: Record<string, unknown> = { prompt: "K-pop trap-rap，128BPM，冷冽", mode: "song" };
+    const { prompt } = promoteMusicStylePromptForTest("generate_music", undefined, bag);
+    expect(prompt).toBe("K-pop trap-rap，128BPM，冷冽");
+    expect(bag.prompt).toBeUndefined();
+    expect(bag.mode).toBe("song");
+  });
+
+  it("顶层已有 prompt 时不覆盖，也不动 params", () => {
+    const bag: Record<string, unknown> = { prompt: "ignored" };
+    const { prompt } = promoteMusicStylePromptForTest("generate_music", "top-level style", bag);
+    expect(prompt).toBe("top-level style");
+    expect(bag.prompt).toBe("ignored");
+  });
+
+  it("非音乐操作不提升", () => {
+    const bag: Record<string, unknown> = { prompt: "x" };
+    const { prompt } = promoteMusicStylePromptForTest("generate_image", undefined, bag);
+    expect(prompt).toBeUndefined();
+    expect(bag.prompt).toBe("x");
+  });
+});
