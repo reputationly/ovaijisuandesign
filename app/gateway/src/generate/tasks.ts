@@ -119,6 +119,27 @@ export class ProjectTaskService {
     return present(row);
   }
 
+  /** `lookup` 的 HTTP 版本：同样是超集（扁平字段 + 信封）。 */
+  readByRequest(operation: string, requestId: string) {
+    this.ready();
+    const row = this.database().prepare("SELECT id, operation, idempotency_key AS idempotencyKey, status, revision, input_json AS inputJson, state_json AS stateJson, created_at AS createdAt, updated_at AS updatedAt FROM tasks WHERE operation=? AND idempotency_key=?").get(operation, requestId) as TaskRow | undefined;
+    if (!row) throw new ProjectQueryError("NOT_FOUND", "GenerationTask is not readable", 404);
+    return withReadEnvelope(present(row));
+  }
+
+  /**
+   * HTTP 读接口用的**超集**：扁平 task 的全部字段 + `{task, serverTaskIds, input, output}`。
+   *
+   * 渲染层 `parseTaskRead` 要信封；而内部（`execute`/runner）与既有用例读扁平字段。
+   * 两者放在同一份响应里，谁都不用改调用代码。
+   */
+  read(id: string) {
+    this.ready();
+    const row = this.getRow(id);
+    if (!row) throw new ProjectQueryError("NOT_FOUND", "GenerationTask is not readable", 404);
+    return withReadEnvelope(present(row));
+  }
+
   lookup(operation: string, requestId: string) {
     this.ready();
     // 第 242 轮：参照返回 UNSUPPORTED_OPERATION（实测 422），此前我们用 INVALID_ARGUMENT。
@@ -512,7 +533,7 @@ export class ProjectTaskController {
   lookup(@Query("operation") operation?: string, @Query("requestId") requestId?: string) {
     return this.respond(() => {
       if (!operation || !requestId) throw new ProjectQueryError("INVALID_ARGUMENT", "operation and requestId are required");
-      return this.tasks.lookup(operation, requestId);
+      return this.tasks.readByRequest(operation, requestId);
     });
   }
 
@@ -523,7 +544,7 @@ export class ProjectTaskController {
 
   @Get(":id")
   get(@Param("id") id: string) {
-    return this.respond(() => this.tasks.get(id));
+    return this.respond(() => this.tasks.read(id));
   }
 
   @Post(":id/resolve")
@@ -580,4 +601,18 @@ export class ProjectTaskController {
       throw error;
     }
   }
+}
+
+/** 把扁平 task 视图包成渲染层要的信封，同时保留扁平字段（超集）。 */
+function withReadEnvelope(view: Record<string, unknown> & { id: string; prompt?: string; outputs?: { key?: string; name?: string; resourceId?: string }[] }) {
+  const resources = (Array.isArray(view.outputs) ? view.outputs : [])
+    .filter((item) => item && typeof item.resourceId === "string")
+    .map((item) => ({ key: item.key ?? "primary", mode: "create" as const, name: item.name ?? item.key ?? "output", resourceId: item.resourceId }));
+  return {
+    ...view,
+    task: view,
+    serverTaskIds: [view.id],
+    input: { ...(typeof view.prompt === "string" && view.prompt ? { prompt: view.prompt } : {}) },
+    output: { resources },
+  };
 }

@@ -34535,7 +34535,33 @@ function CanvasV3SurfaceView({
 const PageStateIllustration$1 = PageStateIllustration;
 
 // [tdz] resolveRetryAction 上移（原第 60984 行，被第 34387 行引用）
-const resolveRetryAction = () => "retry";
+//
+// 还原时这里被退化成了 `() => "retry"`（返回**字符串**），调用方却把它当
+// `{ key, label, variant, onClick }` 用 —— 错误卡片上的「重试」因此没有文案也没有点击
+// 回调。按参照实现补回（自包含，不新增依赖）：
+const DEFAULT_RETRY_ACTION_KEY = "retry";
+const DEFAULT_RETRY_ACTION_VARIANT = "default";
+function resolveRetryAction(retry, defaultLabel) {
+  if (!retry) return void 0;
+  if (typeof retry === "function") {
+    return {
+      key: DEFAULT_RETRY_ACTION_KEY,
+      label: defaultLabel,
+      variant: DEFAULT_RETRY_ACTION_VARIANT,
+      onClick: retry
+    };
+  }
+  return {
+    key: retry.key ?? DEFAULT_RETRY_ACTION_KEY,
+    icon: retry.icon,
+    label: retry.label ?? defaultLabel,
+    variant: retry.variant ?? DEFAULT_RETRY_ACTION_VARIANT,
+    onClick: retry.onClick,
+    placement: retry.placement,
+    disabled: retry.disabled,
+    loading: retry.loading
+  };
+}
 
 // [tdz] empty$2 上移（原第 60994 行，被第 34390 行引用）
 //
@@ -34545,9 +34571,20 @@ const resolveRetryAction = () => "retry";
 const empty$2 = () => ({ type: "canvas.patch", nodes: [], edges: [] });
 
 // [tdz] arrangeCanvasV3SelectionPatch 上移（原第 60988 行，被第 34393 行引用）
+//
+// **未完成还原**：参照的签名是
+//   arrangeCanvasV3SelectionPatch(document, selection, layout, options) → patch | null
+// 会按 horizontal/vertical/grid 重排选区并 refit 父容器。它依赖
+// `roots` / `refitArrangedParents` / `CANVAS_V3_ARRANGE_GAP` 等一串尚未还原的 helper，
+// 这里只能先保持恒等（不改文档）：即「整理」按钮点下去不会有任何变化，但**不会报错、不会破坏文档**。
+// 需要补齐时，从参照 asar 整段搬 `arrangeCanvasV3SelectionPatch` + 上述 helper。
 const arrangeCanvasV3SelectionPatch = (patch) => patch;
 
 // [tdz] matchesReferenceSelectionDuration 上移（原第 60991 行，被第 34396 行引用）
+//
+// **未完成还原**：参照实现按 fps 量化容差比较「参考片段实际时长」与「裁剪后应得时长」
+// （依赖 getCropOutputDuration → getSelectionDuration → CROP_TAIL_HEADROOM_SEC 这条链）。
+// 这里恒返回 false ＝「时长不匹配」，效果是保守地要求重新取材，不会误放行。
 const matchesReferenceSelectionDuration = () => false;
 
 // [tdz] CanvasV3ResourcePickerDialog$1 上移（原第 60992 行，被第 34399 行引用）

@@ -41,7 +41,16 @@ describe("v3 生成任务", () => {
     expect(busyQueue.reduce((n, k) => n + (queue.body.tasks[k] ?? 0), 0)).toBe(1);
     expect(Array.isArray(queue.body.subtasks)).toBe(true);
     const found = await http.get("/api/v3/tasks/lookup").query({ operation: "generate_image", requestId: "gen_task_1" });
+    // 读接口是**超集**：扁平字段照旧（既有调用方），并额外带渲染层要的信封。
     expect(found.body.id).toBe("gen_task_1");
+    expect(found.body.task.id).toBe("gen_task_1");
+    expect(Array.isArray(found.body.output.resources)).toBe(true);
+    expect(found.body.input).toBeTypeOf("object");
+    const detail = await http.get("/api/v3/tasks/gen_task_1");
+    expect(detail.status).toBe(200);
+    expect(detail.body).toMatchObject({ id: "gen_task_1", status: "running" });
+    expect(detail.body.task).toMatchObject({ id: "gen_task_1" });
+    expect(Array.isArray(detail.body.output.resources)).toBe(true);
     const stopped = await http.post("/api/v3/tasks/gen_task_1/resolve").send({ action: "stop", expectedRevision: 1, requestId: "stop-1" });
     expect(stopped.status).toBe(200);
     expect(stopped.body.status).toBe("cancelled");
