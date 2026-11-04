@@ -1,3 +1,4 @@
+import { allSkillsDirs } from "../skills/skill-paths.js";
 import { readFile, readdir, realpath, stat } from "node:fs/promises";
 import path from "node:path";
 
@@ -74,6 +75,10 @@ export class DocumentReadService {
       process.env.HILO_DATA_DIR,
       process.env.HILO_KNOWLEDGE_DIR,
       process.env.HILO_WORKFLOWS_DIR,
+      // **技能目录必须可读。** 技能包里的 `references/*.md` 是 agent 的主要参考资料，
+      // 它们放在 `~/.ovhub/skills`（或 HILO_DATA_DIR 下的 skills/user-skills），
+      // 不在这里的话 `design_read` 一律回 `unsupported`，agent 只能退化成 bash cat。
+      ...allSkillsDirs(),
     ];
     return roots.filter((root): root is string => typeof root === "string" && root.trim() !== "").map((root) => path.resolve(root));
   }

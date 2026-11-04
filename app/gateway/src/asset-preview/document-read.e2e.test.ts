@@ -106,6 +106,28 @@ describe("GET /api/internal/document/read", () => {
     }
   });
 
+  it("技能包里的 references/*.md 也能读——技能资料就放在 skills 目录", async () => {
+    // 真机事故：`design_read` 读 `~/.ovhub/skills/<skill>/references/*.md` 一律
+    // 回 `unsupported`（不在允许根里），agent 只能退化成 bash cat。
+    const skillsDir = mkdtempSync(path.join(tmpdir(), "ov-docread-skills-"));
+    mkdirSync(path.join(skillsDir, "demo-skill", "references"), { recursive: true });
+    writeFileSync(path.join(skillsDir, "demo-skill", "references", "blueprint.md"), "# 蓝图\n正文\n");
+    const prev = process.env.HUB_SKILLS_DIR;
+    process.env.HUB_SKILLS_DIR = skillsDir;
+    try {
+      const file = await read(path.join(skillsDir, "demo-skill", "references", "blueprint.md"));
+      expect(file.status).toBe(200);
+      expect(file.body).toMatchObject({ ok: true, kind: "text" });
+      expect(file.body.lines[0]).toBe("# 蓝图");
+      const dir = await read(path.join(skillsDir, "demo-skill", "references"));
+      expect(dir.body).toMatchObject({ ok: true, kind: "directory" });
+      expect(dir.body.lines).toContain("blueprint.md");
+    } finally {
+      if (prev === undefined) delete process.env.HUB_SKILLS_DIR;
+      else process.env.HUB_SKILLS_DIR = prev;
+    }
+  });
+
   it("各类失败的 reason", async () => {
     expect((await read("docs/brief.pdf", 999)).body).toMatchObject({ ok: false, reason: "invalid-offset", message: expect.stringMatching(/out of range/) });
     expect((await read("missing.pdf")).body).toEqual({ ok: false, reason: "not-found" });
