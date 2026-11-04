@@ -446,3 +446,31 @@ describe("design_execute 的 output 归一", () => {
     expect(body.output.composition.placements).toEqual([{ role: "A" }, { key: "b", role: "B" }]);
   });
 });
+
+/** 真机：模型把单个对象当数组传（`sources: {...}`、`output.resources: {...}`、`ids: {...}`）。 */
+describe("单个对象 → 数组", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => { await gw.close(); });
+
+  it("deliver：sources 与 output.resources 是单对象时包成数组", async () => {
+    gw.on("POST", "/api/v3/deliveries", { json: { delivery: { requestId: "dl-1", status: "completed" } } });
+    const r = await h.call("deliver", {
+      requestId: "dl-1",
+      sources: { key: "a", versionId: "ver_1" },
+      output: { resources: { key: "a", mode: "create", name: "A" }, composition: { type: { label: "视频" }, name: "C", placements: { key: "a", role: "成片" } } },
+    });
+    expect(r.isError).toBeUndefined();
+    const body = gw.requests.find((req) => req.path === "/api/v3/deliveries")?.body as Record<string, any>;
+    expect(Array.isArray(body.sources)).toBe(true);
+    expect(body.sources[0]).toMatchObject({ key: "a", versionId: "ver_1" });
+    expect(Array.isArray(body.output.resources)).toBe(true);
+    expect(Array.isArray(body.output.composition.placements)).toBe(true);
+  });
+
+});

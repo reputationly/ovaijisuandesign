@@ -238,7 +238,9 @@ function sanitizeDeliver(args: Record<string, unknown>): Record<string, unknown>
   const parsedOutput = typeof args.output === "string" ? parseJsonLike(args.output) : args.output;
   const output = parsedOutput && typeof parsedOutput === "object" && !Array.isArray(parsedOutput) ? (parsedOutput as Record<string, unknown>) : parsedOutput;
 
-  const sourcesIn = Array.isArray(args.sources) ? args.sources : [];
+  // 模型常把"单个对象"当成数组传（`sources: {...}`），这里统一包成数组。
+  const asArray = (value: unknown): unknown[] => (Array.isArray(value) ? value : value && typeof value === "object" ? [value] : []);
+  const sourcesIn = asArray(args.sources);
   const sources: Record<string, unknown>[] = [];
   for (const item of sourcesIn) {
     if (!item || typeof item !== "object" || Array.isArray(item)) continue;
@@ -251,6 +253,7 @@ function sanitizeDeliver(args: Record<string, unknown>): Record<string, unknown>
   const derived: Record<string, unknown>[] = [];
   if (output && typeof output === "object" && !Array.isArray(output)) {
     const out = output as Record<string, unknown>;
+    if (out.resources !== undefined && !Array.isArray(out.resources)) out.resources = asArray(out.resources);
     if (Array.isArray(out.resources)) {
       out.resources = out.resources.map((entry) => {
         if (!entry || typeof entry !== "object" || Array.isArray(entry)) return entry;
@@ -276,6 +279,7 @@ function sanitizeDeliver(args: Record<string, unknown>): Record<string, unknown>
         for (const key of ["id", "label", "description"]) if (type[key] !== undefined) nextType[key] = type[key];
         nextComposition.type = nextType;
       }
+      if (composition.placements !== undefined && !Array.isArray(composition.placements)) composition.placements = asArray(composition.placements);
       if (Array.isArray(composition.placements)) {
         nextComposition.placements = composition.placements.map((placement) => {
           if (!placement || typeof placement !== "object" || Array.isArray(placement)) return placement;
@@ -484,11 +488,17 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
         }),
       };
     }
-    if (name === "capability_get" && args.ids === undefined) {
-      // 模型会把 ids 写成 capabilityId / id 单个字符串。
-      const single = args.capabilityId ?? args.id ?? args.capability_id;
-      if (typeof single === "string" && single.trim() !== "") args = { ...args, ids: [single] };
-      else if (Array.isArray(single)) args = { ...args, ids: single };
+    // 工具名可能带 `design_` 前缀（v3 命名空间），比较时去掉。
+    if (name.replace(/^(design|hub)_/, "") === "capability_get") {
+      // `ids` 必须是**字符串数组**。模型会给：单个字符串、JSON 字符串、
+      // 单个对象、对象数组（`[{id: "generate_video:x"}]`）—— 全部归一。
+      const raw = args.ids ?? args.capabilityId ?? args.id ?? args.capability_id;
+      const parsed = typeof raw === "string" ? parseJsonLike(raw) : raw;
+      const list = Array.isArray(parsed) ? parsed : parsed === undefined ? [] : [parsed];
+      const ids = list
+        .map((item) => (typeof item === "string" ? item : item && typeof item === "object" ? (item as Record<string, unknown>).id ?? (item as Record<string, unknown>).capabilityId ?? (item as Record<string, unknown>).value : undefined))
+        .filter((item): item is string => typeof item === "string" && item.trim() !== "");
+      if (ids.length) args = { ...args, ids };
     }
     if (name === "document_write") {
       // 模型会按语义补 `title` / `docType`（网关只认 name/format，未知字段是硬 422）。
