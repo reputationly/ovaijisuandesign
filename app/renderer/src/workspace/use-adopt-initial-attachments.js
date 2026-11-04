@@ -267,7 +267,14 @@ export function useAdoptInitialAttachments(
             // 所以这段判断要放在 try/catch 里，光看 canvasResponse.ok 走不到。
             if (canvasResponse.status === 403) {
               const body = await canvasResponse.text().catch(() => "");
-              if (/architecture/i.test(body)) return;
+              if (/architecture/i.test(body)) {
+                // **必须记成"已投影"。** 下游 `allReady` 要求每个 canvas 媒体路径都在
+                // `projectedPaths` 里；这里直接 return 会让 ready 永远为 false，
+                // 首条消息就一直卡在 `initial-payload waiting reason=payload_not_ready`
+                // —— 用户看到的就是"发送后一直没动静"。
+                projectedPaths2.add(assetPath);
+                return;
+              }
             }
             if (!canvasResponse.ok) {
               throw new AdoptionFailure(
@@ -278,9 +285,12 @@ export function useAdoptInitialAttachments(
             }
             projectedPaths2.add(assetPath);
             } catch (error) {
-              // 架构不支持 → 跳过投影；其它错误照旧抛。
+              // 架构不支持 → 视为已投影（同上面的理由）；其它错误照旧抛。
               const message = error instanceof Error ? error.message : String(error);
-              if (/\b403\b/.test(message) && /architecture/i.test(message)) return;
+              if (/\b403\b/.test(message) && /architecture/i.test(message)) {
+                projectedPaths2.add(assetPath);
+                return;
+              }
               throw error;
             }
           }),
