@@ -97,7 +97,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
         if (msg.type === "editor_unsubscribe") return;
         this.editorSubscriptions.add(client, subscriptionId);
-        client.send(JSON.stringify({ type: "editor_subscription_ready", subscriptionId, serverEpoch: this.editorSubscriptions.epoch }));
+        // **`serverEpoch` 必须是字符串**：渲染层的 `parseEditorServerMessage` 校验
+        // `typeof serverEpoch === "string"`，回数字会被判 `INVALID_EDITOR_EVENT`
+        // （界面照旧每 10 秒重试一次）。
+        client.send(JSON.stringify({ type: "editor_subscription_ready", subscriptionId, serverEpoch: String(this.editorSubscriptions.epoch) }));
         return;
       }
       // 第 246 轮：任务订阅（参照 /ws 的 task_subscribe / task_unsubscribe）。
