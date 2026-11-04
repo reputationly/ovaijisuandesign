@@ -132,7 +132,7 @@ describe("video", () => {
 
   it("video sizes are multiples of eight", () => {
     for (const ratio of ["21:9", "4:5", "3:2", "9:16"]) {
-      const size = resolveSize(ratio, "1080P")!;
+      const size = resolveSize(ratio, "2K")!;
       const [w, h] = size.split("x").map((n) => Number.parseInt(n, 10));
       expect(w! % 8, size).toBe(0);
       expect(h! % 8, size).toBe(0);

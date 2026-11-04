@@ -77,7 +77,8 @@ describe("params", () => {
       expect(byName.duration!.options).toEqual(["4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"]);
       expect(byName.duration!.default).toBe("5");
       expect(byName.generate_audio!.options).toEqual(["true", "false"]);
-      expect(forModality(m, "minimax-h3-fl2va").find((p) => p.name === "resolution")!.options).toEqual(["768P", "1080P"]);
+      // 平台只支持 768P / 2K 两档：1080P 已下线，2K 走聚合增强（relayvsr 超分）。
+      expect(forModality(m, "minimax-h3-fl2va").find((p) => p.name === "resolution")!.options).toEqual(["768P", "2K"]);
     }
   });
 

@@ -93,10 +93,13 @@ export function forModality(modality: string, model?: string | null): ParamSpec[
       }
       return [
         spec("aspect_ratio", "比例", VIDEO_RATIOS, "adaptive"),
-        // **不给 1K/2K。** 视频这边的档位是 P 制，给 1K 的话
-        // `resolveSize` 认不出、落进 768 的兜底 —— 界面显示 1K
-        // 而实际出 768P。
-        spec("resolution", "分辨率", ["768P", "1080P"], "768P"),
+        // **只有 768P 和 2K 两档。**
+        //  - 1080P 平台已经不支持了（聚合流水线里没有这个档位），给出来点了会 4xx；
+        //  - 2K 走的是**聚合增强**模型：生成段仍是 768P，再由 relayvsr 超分到 2K，
+        //    所以成本与耗时都比 768P 高，默认给 768P。
+        //  - 1K / 480P 也一律不给：视频是 P 制档位，`resolveSize` 认不出就落 768 兜底，
+        //    界面显示 1K 实际出 768P，属于"不报错的错"。
+        spec("resolution", "分辨率", ["768P", "2K"], "768P"),
         spec("duration", "时长", ["auto", "5", "10"], "auto"),
       ];
     // 音乐/语音没有画幅可言。**空表就是"这一区不显示"** ——

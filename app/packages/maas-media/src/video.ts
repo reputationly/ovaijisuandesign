@@ -103,7 +103,7 @@ export interface VideoJob {
   duration: number | null;
   /** `"16:9"` 这样的比值；`adaptive` 或空表示跟随输入。 */
   aspectRatio: string;
-  /** `768P` / `1080P` / `2K` 这样的档位。 */
+  /** `768P` / `2K` 这样的档位（1080P 平台已不支持，仅保留解析容错）。 */
   resolution: string;
   /** 要不要连音轨一起生成。`null` 表示不指定，交给平台默认。 */
   generateAudio: boolean | null;
@@ -156,6 +156,8 @@ export function resolveSize(aspectRatio: string, resolution: string): string | n
     case "1K":
       shortEdge = 1024;
       break;
+    // 1080P 平台侧已经不支持了；留这条只是为了老配置/老会话不炸，
+    // 界面上不再提供（见 params.ts 的 resolution 选项）。
     case "1080P":
       shortEdge = 1080;
       break;

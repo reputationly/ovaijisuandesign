@@ -19,6 +19,9 @@ describe("config", () => {
   it("refuses to guess an unknown music engine", () => {
     const m = defaultModels();
     expect(resolveMusicEngine(m, "minimax-music3")).toEqual({ ok: true, value: MusicEngine.Music3 });
+    // 平台新增的聚合编排模型：名字里仍带 music3，必须推断成同一个引擎，
+    // 否则它的 caption/歌词键位会被当成 ace_step 发反。
+    expect(resolveMusicEngine(m, "minimax-music3-enhanced")).toEqual({ ok: true, value: MusicEngine.Music3 });
     expect(resolveMusicEngine(m, "ace-step")).toEqual({ ok: true, value: MusicEngine.AceStep });
     expect(resolveMusicEngine(m, "suno-v4").ok).toBe(false);
   });
