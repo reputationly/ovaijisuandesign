@@ -22,6 +22,21 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 const dropCursor = () => void 0;
 const findSelectionIn = () => void 0;
 import { WorkspaceCanvasPersistenceChangedError } from "./shared/WorkspaceCanvasPersistenceChangedError.js";
+
+/**
+ * 编辑器文档 → 字符串。
+ *
+ * **这不是 VS Code 的 IPC 序列化器。** 还原时这里被错误地指向了
+ * `vendor-inline/vscode-base/vs-buffer.js` 的 `serialize(writer, data)`，
+ * 而那是个两参数的二进制编码器；调用方只传一个值，于是 `writer` 是普通对象：
+ *
+ *     TypeError: writer.write is not a function
+ *         at serialize$2 (...)  ← 打开成片/画布时直接白屏
+ *
+ * 参照这里就是一个把编辑器 JSON 变成字符串的本地函数。
+ */
+const serialize = (value) => JSON.stringify(value);
+
 // ==== P2-1：tiptap 入口改 npm（3.31.3，与 package.json 一致）====
 import { MAX_RECEIPT_BYTES, canvasImageImportPath, createCanvasImageImporter, createCanvasMediaImporter, isCanvasImageImport, matchesCanvasImportReceiptName, readBoundedBody, readCanvasImageBytes } from "./frame-services.js";
 // ==== 逐文件收敛 ====
@@ -247,7 +262,6 @@ import { isMinimapViewportIndicatorVisible } from "../canvas/control-points-for.
 import { paramI18nKey, paramLabelFallback, paramPlaceholderFallback, paramPlaceholderI18nKey } from "../generation/param-label-fallbacks.js";
 import { readDiffPreference, writeDiffPreference } from "../media-editing/diff-pref-key.jsx";
 import { resourceQueryKeys } from "./query-keys.js";
-import { serialize } from "../vendor-inline/vscode-base/vs-buffer.js";
 import { serializeTableDocument } from "../text-editor/table-document-to-llm-content.js";
 import { useCanvasRootElement } from "../media-editing/director-stage-header-icon.jsx";
 import { useCanvasV3HostServices, useCanvasV3ModalGate } from "./canvas-v3-hooks.js";

@@ -289,6 +289,19 @@ function sanitizeDeliver(args: Record<string, unknown>): Record<string, unknown>
           return next;
         });
       }
+      // **缺 placements 时按资源顺序补位。** 网关要求"每个要新建的 resource 都要在
+      // composition 里有位置"，模型经常只给 resources 不给 placements，被硬拒：
+      //   character, style would be created without a place in a Composition …
+      // 与其让它重试三轮，不如照 resources 的顺序各补一条（role 用名字/key）。
+      const resourcesOut = Array.isArray(out.resources) ? out.resources : [];
+      const placementsOut = Array.isArray(nextComposition.placements) ? nextComposition.placements : [];
+      if (resourcesOut.length > 0 && placementsOut.length === 0) {
+        nextComposition.placements = resourcesOut.map((entry, index2) => {
+          const item = entry && typeof entry === "object" ? (entry as Record<string, unknown>) : {};
+          const key = typeof item.key === "string" && item.key ? item.key : `resource-${index2 + 1}`;
+          return { key, role: typeof item.name === "string" && item.name ? item.name : key };
+        });
+      }
       out.composition = nextComposition;
     }
   }

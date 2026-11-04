@@ -128,6 +128,21 @@ describe("GET /api/internal/document/read", () => {
     }
   });
 
+  it("内置知识卡（<hubRoot>/.config-v2/knowledge）能读——工作区网关没有 HILO_KNOWLEDGE_DIR", async () => {
+    const dataDir = mkdtempSync(path.join(tmpdir(), "ov-docread-hub-"));
+    mkdirSync(path.join(dataDir, ".config-v2", "knowledge", "vendors"), { recursive: true });
+    writeFileSync(path.join(dataDir, ".config-v2", "knowledge", "vendors", "minimax.md"), "# MiniMax H3\n时长 4–15 秒\n");
+    process.env.HILO_DATA_DIR = dataDir;
+    try {
+      const r = await read(path.join(dataDir, ".config-v2", "knowledge", "vendors", "minimax.md"));
+      expect(r.status).toBe(200);
+      expect(r.body).toMatchObject({ ok: true, kind: "text" });
+      expect(r.body.lines[0]).toBe("# MiniMax H3");
+    } finally {
+      delete process.env.HILO_DATA_DIR;
+    }
+  });
+
   it("各类失败的 reason", async () => {
     expect((await read("docs/brief.pdf", 999)).body).toMatchObject({ ok: false, reason: "invalid-offset", message: expect.stringMatching(/out of range/) });
     expect((await read("missing.pdf")).body).toEqual({ ok: false, reason: "not-found" });

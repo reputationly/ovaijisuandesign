@@ -474,3 +474,32 @@ describe("单个对象 → 数组", () => {
   });
 
 });
+
+/** 真机：只给 output.resources 不给 placements 时被网关硬拒，这里自动补位。 */
+describe("deliver 自动补 placements", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => { await gw.close(); });
+
+  it("resources 有两条 + composition 没有 placements → 各补一条", async () => {
+    gw.on("POST", "/api/v3/deliveries", { json: { delivery: { requestId: "dl-2", status: "completed" } } });
+    await h.call("deliver", {
+      requestId: "dl-2",
+      sources: [{ key: "a", versionId: "ver_1" }, { key: "b", versionId: "ver_2" }],
+      output: {
+        resources: [{ key: "a", mode: "create", name: "character" }, { key: "b", mode: "create", name: "style" }],
+        composition: { type: { label: "视频" }, name: "MV" },
+      },
+    });
+    const body = gw.requests.find((req) => req.path === "/api/v3/deliveries")?.body as Record<string, any>;
+    expect(body.output.composition.placements).toEqual([
+      { key: "a", role: "character" },
+      { key: "b", role: "style" },
+    ]);
+  });
+});

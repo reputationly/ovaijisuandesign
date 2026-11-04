@@ -1,4 +1,4 @@
-import { allSkillsDirs } from "../skills/skill-paths.js";
+import { allSkillsDirs, hubRoot } from "../skills/skill-paths.js";
 import { readFile, readdir, realpath, stat } from "node:fs/promises";
 import path from "node:path";
 
@@ -79,6 +79,10 @@ export class DocumentReadService {
       // 它们放在 `~/.ovhub/skills`（或 HILO_DATA_DIR 下的 skills/user-skills），
       // 不在这里的话 `design_read` 一律回 `unsupported`，agent 只能退化成 bash cat。
       ...allSkillsDirs(),
+      // 内置知识卡（vendors/*.md）落在 `<hubRoot>/.config-v2/knowledge`，而
+      // 工作区网关通常没有 HILO_KNOWLEDGE_DIR，导致 agent 读不到模型卡。
+      path.join(hubRoot(), ".config-v2", "knowledge"),
+      path.join(hubRoot(), ".config-v2", "workflows"),
     ];
     return roots.filter((root): root is string => typeof root === "string" && root.trim() !== "").map((root) => path.resolve(root));
   }
