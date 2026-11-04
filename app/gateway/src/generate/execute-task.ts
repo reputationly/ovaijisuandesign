@@ -170,12 +170,41 @@ function parseReferences(value: unknown): string[] {
   });
 }
 
+/**
+ * 把参考素材落到 `GenerationRequest` 的**对应槽位**。
+ *
+ * **按素材本身的类型分，不按任务操作分。** 以前这里写的是"视频任务 → `video_paths`"，
+ * 于是给视频任务传两张**参考图**（png/jpg）时，它们被当成参考视频发给平台，报：
+ *
+ *     输入 video 不是有效的媒体文件(文件头校验未通过,请勿改后缀上传)
+ *
+ * 图片/视频/音频各自走 `reference_image_paths` / `video_paths` / `audio_paths`，
+ * 与 `videoReferences()` 读取的字段保持一致。
+ */
 function referencePaths(operation: (typeof TASK_OPERATIONS)[number], paths: string[]): Partial<GenerationRequest> {
   if (!paths.length) return {};
-  if (operation === "generate_image") return { image_paths: paths };
-  if (operation === "generate_video") return { video_paths: paths };
-  return { audio_paths: paths };
+  const images: string[] = [];
+  const videos: string[] = [];
+  const audios: string[] = [];
+  for (const item of paths) {
+    const ext = path.extname(item).toLowerCase();
+    if (IMAGE_EXT.has(ext)) images.push(item);
+    else if (VIDEO_EXT.has(ext)) videos.push(item);
+    else if (AUDIO_EXT.has(ext)) audios.push(item);
+    else if (operation === "generate_image") images.push(item);
+    else if (operation === "generate_video") videos.push(item);
+    else audios.push(item);
+  }
+  return {
+    ...(images.length ? { reference_image_paths: images } : {}),
+    ...(videos.length ? { video_paths: videos } : {}),
+    ...(audios.length ? { audio_paths: audios } : {}),
+  };
 }
+
+const IMAGE_EXT = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif", ".bmp"]);
+const VIDEO_EXT = new Set([".mp4", ".mov", ".webm", ".mkv", ".m4v"]);
+const AUDIO_EXT = new Set([".mp3", ".wav", ".m4a", ".aac", ".flac", ".ogg", ".opus"]);
 
 function resourceName(output: { resources: Record<string, unknown>[] }): string | undefined {
   const primary = output.resources.find((item) => item.key === "primary") ?? output.resources[0];
@@ -199,3 +228,6 @@ function optionalText(value: unknown, field: string, maximum: number): string | 
   if (typeof value !== "string" || value.length > maximum) throw new ProjectQueryError("INVALID_ARGUMENT", `Invalid ${field}`);
   return value;
 }
+
+// 测试用：暴露槽位分类函数（生产代码只在本文件内调用）。
+export const referencePathsForTest = referencePaths;
