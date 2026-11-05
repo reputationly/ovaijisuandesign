@@ -33616,11 +33616,28 @@ function CanvasV3SurfaceView({
     setMenu,
     setSubjectResourceSelection
   });
+  /**
+   * 单击卡片只做**选中**，不再顺手弹「提示词编辑器」。
+   *
+   * 参照的交互是：单击 = 选中，双击 = 预览/编辑。之前单击待生成的卡片会直接弹出
+   * 提示词面板（还会连带加载模型目录，目录解析一失败就是一片红字），用户看到的是
+   * "我就点了一下图片，怎么弹出个编辑器"。
+   *
+   * 现在：单击只关面板 + 选中；要编辑提示词请**双击**该卡片（见 handleNodeDoubleClick）。
+   */
+  const handleNodeDoubleClick = (event, flowNode) => {
+    // 双击**待生成**的卡片才打开提示词编辑器；有结果的卡片由媒体节点自己处理（全屏预览）。
+    if (!selectionEnabled || stickers.active) return;
+    if (!flowNode.data.subjectTaskSlot) return;
+    event.stopPropagation?.();
+    taskPrompt.open(flowNode);
+  };
+
   const handleNodeClick = (event, flowNode) => {
     const pointerSelection = pointerSelectionRef.current;
     const taskCard = Boolean(flowNode.data.subjectTaskSlot);
-    if (!taskCard) taskPrompt.close();
-    else if (!selectionEnabled || stickers.active || !taskPrompt.open(flowNode)) return;
+    if (taskCard && (!selectionEnabled || stickers.active)) return;
+    taskPrompt.close();
     if (flowNode.data.subjectType || taskCard) {
       closeMenus();
       setSubjectResourceSelection(null);
@@ -33675,11 +33692,13 @@ function CanvasV3SurfaceView({
   };
   const latestNodeHandlersRef = reactExports.useRef({
     onNodeClick: handleNodeClick,
+    onNodeDoubleClick: handleNodeDoubleClick,
     onNodeContextMenu: contextMenuHandlers.onNodeContextMenu
   });
   reactExports.useLayoutEffect(() => {
     latestNodeHandlersRef.current = {
       onNodeClick: handleNodeClick,
+      onNodeDoubleClick: handleNodeDoubleClick,
       onNodeContextMenu: contextMenuHandlers.onNodeContextMenu
     };
   });
