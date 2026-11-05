@@ -122,3 +122,81 @@ describe("registrar", () => {
     });
   });
 });
+
+describe("宿主改写数组时的兜底", () => {
+  function executeSetup() {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool(
+      "execute",
+      {
+        description: "execute tool used by registrar tests",
+        inputSchema: {
+          output: z
+            .object({
+              resources: z.array(z.object({ mode: z.string() }).passthrough()),
+              composition: z
+                .object({ placements: z.array(z.object({ key: z.string() }).passthrough()) })
+                .passthrough()
+                .optional(),
+            })
+            .passthrough(),
+        },
+      },
+      async (args) => {
+        seen.push(JSON.parse(JSON.stringify(args)) as Record<string, unknown>);
+        return structuredReply({ ok: true });
+      },
+    );
+    return { h, seen };
+  }
+
+  const resourcesOf = (seen: Record<string, unknown>[]) => {
+    const output = seen[0]?.output as { resources?: unknown; composition?: { placements?: unknown } } | undefined;
+    return output?.resources;
+  };
+
+  it("{item: [...]} 这种被包了一层壳的数组能还原", async () => {
+    const { h, seen } = executeSetup();
+    await h.call("execute", { output: { resources: { item: [{ mode: "create", name: "a" }] } } });
+    expect(resourcesOf(seen)).toEqual([{ mode: "create", name: "a" }]);
+  });
+
+  it("数字键对象能还原成数组", async () => {
+    const { h, seen } = executeSetup();
+    await h.call("execute", { output: { resources: { "0": { mode: "create" }, "1": { mode: "create" } } } });
+    expect(resourcesOf(seen)).toEqual([{ mode: "create" }, { mode: "create" }]);
+  });
+
+  it("单个对象当数组传也能救回来", async () => {
+    const { h, seen } = executeSetup();
+    await h.call("execute", { output: { resources: { mode: "create", name: "b" } } });
+    expect(resourcesOf(seen)).toEqual([{ mode: "create", name: "b" }]);
+  });
+
+  it("output.composition.placements 同样会被还原", async () => {
+    const { h, seen } = executeSetup();
+    await h.call("execute", {
+      // primary 不带 key；具名输出用 key="extra"，placements 才对得上（否则会被当成无效 key 删掉）
+      output: { resources: [{ mode: "create" }, { key: "extra", mode: "create" }], composition: { placements: { item: [{ key: "extra" }] } } },
+    });
+    const output = seen[0]?.output as { composition?: { placements?: unknown } } | undefined;
+    expect(output?.composition?.placements).toEqual([{ key: "extra" }]);
+  });
+
+  it("capability_get 传 capabilityId 时归一成 ids，并把别名键删掉", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool(
+      "capability_get",
+      { description: "capability_get", inputSchema: { ids: z.array(z.string()).min(1) } },
+      async (args) => {
+        seen.push(JSON.parse(JSON.stringify(args)) as Record<string, unknown>);
+        return structuredReply({ ok: true });
+      },
+    );
+    await h.call("capability_get", { capabilityId: "generate_video:minimax-h3" });
+    expect(seen[0]?.ids).toEqual(["generate_video:minimax-h3"]);
+    expect(seen[0]?.capabilityId).toBeUndefined();
+  });
+});

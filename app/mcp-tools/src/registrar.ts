@@ -322,6 +322,41 @@ function sanitizeDeliver(args: Record<string, unknown>): Record<string, unknown>
  *  3. 模型经常把 `compositionId` / `placements` 写在 `output` **顶层**而不是
  *     `output.composition` 里 —— 这里顺手搬到正确位置。
  */
+/**
+ * 把被宿主/模型改写过的数组还原成数组。
+ *
+ * 实测（opencode 宿主 + 模型 emit 的参数）会出现这些形状：
+ *   - `{"item": [ … ]}` / `{"items": [ … ]}` —— 单元素数组被包了层壳；
+ *   - `{"0": {...}, "1": {...}}` —— 变成了数字键对象；
+ *   - `{...}` —— 单个对象当数组传（本来就该按一项处理）。
+ * 这些都会让 schema 报 `Expected array, received object at output.resources`，
+ * 于是整条 `design_execute` 被拒、一次生成也派不出去。
+ */
+function asArrayLike(value: unknown): unknown[] | undefined {
+  if (Array.isArray(value)) return value;
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === "string") {
+    const parsed = parseJsonLike(value);
+    if (parsed === value) return [value];
+    return asArrayLike(parsed);
+  }
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    for (const key of ["item", "items", "value", "values", "list", "data"]) {
+      if (Object.hasOwn(record, key)) {
+        const inner = asArrayLike(record[key]);
+        if (inner) return inner;
+      }
+    }
+    const keys = Object.keys(record);
+    if (keys.length > 0 && keys.every((key) => /^\d+$/.test(key))) {
+      return keys.sort((a, b) => Number(a) - Number(b)).map((key) => record[key]);
+    }
+    return [record];
+  }
+  return [value];
+}
+
 function normalizeExecuteOutput(value: unknown): unknown {
   const parsed = typeof value === "string" ? (() => {
     try {
@@ -343,6 +378,16 @@ function normalizeExecuteOutput(value: unknown): unknown {
         delete output[key];
       }
     }
+    output.composition = composition;
+  }
+
+  // 宿主/模型可能把数组改写成对象，先还原再谈"谁是 primary"。
+  const repairedResources = asArrayLike(output.resources);
+  if (repairedResources) output.resources = repairedResources;
+  if (output.composition !== undefined && typeof output.composition === "object" && !Array.isArray(output.composition)) {
+    const composition = { ...(output.composition as Record<string, unknown>) };
+    const repairedPlacements = asArrayLike(composition.placements);
+    if (repairedPlacements) composition.placements = repairedPlacements;
     output.composition = composition;
   }
 
@@ -513,6 +558,10 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
         .map((item) => (typeof item === "string" ? item : item && typeof item === "object" ? (item as Record<string, unknown>).id ?? (item as Record<string, unknown>).capabilityId ?? (item as Record<string, unknown>).value : undefined))
         .filter((item): item is string => typeof item === "string" && item.trim() !== "");
       if (ids.length) args = { ...args, ids };
+      // 别名键留着会变成"未知字段"，整份参数校验失败后退回无过滤的候选 → 工具忽略过滤返回全量。
+      const stripped = { ...args };
+      for (const key of ["capabilityIds", "capability_ids", "capabilityId", "capability_id", "id"]) delete stripped[key];
+      args = stripped;
     }
     if (name === "document_write") {
       // 模型会按语义补 `title` / `docType`（网关只认 name/format，未知字段是硬 422）。

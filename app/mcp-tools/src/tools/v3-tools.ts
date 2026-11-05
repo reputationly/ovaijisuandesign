@@ -787,6 +787,25 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
             }
           }
         }
+        // **空 prompt 会被平台拒单**（`prompt is required` → PROVIDER_REJECTED），
+        // 于是白白多一个 failed 任务、模型还要自己猜为什么失败。
+        // 只对"明确靠提示词生成"的能力挡：图片/视频/音乐（音乐也认 params.prompt）。
+        const promptMissing = (() => {
+          if (typeof submit.prompt === "string" && submit.prompt.trim() !== "") return false;
+          const params = submit.params;
+          if (params && typeof params === "object" && typeof (params as Record<string, unknown>).prompt === "string" && String((params as Record<string, unknown>).prompt).trim() !== "") return false;
+          const capabilityId = typeof submit.capabilityId === "string" ? submit.capabilityId : "";
+          // `generate_video:enhance` / `:super_resolution` / `:erase_subtitle` 这类**工具**靠参数和素材，
+          // 不需要 prompt；只有"纯生成"（图片/视频/音乐）才强制。
+          if (/:(enhance|h3_super_resolution|super_resolution|erase_subtitle|redraw|outpaint|remove_background|export_slides|layer_decompose|relight|storyboard)$/.test(capabilityId)) return false;
+          return /^(generate_image|generate_video|generate_music)(:|$)/.test(capabilityId);
+        })();
+        if (promptMissing) {
+          return errorReply(
+            `execute 失败：${String(submit.capabilityId)} 需要非空 prompt（平台会以 "prompt is required" 拒单）。` +
+              "请先写清要生成的画面或内容，再调用一次；不要重复提交空 prompt。",
+          );
+        }
         const result = await gw.post("/api/v3/execute", submit, 600_000, z.unknown());
         return structuredReply(result as Record<string, unknown>);
       } catch (error) {

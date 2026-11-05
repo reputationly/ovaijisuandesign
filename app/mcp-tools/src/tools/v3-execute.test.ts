@@ -25,4 +25,40 @@ describe("design_execute 的任务契约", () => {
     expect(gw.post).toHaveBeenCalledWith("/api/v3/execute", args, 600_000, expect.anything());
     expect(reply.structuredContent?.task).toMatchObject({ id: "tsk_1", revision: 1, status: "running" });
   });
+
+  function harness() {
+    const tools = new Map<string, (args: unknown) => Promise<unknown>>();
+    const registrar = {
+      registerTool: (name: string, _meta: unknown, fn: (args: unknown) => Promise<unknown>) => {
+        tools.set(name, fn);
+      },
+    };
+    const gw = { post: vi.fn().mockResolvedValue({ task: { id: "tsk_ok", revision: 1, status: "running" } }) };
+    registerV3Tools(registrar as never, gw as never, "cn" as never);
+    return { tools, gw };
+  }
+
+  const textOf = (reply: unknown) => JSON.stringify(reply ?? "");
+
+  it("空 prompt 的生成请求在提交前就被挡下（平台会 prompt is required 拒单）", async () => {
+    const { tools, gw } = harness();
+    const reply = await tools.get("execute")!({
+      capabilityId: "generate_image:qwen-image-pro-enhanced",
+      output: { resources: [{ mode: "create", name: "图" }] },
+    });
+    expect(gw.post).not.toHaveBeenCalled();
+    expect(textOf(reply)).toContain("prompt");
+  });
+
+  it("音乐把风格描述放在 params.prompt 时不算缺 prompt", async () => {
+    const { tools, gw } = harness();
+    await tools.get("execute")!({ capabilityId: "generate_music:minimax-music3", params: { prompt: "温暖的公路民谣" } });
+    expect(gw.post).toHaveBeenCalledTimes(1);
+  });
+
+  it("非生成类能力（剪辑/超分）不强制 prompt", async () => {
+    const { tools, gw } = harness();
+    await tools.get("execute")!({ capabilityId: "generate_video:enhance", params: { resolution: "1080p", fps: 60 } });
+    expect(gw.post).toHaveBeenCalledTimes(1);
+  });
 });
