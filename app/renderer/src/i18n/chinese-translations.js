@@ -1451,6 +1451,8 @@ const zh = {
     "已保存 {{saved}} 个，{{failed}} 个保存失败",
   "canvas.lightbox.batchSaveSuccess": "已保存 {{count}} 个文件",
   "canvas.lightbox.downloadAll": "全部下载",
+  "canvas.lightbox.copyToClipboard": "复制到剪贴板",
+  "canvas.lightbox.fullscreenPreview": "全屏预览",
   "canvas.lightbox.downloadCurrent": "下载",
   "canvas.lightbox.openInFileExplorer": "在文件资源管理器中打开",
   "canvas.lightbox.openInFileManager": "在文件管理器中打开",

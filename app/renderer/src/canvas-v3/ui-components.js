@@ -43782,7 +43782,369 @@ function FixedMediaLightbox({
     }
   );
 }
-const ImageLightboxView = (props) => React.createElement("div", { className: props?.className, "data-lightbox": "image" });
+/**
+ * 图片全屏预览（双击图片/工具栏放大 → CanvasV3ImagePreview → 这里）。
+ *
+ * 之前这里是还原留下的桩：
+ *     const ImageLightboxView = (props) => React.createElement("div", {...});
+ * 所以点开图片只在 DOM 里插一个空 div。按参照整段补回（缩放/拖拽/翻页/紧凑头部）。
+ */
+// 图片灯箱的缩放参数（参照同值）
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 10;
+const LINE_HEIGHT_PX = 16;
+const PAGE_HEIGHT_PX = 800;
+const MAX_WHEEL_DELTA_PX = 120;
+const WHEEL_ZOOM_SENSITIVITY = 18e-4;
+const BUTTON_ZOOM_FACTOR = 1.3;
+const COMPACT_HEADER_MAX_WIDTH_PX = 224;
+const ImageLightboxView = reactExports.memo(function ImageLightboxView2({
+  src,
+  index: index2 = 0,
+  total = 1,
+  onIndexChange,
+  alt,
+  onClose,
+  active: active2 = true,
+  actions,
+  imageOverlay,
+  onCopyImage,
+  onContextMenu,
+  contextMenu,
+  Shell = MediaLightboxView,
+  renderImage
+}) {
+  const { t: t2 } = useTranslation();
+  const [scale2, setScale] = reactExports.useState(1);
+  const [translate2, setTranslate] = reactExports.useState({ x: 0, y: 0 });
+  const [transitioning, setTransitioning] = reactExports.useState(false);
+  const [isCompactHeader, setIsCompactHeader] = reactExports.useState(false);
+  const containerRef = reactExports.useRef(null);
+  const imgRef = reactExports.useRef(null);
+  const draggingRef = reactExports.useRef(false);
+  const dragStartRef = reactExports.useRef({ x: 0, y: 0 });
+  const translateAtDragStart = reactExports.useRef({ x: 0, y: 0 });
+  const didDragRef = reactExports.useRef(false);
+  const scaleRef = reactExports.useRef(scale2);
+  const translateRef = reactExports.useRef(translate2);
+  scaleRef.current = scale2;
+  translateRef.current = translate2;
+  const isMulti = total > 1 && !!onIndexChange;
+  const goPrev = reactExports.useCallback(() => {
+    if (total <= 1) return;
+    onIndexChange?.((index2 - 1 + total) % total);
+  }, [index2, total, onIndexChange]);
+  const goNext = reactExports.useCallback(() => {
+    if (total <= 1) return;
+    onIndexChange?.((index2 + 1) % total);
+  }, [index2, total, onIndexChange]);
+  const handlePrevClick = reactExports.useCallback(
+    (e2) => {
+      e2.stopPropagation();
+      goPrev();
+    },
+    [goPrev]
+  );
+  const handleNextClick = reactExports.useCallback(
+    (e2) => {
+      e2.stopPropagation();
+      goNext();
+    },
+    [goNext]
+  );
+  reactExports.useEffect(() => {
+    if (!isMulti || !active2) return;
+    const handler = (e2) => {
+      if (e2.key === "ArrowLeft") {
+        e2.preventDefault();
+        e2.stopPropagation();
+        goPrev();
+      } else if (e2.key === "ArrowRight") {
+        e2.preventDefault();
+        e2.stopPropagation();
+        goNext();
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [isMulti, active2, goPrev, goNext]);
+  reactExports.useEffect(() => {
+    if (!active2 || !onCopyImage) return;
+    const handler = (e2) => {
+      if (!isLightboxCopyShortcut(e2)) return;
+      e2.preventDefault();
+      e2.stopPropagation();
+      onCopyImage();
+    };
+    document.addEventListener("keydown", handler, true);
+    return () => document.removeEventListener("keydown", handler, true);
+  }, [active2, onCopyImage]);
+  reactExports.useEffect(() => {
+    if (!active2 || !onCopyImage) return;
+    const handler = (e2) => {
+      e2.preventDefault();
+      e2.stopPropagation();
+      onCopyImage();
+    };
+    document.addEventListener("copy", handler, true);
+    return () => document.removeEventListener("copy", handler, true);
+  }, [active2, onCopyImage]);
+  reactExports.useEffect(() => {
+    setScale(1);
+    setTranslate({ x: 0, y: 0 });
+    setTransitioning(false);
+  }, [index2, src]);
+  const handleWheel = reactExports.useCallback((e2) => {
+    e2.preventDefault();
+    e2.stopPropagation();
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const cx = e2.clientX - rect.left - rect.width / 2;
+    const cy = e2.clientY - rect.top - rect.height / 2;
+    const prevScale = scaleRef.current;
+    const nextScale = getWheelZoomScale(prevScale, e2);
+    if (nextScale === prevScale) return;
+    const ratio = 1 - nextScale / prevScale;
+    const tx = translateRef.current.x + (cx - translateRef.current.x) * ratio;
+    const ty = translateRef.current.y + (cy - translateRef.current.y) * ratio;
+    setScale(nextScale);
+    setTranslate(nextScale <= 1 ? { x: 0, y: 0 } : { x: tx, y: ty });
+  }, []);
+  const handleZoomIn = reactExports.useCallback((e2) => {
+    e2.stopPropagation();
+    setTransitioning(true);
+    setScale((s2) => Math.min(MAX_SCALE, s2 * BUTTON_ZOOM_FACTOR));
+  }, []);
+  const handleZoomOut = reactExports.useCallback((e2) => {
+    e2.stopPropagation();
+    setTransitioning(true);
+    setScale((s2) => {
+      const next2 = Math.max(MIN_SCALE, s2 / BUTTON_ZOOM_FACTOR);
+      if (next2 <= 1) {
+        setTranslate({ x: 0, y: 0 });
+        return 1;
+      }
+      return next2;
+    });
+  }, []);
+  const handleResetZoom = reactExports.useCallback((e2) => {
+    e2.stopPropagation();
+    setTransitioning(true);
+    setScale(1);
+    setTranslate({ x: 0, y: 0 });
+  }, []);
+  const handlePointerDown = reactExports.useCallback((e2) => {
+    if (e2.button !== 0) return;
+    e2.preventDefault();
+    e2.stopPropagation();
+    draggingRef.current = true;
+    didDragRef.current = false;
+    dragStartRef.current = { x: e2.clientX, y: e2.clientY };
+    translateAtDragStart.current = { ...translateRef.current };
+    e2.target.setPointerCapture(e2.pointerId);
+  }, []);
+  const handlePointerMove = reactExports.useCallback((e2) => {
+    if (!draggingRef.current) return;
+    const dx = e2.clientX - dragStartRef.current.x;
+    const dy = e2.clientY - dragStartRef.current.y;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+      didDragRef.current = true;
+    }
+    setTranslate({
+      x: translateAtDragStart.current.x + dx,
+      y: translateAtDragStart.current.y + dy
+    });
+  }, []);
+  const handlePointerUp = reactExports.useCallback((e2) => {
+    draggingRef.current = false;
+    e2.target.releasePointerCapture(e2.pointerId);
+  }, []);
+  const handleDoubleClick2 = reactExports.useCallback(
+    (e2) => {
+      e2.stopPropagation();
+      setTransitioning(true);
+      if (scale2 === 1) {
+        const img = imgRef.current;
+        if (!img) return;
+        setScale(img.naturalWidth / img.width);
+      } else {
+        setScale(1);
+      }
+      setTranslate({ x: 0, y: 0 });
+    },
+    [scale2]
+  );
+  reactExports.useEffect(() => {
+    if (!transitioning) return;
+    const id2 = setTimeout(() => setTransitioning(false), 200);
+    return () => clearTimeout(id2);
+  }, [transitioning]);
+  reactExports.useEffect(() => {
+    const image2 = imgRef.current;
+    if (!image2 || typeof ResizeObserver === "undefined") return;
+    const updateHeaderLayout = (width) => {
+      setIsCompactHeader(width < COMPACT_HEADER_MAX_WIDTH_PX);
+    };
+    if (image2.clientWidth > 0) updateHeaderLayout(image2.clientWidth);
+    const resizeObserver = new ResizeObserver(([entry]) => {
+      updateHeaderLayout(entry?.contentRect.width ?? image2.clientWidth);
+    });
+    resizeObserver.observe(image2);
+    return () => resizeObserver.disconnect();
+  }, []);
+  const handleContainerClick = reactExports.useCallback((e2) => {
+    if (didDragRef.current) {
+      e2.stopPropagation();
+    }
+  }, []);
+  const cursor = draggingRef.current ? "grabbing" : scale2 > 1 ? "grab" : "default";
+  const scalePercent = `${Math.round(scale2 * 100)}%`;
+  const imageProps = {
+    ref: imgRef,
+    src: src || void 0,
+    alt,
+    className: "relative z-0 max-w-[80vw] max-h-[calc(80vh-5.5rem)] object-contain rounded-lg shadow-[0_8px_32px_rgba(0,0,0,0.5)] select-none",
+    style: {
+      transform: `translate(${translate2.x}px, ${translate2.y}px) scale(${scale2})`,
+      transition: transitioning ? "transform 0.2s ease-out" : "none"
+    },
+    draggable: false
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Shell,
+    {
+      active: active2,
+      onClose,
+      onContextMenu,
+      allowHorizontalArrowKeys: isMulti,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pointer-events-none relative isolate flex max-h-[calc(100vh-8rem)] max-w-[calc(100vw-8rem)] flex-col items-center justify-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "pointer-events-none relative z-50 flex w-full items-center justify-center",
+              "data-action-ui-id": "canvas.image-lightbox.header",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  className: "pointer-events-auto flex items-center gap-1 rounded-full bg-[var(--canvas-lightbox-surface)]/55 px-2 py-1.5 backdrop-blur-sm",
+                  "data-action-ui-id": "canvas.image-lightbox.zoom-controls",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        "data-action-ui-id": "canvas.image-lightbox.zoom-out",
+                        "aria-label": t2("canvas.zoomOut"),
+                        className: "flex items-center justify-center w-7 h-7 rounded-full text-[var(--canvas-lightbox-foreground)]/80 hover:text-[var(--canvas-lightbox-foreground)] hover:bg-[var(--canvas-lightbox-foreground)]/10 transition-colors cursor-pointer",
+                        onClick: handleZoomOut,
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Minus, { size: 16, strokeWidth: 1.5, "aria-hidden": true })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        "data-action-ui-id": "canvas.image-lightbox.zoom-reset",
+                        "aria-label": t2("canvas.fitToView"),
+                        className: "min-w-[3rem] text-center text-xs text-[var(--canvas-lightbox-foreground)]/70 hover:text-[var(--canvas-lightbox-foreground)] tabular-nums cursor-pointer",
+                        onClick: handleResetZoom,
+                        children: scalePercent
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        "data-action-ui-id": "canvas.image-lightbox.zoom-in",
+                        "aria-label": t2("canvas.zoomIn"),
+                        className: "flex items-center justify-center w-7 h-7 rounded-full text-[var(--canvas-lightbox-foreground)]/80 hover:text-[var(--canvas-lightbox-foreground)] hover:bg-[var(--canvas-lightbox-foreground)]/10 transition-colors cursor-pointer",
+                        onClick: handleZoomIn,
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus$2, { size: 16, strokeWidth: 1.5, "aria-hidden": true })
+                      }
+                    )
+                  ]
+                }
+              )
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              ref: containerRef,
+              className: "pointer-events-auto relative z-0",
+              "data-action-ui-id": "canvas.image-lightbox.media-frame",
+              style: { cursor },
+              onWheel: handleWheel,
+              onPointerDown: handlePointerDown,
+              onPointerMove: handlePointerMove,
+              onPointerUp: handlePointerUp,
+              onDoubleClick: handleDoubleClick2,
+              onClick: handleContainerClick,
+              children: [
+                isMulti && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
+                  {
+                    className: `pointer-events-none absolute right-0 bottom-full z-50 whitespace-nowrap px-1 text-[11px] text-[var(--canvas-lightbox-foreground)]/60 tabular-nums ${isCompactHeader ? "mb-14" : "mb-3"}`,
+                    "data-action-ui-id": "canvas.image-lightbox.counter",
+                    children: [
+                      index2 + 1,
+                      " / ",
+                      total
+                    ]
+                  }
+                ),
+                renderImage ? renderImage(imageProps) : /* @__PURE__ */ jsxRuntimeExports.jsx("img", { ...imageProps, alt }),
+                imageOverlay && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pointer-events-none absolute inset-0 z-10", children: imageOverlay })
+              ]
+            }
+          ),
+          actions && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "pointer-events-none relative z-50 flex min-h-8 w-full max-w-[80vw] items-center justify-center",
+              "data-action-ui-id": "canvas.image-lightbox.actions",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "pointer-events-auto flex flex-wrap items-center justify-center gap-2",
+                  "data-action-ui-id": "canvas.image-lightbox.action-group",
+                  children: actions
+                }
+              )
+            }
+          )
+        ] }),
+        contextMenu,
+        isMulti && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              "aria-label": t2("canvas.imageLightbox.previousImage", "Previous image"),
+              "data-action-ui-id": "canvas.image-lightbox.prev",
+              className: "absolute left-8 top-1/2 z-50 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-[var(--canvas-lightbox-surface)]/55 hover:bg-[var(--canvas-lightbox-surface)]/70 text-[var(--canvas-lightbox-foreground)]/80 hover:text-[var(--canvas-lightbox-foreground)] transition-colors cursor-pointer pointer-events-auto",
+              onClick: handlePrevClick,
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { size: 18, strokeWidth: 1.5, "aria-hidden": true })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              "aria-label": t2("canvas.imageLightbox.nextImage", "Next image"),
+              "data-action-ui-id": "canvas.image-lightbox.next",
+              className: "absolute right-8 top-1/2 z-50 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-[var(--canvas-lightbox-surface)]/55 hover:bg-[var(--canvas-lightbox-surface)]/70 text-[var(--canvas-lightbox-foreground)]/80 hover:text-[var(--canvas-lightbox-foreground)] transition-colors cursor-pointer pointer-events-auto",
+              onClick: handleNextClick,
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight$1, { size: 18, strokeWidth: 1.5, "aria-hidden": true })
+            }
+          )
+        ] })
+      ]
+    }
+  );
+});
 
 // 这些是产物内联的 ProseMirror 内部工具，保留本地占位
 const insertCanvasRedrawRegion = () => void 0;
