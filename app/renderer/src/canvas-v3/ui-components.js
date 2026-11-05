@@ -169,7 +169,7 @@ import { PROJECT_EXPORT_ACTIVITY_HEARTBEAT_INTERVAL_MS } from "../generation/to-
 import { AddToChatIcon as AddToChatIcon$1, FullscreenIcon as FullscreenIcon$1, MoreVerticalIcon as MoreVerticalIcon$1 } from "../canvas/fullscreen-icon.jsx";
 import { Button as Button$2, Button as Button$3, NodeEmptyState as NodeEmptyState$1 } from "../canvas/node-shell-inner.jsx";
 import { CANVAS_TOOL_DOCK_CONTROL_SIZE_PX as CANVAS_TOOL_DOCK_CONTROL_SIZE_PX$2 } from "../canvas/cursor-icon.jsx";
-import { Check as Check$3, Check as Check$4, ChevronDown as ChevronDown$4, ChevronUp as ChevronUp$1, ChevronUp as ChevronUp$2, Copy as Copy$1, Crown as Crown$1, Plus as Plus$3 } from "../media-editing/lucide-icon-wraps.js";
+import { Check as Check$3, Check as Check$4, ChevronDown as ChevronDown$4, ChevronRight$1, ChevronUp as ChevronUp$1, ChevronUp as ChevronUp$2, Copy as Copy$1, Crown as Crown$1, Minus, Plus as Plus$2, Plus as Plus$3 } from "../media-editing/lucide-icon-wraps.js";
 import { FolderOpen as FolderOpen$1, Trash2 as Trash2$3, formatTime as formatTime$3, useCanvasActive as useCanvasActive$1, useCanvasBridge as useCanvasBridge$1 } from "../media-editing/package.jsx";
 import { NodeToolbar as NodeToolbar$1 } from "../media-editing/toolbar-item.jsx";
 import { PlayIcon as PlayIcon$1, PlayIcon as PlayIcon$2 } from "../media-editing/build-video-thumb-base.jsx";
