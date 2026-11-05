@@ -18,6 +18,9 @@ import { serializeTableDocument } from "../text-editor/table-document-to-llm-con
 
 const READ_ROUTE = "api/project/resources/get";
 const WRITE_ROUTE = "api/v3/document";
+const COMMAND_ROUTE = "api/v3/canvas/commands";
+/** 表格卡片默认尺寸（与画布 CANVAS_V3_DEFAULT_NODE_SIZES.table 一致）。 */
+const TABLE_SIZE = Object.freeze({ width: 350, height: 200 });
 const EMPTY = Object.freeze({ pending: false, error: null });
 
 /** 把 `resources/get` 的分块结果拼回文本。 */
@@ -88,7 +91,7 @@ export function createCanvasV3TableStorage({ fetch: fetch2, hash }) {
       if (!first?.ok) throw new Error(first?.reason ? `TABLE_DOCUMENT_READ_${first.reason}` : "TABLE_DOCUMENT_READ_FAILED");
       return { text: contentTextOf(first), contentRevision: contentRevisionOf(first) };
     },
-    async save({ nodeId, doc, name, source }) {
+    async save({ nodeId, doc, name, source, position, edges }) {
       setState({ pending: true, error: null });
       try {
         const content = serializeTableDocument(doc);
@@ -111,8 +114,43 @@ export function createCanvasV3TableStorage({ fetch: fetch2, hash }) {
           const detail = await response.text().catch(() => "");
           throw new Error(`TABLE_DOCUMENT_WRITE_${response.status}${detail ? `: ${detail.slice(0, 200)}` : ""}`);
         }
+        const written = await response.json();
+        const resource = written?.resource ?? written;
+        // **文档写完后还要在画布上建出节点。** `addTable()` 期待 `save()` 返回时节点已存在：
+        //   await tableStorage.save({ nodeId, doc, name, position, edges })
+        //   if (editor.getSnapshot().document.nodes[nodeId]) selectNodeExclusive(nodeId)
+        // 建节点走 `content.import`（普通 canvas.patch 建 table/placeholder 会被网关拒）。
+        if (resource?.resourceId && resource?.versionId) {
+          const command = {
+            commandId: requestId(`import:${nodeId}`),
+            actor: "human",
+            command: {
+              type: "content.import",
+              items: [
+                {
+                  nodeId,
+                  resourceId: resource.resourceId,
+                  versionId: resource.versionId,
+                  ...(position && !source?.resourceId
+                    ? { placement: { parentId: null, position, size: { ...TABLE_SIZE }, zIndex: 0 } }
+                    : {}),
+                  ...(Array.isArray(edges) && edges.length ? { edges } : {}),
+                },
+              ],
+            },
+          };
+          const imported = await fetch2(COMMAND_ROUTE, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(command),
+          });
+          if (!imported.ok) {
+            const detail = await imported.text().catch(() => "");
+            throw new Error(`TABLE_NODE_IMPORT_${imported.status}${detail ? `: ${detail.slice(0, 200)}` : ""}`);
+          }
+        }
         setState(EMPTY);
-        return await response.json();
+        return written;
       } catch (error) {
         setState({ pending: false, error: error instanceof Error ? error.message : String(error) });
         throw error;

@@ -31,18 +31,22 @@ describe("表格文档存储", () => {
   });
 
   it("save 新建时走 mode=create + format=htable，并序列化 doc", async () => {
-    const { fetch2, calls } = fakeFetch(() => ({ body: { resourceId: "res_9" } }));
+    const { fetch2, calls } = fakeFetch(() => ({ body: { resource: { resourceId: "res_9", versionId: "ver_9" } } }));
     const storage = createCanvasV3TableStorage({ fetch: fetch2, hash: () => "req-fixed" });
     const doc = { version: 1, columns: [{ id: "c1", title: "A" }], rows: [] };
     await storage.save({ nodeId: "n1", doc, name: "表格" });
     expect(calls[0]!.path).toBe("api/v3/document");
     expect(calls[0]!.body).toMatchObject({ requestId: "req-fixed", mode: "create", format: "htable", name: "表格" });
+    // 文档写完后还要建画布节点（content.import）。
+    expect(calls[1]!.path).toBe("api/v3/canvas/commands");
+    expect(calls[1]!.body.command.type).toBe("content.import");
+    expect(calls[1]!.body.command.items[0]).toMatchObject({ nodeId: "n1", resourceId: "res_9", versionId: "ver_9" });
     expect(JSON.parse(calls[0]!.body.content)).toEqual(doc);
     expect(storage.getSnapshot()).toEqual({ pending: false, error: null });
   });
 
   it("save 已有版本时带 baseVersionId/baseRevision", async () => {
-    const { fetch2, calls } = fakeFetch(() => ({ body: {} }));
+    const { fetch2, calls } = fakeFetch(() => ({ body: { resource: { resourceId: "res_1", versionId: "ver_2" } } }));
     const storage = createCanvasV3TableStorage({ fetch: fetch2, hash: () => "req-2" });
     await storage.save({ nodeId: "n1", doc: { version: 1, columns: [], rows: [] }, name: "t", source: { resourceId: "res_1", versionId: "ver_1", contentRevision: 2 } });
     expect(calls[0]!.body).toMatchObject({ mode: "update", resourceId: "res_1", baseVersionId: "ver_1", baseRevision: 2 });
