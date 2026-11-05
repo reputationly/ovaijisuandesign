@@ -43615,7 +43615,173 @@ const os = { platform: () => "browser" };
 const computeDagreLayout = (n) => n;
 const markdownTable = () => "";
 const K2 = "k2";
-const FixedMediaLightbox = (props) => React.createElement("div", { className: props?.className, "data-lightbox": "media" });
+/**
+ * 图片/视频的**全屏预览**（点节点右上角的放大按钮、或双击节点打开）。
+ *
+ * 之前这里是还原时留下的桩：
+ *     const FixedMediaLightbox = (props) => React.createElement("div", {...});
+ * —— 点开后只在 DOM 里插一个空 div，所以"点了没反应、看不到放大"。按参照整段补回。
+ */
+function FixedMediaLightbox({
+  kind: kind2,
+  src,
+  name: name2,
+  active: active2,
+  isPlaying,
+  onPlay,
+  onStop,
+  onClose,
+  onDownload,
+  onCopyFile,
+  onRevealFile,
+  folderIcon,
+  navigation,
+  extraActions,
+  onError
+}) {
+  const { t: t2 } = useTranslation();
+  const [ratio, setRatio] = reactExports.useState(16 / 9);
+  const [viewport, setViewport] = reactExports.useState(() => ({
+    width: window.innerWidth,
+    height: window.innerHeight
+  }));
+  reactExports.useEffect(() => {
+    const handleResize = () => setViewport({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const videoRef = reactExports.useRef(null);
+  const audioRef = reactExports.useRef(null);
+  useMediaElementPlayback$1(kind2 === "video" ? videoRef : audioRef, isPlaying, active2, src, onStop);
+  const handlePlay = (event) => {
+    if (!event.currentTarget.paused) onPlay();
+  };
+  const handlePause = (event) => {
+    if (event.currentTarget.paused) onStop();
+  };
+  const handleError = () => {
+    onStop();
+    onError?.();
+  };
+  const width = Math.min(
+    viewport.width * 0.8,
+    Math.max(240, Math.min(viewport.height * 0.8, viewport.height - 176)) * ratio
+  );
+  const label = t2("canvas.lightbox.downloadCurrent");
+  const fileActions = (prefix) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    onCopyFile && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      LightboxActionButton,
+      {
+        label: t2("canvas.lightbox.copyToClipboard"),
+        icon: Copy,
+        dataActionUiId: `${prefix}.copy-file`,
+        onClick: onCopyFile
+      }
+    ),
+    onRevealFile && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      LightboxActionButton,
+      {
+        label: t2("canvas.lightbox.showInFolder"),
+        iconElement: folderIcon ?? /* @__PURE__ */ jsxRuntimeExports.jsx(FolderOpen$1, { size: 14, strokeWidth: 1.25, "aria-hidden": true }),
+        dataActionUiId: `${prefix}.reveal-file`,
+        onClick: onRevealFile
+      }
+    )
+  ] });
+  const hasActions = Boolean(onDownload || onCopyFile || onRevealFile || extraActions);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    MediaLightboxView,
+    {
+      onClose,
+      ariaLabel: name2,
+      allowHorizontalArrowKeys: Boolean(navigation),
+      children: [
+        navigation && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pointer-events-auto absolute left-1/2 top-6 z-50 -translate-x-1/2", children: navigation }),
+        kind2 === "video" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pointer-events-none relative isolate flex max-h-[calc(100vh-8rem)] max-w-[calc(100vw-8rem)] flex-col items-center justify-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "pointer-events-auto relative z-0 flex cursor-default items-center justify-center",
+              onClick: (e2) => e2.stopPropagation(),
+              "data-action-ui-id": "canvas.video-lightbox.media-frame",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "video",
+                {
+                  ref: videoRef,
+                  src,
+                  className: "block rounded-lg bg-black shadow-[0_8px_32px_rgba(0,0,0,0.5)]",
+                  style: { width, height: width / ratio },
+                  controls: true,
+                  onPlay: handlePlay,
+                  onPause: handlePause,
+                  onEnded: onStop,
+                  onError: handleError,
+                  playsInline: true,
+                  tabIndex: 0,
+                  draggable: false,
+                  onLoadedMetadata: (e2) => {
+                    const v2 = e2.currentTarget;
+                    if (v2.videoWidth && v2.videoHeight) setRatio(v2.videoWidth / v2.videoHeight);
+                  }
+                }
+              )
+            }
+          ),
+          hasActions && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pointer-events-none relative z-50 flex min-h-8 w-full max-w-[80vw] items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pointer-events-auto flex flex-wrap items-center justify-center gap-2", children: [
+            fileActions("canvas.video-lightbox"),
+            onDownload && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              LightboxActionButton,
+              {
+                label,
+                icon: Download$2,
+                dataActionUiId: "canvas.video-lightbox.download",
+                onClick: onDownload
+              }
+            ),
+            extraActions
+          ] }) })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "flex flex-col items-center gap-4 cursor-default",
+              onClick: (e2) => e2.stopPropagation(),
+              children: [
+                name2 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-white/80 max-w-[60vw] truncate", children: name2 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "audio",
+                  {
+                    ref: audioRef,
+                    src,
+                    className: "w-[min(480px,80vw)]",
+                    controls: true,
+                    onPlay: handlePlay,
+                    onPause: handlePause,
+                    onEnded: onStop,
+                    onError: handleError
+                  }
+                )
+              ]
+            }
+          ),
+          hasActions && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pointer-events-auto absolute bottom-8 left-1/2 flex w-max max-w-[80vw] -translate-x-1/2 flex-wrap items-center justify-center gap-2", children: [
+            fileActions("canvas.audio-lightbox"),
+            onDownload && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              LightboxActionButton,
+              {
+                label,
+                icon: Download$2,
+                dataActionUiId: "canvas.audio-lightbox.download",
+                onClick: onDownload
+              }
+            ),
+            extraActions
+          ] })
+        ] })
+      ]
+    }
+  );
+}
 const ImageLightboxView = (props) => React.createElement("div", { className: props?.className, "data-lightbox": "image" });
 
 // 这些是产物内联的 ProseMirror 内部工具，保留本地占位
