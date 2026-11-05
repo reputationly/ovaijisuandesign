@@ -136,6 +136,28 @@ export class CanvasV3ContentService {
     return receipt.compositionId;
   }
 
+  /** 建一个空组合（主体库"新建主体"用）。 */
+  async emptyComposition(commandId: string, name: string): Promise<string> {
+    const receipt = (await this.compositions.ensureAgent(commandId, { label: "主体", name })) as { compositionId?: string };
+    if (typeof receipt.compositionId !== "string" || !receipt.compositionId) throw importUnavailable();
+    return receipt.compositionId;
+  }
+
+  /** 把单个资源包成组合（剪辑台交付到占位节点用）。 */
+  async singleMediaComposition(commandId: string, resourceId: string, versionId: string): Promise<string> {
+    const target = await this.importTarget({ resourceId, versionId });
+    return this.contentComposition(commandId, resourceId, target, new Set<string>());
+  }
+
+  /** 用指定 memberId 加成员（撤销移除 / 主体间迁移要保住成员 id）。 */
+  addMemberWithId(compositionId: string, keyPrefix: string, memberId: string, role: string, resourceId: string, beforeMemberId: string | null = null): Promise<void> {
+    return this.compose(compositionId, keyPrefix, () => ({
+      type: "composition.apply",
+      compositionId,
+      operations: [{ type: "member.add", member: { memberId, role: role || "内容", resource: resourceId }, ...(beforeMemberId ? { beforeMemberId } : {}) }],
+    }));
+  }
+
   /**
    * 组合级命令的统一入口：读当前 revision → 执行 → 版本冲突就重读重试。
    * 这些命令**只改组合**、不改画布文档（节点的标题/成员都从组合投影出来）。

@@ -168,4 +168,95 @@ describe("v3 画布组合级命令", () => {
     expect(deleted.body.document.edges[`edge-${tag}`]).toBeUndefined();
     expect(deleted.body.effects.compositionIds).toContain(compositionId);
   });
+
+  it("subject.prepare 建空主体；convert / convert-to-media 在主体与媒体间切换", async () => {
+    const base = await http.get("/api/v3/canvas");
+    const placed = await send("cmd-prep-place", base.body.revision, {
+      type: "canvas.patch",
+      nodes: [{ id: "prep-1", before: null, after: { id: "prep-1", parentId: null, position: { x: 0, y: 0 }, size: { width: 360, height: 440 }, zIndex: 1, hidden: false, kind: "placeholder", expectedKind: "image", draft: null } }],
+      edges: [],
+    });
+    const prepared = await send("cmd-prep", placed.body.document.revision, { type: "subject.prepare", nodeId: "prep-1", title: "角色库" });
+    expect(prepared.status).toBe(200);
+    const node = prepared.body.document.nodes["prep-1"];
+    expect(node).toMatchObject({ kind: "composition", containerKind: "subject", activeItem: null });
+    expect(node.subjectLayout).toMatchObject({ preset: "board", columns: 3 });
+    const compositionId = node.compositionId as string;
+
+    const toMedia = await send("cmd-conv-media", prepared.body.document.revision, { type: "subject.convert-to-media", nodeId: "prep-1" });
+    expect(toMedia.status).toBe(200);
+    expect(toMedia.body.document.nodes["prep-1"].containerKind).toBeUndefined();
+    expect(toMedia.body.document.nodes["prep-1"].subjectLayout).toBeUndefined();
+
+    const back = await send("cmd-conv-subject", toMedia.body.document.revision, { type: "subject.convert", nodeId: "prep-1" });
+    expect(back.status).toBe(200);
+    expect(back.body.document.nodes["prep-1"].containerKind).toBe("subject");
+    expect(back.body.document.nodes["prep-1"].compositionId).toBe(compositionId);
+  });
+
+  it("subject.remove-resources 移除素材；subject.restore-members 按原 id 放回", async () => {
+    const { tag, nodeId, compositionId, a, revision } = await seedSubject();
+    const removed = await send(`cmd-rm-res-${tag}`, revision, {
+      type: "subject.remove-resources",
+      nodeId,
+      memberId: `mem-a-${tag}`,
+      items: [{ resourceId: a.resourceId, versionId: a.versionId }],
+    });
+    expect(removed.status).toBe(200);
+    expect((await members(compositionId)).map((m) => m.memberId)).toEqual([`mem-b-${tag}`]);
+    expect((removed.body.document.nodes[nodeId].subjectLayout as { sections: { resources: string[] }[] }).sections[0].resources).not.toContain(a.resourceId);
+
+    const restored = await send(`cmd-restore-mem-${tag}`, removed.body.document.revision, {
+      type: "subject.restore-members",
+      nodeId,
+      items: [{ memberId: `mem-a-${tag}`, resourceId: a.resourceId, versionId: a.versionId, role: "表A", index: 0 }],
+    });
+    expect(restored.status).toBe(200);
+    const back = await members(compositionId);
+    expect(back.map((m) => m.memberId)).toContain(`mem-a-${tag}`);
+    expect(back.find((m) => m.memberId === `mem-a-${tag}`)?.role).toBe("表A");
+    expect((restored.body.document.nodes[nodeId].subjectLayout as { sections: { resources: string[] }[] }).sections[0].resources).toContain(a.resourceId);
+  });
+
+  it("subject.transfer-members move：成员从源主体搬到目标主体，两边布局都更新", async () => {
+    const source = await seedSubject();
+    const target = await seedSubject();
+    const transferred = await send("cmd-transfer", target.revision, {
+      type: "subject.transfer-members",
+      sourceNodeId: source.nodeId,
+      targetNodeId: target.nodeId,
+      mode: "move",
+      items: [{ memberId: `mem-a-${source.tag}`, resourceId: source.a.resourceId, versionId: source.a.versionId, role: "表A", fromBeforeMemberId: null }],
+      beforeMemberId: null,
+    });
+    expect(transferred.status).toBe(200);
+    expect((await members(source.compositionId)).map((m) => m.memberId)).not.toContain(`mem-a-${source.tag}`);
+    const targetMembers = await members(target.compositionId);
+    expect(targetMembers.map((m) => m.resource)).toContain(source.a.resourceId);
+    expect((transferred.body.document.nodes[target.nodeId].subjectLayout as { sections: { resources: string[] }[] }).sections[0].resources).toContain(source.a.resourceId);
+    expect(transferred.body.effects.compositionIds).toEqual(expect.arrayContaining([source.compositionId, target.compositionId]));
+  });
+
+  it("clip-studio.deliver 把成片绑到占位节点", async () => {
+    const madeA = await http.post("/api/v3/document").send({ requestId: "cmd-clip-doc", mode: "create", format: "htable", name: "剪辑源.htable", content: HTABLE });
+    const clip = madeA.body.resource as { resourceId: string; versionId: string };
+    const base = await http.get("/api/v3/canvas");
+    const placed = await send("cmd-clip-place", base.body.revision, {
+      type: "canvas.patch",
+      nodes: [{ id: "clip-node", before: null, after: { id: "clip-node", parentId: null, position: { x: 10, y: 10 }, size: { width: 380, height: 240 }, zIndex: 1, hidden: false, kind: "placeholder", expectedKind: "video", draft: null } }],
+      edges: [],
+    });
+    const delivered = await send("cmd-clip", placed.body.document.revision, {
+      type: "clip-studio.deliver",
+      nodeId: "clip-node",
+      sourceResourceId: clip.resourceId,
+      mediaKind: "video",
+      resourceId: clip.resourceId,
+      versionId: clip.versionId,
+    });
+    expect(delivered.status).toBe(200);
+    const node = delivered.body.document.nodes["clip-node"];
+    expect(node).toMatchObject({ kind: "composition", activeItem: { type: "version", resourceId: clip.resourceId, versionId: clip.versionId } });
+    expect(node.compositionId).toMatch(/^cmp_/);
+  });
 });

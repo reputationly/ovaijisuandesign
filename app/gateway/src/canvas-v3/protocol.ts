@@ -80,6 +80,37 @@ export interface CanvasV3ImportItem {
   size?: CanvasV3Size;
   edges?: CanvasV3ImportEdgeRef[];
 }
+/** 主体库 / 剪辑交付类命令。 */
+export interface CanvasV3SubjectCommand {
+  type:
+    | "subject.prepare"
+    | "subject.convert"
+    | "subject.convert-to-media"
+    | "subject.load"
+    | "subject.remove-resources"
+    | "subject.restore-members"
+    | "subject.transfer-members";
+  nodeId?: string;
+  sourceNodeId?: string;
+  targetNodeId?: string;
+  compositionId?: string;
+  memberId?: string;
+  title?: string;
+  mode?: "move" | "copy";
+  beforeMemberId?: string | null;
+  items?: Record<string, unknown>[];
+}
+export interface CanvasV3ClipDeliver {
+  type: "clip-studio.deliver";
+  nodeId: string;
+  sourceResourceId: string;
+  sourceVersionId?: string;
+  mediaKind: "video" | "audio";
+  resourceId: string;
+  versionId: string;
+  placement?: { parentId: string | null; position: { x: number; y: number } };
+}
+
 /** 组合级命令：只改组合（成员/类型/顺序），不改画布文档。 */
 export interface CanvasV3CompositionNodeCommand {
   type: "composition.set-type" | "composition.move";
@@ -711,6 +742,96 @@ function parseSubjectMemberCommand(value: unknown): CanvasV3SubjectMemberCommand
   return fail("unsupported command");
 }
 
+export function parseCanvasV3SubjectCommand(value: unknown): CanvasV3SubjectCommand {
+  const raw = object(value);
+  const type = raw.type;
+  if (type === "subject.prepare") {
+    const parsed = exact(raw, ["type", "nodeId", "title"]);
+    const title = text(parsed.title, CANVAS_V3_LIMITS.titleLength);
+    if (!title.trim()) fail("empty title");
+    return { type, nodeId: id(parsed.nodeId), title };
+  }
+  if (type === "subject.convert" || type === "subject.convert-to-media") {
+    const parsed = exact(raw, ["type", "nodeId"]);
+    return { type, nodeId: id(parsed.nodeId) };
+  }
+  if (type === "subject.load") {
+    const parsed = exact(raw, ["type", "nodeId", "compositionId"]);
+    return { type, nodeId: id(parsed.nodeId), compositionId: id(parsed.compositionId) };
+  }
+  if (type === "subject.remove-resources") {
+    const parsed = exact(raw, ["type", "nodeId", "memberId", "items"]);
+    const items = array(parsed.items, CANVAS_V3_LIMITS.importItems).map((entry) => {
+      const item = exact(entry, ["resourceId", "versionId"]);
+      return { resourceId: id(item.resourceId), versionId: id(item.versionId) };
+    });
+    if (!items.length) fail("empty subject resources");
+    return { type, nodeId: id(parsed.nodeId), memberId: id(parsed.memberId), items };
+  }
+  if (type === "subject.restore-members") {
+    const parsed = exact(raw, ["type", "nodeId", "items"]);
+    const seen = new Set<string>();
+    const items = array(parsed.items, CANVAS_V3_LIMITS.importItems).map((entry) => {
+      const item = exact(entry, ["memberId", "resourceId", "versionId", "role", "index"]);
+      const memberId = id(item.memberId);
+      if (seen.has(memberId)) fail("duplicate subject member");
+      seen.add(memberId);
+      return { memberId, resourceId: id(item.resourceId), versionId: id(item.versionId), role: text(item.role, CANVAS_V3_LIMITS.titleLength), index: integer(item.index, true) };
+    });
+    if (!items.length) fail("empty subject members");
+    return { type, nodeId: id(parsed.nodeId), items };
+  }
+  if (type === "subject.transfer-members") {
+    const parsed = exact(raw, ["type", "sourceNodeId", "targetNodeId", "mode", "items", "beforeMemberId"]);
+    if (parsed.mode !== "move" && parsed.mode !== "copy") fail("invalid transfer mode");
+    const sourceNodeId = id(parsed.sourceNodeId);
+    const targetNodeId = id(parsed.targetNodeId);
+    if (sourceNodeId === targetNodeId) fail("same transfer node");
+    const items = array(parsed.items, CANVAS_V3_LIMITS.importItems).map((entry) => {
+      const item = exact(entry, ["memberId", "resourceId", "versionId", "role", "fromBeforeMemberId"]);
+      return {
+        memberId: id(item.memberId),
+        resourceId: id(item.resourceId),
+        versionId: id(item.versionId),
+        role: text(item.role, CANVAS_V3_LIMITS.titleLength),
+        fromBeforeMemberId: item.fromBeforeMemberId === null ? null : id(item.fromBeforeMemberId),
+      };
+    });
+    if (!items.length) fail("empty subject transfer");
+    return {
+      type,
+      sourceNodeId,
+      targetNodeId,
+      mode: parsed.mode,
+      items,
+      beforeMemberId: parsed.beforeMemberId === null ? null : id(parsed.beforeMemberId),
+    };
+  }
+  return fail("unsupported command");
+}
+
+export function parseCanvasV3ClipDeliver(value: unknown): CanvasV3ClipDeliver {
+  const parsed = shape(value, ["type", "nodeId", "sourceResourceId", "mediaKind", "resourceId", "versionId"], ["placement", "sourceVersionId"]);
+  if (parsed.mediaKind !== "video" && parsed.mediaKind !== "audio") fail("invalid clip output kind");
+  const result: CanvasV3ClipDeliver = {
+    type: "clip-studio.deliver",
+    nodeId: id(parsed.nodeId),
+    sourceResourceId: id(parsed.sourceResourceId),
+    mediaKind: parsed.mediaKind,
+    resourceId: id(parsed.resourceId),
+    versionId: id(parsed.versionId),
+  };
+  if (parsed.sourceVersionId !== undefined) result.sourceVersionId = id(parsed.sourceVersionId);
+  if (Object.hasOwn(parsed, "placement")) {
+    const placement = object(parsed.placement);
+    result.placement = {
+      parentId: placement.parentId === null || placement.parentId === undefined ? null : id(placement.parentId),
+      position: point(placement.position),
+    };
+  }
+  return result;
+}
+
 export function parseCanvasV3SubjectLayoutCommand(value: unknown): CanvasV3SubjectLayoutCommand {
   const parsed = exact(value, ["type", "nodeId", "before", "after"]);
   if (parsed.type !== "subject.layout") fail("unsupported command");
@@ -952,6 +1073,8 @@ export type CanvasV3Command =
   | CanvasV3SubjectLayoutCommand
   | CanvasV3CompositionDelete
   | CanvasV3CompositionRestore
+  | CanvasV3SubjectCommand
+  | CanvasV3ClipDeliver
   | { type: "canvas.batch"; commands: CanvasV3Command[] };
 
 export interface CanvasV3CommandRequest {
@@ -972,6 +1095,8 @@ function parseCommand(value: unknown, nested = false): CanvasV3Command {
   if (typeof raw.type === "string" && (raw.type === "composition.set-type" || raw.type === "composition.move")) return parseCompositionNodeCommand(raw);
   if (typeof raw.type === "string" && raw.type.startsWith("subject.") && raw.type.endsWith("member")) return parseSubjectMemberCommand(raw);
   if (typeof raw.type === "string" && (raw.type === "subject.add-members" || raw.type === "subject.remove-members")) return parseSubjectMemberCommand(raw);
+  if (raw.type === "clip-studio.deliver") return parseCanvasV3ClipDeliver(raw);
+  if (typeof raw.type === "string" && (raw.type === "subject.prepare" || raw.type === "subject.convert" || raw.type === "subject.convert-to-media" || raw.type === "subject.load" || raw.type === "subject.remove-resources" || raw.type === "subject.restore-members" || raw.type === "subject.transfer-members")) return parseCanvasV3SubjectCommand(raw);
   if (raw.type === "canvas.batch") {
     if (nested) fail("nested batch");
     const parsed = exact(raw, ["type", "commands"]);

@@ -131,18 +131,18 @@
 | `composition.move` | 组合在类型内排序 | ✅ 本轮 | 不带 expectedRevision（内核自处理） |
 | `composition.delete` | 删除组合/清空后删 | ✅ 本轮 | 连子节点与相关边一起删 |
 | `composition.restore` | 撤销删除 | ✅ 本轮 | 恢复生命周期 + 回填补丁 |
-| `subject.prepare` | 新建主体 | ⏳ | 需建空 subject 组合 |
-| `subject.convert` | 媒体 → 主体 | ⏳ | 节点加 `containerKind:"subject"` + 默认布局 |
-| `subject.convert-to-media` | 主体 → 媒体 | ⏳ | 去掉 containerKind/布局 |
-| `subject.load` | 从主体库载入 | ⏳ | 占位符绑定已有组合 |
-| `subject.remove-resources` | 主体内移除某个素材 | ⏳ | 只改布局 sections/spans/rows |
-| `subject.restore-members` | 撤销移除成员 | ⏳ | 按原 memberId/index 放回 |
-| `subject.transfer-members` | 主体之间拖成员 | ⏳ | move/copy + beforeMemberId |
-| `clip-studio.deliver` | 剪辑台导出成片 | ⏳ | 把成片绑到节点 |
+| `subject.prepare` | 新建主体 | ✅ 本轮 | 建空 subject 组合 + 默认布局 |
+| `subject.convert` | 媒体 → 主体 | ✅ 本轮 | 加 `containerKind` + 按成员生成布局 |
+| `subject.convert-to-media` | 主体 → 媒体 | ✅ 本轮 | 去掉 containerKind/布局 |
+| `subject.load` | 从主体库载入 | ✅ 本轮 | 占位符绑定已有组合（多成员才算主体） |
+| `subject.remove-resources` | 主体内移除某个素材 | ✅ 本轮 | 移除成员并从布局摘掉 |
+| `subject.restore-members` | 撤销移除成员 | ✅ 本轮 | 按原 memberId 放回 + 布局补回 |
+| `subject.transfer-members` | 主体之间拖成员 | ✅ 本轮 | move/copy，两边布局都更新 |
+| `clip-studio.deliver` | 剪辑台导出成片 | ✅ 本轮 | 成片版本绑到占位/组合节点 |
 | `content.rename` | **无构造点** | ⏳ 不需要 | 渲染层没有地方发它，标题走组合名 |
 
-结论：超级表里 14 条已通，8 条待补（都是主体库/剪辑台的新建与转换类），1 条（`content.rename`）
-渲染层根本不发、不需要实现。
+结论：**22 条里 21 条已通**（本轮补 17 条），只剩 `content.rename` —— 渲染层没有任何构造点，
+标题统一走组合名，不需要实现。
 
 ## 3. 表格：已打通（原「唯一阻塞项」）
 

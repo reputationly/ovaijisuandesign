@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { EDITOR_CODECS, editorCodecForNode } from "../editor-v3/codecs.js";
 import { EditorSourceFiles } from "../editor-v3/source-files.js";
 import { canvasV3Error, invalidCanvasV3Command } from "./errors.js";
@@ -8,6 +10,8 @@ import {
   type CanvasV3CompositionNodeCommand,
   type CanvasV3CompositionRestore,
   type CanvasV3CompositionDelete,
+  type CanvasV3ClipDeliver,
+  type CanvasV3SubjectCommand,
   type CanvasV3SubjectLayoutCommand,
   type CanvasV3SubjectMemberCommand,
   type CanvasV3ContentImport,
@@ -421,6 +425,200 @@ async function generationPatch(document: CanvasV3Document, command: CanvasV3Gene
   return { type: "canvas.patch", nodes, edges };
 }
 
+const SUBJECT_SECTION = "default";
+
+/** 主体库的默认布局：单分区 + 三列看板。跟渲染层 `defaultSubjectLayout()` 保持一致。 */
+function defaultSubjectLayout(): Record<string, unknown> {
+  return { preset: "board", columns: 3, sections: [{ id: SUBJECT_SECTION, title: "素材", resources: [] }], spans: [], rows: [] };
+}
+
+function layoutOf(node: CanvasV3Node): Record<string, unknown> {
+  return (node.subjectLayout as Record<string, unknown> | undefined) ?? defaultSubjectLayout();
+}
+
+function sectionsOf(layout: Record<string, unknown>): Record<string, unknown>[] {
+  return Array.isArray(layout.sections) ? (layout.sections as Record<string, unknown>[]) : [];
+}
+
+function withResource(layout: Record<string, unknown>, resourceId: string): Record<string, unknown> {
+  const sections = sectionsOf(layout).map((section) => {
+    const resources = Array.isArray(section.resources) ? (section.resources as string[]) : [];
+    return resources.includes(resourceId) ? section : { ...section, resources: [...resources, resourceId] };
+  });
+  if (!sections.length) return { ...layout, sections: [{ id: SUBJECT_SECTION, title: "素材", resources: [resourceId] }] };
+  return { ...layout, sections };
+}
+
+function withoutResource(layout: Record<string, unknown>, resourceId: string): Record<string, unknown> {
+  return {
+    ...layout,
+    sections: sectionsOf(layout).map((section) => ({
+      ...section,
+      resources: (Array.isArray(section.resources) ? (section.resources as string[]) : []).filter((item) => item !== resourceId),
+    })),
+    spans: (Array.isArray(layout.spans) ? (layout.spans as Record<string, unknown>[]) : []).filter((span) => span.resourceId !== resourceId),
+    rows: (Array.isArray(layout.rows) ? (layout.rows as Record<string, unknown>[]) : []).map((row) => ({
+      ...row,
+      resources: (Array.isArray(row.resources) ? (row.resources as string[]) : []).filter((item) => item !== resourceId),
+    })),
+  };
+}
+
+function layoutFromMembers(projected: { members?: { resource: string | null }[] }): Record<string, unknown> {
+  const resources = (projected.members ?? []).flatMap((member) => (typeof member.resource === "string" ? [member.resource] : []));
+  return { ...defaultSubjectLayout(), sections: [{ id: SUBJECT_SECTION, title: "素材", resources }] };
+}
+
+/**
+ * 主体库 / 剪辑交付类命令。
+ * 主体库的新建与转换改的是**节点字段**（`containerKind` + `subjectLayout`），
+ * 成员改动走组合服务；两件事可能同时发生，所以先做组合、再组补丁。
+ */
+async function subjectEffect(document: CanvasV3Document, command: CanvasV3Command, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Effect | null> {
+  if (command.type === "clip-studio.deliver") {
+    const deliver = command as CanvasV3ClipDeliver;
+    const node = nodeOf(document, deliver.nodeId);
+    const target = deliver.placement ?? (node ? { parentId: node.parentId, position: node.position } : undefined);
+    if (!target) importUnavailable("Delivered node is missing");
+    if (node?.kind === "composition" && typeof node.compositionId === "string") {
+      // 已有组合：只把当前展示项切到成片版本。
+      const after: CanvasV3Node = { ...node, activeItem: { type: "version", resourceId: deliver.resourceId, versionId: deliver.versionId } };
+      if (canvasV3Equal(node, after)) return { patch: EMPTY_PATCH, undo: null, compositionIds: [node.compositionId] };
+      return { patch: { type: "canvas.patch", nodes: [{ id: node.id, before: node, after }], edges: [] }, undo: null, compositionIds: [node.compositionId] };
+    }
+    if (node && node.kind !== "placeholder" && node.kind !== deliver.mediaKind) importUnavailable("Delivered node is not a media node");
+    const compositionId = await content.singleMediaComposition(`${keyPrefix}:deliver`, deliver.resourceId, deliver.versionId);
+    const after: CanvasV3Node = {
+      id: deliver.nodeId,
+      parentId: target.parentId,
+      position: target.position,
+      size: node?.size ?? { width: 380, height: 240 },
+      zIndex: node?.zIndex ?? 0,
+      hidden: node?.hidden ?? false,
+      kind: "composition",
+      compositionId,
+      activeItem: { type: "version", resourceId: deliver.resourceId, versionId: deliver.versionId },
+      draft: null,
+      ...(node && "presentation" in node && node.presentation ? { presentation: node.presentation } : {}),
+    };
+    return { patch: { type: "canvas.patch", nodes: [{ id: deliver.nodeId, before: node ?? null, after }], edges: [] }, undo: null, compositionIds: [compositionId] };
+  }
+  if (command.type === "subject.prepare") {
+    const prepare = command as CanvasV3SubjectCommand;
+    const nodeId = String(prepare.nodeId);
+    const node = nodeOf(document, nodeId);
+    const compositionId = await content.emptyComposition(`${keyPrefix}:prepare`, String(prepare.title));
+    const after: CanvasV3Node = {
+      id: nodeId,
+      parentId: node?.parentId ?? null,
+      position: node?.position ?? { x: 0, y: 0 },
+      size: node?.size ?? { width: 360, height: 440 },
+      zIndex: node?.zIndex ?? 0,
+      hidden: node?.hidden ?? false,
+      kind: "composition",
+      containerKind: "subject",
+      subjectLayout: defaultSubjectLayout(),
+      compositionId,
+      activeItem: null,
+      draft: null,
+    };
+    return { patch: { type: "canvas.patch", nodes: [{ id: nodeId, before: node ?? null, after }], edges: [] }, undo: null, compositionIds: [compositionId] };
+  }
+  if (command.type === "subject.convert" || command.type === "subject.convert-to-media") {
+    const convert = command as CanvasV3SubjectCommand;
+    const node = nodeOf(document, String(convert.nodeId));
+    if (!node) importUnavailable("Subject node is missing");
+    const compositionId = compositionIdOf(document, String(convert.nodeId));
+    if (command.type === "subject.convert") {
+      const projected = (await content.project(compositionId)) as { members?: { resource: string | null }[]; state: string };
+      if (projected.state !== "ready") contentUnavailable();
+      const after: CanvasV3Node = { ...node, containerKind: "subject", subjectLayout: layoutFromMembers(projected) };
+      if (canvasV3Equal(node, after)) return { patch: EMPTY_PATCH, undo: null, compositionIds: [compositionId] };
+      return { patch: { type: "canvas.patch", nodes: [{ id: node.id, before: node, after }], edges: [] }, undo: null, compositionIds: [compositionId] };
+    }
+    const after: CanvasV3Node = { ...node };
+    delete after.containerKind;
+    delete after.subjectLayout;
+    if (canvasV3Equal(node, after)) return { patch: EMPTY_PATCH, undo: null, compositionIds: [compositionId] };
+    return { patch: { type: "canvas.patch", nodes: [{ id: node.id, before: node, after }], edges: [] }, undo: null, compositionIds: [compositionId] };
+  }
+  if (command.type === "subject.load") {
+    const load = command as CanvasV3SubjectCommand;
+    const nodeId = String(load.nodeId);
+    const node = nodeOf(document, nodeId);
+    const compositionId = String(load.compositionId);
+    const projected = (await content.project(compositionId)) as { state: string; members?: { resource: string | null }[] };
+    if (projected.state !== "ready") contentUnavailable();
+    const subject = (projected.members ?? []).length > 1;
+    const after: CanvasV3Node = {
+      id: nodeId,
+      parentId: node?.parentId ?? null,
+      position: node?.position ?? { x: 0, y: 0 },
+      size: node?.size ?? { width: 360, height: 440 },
+      zIndex: node?.zIndex ?? 0,
+      hidden: node?.hidden ?? false,
+      kind: "composition",
+      ...(subject ? { containerKind: "subject" as const, subjectLayout: layoutFromMembers(projected) } : {}),
+      compositionId,
+      activeItem: null,
+      draft: null,
+    };
+    return { patch: { type: "canvas.patch", nodes: [{ id: nodeId, before: node ?? null, after }], edges: [] }, undo: null, compositionIds: [compositionId] };
+  }
+  if (command.type === "subject.remove-resources") {
+    const remove = command as CanvasV3SubjectCommand;
+    const node = nodeOf(document, String(remove.nodeId));
+    if (!node) importUnavailable("Subject node is missing");
+    const compositionId = compositionIdOf(document, String(remove.nodeId));
+    let layout = layoutOf(node);
+    for (const item of remove.items ?? []) {
+      if (typeof item.resourceId === "string") layout = withoutResource(layout, item.resourceId);
+    }
+    const after: CanvasV3Node = { ...node, subjectLayout: layout };
+    await content.removeMembers(compositionId, `${keyPrefix}:resources`, [String(remove.memberId)]);
+    return { patch: { type: "canvas.patch", nodes: [{ id: node.id, before: node, after }], edges: [] }, undo: null, compositionIds: [compositionId] };
+  }
+  if (command.type === "subject.restore-members") {
+    const restore = command as CanvasV3SubjectCommand;
+    const node = nodeOf(document, String(restore.nodeId));
+    if (!node) importUnavailable("Subject node is missing");
+    const compositionId = compositionIdOf(document, String(restore.nodeId));
+    let layout = layoutOf(node);
+    for (const item of (restore.items ?? []).slice().sort((a, b) => Number(a.index ?? 0) - Number(b.index ?? 0))) {
+      await content.addMemberWithId(compositionId, `${keyPrefix}:restore:${String(item.memberId)}`, String(item.memberId), String(item.role ?? ""), String(item.resourceId));
+      layout = withResource(layout, String(item.resourceId));
+    }
+    const after: CanvasV3Node = { ...node, subjectLayout: layout };
+    return { patch: { type: "canvas.patch", nodes: [{ id: node.id, before: node, after }], edges: [] }, undo: null, compositionIds: [compositionId] };
+  }
+  if (command.type === "subject.transfer-members") {
+    const transfer = command as CanvasV3SubjectCommand;
+    const sourceId = compositionIdOf(document, String(transfer.sourceNodeId));
+    const targetId = compositionIdOf(document, String(transfer.targetNodeId));
+    const targetNode = nodeOf(document, String(transfer.targetNodeId));
+    if (!targetNode) importUnavailable("Transfer target is missing");
+    let layout = layoutOf(targetNode);
+    for (const item of transfer.items ?? []) {
+      const memberId = String(item.memberId);
+      if (transfer.mode === "move") await content.removeMembers(sourceId, `${keyPrefix}:transfer-out:${memberId}`, [memberId]);
+      await content.addMemberWithId(targetId, `${keyPrefix}:transfer-in:${memberId}`, projectionMemberId(memberId, targetId), String(item.role ?? ""), String(item.resourceId), transfer.beforeMemberId ?? null);
+      layout = withResource(layout, String(item.resourceId));
+    }
+    const after: CanvasV3Node = { ...targetNode, subjectLayout: layout };
+    return {
+      patch: { type: "canvas.patch", nodes: [{ id: targetNode.id, before: targetNode, after }], edges: [] },
+      undo: null,
+      compositionIds: [sourceId, targetId],
+    };
+  }
+  return null;
+}
+
+/** 成员在目标组合里要换一个 id（同一资源可以在多个组合里各有一份成员）。 */
+function projectionMemberId(memberId: string, compositionId: string): string {
+  return `mem_${createHash("sha256").update(`${compositionId}:${memberId}`).digest("hex").slice(0, 12)}`;
+}
+
 const EMPTY_PATCH: CanvasV3Patch = { type: "canvas.patch", nodes: [], edges: [] };
 
 /** 这一节点必须是组合节点，并返回它的组合 id。 */
@@ -553,6 +751,11 @@ async function patchOf(document: CanvasV3Document, command: Exclude<CanvasV3Comm
 
 export async function executeCanvasV3Command(document: CanvasV3Document, command: CanvasV3Command, content: CanvasV3ContentService, sources: EditorSourceFiles, commandId: string): Promise<{ patch: CanvasV3Patch; effects: { undo: CanvasV3Command | null; compositionIds: string[] } }> {
   if (command.type !== "canvas.batch") {
+    const subject = await subjectEffect(document, command, content, commandId);
+    if (subject) {
+      const merged = subject.patch.nodes.length || subject.patch.edges.length ? await runPatch(document, subject.patch, content, sources) : subject;
+      return { patch: merged.patch, effects: { undo: merged.undo, compositionIds: subject.compositionIds } };
+    }
     const direct = await directEffect(document, command, content, commandId);
     if (direct) {
       const merged = direct.patch.nodes.length || direct.patch.edges.length
