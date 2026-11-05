@@ -120,6 +120,10 @@ if (… || !metadata || …) return void 0;             // 缺了就直接返回
 修：`app/gateway/src/project-kernel/document.service.ts` 的返回值补
 `media: { mimeType: 扩展名 === ".md" ? "text/markdown" : "text/plain", sizeBytes: Buffer.byteLength(content) }`（与 `query.service.ts` 的读接口一致）。
 
+**文本侧真机复验**（同一个 bug 的受害者）：`+ → 文本 → 双击卡片 → 编辑器里打字 → Esc 关闭` 之后，
+节点从 `placeholder` 变成 `composition`、`activeItem` 指向 `ver_9b208c3a1fae`，工作区里出现两条版本
+（草稿 + 定稿），`problems: []`。修之前这里必然抛 `CANVAS_V3_TEXT_INVALID_RESPONSE`。
+
 ### 3.3 真根因二：网关没有 `content.import`
 
 渲染层所有"把资源放进画布"的动作（拖入图片、粘贴、上传、新建表格、文本生成完成）都发
