@@ -39,6 +39,8 @@ describe("v3 文档写入", () => {
     const created = await http.post("/api/v3/document").send({ requestId: "doc-1", mode: "create", name: "章节", format: "md", content: "alpha beta alpha" });
     expect(created.status).toBe(200);
     expect(created.body.resource).toMatchObject({ name: "章节", kind: "text", lines: 1, contentRevision: 1 });
+    // 渲染层把 `media` 当必需字段：少了它整条响应会被判无效（表格/文本保存都卡在这）。
+    expect(created.body.resource.media).toEqual({ mimeType: "text/markdown", sizeBytes: Buffer.byteLength("alpha beta alpha", "utf8") });
     const replay = await http.post("/api/v3/document").send({ requestId: "doc-1", mode: "create", name: "章节", format: "md", content: "alpha beta alpha" });
     expect(replay.body.resource.versionId).toBe(created.body.resource.versionId);
     const changed = await http.post("/api/v3/document").send({ requestId: "doc-1", mode: "create", name: "章节", format: "md", content: "别的内容" });

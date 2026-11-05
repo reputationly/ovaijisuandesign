@@ -133,7 +133,17 @@ export class ProjectDocumentService {
     const lines = content.replace(/\r?\n$/, "").split(/\r?\n/).length;
     return this.resources.saveDeliveryReceipt(`${id}:result`, intent, {
       requestId: request.requestId,
-      resource: { resourceId, versionId, name: request.mode === "create" || request.name ? name : base?.resource.name, kind: "text", lines, contentRevision: nextRevision },
+      resource: {
+        resourceId,
+        versionId,
+        name: request.mode === "create" || request.name ? name : base?.resource.name,
+        kind: "text",
+        lines,
+        contentRevision: nextRevision,
+        // 渲染层的 `parseCanvasV3DocumentWriteResult` 把 `media` 当必需字段：缺了整个响应被判无效，
+        // 文档明明写成功了却报 `CANVAS_V3_TEXT_INVALID_RESPONSE` / `CANVAS_V3_TABLE_INVALID_RESPONSE`。
+        media: { mimeType: path.extname(relativePath).toLowerCase() === ".md" ? "text/markdown" : "text/plain", sizeBytes: Buffer.byteLength(content, "utf8") },
+      },
     });
   }
 
