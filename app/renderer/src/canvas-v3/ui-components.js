@@ -13258,7 +13258,16 @@ function canvasModel(value, operations) {
   // 硬要求成对象会让整张模型列表判成"加载失败"（真机：点视频节点弹「模型目录加载失败」）。
   if (entry.references !== undefined && entry.references !== null) object(entry.references);
   if (entry.prompt !== undefined && entry.prompt !== null) object(entry.prompt);
-  return canvasV3Model({ ...entry, model: { ...model, presentation: { ...presentation, name: displayName } } });
+  // **必须补默认值**：`canvasV3Model` → `pickerInfo` 里直接 `const { kinds } = capability.references`，
+  // references 为 null 时抛 TypeError，被当成"目录加载失败"（真机：提示词面板红字）。
+  return canvasV3Model({
+    ...entry,
+    model: { ...model, presentation: { ...presentation, name: displayName } },
+    references: entry.references ?? { kinds: [], modes: {} },
+    prompt: entry.prompt ?? {},
+    controls: entry.controls ?? {},
+    paramSchema: entry.paramSchema ?? { type: "object", properties: {} },
+  });
 }
 
 function castFactory(testFunction) {
