@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -238,12 +238,15 @@ describe("v3 画布导入内容", () => {
     });
     if (saved.status >= 300) console.log("SAVE 失败:", saved.status, JSON.stringify(saved.body).slice(0, 400));
     expect(saved.status).toBeLessThan(300);
-    const onDisk = execFileSync("python3", ["-c", `
+    // **只让 python 输出 ASCII 的相对路径**，内容交给 Node 读：Windows 的 python 默认
+    // cp1252 输出，直接 print 中文会 UnicodeEncodeError（CI 上就是这样挂的）。
+    const relativePath = execFileSync("python3", ["-c", `
 import sqlite3, sys
 db = sqlite3.connect("file:" + sys.argv[1] + "/.hilo/index.sqlite?mode=ro", uri=True)
 row = db.execute("select v.relative_path from resources r join resource_versions v on v.resource_id=r.resource_id where r.resource_id=? order by v.created_at desc limit 1", (sys.argv[2],)).fetchone()
-print(open(sys.argv[1] + "/" + row[0], encoding="utf-8").read())
-`, ws, table.resourceId], { encoding: "utf8" });
+sys.stdout.write(row[0])
+`, ws, table.resourceId], { encoding: "utf8", env: { ...process.env, PYTHONIOENCODING: "utf-8" } });
+    const onDisk = readFileSync(path.join(ws, relativePath), "utf8");
     expect(onDisk).toContain("回写验证");
   });
 });
