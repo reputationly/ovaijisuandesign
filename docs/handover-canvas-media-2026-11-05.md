@@ -338,9 +338,15 @@ gh run view <id> --log-failed | tail -40
 5. PPT 后续：`export_slides` 现在只支持"一图一页"，若要排版/文字页/多图网格，扩展 `pptx.ts` 的 `slideXml`；
 6. ~~补查 CI~~ —— 已查，结论见 §4.5（`363aa7bd` 是 Windows 端口假失败）；
 7. ~~复制粘贴坏~~ —— 已修（`clipboard.paste` 网关实现 + 3 条 e2e，真机 `Cmd+C`/`Cmd+V` 出两个独立组合、无 400）；
-8. **节点右侧「+」悬浮入口点了不开菜单**：A/B 测过（把旧手柄样式注回去结果一样），与手柄样式无关，需单独查
+8. **【最大缺口·已实测确认】画布内点「生成」= `generation.start`，网关不认 → 400**，生成根本没提交给平台。
+   证据：`canvas-area-v3.js:9362` 用 `editor.createRequest(command)` 造请求、第 9430 行 `executeRequest(...)` 发出去；
+   真机点 `popover.submit`（↑）后只看到 `400 POST /api/v3/canvas/commands`，**没有**任何 `/api/v3/execute`（探针把该路由 abort 了做双保险，一次都没触发）。
+   含义：agent/聊天那条生成链路是好的（§2.2 验过），但**画布节点上的生成按钮全不可用**（图片/视频/音频）。
+   不花钱：网关在提交平台前就拒了。实现要素：`draft`（模型/提示词/参数/参考/数量）、可选 `create`（派生新节点）、
+   `subjectResource`、`historyRequest`、`outputCompositionId`（同组合内出图），要顺带想清"命令成功后由谁跑任务"。
+9. **节点右侧「+」悬浮入口点了不开菜单**：A/B 测过（把旧手柄样式注回去结果一样），与手柄样式无关，需单独查
    `NodeHandleEntry` 的 onMouseDown/onClick 组合；
-9. 手感/视觉已修：节点左右两边的「小黑点」= xyflow 默认手柄样式，参照实现的
+10. 手感/视觉已修：节点左右两边的「小黑点」= xyflow 默认手柄样式，参照实现的
    `.canvas-v3-target/.canvas-v3-source`（零尺寸透明锚点）整块缺失，已按参照补回 `after.css`。
 
 ---
