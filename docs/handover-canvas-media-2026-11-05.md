@@ -424,7 +424,16 @@ gh run view <id> --log-failed | tail -40
 验证：单文件连跑 6 次、全量正常跑 2 次、**再开 4 个 CPU 死循环压着跑全量 1 次**，
 105 个文件 / 570 条全绿（4 条 skip）。抖动不再复现。
 
-### 5.13 节点右侧「+」点不开：不是 CSS，是弹层状态
+### 5.13 节点右侧「+」点不开：**click 冒泡把菜单立刻关掉了**（已修）
+**根因**：热区 `[data-canvas-plus-zone]` 的 `onClick` 没有 `stopPropagation()`，
+于是 `handleOpen → setMenu({target:"add"})` 之后，同一个 click 继续冒到画布，
+画布的点击处理器把菜单 `setMenu(null)` —— 表现就是「+ 点了没反应」。
+真机打点证据：`opening menu` 有日志、紧接着 `contextmenu-render` 的 `target` 是 `null`。
+修法：热区 click 里 `stopPropagation()` + `preventDefault()`。
+回归探针：`scripts/pw/plus-menu-probe.mjs`（干净工作区建节点 → 点热区 → 断言 7 项菜单展开）。
+
+以下是修复前的排查记录（供参考，避免重复查）：
+
 排查结论（真机取证，别再从头查一遍）：
 - `NodeHandleEntry` 确实渲染了：画布上 12 个 `[data-canvas-plus-zone]` 热区（84×84），
   `pointer-events: all`，父级 `.canvas-v3-source` 也是 `all` —— **§5.9 那次给手柄加

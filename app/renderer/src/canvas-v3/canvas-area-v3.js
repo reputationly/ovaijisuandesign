@@ -17960,6 +17960,10 @@ function CanvasV3NodeHandlesInner({
   );
   const handleZoneClick = reactExports.useCallback(
     (event) => {
+      // **必须拦住冒泡**：这个 click 会继续冒到画布，画布的点击处理器会立刻
+      // `setMenu(null)` 把刚打开的添加菜单关掉 —— 表现就是「+ 点了没反应」。
+      event.stopPropagation();
+      event.preventDefault();
       const rect = event.currentTarget.getBoundingClientRect();
       handleOpen({ screenX: rect.left + rect.width / 2, screenY: rect.top + rect.height / 2 });
     },
