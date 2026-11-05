@@ -20289,14 +20289,28 @@ const CanvasV3ContentNodeView = reactExports.memo(function CanvasV3ContentNodeVi
                             queued: task?.progress.phase === "queued"
                           }
                         ) : ready && mediaKind2 === "video" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                          // **双击打开全屏预览。** 成员卡的视频/音频没有走
+                          // `CanvasV3MediaNode`（那条有 onDoubleClick），之前它们**完全没有**
+                          // 预览入口 —— 图片能双击放大，视频/音频却不能。
                           /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            CanvasV3VideoPlayer,
+                            "div",
                             {
-                              src: data.imageUrl ?? "",
-                              active: data.mediaActive ?? true,
-                              interactionBlocked: data.disabled,
-                              onDownload: data.onDownloadMedia ? () => data.onDownloadMedia?.(id2) : void 0,
-                              onPosterSettled: reveal.release
+                              className: "h-full w-full",
+                              onDoubleClick: (event) => {
+                                event.stopPropagation();
+                                data.onPreviewImage?.(id2);
+                              },
+                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                CanvasV3VideoPlayer,
+                                {
+                                  src: data.imageUrl ?? "",
+                                  active: data.mediaActive ?? true,
+                                  interactionBlocked: data.disabled,
+                                  onFullscreen: () => data.onPreviewImage?.(id2),
+                                  onDownload: data.onDownloadMedia ? () => data.onDownloadMedia?.(id2) : void 0,
+                                  onPosterSettled: reveal.release
+                                }
+                              )
                             }
                           ),
                           revealWash(/* @__PURE__ */ jsxRuntimeExports.jsx(Smile, { size: 48 }))
@@ -20306,6 +20320,7 @@ const CanvasV3ContentNodeView = reactExports.memo(function CanvasV3ContentNodeVi
                             src: data.imageUrl ?? "",
                             active: (data.mediaActive ?? true) && !data.disabled,
                             fileName: label,
+                            onFullscreen: () => data.onPreviewImage?.(id2),
                             onDownload: data.onDownloadMedia ? () => data.onDownloadMedia?.(id2) : void 0
                           }
                         ) : ready && mediaKind2 === "image" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -23067,7 +23082,9 @@ const canvasV3PreviewReference = (item, source2) => item?.resourceId && item.ver
   ...source2.contentRevision === void 0 ? {} : { contentRevision: source2.contentRevision }
 } : void 0;
 function canvasV3CanPreview(view, source2, ref) {
-  if (!ref) return source2?.mediaKind === "image";
+  // 没带 ref（成员卡双击、节点放大按钮）时按**当前内容**判断，而不是只放行图片。
+  // 之前这里写死 `image`，于是视频/音频成员卡双击永远打不开全屏（图片能开、音视频不能）。
+  if (!ref) return ["image", "video", "audio"].includes(source2?.mediaKind ?? "");
   const item = view?.items.find((entry) => canvasV3ItemRefEqual(entry.ref, ref));
   if (!item) return source2?.mediaKind === "image";
   return item.state === "ready" && ["image", "video", "audio"].includes(item.kind ?? "");
