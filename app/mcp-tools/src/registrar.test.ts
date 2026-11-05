@@ -200,3 +200,35 @@ describe("宿主改写数组时的兜底", () => {
     expect(seen[0]?.capabilityId).toBeUndefined();
   });
 });
+
+describe("宿主改写数组（通用）", () => {
+  function setup2() {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool(
+      "capability_get",
+      { description: "capability_get", inputSchema: { ids: z.array(z.string()).min(1), note: z.string().optional() } },
+      async (args) => {
+        seen.push(JSON.parse(JSON.stringify(args)) as Record<string, unknown>);
+        return structuredReply({ ok: true });
+      },
+    );
+    return { h, seen };
+  }
+
+  it("{item: \"x\"} / {item: [...]} / 数字键对象 都能还原成数组", async () => {
+    const { h, seen } = setup2();
+    await h.call("capability_get", { ids: { item: "a" } });
+    expect(seen.at(-1)?.ids).toEqual(["a"]);
+    await h.call("capability_get", { ids: { item: ["a", "b"] } });
+    expect(seen.at(-1)?.ids).toEqual(["a", "b"]);
+    await h.call("capability_get", { ids: { "0": "a", "1": "b" } });
+    expect(seen.at(-1)?.ids).toEqual(["a", "b"]);
+  });
+
+  it("本来合法的数组不受影响", async () => {
+    const { h, seen } = setup2();
+    await h.call("capability_get", { ids: ["a", "b"], note: "keep" });
+    expect(seen.at(-1)).toMatchObject({ ids: ["a", "b"], note: "keep" });
+  });
+});

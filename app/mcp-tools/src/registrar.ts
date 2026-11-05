@@ -510,6 +510,29 @@ function unpackActionObject(shape: z.ZodRawShape, args: Record<string, unknown>)
   return { ...rest, ...args, [field]: key };
 }
 
+/**
+ * **通用数组修复**：schema 里声明为数组的字段，如果拿到的不是数组（宿主会把 `[… ]`
+ * 改写成 `{"item": …}` / 数字键对象 / 单个对象），用 `asArrayLike` 还原后再交给校验。
+ *
+ * 之前只给 `execute.output.resources` 做了这件事，于是 `capability_get` 的 `ids`
+ * 仍然被判 `Expected array, received object`，模型为此白转了 20 多步（真机日志可查）。
+ */
+function repairArrayFields(shape: z.ZodRawShape, args: Record<string, unknown>): Record<string, unknown> {
+  let out = args;
+  for (const key of Object.keys(shape)) {
+    const value = out[key];
+    if (value === undefined || Array.isArray(value)) continue;
+    const field = shape[key];
+    if (!field || typeof (field as { safeParse?: unknown }).safeParse !== "function") continue;
+    if (field.safeParse(value).success) continue;
+    const repaired = asArrayLike(value);
+    if (!repaired || !field.safeParse(repaired).success) continue;
+    if (out === args) out = { ...args };
+    out[key] = repaired;
+  }
+  return out;
+}
+
 function withAutoRequestId(shape: z.ZodRawShape, name: string) {
   const needsRequestId = Object.prototype.hasOwnProperty.call(shape, "requestId");
   const object = z.object(shape).passthrough();
@@ -573,6 +596,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
       delete next.documentType;
       args = next;
     }
+    args = repairArrayFields(shape, args);
     const unpacked = unpackActionObject(shape, args);
     const candidates = [
       args,
