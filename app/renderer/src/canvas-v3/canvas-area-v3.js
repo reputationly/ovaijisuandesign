@@ -1026,7 +1026,7 @@ class CanvasV3TableStorage {
       return createEmptyDocument();
     }
   }
-  save(input) {
+  async save(input) {
     const state = this.editor.getSnapshot();
     if (this.disposed || this.blocked() || this.pending || this.operation || state.busy || state.error)
       return Promise.reject(new Error("CANVAS_V3_TABLE_BUSY"));
@@ -1042,11 +1042,17 @@ class CanvasV3TableStorage {
     if (input.source && source2) {
       const entry = this.content.getSnapshot().get(source2.compositionId);
       const current = entry?.state === "ready" && entry.content.state === "ready" ? entry.content.resources[input.source.resourceId]?.currentVersionId : void 0;
+      const baseVersionId = current ?? input.source.versionId;
+      // **必须带 baseRevision**：文档已存在时网关要求 CAS（`DOCUMENT_REVISION_REQUIRED`），
+      // 以前这里漏了它，于是「改完 → 关闭」保存必 409、表格内容一个字都存不下来。
+      const [read2] = await this.readResources([{ resourceId: input.source.resourceId, versionId: baseVersionId }]).catch(() => []);
+      const baseRevision = read2?.ok ? read2.detail.version?.contentRevision ?? input.source.contentRevision ?? 1 : input.source.contentRevision ?? 1;
       request = {
         requestId,
         mode: "replace",
         resourceId: input.source.resourceId,
-        baseVersionId: current ?? input.source.versionId,
+        baseVersionId,
+        baseRevision,
         disposition: "adopted",
         content,
         format: "htable"

@@ -398,7 +398,26 @@ gh run view <id> --log-failed | tail -40
   最后都只有 1 个节点 `selected`，而 `canvasV3TidyPatch` 在 `targets.length < 2` 时按设计返回
   `patch: null`（单节点无从整理）。人工点两下即可确认。
 
-### 5.15 表格「编辑 → 关闭 → 保存」的验证边界
+### 5.15 表格「编辑 → 关闭 → 保存」：**缺 baseRevision 导致每次保存都 409**（已修）
+真机抓到的请求/响应：
+
+```
+POST /api/v3/document {"mode":"replace","resourceId":"res_…","baseVersionId":"ver_…","disposition":"adopted","content":…}
+→ 409 {"code":"DOCUMENT_REVISION_REQUIRED","message":"Read the document and provide its contentRevision as baseRevision before editing."}
+```
+
+渲染层 `CanvasV3TableStorage.save()` 的 replace 分支只带了 `baseVersionId`，**漏了 `baseRevision`**
+（文档编辑走 CAS，已存在的文档必须带它）。于是「表格改完 → 关闭」的保存每次都失败，
+表格内容一个字都存不下来 —— 这正是 §6.1 那条"还没真机走通"的真因。
+
+修法：保存前用 `readResources` 取该版本当前的 `contentRevision`，随请求带上
+（拿不到就退回 `input.source.contentRevision ?? 1`）。
+
+回归探针 `scripts/pw/table-save-probe.mjs`：建表 → 编辑器加一行 → 关闭 →
+断言出现 `replace + baseRevision` 的 200 写入、且磁盘上新版本 `.htable` 的 `rows > 0`。
+（单元格文字输入依赖编辑器内部 input，自动化点击不稳，探针只验结构回写。）
+
+### 5.15b 表格「编辑 → 关闭 → 保存」的早期验证边界（历史记录）
 - **保存链路本身已闭环**：新用例 `content-import.e2e.test.ts` 里先 `POST /api/v3/document`
   `mode:"replace"` + `baseVersionId` + `baseRevision` 带一行内容，再直接读工作区里的 .htable
   文件，断言写进去了。注意三个容易踩的契约点：
@@ -409,9 +428,7 @@ gh run view <id> --log-failed | tail -40
 - **渲染层的关闭即保存**逻辑经代码确认：`TableFullscreen` 的 `handleClose` 只有在
   `history.doc !== baselineDoc` 时才 `onClose(doc)`，上层 `onClose` 再调
   `tableStorage.save(...)` → 写文档。
-- **自动化没能完成最后一步**：表格全屏模态框对我的探针不响应（Esc、点 × 坐标、点模态内最后一个
-  按钮都没关掉），所以「真机点一遍」这条留人工确认。探针 `scripts/pw/table-save-probe.mjs`
-  已经能走到「建表 → 开编辑器 → 加行 → 单元格输入」，只差关闭动作。
+- **关闭动作**后来用「从模态框尾部往前逐个试按钮」跑通了（× 是倒数第二个），于是才抓到上面的 409。
 
 ### 5.14 legacy `canvas.e2e.test.ts` 的抖动：查清并修掉
 两条原因，都在测试侧、不是产品 bug：
