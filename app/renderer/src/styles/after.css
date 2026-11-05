@@ -1619,3 +1619,26 @@ html[data-hilo-gpu='disabled'] .skill-popover-skeleton {
 .chat-disclosure-swap:has(> .disclosure[data-phase="enter"], > .disclosure[data-phase="exit"]) { transition: height var(--disclosure-exit-duration) var(--disclosure-ease); }
 .chat-disclosure-swap[data-expanded="true"]:has(> .disclosure[data-phase]) { transition-duration: var(--disclosure-enter-duration); }
 .chat-disclosure-chevron, .chat-disclosure-height, .chat-disclosure-prompt, .chat-disclosure-swap:has(> .disclosure[data-phase]) { transition: none; }
+
+/* ── Canvas V3 connection handles ─────────────────────────────────────────── *
+ * 两边 ReactFlow 手柄是**零尺寸、透明**的锚点，可见的「+」入口是共用的
+ * `.node-handle-plus`（规则在 before.css）。少了这一段，手柄会套用 xyflow
+ * 默认主题（10×10 深色圆点 + 白边），表现为每个节点左右各多一个小黑点。
+ * 参照实现里这段是紧挨着 handle-lift 的；我们这边整块丢了，按参照原样补回。 */
+.canvas-v3 .canvas-v3-target,
+.canvas-v3 .canvas-v3-source {
+  width: 0;
+  height: 0;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  z-index: 20;
+}
+/* 只保留 source 侧的拖拽/点击命中，target 完全不吃事件。 */
+.canvas-v3 .canvas-v3-target { pointer-events: none; }
+/* 小文件卡片的锚点对齐 76px 卡片本身，而不是更高的单元格。 */
+.canvas-v3 .canvas-v3-node:has(> .canvas-v3-node-body > [data-canvas-v3-file-cell-card]) > :is(.canvas-v3-target, .canvas-v3-source) { top: 38px; }
