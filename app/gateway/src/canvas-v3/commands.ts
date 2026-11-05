@@ -265,7 +265,7 @@ async function importPatch(document: CanvasV3Document, command: CanvasV3ContentI
     let after: CanvasV3Node;
     if (before === null) {
       if (!item.placement) importUnavailable("Imported content needs a placement");
-      const sizes = IMPORT_SIZES[target.mediaKind] ?? IMPORT_SIZES.file ?? { width: 350, height: 200 };
+      const sizes = IMPORT_SIZES[target.mediaKind] ?? { width: 350, height: 200 };
       const compositionId = await content.contentComposition(`${keyPrefix}:${item.nodeId}`, item.resourceId, target, mounted);
       mounted.add(compositionId);
       after = {
@@ -289,22 +289,22 @@ async function importPatch(document: CanvasV3Document, command: CanvasV3ContentI
       after = compositionNode(before, compositionId, activeItem, item);
     } else if (before.kind === "composition") {
       // 组合已经存在：只切选中版本，内容必须本来就属于这个组合（`validatePatch` 会再核对一次）。
-      const rest = { ...before };
-      after = { ...rest, activeItem, ...(item.size ? { size: item.size } : {}) };
+      after = { ...before, activeItem, ...(item.size ? { size: item.size } : {}) };
     } else {
       importUnavailable("Import target must be a content node");
     }
     if (canvasV3Equal(before, after)) continue;
     nodes.push({ id: item.nodeId, before, after });
     for (const edge of item.edges ?? []) {
-      if (edgeIds.has(edge.id)) throw canvasV3Error(409, "CANVAS_V3_COMMAND_ID_REUSED", "Duplicate import edge");
+      if (edgeIds.has(edge.id)) throw invalidCanvasV3Command();
       if (!Object.hasOwn(document.nodes, edge.source) && !importing.has(edge.source)) importUnavailable("Import edge source is missing");
       edgeIds.add(edge.id);
-      if (Object.hasOwn(document.edges, edge.id)) throw canvasV3Error(409, "CANVAS_V3_COMMAND_ID_REUSED", "Import edge already exists");
+      if (Object.hasOwn(document.edges, edge.id)) throw invalidCanvasV3Command();
       edges.push({ id: edge.id, before: null, after: { id: edge.id, source: edge.source, target: item.nodeId } });
     }
   }
-  if (!nodes.length) throw canvasV3Error(409, "CANVAS_V3_COMMAND_ID_REUSED", "Nothing to import");
+  // 每一项都没改到东西：这类命令没有可落的结果（重放会先命中收据，走不到这里）。
+  if (!nodes.length) throw invalidCanvasV3Command();
   return { type: "canvas.patch", nodes, edges };
 }
 
