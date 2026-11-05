@@ -52,10 +52,13 @@ describe("音乐风格描述提升", () => {
     expect(bag.prompt).toBe("ignored");
   });
 
-  it("非音乐操作不提升", () => {
-    const bag: Record<string, unknown> = { prompt: "x" };
-    const { prompt } = promoteMusicStylePromptForTest("generate_image", undefined, bag);
-    expect(prompt).toBeUndefined();
-    expect(bag.prompt).toBe("x");
+  it("生图/生视频也提升 —— 模型常把提示词写在 params.prompt，顶层空着会被平台拒", () => {
+    const imageBag: Record<string, unknown> = { prompt: "cinematic portrait of Claire", size: "3:2" };
+    expect(promoteMusicStylePromptForTest("generate_image", undefined, imageBag).prompt).toBe("cinematic portrait of Claire");
+    expect(imageBag.prompt).toBeUndefined();
+    expect(imageBag.size).toBe("3:2");
+
+    const videoBag: Record<string, unknown> = { prompt: "red wagon on a desert road" };
+    expect(promoteMusicStylePromptForTest("generate_video", "", videoBag).prompt).toBe("red wagon on a desert road");
   });
 });

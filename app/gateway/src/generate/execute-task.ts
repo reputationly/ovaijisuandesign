@@ -275,8 +275,8 @@ function optionalText(value: unknown, field: string, maximum: number): string | 
 export const referencePathsForTest = referencePaths;
 
 /**
- * 音乐风格描述提升（抽成函数便于用例覆盖）：顶层 prompt 为空且是音乐操作时，
- * 用 `params.prompt` 顶上，并把该键从 params 里删掉（避免下游两处都发）。
+ * 提示词提升（抽成函数便于用例覆盖）：顶层 prompt 为空时用 `params.prompt` 顶上，
+ * 并把该键从 params 里删掉（避免下游两处都发）。原先只对音乐生效。
  */
 export function promoteMusicStylePrompt(
   operation: string,
@@ -284,8 +284,11 @@ export function promoteMusicStylePrompt(
   params: Record<string, unknown>,
 ): { prompt: string | undefined } {
   const style = typeof params.prompt === "string" ? params.prompt : "";
-  if (topPrompt !== undefined) return { prompt: topPrompt };
-  if (operation !== "generate_music" || !style.trim()) return { prompt: undefined };
+  // 空串/全空白也当作"没有"：`body.prompt: ""` 同样会被平台判缺提示词。
+  if (topPrompt !== undefined && topPrompt.trim() !== "") return { prompt: topPrompt };
+  // **所有生成操作都适用**：模型经常把提示词写在 `params.prompt` 里（图片/视频尤其常见），
+  // 顶层空着就被平台判 `prompt is required`。以前只救了音乐，于是生图/生视频反复白拒。
+  if (!style.trim()) return { prompt: undefined };
   delete params.prompt;
   return { prompt: style };
 }
