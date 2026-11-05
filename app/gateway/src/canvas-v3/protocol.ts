@@ -80,6 +80,21 @@ export interface CanvasV3ImportItem {
   size?: CanvasV3Size;
   edges?: CanvasV3ImportEdgeRef[];
 }
+/** 在节点上发起生成：把节点改成"待生成"的组合，任务由渲染层随后提交。 */
+export interface CanvasV3GenerationCreate extends CanvasV3ImportPlacement {
+  expectedKind: "image" | "video" | "audio";
+  edges?: CanvasV3ImportEdgeRef[];
+}
+export interface CanvasV3GenerationStart {
+  type: "generation.start";
+  nodeId: string;
+  draft: Record<string, unknown> | null;
+  create?: CanvasV3GenerationCreate;
+  subjectResource?: { resourceId: string; versionId: string };
+  outputCompositionId?: string;
+  historyRequest?: { requestId: string; outputKey: string };
+}
+
 /** 剪贴板快照：一整份子文档 + 每个组合的内容（成员与条目）。 */
 export interface CanvasV3ClipboardItem {
   ref: { type: "version"; resourceId: string; versionId: string };
@@ -582,6 +597,33 @@ function parseClipboardContent(value: unknown): CanvasV3ClipboardContent {
   };
 }
 
+export function parseCanvasV3GenerationStart(value: unknown): CanvasV3GenerationStart {
+  const raw = shape(value, ["type", "nodeId", "draft"], ["create", "subjectResource", "outputCompositionId", "historyRequest"]);
+  if (raw.type !== "generation.start") fail("unsupported command");
+  const result: CanvasV3GenerationStart = {
+    type: "generation.start",
+    nodeId: id(raw.nodeId),
+    draft: raw.draft === null ? null : parseGenerationDraft(raw.draft),
+  };
+  if (Object.hasOwn(raw, "outputCompositionId")) result.outputCompositionId = id(raw.outputCompositionId);
+  if (Object.hasOwn(raw, "historyRequest")) result.historyRequest = parsePendingGeneration(raw.historyRequest);
+  if (Object.hasOwn(raw, "subjectResource")) {
+    const target = exact(raw.subjectResource, ["resourceId", "versionId"]);
+    result.subjectResource = { resourceId: id(target.resourceId), versionId: id(target.versionId) };
+  }
+  if (Object.hasOwn(raw, "create")) {
+    const create = object(raw.create);
+    const { expectedKind, edges, ...rest } = create;
+    if (expectedKind !== "image" && expectedKind !== "video" && expectedKind !== "audio") fail("invalid create kind");
+    result.create = {
+      ...parseImportPlacement(rest),
+      expectedKind,
+      ...(edges === undefined ? {} : { edges: parseImportEdges(edges) }),
+    };
+  }
+  return result;
+}
+
 export function parseCanvasV3ClipboardSnapshot(value: unknown): CanvasV3ClipboardSnapshot {
   const raw = exact(value, ["type", "workspaceId", "document", "content"]);
   if (raw.type !== "canvas-v3.clipboard") fail("invalid clipboard type");
@@ -754,7 +796,7 @@ export function invertCanvasV3Patch(patch: CanvasV3Patch): CanvasV3Patch {
   return { type: "canvas.patch", nodes: parsed.nodes.map(invert), edges: parsed.edges.map(invert) };
 }
 
-export type CanvasV3Command = CanvasV3Patch | CanvasV3ContentImport | CanvasV3ClipboardPaste | { type: "canvas.batch"; commands: CanvasV3Command[] };
+export type CanvasV3Command = CanvasV3Patch | CanvasV3ContentImport | CanvasV3ClipboardPaste | CanvasV3GenerationStart | { type: "canvas.batch"; commands: CanvasV3Command[] };
 
 export interface CanvasV3CommandRequest {
   commandId: string;
@@ -767,6 +809,7 @@ function parseCommand(value: unknown, nested = false): CanvasV3Command {
   if (raw.type === "canvas.patch") return parseCanvasV3Patch(raw);
   if (raw.type === "content.import") return parseCanvasV3ContentImport(raw);
   if (raw.type === "clipboard.paste") return parseCanvasV3ClipboardPaste(raw);
+  if (raw.type === "generation.start") return parseCanvasV3GenerationStart(raw);
   if (raw.type === "canvas.batch") {
     if (nested) fail("nested batch");
     const parsed = exact(raw, ["type", "commands"]);

@@ -338,7 +338,13 @@ gh run view <id> --log-failed | tail -40
 5. PPT 后续：`export_slides` 现在只支持"一图一页"，若要排版/文字页/多图网格，扩展 `pptx.ts` 的 `slideXml`；
 6. ~~补查 CI~~ —— 已查，结论见 §4.5（`363aa7bd` 是 Windows 端口假失败）；
 7. ~~复制粘贴坏~~ —— 已修（`clipboard.paste` 网关实现 + 3 条 e2e，真机 `Cmd+C`/`Cmd+V` 出两个独立组合、无 400）；
-8. **【最大缺口·已实测确认】画布内点「生成」= `generation.start`，网关不认 → 400**，生成根本没提交给平台。
+8. **~~画布内点「生成」400~~ → 命令已实现（第一段）**：网关现在接 `generation.start`，
+   把节点改成组合 + 写入 `draft` / `pendingGeneration`（同组合出图走 `outputCompositionId`，
+   `create` 时连节点带边建出来）。真机实测：点生成 → `200 POST /api/v3/canvas/commands`
+   + `200 /api/v3/canvas/content`，节点变成 `composition` 且带 `pendingGeneration`，不再 400、无 toast。
+   **剩下的**：真实提交与回填没验（探针里账号是「未连接」，本来也提交不了，正好零花费）；
+   要验得在已登录、有额度的会话里点一次真实生成，确认产物能落进这个组合。
+   `subjectResource`（主体内出图）目前只解析不落状态。
    证据：`canvas-area-v3.js:9362` 用 `editor.createRequest(command)` 造请求、第 9430 行 `executeRequest(...)` 发出去；
    真机点 `popover.submit`（↑）后只看到 `400 POST /api/v3/canvas/commands`，**没有**任何 `/api/v3/execute`（探针把该路由 abort 了做双保险，一次都没触发）。
    含义：agent/聊天那条生成链路是好的（§2.2 验过），但**画布节点上的生成按钮全不可用**（图片/视频/音频）。

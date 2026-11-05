@@ -6,6 +6,7 @@ import {
   type CanvasV3ClipboardPaste,
   type CanvasV3Command,
   type CanvasV3ContentImport,
+  type CanvasV3GenerationStart,
   type CanvasV3Document,
   type CanvasV3Edge,
   type CanvasV3ImportItem,
@@ -366,6 +367,55 @@ async function pastePatch(document: CanvasV3Document, command: CanvasV3Clipboard
   return { type: "canvas.patch", nodes, edges };
 }
 
+/**
+ * `generation.start` 只负责把画布改成"待生成"：节点变成组合、记下 draft 与 pendingGeneration。
+ * 真正的任务提交由渲染层在收到收据后自己做（`executeRequest` 之后才提交），网关不调平台。
+ */
+async function generationPatch(document: CanvasV3Document, command: CanvasV3GenerationStart, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Patch> {
+  const before = Object.hasOwn(document.nodes, command.nodeId) ? (document.nodes[command.nodeId] ?? null) : null;
+  if (before === null && !command.create) importUnavailable("Generation needs an existing node or a create block");
+  if (before !== null && before.kind !== "placeholder" && before.kind !== "composition") importUnavailable("Generation target must be a content node");
+  const kind = command.create?.expectedKind ?? (before?.kind === "placeholder" ? String(before.expectedKind) : String(before?.kind ?? "image"));
+  const compositionId = before?.kind === "composition" && typeof before.compositionId === "string"
+    ? before.compositionId
+    : await content.generationComposition(`${keyPrefix}:${command.nodeId}`, kind);
+  const pending = command.historyRequest ? { pendingGeneration: command.historyRequest } : {};
+  let after: CanvasV3Node;
+  if (before?.kind === "composition") {
+    // 组合节点：保留组合与容器信息，只刷新 draft / 生成态。
+    after = { ...before, draft: command.draft, ...pending };
+    if (command.outputCompositionId !== undefined && command.outputCompositionId !== before.compositionId) {
+      importUnavailable("Generation output belongs to another composition");
+    }
+  } else {
+    const placement = before ?? command.create;
+    if (!placement) throw invalidCanvasV3Command();
+    after = {
+      id: command.nodeId,
+      parentId: "parentId" in placement ? placement.parentId : null,
+      position: placement.position,
+      size: "size" in placement ? placement.size : { width: 350, height: 350 },
+      zIndex: "zIndex" in placement ? placement.zIndex : 0,
+      hidden: before?.hidden ?? false,
+      kind: "composition",
+      compositionId,
+      activeItem: null,
+      draft: command.draft,
+      ...pending,
+      ...(before?.presentation === "panorama" ? { presentation: "panorama" } : {}),
+    };
+  }
+  const nodes: CanvasV3Patch["nodes"] = canvasV3Equal(before, after) ? [] : [{ id: command.nodeId, before, after }];
+  const edges: CanvasV3Patch["edges"] = [];
+  for (const edge of command.create?.edges ?? []) {
+    if (Object.hasOwn(document.edges, edge.id) || Object.hasOwn(document.nodes, edge.id)) throw invalidCanvasV3Command();
+    if (!Object.hasOwn(document.nodes, edge.source) && edge.source !== command.nodeId) importUnavailable("Generation edge source is missing");
+    edges.push({ id: edge.id, before: null, after: { id: edge.id, source: edge.source, target: command.nodeId } });
+  }
+  if (!nodes.length && !edges.length) throw invalidCanvasV3Command();
+  return { type: "canvas.patch", nodes, edges };
+}
+
 async function runPatch(document: CanvasV3Document, command: CanvasV3Patch, content: CanvasV3ContentService, sources: EditorSourceFiles): Promise<CanvasV3Effect> {
   let patch: CanvasV3Patch;
   try {
@@ -390,9 +440,10 @@ async function runPatch(document: CanvasV3Document, command: CanvasV3Patch, cont
 }
 
 /** 一条命令（可能是批量里的第几条）落到画布上要改什么。导入先翻译成补丁，其余直接用。 */
-async function patchOf(document: CanvasV3Document, command: CanvasV3Patch | CanvasV3ContentImport | CanvasV3ClipboardPaste, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Patch> {
+async function patchOf(document: CanvasV3Document, command: CanvasV3Patch | CanvasV3ContentImport | CanvasV3ClipboardPaste | CanvasV3GenerationStart, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Patch> {
   if (command.type === "content.import") return importPatch(document, command, content, keyPrefix);
   if (command.type === "clipboard.paste") return pastePatch(document, command, content, keyPrefix);
+  if (command.type === "generation.start") return generationPatch(document, command, content, keyPrefix);
   return command;
 }
 

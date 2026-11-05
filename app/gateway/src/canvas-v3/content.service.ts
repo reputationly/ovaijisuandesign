@@ -137,6 +137,22 @@ export class CanvasV3ContentService {
   }
 
   /**
+   * 生成前要有一个空组合：节点先变成组合、进入"生成中"，产物由渲染层随后落进这个组合。
+   * `commandId` 参与派生，重放同一条命令拿到同一个组合。
+   */
+  async generationComposition(commandId: string, kind: string): Promise<string> {
+    const label = COMPOSITION_LABELS[kind] ?? COMPOSITION_LABELS.file ?? "画布内容";
+    const compositionId = projectId("composition", commandId);
+    const receipt = (await this.compositions.ensureAgent(commandId, {
+      label,
+      // 名字带上组合 id：显示时后缀会被 compositionTitle 剥掉，又不会和已有组合撞名。
+      name: `${label} · ${compositionId}`,
+    })) as { compositionId?: string };
+    if (typeof receipt.compositionId !== "string" || !receipt.compositionId) throw importUnavailable();
+    return receipt.compositionId;
+  }
+
+  /**
    * 粘贴出来的组合：内容照抄剪贴板快照，但组合本身是新的。
    * 成员指向同一批资源（粘贴不复制文件）；跨项目时按 `sources` 换成对端的资源/版本。
    */
