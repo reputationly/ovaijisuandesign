@@ -319,6 +319,34 @@ gh run view <id> --log-failed | tail -40
 
 ---
 
+### 5.10 宿主会把工具调用的**数组参数改写成对象**，而且一层套一层
+真机上 agent 发的参数到了 MCP 服务端会变成这样（会话记录可查）：
+
+```
+design_execute references  = {"item": {"kind": "image", "versionId": "ver_…"}}
+design_capability_get ids  = {"item": ["a", "b"]}  /  {"item": "a"}  /  {"0": "a"}
+design_execute output.resources = {"item": [ … ]}
+```
+
+不还原就直接报 `MCP error -32602 … Expected array, received object at …`，
+模型会以为"工具坏了"，于是**连续 20 多步**在原地试各种写法（真机日志里就是这样）。
+本轮为此补了三层，缺一层都会复发：
+
+1. `args-normalize.asArrayLike()`：`{item}` / `{items}` / `{value}` / 数字键 / 单对象 / JSON 字符串 → 数组；
+2. `registrar.repairArrayFields()`：**按 schema 通用修**（凡是数组字段还原后能过校验就还原），
+   这样 `ids` / `references` / `items` / `outputs` 全都覆盖，不用一个个补；
+3. `execute` 专用的 `output.resources` / `composition.placements`、`references` 就地解壳 + 收敛。
+
+### 5.11 `params.prompt` 必须提升到顶层（不只是音乐）
+平台只认顶层 `prompt`。模型经常写成 `params: {prompt: "…", size: "3:2"}`，
+于是 `PROVIDER_REJECTED: prompt is required`，任务白建一条。
+`promoteMusicStylePrompt` 现在对所有生成操作生效（含空串/全空白视为没有）。
+
+### 5.12 参考生视频（r2va）没参考图会被平台拒
+`generate_video:minimax-h3-ref-2k` 属参考生视频，平台要求 ≥1 张参考图
+（`metadata.src_ref_images`）。参考图丢失的根因常是 §5.10 的解壳失败——
+表现为 `r2va(参考生视频) 需要至少 1 张参考图`，看着像"模型选错了"，其实是引用被吃掉了。
+
 ### 5.8 探针里 `dispatchEvent('dblclick')` 只能向上冒泡
 节点双击处理器挂在**内部**元素上（表格是 `[data-action-ui-id="canvas-v3.table-preview"]` 的 `onDoubleClick`）。
 把事件打在 `.react-flow__node` 外层，它只会往上冒泡，处理函数永远不触发 —— 表现成"双击没反应"，
