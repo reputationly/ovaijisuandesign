@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -219,5 +220,30 @@ describe("v3 画布导入内容", () => {
     });
     expect(badShape.status).toBe(400);
     expect(badShape.body.code).toBe("CANVAS_V3_INVALID_COMMAND");
+  });
+
+  it("表格保存回写：update 带新行 → 磁盘 .htable 里就有这一行", async () => {
+    const table = await writeTable("table-save-doc", "回写.htable");
+    // writeTable 返回 {resourceId, versionId}，没有再单独读文档；首次保存用 baseRevision=1。
+    const withRow = JSON.parse(HTABLE);
+    withRow.rows = [{ id: "row_1", cells: { [withRow.columns[0].id]: "回写验证" } }];
+    const saved = await http.post("/api/v3/document").send({
+      requestId: "table-save-update",
+      mode: "replace",
+      resourceId: table.resourceId,
+      baseVersionId: table.versionId,
+      baseRevision: 1,
+      name: "回写.htable",
+      content: JSON.stringify(withRow),
+    });
+    if (saved.status >= 300) console.log("SAVE 失败:", saved.status, JSON.stringify(saved.body).slice(0, 400));
+    expect(saved.status).toBeLessThan(300);
+    const onDisk = execFileSync("python3", ["-c", `
+import sqlite3, sys
+db = sqlite3.connect("file:" + sys.argv[1] + "/.hilo/index.sqlite?mode=ro", uri=True)
+row = db.execute("select v.relative_path from resources r join resource_versions v on v.resource_id=r.resource_id where r.resource_id=? order by v.created_at desc limit 1", (sys.argv[2],)).fetchone()
+print(open(sys.argv[1] + "/" + row[0], encoding="utf-8").read())
+`, ws, table.resourceId], { encoding: "utf8" });
+    expect(onDisk).toContain("回写验证");
   });
 });

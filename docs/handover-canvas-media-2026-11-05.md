@@ -371,6 +371,21 @@ gh run view <id> --log-failed | tail -40
 
 ---
 
+### 5.15 表格「编辑 → 关闭 → 保存」的验证边界
+- **保存链路本身已闭环**：新用例 `content-import.e2e.test.ts` 里先 `POST /api/v3/document`
+  `mode:"replace"` + `baseVersionId` + `baseRevision` 带一行内容，再直接读工作区里的 .htable
+  文件，断言写进去了。注意三个容易踩的契约点：
+  - 文档写**不认** `versionId`（422 UNSUPPORTED_FIELD），要 `baseVersionId`；
+  - `mode` 只接受 `create / replace / patch`（不是 update）；
+  - `replace` 必须带 `baseRevision` = 文档的 `contentRevision`，否则 409 `DOCUMENT_REVISION_REQUIRED`；
+  - 读文档走 `GET /api/files/content?path=…`（不是 `/api/v3/document`）。
+- **渲染层的关闭即保存**逻辑经代码确认：`TableFullscreen` 的 `handleClose` 只有在
+  `history.doc !== baselineDoc` 时才 `onClose(doc)`，上层 `onClose` 再调
+  `tableStorage.save(...)` → 写文档。
+- **自动化没能完成最后一步**：表格全屏模态框对我的探针不响应（Esc、点 × 坐标、点模态内最后一个
+  按钮都没关掉），所以「真机点一遍」这条留人工确认。探针 `scripts/pw/table-save-probe.mjs`
+  已经能走到「建表 → 开编辑器 → 加行 → 单元格输入」，只差关闭动作。
+
 ### 5.14 legacy `canvas.e2e.test.ts` 的抖动：查清并修掉
 两条原因，都在测试侧、不是产品 bug：
 1. **事件断言依赖到达顺序**：原来自增用例直接断 `events.at(-1)` 是 `canvas_updated`，

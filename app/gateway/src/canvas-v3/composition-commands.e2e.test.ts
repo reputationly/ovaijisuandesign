@@ -204,7 +204,7 @@ describe("v3 画布组合级命令", () => {
     });
     expect(removed.status).toBe(200);
     expect((await members(compositionId)).map((m) => m.memberId)).toEqual([`mem-b-${tag}`]);
-    expect((removed.body.document.nodes[nodeId].subjectLayout as { sections: { resources: string[] }[] }).sections[0].resources).not.toContain(a.resourceId);
+    expect((removed.body.document.nodes[nodeId].subjectLayout as { sections: { resources: string[] }[] }).sections[0]!.resources).not.toContain(a.resourceId);
 
     const restored = await send(`cmd-restore-mem-${tag}`, removed.body.document.revision, {
       type: "subject.restore-members",
@@ -215,7 +215,7 @@ describe("v3 画布组合级命令", () => {
     const back = await members(compositionId);
     expect(back.map((m) => m.memberId)).toContain(`mem-a-${tag}`);
     expect(back.find((m) => m.memberId === `mem-a-${tag}`)?.role).toBe("表A");
-    expect((restored.body.document.nodes[nodeId].subjectLayout as { sections: { resources: string[] }[] }).sections[0].resources).toContain(a.resourceId);
+    expect((restored.body.document.nodes[nodeId].subjectLayout as { sections: { resources: string[] }[] }).sections[0]!.resources).toContain(a.resourceId);
   });
 
   it("subject.transfer-members move：成员从源主体搬到目标主体，两边布局都更新", async () => {
@@ -233,7 +233,7 @@ describe("v3 画布组合级命令", () => {
     expect((await members(source.compositionId)).map((m) => m.memberId)).not.toContain(`mem-a-${source.tag}`);
     const targetMembers = await members(target.compositionId);
     expect(targetMembers.map((m) => m.resource)).toContain(source.a.resourceId);
-    expect((transferred.body.document.nodes[target.nodeId].subjectLayout as { sections: { resources: string[] }[] }).sections[0].resources).toContain(source.a.resourceId);
+    expect((transferred.body.document.nodes[target.nodeId].subjectLayout as { sections: { resources: string[] }[] }).sections[0]!.resources).toContain(source.a.resourceId);
     expect(transferred.body.effects.compositionIds).toEqual(expect.arrayContaining([source.compositionId, target.compositionId]));
   });
 
@@ -258,5 +258,34 @@ describe("v3 画布组合级命令", () => {
     const node = delivered.body.document.nodes["clip-node"];
     expect(node).toMatchObject({ kind: "composition", activeItem: { type: "version", resourceId: clip.resourceId, versionId: clip.versionId } });
     expect(node.compositionId).toMatch(/^cmp_/);
+  });
+
+  it("真实导入的表节点：从投影拿到的 memberId 能直接改名", async () => {
+    const doc = await http.post("/api/v3/document").send({ requestId: "cmd-real-doc", mode: "create", format: "htable", name: "真实表.htable", content: HTABLE });
+    const resource = doc.body.resource as { resourceId: string; versionId: string };
+    const base = await http.get("/api/v3/canvas");
+    const imported = await send("cmd-real-import", base.body.revision, {
+      type: "content.import",
+      items: [{
+        nodeId: "real-table-node",
+        placement: { parentId: null, position: { x: 0, y: 0 }, size: { width: 350, height: 200 }, zIndex: 1 },
+        resourceId: resource.resourceId,
+        versionId: resource.versionId,
+      }],
+    });
+    if (imported.status !== 200) console.log("IMPORT 失败:", imported.status, JSON.stringify(imported.body).slice(0, 300));
+    expect(imported.status).toBe(200);
+    const node = imported.body.document.nodes["real-table-node"];
+    const compositionId = node.compositionId as string;
+    const projected = await http.post("/api/v3/canvas/content").send({ compositionIds: [compositionId] });
+    const memberId = projected.body.items[0].members[0].memberId as string;
+    const renamed = await send("cmd-real-rename", imported.body.document.revision, {
+      type: "subject.rename-member",
+      nodeId: "real-table-node",
+      memberId,
+      title: "改名后的表",
+    });
+    if (renamed.status !== 200) console.log("RENAME 失败:", renamed.status, JSON.stringify(renamed.body).slice(0, 300), "memberId:", memberId);
+    expect(renamed.status).toBe(200);
   });
 });

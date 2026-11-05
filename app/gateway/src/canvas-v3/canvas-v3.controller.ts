@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Header, HttpCode, HttpException, Injectable, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Header, HttpCode, HttpException, Injectable, Logger, Post, Query } from "@nestjs/common";
 import path from "node:path";
 
 import { EditorSourceFiles } from "../editor-v3/source-files.js";
@@ -12,6 +12,7 @@ import { WorkspaceProjectArchitectureService } from "./workspace-project-archite
 
 @Injectable()
 export class CanvasV3Service {
+  private static readonly logger = new Logger("CanvasV3Service");
   /** 启动时绑住的工作区。之后改环境变量不能把请求指到另一份目录。 */
   private readonly workspace = process.env.HILO_GATEWAY_ROLE === "workspace" && process.env.WORKSPACE_DIR ? path.resolve(process.env.WORKSPACE_DIR) : undefined;
   private readonly writes = new Map<string, Promise<void>>();
@@ -88,7 +89,10 @@ export class CanvasV3Service {
           return this.store.execute(workspace, request, patch, effects);
         });
       } catch (error) {
+        // 非 HTTP 异常以前被无声吞成通用 400，线上排查只能靠猜。
+        // 这里把真实原因写进日志（不返回给客户端，避免泄露内部结构）。
         if (error instanceof HttpException) throw error;
+        CanvasV3Service.logger.error(`canvas command failed: ${String((error as Error)?.message ?? error)}`, (error as Error)?.stack);
         throw invalidCanvasV3Command();
       } finally {
         journal.close();
