@@ -392,7 +392,11 @@ gh run view <id> --log-failed | tail -40
 - `matchesReferenceSelectionDuration(actual, draft)` 以前恒 `false`（永远判"时长不匹配"，
   参考片段一律要求重取）。现在按 `getCropOutputDuration(draft.range)`（= 选区时长 - 尾帧余量）
   与实际素材 `duration` 比较，容差取 `max(2/30s, 1%)`（编码器把时长量化到帧）。
-- 渲染层已重建；`整理` 的真机点击这轮没跑完（探针在点侧栏时挂住），下一轮补验。
+- 渲染层已重建。真机验证（`scripts/pw/tidy-probe.mjs`）：整理控件的菜单能正常打开
+  （`canvas.toolbar-tidy-menu` → 按名称/按时间/宫格/水平/垂直都在），但**重排本身还没观察到** ——
+  原因不是功能坏，而是自动化**选不中多个节点**：Cmd+A、Shift+点、Meta+点、框选拖拽四种方式
+  最后都只有 1 个节点 `selected`，而 `canvasV3TidyPatch` 在 `targets.length < 2` 时按设计返回
+  `patch: null`（单节点无从整理）。人工点两下即可确认。
 
 ### 5.15 表格「编辑 → 关闭 → 保存」的验证边界
 - **保存链路本身已闭环**：新用例 `content-import.e2e.test.ts` 里先 `POST /api/v3/document`
