@@ -80,6 +80,41 @@ export interface CanvasV3ImportItem {
   size?: CanvasV3Size;
   edges?: CanvasV3ImportEdgeRef[];
 }
+/** 组合级命令：只改组合（成员/类型/顺序），不改画布文档。 */
+export interface CanvasV3CompositionNodeCommand {
+  type: "composition.set-type" | "composition.move";
+  nodeId: string;
+  typeId?: string | null;
+  fromTypeId?: string | null;
+  fromPosition?: number | null;
+  position?: number;
+  placement?: { before: string } | { after: string };
+}
+export interface CanvasV3SubjectMemberCommand {
+  type: "subject.rename-member" | "subject.move-member" | "subject.add-members" | "subject.remove-members";
+  nodeId: string;
+  memberId?: string;
+  title?: string;
+  beforeMemberId?: string | null;
+  fromBeforeMemberId?: string | null;
+  items?: { memberId?: string; resourceId: string; versionId: string; role?: string }[];
+}
+export interface CanvasV3SubjectLayoutCommand {
+  type: "subject.layout";
+  nodeId: string;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+}
+export interface CanvasV3CompositionDelete {
+  type: "composition.delete";
+  nodeIds: string[];
+}
+export interface CanvasV3CompositionRestore {
+  type: "composition.restore";
+  items: { compositionId: string; revision: number }[];
+  patch: CanvasV3Patch;
+}
+
 /** 在节点上发起生成：把节点改成"待生成"的组合，任务由渲染层随后提交。 */
 export interface CanvasV3GenerationCreate extends CanvasV3ImportPlacement {
   expectedKind: "image" | "video" | "audio";
@@ -597,6 +632,117 @@ function parseClipboardContent(value: unknown): CanvasV3ClipboardContent {
   };
 }
 
+function parseCompositionNodeCommand(value: unknown): CanvasV3CompositionNodeCommand {
+  const raw = object(value);
+  if (raw.type === "composition.set-type") {
+    const parsed = exact(raw, ["type", "nodeId", "typeId", "fromTypeId"]);
+    const typeId = parsed.typeId === null ? null : id(parsed.typeId);
+    const fromTypeId = parsed.fromTypeId === null ? null : id(parsed.fromTypeId);
+    if (typeId === fromTypeId) fail("type unchanged");
+    return { type: "composition.set-type", nodeId: id(parsed.nodeId), typeId, fromTypeId };
+  }
+  if (raw.type === "composition.move") {
+    const parsed = shape(raw, ["type", "nodeId", "fromPosition"], ["placement", "position"]);
+    const hasPlacement = Object.hasOwn(parsed, "placement");
+    const hasPosition = Object.hasOwn(parsed, "position");
+    if (hasPlacement === hasPosition) fail("move needs exactly one of placement or position");
+    const result: CanvasV3CompositionNodeCommand = {
+      type: "composition.move",
+      nodeId: id(parsed.nodeId),
+      fromPosition: parsed.fromPosition === null ? null : integer(parsed.fromPosition),
+    };
+    if (hasPlacement) {
+      const placement = object(parsed.placement);
+      const hasBefore = Object.hasOwn(placement, "before");
+      const hasAfter = Object.hasOwn(placement, "after");
+      if (hasBefore === hasAfter) fail("invalid placement");
+      result.placement = hasBefore ? { before: id(placement.before) } : { after: id(placement.after) };
+    } else {
+      result.position = integer(parsed.position, true);
+    }
+    return result;
+  }
+  return fail("unsupported command");
+}
+
+function parseSubjectMemberCommand(value: unknown): CanvasV3SubjectMemberCommand {
+  const raw = object(value);
+  if (raw.type === "subject.rename-member") {
+    const parsed = exact(raw, ["type", "nodeId", "memberId", "title"]);
+    const title = text(parsed.title, CANVAS_V3_LIMITS.titleLength);
+    if (title !== "" && !title.trim()) fail("empty title");
+    return { type: "subject.rename-member", nodeId: id(parsed.nodeId), memberId: id(parsed.memberId), title };
+  }
+  if (raw.type === "subject.move-member") {
+    const parsed = exact(raw, ["type", "nodeId", "memberId", "beforeMemberId", "fromBeforeMemberId"]);
+    const memberId = id(parsed.memberId);
+    const beforeMemberId = parsed.beforeMemberId === null ? null : id(parsed.beforeMemberId);
+    const fromBeforeMemberId = parsed.fromBeforeMemberId === null ? null : id(parsed.fromBeforeMemberId);
+    if (beforeMemberId === memberId || fromBeforeMemberId === memberId) fail("self move");
+    return { type: "subject.move-member", nodeId: id(parsed.nodeId), memberId, beforeMemberId, fromBeforeMemberId };
+  }
+  if (raw.type === "subject.add-members") {
+    const parsed = exact(raw, ["type", "nodeId", "items"]);
+    const items = array(parsed.items, CANVAS_V3_LIMITS.importItems).map((entry) => {
+      const item = exact(entry, ["resourceId", "versionId"]);
+      return { resourceId: id(item.resourceId), versionId: id(item.versionId) };
+    });
+    if (!items.length) fail("empty subject members");
+    return { type: "subject.add-members", nodeId: id(parsed.nodeId), items };
+  }
+  if (raw.type === "subject.remove-members") {
+    const parsed = exact(raw, ["type", "nodeId", "items"]);
+    const seen = new Set<string>();
+    const items = array(parsed.items, CANVAS_V3_LIMITS.importItems).map((entry) => {
+      const item = shape(entry, ["memberId", "resourceId", "versionId"], ["role"]);
+      const memberId = id(item.memberId);
+      if (seen.has(memberId)) fail("duplicate subject member");
+      seen.add(memberId);
+      return {
+        memberId,
+        resourceId: id(item.resourceId),
+        versionId: id(item.versionId),
+        ...(item.role === undefined ? {} : { role: text(item.role, CANVAS_V3_LIMITS.titleLength) }),
+      };
+    });
+    if (!items.length) fail("empty subject members");
+    return { type: "subject.remove-members", nodeId: id(parsed.nodeId), items };
+  }
+  return fail("unsupported command");
+}
+
+export function parseCanvasV3SubjectLayoutCommand(value: unknown): CanvasV3SubjectLayoutCommand {
+  const parsed = exact(value, ["type", "nodeId", "before", "after"]);
+  if (parsed.type !== "subject.layout") fail("unsupported command");
+  return {
+    type: "subject.layout",
+    nodeId: id(parsed.nodeId),
+    before: parsed.before === null ? null : parseSubjectLayout(parsed.before),
+    after: parsed.after === null ? null : parseSubjectLayout(parsed.after),
+  };
+}
+
+function parseCompositionDelete(value: unknown): CanvasV3CompositionDelete {
+  const parsed = exact(value, ["type", "nodeIds"]);
+  const nodeIds = [...new Set(array(parsed.nodeIds, CANVAS_V3_LIMITS.nodes).map(id))];
+  if (!nodeIds.length) fail("empty composition deletion");
+  return { type: "composition.delete", nodeIds };
+}
+
+function parseCompositionRestore(value: unknown): CanvasV3CompositionRestore {
+  const parsed = exact(value, ["type", "items", "patch"]);
+  const seen = new Set<string>();
+  const items = array(parsed.items, CANVAS_V3_LIMITS.nodes).map((entry) => {
+    const item = exact(entry, ["compositionId", "revision"]);
+    const compositionId = id(item.compositionId);
+    if (seen.has(compositionId)) fail("invalid composition restoration");
+    seen.add(compositionId);
+    return { compositionId, revision: integer(item.revision, true) };
+  });
+  if (!items.length) fail("invalid composition restoration");
+  return { type: "composition.restore", items, patch: parseCanvasV3Patch(parsed.patch) };
+}
+
 export function parseCanvasV3GenerationStart(value: unknown): CanvasV3GenerationStart {
   const raw = shape(value, ["type", "nodeId", "draft"], ["create", "subjectResource", "outputCompositionId", "historyRequest"]);
   if (raw.type !== "generation.start") fail("unsupported command");
@@ -796,7 +942,17 @@ export function invertCanvasV3Patch(patch: CanvasV3Patch): CanvasV3Patch {
   return { type: "canvas.patch", nodes: parsed.nodes.map(invert), edges: parsed.edges.map(invert) };
 }
 
-export type CanvasV3Command = CanvasV3Patch | CanvasV3ContentImport | CanvasV3ClipboardPaste | CanvasV3GenerationStart | { type: "canvas.batch"; commands: CanvasV3Command[] };
+export type CanvasV3Command =
+  | CanvasV3Patch
+  | CanvasV3ContentImport
+  | CanvasV3ClipboardPaste
+  | CanvasV3GenerationStart
+  | CanvasV3CompositionNodeCommand
+  | CanvasV3SubjectMemberCommand
+  | CanvasV3SubjectLayoutCommand
+  | CanvasV3CompositionDelete
+  | CanvasV3CompositionRestore
+  | { type: "canvas.batch"; commands: CanvasV3Command[] };
 
 export interface CanvasV3CommandRequest {
   commandId: string;
@@ -810,6 +966,12 @@ function parseCommand(value: unknown, nested = false): CanvasV3Command {
   if (raw.type === "content.import") return parseCanvasV3ContentImport(raw);
   if (raw.type === "clipboard.paste") return parseCanvasV3ClipboardPaste(raw);
   if (raw.type === "generation.start") return parseCanvasV3GenerationStart(raw);
+  if (raw.type === "subject.layout") return parseCanvasV3SubjectLayoutCommand(raw);
+  if (raw.type === "composition.delete") return parseCompositionDelete(raw);
+  if (raw.type === "composition.restore") return parseCompositionRestore(raw);
+  if (typeof raw.type === "string" && (raw.type === "composition.set-type" || raw.type === "composition.move")) return parseCompositionNodeCommand(raw);
+  if (typeof raw.type === "string" && raw.type.startsWith("subject.") && raw.type.endsWith("member")) return parseSubjectMemberCommand(raw);
+  if (typeof raw.type === "string" && (raw.type === "subject.add-members" || raw.type === "subject.remove-members")) return parseSubjectMemberCommand(raw);
   if (raw.type === "canvas.batch") {
     if (nested) fail("nested batch");
     const parsed = exact(raw, ["type", "commands"]);

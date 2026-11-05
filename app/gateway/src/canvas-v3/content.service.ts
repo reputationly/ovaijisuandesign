@@ -137,6 +137,78 @@ export class CanvasV3ContentService {
   }
 
   /**
+   * 组合级命令的统一入口：读当前 revision → 执行 → 版本冲突就重读重试。
+   * 这些命令**只改组合**、不改画布文档（节点的标题/成员都从组合投影出来）。
+   */
+  private async compose(compositionId: string, keyPrefix: string, build: (revision: number) => Record<string, unknown>): Promise<void> {
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const composition = await this.compositions.get(compositionId);
+      if (composition.lifecycle !== "active") throw importUnavailable();
+      const command = build(composition.revision);
+      const receipt = this.compositions.execute({
+        commandId: `${keyPrefix}:${composition.revision}`,
+        actor: "human",
+        expectedRevision: composition.revision,
+        command,
+      }) as { committed?: boolean };
+      if (receipt.committed) return;
+    }
+    throw canvasV3Error(409, "CANVAS_V3_CONTENT_UNAVAILABLE", "Composition kept changing; retry the edit");
+  }
+
+  setCompositionType(compositionId: string, keyPrefix: string, compositionType: string | null): Promise<void> {
+    return this.compose(compositionId, keyPrefix, () => ({ type: "composition.set_type", compositionId, compositionType }));
+  }
+
+  /** `composition.move` 是**不**带 expectedRevision 的命令（内核按位置自身做冲突处理）。 */
+  moveComposition(compositionId: string, keyPrefix: string, target: { position?: number; placement?: { before: string } | { after: string } }): Promise<void> {
+    const receipt = this.compositions.execute({
+      commandId: keyPrefix,
+      actor: "human",
+      command: { type: "composition.move", compositionId, ...target },
+    }) as { committed?: boolean };
+    if (!receipt.committed) throw canvasV3Error(409, "CANVAS_V3_CONTENT_UNAVAILABLE", "Composition could not be moved");
+    return Promise.resolve();
+  }
+
+  restoreComposition(compositionId: string, keyPrefix: string): Promise<void> {
+    return this.compose(compositionId, keyPrefix, () => ({ type: "composition.set_lifecycle", compositionId, lifecycle: "active" }));
+  }
+
+  updateMember(compositionId: string, keyPrefix: string, memberId: string, changes: { role?: string; resource?: string | null }): Promise<void> {
+    return this.compose(compositionId, keyPrefix, () => ({ type: "composition.apply", compositionId, operations: [{ type: "member.update", memberId, ...changes }] }));
+  }
+
+  moveMember(compositionId: string, keyPrefix: string, memberId: string, beforeMemberId: string | null): Promise<void> {
+    return this.compose(compositionId, keyPrefix, () => ({ type: "composition.apply", compositionId, operations: [{ type: "member.move", memberId, beforeMemberId }] }));
+  }
+
+  removeMembers(compositionId: string, keyPrefix: string, memberIds: string[]): Promise<void> {
+    return this.compose(compositionId, keyPrefix, (revision) => ({
+      type: "composition.apply",
+      compositionId,
+      operations: memberIds.map((memberId, index) => ({ type: "member.remove", memberId, _seq: `${revision}:${index}` })).map(({ _seq, ...op }) => op),
+    }));
+  }
+
+  /** 加入成员：每个 `{resourceId, versionId}` 变成一条成员，角色取资源名。 */
+  async addMembers(compositionId: string, keyPrefix: string, items: { resourceId: string; versionId: string }[]): Promise<void> {
+    const roles: string[] = [];
+    for (const item of items) {
+      const target = await this.importTarget(item);
+      roles.push(target.name);
+    }
+    await this.compose(compositionId, keyPrefix, (revision) => ({
+      type: "composition.apply",
+      compositionId,
+      operations: items.map((item, index) => ({
+        type: "member.add",
+        member: { memberId: projectId("member", `${keyPrefix}:${revision}:${index}`), role: roles[index] ?? "内容", resource: item.resourceId },
+      })),
+    }));
+  }
+
+  /**
    * 生成前要有一个空组合：节点先变成组合、进入"生成中"，产物由渲染层随后落进这个组合。
    * `commandId` 参与派生，重放同一条命令拿到同一个组合。
    */

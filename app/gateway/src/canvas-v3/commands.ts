@@ -5,6 +5,11 @@ import { CanvasV3ContentService } from "./content.service.js";
 import {
   type CanvasV3ClipboardPaste,
   type CanvasV3Command,
+  type CanvasV3CompositionNodeCommand,
+  type CanvasV3CompositionRestore,
+  type CanvasV3CompositionDelete,
+  type CanvasV3SubjectLayoutCommand,
+  type CanvasV3SubjectMemberCommand,
   type CanvasV3ContentImport,
   type CanvasV3GenerationStart,
   type CanvasV3Document,
@@ -416,6 +421,103 @@ async function generationPatch(document: CanvasV3Document, command: CanvasV3Gene
   return { type: "canvas.patch", nodes, edges };
 }
 
+const EMPTY_PATCH: CanvasV3Patch = { type: "canvas.patch", nodes: [], edges: [] };
+
+/** 这一节点必须是组合节点，并返回它的组合 id。 */
+function compositionIdOf(document: CanvasV3Document, nodeId: string): string {
+  const node = nodeOf(document, nodeId);
+  if (node?.kind !== "composition" || typeof node.compositionId !== "string") importUnavailable("This command needs a composition node");
+  return node.compositionId;
+}
+
+/**
+ * 组合级 / 成员级 / 删除恢复类命令。
+ * 前两类**只改组合**（节点的标题与成员都从组合投影出来），所以回空补丁 +
+ * `compositionIds` 让渲染层刷新投影；删除与恢复才真的改画布文档。
+ */
+async function directEffect(document: CanvasV3Document, command: CanvasV3Command, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Effect | null> {
+  const refresh = (compositionId: string): CanvasV3Effect => ({ patch: EMPTY_PATCH, undo: null, compositionIds: [compositionId] });
+  switch (command.type) {
+    case "subject.layout": {
+      const layout = command as CanvasV3SubjectLayoutCommand;
+      const node = nodeOf(document, layout.nodeId);
+      if (!node) importUnavailable("Layout target is missing");
+      if (!canvasV3Equal((node.subjectLayout ?? null) as unknown, layout.before)) throw canvasV3Error(409, "CANVAS_V3_CONTENT_UNAVAILABLE", "Subject layout changed; reload the canvas");
+      const after: CanvasV3Node = { ...node };
+      if (layout.after === null) delete after.subjectLayout;
+      else after.subjectLayout = layout.after;
+      if (canvasV3Equal(node, after)) return { patch: EMPTY_PATCH, undo: null, compositionIds: [] };
+      return { patch: { type: "canvas.patch", nodes: [{ id: layout.nodeId, before: node, after }], edges: [] }, undo: null, compositionIds: [] };
+    }
+    case "composition.delete": {
+      const nodes = new Map<string, CanvasV3Node>();
+      for (const nodeId of (command as CanvasV3CompositionDelete).nodeIds) {
+        const node = nodeOf(document, nodeId);
+        if (!node) continue;
+        nodes.set(nodeId, node);
+        // 子节点跟着父节点一起消失，否则会留下孤儿。
+        for (const child of Object.values(document.nodes)) if (child.parentId === nodeId) nodes.set(child.id, child);
+      }
+      if (!nodes.size) importUnavailable("Nothing to delete");
+      const edges = Object.values(document.edges).filter((edge) => nodes.has(edge.source) || nodes.has(edge.target));
+      return {
+        patch: {
+          type: "canvas.patch",
+          nodes: [...nodes.values()].map((node) => ({ id: node.id, before: node, after: null })),
+          edges: edges.map((edge) => ({ id: edge.id, before: edge, after: null })),
+        },
+        undo: null,
+        compositionIds: [...nodes.values()].flatMap((node) => (typeof node.compositionId === "string" ? [node.compositionId] : [])),
+      };
+    }
+    case "composition.restore": {
+      const restore = command as CanvasV3CompositionRestore;
+      for (const item of restore.items) await content.restoreComposition(item.compositionId, `${keyPrefix}:${item.compositionId}`);
+      return { patch: restore.patch, undo: null, compositionIds: restore.items.map((item) => item.compositionId) };
+    }
+    case "composition.set-type": {
+      const typed = command as CanvasV3CompositionNodeCommand;
+      const compositionId = compositionIdOf(document, typed.nodeId);
+      await content.setCompositionType(compositionId, `${keyPrefix}:type`, typed.typeId ?? null);
+      return refresh(compositionId);
+    }
+    case "composition.move": {
+      const moved = command as CanvasV3CompositionNodeCommand;
+      const compositionId = compositionIdOf(document, moved.nodeId);
+      await content.moveComposition(compositionId, `${keyPrefix}:move`, {
+        ...(moved.placement ? { placement: moved.placement } : { position: moved.position ?? 0 }),
+      });
+      return refresh(compositionId);
+    }
+    case "subject.rename-member": {
+      const named = command as CanvasV3SubjectMemberCommand;
+      const compositionId = compositionIdOf(document, named.nodeId);
+      await content.updateMember(compositionId, `${keyPrefix}:rename`, String(named.memberId), { role: named.title ?? "" });
+      return refresh(compositionId);
+    }
+    case "subject.move-member": {
+      const moved = command as CanvasV3SubjectMemberCommand;
+      const compositionId = compositionIdOf(document, moved.nodeId);
+      await content.moveMember(compositionId, `${keyPrefix}:member-move`, String(moved.memberId), moved.beforeMemberId ?? null);
+      return refresh(compositionId);
+    }
+    case "subject.add-members": {
+      const added = command as CanvasV3SubjectMemberCommand;
+      const compositionId = compositionIdOf(document, added.nodeId);
+      await content.addMembers(compositionId, `${keyPrefix}:members`, (added.items ?? []).map((item) => ({ resourceId: item.resourceId, versionId: item.versionId })));
+      return refresh(compositionId);
+    }
+    case "subject.remove-members": {
+      const removed = command as CanvasV3SubjectMemberCommand;
+      const compositionId = compositionIdOf(document, removed.nodeId);
+      await content.removeMembers(compositionId, `${keyPrefix}:members`, (removed.items ?? []).flatMap((item) => (item.memberId ? [item.memberId] : [])));
+      return refresh(compositionId);
+    }
+    default:
+      return null;
+  }
+}
+
 async function runPatch(document: CanvasV3Document, command: CanvasV3Patch, content: CanvasV3ContentService, sources: EditorSourceFiles): Promise<CanvasV3Effect> {
   let patch: CanvasV3Patch;
   try {
@@ -440,15 +542,24 @@ async function runPatch(document: CanvasV3Document, command: CanvasV3Patch, cont
 }
 
 /** 一条命令（可能是批量里的第几条）落到画布上要改什么。导入先翻译成补丁，其余直接用。 */
-async function patchOf(document: CanvasV3Document, command: CanvasV3Patch | CanvasV3ContentImport | CanvasV3ClipboardPaste | CanvasV3GenerationStart, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Patch> {
+async function patchOf(document: CanvasV3Document, command: Exclude<CanvasV3Command, { type: "canvas.batch" }>, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Patch> {
   if (command.type === "content.import") return importPatch(document, command, content, keyPrefix);
   if (command.type === "clipboard.paste") return pastePatch(document, command, content, keyPrefix);
   if (command.type === "generation.start") return generationPatch(document, command, content, keyPrefix);
-  return command;
+  // 组合级/成员级命令在上游 `directEffect` 就处理掉了，走不到这里。
+  if (command.type === "canvas.patch") return command;
+  throw invalidCanvasV3Command();
 }
 
 export async function executeCanvasV3Command(document: CanvasV3Document, command: CanvasV3Command, content: CanvasV3ContentService, sources: EditorSourceFiles, commandId: string): Promise<{ patch: CanvasV3Patch; effects: { undo: CanvasV3Command | null; compositionIds: string[] } }> {
   if (command.type !== "canvas.batch") {
+    const direct = await directEffect(document, command, content, commandId);
+    if (direct) {
+      const merged = direct.patch.nodes.length || direct.patch.edges.length
+        ? await runPatch(document, direct.patch, content, sources)
+        : direct;
+      return { patch: merged.patch, effects: { undo: merged.undo, compositionIds: direct.compositionIds } };
+    }
     const patch = await patchOf(document, command, content, commandId);
     const effect = await runPatch(document, patch, content, sources);
     return { patch: effect.patch, effects: { undo: effect.undo, compositionIds: [] } };
@@ -458,7 +569,10 @@ export async function executeCanvasV3Command(document: CanvasV3Document, command
   const undos: CanvasV3Command[] = [];
   for (const [index, item] of command.commands.entries()) {
     if (item.type === "canvas.batch") throw invalidCanvasV3Command();
-    const effect = await runPatch(current, await patchOf(current, item, content, `${commandId}:${index}`), content, sources);
+    const direct = await directEffect(current, item, content, `${commandId}:${index}`);
+    const effect = direct
+      ? (direct.patch.nodes.length || direct.patch.edges.length ? await runPatch(current, direct.patch, content, sources) : direct)
+      : await runPatch(current, await patchOf(current, item, content, `${commandId}:${index}`), content, sources);
     current = applyCanvasV3Patch(current, effect.patch, true);
     mergePatch(patch, effect.patch);
     if (effect.undo) undos.unshift(effect.undo);
