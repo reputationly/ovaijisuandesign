@@ -13249,12 +13249,16 @@ function canvasModel(value, operations) {
   const entry = object(value);
   const model = object(entry.model);
   const presentation = object(model.presentation);
-  if (typeof entry.id !== "string" || typeof entry.operation !== "string" || !operations.includes(entry.operation) || typeof model.id !== "string" || !model.id || typeof presentation.name !== "string" || typeof presentation.backend !== "string")
+  // 目录里展示名可能是 `displayName`（平台目录就是这么给的），参照期望 `name`。
+  const displayName = typeof presentation.name === "string" ? presentation.name : typeof presentation.displayName === "string" ? presentation.displayName : undefined;
+  if (typeof entry.id !== "string" || typeof entry.operation !== "string" || !operations.includes(entry.operation) || typeof model.id !== "string" || !model.id || displayName === undefined)
     throw new Error("CANVAS_V3_MODELS_INVALID");
   object(object(entry.paramSchema).properties);
-  object(entry.references);
-  object(entry.prompt);
-  return canvasV3Model(entry);
+  // `references` / `prompt` 是可选段：平台目录里没有时是 null，
+  // 硬要求成对象会让整张模型列表判成"加载失败"（真机：点视频节点弹「模型目录加载失败」）。
+  if (entry.references !== undefined && entry.references !== null) object(entry.references);
+  if (entry.prompt !== undefined && entry.prompt !== null) object(entry.prompt);
+  return canvasV3Model({ ...entry, model: { ...model, presentation: { ...presentation, name: displayName } } });
 }
 
 function castFactory(testFunction) {
