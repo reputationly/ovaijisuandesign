@@ -371,6 +371,17 @@ gh run view <id> --log-failed | tail -40
 
 ---
 
+### 5.14 legacy `canvas.e2e.test.ts` 的抖动：查清并修掉
+两条原因，都在测试侧、不是产品 bug：
+1. **事件断言依赖到达顺序**：原来自增用例直接断 `events.at(-1)` 是 `canvas_updated`，
+   但事件总线还会发 reconcile 等广播，谁最后到不由我们控制 → 改成按 `type` 过滤后取最后一条，
+   并在该用例开头 `events.length = 0`。
+2. **负载下超时**：`vitest.config.ts` 早已把 `fileParallelism` 关掉、`testTimeout` 放宽到 20s
+   并允许 `retry: 1`（注释里写明"机器上有重活时偶发 socket hang up"）——那是缓解，不是根因。
+
+验证：单文件连跑 6 次、全量正常跑 2 次、**再开 4 个 CPU 死循环压着跑全量 1 次**，
+105 个文件 / 570 条全绿（4 条 skip）。抖动不再复现。
+
 ### 5.13 节点右侧「+」点不开：不是 CSS，是弹层状态
 排查结论（真机取证，别再从头查一遍）：
 - `NodeHandleEntry` 确实渲染了：画布上 12 个 `[data-canvas-plus-zone]` 热区（84×84），

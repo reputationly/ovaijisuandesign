@@ -69,13 +69,19 @@ describe("canvas（真实工作区）", () => {
   });
 
   it("text-node 更新：哈希对不上 409；append 按换行接上", async () => {
+    events.length = 0;
     const bad = await http.post("/api/canvas/text-node").send({ nodeId: textNode, content: "x", expectedContentHash: "0".repeat(64) });
     expect(bad.status).toBe(409);
     expect(bad.body.message).toMatch(/current contentHash: [0-9a-f]{64}/);
     const ok = await http.post("/api/canvas/text-node").send({ nodeId: textNode, content: "第二场：夜晚。", mode: "append", expectedContentHash: hash });
     expect(ok.body).toMatchObject({ nodeId: textNode, created: false });
     expect(readFileSync(path.join(ws, "分镜.md"), "utf8")).toBe("第一场：白天。\n第二场：夜晚。");
-    expect(events.at(-1)).toMatchObject({ type: "canvas_updated", origin: "mcp-write" });
+    // **不要断言"最后一条"**：事件总线还会发 reconcile / 其它广播，顺序上不受我们控制。
+    // 这里只关心"有一条 mcp-write 的 canvas_updated"，按类型过滤后取最后一条。
+    expect(events.filter((event: any) => event?.type === "canvas_updated").at(-1)).toMatchObject({
+      type: "canvas_updated",
+      origin: "mcp-write",
+    });
   });
 
   it("apply-edits：成功改写；旧哈希回 conflict（不是 409）", async () => {
