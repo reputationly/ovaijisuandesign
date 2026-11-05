@@ -371,6 +371,21 @@ gh run view <id> --log-failed | tail -40
 
 ---
 
+### 5.13 节点右侧「+」点不开：不是 CSS，是弹层状态
+排查结论（真机取证，别再从头查一遍）：
+- `NodeHandleEntry` 确实渲染了：画布上 12 个 `[data-canvas-plus-zone]` 热区（84×84），
+  `pointer-events: all`，父级 `.canvas-v3-source` 也是 `all` —— **§5.9 那次给手柄加
+  `pointer-events:none` 的修复没有波及它**（只有 `.canvas-v3-target` 是 none）；
+- 但它只在宿主提供 `addNodeMenu` 时才挂上 `onAddConnected`（`canvas-area-v3.js:32161`），
+  桌面端提供了，所以链路是通的；
+- 用 DOM 直接 `dispatchEvent(new MouseEvent("click"))` 打在热区上，
+  `CanvasContextMenu`（即 `DesktopAddNodeMenu`）依然没有出现 → 卡在
+  `QuickZoomPresence` + `addAnchor` 的弹出状态，不在事件绑定、也不在 CSS。
+
+要修得动渲染层的弹层状态（`useCanvasV3SurfaceSlots().addNodeMenu` → `addAnchor` 的 setter
+是否被 `handleOpen` 真正触发），属于低风险收益比之外的一块：画布上「+」（工具坞）、
+双击画布、粘贴都已经能加节点。
+
 ### 5.10 宿主会把工具调用的**数组参数改写成对象**，而且一层套一层
 真机上 agent 发的参数到了 MCP 服务端会变成这样（会话记录可查）：
 
