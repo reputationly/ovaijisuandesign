@@ -113,6 +113,37 @@
 那五个工具层/网关 bug 修好之后才走通的。也就是说：画布生成链路此前"一直失败"是**我们的 bug**，
 不是模型能力问题。
 
+## 2.6 画布命令覆盖矩阵（渲染层 22 种 vs 网关）
+
+| 命令 | 谁在发（渲染层） | 网关 | 说明 |
+|---|---|---|---|
+| `canvas.patch` | 拖动/改尺寸/改层级 | ✅ | 内建 |
+| `canvas.batch` | 组合动作（移动+改类型） | ✅ | 内嵌 batch 被禁 |
+| `content.import` | 粘贴文件/拖入素材 | ✅ | §3 |
+| `clipboard.paste` | Cmd+C / Cmd+V | ✅ | |
+| `generation.start` | 节点上点生成 | ✅ | 空组合 + pendingGeneration |
+| `subject.layout` | 主体库切布局 | ✅ 本轮 | 写节点 `subjectLayout`，`before` 对不上回 409 |
+| `subject.rename-member` | 成员改名 | ✅ 本轮 | 改组合成员 role |
+| `subject.move-member` | 拖成员排序 | ✅ 本轮 | `member.move` |
+| `subject.add-members` | 拖入成员 | ✅ 本轮 | `member.add`（角色取资源名） |
+| `subject.remove-members` | 移除成员 | ✅ 本轮 | `member.remove` |
+| `composition.set-type` | 组合拖出类型分组 | ✅ 本轮 | `composition.set_type`（typeId null = 取消归类） |
+| `composition.move` | 组合在类型内排序 | ✅ 本轮 | 不带 expectedRevision（内核自处理） |
+| `composition.delete` | 删除组合/清空后删 | ✅ 本轮 | 连子节点与相关边一起删 |
+| `composition.restore` | 撤销删除 | ✅ 本轮 | 恢复生命周期 + 回填补丁 |
+| `subject.prepare` | 新建主体 | ⏳ | 需建空 subject 组合 |
+| `subject.convert` | 媒体 → 主体 | ⏳ | 节点加 `containerKind:"subject"` + 默认布局 |
+| `subject.convert-to-media` | 主体 → 媒体 | ⏳ | 去掉 containerKind/布局 |
+| `subject.load` | 从主体库载入 | ⏳ | 占位符绑定已有组合 |
+| `subject.remove-resources` | 主体内移除某个素材 | ⏳ | 只改布局 sections/spans/rows |
+| `subject.restore-members` | 撤销移除成员 | ⏳ | 按原 memberId/index 放回 |
+| `subject.transfer-members` | 主体之间拖成员 | ⏳ | move/copy + beforeMemberId |
+| `clip-studio.deliver` | 剪辑台导出成片 | ⏳ | 把成片绑到节点 |
+| `content.rename` | **无构造点** | ⏳ 不需要 | 渲染层没有地方发它，标题走组合名 |
+
+结论：超级表里 14 条已通，8 条待补（都是主体库/剪辑台的新建与转换类），1 条（`content.rename`）
+渲染层根本不发、不需要实现。
+
 ## 3. 表格：已打通（原「唯一阻塞项」）
 
 ### 3.1 结论先说
