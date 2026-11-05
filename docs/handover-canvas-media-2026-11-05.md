@@ -384,6 +384,35 @@ gh run view <id> --log-failed | tail -40
 
 到此工具层的三处都补上了，`mcp-tools` 262 条、`gateway` 573 条用例全绿。
 
+### 5.16 两个空壳已还原，并抽成可单测的纯模块
+- `arrangeCanvasV3SelectionPatch(document, ids, layout, options)` 以前是恒等 `(patch) => patch`，
+  但**调用方传的是 (document, ids, layout, options)** —— 于是「整理」拿到的"patch"其实是 document。
+  现在按 dagre 坐标实现：取 `options.positions`（Map），以 `options.origin`（容器内）或选区当前
+  左上角（画布上）为锚点平移，返回真正的 `canvas.patch`；**没动的节点不进补丁**，全都没动返回 null。
+- `matchesReferenceSelectionDuration(actual, draft)` 以前恒 `false`（参考片段永远判"时长不匹配"、
+  一律要求重取）。现在用 `getCropOutputDuration(选区)` 与素材真实 `duration` 比，
+  容差 `max(2/30s, 1%)`（编码器把时长量化到帧）。
+- **可测性**：两个函数抽到 `app/renderer/src/canvas-v3/arrange.js`（不依赖 DOM/React），
+  canvas-area-v3 只做薄封装（时长计算用 `getCropOutputDuration` 注入）。单测
+  `arrange.test.ts` 7 条：锚点/容器 origin/未变化返回 null/重复 id 去重/时长容差三态。
+  渲染层测试 12 文件 / 39 条全绿。
+- 真机侧：整理控件的菜单链路已验证（`scripts/pw/tidy-probe.mjs`：宫格/水平/垂直/按名称/按时间
+  都在）。"节点真的移动了"这步由上面的单测覆盖——自动化选不中多个节点（Cmd+A / Shift / Meta /
+  框选都只选中 1 个），而 `targets < 2` 时按设计返回空补丁，与本函数逻辑无关。
+
+### 5.17 工具层的三处缺陷（`composition_edit` / `deliver` / PPT）
+- **`composition_edit` 只实现了 2/7 个动作**：schema 对外宣告 `ensure/update/rename/set_attributes/move/duplicate/batch`，
+  但代码只认 `ensure`/`rename`，模型按 schema 用 `update` 就撞墙。现在全部映射：
+  `update`/`batch` → `composition.apply`（`add_member`/`remove_member`/`update_member`），
+  `set_attributes` → `composition.set_attributes`（set + unset），`move` → `composition.move`
+  （**不带 expectedRevision**，内核按位置处理冲突），`duplicate` → `composition.duplicate`。
+  `add_member` 的 `clientMemberKey` 派生稳定 `memberId`，回执里用 `memberIds` 映射回去。
+- **`deliver` 的 NOT_FOUND**：网关没有"按 versionId 单查"的端点（`resources/get` 必须成对），
+  无法预检；改为把 NOT_FOUND 翻成可操作的话（别再重试同一个 id）。
+- **PPT**：见 §6.5 —— 多图页与文字页都已支持。
+
+到此工具层的三处都补上了，`mcp-tools` 262 条、`gateway` 573 条用例全绿。
+
 ### 5.16 两个空壳已还原（`arrangeCanvasV3SelectionPatch` / `matchesReferenceSelectionDuration`）
 - `arrangeCanvasV3SelectionPatch(document, ids, layout, options)` 以前是恒等 `(patch) => patch`，
   但**调用方传的是 (document, ids, layout, options)** —— 于是「整理」拿到的"patch"其实是 document，
