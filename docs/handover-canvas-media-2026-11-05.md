@@ -371,19 +371,6 @@ gh run view <id> --log-failed | tail -40
 
 ---
 
-### 5.17 工具层的三处缺陷（`composition_edit` / `deliver` / PPT）
-- **`composition_edit` 只实现了 2/7 个动作**：schema 对外宣告 `ensure/update/rename/set_attributes/move/duplicate/batch`，
-  但代码只认 `ensure`/`rename`，模型按 schema 用 `update` 就撞墙。现在全部映射：
-  `update`/`batch` → `composition.apply`（`add_member`/`remove_member`/`update_member`），
-  `set_attributes` → `composition.set_attributes`（set + unset），`move` → `composition.move`
-  （**不带 expectedRevision**，内核按位置处理冲突），`duplicate` → `composition.duplicate`。
-  `add_member` 的 `clientMemberKey` 派生稳定 `memberId`，回执里用 `memberIds` 映射回去。
-- **`deliver` 的 NOT_FOUND**：网关没有"按 versionId 单查"的端点（`resources/get` 必须成对），
-  无法预检；改为把 NOT_FOUND 翻成可操作的话（别再重试同一个 id）。
-- **PPT**：见 §6.5 —— 多图页与文字页都已支持。
-
-到此工具层的三处都补上了，`mcp-tools` 262 条、`gateway` 573 条用例全绿。
-
 ### 5.16 两个空壳已还原，并抽成可单测的纯模块
 - `arrangeCanvasV3SelectionPatch(document, ids, layout, options)` 以前是恒等 `(patch) => patch`，
   但**调用方传的是 (document, ids, layout, options)** —— 于是「整理」拿到的"patch"其实是 document。
@@ -412,20 +399,6 @@ gh run view <id> --log-failed | tail -40
 - **PPT**：见 §6.5 —— 多图页与文字页都已支持。
 
 到此工具层的三处都补上了，`mcp-tools` 262 条、`gateway` 573 条用例全绿。
-
-### 5.16 两个空壳已还原（`arrangeCanvasV3SelectionPatch` / `matchesReferenceSelectionDuration`）
-- `arrangeCanvasV3SelectionPatch(document, ids, layout, options)` 以前是恒等 `(patch) => patch`，
-  但**调用方传的是 (document, ids, layout, options)** —— 于是「整理」拿到的"patch"其实是 document，
-  点了要么没效果要么发一条非法命令。现在按 dagre 坐标实现：取 `options.positions`（Map），
-  以 `options.origin`（容器内）或选区当前左上角（画布上）为锚点平移，返回真正的 `canvas.patch`。
-- `matchesReferenceSelectionDuration(actual, draft)` 以前恒 `false`（永远判"时长不匹配"，
-  参考片段一律要求重取）。现在按 `getCropOutputDuration(draft.range)`（= 选区时长 - 尾帧余量）
-  与实际素材 `duration` 比较，容差取 `max(2/30s, 1%)`（编码器把时长量化到帧）。
-- 渲染层已重建。真机验证（`scripts/pw/tidy-probe.mjs`）：整理控件的菜单能正常打开
-  （`canvas.toolbar-tidy-menu` → 按名称/按时间/宫格/水平/垂直都在），但**重排本身还没观察到** ——
-  原因不是功能坏，而是自动化**选不中多个节点**：Cmd+A、Shift+点、Meta+点、框选拖拽四种方式
-  最后都只有 1 个节点 `selected`，而 `canvasV3TidyPatch` 在 `targets.length < 2` 时按设计返回
-  `patch: null`（单节点无从整理）。人工点两下即可确认。
 
 ### 5.15 表格「编辑 → 关闭 → 保存」：**缺 baseRevision 导致每次保存都 409**（已修）
 真机抓到的请求/响应：
