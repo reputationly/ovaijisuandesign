@@ -43811,6 +43811,25 @@ const MAX_WHEEL_DELTA_PX = 120;
 const WHEEL_ZOOM_SENSITIVITY = 18e-4;
 const BUTTON_ZOOM_FACTOR = 1.3;
 const COMPACT_HEADER_MAX_WIDTH_PX = 224;
+// 图片灯箱的滚轮/快捷键辅助（参照同实现）
+function normalizeWheelDeltaY(event) {
+  if (event.deltaMode === 1) return event.deltaY * LINE_HEIGHT_PX;
+  if (event.deltaMode === 2) return event.deltaY * PAGE_HEIGHT_PX;
+  return event.deltaY;
+}
+function clampWheelDeltaY(deltaY) {
+  return Math.max(-MAX_WHEEL_DELTA_PX, Math.min(MAX_WHEEL_DELTA_PX, deltaY));
+}
+function clampScale(scale) {
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
+}
+function getWheelZoomScale(currentScale, event) {
+  if (!Number.isFinite(currentScale) || currentScale <= 0) return 1;
+  return clampScale(currentScale * Math.exp(-clampWheelDeltaY(normalizeWheelDeltaY(event)) * WHEEL_ZOOM_SENSITIVITY));
+}
+function isLightboxCopyShortcut(event) {
+  return (event.metaKey || event.ctrlKey) && !event.altKey && event.code === "KeyC";
+}
 const ImageLightboxView = reactExports.memo(function ImageLightboxView2({
   src,
   index: index2 = 0,
