@@ -58,6 +58,34 @@ export interface CanvasV3Patch {
   edges: CanvasV3Change<CanvasV3Edge>[];
 }
 
+/** 导入项自带的落位信息。只有目标节点还不存在时渲染层才发。 */
+export interface CanvasV3ImportPlacement {
+  parentId: string | null;
+  position: CanvasV3Point;
+  size: CanvasV3Size;
+  zIndex: number;
+  containerKind?: "subject";
+  presentation?: "panorama";
+}
+/** 导入时顺带建的边：起点在 `source`，终点永远是导入出来的节点。 */
+export interface CanvasV3ImportEdgeRef {
+  id: string;
+  source: string;
+}
+export interface CanvasV3ImportItem {
+  nodeId: string;
+  resourceId: string;
+  versionId: string;
+  placement?: CanvasV3ImportPlacement;
+  size?: CanvasV3Size;
+  edges?: CanvasV3ImportEdgeRef[];
+}
+/** 把一份资源版本放进画布：没有节点就新建，占位符就填上，组合就切到这一版。 */
+export interface CanvasV3ContentImport {
+  type: "content.import";
+  items: CanvasV3ImportItem[];
+}
+
 function fail(message: string): never {
   throw new Error(`Invalid Canvas V3: ${message}`);
 }
@@ -434,6 +462,53 @@ function parseEdge(value: unknown): CanvasV3Edge {
   return result;
 }
 
+function parseImportPlacement(value: unknown): CanvasV3ImportPlacement {
+  const parsed = shape(value, ["parentId", "position", "size", "zIndex"], ["presentation", "containerKind"]);
+  if (parsed.presentation !== undefined && parsed.presentation !== "panorama") fail("invalid presentation");
+  if (parsed.containerKind !== undefined && parsed.containerKind !== "subject") fail("invalid container kind");
+  return {
+    parentId: parsed.parentId === null ? null : id(parsed.parentId),
+    position: point(parsed.position),
+    size: size(parsed.size),
+    zIndex: integer(parsed.zIndex),
+    ...(parsed.containerKind === "subject" ? { containerKind: "subject" as const } : {}),
+    ...(parsed.presentation === "panorama" ? { presentation: "panorama" as const } : {}),
+  };
+}
+
+function parseImportEdges(value: unknown): CanvasV3ImportEdgeRef[] {
+  const seen = new Set<string>();
+  return array(value, CANVAS_V3_LIMITS.edges).map((entry) => {
+    const parsed = exact(entry, ["id", "source"]);
+    const edgeId = id(parsed.id);
+    if (seen.has(edgeId)) fail("duplicate import edge");
+    seen.add(edgeId);
+    return { id: edgeId, source: id(parsed.source) };
+  });
+}
+
+export function parseCanvasV3ContentImport(value: unknown): CanvasV3ContentImport {
+  const parsed = exact(value, ["type", "items"]);
+  if (parsed.type !== "content.import") fail("unsupported command");
+  const seen = new Set<string>();
+  const items = array(parsed.items, CANVAS_V3_LIMITS.importItems).map((entry) => {
+    const raw = shape(entry, ["nodeId", "resourceId", "versionId"], ["placement", "size", "edges"]);
+    const nodeId = id(raw.nodeId);
+    if (seen.has(nodeId)) fail("duplicate import target");
+    seen.add(nodeId);
+    return {
+      nodeId,
+      resourceId: id(raw.resourceId),
+      versionId: id(raw.versionId),
+      ...(Object.hasOwn(raw, "placement") ? { placement: parseImportPlacement(raw.placement) } : {}),
+      ...(Object.hasOwn(raw, "size") ? { size: size(raw.size) } : {}),
+      ...(Object.hasOwn(raw, "edges") ? { edges: parseImportEdges(raw.edges) } : {}),
+    } satisfies CanvasV3ImportItem;
+  });
+  if (!items.length) fail("empty import");
+  return { type: "content.import", items };
+}
+
 function record<T extends { id: string }>(value: unknown, parse: (entry: unknown) => T, limit: number): Record<string, T> {
   const raw = object(value);
   if (Object.keys(raw).length > limit) fail("record limit exceeded");
@@ -554,7 +629,7 @@ export function invertCanvasV3Patch(patch: CanvasV3Patch): CanvasV3Patch {
   return { type: "canvas.patch", nodes: parsed.nodes.map(invert), edges: parsed.edges.map(invert) };
 }
 
-export type CanvasV3Command = CanvasV3Patch | { type: "canvas.batch"; commands: CanvasV3Command[] };
+export type CanvasV3Command = CanvasV3Patch | CanvasV3ContentImport | { type: "canvas.batch"; commands: CanvasV3Command[] };
 
 export interface CanvasV3CommandRequest {
   commandId: string;
@@ -565,12 +640,14 @@ export interface CanvasV3CommandRequest {
 function parseCommand(value: unknown, nested = false): CanvasV3Command {
   const raw = object(value);
   if (raw.type === "canvas.patch") return parseCanvasV3Patch(raw);
+  if (raw.type === "content.import") return parseCanvasV3ContentImport(raw);
   if (raw.type === "canvas.batch") {
     if (nested) fail("nested batch");
     const parsed = exact(raw, ["type", "commands"]);
     const commands = array(parsed.commands, CANVAS_V3_LIMITS.batchCommands).map((command) => parseCommand(command, true));
     if (!commands.length) fail("empty batch");
-    if (commands.some((command) => command.type !== "canvas.patch")) fail("unsupported command");
+    // 批量里只能放扁平命令：再套一层 batch 会让人分不清撤销的边界。
+    if (commands.some((command) => command.type === "canvas.batch")) fail("unsupported command");
     return { type: "canvas.batch", commands };
   }
   return fail("unsupported command");

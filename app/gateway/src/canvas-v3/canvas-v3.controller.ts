@@ -80,7 +80,7 @@ export class CanvasV3Service {
         if (replay) return replay;
         const document = this.store.read(workspace);
         return await journal.execute(request, async () => {
-          const result = await executeCanvasV3Command(document, request.command, this.content, this.sources);
+          const result = await executeCanvasV3Command(document, request.command, this.content, this.sources, request.commandId);
           applyCanvasV3Patch(document, result.patch, true);
           return result;
         }, ({ patch, effects }) => {

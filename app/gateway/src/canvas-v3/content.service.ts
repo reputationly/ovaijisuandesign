@@ -1,11 +1,34 @@
 import { Injectable } from "@nestjs/common";
 
 import { CANVAS_V3_LIMITS } from "./protocol.js";
+import { canvasV3Error } from "./errors.js";
 import { ProjectKernelError } from "../project-kernel/errors.js";
-import { ProjectCompositionService } from "../project-kernel/composition.service.js";
+import { ProjectCompositionService, projectId } from "../project-kernel/composition.service.js";
 import { ProjectResourceService } from "../project-kernel/resource.service.js";
 
 const KIND_NAMES: Record<number, string> = { 1: "text", 2: "image", 3: "video", 4: "audio", 5: "file" };
+/** 内容组合的类型名，和产品里已有的「图片/视频/音频/表格」保持一致。 */
+const COMPOSITION_LABELS: Record<string, string> = { image: "图片", video: "视频", audio: "音频", text: "文本", table: "表格", file: "文件" };
+
+/** 读一份资源版本的结果。字段都可选：读不到的时候要能落到"不可用"，而不是抛解析错误。 */
+type ImportRead = {
+  ok?: boolean;
+  detail?: {
+    resource?: { name?: string; kind?: number; lifecycle?: string };
+    version?: { versionId?: string; relativePath?: string; status?: string } | null;
+  };
+};
+
+function importUnavailable(): never {
+  throw canvasV3Error(409, "CANVAS_V3_CONTENT_UNAVAILABLE", "Imported content is unavailable");
+}
+
+export interface CanvasV3ImportTarget {
+  mediaKind: string;
+  /** 成员角色。画布把非组合类节点的标题取成成员角色，所以这里放资源名。 */
+  role: string;
+  name: string;
+}
 
 function resourceKind(kind: number, relativePath?: string): string {
   const name = KIND_NAMES[kind] ?? "file";
@@ -62,6 +85,62 @@ export class CanvasV3ContentService {
       nextSeq: page.nextSeq,
       complete: page.complete,
     };
+  }
+
+  /**
+   * 导入前先确认这份资源版本真的能用，顺便拿到它的呈现类别。
+   * `.htable` 的文本资源在这里就是 `table` —— 画布靠这个决定开表格编辑器还是文本编辑器。
+   */
+  async importTarget(reference: { resourceId: string; versionId: string }): Promise<CanvasV3ImportTarget> {
+    const read = this.resources.getResources([{ resourceId: reference.resourceId, versionId: reference.versionId }]) as ImportRead[];
+    const entries: ImportRead[] = Array.isArray(read) ? read : [];
+    const entry = entries[0];
+    const resource = entry?.detail?.resource;
+    const version = entry?.detail?.version;
+    if (
+      !entry?.ok ||
+      !resource ||
+      typeof resource.name !== "string" ||
+      typeof resource.kind !== "number" ||
+      !version ||
+      version.versionId !== reference.versionId ||
+      resource.lifecycle !== "active" ||
+      version.status !== "ready"
+    ) {
+      throw importUnavailable();
+    }
+    const mediaKind = resourceKind(resource.kind, version.relativePath);
+    return { mediaKind, name: resource.name, role: resource.name };
+  }
+
+  /**
+   * 一份资源在画布上要有自己的组合：节点是组合节点，内容从组合投影出来。
+   * 已经挂在某个组合上就直接复用，否则按 `commandId` 建一个（重放同一条命令拿到同一个组合）。
+   */
+  async contentComposition(commandId: string, resourceId: string, target: CanvasV3ImportTarget, mounted: ReadonlySet<string>): Promise<string> {
+    const existing = this.mountedComposition(resourceId, mounted);
+    if (existing) return existing;
+    const receipt = (await this.compositions.ensureAgent(commandId, {
+      label: COMPOSITION_LABELS[target.mediaKind] ?? COMPOSITION_LABELS.file ?? "画布内容",
+      // 名字带上组合 id，既能显示成资源名，又不会和同名资源撞车。
+      name: `${target.name} · ${projectId("composition", commandId)}`,
+      operations: [{ type: "member.add", member: { memberId: projectId("member", commandId), role: target.role, resource: resourceId } }],
+    })) as { compositionId?: string };
+    if (typeof receipt.compositionId !== "string" || !receipt.compositionId) throw importUnavailable();
+    return receipt.compositionId;
+  }
+
+  /** 已经建好、但画布上还没有节点用的单成员组合。重试时复用它，免得堆一堆组合。 */
+  private mountedComposition(resourceId: string, mounted: ReadonlySet<string>): string | undefined {
+    const page = this.compositions.queryMemberships({ resourceId, limit: 20 }) as { items?: { compositionId: string }[] };
+    for (const item of page.items ?? []) {
+      if (mounted.has(item.compositionId)) continue;
+      const composition = this.compositions.get(item.compositionId);
+      if (composition.lifecycle !== "active") continue;
+      const members = composition.members as { resource: string | null }[];
+      if (members.length === 1 && members[0]?.resource === resourceId) return item.compositionId;
+    }
+    return undefined;
   }
 
   async project(compositionId: string) {

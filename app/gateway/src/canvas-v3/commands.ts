@@ -4,9 +4,13 @@ import { canvasV3Error, invalidCanvasV3Command } from "./errors.js";
 import { CanvasV3ContentService } from "./content.service.js";
 import {
   type CanvasV3Command,
+  type CanvasV3ContentImport,
   type CanvasV3Document,
+  type CanvasV3Edge,
+  type CanvasV3ImportItem,
   type CanvasV3Node,
   type CanvasV3Patch,
+  type CanvasV3Size,
   applyCanvasV3Patch,
   canvasV3Equal,
   invertCanvasV3Patch,
@@ -198,6 +202,112 @@ function mergePatch(target: CanvasV3Patch, patch: CanvasV3Patch): void {
   target.edges = target.edges.filter((change) => !canvasV3Equal(change.before, change.after));
 }
 
+/** 各类内容的默认落位尺寸，和渲染层 `CANVAS_V3_DEFAULT_NODE_SIZES` 保持一致。 */
+const IMPORT_SIZES: Record<string, CanvasV3Size> = {
+  image: { width: 350, height: 350 },
+  video: { width: 350, height: 280 },
+  audio: { width: 350, height: 150 },
+  text: { width: 350, height: 500 },
+  table: { width: 350, height: 200 },
+  file: { width: 350, height: 200 },
+};
+
+function importUnavailable(message: string): never {
+  throw canvasV3Error(409, "CANVAS_V3_CONTENT_UNAVAILABLE", message);
+}
+
+/** 画布上已经有了的组合 id：复用组合之前先避开它们，免得两个节点共用一份内容。 */
+function mountedCompositions(document: CanvasV3Document): Set<string> {
+  const ids = new Set<string>();
+  for (const node of Object.values(document.nodes)) {
+    if (node.kind === "composition" && typeof node.compositionId === "string") ids.add(node.compositionId);
+  }
+  return ids;
+}
+
+function compositionNode(node: CanvasV3Node, compositionId: string, activeItem: { type: "version"; resourceId: string; versionId: string }, item: CanvasV3ImportItem): CanvasV3Node {
+  const after: CanvasV3Node = {
+    id: node.id,
+    parentId: node.parentId,
+    // 占位符还是默认尺寸时渲染层会带上自然尺寸；没带就沿用原来的框。
+    position: node.position,
+    size: item.size ?? node.size,
+    zIndex: node.zIndex,
+    hidden: node.hidden,
+    kind: "composition",
+    compositionId,
+    activeItem,
+    draft: null,
+  };
+  if (node.containerKind === "subject") after.containerKind = "subject";
+  if (node.presentation === "panorama") after.presentation = "panorama";
+  return after;
+}
+
+/**
+ * `content.import` 是渲染层唯一的"把资源放进画布"入口（拖入、粘贴、上传、表格新建都走它）。
+ * 这里把它翻译成一条 `canvas.patch`：
+ *   - 目标节点不存在 → 按 `placement` 建一个指向该资源组合的组合节点；
+ *   - 目标节点是占位符 → 校验类别一致后换成组合节点；
+ *   - 目标节点已经是组合 → 只把 `activeItem` 切到这一版。
+ * 一份资源在画布上需要有属于自己的组合，没有就按命令 id 建一个。
+ */
+async function importPatch(document: CanvasV3Document, command: CanvasV3ContentImport, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Patch> {
+  const nodes: CanvasV3Patch["nodes"] = [];
+  const edges: CanvasV3Patch["edges"] = [];
+  const mounted = mountedCompositions(document);
+  const importing = new Set(command.items.map((item) => item.nodeId));
+  const edgeIds = new Set<string>();
+  for (const item of command.items) {
+    const target = await content.importTarget({ resourceId: item.resourceId, versionId: item.versionId });
+    const before = Object.hasOwn(document.nodes, item.nodeId) ? (document.nodes[item.nodeId] ?? null) : null;
+    const activeItem = { type: "version" as const, resourceId: item.resourceId, versionId: item.versionId };
+    let after: CanvasV3Node;
+    if (before === null) {
+      if (!item.placement) importUnavailable("Imported content needs a placement");
+      const sizes = IMPORT_SIZES[target.mediaKind] ?? IMPORT_SIZES.file ?? { width: 350, height: 200 };
+      const compositionId = await content.contentComposition(`${keyPrefix}:${item.nodeId}`, item.resourceId, target, mounted);
+      mounted.add(compositionId);
+      after = {
+        id: item.nodeId,
+        parentId: item.placement.parentId,
+        position: item.placement.position,
+        size: item.size ?? item.placement.size ?? sizes,
+        zIndex: item.placement.zIndex,
+        hidden: false,
+        kind: "composition",
+        compositionId,
+        activeItem,
+        draft: null,
+        ...(item.placement.containerKind === "subject" ? { containerKind: "subject" } : {}),
+        ...(item.placement.presentation === "panorama" ? { presentation: "panorama" } : {}),
+      };
+    } else if (before.kind === "placeholder") {
+      if (before.expectedKind !== target.mediaKind) importUnavailable("Import target kind does not match the content");
+      const compositionId = await content.contentComposition(`${keyPrefix}:${item.nodeId}`, item.resourceId, target, mounted);
+      mounted.add(compositionId);
+      after = compositionNode(before, compositionId, activeItem, item);
+    } else if (before.kind === "composition") {
+      // 组合已经存在：只切选中版本，内容必须本来就属于这个组合（`validatePatch` 会再核对一次）。
+      const rest = { ...before };
+      after = { ...rest, activeItem, ...(item.size ? { size: item.size } : {}) };
+    } else {
+      importUnavailable("Import target must be a content node");
+    }
+    if (canvasV3Equal(before, after)) continue;
+    nodes.push({ id: item.nodeId, before, after });
+    for (const edge of item.edges ?? []) {
+      if (edgeIds.has(edge.id)) throw canvasV3Error(409, "CANVAS_V3_COMMAND_ID_REUSED", "Duplicate import edge");
+      if (!Object.hasOwn(document.nodes, edge.source) && !importing.has(edge.source)) importUnavailable("Import edge source is missing");
+      edgeIds.add(edge.id);
+      if (Object.hasOwn(document.edges, edge.id)) throw canvasV3Error(409, "CANVAS_V3_COMMAND_ID_REUSED", "Import edge already exists");
+      edges.push({ id: edge.id, before: null, after: { id: edge.id, source: edge.source, target: item.nodeId } });
+    }
+  }
+  if (!nodes.length) throw canvasV3Error(409, "CANVAS_V3_COMMAND_ID_REUSED", "Nothing to import");
+  return { type: "canvas.patch", nodes, edges };
+}
+
 async function runPatch(document: CanvasV3Document, command: CanvasV3Patch, content: CanvasV3ContentService, sources: EditorSourceFiles): Promise<CanvasV3Effect> {
   let patch: CanvasV3Patch;
   try {
@@ -221,17 +331,23 @@ async function runPatch(document: CanvasV3Document, command: CanvasV3Patch, cont
   };
 }
 
-export async function executeCanvasV3Command(document: CanvasV3Document, command: CanvasV3Command, content: CanvasV3ContentService, sources: EditorSourceFiles): Promise<{ patch: CanvasV3Patch; effects: { undo: CanvasV3Command | null; compositionIds: string[] } }> {
-  if (command.type === "canvas.patch") {
-    const effect = await runPatch(document, command, content, sources);
+/** 一条命令（可能是批量里的第几条）落到画布上要改什么。导入先翻译成补丁，其余直接用。 */
+async function patchOf(document: CanvasV3Document, command: CanvasV3Patch | CanvasV3ContentImport, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Patch> {
+  return command.type === "content.import" ? importPatch(document, command, content, keyPrefix) : command;
+}
+
+export async function executeCanvasV3Command(document: CanvasV3Document, command: CanvasV3Command, content: CanvasV3ContentService, sources: EditorSourceFiles, commandId: string): Promise<{ patch: CanvasV3Patch; effects: { undo: CanvasV3Command | null; compositionIds: string[] } }> {
+  if (command.type !== "canvas.batch") {
+    const patch = await patchOf(document, command, content, commandId);
+    const effect = await runPatch(document, patch, content, sources);
     return { patch: effect.patch, effects: { undo: effect.undo, compositionIds: [] } };
   }
   let current = document;
   const patch: CanvasV3Patch = { type: "canvas.patch", nodes: [], edges: [] };
   const undos: CanvasV3Command[] = [];
-  for (const item of command.commands) {
-    if (item.type !== "canvas.patch") throw invalidCanvasV3Command();
-    const effect = await runPatch(current, item, content, sources);
+  for (const [index, item] of command.commands.entries()) {
+    if (item.type === "canvas.batch") throw invalidCanvasV3Command();
+    const effect = await runPatch(current, await patchOf(current, item, content, `${commandId}:${index}`), content, sources);
     current = applyCanvasV3Patch(current, effect.patch, true);
     mergePatch(patch, effect.patch);
     if (effect.undo) undos.unshift(effect.undo);
