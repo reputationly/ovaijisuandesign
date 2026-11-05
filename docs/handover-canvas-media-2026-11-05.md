@@ -13,8 +13,8 @@
 ## 0. TL;DR
 
 - **已完成**：多输出扇出、生图/生视频/生音乐（含参考入参）、图片/视频/音频/文本预览、PPT（原生 `edit_media:export_slides`）、以及一批会导致崩溃/静默失败的老 bug。
-- **唯一未完成**：**表格节点创建**（因此表格预览也验不到）。根因已定位到网关层：网关不认识渲染层发的 `content.import` 命令，且节点模型里没有表格内容节点。详见 §3。
-- 全部改动已推送，`turbo typecheck+test` 全绿；CI 对 `e6f9ed63` 及之前提交均 success（`363aa7bd`、`d5352d15` 的 CI 结果本会话未查看，接手后请补查）。
+- **表格已打通（2026-11-05 续做）**：「+ → 表格」能建出节点、卡片能渲染 `.htable` 内容、双击能打开表格编辑器。**两个真根因**见 §3：网关缺 `content.import`，以及**文档写接口的响应缺 `media` 字段**（后者同时卡死了文本编辑）。
+- 全部改动已推送。CI：`e6f9ed63`、`d5352d15`、`b9bd2b42` success；`363aa7bd` **failure 但是环境问题**（Windows 打包机 `listen EACCES 127.0.0.1:49893`，见 §4.5），其子提交 `d5352d15` 同代码全绿。
 
 ---
 
@@ -44,6 +44,7 @@
 | `e6f9ed63` | 原生能力 `edit_media:export_slides` | 应用内原本完全没有 PPT 生成能力 |
 | `363aa7bd` | `tableStorage`（A 方案第一步） | 该 prop 全仓库无人提供，`addActions.table.enabled` 恒 false |
 | `d5352d15` | 表格 `save()` 追加建节点（`content.import`） | `addTable()` 约定 save 后节点已存在 |
+| （续做，见 §3.6） | 网关实现 `content.import` + 文档写响应补 `media` | 见 §3.6 的两个真根因 |
 
 ---
 
@@ -91,67 +92,103 @@
 
 ---
 
-## 3. 未完成：表格节点创建（**新会话的第一件事**）
+## 3. 表格：已打通（原「唯一阻塞项」）
 
-### 3.1 现象
+### 3.1 结论先说
 
-画布底部「+ → 表格」菜单项**可点**（`disabled:false`），点完：
+「+ → 表格 → 卡片渲染 `.htable` → 双击打开表格编辑器」**全链路可用**，真机已验证（证据与复跑脚本见 §3.5）。
+上一轮把它记成"唯一阻塞项：网关不认识 `content.import`"，那只说对了一半：`content.import` 确实缺，但**在它之前还有一道墙**——文档写成功了，渲染层却判定响应非法，于是根本没走到发命令那一步。
 
-- `POST /api/v3/document`（`format:"htable"`）**成功**；
-- 画布上**没有**表格节点（`canvas.table-node` = 0），也无报错弹窗；
-- 抓网络：只有 document 请求，**没有** `canvas/commands` 请求跟在后面。
+### 3.2 真根因一：文档写响应缺 `resource.media`
 
-### 3.2 已确认的链路与契约
+`POST /api/v3/document` 返回：
 
-1. **`addTable()` 的约定**（`app/renderer/src/canvas-v3/canvas-area-v3.js:32622`）：
-
-```js
-run(async () => {
-  await tableStorage.save({ nodeId: id2, doc: createEmptyDocument(...), name: ..., position: point, ...(edges) });
-  if (editor.getSnapshot().document.nodes[id2]) selectNodeExclusive(id2);   // ← save 返回时节点必须已存在
-});
+```json
+{ "requestId": "...", "resource": { "resourceId": "res_…", "versionId": "ver_…", "name": "…", "kind": "text", "lines": 1, "contentRevision": 1 } }
 ```
 
-2. **`storage` 需要的方法**（文本侧同一套 `useCanvasV3Text`，`canvas-v3-hooks.js:229`）：
-   `subscribe(listener)` / `getSnapshot() → {pending,error}` / `load({resourceId,versionId,contentRevision}, signal)` / `save({nodeId,doc,name,position,edges,source})`。
-3. **表格在数据模型里 = 路径以 `.htable` 结尾的 TEXT_DOCUMENT**（`canvas-v3-model.js:4270`）。
-4. **后端能力**：
-   - 写文档：`POST /api/v3/document`，`FORMATS = ["md","txt","htable","srt","ass"]`（`project-kernel/document.service.ts:14`）；
-     返回 `{requestId, resource:{resourceId, versionId, name, kind:"text", lines, contentRevision}}`；
-   - 读文档：`POST /api/project/resources/get`（`mode:"content"`，内容可能分块返回）。
+而渲染层的 `parseCanvasV3DocumentWriteResult`（`canvas-v3-model.js:4221`）把 `media` 当**必需**字段：
 
-### 3.3 卡点（实测，不是猜测）
+```js
+const metadata = media(resource2.media);            // 需要 { mimeType: string, sizeBytes: number }
+if (… || !metadata || …) return void 0;             // 缺了就直接返回 undefined
+```
 
-| 尝试 | 结果 |
-|---|---|
-| `POST /api/v3/document {format:"htable"}` | ✅ 200，返回 `res_65464f7b97cf` / `ver_8cd1d9010199` |
-| `POST /api/v3/canvas/commands` `{type:"content.import", items:[…]}` | ❌ `400 CANVAS_V3_INVALID_COMMAND`（网关源码里 **grep 不到 `content.import`**） |
-| `canvas.patch` 节点 `{kind:"table", resourceId, versionId, …}` | ❌ 400（`LEGACY_NODE_FIELDS` 把 `resourceId/versionId` 判成 legacy 快照） |
-| `canvas.patch` 节点 `{id,parentId,position,size,zIndex,hidden,kind:"placeholder",expectedKind:"table",draft:null}` | ❌ 400 `CANVAS_V3_INVALID_COMMAND` |
+于是表格存 `CANVAS_V3_TABLE_INVALID_RESPONSE`、文本存 `CANVAS_V3_TEXT_INVALID_RESPONSE`（`canvas-area-v3.js` 的 `CanvasV3TableStorage.run()` / `CanvasV3TextStorage.run()` 都会判）。
+**文本编辑器同样受害**——只是添加文本节点不写文档，所以平时看不出来。
 
-网关侧事实：
+修：`app/gateway/src/project-kernel/document.service.ts` 的返回值补
+`media: { mimeType: 扩展名 === ".md" ? "text/markdown" : "text/plain", sizeBytes: Buffer.byteLength(content) }`（与 `query.service.ts` 的读接口一致）。
 
-- 命令只有 `canvas.patch` / `canvas.batch`（`canvas-v3/commands.ts:224`）；
-- 节点 kind 只有 `composition / placeholder / frame / sticker / director-stage / clip-studio`（`canvas-v3/protocol.ts` 的 `parseNode`）；
-- `LEGACY_NODE_FIELDS = ["resourceId","versionId","mediaKind","imageResults","generationIntentId"]`（`protocol.ts:296`），带这些字段的节点一律 legacy 拒绝。
+### 3.3 真根因二：网关没有 `content.import`
 
-### 3.4 建议实现路径（按顺序）
+渲染层所有"把资源放进画布"的动作（拖入图片、粘贴、上传、新建表格、文本生成完成）都发
+`{type:"content.import", items:[{nodeId, resourceId, versionId, placement?, size?, edges?}]}`；
+网关当时只认 `canvas.patch` / `canvas.batch`，回 `400 CANVAS_V3_INVALID_COMMAND`。
 
-1. **在网关实现 `content.import`**（`canvas-v3/protocol.ts` 加解析、`commands.ts` 加执行）：把
-   `{items:[{nodeId, resourceId, versionId, placement?, size?, edges?}]}` **翻译成 `canvas.patch`**，
-   节点形态用网关认可的 `placeholder`（`expectedKind` 由资源推导：`.htable` → `table`）或该资源类别对应的合法形态；
-2. 加 e2e：`document` 写 `.htable` → `content.import` → `GET /api/v3/canvas` 能看到该节点；
-3. 回到 UI 验：**「+ → 表格 → 双击表格卡片 → 表格编辑器/预览」**，并截图；
-4. 若 `placeholder` 仍被拒，先用**最小 patch** 逐字段二分，找出 `parseNode` 到底缺哪个字段（不要靠猜，错误信息只有 `Invalid canvas command`，需要在网关侧临时加日志把具体 fail 原因打出来）。
+实现（`app/gateway/src/canvas-v3/protocol.ts` + `commands.ts` + `content.service.ts`）：
 
-### 3.5 相关未完成代码（已在 `d5352d15` 提交，可继续用）
+- `parseCanvasV3ContentImport`：严格解析（未知字段拒绝、目标 id 去重、`items` ≤ `CANVAS_V3_LIMITS.importItems`），`canvas.batch` 里也允许出现；
+- `importPatch()` 把每一项翻译成 `canvas.patch`：
+  - 节点不存在 → 按 `placement` 建**组合节点**（`kind:"composition"`），尺寸默认 表格 350×200 / 文本 350×500 / 图 350×350 / 视频 350×280 / 音频 350×150；
+  - 节点是占位符 → 校验 `expectedKind === mediaKind` 后换成组合节点（保持父级/坐标/层级，尺寸取 `size` 覆盖或沿用）；
+  - 节点已是组合 → 只把 `activeItem` 切到这一版（内容必须属于该组合，`validatePatch` 会再核）；
+  - `edges:[{id, source}]` 的终点固定是该导入节点；
+- **一份资源要有自己的组合**：`content.importTarget()` 先核版本可用并算出 `mediaKind`（kind=1 且路径以 `.htable` 结尾 → `"table"`），
+  `contentComposition()` 找"只装了这份资源、且画布上还没被引用"的组合复用，否则按 `commandId` 用 `ensureAgent` 建一个
+  （类型名沿用产品既有 `图片/视频/音频/文本/表格`，名字是 `资源名 · 组合id`，显示时后缀会被 `compositionTitle` 剥掉）；
+- 命令 id 参与派生，所以重放同一条命令不会重复建组合。
 
-- `app/renderer/src/canvas-v3/table-storage.js`：`load`/`save`/`subscribe`/`getSnapshot` 已就绪，
-  `save()` 里已按 `content.import` 组装命令（网关支持后即可工作）；
-- 画布内兜底构造：`canvas-area-v3.js`（`tableStorageProp ?? useMemo(createCanvasV3TableStorage…)`）；
-- 用例：`app/renderer/src/canvas-v3/table-storage.test.ts`（5 条，含"第二步打 canvas/commands、type=content.import"）。
+### 3.4 节点形态（库里的真身）
 
----
+`kind:"composition"` 是唯一能挂内容的节点。实测落盘（工作区 `.hilo/canvas-v3/state.sqlite`）：
+
+```json
+{"id":"f94ee0e1-…","parentId":null,"position":{"x":176,"y":295.5},
+ "size":{"width":350,"height":200},"zIndex":0,"hidden":false,
+ "kind":"composition","compositionId":"cmp_4c6ed84c72f7",
+ "activeItem":{"type":"version","resourceId":"res_4905d7b57ece","versionId":"ver_6b7ad08f86b7"},"draft":null}
+```
+
+参考：真实项目里 agent 建的表格节点是 `containerKind:"subject"` + `activeItem:null`（14 个 `cmp_*` 组成一屏），
+`activeItem` 为 null 时渲染层按默认 item 解析，也合法。
+
+### 3.5 验证（可复跑）
+
+```bash
+# 网关侧：document 写 .htable → content.import → GET /api/v3/canvas 有节点 → 普通用例 5 条
+pnpm --filter @ov/gateway exec vitest run src/canvas-v3/content-import.e2e.test.ts
+# 界面侧：+ → 表格 → 双击 → 表格编辑器（开发态跑，需先 build renderer+gateway）
+HILO_PROJECT_ARCHITECTURE=resource_v3 node scripts/pw/table-node-probe.mjs
+```
+
+界面侧的实测输出：
+
+```
+① 建节点: OK {"kind":"composition","size":{"width":350,"height":200},"compositionId":"cmp_4c6ed84c72f7","activeItem":{…}}
+② 编辑器: OK {"editorOpen":1,"addRow":true,"previewText":"文本暂无数据 — 点击下方 + 添加一行"}
+③ 界面问题: 无
+```
+
+请求序列（表格一次点击）：`POST /api/v3/document` → `POST /api/v3/canvas/commands` → `POST /api/v3/canvas/content` → `POST /api/project/resources/get` → `GET /api/files/content`，全部 200，无 toast。
+
+### 3.6 顺手清掉的坑
+
+- **手写的 `app/renderer/src/canvas-v3/table-storage.js` 已删除**（含它的 5 条用例）。它从没被用上：`tableStorage` 本来就有，
+  由 `CanvasV3SessionImports.table` → `CanvasV3Surface`（`canvas-area-v3.js:61253`）传进来；而且它自己拼 `canvas/commands` 时
+  **没带 `expectedRevision`**，真被用上也只会 400。兜底逻辑一并去掉——宁可菜单项显示不可用，也不静默走坏路径。
+- `CanvasV3TableStorage.run()` 的 catch 里补了 `console.warn(...)`：调用方 `addTable` 只 toast 一句「画布改动尚未保存」，
+  真实原因（`CANVAS_V3_TABLE_INVALID_RESPONSE`）原来完全看不到，这次就是靠它定位的。
+
+### 3.7 还没验的
+
+表格编辑器里改动后**关闭→保存回写**（`mode:"replace"` 出新版本 + `canvasV3SetActiveItemPatch` 切 `activeItem`）没在真机跑通完整一轮。已知线索（省下一轮摸索）：
+
+- 编辑器是 `role="dialog"` 里的自绘网格：标题/筛选是 `<input>`，**数据单元格不是 `contenteditable` 也不是 `input`**
+  （点进去才出现编辑态），所以 `locator('[contenteditable]')` 抓不到，得按坐标点；
+- 关闭时若 `doc` 没变，`onClose(doc)` 不会带内容 → 根本不写版本（实测 `versions` 仍是 1 条，符合预期，别误判成 bug）；
+- 关闭按钮**没有 aria-label**（`role="dialog"` 里 8 个 button 的 label 全空，靠 title/文本区分：字段配置/筛选/行高/…），
+  探针里用 `Escape` 反而能关掉。
 
 ## 4. 环境与命令手册
 
@@ -232,6 +269,20 @@ gh run view <id> --json status,conclusion,jobs
 
 ---
 
+### 4.5 CI 结果怎么看（含一次假失败）
+
+```bash
+gh run list --limit 5 --json databaseId,headSha,status,conclusion,displayTitle
+gh run view <id> --log-failed | tail -40
+```
+
+- `363aa7bd` 的 failure **不是代码问题**：Windows 打包机的「运行时证明」步骤起网关时
+  `Error: listen EACCES: permission denied 127.0.0.1:49893` —— Windows 的 Hyper-V/WinNAT 预留端口段偶尔会命中随机端口。
+  同一个提交的子提交 `d5352d15` 同代码全绿，重跑即可。
+- **全量 `pnpm turbo run test` 里 `app/gateway/src/canvas/canvas.e2e.test.ts`（legacy v2 画布）会偶发失败**
+  （`期望 409 实际 201`，即"渲染层确认"状态没建立起来）。已在**干净 tree** 上复现过，属于本仓库既有抖动，
+  与本轮改动无关；单独跑该文件或与 `canvas-v3` 用例一起跑都通过。**不要**拿它当回归信号。
+
 ## 5. 踩坑清单（本轮新增，务必先读）
 
 ### 5.1 打包脚本不重编 gateway / mcp-tools
@@ -264,14 +315,24 @@ gh run view <id> --json status,conclusion,jobs
 
 ---
 
+### 5.8 探针里 `dispatchEvent('dblclick')` 只能向上冒泡
+节点双击处理器挂在**内部**元素上（表格是 `[data-action-ui-id="canvas-v3.table-preview"]` 的 `onDoubleClick`）。
+把事件打在 `.react-flow__node` 外层，它只会往上冒泡，处理函数永远不触发 —— 表现成"双击没反应"，
+其实代码是好的。要么打在宿主元素上，要么用 `page.mouse.dblclick(x, y)` 按坐标点。
+
+### 5.9 `run()` 会把真实错误换成一句泛泛的话
+`canvas-area-v3.js:31474` 的 `run()` 是 `catch(() => dedupedToast.error(t("canvas.persistence.failed")))` ——
+任何动作失败都只显示「画布改动尚未保存」，真实 message 丢掉了。排查这类问题先临时加 `console.warn(error)`，
+或者直接看 `CanvasV3TableStorage.run().catch` 里那条（本轮已加过 warning）。
+
 ## 6. 下一步 TODO（按优先级）
 
-1. **【阻塞项】表格**：§3.4 —— 网关实现 `content.import`，再验「+ → 表格 → 双击预览」；
+1. ~~**【阻塞项】表格**~~ —— 已打通，见 §3；剩下「编辑器改完 → 关闭保存 → 新版本 + `activeItem` 切换」没真机走通一轮；
 2. `design_composition_edit` 的 `action=update` 网关没有对应命令（只支持 `ensure`/`rename`），模型会撞到；
 3. `deliver` 偶发 `NOT_FOUND: Delivery source version …`（模型引用了不存在的 versionId）→ 工具层加引用存在性预检，提前给可操作提示；
 4. `design_execute` 提交前校验 `prompt` 非空（曾出现平台侧 `prompt is required`）；
 5. PPT 后续：`export_slides` 现在只支持"一图一页"，若要排版/文字页/多图网格，扩展 `pptx.ts` 的 `slideXml`；
-6. 补查 `363aa7bd`、`d5352d15` 的 CI 结果，并确认最新 HEAD 的 `turbo build typecheck test` 全绿。
+6. ~~补查 CI~~ —— 已查，结论见 §4.5（`363aa7bd` 是 Windows 端口假失败）。
 
 ---
 
@@ -289,7 +350,9 @@ gh run view <id> --json status,conclusion,jobs
 | 文档读写 | `app/gateway/src/project-kernel/document.service.ts` |
 | 画布 UI（节点/菜单/预览入口） | `app/renderer/src/canvas-v3/canvas-area-v3.js` |
 | 灯箱与编辑器组件 | `app/renderer/src/canvas-v3/ui-components.js` |
-| 表格存储 | `app/renderer/src/canvas-v3/table-storage.js` |
+| 表格/文本存储（真身） | `app/renderer/src/canvas-v3/canvas-area-v3.js` 的 `CanvasV3TableStorage` / `CanvasV3TextStorage` |
+| 导入命令（网关） | `app/gateway/src/canvas-v3/commands.ts`（`importPatch`）、`content.service.ts`（`importTarget` / `contentComposition`） |
+| 文档写响应（media 必需） | `app/gateway/src/project-kernel/document.service.ts` |
 | 画布数据模型（parser） | `app/renderer/src/canvas-v3/canvas-v3-model.js` |
 | 工具参数兜底 | `app/mcp-tools/src/registrar.ts` |
 | 技能/知识卡可读 | `app/gateway/src/asset-preview/document-read.service.ts` |
@@ -300,6 +363,7 @@ gh run view <id> --json status,conclusion,jobs
 
 会话里用的临时脚本都放在 `scripts/pw/tmp-*.mjs` 或 `/tmp/*.py`，验证完即删。常用套路：
 
-- **浏览器侧**：`chromium.connectOverCDP('http://127.0.0.1:<port>')` → 取 `app://` 页面 → `page.evaluate` 里直接 `dispatchEvent(new MouseEvent('dblclick', {bubbles:true}))`（比坐标点击稳，坐标点击容易被画布滚动/浮层影响）；
+- **表格链路（已入库，可复跑）**：`scripts/pw/table-node-probe.mjs` —— 「+ → 表格 → 双击 → 编辑器」三步取证，读 sqlite 判节点、读 DOM 判编辑器、退出码非 0 即失败；
+- **浏览器侧**：`chromium.connectOverCDP('http://127.0.0.1:<port>')` → 取 `app://` 页面 → `page.evaluate` 里直接 `dispatchEvent(new MouseEvent('dblclick', {bubbles:true}))`（比坐标点击稳，坐标点击容易被画布滚动/浮层影响）——**但要打在宿主元素上，见 §5.8**；
 - **网关侧**：见 §4.3 的 python 片段；
 - **校验 PPTX**：`python3 -c "import pptx; p=pptx.Presentation(f); print(len(p.slides))"`。
