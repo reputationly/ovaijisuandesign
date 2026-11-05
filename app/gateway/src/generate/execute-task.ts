@@ -204,8 +204,10 @@ function parseReferences(value: unknown): string[] {
   if (!Array.isArray(value) || value.length > 100) throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid references");
   return value.map((item) => {
     if (item === null) throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid reference");
-    const reference = object(item, ["versionId", "compositionId", "resourceId", "memberId"], "reference");
-    if (reference.versionId !== undefined && Object.keys(reference).length !== 1) throw new ProjectQueryError("INVALID_ARGUMENT", "Invalid reference");
+    const reference = object(item, ["versionId", "compositionId", "resourceId", "memberId", "role", "name", "kind"], "reference");
+    // 只认 `versionId`；其它字段（role/name/resourceId…）是模型顺手带的提示，忽略即可。
+    // 以前要求"带 versionId 时必须是唯一键"，于是 `{versionId, role}` 被判 Invalid reference，
+    // 模型只好反复猜格式（真机上视频段连续 5 次失败就是这个）。
     return identifier(reference.versionId, "versionId");
   });
 }

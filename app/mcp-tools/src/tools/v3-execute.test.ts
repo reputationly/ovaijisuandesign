@@ -61,4 +61,17 @@ describe("design_execute 的任务契约", () => {
     await tools.get("execute")!({ capabilityId: "generate_video:enhance", params: { resolution: "1080p", fps: 60 } });
     expect(gw.post).toHaveBeenCalledTimes(1);
   });
+
+  it("references 里的多余字段会被收敛成恰好 {versionId}（网关只收单键）", async () => {
+    const { tools, gw } = harness();
+    await tools.get("execute")!({
+      capabilityId: "generate_video:minimax-h3-2k",
+      prompt: "公路日落",
+      params: { duration: "6" },
+      references: [{ versionId: "ver_a", role: "reference", name: "Claire" }, { resourceId: "res_b", versionId: "ver_b" }, "ver_c"],
+    });
+    expect(gw.post).toHaveBeenCalledTimes(1);
+    const sent = (gw.post as unknown as { mock: { calls: unknown[][] } }).mock.calls[0]![1] as { references: unknown };
+    expect(sent.references).toEqual([{ versionId: "ver_a" }, { versionId: "ver_b" }, { versionId: "ver_c" }]);
+  });
 });

@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import type { CallToolResult, ToolAnnotations } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
+import { normalizeExecuteArgs, normalizeExecuteReferences } from "./args-normalize.js";
 import { runWithSession, type GroupScope } from "./context.js";
 
 /**
@@ -534,7 +535,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     if (name === "code_publish") args = coercePublishOutputs(args);
     if (name === "deliver") args = sanitizeDeliver(args);
     if (name === "execute" && args.output !== undefined) args = { ...args, output: normalizeExecuteOutput(args.output) };
-    if (name.replace(/^(design|hub)_/, "") === "execute") args = normalizeExecuteReferences(args);
+    if (name.replace(/^(design|hub)_/, "") === "execute") args = normalizeExecuteArgs(args);
     if (name === "code_project_open" && Array.isArray(args.inputs)) {
       // 模型会把 inputs 写成 ["ver_xxx"]；schema 要的是对象数组。
       args = {
@@ -675,28 +676,5 @@ export function createToolRegistrar(server: RegisterToolTarget): ToolRegistrar {
   };
 }
 
-/**
- * `execute.references` 归一。
- *
- * 真机里模型把这几种都试了一遍：
- *   references: "ver_x"                      → 单个字符串
- *   references: "{\"versionId\":\"ver_x\"}"      → JSON 字符串
- *   references: { versionId: "ver_x" }       → 单个对象
- * schema 只收对象数组，前三种全被判 "Expected array, received …"，
- * 光是在一条 MV 里就白折腾了 4 轮。这里统一成 `[{versionId}]`。
- */
-function normalizeExecuteReferences(args: Record<string, unknown>): Record<string, unknown> {
-  if (args.references === undefined) return args;
-  const parsed = typeof args.references === "string" ? parseJsonLike(args.references) : args.references;
-  const list = Array.isArray(parsed) ? parsed : [parsed];
-  const refs = list
-    .map((item) => {
-      if (typeof item === "string" && item.trim() !== "") return item.startsWith("res_") ? { resourceId: item } : { versionId: item };
-      if (item && typeof item === "object") return item;
-      return undefined;
-    })
-    .filter((item): item is Record<string, unknown> | string => item !== undefined)
-    .map((item) => (typeof item === "string" ? (item.startsWith("res_") ? { resourceId: item } : { versionId: item }) : item));
-  return { ...args, references: refs };
-}
+export { normalizeExecuteReferences };
 export const normalizeExecuteReferencesForTest = normalizeExecuteReferences;

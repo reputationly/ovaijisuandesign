@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 
 import { z } from "zod";
 
+import { normalizeExecuteReferences } from "../args-normalize.js";
 import { errorMessage } from "../gateway-client.js";
 import { errorReply, structuredReply } from "../replies.js";
 import type { RegisterTools } from "./types.js";
@@ -773,8 +774,10 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
         // `UNSUPPORTED_FIELD` —— 界面上就是"生成图片失败"。这里只放行白名单字段，
         // 并把字符串化的 params/output 解析开。
         const submit: Record<string, unknown> = {};
+        // 直接调 handler 的路径（测试/内部复用）没有 registrar 的预处理，这里再兜一次。
+        const normalized = normalizeExecuteReferences(args as Record<string, unknown>);
         for (const key of ["capabilityId", "prompt", "params", "references", "count", "output"]) {
-          if ((args as Record<string, unknown>)[key] !== undefined) submit[key] = (args as Record<string, unknown>)[key];
+          if (normalized[key] !== undefined) submit[key] = normalized[key];
         }
         // `output` 的归一在 registrar 的预处理里做（schema 会把顶层散落的
         // compositionId/placements 当未知字段丢掉，晚了就来不及）。
