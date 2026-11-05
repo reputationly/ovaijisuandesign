@@ -3,6 +3,7 @@ import { EditorSourceFiles } from "../editor-v3/source-files.js";
 import { canvasV3Error, invalidCanvasV3Command } from "./errors.js";
 import { CanvasV3ContentService } from "./content.service.js";
 import {
+  type CanvasV3ClipboardPaste,
   type CanvasV3Command,
   type CanvasV3ContentImport,
   type CanvasV3Document,
@@ -308,6 +309,63 @@ async function importPatch(document: CanvasV3Document, command: CanvasV3ContentI
   return { type: "canvas.patch", nodes, edges };
 }
 
+/** 快照里的组合节点要换 id，附着在节点上的引用也要跟着换。 */
+function remappedAttachment(node: CanvasV3Node, ids: Record<string, string>): CanvasV3Node {
+  const attachment = node.attachment as { targetId?: string; offset?: { x: number; y: number } } | undefined;
+  if (node.kind !== "sticker" || !attachment || typeof attachment.targetId !== "string") return node;
+  const target = ids[attachment.targetId];
+  return target ? { ...node, attachment: { ...attachment, targetId: target } } : node;
+}
+
+/**
+ * `clipboard.paste` 带的是**一整份子文档快照**：这里把它按 `ids` 改名、按 `offset` 平移根节点，
+ * 组合节点则建出全新的组合（成员仍是同一批资源，粘贴不复制文件）。
+ * 子节点坐标是相对父级的，只有根节点吃 `offset`。
+ */
+async function pastePatch(document: CanvasV3Document, command: CanvasV3ClipboardPaste, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Patch> {
+  const snapshot = command.snapshot.document;
+  const nodes: CanvasV3Patch["nodes"] = [];
+  const edges: CanvasV3Patch["edges"] = [];
+  for (const node of Object.values(snapshot.nodes).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
+    const nextId = command.ids[node.id];
+    if (!nextId) throw invalidCanvasV3Command();
+    if (Object.hasOwn(document.nodes, nextId)) throw invalidCanvasV3Command();
+    const parentId = node.parentId === null ? null : (command.ids[node.parentId] ?? null);
+    if (node.parentId !== null && parentId === null) throw invalidCanvasV3Command();
+    let after: CanvasV3Node = {
+      ...node,
+      id: nextId,
+      parentId,
+      position: node.parentId === null ? { x: node.position.x + command.offset.x, y: node.position.y + command.offset.y } : node.position,
+    };
+    after = remappedAttachment(after, command.ids);
+    if (node.kind === "composition") {
+      const entry = command.snapshot.content[node.id];
+      if (!entry) importUnavailable("Pasted composition is incomplete");
+      const pasted = await content.pastedComposition(`${keyPrefix}:${nextId}`, entry, command.sources);
+      after.compositionId = pasted.compositionId;
+      const active = node.activeItem as { type?: string; resourceId?: string; versionId?: string } | null | undefined;
+      const remapped = active?.resourceId ? pasted.remap.get(active.resourceId) : undefined;
+      after.activeItem = active && remapped ? { type: "version", resourceId: remapped.resourceId, versionId: remapped.versionId } : (node.activeItem ?? null);
+    }
+    nodes.push({ id: nextId, before: null, after });
+  }
+  for (const edge of Object.values(snapshot.edges)) {
+    const nextId = command.ids[edge.id];
+    const source = command.ids[edge.source];
+    const target = command.ids[edge.target];
+    if (!nextId || !source || !target) throw invalidCanvasV3Command();
+    if (Object.hasOwn(document.edges, nextId)) throw invalidCanvasV3Command();
+    edges.push({
+      id: nextId,
+      before: null,
+      after: { ...edge, id: nextId, source, target },
+    });
+  }
+  if (!nodes.length) throw invalidCanvasV3Command();
+  return { type: "canvas.patch", nodes, edges };
+}
+
 async function runPatch(document: CanvasV3Document, command: CanvasV3Patch, content: CanvasV3ContentService, sources: EditorSourceFiles): Promise<CanvasV3Effect> {
   let patch: CanvasV3Patch;
   try {
@@ -332,8 +390,10 @@ async function runPatch(document: CanvasV3Document, command: CanvasV3Patch, cont
 }
 
 /** 一条命令（可能是批量里的第几条）落到画布上要改什么。导入先翻译成补丁，其余直接用。 */
-async function patchOf(document: CanvasV3Document, command: CanvasV3Patch | CanvasV3ContentImport, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Patch> {
-  return command.type === "content.import" ? importPatch(document, command, content, keyPrefix) : command;
+async function patchOf(document: CanvasV3Document, command: CanvasV3Patch | CanvasV3ContentImport | CanvasV3ClipboardPaste, content: CanvasV3ContentService, keyPrefix: string): Promise<CanvasV3Patch> {
+  if (command.type === "content.import") return importPatch(document, command, content, keyPrefix);
+  if (command.type === "clipboard.paste") return pastePatch(document, command, content, keyPrefix);
+  return command;
 }
 
 export async function executeCanvasV3Command(document: CanvasV3Document, command: CanvasV3Command, content: CanvasV3ContentService, sources: EditorSourceFiles, commandId: string): Promise<{ patch: CanvasV3Patch; effects: { undo: CanvasV3Command | null; compositionIds: string[] } }> {

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-import { CANVAS_V3_LIMITS } from "./protocol.js";
+import { CANVAS_V3_LIMITS, type CanvasV3ClipboardContent } from "./protocol.js";
 import { canvasV3Error } from "./errors.js";
 import { ProjectKernelError } from "../project-kernel/errors.js";
 import { ProjectCompositionService, projectId } from "../project-kernel/composition.service.js";
@@ -21,6 +21,12 @@ type ImportRead = {
 
 function importUnavailable(): never {
   throw canvasV3Error(409, "CANVAS_V3_CONTENT_UNAVAILABLE", "Imported content is unavailable");
+}
+
+export interface CanvasV3PastedComposition {
+  compositionId: string;
+  /** 旧资源 id → 新的资源/版本（只在跨项目 `sources` 给到时才有）。 */
+  remap: Map<string, { resourceId: string; versionId: string }>;
 }
 
 export interface CanvasV3ImportTarget {
@@ -128,6 +134,35 @@ export class CanvasV3ContentService {
     })) as { compositionId?: string };
     if (typeof receipt.compositionId !== "string" || !receipt.compositionId) throw importUnavailable();
     return receipt.compositionId;
+  }
+
+  /**
+   * 粘贴出来的组合：内容照抄剪贴板快照，但组合本身是新的。
+   * 成员指向同一批资源（粘贴不复制文件）；跨项目时按 `sources` 换成对端的资源/版本。
+   */
+  async pastedComposition(commandId: string, content: CanvasV3ClipboardContent, sources?: Record<string, { resourceId: string; versionId: string }>): Promise<CanvasV3PastedComposition> {
+    // `sources` 的键是渲染层约定的 `资源id\n版本id`。同一份资源只可能命中一条。
+    const remap = new Map<string, { resourceId: string; versionId: string }>();
+    for (const item of content.items) {
+      const source = sources?.[`${item.resourceId}\n${item.versionId}`];
+      if (source) remap.set(item.resourceId, source);
+    }
+    const resourceOf = (resourceId: string) => remap.get(resourceId)?.resourceId ?? resourceId;
+    const members = content.members?.length
+      ? content.members.map((member) => ({ ...member, resource: member.resource === null ? null : resourceOf(member.resource) }))
+      : content.items.length
+        ? [{ memberId: projectId("member", commandId), role: content.items[0]?.name || content.title, resource: resourceOf(content.items[0]?.resourceId ?? "") }]
+        : [];
+    const compositionId = projectId("composition", commandId);
+    const receipt = (await this.compositions.ensureAgent(commandId, {
+      label: members.length > 1 ? "画布内容" : (COMPOSITION_LABELS[content.items[0]?.kind ?? "file"] ?? "画布内容"),
+      name: `${content.title} · ${compositionId}`,
+      ...(members.length
+        ? { operations: members.map((member) => ({ type: "member.add", member: { memberId: member.memberId, role: member.role || content.title || "内容", resource: member.resource } })) }
+        : {}),
+    })) as { compositionId?: string };
+    if (typeof receipt.compositionId !== "string" || !receipt.compositionId) throw importUnavailable();
+    return { compositionId: receipt.compositionId, remap };
   }
 
   /** 已经建好、但画布上还没有节点用的单成员组合。重试时复用它，免得堆一堆组合。 */

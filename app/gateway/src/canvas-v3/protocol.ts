@@ -80,6 +80,42 @@ export interface CanvasV3ImportItem {
   size?: CanvasV3Size;
   edges?: CanvasV3ImportEdgeRef[];
 }
+/** 剪贴板快照：一整份子文档 + 每个组合的内容（成员与条目）。 */
+export interface CanvasV3ClipboardItem {
+  ref: { type: "version"; resourceId: string; versionId: string };
+  resourceId: string;
+  versionId: string;
+  name: string;
+  kind: string;
+  isCurrent?: boolean;
+}
+export interface CanvasV3ClipboardMember {
+  memberId: string;
+  role: string;
+  resource: string | null;
+}
+export interface CanvasV3ClipboardContent {
+  title: string;
+  compositionRevision?: number;
+  members?: CanvasV3ClipboardMember[];
+  items: CanvasV3ClipboardItem[];
+}
+export interface CanvasV3ClipboardSnapshot {
+  type: "canvas-v3.clipboard";
+  workspaceId: string;
+  document: CanvasV3Document;
+  content: Record<string, CanvasV3ClipboardContent>;
+}
+/** 粘贴：把快照里的节点/边按 `ids` 改名、按 `offset` 平移，组合内容建出新的组合。 */
+export interface CanvasV3ClipboardPaste {
+  type: "clipboard.paste";
+  snapshot: CanvasV3ClipboardSnapshot;
+  ids: Record<string, string>;
+  offset: CanvasV3Point;
+  sources?: Record<string, { resourceId: string; versionId: string }>;
+  duplicate?: true;
+}
+
 /** 把一份资源版本放进画布：没有节点就新建，占位符就填上，组合就切到这一版。 */
 export interface CanvasV3ContentImport {
   type: "content.import";
@@ -509,6 +545,95 @@ export function parseCanvasV3ContentImport(value: unknown): CanvasV3ContentImpor
   return { type: "content.import", items };
 }
 
+function parseClipboardItem(value: unknown): CanvasV3ClipboardItem {
+  const raw = shape(value, ["ref", "resourceId", "versionId", "name", "kind"], ["isCurrent"]);
+  const ref = exact(raw.ref, ["type", "resourceId", "versionId"]);
+  if (ref.type !== "version") fail("invalid clipboard item ref");
+  if (raw.isCurrent !== undefined && typeof raw.isCurrent !== "boolean") fail("invalid clipboard item currency");
+  return {
+    ref: { type: "version", resourceId: id(ref.resourceId), versionId: id(ref.versionId) },
+    resourceId: id(raw.resourceId),
+    versionId: id(raw.versionId),
+    name: text(raw.name, CANVAS_V3_LIMITS.titleLength),
+    kind: contentKind(raw.kind),
+    ...(raw.isCurrent === undefined ? {} : { isCurrent: raw.isCurrent }),
+  };
+}
+
+function parseClipboardContent(value: unknown): CanvasV3ClipboardContent {
+  const raw = shape(value, ["title", "items"], ["members", "compositionRevision"]);
+  const items = array(raw.items, CANVAS_V3_LIMITS.importItems).map(parseClipboardItem);
+  const keys = new Set(items.map((item) => `${item.resourceId}\u0000${item.versionId}`));
+  if (keys.size !== items.length) fail("duplicate clipboard item");
+  const members = Object.hasOwn(raw, "members")
+    ? array(raw.members, CANVAS_V3_LIMITS.importItems).map((entry) => {
+        const member = exact(entry, ["memberId", "role", "resource"]);
+        const resource = member.resource === null ? null : id(member.resource);
+        if (resource !== null && !items.some((item) => item.resourceId === resource)) fail("missing clipboard member");
+        return { memberId: id(member.memberId), role: text(member.role, CANVAS_V3_LIMITS.titleLength), resource };
+      })
+    : undefined;
+  if (raw.compositionRevision !== undefined) integer(raw.compositionRevision, true);
+  return {
+    title: text(raw.title, CANVAS_V3_LIMITS.titleLength),
+    items,
+    ...(members === undefined ? {} : { members }),
+    ...(raw.compositionRevision === undefined ? {} : { compositionRevision: integer(raw.compositionRevision, true) }),
+  };
+}
+
+export function parseCanvasV3ClipboardSnapshot(value: unknown): CanvasV3ClipboardSnapshot {
+  const raw = exact(value, ["type", "workspaceId", "document", "content"]);
+  if (raw.type !== "canvas-v3.clipboard") fail("invalid clipboard type");
+  const document = parseCanvasV3Document(raw.document);
+  // 快照永远是一份未落盘的子文档：revision 0、不能只有隐藏节点。
+  if (document.revision !== 0 || !Object.keys(document.nodes).length) fail("invalid clipboard document");
+  for (const node of Object.values(document.nodes)) {
+    if (node.parentId === null && node.hidden) fail("invalid hidden clipboard root");
+  }
+  const content: Record<string, CanvasV3ClipboardContent> = {};
+  for (const [nodeId, entry] of Object.entries(object(raw.content))) {
+    const key = id(nodeId);
+    if (document.nodes[key]?.kind !== "composition") fail("clipboard content for a non-composition node");
+    content[key] = parseClipboardContent(entry);
+  }
+  return { type: "canvas-v3.clipboard", workspaceId: id(raw.workspaceId), document, content };
+}
+
+export function parseCanvasV3ClipboardPaste(value: unknown): CanvasV3ClipboardPaste {
+  const raw = shape(value, ["type", "snapshot", "ids", "offset"], ["sources", "duplicate"]);
+  if (raw.type !== "clipboard.paste") fail("unsupported command");
+  if (Object.hasOwn(raw, "duplicate") && (raw.duplicate !== true || Object.hasOwn(raw, "sources"))) fail("invalid duplicate paste");
+  const snapshot = parseCanvasV3ClipboardSnapshot(raw.snapshot);
+  const ids: Record<string, string> = {};
+  const used = new Set<string>();
+  for (const [key, entry] of Object.entries(object(raw.ids))) {
+    const mapped = id(entry);
+    if (used.has(mapped)) fail("reused paste id");
+    used.add(mapped);
+    ids[id(key)] = mapped;
+  }
+  for (const key of [...Object.keys(snapshot.document.nodes), ...Object.keys(snapshot.document.edges)]) {
+    if (!Object.hasOwn(ids, key)) fail("missing paste id");
+  }
+  let sources: Record<string, { resourceId: string; versionId: string }> | undefined;
+  if (Object.hasOwn(raw, "sources")) {
+    sources = {};
+    for (const [key, entry] of Object.entries(object(raw.sources))) {
+      const source = exact(entry, ["resourceId", "versionId"]);
+      sources[text(key, 2 * CANVAS_V3_LIMITS.idLength + 1)] = { resourceId: id(source.resourceId), versionId: id(source.versionId) };
+    }
+  }
+  return {
+    type: "clipboard.paste",
+    snapshot,
+    ids,
+    offset: point(raw.offset),
+    ...(sources === undefined ? {} : { sources }),
+    ...(raw.duplicate === true ? { duplicate: true as const } : {}),
+  };
+}
+
 function record<T extends { id: string }>(value: unknown, parse: (entry: unknown) => T, limit: number): Record<string, T> {
   const raw = object(value);
   if (Object.keys(raw).length > limit) fail("record limit exceeded");
@@ -629,7 +754,7 @@ export function invertCanvasV3Patch(patch: CanvasV3Patch): CanvasV3Patch {
   return { type: "canvas.patch", nodes: parsed.nodes.map(invert), edges: parsed.edges.map(invert) };
 }
 
-export type CanvasV3Command = CanvasV3Patch | CanvasV3ContentImport | { type: "canvas.batch"; commands: CanvasV3Command[] };
+export type CanvasV3Command = CanvasV3Patch | CanvasV3ContentImport | CanvasV3ClipboardPaste | { type: "canvas.batch"; commands: CanvasV3Command[] };
 
 export interface CanvasV3CommandRequest {
   commandId: string;
@@ -641,6 +766,7 @@ function parseCommand(value: unknown, nested = false): CanvasV3Command {
   const raw = object(value);
   if (raw.type === "canvas.patch") return parseCanvasV3Patch(raw);
   if (raw.type === "content.import") return parseCanvasV3ContentImport(raw);
+  if (raw.type === "clipboard.paste") return parseCanvasV3ClipboardPaste(raw);
   if (raw.type === "canvas.batch") {
     if (nested) fail("nested batch");
     const parsed = exact(raw, ["type", "commands"]);

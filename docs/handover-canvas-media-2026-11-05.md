@@ -337,8 +337,7 @@ gh run view <id> --log-failed | tail -40
 4. `design_execute` 提交前校验 `prompt` 非空（曾出现平台侧 `prompt is required`）；
 5. PPT 后续：`export_slides` 现在只支持"一图一页"，若要排版/文字页/多图网格，扩展 `pptx.ts` 的 `slideXml`；
 6. ~~补查 CI~~ —— 已查，结论见 §4.5（`363aa7bd` 是 Windows 端口假失败）；
-7. **复制粘贴坏**（已实测）：画布上 `Cmd+C`/`Cmd+V` → `400 /api/v3/canvas/commands` + toast「粘贴尚未完成」，
-   因为 `clipboard.paste` 在网关不认的 19 种命令里（见 §3.8 的命令覆盖表）；
+7. ~~复制粘贴坏~~ —— 已修（`clipboard.paste` 网关实现 + 3 条 e2e，真机 `Cmd+C`/`Cmd+V` 出两个独立组合、无 400）；
 8. **节点右侧「+」悬浮入口点了不开菜单**：A/B 测过（把旧手柄样式注回去结果一样），与手柄样式无关，需单独查
    `NodeHandleEntry` 的 onMouseDown/onClick 组合；
 9. 手感/视觉已修：节点左右两边的「小黑点」= xyflow 默认手柄样式，参照实现的
