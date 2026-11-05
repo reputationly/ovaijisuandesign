@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import type { CallToolResult, ToolAnnotations } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
-import { normalizeExecuteArgs, normalizeExecuteReferences } from "./args-normalize.js";
+import { asArrayLike, normalizeExecuteArgs, normalizeExecuteReferences } from "./args-normalize.js";
 import { runWithSession, type GroupScope } from "./context.js";
 
 /**
@@ -323,41 +323,6 @@ function sanitizeDeliver(args: Record<string, unknown>): Record<string, unknown>
  *  3. 模型经常把 `compositionId` / `placements` 写在 `output` **顶层**而不是
  *     `output.composition` 里 —— 这里顺手搬到正确位置。
  */
-/**
- * 把被宿主/模型改写过的数组还原成数组。
- *
- * 实测（opencode 宿主 + 模型 emit 的参数）会出现这些形状：
- *   - `{"item": [ … ]}` / `{"items": [ … ]}` —— 单元素数组被包了层壳；
- *   - `{"0": {...}, "1": {...}}` —— 变成了数字键对象；
- *   - `{...}` —— 单个对象当数组传（本来就该按一项处理）。
- * 这些都会让 schema 报 `Expected array, received object at output.resources`，
- * 于是整条 `design_execute` 被拒、一次生成也派不出去。
- */
-function asArrayLike(value: unknown): unknown[] | undefined {
-  if (Array.isArray(value)) return value;
-  if (value === undefined || value === null) return undefined;
-  if (typeof value === "string") {
-    const parsed = parseJsonLike(value);
-    if (parsed === value) return [value];
-    return asArrayLike(parsed);
-  }
-  if (typeof value === "object") {
-    const record = value as Record<string, unknown>;
-    for (const key of ["item", "items", "value", "values", "list", "data"]) {
-      if (Object.hasOwn(record, key)) {
-        const inner = asArrayLike(record[key]);
-        if (inner) return inner;
-      }
-    }
-    const keys = Object.keys(record);
-    if (keys.length > 0 && keys.every((key) => /^\d+$/.test(key))) {
-      return keys.sort((a, b) => Number(a) - Number(b)).map((key) => record[key]);
-    }
-    return [record];
-  }
-  return [value];
-}
-
 function normalizeExecuteOutput(value: unknown): unknown {
   const parsed = typeof value === "string" ? (() => {
     try {

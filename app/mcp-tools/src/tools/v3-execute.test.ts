@@ -68,10 +68,11 @@ describe("design_execute 的任务契约", () => {
       capabilityId: "generate_video:minimax-h3-2k",
       prompt: "公路日落",
       params: { duration: "6" },
-      references: [{ versionId: "ver_a", role: "reference", name: "Claire" }, { resourceId: "res_b", versionId: "ver_b" }, "ver_c"],
+      references: { item: { kind: "image", versionId: "ver_a" } },
     });
     expect(gw.post).toHaveBeenCalledTimes(1);
     const sent = (gw.post as unknown as { mock: { calls: unknown[][] } }).mock.calls[0]![1] as { references: unknown };
-    expect(sent.references).toEqual([{ versionId: "ver_a" }, { versionId: "ver_b" }, { versionId: "ver_c" }]);
+    // 真机形状：宿主把数组改写成 `{"item": {...}}` —— 必须解壳并去掉多余字段
+    expect(sent.references).toEqual([{ versionId: "ver_a" }]);
   });
 });
