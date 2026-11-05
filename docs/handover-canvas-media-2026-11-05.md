@@ -371,6 +371,19 @@ gh run view <id> --log-failed | tail -40
 
 ---
 
+### 5.17 工具层的三处缺陷（`composition_edit` / `deliver` / PPT）
+- **`composition_edit` 只实现了 2/7 个动作**：schema 对外宣告 `ensure/update/rename/set_attributes/move/duplicate/batch`，
+  但代码只认 `ensure`/`rename`，模型按 schema 用 `update` 就撞墙。现在全部映射：
+  `update`/`batch` → `composition.apply`（`add_member`/`remove_member`/`update_member`），
+  `set_attributes` → `composition.set_attributes`（set + unset），`move` → `composition.move`
+  （**不带 expectedRevision**，内核按位置处理冲突），`duplicate` → `composition.duplicate`。
+  `add_member` 的 `clientMemberKey` 派生稳定 `memberId`，回执里用 `memberIds` 映射回去。
+- **`deliver` 的 NOT_FOUND**：网关没有"按 versionId 单查"的端点（`resources/get` 必须成对），
+  无法预检；改为把 NOT_FOUND 翻成可操作的话（别再重试同一个 id）。
+- **PPT**：见 §6.5 —— 多图页与文字页都已支持。
+
+到此工具层的三处都补上了，`mcp-tools` 262 条、`gateway` 573 条用例全绿。
+
 ### 5.16 两个空壳已还原（`arrangeCanvasV3SelectionPatch` / `matchesReferenceSelectionDuration`）
 - `arrangeCanvasV3SelectionPatch(document, ids, layout, options)` 以前是恒等 `(patch) => patch`，
   但**调用方传的是 (document, ids, layout, options)** —— 于是「整理」拿到的"patch"其实是 document，
@@ -463,10 +476,10 @@ design_execute output.resources = {"item": [ … ]}
 ## 6. 下一步 TODO（按优先级）
 
 1. ~~**【阻塞项】表格**~~ —— 已打通，见 §3；剩下「编辑器改完 → 关闭保存 → 新版本 + `activeItem` 切换」没真机走通一轮；
-2. `design_composition_edit` 的 `action=update` 网关没有对应命令（只支持 `ensure`/`rename`），模型会撞到；
-3. `deliver` 偶发 `NOT_FOUND: Delivery source version …`（模型引用了不存在的 versionId）→ 工具层加引用存在性预检，提前给可操作提示；
+2. ~~`design_composition_edit` 的 `action=update` 没有实现~~ —— **已补齐**：`ensure`/`update`/`batch`（成员增删改）、`rename`、`set_attributes`、`move`、`duplicate` 全部映射到网关命令；`add_member` 的 `clientMemberKey` 会派生稳定 `memberId` 并在回执 `memberIds` 里映射回去（见 §5.17）；
+3. ~~`deliver` 偶发 `NOT_FOUND: Delivery source version …`~~ —— **已改报错文案**：网关只有 `resources/get`（要 resourceId+versionId 成对查），单靠 versionId 无法预检，所以在工具层把 NOT_FOUND 翻成「来源版本不存在或已删除，请先 design_read 拿当前 versionId，不要重试同一个 id」（§5.17）；
 4. `design_execute` 提交前校验 `prompt` 非空（曾出现平台侧 `prompt is required`）；
-5. PPT 后续：`export_slides` 现在只支持"一图一页"，若要排版/文字页/多图网格，扩展 `pptx.ts` 的 `slideXml`；
+5. ~~PPT 只支持一图一页~~ —— **已扩展**：`pptx.ts` 的 `slideXml` 支持 1~4 张图（铺满/并排/一大两小/田字）与纯文字页（标题 + 要点）；`export_slides` 新增 `params.perSlide`（1~4）按页分组，`titles` 仍按页对应。用 python-pptx 校验：4 图页 + 文字页都能正确读出（§5.17）；
 6. ~~补查 CI~~ —— 已查，结论见 §4.5（`363aa7bd` 是 Windows 端口假失败）；
 7. ~~复制粘贴坏~~ —— 已修（`clipboard.paste` 网关实现 + 3 条 e2e，真机 `Cmd+C`/`Cmd+V` 出两个独立组合、无 400）；
 8. **~~画布内点「生成」400~~ → 命令已实现（第一段）**：网关现在接 `generation.start`，

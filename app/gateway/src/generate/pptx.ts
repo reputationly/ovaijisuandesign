@@ -87,13 +87,29 @@ function zip(entries: ZipEntry[]): Buffer {
   return Buffer.concat([...chunks, centralBuffer, end]);
 }
 
+export interface SlideImage {
+  data: Buffer;
+  type: "png" | "jpeg";
+}
+
 export interface SlideSpec {
-  /** 图片字节（PNG/JPEG），会以原始格式嵌入。 */
-  image: Buffer;
-  /** 图片扩展名（png/jpeg），决定 media 文件名与 content-type。 */
-  imageType: "png" | "jpeg";
+  /** 单图（兼容旧用法）。 */
+  image?: Buffer;
+  /** 单图扩展名（png/jpeg）。 */
+  imageType?: "png" | "jpeg";
+  /** 多图排版（1~4 张）：1 铺满、2 并排、3 一大两小、4 田字。 */
+  images?: SlideImage[];
   /** 可选标题，显示在图片下方的文本框里。 */
   title?: string;
+  /** 纯文字页的要点（有 bullets 且没有图片时生成文字页）。 */
+  bullets?: string[];
+}
+
+/** 幻灯片上的图片（兼容 `image` + `imageType` 的旧写法）。 */
+function slideImages(spec: SlideSpec): SlideImage[] {
+  if (Array.isArray(spec.images) && spec.images.length) return spec.images.slice(0, 4);
+  if (spec.image) return [{ data: spec.image, type: spec.imageType ?? "png" }];
+  return [];
 }
 
 const EMU_PER_INCH = 914400;
@@ -207,30 +223,78 @@ function theme(): string {
 </a:theme>`;
 }
 
+/** 把 n 张图摆进一页（返回 off/ext），按 1/2/3/4 张分别排版。 */
+function gridCells(count: number, height: number): { x: number; y: number; cx: number; cy: number }[] {
+  const gap = 91440;
+  if (count <= 1) return [{ x: 0, y: 0, cx: SLIDE_CX, cy: height }];
+  if (count === 2) {
+    const cellWidth = Math.floor((SLIDE_CX - gap) / 2);
+    return [0, 1].map((column) => ({ x: column * (cellWidth + gap), y: 0, cx: cellWidth, cy: height }));
+  }
+  if (count === 3) {
+    const bigWidth = Math.floor(SLIDE_CX * 0.6);
+    const smallWidth = SLIDE_CX - bigWidth - gap;
+    const half = Math.floor((height - gap) / 2);
+    return [
+      { x: 0, y: 0, cx: bigWidth, cy: height },
+      { x: bigWidth + gap, y: 0, cx: smallWidth, cy: half },
+      { x: bigWidth + gap, y: half + gap, cx: smallWidth, cy: height - half - gap },
+    ];
+  }
+  const cellWidth = Math.floor((SLIDE_CX - gap) / 2);
+  const cellHeight = Math.floor((height - gap) / 2);
+  return [0, 1, 2, 3].map((cell) => ({
+    x: (cell % 2) * (cellWidth + gap),
+    y: Math.floor(cell / 2) * (cellHeight + gap),
+    cx: cellWidth,
+    cy: cellHeight,
+  }));
+}
+
 function slideXml(index: number, spec: SlideSpec): string {
+  const images = slideImages(spec);
+  const bullets = Array.isArray(spec.bullets) ? spec.bullets.filter((item) => typeof item === "string" && item.trim() !== "") : [];
   const hasTitle = typeof spec.title === "string" && spec.title.trim() !== "";
-  const imageHeight = hasTitle ? SLIDE_CY - 900000 : SLIDE_CY;
+  const footer = hasTitle || bullets.length ? 900000 : 0;
+  const bodyHeight = SLIDE_CY - footer;
+  const pictures = images.map((_, order) => {
+    const cell = gridCells(images.length, bodyHeight)[order]!;
+    return `<p:pic><p:nvPicPr><p:cNvPr id="${order + 2}" name="Image ${index + 1}-${order + 1}"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr>
+<p:blipFill><a:blip r:embed="rId${order + 1}"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>
+<p:spPr><a:xfrm><a:off x="${cell.x}" y="${cell.y}"/><a:ext cx="${cell.cx}" cy="${cell.cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;
+  }).join("");
+  const titleId = images.length + 2;
   const titleBox = hasTitle
-    ? `<p:sp><p:nvSpPr><p:cNvPr id="3" name="Title ${index + 1}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
+    ? `<p:sp><p:nvSpPr><p:cNvPr id="${titleId}" name="Title ${index + 1}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
 <p:spPr><a:xfrm><a:off x="457200" y="${SLIDE_CY - 850000}"/><a:ext cx="${SLIDE_CX - 914400}" cy="700000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr>
 <p:txBody><a:bodyPr anchor="ctr"/><a:lstStyle/><a:p><a:r><a:rPr lang="zh-CN" sz="2000"/><a:t>${esc(spec.title!)}</a:t></a:r></a:p></p:txBody></p:sp>`
+    : "";
+  const bulletsBox = bullets.length
+    ? `<p:sp><p:nvSpPr><p:cNvPr id="${titleId + 1}" name="Body ${index + 1}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
+<p:spPr><a:xfrm><a:off x="914400" y="914400"/><a:ext cx="${SLIDE_CX - 1828800}" cy="${bodyHeight - 914400}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr>
+<p:txBody><a:bodyPr anchor="t"/><a:lstStyle/>${bullets.map((item) => `<a:p><a:pPr marL="342900" indent="-342900"/><a:r><a:rPr lang="zh-CN" sz="1800"/><a:t>${esc(item)}</a:t></a:r></a:p>`).join("")}</p:txBody></p:sp>`
     : "";
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
 <p:cSld><p:spTree>${GROUP}
-<p:pic><p:nvPicPr><p:cNvPr id="2" name="Image ${index + 1}"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr>
-<p:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>
-<p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${SLIDE_CX}" cy="${imageHeight}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>
-${titleBox}
+${pictures}${titleBox}${bulletsBox}
 </p:spTree></p:cSld>
 <p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr>
 </p:sld>`;
 }
 
-function slideRels(index: number, imageType: "png" | "jpeg"): string {
+/** 图片在包内的文件名：单图用 `slide3.png`，多图用 `slide3-2.png`。 */
+function mediaName(index: number, order: number, type: SlideImage["type"]): string {
+  return `slide${index + 1}${order === 0 ? "" : `-${order + 1}`}.${type}`;
+}
+
+function slideRels(index: number, images: SlideImage[]): string {
+  const relationships = images.map((image, order) =>
+    `<Relationship Id="rId${order + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${mediaName(index, order, image.type)}"/>`,
+  ).join("");
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image${index + 1}.${imageType}"/>
+${relationships}
 </Relationships>`;
 }
 
@@ -248,9 +312,12 @@ export function buildDeck(slides: SlideSpec[]): Buffer {
     { name: "ppt/theme/theme1.xml", data: Buffer.from(theme(), "utf8") },
   ];
   slides.forEach((spec, index) => {
+    const images = slideImages(spec);
     entries.push({ name: `ppt/slides/slide${index + 1}.xml`, data: Buffer.from(slideXml(index, spec), "utf8") });
-    entries.push({ name: `ppt/slides/_rels/slide${index + 1}.xml.rels`, data: Buffer.from(slideRels(index, spec.imageType), "utf8") });
-    entries.push({ name: `ppt/media/image${index + 1}.${spec.imageType}`, data: spec.image });
+    entries.push({ name: `ppt/slides/_rels/slide${index + 1}.xml.rels`, data: Buffer.from(slideRels(index, images), "utf8") });
+    images.forEach((image, order) => {
+      entries.push({ name: `ppt/media/${mediaName(index, order, image.type)}`, data: image.data });
+    });
   });
   return zip(entries);
 }

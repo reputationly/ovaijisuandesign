@@ -54,4 +54,36 @@ describe("PPTX 生成", () => {
     ).trim();
     expect(out).toBe("2 2");
   });
+
+  it("多图一页与文字页都能被 python-pptx 正确读出", () => {
+    const deck = buildDeck([
+      { images: [{ data: PNG, type: "png" }, { data: PNG, type: "png" }, { data: PNG, type: "png" }, { data: PNG, type: "png" }], title: "四宫格" },
+      { bullets: ["第一点", "第二点"], title: "纯文字页" },
+    ]);
+    expect(deck.subarray(0, 2).toString("latin1")).toBe("PK");
+    if (!pythonAvailable()) {
+      console.warn("python-pptx 不可用，跳过结构校验");
+      return;
+    }
+    const dir = mkdtempSync(path.join(tmpdir(), "ov-pptx-grid-"));
+    const file = path.join(dir, "deck.pptx");
+    writeFileSync(file, deck);
+    const out = execFileSync(
+      "python3",
+      [
+        "-c",
+        [
+          "import sys, pptx",
+          "p = pptx.Presentation(sys.argv[1])",
+          "pics = sum(1 for s in p.slides for sh in s.shapes if sh.shape_type == 13)",
+          "texts = sum(1 for s in p.slides for sh in s.shapes if sh.has_text_frame and sh.text_frame.text.strip())",
+          "print(len(p.slides), pics, texts)",
+        ].join("\n"),
+        file,
+      ],
+      { encoding: "utf8" },
+    ).trim();
+    // 2 页；第一页 4 张图；文字页有标题 + 两条要点（共 2 个文本框）。
+    expect(out).toBe("2 4 3");
+  });
 });

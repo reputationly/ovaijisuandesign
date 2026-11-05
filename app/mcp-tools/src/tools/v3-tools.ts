@@ -327,9 +327,85 @@ function compositionCommandEnvelope(args: Record<string, unknown>):
   if (action === "rename") {
     return envelope({ type: "composition.rename", compositionId: args.compositionId, name: args.name });
   }
+  if (action === "set_attributes") {
+    const set = args.attributes && typeof args.attributes === "object"
+      ? Object.entries(args.attributes as Record<string, string>).map(([name, value]) => ({ name, value }))
+      : [];
+    const unset = Array.isArray(args.unset) ? (args.unset as string[]) : [];
+    if (!set.length && !unset.length) return { ok: false, error: "composition_edit set_attributes 需要 attributes 或 unset。" };
+    return envelope({ type: "composition.set_attributes", compositionId: args.compositionId, set, unset });
+  }
+  if (action === "move") {
+    // 网关的 move **不接受** expectedRevision（位置冲突由内核自己处理）。
+    const hasPosition = typeof args.position === "number";
+    const placement = args.placement && typeof args.placement === "object" ? (args.placement as Record<string, string>) : undefined;
+    if (hasPosition === Boolean(placement)) return { ok: false, error: "composition_edit move 需要 position 与 placement 二选一。" };
+    return {
+      ok: true,
+      body: {
+        commandId: requestId,
+        actor: "agent",
+        command: { type: "composition.move", compositionId: args.compositionId, ...(hasPosition ? { position: args.position } : { placement }) },
+      },
+    };
+  }
+  if (action === "duplicate") {
+    return envelope({
+      type: "composition.duplicate",
+      sourceCompositionId: args.compositionId,
+      ...(typeof args.position === "number" ? { position: args.position } : {}),
+      ...(args.placement && typeof args.placement === "object" ? { placement: args.placement } : {}),
+    });
+  }
+  if (action === "update" || action === "batch") {
+    const operations = Array.isArray(args.operations) ? (args.operations as Record<string, unknown>[]) : [];
+    if (!operations.length) {
+      return { ok: false, error: `composition_edit ${action} 需要 operations（add_member / remove_member / update_member）。` };
+    }
+    // 成员 id 由 clientMemberKey 稳定派生，回执里再映射回去，模型不必自己编 id。
+    const members = new Map<string, string>();
+    const mapped: Record<string, unknown>[] = [];
+    for (const operation of operations) {
+      const kind = String(operation.action ?? "");
+      if (kind === "add_member") {
+        const key = String(operation.clientMemberKey ?? "");
+        if (!key) return { ok: false, error: "add_member 需要 clientMemberKey。" };
+        const memberId = `mem_${createHash("sha256").update(`${requestId}:${key}`).digest("hex").slice(0, 12)}`;
+        members.set(key, memberId);
+        mapped.push({
+          type: "member.add",
+          member: {
+            memberId,
+            role: String(operation.role ?? "内容"),
+            ...(typeof operation.resourceId === "string" && operation.resourceId ? { resource: operation.resourceId } : {}),
+          },
+        });
+        continue;
+      }
+      if (kind === "remove_member") {
+        mapped.push({ type: "member.remove", memberId: String(operation.memberId ?? "") });
+        continue;
+      }
+      if (kind === "update_member") {
+        mapped.push({ type: "member.update", memberId: String(operation.memberId ?? ""), role: String(operation.role ?? "") });
+        continue;
+      }
+      return { ok: false, error: `operations[].action=${kind} 不支持；用 add_member / remove_member / update_member。` };
+    }
+    return {
+      ok: true,
+      body: {
+        commandId: requestId,
+        actor: "agent",
+        ...(typeof args.expectedRevision === "number" ? { expectedRevision: args.expectedRevision } : {}),
+        command: { type: "composition.apply", compositionId: args.compositionId, operations: mapped },
+      },
+      ...(members.size ? { memberIds: Object.fromEntries(members) } : {}),
+    };
+  }
   return {
     ok: false,
-    error: `composition_edit 的 action=${action} 在当前网关还没有对应命令；目前支持 ensure（新建对象）与 rename。`,
+    error: `composition_edit 的 action=${action} 不支持；用 ensure（新建）、update/batch（改成员）、rename、set_attributes、move、duplicate。`,
   };
 }
 
@@ -725,7 +801,10 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
         // —— 真机上对象一直建不出来，画布自然空着。
         const envelope = compositionCommandEnvelope(args as Record<string, unknown>);
         if (!envelope.ok) return errorReply(envelope.error);
-        return structuredReply((await gw.post("/api/project/compositions/commands", envelope.body, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+        const receipt = (await gw.post("/api/project/compositions/commands", envelope.body, TIMEOUT_MS, LOOSE)) as Record<string, unknown>;
+        // add_member 的 clientMemberKey → memberId 映射回给调用方（模型不必自己编 id）。
+        const memberIds = (envelope as { memberIds?: Record<string, string> }).memberIds;
+        return structuredReply(memberIds ? { ...receipt, memberIds } : receipt);
       } catch (error) {
         return errorReply(`composition_edit 失败：${errorMessage(error)}`);
       }
@@ -829,7 +908,16 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
         const delivery = (result as { delivery?: unknown })?.delivery ?? result;
         return structuredReply(delivery as Record<string, unknown>);
       } catch (error) {
-        return errorReply(`deliver 失败：${errorMessage(error)}`);
+        // 网关只有 `resources/get`（要 resourceId+versionId 成对查），单靠 versionId 无法预检；
+        // 但可以把 NOT_FOUND 翻译成**可操作**的话：模型常拿旧/编造的 versionId 重试。
+        const message = errorMessage(error);
+        if (/NOT_FOUND/i.test(message) && /version/i.test(message)) {
+          return errorReply(
+            `deliver 失败：来源版本不存在或已删除（${message}）。` +
+              "请先用 design_read / design_resource_search 拿到该资源当前可用的 versionId 再交付；不要重试同一个 id。",
+          );
+        }
+        return errorReply(`deliver 失败：${message}`);
       }
     },
   );

@@ -12,7 +12,7 @@ import { checkFfmpegCommand, resolveOutputExt, type OutputType } from "../edit/f
 import { ProjectDeliveryService } from "../project-kernel/delivery.js";
 import { ProjectQueryError } from "../project-kernel/errors.js";
 import { ProjectResourceService } from "../project-kernel/resource.service.js";
-import { buildDeck, type SlideSpec } from "./pptx.js";
+import { buildDeck, type SlideImage, type SlideSpec } from "./pptx.js";
 
 const CAPABILITIES = ["edit_media:ffmpeg", "edit_media:merge_videos", "edit_media:transcribe", "edit_media:subtitle_format", "edit_media:export_slides"];
 const PLACEHOLDER = /@reference\[(\d+)\]/g;
@@ -113,25 +113,35 @@ export class MediaEditService {
     if (versionIds.length > 30) throw new ProjectQueryError("INVALID_ARGUMENT", "export_slides supports at most 30 slides");
     const bag = params && typeof params === "object" && !Array.isArray(params) ? (params as Record<string, unknown>) : {};
     const titles = Array.isArray(bag.titles) ? bag.titles.filter((item): item is string => typeof item === "string") : [];
-    const specs: SlideSpec[] = [];
-    for (const [index, versionId] of versionIds.entries()) {
+    // 每页放几张图：1（默认）= 一图一页；2/3/4 = 并排/一大两小/田字。
+    const requested = Number(bag.perSlide ?? bag.imagesPerSlide ?? 1);
+    const perSlide = Number.isFinite(requested) ? Math.min(4, Math.max(1, Math.trunc(requested))) : 1;
+    const readImage = async (versionId: string, label: number): Promise<SlideImage> => {
       const relative = this.resources.relativePathOfVersion(versionId);
       const absolute = path.join(this.paths.root, relative);
       const info = await stat(absolute).catch(() => undefined);
-      if (!info?.isFile() || info.size < 1) throw new ProjectQueryError("MEDIA_EDIT_FAILED", `Slide ${index + 1}: source image is missing`);
-      if (info.size > 20 * 1024 * 1024) throw new ProjectQueryError("MEDIA_EDIT_FAILED", `Slide ${index + 1}: image exceeds the 20 MB limit`);
+      if (!info?.isFile() || info.size < 1) throw new ProjectQueryError("MEDIA_EDIT_FAILED", `Slide ${label}: source image is missing`);
+      if (info.size > 20 * 1024 * 1024) throw new ProjectQueryError("MEDIA_EDIT_FAILED", `Slide ${label}: image exceeds the 20 MB limit`);
       const lower = relative.toLowerCase();
-      const imageType = lower.endsWith(".png") ? "png" : lower.endsWith(".jpg") || lower.endsWith(".jpeg") ? "jpeg" : undefined;
-      if (!imageType) throw new ProjectQueryError("MEDIA_EDIT_FAILED", `Slide ${index + 1}: only PNG/JPEG can be placed on a slide`);
-      specs.push({ image: await readFile(absolute), imageType, ...(titles[index] ? { title: titles[index] } : {}) });
+      const type = lower.endsWith(".png") ? "png" : lower.endsWith(".jpg") || lower.endsWith(".jpeg") ? "jpeg" : undefined;
+      if (!type) throw new ProjectQueryError("MEDIA_EDIT_FAILED", `Slide ${label}: only PNG/JPEG can be placed on a slide`);
+      return { data: await readFile(absolute), type };
+    };
+    const specs: SlideSpec[] = [];
+    for (let start = 0; start < versionIds.length; start += perSlide) {
+      const group = versionIds.slice(start, start + perSlide);
+      const images: SlideImage[] = [];
+      for (const [offset, versionId] of group.entries()) images.push(await readImage(versionId, start + offset + 1));
+      const title = titles[specs.length];
+      specs.push({ images, ...(title ? { title } : {}) });
     }
-    const requestId = createHash("sha256").update(JSON.stringify(["edit_media:export_slides", versionIds, titles, output])).digest("hex");
+    const requestId = createHash("sha256").update(JSON.stringify(["edit_media:export_slides", versionIds, titles, perSlide, output])).digest("hex");
     const scratch = path.posix.join(".hilo", "tmp", `${requestId.slice(0, 24)}.pptx`);
     await mkdir(path.dirname(path.join(this.paths.root, scratch)), { recursive: true });
     await writeFile(path.join(this.paths.root, scratch), buildDeck(specs));
     return {
       ...(await this.publish(requestId, scratch, output)),
-      detail: { slides: specs.length, format: "pptx" },
+      detail: { slides: specs.length, images: versionIds.length, perSlide, format: "pptx" },
     };
   }
 
