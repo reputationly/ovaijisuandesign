@@ -371,6 +371,16 @@ gh run view <id> --log-failed | tail -40
 
 ---
 
+### 5.16 两个空壳已还原（`arrangeCanvasV3SelectionPatch` / `matchesReferenceSelectionDuration`）
+- `arrangeCanvasV3SelectionPatch(document, ids, layout, options)` 以前是恒等 `(patch) => patch`，
+  但**调用方传的是 (document, ids, layout, options)** —— 于是「整理」拿到的"patch"其实是 document，
+  点了要么没效果要么发一条非法命令。现在按 dagre 坐标实现：取 `options.positions`（Map），
+  以 `options.origin`（容器内）或选区当前左上角（画布上）为锚点平移，返回真正的 `canvas.patch`。
+- `matchesReferenceSelectionDuration(actual, draft)` 以前恒 `false`（永远判"时长不匹配"，
+  参考片段一律要求重取）。现在按 `getCropOutputDuration(draft.range)`（= 选区时长 - 尾帧余量）
+  与实际素材 `duration` 比较，容差取 `max(2/30s, 1%)`（编码器把时长量化到帧）。
+- 渲染层已重建；`整理` 的真机点击这轮没跑完（探针在点侧栏时挂住），下一轮补验。
+
 ### 5.15 表格「编辑 → 关闭 → 保存」的验证边界
 - **保存链路本身已闭环**：新用例 `content-import.e2e.test.ts` 里先 `POST /api/v3/document`
   `mode:"replace"` + `baseVersionId` + `baseRevision` 带一行内容，再直接读工作区里的 .htable
