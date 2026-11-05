@@ -87,6 +87,32 @@ export class CapabilityExecutionService {
         ...referencePaths(operation, paths),
       };
       const origin = { source: caller === "agent" ? "agent" : "frontend", ...(caller === "agent" && getToolUseId() ? { toolUseId: getToolUseId() } : {}) };
+      // **多输出扇出**：`count>1` 时提交 N 个任务，回 `{task, serverTaskIds}`（参照契约）。
+      // 之前 `count` 只校验不使用，`n` 又写死 1，所以 `count:4` 实际只出 1 张。
+      const count = typeof body.count === "number" ? body.count : 1;
+      if (count > 1 && operation === "generate_image") {
+        const ids: string[] = [];
+        let first: unknown;
+        for (let index2 = 1; index2 <= count; index2 += 1) {
+          const perRequestId = `${requestId}#${index2}`;
+          const perKey = createHash("sha256").update(JSON.stringify(["workspace", caller === "agent" ? "agent" : "frontend", operation, perRequestId])).digest("hex");
+          const perId = `tsk_${perKey.slice(0, 32)}`;
+          const perOutput = withOutputIndex(output, index2);
+          const perRequest: GenerationRequest = { ...request, filename: resourceName(perOutput) };
+          const perBegun = this.tasks.begin({ id: perId, operation, idempotencyKey: perKey, capabilityId, prompt, mediaType: MEDIA[operation], output: perOutput, requestId: perRequestId, origin, generation: perRequest });
+          first ??= perBegun.task;
+          ids.push(perId);
+          if (perBegun.reused) continue;
+          try {
+            await this.runner.submit(MEDIA[operation], perRequest, caller === "agent" ? "agent" : "canvas", perId);
+          } catch (error) {
+            this.tasks.discard(perId);
+            throw error;
+          }
+        }
+        response.status(202);
+        return { task: first, serverTaskIds: ids, reused: false };
+      }
       const begun = this.tasks.begin({ id, operation, idempotencyKey: key, capabilityId, prompt, mediaType: MEDIA[operation], output, requestId, origin, generation: request });
       if (begun.reused) {
         response.status(200);
@@ -263,3 +289,29 @@ export function promoteMusicStylePrompt(
 }
 
 export const promoteMusicStylePromptForTest = promoteMusicStylePrompt;
+
+/**
+ * 多输出时给每个任务一份**互不撞名**的输出目标：资源名 / placement 角色都追加 ` 1`、` 2`…，
+ * 否则 N 个任务会往同一个资源上写版本，画布上只看到一张。
+ */
+export function withOutputIndex(output: ReturnType<typeof parseOutput>, index: number): ReturnType<typeof parseOutput> {
+  return {
+    ...output,
+    resources: output.resources.map((target) => ({
+      ...target,
+      ...(typeof target.name === "string" && target.name.trim() ? { name: `${target.name} ${index}` } : {}),
+    })),
+    ...(output.composition
+      ? {
+          composition: {
+            ...output.composition,
+            ...(typeof output.composition.name === "string" && output.composition.name.trim() ? { name: `${output.composition.name} ${index}` } : {}),
+            placements: output.composition.placements.map((placement) => ({
+              ...placement,
+              ...(typeof placement.role === "string" && placement.role ? { role: `${placement.role} ${index}` } : {}),
+            })),
+          },
+        }
+      : {}),
+  };
+}
