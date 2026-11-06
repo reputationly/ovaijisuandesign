@@ -268,6 +268,29 @@ resolveCssColor(panel, resolvedViewportColor)   // ← 元素当成颜色值，v
 客户端**不按 `maxDurationSeconds` 拦截**（只读 `duration.options` 与 `ratio.options`），
 所以服务端配置一改，UI 立刻跟上。
 
+## 2.11 画布文本节点正文显示「(空文件)」（2026-11-06，已修）
+
+用户看到「分镜与口播」成员是空的。逐层打点后确认**内容一直都在**：
+
+- 资源 `res_…` → 版本 `ver_…md`，磁盘 2581 字节，`/api/files/content` 返回 1015 字符；
+- 画布节点也确实拿到了：临时日志 `[text-node] {"loaded":true,"chars":1015}`、
+  `[text-inner] {"loaded":true,"chars":1015}`；
+- 但 DOM 里是 `<span data-slot="text-preview-empty">(空文件)</span>`。
+
+**真因**：`CanvasV3Text` 把正文以 `markdown` 传给了 `TextPreview`，
+而 `TextPreview`（`ui-components.js` 里的资产预览）**只读 `previewText`**：
+
+```js
+function TextPreview({ asset: _asset, previewText, loading, error }) { … }
+```
+
+prop 名对不上 → `previewText` 恒为 undefined → 走空分支。**画布上所有文本节点正文都受影响**，
+不只是这一篇分镜。这类错误 JS 编译期查不出来，只能靠用例兜。
+
+修法：`previewText: markdown2` + `loading: !loaded`（同时保留 `markdown` 便于以后接真 markdown 渲染）。
+回归用例 `app/renderer/src/canvas-v3/text-preview-prop.test.ts`：断言 `previewText: markdown2` 出现在
+`CanvasV3Text` 组件内。真机复验：节点渲染 1015 字符（标题 + 三条要点），`text-preview-empty` 不再出现。
+
 ## 3. 表格：已打通（原「唯一阻塞项」）
 
 ### 3.1 结论先说

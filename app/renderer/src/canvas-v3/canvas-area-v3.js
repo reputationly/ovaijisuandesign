@@ -17305,6 +17305,10 @@ const CanvasV3Text = reactExports.memo(function CanvasV3Text2({
         ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
           TextPreview,
           {
+            // **必须叫 previewText**：`TextPreview`（ui-components 的资产预览）只读这个 prop，
+            // 以前这里传的是 `markdown`，被直接忽略 → 画布上所有文本节点正文都显示「(空文件)」。
+            previewText: markdown2,
+            loading: !loaded,
             markdown: markdown2,
             loaded,
             plain,
