@@ -340,6 +340,28 @@ prop 名对不上 → `previewText` 恒为 undefined → 走空分支。**画布
 验证：`/api/v3/capabilities?operation=edit_media` 实测返回
 `['edit_media:merge_videos','edit_media:subtitle_format','edit_media:transcribe','edit_media:export_slides','edit_media:ffmpeg']`。
 
+## 2.14 `execute` 的两类参数形状失败（2026-11-06，已兜底）
+
+真机连续报：
+
+```
+MCP error -32602 … Required at capabilityId
+MCP error -32602 … Expected object, received string at params
+                   Required at output.resources Required at output.composition.placements
+```
+
+- `capabilityId`：模型写成了 `capability_id` / `capability` 之类的键 → 加进 `KEY_ALIASES` 归一；
+- `params` 被写成 JSON 字符串 → `completeExecuteArgs()` 解析（含二次编码）；
+- `output` 只给了 `composition.name/type`，缺 `resources` 与 `placements` → 按已给信息补：
+  `resources=[{mode:"create",name:<composition.name||name||"生成结果">}]`、
+  `placements=[{role:<同上>}]`。
+
+**没有**把 `capabilityId` 改成可选：`v3 tool surface` 两条用例要求"必填项与参照逐层一致"
+（参照就是官方 schema），改了就直接红。缺 `capabilityId` 仍然会报错，但 handler 里补了一句
+能照做的示例，便于模型一次改对。
+
+用例：`registrar.test.ts` 新增 3 条（别名 / 字符串 params / output 补全）。
+
 ## 3. 表格：已打通（原「唯一阻塞项」）
 
 ### 3.1 结论先说

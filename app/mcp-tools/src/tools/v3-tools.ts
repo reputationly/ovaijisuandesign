@@ -846,6 +846,15 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
     { description: V3_TOOL_SPECS["execute"].description, inputSchema: V3_TOOL_SPECS["execute"].shape, annotations: V3_TOOL_SPECS["execute"].annotations },
     async (args: V3Args<"execute">) => {
       try {
+        const capabilityIdGiven = typeof (args as Record<string, unknown>).capabilityId === "string"
+          ? String((args as Record<string, unknown>).capabilityId).trim()
+          : "";
+        if (capabilityIdGiven === "") {
+          return errorReply(
+            "execute 缺少 capabilityId（必填）。先用 design_capability_list / design_capability_get 拿到能力 id，" +
+              '再按 {"capabilityId":"generate_image:<model>","prompt":"…","params":{…},"output":{"resources":[{"mode":"create","name":"…"}],"composition":{"type":{"label":"…"},"name":"…","placements":[{"role":"…"}]}}} 调用。',
+          );
+        }
         // 4.0.4 的任务契约：/api/v3/execute 接收完整能力入参并返回 {task}。
         // 旧实现按 capabilityId 猜 operation、只传 prompt，既丢参数也拿不到任务快照。
         // 网关对 submit 体做**白名单**校验（agent 只允许 capabilityId/prompt/params/references/

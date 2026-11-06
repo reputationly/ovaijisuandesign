@@ -279,3 +279,43 @@ describe("元素级解壳（真机 output.resources[0]）", () => {
     expect(seen[0]).toEqual({ prompt: "一张图", output: { resources: [{ mode: "create", name: "身份锚" }] } });
   });
 });
+
+describe("execute 参数形状兜底（真机 -32602）", () => {
+  const spec = {
+    description: "execute 形状兜底",
+    inputSchema: {
+      capabilityId: z.string().min(1),
+      params: z.record(z.string(), z.unknown()).optional(),
+      output: z.object({
+        resources: z.array(z.object({ mode: z.literal("create"), name: z.string().min(1) })).min(1),
+        composition: z.object({ name: z.string().optional(), placements: z.array(z.object({ role: z.string().optional() })).min(1) }).optional(),
+      }).optional(),
+    },
+  } as const;
+
+  it("capability_id / capability 别名能补成 capabilityId", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("execute", spec, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("execute", { capability_id: "generate_image:qwen-image-pro-enhanced", params: { aspect_ratio: "9:16" } });
+    expect(seen[0]!.capabilityId).toBe("generate_image:qwen-image-pro-enhanced");
+  });
+
+  it("params 是 JSON 字符串时解析成对象", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("execute", spec, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("execute", { capabilityId: "cap", params: '{"aspect_ratio":"9:16","resolution":"2K"}' });
+    expect(seen[0]!.params).toEqual({ aspect_ratio: "9:16", resolution: "2K" });
+  });
+
+  it("output 只给了 composition 名字时，补出 resources 与 placements", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("execute", spec, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("execute", { capabilityId: "cap", output: { composition: { name: "身份锚" } } });
+    const output = seen[0]!.output as { resources: { name: string }[]; composition: { placements: { role?: string }[] } };
+    expect(output.resources).toEqual([{ mode: "create", name: "身份锚" }]);
+    expect(output.composition.placements).toEqual([{ role: "身份锚" }]);
+  });
+});

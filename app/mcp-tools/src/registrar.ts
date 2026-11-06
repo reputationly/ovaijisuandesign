@@ -404,6 +404,42 @@ function repairValues(shape: z.ZodRawShape, args: Record<string, unknown>, mode:
 }
 
 /** `document_write` / `task_query` 这类工具有"必须显式给 mode"的必填项，模型会漏。 */
+/**
+ * `execute` 的形状补全。
+ *
+ * 真机（2026-11-06）：
+ *   `Expected object, received string at params` +
+ *   `Required at output.resources` + `Required at output.composition.placements`
+ * —— 模型把 `params` 写成了 JSON 字符串，`output` 只给了 composition 的名字/类型。
+ * 这三样都能从已给的信息推出来，不该让整轮生成失败。
+ */
+function completeExecuteArgs(args: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...args };
+  // params：字符串 → 对象（含二次编码）
+  if (typeof out.params === "string") {
+    const parsed = parseJsonLike(out.params);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) out.params = parsed as Record<string, unknown>;
+    else delete out.params;
+  }
+  const output = out.output;
+  if (!output || typeof output !== "object" || Array.isArray(output)) return out;
+  const next = { ...(output as Record<string, unknown>) };
+  const composition = next.composition && typeof next.composition === "object" && !Array.isArray(next.composition)
+    ? { ...(next.composition as Record<string, unknown>) }
+    : undefined;
+  const compositionName = typeof composition?.name === "string" ? composition.name.trim() : "";
+  const fallbackName = (typeof out.name === "string" && out.name.trim()) || compositionName || "生成结果";
+  const resources = Array.isArray(next.resources) ? next.resources : [];
+  if (!resources.length) next.resources = [{ mode: "create", name: fallbackName }];
+  if (composition) {
+    const placements = Array.isArray(composition.placements) ? composition.placements : [];
+    if (!placements.length) composition.placements = [{ role: compositionName || fallbackName }];
+    next.composition = composition;
+  }
+  out.output = next;
+  return out;
+}
+
 function inferMissingFields(name: string, args: Record<string, unknown>): Record<string, unknown> {
   const out = { ...args };
   if (name === "document_write" && out.mode === undefined) {
@@ -437,6 +473,8 @@ function inferMissingFields(name: string, args: Record<string, unknown>): Record
  */
 const KEY_ALIASES: Record<string, readonly string[]> = {
   ids: ["capabilityIds", "capability_ids"],
+  // 真机：`MCP error -32602 … Required at capabilityId` —— 模型写成了下面这些键名之一。
+  capabilityId: ["capability_id", "capability", "capabilityID"],
 };
 
 function moveKeyAliases(shape: z.ZodRawShape, args: Record<string, unknown>): void {
@@ -565,6 +603,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
       delete next.documentType;
       args = next;
     }
+    if (name === "execute") args = completeExecuteArgs(args);
     args = repairArrayFields(shape, args);
     // 元素级解壳：`output.resources: [{"item": {…}}]` 这种数组对、元素被包了一层。
     const deepNormalized = normalizeDeepArrayElements(args);
