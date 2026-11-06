@@ -248,6 +248,26 @@ resolveCssColor(panel, resolvedViewportColor)   // ← 元素当成颜色值，v
 补充：视口框只在**视口面积 ≤ 内容的 4%** 时绘制（`INDICATOR_MAX_AREA_RATIO = 0.04`），
 所以小场景/缩小时看不到它是正常的。
 
+## 2.10 比例档位统一为 11 个、视频时长放到 15 秒（2026-11-06）
+
+平台目录实测（`/v1/ov/capabilities`）：视频 `duration` 只有 4–10、`maxDurationSeconds: 10`，
+但**上游其实支持 15 秒** —— 直连平台实测：请求 10 → 出片 10.12s，请求 **15 → 出片 15.08s**。
+卡住的是 new-api 的模型目录配置，不是模型。
+
+同一天产品决定：**图片与视频的比例档位统一成同一组 11 个**
+（`adaptive, 1:1, 16:9, 9:16, 4:3, 3:4, 3:2, 2:3, 21:9, 5:4, 4:5`）。
+以前图片 8 个、视频 7 个，切模型时选项会跳变。
+
+落地两处：
+
+1. 本机兜底表 `@ov/maas-media` 的 `params.ts`：`IMAGE_RATIOS = VIDEO_RATIOS = RATIOS`（11 个），
+   新增单测断言"两边完全一致且为 11 项"；
+2. new-api 目录（服务端）需要同步：图片 `aspect_ratio.options` 与视频 `ratio.options` 都改成这 11 个，
+   视频 `duration.options` 加 11–15、`limits.maxDurationSeconds` 改 15（或 0）。
+
+客户端**不按 `maxDurationSeconds` 拦截**（只读 `duration.options` 与 `ratio.options`），
+所以服务端配置一改，UI 立刻跟上。
+
 ## 3. 表格：已打通（原「唯一阻塞项」）
 
 ### 3.1 结论先说

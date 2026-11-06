@@ -30,9 +30,10 @@ describe("params", () => {
     }
   });
 
-  /** 视频的比例必须都在平台白名单里。平台的报错原文列的就是这一串。 */
+  /** 比例必须都在平台允许的取值里（平台目录里的 ratio 枚举）。 */
   it("video ratios are all on the platform whitelist", () => {
-    const WHITELIST = ["21:9", "16:9", "4:3", "1:1", "3:4", "9:16"];
+    // 平台 `ratio` 枚举：adaptive + 这 11 个具体比例（比我们暴露的多一个 9:21，我们不发）。
+    const WHITELIST = ["21:9", "16:9", "3:2", "4:3", "5:4", "1:1", "4:5", "3:4", "2:3", "9:16"];
     for (const p of forModality("video")) {
       if (p.name !== "aspect_ratio") continue;
       for (const opt of p.options) {
@@ -41,6 +42,15 @@ describe("params", () => {
         );
       }
     }
+  });
+
+  /** 图片和视频的比例档位必须完全一致（同一界面切换模型时选项不能跳变）。 */
+  it("image and video share the same 11 ratio options", () => {
+    const image = forModality("image").find((p) => p.name === "aspect_ratio")!;
+    const video = forModality("video", "minimax-h3-2k").find((p) => p.name === "aspect_ratio")!;
+    expect(image.options).toEqual(video.options);
+    expect(image.options).toHaveLength(11);
+    expect(image.options).toEqual(["adaptive", "1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "21:9", "5:4", "4:5"]);
   });
 
   /** 默认值必须在选项里。不在的话界面打开就是个"选中了一个不存在的项"。 */
