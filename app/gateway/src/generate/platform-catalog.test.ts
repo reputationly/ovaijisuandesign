@@ -151,7 +151,15 @@ describe("能力来源的选择", () => {
       currentCatalog: () => null,
     } as never;
     const entries = capabilityEntries(media);
-    expect(entries.map((entry) => entry.id)).toEqual(["generate_image:qwen-image"]);
+    // 目录缺失时退回本地槽位能力，**再加上**本机同步编辑能力（edit_media:* 与目录无关）。
+    expect(entries.filter((entry) => entry.operation !== "edit_media").map((entry) => entry.id)).toEqual(["generate_image:qwen-image"]);
+    expect(entries.filter((entry) => entry.operation === "edit_media").map((entry) => entry.id)).toEqual([
+      "edit_media:merge_videos",
+      "edit_media:subtitle_format",
+      "edit_media:transcribe",
+      "edit_media:export_slides",
+      "edit_media:ffmpeg",
+    ]);
   });
 
   it("有目录时以目录为准", async () => {

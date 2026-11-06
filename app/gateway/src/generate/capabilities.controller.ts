@@ -60,11 +60,60 @@ export class CapabilitiesController {
  */
 export function capabilityEntries(media: MediaConfigService): CapabilityEntry[] {
   const catalog = media.currentCatalog();
-  if (catalog) return platformEntries(catalog);
-  return catalogEntries(media.load());
+  const base = catalog ? platformEntries(catalog) : catalogEntries(media.load());
+  // 本机同步编辑能力与目录无关，始终可用。
+  return [...base, ...editMediaEntries()];
 }
 
 /** 平台目录 → 能力条目。 */
+/**
+ * 本机同步媒体编辑能力（`MediaEditService`）。
+ *
+ * **必须报出来**：这些能力一直存在于网关，但平台目录里没有它们，`design_capability_list`
+ * 因此看不到 —— agent 拼片时以为"没有现成能力"，转去 code-agent 写 ffmpeg 脚本
+ * （真机：两段视频拼接走了 bash）。报出来之后 agent 才知道 `edit_media:merge_videos`。
+ */
+export function editMediaEntries(): CapabilityEntry[] {
+  const entry = (
+    id: string,
+    displayName: string,
+    description: string,
+    properties: Record<string, unknown>,
+  ): CapabilityEntry => ({
+    id,
+    operation: "edit_media",
+    displayName,
+    description,
+    paramSchema: { type: "object", properties },
+    model: { id, vendor: "local", presentation: { displayName, description } },
+    transport: "local",
+  });
+  const select = (title: string, options: string[], dflt: string) => ({ type: "string", title, enum: options, default: dflt });
+  return [
+    entry("edit_media:merge_videos", "拼接视频", "把多个视频按顺序拼成一条；各段尺寸不一致时按 scaleMode 统一。", {
+      scaleMode: select("缩放方式", ["first", "max", "min", "custom"], "first"),
+      targetWidth: { type: "string", title: "目标宽度（仅 custom）" },
+      targetHeight: { type: "string", title: "目标高度（仅 custom）" },
+    }),
+    entry("edit_media:subtitle_format", "字幕排版", "按画幅与样式重排 SRT/ASS/VTT 字幕，输出适配社媒安全区的字幕文件。", {
+      outputSize: { type: "string", title: "输出画幅 WxH" },
+      format: select("字幕格式", ["ass", "srt", "vtt"], "ass"),
+      stylePreset: select("样式预设", ["social_safe", "minimal", "large", "top_caption", "custom"], "social_safe"),
+      position: select("位置", ["bottom", "top", "middle"], "bottom"),
+      safeArea: select("安全区", ["auto", "social", "none"], "auto"),
+    }),
+    entry("edit_media:transcribe", "音视频转写", "把音视频转成文本（ASR），产物是文本资源。", {
+      language: { type: "string", title: "语言（可留空自动识别）" },
+    }),
+    entry("edit_media:export_slides", "导出 PPT", "把图片按页导出为 PPTX，支持每页多图与标题。", {
+      perSlide: select("每页图片数", ["1", "2", "3", "4"], "1"),
+    }),
+    entry("edit_media:ffmpeg", "ffmpeg 处理", "受限的 ffmpeg 命令（拼接请用 merge_videos），产物是新文件。", {
+      args: { type: "string", title: "ffmpeg 参数（@reference[N] 引用输入）" },
+    }),
+  ];
+}
+
 export function platformEntries(catalog: PlatformCatalog): CapabilityEntry[] {
   return catalog.capabilities.flatMap((capability) => {
     const operation = capability.operation;

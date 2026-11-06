@@ -315,6 +315,31 @@ prop 名对不上 → `previewText` 恒为 undefined → 走空分支。**画布
 
 驱动脚本：`scripts/pw/agent-ws-bench.mjs`（`MODELS=a,b MODELS_TIMEOUT=… node …`）。
 
+## 2.13 让 agent 用现成能力拼片、按总时长分段（2026-11-06）
+
+真机复盘（`minimax-m3.1-flash` 跑 15 秒 KOC 任务）：两条片段各 **15.08s**、成片 **30.21s** ——
+15 秒档位没问题，但两件事做错了：
+
+1. **总时长失控**：要求"总 15 秒、2 段各 7–8 秒"，它做成 2×15=30 秒（每段拉满）。
+2. **拼接走了 code-agent**：模型自己说 "Two clips done; now concatenate via code-agent"，
+   于是 `task` → 子会话 `bash` + ffmpeg。**根因不是模型偏好，而是 `edit_media:*` 压根没进能力目录**：
+   `MediaEditService` 里实现了 `merge_videos`/`ffmpeg`/`subtitle_format`/`transcribe`/`export_slides`，
+   但 `capabilityEntries()` 只报平台目录，`design_capability_list` 看不到它们。
+
+修法两处：
+
+- **网关**：`capabilities.controller.ts` 新增 `editMediaEntries()`，把 5 个 `edit_media:*` 能力
+  （含 `merge_videos` 的 `scaleMode`/`targetWidth`/`targetHeight`）并入能力目录；与平台目录无关、始终可用。
+  用例改为断言"本地槽位能力 + edit_media 五条"。
+- **提示词**（`agent-profiles/v3/config/agents/media-agent.md`，源码与打包副本各一份）：
+  - 委派段加前提：**先查 `design_capability_list` 有没有现成 `edit_media:*`**，拼接/转码/字幕排版/
+    PPT 导出/转写都走 `design_execute`，不要为此写脚本；
+  - 能力契约段加规则：用户给**总时长**时，各段时长**之和等于该总时长**，超出单段上限就**增段**，
+    不许把每段拉满。
+
+验证：`/api/v3/capabilities?operation=edit_media` 实测返回
+`['edit_media:merge_videos','edit_media:subtitle_format','edit_media:transcribe','edit_media:export_slides','edit_media:ffmpeg']`。
+
 ## 3. 表格：已打通（原「唯一阻塞项」）
 
 ### 3.1 结论先说
