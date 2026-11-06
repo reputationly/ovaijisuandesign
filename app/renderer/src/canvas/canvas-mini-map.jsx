@@ -131,7 +131,28 @@ function getClientPoint(event) {
 }
 function resolveCssColor(value, fallback) {
   if (typeof value !== "string" || value.length > 128) return fallback;
-  return /^(?:#[\da-f]{3,8}|(?:rgb|rgba|hsl|hsla|oklab|oklch)\([^;{}]*\))$/i.test(value) ? value : fallback;
+  // `color(...)` 也要认：`color-mix()` 在 Chromium 里会计算成 `color(srgb …)`。
+  return /^(?:#[\da-f]{3,8}|(?:rgb|rgba|hsl|hsla|oklab|oklch|color)\([^;{}]*\))$/i.test(value) ? value : fallback;
+}
+
+/**
+ * 把 `var(--x)` / `color-mix(...)` 这类**主题变量**解析成 canvas 认的字面颜色。
+ *
+ * 以前这里是 `resolveCssColor(panel, resolvedViewportColor)` —— **参数顺序写反了**：
+ * 元素被当成颜色值、`var(--canvas-minimap-viewport-fill)` 被当成 fallback 返回，
+ * 于是 `fillStyle = "var(…)"` 对 canvas 2D 非法，视口框保持初始值**纯黑**
+ * （真机表现：小地图里那个黑方块）。这里用探针元素让浏览器把变量算成 rgb。
+ */
+function resolveThemeColor(panel, value, fallback) {
+  if (typeof value !== "string" || value.trim() === "") return fallback;
+  const doc = panel?.ownerDocument;
+  if (!doc?.createElement || !panel?.appendChild) return resolveCssColor(value, fallback);
+  const probe = doc.createElement("span");
+  probe.style.cssText = `position:absolute;left:-9999px;top:0;opacity:0;pointer-events:none;color:${value}`;
+  panel.appendChild(probe);
+  const resolved = getComputedStyle(probe).color;
+  probe.remove();
+  return resolveCssColor(resolved, fallback);
 }
 function roundedRect(context, x, y, width, height, radius) {
   const safeRadius = Math.max(0, Math.min(radius, width / 2, height / 2));
@@ -502,12 +523,13 @@ export function CanvasMiniMap({
       height: indicatorHeight * layout.scale,
       fill:
         resolvedViewportColor !== void 0
-          ? resolveCssColor(panel, resolvedViewportColor)
+          ? resolveThemeColor(panel, resolvedViewportColor, "rgba(255,255,255,0.42)")
           : (indicator.geometry?.fill ?? "transparent"),
-      stroke:
-        computedStyle
-          .getPropertyValue("--canvas-minimap-viewport-accent")
-          .trim() || markerColor,
+      stroke: resolveThemeColor(
+        panel,
+        computedStyle.getPropertyValue("--canvas-minimap-viewport-accent").trim(),
+        markerColor,
+      ),
     };
     const nextIndicatorTarget = resolvedViewportColor === void 0 ? 0 : 1;
     if (indicator.targetOpacity !== nextIndicatorTarget) {

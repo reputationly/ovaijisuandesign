@@ -195,6 +195,37 @@
 验证：面板底栏出现参数 chip（`自适应 · 1K · 自适应 · 自适应`），
 `/api/v3/capabilities?source=model&operation=generate_image` 返回 4 项。
 
+## 2.8 小地图视口框是纯黑（2026-11-06）
+
+真机现象：小地图里那个视口框是**纯黑**方块（紫边正常）。
+先是怀疑取色，但对比官方 asar 里的 CSS —— **我们的值跟它一模一样**
+（`--canvas-minimap-viewport-accent: #7352a9`、`--canvas-minimap-viewport-fill: rgba(255, 255, 255, 0.42)`，
+深色主题 `#ceb8f7` / `#ffffff6b`）。所以问题不在样式。
+
+**真因是 `canvas-mini-map.jsx` 里一个参数顺序写错的调用**：
+
+```js
+resolveCssColor(panel, resolvedViewportColor)   // ← 元素当成颜色值，var(--…) 当成 fallback 返回
+```
+
+于是 `indicator.geometry.fill` 拿到的是字符串 `"var(--canvas-minimap-viewport-fill)"`，
+交给 canvas 2D 时：
+
+| 赋值 | `ctx.fillStyle` |
+|---|---|
+| `"#000000"`（上一个颜色） | `#000000` |
+| `"var(--canvas-minimap-viewport-fill)"` | **仍是 `#000000`**（非法值被忽略，不报错） |
+| 先解析出的 `rgba(255, 255, 255, 0.42)` | `rgba(255, 255, 255, 0.42)` ✅ |
+
+`resolveCssColor()` 只接受字面颜色（`#hex`/`rgb()`/`hsl()`…），`var()` 一律当非法值 —— 所以框一直是黑的。
+
+修法：新增 `resolveThemeColor(panel, value, fallback)`，用一个探针 `<span>` 让浏览器把
+`var()` / `color-mix()` 算成 rgb 再交给 canvas（同时给 `resolveCssColor` 放行 `color(…)`，
+因为 `color-mix()` 在 Chromium 里会算成 `color(srgb …)`）。描边也走同一套解析。
+
+补充：视口框只在**视口面积 ≤ 内容的 4%** 时绘制（`INDICATOR_MAX_AREA_RATIO = 0.04`），
+所以小场景/缩小时看不到它是正常的。
+
 ## 3. 表格：已打通（原「唯一阻塞项」）
 
 ### 3.1 结论先说
