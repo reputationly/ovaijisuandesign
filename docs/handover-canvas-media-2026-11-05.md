@@ -291,6 +291,30 @@ prop 名对不上 → `previewText` 恒为 undefined → 走空分支。**画布
 回归用例 `app/renderer/src/canvas-v3/text-preview-prop.test.ts`：断言 `previewText: markdown2` 出现在
 `CanvasV3Text` 组件内。真机复验：节点渲染 1015 字符（标题 + 三条要点），`text-preview-empty` 不再出现。
 
+## 2.12 四个对话模型的同题对照（2026-11-06）
+
+同一提示词（15 秒竖屏 KOC 视频方案，明确"只输出方案不要生成"），同一 media-agent、同一 MCP 工具集，
+用 WebSocket 驱动（`create_session` → `update_model` → `message`），按帧统计工具序列：
+
+| 模型 | 工具序列 | 进代码路线（bash/code） | 回答字数 |
+|---|---|---|---|
+| `glm-5.3-flash-w4a8` | skill, **bash**, question | **是** | 13,450 |
+| `qwen3.8-flash-fp8` | skill, **bash**, design_read, question | **是** | 8,185 |
+| `deepseek-v4-1-flash` | skill, design_read, design_capability_list | 否 | 9,285 |
+| `minimax-m3.1-flash` | skill, design_read, design_capability_list, design_capability_get | 否 | 27,181 |
+
+结论：
+
+- **glm 与 qwen 会自己起 bash**（并都触发 `question` 反问），这正是"用户看到 code-agent / 重复操作守卫"的来源；
+- **deepseek-v4-1-flash 与 minimax-m3.1-flash 全程只用 design_\* 工具**，不碰 bash —— 行为上更接近官方那种
+  "思考 + 直接产出"；
+- minimax-m3.1-flash 的回答最完整（27k 字），deepseek 更精简（9k 字）、工具最少（4 次）。
+
+口径说明：四个模型都撞到 420 秒脚本上限才收尾，**耗时不可比**；工具序列与是否进代码路线来自实时帧，
+是可比的。要严格比耗时需要改成"静默期收尾"判定后重跑。
+
+驱动脚本：`scripts/pw/agent-ws-bench.mjs`（`MODELS=a,b MODELS_TIMEOUT=… node …`）。
+
 ## 3. 表格：已打通（原「唯一阻塞项」）
 
 ### 3.1 结论先说
