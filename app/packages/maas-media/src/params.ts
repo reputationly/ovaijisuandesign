@@ -78,7 +78,8 @@ export function forModality(modality: string, model?: string | null): ParamSpec[
     case "image":
       return [
         spec("aspect_ratio", "比例", IMAGE_RATIOS, "adaptive"),
-        spec("resolution", "清晰度", ["1K", "2K"], "1K"),
+        // 默认 2K（产品定）：图片默认出 2K，短边 1440。1K 仍可手选，用于省额度的场景。
+        spec("resolution", "清晰度", ["1K", "2K"], "2K"),
         // 画质与背景**透传给上游**（`EXTRA_IMAGE_FIELDS`）：认不认由模型决定，
         // 但我们不做静默丢弃 —— 界面选了就得发出去。
         spec("quality", "画质", ["auto", "high", "medium", "low"], "auto"),

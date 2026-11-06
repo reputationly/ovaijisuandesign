@@ -168,8 +168,27 @@
 | `background` | 背景 | auto / opaque / transparent | auto | **透传**上游 |
 
 `quality` / `background` 以前会被客户端**悄悄丢掉**（`image.generate` 只发 `size`），
-现在走 `EXTRA_IMAGE_FIELDS` 白名单原样发给上游 —— 上游模型认不认由它决定，
-但至少不是"界面能选、实际没效果"的静默丢弃。真机实测：带这两个参数提交返回 202，平台不拒。
+现在走 `EXTRA_IMAGE_FIELDS` 白名单原样发给上游 —— 上游模型认不认由它决定。真机实测：带这两项提交返回 202，平台不拒。
+
+### 平台契约实测（决定"接口是否支持"）
+
+直接问平台（`GET <base>/v1/ov/capabilities`，48 个能力）：
+
+| 事实 | 值 |
+|---|---|
+| 声明了参数的能力 | **只有 3 个**：`generate_music:minimax-music3`（`is_instrumental`/`lyrics`）、两个视频（`ratio`/`resolution`/`duration`/`image_mode`/`generate_audio`） |
+| 图片能力 `generate_image:qwen-image-pro-enhanced` | `paramSchema: null`、`controls: null` |
+| 全部 48 个能力里出现过 `quality` / `background` 吗 | **没有，一次都没有** |
+
+所以结论要分清：
+
+- **比例 + 清晰度 = 符合要求**。视频是平台自己声明 `ratio`/`resolution`；图片平台不声明，
+  但我们这条链路用 `size` 表达（`resolveSize()` 由比例+清晰度算像素），
+  实测 `21:9 + 2K` 出图 **3360×1440**（21/9、短边 1440），**说明真的生效**。
+- **画质 + 背景 = 平台契约未声明**。我们透传不报错（202），但**无法证明上游生效** ——
+  这正是文档 §5 反复强调的"不报错的错"风险。要不要在界面上保留这两项，是产品决定。
+
+清晰度默认已按产品要求改为 **2K**（面板 chip 实测 `自适应 · 2K · 自适应 · 自适应`）。
 
 验证：面板底栏出现参数 chip（`自适应 · 1K · 自适应 · 自适应`），
 `/api/v3/capabilities?source=model&operation=generate_image` 返回 4 项。
