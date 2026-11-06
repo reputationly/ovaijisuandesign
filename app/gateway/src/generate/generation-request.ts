@@ -81,7 +81,13 @@ async function runImage(client: Client, cfg: MediaConfig, root: string, req: Gen
   const preparedImages = await prepareInputs(client, cfg, root, (req.image_paths ?? []).filter(nonEmpty));
   const images = await image.loadImageInputs(root, preparedImages);
   const p = req.params ?? {};
-  return image.generate(client, cfg, req.prompt ?? "", images, str(p.aspect_ratio) ?? str(p.ratio) ?? "", str(p.resolution) ?? "", str(req.model_id) ?? str(p.model_name));
+  const extra = {
+    quality: str(p.quality) ?? "",
+    background: str(p.background) ?? "",
+    style: str(p.style) ?? "",
+    negative_prompt: str(p.negative_prompt) ?? "",
+  };
+  return image.generate(client, cfg, req.prompt ?? "", images, str(p.aspect_ratio) ?? str(p.ratio) ?? "", str(p.resolution) ?? "", str(req.model_id) ?? str(p.model_name), extra);
 }
 
 // ---------------------------------------------------------------------------

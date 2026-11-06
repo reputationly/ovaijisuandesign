@@ -4854,8 +4854,18 @@ ${REFERENCE_TEXT_OPEN}`;
 
 function pickerInfo(capability) {
   const { id: id2, presentation } = capability.model;
+  // **`controls` 缺失时按 `paramSchema` 兜底**：能力可能只报参数表（我们网关就是这种），
+  // 而这里以前只认 `controls` —— 于是图片的「比例 / 清晰度 / 画质 / 背景」在面板上
+  // 一个都不出现（capability 有 4 项，模型对象的 params 却是空）。
+  const declared = Object.keys(capability.controls ?? {});
+  const fallbackKeys = declared.length ? [] : Object.keys(capability.paramSchema.properties ?? {});
+  const controlsOf = (key2) => capability.controls?.[key2] ?? {
+    widget: "select",
+    label: capability.paramSchema.properties[key2]?.title || key2,
+  };
   const params = Object.fromEntries(
-    Object.entries(capability.controls ?? {}).map(([key2, control]) => {
+    [...declared, ...fallbackKeys].map((key2) => {
+      const control = controlsOf(key2);
       const schema = capability.paramSchema.properties[key2];
       return [
         key2,

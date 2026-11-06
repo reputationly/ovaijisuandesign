@@ -1,5 +1,7 @@
 import { BadRequestException, Controller, Get, Inject, NotFoundException, Param, Query } from "@nestjs/common";
 
+import { params as mediaParams } from "@ov/maas-media";
+
 import { MediaConfigService } from "./media-config.service.js";
 import { MAAS_BACKEND, buildCatalog, type CatalogModel } from "./model-catalog.js";
 import type { PlatformCatalog, PlatformCapability } from "./platform-catalog.js";
@@ -89,12 +91,29 @@ export function platformEntries(catalog: PlatformCatalog): CapabilityEntry[] {
 
 function schemaProperties(capability: PlatformCapability): Record<string, unknown> {
   const properties = capability.paramSchema?.properties ?? {};
-  return Object.fromEntries(Object.entries(properties).map(([name, param]) => [name, {
+  const mapped = Object.fromEntries(Object.entries(properties).map(([name, param]) => [name, {
     type: "string",
     ...(param.enum?.length ? { enum: param.enum } : {}),
     ...(param.default === undefined ? {} : { default: param.default }),
     ...(param.title ? { title: param.title } : {}),
   }]));
+  if (Object.keys(mapped).length) return mapped;
+  // **平台没给参数表时回退到本机模态参数表。** 平台的图片能力目前一条参数都不报，
+  // 于是画布上的图片生成面板连「比例 / 分辨率」都没有 —— 而这两项后端是真认的
+  // （`generation-request.ts` 读 `params.aspect_ratio` / `params.resolution` 去算 size）。
+  // 视频一直有参数表，所以只有图片缺；这里按操作补上，平台一旦自报参数就仍以平台为准。
+  const fallback = modalityParams(capability.operation, capability.model);
+  return fallback.length
+    ? Object.fromEntries(fallback.map((param) => [param.name, { type: "string", enum: param.options, default: param.default, title: param.label }]))
+    : mapped;
+}
+
+/** 本机的模态参数表（图片/视频各一套，见 `@ov/maas-media` 的 params.ts）。 */
+function modalityParams(operation: string, model: string): { name: string; label: string; options: string[]; default: string }[] {
+  // 图生图的比例由输入图决定，参数表按 `image` 取就够了。
+  if (operation === "generate_image") return mediaParams.forModality("image", model);
+  if (operation === "generate_video") return mediaParams.forModality("video", model);
+  return [];
 }
 
 function localized(value: { zh?: string; en?: string } | undefined): string | undefined {

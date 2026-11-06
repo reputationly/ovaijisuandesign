@@ -144,6 +144,36 @@
 结论：**22 条里 21 条已通**（本轮补 17 条），只剩 `content.rename` —— 渲染层没有任何构造点，
 标题统一走组合名，不需要实现。
 
+## 2.7 生成参数：比例 / 清晰度 / 画质 / 背景（2026-11-06）
+
+参照产品的生成面板底栏是 `模型 | 21:9 | 2k·高·自适应 | ×N | 积分 | 发送`。
+我们这边**不显示模型**（画布生成面板本来也没有模型 chip，界面上那个「自动」是对话模式），
+但四个参数必须能用。之前一个都没有，是两层各缺一块：
+
+1. **网关**：平台能力目录里图片能力不报 `paramSchema`，而网关照抄 → 前端拿到的参数表是空的。
+   现在 `platformEntries` 在平台没给参数时**回退到本机模态参数表**（`@ov/maas-media` 的
+   `params.forModality`），平台一旦自报参数仍以平台为准。
+2. **渲染层**：`pickerInfo()` 只按 `capability.controls` 生成参数，而协议允许只给
+   `paramSchema`（我们网关就是这种）→ 能力有 4 项、模型对象 `params` 却是 `{}`。
+   现在 `controls` 缺失时按 `paramSchema.properties` 兜底（`widget=select`、`label=title`、
+   `options=enum`、`default`）。
+
+参数表（图片模态，见 `params.ts`）：
+
+| 参数 | 界面 | 取值 | 默认 | 落到哪 |
+|---|---|---|---|---|
+| `aspect_ratio` | 比例 | adaptive/1:1/16:9/9:16/4:3/3:4/3:2/2:3 | adaptive | `resolveSize()` 算 `size` |
+| `resolution` | 清晰度 | 1K / 2K | 1K | 同上（短边 1024 / 1440） |
+| `quality` | 画质 | auto / high / medium / low | auto | **透传**上游 `/images/generations` |
+| `background` | 背景 | auto / opaque / transparent | auto | **透传**上游 |
+
+`quality` / `background` 以前会被客户端**悄悄丢掉**（`image.generate` 只发 `size`），
+现在走 `EXTRA_IMAGE_FIELDS` 白名单原样发给上游 —— 上游模型认不认由它决定，
+但至少不是"界面能选、实际没效果"的静默丢弃。真机实测：带这两个参数提交返回 202，平台不拒。
+
+验证：面板底栏出现参数 chip（`自适应 · 1K · 自适应 · 自适应`），
+`/api/v3/capabilities?source=model&operation=generate_image` 返回 4 项。
+
 ## 3. 表格：已打通（原「唯一阻塞项」）
 
 ### 3.1 结论先说

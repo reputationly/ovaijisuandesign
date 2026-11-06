@@ -1757,6 +1757,8 @@ function PopoverCard({
 
 function ImageGenerationPanelContent({
   mediaKind: mediaKind2 = "image",
+  /** 画布里的生成面板不显示模型选择（产品要求：只留比例/清晰度/画质/背景）。 */
+  showModelChip = true,
   attachments,
   children: children2,
   notices,
@@ -2051,7 +2053,7 @@ function ImageGenerationPanelContent({
       closeAction,
       notices,
       controls: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
+        showModelChip ? /* @__PURE__ */ jsxRuntimeExports.jsx(
           ModelChip,
           {
             models,
@@ -2064,9 +2066,9 @@ function ImageGenerationPanelContent({
             disabledReason: disabledModelReason,
             showEmptyHint: true
           }
-        ),
+        ) : null,
         hasConfigurableParams && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "w-px h-3 bg-foreground/15 shrink-0" }),
+          showModelChip ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-hidden": true, className: "w-px h-3 bg-foreground/15 shrink-0" }) : null,
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             ParamsChip,
             {

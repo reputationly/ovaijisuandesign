@@ -4667,6 +4667,8 @@ function CanvasV3GenerationPanel({
           ImageGenerationPanelContent,
           {
             mediaKind: mediaKind2,
+            // 画布面板只留参数（比例/清晰度/画质/背景），不显示模型选择。
+            showModelChip: false,
             attachments: referencesIgnored ? textChips.length ? /* @__PURE__ */ jsxRuntimeExports.jsx(
               CanvasV3ReferenceBar,
               {

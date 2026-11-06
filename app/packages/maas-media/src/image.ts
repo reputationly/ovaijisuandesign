@@ -27,6 +27,19 @@ export const TIMEOUT_MS = 300_000;
  * `"1024x1024"` 这种像素尺寸。按短边对齐档位、长边按比例推，再取整到 8 的
  * 倍数 —— 扩散模型基本都要求边长能被 8 整除。
  */
+/** 允许透传给 `/images/generations` 的额外字段（其余参数由我们自己消费，不能乱发）。 */
+const EXTRA_IMAGE_FIELDS = ["quality", "background", "style", "negative_prompt"] as const;
+
+function pickExtra(extra: Record<string, string> | null | undefined): Record<string, string> {
+  if (!extra) return {};
+  const picked: Record<string, string> = {};
+  for (const key of EXTRA_IMAGE_FIELDS) {
+    const value = extra[key];
+    if (typeof value === "string" && value.trim() !== "") picked[key] = value.trim();
+  }
+  return picked;
+}
+
 export function resolveSize(aspectRatio: string, resolution: string): string {
   let shortEdge: number;
   switch (asciiUpper(resolution.trim())) {
@@ -180,6 +193,12 @@ export async function generate(
   aspectRatio: string,
   resolution: string,
   modelId?: string | null,
+  /**
+   * 额外透传给上游的字段（白名单见 `EXTRA_IMAGE_FIELDS`）。
+   * 画质 / 背景这类参数上游认不认由模型决定，但**不能在我们这层悄悄丢掉** ——
+   * 丢了就是"界面能选、实际没效果"的不报错的错。
+   */
+  extra?: Record<string, string> | null,
 ): Promise<string> {
   let path: string;
   let body: Record<string, unknown>;
@@ -189,7 +208,7 @@ export async function generate(
       throw PlatformError.config("models.image 未配置，这个能力不可用");
     }
     path = "/images/generations";
-    body = { model, prompt, n: 1 };
+    body = { model, prompt, n: 1, ...pickExtra(extra) };
     // 自适应（或没给比例）就不传 size，由平台定画幅：聚合模型（qwen-image-pro-enhanced）
     // 会按改写后的内容挑比例，传了 size 它就照办、不再自己定。和视频的做法一致。
     const ratio = aspectRatio.trim();
