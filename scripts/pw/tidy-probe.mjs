@@ -48,6 +48,14 @@ try {
     .slice(0, 10));
   console.log("菜单:", JSON.stringify(menu));
 
+  // 单节点也能整理：打开「含依赖」让目标变成整条依赖链
+  const includeDeps = page.locator('[data-action-ui-id="canvas.toolbar-tidy-include-deps"]').first();
+  if (await includeDeps.count()) {
+    const pressed = await includeDeps.getAttribute("aria-checked").catch(() => null);
+    console.log("含依赖控件 aria-checked:", pressed);
+    if (pressed !== "true") await includeDeps.click({ timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(600);
+  }
   const pick = menu.find((item) => /grid|网格|水平/.test(`${item.id} ${item.text}`)) ?? menu[0];
   if (pick?.id) {
     await page.locator(`[data-action-ui-id="${pick.id}"]`).first().click({ timeout: 6000 }).catch((e) => console.log("点选项失败:", String(e).slice(0, 60)));
