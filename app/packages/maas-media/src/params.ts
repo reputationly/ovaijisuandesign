@@ -76,14 +76,15 @@ export function forModality(modality: string, model?: string | null): ParamSpec[
     case "image_edit":
       return [spec("resolution", "分辨率", ["1K", "2K"], "1K")];
     case "image":
+      // 只暴露**平台契约里确实作用得到**的两项：比例与清晰度都由我们自己换算成 `size`。
+      // 画质 / 背景**不在界面出现**：平台 48 个能力的目录里从来没有声明过这两个字段
+      // （图片能力的 paramSchema / controls 都是 null），发出去不报错但也无法证明生效，
+      // 属于"能选但没效果"的静默无效 —— 产品决定先不摆出来。
+      // 透传能力保留在 `image.ts` 的 `EXTRA_IMAGE_FIELDS`：平台哪天声明了，这里加一行就回来。
       return [
         spec("aspect_ratio", "比例", IMAGE_RATIOS, "adaptive"),
         // 默认 2K（产品定）：图片默认出 2K，短边 1440。1K 仍可手选，用于省额度的场景。
         spec("resolution", "清晰度", ["1K", "2K"], "2K"),
-        // 画质与背景**透传给上游**（`EXTRA_IMAGE_FIELDS`）：认不认由模型决定，
-        // 但我们不做静默丢弃 —— 界面选了就得发出去。
-        spec("quality", "画质", ["auto", "high", "medium", "low"], "auto"),
-        spec("background", "背景", ["auto", "opaque", "transparent"], "auto"),
       ];
     case "video":
     case "video_ref":
