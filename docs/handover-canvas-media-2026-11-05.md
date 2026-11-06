@@ -195,6 +195,28 @@
 验证：面板底栏出现参数 chip（`自适应 · 1K · 自适应 · 自适应`），
 `/api/v3/capabilities?source=model&operation=generate_image` 返回 4 项。
 
+## 2.9 `MCP error -32602 … Invalid input at output.resources[0]`（2026-11-06）
+
+真机：画布节点上连续三次「生成 1 张图片（失败）」，红色报错
+`MCP error -32602: Input validation error: Invalid arguments for tool execute: Invalid input at output.resources[0]`
+—— 数组本身是数组，**元素**被宿主包了一层：`{"item": {"mode":"create","name":"…"}}`。
+
+之前修的 `repairArrayFields` 只管「顶层字段被包成对象」（`output.resources` 变成 `{item:[…]}`），
+**元素级包装不归它管**，于是整条生成请求在 zod 校验阶段就被拒，一次图都派不出去。
+
+修法两件事：
+
+1. `args-normalize.ts` 新增 `normalizeDeepArrayElements()`：递归解掉数组元素上的壳键
+   （`item` / `items` / `value` / `element` / `entry` / `data`，且解出来仍是对象），
+   未改动时返回同一个引用，registrar 用引用相等判断要不要采用归一后的参数。
+2. **参数被拒必须留证据**：`registrar.ts` 在候选全被 schema 拒绝时打一行
+   `[mcp-args] tool=… rejected path=output.resources.0: … args=<原始 JSON>`（1800 字符截断，
+   `OV_MCP_LOG_ARGS=0` 可关）。以前只有一句 `-32602`，宿主发什么形状全靠猜。
+
+验证：单测 3 条（元素解壳 / 嵌套 placements / 正常形状保持引用）+ registrar 级 1 条；
+`mcp-tools` 269 条全绿。真机重启后我自己发了一条生图（"纯蓝色正方形"），
+产出 `纯蓝色正方形.png`，日志无 `-32602`、无 `[mcp-args]` 拒绝。
+
 ## 2.8 小地图视口框是纯黑（2026-11-06）
 
 真机现象：小地图里那个视口框是**纯黑**方块（紫边正常）。

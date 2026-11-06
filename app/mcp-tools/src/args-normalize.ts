@@ -83,3 +83,59 @@ export function normalizeExecuteReferences(args: Record<string, unknown>): Recor
 export function normalizeExecuteArgs(args: Record<string, unknown>): Record<string, unknown> {
   return normalizeExecuteReferences(args);
 }
+
+/**
+ * 深层数组元素解壳。
+ *
+ * 真机（2026-11-06）：`design_execute` 报
+ *   `MCP error -32602: Invalid input at output.resources[0]`
+ * —— 数组本身是数组，但**元素**被宿主包了一层：`{"item": {"mode":"create","name":"…"}}`。
+ * `repairArrayFields` 只处理顶层字段被包成对象的情况，元素级不归它管，
+ * 于是整条生成请求在 schema 阶段就被拒，一次图都派不出去。
+ *
+ * 这里递归处理：数组里的元素若是「只有一个壳键、值又是对象」的形状就解掉；
+ * 对象继续往下走。只解一层壳，避免把真实业务字段（比如 `{value: {...}}` 这种语义）
+ * 越解越深 —— 判据是壳键必须在白名单里**且**解完仍是对象。
+ */
+const ELEMENT_WRAPPER_KEYS = ["item", "items", "value", "element", "entry", "data"] as const;
+
+function unwrapElement(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    const inner = value.filter((entry) => entry !== null && entry !== undefined);
+    return inner.length === 1 ? unwrapElement(inner[0]) : value.map(unwrapElement);
+  }
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const keys = Object.keys(record);
+    if (keys.length === 1 && (ELEMENT_WRAPPER_KEYS as readonly string[]).includes(keys[0]!)) {
+      const wrapped = record[keys[0]!];
+      if (wrapped && typeof wrapped === "object" && !Array.isArray(wrapped)) return unwrapElement(wrapped);
+    }
+  }
+  return value;
+}
+
+export function normalizeDeepArrayElements<T>(value: T): T {
+  if (Array.isArray(value)) {
+    let changed = false;
+    const next = value.map((entry) => {
+      const normalized = normalizeDeepArrayElements(unwrapElement(entry));
+      if (normalized !== entry) changed = true;
+      return normalized;
+    });
+    // 没改动就返回同一个数组，调用方能用引用相等判断"要不要用归一后的参数"。
+    return (changed ? next : value) as unknown as T;
+  }
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    let changed = false;
+    const next: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(record)) {
+      const normalized = normalizeDeepArrayElements(entry);
+      next[key] = normalized;
+      if (normalized !== entry) changed = true;
+    }
+    return (changed ? next : value) as unknown as T;
+  }
+  return value;
+}

@@ -232,3 +232,50 @@ describe("宿主改写数组（通用）", () => {
     expect(seen.at(-1)).toMatchObject({ ids: ["a", "b"], note: "keep" });
   });
 });
+
+describe("元素级解壳（真机 output.resources[0]）", () => {
+  it("数组元素被包成 {item:…} 时 registrar 会自动解壳并通过校验", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool(
+      "execute",
+      {
+        description: "元素解壳用的小工具",
+        inputSchema: {
+          prompt: z.string(),
+          output: z.object({
+            resources: z.array(z.object({ mode: z.literal("create"), name: z.string().min(1) })).min(1),
+          }),
+        },
+      },
+      async (args) => {
+        seen.push(args as Record<string, unknown>);
+        return structuredReply({ ok: true });
+      },
+    );
+    // 宿主实测形状：数组对、元素被包了一层
+    await h.call("execute", { prompt: "一张图", output: { resources: [{ item: { mode: "create", name: "身份锚" } }] } });
+    expect(seen[0]).toEqual({ prompt: "一张图", output: { resources: [{ mode: "create", name: "身份锚" }] } });
+  });
+
+  it("正常形状照旧通过", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool(
+      "execute",
+      {
+        description: "元素解壳用的小工具",
+        inputSchema: {
+          prompt: z.string(),
+          output: z.object({ resources: z.array(z.object({ mode: z.literal("create"), name: z.string().min(1) })).min(1) }),
+        },
+      },
+      async (args) => {
+        seen.push(args as Record<string, unknown>);
+        return structuredReply({ ok: true });
+      },
+    );
+    await h.call("execute", { prompt: "一张图", output: { resources: [{ mode: "create", name: "身份锚" }] } });
+    expect(seen[0]).toEqual({ prompt: "一张图", output: { resources: [{ mode: "create", name: "身份锚" }] } });
+  });
+});

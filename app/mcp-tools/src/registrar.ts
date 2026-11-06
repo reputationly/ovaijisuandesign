@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import type { CallToolResult, ToolAnnotations } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
-import { asArrayLike, normalizeExecuteArgs, normalizeExecuteReferences } from "./args-normalize.js";
+import { asArrayLike, normalizeDeepArrayElements, normalizeExecuteArgs, normalizeExecuteReferences } from "./args-normalize.js";
 import { runWithSession, type GroupScope } from "./context.js";
 
 /**
@@ -76,6 +76,10 @@ export interface RegisterToolTarget {
 const LOG_LIMIT_PER_TURN = 10;
 const LOG_TURN_LIMIT = 500;
 const logCounts = new Map<string, number>();
+
+function truncateForLog(text: string, limit: number): string {
+  return text.length <= limit ? text : `${text.slice(0, limit)}…(+${text.length - limit})`;
+}
 
 function writeLog(line: string): void {
   try {
@@ -562,6 +566,9 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
       args = next;
     }
     args = repairArrayFields(shape, args);
+    // 元素级解壳：`output.resources: [{"item": {…}}]` 这种数组对、元素被包了一层。
+    const deepNormalized = normalizeDeepArrayElements(args);
+    if (deepNormalized !== args) args = deepNormalized;
     const unpacked = unpackActionObject(shape, args);
     const candidates = [
       args,
@@ -569,7 +576,22 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
       repairValues(shape, args, "json"),
       repairValues(shape, args, "json+number"),
     ];
-    args = candidates.find((candidate) => object.safeParse(candidate).success) ?? args;
+    const accepted = candidates.find((candidate) => object.safeParse(candidate).success);
+    if (!accepted && process.env.OV_MCP_LOG_ARGS !== "0") {
+      // **参数校验失败必须留证据**：宿主/模型改写的形状千奇百怪（数组包壳、元素包壳、
+      // 字段名漂移），没原始参数就只能靠猜。真机 case：`Invalid input at output.resources[0]`。
+      const parsed = object.safeParse(args);
+      const issue = parsed.success
+        ? undefined
+        : parsed.error.issues
+            .slice(0, 3)
+            .map((item) => `${item.path.join(".") || "<root>"}: ${item.message}`)
+            .join(" | ");
+      writeLog(
+        `[mcp-args] tool=${name} rejected path=${issue ?? "unknown"} args=${truncateForLog(JSON.stringify(args ?? null), 1800)}`,
+      );
+    }
+    args = accepted ?? args;
 
     if (!needsRequestId) return args;
     if (typeof args.requestId === "string" && args.requestId.trim() !== "") return args;
