@@ -751,7 +751,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
       // 与其让它收到一句看不懂的 "Required at references"，不如直接告诉它怎么改。
       throw new Error(
         "design_analyse_media 只接受项目 Resource 的 references（resourceId 或 versionId）。" +
-          "要检查本地渲染帧，用 python/PIL/numpy 在本机统计；要检查已发布的媒体，先 design_deliver 再用它的 resourceId。",
+          "要确认时长/分辨率，用 design_analyse_media 的 metadata 模式（先 design_deliver 建 Resource，再用 versionId）；不要自己写脚本读帧。",
       );
     }
     if (name === "code_publish") args = coercePublishOutputs(args);
