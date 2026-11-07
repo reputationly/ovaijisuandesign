@@ -440,6 +440,32 @@ function completeExecuteArgs(args: Record<string, unknown>): Record<string, unkn
   return out;
 }
 
+/**
+ * `analyse_media` 的形状补全：模型会用 v2 的写法
+ * `{ mode: "metadata", versionIds: {item: [...]} }`，而 v3 要求 `references` + `type`。
+ * （真机：`Required at references` + `Required at type`，一次白跑。）
+ */
+function completeAnalyseMediaArgs(args: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...args };
+  if (out.references === undefined) {
+    const ids = asArrayLike(out.versionIds ?? out.version_ids ?? out.versions);
+    if (ids?.length) {
+      out.references = ids
+        .filter((entry): entry is string => typeof entry === "string" && entry !== "")
+        .map((versionId) => ({ versionId }));
+    }
+  }
+  if (out.type === undefined && typeof out.mode === "string") {
+    if (["metadata", "semantic", "both"].includes(out.mode)) out.type = out.mode;
+  }
+  if (out.type === undefined) out.type = "metadata";
+  delete out.versionIds;
+  delete out.version_ids;
+  delete out.versions;
+  delete out.mode;
+  return out;
+}
+
 function inferMissingFields(name: string, args: Record<string, unknown>): Record<string, unknown> {
   const out = { ...args };
   if (name === "document_write" && out.mode === undefined) {
@@ -677,6 +703,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
       args = next;
     }
     if (name === "execute") args = completeExecuteArgs(args);
+    if (name === "analyse_media") args = completeAnalyseMediaArgs(args);
     args = repairArrayFields(shape, args);
     const deepNormalized = normalizeDeepArrayElements(args);
     if (deepNormalized !== args) args = deepNormalized;

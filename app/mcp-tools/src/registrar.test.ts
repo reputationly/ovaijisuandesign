@@ -392,3 +392,22 @@ describe("路径驱动修复（真机 task_query：嵌套字符串数字 + mode 
     expect(seen[0]!.query).toEqual({ limit: 20 });
   });
 });
+
+describe("analyse_media 的 v2 写法归一（真机 Required at references / type）", () => {
+  const spec = {
+    description: "analyse_media 兜底",
+    inputSchema: {
+      references: z.array(z.object({ versionId: z.string() })).min(1),
+      type: z.enum(["metadata", "semantic", "both"]),
+    },
+  } as const;
+
+  it("versionIds + mode 能补成 references + type", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("analyse_media", spec, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("analyse_media", { mode: "metadata", versionIds: { item: ["ver_a", "ver_b"] } });
+    expect(seen[0]!.references).toEqual([{ versionId: "ver_a" }, { versionId: "ver_b" }]);
+    expect(seen[0]!.type).toBe("metadata");
+  });
+});
