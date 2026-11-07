@@ -2,6 +2,7 @@
 export * from "./agent-profile-env.js";
 export * from "./api-paths.generated.js";
 export * from "./capability-search.js";
+export * from "./capabilities/registry.js";
 export * from "./external-agent.js";
 export * from "./backend-ids.js";
 export * from "./asset.js";

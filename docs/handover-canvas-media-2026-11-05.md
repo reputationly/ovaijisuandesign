@@ -362,6 +362,30 @@ MCP error -32602 … Expected object, received string at params
 
 用例：`registrar.test.ts` 新增 3 条（别名 / 字符串 params / output 补全）。
 
+## 2.15 为什么官方不调 code-agent：能力注册表没接上（2026-11-06）
+
+对照官方包（`/Applications/MiniMax Design.app/Contents/Resources/`）得到确定答案：
+
+| 对比项 | 官方 | 我们（改之前） |
+|---|---|---|
+| `media-agent.md` 里"要写程序就委派 code-agent" | **有，逐字相同** | 有（照抄官方） |
+| `edit_media:*` 是否作为一等能力 | **有**：`packages/protocol/dist/capabilities/tools/media-edit.js` 里 `ffmpeg`/`merge_videos`/`transcribe`/`subtitle_format`，`surfaces:["agent"]`、`execution:{mode:"sync"}`，并出现在能力目录 | 实现在 `MediaEditService` 里，但**能力目录一条都不报** |
+
+所以不是模型笨、也不是提示词不同：**官方的 agent 查得到 `merge_videos`，直接 `design_execute` 拼；我们查不到，只能交给 code-agent 写 ffmpeg 脚本。**
+
+而我们仓库里 `app/packages/protocol/src/capabilities/tools/media-edit.ts` **本来就有同名的注册表**（还原时带回来的），只是 `TOOL_CAPABILITIES` **没有从包入口导出**，网关拿不到 —— 这才是"能力缺失"的根。
+
+修法：
+
+1. `@ov/protocol` 的 index 导出 `./capabilities/registry.js`；
+2. 网关 `capabilities.controller.ts` 用 `toolCapabilityEntries()` 直接映射 `TOOL_CAPABILITIES`（schema/描述与官方逐字一致，替换掉之前手写的那份），追加到平台目录之后、始终可用。
+
+实测（当前 dev 网关）：`GET /api/v3/capabilities?operation=edit_media` →
+`['edit_media:ffmpeg','edit_media:merge_videos','edit_media:transcribe','edit_media:subtitle_format']`。
+
+**踩坑记录**：排查时脚本按"最大 pid"选网关进程，选到了 11 月 6 日的旧实例（另有多个历史网关残留），
+一度以为修复没生效。选进程要按**启动时间**，并排除 `MiniMax Design.app` 的官方实例。
+
 ## 3. 表格：已打通（原「唯一阻塞项」）
 
 ### 3.1 结论先说
