@@ -898,7 +898,15 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
           );
         }
         const result = await gw.post("/api/v3/execute", submit, 600_000, z.unknown());
-        return structuredReply(result as Record<string, unknown>);
+        // **失败必须报失败**：网关把业务失败包成 `{ok:false,error:…}` 且 HTTP 200，
+        // 直接 structuredReply 会让模型以为成功（真机：merge_videos 实际 422，
+        // 工具报 completed，模型以为已拼好、找不到产物，最后开 code-agent 重做一遍）。
+        const record = (result ?? {}) as Record<string, unknown>;
+        if (record.ok === false) {
+          const detail = typeof record.error === "string" ? record.error : JSON.stringify(record.error ?? record);
+          return errorReply(`execute 失败（${String(submit.capabilityId)}）：${detail.slice(0, 800)}`);
+        }
+        return structuredReply(record);
       } catch (error) {
         return errorReply(`execute 失败：${errorMessage(error)}`);
       }

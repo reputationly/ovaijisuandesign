@@ -43,7 +43,19 @@ export class CapabilityExecutionService {
       if (raw.plugin !== undefined) throw new ProjectQueryError("INVALID_ARGUMENT", "Plugin envelope requires a registered plugin capability");
       if (typeof raw.capabilityId === "string" && raw.capabilityId.startsWith("edit_media:")) {
         response.status(200);
-        return await this.edits.edit(value);
+        // **契约适配**：`execute` 的入参是平铺的 `{capabilityId, params, references, output}`，
+        // 而 `MediaEditService.edit()` 要 `{capabilityId, input:{params,references}, output}`。
+        // 不转这一步，每次 edit_media 都会被判 `media edit.params is not supported`（422）——
+        // 这就是"拼接/裁剪一直失败、模型只好开 code-agent"的真正原因。
+        const flat = raw as Record<string, unknown>;
+        // 已经是媒体编辑契约（`input`）时原样透传，别二次包裹。
+        if (flat.input && typeof flat.input === "object") return await this.edits.edit(value);
+        const adapted = {
+          capabilityId: flat.capabilityId,
+          input: { params: flat.params ?? {}, references: flat.references ?? [] },
+          output: flat.output,
+        };
+        return await this.edits.edit(adapted);
       }
       const body = object(value, caller === "agent" ? ["capabilityId", "prompt", "params", "references", "count", "output"] : ["requestId", "capabilityId", "prompt", "params", "references", "count", "output", "origin"], "submit");
       const capabilityId = identifier(body.capabilityId, "capabilityId");
