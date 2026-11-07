@@ -305,7 +305,8 @@ function refineCategory(toolName, base) {
 export function categorizeToolAction(toolName, toolArgs) {
   if (isDesignExecute(toolName)) {
     const { kind } = designInput(toolArgs);
-    return kind ? DESIGN_KINDS[kind].category : "other";
+    // 未知能力 id 一律落到 "other"：新能力忘了登记时不该让整页白屏。
+    return kind ? (DESIGN_KINDS[kind]?.category ?? "other") : "other";
   }
   if (connectorSkillLoadName(toolName, toolArgs)) return "skillOp";
   if (designToolPresentation(toolName, { toolArgs })) return "other";

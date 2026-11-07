@@ -14,6 +14,9 @@ export const DESIGN_KINDS = {
   "edit_media:merge_videos": { category: "videoEdit", label: "merge_videos", media: "video" },
   "edit_media:transcribe": { category: "audioGen", label: "transcribe", media: "text" },
   "edit_media:subtitle_format": { category: "videoEdit", label: "subtitle_format", media: "text" },
+  // 本产品新增的本地能力（官方表里没有）。**新增能力必须在这里登记**，
+  // 否则 `categorizeToolAction` 会读 `undefined.category` 直接崩掉整页（真机 EB-6B1A7AD7）。
+  "edit_media:cover_frame": { category: "videoEdit", label: "cover_frame", media: "image" },
 };
 
 export const isDesignExecute = (name) => name === "design_execute";
