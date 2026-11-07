@@ -517,3 +517,25 @@ describe("execute.references 归一", () => {
     expect(normalizeExecuteReferencesForTest({})).toEqual({});
   });
 });
+
+describe("design_read 的占位符护栏", () => {
+  let gw: FakeGateway;
+  let h: ReturnType<typeof createHarness>;
+
+  beforeEach(async () => {
+    gw = await startFakeGateway();
+    h = createHarness();
+    registerV3Tools(h.registrar, gatewayFor(gw.url), "overseas");
+  });
+  afterEach(async () => {
+    await gw.close();
+  });
+
+  it("file_path 是占位符时直接给指引，不发请求", async () => {
+    const result = await h.call("read", { file_path: "knowledgeDir" });
+    const text = resultText(result);
+    expect(text).toContain("占位符");
+    expect(text).toContain("design_search_knowledge");
+    expect(gw.requests.some((request) => request.path.includes("document/read"))).toBe(false);
+  });
+});

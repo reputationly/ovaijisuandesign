@@ -970,6 +970,16 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
           )) as Record<string, unknown>;
           return structuredReply(documentReadView(result));
         }
+        // 占位符当路径：模型会把文档里的 `<knowledgeDir>` / `<workflowsDir>` 原样传来
+        // （真机：`file_path: "knowledgeDir"` 两次都 not-found，然后它就去 bash 翻目录了）。
+        // 直接给能照做的指引，别让它再试一次同样的错。
+        const placeholder = String(args.file_path).replace(/^<|>$/g, "");
+        if (["knowledgeDir", "workflowsDir", "projectRoot", "skillsDir"].includes(placeholder)) {
+          return errorReply(
+            `file_path 不能是占位符「${placeholder}」：它是文档里的写法，需要换成真实路径。` +
+              "知识库与技能目录请先用 design_search_knowledge / 技能清单拿到真实路径，或直接传项目内相对路径。",
+          );
+        }
         // 磁盘文件 / 目录：GET /api/internal/document/read（同一套分页规则，另外支持目录与 PDF 页图）。
         const params = new URLSearchParams({ path: args.file_path as string });
         if (args.offset !== undefined) params.set("offset", String(args.offset));
