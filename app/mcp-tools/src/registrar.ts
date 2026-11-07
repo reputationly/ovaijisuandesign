@@ -454,6 +454,27 @@ function completeAnalyseMediaArgs(args: Record<string, unknown>): Record<string,
       out.references = [out.versionId ? { versionId: single } : { resourceId: single }];
     }
   }
+  // 真机（7 次连环失败）：`references` 被写成 JSON **字符串**，
+  // zod 直接 `Expected array, received string at references` —— 校验收不到，
+  // 后面那些"可操作护栏"根本没机会执行，模型只能连试。
+  if (typeof out.references === "string") {
+    const parsed = parseJsonLike(out.references);
+    if (Array.isArray(parsed)) out.references = parsed;
+  }
+  // 元素再兜一层：`{"kind":"image","path":…}` 或缺 kind 的裸字符串。
+  if (Array.isArray(out.references)) {
+    out.references = out.references.map((item) => {
+      if (typeof item === "string") return { path: item };
+      if (item && typeof item === "object") {
+        const record = item as Record<string, unknown>;
+        const wrapped = record.item ?? record.reference ?? record.ref;
+        if (wrapped && typeof wrapped === "object") return wrapped as Record<string, unknown>;
+        if (typeof wrapped === "string") return { path: wrapped };
+        return record;
+      }
+      return item;
+    });
+  }
   if (out.question === undefined && typeof out.instruction === "string" && out.instruction.trim() !== "") {
     out.question = out.instruction;
   }

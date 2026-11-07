@@ -1013,6 +1013,37 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
         // 以前打的是 `/api/project/resources/analyse` —— 那条路由不存在。
         // outputShape 要求顶层带 `type`，而网关只回结果数组 —— 不补会让 SDK 报
         // `Invalid structured content for tool analyse_media: Required at type`（真机一次白跑）。
+        // **本地文件直接分析**：references 里给的是 `path`（素材还在项目目录、没建成 Resource）
+        // 时，走 `POST /api/edit/analyze-media`（它本来就收 file_path），
+        // 不要让模型先 design_deliver 再回来 —— 真机里它为了看一张参考图试了 7 次。
+        const refs = (Array.isArray(args.references) ? args.references : []) as Record<string, unknown>[];
+        // question 是**挂在每个 reference 上**的（不是顶层）。
+        const fileRefs = refs
+          .map((item) => {
+            const filePath = typeof item?.path === "string" ? item.path : typeof item?.file_path === "string" ? item.file_path : "";
+            const question = typeof item?.question === "string" ? item.question : undefined;
+            return { filePath, question };
+          })
+          .filter((item) => item.filePath !== "");
+        const ids = refs.filter((item) => typeof item?.versionId === "string" || typeof item?.resourceId === "string");
+        if (fileRefs.length > 0 && ids.length === 0) {
+          const fileResults: Record<string, unknown>[] = [];
+          for (const { filePath, question } of fileRefs) {
+            const one = (await gw.post(
+              "/api/edit/analyze-media",
+              { file_path: filePath, question: question ?? "描述这个素材：内容、颜色、结构、可读文字与画面质量。", type: args.type },
+              TIMEOUT_MS,
+              LOOSE,
+            )) as Record<string, unknown>;
+            const text = typeof one.text === "string" ? one.text : undefined;
+            if (one.ok === false) {
+              fileResults.push({ reference: { path: filePath }, question, error: String(one.error ?? "analyse failed") });
+            } else {
+              fileResults.push({ reference: { path: filePath }, question, semantic: text ? { text } : undefined });
+            }
+          }
+          return structuredReply({ type: args.type, results: fileResults });
+        }
         const analysed = (await gw.post("/api/v3/analyse", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>;
         // 回包键名兜底：outputShape 要 `results`，网关早年叫 `analyses`。
         const rawResults = analysed.results ?? analysed.analyses ?? (Array.isArray(analysed) ? analysed : []);
