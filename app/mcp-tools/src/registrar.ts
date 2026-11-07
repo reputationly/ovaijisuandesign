@@ -736,7 +736,27 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
       args = next;
     }
     if (name === "execute") args = completeExecuteArgs(args);
-    if (name === "analyse_media") args = completeAnalyseMediaArgs(args);
+    if (name === "analyse_media") {
+      args = completeAnalyseMediaArgs(args);
+      // 真机：模型拿项目里的文件路径调 analyse_media（`{path:"01_reference(3).jpg"}`），
+      // schema 只认 resourceId/versionId，于是连失败 6 次，最后去开 code-agent 子代理"帮忙看图"。
+      // 这里直接把可照做的路径写给它，别让它绕道。
+      const refs = Array.isArray(args.references) ? (args.references as Record<string, unknown>[]) : [];
+      if (refs.some((item) => item && typeof item === "object" && typeof item.path === "string" && !item.versionId && !item.resourceId)) {
+        throw new Error(
+          "analyse_media 只接受项目 Resource 的 references（resourceId 或 versionId）。" +
+            "本地文件先建成 Resource 再分析：调用 design_deliver，sources:[{path:\"<相对路径>\"}]，" +
+            "output:{resources:[{mode:\"create\",name:\"…\"}],composition:{type:{label:\"…\"},name:\"…\",placements:[{role:\"…\"}]}}，" +
+            "然后用返回的 versionId 调 analyse_media。不要因此改用 bash 或子代理去读图。",
+        );
+      }
+    }
+    const idsLike = asArrayLike(args.ids ?? args.capabilityIds ?? args.capability_ids);
+    if (name === "capability_get" && !(idsLike && idsLike.length > 0)) {
+      throw new Error(
+        "capability_get 需要 ids（能力 id 数组）。先 design_capability_list 拿到 id（如 generate_video:minimax-h3-2k），再按 ids:[\"…\"] 调用。",
+      );
+    }
     if (name === "composition_edit") args = normalizeCompositionEditArgs(args);
     args = repairArrayFields(shape, args);
     const deepNormalized = normalizeDeepArrayElements(args);

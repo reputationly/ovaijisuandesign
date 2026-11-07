@@ -449,3 +449,24 @@ describe("composition_edit 深层归一（真机连试 22 次）", () => {
     expect(seen[0]!.commands).toEqual([{ action: "update", compositionId: "cmp_1", operations: [{ action: "add_member", resourceId: "res_1" }] }]);
   });
 });
+
+describe("可操作护栏（真机：analyse_media 失败→开 code-agent）", () => {
+  it("references 用 path 时直接给出 design_deliver 的建 Resource 步骤", async () => {
+    const h = createHarness();
+    h.registrar.registerTool("analyse_media", {
+      description: "t",
+      inputSchema: {
+        references: z.array(z.union([z.object({ resourceId: z.string() }), z.object({ versionId: z.string() })])).min(1),
+        type: z.enum(["metadata", "semantic", "both"]),
+      },
+    }, async () => structuredReply({ ok: true }));
+    let message = "";
+    try {
+      await h.call("analyse_media", { references: [{ path: "01_reference(3).jpg" }], type: "both" });
+    } catch (error) {
+      message = String(error);
+    }
+    expect(message).toContain("design_deliver");
+    expect(message).toContain("versionId");
+  });
+});
