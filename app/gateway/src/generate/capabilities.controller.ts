@@ -80,7 +80,14 @@ export function capabilityEntries(media: MediaConfigService): CapabilityEntry[] 
  * 这里直接映射注册表，schema/描述与官方逐字一致，不再手写一份。
  */
 export function toolCapabilityEntries(): CapabilityEntry[] {
-  return TOOL_CAPABILITIES.filter((capability) => capability.operation === "edit_media")
+  return TOOL_CAPABILITIES.filter(
+    (capability) =>
+      capability.operation === "edit_media" &&
+      // **只报真能跑的**：`edit_media:transcribe` 在网关里是 503 桩
+      // （`Speech transcription is not available in this gateway`）。
+      // 报出去等于让模型每次都撞 503，再自己找绕路 —— 宁可先不报，等接上 ASR 再加回来。
+      capability.id !== "edit_media:transcribe",
+  )
     .map((capability) => ({
       id: capability.id,
       operation: capability.operation,

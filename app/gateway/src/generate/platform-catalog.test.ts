@@ -154,10 +154,10 @@ describe("能力来源的选择", () => {
     // 目录缺失时退回本地槽位能力，**再加上**本机同步编辑能力（edit_media:* 与目录无关）。
     expect(entries.filter((entry) => entry.operation !== "edit_media").map((entry) => entry.id)).toEqual(["generate_image:qwen-image"]);
     // 与官方协议注册表（TOOL_CAPABILITIES 的 MEDIA_EDITS）逐条一致。
+    // transcribe 暂不报：网关里是 503 桩，报出去只会让模型反复撞失败。
     expect(entries.filter((entry) => entry.operation === "edit_media").map((entry) => entry.id)).toEqual([
       "edit_media:ffmpeg",
       "edit_media:merge_videos",
-      "edit_media:transcribe",
       "edit_media:subtitle_format",
     ]);
   });
