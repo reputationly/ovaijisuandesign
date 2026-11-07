@@ -12,7 +12,7 @@ const FILTER_OPTIONS = new Set(["filter_complex", "lavfi", "vf", "af", "filter"]
 const FILTER_SCRIPT_OPTIONS = new Set(["filter_complex_script", "filter_script"]);
 
 const MERGE_ERROR =
-  "Generic video concatenation is not allowed in ffmpeg. Use merge_videos with the ordered video_paths instead; it pads every clip's audio to its video timeline. The concat: protocol is not a valid MP4 concatenation strategy.";
+  "Generic video concatenation is not allowed in ffmpeg. Use design_execute with capabilityId edit_media:merge_videos and the ordered references (do NOT write a script or delegate to code-agent). Video pathss instead; it pads every clip's audio to its video timeline. The concat: protocol is not a valid MP4 concatenation strategy.";
 
 export type CheckResult = { ok: true } | { ok: false; error: string };
 
