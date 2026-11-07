@@ -615,7 +615,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     const unpacked = unpackActionObject(shape, args);
     const candidates = [
       args,
-      ...(deepUnwrapped !== args ? [deepUnwrapped] : []),
+      ...(deepUnwrapped !== args ? [deepUnwrapped, repairValues(shape, deepUnwrapped, "json+number")] : []),
       ...(unpacked ? [unpacked, repairValues(shape, unpacked, "json"), repairValues(shape, unpacked, "json+number")] : []),
       repairValues(shape, args, "json"),
       repairValues(shape, args, "json+number"),

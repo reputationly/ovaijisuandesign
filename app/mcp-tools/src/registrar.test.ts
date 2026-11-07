@@ -348,3 +348,29 @@ describe("深层数组包壳（真机 design_deliver 连报 8 次 Invalid input 
     expect(seen[0]!.sources).toEqual([{ key: "ref", path: "01_reference(3).jpg" }]);
   });
 });
+
+describe("包壳 + 字符串数字同时出现（真机 composition_edit）", () => {
+  const spec = {
+    description: "composition_edit 形状兜底",
+    inputSchema: {
+      action: z.string(),
+      compositionId: z.string(),
+      expectedRevision: z.number().int(),
+      operations: z.array(z.object({ op: z.string(), clientMemberKey: z.string().optional(), role: z.string().optional(), resourceId: z.string().optional() })).min(1),
+    },
+  } as const;
+
+  it("operations 被包成 {item:…} 且 expectedRevision 是字符串时也能通过", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("composition_edit", spec, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("composition_edit", {
+      action: "update",
+      compositionId: "cmp_788a93687fd9",
+      expectedRevision: "1",
+      operations: { item: { op: "add_member", clientMemberKey: "storyboard", role: "分镜与口播", resourceId: "res_0bdce35c725c" } },
+    });
+    expect(seen[0]!.expectedRevision).toBe(1);
+    expect(seen[0]!.operations).toEqual([{ op: "add_member", clientMemberKey: "storyboard", role: "分镜与口播", resourceId: "res_0bdce35c725c" }]);
+  });
+});
