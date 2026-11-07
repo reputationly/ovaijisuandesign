@@ -163,5 +163,31 @@ const subtitleFormat = {
     required: ["outputSize"]
   }
 };
-export const MEDIA_EDITS = [ffmpeg, mergeVideos, transcribe, subtitleFormat];
+const coverFrame = {
+  ...mediaEdit,
+  id: "edit_media:cover_frame",
+  displayName: "Extract cover frame",
+  description:
+    "Extract ONE still image from a video and publish it as an image Resource version — the cover/thumbnail. Runs local ffmpeg: no model call, no cost, a few hundred milliseconds. Use it whenever a deliverable needs a cover or poster frame instead of delegating to code.",
+  references: { min: 1, max: 1 },
+  paramSchema: {
+    type: "object",
+    properties: {
+      position: {
+        type: "string",
+        enum: ["first", "middle", "last"],
+        default: "middle",
+        description: "Which moment to grab: first frame, the middle of the clip (default, usually the most informative), or the last frame.",
+      },
+      atSeconds: {
+        type: "number",
+        exclusiveMinimum: 0,
+        description: "Exact timestamp in seconds. Overrides `position` when given.",
+      },
+    },
+    default: {},
+  },
+};
+
+export const MEDIA_EDITS = [ffmpeg, mergeVideos, transcribe, subtitleFormat, coverFrame];
 

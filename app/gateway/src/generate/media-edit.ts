@@ -14,7 +14,7 @@ import { ProjectQueryError } from "../project-kernel/errors.js";
 import { ProjectResourceService } from "../project-kernel/resource.service.js";
 import { buildDeck, type SlideImage, type SlideSpec } from "./pptx.js";
 
-const CAPABILITIES = ["edit_media:ffmpeg", "edit_media:merge_videos", "edit_media:transcribe", "edit_media:subtitle_format", "edit_media:export_slides"];
+const CAPABILITIES = ["edit_media:ffmpeg", "edit_media:merge_videos", "edit_media:transcribe", "edit_media:subtitle_format", "edit_media:export_slides", "edit_media:cover_frame"];
 const PLACEHOLDER = /@reference\[(\d+)\]/g;
 const EXACT_PLACEHOLDER = /^@reference\[\d+\]$/;
 
@@ -59,7 +59,10 @@ export class MediaEditService {
     if (capabilityId === "edit_media:export_slides") return this.exportSlides(versionIds, input.params, output);
     let preparedArgs: string[] | undefined;
     let extension = "mp4";
-    if (capabilityId === "edit_media:merge_videos") {
+    if (capabilityId === "edit_media:cover_frame") {
+      if (versionIds.length !== 1) throw new ProjectQueryError("INVALID_ARGUMENT", "cover_frame takes exactly one video reference");
+      extension = "jpg";
+    } else if (capabilityId === "edit_media:merge_videos") {
       if (versionIds.length < 2) throw new ProjectQueryError("INVALID_ARGUMENT", "merge_videos requires at least 2 videos after member expansion");
       scaleOptions(input.params);
     } else {
@@ -80,7 +83,21 @@ export class MediaEditService {
     await mkdir(path.dirname(absolute), { recursive: true });
     const temporary = path.join(path.dirname(absolute), `.partial-${path.basename(absolute)}`);
     try {
-      if (capabilityId === "edit_media:merge_videos") {
+      if (capabilityId === "edit_media:cover_frame") {
+        const source = path.join(this.paths.root, sources[0]!);
+        const info = await this.ffmpeg.probeMedia(source);
+        const asked = (input.params ?? {}) as Record<string, unknown>;
+        const at = typeof asked.atSeconds === "number" && asked.atSeconds > 0
+          ? asked.atSeconds
+          : (() => {
+              const position = typeof asked.position === "string" ? asked.position : "middle";
+              const duration = info.duration > 0 ? info.duration : 0;
+              if (position === "first") return 0;
+              if (position === "last") return Math.max(0, duration - 0.1);
+              return duration / 2;
+            })();
+        await this.ffmpeg.exec(["-ss", String(Math.max(0, at)), "-i", source, "-frames:v", "1", "-q:v", "2", "-y", temporary], { cwd: this.paths.root });
+      } else if (capabilityId === "edit_media:merge_videos") {
         const scale = scaleOptions(input.params);
         await this.ffmpeg.concatenate(sources.map((item) => path.join(this.paths.root, item)), temporary, scale.mode, scale.width, scale.height);
       } else {

@@ -159,6 +159,7 @@ describe("能力来源的选择", () => {
       "edit_media:ffmpeg",
       "edit_media:merge_videos",
       "edit_media:subtitle_format",
+      "edit_media:cover_frame",
     ]);
   });
 
