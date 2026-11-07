@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 
 import { capabilityUnavailable } from "../common/capability.js";
 import { VoiceCloneDto, VoiceDesignDto, VoiceIsolationDto } from "./speech.dto.js";
@@ -12,6 +12,50 @@ export class SpeechController {
   @Get("api/speech/voices")
   listVoices() {
     return this.speech.listVoices();
+  }
+
+  /**
+   * `voice_search` 工具的音色检索（`GET /api/v3/voices?q=女声,温柔`）。
+   *
+   * **本地实现**：查的是「配置的 voice_map + 本机克隆音色」，不依赖云端。
+   * 之前这条路由不存在，工具每次都 404 —— 模型在"选旁白音色"这一步只能绕路，
+   * 甚至去问用户或改用别的音色来源。
+   *
+   * 返回形状必须与 `voice_search` 的 outputShape 一致：
+   * `{ results: [{ id?, voices:[{voice_id,name,language,gender,age,accent,sample_audio}], error? }] }`
+   */
+  @Get("api/v3/voices")
+  async searchVoices(@Query("q") q?: string) {
+    const all = await this.speech.listVoices();
+    const terms = String(q ?? "")
+      .split(",")
+      .map((term) => term.trim())
+      .filter(Boolean);
+    const queries = terms.length > 0 ? terms : [""];
+    const toView = (voice: (typeof all)[number]) => ({
+      voice_id: voice.voice_id,
+      name: voice.name || voice.voice_id,
+      language: voice.language ?? "",
+      gender: voice.gender ?? "",
+      age: voice.age ?? "",
+      accent: voice.accent ?? "",
+      sample_audio: voice.sample_audio ?? "",
+    });
+    return {
+      results: queries.map((term) => {
+        if (!term) return { voices: all.slice(0, 50).map(toView) };
+        const needle = term.toLowerCase();
+        const hits = all.filter((voice) =>
+          [voice.voice_id, voice.name, voice.language, voice.gender, voice.accent, voice.description ?? ""]
+            .join(" ")
+            .toLowerCase()
+            .includes(needle),
+        );
+        return hits.length > 0
+          ? { id: term, voices: hits.slice(0, 50).map(toView) }
+          : { id: term, voices: [], error: `没有匹配「${term}」的音色；可以先 design_execute generate_speech 用默认音色，或用 voice_clone 克隆一个。` };
+      }),
+    };
   }
 
   @Post("api/speech/voice_clone")

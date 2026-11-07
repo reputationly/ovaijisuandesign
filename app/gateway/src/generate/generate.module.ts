@@ -8,6 +8,7 @@ import { MediaEditService } from "./media-edit.js";
 import { ProjectTaskController, ProjectTaskService } from "./tasks.js";
 import { ActiveGenerationsStore } from "./active-generations.store.js";
 import { CapabilitiesController } from "./capabilities.controller.js";
+import { ConnectorsController } from "./connectors.controller.js";
 import { GenerateAsyncController, GenerateController } from "./generate.controller.js";
 import { GenerationRunner } from "./generation-runner.service.js";
 import { MediaConfigService } from "./media-config.service.js";
@@ -15,7 +16,7 @@ import { MediaConfigService } from "./media-config.service.js";
 @Global()
 @Module({
   imports: [ProjectKernelModule, EditModule, WatermarkModule],
-  controllers: [GenerateAsyncController, GenerateController, CapabilitiesController, ProjectTaskController],
+  controllers: [GenerateAsyncController, GenerateController, CapabilitiesController, ProjectTaskController, ConnectorsController],
   providers: [ActiveGenerationsStore, GenerationRunner, MediaConfigService, ProjectTaskService, MediaEditService, CapabilityExecutionService],
   exports: [GenerationRunner, MediaConfigService, CapabilityExecutionService, ProjectTaskService],
 })
