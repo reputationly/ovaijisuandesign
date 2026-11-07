@@ -14,7 +14,7 @@ import { ProjectQueryError } from "../project-kernel/errors.js";
 import { ProjectResourceService } from "../project-kernel/resource.service.js";
 import { buildDeck, type SlideImage, type SlideSpec } from "./pptx.js";
 
-const CAPABILITIES = ["edit_media:ffmpeg", "edit_media:merge_videos", "edit_media:transcribe", "edit_media:subtitle_format", "edit_media:export_slides", "edit_media:cover_frame"];
+const CAPABILITIES = ["edit_media:ffmpeg", "edit_media:merge_videos", "edit_media:transcribe", "edit_media:subtitle_format", "edit_media:export_slides", "edit_media:cover_frame", "edit_media:mux_audio"];
 const PLACEHOLDER = /@reference\[(\d+)\]/g;
 const EXACT_PLACEHOLDER = /^@reference\[\d+\]$/;
 
@@ -62,6 +62,10 @@ export class MediaEditService {
     if (capabilityId === "edit_media:cover_frame") {
       if (versionIds.length !== 1) throw new ProjectQueryError("INVALID_ARGUMENT", "cover_frame takes exactly one video reference");
       extension = "jpg";
+    } else if (capabilityId === "edit_media:mux_audio") {
+      // references 顺序固定：[0]=视频，[1]=音频。
+      if (versionIds.length !== 2) throw new ProjectQueryError("INVALID_ARGUMENT", "mux_audio takes exactly two references: [video, audio]");
+      extension = "mp4";
     } else if (capabilityId === "edit_media:merge_videos") {
       if (versionIds.length < 2) throw new ProjectQueryError("INVALID_ARGUMENT", "merge_videos requires at least 2 videos after member expansion");
       scaleOptions(input.params);
@@ -83,7 +87,31 @@ export class MediaEditService {
     await mkdir(path.dirname(absolute), { recursive: true });
     const temporary = path.join(path.dirname(absolute), `.partial-${path.basename(absolute)}`);
     try {
-      if (capabilityId === "edit_media:cover_frame") {
+      if (capabilityId === "edit_media:mux_audio") {
+        const video = path.join(this.paths.root, sources[0]!);
+        const audio = path.join(this.paths.root, sources[1]!);
+        const asked = (input.params ?? {}) as Record<string, unknown>;
+        const mode = asked.mode === "mix" ? "mix" : "replace";
+        const audioVolume = typeof asked.audioVolume === "number" ? asked.audioVolume : 1;
+        const videoVolume = typeof asked.videoVolume === "number" ? asked.videoVolume : 1;
+        const shortest = asked.shortest !== false;
+        const info = await this.ffmpeg.probeMedia(video);
+        const keepVideoAudio = mode === "mix" && info.hasAudio;
+        const args: string[] = ["-i", video, "-i", audio];
+        if (keepVideoAudio) {
+          args.push(
+            "-filter_complex",
+            `[0:a]volume=${videoVolume}[va];[1:a]volume=${audioVolume}[aa];[va][aa]amix=inputs=2:duration=first:dropout_transition=2[aout]`,
+            "-map", "0:v:0", "-map", "[aout]",
+          );
+        } else {
+          args.push("-map", "0:v:0", "-map", "1:a:0");
+        }
+        args.push("-c:v", "copy", "-c:a", "aac", "-b:a", "192k");
+        if (shortest) args.push("-shortest");
+        args.push("-y", temporary);
+        await this.ffmpeg.exec(args, { cwd: this.paths.root });
+      } else if (capabilityId === "edit_media:cover_frame") {
         const source = path.join(this.paths.root, sources[0]!);
         const info = await this.ffmpeg.probeMedia(source);
         const asked = (input.params ?? {}) as Record<string, unknown>;

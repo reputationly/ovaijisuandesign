@@ -189,5 +189,29 @@ const coverFrame = {
   },
 };
 
-export const MEDIA_EDITS = [ffmpeg, mergeVideos, transcribe, subtitleFormat, coverFrame];
+const muxAudio = {
+  ...mediaEdit,
+  id: "edit_media:mux_audio",
+  displayName: "Mux audio track",
+  description:
+    "Put an audio Resource onto a video Resource: replace the video's own audio (default) or mix it under the existing one. Local ffmpeg, no model call. Use it whenever a video needs a SCRIPTED voice-over or music track: generate the video with generate_audio=false, synthesize the speech with generate_speech, then mux here — model-native audio is not intelligible speech.",
+  references: { min: 2, max: 2 },
+  paramSchema: {
+    type: "object",
+    properties: {
+      mode: {
+        type: "string",
+        enum: ["replace", "mix"],
+        default: "replace",
+        description: "replace = use the new audio as the only track; mix = keep the video's audio and mix the new track under it.",
+      },
+      audioVolume: { type: "number", minimum: 0, maximum: 4, default: 1, description: "Gain applied to the new audio track." },
+      videoVolume: { type: "number", minimum: 0, maximum: 4, default: 1, description: "Gain applied to the video's own audio (mix mode only)." },
+      shortest: { type: "boolean", default: true, description: "Cut the output to the shorter of the two streams. Turn off to keep the full video length." },
+    },
+    default: {},
+  },
+};
+
+export const MEDIA_EDITS = [ffmpeg, mergeVideos, transcribe, subtitleFormat, coverFrame, muxAudio];
 

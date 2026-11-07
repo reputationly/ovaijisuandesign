@@ -17,6 +17,7 @@ export const DESIGN_KINDS = {
   // 本产品新增的本地能力（官方表里没有）。**新增能力必须在这里登记**，
   // 否则 `categorizeToolAction` 会读 `undefined.category` 直接崩掉整页（真机 EB-6B1A7AD7）。
   "edit_media:cover_frame": { category: "videoEdit", label: "cover_frame", media: "image" },
+  "edit_media:mux_audio": { category: "videoEdit", label: "mux_audio", media: "video" },
 };
 
 export const isDesignExecute = (name) => name === "design_execute";
