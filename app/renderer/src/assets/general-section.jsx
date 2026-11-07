@@ -7,7 +7,7 @@ import reactExports from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, ChevronLeftIcon, CircleArrowUp, Globe, Library, Loader2, Monitor, Pencil, Plus, ServerIcon, ShieldAlert, Smartphone, Sun, XIcon } from "../media-editing/lucide-icon-wraps.js";
+import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, ChevronLeftIcon, CircleArrowUp, Globe, Library, Loader2, Mic, Monitor, Pencil, Plus, ServerIcon, ShieldAlert, Smartphone, Sun, XIcon } from "../media-editing/lucide-icon-wraps.js";
 import { Brain$2 as Brain } from "../media-editing/custom-icons.js";
 import { DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2 as DialogDescriptionPrimitive, DialogPopup, DialogTitle$2 as DialogTitlePrimitive } from "../infra/base-ui.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
