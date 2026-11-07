@@ -59,10 +59,30 @@ export class CapabilityExecutionService {
       }
       const body = object(value, caller === "agent" ? ["capabilityId", "prompt", "params", "references", "count", "output"] : ["requestId", "capabilityId", "prompt", "params", "references", "count", "output", "origin"], "submit");
       const capabilityId = identifier(body.capabilityId, "capabilityId");
-      const parsed = parseModelCapability(capabilityId);
+      // **按玩法改投到正确的能力**：`image_mode=reference` 只有参考族 checkpoint 能跑。
+      // 真机：模型先选了 `generate_video:minimax-h3-2k`（帧族 fl2va），带 reference 的请求
+      // 被上游拒三次（`task_type 'r2va' needs the Ref2VA checkpoint`），它才换对。
+      // 目录里存在 `-ref-2k` 兄弟能力时，这里直接改投，别让用户等三次失败。
+      const requestedMode = (() => {
+        const params = (body as Record<string, unknown>).params;
+        if (params && typeof params === "object" && !Array.isArray(params)) {
+          const mode = (params as Record<string, unknown>).image_mode;
+          if (typeof mode === "string") return mode.trim();
+        }
+        return "";
+      })();
+      const capabilityId2 =
+        requestedMode === "reference" && !capabilityId.includes("-ref")
+          ? (() => {
+              const sibling = capabilityId.replace(/-2k$/, "-ref-2k");
+              if (sibling === capabilityId) return capabilityId;
+              return capabilityEntries(this.media).some((entry) => entry.id === sibling) ? sibling : capabilityId;
+            })()
+          : capabilityId;
+      const parsed = parseModelCapability(capabilityId2);
       // 校验与下发用**同一个来源**：平台目录优先。用槽位目录校验的话，目录里
       // 多出来的模型（哪怕它就在 /v1/ov/capabilities 里）会被这里判成不认识。
-      const offered = capabilityEntries(this.media).some((entry) => entry.id === capabilityId);
+      const offered = capabilityEntries(this.media).some((entry) => entry.id === capabilityId2);
       if (!offered) throw new ProjectQueryError("UNSUPPORTED_OPERATION", "This capability is not offered here; pick one from the capability list", 422);
       // `params` 允许写成 JSON 字符串（模型经常这么干）；解析不了才判非法。
       let rawParams = body.params;
@@ -94,7 +114,7 @@ export class CapabilityExecutionService {
         model_id: parsed.modelId,
         ...(prompt ? { prompt } : {}),
         ...(Object.keys(paramBag).length ? { params: paramBag } : {}),
-        source_tool: capabilityId,
+        source_tool: capabilityId2,
         filename: resourceName(output),
         ...referencePaths(operation, paths),
       };
