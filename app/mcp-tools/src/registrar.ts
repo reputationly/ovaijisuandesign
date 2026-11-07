@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import type { CallToolResult, ToolAnnotations } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
-import { asArrayLike, normalizeDeepArrayElements, normalizeExecuteArgs, normalizeExecuteReferences } from "./args-normalize.js";
+import { asArrayLike, deepUnwrapArrayWrappers, normalizeDeepArrayElements, normalizeExecuteArgs, normalizeExecuteReferences } from "./args-normalize.js";
 import { runWithSession, type GroupScope } from "./context.js";
 
 /**
@@ -546,6 +546,8 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
   return z.preprocess((value) => {
     if (!value || typeof value !== "object" || Array.isArray(value)) return value;
     let args = { ...(value as Record<string, unknown>) };
+    // 从**原始入参**算深度解壳（后面的步骤会就地改 args，算晚了就拿到已被改坏的形状）。
+    const deepFromOriginal = deepUnwrapArrayWrappers({ ...args });
     moveUnderscoreAliases(shape, args);
     moveKeyAliases(shape, args);
     args = inferMissingFields(name, args);
@@ -605,12 +607,15 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     }
     if (name === "execute") args = completeExecuteArgs(args);
     args = repairArrayFields(shape, args);
-    // 元素级解壳：`output.resources: [{"item": {…}}]` 这种数组对、元素被包了一层。
     const deepNormalized = normalizeDeepArrayElements(args);
     if (deepNormalized !== args) args = deepNormalized;
+    // 只作为**候选**：整体深度解壳太激进（会把合法的 `{item: …}` 对象也变成数组），
+    // 所以不改写 args，只在常规候选都校验失败时才尝试。
+    const deepUnwrapped = deepFromOriginal;
     const unpacked = unpackActionObject(shape, args);
     const candidates = [
       args,
+      ...(deepUnwrapped !== args ? [deepUnwrapped] : []),
       ...(unpacked ? [unpacked, repairValues(shape, unpacked, "json"), repairValues(shape, unpacked, "json+number")] : []),
       repairValues(shape, args, "json"),
       repairValues(shape, args, "json+number"),

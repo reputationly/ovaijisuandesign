@@ -139,3 +139,46 @@ export function normalizeDeepArrayElements<T>(value: T): T {
   }
   return value;
 }
+
+/**
+ * 任意深度的「数组被写成对象」解壳。
+ *
+ * 真机（2026-11-07，`design_deliver` 连报 8 次）：
+ *   `Invalid input at sources[0]` + `Invalid input at output.resources[0]`
+ * 实际入参是
+ *   `sources: {"item": {…}}`、`output.resources: {"item": {…}}`、
+ *   `output.composition.placements: {"item": {…}}`
+ * 三处都是"数组被写成了包壳对象"。`repairArrayFields` 只看**顶层**字段，深层管不到。
+ *
+ * 这里在**任意深度**把 `{"item": …}` / `{"items": …}` / `{"element": …}` / `{"entry": …}`
+ * 这类单键壳解成数组；其它形状原样递归。调用方只在 schema 校验失败时才使用它的结果，
+ * 所以即使误判也不会破坏本来合法的入参。
+ */
+const DEEP_WRAPPER_KEYS = ["item", "items", "element", "entry"] as const;
+
+export function deepUnwrapArrayWrappers<T>(value: T): T {
+  if (Array.isArray(value)) return value.map((entry) => deepUnwrapArrayWrappers(entry)) as unknown as T;
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const keys = Object.keys(record);
+    if (keys.length === 1 && (DEEP_WRAPPER_KEYS as readonly string[]).includes(keys[0]!)) {
+      const wrapped = record[keys[0]!];
+      if (wrapped && typeof wrapped === "object" && !Array.isArray(wrapped)) {
+        return [deepUnwrapArrayWrappers(wrapped)] as unknown as T;
+      }
+      if (Array.isArray(wrapped)) return wrapped.map((entry) => deepUnwrapArrayWrappers(entry)) as unknown as T;
+    }
+    if (keys.length > 0 && keys.every((key) => /^\d+$/.test(key))) {
+      return keys.sort((a, b) => Number(a) - Number(b)).map((key) => deepUnwrapArrayWrappers(record[key])) as unknown as T;
+    }
+    let changed = false;
+    const next: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(record)) {
+      const normalized = deepUnwrapArrayWrappers(entry);
+      next[key] = normalized;
+      if (normalized !== entry) changed = true;
+    }
+    return (changed ? next : value) as unknown as T;
+  }
+  return value;
+}

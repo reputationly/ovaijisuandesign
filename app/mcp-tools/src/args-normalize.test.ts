@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { asArrayLike, normalizeDeepArrayElements, normalizeExecuteReferences } from "./args-normalize.js";
+import { asArrayLike, deepUnwrapArrayWrappers, normalizeDeepArrayElements, normalizeExecuteReferences } from "./args-normalize.js";
 
 describe("asArrayLike", () => {
   it("把被改写的数组还原", () => {
@@ -32,5 +32,20 @@ describe("normalizeDeepArrayElements", () => {
 
   it("不动普通字符串与标量", () => {
     expect(normalizeDeepArrayElements({ prompt: "一张图", count: 2 })).toEqual({ prompt: "一张图", count: 2 });
+  });
+});
+
+describe("deepUnwrapArrayWrappers", () => {
+  it("任意深度的 {item:…} 都解成数组", () => {
+    const args = {
+      requestId: "d1",
+      sources: { item: { key: "ref", path: "a.jpg" } },
+      output: { resources: { item: { mode: "create", name: "N" } }, composition: { placements: { item: { role: "R" } } } },
+    };
+    expect(deepUnwrapArrayWrappers(args)).toEqual({
+      requestId: "d1",
+      sources: [{ key: "ref", path: "a.jpg" }],
+      output: { resources: [{ mode: "create", name: "N" }], composition: { placements: [{ role: "R" }] } },
+    });
   });
 });

@@ -319,3 +319,32 @@ describe("execute 参数形状兜底（真机 -32602）", () => {
     expect(output.composition.placements).toEqual([{ role: "身份锚" }]);
   });
 });
+
+describe("深层数组包壳（真机 design_deliver 连报 8 次 Invalid input at sources[0]）", () => {
+  const spec = {
+    description: "deliver 形状兜底",
+    inputSchema: {
+      requestId: z.string().min(1),
+      sources: z.array(z.union([z.object({ key: z.string().optional(), versionId: z.string() }), z.object({ key: z.string().optional(), path: z.string() })])).min(1),
+      output: z.object({
+        resources: z.array(z.object({ key: z.string().optional(), mode: z.literal("create"), name: z.string().min(1) })).min(1),
+        composition: z.object({ name: z.string().optional(), placements: z.array(z.object({ key: z.string().optional(), role: z.string().optional() })).min(1) }).optional(),
+      }),
+    },
+  } as const;
+
+  it("sources / output.resources / placements 都被包成 {item:…} 时也能通过", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("deliver", spec, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("deliver", {
+      requestId: "deliver-koc-001",
+      sources: { item: { key: "ref", path: "01_reference(3).jpg" } },
+      output: {
+        resources: { item: { key: "ref", mode: "create", name: "RTIC随行杯 产品参考图" } },
+        composition: { name: "RTIC随行杯 15秒小红书KOC视频", placements: { item: { key: "ref", role: "产品参考图" } } },
+      },
+    });
+    expect(seen[0]!.sources).toEqual([{ key: "ref", path: "01_reference(3).jpg" }]);
+  });
+});
