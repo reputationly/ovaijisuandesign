@@ -470,3 +470,18 @@ describe("可操作护栏（真机：analyse_media 失败→开 code-agent）", 
     expect(message).toContain("versionId");
   });
 });
+
+describe("capability_list 的 operation 自造名（真机 text_to_video）", () => {
+  const spec = {
+    description: "capability_list 兜底",
+    inputSchema: { operation: z.enum(["generate_image", "generate_video", "edit_media", "chat"]).optional() },
+  } as const;
+
+  it("text_to_video 归一到 generate_video", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("capability_list", spec, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("capability_list", { operation: "text_to_video" });
+    expect(seen[0]!.operation).toBe("generate_video");
+  });
+});

@@ -758,6 +758,29 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
       );
     }
     if (name === "composition_edit") args = normalizeCompositionEditArgs(args);
+    // 模型会自造 operation 名（真机：`text_to_video`）→ 校验直接失败。
+    // 认识的按语义归到官方枚举；不认识的丢掉这个过滤条件（退化成"列全部"）。
+    if (name === "capability_list" || name === "capability_search") {
+      const raw = typeof args.operation === "string" ? args.operation.trim().toLowerCase() : "";
+      if (raw !== "") {
+        const OPERATIONS = ["generate_image", "generate_video", "generate_speech", "generate_music", "upscale", "edit_media", "chat"];
+        const ALIASES: Record<string, string> = {
+          text_to_video: "generate_video", image_to_video: "generate_video", i2v: "generate_video", t2v: "generate_video",
+          text_to_image: "generate_image", t2i: "generate_image", image: "generate_image", video: "generate_video",
+          speech: "generate_speech", tts: "generate_speech", audio: "generate_speech", music: "generate_music",
+          edit: "edit_media", merge: "edit_media", ffmpeg: "edit_media", text: "chat",
+        };
+        if (!OPERATIONS.includes(raw)) {
+          const mapped = ALIASES[raw];
+          if (mapped) args = { ...args, operation: mapped };
+          else {
+            const next = { ...args };
+            delete next.operation;
+            args = next;
+          }
+        }
+      }
+    }
     args = repairArrayFields(shape, args);
     const deepNormalized = normalizeDeepArrayElements(args);
     if (deepNormalized !== args) args = deepNormalized;
