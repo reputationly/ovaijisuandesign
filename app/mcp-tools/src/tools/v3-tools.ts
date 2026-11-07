@@ -1003,7 +1003,10 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
         // **`POST /api/v3/analyse`**（`ProjectAnalyseController`）：网关按 references 里
         // 的 versionId / resourceId 查出工作区路径，再走对话模型看盘。
         // 以前打的是 `/api/project/resources/analyse` —— 那条路由不存在。
-        return structuredReply((await gw.post("/api/v3/analyse", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>);
+        // outputShape 要求顶层带 `type`，而网关只回结果数组 —— 不补会让 SDK 报
+        // `Invalid structured content for tool analyse_media: Required at type`（真机一次白跑）。
+        const analysed = (await gw.post("/api/v3/analyse", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>;
+        return structuredReply({ type: args.type, ...analysed });
       } catch (error) {
         return errorReply(`analyse_media 失败：${errorMessage(error)}`);
       }
