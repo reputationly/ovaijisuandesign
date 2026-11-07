@@ -466,6 +466,39 @@ function completeAnalyseMediaArgs(args: Record<string, unknown>): Record<string,
   return out;
 }
 
+/**
+ * `composition_edit` 的深层归一。
+ *
+ * 真机（2026-11-07 实跑）：模型把成员操作写成
+ *   {"operations": "[{\"op\": \"add_member\", \"resourceId\": \"res_x\"}]"}
+ * 而 schema 里字段名是 `action`（`z.literal("add_member")`），且 JSON 字符串要解析。
+ * 两处都对不上 → `Expected array, received string at operations`，模型连试 22 次。
+ *
+ * 这里递归处理：字符串化 JSON 解析开；对象里的 `op` 别名为 `action`。
+ */
+function normalizeCompositionEditArgs(args: Record<string, unknown>): Record<string, unknown> {
+  const walk = (value: unknown): unknown => {
+    if (typeof value === "string") {
+      const parsed = parseJsonLike(value);
+      return parsed === value ? value : walk(parsed);
+    }
+    if (Array.isArray(value)) return value.map(walk);
+    if (value && typeof value === "object") {
+      const record = value as Record<string, unknown>;
+      const next: Record<string, unknown> = {};
+      for (const [key, entry] of Object.entries(record)) {
+        if (key === "op" && record.action === undefined) continue;
+        next[key] = walk(entry);
+      }
+      if (record.action === undefined && typeof record.op === "string") next.action = record.op;
+      if (record.action === undefined && typeof record.operation === "string") next.action = record.operation;
+      return next;
+    }
+    return value;
+  };
+  return walk(args) as Record<string, unknown>;
+}
+
 function inferMissingFields(name: string, args: Record<string, unknown>): Record<string, unknown> {
   const out = { ...args };
   if (name === "document_write" && out.mode === undefined) {
@@ -704,6 +737,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     }
     if (name === "execute") args = completeExecuteArgs(args);
     if (name === "analyse_media") args = completeAnalyseMediaArgs(args);
+    if (name === "composition_edit") args = normalizeCompositionEditArgs(args);
     args = repairArrayFields(shape, args);
     const deepNormalized = normalizeDeepArrayElements(args);
     if (deepNormalized !== args) args = deepNormalized;

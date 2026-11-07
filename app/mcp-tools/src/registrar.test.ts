@@ -411,3 +411,41 @@ describe("analyse_media 的 v2 写法归一（真机 Required at references / ty
     expect(seen[0]!.type).toBe("metadata");
   });
 });
+
+describe("composition_edit 深层归一（真机连试 22 次）", () => {
+  const spec = {
+    description: "composition_edit 兜底",
+    inputSchema: {
+      action: z.enum(["ensure", "update", "batch"]),
+      compositionId: z.string().optional(),
+      operations: z.array(z.union([
+        z.object({ action: z.literal("add_member"), resourceId: z.string(), role: z.string().optional() }),
+        z.object({ action: z.literal("remove_member"), memberId: z.string() }),
+      ])).min(1).optional(),
+      commands: z.array(z.object({ action: z.literal("update"), compositionId: z.string(), operations: z.array(z.object({ action: z.literal("add_member"), resourceId: z.string() })).min(1) })).min(1).optional(),
+    },
+  } as const;
+
+  it("operations 是 JSON 字符串且用 op 代替 action 时也能通过", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("composition_edit", spec, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("composition_edit", {
+      action: "update",
+      compositionId: "cmp_bc265287a197",
+      operations: '[{"op":"add_member","resourceId":"res_6eb41b8ab19b"}]',
+    });
+    expect(seen[0]!.operations).toEqual([{ action: "add_member", resourceId: "res_6eb41b8ab19b" }]);
+  });
+
+  it("batch 的 commands 是字符串、内层也用 op", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("composition_edit", spec, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("composition_edit", {
+      action: "batch",
+      commands: '[{"action":"update","compositionId":"cmp_1","operations":[{"op":"add_member","resourceId":"res_1"}]}]',
+    });
+    expect(seen[0]!.commands).toEqual([{ action: "update", compositionId: "cmp_1", operations: [{ action: "add_member", resourceId: "res_1" }] }]);
+  });
+});
