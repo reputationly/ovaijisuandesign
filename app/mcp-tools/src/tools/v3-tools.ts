@@ -1007,8 +1007,20 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
         // `Invalid structured content for tool analyse_media: Required at type`（真机一次白跑）。
         const analysed = (await gw.post("/api/v3/analyse", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>;
         // 回包键名兜底：outputShape 要 `results`，网关早年叫 `analyses`。
-        const results = analysed.results ?? analysed.analyses ?? (Array.isArray(analysed) ? analysed : []);
-        return structuredReply({ type: args.type, ...analysed, results });
+        const rawResults = analysed.results ?? analysed.analyses ?? (Array.isArray(analysed) ? analysed : []);
+        // **只保留 outputShape 声明的字段**：多带一个键，SDK 会按
+        // `additionalProperties:false` 判整次调用失败（真机 5 次
+        // `data must NOT have additional properties`，于是模型退回 bash 看像素）。
+        const RESULT_KEYS = ["reference", "question", "resourceId", "versionId", "name", "kind", "metadata", "semantic", "error"] as const;
+        const results = (Array.isArray(rawResults) ? rawResults : []).map((item) => {
+          const source = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
+          const picked: Record<string, unknown> = {};
+          for (const key of RESULT_KEYS) {
+            if (source[key] !== undefined) picked[key] = source[key];
+          }
+          return picked;
+        });
+        return structuredReply({ type: args.type, results });
       } catch (error) {
         return errorReply(`analyse_media 失败：${errorMessage(error)}`);
       }
