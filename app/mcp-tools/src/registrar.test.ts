@@ -525,3 +525,48 @@ describe("真机形状兜底（deepseek 实跑）", () => {
     expect(seen[0]!.mode).toBe("get");
   });
 });
+
+describe("最后一批形状兜底（真机 14 次失败）", () => {
+  it("composition_edit：action 缺省时按 operations 推断成 update，并把 op 转成 action", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("composition_edit", {
+      description: "t",
+      inputSchema: {
+        action: z.enum(["ensure", "update", "batch"]),
+        compositionId: z.string().optional(),
+        operations: z.array(z.object({ action: z.string(), resourceId: z.string().optional() })).min(1).optional(),
+      },
+    }, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("composition_edit", { compositionId: "cmp_1", operations: [{ op: "add_member", resourceId: "res_1" }] });
+    expect(seen[0]!.action).toBe("update");
+    expect(seen[0]!.operations).toEqual([{ action: "add_member", resourceId: "res_1" }]);
+  });
+
+  it("composition_edit：顶层 action=add_member 时收进 operations", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("composition_edit", {
+      description: "t",
+      inputSchema: {
+        action: z.enum(["update"]),
+        operations: z.array(z.object({ action: z.string(), resourceId: z.string().optional(), role: z.string().optional() })).min(1),
+      },
+    }, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("composition_edit", { action: "add_member", compositionId: "cmp_1", resourceId: "res_1", role: "分镜" });
+    expect(seen[0]!.action).toBe("update");
+    // compositionId 属于顶层，schema 会把操作里的同名键剥掉。
+    expect(seen[0]!.operations).toEqual([{ action: "add_member", resourceId: "res_1", role: "分镜" }]);
+  });
+
+  it("capability_search：query 字符串补成 queries 数组", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("capability_search", {
+      description: "t",
+      inputSchema: { queries: z.array(z.string()).min(1) },
+    }, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("capability_search", { query: "拼接,封面" });
+    expect(seen[0]!.queries).toEqual(["拼接", "封面"]);
+  });
+});

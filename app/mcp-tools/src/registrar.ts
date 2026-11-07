@@ -510,7 +510,36 @@ function normalizeCompositionEditArgs(args: Record<string, unknown>): Record<str
     }
     return value;
   };
-  return walk(args) as Record<string, unknown>;
+  const normalized = walk(args) as Record<string, unknown>;
+  // `action` 缺省时按形状推断：有 commands → batch；有 operations/members → update。
+  if (normalized.action === undefined) {
+    if (Array.isArray(normalized.commands)) normalized.action = "batch";
+    else if (Array.isArray(normalized.operations) || Array.isArray(normalized.members)) normalized.action = "update";
+  }
+  // 模型会把成员操作当成顶层动作（`action:"add_member"` + resourceId/role）。
+  const MEMBER_OPS = ["add_member", "remove_member", "update_member"];
+  if (typeof normalized.action === "string" && MEMBER_OPS.includes(normalized.action)) {
+    const { action, ...rest } = normalized;
+    normalized.operations = [{ action, ...rest }];
+    normalized.action = "update";
+    delete normalized.resourceId;
+    delete normalized.role;
+    delete normalized.memberId;
+    delete normalized.clientMemberKey;
+  }
+  // `update` + `members:[{resourceId,role}]` → operations
+  if (normalized.action === "update" && normalized.operations === undefined && Array.isArray(normalized.members)) {
+    normalized.operations = (normalized.members as Record<string, unknown>[]).map((member) => ({
+      action: "add_member",
+      ...member,
+    }));
+    delete normalized.members;
+  }
+  // `update` 却给了 action 字符串枚举之外的值时，退回 ensure（网关按 type 找/建组合）。
+  if (normalized.action === "update" && normalized.operations === undefined && normalized.members === undefined && normalized.type === undefined) {
+    delete normalized.action;
+  }
+  return normalized;
 }
 
 /**
@@ -766,7 +795,24 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
       delete next.documentType;
       args = next;
     }
-    if (name === "execute") args = completeExecuteArgs(args);
+    if (name === "execute") {
+      args = completeExecuteArgs(args);
+      // `output.resources[].mode=new_version` 缺 resourceId：zod 的 discriminated union 会整条拒掉，
+      // 报错只有一行 `Invalid input at output.resources[0]`（真机 3 次，白跑）。这里给可照做的指引。
+      const output = args.output;
+      const resources = output && typeof output === "object" ? (output as Record<string, unknown>).resources : undefined;
+      const needsResourceId = Array.isArray(resources)
+        ? (resources as Record<string, unknown>[]).find(
+            (item) => item && item.mode === "new_version" && typeof item.resourceId !== "string",
+          )
+        : undefined;
+      if (needsResourceId) {
+        throw new Error(
+          "output.resources[0] 用 mode:\"new_version\" 时必须同时给 resourceId（要更新的那个 Resource）与 baseVersionId（当前版本）、disposition（adopted|candidate）。" +
+            "只改文件内容不改原资源时用 mode:\"create\" + name；references 里已经有 versionId 的话，resourceId 可用 design_resource_get 查出来。",
+        );
+      }
+    }
     if (name === "analyse_media") {
       args = completeAnalyseMediaArgs(args);
       // 真机：模型拿项目里的文件路径调 analyse_media（`{path:"01_reference(3).jpg"}`），
@@ -791,6 +837,35 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     if (name === "composition_edit") args = normalizeCompositionEditArgs(args);
     // 模型会自造 operation 名（真机：`text_to_video`）→ 校验直接失败。
     // 认识的按语义归到官方枚举；不认识的丢掉这个过滤条件（退化成"列全部"）。
+    if (name === "capability_search") {
+      if (!Array.isArray(args.queries)) {
+        const raw = args.queries ?? args.query ?? args.q ?? args.keywords ?? args.keyword;
+        const list = Array.isArray(raw)
+          ? raw.filter((item): item is string => typeof item === "string" && item !== "")
+          : typeof raw === "string" && raw.trim() !== ""
+            ? raw.split(",").map((item) => item.trim()).filter(Boolean)
+            : [];
+        if (list.length > 0) args = { ...args, queries: list };
+        for (const key of ["query", "q", "keywords", "keyword"]) delete (args as Record<string, unknown>)[key];
+      }
+    }
+    if (name === "deliver") {
+      const parseDeep = (value: unknown): unknown => {
+        if (typeof value === "string") {
+          const parsed = parseJsonLike(value);
+          return parsed === value ? value : parseDeep(parsed);
+        }
+        if (Array.isArray(value)) return value.map(parseDeep);
+        if (value && typeof value === "object") {
+          const record = value as Record<string, unknown>;
+          const next: Record<string, unknown> = {};
+          for (const [key, entry] of Object.entries(record)) next[key] = parseDeep(entry);
+          return next;
+        }
+        return value;
+      };
+      args = parseDeep(args) as Record<string, unknown>;
+    }
     if (name === "capability_list" || name === "capability_search") {
       const raw = typeof args.operation === "string" ? args.operation.trim().toLowerCase() : "";
       if (raw !== "") {
