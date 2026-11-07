@@ -540,6 +540,77 @@ function repairArrayFields(shape: z.ZodRawShape, args: Record<string, unknown>):
   return out;
 }
 
+/**
+ * 入参候选：形状维度（原样 / 深度解壳 / action 展开）× 标量维度（原样 / JSON 字符串 / 数字字符串）。
+ * 顺序即优先级：越靠前越"没动过"，先试代价最小的。
+ */
+function argumentCandidates(
+  shape: z.ZodRawShape,
+  input: { args: Record<string, unknown>; deep: Record<string, unknown>; unpacked: Record<string, unknown> | null },
+): Record<string, unknown>[] {
+  const shapes = [input.args];
+  if (input.deep !== input.args) shapes.push(input.deep);
+  if (input.unpacked && input.unpacked !== input.args) shapes.push(input.unpacked);
+  const out: Record<string, unknown>[] = [];
+  const seen = new Set<string>();
+  const push = (candidate: Record<string, unknown>) => {
+    const key = JSON.stringify(candidate);
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(candidate);
+  };
+  // 先原样（不动最好），再 JSON 字符串，最后连数字一起修。
+  for (const shapeArgs of shapes) push(shapeArgs);
+  for (const shapeArgs of shapes) push(repairValues(shape, shapeArgs, "json"));
+  for (const shapeArgs of shapes) push(repairValues(shape, shapeArgs, "json+number"));
+  return out;
+}
+
+/**
+ * 按 zod 的 issue **路径**做定点修复。
+ *
+ * 比"猜形状"稳：解析失败时 zod 会给出 `path` 与 `expected`，照着改就行 ——
+ * 任意深度的字符串数字（`query.limit:"20"`）、包壳数组（`sources:{"item":…}`）、
+ * 字符串化对象（`params:"{…}"`）都能一次修好。
+ * 最多迭代 3 轮（修一处可能暴露下一处）。
+ */
+type IssueShape = { code?: string; expected?: string; path?: (string | number)[] };
+
+function repairArgsByIssues(schema: z.ZodTypeAny, input: Record<string, unknown>): Record<string, unknown> | null {
+  let current = structuredClone(input);
+  for (let round = 0; round < 3; round += 1) {
+    const parsed = schema.safeParse(current);
+    if (parsed.success) return current;
+    const issues = (parsed.error?.issues ?? []) as IssueShape[];
+    let changed = false;
+    for (const issue of issues) {
+      const path = issue.path ?? [];
+      if (!path.length) continue;
+      const parent = path.slice(0, -1).reduce<unknown>((node, key) => {
+        if (node === null || typeof node !== "object") return undefined;
+        return (node as Record<string | number, unknown>)[key as string | number];
+      }, current);
+      if (!parent || typeof parent !== "object") continue;
+      const key = path[path.length - 1] as string | number;
+      const holder = parent as Record<string | number, unknown>;
+      const value = holder[key];
+      if (issue.code !== "invalid_type") continue;
+      if (issue.expected === "number" && typeof value === "string") {
+        const numeric = numericLike(value);
+        if (typeof numeric === "number") { holder[key] = numeric; changed = true; }
+      } else if (issue.expected === "array" && value && typeof value === "object" && !Array.isArray(value)) {
+        const array = asArrayLike(value);
+        if (array) { holder[key] = array; changed = true; }
+      } else if (issue.expected === "object" && typeof value === "string") {
+        const parsedValue = parseJsonLike(value);
+        if (parsedValue && typeof parsedValue === "object") { holder[key] = parsedValue; changed = true; }
+      }
+    }
+    if (!changed) return null;
+  }
+  return schema.safeParse(current).success ? current : null;
+}
+
 function withAutoRequestId(shape: z.ZodRawShape, name: string) {
   const needsRequestId = Object.prototype.hasOwnProperty.call(shape, "requestId");
   const object = z.object(shape).passthrough();
@@ -613,13 +684,14 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     // 所以不改写 args，只在常规候选都校验失败时才尝试。
     const deepUnwrapped = deepFromOriginal;
     const unpacked = unpackActionObject(shape, args);
-    const candidates = [
-      args,
-      ...(deepUnwrapped !== args ? [deepUnwrapped, repairValues(shape, deepUnwrapped, "json+number")] : []),
-      ...(unpacked ? [unpacked, repairValues(shape, unpacked, "json"), repairValues(shape, unpacked, "json+number")] : []),
-      repairValues(shape, args, "json"),
-      repairValues(shape, args, "json+number"),
-    ];
+    // **候选按"形状 × 标量修复"交叉组合**：真机踩过的组合有
+    //   纯包壳（deliver）、包壳+字符串数字（composition_edit）、
+    //   字符串 params（execute）、action 对象展开（document_write）……
+    // 逐个工具补漏会一直漏，这里统一生成、去重后按优先级试。
+    const candidates = argumentCandidates(shape, { args, deep: deepUnwrapped, unpacked });
+    // 路径驱动的定点修复（任意深度的字符串数字 / 包壳 / 字符串化对象）。
+    const byIssues = repairArgsByIssues(object, args);
+    if (byIssues && !candidates.some((candidate) => JSON.stringify(candidate) === JSON.stringify(byIssues))) candidates.push(byIssues);
     const accepted = candidates.find((candidate) => object.safeParse(candidate).success);
     if (!accepted && process.env.OV_MCP_LOG_ARGS !== "0") {
       // **参数校验失败必须留证据**：宿主/模型改写的形状千奇百怪（数组包壳、元素包壳、

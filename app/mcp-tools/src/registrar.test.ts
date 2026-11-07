@@ -374,3 +374,21 @@ describe("包壳 + 字符串数字同时出现（真机 composition_edit）", ()
     expect(seen[0]!.operations).toEqual([{ op: "add_member", clientMemberKey: "storyboard", role: "分镜与口播", resourceId: "res_0bdce35c725c" }]);
   });
 });
+
+describe("路径驱动修复（真机 task_query：嵌套字符串数字 + mode 被包在 query 里）", () => {
+  const spec = {
+    description: "task_query 形状兜底",
+    inputSchema: {
+      mode: z.string(),
+      query: z.object({ limit: z.number().int(), status: z.string().optional() }).optional(),
+    },
+  } as const;
+
+  it("query.limit 是字符串时按报错路径修成数字", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("task_query", spec, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("task_query", { mode: "list", query: { limit: "20" } });
+    expect(seen[0]!.query).toEqual({ limit: 20 });
+  });
+});
