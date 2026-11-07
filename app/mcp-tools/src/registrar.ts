@@ -797,21 +797,9 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     }
     if (name === "execute") {
       args = completeExecuteArgs(args);
-      // `output.resources[].mode=new_version` 缺 resourceId：zod 的 discriminated union 会整条拒掉，
-      // 报错只有一行 `Invalid input at output.resources[0]`（真机 3 次，白跑）。这里给可照做的指引。
-      const output = args.output;
-      const resources = output && typeof output === "object" ? (output as Record<string, unknown>).resources : undefined;
-      const needsResourceId = Array.isArray(resources)
-        ? (resources as Record<string, unknown>[]).find(
-            (item) => item && item.mode === "new_version" && typeof item.resourceId !== "string",
-          )
-        : undefined;
-      if (needsResourceId) {
-        throw new Error(
-          "output.resources[0] 用 mode:\"new_version\" 时必须同时给 resourceId（要更新的那个 Resource）与 baseVersionId（当前版本）、disposition（adopted|candidate）。" +
-            "只改文件内容不改原资源时用 mode:\"create\" + name；references 里已经有 versionId 的话，resourceId 可用 design_resource_get 查出来。",
-        );
-      }
+      // 注意：这里**不能抛异常**。抛在 preprocess 会让这次工具调用没有任何 args，
+      // 前端 MessageTurn 渲染该条目时读不到 category 直接崩（真机 EB-C7B03AD2 白屏）。
+      // 校验失败就交给 zod 照常报错，保持条目带 args。
     }
     if (name === "analyse_media") {
       args = completeAnalyseMediaArgs(args);
