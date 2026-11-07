@@ -447,6 +447,20 @@ function completeExecuteArgs(args: Record<string, unknown>): Record<string, unkn
  */
 function completeAnalyseMediaArgs(args: Record<string, unknown>): Record<string, unknown> {
   const out = { ...args };
+  // 真机（11 次）：模型把 versionId 放在**顶层**而不是 references 里。
+  if (out.references === undefined) {
+    const single = [out.versionId, out.resourceId, out.mediaId].find((value) => typeof value === "string" && value !== "");
+    if (typeof single === "string") {
+      out.references = [out.versionId ? { versionId: single } : { resourceId: single }];
+    }
+  }
+  if (out.question === undefined && typeof out.instruction === "string" && out.instruction.trim() !== "") {
+    out.question = out.instruction;
+  }
+  delete out.instruction;
+  delete out.versionId;
+  delete out.resourceId;
+  delete out.mediaId;
   if (out.references === undefined) {
     const ids = asArrayLike(out.versionIds ?? out.version_ids ?? out.versions);
     if (ids?.length) {
@@ -499,8 +513,25 @@ function normalizeCompositionEditArgs(args: Record<string, unknown>): Record<str
   return walk(args) as Record<string, unknown>;
 }
 
+/**
+ * 模型会把整份参数塞进 `step`（真机 5+3 次：`{step:{capabilityId,params,output}}`）。
+ * 单键且值对象时展开到顶层。
+ */
+function unpackStepWrapper(args: Record<string, unknown>): Record<string, unknown> {
+  const keys = Object.keys(args).filter((key) => !key.startsWith("_"));
+  if (keys.length !== 1) return args;
+  const key = keys[0]!;
+  if (!["step", "payload", "requestBody", "body"].includes(key)) return args;
+  const inner = args[key];
+  if (!inner || typeof inner !== "object" || Array.isArray(inner)) return args;
+  return { ...(inner as Record<string, unknown>) };
+}
+
 function inferMissingFields(name: string, args: Record<string, unknown>): Record<string, unknown> {
   const out = { ...args };
+  if (name === "task_query" && out.mode === undefined) {
+    out.mode = typeof out.taskId === "string" && out.taskId.trim() !== "" ? "get" : "list";
+  }
   if (name === "document_write" && out.mode === undefined) {
     // 有 edits → patch；带 baseVersionId 的整篇重写 → replace；否则新建。
     if (Array.isArray(out.edits)) out.mode = "patch";
@@ -675,7 +706,7 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
   const object = z.object(shape).passthrough();
   return z.preprocess((value) => {
     if (!value || typeof value !== "object" || Array.isArray(value)) return value;
-    let args = { ...(value as Record<string, unknown>) };
+    let args = unpackStepWrapper({ ...(value as Record<string, unknown>) });
     // 从**原始入参**算深度解壳（后面的步骤会就地改 args，算晚了就拿到已被改坏的形状）。
     const deepFromOriginal = deepUnwrapArrayWrappers({ ...args });
     moveUnderscoreAliases(shape, args);

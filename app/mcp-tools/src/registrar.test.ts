@@ -485,3 +485,43 @@ describe("capability_list 的 operation 自造名（真机 text_to_video）", ()
     expect(seen[0]!.operation).toBe("generate_video");
   });
 });
+
+describe("真机形状兜底（deepseek 实跑）", () => {
+  it("analyse_media：顶层 versionId + instruction 能补成 references + question", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("analyse_media", {
+      description: "t",
+      inputSchema: {
+        references: z.array(z.union([z.object({ versionId: z.string() }), z.object({ resourceId: z.string() })])).min(1),
+        type: z.enum(["metadata", "semantic", "both"]),
+        question: z.string().optional(),
+      },
+    }, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("analyse_media", { type: "both", instruction: "描述这张图", versionId: "res_1" });
+    expect(seen[0]!.references).toEqual([{ versionId: "res_1" }]);
+    expect(seen[0]!.question).toBe("描述这张图");
+  });
+
+  it("整份参数塞进 step 键时展开到顶层", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("execute", {
+      description: "t",
+      inputSchema: { capabilityId: z.string(), params: z.record(z.string(), z.unknown()).optional() },
+    }, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("execute", { step: { capabilityId: "edit_media:ffmpeg", params: { args: ["-i", "x"] } } });
+    expect(seen[0]!.capabilityId).toBe("edit_media:ffmpeg");
+  });
+
+  it("task_query 只给 taskId 时补 mode=get", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("task_query", {
+      description: "t",
+      inputSchema: { mode: z.enum(["get", "list"]), taskId: z.string().optional() },
+    }, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("task_query", { taskId: "tsk_1" });
+    expect(seen[0]!.mode).toBe("get");
+  });
+});

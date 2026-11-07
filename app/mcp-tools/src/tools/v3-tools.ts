@@ -1006,7 +1006,9 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
         // outputShape 要求顶层带 `type`，而网关只回结果数组 —— 不补会让 SDK 报
         // `Invalid structured content for tool analyse_media: Required at type`（真机一次白跑）。
         const analysed = (await gw.post("/api/v3/analyse", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>;
-        return structuredReply({ type: args.type, ...analysed });
+        // 回包键名兜底：outputShape 要 `results`，网关早年叫 `analyses`。
+        const results = analysed.results ?? analysed.analyses ?? (Array.isArray(analysed) ? analysed : []);
+        return structuredReply({ type: args.type, ...analysed, results });
       } catch (error) {
         return errorReply(`analyse_media 失败：${errorMessage(error)}`);
       }
