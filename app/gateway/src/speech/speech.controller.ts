@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Query, Res, StreamableFile } from "@nestjs/common";
+import type { Response } from "express";
+import { createReadStream, existsSync } from "node:fs";
 
 import { capabilityUnavailable } from "../common/capability.js";
 import { VoiceCloneDto, VoiceDesignDto, VoiceIsolationDto } from "./speech.dto.js";
@@ -56,6 +58,24 @@ export class SpeechController {
           : { id: term, voices: [], error: `没有匹配「${term}」的音色；可以先 design_execute generate_speech 用默认音色，或用 voice_clone 克隆一个。` };
       }),
     };
+  }
+
+  /**
+   * 试听：直接把参考音频吐出来（预置音色是随包 wav，克隆音色是本机文件）。
+   * 没有这条路由时，设置页只能列名字、听不到声音，用户没法判断哪个音色合适。
+   */
+  @Get("api/speech/voices/:voiceId/preview")
+  async previewVoice(@Param("voiceId") voiceId: string, @Res({ passthrough: true }) res: Response) {
+    const file = await this.speech.voiceFile(voiceId);
+    if (!file || !existsSync(file)) throw new NotFoundException(`找不到音色 ${voiceId} 的参考音频`);
+    res.set({ "content-type": "audio/wav", "cache-control": "no-store" });
+    return new StreamableFile(createReadStream(file));
+  }
+
+  /** 删除本机克隆音色（预置音色拒绝，见 SpeechService.deleteVoice）。 */
+  @Delete("api/speech/voices/:voiceId")
+  deleteVoice(@Param("voiceId") voiceId: string) {
+    return this.speech.deleteVoice(voiceId);
   }
 
   @Post("api/speech/voice_clone")

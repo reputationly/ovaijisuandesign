@@ -40,6 +40,11 @@ export function videoPlaybackPath(source, maxHeight = DEFAULT_VIDEO_PLAYBACK_MAX
 }
 export const HILO_HUB_BIZ_LINE = 4;
 export const API_PATHS = {
+  // 音色：列表 / 试听 / 克隆（上传或录音，base64）/ 删除
+  voices: "/api/speech/voices",
+  voicePreview: (voiceId) => `/api/speech/voices/${encodeURIComponent(voiceId)}/preview`,
+  voiceById: (voiceId) => `/api/speech/voices/${encodeURIComponent(voiceId)}`,
+  voiceClone: "/api/speech/voice_clone",
   // Workspace
   workspace: "/api/workspace",
   // ComfyUI workflow catalogue and commands.

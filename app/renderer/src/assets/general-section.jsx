@@ -12,6 +12,7 @@ import { Brain$2 as Brain } from "../media-editing/custom-icons.js";
 import { DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2 as DialogDescriptionPrimitive, DialogPopup, DialogTitle$2 as DialogTitlePrimitive } from "../infra/base-ui.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { PlatformSection } from "../settings/platform-section.jsx";
+import { VoiceSection } from "../settings/voice-section.jsx";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useAssetCenterSettings } from "./use-asset-center-settings.js";
@@ -763,6 +764,11 @@ const SECTIONS = [
     labelKey: "ov.platform.nav",
   },
   {
+    id: "voices",
+    icon: Mic,
+    labelKey: "ov.voices.nav",
+  },
+  {
     id: "memory",
     icon: Brain,
     labelKey: "settings.memory",
@@ -1506,6 +1512,7 @@ const SECTION_COMPONENTS = {
   storage: StorageSection,
   network: NetworkSection,
   platform: PlatformSection,
+  voices: VoiceSection,
   models: CustomModelSection,
   memory: MemorySection,
   imBridge: ImBridgeSection,

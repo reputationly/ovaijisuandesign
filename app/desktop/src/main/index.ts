@@ -48,6 +48,7 @@ import { registerStorageIpc } from "./storage/storage-ipc.js";
 import { WorkspaceStorageRegistry } from "./storage/workspace-store.js";
 import { createSkillExportService } from "./skills/export.js";
 import { locateBundledSkills, seedBundledSkills } from "./skills/seed.js";
+import { locateBundledVoicePresets, seedVoicePresets } from "./voice-presets.js";
 import { childProxyEnv, electronProxyMode, normalizeProxyMode } from "./proxy-env.js";
 import { stubChannels } from "./stub-channels.js";
 
@@ -153,6 +154,21 @@ async function boot(): Promise<Running | undefined> {
       log(`[main] 自带技能：新装 ${r.installed.length}、更新 ${r.updated.length}、不变 ${r.unchanged.length}${r.failed.length ? `、失败 ${r.failed.map((f) => `${f.slug}(${f.error})`).join(" ")}` : ""}`);
     } catch (err) {
       log(`[main] 铺自带技能失败：${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  // 预置音色：平台不支持"预设音色名"，音色必须是参考音频 → 随包样本 + 登记进 config.json。
+  // 必须在工作区起 gateway 之前做完，否则第一个会话的 voice_search 还是空的。
+  const bundledVoices = locateBundledVoicePresets(roots);
+  if (bundledVoices) {
+    try {
+      const r = seedVoicePresets(bundledVoices, path.join(dirs.hubRoot, "voice-presets"), dirs.configPath);
+      log(
+        `[main] 预置音色：拷贝 ${r.copied}、登记 ${r.registered.length}` +
+          `${r.speechModelSet ? `、语音模型补为 ${r.speechModelSet}` : ""}`,
+      );
+    } catch (err) {
+      log(`[main] 登记预置音色失败：${err instanceof Error ? err.message : String(err)}`);
     }
   }
 

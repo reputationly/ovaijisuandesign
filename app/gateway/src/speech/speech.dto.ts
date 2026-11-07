@@ -1,7 +1,11 @@
 import { IsBoolean, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 
 export class VoiceCloneDto {
-  @IsString() @IsNotEmpty() audio_path!: string;
+  /** 工作区/绝对路径的参考音频（助手用）。与 audio_base64 二选一。 */
+  @IsString() @IsOptional() @IsNotEmpty() audio_path?: string;
+  /** 设置页上传/录音：直接把音频内容 base64 发上来，网关落临时文件后再登记。 */
+  @IsString() @IsOptional() audio_base64?: string;
+  @IsString() @IsOptional() filename?: string;
   @IsString() @IsOptional() prompt_audio_path?: string;
   @IsString() @IsOptional() prompt_text?: string;
   @IsString() @IsOptional() demo_text?: string;

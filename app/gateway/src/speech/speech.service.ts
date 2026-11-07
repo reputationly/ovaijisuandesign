@@ -1,3 +1,6 @@
+import { randomUUID } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
 import { stat } from "node:fs/promises";
 import path from "node:path";
 
@@ -38,7 +41,14 @@ export class SpeechService {
 
   async listVoices() {
     const cfg = this.media.load();
-    const configured = voicesFrom(cfg);
+    const configured = voicesFrom(cfg).map((voice) => {
+      // 预置音色在 voice_map 里的 key 是 `preset_*`，说话人名字与语言从随包的
+      // `voice-presets/presets.json` 里取；没有清单就退回用 id 当名字。
+      const preset = this.presetMeta(voice.voice_id);
+      return preset
+        ? { ...voice, name: preset.label, language: preset.language ?? "", gender: preset.gender ?? "" }
+        : voice;
+    });
     const taken = new Set(configured.map((v) => v.voice_id));
     const local = (await this.library.list())
       .filter((v) => !taken.has(v.voice_id))
@@ -55,11 +65,74 @@ export class SpeechService {
     return [...configured, ...local];
   }
 
+  /** 随包预置音色的展示信息（读一次缓存）。 */
+  private presetCache?: Record<string, { label: string; language?: string; gender?: string }>;
+
+  private presetMeta(voiceId: string) {
+    if (this.presetCache === undefined) {
+      this.presetCache = {};
+      try {
+        const file = path.join(path.dirname(this.library.dir), "voice-presets", "presets.json");
+        const raw = JSON.parse(readFileSync(file, "utf8")) as {
+          voices?: { id: string; label: string; language?: string; gender?: string }[];
+        };
+        for (const voice of raw.voices ?? []) {
+          if (typeof voice?.id === "string") this.presetCache[voice.id] = voice;
+        }
+      } catch {
+        // 没随包清单（老安装）就只显示 id，不是错误。
+      }
+    }
+    return this.presetCache[voiceId];
+  }
+
+  /** 试听 / 校验用：把 voiceId 解析成参考音频的绝对路径。 */
+  async voiceFile(voiceId: string): Promise<string | undefined> {
+    const cfg = this.media.load();
+    const mapped = cfg.models.voice_map[voiceId];
+    if (typeof mapped === "string" && mapped.trim() !== "") return path.isAbsolute(mapped) ? mapped : path.join(this.paths.root, mapped);
+    const preset = this.presetMeta(voiceId);
+    if (preset) {
+      const presetFile = path.join(path.dirname(this.library.dir), "voice-presets", `${voiceId.replace(/^preset_/, "")}.wav`);
+      if (existsSync(presetFile)) return presetFile;
+    }
+    const local = (await this.library.list()).find((voice) => voice.voice_id === voiceId);
+    return local ? this.library.referencePath(local) : undefined;
+  }
+
+  async deleteVoice(voiceId: string): Promise<{ deleted: boolean; reason?: string }> {
+    if (voiceId.startsWith("preset_")) {
+      return { deleted: false, reason: "预置音色随包提供，不能删除；可以直接改用别的音色。" };
+    }
+    const removed = await this.library.remove(voiceId);
+    return removed ? { deleted: true } : { deleted: false, reason: `找不到本机音色 ${voiceId}` };
+  }
+
   async cloneVoice(dto: VoiceCloneDto): Promise<VoiceCloneResult> {
     if (dto.demo_text && !dto.demo_model) {
       throw new BadRequestException("demo_model is required when demo_text is provided");
     }
-    const audioAbs = this.resolveMedia(dto.audio_path);
+    // 设置页上传/录音走 base64：先落到工作区的临时目录，后面与"给了路径"完全同一条流程。
+    let audioAbs: string;
+    if (typeof dto.audio_base64 === "string" && dto.audio_base64.trim() !== "") {
+      const dir = path.join(this.paths.root, ".hilo", "tmp", "voice-upload");
+      await mkdir(dir, { recursive: true });
+      const ext = (() => {
+        const name = (dto.filename ?? "").toLowerCase();
+        for (const candidate of [".wav", ".mp3", ".m4a", ".webm", ".ogg"]) if (name.endsWith(candidate)) return candidate;
+        return ".wav";
+      })();
+      const file = path.join(dir, `upload-${randomUUID()}${ext}`);
+      const bytes = Buffer.from(dto.audio_base64.replace(/^data:[^;]+;base64,/, ""), "base64");
+      if (bytes.length === 0) throw new BadRequestException("上传的音频是空的");
+      if (bytes.length > CLONE_MAX_BYTES) throw new BadRequestException(`参考音频不能超过 ${CLONE_MAX_BYTES / 1024 / 1024}MB`);
+      await writeFile(file, bytes);
+      audioAbs = file;
+    } else if (typeof dto.audio_path === "string" && dto.audio_path.trim() !== "") {
+      audioAbs = this.resolveMedia(dto.audio_path);
+    } else {
+      throw new BadRequestException("需要 audio_path 或 audio_base64 之一");
+    }
     await checkCloneAudio(audioAbs);
     // 平台的零样本合成只吃一段参考音频，提示音频用不上；照样校验，免得坏文件被悄悄放过。
     if (dto.prompt_audio_path && dto.prompt_text) await checkCloneAudio(this.resolveMedia(dto.prompt_audio_path));

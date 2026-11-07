@@ -603,6 +603,29 @@ export class AgentHttpClient {
       headers: opts?.headers,
     });
   }
+  /** 音色列表（配置里的 voice_map + 本机克隆 + 随包预置）。 */
+  async listVoices(opts) {
+    return this.get(API_PATHS.voices, { signal: opts?.signal, headers: opts?.headers });
+  }
+
+  /** 试听地址：直接给 <audio src> 用。 */
+  voicePreviewUrl(voiceId) {
+    return `${this.baseUrl}${API_PATHS.voicePreview(voiceId)}`;
+  }
+
+  /** 上传/录音克隆：音频以 base64 发上去，网关落临时文件再登记。 */
+  async cloneVoiceFromBase64(req, opts) {
+    return this.post(API_PATHS.voiceClone, req, {
+      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
+      signal: opts?.signal,
+      headers: opts?.headers,
+    });
+  }
+
+  async deleteVoice(voiceId, opts) {
+    return this.del(API_PATHS.voiceById(voiceId), { signal: opts?.signal, headers: opts?.headers });
+  }
+
   async voiceIsolation(req, opts) {
     return this.post(API_PATHS.voiceIsolation, req, {
       timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,

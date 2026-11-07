@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { copyFile, mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { access, copyFile, mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { Injectable, Logger } from "@nestjs/common";
@@ -61,6 +61,19 @@ export class VoiceLibraryService {
       }
     }
     return out.sort((a, b) => a.created_at.localeCompare(b.created_at));
+  }
+
+  /** 删掉一个本机克隆音色。预置音色不走这里（它们由 voice_map 指向随包样本）。 */
+  async remove(voiceId: string): Promise<boolean> {
+    if (!VOICE_ID.test(voiceId)) return false;
+    const dir = path.join(this.dir, voiceId);
+    try {
+      await access(dir);
+    } catch {
+      return false;
+    }
+    await rm(dir, { recursive: true, force: true });
+    return true;
   }
 
   referencePath(v: LocalVoice): string {

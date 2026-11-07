@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "note": "随包预置音色。样本来源：new-api 仓库 web/classic/dist/audio-presets（IndexTTS-2 官方 demo 示例音 + CosyVoice 预置说话人）。平台没有任何「预设音色名」，音色只能是一段参考音频，所以这里随包带样本、首启登记进 voice_map。替换素材时保持 id 稳定。",
+  "voices": [
+    { "id": "preset_vivian",   "file": "vivian.wav",   "label": "Vivian · 女声（通用播报）", "language": "zh", "gender": "female" },
+    { "id": "preset_serena",   "file": "serena.wav",   "label": "Serena · 女声（温和）",     "language": "zh", "gender": "female" },
+    { "id": "preset_ono_anna", "file": "ono_anna.wav", "label": "Anna · 女声（轻快）",       "language": "zh", "gender": "female" },
+    { "id": "preset_sohee",    "file": "sohee.wav",    "label": "Sohee · 女声（清亮）",      "language": "zh", "gender": "female" },
+    { "id": "preset_eric",     "file": "eric.wav",     "label": "Eric · 男声（沉稳）",       "language": "zh", "gender": "male" },
+    { "id": "preset_dylan",    "file": "dylan.wav",    "label": "Dylan · 男声（年轻）",      "language": "zh", "gender": "male" },
+    { "id": "preset_ryan",     "file": "ryan.wav",     "label": "Ryan · 男声（解说）",       "language": "zh", "gender": "male" },
+    { "id": "preset_aiden",    "file": "aiden.wav",    "label": "Aiden · 男声（磁性）",      "language": "zh", "gender": "male" },
+    { "id": "preset_uncle_fu", "file": "uncle_fu.wav", "label": "Fu · 男声（浑厚）",         "language": "zh", "gender": "male" },
+    { "id": "preset_demo_a",   "file": "voice_05.wav", "label": "示例音色 A（8 秒）",        "language": "zh", "gender": "" },
+    { "id": "preset_demo_b",   "file": "voice_06.wav", "label": "示例音色 B（6 秒）",        "language": "zh", "gender": "" },
+    { "id": "preset_demo_c",   "file": "voice_09.wav", "label": "示例音色 C（10 秒）",       "language": "zh", "gender": "" },
+    { "id": "preset_demo_d",   "file": "voice_11.wav", "label": "示例音色 D（8 秒）",        "language": "zh", "gender": "" }
+  ]
+}

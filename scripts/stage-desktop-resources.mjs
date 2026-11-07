@@ -80,6 +80,9 @@ const COPY = [
   // 第 254 轮（M7）：v3 架构的 agent 配置。参照发行包同时带 v2 与 v3 两套。
   { from: "assets/agent-profiles/v3/config", to: "agent-profiles/v3/config" },
   { from: "assets/skills", to: "skills" },
+  // 预置音色样本（13 段中文人声，7MB）。平台没有"预设音色名"，音色只能是一段参考音频，
+  // 所以样本必须随包走；首启由 `voice-presets.ts` 登记进 config.json 的 models.voice_map。
+  { from: "assets/voice-presets", to: "voice-presets" },
   // **不带 media/**。那 468MB 靠 `showcase-assets/:key` 的 302 回落 CDN，
   // 首启由 showcase-warm 预热前 24 张封面到 userData（包内是只读的，写不了）。
   { from: "assets/home-showcase", to: "home-showcase", skip: (name) => name === "media" },
