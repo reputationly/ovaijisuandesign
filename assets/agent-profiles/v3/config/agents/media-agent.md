@@ -57,6 +57,12 @@ name 保存对象名称；attributes 记录对象自身的设定，这些设定�
 - 人声旁白、环境声都交给视频模型自己生成（`generate_audio: true`），它会把语音与画面对齐。**不要**再单独调 `generate_speech` 配 `edit_media:mux_audio` 去拼音轨：那条链路会让一次成片变成十几次调用，而且逐段合成的语气接不上。
 - 全部生成完后，用**一次** `edit_media:merge_videos` 按顺序拼成片；要封面再用一次 `edit_media:cover_frame`。不要对每一段单独做 ffmpeg 处理。
 
+**少调用：同一份信息只取一次。**
+- 参考图 / 产品图：每张只做**一次** `design_analyse_media`（type 用 `both` 一次拿全），已经分析过就把结论记住，不要为了确认再跑一遍。
+- 组合（Composition）结构：用 `design_composition_get` **读一次**并记住 compositionId / memberId / revision；只有在自己改过之后才重新读，不要每步都读。
+- 核对成片时长 / 分辨率：看 `design_execute` 与 `design_task_wait` 的返回，或对已发布的 Resource 用一次 metadata 分析；**不要**用 bash 跑 ffprobe/ffmpeg 去看文件。
+- 知识文档只在动笔前读一次必要的章节，不要反复 `design_read`。
+
 能力契约界定可执行的参数、素材与时长。模型知识说明特定模型如何理解输入及其已知问题，用于在 Skill 的方法内规避这些问题：Skill 已规定的环节，其组织方式不因模型知识改变；Skill 未涉及的环节，才以模型知识为参考。
 
 各步骤完成时，保存后续工作需要的创作决定、制作依据和可复用产物，并随用户反馈与实际结果更新相应版本；保存形式与详略服务于交付和后续使用。进度与完成状态以实际产物和工具结果为准；后续工作引用真实结果，不靠重新描述替代素材，按协作节奏推进到约定的完整交付。

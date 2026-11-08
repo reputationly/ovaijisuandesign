@@ -1048,7 +1048,7 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
           })
           .filter((item) => item.filePath !== "");
         const ids = refs.filter((item) => typeof item?.versionId === "string" || typeof item?.resourceId === "string");
-        if (fileRefs.length > 0 && ids.length === 0) {
+        if (fileRefs.length > 0) {
           const fileResults: Record<string, unknown>[] = [];
           for (const { filePath, question } of fileRefs) {
             const one = (await gw.post(
@@ -1064,7 +1064,14 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
               fileResults.push({ reference: { path: filePath }, question, semantic: text ? { text } : undefined });
             }
           }
-          return structuredReply({ type: args.type, results: fileResults });
+          if (ids.length === 0) return structuredReply({ type: args.type, results: fileResults });
+          // path 与 versionId 混着给：先把 id 那部分照常分析，再合并结果。
+          const mixed = (await gw.post("/api/v3/analyse", { ...args, references: ids }, TIMEOUT_MS, LOOSE)) as Record<string, unknown>;
+          const mixedRaw = mixed.results ?? mixed.analyses ?? (Array.isArray(mixed) ? mixed : []);
+          return structuredReply({
+            type: args.type,
+            results: [...fileResults, ...(Array.isArray(mixedRaw) ? mixedRaw : [])].slice(0, 40),
+          });
         }
         const analysed = (await gw.post("/api/v3/analyse", args, TIMEOUT_MS, LOOSE)) as Record<string, unknown>;
         // 回包键名兜底：outputShape 要 `results`，网关早年叫 `analyses`。
