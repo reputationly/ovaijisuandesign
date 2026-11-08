@@ -846,6 +846,15 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     if (name === "composition_edit") args = normalizeCompositionEditArgs(args);
     // 模型会自造 operation 名（真机：`text_to_video`）→ 校验直接失败。
     // 认识的按语义归到官方枚举；不认识的丢掉这个过滤条件（退化成"列全部"）。
+    if (name === "voice_search") {
+      // 真机 4 次：`items` 被写成 JSON 字符串或字符串数组。
+      const raw = (args as Record<string, unknown>).items;
+      const parsed = typeof raw === "string" ? parseJsonLike(raw) : raw;
+      const list = Array.isArray(parsed)
+        ? parsed.map((item) => (typeof item === "string" ? { id: item } : item)).filter((item) => item && typeof item === "object")
+        : [];
+      if (list.length > 0) args = { ...args, items: list };
+    }
     if (name === "capability_search") {
       if (!Array.isArray(args.queries)) {
         const raw = args.queries ?? args.query ?? args.q ?? args.keywords ?? args.keyword;
