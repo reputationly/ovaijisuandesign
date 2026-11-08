@@ -5,7 +5,7 @@ import mascotUrl from "../brand/suanli-mascot.png";
 export function HubLogo({
   size = 20,
   className,
-  alt = "蒜狸小助手",
+  alt = "蒜狸设计工作台",
   winkOnHover: _winkOnHover,
   eyeTrackingScope: _eyeTrackingScope,
   style,

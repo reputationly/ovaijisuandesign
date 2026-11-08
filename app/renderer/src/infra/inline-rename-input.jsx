@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from "./badge-variants.jsx";
 const GATEWAY_READINESS_FALLBACK_MS = 3e3;
-export function HubWordmark({ width = 158, height = 24, alt = "蒜狸小助手", className, style, ...rest }) {
+export function HubWordmark({ width = 158, height = 24, alt = "蒜狸设计工作台", className, style, ...rest }) {
   return (
     <span
       role="img"
@@ -46,7 +46,7 @@ export function HubWordmark({ width = 158, height = 24, alt = "蒜狸小助手",
       }}
       {...rest}
     >
-      蒜狸小助手
+      蒜狸设计工作台
     </span>
   );
 }

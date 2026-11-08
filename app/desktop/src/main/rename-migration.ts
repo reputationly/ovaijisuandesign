@@ -1,55 +1,77 @@
-import { cpSync, existsSync, mkdirSync, renameSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-import { LEGACY_APP_DIR_NAME, APP_DIR_NAME } from "./roots.js";
+import { APP_DIR_NAME, LEGACY_APP_DIR_NAME } from "./roots.js";
 
 export interface RenameReport {
-  moved: { from: string; to: string }[];
+  /** 实际搬过去的条目（from/to/how）。 */
+  merged: { from: string; to: string; how: "rename" | "copy" | "overwrite-newer" }[];
   skipped: { from: string; reason: string }[];
 }
 
 /**
- * 产品改名后的一次性目录迁移：`蒜狸小助手` → `蒜狸设计工作台`。
+ * 产品改名（蒜狸小助手 → 蒜狸设计工作台）后的一次性迁移。
  *
- * 两处都要动，否则用户会看到"配置丢了 / 项目不见了"：
- * 1. `~/Movies/蒜狸小助手`（数据根，装着 Projects/ 与 skills/）
- * 2. `~/Library/Application Support/蒜狸小助手`（userData：ai-runtime、config.json、日志、音色）
+ * 要动两处，否则用户看到的是"配置丢了 / 项目不见了"：
+ * 1. `~/Movies/蒜狸小助手`（数据根：Projects/、skills/）
+ * 2. `<appData>/蒜狸小助手`（userData：config.json、ai-runtime、日志、音色）
  *
- * 规则：
- * - **目标已存在就不动**（用户已经在新名下跑过；旧目录留作备份）；
- * - 同卷优先 `rename`（瞬间完成，视频项目动辄几十 GB，拷贝不可接受）；
- * - 跨卷或 rename 失败时退回递归拷贝，并在日志里说明（拷贝会慢）；
- * - 任何一步失败都**不抛**：迁移失败最多是"还是旧目录"，绝不能让应用起不来。
+ * **为什么是合并而不是简单改名**：这台机器上可能已经有同名的新目录（旧 checkout 跑过、
+ * 或者 Electron 先一步把目录建出来），那时简单"目标存在就跳过"会让用户拿旧配置启动。
+ * 所以按条目合并：
+ * - 目标没有 → rename（同卷瞬间；视频项目几十 GB，不能拷）；
+ * - 两边都有同名文件 → 保留 **mtime 更新** 的那份；
+ * - 两边都有同名目录 → 目标为空才替换，否则跳过（不递归合并，避免半新半旧）；
+ * - 任何异常都不抛：最坏情况是继续用旧目录，绝不能让应用起不来。
  */
-export function migrateRenamedDirs(opts: { home: string; userData: string; log: (line: string) => void }): RenameReport {
-  const report: RenameReport = { moved: [], skipped: [] };
+export function migrateRenamedDirs(opts: {
+  home: string;
+  /** 旧 userData（`<appData>/蒜狸小助手`）。由调用方用 appData 拼，避免提前创建新目录。 */
+  legacyUserData?: string;
+  /** 新 userData（`<appData>/蒜狸设计工作台`）。 */
+  userData: string;
+}): RenameReport {
+  const report: RenameReport = { merged: [], skipped: [] };
   const pairs: [string, string][] = [
     [path.join(opts.home, "Movies", LEGACY_APP_DIR_NAME), path.join(opts.home, "Movies", APP_DIR_NAME)],
-    // userData 由 Electron 按 app name 算出新路径；旧路径就是它的兄弟目录。
-    [path.join(path.dirname(opts.userData), LEGACY_APP_DIR_NAME), opts.userData],
   ];
+  if (opts.legacyUserData) pairs.push([opts.legacyUserData, opts.userData]);
+
   for (const [from, to] of pairs) {
+    if (from === to) continue;
     try {
-      if (from === to) continue;
       if (!existsSync(from) || !statSync(from).isDirectory()) continue;
-      if (existsSync(to)) {
-        report.skipped.push({ from, reason: "目标已存在" });
-        continue;
-      }
-      mkdirSync(path.dirname(to), { recursive: true });
-      try {
-        renameSync(from, to);
-        report.moved.push({ from, to });
-      } catch {
-        cpSync(from, to, { recursive: true, errorOnExist: false, force: true });
-        // 拷完留个标记：下一次启动不会重复拷（旧目录还在，但目标已存在会走 skipped）。
+      mkdirSync(to, { recursive: true });
+      for (const entry of readdirSync(from)) {
+        const src = path.join(from, entry);
+        const dst = path.join(to, entry);
         try {
-          writeFileSync(path.join(to, ".migrated-from-legacy"), from, "utf8");
-        } catch {
-          // 标记写不进去不影响使用。
+          if (!existsSync(dst)) {
+            try {
+              renameSync(src, dst);
+              report.merged.push({ from: src, to: dst, how: "rename" });
+            } catch {
+              cpSync(src, dst, { recursive: true, errorOnExist: false, force: true });
+              writeFileSync(path.join(to, `.migrated-${entry}`), from, "utf8");
+              report.merged.push({ from: src, to: dst, how: "copy" });
+            }
+            continue;
+          }
+          const a = statSync(src);
+          const b = statSync(dst);
+          if (a.isDirectory() && b.isDirectory()) {
+            report.skipped.push({ from: src, reason: "两边都有同名目录，保留现有" });
+            continue;
+          }
+          if (a.isFile() && b.isFile() && a.mtimeMs > b.mtimeMs) {
+            cpSync(src, dst, { force: true });
+            report.merged.push({ from: src, to: dst, how: "overwrite-newer" });
+            continue;
+          }
+          report.skipped.push({ from: src, reason: "目标已有更新的同名文件" });
+        } catch (err) {
+          report.skipped.push({ from: src, reason: err instanceof Error ? err.message : String(err) });
         }
-        report.moved.push({ from, to });
-        opts.log(`[main] 改名迁移：跨卷拷贝完成 ${from} → ${to}`);
       }
     } catch (err) {
       report.skipped.push({ from, reason: err instanceof Error ? err.message : String(err) });

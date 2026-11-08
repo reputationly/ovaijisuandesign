@@ -49,6 +49,7 @@ import { WorkspaceStorageRegistry } from "./storage/workspace-store.js";
 import { createSkillExportService } from "./skills/export.js";
 import { locateBundledSkills, seedBundledSkills } from "./skills/seed.js";
 import { migrateRenamedDirs } from "./rename-migration.js";
+import { APP_DIR_NAME, LEGACY_APP_DIR_NAME } from "./roots.js";
 import { locateBundledVoicePresets, seedVoicePresets } from "./voice-presets.js";
 import { childProxyEnv, electronProxyMode, normalizeProxyMode } from "./proxy-env.js";
 import { stubChannels } from "./stub-channels.js";
@@ -138,6 +139,16 @@ function notifyOpenResult(r: WorkspaceOpenResult): void {
 
 /** 返回 undefined = 令牌页被关掉 / 点了退出，应用已经在退出中，调用方什么都不用再做。 */
 async function boot(): Promise<Running | undefined> {
+  // 改名迁移**必须最早**：`app.getPath("userData")` 一被调用，Electron 就会把新目录建出来，
+  // 之后再"目标已存在 → 跳过"，用户就会看到一个空配置（真机踩过一次）。
+  // 这里只用 appData（不会创建 userData）算出新旧路径。
+  const appData = app.getPath("appData");
+  const migration = migrateRenamedDirs({
+    home: homedir(),
+    legacyUserData: path.join(appData, LEGACY_APP_DIR_NAME),
+    userData: path.join(appData, APP_DIR_NAME),
+  });
+
   const dirs = dataDirs();
   const { log, stream } = makeLogger(path.join(dirs.userData, "logs"));
   const roots = resourceRoots();
@@ -145,9 +156,7 @@ async function boot(): Promise<Running | undefined> {
   const gatewayEntry = roots.resources
     ? path.join(roots.resources, "gateway/dist/main.js")
     : path.join(roots.repoRoot!, "app/gateway/dist/main.js");
-  // 产品改名（蒜狸小助手 → 蒜狸设计工作台）后的一次性迁移，必须早于任何读写。
-  const migration = migrateRenamedDirs({ home: homedir(), userData: dirs.userData, log });
-  for (const item of migration.moved) log(`[main] 改名迁移：${item.from} → ${item.to}`);
+  for (const item of migration.merged) log(`[main] 改名迁移：${item.from} → ${item.to}（${item.how}）`);
   for (const item of migration.skipped) log(`[main] 改名迁移跳过：${item.from}（${item.reason}）`);
 
   log(`[main] userData=${dirs.userData} projects=${dirs.projectsRoot} hub=${dirs.hubRoot}`);

@@ -170,7 +170,7 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.macosVersionUnsupported.suggestion2",
-        zh: "重复重试无法解决，请先升级系统，升级完成后重新打开蒜狸小助手。",
+        zh: "重复重试无法解决，请先升级系统，升级完成后重新打开蒜狸设计工作台。",
         en: "Retrying will not fix this. Upgrade macOS first, then reopen Suanli Assistant.",
       },
     ],
@@ -269,7 +269,7 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.windowsCpuUnsupported.suggestion2",
-        zh: "请在较新的 64 位电脑上安装蒜狸小助手。",
+        zh: "请在较新的 64 位电脑上安装蒜狸设计工作台。",
         en: "Install Suanli Assistant on a newer 64-bit computer.",
       },
     ],
@@ -302,7 +302,7 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.windowsRuntimeDependencyFailed.suggestion2",
-        zh: "如果仍然失败，请重新安装最新版蒜狸小助手。",
+        zh: "如果仍然失败，请重新安装最新版蒜狸设计工作台。",
         en: "If it still fails, reinstall the latest Suanli Assistant.",
       },
     ],
@@ -368,7 +368,7 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.windowsRuntimeResourceExhausted.suggestion2",
-        zh: "释放资源后完全退出蒜狸小助手，再重新打开。",
+        zh: "释放资源后完全退出蒜狸设计工作台，再重新打开。",
         en: "After freeing resources, fully quit and reopen Suanli Assistant.",
       },
     ],
@@ -390,7 +390,7 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
     },
     primaryAction: {
       key: "bundleError.diagnosis.windowsRuntimeTerminated.primaryAction",
-      zh: "重新打开蒜狸小助手",
+      zh: "重新打开蒜狸设计工作台",
       en: "Reopen Suanli Assistant",
     },
     suggestions: [
@@ -401,7 +401,7 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.windowsRuntimeTerminated.suggestion2",
-        zh: "否则请完全退出蒜狸小助手后重新打开。",
+        zh: "否则请完全退出蒜狸设计工作台后重新打开。",
         en: "Otherwise, fully quit and reopen Suanli Assistant.",
       },
     ],

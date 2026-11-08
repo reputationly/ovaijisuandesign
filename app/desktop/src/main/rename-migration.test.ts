@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -6,8 +6,6 @@ import { describe, expect, it } from "vitest";
 
 import { migrateRenamedDirs } from "./rename-migration.js";
 import { APP_DIR_NAME, LEGACY_APP_DIR_NAME } from "./roots.js";
-
-const noop = () => undefined;
 
 describe("改名迁移：蒜狸小助手 → 蒜狸设计工作台", () => {
   it("把数据根和 userData 一起搬到新名字下，内容原样", () => {
@@ -20,31 +18,37 @@ describe("改名迁移：蒜狸小助手 → 蒜狸设计工作台", () => {
     writeFileSync(path.join(oldUserData, "config.json"), "{}", "utf8");
     const userData = path.join(home, "Application Support", APP_DIR_NAME);
 
-    const report = migrateRenamedDirs({ home, userData, log: noop });
+    const report = migrateRenamedDirs({ home, legacyUserData: oldUserData, userData });
 
-    expect(report.moved).toHaveLength(2);
+    expect(report.merged.length).toBeGreaterThanOrEqual(2);
     expect(readFileSync(path.join(home, "Movies", APP_DIR_NAME, "Projects", "demo", "a.txt"), "utf8")).toBe("hello");
     expect(readFileSync(path.join(userData, "config.json"), "utf8")).toBe("{}");
-    expect(existsSync(oldRoot)).toBe(false);
+    // 合并语义：旧目录本身保留（用户可自行删除），内容已经搬过去。
+    expect(existsSync(path.join(home, "Movies", APP_DIR_NAME))).toBe(true);
   });
 
-  it("目标已存在时不动旧目录（不覆盖用户已有的新数据）", () => {
+  it("两边都有同名文件时保留 mtime 更新的那份（旧目录不会盖掉新配置）", () => {
     const home = mkdtempSync(path.join(tmpdir(), "ov-rename-"));
-    mkdirSync(path.join(home, "Movies", LEGACY_APP_DIR_NAME), { recursive: true });
+    const oldRoot = path.join(home, "Movies", LEGACY_APP_DIR_NAME);
     const newRoot = path.join(home, "Movies", APP_DIR_NAME);
+    mkdirSync(oldRoot, { recursive: true });
     mkdirSync(newRoot, { recursive: true });
-    writeFileSync(path.join(newRoot, "keep.txt"), "new", "utf8");
+    writeFileSync(path.join(oldRoot, "config.json"), "old", "utf8");
+    writeFileSync(path.join(newRoot, "config.json"), "new", "utf8");
+    // 让新配置的 mtime 明确更新
+    const later = new Date(Date.now() + 60_000);
+    utimesSync(path.join(newRoot, "config.json"), later, later);
 
-    const report = migrateRenamedDirs({ home, userData: path.join(home, "Application Support", APP_DIR_NAME), log: noop });
+    const report = migrateRenamedDirs({ home, userData: path.join(home, "Application Support", APP_DIR_NAME) });
 
-    expect(report.skipped.some((item) => item.reason === "目标已存在")).toBe(true);
-    expect(readFileSync(path.join(newRoot, "keep.txt"), "utf8")).toBe("new");
+    expect(readFileSync(path.join(newRoot, "config.json"), "utf8")).toBe("new");
+    expect(report.skipped.some((item) => item.reason.includes("更新的同名文件"))).toBe(true);
   });
 
   it("两处都不存在时什么都不做，也不报错", () => {
     const home = mkdtempSync(path.join(tmpdir(), "ov-rename-"));
-    const report = migrateRenamedDirs({ home, userData: path.join(home, "Application Support", APP_DIR_NAME), log: noop });
-    expect(report.moved).toHaveLength(0);
+    const report = migrateRenamedDirs({ home, userData: path.join(home, "Application Support", APP_DIR_NAME) });
+    expect(report.merged).toHaveLength(0);
     expect(report.skipped).toHaveLength(0);
   });
 });

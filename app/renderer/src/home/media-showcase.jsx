@@ -372,9 +372,9 @@ function resolveLocalizedDescription(skill, isZh) {
 function resolveLocalizedAuthor(skill, isZh) {
   const author = isZh ? skill.authorCn || skill.authorEn || skill.creator : skill.authorEn || skill.authorCn || skill.creator;
   if (isOfficialSkill(skill) && isOfficialAttribution(author)) {
-    return isZh ? "蒜狸小助手官方" : "Suanli Assistant Official";
+    return isZh ? "蒜狸设计工作台官方" : "Suanli Assistant Official";
   }
-  return author || (isOfficialSkill(skill) ? "蒜狸小助手" : "");
+  return author || (isOfficialSkill(skill) ? "蒜狸设计工作台" : "");
 }
 function isOfficialSkill(skill) {
   return skill.source === "official" || skill.source === "official-featured";
