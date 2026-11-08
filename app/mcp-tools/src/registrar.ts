@@ -581,6 +581,26 @@ function normalizeCompositionEditArgs(args: Record<string, unknown>): Record<str
         handled = true;
       }
       const action = typeof op.action === "string" ? op.action : "";
+      // **顶层动作被写进 operations**（真机 4 次）：`{operations:[{op:"rename",name}]}`、
+      // `{operations:[{op:"set_attributes",attributes:[{key,value}]}]}`。
+      // operations 只接受成员级操作，这些必须提到顶层。
+      if (["rename", "set_attributes", "ensure", "move", "duplicate", "batch"].includes(action)) {
+        if (normalized.action === undefined) normalized.action = action;
+        for (const [key, value] of Object.entries(op)) {
+          if (key === "action") continue;
+          if (key === "attributes" && Array.isArray(value)) {
+            // attributes 被写成 [{key,value}] 数组 → 转成对象。
+            const bag: Record<string, string> = {};
+            for (const entry of value as Record<string, unknown>[]) {
+              if (entry && typeof entry.key === "string") bag[entry.key] = String(entry.value ?? "");
+            }
+            if (normalized.attributes === undefined) normalized.attributes = bag;
+            continue;
+          }
+          if (normalized[key] === undefined) normalized[key] = value;
+        }
+        continue;
+      }
       const PLURAL: Record<string, string> = { add_members: "add_member", remove_members: "remove_member", update_members: "update_member" };
       if (PLURAL[action]) op.action = PLURAL[action];
       // `action:"update"` 只是"要改成员"的外壳，本身不是合法操作。
@@ -868,6 +888,18 @@ function withAutoRequestId(shape: z.ZodRawShape, name: string) {
     }
     if (name === "execute") {
       args = completeExecuteArgs(args);
+      // `duration:"false"` 这种脏值会让平台回落到 5 秒（真机两段都变成 5.17s，成片只有 10 秒）。
+      // 不是合法秒数就删掉，交给目录里的默认值（现在默认 15）。
+      const params = (args as Record<string, unknown>).params;
+      if (params && typeof params === "object" && !Array.isArray(params)) {
+        const bag = params as Record<string, unknown>;
+        if ("duration" in bag) {
+          const raw = bag.duration;
+          const asNumber = typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw.trim()) : NaN;
+          if (!Number.isFinite(asNumber) || asNumber <= 0) delete bag.duration;
+          else bag.duration = String(asNumber);
+        }
+      }
       // 注意：这里**不能抛异常**。抛在 preprocess 会让这次工具调用没有任何 args，
       // 前端 MessageTurn 渲染该条目时读不到 category 直接崩（真机 EB-C7B03AD2 白屏）。
       // 校验失败就交给 zod 照常报错，保持条目带 args。
