@@ -29,6 +29,12 @@ export interface Platform {
   /** 对话模型单次输出上限（tokens），不配落 32K。 */
   chat_output_limit?: number;
   /**
+   * 思考档位：`none` / `minimal` / `low` / `medium` / `high` / `xhigh` / `max`。
+   * 优先级：`OV_REASONING_EFFORT` 环境变量 > 这里的配置 > `high`。
+   * 实测：`none`（关思考）在 deepseek-v4-1-flash 上同题零失败、快一倍。
+   */
+  reasoning_effort?: string;
+  /**
    * 目录里的全部对话模型（L-3，配置那个排第一）。
    *
    * 给 opencode 的 provider 配多个模型条目，用户才能在界面上换模型。缺省时只有
@@ -176,7 +182,8 @@ function defaultPermission(): Record<string, string> {
 }
 
 /** 思考档位 → 请求体参数。`none` 时把开关也关掉，避免平台仍按默认档推理。 */
-export function reasoningOptions(effort = process.env.OV_REASONING_EFFORT?.trim().toLowerCase() || "high"): Record<string, unknown> {
+export function reasoningOptions(configured?: string): Record<string, unknown> {
+  const effort = (process.env.OV_REASONING_EFFORT?.trim() || configured?.trim() || "high").toLowerCase();
   const level = ["none", "minimal", "low", "medium", "high", "xhigh", "max"].includes(effort) ? effort : "high";
   return { reasoningEffort: level, enable_thinking: level !== "none" };
 }
@@ -201,7 +208,7 @@ function customProvider(p: Platform) {
       name,
       tool_call: true,
       limit: { context, output },
-      options: reasoningOptions(),
+      options: reasoningOptions(p.reasoning_effort),
       variants: {
         max: { reasoningEffort: "max", enable_thinking: true },
       },
@@ -214,7 +221,7 @@ function customProvider(p: Platform) {
     // opencode 的 variant 推断对"自定义 provider + qwen 这类模型名"返回空表，
     // 所以**同时**在 provider 和 model 两层显式给，才能进请求体（抓包已验证）。
     // 档位可用 `OV_REASONING_EFFORT` 覆盖，方便 A/B 与后续按模型调优。
-    options: { baseURL: p.base_url, apiKey: p.api_key, headers: {}, ...reasoningOptions() },
+    options: { baseURL: p.base_url, apiKey: p.api_key, headers: {}, ...reasoningOptions(p.reasoning_effort) },
     models,
   };
 }

@@ -42,6 +42,9 @@ export function readPlatform(configPath: string, dataDir?: string): Platform {
     code_model: codeModel,
     chat_context_limit: int(platformSection.chat_context_limit),
     chat_output_limit: int(platformSection.chat_output_limit),
+    ...(typeof platformSection.reasoning_effort === "string" && platformSection.reasoning_effort.trim() !== ""
+      ? { reasoning_effort: platformSection.reasoning_effort.trim() }
+      : {}),
     ...(chatModels.length > 1 ? { chat_models: chatModels } : {}),
   };
 }

@@ -69,10 +69,14 @@ async function runModel(env, model) {
       const part = frame.part ?? {};
       if (part.type === "tool" && part.tool) {
         const key = `${part.tool}:${part.callID ?? part.id ?? ""}`;
-        if (!state.tools.some((t) => t.key === key)) state.tools.push({ key, tool: part.tool, status: part.state?.status ?? "?" });
+        if (!state.tools.some((t) => t.key === key)) {
+          const input = part.state?.input ?? {};
+          state.tools.push({ key, tool: part.tool, status: part.state?.status ?? "?", capabilityId: input.capabilityId ?? null });
+        }
       }
       if (part.type === "text" && typeof part.text === "string") state.textChars = Math.max(state.textChars ?? 0, part.text.length);
     }
+    if (type === "part_delta" || type === "part_updated") state.lastActivity = Date.now();
     if (type === "part_delta") {
       if (frame.field === "text" && typeof frame.delta === "string") state.textChars = (state.textChars ?? 0) + frame.delta.length;
     }
@@ -99,13 +103,20 @@ async function runModel(env, model) {
   await new Promise((r) => setTimeout(r, 800));
   const startedAt = Date.now();
   ws.send(JSON.stringify({ type: "message", session_id: state.sessionId, content: PROMPT, client_message_id: `bench-${model}-1` }));
-  const finished = await waitFor(() => state.idle, Number(process.env.TIMEOUT_MS ?? 300000));
+  const deadline = Date.now() + Number(process.env.TIMEOUT_MS ?? 420000);
+  const quietMs = Number(process.env.QUIET_MS ?? 25000);
+  const finished = await waitFor(
+    () => state.idle || (state.accepted && state.lastActivity && Date.now() - state.lastActivity > quietMs),
+    Number(process.env.TIMEOUT_MS ?? 420000),
+  );
   const elapsed = Math.round((Date.now() - startedAt) / 1000);
   ws.close();
   const tools = state.tools.map((t) => t.tool);
   const uniq = [...new Set(tools)];
   const codeHeavy = uniq.some((t) => ["bash", "edit", "write", "read", "task"].includes(t)) || uniq.some((t) => t.startsWith("design_code"));
-  return { model, elapsedSeconds: elapsed, finished, toolCalls: tools.length, tools: uniq, codeHeavy, assistantChars: state.textChars ?? 0, accepted: state.accepted, frameTypes: state.frameTypes, errors: state.errors.slice(0, 3) };
+  const askedQuestions = state.tools.filter((t) => t.tool === "question").length;
+  const mergeUsed = state.tools.some((t) => String(t.capabilityId ?? "").includes("merge_videos"));
+  return { model, elapsedSeconds: elapsed, finished, toolCalls: tools.length, tools: uniq, codeHeavy, askedQuestions, mergeUsed, assistantChars: state.textChars ?? 0, accepted: state.accepted, frameTypes: state.frameTypes, errors: state.errors.slice(0, 3) };
 }
 
 const env = gatewayEnv();
@@ -119,5 +130,7 @@ for (const model of MODELS) {
 }
 console.log("\n=== 汇总 ===");
 for (const r of results) {
-  console.log(`${r.model.padEnd(24)} 耗时 ${String(r.elapsedSeconds ?? "-").padStart(3)}s | 工具 ${String(r.toolCalls ?? 0).padStart(2)} 次 | 代码路线 ${r.codeHeavy ? "是" : "否"} | 回答 ${r.assistantChars ?? 0} 字 | ${(r.tools ?? []).join(",") || "-"}`);
+  console.log(
+    `${r.model.padEnd(24)} 耗时 ${String(r.elapsedSeconds ?? "-").padStart(4)}s | 工具 ${String(r.toolCalls ?? 0).padStart(2)} | 代码路线 ${r.codeHeavy ? "是" : "否"} | 反问 ${r.askedQuestions ?? 0} | merge ${r.mergeUsed ? "是" : "否"} | 回答 ${r.assistantChars ?? 0} 字 | ${(r.tools ?? []).join(",") || "-"}`,
+  );
 }
