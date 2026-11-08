@@ -48,6 +48,7 @@ import { registerStorageIpc } from "./storage/storage-ipc.js";
 import { WorkspaceStorageRegistry } from "./storage/workspace-store.js";
 import { createSkillExportService } from "./skills/export.js";
 import { locateBundledSkills, seedBundledSkills } from "./skills/seed.js";
+import { migrateRenamedDirs } from "./rename-migration.js";
 import { locateBundledVoicePresets, seedVoicePresets } from "./voice-presets.js";
 import { childProxyEnv, electronProxyMode, normalizeProxyMode } from "./proxy-env.js";
 import { stubChannels } from "./stub-channels.js";
@@ -73,7 +74,7 @@ import { RendererPersistenceService } from "./persistence/renderer-persistence-s
 import { workbenchMediaDeps, workbenchServiceDeps } from "./v3/workbench-deps.js";
 import { identityHeaders } from "./workspace/identity.js";
 
-app.setName("蒜狸小助手");
+app.setName("蒜狸设计工作台");
 // 开发 / 验证时把 userData 指到临时目录，免得碰到真实的全局存储和迁移标记
 if (process.env.OV_USER_DATA_DIR) app.setPath("userData", path.resolve(process.env.OV_USER_DATA_DIR));
 registerAppScheme();
@@ -144,6 +145,11 @@ async function boot(): Promise<Running | undefined> {
   const gatewayEntry = roots.resources
     ? path.join(roots.resources, "gateway/dist/main.js")
     : path.join(roots.repoRoot!, "app/gateway/dist/main.js");
+  // 产品改名（蒜狸小助手 → 蒜狸设计工作台）后的一次性迁移，必须早于任何读写。
+  const migration = migrateRenamedDirs({ home: homedir(), userData: dirs.userData, log });
+  for (const item of migration.moved) log(`[main] 改名迁移：${item.from} → ${item.to}`);
+  for (const item of migration.skipped) log(`[main] 改名迁移跳过：${item.from}（${item.reason}）`);
+
   log(`[main] userData=${dirs.userData} projects=${dirs.projectsRoot} hub=${dirs.hubRoot}`);
 
   // 自带技能铺到 opencode 加载的目录。要在任何工作区起 opencode 之前做完，否则第一个会话看不到技能。
