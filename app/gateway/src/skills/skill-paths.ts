@@ -30,7 +30,7 @@ export function userSkillsDir(): string {
   if (env) return env;
   const custom = process.env.HILO_DATA_DIR?.trim();
   if (custom) return path.join(custom, "user-skills");
-  return path.join(homedir(), "Movies", "蒜狸小助手", "skills");
+  return path.join(homedir(), "Movies", "蒜狸设计工作台", "skills");
 }
 
 /** 扫描顺序 user > installed > EXTRA_SKILLS_DIRS，同名先到先得。 */

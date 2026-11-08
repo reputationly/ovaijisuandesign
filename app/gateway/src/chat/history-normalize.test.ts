@@ -8,7 +8,7 @@ import { collectTaskChildSessionIds, convertOpenCodeMessages, parseAttachmentPre
  * 历史就被解析成 0 条 —— 表现是重启后聊天面板空白。这组测试锁住压平后的帧形状。
  */
 
-const DIR = "/Users/me/Movies/蒜狸小助手/Projects/demo";
+const DIR = "/Users/me/Movies/蒜狸设计工作台/Projects/demo";
 
 function userMsg(id: string, text: string, created = 1): RawMessage {
   return { info: { id, role: "user", sessionID: "ses_root", time: { created } }, parts: [{ type: "text", text }] };
