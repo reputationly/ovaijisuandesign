@@ -33,7 +33,7 @@ publish:
   url: https://REPLACE-ME.invalid/app
 
 appId: com.ovaijisuan.design
-productName: 蒜狸设计工作台
+productName: 蒜狸设计台
 
 directories:
   output: dist-electron

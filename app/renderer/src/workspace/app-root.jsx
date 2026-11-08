@@ -836,7 +836,7 @@ function TopbarContent({ onFullScreenChange, onAppControlsInsetChange }) {
               height: "env(titlebar-area-height, 100%)",
             }}
           >
-            <span className="shrink-0">蒜狸设计工作台</span>
+            <span className="shrink-0">蒜狸设计台</span>
             <HomeMenuButton />
           </div>
         ) : null}

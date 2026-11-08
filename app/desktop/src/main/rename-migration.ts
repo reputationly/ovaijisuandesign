@@ -1,7 +1,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-import { APP_DIR_NAME, LEGACY_APP_DIR_NAME } from "./roots.js";
+import { APP_DIR_NAME, LEGACY_APP_DIR_NAMES } from "./roots.js";
 
 export interface RenameReport {
   /** 实际搬过去的条目（from/to/how）。 */
@@ -10,7 +10,7 @@ export interface RenameReport {
 }
 
 /**
- * 产品改名（蒜狸小助手 → 蒜狸设计工作台）后的一次性迁移。
+ * 产品改名（蒜狸小助手 → 蒜狸设计台）后的一次性迁移。
  *
  * 要动两处，否则用户看到的是"配置丢了 / 项目不见了"：
  * 1. `~/Movies/蒜狸小助手`（数据根：Projects/、skills/）
@@ -26,16 +26,17 @@ export interface RenameReport {
  */
 export function migrateRenamedDirs(opts: {
   home: string;
-  /** 旧 userData（`<appData>/蒜狸小助手`）。由调用方用 appData 拼，避免提前创建新目录。 */
-  legacyUserData?: string;
-  /** 新 userData（`<appData>/蒜狸设计工作台`）。 */
+  /** appData 根（`~/Library/Application Support`）。旧 userData 由它 + 历史目录名拼出来。 */
+  appData?: string;
+  /** 新 userData（`<appData>/蒜狸设计台`）。 */
   userData: string;
 }): RenameReport {
   const report: RenameReport = { merged: [], skipped: [] };
-  const pairs: [string, string][] = [
-    [path.join(opts.home, "Movies", LEGACY_APP_DIR_NAME), path.join(opts.home, "Movies", APP_DIR_NAME)],
-  ];
-  if (opts.legacyUserData) pairs.push([opts.legacyUserData, opts.userData]);
+  const pairs: [string, string][] = [];
+  for (const legacy of LEGACY_APP_DIR_NAMES) {
+    pairs.push([path.join(opts.home, "Movies", legacy), path.join(opts.home, "Movies", APP_DIR_NAME)]);
+    if (opts.appData) pairs.push([path.join(opts.appData, legacy), opts.userData]);
+  }
 
   for (const [from, to] of pairs) {
     if (from === to) continue;

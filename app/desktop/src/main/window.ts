@@ -42,7 +42,7 @@ export function createMainWindow(a: WindowArgs): BrowserWindow {
     minHeight: 600,
     show: false,
     backgroundColor: "#fafafa",
-    title: "蒜狸设计工作台",
+    title: "蒜狸设计台",
     ...(process.platform === "darwin"
       ? { titleBarStyle: "hiddenInset" as const, trafficLightPosition: { x: 12, y: 12 } }
       : {}),

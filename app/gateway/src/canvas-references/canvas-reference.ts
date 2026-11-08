@@ -76,5 +76,5 @@ export function projectsRoot(): string {
   const explicit = process.env.HILO_PROJECTS_ROOT?.trim();
   if (explicit) return explicit;
   const custom = process.env.HILO_DATA_DIR?.trim();
-  return path.join(custom || path.join(homedir(), "Movies", "蒜狸设计工作台"), "Projects");
+  return path.join(custom || path.join(homedir(), "Movies", "蒜狸设计台"), "Projects");
 }

@@ -168,11 +168,11 @@ describe("WorkspaceStorage", () => {
 describe("数据根", () => {
   it("默认换了名字，不和另一个应用共用；HILO_DATA_DIR 覆盖", () => {
     const r = resolveRoots({ env: {}, home: "/Users/u", userData: "/ud" });
-    expect(r.projectsRoot).toBe(J("/Users/u/Movies/蒜狸设计工作台/Projects"));
-    expect(r.projectSpacesRoot).toBe(J("/Users/u/Movies/蒜狸设计工作台/Projects/.projects"));
+    expect(r.projectsRoot).toBe(J("/Users/u/Movies/蒜狸设计台/Projects"));
+    expect(r.projectSpacesRoot).toBe(J("/Users/u/Movies/蒜狸设计台/Projects/.projects"));
     expect(r.hubRoot).toBe(J("/Users/u/.ovhub"));
     expect(r.outputDir).toBe(J("/ud/output_files"));
-    expect(r.userSkillsDir).toBe(J("/Users/u/Movies/蒜狸设计工作台/skills"));
+    expect(r.userSkillsDir).toBe(J("/Users/u/Movies/蒜狸设计台/skills"));
     const c = resolveRoots({ env: { HILO_DATA_DIR: "/d" }, home: "/Users/u", userData: "/ud" });
     expect(c.projectsRoot).toBe(J("/d/Projects"));
     expect(c.outputDir).toBe(J("/d/output_files"));
@@ -186,7 +186,7 @@ describe("数据根", () => {
     expect(isForeignAppPath("/Users/u/.hub", "/Users/u")).toBe(true);
     expect(isForeignAppPath("/Users/u/Library/Application Support/@hilo/desktop", "/Users/u")).toBe(true);
     expect(isForeignAppPath("/Users/u/Movies/Hubble", "/Users/u")).toBe(false);
-    expect(isForeignAppPath("/Users/u/Movies/蒜狸设计工作台/Projects/a", "/Users/u")).toBe(false);
+    expect(isForeignAppPath("/Users/u/Movies/蒜狸设计台/Projects/a", "/Users/u")).toBe(false);
   });
 });
 

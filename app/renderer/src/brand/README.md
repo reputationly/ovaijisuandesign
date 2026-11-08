@@ -9,8 +9,8 @@
 
 ## 改品牌名时必须重做子集
 
-原来的子集只含 47 个字形（`蒜狸小助手` 那 5 个字都在）。改成 `蒜狸设计工作台` 后，
-**设 / 工 / 台 三个字不在里面**，浏览器按字回退到系统字体 —— 于是同一行里一半毛笔楷书、
+原来的子集只含 47 个字形（`蒜狸小助手` 那 5 个字都在）。改成 `蒜狸设计台` 后，
+**设 / 台 不在里面**，浏览器按字回退到系统字体 —— 于是同一行里一半毛笔楷书、
 一半黑体，看起来像两种字体拼在一起。
 
 重做步骤：
@@ -22,7 +22,7 @@ pip install brotli
 python3 - <<'PY'
 from fontTools import subset
 from fontTools.ttLib import TTFont
-need = {ord(c) for c in "蒜狸设计工作台"}
+need = {ord(c) for c in "蒜狸设计台"}
 full = TTFont("/tmp/mashanzheng.ttf")
 opts = subset.Options(); opts.flavor = "woff2"; opts.layout_features = ["*"]
 opts.name_IDs = ["*"]; opts.name_legacy = True; opts.name_languages = ["*"]

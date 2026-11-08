@@ -7,9 +7,12 @@
  */
 import path from "node:path";
 
-export const APP_DIR_NAME = "蒜狸设计工作台";
-/** 改名前的目录名。只用于一次性迁移（见 rename-migration.ts），不要再往这里写新路径。 */
-export const LEGACY_APP_DIR_NAME = "蒜狸小助手";
+export const APP_DIR_NAME = "蒜狸设计台";
+/**
+ * 历史目录名，**新的在前**。只用于一次性迁移（见 rename-migration.ts），不要再往这里写新路径。
+ * 产品改过两次名：蒜狸小助手 → 蒜狸设计工作台 → 蒜狸设计台。
+ */
+export const LEGACY_APP_DIR_NAMES = ["蒜狸设计工作台", "蒜狸小助手"] as const;
 
 export interface Roots {
   /** 用户数据根：放 `Projects/`、`output_files/`。HILO_DATA_DIR 可覆盖。 */

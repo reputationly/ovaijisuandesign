@@ -74,7 +74,7 @@ function useWindowTitleSync(entries, currentWorkspaceId, platform) {
     const active = entries.find(
       (entry) => entry.workspaceId === currentWorkspaceId,
     );
-    const title = active ? `${active.projectName} - 蒜狸设计工作台` : "蒜狸设计工作台";
+    const title = active ? `${active.projectName} - 蒜狸设计台` : "蒜狸设计台";
     platform.window.setTitle(title);
   }, [currentWorkspaceId, entries, platform.window]);
 }

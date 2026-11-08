@@ -30,7 +30,7 @@ export const PATCHES = [
     file: "index.html",
     find: "<title>MiniMax Design V3</title>",
     // 官方标题；宿主用独立窗口时这一行就是窗口标题。
-    replace: "<title>蒜狸设计工作台</title>",
+    replace: "<title>蒜狸设计台</title>",
     count: 1,
     why:
       "品牌替换。4.0.4 的 v3 产物里 `MiniMax Design` 只出现这 1 次；" +

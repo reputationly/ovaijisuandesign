@@ -49,7 +49,7 @@ import { WorkspaceStorageRegistry } from "./storage/workspace-store.js";
 import { createSkillExportService } from "./skills/export.js";
 import { locateBundledSkills, seedBundledSkills } from "./skills/seed.js";
 import { migrateRenamedDirs } from "./rename-migration.js";
-import { APP_DIR_NAME, LEGACY_APP_DIR_NAME } from "./roots.js";
+import { APP_DIR_NAME } from "./roots.js";
 import { locateBundledVoicePresets, seedVoicePresets } from "./voice-presets.js";
 import { childProxyEnv, electronProxyMode, normalizeProxyMode } from "./proxy-env.js";
 import { stubChannels } from "./stub-channels.js";
@@ -75,7 +75,7 @@ import { RendererPersistenceService } from "./persistence/renderer-persistence-s
 import { workbenchMediaDeps, workbenchServiceDeps } from "./v3/workbench-deps.js";
 import { identityHeaders } from "./workspace/identity.js";
 
-app.setName("蒜狸设计工作台");
+app.setName("蒜狸设计台");
 // 开发 / 验证时把 userData 指到临时目录，免得碰到真实的全局存储和迁移标记
 if (process.env.OV_USER_DATA_DIR) app.setPath("userData", path.resolve(process.env.OV_USER_DATA_DIR));
 registerAppScheme();
@@ -145,7 +145,7 @@ async function boot(): Promise<Running | undefined> {
   const appData = app.getPath("appData");
   const migration = migrateRenamedDirs({
     home: homedir(),
-    legacyUserData: path.join(appData, LEGACY_APP_DIR_NAME),
+    appData,
     userData: path.join(appData, APP_DIR_NAME),
   });
 

@@ -54,7 +54,7 @@ function isSafeFolderName(name: string): boolean {
 /** 项目空间的根：`<数据根>/Projects/.projects`，和主进程的规则一致（HILO_DATA_DIR 可覆盖数据根）。 */
 export function projectSpacesRoot(): string {
   const custom = process.env.HILO_DATA_DIR?.trim();
-  return path.join(custom || path.join(homedir(), "Movies", "蒜狸设计工作台"), "Projects", ".projects");
+  return path.join(custom || path.join(homedir(), "Movies", "蒜狸设计台"), "Projects", ".projects");
 }
 
 /**

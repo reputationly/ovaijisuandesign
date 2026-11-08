@@ -5,20 +5,23 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { migrateRenamedDirs } from "./rename-migration.js";
-import { APP_DIR_NAME, LEGACY_APP_DIR_NAME } from "./roots.js";
+import { APP_DIR_NAME, LEGACY_APP_DIR_NAMES } from "./roots.js";
 
-describe("改名迁移：蒜狸小助手 → 蒜狸设计工作台", () => {
+/** 最早的那个历史名（迁移链的起点）。 */
+const LEGACY = LEGACY_APP_DIR_NAMES[LEGACY_APP_DIR_NAMES.length - 1]!;
+
+describe("改名迁移：蒜狸小助手 → 蒜狸设计台", () => {
   it("把数据根和 userData 一起搬到新名字下，内容原样", () => {
     const home = mkdtempSync(path.join(tmpdir(), "ov-rename-"));
-    const oldRoot = path.join(home, "Movies", LEGACY_APP_DIR_NAME);
+    const oldRoot = path.join(home, "Movies", LEGACY);
     mkdirSync(path.join(oldRoot, "Projects", "demo"), { recursive: true });
     writeFileSync(path.join(oldRoot, "Projects", "demo", "a.txt"), "hello", "utf8");
-    const oldUserData = path.join(home, "Application Support", LEGACY_APP_DIR_NAME);
+    const oldUserData = path.join(home, "Application Support", LEGACY);
     mkdirSync(oldUserData, { recursive: true });
     writeFileSync(path.join(oldUserData, "config.json"), "{}", "utf8");
     const userData = path.join(home, "Application Support", APP_DIR_NAME);
 
-    const report = migrateRenamedDirs({ home, legacyUserData: oldUserData, userData });
+    const report = migrateRenamedDirs({ home, appData: path.join(home, "Application Support"), userData });
 
     expect(report.merged.length).toBeGreaterThanOrEqual(2);
     expect(readFileSync(path.join(home, "Movies", APP_DIR_NAME, "Projects", "demo", "a.txt"), "utf8")).toBe("hello");
@@ -29,7 +32,7 @@ describe("改名迁移：蒜狸小助手 → 蒜狸设计工作台", () => {
 
   it("两边都有同名文件时保留 mtime 更新的那份（旧目录不会盖掉新配置）", () => {
     const home = mkdtempSync(path.join(tmpdir(), "ov-rename-"));
-    const oldRoot = path.join(home, "Movies", LEGACY_APP_DIR_NAME);
+    const oldRoot = path.join(home, "Movies", LEGACY);
     const newRoot = path.join(home, "Movies", APP_DIR_NAME);
     mkdirSync(oldRoot, { recursive: true });
     mkdirSync(newRoot, { recursive: true });
