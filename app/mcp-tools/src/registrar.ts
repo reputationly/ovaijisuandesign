@@ -548,6 +548,56 @@ function normalizeCompositionEditArgs(args: Record<string, unknown>): Record<str
     delete normalized.memberId;
     delete normalized.clientMemberKey;
   }
+  // **operations 里再包一层成员数组**（真机 5 次）：模型写成
+  //   {action:"update", compositionId, expectedRevision, addMembers:[{resourceId,role}]}
+  //   {action:"add_members", compositionId, expectedRevision, members:[...]}
+  // 而 schema 要的是每个成员一条 `{action:"add_member", clientMemberKey, role, resourceId}`，
+  // compositionId / expectedRevision 属于顶层。这里展开并把公共字段提到顶层。
+  if (Array.isArray(normalized.operations)) {
+    const expanded: Record<string, unknown>[] = [];
+    for (const raw of normalized.operations as Record<string, unknown>[]) {
+      if (!raw || typeof raw !== "object") continue;
+      const op = { ...raw };
+      for (const key of ["compositionId", "expectedRevision"] as const) {
+        if (op[key] !== undefined) {
+          if (normalized[key] === undefined) normalized[key] = op[key];
+          delete op[key];
+        }
+      }
+      const buckets: { field: string; action: string }[] = [
+        { field: "addMembers", action: "add_member" },
+        { field: "members", action: "add_member" },
+        { field: "removeMembers", action: "remove_member" },
+        { field: "updateMembers", action: "update_member" },
+      ];
+      let handled = false;
+      for (const { field, action } of buckets) {
+        const list = op[field];
+        if (!Array.isArray(list)) continue;
+        for (const member of list as Record<string, unknown>[]) {
+          expanded.push({ action, ...member });
+        }
+        delete op[field];
+        handled = true;
+      }
+      const action = typeof op.action === "string" ? op.action : "";
+      const PLURAL: Record<string, string> = { add_members: "add_member", remove_members: "remove_member", update_members: "update_member" };
+      if (PLURAL[action]) op.action = PLURAL[action];
+      // `action:"update"` 只是"要改成员"的外壳，本身不是合法操作。
+      if (op.action === "update" || (handled && !op.action)) {
+        if (Object.keys(op).length > (op.action === "update" ? 1 : 0)) {
+          const { action: _drop, ...rest } = op;
+          if (Object.keys(rest).length > 0) expanded.push({ action: "add_member", ...rest });
+        }
+        continue;
+      }
+      if (Object.keys(op).length > 0) expanded.push(op);
+    }
+    if (expanded.length > 0) {
+      normalized.operations = expanded;
+      if (normalized.action === undefined) normalized.action = "update";
+    }
+  }
   // `update` + `members:[{resourceId,role}]` → operations
   if (normalized.action === "update" && normalized.operations === undefined && Array.isArray(normalized.members)) {
     normalized.operations = (normalized.members as Record<string, unknown>[]).map((member) => ({

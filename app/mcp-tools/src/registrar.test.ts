@@ -570,3 +570,26 @@ describe("最后一批形状兜底（真机 14 次失败）", () => {
     expect(seen[0]!.queries).toEqual(["拼接", "封面"]);
   });
 });
+
+describe("composition_edit：operations 里再包成员数组（真机 5 次）", () => {
+  it("action=update + addMembers 展开成 add_member，公共字段提到顶层", async () => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("composition_edit", {
+      description: "t",
+      inputSchema: {
+        action: z.enum(["ensure", "update"]),
+        compositionId: z.string().optional(),
+        expectedRevision: z.number().optional(),
+        operations: z.array(z.object({ action: z.literal("add_member"), resourceId: z.string().optional(), role: z.string().optional(), clientMemberKey: z.string().optional() })).min(1),
+      },
+    }, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("composition_edit", {
+      action: "update",
+      operations: [{ action: "update", compositionId: "cmp_1", expectedRevision: 26, addMembers: [{ clientMemberKey: "doc", resourceId: "res_1", role: "分镜与口播" }] }],
+    });
+    expect(seen[0]!.compositionId).toBe("cmp_1");
+    expect(seen[0]!.expectedRevision).toBe(26);
+    expect(seen[0]!.operations).toEqual([{ action: "add_member", clientMemberKey: "doc", resourceId: "res_1", role: "分镜与口播" }]);
+  });
+});

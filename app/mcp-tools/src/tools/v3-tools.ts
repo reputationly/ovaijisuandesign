@@ -61,6 +61,10 @@ function readFailure(target: string, result: Record<string, unknown>): string {
             : "read returns text files and directories only; inspect media with design_analyse_media or design_resource_preview.";
   return `${target}: ${message}${detail}`;
 }
+/** task_wait 默认最长等 15 分钟（2K 视频 + 超分常见 8–12 分钟），每 4 秒查一次。 */
+const TASK_WAIT_MS = Number(process.env.OV_TASK_WAIT_MS ?? 900_000);
+const TASK_WAIT_POLL_MS = 4_000;
+
 const TIMEOUT_MS = 30_000;
 
 const TASK_STATUS = z.enum(["accepted", "running", "waiting_user", "unknown", "completed", "failed", "cancelled"]);
@@ -767,8 +771,26 @@ export const registerV3Tools: RegisterTools = (registrar, gw) => {
     async (args: V3Args<"task_wait">) => {
       try {
         // 我们还没有长轮询端点；先返回当前快照并标注未阻塞，避免假装等待。
-        const task = await gw.get(`/api/v3/tasks/${encodeURIComponent(args.taskId)}`, TIMEOUT_MS, z.unknown());
-        return structuredReply({ task, waited: false, reason: "long-poll endpoint not implemented" });
+        // **必须真的等**：以前这里只 GET 一次就回 `{waited:false}`，模型以为等过了，
+        // 于是"两段视频正在生成"就结束回合 —— 成片永远等不到（真机 10:29 就是这样收尾的）。
+        // 现在轮询到终态（completed / failed / cancelled / waiting_user / unknown）或超时。
+        const TERMINAL = new Set(["completed", "failed", "cancelled", "waiting_user", "unknown"]);
+        const deadline = Date.now() + TASK_WAIT_MS;
+        let last: Record<string, unknown> = {};
+        let polls = 0;
+        for (;;) {
+          last = (await gw.get(`/api/v3/tasks/${encodeURIComponent(args.taskId)}`, TIMEOUT_MS, z.unknown())) as Record<string, unknown>;
+          polls += 1;
+          const view = (last.task ?? last) as Record<string, unknown>;
+          const status = typeof view.status === "string" ? view.status : "";
+          if (TERMINAL.has(status)) {
+            return structuredReply({ task: last.task ?? last, waited: true, polls, status });
+          }
+          if (Date.now() >= deadline) {
+            return structuredReply({ task: last.task ?? last, waited: true, polls, timedOut: true, status: status || "running" });
+          }
+          await new Promise((resolve) => setTimeout(resolve, TASK_WAIT_POLL_MS));
+        }
       } catch (error) {
         return errorReply(`task_wait 失败：${errorMessage(error)}`);
       }
