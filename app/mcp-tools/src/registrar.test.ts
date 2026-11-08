@@ -593,3 +593,35 @@ describe("composition_edit：operations 里再包成员数组（真机 5 次）"
     expect(seen[0]!.operations).toEqual([{ action: "add_member", clientMemberKey: "doc", resourceId: "res_1", role: "分镜与口播" }]);
   });
 });
+
+describe("composition_edit：真机记录到的 8 种 operations 形态", () => {
+  const shapes: Record<string, unknown>[] = [
+    { operations: [{ op: "add_members", members: [{ clientMemberKey: "sb30", role: "分镜", resourceId: "res_1" }] }] },
+    { operations: [{ op: "update", add: [{ clientMemberKey: "sb", role: "分镜", resourceId: "res_1" }] }] },
+    { operations: [{ type: "update", members: [{ clientMemberKey: "sb", role: "分镜", resourceId: "res_1" }] }] },
+    { operations: [{ type: "update", add: [{ clientMemberKey: "sb30", role: "分镜", resourceId: "res_1" }] }] },
+    { operations: [{ op: "move", memberId: "mem_1", position: 0 }] },
+    { operations: [{ op: "move", move: { memberId: "mem_1", position: 0 } }] },
+    { operations: [{ op: "rename", name: "新名字" }] },
+    { operations: [{ op: "set_attributes", attributes: [{ key: "画幅", value: "9:16" }] }] },
+  ];
+  it.each(shapes.map((shape, index) => [index, shape] as const))("形态 %i 能归一成合法入参", async (_index, shape) => {
+    const h = createHarness();
+    const seen: Record<string, unknown>[] = [];
+    h.registrar.registerTool("composition_edit", {
+      description: "t",
+      inputSchema: {
+        action: z.enum(["ensure", "update", "rename", "set_attributes", "move", "batch"]),
+        compositionId: z.string().optional(),
+        expectedRevision: z.number().optional(),
+        name: z.string().optional(),
+        attributes: z.record(z.string(), z.string()).optional(),
+        memberId: z.string().optional(),
+        position: z.number().optional(),
+        operations: z.array(z.object({ action: z.enum(["add_member", "remove_member", "update_member"]), resourceId: z.string().optional(), role: z.string().optional(), clientMemberKey: z.string().optional() })).optional(),
+      },
+    }, async (args) => { seen.push(args as Record<string, unknown>); return structuredReply({ ok: true }); });
+    await h.call("composition_edit", { compositionId: "cmp_1", expectedRevision: 1, ...shape });
+    expect(seen).toHaveLength(1);
+  });
+});

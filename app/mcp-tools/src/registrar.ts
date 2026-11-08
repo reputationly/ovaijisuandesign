@@ -522,113 +522,117 @@ function normalizeCompositionEditArgs(args: Record<string, unknown>): Record<str
       const record = value as Record<string, unknown>;
       const next: Record<string, unknown> = {};
       for (const [key, entry] of Object.entries(record)) {
-        if (key === "op" && record.action === undefined) continue;
+        if ((key === "op" || key === "type") && record.action === undefined) continue;
         next[key] = walk(entry);
       }
       if (record.action === undefined && typeof record.op === "string") next.action = record.op;
-      if (record.action === undefined && typeof record.operation === "string") next.action = record.operation;
+      if (record.action === undefined && typeof record.type === "string") next.action = record.type;
       return next;
     }
     return value;
   };
   const normalized = walk(args) as Record<string, unknown>;
-  // `action` 缺省时按形状推断：有 commands → batch；有 operations/members → update。
-  if (normalized.action === undefined) {
-    if (Array.isArray(normalized.commands)) normalized.action = "batch";
-    else if (Array.isArray(normalized.operations) || Array.isArray(normalized.members)) normalized.action = "update";
-  }
-  // 模型会把成员操作当成顶层动作（`action:"add_member"` + resourceId/role）。
-  const MEMBER_OPS = ["add_member", "remove_member", "update_member"];
-  if (typeof normalized.action === "string" && MEMBER_OPS.includes(normalized.action)) {
-    const { action, ...rest } = normalized;
-    normalized.operations = [{ action, ...rest }];
-    normalized.action = "update";
-    delete normalized.resourceId;
-    delete normalized.role;
-    delete normalized.memberId;
-    delete normalized.clientMemberKey;
-  }
-  // **operations 里再包一层成员数组**（真机 5 次）：模型写成
-  //   {action:"update", compositionId, expectedRevision, addMembers:[{resourceId,role}]}
-  //   {action:"add_members", compositionId, expectedRevision, members:[...]}
-  // 而 schema 要的是每个成员一条 `{action:"add_member", clientMemberKey, role, resourceId}`，
-  // compositionId / expectedRevision 属于顶层。这里展开并把公共字段提到顶层。
-  if (Array.isArray(normalized.operations)) {
-    const expanded: Record<string, unknown>[] = [];
-    for (const raw of normalized.operations as Record<string, unknown>[]) {
-      if (!raw || typeof raw !== "object") continue;
-      const op = { ...raw };
-      for (const key of ["compositionId", "expectedRevision"] as const) {
-        if (op[key] !== undefined) {
-          if (normalized[key] === undefined) normalized[key] = op[key];
-          delete op[key];
+
+  /** 顶层动作：不能出现在 operations 里。 */
+  const TOP_ACTIONS = new Set(["ensure", "rename", "set_attributes", "move", "duplicate", "batch"]);
+  const MEMBER_ACTIONS: Record<string, string> = {
+    add_member: "add_member",
+    add_members: "add_member",
+    remove_member: "remove_member",
+    remove_members: "remove_member",
+    update_member: "update_member",
+    update_members: "update_member",
+  };
+  /** 成员数组可能叫这些名字。 */
+  const MEMBER_BUCKETS = ["members", "addMembers", "add_members", "add", "removeMembers", "updateMembers"];
+
+  const hoist = (source: Record<string, unknown>, skip: string[]) => {
+    for (const [key, value] of Object.entries(source)) {
+      if (skip.includes(key)) continue;
+      if (key === "attributes" && Array.isArray(value)) {
+        const bag: Record<string, string> = {};
+        for (const entry of value as Record<string, unknown>[]) {
+          if (entry && typeof entry.key === "string") bag[entry.key] = String(entry.value ?? "");
         }
-      }
-      const buckets: { field: string; action: string }[] = [
-        { field: "addMembers", action: "add_member" },
-        { field: "members", action: "add_member" },
-        { field: "removeMembers", action: "remove_member" },
-        { field: "updateMembers", action: "update_member" },
-      ];
-      let handled = false;
-      for (const { field, action } of buckets) {
-        const list = op[field];
-        if (!Array.isArray(list)) continue;
-        for (const member of list as Record<string, unknown>[]) {
-          expanded.push({ action, ...member });
-        }
-        delete op[field];
-        handled = true;
-      }
-      const action = typeof op.action === "string" ? op.action : "";
-      // **顶层动作被写进 operations**（真机 4 次）：`{operations:[{op:"rename",name}]}`、
-      // `{operations:[{op:"set_attributes",attributes:[{key,value}]}]}`。
-      // operations 只接受成员级操作，这些必须提到顶层。
-      if (["rename", "set_attributes", "ensure", "move", "duplicate", "batch"].includes(action)) {
-        if (normalized.action === undefined) normalized.action = action;
-        for (const [key, value] of Object.entries(op)) {
-          if (key === "action") continue;
-          if (key === "attributes" && Array.isArray(value)) {
-            // attributes 被写成 [{key,value}] 数组 → 转成对象。
-            const bag: Record<string, string> = {};
-            for (const entry of value as Record<string, unknown>[]) {
-              if (entry && typeof entry.key === "string") bag[entry.key] = String(entry.value ?? "");
-            }
-            if (normalized.attributes === undefined) normalized.attributes = bag;
-            continue;
-          }
-          if (normalized[key] === undefined) normalized[key] = value;
-        }
+        if (normalized.attributes === undefined) normalized.attributes = bag;
         continue;
       }
-      const PLURAL: Record<string, string> = { add_members: "add_member", remove_members: "remove_member", update_members: "update_member" };
-      if (PLURAL[action]) op.action = PLURAL[action];
-      // `action:"update"` 只是"要改成员"的外壳，本身不是合法操作。
-      if (op.action === "update" || (handled && !op.action)) {
-        if (Object.keys(op).length > (op.action === "update" ? 1 : 0)) {
-          const { action: _drop, ...rest } = op;
-          if (Object.keys(rest).length > 0) expanded.push({ action: "add_member", ...rest });
-        }
-        continue;
-      }
-      if (Object.keys(op).length > 0) expanded.push(op);
+      if (normalized[key] === undefined) normalized[key] = value;
     }
-    if (expanded.length > 0) {
-      normalized.operations = expanded;
-      if (normalized.action === undefined) normalized.action = "update";
-    }
+  };
+
+  // 顶层 `ensure:{type,name}` 形态
+  const ensure = normalized.ensure;
+  if (ensure && typeof ensure === "object" && !Array.isArray(ensure)) {
+    if (normalized.action === undefined) normalized.action = "ensure";
+    hoist(ensure as Record<string, unknown>, []);
+    delete normalized.ensure;
   }
-  // `update` + `members:[{resourceId,role}]` → operations
-  if (normalized.action === "update" && normalized.operations === undefined && Array.isArray(normalized.members)) {
-    normalized.operations = (normalized.members as Record<string, unknown>[]).map((member) => ({
-      action: "add_member",
-      ...member,
-    }));
+  if (Array.isArray(normalized.members) && normalized.operations === undefined) {
+    normalized.operations = normalized.members;
     delete normalized.members;
   }
-  // `update` 却给了 action 字符串枚举之外的值时，退回 ensure（网关按 type 找/建组合）。
-  if (normalized.action === "update" && normalized.operations === undefined && normalized.members === undefined && normalized.type === undefined) {
-    delete normalized.action;
+  if (normalized.action === undefined) {
+    if (Array.isArray(normalized.commands)) normalized.action = "batch";
+    else if (Array.isArray(normalized.operations)) normalized.action = "update";
+  }
+
+  // 顶层直接写成员动作（`action:"add_member"` + resourceId/role）→ 收进 operations。
+  if (typeof normalized.action === "string" && MEMBER_ACTIONS[normalized.action]) {
+    const mapped = MEMBER_ACTIONS[normalized.action]!;
+    const rest = { ...normalized };
+    delete rest.action;
+    delete rest.operations;
+    normalized.operations = [{ action: mapped, ...rest }];
+    for (const key of Object.keys(rest)) delete normalized[key];
+    normalized.action = "update";
+  }
+
+  const rawOps = Array.isArray(normalized.operations) ? (normalized.operations as unknown[]) : [];
+  const memberOps: Record<string, unknown>[] = [];
+  for (const item of rawOps) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+    const op = item as Record<string, unknown>;
+    const action = typeof op.action === "string" ? op.action : "";
+    // 公共字段属于顶层
+    for (const key of ["compositionId", "expectedRevision"] as const) {
+      if (op[key] !== undefined) {
+        if (normalized[key] === undefined) normalized[key] = op[key];
+        delete op[key];
+      }
+    }
+    // 嵌套 `move:{...}` 形态
+    if (action === "move" && op.move && typeof op.move === "object") {
+      hoist({ ...(op.move as Record<string, unknown>) }, []);
+      continue;
+    }
+    if (TOP_ACTIONS.has(action)) {
+      hoist(op, ["action"]);
+      continue;
+    }
+    // 成员数组：无论叫 members / addMembers / add / add_members
+    let expanded = false;
+    for (const bucket of MEMBER_BUCKETS) {
+      const list = op[bucket];
+      if (!Array.isArray(list)) continue;
+      const target = bucket.toLowerCase().includes("remove") ? "remove_member" : bucket.toLowerCase().includes("update_member") ? "update_member" : "add_member";
+      for (const member of list as Record<string, unknown>[]) memberOps.push({ action: target, ...member });
+      delete op[bucket];
+      expanded = true;
+    }
+    const mapped = MEMBER_ACTIONS[action];
+    const rest = { ...op };
+    delete rest.action;
+    if (mapped && Object.keys(rest).length > 0) memberOps.push({ action: mapped, ...rest });
+    // `action:"update"` 只是外壳，本身不是合法操作；展开完就丢掉。
+    if (!mapped && !expanded && action !== "update" && Object.keys(rest).length > 0) {
+      memberOps.push({ action: "add_member", ...rest });
+    }
+  }
+  if (rawOps.length > 0) {
+    if (memberOps.length > 0) normalized.operations = memberOps;
+    else delete normalized.operations;
+    if (normalized.action === undefined) normalized.action = "update";
   }
   return normalized;
 }
